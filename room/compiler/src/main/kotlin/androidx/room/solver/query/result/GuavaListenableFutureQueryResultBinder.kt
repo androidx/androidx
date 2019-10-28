@@ -16,11 +16,13 @@
 
 package androidx.room.solver.query.result
 
+import androidx.room.ext.AndroidTypeNames
 import androidx.room.ext.L
 import androidx.room.ext.N
 import androidx.room.ext.RoomGuavaTypeNames
 import androidx.room.ext.T
 import androidx.room.ext.CallableTypeSpecBuilder
+import androidx.room.ext.RoomTypeNames
 import androidx.room.ext.typeName
 import androidx.room.solver.CodeGenScope
 import com.squareup.javapoet.FieldSpec
@@ -43,6 +45,14 @@ class GuavaListenableFutureQueryResultBinder(
         inTransaction: Boolean,
         scope: CodeGenScope
     ) {
+        val cancellationSignalVar = scope.getTmpVar("_cancellationSignal")
+        scope.builder().addStatement(
+            "final $T $L = $T.createCancellationSignal()",
+            AndroidTypeNames.CANCELLATION_SIGNAL,
+            cancellationSignalVar,
+            RoomTypeNames.DB_UTIL
+        )
+
         // Callable<T> // Note that this callable does not release the query object.
         val callableImpl = CallableTypeSpecBuilder(typeArg.typeName()) {
             createRunQueryAndReturnStatements(
@@ -50,19 +60,21 @@ class GuavaListenableFutureQueryResultBinder(
                 roomSQLiteQueryVar = roomSQLiteQueryVar,
                 dbField = dbField,
                 inTransaction = inTransaction,
-                scope = scope
+                scope = scope,
+                cancellationSignalVar = cancellationSignalVar
             )
         }.build()
 
         scope.builder().apply {
             addStatement(
-                "return $T.createListenableFuture($N, $L, $L, $L, $L)",
+                "return $T.createListenableFuture($N, $L, $L, $L, $L, $L)",
                 RoomGuavaTypeNames.GUAVA_ROOM,
                 dbField,
                 if (inTransaction) "true" else "false",
                 callableImpl,
                 roomSQLiteQueryVar,
-                canReleaseQuery
+                canReleaseQuery,
+                cancellationSignalVar
             )
         }
     }

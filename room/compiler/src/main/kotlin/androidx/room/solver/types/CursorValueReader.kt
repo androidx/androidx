@@ -27,6 +27,10 @@ import javax.lang.model.type.TypeMirror
 interface CursorValueReader {
     fun affinity(): SQLTypeAffinity
     fun typeMirror(): TypeMirror
-    fun readFromCursor(outVarName: String, cursorVarName: String, indexVarName: String,
-                                scope: CodeGenScope)
+    fun readFromCursor(
+        outVarName: String,
+        cursorVarName: String,
+        indexVarName: String,
+        scope: CodeGenScope
+    )
 }

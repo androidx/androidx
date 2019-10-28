@@ -1,0 +1,21 @@
+// Baseline format: 1.0
+AddedAbstractMethod: androidx.preference.DialogPreference.TargetFragment#findPreference(CharSequence):
+    Added method androidx.preference.DialogPreference.TargetFragment.findPreference(CharSequence)
+AddedAbstractMethod: androidx.preference.PreferenceDialogFragment#onDialogClosed(boolean):
+    Added method androidx.preference.PreferenceDialogFragment.onDialogClosed(boolean)
+AddedAbstractMethod: androidx.preference.PreferenceDialogFragmentCompat#onDialogClosed(boolean):
+    Added method androidx.preference.PreferenceDialogFragmentCompat.onDialogClosed(boolean)
+AddedAbstractMethod: androidx.preference.PreferenceFragment#onCreatePreferences(android.os.Bundle, String):
+    Added method androidx.preference.PreferenceFragment.onCreatePreferences(android.os.Bundle,String)
+AddedAbstractMethod: androidx.preference.PreferenceFragmentCompat#onCreatePreferences(android.os.Bundle, String):
+    Added method androidx.preference.PreferenceFragmentCompat.onCreatePreferences(android.os.Bundle,String)
+AddedAbstractMethod: androidx.preference.PreferenceGroup.PreferencePositionCallback#getPreferenceAdapterPosition(String):
+    Added method androidx.preference.PreferenceGroup.PreferencePositionCallback.getPreferenceAdapterPosition(String)
+AddedAbstractMethod: androidx.preference.PreferenceGroup.PreferencePositionCallback#getPreferenceAdapterPosition(androidx.preference.Preference):
+    Added method androidx.preference.PreferenceGroup.PreferencePositionCallback.getPreferenceAdapterPosition(androidx.preference.Preference)
+AddedAbstractMethod: androidx.preference.PreferenceManager.OnDisplayPreferenceDialogListener#onDisplayPreferenceDialog(androidx.preference.Preference):
+    Added method androidx.preference.PreferenceManager.OnDisplayPreferenceDialogListener.onDisplayPreferenceDialog(androidx.preference.Preference)
+AddedAbstractMethod: androidx.preference.PreferenceManager.OnNavigateToScreenListener#onNavigateToScreen(androidx.preference.PreferenceScreen):
+    Added method androidx.preference.PreferenceManager.OnNavigateToScreenListener.onNavigateToScreen(androidx.preference.PreferenceScreen)
+AddedAbstractMethod: androidx.preference.PreferenceManager.OnPreferenceTreeClickListener#onPreferenceTreeClick(androidx.preference.Preference):
+    Added method androidx.preference.PreferenceManager.OnPreferenceTreeClickListener.onPreferenceTreeClick(androidx.preference.Preference)

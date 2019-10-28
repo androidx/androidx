@@ -29,6 +29,7 @@ import static org.junit.Assert.fail;
 
 import android.content.ComponentName;
 import android.content.Context;
+import android.media.MediaFormat;
 import android.os.Bundle;
 import android.os.Handler;
 import android.os.Looper;
@@ -38,6 +39,7 @@ import androidx.core.util.ObjectsCompat;
 import androidx.media2.common.FileMediaItem;
 import androidx.media2.common.MediaItem;
 import androidx.media2.common.MediaMetadata;
+import androidx.media2.common.SessionPlayer;
 import androidx.media2.session.MediaLibraryService.LibraryParams;
 
 import java.util.ArrayList;
@@ -199,6 +201,23 @@ public final class TestUtils {
      */
     public static MediaItem createMediaItem(String mediaId) {
         return new MediaItem.Builder().setMetadata(createMetadata(mediaId, 0)).build();
+    }
+
+    public static List<SessionPlayer.TrackInfo> createTrackInfoList() {
+        List<SessionPlayer.TrackInfo> list = new ArrayList<>();
+        list.add(createTrackInfo(0, SessionPlayer.TrackInfo.MEDIA_TRACK_TYPE_VIDEO));
+        list.add(createTrackInfo(1, SessionPlayer.TrackInfo.MEDIA_TRACK_TYPE_AUDIO));
+        list.add(createTrackInfo(2, SessionPlayer.TrackInfo.MEDIA_TRACK_TYPE_SUBTITLE));
+        return list;
+    }
+
+    public static SessionPlayer.TrackInfo createTrackInfo(int trackId, int trackType) {
+        MediaFormat format = new MediaFormat();
+        if (trackType == SessionPlayer.TrackInfo.MEDIA_TRACK_TYPE_SUBTITLE) {
+            format.setString(MediaFormat.KEY_LANGUAGE, "eng");
+            format.setString(MediaFormat.KEY_MIME, "text/cea-608");
+        }
+        return new SessionPlayer.TrackInfo(trackId, trackType, format);
     }
 
     public static LibraryParams createLibraryParams() {

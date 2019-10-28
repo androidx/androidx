@@ -1,0 +1,257 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<issues format="5" by="lint 3.4.0" client="gradle" variant="debug" version="3.4.0">
+
+    <issue
+        id="UnknownNullness"
+        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
+        errorLine1="    public void updateDrawState(TextPaint textPaint) {"
+        errorLine2="                                ~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/text/style/BaselineShiftSpan.java"
+            line="49"
+            column="33"/>
+    </issue>
+
+    <issue
+        id="UnknownNullness"
+        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
+        errorLine1="    public static BoringLayout.Metrics isBoring(CharSequence text, TextPaint paint,"
+        errorLine2="                                                ~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/text/BoringLayoutCompat.java"
+            line="246"
+            column="49"/>
+    </issue>
+
+    <issue
+        id="UnknownNullness"
+        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
+        errorLine1="    public static BoringLayout.Metrics isBoring(CharSequence text, TextPaint paint,"
+        errorLine2="                                                                   ~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/text/BoringLayoutCompat.java"
+            line="246"
+            column="68"/>
+    </issue>
+
+    <issue
+        id="UnknownNullness"
+        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
+        errorLine1="            TextDirectionHeuristic textDir) {"
+        errorLine2="            ~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/text/BoringLayoutCompat.java"
+            line="247"
+            column="13"/>
+    </issue>
+
+    <issue
+        id="UnknownNullness"
+        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
+        errorLine1="    public Object clone() {"
+        errorLine2="           ~~~~~~">
+        <location
+            file="src/main/java/androidx/text/CharSequenceCharacterIterator.java"
+            line="186"
+            column="12"/>
+    </issue>
+
+    <issue
+        id="UnknownNullness"
+        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
+        errorLine1="    public void updateDrawState(TextPaint textPaint) {"
+        errorLine2="                                ~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/text/style/FontFeatureSpan.java"
+            line="45"
+            column="33"/>
+    </issue>
+
+    <issue
+        id="UnknownNullness"
+        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
+        errorLine1="    public String getFontFeatureSettings() {"
+        errorLine2="           ~~~~~~">
+        <location
+            file="src/main/java/androidx/text/style/FontFeatureSpan.java"
+            line="52"
+            column="12"/>
+    </issue>
+
+    <issue
+        id="UnknownNullness"
+        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
+        errorLine1="    public static @NonNull &lt;T> T checkNotNull(final T reference) {"
+        errorLine2="                                                    ~">
+        <location
+            file="src/main/java/androidx/text/Preconditions.java"
+            line="44"
+            column="53"/>
+    </issue>
+
+    <issue
+        id="UnknownNullness"
+        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
+        errorLine1="    public static @NonNull &lt;T> T checkNotNull(final T reference, final Object errorMessage) {"
+        errorLine2="                                                    ~">
+        <location
+            file="src/main/java/androidx/text/Preconditions.java"
+            line="61"
+            column="53"/>
+    </issue>
+
+    <issue
+        id="UnknownNullness"
+        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
+        errorLine1="    public static @NonNull &lt;T> T checkNotNull(final T reference, final Object errorMessage) {"
+        errorLine2="                                                                       ~~~~~~">
+        <location
+            file="src/main/java/androidx/text/Preconditions.java"
+            line="61"
+            column="72"/>
+    </issue>
+
+    <issue
+        id="UnknownNullness"
+        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
+        errorLine1="            final String errorMessage) {"
+        errorLine2="                  ~~~~~~">
+        <location
+            file="src/main/java/androidx/text/Preconditions.java"
+            line="77"
+            column="19"/>
+    </issue>
+
+    <issue
+        id="UnknownNullness"
+        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
+        errorLine1="            String valueName) {"
+        errorLine2="            ~~~~~~">
+        <location
+            file="src/main/java/androidx/text/Preconditions.java"
+            line="99"
+            column="13"/>
+    </issue>
+
+    <issue
+        id="UnknownNullness"
+        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
+        errorLine1="            String valueName) {"
+        errorLine2="            ~~~~~~">
+        <location
+            file="src/main/java/androidx/text/Preconditions.java"
+            line="126"
+            column="13"/>
+    </issue>
+
+    <issue
+        id="UnknownNullness"
+        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
+        errorLine1="    public void updateDrawState(TextPaint tp) {"
+        errorLine2="                                ~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/text/style/ShadowSpan.java"
+            line="46"
+            column="33"/>
+    </issue>
+
+    <issue
+        id="UnknownNullness"
+        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
+        errorLine1="    public void updateDrawState(TextPaint textPaint) {"
+        errorLine2="                                ~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/text/style/SkewXSpan.java"
+            line="47"
+            column="33"/>
+    </issue>
+
+    <issue
+        id="UnknownNullness"
+        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
+        errorLine1="    public void updateMeasureState(TextPaint textPaint) {"
+        errorLine2="                                   ~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/text/style/SkewXSpan.java"
+            line="52"
+            column="36"/>
+    </issue>
+
+    <issue
+        id="UnknownNullness"
+        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
+        errorLine1="        public Builder setStart(@IntRange(from = 0) int start) {"
+        errorLine2="               ~~~~~~~">
+        <location
+            file="src/main/java/androidx/text/StaticLayoutCompat.java"
+            line="221"
+            column="16"/>
+    </issue>
+
+    <issue
+        id="UnknownNullness"
+        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
+        errorLine1="        public Builder setEnd(@IntRange(from = 0) int end) {"
+        errorLine2="               ~~~~~~~">
+        <location
+            file="src/main/java/androidx/text/StaticLayoutCompat.java"
+            line="233"
+            column="16"/>
+    </issue>
+
+    <issue
+        id="UnknownNullness"
+        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
+        errorLine1="    public WordBoundary(Locale locale, CharSequence text) {"
+        errorLine2="                        ~~~~~~">
+        <location
+            file="src/main/java/androidx/text/selection/WordBoundary.java"
+            line="53"
+            column="25"/>
+    </issue>
+
+    <issue
+        id="UnknownNullness"
+        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
+        errorLine1="    public WordBoundary(Locale locale, CharSequence text) {"
+        errorLine2="                                       ~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/text/selection/WordBoundary.java"
+            line="53"
+            column="40"/>
+    </issue>
+
+    <issue
+        id="UnknownNullness"
+        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
+        errorLine1="    public WordIterator(@NonNull CharSequence charSequence, int start, int end, Locale locale) {"
+        errorLine2="                                                                                ~~~~~~">
+        <location
+            file="src/main/java/androidx/text/selection/WordIterator.java"
+            line="56"
+            column="81"/>
+    </issue>
+
+    <issue
+        id="UnknownNullness"
+        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
+        errorLine1="    public void updateDrawState(TextPaint textPaint) {"
+        errorLine2="                                ~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/text/style/WordSpacingSpan.java"
+            line="85"
+            column="33"/>
+    </issue>
+
+    <issue
+        id="UnknownNullness"
+        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
+        errorLine1="    public void updateMeasureState(TextPaint textPaint) {"
+        errorLine2="                                   ~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/text/style/WordSpacingSpan.java"
+            line="90"
+            column="36"/>
+    </issue>
+
+</issues>

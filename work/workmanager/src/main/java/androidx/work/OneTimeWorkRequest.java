@@ -19,12 +19,9 @@ package androidx.work;
 import android.os.Build;
 
 import androidx.annotation.NonNull;
-import androidx.annotation.RequiresApi;
 
-import java.time.Duration;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.concurrent.TimeUnit;
 
 /**
  * A {@link WorkRequest} for non-repeating work.
@@ -84,30 +81,6 @@ public final class OneTimeWorkRequest extends WorkRequest {
         }
 
         /**
-         * Sets an initial delay for the {@link OneTimeWorkRequest}.
-         *
-         * @param duration The length of the delay in {@code timeUnit} units
-         * @param timeUnit The units of time for {@code duration}
-         * @return The current {@link Builder}
-         */
-        public @NonNull Builder setInitialDelay(long duration, @NonNull TimeUnit timeUnit) {
-            mWorkSpec.initialDelay = timeUnit.toMillis(duration);
-            return this;
-        }
-
-        /**
-         * Sets an initial delay for the {@link OneTimeWorkRequest}.
-         *
-         * @param duration The length of the delay
-         * @return The current {@link Builder}
-         */
-        @RequiresApi(26)
-        public @NonNull Builder setInitialDelay(@NonNull Duration duration) {
-            mWorkSpec.initialDelay = duration.toMillis();
-            return this;
-        }
-
-        /**
          * Specifies the {@link InputMerger} class name for this {@link OneTimeWorkRequest}.
          * <p>
          * Before workers run, they receive input {@link Data} from their parent workers, as well as
@@ -133,6 +106,12 @@ public final class OneTimeWorkRequest extends WorkRequest {
                     && mWorkSpec.constraints.requiresDeviceIdle()) {
                 throw new IllegalArgumentException(
                         "Cannot set backoff criteria on an idle mode job");
+            }
+            if (mWorkSpec.runInForeground
+                    && Build.VERSION.SDK_INT >= 23
+                    && mWorkSpec.constraints.requiresDeviceIdle()) {
+                throw new IllegalArgumentException(
+                        "Cannot run in foreground with an idle mode constraint");
             }
             return new OneTimeWorkRequest(this);
         }

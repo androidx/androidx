@@ -24,11 +24,13 @@ import androidx.room.solver.CodeGenScope
 import com.squareup.javapoet.FieldSpec
 
 class CursorQueryResultBinder : QueryResultBinder(NO_OP_RESULT_ADAPTER) {
-    override fun convertAndReturn(roomSQLiteQueryVar: String,
-                                  canReleaseQuery: Boolean,
-                                  dbField: FieldSpec,
-                                  inTransaction: Boolean,
-                                  scope: CodeGenScope) {
+    override fun convertAndReturn(
+        roomSQLiteQueryVar: String,
+        canReleaseQuery: Boolean,
+        dbField: FieldSpec,
+        inTransaction: Boolean,
+        scope: CodeGenScope
+    ) {
         val builder = scope.builder()
         val transactionWrapper = if (inTransaction) {
             builder.transactionWrapper(dbField)

@@ -114,7 +114,7 @@ class DropDownListView extends ListView {
      *
      * @param context this view's context
      */
-    DropDownListView(Context context, boolean hijackFocus) {
+    DropDownListView(@NonNull Context context, boolean hijackFocus) {
         super(context, null, R.attr.dropDownListViewStyle);
         mHijackFocus = hijackFocus;
         setCacheColorHint(0); // Transparent, since the background drawable could be anything.

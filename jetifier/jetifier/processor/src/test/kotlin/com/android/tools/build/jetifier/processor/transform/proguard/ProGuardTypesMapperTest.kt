@@ -243,8 +243,7 @@ class ProGuardTypesMapperTest {
             .getsRewrittenTo("support.v7.Activity")
     }
 
-    // Temporarily disabled due to b/120234632.
-    fun proGuard_solver_wildcard_shouldRewrite() {
+    @Test fun proGuard_solver_wildcard_shouldRewrite() {
         ProGuardTester()
             .forGivenPrefixes(
                 "support/"
@@ -259,8 +258,7 @@ class ProGuardTypesMapperTest {
             .getsRewrittenTo("test.preference.**")
     }
 
-    // Temporarily disabled due to b/120234632.
-    fun proGuard_solver_wildcard2_shouldRewrite() {
+    @Test fun proGuard_solver_wildcard2_shouldRewrite() {
         ProGuardTester()
             .forGivenPrefixes(
                 "support/"
@@ -274,8 +272,7 @@ class ProGuardTypesMapperTest {
             .getsRewrittenTo("test.preference.**")
     }
 
-    // Temporarily disabled due to b/120234632.
-    fun proGuard_solver_wildcard3_shouldRewrite() {
+    @Test fun proGuard_solver_wildcard3_shouldRewrite() {
         ProGuardTester()
             .forGivenPrefixes(
                 "support/"

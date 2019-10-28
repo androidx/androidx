@@ -1,24 +1,84 @@
 // Signature format: 3.0
 package androidx.leanback.preference {
 
-  public abstract class BaseLeanbackPreferenceFragment {
-    method @RestrictTo({androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP}) public android.app.Fragment! getCallbackFragment();
+  public abstract class BaseLeanbackPreferenceFragment extends androidx.preference.PreferenceFragment {
+    ctor public BaseLeanbackPreferenceFragment();
   }
 
-  @RequiresApi(21) @RestrictTo({androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP}) public class LeanbackPreferenceFragmentTransitionHelperApi21 {
+  public class LeanbackListPreferenceDialogFragment extends androidx.leanback.preference.LeanbackPreferenceDialogFragment {
+    ctor public LeanbackListPreferenceDialogFragment();
+    method public static androidx.leanback.preference.LeanbackListPreferenceDialogFragment! newInstanceMulti(String!);
+    method public static androidx.leanback.preference.LeanbackListPreferenceDialogFragment! newInstanceSingle(String!);
+    method public androidx.recyclerview.widget.RecyclerView.Adapter! onCreateAdapter();
+    method public android.view.View? onCreateView(android.view.LayoutInflater!, android.view.ViewGroup!, android.os.Bundle!);
+    method public void onSaveInstanceState(android.os.Bundle!);
+  }
+
+  public class LeanbackListPreferenceDialogFragment.AdapterMulti extends androidx.recyclerview.widget.RecyclerView.Adapter<androidx.leanback.preference.LeanbackListPreferenceDialogFragment.ViewHolder> implements androidx.leanback.preference.LeanbackListPreferenceDialogFragment.ViewHolder.OnItemClickListener {
+    ctor public LeanbackListPreferenceDialogFragment.AdapterMulti(CharSequence![]!, CharSequence![]!, java.util.Set<java.lang.String!>!);
+    method public int getItemCount();
+    method public void onBindViewHolder(androidx.leanback.preference.LeanbackListPreferenceDialogFragment.ViewHolder!, int);
+    method public androidx.leanback.preference.LeanbackListPreferenceDialogFragment.ViewHolder! onCreateViewHolder(android.view.ViewGroup!, int);
+    method public void onItemClick(androidx.leanback.preference.LeanbackListPreferenceDialogFragment.ViewHolder!);
+  }
+
+  public class LeanbackListPreferenceDialogFragment.AdapterSingle extends androidx.recyclerview.widget.RecyclerView.Adapter<androidx.leanback.preference.LeanbackListPreferenceDialogFragment.ViewHolder> implements androidx.leanback.preference.LeanbackListPreferenceDialogFragment.ViewHolder.OnItemClickListener {
+    ctor public LeanbackListPreferenceDialogFragment.AdapterSingle(CharSequence![]!, CharSequence![]!, CharSequence!);
+    method public int getItemCount();
+    method public void onBindViewHolder(androidx.leanback.preference.LeanbackListPreferenceDialogFragment.ViewHolder!, int);
+    method public androidx.leanback.preference.LeanbackListPreferenceDialogFragment.ViewHolder! onCreateViewHolder(android.view.ViewGroup!, int);
+    method public void onItemClick(androidx.leanback.preference.LeanbackListPreferenceDialogFragment.ViewHolder!);
+  }
+
+  public static class LeanbackListPreferenceDialogFragment.ViewHolder extends androidx.recyclerview.widget.RecyclerView.ViewHolder implements android.view.View.OnClickListener {
+    ctor public LeanbackListPreferenceDialogFragment.ViewHolder(android.view.View, androidx.leanback.preference.LeanbackListPreferenceDialogFragment.ViewHolder.OnItemClickListener);
+    method public android.view.ViewGroup! getContainer();
+    method public android.widget.TextView! getTitleView();
+    method public android.widget.Checkable! getWidgetView();
+    method public void onClick(android.view.View!);
+  }
+
+  public static interface LeanbackListPreferenceDialogFragment.ViewHolder.OnItemClickListener {
+    method public void onItemClick(androidx.leanback.preference.LeanbackListPreferenceDialogFragment.ViewHolder!);
+  }
+
+  public class LeanbackPreferenceDialogFragment extends android.app.Fragment {
+    ctor public LeanbackPreferenceDialogFragment();
+    method public androidx.preference.DialogPreference! getPreference();
+    method public void onCreate(android.os.Bundle!);
+    field public static final String ARG_KEY = "key";
+  }
+
+  public abstract class LeanbackPreferenceFragment extends androidx.leanback.preference.BaseLeanbackPreferenceFragment {
+    ctor public LeanbackPreferenceFragment();
+    method public void setTitle(CharSequence!);
+  }
+
+  @RequiresApi(21) @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP) public class LeanbackPreferenceFragmentTransitionHelperApi21 {
     method public static void addTransitions(android.app.Fragment!);
   }
 
-  @RestrictTo({androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP}) public static class LeanbackSettingsFragment.DummyFragment {
+  public abstract class LeanbackSettingsFragment extends android.app.Fragment implements androidx.preference.PreferenceFragment.OnPreferenceDisplayDialogCallback androidx.preference.PreferenceFragment.OnPreferenceStartFragmentCallback androidx.preference.PreferenceFragment.OnPreferenceStartScreenCallback {
+    ctor public LeanbackSettingsFragment();
+    method public android.view.View! onCreateView(android.view.LayoutInflater!, android.view.ViewGroup!, android.os.Bundle!);
+    method public void onPause();
+    method public boolean onPreferenceDisplayDialog(androidx.preference.PreferenceFragment, androidx.preference.Preference!);
+    method public abstract void onPreferenceStartInitialScreen();
+    method public void onResume();
+    method public void onViewCreated(android.view.View!, android.os.Bundle!);
+    method public void startImmersiveFragment(android.app.Fragment);
+    method public void startPreferenceFragment(android.app.Fragment);
+  }
+
+  @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP) public static class LeanbackSettingsFragment.DummyFragment extends android.app.Fragment {
     ctor public LeanbackSettingsFragment.DummyFragment();
     method public android.view.View? onCreateView(android.view.LayoutInflater!, android.view.ViewGroup!, android.os.Bundle!);
   }
 
-  @RestrictTo({androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP}) public class LeanbackSettingsRootView {
+  @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP) public class LeanbackSettingsRootView extends android.widget.FrameLayout {
     ctor public LeanbackSettingsRootView(android.content.Context!);
     ctor public LeanbackSettingsRootView(android.content.Context!, android.util.AttributeSet!);
     ctor public LeanbackSettingsRootView(android.content.Context!, android.util.AttributeSet!, int);
-    method public boolean dispatchKeyEvent(android.view.KeyEvent);
     method public void setOnBackKeyListener(android.view.View.OnKeyListener!);
   }
 
@@ -26,13 +86,11 @@ package androidx.leanback.preference {
 
 package androidx.leanback.preference.internal {
 
-  @RequiresApi(21) @RestrictTo({androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP}) public class OutlineOnlyWithChildrenFrameLayout {
+  @RequiresApi(21) @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP) public class OutlineOnlyWithChildrenFrameLayout extends android.widget.FrameLayout {
     ctor public OutlineOnlyWithChildrenFrameLayout(android.content.Context!);
     ctor public OutlineOnlyWithChildrenFrameLayout(android.content.Context!, android.util.AttributeSet!);
     ctor public OutlineOnlyWithChildrenFrameLayout(android.content.Context!, android.util.AttributeSet!, int);
     ctor public OutlineOnlyWithChildrenFrameLayout(android.content.Context!, android.util.AttributeSet!, int, int);
-    method protected void onLayout(boolean, int, int, int, int);
-    method public void setOutlineProvider(android.view.ViewOutlineProvider!);
   }
 
 }

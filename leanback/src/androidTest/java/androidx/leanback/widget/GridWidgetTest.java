@@ -4136,6 +4136,70 @@ public class GridWidgetTest {
                 mGridView.getPaddingTop() - (t2align - t1align), v.getTop());
     }
 
+    static class TestFastLayoutWithItemAlignmentDefProvider implements
+            ItemAlignmentFacetProvider {
+        ItemAlignmentFacet mItemAlignmentFacet;
+
+        TestFastLayoutWithItemAlignmentDefProvider() {
+            mItemAlignmentFacet = new ItemAlignmentFacet();
+            ItemAlignmentFacet.ItemAlignmentDef[] defs = new ItemAlignmentFacet.ItemAlignmentDef[1];
+            defs[0] = new ItemAlignmentFacet.ItemAlignmentDef();
+            defs[0].setItemAlignmentOffsetPercent(0);
+            defs[0].setItemAlignmentOffset(-500);
+            mItemAlignmentFacet.setAlignmentDefs(defs);
+        }
+
+        @Override
+        public ItemAlignmentFacet getItemAlignmentFacet(int viewType) {
+            return mItemAlignmentFacet;
+        }
+    }
+
+    private void testFastLayoutNotifyItemChange(boolean supportsChangeAnimation) throws Throwable {
+        Intent intent = new Intent();
+        intent.putExtra(GridActivity.EXTRA_LAYOUT_RESOURCE_ID, R.layout.vertical_linear);
+        intent.putExtra(GridActivity.EXTRA_NUM_ITEMS, 1);
+        intent.putExtra(GridActivity.EXTRA_STAGGERED, false);
+        intent.putExtra(GridActivity.EXTRA_ITEMALIGNMENTPROVIDER_VIEWTYPE_CLASS,
+                TestFastLayoutWithItemAlignmentDefProvider.class.getName());
+        mOrientation = BaseGridView.VERTICAL;
+        mNumRows = 1;
+
+        initActivity(intent);
+        mActivityTestRule.runOnUiThread(new Runnable() {
+            @Override
+            public void run() {
+                mGridView.setWindowAlignment(BaseGridView.WINDOW_ALIGN_NO_EDGE);
+                mGridView.setWindowAlignmentOffset(0);
+                mGridView.setWindowAlignmentOffsetPercent(BaseGridView
+                        .WINDOW_ALIGN_OFFSET_PERCENT_DISABLED);
+                ((DefaultItemAnimator) mGridView.getItemAnimator()).setSupportsChangeAnimations(
+                        supportsChangeAnimation);
+            }
+        });
+        waitOneUiCycle();
+        assertEquals(500, mGridView.findViewHolderForAdapterPosition(0).itemView.getTop());
+
+        mActivityTestRule.runOnUiThread(new Runnable() {
+            @Override
+            public void run() {
+                mGridView.getAdapter().notifyItemChanged(0);
+            }
+        });
+        waitOneUiCycle();
+        assertEquals(500, mGridView.findViewHolderForAdapterPosition(0).itemView.getTop());
+    }
+
+    @Test
+    public void testFastLayoutNotifyItemChangeWithoutChangeAnimation() throws Throwable {
+        testFastLayoutNotifyItemChange(/* supportsChangeAnimation= */ false);
+    }
+
+    @Test
+    public void testFastLayoutNotifyItemChangeWithChangeAnimation() throws Throwable {
+        testFastLayoutNotifyItemChange(/* supportsChangeAnimation= */ true);
+    }
+
     @Test
     public void testSelectionAndAddItemInOneCycle() throws Throwable {
         Intent intent = new Intent();

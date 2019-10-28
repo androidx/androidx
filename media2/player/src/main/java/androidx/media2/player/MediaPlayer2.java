@@ -16,15 +16,13 @@
 
 package androidx.media2.player;
 
-import static androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP_PREFIX;
+import static androidx.annotation.RestrictTo.Scope.LIBRARY;
 
 import android.content.Context;
 import android.graphics.SurfaceTexture;
 import android.media.DeniedByServerException;
 import android.media.MediaDrm;
 import android.media.MediaDrmException;
-import android.media.MediaFormat;
-import android.os.Build;
 import android.os.ParcelFileDescriptor;
 import android.os.PersistableBundle;
 import android.view.Surface;
@@ -37,7 +35,8 @@ import androidx.annotation.RestrictTo;
 import androidx.media.AudioAttributesCompat;
 import androidx.media2.common.FileMediaItem;
 import androidx.media2.common.MediaItem;
-import androidx.media2.player.exoplayer.ExoPlayerMediaPlayer2Impl;
+import androidx.media2.common.SessionPlayer.TrackInfo;
+import androidx.media2.common.SubtitleData;
 
 import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;
@@ -194,7 +193,7 @@ import java.util.concurrent.Executor;
  * <tr><td>getCurrentPosition</td> <td>{Idle}</td></tr>
  * <tr><td>getDuration</td> <td>{Idle}</td></tr>
  * <tr><td>getBufferedPosition</td> <td>{Idle}</td></tr>
- * <tr><td>getTrackInfo</td> <td>{Idle}</td></tr>
+ * <tr><td>getTracks</td> <td>{Idle}</td></tr>
  * <tr><td>getSelectedTrack</td> <td>{Idle}</td></tr>
  * <tr><td>selectTrack</td> <td>{Idle}</td></tr>
  * <tr><td>deselectTrack</td> <td>{Idle}</td></tr>
@@ -223,17 +222,8 @@ import java.util.concurrent.Executor;
  * <p>In order for callbacks to work, your app must create
  * MediaPlayer2 objects on a thread that has its own running Looper. This can be done on the main UI
  * thread, which has a Looper.</p>
- *
- * @hide
  */
-@RestrictTo(LIBRARY_GROUP_PREFIX)
-public abstract class MediaPlayer2 {
-
-    /**
-     * Debug flag that forces use of {@link ExoPlayerMediaPlayer2Impl} even if the device is running
-     * an Android P build.
-     */
-    private static final boolean DEBUG_USE_EXOPLAYER = false;
+/* package */ abstract class MediaPlayer2 {
 
     /**
      * Create a MediaPlayer2 object.
@@ -241,12 +231,9 @@ public abstract class MediaPlayer2 {
      * @param context The context the player is running in
      * @return A MediaPlayer2 object created
      */
-    public static final MediaPlayer2 create(@NonNull Context context) {
-        if (Build.VERSION.SDK_INT <= 27 || DEBUG_USE_EXOPLAYER) {
-            return new ExoPlayerMediaPlayer2Impl(context);
-        } else {
-            return new MediaPlayer2Impl(context);
-        }
+    @NonNull
+    public static MediaPlayer2 create(@NonNull Context context) {
+        return new ExoPlayerMediaPlayer2Impl(context);
     }
 
     protected MediaPlayer2() { }
@@ -615,7 +602,7 @@ public abstract class MediaPlayer2 {
     public static final int SEEK_CLOSEST          = 0x03;
 
     /** @hide */
-    @RestrictTo(LIBRARY_GROUP_PREFIX)
+    @RestrictTo(LIBRARY)
     @IntDef(flag = false, /*prefix = "SEEK",*/ value = {
             SEEK_PREVIOUS_SYNC,
             SEEK_NEXT_SYNC,
@@ -699,8 +686,8 @@ public abstract class MediaPlayer2 {
      * Returns the audio session ID.
      *
      * @return the audio session ID. {@see #setAudioSessionId(int)}
-     * Note that the audio session ID is 0 only if a problem occured when the MediaPlayer2 was
-     * contructed.
+     * Note that the audio session ID is 0 only if a problem occurred when the MediaPlayer2 was
+     * constructed.
      */
     public abstract int getAudioSessionId();
 
@@ -740,88 +727,29 @@ public abstract class MediaPlayer2 {
     public abstract Object setAuxEffectSendLevel(float level);
 
     /**
-     * Class for MediaPlayer2 to return each audio/video/subtitle track's metadata.
-     *
-     * @see MediaPlayer2#getTrackInfo
-     */
-    public abstract static class TrackInfo {
-        /**
-         * Gets the track type.
-         * @return TrackType which indicates if the track is video, audio, timed text.
-         */
-        public abstract int getTrackType();
-
-        /**
-         * Gets the language code of the track.
-         * @return a language code in either way of ISO-639-1 or ISO-639-2.
-         * When the language is unknown or could not be determined,
-         * ISO-639-2 language code, "und", is returned.
-         */
-        public abstract String getLanguage();
-
-        /**
-         * Gets the {@link MediaFormat} of the track.  If the format is
-         * unknown or could not be determined, null is returned.
-         */
-        public abstract MediaFormat getFormat();
-
-        public static final int MEDIA_TRACK_TYPE_UNKNOWN = 0;
-        public static final int MEDIA_TRACK_TYPE_VIDEO = 1;
-        public static final int MEDIA_TRACK_TYPE_AUDIO = 2;
-
-        public static final int MEDIA_TRACK_TYPE_TIMEDTEXT = 3;
-
-        public static final int MEDIA_TRACK_TYPE_SUBTITLE = 4;
-        public static final int MEDIA_TRACK_TYPE_METADATA = 5;
-
-        @Override
-        public abstract String toString();
-    };
-
-    /**
      * Returns a List of track information.
      *
      * @return List of track info. The total number of tracks is the array length.
-     * Must be called again if an external timed text source has been added after
-     * addTimedTextSource method is called.
      */
-    public abstract List<TrackInfo> getTrackInfo();
+    @NonNull
+    public abstract List<TrackInfo> getTracks();
 
     /**
-     * Returns information of track at {@code index}.
-     *
-     * Note that a {@link TrackInfo} will be converted to a
-     * {@link MediaPlayer.TrackInfo} by this method.
-     *
-     * @param index into {@link #getTrackInfo()}
-     * @return track information
-     */
-    public MediaPlayer.TrackInfo getTrackInfo(int index) {
-        List<TrackInfo> tracks = getTrackInfo();
-        TrackInfo info = tracks.get(index);
-        MediaItem item = getCurrentMediaItem();
-        return new MediaPlayer.TrackInfo(
-                index, item , info.getTrackType(), info.getFormat());
-    }
-
-    /**
-     * Returns the index of the audio, video, or subtitle track currently selected for playback,
-     * The return value is an index into the array returned by {@link #getTrackInfo()}, and can
-     * be used in calls to {@link #selectTrack(int)} or {@link #deselectTrack(int)}.
+     * Returns the metadata of the audio, video, or subtitle track currently selected for playback,
+     * The return value is an item of the array returned by {@link #getTracks()}.
      *
      * @param trackType should be one of {@link TrackInfo#MEDIA_TRACK_TYPE_VIDEO},
      * {@link TrackInfo#MEDIA_TRACK_TYPE_AUDIO}, or
      * {@link TrackInfo#MEDIA_TRACK_TYPE_SUBTITLE}
-     * @return index of the audio, video, or subtitle track currently selected for playback;
-     * a negative integer is returned when there is no selected track for {@code trackType} or
+     * @return metadata of the audio, video, or subtitle track currently selected for playback;
+     * {@code null} is returned when there is no selected track for {@code trackType} or
      * when {@code trackType} is not one of audio, video, or subtitle.
      * @throws IllegalStateException if called after {@link #close()}
      *
-     * @see #getTrackInfo()
-     * @see #selectTrack(int)
-     * @see #deselectTrack(int)
+     * @see #getTracks()
      */
-    public abstract int getSelectedTrack(int trackType);
+    @Nullable
+    public abstract TrackInfo getSelectedTrack(int trackType);
 
     /**
      * Selects a track.
@@ -833,42 +761,49 @@ public abstract class MediaPlayer2 {
      * </p>
      * <p>
      * In any valid state, if it is called multiple times on the same type of track (ie. Video,
-     * Audio, Timed Text), the most recent one will be chosen.
+     * Audio, Subtitle), the most recent one will be chosen.
      * </p>
      * <p>
      * The first audio and video tracks are selected by default if available, even though
-     * this method is not called. However, no timed text track will be selected until
+     * this method is not called. However, no subtitle track will be selected until
      * this function is called.
      * </p>
      * <p>
-     * Currently, only timed text tracks or audio tracks can be selected via this method.
+     * Currently, only subtitle tracks or audio tracks can be selected via this method.
      * </p>
-     * @param index the index of the track to be selected. The valid range of the index
-     * is 0..total number of track - 1. The total number of tracks as well as the type of
-     * each individual track can be found by calling {@link #getTrackInfo()} method.
+     * @param trackId the id of the track to be selected. The id can be obtained by calling
+     * {@link TrackInfo#getId()} to an {@link TrackInfo} returned by {@link #getTracks()}.
+     * Note that the {@link TrackInfo}s may become invalid when
+     * {@link EventCallback#onTracksChanged} is called.
      *
-     * @see MediaPlayer2#getTrackInfo
+     * @see TrackInfo#getId()
+     * @see #getTracks
      * @return a token which can be used to cancel the operation later with {@link #cancel}.
      */
     // This is an asynchronous call.
-    public abstract Object selectTrack(int index);
+    @NonNull
+    public abstract Object selectTrack(int trackId);
 
     /**
      * Deselects a track.
      * <p>
-     * Currently, the track must be a timed text track and no audio or video tracks can be
-     * deselected. If the timed text track identified by index has not been
+     * Currently, the track must be a subtitle track and no audio or video tracks can be
+     * deselected. If the subtitle track identified by index has not been
      * selected before, it throws an exception.
      * </p>
-     * @param index the index of the track to be deselected. The valid range of the index
-     * is 0..total number of tracks - 1. The total number of tracks as well as the type of
-     * each individual track can be found by calling {@link #getTrackInfo()} method.
+     * @param trackId the id of the track to be deselected. The id can be obtained by calling
+     * {@link TrackInfo#getId()} to an {@link TrackInfo} returned by {@link #getTracks()} or
+     * {@link #getSelectedTrack(int)}. Note that the {@link TrackInfo}s may become invalid when
+     * {@link EventCallback#onTracksChanged} is called.
      *
-     * @see MediaPlayer2#getTrackInfo
+     * @see TrackInfo#getId()
+     * @see #getTracks
+     * @see #getSelectedTrack(int)
      * @return a token which can be used to cancel the operation later with {@link #cancel}.
      */
     // This is an asynchronous call.
-    public abstract Object deselectTrack(int index);
+    @NonNull
+    public abstract Object deselectTrack(int trackId);
 
     /**
      * Interface definition for callbacks to be invoked when the player has the corresponding
@@ -980,10 +915,25 @@ public abstract class MediaPlayer2 {
          * Called when when a player subtitle track has new subtitle data available.
          * @param mp the player that reports the new subtitle data
          * @param item the MediaItem of this media item
+         * @param track the track that has the subtitle data
          * @param data the subtitle data
          */
-        public void onSubtitleData(
-                MediaPlayer2 mp, MediaItem item, @NonNull SubtitleData data) { }
+        public void onSubtitleData(@NonNull MediaPlayer2 mp, @NonNull MediaItem item,
+                @NonNull TrackInfo track, @NonNull SubtitleData data) { }
+
+        /**
+         * Called when the tracks of the current media item is changed such as
+         * 1) when tracks of a media item become available, or
+         * 2) when new tracks are found during playback.
+         * <p>
+         * When it's called, the previous tracks may be invalidated so it's recommended to use the
+         * most recent tracks to call {@link #selectTrack} or {@link #deselectTrack}.
+         *
+         * @param mp the player associated with this callback
+         * @param tracks the list of tracks. It can be empty.
+         */
+        public void onTracksChanged(@NonNull MediaPlayer2 mp,
+                @NonNull List<TrackInfo> tracks) { }
     }
 
     /**
@@ -1032,7 +982,7 @@ public abstract class MediaPlayer2 {
     public static final int PLAYER_STATE_ERROR = 1005;
 
     /** @hide */
-    @RestrictTo(LIBRARY_GROUP_PREFIX)
+    @RestrictTo(LIBRARY)
     @IntDef(flag = false, value = {
             PLAYER_STATE_IDLE,
             PLAYER_STATE_PREPARED,
@@ -1081,7 +1031,7 @@ public abstract class MediaPlayer2 {
     /**
      * @hide
      */
-    @RestrictTo(LIBRARY_GROUP_PREFIX)
+    @RestrictTo(LIBRARY)
     @IntDef(flag = false, /*prefix = "MEDIA_ERROR",*/ value = {
             MEDIA_ERROR_UNKNOWN,
             MEDIA_ERROR_IO,
@@ -1225,12 +1175,6 @@ public abstract class MediaPlayer2 {
     public static final int MEDIA_INFO_VIDEO_NOT_PLAYING = 805;
 
     /**
-     * Failed to handle timed text track properly.
-     * @see EventCallback#onInfo
-     */
-    public static final int MEDIA_INFO_TIMED_TEXT_ERROR = 900;
-
-    /**
      * Subtitle track was not supported by the media framework.
      * @see EventCallback#onInfo
      */
@@ -1245,7 +1189,7 @@ public abstract class MediaPlayer2 {
     /**
      * @hide
      */
-    @RestrictTo(LIBRARY_GROUP_PREFIX)
+    @RestrictTo(LIBRARY)
     @IntDef(flag = false, /*prefix = "MEDIA_INFO",*/ value = {
             MEDIA_INFO_UNKNOWN,
             MEDIA_INFO_DATA_SOURCE_START,
@@ -1266,7 +1210,6 @@ public abstract class MediaPlayer2 {
             MEDIA_INFO_EXTERNAL_METADATA_UPDATE,
             MEDIA_INFO_AUDIO_NOT_PLAYING,
             MEDIA_INFO_VIDEO_NOT_PLAYING,
-            MEDIA_INFO_TIMED_TEXT_ERROR,
             MEDIA_INFO_UNSUPPORTED_SUBTITLE,
             MEDIA_INFO_SUBTITLE_TIMED_OUT
     })
@@ -1404,7 +1347,7 @@ public abstract class MediaPlayer2 {
     /**
      * @hide
      */
-    @RestrictTo(LIBRARY_GROUP_PREFIX)
+    @RestrictTo(LIBRARY)
     @IntDef(flag = false, /*prefix = "CALL_COMPLETED",*/ value = {
             CALL_COMPLETED_ATTACH_AUX_EFFECT,
             CALL_COMPLETED_DESELECT_TRACK,
@@ -1476,7 +1419,7 @@ public abstract class MediaPlayer2 {
     /**
      * @hide
      */
-    @RestrictTo(LIBRARY_GROUP_PREFIX)
+    @RestrictTo(LIBRARY)
     @IntDef(flag = false, /*prefix = "CALL_STATUS",*/ value = {
             CALL_STATUS_NO_ERROR,
             CALL_STATUS_ERROR_UNKNOWN,
@@ -1598,7 +1541,7 @@ public abstract class MediaPlayer2 {
     public static final int PREPARE_DRM_STATUS_RESOURCE_BUSY = 5;
 
     /** @hide */
-    @RestrictTo(LIBRARY_GROUP_PREFIX)
+    @RestrictTo(LIBRARY)
     @IntDef(flag = false, /*prefix = "PREPARE_DRM_STATUS",*/ value = {
             PREPARE_DRM_STATUS_SUCCESS,
             PREPARE_DRM_STATUS_PROVISIONING_NETWORK_ERROR,

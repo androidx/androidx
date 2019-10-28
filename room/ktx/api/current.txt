@@ -7,9 +7,7 @@ package androidx.room {
 
   public final class RoomDatabaseKt {
     ctor public RoomDatabaseKt();
-    method public static suspend Object? acquireTransactionThread(java.util.concurrent.Executor, kotlinx.coroutines.Job controlJob, kotlin.coroutines.experimental.Continuation<? super kotlin.coroutines.ContinuationInterceptor> p);
-    method public static suspend Object? createTransactionContext(androidx.room.RoomDatabase, kotlin.coroutines.experimental.Continuation<? super kotlin.coroutines.CoroutineContext> p);
-    method public static suspend <R> Object? withTransaction(androidx.room.RoomDatabase, kotlin.jvm.functions.Function1<? super kotlin.coroutines.experimental.Continuation<? super R>,?> block, kotlin.coroutines.experimental.Continuation<? super R> p);
+    method public static suspend <R> Object! withTransaction(androidx.room.RoomDatabase, kotlin.jvm.functions.Function1<? super kotlin.coroutines.Continuation<? super R>,?> block, kotlin.coroutines.Continuation<? super R> p);
   }
 
 }

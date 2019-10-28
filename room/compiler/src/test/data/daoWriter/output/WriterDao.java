@@ -30,19 +30,18 @@ import javax.annotation.Generated;
 public final class WriterDao_Impl implements WriterDao {
     private final RoomDatabase __db;
 
-    private final EntityInsertionAdapter __insertionAdapterOfUser;
+    private final EntityInsertionAdapter<User> __insertionAdapterOfUser;
 
-    private final EntityInsertionAdapter __insertionAdapterOfUser_1;
+    private final EntityInsertionAdapter<User> __insertionAdapterOfUser_1;
 
-    private final EntityInsertionAdapter __insertionAdapterOfBook;
+    private final EntityInsertionAdapter<Book> __insertionAdapterOfBook;
 
     public WriterDao_Impl(RoomDatabase __db) {
         this.__db = __db;
         this.__insertionAdapterOfUser = new EntityInsertionAdapter<User>(__db) {
             @Override
             public String createQuery() {
-                return "INSERT OR ABORT INTO `User`(`uid`,`name`,`lastName`,`ageColumn`) VALUES"
-                        + " (?,?,?,?)";
+                return "INSERT OR ABORT INTO `User` (`uid`,`name`,`lastName`,`ageColumn`) VALUES (?,?,?,?)";
             }
 
             @Override
@@ -64,8 +63,7 @@ public final class WriterDao_Impl implements WriterDao {
         this.__insertionAdapterOfUser_1 = new EntityInsertionAdapter<User>(__db) {
             @Override
             public String createQuery() {
-                return "INSERT OR REPLACE INTO `User`(`uid`,`name`,`lastName`,`ageColumn`) VALUES"
-                        + " (?,?,?,?)";
+                return "INSERT OR REPLACE INTO `User` (`uid`,`name`,`lastName`,`ageColumn`) VALUES (?,?,?,?)";
             }
 
             @Override
@@ -87,7 +85,7 @@ public final class WriterDao_Impl implements WriterDao {
         this.__insertionAdapterOfBook = new EntityInsertionAdapter<Book>(__db) {
             @Override
             public String createQuery() {
-                return "INSERT OR ABORT INTO `Book`(`bookId`,`uid`) VALUES (?,?)";
+                return "INSERT OR ABORT INTO `Book` (`bookId`,`uid`) VALUES (?,?)";
             }
 
             @Override

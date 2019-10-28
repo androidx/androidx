@@ -30,11 +30,14 @@ import java.util.List;
 interface ICustomTabsService {
     boolean warmup(long flags) = 1;
     boolean newSession(in ICustomTabsCallback callback) = 2;
+    boolean newSessionWithExtras(in ICustomTabsCallback callback, in Bundle extras) = 9;
     boolean mayLaunchUrl(in ICustomTabsCallback callback, in Uri url,
             in Bundle extras, in List<Bundle> otherLikelyBundles) = 3;
     Bundle extraCommand(String commandName, in Bundle args) = 4;
     boolean updateVisuals(in ICustomTabsCallback callback, in Bundle bundle) = 5;
     boolean requestPostMessageChannel(in ICustomTabsCallback callback, in Uri postMessageOrigin) = 6;
+    boolean requestPostMessageChannelWithExtras(in ICustomTabsCallback callback, in Uri postMessageOrigin, in Bundle extras) = 10;
     int postMessage(in ICustomTabsCallback callback, String message, in Bundle extras) = 7;
     boolean validateRelationship(in ICustomTabsCallback callback, int relation, in Uri origin, in Bundle extras) = 8;
+    boolean receiveFile(in ICustomTabsCallback callback, in Uri uri, int purpose, in Bundle extras) = 11;
 }

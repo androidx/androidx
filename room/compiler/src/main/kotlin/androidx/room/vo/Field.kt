@@ -26,16 +26,24 @@ import androidx.room.solver.types.StatementValueBinder
 import com.squareup.javapoet.TypeName
 import javax.lang.model.element.Element
 import javax.lang.model.type.TypeMirror
+
 // used in cache matching, must stay as a data class or implement equals
-data class Field(val element: Element, val name: String, val type: TypeMirror,
-                 var affinity: SQLTypeAffinity?,
-                 val collate: Collate? = null,
-                 val columnName: String = name,
-                 /* means that this field does not belong to parent, instead, it belongs to a
-                 * embedded child of the main Pojo*/
-                 val parent: EmbeddedField? = null,
-                 // index might be removed when being merged into an Entity
-                 var indexed: Boolean = false) : HasSchemaIdentity {
+data class Field(
+    val element: Element,
+    val name: String,
+    val type: TypeMirror,
+    var affinity: SQLTypeAffinity?,
+    val collate: Collate? = null,
+    val columnName: String = name,
+    val defaultValue: String? = null,
+    // null here means that this field does not belong to parent, instead, it belongs to an
+    // embedded child of the main Pojo
+    val parent: EmbeddedField? = null,
+    // index might be removed when being merged into an Entity
+    var indexed: Boolean = false,
+    /** Whether the table column for this field should be NOT NULL */
+    val nonNull: Boolean = calcNonNull(element, parent)
+) : HasSchemaIdentity {
     lateinit var getter: FieldGetter
     lateinit var setter: FieldSetter
     // binds the field into a statement
@@ -44,12 +52,15 @@ data class Field(val element: Element, val name: String, val type: TypeMirror,
     var cursorValueReader: CursorValueReader? = null
     val typeName: TypeName by lazy { type.typeName() }
 
-    /** Whether the table column for this field should be NOT NULL */
-    val nonNull = element.isNonNull() && (parent == null || parent.isNonNullRecursively())
-
     override fun getIdKey(): String {
-        // we don't get the collate information from sqlite so ignoring it here.
-        return "$columnName-${affinity?.name ?: SQLTypeAffinity.TEXT.name}-$nonNull"
+        return buildString {
+            // we don't get the collate information from sqlite so ignoring it here.
+            append("$columnName-${affinity?.name ?: SQLTypeAffinity.TEXT.name}-$nonNull")
+            // defaultValue was newly added; it should affect the ID only when it is used.
+            if (defaultValue != null) {
+                append("-defaultValue=$defaultValue")
+            }
+        }
     }
 
     /**
@@ -127,10 +138,19 @@ data class Field(val element: Element, val name: String, val type: TypeMirror,
         if (collate != null) {
             columnSpec.append(" COLLATE ${collate.name}")
         }
+        if (defaultValue != null) {
+            columnSpec.append(" DEFAULT $defaultValue")
+        }
         return "`$columnName` ${(affinity ?: SQLTypeAffinity.TEXT).name}$columnSpec"
     }
 
     fun toBundle(): FieldBundle = FieldBundle(pathWithDotNotation, columnName,
-            affinity?.name ?: SQLTypeAffinity.TEXT.name, nonNull
+            affinity?.name ?: SQLTypeAffinity.TEXT.name, nonNull, defaultValue
     )
+
+    companion object {
+        fun calcNonNull(element: Element, parent: EmbeddedField?): Boolean {
+            return element.isNonNull() && (parent == null || parent.isNonNullRecursively())
+        }
+    }
 }

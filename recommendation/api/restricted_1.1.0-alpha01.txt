@@ -1,1 +1,133 @@
 // Signature format: 3.0
+package androidx.recommendation.app {
+
+  public final class ContentRecommendation {
+    method public String! getBackgroundImageUri();
+    method public int getBadgeImageResourceId();
+    method public int getColor();
+    method public android.graphics.Bitmap! getContentImage();
+    method public androidx.recommendation.app.ContentRecommendation.IntentData! getContentIntent();
+    method public String![]! getContentTypes();
+    method public androidx.recommendation.app.ContentRecommendation.IntentData! getDismissIntent();
+    method public String![]! getGenres();
+    method public String! getGroup();
+    method public String! getIdTag();
+    method public String! getMaturityRating();
+    method public android.app.Notification! getNotificationObject(android.content.Context!);
+    method public String! getPricingType();
+    method public String! getPricingValue();
+    method public String! getPrimaryContentType();
+    method public int getProgressMax();
+    method public int getProgressValue();
+    method public long getRunningTime();
+    method public String! getSortKey();
+    method public String! getSourceName();
+    method public int getStatus();
+    method public String! getText();
+    method public String! getTitle();
+    method public boolean hasProgressInfo();
+    method public boolean isAutoDismiss();
+    method public void setAutoDismiss(boolean);
+    method public void setGroup(String!);
+    method public void setProgress(int, int);
+    method public void setSortKey(String!);
+    method public void setStatus(@androidx.recommendation.app.ContentRecommendation.ContentStatus int);
+    field public static final String CONTENT_MATURITY_ALL = "android.contentMaturity.all";
+    field public static final String CONTENT_MATURITY_HIGH = "android.contentMaturity.high";
+    field public static final String CONTENT_MATURITY_LOW = "android.contentMaturity.low";
+    field public static final String CONTENT_MATURITY_MEDIUM = "android.contentMaturity.medium";
+    field public static final String CONTENT_PRICING_FREE = "android.contentPrice.free";
+    field public static final String CONTENT_PRICING_PREORDER = "android.contentPrice.preorder";
+    field public static final String CONTENT_PRICING_PURCHASE = "android.contentPrice.purchase";
+    field public static final String CONTENT_PRICING_RENTAL = "android.contentPrice.rental";
+    field public static final String CONTENT_PRICING_SUBSCRIPTION = "android.contentPrice.subscription";
+    field public static final int CONTENT_STATUS_AVAILABLE = 2; // 0x2
+    field public static final int CONTENT_STATUS_PENDING = 1; // 0x1
+    field public static final int CONTENT_STATUS_READY = 0; // 0x0
+    field public static final int CONTENT_STATUS_UNAVAILABLE = 3; // 0x3
+    field public static final String CONTENT_TYPE_APP = "android.contentType.app";
+    field public static final String CONTENT_TYPE_BOOK = "android.contentType.book";
+    field public static final String CONTENT_TYPE_COMIC = "android.contentType.comic";
+    field public static final String CONTENT_TYPE_GAME = "android.contentType.game";
+    field public static final String CONTENT_TYPE_MAGAZINE = "android.contentType.magazine";
+    field public static final String CONTENT_TYPE_MOVIE = "android.contentType.movie";
+    field public static final String CONTENT_TYPE_MUSIC = "android.contentType.music";
+    field public static final String CONTENT_TYPE_NEWS = "android.contentType.news";
+    field public static final String CONTENT_TYPE_PODCAST = "android.contentType.podcast";
+    field public static final String CONTENT_TYPE_RADIO = "android.contentType.radio";
+    field public static final String CONTENT_TYPE_SERIAL = "android.contentType.serial";
+    field public static final String CONTENT_TYPE_SPORTS = "android.contentType.sports";
+    field public static final String CONTENT_TYPE_TRAILER = "android.contentType.trailer";
+    field public static final String CONTENT_TYPE_VIDEO = "android.contentType.video";
+    field public static final String CONTENT_TYPE_WEBSITE = "android.contentType.website";
+    field public static final int INTENT_TYPE_ACTIVITY = 1; // 0x1
+    field public static final int INTENT_TYPE_BROADCAST = 2; // 0x2
+    field public static final int INTENT_TYPE_SERVICE = 3; // 0x3
+  }
+
+  public static final class ContentRecommendation.Builder {
+    ctor public ContentRecommendation.Builder();
+    method public androidx.recommendation.app.ContentRecommendation! build();
+    method public androidx.recommendation.app.ContentRecommendation.Builder! setAutoDismiss(boolean);
+    method public androidx.recommendation.app.ContentRecommendation.Builder! setBackgroundImageUri(String?);
+    method public androidx.recommendation.app.ContentRecommendation.Builder! setBadgeIcon(@DrawableRes int);
+    method public androidx.recommendation.app.ContentRecommendation.Builder! setColor(@ColorInt int);
+    method public androidx.recommendation.app.ContentRecommendation.Builder! setContentImage(android.graphics.Bitmap!);
+    method public androidx.recommendation.app.ContentRecommendation.Builder! setContentIntentData(@androidx.recommendation.app.ContentRecommendation.IntentType int, android.content.Intent!, int, android.os.Bundle?);
+    method public androidx.recommendation.app.ContentRecommendation.Builder! setContentTypes(String![]!);
+    method public androidx.recommendation.app.ContentRecommendation.Builder! setDismissIntentData(@androidx.recommendation.app.ContentRecommendation.IntentType int, android.content.Intent?, int, android.os.Bundle?);
+    method public androidx.recommendation.app.ContentRecommendation.Builder! setGenres(String![]!);
+    method public androidx.recommendation.app.ContentRecommendation.Builder! setGroup(String?);
+    method public androidx.recommendation.app.ContentRecommendation.Builder! setIdTag(String!);
+    method public androidx.recommendation.app.ContentRecommendation.Builder! setMaturityRating(@androidx.recommendation.app.ContentRecommendation.ContentMaturity String!);
+    method public androidx.recommendation.app.ContentRecommendation.Builder! setPricingInformation(@androidx.recommendation.app.ContentRecommendation.ContentPricing String!, String?);
+    method public androidx.recommendation.app.ContentRecommendation.Builder! setProgress(int, int);
+    method public androidx.recommendation.app.ContentRecommendation.Builder! setRunningTime(long);
+    method public androidx.recommendation.app.ContentRecommendation.Builder! setSortKey(String?);
+    method public androidx.recommendation.app.ContentRecommendation.Builder! setSourceName(String?);
+    method public androidx.recommendation.app.ContentRecommendation.Builder! setStatus(@androidx.recommendation.app.ContentRecommendation.ContentStatus int);
+    method public androidx.recommendation.app.ContentRecommendation.Builder! setText(String?);
+    method public androidx.recommendation.app.ContentRecommendation.Builder! setTitle(String!);
+  }
+
+  @StringDef({androidx.recommendation.app.ContentRecommendation.CONTENT_MATURITY_ALL, androidx.recommendation.app.ContentRecommendation.CONTENT_MATURITY_LOW, androidx.recommendation.app.ContentRecommendation.CONTENT_MATURITY_MEDIUM, androidx.recommendation.app.ContentRecommendation.CONTENT_MATURITY_HIGH}) @java.lang.annotation.Retention(java.lang.annotation.RetentionPolicy.SOURCE) public static @interface ContentRecommendation.ContentMaturity {
+  }
+
+  @StringDef({androidx.recommendation.app.ContentRecommendation.CONTENT_PRICING_FREE, androidx.recommendation.app.ContentRecommendation.CONTENT_PRICING_RENTAL, androidx.recommendation.app.ContentRecommendation.CONTENT_PRICING_PURCHASE, androidx.recommendation.app.ContentRecommendation.CONTENT_PRICING_PREORDER, androidx.recommendation.app.ContentRecommendation.CONTENT_PRICING_SUBSCRIPTION}) @java.lang.annotation.Retention(java.lang.annotation.RetentionPolicy.SOURCE) public static @interface ContentRecommendation.ContentPricing {
+  }
+
+  @IntDef({androidx.recommendation.app.ContentRecommendation.CONTENT_STATUS_READY, androidx.recommendation.app.ContentRecommendation.CONTENT_STATUS_PENDING, androidx.recommendation.app.ContentRecommendation.CONTENT_STATUS_AVAILABLE, androidx.recommendation.app.ContentRecommendation.CONTENT_STATUS_UNAVAILABLE}) @java.lang.annotation.Retention(java.lang.annotation.RetentionPolicy.SOURCE) public static @interface ContentRecommendation.ContentStatus {
+  }
+
+  @StringDef({androidx.recommendation.app.ContentRecommendation.CONTENT_TYPE_VIDEO, androidx.recommendation.app.ContentRecommendation.CONTENT_TYPE_MOVIE, androidx.recommendation.app.ContentRecommendation.CONTENT_TYPE_TRAILER, androidx.recommendation.app.ContentRecommendation.CONTENT_TYPE_SERIAL, androidx.recommendation.app.ContentRecommendation.CONTENT_TYPE_MUSIC, androidx.recommendation.app.ContentRecommendation.CONTENT_TYPE_RADIO, androidx.recommendation.app.ContentRecommendation.CONTENT_TYPE_PODCAST, androidx.recommendation.app.ContentRecommendation.CONTENT_TYPE_NEWS, androidx.recommendation.app.ContentRecommendation.CONTENT_TYPE_SPORTS, androidx.recommendation.app.ContentRecommendation.CONTENT_TYPE_APP, androidx.recommendation.app.ContentRecommendation.CONTENT_TYPE_GAME, androidx.recommendation.app.ContentRecommendation.CONTENT_TYPE_BOOK, androidx.recommendation.app.ContentRecommendation.CONTENT_TYPE_COMIC, androidx.recommendation.app.ContentRecommendation.CONTENT_TYPE_MAGAZINE, androidx.recommendation.app.ContentRecommendation.CONTENT_TYPE_WEBSITE}) @java.lang.annotation.Retention(java.lang.annotation.RetentionPolicy.SOURCE) public static @interface ContentRecommendation.ContentType {
+  }
+
+  public static class ContentRecommendation.IntentData {
+    ctor public ContentRecommendation.IntentData();
+  }
+
+  @IntDef({androidx.recommendation.app.ContentRecommendation.INTENT_TYPE_ACTIVITY, androidx.recommendation.app.ContentRecommendation.INTENT_TYPE_BROADCAST, androidx.recommendation.app.ContentRecommendation.INTENT_TYPE_SERVICE}) @java.lang.annotation.Retention(java.lang.annotation.RetentionPolicy.SOURCE) public static @interface ContentRecommendation.IntentType {
+  }
+
+  public final class RecommendationExtender implements android.app.Notification.Extender {
+    ctor public RecommendationExtender();
+    ctor public RecommendationExtender(android.app.Notification!);
+    method public android.app.Notification.Builder! extend(android.app.Notification.Builder!);
+    method public String![]! getContentTypes();
+    method public String![]! getGenres();
+    method public String! getMaturityRating();
+    method public String! getPricingType();
+    method public String! getPricingValue();
+    method public String! getPrimaryContentType();
+    method public long getRunningTime();
+    method public int getStatus();
+    method public androidx.recommendation.app.RecommendationExtender! setContentTypes(String![]!);
+    method public androidx.recommendation.app.RecommendationExtender! setGenres(String![]!);
+    method public androidx.recommendation.app.RecommendationExtender! setMaturityRating(@androidx.recommendation.app.ContentRecommendation.ContentMaturity String!);
+    method public androidx.recommendation.app.RecommendationExtender! setPricingInformation(@androidx.recommendation.app.ContentRecommendation.ContentPricing String!, String!);
+    method public androidx.recommendation.app.RecommendationExtender! setRunningTime(long);
+    method public androidx.recommendation.app.RecommendationExtender! setStatus(@androidx.recommendation.app.ContentRecommendation.ContentStatus int);
+  }
+
+}
+

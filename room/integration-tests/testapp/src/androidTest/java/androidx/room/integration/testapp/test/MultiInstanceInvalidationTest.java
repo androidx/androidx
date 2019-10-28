@@ -44,7 +44,6 @@ import androidx.room.integration.testapp.database.SampleDatabase;
 import androidx.test.core.app.ApplicationProvider;
 import androidx.test.ext.junit.runners.AndroidJUnit4;
 import androidx.test.filters.LargeTest;
-import androidx.test.filters.MediumTest;
 import androidx.test.platform.app.InstrumentationRegistry;
 import androidx.test.rule.ServiceTestRule;
 
@@ -63,6 +62,7 @@ import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.TimeoutException;
 
+@LargeTest
 @RunWith(AndroidJUnit4.class)
 public class MultiInstanceInvalidationTest {
 
@@ -110,7 +110,6 @@ public class MultiInstanceInvalidationTest {
     }
 
     @Test
-    @MediumTest
     public void invalidateInAnotherInstance() throws Exception {
         final SampleDatabase db1 = openDatabase(true);
         final SampleDatabase db2 = openDatabase(true);
@@ -125,7 +124,6 @@ public class MultiInstanceInvalidationTest {
     }
 
     @Test
-    @LargeTest
     public void invalidationInAnotherInstance_noMultiInstanceInvalidation() throws Exception {
         final SampleDatabase db1 = openDatabase(false);
         final SampleDatabase db2 = openDatabase(false);
@@ -146,7 +144,6 @@ public class MultiInstanceInvalidationTest {
     }
 
     @Test
-    @LargeTest
     public void invalidationInAnotherInstance_mixed() throws Exception {
         final SampleDatabase db1 = openDatabase(false);
         final SampleDatabase db2 = openDatabase(true); // Enabled only on one side
@@ -167,7 +164,6 @@ public class MultiInstanceInvalidationTest {
     }
 
     @Test
-    @LargeTest
     public void invalidationInAnotherInstance_closed() throws Exception {
         final SampleDatabase db1 = openDatabase(true);
         final SampleDatabase db2 = openDatabase(true);
@@ -194,11 +190,10 @@ public class MultiInstanceInvalidationTest {
 
         assertTrue(changed1.second.await(3, TimeUnit.SECONDS));
         assertTrue(changed2.second.await(3, TimeUnit.SECONDS));
-        assertFalse(changed3.second.await(300, TimeUnit.MILLISECONDS));
+        assertFalse(changed3.second.await(3, TimeUnit.SECONDS));
     }
 
     @Test
-    @LargeTest
     public void invalidationCausesNoLoop() throws Exception {
         final SampleDatabase db1 = openDatabase(true);
         final SampleDatabase db2 = openDatabase(true);
@@ -213,7 +208,6 @@ public class MultiInstanceInvalidationTest {
     }
 
     @Test
-    @MediumTest
     public void reopen() throws Exception {
         final SampleDatabase db1 = openDatabase(true);
         final Product product = new Product();
@@ -230,7 +224,6 @@ public class MultiInstanceInvalidationTest {
     }
 
     @Test
-    @MediumTest
     public void invalidatedByAnotherProcess() throws Exception {
         bindTestService();
         final SampleDatabase db = openDatabase(true);
@@ -246,7 +239,6 @@ public class MultiInstanceInvalidationTest {
     }
 
     @Test
-    @MediumTest
     public void invalidateAnotherProcess() throws Exception {
         bindTestService();
         final SampleDatabase db = openDatabase(true);
@@ -258,7 +250,6 @@ public class MultiInstanceInvalidationTest {
     // TODO: b/72877822 Better performance measurement
     @Ignore
     @Test
-    @LargeTest
     public void performance_oneByOne() {
         final List<Customer> customers = generateCustomers(100);
         final long[] elapsed = measureSeveralTimesEach(false, customers);
@@ -269,7 +260,6 @@ public class MultiInstanceInvalidationTest {
     // TODO: b/72877822 Better performance measurement
     @Ignore
     @Test
-    @LargeTest
     public void performance_bulk() {
         final List<Customer> customers = generateCustomers(10000);
         final long[] elapsed = measureSeveralTimesEach(true, customers);

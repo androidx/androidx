@@ -56,11 +56,11 @@ function runTest() {
   ./gradlew $SERVICE_MODULE_NAME:assembleDebugAndroidTest || { echo "Build failed. Aborting."; exit 1; }
 
   echo "Installing the test apks"
-  adb $DEVICE_SERIAL install -r "../../out/dist/$CLIENT_MODULE_NAME.apk" || { echo "Apk installation failed. Aborting."; exit 1; }
-  adb $DEVICE_SERIAL install -r "../../out/dist/$SERVICE_MODULE_NAME.apk" || { echo "Apk installation failed. Aborting."; exit 1; }
+  $ADB $DEVICE_SERIAL install -r "../../out/dist/apks/$CLIENT_MODULE_NAME.apk" || { echo "Apk installation failed. Aborting."; exit 1; }
+  $ADB $DEVICE_SERIAL install -r "../../out/dist/apks/$SERVICE_MODULE_NAME.apk" || { echo "Apk installation failed. Aborting."; exit 1; }
 
   echo "Running the tests"
-  local test_command="adb $DEVICE_SERIAL shell am instrument -w -e debug false -e client_version $CLIENT_VERSION -e service_version $SERVICE_VERSION"
+  local test_command="$ADB $DEVICE_SERIAL shell am instrument -w -e debug false -e client_version $CLIENT_VERSION -e service_version $SERVICE_VERSION"
   local client_test_runner="android.support.mediacompat.client.test/androidx.test.runner.AndroidJUnitRunner"
   local service_test_runner="android.support.mediacompat.service.test/androidx.test.runner.AndroidJUnitRunner"
 
@@ -86,6 +86,18 @@ then
   echo "Current working directory is $OLD_PWD"
   echo "Please re-run this script in any folder under frameworks/support."
   exit 1;
+fi
+
+if [ "`uname`" == "Darwin" ]; then
+  PLATFORM="darwin"
+else
+  PLATFORM="linux"
+fi
+ADB="../../prebuilts/fullsdk-$PLATFORM/platform-tools/adb"
+if [ ! -f "$ADB" ]; then
+  echo "adb not found at $ADB, finding adb in \$PATH..." 1>&2
+  command -v adb > /dev/null 2>&1 || { echo "adb not found in \$PATH" 1>&2; exit 1; }
+  ADB="adb"
 fi
 
 case ${1} in

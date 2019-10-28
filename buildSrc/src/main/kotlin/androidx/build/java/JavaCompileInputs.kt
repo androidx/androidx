@@ -17,11 +17,13 @@
 package androidx.build.java
 
 import androidx.build.androidJarFile
-import com.android.build.gradle.api.BaseVariant
+import androidx.build.multiplatformExtension
 import com.android.build.gradle.LibraryExtension
+import com.android.build.gradle.api.BaseVariant
+import com.android.build.gradle.api.SourceKind
+import org.gradle.api.Project
 import org.gradle.api.attributes.Attribute
 import org.gradle.api.file.FileCollection
-import org.gradle.api.Project
 import org.gradle.api.tasks.SourceSet
 import java.io.File
 
@@ -29,7 +31,7 @@ import java.io.File
 // This can be helpful for creating Metalava and Dokka tasks with the same settings
 data class JavaCompileInputs(
     // Source files to process
-    val sourcePaths: Collection<File>,
+    val sourcePaths: FileCollection,
 
     // Dependencies of [sourcePaths].
     val dependencyClasspath: FileCollection,
@@ -39,26 +41,56 @@ data class JavaCompileInputs(
 ) {
     companion object {
         // Constructs a JavaCompileInputs from a library and its variant
-        fun fromLibraryVariant(library: LibraryExtension, variant: BaseVariant): JavaCompileInputs {
-            var sourcePaths: Collection<File> = variant.sourceSets.find({ it ->
-                it.name == "main"
-            })!!.javaDirectories
+        fun fromLibraryVariant(
+            library: LibraryExtension,
+            variant: BaseVariant,
+            project: Project
+        ): JavaCompileInputs {
+            val sourceCollection = project.files(getSourcePaths(variant, project))
+            sourceCollection.builtBy(variant.javaCompileProvider)
             val dependencyClasspath = variant.compileConfiguration.incoming.artifactView { config ->
                 config.attributes { container ->
                     container.attribute(Attribute.of("artifactType", String::class.java), "jar")
                 }
             }.artifacts.artifactFiles
-            var bootClasspath: Collection<File> = library.bootClasspath
 
-            return JavaCompileInputs(sourcePaths, dependencyClasspath, bootClasspath)
+            return JavaCompileInputs(
+                sourceCollection,
+                dependencyClasspath,
+                library.bootClasspath
+            )
         }
 
         // Constructs a JavaCompileInputs from a sourceset
         fun fromSourceSet(sourceSet: SourceSet, project: Project): JavaCompileInputs {
             val sourcePaths: Collection<File> = sourceSet.allSource.srcDirs
             val dependencyClasspath = sourceSet.compileClasspath
+            return fromSourcesAndDeps(sourcePaths, dependencyClasspath, project)
+        }
+
+        fun fromSourcesAndDeps(
+            sourcePaths: Collection<File>,
+            dependencyClasspath: FileCollection,
+            project: Project
+        ): JavaCompileInputs {
             val bootClasspath: Collection<File> = androidJarFile(project).files
-            return JavaCompileInputs(sourcePaths, dependencyClasspath, bootClasspath)
+            val sourceCollection = project.files(sourcePaths)
+            return JavaCompileInputs(sourceCollection, dependencyClasspath, bootClasspath)
+        }
+
+        private fun getSourcePaths(variant: BaseVariant, project: Project): Collection<File> {
+            // If the project has the kotlin-multiplatform plugin, we want to return a combined
+            // collection of all the source files inside '*main' source sets. I.e, given a module
+            // with a common and Android source set, this will look inside commonMain and
+            // androidMain.
+            return project.multiplatformExtension?.run {
+                sourceSets
+                    .filter { it.name.contains("main", ignoreCase = true) }
+                    .flatMap { it.kotlin.sourceDirectories }
+                    .also { require(it.isNotEmpty()) }
+            } ?: variant
+                .getSourceFolders(SourceKind.JAVA)
+                .map { folder -> folder.dir }
         }
     }
 }

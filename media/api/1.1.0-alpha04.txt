@@ -49,14 +49,14 @@ package android.support.v4.media {
     ctor public MediaBrowserCompat.MediaItem(android.support.v4.media.MediaDescriptionCompat, int);
     method public int describeContents();
     method public static android.support.v4.media.MediaBrowserCompat.MediaItem! fromMediaItem(Object!);
-    method public static java.util.List<android.support.v4.media.MediaBrowserCompat.MediaItem>! fromMediaItemList(java.util.List<?>!);
+    method public static java.util.List<android.support.v4.media.MediaBrowserCompat.MediaItem!>! fromMediaItemList(java.util.List<?>!);
     method public android.support.v4.media.MediaDescriptionCompat getDescription();
     method public int getFlags();
     method public String? getMediaId();
     method public boolean isBrowsable();
     method public boolean isPlayable();
     method public void writeToParcel(android.os.Parcel!, int);
-    field public static final android.os.Parcelable.Creator<android.support.v4.media.MediaBrowserCompat.MediaItem>! CREATOR;
+    field public static final android.os.Parcelable.Creator<android.support.v4.media.MediaBrowserCompat.MediaItem!>! CREATOR;
     field public static final int FLAG_BROWSABLE = 1; // 0x1
     field public static final int FLAG_PLAYABLE = 2; // 0x2
   }
@@ -64,13 +64,13 @@ package android.support.v4.media {
   public abstract static class MediaBrowserCompat.SearchCallback {
     ctor public MediaBrowserCompat.SearchCallback();
     method public void onError(String, android.os.Bundle!);
-    method public void onSearchResult(String, android.os.Bundle!, java.util.List<android.support.v4.media.MediaBrowserCompat.MediaItem>);
+    method public void onSearchResult(String, android.os.Bundle!, java.util.List<android.support.v4.media.MediaBrowserCompat.MediaItem!>);
   }
 
   public abstract static class MediaBrowserCompat.SubscriptionCallback {
     ctor public MediaBrowserCompat.SubscriptionCallback();
-    method public void onChildrenLoaded(String, java.util.List<android.support.v4.media.MediaBrowserCompat.MediaItem>);
-    method public void onChildrenLoaded(String, java.util.List<android.support.v4.media.MediaBrowserCompat.MediaItem>, android.os.Bundle);
+    method public void onChildrenLoaded(String, java.util.List<android.support.v4.media.MediaBrowserCompat.MediaItem!>);
+    method public void onChildrenLoaded(String, java.util.List<android.support.v4.media.MediaBrowserCompat.MediaItem!>, android.os.Bundle);
     method public void onError(String);
     method public void onError(String, android.os.Bundle);
   }
@@ -95,7 +95,7 @@ package android.support.v4.media {
     field public static final long BT_FOLDER_TYPE_PLAYLISTS = 5L; // 0x5L
     field public static final long BT_FOLDER_TYPE_TITLES = 1L; // 0x1L
     field public static final long BT_FOLDER_TYPE_YEARS = 6L; // 0x6L
-    field public static final android.os.Parcelable.Creator<android.support.v4.media.MediaDescriptionCompat>! CREATOR;
+    field public static final android.os.Parcelable.Creator<android.support.v4.media.MediaDescriptionCompat!>! CREATOR;
     field public static final String EXTRA_BT_FOLDER_TYPE = "android.media.extra.BT_FOLDER_TYPE";
     field public static final String EXTRA_DOWNLOAD_STATUS = "android.media.extra.DOWNLOAD_STATUS";
     field public static final long STATUS_DOWNLOADED = 2L; // 0x2L
@@ -128,10 +128,10 @@ package android.support.v4.media {
     method public android.support.v4.media.RatingCompat! getRating(String!);
     method public String! getString(String!);
     method public CharSequence! getText(String!);
-    method public java.util.Set<java.lang.String>! keySet();
+    method public java.util.Set<java.lang.String!>! keySet();
     method public int size();
     method public void writeToParcel(android.os.Parcel!, int);
-    field public static final android.os.Parcelable.Creator<android.support.v4.media.MediaMetadataCompat>! CREATOR;
+    field public static final android.os.Parcelable.Creator<android.support.v4.media.MediaMetadataCompat!>! CREATOR;
     field public static final String METADATA_KEY_ADVERTISEMENT = "android.media.metadata.ADVERTISEMENT";
     field public static final String METADATA_KEY_ALBUM = "android.media.metadata.ALBUM";
     field public static final String METADATA_KEY_ALBUM_ART = "android.media.metadata.ALBUM_ART";
@@ -192,7 +192,7 @@ package android.support.v4.media {
     method public static android.support.v4.media.RatingCompat! newThumbRating(boolean);
     method public static android.support.v4.media.RatingCompat! newUnratedRating(int);
     method public void writeToParcel(android.os.Parcel!, int);
-    field public static final android.os.Parcelable.Creator<android.support.v4.media.RatingCompat>! CREATOR;
+    field public static final android.os.Parcelable.Creator<android.support.v4.media.RatingCompat!>! CREATOR;
     field public static final int RATING_3_STARS = 3; // 0x3
     field public static final int RATING_4_STARS = 4; // 0x4
     field public static final int RATING_5_STARS = 5; // 0x5
@@ -221,7 +221,7 @@ package android.support.v4.media.session {
     method public String! getPackageName();
     method public android.support.v4.media.session.MediaControllerCompat.PlaybackInfo! getPlaybackInfo();
     method public android.support.v4.media.session.PlaybackStateCompat! getPlaybackState();
-    method public java.util.List<android.support.v4.media.session.MediaSessionCompat.QueueItem>! getQueue();
+    method public java.util.List<android.support.v4.media.session.MediaSessionCompat.QueueItem!>! getQueue();
     method public CharSequence! getQueueTitle();
     method public int getRatingType();
     method public int getRepeatMode();
@@ -249,7 +249,7 @@ package android.support.v4.media.session {
     method public void onExtrasChanged(android.os.Bundle!);
     method public void onMetadataChanged(android.support.v4.media.MediaMetadataCompat!);
     method public void onPlaybackStateChanged(android.support.v4.media.session.PlaybackStateCompat!);
-    method public void onQueueChanged(java.util.List<android.support.v4.media.session.MediaSessionCompat.QueueItem>!);
+    method public void onQueueChanged(java.util.List<android.support.v4.media.session.MediaSessionCompat.QueueItem!>!);
     method public void onQueueTitleChanged(CharSequence!);
     method public void onRepeatModeChanged(int);
     method public void onSessionDestroyed();
@@ -321,7 +321,7 @@ package android.support.v4.media.session {
     method public void setPlaybackState(android.support.v4.media.session.PlaybackStateCompat!);
     method public void setPlaybackToLocal(int);
     method public void setPlaybackToRemote(androidx.media.VolumeProviderCompat!);
-    method public void setQueue(java.util.List<android.support.v4.media.session.MediaSessionCompat.QueueItem>!);
+    method public void setQueue(java.util.List<android.support.v4.media.session.MediaSessionCompat.QueueItem!>!);
     method public void setQueueTitle(CharSequence!);
     method public void setRatingType(int);
     method public void setRepeatMode(int);
@@ -381,12 +381,12 @@ package android.support.v4.media.session {
     ctor public MediaSessionCompat.QueueItem(android.support.v4.media.MediaDescriptionCompat!, long);
     method public int describeContents();
     method public static android.support.v4.media.session.MediaSessionCompat.QueueItem! fromQueueItem(Object!);
-    method public static java.util.List<android.support.v4.media.session.MediaSessionCompat.QueueItem>! fromQueueItemList(java.util.List<?>!);
+    method public static java.util.List<android.support.v4.media.session.MediaSessionCompat.QueueItem!>! fromQueueItemList(java.util.List<?>!);
     method public android.support.v4.media.MediaDescriptionCompat! getDescription();
     method public long getQueueId();
     method public Object! getQueueItem();
     method public void writeToParcel(android.os.Parcel!, int);
-    field public static final android.os.Parcelable.Creator<android.support.v4.media.session.MediaSessionCompat.QueueItem>! CREATOR;
+    field public static final android.os.Parcelable.Creator<android.support.v4.media.session.MediaSessionCompat.QueueItem!>! CREATOR;
     field public static final int UNKNOWN_ID = -1; // 0xffffffff
   }
 
@@ -395,7 +395,7 @@ package android.support.v4.media.session {
     method public static android.support.v4.media.session.MediaSessionCompat.Token! fromToken(Object!);
     method public Object! getToken();
     method public void writeToParcel(android.os.Parcel!, int);
-    field public static final android.os.Parcelable.Creator<android.support.v4.media.session.MediaSessionCompat.Token>! CREATOR;
+    field public static final android.os.Parcelable.Creator<android.support.v4.media.session.MediaSessionCompat.Token!>! CREATOR;
   }
 
   public class ParcelableVolumeInfo implements android.os.Parcelable {
@@ -403,7 +403,7 @@ package android.support.v4.media.session {
     ctor public ParcelableVolumeInfo(android.os.Parcel!);
     method public int describeContents();
     method public void writeToParcel(android.os.Parcel!, int);
-    field public static final android.os.Parcelable.Creator<android.support.v4.media.session.ParcelableVolumeInfo>! CREATOR;
+    field public static final android.os.Parcelable.Creator<android.support.v4.media.session.ParcelableVolumeInfo!>! CREATOR;
     field public int audioStream;
     field public int controlType;
     field public int currentVolume;
@@ -417,7 +417,7 @@ package android.support.v4.media.session {
     method public long getActions();
     method public long getActiveQueueItemId();
     method public long getBufferedPosition();
-    method public java.util.List<android.support.v4.media.session.PlaybackStateCompat.CustomAction>! getCustomActions();
+    method public java.util.List<android.support.v4.media.session.PlaybackStateCompat.CustomAction!>! getCustomActions();
     method public int getErrorCode();
     method public CharSequence! getErrorMessage();
     method public android.os.Bundle? getExtras();
@@ -450,7 +450,7 @@ package android.support.v4.media.session {
     field public static final long ACTION_SKIP_TO_PREVIOUS = 16L; // 0x10L
     field public static final long ACTION_SKIP_TO_QUEUE_ITEM = 4096L; // 0x1000L
     field public static final long ACTION_STOP = 1L; // 0x1L
-    field public static final android.os.Parcelable.Creator<android.support.v4.media.session.PlaybackStateCompat>! CREATOR;
+    field public static final android.os.Parcelable.Creator<android.support.v4.media.session.PlaybackStateCompat!>! CREATOR;
     field public static final int ERROR_CODE_ACTION_ABORTED = 10; // 0xa
     field public static final int ERROR_CODE_APP_ERROR = 1; // 0x1
     field public static final int ERROR_CODE_AUTHENTICATION_EXPIRED = 3; // 0x3
@@ -512,7 +512,7 @@ package android.support.v4.media.session {
     method public int getIcon();
     method public CharSequence! getName();
     method public void writeToParcel(android.os.Parcel!, int);
-    field public static final android.os.Parcelable.Creator<android.support.v4.media.session.PlaybackStateCompat.CustomAction>! CREATOR;
+    field public static final android.os.Parcelable.Creator<android.support.v4.media.session.PlaybackStateCompat.CustomAction!>! CREATOR;
   }
 
   public static final class PlaybackStateCompat.CustomAction.Builder {
@@ -598,19 +598,19 @@ package androidx.media {
 
   public abstract class MediaBrowserServiceCompat extends android.app.Service {
     ctor public MediaBrowserServiceCompat();
-    method public void dump(java.io.FileDescriptor!, java.io.PrintWriter!, String[]!);
+    method public void dump(java.io.FileDescriptor!, java.io.PrintWriter!, String![]!);
     method public final android.os.Bundle! getBrowserRootHints();
     method public final androidx.media.MediaSessionManager.RemoteUserInfo getCurrentBrowserInfo();
     method public android.support.v4.media.session.MediaSessionCompat.Token? getSessionToken();
     method public void notifyChildrenChanged(String);
     method public void notifyChildrenChanged(String, android.os.Bundle);
     method public android.os.IBinder! onBind(android.content.Intent!);
-    method public void onCustomAction(String, android.os.Bundle!, androidx.media.MediaBrowserServiceCompat.Result<android.os.Bundle>);
+    method public void onCustomAction(String, android.os.Bundle!, androidx.media.MediaBrowserServiceCompat.Result<android.os.Bundle!>);
     method public abstract androidx.media.MediaBrowserServiceCompat.BrowserRoot? onGetRoot(String, int, android.os.Bundle?);
-    method public abstract void onLoadChildren(String, androidx.media.MediaBrowserServiceCompat.Result<java.util.List<android.support.v4.media.MediaBrowserCompat.MediaItem>>);
-    method public void onLoadChildren(String, androidx.media.MediaBrowserServiceCompat.Result<java.util.List<android.support.v4.media.MediaBrowserCompat.MediaItem>>, android.os.Bundle);
-    method public void onLoadItem(String!, androidx.media.MediaBrowserServiceCompat.Result<android.support.v4.media.MediaBrowserCompat.MediaItem>);
-    method public void onSearch(String, android.os.Bundle!, androidx.media.MediaBrowserServiceCompat.Result<java.util.List<android.support.v4.media.MediaBrowserCompat.MediaItem>>);
+    method public abstract void onLoadChildren(String, androidx.media.MediaBrowserServiceCompat.Result<java.util.List<android.support.v4.media.MediaBrowserCompat.MediaItem!>!>);
+    method public void onLoadChildren(String, androidx.media.MediaBrowserServiceCompat.Result<java.util.List<android.support.v4.media.MediaBrowserCompat.MediaItem!>!>, android.os.Bundle);
+    method public void onLoadItem(String!, androidx.media.MediaBrowserServiceCompat.Result<android.support.v4.media.MediaBrowserCompat.MediaItem!>);
+    method public void onSearch(String, android.os.Bundle!, androidx.media.MediaBrowserServiceCompat.Result<java.util.List<android.support.v4.media.MediaBrowserCompat.MediaItem!>!>);
     method public void setSessionToken(android.support.v4.media.session.MediaSessionCompat.Token!);
     field public static final String SERVICE_INTERFACE = "android.media.browse.MediaBrowserService";
   }
@@ -682,7 +682,7 @@ package androidx.media.app {
     method public static android.support.v4.media.session.MediaSessionCompat.Token! getMediaSession(android.app.Notification!);
     method public androidx.media.app.NotificationCompat.MediaStyle! setCancelButtonIntent(android.app.PendingIntent!);
     method public androidx.media.app.NotificationCompat.MediaStyle! setMediaSession(android.support.v4.media.session.MediaSessionCompat.Token!);
-    method public androidx.media.app.NotificationCompat.MediaStyle! setShowActionsInCompactView(int...!);
+    method public androidx.media.app.NotificationCompat.MediaStyle! setShowActionsInCompactView(int...);
     method public androidx.media.app.NotificationCompat.MediaStyle! setShowCancelButton(boolean);
   }
 

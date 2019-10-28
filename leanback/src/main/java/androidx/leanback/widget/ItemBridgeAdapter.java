@@ -412,6 +412,7 @@ public class ItemBridgeAdapter extends RecyclerView.Adapter implements FacetProv
     }
 
     @Override
+    @SuppressWarnings("unchecked")
     public final  void onBindViewHolder(RecyclerView.ViewHolder holder, int position,
             List payloads) {
         if (DEBUG) Log.v(TAG, "onBindViewHolder position " + position);

@@ -28,6 +28,7 @@ import androidx.annotation.IntDef;
 import androidx.annotation.NonNull;
 import androidx.annotation.RequiresApi;
 import androidx.annotation.RestrictTo;
+import androidx.annotation.UiThread;
 import androidx.webkit.internal.SafeBrowsingResponseImpl;
 import androidx.webkit.internal.WebResourceErrorImpl;
 import androidx.webkit.internal.WebViewFeatureInternal;
@@ -56,7 +57,7 @@ public class WebViewClientCompat extends WebViewClient implements WebViewClientB
     };
 
     /** @hide */
-    @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP_PREFIX)
+    @RestrictTo(RestrictTo.Scope.LIBRARY)
     @IntDef(value = {
             WebViewClient.SAFE_BROWSING_THREAT_UNKNOWN,
             WebViewClient.SAFE_BROWSING_THREAT_MALWARE,
@@ -73,7 +74,8 @@ public class WebViewClientCompat extends WebViewClient implements WebViewClientB
      * @hide
      */
     @Override
-    @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP_PREFIX)
+    @RestrictTo(RestrictTo.Scope.LIBRARY)
+    @NonNull
     public final String[] getSupportedFeatures() {
         return sSupportedFeatures;
     }
@@ -110,6 +112,7 @@ public class WebViewClientCompat extends WebViewClient implements WebViewClientB
      * @param url  The URL corresponding to the page navigation that triggered this callback.
      */
     @Override
+    @UiThread
     public void onPageCommitVisible(@NonNull WebView view, @NonNull String url) {
     }
 
@@ -120,7 +123,7 @@ public class WebViewClientCompat extends WebViewClient implements WebViewClientB
      *
      * @hide
      */
-    @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP_PREFIX)
+    @RestrictTo(RestrictTo.Scope.LIBRARY)
     @Override
     @RequiresApi(21)
     public final void onReceivedError(@NonNull WebView view, @NonNull WebResourceRequest request,
@@ -159,6 +162,7 @@ public class WebViewClientCompat extends WebViewClient implements WebViewClientB
      */
     @SuppressWarnings("deprecation") // for invoking the old onReceivedError.
     @RequiresApi(21)
+    @UiThread
     public void onReceivedError(@NonNull WebView view, @NonNull WebResourceRequest request,
             @NonNull WebResourceErrorCompat error) {
         if (Build.VERSION.SDK_INT < 21) return;
@@ -191,6 +195,7 @@ public class WebViewClientCompat extends WebViewClient implements WebViewClientB
      * @param errorResponse Information about the error occurred.
      */
     @Override
+    @UiThread
     public void onReceivedHttpError(@NonNull WebView view, @NonNull WebResourceRequest request,
             @NonNull WebResourceResponse errorResponse) {
     }
@@ -202,7 +207,7 @@ public class WebViewClientCompat extends WebViewClient implements WebViewClientB
      *
      * @hide
      */
-    @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP_PREFIX)
+    @RestrictTo(RestrictTo.Scope.LIBRARY)
     @Override
     public final void onSafeBrowsingHit(@NonNull WebView view, @NonNull WebResourceRequest request,
             @SafeBrowsingThreat int threatType,
@@ -240,6 +245,7 @@ public class WebViewClientCompat extends WebViewClient implements WebViewClientB
      *                   {@code SAFE_BROWSING_THREAT_*} value.
      * @param callback Applications must invoke one of the callback methods.
      */
+    @UiThread
     public void onSafeBrowsingHit(@NonNull WebView view, @NonNull WebResourceRequest request,
             @SafeBrowsingThreat int threatType, @NonNull SafeBrowsingResponseCompat callback) {
         if (WebViewFeature.isFeatureSupported(
@@ -282,6 +288,7 @@ public class WebViewClientCompat extends WebViewClient implements WebViewClientB
     @Override
     @SuppressWarnings("deprecation") // for invoking the old shouldOverrideUrlLoading.
     @RequiresApi(21)
+    @UiThread
     public boolean shouldOverrideUrlLoading(@NonNull WebView view,
             @NonNull WebResourceRequest request) {
         if (Build.VERSION.SDK_INT < 21) return false;

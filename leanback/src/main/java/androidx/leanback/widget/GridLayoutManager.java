@@ -28,6 +28,7 @@ import android.os.Bundle;
 import android.os.Parcel;
 import android.os.Parcelable;
 import android.util.AttributeSet;
+import android.util.DisplayMetrics;
 import android.util.Log;
 import android.util.SparseIntArray;
 import android.view.FocusFinder;
@@ -243,6 +244,11 @@ final class GridLayoutManager extends RecyclerView.LayoutManager {
         }
 
         @Override
+        protected float calculateSpeedPerPixel(DisplayMetrics displayMetrics) {
+            return super.calculateSpeedPerPixel(displayMetrics) * mSmoothScrollSpeedFactor;
+        }
+
+        @Override
         protected int calculateTimeForScrolling(int dx) {
             int ms = super.calculateTimeForScrolling(dx);
             if (mWindowAlignment.mainAxis().getSize() > 0) {
@@ -397,6 +403,7 @@ final class GridLayoutManager extends RecyclerView.LayoutManager {
 
     // maximum pending movement in one direction.
     static final int DEFAULT_MAX_PENDING_MOVES = 10;
+    float mSmoothScrollSpeedFactor = 1f;
     int mMaxPendingMoves = DEFAULT_MAX_PENDING_MOVES;
     // minimal milliseconds to scroll window size in major direction,  we put a cap to prevent the
     // effect smooth scrolling too over to bind an item view then drag the item view back.
@@ -1083,7 +1090,11 @@ final class GridLayoutManager extends RecyclerView.LayoutManager {
     }
 
     protected View getViewForPosition(int position) {
-        return mRecycler.getViewForPosition(position);
+        View v = mRecycler.getViewForPosition(position);
+        LayoutParams lp = (LayoutParams) v.getLayoutParams();
+        RecyclerView.ViewHolder vh = mBaseGridView.getChildViewHolder(v);
+        lp.setItemAlignmentFacet((ItemAlignmentFacet) getFacet(vh, ItemAlignmentFacet.class));
+        return v;
     }
 
     final int getOpticalLeft(View v) {
@@ -1581,6 +1592,7 @@ final class GridLayoutManager extends RecyclerView.LayoutManager {
     /**
      * Get facet from the ViewHolder or the viewType.
      */
+    @SuppressWarnings("unchecked")
     <E> E getFacet(RecyclerView.ViewHolder vh, Class<? extends E> facetClass) {
         E facet = null;
         if (vh instanceof FacetProvider) {
@@ -1614,8 +1626,6 @@ final class GridLayoutManager extends RecyclerView.LayoutManager {
             View v = getViewForPosition(index - mPositionDeltaInPreLayout);
             if (TRACE) TraceCompat.endSection();
             LayoutParams lp = (LayoutParams) v.getLayoutParams();
-            RecyclerView.ViewHolder vh = mBaseGridView.getChildViewHolder(v);
-            lp.setItemAlignmentFacet((ItemAlignmentFacet)getFacet(vh, ItemAlignmentFacet.class));
             // See recyclerView docs:  we don't need re-add scraped view if it was removed.
             if (!lp.isItemRemoved()) {
                 if (TRACE) TraceCompat.beginSection("addView");

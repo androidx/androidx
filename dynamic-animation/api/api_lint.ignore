@@ -1,0 +1,79 @@
+// Baseline format: 1.0
+MissingNullability: androidx.dynamicanimation.animation.DynamicAnimation#ALPHA:
+    Missing nullability on field `ALPHA` in class `class androidx.dynamicanimation.animation.DynamicAnimation`
+MissingNullability: androidx.dynamicanimation.animation.DynamicAnimation#ROTATION:
+    Missing nullability on field `ROTATION` in class `class androidx.dynamicanimation.animation.DynamicAnimation`
+MissingNullability: androidx.dynamicanimation.animation.DynamicAnimation#ROTATION_X:
+    Missing nullability on field `ROTATION_X` in class `class androidx.dynamicanimation.animation.DynamicAnimation`
+MissingNullability: androidx.dynamicanimation.animation.DynamicAnimation#ROTATION_Y:
+    Missing nullability on field `ROTATION_Y` in class `class androidx.dynamicanimation.animation.DynamicAnimation`
+MissingNullability: androidx.dynamicanimation.animation.DynamicAnimation#SCALE_X:
+    Missing nullability on field `SCALE_X` in class `class androidx.dynamicanimation.animation.DynamicAnimation`
+MissingNullability: androidx.dynamicanimation.animation.DynamicAnimation#SCALE_Y:
+    Missing nullability on field `SCALE_Y` in class `class androidx.dynamicanimation.animation.DynamicAnimation`
+MissingNullability: androidx.dynamicanimation.animation.DynamicAnimation#SCROLL_X:
+    Missing nullability on field `SCROLL_X` in class `class androidx.dynamicanimation.animation.DynamicAnimation`
+MissingNullability: androidx.dynamicanimation.animation.DynamicAnimation#SCROLL_Y:
+    Missing nullability on field `SCROLL_Y` in class `class androidx.dynamicanimation.animation.DynamicAnimation`
+MissingNullability: androidx.dynamicanimation.animation.DynamicAnimation#TRANSLATION_X:
+    Missing nullability on field `TRANSLATION_X` in class `class androidx.dynamicanimation.animation.DynamicAnimation`
+MissingNullability: androidx.dynamicanimation.animation.DynamicAnimation#TRANSLATION_Y:
+    Missing nullability on field `TRANSLATION_Y` in class `class androidx.dynamicanimation.animation.DynamicAnimation`
+MissingNullability: androidx.dynamicanimation.animation.DynamicAnimation#TRANSLATION_Z:
+    Missing nullability on field `TRANSLATION_Z` in class `class androidx.dynamicanimation.animation.DynamicAnimation`
+MissingNullability: androidx.dynamicanimation.animation.DynamicAnimation#X:
+    Missing nullability on field `X` in class `class androidx.dynamicanimation.animation.DynamicAnimation`
+MissingNullability: androidx.dynamicanimation.animation.DynamicAnimation#Y:
+    Missing nullability on field `Y` in class `class androidx.dynamicanimation.animation.DynamicAnimation`
+MissingNullability: androidx.dynamicanimation.animation.DynamicAnimation#Z:
+    Missing nullability on field `Z` in class `class androidx.dynamicanimation.animation.DynamicAnimation`
+MissingNullability: androidx.dynamicanimation.animation.DynamicAnimation#addEndListener(androidx.dynamicanimation.animation.DynamicAnimation.OnAnimationEndListener) parameter #0:
+    Missing nullability on parameter `listener` in method `addEndListener`
+MissingNullability: androidx.dynamicanimation.animation.DynamicAnimation#addUpdateListener(androidx.dynamicanimation.animation.DynamicAnimation.OnAnimationUpdateListener) parameter #0:
+    Missing nullability on parameter `listener` in method `addUpdateListener`
+MissingNullability: androidx.dynamicanimation.animation.DynamicAnimation#removeEndListener(androidx.dynamicanimation.animation.DynamicAnimation.OnAnimationEndListener) parameter #0:
+    Missing nullability on parameter `listener` in method `removeEndListener`
+MissingNullability: androidx.dynamicanimation.animation.DynamicAnimation#removeUpdateListener(androidx.dynamicanimation.animation.DynamicAnimation.OnAnimationUpdateListener) parameter #0:
+    Missing nullability on parameter `listener` in method `removeUpdateListener`
+MissingNullability: androidx.dynamicanimation.animation.DynamicAnimation.OnAnimationEndListener#onAnimationEnd(androidx.dynamicanimation.animation.DynamicAnimation, boolean, float, float) parameter #0:
+    Missing nullability on parameter `animation` in method `onAnimationEnd`
+MissingNullability: androidx.dynamicanimation.animation.DynamicAnimation.OnAnimationUpdateListener#onAnimationUpdate(androidx.dynamicanimation.animation.DynamicAnimation, float, float) parameter #0:
+    Missing nullability on parameter `animation` in method `onAnimationUpdate`
+MissingNullability: androidx.dynamicanimation.animation.FlingAnimation#FlingAnimation(K, androidx.dynamicanimation.animation.FloatPropertyCompat<K>) parameter #1:
+    Missing nullability on parameter `property` in method `FlingAnimation`
+MissingNullability: androidx.dynamicanimation.animation.FlingAnimation#FlingAnimation(androidx.dynamicanimation.animation.FloatValueHolder) parameter #0:
+    Missing nullability on parameter `floatValueHolder` in method `FlingAnimation`
+MissingNullability: androidx.dynamicanimation.animation.FlingAnimation#setFriction(float):
+    Missing nullability on method `setFriction` return
+MissingNullability: androidx.dynamicanimation.animation.FlingAnimation#setMaxValue(float):
+    Missing nullability on method `setMaxValue` return
+MissingNullability: androidx.dynamicanimation.animation.FlingAnimation#setMinValue(float):
+    Missing nullability on method `setMinValue` return
+MissingNullability: androidx.dynamicanimation.animation.FlingAnimation#setStartVelocity(float):
+    Missing nullability on method `setStartVelocity` return
+MissingNullability: androidx.dynamicanimation.animation.FloatPropertyCompat#FloatPropertyCompat(String) parameter #0:
+    Missing nullability on parameter `name` in method `FloatPropertyCompat`
+MissingNullability: androidx.dynamicanimation.animation.FloatPropertyCompat#createFloatPropertyCompat(android.util.FloatProperty<T>):
+    Missing nullability on method `createFloatPropertyCompat` return
+MissingNullability: androidx.dynamicanimation.animation.FloatPropertyCompat#createFloatPropertyCompat(android.util.FloatProperty<T>) parameter #0:
+    Missing nullability on parameter `property` in method `createFloatPropertyCompat`
+MissingNullability: androidx.dynamicanimation.animation.SpringAnimation#SpringAnimation(K, androidx.dynamicanimation.animation.FloatPropertyCompat<K>) parameter #1:
+    Missing nullability on parameter `property` in method `SpringAnimation`
+MissingNullability: androidx.dynamicanimation.animation.SpringAnimation#SpringAnimation(K, androidx.dynamicanimation.animation.FloatPropertyCompat<K>, float) parameter #1:
+    Missing nullability on parameter `property` in method `SpringAnimation`
+MissingNullability: androidx.dynamicanimation.animation.SpringAnimation#SpringAnimation(androidx.dynamicanimation.animation.FloatValueHolder) parameter #0:
+    Missing nullability on parameter `floatValueHolder` in method `SpringAnimation`
+MissingNullability: androidx.dynamicanimation.animation.SpringAnimation#SpringAnimation(androidx.dynamicanimation.animation.FloatValueHolder, float) parameter #0:
+    Missing nullability on parameter `floatValueHolder` in method `SpringAnimation`
+MissingNullability: androidx.dynamicanimation.animation.SpringAnimation#getSpring():
+    Missing nullability on method `getSpring` return
+MissingNullability: androidx.dynamicanimation.animation.SpringAnimation#setSpring(androidx.dynamicanimation.animation.SpringForce):
+    Missing nullability on method `setSpring` return
+MissingNullability: androidx.dynamicanimation.animation.SpringAnimation#setSpring(androidx.dynamicanimation.animation.SpringForce) parameter #0:
+    Missing nullability on parameter `force` in method `setSpring`
+MissingNullability: androidx.dynamicanimation.animation.SpringForce#setDampingRatio(float):
+    Missing nullability on method `setDampingRatio` return
+MissingNullability: androidx.dynamicanimation.animation.SpringForce#setFinalPosition(float):
+    Missing nullability on method `setFinalPosition` return
+MissingNullability: androidx.dynamicanimation.animation.SpringForce#setStiffness(float):
+    Missing nullability on method `setStiffness` return

@@ -24,6 +24,7 @@ import androidx.room.OnConflictStrategy
 object OnConflictProcessor {
     val INVALID_ON_CONFLICT = -1
 
+    @Suppress("DEPRECATION")
     fun onConflictText(@OnConflictStrategy onConflict: Int): String {
         return when (onConflict) {
             OnConflictStrategy.REPLACE -> "REPLACE"

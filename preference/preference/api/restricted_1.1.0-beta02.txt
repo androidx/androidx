@@ -1,0 +1,75 @@
+// Signature format: 3.0
+package androidx.preference {
+
+
+  public class Preference implements java.lang.Comparable<androidx.preference.Preference> {
+    method @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP_PREFIX) protected void onAttachedToHierarchy(androidx.preference.PreferenceManager!, long);
+    method @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP_PREFIX) protected void performClick(android.view.View!);
+    method @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP_PREFIX) public void performClick();
+  }
+
+  @Deprecated public abstract class PreferenceDialogFragment extends android.app.DialogFragment implements android.content.DialogInterface.OnClickListener {
+  }
+
+  public abstract class PreferenceDialogFragmentCompat extends androidx.fragment.app.DialogFragment implements android.content.DialogInterface.OnClickListener {
+  }
+
+  @Deprecated public abstract class PreferenceFragment extends android.app.Fragment implements androidx.preference.DialogPreference.TargetFragment androidx.preference.PreferenceManager.OnDisplayPreferenceDialogListener androidx.preference.PreferenceManager.OnNavigateToScreenListener androidx.preference.PreferenceManager.OnPreferenceTreeClickListener {
+  }
+
+  public abstract class PreferenceFragmentCompat extends androidx.fragment.app.Fragment implements androidx.preference.DialogPreference.TargetFragment androidx.preference.PreferenceManager.OnDisplayPreferenceDialogListener androidx.preference.PreferenceManager.OnNavigateToScreenListener androidx.preference.PreferenceManager.OnPreferenceTreeClickListener {
+    method @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP_PREFIX) public androidx.fragment.app.Fragment! getCallbackFragment();
+    method @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP_PREFIX) protected void onBindPreferences();
+    method @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP_PREFIX) protected void onUnbindPreferences();
+  }
+
+  public abstract class PreferenceGroup extends androidx.preference.Preference {
+    method @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP_PREFIX) public androidx.preference.PreferenceGroup.OnExpandButtonClickListener? getOnExpandButtonClickListener();
+    method @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP_PREFIX) public void setOnExpandButtonClickListener(androidx.preference.PreferenceGroup.OnExpandButtonClickListener?);
+  }
+
+  @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP_PREFIX) public static interface PreferenceGroup.OnExpandButtonClickListener {
+    method public void onExpandButtonClick();
+  }
+
+  @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP_PREFIX) public class PreferenceGroupAdapter extends androidx.recyclerview.widget.RecyclerView.Adapter<androidx.preference.PreferenceViewHolder> implements androidx.preference.PreferenceGroup.PreferencePositionCallback {
+    ctor public PreferenceGroupAdapter(androidx.preference.PreferenceGroup!);
+    method public androidx.preference.Preference! getItem(int);
+    method public int getItemCount();
+    method public int getPreferenceAdapterPosition(String!);
+    method public int getPreferenceAdapterPosition(androidx.preference.Preference!);
+    method public void onBindViewHolder(androidx.preference.PreferenceViewHolder, int);
+    method public androidx.preference.PreferenceViewHolder onCreateViewHolder(android.view.ViewGroup, int);
+    method public void onPreferenceChange(androidx.preference.Preference!);
+    method public void onPreferenceHierarchyChange(androidx.preference.Preference!);
+    method public void onPreferenceVisibilityChange(androidx.preference.Preference!);
+  }
+
+  public class PreferenceManager {
+    ctor @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP_PREFIX) public PreferenceManager(android.content.Context!);
+    method @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP_PREFIX) public androidx.preference.PreferenceScreen! inflateFromResource(android.content.Context!, int, androidx.preference.PreferenceScreen!);
+  }
+
+  @Deprecated @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP_PREFIX) public class PreferenceRecyclerViewAccessibilityDelegate extends androidx.recyclerview.widget.RecyclerViewAccessibilityDelegate {
+    ctor @Deprecated public PreferenceRecyclerViewAccessibilityDelegate(androidx.recyclerview.widget.RecyclerView!);
+  }
+
+  public final class PreferenceScreen extends androidx.preference.PreferenceGroup {
+    ctor @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP_PREFIX) public PreferenceScreen(android.content.Context!, android.util.AttributeSet!);
+  }
+
+  public class PreferenceViewHolder extends androidx.recyclerview.widget.RecyclerView.ViewHolder {
+    method @RestrictTo(androidx.annotation.RestrictTo.Scope.TESTS) public static androidx.preference.PreferenceViewHolder! createInstanceForTests(android.view.View!);
+  }
+
+  public abstract class TwoStatePreference extends androidx.preference.Preference {
+  }
+
+  @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP_PREFIX) public class UnPressableLinearLayout extends android.widget.LinearLayout {
+    ctor public UnPressableLinearLayout(android.content.Context!);
+    ctor public UnPressableLinearLayout(android.content.Context!, android.util.AttributeSet!);
+  }
+
+}
+
+

@@ -19,11 +19,14 @@ import static androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP_PREFIX;
 
 import android.content.Context;
 import android.content.res.TypedArray;
+import android.os.Build;
 import android.util.AttributeSet;
 import android.view.Gravity;
 import android.view.View;
 import android.widget.LinearLayout;
 
+import androidx.annotation.NonNull;
+import androidx.annotation.Nullable;
 import androidx.annotation.RestrictTo;
 import androidx.appcompat.R;
 import androidx.core.view.ViewCompat;
@@ -46,9 +49,12 @@ public class ButtonBarLayout extends LinearLayout {
 
     private int mMinimumHeight = 0;
 
-    public ButtonBarLayout(Context context, AttributeSet attrs) {
+    public ButtonBarLayout(@NonNull Context context, @Nullable AttributeSet attrs) {
         super(context, attrs);
         final TypedArray ta = context.obtainStyledAttributes(attrs, R.styleable.ButtonBarLayout);
+        if (Build.VERSION.SDK_INT >= 29) {
+            saveAttributeDataForStyleable(context, R.styleable.ButtonBarLayout, attrs, ta, 0, 0);
+        }
         mAllowStacking = ta.getBoolean(R.styleable.ButtonBarLayout_allowStacking, true);
         ta.recycle();
     }

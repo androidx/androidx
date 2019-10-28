@@ -154,13 +154,11 @@ public class GridLayoutManager extends LinearLayoutManager {
         if (mOrientation == HORIZONTAL) {
             info.setCollectionItemInfo(AccessibilityNodeInfoCompat.CollectionItemInfoCompat.obtain(
                     glp.getSpanIndex(), glp.getSpanSize(),
-                    spanGroupIndex, 1,
-                    mSpanCount > 1 && glp.getSpanSize() == mSpanCount, false));
+                    spanGroupIndex, 1, false, false));
         } else { // VERTICAL
             info.setCollectionItemInfo(AccessibilityNodeInfoCompat.CollectionItemInfoCompat.obtain(
                     spanGroupIndex , 1,
-                    glp.getSpanIndex(), glp.getSpanSize(),
-                    mSpanCount > 1 && glp.getSpanSize() == mSpanCount, false));
+                    glp.getSpanIndex(), glp.getSpanSize(), false, false));
         }
     }
 

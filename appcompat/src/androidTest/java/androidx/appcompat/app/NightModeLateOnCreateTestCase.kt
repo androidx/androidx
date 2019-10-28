@@ -19,7 +19,7 @@ package androidx.appcompat.app
 import android.content.res.Configuration
 import androidx.appcompat.testutils.NightModeUtils
 import androidx.appcompat.testutils.NightModeUtils.assertConfigurationNightModeEquals
-import androidx.appcompat.testutils.NightModeUtils.setNightModeAndWaitForDestroy
+import androidx.appcompat.testutils.NightModeUtils.setNightModeAndWaitForRecreate
 import androidx.lifecycle.Lifecycle
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import androidx.test.filters.LargeTest
@@ -59,7 +59,7 @@ class NightModeLateOnCreateTestCase {
         )
 
         // Simulate the user setting night mode, which should force an activity recreate().
-        setNightModeAndWaitForDestroy(
+        setNightModeAndWaitForRecreate(
             activityRule,
             AppCompatDelegate.MODE_NIGHT_YES,
             NightModeUtils.NightSetMode.LOCAL

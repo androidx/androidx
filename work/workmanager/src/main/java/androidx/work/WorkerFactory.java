@@ -39,9 +39,14 @@ public abstract class WorkerFactory {
      * Override this method to implement your custom worker-creation logic.  Use
      * {@link Configuration.Builder#setWorkerFactory(WorkerFactory)} to use your custom class.
      * <p></p>
+     * Throwing an {@link Exception} here will crash the application. If a {@link WorkerFactory}
+     * is unable to create an instance of the {@link ListenableWorker}, it should return {@code
+     * null} so it can delegate to the default {@link WorkerFactory}.
+     * <p></p>
      * Returns a new instance of the specified {@code workerClassName} given the arguments.  The
-     * returned worker should be a newly-created instance and must not have been previously returned
-     * or used by WorkManager.
+     * returned worker must be a newly-created instance and must not have been previously returned
+     * or invoked by WorkManager. Otherwise, WorkManager will throw an
+     * {@link IllegalStateException}.
      *
      * @param appContext The application context
      * @param workerClassName The class name of the worker to create
@@ -60,11 +65,13 @@ public abstract class WorkerFactory {
      * the current ClassLoader.  The returned worker should be a newly-created instance and must not
      * have been previously returned or used by WorkManager.
      *
-     * @param appContext The application context
-     * @param workerClassName The class name of the worker to create
+     * @param appContext       The application context
+     * @param workerClassName  The class name of the worker to create
      * @param workerParameters Parameters for worker initialization
      * @return A new {@link ListenableWorker} instance of type {@code workerClassName}, or
-     *         {@code null} if the worker could not be created
+     * {@code null} if the worker could not be created
+     * @throws IllegalStateException when the {@link WorkerFactory} returns an instance
+     *                               of the {@link ListenableWorker} which is used.
      * @hide
      */
     @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
@@ -73,31 +80,40 @@ public abstract class WorkerFactory {
             @NonNull String workerClassName,
             @NonNull WorkerParameters workerParameters) {
 
-        ListenableWorker worker;
-        worker = createWorker(appContext, workerClassName, workerParameters);
-        if (worker != null) {
-            return worker;
+        ListenableWorker worker = createWorker(appContext, workerClassName, workerParameters);
+        if (worker == null) {
+            // Fallback to reflection
+            Class<? extends ListenableWorker> clazz = null;
+            try {
+                clazz = Class.forName(workerClassName).asSubclass(ListenableWorker.class);
+            } catch (ClassNotFoundException e) {
+                Logger.get().error(TAG, "Class not found: " + workerClassName);
+            }
+            if (clazz != null) {
+                try {
+                    Constructor<? extends ListenableWorker> constructor =
+                            clazz.getDeclaredConstructor(Context.class, WorkerParameters.class);
+                    worker = constructor.newInstance(
+                            appContext,
+                            workerParameters);
+                } catch (Exception e) {
+                    Logger.get().error(TAG, "Could not instantiate " + workerClassName, e);
+                }
+            }
         }
 
-        Class<? extends ListenableWorker> clazz;
-        try {
-            clazz = Class.forName(workerClassName).asSubclass(ListenableWorker.class);
-        } catch (ClassNotFoundException e) {
-            Logger.get().error(TAG, "Class not found: " + workerClassName);
-            return null;
+        if (worker != null && worker.isUsed()) {
+            String factoryName = this.getClass().getName();
+            String message = String.format("WorkerFactory (%s) returned an instance of a "
+                            + "ListenableWorker (%s) which has already been invoked. "
+                            + "createWorker() must always return a new instance of a "
+                            + "ListenableWorker.",
+                    factoryName, workerClassName);
+
+            throw new IllegalStateException(message);
         }
 
-        try {
-            Constructor<? extends ListenableWorker> constructor =
-                    clazz.getDeclaredConstructor(Context.class, WorkerParameters.class);
-            worker = constructor.newInstance(
-                    appContext,
-                    workerParameters);
-            return worker;
-        } catch (Exception e) {
-            Logger.get().error(TAG, "Could not instantiate " + workerClassName, e);
-        }
-        return null;
+        return worker;
     }
 
     /**
@@ -105,9 +121,8 @@ public abstract class WorkerFactory {
      * @hide
      */
     @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
-    public static WorkerFactory getDefaultWorkerFactory() {
+    public static @NonNull WorkerFactory getDefaultWorkerFactory() {
         return new WorkerFactory() {
-
             @Override
             public @Nullable ListenableWorker createWorker(
                     @NonNull Context appContext,

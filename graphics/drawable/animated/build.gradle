@@ -1,6 +1,7 @@
 import static androidx.build.dependencies.DependenciesKt.*
 import androidx.build.LibraryGroups
 import androidx.build.LibraryVersions
+import androidx.build.Publish
 
 plugins {
     id("AndroidXPlugin")
@@ -10,7 +11,7 @@ plugins {
 dependencies {
     api(project(":vectordrawable"))
     implementation("androidx.interpolator:interpolator:1.0.0")
-    implementation(project(":collection"))
+    implementation("androidx.collection:collection:1.1.0")
 
     androidTestImplementation(ANDROIDX_TEST_EXT_JUNIT)
     androidTestImplementation(ANDROIDX_TEST_CORE)
@@ -20,6 +21,10 @@ dependencies {
 }
 
 android {
+    compileOptions {
+        sourceCompatibility = JavaVersion.VERSION_1_7
+        targetCompatibility = JavaVersion.VERSION_1_7
+    }
     defaultConfig {
         // This disables the builds tools automatic vector -> PNG generation
         generatedDensities = []
@@ -36,7 +41,7 @@ android {
 
 androidx {
     name = "Android Support AnimatedVectorDrawable"
-    publish = true
+    publish = Publish.SNAPSHOT_AND_RELEASE
     mavenVersion = LibraryVersions.VECTORDRAWABLE_ANIMATED
     mavenGroup = LibraryGroups.VECTORDRAWABLE
     inceptionYear = "2015"

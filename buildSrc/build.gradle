@@ -1,3 +1,5 @@
+import org.jetbrains.kotlin.gradle.tasks.KotlinCompile
+
 buildscript {
     def supportRootFolder = project.projectDir.getParentFile()
     apply from: "unbundled_check.gradle"
@@ -42,21 +44,35 @@ apply from: "kotlin-dsl-dependency.gradle.kts"
 allprojects {
     repos.addMavenRepositories(repositories)
 
-    tasks.withType(Test) {
-        testLogging {
-            events = ["failed"]
-            exceptionFormat "full"
+    tasks.withType(KotlinCompile).configureEach {
+        kotlinOptions {
+            freeCompilerArgs += ["-Werror"]
         }
     }
 }
 
 dependencies {
-    compile build_libs.gradle
-    compile build_libs.error_prone_gradle
-    compile build_libs.dokka_gradle
-    compile build_libs.kotlin.gradle_plugin
-    compile gradleApi()
-    compile project("jetpad-integration")
-    testCompile "junit:junit:4.12"
+    implementation build_libs.gradle
+    implementation build_libs.dex_member_list
+    implementation build_libs.error_prone_gradle
+    implementation build_libs.dokka_gradle
+    implementation build_libs.kotlin.gradle_plugin
+    implementation gradleApi()
+    implementation project("jetpad-integration")
 }
 
+apply plugin: "java-gradle-plugin"
+
+sourceSets {
+    main.java.srcDirs += "${supportRootFolder}/benchmark/gradle-plugin/src/main/kotlin"
+    main.resources.srcDirs += "${supportRootFolder}/benchmark/gradle-plugin/src/main/resources"
+}
+
+gradlePlugin {
+    plugins {
+        benchmark {
+            id = 'androidx.benchmark'
+            implementationClass = 'androidx.benchmark.gradle.BenchmarkPlugin'
+        }
+    }
+}

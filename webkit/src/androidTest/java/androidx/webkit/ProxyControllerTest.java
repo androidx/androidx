@@ -104,7 +104,7 @@ public class ProxyControllerTest {
         // Localhost should use proxy with loopback rule
         setProxyOverrideSync(new ProxyConfig.Builder()
                 .addProxyRule(proxyUrl)
-                .subtractImplicitRules()
+                .removeImplicitRules()
                 .build());
         mWebViewOnUiThread.loadUrl(contentUrl);
         assertNotNull(mProxyServer.takeRequest(WebkitUtils.TEST_TIMEOUT_MS,
@@ -225,23 +225,15 @@ public class ProxyControllerTest {
     private void setProxyOverrideSync(final ProxyConfig proxyRules) {
         final ResolvableFuture<Void> future = ResolvableFuture.create();
         ProxyController.getInstance().setProxyOverride(proxyRules, new SynchronousExecutor(),
-                new Runnable() {
-                    @Override
-                    public void run() {
-                        future.set(null);
-                    }
-                });
+                () -> future.set(null));
         // This future is used to ensure that setProxyOverride's callback was called
         WebkitUtils.waitForFuture(future);
     }
 
     private void clearProxyOverrideSync() {
         final ResolvableFuture<Void> future = ResolvableFuture.create();
-        ProxyController.getInstance().clearProxyOverride(new SynchronousExecutor(), new Runnable() {
-            @Override
-            public void run() {
-                future.set(null);
-            }
+        ProxyController.getInstance().clearProxyOverride(new SynchronousExecutor(), () -> {
+            future.set(null);
         });
         // This future is used to ensure that clearProxyOverride's callback was called
         WebkitUtils.waitForFuture(future);

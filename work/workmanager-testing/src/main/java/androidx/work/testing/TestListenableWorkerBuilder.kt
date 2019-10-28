@@ -36,10 +36,10 @@ import androidx.work.ListenableWorker
 inline fun <reified W : ListenableWorker> TestListenableWorkerBuilder(
     context: Context,
     inputData: Data = Data.EMPTY,
-    tags: List<String> = listOf(),
+    tags: List<String> = emptyList(),
     runAttemptCount: Int = 1,
-    triggeredContentUris: List<Uri> = listOf(),
-    triggeredContentAuthorities: List<String> = listOf()
+    triggeredContentUris: List<Uri> = emptyList(),
+    triggeredContentAuthorities: List<String> = emptyList()
 ): TestListenableWorkerBuilder<W> {
     val builder = TestListenableWorkerBuilder.from(context, W::class.java)
     builder.apply {

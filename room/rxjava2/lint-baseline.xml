@@ -1,0 +1,279 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<issues format="5" by="lint 3.5.0-beta04" client="gradle" variant="debug" version="3.5.0-beta04">
+
+    <issue
+        id="UnknownNullness"
+        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
+        errorLine1="    public EmptyResultSetException(String message) {"
+        errorLine2="                                   ~~~~~~">
+        <location
+            file="src/main/java/androidx/room/EmptyResultSetException.java"
+            line="28"
+            column="36"/>
+    </issue>
+
+    <issue
+        id="UnknownNullness"
+        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
+        errorLine1="    public static Flowable&lt;Object> createFlowable(final RoomDatabase database,"
+        errorLine2="                  ~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/room/RxRoom.java"
+            line="68"
+            column="19"/>
+    </issue>
+
+    <issue
+        id="UnknownNullness"
+        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
+        errorLine1="    public static Flowable&lt;Object> createFlowable(final RoomDatabase database,"
+        errorLine2="                                                        ~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/room/RxRoom.java"
+            line="68"
+            column="57"/>
+    </issue>
+
+    <issue
+        id="UnknownNullness"
+        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
+        errorLine1="            final String... tableNames) {"
+        errorLine2="                  ~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/room/RxRoom.java"
+            line="69"
+            column="19"/>
+    </issue>
+
+    <issue
+        id="UnknownNullness"
+        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
+        errorLine1="    public static &lt;T> Flowable&lt;T> createFlowable(final RoomDatabase database,"
+        errorLine2="                      ~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/room/RxRoom.java"
+            line="110"
+            column="23"/>
+    </issue>
+
+    <issue
+        id="UnknownNullness"
+        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
+        errorLine1="    public static &lt;T> Flowable&lt;T> createFlowable(final RoomDatabase database,"
+        errorLine2="                                                       ~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/room/RxRoom.java"
+            line="110"
+            column="56"/>
+    </issue>
+
+    <issue
+        id="UnknownNullness"
+        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
+        errorLine1="            final String[] tableNames, final Callable&lt;T> callable) {"
+        errorLine2="                  ~~~~~~~~">
+        <location
+            file="src/main/java/androidx/room/RxRoom.java"
+            line="111"
+            column="19"/>
+    </issue>
+
+    <issue
+        id="UnknownNullness"
+        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
+        errorLine1="            final String[] tableNames, final Callable&lt;T> callable) {"
+        errorLine2="                                             ~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/room/RxRoom.java"
+            line="111"
+            column="46"/>
+    </issue>
+
+    <issue
+        id="UnknownNullness"
+        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
+        errorLine1="    public static &lt;T> Flowable&lt;T> createFlowable(final RoomDatabase database,"
+        errorLine2="                      ~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/room/RxRoom.java"
+            line="122"
+            column="23"/>
+    </issue>
+
+    <issue
+        id="UnknownNullness"
+        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
+        errorLine1="    public static &lt;T> Flowable&lt;T> createFlowable(final RoomDatabase database,"
+        errorLine2="                                                       ~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/room/RxRoom.java"
+            line="122"
+            column="56"/>
+    </issue>
+
+    <issue
+        id="UnknownNullness"
+        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
+        errorLine1="            final boolean inTransaction, final String[] tableNames, final Callable&lt;T> callable) {"
+        errorLine2="                                               ~~~~~~~~">
+        <location
+            file="src/main/java/androidx/room/RxRoom.java"
+            line="123"
+            column="48"/>
+    </issue>
+
+    <issue
+        id="UnknownNullness"
+        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
+        errorLine1="            final boolean inTransaction, final String[] tableNames, final Callable&lt;T> callable) {"
+        errorLine2="                                                                          ~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/room/RxRoom.java"
+            line="123"
+            column="75"/>
+    </issue>
+
+    <issue
+        id="UnknownNullness"
+        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
+        errorLine1="    public static Observable&lt;Object> createObservable(final RoomDatabase database,"
+        errorLine2="                  ~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/room/RxRoom.java"
+            line="153"
+            column="19"/>
+    </issue>
+
+    <issue
+        id="UnknownNullness"
+        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
+        errorLine1="    public static Observable&lt;Object> createObservable(final RoomDatabase database,"
+        errorLine2="                                                            ~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/room/RxRoom.java"
+            line="153"
+            column="61"/>
+    </issue>
+
+    <issue
+        id="UnknownNullness"
+        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
+        errorLine1="            final String... tableNames) {"
+        errorLine2="                  ~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/room/RxRoom.java"
+            line="154"
+            column="19"/>
+    </issue>
+
+    <issue
+        id="UnknownNullness"
+        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
+        errorLine1="    public static &lt;T> Observable&lt;T> createObservable(final RoomDatabase database,"
+        errorLine2="                      ~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/room/RxRoom.java"
+            line="189"
+            column="23"/>
+    </issue>
+
+    <issue
+        id="UnknownNullness"
+        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
+        errorLine1="    public static &lt;T> Observable&lt;T> createObservable(final RoomDatabase database,"
+        errorLine2="                                                           ~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/room/RxRoom.java"
+            line="189"
+            column="60"/>
+    </issue>
+
+    <issue
+        id="UnknownNullness"
+        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
+        errorLine1="            final String[] tableNames, final Callable&lt;T> callable) {"
+        errorLine2="                  ~~~~~~~~">
+        <location
+            file="src/main/java/androidx/room/RxRoom.java"
+            line="190"
+            column="19"/>
+    </issue>
+
+    <issue
+        id="UnknownNullness"
+        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
+        errorLine1="            final String[] tableNames, final Callable&lt;T> callable) {"
+        errorLine2="                                             ~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/room/RxRoom.java"
+            line="190"
+            column="46"/>
+    </issue>
+
+    <issue
+        id="UnknownNullness"
+        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
+        errorLine1="    public static &lt;T> Observable&lt;T> createObservable(final RoomDatabase database,"
+        errorLine2="                      ~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/room/RxRoom.java"
+            line="201"
+            column="23"/>
+    </issue>
+
+    <issue
+        id="UnknownNullness"
+        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
+        errorLine1="    public static &lt;T> Observable&lt;T> createObservable(final RoomDatabase database,"
+        errorLine2="                                                           ~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/room/RxRoom.java"
+            line="201"
+            column="60"/>
+    </issue>
+
+    <issue
+        id="UnknownNullness"
+        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
+        errorLine1="            final boolean inTransaction, final String[] tableNames, final Callable&lt;T> callable) {"
+        errorLine2="                                               ~~~~~~~~">
+        <location
+            file="src/main/java/androidx/room/RxRoom.java"
+            line="202"
+            column="48"/>
+    </issue>
+
+    <issue
+        id="UnknownNullness"
+        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
+        errorLine1="            final boolean inTransaction, final String[] tableNames, final Callable&lt;T> callable) {"
+        errorLine2="                                                                          ~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/room/RxRoom.java"
+            line="202"
+            column="75"/>
+    </issue>
+
+    <issue
+        id="UnknownNullness"
+        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
+        errorLine1="    public static &lt;T> Single&lt;T> createSingle(final Callable&lt;T> callable) {"
+        errorLine2="                      ~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/room/RxRoom.java"
+            line="224"
+            column="23"/>
+    </issue>
+
+    <issue
+        id="UnknownNullness"
+        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
+        errorLine1="    public static &lt;T> Single&lt;T> createSingle(final Callable&lt;T> callable) {"
+        errorLine2="                                                   ~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/room/RxRoom.java"
+            line="224"
+            column="52"/>
+    </issue>
+
+</issues>

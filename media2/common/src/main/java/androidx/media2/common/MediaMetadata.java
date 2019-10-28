@@ -16,7 +16,8 @@
 
 package androidx.media2.common;
 
-import static androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP_PREFIX;
+import static androidx.annotation.RestrictTo.Scope.LIBRARY;
+import static androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP;
 
 import android.annotation.SuppressLint;
 import android.graphics.Bitmap;
@@ -62,8 +63,7 @@ import java.util.Set;
  * <li><a href="#Duration">Duration</a>
  * <li><a href="#UserRating">User rating</a>
  * </ol>
- * <a name="MediaId"></a>
- * <h3>{@link MediaMetadata#METADATA_KEY_MEDIA_ID Media ID}</h3>
+ * <h3 id="MediaId">{@link MediaMetadata#METADATA_KEY_MEDIA_ID Media ID}</h3>
  * <p>
  * If set, the media ID must be the persistent key for the underlying media contents, so
  * {@link androidx.media2.session.MediaController} and {@link androidx.media2.session.MediaBrowser}
@@ -77,9 +77,7 @@ import java.util.Set;
  * The {@link androidx.media2.session.MediaLibraryService.MediaLibrarySession} would require it
  * for the library root, so {@link androidx.media2.session.MediaBrowser} can call subsequent
  * {@link androidx.media2.session.MediaBrowser#getChildren} with the ID.
- * <p>
- * <a name="Browsable"></a>
- * <h3>{@link MediaMetadata#METADATA_KEY_BROWSABLE Browsable type}</h3>
+ * <h3 id="Browsable">{@link MediaMetadata#METADATA_KEY_BROWSABLE Browsable type}</h3>
  * <p>
  * Browsable defines whether the media item has children and type of children if any. With this,
  * {@link androidx.media2.session.MediaBrowser} can know whether the subsequent
@@ -88,9 +86,7 @@ import java.util.Set;
  * The {@link androidx.media2.session.MediaLibraryService.MediaLibrarySession} would require
  * the explicit browsable type for the media items returned by the
  * {@link androidx.media2.session.MediaLibraryService.MediaLibrarySession.MediaLibrarySessionCallback}.
- * <p>
- * <a name="Playable"></a>
- * <h3>{@link MediaMetadata#METADATA_KEY_PLAYABLE Playable type}</h3>
+ * <h3 id="Playable">{@link MediaMetadata#METADATA_KEY_PLAYABLE Playable type}</h3>
  * <p>
  * Playable defines whether the media item can be played or not. It may be possible for a playlist
  * to contain a media item which isn't playable in order to show a disabled media item.
@@ -98,18 +94,14 @@ import java.util.Set;
  * The {@link androidx.media2.session.MediaLibraryService.MediaLibrarySession} would require
  * the explicit playable value for the media items returned by the
  * {@link androidx.media2.session.MediaLibraryService.MediaLibrarySession.MediaLibrarySessionCallback}.
- * <p>
- * <a name="Duration"></a>
- * <li><a href="#Duration">{@link MediaMetadata#METADATA_KEY_DURATION Duration}</a>
+ * <h3 id="Duration">{@link MediaMetadata#METADATA_KEY_DURATION Duration}</h3>
  * The duration is the length of the contents. The {@link androidx.media2.session.MediaController}
  * can only get the duration through the metadata. This tells when would the playback ends, and also
  * tells about the allowed range of {@link androidx.media2.session.MediaController#seekTo(long)}.
  * <p>
  * If it's not set by developer, {@link androidx.media2.session.MediaSession} would update
  * the duration in the metadata with the {@link SessionPlayer#getDuration()}.
- * <p>
- * <a name="UserRating"></a>
- * <li><a href="#UserRating">{@link MediaMetadata#METADATA_KEY_USER_RATING User rating}</a>
+ * <h3 id="UserRating">{@link MediaMetadata#METADATA_KEY_USER_RATING User rating}</h3>
  * <p>
  * Prefer to have unrated user rating instead of {@code null}, so
  * {@link androidx.media2.session.MediaController} can know the possible user rating type
@@ -470,7 +462,7 @@ public final class MediaMetadata extends CustomVersionedParcelable {
      * @see Builder#putFloat(String, float)
      * @see #getFloat(String)
      */
-    @RestrictTo(LIBRARY_GROUP_PREFIX)
+    @RestrictTo(LIBRARY)
     public static final String METADATA_KEY_RADIO_FREQUENCY =
             "androidx.media2.metadata.RADIO_FREQUENCY";
 
@@ -484,7 +476,7 @@ public final class MediaMetadata extends CustomVersionedParcelable {
      * @see #getText(String)
      * @see #getString(String)
      */
-    @RestrictTo(LIBRARY_GROUP_PREFIX)
+    @RestrictTo(LIBRARY)
     public static final String METADATA_KEY_RADIO_PROGRAM_NAME =
             "androidx.media2.metadata.RADIO_PROGRAM_NAME";
 
@@ -644,7 +636,7 @@ public final class MediaMetadata extends CustomVersionedParcelable {
     /**
      * @hide
      */
-    @RestrictTo(LIBRARY_GROUP_PREFIX)
+    @RestrictTo(LIBRARY)
     @StringDef({METADATA_KEY_TITLE, METADATA_KEY_ARTIST, METADATA_KEY_ALBUM, METADATA_KEY_AUTHOR,
             METADATA_KEY_WRITER, METADATA_KEY_COMPOSER, METADATA_KEY_COMPILATION,
             METADATA_KEY_DATE, METADATA_KEY_GENRE, METADATA_KEY_ALBUM_ARTIST, METADATA_KEY_ART_URI,
@@ -657,7 +649,7 @@ public final class MediaMetadata extends CustomVersionedParcelable {
     /**
      * @hide
      */
-    @RestrictTo(LIBRARY_GROUP_PREFIX)
+    @RestrictTo(LIBRARY)
     @StringDef({METADATA_KEY_DURATION, METADATA_KEY_YEAR, METADATA_KEY_TRACK_NUMBER,
             METADATA_KEY_NUM_TRACKS, METADATA_KEY_DISC_NUMBER, METADATA_KEY_BROWSABLE,
             METADATA_KEY_PLAYABLE, METADATA_KEY_ADVERTISEMENT, METADATA_KEY_DOWNLOAD_STATUS})
@@ -667,7 +659,7 @@ public final class MediaMetadata extends CustomVersionedParcelable {
     /**
      * @hide
      */
-    @RestrictTo(LIBRARY_GROUP_PREFIX)
+    @RestrictTo(LIBRARY)
     @StringDef({METADATA_KEY_ART, METADATA_KEY_ALBUM_ART, METADATA_KEY_DISPLAY_ICON})
     @Retention(RetentionPolicy.SOURCE)
     public @interface BitmapKey {}
@@ -675,7 +667,7 @@ public final class MediaMetadata extends CustomVersionedParcelable {
     /**
      * @hide
      */
-    @RestrictTo(LIBRARY_GROUP_PREFIX)
+    @RestrictTo(LIBRARY)
     @StringDef({METADATA_KEY_USER_RATING, METADATA_KEY_RATING})
     @Retention(RetentionPolicy.SOURCE)
     public @interface RatingKey {}
@@ -683,7 +675,7 @@ public final class MediaMetadata extends CustomVersionedParcelable {
     /**
      * @hide
      */
-    @RestrictTo(LIBRARY_GROUP_PREFIX)
+    @RestrictTo(LIBRARY)
     @StringDef({METADATA_KEY_RADIO_FREQUENCY})
     @Retention(RetentionPolicy.SOURCE)
     public @interface FloatKey {}
@@ -691,7 +683,7 @@ public final class MediaMetadata extends CustomVersionedParcelable {
     /**
      * @hide
      */
-    @RestrictTo(LIBRARY_GROUP_PREFIX)
+    @RestrictTo(LIBRARY)
     @StringDef({METADATA_KEY_EXTRAS})
     @Retention(RetentionPolicy.SOURCE)
     public @interface BundleKey {}
@@ -961,7 +953,7 @@ public final class MediaMetadata extends CustomVersionedParcelable {
      *
      * @hide
      */
-    @RestrictTo(LIBRARY_GROUP_PREFIX)
+    @RestrictTo(LIBRARY_GROUP)
     public @Nullable Object getObject(@NonNull String key) {
         if (key == null) {
             throw new NullPointerException("key shouldn't be null");
@@ -973,7 +965,7 @@ public final class MediaMetadata extends CustomVersionedParcelable {
      * @hide
      */
     @Override
-    @RestrictTo(LIBRARY_GROUP_PREFIX)
+    @RestrictTo(LIBRARY)
     public void onPreParceling(boolean isStream) {
         List<ParcelImpl> parcelImplList = new ArrayList<>();
         List<String> keysForBitmap = new ArrayList<>();
@@ -997,7 +989,7 @@ public final class MediaMetadata extends CustomVersionedParcelable {
      * @hide
      */
     @Override
-    @RestrictTo(LIBRARY_GROUP_PREFIX)
+    @RestrictTo(LIBRARY)
     public void onPostParceling() {
         List<ParcelImpl> parcelImplList = mBitmapListSlice.getList();
         for (ParcelImpl parcelImpl : parcelImplList) {

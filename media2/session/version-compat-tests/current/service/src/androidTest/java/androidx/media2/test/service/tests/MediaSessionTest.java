@@ -21,18 +21,21 @@ import static org.junit.Assert.assertTrue;
 import static org.junit.Assert.fail;
 
 import android.os.Build;
+import android.os.Bundle;
 import android.os.Handler;
 import android.os.HandlerThread;
 import android.os.Process;
 import android.os.SystemClock;
 import android.util.Log;
 
+import androidx.annotation.NonNull;
 import androidx.media2.common.MediaItem;
 import androidx.media2.common.MediaMetadata;
 import androidx.media2.common.SessionPlayer;
 import androidx.media2.session.MediaSession;
 import androidx.media2.session.MediaSession.SessionCallback;
 import androidx.media2.session.SessionCommandGroup;
+import androidx.media2.test.common.CustomParcelable;
 import androidx.media2.test.common.TestUtils.SyncHandler;
 import androidx.media2.test.service.MediaTestUtils;
 import androidx.media2.test.service.MockPlayer;
@@ -76,8 +79,8 @@ public class MediaSessionTest extends MediaSessionTestBase {
                 .setId(TAG)
                 .setSessionCallback(sHandlerExecutor, new MediaSession.SessionCallback() {
                     @Override
-                    public SessionCommandGroup onConnect(MediaSession session,
-                            MediaSession.ControllerInfo controller) {
+                    public SessionCommandGroup onConnect(@NonNull MediaSession session,
+                            @NonNull MediaSession.ControllerInfo controller) {
                         if (Process.myUid() == controller.getUid()) {
                             return super.onConnect(session, controller);
                         }
@@ -117,6 +120,15 @@ public class MediaSessionTest extends MediaSessionTestBase {
             builder.setExtras(null);
             fail("null extras shouldn't be allowed");
         } catch (NullPointerException e) {
+            // expected. pass-through
+        }
+        try {
+            Bundle extras = new Bundle();
+            extras.putParcelable("key", new CustomParcelable(1));
+            builder = new MediaSession.Builder(mContext, mPlayer);
+            builder.setExtras(extras);
+            fail("custom parcelables shouldn't be allowed for extras");
+        } catch (IllegalArgumentException e) {
             // expected. pass-through
         }
     }

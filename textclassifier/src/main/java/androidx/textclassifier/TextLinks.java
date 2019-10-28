@@ -26,6 +26,7 @@ import android.os.Bundle;
 import android.text.Spannable;
 import android.text.SpannableString;
 import android.text.Spanned;
+import android.text.SpannedString;
 import android.text.method.MovementMethod;
 import android.text.style.ClickableSpan;
 import android.util.Log;
@@ -122,9 +123,7 @@ public final class TextLinks {
 
     /**
      * Returns the text that was used to generate these links.
-     * @hide
      */
-    @RestrictTo(RestrictTo.Scope.LIBRARY)
     @NonNull
     public CharSequence getText() {
         return mFullText;
@@ -309,6 +308,11 @@ public final class TextLinks {
             return bundle;
         }
 
+        @NonNull
+        EntityConfidence getEntityScores() {
+            return mEntityScores;
+        }
+
         /**
          * Extracts a TextLink from a bundle that was added using {@link #toBundle()}.
          */
@@ -343,7 +347,7 @@ public final class TextLinks {
                 @Nullable EntityConfig entityConfig,
                 @Nullable Long referenceTime,
                 @NonNull Bundle extras) {
-            mText = text;
+            mText = SpannedString.valueOf(text);
             mDefaultLocales = defaultLocales;
             mEntityConfig = entityConfig == null
                     ? new TextClassifier.EntityConfig.Builder().build()
@@ -518,6 +522,19 @@ public final class TextLinks {
             return new android.view.textclassifier.TextLinks.Request.Builder(getText())
                     .setDefaultLocales(unwrapLocalListCompat(getDefaultLocales()))
                     .setEntityConfig(toPlatformEntityConfig(getEntityConfig()))
+                    .build();
+        }
+
+        /** @hide */
+        @RestrictTo(RestrictTo.Scope.LIBRARY)
+        @RequiresApi(28)
+        @NonNull
+        static TextLinks.Request fromPlatform(
+                @NonNull android.view.textclassifier.TextLinks.Request request) {
+            return new TextLinks.Request.Builder(request.getText())
+                    .setDefaultLocales(ConvertUtils.wrapLocalList(request.getDefaultLocales()))
+                    .setEntityConfig(
+                            TextClassifier.EntityConfig.fromPlatform(request.getEntityConfig()))
                     .build();
         }
     }
@@ -830,6 +847,22 @@ public final class TextLinks {
         for (android.view.textclassifier.TextLinks.TextLink link : links) {
             builder.addLink(link.getStart(), link.getEnd(),
                     ConvertUtils.createFloatMapFromTextLinks(link));
+        }
+        return builder.build();
+    }
+
+    /** @hide */
+    @RestrictTo(RestrictTo.Scope.LIBRARY)
+    @RequiresApi(28)
+    @NonNull
+    android.view.textclassifier.TextLinks toPlatform() {
+        android.view.textclassifier.TextLinks.Builder builder =
+                new android.view.textclassifier.TextLinks.Builder((String) getText());
+        for (TextLink textLink : getLinks()) {
+            builder.addLink(
+                    textLink.getStart(),
+                    textLink.getEnd(),
+                    textLink.getEntityScores().getConfidenceMap());
         }
         return builder.build();
     }

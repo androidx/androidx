@@ -19,6 +19,7 @@ package androidx.work;
 import android.net.Network;
 import android.net.Uri;
 
+import androidx.annotation.IntRange;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.annotation.RequiresApi;
@@ -47,6 +48,8 @@ public final class WorkerParameters {
     private @NonNull Executor mBackgroundExecutor;
     private @NonNull TaskExecutor mWorkTaskExecutor;
     private @NonNull WorkerFactory mWorkerFactory;
+    private @NonNull ProgressUpdater mProgressUpdater;
+    private @NonNull ForegroundUpdater mForegroundUpdater;
 
     /**
      * @hide
@@ -57,10 +60,12 @@ public final class WorkerParameters {
             @NonNull Data inputData,
             @NonNull Collection<String> tags,
             @NonNull RuntimeExtras runtimeExtras,
-            int runAttemptCount,
+            @IntRange(from = 0) int runAttemptCount,
             @NonNull Executor backgroundExecutor,
             @NonNull TaskExecutor workTaskExecutor,
-            @NonNull WorkerFactory workerFactory) {
+            @NonNull WorkerFactory workerFactory,
+            @NonNull ProgressUpdater progressUpdater,
+            @NonNull ForegroundUpdater foregroundUpdater) {
         mId = id;
         mInputData = inputData;
         mTags = new HashSet<>(tags);
@@ -69,6 +74,8 @@ public final class WorkerParameters {
         mBackgroundExecutor = backgroundExecutor;
         mWorkTaskExecutor = workTaskExecutor;
         mWorkerFactory = workerFactory;
+        mProgressUpdater = progressUpdater;
+        mForegroundUpdater = foregroundUpdater;
     }
 
     /**
@@ -142,6 +149,7 @@ public final class WorkerParameters {
      *
      * @return The current run attempt count for this work.
      */
+    @IntRange(from = 0)
     public int getRunAttemptCount() {
         return mRunAttemptCount;
     }
@@ -168,6 +176,22 @@ public final class WorkerParameters {
     @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
     public @NonNull WorkerFactory getWorkerFactory() {
         return mWorkerFactory;
+    }
+
+    /**
+     * @hide
+     */
+    @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
+    public @NonNull ProgressUpdater getProgressUpdater() {
+        return mProgressUpdater;
+    }
+
+    /**
+     * @hide
+     */
+    @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
+    public @NonNull ForegroundUpdater getForegroundUpdater() {
+        return mForegroundUpdater;
     }
 
     /**

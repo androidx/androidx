@@ -125,7 +125,7 @@ public class SliceQuery {
      */
     public static List<SliceItem> findAll(Slice s, final String format, final String[] hints,
             final String[] nonHints) {
-        ArrayList<SliceItem> ret = new ArrayList();
+        ArrayList<SliceItem> ret = new ArrayList<>();
         findAll(toQueue(s), new Filter<SliceItem>() {
             @Override
             public boolean filter(SliceItem item) {
@@ -140,7 +140,7 @@ public class SliceQuery {
      */
     public static List<SliceItem> findAll(SliceItem s, final String format, final String[] hints,
             final String[] nonHints) {
-        ArrayList<SliceItem> ret = new ArrayList();
+        ArrayList<SliceItem> ret = new ArrayList<>();
         findAll(toQueue(s), new Filter<SliceItem>() {
             @Override
             public boolean filter(SliceItem item) {

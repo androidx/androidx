@@ -17,19 +17,19 @@
 package androidx.build
 
 import com.android.build.gradle.LibraryPlugin
+import java.io.File
 import org.gradle.api.GradleException
 import org.gradle.api.Project
-import org.gradle.api.artifacts.ProjectDependency
 import org.gradle.api.artifacts.Dependency
+import org.gradle.api.artifacts.ProjectDependency
 import org.gradle.api.artifacts.maven.MavenDeployer
 import org.gradle.api.artifacts.maven.MavenPom
 import org.gradle.api.tasks.Upload
 import org.gradle.kotlin.dsl.withGroovyBuilder
-import java.io.File
 
 fun Project.configureMavenArtifactUpload(extension: AndroidXExtension) {
     afterEvaluate {
-        if (extension.publish) {
+        if (extension.publish.shouldPublish()) {
             val mavenGroup = extension.mavenGroup?.group
             if (mavenGroup == null) {
                 throw Exception("You must specify mavenGroup for $name project")
@@ -50,19 +50,16 @@ fun Project.configureMavenArtifactUpload(extension: AndroidXExtension) {
     // Set uploadArchives options.
     val uploadTask = tasks.getByName("uploadArchives") as Upload
 
-    val repo = uri(rootProject.property("supportRepoOut") as File)
-            ?: throw Exception("supportRepoOut not set")
-
     uploadTask.repositories {
         it.withGroovyBuilder {
             "mavenDeployer" {
-                "repository"(mapOf("url" to repo))
+                "repository"(mapOf("url" to uri(getRepositoryDirectory())))
             }
         }
     }
 
     afterEvaluate {
-        if (extension.publish) {
+        if (extension.publish.shouldPublish()) {
             uploadTask.repositories.withType(MavenDeployer::class.java) { mavenDeployer ->
                 mavenDeployer.getPom().project {
                     it.withGroovyBuilder {
@@ -99,7 +96,22 @@ fun Project.configureMavenArtifactUpload(extension: AndroidXExtension) {
                     }
                 }
 
+                val groupText = extension.mavenGroup!!.group
+
+                uploadTask.outputs.dir(
+                    File(
+                        getRepositoryDirectory(),
+                        "${groupText.replace('.', '/')}/${project.name}/${project.version}"
+                    )
+                )
+
                 uploadTask.doFirst {
+                    // Delete any existing archives, so that developers don't get
+                    // confused/surprised by the presence of old versions.
+                    // Additionally, deleting old versions makes it more convenient to iterate
+                    // over all existing archives without visiting archives having old versions too
+                    removePreviouslyUploadedArchives(groupText)
+
                     val androidxDeps = HashSet<Dependency>()
                     collectDependenciesForConfiguration(androidxDeps, this, "api")
                     collectDependenciesForConfiguration(androidxDeps, this, "implementation")
@@ -136,6 +148,14 @@ private fun Project.removeTestDeps(pom: MavenPom) {
         val getScopeMethod = dep::class.java.getDeclaredMethod("getScope")
         getScopeMethod.invoke(dep) as String == "test"
     }
+}
+
+private fun Project.removePreviouslyUploadedArchives(group: String) {
+    val projectArchiveDir = File(
+                                getRepositoryDirectory(),
+                                "${group.replace('.', '/')}/${project.name}"
+                            )
+    projectArchiveDir.deleteRecursively()
 }
 
 // TODO(aurimas): remove this when Gradle bug is fixed.
@@ -207,11 +227,9 @@ private fun collectDependenciesForConfiguration(
     name: String
 ) {
     val config = project.configurations.findByName(name)
-    if (config != null) {
-        config.dependencies.forEach { dep ->
-            if (dep.group?.startsWith("androidx.") ?: false) {
-                androidxDependencies.add(dep)
-            }
+    config?.dependencies?.forEach { dep ->
+        if (dep.group?.startsWith("androidx.") == true) {
+            androidxDependencies.add(dep)
         }
     }
 }
@@ -224,17 +242,13 @@ private fun Project.isAndroidProject(
     for (dep in deps) {
         if (dep is ProjectDependency) {
             if (dep.group == groupId && dep.name == artifactId) {
-                return dep.getDependencyProject().plugins.hasPlugin(LibraryPlugin::class.java)
+                return dep.dependencyProject.plugins.hasPlugin(LibraryPlugin::class.java)
             }
         }
     }
-    var projectModules = project.getProjectsMap()
-    if (projectModules.containsKey("$groupId:$artifactId")) {
-        val localProjectVersion = project.findProject(
-                projectModules.get("$groupId:$artifactId"))
-        if (localProjectVersion != null) {
-            return localProjectVersion.plugins.hasPlugin(LibraryPlugin::class.java)
-        }
+    val projectModules = project.getProjectsMap()
+    projectModules["$groupId:$artifactId"]?.let { module ->
+        return project.findProject(module)?.plugins?.hasPlugin(LibraryPlugin::class.java) ?: false
     }
     return false
 }

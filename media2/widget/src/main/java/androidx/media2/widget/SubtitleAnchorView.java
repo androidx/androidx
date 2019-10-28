@@ -22,9 +22,10 @@ import android.os.Looper;
 import android.util.AttributeSet;
 import android.view.View;
 
+import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
-import androidx.media2.player.subtitle.SubtitleController.Anchor;
-import androidx.media2.player.subtitle.SubtitleTrack.RenderingWidget;
+import androidx.media2.widget.SubtitleController.Anchor;
+import androidx.media2.widget.SubtitleTrack.RenderingWidget;
 
 class SubtitleAnchorView extends View implements Anchor {
     private static final String TAG = "SubtitleAnchorView";
@@ -64,7 +65,7 @@ class SubtitleAnchorView extends View implements Anchor {
             if (mSubtitlesChangedListener == null) {
                 mSubtitlesChangedListener = new RenderingWidget.OnChangedListener() {
                     @Override
-                    public void onChanged(RenderingWidget renderingWidget) {
+                    public void onChanged(@NonNull RenderingWidget renderingWidget) {
                         invalidate();
                     }
                 };

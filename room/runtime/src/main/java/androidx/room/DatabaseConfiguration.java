@@ -23,6 +23,7 @@ import androidx.annotation.Nullable;
 import androidx.annotation.RestrictTo;
 import androidx.sqlite.db.SupportSQLiteOpenHelper;
 
+import java.io.File;
 import java.util.List;
 import java.util.Set;
 import java.util.concurrent.Executor;
@@ -32,6 +33,7 @@ import java.util.concurrent.Executor;
  */
 @SuppressWarnings("WeakerAccess")
 public class DatabaseConfiguration {
+
     /**
      * The factory to use to access the database.
      */
@@ -103,11 +105,24 @@ public class DatabaseConfiguration {
     private final Set<Integer> mMigrationNotRequiredFrom;
 
     /**
+     * The assets path to a pre-packaged database to copy from.
+     */
+    @Nullable
+    public final String copyFromAssetPath;
+
+    /**
+     * The pre-packaged database file to copy from.
+     */
+    @Nullable
+    public final File copyFromFile;
+
+
+    /**
      * Creates a database configuration with the given values.
      *
      * @deprecated Use {@link #DatabaseConfiguration(Context, String,
      * SupportSQLiteOpenHelper.Factory, RoomDatabase.MigrationContainer, List, boolean,
-     * RoomDatabase.JournalMode, Executor, Executor, boolean, boolean, boolean, Set)}
+     * RoomDatabase.JournalMode, Executor, Executor, boolean, boolean, boolean, Set, String, File)}
      *
      * @param context The application context.
      * @param name Name of the database, can be null if it is in memory.
@@ -137,7 +152,52 @@ public class DatabaseConfiguration {
             @Nullable Set<Integer> migrationNotRequiredFrom) {
         this(context, name, sqliteOpenHelperFactory, migrationContainer, callbacks,
                 allowMainThreadQueries, journalMode, queryExecutor, queryExecutor, false,
-                requireMigration, false, migrationNotRequiredFrom);
+                requireMigration, false, migrationNotRequiredFrom, null, null);
+    }
+
+    /**
+     * Creates a database configuration with the given values.
+     *
+     * @deprecated Use {@link #DatabaseConfiguration(Context, String,
+     * SupportSQLiteOpenHelper.Factory, RoomDatabase.MigrationContainer, List, boolean,
+     * RoomDatabase.JournalMode, Executor, Executor, boolean, boolean, boolean, Set, String, File)}
+     *
+     * @param context The application context.
+     * @param name Name of the database, can be null if it is in memory.
+     * @param sqliteOpenHelperFactory The open helper factory to use.
+     * @param migrationContainer The migration container for migrations.
+     * @param callbacks The list of callbacks for database events.
+     * @param allowMainThreadQueries Whether to allow main thread reads/writes or not.
+     * @param journalMode The journal mode. This has to be either TRUNCATE or WRITE_AHEAD_LOGGING.
+     * @param queryExecutor The Executor used to execute asynchronous queries.
+     * @param transactionExecutor The Executor used to execute asynchronous transactions.
+     * @param multiInstanceInvalidation True if Room should perform multi-instance invalidation.
+     * @param requireMigration True if Room should require a valid migration if version changes,
+     * @param allowDestructiveMigrationOnDowngrade True if Room should recreate tables if no
+     *                                             migration is supplied during a downgrade.
+     * @param migrationNotRequiredFrom The collection of schema versions from which migrations
+     *                                 aren't required.
+     *
+     * @hide
+     */
+    @Deprecated
+    @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP_PREFIX)
+    public DatabaseConfiguration(@NonNull Context context, @Nullable String name,
+            @NonNull SupportSQLiteOpenHelper.Factory sqliteOpenHelperFactory,
+            @NonNull RoomDatabase.MigrationContainer migrationContainer,
+            @Nullable List<RoomDatabase.Callback> callbacks,
+            boolean allowMainThreadQueries,
+            RoomDatabase.JournalMode journalMode,
+            @NonNull Executor queryExecutor,
+            @NonNull Executor transactionExecutor,
+            boolean multiInstanceInvalidation,
+            boolean requireMigration,
+            boolean allowDestructiveMigrationOnDowngrade,
+            @Nullable Set<Integer> migrationNotRequiredFrom) {
+        this(context, name, sqliteOpenHelperFactory, migrationContainer, callbacks,
+                allowMainThreadQueries, journalMode, queryExecutor, transactionExecutor,
+                multiInstanceInvalidation, requireMigration, allowDestructiveMigrationOnDowngrade,
+                migrationNotRequiredFrom, null, null);
     }
 
     /**
@@ -158,6 +218,8 @@ public class DatabaseConfiguration {
      *                                             migration is supplied during a downgrade.
      * @param migrationNotRequiredFrom The collection of schema versions from which migrations
      *                                 aren't required.
+     * @param copyFromAssetPath The assets path to the pre-packaged database.
+     * @param copyFromFile The pre-packaged database file.
      *
      * @hide
      */
@@ -173,7 +235,9 @@ public class DatabaseConfiguration {
             boolean multiInstanceInvalidation,
             boolean requireMigration,
             boolean allowDestructiveMigrationOnDowngrade,
-            @Nullable Set<Integer> migrationNotRequiredFrom) {
+            @Nullable Set<Integer> migrationNotRequiredFrom,
+            @Nullable String copyFromAssetPath,
+            @Nullable File copyFromFile) {
         this.sqliteOpenHelperFactory = sqliteOpenHelperFactory;
         this.context = context;
         this.name = name;
@@ -187,6 +251,8 @@ public class DatabaseConfiguration {
         this.requireMigration = requireMigration;
         this.allowDestructiveMigrationOnDowngrade = allowDestructiveMigrationOnDowngrade;
         this.mMigrationNotRequiredFrom = migrationNotRequiredFrom;
+        this.copyFromAssetPath = copyFromAssetPath;
+        this.copyFromFile = copyFromFile;
     }
 
     /**
@@ -198,6 +264,7 @@ public class DatabaseConfiguration {
      * @deprecated Use {@link #isMigrationRequired(int, int)} which takes
      * {@link #allowDestructiveMigrationOnDowngrade} into account.
      */
+    @Deprecated
     public boolean isMigrationRequiredFrom(int version) {
         return isMigrationRequired(version, version + 1);
     }

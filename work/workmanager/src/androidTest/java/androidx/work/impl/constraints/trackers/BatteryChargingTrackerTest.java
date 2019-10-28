@@ -41,6 +41,7 @@ import androidx.test.ext.junit.runners.AndroidJUnit4;
 import androidx.test.filters.SdkSuppress;
 import androidx.test.filters.SmallTest;
 import androidx.work.impl.constraints.ConstraintListener;
+import androidx.work.impl.utils.taskexecutor.InstantWorkTaskExecutor;
 
 import org.junit.Before;
 import org.junit.Test;
@@ -57,8 +58,7 @@ public class BatteryChargingTrackerTest {
     public void setUp() {
         mMockContext = mock(Context.class);
         when(mMockContext.getApplicationContext()).thenReturn(mMockContext);
-
-        mTracker = new BatteryChargingTracker(mMockContext);
+        mTracker = new BatteryChargingTracker(mMockContext, new InstantWorkTaskExecutor());
         mListener = mock(ConstraintListener.class);
     }
 

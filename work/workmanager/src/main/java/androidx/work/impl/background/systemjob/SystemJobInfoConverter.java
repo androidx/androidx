@@ -68,7 +68,6 @@ class SystemJobInfoConverter {
      */
     JobInfo convert(WorkSpec workSpec, int jobId) {
         Constraints constraints = workSpec.constraints;
-        // TODO(janclarin): Support newer required network types if unsupported by API version.
         int jobInfoNetworkType = convertNetworkType(constraints.getRequiredNetworkType());
         PersistableBundle extras = new PersistableBundle();
         extras.putString(EXTRA_WORK_SPEC_ID, workSpec.id);
@@ -86,19 +85,22 @@ class SystemJobInfoConverter {
             builder.setBackoffCriteria(workSpec.backoffDelayDuration, backoffPolicy);
         }
 
-        if (workSpec.isPeriodic()) {
-            if (Build.VERSION.SDK_INT >= 24) {
-                builder.setPeriodic(workSpec.intervalDuration, workSpec.flexDuration);
+        long nextRunTime = workSpec.calculateNextRunTime();
+        long now = System.currentTimeMillis();
+        long offset = Math.max(nextRunTime - now, 0);
+
+        if (Build.VERSION.SDK_INT <= 28) {
+            // Before API 29, Jobs needed at least one constraint. Therefore before API 29 we
+            // always setMinimumLatency to make sure we have at least one constraint.
+            // See aosp/5434530 & b/6771687
+            builder.setMinimumLatency(offset);
+        } else  {
+            if (offset > 0) {
+                // Only set a minimum latency when applicable.
+                builder.setMinimumLatency(offset);
             } else {
-                Logger.get().debug(TAG,
-                        "Flex duration is currently not supported before API 24. Ignoring.");
-                builder.setPeriodic(workSpec.intervalDuration);
+                builder.setImportantWhileForeground(true);
             }
-        } else {
-            // Even if a WorkRequest has no constraints, setMinimumLatency(0) still needs to be
-            // called due to an issue in JobInfo.Builder#build and JobInfo with no constraints. See
-            // b/67716867.
-            builder.setMinimumLatency(workSpec.initialDelay);
         }
 
         if (Build.VERSION.SDK_INT >= 24 && constraints.hasContentUriTriggers()) {

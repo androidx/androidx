@@ -21,6 +21,7 @@ import static androidx.enterprise.feedback.KeyedAppStatesReporter.APP_STATE_KEY;
 import static androidx.enterprise.feedback.KeyedAppStatesReporter.APP_STATE_MESSAGE;
 import static androidx.enterprise.feedback.KeyedAppStatesReporter.APP_STATE_SEVERITY;
 
+import android.annotation.SuppressLint;
 import android.os.Bundle;
 
 import androidx.annotation.IntDef;
@@ -51,10 +52,13 @@ public abstract class KeyedAppState {
     public static final int SEVERITY_ERROR = 2;
 
     /** The maximum length of the key. */
+    @SuppressLint("MinMaxConstant")
     public static final int MAX_KEY_LENGTH = 100;
     /** The maximum length of the message field. */
+    @SuppressLint("MinMaxConstant")
     public static final int MAX_MESSAGE_LENGTH = 1000;
     /** The maximum length of the data field. */
+    @SuppressLint("MinMaxConstant")
     public static final int MAX_DATA_LENGTH = 1000;
 
     /** Create a {@link KeyedAppStateBuilder}. */

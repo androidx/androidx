@@ -25,13 +25,20 @@
         android:layout_height="wrap_content"
         android:orientation="vertical">
 
+        <View
+            android:id="@+id/for_focus"
+            android:layout_width="match_parent"
+            android:layout_height="4dp"
+            android:focusable="true"/>
+
         <androidx.appcompat.widget.AppCompatSpinner
             android:id="@+id/view_tinted_no_background"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:entries="@array/planets_array"
             app:backgroundTint="@color/color_state_list_lilac"
-            app:backgroundTintMode="src_in" />
+            app:backgroundTintMode="src_in"
+            android:focusable="false" />
 
         <androidx.appcompat.widget.AppCompatSpinner
             android:id="@+id/view_tinted_background"
@@ -40,20 +47,23 @@
             android:background="@drawable/test_drawable"
             android:entries="@array/planets_array"
             app:backgroundTint="@color/color_state_list_lilac"
-            app:backgroundTintMode="src_in" />
+            app:backgroundTintMode="src_in"
+            android:focusable="false" />
 
         <androidx.appcompat.widget.AppCompatSpinner
             android:id="@+id/view_untinted_no_background"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:entries="@array/planets_array" />
+            android:entries="@array/planets_array"
+            android:focusable="false" />
 
         <androidx.appcompat.widget.AppCompatSpinner
             android:id="@+id/view_untinted_background"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:entries="@array/planets_array"
-            android:background="@drawable/test_background_green" />
+            android:background="@drawable/test_background_green"
+            android:focusable="false" />
 
         <androidx.appcompat.widget.AppCompatSpinner
             android:id="@+id/view_magenta_themed_popup"
@@ -62,7 +72,8 @@
             android:entries="@array/planets_array"
             app:backgroundTint="@color/color_state_list_lilac"
             app:backgroundTintMode="src_in"
-            app:popupTheme="@style/MagentaSpinnerPopupTheme" />
+            app:popupTheme="@style/MagentaSpinnerPopupTheme"
+            android:focusable="false" />
 
         <androidx.appcompat.widget.AppCompatSpinner
             android:id="@+id/view_unthemed_popup"
@@ -70,7 +81,8 @@
             android:layout_height="wrap_content"
             android:entries="@array/planets_array"
             app:backgroundTint="@color/color_state_list_lilac"
-            app:backgroundTintMode="src_in" />
+            app:backgroundTintMode="src_in"
+            android:focusable="false" />
 
         <androidx.appcompat.widget.AppCompatSpinner
             android:id="@+id/view_ocean_themed_popup"
@@ -78,28 +90,43 @@
             android:layout_height="wrap_content"
             android:entries="@array/planets_array"
             android:spinnerMode="dropdown"
-            app:popupTheme="@style/OceanSpinnerPopupTheme" />
+            app:popupTheme="@style/OceanSpinnerPopupTheme"
+            android:focusable="false" />
 
         <androidx.appcompat.widget.AppCompatSpinner
             android:id="@+id/spinner_dialog_popup"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:entries="@array/planets_array"
-            android:spinnerMode="dialog" />
+            android:spinnerMode="dialog"
+            android:focusable="false" />
 
         <androidx.appcompat.widget.AppCompatSpinner
-                android:id="@+id/spinner_dropdown_popup"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:entries="@array/planets_array"
-                android:spinnerMode="dropdown" />
+            android:id="@+id/spinner_dropdown_popup"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:entries="@array/planets_array"
+            android:focusable="false"
+            android:spinnerMode="dropdown" />
 
         <androidx.appcompat.widget.AppCompatSpinner
-                android:id="@+id/spinner_dropdown_popup_with_scroll"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:entries="@array/numbers_array"
-                android:spinnerMode="dropdown" />
+            android:id="@+id/spinner_dropdown_popup_with_scroll"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:entries="@array/numbers_array"
+            android:focusable="false"
+            android:spinnerMode="dropdown" />
+
+        <androidx.appcompat.widget.AppCompatSpinner
+            android:id="@+id/spinner_dropdown_popup_small"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:entries="@array/numbers_array_small"
+            android:popupBackground="@null"
+            android:focusable="false"
+            android:spinnerMode="dropdown"
+            android:popupEnterTransition="@null"
+            android:popupExitTransition="@null" />
     </LinearLayout>
 
 </ScrollView>

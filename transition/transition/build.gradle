@@ -1,0 +1,61 @@
+import androidx.build.LibraryGroups
+import androidx.build.LibraryVersions
+import androidx.build.Publish
+
+import static androidx.build.dependencies.DependenciesKt.*
+
+plugins {
+    id("AndroidXPlugin")
+    id("com.android.library")
+    id("kotlin-android")
+}
+
+dependencies {
+    api("androidx.annotation:annotation:1.1.0")
+    api("androidx.core:core:1.1.0")
+    implementation("androidx.collection:collection:1.1.0")
+    compileOnly(project(":fragment:fragment"))
+    compileOnly("androidx.appcompat:appcompat:1.0.1")
+    // necessary for IJ to resolve dependencies.
+    implementation(project(":lifecycle:lifecycle-runtime"))
+
+    androidTestImplementation(KOTLIN_STDLIB)
+    androidTestImplementation(ANDROIDX_TEST_EXT_JUNIT)
+    androidTestImplementation(ANDROIDX_TEST_CORE)
+    androidTestImplementation(ANDROIDX_TEST_RUNNER)
+    androidTestImplementation(ANDROIDX_TEST_RULES)
+    androidTestImplementation(TRUTH)
+    androidTestImplementation(ESPRESSO_CORE, libs.exclude_for_espresso)
+    androidTestImplementation(MOCKITO_CORE, libs.exclude_bytebuddy) // DexMaker has it"s own MockMaker
+    androidTestImplementation(DEXMAKER_MOCKITO, libs.exclude_bytebuddy) // DexMaker has it"s own MockMaker
+    androidTestImplementation project(":fragment:fragment")
+    androidTestImplementation("androidx.appcompat:appcompat:1.1.0")
+    androidTestImplementation project(':internal-testutils-runtime'), {
+        exclude group: 'androidx.fragment', module: 'fragment'
+    }
+}
+
+android {
+    compileOptions {
+        sourceCompatibility = JavaVersion.VERSION_1_7
+        targetCompatibility = JavaVersion.VERSION_1_7
+    }
+    buildTypes.all {
+        consumerProguardFiles 'proguard-rules.pro'
+    }
+
+    aaptOptions {
+        additionalParameters "--no-version-transitions"
+    }
+}
+
+androidx {
+    name = "Android Transition Support Library"
+    publish = Publish.SNAPSHOT_AND_RELEASE
+    mavenVersion = LibraryVersions.TRANSITION
+    mavenGroup = LibraryGroups.TRANSITION
+    inceptionYear = "2016"
+    description = "Android Transition Support Library"
+    failOnDeprecationWarnings = false
+    trackRestrictedAPIs = false
+}

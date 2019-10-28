@@ -16,6 +16,8 @@
 
 package androidx.media2.common;
 
+import static androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP;
+
 import android.annotation.SuppressLint;
 
 import androidx.annotation.NonNull;
@@ -25,10 +27,13 @@ import androidx.versionedparcelable.ParcelImpl;
 import androidx.versionedparcelable.ParcelUtils;
 import androidx.versionedparcelable.VersionedParcelable;
 
+import java.util.ArrayList;
+import java.util.List;
+
 /**
  * @hide
  */
-@RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
+@RestrictTo(LIBRARY_GROUP)
 public class MediaParcelUtils {
     public static final String TAG = "MediaParcelUtils";
 
@@ -49,12 +54,48 @@ public class MediaParcelUtils {
     }
 
     /**
+     * Helper method for converting a list of VersionedParcelable items into ParcelImpl items.
+     *
+     * @param items
+     * @return
+     */
+    @NonNull
+    public static List<ParcelImpl> toParcelableList(
+            @NonNull List<? extends VersionedParcelable> items) {
+        List<ParcelImpl> list = new ArrayList<>();
+        for (int i = 0; i < items.size(); i++) {
+            list.add(toParcelable(items.get(i)));
+        }
+        return list;
+    }
+
+    /**
      * Media2 version of {@link ParcelUtils#fromParcelable(Parcelable)}.
      */
     @SuppressWarnings("TypeParameterUnusedInFormals")
     @Nullable
     public static <T extends VersionedParcelable> T fromParcelable(@NonNull ParcelImpl p) {
-        return ParcelUtils.<T>fromParcelable(p);
+        return ParcelUtils.fromParcelable(p);
+    }
+
+    /**
+     * Helper method for converting a list of ParcelImpl items into VersionedParcelable items
+     *
+     * @param parcelList
+     * @return
+     */
+    @SuppressWarnings({"TypeParameterUnusedInFormals", "unchecked"})
+    @NonNull
+    public static <T extends VersionedParcelable> List<T> fromParcelableList(
+            @NonNull List<ParcelImpl> parcelList) {
+        List<T> list = new ArrayList<>();
+        for (int i = 0; i < parcelList.size(); i++) {
+            list.add((T) fromParcelable(parcelList.get(i)));
+        }
+        return list;
+    }
+
+    private MediaParcelUtils() {
     }
 
     @SuppressLint("RestrictedApi")
@@ -74,6 +115,7 @@ public class MediaParcelUtils {
         }
 
         @Override
+        @SuppressWarnings("unchecked")
         public MediaItem getVersionedParcel() {
             return mItem;
         }

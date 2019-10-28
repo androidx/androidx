@@ -20,6 +20,7 @@ import androidx.build.LibraryVersions
 import androidx.build.AndroidXExtension
 
 import static androidx.build.dependencies.DependenciesKt.*
+import androidx.build.Publish
 
 plugins {
     id("AndroidXPlugin")
@@ -28,6 +29,10 @@ plugins {
 }
 
 android {
+    compileOptions {
+        sourceCompatibility = JavaVersion.VERSION_1_7
+        targetCompatibility = JavaVersion.VERSION_1_7
+    }
     buildTypes {
         debug {
             // Breaks Kotlin compiler
@@ -46,9 +51,9 @@ dependencies {
         implementation(project(":room:room-runtime"))
         androidTestImplementation(project(":room:room-testing"))
     } else {
-        annotationProcessor(ARCH_ROOM_COMPILER)
-        implementation(ARCH_ROOM_RUNTIME)
-        androidTestImplementation(ARCH_ROOM_TESTING)
+        annotationProcessor("androidx.room:room-compiler:2.2.0")
+        implementation("androidx.room:room-runtime:2.2.0")
+        androidTestImplementation("androidx.room:room-testing:2.2.0")
     }
 
     androidTestImplementation(project(":work:work-runtime-ktx"))
@@ -63,10 +68,11 @@ dependencies {
 
 androidx {
     name = "Android WorkManager GCMNetworkManager Support"
-    publish = false
-    mavenVersion = LibraryVersions.WORKMANAGER
-    mavenGroup = LibraryGroups.WORKMANAGER
+    publish = Publish.SNAPSHOT_AND_RELEASE
+    mavenVersion = LibraryVersions.WORK
+    mavenGroup = LibraryGroups.WORK
     inceptionYear = "2019"
     description = "Android WorkManager GCMNetworkManager Support"
     url = AndroidXExtension.ARCHITECTURE_URL
+    failOnDeprecationWarnings = false
 }

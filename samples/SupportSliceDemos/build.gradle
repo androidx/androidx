@@ -26,15 +26,11 @@ dependencies {
     implementation(project(":slice-builders"))
     implementation(project(":slice-core"))
     implementation(project(":slice-test"))
-    implementation(project(":transition"))
-    implementation(project(":recyclerview"))
+    implementation(project(":transition:transition"))
+    implementation(project(":recyclerview:recyclerview"))
     implementation(project(":appcompat"))
     implementation(project(":cardview"))
-    api(ARCH_LIFECYCLE_EXTENSIONS, libs.exclude_annotations_transitive = {
-        exclude group: 'androidx.annotation'
-        exclude group: 'androidx.fragment'
-        transitive = true
-    })
+    implementation(project(":core:core"))
 }
 
 android {

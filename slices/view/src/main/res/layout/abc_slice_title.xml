@@ -23,4 +23,5 @@
         android:layout_width="match_parent"
         android:maxLines="1"
         android:singleLine="true"
+        android:textAppearance="?android:attr/textAppearanceListItem"
         android:ellipsize="end"/>

@@ -44,6 +44,8 @@ import org.hamcrest.MatcherAssert.assertThat
 import org.junit.Test
 import org.junit.runner.RunWith
 import org.junit.runners.JUnit4
+import toJFO
+import javax.tools.JavaFileObject
 
 @Suppress("PLATFORM_CLASS_MAPPED_TO_KOTLIN")
 @RunWith(JUnit4::class)
@@ -58,6 +60,7 @@ class InsertionMethodProcessorTest {
                 """
         const val DAO_SUFFIX = "}"
         val USER_TYPE_NAME: TypeName = COMMON.USER_TYPE_NAME
+        val USERNAME_TYPE_NAME: TypeName = ClassName.get("foo.bar", "Username")
         val BOOK_TYPE_NAME: TypeName = ClassName.get("foo.bar", "Book")
     }
 
@@ -87,8 +90,9 @@ class InsertionMethodProcessorTest {
             assertThat(insertion.parameters.size, `is`(1))
             val param = insertion.parameters.first()
             assertThat(param.type.typeName(), `is`(USER_TYPE_NAME))
-            assertThat(param.entityType?.typeName(), `is`(USER_TYPE_NAME))
-            assertThat(insertion.entities["user"]?.typeName,
+            assertThat(param.pojoType?.typeName(), `is`(USER_TYPE_NAME))
+            assertThat(insertion.entities["user"]?.isPartialEntity, `is`(false))
+            assertThat(insertion.entities["user"]?.pojo?.typeName,
                     `is`(ClassName.get("foo.bar", "User") as TypeName))
             assertThat(insertion.returnType.typeName(), `is`(TypeName.LONG))
         }.compilesWithoutError()
@@ -103,8 +107,6 @@ class InsertionMethodProcessorTest {
                 """) { insertion, _ ->
             assertThat(insertion.name, `is`("foo"))
             assertThat(insertion.parameters.size, `is`(1))
-            val param = insertion.parameters.first()
-            assertThat(param.entityType, `is`(nullValue()))
             assertThat(insertion.entities.size, `is`(0))
         }.failsToCompile().withErrorContaining(
                 ProcessorErrors.CANNOT_FIND_ENTITY_FOR_SHORTCUT_QUERY_PARAMETER
@@ -123,11 +125,11 @@ class InsertionMethodProcessorTest {
             assertThat(insertion.parameters.size, `is`(2))
             insertion.parameters.forEach {
                 assertThat(it.type.typeName(), `is`(USER_TYPE_NAME))
-                assertThat(it.entityType?.typeName(), `is`(USER_TYPE_NAME))
+                assertThat(it.pojoType?.typeName(), `is`(USER_TYPE_NAME))
             }
             assertThat(insertion.entities.size, `is`(2))
-            assertThat(insertion.entities["u1"]?.typeName, `is`(USER_TYPE_NAME))
-            assertThat(insertion.entities["u2"]?.typeName, `is`(USER_TYPE_NAME))
+            assertThat(insertion.entities["u1"]?.pojo?.typeName, `is`(USER_TYPE_NAME))
+            assertThat(insertion.entities["u2"]?.pojo?.typeName, `is`(USER_TYPE_NAME))
             assertThat(insertion.parameters.map { it.name }, `is`(listOf("u1", "u2")))
             assertThat(insertion.returnType.typeName(), `is`(TypeName.VOID))
         }.compilesWithoutError()
@@ -147,9 +149,9 @@ class InsertionMethodProcessorTest {
                     ParameterizedTypeName.get(
                             ClassName.get("java.util", "List"),
                             USER_TYPE_NAME) as TypeName))
-            assertThat(param.entityType?.typeName(), `is`(USER_TYPE_NAME))
+            assertThat(param.pojoType?.typeName(), `is`(USER_TYPE_NAME))
             assertThat(insertion.entities.size, `is`(1))
-            assertThat(insertion.entities["users"]?.typeName, `is`(USER_TYPE_NAME))
+            assertThat(insertion.entities["users"]?.pojo?.typeName, `is`(USER_TYPE_NAME))
             assertThat(insertion.returnType.typeName(), `is`(
                     ParameterizedTypeName.get(
                             ClassName.get("java.util", "List"),
@@ -171,7 +173,7 @@ class InsertionMethodProcessorTest {
             assertThat(param.type.typeName(), `is`(
                     ArrayTypeName.of(COMMON.USER_TYPE_NAME) as TypeName))
             assertThat(insertion.entities.size, `is`(1))
-            assertThat(insertion.entities["users"]?.typeName, `is`(USER_TYPE_NAME))
+            assertThat(insertion.entities["users"]?.pojo?.typeName, `is`(USER_TYPE_NAME))
             assertThat(insertion.returnType.typeName(), `is`(TypeName.VOID))
         }.compilesWithoutError()
     }
@@ -191,7 +193,7 @@ class InsertionMethodProcessorTest {
                             ClassName.get("java.util", "Set"),
                             COMMON.USER_TYPE_NAME) as TypeName))
             assertThat(insertion.entities.size, `is`(1))
-            assertThat(insertion.entities["users"]?.typeName, `is`(USER_TYPE_NAME))
+            assertThat(insertion.entities["users"]?.pojo?.typeName, `is`(USER_TYPE_NAME))
             assertThat(insertion.returnType.typeName(), `is`(TypeName.VOID))
         }.compilesWithoutError()
     }
@@ -211,7 +213,7 @@ class InsertionMethodProcessorTest {
                             ClassName.get("java.util", "Queue"),
                             USER_TYPE_NAME) as TypeName))
             assertThat(insertion.entities.size, `is`(1))
-            assertThat(insertion.entities["users"]?.typeName, `is`(USER_TYPE_NAME))
+            assertThat(insertion.entities["users"]?.pojo?.typeName, `is`(USER_TYPE_NAME))
             assertThat(insertion.returnType.typeName(), `is`(TypeName.VOID))
         }.compilesWithoutError()
     }
@@ -230,7 +232,7 @@ class InsertionMethodProcessorTest {
                             ClassName.get("java.lang", "Iterable"),
                             USER_TYPE_NAME) as TypeName))
             assertThat(insertion.entities.size, `is`(1))
-            assertThat(insertion.entities["users"]?.typeName, `is`(USER_TYPE_NAME))
+            assertThat(insertion.entities["users"]?.pojo?.typeName, `is`(USER_TYPE_NAME))
             assertThat(insertion.returnType.typeName(), `is`(TypeName.VOID))
         }.compilesWithoutError()
     }
@@ -249,7 +251,7 @@ class InsertionMethodProcessorTest {
                     ClassName.get("foo.bar", "MyClass.MyList"),
                     CommonTypeNames.STRING, USER_TYPE_NAME) as TypeName))
             assertThat(insertion.entities.size, `is`(1))
-            assertThat(insertion.entities["users"]?.typeName, `is`(USER_TYPE_NAME))
+            assertThat(insertion.entities["users"]?.pojo?.typeName, `is`(USER_TYPE_NAME))
             assertThat(insertion.returnType.typeName(), `is`(TypeName.VOID))
         }.compilesWithoutError()
     }
@@ -269,8 +271,8 @@ class InsertionMethodProcessorTest {
             assertThat(insertion.parameters.map { it.name }, `is`(listOf("u1", "b1")))
             assertThat(insertion.returnType.typeName(), `is`(TypeName.VOID))
             assertThat(insertion.entities.size, `is`(2))
-            assertThat(insertion.entities["u1"]?.typeName, `is`(USER_TYPE_NAME))
-            assertThat(insertion.entities["b1"]?.typeName, `is`(BOOK_TYPE_NAME))
+            assertThat(insertion.entities["u1"]?.pojo?.typeName, `is`(USER_TYPE_NAME))
+            assertThat(insertion.entities["b1"]?.pojo?.typeName, `is`(BOOK_TYPE_NAME))
         }.compilesWithoutError()
     }
 
@@ -432,15 +434,314 @@ class InsertionMethodProcessorTest {
         }
     }
 
+    @Test
+    fun targetEntitySingle() {
+        val usernameJfo = """
+            package foo.bar;
+            import androidx.room.*;
+
+            public class Username {
+                int uid;
+                String name;
+                @ColumnInfo(name = "ageColumn")
+                int age;
+            }
+        """.toJFO("foo.bar.Username")
+        singleInsertMethod(
+            """
+                @Insert(entity = User.class)
+                abstract public long foo(Username username);
+                """,
+            additionalJFOs = listOf(usernameJfo)) { insertion, _ ->
+            assertThat(insertion.name, `is`("foo"))
+            assertThat(insertion.parameters.size, `is`(1))
+            val param = insertion.parameters.first()
+            assertThat(param.type.typeName(), `is`(USERNAME_TYPE_NAME))
+            assertThat(param.pojoType?.typeName(), `is`(USERNAME_TYPE_NAME))
+            assertThat(insertion.entities.size, `is`(1))
+            assertThat(insertion.entities["username"]?.isPartialEntity, `is`(true))
+            assertThat(insertion.entities["username"]?.entityTypeName, `is`(USER_TYPE_NAME))
+            assertThat(insertion.entities["username"]?.pojo?.typeName, `is`(USERNAME_TYPE_NAME))
+        }.compilesWithoutError()
+    }
+
+    @Test
+    fun targetEntitySameAsPojo() {
+        singleInsertMethod(
+            """
+                @Insert(entity = User.class)
+                abstract public long foo(User user);
+                """) { _, _ ->
+        }.compilesWithoutError()
+    }
+
+    @Test
+    fun targetEntityTwo() {
+        val usernameJfo = """
+            package foo.bar;
+            import androidx.room.*;
+
+            public class Username {
+                int uid;
+                String name;
+                @ColumnInfo(name = "ageColumn")
+                int age;
+            }
+        """.toJFO("foo.bar.Username")
+        singleInsertMethod(
+            """
+                @Insert(entity = User.class)
+                abstract public void foo(Username usernameA, Username usernameB);
+                """,
+            additionalJFOs = listOf(usernameJfo)) { _, _ ->
+        }.compilesWithoutError()
+    }
+
+    @Test
+    fun targetEntityMissingRequiredColumn() {
+        val usernameJfo = """
+            package foo.bar;
+            import androidx.room.*;
+
+            public class Username {
+                int uid;
+                String name;
+            }
+        """.toJFO("foo.bar.Username")
+        singleInsertMethod(
+            """
+                @Insert(entity = User.class)
+                abstract public void foo(Username username);
+                """,
+            additionalJFOs = listOf(usernameJfo)) { _, _ ->
+        }.failsToCompile().withErrorContaining(
+            ProcessorErrors.missingRequiredColumnsInPartialEntity(
+                partialEntityName = USERNAME_TYPE_NAME.toString(),
+                missingColumnNames = listOf("ageColumn"))
+        )
+    }
+
+    @Test
+    fun targetEntityColumnDefaultValue() {
+        val petNameJfo = """
+            package foo.bar;
+            import androidx.room.*;
+
+            public class PetName {
+                @ColumnInfo(name = "name")
+                String string;
+            }
+        """.toJFO("foo.bar.PetName")
+        val petJfo = """
+            package foo.bar;
+            import androidx.room.*;
+
+            @Entity
+            public class Pet {
+                @PrimaryKey(autoGenerate = true)
+                int petId;
+                String name;
+                @ColumnInfo(defaultValue = "0")
+                int age;
+            }
+        """.toJFO("foo.bar.Pet")
+        singleInsertMethod(
+            """
+                @Insert(entity = Pet.class)
+                abstract public long foo(PetName petName);
+                """,
+            additionalJFOs = listOf(petNameJfo, petJfo)) { _, _ ->
+        }.compilesWithoutError()
+    }
+
+    @Test
+    fun targetEntityMissingPrimaryKey() {
+        val petNameJfo = """
+            package foo.bar;
+            import androidx.room.*;
+
+            public class PetName {
+                @ColumnInfo(name = "name")
+                String string;
+            }
+        """.toJFO("foo.bar.PetName")
+        val petJfo = """
+            package foo.bar;
+            import androidx.room.*;
+
+            @Entity
+            public class Pet {
+                @PrimaryKey
+                int petId;
+                String name;
+            }
+        """.toJFO("foo.bar.Pet")
+        singleInsertMethod(
+            """
+                @Insert(entity = Pet.class)
+                abstract public long foo(PetName petName);
+                """,
+            additionalJFOs = listOf(petNameJfo, petJfo)) { _, _ ->
+        }.failsToCompile().withErrorContaining(
+            ProcessorErrors.missingPrimaryKeysInPartialEntityForInsert(
+                partialEntityName = "foo.bar.PetName",
+                primaryKeyNames = listOf("petId"))
+        )
+    }
+
+    @Test
+    fun targetEntityAutoGeneratedPrimaryKey() {
+        val petNameJfo = """
+            package foo.bar;
+            import androidx.room.*;
+
+            public class PetName {
+                @ColumnInfo(name = "name")
+                String string;
+            }
+        """.toJFO("foo.bar.PetName")
+        val petJfo = """
+            package foo.bar;
+            import androidx.room.*;
+
+            @Entity
+            public class Pet {
+                @PrimaryKey(autoGenerate = true)
+                int petId;
+                String name;
+            }
+        """.toJFO("foo.bar.Pet")
+        singleInsertMethod(
+            """
+                @Insert(entity = Pet.class)
+                abstract public long foo(PetName petName);
+                """,
+            additionalJFOs = listOf(petNameJfo, petJfo)) { _, _ ->
+        }.compilesWithoutError()
+    }
+
+    @Test
+    fun targetEntityExtraColumn() {
+        val usernameJfo = """
+            package foo.bar;
+            import androidx.room.*;
+
+            public class Username {
+                int uid;
+                String name;
+                long extraField;
+            }
+        """.toJFO("foo.bar.Username")
+        singleInsertMethod(
+            """
+                @Insert(entity = User.class)
+                abstract public long foo(Username username);
+                """,
+            additionalJFOs = listOf(usernameJfo)) { _, _ ->
+        }.failsToCompile().withErrorContaining(
+            ProcessorErrors.cannotFindAsEntityField("foo.bar.User"))
+    }
+
+    @Test
+    fun targetEntityExtraColumnIgnored() {
+        val usernameJfo = """
+            package foo.bar;
+            import androidx.room.*;
+
+            public class Username {
+                int uid;
+                String name;
+                @ColumnInfo(name = "ageColumn")
+                int age;
+                @Ignore
+                long extraField;
+            }
+        """.toJFO("foo.bar.Username")
+        singleInsertMethod(
+            """
+                @Insert(entity = User.class)
+                abstract public long foo(Username username);
+                """,
+            additionalJFOs = listOf(usernameJfo)) { _, _ ->
+        }.compilesWithoutError()
+    }
+
+    @Test
+    fun targetEntityWithEmbedded() {
+        val usernameJfo = """
+            package foo.bar;
+            import androidx.room.*;
+
+            public class Username {
+                int uid;
+                @Embedded
+                Fullname name;
+                @ColumnInfo(name = "ageColumn")
+                int age;
+            }
+        """.toJFO("foo.bar.Username")
+        val fullnameJfo = """
+            package foo.bar;
+            import androidx.room.*;
+
+            public class Fullname {
+                @ColumnInfo(name = "name")
+                String firstName;
+                String lastName;
+            }
+        """.toJFO("foo.bar.Fullname")
+        singleInsertMethod(
+            """
+                @Insert(entity = User.class)
+                abstract public long foo(Username username);
+                """,
+            additionalJFOs = listOf(usernameJfo, fullnameJfo)) { _, _ ->
+        }.compilesWithoutError()
+    }
+
+    @Test
+    fun targetEntityWithRelation() {
+        val userPetsJfo = """
+            package foo.bar;
+            import androidx.room.*;
+            import java.util.List;
+
+            public class UserPets {
+                int uid;
+                @Relation(parentColumn = "uid", entityColumn = "ownerId")
+                List<Pet> pets;
+            }
+        """.toJFO("foo.bar.UserPets")
+        val petJfo = """
+            package foo.bar;
+            import androidx.room.*;
+
+            @Entity
+            public class Pet {
+                @PrimaryKey
+                int petId;
+                int ownerId;
+            }
+        """.toJFO("foo.bar.Pet")
+        singleInsertMethod(
+            """
+                @Insert(entity = User.class)
+                abstract public long foo(UserPets userPets);
+                """,
+            additionalJFOs = listOf(userPetsJfo, petJfo)) { _, _ ->
+        }.failsToCompile().withErrorContaining(ProcessorErrors.INVALID_RELATION_IN_PARTIAL_ENTITY)
+    }
+
     fun singleInsertMethod(
         vararg input: String,
+        additionalJFOs: List<JavaFileObject> = emptyList(),
         handler: (InsertionMethod, TestInvocation) -> Unit
     ): CompileTester {
         return assertAbout(JavaSourcesSubjectFactory.javaSources())
                 .that(listOf(JavaFileObjects.forSourceString("foo.bar.MyClass",
                         DAO_PREFIX + input.joinToString("\n") + DAO_SUFFIX),
                         COMMON.USER, COMMON.BOOK, COMMON.NOT_AN_ENTITY,
-                        COMMON.COMPLETABLE, COMMON.MAYBE, COMMON.SINGLE)
+                        COMMON.COMPLETABLE, COMMON.MAYBE, COMMON.SINGLE) + additionalJFOs
                 )
                 .processedWith(TestProcessor.builder()
                         .forAnnotations(Insert::class, Dao::class)

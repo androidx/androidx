@@ -20,11 +20,15 @@
 # performance between different device models.
 
 # Fun notes for maintaining this file:
-#      `expr` can deal with ints > INT32_MAX, but if compares cannot. This is why we use MHz.
-#      `expr` can sometimes evaluate right-to-left. This is why we use parens.
+#      $((arithmetic expressions)) can deal with ints > INT32_MAX, but if compares cannot. This is
+#      why we use MHz.
+#      $((arithmetic expressions)) can sometimes evaluate right-to-left. This is why we use parens.
 #      Everything below the initial host-check isn't bash - Android uses mksh
 #      mksh allows `\n` in an echo, bash doesn't
 #      can't use `awk`
+#      can't use `sed`
+#      can't use `cut` on < L
+#      can't use `expr` on < L
 
 CPU_TARGET_FREQ_PERCENT=50
 GPU_TARGET_FREQ_PERCENT=50
@@ -48,7 +52,7 @@ if [ "`command -v getprop`" == "" ]; then
 fi
 
 # require root
-if [ "`id -u`" -ne "0" ]; then
+if [[ `id` != "uid=0"* ]]; then
     echo "Not running as root, cannot lock clocks, aborting"
     exit -1
 fi
@@ -73,6 +77,9 @@ function_lock_cpu() {
         # enable core, so we can find its frequencies
         echo 1 > ${CPU_BASE}/cpu${cpu}/online
 
+        # set userspace governor on all CPUs to ensure freq scaling is disabled
+        echo userspace > ${CPU_BASE}/cpu${cpu}/${GOV}
+
         maxFreq=`cat ${CPU_BASE}/cpu$cpu/cpufreq/cpuinfo_max_freq`
         availFreq=`cat ${CPU_BASE}/cpu$cpu/cpufreq/scaling_available_frequencies`
         availFreqCmpr=${availFreq// /-}
@@ -94,15 +101,16 @@ function_lock_cpu() {
         else
             disableIndices="$disableIndices $cpu"
         fi
+
         cpu=$(($cpu + 1))
     done
 
     # Chose a frequency to lock to that's >= $CPU_TARGET_FREQ_PERCENT% of max
     # (below, 100M = 1K for KHz->MHz * 100 for %)
-    TARGET_FREQ_MHZ=`expr \( ${cpuMaxFreq} \* ${CPU_TARGET_FREQ_PERCENT} \) \/ 100000`
+    TARGET_FREQ_MHZ=$(( (${cpuMaxFreq} * ${CPU_TARGET_FREQ_PERCENT}) / 100000 ))
     chosenFreq=0
     for freq in ${cpuAvailFreq}; do
-        freqMhz=`expr ${freq} \/ 1000`
+        freqMhz=$(( ${freq} / 1000 ))
         if [ ${freqMhz} -ge ${TARGET_FREQ_MHZ} ]; then
             chosenFreq=${freq}
             break
@@ -114,7 +122,6 @@ function_lock_cpu() {
         freq=${CPU_BASE}/cpu$cpu/cpufreq
 
         echo 1 > ${CPU_BASE}/cpu${cpu}/online
-        echo userspace > ${CPU_BASE}/cpu${cpu}/${GOV}
         echo ${chosenFreq} > ${freq}/scaling_max_freq
         echo ${chosenFreq} > ${freq}/scaling_min_freq
         echo ${chosenFreq} > ${freq}/scaling_setspeed
@@ -137,8 +144,10 @@ function_lock_cpu() {
       echo 0 > ${CPU_BASE}/cpu${cpu}/online
     done
 
-    echo "\nLocked CPUs ${enableIndices// /,} to $chosenFreq / $maxFreq KHz"
+    echo "=================================="
+    echo "Locked CPUs ${enableIndices// /,} to $chosenFreq / $maxFreq KHz"
     echo "Disabled CPUs ${disableIndices// /,}"
+    echo "=================================="
 }
 
 # If we have a Qualcomm GPU, find its max frequency, and lock to
@@ -146,12 +155,12 @@ function_lock_cpu() {
 function_lock_gpu_kgsl() {
     if [ ! -d /sys/class/kgsl/kgsl-3d0/ ]; then
         # not kgsl, abort
-        echo "\nCurrently don't support locking GPU clocks of $MODEL ($DEVICE)"
+        echo "Currently don't support locking GPU clocks of $MODEL ($DEVICE)"
         return -1
     fi
     if [ ${DEVICE} == "walleye" ] || [ ${DEVICE} == "taimen" ]; then
         # Workaround crash
-        echo "\nUnable to lock GPU clocks of $MODEL ($DEVICE)"
+        echo "Unable to lock GPU clocks of $MODEL ($DEVICE)"
         return -1
     fi
 
@@ -166,13 +175,13 @@ function_lock_gpu_kgsl() {
     done
 
     # (below, 100M = 1M for MHz * 100 for %)
-    TARGET_FREQ_MHZ=`expr \( ${gpuMaxFreq} \* ${GPU_TARGET_FREQ_PERCENT} \) \/ 100000000`
+    TARGET_FREQ_MHZ=$(( (${gpuMaxFreq} * ${GPU_TARGET_FREQ_PERCENT}) / 100000000 ))
 
     chosenFreq=${gpuMaxFreq}
     index=0
     chosenIndex=0
     for freq in ${gpuAvailFreq}; do
-        freqMhz=`expr ${freq} \/ 1000000`
+        freqMhz=$(( ${freq} / 1000000 ))
         if [ ${freqMhz} -ge ${TARGET_FREQ_MHZ} ] && [ ${chosenFreq} -ge ${freq} ]; then
             # note avail freq are generally in reverse order, so we don't break out of this loop
             chosenFreq=${freq}
@@ -182,7 +191,7 @@ function_lock_gpu_kgsl() {
     done
     lastIndex=$(($index - 1))
 
-    firstFreq=`echo $gpuAvailFreq | cut -d" " -f1`
+    firstFreq=`function_cut_first_from_space_seperated_list $gpuAvailFreq`
 
     if [ ${gpuMaxFreq} != ${firstFreq} ]; then
         # pwrlevel is index of desired freq among available frequencies, from highest to lowest.
@@ -218,7 +227,17 @@ function_lock_gpu_kgsl() {
         echo "index = $chosenIndex"
         exit -1
     fi
-    echo "\nLocked GPU to $chosenFreq / $gpuMaxFreq Hz"
+    echo "Locked GPU to $chosenFreq / $gpuMaxFreq Hz"
+}
+
+# cut is not available on some devices (Nexus 5 running LRX22C).
+function_cut_first_from_space_seperated_list() {
+    list=$1
+
+    for freq in $list; do
+        echo $freq
+        break
+    done
 }
 
 # kill processes that manage thermals / scaling
@@ -226,6 +245,8 @@ stop thermal-engine
 stop perfd
 stop vendor.thermal-engine
 stop vendor.perfd
+setprop vendor.powerhal.init 0
+setprop ctl.interface_restart android.hardware.power@1.0::IPower/default
 
 function_lock_cpu
 
@@ -235,7 +256,7 @@ function_lock_gpu_kgsl
 if [ ${DEVICE} == "marlin" ] || [ ${DEVICE} == "sailfish" ]; then
     echo 13763 > /sys/class/devfreq/soc:qcom,gpubw/max_freq
 else
-    echo "\nUnable to lock memory bus of $MODEL ($DEVICE)."
+    echo "Unable to lock memory bus of $MODEL ($DEVICE)."
 fi
 
-echo "\n$DEVICE clocks have been locked - to reset, reboot the device\n"
+echo "$DEVICE clocks have been locked - to reset, reboot the device"

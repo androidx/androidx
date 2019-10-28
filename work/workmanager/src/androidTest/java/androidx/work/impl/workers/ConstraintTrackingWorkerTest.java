@@ -30,14 +30,16 @@ import android.os.Looper;
 import androidx.annotation.NonNull;
 import androidx.test.core.app.ApplicationProvider;
 import androidx.test.ext.junit.runners.AndroidJUnit4;
+import androidx.test.filters.LargeTest;
 import androidx.test.filters.SdkSuppress;
-import androidx.test.filters.SmallTest;
 import androidx.work.Configuration;
 import androidx.work.Constraints;
 import androidx.work.Data;
 import androidx.work.DatabaseTest;
+import androidx.work.ForegroundUpdater;
 import androidx.work.ListenableWorker;
 import androidx.work.OneTimeWorkRequest;
+import androidx.work.ProgressUpdater;
 import androidx.work.WorkInfo;
 import androidx.work.WorkerFactory;
 import androidx.work.WorkerParameters;
@@ -49,6 +51,7 @@ import androidx.work.impl.constraints.trackers.BatteryNotLowTracker;
 import androidx.work.impl.constraints.trackers.NetworkStateTracker;
 import androidx.work.impl.constraints.trackers.StorageNotLowTracker;
 import androidx.work.impl.constraints.trackers.Trackers;
+import androidx.work.impl.foreground.ForegroundProcessor;
 import androidx.work.impl.model.WorkSpec;
 import androidx.work.impl.utils.SynchronousExecutor;
 import androidx.work.impl.utils.taskexecutor.InstantWorkTaskExecutor;
@@ -68,7 +71,7 @@ import java.util.concurrent.Executor;
 import java.util.concurrent.Executors;
 
 @RunWith(AndroidJUnit4.class)
-@SmallTest
+@LargeTest
 public class ConstraintTrackingWorkerTest extends DatabaseTest {
 
     private static final long DELAY_IN_MS = 100;
@@ -85,6 +88,9 @@ public class ConstraintTrackingWorkerTest extends DatabaseTest {
     private Configuration mConfiguration;
     private TaskExecutor mWorkTaskExecutor;
     private Scheduler mScheduler;
+    private ProgressUpdater mProgressUpdater;
+    private ForegroundUpdater mForegroundUpdater;
+    private ForegroundProcessor mForegroundProcessor;
     private Trackers mTracker;
     private BatteryChargingTracker mBatteryChargingTracker;
     private BatteryNotLowTracker mBatteryNotLowTracker;
@@ -102,14 +108,18 @@ public class ConstraintTrackingWorkerTest extends DatabaseTest {
 
         mWorkManagerImpl = mock(WorkManagerImpl.class);
         mScheduler = mock(Scheduler.class);
+        mProgressUpdater = mock(ProgressUpdater.class);
+        mForegroundUpdater = mock(ForegroundUpdater.class);
+        mForegroundProcessor = mock(ForegroundProcessor.class);
         when(mWorkManagerImpl.getWorkDatabase()).thenReturn(mDatabase);
+        when(mWorkManagerImpl.getWorkTaskExecutor()).thenReturn(mWorkTaskExecutor);
         when(mWorkManagerImpl.getConfiguration()).thenReturn(mConfiguration);
 
-        mBatteryChargingTracker = spy(new BatteryChargingTracker(mContext));
-        mBatteryNotLowTracker = spy(new BatteryNotLowTracker(mContext));
+        mBatteryChargingTracker = spy(new BatteryChargingTracker(mContext, mWorkTaskExecutor));
+        mBatteryNotLowTracker = spy(new BatteryNotLowTracker(mContext, mWorkTaskExecutor));
         // Requires API 24+ types.
         mNetworkStateTracker = mock(NetworkStateTracker.class);
-        mStorageNotLowTracker = spy(new StorageNotLowTracker(mContext));
+        mStorageNotLowTracker = spy(new StorageNotLowTracker(mContext, mWorkTaskExecutor));
         mTracker = mock(Trackers.class);
 
         when(mTracker.getBatteryChargingTracker()).thenReturn(mBatteryChargingTracker);
@@ -224,7 +234,7 @@ public class ConstraintTrackingWorkerTest extends DatabaseTest {
 
         Thread.sleep(TEST_TIMEOUT_IN_MS);
 
-        mWorkerWrapper.interrupt(true);
+        mWorkerWrapper.interrupt();
 
         assertThat(mWorker.isStopped(), is(true));
         assertThat(mWorker.getDelegate(), is(notNullValue()));
@@ -260,7 +270,9 @@ public class ConstraintTrackingWorkerTest extends DatabaseTest {
                         1,
                         executor,
                         mWorkTaskExecutor,
-                        workerFactory));
+                        workerFactory,
+                        mProgressUpdater,
+                        mForegroundUpdater));
 
         assertThat(worker, is(notNullValue()));
         assertThat(worker,
@@ -274,6 +286,7 @@ public class ConstraintTrackingWorkerTest extends DatabaseTest {
                 mContext,
                 mConfiguration,
                 mWorkTaskExecutor,
+                mForegroundProcessor,
                 mDatabase,
                 mWork.getStringId());
     }

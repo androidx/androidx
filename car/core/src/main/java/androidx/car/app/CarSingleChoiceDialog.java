@@ -19,6 +19,7 @@ package androidx.car.app;
 import android.app.Dialog;
 import android.content.Context;
 import android.content.DialogInterface;
+import android.content.res.Resources;
 import android.os.Bundle;
 import android.text.TextUtils;
 import android.view.View;
@@ -109,7 +110,7 @@ public final class CarSingleChoiceDialog extends Dialog {
         super.onCreate(savedInstanceState);
 
         Window window = getWindow();
-        window.setContentView(R.layout.car_selction_dialog);
+        window.setContentView(R.layout.car_selection_dialog);
 
         // Ensure that the dialog takes up the entire window. This is needed because the scrollbar
         // needs to be drawn off the dialog.
@@ -133,33 +134,46 @@ public final class CarSingleChoiceDialog extends Dialog {
     }
 
     private void initializeButtons() {
-        boolean isButtonPresent = false;
         Window window = getWindow();
-        Button positiveButtonView = window.findViewById(R.id.positive_button);
-        if (!TextUtils.isEmpty(mPositiveButtonText)) {
-            isButtonPresent = true;
-            positiveButtonView.setText(mPositiveButtonText);
-            positiveButtonView.setOnClickListener(v -> {
-                if (mOnClickListener != null) {
-                    mOnClickListener.onClick(this, mSelectedItem);
-                }
-                dismiss();
-            });
-        } else {
-            positiveButtonView.setVisibility(View.GONE);
-        }
+        Resources res = getContext().getResources();
 
+        Button positiveButtonView = window.findViewById(R.id.positive_button);
+        positiveButtonView.setText(mPositiveButtonText);
+        positiveButtonView.setOnClickListener(v -> {
+            if (mOnClickListener != null) {
+                mOnClickListener.onClick(this, mSelectedItem);
+            }
+            dismiss();
+        });
+
+        int buttonOffset = res.getDimensionPixelSize(R.dimen.car_padding_4)
+                - res.getDimensionPixelSize(R.dimen.car_padding_2);
+
+        ViewGroup.MarginLayoutParams positiveButtonLayoutParams =
+                (ViewGroup.MarginLayoutParams) positiveButtonView.getLayoutParams();
         Button negativeButtonView = window.findViewById(R.id.negative_button);
+
         if (!TextUtils.isEmpty(mNegativeButtonText)) {
-            isButtonPresent = true;
             negativeButtonView.setText(mNegativeButtonText);
             negativeButtonView.setOnClickListener(v -> dismiss());
+
+            ViewGroup.MarginLayoutParams negativeButtonLayoutParams =
+                    (ViewGroup.MarginLayoutParams) negativeButtonView.getLayoutParams();
+
+            int buttonSpacing = res.getDimensionPixelSize(R.dimen.car_padding_2);
+
+            positiveButtonLayoutParams.setMarginStart(buttonSpacing);
+            positiveButtonView.requestLayout();
+
+            int buttonExtraSpace = CarDialogUtil.calculateExtraButtonSpace(negativeButtonView);
+            negativeButtonLayoutParams.setMarginStart(buttonOffset - buttonExtraSpace / 2);
+            negativeButtonLayoutParams.setMarginEnd(buttonSpacing);
+            negativeButtonView.requestLayout();
         } else {
             negativeButtonView.setVisibility(View.GONE);
-        }
-
-        if (!isButtonPresent) {
-            window.findViewById(R.id.button_panel).setVisibility(View.GONE);
+            int buttonExtraSpace = CarDialogUtil.calculateExtraButtonSpace(positiveButtonView);
+            positiveButtonLayoutParams.setMarginStart(buttonOffset - buttonExtraSpace / 2);
+            positiveButtonView.requestLayout();
         }
     }
 
@@ -206,6 +220,7 @@ public final class CarSingleChoiceDialog extends Dialog {
      * Initializes {@link #mAdapter} to display the items in the given array by utilizing
      * {@link RadioButtonListItem}.
      */
+    @SuppressWarnings("unchecked")
     private void initializeWithItems(List<Item> items) {
         List<ListItem> listItems = new ArrayList<>();
 
@@ -220,17 +235,17 @@ public final class CarSingleChoiceDialog extends Dialog {
      * Creates the {@link RadioButtonListItem} that represents an item in the {@code
      * CarSingleChoiceDialog}.
      *
-     * @param {@link Item} to display as a {@code RadioButtonListItem}.
+     * @param {@link   Item} to display as a {@code RadioButtonListItem}.
      * @param position The position of the item in the list.
      */
     private RadioButtonListItem createItem(Item selectionItem, int position) {
         RadioButtonListItem item = new RadioButtonListItem(getContext());
         item.setTitle(selectionItem.mTitle);
         item.setBody(selectionItem.mBody);
-        item.setShowRadioButtonDivider(false);
+        item.setShowCompoundButtonDivider(false);
         item.addViewBinder(vh -> {
-            vh.getRadioButton().setChecked(mSelectedItem == position);
-            vh.getRadioButton().setOnCheckedChangeListener(
+            vh.getCompoundButton().setChecked(mSelectedItem == position);
+            vh.getCompoundButton().setOnCheckedChangeListener(
                     (buttonView, isChecked) -> {
                         mSelectedItem = position;
                         // Refresh other radio button list items.
@@ -256,7 +271,7 @@ public final class CarSingleChoiceDialog extends Dialog {
          * @param title The title of the item. This value must be non-empty.
          */
         public Item(@NonNull CharSequence title) {
-            this(title,  /* body= */ null);
+            this(title,  /* body= */ "");
         }
 
 
@@ -266,7 +281,7 @@ public final class CarSingleChoiceDialog extends Dialog {
          * @param title The title of the item. This value must be non-empty.
          * @param body  The secondary body text of the item.
          */
-        public Item(@NonNull CharSequence title, @Nullable CharSequence body) {
+        public Item(@NonNull CharSequence title, @NonNull CharSequence body) {
             if (TextUtils.isEmpty(title)) {
                 throw new IllegalArgumentException("Title cannot be empty.");
             }
@@ -325,7 +340,7 @@ public final class CarSingleChoiceDialog extends Dialog {
          * @return This {@code Builder} object to allow for chaining of calls.
          */
         @NonNull
-        public Builder setTitle(@Nullable CharSequence title) {
+        public Builder setTitle(@NonNull CharSequence title) {
             mTitle = title;
             return this;
         }
@@ -350,7 +365,7 @@ public final class CarSingleChoiceDialog extends Dialog {
          * @return This {@code Builder} object to allow for chaining of calls.
          */
         @NonNull
-        public Builder setBody(@Nullable CharSequence bodyText) {
+        public Builder setBody(@NonNull CharSequence bodyText) {
             mSubtitle = bodyText;
             return this;
         }
@@ -467,7 +482,7 @@ public final class CarSingleChoiceDialog extends Dialog {
          * @see #setOnDismissListener(OnDismissListener)
          */
         @NonNull
-        public Builder setOnCancelListener(@Nullable OnCancelListener onCancelListener) {
+        public Builder setOnCancelListener(@NonNull OnCancelListener onCancelListener) {
             mOnCancelListener = onCancelListener;
             return this;
         }
@@ -478,7 +493,7 @@ public final class CarSingleChoiceDialog extends Dialog {
          * @return This {@code Builder} object to allow for chaining of calls.
          */
         @NonNull
-        public Builder setOnDismissListener(@Nullable OnDismissListener onDismissListener) {
+        public Builder setOnDismissListener(@NonNull OnDismissListener onDismissListener) {
             mOnDismissListener = onDismissListener;
             return this;
         }

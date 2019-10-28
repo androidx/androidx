@@ -60,7 +60,8 @@ public class PagedListViewActivity extends Activity {
     /**
      * Adapter that populates a number of items for demo purposes.
      */
-    private class DemoAdapter extends RecyclerView.Adapter<PagedListViewActivity.ViewHolder> {
+    private static class DemoAdapter extends
+            RecyclerView.Adapter<PagedListViewActivity.ViewHolder> {
         private final List<String> mItems = new ArrayList<>();
 
         /**

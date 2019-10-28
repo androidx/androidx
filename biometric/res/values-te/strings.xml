@@ -26,4 +26,6 @@
     <string name="fingerprint_error_user_canceled" msgid="3421037373085129417">"వేలిముద్ర చర్యని వినియోగదారు రద్దు చేసారు."</string>
     <string name="fingerprint_error_lockout" msgid="1651062876313169162">"చాలా ఎక్కువ ప్రయత్నాలు చేసారు. దయచేసి తర్వాత మళ్లీ ప్రయత్నించండి."</string>
     <string name="default_error_msg" msgid="7497355367608150274">"తెలియని ఎర్రర్"</string>
+    <string name="generic_error_user_canceled" msgid="7474799539658018076">"వినియోగదారు ద్వారా ప్రామాణీకరణ రద్దు చేయబడింది"</string>
+    <string name="confirm_device_credential_password" msgid="4296851028928624518">"పాస్‌వర్డ్‌ను ఉపయోగించు"</string>
 </resources>

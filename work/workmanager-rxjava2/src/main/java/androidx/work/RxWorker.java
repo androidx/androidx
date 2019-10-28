@@ -117,10 +117,22 @@ public abstract class RxWorker extends ListenableWorker {
     @MainThread
     public abstract @NonNull Single<Result> createWork();
 
+    /**
+     * Updates the progress for a {@link RxWorker}. This method returns a {@link Single} unlike the
+     * {@link ListenableWorker#setProgressAsync(Data)} API.
+     *
+     * @param data The progress {@link Data}
+     * @return The {@link Single}
+     */
+    @NonNull
+    public final Single<Void> setProgress(@NonNull Data data) {
+        return Single.fromFuture(setProgressAsync(data));
+    }
+
     @Override
     public void onStopped() {
         super.onStopped();
-        final SingleFutureAdapter observer = mSingleFutureObserverAdapter;
+        final SingleFutureAdapter<Result> observer = mSingleFutureObserverAdapter;
         if (observer != null) {
             observer.dispose();
             mSingleFutureObserverAdapter = null;

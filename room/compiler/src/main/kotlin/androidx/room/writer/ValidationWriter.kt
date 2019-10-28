@@ -61,7 +61,7 @@ abstract class ValidationWriter {
         var statementCount = 0
             private set
 
-        fun addStatement(format: String, vararg args: Any): CodeBlockWrapper {
+        fun addStatement(format: String, vararg args: Any?): CodeBlockWrapper {
             statementCount++
             builder.addStatement(format, *args)
             return this

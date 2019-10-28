@@ -30,6 +30,7 @@ import android.widget.RemoteViews;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
+import androidx.annotation.RestrictTo;
 import androidx.annotation.VisibleForTesting;
 import androidx.browser.customtabs.CustomTabsService.Relation;
 import androidx.browser.customtabs.CustomTabsService.Result;
@@ -48,6 +49,16 @@ public final class CustomTabsSession {
     private final ComponentName mComponentName;
 
     /**
+     * The session ID is represented by {@link PendingIntent}. Other apps cannot
+     * forge {@link PendingIntent}. The {@link PendingIntent#equals(Object)} method
+     * considers two {@link PendingIntent} objects equal if their action, data, type,
+     * class and category are the same (even across a process being killed).
+     *
+     * {@see Intent#filterEquals()}
+     */
+    private final PendingIntent mId;
+
+    /**
      * Provides browsers a way to generate a mock {@link CustomTabsSession} for testing
      * purposes.
      *
@@ -56,17 +67,21 @@ public final class CustomTabsSession {
      */
     @VisibleForTesting
     @NonNull
+    @SuppressWarnings("NullAway") // TODO: b/141869399
     public static CustomTabsSession createMockSessionForTesting(
             @NonNull ComponentName componentName) {
         return new CustomTabsSession(
-                null, new CustomTabsSessionToken.MockCallback(), componentName);
+                null, new CustomTabsSessionToken.MockCallback(), componentName, null);
     }
 
+    @SuppressWarnings("NullAway") // TODO: b/141869399
     /* package */ CustomTabsSession(
-            ICustomTabsService service, ICustomTabsCallback callback, ComponentName componentName) {
+            ICustomTabsService service, ICustomTabsCallback callback, ComponentName componentName,
+            @Nullable PendingIntent sessionId) {
         mService = service;
         mCallback = callback;
         mComponentName = componentName;
+        mId = sessionId;
     }
 
     /**
@@ -85,7 +100,10 @@ public final class CustomTabsSession {
      *                           {@link Bundle#putParcelable(String, android.os.Parcelable)}.
      * @return                   true for success.
      */
-    public boolean mayLaunchUrl(Uri url, Bundle extras, List<Bundle> otherLikelyBundles) {
+    @SuppressWarnings("NullAway") // TODO: b/141869399
+    public boolean mayLaunchUrl(@NonNull Uri url, @Nullable Bundle extras,
+            @Nullable List<Bundle> otherLikelyBundles) {
+        extras = createBundleWithId(extras);
         try {
             return mService.mayLaunchUrl(mCallback, url, extras, otherLikelyBundles);
         } catch (RemoteException e) {
@@ -109,6 +127,7 @@ public final class CustomTabsSession {
 
         Bundle metaBundle = new Bundle();
         metaBundle.putBundle(CustomTabsIntent.EXTRA_ACTION_BUTTON_BUNDLE, bundle);
+        addIdToBundle(bundle);
         try {
             return mService.updateVisuals(mCallback, metaBundle);
         } catch (RemoteException e) {
@@ -131,6 +150,7 @@ public final class CustomTabsSession {
         bundle.putParcelable(CustomTabsIntent.EXTRA_REMOTEVIEWS, remoteViews);
         bundle.putIntArray(CustomTabsIntent.EXTRA_REMOTEVIEWS_VIEW_IDS, clickableIDs);
         bundle.putParcelable(CustomTabsIntent.EXTRA_REMOTEVIEWS_PENDINGINTENT, pendingIntent);
+        addIdToBundle(bundle);
         try {
             return mService.updateVisuals(mCallback, bundle);
         } catch (RemoteException e) {
@@ -157,6 +177,7 @@ public final class CustomTabsSession {
 
         Bundle metaBundle = new Bundle();
         metaBundle.putBundle(CustomTabsIntent.EXTRA_ACTION_BUTTON_BUNDLE, bundle);
+        addIdToBundle(metaBundle);
         try {
             return mService.updateVisuals(mCallback, metaBundle);
         } catch (RemoteException e) {
@@ -173,10 +194,20 @@ public final class CustomTabsSession {
      *         here doesn't mean an origin has already been assigned as the validation is
      *         asynchronous.
      */
-    public boolean requestPostMessageChannel(Uri postMessageOrigin) {
+    public boolean requestPostMessageChannel(@NonNull Uri postMessageOrigin) {
         try {
-            return mService.requestPostMessageChannel(
-                    mCallback, postMessageOrigin);
+            // If mId is not null we know that the CustomTabsService supports
+            // requestPostMessageChannelWithExtras. That is because non-null mId means that
+            // CustomTabsSession was created with CustomTabsClient#newSession(Callback int), which
+            // can succeed only when browsers supporting CustomTabsService#newSessionWithExtras.
+            // This was added at the same time as requestPostMessageChannelWithExtras.
+            if (mId != null) {
+                return mService.requestPostMessageChannelWithExtras(
+                        mCallback, postMessageOrigin, createBundleWithId(null));
+            } else {
+                return mService.requestPostMessageChannel(mCallback, postMessageOrigin);
+            }
+
         } catch (RemoteException e) {
             return false;
         }
@@ -195,7 +226,8 @@ public final class CustomTabsSession {
      *        {@link CustomTabsService#RESULT_SUCCESS} if successful.
      */
     @Result
-    public int postMessage(String message, Bundle extras) {
+    public int postMessage(@NonNull String message, @Nullable Bundle extras) {
+        extras = createBundleWithId(extras);
         synchronized (mLock) {
             try {
                 return mService.postMessage(mCallback, message, extras);
@@ -231,11 +263,49 @@ public final class CustomTabsSession {
                 || relation > CustomTabsService.RELATION_HANDLE_ALL_URLS) {
             return false;
         }
+        extras = createBundleWithId(extras);
         try {
             return mService.validateRelationship(mCallback, relation, origin, extras);
         } catch (RemoteException e) {
             return false;
         }
+    }
+
+    /**
+     * Passes an URI of a file, e.g. in order to pass a large bitmap to be displayed in the
+     * Custom Tabs provider.
+     *
+     * Prior to calling this method, the client needs to grant a read permission to the target
+     * Custom Tabs provider via {@link android.content.Context#grantUriPermission}.
+     *
+     * The file is read and processed (where applicable) synchronously, therefore it's recommended
+     * to call this method on a background thread.
+     *
+     * @param uri {@link Uri} of the file.
+     * @param purpose Purpose of transferring this file, one of the constants enumerated in
+     *                {@code CustomTabsService#FilePurpose}.
+     * @param extras Reserved for future use.
+     * @return {@code true} if the file was received successfully.
+     */
+    public boolean receiveFile(@NonNull Uri uri, @CustomTabsService.FilePurpose int purpose,
+            @Nullable Bundle extras) {
+        extras = createBundleWithId(extras);
+        try {
+            return mService.receiveFile(mCallback, uri, purpose, extras);
+        } catch (RemoteException e) {
+            return false;
+        }
+    }
+
+    private Bundle createBundleWithId(@Nullable Bundle bundle) {
+        Bundle bundleWithId = new Bundle();
+        if (bundle != null) bundleWithId.putAll(bundle);
+        addIdToBundle(bundleWithId);
+        return bundleWithId;
+    }
+
+    private void addIdToBundle(Bundle bundle) {
+        if (mId != null) bundle.putParcelable(CustomTabsIntent.EXTRA_SESSION_ID, mId);
     }
 
     /* package */ IBinder getBinder() {
@@ -244,5 +314,37 @@ public final class CustomTabsSession {
 
     /* package */ ComponentName getComponentName() {
         return mComponentName;
+    }
+
+    /* package */ PendingIntent getId() {
+        return mId;
+    }
+
+    /**
+     * A class to be used instead of {@link CustomTabsSession} before we are connected
+     * {@link CustomTabsService}.
+     *
+     * Use {@link CustomTabsClient#attachSession(PendingSession)} to get {@link CustomTabsSession}.
+     *
+     * @hide
+     */
+    @RestrictTo(RestrictTo.Scope.LIBRARY)
+    public static class PendingSession {
+        private final CustomTabsCallback mCallback;
+        private final PendingIntent mId;
+
+        /* package */ PendingSession(
+                CustomTabsCallback callback, PendingIntent sessionId) {
+            mCallback = callback;
+            mId = sessionId;
+        }
+
+        /* package */ PendingIntent getId() {
+            return mId;
+        }
+
+        /* package */ CustomTabsCallback getCallback() {
+            return mCallback;
+        }
     }
 }

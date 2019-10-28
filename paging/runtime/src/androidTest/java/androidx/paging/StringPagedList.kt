@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2017 The Android Open Source Project
+ * Copyright 2019 The Android Open Source Project
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -16,72 +16,54 @@
 
 package androidx.paging
 
-class StringPagedList constructor(
+import androidx.paging.PagedSource.LoadResult.Error
+import androidx.paging.PagedSource.LoadResult.Page
+import androidx.testutils.DirectDispatcher
+import kotlinx.coroutines.GlobalScope
+import kotlinx.coroutines.runBlocking
+
+private class FakeSource<Value : Any>(
+    private val leadingNulls: Int,
+    private val trailingNulls: Int,
+    private val data: List<Value>
+) : PagedSource<Any, Value>() {
+    override suspend fun load(params: LoadParams<Any>): LoadResult<Any, Value> {
+        if (params.loadType == LoadType.REFRESH) {
+            return Page(
+                data = data,
+                prevKey = null,
+                nextKey = null,
+                itemsBefore = leadingNulls,
+                itemsAfter = trailingNulls
+            )
+        }
+        // TODO: prevent null-key load start/end
+        return Error(
+            IllegalArgumentException("This test source only supports initial load")
+        )
+    }
+}
+
+@Suppress("TestFunctionName")
+fun StringPagedList(
     leadingNulls: Int,
     trailingNulls: Int,
     vararg items: String
-) : PagedList<String>(
-        PagedStorage<String>(),
-        TestExecutor(),
-        TestExecutor(),
-        null,
-        PagedList.Config.Builder().setPageSize(1).build()
-), PagedStorage.Callback {
-    val list = items.toList()
-    var detached = false
-    init {
-        @Suppress("UNCHECKED_CAST")
-        val keyedStorage = mStorage as PagedStorage<String>
-        keyedStorage.init(leadingNulls,
-                list,
-                trailingNulls,
-                0,
-                this)
-    }
-
-    internal override fun isContiguous(): Boolean {
-        return true
-    }
-
-    override fun getLastKey(): Any? {
-        return null
-    }
-
-    override fun isDetached(): Boolean = detached
-
-    override fun detach() {
-        detached = true
-    }
-
-    override fun dispatchUpdatesSinceSnapshot(
-        storageSnapshot: PagedList<String>,
-        callback: PagedList.Callback
-    ) {
-    }
-
-    override fun dispatchCurrentLoadState(listener: LoadStateListener?) {}
-
-    override fun loadAroundInternal(index: Int) {}
-
-    override fun onInitialized(count: Int) {}
-
-    override fun onPagePrepended(leadingNulls: Int, changed: Int, added: Int) {}
-
-    override fun onPageAppended(endPosition: Int, changed: Int, added: Int) {}
-
-    override fun onPagePlaceholderInserted(pageIndex: Int) {}
-
-    override fun onPageInserted(start: Int, count: Int) {}
-
-    override fun getDataSource(): DataSource<*, String> {
-        return ListDataSource<String>(list)
-    }
-
-    override fun onPagesRemoved(startOfDrops: Int, count: Int) {
-        notifyRemoved(startOfDrops, count)
-    }
-
-    override fun onPagesSwappedToPlaceholder(startOfDrops: Int, count: Int) {
-        notifyChanged(startOfDrops, count)
-    }
+): PagedList<String> = runBlocking {
+    PagedList.create(
+        initialPage = Page<Any, String>(
+            data = items.toList(),
+            prevKey = null,
+            nextKey = null,
+            itemsBefore = leadingNulls,
+            itemsAfter = trailingNulls
+        ),
+        pagedSource = FakeSource(leadingNulls, trailingNulls, items.toList()),
+        coroutineScope = GlobalScope,
+        notifyDispatcher = DirectDispatcher,
+        fetchDispatcher = DirectDispatcher,
+        boundaryCallback = null,
+        config = Config(1, prefetchDistance = 0),
+        key = null
+    )
 }

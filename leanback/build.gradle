@@ -1,6 +1,7 @@
 import static androidx.build.dependencies.DependenciesKt.*
 import androidx.build.LibraryGroups
 import androidx.build.LibraryVersions
+import androidx.build.Publish
 
 plugins {
     id("AndroidXPlugin")
@@ -8,13 +9,13 @@ plugins {
 }
 
 dependencies {
-    api(project(":annotation"))
+    api("androidx.annotation:annotation:1.1.0")
     api("androidx.interpolator:interpolator:1.0.0")
-    api(project(":core"))
+    api("androidx.core:core:1.1.0")
     implementation("androidx.collection:collection:1.0.0")
     api("androidx.media:media:1.0.0")
     api("androidx.fragment:fragment:1.0.0")
-    api("androidx.recyclerview:recyclerview:1.0.0")
+    api(project(":recyclerview:recyclerview"))
 
     androidTestImplementation(ANDROIDX_TEST_EXT_JUNIT)
     androidTestImplementation(ANDROIDX_TEST_CORE)
@@ -41,11 +42,10 @@ android {
 
 androidx {
     name = "Android Support Leanback v17"
-    publish = true
+    publish = Publish.SNAPSHOT_AND_RELEASE
     mavenVersion = LibraryVersions.LEANBACK
     mavenGroup = LibraryGroups.LEANBACK
     inceptionYear = "2014"
     description = "Android Support Leanback v17"
-    failOnUncheckedWarnings = false
     failOnDeprecationWarnings = false
 }

@@ -1,0 +1,15 @@
+// Baseline format: 1.0
+AddedAbstractMethod: androidx.slice.SliceManager#getPinnedSpecs(android.net.Uri):
+    Added method androidx.slice.SliceManager.getPinnedSpecs(android.net.Uri)
+
+
+RemovedMethod: androidx.slice.SliceProvider#createPermissionIntent(android.content.Context, android.net.Uri, String):
+    Removed method androidx.slice.SliceProvider.createPermissionIntent(android.content.Context,android.net.Uri,String)
+RemovedMethod: androidx.slice.SliceProvider#createPermissionSlice(android.content.Context, android.net.Uri, String):
+    Removed method androidx.slice.SliceProvider.createPermissionSlice(android.content.Context,android.net.Uri,String)
+RemovedMethod: androidx.slice.SliceProvider#getPermissionString(android.content.Context, String):
+    Removed method androidx.slice.SliceProvider.getPermissionString(android.content.Context,String)
+RemovedMethod: androidx.slice.core.SliceQuery#stream(androidx.slice.Slice):
+    Removed method androidx.slice.core.SliceQuery.stream(androidx.slice.Slice)
+RemovedMethod: androidx.slice.core.SliceQuery#stream(androidx.slice.SliceItem):
+    Removed method androidx.slice.core.SliceQuery.stream(androidx.slice.SliceItem)

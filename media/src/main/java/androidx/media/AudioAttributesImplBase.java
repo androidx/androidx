@@ -16,7 +16,7 @@
 
 package androidx.media;
 
-import static androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP_PREFIX;
+import static androidx.annotation.RestrictTo.Scope.LIBRARY;
 import static androidx.media.AudioAttributesCompat.CONTENT_TYPE_MOVIE;
 import static androidx.media.AudioAttributesCompat.CONTENT_TYPE_MUSIC;
 import static androidx.media.AudioAttributesCompat.CONTENT_TYPE_SONIFICATION;
@@ -50,22 +50,29 @@ import java.util.Arrays;
 
 /** @hide */
 @VersionedParcelize(jetifyAs = "android.support.v4.media.AudioAttributesImplBase")
-@RestrictTo(LIBRARY_GROUP_PREFIX)
+@RestrictTo(LIBRARY)
 public class AudioAttributesImplBase implements AudioAttributesImpl {
     /** @hide */
-    @RestrictTo(LIBRARY_GROUP_PREFIX)
+    // It should be public to allow Parcelizers which never be de/jetified can access the field.
+    @RestrictTo(LIBRARY)
     @ParcelField(1)
     public int mUsage = USAGE_UNKNOWN;
+
     /** @hide */
-    @RestrictTo(LIBRARY_GROUP_PREFIX)
+    // It should be public to allow Parcelizers which never be de/jetified can access the field.
+    @RestrictTo(LIBRARY)
     @ParcelField(2)
     public int mContentType = CONTENT_TYPE_UNKNOWN;
+
     /** @hide */
-    @RestrictTo(LIBRARY_GROUP_PREFIX)
+    // It should be public to allow Parcelizers which never be de/jetified can access the field.
+    @RestrictTo(LIBRARY)
     @ParcelField(3)
     public int mFlags = 0x0;
+
     /** @hide */
-    @RestrictTo(LIBRARY_GROUP_PREFIX)
+    // It should be public to allow Parcelizers which never be de/jetified can access the field.
+    @RestrictTo(LIBRARY)
     @ParcelField(4)
     public int mLegacyStream = INVALID_STREAM_TYPE;
 

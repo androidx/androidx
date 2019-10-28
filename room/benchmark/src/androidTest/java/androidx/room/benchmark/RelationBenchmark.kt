@@ -17,8 +17,8 @@
 package androidx.room.benchmark
 
 import android.os.Build
-import androidx.benchmark.BenchmarkRule
-import androidx.benchmark.measureRepeated
+import androidx.benchmark.junit4.BenchmarkRule
+import androidx.benchmark.junit4.measureRepeated
 import androidx.room.Dao
 import androidx.room.Database
 import androidx.room.Embedded
@@ -90,7 +90,7 @@ class RelationBenchmark(private val parentSampleSize: Int, private val childSamp
         @JvmStatic
         @Parameterized.Parameters(name = "parentSampleSize={0}, childSampleSize={1}")
         fun data() = arrayOf(100, 500, 1000).flatMap { parentSampleSize ->
-            arrayOf(10, 100).map { childSampleSize ->
+            arrayOf(10).map { childSampleSize ->
                 arrayOf(parentSampleSize, childSampleSize)
             }
         }

@@ -15,6 +15,9 @@
  */
 package androidx.room;
 
+import java.lang.annotation.Retention;
+import java.lang.annotation.RetentionPolicy;
+
 /**
  * Marks a method in a {@link Dao} annotated class as an update method.
  * <p>
@@ -24,11 +27,72 @@ package androidx.room;
  * <p>
  * All of the parameters of the Update method must either be classes annotated with {@link Entity}
  * or collections/array of it.
+ * <p>
+ * Example:
+ * <pre>
+ * {@literal @}Dao
+ * public interface MusicDao {
+ *     {@literal @}Update
+ *     public void updateSong(Song);
+ *
+ *     {@literal @}Update
+ *     public int updateSongs(List&lt;Song&gt; songs);
+ * }
+ * </pre>
+ * If the target entity is specified via {@link #entity()} then the parameters can be of arbitrary
+ * POJO types that will be interpreted as partial entities. For example:
+ * <pre>
+ * {@literal @}Entity
+ * public class Playlist {
+ *   {@literal @}PrimaryKey(autoGenerate = true)
+ *   long playlistId;
+ *   String name;
+ *   {@literal @}ColumnInfo(defaultValue = "")
+ *   String description
+ *   {@literal @}ColumnInfo(defaultValue = "normal")
+ *   String category;
+ *   {@literal @}ColumnInfo(defaultValue = "CURRENT_TIMESTAMP")
+ *   String createdTime;
+ *   {@literal @}ColumnInfo(defaultValue = "CURRENT_TIMESTAMP")
+ *   String lastModifiedTime;
+ * }
+ *
+ * public class PlaylistCategory {
+ *   long playlistId;
+ *   String category;
+ *   String lastModifiedTime
+ * }
+ *
+ * {@literal @}Dao
+ * public interface PlaylistDao {
+ *   {@literal @}Update(entity = Playlist.class)
+ *   public void updateCategory(PlaylistCategory... category);
+ * }
+ * </pre>
  *
  * @see Insert
  * @see Delete
  */
+@Retention(RetentionPolicy.CLASS)
 public @interface Update {
+
+    /**
+     * The target entity of the update method.
+     * <p>
+     * When this is declared, the update method parameters are interpreted as partial entities when
+     * the type of the parameter differs from the target. The POJO class that represents the entity
+     * must contain a subset of the fields of the target entity along with its primary keys.
+     * <p>
+     * Only the columns represented by the partial entity fields will be updated if an entity with
+     * equal primary key is found.
+     * <p>
+     * By default the target entity is interpreted by the method parameters.
+     *
+     * @return the target entity of the update method or none if the method should use the
+     *         parameter type entities.
+     */
+    Class<?> entity() default Object.class;
+
     /**
      * What to do if a conflict happens.
      * <p>

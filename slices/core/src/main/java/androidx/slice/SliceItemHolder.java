@@ -81,6 +81,7 @@ public class SliceItemHolder implements VersionedParcelable {
         }
     }
 
+    @SuppressWarnings("unchecked")
     public SliceItemHolder(String format, Object mObj, boolean isStream) {
         switch (format) {
             case FORMAT_ACTION:

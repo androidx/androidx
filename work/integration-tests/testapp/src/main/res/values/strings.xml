@@ -18,12 +18,24 @@
     <string name="analyze_holmes">Analyze Sherlock Holmes!</string>
     <string name="enqueue_periodic_work">Enqueue Periodic Work</string>
     <string name="enqueue_periodic_work_flex">Enqueue Periodic Work (with Flex)</string>
+    <string name="enqueue_periodic_initial_delay">Enqueue Periodic Work (with Delay)</string>
     <string name="loop_unique_work">Loop Unique Work</string>
     <string name="enqueue_lots_of_work">Add Lots of Work</string>
     <string name="exploding_work">Test Exploding Work</string>
     <string name="replace_completed_work">Test Replacing Completed Work</string>
     <string name="run_retry_worker">Run Retry Worker</string>
     <string name="run_recursive_worker">Run Recursive Worker</string>
+    <string name="run_foreground_worker">Run Foreground Worker</string>
+    <string name="cancel_foreground_worker">Cancel Foreground Worker</string>
+    <string name="cancel_foreground_worker_intent">Cancel Foreground Worker (Intent)</string>
+    <string name="crash_app">Crash App</string>
     <string name="create_hundred_job_exception">Create 100 Job Exception</string>
     <string name="keep">Use KEEP</string>
+    <!-- Foreground service support -->
+    <string name="channel_id">10</string>
+    <integer name="channel_importance">3</integer>
+    <string name="channel_name">WorkManager</string>
+    <string name="channel_description">Foreground Work</string>
+    <integer name="notification_id">1</integer>
+    <string name="notification_title">Working</string>
 </resources>

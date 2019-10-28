@@ -20,6 +20,8 @@ import android.webkit.WebResourceRequest;
 import android.webkit.WebResourceResponse;
 
 import androidx.annotation.NonNull;
+import androidx.annotation.Nullable;
+import androidx.annotation.WorkerThread;
 
 /**
  * Base class for clients to capture Service Worker related callbacks,
@@ -47,5 +49,7 @@ public abstract class ServiceWorkerClientCompat {
      * @see android.webkit.WebViewClient#shouldInterceptRequest(android.webkit.WebView,
      * WebResourceRequest)
      */
-    public abstract WebResourceResponse shouldInterceptRequest(@NonNull WebResourceRequest request);
+    @WorkerThread
+    public abstract @Nullable WebResourceResponse shouldInterceptRequest(
+            @NonNull WebResourceRequest request);
 }

@@ -23,6 +23,7 @@ import android.webkit.WebResourceError;
 import android.webkit.WebResourceRequest;
 import android.webkit.WebSettings;
 
+import androidx.annotation.NonNull;
 import androidx.annotation.RequiresApi;
 import androidx.webkit.SafeBrowsingResponseCompat;
 import androidx.webkit.WebResourceErrorCompat;
@@ -51,6 +52,7 @@ public class WebkitToCompatConverter {
      * objects affect the other object. That WebSettingsAdapter can be used to implement
      * {@link androidx.webkit.WebSettingsCompat}.
      */
+    @NonNull
     public WebSettingsAdapter convertSettings(WebSettings webSettings) {
         return new WebSettingsAdapter(BoundaryInterfaceReflectionUtil.castToSuppLibClass(
                 WebSettingsBoundaryInterface.class, mImpl.convertSettings(webSettings)));
@@ -60,6 +62,7 @@ public class WebkitToCompatConverter {
      * Return a {@link WebResourceRequestAdapter} linked to the given {@link WebResourceRequest} so
      * that calls on either of those objects affect the other object.
      */
+    @NonNull
     public WebResourceRequestAdapter convertWebResourceRequest(WebResourceRequest request) {
         return new WebResourceRequestAdapter(BoundaryInterfaceReflectionUtil.castToSuppLibClass(
                 WebResourceRequestBoundaryInterface.class,
@@ -92,7 +95,8 @@ public class WebkitToCompatConverter {
      * {@link WebResourceError}such that calls on either of those objects affect the other
      * object.
      */
-    InvocationHandler convertWebResourceError(WebResourceError webResourceError) {
+    @NonNull
+    public InvocationHandler convertWebResourceError(@NonNull WebResourceError webResourceError) {
         return mImpl.convertWebResourceError(webResourceError);
     }
 
@@ -102,8 +106,9 @@ public class WebkitToCompatConverter {
      * a {@link WebResourceError}.
      */
     @RequiresApi(23)
-    WebResourceError convertWebResourceError(
-            /* SupportLibWebResourceError */ InvocationHandler webResourceError) {
+    @NonNull
+    public WebResourceError convertWebResourceError(
+            @NonNull /* SupportLibWebResourceError */ InvocationHandler webResourceError) {
         return (WebResourceError) mImpl.convertWebResourceError(webResourceError);
     }
 
@@ -112,7 +117,9 @@ public class WebkitToCompatConverter {
      * {@link SafeBrowsingResponse} such that calls on either of those objects affect the other
      * object.
      */
-    InvocationHandler convertSafeBrowsingResponse(SafeBrowsingResponse safeBrowsingResponse) {
+    @NonNull
+    public InvocationHandler convertSafeBrowsingResponse(
+            @NonNull SafeBrowsingResponse safeBrowsingResponse) {
         return mImpl.convertSafeBrowsingResponse(safeBrowsingResponse);
     }
 
@@ -122,8 +129,9 @@ public class WebkitToCompatConverter {
      * into a {@link SafeBrowsingResponse}.
      */
     @RequiresApi(27)
-    SafeBrowsingResponse convertSafeBrowsingResponse(
-            /* SupportLibSafeBrowsingResponse */ InvocationHandler safeBrowsingResponse) {
+    @NonNull
+    public SafeBrowsingResponse convertSafeBrowsingResponse(
+            @NonNull /* SupportLibSafeBrowsingResponse */ InvocationHandler safeBrowsingResponse) {
         return (SafeBrowsingResponse) mImpl.convertSafeBrowsingResponse(safeBrowsingResponse);
     }
 
@@ -132,7 +140,8 @@ public class WebkitToCompatConverter {
      * {@link WebResourceError} such that calls on either of those objects affect the other
      * object.
      */
-    InvocationHandler convertWebMessagePort(WebMessagePort webMessagePort) {
+    @NonNull
+    public InvocationHandler convertWebMessagePort(@NonNull WebMessagePort webMessagePort) {
         return mImpl.convertWebMessagePort(webMessagePort);
     }
 
@@ -142,8 +151,9 @@ public class WebkitToCompatConverter {
      * a {@link WebResourceError}.
      */
     @RequiresApi(23)
-    WebMessagePort convertWebMessagePort(
-            /* SupportLibWebMessagePort */ InvocationHandler webMessagePort) {
+    @NonNull
+    public WebMessagePort convertWebMessagePort(
+            @NonNull /* SupportLibWebMessagePort */ InvocationHandler webMessagePort) {
         return (WebMessagePort) mImpl.convertWebMessagePort(webMessagePort);
     }
 }

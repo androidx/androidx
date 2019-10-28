@@ -34,5 +34,4 @@ task dist(type: Copy) {
 
   destinationDir BuildServerConfigurationKt.getDistributionDirectory(rootProject)
 }
-rootProject.tasks["createArchive"].dependsOn(dist)
 

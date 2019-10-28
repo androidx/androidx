@@ -133,11 +133,6 @@ class SetItemWhileScrollInProgressTest(private val config: TestConfig) : BaseTes
         fun spec(): List<TestConfig> = createTestSet()
     }
 
-    override fun setUp() {
-        super.setUp()
-        assumeApiBeforeQ()
-    }
-
     @Test
     fun test() {
         config.apply {
@@ -149,7 +144,7 @@ class SetItemWhileScrollInProgressTest(private val config: TestConfig) : BaseTes
 
                 // when
                 pageSequence.forEachIndexed { i, targetPage ->
-                    runOnUiThread {
+                    runOnUiThreadSync {
                         viewPager.setCurrentItem(targetPage, i !in instantScrolls)
                         viewPager.assertCurrentItemSet(targetPage)
                         if (currentPage != targetPage) {
@@ -252,19 +247,19 @@ class SetItemWhileScrollInProgressTest(private val config: TestConfig) : BaseTes
 
     private fun RecordingCallback.assertScrollTowardsSelectedPage() {
         var target = 0
-        var prevPosition = 0f
+        var prevPosition = 0.0
         events.forEach {
             when (it) {
                 is OnPageSelectedEvent -> target = it.position
-                is Event.OnPageScrolledEvent -> {
-                    val currentPosition = it.position + it.positionOffset
+                is OnPageScrolledEvent -> {
+                    val currentPosition = it.position + it.positionOffset.toDouble()
                     assertThat(
                         "Scroll event fired before page selected event",
                         target, not(equalTo(-1))
                     )
                     assertThat(
                         "Scroll event not between start and destination",
-                        currentPosition, isBetweenInInMinMax(prevPosition, target.toFloat())
+                        currentPosition, isBetweenInInMinMax(prevPosition, target.toDouble())
                     )
                     prevPosition = currentPosition
                 }
@@ -350,6 +345,13 @@ private fun createTestSet(orientation: Int): List<TestConfig> {
             totalPages = 12,
             pageSequence = listOf(8, 7, 9, 7, 3, 0, 7, 11, 10, 0),
             instantScrolls = setOf(1, 4, 5, 8, 9)
+        ),
+        TestConfig(
+            title = "smooth-instant-long_smooth",
+            orientation = orientation,
+            totalPages = 5,
+            pageSequence = listOf(3, 4, 0),
+            instantScrolls = setOf(1)
         )
     )
     .plus(

@@ -60,6 +60,7 @@ import androidx.recyclerview.widget.RecyclerView;
  * @deprecated  Use {@link FullWidthDetailsOverviewRowPresenter}
  */
 @Deprecated
+@SuppressWarnings("unchecked")
 public class DetailsOverviewRowPresenter extends RowPresenter {
 
     static final String TAG = "DetailsOverviewRowP";

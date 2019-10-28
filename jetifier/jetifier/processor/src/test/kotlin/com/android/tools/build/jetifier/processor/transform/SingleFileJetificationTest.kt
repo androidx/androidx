@@ -166,6 +166,7 @@ class SingleFileJetificationTest {
         val inputFile = File("/tmp/singleFileTestInput" + fileExtension)
         inputFile.writeText(givenFileContent)
         val outputFile = File("/tmp/singleFileTestOutput" + fileExtension)
+        @Suppress("deprecation")
         processor.transform(setOf(FileMapping(inputFile, outputFile)))
         if (expectSpecifiedOutput) {
             Truth.assertThat(outputFile.readText()).isEqualTo(expectedOutputFileContent)

@@ -17,10 +17,9 @@
 package androidx.viewpager2.widget
 
 import androidx.recyclerview.widget.RecyclerView
-import androidx.test.filters.FlakyTest
 import androidx.test.filters.LargeTest
 import androidx.test.filters.MediumTest
-import androidx.testutils.FragmentActivityUtils.waitForCycles
+import androidx.testutils.waitForExecution
 import androidx.viewpager2.test.ui.TouchConsumingTextView
 import androidx.viewpager2.widget.DisableUserInputTest.Event.OnPageScrollStateChangedEvent
 import androidx.viewpager2.widget.DisableUserInputTest.Event.OnPageScrolledEvent
@@ -103,7 +102,7 @@ class DisableUserInputTest(private val config: TestConfig) : BaseTest() {
 
         // when
         test.swipe(currentPage, targetPage)
-        waitForCycles(3, test.activityTestRule)
+        test.activityTestRule.waitForExecution(3)
 
         // then
         test.assertBasicState(currentPage)
@@ -144,7 +143,6 @@ class DisableUserInputTest(private val config: TestConfig) : BaseTest() {
         testSetCurrentItem(true)
     }
 
-    @FlakyTest(bugId = 131158288)
     @Test
     @MediumTest
     fun testSetCurrentItemNotSmooth() {

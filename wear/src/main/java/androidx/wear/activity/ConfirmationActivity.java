@@ -82,12 +82,12 @@ public class ConfirmationActivity extends Activity {
         }
 
         @ConfirmationOverlay.OverlayType int type = CONFIRMATION_OVERLAY_TYPES.get(requestedType);
-        String message = intent.getStringExtra(EXTRA_MESSAGE);
+        CharSequence message = intent.getStringExtra(EXTRA_MESSAGE);
 
         new ConfirmationOverlay()
                 .setType(type)
                 .setMessage(message)
-                .setFinishedAnimationListener(
+                .setOnAnimationFinishedListener(
                         new ConfirmationOverlay.OnAnimationFinishedListener() {
                             @Override
                             public void onAnimationFinished() {

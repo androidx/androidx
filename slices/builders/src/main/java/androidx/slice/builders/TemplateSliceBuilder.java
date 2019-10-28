@@ -144,6 +144,7 @@ public abstract class TemplateSliceBuilder {
      * @hide
      */
     @RestrictTo(LIBRARY)
+    @SuppressWarnings("unchecked")
     static <T> Pair<SliceSpec, Class<? extends TemplateBuilderImpl>> pair(SliceSpec spec,
             Class<T> cls) {
         return new Pair(spec, cls);

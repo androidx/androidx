@@ -76,7 +76,7 @@ public class EmojiEditableFactoryTest {
     @SuppressLint("PrivateApi")
     @Test
     public void testNewEditable_returnsEmojiSpannableIfWatcherClassExists() {
-        Class clazz = null;
+        Class<?> clazz = null;
         try {
             String className = "android.text.DynamicLayout$ChangeWatcher";
             clazz = Class.forName(className, false, getClass().getClassLoader());

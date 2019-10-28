@@ -16,11 +16,15 @@
 
 package androidx.viewpager2.widget.swipe;
 
-import static androidx.viewpager2.widget.ViewPager2.ORIENTATION_HORIZONTAL;
+import static androidx.test.espresso.action.GeneralLocation.CENTER;
+import static androidx.viewpager2.widget.BaseTestKt.isHorizontal;
+import static androidx.viewpager2.widget.BaseTestKt.isRtl;
 
 import android.app.Instrumentation;
 import android.view.View;
+import android.view.animation.Interpolator;
 
+import androidx.test.espresso.action.CoordinatesProvider;
 import androidx.test.platform.app.InstrumentationRegistry;
 import androidx.viewpager2.widget.ViewPager2;
 
@@ -28,16 +32,21 @@ public class PageSwiperManual implements PageSwiper {
     private final ViewPager2 mViewPager;
     private final SwipeAction mActionPrevious;
     private final SwipeAction mActionNext;
+    // Factor to apply to an x-delta to generate a forward swipe by that delta.
+    // Use -mXForwardFactor for a backwards swipe.
+    private final int mXForwardFactor;
+    // Factor to apply to a y-delta to generate a forward swipe by that delta
+    // Use -mYForwardFactor for a backwards swipe.
+    private final int mYForwardFactor;
 
-    public PageSwiperManual(ViewPager2 viewPager, boolean isRtl) {
+    public PageSwiperManual(ViewPager2 viewPager) {
         mViewPager = viewPager;
-        int orientation = viewPager.getOrientation();
-        mActionPrevious = orientation == ORIENTATION_HORIZONTAL
-                ? (isRtl ? SWIPE_LEFT : SWIPE_RIGHT)
-                : SWIPE_DOWN;
-        mActionNext = orientation == ORIENTATION_HORIZONTAL
-                ? (isRtl ? SWIPE_RIGHT : SWIPE_LEFT)
-                : SWIPE_UP;
+        boolean isRtl = isRtl(mViewPager);
+        boolean isHorizontal = isHorizontal(mViewPager);
+        mActionPrevious = isHorizontal ? (isRtl ? SWIPE_LEFT : SWIPE_RIGHT) : SWIPE_DOWN;
+        mActionNext = isHorizontal ? (isRtl ? SWIPE_RIGHT : SWIPE_LEFT) : SWIPE_UP;
+        mXForwardFactor = isHorizontal ? (isRtl ? 1 : -1) : 0;
+        mYForwardFactor = isHorizontal ? 0 : -1;
     }
 
     @Override
@@ -48,6 +57,27 @@ public class PageSwiperManual implements PageSwiper {
     @Override
     public void swipePrevious() {
         mActionPrevious.swipe(InstrumentationRegistry.getInstrumentation(), mViewPager);
+    }
+
+    public void swipeForward(float px, Interpolator interpolator) {
+        swipe(px * mXForwardFactor, px * mYForwardFactor, interpolator);
+    }
+
+    public void swipeBackward(float px, Interpolator interpolator) {
+        swipe(px * -mXForwardFactor, px * -mYForwardFactor, interpolator);
+    }
+
+    private void swipe(float xOffset, float yOffset, Interpolator interpolator) {
+        new ManualSwipeInjector(
+                offsetCenter(-xOffset / 2, -yOffset / 2),
+                offsetCenter(xOffset / 2, yOffset / 2),
+                150, 20
+        ).perform(InstrumentationRegistry.getInstrumentation(),
+                mViewPager.getChildAt(0), interpolator);
+    }
+
+    private static CoordinatesProvider offsetCenter(final float dx, final float dy) {
+        return new TranslatedCoordinatesProvider(CENTER, dx, dy);
     }
 
     private interface SwipeAction {
@@ -81,5 +111,4 @@ public class PageSwiperManual implements PageSwiper {
             ManualSwipeInjector.swipeDown().perform(instrumentation, view);
         }
     };
-
 }

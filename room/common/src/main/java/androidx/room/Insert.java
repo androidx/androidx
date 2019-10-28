@@ -32,13 +32,44 @@ import java.lang.annotation.Target;
  * Example:
  * <pre>
  * {@literal @}Dao
- * public interface MyDao {
- *     {@literal @}Insert(onConflict = OnConflictStrategy.REPLACE)
- *     public void insertUsers(User... users);
- *     {@literal @}Insert
- *     public void insertBoth(User user1, User user2);
- *     {@literal @}Insert
- *     public void insertWithFriends(User user, List&lt;User&gt; friends);
+ * public interface MusicDao {
+ *   {@literal @}Insert(onConflict = OnConflictStrategy.REPLACE)
+ *   public void insertSongs(Song... songs);
+ *
+ *   {@literal @}Insert
+ *   public void insertBoth(Song song1, Song song2);
+ *
+ *   {@literal @}Insert
+ *   public void insertAlbumWithSongs(Album album, List&lt;Song&gt; songs);
+ * }
+ * </pre>
+ * If the target entity is specified via {@link #entity()} then the parameters can be of arbitrary
+ * POJO types that will be interpreted as partial entities. For example:
+ * <pre>
+ * {@literal @}Entity
+ * public class Playlist {
+ *   {@literal @}PrimaryKey(autoGenerate = true)
+ *   long playlistId;
+ *   String name;
+ *   {@literal @}Nullable
+ *   String description
+ *   {@literal @}ColumnInfo(defaultValue = "normal")
+ *   String category;
+ *   {@literal @}ColumnInfo(defaultValue = "CURRENT_TIMESTAMP")
+ *   String createdTime;
+ *   {@literal @}ColumnInfo(defaultValue = "CURRENT_TIMESTAMP")
+ *   String lastModifiedTime;
+ * }
+ *
+ * public class NameAndDescription {
+ *   String name;
+ *   String description
+ * }
+ *
+ * {@literal @}Dao
+ * public interface PlaylistDao {
+ *   {@literal @}Insert(entity = Playlist.class)
+ *   public void insertNewPlaylist(NameAndDescription nameDescription);
  * }
  * </pre>
  *
@@ -48,6 +79,25 @@ import java.lang.annotation.Target;
 @Target({ElementType.METHOD})
 @Retention(RetentionPolicy.CLASS)
 public @interface Insert {
+
+    /**
+     * The target entity of the insert method.
+     * <p>
+     * When this is declared, the insert method parameters are interpreted as partial entities when
+     * the type of the parameter differs from the target. The POJO class that represents the entity
+     * must contain all of the non-null fields without default values of the target entity.
+     * <p>
+     * If the target entity contains a {@link PrimaryKey} that is auto generated, then the POJO
+     * class doesn't need an equal primary key field, otherwise primary keys must also be present
+     * in the POJO.
+     * <p>
+     * By default the target entity is interpreted by the method parameters.
+     *
+     * @return the target entity of the insert method or none if the method should use the
+     *         parameter type entities.
+     */
+    Class<?> entity() default Object.class;
+
     /**
      * What to do if a conflict happens.
      * <p>

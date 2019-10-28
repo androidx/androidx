@@ -17,6 +17,7 @@ import android.animation.ObjectAnimator;
 import android.content.Context;
 import android.content.res.TypedArray;
 import android.graphics.drawable.Drawable;
+import android.os.Build;
 import android.util.AttributeSet;
 import android.view.ContextThemeWrapper;
 import android.view.LayoutInflater;
@@ -170,6 +171,11 @@ public class ImageCardView extends BaseCardView {
         inflater.inflate(R.layout.lb_image_card_view, this);
         TypedArray cardAttrs = getContext().obtainStyledAttributes(attrs,
                 R.styleable.lbImageCardView, defStyleAttr, defStyle);
+        if (Build.VERSION.SDK_INT >= 29) {
+            saveAttributeDataForStyleable(
+                    getContext(), R.styleable.lbImageCardView, attrs, cardAttrs, defStyleAttr,
+                    defStyle);
+        }
         int cardType = cardAttrs
                 .getInt(R.styleable.lbImageCardView_lbImageCardViewType, CARD_TYPE_FLAG_IMAGE_ONLY);
 

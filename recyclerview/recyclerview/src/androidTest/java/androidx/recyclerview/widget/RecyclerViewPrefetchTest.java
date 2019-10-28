@@ -40,6 +40,11 @@ public class RecyclerViewPrefetchTest extends BaseRecyclerViewInstrumentationTes
         CountDownLatch prefetchLatch = new CountDownLatch(1);
 
         @Override
+        public boolean canScrollHorizontally() {
+            return false;
+        }
+
+        @Override
         public boolean canScrollVertically() {
             return true;
         }
@@ -60,7 +65,11 @@ public class RecyclerViewPrefetchTest extends BaseRecyclerViewInstrumentationTes
         @Override
         public void collectAdjacentPrefetchPositions(int dx, int dy, RecyclerView.State state,
                 LayoutPrefetchRegistry layoutPrefetchRegistry) {
-            prefetchLatch.countDown();
+            if (dy > 0) {
+                // only a valid prefetch if it gets direction correct, since that's what drives
+                // which item to load
+                prefetchLatch.countDown();
+            }
             layoutPrefetchRegistry.addPosition(6, 0);
         }
 

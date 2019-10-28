@@ -43,6 +43,7 @@ import android.os.StrictMode;
 import android.util.Log;
 
 import androidx.annotation.NonNull;
+import androidx.annotation.Nullable;
 import androidx.annotation.RequiresApi;
 import androidx.annotation.RestrictTo;
 import androidx.annotation.RestrictTo.Scope;
@@ -108,8 +109,8 @@ public class SliceProviderCompat {
     private CompatPinnedList mPinnedList;
     private CompatPermissionManager mPermissionManager;
 
-    public SliceProviderCompat(SliceProvider provider, CompatPermissionManager permissionManager,
-            Context context) {
+    public SliceProviderCompat(@NonNull SliceProvider provider,
+            @NonNull CompatPermissionManager permissionManager, @NonNull Context context) {
         mProvider = provider;
         mContext = context;
         String prefsFile = DATA_PREFIX + getClass().getName();
@@ -131,6 +132,7 @@ public class SliceProviderCompat {
         return mContext;
     }
 
+    @Nullable
     public String getCallingPackage() {
         return mProvider.getCallingPackage();
     }
@@ -138,7 +140,8 @@ public class SliceProviderCompat {
     /**
      * Called by SliceProvider when compat is needed.
      */
-    public Bundle call(String method, String arg, Bundle extras) {
+    @Nullable
+    public Bundle call(@NonNull String method, @Nullable String arg, @NonNull Bundle extras) {
         if (method.equals(METHOD_SLICE)) {
             Uri uri = extras.getParcelable(EXTRA_BIND_URI);
             Set<SliceSpec> specs = getSpecs(extras);
@@ -309,8 +312,9 @@ public class SliceProviderCompat {
     /**
      * Compat version of {@link Slice#bindSlice}.
      */
-    public static Slice bindSlice(Context context, Uri uri,
-            Set<SliceSpec> supportedSpecs) {
+    @Nullable
+    public static Slice bindSlice(@NonNull Context context, @NonNull Uri uri,
+            @NonNull Set<SliceSpec> supportedSpecs) {
         ProviderHolder holder = acquireClient(context.getContentResolver(), uri);
         if (holder.mProvider == null) {
             throw new IllegalArgumentException("Unknown URI " + uri);
@@ -333,7 +337,7 @@ public class SliceProviderCompat {
     /**
      * Compat way to push specs through the call.
      */
-    public static void addSpecs(Bundle extras, Set<SliceSpec> supportedSpecs) {
+    public static void addSpecs(@NonNull Bundle extras, @NonNull Set<SliceSpec> supportedSpecs) {
         ArrayList<String> types = new ArrayList<>();
         ArrayList<Integer> revs = new ArrayList<>();
         for (SliceSpec spec : supportedSpecs) {
@@ -347,7 +351,8 @@ public class SliceProviderCompat {
     /**
      * Compat way to push specs through the call.
      */
-    public static Set<SliceSpec> getSpecs(Bundle extras) {
+    @NonNull
+    public static Set<SliceSpec> getSpecs(@NonNull Bundle extras) {
         ArraySet<SliceSpec> specs = new ArraySet<>();
         ArrayList<String> types = extras.getStringArrayList(EXTRA_SUPPORTED_SPECS);
         ArrayList<Integer> revs = extras.getIntegerArrayList(EXTRA_SUPPORTED_SPECS_REVS);
@@ -362,8 +367,9 @@ public class SliceProviderCompat {
     /**
      * Compat version of {@link Slice#bindSlice}.
      */
-    public static Slice bindSlice(Context context, Intent intent,
-            Set<SliceSpec> supportedSpecs) {
+    @Nullable
+    public static Slice bindSlice(@NonNull Context context, @NonNull Intent intent,
+            @NonNull Set<SliceSpec> supportedSpecs) {
         Preconditions.checkNotNull(intent, "intent");
         Preconditions.checkArgument(intent.getComponent() != null || intent.getPackage() != null
                         || intent.getData() != null,
@@ -453,8 +459,8 @@ public class SliceProviderCompat {
     /**
      * Compat version of {@link android.app.slice.SliceManager#pinSlice}.
      */
-    public static void pinSlice(Context context, Uri uri,
-            Set<SliceSpec> supportedSpecs) {
+    public static void pinSlice(@NonNull Context context, @NonNull Uri uri,
+            @NonNull Set<SliceSpec> supportedSpecs) {
         ProviderHolder holder = acquireClient(context.getContentResolver(), uri);
         if (holder.mProvider == null) {
             throw new IllegalArgumentException("Unknown URI " + uri);
@@ -475,31 +481,30 @@ public class SliceProviderCompat {
     /**
      * Compat version of {@link android.app.slice.SliceManager#unpinSlice}.
      */
-    public static void unpinSlice(Context context, Uri uri,
-            Set<SliceSpec> supportedSpecs) {
-        if (getPinnedSlices(context).contains(uri)) {
-            ProviderHolder holder = acquireClient(context.getContentResolver(), uri);
-            if (holder.mProvider == null) {
-                throw new IllegalArgumentException("Unknown URI " + uri);
-            }
-            try {
-                Bundle extras = new Bundle();
-                extras.putParcelable(EXTRA_BIND_URI, uri);
-                extras.putString(EXTRA_PKG, context.getPackageName());
-                addSpecs(extras, supportedSpecs);
-                holder.mProvider.call(METHOD_UNPIN, ARG_SUPPORTS_VERSIONED_PARCELABLE, extras);
-            } catch (RemoteException e) {
-                Log.e(TAG, "Unable to unpin slice", e);
-            } finally {
-                holder.close();
-            }
+    public static void unpinSlice(@NonNull Context context, @NonNull Uri uri,
+            @NonNull Set<SliceSpec> supportedSpecs) {
+        ProviderHolder holder = acquireClient(context.getContentResolver(), uri);
+        if (holder.mProvider == null) {
+            throw new IllegalArgumentException("Unknown URI " + uri);
+        }
+        try {
+            Bundle extras = new Bundle();
+            extras.putParcelable(EXTRA_BIND_URI, uri);
+            extras.putString(EXTRA_PKG, context.getPackageName());
+            addSpecs(extras, supportedSpecs);
+            holder.mProvider.call(METHOD_UNPIN, ARG_SUPPORTS_VERSIONED_PARCELABLE, extras);
+        } catch (RemoteException e) {
+            Log.e(TAG, "Unable to unpin slice", e);
+        } finally {
+            holder.close();
         }
     }
 
     /**
      * Compat version of {@link android.app.slice.SliceManager#getPinnedSpecs(Uri)}.
      */
-    public static Set<SliceSpec> getPinnedSpecs(Context context, Uri uri) {
+    @Nullable
+    public static Set<SliceSpec> getPinnedSpecs(@NonNull Context context, @NonNull Uri uri) {
         ProviderHolder holder = acquireClient(context.getContentResolver(), uri);
         if (holder.mProvider == null) {
             throw new IllegalArgumentException("Unknown URI " + uri);
@@ -523,7 +528,8 @@ public class SliceProviderCompat {
     /**
      * Compat version of {@link android.app.slice.SliceManager#mapIntentToUri}.
      */
-    public static Uri mapIntentToUri(Context context, Intent intent) {
+    @Nullable
+    public static Uri mapIntentToUri(@NonNull Context context, @NonNull Intent intent) {
         Preconditions.checkNotNull(intent, "intent");
         Preconditions.checkArgument(intent.getComponent() != null || intent.getPackage() != null
                         || intent.getData() != null,
@@ -577,7 +583,8 @@ public class SliceProviderCompat {
     /**
      * Compat version of {@link android.app.slice.SliceManager#getSliceDescendants(Uri)}
      */
-    public static @NonNull Collection<Uri> getSliceDescendants(Context context, @NonNull Uri uri) {
+    @NonNull
+    public static Collection<Uri> getSliceDescendants(@NonNull Context context, @NonNull Uri uri) {
         ContentResolver resolver = context.getContentResolver();
         try (ProviderHolder holder = acquireClient(resolver, uri)) {
             Bundle extras = new Bundle();
@@ -596,8 +603,8 @@ public class SliceProviderCompat {
     /**
      * Compat version of {@link android.app.slice.SliceManager#checkSlicePermission}.
      */
-    public static int checkSlicePermission(Context context, String packageName, Uri uri, int pid,
-            int uid) {
+    public static int checkSlicePermission(@NonNull Context context, @Nullable String packageName,
+            @NonNull Uri uri, int pid, int uid) {
         ContentResolver resolver = context.getContentResolver();
         try (ProviderHolder holder = acquireClient(resolver, uri)) {
             Bundle extras = new Bundle();
@@ -620,8 +627,8 @@ public class SliceProviderCompat {
     /**
      * Compat version of {@link android.app.slice.SliceManager#grantSlicePermission}.
      */
-    public static void grantSlicePermission(Context context, String packageName, String toPackage,
-            Uri uri) {
+    public static void grantSlicePermission(@NonNull Context context, @Nullable String packageName,
+            @Nullable String toPackage, @NonNull Uri uri) {
         ContentResolver resolver = context.getContentResolver();
         try (ProviderHolder holder = acquireClient(resolver, uri)) {
             Bundle extras = new Bundle();
@@ -639,8 +646,8 @@ public class SliceProviderCompat {
     /**
      * Compat version of {@link android.app.slice.SliceManager#revokeSlicePermission}.
      */
-    public static void revokeSlicePermission(Context context, String packageName, String toPackage,
-            Uri uri) {
+    public static void revokeSlicePermission(@NonNull Context context, @Nullable String packageName,
+            @Nullable String toPackage, @NonNull Uri uri) {
         ContentResolver resolver = context.getContentResolver();
         try (ProviderHolder holder = acquireClient(resolver, uri)) {
             Bundle extras = new Bundle();
@@ -658,7 +665,8 @@ public class SliceProviderCompat {
     /**
      * Compat version of {@link android.app.slice.SliceManager#getPinnedSlices}.
      */
-    public static List<Uri> getPinnedSlices(Context context) {
+    @NonNull
+    public static List<Uri> getPinnedSlices(@NonNull Context context) {
         ArrayList<Uri> pinnedSlices = new ArrayList<>();
         SharedPreferences prefs = context.getSharedPreferences(ALL_FILES, 0);
         Set<String> prefSet = prefs.getStringSet(ALL_FILES, Collections.<String>emptySet());

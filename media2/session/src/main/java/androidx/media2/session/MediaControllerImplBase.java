@@ -21,17 +21,21 @@ import static androidx.media2.common.SessionPlayer.BUFFERING_STATE_UNKNOWN;
 import static androidx.media2.common.SessionPlayer.UNKNOWN_TIME;
 import static androidx.media2.session.SessionCommand.COMMAND_CODE_CUSTOM;
 import static androidx.media2.session.SessionCommand.COMMAND_CODE_PLAYER_ADD_PLAYLIST_ITEM;
+import static androidx.media2.session.SessionCommand.COMMAND_CODE_PLAYER_DESELECT_TRACK;
+import static androidx.media2.session.SessionCommand.COMMAND_CODE_PLAYER_MOVE_PLAYLIST_ITEM;
 import static androidx.media2.session.SessionCommand.COMMAND_CODE_PLAYER_PAUSE;
 import static androidx.media2.session.SessionCommand.COMMAND_CODE_PLAYER_PLAY;
 import static androidx.media2.session.SessionCommand.COMMAND_CODE_PLAYER_PREPARE;
 import static androidx.media2.session.SessionCommand.COMMAND_CODE_PLAYER_REMOVE_PLAYLIST_ITEM;
 import static androidx.media2.session.SessionCommand.COMMAND_CODE_PLAYER_REPLACE_PLAYLIST_ITEM;
 import static androidx.media2.session.SessionCommand.COMMAND_CODE_PLAYER_SEEK_TO;
+import static androidx.media2.session.SessionCommand.COMMAND_CODE_PLAYER_SELECT_TRACK;
 import static androidx.media2.session.SessionCommand.COMMAND_CODE_PLAYER_SET_MEDIA_ITEM;
 import static androidx.media2.session.SessionCommand.COMMAND_CODE_PLAYER_SET_PLAYLIST;
 import static androidx.media2.session.SessionCommand.COMMAND_CODE_PLAYER_SET_REPEAT_MODE;
 import static androidx.media2.session.SessionCommand.COMMAND_CODE_PLAYER_SET_SHUFFLE_MODE;
 import static androidx.media2.session.SessionCommand.COMMAND_CODE_PLAYER_SET_SPEED;
+import static androidx.media2.session.SessionCommand.COMMAND_CODE_PLAYER_SET_SURFACE;
 import static androidx.media2.session.SessionCommand.COMMAND_CODE_PLAYER_SKIP_TO_NEXT_PLAYLIST_ITEM;
 import static androidx.media2.session.SessionCommand.COMMAND_CODE_PLAYER_SKIP_TO_PLAYLIST_ITEM;
 import static androidx.media2.session.SessionCommand.COMMAND_CODE_PLAYER_SKIP_TO_PREVIOUS_PLAYLIST_ITEM;
@@ -68,6 +72,8 @@ import android.os.RemoteException;
 import android.os.SystemClock;
 import android.support.v4.media.MediaBrowserCompat;
 import android.util.Log;
+import android.util.SparseArray;
+import android.view.Surface;
 
 import androidx.annotation.GuardedBy;
 import androidx.annotation.NonNull;
@@ -79,7 +85,11 @@ import androidx.media2.common.Rating;
 import androidx.media2.common.SessionPlayer;
 import androidx.media2.common.SessionPlayer.RepeatMode;
 import androidx.media2.common.SessionPlayer.ShuffleMode;
+import androidx.media2.common.SessionPlayer.TrackInfo;
+import androidx.media2.common.SubtitleData;
+import androidx.media2.common.VideoSize;
 import androidx.media2.session.MediaController.ControllerCallback;
+import androidx.media2.session.MediaController.ControllerCallbackRunnable;
 import androidx.media2.session.MediaController.MediaControllerImpl;
 import androidx.media2.session.MediaController.PlaybackInfo;
 import androidx.media2.session.MediaController.VolumeDirection;
@@ -87,8 +97,9 @@ import androidx.media2.session.MediaController.VolumeFlags;
 
 import com.google.common.util.concurrent.ListenableFuture;
 
+import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
-import java.util.concurrent.Executor;
 
 class MediaControllerImplBase implements MediaControllerImpl {
     private static final boolean THROW_EXCEPTION_FOR_NULL_RESULT = true;
@@ -96,7 +107,7 @@ class MediaControllerImplBase implements MediaControllerImpl {
             new SessionResult(RESULT_INFO_SKIPPED);
 
     static final String TAG = "MC2ImplBase";
-    static final boolean DEBUG = true; //Log.isLoggable(TAG, Log.DEBUG);
+    static final boolean DEBUG = Log.isLoggable(TAG, Log.DEBUG);
 
     @SuppressWarnings("WeakerAccess") /* synthetic access */
     final MediaController mInstance;
@@ -105,10 +116,6 @@ class MediaControllerImplBase implements MediaControllerImpl {
 
     @SuppressWarnings("WeakerAccess") /* synthetic access */
     final SessionToken mToken;
-    @SuppressWarnings("WeakerAccess") /* synthetic access */
-    final ControllerCallback mCallback;
-    @SuppressWarnings("WeakerAccess") /* synthetic access */
-    final Executor mCallbackExecutor;
     private final IBinder.DeathRecipient mDeathRecipient;
     final SequencedFutureManager mSequencedFutureManager;
     final MediaControllerStub mControllerStub;
@@ -153,6 +160,12 @@ class MediaControllerImplBase implements MediaControllerImpl {
     private PendingIntent mSessionActivity;
     @GuardedBy("mLock")
     private SessionCommandGroup mAllowedCommands;
+    @GuardedBy("mLock")
+    private VideoSize mVideoSize = new VideoSize(0, 0);
+    @GuardedBy("mLock")
+    private List<TrackInfo> mTracks = Collections.emptyList();
+    @GuardedBy("mLock")
+    private SparseArray<TrackInfo> mSelectedTracks = new SparseArray<>();
 
     // Assignment should be used with the lock hold, but should be used without a lock to prevent
     // potential deadlock.
@@ -160,7 +173,7 @@ class MediaControllerImplBase implements MediaControllerImpl {
     private volatile IMediaSession mISession;
 
     MediaControllerImplBase(Context context, MediaController instance, SessionToken token,
-            @Nullable Bundle connectionHints, Executor executor, ControllerCallback callback) {
+            @Nullable Bundle connectionHints) {
         mInstance = instance;
         if (context == null) {
             throw new NullPointerException("context shouldn't be null");
@@ -172,8 +185,6 @@ class MediaControllerImplBase implements MediaControllerImpl {
         mSequencedFutureManager = new SequencedFutureManager();
         mControllerStub = new MediaControllerStub(this, mSequencedFutureManager);
         mToken = token;
-        mCallback = callback;
-        mCallbackExecutor = executor;
         mDeathRecipient = new IBinder.DeathRecipient() {
             @Override
             public void binderDied() {
@@ -225,11 +236,10 @@ class MediaControllerImplBase implements MediaControllerImpl {
             }
         }
         mSequencedFutureManager.close();
-        if (mCallback == null) return;
-        mCallbackExecutor.execute(new Runnable() {
+        mInstance.notifyControllerCallback(new ControllerCallbackRunnable() {
             @Override
-            public void run() {
-                mCallback.onDisconnected(mInstance);
+            public void run(@NonNull ControllerCallback callback) {
+                callback.onDisconnected(mInstance);
             }
         });
     }
@@ -373,8 +383,8 @@ class MediaControllerImplBase implements MediaControllerImpl {
     }
 
     @Override
-    public ListenableFuture<SessionResult> playFromMediaId(final @NonNull String mediaId,
-            final @Nullable Bundle extras) {
+    public ListenableFuture<SessionResult> playFromMediaId(@NonNull final String mediaId,
+            @Nullable final Bundle extras) {
         return dispatchRemoteSessionTask(COMMAND_CODE_SESSION_PLAY_FROM_MEDIA_ID,
                 new RemoteSessionTask() {
                     @Override
@@ -385,8 +395,8 @@ class MediaControllerImplBase implements MediaControllerImpl {
     }
 
     @Override
-    public ListenableFuture<SessionResult> playFromSearch(final @NonNull String query,
-            final @Nullable Bundle extras) {
+    public ListenableFuture<SessionResult> playFromSearch(@NonNull final String query,
+            @Nullable final Bundle extras) {
         return dispatchRemoteSessionTask(COMMAND_CODE_SESSION_PLAY_FROM_SEARCH,
                 new RemoteSessionTask() {
                     @Override
@@ -397,8 +407,8 @@ class MediaControllerImplBase implements MediaControllerImpl {
     }
 
     @Override
-    public ListenableFuture<SessionResult> playFromUri(final @NonNull Uri uri,
-            final @NonNull Bundle extras) {
+    public ListenableFuture<SessionResult> playFromUri(@NonNull final Uri uri,
+            @Nullable final Bundle extras) {
         return dispatchRemoteSessionTask(COMMAND_CODE_SESSION_PLAY_FROM_URI,
                 new RemoteSessionTask() {
                     @Override
@@ -409,8 +419,8 @@ class MediaControllerImplBase implements MediaControllerImpl {
     }
 
     @Override
-    public ListenableFuture<SessionResult> prepareFromMediaId(final @NonNull String mediaId,
-            final @Nullable Bundle extras) {
+    public ListenableFuture<SessionResult> prepareFromMediaId(@NonNull final String mediaId,
+            @Nullable final Bundle extras) {
         return dispatchRemoteSessionTask(COMMAND_CODE_SESSION_PREPARE_FROM_MEDIA_ID,
                 new RemoteSessionTask() {
                     @Override
@@ -421,8 +431,8 @@ class MediaControllerImplBase implements MediaControllerImpl {
     }
 
     @Override
-    public ListenableFuture<SessionResult> prepareFromSearch(final @NonNull String query,
-            final @Nullable Bundle extras) {
+    public ListenableFuture<SessionResult> prepareFromSearch(@NonNull final String query,
+            @Nullable final Bundle extras) {
         return dispatchRemoteSessionTask(COMMAND_CODE_SESSION_PREPARE_FROM_SEARCH,
                 new RemoteSessionTask() {
                     @Override
@@ -433,8 +443,8 @@ class MediaControllerImplBase implements MediaControllerImpl {
     }
 
     @Override
-    public ListenableFuture<SessionResult> prepareFromUri(final @NonNull Uri uri,
-            final @Nullable Bundle extras) {
+    public ListenableFuture<SessionResult> prepareFromUri(@NonNull final Uri uri,
+            @Nullable final Bundle extras) {
         return dispatchRemoteSessionTask(COMMAND_CODE_SESSION_PREPARE_FROM_URI,
                 new RemoteSessionTask() {
                     @Override
@@ -533,7 +543,8 @@ class MediaControllerImplBase implements MediaControllerImpl {
     }
 
     @Override
-    public @SessionPlayer.BuffState int getBufferingState() {
+    @SessionPlayer.BuffState
+    public int getBufferingState() {
         synchronized (mLock) {
             if (mISession == null) {
                 Log.w(TAG, "Session isn't active", new IllegalStateException());
@@ -562,8 +573,8 @@ class MediaControllerImplBase implements MediaControllerImpl {
     }
 
     @Override
-    public ListenableFuture<SessionResult> setRating(final @NonNull String mediaId,
-            final @NonNull Rating rating) {
+    public ListenableFuture<SessionResult> setRating(@NonNull final String mediaId,
+            @NonNull final Rating rating) {
         return dispatchRemoteSessionTask(COMMAND_CODE_SESSION_SET_RATING, new RemoteSessionTask() {
             @Override
             public void run(IMediaSession iSession, int seq) throws RemoteException {
@@ -575,7 +586,7 @@ class MediaControllerImplBase implements MediaControllerImpl {
 
     @Override
     public ListenableFuture<SessionResult> sendCustomCommand(
-            final @NonNull SessionCommand command, final @Nullable Bundle args) {
+            @NonNull final SessionCommand command, @Nullable final Bundle args) {
         return dispatchRemoteSessionTask(command, new RemoteSessionTask() {
             @Override
             public void run(IMediaSession iSession, int seq) throws RemoteException {
@@ -588,13 +599,13 @@ class MediaControllerImplBase implements MediaControllerImpl {
     @Override
     public List<MediaItem> getPlaylist() {
         synchronized (mLock) {
-            return mPlaylist;
+            return new ArrayList<>(mPlaylist);
         }
     }
 
     @Override
-    public ListenableFuture<SessionResult> setPlaylist(final @NonNull List<String> list,
-            final @Nullable MediaMetadata metadata) {
+    public ListenableFuture<SessionResult> setPlaylist(@NonNull final List<String> list,
+            @Nullable final MediaMetadata metadata) {
         return dispatchRemoteSessionTask(COMMAND_CODE_PLAYER_SET_PLAYLIST, new RemoteSessionTask() {
             @Override
             public void run(IMediaSession iSession, int seq) throws RemoteException {
@@ -605,7 +616,7 @@ class MediaControllerImplBase implements MediaControllerImpl {
     }
 
     @Override
-    public ListenableFuture<SessionResult> setMediaItem(final String mediaId) {
+    public ListenableFuture<SessionResult> setMediaItem(@NonNull final String mediaId) {
         return dispatchRemoteSessionTask(COMMAND_CODE_PLAYER_SET_MEDIA_ITEM,
                 new RemoteSessionTask() {
                     @Override
@@ -617,7 +628,7 @@ class MediaControllerImplBase implements MediaControllerImpl {
 
     @Override
     public ListenableFuture<SessionResult> updatePlaylistMetadata(
-            final @Nullable MediaMetadata metadata) {
+            @Nullable final MediaMetadata metadata) {
         return dispatchRemoteSessionTask(COMMAND_CODE_PLAYER_UPDATE_LIST_METADATA,
                 new RemoteSessionTask() {
                     @Override
@@ -637,7 +648,7 @@ class MediaControllerImplBase implements MediaControllerImpl {
 
     @Override
     public ListenableFuture<SessionResult> addPlaylistItem(final int index,
-            final @NonNull String mediaId) {
+            @NonNull final String mediaId) {
         return dispatchRemoteSessionTask(COMMAND_CODE_PLAYER_ADD_PLAYLIST_ITEM,
                 new RemoteSessionTask() {
                     @Override
@@ -648,7 +659,7 @@ class MediaControllerImplBase implements MediaControllerImpl {
     }
 
     @Override
-    public ListenableFuture<SessionResult> removePlaylistItem(final @NonNull int index) {
+    public ListenableFuture<SessionResult> removePlaylistItem(final int index) {
         return dispatchRemoteSessionTask(COMMAND_CODE_PLAYER_REMOVE_PLAYLIST_ITEM,
                 new RemoteSessionTask() {
                     @Override
@@ -660,12 +671,24 @@ class MediaControllerImplBase implements MediaControllerImpl {
 
     @Override
     public ListenableFuture<SessionResult> replacePlaylistItem(final int index,
-            final @NonNull String mediaId) {
+            @NonNull final String mediaId) {
         return dispatchRemoteSessionTask(COMMAND_CODE_PLAYER_REPLACE_PLAYLIST_ITEM,
                 new RemoteSessionTask() {
                     @Override
                     public void run(IMediaSession iSession, int seq) throws RemoteException {
                         iSession.replacePlaylistItem(mControllerStub, seq, index, mediaId);
+                    }
+                });
+    }
+
+    @Override
+    public ListenableFuture<SessionResult> movePlaylistItem(
+            final int fromIndex, final int toIndex) {
+        return dispatchRemoteSessionTask(COMMAND_CODE_PLAYER_MOVE_PLAYLIST_ITEM,
+                new RemoteSessionTask() {
+                    @Override
+                    public void run(IMediaSession iSession, int seq) throws RemoteException {
+                        iSession.movePlaylistItem(mControllerStub, seq, fromIndex, toIndex);
                     }
                 });
     }
@@ -723,7 +746,7 @@ class MediaControllerImplBase implements MediaControllerImpl {
     }
 
     @Override
-    public ListenableFuture<SessionResult> skipToPlaylistItem(final @NonNull int index) {
+    public ListenableFuture<SessionResult> skipToPlaylistItem(final int index) {
         return dispatchRemoteSessionTask(COMMAND_CODE_PLAYER_SKIP_TO_PLAYLIST_ITEM,
                 new RemoteSessionTask() {
                     @Override
@@ -770,28 +793,89 @@ class MediaControllerImplBase implements MediaControllerImpl {
     }
 
     @Override
-    public @NonNull Context getContext() {
+    @NonNull
+    public List<SessionPlayer.TrackInfo> getTracks() {
+        synchronized (mLock) {
+            return mTracks;
+        }
+    }
+
+    @Override
+    @NonNull
+    public ListenableFuture<SessionResult> selectTrack(
+            @NonNull final SessionPlayer.TrackInfo trackInfo) {
+        return dispatchRemoteSessionTask(COMMAND_CODE_PLAYER_SELECT_TRACK,
+                new RemoteSessionTask() {
+                    @Override
+                    public void run(IMediaSession iSession, int seq) throws RemoteException {
+                        iSession.selectTrack(mControllerStub, seq,
+                                MediaParcelUtils.toParcelable(trackInfo));
+                    }
+                });
+    }
+
+    @Override
+    @NonNull
+    public ListenableFuture<SessionResult> deselectTrack(
+            @NonNull final SessionPlayer.TrackInfo trackInfo) {
+        return dispatchRemoteSessionTask(COMMAND_CODE_PLAYER_DESELECT_TRACK,
+                new RemoteSessionTask() {
+                    @Override
+                    public void run(IMediaSession iSession, int seq) throws RemoteException {
+                        iSession.deselectTrack(mControllerStub, seq,
+                                MediaParcelUtils.toParcelable(trackInfo));
+                    }
+                });
+    }
+
+    @Override
+    @Nullable
+    public TrackInfo getSelectedTrack(int trackType) {
+        synchronized (mLock) {
+            return mSelectedTracks.get(trackType);
+        }
+    }
+
+    @Override
+    @NonNull
+    public VideoSize getVideoSize() {
+        synchronized (mLock) {
+            return mVideoSize;
+        }
+    }
+
+    @Override
+    public ListenableFuture<SessionResult> setSurface(@Nullable final Surface surface) {
+        return dispatchRemoteSessionTask(COMMAND_CODE_PLAYER_SET_SURFACE,
+                new RemoteSessionTask() {
+                    @Override
+                    public void run(IMediaSession iSession, int seq) throws RemoteException {
+                        iSession.setSurface(mControllerStub, seq, surface);
+                    }
+                });
+    }
+
+    @Override
+    public SessionCommandGroup getAllowedCommands() {
+        synchronized (mLock) {
+            if (mISession == null) {
+                Log.w(TAG, "Session isn't active", new IllegalStateException());
+                return null;
+            }
+            return mAllowedCommands;
+        }
+    }
+
+    @Override
+    @NonNull
+    public Context getContext() {
         return mContext;
     }
 
     @Override
-    public @NonNull ControllerCallback getCallback() {
-        return mCallback;
-    }
-
-    @Override
-    public @NonNull Executor getCallbackExecutor() {
-        return mCallbackExecutor;
-    }
-
-    @Override
-    public @Nullable MediaBrowserCompat getBrowserCompat() {
+    @Nullable
+    public MediaBrowserCompat getBrowserCompat() {
         return null;
-    }
-
-    @Override
-    public @NonNull MediaController getInstance() {
-        return mInstance;
     }
 
     private boolean requestConnectToService() {
@@ -877,14 +961,13 @@ class MediaControllerImplBase implements MediaControllerImpl {
                 mPlaylist.set(currentMediaItemIndex, item);
             }
         }
-        if (mCallback == null) return;
-        mCallbackExecutor.execute(new Runnable() {
+        mInstance.notifyControllerCallback(new ControllerCallbackRunnable() {
             @Override
-            public void run() {
+            public void run(@NonNull ControllerCallback callback) {
                 if (!mInstance.isConnected()) {
                     return;
                 }
-                mCallback.onCurrentMediaItemChanged(mInstance, item);
+                callback.onCurrentMediaItemChanged(mInstance, item);
             }
         });
     }
@@ -895,14 +978,13 @@ class MediaControllerImplBase implements MediaControllerImpl {
             mPositionMs = positionMs;
             mPlayerState = state;
         }
-        if (mCallback == null) return;
-        mCallbackExecutor.execute(new Runnable() {
+        mInstance.notifyControllerCallback(new ControllerCallbackRunnable() {
             @Override
-            public void run() {
+            public void run(@NonNull ControllerCallback callback) {
                 if (!mInstance.isConnected()) {
                     return;
                 }
-                mCallback.onPlayerStateChanged(mInstance, state);
+                callback.onPlayerStateChanged(mInstance, state);
             }
         });
     }
@@ -913,14 +995,13 @@ class MediaControllerImplBase implements MediaControllerImpl {
             mPositionMs = positionMs;
             mPlaybackSpeed = speed;
         }
-        if (mCallback == null) return;
-        mCallbackExecutor.execute(new Runnable() {
+        mInstance.notifyControllerCallback(new ControllerCallbackRunnable() {
             @Override
-            public void run() {
+            public void run(@NonNull ControllerCallback callback) {
                 if (!mInstance.isConnected()) {
                     return;
                 }
-                mCallback.onPlaybackSpeedChanged(mInstance, speed);
+                callback.onPlaybackSpeedChanged(mInstance, speed);
             }
         });
     }
@@ -933,14 +1014,13 @@ class MediaControllerImplBase implements MediaControllerImpl {
             mPositionEventTimeMs = eventTimeMs;
             mPositionMs = positionMs;
         }
-        if (mCallback == null) return;
-        mCallbackExecutor.execute(new Runnable() {
+        mInstance.notifyControllerCallback(new ControllerCallbackRunnable() {
             @Override
-            public void run() {
+            public void run(@NonNull ControllerCallback callback) {
                 if (!mInstance.isConnected()) {
                     return;
                 }
-                mCallback.onBufferingStateChanged(mInstance, item, state);
+                callback.onBufferingStateChanged(mInstance, item, state);
             }
         });
     }
@@ -957,14 +1037,13 @@ class MediaControllerImplBase implements MediaControllerImpl {
                 mCurrentMediaItem = playlist.get(currentMediaItemIndex);
             }
         }
-        if (mCallback == null) return;
-        mCallbackExecutor.execute(new Runnable() {
+        mInstance.notifyControllerCallback(new ControllerCallbackRunnable() {
             @Override
-            public void run() {
+            public void run(@NonNull ControllerCallback callback) {
                 if (!mInstance.isConnected()) {
                     return;
                 }
-                mCallback.onPlaylistChanged(mInstance, playlist, metadata);
+                callback.onPlaylistChanged(mInstance, playlist, metadata);
             }
         });
     }
@@ -973,14 +1052,13 @@ class MediaControllerImplBase implements MediaControllerImpl {
         synchronized (mLock) {
             mPlaylistMetadata = metadata;
         }
-        if (mCallback == null) return;
-        mCallbackExecutor.execute(new Runnable() {
+        mInstance.notifyControllerCallback(new ControllerCallbackRunnable() {
             @Override
-            public void run() {
+            public void run(@NonNull ControllerCallback callback) {
                 if (!mInstance.isConnected()) {
                     return;
                 }
-                mCallback.onPlaylistMetadataChanged(mInstance, metadata);
+                callback.onPlaylistMetadataChanged(mInstance, metadata);
             }
         });
     }
@@ -989,14 +1067,13 @@ class MediaControllerImplBase implements MediaControllerImpl {
         synchronized (mLock) {
             mPlaybackInfo = info;
         }
-        if (mCallback == null) return;
-        mCallbackExecutor.execute(new Runnable() {
+        mInstance.notifyControllerCallback(new ControllerCallbackRunnable() {
             @Override
-            public void run() {
+            public void run(@NonNull ControllerCallback callback) {
                 if (!mInstance.isConnected()) {
                     return;
                 }
-                mCallback.onPlaybackInfoChanged(mInstance, info);
+                callback.onPlaybackInfoChanged(mInstance, info);
             }
         });
     }
@@ -1009,14 +1086,13 @@ class MediaControllerImplBase implements MediaControllerImpl {
             mPreviousMediaItemIndex = previousMediaItemIndex;
             mNextMediaItemIndex = nextMediaItemIndex;
         }
-        if (mCallback == null) return;
-        mCallbackExecutor.execute(new Runnable() {
+        mInstance.notifyControllerCallback(new ControllerCallbackRunnable() {
             @Override
-            public void run() {
+            public void run(@NonNull ControllerCallback callback) {
                 if (!mInstance.isConnected()) {
                     return;
                 }
-                mCallback.onRepeatModeChanged(mInstance, repeatMode);
+                callback.onRepeatModeChanged(mInstance, repeatMode);
             }
         });
     }
@@ -1029,27 +1105,25 @@ class MediaControllerImplBase implements MediaControllerImpl {
             mPreviousMediaItemIndex = previousMediaItemIndex;
             mNextMediaItemIndex = nextMediaItemIndex;
         }
-        if (mCallback == null) return;
-        mCallbackExecutor.execute(new Runnable() {
+        mInstance.notifyControllerCallback(new ControllerCallbackRunnable() {
             @Override
-            public void run() {
+            public void run(@NonNull ControllerCallback callback) {
                 if (!mInstance.isConnected()) {
                     return;
                 }
-                mCallback.onShuffleModeChanged(mInstance, shuffleMode);
+                callback.onShuffleModeChanged(mInstance, shuffleMode);
             }
         });
     }
 
     void notifyPlaybackCompleted() {
-        if (mCallback == null) return;
-        mCallbackExecutor.execute(new Runnable() {
+        mInstance.notifyControllerCallback(new ControllerCallbackRunnable() {
             @Override
-            public void run() {
+            public void run(@NonNull ControllerCallback callback) {
                 if (!mInstance.isConnected()) {
                     return;
                 }
-                mCallback.onPlaybackCompleted(mInstance);
+                callback.onPlaybackCompleted(mInstance);
             }
         });
     }
@@ -1060,20 +1134,106 @@ class MediaControllerImplBase implements MediaControllerImpl {
             mPositionMs = positionMs;
         }
 
-        if (mCallback == null) return;
-        mCallbackExecutor.execute(new Runnable() {
+        mInstance.notifyControllerCallback(new ControllerCallbackRunnable() {
             @Override
-            public void run() {
+            public void run(@NonNull ControllerCallback callback) {
                 if (!mInstance.isConnected()) {
                     return;
                 }
-                mCallback.onSeekCompleted(mInstance, seekPositionMs);
+                callback.onSeekCompleted(mInstance, seekPositionMs);
+            }
+        });
+    }
+
+    void notifyVideoSizeChanged(final VideoSize videoSize) {
+        final MediaItem currentItem;
+        synchronized (mLock) {
+            mVideoSize = videoSize;
+            currentItem = mCurrentMediaItem;
+        }
+        mInstance.notifyControllerCallback(new ControllerCallbackRunnable() {
+            @Override
+            public void run(@NonNull ControllerCallback callback) {
+                if (!mInstance.isConnected()) {
+                    return;
+                }
+
+                if (currentItem != null) {
+                    callback.onVideoSizeChanged(mInstance, currentItem, videoSize);
+                }
+                callback.onVideoSizeChanged(mInstance, videoSize);
+            }
+        });
+    }
+
+    void notifyTracksChanged(final int seq, final List<TrackInfo> tracks,
+            TrackInfo selectedVideoTrack, TrackInfo selectedAudioTrack,
+            TrackInfo selectedSubtitleTrack, TrackInfo selectedMetadataTrack) {
+        synchronized (mLock) {
+            mTracks = tracks;
+            // Update selected tracks
+            mSelectedTracks.put(TrackInfo.MEDIA_TRACK_TYPE_VIDEO, selectedVideoTrack);
+            mSelectedTracks.put(TrackInfo.MEDIA_TRACK_TYPE_AUDIO, selectedAudioTrack);
+            mSelectedTracks.put(TrackInfo.MEDIA_TRACK_TYPE_SUBTITLE, selectedSubtitleTrack);
+            mSelectedTracks.put(TrackInfo.MEDIA_TRACK_TYPE_METADATA, selectedMetadataTrack);
+        }
+
+        mInstance.notifyControllerCallback(new ControllerCallbackRunnable() {
+            @Override
+            public void run(@NonNull ControllerCallback callback) {
+                if (!mInstance.isConnected()) {
+                    return;
+                }
+                callback.onTracksChanged(mInstance, tracks);
+            }
+        });
+    }
+
+    void notifyTrackSelected(final int seq, final TrackInfo trackInfo) {
+        synchronized (mLock) {
+            mSelectedTracks.put(trackInfo.getTrackType(), trackInfo);
+        }
+        mInstance.notifyControllerCallback(new ControllerCallbackRunnable() {
+            @Override
+            public void run(@NonNull ControllerCallback callback) {
+                if (!mInstance.isConnected()) {
+                    return;
+                }
+                callback.onTrackSelected(mInstance, trackInfo);
+            }
+        });
+    }
+
+    void notifyTrackDeselected(final int seq, final TrackInfo trackInfo) {
+        synchronized (mLock) {
+            mSelectedTracks.remove(trackInfo.getTrackType());
+        }
+        mInstance.notifyControllerCallback(new ControllerCallbackRunnable() {
+            @Override
+            public void run(@NonNull ControllerCallback callback) {
+                if (!mInstance.isConnected()) {
+                    return;
+                }
+                callback.onTrackDeselected(mInstance, trackInfo);
+            }
+        });
+    }
+
+    void notifySubtitleData(final MediaItem item, final TrackInfo track, final SubtitleData data) {
+        mInstance.notifyControllerCallback(new ControllerCallbackRunnable() {
+            @Override
+            public void run(@NonNull ControllerCallback callback) {
+                if (!mInstance.isConnected()) {
+                    return;
+                }
+                callback.onSubtitleData(mInstance, item, track, data);
             }
         });
     }
 
     // Should be used without a lock to prevent potential deadlock.
-    void onConnectedNotLocked(IMediaSession sessionBinder,
+    void onConnectedNotLocked(final int sessionVersion,
+            IMediaSession sessionBinder,
             final SessionCommandGroup allowedCommands,
             final int playerState,
             final MediaItem currentMediaItem,
@@ -1089,7 +1249,13 @@ class MediaControllerImplBase implements MediaControllerImpl {
             final int currentMediaItemIndex,
             final int previousMediaItemIndex,
             final int nextMediaItemIndex,
-            final Bundle tokenExtras) {
+            final Bundle tokenExtras,
+            final VideoSize videoSize,
+            final List<TrackInfo> trackInfos,
+            final TrackInfo selectedVideoTrack,
+            final TrackInfo selectedAudioTrack,
+            final TrackInfo selectedSubtitleTrack,
+            final TrackInfo selectedMetadataTrack) {
         if (DEBUG) {
             Log.d(TAG, "onConnectedNotLocked sessionBinder=" + sessionBinder
                     + ", allowedCommands=" + allowedCommands);
@@ -1128,6 +1294,12 @@ class MediaControllerImplBase implements MediaControllerImpl {
                 mCurrentMediaItemIndex = currentMediaItemIndex;
                 mPreviousMediaItemIndex = previousMediaItemIndex;
                 mNextMediaItemIndex = nextMediaItemIndex;
+                mVideoSize = videoSize;
+                mTracks = trackInfos;
+                mSelectedTracks.put(TrackInfo.MEDIA_TRACK_TYPE_VIDEO, selectedVideoTrack);
+                mSelectedTracks.put(TrackInfo.MEDIA_TRACK_TYPE_AUDIO, selectedAudioTrack);
+                mSelectedTracks.put(TrackInfo.MEDIA_TRACK_TYPE_SUBTITLE, selectedSubtitleTrack);
+                mSelectedTracks.put(TrackInfo.MEDIA_TRACK_TYPE_METADATA, selectedMetadataTrack);
                 try {
                     // Implementation for the local binder is no-op,
                     // so can be used without worrying about deadlock.
@@ -1141,13 +1313,12 @@ class MediaControllerImplBase implements MediaControllerImpl {
                 }
                 mConnectedToken = new SessionToken(new SessionTokenImplBase(
                         mToken.getUid(), TYPE_SESSION, mToken.getPackageName(), sessionBinder,
-                        tokenExtras));
+                        tokenExtras, sessionVersion));
             }
-            if (mCallback == null) return;
-            mCallbackExecutor.execute(new Runnable() {
+            mInstance.notifyControllerCallback(new ControllerCallbackRunnable() {
                 @Override
-                public void run() {
-                    mCallback.onConnected(mInstance, allowedCommands);
+                public void run(@NonNull ControllerCallback callback) {
+                    callback.onConnected(mInstance, allowedCommands);
                 }
             });
         } finally {
@@ -1180,11 +1351,10 @@ class MediaControllerImplBase implements MediaControllerImpl {
         if (DEBUG) {
             Log.d(TAG, "onCustomCommand cmd=" + command.getCustomAction());
         }
-        if (mCallback == null) return;
-        mCallbackExecutor.execute(new Runnable() {
+        mInstance.notifyControllerCallback(new ControllerCallbackRunnable() {
             @Override
-            public void run() {
-                SessionResult result = mCallback.onCustomCommand(mInstance, command, args);
+            public void run(@NonNull ControllerCallback callback) {
+                SessionResult result = callback.onCustomCommand(mInstance, command, args);
                 if (result == null) {
                     if (THROW_EXCEPTION_FOR_NULL_RESULT) {
                         throw new RuntimeException("ControllerCallback#onCustomCommand() has"
@@ -1199,21 +1369,22 @@ class MediaControllerImplBase implements MediaControllerImpl {
     }
 
     void onAllowedCommandsChanged(final SessionCommandGroup commands) {
-        if (mCallback == null) return;
-        mCallbackExecutor.execute(new Runnable() {
+        synchronized (mLock) {
+            mAllowedCommands = commands;
+        }
+        mInstance.notifyControllerCallback(new ControllerCallbackRunnable() {
             @Override
-            public void run() {
-                mCallback.onAllowedCommandsChanged(mInstance, commands);
+            public void run(@NonNull ControllerCallback callback) {
+                callback.onAllowedCommandsChanged(mInstance, commands);
             }
         });
     }
 
     void onSetCustomLayout(final int seq, final List<MediaSession.CommandButton> layout) {
-        if (mCallback == null) return;
-        mCallbackExecutor.execute(new Runnable() {
+        mInstance.notifyControllerCallback(new ControllerCallbackRunnable() {
             @Override
-            public void run() {
-                int resultCode = mCallback.onSetCustomLayout(mInstance, layout);
+            public void run(@NonNull ControllerCallback callback) {
+                int resultCode = callback.onSetCustomLayout(mInstance, layout);
                 SessionResult result = new SessionResult(resultCode);
                 sendControllerResult(seq, result);
             }

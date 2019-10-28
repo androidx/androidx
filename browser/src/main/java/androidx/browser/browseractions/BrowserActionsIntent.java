@@ -19,6 +19,7 @@ package androidx.browser.browseractions;
 import static androidx.annotation.RestrictTo.Scope.LIBRARY;
 import static androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP_PREFIX;
 
+import android.annotation.SuppressLint;
 import android.app.PendingIntent;
 import android.content.Context;
 import android.content.Intent;
@@ -117,6 +118,7 @@ public class BrowserActionsIntent {
     /**
      * The maximum allowed number of custom items.
      */
+    @SuppressLint("MinMaxConstant")
     public static final int MAX_CUSTOM_ITEMS = 5;
 
     /**
@@ -177,6 +179,7 @@ public class BrowserActionsIntent {
         void onDialogShown();
     }
 
+    @SuppressWarnings("NullAway") // TODO: b/141869399
     private static BrowserActionsFallDialogListener sDialogListenter;
 
     /**
@@ -187,10 +190,10 @@ public class BrowserActionsIntent {
         private Context mContext;
         private Uri mUri;
         @BrowserActionsUrlType
-        private int mType;
-        private ArrayList<Bundle> mMenuItems = null;
-        private PendingIntent mOnItemSelectedPendingIntent = null;
-        private List<Uri> mImageUris = null;
+        private int mType = URL_TYPE_NONE;
+        private ArrayList<Bundle> mMenuItems = new ArrayList<>();
+        @Nullable private PendingIntent mOnItemSelectedPendingIntent = null;
+        private List<Uri> mImageUris = new ArrayList<>();
 
         /**
          * Constructs a {@link BrowserActionsIntent.Builder} object associated with default setting
@@ -201,9 +204,6 @@ public class BrowserActionsIntent {
         public Builder(Context context, Uri uri) {
             mContext = context;
             mUri = uri;
-            mType = URL_TYPE_NONE;
-            mMenuItems = new ArrayList<>();
-            mImageUris = new ArrayList<>();
         }
 
         /**
@@ -381,6 +381,7 @@ public class BrowserActionsIntent {
         return pm.queryIntentActivities(intent, PackageManager.MATCH_ALL);
     }
 
+    @SuppressWarnings("NullAway") // TODO: b/141869398
     private static void openFallbackBrowserActionsMenu(Context context, Intent intent) {
         Uri uri = intent.getData();
         int type = intent.getIntExtra(EXTRA_TYPE, URL_TYPE_NONE);

@@ -237,8 +237,7 @@ class ProguardSamplesTest {
             )
     }
 
-    // Temporarily disabled due to b/120236364.
-    fun proGuard_sample5() {
+    @Test fun proGuard_sample5() {
         ProGuardTester()
             .forGivenPrefixes(
                 "support/"

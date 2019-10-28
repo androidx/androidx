@@ -18,6 +18,7 @@ package androidx.work.impl.background.gcm;
 
 
 import android.content.Context;
+import android.os.PowerManager;
 
 import androidx.annotation.MainThread;
 import androidx.annotation.NonNull;
@@ -29,6 +30,8 @@ import androidx.work.impl.Schedulers;
 import androidx.work.impl.WorkDatabase;
 import androidx.work.impl.WorkManagerImpl;
 import androidx.work.impl.model.WorkSpec;
+import androidx.work.impl.utils.WakeLocks;
+import androidx.work.impl.utils.WorkTimer;
 
 import com.google.android.gms.gcm.GcmNetworkManager;
 import com.google.android.gms.gcm.TaskParams;
@@ -46,11 +49,18 @@ public class WorkManagerGcmDispatcher {
     static final String TAG = Logger.tagWithPrefix("WrkMgrGcmDispatcher");
 
     private static final long AWAIT_TIME_IN_MINUTES = 10;
+    private static final long AWAIT_TIME_IN_MILLISECONDS = AWAIT_TIME_IN_MINUTES * 60 * 1000;
+
+    private final Context mContext;
+    private final WorkTimer mWorkTimer;
 
     // Synthetic access
     WorkManagerImpl mWorkManagerImpl;
 
-    public WorkManagerGcmDispatcher(@NonNull Context context) {
+
+    public WorkManagerGcmDispatcher(@NonNull Context context, @NonNull WorkTimer workTimer) {
+        mContext = context.getApplicationContext();
+        mWorkTimer = workTimer;
         mWorkManagerImpl = WorkManagerImpl.getInstance(context);
     }
 
@@ -89,17 +99,25 @@ public class WorkManagerGcmDispatcher {
         }
 
         WorkSpecExecutionListener listener = new WorkSpecExecutionListener(workSpecId);
+        WorkSpecTimeLimitExceededListener timeLimitExceededListener =
+                new WorkSpecTimeLimitExceededListener(mWorkManagerImpl);
         Processor processor = mWorkManagerImpl.getProcessor();
         processor.addExecutionListener(listener);
+        String wakeLockTag = String.format("WorkGcm-onRunTask (%s)", workSpecId);
+        PowerManager.WakeLock wakeLock = WakeLocks.newWakeLock(mContext, wakeLockTag);
         mWorkManagerImpl.startWork(workSpecId);
+        mWorkTimer.startTimer(workSpecId, AWAIT_TIME_IN_MILLISECONDS, timeLimitExceededListener);
 
         try {
+            wakeLock.acquire();
             listener.getLatch().await(AWAIT_TIME_IN_MINUTES, TimeUnit.MINUTES);
         } catch (InterruptedException exception) {
             Logger.get().debug(TAG, String.format("Rescheduling WorkSpec %s", workSpecId));
             return reschedule(workSpecId);
         } finally {
             processor.removeExecutionListener(listener);
+            mWorkTimer.stopTimer(workSpecId);
+            wakeLock.release();
         }
 
         if (listener.needsReschedule()) {
@@ -132,10 +150,17 @@ public class WorkManagerGcmDispatcher {
         }
     }
 
+    /**
+     * Cleans up resources when the {@link WorkManagerGcmDispatcher} is no longer in use.
+     */
+    public void onDestroy() {
+        mWorkTimer.onDestroy();
+    }
+
     private int reschedule(@NonNull String workSpecId) {
         WorkDatabase workDatabase = mWorkManagerImpl.getWorkDatabase();
+        workDatabase.beginTransaction();
         try {
-            workDatabase.beginTransaction();
             // Mark the workSpec as unscheduled. We are doing this explicitly here because
             // there are many cases where WorkerWrapper may not have had a chance to update this
             // flag. For e.g. this will happen if the Worker took longer than 10 minutes.
@@ -154,6 +179,22 @@ public class WorkManagerGcmDispatcher {
         Logger.get().debug(TAG,
                 String.format("Returning RESULT_SUCCESS for WorkSpec %s", workSpecId));
         return GcmNetworkManager.RESULT_SUCCESS;
+    }
+
+    static class WorkSpecTimeLimitExceededListener implements WorkTimer.TimeLimitExceededListener {
+        private static final String TAG = Logger.tagWithPrefix("WrkTimeLimitExceededLstnr");
+
+        private final WorkManagerImpl mWorkManager;
+
+        WorkSpecTimeLimitExceededListener(@NonNull WorkManagerImpl workManager) {
+            mWorkManager = workManager;
+        }
+
+        @Override
+        public void onTimeLimitExceeded(@NonNull String workSpecId) {
+            Logger.get().debug(TAG, String.format("WorkSpec time limit exceeded %s", workSpecId));
+            mWorkManager.stopWork(workSpecId);
+        }
     }
 
     static class WorkSpecExecutionListener implements ExecutionListener {

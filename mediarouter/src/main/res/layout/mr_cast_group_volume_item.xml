@@ -23,6 +23,7 @@
               android:layout_width="match_parent"
               android:layout_height="match_parent"
               android:layout_weight="1"
+              android:gravity="start"
               android:paddingTop="16dp"
               android:paddingLeft="16dp"
               android:paddingRight="16dp"

@@ -61,17 +61,14 @@ class FtsTableEntityProcessor internal constructor(
                 ProcessorErrors.ENTITY_MUST_BE_ANNOTATED_WITH_ENTITY)
         val entityAnnotation = element.toAnnotationBox(androidx.room.Entity::class)
         val tableName: String
-        val ignoredColumns: Set<String>
         if (entityAnnotation != null) {
             tableName = extractTableName(element, entityAnnotation.value)
-            ignoredColumns = entityAnnotation.value.ignoredColumns.toSet()
             context.checker.check(extractIndices(entityAnnotation, tableName).isEmpty(),
                     element, ProcessorErrors.INDICES_IN_FTS_ENTITY)
             context.checker.check(extractForeignKeys(entityAnnotation).isEmpty(),
                     element, ProcessorErrors.FOREIGN_KEYS_IN_FTS_ENTITY)
         } else {
             tableName = element.simpleName.toString()
-            ignoredColumns = emptySet()
         }
 
         val pojo = PojoProcessor.createFor(
@@ -79,8 +76,7 @@ class FtsTableEntityProcessor internal constructor(
                 element = element,
                 bindingScope = FieldProcessor.BindingScope.TWO_WAY,
                 parent = null,
-                referenceStack = referenceStack,
-                ignoredColumns = ignoredColumns).process()
+                referenceStack = referenceStack).process()
 
         context.checker.check(pojo.relations.isEmpty(), element, ProcessorErrors.RELATION_IN_ENTITY)
 
@@ -101,7 +97,7 @@ class FtsTableEntityProcessor internal constructor(
         }
 
         val primaryKey = findAndValidatePrimaryKey(entityAnnotation, pojo.fields)
-        val languageId = findAndValidateLanguageId(pojo.fields, ftsOptions.languageIdColumnName)
+        findAndValidateLanguageId(pojo.fields, ftsOptions.languageIdColumnName)
 
         val missingNotIndexed = ftsOptions.notIndexedColumns - pojo.columnNames
         context.checker.check(missingNotIndexed.isEmpty(), element,

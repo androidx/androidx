@@ -17,69 +17,79 @@
 package androidx.build.metalava
 
 import androidx.build.checkapi.ApiLocation
-import androidx.build.checkapi.ApiViolationExclusions
+import androidx.build.checkapi.ApiViolationBaselines
+import org.gradle.api.provider.Property
+import org.gradle.api.tasks.Input
 import org.gradle.api.tasks.InputFiles
 import org.gradle.api.tasks.OutputFiles
 import org.gradle.api.tasks.TaskAction
 import java.io.File
 
-// Validate an API signature text file against a set of source files.
-open class CheckApiCompatibilityTask : MetalavaTask() {
+// Validate that the API described in one signature txt file is compatible with the API in another
+abstract class CheckApiCompatibilityTask : MetalavaTask() {
     // Text file from which the API signatures will be obtained.
-    var referenceApi: ApiLocation? = null
+    @get:Input
+    abstract val referenceApi: Property<ApiLocation>
+
+    @get:Input
+    abstract val api: Property<ApiLocation>
     // Text file listing violations that should be ignored
-    var exclusions: ApiViolationExclusions? = null
+    @get:Input
+    abstract val baselines: Property<ApiViolationBaselines>
 
     // Whether to confirm that no restricted APIs were removed since the previous release
+    @get:Input
     var checkRestrictedAPIs = false
 
     @InputFiles
     fun getTaskInputs(): List<File> {
         if (checkRestrictedAPIs) {
-            return referenceApi!!.files() + exclusions!!.files()
+            return referenceApi.get().files() + baselines.get().files()
         }
-        return listOf(referenceApi!!.publicApiFile, exclusions!!.publicApiFile)
+        return listOf(referenceApi.get().publicApiFile, baselines.get().publicApiFile)
     }
 
     // Declaring outputs prevents Gradle from rerunning this task if the inputs haven't changed
     @OutputFiles
     fun getTaskOutputs(): List<File> {
-        return listOf(referenceApi!!.publicApiFile)
+        return listOf(referenceApi.get().publicApiFile)
     }
 
     @TaskAction
     fun exec() {
-        val referenceApi = checkNotNull(referenceApi) { "referenceApi not set." }
-        val exclusions = checkNotNull(exclusions) { "exclusions not set." }
-
         check(bootClasspath.isNotEmpty()) { "Android boot classpath not set." }
 
-        checkApiFile(referenceApi.publicApiFile, exclusions.publicApiFile, false)
+        checkApiFile(api.get().publicApiFile, referenceApi.get().publicApiFile,
+            baselines.get().publicApiFile, false)
         if (checkRestrictedAPIs) {
-            checkApiFile(referenceApi.restrictedApiFile, exclusions.restrictedApiFile, true)
+            checkApiFile(api.get().restrictedApiFile, referenceApi.get().restrictedApiFile,
+                baselines.get().restrictedApiFile,
+                true)
         }
     }
 
-    // Confirms that the public API of this library (or the restricted API, if <checkRestrictedAPIs> is set
-    // is compatible with <apiFile> except for any exclusions listed in <exclusionsFile>
-    fun checkApiFile(apiFile: File, exclusionsFile: File, checkRestrictedAPIs: Boolean) {
+    // Confirms that <api> is compatible with <oldApi> except for any baselines listed in <baselineFile>
+    fun checkApiFile(api: File, oldApi: File, baselineFile: File, checkRestrictedAPIs: Boolean) {
         var args = listOf("--classpath",
-                (bootClasspath + dependencyClasspath!!.files).joinToString(File.pathSeparator),
+                (bootClasspath + dependencyClasspath.files).joinToString(File.pathSeparator),
 
-                "--source-path",
-                sourcePaths.filter { it.exists() }.joinToString(File.pathSeparator),
+                "--source-files",
+                api.toString(),
 
                 "--check-compatibility:api:released",
-                apiFile.toString(),
+                oldApi.toString(),
 
                 "--warnings-as-errors",
                 "--format=v3"
         )
-        if (exclusionsFile.exists()) {
-            args = args + listOf("--baseline", exclusionsFile.toString())
+        if (baselineFile.exists()) {
+            args = args + listOf("--baseline", baselineFile.toString())
         }
         if (checkRestrictedAPIs) {
-            args = args + listOf("--show-annotation", "androidx.annotation.RestrictTo")
+            args = args + listOf("--show-annotation",
+                "androidx.annotation.RestrictTo",
+                "--show-unannotated"
+            )
         }
         runWithArgs(args)
     }

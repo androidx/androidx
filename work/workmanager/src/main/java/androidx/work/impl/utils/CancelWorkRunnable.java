@@ -89,6 +89,7 @@ public abstract class CancelWorkRunnable implements Runnable {
         WorkSpecDao workSpecDao = workDatabase.workSpecDao();
         DependencyDao dependencyDao = workDatabase.dependencyDao();
 
+        @SuppressWarnings("JdkObsolete") // TODO(b/141962522): Suppressed during upgrade to AGP 3.6.
         LinkedList<String> idsToProcess = new LinkedList<>();
         idsToProcess.add(workSpecId);
         while (!idsToProcess.isEmpty()) {
@@ -215,10 +216,10 @@ public abstract class CancelWorkRunnable implements Runnable {
                     for (String workSpecId : workSpecIds) {
                         cancel(workManagerImpl, workSpecId);
                     }
-                    workDatabase.setTransactionSuccessful();
-                    // Update the last cancelled time in Preferences.
-                    new Preferences(workManagerImpl.getApplicationContext())
+                    // Update the last cancelled time in Preference.
+                    new PreferenceUtils(workManagerImpl.getWorkDatabase())
                             .setLastCancelAllTimeMillis(System.currentTimeMillis());
+                    workDatabase.setTransactionSuccessful();
                 } finally {
                     workDatabase.endTransaction();
                 }

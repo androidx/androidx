@@ -31,15 +31,21 @@ object BoxedBooleanToBoxedIntConverter {
                 .asType()
         return listOf(
                 object : TypeConverter(tBoolean, tInt) {
-                    override fun convert(inputVarName: String, outputVarName: String,
-                                         scope: CodeGenScope) {
+                    override fun convert(
+                        inputVarName: String,
+                        outputVarName: String,
+                        scope: CodeGenScope
+                    ) {
                         scope.builder().addStatement("$L = $L == null ? null : ($L ? 1 : 0)",
                                 outputVarName, inputVarName, inputVarName)
                     }
                 },
                 object : TypeConverter(tInt, tBoolean) {
-                    override fun convert(inputVarName: String, outputVarName: String,
-                                         scope: CodeGenScope) {
+                    override fun convert(
+                        inputVarName: String,
+                        outputVarName: String,
+                        scope: CodeGenScope
+                    ) {
                         scope.builder().addStatement("$L = $L == null ? null : $L != 0",
                                 outputVarName, inputVarName, inputVarName)
                     }

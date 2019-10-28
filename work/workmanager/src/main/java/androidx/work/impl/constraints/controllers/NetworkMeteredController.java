@@ -26,6 +26,7 @@ import androidx.work.Logger;
 import androidx.work.impl.constraints.NetworkState;
 import androidx.work.impl.constraints.trackers.Trackers;
 import androidx.work.impl.model.WorkSpec;
+import androidx.work.impl.utils.taskexecutor.TaskExecutor;
 
 /**
  * A {@link ConstraintController} for monitoring that the network connection is metered.
@@ -34,8 +35,8 @@ import androidx.work.impl.model.WorkSpec;
 public class NetworkMeteredController extends ConstraintController<NetworkState> {
     private static final String TAG = Logger.tagWithPrefix("NetworkMeteredCtrlr");
 
-    public NetworkMeteredController(Context context) {
-        super(Trackers.getInstance(context).getNetworkStateTracker());
+    public NetworkMeteredController(Context context, TaskExecutor taskExecutor) {
+        super(Trackers.getInstance(context, taskExecutor).getNetworkStateTracker());
     }
 
     @Override

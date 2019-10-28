@@ -1,0 +1,3 @@
+// Baseline format: 1.0
+AcronymName: androidx.ui.graphics.vector.VectorComposeNonIRKt:
+    Acronyms should not be capitalized in class names: was `VectorComposeNonIRKt`, should this be `VectorComposeNonIrKt`?

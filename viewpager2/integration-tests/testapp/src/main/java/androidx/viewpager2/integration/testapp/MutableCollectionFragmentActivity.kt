@@ -38,7 +38,7 @@ class MutableCollectionFragmentActivity : MutableCollectionBaseActivity() {
     override fun createViewPagerAdapter(): RecyclerView.Adapter<*> {
         val items = items // avoids resolving the ViewModel multiple times
         return object : FragmentStateAdapter(this) {
-            override fun getItem(position: Int): PageFragment {
+            override fun createFragment(position: Int): PageFragment {
                 val itemId = items.itemId(position)
                 val itemText = items.getItemById(itemId)
                 return PageFragment.create(itemText)

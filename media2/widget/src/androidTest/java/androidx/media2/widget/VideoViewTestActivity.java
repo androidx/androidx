@@ -22,7 +22,7 @@ import androidx.fragment.app.FragmentActivity;
 import androidx.media2.widget.test.R;
 
 /**
- * A minimal application for {@link VideoView} test.
+ * A minimal application for testing {@link VideoView}.
  */
 public class VideoViewTestActivity extends FragmentActivity {
     /**

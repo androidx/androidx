@@ -1,7 +1,7 @@
+import static androidx.build.dependencies.DependenciesKt.*
 import androidx.build.LibraryGroups
 import androidx.build.LibraryVersions
-
-import static androidx.build.dependencies.DependenciesKt.*
+import androidx.build.Publish
 
 plugins {
     id("AndroidXPlugin")
@@ -11,10 +11,15 @@ plugins {
 dependencies {
     api(project(":media"))
     api(GUAVA_LISTENABLE_FUTURE)
-    implementation(project(":concurrent:concurrent-futures"))
+    implementation("androidx.concurrent:concurrent-futures:1.0.0")
     implementation("androidx.collection:collection:1.0.0")
     compileOnly(CHECKER_FRAMEWORK)
 
+    androidTestImplementation(ANDROIDX_TEST_EXT_JUNIT)
+    androidTestImplementation(ANDROIDX_TEST_CORE)
+    androidTestImplementation(ANDROIDX_TEST_RUNNER)
+    androidTestImplementation(ESPRESSO_CORE, libs.exclude_for_espresso)
+    androidTestImplementation project(':internal-testutils-runtime')
     annotationProcessor(project(":versionedparcelable-annotation"))
 }
 
@@ -26,12 +31,11 @@ android {
 
 androidx {
     name = "AndroidX media2 common library"
-    publish = true
+    publish = Publish.SNAPSHOT_AND_RELEASE
     mavenVersion = LibraryVersions.MEDIA2_COMMON
     mavenGroup = LibraryGroups.MEDIA2
     inceptionYear = "2018"
     description = "Media2 Common"
     // TODO: Remove these (b/130838274)
-    failOnUncheckedWarnings = false
     failOnDeprecationWarnings = false
 }

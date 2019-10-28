@@ -19,6 +19,8 @@ package androidx.dynamicanimation.animation;
 import android.os.Looper;
 import android.util.AndroidRuntimeException;
 
+import androidx.annotation.MainThread;
+
 /**
  * SpringAnimation is an animation that is driven by a {@link SpringForce}. The spring force defines
  * the spring's stiffness, damping ratio, as well as the rest position. Once the SpringAnimation is
@@ -150,6 +152,7 @@ public final class SpringAnimation extends DynamicAnimation<SpringAnimation> {
         return this;
     }
 
+    @MainThread
     @Override
     public void start() {
         sanityCheck();
@@ -178,6 +181,26 @@ public final class SpringAnimation extends DynamicAnimation<SpringAnimation> {
             }
             mSpring.setFinalPosition(finalPosition);
             start();
+        }
+    }
+
+    /**
+     * Cancels the on-going animation. If the animation hasn't started, no op. Note that this method
+     * should only be called on main thread.
+     *
+     * @throws AndroidRuntimeException if this method is not called on the main thread
+     */
+    @MainThread
+    @Override
+    public void cancel() {
+        super.cancel();
+        if (mPendingPosition != UNSET) {
+            if (mSpring == null) {
+                mSpring = new SpringForce(mPendingPosition);
+            } else {
+                mSpring.setFinalPosition(mPendingPosition);
+            }
+            mPendingPosition = UNSET;
         }
     }
 

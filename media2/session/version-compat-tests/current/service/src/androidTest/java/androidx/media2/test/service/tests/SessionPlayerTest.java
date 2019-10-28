@@ -17,6 +17,9 @@
 package androidx.media2.test.service.tests;
 
 import static androidx.media2.test.common.CommonConstants.CLIENT_PACKAGE_NAME;
+import static androidx.media2.test.common.CommonConstants.KEY_CLIENT_VERSION;
+import static androidx.media2.test.common.CommonConstants.VERSION_TOT;
+import static androidx.test.platform.app.InstrumentationRegistry.getArguments;
 
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotNull;
@@ -27,6 +30,7 @@ import static org.junit.Assert.fail;
 
 import android.os.Build;
 
+import androidx.annotation.NonNull;
 import androidx.media2.common.MediaItem;
 import androidx.media2.common.MediaMetadata;
 import androidx.media2.common.SessionPlayer;
@@ -61,17 +65,19 @@ public class SessionPlayerTest extends MediaSessionTestBase {
     MediaSession mSession;
     MockPlayer mPlayer;
     RemoteMediaController mController;
+    String mRemoteControllerVersion;
 
     @Before
     @Override
     public void setUp() throws Exception {
         super.setUp();
+        mRemoteControllerVersion = getArguments().getString(KEY_CLIENT_VERSION, "");
         mPlayer = new MockPlayer(1);
         mSession = new MediaSession.Builder(mContext, mPlayer)
                 .setSessionCallback(sHandlerExecutor, new MediaSession.SessionCallback() {
                     @Override
-                    public SessionCommandGroup onConnect(MediaSession session,
-                            MediaSession.ControllerInfo controller) {
+                    public SessionCommandGroup onConnect(@NonNull MediaSession session,
+                            @NonNull MediaSession.ControllerInfo controller) {
                         if (CLIENT_PACKAGE_NAME.equals(controller.getPackageName())) {
                             return super.onConnect(session, controller);
                         }
@@ -79,8 +85,8 @@ public class SessionPlayerTest extends MediaSessionTestBase {
                     }
 
                     @Override
-                    public MediaItem onCreateMediaItem(MediaSession session,
-                            ControllerInfo controller, String mediaId) {
+                    public MediaItem onCreateMediaItem(@NonNull MediaSession session,
+                            @NonNull ControllerInfo controller, @NonNull String mediaId) {
                         return MediaTestUtils.createMediaItem(mediaId);
                     }
                 }).build();
@@ -324,6 +330,35 @@ public class SessionPlayerTest extends MediaSessionTestBase {
         assertTrue(mPlayer.mReplacePlaylistItemCalled);
         // MediaController.replacePlaylistItem does not ensure the equality of the items.
         assertEquals(testMediaId, mPlayer.mItem.getMediaId());
+    }
+
+    @Test
+    public void testMovePlaylistItemsBySession() throws InterruptedException {
+        prepareLooper();
+        final int fromIdx = 3;
+        final int toIdx = 20;
+        final MediaItem testMediaItem = MediaTestUtils.createMediaItemWithMetadata();
+        mSession.getPlayer().movePlaylistItem(fromIdx, toIdx);
+        assertTrue(mPlayer.mMovePlaylistItemCalled);
+        assertEquals(fromIdx, mPlayer.mIndex);
+        assertEquals(toIdx, mPlayer.mIndex2);
+    }
+
+    @Test
+    public void testMovePlaylistItemByController() throws InterruptedException {
+        final int testIndex1 = 3;
+        final int testIndex2 = 20;
+
+        // TODO: Run the test with previous remote controllers once its version becomes
+        //       COMMAND_VERSION_2 since movePlaylistItem is introduced in COMMAND_VERSION_2.
+        if (VERSION_TOT.equals(mRemoteControllerVersion)) {
+            mController.movePlaylistItem(testIndex1, testIndex2);
+            assertTrue(mPlayer.mCountDownLatch.await(TIMEOUT_MS, TimeUnit.MILLISECONDS));
+
+            assertTrue(mPlayer.mMovePlaylistItemCalled);
+            assertEquals(testIndex1, mPlayer.mIndex);
+            assertEquals(testIndex2, mPlayer.mIndex2);
+        }
     }
 
     @Test

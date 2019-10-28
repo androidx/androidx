@@ -212,7 +212,7 @@ public final class LocalBroadcastManager {
      * @see #registerReceiver
      *
      * @return Returns true if the intent has been scheduled for delivery to one or more
-     * broadcast receivers.  (Note tha delivery may not ultimately take place if one of those
+     * broadcast receivers.  (Note that delivery may not ultimately take place if one of those
      * receivers is unregistered before it is dispatched.)
      */
     public boolean sendBroadcast(@NonNull Intent intent) {

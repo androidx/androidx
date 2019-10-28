@@ -109,7 +109,7 @@ class IntKeyframeSet extends KeyframeSet<Integer> implements Keyframes.IntKeyfra
     }
 
     @Override
-    public Class getType() {
+    public Class<Integer> getType() {
         return Integer.class;
     }
 }

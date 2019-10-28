@@ -43,9 +43,7 @@ class TopOfTreeBuilder {
 
         // Find archives
         val archivesFilter = FileFilter({
-            return@FileFilter it.fileName.endsWith(".aar")
-                || (it.fileName.endsWith("jar")
-                && !it.fileName.contains("sources") && !it.fileName.contains("javadoc"))
+                return@FileFilter it.fileName.endsWith(".aar") || it.fileName.endsWith("jar")
         })
         archive.accept(archivesFilter)
         val libFiles = archivesFilter.files
@@ -60,8 +58,11 @@ class TopOfTreeBuilder {
                 val artifactFile = libFiles.first {
                     it.fileName == nameAar || it.fileName == nameJar
                 }
-
-                process(pomFile, artifactFile, newFiles)
+                val nameSources = name + "-sources.jar"
+                val sourcesFile = libFiles.first {
+                    it.fileName == nameSources
+                }
+                process(pomFile, artifactFile, sourcesFile, newFiles)
             }
         }
 
@@ -71,9 +72,10 @@ class TopOfTreeBuilder {
     }
 
     private fun process(
-            pomFile: ArchiveFile,
-            artifactFile: ArchiveFile,
-            resultSet: MutableSet<ArchiveFile>
+        pomFile: ArchiveFile,
+        artifactFile: ArchiveFile,
+        sourcesFile: ArchiveFile,
+        resultSet: MutableSet<ArchiveFile>
     ) {
         val pomDep = PomDocument.loadFrom(pomFile).getAsPomDependency()
 
@@ -85,9 +87,11 @@ class TopOfTreeBuilder {
         val artifactDir = Paths.get(DIR_PREFIX, groupAsPath, pomDep.artifactId, pomDep.version!!)
         val newLibFilePath = Paths.get(artifactDir.toString(), "$baseFileName.$packaging")
         val newPomFilePath = Paths.get(artifactDir.toString(), "$baseFileName.pom")
+        val newSourcesFilePath = Paths.get(artifactDir.toString(), "$baseFileName-sources.jar")
 
         val newArtifactFile = ArchiveFile(newLibFilePath, artifactFile.data)
         val newPomFile = ArchiveFile(newPomFilePath, pomFile.data)
+        val newSourcesFile = ArchiveFile(newSourcesFilePath, sourcesFile.data)
 
         resultSet.add(newArtifactFile)
         resultSet.add(getHashFileOf(newArtifactFile, "MD5"))
@@ -96,6 +100,10 @@ class TopOfTreeBuilder {
         resultSet.add(newPomFile)
         resultSet.add(getHashFileOf(newPomFile, "MD5"))
         resultSet.add(getHashFileOf(newPomFile, "SHA1"))
+
+        resultSet.add(newSourcesFile)
+        resultSet.add(getHashFileOf(newSourcesFile, "MD5"))
+        resultSet.add(getHashFileOf(newSourcesFile, "SHA1"))
     }
 
     private fun getHashFileOf(file: ArchiveFile, hashType: String): ArchiveFile {

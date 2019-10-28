@@ -10,10 +10,8 @@ package androidx.exifinterface.media {
     method public void flipVertically();
     method public double getAltitude(double);
     method public String? getAttribute(String);
-    method public byte[]? getAttributeBytes(String);
     method public double getAttributeDouble(String, double);
     method public int getAttributeInt(String, int);
-    method public long[]? getAttributeRange(String);
     method @Deprecated public boolean getLatLong(float[]!);
     method public double[]? getLatLong();
     method public int getRotationDegrees();
@@ -21,7 +19,6 @@ package androidx.exifinterface.media {
     method public android.graphics.Bitmap? getThumbnailBitmap();
     method public byte[]? getThumbnailBytes();
     method public long[]? getThumbnailRange();
-    method public boolean hasAttribute(String);
     method public boolean hasThumbnail();
     method public boolean isFlipped();
     method public boolean isThumbnailCompressed();

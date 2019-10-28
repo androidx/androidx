@@ -22,6 +22,8 @@ import android.util.Log;
 import androidx.annotation.NonNull;
 import androidx.work.Configuration;
 
+import java.util.concurrent.Executors;
+
 /**
  * An Application class that initializes WorkManager.
  */
@@ -30,6 +32,8 @@ public class TestApplication extends Application implements Configuration.Provid
     @NonNull
     @Override
     public Configuration getWorkManagerConfiguration() {
-        return new Configuration.Builder().setMinimumLoggingLevel(Log.VERBOSE).build();
+        return new Configuration.Builder()
+                .setTaskExecutor(Executors.newCachedThreadPool())
+                .setMinimumLoggingLevel(Log.VERBOSE).build();
     }
 }

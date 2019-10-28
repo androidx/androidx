@@ -169,14 +169,14 @@ public final class StateMachine {
 
         void addIncoming(Transition t) {
             if (mIncomings == null) {
-                mIncomings = new ArrayList();
+                mIncomings = new ArrayList<>();
             }
             mIncomings.add(t);
         }
 
         void addOutgoing(Transition t) {
             if (mOutgoings == null) {
-                mOutgoings = new ArrayList();
+                mOutgoings = new ArrayList<>();
             }
             mOutgoings.add(t);
         }
@@ -255,8 +255,8 @@ public final class StateMachine {
     }
 
     final ArrayList<State> mStates = new ArrayList<State>();
-    final ArrayList<State> mFinishedStates = new ArrayList();
-    final ArrayList<State> mUnfinishedStates = new ArrayList();
+    final ArrayList<State> mFinishedStates = new ArrayList<>();
+    final ArrayList<State> mUnfinishedStates = new ArrayList<>();
 
     public StateMachine() {
     }

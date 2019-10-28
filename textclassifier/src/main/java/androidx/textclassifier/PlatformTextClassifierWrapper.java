@@ -22,7 +22,6 @@ import android.os.Build;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.RequiresApi;
-import androidx.annotation.RestrictTo;
 import androidx.annotation.VisibleForTesting;
 import androidx.annotation.WorkerThread;
 import androidx.core.util.Preconditions;
@@ -30,12 +29,9 @@ import androidx.core.util.Preconditions;
 /**
  * Provides a {@link androidx.textclassifier.TextClassifier} interface for a
  * {@link android.view.textclassifier.TextClassifier} object.
- *
- * @hide
  */
-@RestrictTo(RestrictTo.Scope.LIBRARY)
 @RequiresApi(Build.VERSION_CODES.O)
-public class PlatformTextClassifierWrapper extends TextClassifier {
+final class PlatformTextClassifierWrapper extends TextClassifier {
     private final android.view.textclassifier.TextClassifier mPlatformTextClassifier;
     private final Context mContext;
     private final TextClassifier mFallback;
@@ -53,7 +49,7 @@ public class PlatformTextClassifierWrapper extends TextClassifier {
      * Returns a newly create instance of PlatformTextClassifierWrapper.
      */
     @NonNull
-    public static PlatformTextClassifierWrapper create(@NonNull Context context) {
+    static PlatformTextClassifierWrapper create(@NonNull Context context) {
         android.view.textclassifier.TextClassificationManager textClassificationManager =
                 (android.view.textclassifier.TextClassificationManager)
                         context.getSystemService(Context.TEXT_CLASSIFICATION_SERVICE);

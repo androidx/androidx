@@ -16,7 +16,7 @@ package androidx.mediarouter.app {
     ctor public MediaRouteDynamicChooserDialog(android.content.Context!, int);
     method public androidx.mediarouter.media.MediaRouteSelector getRouteSelector();
     method public boolean onFilterRoute(androidx.mediarouter.media.MediaRouter.RouteInfo);
-    method public void onFilterRoutes(java.util.List<androidx.mediarouter.media.MediaRouter.RouteInfo>);
+    method public void onFilterRoutes(java.util.List<androidx.mediarouter.media.MediaRouter.RouteInfo!>);
     method public void refreshRoutes();
     method public void setRouteSelector(androidx.mediarouter.media.MediaRouteSelector);
   }
@@ -27,7 +27,7 @@ package androidx.mediarouter.app {
     method public android.support.v4.media.session.MediaSessionCompat.Token! getMediaSession();
     method public androidx.mediarouter.media.MediaRouteSelector getRouteSelector();
     method public boolean onFilterRoute(androidx.mediarouter.media.MediaRouter.RouteInfo);
-    method public void onFilterRoutes(java.util.List<androidx.mediarouter.media.MediaRouter.RouteInfo>);
+    method public void onFilterRoutes(java.util.List<androidx.mediarouter.media.MediaRouter.RouteInfo!>);
     method public void setRouteSelector(androidx.mediarouter.media.MediaRouteSelector);
   }
 
@@ -36,14 +36,14 @@ package androidx.mediarouter.app {
 package androidx.mediarouter.media {
 
   public final class MediaRouteDescriptor {
-    method @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP_PREFIX) public java.util.List<java.lang.String>! getGroupMemberIds();
+    method @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP_PREFIX) public java.util.List<java.lang.String!>! getGroupMemberIds();
     method @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP_PREFIX) public int getMaxClientVersion();
     method @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP_PREFIX) public int getMinClientVersion();
   }
 
   public static final class MediaRouteDescriptor.Builder {
     method @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP_PREFIX) public androidx.mediarouter.media.MediaRouteDescriptor.Builder! addGroupMemberId(String!);
-    method @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP_PREFIX) public androidx.mediarouter.media.MediaRouteDescriptor.Builder! addGroupMemberIds(java.util.Collection<java.lang.String>!);
+    method @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP_PREFIX) public androidx.mediarouter.media.MediaRouteDescriptor.Builder! addGroupMemberIds(java.util.Collection<java.lang.String!>!);
     method @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP_PREFIX) public androidx.mediarouter.media.MediaRouteDescriptor.Builder! removeGroupMemberId(String!);
     method @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP_PREFIX) public androidx.mediarouter.media.MediaRouteDescriptor.Builder! setMaxClientVersion(int);
     method @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP_PREFIX) public androidx.mediarouter.media.MediaRouteDescriptor.Builder! setMinClientVersion(int);
@@ -64,7 +64,7 @@ package androidx.mediarouter.media {
   public static class MediaRouter.RouteInfo {
     method @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP_PREFIX) public androidx.mediarouter.media.MediaRouteProvider.DynamicGroupRouteController? getDynamicGroupController();
     method @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP) public androidx.mediarouter.media.MediaRouter.RouteInfo.DynamicGroupState? getDynamicGroupState();
-    method @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP_PREFIX) public java.util.List<androidx.mediarouter.media.MediaRouter.RouteInfo> getMemberRoutes();
+    method @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP_PREFIX) public java.util.List<androidx.mediarouter.media.MediaRouter.RouteInfo!> getMemberRoutes();
     method @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP_PREFIX) public int getPresentationDisplayId();
     method @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP_PREFIX) public androidx.mediarouter.media.MediaRouteProvider! getProviderInstance();
     method @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP_PREFIX) public boolean isDefaultOrBluetooth();

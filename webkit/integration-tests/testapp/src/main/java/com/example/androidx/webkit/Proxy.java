@@ -16,6 +16,8 @@
 
 package com.example.androidx.webkit;
 
+import static java.nio.charset.StandardCharsets.UTF_8;
+
 import java.io.BufferedReader;
 import java.io.BufferedWriter;
 import java.io.IOException;
@@ -156,8 +158,10 @@ public class Proxy {
             mSocket = socket;
             try {
                 mSocket.setSoTimeout(TIMEOUT_MILLIS);
-                mReader = new BufferedReader(new InputStreamReader(mSocket.getInputStream()));
-                mWriter = new BufferedWriter(new OutputStreamWriter(mSocket.getOutputStream()));
+                mReader = new BufferedReader(
+                        new InputStreamReader(mSocket.getInputStream(), UTF_8));
+                mWriter = new BufferedWriter(
+                        new OutputStreamWriter(mSocket.getOutputStream(), UTF_8));
             } catch (IOException e) {
                 e.printStackTrace();
             }

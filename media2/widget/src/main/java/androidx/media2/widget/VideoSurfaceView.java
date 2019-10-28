@@ -26,7 +26,6 @@ import android.view.SurfaceHolder;
 import android.view.SurfaceView;
 
 import androidx.core.content.ContextCompat;
-import androidx.media2.player.MediaPlayer;
 
 class VideoSurfaceView extends SurfaceView
         implements VideoViewInterface, SurfaceHolder.Callback {
@@ -34,9 +33,7 @@ class VideoSurfaceView extends SurfaceView
     private static final boolean DEBUG = Log.isLoggable(TAG, Log.DEBUG);
     private Surface mSurface = null;
     SurfaceListener mSurfaceListener = null;
-    private MediaPlayer mMediaPlayer;
-    // A flag to indicate taking over other view should be proceed.
-    private boolean mIsTakingOverOldView;
+    private PlayerWrapper mPlayer;
 
     VideoSurfaceView(Context context) {
         super(context, null);
@@ -48,12 +45,12 @@ class VideoSurfaceView extends SurfaceView
     ////////////////////////////////////////////////////
 
     @Override
-    public boolean assignSurfaceToMediaPlayer(MediaPlayer mp) {
-        Log.d(TAG, "assignSurfaceToMediaPlayer(): mSurface: " + mSurface);
-        if (mp == null || !hasAvailableSurface()) {
+    public boolean assignSurfaceToPlayerWrapper(PlayerWrapper player) {
+        mPlayer = player;
+        if (player == null || !hasAvailableSurface()) {
             return false;
         }
-        mp.setSurface(mSurface).addListener(
+        player.setSurface(mSurface).addListener(
                 new Runnable() {
                     @Override
                     public void run() {
@@ -74,19 +71,6 @@ class VideoSurfaceView extends SurfaceView
     @Override
     public int getViewType() {
         return VIEW_TYPE_SURFACEVIEW;
-    }
-
-    @Override
-    public void setMediaPlayer(MediaPlayer mp) {
-        mMediaPlayer = mp;
-        if (mIsTakingOverOldView) {
-            mIsTakingOverOldView = !assignSurfaceToMediaPlayer(mMediaPlayer);
-        }
-    }
-
-    @Override
-    public void takeOver() {
-        mIsTakingOverOldView = !assignSurfaceToMediaPlayer(mMediaPlayer);
     }
 
     @Override
@@ -125,8 +109,8 @@ class VideoSurfaceView extends SurfaceView
 
     @Override
     protected void onMeasure(int widthMeasureSpec, int heightMeasureSpec) {
-        final int videoWidth = mMediaPlayer != null ? mMediaPlayer.getVideoSize().getWidth() : 0;
-        final int videoHeight = mMediaPlayer != null ? mMediaPlayer.getVideoSize().getHeight() : 0;
+        final int videoWidth = mPlayer != null ? mPlayer.getVideoSize().getWidth() : 0;
+        final int videoHeight = mPlayer != null ? mPlayer.getVideoSize().getHeight() : 0;
 
         int width;
         int height;

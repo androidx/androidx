@@ -27,7 +27,6 @@ import android.content.Intent;
 import android.content.pm.PackageManager;
 import android.content.pm.ResolveInfo;
 import android.os.Build;
-import android.os.RemoteException;
 import android.support.v4.media.MediaBrowserCompat;
 import android.support.v4.media.session.MediaControllerCompat;
 import android.support.v4.media.session.MediaSessionCompat;
@@ -152,14 +151,10 @@ public class MediaButtonReceiver extends BroadcastReceiver {
 
         @Override
         public void onConnected() {
-            try {
-                MediaControllerCompat mediaController = new MediaControllerCompat(mContext,
-                        mMediaBrowser.getSessionToken());
-                KeyEvent ke = mIntent.getParcelableExtra(Intent.EXTRA_KEY_EVENT);
-                mediaController.dispatchMediaButtonEvent(ke);
-            } catch (RemoteException e) {
-                Log.e(TAG, "Failed to create a media controller", e);
-            }
+            MediaControllerCompat mediaController = new MediaControllerCompat(mContext,
+                    mMediaBrowser.getSessionToken());
+            KeyEvent ke = mIntent.getParcelableExtra(Intent.EXTRA_KEY_EVENT);
+            mediaController.dispatchMediaButtonEvent(ke);
             finish();
         }
 

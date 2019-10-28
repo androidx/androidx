@@ -17,8 +17,13 @@
 package androidx.room;
 
 /**
- * Thrown by Room when the query needs to return a result (e.g. in a Single&lt;T> query) but the
- * returned result set from the database is empty.
+ * Thrown by Room when the query in a Single&lt;T&gt; DAO method needs to return a result but the
+ * returned result from the database is empty.
+ * <p>
+ * Since a Single&lt;T&gt; must either emit a single non-null value or an error, this exception is
+ * thrown instead of emitting a null value when the query resulted empty. If the Single&lt;T&gt;
+ * contains a type argument of a collection (e.g. Single&lt;List&lt;Song&gt&gt;) then this
+ * exception is not thrown an an empty collection is emitted instead.
  */
 public class EmptyResultSetException extends RuntimeException {
     /**

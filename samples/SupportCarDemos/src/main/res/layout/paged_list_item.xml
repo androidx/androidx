@@ -20,8 +20,11 @@
     android:layout_width="0dp"
     android:layout_height="wrap_content"
     app:cardBackgroundColor="@color/car_card_dark">
+
     <TextView
         android:id="@+id/text"
+        android:focusable="true"
+        android:background="?listItemBackground"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:singleLine="true"

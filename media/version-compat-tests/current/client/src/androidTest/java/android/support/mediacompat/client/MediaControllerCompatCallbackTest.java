@@ -18,6 +18,7 @@ package android.support.mediacompat.client;
 
 import static android.media.AudioManager.STREAM_MUSIC;
 import static android.support.mediacompat.testlib.MediaSessionConstants.RELEASE;
+import static android.support.mediacompat.testlib.MediaSessionConstants.RELEASE_AND_THEN_SET_PLAYBACK_STATE;
 import static android.support.mediacompat.testlib.MediaSessionConstants.SEND_SESSION_EVENT;
 import static android.support.mediacompat.testlib.MediaSessionConstants.SET_CAPTIONING_ENABLED;
 import static android.support.mediacompat.testlib.MediaSessionConstants.SET_EXTRAS;
@@ -756,6 +757,31 @@ public class MediaControllerCompatCallbackTest {
         callMediaSessionMethod(SET_EXTRAS, new Bundle(), getApplicationContext());
         assertTrue(latch1.await(TIME_OUT_MS, TimeUnit.MILLISECONDS));
         assertFalse(latch2.await(TIME_OUT_MS, TimeUnit.MILLISECONDS));
+    }
+
+    /**
+     * Tests callbacks are not called after {@link MediaSessionCompat#release}.
+     */
+    @Test
+    @LargeTest
+    public void testCallbacksAreNotCalledAfterRelease() throws Exception {
+        final CountDownLatch latchForDestroy = new CountDownLatch(1);
+        final CountDownLatch latchForPlaybackState = new CountDownLatch(1);
+
+        mController.registerCallback(new MediaControllerCompat.Callback() {
+            @Override
+            public void onSessionDestroyed() {
+                latchForDestroy.countDown();
+            }
+            @Override
+            public void onPlaybackStateChanged(PlaybackStateCompat state) {
+                latchForPlaybackState.countDown();
+            }
+        }, mHandler);
+
+        callMediaSessionMethod(RELEASE_AND_THEN_SET_PLAYBACK_STATE, null, getApplicationContext());
+        assertTrue(latchForDestroy.await(TIME_OUT_MS, TimeUnit.MILLISECONDS));
+        assertFalse(latchForPlaybackState.await(1000, TimeUnit.MILLISECONDS));
     }
 
     private void assertQueueEquals(List<QueueItem> expected, List<QueueItem> observed) {

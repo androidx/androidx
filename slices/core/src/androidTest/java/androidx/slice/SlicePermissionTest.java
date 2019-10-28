@@ -27,6 +27,7 @@ import android.content.pm.PackageManager.NameNotFoundException;
 import android.net.Uri;
 import android.os.Process;
 
+import androidx.annotation.NonNull;
 import androidx.slice.compat.CompatPermissionManager;
 import androidx.test.core.app.ApplicationProvider;
 import androidx.test.ext.junit.runners.AndroidJUnit4;
@@ -193,14 +194,15 @@ public class SlicePermissionTest {
             return true;
         }
 
+        @NonNull
         protected CompatPermissionManager onCreatePermissionManager(
-                String[] autoGrantPermissions) {
+                @NonNull String[] autoGrantPermissions) {
             return new CompatPermissionManager(getContext(), PERMS_PREFIX + getClass().getName(),
                     -1 /* Different uid to run permissions */, autoGrantPermissions);
         }
 
         @Override
-        public Slice onBindSlice(Uri sliceUri) {
+        public Slice onBindSlice(@NonNull Uri sliceUri) {
             return null;
         }
     }

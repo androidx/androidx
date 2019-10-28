@@ -32,7 +32,7 @@
     <string name="abc_shareactionprovider_share_with_application" msgid="9009661856846212431">"<xliff:g id="APPLICATION_NAME">%s</xliff:g>-এর সাথে শেয়ার করুন"</string>
     <string name="abc_shareactionprovider_share_with" msgid="2650565705514630347">"শেয়ার করুন"</string>
     <string name="abc_capital_on" msgid="7831734969929204599">"চালু করুন"</string>
-    <string name="abc_capital_off" msgid="3403923230105792483">"বন্ধ করুন"</string>
+    <string name="abc_capital_off" msgid="3403923230105792483">"বন্ধ আছে"</string>
     <string name="search_menu_title" msgid="730395136688082741">"সার্চ করুন"</string>
     <string name="abc_prepend_shortcut_label" msgid="3570106412128999382">"Menu+"</string>
     <string name="abc_menu_meta_shortcut_label" msgid="8046416353848716905">"Meta+"</string>
