@@ -316,6 +316,16 @@ package androidx.ui.core {
     method public static String toString-impl(float $this);
   }
 
+  public interface DrawModifier extends androidx.ui.core.Modifier.Element {
+    method public void draw(androidx.ui.core.Density density, kotlin.jvm.functions.Function0<kotlin.Unit> drawContent, androidx.ui.graphics.Canvas canvas, androidx.ui.core.PxSize size);
+  }
+
+  public final class DrawModifierKt {
+    ctor public DrawModifierKt();
+    method public static androidx.ui.core.DrawModifier draw(kotlin.jvm.functions.Function3<? super androidx.ui.core.DensityScope,? super androidx.ui.graphics.Canvas,? super androidx.ui.core.PxSize,kotlin.Unit> onDraw);
+    method public static androidx.ui.core.DrawModifier drawWithContent(kotlin.jvm.functions.Function3<? super androidx.ui.core.DrawReceiver,? super androidx.ui.graphics.Canvas,? super androidx.ui.core.PxSize,kotlin.Unit> onDraw);
+  }
+
   public interface DrawReceiver extends androidx.ui.core.DensityScope {
     method public void drawChildren();
   }
