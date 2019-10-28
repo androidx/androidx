@@ -65,7 +65,7 @@ class IncrementalAnnotationProcessingTest {
     private lateinit var buildToolsVersion: String
     private lateinit var minSdkVersion: String
     private lateinit var debugKeystore: String
-    private lateinit var agpVersion: String
+    private lateinit var agpDependency: String
     private lateinit var gradleVersion: String
     private lateinit var supportRepo: String
 
@@ -223,7 +223,7 @@ class IncrementalAnnotationProcessingTest {
                     maven { url "$prebuiltsRepo/androidx/internal" }
                 }
                 dependencies {
-                    classpath "com.android.tools.build:gradle:$agpVersion"
+                    classpath "$agpDependency"
                 }
             }
 
@@ -352,7 +352,7 @@ class IncrementalAnnotationProcessingTest {
                 buildToolsVersion = properties.getProperty("buildToolsVersion")
                 minSdkVersion = properties.getProperty("minSdkVersion")
                 debugKeystore = properties.getProperty("debugKeystore")
-                agpVersion = properties.getProperty("agpVersion")
+                agpDependency = properties.getProperty("agpDependency")
                 gradleVersion = properties.getProperty("gradleVersion")
                 supportRepo = properties.getProperty("supportRepo")
         }

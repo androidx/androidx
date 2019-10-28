@@ -34,7 +34,7 @@ dependencies {
     implementation project(":benchmark:benchmark-junit4")
     implementation project(":compose:compose-runtime")
     implementation project(":ui:integration-tests:test")
-    implementation(KOTLIN_COMPOSE_STDLIB)
+    implementation(KOTLIN_STDLIB)
     implementation(JUNIT)
     androidTestImplementation project(":ui:ui-core")
     androidTestImplementation project(":ui:ui-framework")

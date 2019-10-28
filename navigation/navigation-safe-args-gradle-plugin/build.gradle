@@ -38,7 +38,7 @@ sourceSets {
 }
 
 dependencies {
-    compile(ANDROID_GRADLE_PLUGIN)
+    compile(AGP_STABLE)
     compile(KOTLIN_GRADLE_PLUGIN)
     compile project(":navigation:navigation-safe-args-generator")
     compile gradleApi()

@@ -41,13 +41,13 @@ sourceSets {
 
 dependencies {
     implementation gradleApi()
-    implementation(ANDROID_GRADLE_PLUGIN)
+    implementation(AGP_STABLE)
     implementation(KOTLIN_STDLIB)
 
     testImplementation gradleTestKit()
     testImplementation(ANDROIDX_TEST_RUNNER)
     testImplementation(JUNIT)
-    testImplementation(KOTLIN_TEST_COMMON)
+    testImplementation(KOTLIN_TEST)
 }
 
 task generateSdkResource() {
