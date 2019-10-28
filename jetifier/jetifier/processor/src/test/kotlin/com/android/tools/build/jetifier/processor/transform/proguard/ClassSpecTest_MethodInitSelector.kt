@@ -22,10 +22,8 @@ class ClassSpecTest_MethodInitSelector {
 
     @Test fun proGuard_methodsInitSelector() {
         ProGuardTester()
-            .forGivenPrefixes(
-            )
-            .forGivenTypesMap(
-            )
+            .forGivenPrefixes()
+            .forGivenTypesMap()
             .testThatGivenProGuard(
                 "-keep public class * { \n" +
                 "  <methods>; \n" +
@@ -40,10 +38,8 @@ class ClassSpecTest_MethodInitSelector {
 
     @Test fun proGuard_methodsInitSelector_modifiers() {
         ProGuardTester()
-            .forGivenPrefixes(
-            )
-            .forGivenTypesMap(
-            )
+            .forGivenPrefixes()
+            .forGivenTypesMap()
             .testThatGivenProGuard(
                 "-keep public class * { \n" +
                 "  public <methods>; \n" +

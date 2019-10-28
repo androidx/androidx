@@ -42,7 +42,7 @@ public class SystemAlarmScheduler implements Scheduler {
     }
 
     @Override
-    public void schedule(WorkSpec... workSpecs) {
+    public void schedule(@NonNull WorkSpec... workSpecs) {
         for (WorkSpec workSpec : workSpecs) {
             scheduleWorkSpec(workSpec);
         }

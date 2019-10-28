@@ -17,7 +17,6 @@
 package androidx.room.processor
 
 import androidx.room.ext.extendsBound
-import androidx.room.ext.isEntityElement
 import androidx.room.vo.ShortcutQueryParameter
 import com.google.auto.common.MoreTypes
 import javax.lang.model.element.TypeElement
@@ -28,7 +27,7 @@ import javax.lang.model.type.TypeMirror
 import javax.lang.model.util.ElementFilter
 
 /**
- * Processes parameters of methods that are annotated with Insert, Delete.
+ * Processes parameters of methods that are annotated with Insert, Update or Delete.
  */
 class ShortcutParameterProcessor(
     baseContext: Context,
@@ -42,41 +41,34 @@ class ShortcutParameterProcessor(
         context.checker.check(!name.startsWith("_"), element,
                 ProcessorErrors.QUERY_PARAMETERS_CANNOT_START_WITH_UNDERSCORE)
 
-        val (entityType, isMultiple) = extractEntityType(asMember)
-        context.checker.check(entityType != null, element,
-                ProcessorErrors.CANNOT_FIND_ENTITY_FOR_SHORTCUT_QUERY_PARAMETER)
-
+        val (pojoType, isMultiple) = extractPojoType(asMember)
         return ShortcutQueryParameter(
+                element = element,
                 name = name,
                 type = asMember,
-                entityType = entityType,
+                pojoType = pojoType,
                 isMultiple = isMultiple
         )
     }
 
     @Suppress("PLATFORM_CLASS_MAPPED_TO_KOTLIN")
-    fun extractEntityType(typeMirror: TypeMirror): Pair<TypeMirror?, Boolean> {
+    private fun extractPojoType(typeMirror: TypeMirror): Pair<TypeMirror?, Boolean> {
 
         val elementUtils = context.processingEnv.elementUtils
         val typeUtils = context.processingEnv.typeUtils
 
-        fun verifyAndPair(entityType: TypeMirror, isMultiple: Boolean): Pair<TypeMirror?, Boolean> {
-            if (!MoreTypes.isType(entityType)) {
+        fun verifyAndPair(pojoType: TypeMirror, isMultiple: Boolean): Pair<TypeMirror?, Boolean> {
+            if (!MoreTypes.isType(pojoType)) {
                 // kotlin may generate ? extends T so we should reduce it.
-                val boundedVar = entityType.extendsBound()
+                val boundedVar = pojoType.extendsBound()
                 return boundedVar?.let {
                     verifyAndPair(boundedVar, isMultiple)
                 } ?: Pair(null, isMultiple)
             }
-            val entityElement = MoreTypes.asElement(entityType)
-            return if (entityElement.isEntityElement()) {
-                Pair(entityType, isMultiple)
-            } else {
-                Pair(null, isMultiple)
-            }
+            return Pair(pojoType, isMultiple)
         }
 
-        fun extractEntityTypeFromIterator(iterableType: DeclaredType): TypeMirror {
+        fun extractPojoTypeFromIterator(iterableType: DeclaredType): TypeMirror {
             ElementFilter.methodsIn(elementUtils
                     .getAllMembers(typeUtils.asElement(iterableType) as TypeElement)).forEach {
                 if (it.simpleName.toString() == "iterator") {
@@ -92,12 +84,12 @@ class ShortcutParameterProcessor(
                 .getTypeElement("java.lang.Iterable").asType())
         if (typeUtils.isAssignable(typeMirror, iterableType)) {
             val declared = MoreTypes.asDeclared(typeMirror)
-            val entity = extractEntityTypeFromIterator(declared)
-            return verifyAndPair(entity, true)
+            val pojo = extractPojoTypeFromIterator(declared)
+            return verifyAndPair(pojo, true)
         }
         if (typeMirror is ArrayType) {
-            val entity = typeMirror.componentType
-            return verifyAndPair(entity, true)
+            val pojo = typeMirror.componentType
+            return verifyAndPair(pojo, true)
         }
         return verifyAndPair(typeMirror, false)
     }

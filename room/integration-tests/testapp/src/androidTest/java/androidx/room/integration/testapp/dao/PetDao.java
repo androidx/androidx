@@ -24,6 +24,7 @@ import androidx.room.OnConflictStrategy;
 import androidx.room.Query;
 import androidx.room.Transaction;
 import androidx.room.integration.testapp.vo.Pet;
+import androidx.room.integration.testapp.vo.PetAndOwner;
 import androidx.room.integration.testapp.vo.PetWithToyIds;
 import androidx.room.integration.testapp.vo.PetWithUser;
 
@@ -48,6 +49,10 @@ public interface PetDao {
     @Transaction
     @Query("SELECT * FROM Pet ORDER BY Pet.mPetId ASC")
     List<PetWithToyIds> allPetsWithToyIds();
+
+    @Transaction
+    @Query("SELECT * FROM Pet")
+    List<PetAndOwner> allPetsWithOwners();
 
     @Query("SELECT * FROM Pet WHERE Pet.mPetId = :id")
     ListenableFuture<Optional<Pet>> petWithIdFuture(int id);

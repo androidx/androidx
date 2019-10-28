@@ -33,6 +33,7 @@ import android.support.v4.media.session.MediaSessionCompat;
 import android.text.TextUtils;
 import android.util.Log;
 import android.util.SparseArray;
+import android.view.Surface;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
@@ -43,6 +44,9 @@ import androidx.media2.common.MediaMetadata;
 import androidx.media2.common.MediaParcelUtils;
 import androidx.media2.common.Rating;
 import androidx.media2.common.SessionPlayer.PlayerResult;
+import androidx.media2.common.SessionPlayer.TrackInfo;
+import androidx.media2.common.SubtitleData;
+import androidx.media2.common.VideoSize;
 import androidx.media2.session.MediaController.PlaybackInfo;
 import androidx.media2.session.MediaLibraryService.LibraryParams;
 import androidx.media2.session.MediaLibraryService.MediaLibrarySession;
@@ -69,16 +73,16 @@ import java.util.concurrent.TimeUnit;
  */
 class MediaSessionStub extends IMediaSession.Stub {
     private static final String TAG = "MediaSessionStub";
-    private static final boolean DEBUG = true; //Log.isLoggable(TAG, Log.DEBUG);
     private static final boolean RETHROW_EXCEPTION = true;
 
     @SuppressWarnings("WeakerAccess") /* synthetic access */
+    static final boolean DEBUG = Log.isLoggable(TAG, Log.DEBUG);
     static final SparseArray<SessionCommand> sCommandsForOnCommandRequest =
             new SparseArray<>();
 
     static {
         SessionCommandGroup group = new SessionCommandGroup.Builder()
-                .addAllPlayerCommands(COMMAND_VERSION_CURRENT)
+                .addAllPlayerCommands(COMMAND_VERSION_CURRENT, /* includeHidden= */ false)
                 .addAllVolumeCommands(COMMAND_VERSION_CURRENT)
                 .build();
         Set<SessionCommand> commands = group.getCommands();
@@ -150,8 +154,8 @@ class MediaSessionStub extends IMediaSession.Stub {
     }
 
     private void dispatchSessionTask(@NonNull IMediaController caller, int seq,
-            final @CommandCode int commandCode,
-            final @NonNull SessionTask task) {
+            @CommandCode final int commandCode,
+            @NonNull final SessionTask task) {
         dispatchSessionTaskInternal(caller, seq, null, commandCode, task);
     }
 
@@ -162,9 +166,9 @@ class MediaSessionStub extends IMediaSession.Stub {
     }
 
     private void dispatchSessionTaskInternal(@NonNull IMediaController caller, final int seq,
-            final @Nullable SessionCommand sessionCommand,
-            final @CommandCode int commandCode,
-            final @NonNull SessionTask task) {
+            @Nullable final SessionCommand sessionCommand,
+            @CommandCode final int commandCode,
+            @NonNull final SessionTask task) {
         final long token = Binder.clearCallingIdentity();
         try {
             final ControllerInfo controller = mConnectedControllersManager.getController(
@@ -241,7 +245,7 @@ class MediaSessionStub extends IMediaSession.Stub {
                                 }, DIRECT_EXECUTOR);
                             }
                         } else if (task instanceof SessionCallbackTask) {
-                            final Object result = ((SessionCallbackTask) task).run(controller);
+                            final Object result = ((SessionCallbackTask<?>) task).run(controller);
                             if (result == null) {
                                 throw new RuntimeException("SessionCallback has returned null,"
                                         + " commandCode=" + commandCode);
@@ -254,7 +258,7 @@ class MediaSessionStub extends IMediaSession.Stub {
                                         + ". Fix bug");
                             }
                         } else if (task instanceof LibrarySessionCallbackTask) {
-                            final Object result = ((LibrarySessionCallbackTask) task).run(
+                            final Object result = ((LibrarySessionCallbackTask<?>) task).run(
                                     controller);
                             if (result == null) {
                                 throw new RuntimeException("LibrarySessionCallback has returned"
@@ -304,18 +308,19 @@ class MediaSessionStub extends IMediaSession.Stub {
     }
 
     private void dispatchLibrarySessionTask(@NonNull IMediaController caller, int seq,
-            @CommandCode final int commandCode, final @NonNull LibrarySessionCallbackTask task) {
+            @CommandCode final int commandCode, @NonNull final LibrarySessionCallbackTask<?> task) {
         if (!(mSessionImpl instanceof MediaLibrarySessionImpl)) {
             throw new RuntimeException("MediaSession cannot handle MediaLibrarySession command");
         }
         dispatchSessionTaskInternal(caller, seq, null, commandCode, task);
     }
 
-    void connect(final IMediaController caller, final String callingPackage, final int pid,
-            final int uid, @Nullable Bundle connectionHints) {
+    void connect(final IMediaController caller, final int controllerVersion,
+            final String callingPackage, final int pid, final int uid,
+            @Nullable Bundle connectionHints) {
         MediaSessionManager.RemoteUserInfo remoteUserInfo =
                 new MediaSessionManager.RemoteUserInfo(callingPackage, pid, uid);
-        final ControllerInfo controllerInfo = new ControllerInfo(remoteUserInfo,
+        final ControllerInfo controllerInfo = new ControllerInfo(remoteUserInfo, controllerVersion,
                 mSessionManager.isTrustedForMediaControl(remoteUserInfo),
                 new Controller2Cb(caller), connectionHints);
         mSessionImpl.getCallbackExecutor().execute(new Runnable() {
@@ -429,7 +434,8 @@ class MediaSessionStub extends IMediaSession.Stub {
         // If it's the case, use PID from the ConnectionRequest.
         final int pid = (callingPid != 0) ? callingPid : request.getPid();
         try {
-            connect(caller, request.getPackageName(), pid, uid, request.getConnectionHints());
+            connect(caller, request.getVersion(), request.getPackageName(), pid, uid,
+                    request.getConnectionHints());
         } finally {
             Binder.restoreCallingIdentity(token);
         }
@@ -941,6 +947,21 @@ class MediaSessionStub extends IMediaSession.Stub {
     }
 
     @Override
+    public void movePlaylistItem(IMediaController caller, int seq, final int fromIndex,
+            final int toIndex) {
+        if (caller == null) {
+            return;
+        }
+        dispatchSessionTask(caller, seq, SessionCommand.COMMAND_CODE_PLAYER_MOVE_PLAYLIST_ITEM,
+                new SessionPlayerTask() {
+                    @Override
+                    public ListenableFuture<PlayerResult> run(ControllerInfo controller) {
+                        return mSessionImpl.movePlaylistItem(fromIndex, toIndex);
+                    }
+                });
+    }
+
+    @Override
     public void skipToPlaylistItem(IMediaController caller, int seq, final int index) {
         if (caller == null) {
             return;
@@ -1013,6 +1034,56 @@ class MediaSessionStub extends IMediaSession.Stub {
                     @Override
                     public ListenableFuture<PlayerResult> run(ControllerInfo controller) {
                         return mSessionImpl.setShuffleMode(shuffleMode);
+                    }
+                });
+    }
+
+    @Override
+    public void setSurface(IMediaController caller, int seq, final Surface surface) {
+        if (caller == null) {
+            return;
+        }
+        dispatchSessionTask(caller, seq, SessionCommand.COMMAND_CODE_PLAYER_SET_SURFACE,
+                new SessionPlayerTask() {
+                    @Override
+                    public ListenableFuture<PlayerResult> run(ControllerInfo controller) {
+                        return mSessionImpl.setSurface(surface);
+                    }
+                });
+    }
+
+    @Override
+    public void selectTrack(IMediaController caller, int seq, final ParcelImpl trackInfoParcel) {
+        if (caller == null || trackInfoParcel == null) {
+            return;
+        }
+        dispatchSessionTask(caller, seq, SessionCommand.COMMAND_CODE_PLAYER_SELECT_TRACK,
+                new SessionPlayerTask() {
+                    @Override
+                    public ListenableFuture<PlayerResult> run(ControllerInfo controller) {
+                        TrackInfo trackInfo = MediaParcelUtils.fromParcelable(trackInfoParcel);
+                        if (trackInfo == null) {
+                            return PlayerResult.createFuture(RESULT_ERROR_BAD_VALUE);
+                        }
+                        return mSessionImpl.selectTrack(trackInfo);
+                    }
+                });
+    }
+
+    @Override
+    public void deselectTrack(IMediaController caller, int seq, final ParcelImpl trackInfoParcel) {
+        if (caller == null || trackInfoParcel == null) {
+            return;
+        }
+        dispatchSessionTask(caller, seq, SessionCommand.COMMAND_CODE_PLAYER_DESELECT_TRACK,
+                new SessionPlayerTask() {
+                    @Override
+                    public ListenableFuture<PlayerResult> run(ControllerInfo controller) {
+                        TrackInfo trackInfo = MediaParcelUtils.fromParcelable(trackInfoParcel);
+                        if (trackInfo == null) {
+                            return PlayerResult.createFuture(RESULT_ERROR_BAD_VALUE);
+                        }
+                        return mSessionImpl.deselectTrack(trackInfo);
                     }
                 });
     }
@@ -1190,7 +1261,7 @@ class MediaSessionStub extends IMediaSession.Stub {
      *
      * @see #dispatchSessionTask
      */
-    private interface SessionTask<T> {
+    private interface SessionTask {
         // empty interface
     }
 
@@ -1241,25 +1312,25 @@ class MediaSessionStub extends IMediaSession.Stub {
         }
 
         @Override
-        void setCustomLayout(int seq, List<CommandButton> layout) throws RemoteException {
+        void setCustomLayout(int seq, @NonNull List<CommandButton> layout) throws RemoteException {
             mIControllerCallback.onSetCustomLayout(seq,
                     MediaUtils.convertCommandButtonListToParcelImplList(layout));
         }
 
         @Override
-        void onPlaybackInfoChanged(int seq, PlaybackInfo info) throws RemoteException {
+        void onPlaybackInfoChanged(int seq, @NonNull PlaybackInfo info) throws RemoteException {
             mIControllerCallback.onPlaybackInfoChanged(seq, MediaParcelUtils.toParcelable(info));
         }
 
         @Override
-        void onAllowedCommandsChanged(int seq, SessionCommandGroup commands)
+        void onAllowedCommandsChanged(int seq, @NonNull SessionCommandGroup commands)
                 throws RemoteException {
             mIControllerCallback.onAllowedCommandsChanged(
                     seq, MediaParcelUtils.toParcelable(commands));
         }
 
         @Override
-        void sendCustomCommand(int seq, SessionCommand command, Bundle args)
+        void sendCustomCommand(int seq, @NonNull SessionCommand command, Bundle args)
                 throws RemoteException {
             mIControllerCallback.onCustomCommand(seq, MediaParcelUtils.toParcelable(command), args);
         }
@@ -1277,7 +1348,7 @@ class MediaSessionStub extends IMediaSession.Stub {
         }
 
         @Override
-        void onBufferingStateChanged(int seq, MediaItem item, int bufferingState,
+        void onBufferingStateChanged(int seq, @NonNull MediaItem item, int bufferingState,
                 long bufferedPositionMs, long eventTimeMs, long positionMs) throws RemoteException {
             mIControllerCallback.onBufferingStateChanged(seq, MediaParcelUtils.toParcelable(item),
                     bufferingState, bufferedPositionMs, eventTimeMs, positionMs);
@@ -1297,7 +1368,7 @@ class MediaSessionStub extends IMediaSession.Stub {
         }
 
         @Override
-        void onPlaylistChanged(int seq, List<MediaItem> playlist, MediaMetadata metadata,
+        void onPlaylistChanged(int seq, @NonNull List<MediaItem> playlist, MediaMetadata metadata,
                 int currentIdx, int previousIdx, int nextIdx) throws RemoteException {
             ControllerInfo controller = mConnectedControllersManager.getController(
                     getCallbackBinder());
@@ -1344,15 +1415,15 @@ class MediaSessionStub extends IMediaSession.Stub {
         }
 
         @Override
-        void onChildrenChanged(int seq, String parentId, int itemCount, LibraryParams params)
-                throws RemoteException {
+        void onChildrenChanged(int seq, @NonNull String parentId, int itemCount,
+                LibraryParams params) throws RemoteException {
             mIControllerCallback.onChildrenChanged(seq, parentId, itemCount,
                     MediaParcelUtils.toParcelable(params));
         }
 
         @Override
-        void onSearchResultChanged(int seq, String query, int itemCount, LibraryParams params)
-                throws RemoteException {
+        void onSearchResultChanged(int seq, @NonNull String query, int itemCount,
+                LibraryParams params) throws RemoteException {
             mIControllerCallback.onSearchResultChanged(seq, query, itemCount,
                     MediaParcelUtils.toParcelable(params));
         }
@@ -1360,6 +1431,49 @@ class MediaSessionStub extends IMediaSession.Stub {
         @Override
         void onDisconnected(int seq) throws RemoteException {
             mIControllerCallback.onDisconnected(seq);
+        }
+
+        @Override
+        void onVideoSizeChanged(int seq, @NonNull VideoSize videoSize) throws RemoteException {
+            ParcelImpl videoSizeParcel = MediaParcelUtils.toParcelable(videoSize);
+            // dummyItem is used instead of 'null' to keep backward compatibility with 1.0.0.
+            // In 1.0.0, MediaControllerStub filters out the corresponding call if the item is null.
+            final MediaItem dummyItem = new MediaItem.Builder().build();
+            mIControllerCallback.onVideoSizeChanged(seq, MediaParcelUtils.toParcelable(dummyItem),
+                    videoSizeParcel);
+        }
+
+        @Override
+        void onTracksChanged(int seq, List<TrackInfo> tracks,
+                TrackInfo selectedVideoTrack, TrackInfo selectedAudioTrack,
+                TrackInfo selectedSubtitleTrack, TrackInfo selectedMetadataTrack)
+                throws RemoteException {
+            List<ParcelImpl> trackInfoList = MediaParcelUtils.toParcelableList(tracks);
+            mIControllerCallback.onTrackInfoChanged(seq, trackInfoList,
+                    MediaParcelUtils.toParcelable(selectedVideoTrack),
+                    MediaParcelUtils.toParcelable(selectedAudioTrack),
+                    MediaParcelUtils.toParcelable(selectedSubtitleTrack),
+                    MediaParcelUtils.toParcelable(selectedMetadataTrack));
+        }
+
+        @Override
+        void onTrackSelected(int seq, TrackInfo trackInfo) throws RemoteException {
+            mIControllerCallback.onTrackSelected(seq, MediaParcelUtils.toParcelable(trackInfo));
+        }
+
+        @Override
+        void onTrackDeselected(int seq, TrackInfo trackInfo) throws RemoteException {
+            mIControllerCallback.onTrackDeselected(seq, MediaParcelUtils.toParcelable(trackInfo));
+        }
+
+        @Override
+        void onSubtitleData(int seq, @NonNull MediaItem item,
+                @NonNull TrackInfo track, @NonNull SubtitleData data)
+                throws RemoteException {
+            ParcelImpl itemParcel = MediaParcelUtils.toParcelable(item);
+            ParcelImpl trackParcel = MediaParcelUtils.toParcelable(track);
+            ParcelImpl dataParcel = MediaParcelUtils.toParcelable(data);
+            mIControllerCallback.onSubtitleData(seq, itemParcel, trackParcel, dataParcel);
         }
 
         @Override

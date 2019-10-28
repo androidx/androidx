@@ -20,14 +20,15 @@ import android.content.Context;
 import androidx.annotation.NonNull;
 import androidx.work.impl.constraints.trackers.Trackers;
 import androidx.work.impl.model.WorkSpec;
+import androidx.work.impl.utils.taskexecutor.TaskExecutor;
 
 /**
  * A {@link ConstraintController} for battery charging events.
  */
 
 public class BatteryChargingController extends ConstraintController<Boolean> {
-    public BatteryChargingController(Context context) {
-        super(Trackers.getInstance(context).getBatteryChargingTracker());
+    public BatteryChargingController(Context context, TaskExecutor taskExecutor) {
+        super(Trackers.getInstance(context, taskExecutor).getBatteryChargingTracker());
     }
 
     @Override

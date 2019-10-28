@@ -1,33 +1,89 @@
 // Signature format: 3.0
+package androidx.wear.activity {
+
+  public class ConfirmationActivity extends android.app.Activity {
+    ctor public ConfirmationActivity();
+    method protected void onAnimationFinished();
+    method public void onCreate(android.os.Bundle!);
+    field public static final String EXTRA_ANIMATION_TYPE = "androidx.wear.activity.extra.ANIMATION_TYPE";
+    field public static final String EXTRA_MESSAGE = "androidx.wear.activity.extra.MESSAGE";
+    field public static final int FAILURE_ANIMATION = 3; // 0x3
+    field public static final int OPEN_ON_PHONE_ANIMATION = 2; // 0x2
+    field public static final int SUCCESS_ANIMATION = 1; // 0x1
+  }
+
+}
+
 package androidx.wear.ambient {
 
-  @RestrictTo({androidx.annotation.RestrictTo.Scope.LIBRARY}) public class WearableControllerProvider {
-    ctor public WearableControllerProvider();
-    method public com.google.android.wearable.compat.WearableActivityController! getWearableController(android.app.Activity!, androidx.wear.ambient.AmbientDelegate.AmbientCallback!);
+  @Deprecated public final class AmbientMode extends android.app.Fragment {
+    ctor @Deprecated public AmbientMode();
+    method @Deprecated public static <T extends android.app.Activity> androidx.wear.ambient.AmbientMode.AmbientController! attachAmbientSupport(T!);
+    method @Deprecated public void dump(String!, java.io.FileDescriptor!, java.io.PrintWriter!, String![]!);
+    method @Deprecated @CallSuper public void onAttach(android.content.Context!);
+    method @Deprecated @CallSuper public void onCreate(android.os.Bundle!);
+    method @Deprecated @CallSuper public void onDestroy();
+    method @Deprecated @CallSuper public void onDetach();
+    method @Deprecated @CallSuper public void onPause();
+    method @Deprecated @CallSuper public void onResume();
+    method @Deprecated @CallSuper public void onStop();
+    field @Deprecated public static final String EXTRA_BURN_IN_PROTECTION = "com.google.android.wearable.compat.extra.BURN_IN_PROTECTION";
+    field @Deprecated public static final String EXTRA_LOWBIT_AMBIENT = "com.google.android.wearable.compat.extra.LOWBIT_AMBIENT";
+    field @Deprecated public static final String FRAGMENT_TAG = "android.support.wearable.ambient.AmbientMode";
   }
+
+  @Deprecated public abstract static class AmbientMode.AmbientCallback {
+    ctor @Deprecated public AmbientMode.AmbientCallback();
+    method @Deprecated public void onAmbientOffloadInvalidated();
+    method @Deprecated public void onEnterAmbient(android.os.Bundle!);
+    method @Deprecated public void onExitAmbient();
+    method @Deprecated public void onUpdateAmbient();
+  }
+
+  @Deprecated public static interface AmbientMode.AmbientCallbackProvider {
+    method @Deprecated public androidx.wear.ambient.AmbientMode.AmbientCallback! getAmbientCallback();
+  }
+
+  @Deprecated public final class AmbientMode.AmbientController {
+    method @Deprecated public boolean isAmbient();
+    method @Deprecated public void setAmbientOffloadEnabled(boolean);
+  }
+
+  public final class AmbientModeSupport extends androidx.fragment.app.Fragment {
+    ctor public AmbientModeSupport();
+    method public static <T extends androidx.fragment.app.FragmentActivity> androidx.wear.ambient.AmbientModeSupport.AmbientController! attach(T!);
+    field public static final String EXTRA_BURN_IN_PROTECTION = "com.google.android.wearable.compat.extra.BURN_IN_PROTECTION";
+    field public static final String EXTRA_LOWBIT_AMBIENT = "com.google.android.wearable.compat.extra.LOWBIT_AMBIENT";
+    field public static final String FRAGMENT_TAG = "android.support.wearable.ambient.AmbientMode";
+  }
+
+  public abstract static class AmbientModeSupport.AmbientCallback {
+    ctor public AmbientModeSupport.AmbientCallback();
+    method public void onAmbientOffloadInvalidated();
+    method public void onEnterAmbient(android.os.Bundle!);
+    method public void onExitAmbient();
+    method public void onUpdateAmbient();
+  }
+
+  public static interface AmbientModeSupport.AmbientCallbackProvider {
+    method public androidx.wear.ambient.AmbientModeSupport.AmbientCallback! getAmbientCallback();
+  }
+
+  public final class AmbientModeSupport.AmbientController {
+    method public boolean isAmbient();
+    method public void setAmbientOffloadEnabled(boolean);
+  }
+
 
 }
 
 package androidx.wear.internal.widget {
 
-  @RestrictTo({androidx.annotation.RestrictTo.Scope.LIBRARY}) public final class ResourcesUtil {
-    method public static int getFractionOfScreenPx(android.content.Context!, int, @FractionRes int);
-    method public static int getScreenHeightPx(android.content.Context!);
-    method public static int getScreenWidthPx(android.content.Context!);
-  }
 
 }
 
 package androidx.wear.internal.widget.drawer {
 
-  @RestrictTo({androidx.annotation.RestrictTo.Scope.LIBRARY}) public class MultiPagePresenter extends androidx.wear.internal.widget.drawer.WearableNavigationDrawerPresenter {
-    ctor public MultiPagePresenter(androidx.wear.widget.drawer.WearableNavigationDrawerView!, androidx.wear.internal.widget.drawer.MultiPagePresenter.Ui!, boolean);
-    method public void onDataSetChanged();
-    method public boolean onDrawerTapped();
-    method public void onNewAdapter(androidx.wear.widget.drawer.WearableNavigationDrawerView.WearableNavigationDrawerAdapter!);
-    method public void onSelected(int);
-    method public void onSetCurrentItemRequested(int, boolean);
-  }
 
   public static interface MultiPagePresenter.Ui {
     method public void initialize(androidx.wear.widget.drawer.WearableNavigationDrawerView!, androidx.wear.internal.widget.drawer.WearableNavigationDrawerPresenter!);
@@ -37,23 +93,7 @@ package androidx.wear.internal.widget.drawer {
     method public void setNavigationPagerSelectedItem(int, boolean);
   }
 
-  @RestrictTo({androidx.annotation.RestrictTo.Scope.LIBRARY}) public class MultiPageUi implements androidx.wear.internal.widget.drawer.MultiPagePresenter.Ui {
-    ctor public MultiPageUi();
-    method public void initialize(androidx.wear.widget.drawer.WearableNavigationDrawerView!, androidx.wear.internal.widget.drawer.WearableNavigationDrawerPresenter!);
-    method public void notifyNavigationPagerAdapterDataChanged();
-    method public void notifyPageIndicatorDataChanged();
-    method public void setNavigationPagerAdapter(androidx.wear.widget.drawer.WearableNavigationDrawerView.WearableNavigationDrawerAdapter!);
-    method public void setNavigationPagerSelectedItem(int, boolean);
-  }
 
-  @RestrictTo({androidx.annotation.RestrictTo.Scope.LIBRARY}) public class SinglePagePresenter extends androidx.wear.internal.widget.drawer.WearableNavigationDrawerPresenter {
-    ctor public SinglePagePresenter(androidx.wear.internal.widget.drawer.SinglePagePresenter.Ui!, boolean);
-    method public void onDataSetChanged();
-    method public boolean onDrawerTapped();
-    method public void onNewAdapter(androidx.wear.widget.drawer.WearableNavigationDrawerView.WearableNavigationDrawerAdapter!);
-    method public void onSelected(int);
-    method public void onSetCurrentItemRequested(int, boolean);
-  }
 
   public static interface SinglePagePresenter.Ui {
     method public void closeDrawerDelayed(long);
@@ -66,146 +106,272 @@ package androidx.wear.internal.widget.drawer {
     method public void setText(CharSequence!, boolean);
   }
 
-  @RestrictTo({androidx.annotation.RestrictTo.Scope.LIBRARY}) public class SinglePageUi implements androidx.wear.internal.widget.drawer.SinglePagePresenter.Ui {
-    ctor public SinglePageUi(androidx.wear.widget.drawer.WearableNavigationDrawerView!);
-    method public void closeDrawerDelayed(long);
-    method public void deselectItem(int);
-    method public void initialize(int);
-    method public void peekDrawer();
-    method public void selectItem(int);
-    method public void setIcon(int, android.graphics.drawable.Drawable!, CharSequence!);
-    method public void setPresenter(androidx.wear.internal.widget.drawer.WearableNavigationDrawerPresenter!);
-    method public void setText(CharSequence!, boolean);
-  }
 
-  @RestrictTo({androidx.annotation.RestrictTo.Scope.LIBRARY}) public abstract class WearableNavigationDrawerPresenter {
-    ctor public WearableNavigationDrawerPresenter();
-    method @MainThread public abstract void onDataSetChanged();
-    method @MainThread public abstract boolean onDrawerTapped();
-    method @MainThread public void onItemSelectedListenerAdded(androidx.wear.widget.drawer.WearableNavigationDrawerView.OnItemSelectedListener!);
-    method @MainThread public void onItemSelectedListenerRemoved(androidx.wear.widget.drawer.WearableNavigationDrawerView.OnItemSelectedListener!);
-    method @MainThread public abstract void onNewAdapter(androidx.wear.widget.drawer.WearableNavigationDrawerView.WearableNavigationDrawerAdapter!);
-    method @MainThread public abstract void onSelected(int);
-    method @MainThread public abstract void onSetCurrentItemRequested(int, boolean);
+
+}
+
+package androidx.wear.utils {
+
+  public class MetadataConstants {
+    method public static int getPreviewDrawableResourceId(android.content.Context!, boolean);
+    method public static boolean isNotificationBridgingEnabled(android.content.Context!);
+    method public static boolean isStandalone(android.content.Context!);
+    field public static final String NOTIFICATION_BRIDGE_MODE_BRIDGING = "BRIDGING";
+    field public static final String NOTIFICATION_BRIDGE_MODE_METADATA_NAME = "com.google.android.wearable.notificationBridgeMode";
+    field public static final String NOTIFICATION_BRIDGE_MODE_NO_BRIDGING = "NO_BRIDGING";
+    field public static final String STANDALONE_METADATA_NAME = "com.google.android.wearable.standalone";
+    field public static final String WATCH_FACE_PREVIEW_CIRCULAR_METADATA_NAME = "com.google.android.wearable.watchface.preview_circular";
+    field public static final String WATCH_FACE_PREVIEW_METADATA_NAME = "com.google.android.wearable.watchface.preview";
   }
 
 }
 
 package androidx.wear.widget {
 
-  @java.lang.annotation.Retention(java.lang.annotation.RetentionPolicy.SOURCE) @RestrictTo({androidx.annotation.RestrictTo.Scope.LIBRARY}) public static @interface BoxInsetLayout.LayoutParams.BoxedEdges {
+  @UiThread public class BoxInsetLayout extends android.view.ViewGroup {
+    ctor public BoxInsetLayout(android.content.Context);
+    ctor public BoxInsetLayout(android.content.Context, android.util.AttributeSet?);
+    ctor public BoxInsetLayout(android.content.Context, android.util.AttributeSet?, @StyleRes int);
+    method public androidx.wear.widget.BoxInsetLayout.LayoutParams! generateLayoutParams(android.util.AttributeSet!);
   }
 
-  @RestrictTo({androidx.annotation.RestrictTo.Scope.LIBRARY}) public class CircledImageView {
-    ctor public CircledImageView(android.content.Context!);
-    ctor public CircledImageView(android.content.Context!, android.util.AttributeSet!);
-    ctor public CircledImageView(android.content.Context!, android.util.AttributeSet!, int);
-    method protected void drawableStateChanged();
-    method public android.content.res.ColorStateList! getCircleColorStateList();
-    method public float getCircleRadius();
-    method public float getCircleRadiusPercent();
-    method public float getCircleRadiusPressed();
-    method public float getCircleRadiusPressedPercent();
-    method public long getColorChangeAnimationDuration();
-    method public int getDefaultCircleColor();
-    method public android.graphics.drawable.Drawable! getImageDrawable();
-    method public float getInitialCircleRadius();
-    method protected void onDraw(android.graphics.Canvas!);
-    method protected void onLayout(boolean, int, int, int, int);
-    method protected void onMeasure(int, int);
-    method protected boolean onSetAlpha(int);
-    method public void onSizeChanged(int, int, int, int);
-    method protected void onVisibilityChanged(android.view.View!, int);
-    method protected void onWindowVisibilityChanged(int);
-    method public void setCircleBorderCap(android.graphics.Paint.Cap!);
-    method public void setCircleBorderColor(int);
-    method public void setCircleBorderWidth(float);
-    method public void setCircleColor(int);
-    method public void setCircleColorStateList(android.content.res.ColorStateList!);
-    method public void setCircleHidden(boolean);
-    method public void setCircleRadius(float);
-    method public void setCircleRadiusPercent(float);
-    method public void setCircleRadiusPressed(float);
-    method public void setCircleRadiusPressedPercent(float);
-    method public void setColorChangeAnimationDuration(long);
-    method public void setImageCirclePercentage(float);
-    method public void setImageDrawable(android.graphics.drawable.Drawable!);
-    method public void setImageHorizontalOffcenterPercentage(float);
-    method public void setImageResource(int);
-    method public void setImageTint(int);
-    method public void setPadding(@Px int, @Px int, @Px int, @Px int);
-    method public void setPressed(boolean);
-    method public void setProgress(float);
-    method public void setShadowVisibility(float);
-    method public void showIndeterminateProgress(boolean);
+  public static class BoxInsetLayout.LayoutParams extends android.widget.FrameLayout.LayoutParams {
+    ctor public BoxInsetLayout.LayoutParams(android.content.Context, android.util.AttributeSet?);
+    ctor public BoxInsetLayout.LayoutParams(int, int);
+    ctor public BoxInsetLayout.LayoutParams(int, int, int);
+    ctor public BoxInsetLayout.LayoutParams(int, int, int, @androidx.wear.widget.BoxInsetLayout.LayoutParams.BoxedEdges int);
+    ctor public BoxInsetLayout.LayoutParams(android.view.ViewGroup.LayoutParams);
+    ctor public BoxInsetLayout.LayoutParams(android.view.ViewGroup.MarginLayoutParams);
+    ctor public BoxInsetLayout.LayoutParams(android.widget.FrameLayout.LayoutParams);
+    ctor public BoxInsetLayout.LayoutParams(androidx.wear.widget.BoxInsetLayout.LayoutParams);
+    field public static final int BOX_ALL = 15; // 0xf
+    field public static final int BOX_BOTTOM = 8; // 0x8
+    field public static final int BOX_LEFT = 1; // 0x1
+    field public static final int BOX_NONE = 0; // 0x0
+    field public static final int BOX_RIGHT = 4; // 0x4
+    field public static final int BOX_TOP = 2; // 0x2
+    field @androidx.wear.widget.BoxInsetLayout.LayoutParams.BoxedEdges public int boxedEdges;
+  }
+
+
+
+  public class CircularProgressLayout extends android.widget.FrameLayout {
+    ctor public CircularProgressLayout(android.content.Context!);
+    ctor public CircularProgressLayout(android.content.Context!, android.util.AttributeSet!);
+    ctor public CircularProgressLayout(android.content.Context!, android.util.AttributeSet!, int);
+    ctor public CircularProgressLayout(android.content.Context!, android.util.AttributeSet!, int, int);
+    method @ColorInt public int getBackgroundColor();
+    method public int[]! getColorSchemeColors();
+    method public androidx.wear.widget.CircularProgressLayout.OnTimerFinishedListener? getOnTimerFinishedListener();
+    method public androidx.swiperefreshlayout.widget.CircularProgressDrawable getProgressDrawable();
+    method public float getStartingRotation();
+    method public float getStrokeWidth();
+    method public long getTotalTime();
+    method public boolean isIndeterminate();
+    method public boolean isTimerRunning();
+    method public void setColorSchemeColors(int...);
+    method public void setIndeterminate(boolean);
+    method public void setOnTimerFinishedListener(androidx.wear.widget.CircularProgressLayout.OnTimerFinishedListener?);
+    method public void setStartingRotation(float);
+    method public void setStrokeWidth(float);
+    method public void setTotalTime(long);
+    method public void startTimer();
+    method public void stopTimer();
+  }
+
+  public static interface CircularProgressLayout.OnTimerFinishedListener {
+    method public void onTimerFinished(androidx.wear.widget.CircularProgressLayout!);
   }
 
   public class ConfirmationOverlay {
-    method @MainThread @RestrictTo({androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP}) @VisibleForTesting public void hide();
+    ctor public ConfirmationOverlay();
+    method @MainThread @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP) @VisibleForTesting public void hide();
+    method public androidx.wear.widget.ConfirmationOverlay! setDuration(int);
+    method public androidx.wear.widget.ConfirmationOverlay! setFinishedAnimationListener(androidx.wear.widget.ConfirmationOverlay.OnAnimationFinishedListener?);
+    method public androidx.wear.widget.ConfirmationOverlay! setMessage(String!);
+    method public androidx.wear.widget.ConfirmationOverlay! setType(@androidx.wear.widget.ConfirmationOverlay.OverlayType int);
+    method @MainThread public void showAbove(android.view.View!);
+    method @MainThread public void showOn(android.app.Activity!);
+    field public static final int DEFAULT_ANIMATION_DURATION_MS = 1000; // 0x3e8
+    field public static final int FAILURE_ANIMATION = 1; // 0x1
+    field public static final int OPEN_ON_PHONE_ANIMATION = 2; // 0x2
+    field public static final int SUCCESS_ANIMATION = 0; // 0x0
   }
 
-  @RestrictTo({androidx.annotation.RestrictTo.Scope.LIBRARY}) public class SimpleAnimatorListener {
-    ctor public SimpleAnimatorListener();
-    method public void onAnimationCancel(android.animation.Animator!);
-    method public void onAnimationComplete(android.animation.Animator!);
-    method public void onAnimationEnd(android.animation.Animator!);
-    method public void onAnimationRepeat(android.animation.Animator!);
-    method public void onAnimationStart(android.animation.Animator!);
-    method public boolean wasCanceled();
+  public static interface ConfirmationOverlay.OnAnimationFinishedListener {
+    method public void onAnimationFinished();
+  }
+
+  @java.lang.annotation.Retention(java.lang.annotation.RetentionPolicy.SOURCE) @IntDef({androidx.wear.widget.ConfirmationOverlay.SUCCESS_ANIMATION, androidx.wear.widget.ConfirmationOverlay.FAILURE_ANIMATION, androidx.wear.widget.ConfirmationOverlay.OPEN_ON_PHONE_ANIMATION}) public static @interface ConfirmationOverlay.OverlayType {
+  }
+
+  public class CurvingLayoutCallback extends androidx.wear.widget.WearableLinearLayoutManager.LayoutCallback {
+    ctor public CurvingLayoutCallback(android.content.Context!);
+    method public void adjustAnchorOffsetXY(android.view.View!, float[]!);
+    method public void onLayoutFinished(android.view.View!, androidx.recyclerview.widget.RecyclerView!);
+  }
+
+  public class RoundedDrawable extends android.graphics.drawable.Drawable {
+    ctor public RoundedDrawable();
+    method public void draw(android.graphics.Canvas);
+    method @ColorInt public int getBackgroundColor();
+    method public android.graphics.drawable.Drawable? getDrawable();
+    method public int getOpacity();
+    method public int getRadius();
+    method public boolean isClipEnabled();
+    method public void setAlpha(int);
+    method public void setBackgroundColor(@ColorInt int);
+    method public void setClipEnabled(boolean);
+    method public void setColorFilter(android.graphics.ColorFilter!);
+    method public void setDrawable(android.graphics.drawable.Drawable?);
+    method public void setRadius(int);
+  }
+
+
+  @UiThread public class SwipeDismissFrameLayout extends android.widget.FrameLayout {
+    ctor public SwipeDismissFrameLayout(android.content.Context!);
+    ctor public SwipeDismissFrameLayout(android.content.Context!, android.util.AttributeSet!);
+    ctor public SwipeDismissFrameLayout(android.content.Context!, android.util.AttributeSet!, int);
+    ctor public SwipeDismissFrameLayout(android.content.Context!, android.util.AttributeSet!, int, int);
+    method public void addCallback(androidx.wear.widget.SwipeDismissFrameLayout.Callback!);
+    method public float getDismissMinDragWidthRatio();
+    method public boolean isSwipeable();
+    method public void removeCallback(androidx.wear.widget.SwipeDismissFrameLayout.Callback!);
+    method public void setDismissMinDragWidthRatio(float);
+    method public void setSwipeable(boolean);
+    field public static final float DEFAULT_DISMISS_DRAG_WIDTH_RATIO = 0.33f;
+  }
+
+  @UiThread public abstract static class SwipeDismissFrameLayout.Callback {
+    ctor public SwipeDismissFrameLayout.Callback();
+    method public void onDismissed(androidx.wear.widget.SwipeDismissFrameLayout!);
+    method public void onSwipeCanceled(androidx.wear.widget.SwipeDismissFrameLayout!);
+    method public void onSwipeStarted(androidx.wear.widget.SwipeDismissFrameLayout!);
+  }
+
+  public class WearableLinearLayoutManager extends androidx.recyclerview.widget.LinearLayoutManager {
+    ctor public WearableLinearLayoutManager(android.content.Context!, androidx.wear.widget.WearableLinearLayoutManager.LayoutCallback!);
+    ctor public WearableLinearLayoutManager(android.content.Context!);
+    method public androidx.wear.widget.WearableLinearLayoutManager.LayoutCallback? getLayoutCallback();
+    method public void setLayoutCallback(androidx.wear.widget.WearableLinearLayoutManager.LayoutCallback?);
+  }
+
+  public abstract static class WearableLinearLayoutManager.LayoutCallback {
+    ctor public WearableLinearLayoutManager.LayoutCallback();
+    method public abstract void onLayoutFinished(android.view.View!, androidx.recyclerview.widget.RecyclerView!);
+  }
+
+  public class WearableRecyclerView extends androidx.recyclerview.widget.RecyclerView {
+    ctor public WearableRecyclerView(android.content.Context!);
+    ctor public WearableRecyclerView(android.content.Context!, android.util.AttributeSet?);
+    ctor public WearableRecyclerView(android.content.Context!, android.util.AttributeSet?, int);
+    ctor public WearableRecyclerView(android.content.Context!, android.util.AttributeSet?, int, int);
+    method public float getBezelFraction();
+    method public float getScrollDegreesPerScreen();
+    method public boolean isCircularScrollingGestureEnabled();
+    method public boolean isEdgeItemsCenteringEnabled();
+    method public void setBezelFraction(float);
+    method public void setCircularScrollingGestureEnabled(boolean);
+    method public void setEdgeItemsCenteringEnabled(boolean);
+    method public void setScrollDegreesPerScreen(float);
   }
 
 }
 
 package androidx.wear.widget.drawer {
 
-  @RestrictTo({androidx.annotation.RestrictTo.Scope.LIBRARY}) public class PageIndicatorView {
-    ctor public PageIndicatorView(android.content.Context!);
-    ctor public PageIndicatorView(android.content.Context!, android.util.AttributeSet!);
-    ctor public PageIndicatorView(android.content.Context!, android.util.AttributeSet!, int);
-    method public int getDotColor();
-    method public int getDotColorSelected();
-    method public int getDotFadeInDuration();
-    method public int getDotFadeOutDelay();
-    method public int getDotFadeOutDuration();
-    method public boolean getDotFadeWhenIdle();
-    method public float getDotRadius();
-    method public float getDotRadiusSelected();
-    method public int getDotShadowColor();
-    method public float getDotShadowDx();
-    method public float getDotShadowDy();
-    method public float getDotShadowRadius();
-    method public float getDotSpacing();
-    method public void notifyDataSetChanged();
-    method protected void onDraw(android.graphics.Canvas!);
-    method protected void onMeasure(int, int);
-    method public void onPageScrollStateChanged(int);
-    method public void onPageScrolled(int, float, int);
-    method public void onPageSelected(int);
-    method public void setDotColor(int);
-    method public void setDotColorSelected(int);
-    method public void setDotFadeInDuration(int, java.util.concurrent.TimeUnit!);
-    method public void setDotFadeOutDelay(int);
-    method public void setDotFadeOutDuration(int, java.util.concurrent.TimeUnit!);
-    method public void setDotFadeWhenIdle(boolean);
-    method public void setDotRadius(int);
-    method public void setDotRadiusSelected(int);
-    method public void setDotShadowColor(int);
-    method public void setDotShadowDx(float);
-    method public void setDotShadowDy(float);
-    method public void setDotShadowRadius(float);
-    method public void setDotSpacing(int);
-    method public void setPager(androidx.viewpager.widget.ViewPager!);
-    method public void setPagerAdapter(androidx.viewpager.widget.PagerAdapter!);
+
+  public class WearableActionDrawerView extends androidx.wear.widget.drawer.WearableDrawerView {
+    ctor public WearableActionDrawerView(android.content.Context!);
+    ctor public WearableActionDrawerView(android.content.Context!, android.util.AttributeSet!);
+    ctor public WearableActionDrawerView(android.content.Context!, android.util.AttributeSet!, int);
+    ctor public WearableActionDrawerView(android.content.Context!, android.util.AttributeSet!, int, int);
+    method public android.view.Menu! getMenu();
+    method public void setOnMenuItemClickListener(android.view.MenuItem.OnMenuItemClickListener!);
+    method public void setTitle(CharSequence?);
   }
 
-  @java.lang.annotation.Retention(java.lang.annotation.RetentionPolicy.SOURCE) @RestrictTo({androidx.annotation.RestrictTo.Scope.LIBRARY}) public static @interface WearableDrawerView.DrawerState {
+  public class WearableDrawerController {
+    method public void closeDrawer();
+    method public void openDrawer();
+    method public void peekDrawer();
   }
 
-  @java.lang.annotation.Retention(java.lang.annotation.RetentionPolicy.SOURCE) @RestrictTo({androidx.annotation.RestrictTo.Scope.LIBRARY}) public static @interface WearableNavigationDrawerView.NavigationStyle {
+  public class WearableDrawerLayout extends android.widget.FrameLayout implements androidx.core.view.NestedScrollingParent android.view.View.OnLayoutChangeListener {
+    ctor public WearableDrawerLayout(android.content.Context!);
+    ctor public WearableDrawerLayout(android.content.Context!, android.util.AttributeSet!);
+    ctor public WearableDrawerLayout(android.content.Context!, android.util.AttributeSet!, int);
+    ctor public WearableDrawerLayout(android.content.Context!, android.util.AttributeSet!, int, int);
+    method public void onFlingComplete(android.view.View!);
+    method public void onLayoutChange(android.view.View!, int, int, int, int, int, int, int, int);
+    method public void setDrawerStateCallback(androidx.wear.widget.drawer.WearableDrawerLayout.DrawerStateCallback!);
+  }
+
+  public static class WearableDrawerLayout.DrawerStateCallback {
+    ctor public WearableDrawerLayout.DrawerStateCallback();
+    method public void onDrawerClosed(androidx.wear.widget.drawer.WearableDrawerLayout!, androidx.wear.widget.drawer.WearableDrawerView!);
+    method public void onDrawerOpened(androidx.wear.widget.drawer.WearableDrawerLayout!, androidx.wear.widget.drawer.WearableDrawerView!);
+    method public void onDrawerStateChanged(androidx.wear.widget.drawer.WearableDrawerLayout!, @androidx.wear.widget.drawer.WearableDrawerView.DrawerState int);
+  }
+
+  public class WearableDrawerView extends android.widget.FrameLayout {
+    ctor public WearableDrawerView(android.content.Context!);
+    ctor public WearableDrawerView(android.content.Context!, android.util.AttributeSet!);
+    ctor public WearableDrawerView(android.content.Context!, android.util.AttributeSet!, int);
+    ctor public WearableDrawerView(android.content.Context!, android.util.AttributeSet!, int, int);
+    method public androidx.wear.widget.drawer.WearableDrawerController! getController();
+    method public android.view.View? getDrawerContent();
+    method @androidx.wear.widget.drawer.WearableDrawerView.DrawerState public int getDrawerState();
+    method public boolean isAutoPeekEnabled();
+    method public boolean isClosed();
+    method public boolean isLocked();
+    method public boolean isLockedWhenClosed();
+    method public boolean isOpenOnlyAtTopEnabled();
+    method public boolean isOpened();
+    method public boolean isPeekOnScrollDownEnabled();
+    method public boolean isPeeking();
+    method public void onDrawerClosed();
+    method public void onDrawerOpened();
+    method public void onDrawerStateChanged(@androidx.wear.widget.drawer.WearableDrawerView.DrawerState int);
+    method public void onPeekContainerClicked(android.view.View!);
+    method public void setDrawerContent(android.view.View?);
+    method public void setIsAutoPeekEnabled(boolean);
+    method public void setIsLocked(boolean);
+    method public void setLockedWhenClosed(boolean);
+    method public void setOpenOnlyAtTopEnabled(boolean);
+    method public void setPeekContent(android.view.View!);
+    method public void setPeekOnScrollDownEnabled(boolean);
+    field public static final int STATE_DRAGGING = 1; // 0x1
+    field public static final int STATE_IDLE = 0; // 0x0
+    field public static final int STATE_SETTLING = 2; // 0x2
+  }
+
+
+  public class WearableNavigationDrawerView extends androidx.wear.widget.drawer.WearableDrawerView {
+    ctor public WearableNavigationDrawerView(android.content.Context!);
+    ctor public WearableNavigationDrawerView(android.content.Context!, android.util.AttributeSet!);
+    ctor public WearableNavigationDrawerView(android.content.Context!, android.util.AttributeSet!, int);
+    ctor public WearableNavigationDrawerView(android.content.Context!, android.util.AttributeSet!, int, int);
+    method public void addOnItemSelectedListener(androidx.wear.widget.drawer.WearableNavigationDrawerView.OnItemSelectedListener!);
+    method @androidx.wear.widget.drawer.WearableNavigationDrawerView.NavigationStyle public int getNavigationStyle();
+    method public void removeOnItemSelectedListener(androidx.wear.widget.drawer.WearableNavigationDrawerView.OnItemSelectedListener!);
+    method public void setAdapter(androidx.wear.widget.drawer.WearableNavigationDrawerView.WearableNavigationDrawerAdapter!);
+    method public void setCurrentItem(int, boolean);
+    field public static final int MULTI_PAGE = 1; // 0x1
+    field public static final int SINGLE_PAGE = 0; // 0x0
+  }
+
+
+  public static interface WearableNavigationDrawerView.OnItemSelectedListener {
+    method public void onItemSelected(int);
   }
 
   public abstract static class WearableNavigationDrawerView.WearableNavigationDrawerAdapter {
-    method @RestrictTo({androidx.annotation.RestrictTo.Scope.LIBRARY}) public void setPresenter(androidx.wear.internal.widget.drawer.WearableNavigationDrawerPresenter!);
+    ctor public WearableNavigationDrawerView.WearableNavigationDrawerAdapter();
+    method public abstract int getCount();
+    method public abstract android.graphics.drawable.Drawable! getItemDrawable(int);
+    method public abstract CharSequence! getItemText(int);
+    method public void notifyDataSetChanged();
   }
 
 }

@@ -27,11 +27,14 @@ import com.squareup.javapoet.ParameterizedTypeName
  * Wraps a row adapter when there is only 1 item in the result, and the result's outer type is
  * {@link com.google.common.base.Optional}.
  */
-class GuavaOptionalQueryResultAdapter(private val resultAdapter: SingleEntityQueryResultAdapter)
-    : QueryResultAdapter(resultAdapter.rowAdapter) {
+class GuavaOptionalQueryResultAdapter(private val resultAdapter: SingleEntityQueryResultAdapter) :
+    QueryResultAdapter(resultAdapter.rowAdapter) {
     val type = resultAdapter.rowAdapter?.out
     override fun convert(
-            outVarName: String, cursorVarName: String, scope: CodeGenScope) {
+        outVarName: String,
+        cursorVarName: String,
+        scope: CodeGenScope
+    ) {
         scope.builder().apply {
             val valueVarName = scope.getTmpVar("_value")
             resultAdapter.convert(valueVarName, cursorVarName, scope)
@@ -44,4 +47,3 @@ class GuavaOptionalQueryResultAdapter(private val resultAdapter: SingleEntityQue
         }
     }
 }
-

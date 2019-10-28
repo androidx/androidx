@@ -32,16 +32,19 @@ import com.squareup.javapoet.TypeSpec
 import javax.lang.model.element.Modifier
 
 class PositionalDataSourceQueryResultBinder(
-        val listAdapter: ListQueryResultAdapter?,
-        val tableNames: Set<String>) : QueryResultBinder(listAdapter) {
+    val listAdapter: ListQueryResultAdapter?,
+    val tableNames: Set<String>
+) : QueryResultBinder(listAdapter) {
     val itemTypeName: TypeName = listAdapter?.rowAdapter?.out?.typeName() ?: TypeName.OBJECT
     val typeName: ParameterizedTypeName = ParameterizedTypeName.get(
             RoomTypeNames.LIMIT_OFFSET_DATA_SOURCE, itemTypeName)
-    override fun convertAndReturn(roomSQLiteQueryVar: String,
-                                  canReleaseQuery: Boolean,
-                                  dbField: FieldSpec,
-                                  inTransaction: Boolean,
-                                  scope: CodeGenScope) {
+    override fun convertAndReturn(
+        roomSQLiteQueryVar: String,
+        canReleaseQuery: Boolean,
+        dbField: FieldSpec,
+        inTransaction: Boolean,
+        scope: CodeGenScope
+    ) {
         // first comma for table names comes from the string since it might be empty in which case
         // we don't need a comma. If list is empty, this prevents generating bad code (it is still
         // an error to have empty list but that is already reported while item is processed)

@@ -64,7 +64,7 @@ class Alarms {
             cancelExactAlarm(context, workSpecId, systemIdInfo.systemId);
             setExactAlarm(context, workSpecId, systemIdInfo.systemId, triggerAtMillis);
         } else {
-            IdGenerator idGenerator = new IdGenerator(context);
+            IdGenerator idGenerator = new IdGenerator(workDatabase);
             int alarmId = idGenerator.nextAlarmManagerId();
             SystemIdInfo newSystemIdInfo = new SystemIdInfo(workSpecId, alarmId);
             systemIdInfoDao.insertSystemIdInfo(newSystemIdInfo);

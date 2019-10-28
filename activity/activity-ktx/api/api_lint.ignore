@@ -1,0 +1,3 @@
+// Baseline format: 1.0
+RegistrationName: androidx.activity.OnBackPressedDispatcherKt#addCallback(androidx.activity.OnBackPressedDispatcher, androidx.lifecycle.LifecycleOwner, boolean, kotlin.jvm.functions.Function1<? super androidx.activity.OnBackPressedCallback,kotlin.Unit>):
+    Callback methods should be named register/unregister; was addCallback

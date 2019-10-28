@@ -17,7 +17,6 @@
 package android.support.v4.media.session;
 
 import static androidx.annotation.RestrictTo.Scope.LIBRARY;
-import static androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP;
 import static androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP_PREFIX;
 
 import android.app.Activity;
@@ -54,8 +53,8 @@ import androidx.annotation.Nullable;
 import androidx.annotation.RequiresApi;
 import androidx.annotation.RestrictTo;
 import androidx.core.app.BundleCompat;
-import androidx.core.app.ComponentActivity;
 import androidx.media.AudioAttributesCompat;
+import androidx.media.R;
 import androidx.media.VolumeProviderCompat;
 import androidx.versionedparcelable.ParcelUtils;
 import androidx.versionedparcelable.VersionedParcelable;
@@ -87,6 +86,7 @@ import java.util.concurrent.ConcurrentHashMap;
  * <li>{@link #getPlaybackState()}.{@link PlaybackStateCompat#getExtras() getExtras()}</li>
  * <li>{@link #getRatingType()}</li>
  * <li>{@link #getRepeatMode()}</li>
+ * <li>{@link #getSessionInfo()}</li>
  * <li>{@link #getShuffleMode()}</li>
  * <li>{@link #isCaptioningEnabled()}</li>
  * </ul></p>
@@ -144,26 +144,11 @@ public final class MediaControllerCompat {
     public static final String COMMAND_ARGUMENT_INDEX =
             "android.support.v4.media.session.command.ARGUMENT_INDEX";
 
-    private static class MediaControllerExtraData extends ComponentActivity.ExtraData {
-        private final MediaControllerCompat mMediaController;
-
-        MediaControllerExtraData(MediaControllerCompat mediaController) {
-            mMediaController = mediaController;
-        }
-
-        MediaControllerCompat getMediaController() {
-            return mMediaController;
-        }
-    }
-
     /**
      * Sets a {@link MediaControllerCompat} in the {@code activity} for later retrieval via
      * {@link #getMediaController(Activity)}.
      *
-     * <p>This is compatible with {@link Activity#setMediaController(MediaController)}.
-     * If {@code activity} inherits {@link androidx.fragment.app.FragmentActivity}, the
-     * {@code mediaController} will be saved in the {@code activity}. In addition to that,
-     * on API 21 and later, {@link Activity#setMediaController(MediaController)} will be
+     * <p>On API 21 and later, {@link Activity#setMediaController(MediaController)} will also be
      * called.</p>
      *
      * @param activity The activity to set the {@code mediaController} in, must not be null.
@@ -174,10 +159,8 @@ public final class MediaControllerCompat {
      */
     public static void setMediaController(@NonNull Activity activity,
             MediaControllerCompat mediaController) {
-        if (activity instanceof ComponentActivity) {
-            ((ComponentActivity) activity).putExtraData(
-                    new MediaControllerExtraData(mediaController));
-        }
+        activity.getWindow().getDecorView().setTag(
+                R.id.media_controller_compat_view_tag, mediaController);
         if (android.os.Build.VERSION.SDK_INT >= 21) {
             MediaController controllerFwk = null;
             if (mediaController != null) {
@@ -200,22 +183,18 @@ public final class MediaControllerCompat {
      * @see #setMediaController(Activity, MediaControllerCompat)
      */
     public static MediaControllerCompat getMediaController(@NonNull Activity activity) {
-        if (activity instanceof ComponentActivity) {
-            MediaControllerExtraData extraData =
-                    ((ComponentActivity) activity).getExtraData(MediaControllerExtraData.class);
-            return extraData != null ? extraData.getMediaController() : null;
+        Object tag = activity.getWindow().getDecorView()
+                .getTag(R.id.media_controller_compat_view_tag);
+        if (tag instanceof MediaControllerCompat) {
+            return (MediaControllerCompat) tag;
         } else if (android.os.Build.VERSION.SDK_INT >= 21) {
             MediaController controllerFwk = activity.getMediaController();
             if (controllerFwk == null) {
                 return null;
             }
             MediaSession.Token sessionTokenFwk = controllerFwk.getSessionToken();
-            try {
-                return new MediaControllerCompat(activity,
-                        MediaSessionCompat.Token.fromToken(sessionTokenFwk));
-            } catch (RemoteException e) {
-                Log.e(TAG, "Dead object in getMediaController.", e);
-            }
+            return new MediaControllerCompat(activity,
+                    MediaSessionCompat.Token.fromToken(sessionTokenFwk));
         }
         return null;
     }
@@ -257,17 +236,11 @@ public final class MediaControllerCompat {
         }
         mToken = session.getSessionToken();
 
-        MediaControllerImpl impl = null;
-        try {
-            if (android.os.Build.VERSION.SDK_INT >= 21) {
-                impl = new MediaControllerImplApi21(context, mToken);
-            } else {
-                impl = new MediaControllerImplBase(mToken);
-            }
-        } catch (RemoteException e) {
-            Log.w(TAG, "Failed to create MediaControllerImpl.", e);
+        if (android.os.Build.VERSION.SDK_INT >= 21) {
+            mImpl = new MediaControllerImplApi21(context, mToken);
+        } else {
+            mImpl = new MediaControllerImplBase(mToken);
         }
-        mImpl = impl;
     }
 
     /**
@@ -275,10 +248,8 @@ public final class MediaControllerCompat {
      * been obtained from another process.
      *
      * @param sessionToken The token of the session to be controlled.
-     * @throws RemoteException if the session is not accessible.
      */
-    public MediaControllerCompat(Context context, @NonNull MediaSessionCompat.Token sessionToken)
-            throws RemoteException {
+    public MediaControllerCompat(Context context, @NonNull MediaSessionCompat.Token sessionToken) {
         if (sessionToken == null) {
             throw new IllegalArgumentException("sessionToken must not be null");
         }
@@ -543,8 +514,9 @@ public final class MediaControllerCompat {
      * @return The session's token as VersionedParcelable.
      * @hide
      */
-    @RestrictTo(LIBRARY_GROUP_PREFIX)
-    public @Nullable VersionedParcelable getSession2Token() {
+    @RestrictTo(LIBRARY)
+    @Nullable
+    public VersionedParcelable getSession2Token() {
         return mToken.getSession2Token();
     }
 
@@ -659,6 +631,7 @@ public final class MediaControllerCompat {
      * <li>{@link #getPlaybackState()}</li>
      * <li>{@link #getRatingType()}</li>
      * <li>{@link #getRepeatMode()}</li>
+     * <li>{@link #getSessionInfo()}}</li>
      * <li>{@link #getShuffleMode()}</li>
      * <li>{@link #isCaptioningEnabled()}</li>
      * </ul>
@@ -681,16 +654,15 @@ public final class MediaControllerCompat {
 
     /**
      * Gets the additional session information which was set when the session was created.
+     * The returned {@link Bundle} can include additional unchanging information about the session.
+     * For example, it can include the version of the session application, or other app-specific
+     * unchanging information.
      *
      * @return The additional session information, or {@link Bundle#EMPTY} if the session
      *         didn't set the information or if the session is not ready.
      * @see #isSessionReady
      * @see Callback#onSessionReady
-     * @hide
-     *
-     * TODO(b/130282718): Add this in the Javadoc of MediaControllerCompat and isSessionReady()
      */
-    @RestrictTo(LIBRARY_GROUP_PREFIX)
     @NonNull
     public Bundle getSessionInfo() {
         return mImpl.getSessionInfo();
@@ -843,7 +815,7 @@ public final class MediaControllerCompat {
         /**
          * @hide
          */
-        @RestrictTo(LIBRARY_GROUP)
+        @RestrictTo(LIBRARY_GROUP_PREFIX) // accessed by media2-session
         public IMediaControllerCallback getIControllerCallback() {
             return mIControllerCallback;
         }
@@ -1105,6 +1077,7 @@ public final class MediaControllerCompat {
             }
 
             @Override
+            @SuppressWarnings("unchecked")
             public void handleMessage(Message msg) {
                 if (!mRegistered) {
                     return;
@@ -1320,12 +1293,12 @@ public final class MediaControllerCompat {
         public abstract void setRating(RatingCompat rating, Bundle extras);
 
         /**
-         * Set the playback speed.
+         * Sets the playback speed. A value of {@code 1.0f} is the default playback value,
+         * and a negative value indicates reverse playback. {@code 0.0f} is not allowed.
          *
          * @param speed The playback speed
-         * @hide
+         * @throws IllegalArgumentException if the {@code speed} is equal to zero.
          */
-        @RestrictTo(LIBRARY_GROUP_PREFIX)
         public void setPlaybackSpeed(float speed) {}
 
         /**
@@ -1453,7 +1426,8 @@ public final class MediaControllerCompat {
          *
          * @return The attributes for this session.
          */
-        public @NonNull AudioAttributesCompat getAudioAttributes() {
+        @NonNull
+        public AudioAttributesCompat getAudioAttributes() {
             return mAudioAttrsCompat;
         }
 
@@ -1530,7 +1504,7 @@ public final class MediaControllerCompat {
         private TransportControls mTransportControls;
         private Bundle mSessionInfo;
 
-        public MediaControllerImplBase(MediaSessionCompat.Token token) {
+        MediaControllerImplBase(MediaSessionCompat.Token token) {
             mBinder = IMediaSession.Stub.asInterface((IBinder) token.getToken());
         }
 
@@ -1799,6 +1773,8 @@ public final class MediaControllerCompat {
             } catch (RemoteException e) {
                 Log.d(TAG, "Dead object in getSessionInfo.", e);
             }
+
+            mSessionInfo = MediaSessionCompat.unparcelWithClassLoader(mSessionInfo);
             return mSessionInfo == null ? Bundle.EMPTY : new Bundle(mSessionInfo);
         }
 
@@ -1979,6 +1955,9 @@ public final class MediaControllerCompat {
 
         @Override
         public void setPlaybackSpeed(float speed) {
+            if (speed == 0.0f) {
+                throw new IllegalArgumentException("speed must not be zero");
+            }
             try {
                 mBinder.setPlaybackSpeed(speed);
             } catch (RemoteException e) {
@@ -2044,12 +2023,10 @@ public final class MediaControllerCompat {
 
         final MediaSessionCompat.Token mSessionToken;
 
-        public MediaControllerImplApi21(Context context, MediaSessionCompat.Token sessionToken)
-                throws RemoteException {
+        MediaControllerImplApi21(Context context, MediaSessionCompat.Token sessionToken) {
             mSessionToken = sessionToken;
             mControllerFwk = new MediaController(context,
                     (MediaSession.Token) mSessionToken.getToken());
-            if (mControllerFwk == null) throw new RemoteException();
             if (mSessionToken.getExtraBinder() == null) {
                 requestExtraBinder();
             }
@@ -2276,14 +2253,23 @@ public final class MediaControllerCompat {
 
         @Override
         public Bundle getSessionInfo() {
-            // TODO(b/130282718): Use framework MediaController#getSessionInfo() from Q.
-            if (mSessionToken.getExtraBinder() != null) {
+            if (mSessionInfo != null) {
+                return new Bundle(mSessionInfo);
+            }
+
+            // Get the info from the connected session.
+            if (Build.VERSION.SDK_INT >= 29) {
+                mSessionInfo = mControllerFwk.getSessionInfo();
+            } else if (mSessionToken.getExtraBinder() != null) {
                 try {
                     mSessionInfo = mSessionToken.getExtraBinder().getSessionInfo();
                 } catch (RemoteException e) {
                     Log.e(TAG, "Dead object in getSessionInfo.", e);
+                    mSessionInfo = Bundle.EMPTY;
                 }
             }
+
+            mSessionInfo = MediaSessionCompat.unparcelWithClassLoader(mSessionInfo);
             return mSessionInfo == null ? Bundle.EMPTY : new Bundle(mSessionInfo);
         }
 
@@ -2494,6 +2480,13 @@ public final class MediaControllerCompat {
 
         @Override
         public void setPlaybackSpeed(float speed) {
+            if (speed == 0.0f) {
+                throw new IllegalArgumentException("speed must not be zero");
+            }
+            if (Build.VERSION.SDK_INT >= 29) {
+                mControlsFwk.setPlaybackSpeed(speed);
+                return;
+            }
             Bundle bundle = new Bundle();
             bundle.putFloat(MediaSessionCompat.ACTION_ARGUMENT_PLAYBACK_SPEED, speed);
             sendCustomAction(MediaSessionCompat.ACTION_SET_PLAYBACK_SPEED, bundle);

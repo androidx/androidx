@@ -31,6 +31,7 @@
     <string name="add_new_after">Add new after</string>
     <string name="remove_page">Remove page</string>
     <string name="go_to_page">Go to page</string>
+    <string name="use_diff_util">Use DiffUtil:</string>
     <string name="choose_a_page">Choose a page:</string>
     <string name="toolbox">Toolbox</string>
     <string name="viewpager2">ViewPager2</string>

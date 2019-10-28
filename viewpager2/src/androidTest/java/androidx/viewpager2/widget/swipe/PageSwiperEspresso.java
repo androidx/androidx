@@ -23,10 +23,13 @@ import static androidx.test.espresso.action.ViewActions.swipeRight;
 import static androidx.test.espresso.action.ViewActions.swipeUp;
 import static androidx.test.espresso.matcher.ViewMatchers.isAssignableFrom;
 import static androidx.test.espresso.matcher.ViewMatchers.isDisplayed;
-import static androidx.viewpager2.widget.ViewPager2.ORIENTATION_HORIZONTAL;
+import static androidx.test.espresso.matcher.ViewMatchers.withParent;
+import static androidx.viewpager2.widget.BaseTestKt.isHorizontal;
+import static androidx.viewpager2.widget.BaseTestKt.isRtl;
 
 import static org.hamcrest.CoreMatchers.allOf;
 
+import androidx.recyclerview.widget.RecyclerView;
 import androidx.test.espresso.ViewAction;
 import androidx.viewpager2.widget.ViewPager2;
 
@@ -34,13 +37,11 @@ public class PageSwiperEspresso implements PageSwiper {
     private final ViewAction mActionPrevious;
     private final ViewAction mActionNext;
 
-    public PageSwiperEspresso(@ViewPager2.Orientation int orientation, boolean isRtl) {
-        mActionPrevious = orientation == ORIENTATION_HORIZONTAL
-                ? (isRtl ? swipeLeft() : swipeRight())
-                : swipeDown();
-        mActionNext = orientation == ORIENTATION_HORIZONTAL
-                ? (isRtl ? swipeRight() : swipeLeft())
-                : swipeUp();
+    public PageSwiperEspresso(ViewPager2 viewPager) {
+        boolean isHorizontal = isHorizontal(viewPager);
+        boolean isRtl = isRtl(viewPager);
+        mActionPrevious = isHorizontal ? (isRtl ? swipeLeft() : swipeRight()) : swipeDown();
+        mActionNext = isHorizontal ? (isRtl ? swipeRight() : swipeLeft()) : swipeUp();
     }
 
     @Override
@@ -54,6 +55,10 @@ public class PageSwiperEspresso implements PageSwiper {
     }
 
     private void swipe(ViewAction swipeAction) {
-        onView(allOf(isDisplayed(), isAssignableFrom(ViewPager2.class))).perform(swipeAction);
+        onView(allOf(
+                isDisplayed(),
+                isAssignableFrom(RecyclerView.class),
+                withParent(isAssignableFrom(ViewPager2.class))
+        )).perform(swipeAction);
     }
 }

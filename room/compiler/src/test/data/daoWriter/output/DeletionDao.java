@@ -24,11 +24,11 @@ import javax.annotation.Generated;
 public final class DeletionDao_Impl implements DeletionDao {
   private final RoomDatabase __db;
 
-  private final EntityDeletionOrUpdateAdapter __deletionAdapterOfUser;
+  private final EntityDeletionOrUpdateAdapter<User> __deletionAdapterOfUser;
 
-  private final EntityDeletionOrUpdateAdapter __deletionAdapterOfMultiPKeyEntity;
+  private final EntityDeletionOrUpdateAdapter<MultiPKeyEntity> __deletionAdapterOfMultiPKeyEntity;
 
-  private final EntityDeletionOrUpdateAdapter __deletionAdapterOfBook;
+  private final EntityDeletionOrUpdateAdapter<Book> __deletionAdapterOfBook;
 
   private final SharedSQLiteStatement __preparedStmtOfDeleteByUid;
 

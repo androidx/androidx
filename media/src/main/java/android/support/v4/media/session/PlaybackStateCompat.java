@@ -15,6 +15,7 @@
  */
 package android.support.v4.media.session;
 
+import static androidx.annotation.RestrictTo.Scope.LIBRARY;
 import static androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP_PREFIX;
 
 import android.annotation.SuppressLint;
@@ -48,7 +49,7 @@ public final class PlaybackStateCompat implements Parcelable {
     /**
      * @hide
      */
-    @RestrictTo(LIBRARY_GROUP_PREFIX)
+    @RestrictTo(LIBRARY_GROUP_PREFIX) // used by media2-session
     @LongDef(flag=true, value={ACTION_STOP, ACTION_PAUSE, ACTION_PLAY, ACTION_REWIND,
             ACTION_SKIP_TO_PREVIOUS, ACTION_SKIP_TO_NEXT, ACTION_FAST_FORWARD, ACTION_SET_RATING,
             ACTION_SEEK_TO, ACTION_PLAY_PAUSE, ACTION_PLAY_FROM_MEDIA_ID, ACTION_PLAY_FROM_SEARCH,
@@ -61,7 +62,7 @@ public final class PlaybackStateCompat implements Parcelable {
     /**
      * @hide
      */
-    @RestrictTo(LIBRARY_GROUP_PREFIX)
+    @RestrictTo(LIBRARY)
     @LongDef({ACTION_STOP, ACTION_PAUSE, ACTION_PLAY, ACTION_REWIND, ACTION_SKIP_TO_PREVIOUS,
             ACTION_SKIP_TO_NEXT, ACTION_FAST_FORWARD, ACTION_PLAY_PAUSE})
     @Retention(RetentionPolicy.SOURCE)
@@ -226,7 +227,7 @@ public final class PlaybackStateCompat implements Parcelable {
     /**
      * @hide
      */
-    @RestrictTo(LIBRARY_GROUP_PREFIX)
+    @RestrictTo(LIBRARY_GROUP_PREFIX) // used by media2-session
     @IntDef({STATE_NONE, STATE_STOPPED, STATE_PAUSED, STATE_PLAYING, STATE_FAST_FORWARDING,
             STATE_REWINDING, STATE_BUFFERING, STATE_ERROR, STATE_CONNECTING,
             STATE_SKIPPING_TO_PREVIOUS, STATE_SKIPPING_TO_NEXT, STATE_SKIPPING_TO_QUEUE_ITEM})
@@ -339,7 +340,7 @@ public final class PlaybackStateCompat implements Parcelable {
     /**
      * @hide
      */
-    @RestrictTo(LIBRARY_GROUP_PREFIX)
+    @RestrictTo(LIBRARY_GROUP_PREFIX) // used by media2-session
     @IntDef({REPEAT_MODE_INVALID, REPEAT_MODE_NONE, REPEAT_MODE_ONE, REPEAT_MODE_ALL,
             REPEAT_MODE_GROUP})
     @Retention(RetentionPolicy.SOURCE)
@@ -380,7 +381,7 @@ public final class PlaybackStateCompat implements Parcelable {
     /**
      * @hide
      */
-    @RestrictTo(LIBRARY_GROUP_PREFIX)
+    @RestrictTo(LIBRARY_GROUP_PREFIX) // used by media2-session
     @IntDef({SHUFFLE_MODE_INVALID, SHUFFLE_MODE_NONE, SHUFFLE_MODE_ALL, SHUFFLE_MODE_GROUP})
     @Retention(RetentionPolicy.SOURCE)
     public @interface ShuffleMode {}
@@ -411,17 +412,13 @@ public final class PlaybackStateCompat implements Parcelable {
      */
     public static final int SHUFFLE_MODE_GROUP = 2;
 
-    /**
-     * @hide
-     */
-    @RestrictTo(LIBRARY_GROUP_PREFIX)
     @IntDef({ERROR_CODE_UNKNOWN_ERROR, ERROR_CODE_APP_ERROR, ERROR_CODE_NOT_SUPPORTED,
             ERROR_CODE_AUTHENTICATION_EXPIRED, ERROR_CODE_PREMIUM_ACCOUNT_REQUIRED,
             ERROR_CODE_CONCURRENT_STREAM_LIMIT, ERROR_CODE_PARENTAL_CONTROL_RESTRICTED,
             ERROR_CODE_NOT_AVAILABLE_IN_REGION, ERROR_CODE_CONTENT_ALREADY_PLAYING,
             ERROR_CODE_SKIP_LIMIT_REACHED, ERROR_CODE_ACTION_ABORTED, ERROR_CODE_END_OF_QUEUE})
     @Retention(RetentionPolicy.SOURCE)
-    public @interface ErrorCode {}
+    private @interface ErrorCode {}
 
     /**
      * This is the default error code and indicates that none of the other error codes applies.
@@ -668,7 +665,7 @@ public final class PlaybackStateCompat implements Parcelable {
      * @return The current playback position in ms
      * @hide
      */
-    @RestrictTo(LIBRARY_GROUP_PREFIX)
+    @RestrictTo(LIBRARY_GROUP_PREFIX) // accessed by media2-session
     public long getCurrentPosition(Long timeDiff) {
         long expectedPosition = mPosition + (long) (mSpeed * (
                 (timeDiff != null) ? timeDiff : SystemClock.elapsedRealtime() - mUpdateTime));
@@ -811,6 +808,7 @@ public final class PlaybackStateCompat implements Parcelable {
             Bundle extras;
             if (Build.VERSION.SDK_INT >= 22) {
                 extras = stateFwk.getExtras();
+                MediaSessionCompat.ensureClassLoader(extras);
             } else {
                 extras = null;
             }
@@ -935,12 +933,14 @@ public final class PlaybackStateCompat implements Parcelable {
 
             PlaybackState.CustomAction customActionFwk =
                     (PlaybackState.CustomAction) customActionObj;
+            Bundle extras = customActionFwk.getExtras();
+            MediaSessionCompat.ensureClassLoader(extras);
             PlaybackStateCompat.CustomAction customActionCompat =
                     new PlaybackStateCompat.CustomAction(
                             customActionFwk.getAction(),
                             customActionFwk.getName(),
                             customActionFwk.getIcon(),
-                            customActionFwk.getExtras());
+                            extras);
             customActionCompat.mCustomActionFwk = customActionFwk;
             return customActionCompat;
         }

@@ -1,0 +1,477 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<issues format="5" by="lint 3.6.0-alpha12" client="gradle" variant="debug" version="3.6.0-alpha12">
+
+    <issue
+        id="SimpleDateFormat"
+        message="To get local formatting use `getDateInstance()`, `getDateTimeInstance()`, or `getTimeInstance()`, or use `new SimpleDateFormat(String template, Locale locale)` with for example `Locale.US` for ASCII dates."
+        errorLine1="        final Format formatter = new SimpleDateFormat(&quot;yyyy-MM-dd-HH-mm-ss-SSS&quot;);"
+        errorLine2="                                 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/camera/integration/core/CameraXActivity.java"
+            line="467"
+            column="34"/>
+    </issue>
+
+    <issue
+        id="SimpleDateFormat"
+        message="To get local formatting use `getDateInstance()`, `getDateTimeInstance()`, or `getTimeInstance()`, or use `new SimpleDateFormat(String template, Locale locale)` with for example `Locale.US` for ASCII dates."
+        errorLine1="        final Format formatter = new SimpleDateFormat(&quot;yyyy-MM-dd-HH-mm-ss-SSS&quot;);"
+        errorLine2="                                 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/camera/integration/core/CameraXActivity.java"
+            line="467"
+            column="34"/>
+    </issue>
+
+    <issue
+        id="RestrictedApi"
+        message="UseCase.getUseCaseConfig can only be called from within the same library group (groupId=androidx.camera)"
+        errorLine1="        PreviewConfig config = (PreviewConfig) mPreview.getUseCaseConfig();"
+        errorLine2="                                                        ~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/camera/integration/core/CameraXActivity.java"
+            line="210"
+            column="57"/>
+    </issue>
+
+    <issue
+        id="RestrictedApi"
+        message="UseCase.getUseCaseConfig can only be called from within the same library group (groupId=androidx.camera)"
+        errorLine1="        PreviewConfig config = (PreviewConfig) mPreview.getUseCaseConfig();"
+        errorLine2="                                                        ~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/camera/integration/core/CameraXActivity.java"
+            line="210"
+            column="57"/>
+    </issue>
+
+    <issue
+        id="RestrictedApi"
+        message="CameraX.getCameraWithCameraDeviceConfig can only be called from within the same library group (groupId=androidx.camera)"
+        errorLine1="            cameraId = CameraX.getCameraWithCameraDeviceConfig(config);"
+        errorLine2="            ~~~~~~~~">
+        <location
+            file="src/main/java/androidx/camera/integration/core/CameraXActivity.java"
+            line="220"
+            column="13"/>
+    </issue>
+
+    <issue
+        id="RestrictedApi"
+        message="CameraX.getCameraWithCameraDeviceConfig can only be called from within the same library group (groupId=androidx.camera)"
+        errorLine1="            cameraId = CameraX.getCameraWithCameraDeviceConfig(config);"
+        errorLine2="            ~~~~~~~~">
+        <location
+            file="src/main/java/androidx/camera/integration/core/CameraXActivity.java"
+            line="220"
+            column="13"/>
+    </issue>
+
+    <issue
+        id="RestrictedApi"
+        message="CameraX.getCameraWithCameraDeviceConfig can only be called from within the same library group (groupId=androidx.camera)"
+        errorLine1="            cameraId = CameraX.getCameraWithCameraDeviceConfig(config);"
+        errorLine2="                               ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/camera/integration/core/CameraXActivity.java"
+            line="220"
+            column="32"/>
+    </issue>
+
+    <issue
+        id="RestrictedApi"
+        message="CameraX.getCameraWithCameraDeviceConfig can only be called from within the same library group (groupId=androidx.camera)"
+        errorLine1="            cameraId = CameraX.getCameraWithCameraDeviceConfig(config);"
+        errorLine2="                               ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/camera/integration/core/CameraXActivity.java"
+            line="220"
+            column="32"/>
+    </issue>
+
+    <issue
+        id="RestrictedApi"
+        message="UseCase.getAttachedSurfaceResolution can only be called from within the same library group (groupId=androidx.camera)"
+        errorLine1="        Size srcResolution = mPreview.getAttachedSurfaceResolution(cameraId);"
+        errorLine2="                                      ~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/camera/integration/core/CameraXActivity.java"
+            line="226"
+            column="39"/>
+    </issue>
+
+    <issue
+        id="RestrictedApi"
+        message="UseCase.getAttachedSurfaceResolution can only be called from within the same library group (groupId=androidx.camera)"
+        errorLine1="        Size srcResolution = mPreview.getAttachedSurfaceResolution(cameraId);"
+        errorLine2="                                      ~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/camera/integration/core/CameraXActivity.java"
+            line="226"
+            column="39"/>
+    </issue>
+
+    <issue
+        id="RestrictedApi"
+        message="VideoCapture can only be called from within the same library group (groupId=androidx.camera)"
+        errorLine1="        mVideoCapture = new VideoCapture(config);"
+        errorLine2="                        ~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/camera/integration/core/CameraXActivity.java"
+            line="645"
+            column="25"/>
+    </issue>
+
+    <issue
+        id="RestrictedApi"
+        message="VideoCapture can only be called from within the same library group (groupId=androidx.camera)"
+        errorLine1="        mVideoCapture = new VideoCapture(config);"
+        errorLine2="                        ~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/camera/integration/core/CameraXActivity.java"
+            line="645"
+            column="25"/>
+    </issue>
+
+    <issue
+        id="RestrictedApi"
+        message="VideoCapture.startRecording can only be called from within the same library group (groupId=androidx.camera)"
+        errorLine1="                            mVideoCapture.startRecording("
+        errorLine2="                                          ~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/camera/integration/core/CameraXActivity.java"
+            line="662"
+            column="43"/>
+    </issue>
+
+    <issue
+        id="RestrictedApi"
+        message="VideoCapture.startRecording can only be called from within the same library group (groupId=androidx.camera)"
+        errorLine1="                            mVideoCapture.startRecording("
+        errorLine2="                                          ~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/camera/integration/core/CameraXActivity.java"
+            line="662"
+            column="43"/>
+    </issue>
+
+    <issue
+        id="RestrictedApi"
+        message="VideoCapture.stopRecording can only be called from within the same library group (groupId=androidx.camera)"
+        errorLine1="                            mVideoCapture.stopRecording();"
+        errorLine2="                                          ~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/camera/integration/core/CameraXActivity.java"
+            line="669"
+            column="43"/>
+    </issue>
+
+    <issue
+        id="RestrictedApi"
+        message="VideoCapture.stopRecording can only be called from within the same library group (groupId=androidx.camera)"
+        errorLine1="                            mVideoCapture.stopRecording();"
+        errorLine2="                                          ~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/camera/integration/core/CameraXActivity.java"
+            line="669"
+            column="43"/>
+    </issue>
+
+    <issue
+        id="SpUsage"
+        message="Should use &quot;`sp`&quot; instead of &quot;`dp`&quot; for text sizes"
+        errorLine1="        android:textSize=&quot;11dp&quot;"
+        errorLine2="        ~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/res/layout/activity_camera_xmain.xml"
+            line="210"
+            column="9"/>
+    </issue>
+
+    <issue
+        id="AllowBackup"
+        message="On SDK version 23 and up, your app data will be automatically backed up and restored on app install. Consider adding the attribute `android:fullBackupContent` to specify an `@xml` resource which configures which files to backup. More info: https://developer.android.com/training/backup/autosyncapi.html"
+        errorLine1="    &lt;application"
+        errorLine2="     ~~~~~~~~~~~">
+        <location
+            file="src/main/AndroidManifest.xml"
+            line="24"
+            column="6"/>
+    </issue>
+
+    <issue
+        id="AllowBackup"
+        message="Should explicitly set `android:allowBackup` to `true` or `false` (it&apos;s `true` by default, and that can have some security implications for the application&apos;s data)"
+        errorLine1="    &lt;application"
+        errorLine2="     ~~~~~~~~~~~">
+        <location
+            file="src/main/AndroidManifest.xml"
+            line="24"
+            column="6"/>
+    </issue>
+
+    <issue
+        id="MissingApplicationIcon"
+        message="Should explicitly set `android:icon`, there is no default"
+        errorLine1="    &lt;application"
+        errorLine2="     ~~~~~~~~~~~">
+        <location
+            file="src/main/AndroidManifest.xml"
+            line="24"
+            column="6"/>
+    </issue>
+
+    <issue
+        id="ContentDescription"
+        message="Missing `contentDescription` attribute on image"
+        errorLine1="    &lt;ImageButton"
+        errorLine2="     ~~~~~~~~~~~">
+        <location
+            file="src/main/res/layout/activity_camera_xmain.xml"
+            line="156"
+            column="6"/>
+    </issue>
+
+    <issue
+        id="ContentDescription"
+        message="Missing `contentDescription` attribute on image"
+        errorLine1="    &lt;ImageButton"
+        errorLine2="     ~~~~~~~~~~~">
+        <location
+            file="src/main/res/layout/activity_camera_xmain.xml"
+            line="172"
+            column="6"/>
+    </issue>
+
+    <issue
+        id="ContentDescription"
+        message="Missing `contentDescription` attribute on image"
+        errorLine1="    &lt;ImageButton"
+        errorLine2="     ~~~~~~~~~~~">
+        <location
+            file="src/main/res/layout/activity_camera_xmain.xml"
+            line="188"
+            column="6"/>
+    </issue>
+
+    <issue
+        id="SetTextI18n"
+        message="Do not concatenate text displayed with `setText`. Use resource string with placeholders."
+        errorLine1="                                    &quot;ImgCount: &quot; + mImageAnalysisFrameCount.get() + &quot; @ts: &quot;"
+        errorLine2="                                    ^">
+        <location
+            file="src/main/java/androidx/camera/integration/core/CameraXActivity.java"
+            line="411"
+            column="37"/>
+    </issue>
+
+    <issue
+        id="SetTextI18n"
+        message="Do not concatenate text displayed with `setText`. Use resource string with placeholders."
+        errorLine1="                                    &quot;ImgCount: &quot; + mImageAnalysisFrameCount.get() + &quot; @ts: &quot;"
+        errorLine2="                                    ^">
+        <location
+            file="src/main/java/androidx/camera/integration/core/CameraXActivity.java"
+            line="411"
+            column="37"/>
+    </issue>
+
+    <issue
+        id="SetTextI18n"
+        message="String literal in `setText` can not be translated. Use Android resources instead."
+        errorLine1="                                    &quot;ImgCount: &quot; + mImageAnalysisFrameCount.get() + &quot; @ts: &quot;"
+        errorLine2="                                    ~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/camera/integration/core/CameraXActivity.java"
+            line="411"
+            column="37"/>
+    </issue>
+
+    <issue
+        id="SetTextI18n"
+        message="String literal in `setText` can not be translated. Use Android resources instead."
+        errorLine1="                                    &quot;ImgCount: &quot; + mImageAnalysisFrameCount.get() + &quot; @ts: &quot;"
+        errorLine2="                                    ~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/camera/integration/core/CameraXActivity.java"
+            line="411"
+            column="37"/>
+    </issue>
+
+    <issue
+        id="SetTextI18n"
+        message="String literal in `setText` can not be translated. Use Android resources instead."
+        errorLine1="                                    &quot;ImgCount: &quot; + mImageAnalysisFrameCount.get() + &quot; @ts: &quot;"
+        errorLine2="                                                                                    ~~~~~~~~">
+        <location
+            file="src/main/java/androidx/camera/integration/core/CameraXActivity.java"
+            line="411"
+            column="85"/>
+    </issue>
+
+    <issue
+        id="SetTextI18n"
+        message="String literal in `setText` can not be translated. Use Android resources instead."
+        errorLine1="                                    &quot;ImgCount: &quot; + mImageAnalysisFrameCount.get() + &quot; @ts: &quot;"
+        errorLine2="                                                                                    ~~~~~~~~">
+        <location
+            file="src/main/java/androidx/camera/integration/core/CameraXActivity.java"
+            line="411"
+            column="85"/>
+    </issue>
+
+    <issue
+        id="SetTextI18n"
+        message="String literal in `setText` can not be translated. Use Android resources instead."
+        errorLine1="                            buttonView.setText(&quot;Stop&quot;);"
+        errorLine2="                                               ~~~~~~">
+        <location
+            file="src/main/java/androidx/camera/integration/core/CameraXActivity.java"
+            line="666"
+            column="48"/>
+    </issue>
+
+    <issue
+        id="SetTextI18n"
+        message="String literal in `setText` can not be translated. Use Android resources instead."
+        errorLine1="                            buttonView.setText(&quot;Stop&quot;);"
+        errorLine2="                                               ~~~~~~">
+        <location
+            file="src/main/java/androidx/camera/integration/core/CameraXActivity.java"
+            line="666"
+            column="48"/>
+    </issue>
+
+    <issue
+        id="SetTextI18n"
+        message="String literal in `setText` can not be translated. Use Android resources instead."
+        errorLine1="                            buttonView.setText(&quot;Record&quot;);"
+        errorLine2="                                               ~~~~~~~~">
+        <location
+            file="src/main/java/androidx/camera/integration/core/CameraXActivity.java"
+            line="668"
+            column="48"/>
+    </issue>
+
+    <issue
+        id="SetTextI18n"
+        message="String literal in `setText` can not be translated. Use Android resources instead."
+        errorLine1="                            buttonView.setText(&quot;Record&quot;);"
+        errorLine2="                                               ~~~~~~~~">
+        <location
+            file="src/main/java/androidx/camera/integration/core/CameraXActivity.java"
+            line="668"
+            column="48"/>
+    </issue>
+
+    <issue
+        id="SetTextI18n"
+        message="String literal in `setText` can not be translated. Use Android resources instead."
+        errorLine1="                            buttonView.setText(&quot;Stop&quot;);"
+        errorLine2="                                               ~~~~~~">
+        <location
+            file="src/main/java/androidx/camera/integration/core/CameraXActivity.java"
+            line="671"
+            column="48"/>
+    </issue>
+
+    <issue
+        id="SetTextI18n"
+        message="String literal in `setText` can not be translated. Use Android resources instead."
+        errorLine1="                            buttonView.setText(&quot;Stop&quot;);"
+        errorLine2="                                               ~~~~~~">
+        <location
+            file="src/main/java/androidx/camera/integration/core/CameraXActivity.java"
+            line="671"
+            column="48"/>
+    </issue>
+
+    <issue
+        id="SetTextI18n"
+        message="String literal in `setText` can not be translated. Use Android resources instead."
+        errorLine1="                            buttonView.setText(&quot;Record&quot;);"
+        errorLine2="                                               ~~~~~~~~">
+        <location
+            file="src/main/java/androidx/camera/integration/core/CameraXActivity.java"
+            line="674"
+            column="48"/>
+    </issue>
+
+    <issue
+        id="SetTextI18n"
+        message="String literal in `setText` can not be translated. Use Android resources instead."
+        errorLine1="                            buttonView.setText(&quot;Record&quot;);"
+        errorLine2="                                               ~~~~~~~~">
+        <location
+            file="src/main/java/androidx/camera/integration/core/CameraXActivity.java"
+            line="674"
+            column="48"/>
+    </issue>
+
+    <issue
+        id="HardcodedText"
+        message="Hardcoded string &quot;Picture&quot;, should use `@string` resource"
+        errorLine1="        android:text=&quot;Picture&quot;"
+        errorLine2="        ~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/res/layout/activity_camera_xmain.xml"
+            line="79"
+            column="9"/>
+    </issue>
+
+    <issue
+        id="HardcodedText"
+        message="Hardcoded string &quot;Record&quot;, should use `@string` resource"
+        errorLine1="        android:text=&quot;Record&quot;"
+        errorLine2="        ~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/res/layout/activity_camera_xmain.xml"
+            line="92"
+            column="9"/>
+    </issue>
+
+    <issue
+        id="HardcodedText"
+        message="Hardcoded string &quot;Video&quot;, should use `@string` resource"
+        errorLine1="        android:text=&quot;Video&quot;"
+        errorLine2="        ~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/res/layout/activity_camera_xmain.xml"
+            line="105"
+            column="9"/>
+    </issue>
+
+    <issue
+        id="HardcodedText"
+        message="Hardcoded string &quot;Photo&quot;, should use `@string` resource"
+        errorLine1="        android:text=&quot;Photo&quot;"
+        errorLine2="        ~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/res/layout/activity_camera_xmain.xml"
+            line="119"
+            column="9"/>
+    </issue>
+
+    <issue
+        id="HardcodedText"
+        message="Hardcoded string &quot;Analysis&quot;, should use `@string` resource"
+        errorLine1="        android:text=&quot;Analysis&quot;"
+        errorLine2="        ~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/res/layout/activity_camera_xmain.xml"
+            line="133"
+            column="9"/>
+    </issue>
+
+    <issue
+        id="HardcodedText"
+        message="Hardcoded string &quot;Preview&quot;, should use `@string` resource"
+        errorLine1="        android:text=&quot;Preview&quot;"
+        errorLine2="        ~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/res/layout/activity_camera_xmain.xml"
+            line="147"
+            column="9"/>
+    </issue>
+
+</issues>

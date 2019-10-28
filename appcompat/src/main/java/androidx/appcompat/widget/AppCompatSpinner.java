@@ -47,6 +47,7 @@ import android.widget.Spinner;
 import android.widget.SpinnerAdapter;
 
 import androidx.annotation.DrawableRes;
+import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.annotation.RestrictTo;
 import androidx.annotation.VisibleForTesting;
@@ -110,7 +111,8 @@ public class AppCompatSpinner extends Spinner implements TintableBackgroundView 
      * @param context The Context the view is running in, through which it can
      *                access the current theme, resources, etc.
      */
-    public AppCompatSpinner(Context context) {
+    public AppCompatSpinner(
+            @NonNull Context context) {
         this(context, null);
     }
 
@@ -125,7 +127,8 @@ public class AppCompatSpinner extends Spinner implements TintableBackgroundView 
      * @see #MODE_DIALOG
      * @see #MODE_DROPDOWN
      */
-    public AppCompatSpinner(Context context, int mode) {
+    public AppCompatSpinner(
+            @NonNull Context context, int mode) {
         this(context, null, R.attr.spinnerStyle, mode);
     }
 
@@ -136,7 +139,8 @@ public class AppCompatSpinner extends Spinner implements TintableBackgroundView 
      *                access the current theme, resources, etc.
      * @param attrs   The attributes of the XML tag that is inflating the view.
      */
-    public AppCompatSpinner(Context context, AttributeSet attrs) {
+    public AppCompatSpinner(
+            @NonNull Context context, @Nullable AttributeSet attrs) {
         this(context, attrs, R.attr.spinnerStyle);
     }
 
@@ -151,7 +155,8 @@ public class AppCompatSpinner extends Spinner implements TintableBackgroundView 
      *                     reference to a style resource that supplies default values for
      *                     the view. Can be 0 to not look for defaults.
      */
-    public AppCompatSpinner(Context context, AttributeSet attrs, int defStyleAttr) {
+    public AppCompatSpinner(
+            @NonNull Context context, @Nullable AttributeSet attrs, int defStyleAttr) {
         this(context, attrs, defStyleAttr, MODE_THEME);
     }
 
@@ -170,7 +175,8 @@ public class AppCompatSpinner extends Spinner implements TintableBackgroundView 
      * @see #MODE_DIALOG
      * @see #MODE_DROPDOWN
      */
-    public AppCompatSpinner(Context context, AttributeSet attrs, int defStyleAttr, int mode) {
+    public AppCompatSpinner(
+            @NonNull Context context, @Nullable  AttributeSet attrs, int defStyleAttr, int mode) {
         this(context, attrs, defStyleAttr, mode, null);
     }
 
@@ -198,9 +204,11 @@ public class AppCompatSpinner extends Spinner implements TintableBackgroundView 
      * @see #MODE_DIALOG
      * @see #MODE_DROPDOWN
      */
-    public AppCompatSpinner(Context context, AttributeSet attrs, int defStyleAttr, int mode,
-            Resources.Theme popupTheme) {
+    public AppCompatSpinner(@NonNull Context context, @Nullable AttributeSet attrs,
+            int defStyleAttr, int mode, Resources.Theme popupTheme) {
         super(context, attrs, defStyleAttr);
+
+        ThemeUtils.checkAppCompatTheme(this, getContext());
 
         TintTypedArray a = TintTypedArray.obtainStyledAttributes(context, attrs,
                 R.styleable.Spinner, defStyleAttr, 0);
@@ -347,6 +355,7 @@ public class AppCompatSpinner extends Spinner implements TintableBackgroundView 
     @Override
     public void setDropDownHorizontalOffset(int pixels) {
         if (mPopup != null) {
+            mPopup.setHorizontalOriginalOffset(pixels);
             mPopup.setHorizontalOffset(pixels);
         } else if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.JELLY_BEAN) {
             super.setDropDownHorizontalOffset(pixels);
@@ -661,10 +670,12 @@ public class AppCompatSpinner extends Spinner implements TintableBackgroundView 
 
         public static final Parcelable.Creator<SavedState> CREATOR =
                 new Parcelable.Creator<SavedState>() {
+                    @Override
                     public SavedState createFromParcel(Parcel in) {
                         return new SavedState(in);
                     }
 
+                    @Override
                     public SavedState[] newArray(int size) {
                         return new SavedState[size];
                     }
@@ -836,6 +847,8 @@ public class AppCompatSpinner extends Spinner implements TintableBackgroundView 
         void setBackgroundDrawable(Drawable bg);
         void setVerticalOffset(int px);
         void setHorizontalOffset(int px);
+        void setHorizontalOriginalOffset(int px);
+        int getHorizontalOriginalOffset();
         Drawable getBackground();
         int getVerticalOffset();
         int getHorizontalOffset();
@@ -933,12 +946,24 @@ public class AppCompatSpinner extends Spinner implements TintableBackgroundView 
         public int getHorizontalOffset() {
             return 0;
         }
+
+        @Override
+        public void setHorizontalOriginalOffset(int px) {
+            Log.e(TAG, "Cannot set horizontal (original) offset for MODE_DIALOG, ignoring");
+        }
+
+        @Override
+        public int getHorizontalOriginalOffset() {
+            return 0;
+        }
     }
 
-    private class DropdownPopup extends ListPopupWindow implements SpinnerPopup {
+    @VisibleForTesting
+    class DropdownPopup extends ListPopupWindow implements SpinnerPopup {
         private CharSequence mHintText;
         ListAdapter mAdapter;
         private final Rect mVisibleRect = new Rect();
+        private int mOriginalHorizontalOffset;
 
         public DropdownPopup(Context context, AttributeSet attrs, int defStyleAttr) {
             super(context, attrs, defStyleAttr);
@@ -1007,9 +1032,10 @@ public class AppCompatSpinner extends Spinner implements TintableBackgroundView 
                 setContentWidth(mDropDownWidth);
             }
             if (ViewUtils.isLayoutRtl(AppCompatSpinner.this)) {
-                hOffset += spinnerWidth - spinnerPaddingRight - getWidth();
+                hOffset += spinnerWidth - spinnerPaddingRight - getWidth()
+                        - getHorizontalOriginalOffset();
             } else {
-                hOffset += spinnerPaddingLeft;
+                hOffset += spinnerPaddingLeft + getHorizontalOriginalOffset();
             }
             setHorizontalOffset(hOffset);
         }
@@ -1074,6 +1100,16 @@ public class AppCompatSpinner extends Spinner implements TintableBackgroundView 
          */
         boolean isVisibleToUser(View view) {
             return ViewCompat.isAttachedToWindow(view) && view.getGlobalVisibleRect(mVisibleRect);
+        }
+
+        @Override
+        public void setHorizontalOriginalOffset(int px) {
+            mOriginalHorizontalOffset = px;
+        }
+
+        @Override
+        public int getHorizontalOriginalOffset() {
+            return mOriginalHorizontalOffset;
         }
     }
 }

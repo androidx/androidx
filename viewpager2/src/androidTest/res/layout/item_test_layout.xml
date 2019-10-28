@@ -20,4 +20,5 @@
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:textColor="@color/primary_text_default_material_light"
+    android:textSize="40sp"
     android:gravity="center"/>

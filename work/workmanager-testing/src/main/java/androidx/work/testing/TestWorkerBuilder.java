@@ -55,6 +55,7 @@ public class TestWorkerBuilder<W extends Worker> extends TestListenableWorkerBui
      * @return The new instance of a {@link TestWorkerBuilder}
      */
     @NonNull
+    @SuppressWarnings("unchecked")
     public static TestWorkerBuilder<? extends Worker> from(
             @NonNull Context context,
             @NonNull WorkRequest workRequest,

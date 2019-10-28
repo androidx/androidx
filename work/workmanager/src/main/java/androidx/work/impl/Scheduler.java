@@ -38,7 +38,7 @@ public interface Scheduler {
      *
      * @param workSpecs The array of {@link WorkSpec}s to schedule
      */
-    void schedule(WorkSpec... workSpecs);
+    void schedule(@NonNull WorkSpec... workSpecs);
 
     /**
      * Cancel the work identified by the given {@link WorkSpec} id.

@@ -61,16 +61,19 @@ public class AppCompatEditText extends EditText implements TintableBackgroundVie
     private final AppCompatTextHelper mTextHelper;
     private final AppCompatTextClassifierHelper mTextClassifierHelper;
 
-    public AppCompatEditText(Context context) {
+    public AppCompatEditText(@NonNull Context context) {
         this(context, null);
     }
 
-    public AppCompatEditText(Context context, AttributeSet attrs) {
+    public AppCompatEditText(@NonNull Context context, @Nullable AttributeSet attrs) {
         this(context, attrs, R.attr.editTextStyle);
     }
 
-    public AppCompatEditText(Context context, AttributeSet attrs, int defStyleAttr) {
+    public AppCompatEditText(
+            @NonNull Context context, @Nullable AttributeSet attrs, int defStyleAttr) {
         super(TintContextWrapper.wrap(context), attrs, defStyleAttr);
+
+        ThemeUtils.checkAppCompatTheme(this, getContext());
 
         mBackgroundTintHelper = new AppCompatBackgroundHelper(this);
         mBackgroundTintHelper.loadFromAttributes(attrs, defStyleAttr);

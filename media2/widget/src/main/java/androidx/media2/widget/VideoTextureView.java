@@ -25,7 +25,6 @@ import android.view.Surface;
 import android.view.TextureView;
 
 import androidx.core.content.ContextCompat;
-import androidx.media2.player.MediaPlayer;
 
 class VideoTextureView extends TextureView
         implements VideoViewInterface, TextureView.SurfaceTextureListener {
@@ -34,9 +33,8 @@ class VideoTextureView extends TextureView
 
     private Surface mSurface;
     SurfaceListener mSurfaceListener;
-    private MediaPlayer mMediaPlayer;
+    private PlayerWrapper mPlayer;
     // A flag to indicate taking over other view should be proceed.
-    private boolean mIsTakingOverOldView;
 
     VideoTextureView(Context context) {
         super(context, null);
@@ -48,12 +46,13 @@ class VideoTextureView extends TextureView
     ////////////////////////////////////////////////////
 
     @Override
-    public boolean assignSurfaceToMediaPlayer(MediaPlayer mp) {
-        if (mp == null || !hasAvailableSurface()) {
+    public boolean assignSurfaceToPlayerWrapper(PlayerWrapper player) {
+        mPlayer = player;
+        if (player == null || !hasAvailableSurface()) {
             // Surface is not ready.
             return false;
         }
-        mp.setSurface(mSurface).addListener(
+        player.setSurface(mSurface).addListener(
                 new Runnable() {
                     @Override
                     public void run() {
@@ -74,19 +73,6 @@ class VideoTextureView extends TextureView
     @Override
     public int getViewType() {
         return VIEW_TYPE_TEXTUREVIEW;
-    }
-
-    @Override
-    public void setMediaPlayer(MediaPlayer mp) {
-        mMediaPlayer = mp;
-        if (mIsTakingOverOldView) {
-            mIsTakingOverOldView = !assignSurfaceToMediaPlayer(mMediaPlayer);
-        }
-    }
-
-    @Override
-    public void takeOver() {
-        mIsTakingOverOldView = !assignSurfaceToMediaPlayer(mMediaPlayer);
     }
 
     @Override
@@ -130,8 +116,8 @@ class VideoTextureView extends TextureView
 
     @Override
     protected void onMeasure(int widthMeasureSpec, int heightMeasureSpec) {
-        final int videoWidth = mMediaPlayer != null ? mMediaPlayer.getVideoSize().getWidth() : 0;
-        final int videoHeight = mMediaPlayer != null ? mMediaPlayer.getVideoSize().getHeight() : 0;
+        final int videoWidth = mPlayer != null ? mPlayer.getVideoSize().getWidth() : 0;
+        final int videoHeight = mPlayer != null ? mPlayer.getVideoSize().getHeight() : 0;
 
         int width;
         int height;

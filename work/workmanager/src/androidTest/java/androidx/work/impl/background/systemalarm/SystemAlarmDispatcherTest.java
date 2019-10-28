@@ -132,7 +132,7 @@ public class SystemAlarmDispatcherTest extends DatabaseTest {
         mProcessor = new Processor(
                 mContext,
                 mConfiguration,
-                new InstantWorkTaskExecutor(),
+                instantTaskExecutor,
                 mDatabase,
                 Collections.singletonList(mScheduler));
         mSpyProcessor = spy(mProcessor);
@@ -142,11 +142,11 @@ public class SystemAlarmDispatcherTest extends DatabaseTest {
         mDispatcher.setCompletedListener(mCompletedListener);
         mSpyDispatcher = spy(mDispatcher);
 
-        mBatteryChargingTracker = spy(new BatteryChargingTracker(mContext));
-        mBatteryNotLowTracker = spy(new BatteryNotLowTracker(mContext));
+        mBatteryChargingTracker = spy(new BatteryChargingTracker(mContext, instantTaskExecutor));
+        mBatteryNotLowTracker = spy(new BatteryNotLowTracker(mContext, instantTaskExecutor));
         // Requires API 24+ types.
         mNetworkStateTracker = mock(NetworkStateTracker.class);
-        mStorageNotLowTracker = spy(new StorageNotLowTracker(mContext));
+        mStorageNotLowTracker = spy(new StorageNotLowTracker(mContext, instantTaskExecutor));
         mTracker = mock(Trackers.class);
 
         when(mTracker.getBatteryChargingTracker()).thenReturn(mBatteryChargingTracker);
@@ -567,6 +567,7 @@ public class SystemAlarmDispatcherTest extends DatabaseTest {
 
     @Test
     public void testConstraintsChanged_withFutureWork() throws InterruptedException {
+        when(mBatteryChargingTracker.getInitialState()).thenReturn(true);
         // Use a mocked scheduler in this test.
         Scheduler scheduler = mock(Scheduler.class);
         doCallRealMethod().when(mWorkManager).rescheduleEligibleWork();

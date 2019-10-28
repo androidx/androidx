@@ -70,7 +70,7 @@ fun camera2OpenCamera(activity: MainActivity, params: CameraParams?, testConfig:
         logd("openCamera: " + params.id + " running test: " +
             testConfig.currentRunningTest.toString())
 
-        manager.openCamera(params.id, params.camera2DeviceStateCallback, params.backgroundHandler)
+        manager.openCamera(params.id, params.camera2DeviceStateCallback!!, params.backgroundHandler)
     } catch (e: CameraAccessException) {
         logd("openCamera CameraAccessException: " + params.id)
         e.printStackTrace()
@@ -106,7 +106,8 @@ fun createCameraPreviewSession(
         params.captureRequestBuilder =
             params.device?.createCaptureRequest(CameraDevice.TEMPLATE_PREVIEW)
 
-        params.captureRequestBuilder?.removeTarget(params.previewSurfaceView?.holder?.surface)
+        if (params.previewSurfaceView?.holder?.surface != null)
+            params.captureRequestBuilder?.removeTarget(params.previewSurfaceView?.holder?.surface!!)
         params.captureRequestBuilder?.addTarget(surface)
 
         params.device?.createCaptureSession(Arrays.asList(surface, imageSurface),
@@ -158,7 +159,8 @@ fun lockFocus(activity: MainActivity, params: CameraParams, testConfig: TestConf
     try {
         if (null != params.device) {
             setAutoFlash(params, params.captureRequestBuilder)
-            params.captureRequestBuilder?.addTarget(params.imageReader?.surface)
+            if (params.imageReader?.surface != null)
+                params.captureRequestBuilder?.addTarget(params.imageReader?.surface!!)
 
             // If this lens can focus, we need to start a focus search and wait for focus lock
             if (params.hasAF &&
@@ -169,7 +171,7 @@ fun lockFocus(activity: MainActivity, params: CameraParams, testConfig: TestConf
                     CaptureRequest.CONTROL_AF_MODE_AUTO)
                 params.captureRequestBuilder?.set(CaptureRequest.CONTROL_AF_TRIGGER,
                     CameraMetadata.CONTROL_AF_TRIGGER_CANCEL)
-                params.camera2CaptureSession?.capture(params.captureRequestBuilder?.build(),
+                params.camera2CaptureSession?.capture(params.captureRequestBuilder?.build()!!,
                     params.camera2CaptureSessionCallback, params.backgroundHandler)
 
                 params.captureRequestBuilder?.set(CaptureRequest.CONTROL_AF_MODE,
@@ -180,7 +182,7 @@ fun lockFocus(activity: MainActivity, params: CameraParams, testConfig: TestConf
                 params.state = CameraState.WAITING_FOCUS_LOCK
 
                 params.autoFocusStuckCounter = 0
-                params.camera2CaptureSession?.capture(params.captureRequestBuilder?.build(),
+                params.camera2CaptureSession?.capture(params.captureRequestBuilder?.build()!!,
                     params.camera2CaptureSessionCallback, params.backgroundHandler)
             } else {
                 // If no auto-focus requested, go ahead to the still capture routine
@@ -197,7 +199,7 @@ fun lockFocus(activity: MainActivity, params: CameraParams, testConfig: TestConf
 /**
  * Request pre-capture auto-exposure (AE) metering
  */
-fun runPrecaptureSequence(activity: MainActivity, params: CameraParams, testConfig: TestConfig) {
+fun runPrecaptureSequence(params: CameraParams) {
     if (!params.isOpen) {
         return
     }
@@ -209,7 +211,7 @@ fun runPrecaptureSequence(activity: MainActivity, params: CameraParams, testConf
                 CaptureRequest.CONTROL_AE_PRECAPTURE_TRIGGER_START)
 
             params.state = CameraState.WAITING_EXPOSURE_LOCK
-            params.camera2CaptureSession?.capture(params.captureRequestBuilder?.build(),
+            params.camera2CaptureSession?.capture(params.captureRequestBuilder?.build()!!,
                 params.camera2CaptureSessionCallback, params.backgroundHandler)
         }
     } catch (e: CameraAccessException) {
@@ -233,7 +235,9 @@ fun captureStillPicture(activity: MainActivity, params: CameraParams, testConfig
 
             params.captureRequestBuilder =
                 params.device?.createCaptureRequest(CameraDevice.TEMPLATE_STILL_CAPTURE)
-            params.captureRequestBuilder?.addTarget(params.imageReader?.surface)
+
+            if (params.imageReader?.surface != null)
+                params.captureRequestBuilder?.addTarget(params.imageReader?.surface!!)
 
             when (testConfig.focusMode) {
                 FocusMode.CONTINUOUS -> {
@@ -265,7 +269,7 @@ fun captureStillPicture(activity: MainActivity, params: CameraParams, testConfig
             setAutoFlash(params, params.captureRequestBuilder)
 
             val captureCallback = Camera2CaptureCallback(activity, params, testConfig)
-            params.camera2CaptureSession?.capture(params.captureRequestBuilder?.build(),
+            params.camera2CaptureSession?.capture(params.captureRequestBuilder?.build()!!,
                 captureCallback, params.backgroundHandler)
         }
     } catch (e: CameraAccessException) {
@@ -278,7 +282,7 @@ fun captureStillPicture(activity: MainActivity, params: CameraParams, testConfig
 /**
  * Close preview stream and camera device. If this was a switch test, restore the camera id
  */
-fun camera2CloseCamera(activity: MainActivity, params: CameraParams?, testConfig: TestConfig) {
+fun camera2CloseCamera(params: CameraParams?, testConfig: TestConfig) {
     if (params == null)
         return
 
@@ -300,7 +304,7 @@ fun camera2CloseCamera(activity: MainActivity, params: CameraParams?, testConfig
 /**
  * An abort request has been received. Abandon everything
  */
-fun camera2Abort(activity: MainActivity, params: CameraParams, testConfig: TestConfig) {
+fun camera2Abort(activity: MainActivity, params: CameraParams) {
     params.camera2CaptureSession?.abortCaptures()
     activity.stopBackgroundThread(params)
 }

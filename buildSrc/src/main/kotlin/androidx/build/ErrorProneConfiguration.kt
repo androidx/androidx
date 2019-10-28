@@ -74,6 +74,7 @@ private fun JavaCompile.configureWithErrorProne(toolChain: ErrorProneToolChain) 
             "-Xep:RestrictTo:OFF",
             "-Xep:ObjectToString:OFF",
             "-Xep:CatchAndPrintStackTrace:OFF",
+            "-Xep:MixedMutabilityReturnType:OFF",
 
             // Enforce the following checks.
             "-Xep:ParameterNotNullable:ERROR",
@@ -109,7 +110,7 @@ private fun Project.makeErrorProneTask(
     compileTaskProvider: TaskProvider<JavaCompile>,
     toolChain: ErrorProneToolChain
 ) {
-    val provider = maybeRegister<JavaCompile>(
+    maybeRegister<JavaCompile>(
         name = ERROR_PRONE_TASK,
         onConfigure = {
             val compileTask = compileTaskProvider.get()

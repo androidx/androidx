@@ -16,6 +16,7 @@
 
 package androidx.work;
 
+import android.app.PendingIntent;
 import android.content.Context;
 
 import androidx.annotation.NonNull;
@@ -115,13 +116,32 @@ import java.util.concurrent.TimeUnit;
  * (see {@link WorkRequest.Builder#addTag(String)}), and chains of work can be given a
  * uniquely-identifiable name (see
  * {@link #beginUniqueWork(String, ExistingWorkPolicy, OneTimeWorkRequest)}).
- *
  * <p>
- * <b>Manually initializing WorkManager</b>
+ * <a name="initializing"></a>
+ * <b>Initializing WorkManager</b>
  * <p>
- * You can manually initialize WorkManager and provide a custom {@link Configuration} for it.
- * Please see {@link #initialize(Context, Configuration)}.
- */
+ * By default, WorkManager auto-initializes itself using a built-in {@code ContentProvider}.
+ * ContentProviders are created and run before the {@code Application} object, so this allows the
+ * WorkManager singleton to be setup before your code can run in most cases.  This is suitable for
+ * most developers.  However, you can provide a custom {@link Configuration} by using
+ * {@link Configuration.Provider} or
+ * {@link WorkManager#initialize(android.content.Context, androidx.work.Configuration)}.
+ * <p>
+ * <a name="worker_class_names"></a>
+ * <b>Renaming and Removing ListenableWorker Classes</b>
+ * <p>
+ * Exercise caution in renaming classes derived from {@link ListenableWorker}s.  WorkManager stores
+ * the class name in its internal database when the {@link WorkRequest} is enqueued so it can later
+ * create an instance of that worker when constraints are met.  Unless otherwise specified in the
+ * WorkManager {@link Configuration}, this is done in the default {@link WorkerFactory} which tries
+ * to reflectively create the ListenableWorker object.  Therefore, renaming or removing these
+ * classes is dangerous - if there is pending work with the given class, it will fail permanently
+ * if the class cannot be found.  If you are using a custom WorkerFactory, make sure you properly
+ * handle cases where the class is not found so that your code does not crash.
+ * <p>
+ * In case it is desirable to rename a class, implement a custom WorkerFactory that instantiates the
+ * right ListenableWorker for the old class name.
+ * */
 
 public abstract class WorkManager {
 
@@ -178,6 +198,7 @@ public abstract class WorkManager {
      *                will call {@link Context#getApplicationContext()}, so you may safely pass in
      *                any Context without risking a memory leak.
      * @param configuration The {@link Configuration} for used to set up WorkManager.
+     * @see Configuration.Provider for on-demand initialization.
      */
     public static void initialize(@NonNull Context context, @NonNull Configuration configuration) {
         WorkManagerImpl.initialize(context, configuration);
@@ -419,6 +440,15 @@ public abstract class WorkManager {
      * completed
      */
     public abstract @NonNull Operation cancelAllWork();
+
+    /**
+     * Creates a {@link PendingIntent} which can be used to cancel a {@link WorkRequest} with the
+     * given {@code id}.
+     *
+     * @param id      The {@link WorkRequest} id.
+     * @return The {@link PendingIntent} that can be used to cancel the {@link WorkRequest}.
+     */
+    public abstract @NonNull PendingIntent createCancelPendingIntent(@NonNull UUID id);
 
     /**
      * Prunes all eligible finished work from the internal database.  Eligible work must be finished

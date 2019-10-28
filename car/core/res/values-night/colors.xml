@@ -15,22 +15,6 @@
   ~ limitations under the License.
   -->
 <resources>
-    <color name="car_display1">@color/car_display1_light</color>
-    <color name="car_display2">@color/car_display2_light</color>
-    <color name="car_display3">@color/car_display3_light</color>
-    <color name="car_display4">@color/car_display4_light</color>
-
-    <color name="car_body1">@color/car_body1_light</color>
-    <color name="car_body2">@color/car_body2_light</color>
-    <color name="car_body3">@color/car_body3_light</color>
-    <color name="car_body4">@color/car_body4_light</color>
-
-    <color name="car_subtext1">@color/car_subtext1_light</color>
-    <color name="car_subtext2">@color/car_subtext2_light</color>
-    <color name="car_subtext3">@color/car_subtext3_light</color>
-    <color name="car_subtext4">@color/car_subtext4_light</color>
-    <color name="car_subtext5">@color/car_subtext5_light</color>
-
     <color name="car_tint">@color/car_tint_light</color>
 
     <color name="car_card_dark">@color/car_grey_958</color>

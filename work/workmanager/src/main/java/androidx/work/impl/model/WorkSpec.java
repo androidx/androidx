@@ -22,8 +22,7 @@ import static androidx.work.WorkInfo.State.ENQUEUED;
 import static androidx.work.WorkRequest.MAX_BACKOFF_MILLIS;
 import static androidx.work.WorkRequest.MIN_BACKOFF_MILLIS;
 
-import android.os.Build;
-
+import androidx.annotation.IntRange;
 import androidx.annotation.NonNull;
 import androidx.annotation.RestrictTo;
 import androidx.arch.core.util.Function;
@@ -39,7 +38,6 @@ import androidx.work.Data;
 import androidx.work.Logger;
 import androidx.work.WorkInfo;
 import androidx.work.WorkRequest;
-import androidx.work.impl.WorkManagerImpl;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -52,7 +50,10 @@ import java.util.UUID;
  */
 @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
 @Entity(
-        indices = {@Index(value = {"schedule_requested_at"})}
+        indices = {
+                @Index(value = {"schedule_requested_at"}),
+                @Index(value = {"period_start_time"})
+        }
 )
 public class WorkSpec {
     private static final String TAG = Logger.tagWithPrefix("WorkSpec");
@@ -96,6 +97,7 @@ public class WorkSpec {
     public Constraints constraints = Constraints.NONE;
 
     @ColumnInfo(name = "run_attempt_count")
+    @IntRange(from = 0)
     public int runAttemptCount;
 
     @ColumnInfo(name = "backoff_policy")
@@ -126,6 +128,12 @@ public class WorkSpec {
     @ColumnInfo(name = "schedule_requested_at")
     public long scheduleRequestedAt = SCHEDULE_NOT_REQUESTED_YET;
 
+    /**
+     * This is {@code true} when the WorkSpec needs to be hosted by a foreground service.
+     */
+    @ColumnInfo(name = "run_in_foreground")
+    public boolean runInForeground;
+
     public WorkSpec(@NonNull String id, @NonNull String workerClassName) {
         this.id = id;
         this.workerClassName = workerClassName;
@@ -148,6 +156,7 @@ public class WorkSpec {
         periodStartTime = other.periodStartTime;
         minimumRetentionDuration = other.minimumRetentionDuration;
         scheduleRequestedAt = other.scheduleRequestedAt;
+        runInForeground = other.runInForeground;
     }
 
     /**
@@ -211,7 +220,7 @@ public class WorkSpec {
         if (flexDuration > intervalDuration) {
             Logger.get().warning(TAG,
                     String.format("Flex duration greater than interval duration; Changed to %s",
-                    intervalDuration));
+                            intervalDuration));
             flexDuration = intervalDuration;
         }
         this.intervalDuration = intervalDuration;
@@ -250,38 +259,35 @@ public class WorkSpec {
                     : (long) Math.scalb(backoffDelayDuration, runAttemptCount - 1);
             return periodStartTime + Math.min(WorkRequest.MAX_BACKOFF_MILLIS, delay);
         } else if (isPeriodic()) {
-            if (Build.VERSION.SDK_INT <= WorkManagerImpl.MAX_PRE_JOB_SCHEDULER_API_LEVEL) {
-                // Flex is only applicable when it's different from interval duration for
-                // the AlarmManager implementation.
-                boolean isFlexApplicable = flexDuration != intervalDuration;
-                if (isFlexApplicable) {
-                    // When a PeriodicWorkRequest is being scheduled for the first time,
-                    // the periodStartTime will be 0. To correctly emulate flex, we need to set it
-                    // to now, so the PeriodicWorkRequest has an initial delay of
-                    // (interval - flex).
+            long now = System.currentTimeMillis();
+            long start = periodStartTime == 0 ? (now + initialDelay) : periodStartTime;
+            boolean isFlexApplicable = flexDuration != intervalDuration;
+            if (isFlexApplicable) {
+                // To correctly emulate flex, we need to set it
+                // to now, so the PeriodicWorkRequest has an initial delay of
+                // initialDelay + (interval - flex).
 
-                    // The subsequent runs will only add the interval duration and no flex.
-                    // This gives us the following behavior:
-                    // 1 => now + (interval - flex) = firstRunTime
-                    // 2 => firstRunTime + 2 * interval - flex
-                    // 3 => firstRunTime + 3 * interval - flex
-
-                    long offset = periodStartTime == 0 ? (-1 * flexDuration) : 0;
-                    long start =
-                            periodStartTime == 0 ? System.currentTimeMillis() : periodStartTime;
-                    return start + intervalDuration + offset;
-                } else {
-                    // Don't use flexDuration for determining next run time for PeriodicWork
-                    // Schedulers <= API 22. This is because intervalDuration could equal
-                    // flexDuration.
-                    return periodStartTime + intervalDuration;
-                }
-
+                // The subsequent runs will only add the interval duration and no flex.
+                // This gives us the following behavior:
+                // 1 => now + (interval - flex) + initialDelay = firstRunTime
+                // 2 => firstRunTime + 2 * interval - flex
+                // 3 => firstRunTime + 3 * interval - flex
+                long offset = periodStartTime == 0 ? (-1 * flexDuration) : 0;
+                return start + intervalDuration + offset;
             } else {
-                return periodStartTime + intervalDuration - flexDuration;
+                // Don't use flexDuration for determining next run time for PeriodicWork
+                // This is because intervalDuration could equal flexDuration.
+
+                // The first run of a periodic work request is immediate in JobScheduler, and we
+                // need to emulate this behavior.
+                long offset = periodStartTime == 0 ? 0 : intervalDuration;
+                return start + offset;
             }
         } else {
-            return periodStartTime + initialDelay;
+            // We are checking for (periodStartTime == 0) to support our testing use case.
+            // For newly created WorkSpecs periodStartTime will always be 0.
+            long start = (periodStartTime == 0) ? System.currentTimeMillis() : periodStartTime;
+            return start + initialDelay;
         }
     }
 
@@ -307,6 +313,7 @@ public class WorkSpec {
         if (periodStartTime != workSpec.periodStartTime) return false;
         if (minimumRetentionDuration != workSpec.minimumRetentionDuration) return false;
         if (scheduleRequestedAt != workSpec.scheduleRequestedAt) return false;
+        if (runInForeground != workSpec.runInForeground) return false;
         if (!id.equals(workSpec.id)) return false;
         if (state != workSpec.state) return false;
         if (!workerClassName.equals(workSpec.workerClassName)) return false;
@@ -339,9 +346,11 @@ public class WorkSpec {
         result = 31 * result + (int) (periodStartTime ^ (periodStartTime >>> 32));
         result = 31 * result + (int) (minimumRetentionDuration ^ (minimumRetentionDuration >>> 32));
         result = 31 * result + (int) (scheduleRequestedAt ^ (scheduleRequestedAt >>> 32));
+        result = 31 * result + (runInForeground ? 1 : 0);
         return result;
     }
 
+    @NonNull
     @Override
     public String toString() {
         return "{WorkSpec: " + id + "}";
@@ -401,13 +410,33 @@ public class WorkSpec {
                 projection = {"tag"})
         public List<String> tags;
 
+        // This is actually a 1-1 relationship. However Room 2.1 models the type as a List.
+        // This will change in Room 2.2
+        @Relation(
+                parentColumn = "id",
+                entityColumn = "work_spec_id",
+                entity = WorkProgress.class,
+                projection = {"progress"})
+        public List<Data> progress;
+
         /**
          * Converts this POJO to a {@link WorkInfo}.
          *
          * @return The {@link WorkInfo} represented by this POJO
          */
+        @NonNull
         public WorkInfo toWorkInfo() {
-            return new WorkInfo(UUID.fromString(id), state, output, tags, runAttemptCount);
+            Data progress = this.progress != null && !this.progress.isEmpty()
+                    ? this.progress.get(0)
+                    : Data.EMPTY;
+
+            return new WorkInfo(
+                    UUID.fromString(id),
+                    state,
+                    output,
+                    tags,
+                    progress,
+                    runAttemptCount);
         }
 
         @Override
@@ -421,7 +450,8 @@ public class WorkSpec {
             if (id != null ? !id.equals(that.id) : that.id != null) return false;
             if (state != that.state) return false;
             if (output != null ? !output.equals(that.output) : that.output != null) return false;
-            return tags != null ? tags.equals(that.tags) : that.tags == null;
+            if (tags != null ? !tags.equals(that.tags) : that.tags != null) return false;
+            return progress != null ? progress.equals(that.progress) : that.progress == null;
         }
 
         @Override
@@ -431,6 +461,7 @@ public class WorkSpec {
             result = 31 * result + (output != null ? output.hashCode() : 0);
             result = 31 * result + runAttemptCount;
             result = 31 * result + (tags != null ? tags.hashCode() : 0);
+            result = 31 * result + (progress != null ? progress.hashCode() : 0);
             return result;
         }
     }

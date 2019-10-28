@@ -24,6 +24,7 @@ import androidx.work.Configuration;
 import androidx.work.WorkManager;
 import androidx.work.impl.Scheduler;
 import androidx.work.impl.WorkManagerImpl;
+import androidx.work.impl.utils.SerialExecutor;
 import androidx.work.impl.utils.taskexecutor.TaskExecutor;
 
 import java.util.Collections;
@@ -43,17 +44,26 @@ class TestWorkManagerImpl extends WorkManagerImpl implements TestDriver {
     private TestScheduler mScheduler;
 
     TestWorkManagerImpl(
-            @NonNull Context context,
-            @NonNull Configuration configuration) {
+            @NonNull final Context context,
+            @NonNull final Configuration configuration) {
 
         // Note: This implies that the call to ForceStopRunnable() actually does nothing.
         // This is okay when testing.
+
+        // IMPORTANT: Leave the main thread executor as a Direct executor. This is very important.
+        // Otherwise we subtly change the order of callbacks. onExecuted() will execute after
+        // a call to StopWorkRunnable(). StopWorkRunnable() removes the pending WorkSpec and
+        // therefore the call to onExecuted() does not add the workSpecId to the list of
+        // terminated WorkSpecs. This is because internalWorkState == null.
+        // Also for PeriodicWorkRequests, Schedulers.schedule() will run before the call to
+        // onExecuted() and therefore PeriodicWorkRequests will always run twice.
         super(
                 context,
                 configuration,
                 new TaskExecutor() {
-
                     Executor mSynchronousExecutor = new SynchronousExecutor();
+                    SerialExecutor mSerialExecutor =
+                            new SerialExecutor(configuration.getTaskExecutor());
 
                     @Override
                     public void postToMainThread(Runnable runnable) {
@@ -67,18 +77,12 @@ class TestWorkManagerImpl extends WorkManagerImpl implements TestDriver {
 
                     @Override
                     public void executeOnBackgroundThread(Runnable runnable) {
-                        runnable.run();
+                        mSerialExecutor.execute(runnable);
                     }
 
                     @Override
-                    public Executor getBackgroundExecutor() {
-                        return mSynchronousExecutor;
-                    }
-
-                    @NonNull
-                    @Override
-                    public Thread getBackgroundExecutorThread() {
-                        return Thread.currentThread();
+                    public SerialExecutor getBackgroundExecutor() {
+                        return mSerialExecutor;
                     }
                 },
                 true);
@@ -88,7 +92,7 @@ class TestWorkManagerImpl extends WorkManagerImpl implements TestDriver {
     }
 
     @Override
-    public @NonNull List<Scheduler> createSchedulers(Context context) {
+    public @NonNull List<Scheduler> createSchedulers(Context context, TaskExecutor taskExecutor) {
         mScheduler = new TestScheduler(context);
         return Collections.singletonList((Scheduler) mScheduler);
     }

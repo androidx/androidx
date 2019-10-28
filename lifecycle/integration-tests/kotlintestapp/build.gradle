@@ -26,15 +26,15 @@ plugins {
 }
 
 dependencies {
-    implementation(project(":lifecycle:lifecycle-runtime-eap"))
-    implementation(project(":activity"))
+    implementation(project(":lifecycle:lifecycle-runtime-ktx"))
+    implementation(project(":activity:activity"))
 
     testImplementation(JUNIT)
     testImplementation(TRUTH)
-    testImplementation(KOTLIN_COROUTINES)
+    testImplementation(KOTLIN_COROUTINES_ANDROID)
     testImplementation(KOTLIN_COROUTINES_TEST)
 
-    androidTestImplementation(KOTLIN_COROUTINES)
+    androidTestImplementation(KOTLIN_COROUTINES_ANDROID)
     androidTestImplementation(ANDROIDX_TEST_EXT_KTX)
     androidTestImplementation(TRUTH)
     androidTestImplementation(ANDROIDX_TEST_RUNNER)

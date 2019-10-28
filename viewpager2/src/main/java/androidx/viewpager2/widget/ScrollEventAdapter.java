@@ -16,9 +16,6 @@
 
 package androidx.viewpager2.widget;
 
-import static android.view.ViewGroup.LayoutParams.MATCH_PARENT;
-
-import static androidx.core.view.ViewCompat.LAYOUT_DIRECTION_RTL;
 import static androidx.viewpager2.widget.ViewPager2.ORIENTATION_HORIZONTAL;
 import static androidx.viewpager2.widget.ViewPager2.SCROLL_STATE_DRAGGING;
 import static androidx.viewpager2.widget.ViewPager2.SCROLL_STATE_IDLE;
@@ -28,6 +25,7 @@ import static androidx.viewpager2.widget.ViewPager2.ScrollState;
 import static java.lang.annotation.RetentionPolicy.SOURCE;
 
 import android.view.View;
+import android.view.ViewGroup.LayoutParams;
 import android.view.ViewGroup.MarginLayoutParams;
 
 import androidx.annotation.IntDef;
@@ -45,13 +43,6 @@ import java.util.Locale;
  * relative to the pages and exposes this position via ({@link #getRelativeScrollPosition()}.
  */
 final class ScrollEventAdapter extends RecyclerView.OnScrollListener {
-    private static final MarginLayoutParams ZERO_MARGIN_LAYOUT_PARAMS;
-
-    static {
-        ZERO_MARGIN_LAYOUT_PARAMS = new MarginLayoutParams(MATCH_PARENT, MATCH_PARENT);
-        ZERO_MARGIN_LAYOUT_PARAMS.setMargins(0, 0, 0, 0);
-    }
-
     /** @hide */
     @Retention(SOURCE)
     @IntDef({STATE_IDLE, STATE_IN_PROGRESS_MANUAL_DRAG, STATE_IN_PROGRESS_SMOOTH_SCROLL,
@@ -68,6 +59,8 @@ final class ScrollEventAdapter extends RecyclerView.OnScrollListener {
     private static final int NO_POSITION = -1;
 
     private OnPageChangeCallback mCallback;
+    private final @NonNull ViewPager2 mViewPager;
+    private final @NonNull RecyclerView mRecyclerView;
     private final @NonNull LinearLayoutManager mLayoutManager;
 
     // state related fields
@@ -78,10 +71,14 @@ final class ScrollEventAdapter extends RecyclerView.OnScrollListener {
     private int mTarget;
     private boolean mDispatchSelected;
     private boolean mScrollHappened;
+    private boolean mDataSetChangeHappened;
     private boolean mFakeDragging;
 
-    ScrollEventAdapter(@NonNull LinearLayoutManager layoutManager) {
-        mLayoutManager = layoutManager;
+    ScrollEventAdapter(@NonNull ViewPager2 viewPager) {
+        mViewPager = viewPager;
+        mRecyclerView = mViewPager.mRecyclerView;
+        //noinspection ConstantConditions
+        mLayoutManager = (LinearLayoutManager) mRecyclerView.getLayoutManager();
         mScrollValues = new ScrollEventValues();
         resetState();
     }
@@ -95,6 +92,7 @@ final class ScrollEventAdapter extends RecyclerView.OnScrollListener {
         mDispatchSelected = false;
         mScrollHappened = false;
         mFakeDragging = false;
+        mDataSetChangeHappened = false;
     }
 
     /**
@@ -104,7 +102,8 @@ final class ScrollEventAdapter extends RecyclerView.OnScrollListener {
     @Override
     public void onScrollStateChanged(@NonNull RecyclerView recyclerView, int newState) {
         // User started a drag (not dragging -> dragging)
-        if (mAdapterState != STATE_IN_PROGRESS_MANUAL_DRAG
+        if ((mAdapterState != STATE_IN_PROGRESS_MANUAL_DRAG
+                || mScrollState != SCROLL_STATE_DRAGGING)
                 && newState == RecyclerView.SCROLL_STATE_DRAGGING) {
             startDrag(false);
             return;
@@ -154,6 +153,19 @@ final class ScrollEventAdapter extends RecyclerView.OnScrollListener {
                 resetState();
             }
         }
+
+        if (mAdapterState == STATE_IN_PROGRESS_SMOOTH_SCROLL
+                && newState == RecyclerView.SCROLL_STATE_IDLE && mDataSetChangeHappened) {
+            updateScrollEventValues();
+            if (mScrollValues.mOffsetPx == 0) {
+                if (mTarget != mScrollValues.mPosition) {
+                    dispatchSelected(
+                            mScrollValues.mPosition == NO_POSITION ? 0 : mScrollValues.mPosition);
+                }
+                dispatchStateChanged(SCROLL_STATE_IDLE);
+                resetState();
+            }
+        }
     }
 
     /**
@@ -168,7 +180,7 @@ final class ScrollEventAdapter extends RecyclerView.OnScrollListener {
         if (mDispatchSelected) {
             // Drag started settling, need to calculate target page and dispatch onPageSelected now
             mDispatchSelected = false;
-            boolean scrollingForward = dy > 0 || (dy == 0 && dx < 0 == isLayoutRTL());
+            boolean scrollingForward = dy > 0 || (dy == 0 && dx < 0 == mViewPager.isRtl());
 
             // "&& values.mOffsetPx != 0": filters special case where we're scrolling forward and
             // the first scroll event after settling already got us at the target
@@ -180,10 +192,14 @@ final class ScrollEventAdapter extends RecyclerView.OnScrollListener {
         } else if (mAdapterState == STATE_IDLE) {
             // onScrolled while IDLE means RV has just been populated after an adapter has been set.
             // Contract requires us to fire onPageSelected as well.
-            dispatchSelected(mScrollValues.mPosition);
+            int position = mScrollValues.mPosition;
+            // Contract forbids us to send position = -1 though
+            dispatchSelected(position == NO_POSITION ? 0 : position);
         }
 
-        dispatchScrolled(mScrollValues.mPosition, mScrollValues.mOffset, mScrollValues.mOffsetPx);
+        // If position = -1, there are no items. Contract says to send position = 0 instead.
+        dispatchScrolled(mScrollValues.mPosition == NO_POSITION ? 0 : mScrollValues.mPosition,
+                mScrollValues.mOffset, mScrollValues.mOffsetPx);
 
         // Dispatch idle in onScrolled instead of in onScrollStateChanged because RecyclerView
         // doesn't send IDLE event when using setCurrentItem(x, false)
@@ -218,24 +234,34 @@ final class ScrollEventAdapter extends RecyclerView.OnScrollListener {
             return;
         }
 
-        // TODO(123350297): automated test for this
-        MarginLayoutParams margin =
-                (firstVisibleView.getLayoutParams() instanceof MarginLayoutParams)
-                        ? (MarginLayoutParams) firstVisibleView.getLayoutParams()
-                        : ZERO_MARGIN_LAYOUT_PARAMS;
+        int leftDecorations = mLayoutManager.getLeftDecorationWidth(firstVisibleView);
+        int rightDecorations = mLayoutManager.getRightDecorationWidth(firstVisibleView);
+        int topDecorations = mLayoutManager.getTopDecorationHeight(firstVisibleView);
+        int bottomDecorations = mLayoutManager.getBottomDecorationHeight(firstVisibleView);
+
+        LayoutParams params = firstVisibleView.getLayoutParams();
+        if (params instanceof MarginLayoutParams) {
+            MarginLayoutParams margin = (MarginLayoutParams) params;
+            leftDecorations += margin.leftMargin;
+            rightDecorations += margin.rightMargin;
+            topDecorations += margin.topMargin;
+            bottomDecorations += margin.bottomMargin;
+        }
+
+        int decoratedHeight = firstVisibleView.getHeight() + topDecorations + bottomDecorations;
+        int decoratedWidth = firstVisibleView.getWidth() + leftDecorations + rightDecorations;
 
         boolean isHorizontal = mLayoutManager.getOrientation() == ORIENTATION_HORIZONTAL;
         int start, sizePx;
         if (isHorizontal) {
-            sizePx = firstVisibleView.getWidth() + margin.leftMargin + margin.rightMargin;
-            if (!isLayoutRTL()) {
-                start = firstVisibleView.getLeft() - margin.leftMargin;
-            } else {
-                start = sizePx - firstVisibleView.getRight() - margin.rightMargin;
+            sizePx = decoratedWidth;
+            start = firstVisibleView.getLeft() - leftDecorations - mRecyclerView.getPaddingLeft();
+            if (mViewPager.isRtl()) {
+                start = -start;
             }
         } else {
-            sizePx = firstVisibleView.getHeight() + margin.topMargin + margin.bottomMargin;
-            start = firstVisibleView.getTop() - margin.topMargin;
+            sizePx = decoratedHeight;
+            start = firstVisibleView.getTop() - topDecorations - mRecyclerView.getPaddingTop();
         }
 
         values.mOffsetPx = -start;
@@ -261,16 +287,20 @@ final class ScrollEventAdapter extends RecyclerView.OnScrollListener {
         mFakeDragging = isFakeDrag;
         mAdapterState = isFakeDrag ? STATE_IN_PROGRESS_FAKE_DRAG : STATE_IN_PROGRESS_MANUAL_DRAG;
         if (mTarget != NO_POSITION) {
-            // Target was set means programmatic scroll was in progress
+            // Target was set means we were settling to that target
             // Update "drag start page" to reflect the page that ViewPager2 thinks it is at
             mDragStartPosition = mTarget;
             // Reset target because drags have no target until released
             mTarget = NO_POSITION;
-        } else {
+        } else if (mDragStartPosition == NO_POSITION) {
             // ViewPager2 was at rest, set "drag start page" to current page
             mDragStartPosition = getPosition();
         }
         dispatchStateChanged(SCROLL_STATE_DRAGGING);
+    }
+
+    void notifyDataSetChangeHappened() {
+        mDataSetChangeHappened = true;
     }
 
     /**
@@ -280,6 +310,9 @@ final class ScrollEventAdapter extends RecyclerView.OnScrollListener {
         mAdapterState = smooth
                 ? STATE_IN_PROGRESS_SMOOTH_SCROLL
                 : STATE_IN_PROGRESS_IMMEDIATE_SCROLL;
+        // mFakeDragging is true when a fake drag is interrupted by an a11y command
+        // set it to false so endFakeDrag won't fling the RecyclerView
+        mFakeDragging = false;
         boolean hasNewTarget = mTarget != target;
         mTarget = target;
         dispatchStateChanged(SCROLL_STATE_SETTLING);
@@ -317,10 +350,6 @@ final class ScrollEventAdapter extends RecyclerView.OnScrollListener {
             // We're not snapped, so dispatch a SETTLING event
             dispatchStateChanged(SCROLL_STATE_SETTLING);
         }
-    }
-
-    private boolean isLayoutRTL() {
-        return mLayoutManager.getLayoutDirection() == LAYOUT_DIRECTION_RTL;
     }
 
     void setOnPageChangeCallback(OnPageChangeCallback callback) {
@@ -374,9 +403,9 @@ final class ScrollEventAdapter extends RecyclerView.OnScrollListener {
      *
      * @return The current scroll position of the ViewPager, relative to its width
      */
-    float getRelativeScrollPosition() {
+    double getRelativeScrollPosition() {
         updateScrollEventValues();
-        return mScrollValues.mPosition + mScrollValues.mOffset;
+        return mScrollValues.mPosition + (double) mScrollValues.mOffset;
     }
 
     private void dispatchStateChanged(@ScrollState int state) {

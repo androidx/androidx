@@ -1,0 +1,45 @@
+// Baseline format: 1.0
+ListenerInterface: androidx.slidingpanelayout.widget.SlidingPaneLayout.SimplePanelSlideListener:
+    Listeners should be an interface, or otherwise renamed Callback: SimplePanelSlideListener
+
+
+MissingNullability: androidx.slidingpanelayout.widget.SlidingPaneLayout#canScroll(android.view.View, boolean, int, int, int) parameter #0:
+    Missing nullability on parameter `v` in method `canScroll`
+MissingNullability: androidx.slidingpanelayout.widget.SlidingPaneLayout#checkLayoutParams(android.view.ViewGroup.LayoutParams) parameter #0:
+    Missing nullability on parameter `p` in method `checkLayoutParams`
+MissingNullability: androidx.slidingpanelayout.widget.SlidingPaneLayout#draw(android.graphics.Canvas) parameter #0:
+    Missing nullability on parameter `c` in method `draw`
+MissingNullability: androidx.slidingpanelayout.widget.SlidingPaneLayout#drawChild(android.graphics.Canvas, android.view.View, long) parameter #0:
+    Missing nullability on parameter `canvas` in method `drawChild`
+MissingNullability: androidx.slidingpanelayout.widget.SlidingPaneLayout#drawChild(android.graphics.Canvas, android.view.View, long) parameter #1:
+    Missing nullability on parameter `child` in method `drawChild`
+MissingNullability: androidx.slidingpanelayout.widget.SlidingPaneLayout#generateDefaultLayoutParams():
+    Missing nullability on method `generateDefaultLayoutParams` return
+MissingNullability: androidx.slidingpanelayout.widget.SlidingPaneLayout#generateLayoutParams(android.util.AttributeSet):
+    Missing nullability on method `generateLayoutParams` return
+MissingNullability: androidx.slidingpanelayout.widget.SlidingPaneLayout#generateLayoutParams(android.util.AttributeSet) parameter #0:
+    Missing nullability on parameter `attrs` in method `generateLayoutParams`
+MissingNullability: androidx.slidingpanelayout.widget.SlidingPaneLayout#generateLayoutParams(android.view.ViewGroup.LayoutParams):
+    Missing nullability on method `generateLayoutParams` return
+MissingNullability: androidx.slidingpanelayout.widget.SlidingPaneLayout#generateLayoutParams(android.view.ViewGroup.LayoutParams) parameter #0:
+    Missing nullability on parameter `p` in method `generateLayoutParams`
+MissingNullability: androidx.slidingpanelayout.widget.SlidingPaneLayout#onInterceptTouchEvent(android.view.MotionEvent) parameter #0:
+    Missing nullability on parameter `ev` in method `onInterceptTouchEvent`
+MissingNullability: androidx.slidingpanelayout.widget.SlidingPaneLayout#onRestoreInstanceState(android.os.Parcelable) parameter #0:
+    Missing nullability on parameter `state` in method `onRestoreInstanceState`
+MissingNullability: androidx.slidingpanelayout.widget.SlidingPaneLayout#onSaveInstanceState():
+    Missing nullability on method `onSaveInstanceState` return
+MissingNullability: androidx.slidingpanelayout.widget.SlidingPaneLayout#onTouchEvent(android.view.MotionEvent) parameter #0:
+    Missing nullability on parameter `ev` in method `onTouchEvent`
+MissingNullability: androidx.slidingpanelayout.widget.SlidingPaneLayout#requestChildFocus(android.view.View, android.view.View) parameter #0:
+    Missing nullability on parameter `child` in method `requestChildFocus`
+MissingNullability: androidx.slidingpanelayout.widget.SlidingPaneLayout#requestChildFocus(android.view.View, android.view.View) parameter #1:
+    Missing nullability on parameter `focused` in method `requestChildFocus`
+MissingNullability: androidx.slidingpanelayout.widget.SlidingPaneLayout#setShadowDrawable(android.graphics.drawable.Drawable) parameter #0:
+    Missing nullability on parameter `d` in method `setShadowDrawable`
+MissingNullability: androidx.slidingpanelayout.widget.SlidingPaneLayout.SimplePanelSlideListener#onPanelClosed(android.view.View) parameter #0:
+    Missing nullability on parameter `panel` in method `onPanelClosed`
+MissingNullability: androidx.slidingpanelayout.widget.SlidingPaneLayout.SimplePanelSlideListener#onPanelOpened(android.view.View) parameter #0:
+    Missing nullability on parameter `panel` in method `onPanelOpened`
+MissingNullability: androidx.slidingpanelayout.widget.SlidingPaneLayout.SimplePanelSlideListener#onPanelSlide(android.view.View, float) parameter #0:
+    Missing nullability on parameter `panel` in method `onPanelSlide`

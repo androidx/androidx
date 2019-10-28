@@ -45,7 +45,9 @@ import androidx.appcompat.app.AppCompatActivity;
 import androidx.appcompat.widget.Toolbar;
 import androidx.car.R;
 import androidx.car.app.CarListDialog;
+import androidx.core.content.ContextCompat;
 import androidx.core.view.MarginLayoutParamsCompat;
+import androidx.core.widget.TextViewCompat;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -184,7 +186,7 @@ public class CarToolbar extends ViewGroup {
             int navigationIconTintResId =
                     a.getResourceId(R.styleable.CarToolbar_navigationIconTint, -1);
             if (navigationIconTintResId != -1) {
-                setNavigationIconTint(context.getColor(navigationIconTintResId));
+                setNavigationIconTint(ContextCompat.getColor(context, navigationIconTintResId));
             }
 
             int titleIconResId = a.getResourceId(R.styleable.CarToolbar_titleIcon, -1);
@@ -249,7 +251,9 @@ public class CarToolbar extends ViewGroup {
             width += navWidth + getHorizontalMargins(mNavButtonView);
         }
 
-        mToolbarItems.forEach(this::removeView);
+        for (View view: mToolbarItems) {
+            removeView(view);
+        }
         mToolbarItems.clear();
         mOverflowMenuItems.clear();
 
@@ -647,7 +651,7 @@ public class CarToolbar extends ViewGroup {
      * @param resId Resource id of TextAppearance.
      */
     public void setTitleTextAppearance(@StyleRes int resId) {
-        mTitleTextView.setTextAppearance(resId);
+        TextViewCompat.setTextAppearance(mTitleTextView, resId);
     }
 
     /**
@@ -657,7 +661,7 @@ public class CarToolbar extends ViewGroup {
      * @param resId Resource id of TextAppearance.
      */
     public void setSubtitleTextAppearance(@StyleRes int resId) {
-        mSubtitleTextView.setTextAppearance(resId);
+        TextViewCompat.setTextAppearance(mSubtitleTextView, resId);
     }
 
     /**
@@ -789,9 +793,11 @@ public class CarToolbar extends ViewGroup {
             return;
         }
 
-        CharSequence[] titles = mOverflowMenuItems.stream()
-                .map(CarMenuItem::getTitle)
-                .toArray(CharSequence[]::new);
+        List<CarListDialog.Item> titles = new ArrayList<>();
+        for (CarMenuItem item : mOverflowMenuItems) {
+            CharSequence itemText = item.getTitle() != null ? item.getTitle() : "";
+            titles.add(new CarListDialog.Item.Builder(itemText).build());
+        }
 
         mOverflowDialog = new CarListDialog.Builder(getContext())
                 .setItems(titles, mOverflowDialogClickListener)
@@ -802,7 +808,6 @@ public class CarToolbar extends ViewGroup {
      * Sets the icon of the overflow menu button.
      *
      * @param iconResId Resource id of the drawable to use for the overflow menu button.
-     *
      * @attr ref R.styleable#CarToolbar_overflowIcon
      */
     public void setOverflowIcon(@DrawableRes int iconResId) {
@@ -813,7 +818,6 @@ public class CarToolbar extends ViewGroup {
      * Sets the icon of the overflow menu button.
      *
      * @param icon Icon to set.
-     *
      * @attr ref R.styleable#CarToolbar_overflowIcon
      */
     public void setOverflowIcon(@NonNull Drawable icon) {

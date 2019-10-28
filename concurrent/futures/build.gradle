@@ -14,11 +14,11 @@
  * limitations under the License.
  */
 
+import static androidx.build.dependencies.DependenciesKt.*
+import androidx.build.AndroidXExtension
 import androidx.build.LibraryGroups
 import androidx.build.LibraryVersions
-import androidx.build.AndroidXExtension
-
-import static androidx.build.dependencies.DependenciesKt.*
+import androidx.build.Publish
 
 plugins {
     id("AndroidXPlugin")
@@ -26,15 +26,18 @@ plugins {
 }
 
 dependencies {
-    compile(project(":annotation"))
+    compile("androidx.annotation:annotation:1.1.0")
     compile(GUAVA_LISTENABLE_FUTURE)
     testCompile(JUNIT)
     testCompile(TRUTH)
 }
 
+sourceCompatibility = JavaVersion.VERSION_1_7
+targetCompatibility = JavaVersion.VERSION_1_7
+
 androidx {
     name = "AndroidX Futures"
-    publish = true
+    publish = Publish.SNAPSHOT_AND_RELEASE
     mavenVersion = LibraryVersions.FUTURES
     mavenGroup = LibraryGroups.CONCURRENT
     inceptionYear = "2018"

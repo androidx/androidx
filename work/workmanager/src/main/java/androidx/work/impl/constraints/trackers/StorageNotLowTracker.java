@@ -22,6 +22,7 @@ import android.content.IntentFilter;
 import androidx.annotation.NonNull;
 import androidx.annotation.RestrictTo;
 import androidx.work.Logger;
+import androidx.work.impl.utils.taskexecutor.TaskExecutor;
 
 /**
  * Tracks whether or not the device's storage is low.
@@ -35,9 +36,10 @@ public class StorageNotLowTracker extends BroadcastReceiverConstraintTracker<Boo
     /**
      * Create an instance of {@link StorageNotLowTracker}.
      * @param context The application {@link Context}
+     * @param taskExecutor The internal {@link TaskExecutor} being used by WorkManager.
      */
-    public StorageNotLowTracker(Context context) {
-        super(context);
+    public StorageNotLowTracker(@NonNull Context context, @NonNull TaskExecutor taskExecutor) {
+        super(context, taskExecutor);
     }
 
     @Override

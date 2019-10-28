@@ -1,0 +1,3 @@
+// Baseline format: 1.0
+RemovedInterface: androidx.media2.session.SessionResult:
+    Class androidx.media2.session.SessionResult no longer implements androidx.versionedparcelable.VersionedParcelable

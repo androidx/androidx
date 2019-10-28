@@ -90,7 +90,7 @@ public class FancySelectionDemoActivity extends AppCompatActivity {
 
         // TODO: Glue selection to ActionMode, since that'll be a common practice.
         mSelectionTracker.addObserver(
-                new SelectionObserver<Long>() {
+                new SelectionObserver<Uri>() {
                     @Override
                     public void onSelectionChanged() {
                         Log.i(TAG, "Selection changed to: " + mSelectionTracker.getSelection());

@@ -30,6 +30,8 @@ import static androidx.media2.test.common.CommonConstants.KEY_METADATA;
 import static androidx.media2.test.common.CommonConstants.KEY_PLAYER_STATE;
 import static androidx.media2.test.common.CommonConstants.KEY_PLAYLIST;
 import static androidx.media2.test.common.CommonConstants.KEY_SPEED;
+import static androidx.media2.test.common.CommonConstants.KEY_TRACK_INFO;
+import static androidx.media2.test.common.CommonConstants.KEY_VIDEO_SIZE;
 import static androidx.media2.test.common.CommonConstants.KEY_VOLUME_CONTROL_TYPE;
 import static androidx.media2.test.common.MediaSessionConstants
         .TEST_CONTROLLER_CALLBACK_SESSION_REJECTS;
@@ -55,6 +57,8 @@ import androidx.media2.common.MediaMetadata;
 import androidx.media2.common.MediaParcelUtils;
 import androidx.media2.common.ParcelImplListSlice;
 import androidx.media2.common.SessionPlayer;
+import androidx.media2.common.SubtitleData;
+import androidx.media2.common.VideoSize;
 import androidx.media2.session.MediaSession;
 import androidx.media2.session.MediaSession.ControllerInfo;
 import androidx.media2.session.SessionCommand;
@@ -139,8 +143,8 @@ public class MediaSessionProviderService extends Service {
                 case TEST_CONTROLLER_CALLBACK_SESSION_REJECTS: {
                     builder.setSessionCallback(mExecutor, new MediaSession.SessionCallback() {
                         @Override
-                        public SessionCommandGroup onConnect(MediaSession session,
-                                MediaSession.ControllerInfo controller) {
+                        public SessionCommandGroup onConnect(@NonNull MediaSession session,
+                                @NonNull MediaSession.ControllerInfo controller) {
                             return null;
                         }
                     });
@@ -149,8 +153,8 @@ public class MediaSessionProviderService extends Service {
                 case TEST_ON_PLAYLIST_METADATA_CHANGED_SESSION_SET_PLAYLIST: {
                     builder.setSessionCallback(mExecutor, new MediaSession.SessionCallback() {
                         @Override
-                        public SessionCommandGroup onConnect(MediaSession session,
-                                MediaSession.ControllerInfo controller) {
+                        public SessionCommandGroup onConnect(@NonNull MediaSession session,
+                                @NonNull MediaSession.ControllerInfo controller) {
                             SessionCommandGroup commands = new SessionCommandGroup.Builder()
                                     .addCommand(new SessionCommand(
                                             SessionCommand
@@ -222,13 +226,18 @@ public class MediaSessionProviderService extends Service {
 
                 ParcelImplListSlice listSlice = config.getParcelable(KEY_PLAYLIST);
                 if (listSlice != null) {
-                    localPlayer.mPlaylist = MediaTestUtils.convertToMediaItems(listSlice.getList(),
-                            false /* createItem */);
+                    localPlayer.mPlaylist = MediaTestUtils.convertToMediaItems(listSlice.getList());
                 }
-                ParcelImpl currentItem = config.getParcelable(KEY_MEDIA_ITEM);
-                localPlayer.mCurrentMediaItem = (currentItem == null)
-                        ? null : (MediaItem) MediaParcelUtils.fromParcelable(currentItem);
+                localPlayer.mCurrentMediaItem =
+                        MediaTestUtils.convertToMediaItem(config.getParcelable(KEY_MEDIA_ITEM));
                 localPlayer.mMetadata = ParcelUtils.getVersionedParcelable(config, KEY_METADATA);
+                ParcelImpl videoSize = config.getParcelable(KEY_VIDEO_SIZE);
+                if (videoSize != null) {
+                    localPlayer.mVideoSize = MediaParcelUtils.fromParcelable(videoSize);
+                }
+                List<SessionPlayer.TrackInfo> trackInfos =
+                        ParcelUtils.getVersionedParcelableList(config, KEY_TRACK_INFO);
+                localPlayer.mTracks = trackInfos;
                 player = localPlayer;
             }
             ParcelImpl attrImpl = config.getParcelable(KEY_AUDIO_ATTRIBUTES);
@@ -390,6 +399,35 @@ public class MediaSessionProviderService extends Service {
                     (AudioAttributesCompat) MediaParcelUtils.fromParcelable(attrs));
         }
 
+        @Override
+        public void notifyTrackInfoChanged(String sessionId, List<ParcelImpl> trackInfoParcelList)
+                throws RemoteException {
+            MediaSession session = mSessionMap.get(sessionId);
+            MockPlayer player = (MockPlayer) session.getPlayer();
+            List<SessionPlayer.TrackInfo> tracks =
+                    MediaParcelUtils.fromParcelableList(trackInfoParcelList);
+            player.notifyTracksChanged(tracks);
+        }
+
+        @Override
+        public void notifyTrackSelected(String sessionId, ParcelImpl trackInfo)
+                throws RemoteException {
+            MediaSession session = mSessionMap.get(sessionId);
+            MockPlayer player = (MockPlayer) session.getPlayer();
+            player.notifyTrackSelected(
+                    (SessionPlayer.TrackInfo) MediaParcelUtils.fromParcelable(trackInfo));
+        }
+
+        @Override
+        public void notifyTrackDeselected(String sessionId, ParcelImpl trackInfo)
+                throws RemoteException {
+            MediaSession session = mSessionMap.get(sessionId);
+            MockPlayer player = (MockPlayer) session.getPlayer();
+            player.notifyTrackDeselected(
+                    (SessionPlayer.TrackInfo) MediaParcelUtils.fromParcelable(trackInfo));
+        }
+
+
         ////////////////////////////////////////////////////////////////////////////////
         // MockPlaylistAgent methods
         ////////////////////////////////////////////////////////////////////////////////
@@ -399,7 +437,7 @@ public class MediaSessionProviderService extends Service {
                 throws RemoteException {
             MediaSession session = mSessionMap.get(sessionId);
             MockPlayer player = (MockPlayer) session.getPlayer();
-            player.mPlaylist = MediaTestUtils.convertToMediaItems(playlist, false /* createItem */);
+            player.mPlaylist = MediaTestUtils.convertToMediaItems(playlist);
         }
 
         @Override
@@ -512,6 +550,32 @@ public class MediaSessionProviderService extends Service {
             MediaSession session = mSessionMap.get(sessionId);
             MockPlayer player = (MockPlayer) session.getPlayer();
             player.notifyPlaybackCompleted();
+        }
+
+        @Override
+        public void notifyVideoSizeChanged(String sessionId, ParcelImpl videoSize) {
+            MediaSession session = mSessionMap.get(sessionId);
+            MockPlayer player = (MockPlayer) session.getPlayer();
+            VideoSize videoSizeObj = MediaParcelUtils.fromParcelable(videoSize);
+            player.notifyVideoSizeChanged(videoSizeObj);
+        }
+
+        @Override
+        public boolean surfaceExists(String sessionId) {
+            MediaSession session = mSessionMap.get(sessionId);
+            MockPlayer player = (MockPlayer) session.getPlayer();
+            return player.surfaceExists();
+        }
+
+        @Override
+        public void notifySubtitleData(String sessionId, ParcelImpl item, ParcelImpl track,
+                ParcelImpl data) {
+            MediaSession session = mSessionMap.get(sessionId);
+            MockPlayer player = (MockPlayer) session.getPlayer();
+            MediaItem itemObj = MediaParcelUtils.fromParcelable(item);
+            SessionPlayer.TrackInfo trackObj = MediaParcelUtils.fromParcelable(track);
+            SubtitleData dataObj = MediaParcelUtils.fromParcelable(data);
+            player.notifySubtitleData(itemObj, trackObj, dataObj);
         }
     }
 }

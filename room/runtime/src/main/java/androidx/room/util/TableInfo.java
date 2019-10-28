@@ -19,12 +19,15 @@ package androidx.room.util;
 import android.database.Cursor;
 import android.os.Build;
 
+import androidx.annotation.IntDef;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.annotation.RestrictTo;
 import androidx.room.ColumnInfo;
 import androidx.sqlite.db.SupportSQLiteDatabase;
 
+import java.lang.annotation.Retention;
+import java.lang.annotation.RetentionPolicy;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.HashMap;
@@ -51,6 +54,32 @@ import java.util.TreeMap;
         "SimplifiableIfStatement"})
 // if you change this class, you must change TableInfoWriter.kt
 public class TableInfo {
+
+    /**
+     * Identifies from where the info object was created.
+     */
+    @Retention(RetentionPolicy.SOURCE)
+    @IntDef(value = {CREATED_FROM_UNKNOWN, CREATED_FROM_ENTITY, CREATED_FROM_DATABASE})
+    @interface CreatedFrom {
+    }
+
+    /**
+     * Identifier for when the info is created from an unknown source.
+     */
+    public static final int CREATED_FROM_UNKNOWN = 0;
+
+    /**
+     * Identifier for when the info is created from an entity definition, such as generated code
+     * by the compiler or at runtime from a schema bundle, parsed from a schema JSON file.
+     */
+    public static final int CREATED_FROM_ENTITY = 1;
+
+    /**
+     * Identifier for when the info is created from the database itself, reading information from a
+     * PRAGMA, such as table_info.
+     */
+    public static final int CREATED_FROM_DATABASE = 2;
+
     /**
      * The table name.
      */
@@ -218,13 +247,17 @@ public class TableInfo {
                 int typeIndex = cursor.getColumnIndex("type");
                 int notNullIndex = cursor.getColumnIndex("notnull");
                 int pkIndex = cursor.getColumnIndex("pk");
+                int defaultValueIndex = cursor.getColumnIndex("dflt_value");
 
                 while (cursor.moveToNext()) {
                     final String name = cursor.getString(nameIndex);
                     final String type = cursor.getString(typeIndex);
                     final boolean notNull = 0 != cursor.getInt(notNullIndex);
                     final int primaryKeyPosition = cursor.getInt(pkIndex);
-                    columns.put(name, new Column(name, type, notNull, primaryKeyPosition));
+                    final String defaultValue = cursor.getString(defaultValueIndex);
+                    columns.put(name,
+                            new Column(name, type, notNull, primaryKeyPosition, defaultValue,
+                                    CREATED_FROM_DATABASE));
                 }
             }
         } finally {
@@ -342,14 +375,32 @@ public class TableInfo {
          * positives.
          */
         public final int primaryKeyPosition;
+        /**
+         * The default value of this column.
+         */
+        public final String defaultValue;
+
+        @CreatedFrom
+        private final int mCreatedFrom;
+
+        /**
+         * @deprecated Use {@link Column#Column(String, String, boolean, int, String, int)} instead.
+         */
+        @Deprecated
+        public Column(String name, String type, boolean notNull, int primaryKeyPosition) {
+            this(name, type, notNull, primaryKeyPosition, null, CREATED_FROM_UNKNOWN);
+        }
 
         // if you change this constructor, you must change TableInfoWriter.kt
-        public Column(String name, String type, boolean notNull, int primaryKeyPosition) {
+        public Column(String name, String type, boolean notNull, int primaryKeyPosition,
+                String defaultValue, @CreatedFrom int createdFrom) {
             this.name = name;
             this.type = type;
             this.notNull = notNull;
             this.primaryKeyPosition = primaryKeyPosition;
             this.affinity = findAffinity(type);
+            this.defaultValue = defaultValue;
+            this.mCreatedFrom = createdFrom;
         }
 
         /**
@@ -400,6 +451,24 @@ public class TableInfo {
             if (!name.equals(column.name)) return false;
             //noinspection SimplifiableIfStatement
             if (notNull != column.notNull) return false;
+
+            // Only validate default value if it was defined in an entity, i.e. if the info
+            // from the compiler itself has it. b/136019383
+            if (mCreatedFrom == CREATED_FROM_ENTITY
+                    && column.mCreatedFrom == CREATED_FROM_DATABASE
+                    && (defaultValue != null && !defaultValue.equals(column.defaultValue))) {
+                return false;
+            } else if (mCreatedFrom == CREATED_FROM_DATABASE
+                    && column.mCreatedFrom == CREATED_FROM_ENTITY
+                    && (column.defaultValue != null && !column.defaultValue.equals(defaultValue))) {
+                return false;
+            } else if (mCreatedFrom != CREATED_FROM_UNKNOWN
+                    && mCreatedFrom == column.mCreatedFrom
+                    && (defaultValue != null ? !defaultValue.equals(column.defaultValue)
+                    : column.defaultValue != null)) {
+                return false;
+            }
+
             return affinity == column.affinity;
         }
 
@@ -418,6 +487,9 @@ public class TableInfo {
             result = 31 * result + affinity;
             result = 31 * result + (notNull ? 1231 : 1237);
             result = 31 * result + primaryKeyPosition;
+            // Default value is not part of the hashcode since we conditionally check it for
+            // equality which would break the equals + hashcode contract.
+            // result = 31 * result + (defaultValue != null ? defaultValue.hashCode() : 0);
             return result;
         }
 
@@ -429,6 +501,7 @@ public class TableInfo {
                     + ", affinity='" + affinity + '\''
                     + ", notNull=" + notNull
                     + ", primaryKeyPosition=" + primaryKeyPosition
+                    + ", defaultValue='" + defaultValue + '\''
                     + '}';
         }
     }

@@ -48,7 +48,7 @@ package androidx.dynamicanimation.animation {
 
   public final class FlingAnimation extends androidx.dynamicanimation.animation.DynamicAnimation<androidx.dynamicanimation.animation.FlingAnimation> {
     ctor public FlingAnimation(androidx.dynamicanimation.animation.FloatValueHolder!);
-    ctor public FlingAnimation(K!, androidx.dynamicanimation.animation.FloatPropertyCompat<K>!);
+    ctor public FlingAnimation(K!, androidx.dynamicanimation.animation.FloatPropertyCompat<K!>!);
     method public float getFriction();
     method public androidx.dynamicanimation.animation.FlingAnimation! setFriction(@FloatRange(from=0.0, fromInclusive=false) float);
     method public androidx.dynamicanimation.animation.FlingAnimation! setMaxValue(float);
@@ -58,7 +58,7 @@ package androidx.dynamicanimation.animation {
 
   public abstract class FloatPropertyCompat<T> {
     ctor public FloatPropertyCompat(String!);
-    method @RequiresApi(24) public static <T> androidx.dynamicanimation.animation.FloatPropertyCompat<T>! createFloatPropertyCompat(android.util.FloatProperty<T>!);
+    method @RequiresApi(24) public static <T> androidx.dynamicanimation.animation.FloatPropertyCompat<T!>! createFloatPropertyCompat(android.util.FloatProperty<T!>!);
     method public abstract float getValue(T!);
     method public abstract void setValue(T!, float);
   }
@@ -72,8 +72,8 @@ package androidx.dynamicanimation.animation {
 
   public final class SpringAnimation extends androidx.dynamicanimation.animation.DynamicAnimation<androidx.dynamicanimation.animation.SpringAnimation> {
     ctor public SpringAnimation(androidx.dynamicanimation.animation.FloatValueHolder!);
-    ctor public SpringAnimation(K!, androidx.dynamicanimation.animation.FloatPropertyCompat<K>!);
-    ctor public SpringAnimation(K!, androidx.dynamicanimation.animation.FloatPropertyCompat<K>!, float);
+    ctor public SpringAnimation(K!, androidx.dynamicanimation.animation.FloatPropertyCompat<K!>!);
+    ctor public SpringAnimation(K!, androidx.dynamicanimation.animation.FloatPropertyCompat<K!>!, float);
     method public void animateToFinalPosition(float);
     method public boolean canSkipToEnd();
     method public androidx.dynamicanimation.animation.SpringForce! getSpring();

@@ -18,7 +18,7 @@
     xmlns:xliff="urn:oasis:names:tc:xliff:document:1.2">
     <string name="abc_action_mode_done" msgid="2571498368472823490">"Xong"</string>
     <string name="abc_action_bar_home_description" msgid="7903180715631665059">"Chỉ đường về nhà"</string>
-    <string name="abc_action_bar_up_description" msgid="6794660482873516081">"Điều hướng lên trên"</string>
+    <string name="abc_action_bar_up_description" msgid="6794660482873516081">"Di chuyển lên"</string>
     <string name="abc_action_menu_overflow_description" msgid="1155814932213556626">"Tùy chọn khác"</string>
     <string name="abc_toolbar_collapse_description" msgid="6389460216547290468">"Thu gọn"</string>
     <string name="abc_searchview_description_search" msgid="5466662225065974044">"Tìm kiếm"</string>

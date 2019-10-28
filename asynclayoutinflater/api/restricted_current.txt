@@ -1,1 +1,14 @@
 // Signature format: 3.0
+package androidx.asynclayoutinflater.view {
+
+  public final class AsyncLayoutInflater {
+    ctor public AsyncLayoutInflater(android.content.Context);
+    method @UiThread public void inflate(@LayoutRes int, android.view.ViewGroup?, androidx.asynclayoutinflater.view.AsyncLayoutInflater.OnInflateFinishedListener);
+  }
+
+  public static interface AsyncLayoutInflater.OnInflateFinishedListener {
+    method public void onInflateFinished(android.view.View, @LayoutRes int, android.view.ViewGroup?);
+  }
+
+}
+

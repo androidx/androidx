@@ -19,6 +19,7 @@ package androidx.media2.session;
 import android.content.Context;
 import android.media.session.MediaSessionManager;
 
+import androidx.annotation.NonNull;
 import androidx.media2.common.SessionPlayer;
 import androidx.media2.session.MediaSession.ControllerInfo;
 import androidx.media2.session.MediaSession.SessionCallback;
@@ -111,7 +112,7 @@ public class MediaSessionManager_MediaSessionTest extends MediaSessionTestBase {
                 .setId(TAG).setSessionCallback(sHandlerExecutor, new SessionCallback() {
                     @Override
                     public SessionCommandGroup onConnect(
-                            MediaSession session, ControllerInfo controller) {
+                            @NonNull MediaSession session, @NonNull ControllerInfo controller) {
                         // Reject all connection request.
                         return null;
                     }

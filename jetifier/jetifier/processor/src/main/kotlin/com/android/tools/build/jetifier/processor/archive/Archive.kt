@@ -103,16 +103,22 @@ class Archive(
         }
 
         // Create directories if they don't exist yet
-        if (outputPath.parent == null) {
-            Files.createDirectories(outputPath.parent)
+        if (outputPath.parent != null) {
+            // By default createDirectories should check if the directory already exists and not
+            // throw anything. However apparently it does not consider "tmp" to be directory and
+            // throws exception. That's why we need to check for exists here.
+            if (!Files.exists(outputPath.parent)) {
+                Files.createDirectories(outputPath.parent)
+            }
         }
 
         Log.i(TAG, "Writing archive: %s", outputPath.toUri())
         val file = outputPath.toFile()
         Files.createFile(outputPath)
         val stream = BufferedOutputStream(FileOutputStream(file))
-        writeSelfTo(stream)
-        stream.close()
+        stream.use {
+            writeSelfTo(it)
+        }
         return file
     }
 

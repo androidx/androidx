@@ -24,13 +24,11 @@ plugins {
 }
 
 android {
-    compileSdkVersion 28
     defaultConfig {
         applicationId "androidx.camera.integration.antelope"
         minSdkVersion 21
-        targetSdkVersion 28
-        versionCode 34
-        versionName "1.34"
+        versionCode 35
+        versionName "1.35"
     }
     sourceSets {
         main.manifest.srcFile 'src/main/AndroidManifest.xml'
@@ -43,10 +41,12 @@ android {
         release {
             minifyEnabled false
         }
+        debug {
+            testCoverageEnabled true
+        }
     }
-    compileOptions {
-        sourceCompatibility JavaVersion.VERSION_1_8
-        targetCompatibility JavaVersion.VERSION_1_8
+    testOptions {
+        animationsDisabled = true
     }
 }
 
@@ -55,25 +55,23 @@ dependencies {
     implementation(project(":camera:camera-camera2"))
     implementation(project(":camera:camera-core"))
 
-    // Lifecycle and LiveData
-    implementation(ARCH_LIFECYCLE_EXTENSIONS)
-
     // Android support library
-    implementation(SUPPORT_APPCOMPAT)
-    implementation(ANDROIDX_COLLECTION)
-    implementation(project(":preference")) // This one is still in alpha
+    implementation(project(":fragment:fragment"))
+    implementation("androidx.appcompat:appcompat:1.1.0")
+    implementation("androidx.collection:collection:1.0.0")
+    implementation("androidx.preference:preference:1.1.0")
     implementation("androidx.exifinterface:exifinterface:1.0.0")
     implementation(CONSTRAINT_LAYOUT, { transitive = true })
     implementation(KOTLIN_STDLIB)
 
     // Testing framework
-    implementation 'androidx.test.espresso:espresso-idling-resource:3.1.0'
     androidTestImplementation(ANDROIDX_TEST_EXT_JUNIT)
     androidTestImplementation(ANDROIDX_TEST_CORE)
     androidTestImplementation(ANDROIDX_TEST_RUNNER)
     androidTestImplementation(ANDROIDX_TEST_RULES)
-    androidTestImplementation(ANDROIDX_TEST_UIAUTOMATOR)
     androidTestImplementation(ESPRESSO_CORE)
+    implementation(ESPRESSO_IDLING_RESOURCE)
+    implementation(TRUTH)
 
     // Statistics library
     implementation(GUAVA_ANDROID)

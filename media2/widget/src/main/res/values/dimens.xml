@@ -16,32 +16,45 @@
   -->
 
 <resources>
-    <dimen name="mcv2_embedded_settings_width">150dp</dimen>
-    <dimen name="mcv2_full_settings_width">225dp</dimen>
-    <dimen name="mcv2_settings_height">48dp</dimen>
-    <dimen name="mcv2_settings_icon_size">24dp</dimen>
-    <dimen name="mcv2_settings_text_height">24dp</dimen>
-    <dimen name="mcv2_settings_main_text_size">14sp</dimen>
-    <dimen name="mcv2_settings_sub_text_size">12sp</dimen>
-    <dimen name="mcv2_settings_offset">8dp</dimen>
+    <dimen name="media2_widget_embedded_settings_width">150dp</dimen>
+    <dimen name="media2_widget_full_settings_width">225dp</dimen>
+    <dimen name="media2_widget_settings_height">48dp</dimen>
+    <dimen name="media2_widget_settings_icon_size">24dp</dimen>
+    <dimen name="media2_widget_settings_text_height">24dp</dimen>
+    <dimen name="media2_widget_settings_main_text_size">14sp</dimen>
+    <dimen name="media2_widget_settings_sub_text_size">12sp</dimen>
+    <dimen name="media2_widget_settings_offset">8dp</dimen>
 
-    <dimen name="mcv2_icon_size">48dp</dimen>
-    <dimen name="mcv2_icon_margin">10dp</dimen>
-    <dimen name="mcv2_pause_icon_padding">6dp</dimen>
-    <dimen name="mcv2_full_icon_padding">10dp</dimen>
-    <dimen name="mcv2_embedded_icon_padding">12dp</dimen>
+    <dimen name="media2_widget_icon_size">48dp</dimen>
+    <dimen name="media2_widget_icon_margin">10dp</dimen>
+    <dimen name="media2_widget_pause_icon_padding">6dp</dimen>
+    <dimen name="media2_widget_full_icon_padding">10dp</dimen>
+    <dimen name="media2_widget_embedded_icon_padding">12dp</dimen>
 
-    <dimen name="mcv2_custom_progress_max_size">2dp</dimen>
-    <dimen name="mcv2_custom_progress_thumb_size">12dp</dimen>
-    <dimen name="mcv2_custom_progress_margin_bottom">43dp</dimen>
+    <dimen name="media2_widget_custom_progress_max_size">2dp</dimen>
+    <dimen name="media2_widget_custom_progress_thumb_size">12dp</dimen>
+    <dimen name="media2_widget_custom_progress_margin_bottom">43dp</dimen>
 
-    <dimen name="mcv2_title_bar_height">48dp</dimen>
-    <dimen name="mcv2_bottom_bar_height">48dp</dimen>
+    <dimen name="media2_widget_title_bar_height">48dp</dimen>
+    <dimen name="media2_widget_bottom_bar_height">48dp</dimen>
 
-    <dimen name="MusicView_full_padding">52dp</dimen>
-    <dimen name="MusicView_full_image_size">200dp</dimen>
-    <dimen name="MusicView_image_title_gap">24dp</dimen>
-    <dimen name="MusicView_landscape_text_minimum_width">200dp</dimen>
-    <dimen name="MusicView_title_text_size">20sp</dimen>
-    <dimen name="MusicView_artist_text_size">16sp</dimen>
+    <dimen name="media2_widget_music_view_full_padding">52dp</dimen>
+    <dimen name="media2_widget_music_view_full_image_size">200dp</dimen>
+    <dimen name="media2_widget_music_view_image_title_gap">24dp</dimen>
+    <dimen name="media2_widget_music_view_landscape_text_minimum_width">200dp</dimen>
+    <dimen name="media2_widget_music_view_title_text_size">20sp</dimen>
+    <dimen name="media2_widget_music_view_artist_text_size">16sp</dimen>
+
+    <!-- Rounded corner radius for video subtitles. -->
+    <dimen name="media2_widget_subtitle_corner_radius">2dp</dimen>
+
+    <!-- Shadow radius for video subtitles. -->
+    <dimen name="media2_widget_subtitle_shadow_radius">2dp</dimen>
+
+    <!-- Shadow offset for video subtitles. -->
+    <dimen name="media2_widget_subtitle_shadow_offset">2dp</dimen>
+
+    <!-- Outline width for video subtitles. -->
+    <dimen name="media2_widget_subtitle_outline_width">2dp</dimen>
+
 </resources>

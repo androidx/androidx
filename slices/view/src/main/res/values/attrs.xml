@@ -65,6 +65,8 @@
     <attr name="sliceViewStyle" format="reference" />
 
     <declare-styleable name="RowStyle">
+        <!-- Padding to the start edge of title items shown in the row. -->
+        <attr name="titleItemStartPadding" format="dimension" />
         <!-- Padding to the end edge of title items shown in the row. -->
         <attr name="titleItemEndPadding" format="dimension" />
 

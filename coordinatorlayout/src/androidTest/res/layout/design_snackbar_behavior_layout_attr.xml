@@ -22,7 +22,7 @@
     android:layout_width="match_parent"
     android:layout_height="match_parent">
 
-    <androidx.appcompat.widget.AppCompatTextView
+    <TextView
         android:id="@+id/text"
         android:layout_height="wrap_content"
         android:layout_width="wrap_content"
@@ -31,7 +31,7 @@
         android:textSize="18dip"
         android:textStyle="bold"
         android:padding="12dip"
-        app:textAllCaps="true"
+        android:textAllCaps="true"
         app:layout_behavior="androidx.coordinatorlayout.custom.TestFloatingBehavior" />
 
 </androidx.coordinatorlayout.widget.CoordinatorLayout>

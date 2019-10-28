@@ -28,7 +28,9 @@ import static org.hamcrest.CoreMatchers.startsWith;
 import static org.hamcrest.MatcherAssert.assertThat;
 
 import android.content.Context;
+import android.database.Cursor;
 
+import androidx.annotation.NonNull;
 import androidx.room.Room;
 import androidx.room.migration.Migration;
 import androidx.room.migration.bundle.SchemaBundle;
@@ -116,14 +118,11 @@ public class MigrationTest {
         assertThat(entity2s.size(), is(2));
     }
 
-    @SuppressWarnings("deprecation")
     private MigrationDb getLatestDb() {
         MigrationDb db = Room.databaseBuilder(
                 InstrumentationRegistry.getInstrumentation().getTargetContext(),
                 MigrationDb.class, TEST_DB).addMigrations(ALL_MIGRATIONS).build();
-        // trigger open
-        db.beginTransaction();
-        db.endTransaction();
+        db.getOpenHelper().getWritableDatabase(); // trigger open
         helper.closeWhenFinished(db);
         return db;
     }
@@ -212,7 +211,7 @@ public class MigrationTest {
             helper.runMigrationsAndValidate(TEST_DB,
                     7, false, new Migration(6, 7) {
                         @Override
-                        public void migrate(SupportSQLiteDatabase database) {
+                        public void migrate(@NonNull SupportSQLiteDatabase database) {
                             database.execSQL("CREATE TABLE Entity4 (`id` INTEGER NOT NULL,"
                                     + " `name` TEXT, PRIMARY KEY(`id`))");
                         }
@@ -222,7 +221,7 @@ public class MigrationTest {
         }
         assertThat(throwable, instanceOf(IllegalStateException.class));
         //noinspection ConstantConditions
-        assertThat(throwable.getMessage(), containsString("Migration failed"));
+        assertThat(throwable.getMessage(), containsString("Migration didn't properly handle"));
     }
 
     @Test
@@ -251,6 +250,45 @@ public class MigrationTest {
     @Test
     public void addViewFailure() throws IOException {
         testFailure(7, 8);
+    }
+
+    @Test
+    public void addDefaultValue_unaccounted() throws IOException {
+        // Verify a migration test pre room 2.2.0 that adds a default value does not suddenly fails.
+        SupportSQLiteDatabase db = helper.createDatabase(TEST_DB, 8);
+        db.execSQL("INSERT INTO Entity2 (id, addedInV3, name) VALUES (1, '', '')");
+        db.close();
+        db = helper.runMigrationsAndValidate(TEST_DB,
+                9, false, MIGRATION_8_9);
+        Cursor c = db.query("SELECT id, addedInV9 FROM Entity2");
+        //noinspection TryFinallyCanBeTryWithResources
+        try {
+            assertThat(c.moveToNext(), is(true));
+            assertThat(c.getInt(0), is(1));
+            assertThat(c.getString(1), is(""));
+        } finally {
+            c.close();
+        }
+    }
+
+    @Test
+    public void addDefaultValue() throws IOException {
+        SupportSQLiteDatabase db = helper.createDatabase(TEST_DB, 10);
+        final TableInfo oldTable = TableInfo.read(db, MigrationDb.Entity2.TABLE_NAME);
+        final TableInfo.Column oldColumn = oldTable.columns.get("name");
+        assertThat(oldColumn, is(notNullValue()));
+        assertThat(oldColumn.defaultValue, is(nullValue()));
+        db.close();
+        db = helper.runMigrationsAndValidate(TEST_DB, 11, false, MIGRATION_10_11);
+        final TableInfo table = TableInfo.read(db, MigrationDb.Entity2.TABLE_NAME);
+        final TableInfo.Column column = table.columns.get("name");
+        assertThat(column, is(notNullValue()));
+        assertThat(column.defaultValue, is(equalTo("'Unknown'")));
+    }
+
+    @Test
+    public void addDefaultValueFailure() throws IOException {
+        testFailure(10, 11);
     }
 
     @Test
@@ -473,7 +511,7 @@ public class MigrationTest {
         }
         assertThat(throwable, instanceOf(IllegalStateException.class));
         //noinspection ConstantConditions
-        assertThat(throwable.getMessage(), containsString("Migration failed"));
+        assertThat(throwable.getMessage(), containsString("Migration didn't properly handle"));
     }
 
     private static final Migration MIGRATION_1_2 = new Migration(1, 2) {
@@ -541,6 +579,36 @@ public class MigrationTest {
         }
     };
 
+    private static final Migration MIGRATION_8_9 = new Migration(8, 9) {
+        @Override
+        public void migrate(@NonNull SupportSQLiteDatabase database) {
+            // Add a column along with a DEFAULT unknown to Room
+            database.execSQL("ALTER TABLE Entity2 ADD COLUMN `addedInV9` TEXT DEFAULT ''");
+        }
+    };
+
+    private static final Migration MIGRATION_9_10 = new Migration(9, 10) {
+        @Override
+        public void migrate(@NonNull SupportSQLiteDatabase database) {
+            database.execSQL("ALTER TABLE Entity1 "
+                    + "ADD COLUMN addedInV10 INTEGER NOT NULL DEFAULT 0");
+        }
+    };
+
+    private static final Migration MIGRATION_10_11 = new Migration(10, 11) {
+        @Override
+        public void migrate(@NonNull SupportSQLiteDatabase database) {
+            // Add DEFAULT constraint to Entity2.name.
+            database.execSQL("ALTER TABLE Entity2 RENAME TO save_Entity2");
+            database.execSQL("CREATE TABLE IF NOT EXISTS Entity2 "
+                    + "(`id` INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL, "
+                    + "`addedInV3` TEXT, `name` TEXT DEFAULT 'Unknown', `addedInV9` TEXT)");
+            database.execSQL("INSERT INTO Entity2 (id, addedInV3, name, addedInV9) "
+                    + "SELECT id, addedInV3, name, addedInV9 FROM save_Entity2");
+            database.execSQL("DROP TABLE save_Entity2");
+        }
+    };
+
     /**
      * Downgrade migration from {@link MigrationDb#MAX_VERSION} to
      * {@link MigrationDb#LATEST_VERSION} that uses the schema file and re-creates the tables such
@@ -581,7 +649,7 @@ public class MigrationTest {
 
     private static final Migration[] ALL_MIGRATIONS = new Migration[]{MIGRATION_1_2,
             MIGRATION_2_3, MIGRATION_3_4, MIGRATION_4_5, MIGRATION_5_6, MIGRATION_6_7,
-            MIGRATION_7_8};
+            MIGRATION_7_8, MIGRATION_8_9, MIGRATION_9_10, MIGRATION_10_11};
 
     static final class EmptyMigration extends Migration {
         EmptyMigration(int startVersion, int endVersion) {
@@ -589,7 +657,7 @@ public class MigrationTest {
         }
 
         @Override
-        public void migrate(SupportSQLiteDatabase database) {
+        public void migrate(@NonNull SupportSQLiteDatabase database) {
             // do nothing
         }
     }

@@ -158,7 +158,7 @@ public class SwitchListItemTest {
     @Test
     public void testClickableItem_setClickable() {
         SwitchListItem item0 = new SwitchListItem(mActivity);
-        item0.setClickable(true);
+        item0.setEntireItemClickable(true);
 
         List<SwitchListItem> items = Arrays.asList(item0);
         setupPagedListView(items);
@@ -169,14 +169,14 @@ public class SwitchListItemTest {
     @Test
     public void testClickableItem_ClickingTogglesSwitch() {
         SwitchListItem item0 = new SwitchListItem(mActivity);
-        item0.setClickable(true);
+        item0.setEntireItemClickable(true);
 
         List<SwitchListItem> items = Arrays.asList(item0);
         setupPagedListView(items);
 
         onView(withId(R.id.recycler_view)).perform(actionOnItemAtPosition(0, click()));
 
-        assertTrue(getViewHolderAtPosition(0).getSwitch().isChecked());
+        assertTrue(getViewHolderAtPosition(0).getCompoundButton().isChecked());
     }
 
     @Test
@@ -188,10 +188,10 @@ public class SwitchListItemTest {
         setupPagedListView(Collections.singletonList(item0));
         SwitchListItem.ViewHolder viewHolder = getViewHolderAtPosition(0);
 
-        toggleChecked(viewHolder.getSwitch());
+        toggleChecked(viewHolder.getCompoundButton());
 
         viewHolder = getViewHolderAtPosition(0);
-        assertThat(viewHolder.getSwitch().isChecked(), is(equalTo(false)));
+        assertThat(viewHolder.getCompoundButton().isChecked(), is(equalTo(false)));
     }
 
     @Test
@@ -205,8 +205,8 @@ public class SwitchListItemTest {
         refreshUi();
 
         SwitchListItem.ViewHolder viewHolder = getViewHolderAtPosition(0);
-        assertThat(viewHolder.getSwitch().getVisibility(), is(equalTo(View.VISIBLE)));
-        assertThat(viewHolder.getSwitch().isChecked(), is(equalTo(false)));
+        assertThat(viewHolder.getCompoundButton().getVisibility(), is(equalTo(View.VISIBLE)));
+        assertThat(viewHolder.getCompoundButton().isChecked(), is(equalTo(false)));
     }
 
     @Test
@@ -214,7 +214,7 @@ public class SwitchListItemTest {
         CompoundButton.OnCheckedChangeListener listener =
                 mock(CompoundButton.OnCheckedChangeListener.class);
         SwitchListItem item0 = new SwitchListItem(mActivity);
-        item0.setSwitchOnCheckedChangeListener(listener);
+        item0.setOnCheckedChangeListener(listener);
 
         setupPagedListView(Collections.singletonList(item0));
 
@@ -228,7 +228,7 @@ public class SwitchListItemTest {
         CompoundButton.OnCheckedChangeListener listener =
                 mock(CompoundButton.OnCheckedChangeListener.class);
         SwitchListItem item0 = new SwitchListItem(mActivity);
-        item0.setSwitchOnCheckedChangeListener(listener);
+        item0.setOnCheckedChangeListener(listener);
 
         setupPagedListView(Collections.singletonList(item0));
 
@@ -241,7 +241,7 @@ public class SwitchListItemTest {
         CompoundButton.OnCheckedChangeListener listener =
                 mock(CompoundButton.OnCheckedChangeListener.class);
         SwitchListItem item0 = new SwitchListItem(mActivity);
-        item0.setSwitchOnCheckedChangeListener(listener);
+        item0.setOnCheckedChangeListener(listener);
         item0.setChecked(true);
 
         setupPagedListView(Collections.singletonList(item0));
@@ -254,12 +254,12 @@ public class SwitchListItemTest {
         CompoundButton.OnCheckedChangeListener listener =
                 mock(CompoundButton.OnCheckedChangeListener.class);
         SwitchListItem item0 = new SwitchListItem(mActivity);
-        item0.setSwitchOnCheckedChangeListener(listener);
+        item0.setOnCheckedChangeListener(listener);
 
         setupPagedListView(Collections.singletonList(item0));
 
         SwitchListItem.ViewHolder viewHolder = getViewHolderAtPosition(0);
-        toggleChecked(viewHolder.getSwitch());
+        toggleChecked(viewHolder.getCompoundButton());
 
         // Expect true because switch defaults to false.
         verify(listener).onCheckedChanged(any(CompoundButton.class), eq(true));
@@ -271,7 +271,7 @@ public class SwitchListItemTest {
                 mock(CompoundButton.OnCheckedChangeListener.class);
         SwitchListItem item0 = new SwitchListItem(mActivity);
         item0.setChecked(true);
-        item0.setSwitchOnCheckedChangeListener(listener);
+        item0.setOnCheckedChangeListener(listener);
 
         setupPagedListView(Collections.singletonList(item0));
 
@@ -285,7 +285,7 @@ public class SwitchListItemTest {
     public void testCheckingSwitch() {
         final boolean[] clicked = {false};
         SwitchListItem item0 = new SwitchListItem(mActivity);
-        item0.setSwitchOnCheckedChangeListener((button, isChecked) -> {
+        item0.setOnCheckedChangeListener((button, isChecked) -> {
             // Initial value is false.
             assertTrue(isChecked);
             clicked[0] = true;
@@ -302,21 +302,21 @@ public class SwitchListItemTest {
     @Test
     public void testDividerVisibility() {
         SwitchListItem item0 = new SwitchListItem(mActivity);
-        item0.setShowSwitchDivider(true);
+        item0.setShowCompoundButtonDivider(true);
 
         SwitchListItem item1 = new SwitchListItem(mActivity);
-        item0.setShowSwitchDivider(false);
+        item0.setShowCompoundButtonDivider(false);
 
         List<SwitchListItem> items = Arrays.asList(item0, item1);
         setupPagedListView(items);
 
         SwitchListItem.ViewHolder viewHolder = getViewHolderAtPosition(0);
-        assertThat(viewHolder.getSwitch().getVisibility(), is(equalTo(View.VISIBLE)));
-        assertThat(viewHolder.getSwitch().getVisibility(), is(equalTo(View.VISIBLE)));
+        assertThat(viewHolder.getCompoundButton().getVisibility(), is(equalTo(View.VISIBLE)));
+        assertThat(viewHolder.getCompoundButton().getVisibility(), is(equalTo(View.VISIBLE)));
 
         viewHolder = getViewHolderAtPosition(1);
-        assertThat(viewHolder.getSwitch().getVisibility(), is(equalTo(View.VISIBLE)));
-        assertThat(viewHolder.getSwitchDivider().getVisibility(), is(equalTo(View.GONE)));
+        assertThat(viewHolder.getCompoundButton().getVisibility(), is(equalTo(View.VISIBLE)));
+        assertThat(viewHolder.getCompoundButtonDivider().getVisibility(), is(equalTo(View.GONE)));
     }
 
     @Test
@@ -752,7 +752,7 @@ public class SwitchListItemTest {
         SwitchListItem.ViewHolder viewHolder = getViewHolderAtPosition(0);
         assertFalse(viewHolder.getTitle().isEnabled());
         assertFalse(viewHolder.getBody().isEnabled());
-        assertFalse(viewHolder.getSwitch().isEnabled());
+        assertFalse(viewHolder.getCompoundButton().isEnabled());
     }
 
     @Test

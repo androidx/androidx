@@ -1,1 +1,38 @@
 // Signature format: 3.0
+package androidx.media2.widget {
+
+  public class MediaControlView extends android.view.ViewGroup {
+    ctor public MediaControlView(android.content.Context);
+    ctor public MediaControlView(android.content.Context, android.util.AttributeSet?);
+    ctor public MediaControlView(android.content.Context, android.util.AttributeSet?, int);
+    method public void requestPlayButtonFocus();
+    method public void setMediaController(androidx.media2.session.MediaController);
+    method public void setOnFullScreenListener(androidx.media2.widget.MediaControlView.OnFullScreenListener?);
+    method public void setPlayer(androidx.media2.common.SessionPlayer);
+  }
+
+  public static interface MediaControlView.OnFullScreenListener {
+    method public void onFullScreen(android.view.View, boolean);
+  }
+
+  public class VideoView extends android.view.ViewGroup {
+    ctor public VideoView(android.content.Context);
+    ctor public VideoView(android.content.Context, android.util.AttributeSet?);
+    ctor public VideoView(android.content.Context, android.util.AttributeSet?, int);
+    method public androidx.media2.widget.MediaControlView? getMediaControlView();
+    method public int getViewType();
+    method public void setMediaControlView(androidx.media2.widget.MediaControlView, long);
+    method public void setMediaController(androidx.media2.session.MediaController);
+    method public void setOnViewTypeChangedListener(androidx.media2.widget.VideoView.OnViewTypeChangedListener?);
+    method public void setPlayer(androidx.media2.common.SessionPlayer);
+    method public void setViewType(int);
+    field public static final int VIEW_TYPE_SURFACEVIEW = 0; // 0x0
+    field public static final int VIEW_TYPE_TEXTUREVIEW = 1; // 0x1
+  }
+
+  public static interface VideoView.OnViewTypeChangedListener {
+    method public void onViewTypeChanged(android.view.View, int);
+  }
+
+}
+

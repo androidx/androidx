@@ -3,7 +3,6 @@ package androidx.mediarouter.app {
 
   public class MediaRouteActionProvider extends androidx.core.view.ActionProvider {
     ctor public MediaRouteActionProvider(android.content.Context!);
-    method public void enableDynamicGroup();
     method public androidx.mediarouter.app.MediaRouteDialogFactory getDialogFactory();
     method public androidx.mediarouter.app.MediaRouteButton? getMediaRouteButton();
     method public androidx.mediarouter.media.MediaRouteSelector getRouteSelector();
@@ -17,7 +16,6 @@ package androidx.mediarouter.app {
     ctor public MediaRouteButton(android.content.Context!);
     ctor public MediaRouteButton(android.content.Context!, android.util.AttributeSet!);
     ctor public MediaRouteButton(android.content.Context!, android.util.AttributeSet!, int);
-    method public void enableDynamicGroup();
     method public androidx.mediarouter.app.MediaRouteDialogFactory getDialogFactory();
     method public androidx.mediarouter.media.MediaRouteSelector getRouteSelector();
     method public void onAttachedToWindow();
@@ -33,7 +31,7 @@ package androidx.mediarouter.app {
     ctor public MediaRouteChooserDialog(android.content.Context!, int);
     method public androidx.mediarouter.media.MediaRouteSelector getRouteSelector();
     method public boolean onFilterRoute(androidx.mediarouter.media.MediaRouter.RouteInfo);
-    method public void onFilterRoutes(java.util.List<androidx.mediarouter.media.MediaRouter.RouteInfo>);
+    method public void onFilterRoutes(java.util.List<androidx.mediarouter.media.MediaRouter.RouteInfo!>);
     method public void refreshRoutes();
     method public void setRouteSelector(androidx.mediarouter.media.MediaRouteSelector);
   }
@@ -165,7 +163,7 @@ package androidx.mediarouter.media {
     method public boolean canDisconnectAndKeepPlaying();
     method public static androidx.mediarouter.media.MediaRouteDescriptor! fromBundle(android.os.Bundle!);
     method public int getConnectionState();
-    method public java.util.List<android.content.IntentFilter>! getControlFilters();
+    method public java.util.List<android.content.IntentFilter!>! getControlFilters();
     method public String! getDescription();
     method public int getDeviceType();
     method public android.os.Bundle! getExtras();
@@ -189,7 +187,7 @@ package androidx.mediarouter.media {
     ctor public MediaRouteDescriptor.Builder(String!, String!);
     ctor public MediaRouteDescriptor.Builder(androidx.mediarouter.media.MediaRouteDescriptor!);
     method public androidx.mediarouter.media.MediaRouteDescriptor.Builder! addControlFilter(android.content.IntentFilter!);
-    method public androidx.mediarouter.media.MediaRouteDescriptor.Builder! addControlFilters(java.util.Collection<android.content.IntentFilter>!);
+    method public androidx.mediarouter.media.MediaRouteDescriptor.Builder! addControlFilters(java.util.Collection<android.content.IntentFilter!>!);
     method public androidx.mediarouter.media.MediaRouteDescriptor! build();
     method public androidx.mediarouter.media.MediaRouteDescriptor.Builder! setCanDisconnect(boolean);
     method @Deprecated public androidx.mediarouter.media.MediaRouteDescriptor.Builder! setConnecting(boolean);
@@ -242,11 +240,12 @@ package androidx.mediarouter.media {
 
   public abstract static class MediaRouteProvider.DynamicGroupRouteController extends androidx.mediarouter.media.MediaRouteProvider.RouteController {
     ctor public MediaRouteProvider.DynamicGroupRouteController();
+    method public abstract String getDynamicGroupRouteId();
     method public String? getGroupableSelectionTitle();
     method public String? getTransferableSectionTitle();
     method public abstract void onAddMemberRoute(String);
     method public abstract void onRemoveMemberRoute(String!);
-    method public abstract void onUpdateMemberRoutes(java.util.List<java.lang.String>?);
+    method public abstract void onUpdateMemberRoutes(java.util.List<java.lang.String!>?);
     method public abstract void setOnDynamicRoutesChangedListener(java.util.concurrent.Executor, androidx.mediarouter.media.MediaRouteProvider.DynamicGroupRouteController.OnDynamicRoutesChangedListener);
   }
 
@@ -273,7 +272,7 @@ package androidx.mediarouter.media {
   }
 
   public static interface MediaRouteProvider.DynamicGroupRouteController.OnDynamicRoutesChangedListener {
-    method public void onRoutesChanged(androidx.mediarouter.media.MediaRouteProvider.DynamicGroupRouteController!, java.util.Collection<androidx.mediarouter.media.MediaRouteProvider.DynamicGroupRouteController.DynamicRouteDescriptor>!);
+    method public void onRoutesChanged(androidx.mediarouter.media.MediaRouteProvider.DynamicGroupRouteController!, java.util.Collection<androidx.mediarouter.media.MediaRouteProvider.DynamicGroupRouteController.DynamicRouteDescriptor!>!);
   }
 
   public static final class MediaRouteProvider.ProviderMetadata {
@@ -295,7 +294,7 @@ package androidx.mediarouter.media {
   public final class MediaRouteProviderDescriptor {
     method public android.os.Bundle! asBundle();
     method public static androidx.mediarouter.media.MediaRouteProviderDescriptor! fromBundle(android.os.Bundle!);
-    method public java.util.List<androidx.mediarouter.media.MediaRouteDescriptor> getRoutes();
+    method public java.util.List<androidx.mediarouter.media.MediaRouteDescriptor!> getRoutes();
     method public boolean isValid();
     method public boolean supportsDynamicGroupRoute();
   }
@@ -304,7 +303,7 @@ package androidx.mediarouter.media {
     ctor public MediaRouteProviderDescriptor.Builder();
     ctor public MediaRouteProviderDescriptor.Builder(androidx.mediarouter.media.MediaRouteProviderDescriptor!);
     method public androidx.mediarouter.media.MediaRouteProviderDescriptor.Builder! addRoute(androidx.mediarouter.media.MediaRouteDescriptor!);
-    method public androidx.mediarouter.media.MediaRouteProviderDescriptor.Builder! addRoutes(java.util.Collection<androidx.mediarouter.media.MediaRouteDescriptor>!);
+    method public androidx.mediarouter.media.MediaRouteProviderDescriptor.Builder! addRoutes(java.util.Collection<androidx.mediarouter.media.MediaRouteDescriptor!>!);
     method public androidx.mediarouter.media.MediaRouteProviderDescriptor! build();
     method public androidx.mediarouter.media.MediaRouteProviderDescriptor.Builder! setSupportsDynamicGroupRoute(boolean);
   }
@@ -321,18 +320,18 @@ package androidx.mediarouter.media {
     method public android.os.Bundle! asBundle();
     method public boolean contains(androidx.mediarouter.media.MediaRouteSelector!);
     method public static androidx.mediarouter.media.MediaRouteSelector! fromBundle(android.os.Bundle?);
-    method public java.util.List<java.lang.String>! getControlCategories();
+    method public java.util.List<java.lang.String!>! getControlCategories();
     method public boolean hasControlCategory(String!);
     method public boolean isEmpty();
     method public boolean isValid();
-    method public boolean matchesControlFilters(java.util.List<android.content.IntentFilter>!);
+    method public boolean matchesControlFilters(java.util.List<android.content.IntentFilter!>!);
     field public static final androidx.mediarouter.media.MediaRouteSelector! EMPTY;
   }
 
   public static final class MediaRouteSelector.Builder {
     ctor public MediaRouteSelector.Builder();
     ctor public MediaRouteSelector.Builder(androidx.mediarouter.media.MediaRouteSelector);
-    method public androidx.mediarouter.media.MediaRouteSelector.Builder addControlCategories(java.util.Collection<java.lang.String>);
+    method public androidx.mediarouter.media.MediaRouteSelector.Builder addControlCategories(java.util.Collection<java.lang.String!>);
     method public androidx.mediarouter.media.MediaRouteSelector.Builder addControlCategory(String);
     method public androidx.mediarouter.media.MediaRouteSelector.Builder addSelector(androidx.mediarouter.media.MediaRouteSelector);
     method public androidx.mediarouter.media.MediaRouteSelector build();
@@ -347,8 +346,8 @@ package androidx.mediarouter.media {
     method public androidx.mediarouter.media.MediaRouter.RouteInfo getDefaultRoute();
     method public static androidx.mediarouter.media.MediaRouter! getInstance(android.content.Context);
     method public android.support.v4.media.session.MediaSessionCompat.Token! getMediaSessionToken();
-    method public java.util.List<androidx.mediarouter.media.MediaRouter.ProviderInfo>! getProviders();
-    method public java.util.List<androidx.mediarouter.media.MediaRouter.RouteInfo>! getRoutes();
+    method public java.util.List<androidx.mediarouter.media.MediaRouter.ProviderInfo!>! getProviders();
+    method public java.util.List<androidx.mediarouter.media.MediaRouter.RouteInfo!>! getRoutes();
     method public androidx.mediarouter.media.MediaRouter.RouteInfo getSelectedRoute();
     method public boolean isRouteAvailable(androidx.mediarouter.media.MediaRouteSelector, int);
     method public void removeCallback(androidx.mediarouter.media.MediaRouter.Callback);
@@ -396,13 +395,13 @@ package androidx.mediarouter.media {
     method public android.content.ComponentName! getComponentName();
     method public String! getPackageName();
     method public androidx.mediarouter.media.MediaRouteProvider! getProviderInstance();
-    method public java.util.List<androidx.mediarouter.media.MediaRouter.RouteInfo>! getRoutes();
+    method public java.util.List<androidx.mediarouter.media.MediaRouter.RouteInfo!>! getRoutes();
   }
 
   public static class MediaRouter.RouteInfo {
     method public boolean canDisconnect();
     method public int getConnectionState();
-    method public java.util.List<android.content.IntentFilter>! getControlFilters();
+    method public java.util.List<android.content.IntentFilter!>! getControlFilters();
     method public String? getDescription();
     method public int getDeviceType();
     method public android.os.Bundle? getExtras();

@@ -1,0 +1,3 @@
+// Baseline format: 1.0
+MissingBuild: androidx.navigation.NavDeepLinkBuilder:
+    Missing `build()` method in androidx.navigation.NavDeepLinkBuilder

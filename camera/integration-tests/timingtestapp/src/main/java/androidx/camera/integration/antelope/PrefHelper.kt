@@ -14,6 +14,8 @@
  * limitations under the License.
  */
 
+@file:Suppress("DEPRECATION")
+
 package androidx.camera.integration.antelope
 
 import android.content.SharedPreferences
@@ -32,27 +34,27 @@ import kotlin.collections.iterator
 class PrefHelper {
     companion object {
         internal fun getAutoDelete(activity: MainActivity): Boolean {
-            var sharedPref: SharedPreferences =
+            val sharedPref: SharedPreferences =
                 PreferenceManager.getDefaultSharedPreferences(activity)
             return sharedPref.getBoolean(activity.getString(R.string.settings_autodelete_key), true)
         }
 
         internal fun getNumTests(activity: MainActivity): Int {
-            var sharedPref: SharedPreferences =
+            val sharedPref: SharedPreferences =
                 PreferenceManager.getDefaultSharedPreferences(activity)
-            return sharedPref.getString(activity
-                .getString(R.string.settings_numtests_key), "30").toInt()
+            return (sharedPref.getString(activity
+                .getString(R.string.settings_numtests_key), "30") ?: "30").toInt()
         }
 
         internal fun getPreviewBuffer(activity: MainActivity): Long {
-            var sharedPref: SharedPreferences =
+            val sharedPref: SharedPreferences =
                 PreferenceManager.getDefaultSharedPreferences(activity)
-            return sharedPref.getString(activity.getString(R.string.settings_previewbuffer_key),
-                "1500").toLong()
+            return (sharedPref.getString(activity.getString(R.string.settings_previewbuffer_key),
+                "1500") ?: "1500").toLong()
         }
 
         internal fun getAPIs(activity: MainActivity): ArrayList<CameraAPI> {
-            var sharedPref: SharedPreferences =
+            val sharedPref: SharedPreferences =
                 PreferenceManager.getDefaultSharedPreferences(activity)
             val defApis: HashSet<String> =
                 HashSet(activity.resources.getStringArray(R.array.array_settings_api).asList())
@@ -76,7 +78,7 @@ class PrefHelper {
         }
 
         internal fun getImageSizes(activity: MainActivity): ArrayList<ImageCaptureSize> {
-            var sharedPref: SharedPreferences =
+            val sharedPref: SharedPreferences =
                 PreferenceManager.getDefaultSharedPreferences(activity)
             val defSizes: HashSet<String> = HashSet(activity.resources
                 .getStringArray(R.array.array_settings_imagesize).asList())
@@ -100,14 +102,14 @@ class PrefHelper {
         }
 
         internal fun getFocusModes(activity: MainActivity): ArrayList<FocusMode> {
-            var sharedPref: SharedPreferences =
+            val sharedPref: SharedPreferences =
                 PreferenceManager.getDefaultSharedPreferences(activity)
             val defModes: HashSet<String> =
                 HashSet(activity.resources.getStringArray(R.array.array_settings_focus).asList())
 
             val modeStrings: HashSet<String> =
                 sharedPref.getStringSet(activity.getString(R.string.settings_autotest_focus_key),
-                defModes) as HashSet<String>
+                    defModes) as HashSet<String>
 
             val modes: ArrayList<FocusMode> = ArrayList()
 
@@ -124,14 +126,14 @@ class PrefHelper {
         }
 
         internal fun getOnlyLogical(activity: MainActivity): Boolean {
-            var sharedPref: SharedPreferences =
+            val sharedPref: SharedPreferences =
                 PreferenceManager.getDefaultSharedPreferences(activity)
             return sharedPref.getBoolean(activity
                 .getString(R.string.settings_autotest_cameras_key), true)
         }
 
         internal fun getSwitchTest(activity: MainActivity): Boolean {
-            var sharedPref: SharedPreferences =
+            val sharedPref: SharedPreferences =
                 PreferenceManager.getDefaultSharedPreferences(activity)
             return sharedPref
                 .getBoolean(activity.getString(R.string.settings_autotest_switchtest_key), true)
@@ -142,6 +144,7 @@ class PrefHelper {
                 PreferenceManager.getDefaultSharedPreferences(activity)
             return sharedPref
                 .getString(activity.getString(R.string.settings_single_test_type_key), "PHOTO")
+                ?: "PHOTO"
         }
 
         internal fun getSingleTestFocus(activity: MainActivity): String {
@@ -149,6 +152,7 @@ class PrefHelper {
                 PreferenceManager.getDefaultSharedPreferences(activity)
             return sharedPref
                 .getString(activity.getString(R.string.settings_single_test_focus_key), "Auto")
+                ?: "Auto"
         }
 
         internal fun getSingleTestImageSize(activity: MainActivity): String {
@@ -156,13 +160,14 @@ class PrefHelper {
                 PreferenceManager.getDefaultSharedPreferences(activity)
             return sharedPref
                 .getString(activity.getString(R.string.settings_single_test_imagesize_key), "Max")
+                ?: "Max"
         }
 
         internal fun getSingleTestCamera(activity: MainActivity): String {
             val sharedPref: SharedPreferences =
                 PreferenceManager.getDefaultSharedPreferences(activity)
             return sharedPref
-                .getString(activity.getString(R.string.settings_single_test_camera_key), "0")
+                .getString(activity.getString(R.string.settings_single_test_camera_key), "0") ?: "0"
         }
 
         internal fun getSingleTestApi(activity: MainActivity): String {
@@ -170,6 +175,7 @@ class PrefHelper {
                 PreferenceManager.getDefaultSharedPreferences(activity)
             return sharedPref
                 .getString(activity.getString(R.string.settings_single_test_api_key), "Camera2")
+                ?: "Camera2"
         }
 
         internal fun getCameraIds(
@@ -209,7 +215,6 @@ class PrefHelper {
         }
 
         internal fun getLogicalCameraIds(
-            activity: MainActivity,
             cameraParams: HashMap<String, CameraParams>
         ): ArrayList<String> {
 

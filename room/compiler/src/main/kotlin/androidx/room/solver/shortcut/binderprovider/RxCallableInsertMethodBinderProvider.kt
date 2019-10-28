@@ -71,20 +71,20 @@ sealed class RxCallableInsertMethodBinderProvider(
     }
 }
 
-class RxSingleInsertMethodBinderProvider(context: Context)
-    : RxCallableInsertMethodBinderProvider(context, RxType.SINGLE) {
+class RxSingleInsertMethodBinderProvider(context: Context) :
+    RxCallableInsertMethodBinderProvider(context, RxType.SINGLE) {
 
     override fun extractTypeArg(declared: DeclaredType): TypeMirror = declared.typeArguments.first()
 }
 
-class RxMaybeInsertMethodBinderProvider(context: Context)
-    : RxCallableInsertMethodBinderProvider(context, RxType.MAYBE) {
+class RxMaybeInsertMethodBinderProvider(context: Context) :
+    RxCallableInsertMethodBinderProvider(context, RxType.MAYBE) {
 
     override fun extractTypeArg(declared: DeclaredType): TypeMirror = declared.typeArguments.first()
 }
 
-class RxCompletableInsertMethodBinderProvider(context: Context)
-    : RxCallableInsertMethodBinderProvider(context,
+class RxCompletableInsertMethodBinderProvider(context: Context) :
+    RxCallableInsertMethodBinderProvider(context,
         RxType.COMPLETABLE) {
 
     private val completableTypeMirror: TypeMirror? by lazy {

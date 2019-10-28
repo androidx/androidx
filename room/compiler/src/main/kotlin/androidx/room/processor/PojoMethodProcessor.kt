@@ -25,9 +25,10 @@ import javax.lang.model.type.DeclaredType
  * processes an executable element as member of the owning class
  */
 class PojoMethodProcessor(
-        private val context: Context,
-        private val element: ExecutableElement,
-        private val owner: DeclaredType) {
+    private val context: Context,
+    private val element: ExecutableElement,
+    private val owner: DeclaredType
+) {
     fun process(): PojoMethod {
         val asMember = context.processingEnv.typeUtils.asMemberOf(owner, element)
         val name = element.simpleName.toString()

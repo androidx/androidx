@@ -10,8 +10,8 @@ package androidx.coordinatorlayout.widget {
     method protected androidx.coordinatorlayout.widget.CoordinatorLayout.LayoutParams! generateDefaultLayoutParams();
     method public androidx.coordinatorlayout.widget.CoordinatorLayout.LayoutParams! generateLayoutParams(android.util.AttributeSet!);
     method protected androidx.coordinatorlayout.widget.CoordinatorLayout.LayoutParams! generateLayoutParams(android.view.ViewGroup.LayoutParams!);
-    method public java.util.List<android.view.View> getDependencies(android.view.View);
-    method public java.util.List<android.view.View> getDependents(android.view.View);
+    method public java.util.List<android.view.View!> getDependencies(android.view.View);
+    method public java.util.List<android.view.View!> getDependents(android.view.View);
     method public android.graphics.drawable.Drawable? getStatusBarBackground();
     method public boolean isPointInChildBounds(android.view.View, int, int);
     method public void onAttachedToWindow();
@@ -94,7 +94,7 @@ package androidx.coordinatorlayout.widget {
   protected static class CoordinatorLayout.SavedState extends androidx.customview.view.AbsSavedState {
     ctor public CoordinatorLayout.SavedState(android.os.Parcel!, ClassLoader!);
     ctor public CoordinatorLayout.SavedState(android.os.Parcelable!);
-    field public static final android.os.Parcelable.Creator<androidx.coordinatorlayout.widget.CoordinatorLayout.SavedState>! CREATOR;
+    field public static final android.os.Parcelable.Creator<androidx.coordinatorlayout.widget.CoordinatorLayout.SavedState!>! CREATOR;
   }
 
 }

@@ -17,7 +17,7 @@
 
 <!-- This is a primitive example showing the different types of preferences available. -->
 <!-- BEGIN_INCLUDE(preferences) -->
-<androidx.preference.PreferenceScreen
+<PreferenceScreen
         xmlns:android="http://schemas.android.com/apk/res/android"
         xmlns:app="http://schemas.android.com/apk/res-auto">
 
@@ -140,8 +140,9 @@
                 android:key="copyable"
                 android:title="@string/title_copyable_preference"
                 android:summary="@string/summary_copyable_preference"
+                android:selectable="false"
                 app:enableCopying="true"/>
     </PreferenceCategory>
 
-</androidx.preference.PreferenceScreen>
+</PreferenceScreen>
 <!-- END_INCLUDE(preferences) -->

@@ -18,7 +18,6 @@ package androidx.car.widget;
 
 import android.content.Context;
 import android.graphics.drawable.Drawable;
-import android.graphics.drawable.Icon;
 
 import androidx.annotation.DrawableRes;
 import androidx.annotation.NonNull;
@@ -31,19 +30,18 @@ import androidx.car.R;
  *
  * <p>The following properties can be specified:
  * <ul>
- *     <li>Title - Primary text that is shown on the item.
- *     <li>{@link CarMenuItem.OnClickListener} - Listener that handles the clicks on the item.
- *     <li>Icon - An {@link Icon} shown before the title, if the item is not checkable (a switch).
- *     <li>Style - A Resource Id that specifies the style of the item if it's not an overflow item.
- *     <li>Enabled - A boolean that specifies whether the item is enabled or disabled.
- *     <li>Checkable - A boolean that specifies whether the item is checkable (a switch) or not.
- *     <li>Checked - A boolean that specifies whether the item is currently checked or not.
- *     <li>DisplayBehavior - A {@link DisplayBehavior} that specifies where the item is displayed.
+ * <li>Title - Primary text that is shown on the item.
+ * <li>{@link CarMenuItem.OnClickListener} - Listener that handles the clicks on the item.
+ * <li>Icon - An icon shown before the title, if the item is not checkable (a switch).
+ * <li>Style - A Resource Id that specifies the style of the item if it's not an overflow item.
+ * <li>Enabled - A boolean that specifies whether the item is enabled or disabled.
+ * <li>Checkable - A boolean that specifies whether the item is checkable (a switch) or not.
+ * <li>Checked - A boolean that specifies whether the item is currently checked or not.
+ * <li>DisplayBehavior - A {@link DisplayBehavior} that specifies where the item is displayed.
  * </ul>
  *
  * <p>Properties such as the title, isEnabled, and isChecked can be modified
  * after creation, and as such, have setters in the class and the builder.
- *
  */
 public final class CarMenuItem {
     /**
@@ -77,6 +75,7 @@ public final class CarMenuItem {
          */
         NEVER
     }
+
     @Nullable
     private CharSequence mTitle;
     private boolean mIsEnabled;
@@ -86,7 +85,6 @@ public final class CarMenuItem {
     @Nullable
     private final OnClickListener mOnClickListener;
     @Nullable
-    private final Icon mIcon;
     private final Drawable mIconDrawable;
 
     private final boolean mIsCheckable;
@@ -96,7 +94,6 @@ public final class CarMenuItem {
         mTitle = builder.mTitle;
         mOnClickListener = builder.mOnClickListener;
         mStyleResId = builder.mStyleResId;
-        mIcon = builder.mIcon;
         mIconDrawable = builder.mIconDrawable;
         mIsEnabled = builder.mIsEnabled;
         mIsChecked = builder.mIsChecked;
@@ -201,11 +198,11 @@ public final class CarMenuItem {
      * Builder for creating a {@link CarMenuItem}
      */
     public static final class Builder {
+        @Nullable
+        private Context mContext;
         CharSequence mTitle;
         @Nullable
         OnClickListener mOnClickListener;
-        @Nullable
-        Icon mIcon;
         @Nullable
         Drawable mIconDrawable;
         @StyleRes
@@ -215,6 +212,25 @@ public final class CarMenuItem {
         boolean mIsCheckable;
         // If not specified, the item will be displayed only if there is room on the toolbar.
         DisplayBehavior mDisplayBehavior = DisplayBehavior.IF_ROOM;
+
+        /**
+         * Creates a new instance of the {@code Builder}.
+         *
+         * @deprecated Use
+         * {@link androidx.car.widget.CarMenuItem.Builder#CarMenuItem.Builder(Context)} instead.
+         */
+        @Deprecated
+        public Builder() {
+        }
+
+        /**
+         * Creates a new instance of the {@code Builder}.
+         *
+         * @param context The {@code Context} that the menu item is to be created in.
+         */
+        public Builder(@NonNull Context context) {
+            mContext = context;
+        }
 
         /**
          * Sets the title of the {@code CarMenuItem}.
@@ -243,27 +259,12 @@ public final class CarMenuItem {
         /**
          * Sets the style of the {@code CarMenuItem}.
          *
-         * @param styleResId Res Id of the style to be used for the {@code CarMenuItem}.
+         * @param styleResId Resource Id of the style to be used for the {@code CarMenuItem}.
          * @return This {@code Builder} object to allow call chaining.
          */
         @NonNull
         public Builder setStyle(@StyleRes int styleResId) {
             mStyleResId = styleResId;
-            return this;
-        }
-
-        /**
-         * Sets the icon of the {@code CarMenuItem}.
-         *
-         * @param icon Icon of the {@code CarMenuItem}.
-         * @return This {@code Builder} object to allow call chaining.
-         *
-         * @deprecated Use {@link #setIcon(Context, int)} instead.
-         */
-        @Deprecated
-        @NonNull
-        public Builder setIcon(@NonNull Icon icon) {
-            mIcon = icon;
             return this;
         }
 
@@ -282,10 +283,30 @@ public final class CarMenuItem {
         /**
          * Sets the icon of the {@code CarMenuItem}.
          *
-         * @param context Context to load the drawble resource with.
-         * @param iconResId Resource id of icon of the {@code CarMenuItem}.
+         * @param iconId Resource Id of the icon to be used for the {@code CarMenuItem}.
          * @return This {@code Builder} object to allow call chaining.
          */
+        @NonNull
+        public Builder setIcon(@DrawableRes int iconId) {
+            if (mContext == null) {
+                throw new IllegalStateException(
+                        "Cannot use deprecated constructor to create CarMenuItem.Builder object. "
+                                + "Use CarMenuItem.Builder(Context) instead");
+            }
+
+            mIconDrawable = mContext.getDrawable(iconId);
+            return this;
+        }
+
+        /**
+         * Sets the icon of the {@code CarMenuItem}.
+         *
+         * @param context   Context to load the drawable resource with.
+         * @param iconResId Resource id of icon of the {@code CarMenuItem}.
+         * @return This {@code Builder} object to allow call chaining.
+         * @deprecated Use {@link #setIcon(Drawable)} instead.
+         */
+        @Deprecated
         @NonNull
         public Builder setIcon(@NonNull Context context, @DrawableRes int iconResId) {
             mIconDrawable = context.getDrawable(iconResId);

@@ -17,6 +17,7 @@
 package androidx.recyclerview.widget
 
 import androidx.test.filters.SmallTest
+import androidx.testutils.TestExecutor
 import org.junit.Assert.assertEquals
 import org.junit.Assert.assertNotSame
 import org.junit.Assert.assertSame
@@ -31,27 +32,6 @@ import org.mockito.Mockito.verifyNoMoreInteractions
 import org.mockito.Mockito.verifyZeroInteractions
 import java.lang.UnsupportedOperationException
 import java.util.Collections.emptyList
-import java.util.LinkedList
-import java.util.concurrent.Executor
-
-class TestExecutor : Executor {
-    private val mTasks = LinkedList<Runnable>()
-
-    override fun execute(command: Runnable) {
-        mTasks.add(command)
-    }
-
-    fun executeAll(): Boolean {
-        val consumed = !mTasks.isEmpty()
-
-        var task = mTasks.poll()
-        while (task != null) {
-            task.run()
-            task = mTasks.poll()
-        }
-        return consumed
-    }
-}
 
 @SmallTest
 @RunWith(JUnit4::class)

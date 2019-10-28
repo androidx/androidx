@@ -16,6 +16,7 @@
 
 package androidx.media2.session;
 
+import androidx.annotation.NonNull;
 import androidx.media2.session.MediaSession.ControllerInfo;
 import androidx.media2.session.MediaSession.SessionCallback;
 import androidx.media2.session.TestUtils.SyncHandler;
@@ -40,7 +41,7 @@ public class MockMediaSessionService extends MediaSessionService {
     }
 
     @Override
-    public MediaSession onGetSession(ControllerInfo controllerInfo) {
+    public MediaSession onGetSession(@NonNull ControllerInfo controllerInfo) {
         TestServiceRegistry registry = TestServiceRegistry.getInstance();
         TestServiceRegistry.OnGetSessionHandler onGetSessionHandler =
                 registry.getOnGetSessionHandler();

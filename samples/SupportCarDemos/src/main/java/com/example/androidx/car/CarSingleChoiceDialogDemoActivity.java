@@ -39,7 +39,7 @@ public class CarSingleChoiceDialogDemoActivity extends FragmentActivity {
         setContentView(R.layout.selection_dialog_activity);
 
         CarToolbar toolbar = findViewById(R.id.car_toolbar);
-        toolbar.setTitle(R.string.single_selection_dialog_title);
+        toolbar.setTitle(R.string.single_choice_dialog_title);
         toolbar.setNavigationIconOnClickListener(v -> onNavigateUp());
 
         findViewById(R.id.create_dialog).setOnClickListener(v -> createAndShowDialog());
@@ -47,7 +47,7 @@ public class CarSingleChoiceDialogDemoActivity extends FragmentActivity {
 
     private void createAndShowDialog() {
         Dialog test = new CarSingleChoiceDialog.Builder(this)
-                .setTitle("Sample single selection dialog")
+                .setTitle("Sample single choice dialog")
                 .setBody("You can put any generic body text here.")
                 .setItems(createSelectionItems(), 0)
                 .setPositiveButton("Okay",

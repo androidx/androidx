@@ -2195,7 +2195,7 @@ public class ItemTouchHelper extends RecyclerView.ItemDecoration
      * ItemTouchHelper mIth = new ItemTouchHelper(
      *     new ItemTouchHelper.SimpleCallback(ItemTouchHelper.UP | ItemTouchHelper.DOWN,
      *         ItemTouchHelper.LEFT) {
-     *         public abstract boolean onMove(RecyclerView recyclerView,
+     *         public boolean onMove(RecyclerView recyclerView,
      *             ViewHolder viewHolder, ViewHolder target) {
      *             final int fromPos = viewHolder.getAdapterPosition();
      *             final int toPos = target.getAdapterPosition();

@@ -16,7 +16,6 @@
   -->
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
           package="android.support.v7.appcompat.test">
-    <uses-sdk android:targetSdkVersion="${target-sdk-version}"/>
 
     <application
             android:supportsRtl="true"
@@ -152,8 +151,8 @@
                 android:theme="@style/Theme.AppCompat.DayNight"/>
 
         <activity
-            android:name="androidx.appcompat.app.NightModeLateOnCreateActivity"
-            android:theme="@style/Theme.AppCompat.DayNight"/>
+                android:name="androidx.appcompat.app.NightModeLateOnCreateActivity"
+                android:theme="@style/Theme.AppCompat.DayNight"/>
 
         <activity
                 android:name="androidx.appcompat.app.NightModeUiModeConfigChangesActivity"
@@ -161,9 +160,13 @@
                 android:configChanges="uiMode"/>
 
         <activity
-            android:name="androidx.appcompat.app.NightModeOrientationConfigChangesActivity"
-            android:theme="@style/Theme.AppCompat.DayNight"
-            android:configChanges="orientation|screenSize"/>
+                android:name="androidx.appcompat.app.NightModeRotateDoesNotRecreateActivity"
+                android:theme="@style/Theme.AppCompat.DayNight"
+                android:configChanges="orientation|screenSize"/>
+
+        <activity
+                android:name="androidx.appcompat.app.NightModeCustomConfigurationActivity"
+                android:theme="@style/Theme.AppCompat.DayNight"/>
 
         <activity
                 android:name="androidx.appcompat.app.AppCompatVectorDrawableIntegrationActivity"/>
@@ -186,6 +189,10 @@
         <activity
                 android:name="androidx.appcompat.widget.ToolbarTestActivity"
                 android:theme="@style/Theme.AppCompat.NoActionBar"/>
+
+        <activity
+                android:name="androidx.appcompat.app.EmptyOptionsPanelActivity"
+                android:theme="@style/Theme.AppCompat.NoActionBar" />
 
     </application>
 

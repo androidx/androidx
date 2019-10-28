@@ -16,6 +16,7 @@
 
 import androidx.build.LibraryGroups
 import androidx.build.LibraryVersions
+import androidx.build.Publish
 
 plugins {
     id("AndroidXPlugin")
@@ -24,12 +25,12 @@ plugins {
 
 dependencies {
     api(project(":emoji"))
-    api(project(":appcompat"))
+    api("androidx.appcompat:appcompat:1.1.0")
 }
 
 androidx {
     name = "Android Emoji AppCompat"
-    publish = true
+    publish = Publish.SNAPSHOT_AND_RELEASE
     mavenVersion = LibraryVersions.EMOJI
     mavenGroup = LibraryGroups.EMOJI
     inceptionYear = "2017"

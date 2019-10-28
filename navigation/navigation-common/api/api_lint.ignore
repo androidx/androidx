@@ -1,0 +1,23 @@
+// Baseline format: 1.0
+KotlinOperator: androidx.navigation.NavType#get(android.os.Bundle, String):
+    Method can be invoked with an indexing operator from Kotlin: `get` (this is usually desirable; just make sure it makes sense for this type of object)
+
+
+MissingNullability: androidx.navigation.ActionOnlyNavDirections#equals(Object) parameter #0:
+    Missing nullability on parameter `object` in method `equals`
+MissingNullability: androidx.navigation.ActionOnlyNavDirections#toString():
+    Missing nullability on method `toString` return
+MissingNullability: androidx.navigation.NavArgument#equals(Object) parameter #0:
+    Missing nullability on parameter `o` in method `equals`
+MissingNullability: androidx.navigation.NavDestination.ClassType#value():
+    Missing nullability on method `value` return
+MissingNullability: androidx.navigation.NavType.ParcelableArrayType#equals(Object) parameter #0:
+    Missing nullability on parameter `o` in method `equals`
+MissingNullability: androidx.navigation.NavType.ParcelableType#equals(Object) parameter #0:
+    Missing nullability on parameter `o` in method `equals`
+MissingNullability: androidx.navigation.NavType.SerializableArrayType#equals(Object) parameter #0:
+    Missing nullability on parameter `o` in method `equals`
+MissingNullability: androidx.navigation.NavType.SerializableType#equals(Object) parameter #0:
+    Missing nullability on parameter `o` in method `equals`
+MissingNullability: androidx.navigation.Navigator.Name#value():
+    Missing nullability on method `value` return

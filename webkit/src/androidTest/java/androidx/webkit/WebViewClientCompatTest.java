@@ -18,7 +18,6 @@ package androidx.webkit;
 
 import android.graphics.Bitmap;
 import android.net.Uri;
-import android.webkit.ValueCallback;
 import android.webkit.WebResourceRequest;
 import android.webkit.WebResourceResponse;
 import android.webkit.WebView;
@@ -159,18 +158,9 @@ public class WebViewClientCompatTest {
 
     private void clickOnLinkUsingJs(final String linkId, WebViewOnUiThread webViewOnUiThread)
             throws InterruptedException, ExecutionException, TimeoutException {
-        final ResolvableFuture<String> javascriptFuture = ResolvableFuture.create();
-        ValueCallback<String> callback = new ValueCallback<String>() {
-            @Override
-            public void onReceiveValue(String value) {
-                javascriptFuture.set(value);
-            }
-        };
-        webViewOnUiThread.evaluateJavascript(
+        webViewOnUiThread.evaluateJavascriptSync(
                 "document.getElementById('" + linkId + "').click();"
-                        + "console.log('element with id [" + linkId + "] clicked');", callback);
-        // TODO(ntfschr): consider asserting the value.
-        WebkitUtils.waitForFuture(javascriptFuture);
+                        + "console.log('element with id [" + linkId + "] clicked');");
     }
 
     /**

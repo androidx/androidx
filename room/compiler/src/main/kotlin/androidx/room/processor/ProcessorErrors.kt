@@ -21,6 +21,7 @@ import androidx.room.Insert
 import androidx.room.Query
 import androidx.room.RawQuery
 import androidx.room.Update
+import androidx.room.ext.KotlinTypeNames
 import androidx.room.ext.RoomTypeNames
 import androidx.room.ext.SupportDbTypeNames
 import androidx.room.parser.QueryType
@@ -159,9 +160,9 @@ object ProcessorErrors {
             " attempts to perform a query. This restrictions prevents such situation from" +
             " occurring."
 
-    val TRANSACTION_MISSING_ON_RELATION = "The return value includes a Pojo with a @Relation." +
+    val TRANSACTION_MISSING_ON_RELATION = "The return value includes a POJO with a @Relation." +
             " It is usually desired to annotate this method with @Transaction to avoid" +
-            " possibility of inconsistent results between the Pojo and its relations. See " +
+            " possibility of inconsistent results between the POJO and its relations. See " +
             TRANSACTION_REFERENCE_DOCS + " for details."
 
     val CANNOT_FIND_ENTITY_FOR_SHORTCUT_QUERY_PARAMETER = "Type of the parameter must be a class " +
@@ -199,6 +200,8 @@ object ProcessorErrors {
     val CANNOT_FIND_STMT_BINDER = "Cannot figure out how to bind this field into a statement."
 
     val CANNOT_FIND_CURSOR_READER = "Cannot figure out how to read this field from a cursor."
+
+    const val DEFAULT_VALUE_NULLABILITY = "Use of NULL as the default value of a non-null field"
 
     private val MISSING_PARAMETER_FOR_BIND = "Each bind variable in the query must have a" +
             " matching method parameter. Cannot find method parameters for %s."
@@ -356,8 +359,6 @@ object ProcessorErrors {
                 " Alternatively, you can set inheritSuperIndices to true in the @Entity annotation."
     }
 
-    val RELATION_NOT_COLLECTION = "Fields annotated with @Relation must be a List or Set."
-
     val NOT_ENTITY_OR_VIEW = "The class must be either @Entity or @DatabaseView."
 
     fun relationCannotFindEntityField(
@@ -378,6 +379,30 @@ object ProcessorErrors {
                 " Options: ${availableColumns.joinToString(", ")}"
     }
 
+    fun relationCannotFindJunctionEntityField(
+        entityName: String,
+        columnName: String,
+        availableColumns: List<String>
+    ): String {
+        return "Cannot find the child entity referencing column `$columnName` in the junction " +
+                "$entityName. Options: ${availableColumns.joinToString(", ")}"
+    }
+
+    fun relationCannotFindJunctionParentField(
+        entityName: String,
+        columnName: String,
+        availableColumns: List<String>
+    ): String {
+        return "Cannot find the parent entity referencing column `$columnName` in the junction " +
+                "$entityName. Options: ${availableColumns.joinToString(", ")}"
+    }
+
+    fun junctionColumnWithoutIndex(entityName: String, columnName: String) =
+            "The column $columnName in the junction entity $entityName is being used to resolve " +
+                    "a relationship but it is not covered by any index. This might cause a " +
+                    "full table scan when resolving the relationship, it is highly advised to " +
+                    "create an index that covers this column."
+
     val RELATION_IN_ENTITY = "Entities cannot have relations."
 
     val CANNOT_FIND_TYPE = "Cannot find type."
@@ -391,6 +416,30 @@ object ProcessorErrors {
         return """
         The affinity of parent column ($parentColumn : $parentAffinity) does not match the type
         affinity of the child column ($childColumn : $childAffinity).
+        """.trim()
+    }
+
+    fun relationJunctionParentAffinityMismatch(
+        parentColumn: String,
+        junctionParentColumn: String,
+        parentAffinity: SQLTypeAffinity?,
+        junctionParentAffinity: SQLTypeAffinity?
+    ): String {
+        return """
+        The affinity of parent column ($parentColumn : $parentAffinity) does not match the type
+        affinity of the junction parent column ($junctionParentColumn : $junctionParentAffinity).
+        """.trim()
+    }
+
+    fun relationJunctionChildAffinityMismatch(
+        childColumn: String,
+        junctionChildColumn: String,
+        childAffinity: SQLTypeAffinity?,
+        junctionChildAffinity: SQLTypeAffinity?
+    ): String {
+        return """
+        The affinity of child column ($childColumn : $childAffinity) does not match the type
+        affinity of the junction child column ($junctionChildColumn : $junctionChildAffinity).
         """.trim()
     }
 
@@ -530,7 +579,7 @@ object ProcessorErrors {
     }
 
     val MISSING_POJO_CONSTRUCTOR = """
-            Entities and Pojos must have a usable public constructor. You can have an empty
+            Entities and POJOs must have a usable public constructor. You can have an empty
             constructor or a constructor whose parameters match the fields (by name and type).
             """.trim()
 
@@ -566,7 +615,7 @@ object ProcessorErrors {
     fun rawQueryBadEntity(typeName: TypeName): String {
         return """
             observedEntities field in RawQuery must either reference a class that is annotated
-            with @Entity or it should reference a Pojo that either contains @Embedded fields that
+            with @Entity or it should reference a POJO that either contains @Embedded fields that
             are annotated with @Entity or @Relation fields.
             $typeName does not have these properties, did you mean another class?
             """.trim()
@@ -626,6 +675,35 @@ object ProcessorErrors {
                     "'$contentClassName' that is not present in the same @Database. Maybe you " +
                     "forgot to add it to the entities section of the @Database?"
 
+    fun cannotFindAsEntityField(entityName: String) = "Cannot find a column in the entity " +
+            "$entityName that matches with this partial entity field. If you don't wish to use " +
+            "the field then you can annotate it with @Ignore."
+
+    val INVALID_TARGET_ENTITY_IN_SHORTCUT_METHOD = "Target entity declared in @Insert, @Update " +
+            "or @Delete must be annotated with @Entity."
+
+    val INVALID_RELATION_IN_PARTIAL_ENTITY = "Partial entities cannot have relations."
+
+    fun missingPrimaryKeysInPartialEntityForInsert(
+        partialEntityName: String,
+        primaryKeyNames: List<String>
+    ) = "The partial entity $partialEntityName is missing the primary key fields " +
+            "(${primaryKeyNames.joinToString()}) needed to perform an INSERT. If your single " +
+            "primary key is auto generated then the fields are optional."
+
+    fun missingRequiredColumnsInPartialEntity(
+        partialEntityName: String,
+        missingColumnNames: List<String>
+    ) = "The partial entity $partialEntityName is missing required columns " +
+            "(${missingColumnNames.joinToString()}) needed to perform an INSERT. These are " +
+            "NOT NULL columns without default values."
+
+    fun missingPrimaryKeysInPartialEntityForUpdate(
+        partialEntityName: String,
+        primaryKeyNames: List<String>
+    ) = "The partial entity $partialEntityName is missing the primary key fields " +
+            "(${primaryKeyNames.joinToString()}) needed to perform an UPDATE."
+
     fun cannotFindPreparedQueryResultAdapter(
         returnType: String,
         type: QueryType
@@ -642,4 +720,14 @@ object ProcessorErrors {
                     "or int (the number of deleted rows).")
         }
     }.toString()
+
+    val JDK_VERSION_HAS_BUG =
+        "Current JDK version ${System.getProperty("java.runtime.version") ?: ""} has a bug" +
+                " (https://bugs.openjdk.java.net/browse/JDK-8007720)" +
+                " that prevents Room from being incremental." +
+                " Consider using JDK 11+ or the embedded JDK shipped with Android Studio 3.5+."
+
+    fun invalidChannelType(typeName: String) = "'$typeName' is not supported as a return type. " +
+            "Instead declare return type as ${KotlinTypeNames.FLOW} and use Flow transforming " +
+            "functions that converts the Flow into a Channel."
 }

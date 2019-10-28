@@ -25,11 +25,13 @@ import static org.junit.Assert.assertNull;
 import static org.junit.Assert.assertTrue;
 import static org.junit.Assert.fail;
 
+import android.Manifest;
 import android.content.res.TypedArray;
 import android.graphics.Bitmap;
 import android.location.Location;
 import android.os.Build;
 import android.os.Environment;
+import android.os.StrictMode;
 import android.system.Os;
 import android.system.OsConstants;
 import android.util.Log;
@@ -39,15 +41,18 @@ import androidx.exifinterface.test.R;
 import androidx.test.ext.junit.runners.AndroidJUnit4;
 import androidx.test.filters.LargeTest;
 import androidx.test.filters.SmallTest;
+import androidx.test.rule.GrantPermissionRule;
 
 import org.junit.After;
 import org.junit.Before;
+import org.junit.Rule;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 
 import java.io.BufferedInputStream;
 import java.io.ByteArrayInputStream;
 import java.io.Closeable;
+import java.io.EOFException;
 import java.io.File;
 import java.io.FileDescriptor;
 import java.io.FileInputStream;
@@ -69,16 +74,25 @@ public class ExifInterfaceTest {
     private static final String TAG = ExifInterface.class.getSimpleName();
     private static final boolean VERBOSE = false;  // lots of logging
     private static final double DIFFERENCE_TOLERANCE = .001;
+    private static final boolean ENABLE_STRICT_MODE_FOR_UNBUFFERED_IO = true;
+
+    @Rule
+    public GrantPermissionRule mRuntimePermissionRule =
+            GrantPermissionRule.grant(Manifest.permission.WRITE_EXTERNAL_STORAGE);
 
     private static final String EXIF_BYTE_ORDER_II_JPEG = "image_exif_byte_order_ii.jpg";
     private static final String EXIF_BYTE_ORDER_MM_JPEG = "image_exif_byte_order_mm.jpg";
     private static final String LG_G4_ISO_800_DNG = "lg_g4_iso_800_dng.dng";
     private static final String LG_G4_ISO_800_JPG = "lg_g4_iso_800_jpg.jpg";
+    private static final String EXIF_BYTE_ORDER_II_PNG = "image_exif_byte_order_ii_png.png";
+    private static final String EXIF_BYTE_ORDER_II_WEBP = "image_exif_byte_order_ii_webp.webp";
     private static final int[] IMAGE_RESOURCES = new int[] {
             R.raw.image_exif_byte_order_ii, R.raw.image_exif_byte_order_mm, R.raw.lg_g4_iso_800_dng,
-            R.raw.lg_g4_iso_800_jpg};
+            R.raw.lg_g4_iso_800_jpg, R.raw.image_exif_byte_order_ii_png,
+            R.raw.image_exif_byte_order_ii_webp};
     private static final String[] IMAGE_FILENAMES = new String[] {
-            EXIF_BYTE_ORDER_II_JPEG, EXIF_BYTE_ORDER_MM_JPEG, LG_G4_ISO_800_DNG, LG_G4_ISO_800_JPG};
+            EXIF_BYTE_ORDER_II_JPEG, EXIF_BYTE_ORDER_MM_JPEG, LG_G4_ISO_800_DNG,
+            LG_G4_ISO_800_JPG, EXIF_BYTE_ORDER_II_PNG, EXIF_BYTE_ORDER_II_WEBP};
 
     private static final int USER_READ_WRITE = 0600;
     private static final String TEST_TEMP_FILE_NAME = "testImage";
@@ -334,6 +348,13 @@ public class ExifInterfaceTest {
 
     @Before
     public void setUp() throws Exception {
+        if (ENABLE_STRICT_MODE_FOR_UNBUFFERED_IO && Build.VERSION.SDK_INT >= 26) {
+            StrictMode.setThreadPolicy(new StrictMode.ThreadPolicy.Builder()
+                    .detectUnbufferedIo()
+                    .penaltyDeath()
+                    .build());
+        }
+
         for (int i = 0; i < IMAGE_RESOURCES.length; ++i) {
             String outputPath =
                     new File(Environment.getExternalStorageDirectory(), IMAGE_FILENAMES[i])
@@ -381,13 +402,32 @@ public class ExifInterfaceTest {
     @Test
     @LargeTest
     public void testReadExifDataFromLgG4Iso800Dng() throws Throwable {
-        testExifInterfaceForRaw(LG_G4_ISO_800_DNG, R.array.lg_g4_iso_800_dng);
+        testExifInterface(LG_G4_ISO_800_DNG, R.array.lg_g4_iso_800_dng);
     }
 
     @Test
     @LargeTest
     public void testReadExifDataFromLgG4Iso800Jpg() throws Throwable {
         testExifInterfaceForJpeg(LG_G4_ISO_800_JPG, R.array.lg_g4_iso_800_jpg);
+    }
+
+    @Test
+    @LargeTest
+    public void testReadExifDataFromExifByteOrderIIPng() throws Throwable {
+        testExifInterface(EXIF_BYTE_ORDER_II_PNG, R.array.exifbyteorderii_png);
+    }
+
+    @Test
+    @LargeTest
+    public void testReadExifDataFromStandaloneData() throws Throwable {
+        testExifInterfaceForStandalone(EXIF_BYTE_ORDER_II_JPEG, R.array.exifbyteorderii_standalone);
+        testExifInterfaceForStandalone(EXIF_BYTE_ORDER_MM_JPEG, R.array.exifbyteordermm_standalone);
+    }
+
+    @Test
+    @LargeTest
+    public void testReadExifDataFromExifByteOrderIIWebp() throws Throwable {
+        testExifInterface(EXIF_BYTE_ORDER_II_WEBP, R.array.exifbyteorderii_webp);
     }
 
     @Test
@@ -848,7 +888,27 @@ public class ExifInterfaceTest {
         } else {
             assertNull(exifInterface.getAttributeRange(ExifInterface.TAG_XMP));
         }
+    }
 
+    private void testExifInterfaceForStandalone(String fileName, int typedArrayResourceId)
+            throws IOException {
+        ExpectedValue expectedValue = new ExpectedValue(
+                getApplicationContext().getResources().obtainTypedArray(typedArrayResourceId));
+
+        File imageFile = new File(Environment.getExternalStorageDirectory(), fileName);
+        String verboseTag = imageFile.getName();
+
+        FileInputStream fis = new FileInputStream(imageFile);
+        // Skip the following marker bytes (0xff, 0xd8, 0xff, 0xe1)
+        fis.skip(4);
+        // Read the value of the length of the exif data
+        short length = readShort(fis);
+        byte[] exifBytes = new byte[length];
+        fis.read(exifBytes);
+
+        ByteArrayInputStream bin = new ByteArrayInputStream(exifBytes);
+        ExifInterface exifInterface = ExifInterface.fromStandalone(bin);
+        compareWithExpectedValue(exifInterface, expectedValue, verboseTag, true);
     }
 
     private void testExifInterfaceCommon(String fileName, ExpectedValue expectedValue)
@@ -860,7 +920,6 @@ public class ExifInterfaceTest {
         ExifInterface exifInterface = new ExifInterface(imageFile);
         assertNotNull(exifInterface);
         compareWithExpectedValue(exifInterface, expectedValue, verboseTag, true);
-
 
         // Creates via path.
         exifInterface = new ExifInterface(imageFile.getAbsolutePath());
@@ -901,6 +960,7 @@ public class ExifInterfaceTest {
         ExifInterface exifInterface = new ExifInterface(imageFile.getAbsolutePath());
         exifInterface.saveAttributes();
         exifInterface = new ExifInterface(imageFile.getAbsolutePath());
+
         compareWithExpectedValue(exifInterface, expectedValue, verboseTag, false);
 
         // Test for modifying one attribute.
@@ -928,7 +988,7 @@ public class ExifInterfaceTest {
         testSaveAttributes_withFileName(fileName, expectedValue);
     }
 
-    private void testExifInterfaceForRaw(String fileName, int typedArrayResourceId)
+    private void testExifInterface(String fileName, int typedArrayResourceId)
             throws IOException {
         ExpectedValue expectedValue = new ExpectedValue(
                 getApplicationContext().getResources().obtainTypedArray(typedArrayResourceId));
@@ -936,8 +996,8 @@ public class ExifInterfaceTest {
         // Test for reading from external data storage.
         testExifInterfaceCommon(fileName, expectedValue);
 
-        // Since ExifInterface does not support for saving attributes for RAW files, do not test
-        // about writing back in here.
+        // Since ExifInterface does not support for saving attributes for non-JPEG files, do not
+        // test about writing back in here.
     }
 
     private void generateRandomExifTag(ByteBuffer buffer, int ifdType, Random random) {
@@ -1009,5 +1069,14 @@ public class ExifInterfaceTest {
         File image = File.createTempFile(TEST_TEMP_FILE_NAME, ".jpg");
         image.deleteOnExit();
         return new ExifInterface(image.getAbsolutePath());
+    }
+
+    private short readShort(InputStream is) throws IOException {
+        int ch1 = is.read();
+        int ch2 = is.read();
+        if ((ch1 | ch2) < 0) {
+            throw new EOFException();
+        }
+        return (short) ((ch1 << 8) + (ch2));
     }
 }

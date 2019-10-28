@@ -22,10 +22,12 @@ import androidx.room.TypeConverter;
 import androidx.room.TypeConverters;
 import androidx.room.integration.testapp.dao.BlobEntityDao;
 import androidx.room.integration.testapp.dao.FunnyNamedDao;
+import androidx.room.integration.testapp.dao.LibraryItemDao;
 import androidx.room.integration.testapp.dao.PetCoupleDao;
 import androidx.room.integration.testapp.dao.PetDao;
 import androidx.room.integration.testapp.dao.ProductDao;
 import androidx.room.integration.testapp.dao.RawDao;
+import androidx.room.integration.testapp.dao.RobotsDao;
 import androidx.room.integration.testapp.dao.SchoolDao;
 import androidx.room.integration.testapp.dao.SpecificDogDao;
 import androidx.room.integration.testapp.dao.ToyDao;
@@ -35,22 +37,29 @@ import androidx.room.integration.testapp.dao.UserPetDao;
 import androidx.room.integration.testapp.dao.WithClauseDao;
 import androidx.room.integration.testapp.vo.BlobEntity;
 import androidx.room.integration.testapp.vo.Day;
+import androidx.room.integration.testapp.vo.FriendsJunction;
 import androidx.room.integration.testapp.vo.FunnyNamedEntity;
+import androidx.room.integration.testapp.vo.Hivemind;
 import androidx.room.integration.testapp.vo.House;
 import androidx.room.integration.testapp.vo.Pet;
 import androidx.room.integration.testapp.vo.PetCouple;
 import androidx.room.integration.testapp.vo.PetWithUser;
 import androidx.room.integration.testapp.vo.Product;
+import androidx.room.integration.testapp.vo.Robot;
+import androidx.room.integration.testapp.vo.RoomLibraryPojo;
 import androidx.room.integration.testapp.vo.School;
 import androidx.room.integration.testapp.vo.Toy;
 import androidx.room.integration.testapp.vo.User;
 
+import java.nio.ByteBuffer;
 import java.util.Date;
 import java.util.HashSet;
 import java.util.Set;
+import java.util.UUID;
 
 @Database(entities = {User.class, Pet.class, School.class, PetCouple.class, Toy.class,
-        BlobEntity.class, Product.class, FunnyNamedEntity.class, House.class},
+        BlobEntity.class, Product.class, FunnyNamedEntity.class, House.class,
+        FriendsJunction.class, Hivemind.class, Robot.class, RoomLibraryPojo.class},
         views = {PetWithUser.class},
         version = 1, exportSchema = false)
 @TypeConverters(TestDatabase.Converters.class)
@@ -68,6 +77,8 @@ public abstract class TestDatabase extends RoomDatabase {
     public abstract FunnyNamedDao getFunnyNamedDao();
     public abstract RawDao getRawDao();
     public abstract UserHouseDao getUserHouseDao();
+    public abstract RobotsDao getRobotsDao();
+    public abstract LibraryItemDao getLibraryItemDao();
 
     @SuppressWarnings("unused")
     public static class Converters {
@@ -103,6 +114,22 @@ public abstract class TestDatabase extends RoomDatabase {
                 result |= 1 << day.ordinal();
             }
             return result;
+        }
+
+        @TypeConverter
+        public UUID asUuid(byte[] bytes) {
+            ByteBuffer bb = ByteBuffer.wrap(bytes);
+            long firstLong = bb.getLong();
+            long secondLong = bb.getLong();
+            return new UUID(firstLong, secondLong);
+        }
+
+        @TypeConverter
+        public byte[] asBytes(UUID uuid) {
+            ByteBuffer bb = ByteBuffer.wrap(new byte[16]);
+            bb.putLong(uuid.getMostSignificantBits());
+            bb.putLong(uuid.getLeastSignificantBits());
+            return bb.array();
         }
     }
 }

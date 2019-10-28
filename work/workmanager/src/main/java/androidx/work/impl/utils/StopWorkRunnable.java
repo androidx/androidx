@@ -16,6 +16,7 @@
 
 package androidx.work.impl.utils;
 
+import androidx.annotation.NonNull;
 import androidx.annotation.RestrictTo;
 import androidx.work.Logger;
 import androidx.work.WorkInfo;
@@ -33,12 +34,17 @@ public class StopWorkRunnable implements Runnable {
 
     private static final String TAG = Logger.tagWithPrefix("StopWorkRunnable");
 
-    private WorkManagerImpl mWorkManagerImpl;
-    private String mWorkSpecId;
+    private final WorkManagerImpl mWorkManagerImpl;
+    private final String mWorkSpecId;
+    private final boolean mStopInForeground;
 
-    public StopWorkRunnable(WorkManagerImpl workManagerImpl, String workSpecId) {
+    public StopWorkRunnable(
+            @NonNull WorkManagerImpl workManagerImpl,
+            @NonNull String workSpecId,
+            boolean stopInForeground) {
         mWorkManagerImpl = workManagerImpl;
         mWorkSpecId = workSpecId;
+        mStopInForeground = stopInForeground;
     }
 
     @Override
@@ -50,13 +56,25 @@ public class StopWorkRunnable implements Runnable {
             if (workSpecDao.getState(mWorkSpecId) == WorkInfo.State.RUNNING) {
                 workSpecDao.setState(WorkInfo.State.ENQUEUED, mWorkSpecId);
             }
-            boolean isStopped = mWorkManagerImpl.getProcessor().stopWork(mWorkSpecId);
+
+            boolean isStopped;
+            if (mStopInForeground) {
+                isStopped = mWorkManagerImpl
+                        .getProcessor()
+                        .stopForegroundWork(mWorkSpecId);
+            } else {
+                isStopped = mWorkManagerImpl
+                        .getProcessor()
+                        .stopWork(mWorkSpecId);
+            }
+
             Logger.get().debug(
                     TAG,
                     String.format(
                             "StopWorkRunnable for %s; Processor.stopWork = %s",
                             mWorkSpecId,
                             isStopped));
+
             workDatabase.setTransactionSuccessful();
         } finally {
             workDatabase.endTransaction();

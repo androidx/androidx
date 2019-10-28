@@ -24,11 +24,13 @@ import android.util.AttributeSet;
 import android.view.View;
 
 import androidx.annotation.NonNull;
+import androidx.annotation.Nullable;
 import androidx.appcompat.R;
 import androidx.core.view.ViewCompat;
 
 class AppCompatBackgroundHelper {
 
+    @NonNull
     private final View mView;
     private final AppCompatDrawableManager mDrawableManager;
 
@@ -38,14 +40,19 @@ class AppCompatBackgroundHelper {
     private TintInfo mBackgroundTint;
     private TintInfo mTmpInfo;
 
-    AppCompatBackgroundHelper(View view) {
+    AppCompatBackgroundHelper(@NonNull View view) {
         mView = view;
         mDrawableManager = AppCompatDrawableManager.get();
     }
 
-    void loadFromAttributes(AttributeSet attrs, int defStyleAttr) {
+    void loadFromAttributes(@Nullable AttributeSet attrs, int defStyleAttr) {
         TintTypedArray a = TintTypedArray.obtainStyledAttributes(mView.getContext(), attrs,
                 R.styleable.ViewBackgroundHelper, defStyleAttr, 0);
+        if (Build.VERSION.SDK_INT >= 29) {
+            mView.saveAttributeDataForStyleable(mView.getContext(),
+                    R.styleable.ViewBackgroundHelper, attrs, a.getWrappedTypeArray(),
+                    defStyleAttr, 0);
+        }
         try {
             if (a.hasValue(R.styleable.ViewBackgroundHelper_android_background)) {
                 mBackgroundResId = a.getResourceId(

@@ -17,13 +17,11 @@
 <androidx.constraintlayout.widget.ConstraintLayout
     xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
-    xmlns:tools="http://schemas.android.com/tools"
-    tools:ignore="MissingConstraints"
     android:id="@+id/container"
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
-    android:minHeight="@dimen/car_single_line_list_item_height"
-    android:foreground="@drawable/car_card_ripple_background" >
+    android:foreground="?attr/listItemForeground"
+    android:minHeight="@dimen/car_single_line_list_item_height">
 
     <!-- Primary Action. -->
     <ImageView
@@ -31,41 +29,41 @@
         android:layout_width="@dimen/car_single_line_list_item_height"
         android:layout_height="@dimen/car_single_line_list_item_height"
         android:tint="?attr/listItemPrimaryIconTint"
-        app:layout_constraintTop_toTopOf="parent"
         app:layout_constraintBottom_toBottomOf="parent"
-        app:layout_constraintStart_toStartOf="parent"/>
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="parent" />
 
     <!-- Text. -->
     <TextView
         android:id="@+id/title"
         android:layout_width="0dp"
         android:layout_height="wrap_content"
-        android:singleLine="true"
         android:ellipsize="end"
+        android:singleLine="true"
         android:textAppearance="?attr/listItemTitleTextAppearance"
-        app:layout_constraintTop_toTopOf="parent"
         app:layout_constraintBottom_toTopOf="@+id/body"
-        app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintEnd_toStartOf="@+id/barrier"
-        app:layout_constraintVertical_chainStyle="packed"/>
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="parent"
+        app:layout_constraintVertical_chainStyle="packed" />
 
     <TextView
         android:id="@+id/body"
         android:layout_width="0dp"
         android:layout_height="wrap_content"
         android:textAppearance="?attr/listItemBodyTextAppearance"
-        app:layout_constraintTop_toBottomOf="@+id/title"
         app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintEnd_toStartOf="@+id/barrier"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintEnd_toStartOf="@+id/barrier"/>
+        app:layout_constraintTop_toBottomOf="@+id/title" />
 
     <!-- A barrier between the text and any supplemental icons or actions. -->
     <androidx.constraintlayout.widget.Barrier
         android:id="@+id/barrier"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        app:barrierDirection="start"
         app:barrierAllowsGoneWidgets="false"
+        app:barrierDirection="start"
         app:constraint_referenced_ids="supplemental_icon_divider,supplemental_icon,switch_divider,switch_widget" />
 
     <!-- A view that will be underneath the supplemental icon or switch. It is meant to intercept
@@ -75,10 +73,10 @@
         android:id="@+id/click_interceptor"
         android:layout_width="0dp"
         android:layout_height="0dp"
-        app:layout_constraintTop_toTopOf="parent"
         app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="@+id/barrier"
-        app:layout_constraintEnd_toEndOf="parent" />
+        app:layout_constraintTop_toTopOf="parent" />
 
     <!-- Guideline that the supplemental icons/switch is centered upon. -->
     <androidx.constraintlayout.widget.Guideline
@@ -92,42 +90,42 @@
     <!-- End icon with divider. -->
     <View
         android:id="@+id/supplemental_icon_divider"
-        android:background="?attr/listItemActionDividerColor"
+        style="@style/CarListVerticalDivider"
         android:layout_marginEnd="@dimen/car_padding_4"
-        app:layout_constraintTop_toTopOf="@+id/supplemental_actions_guideline"
+        android:background="?attr/listItemActionDividerColor"
         app:layout_constraintBottom_toBottomOf="@+id/supplemental_actions_guideline"
         app:layout_constraintEnd_toStartOf="@+id/supplemental_icon"
-        style="@style/CarListVerticalDivider"/>
+        app:layout_constraintTop_toTopOf="@+id/supplemental_actions_guideline" />
 
     <ImageView
         android:id="@+id/supplemental_icon"
-        android:background="@drawable/car_button_ripple_background"
         android:layout_width="@dimen/car_primary_icon_size"
         android:layout_height="@dimen/car_primary_icon_size"
         android:layout_marginEnd="@dimen/car_keyline_1"
-        android:tint="?attr/listItemSupplementalIconTint"
+        android:background="@drawable/car_button_ripple_background"
         android:scaleType="fitCenter"
-        app:layout_constraintTop_toTopOf="@+id/supplemental_actions_guideline"
+        android:tint="?attr/listItemSupplementalIconTint"
         app:layout_constraintBottom_toBottomOf="@+id/supplemental_actions_guideline"
-        app:layout_constraintEnd_toEndOf="parent"/>
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintTop_toTopOf="@+id/supplemental_actions_guideline" />
 
     <!-- Switch with divider. -->
     <View
         android:id="@+id/switch_divider"
-        android:background="?attr/listItemActionDividerColor"
+        style="@style/CarListVerticalDivider"
         android:layout_marginEnd="@dimen/car_padding_4"
-        app:layout_constraintTop_toTopOf="@+id/supplemental_actions_guideline"
+        android:background="?attr/listItemActionDividerColor"
         app:layout_constraintBottom_toBottomOf="@+id/supplemental_actions_guideline"
         app:layout_constraintEnd_toStartOf="@+id/switch_widget"
-        style="@style/CarListVerticalDivider"/>
+        app:layout_constraintTop_toTopOf="@+id/supplemental_actions_guideline" />
 
     <Switch
         android:id="@+id/switch_widget"
+        style="?attr/switchStyle"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_marginEnd="@dimen/car_keyline_1"
-        app:layout_constraintTop_toTopOf="@+id/supplemental_actions_guideline"
         app:layout_constraintBottom_toBottomOf="@+id/supplemental_actions_guideline"
         app:layout_constraintEnd_toEndOf="parent"
-        style="?attr/switchStyle" />
+        app:layout_constraintTop_toTopOf="@+id/supplemental_actions_guideline" />
 </androidx.constraintlayout.widget.ConstraintLayout>

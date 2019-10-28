@@ -15,8 +15,7 @@
    limitations under the License.
   -->
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
-          package="androidx.vectordrawable.test">
-    <uses-sdk android:targetSdkVersion="${target-sdk-version}"/>
+          package="androidx.vectordrawable.animated.test">
 
     <uses-permission android:name="android.permission.WRITE_EXTERNAL_STORAGE"/>
     <application>

@@ -25,7 +25,7 @@ data class InsertionMethod(
     val element: ExecutableElement,
     val name: String,
     @OnConflictStrategy val onConflict: Int,
-    val entities: Map<String, Entity>,
+    val entities: Map<String, ShortcutEntity>,
     val returnType: TypeMirror,
     val parameters: List<ShortcutQueryParameter>,
     val methodBinder: InsertMethodBinder

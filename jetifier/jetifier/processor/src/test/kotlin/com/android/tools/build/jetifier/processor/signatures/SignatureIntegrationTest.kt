@@ -41,6 +41,7 @@ class SignatureIntegrationTest {
 
         val toFile = File.createTempFile("signatureTestResult.jar", "test")
 
+        @Suppress("deprecation")
         processor.transform(input = setOf(FileMapping(from = signedLib, to = toFile)))
 
         // Make sure that signatures were not stripped out
@@ -64,6 +65,7 @@ class SignatureIntegrationTest {
 
         val toFile = File.createTempFile("signatureTestResult.jar", "test")
 
+        @Suppress("deprecation")
         processor.transform(input = setOf(FileMapping(from = signedLib, to = toFile)))
 
         val archive = Archive.Builder.extract(toFile)
@@ -86,6 +88,7 @@ class SignatureIntegrationTest {
 
         val toFile = File.createTempFile("signatureTestResult.jar", "test")
 
+        @Suppress("deprecation")
         processor.transform(input = setOf(FileMapping(from = signedLib, to = toFile)))
     }
 
@@ -98,6 +101,7 @@ class SignatureIntegrationTest {
 
         val toFile = File.createTempFile("signatureTestResult.jar", "test")
 
+        @Suppress("deprecation")
         processor.transform(input = setOf(FileMapping(from = signedLib, to = toFile)))
 
         val archive = Archive.Builder.extract(toFile)

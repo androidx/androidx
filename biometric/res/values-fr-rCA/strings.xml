@@ -26,4 +26,6 @@
     <string name="fingerprint_error_user_canceled" msgid="3421037373085129417">"L\'opération d\'authentification par empreinte digitale a été annulée par l\'utilisateur."</string>
     <string name="fingerprint_error_lockout" msgid="1651062876313169162">"Trop de tentatives. Veuillez réessayer plus tard."</string>
     <string name="default_error_msg" msgid="7497355367608150274">"Erreur inconnue"</string>
+    <string name="generic_error_user_canceled" msgid="7474799539658018076">"L\'authentification a été annulée par l\'utilisateur."</string>
+    <string name="confirm_device_credential_password" msgid="4296851028928624518">"Utiliser le mot de passe"</string>
 </resources>

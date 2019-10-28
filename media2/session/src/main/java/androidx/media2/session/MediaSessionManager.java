@@ -62,7 +62,7 @@ public final class MediaSessionManager {
     /**
      * Gets an instance of MediaSessionManager associated with the context.
      *
-     * @return the MediaSessionManager instance for this context.
+     * @return the MediaSessionManager instance for this context
      */
     @NonNull
     public static MediaSessionManager getInstance(@NonNull Context context) {

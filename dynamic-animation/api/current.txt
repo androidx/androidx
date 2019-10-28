@@ -4,7 +4,7 @@ package androidx.dynamicanimation.animation {
   public abstract class DynamicAnimation<T extends androidx.dynamicanimation.animation.DynamicAnimation<T>> {
     method public T! addEndListener(androidx.dynamicanimation.animation.DynamicAnimation.OnAnimationEndListener!);
     method public T! addUpdateListener(androidx.dynamicanimation.animation.DynamicAnimation.OnAnimationUpdateListener!);
-    method public void cancel();
+    method @MainThread public void cancel();
     method public float getMinimumVisibleChange();
     method public boolean isRunning();
     method public void removeEndListener(androidx.dynamicanimation.animation.DynamicAnimation.OnAnimationEndListener!);
@@ -14,7 +14,7 @@ package androidx.dynamicanimation.animation {
     method public T! setMinimumVisibleChange(@FloatRange(from=0.0, fromInclusive=false) float);
     method public T! setStartValue(float);
     method public T! setStartVelocity(float);
-    method public void start();
+    method @MainThread public void start();
     field public static final androidx.dynamicanimation.animation.DynamicAnimation.ViewProperty! ALPHA;
     field public static final float MIN_VISIBLE_CHANGE_ALPHA = 0.00390625f;
     field public static final float MIN_VISIBLE_CHANGE_PIXELS = 1.0f;
@@ -48,7 +48,7 @@ package androidx.dynamicanimation.animation {
 
   public final class FlingAnimation extends androidx.dynamicanimation.animation.DynamicAnimation<androidx.dynamicanimation.animation.FlingAnimation> {
     ctor public FlingAnimation(androidx.dynamicanimation.animation.FloatValueHolder!);
-    ctor public FlingAnimation(K!, androidx.dynamicanimation.animation.FloatPropertyCompat<K>!);
+    ctor public FlingAnimation(K!, androidx.dynamicanimation.animation.FloatPropertyCompat<K!>!);
     method public float getFriction();
     method public androidx.dynamicanimation.animation.FlingAnimation! setFriction(@FloatRange(from=0.0, fromInclusive=false) float);
     method public androidx.dynamicanimation.animation.FlingAnimation! setMaxValue(float);
@@ -58,7 +58,7 @@ package androidx.dynamicanimation.animation {
 
   public abstract class FloatPropertyCompat<T> {
     ctor public FloatPropertyCompat(String!);
-    method @RequiresApi(24) public static <T> androidx.dynamicanimation.animation.FloatPropertyCompat<T>! createFloatPropertyCompat(android.util.FloatProperty<T>!);
+    method @RequiresApi(24) public static <T> androidx.dynamicanimation.animation.FloatPropertyCompat<T!>! createFloatPropertyCompat(android.util.FloatProperty<T!>!);
     method public abstract float getValue(T!);
     method public abstract void setValue(T!, float);
   }
@@ -73,8 +73,8 @@ package androidx.dynamicanimation.animation {
   public final class SpringAnimation extends androidx.dynamicanimation.animation.DynamicAnimation<androidx.dynamicanimation.animation.SpringAnimation> {
     ctor public SpringAnimation(androidx.dynamicanimation.animation.FloatValueHolder!);
     ctor public SpringAnimation(androidx.dynamicanimation.animation.FloatValueHolder!, float);
-    ctor public SpringAnimation(K!, androidx.dynamicanimation.animation.FloatPropertyCompat<K>!);
-    ctor public SpringAnimation(K!, androidx.dynamicanimation.animation.FloatPropertyCompat<K>!, float);
+    ctor public SpringAnimation(K!, androidx.dynamicanimation.animation.FloatPropertyCompat<K!>!);
+    ctor public SpringAnimation(K!, androidx.dynamicanimation.animation.FloatPropertyCompat<K!>!, float);
     method public void animateToFinalPosition(float);
     method public boolean canSkipToEnd();
     method public androidx.dynamicanimation.animation.SpringForce! getSpring();

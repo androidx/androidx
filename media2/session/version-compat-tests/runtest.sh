@@ -36,10 +36,9 @@ function printRunTestUsage() {
   echo ""
   echo "Version combination number:"
   echo "    1. Client-ToT             / Service-ToT"
-# TODO: These will be supported when stable version of media2 is released.
-#  echo "    2. Client-ToT             / Service-Latest release"
-#  echo "    3. Client-Latest release  / Service-ToT"
-#  echo "    4. Run all of the above"
+  echo "    2. Client-ToT             / Service-Latest release"
+  echo "    3. Client-Latest release  / Service-ToT"
+  echo "    4. Run all of the above"
   echo ""
   echo "Option:"
   echo "    -t <class/method>: Only run the specific test class/method."
@@ -57,11 +56,11 @@ function runTest() {
   ./gradlew $SERVICE_MODULE_NAME:assembleDebugAndroidTest || { echo "Build failed. Aborting."; exit 1; }
 
   echo "Installing the test apks"
-  adb $DEVICE_SERIAL install -r "../../out/dist/$CLIENT_MODULE_NAME.apk" || { echo "Apk installation failed. Aborting."; exit 1; }
-  adb $DEVICE_SERIAL install -r "../../out/dist/$SERVICE_MODULE_NAME.apk" || { echo "Apk installation failed. Aborting."; exit 1; }
+  $ADB $DEVICE_SERIAL install -r "../../out/dist/apks/$CLIENT_MODULE_NAME.apk" || { echo "Apk installation failed. Aborting."; exit 1; }
+  $ADB $DEVICE_SERIAL install -r "../../out/dist/apks/$SERVICE_MODULE_NAME.apk" || { echo "Apk installation failed. Aborting."; exit 1; }
 
   echo "Running the tests"
-  local test_command="adb $DEVICE_SERIAL shell am instrument -w -e debug false -e client_version $CLIENT_VERSION -e service_version $SERVICE_VERSION"
+  local test_command="$ADB $DEVICE_SERIAL shell am instrument -w -e debug false -e client_version $CLIENT_VERSION -e service_version $SERVICE_VERSION"
   local client_test_runner="androidx.media2.test.client.test/androidx.test.runner.AndroidJUnitRunner"
   local service_test_runner="androidx.media2.test.service.test/androidx.test.runner.AndroidJUnitRunner"
 
@@ -89,8 +88,20 @@ then
   exit 1;
 fi
 
+if [ "`uname`" == "Darwin" ]; then
+  PLATFORM="darwin"
+else
+  PLATFORM="linux"
+fi
+ADB="../../prebuilts/fullsdk-$PLATFORM/platform-tools/adb"
+if [ ! -f "$ADB" ]; then
+  echo "adb not found at $ADB, finding adb in \$PATH..." 1>&2
+  command -v adb > /dev/null 2>&1 || { echo "adb not found in \$PATH" 1>&2; exit 1; }
+  ADB="adb"
+fi
+
 case ${1} in
-  1)
+  1|2|3|4)
     VERSION_COMBINATION=${1}
     shift
     ;;
@@ -127,28 +138,27 @@ case ${VERSION_COMBINATION} in
      SERVICE_VERSION="tot"
      runTest
      ;;
-# TODO: These will be supported when stable version of media2 is released.
-#  2)
-#     CLIENT_VERSION="tot"
-#     SERVICE_VERSION="previous"
-#     runTest
-#     ;;
-#  3)
-#     CLIENT_VERSION="previous"
-#     SERVICE_VERSION="tot"
-#     runTest
-#     ;;
-#  4)
-#     CLIENT_VERSION="tot"
-#     SERVICE_VERSION="tot"
-#     runTest
-#
-#     CLIENT_VERSION="tot"
-#     SERVICE_VERSION="previous"
-#     runTest
-#
-#     CLIENT_VERSION="previous"
-#     SERVICE_VERSION="tot"
-#     runTest
-#     ;;
+  2)
+     CLIENT_VERSION="tot"
+     SERVICE_VERSION="previous"
+     runTest
+     ;;
+  3)
+     CLIENT_VERSION="previous"
+     SERVICE_VERSION="tot"
+     runTest
+     ;;
+  4)
+     CLIENT_VERSION="tot"
+     SERVICE_VERSION="tot"
+     runTest
+
+     CLIENT_VERSION="tot"
+     SERVICE_VERSION="previous"
+     runTest
+
+     CLIENT_VERSION="previous"
+     SERVICE_VERSION="tot"
+     runTest
+     ;;
 esac

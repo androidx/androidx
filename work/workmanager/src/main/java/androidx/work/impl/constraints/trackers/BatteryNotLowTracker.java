@@ -23,6 +23,7 @@ import android.os.BatteryManager;
 import androidx.annotation.NonNull;
 import androidx.annotation.RestrictTo;
 import androidx.work.Logger;
+import androidx.work.impl.utils.taskexecutor.TaskExecutor;
 
 /**
  * Tracks whether or not the device's battery level is low.
@@ -46,9 +47,10 @@ public class BatteryNotLowTracker extends BroadcastReceiverConstraintTracker<Boo
     /**
      * Create an instance of {@link BatteryNotLowTracker}.
      * @param context The application {@link Context}
+     * @param taskExecutor The internal {@link TaskExecutor} being used by WorkManager.
      */
-    public BatteryNotLowTracker(Context context) {
-        super(context);
+    public BatteryNotLowTracker(@NonNull Context context, @NonNull TaskExecutor taskExecutor) {
+        super(context, taskExecutor);
     }
 
     /**

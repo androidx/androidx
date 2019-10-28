@@ -26,4 +26,6 @@
     <string name="fingerprint_error_user_canceled" msgid="3421037373085129417">"ব্যবহারকারী আঙ্গুলের ছাপ নেওয়ার অপারেশনটি বাতিল করেছেন।"</string>
     <string name="fingerprint_error_lockout" msgid="1651062876313169162">"অনেকবার চেষ্টা করেছেন। পরে আবার চেষ্টা করুন।"</string>
     <string name="default_error_msg" msgid="7497355367608150274">"অজানা সমস্যা"</string>
+    <string name="generic_error_user_canceled" msgid="7474799539658018076">"যাচাইকরণ প্রক্রিয়াটি ব্যবহারকারী বাতিল করেছেন।"</string>
+    <string name="confirm_device_credential_password" msgid="4296851028928624518">"পাসওয়ার্ড ব্যবহার করুন"</string>
 </resources>

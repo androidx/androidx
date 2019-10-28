@@ -349,6 +349,15 @@
                 android:value=".app.SearchActivity" />
         </activity>
 
+        <activity android:name=".app.ToolbarTall"
+            android:label="@string/toolbar_tall"
+            android:theme="@style/Theme.Custom.NoActionBar">
+            <intent-filter>
+                <action android:name="android.intent.action.MAIN" />
+                <category android:name="com.example.android.supportv7.SAMPLE_CODE" />
+            </intent-filter>
+        </activity>
+
         <activity android:name=".app.DialogUsage"
                   android:label="@string/dialog_usage"
                   android:theme="@style/Theme.AppCompat.Light">
@@ -434,10 +443,37 @@
         <provider android:name=".app.RecentSuggestionsProvider"
                   android:authorities="com.example.android.supportv7.RecentSuggestionsProvider" />
 
+        <!-- Nested Scrolling Samples -->
+        <activity android:name=".widget.RecyclerViewCoordinatorLayoutAppBarActivity"
+            android:label="@string/nested_scrolling_rv_cl_appbar_activity"
+            android:theme="@style/Theme.AppCompat">
+            <intent-filter>
+                <action android:name="android.intent.action.MAIN" />
+                <category android:name="com.example.android.supportv7.SAMPLE_CODE" />
+            </intent-filter>
+        </activity>
+        <activity android:name=".widget.NestedScrollViewCoordinatorLayoutAppBarActivity"
+            android:label="@string/nested_scrolling_nsv_cl_appbar_activity"
+            android:theme="@style/Theme.AppCompat">
+            <intent-filter>
+                <action android:name="android.intent.action.MAIN" />
+                <category android:name="com.example.android.supportv7.SAMPLE_CODE" />
+            </intent-filter>
+        </activity>
+
         <!-- RecyclerView samples -->
         <activity android:name=".widget.RecyclerViewActivity"
                   android:label="@string/recycler_view"
                   android:theme="@style/Theme.AppCompat">
+            <intent-filter>
+                <action android:name="android.intent.action.MAIN" />
+                <category android:name="com.example.android.supportv7.SAMPLE_CODE" />
+            </intent-filter>
+        </activity>
+
+        <activity android:name=".widget.RecyclerViewSmoothScrollByActivity"
+            android:label="@string/recycler_view_smooth_scroll_by"
+            android:theme="@style/Theme.AppCompat">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
                 <category android:name="com.example.android.supportv7.SAMPLE_CODE" />

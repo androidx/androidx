@@ -30,6 +30,7 @@ import android.media.MediaPlayer.OnCompletionListener;
 import android.os.Build;
 import android.view.KeyEvent;
 
+import androidx.annotation.NonNull;
 import androidx.media2.common.SessionPlayer;
 import androidx.media2.session.MediaSession;
 import androidx.media2.session.MediaSession.ControllerInfo;
@@ -58,6 +59,10 @@ import java.util.concurrent.TimeUnit;
 @LargeTest
 public class MediaSession_KeyEventTest extends MediaSessionTestBase {
     private static String sExpectedControllerPackageName;
+
+    // Intentionally member variable to prevent GC while playback is running.
+    // Should be only used on the sHandler.
+    private MediaPlayer mMediaPlayer;
 
     private AudioManager mAudioManager;
     private MediaSession mSession;
@@ -89,35 +94,50 @@ public class MediaSession_KeyEventTest extends MediaSessionTestBase {
                 .setSessionCallback(sHandlerExecutor, mSessionCallback)
                 .build();
 
-        // Make this test to get priority for handling media key event
-        // SDK < 26: Playback state should become *playing*
-        mPlayer.notifyPlayerStateChanged(SessionPlayer.PLAYER_STATE_PLAYING);
-
-        // SDK >= 26: Play a media item in the same process of the session.
-        // Target raw resource should be short enough to finish within the time limit of @SmallTest.
-        final CountDownLatch latch = new CountDownLatch(1);
-        sHandler.postAndSync(new Runnable() {
-            @Override
-            public void run() {
-                // Pick the shortest media.
-                final MediaPlayer player = MediaPlayer.create(mContext, R.raw.camera_click);
-                player.setOnCompletionListener(new OnCompletionListener() {
-                    @Override
-                    public void onCompletion(MediaPlayer mp) {
-                        latch.countDown();
-                        player.release();
-                    }
-                });
-                player.start();
-            }
-        });
-        assertTrue(latch.await(TIMEOUT_MS, TimeUnit.MILLISECONDS));
+        // Make this test to get priority for handling media key event.
+        // Here's the requirement for an app to receive media key events via MediaSession.
+        // SDK < 26: Playback state should become *playing* for receiving key events.
+        // SDK >= 26: Play a media item in the same process of the session for receiving key
+        //            events.
+        if (Build.VERSION.SDK_INT < 26) {
+            mPlayer.notifyPlayerStateChanged(SessionPlayer.PLAYER_STATE_PLAYING);
+        } else {
+            final CountDownLatch latch = new CountDownLatch(1);
+            sHandler.postAndSync(new Runnable() {
+                @Override
+                public void run() {
+                    // Pick the shortest media to finish within the TIMEOUT_MS.
+                    mMediaPlayer = MediaPlayer.create(mContext, R.raw.camera_click);
+                    mMediaPlayer.setOnCompletionListener(new OnCompletionListener() {
+                        @Override
+                        public void onCompletion(MediaPlayer mp) {
+                            if (mMediaPlayer != null) {
+                                mMediaPlayer.release();
+                                mMediaPlayer = null;
+                                latch.countDown();
+                            }
+                        }
+                    });
+                    mMediaPlayer.start();
+                }
+            });
+            assertTrue(latch.await(TIMEOUT_MS, TimeUnit.MILLISECONDS));
+        }
     }
 
     @After
     @Override
     public void cleanUp() throws Exception {
         super.cleanUp();
+        sHandler.postAndSync(new Runnable() {
+            @Override
+            public void run() {
+                if (mMediaPlayer != null) {
+                    mMediaPlayer.release();
+                    mMediaPlayer = null;
+                }
+            }
+        });
         mSession.close();
     }
 
@@ -222,7 +242,8 @@ public class MediaSession_KeyEventTest extends MediaSessionTestBase {
         boolean mRewindCalled;
 
         @Override
-        public SessionCommandGroup onConnect(MediaSession session, ControllerInfo controller) {
+        public SessionCommandGroup onConnect(@NonNull MediaSession session,
+                @NonNull ControllerInfo controller) {
             if (sExpectedControllerPackageName.equals(controller.getPackageName())) {
                 return super.onConnect(session, controller);
             }
@@ -230,14 +251,15 @@ public class MediaSession_KeyEventTest extends MediaSessionTestBase {
         }
 
         @Override
-        public int onFastForward(MediaSession session, ControllerInfo controller) {
+        public int onFastForward(@NonNull MediaSession session,
+                @NonNull ControllerInfo controller) {
             mFastForwardCalled = true;
             mCountDownLatch.countDown();
             return RESULT_SUCCESS;
         }
 
         @Override
-        public int onRewind(MediaSession session, ControllerInfo controller) {
+        public int onRewind(@NonNull MediaSession session, @NonNull ControllerInfo controller) {
             mRewindCalled = true;
             mCountDownLatch.countDown();
             return RESULT_SUCCESS;

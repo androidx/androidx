@@ -9,12 +9,22 @@
 # --------- androidx specific code needed for build server. ------------------
 
 if [ -n "$OUT_DIR" ] ; then
+    mkdir -p "$OUT_DIR"
+    OUT_DIR="$(cd $OUT_DIR && pwd)"
     export GRADLE_USER_HOME="$OUT_DIR/.gradle"
-    export LINT_PRINT_STACKTRACE=true
 else
     SCRIPT_PATH="$(cd $(dirname $0) && pwd)"
     CHECKOUT_ROOT="$(cd $SCRIPT_PATH/../.. && pwd)"
     export OUT_DIR="$CHECKOUT_ROOT/out"
+fi
+
+if [ -n "$DIST_DIR" ]; then
+    mkdir -p "$DIST_DIR"
+    DIST_DIR="$(cd $DIST_DIR && pwd)"
+    export LINT_PRINT_STACKTRACE=true
+
+    # We don't set a default DIST_DIR in an else clause here because Studio doesn't use gradlew
+    # and doesn't set DIST_DIR and we want gradlew and Studio to match
 fi
 
 # ----------------------------------------------------------------------------
@@ -187,4 +197,13 @@ function splitJvmOpts() {
 eval splitJvmOpts $DEFAULT_JVM_OPTS $JAVA_OPTS $GRADLE_OPTS
 JVM_OPTS[${#JVM_OPTS[*]}]="-Dorg.gradle.appname=$APP_BASE_NAME"
 
-exec "$JAVACMD" "${JVM_OPTS[@]}" -classpath "$CLASSPATH" org.gradle.wrapper.GradleWrapperMain "$@"
+if "$JAVACMD" "${JVM_OPTS[@]}" -classpath "$CLASSPATH" org.gradle.wrapper.GradleWrapperMain "$@"; then
+  exit 0
+else
+  # Print AndroidX-specific help message if build fails
+  # Have to do this build-failure detection in gradlew rather than in build.gradle
+  # so that this message still prints even if buildSrc itself fails
+  echo
+  echo See also development/diagnose-build-failure for help with build failures in this project.
+  exit 1
+fi

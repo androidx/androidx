@@ -186,11 +186,11 @@ package androidx.appcompat.app {
     method public androidx.appcompat.app.AlertDialog.Builder! setIconAttribute(@AttrRes int);
     method @Deprecated public androidx.appcompat.app.AlertDialog.Builder! setInverseBackgroundForced(boolean);
     method public androidx.appcompat.app.AlertDialog.Builder! setItems(@ArrayRes int, android.content.DialogInterface.OnClickListener!);
-    method public androidx.appcompat.app.AlertDialog.Builder! setItems(CharSequence[]!, android.content.DialogInterface.OnClickListener!);
+    method public androidx.appcompat.app.AlertDialog.Builder! setItems(CharSequence![]!, android.content.DialogInterface.OnClickListener!);
     method public androidx.appcompat.app.AlertDialog.Builder! setMessage(@StringRes int);
     method public androidx.appcompat.app.AlertDialog.Builder! setMessage(CharSequence?);
     method public androidx.appcompat.app.AlertDialog.Builder! setMultiChoiceItems(@ArrayRes int, boolean[]!, android.content.DialogInterface.OnMultiChoiceClickListener!);
-    method public androidx.appcompat.app.AlertDialog.Builder! setMultiChoiceItems(CharSequence[]!, boolean[]!, android.content.DialogInterface.OnMultiChoiceClickListener!);
+    method public androidx.appcompat.app.AlertDialog.Builder! setMultiChoiceItems(CharSequence![]!, boolean[]!, android.content.DialogInterface.OnMultiChoiceClickListener!);
     method public androidx.appcompat.app.AlertDialog.Builder! setMultiChoiceItems(android.database.Cursor!, String!, String!, android.content.DialogInterface.OnMultiChoiceClickListener!);
     method public androidx.appcompat.app.AlertDialog.Builder! setNegativeButton(@StringRes int, android.content.DialogInterface.OnClickListener!);
     method public androidx.appcompat.app.AlertDialog.Builder! setNegativeButton(CharSequence!, android.content.DialogInterface.OnClickListener!);
@@ -207,7 +207,7 @@ package androidx.appcompat.app {
     method public androidx.appcompat.app.AlertDialog.Builder! setPositiveButtonIcon(android.graphics.drawable.Drawable!);
     method public androidx.appcompat.app.AlertDialog.Builder! setSingleChoiceItems(@ArrayRes int, int, android.content.DialogInterface.OnClickListener!);
     method public androidx.appcompat.app.AlertDialog.Builder! setSingleChoiceItems(android.database.Cursor!, int, String!, android.content.DialogInterface.OnClickListener!);
-    method public androidx.appcompat.app.AlertDialog.Builder! setSingleChoiceItems(CharSequence[]!, int, android.content.DialogInterface.OnClickListener!);
+    method public androidx.appcompat.app.AlertDialog.Builder! setSingleChoiceItems(CharSequence![]!, int, android.content.DialogInterface.OnClickListener!);
     method public androidx.appcompat.app.AlertDialog.Builder! setSingleChoiceItems(android.widget.ListAdapter!, int, android.content.DialogInterface.OnClickListener!);
     method public androidx.appcompat.app.AlertDialog.Builder! setTitle(@StringRes int);
     method public androidx.appcompat.app.AlertDialog.Builder! setTitle(CharSequence?);
@@ -224,7 +224,6 @@ package androidx.appcompat.app {
     method public android.content.Intent? getSupportParentActivityIntent();
     method public void onCreateSupportNavigateUpTaskStack(androidx.core.app.TaskStackBuilder);
     method public final boolean onMenuItemSelected(int, android.view.MenuItem);
-    method protected void onNightModeChanged(int);
     method public void onPrepareSupportNavigateUpTaskStack(androidx.core.app.TaskStackBuilder);
     method @CallSuper public void onSupportActionModeFinished(androidx.appcompat.view.ActionMode);
     method @CallSuper public void onSupportActionModeStarted(androidx.appcompat.view.ActionMode);
@@ -272,7 +271,6 @@ package androidx.appcompat.app {
     method public abstract void onPostCreate(android.os.Bundle!);
     method public abstract void onPostResume();
     method public abstract void onSaveInstanceState(android.os.Bundle!);
-    method public void onSetTheme(@StyleRes int);
     method public abstract void onStart();
     method public abstract void onStop();
     method public abstract boolean requestWindowFeature(int);
@@ -640,7 +638,7 @@ package androidx.appcompat.widget {
     method @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP) public void setSupportBackgroundTintList(android.content.res.ColorStateList?);
     method @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP) public void setSupportBackgroundTintMode(android.graphics.PorterDuff.Mode?);
     method public void setTextAppearance(android.content.Context!, int);
-    method public void setTextFuture(java.util.concurrent.Future<androidx.core.text.PrecomputedTextCompat>?);
+    method public void setTextFuture(java.util.concurrent.Future<androidx.core.text.PrecomputedTextCompat!>?);
     method public void setTextMetricsParamsCompat(androidx.core.text.PrecomputedTextCompat.Params);
   }
 
@@ -988,7 +986,7 @@ package androidx.appcompat.widget {
     ctor public Toolbar.SavedState(android.os.Parcel!);
     ctor public Toolbar.SavedState(android.os.Parcel!, ClassLoader!);
     ctor public Toolbar.SavedState(android.os.Parcelable!);
-    field public static final android.os.Parcelable.Creator<androidx.appcompat.widget.Toolbar.SavedState>! CREATOR;
+    field public static final android.os.Parcelable.Creator<androidx.appcompat.widget.Toolbar.SavedState!>! CREATOR;
   }
 
   public class TooltipCompat {

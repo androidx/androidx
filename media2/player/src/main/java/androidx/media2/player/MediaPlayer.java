@@ -16,7 +16,7 @@
 
 package androidx.media2.player;
 
-import static androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP_PREFIX;
+import static androidx.annotation.RestrictTo.Scope.LIBRARY;
 import static androidx.media2.common.SessionPlayer.PlayerResult.RESULT_ERROR_BAD_VALUE;
 import static androidx.media2.common.SessionPlayer.PlayerResult.RESULT_ERROR_INVALID_STATE;
 import static androidx.media2.common.SessionPlayer.PlayerResult.RESULT_ERROR_IO;
@@ -44,7 +44,6 @@ import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.annotation.RequiresApi;
 import androidx.annotation.RestrictTo;
-import androidx.annotation.VisibleForTesting;
 import androidx.collection.ArrayMap;
 import androidx.concurrent.futures.AbstractResolvableFuture;
 import androidx.concurrent.futures.ResolvableFuture;
@@ -54,6 +53,7 @@ import androidx.media2.common.FileMediaItem;
 import androidx.media2.common.MediaItem;
 import androidx.media2.common.MediaMetadata;
 import androidx.media2.common.SessionPlayer;
+import androidx.media2.common.SubtitleData;
 import androidx.media2.common.UriMediaItem;
 
 import com.google.common.util.concurrent.ListenableFuture;
@@ -67,7 +67,6 @@ import java.util.Collections;
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
-import java.util.Locale;
 import java.util.Map;
 import java.util.Objects;
 import java.util.UUID;
@@ -83,8 +82,7 @@ import java.util.concurrent.Executors;
  * <ol>
  * <li><a href="#AudioFocusAndNoisyIntent">Audio focus and noisy intent</a>
  * </ol>
- * <a name="AudioFocusAndNoisyIntent"></a>
- * <h3>Audio focus and noisy intent</h3>
+ * <h3 id="AudioFocusAndNoisyIntent">Audio focus and noisy intent</h3>
  * <p>
  * By default, {@link MediaPlayer} handles audio focus and noisy intent with
  * {@link AudioAttributesCompat} set to this player. You need to call
@@ -92,11 +90,11 @@ import java.util.concurrent.Executors;
  * {@link #PLAYER_STATE_IDLE}.
  * <p>
  * Here's the table of automatic audio focus behavior with audio attributes.
- * <table>
+ * <table summary="Audio focus handling overview">
  * <tr><th>Audio Attributes</th><th>Audio Focus Gain Type</th><th>Misc</th></tr>
  * <tr><td>{@link AudioAttributesCompat#USAGE_VOICE_COMMUNICATION_SIGNALLING}</td>
  *     <td>{@link android.media.AudioManager#AUDIOFOCUS_NONE}</td>
- *     <td /></tr>
+ *     <td></td></tr>
  * <tr><td><ul><li>{@link AudioAttributesCompat#USAGE_GAME}</li>
  *             <li>{@link AudioAttributesCompat#USAGE_MEDIA}</li>
  *             <li>{@link AudioAttributesCompat#USAGE_UNKNOWN}</li></ul></td>
@@ -106,7 +104,7 @@ import java.util.concurrent.Executors;
  * <tr><td><ul><li>{@link AudioAttributesCompat#USAGE_ALARM}</li>
  *             <li>{@link AudioAttributesCompat#USAGE_VOICE_COMMUNICATION}</li></ul></td>
  *     <td>{@link android.media.AudioManager#AUDIOFOCUS_GAIN_TRANSIENT}</td>
- *     <td /></tr>
+ *     <td></td></tr>
  * <tr><td><ul><li>{@link AudioAttributesCompat#USAGE_ASSISTANCE_NAVIGATION_GUIDANCE}</li>
  *             <li>{@link AudioAttributesCompat#USAGE_ASSISTANCE_SONIFICATION}</li>
  *             <li>{@link AudioAttributesCompat#USAGE_NOTIFICATION}</li>
@@ -116,15 +114,15 @@ import java.util.concurrent.Executors;
  *             <li>{@link AudioAttributesCompat#USAGE_NOTIFICATION_EVENT}</li>
  *             <li>{@link AudioAttributesCompat#USAGE_NOTIFICATION_RINGTONE}</li></ul></td>
  *     <td>{@link android.media.AudioManager#AUDIOFOCUS_GAIN_TRANSIENT_MAY_DUCK}</td>
- *     <td /></tr>
+ *     <td></td></tr>
  * <tr><td><ul><li>{@link AudioAttributesCompat#USAGE_ASSISTANT}</li></ul></td>
  *     <td>{@link android.media.AudioManager#AUDIOFOCUS_GAIN_TRANSIENT_EXCLUSIVE}</td>
- *     <td /></tr>
+ *     <td></td></tr>
  * <tr><td>{@link AudioAttributesCompat#USAGE_ASSISTANCE_ACCESSIBILITY}</td>
  *     <td>{@link android.media.AudioManager#AUDIOFOCUS_GAIN_TRANSIENT} if
  *         {@link AudioAttributesCompat#CONTENT_TYPE_SPEECH},
  *         {@link android.media.AudioManager#AUDIOFOCUS_GAIN_TRANSIENT_MAY_DUCK} otherwise</td>
- *     <td /></tr>
+ *     <td></td></tr>
  * <tr><td>{@code null}</td>
  *     <td>No audio focus handling, and sets the player volume to {@code 0}</td>
  *     <td>Only valid if your media contents don't have audio</td></tr>
@@ -170,13 +168,6 @@ public final class MediaPlayer extends SessionPlayer {
      * @see PlayerCallback#onError
      */
     public static final int PLAYER_ERROR_TIMED_OUT = -110;
-    /** Unspecified low-level system error. This value originated from UNKNOWN_ERROR in
-     * system/core/include/utils/Errors.h
-     * @see PlayerCallback#onError
-     * @hide
-     */
-    @RestrictTo(LIBRARY_GROUP_PREFIX)
-    public static final int PLAYER_ERROR_SYSTEM = -2147483648;
 
     /**
      * @hide
@@ -187,26 +178,17 @@ public final class MediaPlayer extends SessionPlayer {
             PLAYER_ERROR_MALFORMED,
             PLAYER_ERROR_UNSUPPORTED,
             PLAYER_ERROR_TIMED_OUT,
-            PLAYER_ERROR_SYSTEM
     })
     @Retention(RetentionPolicy.SOURCE)
-    @RestrictTo(LIBRARY_GROUP_PREFIX)
+    @RestrictTo(LIBRARY)
     public @interface MediaError {}
-
-    /**
-     * Unspecified media player info.
-     * @see PlayerCallback#onInfo
-     * @hide
-     */
-    @RestrictTo(LIBRARY_GROUP_PREFIX)
-    public static final int MEDIA_INFO_UNKNOWN = 1;
 
     /**
      * The player just started the playback of this media item.
      * @see PlayerCallback#onInfo
      * @hide
      */
-    @RestrictTo(LIBRARY_GROUP_PREFIX)
+    @RestrictTo(LIBRARY)
     public static final int MEDIA_INFO_MEDIA_ITEM_START = 2;
 
     /**
@@ -220,7 +202,7 @@ public final class MediaPlayer extends SessionPlayer {
      * @see PlayerCallback#onInfo
      * @hide
      */
-    @RestrictTo(LIBRARY_GROUP_PREFIX)
+    @RestrictTo(LIBRARY)
     public static final int MEDIA_INFO_MEDIA_ITEM_END = 5;
 
     /**
@@ -229,7 +211,7 @@ public final class MediaPlayer extends SessionPlayer {
      * @see PlayerCallback#onInfo
      * @hide
      */
-    @RestrictTo(LIBRARY_GROUP_PREFIX)
+    @RestrictTo(LIBRARY)
     public static final int MEDIA_INFO_MEDIA_ITEM_LIST_END = 6;
 
     /**
@@ -238,14 +220,16 @@ public final class MediaPlayer extends SessionPlayer {
      * @see PlayerCallback#onInfo
      * @hide
      */
-    @RestrictTo(LIBRARY_GROUP_PREFIX)
+    @RestrictTo(LIBRARY)
     public static final int MEDIA_INFO_MEDIA_ITEM_REPEAT = 7;
 
     /**
      * The player just finished preparing a media item for playback.
      * @see #prepare()
      * @see PlayerCallback#onInfo
+     * @hide
      */
+    @RestrictTo(LIBRARY)
     public static final int MEDIA_INFO_PREPARED = 100;
 
     /**
@@ -261,7 +245,7 @@ public final class MediaPlayer extends SessionPlayer {
      * @see PlayerCallback#onInfo
      * @hide
      */
-    @RestrictTo(LIBRARY_GROUP_PREFIX)
+    @RestrictTo(LIBRARY)
     public static final int MEDIA_INFO_BUFFERING_START = 701;
 
     /**
@@ -269,7 +253,7 @@ public final class MediaPlayer extends SessionPlayer {
      * @see PlayerCallback#onInfo
      * @hide
      */
-    @RestrictTo(LIBRARY_GROUP_PREFIX)
+    @RestrictTo(LIBRARY)
     public static final int MEDIA_INFO_BUFFERING_END = 702;
 
     /**
@@ -279,7 +263,7 @@ public final class MediaPlayer extends SessionPlayer {
      * @see PlayerCallback#onInfo
      * @hide
      */
-    @RestrictTo(LIBRARY_GROUP_PREFIX)
+    @RestrictTo(LIBRARY)
     public static final int MEDIA_INFO_NETWORK_BANDWIDTH = 703;
 
     /**
@@ -312,9 +296,7 @@ public final class MediaPlayer extends SessionPlayer {
     /**
      * A new set of metadata is available.
      * @see PlayerCallback#onInfo
-     * @hide
      */
-    @RestrictTo(LIBRARY_GROUP_PREFIX)
     public static final int MEDIA_INFO_METADATA_UPDATE = 802;
 
     /**
@@ -322,7 +304,7 @@ public final class MediaPlayer extends SessionPlayer {
      * JAVA framework to avoid triggering track scanning.
      * @hide
      */
-    @RestrictTo(LIBRARY_GROUP_PREFIX)
+    @RestrictTo(LIBRARY)
     public static final int MEDIA_INFO_EXTERNAL_METADATA_UPDATE = 803;
 
     /**
@@ -339,19 +321,12 @@ public final class MediaPlayer extends SessionPlayer {
      */
     public static final int MEDIA_INFO_VIDEO_NOT_PLAYING = 805;
 
-    /** Failed to handle timed text track properly.
-     * @see PlayerCallback#onInfo
-     * @hide
-     */
-    @RestrictTo(LIBRARY_GROUP_PREFIX)
-    public static final int MEDIA_INFO_TIMED_TEXT_ERROR = 900;
-
     /**
      * Subtitle track was not supported by the media framework.
      * @see PlayerCallback#onInfo
      * @hide
      */
-    @RestrictTo(LIBRARY_GROUP_PREFIX)
+    @RestrictTo(LIBRARY)
     public static final int MEDIA_INFO_UNSUPPORTED_SUBTITLE = 901;
 
     /**
@@ -359,14 +334,13 @@ public final class MediaPlayer extends SessionPlayer {
      * @see PlayerCallback#onInfo
      * @hide
      */
-    @RestrictTo(LIBRARY_GROUP_PREFIX)
+    @RestrictTo(LIBRARY)
     public static final int MEDIA_INFO_SUBTITLE_TIMED_OUT = 902;
 
     /**
      * @hide
      */
     @IntDef(flag = false, /*prefix = "MEDIA_INFO",*/ value = {
-            MEDIA_INFO_UNKNOWN,
             MEDIA_INFO_MEDIA_ITEM_START,
             MEDIA_INFO_VIDEO_RENDERING_START,
             MEDIA_INFO_MEDIA_ITEM_END,
@@ -384,12 +358,11 @@ public final class MediaPlayer extends SessionPlayer {
             MEDIA_INFO_EXTERNAL_METADATA_UPDATE,
             MEDIA_INFO_AUDIO_NOT_PLAYING,
             MEDIA_INFO_VIDEO_NOT_PLAYING,
-            MEDIA_INFO_TIMED_TEXT_ERROR,
             MEDIA_INFO_UNSUPPORTED_SUBTITLE,
             MEDIA_INFO_SUBTITLE_TIMED_OUT
     })
     @Retention(RetentionPolicy.SOURCE)
-    @RestrictTo(LIBRARY_GROUP_PREFIX)
+    @RestrictTo(LIBRARY)
     public @interface MediaInfo {}
 
     /**
@@ -433,17 +406,25 @@ public final class MediaPlayer extends SessionPlayer {
             SEEK_CLOSEST,
     })
     @Retention(RetentionPolicy.SOURCE)
-    @RestrictTo(LIBRARY_GROUP_PREFIX)
+    @RestrictTo(LIBRARY)
     public @interface SeekMode {}
 
     /**
-     * The return value of {@link #getSelectedTrack} when there is no selected track for the given
-     * type.
+     * The return value of {@link #getSelectedTrack(int)} when there is no selected track
+     * for the given type.
+     *
      * @see #getSelectedTrack(int)
+     * @deprecated {@link #getSelectedTrack(int)} returns {@code null} instead of this value.
      */
+    @Deprecated
     public static final int NO_TRACK_SELECTED = Integer.MIN_VALUE;
 
-    private static final int CALL_COMPLETE_PLAYLIST_BASE = -1000;
+    static final PlaybackParams DEFAULT_PLAYBACK_PARAMS = new PlaybackParams.Builder()
+            .setSpeed(1f)
+            .setPitch(1f)
+            .setAudioFallbackMode(PlaybackParams.AUDIO_FALLBACK_MODE_DEFAULT)
+            .build();
+
     private static final int END_OF_PLAYLIST = -1;
     private static final int NO_MEDIA_ITEM = -2;
 
@@ -478,21 +459,16 @@ public final class MediaPlayer extends SessionPlayer {
         sErrorCodeMap.put(MediaPlayer2.MEDIA_ERROR_TIMED_OUT, PLAYER_ERROR_TIMED_OUT);
 
         sInfoCodeMap = new ArrayMap<>();
-        sInfoCodeMap.put(MediaPlayer2.MEDIA_INFO_UNKNOWN, MEDIA_INFO_UNKNOWN);
         sInfoCodeMap.put(
                 MediaPlayer2.MEDIA_INFO_VIDEO_RENDERING_START, MEDIA_INFO_VIDEO_RENDERING_START);
         sInfoCodeMap.put(
                 MediaPlayer2.MEDIA_INFO_VIDEO_TRACK_LAGGING, MEDIA_INFO_VIDEO_TRACK_LAGGING);
-        sInfoCodeMap.put(MediaPlayer2.MEDIA_INFO_BUFFERING_START, MEDIA_INFO_BUFFERING_START);
-        sInfoCodeMap.put(MediaPlayer2.MEDIA_INFO_BUFFERING_END, MEDIA_INFO_BUFFERING_END);
+        sInfoCodeMap.put(MediaPlayer2.MEDIA_INFO_BUFFERING_UPDATE, MEDIA_INFO_BUFFERING_UPDATE);
         sInfoCodeMap.put(MediaPlayer2.MEDIA_INFO_BAD_INTERLEAVING, MEDIA_INFO_BAD_INTERLEAVING);
         sInfoCodeMap.put(MediaPlayer2.MEDIA_INFO_NOT_SEEKABLE, MEDIA_INFO_NOT_SEEKABLE);
         sInfoCodeMap.put(MediaPlayer2.MEDIA_INFO_METADATA_UPDATE, MEDIA_INFO_METADATA_UPDATE);
         sInfoCodeMap.put(MediaPlayer2.MEDIA_INFO_AUDIO_NOT_PLAYING, MEDIA_INFO_AUDIO_NOT_PLAYING);
         sInfoCodeMap.put(MediaPlayer2.MEDIA_INFO_VIDEO_NOT_PLAYING, MEDIA_INFO_VIDEO_NOT_PLAYING);
-        sInfoCodeMap.put(
-                MediaPlayer2.MEDIA_INFO_UNSUPPORTED_SUBTITLE, MEDIA_INFO_UNSUPPORTED_SUBTITLE);
-        sInfoCodeMap.put(MediaPlayer2.MEDIA_INFO_SUBTITLE_TIMED_OUT, MEDIA_INFO_SUBTITLE_TIMED_OUT);
 
         sSeekModeMap = new ArrayMap<>();
         sSeekModeMap.put(SEEK_PREVIOUS_SYNC, MediaPlayer2.SEEK_PREVIOUS_SYNC);
@@ -517,19 +493,34 @@ public final class MediaPlayer extends SessionPlayer {
 
     @SuppressWarnings("WeakerAccess") /* synthetic access */
     MediaPlayer2 mPlayer;
-    private ExecutorService mExecutor;
+    @SuppressWarnings("WeakerAccess") /* synthetic access */
+    ExecutorService mExecutor;
 
     @SuppressWarnings("WeakerAccess") /* synthetic access */
     static final class PendingCommand {
         @SuppressWarnings("WeakerAccess") /* synthetic access */
         @MediaPlayer2.CallCompleted final int mCallType;
         @SuppressWarnings("WeakerAccess") /* synthetic access */
-        final ResolvableFuture mFuture;
+        final ResolvableFuture<? extends PlayerResult> mFuture;
+        @SuppressWarnings("WeakerAccess") /* synthetic access */
+        final SessionPlayer.TrackInfo mTrackInfo;
 
         @SuppressWarnings("WeakerAccess") /* synthetic access */
-        PendingCommand(int callType, ResolvableFuture future) {
+        PendingCommand(int callType, ResolvableFuture<? extends PlayerResult> future) {
+            this(callType, future, null);
+        }
+
+        @SuppressWarnings("WeakerAccess") /* synthetic access */
+        PendingCommand(int callType, ResolvableFuture<? extends PlayerResult> future,
+                SessionPlayer.TrackInfo trackInfo) {
             mCallType = callType;
             mFuture = future;
+            mTrackInfo = trackInfo;
+        }
+
+        @SuppressWarnings("unchecked")
+        <V extends PlayerResult> void setResult(V value) {
+            ((ResolvableFuture<V>) mFuture).set(value);
         }
     }
 
@@ -621,9 +612,11 @@ public final class MediaPlayer extends SessionPlayer {
 
         @SuppressWarnings("WeakerAccess") /* synthetic access */
         void cancelFutures() {
-            for (ResolvableFuture<V> future : mFutures) {
-                if (!future.isCancelled() && !future.isDone()) {
-                    future.cancel(true);
+            if (mFutures != null) {
+                for (ResolvableFuture<V> future : mFutures) {
+                    if (!future.isCancelled() && !future.isDone()) {
+                        future.cancel(true);
+                    }
                 }
             }
         }
@@ -632,13 +625,17 @@ public final class MediaPlayer extends SessionPlayer {
     /* A list of pending operations within this MediaPlayer that will be executed sequentially. */
     @SuppressWarnings("WeakerAccess") /* synthetic access */
     @GuardedBy("mPendingFutures")
-    final ArrayDeque<PendingFuture<? super PlayerResult>> mPendingFutures = new ArrayDeque<>();
+    final ArrayDeque<PendingFuture<? extends PlayerResult>> mPendingFutures = new ArrayDeque<>();
 
     private final Object mStateLock = new Object();
     @GuardedBy("mStateLock")
-    private @PlayerState int mState;
+    @PlayerState
+    private int mState;
     @GuardedBy("mStateLock")
     private Map<MediaItem, Integer> mMediaItemToBuffState = new HashMap<>();
+    @GuardedBy("mStateLock")
+    private boolean mClosed;
+
     @SuppressWarnings("WeakerAccess") /* synthetic access */
     final AudioFocusHandler mAudioFocusHandler;
 
@@ -652,7 +649,7 @@ public final class MediaPlayer extends SessionPlayer {
     ArrayList<MediaItem> mShuffledList = new ArrayList<>();
     @GuardedBy("mPlaylistLock")
     @SuppressWarnings("WeakerAccess") /* synthetic access */
-            MediaMetadata mPlaylistMetadata;
+    MediaMetadata mPlaylistMetadata;
     @GuardedBy("mPlaylistLock")
     @SuppressWarnings("WeakerAccess") /* synthetic access */
     int mRepeatMode;
@@ -664,10 +661,10 @@ public final class MediaPlayer extends SessionPlayer {
     int mCurrentShuffleIdx;
     @GuardedBy("mPlaylistLock")
     @SuppressWarnings("WeakerAccess") /* synthetic access */
-            MediaItem mCurPlaylistItem;
+    MediaItem mCurPlaylistItem;
     @GuardedBy("mPlaylistLock")
     @SuppressWarnings("WeakerAccess") /* synthetic access */
-            MediaItem mNextPlaylistItem;
+    MediaItem mNextPlaylistItem;
     @GuardedBy("mPlaylistLock")
     private boolean mSetMediaItemCalled;
 
@@ -692,9 +689,26 @@ public final class MediaPlayer extends SessionPlayer {
     @GuardedBy("mPendingCommands")
     @SuppressWarnings("WeakerAccess") /* synthetic access */
     void addPendingCommandLocked(
-            int callType, final ResolvableFuture future, final Object token) {
+            int callType, final ResolvableFuture<? extends PlayerResult> future,
+            final Object token) {
         final PendingCommand pendingCommand = new PendingCommand(callType, future);
         mPendingCommands.add(pendingCommand);
+        addFutureListener(pendingCommand, future, token);
+    }
+
+    @GuardedBy("mPendingCommands")
+    @SuppressWarnings("WeakerAccess") /* synthetic access */
+    void addPendingCommandWithTrackInfoLocked(
+            int callType, final ResolvableFuture<? extends PlayerResult> future,
+            final SessionPlayer.TrackInfo trackInfo, final Object token) {
+        final PendingCommand pendingCommand = new PendingCommand(callType, future, trackInfo);
+        mPendingCommands.add(pendingCommand);
+        addFutureListener(pendingCommand, future, token);
+    }
+
+    @SuppressWarnings("WeakerAccess") /* synthetic access */
+    void addFutureListener(final PendingCommand pendingCommand,
+            final ResolvableFuture<? extends PlayerResult> future, final Object token) {
         future.addListener(new Runnable() {
             @Override
             public void run() {
@@ -710,7 +724,8 @@ public final class MediaPlayer extends SessionPlayer {
         }, mExecutor);
     }
 
-    private void addPendingFuture(final PendingFuture pendingFuture) {
+    @SuppressWarnings("WeakerAccess") /* synthetic access */
+    void addPendingFuture(final PendingFuture<? extends PlayerResult> pendingFuture) {
         synchronized (mPendingFutures) {
             mPendingFutures.add(pendingFuture);
             executePendingFutures();
@@ -720,6 +735,11 @@ public final class MediaPlayer extends SessionPlayer {
     @Override
     @NonNull
     public ListenableFuture<PlayerResult> play() {
+        synchronized (mStateLock) {
+            if (mClosed) {
+                return createFutureForClosed();
+            }
+        }
         PendingFuture<PlayerResult> pendingFuture = new PendingFuture<PlayerResult>(mExecutor) {
             @Override
             List<ResolvableFuture<PlayerResult>> onExecute() {
@@ -748,6 +768,11 @@ public final class MediaPlayer extends SessionPlayer {
     @Override
     @NonNull
     public ListenableFuture<PlayerResult> pause() {
+        synchronized (mStateLock) {
+            if (mClosed) {
+                return createFutureForClosed();
+            }
+        }
         PendingFuture<PlayerResult> pendingFuture = new PendingFuture<PlayerResult>(mExecutor) {
             @Override
             List<ResolvableFuture<PlayerResult>> onExecute() {
@@ -783,6 +808,11 @@ public final class MediaPlayer extends SessionPlayer {
     @Override
     @NonNull
     public ListenableFuture<PlayerResult> prepare() {
+        synchronized (mStateLock) {
+            if (mClosed) {
+                return createFutureForClosed();
+            }
+        }
         PendingFuture<PlayerResult> pendingFuture = new PendingFuture<PlayerResult>(mExecutor) {
             @Override
             List<ResolvableFuture<PlayerResult>> onExecute() {
@@ -807,6 +837,11 @@ public final class MediaPlayer extends SessionPlayer {
     @Override
     @NonNull
     public ListenableFuture<PlayerResult> seekTo(final long position) {
+        synchronized (mStateLock) {
+            if (mClosed) {
+                return createFutureForClosed();
+            }
+        }
         PendingFuture<PlayerResult> pendingFuture =
                 new PendingFuture<PlayerResult>(mExecutor, true) {
             @Override
@@ -825,14 +860,33 @@ public final class MediaPlayer extends SessionPlayer {
         return pendingFuture;
     }
 
+    /**
+     * Sets the playback speed. {@code 1.0f} is the default, and values less than or equal to
+     * {@code 0.0f} are not allowed.
+     * <p>
+     * The supported playback speed range depends on the underlying player implementation, so it is
+     * recommended to query the actual speed of the player via {@link #getPlaybackSpeed()} after the
+     * operation completes.
+     *
+     * @param playbackSpeed The requested playback speed.
+     * @return A {@link ListenableFuture} representing the pending completion of the command.
+     */
     @Override
     @NonNull
     public ListenableFuture<PlayerResult> setPlaybackSpeed(
             @FloatRange(from = 0.0f, to = Float.MAX_VALUE, fromInclusive = false)
             final float playbackSpeed) {
+        synchronized (mStateLock) {
+            if (mClosed) {
+                return createFutureForClosed();
+            }
+        }
         PendingFuture<PlayerResult> pendingFuture = new PendingFuture<PlayerResult>(mExecutor) {
             @Override
             List<ResolvableFuture<PlayerResult>> onExecute() {
+                if (playbackSpeed <= 0.0f) {
+                    return createFuturesForResultCode(RESULT_ERROR_BAD_VALUE);
+                }
                 ArrayList<ResolvableFuture<PlayerResult>> futures = new ArrayList<>();
                 ResolvableFuture<PlayerResult> future = ResolvableFuture.create();
                 synchronized (mPendingCommands) {
@@ -850,12 +904,17 @@ public final class MediaPlayer extends SessionPlayer {
         return pendingFuture;
     }
 
-    @NonNull
     @Override
+    @NonNull
     public ListenableFuture<PlayerResult> setAudioAttributes(
             @NonNull final AudioAttributesCompat attr) {
         if (attr == null) {
             throw new NullPointerException("attr shouldn't be null");
+        }
+        synchronized (mStateLock) {
+            if (mClosed) {
+                return createFutureForClosed();
+            }
         }
         PendingFuture<PlayerResult> pendingFuture = new PendingFuture<PlayerResult>(mExecutor) {
             @Override
@@ -885,6 +944,11 @@ public final class MediaPlayer extends SessionPlayer {
 
     @Override
     public long getCurrentPosition() {
+        synchronized (mStateLock) {
+            if (mClosed) {
+                return UNKNOWN_TIME;
+            }
+        }
         try {
             final long pos = mPlayer.getCurrentPosition();
             if (pos >= 0) {
@@ -898,6 +962,11 @@ public final class MediaPlayer extends SessionPlayer {
 
     @Override
     public long getDuration() {
+        synchronized (mStateLock) {
+            if (mClosed) {
+                return UNKNOWN_TIME;
+            }
+        }
         try {
             final long duration = mPlayer.getDuration();
             if (duration >= 0) {
@@ -911,6 +980,11 @@ public final class MediaPlayer extends SessionPlayer {
 
     @Override
     public long getBufferedPosition() {
+        synchronized (mStateLock) {
+            if (mClosed) {
+                return UNKNOWN_TIME;
+            }
+        }
         try {
             final long pos = mPlayer.getBufferedPosition();
             if (pos >= 0) {
@@ -925,6 +999,11 @@ public final class MediaPlayer extends SessionPlayer {
     @Override
     @BuffState
     public int getBufferingState() {
+        synchronized (mStateLock) {
+            if (mClosed) {
+                return BUFFERING_STATE_UNKNOWN;
+            }
+        }
         Integer buffState;
         synchronized (mStateLock) {
             buffState = mMediaItemToBuffState.get(mPlayer.getCurrentMediaItem());
@@ -935,6 +1014,11 @@ public final class MediaPlayer extends SessionPlayer {
     @Override
     @FloatRange(from = 0.0f, to = Float.MAX_VALUE, fromInclusive = false)
     public float getPlaybackSpeed() {
+        synchronized (mStateLock) {
+            if (mClosed) {
+                return 1.0f;
+            }
+        }
         try {
             return mPlayer.getPlaybackParams().getSpeed();
         } catch (IllegalStateException e) {
@@ -945,6 +1029,11 @@ public final class MediaPlayer extends SessionPlayer {
     @Override
     @Nullable
     public AudioAttributesCompat getAudioAttributes() {
+        synchronized (mStateLock) {
+            if (mClosed) {
+                return null;
+            }
+        }
         try {
             return mPlayer.getAudioAttributes();
         } catch (IllegalStateException e) {
@@ -961,6 +1050,11 @@ public final class MediaPlayer extends SessionPlayer {
         if (item instanceof FileMediaItem) {
             if (((FileMediaItem) item).isClosed()) {
                 throw new IllegalArgumentException("File descriptor is closed. " + item);
+            }
+        }
+        synchronized (mStateLock) {
+            if (mClosed) {
+                return createFutureForClosed();
             }
         }
         PendingFuture<PlayerResult> pendingFuture = new PendingFuture<PlayerResult>(mExecutor) {
@@ -982,14 +1076,19 @@ public final class MediaPlayer extends SessionPlayer {
         return pendingFuture;
     }
 
-    @NonNull
     @Override
+    @NonNull
     public ListenableFuture<PlayerResult> setPlaylist(
             @NonNull final List<MediaItem> playlist, @Nullable final MediaMetadata metadata) {
         if (playlist == null) {
             throw new NullPointerException("playlist shouldn't be null");
         } else if (playlist.isEmpty()) {
             throw new IllegalArgumentException("playlist shouldn't be empty");
+        }
+        synchronized (mStateLock) {
+            if (mClosed) {
+                return createFutureForClosed();
+            }
         }
         String errorString = null;
         for (MediaItem item : playlist) {
@@ -1046,8 +1145,8 @@ public final class MediaPlayer extends SessionPlayer {
         return pendingFuture;
     }
 
-    @NonNull
     @Override
+    @NonNull
     public ListenableFuture<PlayerResult> addPlaylistItem(
             final int index, @NonNull final MediaItem item) {
         if (item == null) {
@@ -1060,6 +1159,11 @@ public final class MediaPlayer extends SessionPlayer {
         }
         if (index < 0) {
             throw new IllegalArgumentException("index shouldn't be negative");
+        }
+        synchronized (mStateLock) {
+            if (mClosed) {
+                return createFutureForClosed();
+            }
         }
 
         PendingFuture<PlayerResult> pendingFuture = new PendingFuture<PlayerResult>(mExecutor) {
@@ -1095,7 +1199,7 @@ public final class MediaPlayer extends SessionPlayer {
                     }
                 });
 
-                if (updatedCurNextItem.second == null) {
+                if (updatedCurNextItem == null || updatedCurNextItem.second == null) {
                     return createFuturesForResultCode(RESULT_SUCCESS);
                 }
                 ArrayList<ResolvableFuture<PlayerResult>> futures = new ArrayList<>();
@@ -1112,6 +1216,11 @@ public final class MediaPlayer extends SessionPlayer {
     public ListenableFuture<PlayerResult> removePlaylistItem(@IntRange(from = 0) final int index) {
         if (index < 0) {
             throw new IllegalArgumentException("index shouldn't be negative");
+        }
+        synchronized (mStateLock) {
+            if (mClosed) {
+                return createFutureForClosed();
+            }
         }
 
         PendingFuture<PlayerResult> pendingFuture = new PendingFuture<PlayerResult>(mExecutor) {
@@ -1131,6 +1240,7 @@ public final class MediaPlayer extends SessionPlayer {
                     if (removedItemShuffleIdx < mCurrentShuffleIdx) {
                         mCurrentShuffleIdx--;
                     }
+
                     updatedCurNextItem = updateAndGetCurrentNextItemIfNeededLocked();
                     curItem = mCurPlaylistItem;
                     nextItem = mNextPlaylistItem;
@@ -1162,8 +1272,8 @@ public final class MediaPlayer extends SessionPlayer {
         return pendingFuture;
     }
 
-    @NonNull
     @Override
+    @NonNull
     public ListenableFuture<PlayerResult> replacePlaylistItem(
             final int index, @NonNull final MediaItem item) {
         if (item == null) {
@@ -1176,6 +1286,11 @@ public final class MediaPlayer extends SessionPlayer {
         }
         if (index < 0) {
             throw new IllegalArgumentException("index shouldn't be negative");
+        }
+        synchronized (mStateLock) {
+            if (mClosed) {
+                return createFutureForClosed();
+            }
         }
 
         PendingFuture<PlayerResult> pendingFuture = new PendingFuture<PlayerResult>(mExecutor) {
@@ -1226,7 +1341,76 @@ public final class MediaPlayer extends SessionPlayer {
 
     @Override
     @NonNull
+    public ListenableFuture<PlayerResult> movePlaylistItem(final int fromIndex, final int toIndex) {
+        if (fromIndex < 0 || toIndex < 0) {
+            throw new IllegalArgumentException("indices shouldn't be negative");
+        }
+        synchronized (mStateLock) {
+            if (mClosed) {
+                return createFutureForClosed();
+            }
+        }
+
+        PendingFuture<PlayerResult> pendingFuture = new PendingFuture<PlayerResult>(mExecutor) {
+            @Override
+            List<ResolvableFuture<PlayerResult>> onExecute() {
+                MediaItem curItem;
+                MediaItem nextItem;
+                Pair<MediaItem, MediaItem> updatedCurNextItem = null;
+                synchronized (mPlaylistLock) {
+                    if (fromIndex >= mPlaylist.size() || toIndex >= mPlaylist.size()) {
+                        return createFuturesForResultCode(RESULT_ERROR_BAD_VALUE);
+                    }
+
+                    MediaItem item = mPlaylist.remove(fromIndex);
+                    mPlaylist.add(toIndex, item);
+                    if (mShuffleMode == SessionPlayer.SHUFFLE_MODE_NONE) {
+                        mShuffledList.remove(fromIndex);
+                        mShuffledList.add(toIndex, item);
+                        if (item == mCurPlaylistItem) {
+                            mCurrentShuffleIdx = toIndex;
+                        }
+                    }
+                    updatedCurNextItem = updateAndGetCurrentNextItemIfNeededLocked();
+                    curItem = mCurPlaylistItem;
+                    nextItem = mNextPlaylistItem;
+                }
+
+                final List<MediaItem> playlist = getPlaylist();
+                final MediaMetadata metadata = getPlaylistMetadata();
+                notifySessionPlayerCallback(new SessionPlayerCallbackNotifier() {
+                    @Override
+                    public void callCallback(
+                            SessionPlayer.PlayerCallback callback) {
+                        callback.onPlaylistChanged(MediaPlayer.this, playlist, metadata);
+                    }
+                });
+
+                ArrayList<ResolvableFuture<PlayerResult>> futures = new ArrayList<>();
+                if (updatedCurNextItem != null) {
+                    if (updatedCurNextItem.first != null) {
+                        futures.addAll(setMediaItemsInternal(curItem, nextItem));
+                    } else if (updatedCurNextItem.second != null) {
+                        futures.add(setNextMediaItemInternal(nextItem));
+                    }
+                } else {
+                    futures.add(createFutureForResultCode(RESULT_SUCCESS));
+                }
+                return futures;
+            }
+        };
+        addPendingFuture(pendingFuture);
+        return pendingFuture;
+    }
+
+    @Override
+    @NonNull
     public ListenableFuture<PlayerResult> skipToPreviousPlaylistItem() {
+        synchronized (mStateLock) {
+            if (mClosed) {
+                return createFutureForClosed();
+            }
+        }
         PendingFuture<PlayerResult> pendingFuture = new PendingFuture<PlayerResult>(mExecutor) {
             @Override
             List<ResolvableFuture<PlayerResult>> onExecute() {
@@ -1259,6 +1443,11 @@ public final class MediaPlayer extends SessionPlayer {
     @Override
     @NonNull
     public ListenableFuture<PlayerResult> skipToNextPlaylistItem() {
+        synchronized (mStateLock) {
+            if (mClosed) {
+                return createFutureForClosed();
+            }
+        }
         PendingFuture<PlayerResult> pendingFuture = new PendingFuture<PlayerResult>(mExecutor) {
             @Override
             List<ResolvableFuture<PlayerResult>> onExecute() {
@@ -1299,6 +1488,11 @@ public final class MediaPlayer extends SessionPlayer {
         if (index < 0) {
             throw new IllegalArgumentException("index shouldn't be negative");
         }
+        synchronized (mStateLock) {
+            if (mClosed) {
+                return createFutureForClosed();
+            }
+        }
 
         PendingFuture<PlayerResult> pendingFuture = new PendingFuture<PlayerResult>(mExecutor) {
             @Override
@@ -1321,10 +1515,15 @@ public final class MediaPlayer extends SessionPlayer {
         return pendingFuture;
     }
 
-    @NonNull
     @Override
+    @NonNull
     public ListenableFuture<PlayerResult> updatePlaylistMetadata(
             @Nullable final MediaMetadata metadata) {
+        synchronized (mStateLock) {
+            if (mClosed) {
+                return createFutureForClosed();
+            }
+        }
         PendingFuture<PlayerResult> pendingFuture = new PendingFuture<PlayerResult>(mExecutor) {
             @Override
             List<ResolvableFuture<PlayerResult>> onExecute() {
@@ -1348,6 +1547,11 @@ public final class MediaPlayer extends SessionPlayer {
     @Override
     @NonNull
     public ListenableFuture<PlayerResult> setRepeatMode(final int repeatMode) {
+        synchronized (mStateLock) {
+            if (mClosed) {
+                return createFutureForClosed();
+            }
+        }
         PendingFuture<PlayerResult> pendingFuture = new PendingFuture<PlayerResult>(mExecutor) {
             @Override
             List<ResolvableFuture<PlayerResult>> onExecute() {
@@ -1380,6 +1584,11 @@ public final class MediaPlayer extends SessionPlayer {
     @Override
     @NonNull
     public ListenableFuture<PlayerResult> setShuffleMode(final int shuffleMode) {
+        synchronized (mStateLock) {
+            if (mClosed) {
+                return createFutureForClosed();
+            }
+        }
         PendingFuture<PlayerResult> pendingFuture = new PendingFuture<PlayerResult>(mExecutor) {
             @Override
             List<ResolvableFuture<PlayerResult>> onExecute() {
@@ -1392,6 +1601,7 @@ public final class MediaPlayer extends SessionPlayer {
                 synchronized (mPlaylistLock) {
                     changed = mShuffleMode != shuffleMode;
                     mShuffleMode = shuffleMode;
+                    applyShuffleModeLocked();
                 }
                 if (changed) {
                     notifySessionPlayerCallback(new SessionPlayerCallbackNotifier() {
@@ -1412,6 +1622,11 @@ public final class MediaPlayer extends SessionPlayer {
     @Override
     @Nullable
     public List<MediaItem> getPlaylist() {
+        synchronized (mStateLock) {
+            if (mClosed) {
+                return null;
+            }
+        }
         synchronized (mPlaylistLock) {
             return mPlaylist.isEmpty() ? null : new ArrayList<>(mPlaylist.getCollection());
         }
@@ -1420,6 +1635,11 @@ public final class MediaPlayer extends SessionPlayer {
     @Override
     @Nullable
     public MediaMetadata getPlaylistMetadata() {
+        synchronized (mStateLock) {
+            if (mClosed) {
+                return null;
+            }
+        }
         synchronized (mPlaylistLock) {
             return mPlaylistMetadata;
         }
@@ -1427,6 +1647,11 @@ public final class MediaPlayer extends SessionPlayer {
 
     @Override
     public int getRepeatMode() {
+        synchronized (mStateLock) {
+            if (mClosed) {
+                return REPEAT_MODE_NONE;
+            }
+        }
         synchronized (mPlaylistLock) {
             return mRepeatMode;
         }
@@ -1434,6 +1659,11 @@ public final class MediaPlayer extends SessionPlayer {
 
     @Override
     public int getShuffleMode() {
+        synchronized (mStateLock) {
+            if (mClosed) {
+                return SHUFFLE_MODE_NONE;
+            }
+        }
         synchronized (mPlaylistLock) {
             return mShuffleMode;
         }
@@ -1442,11 +1672,21 @@ public final class MediaPlayer extends SessionPlayer {
     @Override
     @Nullable
     public MediaItem getCurrentMediaItem() {
+        synchronized (mStateLock) {
+            if (mClosed) {
+                return null;
+            }
+        }
         return mPlayer.getCurrentMediaItem();
     }
 
     @Override
     public int getCurrentMediaItemIndex() {
+        synchronized (mStateLock) {
+            if (mClosed) {
+                return END_OF_PLAYLIST;
+            }
+        }
         synchronized (mPlaylistLock) {
             if (mCurrentShuffleIdx < 0) {
                 return END_OF_PLAYLIST;
@@ -1457,6 +1697,11 @@ public final class MediaPlayer extends SessionPlayer {
 
     @Override
     public int getPreviousMediaItemIndex() {
+        synchronized (mStateLock) {
+            if (mClosed) {
+                return END_OF_PLAYLIST;
+            }
+        }
         synchronized (mPlaylistLock) {
             if (mCurrentShuffleIdx < 0) {
                 return END_OF_PLAYLIST;
@@ -1475,6 +1720,11 @@ public final class MediaPlayer extends SessionPlayer {
 
     @Override
     public int getNextMediaItemIndex() {
+        synchronized (mStateLock) {
+            if (mClosed) {
+                return END_OF_PLAYLIST;
+            }
+        }
         synchronized (mPlaylistLock) {
             if (mCurrentShuffleIdx < 0) {
                 return END_OF_PLAYLIST;
@@ -1492,26 +1742,23 @@ public final class MediaPlayer extends SessionPlayer {
     }
 
     @Override
-    public void close() {
-        reset();
-        mAudioFocusHandler.close();
-        mPlayer.close();
-        mExecutor.shutdown();
+    public void close() throws Exception {
+        synchronized (mStateLock) {
+            if (!mClosed) {
+                mClosed = true;
+                reset();
+                mAudioFocusHandler.close();
+                mPlayer.close();
+                mExecutor.shutdown();
+            }
+        }
     }
 
     /**
-     * @hide
-     */
-    @RestrictTo(LIBRARY_GROUP_PREFIX)
-    @VisibleForTesting(otherwise = VisibleForTesting.PACKAGE_PRIVATE)
-    public AudioFocusHandler getAudioFocusHandler() {
-        return mAudioFocusHandler;
-    }
-
-    /**
-     * Resets {@link MediaPlayer} to its uninitialized state. After calling
-     * this method, you will have to initialize it again by setting the
-     * media item and calling {@link #prepare()}.
+     * Resets {@link MediaPlayer} to its uninitialized state if not closed. After calling
+     * this method, you will have to initialize it again by setting the media item and
+     * calling {@link #prepare()}.
+     * <p> Note that if the player is closed, there is no way to reuse the instance.
      */
     public void reset() {
         // Cancel the pending commands.
@@ -1523,7 +1770,7 @@ public final class MediaPlayer extends SessionPlayer {
         }
         // Cancel the pending futures.
         synchronized (mPendingFutures) {
-            for (PendingFuture f : mPendingFutures) {
+            for (PendingFuture<? extends PlayerResult> f : mPendingFutures) {
                 if (f.mExecuteCalled && !f.isDone() && !f.isCancelled()) {
                     f.cancel(true);
                 }
@@ -1570,7 +1817,13 @@ public final class MediaPlayer extends SessionPlayer {
      * completed.
      */
     @NonNull
+    @Override
     public ListenableFuture<PlayerResult> setSurface(@Nullable final Surface surface) {
+        synchronized (mStateLock) {
+            if (mClosed) {
+                return createFutureForClosed();
+            }
+        }
         PendingFuture<PlayerResult> pendingFuture = new PendingFuture<PlayerResult>(mExecutor) {
             @Override
             List<ResolvableFuture<PlayerResult>> onExecute() {
@@ -1611,6 +1864,14 @@ public final class MediaPlayer extends SessionPlayer {
     @NonNull
     public ListenableFuture<PlayerResult> setPlayerVolume(
             @FloatRange(from = 0, to = 1) final float volume) {
+        if (volume < 0 || volume > 1) {
+            throw new IllegalArgumentException("volume should be between 0.0 and 1.0");
+        }
+        synchronized (mStateLock) {
+            if (mClosed) {
+                return createFutureForClosed();
+            }
+        }
         PendingFuture<PlayerResult> pendingFuture = new PendingFuture<PlayerResult>(mExecutor) {
             @Override
             List<ResolvableFuture<PlayerResult>> onExecute() {
@@ -1628,6 +1889,11 @@ public final class MediaPlayer extends SessionPlayer {
      * account the associated stream volume.
      */
     public float getPlayerVolume() {
+        synchronized (mStateLock) {
+            if (mClosed) {
+                return 1.0f;
+            }
+        }
         return mPlayer.getPlayerVolume();
     }
 
@@ -1635,9 +1901,13 @@ public final class MediaPlayer extends SessionPlayer {
      * @return the maximum volume that can be used in {@link #setPlayerVolume(float)}.
      */
     public float getMaxPlayerVolume() {
+        synchronized (mStateLock) {
+            if (mClosed) {
+                return 1.0f;
+            }
+        }
         return mPlayer.getMaxPlayerVolume();
     }
-
 
     /**
      * Returns the size of the video.
@@ -1648,10 +1918,19 @@ public final class MediaPlayer extends SessionPlayer {
      * receive a notification {@link PlayerCallback#onVideoSizeChanged} when the size
      * is available.
      */
+    @Override
     @NonNull
     public VideoSize getVideoSize() {
+        synchronized (mStateLock) {
+            if (mClosed) {
+                return new VideoSize(0, 0);
+            }
+        }
         return new VideoSize(mPlayer.getVideoWidth(), mPlayer.getVideoHeight());
     }
+
+
+
 
     /**
      * @return a {@link PersistableBundle} containing the set of attributes and values
@@ -1661,7 +1940,7 @@ public final class MediaPlayer extends SessionPlayer {
      * Additional vendor-specific fields may also be present in the return value.
      * @hide
      */
-    @RestrictTo(LIBRARY_GROUP_PREFIX)
+    @RestrictTo(LIBRARY)
     @RequiresApi(21)
     public PersistableBundle getMetrics() {
         return mPlayer.getMetrics();
@@ -1682,6 +1961,11 @@ public final class MediaPlayer extends SessionPlayer {
     public ListenableFuture<PlayerResult> setPlaybackParams(@NonNull final PlaybackParams params) {
         if (params == null) {
             throw new NullPointerException("params shouldn't be null");
+        }
+        synchronized (mStateLock) {
+            if (mClosed) {
+                return createFutureForClosed();
+            }
         }
         PendingFuture<PlayerResult> pendingFuture = new PendingFuture<PlayerResult>(mExecutor) {
             @Override
@@ -1708,6 +1992,11 @@ public final class MediaPlayer extends SessionPlayer {
      */
     @NonNull
     public PlaybackParams getPlaybackParams() {
+        synchronized (mStateLock) {
+            if (mClosed) {
+                return DEFAULT_PLAYBACK_PARAMS;
+            }
+        }
         return mPlayer.getPlaybackParams();
     }
 
@@ -1734,6 +2023,11 @@ public final class MediaPlayer extends SessionPlayer {
      */
     @NonNull
     public ListenableFuture<PlayerResult> seekTo(final long position, @SeekMode final int mode) {
+        synchronized (mStateLock) {
+            if (mClosed) {
+                return createFutureForClosed();
+            }
+        }
         PendingFuture<PlayerResult> pendingFuture =
                 new PendingFuture<PlayerResult>(mExecutor, true) {
             @Override
@@ -1774,6 +2068,11 @@ public final class MediaPlayer extends SessionPlayer {
      */
     @Nullable
     public MediaTimestamp getTimestamp() {
+        synchronized (mStateLock) {
+            if (mClosed) {
+                return null;
+            }
+        }
         return mPlayer.getTimestamp();
     }
 
@@ -1802,6 +2101,11 @@ public final class MediaPlayer extends SessionPlayer {
      */
     @NonNull
     public ListenableFuture<PlayerResult> setAudioSessionId(final int sessionId) {
+        synchronized (mStateLock) {
+            if (mClosed) {
+                return createFutureForClosed();
+            }
+        }
         PendingFuture<PlayerResult> pendingFuture = new PendingFuture<PlayerResult>(mExecutor) {
             @Override
             List<ResolvableFuture<PlayerResult>> onExecute() {
@@ -1823,11 +2127,16 @@ public final class MediaPlayer extends SessionPlayer {
     /**
      * Returns the audio session ID.
      *
-     * @return the audio session ID. {@see #setAudioSessionId(int)}
-     * Note that the audio session ID is 0 only if a problem occurred when the MediaPlayer2 was
-     * constructed.
+     * @return the audio session ID. See {@link #setAudioSessionId(int)}. Note that the audio
+     *     session ID is 0 if a problem occurred when the MediaPlayer was constructed or it is
+     *     closed.
      */
     public int getAudioSessionId() {
+        synchronized (mStateLock) {
+            if (mClosed) {
+                return 0;
+            }
+        }
         return mPlayer.getAudioSessionId();
     }
 
@@ -1852,6 +2161,11 @@ public final class MediaPlayer extends SessionPlayer {
      */
     @NonNull
     public ListenableFuture<PlayerResult> attachAuxEffect(final int effectId) {
+        synchronized (mStateLock) {
+            if (mClosed) {
+                return createFutureForClosed();
+            }
+        }
         PendingFuture<PlayerResult> pendingFuture = new PendingFuture<PlayerResult>(mExecutor) {
             @Override
             List<ResolvableFuture<PlayerResult>> onExecute() {
@@ -1877,10 +2191,9 @@ public final class MediaPlayer extends SessionPlayer {
      * <p>By default the send level is 0, so even if an effect is attached to the player
      * this method must be called for the effect to be applied.
      * <p>Note that the passed level value is a raw scalar. UI controls should be scaled
-     * logarithmically: the gain applied by audio framework ranges from -72dB to 0dB,
-     * so an appropriate conversion from linear UI input x to level is:
-     * x == 0 -> level = 0
-     * 0 < x <= R -> level = 10^(72*(x-R)/20/R)
+     * logarithmically: the gain applied by audio framework ranges from -72dB to 0dB, so an
+     * appropriate conversion from linear UI input x to level is: x == 0 -&gt; level = 0, 0 &lt; x
+     * &lt;= R -&gt; level = 10^(72*(x-R)/20/R)
      * <p>
      * On success, a {@link SessionPlayer.PlayerResult} is returned with
      * the current media item when the command completed.
@@ -1893,6 +2206,11 @@ public final class MediaPlayer extends SessionPlayer {
     @NonNull
     public ListenableFuture<PlayerResult> setAuxEffectSendLevel(
             @FloatRange(from = 0, to = 1) final float level) {
+        synchronized (mStateLock) {
+            if (mClosed) {
+                return createFutureForClosed();
+            }
+        }
         PendingFuture<PlayerResult> pendingFuture = new PendingFuture<PlayerResult>(mExecutor) {
             @Override
             List<ResolvableFuture<PlayerResult>> onExecute() {
@@ -1916,36 +2234,55 @@ public final class MediaPlayer extends SessionPlayer {
      *
      * @return List of track info. The total number of tracks is the size of the list.
      */
+    @Override
+    @NonNull
+    public List<SessionPlayer.TrackInfo> getTracks() {
+        synchronized (mStateLock) {
+            if (mClosed) {
+                return Collections.emptyList();
+            }
+        }
+        return mPlayer.getTracks();
+    }
+
+
+    /**
+     * @deprecated Use {@link #getTracks()} instead.
+     */
+    @Deprecated
     @NonNull
     public List<TrackInfo> getTrackInfo() {
-        List<MediaPlayer2.TrackInfo> list = mPlayer.getTrackInfo();
-        List<TrackInfo> trackList = new ArrayList<>();
-        for (int i = 0; i < list.size(); i++) {
-            trackList.add(mPlayer.getTrackInfo(i));
+        List<SessionPlayer.TrackInfo> infoInternals = getTracks();
+        List<TrackInfo> infos = new ArrayList<>();
+        for (SessionPlayer.TrackInfo infoInternal : infoInternals) {
+            infos.add(new TrackInfo(infoInternal));
         }
-        return trackList;
+        return infos;
     }
 
     /**
-     * Returns the audio or video track currently selected for playback.
-     * The return value is an element in the list returned by {@link #getTrackInfo()}, and can
-     * be used in calls to {@link #selectTrack(TrackInfo)}.
+     * Returns metadata of the audio or video track currently selected for playback.
+     * The return value is an element in the list returned by {@link #getTracks()}.
      *
-     * @param trackType should be one of {@link TrackInfo#MEDIA_TRACK_TYPE_VIDEO} or
-     * {@link TrackInfo#MEDIA_TRACK_TYPE_AUDIO}
+     * @param trackType should be one of {@link TrackInfo#MEDIA_TRACK_TYPE_VIDEO},
+     * {@link TrackInfo#MEDIA_TRACK_TYPE_AUDIO}, or {@link TrackInfo#MEDIA_TRACK_TYPE_SUBTITLE}.
      * @return metadata corresponding to the audio or video track currently selected for
      * playback; {@code null} is returned when there is no selected track for {@code trackType} or
      * when {@code trackType} is not one of audio or video.
      * @throws IllegalStateException if called after {@link #close()}
      *
-     * @see #getTrackInfo()
-     * @see #selectTrack(TrackInfo)
+     * @see #getTracks()
      */
-    // TODO: revise the method document once subtitle track support is re-enabled. (b/130312596)
+    @Override
     @Nullable
     public TrackInfo getSelectedTrack(@TrackInfo.MediaTrackType int trackType) {
-        final int ret = mPlayer.getSelectedTrack(trackType);
-        return ret < 0 ? null : mPlayer.getTrackInfo(ret);
+        synchronized (mStateLock) {
+            if (mClosed) {
+                return null;
+            }
+        }
+        SessionPlayer.TrackInfo infoInternal = mPlayer.getSelectedTrack(trackType);
+        return infoInternal == null ? null : new TrackInfo(infoInternal);
     }
 
     /**
@@ -1966,35 +2303,38 @@ public final class MediaPlayer extends SessionPlayer {
      * this method is not called.
      * </p>
      * <p>
-     * Currently, audio tracks can be selected via this method.
+     * Currently, audio and subtitle tracks can be selected via this method. {@link #getTracks()}
+     * returns the list of tracks that can be selected, but the list may be invalidated when
+     * {@link PlayerCallback#onTracksChanged(SessionPlayer, List)} is called.
      * </p>
      * @param trackInfo metadata corresponding to the track to be selected. A {@code trackInfo}
-     * object can be obtained from {@link #getTrackInfo()}.
-     * <p>
-     * On success, a {@link SessionPlayer.PlayerResult} is returned with
-     * the current media item when the command completed.
+     * object can be obtained from {@link #getTracks()}.
      *
-     * @see #getTrackInfo
+     * @see #getTracks
      * @return a {@link ListenableFuture} which represents the pending completion of the command.
-     * {@link SessionPlayer.PlayerResult} will be delivered when the command
-     * completed.
+     * {@link SessionPlayer.PlayerResult} will be delivered when the command completed.
      */
-    // TODO: support subtitle track selection  (b/130312596)
+    @Override
     @NonNull
-    public ListenableFuture<PlayerResult> selectTrack(@NonNull final TrackInfo trackInfo) {
+    public ListenableFuture<PlayerResult> selectTrack(
+            @NonNull final SessionPlayer.TrackInfo trackInfo) {
         if (trackInfo == null) {
             throw new NullPointerException("trackInfo shouldn't be null");
         }
-        final int trackId = trackInfo.mId;
+        synchronized (mStateLock) {
+            if (mClosed) {
+                return createFutureForClosed();
+            }
+        }
         PendingFuture<PlayerResult> pendingFuture = new PendingFuture<PlayerResult>(mExecutor) {
             @Override
             List<ResolvableFuture<PlayerResult>> onExecute() {
                 ArrayList<ResolvableFuture<PlayerResult>> futures = new ArrayList<>();
                 ResolvableFuture<PlayerResult> future = ResolvableFuture.create();
                 synchronized (mPendingCommands) {
-                    Object token = mPlayer.selectTrack(trackId);
-                    addPendingCommandLocked(MediaPlayer2.CALL_COMPLETED_SELECT_TRACK,
-                            future, token);
+                    Object token = mPlayer.selectTrack(trackInfo.getId());
+                    addPendingCommandWithTrackInfoLocked(MediaPlayer2.CALL_COMPLETED_SELECT_TRACK,
+                            future, trackInfo, token);
                 }
                 futures.add(future);
                 return futures;
@@ -2005,40 +2345,50 @@ public final class MediaPlayer extends SessionPlayer {
     }
 
     /**
+     * @deprecated Use {@link #selectTrack(SessionPlayer.TrackInfo)} instead.
+     */
+    @Deprecated
+    @NonNull
+    public ListenableFuture<PlayerResult> selectTrack(@NonNull final TrackInfo trackInfo) {
+        return selectTrack((SessionPlayer.TrackInfo) trackInfo);
+    }
+
+    /**
      * Deselects a track.
      * <p>
-     * Currently, the track must be a timed text track and no audio or video tracks can be
-     * deselected.
+     * Currently, the track must be a subtitle track and no audio or video tracks can be
+     * deselected. {@link #getTracks()} returns the list of tracks that can be deselected, but
+     * the list may be invalidated when
+     * {@link PlayerCallback#onTracksChanged(SessionPlayer, List)} is called.
      * </p>
      * @param trackInfo metadata corresponding to the track to be selected. A {@code trackInfo}
-     * object can be obtained from {@link #getTrackInfo()}.
-     * <p>
-     * On success, a {@link SessionPlayer.PlayerResult} is returned with
-     * the current media item when the command completed.
+     * object can be obtained from {@link #getTracks()}.
      *
-     * @see #getTrackInfo
+     * @see #getTracks
      * @return a {@link ListenableFuture} which represents the pending completion of the command.
-     * {@link SessionPlayer.PlayerResult} will be delivered when the command
-     * completed.
-     *
-     * @hide  TODO: unhide this when we support subtitle track selection (b/130312596)
+     * {@link SessionPlayer.PlayerResult} will be delivered when the command completed.
      */
-    @RestrictTo(LIBRARY_GROUP_PREFIX)
+    @Override
     @NonNull
-    public ListenableFuture<PlayerResult> deselectTrack(@NonNull final TrackInfo trackInfo) {
+    public ListenableFuture<PlayerResult> deselectTrack(
+            @NonNull SessionPlayer.TrackInfo trackInfo) {
         if (trackInfo == null) {
             throw new NullPointerException("trackInfo shouldn't be null");
         }
-        final int trackId = trackInfo.mId;
+        synchronized (mStateLock) {
+            if (mClosed) {
+                return createFutureForClosed();
+            }
+        }
         PendingFuture<PlayerResult> pendingFuture = new PendingFuture<PlayerResult>(mExecutor) {
             @Override
             List<ResolvableFuture<PlayerResult>> onExecute() {
                 ArrayList<ResolvableFuture<PlayerResult>> futures = new ArrayList<>();
                 ResolvableFuture<PlayerResult> future = ResolvableFuture.create();
                 synchronized (mPendingCommands) {
-                    Object token = mPlayer.deselectTrack(trackId);
-                    addPendingCommandLocked(MediaPlayer2.CALL_COMPLETED_DESELECT_TRACK,
-                            future, token);
+                    Object token = mPlayer.deselectTrack(trackInfo.getId());
+                    addPendingCommandWithTrackInfoLocked(MediaPlayer2.CALL_COMPLETED_DESELECT_TRACK,
+                            future, trackInfo, token);
                 }
                 futures.add(future);
                 return futures;
@@ -2068,9 +2418,6 @@ public final class MediaPlayer extends SessionPlayer {
      * @throws IllegalArgumentException if the callback is {@code null}.
      */
     public void unregisterPlayerCallback(@NonNull PlayerCallback callback) {
-        if (callback == null) {
-            throw new NullPointerException("callback shouldn't be null");
-        }
         super.unregisterPlayerCallback(callback);
     }
 
@@ -2081,7 +2428,7 @@ public final class MediaPlayer extends SessionPlayer {
      * @hide
      */
     @Nullable
-    @RestrictTo(LIBRARY_GROUP_PREFIX)
+    @RestrictTo(LIBRARY)
     public DrmInfo getDrmInfo() {
         MediaPlayer2.DrmInfo info = mPlayer.getDrmInfo();
         return info == null ? null : new DrmInfo(info);
@@ -2111,7 +2458,7 @@ public final class MediaPlayer extends SessionPlayer {
      * {@link DrmResult} will be delivered when the command completed.
      * @hide
      */
-    @RestrictTo(LIBRARY_GROUP_PREFIX)
+    @RestrictTo(LIBRARY)
     // This is an asynchronous call.
     @NonNull
     public ListenableFuture<DrmResult> prepareDrm(@NonNull final UUID uuid) {
@@ -2146,7 +2493,7 @@ public final class MediaPlayer extends SessionPlayer {
      * @throws NoDrmSchemeException if there is no active DRM session to release
      * @hide
      */
-    @RestrictTo(LIBRARY_GROUP_PREFIX)
+    @RestrictTo(LIBRARY)
     public void releaseDrm() throws NoDrmSchemeException {
         try {
             mPlayer.releaseDrm();
@@ -2193,7 +2540,7 @@ public final class MediaPlayer extends SessionPlayer {
      * @throws NoDrmSchemeException if there is no active DRM session
      * @hide
      */
-    @RestrictTo(LIBRARY_GROUP_PREFIX)
+    @RestrictTo(LIBRARY)
     @NonNull
     public MediaDrm.KeyRequest getDrmKeyRequest(
             @Nullable byte[] keySetId, @Nullable byte[] initData,
@@ -2230,7 +2577,7 @@ public final class MediaPlayer extends SessionPlayer {
      * @hide
      */
     @Nullable
-    @RestrictTo(LIBRARY_GROUP_PREFIX)
+    @RestrictTo(LIBRARY)
     public byte[] provideDrmKeyResponse(
             @Nullable byte[] keySetId, @NonNull byte[] response)
             throws NoDrmSchemeException, DeniedByServerException {
@@ -2248,7 +2595,7 @@ public final class MediaPlayer extends SessionPlayer {
      * @param keySetId identifies the saved key set to restore
      * @hide
      */
-    @RestrictTo(LIBRARY_GROUP_PREFIX)
+    @RestrictTo(LIBRARY)
     public void restoreDrmKeys(@NonNull byte[] keySetId) throws NoDrmSchemeException {
         if (keySetId == null) {
             throw new NullPointerException("keySetId shouldn't be null");
@@ -2270,7 +2617,7 @@ public final class MediaPlayer extends SessionPlayer {
      * {@link MediaDrm#PROPERTY_DESCRIPTION}, {@link MediaDrm#PROPERTY_ALGORITHMS}
      * @hide
      */
-    @RestrictTo(LIBRARY_GROUP_PREFIX)
+    @RestrictTo(LIBRARY)
     @NonNull
     public String getDrmPropertyString(@NonNull String propertyName) throws NoDrmSchemeException {
         if (propertyName == null) {
@@ -2294,7 +2641,7 @@ public final class MediaPlayer extends SessionPlayer {
      * {@link MediaDrm#PROPERTY_DESCRIPTION}, {@link MediaDrm#PROPERTY_ALGORITHMS}
      * @hide
      */
-    @RestrictTo(LIBRARY_GROUP_PREFIX)
+    @RestrictTo(LIBRARY)
     public void setDrmPropertyString(@NonNull String propertyName, @NonNull String value)
             throws NoDrmSchemeException {
         if (propertyName == null) {
@@ -2320,7 +2667,7 @@ public final class MediaPlayer extends SessionPlayer {
      * @param listener the callback that will be run
      * @hide
      */
-    @RestrictTo(LIBRARY_GROUP_PREFIX)
+    @RestrictTo(LIBRARY)
     public void setOnDrmConfigHelper(@Nullable final OnDrmConfigHelper listener) {
         mPlayer.setOnDrmConfigHelper(listener == null ? null :
                 new MediaPlayer2.OnDrmConfigHelper() {
@@ -2368,6 +2715,11 @@ public final class MediaPlayer extends SessionPlayer {
 
     @SuppressWarnings("WeakerAccess") /* synthetic access */
     void notifySessionPlayerCallback(final SessionPlayerCallbackNotifier notifier) {
+        synchronized (mStateLock) {
+            if (mClosed) {
+                return;
+            }
+        }
         List<Pair<SessionPlayer.PlayerCallback, Executor>> callbacks = getCallbacks();
         for (Pair<SessionPlayer.PlayerCallback, Executor> pair : callbacks) {
             final SessionPlayer.PlayerCallback callback = pair.first;
@@ -2382,6 +2734,11 @@ public final class MediaPlayer extends SessionPlayer {
 
     @SuppressWarnings("WeakerAccess") /* synthetic access */
     void notifyMediaPlayerCallback(final MediaPlayerCallbackNotifier notifier) {
+        synchronized (mStateLock) {
+            if (mClosed) {
+                return;
+            }
+        }
         List<Pair<SessionPlayer.PlayerCallback, Executor>> callbacks = getCallbacks();
         for (Pair<SessionPlayer.PlayerCallback, Executor> pair : callbacks) {
             if (pair.first instanceof PlayerCallback) {
@@ -2471,6 +2828,13 @@ public final class MediaPlayer extends SessionPlayer {
             addPendingCommandLocked(
                     MediaPlayer2.CALL_COMPLETED_SET_PLAYER_VOLUME, future, token);
         }
+        return future;
+    }
+
+    @SuppressWarnings("WeakerAccess") /* synthetic access */
+    ResolvableFuture<PlayerResult> createFutureForClosed() {
+        ResolvableFuture<PlayerResult> future = ResolvableFuture.create();
+        future.set(new PlayerResult(RESULT_ERROR_INVALID_STATE, null));
         return future;
     }
 
@@ -2573,7 +2937,7 @@ public final class MediaPlayer extends SessionPlayer {
         }
 
         if (what != expected.mCallType) {
-            Log.w(TAG, "Call type does not match. expeced:" + expected.mCallType
+            Log.w(TAG, "Call type does not match. expected:" + expected.mCallType
                     + " actual:" + what);
             status = MediaPlayer2.CALL_STATUS_ERROR_UNKNOWN;
         }
@@ -2597,6 +2961,7 @@ public final class MediaPlayer extends SessionPlayer {
                     });
                     break;
                 case MediaPlayer2.CALL_COMPLETED_SET_DATA_SOURCE:
+                case MediaPlayer2.CALL_COMPLETED_SKIP_TO_NEXT:
                     notifySessionPlayerCallback(new SessionPlayerCallbackNotifier() {
                         @Override
                         public void callCallback(
@@ -2625,25 +2990,41 @@ public final class MediaPlayer extends SessionPlayer {
                         }
                     });
                     break;
+                case MediaPlayer2.CALL_COMPLETED_SELECT_TRACK:
+                    notifySessionPlayerCallback(new SessionPlayerCallbackNotifier() {
+                        @Override
+                        public void callCallback(SessionPlayer.PlayerCallback callback) {
+                            callback.onTrackSelected(MediaPlayer.this, expected.mTrackInfo);
+                        }
+                    });
+                    break;
+                case MediaPlayer2.CALL_COMPLETED_DESELECT_TRACK:
+                    notifySessionPlayerCallback(new SessionPlayerCallbackNotifier() {
+                        @Override
+                        public void callCallback(SessionPlayer.PlayerCallback callback) {
+                            callback.onTrackDeselected(MediaPlayer.this, expected.mTrackInfo);
+                        }
+                    });
+                    break;
             }
         }
         if (what != MediaPlayer2.CALL_COMPLETED_PREPARE_DRM) {
             Integer resultCode = sResultCodeMap.containsKey(status)
                     ? sResultCodeMap.get(status) : RESULT_ERROR_UNKNOWN;
-            expected.mFuture.set(new PlayerResult(resultCode, item));
+            expected.setResult(new PlayerResult(resultCode, item));
         } else {
             Integer resultCode = sPrepareDrmStatusMap.containsKey(status)
                     ? sPrepareDrmStatusMap.get(status) : DrmResult.RESULT_ERROR_PREPARATION_ERROR;
-            expected.mFuture.set(new DrmResult(resultCode, item));
+            expected.setResult(new DrmResult(resultCode, item));
         }
         executePendingFutures();
     }
 
     private void executePendingFutures() {
         synchronized (mPendingFutures) {
-            Iterator<PendingFuture<? super PlayerResult>> it = mPendingFutures.iterator();
+            Iterator<PendingFuture<? extends PlayerResult>> it = mPendingFutures.iterator();
             while (it.hasNext()) {
-                PendingFuture f = it.next();
+                PendingFuture<? extends PlayerResult> f = it.next();
                 if (f.isCancelled() || f.execute()) {
                     mPendingFutures.removeFirst();
                 } else {
@@ -2652,7 +3033,7 @@ public final class MediaPlayer extends SessionPlayer {
             }
             // Execute skip futures earlier for making them be skipped.
             while (it.hasNext()) {
-                PendingFuture f = it.next();
+                PendingFuture<? extends PlayerResult> f = it.next();
                 if (!f.mIsSeekTo) {
                     break;
                 }
@@ -2686,13 +3067,17 @@ public final class MediaPlayer extends SessionPlayer {
         @Override
         public void onVideoSizeChanged(
                 MediaPlayer2 mp, final MediaItem item, final int width, final int height) {
-            final VideoSize size = new VideoSize(width, height);
-            notifyMediaPlayerCallback(new MediaPlayerCallbackNotifier() {
-                @Override
-                public void callCallback(PlayerCallback callback) {
-                    callback.onVideoSizeChanged(MediaPlayer.this, item, size);
-                }
-            });
+            MediaItem currentItem = getCurrentMediaItem();
+            if (currentItem != null && currentItem == item) {
+                final androidx.media2.common.VideoSize commonSize =
+                        new androidx.media2.common.VideoSize(width, height);
+                notifySessionPlayerCallback(new SessionPlayerCallbackNotifier() {
+                    @Override
+                    public void callCallback(SessionPlayer.PlayerCallback callback) {
+                        callback.onVideoSizeChanged(MediaPlayer.this, commonSize);
+                    }
+                });
+            }
         }
 
         @Override
@@ -2735,24 +3120,92 @@ public final class MediaPlayer extends SessionPlayer {
                         setBufferingState(item, BUFFERING_STATE_COMPLETE);
                     }
                     break;
-                case MediaPlayer2.MEDIA_INFO_DATA_SOURCE_LIST_END:
-                    setState(PLAYER_STATE_PAUSED);
-                    notifySessionPlayerCallback(new SessionPlayerCallbackNotifier() {
-                        @Override
-                        public void callCallback(SessionPlayer.PlayerCallback callback) {
-                            callback.onPlaybackCompleted(MediaPlayer.this);
+                case MediaPlayer2.MEDIA_INFO_DATA_SOURCE_START:
+                    boolean shouldNotifyCurrentMediaItemChanged;
+                    MediaItem nextPlaylistItem;
+                    synchronized (mPlaylistLock) {
+                        if (mCurPlaylistItem == item) {
+                            // Playback is started for the media item that the MediaPlayer has set
+                            // as the current media item via MediaPlayer2.setMediaItem() or
+                            // MediaPlayer2.skipToNext(). In that case, the current media item is
+                            // already notified in the MediaPlayer2.EventCallback#onCallCompleted(),
+                            // so don't need to notify again.
+                            shouldNotifyCurrentMediaItemChanged = false;
+                            nextPlaylistItem = null;
+                        } else {
+                            // Playback is advanced to the next item by MediaPlayer2 itself after
+                            // the playback of the mCurPlaylistItem is completed.
+                            // In that case, update the mCurPlaylistItem and also notify about the
+                            // current media item changes.
+                            shouldNotifyCurrentMediaItemChanged = true;
+                            mCurrentShuffleIdx = mShuffledList.indexOf(item);
+                            updateAndGetCurrentNextItemIfNeededLocked();
+                            nextPlaylistItem = mNextPlaylistItem;
                         }
-                    });
+                    }
+                    if (shouldNotifyCurrentMediaItemChanged) {
+                        notifySessionPlayerCallback(new SessionPlayerCallbackNotifier() {
+                            @Override
+                            public void callCallback(SessionPlayer.PlayerCallback callback) {
+                                callback.onCurrentMediaItemChanged(MediaPlayer.this, item);
+                            }
+                        });
+                        // If the playback is advanced to the next item by itself, then the next
+                        // media item may be emptied. If so, sets the next media item so the
+                        // playback continues.
+                        if (nextPlaylistItem != null) {
+                            PendingFuture<PlayerResult> pendingFuture =
+                                    new PendingFuture<PlayerResult>(mExecutor) {
+                                        @Override
+                                        List<ResolvableFuture<PlayerResult>> onExecute() {
+                                            ArrayList<ResolvableFuture<PlayerResult>> futures =
+                                                    new ArrayList<>();
+                                            futures.add(setNextMediaItemInternal(nextPlaylistItem));
+                                            return futures;
+                                        }
+                                    };
+                            addPendingFuture(pendingFuture);
+                        }
+                    }
+                    break;
+                case MediaPlayer2.MEDIA_INFO_DATA_SOURCE_LIST_END:
+                    MediaItem nextItemToPlay;
+                    synchronized (mPlaylistLock) {
+                        mCurrentShuffleIdx = mShuffledList.indexOf(item);
+                        nextItemToPlay = mNextPlaylistItem;
+                    }
+                    if (nextItemToPlay != null) {
+                        // Although the MediaPlayer2's playback is completed, but there's still
+                        // remaining items to play in the playlist. It happens if the MediaPlayer2's
+                        // playback is completed before the MediaPlayer has set the next item to
+                        // play.
+                        // Forcefully call skipToNextPlaylistItem to resume playback.
+                        ListenableFuture<PlayerResult> future = skipToNextPlaylistItem();
+                        if (future == null) {
+                            Log.e(TAG, "Cannot play next media item", new IllegalStateException());
+                            setState(PLAYER_STATE_ERROR);
+                        }
+                    } else {
+                        // The playback for the playlist is completed for real. Notify accordingly.
+                        setState(PLAYER_STATE_PAUSED);
+                        notifySessionPlayerCallback(new SessionPlayerCallbackNotifier() {
+                            @Override
+                            public void callCallback(SessionPlayer.PlayerCallback callback) {
+                                callback.onPlaybackCompleted(MediaPlayer.this);
+                            }
+                        });
+                    }
                     break;
             }
-            final int what = sInfoCodeMap.containsKey(mp2What)
-                    ? sInfoCodeMap.get(mp2What) : MEDIA_INFO_UNKNOWN;
-            notifyMediaPlayerCallback(new MediaPlayerCallbackNotifier() {
-                @Override
-                public void callCallback(PlayerCallback callback) {
-                    callback.onInfo(MediaPlayer.this, item, what, extra);
-                }
-            });
+            if (sInfoCodeMap.containsKey(mp2What)) {
+                final int what = sInfoCodeMap.get(mp2What);
+                notifyMediaPlayerCallback(new MediaPlayerCallbackNotifier() {
+                    @Override
+                    public void callCallback(PlayerCallback callback) {
+                        callback.onInfo(MediaPlayer.this, item, what, extra);
+                    }
+                });
+            }
         }
 
         @Override
@@ -2778,14 +3231,21 @@ public final class MediaPlayer extends SessionPlayer {
         }
 
         @Override
-        public void onSubtitleData(
-                MediaPlayer2 mp, final MediaItem item, final SubtitleData data) {
-            notifyMediaPlayerCallback(new MediaPlayerCallbackNotifier() {
+        public void onSubtitleData(@NonNull MediaPlayer2 mp, @NonNull final MediaItem item,
+                @NonNull final SessionPlayer.TrackInfo track, @NonNull final SubtitleData data) {
+            notifySessionPlayerCallback(new SessionPlayerCallbackNotifier() {
                 @Override
-                public void callCallback(PlayerCallback callback) {
-                    callback.onSubtitleData(MediaPlayer.this, item, data);
+                public void callCallback(SessionPlayer.PlayerCallback callback) {
+                    callback.onSubtitleData(MediaPlayer.this, item, track, data);
                 }
             });
+        }
+
+        @Override
+        public void onTracksChanged(@NonNull MediaPlayer2 mp,
+                @NonNull List<SessionPlayer.TrackInfo> tracks) {
+            notifySessionPlayerCallback(callback -> callback.onTracksChanged(MediaPlayer.this,
+                    tracks));
         }
     }
 
@@ -2795,17 +3255,31 @@ public final class MediaPlayer extends SessionPlayer {
      */
     public abstract static class PlayerCallback extends SessionPlayer.PlayerCallback {
         /**
+         * @deprecated Use
+         * {@link #onVideoSizeChanged(SessionPlayer,androidx.media2.common.VideoSize)} instead.
+         */
+        @Deprecated
+        public void onVideoSizeChanged(
+                @NonNull MediaPlayer mp, @NonNull MediaItem item, @NonNull VideoSize size) { }
+
+        /**
          * Called to indicate the video size
          * <p>
          * The video size (width and height) could be 0 if there was no video,
          * no display surface was set, or the value was not determined yet.
          *
-         * @param mp the player associated with this callback
-         * @param item the MediaItem of this media item
+         * @param player the player associated with this callback
          * @param size the size of the video
          */
-        public void onVideoSizeChanged(
-                @NonNull MediaPlayer mp, @NonNull MediaItem item, @NonNull VideoSize size) { }
+        @Override
+        public void onVideoSizeChanged(@NonNull SessionPlayer player,
+                @NonNull androidx.media2.common.VideoSize size) {
+            if (!(player instanceof MediaPlayer)) {
+                throw new IllegalArgumentException("player must be MediaPlayer");
+            }
+            onVideoSizeChanged((MediaPlayer) player, player.getCurrentMediaItem(),
+                    new VideoSize(size));
+        }
 
         /**
          * Called to indicate available timed metadata
@@ -2875,18 +3349,6 @@ public final class MediaPlayer extends SessionPlayer {
                 @NonNull MediaItem item, @NonNull MediaTimestamp timestamp) { }
 
         /**
-         * Called when when a player subtitle track has new subtitle data available.
-         * @param mp the player that reports the new subtitle data
-         * @param item the MediaItem of this media item
-         * @param data the subtitle data
-         *
-         * @hide
-         */
-        @RestrictTo(LIBRARY_GROUP_PREFIX)
-        public void onSubtitleData(@NonNull MediaPlayer mp,
-                @NonNull MediaItem item, @NonNull SubtitleData data) { }
-
-        /**
          * Called to indicate DRM info is available
          *
          * @param mp the {@code MediaPlayer2} associated with this callback
@@ -2895,7 +3357,7 @@ public final class MediaPlayer extends SessionPlayer {
          *                of crypto schemes supported by this device
          * @hide
          */
-        @RestrictTo(LIBRARY_GROUP_PREFIX)
+        @RestrictTo(LIBRARY)
         public void onDrmInfo(@NonNull MediaPlayer mp,
                 @NonNull MediaItem item, @NonNull DrmInfo drmInfo) { }
     }
@@ -2903,140 +3365,20 @@ public final class MediaPlayer extends SessionPlayer {
     /**
      * Class for the player to return each audio/video/subtitle track's metadata.
      *
-     * @see #getTrackInfo
+     * @see #getTracks
      */
-    public static final class TrackInfo {
-        public static final int MEDIA_TRACK_TYPE_UNKNOWN = 0;
-        public static final int MEDIA_TRACK_TYPE_VIDEO = 1;
-        public static final int MEDIA_TRACK_TYPE_AUDIO = 2;
-        /** @hide */
-        @RestrictTo(LIBRARY_GROUP_PREFIX)
-        public static final int MEDIA_TRACK_TYPE_TIMEDTEXT = 3;
-        public static final int MEDIA_TRACK_TYPE_SUBTITLE = 4;
-        public static final int MEDIA_TRACK_TYPE_METADATA = 5;
-
-        /**
-         * @hide
-         */
-        @IntDef(flag = false, /*prefix = "PLAYER_ERROR",*/ value = {
-                MEDIA_TRACK_TYPE_UNKNOWN,
-                MEDIA_TRACK_TYPE_VIDEO,
-                MEDIA_TRACK_TYPE_AUDIO,
-                MEDIA_TRACK_TYPE_SUBTITLE,
-                MEDIA_TRACK_TYPE_METADATA,
-        })
-        @Retention(RetentionPolicy.SOURCE)
-        @RestrictTo(LIBRARY_GROUP_PREFIX)
-        public @interface MediaTrackType {}
-
-        final int mId;
-        private final MediaItem mItem;
-        private final int mTrackType;
-        private final MediaFormat mFormat;
-
-        /**
-         * Gets the track type.
-         * @return TrackType which indicates if the track is video, audio, timed text.
-         */
-        public @MediaTrackType int getTrackType() {
-            return mTrackType;
+    public static final class TrackInfo extends SessionPlayer.TrackInfo {
+        TrackInfo(SessionPlayer.TrackInfo infoInternal) {
+            super(infoInternal.getId(), infoInternal.getTrackType(), infoInternal.getFormat());
         }
 
-        /**
-         * Gets the language code of the track.
-         * @return {@link Locale} which includes the language information.
-         */
-        @NonNull
-        public Locale getLanguage() {
-            String language = mFormat != null ? mFormat.getString(MediaFormat.KEY_LANGUAGE) : null;
-            if (language == null) {
-                language = "und";
-            }
-            return new Locale(language);
-        }
-
-        /**
-         * Gets the {@link MediaFormat} of the track.  If the format is
-         * unknown or could not be determined, null is returned.
-         */
         @Nullable
+        @Override
         public MediaFormat getFormat() {
-            if (mTrackType == MEDIA_TRACK_TYPE_TIMEDTEXT
-                    || mTrackType == MEDIA_TRACK_TYPE_SUBTITLE) {
-                return mFormat;
+            if (getTrackType() == MEDIA_TRACK_TYPE_SUBTITLE) {
+                return super.getFormat();
             }
             return null;
-        }
-
-        /** @hide */
-        @RestrictTo(LIBRARY_GROUP_PREFIX)
-        public TrackInfo(int id, MediaItem item, int type, MediaFormat format) {
-            mId = id;
-            mItem = item;
-            mTrackType = type;
-            mFormat = format;
-        }
-
-        @Override
-        public String toString() {
-            StringBuilder out = new StringBuilder(128);
-            out.append(getClass().getName());
-            out.append('#').append(mId);
-            out.append('{');
-            switch (mTrackType) {
-                case MEDIA_TRACK_TYPE_VIDEO:
-                    out.append("VIDEO");
-                    break;
-                case MEDIA_TRACK_TYPE_AUDIO:
-                    out.append("AUDIO");
-                    break;
-                case MEDIA_TRACK_TYPE_TIMEDTEXT:
-                    out.append("TIMEDTEXT");
-                    break;
-                case MEDIA_TRACK_TYPE_SUBTITLE:
-                    out.append("SUBTITLE");
-                    break;
-                default:
-                    out.append("UNKNOWN");
-                    break;
-            }
-            out.append(", " + mFormat.toString());
-            out.append("}");
-            return out.toString();
-        }
-
-        @Override
-        public int hashCode() {
-            final int prime = 31;
-            int result = 1;
-            result = prime * result + mId;
-            result = prime * result + ((mItem == null) ? 0 : mItem.hashCode());
-            return result;
-        }
-
-        @Override
-        public boolean equals(Object obj) {
-            if (this == obj) {
-                return true;
-            }
-            if (obj == null) {
-                return false;
-            }
-            if (getClass() != obj.getClass()) {
-                return false;
-            }
-            TrackInfo other = (TrackInfo) obj;
-            if (mId != other.mId) {
-                return false;
-            }
-            if (mItem == null) {
-                if (other.mItem != null) {
-                    return false;
-                }
-            } else if (!mItem.equals(other.mItem)) {
-                return false;
-            }
-            return true;
         }
     }
 
@@ -3044,7 +3386,7 @@ public final class MediaPlayer extends SessionPlayer {
      * Encapsulates the DRM properties of the source.
      * @hide
      */
-    @RestrictTo(LIBRARY_GROUP_PREFIX)
+    @RestrictTo(LIBRARY)
     public static final class DrmInfo {
         private final MediaPlayer2.DrmInfo mMp2DrmInfo;
 
@@ -3069,7 +3411,7 @@ public final class MediaPlayer extends SessionPlayer {
         DrmInfo(MediaPlayer2.DrmInfo info) {
             mMp2DrmInfo = info;
         }
-    };
+    }
 
     /**
      * Interface definition of a callback to be invoked when the app
@@ -3082,7 +3424,7 @@ public final class MediaPlayer extends SessionPlayer {
      * and {@link #setDrmPropertyString}.
      * @hide
      */
-    @RestrictTo(LIBRARY_GROUP_PREFIX)
+    @RestrictTo(LIBRARY)
     public interface OnDrmConfigHelper {
         /**
          * Called to give the app the opportunity to configure DRM before the session is created
@@ -3098,7 +3440,7 @@ public final class MediaPlayer extends SessionPlayer {
      * Extends MediaDrm.MediaDrmException
      * @hide
      */
-    @RestrictTo(LIBRARY_GROUP_PREFIX)
+    @RestrictTo(LIBRARY)
     public static class NoDrmSchemeException extends MediaDrmException {
         public NoDrmSchemeException(@Nullable String detailMessage) {
             super(detailMessage);
@@ -3109,7 +3451,7 @@ public final class MediaPlayer extends SessionPlayer {
      * Definitions for the metrics that are reported via the {@link #getMetrics} call.
      * @hide
      */
-    @RestrictTo(LIBRARY_GROUP_PREFIX)
+    @RestrictTo(LIBRARY)
     public static final class MetricsConstants {
         private MetricsConstants() {}
 
@@ -3206,7 +3548,7 @@ public final class MediaPlayer extends SessionPlayer {
      * Result class of the asynchronous DRM APIs.
      * @hide
      */
-    @RestrictTo(LIBRARY_GROUP_PREFIX)
+    @RestrictTo(LIBRARY)
     public static class DrmResult extends PlayerResult {
         /**
          * The device required DRM provisioning but couldn't reach the provisioning server.
@@ -3243,7 +3585,7 @@ public final class MediaPlayer extends SessionPlayer {
                 RESULT_ERROR_RESOURCE_BUSY,
         })
         @Retention(RetentionPolicy.SOURCE)
-        @RestrictTo(LIBRARY_GROUP_PREFIX)
+        @RestrictTo(LIBRARY)
         public @interface DrmResultCode {}
 
         /**

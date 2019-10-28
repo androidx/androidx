@@ -16,6 +16,13 @@
 
 import static androidx.build.dependencies.DependenciesKt.*
 
+buildscript {
+    // TODO: Remove this when this test app no longer depends on 1.0.0 of vectordrawable-animated.
+    // vectordrawable and vectordrawable-animated were accidentally using the same package name
+    // which is no longer valid in namespaced resource world.
+    project.ext['android.uniquePackageNames'] = false
+}
+
 plugins {
     id("AndroidXPlugin")
     id("com.android.application")
@@ -30,7 +37,19 @@ android {
             minifyEnabled = true
         }
     }
-    defaultConfig.vectorDrawables.useSupportLibrary = true
+    defaultConfig {
+        javaCompileOptions {
+            annotationProcessorOptions {
+                arguments = [
+                        "room.incremental"     : "true",
+                        "room.expandProjection": "true"
+                ]
+            }
+        }
+        vectorDrawables {
+            useSupportLibrary = true
+        }
+    }
 }
 
 dependencies {
@@ -40,15 +59,14 @@ dependencies {
         annotationProcessor(project(":room:room-compiler"))
         implementation(project(":room:room-runtime"))
     } else {
-        annotationProcessor(ARCH_ROOM_COMPILER)
-        implementation(ARCH_ROOM_RUNTIME)
+        annotationProcessor("androidx.room:room-compiler:2.2.0")
+        implementation("androidx.room:room-runtime:2.2.0")
     }
 
     implementation(CONSTRAINT_LAYOUT, { transitive = true })
     implementation project(':work:work-runtime-ktx')
     implementation (project(':work:work-gcm'))
-    implementation(WORK_ARCH_CORE_RUNTIME)
-    implementation(ARCH_LIFECYCLE_EXTENSIONS)
-    implementation(ANDROIDX_RECYCLERVIEW)
+    implementation("androidx.arch.core:core-runtime:2.1.0")
+    implementation("androidx.recyclerview:recyclerview:1.0.0")
     implementation(MATERIAL)
 }

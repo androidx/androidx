@@ -19,6 +19,14 @@ package androidx.wear.ambient {
   @Deprecated public final class AmbientMode extends android.app.Fragment {
     ctor @Deprecated public AmbientMode();
     method @Deprecated public static <T extends android.app.Activity> androidx.wear.ambient.AmbientMode.AmbientController! attachAmbientSupport(T!);
+    method @Deprecated public void dump(String!, java.io.FileDescriptor!, java.io.PrintWriter!, String![]!);
+    method @Deprecated @CallSuper public void onAttach(android.content.Context!);
+    method @Deprecated @CallSuper public void onCreate(android.os.Bundle!);
+    method @Deprecated @CallSuper public void onDestroy();
+    method @Deprecated @CallSuper public void onDetach();
+    method @Deprecated @CallSuper public void onPause();
+    method @Deprecated @CallSuper public void onResume();
+    method @Deprecated @CallSuper public void onStop();
     field @Deprecated public static final String EXTRA_BURN_IN_PROTECTION = "com.google.android.wearable.compat.extra.BURN_IN_PROTECTION";
     field @Deprecated public static final String EXTRA_LOWBIT_AMBIENT = "com.google.android.wearable.compat.extra.LOWBIT_AMBIENT";
     field @Deprecated public static final String FRAGMENT_TAG = "android.support.wearable.ambient.AmbientMode";
@@ -125,7 +133,7 @@ package androidx.wear.widget {
     method public long getTotalTime();
     method public boolean isIndeterminate();
     method public boolean isTimerRunning();
-    method public void setColorSchemeColors(int...!);
+    method public void setColorSchemeColors(int...);
     method public void setIndeterminate(boolean);
     method public void setOnTimerFinishedListener(androidx.wear.widget.CircularProgressLayout.OnTimerFinishedListener?);
     method public void setStartingRotation(float);

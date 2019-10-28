@@ -16,10 +16,22 @@
 
 package androidx.browser.customtabs;
 
+import android.content.Intent;
+import android.graphics.Bitmap;
+import android.graphics.BitmapFactory;
 import android.net.Uri;
 import android.os.Bundle;
+import android.os.IBinder;
+import android.os.ParcelFileDescriptor;
 
+import androidx.annotation.NonNull;
+import androidx.annotation.Nullable;
+
+import java.io.FileDescriptor;
+import java.io.IOException;
 import java.util.List;
+import java.util.concurrent.CountDownLatch;
+import java.util.concurrent.TimeUnit;
 
 /**
  * A test class that simulates how a {@link CustomTabsService} would behave.
@@ -27,8 +39,23 @@ import java.util.List;
 
 public class TestCustomTabsService extends CustomTabsService {
     public static final String CALLBACK_BIND_TO_POST_MESSAGE = "BindToPostMessageService";
+    private static TestCustomTabsService sInstance;
+
+    private final CountDownLatch mFileReceivingLatch = new CountDownLatch(1);
+
     private boolean mPostMessageRequested;
     private CustomTabsSessionToken mSession;
+
+    /** Returns the instance of the Service. Returns null if it hasn't been bound yet. */
+    public static TestCustomTabsService getInstance() {
+        return sInstance;
+    }
+
+    @Override
+    public IBinder onBind(Intent intent) {
+        sInstance = this;
+        return super.onBind(intent);
+    }
 
     @Override
     protected boolean warmup(long flags) {
@@ -43,7 +70,7 @@ public class TestCustomTabsService extends CustomTabsService {
 
     @Override
     protected boolean mayLaunchUrl(CustomTabsSessionToken sessionToken,
-            Uri url, Bundle extras, List<Bundle> otherLikelyBundles) {
+                                   Uri url, Bundle extras, List<Bundle> otherLikelyBundles) {
         return false;
     }
 
@@ -74,7 +101,43 @@ public class TestCustomTabsService extends CustomTabsService {
 
     @Override
     protected boolean validateRelationship(CustomTabsSessionToken sessionToken,
-            @Relation int relation, Uri origin, Bundle extras) {
+                                           @Relation int relation, Uri origin, Bundle extras) {
         return false;
+    }
+
+    @Override
+    protected boolean receiveFile(@NonNull CustomTabsSessionToken sessionToken, @NonNull Uri uri,
+            int purpose, @Nullable Bundle extras) {
+        boolean success = retrieveBitmap(uri);
+        if (success) {
+            mFileReceivingLatch.countDown();
+        }
+        return success;
+    }
+
+    private boolean retrieveBitmap(Uri uri) {
+        try (ParcelFileDescriptor parcelFileDescriptor =
+                     getContentResolver().openFileDescriptor(uri, "r")) {
+            if (parcelFileDescriptor == null) return false;
+            FileDescriptor fileDescriptor = parcelFileDescriptor.getFileDescriptor();
+            if (fileDescriptor == null) return false;
+            Bitmap bitmap = BitmapFactory.decodeFileDescriptor(fileDescriptor);
+            return bitmap != null;
+        } catch (IOException e) {
+            return false;
+        }
+    }
+
+    /**
+     * Waits until a splash image file is successfully received and decoded in {@link #receiveFile}.
+     * Returns whether that happened before timeout.
+     * If already received, returns "true" immediately.
+     */
+    public boolean waitForSplashImageFile(int timeoutMillis) {
+        try {
+            return mFileReceivingLatch.await(timeoutMillis, TimeUnit.MILLISECONDS);
+        } catch (InterruptedException e) {
+            return false;
+        }
     }
 }

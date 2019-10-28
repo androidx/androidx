@@ -32,7 +32,10 @@ import androidx.work.Logger;
 import androidx.work.impl.ExecutionListener;
 import androidx.work.impl.Processor;
 import androidx.work.impl.WorkManagerImpl;
+import androidx.work.impl.utils.SerialExecutor;
 import androidx.work.impl.utils.WakeLocks;
+import androidx.work.impl.utils.WorkTimer;
+import androidx.work.impl.utils.taskexecutor.TaskExecutor;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -55,6 +58,7 @@ public class SystemAlarmDispatcher implements ExecutionListener {
 
     @SuppressWarnings("WeakerAccess") /* synthetic access */
     final Context mContext;
+    private final TaskExecutor mTaskExecutor;
     private final WorkTimer mWorkTimer;
     private final Processor mProcessor;
     private final WorkManagerImpl mWorkManager;
@@ -83,6 +87,7 @@ public class SystemAlarmDispatcher implements ExecutionListener {
         mWorkTimer = new WorkTimer();
         mWorkManager = workManager != null ? workManager : WorkManagerImpl.getInstance(context);
         mProcessor = processor != null ? processor : mWorkManager.getProcessor();
+        mTaskExecutor = mWorkManager.getWorkTaskExecutor();
         mProcessor.addExecutionListener(this);
         // a list of pending intents which need to be processed
         mIntents = new ArrayList<>();
@@ -91,7 +96,12 @@ public class SystemAlarmDispatcher implements ExecutionListener {
         mMainHandler = new Handler(Looper.getMainLooper());
     }
 
+    /**
+     * This method needs to be idempotent. This could be called more than once, and therefore,
+     * this method should only perform cleanup when necessary.
+     */
     void onDestroy() {
+        Logger.get().debug(TAG, "Destroying SystemAlarmDispatcher");
         mProcessor.removeExecutionListener(this);
         mWorkTimer.onDestroy();
         mCompletedListener = null;
@@ -175,6 +185,10 @@ public class SystemAlarmDispatcher implements ExecutionListener {
         return mWorkManager;
     }
 
+    TaskExecutor getTaskExecutor() {
+        return mTaskExecutor;
+    }
+
     void postOnMainThread(@NonNull Runnable runnable) {
         mMainHandler.post(runnable);
     }
@@ -209,8 +223,11 @@ public class SystemAlarmDispatcher implements ExecutionListener {
                 }
                 mCurrentIntent = null;
             }
+            SerialExecutor serialExecutor = mTaskExecutor.getBackgroundExecutor();
+            if (!mCommandHandler.hasPendingCommands()
+                    && mIntents.isEmpty()
+                    && !serialExecutor.hasPendingTasks()) {
 
-            if (!mCommandHandler.hasPendingCommands() && mIntents.isEmpty()) {
                 // If there are no more intents to process, and the command handler
                 // has no more pending commands, stop the service.
                 Logger.get().debug(TAG, "No more commands & intents.");

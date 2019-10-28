@@ -23,5 +23,5 @@
     <string name="abc_slice_permission_text_2" msgid="7323565634860251794">"- <xliff:g id="APP">%1$s</xliff:g> колдонмосунда аракеттерди аткарат"</string>
     <string name="abc_slice_permission_checkbox" msgid="5696872682700058611">"<xliff:g id="APP">%1$s</xliff:g> бардык колдонмолордун үлгүлөрүн көрсөтүүгө уруксат берүү"</string>
     <string name="abc_slice_permission_allow" msgid="5024599872061409708">"Уруксат берүү"</string>
-    <string name="abc_slice_permission_deny" msgid="3819478292430407705">"Жок"</string>
+    <string name="abc_slice_permission_deny" msgid="3819478292430407705">"Тыюу салынат"</string>
 </resources>

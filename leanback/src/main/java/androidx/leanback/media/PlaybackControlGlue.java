@@ -193,6 +193,7 @@ public abstract class PlaybackControlGlue extends PlaybackGlue
 
     static class UpdatePlaybackStateHandler extends Handler {
         @Override
+        @SuppressWarnings("unchecked")
         public void handleMessage(Message msg) {
             if (msg.what == MSG_UPDATE_PLAYBACK_STATE) {
                 PlaybackControlGlue glue = ((WeakReference<PlaybackControlGlue>) msg.obj).get();
@@ -205,7 +206,7 @@ public abstract class PlaybackControlGlue extends PlaybackGlue
 
     static final Handler sHandler = new UpdatePlaybackStateHandler();
 
-    final WeakReference<PlaybackControlGlue> mGlueWeakReference =  new WeakReference(this);
+    final WeakReference<PlaybackControlGlue> mGlueWeakReference =  new WeakReference<>(this);
 
     /**
      * Constructor for the glue.

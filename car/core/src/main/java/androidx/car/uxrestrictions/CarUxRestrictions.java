@@ -162,7 +162,6 @@ public final class CarUxRestrictions {
     public @interface CarUxRestrictionsInfo {
     }
 
-    private final long mTimestamp;
     private final boolean mIsDistractionOptimizationRequired;
     @CarUxRestrictionsInfo
     private final int mActiveRestrictions;
@@ -175,7 +174,6 @@ public final class CarUxRestrictions {
      * Builder class for {@link CarUxRestrictions}
      */
     public static final class Builder {
-        final long mTimestamp;
         final boolean mRequiresDistractionOptimization;
         @CarUxRestrictionsInfo
         final int mActiveRestrictions;
@@ -185,10 +183,9 @@ public final class CarUxRestrictions {
         int mMaxContentDepth = DEFAULT_MAX_CONTENT_DEPTH;
 
         public Builder(boolean requiresDistractionOptimization,
-                @CarUxRestrictionsInfo int activeRestrictions, long timestamp) {
+                @CarUxRestrictionsInfo int activeRestrictions) {
             mRequiresDistractionOptimization = requiresDistractionOptimization;
             mActiveRestrictions = activeRestrictions;
-            mTimestamp = timestamp;
         }
 
         /**
@@ -229,15 +226,6 @@ public final class CarUxRestrictions {
             return new CarUxRestrictions(this);
         }
 
-    }
-
-    /**
-     * Time at which this UX restriction event was deduced based on the car's driving state.
-     *
-     * @return Elapsed time in nanoseconds since system boot.
-     */
-    public long getTimestamp() {
-        return mTimestamp;
     }
 
     /**
@@ -329,7 +317,6 @@ public final class CarUxRestrictions {
     }
 
     public CarUxRestrictions(CarUxRestrictions uxRestrictions) {
-        mTimestamp = uxRestrictions.getTimestamp();
         mIsDistractionOptimizationRequired = uxRestrictions.isDistractionOptimizationRequired();
         mActiveRestrictions = uxRestrictions.getActiveRestrictions();
         mMaxStringLength = uxRestrictions.mMaxStringLength;
@@ -346,7 +333,6 @@ public final class CarUxRestrictions {
      */
     @RestrictTo(LIBRARY_GROUP_PREFIX)
     public CarUxRestrictions(android.car.drivingstate.CarUxRestrictions uxRestrictions) {
-        mTimestamp = uxRestrictions.getTimeStamp();
         mIsDistractionOptimizationRequired = uxRestrictions.isRequiresDistractionOptimization();
         mActiveRestrictions = uxRestrictions.getActiveRestrictions();
         mMaxStringLength = uxRestrictions.getMaxRestrictedStringLength();
@@ -355,7 +341,6 @@ public final class CarUxRestrictions {
     }
 
     CarUxRestrictions(Builder builder) {
-        mTimestamp = builder.mTimestamp;
         mActiveRestrictions = builder.mActiveRestrictions;
         mIsDistractionOptimizationRequired = builder.mRequiresDistractionOptimization;
         mMaxStringLength = builder.mMaxStringLength;
@@ -365,8 +350,7 @@ public final class CarUxRestrictions {
 
     @Override
     public String toString() {
-        return "DO: " + mIsDistractionOptimizationRequired + " UxR: " + mActiveRestrictions
-                + " time: " + mTimestamp;
+        return "DO: " + mIsDistractionOptimizationRequired + " UxR: " + mActiveRestrictions;
     }
 
     @Override
@@ -381,8 +365,7 @@ public final class CarUxRestrictions {
             return false;
         }
         CarUxRestrictions other = (CarUxRestrictions) o;
-        return (mTimestamp == other.getTimestamp()
-                && mIsDistractionOptimizationRequired == other.isDistractionOptimizationRequired()
+        return (mIsDistractionOptimizationRequired == other.isDistractionOptimizationRequired()
                 && mActiveRestrictions == other.getActiveRestrictions()
                 && mMaxStringLength == other.getMaxRestrictedStringLength()
                 && mMaxCumulativeContentItems == other.getMaxCumulativeContentItems()
@@ -391,13 +374,13 @@ public final class CarUxRestrictions {
 
     @Override
     public int hashCode() {
-        return Objects.hash(mTimestamp, mIsDistractionOptimizationRequired, mActiveRestrictions,
+        return Objects.hash(mIsDistractionOptimizationRequired, mActiveRestrictions,
                 mMaxStringLength, mMaxCumulativeContentItems, mMaxContentDepth);
     }
 
 
     /**
-     * Compares if the restrictions are the same.  Doesn't compare the timestamps.
+     * Compares if the restrictions are the same.
      *
      * @param other the other CarUxRestrictions object
      * @return {@code true} if the restrictions are same, {@code false} otherwise

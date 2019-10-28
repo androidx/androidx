@@ -17,7 +17,6 @@
 
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
           package="androidx.slice.core.test">
-    <uses-sdk android:targetSdkVersion="${target-sdk-version}"/>
 
     <application>
         <provider android:name="androidx.slice.SliceTestProvider"

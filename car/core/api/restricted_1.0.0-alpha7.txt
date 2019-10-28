@@ -1,4 +1,96 @@
 // Signature format: 3.0
+package androidx.car.app {
+
+  public class CarAlertDialog extends android.app.Dialog {
+  }
+
+  public static final class CarAlertDialog.Builder {
+    ctor public CarAlertDialog.Builder(android.content.Context!);
+    method public androidx.car.app.CarAlertDialog! create();
+    method public androidx.car.app.CarAlertDialog.Builder! setBody(@StringRes int);
+    method public androidx.car.app.CarAlertDialog.Builder! setBody(CharSequence!);
+    method public androidx.car.app.CarAlertDialog.Builder! setBodyMovementMethod(android.text.method.MovementMethod?);
+    method public androidx.car.app.CarAlertDialog.Builder! setCancelable(boolean);
+    method public androidx.car.app.CarAlertDialog.Builder setHeaderIcon(@DrawableRes int);
+    method public androidx.car.app.CarAlertDialog.Builder setHeaderIcon(android.graphics.drawable.Icon?);
+    method public androidx.car.app.CarAlertDialog.Builder! setNegativeButton(@StringRes int, android.content.DialogInterface.OnClickListener?);
+    method public androidx.car.app.CarAlertDialog.Builder! setNegativeButton(CharSequence!, android.content.DialogInterface.OnClickListener?);
+    method public androidx.car.app.CarAlertDialog.Builder! setOnCancelListener(android.content.DialogInterface.OnCancelListener!);
+    method public androidx.car.app.CarAlertDialog.Builder! setOnDismissListener(android.content.DialogInterface.OnDismissListener!);
+    method public androidx.car.app.CarAlertDialog.Builder! setPositiveButton(@StringRes int, android.content.DialogInterface.OnClickListener?);
+    method public androidx.car.app.CarAlertDialog.Builder! setPositiveButton(CharSequence!, android.content.DialogInterface.OnClickListener?);
+    method public androidx.car.app.CarAlertDialog.Builder! setTitle(@StringRes int);
+    method public androidx.car.app.CarAlertDialog.Builder! setTitle(CharSequence!);
+  }
+
+  public class CarListDialog extends android.app.Dialog {
+  }
+
+  public static final class CarListDialog.Builder {
+    ctor public CarListDialog.Builder(android.content.Context!);
+    method public androidx.car.app.CarListDialog! create();
+    method public androidx.car.app.CarListDialog.Builder setCancelable(boolean);
+    method public androidx.car.app.CarListDialog.Builder setInitialPosition(int);
+    method public androidx.car.app.CarListDialog.Builder setItems(CharSequence![], android.content.DialogInterface.OnClickListener?);
+    method public androidx.car.app.CarListDialog.Builder setItems(androidx.car.app.CarListDialog.DialogSubSection![], android.content.DialogInterface.OnClickListener?);
+    method public androidx.car.app.CarListDialog.Builder setOnCancelListener(android.content.DialogInterface.OnCancelListener!);
+    method public androidx.car.app.CarListDialog.Builder setOnDismissListener(android.content.DialogInterface.OnDismissListener!);
+    method public androidx.car.app.CarListDialog.Builder setTitle(@StringRes int);
+    method public androidx.car.app.CarListDialog.Builder setTitle(CharSequence!);
+  }
+
+  public static class CarListDialog.DialogSubSection {
+    ctor public CarListDialog.DialogSubSection(CharSequence, CharSequence![]);
+    method public int getItemCount();
+    method public CharSequence![] getItems();
+    method public CharSequence getTitle();
+  }
+
+}
+
+package androidx.car.drawer {
+
+  public abstract class CarDrawerAdapter extends androidx.recyclerview.widget.RecyclerView.Adapter<androidx.car.drawer.DrawerItemViewHolder> implements androidx.car.widget.PagedListView.ItemCap {
+    ctor protected CarDrawerAdapter(android.content.Context!, boolean);
+    method public void cleanup();
+    method protected abstract int getActualItemCount();
+    method public final int getItemCount();
+    method public final int getItemViewType(int);
+    method public final void onBindViewHolder(androidx.car.drawer.DrawerItemViewHolder!, int);
+    method public final androidx.car.drawer.DrawerItemViewHolder! onCreateViewHolder(android.view.ViewGroup!, int);
+    method protected abstract void populateViewHolder(androidx.car.drawer.DrawerItemViewHolder!, int);
+    method public final void setMaxItems(int);
+    method public final void setTitle(CharSequence?);
+    method public void start();
+    method public void stop();
+    method protected boolean usesSmallLayout(int);
+  }
+
+  public class CarDrawerController {
+    ctor public CarDrawerController(androidx.drawerlayout.widget.DrawerLayout, androidx.appcompat.app.ActionBarDrawerToggle);
+    method public void addDrawerListener(androidx.drawerlayout.widget.DrawerLayout.DrawerListener);
+    method public void closeDrawer();
+    method public void onConfigurationChanged(android.content.res.Configuration!);
+    method public boolean onOptionsItemSelected(android.view.MenuItem!);
+    method public void openDrawer();
+    method public final void pushAdapter(androidx.car.drawer.CarDrawerAdapter!);
+    method public void removeDrawerListener(androidx.drawerlayout.widget.DrawerLayout.DrawerListener);
+    method public void scrollToPosition(int);
+    method public void setRootAdapter(androidx.car.drawer.CarDrawerAdapter?);
+    method public void showLoadingProgressBar(boolean);
+    method public void syncState();
+  }
+
+  public class DrawerItemViewHolder extends androidx.recyclerview.widget.RecyclerView.ViewHolder implements androidx.car.uxrestrictions.OnUxRestrictionsChangedListener {
+    method public android.widget.TextView? getBodyView();
+    method public android.widget.ImageView? getEndIconView();
+    method public android.widget.ImageView getIconView();
+    method public android.widget.TextView getTitleView();
+    method public void onUxRestrictionsChanged(androidx.car.uxrestrictions.CarUxRestrictions!);
+  }
+
+}
+
 package androidx.car.navigation.utils {
 
   @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP_PREFIX) public interface Bundlable {
@@ -10,22 +102,22 @@ package androidx.car.navigation.utils {
     ctor public BundleMarshaller();
     method public void applyDelta(android.os.Bundle!);
     method public boolean getBoolean(String);
-    method public <T extends androidx.car.navigation.utils.Bundlable> T? getBundlable(String, T?, java.util.function.Supplier<T>);
-    method public <T extends androidx.car.navigation.utils.Bundlable> java.util.List<T>? getBundlableList(String, java.util.List<T>?, java.util.function.Supplier<T>);
-    method public <T extends androidx.car.navigation.utils.Bundlable> java.util.List<T> getBundlableListNonNull(String, java.util.List<T>, java.util.function.Supplier<T>);
-    method public <T extends androidx.car.navigation.utils.Bundlable> T getBundlableNonNull(String, T, java.util.function.Supplier<T>);
+    method public <T extends androidx.car.navigation.utils.Bundlable> T? getBundlable(String, T?, java.util.function.Supplier<T!>);
+    method public <T extends androidx.car.navigation.utils.Bundlable> java.util.List<T!>? getBundlableList(String, java.util.List<T!>?, java.util.function.Supplier<T!>);
+    method public <T extends androidx.car.navigation.utils.Bundlable> java.util.List<T!> getBundlableListNonNull(String, java.util.List<T!>, java.util.function.Supplier<T!>);
+    method public <T extends androidx.car.navigation.utils.Bundlable> T getBundlableNonNull(String, T, java.util.function.Supplier<T!>);
     method public android.os.Bundle! getBundle();
     method public android.os.Bundle! getDelta();
     method public double getDouble(String);
-    method public <T extends java.lang.Enum<T>> T? getEnum(String, Class<T>);
-    method public <T extends java.lang.Enum<T>> T getEnumNonNull(String, Class<T>, T);
+    method public <T extends java.lang.Enum<T>> T? getEnum(String, Class<T!>);
+    method public <T extends java.lang.Enum<T>> T getEnumNonNull(String, Class<T!>, T);
     method public float getFloat(String);
     method public int getInt(String);
     method public String? getString(String);
     method public String getStringNonNull(String, String);
     method public void putBoolean(String, boolean);
     method public <T extends androidx.car.navigation.utils.Bundlable> void putBundlable(String, T?);
-    method public <T extends androidx.car.navigation.utils.Bundlable> void putBundlableList(String, java.util.List<T>?);
+    method public <T extends androidx.car.navigation.utils.Bundlable> void putBundlableList(String, java.util.List<T!>?);
     method public void putDouble(String, double);
     method public <T extends java.lang.Enum<T>> void putEnum(String, T?);
     method public void putFloat(String, float);
@@ -40,11 +132,26 @@ package androidx.car.navigation.utils {
 
 package androidx.car.util {
 
+  public class CarUxRestrictionsHelper {
+    ctor public CarUxRestrictionsHelper(android.content.Context!, androidx.car.uxrestrictions.OnUxRestrictionsChangedListener);
+    method public void start();
+    method public void stop();
+  }
+
   @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP_PREFIX) public class CarUxRestrictionsUtils {
     method public static void apply(android.content.Context!, androidx.car.uxrestrictions.CarUxRestrictions!, android.widget.TextView!);
   }
 
-  @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP_PREFIX) public class DropShadowScrollListener extends androidx.recyclerview.widget.RecyclerView.OnScrollListener {
+  public class ColumnCalculator {
+    method public int getColumnCount();
+    method @Px public int getColumnSpanWidth(int);
+    method @Px public int getColumnWidth();
+    method public int getGutterCount();
+    method @Px public int getGutterWidth();
+    method public static androidx.car.util.ColumnCalculator! getInstance(android.content.Context!);
+  }
+
+  @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP_PREFIX) public class DropShadowScrollListener extends androidx.car.widget.PagedListView.OnScrollListener {
     ctor public DropShadowScrollListener(android.view.View!);
   }
 
@@ -64,10 +171,523 @@ package androidx.car.util {
 package androidx.car.uxrestrictions {
 
   public final class CarUxRestrictions {
-    ctor @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP_PREFIX) public CarUxRestrictions(android.car.drivingstate.CarUxRestrictions!);
+    ctor public CarUxRestrictions(androidx.car.uxrestrictions.CarUxRestrictions!);
+    ctor @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP_PREFIX) public CarUxRestrictions(android.car.drivingstate.CarUxRestrictions);
+    method @androidx.car.uxrestrictions.CarUxRestrictions.CarUxRestrictionsInfo public int getActiveRestrictions();
+    method public int getMaxContentDepth();
+    method public int getMaxCumulativeContentItems();
+    method public int getMaxRestrictedStringLength();
+    method public long getTimestamp();
+    method public boolean hasSameRestrictionsAs(androidx.car.uxrestrictions.CarUxRestrictions!);
+    method public boolean isDistractionOptimizationRequired();
+    field public static final int UX_RESTRICTIONS_BASELINE = 0; // 0x0
+    field public static final int UX_RESTRICTIONS_FULLY_RESTRICTED = 511; // 0x1ff
+    field public static final int UX_RESTRICTIONS_LIMIT_CONTENT = 32; // 0x20
+    field public static final int UX_RESTRICTIONS_LIMIT_STRING_LENGTH = 4; // 0x4
+    field public static final int UX_RESTRICTIONS_NO_DIALPAD = 1; // 0x1
+    field public static final int UX_RESTRICTIONS_NO_FILTERING = 2; // 0x2
+    field public static final int UX_RESTRICTIONS_NO_KEYBOARD = 8; // 0x8
+    field public static final int UX_RESTRICTIONS_NO_SETUP = 64; // 0x40
+    field public static final int UX_RESTRICTIONS_NO_TEXT_MESSAGE = 128; // 0x80
+    field public static final int UX_RESTRICTIONS_NO_VIDEO = 16; // 0x10
+    field public static final int UX_RESTRICTIONS_NO_VOICE_TRANSCRIPTION = 256; // 0x100
+  }
+
+  public static final class CarUxRestrictions.Builder {
+    ctor public CarUxRestrictions.Builder(boolean, @androidx.car.uxrestrictions.CarUxRestrictions.CarUxRestrictionsInfo int, long);
+    method public androidx.car.uxrestrictions.CarUxRestrictions build();
+    method public androidx.car.uxrestrictions.CarUxRestrictions.Builder setMaxContentDepth(int);
+    method public androidx.car.uxrestrictions.CarUxRestrictions.Builder setMaxCumulativeContentItems(int);
+    method public androidx.car.uxrestrictions.CarUxRestrictions.Builder setMaxStringLength(int);
   }
 
   @IntDef(flag=true, value={androidx.car.uxrestrictions.CarUxRestrictions.UX_RESTRICTIONS_BASELINE, androidx.car.uxrestrictions.CarUxRestrictions.UX_RESTRICTIONS_NO_DIALPAD, androidx.car.uxrestrictions.CarUxRestrictions.UX_RESTRICTIONS_NO_FILTERING, androidx.car.uxrestrictions.CarUxRestrictions.UX_RESTRICTIONS_LIMIT_STRING_LENGTH, androidx.car.uxrestrictions.CarUxRestrictions.UX_RESTRICTIONS_NO_KEYBOARD, androidx.car.uxrestrictions.CarUxRestrictions.UX_RESTRICTIONS_NO_VIDEO, androidx.car.uxrestrictions.CarUxRestrictions.UX_RESTRICTIONS_LIMIT_CONTENT, androidx.car.uxrestrictions.CarUxRestrictions.UX_RESTRICTIONS_NO_SETUP, androidx.car.uxrestrictions.CarUxRestrictions.UX_RESTRICTIONS_NO_TEXT_MESSAGE, androidx.car.uxrestrictions.CarUxRestrictions.UX_RESTRICTIONS_NO_VOICE_TRANSCRIPTION}) @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP_PREFIX) @java.lang.annotation.Retention(java.lang.annotation.RetentionPolicy.SOURCE) public static @interface CarUxRestrictions.CarUxRestrictionsInfo {
+  }
+
+  public interface OnUxRestrictionsChangedListener {
+    method public void onUxRestrictionsChanged(androidx.car.uxrestrictions.CarUxRestrictions!);
+  }
+
+}
+
+package androidx.car.widget {
+
+  public final class ActionListItem extends androidx.car.widget.ListItem<androidx.car.widget.ActionListItem.ViewHolder> {
+    ctor public ActionListItem(android.content.Context);
+    method public static androidx.car.widget.ActionListItem.ViewHolder createViewHolder(android.view.View!);
+    method protected android.content.Context getContext();
+    method public int getViewType();
+    method public void onBind(androidx.car.widget.ActionListItem.ViewHolder!);
+    method protected void resolveDirtyState();
+    method @Deprecated public void setAction(String, boolean, android.view.View.OnClickListener);
+    method public void setActionBorderless(boolean);
+    method @Deprecated public void setActions(String, boolean, android.view.View.OnClickListener, String, boolean, android.view.View.OnClickListener);
+    method public void setBody(CharSequence);
+    method public void setEnabled(boolean);
+    method public void setOnClickListener(android.view.View.OnClickListener!);
+    method public void setPrimaryAction(String, boolean, android.view.View.OnClickListener);
+    method public void setPrimaryActionEmptyIcon();
+    method public void setPrimaryActionIcon(@DrawableRes int, int);
+    method public void setPrimaryActionIcon(android.graphics.drawable.Drawable?, int);
+    method public void setPrimaryActionNoIcon();
+    method public void setSecondaryAction(String, boolean, android.view.View.OnClickListener);
+    method public void setTitle(CharSequence);
+    field public static final int PRIMARY_ACTION_ICON_SIZE_LARGE = 2; // 0x2
+    field public static final int PRIMARY_ACTION_ICON_SIZE_MEDIUM = 1; // 0x1
+    field public static final int PRIMARY_ACTION_ICON_SIZE_SMALL = 0; // 0x0
+  }
+
+  public static final class ActionListItem.ViewHolder extends androidx.car.widget.ListItem.ViewHolder {
+    ctor public ActionListItem.ViewHolder(android.view.View);
+    method public android.widget.TextView getBody();
+    method public android.widget.Button getPrimaryAction();
+    method public android.view.View getPrimaryActionDivider();
+    method public android.widget.ImageView getPrimaryIcon();
+    method public android.widget.Button getSecondaryAction();
+    method public android.view.View getSecondaryActionDivider();
+    method public android.widget.TextView getTitle();
+    method public void onUxRestrictionsChanged(androidx.car.uxrestrictions.CarUxRestrictions);
+    method public void setActionBorderless(boolean);
+  }
+
+  public interface AlphaJumpAdapter {
+    method public java.util.List<androidx.car.widget.AlphaJumpBucket!>! getAlphaJumpBuckets();
+    method public void onAlphaJumpEnter();
+    method public void onAlphaJumpLeave(androidx.car.widget.AlphaJumpBucket!);
+  }
+
+  public interface AlphaJumpBucket {
+    method public int getIndex();
+    method public CharSequence! getLabel();
+    method public boolean isEmpty();
+  }
+
+  public class AlphaJumpBucketer {
+    ctor public AlphaJumpBucketer();
+    ctor public AlphaJumpBucketer(androidx.car.widget.AlphaJumpBucketer.Bucket![]!);
+    method public java.util.List<androidx.car.widget.AlphaJumpBucket!>! createBuckets(String![]!);
+    method public java.util.List<androidx.car.widget.AlphaJumpBucket!>! createBuckets(Iterable<java.lang.String!>!);
+    method public java.util.List<androidx.car.widget.AlphaJumpBucket!>! createBuckets(java.util.Iterator<java.lang.String!>!);
+  }
+
+  public static class AlphaJumpBucketer.Bucket implements androidx.car.widget.AlphaJumpBucket {
+    method public int getIndex();
+    method public CharSequence! getLabel();
+    method public boolean isEmpty();
+  }
+
+  public class AlphaJumpOverlayView extends androidx.gridlayout.widget.GridLayout {
+    ctor public AlphaJumpOverlayView(android.content.Context);
+    method public void hide();
+    method public void show();
+  }
+
+  public class CarMenuItem {
+    method public androidx.car.widget.CarMenuItem.DisplayBehavior getDisplayBehavior();
+    method public android.graphics.drawable.Icon? getIcon();
+    method public androidx.car.widget.CarMenuItem.OnClickListener? getOnClickListener();
+    method @StyleRes public int getStyleResId();
+    method public CharSequence? getTitle();
+    method public boolean isCheckable();
+    method public boolean isChecked();
+    method public boolean isEnabled();
+    method public void setChecked(boolean);
+    method public void setEnabled(boolean);
+    method public void setTitle(CharSequence?);
+  }
+
+  public static final class CarMenuItem.Builder {
+    ctor public CarMenuItem.Builder();
+    method public androidx.car.widget.CarMenuItem build();
+    method public androidx.car.widget.CarMenuItem.Builder setCheckable(boolean);
+    method public androidx.car.widget.CarMenuItem.Builder setChecked(boolean);
+    method public androidx.car.widget.CarMenuItem.Builder setDisplayBehavior(androidx.car.widget.CarMenuItem.DisplayBehavior);
+    method public androidx.car.widget.CarMenuItem.Builder setEnabled(boolean);
+    method public androidx.car.widget.CarMenuItem.Builder setIcon(android.graphics.drawable.Icon);
+    method public androidx.car.widget.CarMenuItem.Builder setOnClickListener(androidx.car.widget.CarMenuItem.OnClickListener);
+    method public androidx.car.widget.CarMenuItem.Builder setStyle(@StyleRes int);
+    method public androidx.car.widget.CarMenuItem.Builder setTitle(CharSequence);
+  }
+
+  public enum CarMenuItem.DisplayBehavior {
+    enum_constant public static final androidx.car.widget.CarMenuItem.DisplayBehavior ALWAYS;
+    enum_constant public static final androidx.car.widget.CarMenuItem.DisplayBehavior IF_ROOM;
+    enum_constant public static final androidx.car.widget.CarMenuItem.DisplayBehavior NEVER;
+  }
+
+  public static interface CarMenuItem.OnClickListener {
+    method public void onClick(androidx.car.widget.CarMenuItem!);
+  }
+
+  public class CarToolbar extends android.view.ViewGroup {
+    ctor public CarToolbar(android.content.Context!);
+    ctor public CarToolbar(android.content.Context!, android.util.AttributeSet!);
+    ctor public CarToolbar(android.content.Context!, android.util.AttributeSet!, int);
+    ctor public CarToolbar(android.content.Context!, android.util.AttributeSet!, int, int);
+    method public java.util.List<androidx.car.widget.CarMenuItem!>? getMenuItems();
+    method public CharSequence? getSubtitle();
+    method public CharSequence! getTitle();
+    method public void hideOverflowMenu();
+    method public boolean isOverflowMenuShowing();
+    method public void setMenuItems(java.util.List<androidx.car.widget.CarMenuItem!>?);
+    method public void setNavigationIcon(@DrawableRes int);
+    method public void setNavigationIcon(android.graphics.drawable.Drawable?);
+    method public void setNavigationIconContainerWidth(@Px int);
+    method public void setNavigationIconOnClickListener(android.view.View.OnClickListener?);
+    method public void setNavigationIconTint(@ColorInt int);
+    method public void setNavigationIconTint(android.graphics.ColorFilter?);
+    method public void setOverflowIcon(@DrawableRes int);
+    method public void setOverflowIcon(android.graphics.drawable.Drawable);
+    method public void setSubtitle(@StringRes int);
+    method public void setSubtitle(CharSequence?);
+    method public void setSubtitleTextAppearance(@StyleRes int);
+    method public void setTitle(@StringRes int);
+    method public void setTitle(CharSequence!);
+    method public void setTitleIcon(@DrawableRes int);
+    method public void setTitleIcon(android.graphics.drawable.Drawable?);
+    method public void setTitleIconEndMargin(@Px int);
+    method public void setTitleIconSize(@Px int);
+    method public void setTitleIconStartMargin(@Px int);
+    method public void setTitleTextAppearance(@StyleRes int);
+    method public void showOverflowMenu();
+  }
+
+  public final class ColumnCardView extends androidx.cardview.widget.CardView {
+    ctor public ColumnCardView(android.content.Context!);
+    ctor public ColumnCardView(android.content.Context!, android.util.AttributeSet!);
+    ctor public ColumnCardView(android.content.Context!, android.util.AttributeSet!, int);
+    method public int getColumnSpan();
+    method public void onMeasure(int, int);
+    method public void setColumnSpan(int);
+  }
+
+  public abstract class ListItem<VH extends androidx.car.widget.ListItem.ViewHolder> {
+    ctor public ListItem();
+    method public final void addViewBinder(androidx.car.widget.ListItem.ViewBinder<VH!>!);
+    method public final void addViewBinder(androidx.car.widget.ListItem.ViewBinder<VH!>!, androidx.car.widget.ListItem.ViewBinder<VH!>?);
+    method public boolean getShowDivider();
+    method public abstract int getViewType();
+    method protected boolean isDirty();
+    method protected void markClean();
+    method protected void markDirty();
+    method protected abstract void onBind(VH!);
+    method public boolean removeViewBinder(androidx.car.widget.ListItem.ViewBinder<VH!>!);
+    method protected abstract void resolveDirtyState();
+    method public abstract void setEnabled(boolean);
+    method public void setShowDivider(boolean);
+  }
+
+  public static interface ListItem.ViewBinder<VH> {
+    method public void bind(VH!);
+  }
+
+  public abstract static class ListItem.ViewHolder extends androidx.recyclerview.widget.RecyclerView.ViewHolder implements androidx.car.uxrestrictions.OnUxRestrictionsChangedListener {
+    ctor public ListItem.ViewHolder(android.view.View!);
+    method public final void addCleanUp(androidx.car.widget.ListItem.ViewBinder<androidx.car.widget.ListItem.ViewHolder!>?);
+    method public final void cleanUp();
+  }
+
+  public class ListItemAdapter extends androidx.recyclerview.widget.RecyclerView.Adapter<androidx.car.widget.ListItem.ViewHolder> implements androidx.car.widget.PagedListView.DividerVisibilityManager androidx.car.widget.PagedListView.ItemCap {
+    ctor public ListItemAdapter(android.content.Context, androidx.car.widget.ListItemProvider);
+    ctor public ListItemAdapter(android.content.Context, androidx.car.widget.ListItemProvider, int);
+    method public android.content.Context getContext();
+    method public int getItemCount();
+    method public boolean getShowDivider(@IntRange(from=0) int);
+    method public void onBindViewHolder(androidx.car.widget.ListItem.ViewHolder!, int);
+    method public androidx.car.widget.ListItem.ViewHolder! onCreateViewHolder(android.view.ViewGroup!, int);
+    method public void registerListItemViewType(@IntRange(from=java.lang.Integer.MIN_VALUE, to=0xffffffff) int, @LayoutRes int, java.util.function.Function<android.view.View!,androidx.car.widget.ListItem.ViewHolder!>!);
+    method public void setMaxItems(int);
+    method public void start();
+    method public void stop();
+  }
+
+  public static final class ListItemAdapter.BackgroundStyle {
+    field public static final int CARD = 2; // 0x2
+    field public static final int NONE = 1; // 0x1
+    field public static final int PANEL = 3; // 0x3
+    field public static final int SOLID = 0; // 0x0
+  }
+
+  public abstract class ListItemProvider<VH extends androidx.car.widget.ListItem.ViewHolder> {
+    ctor public ListItemProvider();
+    method public abstract androidx.car.widget.ListItem<VH!> get(int);
+    method public abstract int size();
+  }
+
+  public static class ListItemProvider.ListProvider<VH extends androidx.car.widget.ListItem.ViewHolder> extends androidx.car.widget.ListItemProvider {
+    ctor public ListItemProvider.ListProvider(java.util.List<androidx.car.widget.ListItem<VH!>!>);
+    method public androidx.car.widget.ListItem<VH!> get(int);
+    method public int size();
+  }
+
+  public class PagedListView extends android.widget.FrameLayout {
+    ctor public PagedListView(android.content.Context!);
+    ctor public PagedListView(android.content.Context!, android.util.AttributeSet!);
+    ctor public PagedListView(android.content.Context!, android.util.AttributeSet!, int);
+    ctor public PagedListView(android.content.Context!, android.util.AttributeSet!, int, int);
+    method public void addItemDecoration(androidx.recyclerview.widget.RecyclerView.ItemDecoration);
+    method public void addOnItemTouchListener(androidx.recyclerview.widget.RecyclerView.OnItemTouchListener);
+    method public androidx.recyclerview.widget.RecyclerView.Adapter<? extends androidx.recyclerview.widget.RecyclerView.ViewHolder>? getAdapter();
+    method public int getListContentBottomOffset();
+    method public int getListContentTopOffset();
+    method public int getMaxPages();
+    method public int getPage(int);
+    method public androidx.recyclerview.widget.RecyclerView getRecyclerView();
+    method public int getRowsPerPage();
+    method public void hideAlphaJump();
+    method public boolean isAlphaJumpShown();
+    method public boolean isAtEnd();
+    method public boolean isAtStart();
+    method public boolean isScrollbarThumbEnabled();
+    method public void onLayout(boolean, int, int, int, int);
+    method public void onRestoreInstanceState(android.os.Parcelable!);
+    method public android.os.Parcelable! onSaveInstanceState();
+    method public void pageDown();
+    method public void pageUp();
+    method public int positionOf(android.view.View?);
+    method public void removeItemDecoration(androidx.recyclerview.widget.RecyclerView.ItemDecoration);
+    method public void removeOnItemTouchListener(androidx.recyclerview.widget.RecyclerView.OnItemTouchListener);
+    method public void scrollToPosition(int);
+    method public void setAdapter(androidx.recyclerview.widget.RecyclerView.Adapter<? extends androidx.recyclerview.widget.RecyclerView.ViewHolder>);
+    method public void setDividerColor(@ColorRes int);
+    method public void setDividerVisibilityManager(androidx.car.widget.PagedListView.DividerVisibilityManager!);
+    method public void setDownButtonIcon(android.graphics.drawable.Drawable!);
+    method public void setGutter(@androidx.car.widget.PagedListView.Gutter int);
+    method public void setGutterSize(int);
+    method public void setItemSpacing(int);
+    method public void setListContentBottomOffset(@Px int);
+    method public void setListContentTopOffset(@Px int);
+    method public void setMaxPages(int);
+    method public void setOnScrollListener(androidx.car.widget.PagedListView.OnScrollListener!);
+    method public void setScrollBarContainerWidth(int);
+    method public void setScrollBarTopMargin(int);
+    method public void setScrollbarThumbEnabled(boolean);
+    method public void setUpButtonIcon(android.graphics.drawable.Drawable!);
+    method public void showAlphaJump();
+    method public void snapToPosition(int);
+    field public static final int UNLIMITED_PAGES = -1; // 0xffffffff
+  }
+
+  public static interface PagedListView.DividerVisibilityManager {
+    method public boolean getShowDivider(int);
+  }
+
+  @IntDef({androidx.car.widget.PagedListView.Gutter.NONE, androidx.car.widget.PagedListView.Gutter.START, androidx.car.widget.PagedListView.Gutter.END, androidx.car.widget.PagedListView.Gutter.BOTH}) @java.lang.annotation.Retention(java.lang.annotation.RetentionPolicy.SOURCE) public static @interface PagedListView.Gutter {
+    field public static final int BOTH = 3; // 0x3
+    field public static final int END = 2; // 0x2
+    field public static final int NONE = 0; // 0x0
+    field public static final int START = 1; // 0x1
+  }
+
+  public static interface PagedListView.ItemCap {
+    method public void setMaxItems(int);
+    field public static final int UNLIMITED = -1; // 0xffffffff
+  }
+
+  public static interface PagedListView.ItemPositionOffset {
+    method public void setPositionOffset(int);
+  }
+
+  public abstract static class PagedListView.OnScrollListener {
+    ctor public PagedListView.OnScrollListener();
+    method public void onReachBottom();
+    method public void onScrollDownButtonClicked();
+    method public void onScrollStateChanged(androidx.recyclerview.widget.RecyclerView!, int);
+    method public void onScrollUpButtonClicked();
+    method public void onScrolled(androidx.recyclerview.widget.RecyclerView!, int, int);
+  }
+
+  public class PagedScrollBarView extends android.view.ViewGroup {
+    ctor public PagedScrollBarView(android.content.Context!);
+    ctor public PagedScrollBarView(android.content.Context!, android.util.AttributeSet!);
+    ctor public PagedScrollBarView(android.content.Context!, android.util.AttributeSet!, int);
+    ctor public PagedScrollBarView(android.content.Context!, android.util.AttributeSet!, int, int);
+    method public boolean isDownEnabled();
+    method public boolean isDownPressed();
+    method public boolean isScrollbarThumbEnabled();
+    method public boolean isUpPressed();
+    method public void onLayout(boolean, int, int, int, int);
+    method public void setButtonRippleBackground(@DrawableRes int);
+    method public void setButtonTintColor(@ColorRes int);
+    method public void setDownButtonIcon(android.graphics.drawable.Drawable!);
+    method public void setDownEnabled(boolean);
+    method public void setPaginationListener(androidx.car.widget.PagedScrollBarView.PaginationListener!);
+    method public void setParameters(@IntRange(from=0) int, @IntRange(from=0) int, @IntRange(from=0) int, boolean);
+    method public void setScrollbarThumbColor(@ColorRes int);
+    method public void setScrollbarThumbEnabled(boolean);
+    method public void setUpButtonIcon(android.graphics.drawable.Drawable!);
+    method public void setUpEnabled(boolean);
+  }
+
+  public static interface PagedScrollBarView.PaginationListener {
+    method public void onAlphaJump();
+    method public void onPaginate(int);
+    field public static final int PAGE_DOWN = 1; // 0x1
+    field public static final int PAGE_UP = 0; // 0x0
+  }
+
+  public class RadioButtonListItem extends androidx.car.widget.ListItem<androidx.car.widget.RadioButtonListItem.ViewHolder> {
+    ctor public RadioButtonListItem(android.content.Context);
+    method public static androidx.car.widget.RadioButtonListItem.ViewHolder createViewHolder(android.view.View);
+    method protected android.content.Context getContext();
+    method public int getViewType();
+    method public boolean isChecked();
+    method protected void onBind(androidx.car.widget.RadioButtonListItem.ViewHolder!);
+    method protected void resolveDirtyState();
+    method public void setChecked(boolean);
+    method public void setEnabled(boolean);
+    method public void setOnCheckedChangeListener(android.widget.CompoundButton.OnCheckedChangeListener);
+    method public void setPrimaryActionIcon(android.graphics.drawable.Icon, int);
+    method public void setShowRadioButtonDivider(boolean);
+    method public void setText(CharSequence?);
+    method public void setTextStartMargin(@DimenRes int);
+    field public static final int PRIMARY_ACTION_ICON_SIZE_LARGE = 2; // 0x2
+    field public static final int PRIMARY_ACTION_ICON_SIZE_MEDIUM = 1; // 0x1
+    field public static final int PRIMARY_ACTION_ICON_SIZE_SMALL = 0; // 0x0
+  }
+
+  public static final class RadioButtonListItem.ViewHolder extends androidx.car.widget.ListItem.ViewHolder {
+    ctor public RadioButtonListItem.ViewHolder(android.view.View);
+    method public android.view.ViewGroup getContainerLayout();
+    method public android.widget.ImageView getPrimaryIcon();
+    method public android.widget.RadioButton getRadioButton();
+    method public android.view.View getRadioButtonDivider();
+    method public android.widget.TextView getText();
+    method public void onUxRestrictionsChanged(androidx.car.uxrestrictions.CarUxRestrictions!);
+  }
+
+  public class SeekbarListItem extends androidx.car.widget.ListItem<androidx.car.widget.SeekbarListItem.ViewHolder> {
+    ctor public SeekbarListItem(android.content.Context);
+    method public static androidx.car.widget.SeekbarListItem.ViewHolder createViewHolder(android.view.View!);
+    method protected android.content.Context getContext();
+    method public int getViewType();
+    method protected void onBind(androidx.car.widget.SeekbarListItem.ViewHolder!);
+    method protected void resolveDirtyState();
+    method public void setEnabled(boolean);
+    method public void setMax(int);
+    method public void setOnSeekBarChangeListener(android.widget.SeekBar.OnSeekBarChangeListener!);
+    method public void setPrimaryActionEmptyIcon();
+    method public void setPrimaryActionIcon(android.graphics.drawable.Icon);
+    method @Deprecated public void setPrimaryActionIcon(@DrawableRes int);
+    method @Deprecated public void setPrimaryActionIcon(android.graphics.drawable.Drawable!);
+    method public void setPrimaryActionIconListener(android.view.View.OnClickListener!);
+    method public void setProgress(int);
+    method public void setSecondaryProgress(int);
+    method public void setSupplementalEmptyIcon(boolean);
+    method public void setSupplementalIcon(android.graphics.drawable.Icon, boolean);
+    method @Deprecated public void setSupplementalIcon(@DrawableRes int, boolean);
+    method @Deprecated public void setSupplementalIcon(android.graphics.drawable.Drawable, boolean);
+    method public void setSupplementalIconListener(android.view.View.OnClickListener!);
+    method public void setText(CharSequence?);
+  }
+
+  public static final class SeekbarListItem.ViewHolder extends androidx.car.widget.ListItem.ViewHolder implements androidx.car.uxrestrictions.OnUxRestrictionsChangedListener {
+    ctor public SeekbarListItem.ViewHolder(android.view.View!);
+    method public android.view.ViewGroup getContainerLayout();
+    method public android.widget.ImageView getPrimaryIcon();
+    method public android.widget.SeekBar getSeekBar();
+    method public android.widget.ImageView getSupplementalIcon();
+    method public android.view.View getSupplementalIconDivider();
+    method public android.widget.TextView getText();
+    method public void onUxRestrictionsChanged(androidx.car.uxrestrictions.CarUxRestrictions!);
+  }
+
+  public class SubheaderListItem extends androidx.car.widget.ListItem<androidx.car.widget.SubheaderListItem.ViewHolder> {
+    ctor public SubheaderListItem(android.content.Context, CharSequence);
+    method public static androidx.car.widget.SubheaderListItem.ViewHolder createViewHolder(android.view.View!);
+    method protected android.content.Context getContext();
+    method public int getViewType();
+    method protected void onBind(androidx.car.widget.SubheaderListItem.ViewHolder!);
+    method protected void resolveDirtyState();
+    method public void setEnabled(boolean);
+    method public void setText(CharSequence);
+    method public void setTextStartMarginType(@androidx.car.widget.SubheaderListItem.TextStartMarginType int);
+    field public static final int TEXT_START_MARGIN_TYPE_LARGE = 2; // 0x2
+    field public static final int TEXT_START_MARGIN_TYPE_NONE = 0; // 0x0
+    field public static final int TEXT_START_MARGIN_TYPE_SMALL = 1; // 0x1
+  }
+
+  @IntDef({androidx.car.widget.SubheaderListItem.TEXT_START_MARGIN_TYPE_NONE, androidx.car.widget.SubheaderListItem.TEXT_START_MARGIN_TYPE_LARGE, androidx.car.widget.SubheaderListItem.TEXT_START_MARGIN_TYPE_SMALL}) @java.lang.annotation.Retention(java.lang.annotation.RetentionPolicy.SOURCE) public static @interface SubheaderListItem.TextStartMarginType {
+  }
+
+  public static final class SubheaderListItem.ViewHolder extends androidx.car.widget.ListItem.ViewHolder {
+    ctor public SubheaderListItem.ViewHolder(android.view.View!);
+    method public android.widget.TextView getText();
+    method public void onUxRestrictionsChanged(androidx.car.uxrestrictions.CarUxRestrictions!);
+  }
+
+  public class SwitchListItem extends androidx.car.widget.ListItem<androidx.car.widget.SwitchListItem.ViewHolder> {
+    ctor public SwitchListItem(android.content.Context);
+    method public static androidx.car.widget.SwitchListItem.ViewHolder createViewHolder(android.view.View!);
+    method protected final android.content.Context getContext();
+    method public int getViewType();
+    method public void onBind(androidx.car.widget.SwitchListItem.ViewHolder!);
+    method @CallSuper protected void resolveDirtyState();
+    method public void setBody(CharSequence?);
+    method public void setClickable(boolean);
+    method public void setEnabled(boolean);
+    method public void setPrimaryActionEmptyIcon();
+    method public void setPrimaryActionIcon(android.graphics.drawable.Icon, int);
+    method public void setPrimaryActionNoIcon();
+    method public void setShowSwitchDivider(boolean);
+    method public void setSwitchOnCheckedChangeListener(android.widget.CompoundButton.OnCheckedChangeListener?);
+    method public void setSwitchState(boolean);
+    method public void setTitle(CharSequence?);
+    field public static final int PRIMARY_ACTION_ICON_SIZE_LARGE = 2; // 0x2
+    field public static final int PRIMARY_ACTION_ICON_SIZE_MEDIUM = 1; // 0x1
+    field public static final int PRIMARY_ACTION_ICON_SIZE_SMALL = 0; // 0x0
+  }
+
+  public static final class SwitchListItem.ViewHolder extends androidx.car.widget.ListItem.ViewHolder {
+    ctor public SwitchListItem.ViewHolder(android.view.View);
+    method public android.widget.TextView getBody();
+    method public android.widget.ImageView getPrimaryIcon();
+    method public android.widget.Switch getSwitch();
+    method public android.view.View getSwitchDivider();
+    method public android.widget.TextView getTitle();
+    method public void onUxRestrictionsChanged(androidx.car.uxrestrictions.CarUxRestrictions!);
+  }
+
+  public class TextListItem extends androidx.car.widget.ListItem<androidx.car.widget.TextListItem.ViewHolder> {
+    ctor public TextListItem(android.content.Context);
+    method public static androidx.car.widget.TextListItem.ViewHolder createViewHolder(android.view.View!);
+    method protected android.content.Context getContext();
+    method public int getViewType();
+    method public void onBind(androidx.car.widget.TextListItem.ViewHolder!);
+    method protected void resolveDirtyState();
+    method public void setBody(CharSequence!);
+    method public void setEnabled(boolean);
+    method public void setOnClickListener(android.view.View.OnClickListener!);
+    method public void setPrimaryActionEmptyIcon();
+    method public void setPrimaryActionIcon(android.graphics.drawable.Icon, int);
+    method @Deprecated public void setPrimaryActionIcon(@DrawableRes int, int);
+    method @Deprecated public void setPrimaryActionIcon(android.graphics.drawable.Drawable?, int);
+    method public void setPrimaryActionNoIcon();
+    method public void setSupplementalIcon(android.graphics.drawable.Icon, boolean);
+    method @Deprecated public void setSupplementalIcon(int, boolean);
+    method @Deprecated public void setSupplementalIcon(android.graphics.drawable.Drawable!, boolean);
+    method @Deprecated public void setSupplementalIcon(int, boolean, android.view.View.OnClickListener!);
+    method @Deprecated public void setSupplementalIcon(android.graphics.drawable.Drawable!, boolean, android.view.View.OnClickListener!);
+    method public void setSupplementalIconOnClickListener(android.view.View.OnClickListener);
+    method @Deprecated public void setSwitch(boolean, boolean, android.widget.CompoundButton.OnCheckedChangeListener!);
+    method @Deprecated public void setSwitchState(boolean);
+    method public void setTitle(CharSequence!);
+    field public static final int PRIMARY_ACTION_ICON_SIZE_LARGE = 2; // 0x2
+    field public static final int PRIMARY_ACTION_ICON_SIZE_MEDIUM = 1; // 0x1
+    field public static final int PRIMARY_ACTION_ICON_SIZE_SMALL = 0; // 0x0
+  }
+
+  public static final class TextListItem.ViewHolder extends androidx.car.widget.ListItem.ViewHolder {
+    ctor public TextListItem.ViewHolder(android.view.View!);
+    method public android.widget.TextView getBody();
+    method public android.view.ViewGroup getContainerLayout();
+    method public android.widget.ImageView getPrimaryIcon();
+    method public android.widget.ImageView getSupplementalIcon();
+    method public android.view.View getSupplementalIconDivider();
+    method public android.widget.Switch getSwitch();
+    method public android.view.View getSwitchDivider();
+    method public android.widget.TextView getTitle();
+    method public void onUxRestrictionsChanged(androidx.car.uxrestrictions.CarUxRestrictions!);
   }
 
 }

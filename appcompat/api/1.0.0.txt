@@ -186,11 +186,11 @@ package androidx.appcompat.app {
     method public androidx.appcompat.app.AlertDialog.Builder! setIconAttribute(@AttrRes int);
     method @Deprecated public androidx.appcompat.app.AlertDialog.Builder! setInverseBackgroundForced(boolean);
     method public androidx.appcompat.app.AlertDialog.Builder! setItems(@ArrayRes int, android.content.DialogInterface.OnClickListener!);
-    method public androidx.appcompat.app.AlertDialog.Builder! setItems(CharSequence[]!, android.content.DialogInterface.OnClickListener!);
+    method public androidx.appcompat.app.AlertDialog.Builder! setItems(CharSequence![]!, android.content.DialogInterface.OnClickListener!);
     method public androidx.appcompat.app.AlertDialog.Builder! setMessage(@StringRes int);
     method public androidx.appcompat.app.AlertDialog.Builder! setMessage(CharSequence?);
     method public androidx.appcompat.app.AlertDialog.Builder! setMultiChoiceItems(@ArrayRes int, boolean[]!, android.content.DialogInterface.OnMultiChoiceClickListener!);
-    method public androidx.appcompat.app.AlertDialog.Builder! setMultiChoiceItems(CharSequence[]!, boolean[]!, android.content.DialogInterface.OnMultiChoiceClickListener!);
+    method public androidx.appcompat.app.AlertDialog.Builder! setMultiChoiceItems(CharSequence![]!, boolean[]!, android.content.DialogInterface.OnMultiChoiceClickListener!);
     method public androidx.appcompat.app.AlertDialog.Builder! setMultiChoiceItems(android.database.Cursor!, String!, String!, android.content.DialogInterface.OnMultiChoiceClickListener!);
     method public androidx.appcompat.app.AlertDialog.Builder! setNegativeButton(@StringRes int, android.content.DialogInterface.OnClickListener!);
     method public androidx.appcompat.app.AlertDialog.Builder! setNegativeButton(CharSequence!, android.content.DialogInterface.OnClickListener!);
@@ -207,7 +207,7 @@ package androidx.appcompat.app {
     method public androidx.appcompat.app.AlertDialog.Builder! setPositiveButtonIcon(android.graphics.drawable.Drawable!);
     method public androidx.appcompat.app.AlertDialog.Builder! setSingleChoiceItems(@ArrayRes int, int, android.content.DialogInterface.OnClickListener!);
     method public androidx.appcompat.app.AlertDialog.Builder! setSingleChoiceItems(android.database.Cursor!, int, String!, android.content.DialogInterface.OnClickListener!);
-    method public androidx.appcompat.app.AlertDialog.Builder! setSingleChoiceItems(CharSequence[]!, int, android.content.DialogInterface.OnClickListener!);
+    method public androidx.appcompat.app.AlertDialog.Builder! setSingleChoiceItems(CharSequence![]!, int, android.content.DialogInterface.OnClickListener!);
     method public androidx.appcompat.app.AlertDialog.Builder! setSingleChoiceItems(android.widget.ListAdapter!, int, android.content.DialogInterface.OnClickListener!);
     method public androidx.appcompat.app.AlertDialog.Builder! setTitle(@StringRes int);
     method public androidx.appcompat.app.AlertDialog.Builder! setTitle(CharSequence?);
@@ -339,6 +339,28 @@ package androidx.appcompat.content.res {
 }
 
 package androidx.appcompat.graphics.drawable {
+
+  public class AnimatedStateListDrawableCompat extends android.graphics.drawable.Drawable implements android.graphics.drawable.Drawable.Callback {
+    ctor public AnimatedStateListDrawableCompat();
+    method public void addState(int[], android.graphics.drawable.Drawable, int);
+    method public void addState(int[]!, android.graphics.drawable.Drawable!);
+    method public <T extends android.graphics.drawable.Drawable & android.graphics.drawable.Animatable> void addTransition(int, int, T, boolean);
+    method public static androidx.appcompat.graphics.drawable.AnimatedStateListDrawableCompat? create(android.content.Context, @DrawableRes int, android.content.res.Resources.Theme?);
+    method public static androidx.appcompat.graphics.drawable.AnimatedStateListDrawableCompat! createFromXmlInner(android.content.Context, android.content.res.Resources, org.xmlpull.v1.XmlPullParser, android.util.AttributeSet, android.content.res.Resources.Theme?) throws java.io.IOException, org.xmlpull.v1.XmlPullParserException;
+    method public void draw(android.graphics.Canvas);
+    method public final android.graphics.drawable.Drawable.ConstantState! getConstantState();
+    method public int getOpacity();
+    method public void inflate(android.content.Context, android.content.res.Resources, org.xmlpull.v1.XmlPullParser, android.util.AttributeSet, android.content.res.Resources.Theme?) throws java.io.IOException, org.xmlpull.v1.XmlPullParserException;
+    method public void invalidateDrawable(android.graphics.drawable.Drawable);
+    method public void scheduleDrawable(android.graphics.drawable.Drawable, Runnable, long);
+    method public void setAlpha(int);
+    method public void setColorFilter(android.graphics.ColorFilter!);
+    method protected void setConstantState(androidx.appcompat.graphics.drawable.DrawableContainer.DrawableContainerState);
+    method public void setDither(boolean);
+    method public void setEnterFadeDuration(int);
+    method public void setExitFadeDuration(int);
+    method public void unscheduleDrawable(android.graphics.drawable.Drawable, Runnable);
+  }
 
   public class DrawerArrowDrawable extends android.graphics.drawable.Drawable {
     ctor public DrawerArrowDrawable(android.content.Context!);
@@ -606,14 +628,8 @@ package androidx.appcompat.widget {
     method @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP) public void setSupportBackgroundTintList(android.content.res.ColorStateList?);
     method @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP) public void setSupportBackgroundTintMode(android.graphics.PorterDuff.Mode?);
     method public void setTextAppearance(android.content.Context!, int);
-    method public void setTextFuture(java.util.concurrent.Future<androidx.core.text.PrecomputedTextCompat>);
+    method public void setTextFuture(java.util.concurrent.Future<androidx.core.text.PrecomputedTextCompat!>);
     method public void setTextMetricsParamsCompat(androidx.core.text.PrecomputedTextCompat.Params);
-  }
-
-  public class AppCompatToggleButton extends android.widget.ToggleButton {
-    ctor public AppCompatToggleButton(android.content.Context!);
-    ctor public AppCompatToggleButton(android.content.Context!, android.util.AttributeSet!);
-    ctor public AppCompatToggleButton(android.content.Context!, android.util.AttributeSet!, int);
   }
 
   public class LinearLayoutCompat extends android.view.ViewGroup {
@@ -868,8 +884,6 @@ package androidx.appcompat.widget {
     method protected androidx.appcompat.widget.Toolbar.LayoutParams! generateDefaultLayoutParams();
     method public androidx.appcompat.widget.Toolbar.LayoutParams! generateLayoutParams(android.util.AttributeSet!);
     method protected androidx.appcompat.widget.Toolbar.LayoutParams! generateLayoutParams(android.view.ViewGroup.LayoutParams!);
-    method public CharSequence? getCollapseContentDescription();
-    method public android.graphics.drawable.Drawable? getCollapseIcon();
     method public int getContentInsetEnd();
     method public int getContentInsetEndWithActions();
     method public int getContentInsetLeft();
@@ -897,10 +911,6 @@ package androidx.appcompat.widget {
     method public boolean hideOverflowMenu();
     method public void inflateMenu(@MenuRes int);
     method public boolean isOverflowMenuShowing();
-    method public void setCollapseContentDescription(@StringRes int);
-    method public void setCollapseContentDescription(CharSequence?);
-    method public void setCollapseIcon(@DrawableRes int);
-    method public void setCollapseIcon(android.graphics.drawable.Drawable?);
     method public void setContentInsetEndWithActions(int);
     method public void setContentInsetStartWithNavigation(int);
     method public void setContentInsetsAbsolute(int, int);
@@ -952,7 +962,7 @@ package androidx.appcompat.widget {
     ctor public Toolbar.SavedState(android.os.Parcel!);
     ctor public Toolbar.SavedState(android.os.Parcel!, ClassLoader!);
     ctor public Toolbar.SavedState(android.os.Parcelable!);
-    field public static final android.os.Parcelable.Creator<androidx.appcompat.widget.Toolbar.SavedState>! CREATOR;
+    field public static final android.os.Parcelable.Creator<androidx.appcompat.widget.Toolbar.SavedState!>! CREATOR;
   }
 
   public class TooltipCompat {

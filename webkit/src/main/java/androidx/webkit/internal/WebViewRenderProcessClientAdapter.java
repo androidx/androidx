@@ -16,10 +16,11 @@
 
 package androidx.webkit.internal;
 
+import android.annotation.SuppressLint;
 import android.webkit.WebView;
 
 import androidx.annotation.NonNull;
-import androidx.annotation.RestrictTo;
+import androidx.annotation.Nullable;
 import androidx.webkit.WebViewRenderProcess;
 import androidx.webkit.WebViewRenderProcessClient;
 
@@ -29,7 +30,10 @@ import org.chromium.support_lib_boundary.util.Features;
 import java.lang.reflect.InvocationHandler;
 import java.util.concurrent.Executor;
 
-class WebViewRenderProcessClientAdapter implements WebViewRendererClientBoundaryInterface {
+/**
+ * Adapter class to pass a {@link WebViewRenderProcessClient} over to chromium.
+ */
+public class WebViewRenderProcessClientAdapter implements WebViewRendererClientBoundaryInterface {
     private static final String[] sSupportedFeatures = new String[] {
             Features.WEB_VIEW_RENDERER_CLIENT_BASIC_USAGE,
     };
@@ -37,24 +41,27 @@ class WebViewRenderProcessClientAdapter implements WebViewRendererClientBoundary
     private final Executor mExecutor;
     private final WebViewRenderProcessClient mWebViewRenderProcessClient;
 
-    WebViewRenderProcessClientAdapter(
-            Executor executor, WebViewRenderProcessClient webViewRenderProcessClient) {
+    // WebViewRenderProcessClient is a callback class, so it should be last. See
+    // https://issuetracker.google.com/issues/139770271.
+    @SuppressLint("LambdaLast")
+    public WebViewRenderProcessClientAdapter(
+            @Nullable Executor executor,
+            @Nullable WebViewRenderProcessClient webViewRenderProcessClient) {
         mExecutor = executor;
         mWebViewRenderProcessClient = webViewRenderProcessClient;
     }
 
-    WebViewRenderProcessClient getWebViewRenderProcessClient() {
+    @Nullable
+    public WebViewRenderProcessClient getWebViewRenderProcessClient() {
         return mWebViewRenderProcessClient;
     }
 
     /**
      * Returns the list of features this client supports. This feature list should always be a
      * subset of the Features declared in WebViewFeature.
-     *
-     * @hide
      */
-    @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP_PREFIX)
     @Override
+    @NonNull
     public final String[] getSupportedFeatures() {
         return sSupportedFeatures;
     }
@@ -62,10 +69,7 @@ class WebViewRenderProcessClientAdapter implements WebViewRendererClientBoundary
     /**
      * Invoked by chromium with arguments that need to be wrapped by support library adapter
      * objects.
-     *
-     * @hide
      */
-    @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP_PREFIX)
     @Override
     public final void onRendererUnresponsive(
             @NonNull final WebView view,
@@ -88,10 +92,7 @@ class WebViewRenderProcessClientAdapter implements WebViewRendererClientBoundary
     /**
      * Invoked by chromium with arguments that need to be wrapped by support library adapter
      * objects.
-     *
-     * @hide
      */
-    @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP_PREFIX)
     @Override
     public final void onRendererResponsive(
             @NonNull final WebView view,

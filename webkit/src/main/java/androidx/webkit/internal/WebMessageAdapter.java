@@ -16,6 +16,8 @@
 
 package androidx.webkit.internal;
 
+import androidx.annotation.NonNull;
+import androidx.annotation.Nullable;
 import androidx.webkit.WebMessageCompat;
 import androidx.webkit.WebMessagePortCompat;
 
@@ -31,16 +33,18 @@ import java.lang.reflect.InvocationHandler;
 public class WebMessageAdapter implements WebMessageBoundaryInterface {
     private WebMessageCompat mWebMessageCompat;
 
-    WebMessageAdapter(WebMessageCompat webMessage) {
+    public WebMessageAdapter(@NonNull WebMessageCompat webMessage) {
         this.mWebMessageCompat = webMessage;
     }
 
     @Override
+    @Nullable
     public String getData() {
         return mWebMessageCompat.getData();
     }
 
     @Override
+    @Nullable
     public InvocationHandler[] getPorts() {
         WebMessagePortCompat[] ports = mWebMessageCompat.getPorts();
         if (ports == null) return null;
@@ -53,6 +57,7 @@ public class WebMessageAdapter implements WebMessageBoundaryInterface {
     }
 
     @Override
+    @NonNull
     public String[] getSupportedFeatures() {
         // getData() and getPorts() are not covered by feature flags.
         return new String[0];
@@ -66,12 +71,14 @@ public class WebMessageAdapter implements WebMessageBoundaryInterface {
      * Utility method used to convert PostMessages from the Chromium side to
      * {@link WebMessageCompat} objects - a class apps recognize.
      */
+    @NonNull
     public static WebMessageCompat webMessageCompatFromBoundaryInterface(
-            WebMessageBoundaryInterface boundaryInterface) {
+            @NonNull WebMessageBoundaryInterface boundaryInterface) {
         return new WebMessageCompat(boundaryInterface.getData(),
                 toWebMessagePortCompats(boundaryInterface.getPorts()));
     }
 
+    @NonNull
     private static WebMessagePortCompat[] toWebMessagePortCompats(InvocationHandler[] ports) {
         WebMessagePortCompat[] compatPorts = new WebMessagePortCompat[ports.length];
         for (int n = 0; n < ports.length; n++) {

@@ -209,7 +209,8 @@ public class RowView extends SliceChildView implements View.OnClickListener,
         }
 
         final RowStyle rowStyle = mSliceStyle.getRowStyle();
-        setViewPaddingEnd(mStartContainer, rowStyle.getTitleItemEndPadding());
+        setViewSidePaddings(mStartContainer,
+                rowStyle.getTitleItemStartPadding(), rowStyle.getTitleItemEndPadding());
         setViewSidePaddings(mContent,
                 rowStyle.getContentStartPadding(), rowStyle.getContentEndPadding());
         setViewSidePaddings(mEndContainer,
@@ -219,25 +220,33 @@ public class RowView extends SliceChildView implements View.OnClickListener,
         setViewHeight(mActionDivider, rowStyle.getActionDividerHeight());
     }
 
-    private void setViewPaddingEnd(View v, int end) {
-        if (v != null && end >= 0) {
-            v.setPaddingRelative(v.getPaddingStart(), v.getPaddingTop(), end, v.getPaddingBottom());
-        }
-    }
-
     private void setViewSidePaddings(View v, int start, int end) {
-        if (v != null && start >= 0 && end >= 0) {
-            v.setPaddingRelative(start, v.getPaddingTop(), end, v.getPaddingBottom());
+        final boolean isNoPaddingSet = start < 0 && end < 0;
+        if (v == null || isNoPaddingSet) {
+            return;
         }
+
+        v.setPaddingRelative(
+                start >= 0 ? start : v.getPaddingStart(),
+                v.getPaddingTop(),
+                end >= 0 ? end : v.getPaddingEnd(),
+                v.getPaddingBottom());
     }
 
     private void setViewSideMargins(View v, int start, int end) {
-        if (v != null && start >= 0 && end >= 0) {
-            final MarginLayoutParams params = (MarginLayoutParams) v.getLayoutParams();
-            params.setMarginStart(start);
-            params.setMarginEnd(end);
-            mBottomDivider.setLayoutParams(params);
+        final boolean isNoMarginSet = start < 0 && end < 0;
+        if (v == null || isNoMarginSet) {
+            return;
         }
+
+        final MarginLayoutParams params = (MarginLayoutParams) v.getLayoutParams();
+        if (start >= 0) {
+            params.setMarginStart(start);
+        }
+        if (end >= 0) {
+            params.setMarginEnd(end);
+        }
+        v.setLayoutParams(params);
     }
 
     private void setViewHeight(View v, int height) {
@@ -475,6 +484,7 @@ public class RowView extends SliceChildView implements View.OnClickListener,
         updateActionSpinner();
     }
 
+    @SuppressWarnings("unchecked")
     private void updateEndItems() {
         if (mRowContent == null) {
             return;

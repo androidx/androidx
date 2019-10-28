@@ -43,7 +43,7 @@ import java.util.List;
  */
 public abstract class ParallaxEffect {
 
-    final List<Parallax.PropertyMarkerValue> mMarkerValues = new ArrayList(2);
+    final List<Parallax.PropertyMarkerValue> mMarkerValues = new ArrayList<>(2);
     final List<Float> mWeights = new ArrayList<Float>(2);
     final List<Float> mTotalWeights = new ArrayList<Float>(2);
     final List<ParallaxTarget> mTargets = new ArrayList<ParallaxTarget>(4);
@@ -175,6 +175,7 @@ public abstract class ParallaxEffect {
      * @param <V> Type of target property value, either Integer or Float.
      * @see ParallaxTarget#isDirectMapping()
      */
+    @SuppressWarnings("unchecked")
     public final <T, V extends Number> ParallaxEffect target(T targetObject,
             Property<T, V> targetProperty) {
         mTargets.add(new ParallaxTarget.DirectPropertyTarget(targetObject, targetProperty));

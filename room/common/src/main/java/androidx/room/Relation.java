@@ -22,82 +22,91 @@ import java.lang.annotation.RetentionPolicy;
 import java.lang.annotation.Target;
 
 /**
- * A convenience annotation which can be used in a Pojo to automatically fetch relation entities.
- * When the Pojo is returned from a query, all of its relations are also fetched by Room.
+ * A convenience annotation which can be used in a POJO to automatically fetch relation entities.
+ * When the POJO is returned from a query, all of its relations are also fetched by Room.
  *
  * <pre>
  * {@literal @}Entity
- * public class Pet {
+ * public class Song {
  *     {@literal @} PrimaryKey
- *     int id;
- *     int userId;
+ *     int songId;
+ *     int albumId;
  *     String name;
  *     // other fields
  * }
- * public class UserNameAndAllPets {
- *   public int id;
- *   public String name;
- *   {@literal @}Relation(parentColumn = "id", entityColumn = "userId")
- *   public List&lt;Pet&gt; pets;
+ * public class AlbumNameAndAllSongs {
+ *     int id;
+ *     String name;
+ *     {@literal @}Relation(parentColumn = "id", entityColumn = "albumId")
+ *     List&lt;Song&gt; songs;
  * }
  *
  * {@literal @}Dao
- * public interface UserPetDao {
- *     {@literal @}Query("SELECT id, name from User")
- *     public List&lt;UserNameAndAllPets&gt; loadUserAndPets();
+ * public interface MusicDao {
+ *     {@literal @}Query("SELECT id, name FROM Album")
+ *     List&lt;AlbumNameAndAllSongs&gt; loadAlbumAndSongs();
  * }
  * </pre>
  * <p>
- * The type of the field annotated with {@code Relation} must be a {@link java.util.List} or
- * {@link java.util.Set}. By default, the {@link Entity} type is inferred from the return type.
+ * For a one-to-many or many-to-many relationship, the type of the field annotated with
+ * {@code Relation} must be a {@link java.util.List} or {@link java.util.Set}.
+ * <p>
+ * By default, the {@link Entity} type is inferred from the return type.
  * If you would like to return a different object, you can specify the {@link #entity()} property
  * in the annotation.
  * <pre>
- * public class User {
+ * public class Album {
  *     int id;
  *     // other fields
  * }
- * public class PetNameAndId {
- *     int id;
+ * public class SongNameAndId {
+ *     int songId;
  *     String name;
  * }
- * public class UserAllPets {
- *   {@literal @}Embedded
- *   public User user;
- *   {@literal @}Relation(parentColumn = "id", entityColumn = "userId", entity = Pet.class)
- *   public List&lt;PetNameAndId&gt; pets;
+ * public class AlbumAllSongs {
+ *     {@literal @}Embedded
+ *     Album album;
+ *     {@literal @}Relation(parentColumn = "id", entityColumn = "albumId", entity = Song.class)
+ *     List&lt;SongNameAndId&gt; songs;
  * }
  * {@literal @}Dao
- * public interface UserPetDao {
- *     {@literal @}Query("SELECT * from User")
- *     public List&lt;UserAllPets&gt; loadUserAndPets();
+ * public interface MusicDao {
+ *     {@literal @}Query("SELECT * from Album")
+ *     List&lt;AlbumAllSongs&gt; loadAlbumAndSongs();
  * }
  * </pre>
  * <p>
- * In the example above, {@code PetNameAndId} is a regular Pojo but all of fields are fetched
- * from the {@code entity} defined in the {@code @Relation} annotation (<i>Pet</i>).
- * {@code PetNameAndId} could also define its own relations all of which would also be fetched
+ * In the example above, {@code SongNameAndId} is a regular POJO but all of fields are fetched
+ * from the {@code entity} defined in the {@code @Relation} annotation (<i>Song</i>).
+ * {@code SongNameAndId} could also define its own relations all of which would also be fetched
  * automatically.
  * <p>
  * If you would like to specify which columns are fetched from the child {@link Entity}, you can
  * use {@link #projection()} property in the {@code Relation} annotation.
  * <pre>
- * public class UserAndAllPets {
- *   {@literal @}Embedded
- *   public User user;
- *   {@literal @}Relation(parentColumn = "id", entityColumn = "userId", entity = Pet.class,
- *           projection = {"name"})
- *   public List&lt;String&gt; petNames;
+ * public class AlbumAndAllSongs {
+ *     {@literal @}Embedded
+ *     Album album;
+ *     {@literal @}Relation(
+ *             parentColumn = "id",
+ *             entityColumn = "albumId",
+ *             entity = Song.class,
+ *             projection = {"name"})
+ *     List&lt;String&gt; songNames;
  * }
  * </pre>
  * <p>
- * Note that {@code @Relation} annotation can be used only in Pojo classes, an {@link Entity} class
- * cannot have relations. This is a design decision to avoid common pitfalls in {@link Entity}
- * setups. You can read more about it in the main Room documentation. When loading data, you can
- * simply work around this limitation by creating Pojo classes that extend the {@link Entity}.
+ * If the relationship is defined by an associative table (also know as junction table) then you can
+ * use {@link #associateBy()} to specify it. This is useful for fetching many-to-many relations.
  * <p>
- * Note that the {@code @Relation} annotated field cannot be a constructor parameter, it must be
- * public or have a public setter.
+ * Note that {@code @Relation} annotation can be used only in POJO classes, an {@link Entity} class
+ * cannot have relations. This is a design decision to avoid common pitfalls in {@link Entity}
+ * setups. You can read more about it in the main
+ * <href="https://developer.android.com/training/data-storage/room/referencing-data#understand-no-object-references">
+ * Room documentation</>. When loading data, you can simply work around this limitation by creating
+ * POJO classes that extend the {@link Entity}.
+ *
+ * @see Junction
  */
 @Target({ElementType.FIELD, ElementType.METHOD})
 @Retention(RetentionPolicy.CLASS)
@@ -108,31 +117,41 @@ public @interface Relation {
      *
      * @return The entity or view to fetch from. By default, inherited from the return type.
      */
-    Class entity() default Object.class;
+    Class<?> entity() default Object.class;
 
     /**
-     * Reference field in the parent Pojo.
+     * Reference column in the parent POJO.
      * <p>
-     * If you would like to access to a sub item of a {@link Embedded}d field, you can use
-     * the {@code .} notation.
-     * <p>
-     * For instance, if you have a {@link Embedded}d field named {@code user} with a sub field
-     * {@code id}, you can reference it via {@code user.id}.
-     * <p>
-     * This value will be matched against the value defined in {@link #entityColumn()}.
+     * In a one-to-one or one-to-many relation, this value will be matched against the column
+     * defined in {@link #entityColumn()}. In a many-to-many using {@link #associateBy()} then
+     * this value will be matched against the {@link Junction#parentColumn()}
      *
-     * @return The field reference in the parent object.
+     * @return The column reference in the parent object.
      */
     String parentColumn();
 
     /**
-     * The field path to match in the {@link #entity()}. This value will be matched against the
-     * value defined in {@link #parentColumn()}.
+     * The column to match in the {@link #entity()}.
+     * <p>
+     * In a one-to-one or one-to-many relation, this value will be matched against the column
+     * defined in {@link #parentColumn()} ()}. In a many-to-many using {@link #associateBy()} then
+     * this value will be matched against the {@link Junction#entityColumn()}
      */
     String entityColumn();
 
     /**
-     * If sub fields should be fetched from the entity, you can specify them using this field.
+     * The entity or view to be used as a associative table (also known as a junction table) when
+     * fetching the relating entities.
+     *
+     * @return The junction describing the associative table. By default, no junction is specified
+     * and none will be used.
+     *
+     * @see Junction
+     */
+    Junction associateBy() default @Junction(Object.class);
+
+    /**
+     * If sub columns should be fetched from the entity, you can specify them using this field.
      * <p>
      * By default, inferred from the the return type.
      *

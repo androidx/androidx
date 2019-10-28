@@ -16,6 +16,8 @@
 
 package androidx.media2.common;
 
+import static androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP;
+
 import androidx.annotation.Nullable;
 import androidx.annotation.RestrictTo;
 
@@ -23,18 +25,20 @@ import androidx.annotation.RestrictTo;
  * Base interface for all result classes in {@link androidx.media2.session.MediaSession},
  * {@link androidx.media2.session.MediaController},
  * and {@link SessionPlayer}, for defining result codes in one place with documentation.
- * <p>
- * Error code: Negative integer
- * Success code: 0
- * Info code: Positive integer
- * <p>
- *    0 <  |code| <  100: Session player specific code.
- *  100 <= |code| <  500: Session/Controller specific code.
- *  500 <= |code| < 1000: Browser/Library session specific code.
- * 1000 <= |code|       : Custom session player result code.
+ * <ul>
+ *     <li>Error code: Negative integer</li>
+ *     <li>Success code: 0</li>
+ *     <li>Info code: Positive integer</li>
+ * </ul>
+ * <ul>
+ *     <li>   0 <  |code| <  100: Session player specific code.</li>
+ *     <li> 100 <= |code| <  500: Session/Controller specific code.</li>
+ *     <li> 500 <= |code| < 1000: Browser/Library session specific code.</li>
+ *     <li>1000 <= |code|       : Custom session player result code.</li>
+ * </ul>
  * @hide
  */
-@RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
+@RestrictTo(LIBRARY_GROUP)
 public interface BaseResult {
     /**
      * Result code representing that the command is successfully completed.

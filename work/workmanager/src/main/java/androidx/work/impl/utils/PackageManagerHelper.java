@@ -41,7 +41,7 @@ public class PackageManagerHelper {
      */
     public static void setComponentEnabled(
             @NonNull Context context,
-            @NonNull Class klazz,
+            @NonNull Class<?> klazz,
             boolean enabled) {
         try {
             PackageManager packageManager = context.getPackageManager();
@@ -63,7 +63,7 @@ public class PackageManagerHelper {
     /**
      * Convenience method for {@link #isComponentExplicitlyEnabled(Context, String)}
      */
-    public static boolean isComponentExplicitlyEnabled(Context context, Class klazz) {
+    public static boolean isComponentExplicitlyEnabled(Context context, Class<?> klazz) {
         return isComponentExplicitlyEnabled(context, klazz.getName());
     }
 

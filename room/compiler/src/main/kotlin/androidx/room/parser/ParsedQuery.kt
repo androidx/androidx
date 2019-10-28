@@ -16,40 +16,85 @@
 
 package androidx.room.parser
 
-import androidx.room.parser.SectionType.BIND_VAR
-import androidx.room.parser.SectionType.NEWLINE
-import androidx.room.parser.SectionType.TEXT
+import androidx.room.processor.QueryInterpreter
 import androidx.room.verifier.QueryResultInfo
-import org.antlr.v4.runtime.tree.TerminalNode
+import androidx.room.vo.Pojo
 
-enum class SectionType {
-    BIND_VAR,
-    TEXT,
-    NEWLINE
-}
+sealed class Section {
 
-data class Section(val text: String, val type: SectionType) {
-    companion object {
-        fun text(text: String) = Section(text, SectionType.TEXT)
-        fun newline() = Section("", SectionType.NEWLINE)
-        fun bindVar(text: String) = Section(text, SectionType.BIND_VAR)
+    abstract val text: String
+
+    data class Text(val content: String) : Section() {
+        override val text: String
+            get() = content
+    }
+
+    object Newline : Section() {
+        override val text: String
+            get() = "\n"
+    }
+
+    data class BindVar(val symbol: String) : Section() {
+        override val text: String
+            get() = symbol
+    }
+
+    sealed class Projection : Section() {
+
+        object All : Projection() {
+            override val text: String
+                get() = "*"
+        }
+
+        data class Table(
+            val tableAlias: String,
+            override val text: String
+        ) : Projection()
     }
 }
 
 data class Table(val name: String, val alias: String)
 
+data class Position(val line: Int, val charInLine: Int) : Comparable<Position> {
+    override fun compareTo(other: Position): Int {
+        return if (line == other.line) {
+            charInLine - other.charInLine
+        } else {
+            line - other.line
+        }
+    }
+}
+
+data class SectionInfo(
+    val start: Position,
+    val end: Position,
+    val section: Section
+)
+
 data class ParsedQuery(
-        val original: String,
-        val type: QueryType,
-        val inputs: List<TerminalNode>,
-        // pairs of table name and alias,
-        val tables: Set<Table>,
-        val syntaxErrors: List<String>,
-        val runtimeQueryPlaceholder: Boolean) {
+    // original query as written by user, code writers should use transformed query that has been
+    // processed and optimized.
+    val original: String,
+    val type: QueryType,
+    val inputs: List<SectionInfo>,
+    val projections: List<SectionInfo>,
+    val explicitColumns: List<String>,
+    val tables: Set<Table>,
+    val syntaxErrors: List<String>,
+    val runtimeQueryPlaceholder: Boolean
+) {
     companion object {
         val STARTS_WITH_NUMBER = "^\\?[0-9]".toRegex()
-        val MISSING = ParsedQuery("missing query", QueryType.UNKNOWN, emptyList(), emptySet(),
-                emptyList(), false)
+        val MISSING = ParsedQuery(
+            original = "missing query",
+            type = QueryType.UNKNOWN,
+            projections = emptyList(),
+            explicitColumns = emptyList(),
+            inputs = emptyList(),
+            tables = emptySet(),
+            syntaxErrors = emptyList(),
+            runtimeQueryPlaceholder = false
+        )
     }
 
     /**
@@ -59,42 +104,73 @@ data class ParsedQuery(
      */
     var resultInfo: QueryResultInfo? = null
 
+    /**
+     * The transformed query when it is interpreted and rewritten by QueryInterpreter.
+     */
+    var transformed: String = original
+        private set
+
+    /**
+     * Transform the parsed query given an interpreter.
+     */
+    fun transform(interpreter: QueryInterpreter, pojo: Pojo?): String {
+        transformed = interpreter.interpret(this, pojo)
+        return transformed
+    }
+
+    fun isTransformed() = transformed != original
+
     val sections by lazy {
+        val specialSections: List<SectionInfo> = (inputs + projections).sortedBy { it.start }
+
         val lines = original.lines()
-        val inputsByLine = inputs.groupBy { it.symbol.line }
         val sections = arrayListOf<Section>()
-        lines.forEachIndexed { index, line ->
-            var charInLine = 0
-            inputsByLine[index + 1]?.forEach { bindVar ->
-                if (charInLine < bindVar.symbol.charPositionInLine) {
-                    sections.add(Section.text(line.substring(charInLine,
-                            bindVar.symbol.charPositionInLine)))
+        var index = 0
+        var charInLine = 0
+        while (index < lines.size) {
+            val line = lines[index]
+            var multipleLineSection = false
+
+            specialSections
+                .filter { it.start.line == index }
+                .forEach { (start, end, section) ->
+                    if (charInLine < start.charInLine) {
+                        sections.add(Section.Text(line.substring(charInLine, start.charInLine)))
+                    }
+                    sections.add(section)
+                    charInLine = end.charInLine
+                    if (index < end.line) {
+                        index = end.line
+                        multipleLineSection = true
+                    }
                 }
-                sections.add(Section.bindVar(bindVar.text))
-                charInLine = bindVar.symbol.charPositionInLine + bindVar.symbol.text.length
-            }
-            if (charInLine < line.length) {
-                sections.add(Section.text(line.substring(charInLine)))
-            }
-            if (index + 1 < lines.size) {
-                sections.add(Section.newline())
+
+            if (!multipleLineSection) {
+                if (charInLine < line.length) {
+                    sections.add(Section.Text(line.substring(charInLine)))
+                }
+                if (index + 1 < lines.size) {
+                    sections.add(Section.Newline)
+                }
+                index++
+                charInLine = 0
             }
         }
         sections
     }
 
-    val bindSections by lazy { sections.filter { it.type == BIND_VAR } }
+    val bindSections by lazy { sections.filterIsInstance<Section.BindVar>() }
 
     private fun unnamedVariableErrors(): List<String> {
-        val anonymousBindError = if (inputs.any { it.text == "?" }) {
+        val anonymousBindError = if (inputs.any { it.section.text == "?" }) {
             arrayListOf(ParserErrors.ANONYMOUS_BIND_ARGUMENT)
         } else {
             emptyList<String>()
         }
         return anonymousBindError + inputs.filter {
-            it.text.matches(STARTS_WITH_NUMBER)
+            it.section.text.matches(STARTS_WITH_NUMBER)
         }.map {
-            ParserErrors.cannotUseVariableIndices(it.text, it.symbol.charPositionInLine)
+            ParserErrors.cannotUseVariableIndices(it.section.text, it.start.charInLine)
         }
     }
 
@@ -112,16 +188,6 @@ data class ParsedQuery(
             syntaxErrors
         } else {
             unnamedVariableErrors() + unknownQueryTypeErrors()
-        }
-    }
-
-    val queryWithReplacedBindParams by lazy {
-        sections.joinToString("") {
-            when (it.type) {
-                TEXT -> it.text
-                BIND_VAR -> "?"
-                NEWLINE -> "\n"
-            }
         }
     }
 }

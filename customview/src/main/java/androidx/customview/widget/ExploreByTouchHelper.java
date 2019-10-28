@@ -51,16 +51,19 @@ import java.util.List;
  * and managing accessibility focus.
  * <p>
  * Clients should override abstract methods on this class and attach it to the
- * host view using {@link ViewCompat#setAccessibilityDelegate}:
+ * host view using {@link ViewCompat#setAccessibilityDelegate}.
+ * <p>
+ * The host view should also override the events in the following code snippet
+ * so that the view's logical items are detected properly by the framework:
  * <p>
  * <pre>
  * class MyCustomView extends View {
- *     private MyVirtualViewHelper mVirtualViewHelper;
+ *     private MyExploreByTouchHelper mExploreByTouchHelper;
  *
  *     public MyCustomView(Context context, ...) {
  *         ...
- *         mVirtualViewHelper = new MyVirtualViewHelper(this);
- *         ViewCompat.setAccessibilityDelegate(this, mVirtualViewHelper);
+ *         mExploreByTouchHelper = new MyExploreByTouchHelper(this);
+ *         ViewCompat.setAccessibilityDelegate(this, mExploreByTouchHelper);
  *     }
  *
  *     &#64;Override
@@ -76,14 +79,12 @@ import java.util.List;
  *     }
  *
  *     &#64;Override
- *     public boolean onFocusChanged(boolean gainFocus, int direction,
+ *     public void onFocusChanged(boolean gainFocus, int direction,
  *         Rect previouslyFocusedRect) {
  *       super.onFocusChanged(gainFocus, direction, previouslyFocusedRect);
  *       mHelper.onFocusChanged(gainFocus, direction, previouslyFocusedRect);
  *     }
  * }
- * mAccessHelper = new MyExploreByTouchHelper(someView);
- * ViewCompat.setAccessibilityDelegate(someView, mAccessHelper);
  * </pre>
  */
 public abstract class ExploreByTouchHelper extends AccessibilityDelegateCompat {
@@ -428,9 +429,11 @@ public abstract class ExploreByTouchHelper extends AccessibilityDelegateCompat {
         getVisibleVirtualViews(virtualViewIds);
 
         final SparseArrayCompat<AccessibilityNodeInfoCompat> allNodes = new SparseArrayCompat<>();
-        for (int virtualViewId = 0; virtualViewId < virtualViewIds.size(); virtualViewId++) {
-            final AccessibilityNodeInfoCompat virtualView = createNodeForChild(virtualViewId);
-            allNodes.put(virtualViewId, virtualView);
+        for (int virtualViewIdIndex = 0; virtualViewIdIndex < virtualViewIds.size();
+                virtualViewIdIndex++) {
+            final AccessibilityNodeInfoCompat virtualView =
+                    createNodeForChild(virtualViewIds.get(virtualViewIdIndex));
+            allNodes.put(virtualViewIds.get(virtualViewIdIndex), virtualView);
         }
 
         return allNodes;
@@ -1025,6 +1028,10 @@ public abstract class ExploreByTouchHelper extends AccessibilityDelegateCompat {
 
         if (mKeyboardFocusedVirtualViewId != INVALID_ID) {
             clearKeyboardFocusForVirtualView(mKeyboardFocusedVirtualViewId);
+        }
+
+        if (virtualViewId == INVALID_ID) {
+            return false;
         }
 
         mKeyboardFocusedVirtualViewId = virtualViewId;

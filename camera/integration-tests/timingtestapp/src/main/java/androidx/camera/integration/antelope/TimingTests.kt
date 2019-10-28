@@ -22,7 +22,6 @@ import androidx.camera.integration.antelope.cameracontrollers.camera1OpenCamera
 import androidx.camera.integration.antelope.cameracontrollers.camera2OpenCamera
 import androidx.camera.integration.antelope.cameracontrollers.cameraXOpenCamera
 import androidx.camera.integration.antelope.cameracontrollers.cameraXTakePicture
-import androidx.camera.integration.antelope.cameracontrollers.closeAllCameras
 import androidx.camera.integration.antelope.cameracontrollers.closePreviewAndCamera
 import androidx.camera.integration.antelope.cameracontrollers.initializeStillCapture
 
@@ -40,7 +39,7 @@ internal fun initializeTest(
 
     // Camera1 cannot directly access physical cameras. If we try, abort.
     if ((CameraAPI.CAMERA1 == config.api) &&
-        !(PrefHelper.getLogicalCameraIds(activity, cameraParams).contains(config.camera))) {
+        !(PrefHelper.getLogicalCameraIds(cameraParams).contains(config.camera))) {
         activity.resetUIAfterTest()
         activity.updateLog("ABORTED: Camera1 API cannot access camera with id:" + config.camera,
             false, false)
@@ -78,8 +77,6 @@ internal fun runInitTest(
     activity.startBackgroundThread(params)
     activity.showProgressBar(true)
 
-    closeAllCameras(activity, config)
-
     setupImageReader(activity, params, config)
     params.timer = CameraTimer()
     config.currentRunningTest = TestType.INIT
@@ -93,8 +90,8 @@ internal fun runInitTest(
 internal fun runSwitchTest(activity: MainActivity, params: CameraParams, config: TestConfig) {
     // For switch test, always go from default back camera to default front camera and back 0->1->0
     // TODO: Can we handle different permutations of physical cameras?
-    if (!PrefHelper.getLogicalCameraIds(activity, cameraParams).contains("0") ||
-        !PrefHelper.getLogicalCameraIds(activity, cameraParams).contains("1")) {
+    if (!PrefHelper.getLogicalCameraIds(cameraParams).contains("0") ||
+        !PrefHelper.getLogicalCameraIds(cameraParams).contains("1")) {
         activity.resetUIAfterTest()
         activity.updateLog("ABORTED: Camera 0 and 1 needed for Switch test.",
             false, false)
@@ -109,8 +106,6 @@ internal fun runSwitchTest(activity: MainActivity, params: CameraParams, config:
     activity.startBackgroundThread(params)
     activity.showProgressBar(true)
 
-    closeAllCameras(activity, config)
-
     setupImageReader(activity, params, config)
     params.timer = CameraTimer()
     config.currentRunningTest = TestType.SWITCH_CAMERA
@@ -124,8 +119,8 @@ internal fun runSwitchTest(activity: MainActivity, params: CameraParams, config:
 internal fun runMultiSwitchTest(activity: MainActivity, params: CameraParams, config: TestConfig) {
     // For switch test, always go from default back camera to default front camera and back 0->1->0
     // TODO: Can we handle different permutations of physical cameras?
-    if (!PrefHelper.getLogicalCameraIds(activity, cameraParams).contains("0") ||
-        !PrefHelper.getLogicalCameraIds(activity, cameraParams).contains("1")) {
+    if (!PrefHelper.getLogicalCameraIds(cameraParams).contains("0") ||
+        !PrefHelper.getLogicalCameraIds(cameraParams).contains("1")) {
         activity.resetUIAfterTest()
         activity.updateLog("ABORTED: Camera 0 and 1 needed for Switch test.",
             false, false)
@@ -179,8 +174,6 @@ internal fun runPreviewTest(activity: MainActivity, params: CameraParams, config
     activity.startBackgroundThread(params)
     activity.showProgressBar(true)
 
-    closeAllCameras(activity, config)
-
     setupImageReader(activity, params, config)
     params.timer = CameraTimer()
     config.currentRunningTest = TestType.PREVIEW
@@ -195,8 +188,6 @@ internal fun runPhotoTest(activity: MainActivity, params: CameraParams, config: 
     logd("Running photo test")
     activity.startBackgroundThread(params)
     activity.showProgressBar(true)
-
-    closeAllCameras(activity, config)
 
     setupImageReader(activity, params, config)
     params.timer = CameraTimer()
@@ -238,7 +229,7 @@ internal fun runMultiPhotoTest(activity: MainActivity, params: CameraParams, con
             .add(params.timer.imageReaderEnd - params.timer.imageReaderStart)
         config.testResults.capturePlusImageReady
             .add((params.timer.captureEnd - params.timer.captureStart) +
-            (params.timer.imageReaderEnd - params.timer.imageReaderStart))
+                (params.timer.imageReaderEnd - params.timer.imageReaderStart))
         config.testResults.imagesave
             .add(params.timer.imageSaveEnd - params.timer.imageSaveStart)
         config.testResults.isHDRPlus.add(params.timer.isHDRPlus)
@@ -253,8 +244,6 @@ internal fun runMultiPhotoTest(activity: MainActivity, params: CameraParams, con
         config.isFirstOnActive = true
         config.isFirstOnCaptureComplete = true
     }
-
-    closeAllCameras(activity, config)
 
     setupImageReader(activity, params, config)
     params.timer = CameraTimer()
@@ -291,8 +280,6 @@ internal fun runMultiPhotoChainTest(
         logd("About to start multi chain test. multi_counter: " + multiCounter + " and test: " +
             config.currentRunningTest.toString())
 
-        closeAllCameras(activity, config)
-
         setupImageReader(activity, params, config)
         beginTest(activity, params, config)
     } else {
@@ -308,13 +295,13 @@ internal fun runMultiPhotoChainTest(
                 .add(params.timer.autofocusEnd - params.timer.autofocusStart)
             config.testResults.captureNoAF
                 .add((params.timer.captureEnd - params.timer.captureStart) -
-                (params.timer.autofocusEnd - params.timer.autofocusStart))
+                    (params.timer.autofocusEnd - params.timer.autofocusStart))
             config.testResults.capture.add(params.timer.captureEnd - params.timer.captureStart)
             config.testResults.imageready
                 .add(params.timer.imageReaderEnd - params.timer.imageReaderStart)
             config.testResults.capturePlusImageReady
                 .add((params.timer.captureEnd - params.timer.captureStart) +
-                (params.timer.imageReaderEnd - params.timer.imageReaderStart))
+                    (params.timer.imageReaderEnd - params.timer.imageReaderStart))
             config.testResults.imagesave
                 .add(params.timer.imageSaveEnd - params.timer.imageSaveStart)
             config.testResults.isHDRPlus.add(params.timer.isHDRPlus)
@@ -326,6 +313,7 @@ internal fun runMultiPhotoChainTest(
             when (config.api) {
                 CameraAPI.CAMERA2 -> initializeStillCapture(activity, params, config)
                 CameraAPI.CAMERAX -> cameraXTakePicture(activity, params, config)
+                else -> {}
             }
         }
     }
@@ -381,8 +369,6 @@ internal fun testEnded(activity: MainActivity, params: CameraParams?, config: Te
         }
 
         TestType.MULTI_SWITCH -> {
-            val lastResult = params.timer.captureEnd - params.timer.captureStart
-
             if (1 == multiCounter) {
                 params.timer.testEnd = System.currentTimeMillis()
                 config.testFinished = false // Reset flag
@@ -424,13 +410,13 @@ internal fun testEnded(activity: MainActivity, params: CameraParams?, config: Te
                 .add(params.timer.autofocusEnd - params.timer.autofocusStart)
             config.testResults.captureNoAF
                 .add((params.timer.captureEnd - params.timer.captureStart) -
-                (params.timer.autofocusEnd - params.timer.autofocusStart))
+                    (params.timer.autofocusEnd - params.timer.autofocusStart))
             config.testResults.capture.add(params.timer.captureEnd - params.timer.captureStart)
             config.testResults.imageready
                 .add(params.timer.imageReaderEnd - params.timer.imageReaderStart)
             config.testResults.capturePlusImageReady
                 .add((params.timer.captureEnd - params.timer.captureStart) +
-                (params.timer.imageReaderEnd - params.timer.imageReaderStart))
+                    (params.timer.imageReaderEnd - params.timer.imageReaderStart))
             config.testResults.imagesave
                 .add(params.timer.imageSaveEnd - params.timer.imageSaveStart)
             config.testResults.isHDRPlus
@@ -463,13 +449,13 @@ internal fun testEnded(activity: MainActivity, params: CameraParams?, config: Te
                     .add(params.timer.autofocusEnd - params.timer.autofocusStart)
                 config.testResults.captureNoAF
                     .add((params.timer.captureEnd - params.timer.captureStart) -
-                    (params.timer.autofocusEnd - params.timer.autofocusStart))
+                        (params.timer.autofocusEnd - params.timer.autofocusStart))
                 config.testResults.capture.add(params.timer.captureEnd - params.timer.captureStart)
                 config.testResults.imageready
                     .add(params.timer.imageReaderEnd - params.timer.imageReaderStart)
                 config.testResults.capturePlusImageReady
                     .add((params.timer.captureEnd - params.timer.captureStart) +
-                    (params.timer.imageReaderEnd - params.timer.imageReaderStart))
+                        (params.timer.imageReaderEnd - params.timer.imageReaderStart))
                 config.testResults.imagesave
                     .add(params.timer.imageSaveEnd - params.timer.imageSaveStart)
                 config.testResults.isHDRPlus.add(params.timer.isHDRPlus)
@@ -480,9 +466,7 @@ internal fun testEnded(activity: MainActivity, params: CameraParams?, config: Te
                 config.testResults.total.add(params.timer.testEnd - params.timer.testStart)
                 config.testResults.totalNoPreview
                     .add((params.timer.testEnd - params.timer.testStart) -
-                    (params.timer.previewFillEnd - params.timer.previewFillStart))
-
-                closeAllCameras(activity, config)
+                        (params.timer.previewFillEnd - params.timer.previewFillStart))
 
                 multiCounter = 0
             } else {
@@ -522,7 +506,7 @@ internal fun testEnded(activity: MainActivity, params: CameraParams?, config: Te
                     params.timer.autofocusStart)
                 config.testResults.captureNoAF
                     .add((params.timer.captureEnd - params.timer.captureStart) -
-                    (params.timer.autofocusEnd - params.timer.autofocusStart))
+                        (params.timer.autofocusEnd - params.timer.autofocusStart))
                 config.testResults.capture.add(params.timer.captureEnd - params.timer.captureStart)
                 config.testResults.imageready.add(params.timer.imageReaderEnd -
                     params.timer.imageReaderStart)
@@ -539,9 +523,7 @@ internal fun testEnded(activity: MainActivity, params: CameraParams?, config: Te
                 config.testResults.total.add(params.timer.testEnd - params.timer.testStart)
                 config.testResults.totalNoPreview
                     .add((params.timer.testEnd - params.timer.testStart) -
-                    (params.timer.previewFillEnd - params.timer.previewFillStart))
-
-                closeAllCameras(activity, config)
+                        (params.timer.previewFillEnd - params.timer.previewFillStart))
 
                 multiCounter = 0
             } else {
@@ -552,6 +534,8 @@ internal fun testEnded(activity: MainActivity, params: CameraParams?, config: Te
                 return
             }
         }
+
+        TestType.NONE -> {}
     }
 
     multiCounter = 0

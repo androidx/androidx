@@ -27,6 +27,7 @@ import androidx.work.impl.WorkManagerImpl
 import androidx.work.impl.background.gcm.GcmTaskConverter.EXECUTION_WINDOW_SIZE_IN_SECONDS
 import com.google.android.gms.gcm.Task
 import org.hamcrest.Matchers.greaterThan
+import org.hamcrest.Matchers.lessThanOrEqualTo
 import org.junit.Assert.assertEquals
 import org.junit.Assert.assertThat
 import org.junit.Before
@@ -49,19 +50,32 @@ class GcmTaskConverterTest {
 
     @Test
     fun testOneTimeRequest_noInitialDelay() {
+        val now = System.currentTimeMillis()
+        `when`(mTaskConverter.now()).thenReturn(now)
+
         val request = OneTimeWorkRequestBuilder<TestWorker>().build()
         val task = mTaskConverter.convert(request.workSpec)
+
+        val expected = request.workSpec.calculateNextRunTime()
+        val offset = offset(expected, now)
+        val deltaStart = task.windowStart - offset
+        val deltaEnd = task.windowEnd - (offset + EXECUTION_WINDOW_SIZE_IN_SECONDS)
+
         assertEquals(task.serviceName, WorkManagerGcmService::class.java.name)
         assertEquals(task.isPersisted, false)
         assertEquals(task.isUpdateCurrent, true)
         assertEquals(task.requiredNetwork, Task.NETWORK_STATE_ANY)
         assertEquals(task.requiresCharging, false)
-        assertEquals(task.windowStart, 0L)
-        assertEquals(task.windowEnd, 0L + EXECUTION_WINDOW_SIZE_IN_SECONDS)
+        // Account for time unit quantization errors
+        assertThat(deltaStart, lessThanOrEqualTo(1L))
+        assertThat(deltaEnd, lessThanOrEqualTo(1L))
     }
 
     @Test
     fun testOneTimeRequest_noInitialDelay_withConstraintNetworkConnected() {
+        val now = System.currentTimeMillis()
+        `when`(mTaskConverter.now()).thenReturn(now)
+
         val constraints = Constraints.Builder()
             .setRequiredNetworkType(NetworkType.METERED)
             .setRequiresCharging(true)
@@ -72,17 +86,26 @@ class GcmTaskConverterTest {
             .build()
 
         val task = mTaskConverter.convert(request.workSpec)
+        val expected = request.workSpec.calculateNextRunTime()
+        val offset = offset(expected, now)
+        val deltaStart = task.windowStart - offset
+        val deltaEnd = task.windowEnd - (offset + EXECUTION_WINDOW_SIZE_IN_SECONDS)
+
         assertEquals(task.serviceName, WorkManagerGcmService::class.java.name)
         assertEquals(task.isPersisted, false)
         assertEquals(task.isUpdateCurrent, true)
         assertEquals(task.requiredNetwork, Task.NETWORK_STATE_CONNECTED)
         assertEquals(task.requiresCharging, true)
-        assertEquals(task.windowStart, 0L)
-        assertEquals(task.windowEnd, 0L + EXECUTION_WINDOW_SIZE_IN_SECONDS)
+        // Account for time unit quantization errors
+        assertThat(deltaStart, lessThanOrEqualTo(1L))
+        assertThat(deltaEnd, lessThanOrEqualTo(1L))
     }
 
     @Test
     fun testOneTimeRequest_noInitialDelay_withConstraintNetworkUnMetered() {
+        val now = System.currentTimeMillis()
+        `when`(mTaskConverter.now()).thenReturn(now)
+
         val constraints = Constraints.Builder()
             .setRequiredNetworkType(NetworkType.UNMETERED)
             .build()
@@ -92,13 +115,19 @@ class GcmTaskConverterTest {
             .build()
 
         val task = mTaskConverter.convert(request.workSpec)
+        val expected = request.workSpec.calculateNextRunTime()
+        val offset = offset(expected, now)
+        val deltaStart = task.windowStart - offset
+        val deltaEnd = task.windowEnd - (offset + EXECUTION_WINDOW_SIZE_IN_SECONDS)
+
         assertEquals(task.serviceName, WorkManagerGcmService::class.java.name)
         assertEquals(task.isPersisted, false)
         assertEquals(task.isUpdateCurrent, true)
         assertEquals(task.requiredNetwork, Task.NETWORK_STATE_UNMETERED)
         assertEquals(task.requiresCharging, false)
-        assertEquals(task.windowStart, 0L)
-        assertEquals(task.windowEnd, 0L + EXECUTION_WINDOW_SIZE_IN_SECONDS)
+        // Account for time unit quantization errors
+        assertThat(deltaStart, lessThanOrEqualTo(1L))
+        assertThat(deltaEnd, lessThanOrEqualTo(1L))
     }
 
     @Test
@@ -114,14 +143,17 @@ class GcmTaskConverterTest {
         val task = mTaskConverter.convert(request.workSpec)
         val expected = request.workSpec.calculateNextRunTime()
         val offset = offset(expected, now)
+        val deltaStart = task.windowStart - offset
+        val deltaEnd = task.windowEnd - (offset + EXECUTION_WINDOW_SIZE_IN_SECONDS)
 
         assertEquals(task.serviceName, WorkManagerGcmService::class.java.name)
         assertEquals(task.isPersisted, false)
         assertEquals(task.isUpdateCurrent, true)
         assertEquals(task.requiredNetwork, Task.NETWORK_STATE_ANY)
         assertEquals(task.requiresCharging, false)
-        assertEquals(task.windowStart, offset)
-        assertEquals(task.windowEnd, offset + EXECUTION_WINDOW_SIZE_IN_SECONDS)
+        // Account for time unit quantization errors
+        assertThat(deltaStart, lessThanOrEqualTo(1L))
+        assertThat(deltaEnd, lessThanOrEqualTo(1L))
     }
 
     @Test
@@ -134,17 +166,20 @@ class GcmTaskConverterTest {
             .build()
 
         val workSpec = request.workSpec
+        val task = mTaskConverter.convert(request.workSpec)
         val expected = workSpec.calculateNextRunTime()
         val offset = offset(expected, now)
+        val deltaStart = task.windowStart - offset
+        val deltaEnd = task.windowEnd - (offset + EXECUTION_WINDOW_SIZE_IN_SECONDS)
 
-        val task = mTaskConverter.convert(request.workSpec)
         assertEquals(task.serviceName, WorkManagerGcmService::class.java.name)
         assertEquals(task.isPersisted, false)
         assertEquals(task.isUpdateCurrent, true)
         assertEquals(task.requiredNetwork, Task.NETWORK_STATE_ANY)
         assertEquals(task.requiresCharging, false)
-        assertEquals(task.windowStart, offset)
-        assertEquals(task.windowEnd, offset + EXECUTION_WINDOW_SIZE_IN_SECONDS)
+        // Account for time unit quantization errors
+        assertThat(deltaStart, lessThanOrEqualTo(1L))
+        assertThat(deltaEnd, lessThanOrEqualTo(1L))
     }
 
     @Test
@@ -156,17 +191,20 @@ class GcmTaskConverterTest {
         val request = PeriodicWorkRequestBuilder<TestWorker>(15L, TimeUnit.MINUTES)
             .build()
 
+        val task = mTaskConverter.convert(request.workSpec)
         val expected = request.workSpec.calculateNextRunTime()
         val offset = offset(expected, now)
-        val task = mTaskConverter.convert(request.workSpec)
+        val deltaStart = task.windowStart - offset
+        val deltaEnd = task.windowEnd - (offset + EXECUTION_WINDOW_SIZE_IN_SECONDS)
 
         assertEquals(task.serviceName, WorkManagerGcmService::class.java.name)
         assertEquals(task.isPersisted, false)
         assertEquals(task.isUpdateCurrent, true)
         assertEquals(task.requiredNetwork, Task.NETWORK_STATE_ANY)
         assertEquals(task.requiresCharging, false)
-        assertEquals(task.windowStart, offset)
-        assertEquals(task.windowEnd, offset + EXECUTION_WINDOW_SIZE_IN_SECONDS)
+        // Account for time unit quantization errors
+        assertThat(deltaStart, lessThanOrEqualTo(1L))
+        assertThat(deltaEnd, lessThanOrEqualTo(1L))
     }
 
     @Test

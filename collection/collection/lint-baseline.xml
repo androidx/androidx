@@ -1,0 +1,730 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<issues format="5" by="lint 3.5.0-beta04" client="gradle" version="3.5.0-beta04">
+
+    <issue
+        id="UnknownNullness"
+        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
+        errorLine1="    public ArrayMap(SimpleArrayMap map) {"
+        errorLine2="                    ~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/collection/ArrayMap.java"
+            line="70"
+            column="21"/>
+    </issue>
+
+    <issue
+        id="UnknownNullness"
+        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
+        errorLine1="    public void putAll(Map&lt;? extends K, ? extends V> map) {"
+        errorLine2="                       ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/collection/ArrayMap.java"
+            line="141"
+            column="24"/>
+    </issue>
+
+    <issue
+        id="UnknownNullness"
+        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
+        errorLine1="    public Set&lt;Entry&lt;K, V>> entrySet() {"
+        errorLine2="           ~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/collection/ArrayMap.java"
+            line="181"
+            column="12"/>
+    </issue>
+
+    <issue
+        id="UnknownNullness"
+        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
+        errorLine1="    public Set&lt;K> keySet() {"
+        errorLine2="           ~~~~~~">
+        <location
+            file="src/main/java/androidx/collection/ArrayMap.java"
+            line="193"
+            column="12"/>
+    </issue>
+
+    <issue
+        id="UnknownNullness"
+        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
+        errorLine1="    public Collection&lt;V> values() {"
+        errorLine2="           ~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/collection/ArrayMap.java"
+            line="205"
+            column="12"/>
+    </issue>
+
+    <issue
+        id="UnknownNullness"
+        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
+        errorLine1="    public E removeAt(int index) {"
+        errorLine2="           ~">
+        <location
+            file="src/main/java/androidx/collection/ArraySet.java"
+            line="446"
+            column="12"/>
+    </issue>
+
+    <issue
+        id="UnknownNullness"
+        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
+        errorLine1="    public Iterator&lt;E> iterator() {"
+        errorLine2="           ~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/collection/ArraySet.java"
+            line="693"
+            column="12"/>
+    </issue>
+
+    <issue
+        id="UnknownNullness"
+        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
+        errorLine1="    public void addFirst(E e) {"
+        errorLine2="                         ~">
+        <location
+            file="src/main/java/androidx/collection/CircularArray.java"
+            line="83"
+            column="26"/>
+    </issue>
+
+    <issue
+        id="UnknownNullness"
+        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
+        errorLine1="    public void addLast(E e) {"
+        errorLine2="                        ~">
+        <location
+            file="src/main/java/androidx/collection/CircularArray.java"
+            line="95"
+            column="25"/>
+    </issue>
+
+    <issue
+        id="UnknownNullness"
+        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
+        errorLine1="    public E popFirst() {"
+        errorLine2="           ~">
+        <location
+            file="src/main/java/androidx/collection/CircularArray.java"
+            line="108"
+            column="12"/>
+    </issue>
+
+    <issue
+        id="UnknownNullness"
+        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
+        errorLine1="    public E popLast() {"
+        errorLine2="           ~">
+        <location
+            file="src/main/java/androidx/collection/CircularArray.java"
+            line="123"
+            column="12"/>
+    </issue>
+
+    <issue
+        id="UnknownNullness"
+        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
+        errorLine1="    public E getFirst() {"
+        errorLine2="           ~">
+        <location
+            file="src/main/java/androidx/collection/CircularArray.java"
+            line="214"
+            column="12"/>
+    </issue>
+
+    <issue
+        id="UnknownNullness"
+        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
+        errorLine1="    public E getLast() {"
+        errorLine2="           ~">
+        <location
+            file="src/main/java/androidx/collection/CircularArray.java"
+            line="226"
+            column="12"/>
+    </issue>
+
+    <issue
+        id="UnknownNullness"
+        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
+        errorLine1="    public E get(int n) {"
+        errorLine2="           ~">
+        <location
+            file="src/main/java/androidx/collection/CircularArray.java"
+            line="239"
+            column="12"/>
+    </issue>
+
+    <issue
+        id="UnknownNullness"
+        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
+        errorLine1="    public LongSparseArray&lt;E> clone() {"
+        errorLine2="           ~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/collection/LongSparseArray.java"
+            line="85"
+            column="12"/>
+    </issue>
+
+    <issue
+        id="UnknownNullness"
+        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
+        errorLine1="    public E get(long key, E valueIfKeyNotFound) {"
+        errorLine2="           ~">
+        <location
+            file="src/main/java/androidx/collection/LongSparseArray.java"
+            line="117"
+            column="12"/>
+    </issue>
+
+    <issue
+        id="UnknownNullness"
+        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
+        errorLine1="    public E get(long key, E valueIfKeyNotFound) {"
+        errorLine2="                           ~">
+        <location
+            file="src/main/java/androidx/collection/LongSparseArray.java"
+            line="117"
+            column="28"/>
+    </issue>
+
+    <issue
+        id="UnknownNullness"
+        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
+        errorLine1="    public boolean remove(long key, Object value) {"
+        errorLine2="                                    ~~~~~~">
+        <location
+            file="src/main/java/androidx/collection/LongSparseArray.java"
+            line="155"
+            column="37"/>
+    </issue>
+
+    <issue
+        id="UnknownNullness"
+        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
+        errorLine1="    public E replace(long key, E value) {"
+        errorLine2="                               ~">
+        <location
+            file="src/main/java/androidx/collection/LongSparseArray.java"
+            line="184"
+            column="32"/>
+    </issue>
+
+    <issue
+        id="UnknownNullness"
+        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
+        errorLine1="    public boolean replace(long key, E oldValue, E newValue) {"
+        errorLine2="                                     ~">
+        <location
+            file="src/main/java/androidx/collection/LongSparseArray.java"
+            line="202"
+            column="38"/>
+    </issue>
+
+    <issue
+        id="UnknownNullness"
+        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
+        errorLine1="    public boolean replace(long key, E oldValue, E newValue) {"
+        errorLine2="                                                 ~">
+        <location
+            file="src/main/java/androidx/collection/LongSparseArray.java"
+            line="202"
+            column="50"/>
+    </issue>
+
+    <issue
+        id="UnknownNullness"
+        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
+        errorLine1="    public void put(long key, E value) {"
+        errorLine2="                              ~">
+        <location
+            file="src/main/java/androidx/collection/LongSparseArray.java"
+            line="247"
+            column="31"/>
+    </issue>
+
+    <issue
+        id="UnknownNullness"
+        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
+        errorLine1="    public E putIfAbsent(long key, E value) {"
+        errorLine2="                                   ~">
+        <location
+            file="src/main/java/androidx/collection/LongSparseArray.java"
+            line="314"
+            column="36"/>
+    </issue>
+
+    <issue
+        id="UnknownNullness"
+        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
+        errorLine1="    public E valueAt(int index) {"
+        errorLine2="           ~">
+        <location
+            file="src/main/java/androidx/collection/LongSparseArray.java"
+            line="372"
+            column="12"/>
+    </issue>
+
+    <issue
+        id="UnknownNullness"
+        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
+        errorLine1="    public void setValueAt(int index, E value) {"
+        errorLine2="                                      ~">
+        <location
+            file="src/main/java/androidx/collection/LongSparseArray.java"
+            line="385"
+            column="39"/>
+    </issue>
+
+    <issue
+        id="UnknownNullness"
+        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
+        errorLine1="    public int indexOfValue(E value) {"
+        errorLine2="                            ~">
+        <location
+            file="src/main/java/androidx/collection/LongSparseArray.java"
+            line="414"
+            column="29"/>
+    </issue>
+
+    <issue
+        id="UnknownNullness"
+        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
+        errorLine1="    public boolean containsValue(E value) {"
+        errorLine2="                                 ~">
+        <location
+            file="src/main/java/androidx/collection/LongSparseArray.java"
+            line="432"
+            column="34"/>
+    </issue>
+
+    <issue
+        id="UnknownNullness"
+        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
+        errorLine1="    public void append(long key, E value) {"
+        errorLine2="                                 ~">
+        <location
+            file="src/main/java/androidx/collection/LongSparseArray.java"
+            line="455"
+            column="34"/>
+    </issue>
+
+    <issue
+        id="UnknownNullness"
+        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
+        errorLine1="    public synchronized final Map&lt;K, V> snapshot() {"
+        errorLine2="                              ~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/collection/LruCache.java"
+            line="343"
+            column="31"/>
+    </issue>
+
+    <issue
+        id="UnknownNullness"
+        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
+        errorLine1="    public SimpleArrayMap(SimpleArrayMap&lt;K, V> map) {"
+        errorLine2="                          ~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/collection/SimpleArrayMap.java"
+            line="259"
+            column="27"/>
+    </issue>
+
+    <issue
+        id="UnknownNullness"
+        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
+        errorLine1="    public boolean containsValue(Object value) {"
+        errorLine2="                                 ~~~~~~">
+        <location
+            file="src/main/java/androidx/collection/SimpleArrayMap.java"
+            line="351"
+            column="34"/>
+    </issue>
+
+    <issue
+        id="UnknownNullness"
+        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
+        errorLine1="    public V get(Object key) {"
+        errorLine2="                 ~~~~~~">
+        <location
+            file="src/main/java/androidx/collection/SimpleArrayMap.java"
+            line="363"
+            column="18"/>
+    </issue>
+
+    <issue
+        id="UnknownNullness"
+        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
+        errorLine1="    public V getOrDefault(Object key, V defaultValue) {"
+        errorLine2="           ~">
+        <location
+            file="src/main/java/androidx/collection/SimpleArrayMap.java"
+            line="379"
+            column="12"/>
+    </issue>
+
+    <issue
+        id="UnknownNullness"
+        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
+        errorLine1="    public V getOrDefault(Object key, V defaultValue) {"
+        errorLine2="                          ~~~~~~">
+        <location
+            file="src/main/java/androidx/collection/SimpleArrayMap.java"
+            line="379"
+            column="27"/>
+    </issue>
+
+    <issue
+        id="UnknownNullness"
+        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
+        errorLine1="    public V getOrDefault(Object key, V defaultValue) {"
+        errorLine2="                                      ~">
+        <location
+            file="src/main/java/androidx/collection/SimpleArrayMap.java"
+            line="379"
+            column="39"/>
+    </issue>
+
+    <issue
+        id="UnknownNullness"
+        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
+        errorLine1="    public K keyAt(int index) {"
+        errorLine2="           ~">
+        <location
+            file="src/main/java/androidx/collection/SimpleArrayMap.java"
+            line="389"
+            column="12"/>
+    </issue>
+
+    <issue
+        id="UnknownNullness"
+        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
+        errorLine1="    public V valueAt(int index) {"
+        errorLine2="           ~">
+        <location
+            file="src/main/java/androidx/collection/SimpleArrayMap.java"
+            line="398"
+            column="12"/>
+    </issue>
+
+    <issue
+        id="UnknownNullness"
+        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
+        errorLine1="    public V setValueAt(int index, V value) {"
+        errorLine2="           ~">
+        <location
+            file="src/main/java/androidx/collection/SimpleArrayMap.java"
+            line="408"
+            column="12"/>
+    </issue>
+
+    <issue
+        id="UnknownNullness"
+        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
+        errorLine1="    public V setValueAt(int index, V value) {"
+        errorLine2="                                   ~">
+        <location
+            file="src/main/java/androidx/collection/SimpleArrayMap.java"
+            line="408"
+            column="36"/>
+    </issue>
+
+    <issue
+        id="UnknownNullness"
+        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
+        errorLine1="    public V put(K key, V value) {"
+        errorLine2="                 ~">
+        <location
+            file="src/main/java/androidx/collection/SimpleArrayMap.java"
+            line="431"
+            column="18"/>
+    </issue>
+
+    <issue
+        id="UnknownNullness"
+        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
+        errorLine1="    public V put(K key, V value) {"
+        errorLine2="                        ~">
+        <location
+            file="src/main/java/androidx/collection/SimpleArrayMap.java"
+            line="431"
+            column="25"/>
+    </issue>
+
+    <issue
+        id="UnknownNullness"
+        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
+        errorLine1="    public V putIfAbsent(K key, V value) {"
+        errorLine2="                         ~">
+        <location
+            file="src/main/java/androidx/collection/SimpleArrayMap.java"
+            line="522"
+            column="26"/>
+    </issue>
+
+    <issue
+        id="UnknownNullness"
+        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
+        errorLine1="    public V putIfAbsent(K key, V value) {"
+        errorLine2="                                ~">
+        <location
+            file="src/main/java/androidx/collection/SimpleArrayMap.java"
+            line="522"
+            column="33"/>
+    </issue>
+
+    <issue
+        id="UnknownNullness"
+        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
+        errorLine1="    public V remove(Object key) {"
+        errorLine2="                    ~~~~~~">
+        <location
+            file="src/main/java/androidx/collection/SimpleArrayMap.java"
+            line="537"
+            column="21"/>
+    </issue>
+
+    <issue
+        id="UnknownNullness"
+        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
+        errorLine1="    public boolean remove(Object key, Object value) {"
+        errorLine2="                          ~~~~~~">
+        <location
+            file="src/main/java/androidx/collection/SimpleArrayMap.java"
+            line="552"
+            column="27"/>
+    </issue>
+
+    <issue
+        id="UnknownNullness"
+        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
+        errorLine1="    public boolean remove(Object key, Object value) {"
+        errorLine2="                                      ~~~~~~">
+        <location
+            file="src/main/java/androidx/collection/SimpleArrayMap.java"
+            line="552"
+            column="39"/>
+    </issue>
+
+    <issue
+        id="UnknownNullness"
+        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
+        errorLine1="    public V removeAt(int index) {"
+        errorLine2="           ~">
+        <location
+            file="src/main/java/androidx/collection/SimpleArrayMap.java"
+            line="569"
+            column="12"/>
+    </issue>
+
+    <issue
+        id="UnknownNullness"
+        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
+        errorLine1="    public V replace(K key, V value) {"
+        errorLine2="                     ~">
+        <location
+            file="src/main/java/androidx/collection/SimpleArrayMap.java"
+            line="636"
+            column="22"/>
+    </issue>
+
+    <issue
+        id="UnknownNullness"
+        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
+        errorLine1="    public V replace(K key, V value) {"
+        errorLine2="                            ~">
+        <location
+            file="src/main/java/androidx/collection/SimpleArrayMap.java"
+            line="636"
+            column="29"/>
+    </issue>
+
+    <issue
+        id="UnknownNullness"
+        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
+        errorLine1="    public boolean replace(K key, V oldValue, V newValue) {"
+        errorLine2="                           ~">
+        <location
+            file="src/main/java/androidx/collection/SimpleArrayMap.java"
+            line="652"
+            column="28"/>
+    </issue>
+
+    <issue
+        id="UnknownNullness"
+        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
+        errorLine1="    public boolean replace(K key, V oldValue, V newValue) {"
+        errorLine2="                                  ~">
+        <location
+            file="src/main/java/androidx/collection/SimpleArrayMap.java"
+            line="652"
+            column="35"/>
+    </issue>
+
+    <issue
+        id="UnknownNullness"
+        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
+        errorLine1="    public boolean replace(K key, V oldValue, V newValue) {"
+        errorLine2="                                              ~">
+        <location
+            file="src/main/java/androidx/collection/SimpleArrayMap.java"
+            line="652"
+            column="47"/>
+    </issue>
+
+    <issue
+        id="UnknownNullness"
+        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
+        errorLine1="    public SparseArrayCompat&lt;E> clone() {"
+        errorLine2="           ~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/collection/SparseArrayCompat.java"
+            line="85"
+            column="12"/>
+    </issue>
+
+    <issue
+        id="UnknownNullness"
+        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
+        errorLine1="    public E get(int key, E valueIfKeyNotFound) {"
+        errorLine2="           ~">
+        <location
+            file="src/main/java/androidx/collection/SparseArrayCompat.java"
+            line="117"
+            column="12"/>
+    </issue>
+
+    <issue
+        id="UnknownNullness"
+        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
+        errorLine1="    public E get(int key, E valueIfKeyNotFound) {"
+        errorLine2="                          ~">
+        <location
+            file="src/main/java/androidx/collection/SparseArrayCompat.java"
+            line="117"
+            column="27"/>
+    </issue>
+
+    <issue
+        id="UnknownNullness"
+        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
+        errorLine1="    public boolean remove(int key, Object value) {"
+        errorLine2="                                   ~~~~~~">
+        <location
+            file="src/main/java/androidx/collection/SparseArrayCompat.java"
+            line="155"
+            column="36"/>
+    </issue>
+
+    <issue
+        id="UnknownNullness"
+        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
+        errorLine1="    public E replace(int key, E value) {"
+        errorLine2="                              ~">
+        <location
+            file="src/main/java/androidx/collection/SparseArrayCompat.java"
+            line="197"
+            column="31"/>
+    </issue>
+
+    <issue
+        id="UnknownNullness"
+        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
+        errorLine1="    public boolean replace(int key, E oldValue, E newValue) {"
+        errorLine2="                                    ~">
+        <location
+            file="src/main/java/androidx/collection/SparseArrayCompat.java"
+            line="215"
+            column="37"/>
+    </issue>
+
+    <issue
+        id="UnknownNullness"
+        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
+        errorLine1="    public boolean replace(int key, E oldValue, E newValue) {"
+        errorLine2="                                                ~">
+        <location
+            file="src/main/java/androidx/collection/SparseArrayCompat.java"
+            line="215"
+            column="49"/>
+    </issue>
+
+    <issue
+        id="UnknownNullness"
+        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
+        errorLine1="    public void put(int key, E value) {"
+        errorLine2="                             ~">
+        <location
+            file="src/main/java/androidx/collection/SparseArrayCompat.java"
+            line="260"
+            column="30"/>
+    </issue>
+
+    <issue
+        id="UnknownNullness"
+        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
+        errorLine1="    public E putIfAbsent(int key, E value) {"
+        errorLine2="                                  ~">
+        <location
+            file="src/main/java/androidx/collection/SparseArrayCompat.java"
+            line="327"
+            column="35"/>
+    </issue>
+
+    <issue
+        id="UnknownNullness"
+        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
+        errorLine1="    public E valueAt(int index) {"
+        errorLine2="           ~">
+        <location
+            file="src/main/java/androidx/collection/SparseArrayCompat.java"
+            line="374"
+            column="12"/>
+    </issue>
+
+    <issue
+        id="UnknownNullness"
+        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
+        errorLine1="    public void setValueAt(int index, E value) {"
+        errorLine2="                                      ~">
+        <location
+            file="src/main/java/androidx/collection/SparseArrayCompat.java"
+            line="387"
+            column="39"/>
+    </issue>
+
+    <issue
+        id="UnknownNullness"
+        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
+        errorLine1="    public int indexOfValue(E value) {"
+        errorLine2="                            ~">
+        <location
+            file="src/main/java/androidx/collection/SparseArrayCompat.java"
+            line="418"
+            column="29"/>
+    </issue>
+
+    <issue
+        id="UnknownNullness"
+        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
+        errorLine1="    public boolean containsValue(E value) {"
+        errorLine2="                                 ~">
+        <location
+            file="src/main/java/androidx/collection/SparseArrayCompat.java"
+            line="436"
+            column="34"/>
+    </issue>
+
+    <issue
+        id="UnknownNullness"
+        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
+        errorLine1="    public void append(int key, E value) {"
+        errorLine2="                                ~">
+        <location
+            file="src/main/java/androidx/collection/SparseArrayCompat.java"
+            line="459"
+            column="33"/>
+    </issue>
+
+</issues>

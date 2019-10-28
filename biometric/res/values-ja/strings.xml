@@ -26,4 +26,6 @@
     <string name="fingerprint_error_user_canceled" msgid="3421037373085129417">"指紋認証操作がユーザーによりキャンセルされました。"</string>
     <string name="fingerprint_error_lockout" msgid="1651062876313169162">"入力回数が上限を超えました。しばらくしてからもう一度お試しください。"</string>
     <string name="default_error_msg" msgid="7497355367608150274">"不明なエラーです"</string>
+    <string name="generic_error_user_canceled" msgid="7474799539658018076">"認証はユーザーによりキャンセルされました。"</string>
+    <string name="confirm_device_credential_password" msgid="4296851028928624518">"パスワードを使用"</string>
 </resources>

@@ -46,8 +46,15 @@ limitations under the License.
              items in the PagedListView. There is a default value that changes per screen size if
              a gutter size is not explicitly set.-->
         <attr name="gutterSize" format="dimension" />
-        <!-- Whether to display the scrollbar or not. Defaults to true. -->
+        <!-- @deprecated Use scrollBarVisibleIfNeeded instead -->
         <attr name="scrollBarEnabled" format="boolean" />
+        <!-- Whether to display the scrollbar when the list is scrollable. Defaults to true. -->
+        <attr name="scrollBarVisibleIfNeeded" format="boolean" />
+        <!-- Whether to display a divider between the scrollbar and list content when the
+        scrollbar is present. -->
+        <attr name="scrollBarDividerVisibleIfNeeded" format="boolean" />
+        <!-- The width of the scrollbar divider . -->
+        <attr name="scrollBarDividerWidth" format="dimension" />
         <!-- The top margin before the scroll bar is drawn. -->
         <attr name="scrollBarTopMargin" format="dimension" />
         <!-- The width of the container that will hold the scrollbar. The scrollbar is centered
@@ -120,6 +127,12 @@ limitations under the License.
     <!-- The configuration for modifying the ListItem. These ListItems are only intended to be used
          within a PagedListView. -->
     <declare-styleable name="ListItem">
+        <!-- The accent color of each ListItem when the item is in focus and not in touch mode. -->
+        <attr name="listItemFocusOutlineColor" format="color"/>
+        <!-- The foreground of each ListItem. -->
+        <attr name="listItemForeground" format="reference"/>
+        <!-- The background drawable of each ListItem. -->
+        <attr name="listItemBackground" format="reference"/>
         <!-- The background color of each ListItem. -->
         <attr name="listItemBackgroundColor" format="color"/>
         <!-- The TextAppearance of the title text in the ListItem. -->

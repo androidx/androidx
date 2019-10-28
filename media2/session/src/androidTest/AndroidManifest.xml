@@ -16,7 +16,6 @@
 -->
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
           package="androidx.media2.session.test">
-    <uses-sdk android:targetSdkVersion="${target-sdk-version}"/>
 
     <uses-permission android:name="android.permission.FOREGROUND_SERVICE" />
     <uses-permission android:name="android.permission.INTERNET" />
@@ -24,6 +23,7 @@
 
     <application android:usesCleartextTraffic="true">
         <activity android:name="androidx.media2.session.MockActivity" />
+        <activity android:name="androidx.media2.session.SurfaceActivity" />
 
         <!-- Keep the test services synced together with the MockMediaSessionService -->
         <service android:name="androidx.media2.session.MockMediaSessionService">

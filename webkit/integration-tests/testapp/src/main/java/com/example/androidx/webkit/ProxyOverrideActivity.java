@@ -52,9 +52,9 @@ public class ProxyOverrideActivity extends AppCompatActivity {
 
         // Initialize proxy server
         // Skip this step if you already have a proxy url
-        mProxy = new Proxy(0, () -> mRequestCountTextView.setText(getResources().getString(
-                    R.string.proxy_override_requests_served, mProxy.getRequestCount()))
-        );
+        mProxy = new Proxy(0, () -> runOnUiThread(() -> mRequestCountTextView.setText(
+                getResources().getString(R.string.proxy_override_requests_served,
+                        mProxy.getRequestCount()))));
         mProxy.start();
 
         // Initialize views
@@ -89,8 +89,7 @@ public class ProxyOverrideActivity extends AppCompatActivity {
             // If feature is not supported, just show a warning in the webview
             mRequestCountTextView.setVisibility(View.GONE);
             mNavigationBar.setVisibility(View.GONE);
-            mWebView.loadData("<html><body>Proxy override not available</body></html>",
-                    "text/html", null);
+            WebkitHelpers.showMessageInActivity(this, R.string.webkit_api_not_available);
             return;
         }
 

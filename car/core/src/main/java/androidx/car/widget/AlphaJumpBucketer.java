@@ -16,11 +16,12 @@
 
 package androidx.car.widget;
 
+import androidx.core.util.Predicate;
+
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Iterator;
 import java.util.List;
-import java.util.function.Predicate;
 
 /**
  * A helper class for building the list of buckets for alpha jump.

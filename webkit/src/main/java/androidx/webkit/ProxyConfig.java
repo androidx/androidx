@@ -23,6 +23,7 @@ import androidx.annotation.StringDef;
 import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 import java.util.concurrent.Executor;
 
@@ -39,15 +40,11 @@ import java.util.concurrent.Executor;
  * <pre class="prettyprint">
  * ProxyConfig proxyConfig = new ProxyConfig.Builder().addProxyRule("proxy1.com")
  *                                                    .addProxyRule("proxy2.com")
- *                                                    .addProxyRule(ProxyConfig.DIRECT)
+ *                                                    .addDirect()
  *                                                    .build();
  * </pre>
  */
-public class ProxyConfig {
-    /**
-     * Connect to URLs directly instead of using a proxy server.
-     */
-    public static final String DIRECT = "direct://";
+public final class ProxyConfig {
     /**
      * HTTP scheme.
      */
@@ -61,41 +58,96 @@ public class ProxyConfig {
      */
     public static final String MATCH_ALL_SCHEMES = "*";
     /** @hide */
-    @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP_PREFIX)
+    @RestrictTo(RestrictTo.Scope.LIBRARY)
     @StringDef({MATCH_HTTP, MATCH_HTTPS, MATCH_ALL_SCHEMES})
     @Retention(RetentionPolicy.SOURCE)
     public @interface ProxyScheme {}
+    private static final String DIRECT = "direct://";
     private static final String BYPASS_RULE_SIMPLE_NAMES = "<local>";
-    private static final String BYPASS_RULE_SUBTRACT_IMPLICIT = "<-loopback>";
+    private static final String BYPASS_RULE_REMOVE_IMPLICIT = "<-loopback>";
 
-    private List<String[]> mProxyRules;
+    private List<ProxyRule> mProxyRules;
     private List<String> mBypassRules;
 
     /**
      * @hide Internal use only
      */
-    @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP_PREFIX)
-    public ProxyConfig(List<String[]> proxyRules, List<String> bypassRules) {
+    @RestrictTo(RestrictTo.Scope.LIBRARY)
+    public ProxyConfig(@NonNull List<ProxyRule> proxyRules, @NonNull List<String> bypassRules) {
         mProxyRules = proxyRules;
         mBypassRules = bypassRules;
     }
 
     /**
-     * @hide Internal use only
+     * Returns the current list of proxy rules. Each {@link ProxyRule} object
+     * holds the proxy URL and the URL schemes for which this proxy is used (one of
+     * {@code MATCH_HTTP}, {@code MATCH_HTTPS}, {@code MATCH_ALL_SCHEMES}).
+     *
+     * <p>To add new rules use {@link Builder#addProxyRule(String)} or
+     * {@link Builder#addProxyRule(String, String)}.
+     *
+     * @return List of proxy rules
      */
-    @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP_PREFIX)
     @NonNull
-    public List<String[]> proxyRules() {
-        return mProxyRules;
+    public List<ProxyRule> getProxyRules() {
+        return Collections.unmodifiableList(mProxyRules);
     }
 
     /**
-     * @hide Internal use only
+     * Returns the current list that holds the bypass rules represented by this object.
+     *
+     * <p>To add new rules use {@link Builder#addBypassRule(String)}.
+     *
+     * @return List of bypass rules
      */
-    @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP_PREFIX)
     @NonNull
-    public List<String> bypassRules() {
-        return mBypassRules;
+    public List<String> getBypassRules() {
+        return Collections.unmodifiableList(mBypassRules);
+    }
+
+    /**
+     * Class that holds a scheme filter and a proxy URL.
+     */
+    public static final class ProxyRule {
+        private String mSchemeFilter;
+        private String mUrl;
+
+        /**
+         * @hide Internal use only
+         */
+        @RestrictTo(RestrictTo.Scope.LIBRARY)
+        public ProxyRule(@NonNull String schemeFilter, @NonNull String url) {
+            mSchemeFilter = schemeFilter;
+            mUrl = url;
+        }
+
+        /**
+         * @hide Internal use only
+         */
+        @RestrictTo(RestrictTo.Scope.LIBRARY)
+        public ProxyRule(@NonNull String url) {
+            this(ProxyConfig.MATCH_ALL_SCHEMES, url);
+        }
+
+        /**
+         * Returns the {@link String} that represents the scheme filter for this object.
+         *
+         * @return Scheme filter
+         */
+        @NonNull
+        public String getSchemeFilter() {
+            return mSchemeFilter;
+        }
+
+        /**
+         * Returns the {@link String} that represents the proxy URL for this object.
+         *
+         * @return Proxy URL
+         */
+        @NonNull
+        public String getUrl() {
+            return mUrl;
+        }
     }
 
     /**
@@ -108,7 +160,7 @@ public class ProxyConfig {
      * connections to be made directly.
      */
     public static final class Builder {
-        private List<String[]> mProxyRules;
+        private List<ProxyRule> mProxyRules;
         private List<String> mBypassRules;
 
         /**
@@ -123,12 +175,14 @@ public class ProxyConfig {
          * Create a ProxyConfig Builder from an existing ProxyConfig object.
          */
         public Builder(@NonNull ProxyConfig proxyConfig) {
-            mProxyRules = proxyConfig.proxyRules();
-            mBypassRules = proxyConfig.bypassRules();
+            mProxyRules = proxyConfig.getProxyRules();
+            mBypassRules = proxyConfig.getBypassRules();
         }
 
         /**
          * Builds the current rules into a ProxyConfig object.
+         *
+         * @return The ProxyConfig object represented by this Builder
          */
         @NonNull
         public ProxyConfig build() {
@@ -136,12 +190,13 @@ public class ProxyConfig {
         }
 
         /**
-         * Adds a proxy to be used for all URLs.
-         * <p>Proxy is either {@link ProxyConfig#DIRECT} or a string in the format
-         * {@code [scheme://]host[:port]}. Scheme is optional, if present must be {@code HTTP},
-         * {@code HTTPS} or <a href="https://tools.ietf.org/html/rfc1928">SOCKS</a> and defaults to
-         * {@code HTTP}. Host is one of an IPv6 literal with brackets, an IPv4 literal or one or
-         * more labels separated by a period. Port number is optional and defaults to {@code 80} for
+         * Adds a proxy to be used for all URLs. This method can be called multiple times to add
+         * multiple rules. Additional rules have decreasing precedence.
+         * <p>Proxy is a string in the format {@code [scheme://]host[:port]}. Scheme is optional, if
+         * present must be {@code HTTP}, {@code HTTPS} or
+         * <a href="https://tools.ietf.org/html/rfc1928">SOCKS</a> and defaults to {@code HTTP}.
+         * Host is one of an IPv6 literal with brackets, an IPv4 literal or one or more labels
+         * separated by a period. Port number is optional and defaults to {@code 80} for
          * {@code HTTP}, {@code 443} for {@code HTTPS} and {@code 1080} for {@code SOCKS}.
          * <p>
          * The correct syntax for hosts is defined by
@@ -161,10 +216,12 @@ public class ProxyConfig {
          * </table>
          *
          * @param proxyUrl Proxy URL
+         * @return This Builder object
          */
         @NonNull
         public Builder addProxyRule(@NonNull String proxyUrl) {
-            return addProxyRule(proxyUrl, MATCH_ALL_SCHEMES);
+            mProxyRules.add(new ProxyRule(proxyUrl));
+            return this;
         }
 
         /**
@@ -175,23 +232,24 @@ public class ProxyConfig {
          *
          * @param proxyUrl Proxy URL
          * @param schemeFilter Scheme filter
+         * @return This Builder object
          */
         @NonNull
         public Builder addProxyRule(@NonNull String proxyUrl,
                 @NonNull @ProxyScheme String schemeFilter) {
-            String[] rule = {schemeFilter, proxyUrl};
-            mProxyRules.add(rule);
+            mProxyRules.add(new ProxyRule(schemeFilter, proxyUrl));
             return this;
         }
 
         /**
          * Adds a new bypass rule that describes URLs that should skip proxy override settings
-         * and make a direct connection instead. Wildcards are accepted. For instance, the rule
-         * {@code "*example.com"} would mean that requests to {@code "http://example.com"} and
-         * {@code "www.example.com"} would not be directed to any proxy, instead, would be made
-         * directly to the origin specified by the URL.
+         * and make a direct connection instead. These can be URLs or IP addresses. Wildcards are
+         * accepted. For instance, the rule {@code "*example.com"} would mean that requests to
+         * {@code "http://example.com"} and {@code "www.example.com"} would not be directed to any
+         * proxy, instead, would be made directly to the origin specified by the URL.
          *
          * @param bypassRule Rule to be added to the exclusion list
+         * @return This Builder object
          */
         @NonNull
         public Builder addBypassRule(@NonNull String bypassRule) {
@@ -200,11 +258,36 @@ public class ProxyConfig {
         }
 
         /**
+         * Adds a proxy rule so URLs that match the scheme filter are connected to directly instead
+         * of using a proxy server.
+         *
+         * @param schemeFilter Scheme filter
+         * @return This Builder object
+         */
+        @NonNull
+        public Builder addDirect(@NonNull @ProxyScheme String schemeFilter) {
+            mProxyRules.add(new ProxyRule(schemeFilter, DIRECT));
+            return this;
+        }
+
+        /**
+         * Adds a proxy rule so URLs are connected to directly instead of using a proxy server.
+         *
+         * @return This Builder object
+         */
+        @NonNull
+        public Builder addDirect() {
+            return addDirect(MATCH_ALL_SCHEMES);
+        }
+
+        /**
          * Hostnames without a period in them (and that are not IP literals) will skip proxy
          * settings and be connected to directly instead. Examples: {@code "abc"}, {@code "local"},
          * {@code "some-domain"}.
          * <p>
          * Hostnames with a trailing dot are not considered simple by this definition.
+         *
+         * @return This Builder object
          */
         @NonNull
         public Builder bypassSimpleHostnames() {
@@ -225,14 +308,16 @@ public class ProxyConfig {
          * <p>
          * Call this function to override the default behavior and force localhost and link-local
          * URLs to be sent through the proxy.
+         *
+         * @return This Builder object
          */
         @NonNull
-        public Builder subtractImplicitRules() {
-            return addBypassRule(BYPASS_RULE_SUBTRACT_IMPLICIT);
+        public Builder removeImplicitRules() {
+            return addBypassRule(BYPASS_RULE_REMOVE_IMPLICIT);
         }
 
         @NonNull
-        private List<String[]> proxyRules() {
+        private List<ProxyRule> proxyRules() {
             return mProxyRules;
         }
 

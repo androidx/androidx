@@ -28,8 +28,6 @@ import androidx.annotation.RestrictTo;
 import androidx.annotation.VisibleForTesting;
 import androidx.annotation.WorkerThread;
 import androidx.arch.core.internal.SafeIterableMap;
-import androidx.collection.ArrayMap;
-import androidx.collection.ArraySet;
 import androidx.lifecycle.LiveData;
 import androidx.sqlite.db.SimpleSQLiteQuery;
 import androidx.sqlite.db.SupportSQLiteDatabase;
@@ -37,9 +35,9 @@ import androidx.sqlite.db.SupportSQLiteStatement;
 
 import java.lang.ref.WeakReference;
 import java.util.Arrays;
-import java.util.BitSet;
 import java.util.Collections;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.Locale;
 import java.util.Map;
 import java.util.Set;
@@ -86,15 +84,11 @@ public class InvalidationTracker {
 
     @NonNull
     @VisibleForTesting
-    final ArrayMap<String, Integer> mTableIdLookup;
+    final HashMap<String, Integer> mTableIdLookup;
     final String[] mTableNames;
 
     @NonNull
     private Map<String, Set<String>> mViewTables;
-
-    @NonNull
-    @VisibleForTesting
-    final BitSet mTableInvalidStatus;
 
     @SuppressWarnings("WeakerAccess") /* synthetic access */
     final RoomDatabase mDatabase;
@@ -140,7 +134,7 @@ public class InvalidationTracker {
             Map<String, Set<String>> viewTables, String... tableNames) {
         mDatabase = database;
         mObservedTableTracker = new ObservedTableTracker(tableNames.length);
-        mTableIdLookup = new ArrayMap<>();
+        mTableIdLookup = new HashMap<>();
         mViewTables = viewTables;
         mInvalidationLiveDataContainer = new InvalidationLiveDataContainer(mDatabase);
         final int size = tableNames.length;
@@ -164,7 +158,6 @@ public class InvalidationTracker {
                 mTableIdLookup.put(tableName, mTableIdLookup.get(shadowTableName));
             }
         }
-        mTableInvalidStatus = new BitSet(tableNames.length);
     }
 
     /**
@@ -179,15 +172,11 @@ public class InvalidationTracker {
                 return;
             }
 
-            database.beginTransaction();
-            try {
-                database.execSQL("PRAGMA temp_store = MEMORY;");
-                database.execSQL("PRAGMA recursive_triggers='ON';");
-                database.execSQL(CREATE_TRACKING_TABLE_SQL);
-                database.setTransactionSuccessful();
-            } finally {
-                database.endTransaction();
-            }
+            // These actions are not in a transaction because temp_store is not allowed to be
+            // performed on a transaction, and recursive_triggers is not affected by transactions.
+            database.execSQL("PRAGMA temp_store = MEMORY;");
+            database.execSQL("PRAGMA recursive_triggers='ON';");
+            database.execSQL(CREATE_TRACKING_TABLE_SQL);
             syncTriggers(database);
             mCleanupStatement = database.compileStatement(RESET_UPDATED_TABLES_SQL);
             mInitialized = true;
@@ -305,7 +294,7 @@ public class InvalidationTracker {
      * @return The names of the underlying tables.
      */
     private String[] resolveViews(String[] names) {
-        Set<String> tables = new ArraySet<>();
+        Set<String> tables = new HashSet<>();
         for (String name : names) {
             final String lowercase = name.toLowerCase(Locale.US);
             if (mViewTables.containsKey(lowercase)) {
@@ -371,7 +360,7 @@ public class InvalidationTracker {
         @Override
         public void run() {
             final Lock closeLock = mDatabase.getCloseLock();
-            boolean hasUpdatedTable = false;
+            Set<Integer> invalidatedTableIds = null;
             try {
                 closeLock.lock();
 
@@ -397,13 +386,13 @@ public class InvalidationTracker {
                     SupportSQLiteDatabase db = mDatabase.getOpenHelper().getWritableDatabase();
                     db.beginTransaction();
                     try {
-                        hasUpdatedTable = checkUpdatedTable();
+                        invalidatedTableIds = checkUpdatedTable();
                         db.setTransactionSuccessful();
                     } finally {
                         db.endTransaction();
                     }
                 } else {
-                    hasUpdatedTable = checkUpdatedTable();
+                    invalidatedTableIds = checkUpdatedTable();
                 }
             } catch (IllegalStateException | SQLiteException exception) {
                 // may happen if db is closed. just log.
@@ -412,34 +401,31 @@ public class InvalidationTracker {
             } finally {
                 closeLock.unlock();
             }
-            if (hasUpdatedTable) {
+            if (invalidatedTableIds != null && !invalidatedTableIds.isEmpty()) {
                 synchronized (mObserverMap) {
                     for (Map.Entry<Observer, ObserverWrapper> entry : mObserverMap) {
-                        entry.getValue().notifyByTableInvalidStatus(mTableInvalidStatus);
+                        entry.getValue().notifyByTableInvalidStatus(invalidatedTableIds);
                     }
                 }
-                // Reset invalidated status flags.
-                mTableInvalidStatus.clear();
             }
         }
 
-        private boolean checkUpdatedTable() {
-            boolean hasUpdatedTable = false;
+        private Set<Integer> checkUpdatedTable() {
+            HashSet<Integer> invalidatedTableIds = new HashSet<>();
             Cursor cursor = mDatabase.query(new SimpleSQLiteQuery(SELECT_UPDATED_TABLES_SQL));
             //noinspection TryFinallyCanBeTryWithResources
             try {
                 while (cursor.moveToNext()) {
                     final int tableId = cursor.getInt(0);
-                    mTableInvalidStatus.set(tableId);
-                    hasUpdatedTable = true;
+                    invalidatedTableIds.add(tableId);
                 }
             } finally {
                 cursor.close();
             }
-            if (hasUpdatedTable) {
+            if (!invalidatedTableIds.isEmpty()) {
                 mCleanupStatement.executeUpdateDelete();
             }
-            return hasUpdatedTable;
+            return invalidatedTableIds;
         }
     };
 
@@ -614,7 +600,7 @@ public class InvalidationTracker {
             mTableIds = tableIds;
             mTableNames = tableNames;
             if (tableIds.length == 1) {
-                ArraySet<String> set = new ArraySet<>();
+                HashSet<String> set = new HashSet<>();
                 set.add(mTableNames[0]);
                 mSingleTableSet = Collections.unmodifiableSet(set);
             } else {
@@ -626,20 +612,20 @@ public class InvalidationTracker {
          * Notifies the underlying {@link #mObserver} if any of the observed tables are invalidated
          * based on the given invalid status set.
          *
-         * @param tableInvalidStatus The table invalid statuses.
+         * @param invalidatedTablesIds The table ids of the tables that are invalidated.
          */
-        void notifyByTableInvalidStatus(BitSet tableInvalidStatus) {
+        void notifyByTableInvalidStatus(Set<Integer> invalidatedTablesIds) {
             Set<String> invalidatedTables = null;
             final int size = mTableIds.length;
             for (int index = 0; index < size; index++) {
                 final int tableId = mTableIds[index];
-                if (tableInvalidStatus.get(tableId)) {
+                if (invalidatedTablesIds.contains(tableId)) {
                     if (size == 1) {
                         // Optimization for a single-table observer
                         invalidatedTables = mSingleTableSet;
                     } else {
                         if (invalidatedTables == null) {
-                            invalidatedTables = new ArraySet<>(size);
+                            invalidatedTables = new HashSet<>(size);
                         }
                         invalidatedTables.add(mTableNames[index]);
                     }
@@ -667,7 +653,7 @@ public class InvalidationTracker {
                     }
                 }
             } else {
-                ArraySet<String> set = new ArraySet<>();
+                HashSet<String> set = new HashSet<>();
                 for (String table : tables) {
                     for (String ourTable : mTableNames) {
                         if (ourTable.equalsIgnoreCase(table)) {

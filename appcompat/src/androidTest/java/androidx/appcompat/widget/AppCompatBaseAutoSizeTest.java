@@ -42,6 +42,7 @@ import androidx.appcompat.testutils.BaseTestActivity;
 import androidx.core.content.res.ResourcesCompat;
 import androidx.core.widget.AutoSizeableTextView;
 import androidx.core.widget.TextViewCompat;
+import androidx.test.filters.LargeTest;
 import androidx.test.filters.MediumTest;
 import androidx.test.filters.SdkSuppress;
 import androidx.test.filters.SmallTest;
@@ -68,7 +69,7 @@ public abstract class AppCompatBaseAutoSizeTest<A extends BaseTestActivity,
     protected Instrumentation mInstrumentation;
     protected ViewGroup mContainer;
 
-    public AppCompatBaseAutoSizeTest(Class clazz) {
+    public AppCompatBaseAutoSizeTest(Class<A> clazz) {
         mActivityTestRule = new ActivityTestRule<A>(clazz);
     }
 
@@ -189,7 +190,7 @@ public abstract class AppCompatBaseAutoSizeTest<A extends BaseTestActivity,
     }
 
     @Test
-    @MediumTest
+    @LargeTest
     public void testAutoSizeCallers_setText() throws Throwable {
         final T autoSizeView = prepareAndRetrieveAutoSizeTestData(R.id.view_autosize_uniform,
                 false);
@@ -884,7 +885,7 @@ public abstract class AppCompatBaseAutoSizeTest<A extends BaseTestActivity,
     }
 
     @Test(expected = NullPointerException.class)
-    @SmallTest
+    @MediumTest
     public void testAutoSizeUniform_predefinedSizesNullArray() throws Throwable {
         final T view = mActivity.findViewById(R.id.view_text);
         assertEquals(TextViewCompat.AUTO_SIZE_TEXT_TYPE_NONE,

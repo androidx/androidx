@@ -53,7 +53,6 @@ import androidx.core.content.ContextCompat;
 import androidx.core.view.AccessibilityDelegateCompat;
 import androidx.core.view.ViewCompat;
 import androidx.core.view.WindowInsetsCompat;
-import androidx.core.view.accessibility.AccessibilityEventCompat;
 import androidx.core.view.accessibility.AccessibilityNodeInfoCompat;
 import androidx.customview.view.AbsSavedState;
 
@@ -108,8 +107,6 @@ import java.util.List;
 public class ViewPager extends ViewGroup {
     private static final String TAG = "ViewPager";
     private static final boolean DEBUG = false;
-
-    private static final boolean USE_CACHE = false;
 
     private static final int DEFAULT_OFFSCREEN_PAGES = 1;
     private static final int MAX_SETTLE_DURATION = 600; // ms
@@ -1476,14 +1473,6 @@ public class ViewPager extends ViewGroup {
         } else {
             super.addView(child, index, params);
         }
-
-        if (USE_CACHE) {
-            if (child.getVisibility() != GONE) {
-                child.setDrawingCacheEnabled(mScrollingCacheEnabled);
-            } else {
-                child.setDrawingCacheEnabled(false);
-            }
-        }
     }
 
     private static boolean isDecorView(@NonNull View view) {
@@ -2681,15 +2670,6 @@ public class ViewPager extends ViewGroup {
     private void setScrollingCacheEnabled(boolean enabled) {
         if (mScrollingCacheEnabled != enabled) {
             mScrollingCacheEnabled = enabled;
-            if (USE_CACHE) {
-                final int size = getChildCount();
-                for (int i = 0; i < size; ++i) {
-                    final View child = getChildAt(i);
-                    if (child.getVisibility() != GONE) {
-                        child.setDrawingCacheEnabled(enabled);
-                    }
-                }
-            }
         }
     }
 
@@ -3007,7 +2987,7 @@ public class ViewPager extends ViewGroup {
     @Override
     public boolean dispatchPopulateAccessibilityEvent(AccessibilityEvent event) {
         // Dispatch scroll events from this ViewPager.
-        if (event.getEventType() == AccessibilityEventCompat.TYPE_VIEW_SCROLLED) {
+        if (event.getEventType() == AccessibilityEvent.TYPE_VIEW_SCROLLED) {
             return super.dispatchPopulateAccessibilityEvent(event);
         }
 

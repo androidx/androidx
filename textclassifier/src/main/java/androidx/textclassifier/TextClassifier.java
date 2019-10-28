@@ -16,6 +16,7 @@
 
 package androidx.textclassifier;
 
+import android.os.Build;
 import android.os.Bundle;
 import android.os.Looper;
 
@@ -33,6 +34,7 @@ import java.lang.annotation.RetentionPolicy;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
+import java.util.List;
 import java.util.Set;
 
 /**
@@ -195,6 +197,18 @@ public abstract class TextClassifier {
     }
 
     /**
+     * Suggests and returns a list of actions according to the given conversation.
+     */
+    @WorkerThread
+    @NonNull
+    public ConversationActions suggestConversationActions(
+            @NonNull ConversationActions.Request request) {
+        Preconditions.checkNotNull(request);
+        ensureNotOnMainThread();
+        return new ConversationActions(Collections.<ConversationAction>emptyList(), null);
+    }
+
+    /**
      * Returns the maximal length of text that can be processed by generateLinks.
      *
      * @see #generateLinks(TextLinks.Request)
@@ -242,44 +256,59 @@ public abstract class TextClassifier {
         private static final String EXTRA_INCLUDED_ENTITY_TYPES = "included";
         private static final String EXTRA_INCLUDE_ENTITY_TYPES_FROM_TC =
                 "include_entity_types_from_tc";
+        private static final String EXTRA_PLATFORM_ENTITY_CONFIG = "platform_entity_config";
 
-        private final Collection<String> mHints;
-        private final Collection<String> mExcludedEntityTypes;
-        private final Collection<String> mIncludedEntityTypes;
-        private final boolean mIncludeDefaultEntityTypes;
+        private final List<String> mHints;
+        private final List<String> mExcludedTypes;
+        private final List<String> mIncludedTypes;
+        private final boolean mIncludeTypesFromTextClassifier;
+        private final PlatformEntityConfigWrapper mPlatformEntityConfigWrapper;
 
         EntityConfig(
-                Collection<String> includedEntityTypes,
-                Collection<String> excludedEntityTypes,
+                Collection<String> includedTypes,
+                Collection<String> excludedTypes,
                 Collection<String> hints,
-                boolean includeDefaultEntityTypes) {
-            mIncludedEntityTypes = includedEntityTypes == null
-                    ? Collections.<String>emptyList() : new ArraySet<>(includedEntityTypes);
-            mExcludedEntityTypes = excludedEntityTypes == null
-                    ? Collections.<String>emptyList() : new ArraySet<>(excludedEntityTypes);
+                boolean includeTypesFromTextClassifier,
+                @Nullable PlatformEntityConfigWrapper platformEntityConfigWrapper) {
+            mIncludedTypes = includedTypes == null
+                    ? Collections.<String>emptyList() : new ArrayList<>(includedTypes);
+            mExcludedTypes = excludedTypes == null
+                    ? Collections.<String>emptyList() : new ArrayList<>(excludedTypes);
             mHints = hints == null
                     ? Collections.<String>emptyList()
-                    : Collections.unmodifiableCollection(new ArraySet<>(hints));
-            mIncludeDefaultEntityTypes = includeDefaultEntityTypes;
+                    : new ArrayList<>(hints);
+            mIncludeTypesFromTextClassifier = includeTypesFromTextClassifier;
+            mPlatformEntityConfigWrapper = platformEntityConfigWrapper;
+        }
+
+        /**
+         * Creates an androidX {@link EntityConfig} object by wrapping the platform
+         * {@link android.view.textclassifier.TextClassifier.EntityConfig} object.
+         */
+        private EntityConfig(@NonNull PlatformEntityConfigWrapper platformEntityConfigWrapper) {
+            this(null, null, null, false, Preconditions.checkNotNull(platformEntityConfigWrapper));
         }
 
         /**
          * Returns a final list of entity types that the text classifier should look for.
          * <p>NOTE: This method is intended for use by text classifier.
          *
-         * @param defaultEntityTypes entity types the text classifier thinks should be included
+         * @param typesFromTextClassifier entity types the text classifier thinks should be included
          *                           before factoring in the included/excluded entity types given
          *                           by the client.
          */
-        public Collection<String> resolveEntityTypes(
-                @Nullable Collection<String> defaultEntityTypes) {
-            Set<String> entityTypes = new ArraySet<>();
-            if (mIncludeDefaultEntityTypes && defaultEntityTypes != null) {
-                entityTypes.addAll(defaultEntityTypes);
+        public Collection<String> resolveTypes(
+                @Nullable Collection<String> typesFromTextClassifier) {
+            if (mPlatformEntityConfigWrapper != null && Build.VERSION.SDK_INT >= 28) {
+                return mPlatformEntityConfigWrapper.resolveEntityTypes(typesFromTextClassifier);
             }
-            entityTypes.addAll(mIncludedEntityTypes);
-            entityTypes.removeAll(mExcludedEntityTypes);
-            return Collections.unmodifiableCollection(entityTypes);
+            Set<String> types = new ArraySet<>();
+            if (mIncludeTypesFromTextClassifier && typesFromTextClassifier != null) {
+                types.addAll(typesFromTextClassifier);
+            }
+            types.addAll(mIncludedTypes);
+            types.removeAll(mExcludedTypes);
+            return Collections.unmodifiableCollection(types);
         }
 
         /**
@@ -289,20 +318,26 @@ public abstract class TextClassifier {
          */
         @NonNull
         public Collection<String> getHints() {
+            if (mPlatformEntityConfigWrapper != null && Build.VERSION.SDK_INT >= 28) {
+                return mPlatformEntityConfigWrapper.getHints();
+            }
             return mHints;
         }
 
         /**
          * Return whether the client allows the text classifier to include its own list of default
          * entity types. If this functions returns {@code true}, text classifier can consider
-         * to specify its own list in {@link #resolveEntityTypes(Collection)}.
+         * to specify its own list in {@link #resolveTypes(Collection)}.
          *
          * <p>NOTE: This method is intended for use by text classifier.
          *
-         * @see #resolveEntityTypes(Collection)
+         * @see #resolveTypes(Collection)
          */
-        public boolean shouldIncludeDefaultEntityTypes() {
-            return mIncludeDefaultEntityTypes;
+        public boolean shouldIncludeTypesFromTextClassifier() {
+            if (mPlatformEntityConfigWrapper != null && Build.VERSION.SDK_INT >= 28) {
+                return mPlatformEntityConfigWrapper.shouldIncludeDefaultEntityTypes();
+            }
+            return mIncludeTypesFromTextClassifier;
         }
 
         /**
@@ -313,12 +348,13 @@ public abstract class TextClassifier {
         public Bundle toBundle() {
             final Bundle bundle = new Bundle();
             bundle.putStringArrayList(EXTRA_HINTS, new ArrayList<>(mHints));
-            bundle.putStringArrayList(EXTRA_INCLUDED_ENTITY_TYPES,
-                    new ArrayList<>(mIncludedEntityTypes));
-            bundle.putStringArrayList(EXTRA_EXCLUDED_ENTITY_TYPES,
-                    new ArrayList<>(mExcludedEntityTypes));
-            bundle.putBoolean(EXTRA_INCLUDE_ENTITY_TYPES_FROM_TC,
-                    mIncludeDefaultEntityTypes);
+            bundle.putStringArrayList(EXTRA_INCLUDED_ENTITY_TYPES, new ArrayList<>(mIncludedTypes));
+            bundle.putStringArrayList(EXTRA_EXCLUDED_ENTITY_TYPES, new ArrayList<>(mExcludedTypes));
+            bundle.putBoolean(EXTRA_INCLUDE_ENTITY_TYPES_FROM_TC, mIncludeTypesFromTextClassifier);
+            if (mPlatformEntityConfigWrapper != null && Build.VERSION.SDK_INT >= 28) {
+                bundle.putParcelable(
+                        EXTRA_PLATFORM_ENTITY_CONFIG, mPlatformEntityConfigWrapper.toBundle());
+            }
             return bundle;
         }
 
@@ -327,11 +363,65 @@ public abstract class TextClassifier {
          */
         @NonNull
         public static EntityConfig createFromBundle(@NonNull Bundle bundle) {
+            PlatformEntityConfigWrapper platformEntityConfigWrapper = null;
+            if (Build.VERSION.SDK_INT >= 28) {
+                platformEntityConfigWrapper = PlatformEntityConfigWrapper.createFromBundle(
+                        bundle.getBundle(EXTRA_PLATFORM_ENTITY_CONFIG));
+            }
             return new EntityConfig(
                     bundle.getStringArrayList(EXTRA_INCLUDED_ENTITY_TYPES),
                     bundle.getStringArrayList(EXTRA_EXCLUDED_ENTITY_TYPES),
                     bundle.getStringArrayList(EXTRA_HINTS),
-                    bundle.getBoolean(EXTRA_INCLUDE_ENTITY_TYPES_FROM_TC));
+                    bundle.getBoolean(EXTRA_INCLUDE_ENTITY_TYPES_FROM_TC),
+                    platformEntityConfigWrapper);
+        }
+
+        /** @hide */
+        @RestrictTo(RestrictTo.Scope.LIBRARY)
+        @RequiresApi(28)
+        @NonNull
+        public android.view.textclassifier.TextClassifier.EntityConfig toPlatform() {
+            if (Build.VERSION.SDK_INT >= 29) {
+                return toPlatformQ();
+            }
+            return toPlatformP();
+        }
+
+        @RequiresApi(28)
+        private android.view.textclassifier.TextClassifier.EntityConfig toPlatformP() {
+            if (mIncludeTypesFromTextClassifier) {
+                return android.view.textclassifier.TextClassifier.EntityConfig.create(
+                        mHints,
+                        mIncludedTypes,
+                        mExcludedTypes
+                );
+            }
+            Set<String> entitiesSet = new ArraySet<>(mIncludedTypes);
+            entitiesSet.removeAll(mExcludedTypes);
+            return android.view.textclassifier.TextClassifier.EntityConfig
+                    .createWithExplicitEntityList(new ArrayList<>(entitiesSet));
+        }
+
+        @RequiresApi(29)
+        private android.view.textclassifier.TextClassifier.EntityConfig toPlatformQ() {
+            return new android.view.textclassifier.TextClassifier.EntityConfig.Builder()
+                    .setIncludedTypes(mIncludedTypes)
+                    .setExcludedTypes(mExcludedTypes)
+                    .setHints(mHints)
+                    .includeTypesFromTextClassifier(mIncludeTypesFromTextClassifier)
+                    .build();
+        }
+
+        /** @hide */
+        @RestrictTo(RestrictTo.Scope.LIBRARY)
+        @RequiresApi(28)
+        @Nullable
+        public static EntityConfig fromPlatform(
+                @Nullable android.view.textclassifier.TextClassifier.EntityConfig entityConfig) {
+            if (entityConfig == null) {
+                return null;
+            }
+            return new EntityConfig(new PlatformEntityConfigWrapper(entityConfig));
         }
 
         /**
@@ -341,26 +431,24 @@ public abstract class TextClassifier {
             @Nullable
             private Collection<String> mHints;
             @Nullable
-            private Collection<String> mExcludedEntityTypes;
+            private Collection<String> mExcludedTypes;
             @Nullable
-            private Collection<String> mIncludedEntityTypes;
-            private boolean mIncludeDefaultEntityTypes = true;
+            private Collection<String> mIncludedTypes;
+            private boolean mIncludeTypesFromTextClassifier = true;
 
             /**
              * Sets a collection of entity types that are explicitly included.
              */
-            public Builder setIncludedEntityTypes(
-                    @Nullable Collection<String> includedEntityTypes) {
-                mIncludedEntityTypes = includedEntityTypes;
+            public Builder setIncludedTypes(@Nullable Collection<String> includedTypes) {
+                mIncludedTypes = includedTypes;
                 return this;
             }
 
             /**
              * Sets a collection of entity types that are explicitly excluded.
              */
-            public Builder setExcludedEntityTypes(
-                    @Nullable Collection<String> excludedEntityTypes) {
-                mExcludedEntityTypes = excludedEntityTypes;
+            public Builder setExcludedTypes(@Nullable Collection<String> excludedTypes) {
+                mExcludedTypes = excludedTypes;
                 return this;
             }
 
@@ -380,8 +468,8 @@ public abstract class TextClassifier {
              * Specifies to include the default entity types suggested by the text classifier. By
              * default, it is included.
              */
-            public Builder setIncludeDefaultEntityTypes(boolean includeDefaultEntityTypes) {
-                mIncludeDefaultEntityTypes = includeDefaultEntityTypes;
+            public Builder includeTypesFromTextClassifier(boolean includeTypesFromTextClassifier) {
+                mIncludeTypesFromTextClassifier = includeTypesFromTextClassifier;
                 return this;
             }
 
@@ -392,29 +480,12 @@ public abstract class TextClassifier {
             @NonNull
             public EntityConfig build() {
                 return new EntityConfig(
-                        mIncludedEntityTypes,
-                        mExcludedEntityTypes,
+                        mIncludedTypes,
+                        mExcludedTypes,
                         mHints,
-                        mIncludeDefaultEntityTypes);
+                        mIncludeTypesFromTextClassifier,
+                        null);
             }
-        }
-
-        /** @hide */
-        @RestrictTo(RestrictTo.Scope.LIBRARY)
-        @RequiresApi(28)
-        @NonNull
-        public android.view.textclassifier.TextClassifier.EntityConfig toPlatform() {
-            if (mIncludeDefaultEntityTypes) {
-                return android.view.textclassifier.TextClassifier.EntityConfig.create(
-                        mHints,
-                        mIncludedEntityTypes,
-                        mExcludedEntityTypes
-                );
-            }
-            Set<String> entitiesSet = new ArraySet<>(mIncludedEntityTypes);
-            entitiesSet.removeAll(mExcludedEntityTypes);
-            return android.view.textclassifier.TextClassifier.EntityConfig
-                    .createWithExplicitEntityList(new ArrayList<>(entitiesSet));
         }
     }
 }

@@ -230,10 +230,10 @@ class CustomConverterProcessorTest {
     }
 
     private fun createConverter(
-            from: TypeName,
-            to: TypeName,
-            typeVariables: List<TypeVariableName> = emptyList(),
-            duplicate: Boolean = false
+        from: TypeName,
+        to: TypeName,
+        typeVariables: List<TypeVariableName> = emptyList(),
+        duplicate: Boolean = false
     ): JavaFileObject {
         val code = TypeSpec.classBuilder(CONVERTER).apply {
             addTypeVariables(typeVariables)
@@ -259,8 +259,8 @@ class CustomConverterProcessorTest {
     }
 
     private fun singleClass(
-            vararg jfo: JavaFileObject,
-            handler: (CustomTypeConverter?, TestInvocation) -> Unit
+        vararg jfo: JavaFileObject,
+        handler: (CustomTypeConverter?, TestInvocation) -> Unit
     ): CompileTester {
         return simpleRun(*((jfo.toList() + CONTAINER).toTypedArray())) { invocation ->
             val processed = CustomConverterProcessor.findConverters(invocation.context,

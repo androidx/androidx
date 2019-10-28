@@ -19,21 +19,33 @@ package androidx.work
 import android.content.Context
 import android.util.Log
 import androidx.arch.core.executor.ArchTaskExecutor
-
 import androidx.test.core.app.ApplicationProvider
 import androidx.test.ext.junit.runners.AndroidJUnit4
+import androidx.test.filters.LargeTest
 import androidx.test.filters.SmallTest
 import androidx.work.impl.WorkDatabase
 import androidx.work.impl.WorkManagerImpl
+import androidx.work.impl.utils.SerialExecutor
+import androidx.work.impl.utils.WorkProgressUpdater
+import androidx.work.impl.utils.futures.SettableFuture
 import androidx.work.impl.utils.taskexecutor.TaskExecutor
+import androidx.work.workers.ProgressUpdatingWorker
 import kotlinx.coroutines.asCoroutineDispatcher
+import kotlinx.coroutines.runBlocking
 import org.hamcrest.CoreMatchers.`is`
 import org.hamcrest.CoreMatchers.instanceOf
+import org.hamcrest.CoreMatchers.nullValue
 import org.hamcrest.MatcherAssert.assertThat
 import org.junit.After
 import org.junit.Before
 import org.junit.Test
 import org.junit.runner.RunWith
+import org.mockito.ArgumentCaptor
+import org.mockito.ArgumentMatchers.any
+import org.mockito.Mockito.mock
+import org.mockito.Mockito.spy
+import org.mockito.Mockito.times
+import org.mockito.Mockito.verify
 import java.util.UUID
 import java.util.concurrent.Executor
 
@@ -45,6 +57,8 @@ class CoroutineWorkerTest {
     private lateinit var configuration: Configuration
     private lateinit var database: WorkDatabase
     private lateinit var workManagerImpl: WorkManagerImpl
+    private lateinit var progressUpdater: ProgressUpdater
+    private lateinit var mForegroundUpdater: ForegroundUpdater
 
     @Before
     fun setUp() {
@@ -63,7 +77,7 @@ class CoroutineWorkerTest {
                 }
             })
 
-        context = ApplicationProvider.getApplicationContext() as android.content.Context
+        context = ApplicationProvider.getApplicationContext()
         configuration = Configuration.Builder()
             .setExecutor(SynchronousExecutor())
             .setMinimumLoggingLevel(Log.DEBUG)
@@ -73,6 +87,13 @@ class CoroutineWorkerTest {
         )
         WorkManagerImpl.setDelegate(workManagerImpl)
         database = workManagerImpl.workDatabase
+        // No op
+        progressUpdater = ProgressUpdater { _, _, _ ->
+            val future = SettableFuture.create<Void>()
+            future.set(null)
+            future
+        }
+        mForegroundUpdater = mock(ForegroundUpdater::class.java)
     }
 
     @After
@@ -95,7 +116,9 @@ class CoroutineWorkerTest {
                 1,
                 configuration.executor,
                 workManagerImpl.workTaskExecutor,
-                workerFactory)) as SynchronousCoroutineWorker
+                workerFactory,
+                progressUpdater,
+                mForegroundUpdater)) as SynchronousCoroutineWorker
 
         assertThat(worker.job.isCompleted, `is`(false))
 
@@ -124,11 +147,96 @@ class CoroutineWorkerTest {
                 1,
                 configuration.executor,
                 workManagerImpl.workTaskExecutor,
-                workerFactory)) as SynchronousCoroutineWorker
+                workerFactory,
+                progressUpdater,
+                mForegroundUpdater)) as SynchronousCoroutineWorker
 
         assertThat(worker.job.isCancelled, `is`(false))
         worker.future.cancel(true)
         assertThat(worker.job.isCancelled, `is`(true))
+    }
+
+    @Test
+    @LargeTest
+    fun testProgressUpdates() {
+        val workerFactory = WorkerFactory.getDefaultWorkerFactory()
+        val progressUpdater = spy(WorkProgressUpdater(database, workManagerImpl.workTaskExecutor))
+        val workRequest = OneTimeWorkRequestBuilder<ProgressUpdatingWorker>().build()
+        database.workSpecDao().insertWorkSpec(workRequest.workSpec)
+        val worker = workerFactory.createWorkerWithDefaultFallback(
+            context,
+            ProgressUpdatingWorker::class.java.name,
+            WorkerParameters(
+                workRequest.id,
+                Data.EMPTY,
+                emptyList(),
+                WorkerParameters.RuntimeExtras(),
+                1,
+                configuration.executor,
+                workManagerImpl.workTaskExecutor,
+                workerFactory,
+                progressUpdater,
+                mForegroundUpdater
+            )
+        ) as ProgressUpdatingWorker
+
+        runBlocking {
+            val result = worker.doWork()
+            val captor = ArgumentCaptor.forClass(Data::class.java)
+            verify(progressUpdater, times(2))
+                .updateProgress(
+                    any(Context::class.java),
+                    any(UUID::class.java),
+                    captor.capture())
+            assertThat(result, `is`(instanceOf(ListenableWorker.Result.Success::class.java)))
+            val recent = captor.allValues.lastOrNull()
+            assertThat(recent?.getInt(ProgressUpdatingWorker.Progress, 0), `is`(100))
+            val progress = database.workProgressDao().getProgressForWorkSpecId(workRequest.stringId)
+            assertThat(progress, nullValue())
+        }
+    }
+
+    @Test
+    @LargeTest
+    fun testProgressUpdatesForRetry() {
+        val workerFactory = WorkerFactory.getDefaultWorkerFactory()
+        val progressUpdater = spy(WorkProgressUpdater(database, workManagerImpl.workTaskExecutor))
+        val input = workDataOf(ProgressUpdatingWorker.Expected to "Retry")
+        val workRequest = OneTimeWorkRequestBuilder<ProgressUpdatingWorker>()
+            .setInputData(input)
+            .build()
+        database.workSpecDao().insertWorkSpec(workRequest.workSpec)
+        val worker = workerFactory.createWorkerWithDefaultFallback(
+            context,
+            ProgressUpdatingWorker::class.java.name,
+            WorkerParameters(
+                workRequest.id,
+                Data.EMPTY,
+                emptyList(),
+                WorkerParameters.RuntimeExtras(),
+                1,
+                configuration.executor,
+                workManagerImpl.workTaskExecutor,
+                workerFactory,
+                progressUpdater,
+                mForegroundUpdater
+            )
+        ) as ProgressUpdatingWorker
+
+        runBlocking {
+            val result = worker.doWork()
+            val captor = ArgumentCaptor.forClass(Data::class.java)
+            verify(progressUpdater, times(2))
+                .updateProgress(
+                    any(Context::class.java),
+                    any(UUID::class.java),
+                    captor.capture())
+            assertThat(result, `is`(instanceOf(ListenableWorker.Result.Success::class.java)))
+            val recent = captor.allValues.lastOrNull()
+            assertThat(recent?.getInt(ProgressUpdatingWorker.Progress, 0), `is`(100))
+            val progress = database.workProgressDao().getProgressForWorkSpecId(workRequest.stringId)
+            assertThat(progress, nullValue())
+        }
     }
 
     class SynchronousExecutor : Executor {
@@ -141,6 +249,7 @@ class CoroutineWorkerTest {
     class InstantWorkTaskExecutor : TaskExecutor {
 
         private val mSynchronousExecutor = SynchronousExecutor()
+        private val mSerialExecutor = SerialExecutor(mSynchronousExecutor)
 
         override fun postToMainThread(runnable: Runnable) {
             runnable.run()
@@ -151,15 +260,11 @@ class CoroutineWorkerTest {
         }
 
         override fun executeOnBackgroundThread(runnable: Runnable) {
-            runnable.run()
+            mSerialExecutor.execute(runnable)
         }
 
-        override fun getBackgroundExecutor(): Executor {
-            return mSynchronousExecutor
-        }
-
-        override fun getBackgroundExecutorThread(): Thread {
-            return Thread.currentThread()
+        override fun getBackgroundExecutor(): SerialExecutor {
+            return mSerialExecutor
         }
     }
 

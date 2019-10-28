@@ -80,25 +80,22 @@ public class LinearLayoutManagerCacheTest extends BaseLinearLayoutManagerTest {
                 ((WrappedRecyclerView)mRecyclerView).setDrawingTimeOffset(5000);
 
                 mRecyclerView.scrollToPosition(100);
+                mRecyclerView.setItemViewCacheSize(0);
             }
         });
 
-        mRecyclerView.setItemViewCacheSize(0);
-        {
-            mLayoutManager.expectPrefetch(1);
-            mActivityRule.runOnUiThread(new Runnable() {
-                @Override
-                public void run() {
-                    mRecyclerView.mRecycler.recycleAndClearCachedViews();
-                    mRecyclerView.mGapWorker.postFromTraversal(mRecyclerView, mDx, mDy);
+        mLayoutManager.expectPrefetch(1);
+        mActivityRule.runOnUiThread(new Runnable() {
+            @Override
+            public void run() {
+                mRecyclerView.mRecycler.recycleAndClearCachedViews();
+                mRecyclerView.mGapWorker.postFromTraversal(mRecyclerView, mDx, mDy);
 
-                    // Lie about post time, so prefetch executes even if it is delayed
-                    mRecyclerView.mGapWorker.mPostTimeNs += TimeUnit.SECONDS.toNanos(5);
-                }
-            });
-            mLayoutManager.waitForPrefetch(1);
-        }
-
+                // Lie about post time, so prefetch executes even if it is delayed
+                mRecyclerView.mGapWorker.mPostTimeNs += TimeUnit.SECONDS.toNanos(5);
+            }
+        });
+        mLayoutManager.waitForPrefetch(1);
 
         mActivityRule.runOnUiThread(new Runnable() {
             @Override

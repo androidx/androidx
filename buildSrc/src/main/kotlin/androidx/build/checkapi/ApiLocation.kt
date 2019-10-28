@@ -19,18 +19,29 @@ package androidx.build.checkapi
 import java.io.File
 
 import androidx.build.Version
+import java.io.Serializable
 
-// An ApiLocation contains the filepath of a public API and restricted API of a library
+/**
+ * An ApiLocation contains information about the files used to record a library's API surfaces.
+ */
 data class ApiLocation(
-    // file specifying the public API of the library
+    // Directory where the library's API files are stored
+    val apiFileDirectory: File,
+    // File where the library's public API surface is recorded
     val publicApiFile: File,
-    // file specifying the restricted API (marked by the RestrictTo annotation) of the library
+    // File where the library's public plus restricted (see @RestrictTo) API surfaces are recorded
     val restrictedApiFile: File,
-    // file specifying the API of the resources
+    // File where the library's public plus experimental (see @Experimental) API surfaces are
+    // recorded
+    val experimentalApiFile: File,
+    // File where the library's public resources are recorded
     val resourceFile: File
-) {
+) : Serializable {
 
-    fun files() = listOf(publicApiFile, restrictedApiFile)
+    // all files known to this api location
+    fun files() = listOf(publicApiFile, restrictedApiFile, experimentalApiFile)
+    // all files other than the restricted api file
+    fun nonRestrictedFiles() = listOf(publicApiFile, experimentalApiFile)
 
     fun version(): Version? {
         val text = publicApiFile.name.removeSuffix(".txt")
@@ -42,24 +53,39 @@ data class ApiLocation(
 
     companion object {
         fun fromPublicApiFile(f: File): ApiLocation {
-            return ApiLocation(f, File(f.parentFile, "restricted_" + f.name), File(f.parentFile, "res-" + f.name))
+            return ApiLocation(
+                f.parentFile,
+                f,
+                File(f.parentFile, "restricted_" + f.name),
+                File(f.parentFile, "public_plus_experimental_" + f.name),
+                File(f.parentFile, "res-" + f.name)
+            )
         }
     }
 }
 
-// An ApiViolationExclusions contains the paths of the API exclusions files for an API
-data class ApiViolationExclusions(
+// An ApiViolationBaselines contains the paths of the API baselines files for an API
+data class ApiViolationBaselines(
     val publicApiFile: File,
-    val restrictedApiFile: File
-) {
+    val restrictedApiFile: File,
+    val apiLintFile: File
+) : Serializable {
 
     fun files() = listOf(publicApiFile, restrictedApiFile)
 
     companion object {
-        fun fromApiLocation(apiLocation: ApiLocation): ApiViolationExclusions {
-            val publicExclusionsFile = File(apiLocation.publicApiFile.toString().removeSuffix(".txt") + ".ignore")
-            val restrictedExclusionsFile = File(apiLocation.restrictedApiFile.toString().removeSuffix(".txt") + ".ignore")
-            return ApiViolationExclusions(publicExclusionsFile, restrictedExclusionsFile)
+        fun fromApiLocation(apiLocation: ApiLocation): ApiViolationBaselines {
+            val publicBaselineFile =
+                File(apiLocation.publicApiFile.toString().removeSuffix(".txt") + ".ignore")
+            val restrictedBaselineFile =
+                File(apiLocation.restrictedApiFile.toString().removeSuffix(".txt") + ".ignore")
+            val apiLintBaselineFile =
+                File(apiLocation.apiFileDirectory, "api_lint.ignore")
+            return ApiViolationBaselines(
+                publicBaselineFile,
+                restrictedBaselineFile,
+                apiLintBaselineFile
+            )
         }
     }
 }

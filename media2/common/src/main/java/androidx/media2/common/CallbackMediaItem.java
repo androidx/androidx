@@ -80,22 +80,22 @@ public class CallbackMediaItem extends MediaItem {
         }
 
         // Override just to change return type.
-        @NonNull
         @Override
+        @NonNull
         public Builder setMetadata(@Nullable MediaMetadata metadata) {
             return (Builder) super.setMetadata(metadata);
         }
 
         // Override just to change return type.
-        @NonNull
         @Override
+        @NonNull
         public Builder setStartPosition(long position) {
             return (Builder) super.setStartPosition(position);
         }
 
         // Override just to change return type.
-        @NonNull
         @Override
+        @NonNull
         public Builder setEndPosition(long position) {
             return (Builder) super.setEndPosition(position);
         }
@@ -103,8 +103,8 @@ public class CallbackMediaItem extends MediaItem {
         /**
          * @return A new CallbackMediaItem with values supplied by the Builder.
          */
-        @NonNull
         @Override
+        @NonNull
         public CallbackMediaItem build() {
             return new CallbackMediaItem(this);
         }

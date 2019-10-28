@@ -95,6 +95,7 @@ public abstract class PagerAdapter {
      * @param container The containing View which is displaying this adapter's
      * page views.
      */
+    @SuppressWarnings("deprecation")
     public void startUpdate(@NonNull ViewGroup container) {
         startUpdate((View) container);
     }
@@ -110,6 +111,7 @@ public abstract class PagerAdapter {
      * @return Returns an Object representing the new page.  This does not
      * need to be a View, but can be some other container of the page.
      */
+    @SuppressWarnings("deprecation")
     @NonNull
     public Object instantiateItem(@NonNull ViewGroup container, int position) {
         return instantiateItem((View) container, position);
@@ -125,6 +127,7 @@ public abstract class PagerAdapter {
      * @param object The same object that was returned by
      * {@link #instantiateItem(View, int)}.
      */
+    @SuppressWarnings("deprecation")
     public void destroyItem(@NonNull ViewGroup container, int position, @NonNull Object object) {
         destroyItem((View) container, position, object);
     }
@@ -139,6 +142,7 @@ public abstract class PagerAdapter {
      * @param object The same object that was returned by
      * {@link #instantiateItem(View, int)}.
      */
+    @SuppressWarnings("deprecation")
     public void setPrimaryItem(@NonNull ViewGroup container, int position, @NonNull Object object) {
         setPrimaryItem((View) container, position, object);
     }

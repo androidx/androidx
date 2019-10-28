@@ -21,8 +21,8 @@ import android.view.View
 import android.view.ViewGroup
 import android.widget.Button
 import android.widget.TextView
+import androidx.activity.viewModels
 import androidx.lifecycle.ViewModel
-import androidx.lifecycle.ViewModelProviders
 import androidx.recyclerview.widget.RecyclerView
 import androidx.viewpager2.widget.ViewPager2
 
@@ -33,7 +33,7 @@ import androidx.viewpager2.widget.ViewPager2
 class MutableCollectionViewActivity : MutableCollectionBaseActivity() {
     override fun createViewPagerAdapter(): RecyclerView.Adapter<*> {
         val items = items // avoids resolving the ViewModel multiple times
-        val clickRegistry: ClickRegistry = ViewModelProviders.of(this)[ClickRegistry::class.java]
+        val clickRegistry: ClickRegistry by viewModels()
         return object : RecyclerView.Adapter<PageViewHolder>() {
             override fun onCreateViewHolder(parent: ViewGroup, type: Int) = PageViewHolder(parent)
             override fun onBindViewHolder(holder: PageViewHolder, position: Int) {

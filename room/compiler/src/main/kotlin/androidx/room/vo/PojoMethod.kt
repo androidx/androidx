@@ -23,6 +23,7 @@ import javax.lang.model.type.ExecutableType
  * An executable element processed as member of a class (pojo or entity)
  */
 class PojoMethod(
-        val element: ExecutableElement,
-        val resolvedType: ExecutableType,
-        val name: String)
+    val element: ExecutableElement,
+    val resolvedType: ExecutableType,
+    val name: String
+)

@@ -27,6 +27,7 @@ import static org.junit.Assert.assertTrue;
 import android.content.ComponentName;
 import android.os.Bundle;
 
+import androidx.annotation.NonNull;
 import androidx.media2.session.MediaController;
 import androidx.media2.session.MediaSession;
 import androidx.media2.session.MediaSession.ControllerInfo;
@@ -118,8 +119,8 @@ public class MediaSessionServiceTest extends MediaSessionTestBase {
                 .setId("testOnGetSession_returnsSession")
                 .setSessionCallback(sHandlerExecutor, new MediaSession.SessionCallback() {
                     @Override
-                    public SessionCommandGroup onConnect(MediaSession session,
-                            ControllerInfo controller) {
+                    public SessionCommandGroup onConnect(@NonNull MediaSession session,
+                            @NonNull ControllerInfo controller) {
                         controllerInfoList.add(controller);
                         latch.countDown();
                         return new SessionCommandGroup.Builder().build();
@@ -197,7 +198,7 @@ public class MediaSessionServiceTest extends MediaSessionTestBase {
                 .setSessionToken(mToken)
                 .setControllerCallback(sHandlerExecutor, new MediaController.ControllerCallback() {
                     @Override
-                    public void onDisconnected(MediaController controller) {
+                    public void onDisconnected(@NonNull MediaController controller) {
                         latch.countDown();
                     }
                 })

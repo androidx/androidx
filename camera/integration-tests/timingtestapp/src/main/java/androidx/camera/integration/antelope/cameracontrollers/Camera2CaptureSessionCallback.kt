@@ -21,7 +21,6 @@ import android.hardware.camera2.CaptureFailure
 import android.hardware.camera2.CaptureRequest
 import android.hardware.camera2.CaptureResult
 import android.hardware.camera2.TotalCaptureResult
-import androidx.annotation.NonNull
 import androidx.camera.integration.antelope.CameraParams
 import androidx.camera.integration.antelope.MainActivity
 import androidx.camera.integration.antelope.TestConfig
@@ -40,7 +39,7 @@ class Camera2CaptureSessionCallback(
 ) : CameraCaptureSession.CaptureCallback() {
 
     override fun onCaptureSequenceCompleted(
-        session: CameraCaptureSession?,
+        session: CameraCaptureSession,
         sequenceId: Int,
         frameNumber: Long
     ) {
@@ -48,18 +47,18 @@ class Camera2CaptureSessionCallback(
         super.onCaptureSequenceCompleted(session, sequenceId, frameNumber)
     }
 
-    override fun onCaptureSequenceAborted(session: CameraCaptureSession?, sequenceId: Int) {
+    override fun onCaptureSequenceAborted(session: CameraCaptureSession, sequenceId: Int) {
         MainActivity.logd("Camera2CaptureSessionCallback : Capture sequence ABORTED")
         super.onCaptureSequenceAborted(session, sequenceId)
     }
 
     override fun onCaptureFailed(
-        session: CameraCaptureSession?,
-        request: CaptureRequest?,
-        failure: CaptureFailure?
+        session: CameraCaptureSession,
+        request: CaptureRequest,
+        failure: CaptureFailure
     ) {
         MainActivity.logd("Camera2CaptureSessionCallback : Capture sequence FAILED - " +
-            failure?.reason)
+            failure.reason)
 
         if (!params.isOpen) {
             return
@@ -124,7 +123,7 @@ class Camera2CaptureSessionCallback(
                             captureStillPicture(activity, params, testConfig)
                         } else {
                             // AF is locked but not AE
-                            runPrecaptureSequence(activity, params, testConfig)
+                            runPrecaptureSequence(params)
                         }
                     }
 
@@ -170,6 +169,8 @@ class Camera2CaptureSessionCallback(
                     }
                 }
             }
+
+            else -> {}
         }
     }
 
@@ -186,9 +187,9 @@ class Camera2CaptureSessionCallback(
 
     /** Both onCaptureProgressed and onCaptureComplete call through to the processing function */
     override fun onCaptureProgressed(
-        @NonNull session: CameraCaptureSession,
-        @NonNull request: CaptureRequest,
-        @NonNull partialResult: CaptureResult
+        session: CameraCaptureSession,
+        request: CaptureRequest,
+        partialResult: CaptureResult
     ) {
         // MainActivity.logd("Camera2CaptureSessionCallback captureCallback: onCaptureProgressed, " +
         // "partial result frame number: " + partialResult.frameNumber)
@@ -197,9 +198,9 @@ class Camera2CaptureSessionCallback(
 
     /** Both onCaptureProgressed and onCaptureComplete call through to the processing function */
     override fun onCaptureCompleted(
-        @NonNull session: CameraCaptureSession,
-        @NonNull request: CaptureRequest,
-        @NonNull result: TotalCaptureResult
+        session: CameraCaptureSession,
+        request: CaptureRequest,
+        result: TotalCaptureResult
     ) {
         // MainActivity.logd("Camera2CaptureSessionCallback captureCallback: onCaptureCompleted." +
         // " Total result frame number: " + result.frameNumber)

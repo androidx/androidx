@@ -16,6 +16,7 @@
 
 package androidx.appcompat.widget;
 
+import static androidx.appcompat.testutils.TestUtilsMatchers.asViewMatcher;
 import static androidx.appcompat.testutils.TestUtilsMatchers.thumbColor;
 import static androidx.appcompat.testutils.TestUtilsMatchers.trackColor;
 import static androidx.test.espresso.Espresso.onView;
@@ -47,7 +48,7 @@ public class SwitchCompatTest {
 
     @Rule
     public final ActivityTestRule<SwitchCompatActivity> mActivityTestRule =
-            new ActivityTestRule(SwitchCompatActivity.class);
+            new ActivityTestRule<>(SwitchCompatActivity.class);
     private SwitchCompatActivity mActivity;
     private ViewGroup mContainer;
 
@@ -72,7 +73,9 @@ public class SwitchCompatTest {
         final int expectedTrackTint = 0xff00ffff;
 
         // Then the tints should be applied
-        onView(withId(R.id.switch_tint)).check(matches(thumbColor(expectedThumbTint)));
-        onView(withId(R.id.switch_tint)).check(matches(trackColor(expectedTrackTint)));
+        onView(withId(R.id.switch_tint))
+                .check(matches(asViewMatcher(thumbColor(expectedThumbTint))));
+        onView(withId(R.id.switch_tint))
+                .check(matches(asViewMatcher(trackColor(expectedTrackTint))));
     }
 }

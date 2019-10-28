@@ -546,7 +546,7 @@ public class RowsSupportFragmentTest extends SingleSupportFragmentTestBase {
         /**
          * Util to wait PageFragment swapped.
          */
-        Fragment waitPageFragment(final Class pageFragmentClass) {
+        Fragment waitPageFragment(final Class<?> pageFragmentClass) {
             PollingCheck.waitFor(new PollingCheck.PollingCheckCondition() {
                 @Override
                 public boolean canProceed() {

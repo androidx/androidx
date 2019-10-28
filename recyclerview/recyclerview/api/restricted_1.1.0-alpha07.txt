@@ -1,0 +1,17 @@
+// Signature format: 3.0
+package androidx.recyclerview.widget {
+
+  public final class AsyncDifferConfig<T> {
+  }
+
+  public static final class AsyncDifferConfig.Builder<T> {
+  }
+
+
+  @IntDef({androidx.recyclerview.widget.RecyclerView.HORIZONTAL, androidx.recyclerview.widget.RecyclerView.VERTICAL}) @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP_PREFIX) @java.lang.annotation.Retention(java.lang.annotation.RetentionPolicy.SOURCE) public static @interface RecyclerView.Orientation {
+  }
+
+
+
+}
+

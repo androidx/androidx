@@ -17,6 +17,7 @@
 package androidx.viewpager2.widget
 
 import android.view.View
+import androidx.annotation.NonNull
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.test.filters.LargeTest
 import androidx.viewpager2.widget.BaseTest.SortOrder.ASC
@@ -36,7 +37,6 @@ import org.hamcrest.Matchers.lessThan
 import org.junit.Assert.assertFalse
 import org.junit.Assert.assertThat
 import org.junit.Assert.assertTrue
-import org.junit.Assert.fail
 import org.junit.Test
 import org.junit.runner.RunWith
 import org.junit.runners.Parameterized
@@ -175,13 +175,12 @@ class PageTransformerTest(private val config: TestConfig) : BaseTest() {
     private fun Context.swipeToPage(currentPage: Int, targetPage: Int) {
         val latch = viewPager.addWaitForScrolledLatch(targetPage)
         swipe(currentPage, targetPage)
-        latch.await(1, SECONDS)
+        latch.await(2, SECONDS)
         assertBasicState(targetPage)
     }
 
     private fun ViewPager2.addNewRecordingCallback(): RecordingCallback {
-        val layoutManager = recyclerView.layoutManager as LinearLayoutManager
-        return RecordingCallback(layoutManager).also {
+        return RecordingCallback(linearLayoutManager).also {
             setPageTransformer(it)
             registerOnPageChangeCallback(it)
         }
@@ -216,7 +215,6 @@ class PageTransformerTest(private val config: TestConfig) : BaseTest() {
                     when (e) {
                         is OnPageScrolledEvent -> groups.add(mutableListOf())
                         is TransformPageEvent -> groups.last().add(e)
-                        else -> fail("$e is neither OnPageScrolledEvent nor TransformPageEvent")
                     }
                     groups
                 }
@@ -234,7 +232,7 @@ class PageTransformerTest(private val config: TestConfig) : BaseTest() {
 
         /* interface implementations */
 
-        override fun transformPage(page: View, position: Float) {
+        override fun transformPage(@NonNull page: View, position: Float) {
             events.add(TransformPageEvent(layoutManager.getPosition(page), position))
         }
 
@@ -267,7 +265,7 @@ class PageTransformerTest(private val config: TestConfig) : BaseTest() {
         map { it as TransformPageEvent }.forEach {
             assertThat("transformPage() call must be snapped at page $snappedPage",
                 // event.page - event.offset resolves to the currently visible page index
-                it.page - it.offset, equalTo(snappedPage.toFloat())
+                it.page - it.offset.toDouble(), equalTo(snappedPage.toDouble())
             )
         }
     }

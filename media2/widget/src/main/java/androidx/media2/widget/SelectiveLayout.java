@@ -27,7 +27,7 @@ import androidx.annotation.AttrRes;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 
-class SelectiveLayout extends ViewGroup {
+class SelectiveLayout extends MediaViewGroup {
     SelectiveLayout(@NonNull Context context) {
         super(context);
     }
