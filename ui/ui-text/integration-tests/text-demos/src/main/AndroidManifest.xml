@@ -37,6 +37,15 @@
             </intent-filter>
         </activity>
 
+        <activity android:name=".ComposeTextSelectionSampleActivity"
+            android:configChanges="orientation|screenSize"
+            android:label="Text/Text Selection Sample">
+            <intent-filter>
+                <action android:name="android.intent.action.MAIN" />
+                <category android:name="androidx.ui.demos.SAMPLE_CODE" />
+            </intent-filter>
+        </activity>
+
         <activity android:name=".ComposeMultiParagraphActivity"
             android:configChanges="orientation|screenSize"
             android:label="Text/Multi Paragraph">
