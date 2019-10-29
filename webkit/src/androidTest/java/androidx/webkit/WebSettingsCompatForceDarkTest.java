@@ -26,7 +26,7 @@ import android.view.ViewGroup;
 import android.webkit.WebView;
 
 import androidx.test.ext.junit.runners.AndroidJUnit4;
-import androidx.test.filters.SmallTest;
+import androidx.test.filters.MediumTest;
 import androidx.test.rule.ActivityTestRule;
 
 import org.junit.After;
@@ -39,6 +39,7 @@ import org.junit.runner.RunWith;
 import java.util.HashMap;
 import java.util.Map;
 
+@MediumTest
 @RunWith(AndroidJUnit4.class)
 public class WebSettingsCompatForceDarkTest {
     private final String mNoDarkThemeSupport = Base64.encodeToString((
@@ -89,7 +90,6 @@ public class WebSettingsCompatForceDarkTest {
      * be reflected in that test as necessary. See http://go/modifying-webview-cts.
      */
     @Test
-    @SmallTest
     public void testForceDark_default() throws Throwable {
         WebkitUtils.checkFeature(WebViewFeature.FORCE_DARK);
 
@@ -104,7 +104,6 @@ public class WebSettingsCompatForceDarkTest {
      * should be reflected in that test as necessary. See http://go/modifying-webview-cts.
      */
     @Test
-    @SmallTest
     public void testForceDark_rendersDark() throws Throwable {
         WebkitUtils.checkFeature(WebViewFeature.FORCE_DARK);
         setWebViewSize(64, 64);
@@ -136,7 +135,6 @@ public class WebSettingsCompatForceDarkTest {
      * i.e. web contents are always darkened by a user agent.
      */
     @Test
-    @SmallTest
     public void testForceDark_userAgentDarkeningOnly() {
         WebkitUtils.checkFeature(WebViewFeature.FORCE_DARK);
         WebkitUtils.checkFeature(WebViewFeature.FORCE_DARK_STRATEGY);
@@ -162,7 +160,6 @@ public class WebSettingsCompatForceDarkTest {
      */
     // TODO(amalova): Enable test when meta-tag is supported by WV
     @Test
-    @SmallTest
     @Ignore
     public void testForceDark_webThemeDarkeningOnly() {
         WebkitUtils.checkFeature(WebViewFeature.FORCE_DARK);
@@ -191,7 +188,6 @@ public class WebSettingsCompatForceDarkTest {
      */
     // TODO(amalova): Enable test when meta-tag is supported by WV
     @Test
-    @SmallTest
     @Ignore
     public void testForceDark_preferWebThemeOverUADarkening() {
         WebkitUtils.checkFeature(WebViewFeature.FORCE_DARK);
