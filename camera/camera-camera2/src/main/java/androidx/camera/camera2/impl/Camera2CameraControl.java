@@ -37,6 +37,7 @@ import androidx.camera.core.CaptureConfig;
 import androidx.camera.core.Config;
 import androidx.camera.core.FlashMode;
 import androidx.camera.core.FocusMeteringAction;
+import androidx.camera.core.FocusMeteringResult;
 import androidx.camera.core.SessionConfig;
 import androidx.camera.core.impl.utils.futures.Futures;
 import androidx.core.util.Preconditions;
@@ -85,9 +86,10 @@ public final class Camera2CameraControl implements CameraControlInternal {
      * <p>All {@code controlUpdateListener} invocations will be on the provided {@code executor}.
      *
      * <p>All tasks scheduled by {@code scheduler} will be immediately executed by {@code executor}.
+     *
      * @param cameraCharacteristics Characteristics for the camera being controlled.
-     * @param scheduler Scheduler used for scheduling tasks in the future.
-     * @param executor Camera executor for synchronizing and offloading all commands.
+     * @param scheduler             Scheduler used for scheduling tasks in the future.
+     * @param executor              Camera executor for synchronizing and offloading all commands.
      * @param controlUpdateCallback Listener which will be notified of control changes.
      */
     public Camera2CameraControl(@NonNull CameraCharacteristics cameraCharacteristics,
@@ -131,15 +133,20 @@ public final class Camera2CameraControl implements CameraControlInternal {
         mPreviewAspectRatio = previewAspectRatio;
     }
 
+    @NonNull
     @Override
-    public void startFocusAndMetering(@NonNull FocusMeteringAction action) {
+    public ListenableFuture<FocusMeteringResult> startFocusAndMetering(
+            @NonNull FocusMeteringAction action) {
         mExecutor.execute(
                 () -> mFocusMeteringControl.startFocusAndMetering(action, mPreviewAspectRatio));
+        return Futures.immediateFuture(FocusMeteringResult.emptyInstance());
     }
 
+    @NonNull
     @Override
-    public void cancelFocusAndMetering() {
+    public ListenableFuture<Void> cancelFocusAndMetering() {
         mExecutor.execute(mFocusMeteringControl::cancelFocusAndMetering);
+        return Futures.immediateFuture(null);
     }
 
     @NonNull

@@ -19,7 +19,6 @@ package androidx.camera.core;
 import androidx.annotation.FloatRange;
 import androidx.annotation.NonNull;
 import androidx.annotation.RestrictTo;
-import androidx.camera.core.FocusMeteringAction.OnAutoFocusListener;
 
 import com.google.common.util.concurrent.ListenableFuture;
 
@@ -54,10 +53,8 @@ public interface CameraControl {
      *
      * <p>It will trigger a auto focus action and enable AF/AE/AWB metering regions. The action
      * is configured by a {@link FocusMeteringAction} which contains the configuration of
-     * multiple AF/AE/AWB {@link MeteringPoint}s, auto-cancel duration and
-     * {@link OnAutoFocusListener} to receive the auto focus result. Check
-     * {@link FocusMeteringAction}
-     * for more details.
+     * multiple AF/AE/AWB {@link MeteringPoint}s, auto-cancel duration. See
+     * {@link FocusMeteringAction} for more details.
      *
      * <p>Only one {@link FocusMeteringAction} is allowed to run at a time. If multiple
      * {@link FocusMeteringAction} are executed in a row, only the latest one will work and
@@ -68,17 +65,27 @@ public interface CameraControl {
      * device will be enabled.
      *
      * @param action the {@link FocusMeteringAction} to be executed.
+     * @return A {@link ListenableFuture} which completes when auto focus is done. The result of
+     * the ListenableFuture is a {@link FocusMeteringResult} which contains a flag indicating
+     * focus is locked successfully or not.
      */
-    void startFocusAndMetering(@NonNull FocusMeteringAction action);
+    @NonNull
+    ListenableFuture<FocusMeteringResult> startFocusAndMetering(
+            @NonNull FocusMeteringAction action);
 
     /**
      * Cancels current {@link FocusMeteringAction} and clears AF/AE/AWB regions.
      *
-     * <p>Clear the AF/AE/AWB regions and update current AF mode to CONTINUOUS AF (if
-     * supported). If auto-focus does not complete, it will notify the
-     * {@link OnAutoFocusListener} with isFocusLocked set to false.
+     * <p>Clear the AF/AE/AWB regions and update current AF mode to continuous AF (if
+     * supported). If current {@link FocusMeteringAction} has not completed, the returned
+     * {@Link ListenableFuture} in {@link #startFocusAndMetering} will fail with
+     * {@link OperationCanceledException}.
+     *
+     * @return A {@link ListenableFuture} which completes when the AF/AE/AWB regions is clear and AF
+     * mode is set to continuous focus (if supported).
      */
-    void cancelFocusAndMetering();
+    @NonNull
+    ListenableFuture<Void> cancelFocusAndMetering();
 
     /**
      * Sets current zoom by ratio.
