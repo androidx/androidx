@@ -70,3 +70,10 @@ androidx {
     description = "The implementation of SQLite Inspector."
     url = AndroidXExtension.ARCHITECTURE_URL
 }
+
+android {
+    compileOptions {
+        sourceCompatibility = JavaVersion.VERSION_1_7
+        targetCompatibility = JavaVersion.VERSION_1_7
+    }
+}
