@@ -58,8 +58,6 @@ class TextLayoutTest {
         assertThat(frameworkLayout.getParagraphDirection(0)).isEqualTo(Layout.DIR_LEFT_TO_RIGHT)
         assertThat(frameworkLayout.spacingMultiplier).isEqualTo(1.0f)
         assertThat(frameworkLayout.spacingAdd).isEqualTo(0.0f)
-        // TODO(haoyuchang): Need public API to test includePadding, maxLines,
-        // breakStrategy and hyphenFrequency.
     }
 
     @Test

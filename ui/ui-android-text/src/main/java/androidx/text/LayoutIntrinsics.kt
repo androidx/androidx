@@ -57,9 +57,6 @@ class LayoutIntrinsics(
      * of text where no soft line breaks are applied.
      */
     val maxIntrinsicWidth: Float by lazy {
-        // TODO(haoyuchang): we didn't pass the TextDirection to Layout.getDesiredWidth(), check if
-        //  there is any behavior difference from
-        //  Layout.getWidthWithLimits(charSequence, start, end, paint, dir)
         boringMetrics?.width?.toFloat()
             ?: Layout.getDesiredWidth(charSequence, 0, charSequence.length, textPaint)
     }

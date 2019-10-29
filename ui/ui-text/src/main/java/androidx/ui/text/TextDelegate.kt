@@ -281,8 +281,6 @@ class TextDelegate(
     }
 
     fun layout(constraints: Constraints) {
-        // TODO(haoyuchang): fix that when softWarp is false and overflow is Ellipsis, ellipsis
-        //  doesn't work.
         val minWidth = constraints.minWidth.value.toFloat()
         val widthMatters = softWrap || overflow == TextOverflow.Ellipsis
         val maxWidth = if (widthMatters) {
@@ -382,7 +380,6 @@ class TextDelegate(
     ) = assumeLayout { layoutResult ->
         if (start == end) return
         val selectionPath = layoutResult.multiParagraph.getPathForRange(start, end)
-        // TODO(haoyuchang): check if move this paint to parameter is better
         canvas.drawPath(selectionPath, Paint().apply { this.color = color })
     }
 
