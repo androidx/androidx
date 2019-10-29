@@ -27,7 +27,7 @@ import androidx.ui.text.TextRange
 import kotlin.math.max
 
 internal class TextSelectionDelegate(
-    private val internalSelection: State<TextRange?>,
+    private val selectionRange: State<TextRange?>,
     private val layoutCoordinates: State<LayoutCoordinates?>,
     private val textDelegate: TextDelegate
 ) : TextSelectionHandler {
@@ -54,10 +54,10 @@ internal class TextSelectionDelegate(
         )
 
         return if (selection == null) {
-            internalSelection.value = null
+            selectionRange.value = null
             null
         } else {
-            internalSelection.value = selection.toTextRange()
+            selectionRange.value = selection.toTextRange()
             return selection
         }
     }

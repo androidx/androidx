@@ -25,6 +25,7 @@ import androidx.compose.onCommit
 import androidx.compose.onDispose
 import androidx.compose.state
 import androidx.compose.unaryPlus
+import androidx.ui.core.selection.SelectionRegistrar
 import androidx.ui.core.selection.SelectionRegistrarAmbient
 import androidx.ui.core.selection.TextSelectionDelegate
 import androidx.ui.graphics.Color
@@ -169,19 +170,21 @@ fun Text(
     maxLines?.let {
         require(it > 0) { "maxLines should be greater than 0" }
     }
+    // States
     // The selection range for this Composable, used by selection
-    val internalSelection = +state<TextRange?> { null }
+    val selectionRange = +state<TextRange?> { null }
     // The last layout coordinates recorded for this Composable, used by selection
     val layoutCoordinates = +state<LayoutCoordinates?> { null }
-    // selection manager
-    val registrar = +ambient(SelectionRegistrarAmbient)
 
-    val themeStyle = +ambient(CurrentTextStyleAmbient)
-    val mergedStyle = themeStyle.merge(style)
-
+    // Ambients
+    // selection registrar, if no SelectionContainer is added ambient value will be null
+    val selectionRegistrar: SelectionRegistrar? = +ambient(SelectionRegistrarAmbient)
     val density = +ambientDensity()
     val resourceLoader = +ambient(FontLoaderAmbient)
     val layoutDirection = +ambient(LayoutDirectionAmbient)
+    val themeStyle = +ambient(CurrentTextStyleAmbient)
+
+    val mergedStyle = themeStyle.merge(style)
 
     Semantics(
         properties = {
@@ -215,7 +218,7 @@ fun Text(
             // cross-composable selection.
             OnPositioned(onPositioned = { layoutCoordinates.value = it })
             Draw { canvas, _ ->
-                internalSelection.value?.let {
+                selectionRange.value?.let {
                     textDelegate.paintBackground(
                         it.min, it.max, selectionColor, canvas
                     )
@@ -267,15 +270,20 @@ fun Text(
             maxLines,
             density
         ) {
-            val id = registrar.subscribe(
-                TextSelectionDelegate(
-                    internalSelection = internalSelection,
-                    layoutCoordinates = layoutCoordinates,
-                    textDelegate = textDelegate
+            // if no SelectionContainer is added as parent selectionRegistrar will be null
+            val id: Any? = selectionRegistrar?.let {
+                selectionRegistrar.subscribe(
+                    TextSelectionDelegate(
+                        selectionRange = selectionRange,
+                        layoutCoordinates = layoutCoordinates,
+                        textDelegate = textDelegate
+                    )
                 )
-            )
+            }
+
             onDispose {
-                registrar.unsubscribe(id)
+                // unregister only if any id was provided by SelectionRegistrar
+                id?.let { selectionRegistrar.unsubscribe(id) }
             }
         }
     }

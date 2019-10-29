@@ -276,6 +276,7 @@ package androidx.ui.core.selection {
     method public androidx.ui.core.selection.Selection copy(androidx.ui.core.selection.Selection.AnchorInfo start, androidx.ui.core.selection.Selection.AnchorInfo end);
     method public androidx.ui.core.selection.Selection.AnchorInfo getEnd();
     method public androidx.ui.core.selection.Selection.AnchorInfo getStart();
+    method public androidx.ui.core.selection.Selection merge(androidx.ui.core.selection.Selection? other);
     method public androidx.ui.text.TextRange toTextRange();
   }
 
@@ -292,37 +293,6 @@ package androidx.ui.core.selection {
     method public int getOffset();
   }
 
-  public final class SelectionKt {
-    ctor public SelectionKt();
-  }
-
-  public final class SelectionManager implements androidx.ui.core.selection.SelectionRegistrar {
-    ctor public SelectionManager();
-    method public androidx.ui.core.LayoutCoordinates getContainerLayoutCoordinates();
-    method public androidx.ui.core.gesture.LongPressDragObserver getLongPressDragObserver();
-    method public androidx.ui.core.selection.SelectionMode getMode();
-    method public kotlin.jvm.functions.Function1<androidx.ui.core.selection.Selection,kotlin.Unit> getOnSelectionChange();
-    method public androidx.ui.core.selection.Selection? getSelection();
-    method public androidx.ui.core.gesture.DragObserver handleDragObserver(boolean isStartHandle);
-    method public void setContainerLayoutCoordinates(androidx.ui.core.LayoutCoordinates p);
-    method public void setMode(androidx.ui.core.selection.SelectionMode p);
-    method public void setOnSelectionChange(kotlin.jvm.functions.Function1<? super androidx.ui.core.selection.Selection,kotlin.Unit> p);
-    method public void setSelection(androidx.ui.core.selection.Selection? p);
-    method public Object subscribe(androidx.ui.core.selection.TextSelectionHandler handler);
-    method public void unsubscribe(Object key);
-    property public final androidx.ui.core.LayoutCoordinates containerLayoutCoordinates;
-    property public final androidx.ui.core.gesture.LongPressDragObserver longPressDragObserver;
-    property public final androidx.ui.core.selection.SelectionMode mode;
-    property public final kotlin.jvm.functions.Function1<androidx.ui.core.selection.Selection,kotlin.Unit> onSelectionChange;
-    property public final androidx.ui.core.selection.Selection? selection;
-    field public androidx.ui.core.LayoutCoordinates containerLayoutCoordinates;
-  }
-
-  public final class SelectionManagerKt {
-    ctor public SelectionManagerKt();
-    method public static androidx.compose.Ambient<androidx.ui.core.selection.SelectionRegistrar> getSelectionRegistrarAmbient();
-  }
-
   public enum SelectionMode {
     enum_constant public static final androidx.ui.core.selection.SelectionMode Horizontal;
     enum_constant public static final androidx.ui.core.selection.SelectionMode Vertical;
@@ -331,6 +301,11 @@ package androidx.ui.core.selection {
   public interface SelectionRegistrar {
     method public Object subscribe(androidx.ui.core.selection.TextSelectionHandler handler);
     method public void unsubscribe(Object key);
+  }
+
+  public final class SelectionRegistrarKt {
+    ctor public SelectionRegistrarKt();
+    method public static androidx.compose.Ambient<androidx.ui.core.selection.SelectionRegistrar> getSelectionRegistrarAmbient();
   }
 
   public final class TextSelectionDelegateKt {

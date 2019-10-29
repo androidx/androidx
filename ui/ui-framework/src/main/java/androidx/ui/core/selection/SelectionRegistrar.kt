@@ -16,6 +16,8 @@
 
 package androidx.ui.core.selection
 
+import androidx.compose.Ambient
+
 /**
  *  An interface allowing a Text composable to "register" and "unregister" itself with the class
  *  implementing the interface.
@@ -26,3 +28,9 @@ interface SelectionRegistrar {
 
     fun unsubscribe(key: Any)
 }
+
+/**
+ * Ambient of SelectionRegistrar. Composables that implement selection logic can use this ambient
+ * to get a [SelectionRegistrar] in order to subscribe and unsubscribe to [SelectionRegistrar].
+ */
+val SelectionRegistrarAmbient = Ambient.of<SelectionRegistrar>()
