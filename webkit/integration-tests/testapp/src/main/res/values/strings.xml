@@ -69,4 +69,5 @@
     <string name="renderer_termination_button_unblock_text">Unblock</string>
     <string name="renderer_terminated_description">WebView renderer was terminated.</string>
     <string name="renderer_unresponsive_description">WebView renderer has become unresponsive.</string>
+    <string name="fullscreen_activity_title">Fullscreen web contents Demo</string>
 </resources>
