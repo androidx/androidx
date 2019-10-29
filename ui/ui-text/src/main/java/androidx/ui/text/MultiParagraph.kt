@@ -424,7 +424,7 @@ internal class MultiParagraph(
         val paragraphIndex = findParagraphByLineIndex(paragraphInfoList, lineIndex)
 
         return with(paragraphInfoList[paragraphIndex]) {
-            paragraph.getLineBottom(lineIndex.toLocalLineIndex())
+            paragraph.getLineBottom(lineIndex.toLocalLineIndex()).toGlobalYPosition()
         }
     }
 
@@ -589,6 +589,14 @@ internal data class ParagraphInfo(
      */
     fun Int.toGlobalLineIndex(): Int {
         return this + startLineIndex
+    }
+
+    /**
+     * Convert a local y position relative to [paragraph] to the globla y postiion relative to the
+     * parent [MultiParagraph].
+     */
+    fun Float.toGlobalYPosition(): Float {
+        return this + top.value
     }
 
     /**

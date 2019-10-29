@@ -644,6 +644,43 @@ class MultiParagraphIntegrationTest {
     }
 
     @Test
+    fun getLineBottom() {
+        withDensity(defaultDensity) {
+            val text = createAnnotatedString("a", "a", "a")
+
+            val fontSize = 50.sp
+            val fontSizeInPx = fontSize.toPx().value
+
+            val paragraph = simpleMultiParagraph(
+                text = text,
+                fontSize = fontSize
+            )
+
+            for (i in 0 until paragraph.lineCount) {
+                assertWithMessage("bottom of line $i doesn't match")
+                    .that(paragraph.getLineBottom(i))
+                    .isEqualTo(fontSizeInPx * (i + 1))
+            }
+        }
+    }
+
+    @Test(expected = java.lang.IllegalArgumentException::class)
+    fun getLineBottom_negative_throw_exception() {
+        val text = "abc"
+        val paragraph = simpleMultiParagraph(text = text)
+
+        paragraph.getLineBottom(-1)
+    }
+
+    @Test(expected = java.lang.IllegalArgumentException::class)
+    fun getLineBottom_greaterThanOrEqual_lineCount_throw_exception() {
+        val text = "abc"
+        val paragraph = simpleMultiParagraph(text = text)
+
+        paragraph.getLineBottom(paragraph.lineCount)
+    }
+
+    @Test
     fun getLineHeight() {
         withDensity(defaultDensity) {
             val text = createAnnotatedString("a", "a", "a")
