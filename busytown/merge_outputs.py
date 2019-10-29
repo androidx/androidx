@@ -1,0 +1,110 @@
+#!/usr/bin/python3
+ #
+ # Copyright (C) 2016 The Android Open Source Project
+ #
+ # Licensed under the Apache License, Version 2.0 (the "License");
+ # you may not use this file except in compliance with the License.
+ # You may obtain a copy of the License at
+ #
+ #      http://www.apache.org/licenses/LICENSE-2.0
+ #
+ # Unless required by applicable law or agreed to in writing, software
+ # distributed under the License is distributed on an "AS IS" BASIS,
+ # WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ # See the License for the specific language governing permissions and
+ # limitations under the License.
+ #
+import os,sys,json
+from constants_and_utils import *
+
+def usage():
+    print("""
+    Merges certain results of the gradle build.
+    This script recognizes the following arguments in any order:
+        mergeBuildInfo   (merge the buildInfo files (used by jetpad) produced by the most recent (compose and androidx) builds)
+        mergeCoverageExecution    (merge the coverage execution data (recorded by jacoco) produced by the most recent builds)
+        mergeSourceJars           (merge the source jars (used by jacoco/coverage ui) produced by the most recent builds)
+            (these args are case sensitive)
+
+        DIST_DIR=<a path to a directory>    if this is not passed, the default value is out/dist.
+                                            Should be absolute or relative to e.g. androidx-master-dev/
+
+    Sample usage: time busytown/merge.py mergeSourceJars DIST_DIR=out/dist
+    """)
+    exit(1)
+
+def main():
+    things_to_merge, dist_dir = parse_arguments()
+    move_to_dist_dir(dist_dir)
+    if SOURCE_JARS in things_to_merge: mergeSourceJars()
+    if EXECUTION_DATA in things_to_merge: mergeCoverageExecution()
+    if BUILD_INFO in things_to_merge:
+        mergeAggregateBuildInfoFiles()
+        mergeBuildInfoFolders()
+
+def parse_arguments():
+    things_to_merge = []
+    dist_dir = "out/dist"
+    for arg in sys.argv:
+        if any(arg.endswith(SKIPPED_SUFFIX) for SKIPPED_SUFFIX in SKIPPED_ARG_SUFFIXES): continue
+        elif arg in MERGE_COMMANDS:
+            things_to_merge += arg
+        elif "dist_dir" in arg.lower():
+            dist_dir = arg.split("=")[1]
+            dist_dir = remove_suffix(dist_dir, '/')
+            dist_dir = remove_suffix(dist_dir, '/ui')
+        elif any(help_keyword in arg for help_keyword in HELP_SYNTAX_LIST):
+            usage()
+        else:
+            print("ERROR:", arg, "is an invalid keyword")
+            usage()
+    return things_to_merge, dist_dir
+
+def move_to_dist_dir(dist_dir):
+    move_to_base_dir(print_pwd=False)
+    os.chdir(dist_dir)
+    print("Currently in", os.getcwd())
+
+def mergeSourceJars():
+    ziptmp = "ziptmp"
+    run_command("rm -rf " + ziptmp)
+    run_command("mkdir " + ziptmp)
+    # exclude these test/sample app files which are duplicated in the source jars so that `unzip` doesn't fail
+    # See b/145211240 for more context. A full solution may be blocked on b/143934485.
+    run_command("unzip -quo jacoco-report-classes.jar -d ziptmp -x \"testapp-debug-androidTest-allclasses*\"")
+    run_command("unzip -quo ui/jacoco-report-classes.jar -d ziptmp -x \"samples-debug-androidTest-allclasses*\"")
+    run_command("rm -f jacoco-report-classes-all.jar") # -f to not fail if file doesn't exist
+    run_command("jar -cf jacoco-report-classes-all.jar -C ziptmp .")
+    run_command("rm -rf " + ziptmp)
+
+def mergeCoverageExecution():
+    ziptmp = "ziptmp"
+    run_command("rm -rf " + ziptmp)
+    run_command("mkdir " + ziptmp)
+    run_command("unzip -quo coverage_ec_files.zip -d ziptmp") # -quo = quiet; keep newer only
+    run_command("unzip -quo ui/coverage_ec_files.zip -d ziptmp")
+    run_command("rm -f coverage_ec_files_all.zip") # -f to not fail if file doesn't exist
+    run_command("zip -rq coverage_ec_files_all.zip ziptmp")
+    run_command("rm -rf " + ziptmp)
+
+def mergeAggregateBuildInfoFiles() :
+    print("merging aggregate build info files")
+    androidx_buildInfo = json.load(open("androidx_aggregate_build_info.txt"))["artifacts"]
+    compose_buildInfo = json.load(open("ui/androidx_aggregate_build_info.txt"))["artifacts"]
+    duplicate_checking_dict = {}
+    for buildinfo in androidx_buildInfo + compose_buildInfo:
+        artifactId, groupId, sha = buildinfo["artifactId"], buildinfo["groupId"], buildinfo["sha"]
+        # artifactid and groupid is the unique identifier for libraries
+        if (artifactId, groupId) not in duplicate_checking_dict:
+            duplicate_checking_dict[(artifactId, groupId)] = (sha, buildinfo)
+        else: assert duplicate_checking_dict[(artifactId, groupId)][0] == sha # neither build is massively out-of-date
+        # don't allow androidx and compose to release two different versions of the same lib
+    resultJson = {"artifacts":[buildinfo for sha,buildinfo in duplicate_checking_dict.values()]}
+
+    with open("androidx_aggregate_build_info.txt", 'w') as outfile:
+        json.dump(resultJson, outfile, sort_keys=True, indent=4, separators=(',', ': '))
+
+def mergeBuildInfoFolders(): # -a = all in directory. -u = overwrite older (in case androidx build hasn't been run in a while)
+    run_command("cp -au ui/build-info/. build-info/")
+
+if __name__ == "__main__": main()
