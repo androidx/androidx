@@ -241,7 +241,8 @@ internal class RecordingInputConnection(
 
     override fun requestCursorUpdates(cursorUpdateMode: Int): Boolean {
         if (DEBUG) { Log.d(TAG, "requestCursorUpdates($cursorUpdateMode)") }
-        TODO("not implemented")
+        Log.w(TAG, "requestCursorUpdates is not supported")
+        return false
     }
 
     override fun getExtractedText(request: ExtractedTextRequest?, flags: Int): ExtractedText {
@@ -259,7 +260,8 @@ internal class RecordingInputConnection(
 
     override fun performContextMenuAction(id: Int): Boolean {
         if (DEBUG) { Log.d(TAG, "performContextMenuAction($id)") }
-        TODO("not implemented")
+        Log.w(TAG, "performContextMenuAction is not supported")
+        return false
     }
 
     override fun performEditorAction(editorAction: Int): Boolean {
