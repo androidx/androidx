@@ -139,7 +139,8 @@ class TextFieldDelegateTest {
             textDelegate = mDelegate,
             value = InputState(text = "Hello, World", selection = cursor),
             hasFocus = true,
-            offsetMap = identityOffsetMap
+            offsetMap = identityOffsetMap,
+            selectionColor = Color.Blue
         )
 
         verify(mDelegate, times(1)).paintCursor(eq(cursor.min), eq(canvas))
@@ -156,7 +157,8 @@ class TextFieldDelegateTest {
             textDelegate = mDelegate,
             value = InputState(text = "Hello, World", selection = cursor),
             hasFocus = false,
-            offsetMap = identityOffsetMap
+            offsetMap = identityOffsetMap,
+            selectionColor = Color.Blue
         )
 
         verify(mDelegate, never()).paintCursor(any(), any())

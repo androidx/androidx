@@ -15,16 +15,15 @@
  */
 package androidx.ui.core
 
-import androidx.compose.composer
 import androidx.compose.Composable
 import androidx.compose.memo
 import androidx.compose.unaryPlus
 import androidx.ui.core.input.FocusManager
-import androidx.ui.input.EditorStyle
 import androidx.ui.input.ImeAction
 import androidx.ui.input.KeyboardType
 import androidx.ui.input.PasswordVisualTransformation
 import androidx.ui.input.VisualTransformation
+import androidx.ui.text.TextStyle
 
 /**
  * A user interface element for entering and modifying password text.
@@ -41,7 +40,7 @@ import androidx.ui.input.VisualTransformation
  * @param onValueChange Called when the input service updates the text. When the input service
  * update the text, this callback is called with the updated text. If you want to observe the cursor
  * location or selection range, use [TextField] with [EditorModel] instead.
- * @param editorStyle The editor style.
+ * @param textStyle Style configuration that applies at character level such as color, font etc.
  * @param mask The character shown instead of plaint text.
  * @param imeAction The IME action. This IME action is honored by IME and may show specific icons
  * on the keyboard. For example, search icon may be shown if [ImeAction.Search] is specified.
@@ -56,7 +55,6 @@ import androidx.ui.input.VisualTransformation
  * input service emitted an IME action, this callback is called with the emitted IME action. Note
  * that this IME action may be different from what you specified in [imeAction].
  *
- * @see EditorStyle
  * @see ImeAction
  * @see KeyboardType
  * @see TextField
@@ -66,7 +64,7 @@ import androidx.ui.input.VisualTransformation
 fun PasswordTextField(
     value: String,
     onValueChange: (String) -> Unit = {},
-    editorStyle: EditorStyle? = null,
+    textStyle: TextStyle? = null,
     mask: Char = '\u2022',
     imeAction: ImeAction = ImeAction.Unspecified,
     onFocus: () -> Unit = {},
@@ -78,7 +76,7 @@ fun PasswordTextField(
     TextField(
         value = value,
         onValueChange = onValueChange,
-        editorStyle = editorStyle,
+        textStyle = textStyle,
         keyboardType = KeyboardType.Password,
         imeAction = imeAction,
         onFocus = onFocus,

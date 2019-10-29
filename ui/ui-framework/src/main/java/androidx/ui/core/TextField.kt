@@ -26,7 +26,6 @@ import androidx.ui.core.gesture.PressGestureDetector
 import androidx.ui.core.gesture.TouchSlopDragGestureDetector
 import androidx.ui.core.input.FocusManager
 import androidx.ui.input.EditProcessor
-import androidx.ui.input.EditorStyle
 import androidx.ui.input.ImeAction
 import androidx.ui.input.InputState
 import androidx.ui.input.KeyboardType
@@ -36,6 +35,7 @@ import androidx.ui.semantics.Semantics
 import androidx.ui.semantics.onClick
 import androidx.ui.text.TextDelegate
 import androidx.ui.text.TextRange
+import androidx.ui.text.TextStyle
 
 /**
  * A user interface element for entering and modifying text.
@@ -63,7 +63,7 @@ import androidx.ui.text.TextRange
  * @param onValueChange Called when the input service updates the text. When the input service
  * update the text, this callback is called with the updated text. If you want to observe the cursor
  * location or selection range, use [TextField] with [EditorModel] instead.
- * @param editorStyle The editor style.
+ * @param textStyle Style configuration that applies at character level such as color, font etc.
  * @param keyboardType The keyboard type to be used in this text field. Note that this input type
  * is honored by IME and shows corresponding keyboard but this is not guaranteed. For example,
  * some IME may send non-ASCII character even if you set [KeyboardType.Ascii].
@@ -83,7 +83,6 @@ import androidx.ui.text.TextRange
  *
  * @see PasswordTextField
  * @see EditorModel
- * @see EditorStyle
  * @see ImeAction
  * @see KeyboardType
  * @see VisualTransformation
@@ -92,7 +91,7 @@ import androidx.ui.text.TextRange
 fun TextField(
     value: String,
     onValueChange: (String) -> Unit = {},
-    editorStyle: EditorStyle? = null,
+    textStyle: TextStyle? = null,
     keyboardType: KeyboardType = KeyboardType.Text,
     imeAction: ImeAction = ImeAction.Unspecified,
     onFocus: () -> Unit = {},
@@ -122,7 +121,7 @@ fun TextField(
                 onValueChange(it.text)
             }
         },
-        editorStyle = editorStyle,
+        textStyle = textStyle,
         keyboardType = keyboardType,
         imeAction = imeAction,
         onFocus = onFocus,
@@ -171,7 +170,7 @@ data class EditorModel(
  * the input service update the text, selection or cursor, this callback is called with the updated
  * [EditorModel]. If you want to observe the composition text, use [TextField] with
  * compositionRange instead.
- * @param editorStyle The editor style.
+ * @param textStyle Style configuration that applies at character level such as color, font etc.
  * @param keyboardType The keyboard type to be used in this text field. Note that this input type
  * is honored by IME and shows corresponding keyboard but this is not guaranteed. For example,
  * some IME may send non-ASCII character even if you set [KeyboardType.Ascii].
@@ -190,7 +189,6 @@ data class EditorModel(
  * @param visualTransformation Optional visual filter for changing visual output of input field.
  *
  * @see EditorModel
- * @see EditorStyle
  * @see ImeAction
  * @see KeyboardType
  * @see VisualTransformation
@@ -199,7 +197,7 @@ data class EditorModel(
 fun TextField(
     value: EditorModel,
     onValueChange: (EditorModel) -> Unit = {},
-    editorStyle: EditorStyle? = null,
+    textStyle: TextStyle? = null,
     keyboardType: KeyboardType = KeyboardType.Text,
     imeAction: ImeAction = ImeAction.Unspecified,
     onFocus: () -> Unit = {},
@@ -229,7 +227,7 @@ fun TextField(
                 onValueChange(EditorModel(it.text, it.selection))
             }
         },
-        editorStyle = editorStyle,
+        textStyle = textStyle,
         keyboardType = keyboardType,
         imeAction = imeAction,
         onFocus = onFocus,
@@ -268,7 +266,7 @@ fun TextField(
  * @param onValueChange Called when the input service updates the text, selection or cursor. When
  * the input service update the text, selection or cursor, this callback is called with the updated
  * [EditorModel].
- * @param editorStyle The editor style.
+ * @param textStyle Style configuration that applies at character level such as color, font etc.
  * @param keyboardType The keyboard type to be used in this text field. Note that this input type
  * is honored by IME and shows corresponding keyboard but this is not guaranteed. For example,
  * some IME may send non-ASCII character even if you set [KeyboardType.Ascii].
@@ -287,7 +285,6 @@ fun TextField(
  * @param visualTransformation Optional visual filter for changing visual output of input field.
  *
  * @see EditorModel
- * @see EditorStyle
  * @see ImeAction
  * @see KeyboardType
  * @see VisualTransformation
@@ -297,7 +294,7 @@ fun TextField(
     model: EditorModel,
     compositionRange: TextRange?,
     onValueChange: (EditorModel, TextRange?) -> Unit = { _, _ -> },
-    editorStyle: EditorStyle? = null,
+    textStyle: TextStyle? = null,
     keyboardType: KeyboardType = KeyboardType.Text,
     imeAction: ImeAction = ImeAction.Unspecified,
     onFocus: () -> Unit = {},
@@ -309,7 +306,7 @@ fun TextField(
     BaseTextField(
         value = InputState(model.text, model.selection, compositionRange),
         onValueChange = { onValueChange(EditorModel(it.text, it.selection), it.composition) },
-        editorStyle = editorStyle,
+        textStyle = textStyle,
         keyboardType = keyboardType,
         imeAction = imeAction,
         onFocus = onFocus,
@@ -327,7 +324,7 @@ fun TextField(
 internal fun BaseTextField(
     value: InputState,
     onValueChange: (InputState) -> Unit = { },
-    editorStyle: EditorStyle? = null,
+    textStyle: TextStyle? = null,
     keyboardType: KeyboardType = KeyboardType.Text,
     imeAction: ImeAction = ImeAction.Unspecified,
     onFocus: () -> Unit = {},
@@ -354,7 +351,7 @@ internal fun BaseTextField(
 
         // Memos
         val processor = +memo { EditProcessor() }
-        val mergedStyle = style.merge(editorStyle?.textStyle)
+        val mergedStyle = style.merge(textStyle)
         val (visualText, offsetMap) = +memo(value, visualTransformation) {
             val transformed = TextFieldDelegate.applyVisualFilter(value, visualTransformation)
             value.composition?.let {
@@ -449,7 +446,7 @@ internal fun BaseTextField(
                             offsetMap,
                             textDelegate,
                             hasFocus.value,
-                            editorStyle?.selectionColor
+                            DefaultSelectionColor
                         )
                     }
                 },

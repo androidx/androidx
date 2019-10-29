@@ -20,7 +20,6 @@ import androidx.compose.Composable
 import androidx.compose.state
 import androidx.compose.unaryPlus
 import androidx.ui.core.TextField
-import androidx.ui.input.EditorStyle
 import androidx.ui.input.ImeAction
 import androidx.ui.input.KeyboardType
 import androidx.ui.layout.Column
@@ -86,6 +85,6 @@ fun EditLine(
         keyboardType = keyboardType,
         imeAction = imeAction,
         onValueChange = { state.value = it },
-        editorStyle = EditorStyle(textStyle = TextStyle(fontSize = fontSize8))
+        textStyle = TextStyle(fontSize = fontSize8)
     )
 }

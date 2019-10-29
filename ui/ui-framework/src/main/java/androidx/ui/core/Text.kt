@@ -65,7 +65,6 @@ internal val DefaultSelectionColor = Color(0x6633B5E5)
  * @param maxLines An optional maximum number of lines for the text to span, wrapping if
  * necessary. If the text exceeds the given number of lines, it will be truncated according to
  * [overflow] and [softWrap]. If it is not null, then it must be greater than zero.
- * @param selectionColor The color used to draw selected region.
  */
 @Composable
 fun Text(
@@ -75,7 +74,6 @@ fun Text(
     softWrap: Boolean = DefaultSoftWrap,
     overflow: TextOverflow = DefaultOverflow,
     maxLines: Int? = DefaultMaxLines,
-    selectionColor: Color = DefaultSelectionColor,
     child: @Composable TextSpanScope.() -> Unit
 ) {
     val rootTextSpan = +memo { TextSpan() }
@@ -90,8 +88,7 @@ fun Text(
         paragraphStyle = paragraphStyle,
         softWrap = softWrap,
         overflow = overflow,
-        maxLines = maxLines,
-        selectionColor = selectionColor
+        maxLines = maxLines
     )
 }
 
@@ -110,7 +107,6 @@ fun Text(
  * @param maxLines An optional maximum number of lines for the text to span, wrapping if
  * necessary. If the text exceeds the given number of lines, it will be truncated according to
  * [overflow] and [softWrap]. If it is not null, then it must be greater than zero.
- * @param selectionColor The color used to draw selected region.
  */
 @Composable
 fun Text(
@@ -120,8 +116,7 @@ fun Text(
     paragraphStyle: ParagraphStyle? = null,
     softWrap: Boolean = DefaultSoftWrap,
     overflow: TextOverflow = DefaultOverflow,
-    maxLines: Int? = DefaultMaxLines,
-    selectionColor: Color = DefaultSelectionColor
+    maxLines: Int? = DefaultMaxLines
 ) {
     Text(
         text = AnnotatedString(text),
@@ -130,8 +125,7 @@ fun Text(
         paragraphStyle = paragraphStyle,
         softWrap = softWrap,
         overflow = overflow,
-        maxLines = maxLines,
-        selectionColor = selectionColor
+        maxLines = maxLines
     )
 }
 
@@ -151,7 +145,6 @@ fun Text(
  * @param maxLines An optional maximum number of lines for the text to span, wrapping if
  * necessary. If the text exceeds the given number of lines, it will be truncated according to
  * [overflow] and [softWrap]. If it is not null, then it must be greater than zero.
- * @param selectionColor The color used to draw selected region.
  */
 @Composable
 fun Text(
@@ -161,8 +154,7 @@ fun Text(
     paragraphStyle: ParagraphStyle? = null,
     softWrap: Boolean = DefaultSoftWrap,
     overflow: TextOverflow = DefaultOverflow,
-    maxLines: Int? = DefaultMaxLines,
-    selectionColor: Color = DefaultSelectionColor
+    maxLines: Int? = DefaultMaxLines
 ) {
     maxLines?.let {
         require(it > 0) { "maxLines should be greater than 0" }
@@ -217,7 +209,7 @@ fun Text(
             Draw { canvas, _ ->
                 selectionRange.value?.let {
                     textDelegate.paintBackground(
-                        it.min, it.max, selectionColor, canvas
+                        it.min, it.max, DefaultSelectionColor, canvas
                     )
                 }
                 textDelegate.paint(canvas)

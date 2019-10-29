@@ -27,9 +27,7 @@ import androidx.ui.core.TextInputServiceAmbient
 import androidx.ui.core.input.FocusManager
 import androidx.ui.input.CommitTextEditOp
 import androidx.ui.input.EditOperation
-import androidx.ui.input.EditorStyle
 import androidx.ui.input.InputState
-import androidx.ui.input.SetComposingRegionEditOp
 import androidx.ui.input.TextInputService
 import androidx.ui.test.createComposeRule
 import androidx.ui.test.doClick
@@ -39,10 +37,8 @@ import com.google.common.truth.Truth.assertThat
 import com.nhaarman.mockitokotlin2.any
 import com.nhaarman.mockitokotlin2.argumentCaptor
 import com.nhaarman.mockitokotlin2.atLeastOnce
-import com.nhaarman.mockitokotlin2.clearInvocations
 import com.nhaarman.mockitokotlin2.eq
 import com.nhaarman.mockitokotlin2.mock
-import com.nhaarman.mockitokotlin2.never
 import com.nhaarman.mockitokotlin2.times
 import com.nhaarman.mockitokotlin2.verify
 import com.nhaarman.mockitokotlin2.whenever
@@ -68,8 +64,7 @@ class TextFieldTest {
                     TestTag(tag = "textField") {
                         TextField(
                             value = state.value,
-                            onValueChange = { state.value = it },
-                            editorStyle = EditorStyle()
+                            onValueChange = { state.value = it }
                         )
                     }
                 }
