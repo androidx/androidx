@@ -169,15 +169,8 @@ final class ZoomControl {
                             Rect cropRect = (request == null) ? null :
                                     request.get(CaptureRequest.SCALER_CROP_REGION);
 
-                            // crop region becomes null when zoomRatio==1.0f so we have to check
-                            // separately.
-                            boolean isRatioOneNullMatched =
-                                    cropRect == null && mPendingZoomCropRegion == null;
-                            boolean isRatioOthersRegionMatched =
-                                    mPendingZoomCropRegion != null
-                                            && mPendingZoomCropRegion.equals(cropRect);
-
-                            if (isRatioOneNullMatched || isRatioOthersRegionMatched) {
+                            if (mPendingZoomCropRegion != null
+                                    && mPendingZoomCropRegion.equals(cropRect)) {
                                 completerToSet = mPendingZoomRatioCompleter;
                                 mPendingZoomRatioCompleter = null;
                                 mPendingZoomCropRegion = null;
@@ -233,8 +226,9 @@ final class ZoomControl {
         }
     }
 
+    @NonNull
     @VisibleForTesting
-    static Rect getCropRectByRatio(Rect sensorRect, float ratio) {
+    static Rect getCropRectByRatio(@NonNull Rect sensorRect, float ratio) {
         float cropWidth = (sensorRect.width() / ratio);
         float cropHeight = (sensorRect.height() / ratio);
         float left = ((sensorRect.width() - cropWidth) / 2.0f);
@@ -256,13 +250,7 @@ final class ZoomControl {
             setLiveDataValue(mZoomPercentageLiveData, getPercentageByRatio(ratio));
         }
 
-        Rect targetRegion;
-        // if Ratio is 1.0f, we simply remove the crop region parameter.
-        if (ratio == 1.0f) {
-            targetRegion = null;
-        } else {
-            targetRegion = getCropRectByRatio(sensorRect, ratio);
-        }
+        Rect targetRegion = getCropRectByRatio(sensorRect, ratio);
         mCamera2CameraControl.setCropRegion(targetRegion);
 
         return CallbackToFutureAdapter.getFuture(new CallbackToFutureAdapter.Resolver<Void>() {
