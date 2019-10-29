@@ -189,12 +189,12 @@ public final class ZoomControlDeviceTest {
     }
 
     @Test
-    public void setZoomRatioBy1_0_CropRegionIsRemoved() throws InterruptedException {
+    public void setZoomRatioBy1_0_isEqualToSensorRect() throws InterruptedException {
         mZoomControl.setZoomRatio(1.0f);
         HandlerUtil.waitForLooperToIdle(mHandler);
 
         Rect sessionCropRegion = getSessionCropRegion(mControlUpdateCallback);
-        assertThat(sessionCropRegion).isEqualTo(null);
+        assertThat(sessionCropRegion).isEqualTo(getSensorRect());
     }
 
     @Test
