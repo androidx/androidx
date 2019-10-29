@@ -353,6 +353,10 @@ public class ImageCapture extends UseCase {
     /**
      * Set the flash mode.
      *
+     * <p>When the torch is enabled via {@link CameraControl#enableTorch(boolean)}, the torch
+     * will remain enabled during photo capture regardless of {@link FlashMode} setting. When
+     * the torch is disabled, flash will function as specified by {@link #setFlashMode(FlashMode)}.
+     *
      * @param flashMode the {@link FlashMode}.
      */
     public void setFlashMode(@NonNull FlashMode flashMode) {

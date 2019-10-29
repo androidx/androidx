@@ -24,6 +24,7 @@ import androidx.camera.core.CameraInfoInternal;
 import androidx.camera.core.CameraOrientationUtil;
 import androidx.camera.core.ImageOutputConfig.RotationValue;
 import androidx.camera.core.LensFacing;
+import androidx.camera.core.TorchState;
 import androidx.lifecycle.LiveData;
 import androidx.lifecycle.MutableLiveData;
 
@@ -37,10 +38,11 @@ public final class FakeCameraInfoInternal implements CameraInfoInternal {
     private final int mSensorRotation;
     private final LensFacing mLensFacing;
     private MutableLiveData<Boolean> mFlashAvailability = new MutableLiveData<>(Boolean.TRUE);
+    private MutableLiveData<TorchState> mTorchState = new MutableLiveData<>(TorchState.DISABLED);
     private MutableLiveData<Float> mMaxZoom = new MutableLiveData<>(4.0f);
     private MutableLiveData<Float> mMinZoom = new MutableLiveData<>(1.0f);
     private MutableLiveData<Float> mZoomRatio = new MutableLiveData<>(1.0f);
-    private MutableLiveData<Float> mZoomPerecentage = new MutableLiveData<>(0f);
+    private MutableLiveData<Float> mZoomPercentage = new MutableLiveData<>(0f);
 
 
 
@@ -86,6 +88,12 @@ public final class FakeCameraInfoInternal implements CameraInfoInternal {
 
     @NonNull
     @Override
+    public LiveData<TorchState> getTorchState() {
+        return mTorchState;
+    }
+
+    @NonNull
+    @Override
     public LiveData<Float> getZoomRatio() {
         return mZoomRatio;
     }
@@ -105,6 +113,6 @@ public final class FakeCameraInfoInternal implements CameraInfoInternal {
     @NonNull
     @Override
     public LiveData<Float> getZoomPercentage() {
-        return mZoomPerecentage;
+        return mZoomPercentage;
     }
 }
