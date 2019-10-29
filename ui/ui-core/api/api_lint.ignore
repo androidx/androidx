@@ -13,6 +13,16 @@ AcronymName: androidx.ui.core.DpInverse#plus-ASDJgtI(float, float):
     Acronyms should not be capitalized in method names: was `plus-ASDJgtI`, should this be `plus-AsdJgtI`?
 AcronymName: androidx.ui.core.DpInverse#times-KkBJKWw(float, float):
     Acronyms should not be capitalized in method names: was `times-KkBJKWw`, should this be `times-KkBjkWw`?
+AcronymName: androidx.ui.core.DpKt#getDistance-JXBE4ew(long):
+    Acronyms should not be capitalized in method names: was `getDistance-JXBE4ew`, should this be `getDistance-JxbE4ew`?
+AcronymName: androidx.ui.core.DpKt#lerp-SuMVOfk(long, long, float):
+    Acronyms should not be capitalized in method names: was `lerp-SuMVOfk`, should this be `lerp-SuMvOfk`?
+AcronymName: androidx.ui.core.DpKt#times-Ze-JISM(int, long):
+    Acronyms should not be capitalized in method names: was `times-Ze-JISM`, should this be `times-Ze-Jism`?
+AcronymName: androidx.ui.core.DpKt#times-doH9uME(float, long):
+    Acronyms should not be capitalized in method names: was `times-doH9uME`, should this be `times-doH9uMe`?
+AcronymName: androidx.ui.core.DpKt#times-nKWVx08(double, long):
+    Acronyms should not be capitalized in method names: was `times-nKWVx08`, should this be `times-nKwVx08`?
 AcronymName: androidx.ui.core.DpSquared#compareTo-KkBJKWw(float, float):
     Acronyms should not be capitalized in method names: was `compareTo-KkBJKWw`, should this be `compareTo-KkBjkWw`?
 AcronymName: androidx.ui.core.DpSquared#div-KkBJKWw(float, float):
@@ -21,6 +31,10 @@ AcronymName: androidx.ui.core.DpSquared#minus-KkBJKWw(float, float):
     Acronyms should not be capitalized in method names: was `minus-KkBJKWw`, should this be `minus-KkBjkWw`?
 AcronymName: androidx.ui.core.DpSquared#plus-KkBJKWw(float, float):
     Acronyms should not be capitalized in method names: was `plus-KkBJKWw`, should this be `plus-KkBjkWw`?
+AcronymName: androidx.ui.core.Position#minus-JXBE4ew(long, long):
+    Acronyms should not be capitalized in method names: was `minus-JXBE4ew`, should this be `minus-JxbE4ew`?
+AcronymName: androidx.ui.core.Position#plus-JXBE4ew(long, long):
+    Acronyms should not be capitalized in method names: was `plus-JXBE4ew`, should this be `plus-JxbE4ew`?
 AcronymName: androidx.ui.core.Px#div-kVJEwbQ(float):
     Acronyms should not be capitalized in method names: was `div-kVJEwbQ`, should this be `div-kVjEwbQ`?
 AcronymName: androidx.ui.core.Px#times-kVJEwbQ(float):
@@ -111,10 +125,6 @@ KotlinOperator: androidx.ui.engine.geometry.Size#contains(androidx.ui.engine.geo
     Note that adding the `operator` keyword would allow calling this method using operator syntax
 KotlinOperator: androidx.ui.graphics.Path#contains(androidx.ui.engine.geometry.Offset):
     Note that adding the `operator` keyword would allow calling this method using operator syntax
-KotlinOperator: androidx.ui.text.TextRange#contains(androidx.ui.text.TextRange):
-    Note that adding the `operator` keyword would allow calling this method using operator syntax
-KotlinOperator: androidx.ui.text.TextRange#contains(int):
-    Note that adding the `operator` keyword would allow calling this method using operator syntax
 
 
 MethodNameUnits: androidx.ui.core.Durations#inSeconds(androidx.ui.core.Duration):
@@ -151,6 +161,10 @@ MissingNullability: androidx.ui.core.Modifier.None#INSTANCE:
     Missing nullability on field `INSTANCE` in class `class androidx.ui.core.Modifier.None`
 MissingNullability: androidx.ui.core.Placeable#PlacementScope:
     Missing nullability on field `PlacementScope` in class `class androidx.ui.core.Placeable`
+MissingNullability: androidx.ui.core.Position#equals(Object) parameter #0:
+    Missing nullability on parameter `p` in method `equals`
+MissingNullability: androidx.ui.core.Position#toString():
+    Missing nullability on method `toString` return
 MissingNullability: androidx.ui.core.Px#Companion:
     Missing nullability on field `Companion` in class `class androidx.ui.core.Px`
 MissingNullability: androidx.ui.core.PxCubed#equals(Object) parameter #0:
@@ -170,6 +184,10 @@ MissingNullability: androidx.ui.core.PxSize#Companion:
 MissingNullability: androidx.ui.core.PxSquared#equals(Object) parameter #0:
     Missing nullability on parameter `p` in method `equals`
 MissingNullability: androidx.ui.core.PxSquared#toString():
+    Missing nullability on method `toString` return
+MissingNullability: androidx.ui.core.Size#equals(Object) parameter #0:
+    Missing nullability on parameter `p` in method `equals`
+MissingNullability: androidx.ui.core.Size#toString():
     Missing nullability on method `toString` return
 MissingNullability: androidx.ui.core.Sp#Companion:
     Missing nullability on field `Companion` in class `class androidx.ui.core.Sp`

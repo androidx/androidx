@@ -410,17 +410,17 @@ inline class DpInverse(val value: Float) {
  */
 @UseExperimental(ExperimentalUnsignedTypes::class)
 @Immutable
-data class Size @PublishedApi internal constructor(@PublishedApi internal val value: Long) {
+inline class Size(@PublishedApi internal val value: Long) {
     /**
      * The horizontal aspect of the size in [Dp].
      */
-    inline val width: Dp
+    /*inline*/ val width: Dp
         get() = unpackFloat1(value).dp
 
     /**
      * The vertical aspect of the size in [Dp].
      */
-    inline val height: Dp
+    /*inline*/ val height: Dp
         get() = unpackFloat2(value).dp
 
     /**
@@ -493,17 +493,17 @@ fun Size.center(): Position {
  */
 @UseExperimental(ExperimentalUnsignedTypes::class)
 @Immutable
-data class Position @PublishedApi internal constructor(@PublishedApi internal val value: Long) {
+inline class Position(@PublishedApi internal val value: Long) {
     /**
      * The horizontal aspect of the position in [Dp]
      */
-    inline val x: Dp
+    /*inline*/ val x: Dp
         get() = unpackFloat1(value).dp
 
     /**
      * The vertical aspect of the position in [Dp]
      */
-    inline val y: Dp
+    /*inline*/ val y: Dp
         get() = unpackFloat2(value).dp
 
     /**
