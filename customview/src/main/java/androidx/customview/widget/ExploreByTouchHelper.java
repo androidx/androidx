@@ -34,7 +34,6 @@ import androidx.core.view.AccessibilityDelegateCompat;
 import androidx.core.view.ViewCompat;
 import androidx.core.view.ViewCompat.FocusDirection;
 import androidx.core.view.ViewCompat.FocusRealDirection;
-import androidx.core.view.ViewParentCompat;
 import androidx.core.view.accessibility.AccessibilityEventCompat;
 import androidx.core.view.accessibility.AccessibilityNodeInfoCompat;
 import androidx.core.view.accessibility.AccessibilityNodeProviderCompat;
@@ -515,7 +514,7 @@ public abstract class ExploreByTouchHelper extends AccessibilityDelegateCompat {
         }
 
         final AccessibilityEvent event = createEvent(virtualViewId, eventType);
-        return ViewParentCompat.requestSendAccessibilityEvent(parent, mHost, event);
+        return parent.requestSendAccessibilityEvent(mHost, event);
     }
 
     /**
@@ -573,7 +572,7 @@ public abstract class ExploreByTouchHelper extends AccessibilityDelegateCompat {
                 final AccessibilityEvent event = createEvent(virtualViewId,
                         AccessibilityEvent.TYPE_WINDOW_CONTENT_CHANGED);
                 AccessibilityEventCompat.setContentChangeTypes(event, changeTypes);
-                ViewParentCompat.requestSendAccessibilityEvent(parent, mHost, event);
+                parent.requestSendAccessibilityEvent(mHost, event);
             }
         }
     }
@@ -797,6 +796,7 @@ public abstract class ExploreByTouchHelper extends AccessibilityDelegateCompat {
         node.setEnabled(true);
         node.setFocusable(true);
         node.setClassName(DEFAULT_CLASS_NAME);
+
         node.setBoundsInParent(INVALID_PARENT_BOUNDS);
         node.setBoundsInScreen(INVALID_PARENT_BOUNDS);
         node.setParent(mHost);

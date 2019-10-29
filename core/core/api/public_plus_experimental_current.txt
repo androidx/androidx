@@ -1306,7 +1306,7 @@ package androidx.core.os {
   }
 
   public final class EnvironmentCompat {
-    method public static String! getStorageState(java.io.File);
+    method public static String getStorageState(java.io.File);
     field public static final String MEDIA_UNKNOWN = "unknown";
   }
 
