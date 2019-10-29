@@ -75,7 +75,7 @@ package androidx.media2.session {
     method public androidx.media2.common.MediaMetadata? getPlaylistMetadata();
     method public int getPreviousMediaItemIndex();
     method @androidx.media2.common.SessionPlayer.RepeatMode public int getRepeatMode();
-    method public androidx.media2.common.SessionPlayer.TrackInfo? getSelectedTrack(int);
+    method public androidx.media2.common.SessionPlayer.TrackInfo? getSelectedTrack(@androidx.media2.common.SessionPlayer.TrackInfo.MediaTrackType int);
     method public android.app.PendingIntent? getSessionActivity();
     method @androidx.media2.common.SessionPlayer.ShuffleMode public int getShuffleMode();
     method public java.util.List<androidx.media2.common.SessionPlayer.TrackInfo!> getTracks();
