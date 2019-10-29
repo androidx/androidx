@@ -34,7 +34,7 @@ import java.util.concurrent.TimeUnit;
  * You can control when the work executes in the period interval more exactly - see
  * {@link PeriodicWorkRequest.Builder} for documentation on {@code flexInterval}s.
  * <p>
- * Periodic work has a minimum interval of 15 minutes and it cannot have an initial delay.
+ * Periodic work has a minimum interval of 15 minutes.
  * <p>
  * Periodic work is intended for use cases where you want a fairly consistent delay between
  * consecutive runs, and you are willing to accept inexactness due to battery optimizations and doze
