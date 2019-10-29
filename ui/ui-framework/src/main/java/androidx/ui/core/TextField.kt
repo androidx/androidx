@@ -48,7 +48,7 @@ import androidx.ui.text.TextRange
  * Example usage:
  * @sample androidx.ui.framework.samples.StringTextFieldSample
  *
- * This is the most simple TextFiled that observes only text update and have control only for the
+ * This is the most simple TextField that observes only text update and have control only for the
  * text. If you want to change/observe the selection/cursor location, you can use TextField with
  * [EditorModel] object.
  *
