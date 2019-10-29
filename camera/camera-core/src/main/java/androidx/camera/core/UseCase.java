@@ -26,11 +26,13 @@ import androidx.annotation.RestrictTo;
 import androidx.annotation.RestrictTo.Scope;
 import androidx.camera.core.Config.Option;
 import androidx.camera.core.UseCaseConfig.Builder;
+import androidx.core.util.Preconditions;
 
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Map;
 import java.util.Map.Entry;
+import java.util.Objects;
 import java.util.Set;
 
 /**
@@ -363,6 +365,35 @@ public abstract class UseCase {
             throw new IllegalArgumentException(
                     "Unable to get camera id for the camera selector.", e);
         }
+    }
+
+    /**
+     * Returns the camera ID for the currently bound camera, or throws an exception if no camera is
+     * bound.
+     * @hide
+     */
+    @RestrictTo(Scope.LIBRARY_GROUP)
+    @NonNull
+    protected String getBoundCameraId() {
+        CameraDeviceConfig deviceConfig = Preconditions.checkNotNull(getBoundDeviceConfig(), "No "
+                + "camera bound to use case: " + this);
+        return getCameraIdUnchecked(deviceConfig);
+    }
+
+    /**
+     * Checks whether the provided camera ID is the currently bound camera ID.
+     * @hide
+     */
+    @RestrictTo(Scope.LIBRARY_GROUP)
+    protected boolean isCurrentlyBoundCamera(@NonNull String cameraId) {
+        String boundCameraId = null;
+        CameraDeviceConfig deviceConfig = getBoundDeviceConfig();
+        if (deviceConfig != null) {
+            boundCameraId = getCameraIdUnchecked(deviceConfig);
+        }
+
+        // Bound camera changed. Don't attempt reset.
+        return !Objects.equals(cameraId, boundCameraId);
     }
 
     /**

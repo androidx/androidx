@@ -440,8 +440,7 @@ public final class CameraXTest {
 
             SessionConfig.Builder builder = new SessionConfig.Builder();
 
-            CameraDeviceConfig config = getBoundDeviceConfig();
-            String cameraId = getCameraIdUnchecked(config);
+            String cameraId = getBoundCameraId();
             attachToCamera(cameraId, builder.build());
             return suggestedResolutionMap;
         }

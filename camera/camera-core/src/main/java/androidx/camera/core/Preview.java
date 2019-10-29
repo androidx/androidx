@@ -91,7 +91,8 @@ public class Preview extends UseCase {
     }
 
     @SuppressWarnings("WeakerAccess") /* synthetic accessor */
-    SessionConfig.Builder createPipeline(PreviewConfig config, Size resolution) {
+    SessionConfig.Builder createPipeline(@NonNull String cameraId, @NonNull PreviewConfig config,
+            @NonNull Size resolution) {
         Threads.checkMainThread();
         Preconditions.checkState(isPreviewSurfaceCallbackSet());
         SessionConfig.Builder sessionConfigBuilder = SessionConfig.Builder.createFrom(config);
@@ -150,10 +151,17 @@ public class Preview extends UseCase {
             public void onError(@NonNull SessionConfig sessionConfig,
                     @NonNull SessionConfig.SessionError error) {
                 callbackDeferrableSurface.release();
-                SessionConfig.Builder sessionConfigBuilder = createPipeline(config, resolution);
-                String cameraId = getCameraIdUnchecked(config);
-                attachToCamera(cameraId, sessionConfigBuilder.build());
-                notifyReset();
+
+                // Ensure the bound camera has not changed before resetting.
+                // TODO(b/143915543): Ensure this never gets called by a camera that is not bound
+                //  to this use case so we don't need to do this check.
+                if (isCurrentlyBoundCamera(cameraId)) {
+                    SessionConfig.Builder sessionConfigBuilder = createPipeline(cameraId, config,
+                            resolution);
+
+                    attachToCamera(cameraId, sessionConfigBuilder.build());
+                    notifyReset();
+                }
             }
         });
 
@@ -206,7 +214,8 @@ public class Preview extends UseCase {
             mPreviewSurfaceCallbackExecutor = callbackExecutor;
             notifyActive();
             if (mLatestResolution != null) {
-                updateConfigAndOutput((PreviewConfig) getUseCaseConfig(), mLatestResolution);
+                updateConfigAndOutput(getBoundCameraId(), (PreviewConfig) getUseCaseConfig(),
+                        mLatestResolution);
             }
         }
     }
@@ -232,15 +241,15 @@ public class Preview extends UseCase {
         return mPreviewSurfaceCallback != null && mPreviewSurfaceCallbackExecutor != null;
     }
 
-    private void updateConfigAndOutput(PreviewConfig config, Size resolution) {
+
+    private void updateConfigAndOutput(@NonNull String cameraId, @NonNull PreviewConfig config,
+            @NonNull Size resolution) {
         Preconditions.checkState(isPreviewSurfaceCallbackSet());
-        String cameraId = getCameraIdUnchecked(config);
-        attachToCamera(cameraId, createPipeline(config, resolution).build());
+        attachToCamera(cameraId, createPipeline(cameraId, config, resolution).build());
     }
 
     private CameraControlInternal getCurrentCameraControl() {
-        PreviewConfig config = (PreviewConfig) getUseCaseConfig();
-        String cameraId = getCameraIdUnchecked(config);
+        String cameraId = getBoundCameraId();
         return getCameraControl(cameraId);
     }
 
@@ -344,16 +353,16 @@ public class Preview extends UseCase {
     @NonNull
     protected Map<String, Size> onSuggestedResolutionUpdated(
             @NonNull Map<String, Size> suggestedResolutionMap) {
-        PreviewConfig config = (PreviewConfig) getUseCaseConfig();
-        String cameraId = getCameraIdUnchecked(config);
+        String cameraId = getBoundCameraId();
         Size resolution = suggestedResolutionMap.get(cameraId);
         if (resolution == null) {
             throw new IllegalArgumentException(
                     "Suggested resolution map missing resolution for camera " + cameraId);
         }
         mLatestResolution = resolution;
+
         if (isPreviewSurfaceCallbackSet()) {
-            updateConfigAndOutput(config, resolution);
+            updateConfigAndOutput(cameraId, (PreviewConfig) getUseCaseConfig(), resolution);
         }
         return suggestedResolutionMap;
     }
