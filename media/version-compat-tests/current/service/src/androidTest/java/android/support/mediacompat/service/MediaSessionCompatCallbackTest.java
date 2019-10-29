@@ -383,13 +383,11 @@ public class MediaSessionCompatCallbackTest {
     }
 
     /**
-     * Tests {@link MediaSessionCompat#setCallback} with {@code null}.
-     * From API 28, {@code setCallback(null)} should remove all posted callback messages.
-     * Therefore, no callback should be called once {@code setCallback(null)} is done.
+     * Tests whether {@link MediaSessionCompat#setCallback} with {@code null} stops receiving
+     * callback methods.
      */
     @Test
     @SmallTest
-    @SdkSuppress(minSdkVersion = Build.VERSION_CODES.P)
     public void testSetCallbackWithNullShouldRemoveCallbackMessages() throws Exception {
         mSession.setActive(true);
         mCallback.reset(1);
@@ -403,6 +401,31 @@ public class MediaSessionCompatCallbackTest {
         });
         assertFalse(mCallback.await(WAIT_TIME_FOR_NO_RESPONSE_MS));
         assertEquals("Callback shouldn't be called.", 0, mCallback.mOnPlayCalledCount);
+    }
+
+    /**
+     * Tests whether {@link MediaSessionCompat#setCallback} with different callback prevents
+     * old callback from receiving callback methods.
+     */
+    @Test
+    @SmallTest
+    public void testSetCallbacWithDifferentCallback() throws Exception {
+        mSession.setActive(true);
+        mCallback.reset(1);
+        final MediaSessionCallback newCallback = new MediaSessionCallback();
+        newCallback.reset(1);
+        getInstrumentation().runOnMainSync(new Runnable() {
+            @Override
+            public void run() {
+                sendMediaKeyEventFromController(KeyEvent.KEYCODE_MEDIA_PLAY_PAUSE, false);
+                mSession.setCallback(newCallback);
+            }
+        });
+        assertFalse(mCallback.await(WAIT_TIME_FOR_NO_RESPONSE_MS));
+        assertEquals("Callback shouldn't be called.", 0, mCallback.mOnPlayCalledCount);
+
+        assertFalse(newCallback.await(WAIT_TIME_FOR_NO_RESPONSE_MS));
+        assertEquals("Callback shouldn't be called.", 0, newCallback.mOnPlayCalledCount);
     }
 
     @Test

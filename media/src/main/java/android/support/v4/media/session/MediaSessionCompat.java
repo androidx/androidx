@@ -601,7 +601,7 @@ public class MediaSessionCompat {
     /**
      * Adds a callback to receive updates on for the MediaSession. This includes
      * media button and volume events. The caller's thread will be used to post
-     * events.
+     * events. Set the callback to null to stop receiving events.
      * <p>
      * Don't reuse the callback among the sessions. Callbacks keep internal reference to the
      * session when it's set, so it may misbehave.
@@ -1103,10 +1103,15 @@ public class MediaSessionCompat {
      * session when it's set, so it may misbehave.
      */
     public abstract static class Callback {
+        final Object mLock = new Object();
         final MediaSession.Callback mCallbackFwk;
+        private boolean mMediaPlayPausePendingOnHandler;
+
+        @GuardedBy("mLock")
         WeakReference<MediaSessionImpl> mSessionImpl;
-        private CallbackHandler mCallbackHandler = null;
-        private boolean mMediaPlayPauseKeyPending;
+        @GuardedBy("mLock")
+        @SuppressWarnings("WeakerAccess") /* synthetic access */
+        CallbackHandler mCallbackHandler;
 
         public Callback() {
             if (android.os.Build.VERSION.SDK_INT >= 21) {
@@ -1114,14 +1119,18 @@ public class MediaSessionCompat {
             } else {
                 mCallbackFwk = null;
             }
+            mSessionImpl = new WeakReference<>(null);
         }
 
         void setSessionImpl(MediaSessionImpl impl, Handler handler) {
-            mSessionImpl = new WeakReference<MediaSessionImpl>(impl);
-            if (mCallbackHandler != null) {
-                mCallbackHandler.removeCallbacksAndMessages(null);
+            synchronized (mLock) {
+                mSessionImpl = new WeakReference<MediaSessionImpl>(impl);
+                if (mCallbackHandler != null) {
+                    mCallbackHandler.removeCallbacksAndMessages(null);
+                }
+                mCallbackHandler = impl == null || handler == null ? null :
+                        new CallbackHandler(handler.getLooper());
             }
-            mCallbackHandler = new CallbackHandler(handler.getLooper());
         }
 
         /**
@@ -1155,8 +1164,13 @@ public class MediaSessionCompat {
                 //       framework handles the double tap.
                 return false;
             }
-            MediaSessionImpl impl = mSessionImpl.get();
-            if (impl == null || mCallbackHandler == null) {
+            MediaSessionImpl impl;
+            Handler callbackHandler;
+            synchronized (mLock) {
+                impl = mSessionImpl.get();
+                callbackHandler = mCallbackHandler;
+            }
+            if (impl == null || callbackHandler == null) {
                 return false;
             }
             KeyEvent keyEvent = mediaButtonEvent.getParcelableExtra(Intent.EXTRA_KEY_EVENT);
@@ -1168,47 +1182,46 @@ public class MediaSessionCompat {
             switch (keyCode) {
                 case KeyEvent.KEYCODE_MEDIA_PLAY_PAUSE:
                 case KeyEvent.KEYCODE_HEADSETHOOK:
-                    if (keyEvent.getRepeatCount() > 0) {
-                        // Consider long-press as a single tap.
-                        handleMediaPlayPauseKeySingleTapIfPending();
-                    } else if (mMediaPlayPauseKeyPending) {
-                        mCallbackHandler.removeMessages(
-                                CallbackHandler.MSG_MEDIA_PLAY_PAUSE_KEY_DOUBLE_TAP_TIMEOUT);
-                        mMediaPlayPauseKeyPending = false;
-                        PlaybackStateCompat state = impl.getPlaybackState();
-                        long validActions = state == null ? 0 : state.getActions();
-                        // Consider double tap as the next.
-                        if ((validActions & PlaybackStateCompat.ACTION_SKIP_TO_NEXT) != 0) {
-                            onSkipToNext();
+                    if (keyEvent.getRepeatCount() == 0) {
+                        if (mMediaPlayPausePendingOnHandler) {
+                            callbackHandler.removeMessages(
+                                    CallbackHandler.MSG_MEDIA_PLAY_PAUSE_KEY_DOUBLE_TAP_TIMEOUT);
+                            mMediaPlayPausePendingOnHandler = false;
+                            PlaybackStateCompat state = impl.getPlaybackState();
+                            long validActions = state == null ? 0 : state.getActions();
+                            // Consider double tap as the next.
+                            if ((validActions & PlaybackStateCompat.ACTION_SKIP_TO_NEXT) != 0) {
+                                onSkipToNext();
+                            }
+                        } else {
+                            mMediaPlayPausePendingOnHandler = true;
+                            callbackHandler.sendMessageDelayed(callbackHandler.obtainMessage(
+                                    CallbackHandler.MSG_MEDIA_PLAY_PAUSE_KEY_DOUBLE_TAP_TIMEOUT,
+                                    remoteUserInfo),
+                                    ViewConfiguration.getDoubleTapTimeout());
                         }
                     } else {
-                        mMediaPlayPauseKeyPending = true;
-                        mCallbackHandler.sendMessageDelayed(mCallbackHandler.obtainMessage(
-                                CallbackHandler.MSG_MEDIA_PLAY_PAUSE_KEY_DOUBLE_TAP_TIMEOUT,
-                                remoteUserInfo),
-                                ViewConfiguration.getDoubleTapTimeout());
+                        // Consider long-press as a single tap.
+                        handleMediaPlayPauseIfPendingOnHandler(impl, callbackHandler);
                     }
                     return true;
                 default:
                     // If another key is pressed within double tap timeout, consider the pending
                     // pending play/pause as a single tap to handle media keys in order.
-                    handleMediaPlayPauseKeySingleTapIfPending();
+                    handleMediaPlayPauseIfPendingOnHandler(impl, callbackHandler);
                     break;
             }
             return false;
         }
 
-        void handleMediaPlayPauseKeySingleTapIfPending() {
-            if (!mMediaPlayPauseKeyPending) {
+        void handleMediaPlayPauseIfPendingOnHandler(MediaSessionImpl impl,
+                Handler callbackHandler) {
+            if (!mMediaPlayPausePendingOnHandler) {
                 return;
             }
-            mMediaPlayPauseKeyPending = false;
-            mCallbackHandler.removeMessages(
+            mMediaPlayPausePendingOnHandler = false;
+            callbackHandler.removeMessages(
                     CallbackHandler.MSG_MEDIA_PLAY_PAUSE_KEY_DOUBLE_TAP_TIMEOUT);
-            MediaSessionImpl impl = mSessionImpl.get();
-            if (impl == null) {
-                return;
-            }
             PlaybackStateCompat state = impl.getPlaybackState();
             long validActions = state == null ? 0 : state.getActions();
             boolean isPlaying = state != null
@@ -1480,13 +1493,20 @@ public class MediaSessionCompat {
                 if (msg.what == MSG_MEDIA_PLAY_PAUSE_KEY_DOUBLE_TAP_TIMEOUT) {
                     // Here we manually set the caller info, since this is not directly called from
                     // the session callback. This is triggered by timeout.
-                    MediaSessionImpl impl = mSessionImpl.get();
-                    if (impl == null) {
+                    MediaSessionImpl impl;
+                    Handler callbackHandler;
+                    synchronized (mLock) {
+                        impl = mSessionImpl.get();
+                        callbackHandler = mCallbackHandler;
+                    }
+                    if (impl == null
+                            || MediaSessionCompat.Callback.this != impl.getCallback()
+                            || callbackHandler == null) {
                         return;
                     }
                     RemoteUserInfo info = (RemoteUserInfo) msg.obj;
                     impl.setCurrentControllerInfo(info);
-                    handleMediaPlayPauseKeySingleTapIfPending();
+                    handleMediaPlayPauseIfPendingOnHandler(impl, callbackHandler);
                     impl.setCurrentControllerInfo(null);
                 }
             }
@@ -1494,27 +1514,27 @@ public class MediaSessionCompat {
 
         @RequiresApi(21)
         private class MediaSessionCallbackApi21 extends MediaSession.Callback {
-
             MediaSessionCallbackApi21() {
             }
 
             @Override
             public void onCommand(String command, Bundle extras, ResultReceiver cb) {
+                MediaSessionImplApi21 sessionImpl = getSessionImplIfCallbackIsSet();
+                if (sessionImpl == null) {
+                    return;
+                }
                 ensureClassLoader(extras);
-                setCurrentControllerInfo();
+                setCurrentControllerInfo(sessionImpl);
                 try {
                     if (command.equals(MediaControllerCompat.COMMAND_GET_EXTRA_BINDER)) {
-                        MediaSessionImplApi21 impl = (MediaSessionImplApi21) mSessionImpl.get();
-                        if (impl != null) {
-                            Bundle result = new Bundle();
-                            Token token = impl.getSessionToken();
-                            IMediaSession extraBinder = token.getExtraBinder();
-                            BundleCompat.putBinder(result, KEY_EXTRA_BINDER,
-                                    extraBinder == null ? null : extraBinder.asBinder());
-                            ParcelUtils.putVersionedParcelable(result,
-                                    KEY_SESSION2_TOKEN, token.getSession2Token());
-                            cb.send(0, result);
-                        }
+                        Bundle result = new Bundle();
+                        Token token = sessionImpl.getSessionToken();
+                        IMediaSession extraBinder = token.getExtraBinder();
+                        BundleCompat.putBinder(result, KEY_EXTRA_BINDER,
+                                extraBinder == null ? null : extraBinder.asBinder());
+                        ParcelUtils.putVersionedParcelable(result,
+                                KEY_SESSION2_TOKEN, token.getSession2Token());
+                        cb.send(0, result);
                     } else if (command.equals(MediaControllerCompat.COMMAND_ADD_QUEUE_ITEM)) {
                         Callback.this.onAddQueueItem(
                                 (MediaDescriptionCompat) extras.getParcelable(
@@ -1529,12 +1549,11 @@ public class MediaSessionCompat {
                                 (MediaDescriptionCompat) extras.getParcelable(
                                         MediaControllerCompat.COMMAND_ARGUMENT_MEDIA_DESCRIPTION));
                     } else if (command.equals(MediaControllerCompat.COMMAND_REMOVE_QUEUE_ITEM_AT)) {
-                        MediaSessionImplApi21 impl = (MediaSessionImplApi21) mSessionImpl.get();
-                        if (impl != null && impl.mQueue != null) {
+                        if (sessionImpl.mQueue != null) {
                             int index =
                                     extras.getInt(MediaControllerCompat.COMMAND_ARGUMENT_INDEX, -1);
-                            QueueItem item = (index >= 0 && index < impl.mQueue.size())
-                                    ? impl.mQueue.get(index) : null;
+                            QueueItem item = (index >= 0 && index < sessionImpl.mQueue.size())
+                                    ? sessionImpl.mQueue.get(index) : null;
                             if (item != null) {
                                 Callback.this.onRemoveQueueItem(item.getDescription());
                             }
@@ -1547,110 +1566,166 @@ public class MediaSessionCompat {
                     // class.
                     Log.e(TAG, "Could not unparcel the extra data.");
                 }
-                clearCurrentControllerInfo();
+                clearCurrentControllerInfo(sessionImpl);
             }
 
             @Override
             public boolean onMediaButtonEvent(Intent mediaButtonIntent) {
-                setCurrentControllerInfo();
+                MediaSessionImplApi21 sessionImpl = getSessionImplIfCallbackIsSet();
+                if (sessionImpl == null) {
+                    return false;
+                }
+                setCurrentControllerInfo(sessionImpl);
                 boolean result = Callback.this.onMediaButtonEvent(mediaButtonIntent);
-                clearCurrentControllerInfo();
+                clearCurrentControllerInfo(sessionImpl);
                 return result || super.onMediaButtonEvent(mediaButtonIntent);
             }
 
             @Override
             public void onPlay() {
-                setCurrentControllerInfo();
+                MediaSessionImplApi21 sessionImpl = getSessionImplIfCallbackIsSet();
+                if (sessionImpl == null) {
+                    return;
+                }
+                setCurrentControllerInfo(sessionImpl);
                 Callback.this.onPlay();
-                clearCurrentControllerInfo();
+                clearCurrentControllerInfo(sessionImpl);
             }
 
             @Override
             public void onPlayFromMediaId(String mediaId, Bundle extras) {
+                MediaSessionImplApi21 sessionImpl = getSessionImplIfCallbackIsSet();
+                if (sessionImpl == null) {
+                    return;
+                }
                 ensureClassLoader(extras);
-                setCurrentControllerInfo();
+                setCurrentControllerInfo(sessionImpl);
                 Callback.this.onPlayFromMediaId(mediaId, extras);
-                clearCurrentControllerInfo();
+                clearCurrentControllerInfo(sessionImpl);
             }
 
             @Override
             public void onPlayFromSearch(String search, Bundle extras) {
+                MediaSessionImplApi21 sessionImpl = getSessionImplIfCallbackIsSet();
+                if (sessionImpl == null) {
+                    return;
+                }
                 ensureClassLoader(extras);
-                setCurrentControllerInfo();
+                setCurrentControllerInfo(sessionImpl);
                 Callback.this.onPlayFromSearch(search, extras);
-                clearCurrentControllerInfo();
+                clearCurrentControllerInfo(sessionImpl);
             }
 
             @RequiresApi(23)
             @Override
             public void onPlayFromUri(Uri uri, Bundle extras) {
+                MediaSessionImplApi21 sessionImpl = getSessionImplIfCallbackIsSet();
+                if (sessionImpl == null) {
+                    return;
+                }
                 ensureClassLoader(extras);
-                setCurrentControllerInfo();
+                setCurrentControllerInfo(sessionImpl);
                 Callback.this.onPlayFromUri(uri, extras);
-                clearCurrentControllerInfo();
+                clearCurrentControllerInfo(sessionImpl);
             }
 
             @Override
             public void onSkipToQueueItem(long id) {
-                setCurrentControllerInfo();
+                MediaSessionImplApi21 sessionImpl = getSessionImplIfCallbackIsSet();
+                if (sessionImpl == null) {
+                    return;
+                }
+                setCurrentControllerInfo(sessionImpl);
                 Callback.this.onSkipToQueueItem(id);
-                clearCurrentControllerInfo();
+                clearCurrentControllerInfo(sessionImpl);
             }
 
             @Override
             public void onPause() {
-                setCurrentControllerInfo();
+                MediaSessionImplApi21 sessionImpl = getSessionImplIfCallbackIsSet();
+                if (sessionImpl == null) {
+                    return;
+                }
+                setCurrentControllerInfo(sessionImpl);
                 Callback.this.onPause();
-                clearCurrentControllerInfo();
+                clearCurrentControllerInfo(sessionImpl);
             }
 
             @Override
             public void onSkipToNext() {
-                setCurrentControllerInfo();
+                MediaSessionImplApi21 sessionImpl = getSessionImplIfCallbackIsSet();
+                if (sessionImpl == null) {
+                    return;
+                }
+                setCurrentControllerInfo(sessionImpl);
                 Callback.this.onSkipToNext();
-                clearCurrentControllerInfo();
+                clearCurrentControllerInfo(sessionImpl);
             }
 
             @Override
             public void onSkipToPrevious() {
-                setCurrentControllerInfo();
+                MediaSessionImplApi21 sessionImpl = getSessionImplIfCallbackIsSet();
+                if (sessionImpl == null) {
+                    return;
+                }
+                setCurrentControllerInfo(sessionImpl);
                 Callback.this.onSkipToPrevious();
-                clearCurrentControllerInfo();
+                clearCurrentControllerInfo(sessionImpl);
             }
 
             @Override
             public void onFastForward() {
-                setCurrentControllerInfo();
+                MediaSessionImplApi21 sessionImpl = getSessionImplIfCallbackIsSet();
+                if (sessionImpl == null) {
+                    return;
+                }
+                setCurrentControllerInfo(sessionImpl);
                 Callback.this.onFastForward();
-                clearCurrentControllerInfo();
+                clearCurrentControllerInfo(sessionImpl);
             }
 
             @Override
             public void onRewind() {
-                setCurrentControllerInfo();
+                MediaSessionImplApi21 sessionImpl = getSessionImplIfCallbackIsSet();
+                if (sessionImpl == null) {
+                    return;
+                }
+                setCurrentControllerInfo(sessionImpl);
                 Callback.this.onRewind();
-                clearCurrentControllerInfo();
+                clearCurrentControllerInfo(sessionImpl);
             }
 
             @Override
             public void onStop() {
-                setCurrentControllerInfo();
+                MediaSessionImplApi21 sessionImpl = getSessionImplIfCallbackIsSet();
+                if (sessionImpl == null) {
+                    return;
+                }
+                setCurrentControllerInfo(sessionImpl);
                 Callback.this.onStop();
-                clearCurrentControllerInfo();
+                clearCurrentControllerInfo(sessionImpl);
             }
 
             @Override
             public void onSeekTo(long pos) {
-                setCurrentControllerInfo();
+                MediaSessionImplApi21 sessionImpl = getSessionImplIfCallbackIsSet();
+                if (sessionImpl == null) {
+                    return;
+                }
+                setCurrentControllerInfo(sessionImpl);
                 Callback.this.onSeekTo(pos);
-                clearCurrentControllerInfo();
+                clearCurrentControllerInfo(sessionImpl);
             }
 
             @Override
             public void onSetRating(Rating ratingFwk) {
-                setCurrentControllerInfo();
+                MediaSessionImplApi21 sessionImpl = getSessionImplIfCallbackIsSet();
+                if (sessionImpl == null) {
+                    return;
+                }
+                setCurrentControllerInfo(sessionImpl);
                 Callback.this.onSetRating(RatingCompat.fromRating(ratingFwk));
-                clearCurrentControllerInfo();
+                clearCurrentControllerInfo(sessionImpl);
             }
 
             public void onSetRating(Rating ratingFwk, Bundle extras) {
@@ -1659,8 +1734,12 @@ public class MediaSessionCompat {
 
             @Override
             public void onCustomAction(String action, Bundle extras) {
+                MediaSessionImplApi21 sessionImpl = getSessionImplIfCallbackIsSet();
+                if (sessionImpl == null) {
+                    return;
+                }
                 ensureClassLoader(extras);
-                setCurrentControllerInfo();
+                setCurrentControllerInfo(sessionImpl);
 
                 try {
                     if (action.equals(ACTION_PLAY_FROM_URI)) {
@@ -1709,18 +1788,77 @@ public class MediaSessionCompat {
                     // The exception details will be logged by Parcel class.
                     Log.e(TAG, "Could not unparcel the data.");
                 }
-                clearCurrentControllerInfo();
+                clearCurrentControllerInfo(sessionImpl);
             }
 
-            void setCurrentControllerInfo() {
+            @RequiresApi(24)
+            @Override
+            public void onPrepare() {
+                MediaSessionImplApi21 sessionImpl = getSessionImplIfCallbackIsSet();
+                if (sessionImpl == null) {
+                    return;
+                }
+                setCurrentControllerInfo(sessionImpl);
+                Callback.this.onPrepare();
+                clearCurrentControllerInfo(sessionImpl);
+            }
+
+            @RequiresApi(24)
+            @Override
+            public void onPrepareFromMediaId(String mediaId, Bundle extras) {
+                MediaSessionImplApi21 sessionImpl = getSessionImplIfCallbackIsSet();
+                if (sessionImpl == null) {
+                    return;
+                }
+                ensureClassLoader(extras);
+                setCurrentControllerInfo(sessionImpl);
+                Callback.this.onPrepareFromMediaId(mediaId, extras);
+                clearCurrentControllerInfo(sessionImpl);
+            }
+
+            @RequiresApi(24)
+            @Override
+            public void onPrepareFromSearch(String query, Bundle extras) {
+                MediaSessionImplApi21 sessionImpl = getSessionImplIfCallbackIsSet();
+                if (sessionImpl == null) {
+                    return;
+                }
+                ensureClassLoader(extras);
+                setCurrentControllerInfo(sessionImpl);
+                Callback.this.onPrepareFromSearch(query, extras);
+                clearCurrentControllerInfo(sessionImpl);
+            }
+
+            @RequiresApi(24)
+            @Override
+            public void onPrepareFromUri(Uri uri, Bundle extras) {
+                MediaSessionImplApi21 sessionImpl = getSessionImplIfCallbackIsSet();
+                if (sessionImpl == null) {
+                    return;
+                }
+                ensureClassLoader(extras);
+                setCurrentControllerInfo(sessionImpl);
+                Callback.this.onPrepareFromUri(uri, extras);
+                clearCurrentControllerInfo(sessionImpl);
+            }
+
+            @RequiresApi(29)
+            @Override
+            public void onSetPlaybackSpeed(float speed) {
+                MediaSessionImplApi21 sessionImpl = getSessionImplIfCallbackIsSet();
+                if (sessionImpl == null) {
+                    return;
+                }
+                setCurrentControllerInfo(sessionImpl);
+                Callback.this.onSetPlaybackSpeed(speed);
+                clearCurrentControllerInfo(sessionImpl);
+            }
+
+            private void setCurrentControllerInfo(MediaSessionImpl sessionImpl) {
                 if (Build.VERSION.SDK_INT >= 28) {
                     // From API 28, this method has no effect since
                     // MediaSessionImplApi28#getCurrentControllerInfo() returns controller info from
                     // framework.
-                    return;
-                }
-                MediaSessionImpl sessionImpl = mSessionImpl != null ? mSessionImpl.get() : null;
-                if (sessionImpl == null) {
                     return;
                 }
                 String packageName = sessionImpl.getCallingPackage();
@@ -1731,54 +1869,20 @@ public class MediaSessionCompat {
                         packageName, UNKNOWN_PID, UNKNOWN_UID));
             }
 
-            void clearCurrentControllerInfo() {
-                MediaSessionImpl sessionImpl = mSessionImpl != null ? mSessionImpl.get() : null;
-                if (sessionImpl != null) {
-                    sessionImpl.setCurrentControllerInfo(null);
+            private void clearCurrentControllerInfo(MediaSessionImpl sessionImpl) {
+                sessionImpl.setCurrentControllerInfo(null);
+            }
+
+            // Returns the MediaSessionImplApi21 if this callback is still set by the session.
+            // This prevent callback methods to be called after session is release() or
+            // callback is changed.
+            private MediaSessionImplApi21 getSessionImplIfCallbackIsSet() {
+                MediaSessionImplApi21 sessionImpl;
+                synchronized (mLock) {
+                    sessionImpl = (MediaSessionImplApi21) mSessionImpl.get();
                 }
-            }
-
-            @RequiresApi(24)
-            @Override
-            public void onPrepare() {
-                setCurrentControllerInfo();
-                Callback.this.onPrepare();
-                clearCurrentControllerInfo();
-            }
-
-            @RequiresApi(24)
-            @Override
-            public void onPrepareFromMediaId(String mediaId, Bundle extras) {
-                ensureClassLoader(extras);
-                setCurrentControllerInfo();
-                Callback.this.onPrepareFromMediaId(mediaId, extras);
-                clearCurrentControllerInfo();
-            }
-
-            @RequiresApi(24)
-            @Override
-            public void onPrepareFromSearch(String query, Bundle extras) {
-                ensureClassLoader(extras);
-                setCurrentControllerInfo();
-                Callback.this.onPrepareFromSearch(query, extras);
-                clearCurrentControllerInfo();
-            }
-
-            @RequiresApi(24)
-            @Override
-            public void onPrepareFromUri(Uri uri, Bundle extras) {
-                ensureClassLoader(extras);
-                setCurrentControllerInfo();
-                Callback.this.onPrepareFromUri(uri, extras);
-                clearCurrentControllerInfo();
-            }
-
-            @RequiresApi(29)
-            @Override
-            public void onSetPlaybackSpeed(float speed) {
-                setCurrentControllerInfo();
-                Callback.this.onSetPlaybackSpeed(speed);
-                clearCurrentControllerInfo();
+                return MediaSessionCompat.Callback.this == sessionImpl.getCallback()
+                        ? sessionImpl : null;
             }
         }
     }
@@ -2227,6 +2331,7 @@ public class MediaSessionCompat {
 
         // Internal only method
         void setCurrentControllerInfo(RemoteUserInfo remoteUserInfo);
+        Callback getCallback();
     }
 
     static class MediaSessionImplBase implements MediaSessionImpl {
@@ -2310,16 +2415,17 @@ public class MediaSessionCompat {
 
         @Override
         public void setCallback(Callback callback, Handler handler) {
-            mCallback = callback;
-            if (callback != null) {
-                if (handler == null) {
-                    handler = new Handler();
+            synchronized (mLock) {
+                if (mHandler != null) {
+                    mHandler.removeCallbacksAndMessages(null);
                 }
-                synchronized (mLock) {
-                    if (mHandler != null) {
-                        mHandler.removeCallbacksAndMessages(null);
-                    }
-                    mHandler = new MessageHandler(handler.getLooper());
+                mHandler = callback == null || handler == null ? null :
+                        new MessageHandler(handler.getLooper());
+                if (mCallback != callback && mCallback != null) {
+                    mCallback.setSessionImpl(null, null);
+                }
+                mCallback = callback;
+                if (mCallback != null) {
                     mCallback.setSessionImpl(this, handler);
                 }
             }
@@ -2707,6 +2813,13 @@ public class MediaSessionCompat {
         public void setCurrentControllerInfo(RemoteUserInfo remoteUserInfo) {
             synchronized (mLock) {
                 mRemoteUserInfo = remoteUserInfo;
+            }
+        }
+
+        @Override
+        public Callback getCallback() {
+            synchronized (mLock) {
+                return mCallback;
             }
         }
 
@@ -3637,6 +3750,8 @@ public class MediaSessionCompat {
         @PlaybackStateCompat.ShuffleMode int mShuffleMode;
 
         @GuardedBy("mLock")
+        Callback mCallback;
+        @GuardedBy("mLock")
         RemoteUserInfo mRemoteUserInfo;
 
         MediaSessionImplApi21(MediaSession sessionFwk, VersionedParcelable session2Token,
@@ -3662,9 +3777,12 @@ public class MediaSessionCompat {
 
         @Override
         public void setCallback(Callback callback, Handler handler) {
-            mSessionFwk.setCallback(callback == null ? null : callback.mCallbackFwk, handler);
-            if (callback != null) {
-                callback.setSessionImpl(this, handler);
+            synchronized (mLock) {
+                mCallback = callback;
+                mSessionFwk.setCallback(callback == null ? null : callback.mCallbackFwk, handler);
+                if (callback != null) {
+                    callback.setSessionImpl(this, handler);
+                }
             }
         }
 
@@ -3887,6 +4005,13 @@ public class MediaSessionCompat {
         public RemoteUserInfo getCurrentControllerInfo() {
             synchronized (mLock) {
                 return mRemoteUserInfo;
+            }
+        }
+
+        @Override
+        public Callback getCallback() {
+            synchronized (mLock) {
+                return mCallback;
             }
         }
 
