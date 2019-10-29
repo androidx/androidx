@@ -16,6 +16,9 @@
 
 package androidx.core.content.pm;
 
+import static android.graphics.drawable.Icon.TYPE_ADAPTIVE_BITMAP;
+import static android.graphics.drawable.Icon.TYPE_BITMAP;
+
 import static androidx.core.content.pm.ShortcutManagerCompat.FLAG_MATCH_DYNAMIC;
 import static androidx.core.content.pm.ShortcutManagerCompat.FLAG_MATCH_MANIFEST;
 import static androidx.core.content.pm.ShortcutManagerCompat.FLAG_MATCH_PINNED;
@@ -49,11 +52,17 @@ import android.content.pm.ResolveInfo;
 import android.content.pm.ShortcutInfo;
 import android.content.pm.ShortcutManager;
 import android.graphics.Bitmap;
+import android.graphics.Canvas;
+import android.graphics.Color;
+import android.graphics.Paint;
+import android.net.Uri;
 import android.os.Build;
 import android.support.v4.BaseInstrumentationTestCase;
 
 import androidx.core.app.TestActivity;
+import androidx.core.content.FileProvider;
 import androidx.core.graphics.drawable.IconCompat;
+import androidx.core.test.R;
 import androidx.test.ext.junit.runners.AndroidJUnit4;
 import androidx.test.filters.LargeTest;
 import androidx.test.filters.MediumTest;
@@ -65,7 +74,12 @@ import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.ArgumentCaptor;
+import org.mockito.ArgumentMatchers;
 
+import java.io.File;
+import java.io.FileOutputStream;
+import java.io.IOException;
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 import java.util.concurrent.CountDownLatch;
@@ -73,6 +87,9 @@ import java.util.concurrent.TimeUnit;
 
 @RunWith(AndroidJUnit4.class)
 public class ShortcutManagerCompatTest extends BaseInstrumentationTestCase<TestActivity> {
+
+    private static final String SHORTCUT_ICON_PATH = "shortcut_icons";
+    private static final String TEST_AUTHORITY = "moocow";
 
     Context mContext;
     ShortcutInfoCompat mInfoCompat;
@@ -261,6 +278,34 @@ public class ShortcutManagerCompatTest extends BaseInstrumentationTestCase<TestA
         }
     }
 
+    @MediumTest
+    @Test
+    public void testDynamicShortcuts() {
+        if (Build.VERSION.SDK_INT >= 25) {
+            ShortcutManager mockShortcutManager = mock(ShortcutManager.class);
+            doReturn(mockShortcutManager).when(mContext).getSystemService(
+                    eq(Context.SHORTCUT_SERVICE));
+            when(mockShortcutManager.addDynamicShortcuts(ArgumentMatchers.<ShortcutInfo>anyList()))
+                    .thenReturn(true);
+        }
+        assertTrue(ShortcutManagerCompat.addDynamicShortcuts(mContext, getShortcuts()));
+        removeShortcuts();
+    }
+
+    @MediumTest
+    @Test
+    public void testConvertUriIconsToBitmapIcons() {
+        ArrayList<ShortcutInfoCompat> shortcuts = getShortcuts();
+        assertEquals(5, shortcuts.size());
+        ShortcutManagerCompat.convertUriIconsToBitmapIcons(mContext, shortcuts);
+        assertEquals(4, shortcuts.size());  // shortcut with invalid icon uri was removed
+        for (ShortcutInfoCompat info : shortcuts) {
+            assertTrue(info.mIcon.mType == TYPE_BITMAP
+                    || info.mIcon.mType == TYPE_ADAPTIVE_BITMAP);
+            assertNotNull(info.mIcon.getBitmap());
+        }
+    }
+
     private void verifyLegacyIntent(Intent intent) {
         assertNotNull(intent);
         assertEquals("Test shortcut", intent.getStringExtra(Intent.EXTRA_SHORTCUT_NAME));
@@ -283,6 +328,114 @@ public class ShortcutManagerCompatTest extends BaseInstrumentationTestCase<TestA
         ResolveInfo rInfo = new ResolveInfo();
         rInfo.activityInfo = aInfo;
         return rInfo;
+    }
+
+    private ArrayList<ShortcutInfoCompat> getShortcuts() {
+        ArrayList<ShortcutInfoCompat> shortcuts = new ArrayList<>();
+
+        shortcuts.add(new ShortcutInfoCompat.Builder(mContext, "bitmap-shortcut")
+                .setShortLabel("bitmap")
+                .setIcon(createBitmapIcon())
+                .setIntent(new Intent().setAction(Intent.ACTION_DEFAULT))
+                .setRank(0)
+                .build());
+
+        shortcuts.add(new ShortcutInfoCompat.Builder(mContext, "adaptive-bitmap-shortcut")
+                .setShortLabel("adaptive bitmap")
+                .setIcon(createAdaptiveBitmapIcon())
+                .setIntent(new Intent().setAction(Intent.ACTION_DEFAULT))
+                .setRank(2)
+                .build());
+
+        shortcuts.add(new ShortcutInfoCompat.Builder(mContext, "uri-bitmap-shortcut")
+                .setShortLabel("uri bitmap")
+                .setIcon(createUriIcon())
+                .setIntent(new Intent().setAction(Intent.ACTION_DEFAULT))
+                .setRank(4)
+                .build());
+
+        shortcuts.add(new ShortcutInfoCompat.Builder(mContext, "uri-adaptive-bitmap-shortcut")
+                .setShortLabel("uri adaptive bitmap")
+                .setIcon(createUriAdaptiveIcon())
+                .setIntent(new Intent().setAction(Intent.ACTION_DEFAULT))
+                .setRank(4)
+                .build());
+
+        shortcuts.add(new ShortcutInfoCompat.Builder(mContext,
+                "uri-adaptive-bitmap-shortcut-with-invalid-uri")
+                .setShortLabel("uri adaptive bitmap with invalid uri")
+                .setIcon(IconCompat.createWithAdaptiveBitmapContentUri(
+                        "http://non-existing-uri"))
+                .setIntent(new Intent().setAction(Intent.ACTION_DEFAULT))
+                .setRank(4)
+                .build());
+
+        return shortcuts;
+    }
+
+    private void removeShortcuts() {
+        ShortcutManagerCompat.removeAllDynamicShortcuts(mContext);
+    }
+
+    private Bitmap createRawBitmap(String text) {
+        Bitmap.Config conf = Bitmap.Config.ARGB_8888;
+        float density = mContext.getResources().getDisplayMetrics().density;
+        int x = (int) (72 * density);
+        int y = (int) (72 * density);
+        Bitmap bmp = Bitmap.createBitmap(x, y, conf);
+        Canvas canvas = new Canvas(bmp);
+        canvas.drawColor(Color.BLUE);
+
+        Paint mTextPaint = new Paint();
+        mTextPaint.setColor(Color.RED);
+        mTextPaint.setTextSize(mContext.getResources().getDimension(R.dimen.text_medium_size));
+        mTextPaint.setTextAlign(Paint.Align.CENTER);
+        int xPos = (canvas.getWidth() / 2);
+        int yPos = (int) ((canvas.getHeight() / 2)
+                - ((mTextPaint.descent() + mTextPaint.ascent()) / 2));
+        canvas.drawText(text, xPos, yPos, mTextPaint);
+        return bmp;
+    }
+
+    private Uri bitmapToUri(Bitmap bmp, String name) {
+        File root = new File(mContext.getFilesDir(), SHORTCUT_ICON_PATH);
+        if (!root.exists()) {
+            root.mkdir();
+        }
+        File file = new File(root, name);
+        if (!file.exists()) {
+            try {
+                file.createNewFile();
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
+        }
+
+        try (FileOutputStream out = new FileOutputStream(file)) {
+            bmp.compress(Bitmap.CompressFormat.JPEG, 100, out);
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+
+        return FileProvider.getUriForFile(mContext, TEST_AUTHORITY, file);
+    }
+
+    private IconCompat createBitmapIcon() {
+        return IconCompat.createWithBitmap(createRawBitmap("B"));
+    }
+
+    private IconCompat createAdaptiveBitmapIcon() {
+        return IconCompat.createWithAdaptiveBitmap(createRawBitmap("AB"));
+    }
+
+    private IconCompat createUriIcon() {
+        Uri uri = bitmapToUri(createRawBitmap("U"), "uri-icon");
+        return IconCompat.createWithContentUri(uri);
+    }
+
+    private IconCompat createUriAdaptiveIcon() {
+        Uri uri = bitmapToUri(createRawBitmap("AU"), "uri-adaptive-icon");
+        return IconCompat.createWithAdaptiveBitmapContentUri(uri);
     }
 
     private class BlockingBroadcastReceiver extends BroadcastReceiver {

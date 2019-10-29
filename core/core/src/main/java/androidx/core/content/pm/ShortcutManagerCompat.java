@@ -16,6 +16,9 @@
 
 package androidx.core.content.pm;
 
+import static androidx.core.graphics.drawable.IconCompat.TYPE_URI;
+import static androidx.core.graphics.drawable.IconCompat.TYPE_URI_ADAPTIVE_BITMAP;
+
 import android.app.Activity;
 import android.content.BroadcastReceiver;
 import android.content.Context;
@@ -25,6 +28,8 @@ import android.content.pm.PackageManager;
 import android.content.pm.ResolveInfo;
 import android.content.pm.ShortcutInfo;
 import android.content.pm.ShortcutManager;
+import android.graphics.Bitmap;
+import android.graphics.BitmapFactory;
 import android.os.Build;
 import android.text.TextUtils;
 
@@ -35,7 +40,9 @@ import androidx.annotation.RestrictTo;
 import androidx.annotation.RestrictTo.Scope;
 import androidx.annotation.VisibleForTesting;
 import androidx.core.content.ContextCompat;
+import androidx.core.graphics.drawable.IconCompat;
 
+import java.io.InputStream;
 import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;
 import java.lang.reflect.Method;
@@ -281,6 +288,9 @@ public class ShortcutManagerCompat {
      */
     public static boolean addDynamicShortcuts(@NonNull Context context,
             @NonNull List<ShortcutInfoCompat> shortcutInfoList) {
+        if (Build.VERSION.SDK_INT <= 29) {
+            convertUriIconsToBitmapIcons(context, shortcutInfoList);
+        }
         if (Build.VERSION.SDK_INT >= 25) {
             ArrayList<ShortcutInfo> shortcuts = new ArrayList<>();
             for (ShortcutInfoCompat item : shortcutInfoList) {
@@ -349,6 +359,9 @@ public class ShortcutManagerCompat {
      */
     public static boolean updateShortcuts(@NonNull Context context,
             @NonNull List<ShortcutInfoCompat> shortcutInfoList) {
+        if (Build.VERSION.SDK_INT <= 29) {
+            convertUriIconsToBitmapIcons(context, shortcutInfoList);
+        }
         if (Build.VERSION.SDK_INT >= 25) {
             ArrayList<ShortcutInfo> shortcuts = new ArrayList<>();
             for (ShortcutInfoCompat item : shortcutInfoList) {
@@ -361,6 +374,31 @@ public class ShortcutManagerCompat {
 
         getShortcutInfoSaverInstance(context).addShortcuts(shortcutInfoList);
         return true;
+    }
+
+    @VisibleForTesting
+    static void convertUriIconsToBitmapIcons(@NonNull Context context,
+            @NonNull List<ShortcutInfoCompat> shortcutInfoList) {
+        final List<ShortcutInfoCompat> infos = new ArrayList<>(shortcutInfoList);
+        for (ShortcutInfoCompat info : infos) {
+            final int type = info.mIcon.mType;
+            if (type != TYPE_URI_ADAPTIVE_BITMAP && type != TYPE_URI) {
+                continue;
+            }
+            InputStream is = info.mIcon.getUriInputStream(context);
+            if (is == null) {
+                shortcutInfoList.remove(info);
+                continue;
+            }
+            final Bitmap bitmap = BitmapFactory.decodeStream(is);
+            if (bitmap == null) {
+                shortcutInfoList.remove(info);
+                continue;
+            }
+            info.mIcon = (type == TYPE_URI_ADAPTIVE_BITMAP)
+                    ? IconCompat.createWithAdaptiveBitmap(bitmap)
+                    : IconCompat.createWithBitmap(bitmap);
+        }
     }
 
     /**

@@ -1400,6 +1400,7 @@ package androidx.core.graphics.drawable {
     method public String getResPackage();
     method public int getType();
     method public android.net.Uri getUri();
+    method @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP) public java.io.InputStream? getUriInputStream(android.content.Context);
     method public android.graphics.drawable.Drawable? loadDrawable(android.content.Context);
     method public androidx.core.graphics.drawable.IconCompat! setTint(@ColorInt int);
     method public androidx.core.graphics.drawable.IconCompat! setTintList(android.content.res.ColorStateList!);

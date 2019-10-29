@@ -17,6 +17,7 @@
 package androidx.core.graphics.drawable;
 
 import static androidx.annotation.RestrictTo.Scope.LIBRARY;
+import static androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP;
 import static androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP_PREFIX;
 
 import android.app.ActivityManager;
@@ -671,7 +672,14 @@ public class IconCompat extends CustomVersionedParcelable {
         return null;
     }
 
-    private InputStream getUriInputStream(Context context) {
+    /**
+     * Create an input stream for bitmap by resolving corresponding content uri.
+     *
+     * @hide
+     */
+    @Nullable
+    @RestrictTo(LIBRARY_GROUP)
+    public InputStream getUriInputStream(@NonNull Context context) {
         final Uri uri = getUri();
         final String scheme = uri.getScheme();
         if (ContentResolver.SCHEME_CONTENT.equals(scheme)

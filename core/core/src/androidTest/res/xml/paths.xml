@@ -7,6 +7,8 @@
     <files-path name="test_files" />
     <!-- /data/data/com.example/files/thumbs -->
     <files-path name="test_thumbs" path="thumbs/" />
+    <!-- /data/data/com.example/files/shortcut_icons -->
+    <files-path name="shortcut_icons" path="shortcut_icons/"/>
     <!-- /data/data/com.example/cache -->
     <cache-path name="test_cache" />
     <!-- /storage/emulated/0 -->
