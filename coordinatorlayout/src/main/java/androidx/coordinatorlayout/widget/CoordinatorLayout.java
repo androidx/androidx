@@ -119,9 +119,6 @@ public class CoordinatorLayout extends ViewGroup implements NestedScrollingParen
         WIDGET_PACKAGE_NAME = pkg != null ? pkg.getName() : null;
     }
 
-    private static final int TYPE_ON_INTERCEPT = 0;
-    private static final int TYPE_ON_TOUCH = 1;
-
     static {
         if (Build.VERSION.SDK_INT >= 21) {
             TOP_SORTED_CHILDREN_COMPARATOR = new ViewElevationComparator();
@@ -262,7 +259,7 @@ public class CoordinatorLayout extends ViewGroup implements NestedScrollingParen
     @Override
     public void onAttachedToWindow() {
         super.onAttachedToWindow();
-        resetTouchBehaviors(false);
+        resetTouchBehaviors();
         if (mNeedsPreDrawListener) {
             if (mOnPreDrawListener == null) {
                 mOnPreDrawListener = new OnPreDrawListener();
@@ -281,7 +278,7 @@ public class CoordinatorLayout extends ViewGroup implements NestedScrollingParen
     @Override
     public void onDetachedFromWindow() {
         super.onDetachedFromWindow();
-        resetTouchBehaviors(false);
+        resetTouchBehaviors();
         if (mNeedsPreDrawListener && mOnPreDrawListener != null) {
             final ViewTreeObserver vto = getViewTreeObserver();
             vto.removeOnPreDrawListener(mOnPreDrawListener);
@@ -401,6 +398,28 @@ public class CoordinatorLayout extends ViewGroup implements NestedScrollingParen
         return mLastInsets;
     }
 
+    @SuppressWarnings("unchecked")
+    private void cancelInterceptBehaviors() {
+        MotionEvent cancelEvent = null;
+        final int childCount = getChildCount();
+        for (int i = 0; i < childCount; i++) {
+            final View child = getChildAt(i);
+            final LayoutParams lp = (LayoutParams) child.getLayoutParams();
+            final Behavior b = lp.getBehavior();
+            if (b != null) {
+                if (cancelEvent == null) {
+                    final long now = SystemClock.uptimeMillis();
+                    cancelEvent = MotionEvent.obtain(now, now,
+                            MotionEvent.ACTION_CANCEL, 0.0f, 0.0f, 0);
+                }
+                b.onInterceptTouchEvent(this, child, cancelEvent);
+            }
+        }
+        if (cancelEvent != null) {
+            cancelEvent.recycle();
+        }
+    }
+
     /**
      * Reset all Behavior-related tracking records either to clean up or in preparation
      * for a new event stream. This should be called when attached or detached from a window,
@@ -408,31 +427,26 @@ public class CoordinatorLayout extends ViewGroup implements NestedScrollingParen
      * and similar cases where an event stream in progress will be aborted.
      */
     @SuppressWarnings("unchecked")
-    private void resetTouchBehaviors(boolean notifyOnInterceptTouchEvent) {
-        final int childCount = getChildCount();
-        for (int i = 0; i < childCount; i++) {
-            final View child = getChildAt(i);
-            final LayoutParams lp = (LayoutParams) child.getLayoutParams();
+    private void resetTouchBehaviors() {
+        if (mBehaviorTouchView != null) {
+            final LayoutParams lp = (LayoutParams) mBehaviorTouchView.getLayoutParams();
             final Behavior b = lp.getBehavior();
             if (b != null) {
                 final long now = SystemClock.uptimeMillis();
                 final MotionEvent cancelEvent = MotionEvent.obtain(now, now,
                         MotionEvent.ACTION_CANCEL, 0.0f, 0.0f, 0);
-                if (notifyOnInterceptTouchEvent) {
-                    b.onInterceptTouchEvent(this, child, cancelEvent);
-                } else {
-                    b.onTouchEvent(this, child, cancelEvent);
-                }
+                b.onTouchEvent(this, mBehaviorTouchView, cancelEvent);
                 cancelEvent.recycle();
             }
+            mBehaviorTouchView = null;
         }
 
+        final int childCount = getChildCount();
         for (int i = 0; i < childCount; i++) {
             final View child = getChildAt(i);
             final LayoutParams lp = (LayoutParams) child.getLayoutParams();
             lp.resetTouchBehaviorTracking();
         }
-        mBehaviorTouchView = null;
         mDisallowInterceptReset = false;
     }
 
@@ -457,13 +471,13 @@ public class CoordinatorLayout extends ViewGroup implements NestedScrollingParen
     }
 
     @SuppressWarnings("unchecked")
-    private boolean performIntercept(MotionEvent ev, final int type) {
+    private boolean performIntercept(MotionEvent ev) {
         boolean intercepted = false;
         boolean newBlock = false;
 
-        MotionEvent cancelEvent = null;
-
         final int action = ev.getActionMasked();
+
+        MotionEvent cancelEvent = null;
 
         final List<View> topmostChildList = mTempList1;
         getTopSortedChildren(topmostChildList);
@@ -479,34 +493,29 @@ public class CoordinatorLayout extends ViewGroup implements NestedScrollingParen
                 // Cancel all behaviors beneath the one that intercepted.
                 // If the event is "down" then we don't have anything to cancel yet.
                 if (b != null) {
-                    if (cancelEvent == null) {
-                        final long now = SystemClock.uptimeMillis();
-                        cancelEvent = MotionEvent.obtain(now, now,
-                                MotionEvent.ACTION_CANCEL, 0.0f, 0.0f, 0);
-                    }
-                    switch (type) {
-                        case TYPE_ON_INTERCEPT:
-                            b.onInterceptTouchEvent(this, child, cancelEvent);
-                            break;
-                        case TYPE_ON_TOUCH:
-                            b.onTouchEvent(this, child, cancelEvent);
-                            break;
-                    }
+                    if (cancelEvent == null) cancelEvent = obtainCancelEvent(ev);
+                    b.onInterceptTouchEvent(this, child, cancelEvent);
                 }
                 continue;
             }
 
-            if (!intercepted && b != null) {
-                switch (type) {
-                    case TYPE_ON_INTERCEPT:
-                        intercepted = b.onInterceptTouchEvent(this, child, ev);
-                        break;
-                    case TYPE_ON_TOUCH:
-                        intercepted = b.onTouchEvent(this, child, ev);
-                        break;
-                }
+            if (!newBlock && !intercepted && b != null) {
+                intercepted = b.onInterceptTouchEvent(this, child, ev);
                 if (intercepted) {
                     mBehaviorTouchView = child;
+                    // If a behavior intercepted an event then send cancel events to all the prior
+                    // behaviors.
+                    if (action != MotionEvent.ACTION_CANCEL && action != MotionEvent.ACTION_UP) {
+                        for (int j = 0; j < i; j++) {
+                            final View priorChild = topmostChildList.get(j);
+                            final Behavior priorBehavior =
+                                    ((LayoutParams) priorChild.getLayoutParams()).getBehavior();
+                            if (priorBehavior != null) {
+                                if (cancelEvent == null) cancelEvent = obtainCancelEvent(ev);
+                                priorBehavior.onInterceptTouchEvent(this, priorChild, cancelEvent);
+                            }
+                        }
+                    }
                 }
             }
 
@@ -524,7 +533,17 @@ public class CoordinatorLayout extends ViewGroup implements NestedScrollingParen
 
         topmostChildList.clear();
 
+        if (cancelEvent != null) {
+            cancelEvent.recycle();
+        }
+
         return intercepted;
+    }
+
+    private MotionEvent obtainCancelEvent(MotionEvent other) {
+        MotionEvent event = MotionEvent.obtain(other);
+        event.setAction(MotionEvent.ACTION_CANCEL);
+        return event;
     }
 
     @Override
@@ -533,13 +552,16 @@ public class CoordinatorLayout extends ViewGroup implements NestedScrollingParen
 
         // Make sure we reset in case we had missed a previous important event.
         if (action == MotionEvent.ACTION_DOWN) {
-            resetTouchBehaviors(true);
+            resetTouchBehaviors();
         }
 
-        final boolean intercepted = performIntercept(ev, TYPE_ON_INTERCEPT);
+        final boolean intercepted = performIntercept(ev);
 
         if (action == MotionEvent.ACTION_UP || action == MotionEvent.ACTION_CANCEL) {
-            resetTouchBehaviors(true);
+            // We have already sent this event to the behavior that was handling the touch so clear
+            // it out before reseting the touch state to avoid sending it another cancel event.
+            mBehaviorTouchView = null;
+            resetTouchBehaviors();
         }
 
         return intercepted;
@@ -550,38 +572,33 @@ public class CoordinatorLayout extends ViewGroup implements NestedScrollingParen
     public boolean onTouchEvent(MotionEvent ev) {
         boolean handled = false;
         boolean cancelSuper = false;
-        MotionEvent cancelEvent = null;
 
         final int action = ev.getActionMasked();
 
-        if (mBehaviorTouchView != null || (cancelSuper = performIntercept(ev, TYPE_ON_TOUCH))) {
-            // Safe since performIntercept guarantees that
-            // mBehaviorTouchView != null if it returns true
+        if (mBehaviorTouchView != null) {
             final LayoutParams lp = (LayoutParams) mBehaviorTouchView.getLayoutParams();
             final Behavior b = lp.getBehavior();
             if (b != null) {
                 handled = b.onTouchEvent(this, mBehaviorTouchView, ev);
             }
+        } else {
+            cancelSuper = performIntercept(ev);
         }
 
         // Keep the super implementation correct
-        if (mBehaviorTouchView == null) {
+        if (mBehaviorTouchView == null || action == MotionEvent.ACTION_CANCEL) {
             handled |= super.onTouchEvent(ev);
         } else if (cancelSuper) {
-            if (cancelEvent == null) {
-                final long now = SystemClock.uptimeMillis();
-                cancelEvent = MotionEvent.obtain(now, now,
-                        MotionEvent.ACTION_CANCEL, 0.0f, 0.0f, 0);
-            }
+            MotionEvent cancelEvent = obtainCancelEvent(ev);
             super.onTouchEvent(cancelEvent);
-        }
-
-        if (cancelEvent != null) {
             cancelEvent.recycle();
         }
 
         if (action == MotionEvent.ACTION_UP || action == MotionEvent.ACTION_CANCEL) {
-            resetTouchBehaviors(false);
+            // We have already sent this event to the behavior that was handling the touch so clear
+            // it out before reseting the touch state to avoid sending it another cancel event.
+            mBehaviorTouchView = null;
+            resetTouchBehaviors();
         }
 
         return handled;
@@ -591,7 +608,12 @@ public class CoordinatorLayout extends ViewGroup implements NestedScrollingParen
     public void requestDisallowInterceptTouchEvent(boolean disallowIntercept) {
         super.requestDisallowInterceptTouchEvent(disallowIntercept);
         if (disallowIntercept && !mDisallowInterceptReset) {
-            resetTouchBehaviors(false);
+            // If there is no behavior currently handling touches then send a cancel event to all
+            // behavior's intercept methods.
+            if (mBehaviorTouchView == null) {
+                cancelInterceptBehaviors();
+            }
+            resetTouchBehaviors();
             mDisallowInterceptReset = true;
         }
     }
