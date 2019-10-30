@@ -17,11 +17,15 @@
 package androidx.ui.core
 
 import androidx.ui.engine.geometry.Rect
+import androidx.ui.graphics.Canvas
 import androidx.ui.graphics.Color
 import androidx.ui.input.EditOperation
 import androidx.ui.input.EditProcessor
 import androidx.ui.input.FinishComposingTextEditOp
+import androidx.ui.input.INVALID_SESSION
 import androidx.ui.input.ImeAction
+import androidx.ui.input.InputSessionToken
+import androidx.ui.input.InputState
 import androidx.ui.input.KeyboardType
 import androidx.ui.input.OffsetMap
 import androidx.ui.input.SetSelectionEditOp
@@ -29,10 +33,6 @@ import androidx.ui.input.TextInputService
 import androidx.ui.input.TransformedText
 import androidx.ui.input.VisualTransformation
 import androidx.ui.input.identityOffsetMap
-import androidx.ui.graphics.Canvas
-import androidx.ui.input.INVALID_SESSION
-import androidx.ui.input.InputSessionToken
-import androidx.ui.input.InputState
 import androidx.ui.text.AnnotatedString
 import androidx.ui.text.Paragraph
 import androidx.ui.text.ParagraphConstraints
@@ -43,6 +43,7 @@ import androidx.ui.text.TextStyle
 import androidx.ui.text.font.Font
 import androidx.ui.text.style.TextDecoration
 import androidx.ui.text.style.TextDirectionAlgorithm
+import kotlin.math.ceil
 import kotlin.math.roundToInt
 
 // -5185306 = 0xFFB0E0E6 = A(0xFF), R(0xB0), G(0xE0), B(0xE6)
@@ -91,9 +92,16 @@ internal class TextFieldDelegate {
         @JvmStatic
         fun layout(textDelegate: TextDelegate, constraints: Constraints): Pair<IntPx, IntPx> {
 
-            // We anyway need to compute layout for preventing NPE during draw which require layout
-            // result.
-            textDelegate.layout(Constraints.tightConstraintsForWidth(constraints.maxWidth))
+            if (constraints.maxWidth.isFinite()) {
+                textDelegate.layout(Constraints.tightConstraintsForWidth(constraints.maxWidth))
+            } else {
+                // TextField want to fill the required width but if infinite width is passed,
+                // falling back to wrap-content behavior since it may be in the horizontal scroller.
+                val intrinsics = textDelegate.layoutIntrinsics()
+                textDelegate.layout(Constraints.tightConstraintsForWidth(
+                    ceil(intrinsics.maxIntrinsicWidth).px.round()
+                ))
+            }
 
             val isEmptyText = textDelegate.text.text.isEmpty()
             val height = if (isEmptyText) {
@@ -105,7 +113,7 @@ internal class TextFieldDelegate {
             } else {
                 textDelegate.height.px.round()
             }
-            val width = constraints.maxWidth
+            val width = ceil(textDelegate.width).px.round()
             return Pair(width, height)
         }
 
