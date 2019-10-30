@@ -155,7 +155,8 @@ class Main {
             useFallbackIfTypeIsMissing = !isStrict)
         val transformationResult = processor.transform2(fileMappings)
 
-        if (transformationResult.numberOfLibsModified == 0) {
+        val containsSingleJavaFiles = containsSingleJavaFiles(fileMappings)
+        if (!containsSingleJavaFiles && transformationResult.numberOfLibsModified == 0) {
             // Jetifier is not needed here
             Log.w(TAG, "No references were rewritten. You don't need to run Jetifier.")
         }
@@ -165,6 +166,15 @@ class Main {
             TopOfTreeBuilder().rebuildFrom(inputZip = tempFile, outputZip = File(output))
             tempFile.delete()
         }
+    }
+
+    private fun containsSingleJavaFiles(fileMappings: Set<FileMapping>): Boolean {
+        for (fileMapping in fileMappings) {
+            if (fileMapping.from.name.endsWith(".java")) {
+                return true
+            }
+        }
+        return false
     }
 
     private fun parseCmdLine(args: Array<String>): CommandLine? {
