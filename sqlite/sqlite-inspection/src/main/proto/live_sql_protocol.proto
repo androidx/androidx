@@ -21,7 +21,52 @@ package androidx.sqlite.inspection;
 option java_package = "androidx.sqlite.inspection";
 option java_outer_classname = "SqliteInspectorProtocol";
 
-message SampleCommand {
-  string param1 = 1;
-  string param2 = 2;
+// --- Commands ---
+
+// Generic Command object grouping all Inspector Command types. Expected in
+// Inspector's onReceiveCommand.
+message Command {
+  // Wrapped specialised Command.
+  oneof OneOf {
+    TrackDatabasesCommand track_databases = 1;
+  }
+}
+
+// Request for the Inspector to track database connections (existing and new)
+// and notify of those via DatabaseOpenedEvent objects.
+message TrackDatabasesCommand {}
+
+// --- Responses ---
+
+// Generic Response object grouping all Inspector Response types to Command
+// objects.
+message Response {
+  // Wrapped specialised Response.
+  oneof OneOf {
+    TrackDatabasesResponse track_databases = 1;
+  }
+}
+
+// Object expected as a response to TrackDatabasesCommand.
+message TrackDatabasesResponse {}
+
+// --- Events ---
+
+// Generic Event object grouping all Inspector Event types. Expected in
+// Connection's sendEvent method.
+message Event {
+  // Wrapped specialised Event.
+  oneof union { DatabaseOpenedEvent database_opened = 1; }
+}
+
+// Notification of a database connection established (new) / discovered
+// (existing).
+message DatabaseOpenedEvent {
+  // Id uniquely identifying a connection to a database. Required to perform
+  // requests on the database.
+  int32 id = 1;
+  // Display name of the database: depending on a database type, e.g. in case of
+  // a vanilla SQLite database a path to the database. Note: it is not
+  // necessarily unique between databases.
+  string name = 2;
 }
