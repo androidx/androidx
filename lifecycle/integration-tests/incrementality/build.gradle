@@ -64,6 +64,6 @@ task generateSdkResource() {
 tasks.findByName("compileTestKotlin").dependsOn(generateSdkResource)
 
 // lifecycle-common and annotation are the dependencies of lifecycle-compiler
-tasks.findByPath("test").dependsOn(tasks.findByPath(":lifecycle:lifecycle-compiler:uploadArchives"),
-        tasks.findByPath(":lifecycle:lifecycle-common:uploadArchives"),
-        tasks.findByPath(":annotation:annotation:uploadArchives"))
+tasks.findByPath("test").dependsOn(tasks.findByPath(":lifecycle:lifecycle-compiler:publish"),
+        tasks.findByPath(":lifecycle:lifecycle-common:publish"),
+        tasks.findByPath(":annotation:annotation:publish"))
