@@ -32,7 +32,7 @@ public interface ImageProxy extends AutoCloseable {
      * <p>If obtained from an {@link ImageAnalysis.Analyzer} the image will be closed on return
      * from the {@link ImageAnalysis.Analyzer} function.
      *
-     * <p>@see {@link android.media.Image#close()}.
+     * @see android.media.Image#close()
      */
     @Override
     void close();
@@ -40,7 +40,7 @@ public interface ImageProxy extends AutoCloseable {
     /**
      * Returns the crop rectangle.
      *
-     * <p>@see {@link android.media.Image#getCropRect()}.
+     * @see android.media.Image#getCropRect()
      */
     @NonNull
     Rect getCropRect();
@@ -48,49 +48,49 @@ public interface ImageProxy extends AutoCloseable {
     /**
      * Sets the crop rectangle.
      *
-     * <p>@see {@link android.media.Image#setCropRect(Rect)}.
+     * @see android.media.Image#setCropRect(Rect)
      */
     void setCropRect(@Nullable Rect rect);
 
     /**
      * Returns the image format.
      *
-     * <p>@see {@link android.media.Image#getFormat()}.
+     * @see android.media.Image#getFormat()
      */
     int getFormat();
 
     /**
      * Returns the image height.
      *
-     * <p>@see {@link android.media.Image#getHeight()}.
+     * @see android.media.Image#getHeight()
      */
     int getHeight();
 
     /**
      * Returns the image width.
      *
-     * <p>@see {@link android.media.Image#getWidth()}.
+     * @see android.media.Image#getWidth()
      */
     int getWidth();
 
     /**
      * Returns the timestamp.
      *
-     * <p>@see {@link android.media.Image#getTimestamp()}.
+     * @see android.media.Image#getTimestamp()
      */
     long getTimestamp();
 
     /**
      * Sets the timestamp.
      *
-     * <p>@see {@link android.media.Image#setTimestamp(long)}.
+     * @see android.media.Image#setTimestamp(long)
      */
     void setTimestamp(long timestamp);
 
     /**
      * Returns the array of planes.
      *
-     * <p>@see {@link android.media.Image#getPlanes()}.
+     * @see android.media.Image#getPlanes()
      */
     @NonNull
     PlaneProxy[] getPlanes();
@@ -100,21 +100,21 @@ public interface ImageProxy extends AutoCloseable {
         /**
          * Returns the row stride.
          *
-         * <p>@see {@link android.media.Image.Plane#getRowStride()}.
+         * @see android.media.Image.Plane#getRowStride()
          */
         int getRowStride();
 
         /**
          * Returns the pixel stride.
          *
-         * <p>@see {@link android.media.Image.Plane#getPixelStride()}.
+         * @see android.media.Image.Plane#getPixelStride()
          */
         int getPixelStride();
 
         /**
          * Returns the pixels buffer.
          *
-         * <p>@see {@link android.media.Image.Plane#getBuffer()}.
+         * @see android.media.Image.Plane#getBuffer()
          */
         @NonNull
         ByteBuffer getBuffer();
@@ -142,7 +142,9 @@ public interface ImageProxy extends AutoCloseable {
      * the ImageProxy, which happens, for example, on return from the {@link ImageAnalysis.Analyzer}
      * function.  Destroying the {@link ImageAnalysis} will close the underlying
      * {@link android.media.ImageReader}.  So an {@link Image} obtained with this method will behave
-     * as such @see {@link android.media.Image#close()}.
+     * as such.
+     *
+     * @see android.media.Image#close()
      *
      * @return the android image.
      */
