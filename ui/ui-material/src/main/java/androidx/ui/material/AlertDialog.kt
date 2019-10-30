@@ -152,7 +152,7 @@ private fun AlertDialogButtonLayout(
 }
 
 private val AlertDialogWidth = 280.dp
-private val ButtonsPadding = EdgeInsets(left = 0.dp, top = 8.dp, right = 8.dp, bottom = 8.dp)
+private val ButtonsPadding = EdgeInsets(all = 8.dp)
 private val ButtonsWidthSpace = 8.dp
 private val ButtonsHeightSpace = 12.dp
 // TODO(b/138924683): Top padding should be actually be a distance between the Text baseline and
