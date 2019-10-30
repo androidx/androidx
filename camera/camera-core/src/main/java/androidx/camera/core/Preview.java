@@ -36,6 +36,7 @@ import androidx.annotation.RestrictTo.Scope;
 import androidx.annotation.UiThread;
 import androidx.camera.core.impl.utils.Threads;
 import androidx.camera.core.impl.utils.executor.CameraXExecutors;
+import androidx.concurrent.futures.CallbackToFutureAdapter;
 import androidx.core.util.Preconditions;
 
 import com.google.common.util.concurrent.ListenableFuture;
@@ -161,6 +162,13 @@ public class Preview extends UseCase {
     /**
      * Gets {@link PreviewSurfaceCallback}
      *
+     * <p> Setting the callback will signal to the camera that the use case is ready to receive
+     * data.
+     *
+     * <p> To displaying preview with a {@link TextureView}, consider
+     * using {@link PreviewUtil#createPreviewSurfaceCallback(PreviewUtil.SurfaceTextureCallback)} to
+     * create the callback.
+     *
      * @return the last set callback or {@code null} if no listener is set
      */
     @UiThread
@@ -175,6 +183,10 @@ public class Preview extends UseCase {
      *
      * <p> Setting the callback will signal to the camera that the use case is ready to receive
      * data.
+     *
+     * <p> To displaying preview with a {@link TextureView}, consider
+     * using {@link PreviewUtil#createPreviewSurfaceCallback(PreviewUtil.SurfaceTextureCallback)} to
+     * create the callback.
      *
      * @param previewSurfaceCallback PreviewSurfaceCallback that provides a Preview.
      * @param callbackExecutor       on which the previewSurfaceCallback will be triggered.
@@ -336,35 +348,70 @@ public class Preview extends UseCase {
         /**
          * Creates preview output Surface with the given resolution and format.
          *
-         * <p> This is called when Preview needs a valid Surface. e.g. when the Preview is bound
-         * to lifecycle. If the {@link Surface} is backed by a {@link SurfaceTexture}, both the
-         * {@link Surface} and the {@link ListenableFuture} need to be recreated each time this
-         * is invoked.
+         * <p> This is called when Preview needs a valid {@link Surface}. e.g. when the Preview is
+         * bound to lifecycle. If the {@link Surface} is backed by a {@link SurfaceTexture}, both
+         * the {@link Surface} and the {@link ListenableFuture} need to be recreated each time this
+         * is invoked. The implementer is also responsible to hold a reference to the
+         * {@link SurfaceTexture} since the weak reference from {@link Surface} does not prevent
+         * it to be garbage collected.
          *
          * <p> To display the preview with the correct orientation, if the {@link Surface} is
          * backed by a {@link SurfaceTexture}, {@link SurfaceTexture#getTransformMatrix(float[])}
          * can be used to transform the preview to natural orientation ({@link TextureView}
          * handles this automatically); if the {@link Surface} is backed by a {@link SurfaceView}
          * , it will always be in display orientation; for {@link Surface} backed by
-         * {@link ImageReader}, {@link MediaCodec} or other objects, it's user's responsibility
-         * to calculate the rotation.
+         * {@link ImageReader}, {@link MediaCodec} or other objects, it's implementer's
+         * responsibility to calculate the rotation.
+         *
+         * <p> It's most common to use it with a {@link SurfaceView} or a {@link TextureView}.
+         * For {@link TextureView}, see {@link PreviewUtil} for creating {@link Surface} backed
+         * by a {@link SurfaceTexture}. For {@link SurfaceView}, the creation is in the
+         * hands of the {@link SurfaceView}. Use {@link CallbackToFutureAdapter} to wait for the
+         * creation of the {@link Surface} in {@link android.view.SurfaceHolder.Callback
+         * #surfaceChanged(android.view.SurfaceHolder, int, int, int)}. Example:
+         *
+         * <pre><code>
+         * class SurfaceViewHandler implements SurfaceHolder.Callback, PreviewSurfaceCallback {
+         *
+         *     Size mResolution;
+         *     CallbackToFutureAdapter.Completer<Surface> mCompleter;
+         *
+         *     &#64;Override
+         *     public void surfaceChanged(SurfaceHolder holder, int format, int width, int height) {
+         *         if (mResolution != null && mCompleter != null && mResolution.getHeight()
+         *                 == height && mResolution.getWidth() == width) {
+         *             mCompleter.set(holder.getSurface());
+         *         }
+         *     }
+         *
+         *     &#64;Override
+         *     public ListenableFuture<Surface> createSurfaceFuture(@NonNull Size resolution,
+         *             int imageFormat) {
+         *         mResolution = resolution;
+         *         return CallbackToFutureAdapter.getFuture(completer -> {
+         *             mCompleter = completer
+         *         });
+         *     }
+         * }
+         * </code></pre>
          *
          * @param resolution  the resolution required by CameraX.
          * @param imageFormat the {@link ImageFormat} required by CameraX.
-         * @return A ListenableFuture that contains the user created Surface.
+         * @return A ListenableFuture that contains the implementer created Surface.
          */
         @NonNull
         ListenableFuture<Surface> createSurfaceFuture(@NonNull Size resolution, int imageFormat);
 
         /**
-         * Called when the {@link Surface} is safe to release.
+         * Called when the {@link Surface} is safe to be released.
          *
-         * <p> This method is called when the {@link Surface} previously
-         * returned from {@link #createSurfaceFuture(Size, int)} is no longer in use. If the
-         * {@link Surface} is backed by a {@link SurfaceTexture}, it should be released to avoid
-         * leak.
+         * <p> This method is called when the {@link Surface} previously returned from
+         * {@link #createSurfaceFuture(Size, int)} is no longer being used by the camera system, and
+         * it's safe to be released during or after this is called. The implementer is
+         * responsible to release the {@link Surface} when it's also no longer being used by the
+         * app.
          *
-         * @param surfaceFuture the {@link Surface} to release.
+         * @param surfaceFuture the {@link Surface} to be released.
          */
         void onSafeToRelease(@NonNull ListenableFuture<Surface> surfaceFuture);
     }
