@@ -907,7 +907,9 @@ public abstract class SessionPlayer implements AutoCloseable {
     }
 
     /**
-     * Gets the list of tracks.
+     * Gets the full list of selected and unselected tracks that the media contains. The order of
+     * the list is irrelevant as different players expose tracks in different ways, but the tracks
+     * will generally be ordered based on track type.
      * <p>
      * The types of tracks supported may vary based on player implementation.
      *
