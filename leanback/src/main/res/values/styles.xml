@@ -610,7 +610,9 @@
         <item name="android:layout_height">wrap_content</item>
         <item name="android:foreground">?attr/guidedActionsSelectorDrawable</item>
         <item name="android:focusable">true</item>
-        <item name="android:focusableInTouchMode">true</item>
+        <!-- focusableInTouchMode is false, so first touch will trigger click; if
+        focusableInTouchMode is true, the first touch will focus to the view -->
+        <item name="android:focusableInTouchMode">false</item>
         <item name="android:paddingBottom">@dimen/lb_guidedactions_item_bottom_padding</item>
         <item name="android:paddingStart">@dimen/lb_guidedactions_item_start_padding</item>
         <item name="android:paddingEnd">@dimen/lb_guidedactions_item_end_padding</item>
