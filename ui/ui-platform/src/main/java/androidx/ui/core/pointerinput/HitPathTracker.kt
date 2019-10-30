@@ -27,6 +27,7 @@ import androidx.ui.core.ipx
 import androidx.ui.core.positionRelativeToRoot
 import androidx.ui.core.isAttached
 import androidx.ui.core.visitLayoutChildren
+import java.lang.IllegalStateException
 import kotlin.math.min
 import kotlin.math.max
 
@@ -36,13 +37,16 @@ import kotlin.math.max
  */
 internal class HitPathTracker {
 
+    // TODO(shepshapard): Consider not making the root an instance of Node, but instead some other
+    //  "root" class.  It may simplify the implementation of Node.
     internal val root: Node = Node()
 
     /**
      * Associates [pointerId] to [pointerInputNodes] and tracks them.
      *
      * @param pointerId The id of the pointer that was hit tested against [PointerInputNode]s
-     * @param pointerInputNodes The [PointerInputNode]s that were hit by [pointerId]
+     * @param pointerInputNodes The [PointerInputNode]s that were hit by [pointerId].  Must be
+     * ordered from ancestor to descendant.
      */
     fun addHitPath(pointerId: Int, pointerInputNodes: List<PointerInputNode>) {
         var parent = root
@@ -85,6 +89,22 @@ internal class HitPathTracker {
         }
         root.dispatchChanges(idToChangesMap, downPass, upPass)
         return idToChangesMap.values.toList()
+    }
+
+    /**
+     * Dispatches cancel events to all tracked [PointerInputNode]s to notify them that
+     * [PointerInputNode.pointerInputHandler] will not be called again until all pointers have been
+     * removed from the application and then at least one is added again.
+     */
+    fun dispatchCancel() {
+        root.dispatchCancel()
+    }
+
+    /**
+     * Removes all paths tracked by [addHitPath].
+     */
+    fun clear() {
+        root.clear()
     }
 
     /**
@@ -166,6 +186,14 @@ internal class Node(
             }
         }
 
+        if (relevantChanges.isEmpty()) {
+            throw IllegalStateException("Currently, HitPathTracker is operating under the " +
+                    "assumption that there should never be a circumstance in which it is tracking" +
+                    " a PointerInputNode where when it receives pointerInputChanges, none are " +
+                    "relevant to that PointerInputNode.  This assumption may not hold true in " +
+                    "the future, but currently it assumes it can abide by this contract.")
+        }
+
         // For each relevant change:
         //  1. subtract the offset
         //  2. dispatch the change on the down pass,
@@ -200,6 +228,27 @@ internal class Node(
         pointerInputChanges.putAll(relevantChanges)
     }
 
+    // TODO(shepshapard): Should some order of cancel dispatch be guaranteed? I think the answer is
+    //  essentially "no", but given that an order can be consistent... maybe we might as well
+    //  set an arbitrary standard and stick to it so user expectations are maintained.
+    /**
+     * Does a depth first traversal and invokes [PointerInputNode.cancelHandler] during
+     * backtracking.
+     */
+    fun dispatchCancel() {
+        children.forEach { it.dispatchCancel() }
+        pointerInputNode?.cancelHandler?.invoke()
+    }
+
+    /**
+     * Removes all children from this Node.
+     */
+    fun clear() {
+        children.clear()
+    }
+
+    // TODO(b/142486858): Should cancel events be dispatched to PointerInputNodes that have been
+    //  removed from the tree?
     fun removeDetachedPointerInputNodes() {
         children.removeAll {
             it.pointerInputNode != null && !it.pointerInputNode.isAttached()
@@ -209,6 +258,8 @@ internal class Node(
         }
     }
 
+    // TODO(shepshapard): Not sure if this functionality should exist.  The question will be moot
+    //  when/if PointerInputNodes are converted into modifiers.
     fun removePointerInputNodesWithNoLayoutNodeDescendants() {
         children.removeAll {
             it.pointerInputNode != null && it.pointerInputNode.hasNoLayoutDescendants()

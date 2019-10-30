@@ -329,7 +329,18 @@ class RepaintBoundaryNode(val name: String?) : ComponentNode() {
  * Backing node for handling pointer events.
  */
 class PointerInputNode : ComponentNode() {
+    /**
+     * Invoked when pointers that previously hit this PointerInputNode have changed.
+     */
     var pointerInputHandler: PointerInputHandler = { event, _, _ -> event }
+
+    // TODO(b/142486858): Should cancelHandler be called when the PointerInputNode is removed
+    //  from the hierarchy?
+    /**
+     * Invoked when Android passes an ACTION_CANCEL event to the [AndroidComposeView.onTouchEvent]
+     * method.
+     */
+    var cancelHandler: () -> Unit = { }
 }
 
 /**
