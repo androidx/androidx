@@ -55,8 +55,6 @@ internal val DefaultSelectionColor = Color(0x6633B5E5)
  * same line depending on the layout constraints.
  *
  * @param modifier Modifier to apply to this layout node.
- * @param text Text to render in this composable. If there are also [Span]s in this composable,
- * they will be append after the given [text].
  * @param style Style configuration that applies at character level such as color, font etc.
  * @param paragraphStyle Style configuration that applies only to paragraphs such as text
  * alignment, or text direction.
@@ -72,7 +70,6 @@ internal val DefaultSelectionColor = Color(0x6633B5E5)
 @Composable
 fun Text(
     modifier: Modifier = Modifier.None,
-    text: String? = null,
     style: TextStyle? = null,
     paragraphStyle: ParagraphStyle? = null,
     softWrap: Boolean = DefaultSoftWrap,
@@ -81,7 +78,7 @@ fun Text(
     selectionColor: Color = DefaultSelectionColor,
     child: @Composable TextSpanScope.() -> Unit
 ) {
-    val rootTextSpan = +memo(text) { TextSpan(text = text) }
+    val rootTextSpan = +memo { TextSpan() }
     val ref = +compositionReference()
     compose(rootTextSpan, ref, child)
     +onDispose { disposeComposition(rootTextSpan, ref) }
