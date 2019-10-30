@@ -18,6 +18,7 @@ package androidx.room.writer
 
 import androidx.room.ext.AndroidTypeNames
 import androidx.room.ext.CollectionTypeNames
+import androidx.room.ext.CommonTypeNames
 import androidx.room.ext.L
 import androidx.room.ext.N
 import androidx.room.ext.RoomTypeNames
@@ -27,6 +28,7 @@ import androidx.room.solver.CodeGenScope
 import androidx.room.solver.query.result.PojoRowAdapter
 import androidx.room.vo.RelationCollector
 import com.squareup.javapoet.ClassName
+import com.squareup.javapoet.CodeBlock
 import com.squareup.javapoet.MethodSpec
 import com.squareup.javapoet.ParameterSpec
 import com.squareup.javapoet.ParameterizedTypeName
@@ -72,6 +74,20 @@ class RelationCollectorMethodWriter(private val collector: RelationCollector) :
                     collector.mapTypeName.rawType == CollectionTypeNames.LONG_SPARSE_ARRAY
             val usingArrayMap =
                     collector.mapTypeName.rawType == CollectionTypeNames.ARRAY_MAP
+            fun CodeBlock.Builder.addBatchPutAllStatement(tmpMapVar: String) {
+                if (usingArrayMap) {
+                    // When using ArrayMap there is ambiguity in the putAll() method, clear the
+                    // confusion by casting the temporary map.
+                    val disambiguityTypeName =
+                        ParameterizedTypeName.get(CommonTypeNames.MAP,
+                            collector.mapTypeName.typeArguments[0],
+                            collector.mapTypeName.typeArguments[1])
+                    addStatement("$N.putAll(($T) $L)",
+                        param, disambiguityTypeName, tmpMapVar)
+                } else {
+                    addStatement("$N.putAll($L)", param, tmpMapVar)
+                }
+            }
             if (usingLongSparseArray) {
                 beginControlFlow("if ($N.isEmpty())", param)
             } else {
@@ -99,16 +115,25 @@ class RelationCollectorMethodWriter(private val collector: RelationCollector) :
                     addStatement("$T $L = 0", TypeName.INT, mapIndexVar)
                     addStatement("final $T $L = $N.size()", TypeName.INT, limitVar, param)
                     beginControlFlow("while($L < $L)", mapIndexVar, limitVar).apply {
-                        addStatement("$L.put($N.keyAt($L), $N.valueAt($L))",
-                            tmpMapVar, param, mapIndexVar, param, mapIndexVar)
+                        if (collector.relationTypeIsCollection) {
+                            addStatement("$L.put($N.keyAt($L), $N.valueAt($L))",
+                                tmpMapVar, param, mapIndexVar, param, mapIndexVar)
+                        } else {
+                            addStatement("$L.put($N.keyAt($L), null)",
+                                tmpMapVar, param, mapIndexVar)
+                        }
                         addStatement("$L++", mapIndexVar)
                     }
                 } else {
                     val mapKeyVar = scope.getTmpVar("_mapKey")
                     beginControlFlow("for($T $L : $L)",
                         collector.keyTypeName, mapKeyVar, KEY_SET_VARIABLE).apply {
-                        addStatement("$L.put($L, $N.get($L))",
-                            tmpMapVar, mapKeyVar, param, mapKeyVar)
+                        if (collector.relationTypeIsCollection) {
+                            addStatement("$L.put($L, $N.get($L))",
+                                tmpMapVar, mapKeyVar, param, mapKeyVar)
+                        } else {
+                            addStatement("$L.put($L, null)", tmpMapVar, mapKeyVar)
+                        }
                     }
                 }.apply {
                     addStatement("$L++", tmpIndexVar)
@@ -116,6 +141,11 @@ class RelationCollectorMethodWriter(private val collector: RelationCollector) :
                         tmpIndexVar, RoomTypeNames.ROOM_DB).apply {
                         // recursively load that batch
                         addStatement("$L($L)", methodName, tmpMapVar)
+                        // for non collection relation, put the loaded batch in the original map,
+                        // not needed when dealing with collections since references are passed
+                        if (!collector.relationTypeIsCollection) {
+                            addBatchPutAllStatement(tmpMapVar)
+                        }
                         // clear nukes the backing data hence we create a new one
                         addStatement("$L = new $T($T.MAX_BIND_PARAMETER_CNT)",
                             tmpMapVar, collector.mapTypeName, RoomTypeNames.ROOM_DB)
@@ -125,6 +155,10 @@ class RelationCollectorMethodWriter(private val collector: RelationCollector) :
                 beginControlFlow("if($L > 0)", tmpIndexVar).apply {
                     // load the last batch
                     addStatement("$L($L)", methodName, tmpMapVar)
+                    // for non collection relation, put the last batch in the original map
+                    if (!collector.relationTypeIsCollection) {
+                        addBatchPutAllStatement(tmpMapVar)
+                    }
                 }.endControlFlow()
                 addStatement("return")
             }.endControlFlow()
