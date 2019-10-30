@@ -160,17 +160,19 @@ class Utils {
      * BiometricPrompt.CryptoObject)} is called.
      *
      * @param context The application or activity context.
+     * @param vendor Name of the device vendor/manufacturer.
      * @param model Model name of the current device.
      * @return true if the current device should fall back to fingerprint for crypto-based
      * authentication, or false otherwise.
      */
-    static boolean shouldUseFingerprintForCrypto(@NonNull Context context, String model) {
-        if (Build.VERSION.SDK_INT < Build.VERSION_CODES.P
-                || Build.VERSION.SDK_INT > Build.VERSION_CODES.Q) {
-            // This workaround is only needed for Android P and Q.
+    static boolean shouldUseFingerprintForCrypto(@NonNull Context context, String vendor,
+            String model) {
+        if (Build.VERSION.SDK_INT != Build.VERSION_CODES.P) {
+            // This workaround is only needed for API 28.
             return false;
         }
-        return isModelInPrefixList(context, model, R.array.crypto_fingerprint_fallback_prefixes);
+        return isVendorInList(context, vendor, R.array.crypto_fingerprint_fallback_vendors)
+            || isModelInPrefixList(context, model, R.array.crypto_fingerprint_fallback_prefixes);
     }
 
     /**
@@ -185,12 +187,34 @@ class Utils {
      */
     static boolean shouldAlwaysHideFingerprintDialogInstantly(@NonNull Context context,
             String model) {
-        if (Build.VERSION.SDK_INT < Build.VERSION_CODES.P
-                || Build.VERSION.SDK_INT > Build.VERSION_CODES.Q) {
-            // This workaround is only needed for Android P and Q.
+        if (Build.VERSION.SDK_INT != Build.VERSION_CODES.P) {
+            // This workaround is only needed for API 28.
             return false;
         }
         return isModelInPrefixList(context, model, R.array.hide_fingerprint_instantly_prefixes);
+    }
+
+    /**
+     * Determines if the name of the current device vendor matches one in the given string array
+     * resource.
+     *
+     * @param context The application or activity context.
+     * @param vendor Case-insensitive name of the device vendor.
+     * @param resId Resource ID for the string array of vendor names to check against.
+     * @return true if the vendor name matches one in the given string array, or false otherwise.
+     */
+    private static boolean isVendorInList(@NonNull Context context, String vendor, int resId) {
+        if (vendor == null) {
+            return false;
+        }
+
+        final String[] vendorNames = context.getResources().getStringArray(resId);
+        for (final String vendorName : vendorNames) {
+            if (vendor.equalsIgnoreCase(vendorName)) {
+                return true;
+            }
+        }
+        return false;
     }
 
     /**
