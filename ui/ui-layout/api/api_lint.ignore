@@ -15,3 +15,5 @@ MissingNullability: androidx.ui.layout.TableColumnWidth.MinIntrinsic#INSTANCE:
     Missing nullability on field `INSTANCE` in class `class androidx.ui.layout.TableColumnWidth.MinIntrinsic`
 MissingNullability: androidx.ui.layout.TableColumnWidth.Wrap#INSTANCE:
     Missing nullability on field `INSTANCE` in class `class androidx.ui.layout.TableColumnWidth.Wrap`
+MissingNullability: androidx.ui.layout.Gravity#INSTANCE:
+    Missing nullability on field `INSTANCE` in class `class androidx.ui.layout.Gravity`
