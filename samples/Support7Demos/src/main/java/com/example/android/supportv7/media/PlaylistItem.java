@@ -31,7 +31,6 @@ final class PlaylistItem {
     private final String mItemId;
     private final Uri mUri;
     private final String mTitle;
-    private final String mMime;
     private final PendingIntent mUpdateReceiver;
     // changeable states
     private int mPlaybackState = MediaItemStatus.PLAYBACK_STATE_PENDING;
@@ -46,7 +45,6 @@ final class PlaylistItem {
         mItemId = iid;
         mTitle = title;
         mUri = uri;
-        mMime = mime;
         mUpdateReceiver = pi;
         setTimestamp(SystemClock.elapsedRealtime());
     }

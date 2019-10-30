@@ -25,7 +25,7 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.LinearLayout;
 
-import androidx.recyclerview.selection.ItemKeyProvider;
+import androidx.annotation.NonNull;
 import androidx.recyclerview.selection.SelectionTracker;
 import androidx.recyclerview.widget.RecyclerView;
 
@@ -36,33 +36,23 @@ final class SimpleSelectionDemoAdapter extends RecyclerView.Adapter<DemoHolder> 
 
     private static final String TAG = "SelectionDemos";
     private final Context mContext;
-    private final ItemKeyProvider<Long> mKeyProvider;
 
     // This should be replaced at "bind" time with a real test that
     // asks SelectionTracker.
     private SelectionTest mSelTest;
 
-    SimpleSelectionDemoAdapter(Context context, ItemKeyProvider<Long> keyProvider) {
+    SimpleSelectionDemoAdapter(Context context) {
         mContext = context;
-        mKeyProvider = keyProvider;
-        mSelTest = new SelectionTest() {
-            @Override
-            public boolean isSelected(Long id) {
-                throw new IllegalStateException(
-                        "Adapter must be initialized with SelectionTracker.");
-            }
+        mSelTest = id -> {
+            throw new IllegalStateException(
+                    "Adapter must be initialized with SelectionTracker.");
         };
     }
 
     // Glue together SelectionTracker and the adapter.
     public void bindSelectionHelper(final SelectionTracker<Long> selectionTracker) {
         checkArgument(selectionTracker != null);
-        mSelTest = new SelectionTest() {
-            @Override
-            public boolean isSelected(Long id) {
-                return selectionTracker.isSelected(id);
-            }
-        };
+        mSelTest = selectionTracker::isSelected;
     }
 
     void loadData() {
@@ -91,7 +81,7 @@ final class SimpleSelectionDemoAdapter extends RecyclerView.Adapter<DemoHolder> 
     }
 
     @Override
-    public DemoHolder onCreateViewHolder(ViewGroup parent, int viewType) {
+    public DemoHolder onCreateViewHolder(@NonNull ViewGroup parent, int viewType) {
         LinearLayout layout = inflateLayout(mContext, parent, R.layout.selection_demo_list_item);
         return new DemoHolder(layout);
     }
