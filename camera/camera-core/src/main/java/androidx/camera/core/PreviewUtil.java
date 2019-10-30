@@ -20,6 +20,7 @@ import android.graphics.SurfaceTexture;
 import android.util.Log;
 import android.util.Size;
 import android.view.Surface;
+import android.view.TextureView;
 
 import androidx.annotation.NonNull;
 import androidx.camera.core.impl.utils.futures.Futures;
@@ -41,12 +42,40 @@ public final class PreviewUtil {
     }
 
     /**
-     * Creates a {@link Preview.PreviewSurfaceCallback} that allocates and deallocates
-     * {@link SurfaceTexture}.
+     * Creates a {@link Preview.PreviewSurfaceCallback} that is backed by a {@link SurfaceTexture}.
      *
-     * @param surfaceTextureCallback listener that will be triggered when the SurfaceTexture is
-     *                                    ready.
-     * @return {@link Preview.PreviewSurfaceCallback} to be used with {@link Preview}.
+     * <p>This is a convenience method for creating a {@link Preview.PreviewSurfaceCallback}
+     * whose {@link Surface} is backed by a {@link SurfaceTexture}. The returned
+     * {@link Preview.PreviewSurfaceCallback} is responsible for creating the {@link SurfaceTexture}
+     * and propagating {@link Preview.PreviewSurfaceCallback#onSafeToRelease(ListenableFuture)}
+     * back to the implementer. The {@link SurfaceTexture} is usually used with a
+     * {@link TextureView}.
+     * Example:
+     *
+     * <pre><code>
+     * preview.setPreviewSurfaceCallback(createPreviewSurfaceCallback(
+     *         new PreviewUtil.SurfaceTextureCallback() {
+     *             &#64;Override
+     *             public void onSurfaceTextureReady(@NonNull SurfaceTexture surfaceTexture) {
+     *                 // Maybe remove and re-add the TextureView to its parent.
+     *                 textureView.setSurfaceTexture(surfaceTexture);
+     *             }
+     *
+     *             &#64;Override
+     *             public void onSafeToRelease(@NonNull SurfaceTexture surfaceTexture) {
+     *                 surfaceTexture.release();
+     *             }
+     *         }));
+     * </code></pre>
+     *
+     * <p> Note that the TextureView needs to be removed and re-added from the parent view for the
+     * SurfaceTexture to be attached, because TextureView's existing SurfaceTexture is only
+     * correctly detached once the parent TextureView is removed from the view hierarchy.
+     *
+     * @param surfaceTextureCallback callback called when the SurfaceTexture is ready to be
+     *                               set/released.
+     * @return a {@link Preview.PreviewSurfaceCallback} to be used with
+     * {@link Preview#setPreviewSurfaceCallback(Preview.PreviewSurfaceCallback)}.
      */
     @NonNull
     public static Preview.PreviewSurfaceCallback createPreviewSurfaceCallback(
@@ -87,24 +116,40 @@ public final class PreviewUtil {
     }
 
     /**
-     * Callback that is triggered when {@link SurfaceTexture} is ready.
+     * Callback that is called when the {@link SurfaceTexture} is ready to be set/released.
+     *
+     * <p> Implement this interface to receive the updates on  {@link SurfaceTexture} used in
+     * {@link Preview}. See {@link #createPreviewSurfaceCallback(SurfaceTextureCallback)} for
+     * code example.
      */
     public interface SurfaceTextureCallback {
 
         /**
-         * Triggered when {@link SurfaceTexture} is ready.
+         * Called when {@link SurfaceTexture} is ready to be set.
+         *
+         * <p> This is called when the preview {@link SurfaceTexture} is created and ready. The
+         * most common usage is to set it to a {@link TextureView}. Example:
+         * <pre><code>textureView.setSurfaceTexture(surfaceTexture)</code></pre>.
+         *
+         * <p> To display the {@link SurfaceTexture} without a {@link TextureView},
+         * {@link SurfaceTexture#getTransformMatrix(float[])} can be used to transform the
+         * preview to natural orientation. For {@link TextureView}, it handles the transformation
+         * automatically so that no additional work is needed.
          *
          * @param surfaceTexture {@link SurfaceTexture} created for {@link Preview}.
          */
         void onSurfaceTextureReady(@NonNull SurfaceTexture surfaceTexture);
 
         /**
-         * Called when the {@link SurfaceTexture} is safe to release.
+         * Called when the {@link SurfaceTexture} is safe to be released.
          *
-         * <p> This method is called when the {@link SurfaceTexture} previously
-         * returned from {@link #onSurfaceTextureReady(SurfaceTexture)} is safe to be released.
+         * <p> This method is called when the {@link SurfaceTexture} previously provided in
+         * {@link #onSurfaceTextureReady(SurfaceTexture)} is no longer being used by the
+         * camera system, and it's safe to be released during or after this is called. The
+         * implementer is responsible to release the {@link SurfaceTexture} when it's also no
+         * longer being used by the app.
          *
-         * @param surfaceTexture the {@link SurfaceTexture} to release.
+         * @param surfaceTexture the {@link SurfaceTexture} to be released.
          */
         void onSafeToRelease(@NonNull SurfaceTexture surfaceTexture);
     }
