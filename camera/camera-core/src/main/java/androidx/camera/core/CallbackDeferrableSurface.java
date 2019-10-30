@@ -48,8 +48,7 @@ final class CallbackDeferrableSurface extends DeferrableSurface implements Surfa
         mSurfaceFuture = CallbackToFutureAdapter.getFuture(
                 completer -> {
                     callbackExecutor.execute(() -> {
-                        // TODO(b/117519540): pass the image format to user.
-                        Futures.propagate(previewSurfaceCallback.createSurfaceFuture(resolution, 0),
+                        Futures.propagate(previewSurfaceCallback.createSurfaceFuture(resolution),
                                 completer);
 
                     });

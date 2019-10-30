@@ -215,8 +215,7 @@ final class CameraXModule {
 
             @NonNull
             @Override
-            public ListenableFuture<Surface> createSurfaceFuture(@NonNull Size resolution,
-                    int imageFormat) {
+            public ListenableFuture<Surface> createSurfaceFuture(@NonNull Size resolution) {
                 boolean needReverse = cameraOrientation != 0 && cameraOrientation != 180;
                 int textureWidth =
                         needReverse
