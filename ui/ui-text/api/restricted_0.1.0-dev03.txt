@@ -183,7 +183,45 @@ package androidx.ui.text {
     property public final androidx.ui.text.LocaleList current;
   }
 
-  @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP) public final class MultiParagraphIntrinsics implements androidx.ui.text.ParagraphIntrinsics {
+  public final class MultiParagraph {
+    ctor public MultiParagraph(androidx.ui.text.MultiParagraphIntrinsics intrinsics, Integer? maxLines, Boolean? ellipsis, androidx.ui.text.ParagraphConstraints constraints);
+    ctor public MultiParagraph(androidx.ui.text.AnnotatedString annotatedString, androidx.ui.text.TextStyle textStyle, androidx.ui.text.ParagraphStyle paragraphStyle, Integer? maxLines, Boolean? ellipsis, androidx.ui.text.ParagraphConstraints constraints, androidx.ui.core.Density density, androidx.ui.text.font.Font.ResourceLoader resourceLoader);
+    method public androidx.ui.text.style.TextDirection getBidiRunDirection(int offset);
+    method public androidx.ui.engine.geometry.Rect getBoundingBox(int offset);
+    method public androidx.ui.engine.geometry.Rect getCursorRect(int offset);
+    method public boolean getDidExceedMaxLines();
+    method public float getFirstBaseline();
+    method public float getHeight();
+    method public float getHorizontalPosition(int offset, boolean usePrimaryDirection);
+    method public androidx.ui.text.MultiParagraphIntrinsics getIntrinsics();
+    method public float getLastBaseline();
+    method public float getLineBottom(int lineIndex);
+    method public int getLineCount();
+    method public int getLineForOffset(int offset);
+    method public float getLineHeight(int lineIndex);
+    method public float getLineLeft(int lineIndex);
+    method public float getLineRight(int lineIndex);
+    method public float getLineWidth(int lineIndex);
+    method public float getMaxIntrinsicWidth();
+    method public Integer? getMaxLines();
+    method public float getMinIntrinsicWidth();
+    method public int getOffsetForPosition(androidx.ui.core.PxPosition position);
+    method public androidx.ui.text.style.TextDirection getParagraphDirection(int offset);
+    method public androidx.ui.graphics.Path getPathForRange(int start, int end);
+    method public float getWidth();
+    method public androidx.ui.text.TextRange getWordBoundary(int offset);
+    method public void paint(androidx.ui.graphics.Canvas canvas);
+    property public final boolean didExceedMaxLines;
+    property public final float firstBaseline;
+    property public final float height;
+    property public final float lastBaseline;
+    property public final int lineCount;
+    property public final float maxIntrinsicWidth;
+    property public final float minIntrinsicWidth;
+    property public final float width;
+  }
+
+  public final class MultiParagraphIntrinsics implements androidx.ui.text.ParagraphIntrinsics {
     ctor public MultiParagraphIntrinsics(androidx.ui.text.AnnotatedString annotatedString, androidx.ui.text.TextStyle textStyle, androidx.ui.text.ParagraphStyle paragraphStyle, androidx.ui.core.Density density, androidx.ui.text.font.Font.ResourceLoader resourceLoader);
     method public androidx.ui.text.AnnotatedString getAnnotatedString();
     method public float getMaxIntrinsicWidth();
