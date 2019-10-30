@@ -48,7 +48,7 @@ public final class ForegroundInfo {
      * Creates an instance of {@link ForegroundInfo} with a {@link Notification} and foreground
      * {@link android.app.Service} type.
      *
-     * Fore more information look at {@code android.app.Service#startForeground(int,
+     * For more information look at {@code android.app.Service#startForeground(int,
      * Notification, int)}.
      *
      * @param notification     The {@link Notification}
