@@ -3251,6 +3251,175 @@ class HitPathTrackerTest {
         verifyNoMoreInteractions(pointerInputNode.pointerInputHandler)
     }
 
+    @Test
+    fun dispatchCancel_nothingTracked_doesNotCrash() {
+        hitResult.dispatchCancel()
+    }
+
+    // Pin -> Ln
+    @Test
+    fun dispatchCancel_singlePin_cancelHandlerIsCalled() {
+        val pointerInputNode = PointerInputNode().apply {
+            cancelHandler = spy(MyCancelHandler())
+        }
+        hitResult.addHitPath(3, listOf(pointerInputNode))
+
+        hitResult.dispatchCancel()
+
+        verify(pointerInputNode.cancelHandler).invoke()
+    }
+
+    // Pin -> Pin -> Pin
+    @Test
+    fun dispatchCancel_3Pins_cancelHandlersCalledOnceInOrder() {
+        val pointerInputNodeChild = PointerInputNode()
+        val pointerInputNodeMiddle = PointerInputNode()
+        val pointerInputNodeParent = PointerInputNode()
+        pointerInputNodeChild.cancelHandler = spy(MyCancelHandler())
+        pointerInputNodeMiddle.cancelHandler = spy(MyCancelHandler())
+        pointerInputNodeParent.cancelHandler = spy(MyCancelHandler())
+        hitResult.addHitPath(3,
+            listOf(pointerInputNodeParent, pointerInputNodeMiddle, pointerInputNodeChild)
+        )
+
+        hitResult.dispatchCancel()
+
+        inOrder(
+            pointerInputNodeParent.cancelHandler,
+            pointerInputNodeMiddle.cancelHandler,
+            pointerInputNodeChild.cancelHandler
+        ) {
+            verify(pointerInputNodeChild.cancelHandler).invoke()
+            verify(pointerInputNodeMiddle.cancelHandler).invoke()
+            verify(pointerInputNodeParent.cancelHandler).invoke()
+        }
+    }
+
+    // PIN -> PIN
+    // PIN -> PIN
+    @Test
+    fun dispatchCancel_2IndependentPathsFromRoot_cancelHandlersCalledOnceInOrder() {
+        val pinParent1 = PointerInputNode()
+        val pinChild1 = PointerInputNode()
+        val pinParent2 = PointerInputNode()
+        val pinChild2 = PointerInputNode()
+        pinParent1.cancelHandler = spy(MyCancelHandler())
+        pinChild1.cancelHandler = spy(MyCancelHandler())
+        pinParent2.cancelHandler = spy(MyCancelHandler())
+        pinChild2.cancelHandler = spy(MyCancelHandler())
+        hitResult.addHitPath(3, listOf(pinParent1, pinChild1))
+        hitResult.addHitPath(5, listOf(pinParent2, pinChild2))
+
+        hitResult.dispatchCancel()
+
+        inOrder(pinParent1.cancelHandler, pinChild1.cancelHandler) {
+            verify(pinChild1.cancelHandler).invoke()
+            verify(pinParent1.cancelHandler).invoke()
+        }
+        inOrder(pinParent2.cancelHandler, pinChild2.cancelHandler) {
+            verify(pinChild2.cancelHandler).invoke()
+            verify(pinParent2.cancelHandler).invoke()
+        }
+        verifyNoMoreInteractions(
+            pinParent1.cancelHandler,
+            pinChild1.cancelHandler,
+            pinParent2.cancelHandler,
+            pinChild2.cancelHandler
+        )
+    }
+
+    // PIN -> PIN
+    //     -> PIN
+    @Test
+    fun dispatchCancel_2BranchingPaths_cancelHandlersCalledOnceInOrder() {
+        val pinParent = PointerInputNode()
+        val pinChild1 = PointerInputNode()
+        val pinChild2 = PointerInputNode()
+        pinParent.cancelHandler = spy(MyCancelHandler())
+        pinChild1.cancelHandler = spy(MyCancelHandler())
+        pinChild2.cancelHandler = spy(MyCancelHandler())
+        hitResult.addHitPath(3, listOf(pinParent, pinChild1))
+        hitResult.addHitPath(5, listOf(pinParent, pinChild2))
+
+        hitResult.dispatchCancel()
+
+        inOrder(pinParent.cancelHandler, pinChild1.cancelHandler) {
+            verify(pinChild1.cancelHandler).invoke()
+            verify(pinParent.cancelHandler).invoke()
+        }
+        inOrder(pinParent.cancelHandler, pinChild2.cancelHandler) {
+            verify(pinChild2.cancelHandler).invoke()
+            verify(pinParent.cancelHandler).invoke()
+        }
+        verifyNoMoreInteractions(
+            pinParent.cancelHandler,
+            pinChild1.cancelHandler,
+            pinChild2.cancelHandler
+        )
+    }
+
+    @Test
+    fun clear_nothingTracked_doesNotCrash() {
+        hitResult.clear()
+    }
+
+    // Pin -> Ln
+    @Test
+    fun clear_singlePin_cleared() {
+        val pointerInputNode = PointerInputNode()
+        hitResult.addHitPath(3, listOf(pointerInputNode))
+
+        hitResult.clear()
+
+        assertThat(areEqual(hitResult.root, Node())).isTrue()
+    }
+
+    // Pin -> Pin -> Pin
+    @Test
+    fun clear_3Pins_cleared() {
+        val pointerInputNodeChild = PointerInputNode()
+        val pointerInputNodeMiddle = PointerInputNode()
+        val pointerInputNodeParent = PointerInputNode()
+        hitResult.addHitPath(3,
+            listOf(pointerInputNodeParent, pointerInputNodeMiddle, pointerInputNodeChild)
+        )
+
+        hitResult.clear()
+
+        assertThat(areEqual(hitResult.root, Node())).isTrue()
+    }
+
+    // PIN -> PIN
+    // PIN -> PIN
+    @Test
+    fun clear_2IndependentPathsFromRoot_cleared() {
+        val pinParent1 = PointerInputNode()
+        val pinChild1 = PointerInputNode()
+        val pinParent2 = PointerInputNode()
+        val pinChild2 = PointerInputNode()
+        hitResult.addHitPath(3, listOf(pinParent1, pinChild1))
+        hitResult.addHitPath(5, listOf(pinParent2, pinChild2))
+
+        hitResult.clear()
+
+        assertThat(areEqual(hitResult.root, Node())).isTrue()
+    }
+
+    // PIN -> PIN
+    //     -> PIN
+    @Test
+    fun clear_2BranchingPaths_cleared() {
+        val pinParent = PointerInputNode()
+        val pinChild1 = PointerInputNode()
+        val pinChild2 = PointerInputNode()
+        hitResult.addHitPath(3, listOf(pinParent, pinChild1))
+        hitResult.addHitPath(5, listOf(pinParent, pinChild2))
+
+        hitResult.clear()
+
+        assertThat(areEqual(hitResult.root, Node())).isTrue()
+    }
+
     private fun areEqual(actualNode: Node, expectedNode: Node): Boolean {
         if (actualNode.pointerInputNode != expectedNode.pointerInputNode) {
             return false

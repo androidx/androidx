@@ -77,6 +77,22 @@ internal class PointerInputEventProcessor(val root: LayoutNode) {
         }
     }
 
+    // TODO(b/142486858): It seems likely that removed PointerInputNodes should not have their
+    //  cancelHandlers called. Investigate this.
+    /**
+     * Responds appropriately to Android ACTION_CANCEL events.
+     *
+     * Specifically, [PointerInputNode.cancelHandler] is invoked on tracked [PointerInputNode]s and
+     * and this [PointerInputEventProcessor] is reset such that it is no longer tracking any
+     * [PointerInputNode]s and expects the next [PointerInputEvent] it processes to represent only
+     * new pointers.
+     */
+    fun processCancel() {
+        pointerInputChangeEventProducer.clear()
+        hitPathTracker.dispatchCancel()
+        hitPathTracker.clear()
+    }
+
     /**
      * Searches for [PointerInputNode]s among the [ComponentNode]'s descendants, determines if the
      * [point] is within their virtual bounds, and adds them to [hitPointerInputNodes] if they are.
@@ -201,6 +217,9 @@ private data class HitTestBoundingBoxResult(val boundingBox: Rect?, val hit: Boo
 private class PointerInputChangeEventProducer {
     private val previousPointerInputData: MutableMap<Int, PointerInputData> = mutableMapOf()
 
+    /**
+     * Produces [PointerInputChangeEvent]s by tracking changes between [PointerInputEvent]s
+     */
     internal fun produce(pointerEvent: PointerInputEvent):
             PointerInputChangeEvent {
         val changes: MutableList<PointerInputChange> = mutableListOf()
@@ -220,6 +239,13 @@ private class PointerInputChangeEventProducer {
             }
         }
         return PointerInputChangeEvent(pointerEvent.timestamp, changes)
+    }
+
+    /**
+     * Clears all tracked information.
+     */
+    internal fun clear() {
+        previousPointerInputData.clear()
     }
 }
 

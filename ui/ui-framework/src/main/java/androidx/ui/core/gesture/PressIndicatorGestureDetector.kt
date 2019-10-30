@@ -60,7 +60,11 @@ fun PressIndicatorGestureDetector(
     recognizer.onStop = onStop
     recognizer.onCancel = onCancel
 
-    PointerInputWrapper(pointerInputHandler = recognizer.pointerInputHandler, children = children)
+    PointerInputWrapper(
+        pointerInputHandler = recognizer.pointerInputHandler,
+        cancelHandler = recognizer.cancelHandler,
+        children = children
+    )
 }
 
 internal class PressIndicatorGestureRecognizer {
@@ -83,8 +87,12 @@ internal class PressIndicatorGestureRecognizer {
     var onStop: (() -> Unit)? = null
 
     /**
-     * Called if onStart was attempted to be called (it may have been null), and pointer movement
-     * was consumed by the time of the [PointerEventPass.PostDown] reaches this gesture detector.
+     * Called if onStart was attempted to be called (it may have been null), and either:
+     * 1. Pointer movement was consumed by the time [PointerEventPass.PostDown] reaches this
+     * gesture detector.
+     * 2. The Compose root is notified that it will no longer receive input, and thus onStop
+     * will never be reached (For example, the Android View that hosts compose receives
+     * MotionEvent.ACTION_CANCEL).
      *
      * This should be used for removing visual feedback that indicates that the press gesture was
      * cancelled.
@@ -142,10 +150,18 @@ internal class PressIndicatorGestureRecognizer {
             ) {
                 // On the final pass, if we have started and any of the changes had consumed
                 // position changes, we cancel.
-                started = false
-                onCancel?.invoke()
+                cancel()
             }
 
             internalChanges
         }
+
+    var cancelHandler = ::cancel
+
+    private fun cancel() {
+        if (started) {
+            started = false
+            onCancel?.invoke()
+        }
+    }
 }

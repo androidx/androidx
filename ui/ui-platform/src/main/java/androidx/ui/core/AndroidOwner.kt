@@ -542,10 +542,15 @@ class AndroidComposeView constructor(context: Context) :
         if (autofillSupported()) _autofill?.performAutofill(values)
     }
 
+    // TODO(shepshapard): Test this method.
     override fun onTouchEvent(event: MotionEvent): Boolean {
         trace("AndroidOwner:onTouch") {
-            pointerInputEventProcessor.process(event.toPointerInputEvent())
-            // TODO(shepshapard): Only return if a child was hit.
+            if (event.actionMasked == MotionEvent.ACTION_CANCEL) {
+                pointerInputEventProcessor.processCancel()
+            } else {
+                pointerInputEventProcessor.process(event.toPointerInputEvent())
+            }
+            // TODO(shepshapard): Only return if some aspect of the change was consumed.
         }
         return true
     }

@@ -32,10 +32,12 @@ import androidx.ui.testutils.moveBy
 import androidx.ui.testutils.moveTo
 import androidx.ui.testutils.up
 import com.nhaarman.mockitokotlin2.any
+import com.nhaarman.mockitokotlin2.inOrder
 import com.nhaarman.mockitokotlin2.mock
 import com.nhaarman.mockitokotlin2.never
 import com.nhaarman.mockitokotlin2.times
 import com.nhaarman.mockitokotlin2.verify
+import com.nhaarman.mockitokotlin2.verifyNoMoreInteractions
 import org.hamcrest.CoreMatchers.`is`
 import org.hamcrest.MatcherAssert.assertThat
 import org.junit.Before
@@ -43,7 +45,8 @@ import org.junit.Test
 import org.junit.runner.RunWith
 import org.junit.runners.JUnit4
 
-// TODO(shepshapard): Write tests that verify consumption behavior that blocks ancestors and descendants.
+// TODO(shepshapard): Write tests that verify consumption behavior that blocks ancestors and
+//  descendants.
 
 @RunWith(JUnit4::class)
 class PressIndicatorGestureDetectorTest {
@@ -421,5 +424,95 @@ class PressIndicatorGestureDetectorTest {
             IntPxSize(0.ipx, 0.ipx)
         ).first()
         assertThat(pointer.consumed.downChange, `is`(true))
+    }
+
+    // Verification of correct cancellation handling.
+
+    @Test
+    fun cancelHandler_justCancel_noCallbacksCalled() {
+        recognizer.cancelHandler.invoke()
+
+        verifyNoMoreInteractions(recognizer.onStart, recognizer.onStop, recognizer.onCancel)
+    }
+
+    @Test
+    fun cancelHandler_downConsumedCancel_noCallbacksCalled() {
+        recognizer.pointerInputHandler.invokeOverAllPasses(listOf(down().consumeDownChange()))
+        recognizer.cancelHandler.invoke()
+
+        verifyNoMoreInteractions(recognizer.onStart, recognizer.onStop, recognizer.onCancel)
+    }
+
+    @Test
+    fun cancelHandler_downCancel_justStartAndCancelCalledInOrderOnce() {
+        recognizer.pointerInputHandler.invokeOverAllPasses(listOf(down()))
+        recognizer.cancelHandler.invoke()
+
+        inOrder(recognizer.onStart!!, recognizer.onCancel!!) {
+            verify(recognizer.onStart!!).invoke(any())
+            verify(recognizer.onCancel!!).invoke()
+        }
+        verifyNoMoreInteractions(recognizer.onStart, recognizer.onStop, recognizer.onCancel)
+    }
+
+    @Test
+    fun cancelHandler_downUpCancel_justStartAndStopCalledInOrderOnce() {
+        var pointer = down()
+        recognizer.pointerInputHandler.invokeOverAllPasses(listOf(pointer))
+        pointer = pointer.up(100L.millisecondsToTimestamp())
+        recognizer.pointerInputHandler.invokeOverAllPasses(listOf(pointer))
+        recognizer.cancelHandler.invoke()
+
+        inOrder(recognizer.onStart!!, recognizer.onStop!!) {
+            verify(recognizer.onStart!!).invoke(any())
+            verify(recognizer.onStop!!).invoke()
+        }
+        verifyNoMoreInteractions(recognizer.onStart, recognizer.onStop, recognizer.onCancel)
+    }
+
+    @Test
+    fun cancelHandler_downMoveCancel_justStartAndCancelCalledInOrderOnce() {
+        var pointer = down()
+        recognizer.pointerInputHandler.invokeOverAllPasses(listOf(pointer))
+        pointer = pointer.moveTo(50L.millisecondsToTimestamp(), 1f)
+        recognizer.pointerInputHandler.invokeOverAllPasses(listOf(pointer))
+        recognizer.cancelHandler.invoke()
+
+        inOrder(recognizer.onStart!!, recognizer.onCancel!!) {
+            verify(recognizer.onStart!!).invoke(any())
+            verify(recognizer.onCancel!!).invoke()
+        }
+        verifyNoMoreInteractions(recognizer.onStart, recognizer.onStop, recognizer.onCancel)
+    }
+
+    @Test
+    fun cancelHandler_downMoveConsumedCancel_justStartAndCancelCalledInOrderOnce() {
+        var pointer = down()
+        recognizer.pointerInputHandler.invokeOverAllPasses(listOf(pointer))
+        pointer = pointer.moveTo(50L.millisecondsToTimestamp(), 1f).consume(1f)
+        recognizer.pointerInputHandler.invokeOverAllPasses(listOf(pointer))
+        recognizer.cancelHandler.invoke()
+
+        inOrder(recognizer.onStart!!, recognizer.onCancel!!) {
+            verify(recognizer.onStart!!).invoke(any())
+            verify(recognizer.onCancel!!).invoke()
+        }
+        verifyNoMoreInteractions(recognizer.onStart, recognizer.onStop, recognizer.onCancel)
+    }
+
+    @Test
+    fun cancelHandler_downThenCancelThenDown_justStartCancelStartCalledInOrderOnce() {
+        var pointer = down()
+        recognizer.pointerInputHandler.invokeOverAllPasses(listOf(pointer))
+        recognizer.cancelHandler.invoke()
+        pointer = down()
+        recognizer.pointerInputHandler.invokeOverAllPasses(listOf(pointer))
+
+        inOrder(recognizer.onStart!!, recognizer.onCancel!!) {
+            verify(recognizer.onStart!!).invoke(any())
+            verify(recognizer.onCancel!!).invoke()
+            verify(recognizer.onStart!!).invoke(any())
+        }
+        verifyNoMoreInteractions(recognizer.onStart, recognizer.onStop, recognizer.onCancel)
     }
 }
