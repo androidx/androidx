@@ -80,7 +80,9 @@ public interface CameraDeviceConfig {
      * @param valueIfMissing The value to return if this configuration option has not been set.
      * @return The stored value or <code>valueIfMissing</code> if the value does not exist in this
      * configuration.
+     * @hide
      */
+    @RestrictTo(Scope.LIBRARY_GROUP)
     @Nullable
     CameraIdFilter getCameraIdFilter(@Nullable CameraIdFilter valueIfMissing);
 
@@ -89,7 +91,9 @@ public interface CameraDeviceConfig {
      *
      * @return The stored value, if it exists in this configuration.
      * @throws IllegalArgumentException if the option does not exist in this configuration.
+     * @hide
      */
+    @RestrictTo(Scope.LIBRARY_GROUP)
     @NonNull
     CameraIdFilter getCameraIdFilter();
 
@@ -118,7 +122,9 @@ public interface CameraDeviceConfig {
          *
          * @param cameraIdFilter The {@link CameraIdFilter}.
          * @return the current Builder.
+         * @hide
          */
+        @RestrictTo(Scope.LIBRARY_GROUP)
         B setCameraIdFilter(@NonNull CameraIdFilter cameraIdFilter);
     }
 }
