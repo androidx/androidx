@@ -17,12 +17,17 @@
 package androidx.camera.core;
 
 import androidx.annotation.NonNull;
+import androidx.annotation.RestrictTo;
 
 import com.google.common.util.concurrent.ListenableFuture;
 
 import java.util.List;
 
-/** A set of {@link ImageProxy} which are mapped an identifier. */
+/**
+ * A set of {@link ImageProxy} which are mapped an identifier.
+ * @hide
+ */
+@RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
 public interface ImageProxyBundle {
     /**
      * Get a {@link ListenableFuture} for a {@link ImageProxy}.
