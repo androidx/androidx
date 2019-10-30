@@ -52,8 +52,7 @@ final class SurfaceViewImplementation implements PreviewView.Implementation {
             new Preview.PreviewSurfaceCallback() {
                 @NonNull
                 @Override
-                public ListenableFuture<Surface> createSurfaceFuture(@NonNull Size resolution,
-                        int imageFormat) {
+                public ListenableFuture<Surface> createSurfaceFuture(@NonNull Size resolution) {
                     return CallbackToFutureAdapter.getFuture(
                             completer -> {
                                 // Post to UI thread for thread safety.

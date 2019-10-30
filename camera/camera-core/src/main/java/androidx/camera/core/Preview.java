@@ -17,6 +17,7 @@
 package androidx.camera.core;
 
 import android.graphics.ImageFormat;
+import android.graphics.PixelFormat;
 import android.graphics.SurfaceTexture;
 import android.media.ImageReader;
 import android.media.MediaCodec;
@@ -353,7 +354,8 @@ public class Preview extends UseCase {
          * the {@link Surface} and the {@link ListenableFuture} need to be recreated each time this
          * is invoked. The implementer is also responsible to hold a reference to the
          * {@link SurfaceTexture} since the weak reference from {@link Surface} does not prevent
-         * it to be garbage collected.
+         * it to be garbage collected. If the {@link Surface} backed by a {@link SurfaceView},
+         * the {@link PixelFormat} should always be the default {@link PixelFormat#OPAQUE}.
          *
          * <p> To display the preview with the correct orientation, if the {@link Surface} is
          * backed by a {@link SurfaceTexture}, {@link SurfaceTexture#getTransformMatrix(float[])}
@@ -385,8 +387,7 @@ public class Preview extends UseCase {
          *     }
          *
          *     &#64;Override
-         *     public ListenableFuture<Surface> createSurfaceFuture(@NonNull Size resolution,
-         *             int imageFormat) {
+         *     public ListenableFuture<Surface> createSurfaceFuture(@NonNull Size resolution) {
          *         mResolution = resolution;
          *         return CallbackToFutureAdapter.getFuture(completer -> {
          *             mCompleter = completer
@@ -396,17 +397,16 @@ public class Preview extends UseCase {
          * </code></pre>
          *
          * @param resolution  the resolution required by CameraX.
-         * @param imageFormat the {@link ImageFormat} required by CameraX.
          * @return A ListenableFuture that contains the implementer created Surface.
          */
         @NonNull
-        ListenableFuture<Surface> createSurfaceFuture(@NonNull Size resolution, int imageFormat);
+        ListenableFuture<Surface> createSurfaceFuture(@NonNull Size resolution);
 
         /**
          * Called when the {@link Surface} is safe to be released.
          *
          * <p> This method is called when the {@link Surface} previously returned from
-         * {@link #createSurfaceFuture(Size, int)} is no longer being used by the camera system, and
+         * {@link #createSurfaceFuture(Size)} is no longer being used by the camera system, and
          * it's safe to be released during or after this is called. The implementer is
          * responsible to release the {@link Surface} when it's also no longer being used by the
          * app.
