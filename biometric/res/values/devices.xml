@@ -20,7 +20,8 @@
     List of known device models which may (incorrectly) return a weak biometric authenticator when
     attempting crypto-based authentication. All devices in this list should explicitly fall back
     to using FingerprintDialogFragment and FingerprintHelperFragment when crypto-based
-    authentication is invoked by calling BiometricPrompt#authenticate(PromptInfo, CryptoObject).
+    authentication is invoked by calling BiometricPrompt#authenticate(PromptInfo, CryptoObject) on
+    affected Android versions.
     -->
     <string-array name="crypto_fingerprint_fallback_prefixes">
         <item>SM-G95</item> <!-- Samsung Galaxy S8/S8+ -->
@@ -30,6 +31,17 @@
         <item>SM-N96</item> <!-- Samsung Galaxy Note 9 -->
         <item>SM-N97</item> <!-- Samsung Galaxy Note 10/10+ -->
         <item>SM-A20</item> <!-- Samsung Galaxy A20/A20e -->
+    </string-array>
+
+    <!--
+    List of known device vendors which may (incorrectly) return a weak biometric authenticator when
+    attempting crypto-based authentication. Devices from vendors in this list should explicitly fall
+    back to using FingerprintDialogFragment and FingerprintHelperFragment when crypto-based
+    authentication is invoked by calling BiometricPrompt#authenticate(PromptInfo, CryptoObject) on
+    affected Android versions.
+    -->
+    <string-array name="crypto_fingerprint_fallback_vendors">
+        <item>samsung</item>
     </string-array>
 
     <!--
