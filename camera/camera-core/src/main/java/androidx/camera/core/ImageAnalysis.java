@@ -394,17 +394,19 @@ public final class ImageAnalysis extends UseCase {
          * <p>This method is called once for each image from the camera, and called at the
          * frame rate of the camera.  Each analyze call is executed sequentially.
          *
-         * <p>The caller is responsible for ensuring this analysis method can be executed quickly
-         * enough to prevent stalls in the image acquisition pipeline. Otherwise, newly available
-         * images will not be acquired and analyzed.
+         * <p>The implementation should ensure this analysis method can be executed quickly
+         * enough to prevent stalls in the image acquisition pipeline. Otherwise, newly
+         * available images will not be acquired and analyzed.
          *
-         * <p>The image passed to this method becomes invalid after this method returns. The caller
-         * should not store external references to this image, as these references will become
-         * invalid.
+         * <p>The image passed to this method becomes invalid and is closed after this method
+         * returns. The implementation should not close, nor store external references to this
+         * image, as these references will become invalid.
          *
          * <p>Processing should complete within a single frame time of latency, or the image data
          * should be copied out for longer processing.  Applications can be skip analyzing a frame
          * by having the analyzer return immediately.
+         *
+         * <p>The image provided has format {@link android.graphics.ImageFormat#YUV_420_888}.
          *
          * @param image           The image to analyze
          * @param rotationDegrees The rotation which if applied to the image would make it match
