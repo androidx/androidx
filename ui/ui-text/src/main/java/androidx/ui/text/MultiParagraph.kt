@@ -36,7 +36,7 @@ import kotlin.math.max
  * @param maxLines the maximum number of lines that the text can have
  * @param ellipsis whether to ellipsize text, applied only when [maxLines] is set
  */
-internal class MultiParagraph(
+class MultiParagraph(
     val intrinsics: MultiParagraphIntrinsics,
     val maxLines: Int? = null,
     ellipsis: Boolean? = null,

@@ -16,7 +16,6 @@
 
 package androidx.ui.text
 
-import androidx.annotation.RestrictTo
 import androidx.ui.core.Density
 import androidx.ui.text.font.Font
 import androidx.ui.text.style.TextDirectionAlgorithm
@@ -28,9 +27,7 @@ import androidx.ui.text.style.TextDirectionAlgorithm
  *
  * @throws IllegalArgumentException if [ParagraphStyle.textDirectionAlgorithm] is not set
  *
- * @hide
  */
-@RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
 class MultiParagraphIntrinsics(
     val annotatedString: AnnotatedString,
     textStyle: TextStyle,
