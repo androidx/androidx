@@ -60,10 +60,6 @@ public interface CameraControlInternal extends CameraControl {
      */
     void setFlashMode(@FlashMode int flashMode);
 
-    /** Returns if current torch is enabled or not. */
-    // TODO(b/143514107): remove this API when CameraInfo#getTorchState implementation is done.
-    boolean isTorchOn();
-
     /** Performs a AF trigger. */
     void triggerAf();
 
@@ -97,11 +93,6 @@ public interface CameraControlInternal extends CameraControl {
         @Override
         public ListenableFuture<Void> enableTorch(boolean torch) {
             return Futures.immediateFuture(null);
-        }
-
-        @Override
-        public boolean isTorchOn() {
-            return false;
         }
 
         @Override

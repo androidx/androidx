@@ -74,7 +74,6 @@ public final class Camera2CameraControl implements CameraControlInternal {
     private volatile boolean mIsTorchOn = false;
     @FlashMode
     private volatile int mFlashMode = FlashMode.OFF;
-    private volatile boolean mIsActive = false;
 
     //******************** Should only be accessed by executor *****************************//
     private Rect mCropRect = null;
@@ -107,7 +106,7 @@ public final class Camera2CameraControl implements CameraControlInternal {
 
         mFocusMeteringControl = new FocusMeteringControl(this, scheduler, mExecutor);
         mZoomControl = new ZoomControl(this, mCameraCharacteristics);
-        mTorchControl = new TorchControl(this);
+        mTorchControl = new TorchControl(this, mCameraCharacteristics);
 
         // Initialize the session config
         mExecutor.execute(this::updateSessionConfig);
@@ -130,9 +129,9 @@ public final class Camera2CameraControl implements CameraControlInternal {
      * once it is changed to inactive state.
      */
     void setActive(boolean isActive) {
-        mIsActive = isActive;
         mFocusMeteringControl.setActive(isActive);
         mZoomControl.setActive(isActive);
+        mTorchControl.setActive(isActive);
     }
 
     @WorkerThread
@@ -191,19 +190,7 @@ public final class Camera2CameraControl implements CameraControlInternal {
     @Override
     @NonNull
     public ListenableFuture<Void> enableTorch(final boolean torch) {
-        // update isTorchOn immediately so that following isTorchOn() returns correct value.
-        mIsTorchOn = torch;
-
-        mExecutor.execute(() -> enableTorchInternal(torch));
-
-        // TODO(b/143514107): implement #enableTorch which returns ListenableFuture.
         return mTorchControl.enableTorch(torch);
-    }
-
-    /** {@inheritDoc} */
-    @Override
-    public boolean isTorchOn() {
-        return mIsTorchOn;
     }
 
     /**
@@ -287,22 +274,25 @@ public final class Camera2CameraControl implements CameraControlInternal {
     }
 
     @SuppressWarnings("WeakerAccess") /* synthetic accessor */
-    @WorkerThread
     void enableTorchInternal(boolean torch) {
-        if (!torch) {
-            // Send capture request with AE_MODE_ON + FLASH_MODE_OFF to turn off torch.
-            CaptureConfig.Builder singleRequestBuilder = new CaptureConfig.Builder();
-            singleRequestBuilder.setTemplateType(getDefaultTemplate());
-            singleRequestBuilder.setUseRepeatingSurface(true);
-            Camera2ImplConfig.Builder configBuilder = new Camera2ImplConfig.Builder();
-            configBuilder.setCaptureRequestOption(CaptureRequest.CONTROL_AE_MODE,
-                    getSupportedAeMode(CaptureRequest.CONTROL_AE_MODE_ON));
-            configBuilder.setCaptureRequestOption(CaptureRequest.FLASH_MODE,
-                    CaptureRequest.FLASH_MODE_OFF);
-            singleRequestBuilder.addImplementationOptions(configBuilder.build());
-            submitCaptureRequestsInternal(Collections.singletonList(singleRequestBuilder.build()));
-        }
-        updateSessionConfig();
+        mExecutor.execute(() -> {
+            mIsTorchOn = torch;
+            if (!torch) {
+                // Send capture request with AE_MODE_ON + FLASH_MODE_OFF to turn off torch.
+                CaptureConfig.Builder singleRequestBuilder = new CaptureConfig.Builder();
+                singleRequestBuilder.setTemplateType(getDefaultTemplate());
+                singleRequestBuilder.setUseRepeatingSurface(true);
+                Camera2ImplConfig.Builder configBuilder = new Camera2ImplConfig.Builder();
+                configBuilder.setCaptureRequestOption(CaptureRequest.CONTROL_AE_MODE,
+                        getSupportedAeMode(CaptureRequest.CONTROL_AE_MODE_ON));
+                configBuilder.setCaptureRequestOption(CaptureRequest.FLASH_MODE,
+                        CaptureRequest.FLASH_MODE_OFF);
+                singleRequestBuilder.addImplementationOptions(configBuilder.build());
+                submitCaptureRequestsInternal(
+                        Collections.singletonList(singleRequestBuilder.build()));
+            }
+            updateSessionConfig();
+        });
     }
 
 

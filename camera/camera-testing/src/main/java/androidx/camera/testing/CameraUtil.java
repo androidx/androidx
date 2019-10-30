@@ -76,17 +76,15 @@ public final class CameraUtil {
     public static CameraDeviceHolder getCameraDevice()
             throws CameraAccessException, InterruptedException, TimeoutException,
             ExecutionException {
-        CameraManager cameraManager = getCameraManager();
-
         // Use the first camera available.
-        String[] cameraIds = cameraManager.getCameraIdList();
-        if (cameraIds.length <= 0) {
+        List<String> cameraIds = getCameraIdListOrThrow();
+        if (cameraIds.isEmpty()) {
             throw new CameraAccessException(
                     CameraAccessException.CAMERA_ERROR, "Device contains no cameras.");
         }
-        String cameraName = cameraIds[0];
+        String cameraName = cameraIds.get(0);
 
-        return new CameraDeviceHolder(cameraManager, cameraName);
+        return new CameraDeviceHolder(getCameraManager(), cameraName);
     }
 
     /**
@@ -277,9 +275,8 @@ public final class CameraUtil {
         int numberOfCamera = 0;
         if (Build.VERSION.SDK_INT > Build.VERSION_CODES.LOLLIPOP) {
             try {
-                numberOfCamera = ((CameraManager) ApplicationProvider.getApplicationContext()
-                        .getSystemService(Context.CAMERA_SERVICE)).getCameraIdList().length;
-            } catch (CameraAccessException e) {
+                numberOfCamera = getCameraIdListOrThrow().size();
+            } catch (IllegalStateException e) {
                 Log.e(CameraUtil.class.getSimpleName(), "Unable to check camera availability.", e);
             }
         } else {
@@ -297,45 +294,39 @@ public final class CameraUtil {
      * @throws IllegalStateException if the CAMERA permission is not currently granted.
      */
     public static boolean hasCameraWithLensFacing(@LensFacing int lensFacing) {
-
-        CameraManager cameraManager = getCameraManager();
-
-        List<String> camerasList = null;
-        try {
-            camerasList = Arrays.asList(cameraManager.getCameraIdList());
-        } catch (CameraAccessException e) {
-            throw new IllegalStateException(
-                    "Unable to retrieve list of cameras on device.", e);
-        }
-
-        // Convert to from CameraX enum to Camera2 CameraMetadata
-        Integer lensFacingInteger = -1;
-        switch (lensFacing) {
-            case LensFacing.BACK:
-                lensFacingInteger = CameraMetadata.LENS_FACING_BACK;
-                break;
-            case LensFacing.FRONT:
-                lensFacingInteger = CameraMetadata.LENS_FACING_FRONT;
-                break;
-        }
-
-        for (String cameraId : camerasList) {
-            CameraCharacteristics characteristics = null;
-            try {
-                characteristics = cameraManager.getCameraCharacteristics(cameraId);
-            } catch (CameraAccessException e) {
-                throw new IllegalStateException(
-                        "Unable to retrieve info for camera with id " + cameraId + ".", e);
-            }
+        @SupportedLensFacingInt
+        int lensFacingInteger = getLensFacingIntFromEnum(lensFacing);
+        for (String cameraId : getCameraIdListOrThrow()) {
+            CameraCharacteristics characteristics = getCameraCharacteristicsOrThrow(cameraId);
             Integer cameraLensFacing = characteristics.get(CameraCharacteristics.LENS_FACING);
-            if (cameraLensFacing == null) {
-                continue;
-            }
-            if (cameraLensFacing.equals(lensFacingInteger)) {
+            if (cameraLensFacing != null && cameraLensFacing.intValue() == lensFacingInteger) {
                 return true;
             }
         }
+        return false;
+    }
 
+    /**
+     * Check if the device has a flash unit with the specified {@link LensFacing}.
+     *
+     * @param lensFacing The desired camera lensFacing.
+     * @return True if the device has flash unit with the specified LensFacing.
+     * @throws IllegalStateException if the CAMERA permission is not currently granted.
+     */
+    public static boolean hasFlashUnitWithLensFacing(@LensFacing int lensFacing) {
+        @SupportedLensFacingInt
+        int lensFacingInteger = getLensFacingIntFromEnum(lensFacing);
+        for (String cameraId : getCameraIdListOrThrow()) {
+            CameraCharacteristics characteristics = getCameraCharacteristicsOrThrow(cameraId);
+            Integer cameraLensFacing = characteristics.get(CameraCharacteristics.LENS_FACING);
+            if (cameraLensFacing == null || cameraLensFacing.intValue() != lensFacingInteger) {
+                continue;
+            }
+            Boolean hasFlashUnit = characteristics.get(CameraCharacteristics.FLASH_INFO_AVAILABLE);
+            if (hasFlashUnit != null && hasFlashUnit.booleanValue()) {
+                return true;
+            }
+        }
         return false;
     }
 
@@ -367,6 +358,55 @@ public final class CameraUtil {
             default:
                 throw new IllegalArgumentException(
                         "Unsupported lens facing integer: " + lensFacingInteger);
+        }
+    }
+
+    /**
+     * Converts a lens facing direction from a {@link LensFacing} to a {@link CameraMetadata}
+     * integer.
+     *
+     * @param lensFacing The lens facing enum, as defined in {@link LensFacing}.
+     * @return The lens facing integer.
+     */
+    @SupportedLensFacingInt
+    private static int getLensFacingIntFromEnum(@LensFacing int lensFacing) {
+        switch (lensFacing) {
+            case LensFacing.BACK:
+                return CameraMetadata.LENS_FACING_BACK;
+            case LensFacing.FRONT:
+                return CameraMetadata.LENS_FACING_FRONT;
+            default:
+                throw new IllegalArgumentException("Unsupported lens facing enum: " + lensFacing);
+        }
+    }
+
+    /**
+     * Gets the camera id list or throw exception if the CAMERA permission is not currently granted.
+     *
+     * @return the camera id list
+     * @throws IllegalStateException if the CAMERA permission is not currently granted.
+     */
+    private static List<String> getCameraIdListOrThrow() {
+        try {
+            return Arrays.asList(getCameraManager().getCameraIdList());
+        } catch (CameraAccessException e) {
+            throw new IllegalStateException("Unable to retrieve list of cameras on device.", e);
+        }
+    }
+
+    /**
+     * Gets the {@link CameraCharacteristics} by specified camera id or throw exception if the
+     * CAMERA permission is not currently granted.
+     *
+     * @return the camera id list
+     * @throws IllegalStateException if the CAMERA permission is not currently granted.
+     */
+    private static CameraCharacteristics getCameraCharacteristicsOrThrow(String cameraId) {
+        try {
+            return getCameraManager().getCameraCharacteristics(cameraId);
+        } catch (CameraAccessException e) {
+            throw new IllegalStateException(
+                    "Unable to retrieve info for camera with id " + cameraId + ".", e);
         }
     }
 }
