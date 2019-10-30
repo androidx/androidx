@@ -3158,7 +3158,7 @@ class ParagraphIntegrationTest {
         text: String = "",
         textIndent: TextIndent? = null,
         textAlign: TextAlign? = null,
-        fontSize: Sp? = null,
+        fontSize: Sp = Sp.Inherit,
         maxLines: Int? = null,
         lineHeight: Sp? = null,
         textStyles: List<AnnotatedString.Item<TextStyle>> = listOf(),

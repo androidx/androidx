@@ -338,7 +338,7 @@ class TextSelectionDelegateTest {
 
     private fun simpleTextDelegate(
         text: String = "",
-        fontSize: Sp? = null,
+        fontSize: Sp = Sp.Inherit,
         density: Density
     ): TextDelegate {
         val textStyle = TextStyle(fontSize = fontSize, fontFamily = fontFamily)

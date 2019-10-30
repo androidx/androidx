@@ -898,7 +898,9 @@ package androidx.ui.core {
 
   public static final class Sp.Companion {
     method public androidx.ui.core.Sp getInfinity();
+    method public androidx.ui.core.Sp getInherit();
     property public final androidx.ui.core.Sp Infinity;
+    property public final androidx.ui.core.Sp Inherit;
   }
 
   public final class SpKt {
@@ -909,6 +911,7 @@ package androidx.ui.core {
     method public static inline androidx.ui.core.Sp getSp(int);
     method public static inline androidx.ui.core.Sp getSp(double);
     method public static inline androidx.ui.core.Sp getSp(float);
+    method public static inline boolean isInherit(androidx.ui.core.Sp);
     method public static androidx.ui.core.Sp lerp(androidx.ui.core.Sp start, androidx.ui.core.Sp stop, float fraction);
     method public static inline androidx.ui.core.Sp max(androidx.ui.core.Sp a, androidx.ui.core.Sp b);
     method public static inline androidx.ui.core.Sp min(androidx.ui.core.Sp a, androidx.ui.core.Sp b);

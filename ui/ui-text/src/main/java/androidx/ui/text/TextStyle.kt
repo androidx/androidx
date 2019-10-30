@@ -19,6 +19,7 @@ package androidx.ui.text
 import androidx.ui.core.Em
 import androidx.ui.core.Sp
 import androidx.ui.core.em
+import androidx.ui.core.isInherit
 import androidx.ui.core.sp
 import androidx.ui.graphics.Color
 import androidx.ui.graphics.Shadow
@@ -40,7 +41,8 @@ import androidx.ui.text.style.lerp
  * @sample androidx.ui.text.samples.TextStyleSample
  *
  * @param color The text color.
- * @param fontSize The size of glyphs (in logical pixels) to use when painting the text.
+ * @param fontSize The size of glyphs (in logical pixels) to use when painting the text. This
+ * may be [Sp.Inherit] for inheriting from another [TextStyle].
  * @param fontSizeScale The scale factor of the font size. When [fontSize] is also given in this
  *  TextStyle, the final fontSize will be the [fontSize] times this value.
  *  Otherwise, the final fontSize will be the current fontSize times this value.
@@ -64,7 +66,7 @@ import androidx.ui.text.style.lerp
  */
 data class TextStyle(
     val color: Color? = null,
-    val fontSize: Sp? = null,
+    val fontSize: Sp = Sp.Inherit,
     val fontSizeScale: Float? = null,
     val fontWeight: FontWeight? = null,
     val fontStyle: FontStyle? = null,
@@ -82,9 +84,9 @@ data class TextStyle(
     /**
      * Returns a new text style that is a combination of this style and the given [other] style.
      *
-     * [other] text style's null properties are replaced with the non-null properties of this text
-     * style. Another way to think of it is that the "missing" properties of the [other] style are
-     * _filled_ by the properties of this style.
+     * [other] text style's null or inherit properties are replaced with the non-null properties of
+     * this text style. Another way to think of it is that the "missing" properties of the [other]
+     * style are _filled_ by the properties of this style.
      *
      * If the given text style is null, returns this text style.
      */
@@ -94,7 +96,7 @@ data class TextStyle(
         return TextStyle(
             color = other.color ?: this.color,
             fontFamily = other.fontFamily ?: this.fontFamily,
-            fontSize = other.fontSize ?: this.fontSize,
+            fontSize = if (!other.fontSize.isInherit()) other.fontSize else this.fontSize,
             fontSizeScale = other.fontSizeScale ?: this.fontSizeScale,
             fontWeight = other.fontWeight ?: this.fontWeight,
             fontStyle = other.fontStyle ?: this.fontStyle,
@@ -127,10 +129,14 @@ private fun lerpFloat(a: Float?, b: Float?, t: Float, default: Float = 0f): Floa
     return lerp(start, end, t)
 }
 
-private fun lerpSp(a: Sp?, b: Sp?, t: Float, default: Sp = 0f.sp): Sp? {
-    if (a == null && b == null) return null
-    val start = a ?: default
-    val end = b ?: default
+/**
+ * @param a An sp value. Maybe [Sp.Inherit]
+ * @param b An sp value. Maybe [Sp.Inherit]
+ */
+private fun lerpSp(a: Sp, b: Sp, t: Float, default: Sp = 0f.sp): Sp {
+    if (a.isInherit() && b.isInherit()) return a
+    val start = if (a.isInherit()) default else a
+    val end = if (b.isInherit()) default else b
     return androidx.ui.core.lerp(start, end, t)
 }
 
