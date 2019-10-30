@@ -66,8 +66,8 @@ task generateSdkResource() {
 tasks.findByName("compileTestKotlin").dependsOn(generateSdkResource)
 
 tasks.findByPath("test").dependsOn(
-        tasks.findByPath(":room:room-common:uploadArchives"),
-        tasks.findByPath(":room:room-runtime:uploadArchives"),
-        tasks.findByPath(":room:room-migration:uploadArchives"),
-        tasks.findByPath(":room:room-compiler:uploadArchives"),
+        tasks.findByPath(":room:room-common:publish"),
+        tasks.findByPath(":room:room-runtime:publish"),
+        tasks.findByPath(":room:room-migration:publish"),
+        tasks.findByPath(":room:room-compiler:publish"),
 )
