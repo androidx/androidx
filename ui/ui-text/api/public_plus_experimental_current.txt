@@ -172,6 +172,7 @@ package androidx.ui.text {
 
   public interface Paragraph {
     method public androidx.ui.text.style.TextDirection getBidiRunDirection(int offset);
+    method public androidx.ui.engine.geometry.Rect getBoundingBox(int offset);
     method public androidx.ui.engine.geometry.Rect getCursorRect(int offset);
     method public boolean getDidExceedMaxLines();
     method public float getFirstBaseline();
@@ -180,6 +181,7 @@ package androidx.ui.text {
     method public float getLastBaseline();
     method public float getLineBottom(int lineIndex);
     method public int getLineCount();
+    method public int getLineForOffset(int offset);
     method public float getLineHeight(int lineIndex);
     method public float getLineLeft(int lineIndex);
     method public float getLineRight(int lineIndex);
