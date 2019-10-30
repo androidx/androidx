@@ -16,6 +16,9 @@
 
 package androidx.camera.view;
 
+import static androidx.camera.view.PreviewView.ImplementationMode.SURFACE_VIEW;
+import static androidx.camera.view.PreviewView.ImplementationMode.TEXTURE_VIEW;
+
 import static com.google.common.truth.Truth.assertThat;
 
 import static org.junit.Assume.assumeTrue;
@@ -23,7 +26,9 @@ import static org.junit.Assume.assumeTrue;
 import android.Manifest;
 import android.app.Activity;
 import android.content.Context;
+import android.view.LayoutInflater;
 import android.view.SurfaceView;
+import android.view.TextureView;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.FrameLayout;
@@ -31,6 +36,7 @@ import android.widget.FrameLayout;
 import androidx.camera.testing.CameraUtil;
 import androidx.camera.testing.CoreAppTestUtil;
 import androidx.camera.testing.fakes.FakeActivity;
+import androidx.camera.view.test.R;
 import androidx.test.annotation.UiThreadTest;
 import androidx.test.core.app.ApplicationProvider;
 import androidx.test.ext.junit.runners.AndroidJUnit4;
@@ -70,9 +76,74 @@ public class PreviewViewTest {
     @Test
     @UiThreadTest
     public void defaultImplementation_isSurfaceView() throws Throwable {
-        PreviewView previewView = new PreviewView(mContext);
+        final PreviewView previewView = new PreviewView(mContext);
         setContentView(previewView);
+
         assertThat(getImplementationView()).isInstanceOf(SurfaceView.class);
+        assertThat(previewView.getImplementationMode()).isEqualTo(SURFACE_VIEW);
+    }
+
+    @Test
+    @UiThreadTest
+    public void implementationIsSurfaceView_whenAttributeSetImplementationModeIsSurfaceView()
+            throws Throwable {
+        final PreviewView previewView = (PreviewView) LayoutInflater.from(mContext).inflate(
+                R.layout.preview_view_surface_view_mode, null, false);
+        setContentView(previewView);
+
+        assertThat(getImplementationView()).isInstanceOf(SurfaceView.class);
+        assertThat(previewView.getImplementationMode()).isEqualTo(SURFACE_VIEW);
+    }
+
+    @Test
+    @UiThreadTest
+    public void implementationIsSurfaceView_whenImplementationModeIsSetToSurfaceView()
+            throws Throwable {
+        final PreviewView previewView = new PreviewView(mContext);
+        previewView.setImplementationMode(SURFACE_VIEW);
+        setContentView(previewView);
+
+        assertThat(getImplementationView()).isInstanceOf(SurfaceView.class);
+        assertThat(previewView.getImplementationMode()).isEqualTo(SURFACE_VIEW);
+    }
+
+    @Test
+    @UiThreadTest
+    public void implementationIsTextureView_whenAttributeSetImplementationModeIsTextureView()
+            throws Throwable {
+
+        final PreviewView previewView = (PreviewView) LayoutInflater.from(mContext).inflate(
+                R.layout.preview_view_texture_view_mode, null, false);
+        setContentView(previewView);
+
+        assertThat(getImplementationView()).isInstanceOf(TextureView.class);
+        assertThat(previewView.getImplementationMode()).isEqualTo(TEXTURE_VIEW);
+    }
+
+    @Test
+    @UiThreadTest
+    public void implementationIsTextureView_whenImplementationModeIsSetToTextureView()
+            throws Throwable {
+        final PreviewView previewView = new PreviewView(mContext);
+        previewView.setImplementationMode(TEXTURE_VIEW);
+        setContentView(previewView);
+
+        assertThat(getImplementationView()).isInstanceOf(TextureView.class);
+        assertThat(previewView.getImplementationMode()).isEqualTo(TEXTURE_VIEW);
+    }
+
+    @Test
+    @UiThreadTest
+    public void implementationIsTextureView_whenLastImplementationModeIsSetToTextureView()
+            throws Throwable {
+        final PreviewView previewView = new PreviewView(mContext);
+        setContentView(previewView);
+
+        previewView.setImplementationMode(SURFACE_VIEW);
+        previewView.setImplementationMode(TEXTURE_VIEW);
+
+        assertThat(getImplementationView()).isInstanceOf(TextureView.class);
+        assertThat(previewView.getImplementationMode()).isEqualTo(TEXTURE_VIEW);
     }
 
     private void setContentView(View view) throws Throwable {

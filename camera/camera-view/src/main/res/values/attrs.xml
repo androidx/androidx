@@ -37,4 +37,12 @@ limitations under the License.
 
         <attr name="pinchToZoomEnabled" format="boolean" />
     </declare-styleable>
+
+    <declare-styleable name="PreviewView">
+        <attr name="implementationMode" format="enum">
+            <enum name="surfaceView" value="0" />
+            <enum name="textureView" value="1" />
+        </attr>
+    </declare-styleable>
 </resources>
+
