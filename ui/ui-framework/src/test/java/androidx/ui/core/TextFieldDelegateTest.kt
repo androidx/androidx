@@ -31,6 +31,7 @@ import androidx.ui.input.SetSelectionEditOp
 import androidx.ui.input.TextInputService
 import androidx.ui.input.TransformedText
 import androidx.ui.text.AnnotatedString
+import androidx.ui.text.MultiParagraphIntrinsics
 import androidx.ui.text.TextDelegate
 import androidx.ui.text.TextRange
 import androidx.ui.text.TextStyle
@@ -63,6 +64,7 @@ class TextFieldDelegateTest {
     private lateinit var onEditorActionPerformed: (Any) -> Unit
     private lateinit var textInputService: TextInputService
     private lateinit var layoutCoordinates: LayoutCoordinates
+    private lateinit var multiParagraphIntrinsics: MultiParagraphIntrinsics
 
     val creditCardOffsetTranslator = object : OffsetMap {
         override fun originalToTransformed(offset: Int): Int {
@@ -104,6 +106,7 @@ class TextFieldDelegateTest {
         onEditorActionPerformed = mock()
         textInputService = mock()
         layoutCoordinates = mock()
+        multiParagraphIntrinsics = mock()
     }
 
     @Test
@@ -339,6 +342,7 @@ class TextFieldDelegateTest {
         whenever(mDelegate.density).thenReturn(Density(1.0f))
         whenever(mDelegate.resourceLoader).thenReturn(mock())
         whenever(mDelegate.height).thenReturn(512.0f)
+        whenever(mDelegate.width).thenReturn(1024.0f)
 
         val res = TextFieldDelegate.layout(mDelegate, constraints)
         assertEquals(1024.px.round(), res.first)
@@ -473,5 +477,57 @@ class TextFieldDelegateTest {
         assertThat(result.transformedText.textStyles).contains(
             AnnotatedString.Item(TextStyle(decoration = TextDecoration.Underline), 3, 6)
         )
+    }
+
+    @Test
+    fun infinte_constraints() {
+        val constraints = Constraints(
+            minWidth = 0.px.round(),
+            maxWidth = IntPx.Infinity,
+            minHeight = 0.px.round(),
+            maxHeight = 2048.px.round()
+        )
+
+        val dummyText = AnnotatedString(text = "Hello, World")
+        whenever(mDelegate.text).thenReturn(dummyText)
+        whenever(mDelegate.textStyle).thenReturn(TextStyle())
+        whenever(mDelegate.density).thenReturn(Density(1.0f))
+        whenever(mDelegate.resourceLoader).thenReturn(mock())
+        whenever(mDelegate.height).thenReturn(512.0f)
+        whenever(mDelegate.width).thenReturn(123.0f)
+        whenever(mDelegate.layoutIntrinsics()).thenReturn(multiParagraphIntrinsics)
+        whenever(multiParagraphIntrinsics.maxIntrinsicWidth).thenReturn(123f)
+
+        val res = TextFieldDelegate.layout(mDelegate, constraints)
+        assertThat(res.first).isEqualTo(123.ipx)
+        assertEquals(512.ipx, res.second)
+
+        verify(mDelegate, times(1)).layout(Constraints.tightConstraintsForWidth(123.ipx))
+    }
+
+    @Test
+    fun infinte_constraints_ceiling() {
+        val constraints = Constraints(
+            minWidth = 0.px.round(),
+            maxWidth = IntPx.Infinity,
+            minHeight = 0.px.round(),
+            maxHeight = 2048.px.round()
+        )
+
+        val dummyText = AnnotatedString(text = "Hello, World")
+        whenever(mDelegate.text).thenReturn(dummyText)
+        whenever(mDelegate.textStyle).thenReturn(TextStyle())
+        whenever(mDelegate.density).thenReturn(Density(1.0f))
+        whenever(mDelegate.resourceLoader).thenReturn(mock())
+        whenever(mDelegate.height).thenReturn(512.0f)
+        whenever(mDelegate.width).thenReturn(123.1f)
+        whenever(mDelegate.layoutIntrinsics()).thenReturn(multiParagraphIntrinsics)
+        whenever(multiParagraphIntrinsics.maxIntrinsicWidth).thenReturn(123.1f)
+
+        val res = TextFieldDelegate.layout(mDelegate, constraints)
+        assertThat(res.first).isEqualTo(124.ipx)
+        assertEquals(512.ipx, res.second)
+
+        verify(mDelegate, times(1)).layout(Constraints.tightConstraintsForWidth(124.ipx))
     }
 }
