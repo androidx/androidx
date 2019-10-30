@@ -1278,7 +1278,7 @@ public class MediaController implements AutoCloseable {
      * @return selected track info
      */
     @Nullable
-    public TrackInfo getSelectedTrack(int trackType) {
+    public TrackInfo getSelectedTrack(@TrackInfo.MediaTrackType int trackType) {
         return isConnected() ? getImpl().getSelectedTrack(trackType) : null;
     }
 
