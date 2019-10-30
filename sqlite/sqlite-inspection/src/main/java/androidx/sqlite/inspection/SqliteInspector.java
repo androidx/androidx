@@ -21,7 +21,7 @@ import androidx.inspection.Connection;
 import androidx.inspection.Inspector;
 
 /**
- * Inspector to work with sqlite databases
+ * Inspector to work with SQLite databases
  */
 final class SqliteInspector extends Inspector {
 
