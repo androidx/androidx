@@ -30,7 +30,8 @@ public interface ImageProxy extends AutoCloseable {
      * Closes the underlying {@link android.media.Image}.
      *
      * <p>If obtained from an {@link ImageAnalysis.Analyzer} the image will be closed on return
-     * from the {@link ImageAnalysis.Analyzer} function.
+     * from the {@link ImageAnalysis.Analyzer}, so close() should not be called by the
+     * analyzer implementation.
      *
      * @see android.media.Image#close()
      */
