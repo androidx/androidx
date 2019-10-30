@@ -63,6 +63,9 @@ public class MainActivity extends AppCompatActivity {
                 new MenuListView.MenuItem(
                         getResources().getString(R.string.renderer_termination_activity_title),
                         new Intent(activityContext, RendererTerminationActivity.class)),
+                new MenuListView.MenuItem(
+                        getResources().getString(R.string.fullscreen_activity_title),
+                        new Intent(activityContext, FullscreenActivity.class)),
         };
         listView.setItems(menuItems);
     }
