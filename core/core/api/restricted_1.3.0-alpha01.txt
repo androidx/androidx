@@ -1377,7 +1377,7 @@ package androidx.core.graphics.drawable {
 
   public class IconCompat extends androidx.versionedparcelable.CustomVersionedParcelable {
     method @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP_PREFIX) public void addToShortcutIntent(android.content.Intent, android.graphics.drawable.Drawable?, android.content.Context);
-    method @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP_PREFIX) public void checkResource(android.content.Context!);
+    method @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP_PREFIX) public void checkResource(android.content.Context);
     method public static androidx.core.graphics.drawable.IconCompat? createFromBundle(android.os.Bundle);
     method @RequiresApi(23) public static androidx.core.graphics.drawable.IconCompat? createFromIcon(android.content.Context, android.graphics.drawable.Icon);
     method @RequiresApi(23) @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP_PREFIX) public static androidx.core.graphics.drawable.IconCompat? createFromIcon(android.graphics.drawable.Icon);
@@ -1386,6 +1386,8 @@ package androidx.core.graphics.drawable {
     method public static androidx.core.graphics.drawable.IconCompat! createWithBitmap(android.graphics.Bitmap!);
     method public static androidx.core.graphics.drawable.IconCompat! createWithContentUri(String!);
     method public static androidx.core.graphics.drawable.IconCompat! createWithContentUri(android.net.Uri!);
+    method public static androidx.core.graphics.drawable.IconCompat createWithContentUriForAdaptiveBitmap(String);
+    method public static androidx.core.graphics.drawable.IconCompat createWithContentUriForAdaptiveBitmap(android.net.Uri);
     method public static androidx.core.graphics.drawable.IconCompat! createWithData(byte[]!, int, int);
     method public static androidx.core.graphics.drawable.IconCompat! createWithResource(android.content.Context!, @DrawableRes int);
     method @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP_PREFIX) public static androidx.core.graphics.drawable.IconCompat! createWithResource(android.content.res.Resources!, String!, @DrawableRes int);
@@ -1394,13 +1396,20 @@ package androidx.core.graphics.drawable {
     method public String getResPackage();
     method @androidx.core.graphics.drawable.IconCompat.IconType public int getType();
     method public android.net.Uri getUri();
-    method public android.graphics.drawable.Drawable! loadDrawable(android.content.Context!);
+    method public android.graphics.drawable.Drawable? loadDrawable(android.content.Context);
     method public androidx.core.graphics.drawable.IconCompat! setTint(@ColorInt int);
     method public androidx.core.graphics.drawable.IconCompat! setTintList(android.content.res.ColorStateList!);
     method public androidx.core.graphics.drawable.IconCompat! setTintMode(android.graphics.PorterDuff.Mode!);
     method public android.os.Bundle! toBundle();
-    method @RequiresApi(23) public android.graphics.drawable.Icon! toIcon();
+    method @Deprecated @RequiresApi(23) public android.graphics.drawable.Icon toIcon();
+    method @RequiresApi(23) public android.graphics.drawable.Icon toIcon(android.content.Context?);
+    field public static final int TYPE_ADAPTIVE_BITMAP = 5; // 0x5
+    field public static final int TYPE_BITMAP = 1; // 0x1
+    field public static final int TYPE_DATA = 3; // 0x3
+    field public static final int TYPE_RESOURCE = 2; // 0x2
     field public static final int TYPE_UNKNOWN = -1; // 0xffffffff
+    field public static final int TYPE_URI = 4; // 0x4
+    field public static final int TYPE_URI_ADAPTIVE_BITMAP = 6; // 0x6
     field @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP_PREFIX) public int mType;
   }
 

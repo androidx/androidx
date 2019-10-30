@@ -80,7 +80,7 @@ public class ShortcutInfoCompat {
                 .setShortLabel(mLabel)
                 .setIntents(mIntents);
         if (mIcon != null) {
-            builder.setIcon(mIcon.toIcon());
+            builder.setIcon(mIcon.toIcon(mContext));
         }
         if (!TextUtils.isEmpty(mLongLabel)) {
             builder.setLongLabel(mLongLabel);
