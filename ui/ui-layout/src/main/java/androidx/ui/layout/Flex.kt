@@ -41,11 +41,6 @@ import androidx.ui.core.round
 import androidx.ui.core.toPx
 
 /**
- * Parent data associated with children to assign flex and fit values for them.
- */
-private data class FlexInfo(val flex: Float, val fit: FlexFit)
-
-/**
  * Collects information about the children of a [FlexColumn] or [FlexColumn]
  * when its body is executed with a [FlexChildren] instance as argument.
  */
@@ -56,7 +51,10 @@ class FlexChildren internal constructor() {
             throw IllegalArgumentException("flex must be >= 0")
         }
         childrenList += {
-            ParentData(data = FlexInfo(flex = flex, fit = FlexFit.Tight), children = children)
+            ParentData(
+                data = FlexChildProperties(flex = flex, fit = FlexFit.Tight),
+                children = children
+            )
         }
     }
 
@@ -65,13 +63,19 @@ class FlexChildren internal constructor() {
             throw IllegalArgumentException("flex must be >= 0")
         }
         childrenList += {
-            ParentData(data = FlexInfo(flex = flex, fit = FlexFit.Loose), children = children)
+            ParentData(
+                data = FlexChildProperties(flex = flex, fit = FlexFit.Loose),
+                children = children
+            )
         }
     }
 
     fun inflexible(children: @Composable() () -> Unit) {
         childrenList += @Composable {
-            ParentData(data = FlexInfo(flex = 0f, fit = FlexFit.Loose), children = children)
+            ParentData(
+                data = FlexChildProperties(flex = 0f, fit = FlexFit.Loose),
+                children = children
+            )
         }
     }
 }
@@ -161,8 +165,7 @@ fun FlexColumn(
 /**
  * A FlexScope provides a scope for Inflexible/Flexible functions.
  */
-class FlexScope internal constructor() {
-
+sealed class FlexScope {
     /**
      * A layout modifier within a [Column] or [Row] that makes the target component flexible.
      * It will be assigned a space according to its flex weight relative to the flexible siblings.
@@ -171,9 +174,9 @@ class FlexScope internal constructor() {
      */
     fun Flexible(flex: Float, tight: Boolean = true): LayoutModifier =
         if (tight) {
-            FlexModifier(FlexInfo(flex, FlexFit.Tight))
+            FlexModifier(FlexChildProperties(flex, FlexFit.Tight))
         } else {
-            FlexModifier(FlexInfo(flex, FlexFit.Loose))
+            FlexModifier(FlexChildProperties(flex, FlexFit.Loose))
         }
 
     /**
@@ -183,7 +186,66 @@ class FlexScope internal constructor() {
     val Inflexible: LayoutModifier = inflexibleModifier
 
     internal companion object {
-        val inflexibleModifier: LayoutModifier = FlexModifier(FlexInfo(0f, FlexFit.Loose))
+        val inflexibleModifier: LayoutModifier = FlexModifier(
+            FlexChildProperties(0f, FlexFit.Loose)
+        )
+    }
+}
+
+/**
+ * A ColumnScope provides a scope for the children of a [Column].
+ */
+@Suppress("unused")
+class ColumnScope internal constructor() : FlexScope() {
+    /**
+     * A layout modifier within a Column that positions target component in a horizontal direction
+     * so that its start edge is aligned to the start edge of the horizontal axis.
+     */
+    // TODO: Consider ltr/rtl.
+    val Gravity.Start: LayoutModifier get() = StartGravityModifier
+    /**
+     * A layout modifier within a Column that positions target component in a horizontal direction
+     * so that its center is in the middle of the horizontal axis.
+     */
+    val Gravity.Center: LayoutModifier get() = CenterGravityModifier
+    /**
+     * A layout modifier within a Column that positions target component in a horizontal direction
+     * so that its end edge is aligned to the end edge of the horizontal axis.
+     */
+    val Gravity.End: LayoutModifier get() = EndGravityModifier
+
+    internal companion object {
+        val StartGravityModifier: LayoutModifier = GravityModifier(CrossAxisAlignment.Start)
+        val CenterGravityModifier: LayoutModifier = GravityModifier(CrossAxisAlignment.Center)
+        val EndGravityModifier: LayoutModifier = GravityModifier(CrossAxisAlignment.End)
+    }
+}
+
+/**
+ * A RowScope provides a scope for the children of a [Row].
+ */
+@Suppress("unused")
+class RowScope internal constructor() : FlexScope() {
+    /**
+     * A layout modifier within a Row that positions target component in a vertical direction
+     * so that its top edge is aligned to the top edge of the vertical axis.
+     */
+    val Gravity.Top: LayoutModifier get() = TopGravityModifier
+    /**
+     * A layout modifier within a Row that positions target component in a vertical direction
+     * so that its center is in the middle of the vertical axis.
+     */
+    val Gravity.Center: LayoutModifier get() = CenterGravityModifier
+    /**
+     * A layout modifier within a Row that positions target component in a vertical direction
+     * so that its bottom edge is aligned to the bottom edge of the vertical axis.
+     */
+    val Gravity.Bottom: LayoutModifier get() = BottomGravityModifier
+
+    internal companion object {
+        val TopGravityModifier: LayoutModifier = GravityModifier(CrossAxisAlignment.Start)
+        val CenterGravityModifier: LayoutModifier = GravityModifier(CrossAxisAlignment.Center)
+        val BottomGravityModifier: LayoutModifier = GravityModifier(CrossAxisAlignment.End)
     }
 }
 
@@ -211,15 +273,15 @@ fun Row(
     mainAxisAlignment: MainAxisAlignment = MainAxisAlignment.Start,
     crossAxisAlignment: CrossAxisAlignment = CrossAxisAlignment.Start,
     crossAxisSize: LayoutSize = LayoutSize.Wrap,
-    block: @Composable() FlexScope.() -> Unit
+    block: @Composable() RowScope.() -> Unit
 ) {
-    ModifiedFlexLayout(
+    FlexLayout(
         orientation = LayoutOrientation.Horizontal,
+        modifier = modifier,
         mainAxisAlignment = mainAxisAlignment,
         crossAxisAlignment = crossAxisAlignment,
         crossAxisSize = crossAxisSize,
-        modifier = modifier,
-        block = block
+        layoutChildren = { RowScope().block() }
     )
 }
 
@@ -247,15 +309,15 @@ fun Column(
     mainAxisAlignment: MainAxisAlignment = MainAxisAlignment.Start,
     crossAxisAlignment: CrossAxisAlignment = CrossAxisAlignment.Start,
     crossAxisSize: LayoutSize = LayoutSize.Wrap,
-    block: @Composable() FlexScope.() -> Unit
+    block: @Composable() ColumnScope.() -> Unit
 ) {
-    ModifiedFlexLayout(
+    FlexLayout(
         orientation = LayoutOrientation.Vertical,
+        modifier = modifier,
         mainAxisAlignment = mainAxisAlignment,
         crossAxisAlignment = crossAxisAlignment,
         crossAxisSize = crossAxisSize,
-        modifier = modifier,
-        block = block
+        layoutChildren = { ColumnScope().block() }
     )
 }
 
@@ -500,36 +562,13 @@ internal data class OrientationIndependentConstraints(
 }
 
 private val IntrinsicMeasurable.flex: Float
-    get() = when (parentData) {
-        is FlexInfo -> (parentData as FlexInfo).flex
-        // falls back to inflexible if FlexModifier for child is not provided
-        else -> 0f
-    }
-private val IntrinsicMeasurable.fit: FlexFit
-    get() = when (parentData) {
-        is FlexInfo -> (parentData as FlexInfo).fit
-        // falls back to inflexible if FlexModifier for child is not provided
-        else -> FlexFit.Loose
-    }
+    get() = (parentData as? FlexChildProperties)?.flex ?: 0f
 
-@Composable
-private fun ModifiedFlexLayout(
-    orientation: LayoutOrientation,
-    modifier: Modifier = Modifier.None,
-    mainAxisAlignment: MainAxisAlignment,
-    crossAxisSize: LayoutSize,
-    crossAxisAlignment: CrossAxisAlignment,
-    block: @Composable() FlexScope.() -> Unit
-) {
-    FlexLayout(
-        orientation = orientation,
-        modifier = modifier,
-        mainAxisAlignment = mainAxisAlignment,
-        crossAxisSize = crossAxisSize,
-        crossAxisAlignment = crossAxisAlignment,
-        layoutChildren = { FlexScope().block() }
-    )
-}
+private val IntrinsicMeasurable.fit: FlexFit
+    get() = (parentData as? FlexChildProperties)?.fit ?: FlexFit.Loose
+
+private val IntrinsicMeasurable.crossAxisAlignment: CrossAxisAlignment?
+    get() = (parentData as? FlexChildProperties)?.crossAxisAlignment
 
 @Composable
 private fun Flex(
@@ -603,7 +642,9 @@ private fun FlexLayout(
                 val placeable = child.measure(
                     // Ask for preferred main axis size.
                     constraints.looseMainAxis().let {
-                        if (crossAxisAlignment == CrossAxisAlignment.Stretch) {
+                        if (child.crossAxisAlignment == CrossAxisAlignment.Stretch ||
+                            crossAxisAlignment == CrossAxisAlignment.Stretch
+                        ) {
                             it.stretchCrossAxis()
                         } else {
                             it.copy(crossAxisMin = IntPx.Zero)
@@ -653,7 +694,9 @@ private fun FlexLayout(
                             IntPx.Zero
                         },
                         childMainAxisSize,
-                        if (crossAxisAlignment == CrossAxisAlignment.Stretch) {
+                        if (child.crossAxisAlignment == CrossAxisAlignment.Stretch ||
+                            crossAxisAlignment == CrossAxisAlignment.Stretch
+                        ) {
                             constraints.crossAxisMax
                         } else {
                             IntPx.Zero
@@ -702,7 +745,8 @@ private fun FlexLayout(
                 .align(mainAxisLayoutSize, childrenMainAxisSize)
             placeables.forEachIndexed { index, placeable ->
                 placeable!!
-                val crossAxis = when (crossAxisAlignment) {
+                val childCrossAligment = children[index].crossAxisAlignment ?: crossAxisAlignment
+                val crossAxis = when (childCrossAligment) {
                     CrossAxisAlignment.Start -> IntPx.Zero
                     CrossAxisAlignment.Stretch -> IntPx.Zero
                     CrossAxisAlignment.End -> {
@@ -915,7 +959,7 @@ private fun intrinsicCrossAxisSize(
     return crossAxisMax
 }
 
-private data class FlexModifier(val flexInfo: FlexInfo) : LayoutModifier {
+private data class FlexModifier(val flexProperties: FlexChildProperties) : LayoutModifier {
     override fun DensityScope.modifyConstraints(constraints: Constraints): Constraints {
         return constraints
     }
@@ -955,7 +999,64 @@ private data class FlexModifier(val flexInfo: FlexInfo) : LayoutModifier {
         return value
     }
 
-    override fun DensityScope.modifyParentData(parentData: Any?): FlexInfo {
-        return if (parentData is FlexInfo) parentData else flexInfo
+    override fun DensityScope.modifyParentData(parentData: Any?): FlexChildProperties {
+        return if (parentData is FlexChildProperties) {
+            if (parentData.flex == null || parentData.fit == null) {
+                parentData.flex = flexProperties.flex
+                parentData.fit = flexProperties.fit
+            }
+            parentData
+        } else {
+            FlexChildProperties(flex = flexProperties.flex, fit = flexProperties.fit)
+        }
     }
 }
+
+private data class GravityModifier(val alignment: CrossAxisAlignment) : LayoutModifier {
+    override fun DensityScope.modifyConstraints(constraints: Constraints) = constraints
+
+    override fun DensityScope.modifySize(
+        constraints: Constraints,
+        childSize: IntPxSize
+    ) = childSize
+
+    override fun DensityScope.minIntrinsicWidthOf(measurable: Measurable, height: IntPx) =
+        measurable.minIntrinsicWidth(height)
+
+    override fun DensityScope.maxIntrinsicWidthOf(measurable: Measurable, height: IntPx) =
+        measurable.maxIntrinsicWidth(height)
+
+    override fun DensityScope.minIntrinsicHeightOf(measurable: Measurable, width: IntPx) =
+        measurable.minIntrinsicHeight(width)
+
+    override fun DensityScope.maxIntrinsicHeightOf(measurable: Measurable, width: IntPx) =
+        measurable.maxIntrinsicHeight(width)
+
+    override fun DensityScope.modifyPosition(
+        childPosition: IntPxPosition,
+        childSize: IntPxSize,
+        containerSize: IntPxSize
+    ) = childPosition
+
+    override fun DensityScope.modifyAlignmentLine(line: AlignmentLine, value: IntPx?) = value
+
+    override fun DensityScope.modifyParentData(parentData: Any?): FlexChildProperties {
+        return if (parentData is FlexChildProperties) {
+            if (parentData.crossAxisAlignment == null) {
+                parentData.crossAxisAlignment = alignment
+            }
+            parentData
+        } else {
+            FlexChildProperties(crossAxisAlignment = alignment)
+        }
+    }
+}
+
+/**
+ * Parent data associated with children.
+ */
+private data class FlexChildProperties(
+    var flex: Float? = null,
+    var fit: FlexFit? = null,
+    var crossAxisAlignment: CrossAxisAlignment? = null
+)
