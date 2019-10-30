@@ -99,5 +99,8 @@
         <activity
             android:name=".RendererTerminationActivity"
             android:exported="true" />
+        <activity
+            android:name=".FullscreenActivity"
+            android:exported="true" />
     </application>
 </manifest>
