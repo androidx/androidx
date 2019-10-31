@@ -31,21 +31,24 @@ import androidx.lifecycle.Observer;
 public interface CameraInfo {
 
     /**
-     * Returns the sensor rotation, in degrees, relative to the device's "natural" rotation.
+     * Returns the sensor rotation in degrees, relative to the device's "natural" (default)
+     * orientation.
      *
-     * @return The sensor orientation in degrees.
-     * @see Surface#ROTATION_0 the natural orientation of the device.
+     * @return The sensor rotation in degrees, relative to device's "natural" (default) orientation.
+     * @see
+     * <a href="https://developer.android.com/guide/topics/sensors/sensors_overview#sensors-coords">
+     *     Sensor Coordinate System</a>
      */
     int getSensorRotationDegrees();
 
     /**
      * Returns the sensor rotation, in degrees, relative to the given rotation value.
      *
-     * <p>Valid values for the relative rotation are {@link Surface#ROTATION_0}, {@link
+     * <p>Valid values for the relative rotation are {@link Surface#ROTATION_0} (natural), {@link
      * Surface#ROTATION_90}, {@link Surface#ROTATION_180}, {@link Surface#ROTATION_270}.
      *
      * @param relativeRotation The rotation relative to which the output will be calculated.
-     * @return The sensor orientation in degrees.
+     * @return The sensor rotation in degrees.
      */
     int getSensorRotationDegrees(@ImageOutputConfig.RotationValue int relativeRotation);
 
