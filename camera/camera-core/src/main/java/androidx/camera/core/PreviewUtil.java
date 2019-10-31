@@ -86,8 +86,7 @@ public final class PreviewUtil {
 
             @NonNull
             @Override
-            public ListenableFuture<Surface> createSurfaceFuture(@NonNull Size resolution,
-                    int imageFormat) {
+            public ListenableFuture<Surface> createSurfaceFuture(@NonNull Size resolution) {
                 SurfaceTexture surfaceTexture = new SurfaceTexture(0);
                 surfaceTexture.setDefaultBufferSize(resolution.getWidth(),
                         resolution.getHeight());

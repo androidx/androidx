@@ -732,7 +732,7 @@ public final class PreviewConfig
          * <p>This method will remove any value set by setTargetAspectRatio().
          *
          * <p>For Preview, the value will be used to calculate the suggested resolution size in
-         * {@link Preview.PreviewSurfaceCallback#createSurfaceFuture(Size, int)}.
+         * {@link Preview.PreviewSurfaceCallback#createSurfaceFuture(Size)}.
          *
          * @param aspectRatio A {@link Rational} representing the ratio of the target's width and
          *                    height.
@@ -759,7 +759,7 @@ public final class PreviewConfig
          * Application code should check the resulting output's resolution.
          *
          * <p>For Preview, the value will be used to calculate the suggested resolution size in
-         * {@link Preview.PreviewSurfaceCallback#createSurfaceFuture(Size, int)}.
+         * {@link Preview.PreviewSurfaceCallback#createSurfaceFuture(Size)}.
          *
          * @param aspectRatio A {@link AspectRatio} representing the ratio of the
          *                    target's width and height.
