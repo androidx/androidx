@@ -35,7 +35,10 @@ import static androidx.media2.common.MediaMetadata.METADATA_KEY_MEDIA_ID;
 import static androidx.media2.common.MediaMetadata.METADATA_KEY_MEDIA_URI;
 import static androidx.media2.common.MediaMetadata.METADATA_KEY_PLAYABLE;
 import static androidx.media2.common.MediaMetadata.METADATA_KEY_TITLE;
+import static androidx.media2.session.SessionCommand.COMMAND_CODE_PLAYER_DESELECT_TRACK;
+import static androidx.media2.session.SessionCommand.COMMAND_CODE_PLAYER_SELECT_TRACK;
 import static androidx.media2.session.SessionCommand.COMMAND_CODE_PLAYER_SET_SPEED;
+import static androidx.media2.session.SessionCommand.COMMAND_CODE_PLAYER_SET_SURFACE;
 import static androidx.media2.session.SessionCommand.COMMAND_VERSION_1;
 import static androidx.media2.session.SessionCommand.COMMAND_VERSION_CURRENT;
 
@@ -898,8 +901,10 @@ public class MediaUtils {
         commandsBuilder.addAllVolumeCommands(COMMAND_VERSION_CURRENT);
         commandsBuilder.addAllSessionCommands(COMMAND_VERSION_CURRENT);
 
-        commandsBuilder.removeCommand(new SessionCommand(
-                COMMAND_CODE_PLAYER_SET_SPEED));
+        commandsBuilder.removeCommand(new SessionCommand(COMMAND_CODE_PLAYER_SET_SPEED));
+        commandsBuilder.removeCommand(new SessionCommand(COMMAND_CODE_PLAYER_SET_SURFACE));
+        commandsBuilder.removeCommand(new SessionCommand(COMMAND_CODE_PLAYER_SELECT_TRACK));
+        commandsBuilder.removeCommand(new SessionCommand(COMMAND_CODE_PLAYER_DESELECT_TRACK));
 
         if (state != null && state.getCustomActions() != null) {
             for (CustomAction customAction : state.getCustomActions()) {
