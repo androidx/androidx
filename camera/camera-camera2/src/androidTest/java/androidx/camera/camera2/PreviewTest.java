@@ -50,7 +50,6 @@ import androidx.camera.testing.fakes.FakeCameraControl;
 import androidx.test.annotation.UiThreadTest;
 import androidx.test.core.app.ApplicationProvider;
 import androidx.test.ext.junit.runners.AndroidJUnit4;
-import androidx.test.filters.FlakyTest;
 import androidx.test.filters.LargeTest;
 import androidx.test.platform.app.InstrumentationRegistry;
 import androidx.test.rule.GrantPermissionRule;
@@ -158,11 +157,12 @@ public final class PreviewTest {
         assertThat(preview.getPreviewSurfaceCallback()).isNull();
     }
 
-    @FlakyTest
     @Test
     @UiThreadTest
     public void useCaseIsConstructedWithDefaultConfiguration() {
         Preview useCase = new Preview(mDefaultConfig);
+        useCase.setPreviewSurfaceCallback(CameraXExecutors.highPriorityExecutor(),
+                mPreviewSurfaceCallbackWithFrameAvailableListener);
         useCase.updateSuggestedResolution(Collections.singletonMap(mCameraId, DEFAULT_RESOLUTION));
 
         List<Surface> surfaces =
@@ -172,12 +172,13 @@ public final class PreviewTest {
         assertThat(surfaces.get(0).isValid()).isTrue();
     }
 
-    @FlakyTest
     @Test
     @UiThreadTest
     public void useCaseIsConstructedWithCustomConfiguration() {
         PreviewConfig config = new PreviewConfig.Builder().setLensFacing(LensFacing.BACK).build();
         Preview useCase = new Preview(config);
+        useCase.setPreviewSurfaceCallback(CameraXExecutors.highPriorityExecutor(),
+                mPreviewSurfaceCallbackWithFrameAvailableListener);
         useCase.updateSuggestedResolution(Collections.singletonMap(mCameraId, DEFAULT_RESOLUTION));
 
         List<Surface> surfaces =
@@ -199,12 +200,13 @@ public final class PreviewTest {
         assertThat(useCase.isTorchOn()).isTrue();
     }
 
-    @FlakyTest
     @Test
     @UiThreadTest
     public void updateSessionConfigWithSuggestedResolution() {
         PreviewConfig config = new PreviewConfig.Builder().setLensFacing(LensFacing.BACK).build();
         Preview useCase = new Preview(config);
+        useCase.setPreviewSurfaceCallback(CameraXExecutors.highPriorityExecutor(),
+                mPreviewSurfaceCallbackWithFrameAvailableListener);
 
         final Size[] sizes = {DEFAULT_RESOLUTION, SECONDARY_RESOLUTION};
 
