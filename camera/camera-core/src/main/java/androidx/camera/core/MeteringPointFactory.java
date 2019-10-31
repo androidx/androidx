@@ -51,7 +51,7 @@ public abstract class MeteringPointFactory {
      * @return a {@link PointF} consisting of translated normalized crop region x/y,
      */
     @NonNull
-    protected abstract PointF translatePoint(float x, float y);
+    protected abstract PointF convertPoint(float x, float y);
 
     /**
      * Creates a {@link MeteringPoint} by x, y.
@@ -79,8 +79,8 @@ public abstract class MeteringPointFactory {
      */
     @NonNull
     public final MeteringPoint createPoint(float x, float y, float size, float weight) {
-        PointF translatedXY = translatePoint(x, y);
-        return new MeteringPoint(translatedXY.x, translatedXY.y, size, weight,
+        PointF convertedPoint = convertPoint(x, y);
+        return new MeteringPoint(convertedPoint.x, convertedPoint.y, size, weight,
                 mFovAspectRatio);
     }
 }
