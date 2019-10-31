@@ -246,7 +246,19 @@ public final class CameraX {
 
         // TODO(b/142840814): Camera should be selected here and bound to the use case.
         //  Should not need to use CameraDeviceConfig anymore.
-        CameraDeviceConfig deviceConfig = CameraSelectorUtil.toCameraDeviceConfig(cameraSelector);
+        CameraSelector.Builder selectorBuilder =
+                CameraSelector.Builder.fromSelector(cameraSelector);
+        // Copy existing filters from use cases into the new selector
+        for (UseCase useCase : useCases) {
+            CameraIdFilter filter =
+                    ((CameraDeviceConfig) useCase.getUseCaseConfig()).getCameraIdFilter(null);
+            if (filter != null) {
+                selectorBuilder.appendFilter(filter);
+            }
+        }
+
+        CameraDeviceConfig deviceConfig =
+                CameraSelectorUtil.toCameraDeviceConfig(selectorBuilder.build());
         String newCameraId = null;
         try {
             newCameraId = getCameraWithCameraDeviceConfig(deviceConfig);
