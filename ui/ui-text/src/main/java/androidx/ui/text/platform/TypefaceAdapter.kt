@@ -34,13 +34,10 @@ import androidx.ui.text.font.FontWeight
  *
  * @param resourceLoader [Font.ResourceLoader] for Android.
  */
-// TODO(siyamed): font matcher should be at an upper layer such as Paragraph, whoever
-// will call TypefaceAdapter can know about a single font
 internal open class TypefaceAdapter(
     val fontMatcher: FontMatcher = FontMatcher(),
     val resourceLoader: Font.ResourceLoader
 ) {
-
     data class CacheKey(
         val fontFamily: FontFamily? = null,
         val fontWeight: FontWeight,
@@ -122,7 +119,7 @@ internal open class TypefaceAdapter(
             return Typeface.DEFAULT
         }
 
-        val result = if (Build.VERSION.SDK_INT < 28) {
+        return if (Build.VERSION.SDK_INT < 28) {
             val targetStyle = getTypefaceStyle(fontWeight, fontStyle)
             if (genericFontFamily.isNullOrEmpty()) {
                 Typeface.defaultFromStyle(targetStyle)
@@ -130,11 +127,10 @@ internal open class TypefaceAdapter(
                 Typeface.create(genericFontFamily, targetStyle)
             }
         } else {
-            val familyTypeface: Typeface
-            if (genericFontFamily == null) {
-                familyTypeface = Typeface.DEFAULT
+            val familyTypeface = if (genericFontFamily == null) {
+                Typeface.DEFAULT
             } else {
-                familyTypeface = Typeface.create(genericFontFamily, Typeface.NORMAL)
+                Typeface.create(genericFontFamily, Typeface.NORMAL)
             }
 
             Typeface.create(
@@ -143,8 +139,6 @@ internal open class TypefaceAdapter(
                 fontStyle == FontStyle.Italic
             )
         }
-
-        return result
     }
 
     /**
@@ -165,9 +159,6 @@ internal open class TypefaceAdapter(
         fontFamily: FontFamily,
         fontSynthesis: FontSynthesis = FontSynthesis.All
     ): Typeface {
-        // TODO(siyamed): add genericFontFamily : String? = null for fallback
-        // TODO(siyamed): add support for multiple font families
-
         val font = fontMatcher.matchFont(fontFamily, fontWeight, fontStyle)
 
         val typeface = try {
@@ -185,7 +176,7 @@ internal open class TypefaceAdapter(
         return synthesize(typeface, font, fontWeight, fontStyle, fontSynthesis)
     }
 
-    fun synthesize(
+    private fun synthesize(
         typeface: Typeface,
         font: Font,
         fontWeight: FontWeight,
@@ -236,7 +227,7 @@ internal open class TypefaceAdapter(
         return getTypefaceStyle(fontWeight >= ANDROID_BOLD, fontStyle == FontStyle.Italic)
     }
 
-    fun getTypefaceStyle(isBold: Boolean, isItalic: Boolean): Int {
+    private fun getTypefaceStyle(isBold: Boolean, isItalic: Boolean): Int {
         return if (isItalic && isBold) {
             Typeface.BOLD_ITALIC
         } else if (isBold) {

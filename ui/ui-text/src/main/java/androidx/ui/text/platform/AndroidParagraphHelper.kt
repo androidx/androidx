@@ -76,9 +76,6 @@ internal fun TextPaint.applyTextStyle(
         textSize *= it
     }
 
-    // TODO(siyamed): This default values are problem here. If the user just gives a single font
-    // in the family, and does not provide any fontWeight, TypefaceAdapter will still get the
-    // call as FontWeight.normal (which is the default value)
     if (style.hasFontAttributes()) {
         typeface = createTypeface(style, typefaceAdapter)
     }
