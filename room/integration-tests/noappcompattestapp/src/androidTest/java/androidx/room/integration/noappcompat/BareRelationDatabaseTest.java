@@ -31,7 +31,7 @@ import androidx.room.Room;
 import androidx.room.RoomDatabase;
 import androidx.test.core.app.ApplicationProvider;
 import androidx.test.ext.junit.runners.AndroidJUnit4;
-import androidx.test.filters.SmallTest;
+import androidx.test.filters.LargeTest;
 
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -40,7 +40,7 @@ import java.util.List;
 
 // More than a simple read & write, this test that we generate correct relationship collector
 // code that doesn't use androidx.collection
-@SmallTest
+@LargeTest
 @RunWith(AndroidJUnit4.class)
 @SuppressWarnings("WeakerAccess") // to avoid naming field with m
 public class BareRelationDatabaseTest {
@@ -62,6 +62,28 @@ public class BareRelationDatabaseTest {
         assertThat(result.pets.get(1).petId, is(2L));
     }
 
+    @Test
+    public void large_nonCollectionRelation() {
+        RelationDatabase db = Room.inMemoryDatabaseBuilder(
+                ApplicationProvider.getApplicationContext(), RelationDatabase.class)
+                .build();
+        UserPetDao dao = db.getDao();
+
+        int count = 2000;
+        db.runInTransaction(() -> {
+            for (int i = 1; i <= count; i++) {
+                dao.insertUser(new User(i));
+                dao.insertPet(new Pet(i, i));
+            }
+        });
+
+        List<UserAndPet> ownerAndPet = dao.getUsersWithPet();
+        assertThat(ownerAndPet.size(), is(count));
+        for (int i = 0; i < count; i++) {
+            assertThat(ownerAndPet.get(i).pet.petId, is(i + 1L));
+        }
+    }
+
     @Database(entities = {User.class, Pet.class}, version = 1, exportSchema = false)
     abstract static class RelationDatabase extends RoomDatabase {
         abstract UserPetDao getDao();
@@ -71,6 +93,9 @@ public class BareRelationDatabaseTest {
     interface UserPetDao {
         @Query("SELECT * FROM User WHERE userId = :id")
         UserAndPets getUserWithPets(long id);
+
+        @Query("SELECT * FROM User")
+        List<UserAndPet> getUsersWithPet();
 
         @Insert
         void insertUser(User user);
@@ -106,5 +131,12 @@ public class BareRelationDatabaseTest {
         public User user;
         @Relation(parentColumn = "userId", entityColumn = "ownerId")
         public List<Pet> pets;
+    }
+
+    static class UserAndPet {
+        @Embedded
+        public User user;
+        @Relation(parentColumn = "userId", entityColumn = "ownerId")
+        public Pet pet;
     }
 }
