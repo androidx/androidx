@@ -205,6 +205,7 @@ public final class CameraX {
      * @throws IllegalStateException If the use case has already been bound to another lifecycle
      *                               or method is not called on main thread.
      */
+    @SuppressWarnings("LambdaLast")
     public static void bindToLifecycle(@NonNull LifecycleOwner lifecycleOwner,
             @NonNull UseCase... useCases) {
         Threads.checkMainThread();
@@ -228,8 +229,11 @@ public final class CameraX {
             }
         }
 
+
         for (UseCase useCase : useCases) {
-            useCase.onBind();
+            // TODO(b/142839697): Create CameraDeviceConfig from CameraSelector
+            CameraDeviceConfig deviceConfig = (CameraDeviceConfig) useCase.getUseCaseConfig();
+            useCase.onBind(deviceConfig);
         }
 
         calculateSuggestedResolutions(lifecycleOwner, useCases);
@@ -396,7 +400,7 @@ public final class CameraX {
      */
     @RestrictTo(Scope.LIBRARY_GROUP)
     @Nullable
-    public static String getCameraWithCameraDeviceConfig(CameraDeviceConfig config)
+    public static String getCameraWithCameraDeviceConfig(@NonNull CameraDeviceConfig config)
             throws CameraInfoUnavailableException {
         checkInitialized();
 
@@ -768,9 +772,6 @@ public final class CameraX {
         CameraX cameraX = checkInitialized();
 
         CameraInternal cameraInternal = cameraX.getCameraRepository().getCamera(cameraId);
-        if (cameraInternal == null) {
-            throw new IllegalArgumentException("Invalid camera: " + cameraId);
-        }
 
         useCase.addStateChangeCallback(cameraInternal);
         useCase.attachCameraControl(cameraId, cameraInternal.getCameraControlInternal());
@@ -786,9 +787,6 @@ public final class CameraX {
         CameraX cameraX = checkInitialized();
 
         CameraInternal cameraInternal = cameraX.getCameraRepository().getCamera(cameraId);
-        if (cameraInternal == null) {
-            throw new IllegalArgumentException("Invalid camera: " + cameraId);
-        }
 
         for (UseCase useCase : useCases) {
             useCase.removeStateChangeCallback(cameraInternal);
@@ -825,8 +823,12 @@ public final class CameraX {
         for (UseCase useCase : useCases) {
             String cameraId = null;
             try {
-                cameraId = getCameraWithCameraDeviceConfig(
-                        (CameraDeviceConfig) useCase.getUseCaseConfig());
+                // TODO(b/142839697): This should come from CameraSelector
+                CameraDeviceConfig deviceConfig = useCase.getBoundDeviceConfig();
+                if (deviceConfig == null) {
+                    throw new IllegalStateException("Use case is not bound: " + useCase);
+                }
+                cameraId = getCameraWithCameraDeviceConfig(deviceConfig);
             } catch (CameraInfoUnavailableException e) {
                 throw new IllegalArgumentException(
                         "Unable to get camera id for the camera device config.", e);

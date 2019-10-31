@@ -31,10 +31,10 @@ import androidx.annotation.VisibleForTesting;
 import androidx.camera.core.CameraDeviceConfig;
 import androidx.camera.core.CameraDeviceSurfaceManager;
 import androidx.camera.core.CameraX;
+import androidx.camera.core.ImageOutputConfig;
 import androidx.camera.core.LensFacing;
 import androidx.camera.core.SurfaceConfig;
 import androidx.camera.core.UseCase;
-import androidx.camera.core.UseCaseConfig;
 import androidx.core.util.Preconditions;
 
 import java.util.ArrayList;
@@ -199,7 +199,9 @@ public final class Camera2DeviceSurfaceManager implements CameraDeviceSurfaceMan
 
         if (originalUseCases != null) {
             for (UseCase useCase : originalUseCases) {
-                String useCaseCameraId = getCameraIdFromConfig(useCase.getUseCaseConfig());
+                CameraDeviceConfig deviceConfig =
+                        Preconditions.checkNotNull(useCase.getBoundDeviceConfig());
+                String useCaseCameraId = getCameraIdFromConfig(deviceConfig);
                 Size resolution = useCase.getAttachedSurfaceResolution(useCaseCameraId);
 
                 surfaceConfigs.add(
@@ -286,7 +288,7 @@ public final class Camera2DeviceSurfaceManager implements CameraDeviceSurfaceMan
      * @throws IllegalStateException if not initialized
      */
     @Override
-    public boolean requiresCorrectedAspectRatio(@NonNull UseCaseConfig<?> useCaseConfig) {
+    public boolean requiresCorrectedAspectRatio(@NonNull CameraDeviceConfig useCaseConfig) {
         checkInitialized();
 
         String cameraId = getCameraIdFromConfig(useCaseConfig);
@@ -304,16 +306,18 @@ public final class Camera2DeviceSurfaceManager implements CameraDeviceSurfaceMan
      * Returns the corrected aspect ratio for the given use case configuration or {@code null} if
      * no correction is needed.
      *
-     * @param useCaseConfig to check aspect ratio
+     * @param deviceConfig to identify device which may require correction
+     * @param rotation desired rotation of output aspect ratio relative to natural orientation
      * @return the corrected aspect ratio for the use case
      * @throws IllegalStateException if not initialized
      */
     @Nullable
     @Override
-    public Rational getCorrectedAspectRatio(@NonNull UseCaseConfig<?> useCaseConfig) {
+    public Rational getCorrectedAspectRatio(@NonNull CameraDeviceConfig deviceConfig,
+            @ImageOutputConfig.RotationValue int rotation) {
         checkInitialized();
 
-        String cameraId = getCameraIdFromConfig(useCaseConfig);
+        String cameraId = getCameraIdFromConfig(deviceConfig);
         SupportedSurfaceCombination supportedSurfaceCombination =
                 mCameraSupportedSurfaceCombinationMap.get(cameraId);
 
@@ -321,11 +325,10 @@ public final class Camera2DeviceSurfaceManager implements CameraDeviceSurfaceMan
             throw new IllegalArgumentException(
                     "Fail to find supported surface info - CameraId:" + cameraId);
         }
-        return supportedSurfaceCombination.getCorrectedAspectRatio(useCaseConfig);
+        return supportedSurfaceCombination.getCorrectedAspectRatio(rotation);
     }
 
-    private String getCameraIdFromConfig(UseCaseConfig<?> useCaseConfig) {
-        CameraDeviceConfig config = (CameraDeviceConfig) useCaseConfig;
+    private String getCameraIdFromConfig(@NonNull CameraDeviceConfig config) {
         String cameraId;
         try {
             LensFacing lensFacing = config.getLensFacing(null);
@@ -336,7 +339,7 @@ public final class Camera2DeviceSurfaceManager implements CameraDeviceSurfaceMan
             cameraId = CameraX.getCameraWithLensFacing(lensFacing);
         } catch (Exception e) {
             throw new IllegalArgumentException(
-                    "Unable to get camera ID for use case " + useCaseConfig.getTargetName(), e);
+                    "Unable to get camera ID from camera device config.", e);
         }
         return cameraId;
     }
