@@ -109,38 +109,6 @@ data class TextStyle(
             shadow = other.shadow ?: this.shadow
         )
     }
-
-    /**
-     * Describe the difference between this style and another, in terms of how
-     * much damage it will make to the rendering.
-     *
-     * See also:
-     *
-     *  * [TextSpan.compareTo], which does the same thing for entire [TextSpan]s.
-     */
-    internal fun compareTo(other: TextStyle): RenderComparison {
-        if (this == other) {
-            return RenderComparison.IDENTICAL
-        }
-        if (fontFamily != other.fontFamily ||
-            fontSize != other.fontSize ||
-            fontWeight != other.fontWeight ||
-            fontStyle != other.fontStyle ||
-            fontSynthesis != other.fontSynthesis ||
-            fontFeatureSettings != other.fontFeatureSettings ||
-            letterSpacing != other.letterSpacing ||
-            baselineShift != other.baselineShift ||
-            textGeometricTransform != other.textGeometricTransform ||
-            localeList != other.localeList ||
-            background != other.background
-        ) {
-            return RenderComparison.LAYOUT
-        }
-        if (color != other.color || decoration != other.decoration || shadow != other.shadow) {
-            return RenderComparison.PAINT
-        }
-        return RenderComparison.IDENTICAL
-    }
 }
 
 private fun lerpColor(a: Color?, b: Color?, t: Float): Color? {

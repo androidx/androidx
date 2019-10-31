@@ -67,43 +67,6 @@ class TextSpan(
         }
         return buffer.toString()
     }
-
-    /**
-     * Describe the difference between this text span and another, in terms ofhow much damage it
-     * will make to the rendering. The comparison is deep.
-     */
-    internal fun compareTo(other: TextSpan): RenderComparison {
-        if (this === other) {
-            return RenderComparison.IDENTICAL
-        }
-        if (other.text != text ||
-            children.size != other.children.size ||
-            (style == null) != (other.style == null)
-        ) {
-            return RenderComparison.LAYOUT
-        }
-        var result: RenderComparison = RenderComparison.IDENTICAL
-        style?.let {
-            val candidate: RenderComparison = it.compareTo(other.style!!)
-            if (candidate.ordinal > result.ordinal) {
-                result = candidate
-            }
-            if (result == RenderComparison.LAYOUT) {
-                return result
-            }
-        }
-
-        children.forEachIndexed { index, child ->
-            val candidate: RenderComparison = child.compareTo(other.children[index])
-            if (candidate.ordinal > result.ordinal) {
-                result = candidate
-            }
-            if (result == RenderComparison.LAYOUT) {
-                return result
-            }
-        }
-        return result
-    }
 }
 
 private fun TextSpan.annotatedStringVisitor(builder: AnnotatedString.Builder) {
