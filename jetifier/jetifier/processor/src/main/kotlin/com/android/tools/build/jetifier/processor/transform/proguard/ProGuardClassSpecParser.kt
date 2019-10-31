@@ -19,6 +19,7 @@ package com.android.tools.build.jetifier.processor.transform.proguard
 import com.android.tools.build.jetifier.processor.cartesianProduct
 import com.android.tools.build.jetifier.processor.transform.proguard.patterns.GroupsReplacer
 import com.android.tools.build.jetifier.processor.transform.proguard.patterns.PatternHelper
+import java.util.regex.Pattern
 
 /**
  * Parses and rewrites ProGuard rules that contain class specification. See ProGuard documentation
@@ -51,8 +52,9 @@ class ProGuardClassSpecParser(private val mapper: ProGuardTypesMapper) {
 
     val replacer = GroupsReplacer(
         pattern = PatternHelper.build(
-            "-$RULES ($RULES_MODIFIERS )*(@｟$ANNOTATION_TYPE｠ )?($CLASS_MODIFIERS )*$CLASS_TYPES " +
-            "｟$CLASS_NAME｠( (extends|implements) ｟$CLASS_NAME｠)?+ *( *\\{｟[^}]*｠\\} *)?+"),
+            "^ *-$RULES ($RULES_MODIFIERS )*(@｟$ANNOTATION_TYPE｠ )?($CLASS_MODIFIERS )" +
+            "*$CLASS_TYPES ｟$CLASS_NAME｠( (extends|implements) ｟$CLASS_NAME｠)?+ " +
+            "*( *\\{｟[^}#]*｠\\} *)?+", Pattern.MULTILINE),
         groupsMap = listOf(
             { annotation: String -> mapper.replaceType(annotation) },
             { className: String -> mapper.replaceType(className) },
