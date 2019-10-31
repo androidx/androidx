@@ -16,13 +16,16 @@
 
 package androidx.camera.core;
 
+import androidx.annotation.IntRange;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.annotation.RestrictTo;
 import androidx.annotation.VisibleForTesting;
 import androidx.camera.core.impl.utils.executor.CameraXExecutors;
+import androidx.core.util.Preconditions;
 
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 import java.util.concurrent.Executor;
 import java.util.concurrent.TimeUnit;
@@ -71,9 +74,9 @@ public class FocusMeteringAction {
 
     @SuppressWarnings("WeakerAccess") /* synthetic accessor */
     FocusMeteringAction(Builder builder) {
-        mMeteringPointsAf = builder.mMeteringPointsAf;
-        mMeteringPointsAe = builder.mMeteringPointsAe;
-        mMeteringPointsAwb = builder.mMeteringPointsAwb;
+        mMeteringPointsAf = Collections.unmodifiableList(builder.mMeteringPointsAf);
+        mMeteringPointsAe = Collections.unmodifiableList(builder.mMeteringPointsAe);
+        mMeteringPointsAwb = Collections.unmodifiableList(builder.mMeteringPointsAwb);
         mListenerExecutor = builder.mListenerExecutor;
         mOnAutoFocusListener = builder.mOnAutoFocusListener;
         mAutoCancelDurationInMillis = builder.mAutoCancelDurationInMillis;
@@ -122,7 +125,7 @@ public class FocusMeteringAction {
      * Returns if auto-cancel is enabled or not.
      */
     public boolean isAutoCancelEnabled() {
-        return mAutoCancelDurationInMillis != 0;
+        return mAutoCancelDurationInMillis > 0;
     }
 
     @VisibleForTesting
@@ -281,10 +284,13 @@ public class FocusMeteringAction {
         /**
          * Sets the auto-cancel duration. After set, {@link CameraControl#cancelFocusAndMetering()}
          * will be called in specified duration. By default, auto-cancel is enabled with 5
-         * seconds duration.
+         * seconds duration. The duration must be greater than or equal to 1 otherwise it
+         * will throw a {@link IllegalArgumentException}.
          */
         @NonNull
-        public Builder setAutoCancelDuration(long duration, @NonNull TimeUnit timeUnit) {
+        public Builder setAutoCancelDuration(@IntRange(from = 1) long duration,
+                @NonNull TimeUnit timeUnit) {
+            Preconditions.checkArgument(duration >= 1, "autoCancelDuration must be at least 1");
             mAutoCancelDurationInMillis = timeUnit.toMillis(duration);
             return this;
         }
