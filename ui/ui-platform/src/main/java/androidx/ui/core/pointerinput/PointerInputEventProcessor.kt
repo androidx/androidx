@@ -81,8 +81,6 @@ internal class PointerInputEventProcessor(val root: LayoutNode) {
         }
     }
 
-    // TODO(b/142486858): It seems likely that removed PointerInputNodes should not have their
-    //  cancelHandlers called. Investigate this.
     /**
      * Responds appropriately to Android ACTION_CANCEL events.
      *

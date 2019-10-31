@@ -361,6 +361,10 @@ package androidx.ui.core.focus {
 
 package androidx.ui.core.pointerinput {
 
+  public final class HitPathTrackerKt {
+    ctor public HitPathTrackerKt();
+  }
+
   public final class MotionEventAdapterKt {
     ctor public MotionEventAdapterKt();
   }
