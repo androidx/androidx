@@ -272,4 +272,101 @@ class ProguardSamplesTest {
                 "-dontwarn test.**"
             )
     }
+
+    @Test fun proGuard_sample6() {
+        ProGuardTester()
+            .forGivenPrefixes(
+                "support/"
+            )
+            .forGivenTypesMap(
+                "support/Activity" to "test/Activity"
+            )
+            .testThatGivenProGuard(
+                "# Comment\n" +
+                "-keep class * extends com.google.Class { *; }\n" +
+                "-dontwarn com.google.**\n" +
+                // Comment should not break the transformer
+                "# Note: comment 'com.google.android.Class\$Nested { \n" +
+                "-keep class com.google.android.Class\$*\n"
+            )
+            .rewritesTo(
+                "# Comment\n" +
+                "-keep class * extends com.google.Class { *; }\n" +
+                "-dontwarn com.google.**\n" +
+                "# Note: comment 'com.google.android.Class\$Nested { \n" +
+                "-keep class com.google.android.Class\$*\n"
+            )
+    }
+
+    @Test fun proGuard_sample7() {
+        ProGuardTester()
+            .forGivenPrefixes(
+                "support/"
+            )
+            .forGivenTypesMap(
+                "support/Activity" to "test/Activity"
+            )
+            .testThatGivenProGuard(
+                "-dontwarn support.Activity,\n" +
+                "support.Activity\n" + // New line should not be rewritten
+                "-dontwarn support.Activity\n" +
+                "support.Activity" // New line should not be rewritten
+            )
+            .rewritesTo(
+                "-dontwarn test.Activity\n" +
+                "support.Activity\n" +
+                "-dontwarn test.Activity\n" +
+                "support.Activity"
+            )
+    }
+
+    @Test fun proGuard_sample8() {
+        ProGuardTester()
+            .forGivenPrefixes(
+                "support/"
+            )
+            .forGivenTypesMap(
+                "support/Activity" to "test/Activity",
+                "support/Fragment" to "test/Fragment"
+            )
+            .testThatGivenProGuard(
+                "-keep public class * { \n" +
+                "  void get(*); \n" +
+                "  void get(support.Activity); \n" +
+                "#  void get(support.Activity, support.Fragment, keep.Please); \n" +
+                "}"
+            )
+            .rewritesTo(
+                "-keep public class * { \n" +
+                "  void get(*); \n" +
+                "  void get(support.Activity); \n" +
+                "#  void get(support.Activity, support.Fragment, keep.Please); \n" +
+                "}"
+            )
+    }
+
+    @Test fun proGuard_sample9() {
+        ProGuardTester()
+            .forGivenPrefixes(
+                "support/"
+            )
+            .forGivenTypesMap(
+                "support/Activity" to "test/Activity",
+                "support/Fragment" to "test/Fragment"
+            )
+            .testThatGivenProGuard(
+                "-keep public class * { \n" +
+                "  void get(*); \n" +
+                "  void get(#support.Activity); \n" +
+                "  void get(support.Activity, support.Fragment, keep.Please); \n" +
+                "}"
+            )
+            .rewritesTo(
+                "-keep public class * { \n" +
+                "  void get(*); \n" +
+                "  void get(#support.Activity); \n" +
+                "  void get(support.Activity, support.Fragment, keep.Please); \n" +
+                "}"
+            )
+    }
 }

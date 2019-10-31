@@ -37,6 +37,23 @@ class ClassFilterTest {
             )
     }
 
+    @Test fun proGuard_classFilter_commentAtTheEnd() {
+        ProGuardTester()
+            .forGivenPrefixes(
+                "support/"
+            )
+            .forGivenTypesMap(
+                "support/Activity" to "test/Activity",
+                "support/Fragment" to "test/Fragment"
+            )
+            .testThatGivenProGuard(
+                "-adaptclassstrings support.Activity, support.Fragment, keep.Me #support.Activity"
+            )
+            .rewritesTo(
+                "-adaptclassstrings test.Activity, test.Fragment, keep.Me #support.Activity"
+            )
+    }
+
     @Test fun proGuard_classFilter_newLineIgnored() {
         ProGuardTester()
             .forGivenPrefixes(
@@ -51,7 +68,7 @@ class ClassFilterTest {
                 " support.Activity"
             )
             .rewritesTo(
-                "-adaptclassstrings test.Activity, test.Fragment, keep.Me \n" +
+                "-adaptclassstrings test.Activity, test.Fragment, keep.Me\n" +
                 " support.Activity"
             )
     }
