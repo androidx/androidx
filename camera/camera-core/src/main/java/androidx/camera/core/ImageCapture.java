@@ -1162,6 +1162,15 @@ public class ImageCapture extends UseCase {
          * <p>See also {@link ImageCaptureConfig.Builder#setTargetRotation(int)} and
          * {@link #setTargetRotation(int)}.
          *
+         * <p>Timestamps are in nanoseconds and monotonic and can be compared to timestamps from
+         * images produced from UseCases bound to the same camera instance.  More detail is
+         * available depending on the implementation.  For example with CameraX using a
+         * {@link androidx.camera.camera2} implementation additional detail can be found in
+         * {@link android.hardware.camera2.CameraDevice} documentation.
+         *
+         * @see android.media.Image#getTimestamp()
+         * @see android.hardware.camera2.CaptureResult#SENSOR_TIMESTAMP
+         *
          * @param image           The captured image
          * @param rotationDegrees The rotation which if applied to the image will make it match the
          *                        current target rotation. rotationDegrees is expressed as one of
