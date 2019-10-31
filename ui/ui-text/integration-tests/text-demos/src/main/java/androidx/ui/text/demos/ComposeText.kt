@@ -497,7 +497,8 @@ fun TextDemoShadowEffect() {
 
 @Composable
 fun TextDemoComposableTextSpan() {
-    Text(text = "This is a ", style = TextStyle(fontSize = fontSize8)) {
+    Text(style = TextStyle(fontSize = fontSize8)) {
+        Span(text = "This is a ")
         Span(text = "composable ", style = TextStyle(fontStyle = FontStyle.Italic))
         val color1 = Color(0xFFEF50AD)
         val color2 = Color(0xFF10AF52)
