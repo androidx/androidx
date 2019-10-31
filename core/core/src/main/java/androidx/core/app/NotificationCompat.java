@@ -764,6 +764,7 @@ public class NotificationCompat {
          * @param channelId The constructed Notification will be posted on this
          *      NotificationChannel.
          */
+        @SuppressWarnings("deprecation")
         public Builder(@NonNull Context context, @NonNull String channelId) {
             mContext = context;
             mChannelId = channelId;
@@ -772,13 +773,13 @@ public class NotificationCompat {
             mNotification.when = System.currentTimeMillis();
             mNotification.audioStreamType = Notification.STREAM_DEFAULT;
             mPriority = PRIORITY_DEFAULT;
-            mPeople = new ArrayList<String>();
+            mPeople = new ArrayList<>();
             mAllowSystemGeneratedContextualActions = true;
         }
 
         /**
-         * @deprecated use {@link #NotificationCompat.Builder(Context,String)} instead.
-         * All posted Notifications must specify a NotificationChannel Id.
+         * @deprecated use {@code Builder(Context, String)} instead. All posted notifications must
+         * specify a NotificationChannel ID.
          */
         @Deprecated
         public Builder(Context context) {
@@ -991,6 +992,7 @@ public class NotificationCompat {
          * @param highPriority Passing true will cause this notification to be sent
          *          even if other notifications are suppressed.
          */
+        @SuppressWarnings("deprecation")
         public Builder setFullScreenIntent(PendingIntent intent, boolean highPriority) {
             mFullScreenIntent = intent;
             setFlag(FLAG_HIGH_PRIORITY, highPriority);
@@ -1282,6 +1284,7 @@ public class NotificationCompat {
          * @param uri A URI for the person.
          * @see Notification#EXTRA_PEOPLE
          */
+        @SuppressWarnings("deprecation")
         public Builder addPerson(String uri) {
             mPeople.add(uri);
             return this;
@@ -3306,6 +3309,7 @@ public class NotificationCompat {
         }
 
         // Package private access to avoid adding a SyntheticAccessor for the Action.Builder class.
+        @SuppressWarnings("deprecation")
         Action(@Nullable IconCompat icon, CharSequence title, PendingIntent intent,
                 Bundle extras,
                 RemoteInput[] remoteInputs, RemoteInput[] dataOnlyRemoteInputs,
@@ -3329,6 +3333,7 @@ public class NotificationCompat {
         /**
          * @deprecated use {@link #getIconCompat()} instead.
          */
+        @SuppressWarnings("deprecation")
         @Deprecated
         public int getIcon() {
             return icon;
@@ -3337,6 +3342,7 @@ public class NotificationCompat {
         /**
          * Return the icon associated with this Action.
          */
+        @SuppressWarnings("deprecation")
         public @Nullable IconCompat getIconCompat() {
             if (mIcon == null && icon != 0) {
                 mIcon = IconCompat.createWithResource(null, "", icon);
@@ -4120,6 +4126,7 @@ public class NotificationCompat {
         private int mContentIcon;
         private int mContentIconGravity = DEFAULT_CONTENT_ICON_GRAVITY;
         private int mContentActionIndex = UNSET_ACTION_INDEX;
+        @SuppressWarnings("deprecation")
         private int mCustomSizePreset = SIZE_DEFAULT;
         private int mCustomContentHeight;
         private int mGravity = DEFAULT_GRAVITY;
@@ -4134,6 +4141,7 @@ public class NotificationCompat {
         public WearableExtender() {
         }
 
+        @SuppressWarnings("deprecation")
         public WearableExtender(Notification notification) {
             Bundle extras = getExtras(notification);
             Bundle wearableBundle = extras != null ? extras.getBundle(EXTRA_WEARABLE_EXTENSIONS)
@@ -4185,6 +4193,7 @@ public class NotificationCompat {
          * called by the {@link NotificationCompat.Builder#extend} method of
          * {@link NotificationCompat.Builder}.
          */
+        @SuppressWarnings("deprecation")
         @Override
         public NotificationCompat.Builder extend(NotificationCompat.Builder builder) {
             Bundle wearableBundle = new Bundle();
@@ -4261,7 +4270,7 @@ public class NotificationCompat {
                         actionCompat.getActionIntent());
             } else {
                 actionBuilder = new Notification.Action.Builder(
-                        actionCompat.getIcon(), actionCompat.getTitle(),
+                        actionCompat.getIconCompat().getResId(), actionCompat.getTitle(),
                         actionCompat.getActionIntent());
             }
             Bundle actionExtras;
@@ -5755,6 +5764,7 @@ public class NotificationCompat {
      * @param notification The notification to inspect.
      * @param actionIndex The index of the action to retrieve.
      */
+    @SuppressWarnings("deprecation")
     public static Action getAction(Notification notification, int actionIndex) {
         if (Build.VERSION.SDK_INT >= 20) {
             return getActionCompatFromAction(notification.actions[actionIndex]);
@@ -5791,6 +5801,7 @@ public class NotificationCompat {
         }
     }
 
+    @SuppressWarnings("deprecation")
     @RequiresApi(20)
     static Action getActionCompatFromAction(Notification.Action action) {
         final RemoteInput[] remoteInputs;

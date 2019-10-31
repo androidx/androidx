@@ -1154,7 +1154,7 @@ public class SlidingPaneLayout extends ViewGroup {
      */
     @Deprecated
     public void setShadowResource(@DrawableRes int resId) {
-        setShadowDrawable(getResources().getDrawable(resId));
+        setShadowDrawableLeft(getResources().getDrawable(resId));
     }
 
     /**

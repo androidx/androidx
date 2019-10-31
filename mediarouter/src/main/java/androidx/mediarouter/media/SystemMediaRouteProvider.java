@@ -770,7 +770,7 @@ abstract class SystemMediaRouteProvider extends MediaRouteProvider {
             }
 
             if (isConnecting(record)) {
-                builder.setConnecting(true);
+                builder.setConnectionState(MediaRouter.RouteInfo.CONNECTION_STATE_CONNECTING);
             }
 
             Display presentationDisplay =
