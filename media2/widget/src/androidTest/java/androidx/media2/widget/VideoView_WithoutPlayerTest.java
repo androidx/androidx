@@ -47,8 +47,6 @@ public class VideoView_WithoutPlayerTest extends MediaWidgetTestBase {
     public void setup() throws Throwable {
         mActivity = mActivityRule.getActivity();
         mVideoView = mActivity.findViewById(R.id.videoview);
-
-        setKeepScreenOn(mActivityRule);
         checkAttachedToWindow(mVideoView);
     }
 

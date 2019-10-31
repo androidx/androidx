@@ -16,19 +16,12 @@
 
 package androidx.media2.widget;
 
-import static android.content.Context.KEYGUARD_SERVICE;
-
 import static org.junit.Assert.assertTrue;
 
-import android.app.Activity;
-import android.app.Instrumentation;
-import android.app.KeyguardManager;
 import android.content.Context;
 import android.net.Uri;
-import android.os.Build;
 import android.text.TextUtils;
 import android.view.View;
-import android.view.WindowManager;
 
 import androidx.annotation.GuardedBy;
 import androidx.annotation.NonNull;
@@ -43,8 +36,6 @@ import androidx.media2.session.MediaController;
 import androidx.media2.session.MediaSession;
 import androidx.media2.widget.test.R;
 import androidx.test.core.app.ApplicationProvider;
-import androidx.test.platform.app.InstrumentationRegistry;
-import androidx.test.rule.ActivityTestRule;
 
 import org.junit.Before;
 
@@ -80,31 +71,6 @@ public class MediaWidgetTestBase extends MediaTestBase {
         mContext = ApplicationProvider.getApplicationContext();
         mMainHandlerExecutor = ContextCompat.getMainExecutor(mContext);
         mSessionCallbackExecutor = Executors.newFixedThreadPool(1);
-    }
-
-    static <T extends Activity> void setKeepScreenOn(ActivityTestRule<T> activityRule)
-            throws Throwable {
-        final Instrumentation instrumentation = InstrumentationRegistry.getInstrumentation();
-        final Activity activity = activityRule.getActivity();
-        activityRule.runOnUiThread(new Runnable() {
-            @Override
-            public void run() {
-                if (Build.VERSION.SDK_INT >= 27) {
-                    activity.getWindow().addFlags(WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON);
-                    activity.setTurnScreenOn(true);
-                    activity.setShowWhenLocked(true);
-                    KeyguardManager keyguardManager = (KeyguardManager)
-                            instrumentation.getTargetContext().getSystemService(KEYGUARD_SERVICE);
-                    keyguardManager.requestDismissKeyguard(activity, null);
-                } else {
-                    activity.getWindow().addFlags(WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON
-                            | WindowManager.LayoutParams.FLAG_TURN_SCREEN_ON
-                            | WindowManager.LayoutParams.FLAG_SHOW_WHEN_LOCKED
-                            | WindowManager.LayoutParams.FLAG_DISMISS_KEYGUARD);
-                }
-            }
-        });
-        instrumentation.waitForIdleSync();
     }
 
     static void checkAttachedToWindow(View view) throws Exception {
