@@ -753,8 +753,8 @@ public class MediaUtils {
     public static MediaController.PlaybackInfo toPlaybackInfo2(
             MediaControllerCompat.PlaybackInfo info) {
         return MediaController.PlaybackInfo.createPlaybackInfo(info.getPlaybackType(),
-                new AudioAttributesCompat.Builder()
-                        .setLegacyStreamType(info.getAudioStream()).build(),
+                new AudioAttributesCompat.Builder().setLegacyStreamType(
+                        info.getAudioAttributes().getLegacyStreamType()).build(),
                 info.getVolumeControl(), info.getMaxVolume(), info.getCurrentVolume());
     }
 
