@@ -22,6 +22,7 @@ import androidx.room.Query;
 import androidx.room.integration.testapp.vo.Cluster;
 import androidx.room.integration.testapp.vo.Hivemind;
 import androidx.room.integration.testapp.vo.Robot;
+import androidx.room.integration.testapp.vo.RobotAndHivemind;
 
 import java.util.List;
 import java.util.UUID;
@@ -40,4 +41,7 @@ public interface RobotsDao {
 
     @Query("SELECT * FROM Robot WHERE mHiveId = :hiveId")
     List<Robot> getHiveRobots(UUID hiveId);
+
+    @Query("SELECT * FROM Robot")
+    List<RobotAndHivemind> getRobotsWithHivemind();
 }
