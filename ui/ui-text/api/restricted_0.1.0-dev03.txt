@@ -386,17 +386,13 @@ package androidx.ui.text {
 package androidx.ui.text.font {
 
   public final class Font {
-    ctor public Font(String name, androidx.ui.text.font.FontWeight weight, androidx.ui.text.font.FontStyle style, int ttcIndex, String fontVariationSettings);
+    ctor public Font(String name, androidx.ui.text.font.FontWeight weight, androidx.ui.text.font.FontStyle style);
     method public String component1();
     method public androidx.ui.text.font.FontWeight component2();
     method public androidx.ui.text.font.FontStyle component3();
-    method public int component4();
-    method public String component5();
-    method public androidx.ui.text.font.Font copy(String name, androidx.ui.text.font.FontWeight weight, androidx.ui.text.font.FontStyle style, int ttcIndex, String fontVariationSettings);
-    method public String getFontVariationSettings();
+    method public androidx.ui.text.font.Font copy(String name, androidx.ui.text.font.FontWeight weight, androidx.ui.text.font.FontStyle style);
     method public String getName();
     method public androidx.ui.text.font.FontStyle getStyle();
-    method public int getTtcIndex();
     method public androidx.ui.text.font.FontWeight getWeight();
   }
 

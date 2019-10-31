@@ -45,7 +45,7 @@ import androidx.ui.lerp
 /**
  * Linearly interpolate two [BaselineShift]s.
  */
-// TODO(haoyuchang): This should not accept nullables
+// TODO(siyamed): This should not accept nullables
 fun lerp(start: BaselineShift?, stop: BaselineShift?, fraction: Float): BaselineShift? {
     if (start == null && stop == null) {
         return null

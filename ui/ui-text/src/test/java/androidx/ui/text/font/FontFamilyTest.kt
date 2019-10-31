@@ -34,9 +34,7 @@ class FontFamilyTest {
             Font(
                 name = "fontName",
                 weight = FontWeight.W900,
-                style = FontStyle.Italic,
-                ttcIndex = 1,
-                fontVariationSettings = "'wdth' 150"
+                style = FontStyle.Italic
             )
         )
 
@@ -44,9 +42,7 @@ class FontFamilyTest {
             Font(
                 name = "fontName",
                 weight = FontWeight.W900,
-                style = FontStyle.Italic,
-                ttcIndex = 1,
-                fontVariationSettings = "'wdth' 150"
+                style = FontStyle.Italic
             )
         )
 
@@ -59,19 +55,15 @@ class FontFamilyTest {
             Font(
                 name = "fontName",
                 weight = FontWeight.W900,
-                style = FontStyle.Italic,
-                ttcIndex = 1,
-                fontVariationSettings = "'wdth' 150"
+                style = FontStyle.Italic
             )
         )
 
         val otherFontFamily = FontFamily(
             Font(
                 name = "fontName",
-                weight = FontWeight.W900,
-                style = FontStyle.Italic,
-                ttcIndex = 1,
-                fontVariationSettings = "'wdth' 151" // this is different
+                weight = FontWeight.W800,
+                style = FontStyle.Italic
             )
         )
 
