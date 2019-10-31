@@ -17,9 +17,7 @@
 package androidx.ui.text
 
 import androidx.ui.core.em
-import androidx.ui.core.px
 import androidx.ui.core.sp
-import androidx.ui.engine.geometry.Offset
 import androidx.ui.text.style.BaselineShift
 import androidx.ui.text.font.FontStyle
 import androidx.ui.text.font.FontSynthesis
@@ -30,7 +28,6 @@ import androidx.ui.text.font.FontFamily
 import androidx.ui.text.style.lerp
 import androidx.ui.graphics.Color
 import androidx.ui.graphics.lerp
-import androidx.ui.graphics.Shadow
 import androidx.ui.text.font.lerp
 import com.google.common.truth.Truth.assertThat
 import org.junit.Test
@@ -1347,110 +1344,5 @@ class TextStyleTest {
         val newTextStyle = lerp(start = textStyle1, stop = textStyle2, fraction = t)
 
         assertThat(newTextStyle?.decoration).isEqualTo(decoration2)
-    }
-
-    @Test
-    fun `compareTo with same textStyle returns IDENTICAL`() {
-        val textStyle = TextStyle()
-
-        assertThat(textStyle.compareTo(textStyle)).isEqualTo(RenderComparison.IDENTICAL)
-    }
-
-    @Test
-    fun `compareTo with identical textStyle returns IDENTICAL`() {
-        val textStyle1 = TextStyle()
-        val textStyle2 = TextStyle()
-
-        assertThat(textStyle1.compareTo(textStyle2)).isEqualTo(RenderComparison.IDENTICAL)
-    }
-
-    @Test
-    fun `compareTo textStyle with different layout returns LAYOUT`() {
-        val fontSize = 10.sp
-        val bgColor = Color(0xFFFFFF00)
-        val fontFeatureSettings = "\"kern\" 0"
-
-        val textStyle = TextStyle(
-            color = null,
-            fontSize = fontSize,
-            fontWeight = FontWeight.W800,
-            fontStyle = FontStyle.Italic,
-            fontFeatureSettings = fontFeatureSettings,
-            letterSpacing = 1.em,
-            baselineShift = BaselineShift.Subscript,
-            textGeometricTransform = TextGeometricTransform(scaleX = 1.0f),
-            localeList = LocaleList("en-US"),
-            background = bgColor,
-            decoration = TextDecoration.Underline,
-            fontFamily = FontFamily(genericFamily = "sans-serif"),
-            shadow = Shadow(Color(0xFF0000FF), Offset(1f, 2f), 3.px)
-        )
-
-        assertThat(
-            textStyle.compareTo(
-                textStyle.copy(fontFamily = FontFamily(genericFamily = "monospace"))
-            )
-        ).isEqualTo(RenderComparison.LAYOUT)
-
-        assertThat(textStyle.compareTo(textStyle.copy(fontSize = 20.sp)))
-            .isEqualTo(RenderComparison.LAYOUT)
-
-        assertThat(textStyle.compareTo(textStyle.copy(fontWeight = FontWeight.W100)))
-            .isEqualTo(RenderComparison.LAYOUT)
-
-        assertThat(textStyle.compareTo(textStyle.copy(fontStyle = FontStyle.Normal)))
-            .isEqualTo(RenderComparison.LAYOUT)
-
-        assertThat(textStyle.compareTo(textStyle.copy(fontSynthesis = FontSynthesis.Style)))
-            .isEqualTo(RenderComparison.LAYOUT)
-
-        assertThat(textStyle.compareTo(textStyle.copy(fontFeatureSettings = null)))
-            .isEqualTo(RenderComparison.LAYOUT)
-
-        assertThat(textStyle.compareTo(textStyle.copy(letterSpacing = 2.em)))
-            .isEqualTo(RenderComparison.LAYOUT)
-
-        assertThat(textStyle.compareTo(textStyle.copy(baselineShift = BaselineShift.Superscript)))
-            .isEqualTo(RenderComparison.LAYOUT)
-
-        assertThat(textStyle.compareTo(textStyle
-            .copy(textGeometricTransform = TextGeometricTransform())))
-            .isEqualTo(RenderComparison.LAYOUT)
-
-        assertThat(textStyle.compareTo(textStyle.copy(localeList = LocaleList("ja-JP"))))
-            .isEqualTo(RenderComparison.LAYOUT)
-    }
-
-    @Test
-    fun `compareTo textStyle with different paint returns paint`() {
-        val fontSize = 10.sp
-        val color1 = Color(0xFF00FF00)
-        val color2 = Color(0x00FFFF00)
-
-        val shadow1 = Shadow(Color(0xFF0000FF), Offset(1f, 2f), 3.px)
-        val shadow2 = Shadow(Color(0xFF00FFFF), Offset(1f, 2f), 3.px)
-
-        val textStyle = TextStyle(
-            color = color1,
-            fontSize = fontSize,
-            fontWeight = FontWeight.W800,
-            fontStyle = FontStyle.Italic,
-            letterSpacing = 1.em,
-            baselineShift = BaselineShift.Superscript,
-            textGeometricTransform = TextGeometricTransform(null, null),
-            localeList = LocaleList("en-US"),
-            decoration = TextDecoration.Underline,
-            fontFamily = FontFamily(genericFamily = "sans-serif"),
-            shadow = shadow1
-        )
-
-        assertThat(textStyle.compareTo(textStyle.copy(color = color2)))
-            .isEqualTo(RenderComparison.PAINT)
-
-        assertThat(textStyle.compareTo(textStyle.copy(decoration = TextDecoration.LineThrough)))
-            .isEqualTo(RenderComparison.PAINT)
-
-        assertThat(textStyle.compareTo(textStyle.copy(shadow = shadow2)))
-            .isEqualTo(RenderComparison.PAINT)
     }
 }
