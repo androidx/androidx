@@ -122,8 +122,6 @@ internal open class TypefaceAdapter(
             return Typeface.DEFAULT
         }
 
-        // TODO(siyamed): ideally we should not have platform dependent if's here.
-        // will think more and move to ui-text later.
         val result = if (Build.VERSION.SDK_INT < 28) {
             val targetStyle = getTypefaceStyle(fontWeight, fontStyle)
             if (genericFontFamily.isNullOrEmpty()) {

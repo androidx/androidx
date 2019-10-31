@@ -61,8 +61,6 @@ import org.mockito.junit.MockitoJUnitRunner
 @RunWith(MockitoJUnitRunner::class)
 @SmallTest
 class TypefaceAdapterTest {
-    // TODO(siyamed): These native calls should be removed after the
-    // counterparts are implemented in compose.
     private val context = InstrumentationRegistry.getInstrumentation().context
     private val resourceLoader = TestFontResourceLoader(context)
 

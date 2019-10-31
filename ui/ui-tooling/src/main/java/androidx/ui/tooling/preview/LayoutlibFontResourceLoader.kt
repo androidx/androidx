@@ -32,8 +32,6 @@ import androidx.ui.text.font.Font
 internal class LayoutlibFontResourceLoader(private val context: Context) : Font.ResourceLoader {
     @RequiresApi(Build.VERSION_CODES.O)
     override fun load(font: Font): Typeface {
-        // TODO(siyamed): This is an expensive operation and discouraged in the API Docs
-        // remove when alternative resource loading system is defined.
         val resId = context.resources.getIdentifier(
             font.name.substringBefore("."),
             "font",
