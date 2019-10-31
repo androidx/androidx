@@ -15,7 +15,7 @@
  */
 
 import androidx.build.SupportConfig
-import static androidx.build.dependencies.DependenciesKt.CHECKER_FRAMEWORK
+import static androidx.build.dependencies.DependenciesKt.GUAVA
 
 buildscript {
     // TODO: Remove this when this test app no longer depends on 1.0.0 of vectordrawable-animated.
@@ -70,12 +70,15 @@ android {
     flavorDimensions "library-group"
 }
 
-dependencies {
+configurations.all {
     /*
-    * This is needed to build Public Docs for media2:1.0.0-alpha04 and higher
-    * Our current guess is that Doclava isn't checking which dependencies are unique to
-    * the compileOnly configuration, since they're not supposed to be needed at runtime.
+    * Room uses auto-common which depends on a version of Guava which strictly depends on a
+    * version of checkerframework that is different from the one we specify. This forces the same
+    * resolution strategy for Guava that is used by room and media already so that the compatible
+    * version of checkerframeworks is also used
     */
-    compileOnly(CHECKER_FRAMEWORK)
+    resolutionStrategy {
+        force GUAVA
+    }
 }
 
