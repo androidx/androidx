@@ -5423,7 +5423,6 @@ public class ExifInterface {
                     break;
                 }
 
-                // fall through
                 case MARKER_COM: {
                     byte[] bytes = new byte[length];
                     if (in.read(bytes) != length) {
