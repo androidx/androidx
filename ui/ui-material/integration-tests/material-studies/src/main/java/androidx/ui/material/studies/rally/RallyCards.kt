@@ -17,10 +17,12 @@
 package androidx.ui.material.studies.rally
 
 import androidx.compose.Composable
+import androidx.compose.state
 import androidx.compose.unaryPlus
 import androidx.ui.core.Alignment
 import androidx.ui.core.Text
 import androidx.ui.core.dp
+import androidx.ui.foundation.Clickable
 import androidx.ui.foundation.ColoredRect
 import androidx.ui.foundation.VerticalScroller
 import androidx.ui.graphics.Color
@@ -39,44 +41,65 @@ import androidx.ui.layout.WidthSpacer
 import androidx.ui.material.Button
 import androidx.ui.material.Divider
 import androidx.ui.material.TextButtonStyle
+import androidx.ui.material.ripple.Ripple
 import androidx.ui.material.surface.Card
 import androidx.ui.material.themeColor
 import androidx.ui.material.themeTextStyle
+import java.util.Locale
 
 /**
  * The Alerts card within the Rally Overview screen.
  */
 @Composable
 fun RallyAlertCard() {
+    val openDialog = +state { false }
+    val alertMessage = "Heads up, you've used up 90% of your Shopping budget for this month."
+
+    if (openDialog.value) {
+        RallyAlertDialog(
+            onDismiss = {
+                openDialog.value = false
+            },
+            bodyText = alertMessage,
+            buttonText = "Dismiss".toUpperCase(Locale.getDefault())
+        )
+    }
     Card {
-        Column(Spacing(12.dp)) {
-            Row(
-                ExpandedWidth,
-                mainAxisAlignment = MainAxisAlignment.SpaceBetween
-            ) {
-                Text(
-                    text = "Alerts",
-                    style = +themeTextStyle { body1 }
-                )
-                Button(text = "See All", onClick = { }, style = TextButtonStyle())
+        Column {
+            Ripple(bounded = true) {
+                Clickable(onClick = { openDialog.value = true }) {
+                    Container {
+                        Row(
+                            modifier = Spacing(12.dp) wraps ExpandedWidth,
+                            mainAxisAlignment = MainAxisAlignment.SpaceBetween
+                        ) {
+                            Text(text = "Alerts", style = +themeTextStyle { subtitle2 })
+                            Button(text = "See All", onClick = { }, style = TextButtonStyle())
+                        }
+                    }
+                }
             }
             Divider(
-                Spacing(top = 12.dp, bottom = 12.dp),
+                Spacing(left = 12.dp, right = 12.dp),
                 color = +themeColor { background },
                 height = 2.dp
             )
-            Row {
-                val text = "Heads up, you've used up 90% of your " +
-                        "Shopping budget for this month."
-                Text(
-                    style = +themeTextStyle { body1 },
-                    modifier = Flexible(1f),
-                    text = text
-                )
-                // TODO: icons still don't work
-//                        <vectorResource res=context.resources
-//                            resId=androidx.ui.material.studies.R.drawable.sort_icon/>
-                Button(text = "Sort", onClick = { }, style = TextButtonStyle())
+            Ripple(bounded = true) {
+                Clickable(onClick = { openDialog.value = true }) {
+                    Container {
+                        Row(Spacing(12.dp)) {
+                            Text(
+                                style = +themeTextStyle { body1 },
+                                modifier = Flexible(1f),
+                                text = alertMessage
+                            )
+                            // TODO: icons still don't work
+//                            <vectorResource res=context.resources
+//                                resId=androidx.ui.material.studies.R.drawable.sort_icon/>
+                            Button(text = "Sort", onClick = { }, style = TextButtonStyle())
+                        }
+                    }
+                }
             }
         }
     }
