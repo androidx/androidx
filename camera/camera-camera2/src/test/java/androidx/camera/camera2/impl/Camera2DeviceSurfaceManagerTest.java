@@ -33,10 +33,12 @@ import android.hardware.camera2.CameraManager;
 import android.os.Build;
 import android.util.Rational;
 import android.util.Size;
+import android.view.Surface;
 import android.view.WindowManager;
 
 import androidx.camera.core.AppConfig;
 import androidx.camera.core.AspectRatio;
+import androidx.camera.core.CameraDeviceConfig;
 import androidx.camera.core.CameraDeviceSurfaceManager;
 import androidx.camera.core.CameraX;
 import androidx.camera.core.ExtendableUseCaseConfigFactory;
@@ -509,7 +511,9 @@ public final class Camera2DeviceSurfaceManagerTest {
         previewConfigBuilder.setLensFacing(LensFacing.FRONT);
         PreviewConfig previewConfig = previewConfigBuilder.build();
 
-        Rational resultAspectRatio = mSurfaceManager.getCorrectedAspectRatio(previewConfig);
+        CameraDeviceConfig deviceConfig = (CameraDeviceConfig) previewConfig;
+        Rational resultAspectRatio = mSurfaceManager.getCorrectedAspectRatio(deviceConfig,
+                previewConfig.getTargetRotation(Surface.ROTATION_0));
 
         Size maxJpegSize = supportedSurfaceCombination.getMaxOutputSizeByFormat(ImageFormat.JPEG);
         Rational maxJpegAspectRatio = new Rational(maxJpegSize.getHeight(), maxJpegSize.getWidth());

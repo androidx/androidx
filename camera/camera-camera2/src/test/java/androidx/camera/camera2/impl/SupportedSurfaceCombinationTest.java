@@ -26,6 +26,7 @@ import static org.mockito.Matchers.anyInt;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
+import android.app.Instrumentation;
 import android.content.Context;
 import android.graphics.ImageFormat;
 import android.hardware.camera2.CameraCharacteristics;
@@ -35,6 +36,7 @@ import android.os.Build;
 import android.util.Pair;
 import android.util.Rational;
 import android.util.Size;
+import android.view.Surface;
 import android.view.WindowManager;
 
 import androidx.camera.camera2.Camera2AppConfig;
@@ -60,8 +62,10 @@ import androidx.camera.testing.CameraUtil;
 import androidx.camera.testing.StreamConfigurationMapUtil;
 import androidx.camera.testing.fakes.FakeCamera;
 import androidx.camera.testing.fakes.FakeCameraFactory;
+import androidx.camera.testing.fakes.FakeLifecycleOwner;
 import androidx.test.core.app.ApplicationProvider;
 import androidx.test.filters.SmallTest;
+import androidx.test.platform.app.InstrumentationRegistry;
 
 import org.junit.After;
 import org.junit.Before;
@@ -106,6 +110,7 @@ public final class SupportedSurfaceCombinationTest {
     private final Size mMod16Size = new Size(960, 544);
     private final CamcorderProfileHelper mMockCamcorderProfileHelper =
             Mockito.mock(CamcorderProfileHelper.class);
+    private final Instrumentation mInstrumentation = InstrumentationRegistry.getInstrumentation();
 
     /**
      * Except for ImageFormat.JPEG, ImageFormat.YUV, and ImageFormat.RAW_SENSOR, other image formats
@@ -159,6 +164,9 @@ public final class SupportedSurfaceCombinationTest {
 
     @After
     public void tearDown() throws ExecutionException, InterruptedException {
+        if (CameraX.isInitialized()) {
+            mInstrumentation.runOnMainSync(() -> CameraX.unbindAll());
+        }
         CameraX.shutdown().get();
     }
 
@@ -474,10 +482,16 @@ public final class SupportedSurfaceCombinationTest {
         previewConfigBuilder.setLensFacing(LensFacing.FRONT);
         Preview preview = new Preview(previewConfigBuilder.build());
 
+        // Ensure we are bound to a camera to ensure aspect ratio correction is applied.
+        FakeLifecycleOwner fakeLifecycle = new FakeLifecycleOwner();
+        CameraX.bindToLifecycle(fakeLifecycle, preview);
+
         PreviewConfig config = (PreviewConfig) preview.getUseCaseConfig();
         Rational previewAspectRatio = config.getTargetAspectRatioCustom();
 
-        Rational correctedAspectRatio = supportedSurfaceCombination.getCorrectedAspectRatio(config);
+        Rational correctedAspectRatio =
+                supportedSurfaceCombination.getCorrectedAspectRatio(
+                        config.getTargetRotation(Surface.ROTATION_0));
 
         Size maxJpegSize = supportedSurfaceCombination.getMaxOutputSizeByFormat(ImageFormat.JPEG);
         Rational maxJpegAspectRatio = new Rational(maxJpegSize.getHeight(), maxJpegSize.getWidth());

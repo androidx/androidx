@@ -16,10 +16,10 @@
 
 package androidx.camera.core;
 
-import android.util.Log;
 import android.util.Size;
 
 import androidx.annotation.CallSuper;
+import androidx.annotation.GuardedBy;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.annotation.RestrictTo;
@@ -72,6 +72,11 @@ public abstract class UseCase {
     private State mState = State.INACTIVE;
 
     private UseCaseConfig<?> mUseCaseConfig;
+
+    // TODO(b/142840814): Remove when we are attached to a camera.
+    private final Object mBoundConfigLock = new Object();
+    @GuardedBy("mBoundConfigLock")
+    private CameraDeviceConfig mBoundDeviceConfig;
 
     /**
      * Except for ImageFormat.JPEG or ImageFormat.YUV, other image formats like SurfaceTexture or
@@ -131,35 +136,44 @@ public abstract class UseCase {
      * @hide
      */
     @RestrictTo(Scope.LIBRARY_GROUP)
-    protected void updateUseCaseConfig(UseCaseConfig<?> useCaseConfig) {
-        LensFacing lensFacing = ((CameraDeviceConfig) useCaseConfig).getLensFacing(null);
+    protected final void updateUseCaseConfig(@NonNull UseCaseConfig<?> useCaseConfig) {
+        updateUseCaseConfig(useCaseConfig, getBoundDeviceConfig());
+    }
 
-        UseCaseConfig.Builder<?, ?, ?> defaultBuilder = getDefaultBuilder(lensFacing);
-        if (defaultBuilder == null) {
-            Log.w(
-                    TAG,
-                    "No default configuration available. Relying solely on user-supplied options.");
-            mUseCaseConfig = useCaseConfig;
-        } else {
-            mUseCaseConfig = applyDefaults(useCaseConfig, defaultBuilder);
+    private void updateUseCaseConfig(@NonNull UseCaseConfig<?> useCaseConfig,
+            @Nullable CameraDeviceConfig boundDeviceConfig) {
+        // Attempt to retrieve builder containing defaults for this use case's config
+        LensFacing lensFacing = null;
+        if (boundDeviceConfig != null) {
+            lensFacing = boundDeviceConfig.getLensFacing(null);
         }
+        UseCaseConfig.Builder<?, ?, ?> defaultBuilder = getDefaultBuilder(lensFacing);
+
+        // Combine with default configuration.
+        mUseCaseConfig = applyDefaults(useCaseConfig, defaultBuilder);
     }
 
     /**
      * Combines user-supplied configuration with use case default configuration.
      *
-     * <p>This is called during initialization of the class. Subclassess can override this method to
+     * <p>Subclasses can override this method to
      * modify the behavior of combining user-supplied values and default values.
      *
      * @param userConfig           The user-supplied configuration.
-     * @param defaultConfigBuilder A builder containing use-case default values.
+     * @param defaultConfigBuilder A builder containing use-case default values, or {@code null}
+     *                            if no default values exist.
      * @return The configuration that will be used by this use case.
      * @hide
      */
     @RestrictTo(Scope.LIBRARY_GROUP)
+    @NonNull
     protected UseCaseConfig<?> applyDefaults(
-            UseCaseConfig<?> userConfig,
-            UseCaseConfig.Builder<?, ?, ?> defaultConfigBuilder) {
+            @NonNull UseCaseConfig<?> userConfig,
+            @Nullable UseCaseConfig.Builder<?, ?, ?> defaultConfigBuilder) {
+        if (defaultConfigBuilder == null) {
+            // No default builder was retrieved, return config directly
+            return userConfig;
+        }
 
         // If any options need special handling, this is the place to do it. For now we'll just copy
         // over all options.
@@ -335,23 +349,20 @@ public abstract class UseCase {
     }
 
     /**
-     * Gets the camera id defined by the use case config.
+     * Gets the camera id defined by the provided camera device config.
      *
-     * @param config the use case config
-     * @return the camera id defined by the config
+     * @param deviceConfig the device config
+     * @return the camera id returned by resolving the device config
      * @hide
      */
     @RestrictTo(Scope.LIBRARY_GROUP)
-    protected static String getCameraIdUnchecked(UseCaseConfig config) {
-        if (config instanceof CameraDeviceConfig) {
-            try {
-                return CameraX.getCameraWithCameraDeviceConfig((CameraDeviceConfig) config);
-            } catch (CameraInfoUnavailableException e) {
-                throw new IllegalArgumentException(
-                        "Unable to get camera id for the camera device config.", e);
-            }
-        } else {
-            throw new IllegalArgumentException("Unable to get camera id for the config.");
+    @NonNull
+    protected static String getCameraIdUnchecked(@NonNull CameraDeviceConfig deviceConfig) {
+        try {
+            return CameraX.getCameraWithCameraDeviceConfig(deviceConfig);
+        } catch (CameraInfoUnavailableException e) {
+            throw new IllegalArgumentException(
+                    "Unable to get camera id for the camera selector.", e);
         }
     }
 
@@ -366,6 +377,10 @@ public abstract class UseCase {
         EventCallback eventCallback = mUseCaseConfig.getUseCaseEventCallback(null);
         if (eventCallback != null) {
             eventCallback.onUnbind();
+        }
+
+        synchronized (mBoundConfigLock) {
+            mBoundDeviceConfig = null;
         }
 
         mStateChangeCallbacks.clear();
@@ -387,6 +402,19 @@ public abstract class UseCase {
     @RestrictTo(Scope.LIBRARY_GROUP)
     public UseCaseConfig<?> getUseCaseConfig() {
         return mUseCaseConfig;
+    }
+
+    /**
+     * Returns the currently bound {@link CameraDeviceConfig} or {@code null} if none is bound.
+     * TODO(b/142840814): Only rely on attached Camera rather than config.
+     * @hide
+     */
+    @RestrictTo(Scope.LIBRARY_GROUP)
+    @Nullable
+    public CameraDeviceConfig getBoundDeviceConfig() {
+        synchronized (mBoundConfigLock) {
+            return mBoundDeviceConfig;
+        }
     }
 
     /**
@@ -420,7 +448,8 @@ public abstract class UseCase {
 
     /**
      * Called when binding new use cases via {@link CameraX#bindToLifecycle(LifecycleOwner,
-     * UseCase...)}. Override to create necessary objects like {@link android.media.ImageReader}
+     * UseCase...)}. Override to create necessary objects like
+     * {@link android.media.ImageReader}
      * depending on the resolution.
      *
      * @param suggestedResolutionMap A map of the names of the {@link
@@ -456,10 +485,14 @@ public abstract class UseCase {
      * @hide
      */
     @RestrictTo(Scope.LIBRARY_GROUP)
-    protected void onBind() {
+    protected void onBind(@NonNull CameraDeviceConfig deviceConfig) {
+        synchronized (mBoundConfigLock) {
+            mBoundDeviceConfig = deviceConfig;
+        }
+        updateUseCaseConfig(mUseCaseConfig, deviceConfig);
         EventCallback eventCallback = mUseCaseConfig.getUseCaseEventCallback(null);
         if (eventCallback != null) {
-            eventCallback.onBind(getCameraIdUnchecked(mUseCaseConfig));
+            eventCallback.onBind(getCameraIdUnchecked(deviceConfig));
         }
     }
 

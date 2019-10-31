@@ -175,11 +175,6 @@ public class UseCaseTest {
         }
 
         @Override
-        protected void updateUseCaseConfig(UseCaseConfig<?> useCaseConfig) {
-            super.updateUseCaseConfig(useCaseConfig);
-        }
-
-        @Override
         @NonNull
         protected Map<String, Size> onSuggestedResolutionUpdated(
                 @NonNull Map<String, Size> suggestedResolutionMap) {

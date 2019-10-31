@@ -256,7 +256,7 @@ final class SupportedSurfaceCombination {
     }
 
     // Gets the corrected aspect ratio due to device constraints or null if no correction is needed.
-    Rational getCorrectedAspectRatio(UseCaseConfig<?> useCaseConfig) {
+    Rational getCorrectedAspectRatio(@ImageOutputConfig.RotationValue int targetRotation) {
         Rational outputRatio = null;
         /**
          * If the device is LEGACY + Android 5.0, then return the same aspect ratio as maximum JPEG
@@ -269,8 +269,6 @@ final class SupportedSurfaceCombination {
                 && Build.VERSION.SDK_INT == 21) {
             Size maxJpegSize = fetchMaxSize(ImageFormat.JPEG);
             outputRatio = new Rational(maxJpegSize.getWidth(), maxJpegSize.getHeight());
-            ImageOutputConfig config = (ImageOutputConfig) useCaseConfig;
-            int targetRotation = config.getTargetRotation(Surface.ROTATION_0);
             outputRatio = rotateAspectRatioByRotation(outputRatio, targetRotation);
         }
         return outputRatio;
