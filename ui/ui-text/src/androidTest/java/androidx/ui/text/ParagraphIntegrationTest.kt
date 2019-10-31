@@ -430,7 +430,6 @@ class ParagraphIntegrationTest {
         }
     }
 
-    // TODO(qqd) on API 23 this test causes test to be blocked and wait indefinitely. Please fix.
     @Suppress
     @Test(expected = java.lang.IndexOutOfBoundsException::class)
     fun getBoundingBox_ltr_textPosition_larger_than_length_throw_exception() {

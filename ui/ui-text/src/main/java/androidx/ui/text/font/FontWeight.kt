@@ -30,8 +30,6 @@ import androidx.ui.lerp
     internal val weight: Int
 ) : Comparable<FontWeight> {
 
-    // TODO(siyamed): This is weird since it should actually be possible to create a font
-    //  weight that is not one of the items here. This decision changes the lerp behavior.
     companion object {
         /** Thin, the minimum thickness */
         val W100 = FontWeight(100)
@@ -110,8 +108,6 @@ import androidx.ui.lerp
  * Values for [fraction] are usually obtained from an [Animation<Float>], such as
  * an `AnimationController`.
  */
-// TODO(siyamed): These should not accept nullable arguments
-// TODO(siyamed): This should be in the file, not a Companion function
 fun lerp(start: FontWeight?, stop: FontWeight?, fraction: Float): FontWeight {
     val index = lerp(
         start?.index ?: FontWeight.Normal.index,

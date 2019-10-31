@@ -156,8 +156,6 @@ private fun <T> lerpDiscrete(a: T?, b: T?, t: Float): T? = if (t < 0.5) a else b
  * between [start] and [stop]. The interpolation can be extrapolated beyond 0.0 and
  * 1.0, so negative values and values greater than 1.0 are valid.
  */
-// TODO(siyamed): This should not accept nullable values
-// TODO(siyamed): This should be in the file level, not a companon function
 fun lerp(start: TextStyle? = null, stop: TextStyle? = null, fraction: Float): TextStyle? {
     val aIsNull = start == null
     val bIsNull = stop == null
