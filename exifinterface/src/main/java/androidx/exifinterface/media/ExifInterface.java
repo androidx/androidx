@@ -764,6 +764,63 @@ public class ExifInterface {
      */
     public static final String TAG_DATETIME_DIGITIZED = "DateTimeDigitized";
     /**
+     *  <p>A tag used to record the offset from UTC (the time difference from Universal Time
+     *  Coordinated including daylight saving time) of the time of DateTime tag. The format when
+     *  recording the offset is "±HH:MM". The part of "±" shall be recorded as "+" or "-". When
+     *  the offsets are unknown, all the character spaces except colons (":") should be filled
+     *  with blank characters, or else the Interoperability field should be filled with blank
+     *  characters. The character string length is 7 Bytes including NULL for termination. When
+     *  the field is left blank, it is treated as unknown.</p>
+     *
+     *  <ul>
+     *      <li>Tag = 36880</li>
+     *      <li>Type = String</li>
+     *      <li>Length = 7</li>
+     *      <li>Default = None</li>
+     *  </ul>
+     * @hide
+     */
+    @RestrictTo(RestrictTo.Scope.LIBRARY)
+    public static final String TAG_OFFSET_TIME = "OffsetTime";
+    /**
+     *  <p>A tag used to record the offset from UTC (the time difference from Universal Time
+     *  Coordinated including daylight saving time) of the time of DateTimeOriginal tag. The format
+     *  when recording the offset is "±HH:MM". The part of "±" shall be recorded as "+" or "-". When
+     *  the offsets are unknown, all the character spaces except colons (":") should be filled
+     *  with blank characters, or else the Interoperability field should be filled with blank
+     *  characters. The character string length is 7 Bytes including NULL for termination. When
+     *  the field is left blank, it is treated as unknown.</p>
+     *
+     *  <ul>
+     *      <li>Tag = 36881</li>
+     *      <li>Type = String</li>
+     *      <li>Length = 7</li>
+     *      <li>Default = None</li>
+     *  </ul>
+     * @hide
+     */
+    @RestrictTo(RestrictTo.Scope.LIBRARY)
+    public static final String TAG_OFFSET_TIME_ORIGINAL = "OffsetTimeOriginal";
+    /**
+     *  <p>A tag used to record the offset from UTC (the time difference from Universal Time
+     *  Coordinated including daylight saving time) of the time of DateTimeDigitized tag. The format
+     *  when recording the offset is "±HH:MM". The part of "±" shall be recorded as "+" or "-". When
+     *  the offsets are unknown, all the character spaces except colons (":") should be filled
+     *  with blank characters, or else the Interoperability field should be filled with blank
+     *  characters. The character string length is 7 Bytes including NULL for termination. When
+     *  the field is left blank, it is treated as unknown.</p>
+     *
+     *  <ul>
+     *      <li>Tag = 36882</li>
+     *      <li>Type = String</li>
+     *      <li>Length = 7</li>
+     *      <li>Default = None</li>
+     *  </ul>
+     * @hide
+     */
+    @RestrictTo(RestrictTo.Scope.LIBRARY)
+    public static final String TAG_OFFSET_TIME_DIGITIZED = "OffsetTimeDigitized";
+    /**
      *  <p>A tag used to record fractions of seconds for {@link #TAG_DATETIME}.</p>
      *
      *  <ul>
@@ -3475,9 +3532,18 @@ public class ExifInterface {
             new ExifTag(TAG_SPECTRAL_SENSITIVITY, 34852, IFD_FORMAT_STRING),
             new ExifTag(TAG_PHOTOGRAPHIC_SENSITIVITY, 34855, IFD_FORMAT_USHORT),
             new ExifTag(TAG_OECF, 34856, IFD_FORMAT_UNDEFINED),
+            new ExifTag(TAG_SENSITIVITY_TYPE, 34864, IFD_FORMAT_USHORT),
+            new ExifTag(TAG_STANDARD_OUTPUT_SENSITIVITY, 34865, IFD_FORMAT_ULONG),
+            new ExifTag(TAG_RECOMMENDED_EXPOSURE_INDEX, 34866, IFD_FORMAT_ULONG),
+            new ExifTag(TAG_ISO_SPEED, 34867, IFD_FORMAT_ULONG),
+            new ExifTag(TAG_ISO_SPEED_LATITUDE_YYY, 34868, IFD_FORMAT_ULONG),
+            new ExifTag(TAG_ISO_SPEED_LATITUDE_ZZZ, 34869, IFD_FORMAT_ULONG),
             new ExifTag(TAG_EXIF_VERSION, 36864, IFD_FORMAT_STRING),
             new ExifTag(TAG_DATETIME_ORIGINAL, 36867, IFD_FORMAT_STRING),
             new ExifTag(TAG_DATETIME_DIGITIZED, 36868, IFD_FORMAT_STRING),
+            new ExifTag(TAG_OFFSET_TIME, 36880, IFD_FORMAT_STRING),
+            new ExifTag(TAG_OFFSET_TIME_ORIGINAL, 36881, IFD_FORMAT_STRING),
+            new ExifTag(TAG_OFFSET_TIME_DIGITIZED, 36882, IFD_FORMAT_STRING),
             new ExifTag(TAG_COMPONENTS_CONFIGURATION, 37121, IFD_FORMAT_UNDEFINED),
             new ExifTag(TAG_COMPRESSED_BITS_PER_PIXEL, 37122, IFD_FORMAT_URATIONAL),
             new ExifTag(TAG_SHUTTER_SPEED_VALUE, 37377, IFD_FORMAT_SRATIONAL),
@@ -3526,6 +3592,12 @@ public class ExifInterface {
             new ExifTag(TAG_DEVICE_SETTING_DESCRIPTION, 41995, IFD_FORMAT_UNDEFINED),
             new ExifTag(TAG_SUBJECT_DISTANCE_RANGE, 41996, IFD_FORMAT_USHORT),
             new ExifTag(TAG_IMAGE_UNIQUE_ID, 42016, IFD_FORMAT_STRING),
+            new ExifTag(TAG_CAMERA_OWNER_NAME, 42032, IFD_FORMAT_STRING),
+            new ExifTag(TAG_BODY_SERIAL_NUMBER, 42033, IFD_FORMAT_STRING),
+            new ExifTag(TAG_LENS_SPECIFICATION, 42034, IFD_FORMAT_URATIONAL),
+            new ExifTag(TAG_LENS_MAKE, 42035, IFD_FORMAT_STRING),
+            new ExifTag(TAG_LENS_MODEL, 42036, IFD_FORMAT_STRING),
+            new ExifTag(TAG_GAMMA, 42240, IFD_FORMAT_URATIONAL),
             new ExifTag(TAG_DNG_VERSION, 50706, IFD_FORMAT_BYTE),
             new ExifTag(TAG_DEFAULT_CROP_SIZE, 50720, IFD_FORMAT_USHORT, IFD_FORMAT_ULONG)
     };
@@ -3562,7 +3634,8 @@ public class ExifInterface {
             new ExifTag(TAG_GPS_PROCESSING_METHOD, 27, IFD_FORMAT_UNDEFINED),
             new ExifTag(TAG_GPS_AREA_INFORMATION, 28, IFD_FORMAT_UNDEFINED),
             new ExifTag(TAG_GPS_DATESTAMP, 29, IFD_FORMAT_STRING),
-            new ExifTag(TAG_GPS_DIFFERENTIAL, 30, IFD_FORMAT_USHORT)
+            new ExifTag(TAG_GPS_DIFFERENTIAL, 30, IFD_FORMAT_USHORT),
+            new ExifTag(TAG_GPS_H_POSITIONING_ERROR, 31, IFD_FORMAT_URATIONAL)
     };
     // Primary image IFD Interoperability tag (See JEITA CP-3451C Section 4.6.8 Tag Support Levels)
     private static final ExifTag[] IFD_INTEROPERABILITY_TAGS = new ExifTag[] {
