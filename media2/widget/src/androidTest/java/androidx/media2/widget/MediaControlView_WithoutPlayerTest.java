@@ -61,8 +61,6 @@ public class MediaControlView_WithoutPlayerTest extends MediaWidgetTestBase {
         mActivity = mActivityRule.getActivity();
         mMediaControlView = mActivity.findViewById(
                 androidx.media2.widget.test.R.id.mediacontrolview);
-
-        setKeepScreenOn(mActivityRule);
         checkAttachedToWindow(mMediaControlView);
     }
 

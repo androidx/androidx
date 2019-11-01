@@ -95,8 +95,6 @@ public class MediaControlView_WithPlayerTest extends MediaWidgetTestBase {
         Uri fileSchemeUri = Uri.parse("android.resource://" + mContext.getPackageName() + "/"
                 + androidx.media2.widget.test.R.raw.test_file_scheme_video);
         mFileSchemeMediaItem = createTestMediaItem(fileSchemeUri);
-
-        setKeepScreenOn(mActivityRule);
         checkAttachedToWindow(mMediaControlView);
     }
 

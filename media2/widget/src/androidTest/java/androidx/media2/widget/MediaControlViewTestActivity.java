@@ -35,6 +35,7 @@ public class MediaControlViewTestActivity extends FragmentActivity {
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+        TestUtils.setKeepScreenOn(this);
         setContentView(R.layout.mediacontrolviewtest_layout);
         mSurfaceView = findViewById(R.id.surfaceview);
     }
