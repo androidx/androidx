@@ -179,6 +179,7 @@ public abstract class CursorAdapter extends BaseAdapter implements Filterable,
 
     @SuppressWarnings("deprecation")
     void init(Context context, Cursor c, int flags) {
+        // Maintained for compatibility.
         if ((flags & FLAG_AUTO_REQUERY) == FLAG_AUTO_REQUERY) {
             flags |= FLAG_REGISTER_CONTENT_OBSERVER;
             mAutoRequery = true;

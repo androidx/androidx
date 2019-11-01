@@ -222,6 +222,7 @@ class CaptureViewOnTouchListener
 
     private void broadcastPicture(File file) {
         if (Build.VERSION.SDK_INT < 24) {
+            @SuppressWarnings("deprecation")
             Intent intent = new Intent(Camera.ACTION_NEW_PICTURE);
             intent.setData(Uri.fromFile(file));
             mCameraView.getContext().sendBroadcast(intent);
@@ -234,6 +235,7 @@ class CaptureViewOnTouchListener
 
     private void broadcastVideo(File file) {
         if (Build.VERSION.SDK_INT < 24) {
+            @SuppressWarnings("deprecation")
             Intent intent = new Intent(Camera.ACTION_NEW_VIDEO);
             intent.setData(Uri.fromFile(file));
             mCameraView.getContext().sendBroadcast(intent);

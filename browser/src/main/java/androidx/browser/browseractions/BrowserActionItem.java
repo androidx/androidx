@@ -33,6 +33,7 @@ import androidx.annotation.RestrictTo;
  *
  * @deprecated Browser Actions are deprecated as of release 1.2.0.
  */
+@SuppressWarnings("deprecation")
 @Deprecated
 public class BrowserActionItem {
     private final String mTitle;

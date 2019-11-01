@@ -75,6 +75,7 @@ public final class AudioManagerCompat {
      *     AudioManager#AUDIOFOCUS_REQUEST_GRANTED}.
      * @throws NullPointerException if passed a null argument
      */
+    @SuppressWarnings("deprecation")
     public static int requestAudioFocus(
             @NonNull AudioManager audioManager, @NonNull AudioFocusRequestCompat focusRequest) {
         if (audioManager == null) {
@@ -103,6 +104,7 @@ public final class AudioManagerCompat {
      *     AudioManager#AUDIOFOCUS_REQUEST_GRANTED}
      * @throws IllegalArgumentException if passed a null argument
      */
+    @SuppressWarnings("deprecation")
     public static int abandonAudioFocusRequest(
             @NonNull AudioManager audioManager, @NonNull AudioFocusRequestCompat focusRequest) {
         if (audioManager == null) {

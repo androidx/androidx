@@ -40,6 +40,7 @@ public final class AccessibilityManagerCompat {
      * @deprecated Use {@link AccessibilityManager#addAccessibilityStateChangeListener(
      *             AccessibilityManager.AccessibilityStateChangeListener)} directly.
      */
+    @SuppressWarnings("deprecation")
     @Deprecated
     public static boolean addAccessibilityStateChangeListener(AccessibilityManager manager,
             AccessibilityStateChangeListener listener) {
@@ -60,6 +61,7 @@ public final class AccessibilityManagerCompat {
      * @deprecated Use {@link AccessibilityManager#removeAccessibilityStateChangeListener(
      *             AccessibilityManager.AccessibilityStateChangeListener)} directly.
      */
+    @SuppressWarnings("deprecation")
     @Deprecated
     public static boolean removeAccessibilityStateChangeListener(AccessibilityManager manager,
             AccessibilityStateChangeListener listener) {
@@ -70,6 +72,7 @@ public final class AccessibilityManagerCompat {
                 new AccessibilityStateChangeListenerWrapper(listener));
     }
 
+    @SuppressWarnings("deprecation")
     private static class AccessibilityStateChangeListenerWrapper
             implements AccessibilityManager.AccessibilityStateChangeListener {
         AccessibilityStateChangeListener mListener;
@@ -232,6 +235,7 @@ public final class AccessibilityManagerCompat {
      * @deprecated Use {@link AccessibilityManager.AccessibilityStateChangeListener} directly
      * instead of this listener.
      */
+    @SuppressWarnings("deprecation")
     @Deprecated
     public static abstract class AccessibilityStateChangeListenerCompat
             implements AccessibilityStateChangeListener {
