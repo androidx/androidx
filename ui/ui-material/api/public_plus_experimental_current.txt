@@ -401,7 +401,7 @@ package androidx.ui.material.surface {
 
   public final class SurfaceKt {
     ctor public SurfaceKt();
-    method public static void Surface(androidx.ui.engine.geometry.Shape shape = RectangleShape, androidx.ui.graphics.Color color = +themeColor({ 
+    method public static void Surface(androidx.ui.core.Modifier modifier = Modifier.None, androidx.ui.engine.geometry.Shape shape = RectangleShape, androidx.ui.graphics.Color color = +themeColor({ 
     surface
 }), androidx.ui.foundation.shape.border.Border? border = null, androidx.ui.core.Dp elevation = 0.dp, kotlin.jvm.functions.Function0<kotlin.Unit> children);
     method public static androidx.compose.Ambient<androidx.ui.graphics.Color> getCurrentBackground();
