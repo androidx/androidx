@@ -17,6 +17,7 @@
 package androidx.sqlite.inspection
 
 import android.database.sqlite.SQLiteDatabase
+import android.database.sqlite.SQLiteOpenHelper
 import androidx.inspection.InspectorEnvironment
 import androidx.inspection.InspectorEnvironment.EntryHook
 import androidx.inspection.InspectorEnvironment.ExitHook
@@ -27,18 +28,24 @@ import androidx.sqlite.inspection.SqliteInspectorProtocol.TrackDatabasesCommand
 import androidx.sqlite.inspection.SqliteInspectorProtocol.TrackDatabasesResponse
 import androidx.sqlite.inspection.SqliteInspectorTest.FakeInspectorEnvironment.RegisterHookEntry.EntryHookEntry
 import androidx.sqlite.inspection.SqliteInspectorTest.FakeInspectorEnvironment.RegisterHookEntry.ExitHookEntry
+import androidx.test.core.app.ApplicationProvider
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import androidx.test.filters.MediumTest
 import com.google.common.truth.Truth.assertThat
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.runBlocking
+import org.junit.Rule
 import org.junit.Test
+import org.junit.rules.TemporaryFolder
 import org.junit.runner.RunWith
 
 @MediumTest
 @RunWith(AndroidJUnit4::class)
 @ExperimentalCoroutinesApi
 class SqliteInspectorTest {
+    @get:Rule
+    val tempDirectory = TemporaryFolder()
+
     @Test
     fun test_basic_proto() {
         val command = createTrackDatabasesCommand()
@@ -66,23 +73,37 @@ class SqliteInspectorTest {
         assertThat(environment.consumeRegisteredHooks()).isEmpty()
 
         // evaluate response
-        val responseBytes = inspectorTester.sendCommand(createTrackDatabasesCommand().toByteArray())
-        assertThat(responseBytes).isNotEmpty()
-        val response = Response.parseFrom(responseBytes)
-        assertThat(response).isEqualTo(createTrackDatabasesResponse())
+        inspectorTester.sendCommand(createTrackDatabasesCommand().toByteArray())
+            .let { responseBytes ->
+                assertThat(responseBytes).isNotEmpty()
+                val response = Response.parseFrom(responseBytes)
+                assertThat(response).isEqualTo(createTrackDatabasesResponse())
+            }
 
         // evaluate registered hooks
         val hookEntries = environment.consumeRegisteredHooks()
         assertThat(hookEntries).hasSize(1)
-        hookEntries.first().apply {
-            assertThat(originClass.name).isEqualTo(SQLiteDatabase::class.java.name)
-            assertThat(originMethod).isEqualTo(SqliteInspector.sOpenDatabaseCommandSignature)
-            assertThat(this).isInstanceOf(ExitHookEntry::class.java)
-            // TODO: verify newly-open-database events sent (by calling the registered hook)
+        hookEntries.first().let { entry ->
+            // expect one exit hook tracking database open events
+            assertThat(entry).isInstanceOf(ExitHookEntry::class.java)
+            assertThat(entry.originClass.name).isEqualTo(SQLiteDatabase::class.java.name)
+            assertThat(entry.originMethod).isEqualTo(SqliteInspector.sOpenDatabaseCommandSignature)
+
+            // verify that executing the registered hook will result in tracking events
+            assertThat(inspectorTester.channel.isEmpty).isTrue()
+            @Suppress("UNCHECKED_CAST")
+            val exitHook = (entry as ExitHookEntry).exitHook as ExitHook<SQLiteDatabase>
+            val database = createDatabase("db")
+            assertThat(exitHook.onExit(database)).isSameInstanceAs(database)
+            inspectorTester.channel.receive().let { responseBytes ->
+                assertThat(responseBytes).isNotEmpty()
+                val response = SqliteInspectorProtocol.Event.parseFrom(responseBytes)
+                assertThat(response.hasDatabaseOpened()).isTrue()
+                assertThat(response.databaseOpened.name).isEqualTo(database.path)
+            }
         }
 
         // TODO: verify already-open-database events sent
-
         assertThat(environment.consumeRegisteredHooks()).isEmpty()
         inspectorTester.dispose()
     }
@@ -92,6 +113,16 @@ class SqliteInspectorTest {
 
     private fun createTrackDatabasesResponse(): Response =
         Response.newBuilder().setTrackDatabases(TrackDatabasesResponse.getDefaultInstance()).build()
+
+    private fun createDatabase(databaseName: String): SQLiteDatabase {
+        val context = ApplicationProvider.getApplicationContext() as android.content.Context
+        val path = tempDirectory.newFile(databaseName).absolutePath
+        val openHelper = object : SQLiteOpenHelper(context, path, null, 1) {
+            override fun onCreate(db: SQLiteDatabase?) = Unit
+            override fun onUpgrade(db: SQLiteDatabase?, oldVersion: Int, newVersion: Int) = Unit
+        }
+        return openHelper.readableDatabase
+    }
 
     /**
      * Fake inspector environment with the following behaviour:

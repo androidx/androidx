@@ -56,7 +56,10 @@ message TrackDatabasesResponse {}
 // Connection's sendEvent method.
 message Event {
   // Wrapped specialised Event.
-  oneof union { DatabaseOpenedEvent database_opened = 1; }
+  oneof union {
+    DatabaseOpenedEvent database_opened = 1;
+    ErrorOccurredEvent error_occurred = 2;
+  }
 }
 
 // Notification of a database connection established (new) / discovered
@@ -69,4 +72,13 @@ message DatabaseOpenedEvent {
   // a vanilla SQLite database a path to the database. Note: it is not
   // necessarily unique between databases.
   string name = 2;
+}
+
+// General Error message
+// TODO: decide on a more fine-grained approach
+message ErrorOccurredEvent {
+  // Main error message.
+  string message = 1;
+  // Optional stack trace.
+  string stack_trace = 2;
 }
