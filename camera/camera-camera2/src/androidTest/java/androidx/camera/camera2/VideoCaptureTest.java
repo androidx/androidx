@@ -40,6 +40,7 @@ import androidx.camera.testing.CameraUtil;
 import androidx.test.InstrumentationRegistry;
 import androidx.test.core.app.ApplicationProvider;
 import androidx.test.ext.junit.runners.AndroidJUnit4;
+import androidx.test.filters.FlakyTest;
 import androidx.test.filters.LargeTest;
 import androidx.test.rule.GrantPermissionRule;
 
@@ -63,6 +64,7 @@ import java.util.concurrent.ExecutionException;
  * <p>TODO(b/112325215): The VideoCapture will be more thoroughly tested via integration
  * tests
  */
+@FlakyTest
 @LargeTest
 @RunWith(AndroidJUnit4.class)
 public final class VideoCaptureTest {
