@@ -59,7 +59,7 @@ fun Switch(
 ) {
     Wrap {
         Ripple(bounded = false) {
-            Toggleable(checked = checked, onCheckedChange = onCheckedChange) {
+            Toggleable(value = checked, onValueChange = onCheckedChange) {
                 Padding(padding = DefaultSwitchPadding) {
                     SwitchImpl(checked, onCheckedChange, color)
                 }

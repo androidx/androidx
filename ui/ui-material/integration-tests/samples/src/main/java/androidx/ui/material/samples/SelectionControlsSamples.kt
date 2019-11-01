@@ -44,13 +44,13 @@ fun TriStateCheckboxSample() {
 
         // TriStateCheckbox state reflects state of dependent checkboxes
         val parentState = +memo(state, state2) {
-            if (state && state2) ToggleableState.Checked
-            else if (!state && !state2) ToggleableState.Unchecked
+            if (state && state2) ToggleableState.On
+            else if (!state && !state2) ToggleableState.Off
             else ToggleableState.Indeterminate
         }
         // click on TriStateCheckbox can set state for dependent checkboxes
         val onParentClick = {
-            val s = parentState != ToggleableState.Checked
+            val s = parentState != ToggleableState.On
             onStateChange(s)
             onStateChange2(s)
         }

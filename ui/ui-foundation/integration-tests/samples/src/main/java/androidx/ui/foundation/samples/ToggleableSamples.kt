@@ -29,7 +29,7 @@ import androidx.ui.foundation.selection.TriStateToggleable
 @Composable
 fun ToggleableSample() {
     var checked by +state { false }
-    Toggleable(checked = checked, onCheckedChange = { checked = it }) {
+    Toggleable(value = checked, onValueChange = { checked = it }) {
         // content that you want to make toggleable
         Text(text = checked.toString())
     }
@@ -43,10 +43,10 @@ fun TriStateToggleableSample() {
         value = checked,
         onToggle = {
             checked =
-                if (checked == ToggleableState.Checked) {
-                    ToggleableState.Unchecked
+                if (checked == ToggleableState.On) {
+                    ToggleableState.Off
                 } else {
-                    ToggleableState.Checked
+                    ToggleableState.On
                 }
         }) {
         // content that you want to make toggleable

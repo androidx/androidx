@@ -20,12 +20,12 @@ import androidx.ui.core.SemanticsTreeNode
 
 /**
  * Represents a component with which one can interact with the hierarchy.
- * Examples of interactions include [findByTag], [isToggleable], [assertIsChecked], [doClick]
+ * Examples of interactions include [findByTag], [isToggleable], [assertIsOn], [doClick]
  *
  * Example usage:
  * findByTag("myCheckbox")
  *    .doClick()
- *    .assertIsChecked()
+ *    .assertIsOn()
  */
 class SemanticsNodeInteraction internal constructor(
     internal val semanticsTreeNode: SemanticsTreeNode,

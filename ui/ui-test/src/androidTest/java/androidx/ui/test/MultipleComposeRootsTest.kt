@@ -40,13 +40,13 @@ import org.junit.runners.JUnit4
 
 // TODO: Make this inner class once @Model gets fixed.
 @Model
-class CheckboxState(var value: ToggleableState = ToggleableState.Unchecked) {
+class CheckboxState(var value: ToggleableState = ToggleableState.Off) {
     fun toggle() {
         value =
-            if (value == ToggleableState.Checked) {
-                ToggleableState.Unchecked
+            if (value == ToggleableState.On) {
+                ToggleableState.Off
             } else {
-                ToggleableState.Checked
+                ToggleableState.On
             }
     }
 }
@@ -86,8 +86,8 @@ class MultipleComposeRootsTest {
 
         activity.runOnUiThread(object : Runnable { // Workaround for lambda bug in IR
             override fun run() {
-                val state1 = CheckboxState(value = ToggleableState.Unchecked)
-                val state2 = CheckboxState(value = ToggleableState.Checked)
+                val state1 = CheckboxState(value = ToggleableState.Off)
+                val state2 = CheckboxState(value = ToggleableState.On)
 
                 val linearLayout = LinearLayout(activity)
                     .apply { orientation = LinearLayout.VERTICAL }
@@ -153,22 +153,22 @@ class MultipleComposeRootsTest {
 
         findByTag("checkbox1")
             .doClick()
-            .assertIsChecked()
+            .assertIsOn()
 
         findByTag("checkbox2")
-            .assertIsUnchecked()
+            .assertIsOff()
 
-        Espresso.onView(withText("Compose 1 - Checked")).check(matches(isDisplayed()))
-        Espresso.onView(withText("Compose 2 - Unchecked")).check(matches(isDisplayed()))
+        Espresso.onView(withText("Compose 1 - On")).check(matches(isDisplayed()))
+        Espresso.onView(withText("Compose 2 - Off")).check(matches(isDisplayed()))
 
         findByTag("checkbox2")
             .doClick()
-            .assertIsUnchecked()
+            .assertIsOff()
 
         findByTag("checkbox1")
-            .assertIsChecked()
+            .assertIsOn()
 
-        Espresso.onView(withText("Compose 1 - Checked")).check(matches(isDisplayed()))
-        Espresso.onView(withText("Compose 2 - Unchecked")).check(matches(isDisplayed()))
+        Espresso.onView(withText("Compose 1 - On")).check(matches(isDisplayed()))
+        Espresso.onView(withText("Compose 2 - Off")).check(matches(isDisplayed()))
     }
 }

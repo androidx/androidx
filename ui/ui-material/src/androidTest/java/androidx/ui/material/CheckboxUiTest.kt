@@ -22,15 +22,15 @@ import androidx.ui.core.TestTag
 import androidx.ui.core.dp
 import androidx.ui.foundation.Strings
 import androidx.ui.foundation.selection.ToggleableState
-import androidx.ui.foundation.selection.ToggleableState.Checked
+import androidx.ui.foundation.selection.ToggleableState.On
 import androidx.ui.foundation.selection.ToggleableState.Indeterminate
-import androidx.ui.foundation.selection.ToggleableState.Unchecked
+import androidx.ui.foundation.selection.ToggleableState.Off
 import androidx.ui.foundation.semantics.toggleableState
 import androidx.ui.layout.Column
 import androidx.ui.semantics.accessibilityValue
 import androidx.ui.test.assertHasNoClickAction
-import androidx.ui.test.assertIsChecked
-import androidx.ui.test.assertIsUnchecked
+import androidx.ui.test.assertIsOn
+import androidx.ui.test.assertIsOff
 import androidx.ui.test.assertSemanticsIsEqualTo
 import androidx.ui.test.copyWith
 import androidx.ui.test.createComposeRule
@@ -53,12 +53,12 @@ class CheckboxUiTest {
     private val defaultCheckboxCheckedSemantics = createFullSemantics(
         isEnabled = true,
         value = Strings.Checked,
-        toggleableState = Checked
+        toggleableState = On
     )
 
     private val defaultCheckboxUncheckedSemantics = defaultCheckboxCheckedSemantics.copyWith {
         accessibilityValue = Strings.Unchecked
-        toggleableState = Unchecked
+        toggleableState = Off
     }
 
     private val defaultTag = "myCheckbox"
@@ -93,9 +93,9 @@ class CheckboxUiTest {
         }
 
         findByTag(defaultTag)
-            .assertIsUnchecked()
+            .assertIsOff()
             .doClick()
-            .assertIsChecked()
+            .assertIsOn()
     }
 
     @Test
@@ -108,11 +108,11 @@ class CheckboxUiTest {
         }
 
         findByTag(defaultTag)
-            .assertIsUnchecked()
+            .assertIsOff()
             .doClick()
-            .assertIsChecked()
+            .assertIsOn()
             .doClick()
-            .assertIsUnchecked()
+            .assertIsOff()
     }
 
     @Test
@@ -131,12 +131,12 @@ class CheckboxUiTest {
 
     @Test
     fun checkBoxTest_MaterialSize_WhenChecked() {
-        materialSizeTestForValue(Checked)
+        materialSizeTestForValue(On)
     }
 
     @Test
     fun checkBoxTest_MaterialSize_WhenUnchecked() {
-        materialSizeTestForValue(Unchecked)
+        materialSizeTestForValue(Off)
     }
 
     @Test

@@ -213,13 +213,13 @@ private val CheckStrokeAnimationDuration = 100
 
 private fun generateTransitionDefinition(color: Color, unselectedColor: Color) =
     transitionDefinition {
-        state(ToggleableState.Checked) {
+        state(ToggleableState.On) {
             this[CheckFractionProp] = 1f
             this[InnerRadiusFractionProp] = 1f
             this[CenterGravitationForCheck] = 0f
             this[BoxColorProp] = color
         }
-        state(ToggleableState.Unchecked) {
+        state(ToggleableState.Off) {
             this[CheckFractionProp] = 0f
             this[InnerRadiusFractionProp] = 0f
             this[CenterGravitationForCheck] = 1f
@@ -231,26 +231,26 @@ private fun generateTransitionDefinition(color: Color, unselectedColor: Color) =
             this[CenterGravitationForCheck] = 1f
             this[BoxColorProp] = color
         }
-        transition(fromState = ToggleableState.Unchecked, toState = ToggleableState.Checked) {
+        transition(fromState = ToggleableState.Off, toState = ToggleableState.On) {
             boxTransitionFromUnchecked()
             CenterGravitationForCheck using snap()
         }
-        transition(fromState = ToggleableState.Checked, toState = ToggleableState.Unchecked) {
+        transition(fromState = ToggleableState.On, toState = ToggleableState.Off) {
             boxTransitionToUnchecked()
             CenterGravitationForCheck using tween {
                 duration = CheckStrokeAnimationDuration
             }
         }
-        transition(ToggleableState.Checked to ToggleableState.Indeterminate,
-            ToggleableState.Indeterminate to ToggleableState.Checked) {
+        transition(ToggleableState.On to ToggleableState.Indeterminate,
+            ToggleableState.Indeterminate to ToggleableState.On) {
             CenterGravitationForCheck using tween {
                 duration = CheckStrokeAnimationDuration
             }
         }
-        transition(fromState = ToggleableState.Indeterminate, toState = ToggleableState.Unchecked) {
+        transition(fromState = ToggleableState.Indeterminate, toState = ToggleableState.Off) {
             boxTransitionToUnchecked()
         }
-        transition(fromState = ToggleableState.Unchecked, toState = ToggleableState.Indeterminate) {
+        transition(fromState = ToggleableState.Off, toState = ToggleableState.Indeterminate) {
             boxTransitionFromUnchecked()
         }
     }
