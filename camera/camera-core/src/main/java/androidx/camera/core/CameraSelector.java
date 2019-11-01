@@ -111,9 +111,10 @@ public final class CameraSelector {
 
     /** Builder for a {@link CameraSelector}. */
     public static final class Builder {
-        private LinkedHashSet<CameraIdFilter> mCameraFilterSet = new LinkedHashSet<>();
+        private final LinkedHashSet<CameraIdFilter> mCameraFilterSet;
 
         public Builder() {
+            mCameraFilterSet = new LinkedHashSet<>();
         }
 
         private Builder(@NonNull LinkedHashSet<CameraIdFilter> cameraFilterSet) {
@@ -130,6 +131,17 @@ public final class CameraSelector {
         public Builder requireLensFacing(@NonNull LensFacing lensFacing) {
             CameraIdFilter cameraFilter = LensFacingCameraIdFilter.createLensFacingCameraIdFilter(
                     lensFacing);
+            mCameraFilterSet.add(cameraFilter);
+            return this;
+        }
+
+        /**
+         * Appends a CameraIdFilter to the current set of filters.
+         * @hide
+         */
+        @RestrictTo(Scope.LIBRARY_GROUP)
+        @NonNull
+        public Builder appendFilter(@NonNull CameraIdFilter cameraFilter) {
             mCameraFilterSet.add(cameraFilter);
             return this;
         }

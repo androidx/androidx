@@ -121,4 +121,19 @@ public class CameraSelectorTest {
                 LensFacing.FRONT);
         cameraSelectorBuilder.build().getLensFacing();
     }
+
+    @Test
+    public void canAppendFilters() {
+        CameraIdFilter filter0 = mock(CameraIdFilter.class);
+        CameraIdFilter filter1 = mock(CameraIdFilter.class);
+        CameraIdFilter filter2 = mock(CameraIdFilter.class);
+
+        CameraSelector cameraSelector = new CameraSelector.Builder()
+                .appendFilter(filter0)
+                .appendFilter(filter1)
+                .appendFilter(filter2)
+                .build();
+
+        assertThat(cameraSelector.getCameraFilterSet()).containsAtLeast(filter0, filter1, filter2);
+    }
 }
