@@ -42,6 +42,7 @@ import androidx.annotation.Nullable;
 import androidx.annotation.RestrictTo;
 import androidx.core.R;
 import androidx.core.accessibilityservice.AccessibilityServiceInfoCompat;
+import androidx.core.os.BuildCompat;
 import androidx.core.view.ViewCompat;
 import androidx.core.view.accessibility.AccessibilityViewCommand.CommandArguments;
 import androidx.core.view.accessibility.AccessibilityViewCommand.MoveAtGranularityArguments;
@@ -1184,6 +1185,9 @@ public class AccessibilityNodeInfoCompat {
 
     private static final String SPANS_ACTION_ID_KEY =
             "androidx.view.accessibility.AccessibilityNodeInfoCompat.SPANS_ACTION_ID_KEY";
+
+    private static final String STATE_DESCRIPTION_KEY =
+            "androidx.view.accessibility.AccessibilityNodeInfoCompat.STATE_DESCRIPTION_KEY";
 
     // These don't line up with the internal framework constants, since they are independent
     // and we might as well get all 32 bits of utility here.
@@ -2753,6 +2757,21 @@ public class AccessibilityNodeInfoCompat {
     }
 
     /**
+     * Gets the state description of this node.
+     *
+     * @return the state description or null if android version smaller
+     * than 19.
+     */
+    public @Nullable CharSequence getStateDescription() {
+        if (BuildCompat.isAtLeastR()) {
+            return mInfo.getStateDescription();
+        } else if (Build.VERSION.SDK_INT >= 19) {
+            return mInfo.getExtras().getCharSequence(STATE_DESCRIPTION_KEY);
+        }
+        return null;
+    }
+
+    /**
      * Sets the content description of this node.
      * <p>
      * <strong>Note:</strong> Cannot be called from an
@@ -2765,6 +2784,25 @@ public class AccessibilityNodeInfoCompat {
      */
     public void setContentDescription(CharSequence contentDescription) {
         mInfo.setContentDescription(contentDescription);
+    }
+
+    /**
+     * Sets the state description of this node.
+     * <p>
+     *   <strong>Note:</strong> Cannot be called from an
+     *   {@link android.accessibilityservice.AccessibilityService}.
+     *   This class is made immutable before being delivered to an AccessibilityService.
+     * </p>
+     *
+     * @param stateDescription the state description of this node.
+     * @throws IllegalStateException If called from an AccessibilityService.
+     */
+    public void setStateDescription(@Nullable CharSequence stateDescription) {
+        if (BuildCompat.isAtLeastR()) {
+            mInfo.setStateDescription(stateDescription);
+        } else if (Build.VERSION.SDK_INT >= 19) {
+            mInfo.getExtras().putCharSequence(STATE_DESCRIPTION_KEY, stateDescription);
+        }
     }
 
     /**
