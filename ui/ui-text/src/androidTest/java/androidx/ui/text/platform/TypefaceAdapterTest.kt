@@ -480,7 +480,6 @@ class TypefaceAdapterTest {
         )
         assertThat(typeface.isItalic).isFalse()
 
-        // TODO(siyamed) ask this to Nona.
         if (Build.VERSION.SDK_INT < 23) {
             assertThat(typeface.isBold).isFalse()
         } else if (Build.VERSION.SDK_INT < 28) {
