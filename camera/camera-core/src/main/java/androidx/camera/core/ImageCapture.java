@@ -548,9 +548,9 @@ public class ImageCapture extends UseCase {
                                         image,
                                         saveLocation,
                                         rotationDegrees,
-                                        metadata.isReversedHorizontal,
-                                        metadata.isReversedVertical,
-                                        metadata.location,
+                                        metadata.isReversedHorizontal(),
+                                        metadata.isReversedVertical(),
+                                        metadata.getLocation(),
                                         executor,
                                         imageSavedCallbackWrapper));
                     }
@@ -1189,12 +1189,67 @@ public class ImageCapture extends UseCase {
          * Indicates an upside down mirroring, equivalent to a horizontal mirroring (reflection)
          * followed by a 180 degree rotation.
          */
-        public boolean isReversedHorizontal;
+        private boolean mIsReversedHorizontal;
         /** Indicates a left-right mirroring (reflection). */
-        public boolean isReversedVertical;
+        private boolean mIsReversedVertical;
         /** Data representing a geographic location. */
         @Nullable
-        public Location location;
+        private Location mLocation;
+
+        /**
+         * Gets upside-down mirroring of the capture.
+         *
+         * @return true if the capture is upside-down.
+         */
+        public boolean isReversedHorizontal() {
+            return mIsReversedHorizontal;
+        }
+
+        /**
+         * Sets upside-down mirroring of the capture.
+         *
+         * @param isReversedHorizontal true if the capture is upside-down.
+         */
+        public void setReversedHorizontal(boolean isReversedHorizontal) {
+            mIsReversedHorizontal = isReversedHorizontal;
+        }
+
+        /**
+         * Gets left-right mirroring of the capture.
+         *
+         * @return true if the capture is left-right mirrored.
+         */
+        public boolean isReversedVertical() {
+            return mIsReversedVertical;
+        }
+
+        /**
+         * Sets left-right mirroring of the capture.
+         *
+         * @param isReversedVertical true if the capture is left-right mirrored.
+         */
+        public void setReversedVertical(boolean isReversedVertical) {
+            mIsReversedVertical = isReversedVertical;
+        }
+
+        /**
+         * Gets the geographic location of the capture.
+         *
+         * @return the geographic location.
+         */
+        @Nullable
+        public Location getLocation() {
+            return mLocation;
+        }
+
+        /**
+         * Sets the geographic location of the capture.
+         *
+         * @param location the geographic location.
+         */
+        public void setLocation(@Nullable Location location) {
+            mLocation = location;
+        }
     }
 
     /**

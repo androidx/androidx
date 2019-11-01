@@ -308,7 +308,7 @@ final class CameraXModule {
         }
 
         ImageCapture.Metadata metadata = new ImageCapture.Metadata();
-        metadata.isReversedHorizontal = mCameraLensFacing == LensFacing.FRONT;
+        metadata.setReversedHorizontal(mCameraLensFacing == LensFacing.FRONT);
         mImageCapture.takePicture(saveLocation, metadata, executor, callback);
     }
 
