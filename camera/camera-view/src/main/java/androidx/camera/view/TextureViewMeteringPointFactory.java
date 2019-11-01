@@ -48,7 +48,7 @@ public class TextureViewMeteringPointFactory extends MeteringPointFactory {
      */
     @NonNull
     @Override
-    protected PointF translatePoint(float x, float y) {
+    protected PointF convertPoint(float x, float y) {
         Matrix transform = new Matrix();
         mTextureView.getTransform(transform);
 

@@ -108,7 +108,7 @@ public class SensorOrientedMeteringPointFactory extends MeteringPointFactory {
      */
     @Override
     @NonNull
-    protected PointF translatePoint(float x, float y) {
+    protected PointF convertPoint(float x, float y) {
         PointF pt = new PointF(x / mWidth, y / mHeight);
         return pt;
     }

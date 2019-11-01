@@ -30,22 +30,33 @@ import com.google.common.util.concurrent.ListenableFuture;
  */
 public interface CameraControl {
     /**
-     * Starts a focus and metering action by the {@link FocusMeteringAction}.
+     * Starts a focus and metering action configured by the {@link FocusMeteringAction}.
      *
-     * <p>The {@link FocusMeteringAction} contains the configuration of multiple 3A
-     * {@link MeteringPoint}s, auto-cancel duration and{ @link OnAutoFocusListener} to receive the
-     * auto-focus result. Check {@link FocusMeteringAction} for more details.
+     * <p>It will trigger a auto focus action and enable AF/AE/AWB metering regions. The action
+     * is configured by a {@link FocusMeteringAction} which contains the configuration of
+     * multiple AF/AE/AWB {@link MeteringPoint}s, auto-cancel duration and
+     * {@link OnAutoFocusListener} to receive the auto focus result. Check
+     * {@link FocusMeteringAction}
+     * for more details.
+     *
+     * <p>Only one {@link FocusMeteringAction} is allowed to run at a time. If multiple
+     * {@link FocusMeteringAction} are executed in a row, only the latest one will work and
+     * other actions will be cancelled.
+     *
+     * <p>If the {@link FocusMeteringAction} specifies more AF/AE/AWB regions than what is
+     * supported on current device, only the first AF/AE/AWB regions which are supported on the
+     * device will be enabled.
      *
      * @param action the {@link FocusMeteringAction} to be executed.
      */
     void startFocusAndMetering(@NonNull FocusMeteringAction action);
 
     /**
-     * Cancels current {@link FocusMeteringAction}.
+     * Cancels current {@link FocusMeteringAction} and clears AF/AE/AWB regions.
      *
-     * <p>It clears the 3A regions and update current AF mode to CONTINOUS AF (if supported).
-     * If auto-focus does not complete, it will notify the {@link OnAutoFocusListener} with
-     * isFocusLocked set to false.
+     * <p>Clear the AF/AE/AWB regions and update current AF mode to CONTINUOUS AF (if
+     * supported). If auto-focus does not complete, it will notify the
+     * {@link OnAutoFocusListener} with isFocusLocked set to false.
      */
     void cancelFocusAndMetering();
 
@@ -59,10 +70,10 @@ public interface CameraControl {
      * applications' duty to clamp the ratio.
      *
      * @return a {@link ListenableFuture} which is finished when current repeating request
-     *     result contains the requested zoom ratio. It fails with
-     *     {@link OperationCanceledException} if there is newer value being set or camera is closed.
-     *     If ratio is out of range, it fails with
-     *     {@link CameraControl.ArgumentOutOfRangeException}.
+     * result contains the requested zoom ratio. It fails with
+     * {@link OperationCanceledException} if there is newer value being set or camera is closed.
+     * If ratio is out of range, it fails with
+     * {@link CameraControl.ArgumentOutOfRangeException}.
      */
     @NonNull
     ListenableFuture<Void> setZoomRatio(float ratio);
@@ -78,10 +89,10 @@ public interface CameraControl {
      * applications' duty to clamp the zoomPercentage within [0..1].
      *
      * @return a {@link ListenableFuture} which is finished when current repeating request
-     *     result contains the requested zoom percentage. It fails with
-     *     {@link OperationCanceledException} if there is newer value being set or camera is closed.
-     *     If percentage is out of range, it fails with
-     *     {@link CameraControl.ArgumentOutOfRangeException}.
+     * result contains the requested zoom percentage. It fails with
+     * {@link OperationCanceledException} if there is newer value being set or camera is closed.
+     * If percentage is out of range, it fails with
+     * {@link CameraControl.ArgumentOutOfRangeException}.
      */
     @NonNull
     ListenableFuture<Void> setZoomPercentage(@FloatRange(from = 0f, to = 1f) float percentage);
