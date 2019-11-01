@@ -54,6 +54,7 @@ dependencies {
     // Internal library
     implementation(project(":camera:camera-camera2"))
     implementation(project(":camera:camera-core"))
+    implementation(project(":camera:camera-lifecycle"))
     implementation(project(":lifecycle:lifecycle-extensions"))
     implementation(GUAVA_LISTENABLE_FUTURE)
     implementation("androidx.concurrent:concurrent-futures:1.0.0")

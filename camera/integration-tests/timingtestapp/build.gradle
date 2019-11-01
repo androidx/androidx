@@ -54,6 +54,7 @@ dependencies {
     // Internal library
     implementation(project(":camera:camera-camera2"))
     implementation(project(":camera:camera-core"))
+    implementation(project(":camera:camera-lifecycle"))
 
     // Android support library
     implementation(project(":fragment:fragment"))
