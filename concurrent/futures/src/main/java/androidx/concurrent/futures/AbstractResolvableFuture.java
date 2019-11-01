@@ -844,8 +844,11 @@ public abstract class AbstractResolvableFuture<V> implements ListenableFuture<V>
 
     /**
      * internal dependency on other /util/concurrent classes.
+     *
+     * @hide
      */
-    private static <V> V getUninterruptibly(Future<V> future) throws ExecutionException {
+    @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
+    static <V> V getUninterruptibly(Future<V> future) throws ExecutionException {
         boolean interrupted = false;
         try {
             while (true) {
