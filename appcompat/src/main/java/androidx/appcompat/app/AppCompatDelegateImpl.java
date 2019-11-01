@@ -2182,6 +2182,7 @@ class AppCompatDelegateImpl extends AppCompatDelegate
         return applyDayNight(true, null);
     }
 
+    @SuppressWarnings("deprecation")
     private boolean applyDayNight(final boolean allowRecreation,
             @Nullable Configuration configOverlay) {
         if (mIsDestroyed) {
@@ -2222,6 +2223,7 @@ class AppCompatDelegateImpl extends AppCompatDelegate
         return mLocalNightMode;
     }
 
+    @SuppressWarnings("deprecation")
     @ApplyableNightMode
     int mapNightMode(@NightMode final int mode) {
         switch (mode) {

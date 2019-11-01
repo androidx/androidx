@@ -948,6 +948,7 @@ public class AccessibilityNodeInfoCompat {
          * @return If the item is a heading.
          * @deprecated Use {@link AccessibilityNodeInfoCompat#isHeading()}
          */
+        @SuppressWarnings("deprecation")
         @Deprecated
         public boolean isHeading() {
             if (Build.VERSION.SDK_INT >= 19) {
@@ -1612,6 +1613,7 @@ public class AccessibilityNodeInfoCompat {
      * @param object The info to wrap.
      * @return A wrapper for if the object is not null, null otherwise.
      */
+    @SuppressWarnings("deprecation")
     static AccessibilityNodeInfoCompat wrapNonNullInstance(Object object) {
         if (object != null) {
             return new AccessibilityNodeInfoCompat(object);
@@ -3817,6 +3819,7 @@ public class AccessibilityNodeInfoCompat {
      *
      * @return {@code true} if the node is a heading, {@code false} otherwise.
      */
+    @SuppressWarnings("deprecation")
     public boolean isHeading() {
         if (Build.VERSION.SDK_INT >= 28) {
             return mInfo.isHeading();
@@ -4017,6 +4020,7 @@ public class AccessibilityNodeInfoCompat {
         return true;
     }
 
+    @SuppressWarnings("deprecation")
     @NonNull
     @Override
     public String toString() {

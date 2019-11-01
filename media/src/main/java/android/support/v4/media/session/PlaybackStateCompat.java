@@ -1327,6 +1327,7 @@ public final class PlaybackStateCompat implements Parcelable {
          * @return this
          * @deprecated Use {@link #setErrorMessage(int, CharSequence)} instead.
          */
+        @Deprecated
         public Builder setErrorMessage(CharSequence errorMessage) {
             mErrorMessage = errorMessage;
             return this;

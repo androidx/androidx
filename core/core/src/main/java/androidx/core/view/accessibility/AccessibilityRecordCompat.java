@@ -64,6 +64,7 @@ public class AccessibilityRecordCompat {
      *
      * @deprecated Use {@link AccessibilityRecord#obtain(AccessibilityRecord)} directly.
      */
+    @SuppressWarnings("deprecation")
     @Deprecated
     public static AccessibilityRecordCompat obtain(AccessibilityRecordCompat record) {
         return new AccessibilityRecordCompat(AccessibilityRecord.obtain(record.mRecord));
@@ -77,6 +78,7 @@ public class AccessibilityRecordCompat {
      *
      * @deprecated Use {@link AccessibilityRecord#obtain()} directly.
      */
+    @SuppressWarnings("deprecation")
     @Deprecated
     public static AccessibilityRecordCompat obtain() {
         return new AccessibilityRecordCompat(AccessibilityRecord.obtain());

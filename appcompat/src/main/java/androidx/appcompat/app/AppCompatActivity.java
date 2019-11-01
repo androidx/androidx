@@ -258,6 +258,7 @@ public class AppCompatActivity extends FragmentActivity implements AppCompatCall
         return getDelegate().requestWindowFeature(featureId);
     }
 
+    @SuppressWarnings("deprecation")
     @Override
     public void supportInvalidateOptionsMenu() {
         getDelegate().invalidateOptionsMenu();
@@ -487,6 +488,7 @@ public class AppCompatActivity extends FragmentActivity implements AppCompatCall
         NavUtils.navigateUpTo(this, upIntent);
     }
 
+    @SuppressWarnings("deprecation")
     @Override
     public void onContentChanged() {
         // Call onSupportContentChanged() for legacy reasons

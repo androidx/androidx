@@ -67,13 +67,13 @@ public final class PermissionInfoCompat {
     /**
      * Return the base permission type of a {@link PermissionInfo}.
      */
+    @SuppressWarnings("deprecation")
     @SuppressLint("WrongConstant") // for "PermissionInfo.PROTECTION_MASK_BASE"
     @Protection
     public static int getProtection(@NonNull PermissionInfo permissionInfo) {
         if (Build.VERSION.SDK_INT >= 28) {
             return permissionInfo.getProtection();
         } else {
-            //noinspection deprecation
             return permissionInfo.protectionLevel & PermissionInfo.PROTECTION_MASK_BASE;
         }
     }
@@ -81,13 +81,13 @@ public final class PermissionInfoCompat {
     /**
      * Return the additional protection flags of a {@link PermissionInfo}.
      */
+    @SuppressWarnings("deprecation")
     @SuppressLint("WrongConstant") // for "~PermissionInfo.PROTECTION_MASK_BASE"
     @ProtectionFlags
     public static int getProtectionFlags(@NonNull PermissionInfo permissionInfo) {
         if (Build.VERSION.SDK_INT >= 28) {
             return permissionInfo.getProtectionFlags();
         } else {
-            //noinspection deprecation
             return permissionInfo.protectionLevel & ~PermissionInfo.PROTECTION_MASK_BASE;
         }
     }

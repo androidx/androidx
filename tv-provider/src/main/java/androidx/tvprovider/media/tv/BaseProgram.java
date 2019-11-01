@@ -116,6 +116,7 @@ public abstract class BaseProgram {
      * @return The season display number for the program.
      * @see androidx.tvprovider.media.tv.TvContractCompat.Programs#COLUMN_SEASON_DISPLAY_NUMBER
      */
+    @SuppressWarnings("deprecation")
     public String getSeasonNumber() {
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.N) {
             return mValues.getAsString(Programs.COLUMN_SEASON_DISPLAY_NUMBER);
@@ -128,6 +129,7 @@ public abstract class BaseProgram {
      * @return The episode display number for the program.
      * @see androidx.tvprovider.media.tv.TvContractCompat.Programs#COLUMN_EPISODE_DISPLAY_NUMBER
      */
+    @SuppressWarnings("deprecation")
     public String getEpisodeNumber() {
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.N) {
             return mValues.getAsString(Programs.COLUMN_EPISODE_DISPLAY_NUMBER);
@@ -335,6 +337,7 @@ public abstract class BaseProgram {
      * @param cursor A row from the TV Input Framework database.
      * @param builder A Builder to set the fields.
      */
+    @SuppressWarnings("deprecation")
     static void setFieldsFromCursor(Cursor cursor, Builder builder) {
         // TODO: Add additional API which does not use costly getColumnIndex().
         int index;
@@ -465,6 +468,7 @@ public abstract class BaseProgram {
         }
     }
 
+    @SuppressWarnings("deprecation")
     private static String[] getProjection() {
         String[] baseColumns = new String[] {
                 BaseTvColumns._ID,
@@ -612,6 +616,7 @@ public abstract class BaseProgram {
          * @see androidx.tvprovider.media.tv.TvContractCompat.Programs#COLUMN_SEASON_DISPLAY_NUMBER
          * @see androidx.tvprovider.media.tv.TvContractCompat.Programs#COLUMN_SEASON_NUMBER
          */
+        @SuppressWarnings("deprecation")
         public T setSeasonNumber(String seasonNumber, int numericalSeasonNumber) {
             if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.N) {
                 mValues.put(Programs.COLUMN_SEASON_DISPLAY_NUMBER, seasonNumber);
@@ -644,6 +649,7 @@ public abstract class BaseProgram {
          * @see androidx.tvprovider.media.tv.TvContractCompat.Programs#COLUMN_EPISODE_DISPLAY_NUMBER
          * @see androidx.tvprovider.media.tv.TvContractCompat.Programs#COLUMN_EPISODE_NUMBER
          */
+        @SuppressWarnings("deprecation")
         public T setEpisodeNumber(String episodeNumber, int numericalEpisodeNumber) {
             if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.N) {
                 mValues.put(Programs.COLUMN_EPISODE_DISPLAY_NUMBER, episodeNumber);

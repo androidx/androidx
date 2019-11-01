@@ -264,6 +264,7 @@ public final class CameraUtil {
      *
      * @return false if no camera
      */
+    @SuppressWarnings("deprecation")
     public static boolean deviceHasCamera() {
         // TODO Think about external camera case,
         //  especially no built in camera but there might be some external camera
