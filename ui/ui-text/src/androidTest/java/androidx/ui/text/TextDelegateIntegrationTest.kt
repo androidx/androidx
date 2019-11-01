@@ -40,7 +40,6 @@ import com.google.common.truth.Truth.assertThat
 import org.junit.Test
 import org.junit.runner.RunWith
 import org.junit.runners.JUnit4
-import kotlin.math.ceil
 
 @RunWith(JUnit4::class)
 @SmallTest
@@ -68,7 +67,7 @@ class TextDelegateIntegrationTest {
             textDelegate.layoutIntrinsics()
 
             assertThat(textDelegate.minIntrinsicWidth)
-                .isEqualTo(fontSize.toPx().value * text.length)
+                .isEqualTo((fontSize.toPx().value * text.length).toIntPx())
         }
     }
 
@@ -90,7 +89,7 @@ class TextDelegateIntegrationTest {
             textDelegate.layoutIntrinsics()
 
             assertThat(textDelegate.maxIntrinsicWidth)
-                .isEqualTo(fontSize.toPx().value * text.length)
+                .isEqualTo((fontSize.toPx().value * text.length).toIntPx())
         }
     }
 
@@ -111,7 +110,9 @@ class TextDelegateIntegrationTest {
 
             textDelegate.layout(Constraints(0.ipx, 200.ipx))
 
-            assertThat(textDelegate.width).isEqualTo(fontSize.toPx().value * text.length)
+            assertThat(textDelegate.width).isEqualTo(
+                (fontSize.toPx().value * text.length).toIntPx()
+            )
         }
     }
 
@@ -131,7 +132,7 @@ class TextDelegateIntegrationTest {
 
         textDelegate.layout(Constraints(maxWidth = width))
 
-        assertThat(textDelegate.width).isEqualTo(width.value.toFloat())
+        assertThat(textDelegate.width).isEqualTo(width)
     }
 
     @Test
@@ -151,7 +152,7 @@ class TextDelegateIntegrationTest {
 
             textDelegate.layout(Constraints())
 
-            assertThat(textDelegate.height).isEqualTo(fontSize.toPx().value)
+            assertThat(textDelegate.height).isEqualTo((fontSize.toPx().value).toIntPx())
         }
     }
 
@@ -314,13 +315,8 @@ class TextDelegateIntegrationTest {
             )
             textDelegate.layout(Constraints(maxWidth = 120.ipx))
 
-            val expectedBitmap = Bitmap.createBitmap(
-                ceil(textDelegate.width).toInt(),
-                ceil(textDelegate.height).toInt(),
-                Bitmap.Config.ARGB_8888
-            )
-            val expectedCanvas =
-                Canvas(android.graphics.Canvas(expectedBitmap))
+            val expectedBitmap = textDelegate.toBitmap()
+            val expectedCanvas = Canvas(android.graphics.Canvas(expectedBitmap))
             val expectedPaint = Paint()
             val defaultSelectionColor = Color(0x6633B5E5)
             expectedPaint.color = defaultSelectionColor
@@ -343,11 +339,7 @@ class TextDelegateIntegrationTest {
                 expectedPaint
             )
 
-            val actualBitmap = Bitmap.createBitmap(
-                ceil(textDelegate.width).toInt(),
-                ceil(textDelegate.height).toInt(),
-                Bitmap.Config.ARGB_8888
-            )
+            val actualBitmap = textDelegate.toBitmap()
             val actualCanvas = Canvas(android.graphics.Canvas(actualBitmap))
 
             // Run.
@@ -384,13 +376,8 @@ class TextDelegateIntegrationTest {
             )
             textDelegate.layout(Constraints())
 
-            val expectedBitmap = Bitmap.createBitmap(
-                ceil(textDelegate.width).toInt(),
-                ceil(textDelegate.height).toInt(),
-                Bitmap.Config.ARGB_8888
-            )
-            val expectedCanvas =
-                Canvas(android.graphics.Canvas(expectedBitmap))
+            val expectedBitmap = textDelegate.toBitmap()
+            val expectedCanvas = Canvas(android.graphics.Canvas(expectedBitmap))
             val expectedPaint = Paint()
             val defaultSelectionColor = Color(0x6633B5E5)
             expectedPaint.color = defaultSelectionColor
@@ -404,11 +391,7 @@ class TextDelegateIntegrationTest {
                 expectedPaint
             )
 
-            val actualBitmap = Bitmap.createBitmap(
-                ceil(textDelegate.width).toInt(),
-                ceil(textDelegate.height).toInt(),
-                Bitmap.Config.ARGB_8888
-            )
+            val actualBitmap = textDelegate.toBitmap()
             val actualCanvas = Canvas(android.graphics.Canvas(actualBitmap))
 
             // Run.
@@ -447,13 +430,8 @@ class TextDelegateIntegrationTest {
             )
             textDelegate.layout(Constraints())
 
-            val expectedBitmap = Bitmap.createBitmap(
-                ceil(textDelegate.width).toInt(),
-                ceil(textDelegate.height).toInt(),
-                Bitmap.Config.ARGB_8888
-            )
-            val expectedCanvas =
-                Canvas(android.graphics.Canvas(expectedBitmap))
+            val expectedBitmap = textDelegate.toBitmap()
+            val expectedCanvas = Canvas(android.graphics.Canvas(expectedBitmap))
             val expectedPaint = Paint()
             val defaultSelectionColor = Color(0x6633B5E5)
             expectedPaint.color = defaultSelectionColor
@@ -479,11 +457,7 @@ class TextDelegateIntegrationTest {
                 expectedPaint
             )
 
-            val actualBitmap = Bitmap.createBitmap(
-                ceil(textDelegate.width).toInt(),
-                ceil(textDelegate.height).toInt(),
-                Bitmap.Config.ARGB_8888
-            )
+            val actualBitmap = textDelegate.toBitmap()
             val actualCanvas = Canvas(android.graphics.Canvas(actualBitmap))
 
             // Run.
@@ -520,13 +494,8 @@ class TextDelegateIntegrationTest {
             )
             textDelegate.layout(Constraints())
 
-            val expectedBitmap = Bitmap.createBitmap(
-                ceil(textDelegate.width).toInt(),
-                ceil(textDelegate.height).toInt(),
-                Bitmap.Config.ARGB_8888
-            )
-            val expectedCanvas =
-                Canvas(android.graphics.Canvas(expectedBitmap))
+            val expectedBitmap = textDelegate.toBitmap()
+            val expectedCanvas = Canvas(android.graphics.Canvas(expectedBitmap))
             val expectedPaint = Paint()
             expectedPaint.color = selectionColor
             expectedCanvas.drawRect(
@@ -539,11 +508,7 @@ class TextDelegateIntegrationTest {
                 expectedPaint
             )
 
-            val actualBitmap = Bitmap.createBitmap(
-                ceil(textDelegate.width).toInt(),
-                ceil(textDelegate.height).toInt(),
-                Bitmap.Config.ARGB_8888
-            )
+            val actualBitmap = textDelegate.toBitmap()
             val actualCanvas = Canvas(android.graphics.Canvas(actualBitmap))
 
             // Run.
@@ -588,3 +553,9 @@ class TextDelegateIntegrationTest {
             .isSameInstanceAs(multiParagraphIntrinsics?.infoList?.get(0))
     }
 }
+
+private fun TextDelegate.toBitmap() = Bitmap.createBitmap(
+    width.value,
+    height.value,
+    Bitmap.Config.ARGB_8888
+)

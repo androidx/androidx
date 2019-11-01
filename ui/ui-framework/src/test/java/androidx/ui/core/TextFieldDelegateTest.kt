@@ -55,8 +55,6 @@ import org.junit.runners.JUnit4
 @RunWith(JUnit4::class)
 class TextFieldDelegateTest {
 
-    private val DefaultCompositionColor = Color(-5185306)
-
     private lateinit var canvas: Canvas
     private lateinit var mDelegate: TextDelegate
     private lateinit var processor: EditProcessor
@@ -65,24 +63,6 @@ class TextFieldDelegateTest {
     private lateinit var textInputService: TextInputService
     private lateinit var layoutCoordinates: LayoutCoordinates
     private lateinit var multiParagraphIntrinsics: MultiParagraphIntrinsics
-
-    val creditCardOffsetTranslator = object : OffsetMap {
-        override fun originalToTransformed(offset: Int): Int {
-            if (offset <= 3) return offset
-            if (offset <= 7) return offset + 1
-            if (offset <= 11) return offset + 2
-            if (offset <= 16) return offset + 3
-            return 19
-        }
-
-        override fun transformedToOriginal(offset: Int): Int {
-            if (offset <= 4) return offset
-            if (offset <= 9) return offset - 1
-            if (offset <= 14) return offset - 2
-            if (offset <= 19) return offset - 3
-            return 16
-        }
-    }
 
     private val identityOffsetMap = object : OffsetMap {
         override fun originalToTransformed(offset: Int): Int = offset
@@ -343,8 +323,8 @@ class TextFieldDelegateTest {
         whenever(mDelegate.textStyle).thenReturn(TextStyle())
         whenever(mDelegate.density).thenReturn(Density(1.0f))
         whenever(mDelegate.resourceLoader).thenReturn(mock())
-        whenever(mDelegate.height).thenReturn(512.0f)
-        whenever(mDelegate.width).thenReturn(1024.0f)
+        whenever(mDelegate.height).thenReturn(512.ipx)
+        whenever(mDelegate.width).thenReturn(1024.ipx)
 
         val res = TextFieldDelegate.layout(mDelegate, constraints)
         assertEquals(1024.px.round(), res.first)
@@ -495,41 +475,14 @@ class TextFieldDelegateTest {
         whenever(mDelegate.textStyle).thenReturn(TextStyle())
         whenever(mDelegate.density).thenReturn(Density(1.0f))
         whenever(mDelegate.resourceLoader).thenReturn(mock())
-        whenever(mDelegate.height).thenReturn(512.0f)
-        whenever(mDelegate.width).thenReturn(123.0f)
-        whenever(mDelegate.layoutIntrinsics()).thenReturn(multiParagraphIntrinsics)
-        whenever(multiParagraphIntrinsics.maxIntrinsicWidth).thenReturn(123f)
+        whenever(mDelegate.height).thenReturn(512.ipx)
+        whenever(mDelegate.width).thenReturn(123.ipx)
+        whenever(mDelegate.maxIntrinsicWidth).thenReturn(123.ipx)
 
         val res = TextFieldDelegate.layout(mDelegate, constraints)
         assertThat(res.first).isEqualTo(123.ipx)
         assertEquals(512.ipx, res.second)
 
         verify(mDelegate, times(1)).layout(Constraints.tightConstraintsForWidth(123.ipx))
-    }
-
-    @Test
-    fun infinte_constraints_ceiling() {
-        val constraints = Constraints(
-            minWidth = 0.px.round(),
-            maxWidth = IntPx.Infinity,
-            minHeight = 0.px.round(),
-            maxHeight = 2048.px.round()
-        )
-
-        val dummyText = AnnotatedString(text = "Hello, World")
-        whenever(mDelegate.text).thenReturn(dummyText)
-        whenever(mDelegate.textStyle).thenReturn(TextStyle())
-        whenever(mDelegate.density).thenReturn(Density(1.0f))
-        whenever(mDelegate.resourceLoader).thenReturn(mock())
-        whenever(mDelegate.height).thenReturn(512.0f)
-        whenever(mDelegate.width).thenReturn(123.1f)
-        whenever(mDelegate.layoutIntrinsics()).thenReturn(multiParagraphIntrinsics)
-        whenever(multiParagraphIntrinsics.maxIntrinsicWidth).thenReturn(123.1f)
-
-        val res = TextFieldDelegate.layout(mDelegate, constraints)
-        assertThat(res.first).isEqualTo(124.ipx)
-        assertEquals(512.ipx, res.second)
-
-        verify(mDelegate, times(1)).layout(Constraints.tightConstraintsForWidth(124.ipx))
     }
 }

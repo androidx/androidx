@@ -20,13 +20,16 @@ import android.graphics.Bitmap
 import android.graphics.Canvas
 import android.graphics.Typeface
 import androidx.core.content.res.ResourcesCompat
+import androidx.ui.core.IntPx
+import androidx.ui.core.ipx
 import androidx.ui.text.font.Font
 import kotlin.math.ceil
+import kotlin.math.roundToInt
 
 fun Paragraph.bitmap(): Bitmap {
     val bitmap = Bitmap.createBitmap(
-        ceil(this.width).toInt(),
-        ceil(this.height).toInt(),
+        width.toIntPx().value,
+        height.toIntPx().value,
         Bitmap.Config.ARGB_8888
     )
     this.paint(androidx.ui.graphics.Canvas(Canvas(bitmap)))
@@ -44,3 +47,5 @@ class TestFontResourceLoader(val context: Context) : Font.ResourceLoader {
         return ResourcesCompat.getFont(context, resId)!!
     }
 }
+
+fun Float.toIntPx(): IntPx = ceil(this).roundToInt().ipx

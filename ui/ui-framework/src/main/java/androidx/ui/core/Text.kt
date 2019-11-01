@@ -220,32 +220,32 @@ fun Text(
             modifier = modifier,
             minIntrinsicWidthMeasureBlock = { _, _ ->
                 textDelegate.layoutIntrinsics()
-                textDelegate.minIntrinsicWidth.px.round()
+                textDelegate.minIntrinsicWidth
             },
             minIntrinsicHeightMeasureBlock = { _, width ->
                 // given the width constraint, determine the min height
                 textDelegate.layout(Constraints(0.ipx, width, 0.ipx, IntPx.Infinity))
-                textDelegate.height.px.round()
+                textDelegate.height
             },
             maxIntrinsicWidthMeasureBlock = { _, _ ->
                 textDelegate.layoutIntrinsics()
-                textDelegate.maxIntrinsicWidth.px.round()
+                textDelegate.maxIntrinsicWidth
             },
             maxIntrinsicHeightMeasureBlock = { _, width ->
                 textDelegate.layout(Constraints(0.ipx, width, 0.ipx, IntPx.Infinity))
-                textDelegate.height.px.round()
+                textDelegate.height
             }
         ) { _, constraints ->
             textDelegate.layout(constraints)
             layout(
-                textDelegate.width.px.round(),
-                textDelegate.height.px.round(),
+                textDelegate.width,
+                textDelegate.height,
                 // Provide values for the alignment lines defined by text - the first
                 // and last baselines of the text. These can be used by parent layouts
                 // to position this text or align this and other texts by baseline.
                 mapOf(
-                    FirstBaseline to textDelegate.firstBaseline.px.round(),
-                    LastBaseline to textDelegate.lastBaseline.px.round()
+                    FirstBaseline to textDelegate.firstBaseline,
+                    LastBaseline to textDelegate.lastBaseline
                 )
             ) {}
         }
