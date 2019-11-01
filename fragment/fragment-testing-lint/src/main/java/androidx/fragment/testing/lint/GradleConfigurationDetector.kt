@@ -35,10 +35,10 @@ class GradleConfigurationDetector : Detector(), GradleScanner {
             id = "FragmentGradleConfiguration",
             briefDescription = "Include the fragment-testing library using the " +
                     "debugImplementation configuration.",
-            explanation = """The fragment-testing library contains a FragmentScenario class that
-                | creates an Activity that must exist in the runtime APK. To include the
-                | fragment-testing library in the runtime APK it must be added using the
-                | debugImplementation configuration.""",
+            explanation = """The fragment-testing library contains a FragmentScenario class that \
+                creates an Activity that must exist in the runtime APK. To include the \
+                fragment-testing library in the runtime APK it must be added using the \
+                debugImplementation configuration.""",
             category = Category.CORRECTNESS,
             severity = Severity.ERROR,
             implementation = Implementation(

@@ -39,11 +39,11 @@ class FragmentTagDetector : ResourceXmlDetector() {
         val ISSUE = Issue.create(
             id = "FragmentTagUsage",
             briefDescription = "Use FragmentContainerView instead of the <fragment> tag",
-            explanation = """FragmentContainerView replaces the <fragment> tag as the preferred way
-                | of adding fragments via XML. Unlike the <fragment> tag, FragmentContainerView uses
-                | a normal `FragmentTransaction` under the hood to add the initial fragment,
-                | allowing further FragmentTransaction operations on the FragmentContainerView
-                | and providing a consistent timing for lifecycle events.""",
+            explanation = """FragmentContainerView replaces the <fragment> tag as the preferred \
+                way of adding fragments via XML. Unlike the <fragment> tag, FragmentContainerView \
+                uses a normal `FragmentTransaction` under the hood to add the initial fragment, \
+                allowing further FragmentTransaction operations on the FragmentContainerView \
+                and providing a consistent timing for lifecycle events.""",
             category = Category.CORRECTNESS,
             severity = Severity.WARNING,
             implementation = Implementation(
