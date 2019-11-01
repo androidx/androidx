@@ -35,11 +35,16 @@ import androidx.ui.layout.LayoutSize
 import androidx.ui.layout.MainAxisAlignment
 import androidx.compose.Composable
 import androidx.ui.core.Alignment
+import androidx.ui.core.Dp
+import androidx.ui.core.FirstBaseline
 import androidx.ui.core.HorizontalAlignmentLine
+import androidx.ui.core.Layout
+import androidx.ui.core.Modifier
 import androidx.ui.core.OnChildPositioned
 import androidx.ui.core.OnPositioned
 import androidx.ui.core.VerticalAlignmentLine
 import androidx.ui.core.globalPosition
+import androidx.ui.core.max
 import androidx.ui.core.min
 import androidx.ui.layout.Align
 import androidx.ui.layout.AspectRatio
@@ -742,6 +747,94 @@ class FlexTest : LayoutTest() {
         assertEquals(PxSize(size.toPx(), size.toPx()), childSize[2])
         assertEquals(PxPosition(size.toPx() * 2, rootHeight - size.toPx()), childPosition[2])
     }
+
+    @Test
+    fun testRow_withRelativeToSiblingsModifier() = withDensity(density) {
+        val baseline1Dp = 30.dp
+        val baseline1 = baseline1Dp.toIntPx()
+        val baseline2Dp = 25.dp
+        val baseline2 = baseline2Dp.toIntPx()
+        val sizeDp = 40.dp
+        val size = sizeDp.toIntPx()
+
+        val drawLatch = CountDownLatch(4)
+        val childSize = arrayOfNulls<PxSize>(4)
+        val childPosition = arrayOfNulls<PxPosition>(4)
+        show {
+            Align(Alignment.TopLeft) {
+                Row(ExpandedHeight) {
+                    BaselineTestLayout(
+                        baseline = baseline1Dp,
+                        width = sizeDp,
+                        height = sizeDp,
+                        modifier = Gravity.RelativeToSiblings(TestHorizontalLine)
+                    ) {
+                        OnPositioned(onPositioned = { coordinates ->
+                            childSize[0] = coordinates.size
+                            childPosition[0] = coordinates.globalPosition
+                            drawLatch.countDown()
+                        })
+                    }
+                    Container(
+                        width = sizeDp,
+                        height = sizeDp,
+                        modifier = Gravity.RelativeToSiblings { it.height * 0.5 }
+                    ) {
+                        OnPositioned(onPositioned = { coordinates ->
+                            childSize[1] = coordinates.size
+                            childPosition[1] = coordinates.globalPosition
+                            drawLatch.countDown()
+                        })
+                    }
+                    BaselineTestLayout(
+                        baseline = baseline2Dp,
+                        width = sizeDp,
+                        height = sizeDp,
+                        modifier = Gravity.RelativeToSiblings(TestHorizontalLine)
+                    ) {
+                        OnPositioned(onPositioned = { coordinates ->
+                            childSize[2] = coordinates.size
+                            childPosition[2] = coordinates.globalPosition
+                            drawLatch.countDown()
+                        })
+                    }
+                    Container(
+                        width = sizeDp,
+                        height = sizeDp,
+                        modifier = Gravity.RelativeToSiblings { it.height * 0.75 }
+                    ) {
+                        OnPositioned(onPositioned = { coordinates ->
+                            childSize[3] = coordinates.size
+                            childPosition[3] = coordinates.globalPosition
+                            drawLatch.countDown()
+                        })
+                    }
+                }
+            }
+        }
+        drawLatch.await(1, TimeUnit.SECONDS)
+
+        assertEquals(PxSize(size.toPx(), size.toPx()), childSize[0])
+        assertEquals(PxPosition(0.px, 0.px), childPosition[0])
+
+        assertEquals(PxSize(size.toPx(), size.toPx()), childSize[1])
+        assertEquals(
+            PxPosition(size.toPx(), (baseline1 - (size.toPx() / 2).round()).toPx()),
+            childPosition[1]
+        )
+
+        assertEquals(PxSize(size.toPx(), size.toPx()), childSize[2])
+        assertEquals(
+            PxPosition(size.toPx() * 2, (baseline1 - baseline2).toPx()),
+            childPosition[2]
+        )
+
+        assertEquals(PxSize(size.toPx(), size.toPx()), childSize[3])
+        assertEquals(
+            PxPosition(size.toPx() * 3, 0.px),
+            childPosition[3]
+        )
+    }
     // endregion
 
     // region Cross axis alignment tests in Column
@@ -942,6 +1035,89 @@ class FlexTest : LayoutTest() {
 
         assertEquals(PxSize(size.toPx(), size.toPx()), childSize[2])
         assertEquals(PxPosition(rootWidth - size.toPx(), size.toPx() * 2), childPosition[2])
+    }
+
+    @Test
+    fun testColumn_withRelativeToSiblingsModifier() = withDensity(density) {
+        val sizeDp = 40.dp
+        val size = sizeDp.toIntPx()
+        val firstBaseline1Dp = 20.dp
+        val firstBaseline2Dp = 30.dp
+
+        val drawLatch = CountDownLatch(4)
+        val childSize = arrayOfNulls<PxSize>(4)
+        val childPosition = arrayOfNulls<PxPosition>(4)
+        show {
+            Align(Alignment.TopLeft) {
+                Column(ExpandedWidth) {
+                    Container(
+                        width = sizeDp,
+                        height = sizeDp,
+                        modifier = Gravity.RelativeToSiblings { it.width }
+                    ) {
+                        OnPositioned(onPositioned = { coordinates ->
+                            childSize[0] = coordinates.size
+                            childPosition[0] = coordinates.globalPosition
+                            drawLatch.countDown()
+                        })
+                    }
+                    Container(
+                        width = sizeDp,
+                        height = sizeDp,
+                        modifier = Gravity.RelativeToSiblings { 0.ipx }
+                    ) {
+                        OnPositioned(onPositioned = { coordinates ->
+                            childSize[1] = coordinates.size
+                            childPosition[1] = coordinates.globalPosition
+                            drawLatch.countDown()
+                        })
+                    }
+                    BaselineTestLayout(
+                        width = sizeDp,
+                        height = sizeDp,
+                        baseline = firstBaseline1Dp,
+                        modifier = Gravity.RelativeToSiblings(TestVerticalLine)
+                    ) {
+                        OnPositioned(onPositioned = { coordinates ->
+                            childSize[2] = coordinates.size
+                            childPosition[2] = coordinates.globalPosition
+                            drawLatch.countDown()
+                        })
+                    }
+                    BaselineTestLayout(
+                        width = sizeDp,
+                        height = sizeDp,
+                        baseline = firstBaseline2Dp,
+                        modifier = Gravity.RelativeToSiblings(TestVerticalLine)
+                    ) {
+                        OnPositioned(onPositioned = { coordinates ->
+                            childSize[3] = coordinates.size
+                            childPosition[3] = coordinates.globalPosition
+                            drawLatch.countDown()
+                        })
+                    }
+                }
+            }
+        }
+        drawLatch.await(1, TimeUnit.SECONDS)
+
+        assertEquals(PxSize(size.toPx(), size.toPx()), childSize[0])
+        assertEquals(PxPosition(0.px, 0.px), childPosition[0])
+
+        assertEquals(PxSize(size.toPx(), size.toPx()), childSize[1])
+        assertEquals(PxPosition(size.toPx(), size.toPx()), childPosition[1])
+
+        assertEquals(PxSize(size.toPx(), size.toPx()), childSize[2])
+        assertEquals(
+            PxPosition((size - firstBaseline1Dp.toIntPx()).toPx(), size.toPx() * 2),
+            childPosition[2]
+        )
+
+        assertEquals(PxSize(size.toPx(), size.toPx()), childSize[3])
+        assertEquals(
+            PxPosition((size - firstBaseline2Dp.toIntPx()).toPx(), size.toPx() * 3),
+            childPosition[3]
+        )
     }
     // endregion
 
@@ -2300,6 +2476,16 @@ class FlexTest : LayoutTest() {
                 ConstrainedBox(DpConstraints.tightConstraints(50.dp, 40.dp), Gravity.Center) { }
             }
         }, @Composable {
+            Row {
+                Container(
+                    AspectRatio(2f) wraps Gravity.RelativeToSiblings(FirstBaseline)
+                ) { }
+                ConstrainedBox(
+                    DpConstraints.tightConstraints(50.dp, 40.dp),
+                    Gravity.RelativeToSiblings { it.width }
+                ) { }
+            }
+        }, @Composable {
             Row(
                 ExpandedWidth,
                 mainAxisAlignment = MainAxisAlignment.Start,
@@ -2506,6 +2692,14 @@ class FlexTest : LayoutTest() {
             Column {
                 Container(AspectRatio(2f) wraps Gravity.Start) { }
                 ConstrainedBox(DpConstraints.tightConstraints(50.dp, 40.dp), Gravity.End) { }
+            }
+        }, @Composable {
+            Column {
+                Container(AspectRatio(2f) wraps Gravity.RelativeToSiblings { 0.ipx }) { }
+                ConstrainedBox(
+                    DpConstraints.tightConstraints(50.dp, 40.dp),
+                    Gravity.RelativeToSiblings(TestVerticalLine)
+                ) { }
             }
         }, @Composable {
             Column(ExpandedHeight) {
@@ -3119,7 +3313,9 @@ class FlexTest : LayoutTest() {
         assertEquals(PxPosition(0.ipx, 10.ipx), childPosition[1].value)
         assertEquals(PxPosition(0.ipx, 20.ipx), childPosition[2].value)
     }
+    // endregion
 
+    // region Modifiers specific tests
     @Test
     fun testFlexModifiersChain_leftMostWins() = withDensity(density) {
         val positionedLatch = CountDownLatch(1)
@@ -3146,5 +3342,60 @@ class FlexTest : LayoutTest() {
         assertNotNull(containerSize)
         assertEquals(PxSize(sizeIntPx, sizeIntPx), containerSize.value)
     }
+
+    @Test
+    fun testRelativeToSiblingsModifiersChain_leftMostWins() = withDensity(density) {
+        val positionedLatch = CountDownLatch(1)
+        val containerSize = Ref<PxSize>()
+        val containerPosition = Ref<PxPosition>()
+        val size = 40.dp
+
+        show {
+            Row {
+                Container(
+                    modifier = Gravity.RelativeToSiblings { it.height },
+                    width = size,
+                    height = size
+                ) {}
+                OnChildPositioned(onPositioned = { coordinates ->
+                    containerSize.value = coordinates.size
+                    containerPosition.value = coordinates.globalPosition
+                    positionedLatch.countDown()
+                }) {
+                    Container(
+                        modifier = Gravity.RelativeToSiblings { 0.ipx }
+                                wraps Gravity.RelativeToSiblings { it.height * 0.5 },
+                        width = size,
+                        height = size
+                    ) {}
+                }
+            }
+        }
+
+        positionedLatch.await(1, TimeUnit.SECONDS)
+
+        assertNotNull(containerSize)
+        assertEquals(PxPosition(size.toPx(), size.toPx()), containerPosition.value)
+    }
     // endregion
+}
+
+private val TestHorizontalLine = HorizontalAlignmentLine(::min)
+private val TestVerticalLine = VerticalAlignmentLine(::min)
+
+@Composable
+private fun BaselineTestLayout(
+    width: Dp,
+    height: Dp,
+    baseline: Dp,
+    modifier: Modifier,
+    children: @Composable() () -> Unit
+) {
+    Layout(children = children, modifier = modifier, measureBlock = { _, constraints ->
+        val widthPx = max(width.toIntPx(), constraints.minWidth)
+        val heightPx = max(height.toIntPx(), constraints.minHeight)
+        layout(widthPx, heightPx,
+            mapOf(TestHorizontalLine to baseline.toIntPx(), TestVerticalLine to baseline.toIntPx())
+        ) {}
+    })
 }
