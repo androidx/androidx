@@ -261,7 +261,7 @@ class FragmentTransition {
         ArrayList<View> exitingViews = configureEnteringExitingViews(impl, exitTransition,
                 outFragment, sharedElementsOut, nonExistentView);
 
-        ArrayList<View> enteringViews = configureEnteringExitingViews(impl, enterTransition,
+        ArrayList<View> enteringViews = configureEnteringViewsReordered(impl, enterTransition,
                 inFragment, sharedElementsIn, nonExistentView);
 
         setViewVisibility(enteringViews, View.INVISIBLE);
@@ -1059,6 +1059,34 @@ class FragmentTransition {
             }
         }
         return viewList;
+    }
+
+    @SuppressWarnings("WeakerAccess") /* synthetic access */
+    static ArrayList<View> configureEnteringViewsReordered(FragmentTransitionImpl impl,
+            Object transition,
+            Fragment fragment, ArrayList<View> sharedElements, View nonExistentView) {
+        if (fragment != null) {
+            changeViewVisibility(fragment.mView, View.VISIBLE);
+        }
+        return configureEnteringExitingViews(impl, transition, fragment, sharedElements,
+                nonExistentView);
+    }
+
+
+    /**
+     * Sets the visibility of a View and its children.
+     */
+    private static void changeViewVisibility(View view, int visibility) {
+        if (view instanceof ViewGroup) {
+            ViewGroup viewGroup = (ViewGroup) view;
+            int count = viewGroup.getChildCount();
+            for (int i = 0; i < count; i++) {
+                View child = viewGroup.getChildAt(i);
+                changeViewVisibility(child, visibility);
+            }
+        } else {
+            view.setVisibility(visibility);
+        }
     }
 
     /**
