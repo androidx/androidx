@@ -92,8 +92,6 @@ public class VideoView_WithPlayerTest extends MediaWidgetTestBase {
         mVideoView = mActivity.findViewById(R.id.videoview);
         mMediaItem = createTestMediaItem();
         mPixelCopyHelper = new SynchronousPixelCopy();
-
-        setKeepScreenOn(mActivityRule);
         checkAttachedToWindow(mVideoView);
     }
 
