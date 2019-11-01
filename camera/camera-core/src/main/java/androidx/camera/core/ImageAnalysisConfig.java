@@ -691,6 +691,8 @@ public final class ImageAnalysisConfig
          * Builds an immutable {@link ImageAnalysisConfig} from the current state.
          *
          * @return A {@link ImageAnalysisConfig} populated with the current state.
+         * @throws IllegalArgumentException if attempting to set both target aspect ratio and
+         * target resolution.
          */
         @Override
         @NonNull
@@ -816,7 +818,8 @@ public final class ImageAnalysisConfig
          * Sets the aspect ratio of the intended target for images from this configuration.
          *
          * <p>It is not allowed to set both target aspect ratio and target resolution on the same
-         * use case.
+         * use case.  Attempting so will throw an IllegalArgumentException when building the
+         * Config.
          *
          * <p>The target aspect ratio is used as a hint when determining the resulting output aspect
          * ratio which may differ from the request, possibly due to device constraints.
@@ -860,7 +863,8 @@ public final class ImageAnalysisConfig
          * nearest available resolution smaller than the target resolution will be chosen.
          *
          * <p>It is not allowed to set both target aspect ratio and target resolution on the same
-         * use case.
+         * use case.  Attempting so will throw an IllegalArgumentException when building the
+         * Config.
          *
          * <p>The target aspect ratio will also be set the same as the aspect ratio of the provided
          * {@link Size}. Make sure to set the target resolution with the correct orientation.
