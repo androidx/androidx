@@ -94,7 +94,7 @@ public class ImageAnalysisTest {
     @Test
     public void nonBlockingAnalyzerClosed_imageNotAnalyzed() {
         // Arrange.
-        setUpImageAnalysisWithMode(ImageAnalysis.ImageReaderMode.ACQUIRE_LATEST_IMAGE);
+        setUpImageAnalysisWithStrategy(ImageAnalysis.BackpressureStrategy.KEEP_ONLY_LATEST);
 
         // Act.
         // Receive images from camera feed.
@@ -122,7 +122,7 @@ public class ImageAnalysisTest {
     @Test
     public void blockingAnalyzerClosed_imageNotAnalyzed() {
         // Arrange.
-        setUpImageAnalysisWithMode(ImageAnalysis.ImageReaderMode.ACQUIRE_NEXT_IMAGE);
+        setUpImageAnalysisWithStrategy(ImageAnalysis.BackpressureStrategy.BLOCK_PRODUCER);
 
         // Act.
         // Receive images from camera feed.
@@ -140,9 +140,9 @@ public class ImageAnalysisTest {
     }
 
     @Test
-    public void acquireLatestMode_doesNotBlock() {
+    public void keepOnlyLatestStrategy_doesNotBlock() {
         // Arrange.
-        setUpImageAnalysisWithMode(ImageAnalysis.ImageReaderMode.ACQUIRE_LATEST_IMAGE);
+        setUpImageAnalysisWithStrategy(ImageAnalysis.BackpressureStrategy.KEEP_ONLY_LATEST);
 
         // Act.
         // Receive images from camera feed.
@@ -174,9 +174,9 @@ public class ImageAnalysisTest {
     }
 
     @Test
-    public void acquireNextMode_doesNotDropFrames() {
+    public void blockProducerStrategy_doesNotDropFrames() {
         // Arrange.
-        setUpImageAnalysisWithMode(ImageAnalysis.ImageReaderMode.ACQUIRE_NEXT_IMAGE);
+        setUpImageAnalysisWithStrategy(ImageAnalysis.BackpressureStrategy.BLOCK_PRODUCER);
 
         // Act.
         // Receive images from camera feed.
@@ -196,11 +196,12 @@ public class ImageAnalysisTest {
         assertThat(mImagesReceived).containsExactly(MOCK_IMAGE_1, MOCK_IMAGE_2, MOCK_IMAGE_3);
     }
 
-    private void setUpImageAnalysisWithMode(ImageAnalysis.ImageReaderMode imageReaderMode) {
+    private void setUpImageAnalysisWithStrategy(
+            ImageAnalysis.BackpressureStrategy backpressureStrategy) {
         mImageAnalysis = new ImageAnalysis(new ImageAnalysisConfig.Builder()
                 .setBackgroundExecutor(mBackgroundExecutor)
                 .setImageQueueDepth(QUEUE_DEPTH)
-                .setImageReaderMode(imageReaderMode)
+                .setBackpressureStrategy(backpressureStrategy)
                 .build());
 
         mImageAnalysis.setAnalyzer(CameraXExecutors.newHandlerExecutor(mCallbackHandler),
