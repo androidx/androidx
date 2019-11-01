@@ -122,7 +122,6 @@ internal class AndroidParagraph constructor(
 
     override val height: Float
         get() = layout.let {
-            // TODO(haoyuchang): Figure out a way to add bottomPadding properly
             val lineCount = it.lineCount
             if (maxLines != null &&
                 maxLines >= 0 &&
