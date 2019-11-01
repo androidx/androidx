@@ -141,25 +141,6 @@ public final class ImageAnalysisTest {
 
     @Test
     @UiThreadTest
-    public void analyzerCanBeSetAndRetrieved() {
-        ImageAnalysis useCase = new ImageAnalysis(mDefaultConfig);
-        Map<String, Size> suggestedResolutionMap = new HashMap<>();
-        suggestedResolutionMap.put(mCameraId, DEFAULT_RESOLUTION);
-        useCase.updateSuggestedResolution(suggestedResolutionMap);
-
-        Analyzer initialAnalyzer = useCase.getAnalyzer();
-
-        useCase.setAnalyzer(CameraXExecutors.newHandlerExecutor(mHandler), mMockAnalyzer);
-
-        Analyzer retrievedAnalyzer = useCase.getAnalyzer();
-
-        // The observer is bound to the lifecycle.
-        assertThat(initialAnalyzer).isNull();
-        assertThat(retrievedAnalyzer).isSameInstanceAs(mMockAnalyzer);
-    }
-
-    @Test
-    @UiThreadTest
     public void becomesActive_whenHasAnalyzer() {
         ImageAnalysis useCase = new ImageAnalysis(mDefaultConfig);
         Map<String, Size> suggestedResolutionMap = new HashMap<>();

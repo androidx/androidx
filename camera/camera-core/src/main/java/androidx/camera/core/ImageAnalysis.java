@@ -247,19 +247,6 @@ public final class ImageAnalysis extends UseCase {
     }
 
     /**
-     * Retrieves a previously set analyzer.
-     *
-     * @return The last set analyzer or {@code null} if no analyzer is set.
-     * @throws IllegalStateException If not called on main thread.
-     */
-    @UiThread
-    @Nullable
-    public Analyzer getAnalyzer() {
-        Threads.checkMainThread();
-        return mSubscribedAnalyzer.get();
-    }
-
-    /**
      * Sets an analyzer to receive and analyze images.
      *
      * <p>Setting an analyzer will signal to the camera that it should begin sending data. The
