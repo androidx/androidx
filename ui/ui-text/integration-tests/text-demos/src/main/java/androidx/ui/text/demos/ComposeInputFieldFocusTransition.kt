@@ -26,7 +26,6 @@ import androidx.ui.core.sp
 import androidx.ui.foundation.VerticalScroller
 import androidx.ui.layout.CrossAxisAlignment
 import androidx.ui.graphics.Color
-import androidx.ui.input.EditorStyle
 import androidx.ui.input.ImeAction
 import androidx.ui.layout.Column
 import androidx.ui.text.TextStyle
@@ -57,7 +56,7 @@ private fun TextFieldWithFocusId(focusID: String, nextFocus: String) {
     }
     TextField(
         value = state.value,
-        editorStyle = EditorStyle(textStyle = TextStyle(color = color, fontSize = 32.sp)),
+        textStyle = TextStyle(color = color, fontSize = 32.sp),
         onValueChange = {
             state.value = it
         },

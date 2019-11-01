@@ -35,7 +35,6 @@ import androidx.ui.core.OnChildPositioned
 import androidx.ui.core.PxPosition
 import androidx.ui.core.dp
 import androidx.ui.core.setContent
-import androidx.ui.input.EditorStyle
 import androidx.ui.input.ImeAction
 import androidx.ui.input.KeyboardType
 import androidx.ui.layout.Column
@@ -69,7 +68,7 @@ class ExplicitAutofillTypesActivity : Activity() {
                             onValueChange = { nameState.value = it },
                             onFocus = { autofill?.requestAutofillForNode(autofillNode) },
                             onBlur = { autofill?.cancelAutofillForNode(autofillNode) },
-                            editorStyle = EditorStyle(textStyle = textStyle)
+                            textStyle = textStyle
                         )
                     }
 
@@ -87,7 +86,7 @@ class ExplicitAutofillTypesActivity : Activity() {
                             onValueChange = { emailState.value = it },
                             onFocus = { autofill?.requestAutofillForNode(autofillNode) },
                             onBlur = { autofill?.cancelAutofillForNode(autofillNode) },
-                            editorStyle = EditorStyle(textStyle = textStyle)
+                            textStyle = textStyle
                         )
                     }
                 }

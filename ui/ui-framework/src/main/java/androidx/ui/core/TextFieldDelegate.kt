@@ -134,7 +134,7 @@ internal class TextFieldDelegate {
             offsetMap: OffsetMap,
             textDelegate: TextDelegate,
             hasFocus: Boolean,
-            selectionColor: Color? = null
+            selectionColor: Color
         ) {
             if (value.selection.collapsed) {
                 if (hasFocus) {
@@ -145,7 +145,7 @@ internal class TextFieldDelegate {
                 textDelegate.paintBackground(
                     offsetMap.originalToTransformed(value.selection.min),
                     offsetMap.originalToTransformed(value.selection.max),
-                    selectionColor ?: DefaultSelectionColor,
+                    selectionColor,
                     canvas
                 )
             }

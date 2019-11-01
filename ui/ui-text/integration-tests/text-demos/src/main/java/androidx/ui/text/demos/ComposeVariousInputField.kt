@@ -28,7 +28,6 @@ import androidx.ui.input.TransformedText
 import androidx.ui.input.VisualTransformation
 import androidx.ui.core.ipx
 import androidx.ui.graphics.Color
-import androidx.ui.input.EditorStyle
 import androidx.ui.input.ImeAction
 import androidx.ui.input.KeyboardType
 import androidx.ui.layout.Column
@@ -254,7 +253,7 @@ fun VariousEditLine(
         imeAction = imeAction,
         visualTransformation = visualTransformation,
         onValueChange = { state.value = onValueChange(state.value, it) },
-        editorStyle = EditorStyle(textStyle = TextStyle(fontSize = fontSize8))
+        textStyle = TextStyle(fontSize = fontSize8)
     )
 }
 
@@ -266,7 +265,7 @@ fun HintEditText(hintText: @Composable() () -> Unit) {
         TextField(
             value = state.value,
             onValueChange = { state.value = it },
-            editorStyle = EditorStyle(textStyle = TextStyle(fontSize = fontSize8))
+            textStyle = TextStyle(fontSize = fontSize8)
         )
     }
 
