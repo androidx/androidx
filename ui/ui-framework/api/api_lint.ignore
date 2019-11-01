@@ -1,22 +1,6 @@
 // Baseline format: 1.0
 ArrayReturn: androidx.ui.core.LayoutKt#Layout(kotlin.jvm.functions.Function0<kotlin.Unit>[], androidx.ui.core.Modifier, kotlin.jvm.functions.Function3<? super androidx.ui.core.MeasureScope,? super androidx.ui.core.MultiComposableMeasurables,? super androidx.ui.core.Constraints,? extends androidx.ui.core.MeasureScope.LayoutResult>) parameter #0:
     Method parameter should be Collection<Function0> (or subclass) instead of raw array; was `kotlin.jvm.functions.Function0<kotlin.Unit>[]`
-ArrayReturn: androidx.ui.graphics.vector.VectorAssetBuilder#addPath(androidx.ui.graphics.vector.PathNode[], String, androidx.ui.graphics.Brush, float, androidx.ui.graphics.Brush, float, float, androidx.ui.graphics.StrokeCap, androidx.ui.graphics.StrokeJoin, float) parameter #0:
-    Method parameter should be Collection<PathNode> (or subclass) instead of raw array; was `androidx.ui.graphics.vector.PathNode[]`
-ArrayReturn: androidx.ui.graphics.vector.VectorAssetBuilder#pushGroup(String, float, float, float, float, float, float, float, androidx.ui.graphics.vector.PathNode[]) parameter #8:
-    Method parameter should be Collection<PathNode> (or subclass) instead of raw array; was `androidx.ui.graphics.vector.PathNode[]`
-ArrayReturn: androidx.ui.graphics.vector.VectorComposeKt#Group(androidx.ui.graphics.vector.VectorScope, String, float, float, float, float, float, float, float, androidx.ui.graphics.vector.PathNode[], kotlin.jvm.functions.Function1<? super androidx.ui.graphics.vector.VectorScope,kotlin.Unit>) parameter #9:
-    Method parameter should be Collection<PathNode> (or subclass) instead of raw array; was `androidx.ui.graphics.vector.PathNode[]`
-ArrayReturn: androidx.ui.graphics.vector.VectorComposeKt#Path(androidx.ui.graphics.vector.VectorScope, androidx.ui.graphics.vector.PathNode[], String, androidx.ui.graphics.Brush, float, androidx.ui.graphics.Brush, float, float, androidx.ui.graphics.StrokeCap, androidx.ui.graphics.StrokeJoin, float) parameter #1:
-    Method parameter should be Collection<PathNode> (or subclass) instead of raw array; was `androidx.ui.graphics.vector.PathNode[]`
-ArrayReturn: androidx.ui.graphics.vector.VectorGroup#VectorGroup(String, float, float, float, float, float, float, float, androidx.ui.graphics.vector.PathNode[]) parameter #8:
-    Method parameter should be Collection<PathNode> (or subclass) instead of raw array; was `androidx.ui.graphics.vector.PathNode[]`
-ArrayReturn: androidx.ui.graphics.vector.VectorGroup#getClipPathData():
-    Method should return Collection<PathNode> (or subclass) instead of raw array; was `androidx.ui.graphics.vector.PathNode[]`
-ArrayReturn: androidx.ui.graphics.vector.VectorPath#VectorPath(String, androidx.ui.graphics.vector.PathNode[], androidx.ui.graphics.Brush, float, androidx.ui.graphics.Brush, float, float, androidx.ui.graphics.StrokeCap, androidx.ui.graphics.StrokeJoin, float) parameter #1:
-    Method parameter should be Collection<PathNode> (or subclass) instead of raw array; was `androidx.ui.graphics.vector.PathNode[]`
-ArrayReturn: androidx.ui.graphics.vector.VectorPath#getPathData():
-    Method should return Collection<PathNode> (or subclass) instead of raw array; was `androidx.ui.graphics.vector.PathNode[]`
 
 
 AutoBoxing: androidx.ui.core.TextKt#Text(String, androidx.ui.core.Modifier, androidx.ui.text.TextStyle, androidx.ui.text.ParagraphStyle, boolean, androidx.ui.text.style.TextOverflow, Integer) parameter #6:

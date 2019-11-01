@@ -90,7 +90,7 @@ class VectorAssetBuilder(
         scaleY: Float = DefaultScaleY,
         translationX: Float = DefaultTranslationX,
         translationY: Float = DefaultTranslationY,
-        clipPathData: Array<PathNode> = EmptyPath
+        clipPathData: List<PathNode> = EmptyPath
     ): VectorAssetBuilder {
         ensureNotConsumed()
         val group = VectorGroup(
@@ -126,7 +126,7 @@ class VectorAssetBuilder(
      * @return This VectorAssetBuilder instance as a convenience for chaining calls
      */
     fun addPath(
-        pathData: Array<PathNode>,
+        pathData: List<PathNode>,
         name: String = DefaultPathName,
         fill: Brush? = null,
         fillAlpha: Float = DefaultAlpha,
@@ -282,7 +282,7 @@ class VectorGroup(
     /**
      * Path information used to clip the content within the group
      */
-    val clipPathData: Array<PathNode> = EmptyPath
+    val clipPathData: List<PathNode> = EmptyPath
 
 ) : VectorNode(), Iterable<VectorNode> {
 
@@ -324,7 +324,7 @@ class VectorPath(
     /**
      * Path information to render the shape of the path
      */
-    val pathData: Array<PathNode>,
+    val pathData: List<PathNode>,
 
     /**
      *  Specifies the color or gradient used to fill the path

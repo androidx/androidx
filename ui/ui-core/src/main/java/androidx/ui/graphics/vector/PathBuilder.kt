@@ -20,7 +20,7 @@ class PathBuilder {
 
     private val nodes = mutableListOf<PathNode>()
 
-    fun getNodes(): Array<PathNode> = nodes.toTypedArray()
+    fun getNodes(): List<PathNode> = nodes
 
     fun close(): PathBuilder =
         addNode(PathCommand.Close)

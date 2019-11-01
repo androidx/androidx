@@ -209,7 +209,7 @@ internal fun XmlPullParser.parsePath(
 
     val pathStr = a.getString(AndroidVectorResources.STYLEABLE_VECTOR_DRAWABLE_PATH_PATH_DATA)
 
-    val pathData: Array<PathNode> = addPathNodes(pathStr)
+    val pathData: List<PathNode> = addPathNodes(pathStr)
 
     val fillColor = TypedArrayUtils.getNamedComplexColor(
         a,

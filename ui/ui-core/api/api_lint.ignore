@@ -57,12 +57,6 @@ ArrayReturn: androidx.ui.graphics.BrushKt#RadialGradient(kotlin.Pair<java.lang.F
     Method parameter should be Collection<Pair> (or subclass) instead of raw array; was `kotlin.Pair<java.lang.Float,androidx.ui.graphics.Color>[]`
 ArrayReturn: androidx.ui.graphics.BrushKt#VerticalGradient(kotlin.Pair<java.lang.Float,androidx.ui.graphics.Color>[], androidx.ui.core.Px, androidx.ui.core.Px, androidx.ui.graphics.TileMode) parameter #0:
     Method parameter should be Collection<Pair> (or subclass) instead of raw array; was `kotlin.Pair<java.lang.Float,androidx.ui.graphics.Color>[]`
-ArrayReturn: androidx.ui.graphics.vector.PathBuilder#getNodes():
-    Method should return Collection<PathNode> (or subclass) instead of raw array; was `androidx.ui.graphics.vector.PathNode[]`
-ArrayReturn: androidx.ui.graphics.vector.PathParser#addPathNodes(androidx.ui.graphics.vector.PathNode[]) parameter #0:
-    Method parameter should be Collection<PathNode> (or subclass) instead of raw array; was `androidx.ui.graphics.vector.PathNode[]`
-ArrayReturn: androidx.ui.graphics.vector.PathParser#toNodes():
-    Method should return Collection<PathNode> (or subclass) instead of raw array; was `androidx.ui.graphics.vector.PathNode[]`
 ArrayReturn: androidx.ui.testutils.PointerInputTestUtilKt#invokeOverAllPasses(kotlin.jvm.functions.Function3<? super java.util.List<androidx.ui.core.PointerInputChange>,? super androidx.ui.core.PointerEventPass,? super androidx.ui.core.IntPxSize,? extends java.util.List<androidx.ui.core.PointerInputChange>>, androidx.ui.core.PointerInputChange[], androidx.ui.core.IntPxSize) parameter #1:
     Method parameter should be Collection<PointerInputChange> (or subclass) instead of raw array; was `androidx.ui.core.PointerInputChange[]`
 ArrayReturn: androidx.ui.testutils.PointerInputTestUtilKt#invokeOverPasses(kotlin.jvm.functions.Function3<? super java.util.List<androidx.ui.core.PointerInputChange>,? super androidx.ui.core.PointerEventPass,? super androidx.ui.core.IntPxSize,? extends java.util.List<androidx.ui.core.PointerInputChange>>, java.util.List<androidx.ui.core.PointerInputChange>, androidx.ui.core.PointerEventPass[], androidx.ui.core.IntPxSize) parameter #2:
