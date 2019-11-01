@@ -323,10 +323,7 @@ public class BiometricPrompt implements BiometricConstants {
              * {@link DeviceCredentialHandlerActivity}. This lets us handle the result of {@link
              * android.app.KeyguardManager#createConfirmDeviceCredentialIntent(CharSequence,
              * CharSequence)} in order to allow device credentials for <= P.
-             *
-             * @hide
              */
-            @RestrictTo(RestrictTo.Scope.LIBRARY)
             @NonNull
             Builder setHandlingDeviceCredentialResult(boolean isHandling) {
                 mBundle.putBoolean(KEY_HANDLING_DEVICE_CREDENTIAL_RESULT, isHandling);
