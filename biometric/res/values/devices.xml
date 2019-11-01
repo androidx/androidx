@@ -45,9 +45,9 @@
     </string-array>
 
     <!--
-    List of known device models for which FingerprintDialogFragment should always be dismissed
-    instantly. This is intended to improve responsiveness on devices for which this dialog is
-    needed as a workaround but which otherwise display a custom UI, such as an overlay.
+    List of known device models for which FingerprintDialogFragment should be hidden. This is
+    intended to improve the experience on devices for which this dialog is needed as a workaround
+    but which display a custom UI, such as an overlay, when FingerprintManager is invoked.
     -->
     <string-array name="hide_fingerprint_instantly_prefixes">
         <item>SM-G97</item> <!-- Samsung Galaxy S10/S10+ -->
