@@ -24,6 +24,7 @@ import static org.mockito.ArgumentMatchers.argThat;
 import static org.mockito.Matchers.anyInt;
 import static org.mockito.Matchers.anyString;
 import static org.mockito.Matchers.eq;
+import static org.mockito.Mockito.doAnswer;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.timeout;
 import static org.mockito.Mockito.times;
@@ -43,7 +44,6 @@ import android.location.Location;
 import android.util.Size;
 import android.view.Surface;
 
-import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.annotation.experimental.UseExperimental;
 import androidx.camera.camera2.impl.util.FakeRepeatingUseCase;
@@ -51,7 +51,6 @@ import androidx.camera.core.AppConfig;
 import androidx.camera.core.CameraControlInternal;
 import androidx.camera.core.CameraFactory;
 import androidx.camera.core.CameraInfoUnavailableException;
-import androidx.camera.core.CameraInternal;
 import androidx.camera.core.CameraSelector;
 import androidx.camera.core.CameraX;
 import androidx.camera.core.CaptureBundle;
@@ -76,7 +75,6 @@ import androidx.test.core.app.ApplicationProvider;
 import androidx.test.ext.junit.runners.AndroidJUnit4;
 import androidx.test.filters.FlakyTest;
 import androidx.test.filters.LargeTest;
-import androidx.test.filters.Suppress;
 import androidx.test.platform.app.InstrumentationRegistry;
 import androidx.test.rule.GrantPermissionRule;
 
@@ -94,17 +92,15 @@ import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
-import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
+import java.util.Objects;
 import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
-import java.util.concurrent.Semaphore;
 import java.util.concurrent.TimeUnit;
+import java.util.concurrent.atomic.AtomicReference;
 
-@FlakyTest
 @LargeTest
 @RunWith(AndroidJUnit4.class)
 public final class ImageCaptureTest {
@@ -112,10 +108,8 @@ public final class ImageCaptureTest {
     public GrantPermissionRule mRuntimePermissionRule = GrantPermissionRule.grant(
             Manifest.permission.CAMERA);
 
-    // Use most supported resolution for different supported hardware level devices,
-    // especially for legacy devices.
     private static final Size DEFAULT_RESOLUTION = new Size(640, 480);
-    private static final Size SECONDARY_RESOLUTION = new Size(320, 240);
+    private static final Size GUARANTEED_RESOLUTION = new Size(640, 480);
     private static final LensFacing BACK_LENS_FACING = LensFacing.BACK;
     private static final CameraSelector BACK_SELECTOR =
             new CameraSelector.Builder().requireLensFacing(BACK_LENS_FACING).build();
@@ -123,17 +117,11 @@ public final class ImageCaptureTest {
     private final Instrumentation mInstrumentation = InstrumentationRegistry.getInstrumentation();
 
     private ExecutorService mListenerExecutor;
-    private CameraInternal mCameraInternal;
     private ImageCaptureConfig mDefaultConfig;
-    private OnImageCapturedCallback mOnImageCapturedCallback;
-    private OnImageCapturedCallback mMockImageCapturedListener;
-    private ImageCapture.OnImageSavedCallback mOnImageSavedCallback;
-    private ImageCapture.OnImageSavedCallback mMockImageSavedCallback;
-    private ImageProxy mCapturedImage;
-    private Semaphore mSemaphore;
     private FakeRepeatingUseCase mRepeatingUseCase;
     private FakeUseCaseConfig mFakeUseCaseConfig;
     private String mCameraId;
+    private FakeLifecycleOwner mLifecycleOwner;
 
     private ImageCaptureConfig createNonRotatedConfiguration()
             throws CameraInfoUnavailableException {
@@ -181,41 +169,9 @@ public final class ImageCaptureTest {
         }
         mDefaultConfig = new ImageCaptureConfig.Builder().build();
 
-        mCameraInternal = cameraFactory.getCamera(mCameraId);
-        mCapturedImage = null;
-        mSemaphore = new Semaphore(/*permits=*/ 0);
-        mOnImageCapturedCallback =
-                new OnImageCapturedCallback() {
-                    @Override
-                    public void onCaptureSuccess(@NonNull ImageProxy image, int rotationDegrees) {
-                        mCapturedImage = image;
-                        // Signal that the image has been captured.
-                        mSemaphore.release();
-                    }
-                };
-        mMockImageCapturedListener = mock(OnImageCapturedCallback.class);
-        mMockImageSavedCallback = mock(OnImageSavedCallback.class);
-        mOnImageSavedCallback =
-                new OnImageSavedCallback() {
-                    @Override
-                    public void onImageSaved(@NonNull File file) {
-                        mMockImageSavedCallback.onImageSaved(file);
-                        // Signal that an image was saved
-                        mSemaphore.release();
-                    }
-
-                    @Override
-                    public void onError(
-                            @NonNull ImageCaptureError error, @NonNull String message,
-                            @Nullable Throwable cause) {
-                        mMockImageSavedCallback.onError(error, message, cause);
-                        // Signal that there was an error
-                        mSemaphore.release();
-                    }
-                };
-
         mFakeUseCaseConfig = new FakeUseCaseConfig.Builder().build();
         mRepeatingUseCase = new FakeRepeatingUseCase(mFakeUseCaseConfig);
+        mLifecycleOwner = new FakeLifecycleOwner();
     }
 
     @After
@@ -223,12 +179,7 @@ public final class ImageCaptureTest {
         if (CameraX.isInitialized()) {
             mInstrumentation.runOnMainSync(() -> CameraX.unbindAll());
         }
-        if (mCameraInternal != null) {
-            mCameraInternal.close();
-            if (mCapturedImage != null) {
-                mCapturedImage.close();
-            }
-        }
+
         if (mListenerExecutor != null) {
             mListenerExecutor.shutdown();
         }
@@ -236,136 +187,127 @@ public final class ImageCaptureTest {
     }
 
     @Test
-    public void capturedImageHasCorrectProperties() throws InterruptedException {
+    public void capturedImageHasCorrectSize() {
         ImageCaptureConfig config =
-                new ImageCaptureConfig.Builder().build();
+                new ImageCaptureConfig.Builder().setTargetResolution(
+                        DEFAULT_RESOLUTION).setTargetRotation(Surface.ROTATION_0).build();
         ImageCapture useCase = new ImageCapture(config);
-        Map<String, Size> suggestedResolutionMap = new HashMap<>();
-        suggestedResolutionMap.put(mCameraId, DEFAULT_RESOLUTION);
+
         mInstrumentation.runOnMainSync(
-                () -> useCase.updateSuggestedResolution(suggestedResolutionMap));
-        CameraUtil.openCameraWithUseCase(mCameraId, mCameraInternal, useCase, mRepeatingUseCase);
-        useCase.addStateChangeCallback(mCameraInternal);
+                () -> {
+                    CameraX.bindToLifecycle(mLifecycleOwner, BACK_SELECTOR, useCase);
+                    mLifecycleOwner.startAndResume();
+                });
 
-        useCase.takePicture(mListenerExecutor, mOnImageCapturedCallback);
+        AtomicReference<ImageProperties> imageProperties = new AtomicReference<>(null);
+        OnImageCapturedCallback callback = createMockOnImageCapturedCallback(imageProperties);
+        useCase.takePicture(mListenerExecutor, callback);
         // Wait for the signal that the image has been captured.
-        mSemaphore.acquire();
+        verify(callback, timeout(1000)).onCaptureSuccess(any(ImageProxy.class),
+                anyInt());
 
-        assertThat(new Size(mCapturedImage.getWidth(), mCapturedImage.getHeight()))
-                .isEqualTo(DEFAULT_RESOLUTION);
-        assertThat(mCapturedImage.getFormat()).isEqualTo(useCase.getImageFormat());
+        Size sizeEnvelope = imageProperties.get().size;
+        // Some devices may not be able to fit the requested resolution within the image
+        // boundaries. In this case, they should always fall back to a guaranteed resolution of
+        // 640 x 480.
+        // TODO(b/143734827): Create a more robust test for the case of guaranteed resolution
+        if (!Objects.equals(sizeEnvelope, GUARANTEED_RESOLUTION)) {
+            int rotationDegrees = imageProperties.get().rotationDegrees;
+            // If the image data is rotated by 90 or 270, we need to ensure our desired width fits
+            // within the height of this image and our desired height fits in the width.
+            if (rotationDegrees == 270 || rotationDegrees == 90) {
+                sizeEnvelope = new Size(sizeEnvelope.getHeight(), sizeEnvelope.getWidth());
+            }
+
+            // Ensure the width and height can be cropped from the source image
+            assertThat(sizeEnvelope.getWidth()).isAtLeast(DEFAULT_RESOLUTION.getWidth());
+            assertThat(sizeEnvelope.getHeight()).isAtLeast(DEFAULT_RESOLUTION.getHeight());
+        }
     }
 
+    @FlakyTest //TODO(b/143734846): Callback is not always being called
     @Test
-    public void canCaptureMultipleImages() throws InterruptedException {
+    public void canCaptureMultipleImages() {
         ImageCapture useCase = new ImageCapture(mDefaultConfig);
-        Map<String, Size> suggestedResolutionMap = new HashMap<>();
-        suggestedResolutionMap.put(mCameraId, DEFAULT_RESOLUTION);
         mInstrumentation.runOnMainSync(
-                () -> useCase.updateSuggestedResolution(suggestedResolutionMap));
-        CameraUtil.openCameraWithUseCase(mCameraId, mCameraInternal, useCase, mRepeatingUseCase);
-        useCase.addStateChangeCallback(mCameraInternal);
+                () -> {
+                    CameraX.bindToLifecycle(mLifecycleOwner, BACK_SELECTOR, useCase);
+                    mLifecycleOwner.startAndResume();
+                });
 
+        OnImageCapturedCallback callback = createMockOnImageCapturedCallback(null);
         int numImages = 5;
         for (int i = 0; i < numImages; ++i) {
-            useCase.takePicture(
-                    mListenerExecutor,
-                    new OnImageCapturedCallback() {
-                        @Override
-                        public void onCaptureSuccess(@NonNull ImageProxy image,
-                                int rotationDegrees) {
-                            mMockImageCapturedListener.onCaptureSuccess(image, rotationDegrees);
-                            image.close();
-
-                            // Signal that an image has been captured.
-                            mSemaphore.release();
-                        }
-                    });
+            useCase.takePicture(mListenerExecutor, callback);
         }
 
-        // Wait for the signal that all images have been captured.
-        mSemaphore.acquire(numImages);
-
-        verify(mMockImageCapturedListener, times(numImages)).onCaptureSuccess(any(ImageProxy.class),
+        // Wait for the signal that the image has been captured.
+        verify(callback, timeout(5000).times(numImages)).onCaptureSuccess(any(ImageProxy.class),
                 anyInt());
     }
 
+    @FlakyTest //TODO(b/143734846): Callback is not always being called
     @Test
-    public void canCaptureMultipleImagesWithMaxQuality() throws InterruptedException {
+    public void canCaptureMultipleImagesWithMaxQuality() {
         ImageCaptureConfig config =
                 new ImageCaptureConfig.Builder()
                         .setCaptureMode(ImageCapture.CaptureMode.MAX_QUALITY)
                         .build();
         ImageCapture useCase = new ImageCapture(config);
-        Map<String, Size> suggestedResolutionMap = new HashMap<>();
-        suggestedResolutionMap.put(mCameraId, DEFAULT_RESOLUTION);
         mInstrumentation.runOnMainSync(
-                () -> useCase.updateSuggestedResolution(suggestedResolutionMap));
-        CameraUtil.openCameraWithUseCase(mCameraId, mCameraInternal, useCase, mRepeatingUseCase);
-        useCase.addStateChangeCallback(mCameraInternal);
+                () -> {
+                    CameraX.bindToLifecycle(mLifecycleOwner, BACK_SELECTOR, useCase);
+                    mLifecycleOwner.startAndResume();
+                });
 
+        OnImageCapturedCallback callback = createMockOnImageCapturedCallback(null);
         int numImages = 5;
         for (int i = 0; i < numImages; ++i) {
-            useCase.takePicture(
-                    mListenerExecutor,
-                    new OnImageCapturedCallback() {
-                        @Override
-                        public void onCaptureSuccess(@NonNull ImageProxy image,
-                                int rotationDegrees) {
-                            mMockImageCapturedListener.onCaptureSuccess(image, rotationDegrees);
-                            image.close();
-
-                            // Signal that an image has been captured.
-                            mSemaphore.release();
-                        }
-                    });
+            useCase.takePicture(mListenerExecutor, callback);
         }
 
-        // Wait for the signal that all images have been captured.
-        mSemaphore.acquire(numImages);
-
-        verify(mMockImageCapturedListener, times(numImages)).onCaptureSuccess(any(ImageProxy.class),
+        verify(callback, timeout(5000).times(numImages)).onCaptureSuccess(any(ImageProxy.class),
                 anyInt());
     }
 
     @Test
-    public void saveCanSucceed() throws InterruptedException, IOException {
+    public void saveCanSucceed() throws IOException {
         ImageCapture useCase = new ImageCapture(mDefaultConfig);
-        Map<String, Size> suggestedResolutionMap = new HashMap<>();
-        suggestedResolutionMap.put(mCameraId, DEFAULT_RESOLUTION);
         mInstrumentation.runOnMainSync(
-                () -> useCase.updateSuggestedResolution(suggestedResolutionMap));
-        CameraUtil.openCameraWithUseCase(mCameraId, mCameraInternal, useCase, mRepeatingUseCase);
-        useCase.addStateChangeCallback(mCameraInternal);
+                () -> {
+                    CameraX.bindToLifecycle(mLifecycleOwner, BACK_SELECTOR, useCase);
+                    mLifecycleOwner.startAndResume();
+                });
 
         File saveLocation = File.createTempFile("test", ".jpg");
         saveLocation.deleteOnExit();
-        useCase.takePicture(saveLocation, mListenerExecutor, mOnImageSavedCallback);
+        OnImageSavedCallback callback = mock(OnImageSavedCallback.class);
+        useCase.takePicture(saveLocation, mListenerExecutor, callback);
 
         // Wait for the signal that the image has been saved.
-        mSemaphore.acquire();
-
-        verify(mMockImageSavedCallback).onImageSaved(eq(saveLocation));
+        verify(callback, timeout(2000)).onImageSaved(eq(saveLocation));
     }
 
     @Test
     public void canSaveFile_withRotation()
-            throws InterruptedException, IOException, CameraInfoUnavailableException {
-        ImageCapture useCase = new ImageCapture(mDefaultConfig);
-        Map<String, Size> suggestedResolutionMap = new HashMap<>();
-        suggestedResolutionMap.put(mCameraId, DEFAULT_RESOLUTION);
+            throws IOException, CameraInfoUnavailableException {
+        ImageCaptureConfig config =
+                new ImageCaptureConfig.Builder().setTargetRotation(Surface.ROTATION_0).build();
+        ImageCapture useCase = new ImageCapture(config);
         mInstrumentation.runOnMainSync(
-                () -> useCase.updateSuggestedResolution(suggestedResolutionMap));
-        CameraUtil.openCameraWithUseCase(mCameraId, mCameraInternal, useCase, mRepeatingUseCase);
-        useCase.addStateChangeCallback(mCameraInternal);
+                () -> {
+                    CameraX.bindToLifecycle(mLifecycleOwner, BACK_SELECTOR, useCase);
+                    mLifecycleOwner.startAndResume();
+                });
 
         File saveLocation = File.createTempFile("test", ".jpg");
         saveLocation.deleteOnExit();
         Metadata metadata = new Metadata();
-        useCase.takePicture(saveLocation, metadata, mListenerExecutor, mOnImageSavedCallback);
+        OnImageSavedCallback callback = mock(OnImageSavedCallback.class);
+        useCase.takePicture(saveLocation, mListenerExecutor, callback);
 
         // Wait for the signal that the image has been saved.
-        mSemaphore.acquire();
+        verify(callback, timeout(2000)).onImageSaved(eq(saveLocation));
 
         // Retrieve the sensor orientation
         int rotationDegrees = CameraX.getCameraInfo(mCameraId).getSensorRotationDegrees();
@@ -377,25 +319,25 @@ public final class ImageCaptureTest {
 
     @Test
     public void canSaveFile_flippedHorizontal()
-            throws InterruptedException, IOException, CameraInfoUnavailableException {
+            throws IOException, CameraInfoUnavailableException {
         // Use a non-rotated configuration since some combinations of rotation + flipping vertically
         // can be equivalent to flipping horizontally
         ImageCapture useCase = new ImageCapture(createNonRotatedConfiguration());
-        Map<String, Size> suggestedResolutionMap = new HashMap<>();
-        suggestedResolutionMap.put(mCameraId, DEFAULT_RESOLUTION);
         mInstrumentation.runOnMainSync(
-                () -> useCase.updateSuggestedResolution(suggestedResolutionMap));
-        CameraUtil.openCameraWithUseCase(mCameraId, mCameraInternal, useCase, mRepeatingUseCase);
-        useCase.addStateChangeCallback(mCameraInternal);
+                () -> {
+                    CameraX.bindToLifecycle(mLifecycleOwner, BACK_SELECTOR, useCase);
+                    mLifecycleOwner.startAndResume();
+                });
 
         File saveLocation = File.createTempFile("test", ".jpg");
         saveLocation.deleteOnExit();
         Metadata metadata = new Metadata();
         metadata.isReversedHorizontal = true;
-        useCase.takePicture(saveLocation, metadata, mListenerExecutor, mOnImageSavedCallback);
+        OnImageSavedCallback callback = mock(OnImageSavedCallback.class);
+        useCase.takePicture(saveLocation, metadata, mListenerExecutor, callback);
 
         // Wait for the signal that the image has been saved.
-        mSemaphore.acquire();
+        verify(callback, timeout(2000)).onImageSaved(eq(saveLocation));
 
         // Retrieve the exif from the image
         Exif exif = Exif.createFromFile(saveLocation);
@@ -404,25 +346,25 @@ public final class ImageCaptureTest {
 
     @Test
     public void canSaveFile_flippedVertical()
-            throws InterruptedException, IOException, CameraInfoUnavailableException {
+            throws IOException, CameraInfoUnavailableException {
         // Use a non-rotated configuration since some combinations of rotation + flipping
         // horizontally can be equivalent to flipping vertically
         ImageCapture useCase = new ImageCapture(createNonRotatedConfiguration());
-        Map<String, Size> suggestedResolutionMap = new HashMap<>();
-        suggestedResolutionMap.put(mCameraId, DEFAULT_RESOLUTION);
         mInstrumentation.runOnMainSync(
-                () -> useCase.updateSuggestedResolution(suggestedResolutionMap));
-        CameraUtil.openCameraWithUseCase(mCameraId, mCameraInternal, useCase, mRepeatingUseCase);
-        useCase.addStateChangeCallback(mCameraInternal);
+                () -> {
+                    CameraX.bindToLifecycle(mLifecycleOwner, BACK_SELECTOR, useCase);
+                    mLifecycleOwner.startAndResume();
+                });
 
         File saveLocation = File.createTempFile("test", ".jpg");
         saveLocation.deleteOnExit();
         Metadata metadata = new Metadata();
         metadata.isReversedVertical = true;
-        useCase.takePicture(saveLocation, metadata, mListenerExecutor, mOnImageSavedCallback);
+        OnImageSavedCallback callback = mock(OnImageSavedCallback.class);
+        useCase.takePicture(saveLocation, metadata, mListenerExecutor, callback);
 
         // Wait for the signal that the image has been saved.
-        mSemaphore.acquire();
+        verify(callback, timeout(2000)).onImageSaved(eq(saveLocation));
 
         // Retrieve the exif from the image
         Exif exif = Exif.createFromFile(saveLocation);
@@ -430,24 +372,24 @@ public final class ImageCaptureTest {
     }
 
     @Test
-    public void canSaveFile_withAttachedLocation() throws InterruptedException, IOException {
+    public void canSaveFile_withAttachedLocation() throws IOException {
         ImageCapture useCase = new ImageCapture(mDefaultConfig);
-        Map<String, Size> suggestedResolutionMap = new HashMap<>();
-        suggestedResolutionMap.put(mCameraId, DEFAULT_RESOLUTION);
         mInstrumentation.runOnMainSync(
-                () -> useCase.updateSuggestedResolution(suggestedResolutionMap));
-        CameraUtil.openCameraWithUseCase(mCameraId, mCameraInternal, useCase, mRepeatingUseCase);
-        useCase.addStateChangeCallback(mCameraInternal);
+                () -> {
+                    CameraX.bindToLifecycle(mLifecycleOwner, BACK_SELECTOR, useCase);
+                    mLifecycleOwner.startAndResume();
+                });
 
         File saveLocation = File.createTempFile("test", ".jpg");
         saveLocation.deleteOnExit();
         Location location = new Location("ImageCaptureTest");
         Metadata metadata = new Metadata();
         metadata.location = location;
-        useCase.takePicture(saveLocation, metadata, mListenerExecutor, mOnImageSavedCallback);
+        OnImageSavedCallback callback = mock(OnImageSavedCallback.class);
+        useCase.takePicture(saveLocation, metadata, mListenerExecutor, callback);
 
         // Wait for the signal that the image has been saved.
-        mSemaphore.acquire();
+        verify(callback, timeout(2000)).onImageSaved(eq(saveLocation));
 
         // Retrieve the exif from the image
         Exif exif = Exif.createFromFile(saveLocation);
@@ -455,97 +397,64 @@ public final class ImageCaptureTest {
     }
 
     @Test
-    public void canSaveMultipleFiles() throws InterruptedException, IOException {
+    public void canSaveMultipleFiles() throws IOException {
         ImageCapture useCase = new ImageCapture(mDefaultConfig);
-        Map<String, Size> suggestedResolutionMap = new HashMap<>();
-        suggestedResolutionMap.put(mCameraId, DEFAULT_RESOLUTION);
         mInstrumentation.runOnMainSync(
-                () -> useCase.updateSuggestedResolution(suggestedResolutionMap));
-        CameraUtil.openCameraWithUseCase(mCameraId, mCameraInternal, useCase, mRepeatingUseCase);
-        useCase.addStateChangeCallback(mCameraInternal);
+                () -> {
+                    CameraX.bindToLifecycle(mLifecycleOwner, BACK_SELECTOR, useCase);
+                    mLifecycleOwner.startAndResume();
+                });
 
+        OnImageSavedCallback callback = mock(OnImageSavedCallback.class);
         int numImages = 5;
         for (int i = 0; i < numImages; ++i) {
             File saveLocation = File.createTempFile("test" + i, ".jpg");
             saveLocation.deleteOnExit();
 
-            useCase.takePicture(saveLocation, mListenerExecutor, mOnImageSavedCallback);
+            useCase.takePicture(saveLocation, mListenerExecutor, callback);
         }
 
-        // Wait for the signal that all images have been saved.
-        mSemaphore.acquire(numImages);
-
-        verify(mMockImageSavedCallback, times(numImages)).onImageSaved(any(File.class));
+        // Wait for the signal that the image has been saved.
+        verify(callback, timeout(5000).times(numImages)).onImageSaved(any(File.class));
     }
 
     @Test
-    public void saveWillFail_whenInvalidFilePathIsUsed() throws InterruptedException {
+    public void saveWillFail_whenInvalidFilePathIsUsed() {
         ImageCapture useCase = new ImageCapture(mDefaultConfig);
-        Map<String, Size> suggestedResolutionMap = new HashMap<>();
-        suggestedResolutionMap.put(mCameraId, DEFAULT_RESOLUTION);
         mInstrumentation.runOnMainSync(
-                () -> useCase.updateSuggestedResolution(suggestedResolutionMap));
-        CameraUtil.openCameraWithUseCase(mCameraId, mCameraInternal, useCase, mRepeatingUseCase);
-        useCase.addStateChangeCallback(mCameraInternal);
+                () -> {
+                    CameraX.bindToLifecycle(mLifecycleOwner, BACK_SELECTOR, useCase);
+                    mLifecycleOwner.startAndResume();
+                });
 
         // Note the invalid path
         File saveLocation = new File("/not/a/real/path.jpg");
-        useCase.takePicture(saveLocation, mListenerExecutor, mOnImageSavedCallback);
+        OnImageSavedCallback callback = mock(OnImageSavedCallback.class);
+        useCase.takePicture(saveLocation, mListenerExecutor, callback);
 
-        // Wait for the signal that an error occurred.
-        mSemaphore.acquire();
-
-        verify(mMockImageSavedCallback)
+        // Wait for the signal that the image has been saved.
+        verify(callback, timeout(2000))
                 .onError(eq(ImageCaptureError.FILE_IO_ERROR), anyString(), any(Throwable.class));
-    }
-
-    @Suppress // TODO(b/133171096): Remove once this no longer throws an IllegalStateException
-    @Test
-    public void updateSessionConfigWithSuggestedResolution() throws InterruptedException {
-        ImageCaptureConfig config =
-                new ImageCaptureConfig.Builder().build();
-        ImageCapture useCase = new ImageCapture(config);
-        useCase.addStateChangeCallback(mCameraInternal);
-        final Size[] sizes = {SECONDARY_RESOLUTION, DEFAULT_RESOLUTION};
-
-        for (Size size : sizes) {
-            Map<String, Size> suggestedResolutionMap = new HashMap<>();
-            suggestedResolutionMap.put(mCameraId, size);
-            // Update SessionConfig with resolution setting
-            useCase.updateSuggestedResolution(suggestedResolutionMap);
-            CameraUtil.openCameraWithUseCase(mCameraId, mCameraInternal, useCase,
-                    mRepeatingUseCase);
-
-            useCase.takePicture(mListenerExecutor, mOnImageCapturedCallback);
-            // Wait for the signal that the image has been captured.
-            mSemaphore.acquire();
-
-            assertThat(new Size(mCapturedImage.getWidth(), mCapturedImage.getHeight()))
-                    .isEqualTo(size);
-
-            // Detach use case from camera device to run next resolution setting
-            CameraUtil.detachUseCaseFromCamera(mCameraInternal, useCase);
-        }
     }
 
     @Test
     @UseExperimental(markerClass = ExperimentalCamera2Interop.class)
-    public void camera2InteropCaptureSessionCallbacks() throws InterruptedException {
+    public void camera2InteropCaptureSessionCallbacks() {
         ImageCaptureConfig.Builder configBuilder = new ImageCaptureConfig.Builder();
         CameraCaptureSession.CaptureCallback captureCallback =
                 mock(CameraCaptureSession.CaptureCallback.class);
         new Camera2Config.Extender(configBuilder).setSessionCaptureCallback(captureCallback);
         ImageCapture useCase = new ImageCapture(configBuilder.build());
-        Map<String, Size> suggestedResolutionMap = new HashMap<>();
-        suggestedResolutionMap.put(mCameraId, DEFAULT_RESOLUTION);
         mInstrumentation.runOnMainSync(
-                () -> useCase.updateSuggestedResolution(suggestedResolutionMap));
-        CameraUtil.openCameraWithUseCase(mCameraId, mCameraInternal, useCase, mRepeatingUseCase);
-        useCase.addStateChangeCallback(mCameraInternal);
+                () -> {
+                    CameraX.bindToLifecycle(mLifecycleOwner, BACK_SELECTOR, useCase);
+                    mLifecycleOwner.startAndResume();
+                });
 
-        useCase.takePicture(mListenerExecutor, mOnImageCapturedCallback);
+        OnImageCapturedCallback callback = createMockOnImageCapturedCallback(null);
+        useCase.takePicture(mListenerExecutor, callback);
         // Wait for the signal that the image has been captured.
-        mSemaphore.acquire();
+        verify(callback, timeout(1000)).onCaptureSuccess(any(ImageProxy.class), anyInt());
 
         // Note: preview callbacks also fire on interop listener.
         ArgumentMatcher<CaptureRequest> matcher = new ArgumentMatcher<CaptureRequest>() {
@@ -564,8 +473,7 @@ public final class ImageCaptureTest {
     }
 
     @Test
-    public void takePicture_withBufferFormatRaw10()
-            throws InterruptedException, CameraAccessException {
+    public void takePicture_withBufferFormatRaw10() throws CameraAccessException {
         CameraCharacteristics cameraCharacteristics =
                 CameraUtil.getCameraManager().getCameraCharacteristics(mCameraId);
         StreamConfigurationMap map =
@@ -581,19 +489,19 @@ public final class ImageCaptureTest {
                         .setBufferFormat(ImageFormat.RAW10)
                         .build();
         ImageCapture useCase = new ImageCapture(config);
-        Map<String, Size> suggestedResolutionMap = new HashMap<>();
-        suggestedResolutionMap.put(mCameraId, resolution);
         mInstrumentation.runOnMainSync(
-                () -> useCase.updateSuggestedResolution(suggestedResolutionMap));
-        CameraUtil.openCameraWithUseCase(mCameraId, mCameraInternal, useCase, mRepeatingUseCase);
-        useCase.addStateChangeCallback(mCameraInternal);
+                () -> {
+                    CameraX.bindToLifecycle(mLifecycleOwner, BACK_SELECTOR, useCase);
+                    mLifecycleOwner.startAndResume();
+                });
 
-        useCase.takePicture(mListenerExecutor, mOnImageCapturedCallback);
+        AtomicReference<ImageProperties> imageProperties = new AtomicReference<>();
+        OnImageCapturedCallback callback = createMockOnImageCapturedCallback(imageProperties);
+        useCase.takePicture(mListenerExecutor, callback);
+        // Wait for the signal that the image has been captured.
+        verify(callback, timeout(1000)).onCaptureSuccess(any(ImageProxy.class), anyInt());
 
-        // Wait for the signal that the image has been saved.
-        mSemaphore.acquire();
-
-        assertThat(mCapturedImage.getFormat()).isEqualTo(ImageFormat.RAW10);
+        assertThat(imageProperties.get().format).isEqualTo(ImageFormat.RAW10);
     }
 
     @Test(expected = IllegalArgumentException.class)
@@ -614,8 +522,6 @@ public final class ImageCaptureTest {
 
     @Test
     public void captureStagesAbove1_withoutCaptureProcessor() {
-        FakeLifecycleOwner lifecycle = new FakeLifecycleOwner();
-
         CaptureBundle captureBundle = new CaptureBundle() {
             @Override
             public List<CaptureStage> getCaptureStages() {
@@ -631,22 +537,20 @@ public final class ImageCaptureTest {
         ImageCapture imageCapture = new ImageCapture(configBuilder.build());
 
         mInstrumentation.runOnMainSync(() -> {
-            CameraX.bindToLifecycle(lifecycle, BACK_SELECTOR, imageCapture);
-            lifecycle.startAndResume();
+            CameraX.bindToLifecycle(mLifecycleOwner, BACK_SELECTOR, imageCapture);
+            mLifecycleOwner.startAndResume();
         });
 
-        OnImageCapturedCallback mockOnImageCaptureListener = mock(OnImageCapturedCallback.class);
-        imageCapture.takePicture(mListenerExecutor, mockOnImageCaptureListener);
+        OnImageCapturedCallback callback = createMockOnImageCapturedCallback(null);
+        imageCapture.takePicture(mListenerExecutor, callback);
 
-        verify(mockOnImageCaptureListener, timeout(3000)).onError(any(ImageCaptureError.class),
+        verify(callback, timeout(3000)).onError(any(ImageCaptureError.class),
                 anyString(), any(IllegalArgumentException.class));
 
     }
 
     @Test
     public void captureStageExceedMaxCaptureStage_whenIssueTakePicture() {
-        FakeLifecycleOwner lifecycle = new FakeLifecycleOwner();
-
         // Initial the captureStages not greater than the maximum count to bypass the
         // CaptureStage count checking during bindToLifeCycle.
         List<CaptureStage> captureStages = new ArrayList<>();
@@ -667,52 +571,50 @@ public final class ImageCaptureTest {
         ImageCapture imageCapture = new ImageCapture(config);
 
         mInstrumentation.runOnMainSync(() -> {
-            CameraX.bindToLifecycle(lifecycle, BACK_SELECTOR, imageCapture);
-            lifecycle.startAndResume();
+            CameraX.bindToLifecycle(mLifecycleOwner, BACK_SELECTOR, imageCapture);
+            mLifecycleOwner.startAndResume();
         });
 
         // Add an additional capture stage to test the case
         // captureStage.size() >　mMaxCaptureStages during takePicture.
         captureStages.add(new FakeCaptureStage(1, new CaptureConfig.Builder().build()));
 
-        OnImageCapturedCallback mockOnImageCaptureListener = mock(OnImageCapturedCallback.class);
+        OnImageCapturedCallback callback = createMockOnImageCapturedCallback(null);
 
         // Take 2 photos.
-        imageCapture.takePicture(mListenerExecutor, mockOnImageCaptureListener);
-        imageCapture.takePicture(mListenerExecutor, mockOnImageCaptureListener);
+        imageCapture.takePicture(mListenerExecutor, callback);
+        imageCapture.takePicture(mListenerExecutor, callback);
 
         // It should get onError() callback twice.
-        verify(mockOnImageCaptureListener, timeout(3000).times(2)).onError(
-                any(ImageCaptureError.class), anyString(), any(IllegalArgumentException.class));
+        verify(callback, timeout(3000).times(2)).onError(any(ImageCaptureError.class), anyString(),
+                any(IllegalArgumentException.class));
 
     }
 
     @Test
-    public void onCaptureCancelled_onErrorCAMERA_CLOSED()
-            throws InterruptedException {
-        FakeLifecycleOwner lifecycle = new FakeLifecycleOwner();
+    public void onCaptureCancelled_onErrorCAMERA_CLOSED() throws InterruptedException {
         ImageCaptureConfig config = new ImageCaptureConfig.Builder()
                 .build();
         ImageCapture imageCapture = new ImageCapture(config);
         mInstrumentation.runOnMainSync(() -> {
-            CameraX.bindToLifecycle(lifecycle, BACK_SELECTOR, imageCapture);
-            lifecycle.startAndResume();
+            CameraX.bindToLifecycle(mLifecycleOwner, BACK_SELECTOR, imageCapture);
+            mLifecycleOwner.startAndResume();
         });
 
         FakeCameraControl fakeCameraControl = new FakeCameraControl(mock(
                 CameraControlInternal.ControlUpdateCallback.class));
         imageCapture.attachCameraControl(mCameraId, fakeCameraControl);
         CountDownLatch captureSubmittedLatch = new CountDownLatch(1);
-        OnImageCapturedCallback onImageCapturedCallback = mock(OnImageCapturedCallback.class);
+        OnImageCapturedCallback callback = createMockOnImageCapturedCallback(null);
 
-        imageCapture.takePicture(mListenerExecutor, onImageCapturedCallback);
+        imageCapture.takePicture(mListenerExecutor, callback);
 
         captureSubmittedLatch.await(500, TimeUnit.MILLISECONDS);
         fakeCameraControl.notifyAllRequestOnCaptureCancelled();
 
         ArgumentCaptor<ImageCaptureError> errorCaptor =
                 ArgumentCaptor.forClass(ImageCaptureError.class);
-        verify(onImageCapturedCallback, timeout(500).times(1)).onError(errorCaptor.capture(),
+        verify(callback, timeout(500).times(1)).onError(errorCaptor.capture(),
                 any(String.class),
                 any(Throwable.class));
         assertThat(errorCaptor.getValue()).isEqualTo(ImageCaptureError.CAMERA_CLOSED);
@@ -720,67 +622,109 @@ public final class ImageCaptureTest {
 
     @Test
     public void onRequestFailed_OnErrorCAPTURE_FAILED() throws InterruptedException {
-        FakeLifecycleOwner lifecycle = new FakeLifecycleOwner();
         ImageCaptureConfig config = new ImageCaptureConfig.Builder()
                 .build();
         ImageCapture imageCapture = new ImageCapture(config);
         mInstrumentation.runOnMainSync(() -> {
-            CameraX.bindToLifecycle(lifecycle, BACK_SELECTOR, imageCapture);
-            lifecycle.startAndResume();
+            CameraX.bindToLifecycle(mLifecycleOwner, BACK_SELECTOR, imageCapture);
+            mLifecycleOwner.startAndResume();
         });
 
         FakeCameraControl fakeCameraControl = new FakeCameraControl(mock(
                 CameraControlInternal.ControlUpdateCallback.class));
         imageCapture.attachCameraControl(mCameraId, fakeCameraControl);
         CountDownLatch captureSubmittedLatch = new CountDownLatch(1);
-        OnImageCapturedCallback onImageCapturedCallback = mock(OnImageCapturedCallback.class);
+        OnImageCapturedCallback callback = createMockOnImageCapturedCallback(null);
         fakeCameraControl.setOnNewCaptureRequestListener(captureConfigs -> {
             captureSubmittedLatch.countDown();
         });
 
-        imageCapture.takePicture(mListenerExecutor, onImageCapturedCallback);
+        imageCapture.takePicture(mListenerExecutor, callback);
 
         captureSubmittedLatch.await(500, TimeUnit.MILLISECONDS);
         fakeCameraControl.notifyAllRequestsOnCaptureFailed();
 
         ArgumentCaptor<ImageCaptureError> errorCaptor =
                 ArgumentCaptor.forClass(ImageCaptureError.class);
-        verify(onImageCapturedCallback, timeout(500).times(1)).onError(errorCaptor.capture(),
+        verify(callback, timeout(500).times(1)).onError(errorCaptor.capture(),
                 any(String.class),
                 any(Throwable.class));
         assertThat(errorCaptor.getValue()).isEqualTo(ImageCaptureError.CAPTURE_FAILED);
     }
 
     @Test
-    public void onStateOffline_abortAllCaptureRequests() throws InterruptedException {
-        FakeLifecycleOwner lifecycle = new FakeLifecycleOwner();
+    public void onStateOffline_abortAllCaptureRequests() {
         ImageCaptureConfig config = new ImageCaptureConfig.Builder()
                 .build();
         ImageCapture imageCapture = new ImageCapture(config);
         mInstrumentation.runOnMainSync(() -> {
-            CameraX.bindToLifecycle(lifecycle, BACK_SELECTOR, imageCapture);
-            lifecycle.startAndResume();
+            CameraX.bindToLifecycle(mLifecycleOwner, BACK_SELECTOR, imageCapture);
+            mLifecycleOwner.startAndResume();
         });
 
         FakeCameraControl fakeCameraControl = new FakeCameraControl(mock(
                 CameraControlInternal.ControlUpdateCallback.class));
         imageCapture.attachCameraControl(mCameraId, fakeCameraControl);
-        OnImageCapturedCallback onImageCapturedCallback = mock(OnImageCapturedCallback.class);
+        OnImageCapturedCallback callback = createMockOnImageCapturedCallback(null);
 
-        imageCapture.takePicture(mListenerExecutor, onImageCapturedCallback);
-        imageCapture.takePicture(mListenerExecutor, onImageCapturedCallback);
-        imageCapture.takePicture(mListenerExecutor, onImageCapturedCallback);
+        imageCapture.takePicture(mListenerExecutor, callback);
+        imageCapture.takePicture(mListenerExecutor, callback);
+        imageCapture.takePicture(mListenerExecutor, callback);
 
         mInstrumentation.runOnMainSync(() -> imageCapture.onStateOffline(mCameraId));
 
         ArgumentCaptor<ImageCaptureError> errorCaptor =
                 ArgumentCaptor.forClass(ImageCaptureError.class);
-        verify(onImageCapturedCallback, timeout(500).times(3)).onError(errorCaptor.capture(),
+        verify(callback, timeout(500).times(3)).onError(errorCaptor.capture(),
                 any(String.class),
                 any(Throwable.class));
         assertThat(errorCaptor.getAllValues()).containsExactly(
                 ImageCaptureError.CAMERA_CLOSED,
                 ImageCaptureError.CAMERA_CLOSED,
                 ImageCaptureError.CAMERA_CLOSED);
+    }
+
+    @Test
+    public void takePictureReturnsErrorNO_CAMERA_whenNotBound() {
+        ImageCaptureConfig config = new ImageCaptureConfig.Builder()
+                .build();
+        ImageCapture imageCapture = new ImageCapture(config);
+
+        OnImageCapturedCallback callback = createMockOnImageCapturedCallback(null);
+        imageCapture.takePicture(mListenerExecutor, callback);
+
+        ArgumentCaptor<ImageCaptureError> errorCaptor =
+                ArgumentCaptor.forClass(ImageCaptureError.class);
+        verify(callback, timeout(500)).onError(errorCaptor.capture(), any(String.class),
+                any(Throwable.class));
+        assertThat(errorCaptor.getValue()).isEqualTo(ImageCaptureError.INVALID_CAMERA);
+    }
+
+    private static final class ImageProperties {
+        public Size size;
+        public int format;
+        public int rotationDegrees;
+    }
+
+    private OnImageCapturedCallback createMockOnImageCapturedCallback(
+            @Nullable AtomicReference<ImageProperties> resultProperties) {
+        OnImageCapturedCallback callback = mock(OnImageCapturedCallback.class);
+        doAnswer(
+                i -> {
+                    ImageProxy image = i.getArgument(0);
+                    if (resultProperties != null) {
+                        int rotationDegrees = i.getArgument(1);
+                        ImageProperties imageProperties = new ImageProperties();
+                        imageProperties.size = new Size(image.getWidth(), image.getHeight());
+                        imageProperties.format = image.getFormat();
+                        imageProperties.rotationDegrees = rotationDegrees;
+                        resultProperties.set(imageProperties);
+                    }
+                    image.close();
+                    return null;
+                }).when(callback).onCaptureSuccess(any(ImageProxy.class),
+                anyInt());
+
+        return callback;
     }
 }
