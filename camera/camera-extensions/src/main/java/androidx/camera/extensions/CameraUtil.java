@@ -26,9 +26,11 @@ import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.camera.core.CameraDeviceConfig;
 import androidx.camera.core.CameraInfoUnavailableException;
+import androidx.camera.core.CameraSelector;
 import androidx.camera.core.CameraX;
 import androidx.camera.core.LensFacing;
 import androidx.camera.core.LensFacingCameraIdFilter;
+import androidx.camera.core.impl.utils.CameraSelectorUtil;
 
 import java.util.Set;
 
@@ -39,8 +41,9 @@ class CameraUtil {
     private static final String TAG = "CameraUtil";
 
     @Nullable
-    static String getCameraId(CameraDeviceConfig config) {
+    static String getCameraId(@NonNull CameraSelector cameraSelector) {
         try {
+            CameraDeviceConfig config = CameraSelectorUtil.toCameraDeviceConfig(cameraSelector);
             return CameraX.getCameraWithCameraDeviceConfig(config);
         } catch (CameraInfoUnavailableException e) {
             Log.w(TAG, "Unable to get camera id for the camera device config.");

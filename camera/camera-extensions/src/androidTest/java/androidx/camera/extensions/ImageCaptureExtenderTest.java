@@ -43,6 +43,7 @@ import androidx.camera.camera2.Camera2AppConfig;
 import androidx.camera.camera2.Camera2Config;
 import androidx.camera.camera2.impl.CameraEventCallbacks;
 import androidx.camera.core.CameraInfoUnavailableException;
+import androidx.camera.core.CameraSelector;
 import androidx.camera.core.CameraX;
 import androidx.camera.core.CaptureProcessor;
 import androidx.camera.core.ImageCapture;
@@ -101,7 +102,8 @@ public class ImageCaptureExtenderTest {
 
     @Test
     @MediumTest
-    public void extenderLifeCycleTest_noMoreGetCaptureStagesBeforeAndAfterInitDeInit() {
+    public void extenderLifeCycleTest_noMoreGetCaptureStagesBeforeAndAfterInitDeInit()
+            throws CameraInfoUnavailableException {
         ImageCaptureExtenderImpl mockImageCaptureExtenderImpl = mock(
                 ImageCaptureExtenderImpl.class);
         ArrayList<CaptureStageImpl> captureStages = new ArrayList<>();
@@ -118,10 +120,14 @@ public class ImageCaptureExtenderTest {
                         mock(CaptureProcessor.class));
 
         ImageCapture useCase = new ImageCapture(configBuilder.build());
+
+        LensFacing lensFacing = CameraX.getDefaultLensFacing();
+        CameraSelector cameraSelector = new CameraSelector.Builder()
+                .requireLensFacing(lensFacing).build();
         mInstrumentation.runOnMainSync(new Runnable() {
             @Override
             public void run() {
-                CameraX.bindToLifecycle(mLifecycleOwner, useCase);
+                CameraX.bindToLifecycle(mLifecycleOwner, cameraSelector, useCase);
                 mLifecycleOwner.startAndResume();
             }
         });
@@ -152,7 +158,8 @@ public class ImageCaptureExtenderTest {
 
     @Test
     @MediumTest
-    public void extenderLifeCycleTest_noMoreCameraEventCallbacksBeforeAndAfterInitDeInit() {
+    public void extenderLifeCycleTest_noMoreCameraEventCallbacksBeforeAndAfterInitDeInit()
+            throws CameraInfoUnavailableException {
         ImageCaptureExtenderImpl mockImageCaptureExtenderImpl = mock(
                 ImageCaptureExtenderImpl.class);
         ArrayList<CaptureStageImpl> captureStages = new ArrayList<>();
@@ -172,10 +179,13 @@ public class ImageCaptureExtenderTest {
 
         ImageCapture useCase = new ImageCapture(configBuilder.build());
 
+        LensFacing lensFacing = CameraX.getDefaultLensFacing();
+        CameraSelector cameraSelector = new CameraSelector.Builder()
+                .requireLensFacing(lensFacing).build();
         mInstrumentation.runOnMainSync(new Runnable() {
             @Override
             public void run() {
-                CameraX.bindToLifecycle(mLifecycleOwner, useCase);
+                CameraX.bindToLifecycle(mLifecycleOwner, cameraSelector, useCase);
                 mLifecycleOwner.startAndResume();
             }
         });
@@ -218,8 +228,7 @@ public class ImageCaptureExtenderTest {
         assumeTrue(ExtensionVersion.getRuntimeVersion().compareTo(Version.VERSION_1_1) >= 0);
 
         LensFacing lensFacing = CameraX.getDefaultLensFacing();
-        ImageCaptureConfig.Builder configBuilder =
-                new ImageCaptureConfig.Builder().setLensFacing(lensFacing);
+        ImageCaptureConfig.Builder configBuilder = new ImageCaptureConfig.Builder();
 
         ImageCaptureExtenderImpl mockImageCaptureExtenderImpl = mock(
                 ImageCaptureExtenderImpl.class);
@@ -236,7 +245,9 @@ public class ImageCaptureExtenderTest {
         assertThat(configBuilder.build().getSupportedResolutions(null)).isNull();
 
         // Checks the config includes supported resolutions after applying effect mode.
-        fakeExtender.enableExtension();
+        CameraSelector selector =
+                new CameraSelector.Builder().requireLensFacing(lensFacing).build();
+        fakeExtender.enableExtension(selector);
         List<Pair<Integer, Size[]>> resultFormatResolutionsPairList =
                 configBuilder.build().getSupportedResolutions(null);
         assertThat(resultFormatResolutionsPairList).isNotNull();

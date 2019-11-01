@@ -18,6 +18,8 @@ package androidx.camera.extensions;
 
 import android.util.Log;
 
+import androidx.annotation.NonNull;
+import androidx.camera.core.CameraSelector;
 import androidx.camera.core.PreviewConfig;
 import androidx.camera.extensions.ExtensionsManager.EffectMode;
 import androidx.camera.extensions.impl.AutoPreviewExtenderImpl;
@@ -52,12 +54,12 @@ public class AutoPreviewExtender extends PreviewExtender {
         }
 
         @Override
-        public boolean isExtensionAvailable() {
+        public boolean isExtensionAvailable(@NonNull CameraSelector selector) {
             return false;
         }
 
         @Override
-        public void enableExtension() {
+        public void enableExtension(@NonNull CameraSelector selector) {
         }
     }
 
