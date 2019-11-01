@@ -19,8 +19,6 @@
 
 package androidx.work
 
-import androidx.concurrent.futures.await
-
 /**
  * Awaits an [Operation] without blocking a thread.
  *
