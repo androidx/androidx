@@ -138,6 +138,7 @@ class AndroidComposeView constructor(context: Context) :
             Stage.Layout -> requestRelayout(affectedNode as LayoutNode)
         }
     }
+
     internal fun isObservingModels() = modelObserver.isObserving
 
     init {
@@ -449,8 +450,10 @@ class AndroidComposeView constructor(context: Context) :
                         val doTranslate = contentPos.x != 0.ipx || contentPos.y != 0.ipx
                         if (doTranslate) {
                             canvas.save()
-                            canvas.translate(contentPos.x.value.toFloat(),
-                                contentPos.y.value.toFloat())
+                            canvas.translate(
+                                contentPos.x.value.toFloat(),
+                                contentPos.y.value.toFloat()
+                            )
                         }
                         val contentSize = node.contentSize.toPxSize()
                         node.visitChildren { child ->
@@ -548,10 +551,10 @@ class AndroidComposeView constructor(context: Context) :
             if (event.actionMasked == MotionEvent.ACTION_CANCEL) {
                 pointerInputEventProcessor.processCancel()
             } else {
-                pointerInputEventProcessor.process(event.toPointerInputEvent())
+                pointerInputEventProcessor.process(event.toPointerInputEvent(), calculatePosition())
             }
-            // TODO(shepshapard): Only return if some aspect of the change was consumed.
         }
+        // TODO(shepshapard): Only return if some aspect of the change was consumed.
         return true
     }
 
@@ -587,7 +590,7 @@ class AndroidComposeView constructor(context: Context) :
 
     override fun calculatePosition(): IntPxPosition {
         val positionArray = intArrayOf(0, 0)
-        getLocationInWindow(positionArray)
+        getLocationOnScreen(positionArray)
         return IntPxPosition(positionArray[0].ipx, positionArray[1].ipx)
     }
 
@@ -746,6 +749,7 @@ private class RepaintBoundaryView(
         setWillNotDraw(false) // we WILL draw
         id = View.generateViewId()
     }
+
     private val density = Density(context)
     private val outlineResolver = OutlineResolver(density)
     private val outlineProviderImpl = object : ViewOutlineProvider() {

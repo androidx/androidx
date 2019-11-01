@@ -396,6 +396,26 @@ class MotionEventAdapterTest {
         assertPointerInputEventData(pointers[2], 9285, false, 6206f, 1098f)
     }
 
+    @Test
+    fun toPointerInputEvent_motionEventOffset_usesRawCoordinatesInsteadOfOffset() {
+        val motionEvent = MotionEvent(
+            0,
+            MotionEvent.ACTION_DOWN,
+            1,
+            0,
+            arrayOf(PointerProperties(0)),
+            arrayOf(PointerCoords(1f, 2f))
+        )
+
+        motionEvent.offsetLocation(10f, 20f)
+
+        val (timestamp, pointers) = motionEvent.toPointerInputEvent()
+
+        assertThat(timestamp.nanoseconds, `is`(0L))
+        assertThat(pointers.size, `is`(1))
+        assertPointerInputEventData(pointers[0], 0, true, 1f, 2f)
+    }
+
     // Private help functions.
 
     private fun PointerProperties(id: Int) =

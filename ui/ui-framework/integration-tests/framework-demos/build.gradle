@@ -24,6 +24,7 @@ dependencies {
     implementation project(":ui:ui-layout")
     implementation project(":ui:ui-text")
     implementation project(':ui:ui-animation')
+    implementation project(":ui:ui-foundation")
     implementation project(':ui:ui-framework')
     implementation project(':ui:ui-material')
     implementation project(path: ':ui:ui-vector')
