@@ -35,7 +35,6 @@ import org.robolectric.annotation.Config;
 import org.robolectric.annotation.internal.DoNotInstrument;
 
 import java.util.concurrent.atomic.AtomicInteger;
-import java.util.concurrent.atomic.AtomicReference;
 
 @SmallTest
 @RunWith(RobolectricTestRunner.class)
@@ -58,11 +57,10 @@ public class ImageAnalysisNonBlockingAnalyzerTest {
 
         mAnalyzer = mock(ImageAnalysis.Analyzer.class);
         mImageAnalysisNonBlockingAnalyzer = new ImageAnalysisNonBlockingAnalyzer(
-                new AtomicReference<ImageAnalysis.Analyzer>(mAnalyzer),
-                ROTATION,
-                new AtomicReference<>(CameraXExecutors.mainThreadExecutor()),
-                CameraXExecutors.directExecutor()
-        );
+                CameraXExecutors.directExecutor());
+        mImageAnalysisNonBlockingAnalyzer.setAnalyzer(CameraXExecutors.mainThreadExecutor(),
+                mAnalyzer);
+        mImageAnalysisNonBlockingAnalyzer.setRelativeRotation(ROTATION.get());
     }
 
     @Test

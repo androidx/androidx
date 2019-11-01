@@ -20,11 +20,14 @@ import android.util.Log;
 
 import androidx.annotation.GuardedBy;
 import androidx.annotation.NonNull;
+import androidx.camera.core.impl.utils.executor.CameraXExecutors;
+import androidx.camera.core.impl.utils.futures.FutureCallback;
+import androidx.camera.core.impl.utils.futures.Futures;
+
+import com.google.common.util.concurrent.ListenableFuture;
 
 import java.util.concurrent.Executor;
-import java.util.concurrent.atomic.AtomicInteger;
 import java.util.concurrent.atomic.AtomicLong;
-import java.util.concurrent.atomic.AtomicReference;
 
 /**
  * OnImageAvailableListener with non-blocking behavior. Analyzes images in a non-blocking way by
@@ -50,10 +53,7 @@ final class ImageAnalysisNonBlockingAnalyzer extends ImageAnalysisAbstractAnalyz
     // Timestamp of the last image finished being processed by user callback thread.
     private final AtomicLong mFinishedImageTimestamp;
 
-    ImageAnalysisNonBlockingAnalyzer(AtomicReference<ImageAnalysis.Analyzer> subscribedAnalyzer,
-            AtomicInteger relativeRotation, AtomicReference<Executor> userExecutor,
-            Executor executor) {
-        super(subscribedAnalyzer, relativeRotation, userExecutor);
+    ImageAnalysisNonBlockingAnalyzer(Executor executor) {
         mBackgroundExecutor = executor;
         mPostedImageTimestamp = new AtomicLong();
         mFinishedImageTimestamp = new AtomicLong();
@@ -128,40 +128,38 @@ final class ImageAnalysisNonBlockingAnalyzer extends ImageAnalysisAbstractAnalyz
         }
 
         mPostedImageTimestamp.set(imageProxy.getTimestamp());
-        Executor executor = mUserExecutor.get();
-        if (executor != null) {
-            try {
-                executor.execute(new Runnable() {
+
+        ListenableFuture<Void> analyzeFuture = analyzeImage(imageProxy);
+
+        // Callback to close the image only after analysis complete regardless of success
+        Futures.addCallback(analyzeFuture, new FutureCallback<Void>() {
+            @Override
+            public void onSuccess(Void result) {
+                finishImage(imageProxy);
+
+                mBackgroundExecutor.execute(new Runnable() {
                     @Override
                     public void run() {
-                        try {
-                            analyzeImage(imageProxy);
-                        } finally {
-                            finishImage(imageProxy);
-                            mBackgroundExecutor.execute(new Runnable() {
-                                @Override
-                                public void run() {
-                                    analyzeCachedImage();
-                                }
-                            });
-                        }
+                        analyzeCachedImage();
                     }
                 });
-            } catch (RuntimeException e) {
-                // Unblock if fails to post to user thread.
-                Log.e(TAG, "Error calling user callback", e);
+            }
+
+            @Override
+            public void onFailure(Throwable t) {
                 finishImage(imageProxy);
             }
-        } else {
-            finishImage(imageProxy);
-        }
+        }, CameraXExecutors.directExecutor());
     }
 
+    // Finish processing image for handling dropping behavior
+    @SuppressWarnings("WeakerAccess") /* synthetic access */
     synchronized void finishImage(ImageProxy imageProxy) {
-        if (isClosed()) {
-            return;
+        try {
+            mFinishedImageTimestamp.set(imageProxy.getTimestamp());
+            imageProxy.close();
+        } catch (IllegalStateException e) {
+            Log.d(TAG, "Image already closed");
         }
-        mFinishedImageTimestamp.set(imageProxy.getTimestamp());
-        imageProxy.close();
     }
 }
