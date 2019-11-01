@@ -23,7 +23,6 @@ import android.os.Build;
 import androidx.annotation.IntDef;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
-import androidx.annotation.RestrictTo;
 
 import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;
@@ -33,11 +32,8 @@ import java.util.concurrent.Executor;
  * Singleton class to facilitate communication between the {@link BiometricPrompt} for the client
  * activity and the one attached to {@link DeviceCredentialHandlerActivity} when allowing device
  * credential authentication prior to Q.
- *
- * @hide
  */
-@RestrictTo(RestrictTo.Scope.LIBRARY)
-public class DeviceCredentialHandlerBridge {
+class DeviceCredentialHandlerBridge {
     @Nullable
     private static DeviceCredentialHandlerBridge sInstance;
 

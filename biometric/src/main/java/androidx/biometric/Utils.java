@@ -27,13 +27,8 @@ import android.util.Log;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.annotation.RequiresApi;
-import androidx.annotation.RestrictTo;
 import androidx.fragment.app.FragmentActivity;
 
-/**
- * @hide
- */
-@RestrictTo(RestrictTo.Scope.LIBRARY)
 class Utils {
     // Private constructor to prevent instantiation.
     private Utils() {
