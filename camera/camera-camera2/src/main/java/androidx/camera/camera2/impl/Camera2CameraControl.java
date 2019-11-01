@@ -38,6 +38,7 @@ import androidx.camera.core.Config;
 import androidx.camera.core.FlashMode;
 import androidx.camera.core.FocusMeteringAction;
 import androidx.camera.core.SessionConfig;
+import androidx.camera.core.impl.utils.futures.Futures;
 import androidx.core.util.Preconditions;
 
 import com.google.common.util.concurrent.ListenableFuture;
@@ -176,12 +177,15 @@ public final class Camera2CameraControl implements CameraControlInternal {
 
     /** {@inheritDoc} */
     @Override
-    public void enableTorch(final boolean torch) {
+    @NonNull
+    public ListenableFuture<Void> enableTorch(final boolean torch) {
         // update isTorchOn immediately so that following isTorchOn() returns correct value.
         mIsTorchOn = torch;
 
         mExecutor.execute(() -> enableTorchInternal(torch));
 
+        // TODO(b/143514107): implement #enableTorch which returns ListenableFuture.
+        return Futures.immediateFuture(null);
     }
 
     /** {@inheritDoc} */

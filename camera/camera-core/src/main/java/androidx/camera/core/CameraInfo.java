@@ -57,6 +57,20 @@ public interface CameraInfo {
     LiveData<Boolean> isFlashAvailable();
 
     /**
+     * Returns a {@link LiveData} of current {@link TorchState}.
+     *
+     * <p>The torch state can be enabled or disabled via
+     * {@link CameraControl#enableTorch(boolean)} which will trigger the change event to the
+     * returned {@link LiveData}. Apps can either get immediate value via
+     * {@link LiveData#getValue()} or observe it via
+     * {@link LiveData#observe(LifecycleOwner, Observer)} to update torch UI accordingly.
+     *
+     * @return a {@link LiveData} containing current torch state.
+     */
+    @NonNull
+    LiveData<TorchState> getTorchState();
+
+    /**
      * Returns a {@link LiveData} of current zoom ratio.
      *
      * <p>Apps can either get immediate value via {@link LiveData#getValue()} (The value is never

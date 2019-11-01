@@ -16,7 +16,14 @@
 
 package androidx.camera.core;
 
-/** The flash mode options when taking a picture using ImageCapture. */
+/**
+ * The flash mode options when taking a picture using ImageCapture.
+ *
+ * <p>When the torch is enabled via {@link CameraControl#enableTorch(boolean)}, the torch
+ * will remain enabled during photo capture regardless of flash mode setting. When
+ * the torch is disabled, flash will function as specified by
+ * {@link ImageCapture#setFlashMode(FlashMode)}.
+ */
 public enum FlashMode {
     /**
      * Auto flash. The flash will be used according to the camera system's determination when taking

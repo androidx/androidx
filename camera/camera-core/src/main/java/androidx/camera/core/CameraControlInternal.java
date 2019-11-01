@@ -60,14 +60,8 @@ public interface CameraControlInternal extends CameraControl {
      */
     void setFlashMode(@NonNull FlashMode flashMode);
 
-    /**
-     * Enable the torch or disable the torch
-     *
-     * @param torch true to open the torch, false to close it.
-     */
-    void enableTorch(boolean torch);
-
     /** Returns if current torch is enabled or not. */
+    // TODO(b/143514107): remove this API when CameraInfo#getTorchState implementation is done.
     boolean isTorchOn();
 
     /** Performs a AF trigger. */
@@ -99,8 +93,10 @@ public interface CameraControlInternal extends CameraControl {
         public void setFlashMode(@NonNull FlashMode flashMode) {
         }
 
+        @NonNull
         @Override
-        public void enableTorch(boolean torch) {
+        public ListenableFuture<Void> enableTorch(boolean torch) {
+            return Futures.immediateFuture(null);
         }
 
         @Override

@@ -107,9 +107,11 @@ public final class FakeCameraControl implements CameraControlInternal {
     }
 
     @Override
-    public void enableTorch(boolean torch) {
+    @NonNull
+    public ListenableFuture<Void> enableTorch(boolean torch) {
         mIsTorchOn = torch;
         Log.d(TAG, "enableTorch(" + torch + ")");
+        return Futures.immediateFuture(null);
     }
 
     @Override

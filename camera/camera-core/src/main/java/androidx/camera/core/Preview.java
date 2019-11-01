@@ -250,11 +250,13 @@ public class Preview extends UseCase {
      *
      * @param torch True if turn on torch, otherwise false
      */
+    // TODO(b/143514107): remove this API when CameraControl#enableTorch implementation is done.
     public void enableTorch(boolean torch) {
         getCurrentCameraControl().enableTorch(torch);
     }
 
     /** True if the torch is on */
+    // TODO(b/143514107): remove this API when CameraInfo#getTorchState implementation is done.
     public boolean isTorchOn() {
         return getCurrentCameraControl().isTorchOn();
     }
