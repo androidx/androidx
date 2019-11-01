@@ -2351,11 +2351,12 @@ class HitPathTrackerTest {
     }
 
     @Test
-    fun refreshOffsets_layoutNodesNotOffset_changeTranslatedAndSizesReportedCorrectly() {
+    fun refreshOffsets_nothingOffset_changeTranslatedAndSizesReportedCorrectly() {
         refreshOffsets_changeTranslatedAndSizesReportedCorrectly(
             0, 0, 100, 100,
             0, 0, 100, 100,
             0, 0, 100, 100,
+            0, 0,
             50, 50
         )
     }
@@ -2366,6 +2367,7 @@ class HitPathTrackerTest {
             0, 0, 100, 100,
             2, 11, 100, 100,
             23, 31, 100, 100,
+            0, 0,
             99, 99
         )
     }
@@ -2376,6 +2378,40 @@ class HitPathTrackerTest {
             0, 0, 100, 100,
             -2, -11, 100, 100,
             -23, -31, 100, 100,
+            0, 0,
+            1, 1
+        )
+    }
+
+    @Test
+    fun refreshOffsets_additionalOffset_changeTranslatedAndSizesReportedCorrectly() {
+        refreshOffsets_changeTranslatedAndSizesReportedCorrectly(
+            0, 0, 100, 100,
+            0, 0, 100, 100,
+            0, 0, 100, 100,
+            41, 51,
+            50, 50
+        )
+    }
+
+    @Test
+    fun refreshOffsets_allIncreasinglyInset_changeTranslatedAndSizesReportedCorrectly() {
+        refreshOffsets_changeTranslatedAndSizesReportedCorrectly(
+            0, 0, 100, 100,
+            2, 11, 100, 100,
+            23, 31, 100, 100,
+            41, 51,
+            99, 99
+        )
+    }
+
+    @Test
+    fun refreshOffsets_allIncreasinglyOutset_changeTranslatedAndSizesReportedCorrectly() {
+        refreshOffsets_changeTranslatedAndSizesReportedCorrectly(
+            0, 0, 100, 100,
+            -2, -11, 100, 100,
+            -23, -31, 100, 100,
+            -41, -51,
             1, 1
         )
     }
@@ -2395,6 +2431,8 @@ class HitPathTrackerTest {
         cY1: Int,
         cX2: Int,
         cY2: Int,
+        additionalOffsetX: Int,
+        additionalOffsetY: Int,
         pointerX: Int,
         pointerY: Int
     ) {
@@ -2429,10 +2467,11 @@ class HitPathTrackerTest {
         )
 
         val offset = PxPosition(pointerX.px, pointerY.px)
+        val additionalOffset = IntPxPosition(additionalOffsetX.ipx, additionalOffsetY.ipx)
 
         // Act
 
-        hitResult.refreshOffsets()
+        hitResult.refreshOffsets(additionalOffset)
 
         // Assert
 
@@ -2450,15 +2489,9 @@ class HitPathTrackerTest {
         val expectedPointerInputChanges = arrayOf(
             PointerInputChange(
                 id = 3,
-                current = PointerInputData(7L.millisecondsToTimestamp(), offset, true),
-                previous = PointerInputData(null, null, false),
-                consumed = ConsumedData()
-            ),
-            PointerInputChange(
-                id = 3,
                 current = PointerInputData(
                     7L.millisecondsToTimestamp(),
-                    offset - middleOffset,
+                    offset - additionalOffset,
                     true
                 ),
                 previous = PointerInputData(null, null, false),
@@ -2468,7 +2501,17 @@ class HitPathTrackerTest {
                 id = 3,
                 current = PointerInputData(
                     7L.millisecondsToTimestamp(),
-                    offset - middleOffset - childOffset,
+                    offset - middleOffset - additionalOffset,
+                    true
+                ),
+                previous = PointerInputData(null, null, false),
+                consumed = ConsumedData()
+            ),
+            PointerInputChange(
+                id = 3,
+                current = PointerInputData(
+                    7L.millisecondsToTimestamp(),
+                    offset - middleOffset - childOffset - additionalOffset,
                     true
                 ),
                 previous = PointerInputData(null, null, false),
@@ -2497,34 +2540,92 @@ class HitPathTrackerTest {
     }
 
     @Test
-    fun refreshOffsets_justTranslate_changeTranslatedAndSizesReportedCorrectly() {
+    fun refreshOffsets_translateLayoutNodes_changeTranslatedAndSizesReportedCorrectly() {
         refreshOffsets_changeTranslatedAndSizesReportedCorrectly(
             Box(0, 0, 500, 500),
             Box(100, 100, 400, 400),
+            Point(0, 0),
             Box(50, -50, 550, 450), // Translate by 50, -50
             Box(105, 95, 405, 395), // Translate by 5, -5
+            Point(0, 0),
             250, 250
         )
     }
 
     @Test
-    fun refreshOffsets_justResize_changeTranslatedAndSizesReportedCorrectly() {
+    fun refreshOffsets_resizeLayoutNodes_changeTranslatedAndSizesReportedCorrectly() {
         refreshOffsets_changeTranslatedAndSizesReportedCorrectly(
             Box(0, 0, 500, 500),
             Box(100, 100, 400, 400),
+            Point(0, 0),
             Box(0, 0, 450, 550), // Add to size by -50, 50
             Box(100, 100, 395, 405), // Add to size by -5, 5
+            Point(0, 0),
             250, 250
         )
     }
 
     @Test
-    fun refreshOffsets_translateAndResize_changeTranslatedAndSizesReportedCorrectly() {
+    fun refreshOffsets_translateAndResizeLayoutNodes_changeTranslatedAndSizesReportedCorrectly() {
         refreshOffsets_changeTranslatedAndSizesReportedCorrectly(
             Box(0, 0, 500, 500),
             Box(100, 100, 400, 400),
+            Point(0, 0),
             Box(-50, 50, 550, 450), // Centered, scale by 100, -100
             Box(105, 95, 395, 405), // Centered, scale by -10, 10
+            Point(0, 0),
+            250, 250
+        )
+    }
+
+    @Test
+    fun refreshOffsets_updateOffsets_changeTranslatedAndSizesReportedCorrectly() {
+        refreshOffsets_changeTranslatedAndSizesReportedCorrectly(
+            Box(0, 0, 500, 500),
+            Box(100, 100, 400, 400),
+            Point(0, 0),
+            Box(0, 0, 500, 500),
+            Box(100, 100, 400, 400),
+            Point(5, 15),
+            250, 250
+        )
+    }
+
+    @Test
+    fun refreshOffsets_translateAll_changeTranslatedAndSizesReportedCorrectly() {
+        refreshOffsets_changeTranslatedAndSizesReportedCorrectly(
+            Box(0, 0, 500, 500),
+            Box(100, 100, 400, 400),
+            Point(0, 0),
+            Box(50, -50, 550, 450), // Translate by 50, -50
+            Box(105, 95, 405, 395), // Translate by 5, -5
+            Point(100, -100), // updated by 100, -100
+            250, 250
+        )
+    }
+
+    @Test
+    fun refreshOffsets_resizeLayoutNodesUpdateOffsets_changeTranslatedAndSizesReportedCorrectly() {
+        refreshOffsets_changeTranslatedAndSizesReportedCorrectly(
+            Box(0, 0, 500, 500),
+            Box(100, 100, 400, 400),
+            Point(0, 0),
+            Box(0, 0, 450, 550), // Add to size by -50, 50
+            Box(100, 100, 395, 405), // Add to size by -5, 5
+            Point(100, -100),
+            250, 250
+        )
+    }
+
+    @Test
+    fun refreshOffsets_translateAllResizeLayoutNodes_changeTranslatedAndSizesReportedCorrectly() {
+        refreshOffsets_changeTranslatedAndSizesReportedCorrectly(
+            Box(0, 0, 500, 500),
+            Box(100, 100, 400, 400),
+            Point(0, 0),
+            Box(-50, 50, 550, 450), // Centered, scale by 100, -100
+            Box(105, 95, 395, 405), // Centered, scale by -10, 10
+            Point(100, -100),
             250, 250
         )
     }
@@ -2534,8 +2635,10 @@ class HitPathTrackerTest {
     private fun refreshOffsets_changeTranslatedAndSizesReportedCorrectly(
         p1: Box,
         c1: Box,
+        aO1: Point,
         p2: Box,
         c2: Box,
+        aO2: Point,
         pointerX: Int,
         pointerY: Int
     ) {
@@ -2545,6 +2648,7 @@ class HitPathTrackerTest {
         val pointerPosition = PxPosition(pointerX.px, pointerY.px)
         val parentOffset2 = PxPosition(p2.left.px, p2.top.px)
         val childOffset2 = PxPosition(c2.left.px, c2.top.px)
+        val additionalOffset2 = IntPxPosition(aO2.x.ipx, aO2.y.ipx)
         val parentSize2 = IntPxSize(p2.right.ipx - p2.left.ipx, p2.bottom.ipx - p2.top.ipx)
         val childSize2 = IntPxSize(c2.right.ipx - c2.left.ipx, c2.bottom.ipx - c2.top.ipx)
 
@@ -2563,7 +2667,7 @@ class HitPathTrackerTest {
 
         hitResult.addHitPath(3, listOf(parentPointerInputNode, childPointerInputNode))
 
-        hitResult.refreshOffsets()
+        hitResult.refreshOffsets(IntPxPosition(aO1.x.ipx, aO1.y.ipx))
 
         childLayoutNode.place(c2.left.ipx, c2.top.ipx)
         childLayoutNode
@@ -2574,7 +2678,7 @@ class HitPathTrackerTest {
 
         // Act
 
-        hitResult.refreshOffsets()
+        hitResult.refreshOffsets(additionalOffset2)
 
         // Assert
 
@@ -2585,7 +2689,7 @@ class HitPathTrackerTest {
                 id = 3,
                 current = PointerInputData(
                     7L.millisecondsToTimestamp(),
-                    pointerPosition - parentOffset2,
+                    pointerPosition - parentOffset2 - additionalOffset2,
                     true
                 ),
                 previous = PointerInputData(null, null, false),
@@ -2595,7 +2699,7 @@ class HitPathTrackerTest {
                 id = 3,
                 current = PointerInputData(
                     7L.millisecondsToTimestamp(),
-                    pointerPosition - parentOffset2 - childOffset2,
+                    pointerPosition - parentOffset2 - childOffset2 - additionalOffset2,
                     true
                 ),
                 previous = PointerInputData(null, null, false),
@@ -2681,9 +2785,11 @@ class HitPathTrackerTest {
         hitResult.addHitPath(3, listOf(parentPointerInputNode1, childPointerInputNode1))
         hitResult.addHitPath(5, listOf(parentPointerInputNode2, childPointerInputNode2))
 
+        val additionalOffset = IntPxPosition(29.ipx, 31.ipx)
+
         // Act
 
-        hitResult.refreshOffsets()
+        hitResult.refreshOffsets(additionalOffset)
 
         // Assert
 
@@ -2694,7 +2800,7 @@ class HitPathTrackerTest {
                 id = 3,
                 current = PointerInputData(
                     7L.millisecondsToTimestamp(),
-                    pointer1Offset - parent1Offset,
+                    pointer1Offset - parent1Offset - additionalOffset,
                     true
                 ),
                 previous = PointerInputData(null, null, false),
@@ -2704,7 +2810,7 @@ class HitPathTrackerTest {
                 id = 3,
                 current = PointerInputData(
                     7L.millisecondsToTimestamp(),
-                    pointer1Offset - parent1Offset - child1Offset,
+                    pointer1Offset - parent1Offset - child1Offset - additionalOffset,
                     true
                 ),
                 previous = PointerInputData(null, null, false),
@@ -2724,7 +2830,7 @@ class HitPathTrackerTest {
                 id = 5,
                 current = PointerInputData(
                     7L.millisecondsToTimestamp(),
-                    pointer2Offset - parent2Offset,
+                    pointer2Offset - parent2Offset - additionalOffset,
                     true
                 ),
                 previous = PointerInputData(null, null, false),
@@ -2734,7 +2840,7 @@ class HitPathTrackerTest {
                 id = 5,
                 current = PointerInputData(
                     7L.millisecondsToTimestamp(),
-                    pointer2Offset - parent2Offset - child2Offset,
+                    pointer2Offset - parent2Offset - child2Offset - additionalOffset,
                     true
                 ),
                 previous = PointerInputData(null, null, false),
@@ -2830,9 +2936,11 @@ class HitPathTrackerTest {
         hitResult.addHitPath(3, listOf(parentPointerInputNode, childPointerInputNode1))
         hitResult.addHitPath(5, listOf(parentPointerInputNode, childPointerInputNode2))
 
+        val additionalOffset = IntPxPosition(29.ipx, 31.ipx)
+
         // Act
 
-        hitResult.refreshOffsets()
+        hitResult.refreshOffsets(additionalOffset)
 
         // Assert
 
@@ -2841,7 +2949,7 @@ class HitPathTrackerTest {
                 id = 3,
                 current = PointerInputData(
                     7L.millisecondsToTimestamp(),
-                    pointer1Offset - parentOffset,
+                    pointer1Offset - parentOffset - additionalOffset,
                     true
                 ),
                 previous = PointerInputData(null, null, false),
@@ -2851,7 +2959,7 @@ class HitPathTrackerTest {
                 id = 5,
                 current = PointerInputData(
                     7L.millisecondsToTimestamp(),
-                    pointer2Offset - parentOffset,
+                    pointer2Offset - parentOffset - additionalOffset,
                     true
                 ),
                 previous = PointerInputData(null, null, false),
@@ -2864,7 +2972,7 @@ class HitPathTrackerTest {
                 id = 3,
                 current = PointerInputData(
                     7L.millisecondsToTimestamp(),
-                    pointer1Offset - parentOffset - child1Offset,
+                    pointer1Offset - parentOffset - child1Offset - additionalOffset,
                     true
                 ),
                 previous = PointerInputData(null, null, false),
@@ -2877,7 +2985,7 @@ class HitPathTrackerTest {
                 id = 5,
                 current = PointerInputData(
                     7L.millisecondsToTimestamp(),
-                    pointer2Offset - parentOffset - child2Offset,
+                    pointer2Offset - parentOffset - child2Offset - additionalOffset,
                     true
                 ),
                 previous = PointerInputData(null, null, false),
@@ -2957,9 +3065,11 @@ class HitPathTrackerTest {
 
         hitResult.addHitPath(3, listOf(pointerInputNode))
 
+        val additionalOffset = IntPxPosition(29.ipx, 31.ipx)
+
         // Act
 
-        hitResult.refreshOffsets()
+        hitResult.refreshOffsets(additionalOffset)
 
         // Assert
 
@@ -2968,7 +3078,7 @@ class HitPathTrackerTest {
                 id = 3,
                 current = PointerInputData(
                     7L.millisecondsToTimestamp(),
-                    pointerOffset - parentOffset1 - parentOffset2 - childOffset,
+                    pointerOffset - parentOffset1 - parentOffset2 - childOffset - additionalOffset,
                     true
                 ),
                 previous = PointerInputData(null, null, false),
@@ -3040,9 +3150,11 @@ class HitPathTrackerTest {
 
         hitResult.addHitPath(3, listOf(parentPointerInputNode, childPointerInputNode))
 
+        val additionalOffset = IntPxPosition(29.ipx, 31.ipx)
+
         // Act
 
-        hitResult.refreshOffsets()
+        hitResult.refreshOffsets(additionalOffset)
 
         // Assert
 
@@ -3053,7 +3165,8 @@ class HitPathTrackerTest {
                 id = 3,
                 current = PointerInputData(
                     7L.millisecondsToTimestamp(),
-                    pointerOffset - parentOffset1 - parentOffset2 - parentOffset3,
+                    pointerOffset - parentOffset1 - parentOffset2 - parentOffset3 -
+                            additionalOffset,
                     true
                 ),
                 previous = PointerInputData(null, null, false),
@@ -3064,7 +3177,7 @@ class HitPathTrackerTest {
                 current = PointerInputData(
                     7L.millisecondsToTimestamp(),
                     pointerOffset - parentOffset1 - parentOffset2 - parentOffset3 -
-                            childOffset1 - childOffset2,
+                            childOffset1 - childOffset2 - additionalOffset,
                     true
                 ),
                 previous = PointerInputData(null, null, false),
@@ -3160,7 +3273,7 @@ class HitPathTrackerTest {
 
         // Act
 
-        hitResult.refreshOffsets()
+        hitResult.refreshOffsets(IntPxPosition.Origin)
 
         // Assert
 
@@ -3213,7 +3326,7 @@ class HitPathTrackerTest {
 
         // Act
 
-        hitResult.refreshOffsets()
+        hitResult.refreshOffsets(IntPxPosition.Origin)
 
         // Assert
 
@@ -3450,3 +3563,5 @@ class HitPathTrackerTest {
 }
 
 private data class Box(val left: Int, val top: Int, val right: Int, val bottom: Int)
+
+private data class Point(val x: Int, val y: Int)

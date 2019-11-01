@@ -130,8 +130,8 @@ internal class HitPathTracker {
     }
 
     // TODO(shepshapard): Bind removeDetachedPointerInputNodes,
-    // removePointerInputNodesWithNoLayoutNodeDescendants, and refreshOffsets together given the
-    // constraint that right now, one must be called before the other.
+    //  removePointerInputNodesWithNoLayoutNodeDescendants, and refreshOffsets together given the
+    //  constraint that right now, one must be called before the other.
     /**
      * Updates this [HitPathTracker]'s cached knowledge of the bounds of the [PointerInputNode]s
      * it is tracking.  This is is necessary to call before calls to [dispatchChanges] so that
@@ -140,19 +140,25 @@ internal class HitPathTracker {
      *
      * Must only be called after guaranteeing that each Node has a PointerInputNode that has at
      * least one descendant LayoutNode.
+     *
+     * @param additionalPointerOffset The additional offset that will be added to all
+     * [PointerInputChange]s when [dispatchChanges] is called.
      */
-    fun refreshOffsets() {
-        root.refreshPositionInformation()
+    fun refreshOffsets(additionalPointerOffset: IntPxPosition) {
+        root.refreshPositionInformation(additionalPointerOffset)
     }
 
     /**
      * Convenience method that removes PointerInputNodes that are no longer valid and refreshes the
      * offset information for those that are.
+     *
+     * @param additionalPointerOffset The additional offset that will be added to all
+     * [PointerInputChange]s when [dispatchChanges] is called.
      */
-    fun refreshPathInformation() {
+    fun refreshPathInformation(additionalPointerOffset: IntPxPosition) {
         removeDetachedPointerInputNodes()
         removePointerInputNodesWithNoLayoutNodeDescendants()
-        refreshOffsets()
+        refreshOffsets(additionalPointerOffset)
     }
 }
 
@@ -281,8 +287,16 @@ internal class Node(
         }
     }
 
-    // TODO(b/124960509): Make this much more efficient.
-    fun refreshPositionInformation() {
+    // TODO(b/124960509): Make this much more efficient.  Right now, even though the data structure
+    //  is a tree, each LayoutNode requests it's position relative to the root, even though it's
+    //  parent would already have it's position relative to root.
+    /**
+     * Updates all position and size information for all nodes.
+     *
+     * @param additionalPointerOffset The additional offset that will be added to all
+     * [PointerInputChange]s when [dispatchChanges] is called.
+     */
+    fun refreshPositionInformation(additionalPointerOffset: IntPxPosition) {
         children.forEach { child ->
             var minX = Int.MAX_VALUE
             var minY = Int.MAX_VALUE
@@ -290,14 +304,16 @@ internal class Node(
             var maxY = Int.MIN_VALUE
             child.pointerInputNode?.visitLayoutChildren { layoutChild ->
                 val globalPosition = layoutChild.positionRelativeToRoot()
-                minX = min(minX, globalPosition.x.value)
-                minY = min(minY, globalPosition.y.value)
-                maxX = max(maxX, globalPosition.x.value + layoutChild.width.value)
-                maxY = max(maxY, globalPosition.y.value + layoutChild.height.value)
+                val x = globalPosition.x.value + additionalPointerOffset.x.value
+                val y = globalPosition.y.value + additionalPointerOffset.y.value
+                minX = min(minX, x)
+                minY = min(minY, y)
+                maxX = max(maxX, x + layoutChild.width.value)
+                maxY = max(maxY, y + layoutChild.height.value)
             }
             child.offset = IntPxPosition(minX.ipx, minY.ipx)
             child.size = IntPxSize((maxX - minX).ipx, (maxY - minY).ipx)
-            child.refreshPositionInformation()
+            child.refreshPositionInformation(additionalPointerOffset)
         }
     }
 

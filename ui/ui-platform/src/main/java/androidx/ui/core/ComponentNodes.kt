@@ -90,7 +90,8 @@ interface Owner {
     fun onEndLayout(layoutNode: LayoutNode)
 
     /**
-     * Returns a position of the owner in its window.
+     * Returns the most global position of the owner that Compose can access (such as the device
+     * screen).
      */
     fun calculatePosition(): IntPxPosition
 

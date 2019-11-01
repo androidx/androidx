@@ -127,6 +127,14 @@
                 <category android:name="androidx.ui.demos.SAMPLE_CODE" />
             </intent-filter>
         </activity>
+        <activity android:name="androidx.ui.framework.demos.gestures.PopupDragActivity"
+            android:configChanges="orientation|screenSize"
+            android:label="Gestures/Complex/Popup Drag">
+            <intent-filter>
+                <action android:name="android.intent.action.MAIN" />
+                <category android:name="androidx.ui.demos.SAMPLE_CODE" />
+            </intent-filter>
+        </activity>
 
         <activity android:name=".MultipleCollectActivity"
                   android:configChanges="orientation|screenSize"
