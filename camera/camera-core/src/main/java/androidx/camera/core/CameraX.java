@@ -57,13 +57,13 @@ import java.util.concurrent.TimeoutException;
  * <p>This is a singleton class responsible for managing the set of camera instances and
  * attached use cases (such as {@link Preview}, {@link ImageAnalysis}, or {@link ImageCapture}.
  * Use cases are bound to a {@link LifecycleOwner} by calling
- * {@link #bindToLifecycle(LifecycleOwner, UseCase...)}   Once bound, the lifecycle of the
+ * #bindToLifecycle(LifecycleOwner, UseCase...)   Once bound, the lifecycle of the
  * {@link LifecycleOwner} determines when the camera is started and stopped, and when camera data
  * is available to the use case.
  *
  * <p>It is often sufficient to just bind the use cases once when the activity is created, and
  * let the lifecycle handle the rest, so application code generally does not need to call
- * {@link #unbind(UseCase...)} nor call {@link #bindToLifecycle} more than once.
+ * #unbind(UseCase...) nor call #bindToLifecycle more than once.
  *
  * <p>A lifecycle transition from {@link Lifecycle.State#CREATED} to {@link Lifecycle.State#STARTED}
  * state (via {@link Lifecycle.Event#ON_START}) initializes the camera asynchronously on a
@@ -71,7 +71,7 @@ import java.util.concurrent.TimeoutException;
  * session is created.   If a {@link Preview} or {@link ImageAnalysis} is bound, those use cases
  * will begin to receive camera data after initialization completes. {@link ImageCapture} can
  * receive data via specific calls (such as {@link ImageCapture#takePicture}) after initialization
- * completes. Calling {@link #bindToLifecycle} with no Use Cases does nothing.
+ * completes. Calling #bindToLifecycle with no Use Cases does nothing.
  *
  * <p>Binding to a {@link LifecycleOwner} when the state is {@link Lifecycle.State#STARTED} or
  * greater will also initialize and start data capture as though an
@@ -87,9 +87,9 @@ import java.util.concurrent.TimeoutException;
  *
  * <p>When the lifecycle transitions from {@link Lifecycle.State#CREATED} to the
  * {@link Lifecycle.State#DESTROYED} state (via {@link Lifecycle.Event#ON_DESTROY}) any
- * bound use cases are unbound and use case resources are freed.  Calls to {@link #bindToLifecycle}
+ * bound use cases are unbound and use case resources are freed.  Calls to #bindToLifecycle
  * when the lifecycle is in the {@link Lifecycle.State#DESTROYED} state will fail.
- * A call to {@link #bindToLifecycle} will need to be made with another lifecycle to rebind the
+ * A call to #bindToLifecycle will need to be made with another lifecycle to rebind the
  * UseCase that has been unbound.
  *
  * <p>If the camera is not already closed, unbinding all use cases will cause the camera to close
@@ -204,8 +204,11 @@ public final class CameraX {
      * @param useCases       The use cases to bind to a lifecycle.
      * @throws IllegalStateException If the use case has already been bound to another lifecycle
      *                               or method is not called on main thread.
+     *
+     * @hide
      */
-    @SuppressWarnings("LambdaLast")
+    @RestrictTo(Scope.LIBRARY_GROUP)
+    @SuppressWarnings("lambdaLast")
     public static void bindToLifecycle(@NonNull LifecycleOwner lifecycleOwner,
             @NonNull UseCase... useCases) {
         Threads.checkMainThread();
@@ -254,7 +257,10 @@ public final class CameraX {
      * <p>After binding a use case with {@link #bindToLifecycle}, use cases remain bound until the
      * lifecycle reaches a {@link Lifecycle.State#DESTROYED} state or if is unbound by calls to
      * {@link #unbind(UseCase...)} or {@link #unbindAll()}.
+     *
+     * @hide
      */
+    @RestrictTo(Scope.LIBRARY_GROUP)
     public static boolean isBound(@NonNull UseCase useCase) {
         CameraX cameraX = checkInitialized();
 
@@ -284,7 +290,10 @@ public final class CameraX {
      *
      * @param useCases The collection of use cases to remove.
      * @throws IllegalStateException If not called on main thread.
+     *
+     * @hide
      */
+    @RestrictTo(Scope.LIBRARY_GROUP)
     public static void unbind(@NonNull UseCase... useCases) {
         Threads.checkMainThread();
         CameraX cameraX = checkInitialized();
@@ -326,7 +335,10 @@ public final class CameraX {
      * <p>This will initiate a close of every currently open camera.
      *
      * @throws IllegalStateException If not called on main thread.
+     *
+     * @hide
      */
+    @RestrictTo(Scope.LIBRARY_GROUP)
     public static void unbindAll() {
         Threads.checkMainThread();
         CameraX cameraX = checkInitialized();

@@ -22,7 +22,6 @@ import android.hardware.camera2.CameraDevice
 import android.util.Log
 import android.view.ViewGroup
 import androidx.camera.camera2.Camera2Config
-import androidx.camera.core.CameraX
 import androidx.camera.core.ImageCapture
 import androidx.camera.core.ImageCaptureConfig
 import androidx.camera.core.LensFacing
@@ -40,6 +39,7 @@ import androidx.camera.integration.antelope.MainActivity.Companion.logd
 import androidx.camera.integration.antelope.PrefHelper
 import androidx.camera.integration.antelope.TestConfig
 import androidx.camera.integration.antelope.TestType
+import androidx.camera.lifecycle.LifecycleCameraProvider
 import androidx.lifecycle.LifecycleOwner
 
 /**
@@ -118,7 +118,7 @@ internal fun cameraXOpenCamera(
             TestType.MULTI_SWITCH -> {
                 params.timer.openStart = System.currentTimeMillis()
                 activity.runOnUiThread {
-                    CameraX.bindToLifecycle(lifecycleOwner, previewUseCase)
+                    LifecycleCameraProvider.bindToLifecycle(lifecycleOwner, previewUseCase)
                     params.cameraXLifecycle.start()
                 }
             }
@@ -139,7 +139,7 @@ internal fun cameraXOpenCamera(
 
                 params.timer.openStart = System.currentTimeMillis()
                 activity.runOnUiThread {
-                    CameraX.bindToLifecycle(lifecycleOwner, previewUseCase,
+                    LifecycleCameraProvider.bindToLifecycle(lifecycleOwner, previewUseCase,
                         params.cameraXImageCaptureUseCase)
                     params.cameraXLifecycle.start()
                 }
@@ -165,7 +165,7 @@ internal fun closeCameraX(activity: MainActivity, params: CameraParams, testConf
 
         // CameraX calls need to be on the main thread
         activity.runOnUiThread {
-            CameraX.unbindAll()
+            LifecycleCameraProvider.unbindAll()
         }
     }
     if ((testConfig.currentRunningTest == TestType.SWITCH_CAMERA) ||

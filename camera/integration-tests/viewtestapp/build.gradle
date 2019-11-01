@@ -51,6 +51,7 @@ android {
 dependencies {
     // Internal library
     implementation(project(":camera:camera-camera2"))
+    implementation(project(":camera:camera-lifecycle"))
     implementation(project(":camera:camera-view"))
     implementation(GUAVA_LISTENABLE_FUTURE)
 
