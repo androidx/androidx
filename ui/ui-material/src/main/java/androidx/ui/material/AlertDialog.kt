@@ -52,9 +52,10 @@ import androidx.ui.material.surface.Surface
  * @param onCloseRequest Executes when the user tries to dismiss the Dialog by clicking outside
  * or pressing the back button.
  * @param title The title of the Dialog which should specify the purpose of the Dialog. The title
- * is not mandatory, because there may be sufficient information inside the [text].
- * @param text The text which presents the details regarding
- * the Dialog's purpose.
+ * is not mandatory, because there may be sufficient information inside the [text]. Provided text
+ * style will be [MaterialTypography.h6].
+ * @param text The text which presents the details regarding the Dialog's purpose. Provided text
+ * style will be [MaterialTypography.body1].
  * @param confirmButton A button which is meant to confirm a proposed action, thus resolving
  * what triggered the dialog.
  * @param dismissButton A button which is meant to dismiss the dialog.
@@ -95,9 +96,10 @@ fun AlertDialog(
  * @param onCloseRequest Executes when the user tries to dismiss the Dialog by clicking outside
  * or pressing the back button.
  * @param title The title of the Dialog which should specify the purpose of the Dialog. The title
- * is not mandatory, because there may be sufficient information inside the [text].
- * @param text The text which presents the details regarding
- * the Dialog's purpose.
+ * is not mandatory, because there may be sufficient information inside the [text]. Provided text
+ * style will be [MaterialTypography.h6].
+ * @param text The text which presents the details regarding the Dialog's purpose. Provided text
+ * style will be [MaterialTypography.body1].
  * @param buttons Function that emits the layout with the buttons
  */
 @Suppress("USELESS_CAST")
