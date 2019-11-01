@@ -89,35 +89,35 @@ class AssertsTests {
     }
 
     @Test
-    fun assertIsChecked_forCheckedElement_isOk() {
+    fun assertIsOn_forCheckedElement_isOk() {
         semanticsTreeInteractionFactory = { selector ->
             FakeSemanticsTreeInteraction(selector)
                 .withProperties(SemanticsConfiguration().also {
                     it.testTag = "test"
-                    it.toggleableState = ToggleableState.Checked
+                    it.toggleableState = ToggleableState.On
                 })
         }
 
         findByTag("test")
-            .assertIsChecked()
+            .assertIsOn()
     }
 
     @Test(expected = AssertionError::class)
-    fun assertIsChecked_forUncheckedElement_throwsError() {
+    fun assertIsOn_forUncheckedElement_throwsError() {
         semanticsTreeInteractionFactory = { selector ->
             FakeSemanticsTreeInteraction(selector)
                 .withProperties(SemanticsConfiguration().also {
                     it.testTag = "test"
-                    it.toggleableState = ToggleableState.Unchecked
+                    it.toggleableState = ToggleableState.Off
                 })
         }
 
         findByTag("test")
-            .assertIsChecked()
+            .assertIsOn()
     }
 
     @Test(expected = AssertionError::class)
-    fun assertIsChecked_forNotToggleableElement_throwsError() {
+    fun assertIsOn_forNotToggleableElement_throwsError() {
         semanticsTreeInteractionFactory = { selector ->
             FakeSemanticsTreeInteraction(selector)
                 .withProperties(SemanticsConfiguration().also {
@@ -126,39 +126,39 @@ class AssertsTests {
         }
 
         findByTag("test")
-            .assertIsChecked()
+            .assertIsOn()
     }
 
     @Test(expected = AssertionError::class)
-    fun assertIsUnchecked_forCheckedElement_throwsError() {
+    fun assertIsOff_forCheckedElement_throwsError() {
         semanticsTreeInteractionFactory = { selector ->
             FakeSemanticsTreeInteraction(selector)
                 .withProperties(SemanticsConfiguration().also {
                     it.testTag = "test"
-                    it.toggleableState = ToggleableState.Checked
+                    it.toggleableState = ToggleableState.On
                 })
         }
 
         findByTag("test")
-            .assertIsUnchecked()
+            .assertIsOff()
     }
 
     @Test
-    fun assertIsUnchecked_forUncheckedElement_isOk() {
+    fun assertIsOff_forUncheckedElement_isOk() {
         semanticsTreeInteractionFactory = { selector ->
             FakeSemanticsTreeInteraction(selector)
                 .withProperties(SemanticsConfiguration().also {
                     it.testTag = "test"
-                    it.toggleableState = ToggleableState.Unchecked
+                    it.toggleableState = ToggleableState.Off
                 })
         }
 
         findByTag("test")
-            .assertIsUnchecked()
+            .assertIsOff()
     }
 
     @Test(expected = AssertionError::class)
-    fun assertIsUnchecked_forNotToggleableElement_throwsError() {
+    fun assertIsOff_forNotToggleableElement_throwsError() {
         semanticsTreeInteractionFactory = { selector ->
             FakeSemanticsTreeInteraction(selector)
                 .withProperties(SemanticsConfiguration().also {
@@ -167,7 +167,7 @@ class AssertsTests {
         }
 
         findByTag("test")
-            .assertIsUnchecked()
+            .assertIsOff()
     }
 
     @Test(expected = AssertionError::class)
