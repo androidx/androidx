@@ -24,7 +24,6 @@ import androidx.ui.core.sp
 import androidx.ui.layout.Column
 import androidx.ui.layout.CrossAxisAlignment
 import androidx.ui.foundation.VerticalScroller
-import androidx.ui.input.EditorStyle
 import androidx.ui.input.KeyboardType
 import androidx.ui.text.TextStyle
 
@@ -46,7 +45,7 @@ private fun RejectNonDigits() {
     val state = +state { "" }
     TextField(
         value = state.value,
-        editorStyle = EditorStyle(textStyle = TextStyle(fontSize = 32.sp)),
+        textStyle = TextStyle(fontSize = 32.sp),
         onValueChange = {
             if (it.all { it.isDigit() }) {
                 state.value = it
@@ -61,7 +60,7 @@ private fun RejectComposition() {
     val state = +state { "" }
     TextField(
         value = state.value,
-        editorStyle = EditorStyle(textStyle = TextStyle(fontSize = 32.sp)),
+        textStyle = TextStyle(fontSize = 32.sp),
         onValueChange = {
             state.value = it
         }

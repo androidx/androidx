@@ -40,7 +40,6 @@ import androidx.ui.foundation.shape.DrawShape
 import androidx.ui.foundation.shape.RectangleShape
 import androidx.ui.foundation.shape.corner.CircleShape
 import androidx.ui.graphics.Color
-import androidx.ui.input.EditorStyle
 import androidx.ui.input.ImeAction
 import androidx.ui.input.KeyboardType
 import androidx.ui.layout.Column
@@ -597,7 +596,7 @@ fun EditLine(
                 state.value = it
                 onValueChange(it)
             },
-            editorStyle = EditorStyle(textStyle = TextStyle())
+            textStyle = TextStyle()
         )
     }
 }
