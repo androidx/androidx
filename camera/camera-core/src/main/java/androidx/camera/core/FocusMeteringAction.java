@@ -57,7 +57,7 @@ import java.util.concurrent.atomic.AtomicBoolean;
  * default the auto-cancel duration is 5 seconds. Apps can call {@link Builder#disableAutoCancel()}
  * to disable auto-cancel.
  */
-public class FocusMeteringAction {
+public final class FocusMeteringAction {
     static final MeteringMode DEFAULT_METERINGMODE = MeteringMode.AF_AE_AWB;
     static final long DEFAULT_AUTOCANCEL_DURATION = 5000;
     private final List<MeteringPoint> mMeteringPointsAf;
