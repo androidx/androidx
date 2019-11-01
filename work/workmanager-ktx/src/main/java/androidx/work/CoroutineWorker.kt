@@ -17,7 +17,6 @@
 package androidx.work
 
 import android.content.Context
-import androidx.concurrent.futures.await
 import androidx.work.impl.utils.futures.SettableFuture
 import com.google.common.util.concurrent.ListenableFuture
 import kotlinx.coroutines.CoroutineScope

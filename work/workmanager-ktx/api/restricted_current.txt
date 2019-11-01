@@ -23,6 +23,11 @@ package androidx.work {
     enum_constant public static final androidx.work.DirectExecutor INSTANCE;
   }
 
+  public final class ListenableFutureKt {
+    ctor public ListenableFutureKt();
+    method @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP) public static suspend inline <R> Object! await(com.google.common.util.concurrent.ListenableFuture<R>, kotlin.coroutines.Continuation<? super R> p);
+  }
+
   public final class OneTimeWorkRequestKt {
     ctor public OneTimeWorkRequestKt();
     method public static inline <reified W extends androidx.work.ListenableWorker> androidx.work.OneTimeWorkRequest.Builder OneTimeWorkRequestBuilder();
