@@ -214,14 +214,14 @@ public class VideoCapture extends UseCase {
             throw new IllegalStateException("Unable to create MediaCodec due to: " + e.getCause());
         }
 
-        String cameraId = getCameraIdUnchecked(config);
+        String cameraId = getBoundCameraId();
         Size resolution = suggestedResolutionMap.get(cameraId);
         if (resolution == null) {
             throw new IllegalArgumentException(
                     "Suggested resolution map missing resolution for camera " + cameraId);
         }
 
-        setupEncoder(resolution);
+        setupEncoder(cameraId, resolution);
         return suggestedResolutionMap;
     }
 
@@ -279,8 +279,8 @@ public class VideoCapture extends UseCase {
             return;
         }
 
-        VideoCaptureConfig config = (VideoCaptureConfig) getUseCaseConfig();
-        String cameraId = getCameraIdUnchecked(config);
+        String cameraId = getBoundCameraId();
+        Size resolution = getAttachedSurfaceResolution(cameraId);
         try {
             // video encoder start
             Log.i(TAG, "videoEncoder start");
@@ -290,7 +290,7 @@ public class VideoCapture extends UseCase {
             mAudioEncoder.start();
 
         } catch (IllegalStateException e) {
-            setupEncoder(getAttachedSurfaceResolution(cameraId));
+            setupEncoder(cameraId, resolution);
             postListener.onError(VideoCaptureError.ENCODER_ERROR, "Audio/Video encoder start fail",
                     e);
             return;
@@ -323,7 +323,7 @@ public class VideoCapture extends UseCase {
                 }
             }
         } catch (IOException e) {
-            setupEncoder(getAttachedSurfaceResolution(cameraId));
+            setupEncoder(cameraId, resolution);
             postListener.onError(VideoCaptureError.MUXER_ERROR, "MediaMuxer creation failed!", e);
             return;
         }
@@ -346,7 +346,8 @@ public class VideoCapture extends UseCase {
                 new Runnable() {
                     @Override
                     public void run() {
-                        boolean errorOccurred = VideoCapture.this.videoEncode(postListener);
+                        boolean errorOccurred = VideoCapture.this.videoEncode(postListener,
+                                cameraId, resolution);
                         if (!errorOccurred) {
                             postListener.onVideoSaved(saveLocation);
                         }
@@ -456,7 +457,7 @@ public class VideoCapture extends UseCase {
      * audio from selected audio source.
      */
     @SuppressWarnings("WeakerAccess") /* synthetic accessor */
-    void setupEncoder(Size resolution) {
+    void setupEncoder(@NonNull String cameraId, @NonNull Size resolution) {
         VideoCaptureConfig config = (VideoCaptureConfig) getUseCaseConfig();
 
         // video encoder setup
@@ -477,13 +478,16 @@ public class VideoCapture extends UseCase {
 
         sessionConfigBuilder.addSurface(mDeferrableSurface);
 
-        String cameraId = getCameraIdUnchecked(config);
-
         sessionConfigBuilder.addErrorListener(new SessionConfig.ErrorListener() {
             @Override
             public void onError(@NonNull SessionConfig sessionConfig,
                     @NonNull SessionConfig.SessionError error) {
-                setupEncoder(resolution);
+                // Ensure the bound camera has not changed before calling setupEncoder.
+                // TODO(b/143915543): Ensure this never gets called by a camera that is not bound
+                //  to this use case so we don't need to do this check.
+                if (isCurrentlyBoundCamera(cameraId)) {
+                    setupEncoder(cameraId, resolution);
+                }
             }
         });
 
@@ -588,8 +592,8 @@ public class VideoCapture extends UseCase {
      *
      * @return returns {@code true} if an error condition occurred, otherwise returns {@code false}
      */
-    boolean videoEncode(OnVideoSavedCallback videoSavedCallback) {
-        VideoCaptureConfig config = (VideoCaptureConfig) getUseCaseConfig();
+    boolean videoEncode(@NonNull OnVideoSavedCallback videoSavedCallback, @NonNull String cameraId,
+            @NonNull Size resolution) {
         // Main encoding loop. Exits on end of stream.
         boolean errorOccurred = false;
         boolean videoEos = false;
@@ -661,9 +665,8 @@ public class VideoCapture extends UseCase {
         mMuxerStarted = false;
         // Do the setup of the videoEncoder at the end of video recording instead of at the start of
         // recording because it requires attaching a new Surface. This causes a glitch so we don't
-        // want
-        // that to incur latency at the start of capture.
-        setupEncoder(getAttachedSurfaceResolution(getCameraIdUnchecked(config)));
+        // want that to incur latency at the start of capture.
+        setupEncoder(cameraId, resolution);
         notifyReset();
 
         // notify the UI thread that the video recording has finished
