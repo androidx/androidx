@@ -5,7 +5,7 @@ package androidx.ui.graphics.vector {
     ctor public GroupComponent(String name);
     ctor public GroupComponent();
     method public void draw(androidx.ui.graphics.Canvas canvas);
-    method public androidx.ui.graphics.vector.PathNode![] getClipPathData();
+    method public java.util.List<androidx.ui.graphics.vector.PathNode> getClipPathData();
     method public String getName();
     method public float getPivotX();
     method public float getPivotY();
@@ -18,7 +18,7 @@ package androidx.ui.graphics.vector {
     method public void insertAt(int index, androidx.ui.graphics.vector.VNode instance);
     method public void move(int from, int to, int count);
     method public void remove(int index, int count);
-    method public void setClipPathData(androidx.ui.graphics.vector.PathNode![] value);
+    method public void setClipPathData(java.util.List<androidx.ui.graphics.vector.PathNode> value);
     method public void setPivotX(float value);
     method public void setPivotY(float value);
     method public void setRotation(float value);
@@ -26,7 +26,7 @@ package androidx.ui.graphics.vector {
     method public void setScaleY(float value);
     method public void setTranslationX(float value);
     method public void setTranslationY(float value);
-    property public final androidx.ui.graphics.vector.PathNode![] clipPathData;
+    property public final java.util.List<androidx.ui.graphics.vector.PathNode> clipPathData;
     property public final float pivotX;
     property public final float pivotY;
     property public final float rotation;
@@ -43,7 +43,7 @@ package androidx.ui.graphics.vector {
     method public androidx.ui.graphics.Brush? getFill();
     method public float getFillAlpha();
     method public String getName();
-    method public androidx.ui.graphics.vector.PathNode![] getPathData();
+    method public java.util.List<androidx.ui.graphics.vector.PathNode> getPathData();
     method public androidx.ui.graphics.Brush? getStroke();
     method public float getStrokeAlpha();
     method public androidx.ui.graphics.StrokeCap getStrokeLineCap();
@@ -52,7 +52,7 @@ package androidx.ui.graphics.vector {
     method public float getStrokeLineWidth();
     method public void setFill(androidx.ui.graphics.Brush? value);
     method public void setFillAlpha(float value);
-    method public void setPathData(androidx.ui.graphics.vector.PathNode![] value);
+    method public void setPathData(java.util.List<androidx.ui.graphics.vector.PathNode> value);
     method public void setStroke(androidx.ui.graphics.Brush? value);
     method public void setStrokeAlpha(float value);
     method public void setStrokeLineCap(androidx.ui.graphics.StrokeCap value);
@@ -61,7 +61,7 @@ package androidx.ui.graphics.vector {
     method public void setStrokeLineWidth(float value);
     property public final androidx.ui.graphics.Brush? fill;
     property public final float fillAlpha;
-    property public final androidx.ui.graphics.vector.PathNode![] pathData;
+    property public final java.util.List<androidx.ui.graphics.vector.PathNode> pathData;
     property public final androidx.ui.graphics.Brush? stroke;
     property public final float strokeAlpha;
     property public final androidx.ui.graphics.StrokeCap strokeLineCap;
@@ -117,13 +117,13 @@ package androidx.ui.graphics.vector {
 
   public final class VectorKt {
     ctor public VectorKt();
-    method public static inline androidx.ui.graphics.vector.PathNode![] PathData(kotlin.jvm.functions.Function1<? super androidx.ui.graphics.vector.PathBuilder,kotlin.Unit> block);
-    method public static androidx.ui.graphics.vector.PathNode![] addPathNodes(String? pathStr);
+    method public static inline java.util.List<androidx.ui.graphics.vector.PathNode> PathData(kotlin.jvm.functions.Function1<? super androidx.ui.graphics.vector.PathBuilder,kotlin.Unit> block);
+    method public static java.util.List<androidx.ui.graphics.vector.PathNode> addPathNodes(String? pathStr);
     method public static androidx.ui.graphics.StrokeCap getDefaultStrokeLineCap();
     method public static androidx.ui.graphics.StrokeJoin getDefaultStrokeLineJoin();
     method public static androidx.ui.graphics.BlendMode getDefaultTintBlendMode();
     method public static androidx.ui.graphics.Color getDefaultTintColor();
-    method public static androidx.ui.graphics.vector.PathNode![] getEmptyPath();
+    method public static java.util.List<androidx.ui.graphics.vector.PathNode> getEmptyPath();
     field public static final float DefaultAlpha = 1.0f;
     field public static final String DefaultGroupName = "";
     field public static final String DefaultPathName = "";

@@ -23,6 +23,8 @@ import androidx.compose.composer
 import androidx.test.filters.SdkSuppress
 import androidx.test.filters.SmallTest
 import androidx.test.rule.ActivityTestRule
+import androidx.ui.core.Alignment
+import androidx.ui.core.IntPx
 import androidx.ui.core.Px
 import androidx.ui.core.dp
 import androidx.ui.core.ipx
@@ -77,15 +79,34 @@ class VectorTest {
         }
     }
 
+    @SdkSuppress(minSdkVersion = Build.VERSION_CODES.O)
+    @Test
+    fun testVectorAlignment() {
+        rule.runOnUiThreadIR {
+            activity.setContent {
+                VectorTint(minimumSize = 500.ipx, alignment = Alignment.BottomRight)
+            }
+        }
+
+        assertTrue(drawLatch.await(1, TimeUnit.SECONDS))
+        takeScreenShot(500).apply {
+            assertEquals(getPixel(480, 480), Color.Cyan.toArgb())
+        }
+    }
+
     @Composable
-    private fun VectorTint() {
-        val size = 200.ipx
+    private fun VectorTint(
+        size: IntPx = 200.ipx,
+        minimumSize: IntPx = size,
+        alignment: Alignment = Alignment.Center
+    ) {
         val sizePx = size.toPx()
-        AtLeastSize(size = size) {
+        AtLeastSize(size = minimumSize) {
             DrawVector(
                 defaultWidth = sizePx,
                 defaultHeight = sizePx,
-                tintColor = Color.Cyan) { _, _ ->
+                tintColor = Color.Cyan,
+                alignment = alignment) { _, _ ->
                 Path(
                     pathData = PathData {
                         lineTo(sizePx.value, 0.0f)

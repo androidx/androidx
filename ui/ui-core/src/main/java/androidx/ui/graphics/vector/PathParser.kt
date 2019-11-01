@@ -79,12 +79,12 @@ class PathParser {
         return this
     }
 
-    fun addPathNodes(nodes: Array<PathNode>): PathParser {
+    fun addPathNodes(nodes: List<PathNode>): PathParser {
         this.nodes.addAll(nodes)
         return this
     }
 
-    fun toNodes(): Array<PathNode> = nodes.toTypedArray()
+    fun toNodes(): List<PathNode> = nodes
 
     fun toPath(target: Path = Path()): Path {
         target.reset()

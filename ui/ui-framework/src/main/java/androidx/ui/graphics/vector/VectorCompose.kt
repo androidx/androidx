@@ -21,8 +21,11 @@ import androidx.compose.compositionReference
 import androidx.compose.memo
 import androidx.compose.onPreCommit
 import androidx.compose.unaryPlus
+import androidx.ui.core.Alignment
 import androidx.ui.core.Dp
 import androidx.ui.core.Draw
+import androidx.ui.core.IntPx
+import androidx.ui.core.IntPxSize
 import androidx.ui.core.Px
 import androidx.ui.core.ambientDensity
 import androidx.ui.core.withDensity
@@ -31,11 +34,14 @@ import androidx.ui.graphics.Brush
 import androidx.ui.graphics.Color
 import androidx.ui.graphics.StrokeCap
 import androidx.ui.graphics.StrokeJoin
+import kotlin.math.ceil
 
 /**
  * Sentinel value used to indicate that a dimension is not provided
  */
 private const val unset: Float = -1.0f
+
+private val DefaultAlignment = Alignment.Center
 
 /**
  * Draw a vector graphic with the provided width, height and viewport dimensions
@@ -49,6 +55,7 @@ private const val unset: Float = -1.0f
  *  This parameter is optional. Not providing it will use the [defaultHeight] converted to [Px]
  * @param[tintColor] Optional color used to tint this vector graphic
  * @param[tintBlendMode] Optional blend mode used with [tintColor], default is [BlendMode.srcIn]
+ * @param[alignment] Specifies the placement of the vector within the drawing bounds
  */
 @Composable
 fun DrawVector(
@@ -58,6 +65,7 @@ fun DrawVector(
     viewportHeight: Float = unset,
     tintColor: Color = DefaultTintColor,
     tintBlendMode: BlendMode = DefaultTintBlendMode,
+    alignment: Alignment = DefaultAlignment,
     name: String = "",
     children: @Composable() VectorScope.(viewportWidth: Float, viewportHeight: Float) -> Unit
 ) {
@@ -66,7 +74,17 @@ fun DrawVector(
 
     val vpWidth = if (viewportWidth == unset) widthPx.value else viewportWidth
     val vpHeight = if (viewportHeight == unset) heightPx.value else viewportHeight
-    DrawVector(widthPx, heightPx, vpWidth, vpHeight, tintColor, tintBlendMode, name, children)
+    DrawVector(
+        widthPx,
+        heightPx,
+        vpWidth,
+        vpHeight,
+        tintColor,
+        tintBlendMode,
+        alignment,
+        name,
+        children
+    )
 }
 
 /**
@@ -81,6 +99,7 @@ fun DrawVector(
  *  [defaultHeight]
  * @param[tintColor] Optional color used to tint this vector graphic
  * @param[tintBlendMode] Optional blend mode used with [tintColor], default is [BlendMode.srcIn]
+ * @param[alignment] Specifies the placement of the vector within the drawing bounds
  */
 @Composable
 fun DrawVector(
@@ -90,6 +109,7 @@ fun DrawVector(
     viewportHeight: Float = defaultHeight.value,
     tintColor: Color = DefaultTintColor,
     tintBlendMode: BlendMode = DefaultTintBlendMode,
+    alignment: Alignment = DefaultAlignment,
     name: String = "",
     children: @Composable() VectorScope.(viewportWidth: Float, viewportHeight: Float) -> Unit
 ) {
@@ -112,8 +132,19 @@ fun DrawVector(
         }
     }
 
-    Draw { canvas, _ ->
+    Draw { canvas, parentSize ->
+        val alignedPosition = alignment.align(
+            IntPxSize(
+                IntPx(ceil(parentSize.width.value - defaultWidth.value).toInt()),
+                IntPx(ceil(parentSize.height.value - defaultHeight.value).toInt())
+            )
+        )
+
+        val dx = alignedPosition.x.value.toFloat()
+        val dy = alignedPosition.y.value.toFloat()
+        canvas.translate(dx, dy)
         vector.draw(canvas, tintColor, tintBlendMode)
+        canvas.translate(-dx, -dy)
     }
 }
 
@@ -127,7 +158,7 @@ fun VectorScope.Group(
     scaleY: Float = DefaultScaleY,
     translationX: Float = DefaultTranslationX,
     translationY: Float = DefaultTranslationY,
-    clipPathData: Array<PathNode> = EmptyPath,
+    clipPathData: List<PathNode> = EmptyPath,
     children: @Composable() VectorScope.() -> Unit
 ) {
     GroupComponent(
@@ -147,7 +178,7 @@ fun VectorScope.Group(
 
 @Composable
 fun VectorScope.Path(
-    pathData: Array<PathNode>,
+    pathData: List<PathNode>,
     name: String = DefaultPathName,
     fill: Brush? = null,
     fillAlpha: Float = DefaultAlpha,

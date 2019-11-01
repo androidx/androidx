@@ -42,7 +42,7 @@ const val DefaultScaleY = 1.0f
 const val DefaultTranslationX = 0.0f
 const val DefaultTranslationY = 0.0f
 
-val EmptyPath = emptyArray<PathNode>()
+val EmptyPath = emptyList<PathNode>()
 
 /**
  * paint used to draw the cached vector graphic to the provided canvas
@@ -50,7 +50,7 @@ val EmptyPath = emptyArray<PathNode>()
 // TODO (njawad) Can we update the Compose Canvas API to make this paint optional?
 internal val EmptyPaint = Paint()
 
-inline fun PathData(block: PathBuilder.() -> Unit): Array<PathNode> =
+inline fun PathData(block: PathBuilder.() -> Unit): List<PathNode> =
     with(PathBuilder()) {
         block()
         getNodes()
@@ -66,7 +66,7 @@ val DefaultStrokeLineJoin = StrokeJoin.miter
 val DefaultTintBlendMode = BlendMode.srcIn
 val DefaultTintColor = Color.Transparent
 
-fun addPathNodes(pathStr: String?): Array<PathNode> =
+fun addPathNodes(pathStr: String?): List<PathNode> =
     if (pathStr == null) {
         EmptyPath
     } else {
@@ -171,7 +171,7 @@ class PathComponent(val name: String) : VNode() {
             }
         }
 
-    var pathData: Array<PathNode> = emptyArray()
+    var pathData: List<PathNode> = EmptyPath
         set(value) {
             field = value
             isPathDirty = true
@@ -312,7 +312,7 @@ class GroupComponent(val name: String = DefaultGroupName) : VNode() {
 
     private val children = mutableListOf<VNode>()
 
-    var clipPathData: Array<PathNode> = EmptyPath
+    var clipPathData: List<PathNode> = EmptyPath
         set(value) {
             field = value
             isClipPathDirty = true
