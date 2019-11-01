@@ -30,6 +30,26 @@ import com.google.common.util.concurrent.ListenableFuture;
  */
 public interface CameraControl {
     /**
+     * Enable the torch or disable the torch.
+     *
+     * <p>{@link CameraInfo#getTorchState()} can be used to query the torch state.
+     * If the camera doesn't have a flash unit or doesn't support torch (see
+     * {@link TorchState#UNAVAILABLE}), then the call will do nothing and the returned
+     * {@link ListenableFuture} will complete immediately with a failed result.
+     *
+     * <p>When the torch is enabled, the torch will remain enabled during photo capture regardless
+     * of {@link FlashMode} setting. When the torch is disabled, flash will function as
+     * {@link FlashMode} set by either {@link ImageCapture#setFlashMode(FlashMode)} or
+     * {@link ImageCaptureConfig.Builder#setFlashMode(FlashMode)}.
+     *
+     * @param torch true to open the torch, false to close it.
+     * @return A {@link ListenableFuture} which is successful when the torch was changed to the
+     * value specified. It fails when it is unable to change the torch state.
+     */
+    @NonNull
+    ListenableFuture<Void> enableTorch(boolean torch);
+
+    /**
      * Starts a focus and metering action configured by the {@link FocusMeteringAction}.
      *
      * <p>It will trigger a auto focus action and enable AF/AE/AWB metering regions. The action

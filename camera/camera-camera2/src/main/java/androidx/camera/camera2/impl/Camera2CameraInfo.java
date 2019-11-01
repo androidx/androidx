@@ -29,6 +29,7 @@ import androidx.camera.core.CameraInfoUnavailableException;
 import androidx.camera.core.CameraOrientationUtil;
 import androidx.camera.core.ImageOutputConfig.RotationValue;
 import androidx.camera.core.LensFacing;
+import androidx.camera.core.TorchState;
 import androidx.core.util.Preconditions;
 import androidx.lifecycle.LiveData;
 import androidx.lifecycle.MutableLiveData;
@@ -43,7 +44,6 @@ final class Camera2CameraInfo implements CameraInfoInternal {
     private final ZoomControl mZoomControl;
     private static final String TAG = "Camera2CameraInfo";
     private MutableLiveData<Boolean> mFlashAvailability;
-
 
     Camera2CameraInfo(@NonNull CameraManager cameraManager, @NonNull String cameraId,
             @NonNull ZoomControl zoomControl)
@@ -160,6 +160,13 @@ final class Camera2CameraInfo implements CameraInfoInternal {
     @Override
     public LiveData<Boolean> isFlashAvailable() {
         return mFlashAvailability;
+    }
+
+    @NonNull
+    @Override
+    public LiveData<TorchState> getTorchState() {
+        // TODO(b/143514107): implement #getTorchState and return a functional LiveData
+        throw new UnsupportedOperationException("Not implement");
     }
 
     @NonNull
