@@ -177,8 +177,6 @@ class MultiParagraph(
             paragraphInfo.bottom = (currentHeight + paragraph.height).px
             currentHeight += paragraph.height
 
-            // TODO(haoyuchang): solve the corner case where the ellipsis won't be applied when
-            //  currentLineNum == maxLines but there are still more paragraphs
             if (paragraph.didExceedMaxLines ||
                 (currentLineCount == maxLines && index != this.paragraphInfoList.lastIndex)
             ) {
