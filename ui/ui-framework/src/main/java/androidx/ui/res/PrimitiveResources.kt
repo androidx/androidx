@@ -17,45 +17,62 @@
 package androidx.ui.res
 
 import androidx.annotation.ArrayRes
+import androidx.annotation.BoolRes
 import androidx.annotation.CheckResult
-import androidx.annotation.StringRes
+import androidx.annotation.DimenRes
+import androidx.annotation.IntegerRes
 import androidx.compose.ambient
 import androidx.compose.effectOf
 import androidx.ui.core.ContextAmbient
+import androidx.ui.core.Dp
+import androidx.ui.core.ambientDensity
 
 /**
- * Load a string resource.
+ * Load an integer resource.
  *
  * @param id the resource identifier
- * @return the string data associated with the resource
+ * @return the integer associated with the resource
  */
 @CheckResult(suggest = "+")
-fun stringResource(@StringRes id: Int) = effectOf<String> {
+fun integerResource(@IntegerRes id: Int) = effectOf<Int> {
     val context = +ambient(ContextAmbient)
-    context.resources.getString(id)
+    context.resources.getInteger(id)
 }
 
 /**
- * Load a string resource with formatting.
+ * Load an array of integer resource.
  *
  * @param id the resource identifier
- * @param formatArgs the format arguments
- * @return the string data associated with the resource
+ * @return the integer array associated with the resource
  */
 @CheckResult(suggest = "+")
-fun stringResource(@StringRes id: Int, vararg formatArgs: Any) = effectOf<String> {
+fun integerArrayResource(@ArrayRes id: Int) = effectOf<IntArray> {
     val context = +ambient(ContextAmbient)
-    context.resources.getString(id, *formatArgs)
+    context.resources.getIntArray(id)
 }
 
 /**
- * Load a string resource.
+ * Load a boolean resource.
  *
  * @param id the resource identifier
- * @return the string data associated with the resource
+ * @return the boolean associated with the resource
  */
 @CheckResult(suggest = "+")
-fun stringArrayResource(@ArrayRes id: Int) = effectOf<Array<String>> {
+fun booleanResource(@BoolRes id: Int) = effectOf<Boolean> {
     val context = +ambient(ContextAmbient)
-    context.resources.getStringArray(id)
+    context.resources.getBoolean(id)
+}
+
+/**
+ * Load a boolean resource.
+ *
+ * @param id the resource identifier
+ * @return the dimension value associated with the resource
+ */
+@CheckResult(suggest = "+")
+fun dimensionResource(@DimenRes id: Int) = effectOf<Dp> {
+    val context = +ambient(ContextAmbient)
+    val density = +ambientDensity()
+    val pxValue = context.resources.getDimension(id)
+    Dp(pxValue / density.density)
 }
