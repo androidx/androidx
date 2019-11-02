@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package androidx.ui.core.input
+package androidx.ui.input
 
 import android.os.Bundle
 import android.os.Handler
@@ -31,19 +31,6 @@ import android.view.inputmethod.InputConnection
 import android.view.inputmethod.InputContentInfo
 import android.view.inputmethod.InputMethodManager
 import androidx.annotation.VisibleForTesting
-import androidx.ui.input.BackspaceKeyEditOp
-import androidx.ui.input.CommitTextEditOp
-import androidx.ui.input.DeleteSurroundingTextEditOp
-import androidx.ui.input.DeleteSurroundingTextInCodePointsEditOp
-import androidx.ui.input.EditOperation
-import androidx.ui.input.FinishComposingTextEditOp
-import androidx.ui.input.ImeAction
-import androidx.ui.input.InputEventListener
-import androidx.ui.input.InputState
-import androidx.ui.input.MoveCursorEditOp
-import androidx.ui.input.SetComposingRegionEditOp
-import androidx.ui.input.SetComposingTextEditOp
-import androidx.ui.input.SetSelectionEditOp
 
 private val DEBUG = false
 private val TAG = "RecordingIC"
@@ -110,7 +97,8 @@ internal class RecordingInputConnection(
         val candidateStart = next.composition?.min ?: -1
         val candidateEnd = next.composition?.max ?: -1
         if (DEBUG) {
-            Log.d(TAG, "updateSelection(" +
+            Log.d(
+                TAG, "updateSelection(" +
                         "selection = (${next.selection.min},${next.selection.max}), " +
                         "compoairion = ($candidateStart, $candidateEnd)")
         }

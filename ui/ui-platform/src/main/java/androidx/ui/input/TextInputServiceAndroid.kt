@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package androidx.ui.core.input
+package androidx.ui.input
 
 import android.content.Context
 import android.text.InputType
@@ -23,12 +23,6 @@ import android.view.inputmethod.EditorInfo
 import android.view.inputmethod.InputConnection
 import android.view.inputmethod.InputMethodManager
 import androidx.ui.engine.geometry.Rect
-import androidx.ui.input.EditOperation
-import androidx.ui.input.ImeAction
-import androidx.ui.input.InputEventListener
-import androidx.ui.input.InputState
-import androidx.ui.input.KeyboardType
-import androidx.ui.input.PlatformTextInputService
 import androidx.ui.text.TextRange
 import kotlin.math.roundToInt
 

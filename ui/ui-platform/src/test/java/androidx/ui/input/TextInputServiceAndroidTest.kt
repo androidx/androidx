@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package androidx.ui.core.input
+package androidx.ui.input
 
 import android.content.Context
 import android.text.InputType
@@ -22,9 +22,6 @@ import android.view.View
 import android.view.inputmethod.EditorInfo
 import android.view.inputmethod.InputMethodManager
 import androidx.test.filters.SmallTest
-import androidx.ui.input.InputState
-import androidx.ui.input.ImeAction
-import androidx.ui.input.KeyboardType
 import com.nhaarman.mockitokotlin2.eq
 import com.nhaarman.mockitokotlin2.mock
 import com.nhaarman.mockitokotlin2.whenever
