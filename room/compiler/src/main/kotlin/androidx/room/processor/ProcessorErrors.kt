@@ -730,4 +730,26 @@ object ProcessorErrors {
     fun invalidChannelType(typeName: String) = "'$typeName' is not supported as a return type. " +
             "Instead declare return type as ${KotlinTypeNames.FLOW} and use Flow transforming " +
             "functions that converts the Flow into a Channel."
+
+    fun mismatchedGetter(
+        fieldName: String,
+        ownerType: TypeName,
+        getterType: TypeName,
+        fieldType: TypeName
+    ) = """
+            $ownerType's $fieldName field has type $fieldType but its getter returns $getterType.
+            This mismatch might cause unexpected $fieldName values in the database when $ownerType
+            is inserted into database.
+        """.trim()
+
+    fun mismatchedSetter(
+        fieldName: String,
+        ownerType: TypeName,
+        setterType: TypeName,
+        fieldType: TypeName
+    ) = """
+            $ownerType's $fieldName field has type $fieldType but its setter accepts $setterType.
+            This mismatch might cause unexpected $fieldName values when $ownerType is read from the
+            database.
+        """.trim()
 }

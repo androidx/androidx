@@ -189,7 +189,10 @@ class FieldReadWriteWriter(fieldWithIndex: FieldWithIndex) {
                     val constructorFields = node.directFields.filter {
                         it.field.setter.callType == CallType.CONSTRUCTOR
                     }.associateBy { fwi ->
-                        FieldReadWriteWriter(fwi).readIntoTmpVar(cursorVar, scope)
+                        FieldReadWriteWriter(fwi).readIntoTmpVar(
+                            cursorVar,
+                            fwi.field.setter.type.typeName(),
+                            scope)
                     }
                     // read decomposed fields (e.g. embedded)
                     node.subNodes.forEach(::visitNode)
@@ -349,9 +352,12 @@ class FieldReadWriteWriter(fieldWithIndex: FieldWithIndex) {
     /**
      * Reads the value into a temporary local variable.
      */
-    fun readIntoTmpVar(cursorVar: String, scope: CodeGenScope): String {
+    fun readIntoTmpVar(
+        cursorVar: String,
+        typeName: TypeName,
+        scope: CodeGenScope
+    ): String {
         val tmpField = scope.getTmpVar("_tmp${field.name.capitalize()}")
-        val typeName = field.getter.type.typeName()
         scope.builder().apply {
             addStatement("final $T $L", typeName, tmpField)
             if (alwaysExists) {

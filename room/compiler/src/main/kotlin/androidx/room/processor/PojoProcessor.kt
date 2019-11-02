@@ -718,6 +718,23 @@ class PojoProcessor private constructor(
         context.checker.check(
             success || bindingScope == FieldProcessor.BindingScope.READ_FROM_CURSOR,
             field.element, CANNOT_FIND_GETTER_FOR_FIELD)
+        if (success && !context.processingEnv.typeUtils.isSameType(field.getter.type, field.type)) {
+            // getter's parameter type is not exactly the same as the field type.
+            // put a warning and update the value statement binder.
+            context.logger.w(
+                warning = Warning.MISMATCHED_GETTER_TYPE,
+                element = field.element,
+                msg = ProcessorErrors.mismatchedGetter(
+                    fieldName = field.name,
+                    ownerType = element.asType().typeName(),
+                    getterType = field.getter.type.typeName(),
+                    fieldType = field.typeName
+                ))
+            field.statementBinder = context.typeAdapterStore.findStatementValueBinder(
+                input = field.getter.type,
+                affinity = field.affinity
+            )
+        }
     }
 
     private fun assignSetters(
@@ -769,6 +786,23 @@ class PojoProcessor private constructor(
         context.checker.check(
             success || bindingScope == FieldProcessor.BindingScope.BIND_TO_STMT,
             field.element, CANNOT_FIND_SETTER_FOR_FIELD)
+        if (success && !context.processingEnv.typeUtils.isSameType(field.setter.type, field.type)) {
+            // setter's parameter type is not exactly the same as the field type.
+            // put a warning and update the value reader adapter.
+            context.logger.w(
+                warning = Warning.MISMATCHED_SETTER_TYPE,
+                element = field.element,
+                msg = ProcessorErrors.mismatchedSetter(
+                    fieldName = field.name,
+                    ownerType = element.asType().typeName(),
+                    setterType = field.setter.type.typeName(),
+                    fieldType = field.typeName
+                ))
+            field.cursorValueReader = context.typeAdapterStore.findCursorValueReader(
+                output = field.setter.type,
+                affinity = field.affinity
+            )
+        }
     }
 
     /**
