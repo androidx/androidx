@@ -16,7 +16,7 @@
 
 package androidx.text;
 
-import static androidx.text.LayoutCompat.DEFAULT_ADD_LAST_LINE_LINE_SPCAING;
+import static androidx.text.LayoutCompat.DEFAULT_ADD_LAST_LINE_LINE_SPACING;
 import static androidx.text.LayoutCompat.DEFAULT_BREAK_STRATEGY;
 import static androidx.text.LayoutCompat.DEFAULT_FALLBACK_LINE_SPACING;
 import static androidx.text.LayoutCompat.DEFAULT_HYPHENATION_FREQUENCY;
@@ -42,7 +42,6 @@ import androidx.annotation.IntRange;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.annotation.RequiresApi;
-import androidx.annotation.RestrictTo;
 import androidx.text.LayoutCompat.BreakStrategy;
 import androidx.text.LayoutCompat.HyphenationFrequency;
 import androidx.text.LayoutCompat.JustificationMode;
@@ -50,17 +49,12 @@ import androidx.text.LayoutCompat.JustificationMode;
 import java.lang.reflect.Constructor;
 import java.lang.reflect.InvocationTargetException;
 
-/** @hide */
-@RestrictTo(RestrictTo.Scope.LIBRARY)
-public class StaticLayoutCompat {
+class StaticLayoutCompat {
     private StaticLayoutCompat() {}
 
     /**
      * Builder class for StaticLayout.
-     *
-     * @hide
      */
-    @RestrictTo(RestrictTo.Scope.LIBRARY)
     public static class Builder {
         private static final String TAG = "StaticLayoutCompat";
         private static boolean sIsInitialized = false;
@@ -174,7 +168,7 @@ public class StaticLayoutCompat {
             mBreakStrategy = DEFAULT_BREAK_STRATEGY;
             mHyphenationFrequency = DEFAULT_HYPHENATION_FREQUENCY;
             mJustificationMode = DEFAULT_JUSTIFICATION_MODE;
-            mAddLastLineLineSpacing = DEFAULT_ADD_LAST_LINE_LINE_SPCAING;
+            mAddLastLineLineSpacing = DEFAULT_ADD_LAST_LINE_LINE_SPACING;
         }
 
         /**
@@ -182,9 +176,7 @@ public class StaticLayoutCompat {
          *
          * @param text  The text to be laid out, optionally with spans
          * @return this builder, useful for chaining
-         * @hide
          */
-        @RestrictTo(RestrictTo.Scope.LIBRARY)
         @NonNull
         public Builder setText(@NonNull CharSequence text) {
             Preconditions.checkNotNull(text, "Text can't be null");
@@ -199,9 +191,7 @@ public class StaticLayoutCompat {
          * @param start The index of the start of the text
          * @param end   The index + 1 of the end of the text
          * @return this builder, useful for chaining
-         * @hide
          */
-        @RestrictTo(RestrictTo.Scope.LIBRARY)
         @NonNull
         public Builder setText(@NonNull CharSequence text,
                 @IntRange(from = 0) int start, @IntRange(from = 0) int end) {
@@ -240,9 +230,7 @@ public class StaticLayoutCompat {
          *
          * @param paint The base paint used for layout
          * @return this builder, useful for chaining
-         * @hide
          */
-        @RestrictTo(RestrictTo.Scope.LIBRARY)
         @NonNull
         public Builder setPaint(@NonNull TextPaint paint) {
             mPaint = Preconditions.checkNotNull(paint, "Paint can't be null");
@@ -254,9 +242,7 @@ public class StaticLayoutCompat {
          *
          * @param width The width in pixels
          * @return this builder, useful for chaining
-         * @hide
          */
-        @RestrictTo(RestrictTo.Scope.LIBRARY)
         @NonNull
         public Builder setWidth(@IntRange(from = 0) int width) {
             mWidth = Preconditions.checkArgumentNonnegative(width, "Width can't be negative");
@@ -479,10 +465,7 @@ public class StaticLayoutCompat {
         /**
          * Sets whether the line spacing should be applied for the last line. Default value is
          * {@code false}.
-         *
-         * @hide
          */
-        @RestrictTo(RestrictTo.Scope.LIBRARY)
         @NonNull
         public Builder setAddLastLineLineSpacing(boolean value) {
             mAddLastLineLineSpacing = value;

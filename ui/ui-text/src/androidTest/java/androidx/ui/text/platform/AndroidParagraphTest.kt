@@ -13,7 +13,7 @@ import android.text.style.StrikethroughSpan
 import android.text.style.UnderlineSpan
 import androidx.test.filters.SmallTest
 import androidx.test.platform.app.InstrumentationRegistry
-import androidx.text.StaticLayoutCompat
+import androidx.text.TextLayout
 import androidx.text.style.BaselineShiftSpan
 import androidx.text.style.FontFeatureSpan
 import androidx.text.style.LetterSpacingSpan
@@ -91,14 +91,13 @@ class AndroidParagraphTest {
                 textPaint.textSize = fontSize.toPx().value
                 textPaint.typeface = TypefaceAdapter().create(fontFamily)
 
-                val staticLayout = StaticLayoutCompat.Builder(
-                    text,
-                    textPaint,
-                    ceil(paragraphAndroid.width).toInt()
+                val layout = TextLayout(
+                    charSequence = text,
+                    width = ceil(paragraphAndroid.width),
+                    textPaint = textPaint
                 )
-                    .setEllipsizedWidth(ceil(paragraphAndroid.width).toInt())
-                    .build()
-                assertThat(paragraphAndroid.bitmap()).isEqualToBitmap(staticLayout.bitmap())
+
+                assertThat(paragraphAndroid.bitmap()).isEqualToBitmap(layout.bitmap())
             }
         }
     }
