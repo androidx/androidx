@@ -456,26 +456,6 @@ package androidx.ui.input {
 
 }
 
-package androidx.ui.internal {
-
-  public final class Unicode {
-    field public static final String ALM = "\u061c";
-    field public static final String FSI = "\u2068";
-    field public static final androidx.ui.internal.Unicode! INSTANCE;
-    field public static final String LRE = "\u202a";
-    field public static final String LRI = "\u2066";
-    field public static final String LRM = "\u200e";
-    field public static final String LRO = "\u202d";
-    field public static final String PDF = "\u202c";
-    field public static final String PDI = "\u2069";
-    field public static final String RLE = "\u202b";
-    field public static final String RLI = "\u2067";
-    field public static final String RLM = "\u200f";
-    field public static final String RLO = "\u202e";
-  }
-
-}
-
 package androidx.ui.temputils {
 
   public final class CoroutineUtilsKt {
