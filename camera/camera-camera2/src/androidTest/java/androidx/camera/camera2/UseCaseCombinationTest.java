@@ -224,8 +224,7 @@ public final class UseCaseCombinationTest {
     }
 
     private void initImageCapture() {
-        ImageCaptureConfig imageCaptureConfig =
-                new ImageCaptureConfig.Builder().setLensFacing(LensFacing.BACK).build();
+        ImageCaptureConfig imageCaptureConfig = new ImageCaptureConfig.Builder().build();
 
         mImageCapture = new ImageCapture(imageCaptureConfig);
     }

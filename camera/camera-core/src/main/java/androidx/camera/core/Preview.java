@@ -469,14 +469,7 @@ public class Preview extends UseCase {
 
         @Override
         public PreviewConfig getConfig(LensFacing lensFacing) {
-            if (lensFacing != null) {
-                PreviewConfig.Builder configBuilder = PreviewConfig.Builder.fromConfig(
-                        DEFAULT_CONFIG);
-                configBuilder.setLensFacing(lensFacing);
-                return configBuilder.build();
-            } else {
-                return DEFAULT_CONFIG;
-            }
+            return DEFAULT_CONFIG;
         }
     }
 }

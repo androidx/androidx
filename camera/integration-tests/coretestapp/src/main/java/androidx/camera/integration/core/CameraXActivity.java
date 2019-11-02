@@ -60,6 +60,7 @@ import androidx.camera.core.PreviewSurfaceProviders;
 import androidx.camera.core.UseCase;
 import androidx.camera.core.VideoCapture;
 import androidx.camera.core.VideoCaptureConfig;
+import androidx.camera.core.impl.utils.CameraSelectorUtil;
 import androidx.camera.core.impl.utils.executor.CameraXExecutors;
 import androidx.camera.lifecycle.LifecycleCameraProvider;
 import androidx.core.app.ActivityCompat;
@@ -241,23 +242,18 @@ public class CameraXActivity extends AppCompatActivity
         }
     }
 
+    @SuppressWarnings("RestrictedApi")
     void transformPreview() {
-        String cameraId = null;
-        PreviewConfig config = (PreviewConfig) mPreview.getUseCaseConfig();
-        LensFacing previewLensFacing = config.getLensFacing(/*valueIfMissing=*/ null);
-        if (previewLensFacing != mCurrentCameraLensFacing) {
-            throw new IllegalStateException(
-                    "Invalid preview lens facing: "
-                            + previewLensFacing
-                            + " Should be: "
-                            + mCurrentCameraLensFacing);
-        }
+        // TODO(b/143793233): We should not be using internal APIs to get the resolution here.
+        //  This should be switched to public APIs.
+        String cameraId;
         try {
-            cameraId = CameraX.getCameraWithCameraDeviceConfig(config);
+            cameraId = CameraX.getCameraWithCameraDeviceConfig(
+                    CameraSelectorUtil.toCameraDeviceConfig(mCurrentCameraSelector));
         } catch (CameraInfoUnavailableException e) {
             throw new IllegalArgumentException(
-                    "Unable to get camera id for the camera device config "
-                            + config.getLensFacing(), e);
+                    "Unable to get camera id for the camera lens facing "
+                            + mCurrentCameraLensFacing, e);
         }
         Size srcResolution = mPreview.getAttachedSurfaceResolution(cameraId);
 

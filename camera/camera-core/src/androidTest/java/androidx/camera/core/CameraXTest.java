@@ -405,15 +405,6 @@ public final class CameraXTest {
         assertThat(useCases.contains(fakeOtherUseCase)).isTrue();
     }
 
-    @Test
-    public void canGetCameraIdWithConfig() throws CameraInfoUnavailableException {
-        initCameraX();
-        FakeUseCaseConfig.Builder fakeConfigBuilder = new FakeUseCaseConfig.Builder();
-        String cameraId = CameraX.getCameraWithCameraDeviceConfig(fakeConfigBuilder.build());
-
-        assertThat(cameraId).isEqualTo(mCameraId);
-    }
-
     @Test(expected = CameraInfoUnavailableException.class)
     public void cameraInfo_returnFlashAvailableFailed_forFrontCamera()
             throws CameraInfoUnavailableException {

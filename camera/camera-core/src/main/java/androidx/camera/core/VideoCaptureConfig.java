@@ -40,7 +40,7 @@ import java.util.concurrent.Executor;
 public final class VideoCaptureConfig
         implements UseCaseConfig<VideoCapture>,
         ImageOutputConfig,
-        CameraDeviceConfig,
+        CameraDeviceConfig, // TODO(b/142840814): Remove in favor of CameraSelector
         ThreadConfig {
 
     // Option Declarations:
@@ -370,7 +370,9 @@ public final class VideoCaptureConfig
      * @param valueIfMissing The value to return if this configuration option has not been set.
      * @return The stored value or <code>valueIfMissing</code> if the value does not exist in this
      * configuration.
+     * @hide
      */
+    @RestrictTo(Scope.LIBRARY_GROUP)
     @Override
     @Nullable
     public LensFacing getLensFacing(@Nullable LensFacing valueIfMissing) {
@@ -382,7 +384,9 @@ public final class VideoCaptureConfig
      *
      * @return The stored value, if it exists in this configuration.
      * @throws IllegalArgumentException if the option does not exist in this configuration.
+     * @hide
      */
+    @RestrictTo(Scope.LIBRARY_GROUP)
     @Override
     @NonNull
     public LensFacing getLensFacing() {
@@ -946,7 +950,9 @@ public final class VideoCaptureConfig
          *
          * @param lensFacing The direction of the camera's lens.
          * @return the current Builder.
+         * @hide
          */
+        @RestrictTo(Scope.LIBRARY_GROUP)
         @Override
         @NonNull
         public Builder setLensFacing(@NonNull LensFacing lensFacing) {

@@ -144,7 +144,6 @@ public final class SensorOrientedMeteringPointFactoryTest {
 
         ImageAnalysisConfig imageAnalysisConfig =
                 new ImageAnalysisConfig.Builder()
-                        .setLensFacing(LensFacing.BACK)
                         .setTargetAspectRatio(AspectRatio.RATIO_4_3)
                         .setTargetName("ImageAnalysis")
                         .build();

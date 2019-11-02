@@ -530,10 +530,6 @@ public final class SupportedSurfaceCombinationTest {
         ImageCaptureConfig.Builder imageCaptureConfigBuilder = new ImageCaptureConfig.Builder();
         ImageAnalysisConfig.Builder imageAnalysisConfigBuilder = new ImageAnalysisConfig.Builder();
 
-        previewConfigBuilder.setLensFacing(LensFacing.BACK);
-        imageCaptureConfigBuilder.setLensFacing(LensFacing.BACK);
-        imageAnalysisConfigBuilder.setLensFacing(LensFacing.BACK);
-
         Preview preview = new Preview(previewConfigBuilder.build());
         ImageCapture imageCapture = new ImageCapture(imageCaptureConfigBuilder.build());
         ImageAnalysis imageAnalysis = new ImageAnalysis(imageAnalysisConfigBuilder.build());
@@ -672,11 +668,8 @@ public final class SupportedSurfaceCombinationTest {
         videoCaptureConfigBuilder.setTargetAspectRatio(AspectRatio.RATIO_16_9);
         imageCaptureConfigBuilder.setTargetAspectRatio(AspectRatio.RATIO_16_9);
 
-        imageCaptureConfigBuilder.setLensFacing(LensFacing.FRONT);
         ImageCapture imageCapture = new ImageCapture(imageCaptureConfigBuilder.build());
-        videoCaptureConfigBuilder.setLensFacing(LensFacing.FRONT);
         VideoCapture videoCapture = new VideoCapture(videoCaptureConfigBuilder.build());
-        previewConfigBuilder.setLensFacing(LensFacing.FRONT);
         Preview preview = new Preview(previewConfigBuilder.build());
 
         List<UseCase> useCases = new ArrayList<>();
@@ -704,11 +697,8 @@ public final class SupportedSurfaceCombinationTest {
         videoCaptureConfigBuilder.setTargetAspectRatio(AspectRatio.RATIO_16_9);
         imageCaptureConfigBuilder.setTargetAspectRatio(AspectRatio.RATIO_16_9);
 
-        imageCaptureConfigBuilder.setLensFacing(LensFacing.BACK);
         ImageCapture imageCapture = new ImageCapture(imageCaptureConfigBuilder.build());
-        videoCaptureConfigBuilder.setLensFacing(LensFacing.BACK);
         VideoCapture videoCapture = new VideoCapture(videoCaptureConfigBuilder.build());
-        previewConfigBuilder.setLensFacing(LensFacing.BACK);
         Preview preview = new Preview(previewConfigBuilder.build());
 
         List<UseCase> useCases = new ArrayList<>();
@@ -743,9 +733,9 @@ public final class SupportedSurfaceCombinationTest {
 
         imageCaptureConfigBuilder.setTargetResolution(mDisplaySize);
         ImageCapture imageCapture = new ImageCapture(imageCaptureConfigBuilder.build());
-        previewConfigBuilder.setTargetResolution(mDisplaySize).setLensFacing(LensFacing.BACK);
+        previewConfigBuilder.setTargetResolution(mDisplaySize);
         Preview preview = new Preview(previewConfigBuilder.build());
-        imageAnalysisConfigBuilder.setTargetResolution(mDisplaySize).setLensFacing(LensFacing.BACK);
+        imageAnalysisConfigBuilder.setTargetResolution(mDisplaySize);
         ImageAnalysis imageAnalysis = new ImageAnalysis(imageAnalysisConfigBuilder.build());
 
         List<UseCase> useCases = new ArrayList<>();
@@ -807,7 +797,6 @@ public final class SupportedSurfaceCombinationTest {
 
         boolean previewExceptionHappened = false;
         PreviewConfig.Builder previewConfigBuilder = new PreviewConfig.Builder()
-                .setLensFacing(LensFacing.BACK)
                 .setTargetResolution(mDisplaySize)
                 .setTargetAspectRatio(AspectRatio.RATIO_16_9);
         try {
@@ -819,7 +808,6 @@ public final class SupportedSurfaceCombinationTest {
 
         boolean imageCaptureExceptionHappened = false;
         ImageCaptureConfig.Builder imageCaptureConfigBuilder = new ImageCaptureConfig.Builder()
-                .setLensFacing(LensFacing.BACK)
                 .setTargetResolution(mDisplaySize)
                 .setTargetAspectRatio(AspectRatio.RATIO_16_9);
         try {
@@ -831,7 +819,6 @@ public final class SupportedSurfaceCombinationTest {
 
         boolean imageAnalysisExceptionHappened = false;
         ImageAnalysisConfig.Builder imageAnalysisConfigBuilder = new ImageAnalysisConfig.Builder()
-                .setLensFacing(LensFacing.BACK)
                 .setTargetResolution(mDisplaySize)
                 .setTargetAspectRatio(AspectRatio.RATIO_16_9);
         try {
@@ -864,11 +851,8 @@ public final class SupportedSurfaceCombinationTest {
         videoCaptureConfigBuilder.setSupportedResolutions(formatResolutionsPairList);
         previewConfigBuilder.setSupportedResolutions(formatResolutionsPairList);
 
-        imageCaptureConfigBuilder.setLensFacing(LensFacing.BACK);
         ImageCapture imageCapture = new ImageCapture(imageCaptureConfigBuilder.build());
-        videoCaptureConfigBuilder.setLensFacing(LensFacing.BACK);
         VideoCapture videoCapture = new VideoCapture(videoCaptureConfigBuilder.build());
-        previewConfigBuilder.setLensFacing(LensFacing.BACK);
         Preview preview = new Preview(previewConfigBuilder.build());
 
         List<UseCase> useCases = new ArrayList<>();
@@ -1049,9 +1033,6 @@ public final class SupportedSurfaceCombinationTest {
 
         PreviewConfig.Builder previewConfigBuilder = new PreviewConfig.Builder();
         ImageCaptureConfig.Builder imageCaptureConfigBuilder = new ImageCaptureConfig.Builder();
-
-        previewConfigBuilder.setLensFacing(LensFacing.BACK);
-        imageCaptureConfigBuilder.setLensFacing(LensFacing.BACK);
 
         previewConfigBuilder.setTargetAspectRatio(AspectRatio.RATIO_16_9);
         imageCaptureConfigBuilder.setTargetAspectRatio(AspectRatio.RATIO_16_9);

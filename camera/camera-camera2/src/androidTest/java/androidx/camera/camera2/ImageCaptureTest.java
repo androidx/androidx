@@ -170,7 +170,7 @@ public final class ImageCaptureTest {
         mDefaultConfig = new ImageCaptureConfig.Builder().build();
 
         mFakeUseCaseConfig = new FakeUseCaseConfig.Builder().build();
-        mRepeatingUseCase = new FakeRepeatingUseCase(mFakeUseCaseConfig);
+        mRepeatingUseCase = new FakeRepeatingUseCase(mFakeUseCaseConfig, BACK_SELECTOR);
         mLifecycleOwner = new FakeLifecycleOwner();
     }
 

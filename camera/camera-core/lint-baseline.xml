@@ -466,28 +466,6 @@
     <issue
         id="UnknownNullness"
         message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
-        errorLine1="        B setLensFacing(@NonNull CameraX.LensFacing lensFacing);"
-        errorLine2="        ~">
-        <location
-            file="src/main/java/androidx/camera/core/CameraDeviceConfig.java"
-            line="115"
-            column="9"/>
-    </issue>
-
-    <issue
-        id="UnknownNullness"
-        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
-        errorLine1="        B setLensFacing(@NonNull CameraX.LensFacing lensFacing);"
-        errorLine2="        ~">
-        <location
-            file="src/main/java/androidx/camera/core/CameraDeviceConfig.java"
-            line="115"
-            column="9"/>
-    </issue>
-
-    <issue
-        id="UnknownNullness"
-        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
         errorLine1="        B setCameraIdFilter(@NonNull CameraIdFilter cameraIdFilter);"
         errorLine2="        ~">
         <location
