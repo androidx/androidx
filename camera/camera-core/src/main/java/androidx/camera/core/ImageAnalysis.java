@@ -194,19 +194,26 @@ public final class ImageAnalysis extends UseCase {
      * Sets the target rotation.
      *
      * <p>This informs the use case so it can adjust the rotation value sent to
-     * {@link Analyzer#analyze(ImageProxy, int)}.
-     *
-     * <p>In most cases this should be set to the current rotation returned by {@link
-     * Display#getRotation()}.  In that case, the rotation parameter sent to the analyzer will be
-     * the rotation, which if applied to the output image, will make the image match the display
-     * orientation.
+     * {@link Analyzer#analyze(ImageProxy, int)} which provides rotation information to the
+     * analysis method. The rotation parameter sent to the analyzer will be the rotation, which if
+     * applied to the output image, will make the image match target rotation specified here.
      *
      * <p>While rotation can also be set via
      * {@link ImageAnalysisConfig.Builder#setTargetRotation(int)}, using
      * {@link ImageAnalysis#setTargetRotation(int)} allows the target rotation to be set
-     * dynamically. This can be useful if an app locks itself to portrait, and uses the orientation
-     * sensor to set rotation, to process landscape images when the device is rotated by examining
-     * the rotation received by the Analyzer function.
+     * dynamically.
+     *
+     * <p>In general, it is best to use an {@link android.view.OrientationEventListener} to
+     * set the target rotation.  This way, the rotation output to the Analyzer will indicate
+     * which way is down for a given image.  This is important since display orientation may be
+     * locked by device default, user setting, or app configuration,
+     * and some devices may not transition to a reverse-portrait display orientation.  In
+     * these cases, use {@link androidx.camera.core.ImageAnalysis#setTargetRotation} to set
+     * target rotation dynamically according to the
+     * {@link android.view.OrientationEventListener}, without re-creating the use case.  Note
+     * the OrientationEventListener output of degrees in the range [0..359] should be converted to
+     * a surface rotation, i.e. one of {@link Surface#ROTATION_0}, {@link Surface#ROTATION_90},
+     * {@link Surface#ROTATION_180}, or {@link Surface#ROTATION_270}.
      *
      * <p>If not set here or by configuration, the target rotation will default to the value of
      * {@link Display#getRotation()} of the default display at the time the
