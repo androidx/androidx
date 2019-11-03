@@ -61,7 +61,7 @@ includeProject(":annotation:annotation-experimental-lint-integration-tests", "an
 includeProject(":animation", "animation")
 includeProject(":animation:testing", "animation/testing")
 includeProject(":animation:integration-tests:testapp", "animation/integration-tests/testapp")
-includeProject(":appcompat", "appcompat")
+includeProject(":appcompat:appcompat", "appcompat/appcompat")
 includeProject(":appcompat-benchmark", "appcompat/benchmark")
 includeProject(":appcompat:appcompat-resources", "appcompat/resources")
 includeProject(":appsearch:appsearch", "appsearch/appsearch")
