@@ -21,6 +21,7 @@ import org.junit.Test
 import org.junit.runner.RunWith
 import org.junit.runners.JUnit4
 import kotlin.test.assertEquals
+import kotlin.test.assertFailsWith
 import kotlin.test.assertNotEquals
 import kotlin.test.fail
 
@@ -33,10 +34,15 @@ internal fun <T : Any> PagePresenter(
 ) = PagePresenter(
     PageEvent.Insert(
         loadType = LoadType.REFRESH,
-        data = pages,
+        pages = pages.mapIndexed { index, list ->
+            TransformedPage(
+                sourcePageIndex = index - indexOfInitialPage,
+                data = list,
+                sourcePageSize = list.size,
+                originalIndices = null)
+        },
         placeholdersBefore = leadingNullCount,
-        placeholdersAfter = trailingNullCount,
-        sourcePageRelativePosition = indexOfInitialPage
+        placeholdersAfter = trailingNullCount
     )
 )
 
@@ -48,8 +54,12 @@ internal fun <T : Any> PagePresenter<T>.insertPage(
 ) = processEvent(
         PageEvent.Insert(
             loadType = if (isPrepend) LoadType.START else LoadType.END,
-            data = listOf(page),
-            sourcePageRelativePosition = Int.MAX_VALUE, // TODO
+            pages = listOf(TransformedPage(
+                sourcePageIndex = 0,
+                data = page,
+                sourcePageSize = page.size,
+                originalIndices = null
+            )),
             placeholdersBefore = if (isPrepend) remainingNulls else 0,
             placeholdersAfter = if (isPrepend) 0 else remainingNulls
         ),
@@ -492,4 +502,70 @@ class PagePresenterTest {
             RemoveEvent(3, 3)
         )
     )
+
+    @Test
+    fun getOutOfBounds() {
+        val presenter = PagePresenter(
+            pages = mutableListOf(listOf('a')),
+            leadingNullCount = 1,
+            trailingNullCount = 1,
+            indexOfInitialPage = 0
+        )
+        assertFailsWith<IndexOutOfBoundsException> {
+            presenter.get(-1)
+        }
+        assertFailsWith<IndexOutOfBoundsException> {
+            presenter.get(4)
+        }
+    }
+
+    @Test
+    fun loadAroundOutOfBounds() {
+        val presenter = PagePresenter(
+            pages = mutableListOf(listOf('a')),
+            leadingNullCount = 1,
+            trailingNullCount = 1,
+            indexOfInitialPage = 0
+        )
+        assertFailsWith<IndexOutOfBoundsException> {
+            presenter.loadAround(-1)
+        }
+        assertFailsWith<IndexOutOfBoundsException> {
+            presenter.loadAround(4)
+        }
+    }
+
+    @Test
+    fun loadAroundSimple() {
+        val pagePresenter = PagePresenter(
+            pages = listOf(listOf('a')),
+            leadingNullCount = 1,
+            trailingNullCount = 1,
+            indexOfInitialPage = 0
+        )
+        assertEquals(LoadHint(0, -1), pagePresenter.loadAround(0))
+        assertEquals(LoadHint(0, 0), pagePresenter.loadAround(1))
+        assertEquals(LoadHint(0, 1), pagePresenter.loadAround(2))
+    }
+
+    @Test
+    fun loadAround() {
+        val pagePresenter = PagePresenter(
+            pages = listOf(
+                listOf('a'),
+                listOf('b', 'c'),
+                listOf('d')
+            ),
+            leadingNullCount = 1,
+            trailingNullCount = 2,
+            indexOfInitialPage = 1
+        )
+        assertEquals(LoadHint(-1, -1), pagePresenter.loadAround(0))
+        assertEquals(LoadHint(-1, 0), pagePresenter.loadAround(1))
+        assertEquals(LoadHint(0, 0), pagePresenter.loadAround(2))
+        assertEquals(LoadHint(0, 1), pagePresenter.loadAround(3))
+        assertEquals(LoadHint(1, 0), pagePresenter.loadAround(4))
+        assertEquals(LoadHint(1, 1), pagePresenter.loadAround(5))
+        assertEquals(LoadHint(1, 2), pagePresenter.loadAround(6))
+    }
 }

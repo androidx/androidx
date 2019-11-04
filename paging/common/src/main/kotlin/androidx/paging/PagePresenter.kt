@@ -28,27 +28,23 @@ import androidx.paging.PagedList.Callback
  *  - Snapshot
  *
  *  TODO:
- *   - produce load hint events
  *   - state observation APIs
  */
 internal class PagePresenter<T : Any> {
-    private var indexOfInitialPage: Int
-    private val pages: MutableList<List<T>>
+    private val pages: MutableList<TransformedPage<T>>
     private var storageCount: Int
 
     private var placeholdersBefore: Int
     private var placeholdersAfter: Int
 
     constructor(insertEvent: PageEvent.Insert<T>) {
-        indexOfInitialPage = insertEvent.sourcePageRelativePosition
-        pages = insertEvent.data.toMutableList()
-        storageCount = insertEvent.data.fullCount()
+        pages = insertEvent.pages.toMutableList()
+        storageCount = insertEvent.pages.fullCount()
         placeholdersBefore = insertEvent.placeholdersBefore
         placeholdersAfter = insertEvent.placeholdersAfter
     }
 
     private constructor(other: PagePresenter<T>) {
-        indexOfInitialPage = other.indexOfInitialPage
         pages = other.pages.toMutableList()
         storageCount = other.storageCount
         placeholdersBefore = other.placeholdersBefore
@@ -57,31 +53,52 @@ internal class PagePresenter<T : Any> {
 
     fun copy(): PagePresenter<T> = PagePresenter(this)
 
-    fun get(index: Int): T? {
-        val localIndex = index - placeholdersBefore
+    private fun checkIndex(index: Int) {
+        if (index < 0 || index >= size) {
+            throw IndexOutOfBoundsException("Index: $index, Size: $size")
+        }
+    }
 
-        when {
-            index < 0 || index >= size ->
-                throw IndexOutOfBoundsException("Index: $index, Size: $size")
-            localIndex < 0 || localIndex >= storageCount -> return null
+    fun get(index: Int): T? {
+        checkIndex(index)
+
+        val localIndex = index - placeholdersBefore
+        if (localIndex < 0 || localIndex >= storageCount) {
+            return null
         }
 
-        var localPageIndex = 0
-        var pageInternalIndex: Int
+        var pageIndex = 0
+        var indexInPage: Int
 
         // Since we don't know if page sizes are regular, we walk to correct page.
-        pageInternalIndex = localIndex
+        indexInPage = localIndex
         val localPageCount = pages.size
-        while (localPageIndex < localPageCount) {
-            val pageSize = pages[localPageIndex].size
-            if (pageSize > pageInternalIndex) {
+        while (pageIndex < localPageCount) {
+            val pageSize = pages[pageIndex].data.size
+            if (pageSize > indexInPage) {
                 // stop, found the page
                 break
             }
-            pageInternalIndex -= pageSize
-            localPageIndex++
+            indexInPage -= pageSize
+            pageIndex++
         }
-        return pages[localPageIndex][pageInternalIndex]
+        return pages[pageIndex].data[indexInPage]
+    }
+
+    /**
+     * For a given index location, returns a LoadHint reporting the nearest page and index.
+     */
+    fun loadAround(index: Int): LoadHint {
+        checkIndex(index)
+
+        var pageIndex = 0
+        var indexInPage = index - placeholdersBefore
+        while (indexInPage >= pages[pageIndex].data.size && pageIndex < pages.lastIndex) {
+            // index doesn't appear in current page, keep looking!
+            indexInPage -= pages[pageIndex].data.size
+            pageIndex++
+        }
+        return pages[pageIndex].getLoadHint(indexInPage)
     }
 
     val size: Int
@@ -90,7 +107,7 @@ internal class PagePresenter<T : Any> {
     val loadedCount: Int
         get() = storageCount
 
-    private fun List<List<T>>.fullCount() = sumBy { it.size }
+    private fun List<TransformedPage<T>>.fullCount() = sumBy { it.data.size }
 
     fun processEvent(pageEvent: PageEvent<T>, callback: Callback) {
         when (pageEvent) {
@@ -119,7 +136,7 @@ internal class PagePresenter<T : Any> {
      *     the far end of the list, so that they don't trigger animations near the user.
      */
     private fun insertPage(insert: PageEvent.Insert<T>, callback: Callback) {
-        val count = insert.data.fullCount()
+        val count = insert.pages.fullCount()
         val oldSize = size
         when (insert.loadType) {
             LoadType.REFRESH -> throw IllegalArgumentException()
@@ -131,8 +148,7 @@ internal class PagePresenter<T : Any> {
                 val itemsInsertedPos = 0
 
                 // first update all state...
-                pages.addAll(0, insert.data)
-                indexOfInitialPage += insert.data.size
+                pages.addAll(0, insert.pages)
                 storageCount += count
                 placeholdersBefore = insert.placeholdersBefore
 
@@ -154,7 +170,7 @@ internal class PagePresenter<T : Any> {
                 val itemsInsertedPos = placeholdersChangedPos + placeholdersChangedCount
 
                 // first update all state...
-                pages.addAll(pages.size, insert.data)
+                pages.addAll(pages.size, insert.pages)
                 storageCount += count
                 placeholdersAfter = insert.placeholdersAfter
 
@@ -186,7 +202,6 @@ internal class PagePresenter<T : Any> {
             for (i in 0 until drop.count) {
                 pages.removeAt(0)
             }
-            indexOfInitialPage -= drop.count
             storageCount -= removeCount
             placeholdersBefore = drop.placeholdersRemaining
 
