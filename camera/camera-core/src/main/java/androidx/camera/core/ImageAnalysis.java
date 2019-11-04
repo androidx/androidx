@@ -184,7 +184,7 @@ public final class ImageAnalysis extends UseCase {
      * @throws IllegalStateException If not called on main thread.
      */
     @UiThread
-    public void removeAnalyzer() {
+    public void clearAnalyzer() {
         Threads.checkMainThread();
         mAnalyzerExecutor.set(null);
         if (mSubscribedAnalyzer.getAndSet(null) != null) {
@@ -250,7 +250,7 @@ public final class ImageAnalysis extends UseCase {
      * Sets an analyzer to receive and analyze images.
      *
      * <p>Setting an analyzer will signal to the camera that it should begin sending data. The
-     * stream of data can be stopped by calling {@link #removeAnalyzer()}.
+     * stream of data can be stopped by calling {@link #clearAnalyzer()}.
      *
      * <p>Applications can process or copy the image by implementing the {@link Analyzer}.  If
      * frames should be skipped (no analysis), the analyzer function should return, instead of
