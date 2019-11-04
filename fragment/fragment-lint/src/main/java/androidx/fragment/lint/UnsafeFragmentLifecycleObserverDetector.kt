@@ -49,12 +49,12 @@ class UnsafeFragmentLifecycleObserverDetector : Detector(), SourceCodeScanner {
             id = "FragmentLiveDataObserve",
             briefDescription = "Use getViewLifecycleOwner() as the LifecycleOwner instead of " +
                     "a Fragment instance when observing a LiveData object.",
-            explanation = """When observing a LiveData object from a fragment's onCreateView,
-                | onViewCreated, onActivityCreated, or onViewStateRestored method
-                | getViewLifecycleOwner() should be used as the LifecycleOwner rather than the
-                | Fragment instance. The Fragment lifecycle can result in the Fragment being
-                | active longer than its view. This can lead to unexpected behavior from
-                | LiveData objects being observed longer than the Fragment's view is active.""",
+            explanation = """When observing a LiveData object from a fragment's onCreateView, \
+                onViewCreated, onActivityCreated, or onViewStateRestored method \
+                getViewLifecycleOwner() should be used as the LifecycleOwner rather than the \
+                Fragment instance. The Fragment lifecycle can result in the Fragment being \
+                active longer than its view. This can lead to unexpected behavior from \
+                LiveData objects being observed longer than the Fragment's view is active.""",
             category = Category.CORRECTNESS,
             severity = Severity.ERROR,
             implementation = Implementation(
@@ -67,13 +67,13 @@ class UnsafeFragmentLifecycleObserverDetector : Detector(), SourceCodeScanner {
             id = "FragmentBackPressedCallback",
             briefDescription = "Use getViewLifecycleOwner() as the LifecycleOwner instead of " +
                     "a Fragment instance.",
-            explanation = """The Fragment lifecycle can result in a Fragment being active
-                | longer than its view. This can lead to unexpected behavior from lifecycle aware
-                | objects remaining active longer than the Fragment's view. To solve this issue,
-                | getViewLifecycleOwner() should be used as a LifecycleOwner rather than the
-                | Fragment instance once it is safe to access the view lifecycle in a
-                | Fragment's onCreateView, onViewCreated, onActivityCreated, or
-                | onViewStateRestored methods.""",
+            explanation = """The Fragment lifecycle can result in a Fragment being active \
+                longer than its view. This can lead to unexpected behavior from lifecycle aware \
+                objects remaining active longer than the Fragment's view. To solve this issue, \
+                getViewLifecycleOwner() should be used as a LifecycleOwner rather than the \
+                Fragment instance once it is safe to access the view lifecycle in a \
+                Fragment's onCreateView, onViewCreated, onActivityCreated, or \
+                onViewStateRestored methods.""",
             category = Category.CORRECTNESS,
             severity = Severity.ERROR,
             implementation = Implementation(
