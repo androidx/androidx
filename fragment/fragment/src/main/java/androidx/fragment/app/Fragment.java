@@ -1192,8 +1192,11 @@ public class Fragment implements ComponentCallbacks, OnCreateContextMenuListener
      * @param isVisibleToUser true if this fragment's UI is currently visible to the user (default),
      *                        false if it is not.
      *
-     * @deprecated Use {@link FragmentTransaction#setMaxLifecycle(Fragment, Lifecycle.State)}
-     * instead.
+     * @deprecated If you are manually calling this method, use
+     * {@link FragmentTransaction#setMaxLifecycle(Fragment, Lifecycle.State)} instead. If
+     * overriding this method, behavior implemented when passing in <code>true</code> should be
+     * moved to {@link Fragment#onResume()}, and behavior implemented when passing in
+     * <code>false</code> should be moved to {@link Fragment#onPause()}.
      */
     @Deprecated
     public void setUserVisibleHint(boolean isVisibleToUser) {
