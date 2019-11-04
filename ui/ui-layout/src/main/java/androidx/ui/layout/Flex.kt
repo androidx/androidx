@@ -1060,14 +1060,9 @@ private data class FlexModifier(val flexProperties: FlexChildProperties) : Layou
     }
 
     override fun DensityScope.modifyParentData(parentData: Any?): FlexChildProperties {
-        return if (parentData is FlexChildProperties) {
-            if (parentData.flex == null || parentData.fit == null) {
-                parentData.flex = flexProperties.flex
-                parentData.fit = flexProperties.fit
-            }
-            parentData
-        } else {
-            FlexChildProperties(flex = flexProperties.flex, fit = flexProperties.fit)
+        return ((parentData as? FlexChildProperties) ?: FlexChildProperties()).also {
+            it.flex = flexProperties.flex
+            it.fit = flexProperties.fit
         }
     }
 }
@@ -1105,10 +1100,8 @@ private sealed class SiblingsAlignedModifier : LayoutModifier {
         SiblingsAlignedModifier() {
         override fun DensityScope.modifyParentData(parentData: Any?): Any? {
             return ((parentData as? FlexChildProperties) ?: FlexChildProperties()).also {
-                if (it.crossAxisAlignment == null) {
-                    it.crossAxisAlignment =
-                        CrossAxisAlignment.Relative(AlignmentLineProvider.Block(block))
-                }
+                it.crossAxisAlignment =
+                    CrossAxisAlignment.Relative(AlignmentLineProvider.Block(block))
             }
         }
     }
@@ -1117,10 +1110,8 @@ private sealed class SiblingsAlignedModifier : LayoutModifier {
         SiblingsAlignedModifier() {
         override fun DensityScope.modifyParentData(parentData: Any?): Any? {
             return ((parentData as? FlexChildProperties) ?: FlexChildProperties()).also {
-                if (it.crossAxisAlignment == null) {
-                    it.crossAxisAlignment =
-                        CrossAxisAlignment.Relative(AlignmentLineProvider.Value(line))
-                }
+                it.crossAxisAlignment =
+                    CrossAxisAlignment.Relative(AlignmentLineProvider.Value(line))
             }
         }
     }
@@ -1155,13 +1146,8 @@ private data class GravityModifier(val alignment: CrossAxisAlignment) : LayoutMo
     override fun DensityScope.modifyAlignmentLine(line: AlignmentLine, value: IntPx?) = value
 
     override fun DensityScope.modifyParentData(parentData: Any?): FlexChildProperties {
-        return if (parentData is FlexChildProperties) {
-            if (parentData.crossAxisAlignment == null) {
-                parentData.crossAxisAlignment = alignment
-            }
-            parentData
-        } else {
-            FlexChildProperties(crossAxisAlignment = alignment)
+        return ((parentData as? FlexChildProperties) ?: FlexChildProperties()).also {
+            it.crossAxisAlignment = alignment
         }
     }
 }
