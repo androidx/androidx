@@ -315,6 +315,31 @@ package androidx.ui.text {
     ctor public TextDelegateKt();
   }
 
+  public final class TextRange {
+    ctor public TextRange(int start, int end);
+    method public int component1();
+    method public int component2();
+    method public operator boolean contains(androidx.ui.text.TextRange other);
+    method public operator boolean contains(int offset);
+    method public androidx.ui.text.TextRange copy(int start, int end);
+    method public boolean getCollapsed();
+    method public int getEnd();
+    method public int getLength();
+    method public int getMax();
+    method public int getMin();
+    method public int getStart();
+    method public boolean intersects(androidx.ui.text.TextRange other);
+    property public final boolean collapsed;
+    property public final int length;
+    property public final int max;
+    property public final int min;
+  }
+
+  public final class TextRangeKt {
+    ctor public TextRangeKt();
+    method public static String substring(CharSequence, androidx.ui.text.TextRange range);
+  }
+
   @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP) public final class TextSpan {
     ctor public TextSpan(androidx.ui.text.TextStyle? style, String? text, java.util.List<androidx.ui.text.TextSpan> children);
     ctor public TextSpan();
@@ -543,6 +568,11 @@ package androidx.ui.text.style {
     property public final androidx.ui.text.style.TextDecoration LineThrough;
     property public final androidx.ui.text.style.TextDecoration None;
     property public final androidx.ui.text.style.TextDecoration Underline;
+  }
+
+  public enum TextDirection {
+    enum_constant public static final androidx.ui.text.style.TextDirection Ltr;
+    enum_constant public static final androidx.ui.text.style.TextDirection Rtl;
   }
 
   public enum TextDirectionAlgorithm {

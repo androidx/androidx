@@ -2011,44 +2011,6 @@ package androidx.ui.testutils {
 
 }
 
-package androidx.ui.text {
-
-  public final class TextRange {
-    ctor public TextRange(int start, int end);
-    method public int component1();
-    method public int component2();
-    method public boolean contains(androidx.ui.text.TextRange other);
-    method public boolean contains(int offset);
-    method public androidx.ui.text.TextRange copy(int start, int end);
-    method public boolean getCollapsed();
-    method public int getEnd();
-    method public int getLength();
-    method public int getMax();
-    method public int getMin();
-    method public int getStart();
-    method public boolean intersects(androidx.ui.text.TextRange other);
-    property public final boolean collapsed;
-    property public final int length;
-    property public final int max;
-    property public final int min;
-  }
-
-  public final class TextRangeKt {
-    ctor public TextRangeKt();
-    method public static String substring(CharSequence, androidx.ui.text.TextRange range);
-  }
-
-}
-
-package androidx.ui.text.style {
-
-  public enum TextDirection {
-    enum_constant public static final androidx.ui.text.style.TextDirection Ltr;
-    enum_constant public static final androidx.ui.text.style.TextDirection Rtl;
-  }
-
-}
-
 package androidx.ui.util {
 
   public final class Float16 implements java.lang.Comparable<androidx.ui.util.Float16> {
