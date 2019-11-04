@@ -28,6 +28,7 @@ import android.content.Context;
 import android.content.ContextWrapper;
 import android.content.Intent;
 import android.content.pm.PackageManager;
+import android.content.pm.ResolveInfo;
 
 import androidx.ads.identifier.internal.BlockingServiceConnection;
 import androidx.ads.identifier.provider.IAdvertisingIdService;
@@ -108,7 +109,7 @@ public class AdvertisingIdClientTest {
     }
 
     public void getAdvertisingIdInfo_noProvider() throws Exception {
-        mMockPackageManagerHelper.mockQueryGetAdIdServices(Collections.emptyList());
+        mMockPackageManagerHelper.mockQueryGetAdIdServices(Collections.<ResolveInfo>emptyList());
 
         try {
             AdvertisingIdClient.getAdvertisingIdInfo(mContext).get();
@@ -236,21 +237,30 @@ public class AdvertisingIdClientTest {
 
         @NonNull
         public static ListenableFuture<AdvertisingIdInfo> getAdvertisingIdInfo(
-                @NonNull Context context) {
-            return CallbackToFutureAdapter.getFuture(completer -> {
-                EXECUTOR_SERVICE.execute(() -> {
-                    MockAdvertisingIdClient client = new MockAdvertisingIdClient(context);
-                    try {
-                        completer.set(client.getInfoInternal());
-                    } catch (IOException | AdvertisingIdNotAvailableException | TimeoutException
-                            | InterruptedException e) {
-                        completer.setException(e);
-                    }
-                    // No need to call unbindService() here since not call bindService() in this
-                    // mock.
-                });
-                return "getAdvertisingIdInfo";
-            });
+                @NonNull final Context context) {
+            return CallbackToFutureAdapter.getFuture(
+                    new CallbackToFutureAdapter.Resolver<AdvertisingIdInfo>() {
+                        @Override
+                        public Object attachCompleter(@NonNull final
+                                CallbackToFutureAdapter.Completer<AdvertisingIdInfo> completer) {
+                            EXECUTOR_SERVICE.execute(new Runnable() {
+                                @Override
+                                public void run() {
+                                    MockAdvertisingIdClient client =
+                                            new MockAdvertisingIdClient(context);
+                                    try {
+                                        completer.set(client.getInfoInternal());
+                                    } catch (IOException | AdvertisingIdNotAvailableException
+                                            | TimeoutException | InterruptedException e) {
+                                        completer.setException(e);
+                                    }
+                                    // No need to call unbindService() here since not call
+                                    // bindService() in this mock.
+                                }
+                            });
+                            return "getAdvertisingIdInfo";
+                        }
+                    });
         }
     }
 
@@ -268,7 +278,7 @@ public class AdvertisingIdClientTest {
 
     @Test
     public void isAdvertisingIdProviderAvailable_noProvider() throws Exception {
-        mMockPackageManagerHelper.mockQueryGetAdIdServices(Collections.emptyList());
+        mMockPackageManagerHelper.mockQueryGetAdIdServices(Collections.<ResolveInfo>emptyList());
 
         assertThat(AdvertisingIdClient.isAdvertisingIdProviderAvailable(mContext)).isFalse();
     }
