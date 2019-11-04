@@ -26,7 +26,7 @@ import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.annotation.RestrictTo;
 import androidx.annotation.RestrictTo.Scope;
-import androidx.camera.core.ImageAnalysis.ImageReaderMode;
+import androidx.camera.core.ImageAnalysis.BackpressureStrategy;
 
 import java.util.List;
 import java.util.Set;
@@ -43,8 +43,9 @@ public final class ImageAnalysisConfig
     // Option Declarations:
     // *********************************************************************************************
 
-    static final Option<ImageReaderMode> OPTION_IMAGE_READER_MODE =
-            Option.create("camerax.core.imageAnalysis.imageReaderMode", ImageReaderMode.class);
+    static final Option<BackpressureStrategy> OPTION_BACKPRESSURE_STRATEGY =
+            Option.create("camerax.core.imageAnalysis.backpressureStrategy",
+                    BackpressureStrategy.class);
     static final Option<Integer> OPTION_IMAGE_QUEUE_DEPTH =
             Option.create("camerax.core.imageAnalysis.imageQueueDepth", int.class);
 
@@ -57,32 +58,35 @@ public final class ImageAnalysisConfig
     }
 
     /**
-     * Returns the mode that the image is acquired from {@link ImageReader}.
+     * Retrieves the backpressure strategy applied to the image producer to deal with scenarios
+     * where images may be produced faster than they can be analyzed.
      *
-     * <p>The available values are {@link ImageReaderMode#ACQUIRE_NEXT_IMAGE} and {@link
-     * ImageReaderMode#ACQUIRE_LATEST_IMAGE}.
+     * <p>The available values are {@link BackpressureStrategy#BLOCK_PRODUCER} and {@link
+     * BackpressureStrategy#KEEP_ONLY_LATEST}.
      *
      * @param valueIfMissing The value to return if this configuration option has not been set.
      * @return The stored value or <code>valueIfMissing</code> if the value does not exist in this
      * configuration.
+     * @see ImageAnalysisConfig.Builder#setBackpressureStrategy(BackpressureStrategy)
      */
     @Nullable
-    public ImageReaderMode getImageReaderMode(@Nullable ImageReaderMode valueIfMissing) {
-        return retrieveOption(OPTION_IMAGE_READER_MODE, valueIfMissing);
+    public BackpressureStrategy getBackpressureStrategy(
+            @Nullable BackpressureStrategy valueIfMissing) {
+        return retrieveOption(OPTION_BACKPRESSURE_STRATEGY, valueIfMissing);
     }
 
     /**
      * Returns the mode that the image is acquired from {@link ImageReader}.
      *
-     * <p>The available values are {@link ImageReaderMode#ACQUIRE_NEXT_IMAGE} and {@link
-     * ImageReaderMode#ACQUIRE_LATEST_IMAGE}.
+     * <p>The available values are {@link BackpressureStrategy#BLOCK_PRODUCER} and {@link
+     * BackpressureStrategy#KEEP_ONLY_LATEST}.
      *
      * @return The stored value, if it exists in this configuration.
      * @throws IllegalArgumentException if the option does not exist in this configuration.
      */
     @NonNull
-    public ImageReaderMode getImageReaderMode() {
-        return retrieveOption(OPTION_IMAGE_READER_MODE);
+    public BackpressureStrategy getBackpressureStrategy() {
+        return retrieveOption(OPTION_BACKPRESSURE_STRATEGY);
     }
 
     /**
@@ -628,43 +632,45 @@ public final class ImageAnalysisConfig
         }
 
         /**
-         * Sets the mode that the image is acquired from {@link ImageReader}.
+         * Sets the backpressure strategy to apply to the image producer to deal with scenarios
+         * where images may be produced faster than they can be analyzed.
          *
-         * <p>The available values are {@link ImageReaderMode#ACQUIRE_NEXT_IMAGE} and {@link
-         * ImageReaderMode#ACQUIRE_LATEST_IMAGE}.
+         * <p>The available values are {@link BackpressureStrategy#BLOCK_PRODUCER} and {@link
+         * BackpressureStrategy#KEEP_ONLY_LATEST}.
          *
-         * @param mode The mode to set.
+         * <p>If not set, the backpressure strategy will default to
+         * {@link BackpressureStrategy#KEEP_ONLY_LATEST}.
+         *
+         * @param strategy The strategy to use.
          * @return The current Builder.
          */
         @NonNull
-        public Builder setImageReaderMode(@NonNull ImageReaderMode mode) {
-            getMutableConfig().insertOption(OPTION_IMAGE_READER_MODE, mode);
+        public Builder setBackpressureStrategy(@NonNull BackpressureStrategy strategy) {
+            getMutableConfig().insertOption(OPTION_BACKPRESSURE_STRATEGY, strategy);
             return this;
         }
 
         /**
          * Sets the number of images available to the camera pipeline for
-         * {@link ImageReaderMode#ACQUIRE_NEXT_IMAGE} mode.
+         * {@link BackpressureStrategy#BLOCK_PRODUCER} mode.
          *
          * <p>The image queue depth is the number of images available to the camera to fill with
          * data. This includes the image currently being analyzed by {@link
          * ImageAnalysis.Analyzer#analyze(ImageProxy, int)}. Increasing the image queue depth
-         * may make camera operation smoother, depending on the {@link ImageReaderMode}, at the cost
-         * of increased memory usage.
+         * may make camera operation smoother, depending on the {@link BackpressureStrategy}, at
+         * the cost of increased memory usage.
          *
-         * <p>When the {@link ImageReaderMode} is set to {@link
-         * ImageReaderMode#ACQUIRE_LATEST_IMAGE}, increasing the image queue depth will increase the
-         * amount of time available to analyze an image before stalling the capture pipeline.
+         * <p>When the {@link BackpressureStrategy} is set to
+         * {@link BackpressureStrategy#BLOCK_PRODUCER}, increasing the image queue depth may make
+         * the camera pipeline run smoother on systems under high load. However, the time spent
+         * analyzing an image should still be kept under a single frame period for the current
+         * frame rate, <i>on average</i>, to avoid stalling the camera pipeline.
          *
-         * <p>When the {@link ImageReaderMode} is set to {@link ImageReaderMode#ACQUIRE_NEXT_IMAGE},
-         * increasing the image queue depth may make the camera pipeline run smoother on systems
-         * under high load. However, the time spent analyzing an image should still be kept under a
-         * single frame period for the current frame rate, on average, to avoid stalling the camera
-         * pipeline.
+         * <p>The value only applies to {@link BackpressureStrategy#BLOCK_PRODUCER} mode.
+         * For {@link BackpressureStrategy#KEEP_ONLY_LATEST} the value is ignored.
          *
-         * <p> The value only applys to {@link ImageReaderMode#ACQUIRE_NEXT_IMAGE} mode.
-         * For {@link ImageReaderMode#ACQUIRE_LATEST_IMAGE} the value is overridden by default
-         * value.
+         * <p>If not set, and this option is used by the selected {@link BackpressureStrategy},
+         * the default will be a queue depth of 6 images.
          *
          * @param depth The total number of images available to the camera.
          * @return The current Builder.

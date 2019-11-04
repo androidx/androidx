@@ -55,7 +55,7 @@ public final class ImageAnalysis extends UseCase {
     @RestrictTo(Scope.LIBRARY_GROUP)
     public static final Defaults DEFAULT_CONFIG = new Defaults();
     private static final String TAG = "ImageAnalysis";
-    // ImageReader depth for non-blocking mode.
+    // ImageReader depth for KEEP_ONLY_LATEST mode.
     private static final int NON_BLOCKING_IMAGE_DEPTH = 4;
 
     final AtomicReference<Analyzer> mSubscribedAnalyzer;
@@ -103,7 +103,8 @@ public final class ImageAnalysis extends UseCase {
         Executor backgroundExecutor = config.getBackgroundExecutor(
                 CameraXExecutors.highPriorityExecutor());
 
-        int imageQueueDepth = config.getImageReaderMode() == ImageReaderMode.ACQUIRE_NEXT_IMAGE
+        int imageQueueDepth =
+                config.getBackpressureStrategy() == BackpressureStrategy.BLOCK_PRODUCER
                 ? config.getImageQueueDepth() : NON_BLOCKING_IMAGE_DEPTH;
 
         mImageReader =
@@ -120,7 +121,7 @@ public final class ImageAnalysis extends UseCase {
 
         ImageReaderProxy.OnImageAvailableListener onImageAvailableListener;
 
-        if (config.getImageReaderMode() == ImageReaderMode.ACQUIRE_NEXT_IMAGE) {
+        if (config.getBackpressureStrategy() == BackpressureStrategy.BLOCK_PRODUCER) {
             onImageAvailableListener = mImageAnalysisBlockingAnalyzer;
             mImageAnalysisBlockingAnalyzer.open();
         } else {
@@ -354,17 +355,55 @@ public final class ImageAnalysis extends UseCase {
     }
 
     /**
-     * The different ways that the image sent to the analyzer is acquired from the underlying {@link
-     * ImageReader}. This corresponds to acquireLatestImage or acquireNextImage in {@link
-     * ImageReader}.
+     * How to apply backpressure to the source producing images for analysis.
      *
-     * @see android.media.ImageReader
+     * <p>Sometimes, images may be produced faster than they can be analyzed. Since images
+     * generally reserve a large portion of the device's memory, they cannot be buffered
+     * unbounded and indefinitely. The backpressure strategy defines how to deal with this scenario.
+     *
+     * @see ImageAnalysisConfig.Builder#setBackpressureStrategy(BackpressureStrategy)
      */
-    public enum ImageReaderMode {
-        /** Acquires the latest image in the queue, discarding any images older than the latest. */
-        ACQUIRE_LATEST_IMAGE,
-        /** Acquires the next image in the queue. */
-        ACQUIRE_NEXT_IMAGE,
+    public enum BackpressureStrategy {
+        /**
+         * Only deliver the latest image to the analyzer, dropping images as they arrive.
+         *
+         * <p>This strategy ignores the value set by
+         * {@link ImageAnalysisConfig.Builder#setImageQueueDepth(int)}. Only one image will be
+         * delivered for analysis at a time. If more images are produced while that image is
+         * being analyzed, they will be dropped and not queued for delivery. Once the image being
+         * analyzed is closed, the next latest image will be delivered.
+         *
+         * <p>Internally this strategy may make use of an internal {@link Executor} to receive
+         * and drop images from the producer. A performance-tuned executor will be created
+         * internally unless one is explicitly provided by
+         * {@link ImageAnalysisConfig.Builder#setBackgroundExecutor(Executor)}. In order to
+         * ensure smooth operation of this backpressure strategy, any user supplied
+         * {@link Executor} must be able to quickly respond to tasks posted to it, so setting
+         * the executor manually should only be considered in advanced use cases.
+         *
+         * @see ImageAnalysisConfig.Builder#setBackgroundExecutor(Executor)
+         */
+        KEEP_ONLY_LATEST,
+        /**
+         * Block the producer from generating new images.
+         *
+         * <p>Once the producer has produced the number of images equal to the image queue depth,
+         * and none have been closed, the producer will stop producing images. Note that images
+         * may be queued internally and not be delivered to the analyzer until the last delivered
+         * image has been closed with {@link ImageProxy#close()}. These internally queued images
+         * will count towards the total number of images that the producer can provide at any one
+         * time.
+         *
+         * <p>When the producer stops producing images, it may also stop producing images for
+         * other use cases, such as {@link Preview}, so it is important for the analyzer to keep
+         * up with frame rate, <i>on average</i>. Failure to keep up with frame rate may lead to
+         * jank in the frame stream and a diminished user experience. If more time is needed for
+         * analysis on <i>some</i> frames, consider increasing the image queue depth with
+         * {@link ImageAnalysisConfig.Builder#setImageQueueDepth(int)}.
+         *
+         * @see ImageAnalysisConfig.Builder#setImageQueueDepth(int)
+         */
+        BLOCK_PRODUCER,
     }
 
     /**
@@ -413,8 +452,8 @@ public final class ImageAnalysis extends UseCase {
      */
     @RestrictTo(Scope.LIBRARY_GROUP)
     public static final class Defaults implements ConfigProvider<ImageAnalysisConfig> {
-        private static final ImageReaderMode DEFAULT_IMAGE_READER_MODE =
-                ImageReaderMode.ACQUIRE_LATEST_IMAGE;
+        private static final BackpressureStrategy DEFAULT_BACKPRESSURE_STRATEGY =
+                BackpressureStrategy.KEEP_ONLY_LATEST;
         private static final int DEFAULT_IMAGE_QUEUE_DEPTH = 6;
         private static final Size DEFAULT_TARGET_RESOLUTION = new Size(640, 480);
         private static final Size DEFAULT_MAX_RESOLUTION = new Size(1920, 1080);
@@ -425,7 +464,7 @@ public final class ImageAnalysis extends UseCase {
         static {
             ImageAnalysisConfig.Builder builder =
                     new ImageAnalysisConfig.Builder()
-                            .setImageReaderMode(DEFAULT_IMAGE_READER_MODE)
+                            .setBackpressureStrategy(DEFAULT_BACKPRESSURE_STRATEGY)
                             .setImageQueueDepth(DEFAULT_IMAGE_QUEUE_DEPTH)
                             .setDefaultResolution(DEFAULT_TARGET_RESOLUTION)
                             .setMaxResolution(DEFAULT_MAX_RESOLUTION)

@@ -39,7 +39,7 @@ import androidx.camera.core.CameraInternal;
 import androidx.camera.core.CameraX;
 import androidx.camera.core.ImageAnalysis;
 import androidx.camera.core.ImageAnalysis.Analyzer;
-import androidx.camera.core.ImageAnalysis.ImageReaderMode;
+import androidx.camera.core.ImageAnalysis.BackpressureStrategy;
 import androidx.camera.core.ImageAnalysisConfig;
 import androidx.camera.core.ImageProxy;
 import androidx.camera.core.LensFacing;
@@ -168,22 +168,22 @@ public final class ImageAnalysisTest {
     }
 
     @Test
-    public void analyzesImages_withAcquireLatest_whenCameraIsOpen()
+    public void analyzesImages_withKEEP_ONLY_LATEST_whenCameraIsOpen()
             throws InterruptedException, CameraInfoUnavailableException {
-        analyzerAnalyzesImagesWithMode(ImageReaderMode.ACQUIRE_LATEST_IMAGE);
+        analyzerAnalyzesImagesWithStrategy(BackpressureStrategy.KEEP_ONLY_LATEST);
     }
 
     @Test
-    public void analyzesImages_withAcquireNext_whenCameraIsOpen()
+    public void analyzesImages_withBLOCK_PRODUCER_whenCameraIsOpen()
             throws InterruptedException, CameraInfoUnavailableException {
-        analyzerAnalyzesImagesWithMode(ImageReaderMode.ACQUIRE_NEXT_IMAGE);
+        analyzerAnalyzesImagesWithStrategy(BackpressureStrategy.BLOCK_PRODUCER);
     }
 
-    private void analyzerAnalyzesImagesWithMode(ImageReaderMode imageReaderMode)
+    private void analyzerAnalyzesImagesWithStrategy(BackpressureStrategy backpressureStrategy)
             throws InterruptedException, CameraInfoUnavailableException {
         final int imageFormat = ImageFormat.YUV_420_888;
-        ImageAnalysisConfig config = new ImageAnalysisConfig.Builder().setImageReaderMode(
-                imageReaderMode).build();
+        ImageAnalysisConfig config = new ImageAnalysisConfig.Builder().setBackpressureStrategy(
+                backpressureStrategy).build();
         ImageAnalysis useCase = new ImageAnalysis(config);
         Map<String, Size> suggestedResolutionMap = new HashMap<>();
         suggestedResolutionMap.put(mCameraId, DEFAULT_RESOLUTION);
@@ -268,14 +268,14 @@ public final class ImageAnalysisTest {
     }
 
     @Test
-    public void defaultsIncludeImageReaderMode() {
+    public void defaultsIncludeBackpressureStrategy() {
         ImageAnalysisConfig defaultConfig = ImageAnalysis.DEFAULT_CONFIG.getConfig(null);
 
-        // Will throw if mode does not exist
-        ImageReaderMode mode = defaultConfig.getImageReaderMode();
+        // Will throw if strategy does not exist
+        BackpressureStrategy strategy = defaultConfig.getBackpressureStrategy();
 
         // Should not be null
-        assertThat(mode).isNotNull();
+        assertThat(strategy).isNotNull();
     }
 
     @Test
