@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2016 The Android Open Source Project
+ * Copyright 2019 The Android Open Source Project
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -35,14 +35,17 @@ plugins {
 apply(plugin: "com.google.protobuf")
 
 dependencies {
-    implementation("androidx.annotation:annotation:1.0.0")
+    implementation("androidx.annotation:annotation:1.1.0")
     implementation(project(":inspection:inspection"))
     implementation 'com.google.protobuf:protobuf-javalite:3.10.0'
 
+    androidTestImplementation(project(":inspection:inspection-testing"))
     androidTestImplementation(KOTLIN_STDLIB)
     androidTestImplementation(ANDROIDX_TEST_RUNNER)
     androidTestImplementation(ANDROIDX_TEST_EXT_JUNIT)
     androidTestImplementation(TRUTH)
+    androidTestImplementation(KOTLIN_COROUTINES_ANDROID)
+    androidTestImplementation(KOTLIN_COROUTINES_TEST)
 }
 
 protobuf {
@@ -69,4 +72,11 @@ androidx {
     toolingProject = true
     description = "The implementation of SQLite Inspector."
     url = AndroidXExtension.ARCHITECTURE_URL
+}
+
+android {
+    compileOptions {
+        sourceCompatibility = JavaVersion.VERSION_1_7
+        targetCompatibility = JavaVersion.VERSION_1_7
+    }
 }

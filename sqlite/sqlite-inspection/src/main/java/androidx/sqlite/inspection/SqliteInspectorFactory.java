@@ -17,6 +17,7 @@
 package androidx.sqlite.inspection;
 
 import androidx.annotation.NonNull;
+import androidx.annotation.VisibleForTesting;
 import androidx.inspection.Connection;
 import androidx.inspection.InspectorEnvironment;
 import androidx.inspection.InspectorFactory;
@@ -26,7 +27,7 @@ import androidx.inspection.InspectorFactory;
  */
 public final class SqliteInspectorFactory extends InspectorFactory<SqliteInspector> {
 
-    private static final String SQLITE_INSPECTOR_ID = "androidx.sqlite.inspection";
+    @VisibleForTesting static final String SQLITE_INSPECTOR_ID = "androidx.sqlite.inspection";
 
     public SqliteInspectorFactory() {
         super(SQLITE_INSPECTOR_ID);
