@@ -36,7 +36,7 @@ import java.util.Set;
  * @hide
  */
 @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
-public final class Camera2LensFacingCameraIdFilter extends LensFacingCameraIdFilter {
+public final class Camera2LensFacingCameraIdFilter implements LensFacingCameraIdFilter {
     private static final String TAG = "Camera2LensFacingCIF";
     private LensFacing mLensFacing;
     private CameraManager mCameraManager;

@@ -192,7 +192,39 @@ public final class FakeCameraFactory implements CameraFactory {
             mCachedLensFacingToIdMap = Collections.unmodifiableMap(lensFacingToIdMap);
         }
 
-        return LensFacingCameraIdFilter.createLensFacingCameraIdFilterWithIdSet(lensFacing,
+        return new SettableLensFacingCameraIdFilter(lensFacing,
                 mCachedLensFacingToIdMap.get(lensFacing));
+    }
+
+    private static final class SettableLensFacingCameraIdFilter implements
+            LensFacingCameraIdFilter {
+        private final LensFacing mLensFacing;
+        @Nullable
+        private final Set<String> mIds;
+
+        SettableLensFacingCameraIdFilter(@NonNull LensFacing lensFacing,
+                @Nullable Set<String> ids) {
+            mLensFacing = lensFacing;
+            mIds = ids;
+        }
+
+        @Override
+        @NonNull
+        public Set<String> filter(@NonNull Set<String> cameraIds) {
+            if (mIds == null) {
+                return cameraIds;
+            }
+
+            // Use a TreeSet to maintain lexical order of ids
+            Set<String> resultCameraIdSet = new TreeSet<>(cameraIds);
+            resultCameraIdSet.retainAll(mIds);
+            return resultCameraIdSet;
+        }
+
+        @Override
+        @NonNull
+        public LensFacing getLensFacing() {
+            return mLensFacing;
+        }
     }
 }
