@@ -16,15 +16,18 @@
 
 package androidx.camera.view;
 
+import static androidx.camera.core.PreviewSurfaceProviders.createSurfaceTextureProvider;
+
 import android.graphics.SurfaceTexture;
 import android.util.Log;
+import android.util.Size;
 import android.view.TextureView;
 import android.view.ViewGroup;
 import android.widget.FrameLayout;
 
 import androidx.annotation.NonNull;
 import androidx.camera.core.Preview;
-import androidx.camera.core.PreviewUtil;
+import androidx.camera.core.PreviewSurfaceProviders;
 
 /**
  * The {@link TextureView} implementation for {@link PreviewView}
@@ -52,9 +55,10 @@ public class TextureViewImplementation implements PreviewView.Implementation {
     @NonNull
     @Override
     public Preview.PreviewSurfaceCallback getPreviewSurfaceCallback() {
-        return PreviewUtil.createPreviewSurfaceCallback(new PreviewUtil.SurfaceTextureCallback() {
+        return createSurfaceTextureProvider(new PreviewSurfaceProviders.SurfaceTextureCallback() {
             @Override
-            public void onSurfaceTextureReady(@NonNull SurfaceTexture surfaceTexture) {
+            public void onSurfaceTextureReady(@NonNull SurfaceTexture surfaceTexture,
+                    @NonNull Size resolution) {
                 Log.d(TAG, "onSurfaceTextureReady");
                 final ViewGroup parent = (ViewGroup) mTextureView.getParent();
                 parent.removeView(mTextureView);

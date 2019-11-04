@@ -166,9 +166,10 @@ public class Preview extends UseCase {
      * <p> Setting the callback will signal to the camera that the use case is ready to receive
      * data.
      *
-     * <p> To displaying preview with a {@link TextureView}, consider
-     * using {@link PreviewUtil#createPreviewSurfaceCallback(PreviewUtil.SurfaceTextureCallback)} to
-     * create the callback.
+     * <p> To displaying preview with a {@link TextureView}, consider using
+     * {@link PreviewSurfaceProviders
+     * #createSurfaceTextureProvider(PreviewSurfaceProviders.SurfaceTextureCallback)}
+     * to create the callback.
      *
      * @return the last set callback or {@code null} if no listener is set
      */
@@ -185,9 +186,10 @@ public class Preview extends UseCase {
      * <p> Setting the callback will signal to the camera that the use case is ready to receive
      * data.
      *
-     * <p> To displaying preview with a {@link TextureView}, consider
-     * using {@link PreviewUtil#createPreviewSurfaceCallback(PreviewUtil.SurfaceTextureCallback)} to
-     * create the callback.
+     * <p> To displaying preview with a {@link TextureView}, consider using
+     * {@link PreviewSurfaceProviders
+     * #createSurfaceTextureProvider(PreviewSurfaceProviders.SurfaceTextureCallback)}
+     * to create the callback.
      *
      * @param previewSurfaceCallback PreviewSurfaceCallback that provides a Preview.
      * @param callbackExecutor       on which the previewSurfaceCallback will be triggered.
@@ -382,8 +384,8 @@ public class Preview extends UseCase {
          * responsibility to calculate the rotation.
          *
          * <p> It's most common to use it with a {@link SurfaceView} or a {@link TextureView}.
-         * For {@link TextureView}, see {@link PreviewUtil} for creating {@link Surface} backed
-         * by a {@link SurfaceTexture}. For {@link SurfaceView}, the creation is in the
+         * For {@link TextureView}, see {@link PreviewSurfaceProviders} for creating {@link Surface}
+         * backed by a {@link SurfaceTexture}. For {@link SurfaceView}, the creation is in the
          * hands of the {@link SurfaceView}. Use {@link CallbackToFutureAdapter} to wait for the
          * creation of the {@link Surface} in {@link android.view.SurfaceHolder.Callback
          * #surfaceChanged(android.view.SurfaceHolder, int, int, int)}. Example:
