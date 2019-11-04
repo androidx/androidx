@@ -162,7 +162,7 @@ public final class ImageAnalysisTest {
         useCase.updateSuggestedResolution(suggestedResolutionMap);
         useCase.addStateChangeCallback(mMockCallback);
         useCase.setAnalyzer(CameraXExecutors.newHandlerExecutor(mHandler), mMockAnalyzer);
-        useCase.removeAnalyzer();
+        useCase.clearAnalyzer();
 
         verify(mMockCallback, times(1)).onUseCaseInactive(useCase);
     }
