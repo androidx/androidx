@@ -20,15 +20,11 @@ import android.content.Context
 import android.graphics.Typeface
 import android.os.Build
 import androidx.annotation.RequiresApi
-import androidx.annotation.RestrictTo
 import androidx.ui.text.font.Font
 
 /**
  * Layoutlib implementation for [Font.ResourceLoader]
- *
- * @hide
  */
-@RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
 internal class LayoutlibFontResourceLoader(private val context: Context) : Font.ResourceLoader {
     @RequiresApi(Build.VERSION_CODES.O)
     override fun load(font: Font): Typeface {
