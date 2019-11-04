@@ -51,10 +51,10 @@ data class TextRange(val start: Int, val end: Int) {
     /**
      * Returns true if this range covers including equals with the given range.
      */
-    fun contains(other: TextRange): Boolean = min <= other.min && other.max <= max
+    operator fun contains(other: TextRange): Boolean = min <= other.min && other.max <= max
 
     /**
      * Returns true if the given offset is a part of this range.
      */
-    fun contains(offset: Int): Boolean = min <= offset && offset < max
+    operator fun contains(offset: Int): Boolean = offset in min until max
 }
