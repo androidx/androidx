@@ -50,6 +50,7 @@ public class FocusMeteringActionTest {
         assertThat(action.getMeteringPointsAwb()).containsExactly(mPoint1);
         assertThat(action.getAutoCancelDurationInMillis()).isEqualTo(
                 FocusMeteringAction.DEFAULT_AUTOCANCEL_DURATION);
+        assertThat(action.isAutoCancelEnabled()).isTrue();
         assertThat(action.getOnAutoFocusListener()).isNull();
     }
 
@@ -315,5 +316,28 @@ public class FocusMeteringActionTest {
                 .setAutoCancelDuration(1500, TimeUnit.MILLISECONDS)
                 .build();
         assertThat(action.getAutoCancelDurationInMillis()).isEqualTo(1500);
+    }
+
+    @Test
+    public void setAutoCancelDurationLargerThan0_shouldEnableAutoCancel() {
+        FocusMeteringAction action = FocusMeteringAction.Builder.from(mPoint1)
+                .setAutoCancelDuration(1, TimeUnit.MILLISECONDS)
+                .build();
+
+        assertThat(action.isAutoCancelEnabled()).isTrue();
+    }
+
+    @Test(expected = IllegalArgumentException.class)
+    public void setAutoCancelDuration0_shouldThrowException() {
+        FocusMeteringAction action = FocusMeteringAction.Builder.from(mPoint1)
+                .setAutoCancelDuration(0, TimeUnit.MILLISECONDS)
+                .build();
+    }
+
+    @Test(expected = IllegalArgumentException.class)
+    public void setAutoCancelDurationSmallerThan0_shouldThrowException() {
+        FocusMeteringAction action = FocusMeteringAction.Builder.from(mPoint1)
+                .setAutoCancelDuration(-1, TimeUnit.MILLISECONDS)
+                .build();
     }
 }
