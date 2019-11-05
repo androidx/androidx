@@ -16,7 +16,7 @@
 
 package androidx.camera.view;
 
-import static androidx.camera.core.PreviewUtil.createPreviewSurfaceCallback;
+import static androidx.camera.core.PreviewSurfaceProviders.createSurfaceTextureProvider;
 
 import static com.google.common.truth.Truth.assertThat;
 
@@ -27,6 +27,7 @@ import android.app.Activity;
 import android.app.Instrumentation;
 import android.content.Context;
 import android.graphics.SurfaceTexture;
+import android.util.Size;
 import android.view.TextureView;
 import android.view.View;
 import android.view.ViewGroup;
@@ -41,7 +42,7 @@ import androidx.camera.core.MeteringPoint;
 import androidx.camera.core.MeteringPointFactory;
 import androidx.camera.core.Preview;
 import androidx.camera.core.PreviewConfig;
-import androidx.camera.core.PreviewUtil;
+import androidx.camera.core.PreviewSurfaceProviders;
 import androidx.camera.testing.CameraUtil;
 import androidx.camera.testing.CoreAppTestUtil;
 import androidx.camera.testing.fakes.FakeActivity;
@@ -200,10 +201,11 @@ public class TextureViewMeteringPointFactoryTest {
 
         Preview preview = new Preview(previewConfigBuilder.build());
         mInstrumentation.runOnMainSync(() -> {
-            preview.setPreviewSurfaceCallback(createPreviewSurfaceCallback(
-                    new PreviewUtil.SurfaceTextureCallback() {
+            preview.setPreviewSurfaceCallback(createSurfaceTextureProvider(
+                    new PreviewSurfaceProviders.SurfaceTextureCallback() {
                         @Override
-                        public void onSurfaceTextureReady(@NonNull SurfaceTexture surfaceTexture) {
+                        public void onSurfaceTextureReady(@NonNull SurfaceTexture surfaceTexture,
+                                @NonNull Size resolution) {
                             ViewGroup viewGroup = (ViewGroup) mTextureView.getParent();
                             viewGroup.removeView(mTextureView);
                             viewGroup.addView(mTextureView);

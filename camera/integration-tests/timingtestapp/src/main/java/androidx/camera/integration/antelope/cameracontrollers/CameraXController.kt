@@ -20,6 +20,7 @@ import android.graphics.SurfaceTexture
 import android.hardware.camera2.CameraCaptureSession
 import android.hardware.camera2.CameraDevice
 import android.util.Log
+import android.util.Size
 import android.view.ViewGroup
 import androidx.annotation.experimental.UseExperimental
 import androidx.camera.camera2.Camera2Config
@@ -29,8 +30,8 @@ import androidx.camera.core.ImageCaptureConfig
 import androidx.camera.core.LensFacing
 import androidx.camera.core.Preview
 import androidx.camera.core.PreviewConfig
-import androidx.camera.core.PreviewUtil
-import androidx.camera.core.PreviewUtil.createPreviewSurfaceCallback
+import androidx.camera.core.PreviewSurfaceProviders
+import androidx.camera.core.PreviewSurfaceProviders.createSurfaceTextureProvider
 import androidx.camera.core.impl.utils.executor.CameraXExecutors
 import androidx.camera.integration.antelope.CameraParams
 import androidx.camera.integration.antelope.CameraXImageAvailableListener
@@ -95,22 +96,25 @@ internal fun cameraXOpenCamera(
 
         // Set preview to observe the surface texture
         activity.runOnUiThread {
-            previewUseCase.previewSurfaceCallback = createPreviewSurfaceCallback(
-                    object : PreviewUtil.SurfaceTextureCallback {
+            previewUseCase.previewSurfaceCallback = createSurfaceTextureProvider(
+                object : PreviewSurfaceProviders.SurfaceTextureCallback {
 
-                override fun onSafeToRelease(surfaceTexture: SurfaceTexture) {
-                    surfaceTexture.release()
-                }
-
-                override fun onSurfaceTextureReady(surfaceTexture: SurfaceTexture) {
-                    if (!isCameraSurfaceTextureReleased(surfaceTexture)) {
-                        val viewGroup = params.cameraXPreviewTexture?.parent as ViewGroup
-                        viewGroup.removeView(params.cameraXPreviewTexture)
-                        viewGroup.addView(params.cameraXPreviewTexture)
-                        params.cameraXPreviewTexture?.surfaceTexture = surfaceTexture
+                    override fun onSafeToRelease(surfaceTexture: SurfaceTexture) {
+                        surfaceTexture.release()
                     }
-                }
-            })
+
+                    override fun onSurfaceTextureReady(
+                        surfaceTexture: SurfaceTexture,
+                        resolution: Size
+                    ) {
+                        if (!isCameraSurfaceTextureReleased(surfaceTexture)) {
+                            val viewGroup = params.cameraXPreviewTexture?.parent as ViewGroup
+                            viewGroup.removeView(params.cameraXPreviewTexture)
+                            viewGroup.addView(params.cameraXPreviewTexture)
+                            params.cameraXPreviewTexture?.surfaceTexture = surfaceTexture
+                        }
+                    }
+                })
         }
 
         when (testConfig.currentRunningTest) {

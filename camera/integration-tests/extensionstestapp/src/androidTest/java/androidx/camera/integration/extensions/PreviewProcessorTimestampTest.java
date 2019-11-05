@@ -16,7 +16,7 @@
 
 package androidx.camera.integration.extensions;
 
-import static androidx.camera.core.PreviewUtil.createPreviewSurfaceCallback;
+import static androidx.camera.core.PreviewSurfaceProviders.createSurfaceTextureProvider;
 
 import static junit.framework.TestCase.assertEquals;
 import static junit.framework.TestCase.assertNotNull;
@@ -31,6 +31,7 @@ import android.graphics.SurfaceTexture;
 import android.hardware.camera2.CameraDevice;
 import android.os.Handler;
 import android.os.HandlerThread;
+import android.util.Size;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.experimental.UseExperimental;
@@ -44,7 +45,7 @@ import androidx.camera.core.ImageCaptureConfig;
 import androidx.camera.core.LensFacing;
 import androidx.camera.core.Preview;
 import androidx.camera.core.PreviewConfig;
-import androidx.camera.core.PreviewUtil;
+import androidx.camera.core.PreviewSurfaceProviders;
 import androidx.camera.extensions.AutoImageCaptureExtender;
 import androidx.camera.extensions.AutoPreviewExtender;
 import androidx.camera.extensions.BeautyImageCaptureExtender;
@@ -247,10 +248,11 @@ public class PreviewProcessorTimestampTest {
         Preview preview = new Preview(mPreviewConfigBuilder.build());
 
         // To set the update listener and Preview will change to active state.
-        preview.setPreviewSurfaceCallback(createPreviewSurfaceCallback(
-                new PreviewUtil.SurfaceTextureCallback() {
+        preview.setPreviewSurfaceCallback(createSurfaceTextureProvider(
+                new PreviewSurfaceProviders.SurfaceTextureCallback() {
                     @Override
-                    public void onSurfaceTextureReady(@NonNull SurfaceTexture surfaceTexture) {
+                    public void onSurfaceTextureReady(@NonNull SurfaceTexture surfaceTexture,
+                            @NonNull Size resolution) {
                         surfaceTexture.attachToGLContext(GLUtil.getTexIdFromGLContext());
                         surfaceTexture.setOnFrameAvailableListener(
                                 mOnFrameAvailableListener, mProcessingHandler);

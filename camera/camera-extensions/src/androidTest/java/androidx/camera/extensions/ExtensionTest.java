@@ -16,7 +16,7 @@
 
 package androidx.camera.extensions;
 
-import static androidx.camera.core.PreviewUtil.createPreviewSurfaceCallback;
+import static androidx.camera.core.PreviewSurfaceProviders.createSurfaceTextureProvider;
 
 import static com.google.common.truth.Truth.assertThat;
 
@@ -37,6 +37,7 @@ import android.app.Instrumentation;
 import android.content.Context;
 import android.graphics.SurfaceTexture;
 import android.os.Build;
+import android.util.Size;
 
 import androidx.annotation.NonNull;
 import androidx.camera.camera2.Camera2AppConfig;
@@ -51,7 +52,7 @@ import androidx.camera.core.ImageProxy;
 import androidx.camera.core.LensFacing;
 import androidx.camera.core.Preview;
 import androidx.camera.core.PreviewConfig;
-import androidx.camera.core.PreviewUtil;
+import androidx.camera.core.PreviewSurfaceProviders;
 import androidx.camera.core.impl.utils.executor.CameraXExecutors;
 import androidx.camera.extensions.ExtensionsManager.EffectMode;
 import androidx.camera.extensions.util.ExtensionsTestUtil;
@@ -137,11 +138,12 @@ public class ExtensionTest {
         mInstrumentation.runOnMainSync(
                 () -> {
                     // To set the update listener and Preview will change to active state.
-                    preview.setPreviewSurfaceCallback(createPreviewSurfaceCallback(
-                            new PreviewUtil.SurfaceTextureCallback() {
+                    preview.setPreviewSurfaceCallback(createSurfaceTextureProvider(
+                            new PreviewSurfaceProviders.SurfaceTextureCallback() {
                                 @Override
                                 public void onSurfaceTextureReady(
-                                        @NonNull SurfaceTexture surfaceTexture) {
+                                        @NonNull SurfaceTexture surfaceTexture,
+                                        @NonNull Size resolution) {
                                     // No-op.
                                 }
 

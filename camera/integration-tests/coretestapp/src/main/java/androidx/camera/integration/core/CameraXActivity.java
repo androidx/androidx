@@ -16,7 +16,7 @@
 
 package androidx.camera.integration.core;
 
-import static androidx.camera.core.PreviewUtil.createPreviewSurfaceCallback;
+import static androidx.camera.core.PreviewSurfaceProviders.createSurfaceTextureProvider;
 
 import android.content.pm.PackageInfo;
 import android.content.pm.PackageManager;
@@ -55,7 +55,7 @@ import androidx.camera.core.ImageProxy;
 import androidx.camera.core.LensFacing;
 import androidx.camera.core.Preview;
 import androidx.camera.core.PreviewConfig;
-import androidx.camera.core.PreviewUtil;
+import androidx.camera.core.PreviewSurfaceProviders;
 import androidx.camera.core.UseCase;
 import androidx.camera.core.VideoCapture;
 import androidx.camera.core.VideoCaptureConfig;
@@ -204,10 +204,11 @@ public class CameraXActivity extends AppCompatActivity
 
         mPreview = new Preview(config);
         Log.d(TAG, "enablePreview");
-        mPreview.setPreviewSurfaceCallback(createPreviewSurfaceCallback(
-                new PreviewUtil.SurfaceTextureCallback() {
+        mPreview.setPreviewSurfaceCallback(createSurfaceTextureProvider(
+                new PreviewSurfaceProviders.SurfaceTextureCallback() {
                     @Override
-                    public void onSurfaceTextureReady(@NonNull SurfaceTexture surfaceTexture) {
+                    public void onSurfaceTextureReady(@NonNull SurfaceTexture surfaceTexture,
+                            @NonNull Size resolution) {
                         Log.d(TAG, "onSurfaceTextureReady");
                         // If TextureView was already created, need to re-add it to change the
                         // SurfaceTexture.

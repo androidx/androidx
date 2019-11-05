@@ -17,11 +17,12 @@
 package androidx.camera.testing.activity;
 
 
-import static androidx.camera.core.PreviewUtil.createPreviewSurfaceCallback;
+import static androidx.camera.core.PreviewSurfaceProviders.createSurfaceTextureProvider;
 
 import android.graphics.SurfaceTexture;
 import android.os.Bundle;
 import android.util.Log;
+import android.util.Size;
 import android.view.TextureView;
 import android.view.ViewGroup;
 
@@ -34,7 +35,7 @@ import androidx.camera.core.CameraX;
 import androidx.camera.core.LensFacing;
 import androidx.camera.core.Preview;
 import androidx.camera.core.PreviewConfig;
-import androidx.camera.core.PreviewUtil;
+import androidx.camera.core.PreviewSurfaceProviders;
 import androidx.camera.testing.CameraUtil;
 import androidx.camera.testing.R;
 import androidx.test.espresso.idling.CountingIdlingResource;
@@ -94,10 +95,11 @@ public class CameraXTestActivity extends AppCompatActivity {
 
         mPreview = new Preview(config);
         TextureView textureView = findViewById(R.id.textureView);
-        mPreview.setPreviewSurfaceCallback(createPreviewSurfaceCallback(
-                new PreviewUtil.SurfaceTextureCallback() {
+        mPreview.setPreviewSurfaceCallback(createSurfaceTextureProvider(
+                new PreviewSurfaceProviders.SurfaceTextureCallback() {
                     @Override
-                    public void onSurfaceTextureReady(@NonNull SurfaceTexture surfaceTexture) {
+                    public void onSurfaceTextureReady(@NonNull SurfaceTexture surfaceTexture,
+                            @NonNull Size resolution) {
                         ViewGroup viewGroup = (ViewGroup) textureView.getParent();
                         viewGroup.removeView(textureView);
                         viewGroup.addView(textureView);
