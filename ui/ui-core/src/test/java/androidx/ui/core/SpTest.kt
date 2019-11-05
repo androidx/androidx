@@ -16,6 +16,7 @@
 
 package androidx.ui.core
 
+import com.google.common.truth.Truth.assertThat
 import org.junit.Assert
 import org.junit.Test
 import org.junit.runner.RunWith
@@ -157,5 +158,131 @@ class SpTest {
         Assert.assertEquals(10f, lerp(0.sp, 10.sp, 1f).value, 0f)
         Assert.assertEquals(0f, lerp(0.sp, 10.sp, 0f).value, 0f)
         Assert.assertEquals(5f, lerp(0.sp, 10.sp, 0.5f).value, 0f)
+    }
+
+    @Test
+    fun inInherit() {
+        assertThat(Sp.Inherit.isInherit()).isTrue()
+        assertThat(Sp.Infinity.isInherit()).isFalse()
+        assertThat(1.sp.isInherit()).isFalse()
+    }
+
+    private fun <T> expectIllegalArgumentException(block: () -> T) {
+        try {
+            block()
+            Assert.fail("IllegalArgumentException is expected to be thrown")
+        } catch (e: IllegalArgumentException) {
+            // pass
+        }
+    }
+
+    @Test
+    fun inherit_plus_not_allowed() {
+        expectIllegalArgumentException { Sp.Inherit + 1.sp }
+        expectIllegalArgumentException { 1.sp + Sp.Inherit }
+
+        expectIllegalArgumentException { Sp.Inherit + Sp.Infinity }
+        expectIllegalArgumentException { Sp.Infinity + Sp.Inherit }
+    }
+
+    @Test
+    fun inherit_minus_not_allowed() {
+        expectIllegalArgumentException { Sp.Inherit - 1.sp }
+        expectIllegalArgumentException { 1.sp - Sp.Inherit }
+
+        expectIllegalArgumentException { Sp.Inherit - Sp.Infinity }
+        expectIllegalArgumentException { Sp.Infinity - Sp.Inherit }
+    }
+
+    @Test
+    fun inherit_unaryMinus_not_allowed() {
+        expectIllegalArgumentException { -Sp.Inherit }
+    }
+
+    @Test
+    fun inherit_div_not_allowed() {
+        expectIllegalArgumentException { Sp.Inherit / 1.0f }
+        // expectIllegalArgumentException { Sp.Inherit / 1.0 } Sp / Double is missing?
+        expectIllegalArgumentException { Sp.Inherit / 2 }
+        expectIllegalArgumentException { Sp.Inherit / 3.sp }
+        expectIllegalArgumentException { 3.sp / Sp.Inherit }
+        expectIllegalArgumentException { Sp.Inherit / Sp.Infinity }
+        expectIllegalArgumentException { Sp.Infinity / Sp.Inherit }
+    }
+
+    @Test
+    fun inherit_times_not_allowed() {
+        expectIllegalArgumentException { Sp.Inherit * 1.0f }
+        expectIllegalArgumentException { 1.0f * Sp.Inherit }
+        // expectIllegalArgumentException { Sp.Inherit * 1.0 }  Sp * Double is missing?
+        expectIllegalArgumentException { 1.0 * Sp.Inherit }
+        expectIllegalArgumentException { Sp.Inherit * 2 }
+        expectIllegalArgumentException { 2 * Sp.Inherit }
+    }
+
+    @Test
+    fun inherit_min_not_allowed() {
+        expectIllegalArgumentException { min(Sp.Inherit, 1.sp) }
+        expectIllegalArgumentException { min(1.sp, Sp.Inherit) }
+        expectIllegalArgumentException { min(Sp.Inherit, Sp.Inherit) }
+        expectIllegalArgumentException { min(Sp.Inherit, Sp.Infinity) }
+        expectIllegalArgumentException { min(Sp.Infinity, Sp.Inherit) }
+    }
+
+    @Test
+    fun inherit_max_not_allowed() {
+        expectIllegalArgumentException { max(Sp.Inherit, 1.sp) }
+        expectIllegalArgumentException { max(1.sp, Sp.Inherit) }
+        expectIllegalArgumentException { max(Sp.Inherit, Sp.Inherit) }
+        expectIllegalArgumentException { max(Sp.Inherit, Sp.Infinity) }
+        expectIllegalArgumentException { max(Sp.Infinity, Sp.Inherit) }
+    }
+
+    @Test
+    fun inherit_coerceIn_not_allowed() {
+        expectIllegalArgumentException { Sp.Inherit.coerceIn(1.sp, 2.sp) }
+        expectIllegalArgumentException { Sp.Inherit.coerceIn(Sp.Inherit, 2.sp) }
+        expectIllegalArgumentException { Sp.Inherit.coerceIn(1.sp, Sp.Inherit) }
+        expectIllegalArgumentException { Sp.Inherit.coerceIn(Sp.Inherit, Sp.Inherit) }
+        expectIllegalArgumentException { Sp.Inherit.coerceIn(Sp.Infinity, 2.sp) }
+        expectIllegalArgumentException { Sp.Inherit.coerceIn(Sp.Inherit, Sp.Infinity) }
+        expectIllegalArgumentException { Sp.Inherit.coerceIn(Sp.Infinity, Sp.Inherit) }
+        expectIllegalArgumentException { 1.sp.coerceIn(Sp.Inherit, 2.sp) }
+        expectIllegalArgumentException { 1.sp.coerceIn(1.sp, Sp.Inherit) }
+        expectIllegalArgumentException { 1.sp.coerceIn(Sp.Inherit, Sp.Inherit) }
+        expectIllegalArgumentException { 1.sp.coerceIn(Sp.Inherit, Sp.Infinity) }
+        expectIllegalArgumentException { 1.sp.coerceIn(Sp.Infinity, Sp.Inherit) }
+        expectIllegalArgumentException { Sp.Infinity.coerceIn(Sp.Inherit, 2.sp) }
+        expectIllegalArgumentException { Sp.Infinity.coerceIn(1.sp, Sp.Inherit) }
+        expectIllegalArgumentException { Sp.Infinity.coerceIn(Sp.Inherit, Sp.Inherit) }
+        expectIllegalArgumentException { Sp.Infinity.coerceIn(Sp.Inherit, Sp.Infinity) }
+        expectIllegalArgumentException { Sp.Infinity.coerceIn(Sp.Infinity, Sp.Inherit) }
+    }
+
+    @Test
+    fun inherit_coerceAtLeast_not_allowed() {
+        expectIllegalArgumentException { Sp.Inherit.coerceAtLeast(1.sp) }
+        expectIllegalArgumentException { Sp.Inherit.coerceAtLeast(Sp.Inherit) }
+        expectIllegalArgumentException { Sp.Inherit.coerceAtLeast(Sp.Infinity) }
+        expectIllegalArgumentException { 1.sp.coerceAtLeast(Sp.Inherit) }
+        expectIllegalArgumentException { Sp.Infinity.coerceAtLeast(Sp.Inherit) }
+    }
+
+    @Test
+    fun inherit_coerceAtMost_not_allowed() {
+        expectIllegalArgumentException { Sp.Inherit.coerceAtMost(1.sp) }
+        expectIllegalArgumentException { Sp.Inherit.coerceAtMost(Sp.Inherit) }
+        expectIllegalArgumentException { Sp.Inherit.coerceAtMost(Sp.Infinity) }
+        expectIllegalArgumentException { 1.sp.coerceAtMost(Sp.Inherit) }
+        expectIllegalArgumentException { Sp.Infinity.coerceAtMost(Sp.Inherit) }
+    }
+
+    @Test
+    fun inherit_lerp_not_allowed() {
+        expectIllegalArgumentException { lerp(Sp.Inherit, 1.sp, 0.3f) }
+        expectIllegalArgumentException { lerp(1.sp, Sp.Inherit, 0.3f) }
+        expectIllegalArgumentException { lerp(Sp.Inherit, Sp.Inherit, 0.3f) }
+        expectIllegalArgumentException { lerp(Sp.Inherit, Sp.Infinity, 0.3f) }
+        expectIllegalArgumentException { lerp(Sp.Infinity, Sp.Inherit, 0.3f) }
     }
 }
