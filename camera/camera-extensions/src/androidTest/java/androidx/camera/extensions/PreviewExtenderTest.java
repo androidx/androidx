@@ -16,7 +16,7 @@
 
 package androidx.camera.extensions;
 
-import static androidx.camera.core.PreviewUtil.createPreviewSurfaceCallback;
+import static androidx.camera.core.PreviewSurfaceProviders.createSurfaceTextureProvider;
 
 import static com.google.common.truth.Truth.assertThat;
 
@@ -50,7 +50,7 @@ import androidx.camera.core.CameraX;
 import androidx.camera.core.LensFacing;
 import androidx.camera.core.Preview;
 import androidx.camera.core.PreviewConfig;
-import androidx.camera.core.PreviewUtil;
+import androidx.camera.core.PreviewSurfaceProviders;
 import androidx.camera.extensions.ExtensionsManager.EffectMode;
 import androidx.camera.extensions.impl.CaptureStageImpl;
 import androidx.camera.extensions.impl.PreviewExtenderImpl;
@@ -85,11 +85,13 @@ public class PreviewExtenderTest {
     private final Instrumentation mInstrumentation = InstrumentationRegistry.getInstrumentation();
     private FakeLifecycleOwner mFakeLifecycle;
 
-    private static final PreviewUtil.SurfaceTextureCallback NO_OP_SURFACE_TEXTURE_CALLBACK =
-            new PreviewUtil.SurfaceTextureCallback() {
+    private static final PreviewSurfaceProviders.SurfaceTextureCallback
+            NO_OP_SURFACE_TEXTURE_CALLBACK =
+            new PreviewSurfaceProviders.SurfaceTextureCallback() {
                 @Override
                 public void onSurfaceTextureReady(
-                        @NonNull SurfaceTexture surfaceTexture) {
+                        @NonNull SurfaceTexture surfaceTexture,
+                        @NonNull Size resolution) {
                     // No-op.
                 }
 
@@ -150,7 +152,7 @@ public class PreviewExtenderTest {
             public void run() {
                 // To set the update listener and Preview will change to active state.
                 useCase.setPreviewSurfaceCallback(
-                        createPreviewSurfaceCallback(NO_OP_SURFACE_TEXTURE_CALLBACK));
+                        createSurfaceTextureProvider(NO_OP_SURFACE_TEXTURE_CALLBACK));
 
                 CameraX.bindToLifecycle(mFakeLifecycle, useCase);
             }
@@ -227,7 +229,7 @@ public class PreviewExtenderTest {
             public void run() {
                 // To set the update listener and Preview will change to active state.
                 preview.setPreviewSurfaceCallback(
-                        createPreviewSurfaceCallback(NO_OP_SURFACE_TEXTURE_CALLBACK));
+                        createSurfaceTextureProvider(NO_OP_SURFACE_TEXTURE_CALLBACK));
 
                 CameraX.bindToLifecycle(mFakeLifecycle, preview);
             }
@@ -278,7 +280,7 @@ public class PreviewExtenderTest {
             public void run() {
                 // To set the update listener and Preview will change to active state.
                 preview.setPreviewSurfaceCallback(
-                        createPreviewSurfaceCallback(NO_OP_SURFACE_TEXTURE_CALLBACK));
+                        createSurfaceTextureProvider(NO_OP_SURFACE_TEXTURE_CALLBACK));
 
                 CameraX.bindToLifecycle(mFakeLifecycle, preview);
             }

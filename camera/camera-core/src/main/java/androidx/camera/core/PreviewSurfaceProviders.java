@@ -32,13 +32,14 @@ import java.util.Map;
 import java.util.concurrent.ExecutionException;
 
 /**
- * Helper class to be used with {@link Preview}.
+ * This class creates implementations of PreviewSurfaceCallback that provide Surfaces that have been
+ * pre-configured for specific work flows.
  */
-public final class PreviewUtil {
+public final class PreviewSurfaceProviders {
 
     private static final String TAG = "PreviewUtil";
 
-    private PreviewUtil() {
+    private PreviewSurfaceProviders() {
     }
 
     /**
@@ -78,7 +79,7 @@ public final class PreviewUtil {
      * {@link Preview#setPreviewSurfaceCallback(Preview.PreviewSurfaceCallback)}.
      */
     @NonNull
-    public static Preview.PreviewSurfaceCallback createPreviewSurfaceCallback(
+    public static Preview.PreviewSurfaceCallback createSurfaceTextureProvider(
             @NonNull SurfaceTextureCallback surfaceTextureCallback) {
         return new Preview.PreviewSurfaceCallback() {
 
@@ -91,7 +92,7 @@ public final class PreviewUtil {
                 surfaceTexture.setDefaultBufferSize(resolution.getWidth(),
                         resolution.getHeight());
                 surfaceTexture.detachFromGLContext();
-                surfaceTextureCallback.onSurfaceTextureReady(surfaceTexture);
+                surfaceTextureCallback.onSurfaceTextureReady(surfaceTexture, resolution);
                 Surface surface = new Surface(surfaceTexture);
                 mSurfaceTextureMap.put(surface, surfaceTexture);
                 return Futures.immediateFuture(surface);
@@ -118,7 +119,7 @@ public final class PreviewUtil {
      * Callback that is called when the {@link SurfaceTexture} is ready to be set/released.
      *
      * <p> Implement this interface to receive the updates on  {@link SurfaceTexture} used in
-     * {@link Preview}. See {@link #createPreviewSurfaceCallback(SurfaceTextureCallback)} for
+     * {@link Preview}. See {@link #createSurfaceTextureProvider(SurfaceTextureCallback)} for
      * code example.
      */
     public interface SurfaceTextureCallback {
@@ -136,14 +137,16 @@ public final class PreviewUtil {
          * automatically so that no additional work is needed.
          *
          * @param surfaceTexture {@link SurfaceTexture} created for {@link Preview}.
+         * @param resolution     the resolution of the created {@link SurfaceTexture}.
          */
-        void onSurfaceTextureReady(@NonNull SurfaceTexture surfaceTexture);
+        void onSurfaceTextureReady(@NonNull SurfaceTexture surfaceTexture,
+                @NonNull Size resolution);
 
         /**
          * Called when the {@link SurfaceTexture} is safe to be released.
          *
          * <p> This method is called when the {@link SurfaceTexture} previously provided in
-         * {@link #onSurfaceTextureReady(SurfaceTexture)} is no longer being used by the
+         * {@link #onSurfaceTextureReady(SurfaceTexture, Size)} is no longer being used by the
          * camera system, and it's safe to be released during or after this is called. The
          * implementer is responsible to release the {@link SurfaceTexture} when it's also no
          * longer being used by the app.

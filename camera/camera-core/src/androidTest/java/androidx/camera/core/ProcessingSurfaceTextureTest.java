@@ -16,7 +16,7 @@
 
 package androidx.camera.core;
 
-import static androidx.camera.core.PreviewUtil.createPreviewSurfaceCallback;
+import static androidx.camera.core.PreviewSurfaceProviders.createSurfaceTextureProvider;
 
 import static com.google.common.truth.Truth.assertThat;
 
@@ -59,18 +59,21 @@ public final class ProcessingSurfaceTextureTest {
     private static final CallbackDeferrableSurface NO_OP_CALLBACK_DEFERRABLE_SURFACE =
             new CallbackDeferrableSurface(RESOLUTION,
                     CameraXExecutors.directExecutor(),
-                    createPreviewSurfaceCallback(new PreviewUtil.SurfaceTextureCallback() {
-                        @Override
-                        public void onSurfaceTextureReady(
-                                @NonNull SurfaceTexture surfaceTexture) {
-                            // No-op.
-                        }
+                    createSurfaceTextureProvider(
+                            new PreviewSurfaceProviders.SurfaceTextureCallback() {
+                                @Override
+                                public void onSurfaceTextureReady(
+                                        @NonNull SurfaceTexture surfaceTexture,
+                                        @NonNull Size resolution) {
+                                    // No-op.
+                                }
 
-                        @Override
-                        public void onSafeToRelease(@NonNull SurfaceTexture surfaceTexture) {
-                            // No-op.
-                        }
-                    }));
+                                @Override
+                                public void onSafeToRelease(
+                                        @NonNull SurfaceTexture surfaceTexture) {
+                                    // No-op.
+                                }
+                            }));
 
     private HandlerThread mBackgroundThread;
     private Handler mBackgroundHandler;
@@ -142,20 +145,23 @@ public final class ProcessingSurfaceTextureTest {
         // Create ProcessingSurfaceTexture with user Surface.
         ProcessingSurface processingSurface = createProcessingSurfaceTexture(
                 new CallbackDeferrableSurface(RESOLUTION, CameraXExecutors.directExecutor(),
-                        createPreviewSurfaceCallback(new PreviewUtil.SurfaceTextureCallback() {
-                            @Override
-                            public void onSurfaceTextureReady(
-                                    @NonNull SurfaceTexture surfaceTexture) {
-                                surfaceTexture.setOnFrameAvailableListener(
-                                        surfaceTexture1 -> frameReceivedSemaphore.release(),
-                                        mBackgroundHandler);
-                            }
+                        createSurfaceTextureProvider(
+                                new PreviewSurfaceProviders.SurfaceTextureCallback() {
+                                    @Override
+                                    public void onSurfaceTextureReady(
+                                            @NonNull SurfaceTexture surfaceTexture,
+                                            @NonNull Size resolution) {
+                                        surfaceTexture.setOnFrameAvailableListener(
+                                                surfaceTexture1 -> frameReceivedSemaphore.release(),
+                                                mBackgroundHandler);
+                                    }
 
-                            @Override
-                            public void onSafeToRelease(@NonNull SurfaceTexture surfaceTexture) {
-                                surfaceTexture.release();
-                            }
-                        })));
+                                    @Override
+                                    public void onSafeToRelease(
+                                            @NonNull SurfaceTexture surfaceTexture) {
+                                        surfaceTexture.release();
+                                    }
+                                })));
 
         // Act: Send one frame to processingSurfaceTexture.
         triggerImage(processingSurface, 1);
