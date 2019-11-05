@@ -63,4 +63,34 @@ class NavHostFragmentTest(
                 .isNotNull()
         }
     }
+
+    @Test
+    fun testFindNavControllerRecreate() {
+        with(ActivityScenario.launch(activityClass)) {
+            val navController = withActivity {
+                findNavController(R.id.nav_host)
+            }
+            assertWithMessage("NavController on the activity's view should be non-null")
+                .that(navController)
+                .isNotNull()
+
+            assertWithMessage("NavController graph should be non-null")
+                .that(navController.graph)
+                .isNotNull()
+
+            recreate()
+
+            val restoredNavController = withActivity {
+                findNavController(R.id.nav_host)
+            }
+
+            assertWithMessage("NavController on the activity's view should be non-null")
+                .that(restoredNavController)
+                .isNotNull()
+
+            assertWithMessage("NavController graph should be non-null")
+                .that(restoredNavController.graph)
+                .isNotNull()
+        }
+    }
 }
