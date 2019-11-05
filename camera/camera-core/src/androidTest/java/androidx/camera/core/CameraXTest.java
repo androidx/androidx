@@ -58,9 +58,11 @@ import java.util.concurrent.Executors;
 @RunWith(AndroidJUnit4.class)
 public final class CameraXTest {
     private static final LensFacing CAMERA_LENS_FACING = LensFacing.BACK;
+    private static final LensFacing CAMERA_LENS_FACING_FRONT = LensFacing.FRONT;
     private static final CameraSelector CAMERA_SELECTOR =
             new CameraSelector.Builder().requireLensFacing(CAMERA_LENS_FACING).build();
     private static final String CAMERA_ID = "0";
+    private static final String CAMERA_ID_FRONT = "1";
 
     private final Instrumentation mInstrumentation = InstrumentationRegistry.getInstrumentation();
     private Context mContext;
@@ -68,12 +70,15 @@ public final class CameraXTest {
     private CameraInternal mCameraInternal;
     private FakeLifecycleOwner mLifecycle;
     private AppConfig.Builder mAppConfigBuilder;
+    private FakeCameraFactory mFakeCameraFactory;
+    private CameraDeviceSurfaceManager mFakeSurfaceManager;
+    private UseCaseConfigFactory mUseCaseConfigFactory;
 
     @Before
     public void setUp() {
         mContext = ApplicationProvider.getApplicationContext();
 
-        CameraDeviceSurfaceManager surfaceManager = new FakeCameraDeviceSurfaceManager();
+        mFakeSurfaceManager = new FakeCameraDeviceSurfaceManager();
         ExtendableUseCaseConfigFactory defaultConfigFactory = new ExtendableUseCaseConfigFactory();
         defaultConfigFactory.installDefaultProvider(FakeUseCaseConfig.class,
                 new ConfigProvider<FakeUseCaseConfig>() {
@@ -82,20 +87,21 @@ public final class CameraXTest {
                         return new FakeUseCaseConfig.Builder().build();
                     }
                 });
-        FakeCameraFactory cameraFactory = new FakeCameraFactory();
+        mUseCaseConfigFactory = defaultConfigFactory;
+        mFakeCameraFactory = new FakeCameraFactory();
         mCameraInternal = new FakeCamera(mock(CameraControlInternal.class),
                 new FakeCameraInfoInternal(0, CAMERA_LENS_FACING));
-        cameraFactory.insertCamera(CAMERA_LENS_FACING, CAMERA_ID, () -> mCameraInternal);
-        cameraFactory.setDefaultCameraIdForLensFacing(CAMERA_LENS_FACING, CAMERA_ID);
+        mFakeCameraFactory.insertCamera(CAMERA_LENS_FACING, CAMERA_ID, () -> mCameraInternal);
+        mFakeCameraFactory.setDefaultCameraIdForLensFacing(CAMERA_LENS_FACING, CAMERA_ID);
         mAppConfigBuilder =
                 new AppConfig.Builder()
-                        .setCameraFactory(cameraFactory)
-                        .setDeviceSurfaceManager(surfaceManager)
-                        .setUseCaseConfigFactory(defaultConfigFactory);
+                        .setCameraFactory(mFakeCameraFactory)
+                        .setDeviceSurfaceManager(mFakeSurfaceManager)
+                        .setUseCaseConfigFactory(mUseCaseConfigFactory);
 
         mLifecycle = new FakeLifecycleOwner();
 
-        mCameraId = cameraFactory.cameraIdForLensFacing(CAMERA_LENS_FACING);
+        mCameraId = mFakeCameraFactory.cameraIdForLensFacing(CAMERA_LENS_FACING);
     }
 
     @After
@@ -274,7 +280,20 @@ public final class CameraXTest {
     @Test
     @UiThreadTest
     public void noException_bindUseCases_withDifferentLensFacing() {
-        initCameraX();
+        // Initial the front camera for this test.
+        CameraInternal cameraInternalFront =
+                new FakeCamera(mock(CameraControlInternal.class),
+                        new FakeCameraInfoInternal(0, CAMERA_LENS_FACING_FRONT));
+        mFakeCameraFactory.insertCamera(CAMERA_LENS_FACING_FRONT, CAMERA_ID_FRONT,
+                () -> cameraInternalFront);
+        AppConfig.Builder appConfigBuilder =
+                new AppConfig.Builder()
+                        .setCameraFactory(mFakeCameraFactory)
+                        .setDeviceSurfaceManager(mFakeSurfaceManager)
+                        .setUseCaseConfigFactory(mUseCaseConfigFactory);
+
+        CameraX.initialize(mContext, appConfigBuilder.build());
+
         CameraSelector frontSelector =
                 new CameraSelector.Builder().requireLensFacing(LensFacing.FRONT).build();
         FakeUseCaseConfig config0 =
@@ -294,6 +313,29 @@ public final class CameraXTest {
             hasException = true;
         }
         assertFalse(hasException);
+    }
+
+    @UiThreadTest
+    public void bindUseCases_successReturnCamera() {
+        initCameraX();
+        FakeUseCaseConfig config0 = new FakeUseCaseConfig.Builder().build();
+
+        assertThat(CameraX.bindToLifecycle(mLifecycle, CAMERA_SELECTOR,
+                new FakeUseCase(config0))).isInstanceOf(Camera.class);
+    }
+
+    @Test(expected = IllegalArgumentException.class)
+    @UiThreadTest
+    public void bindUseCases_withNotExistedLensFacingCamera() {
+        initCameraX();
+        CameraSelector frontSelector = new CameraSelector.Builder().requireLensFacing(
+                LensFacing.FRONT).build();
+        FakeUseCaseConfig config0 = new FakeUseCaseConfig.Builder().build();
+        FakeUseCase fakeUseCase = new FakeUseCase(config0);
+
+        // The front camera is not defined, we should get the IllegalArgumentException when it
+        // tries to get the camera.
+        CameraX.bindToLifecycle(mLifecycle, frontSelector, fakeUseCase);
     }
 
     @Test

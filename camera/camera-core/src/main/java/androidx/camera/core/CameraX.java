@@ -213,15 +213,17 @@ public final class CameraX {
      * @param cameraSelector The camera selector which determines the camera to use for set of
      *                       use cases.
      * @param useCases       The use cases to bind to a lifecycle.
-     * @throws IllegalStateException If the use case has already been bound to another lifecycle
-     *                               or method is not called on main thread.
+     * @return The {@link Camera} instance which is determined by the camera selector.
+     * @throws IllegalStateException    If the use case has already been bound to another lifecycle
+     *                                  or method is not called on main thread.
      * @throws IllegalArgumentException If the provided camera selector is unable to resolve a
      *                                  camera to be used for the given use cases.
      * @hide
      */
     @RestrictTo(Scope.LIBRARY_GROUP)
     @SuppressWarnings("lambdaLast")
-    public static void bindToLifecycle(@NonNull LifecycleOwner lifecycleOwner,
+    @NonNull
+    public static Camera bindToLifecycle(@NonNull LifecycleOwner lifecycleOwner,
             @NonNull CameraSelector cameraSelector, @NonNull UseCase... useCases) {
         Threads.checkMainThread();
         CameraX cameraX = checkInitialized();
@@ -267,6 +269,10 @@ public final class CameraX {
                     "Unable to find a camera for the given camera selector.", e);
         }
 
+        // Try to get the camera before bind to the use case, and throw the IllegalArgumentException
+        // if the camera not found.
+        Camera camera = cameraX.getCameraRepository().getCamera(newCameraId);
+
         for (UseCase useCase : useCases) {
             useCase.onBind(deviceConfig);
         }
@@ -281,6 +287,8 @@ public final class CameraX {
         }
 
         useCaseGroupLifecycleController.notifyState();
+
+        return camera;
     }
 
     /**
@@ -516,14 +524,15 @@ public final class CameraX {
     }
 
     /**
-     * TODO(b/142844259): Remove/hide this API after the bindToLifecycle can return the Camera.
-     * Returns the camera info for the camera with the given lens facing.
+     * TODO(b/143921251): Remove this method after clean up the usage in CameraX.
      *
      * @param lensFacing the lens facing of the camera
      * @return the camera info if it can be retrieved for the given lens facing.
      * @throws CameraInfoUnavailableException if unable to access cameras, perhaps due to
      *                                        insufficient permissions.
+     * @hide
      */
+    @RestrictTo(Scope.LIBRARY_GROUP)
     @NonNull
     public static CameraInfo getCameraInfo(@NonNull LensFacing lensFacing)
             throws CameraInfoUnavailableException {
@@ -538,14 +547,15 @@ public final class CameraX {
     }
 
     /**
-     * TODO(b/142844259): Remove/hide this API after the bindToLifecycle can return the Camera.
-     * Returns the camera control for the camera with the given lens facing.
+     * TODO(b/142838064): Remove this method after clean up the usage in CameraX.
      *
      * @param lensFacing the lens facing of the camera
      * @return the {@link CameraControl}.
      * @throws CameraInfoUnavailableException if unable to access cameras, perhaps due to
      *                                        insufficient permissions.
+     * @hide
      */
+    @RestrictTo(Scope.LIBRARY_GROUP)
     @NonNull
     public static CameraControl getCameraControl(@NonNull LensFacing lensFacing)
             throws CameraInfoUnavailableException {

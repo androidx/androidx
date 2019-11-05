@@ -26,7 +26,7 @@ import com.google.common.util.concurrent.ListenableFuture;
 /**
  * An interface for controlling camera's zoom, focus and metering across all use cases.
  *
- * <p>Applications can retrieve the interface via CameraX.getCameraControl.
+ * <p>Applications can retrieve the interface via {@link Camera#getCameraControl()}.
  */
 public interface CameraControl {
     /**

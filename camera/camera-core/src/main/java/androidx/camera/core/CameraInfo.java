@@ -26,7 +26,7 @@ import androidx.lifecycle.Observer;
 /**
  * An interface for retrieving camera information.
  *
- * <p>Applications can retrieve an instance via {@link CameraX#getCameraInfo(LensFacing)}.
+ * <p>Applications can retrieve an instance via {@link Camera#getCameraInfo()}.
  */
 public interface CameraInfo {
 
