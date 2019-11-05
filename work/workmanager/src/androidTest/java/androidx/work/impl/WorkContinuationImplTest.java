@@ -168,6 +168,25 @@ public class WorkContinuationImplTest extends WorkManagerTest {
     }
 
     @Test
+    public void testContinuation_withEmptyNode_enqueue() throws ExecutionException,
+            InterruptedException {
+        OneTimeWorkRequest first = createTestWorker();
+        OneTimeWorkRequest second = createTestWorker();
+        WorkContinuation continuation = new WorkContinuationImpl(mWorkManagerImpl,
+                Collections.singletonList(first));
+        continuation = continuation.then(Collections.<OneTimeWorkRequest>emptyList());
+        continuation = continuation.then(Collections.singletonList(second));
+        continuation.enqueue().getResult().get();
+        WorkSpec firstWorkSpec = mDatabase.workSpecDao().getWorkSpec(first.getStringId());
+        WorkSpec secondWorkSpec = mDatabase.workSpecDao().getWorkSpec(second.getStringId());
+        assertThat(firstWorkSpec, is(notNullValue()));
+        assertThat(secondWorkSpec, is(notNullValue()));
+        List<String> prerequisites =
+                mDatabase.dependencyDao().getPrerequisites(second.getStringId());
+        assertThat(prerequisites, containsInAnyOrder(first.getStringId()));
+    }
+
+    @Test
     public void testContinuation_chainEnqueue() throws ExecutionException, InterruptedException {
         WorkContinuationImpl continuation =
                 new WorkContinuationImpl(mWorkManagerImpl, createTestWorkerList());
