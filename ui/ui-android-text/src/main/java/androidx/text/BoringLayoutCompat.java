@@ -28,23 +28,16 @@ import android.text.TextUtils;
 import androidx.annotation.IntRange;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
-import androidx.annotation.RestrictTo;
 
 /**
  * Factory Class for BoringLayout
- *
- * @hide
  */
-@RestrictTo(RestrictTo.Scope.LIBRARY)
-public class BoringLayoutCompat {
+class BoringLayoutCompat {
     private BoringLayoutCompat() { }
 
     /**
      * Builder class for BoringLayout.
-     *
-     * @hide
      */
-    @RestrictTo(RestrictTo.Scope.LIBRARY)
     public static class Builder {
         @NonNull
         private CharSequence mText;
@@ -91,7 +84,6 @@ public class BoringLayoutCompat {
          * @return this builder, useful for chaining
          * @hide
          */
-        @RestrictTo(RestrictTo.Scope.LIBRARY)
         @NonNull
         public Builder setText(@NonNull CharSequence text) {
             Preconditions.checkNotNull(text, "Text can't be null");
@@ -106,7 +98,6 @@ public class BoringLayoutCompat {
          * @return this builder, useful for chaining
          * @hide
          */
-        @RestrictTo(RestrictTo.Scope.LIBRARY)
         @NonNull
         public Builder setPaint(@NonNull TextPaint paint) {
             mPaint = Preconditions.checkNotNull(paint, "Paint can't be null");
@@ -120,7 +111,6 @@ public class BoringLayoutCompat {
          * @return this builder, useful for chaining
          * @hide
          */
-        @RestrictTo(RestrictTo.Scope.LIBRARY)
         @NonNull
         public Builder setWidth(@IntRange(from = 0) int width) {
             mWidth = Preconditions.checkArgumentNonnegative(width, "Width can't be negative");
@@ -135,7 +125,6 @@ public class BoringLayoutCompat {
          * @return this builder, useful for chaining
          * @hide
          */
-        @RestrictTo(RestrictTo.Scope.LIBRARY)
         @NonNull
         public Builder setMetrics(@NonNull BoringLayout.Metrics metrics) {
             mMetrics = Preconditions.checkNotNull(metrics);

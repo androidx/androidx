@@ -17,7 +17,6 @@
 package androidx.text.selection;
 
 import androidx.annotation.NonNull;
-import androidx.annotation.RestrictTo;
 import androidx.text.CharSequenceCharacterIterator;
 import androidx.text.Preconditions;
 
@@ -34,10 +33,8 @@ import java.util.Locale;
  * WordIterator.java.
  * </a>
  *
- * @hide
  */
-@RestrictTo(RestrictTo.Scope.LIBRARY)
-public class WordIterator {
+class WordIterator {
     // TODO(qqd): Investigate the reason of the width of the window being 50, and how the
     // performance is impacted as this window width grows or shrinks.
     // Size of the window for the word iterator, should be greater than the longest word's length
