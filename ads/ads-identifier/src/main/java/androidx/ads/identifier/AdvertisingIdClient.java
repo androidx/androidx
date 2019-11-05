@@ -249,20 +249,28 @@ public class AdvertisingIdClient {
      */
     @NonNull
     public static ListenableFuture<AdvertisingIdInfo> getAdvertisingIdInfo(
-            @NonNull Context context) {
-        return CallbackToFutureAdapter.getFuture(completer -> {
-            EXECUTOR_SERVICE.execute(() -> {
-                AdvertisingIdClient client = new AdvertisingIdClient(context);
-                try {
-                    completer.set(client.getInfoInternal());
-                } catch (IOException | AdvertisingIdNotAvailableException | TimeoutException
-                        | InterruptedException e) {
-                    completer.setException(e);
-                } finally {
-                    client.finish();
-                }
-            });
-            return "getAdvertisingIdInfo";
-        });
+            @NonNull final Context context) {
+        return CallbackToFutureAdapter.getFuture(
+                new CallbackToFutureAdapter.Resolver<AdvertisingIdInfo>() {
+                    @Override
+                    public Object attachCompleter(@NonNull final
+                            CallbackToFutureAdapter.Completer<AdvertisingIdInfo> completer) {
+                        EXECUTOR_SERVICE.execute(new Runnable() {
+                            @Override
+                            public void run() {
+                                AdvertisingIdClient client = new AdvertisingIdClient(context);
+                                try {
+                                    completer.set(client.getInfoInternal());
+                                } catch (IOException | AdvertisingIdNotAvailableException
+                                        | TimeoutException | InterruptedException e) {
+                                    completer.setException(e);
+                                } finally {
+                                    client.finish();
+                                }
+                            }
+                        });
+                        return "getAdvertisingIdInfo";
+                    }
+                });
     }
 }
