@@ -225,6 +225,7 @@ public class NavHostFragment extends Fragment implements NavHost {
                         .setPrimaryNavigationFragment(this)
                         .commit();
             }
+            mGraphId = savedInstanceState.getInt(KEY_GRAPH_ID);
         }
 
         if (navState != null) {
@@ -372,6 +373,9 @@ public class NavHostFragment extends Fragment implements NavHost {
         }
         if (mDefaultNavHost) {
             outState.putBoolean(KEY_DEFAULT_NAV_HOST, true);
+        }
+        if (mGraphId != 0) {
+            outState.putInt(KEY_GRAPH_ID, mGraphId);
         }
     }
 }
