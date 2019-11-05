@@ -61,14 +61,21 @@ class NonNullableMutableLiveDataDetectorTest : LintDetectorTest() {
                 import androidx.lifecycle.MutableLiveData
 
                 fun foo() {
-                    val liveData = MutableLiveData<Boolean?>()
+                    val liveData = MutableLiveData<Boolean>()
+                    val x = true
+                    liveData.value = x
+                    liveData.postValue(bar(5))
+                }
+
+                fun bar(x: Int): Boolean {
+                    return x > 0
                 }
             """).indented()
         ).expectClean()
     }
 
     @Test
-    fun expectFail() {
+    fun helperMethodFails() {
         check(
             kotlin("""
                 package com.example
@@ -77,21 +84,71 @@ class NonNullableMutableLiveDataDetectorTest : LintDetectorTest() {
 
                 fun foo() {
                     val liveData = MutableLiveData<Boolean>()
+                    liveData.value = bar(5)
+                }
+
+                fun bar(x: Int): Boolean? {
+                    if (x > 0) return true
+                    return null
                 }
             """).indented()
         ).expect("""
-src/com/example/test.kt:6: Warning: Use nullable type parameter. [NullSafeMutableLiveData]
-    val liveData = MutableLiveData<Boolean>()
-                                   ~~~~~~~
-0 errors, 1 warnings
-        """).checkFix(null, kotlin("""
+src/com/example/test.kt:7: Error: Expected non-nullable value [NullSafeMutableLiveData]
+    liveData.value = bar(5)
+                     ~~~~~~
+1 errors, 0 warnings
+        """)
+    }
+
+    @Test
+    fun variableAssignmentFails() {
+        check(
+            kotlin("""
                 package com.example
 
                 import androidx.lifecycle.MutableLiveData
 
                 fun foo() {
-                    val liveData = MutableLiveData<Boolean?>()
+                    val liveData = MutableLiveData<Boolean>()
+                    val bar: Boolean? = null
+                    liveData.value = bar
                 }
-        """).indented())
+            """).indented()
+        ).expect("""
+src/com/example/test.kt:8: Error: Expected non-nullable value [NullSafeMutableLiveData]
+    liveData.value = bar
+                     ~~~
+1 errors, 0 warnings
+        """).expectFixDiffs("""
+Fix for src/com/example/test.kt line 8: Change `LiveData` type to nullable:
+@@ -6 +6
+-     val liveData = MutableLiveData<Boolean>()
++     val liveData = MutableLiveData<Boolean?>()
+Fix for src/com/example/test.kt line 8: Add non-null asserted (!!) call:
+@@ -8 +8
+-     liveData.value = bar
++     liveData.value = bar!!
+        """)
+    }
+
+    @Test
+    fun nullLiteralQuickFix() {
+        check(
+            kotlin("""
+                package com.example
+
+                import androidx.lifecycle.MutableLiveData
+
+                fun foo() {
+                    val liveData = MutableLiveData<Boolean>()
+                    liveData.value = null
+                }
+            """).indented()
+        ).expectFixDiffs("""
+Fix for src/com/example/test.kt line 7: Change `LiveData` type to nullable:
+@@ -6 +6
+-     val liveData = MutableLiveData<Boolean>()
++     val liveData = MutableLiveData<Boolean?>()
+        """)
     }
 }
