@@ -27,7 +27,6 @@ import android.text.TextUtils
 import androidx.annotation.Px
 import androidx.annotation.RequiresApi
 import androidx.annotation.RestrictTo
-import androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP
 import androidx.annotation.VisibleForTesting
 import androidx.text.LayoutCompat.ALIGN_CENTER
 import androidx.text.LayoutCompat.ALIGN_LEFT
@@ -38,6 +37,7 @@ import androidx.text.LayoutCompat.BreakStrategy
 import androidx.text.LayoutCompat.DEFAULT_ALIGNMENT
 import androidx.text.LayoutCompat.DEFAULT_BREAK_STRATEGY
 import androidx.text.LayoutCompat.DEFAULT_HYPHENATION_FREQUENCY
+import androidx.text.LayoutCompat.DEFAULT_INCLUDE_PADDING
 import androidx.text.LayoutCompat.DEFAULT_JUSTIFICATION_MODE
 import androidx.text.LayoutCompat.DEFAULT_LINESPACING_EXTRA
 import androidx.text.LayoutCompat.DEFAULT_LINESPACING_MULTIPLIER
@@ -95,7 +95,7 @@ class TextLayout constructor(
     @TextDirection textDirectionHeuristic: Int = DEFAULT_TEXT_DIRECTION,
     lineSpacingMultiplier: Float = DEFAULT_LINESPACING_MULTIPLIER,
     @Px lineSpacingExtra: Float = DEFAULT_LINESPACING_EXTRA,
-    includePadding: Boolean = true,
+    includePadding: Boolean = DEFAULT_INCLUDE_PADDING,
     maxLines: Int = Int.MAX_VALUE,
     @BreakStrategy breakStrategy: Int = DEFAULT_BREAK_STRATEGY,
     @HyphenationFrequency hyphenationFrequency: Int = DEFAULT_HYPHENATION_FREQUENCY,
@@ -254,11 +254,9 @@ internal fun getTextDirectionHeuristic(@TextDirection textDirectionHeuristic: In
     }
 }
 
-/** @hide */
-@RestrictTo(LIBRARY_GROUP)
-object TextAlignmentAdapter {
-    val ALIGN_LEFT_FRAMEWORK: Layout.Alignment
-    val ALIGN_RIGHT_FRAMEWORK: Layout.Alignment
+internal object TextAlignmentAdapter {
+    private val ALIGN_LEFT_FRAMEWORK: Layout.Alignment
+    private val ALIGN_RIGHT_FRAMEWORK: Layout.Alignment
 
     init {
         val values = Layout.Alignment.values()
