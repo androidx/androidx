@@ -14,24 +14,14 @@
  * limitations under the License.
  */
 
-package androidx.ui.text
+package androidx.ui.input
 
 import androidx.benchmark.junit4.BenchmarkRule
 import androidx.benchmark.junit4.measureRepeated
 import androidx.test.filters.LargeTest
-import androidx.ui.input.BackspaceKeyEditOp
-import androidx.ui.input.CommitTextEditOp
-import androidx.ui.input.DeleteSurroundingTextEditOp
-import androidx.ui.input.DeleteSurroundingTextInCodePointsEditOp
-import androidx.ui.input.EditOperation
-import androidx.ui.input.EditProcessor
-import androidx.ui.input.InputState
-import androidx.ui.input.MoveCursorEditOp
-import androidx.ui.input.SetComposingRegionEditOp
-import androidx.ui.input.SetComposingTextEditOp
-import androidx.ui.input.SetSelectionEditOp
 import androidx.ui.test.RandomTextGenerator
 import androidx.ui.test.cartesian
+import androidx.ui.text.TextRange
 import org.junit.Rule
 import org.junit.Test
 import org.junit.runner.RunWith
