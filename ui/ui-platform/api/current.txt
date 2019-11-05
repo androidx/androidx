@@ -316,18 +316,6 @@ package androidx.ui.core {
 
 }
 
-package androidx.ui.core.input {
-
-  public final class InputStateKt {
-    ctor public InputStateKt();
-  }
-
-  public final class RecordingInputConnectionKt {
-    ctor public RecordingInputConnectionKt();
-  }
-
-}
-
 package androidx.ui.core.pointerinput {
 
   public final class MotionEventAdapterKt {
@@ -443,6 +431,18 @@ package androidx.ui.core.semantics {
 
   public final class SemanticsOwner {
     ctor public SemanticsOwner();
+  }
+
+}
+
+package androidx.ui.input {
+
+  public final class InputStateKt {
+    ctor public InputStateKt();
+  }
+
+  public final class RecordingInputConnectionKt {
+    ctor public RecordingInputConnectionKt();
   }
 
 }

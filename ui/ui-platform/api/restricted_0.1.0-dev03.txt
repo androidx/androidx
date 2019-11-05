@@ -316,18 +316,6 @@ package androidx.ui.core {
 
 }
 
-package androidx.ui.core.input {
-
-  public final class InputStateKt {
-    ctor public InputStateKt();
-  }
-
-  public final class RecordingInputConnectionKt {
-    ctor public RecordingInputConnectionKt();
-  }
-
-}
-
 package androidx.ui.core.pointerinput {
 
   public final class MotionEventAdapterKt {
@@ -452,6 +440,18 @@ package androidx.ui.core.text {
   @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP) public final class AndroidFontResourceLoader implements androidx.ui.text.font.Font.ResourceLoader {
     ctor public AndroidFontResourceLoader(android.content.Context context);
     method public android.graphics.Typeface load(androidx.ui.text.font.Font font);
+  }
+
+}
+
+package androidx.ui.input {
+
+  public final class InputStateKt {
+    ctor public InputStateKt();
+  }
+
+  public final class RecordingInputConnectionKt {
+    ctor public RecordingInputConnectionKt();
   }
 
 }

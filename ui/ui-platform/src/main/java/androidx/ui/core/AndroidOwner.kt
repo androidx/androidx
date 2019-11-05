@@ -32,7 +32,7 @@ import android.view.inputmethod.EditorInfo
 import android.view.inputmethod.InputConnection
 import androidx.annotation.RequiresApi
 import androidx.annotation.RestrictTo
-import androidx.ui.core.input.TextInputServiceAndroid
+import androidx.ui.input.TextInputServiceAndroid
 import androidx.ui.core.pointerinput.PointerInputEventProcessor
 import androidx.ui.core.pointerinput.toPointerInputEvent
 import androidx.ui.engine.geometry.Outline

@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package androidx.ui.core.input
+package androidx.ui.input
 
 import android.view.View
 import android.view.inputmethod.ExtractedText
@@ -22,8 +22,6 @@ import android.view.inputmethod.InputConnection
 import android.view.inputmethod.InputMethodManager
 import androidx.test.filters.SmallTest
 import androidx.ui.text.TextRange
-import androidx.ui.input.InputEventListener
-import androidx.ui.input.InputState
 import com.nhaarman.mockitokotlin2.any
 import com.nhaarman.mockitokotlin2.argumentCaptor
 import com.nhaarman.mockitokotlin2.eq
@@ -47,7 +45,12 @@ class RecordingInputConnectionUpdateInputStateTest {
     @Before
     fun setup() {
         listener = mock()
-        ic = RecordingInputConnection(InputState("", TextRange(0, 0)), listener)
+        ic = RecordingInputConnection(
+            InputState(
+                "",
+                TextRange(0, 0)
+            ), listener
+        )
     }
 
     @Test
