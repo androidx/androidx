@@ -18,13 +18,20 @@ package androidx.ui.layout.samples
 
 import androidx.annotation.Sampled
 import androidx.compose.Composable
+import androidx.ui.core.FirstBaseline
+import androidx.ui.core.Text
 import androidx.ui.core.dp
+import androidx.ui.core.ipx
 import androidx.ui.graphics.Color
 import androidx.ui.layout.Center
 import androidx.ui.layout.Column
+import androidx.ui.layout.Container
+import androidx.ui.layout.ExpandedHeight
 import androidx.ui.layout.FlexColumn
 import androidx.ui.layout.FlexRow
+import androidx.ui.layout.Gravity
 import androidx.ui.layout.Row
+import androidx.ui.text.TextStyle
 
 @Sampled
 @Composable
@@ -91,5 +98,76 @@ fun SimpleColumn() {
         SizedRectangle(Flexible(1f), color = Color.Yellow, width = 40.dp)
         // Flexible not tight, the child will occupy at most half of the remaining height.
         SizedRectangle(Flexible(1f, tight = false), color = Color.Green, width = 80.dp)
+    }
+}
+
+@Sampled
+@Composable
+fun SimpleRelativeToSiblings() {
+    Column {
+        // Center of the first rectangle is aligned to the right edge of the second rectangle and
+        // left edge of the third one.
+        SizedRectangle(
+            Gravity.RelativeToSiblings { it.width * 0.5 },
+            color = Color.Blue,
+            width = 80.dp,
+            height = 40.dp
+        )
+        SizedRectangle(
+            Gravity.RelativeToSiblings { it.width },
+            color = Color.Magenta,
+            width = 80.dp,
+            height = 40.dp
+        )
+        SizedRectangle(
+            Gravity.RelativeToSiblings { 0.ipx },
+            color = Color.Red,
+            width = 80.dp,
+            height = 40.dp
+        )
+    }
+}
+
+@Sampled
+@Composable
+fun SimpleRelativeToSiblingsInRow() {
+    Row(ExpandedHeight) {
+        // Center of the colored rectangle is aligned to first baseline of the text.
+        SizedRectangle(
+            color = Color.Red,
+            width = 80.dp,
+            height = 40.dp,
+            modifier = Gravity.RelativeToSiblings { it.height * 0.5 }
+        )
+        Container(width = 80.dp, modifier = Gravity.RelativeToSiblings(FirstBaseline)) {
+            Text(text = "Text.", style = TextStyle(background = Color.Cyan))
+        }
+    }
+}
+
+@Sampled
+@Composable
+fun SimpleRelativeToSiblingsInColumn() {
+    Column {
+        // Center of the first rectangle is aligned to the right edge of the second rectangle and
+        // left edge of the third one.
+        SizedRectangle(
+            Gravity.RelativeToSiblings { it.width * 0.5 },
+            color = Color.Blue,
+            width = 80.dp,
+            height = 40.dp
+        )
+        SizedRectangleWithLines(
+            Gravity.RelativeToSiblings(End),
+            color = Color.Magenta,
+            width = 80.dp,
+            height = 40.dp
+        )
+        SizedRectangleWithLines(
+            Gravity.RelativeToSiblings(Start),
+            color = Color.Red,
+            width = 80.dp,
+            height = 40.dp
+        )
     }
 }

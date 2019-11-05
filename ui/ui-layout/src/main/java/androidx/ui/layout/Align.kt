@@ -99,6 +99,5 @@ fun Center(children: @Composable() () -> Unit) {
  * @sample androidx.ui.layout.samples.SimpleGravityInRow
  *
  * @sample androidx.ui.layout.samples.SimpleGravityInColumn
- *
  */
 object Gravity
