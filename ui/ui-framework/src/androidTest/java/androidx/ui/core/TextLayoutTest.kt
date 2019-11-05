@@ -14,27 +14,11 @@
  * limitations under the License.
  */
 
-package androidx.ui.core.test
+package androidx.ui.core
 
 import androidx.compose.Composable
 import androidx.test.filters.SmallTest
 import androidx.test.rule.ActivityTestRule
-import androidx.ui.core.Constraints
-import androidx.ui.core.Density
-import androidx.ui.core.FirstBaseline
-import androidx.ui.core.IntPx
-import androidx.ui.core.LastBaseline
-import androidx.ui.core.Layout
-import androidx.ui.core.OnChildPositioned
-import androidx.ui.core.PxSize
-import androidx.ui.core.Ref
-import androidx.ui.core.Text
-import androidx.ui.core.ipx
-import androidx.ui.core.looseMin
-import androidx.ui.core.px
-import androidx.ui.core.round
-import androidx.ui.core.setContent
-import androidx.ui.core.withDensity
 import androidx.ui.framework.test.TestActivity
 import androidx.ui.text.TextStyle
 import androidx.ui.text.font.Font
