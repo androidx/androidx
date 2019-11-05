@@ -1232,7 +1232,7 @@ class MultiParagraphIntegrationTest {
 
     private fun simpleMultiParagraphIntrinsics(
         text: AnnotatedString,
-        fontSize: Sp? = null
+        fontSize: Sp = Sp.Inherit
     ): MultiParagraphIntrinsics {
         return MultiParagraphIntrinsics(
             text,
@@ -1250,7 +1250,7 @@ class MultiParagraphIntegrationTest {
 
     private fun simpleMultiParagraph(
         text: String,
-        fontSize: Sp? = null,
+        fontSize: Sp = Sp.Inherit,
         paragraphStyle: ParagraphStyle = ParagraphStyle(),
         maxLines: Int? = null,
         width: Float = Float.MAX_VALUE
@@ -1274,7 +1274,7 @@ class MultiParagraphIntegrationTest {
 
     private fun simpleMultiParagraph(
         text: AnnotatedString,
-        fontSize: Sp? = null,
+        fontSize: Sp = Sp.Inherit,
         paragraphStyle: ParagraphStyle = ParagraphStyle(),
         maxLines: Int? = null,
         width: Float = Float.MAX_VALUE

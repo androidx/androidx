@@ -34,42 +34,50 @@ data /*inline*/ class Sp(val value: Float) {
     /**
      * Add two [Sp]s together.
      */
-    inline operator fun plus(other: Sp) =
+    inline operator fun plus(other: Sp) = checkNotInherit(this, other) {
         Sp(value = this.value + other.value)
+    }
 
     /**
      * Subtract a Sp from another one.
      */
-    inline operator fun minus(other: Sp) =
+    inline operator fun minus(other: Sp) = checkNotInherit(this, other) {
         Sp(value = this.value - other.value)
+    }
 
     /**
      * This is the same as multiplying the Sp by -1.0.
      */
-    inline operator fun unaryMinus() = Sp(-value)
+    inline operator fun unaryMinus() = checkNotInherit(this) { Sp(-value) }
 
     /**
      * Divide a Sp by a scalar.
      */
-    inline operator fun div(other: Float): Sp =
+    inline operator fun div(other: Float): Sp = checkNotInherit(this) {
         Sp(value = value / other)
+    }
 
-    inline operator fun div(other: Int): Sp =
+    inline operator fun div(other: Int): Sp = checkNotInherit(this) {
         Sp(value = value / other)
+    }
 
     /**
      * Divide by another Sp to get a scalar.
      */
-    inline operator fun div(other: Sp): Float = value / other.value
+    inline operator fun div(other: Sp): Float = checkNotInherit(this, other) {
+        value / other.value
+    }
 
     /**
      * Multiply a Sp by a scalar.
      */
-    inline operator fun times(other: Float): Sp =
+    inline operator fun times(other: Float): Sp = checkNotInherit(this) {
         Sp(value = value * other)
+    }
 
-    inline operator fun times(other: Int): Sp =
+    inline operator fun times(other: Int): Sp = checkNotInherit(this) {
         Sp(value = value * other)
+    }
 
     /**
      * Support comparing Dimensions with comparison operators.
@@ -81,6 +89,14 @@ data /*inline*/ class Sp(val value: Float) {
          * Infinite Sp dimension.
          */
         val Infinity = Sp(value = Float.POSITIVE_INFINITY)
+
+        /**
+         * A special Sp instance for representing inheriting from the parent value.
+         *
+         * Do not set this value unless the API doc explicitly mentioned that [Sp.Inherit] is
+         * allowed.
+         */
+        val Inherit = Sp(value = Float.NEGATIVE_INFINITY)
     }
 }
 
@@ -111,18 +127,25 @@ inline val Double.sp: Sp get() = Sp(value = this.toFloat())
  */
 inline val Float.sp: Sp get() = Sp(value = this)
 
-inline operator fun Float.times(other: Sp) =
+inline operator fun Float.times(other: Sp) = checkNotInherit(other) {
     Sp(this * other.value)
+}
 
-inline operator fun Double.times(other: Sp) =
+inline operator fun Double.times(other: Sp) = checkNotInherit(other) {
     Sp(this.toFloat() * other.value)
+}
 
-inline operator fun Int.times(other: Sp) =
+inline operator fun Int.times(other: Sp) = checkNotInherit(other) {
     Sp(this * other.value)
+}
 
-inline fun min(a: Sp, b: Sp): Sp = Sp(value = kotlin.math.min(a.value, b.value))
+inline fun min(a: Sp, b: Sp): Sp = checkNotInherit(a, b) {
+    Sp(value = kotlin.math.min(a.value, b.value))
+}
 
-inline fun max(a: Sp, b: Sp): Sp = Sp(value = kotlin.math.max(a.value, b.value))
+inline fun max(a: Sp, b: Sp): Sp = checkNotInherit(a, b) {
+    Sp(value = kotlin.math.max(a.value, b.value))
+}
 
 /**
  * Ensures that this value lies in the specified range [minimumValue]..[maximumValue].
@@ -131,7 +154,9 @@ inline fun max(a: Sp, b: Sp): Sp = Sp(value = kotlin.math.max(a.value, b.value))
  * [minimumValue], or [maximumValue] if this value is greater than [maximumValue].
  */
 inline fun Sp.coerceIn(minimumValue: Sp, maximumValue: Sp): Sp =
-    Sp(value = value.coerceIn(minimumValue.value, maximumValue.value))
+    checkNotInherit(this, minimumValue, maximumValue) {
+        Sp(value = value.coerceIn(minimumValue.value, maximumValue.value))
+    }
 
 /**
  * Ensures that this value is not less than the specified [minimumValue].
@@ -139,8 +164,9 @@ inline fun Sp.coerceIn(minimumValue: Sp, maximumValue: Sp): Sp =
  * @return this value if it's greater than or equal to the [minimumValue] or the
  * [minimumValue] otherwise.
  */
-inline fun Sp.coerceAtLeast(minimumValue: Sp): Sp =
+inline fun Sp.coerceAtLeast(minimumValue: Sp): Sp = checkNotInherit(this, minimumValue) {
     Sp(value = value.coerceAtLeast(minimumValue.value))
+}
 
 /**
  * Ensures that this value is not greater than the specified [maximumValue].
@@ -148,8 +174,34 @@ inline fun Sp.coerceAtLeast(minimumValue: Sp): Sp =
  * @return this value if it's less than or equal to the [maximumValue] or the
  * [maximumValue] otherwise.
  */
-inline fun Sp.coerceAtMost(maximumValue: Sp): Sp =
+inline fun Sp.coerceAtMost(maximumValue: Sp): Sp = checkNotInherit(this, maximumValue) {
     Sp(value = value.coerceAtMost(maximumValue.value))
+}
+
+/**
+ * Returns true if this value is [Sp.Inherit]
+ */
+inline fun Sp.isInherit(): Boolean = this.value == Float.NEGATIVE_INFINITY
+
+@PublishedApi
+internal inline fun <T> checkNotInherit(a: Sp, block: () -> T): T {
+    if (a.isInherit()) throw IllegalArgumentException("Cannot perform operation for Sp.Inherit")
+    return block()
+}
+
+@PublishedApi
+internal inline fun <T> checkNotInherit(a: Sp, b: Sp, block: () -> T): T {
+    if (a.isInherit() || b.isInherit())
+        throw IllegalArgumentException("Cannot perform operation for Sp.Inherit")
+    return block()
+}
+
+@PublishedApi
+internal inline fun <T> checkNotInherit(a: Sp, b: Sp, c: Sp, block: () -> T): T {
+    if (a.isInherit() || b.isInherit() || c.isInherit())
+        throw IllegalArgumentException("Cannot perform operation for Sp.Inherit")
+    return block()
+}
 
 /**
  * Linearly interpolate between two [Sp]s.
@@ -162,6 +214,6 @@ inline fun Sp.coerceAtMost(maximumValue: Sp): Sp =
  * between [start] and [stop]. The interpolation can be extrapolated beyond 0.0 and
  * 1.0, so negative values and values greater than 1.0 are valid.
  */
-fun lerp(start: Sp, stop: Sp, fraction: Float): Sp {
-    return Sp(androidx.ui.lerp(start.value, stop.value, fraction))
+fun lerp(start: Sp, stop: Sp, fraction: Float): Sp = checkNotInherit(start, stop) {
+    Sp(androidx.ui.lerp(start.value, stop.value, fraction))
 }

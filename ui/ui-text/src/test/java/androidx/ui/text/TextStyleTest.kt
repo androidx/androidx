@@ -17,6 +17,7 @@
 package androidx.ui.text
 
 import androidx.ui.core.em
+import androidx.ui.core.isInherit
 import androidx.ui.core.sp
 import androidx.ui.text.style.BaselineShift
 import androidx.ui.text.font.FontStyle
@@ -41,7 +42,7 @@ class TextStyleTest {
         val textStyle = TextStyle()
 
         assertThat(textStyle.color).isNull()
-        assertThat(textStyle.fontSize).isNull()
+        assertThat(textStyle.fontSize.isInherit()).isTrue()
         assertThat(textStyle.fontWeight).isNull()
         assertThat(textStyle.fontStyle).isNull()
         assertThat(textStyle.letterSpacing).isNull()
@@ -595,7 +596,8 @@ class TextStyleTest {
 
         val newTextStyle = lerp(stop = textStyle, fraction = t)
 
-        assertThat(newTextStyle?.fontSize).isNull()
+        assertThat(newTextStyle).isNotNull()
+        assertThat(newTextStyle!!.fontSize.isInherit()).isTrue()
     }
 
     @Test
@@ -628,7 +630,8 @@ class TextStyleTest {
 
         val newTextStyle = lerp(start = textStyle, fraction = t)
 
-        assertThat(newTextStyle?.fontSize).isNull()
+        assertThat(newTextStyle).isNotNull()
+        assertThat(newTextStyle!!.fontSize.isInherit()).isTrue()
     }
 
     @Test

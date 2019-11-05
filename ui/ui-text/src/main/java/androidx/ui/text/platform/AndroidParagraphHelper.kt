@@ -43,6 +43,7 @@ import androidx.text.style.SkewXSpan
 import androidx.text.style.TypefaceSpan
 import androidx.ui.core.Density
 import androidx.ui.core.Sp
+import androidx.ui.core.isInherit
 import androidx.ui.core.sp
 import androidx.ui.core.withDensity
 import androidx.ui.graphics.toArgb
@@ -65,9 +66,10 @@ internal fun TextPaint.applyTextStyle(
     typefaceAdapter: TypefaceAdapter,
     density: Density
 ): TextStyle {
-    style.fontSize?.let {
+
+    if (!style.fontSize.isInherit()) {
         withDensity(density) {
-            textSize = it.toPx().value
+            textSize = style.fontSize.toPx().value
         }
     }
 
@@ -218,10 +220,10 @@ internal fun createStyledText(
             }
         }
 
-        style.fontSize?.let {
+        if (!style.fontSize.isInherit()) {
             withDensity(density) {
                 spannableString.setSpan(
-                    AbsoluteSizeSpan(it.toPx().value.roundToInt(), true),
+                    AbsoluteSizeSpan(style.fontSize.toPx().value.roundToInt(), true),
                     start,
                     end,
                     Spanned.SPAN_EXCLUSIVE_EXCLUSIVE

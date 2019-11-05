@@ -25,6 +25,7 @@ import androidx.ui.core.LayoutDirection
 import androidx.ui.core.PxPosition
 import androidx.ui.core.Sp
 import androidx.ui.core.constrain
+import androidx.ui.core.isInherit
 import androidx.ui.core.px
 import androidx.ui.core.round
 import androidx.ui.core.sp
@@ -54,7 +55,7 @@ private val DefaultFontSize: Sp = 14.sp
 private fun resolveTextStyle(style: TextStyle?) =
     if (style == null) {
         TextStyle(fontSize = DefaultFontSize)
-    } else if (style.fontSize == null) {
+    } else if (style.fontSize.isInherit()) {
         style.copy(fontSize = DefaultFontSize)
     } else {
         style
