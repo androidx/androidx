@@ -327,9 +327,11 @@ public class FakeCamera implements CameraInternal {
 
             mConfiguredDeferrableSurfaces = new ArrayList<>(surfaces);
 
-            List<Surface> configuredSurfaces = new ArrayList<>(
-                    DeferrableSurfaces.surfaceSet(
-                            mConfiguredDeferrableSurfaces));
+            // Since this is a fake camera, it is likely we will get null surfaces. Don't
+            // consider them as failed.
+            List<Surface> configuredSurfaces =
+                    DeferrableSurfaces.surfaceList(mConfiguredDeferrableSurfaces,
+                            /*removeNullSurfaces=*/ false);
             if (configuredSurfaces.isEmpty()) {
                 Log.e(TAG, "Unable to open capture session with no surfaces. ");
                 return;

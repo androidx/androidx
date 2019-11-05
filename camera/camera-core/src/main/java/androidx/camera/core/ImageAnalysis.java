@@ -91,9 +91,9 @@ public final class ImageAnalysis extends UseCase {
     }
 
     @SuppressWarnings("WeakerAccess") /* synthetic accessor */
-    SessionConfig.Builder createPipeline(ImageAnalysisConfig config, Size resolution) {
+    SessionConfig.Builder createPipeline(@NonNull String cameraId,
+            @NonNull ImageAnalysisConfig config, @NonNull Size resolution) {
         Threads.checkMainThread();
-        String cameraId = getCameraIdUnchecked(config);
 
         Executor backgroundExecutor = config.getBackgroundExecutor(
                 CameraXExecutors.highPriorityExecutor());
@@ -129,10 +129,17 @@ public final class ImageAnalysis extends UseCase {
             public void onError(@NonNull SessionConfig sessionConfig,
                     @NonNull SessionConfig.SessionError error) {
                 clearPipeline();
-                SessionConfig.Builder sessionConfigBuilder = createPipeline(config, resolution);
-                attachToCamera(cameraId, sessionConfigBuilder.build());
 
-                notifyReset();
+                // Ensure the bound camera has not changed before resetting.
+                // TODO(b/143915543): Ensure this never gets called by a camera that is not bound
+                //  to this use case so we don't need to do this check.
+                if (isCurrentlyBoundCamera(cameraId)) {
+                    SessionConfig.Builder sessionConfigBuilder = createPipeline(cameraId, config,
+                            resolution);
+                    attachToCamera(cameraId, sessionConfigBuilder.build());
+
+                    notifyReset();
+                }
             }
         });
 
@@ -308,7 +315,7 @@ public final class ImageAnalysis extends UseCase {
             @NonNull Map<String, Size> suggestedResolutionMap) {
         final ImageAnalysisConfig config = (ImageAnalysisConfig) getUseCaseConfig();
 
-        String cameraId = getCameraIdUnchecked(config);
+        String cameraId = getBoundCameraId();
 
         Size resolution = suggestedResolutionMap.get(cameraId);
         if (resolution == null) {
@@ -320,7 +327,7 @@ public final class ImageAnalysis extends UseCase {
             mImageReader.close();
         }
 
-        SessionConfig.Builder sessionConfigBuilder = createPipeline(config, resolution);
+        SessionConfig.Builder sessionConfigBuilder = createPipeline(cameraId, config, resolution);
         attachToCamera(cameraId, sessionConfigBuilder.build());
 
         return suggestedResolutionMap;

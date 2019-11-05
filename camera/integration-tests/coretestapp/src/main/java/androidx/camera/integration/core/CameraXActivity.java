@@ -45,6 +45,7 @@ import androidx.annotation.VisibleForTesting;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.camera.core.CameraInfo;
 import androidx.camera.core.CameraInfoUnavailableException;
+import androidx.camera.core.CameraSelector;
 import androidx.camera.core.CameraX;
 import androidx.camera.core.FlashMode;
 import androidx.camera.core.ImageAnalysis;
@@ -59,6 +60,7 @@ import androidx.camera.core.PreviewSurfaceProviders;
 import androidx.camera.core.UseCase;
 import androidx.camera.core.VideoCapture;
 import androidx.camera.core.VideoCaptureConfig;
+import androidx.camera.core.impl.utils.CameraSelectorUtil;
 import androidx.camera.core.impl.utils.executor.CameraXExecutors;
 import androidx.camera.lifecycle.LifecycleCameraProvider;
 import androidx.core.app.ActivityCompat;
@@ -95,14 +97,19 @@ public class CameraXActivity extends AppCompatActivity
     private static final int PERMISSIONS_REQUEST_CODE = 42;
     // Possible values for this intent key: "backward" or "forward".
     private static final String INTENT_EXTRA_CAMERA_DIRECTION = "camera_direction";
+    static final CameraSelector BACK_SELECTOR =
+            new CameraSelector.Builder().requireLensFacing(LensFacing.BACK).build();
+    static final CameraSelector FRONT_SELECTOR =
+            new CameraSelector.Builder().requireLensFacing(LensFacing.FRONT).build();
 
     private final SettableCallable<Boolean> mSettableResult = new SettableCallable<>();
     private final FutureTask<Boolean> mCompletableFuture = new FutureTask<>(mSettableResult);
     private final AtomicLong mImageAnalysisFrameCount = new AtomicLong(0);
     private final MutableLiveData<String> mImageAnalysisResult = new MutableLiveData<>();
     private VideoFileSaver mVideoFileSaver;
-    /** The cameraId to use. Assume that 0 is the typical back facing camera. */
-    private LensFacing mCurrentCameraLensFacing = LensFacing.BACK;
+    /** The camera to use */
+    CameraSelector mCurrentCameraSelector = BACK_SELECTOR;
+    LensFacing mCurrentCameraLensFacing = LensFacing.BACK;
 
     // TODO: Move the analysis processing, capture processing to separate threads, so
     // there is smaller impact on the preview.
@@ -198,7 +205,6 @@ public class CameraXActivity extends AppCompatActivity
     void enablePreview() {
         PreviewConfig config =
                 new PreviewConfig.Builder()
-                        .setLensFacing(mCurrentCameraLensFacing)
                         .setTargetName("Preview")
                         .build();
 
@@ -236,23 +242,18 @@ public class CameraXActivity extends AppCompatActivity
         }
     }
 
+    @SuppressWarnings("RestrictedApi")
     void transformPreview() {
-        String cameraId = null;
-        PreviewConfig config = (PreviewConfig) mPreview.getUseCaseConfig();
-        LensFacing previewLensFacing = config.getLensFacing(/*valueIfMissing=*/ null);
-        if (previewLensFacing != mCurrentCameraLensFacing) {
-            throw new IllegalStateException(
-                    "Invalid preview lens facing: "
-                            + previewLensFacing
-                            + " Should be: "
-                            + mCurrentCameraLensFacing);
-        }
+        // TODO(b/143793233): We should not be using internal APIs to get the resolution here.
+        //  This should be switched to public APIs.
+        String cameraId;
         try {
-            cameraId = CameraX.getCameraWithCameraDeviceConfig(config);
+            cameraId = CameraX.getCameraWithCameraDeviceConfig(
+                    CameraSelectorUtil.toCameraDeviceConfig(mCurrentCameraSelector));
         } catch (CameraInfoUnavailableException e) {
             throw new IllegalArgumentException(
-                    "Unable to get camera id for the camera device config "
-                            + config.getLensFacing(), e);
+                    "Unable to get camera id for the camera lens facing "
+                            + mCurrentCameraLensFacing, e);
         }
         Size srcResolution = mPreview.getAttachedSurfaceResolution(cameraId);
 
@@ -401,7 +402,6 @@ public class CameraXActivity extends AppCompatActivity
     void enableImageAnalysis() {
         ImageAnalysisConfig config =
                 new ImageAnalysisConfig.Builder()
-                        .setLensFacing(mCurrentCameraLensFacing)
                         .setTargetName("ImageAnalysis")
                         .build();
 
@@ -478,7 +478,6 @@ public class CameraXActivity extends AppCompatActivity
     void enableImageCapture() {
         ImageCaptureConfig config =
                 new ImageCaptureConfig.Builder()
-                        .setLensFacing(mCurrentCameraLensFacing)
                         .setCaptureMode(mCaptureMode)
                         .setTargetName("ImageCapture")
                         .build();
@@ -667,7 +666,6 @@ public class CameraXActivity extends AppCompatActivity
     void enableVideoCapture() {
         VideoCaptureConfig config =
                 new VideoCaptureConfig.Builder()
-                        .setLensFacing(mCurrentCameraLensFacing)
                         .setTargetName("VideoCapture")
                         .build();
 
@@ -766,13 +764,15 @@ public class CameraXActivity extends AppCompatActivity
 
         Log.d(TAG, "Camera direction: " + mCurrentCameraDirection);
         if (mCurrentCameraDirection.equalsIgnoreCase("BACKWARD")) {
+            mCurrentCameraSelector = BACK_SELECTOR;
             mCurrentCameraLensFacing = LensFacing.BACK;
         } else if (mCurrentCameraDirection.equalsIgnoreCase("FORWARD")) {
+            mCurrentCameraSelector = FRONT_SELECTOR;
             mCurrentCameraLensFacing = LensFacing.FRONT;
         } else {
             throw new RuntimeException("Invalid camera direction: " + mCurrentCameraDirection);
         }
-        Log.d(TAG, "Using camera lens facing: " + mCurrentCameraLensFacing);
+        Log.d(TAG, "Using camera lens facing: " + mCurrentCameraSelector);
 
         // Run this on the UI thread to manipulate the Textures & Views.
         CameraXActivity.this.runOnUiThread(
@@ -787,12 +787,14 @@ public class CameraXActivity extends AppCompatActivity
                             @Override
                             public void onClick(View v) {
                                 if (mCurrentCameraLensFacing == LensFacing.BACK) {
+                                    mCurrentCameraSelector = FRONT_SELECTOR;
                                     mCurrentCameraLensFacing = LensFacing.FRONT;
                                 } else if (mCurrentCameraLensFacing == LensFacing.FRONT) {
+                                    mCurrentCameraSelector = BACK_SELECTOR;
                                     mCurrentCameraLensFacing = LensFacing.BACK;
                                 }
 
-                                Log.d(TAG, "Change camera direction: " + mCurrentCameraLensFacing);
+                                Log.d(TAG, "Change camera direction: " + mCurrentCameraSelector);
                                 rebindUseCases();
 
                             }
@@ -899,7 +901,7 @@ public class CameraXActivity extends AppCompatActivity
 
     private boolean bindToLifecycleSafely(UseCase useCase, int buttonViewId) {
         try {
-            LifecycleCameraProvider.bindToLifecycle(this, useCase);
+            LifecycleCameraProvider.bindToLifecycle(this, mCurrentCameraSelector, useCase);
         } catch (IllegalArgumentException e) {
             Log.e(TAG, e.getMessage());
             Toast.makeText(getApplicationContext(), "Bind too many use cases.", Toast.LENGTH_SHORT)

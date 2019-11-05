@@ -24,7 +24,9 @@ import java.util.Set;
 import java.util.UUID;
 
 /** A fake configuration for {@link FakeOtherUseCase}. */
-public class FakeOtherUseCaseConfig implements UseCaseConfig<FakeOtherUseCase>, CameraDeviceConfig {
+public class FakeOtherUseCaseConfig
+        implements UseCaseConfig<FakeOtherUseCase>,
+        CameraDeviceConfig { // TODO(b/142840814): Remove device config in favor of CameraSelector
 
     private final Config mConfig;
 

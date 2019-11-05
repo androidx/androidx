@@ -27,11 +27,13 @@ import android.util.Size;
 import androidx.annotation.NonNull;
 import androidx.annotation.RestrictTo;
 import androidx.annotation.RestrictTo.Scope;
+import androidx.camera.core.CameraSelector;
 import androidx.camera.core.CameraX;
 import androidx.camera.core.ImmediateSurface;
 import androidx.camera.core.LensFacing;
 import androidx.camera.core.SessionConfig;
 import androidx.camera.core.UseCaseConfig;
+import androidx.camera.core.impl.utils.CameraSelectorUtil;
 import androidx.camera.testing.fakes.FakeUseCase;
 import androidx.camera.testing.fakes.FakeUseCaseConfig;
 
@@ -48,7 +50,8 @@ public class FakeRepeatingUseCase extends FakeUseCase {
     private final ImageReader mImageReader =
             ImageReader.newInstance(640, 480, ImageFormat.YUV_420_888, 2);
 
-    public FakeRepeatingUseCase(FakeUseCaseConfig configuration) {
+    public FakeRepeatingUseCase(@NonNull FakeUseCaseConfig configuration,
+            @NonNull CameraSelector cameraSelector) {
         super(configuration);
 
         FakeUseCaseConfig configWithDefaults = (FakeUseCaseConfig) getUseCaseConfig();
@@ -67,7 +70,9 @@ public class FakeRepeatingUseCase extends FakeUseCase {
         SessionConfig.Builder builder = SessionConfig.Builder.createFrom(configWithDefaults);
         builder.addSurface(new ImmediateSurface(mImageReader.getSurface()));
         try {
-            String cameraId = CameraX.getCameraWithCameraDeviceConfig(configWithDefaults);
+            String cameraId =
+                    CameraX.getCameraWithCameraDeviceConfig(
+                            CameraSelectorUtil.toCameraDeviceConfig(cameraSelector));
             attachToCamera(cameraId, builder.build());
         } catch (Exception e) {
             throw new IllegalArgumentException(

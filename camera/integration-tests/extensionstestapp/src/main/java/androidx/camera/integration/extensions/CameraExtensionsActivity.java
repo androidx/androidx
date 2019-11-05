@@ -38,6 +38,7 @@ import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.annotation.VisibleForTesting;
 import androidx.appcompat.app.AppCompatActivity;
+import androidx.camera.core.CameraSelector;
 import androidx.camera.core.CameraX;
 import androidx.camera.core.ImageCapture;
 import androidx.camera.core.ImageCaptureConfig;
@@ -85,6 +86,9 @@ public class CameraExtensionsActivity extends AppCompatActivity
     private static final String TAG = "CameraExtensionActivity";
     private static final int PERMISSIONS_REQUEST_CODE = 42;
 
+    private static final CameraSelector CAMERA_SELECTOR =
+            new CameraSelector.Builder().requireLensFacing(LensFacing.BACK).build();
+
     private final SettableCallable<Boolean> mSettableResult = new SettableCallable<>();
     private final FutureTask<Boolean> mCompletableFuture = new FutureTask<>(mSettableResult);
 
@@ -122,7 +126,6 @@ public class CameraExtensionsActivity extends AppCompatActivity
 
         PreviewConfig.Builder builder =
                 new PreviewConfig.Builder()
-                        .setLensFacing(LensFacing.BACK)
                         .setTargetName("Preview");
 
         Log.d(TAG, "Enabling the extended preview");
@@ -130,36 +133,36 @@ public class CameraExtensionsActivity extends AppCompatActivity
             Log.d(TAG, "Enabling the extended preview in bokeh mode.");
 
             BokehPreviewExtender extender = BokehPreviewExtender.create(builder);
-            if (extender.isExtensionAvailable()) {
-                extender.enableExtension();
+            if (extender.isExtensionAvailable(CAMERA_SELECTOR)) {
+                extender.enableExtension(CAMERA_SELECTOR);
             }
         } else if (mCurrentImageCaptureType == ImageCaptureType.IMAGE_CAPTURE_TYPE_HDR) {
             Log.d(TAG, "Enabling the extended preview in HDR mode.");
 
             HdrPreviewExtender extender = HdrPreviewExtender.create(builder);
-            if (extender.isExtensionAvailable()) {
-                extender.enableExtension();
+            if (extender.isExtensionAvailable(CAMERA_SELECTOR)) {
+                extender.enableExtension(CAMERA_SELECTOR);
             }
         } else if (mCurrentImageCaptureType == ImageCaptureType.IMAGE_CAPTURE_TYPE_NIGHT) {
             Log.d(TAG, "Enabling the extended preview in night mode.");
 
             NightPreviewExtender extender = NightPreviewExtender.create(builder);
-            if (extender.isExtensionAvailable()) {
-                extender.enableExtension();
+            if (extender.isExtensionAvailable(CAMERA_SELECTOR)) {
+                extender.enableExtension(CAMERA_SELECTOR);
             }
         } else if (mCurrentImageCaptureType == ImageCaptureType.IMAGE_CAPTURE_TYPE_BEAUTY) {
             Log.d(TAG, "Enabling the extended preview in beauty mode.");
 
             BeautyPreviewExtender extender = BeautyPreviewExtender.create(builder);
-            if (extender.isExtensionAvailable()) {
-                extender.enableExtension();
+            if (extender.isExtensionAvailable(CAMERA_SELECTOR)) {
+                extender.enableExtension(CAMERA_SELECTOR);
             }
         } else if (mCurrentImageCaptureType == ImageCaptureType.IMAGE_CAPTURE_TYPE_AUTO) {
             Log.d(TAG, "Enabling the extended preview in auto mode.");
 
             AutoPreviewExtender extender = AutoPreviewExtender.create(builder);
-            if (extender.isExtensionAvailable()) {
-                extender.enableExtension();
+            if (extender.isExtensionAvailable(CAMERA_SELECTOR)) {
+                extender.enableExtension(CAMERA_SELECTOR);
             }
         }
 
@@ -252,7 +255,6 @@ public class CameraExtensionsActivity extends AppCompatActivity
         mCurrentImageCaptureType = imageCaptureType;
         ImageCaptureConfig.Builder builder =
                 new ImageCaptureConfig.Builder()
-                        .setLensFacing(LensFacing.BACK)
                         .setTargetName("ImageCapture");
         Button toggleButton = findViewById(R.id.PhotoToggle);
         toggleButton.setText(mCurrentImageCaptureType.toString());
@@ -261,36 +263,36 @@ public class CameraExtensionsActivity extends AppCompatActivity
             case IMAGE_CAPTURE_TYPE_HDR:
                 HdrImageCaptureExtender hdrImageCaptureExtender = HdrImageCaptureExtender.create(
                         builder);
-                if (hdrImageCaptureExtender.isExtensionAvailable()) {
-                    hdrImageCaptureExtender.enableExtension();
+                if (hdrImageCaptureExtender.isExtensionAvailable(CAMERA_SELECTOR)) {
+                    hdrImageCaptureExtender.enableExtension(CAMERA_SELECTOR);
                 }
                 break;
             case IMAGE_CAPTURE_TYPE_BOKEH:
                 BokehImageCaptureExtender bokehImageCapture = BokehImageCaptureExtender.create(
                         builder);
-                if (bokehImageCapture.isExtensionAvailable()) {
-                    bokehImageCapture.enableExtension();
+                if (bokehImageCapture.isExtensionAvailable(CAMERA_SELECTOR)) {
+                    bokehImageCapture.enableExtension(CAMERA_SELECTOR);
                 }
                 break;
             case IMAGE_CAPTURE_TYPE_NIGHT:
                 NightImageCaptureExtender nightImageCapture = NightImageCaptureExtender.create(
                         builder);
-                if (nightImageCapture.isExtensionAvailable()) {
-                    nightImageCapture.enableExtension();
+                if (nightImageCapture.isExtensionAvailable(CAMERA_SELECTOR)) {
+                    nightImageCapture.enableExtension(CAMERA_SELECTOR);
                 }
                 break;
             case IMAGE_CAPTURE_TYPE_BEAUTY:
                 BeautyImageCaptureExtender beautyImageCapture = BeautyImageCaptureExtender.create(
                         builder);
-                if (beautyImageCapture.isExtensionAvailable()) {
-                    beautyImageCapture.enableExtension();
+                if (beautyImageCapture.isExtensionAvailable(CAMERA_SELECTOR)) {
+                    beautyImageCapture.enableExtension(CAMERA_SELECTOR);
                 }
                 break;
             case IMAGE_CAPTURE_TYPE_AUTO:
                 AutoImageCaptureExtender autoImageCapture = AutoImageCaptureExtender.create(
                         builder);
-                if (autoImageCapture.isExtensionAvailable()) {
-                    autoImageCapture.enableExtension();
+                if (autoImageCapture.isExtensionAvailable(CAMERA_SELECTOR)) {
+                    autoImageCapture.enableExtension(CAMERA_SELECTOR);
                 }
                 break;
             case IMAGE_CAPTURE_TYPE_DEFAULT:
@@ -387,7 +389,7 @@ public class CameraExtensionsActivity extends AppCompatActivity
             useCases.add(mImageCapture);
         }
         useCases.add(mPreview);
-        LifecycleCameraProvider.bindToLifecycle(this,
+        LifecycleCameraProvider.bindToLifecycle(this, CAMERA_SELECTOR,
                 useCases.toArray(new UseCase[useCases.size()]));
     }
 

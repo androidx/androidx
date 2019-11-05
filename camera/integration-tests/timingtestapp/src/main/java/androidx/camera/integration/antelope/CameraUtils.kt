@@ -30,7 +30,6 @@ import android.util.SparseIntArray
 import android.view.Surface
 import androidx.appcompat.app.AppCompatActivity
 import androidx.camera.core.ImageCaptureConfig
-import androidx.camera.core.LensFacing
 import androidx.camera.core.PreviewConfig
 import androidx.camera.integration.antelope.MainActivity.Companion.FIXED_FOCUS_DISTANCE
 import androidx.camera.integration.antelope.MainActivity.Companion.cameraParams
@@ -166,18 +165,9 @@ fun initializeCameras(activity: MainActivity) {
                 previewSurfaceView = activity.surface_preview
                 cameraXPreviewTexture = activity.texture_preview
 
-                // TODO: As of 0.3.0 CameraX only has front and back cameras. Update in the future
-                val cameraXcameraID = if (id.equals("1"))
-                    LensFacing.BACK
-                else LensFacing.FRONT
+                cameraXPreviewConfig = PreviewConfig.Builder().build()
 
-                cameraXPreviewConfig = PreviewConfig.Builder()
-                    .setLensFacing(cameraXcameraID)
-                    .build()
-
-                cameraXCaptureConfig = ImageCaptureConfig.Builder()
-                    .setLensFacing(cameraXcameraID)
-                    .build()
+                cameraXCaptureConfig = ImageCaptureConfig.Builder().build()
 
                 imageAvailableListener =
                     ImageAvailableListener(activity, this, TestConfig())

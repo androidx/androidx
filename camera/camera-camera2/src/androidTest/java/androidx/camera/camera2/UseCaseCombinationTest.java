@@ -30,6 +30,7 @@ import android.util.Size;
 
 import androidx.annotation.NonNull;
 import androidx.camera.core.AppConfig;
+import androidx.camera.core.CameraSelector;
 import androidx.camera.core.CameraX;
 import androidx.camera.core.ImageAnalysis;
 import androidx.camera.core.ImageAnalysisConfig;
@@ -68,7 +69,8 @@ import java.util.concurrent.Semaphore;
 @LargeTest
 @RunWith(AndroidJUnit4.class)
 public final class UseCaseCombinationTest {
-    private static final LensFacing DEFAULT_LENS_FACING = LensFacing.BACK;
+    private static final CameraSelector DEFAULT_SELECTOR =
+            new CameraSelector.Builder().requireLensFacing(LensFacing.BACK).build();
     private final MutableLiveData<Long> mAnalysisResult = new MutableLiveData<>();
     @Rule
     public GrantPermissionRule mRuntimePermissionRule = GrantPermissionRule.grant(
@@ -138,7 +140,7 @@ public final class UseCaseCombinationTest {
                             surfaceTexture.release();
                         }
                     }));
-            CameraX.bindToLifecycle(mLifecycle, mPreview, mImageCapture);
+            CameraX.bindToLifecycle(mLifecycle, DEFAULT_SELECTOR, mPreview, mImageCapture);
             mLifecycle.startAndResume();
         });
 
@@ -161,7 +163,7 @@ public final class UseCaseCombinationTest {
         mInstrumentation.runOnMainSync(new Runnable() {
             @Override
             public void run() {
-                CameraX.bindToLifecycle(mLifecycle, mPreview, mImageAnalysis);
+                CameraX.bindToLifecycle(mLifecycle, DEFAULT_SELECTOR, mPreview, mImageAnalysis);
                 mImageAnalysis.setAnalyzer(CameraXExecutors.mainThreadExecutor(), mImageAnalyzer);
                 mAnalysisResult.observe(mLifecycle,
                         createCountIncrementingObserver());
@@ -188,7 +190,8 @@ public final class UseCaseCombinationTest {
         mInstrumentation.runOnMainSync(new Runnable() {
             @Override
             public void run() {
-                CameraX.bindToLifecycle(mLifecycle, mPreview, mImageAnalysis, mImageCapture);
+                CameraX.bindToLifecycle(mLifecycle, DEFAULT_SELECTOR, mPreview, mImageAnalysis,
+                        mImageCapture);
                 mImageAnalysis.setAnalyzer(CameraXExecutors.mainThreadExecutor(), mImageAnalyzer);
                 mAnalysisResult.observe(mLifecycle,
                         createCountIncrementingObserver());
@@ -208,7 +211,6 @@ public final class UseCaseCombinationTest {
     private void initImageAnalysis() {
         ImageAnalysisConfig imageAnalysisConfig =
                 new ImageAnalysisConfig.Builder()
-                        .setLensFacing(DEFAULT_LENS_FACING)
                         .setTargetName("ImageAnalysis")
                         .build();
         mImageAnalyzer =
@@ -222,8 +224,7 @@ public final class UseCaseCombinationTest {
     }
 
     private void initImageCapture() {
-        ImageCaptureConfig imageCaptureConfig =
-                new ImageCaptureConfig.Builder().setLensFacing(LensFacing.BACK).build();
+        ImageCaptureConfig imageCaptureConfig = new ImageCaptureConfig.Builder().build();
 
         mImageCapture = new ImageCapture(imageCaptureConfig);
     }
@@ -231,8 +232,7 @@ public final class UseCaseCombinationTest {
     private void initPreview() {
         PreviewConfig.Builder configBuilder =
                 new PreviewConfig.Builder()
-                        .setTargetName("Preview")
-                        .setLensFacing(DEFAULT_LENS_FACING);
+                        .setTargetName("Preview");
         mPreview = new Preview(configBuilder.build());
     }
 }

@@ -37,6 +37,7 @@ import androidx.annotation.NonNull;
 import androidx.annotation.experimental.UseExperimental;
 import androidx.camera.camera2.Camera2Config;
 import androidx.camera.camera2.ExperimentalCamera2Interop;
+import androidx.camera.core.CameraSelector;
 import androidx.camera.core.CameraX;
 import androidx.camera.core.CaptureProcessor;
 import androidx.camera.core.ImageAnalysisConfig;
@@ -265,8 +266,10 @@ public class PreviewProcessorTimestampTest {
                     }
                 }));
 
+        CameraSelector cameraSelector =
+                new CameraSelector.Builder().requireLensFacing(mLensFacing).build();
         mInstrumentation.runOnMainSync(() -> {
-            CameraX.bindToLifecycle(mLifecycleOwner, preview, imageCapture);
+            CameraX.bindToLifecycle(mLifecycleOwner, cameraSelector, preview, imageCapture);
 
             mLifecycleOwner.startAndResume();
         });
@@ -284,9 +287,8 @@ public class PreviewProcessorTimestampTest {
      */
     private void enableExtension(ExtensionsManager.EffectMode effectMode, LensFacing lensFacing) {
 
-        mImageCaptureConfigBuilder.setLensFacing(lensFacing);
-        mPreviewConfigBuilder.setLensFacing(lensFacing);
-        mImageAnalysisConfigBuilder.setLensFacing(lensFacing);
+        CameraSelector cameraSelector =
+                new CameraSelector.Builder().requireLensFacing(lensFacing).build();
 
         ImageCaptureExtender imageCaptureExtender = null;
         PreviewExtender previewExtender = null;
@@ -319,9 +321,9 @@ public class PreviewProcessorTimestampTest {
         assertNotNull(imageCaptureExtender);
         assertNotNull(previewExtender);
 
-        assertTrue(previewExtender.isExtensionAvailable());
-        previewExtender.enableExtension();
-        assertTrue(imageCaptureExtender.isExtensionAvailable());
-        imageCaptureExtender.enableExtension();
+        assertTrue(previewExtender.isExtensionAvailable(cameraSelector));
+        previewExtender.enableExtension(cameraSelector);
+        assertTrue(imageCaptureExtender.isExtensionAvailable(cameraSelector));
+        imageCaptureExtender.enableExtension(cameraSelector);
     }
 }

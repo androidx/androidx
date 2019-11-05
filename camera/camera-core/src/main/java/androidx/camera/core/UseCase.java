@@ -26,11 +26,13 @@ import androidx.annotation.RestrictTo;
 import androidx.annotation.RestrictTo.Scope;
 import androidx.camera.core.Config.Option;
 import androidx.camera.core.UseCaseConfig.Builder;
+import androidx.core.util.Preconditions;
 
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Map;
 import java.util.Map.Entry;
+import java.util.Objects;
 import java.util.Set;
 
 /**
@@ -366,6 +368,35 @@ public abstract class UseCase {
     }
 
     /**
+     * Returns the camera ID for the currently bound camera, or throws an exception if no camera is
+     * bound.
+     * @hide
+     */
+    @RestrictTo(Scope.LIBRARY_GROUP)
+    @NonNull
+    protected String getBoundCameraId() {
+        CameraDeviceConfig deviceConfig = Preconditions.checkNotNull(getBoundDeviceConfig(), "No "
+                + "camera bound to use case: " + this);
+        return getCameraIdUnchecked(deviceConfig);
+    }
+
+    /**
+     * Checks whether the provided camera ID is the currently bound camera ID.
+     * @hide
+     */
+    @RestrictTo(Scope.LIBRARY_GROUP)
+    protected boolean isCurrentlyBoundCamera(@NonNull String cameraId) {
+        String boundCameraId = null;
+        CameraDeviceConfig deviceConfig = getBoundDeviceConfig();
+        if (deviceConfig != null) {
+            boundCameraId = getCameraIdUnchecked(deviceConfig);
+        }
+
+        // Bound camera changed. Don't attempt reset.
+        return !Objects.equals(cameraId, boundCameraId);
+    }
+
+    /**
      * Clears internal state of this use case.
      *
      * @hide
@@ -446,9 +477,11 @@ public abstract class UseCase {
     }
 
     /**
-     * Called when binding new use cases via CameraX#bindToLifecycle(LifecycleOwner,
-     * UseCase...). Override to create necessary objects like {@link android.media.ImageReader}
-     * depending on the resolution.
+     * Called when binding new use cases via {@code CameraX#bindToLifecycle(LifecycleOwner,
+     * CameraSelector, UseCase...)}.
+     *
+     * <p>Override to create necessary objects like {@link android.media.ImageReader} depending
+     * on the resolution.
      *
      * @param suggestedResolutionMap A map of the names of the {@link
      *                               android.hardware.camera2.CameraDevice} to the suggested
@@ -478,7 +511,7 @@ public abstract class UseCase {
 
     /**
      * Called when use case is binding to life cycle via
-     * CameraX#bindToLifecycle(LifecycleOwner, UseCase...).
+     * {@code CameraX#bindToLifecycle(LifecycleOwner, CameraSelector, UseCase...)}.
      *
      * @hide
      */

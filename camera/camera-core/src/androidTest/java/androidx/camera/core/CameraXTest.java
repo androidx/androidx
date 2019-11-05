@@ -58,6 +58,8 @@ import java.util.concurrent.Executors;
 @RunWith(AndroidJUnit4.class)
 public final class CameraXTest {
     private static final LensFacing CAMERA_LENS_FACING = LensFacing.BACK;
+    private static final CameraSelector CAMERA_SELECTOR =
+            new CameraSelector.Builder().requireLensFacing(CAMERA_LENS_FACING).build();
     private static final String CAMERA_ID = "0";
 
     private final Instrumentation mInstrumentation = InstrumentationRegistry.getInstrumentation();
@@ -205,7 +207,7 @@ public final class CameraXTest {
     @UiThreadTest
     public void bind_createsNewUseCaseGroup() {
         initCameraX();
-        CameraX.bindToLifecycle(mLifecycle, new FakeUseCase());
+        CameraX.bindToLifecycle(mLifecycle, CAMERA_SELECTOR, new FakeUseCase());
         // One observer is the use case group. The other observer removes the use case upon the
         // lifecycle's destruction.
         assertThat(mLifecycle.getObserverCount()).isEqualTo(2);
@@ -216,17 +218,13 @@ public final class CameraXTest {
     public void bindMultipleUseCases() {
         initCameraX();
         FakeUseCaseConfig config0 =
-                new FakeUseCaseConfig.Builder()
-                        .setTargetName("config0")
-                        .setLensFacing(CAMERA_LENS_FACING).build();
+                new FakeUseCaseConfig.Builder().setTargetName("config0").build();
         FakeUseCase fakeUseCase = new FakeUseCase(config0);
         FakeOtherUseCaseConfig config1 =
-                new FakeOtherUseCaseConfig.Builder()
-                        .setTargetName("config1")
-                        .setLensFacing(CAMERA_LENS_FACING).build();
+                new FakeOtherUseCaseConfig.Builder().setTargetName("config1").build();
         FakeOtherUseCase fakeOtherUseCase = new FakeOtherUseCase(config1);
 
-        CameraX.bindToLifecycle(mLifecycle, fakeUseCase, fakeOtherUseCase);
+        CameraX.bindToLifecycle(mLifecycle, CAMERA_SELECTOR, fakeUseCase, fakeOtherUseCase);
 
         assertThat(CameraX.isBound(fakeUseCase)).isTrue();
         assertThat(CameraX.isBound(fakeOtherUseCase)).isTrue();
@@ -237,7 +235,7 @@ public final class CameraXTest {
     public void isNotBound_afterUnbind() {
         initCameraX();
         FakeUseCase fakeUseCase = new FakeUseCase();
-        CameraX.bindToLifecycle(mLifecycle, fakeUseCase);
+        CameraX.bindToLifecycle(mLifecycle, CAMERA_SELECTOR, fakeUseCase);
 
         CameraX.unbind(fakeUseCase);
         assertThat(CameraX.isBound(fakeUseCase)).isFalse();
@@ -249,12 +247,12 @@ public final class CameraXTest {
         initCameraX();
         FakeUseCaseConfig config0 =
                 new FakeUseCaseConfig.Builder().setTargetName("config0").build();
-        CameraX.bindToLifecycle(mLifecycle, new FakeUseCase(config0));
+        CameraX.bindToLifecycle(mLifecycle, CAMERA_SELECTOR, new FakeUseCase(config0));
 
         FakeUseCaseConfig config1 =
                 new FakeUseCaseConfig.Builder().setTargetName("config1").build();
         FakeLifecycleOwner anotherLifecycle = new FakeLifecycleOwner();
-        CameraX.bindToLifecycle(anotherLifecycle, new FakeUseCase(config1));
+        CameraX.bindToLifecycle(anotherLifecycle, CAMERA_SELECTOR, new FakeUseCase(config1));
 
         // One observer is the use case group. The other observer removes the use case upon the
         // lifecycle's destruction.
@@ -270,23 +268,28 @@ public final class CameraXTest {
 
         mLifecycle.destroy();
 
-        CameraX.bindToLifecycle(mLifecycle, useCase);
+        CameraX.bindToLifecycle(mLifecycle, CAMERA_SELECTOR, useCase);
     }
 
     @Test
     @UiThreadTest
     public void noException_bindUseCases_withDifferentLensFacing() {
         initCameraX();
+        CameraSelector frontSelector =
+                new CameraSelector.Builder().requireLensFacing(LensFacing.FRONT).build();
         FakeUseCaseConfig config0 =
-                new FakeUseCaseConfig.Builder().setLensFacing(LensFacing.FRONT).build();
+                new FakeUseCaseConfig.Builder().build();
         FakeUseCase fakeUseCase = new FakeUseCase(config0);
+        CameraSelector backSelector =
+                new CameraSelector.Builder().requireLensFacing(LensFacing.BACK).build();
         FakeOtherUseCaseConfig config1 =
-                new FakeOtherUseCaseConfig.Builder().setLensFacing(LensFacing.BACK).build();
+                new FakeOtherUseCaseConfig.Builder().build();
         FakeOtherUseCase fakeOtherUseCase = new FakeOtherUseCase(config1);
 
         boolean hasException = false;
         try {
-            CameraX.bindToLifecycle(mLifecycle, fakeUseCase, fakeOtherUseCase);
+            CameraX.bindToLifecycle(mLifecycle, frontSelector, fakeUseCase);
+            CameraX.bindToLifecycle(mLifecycle, backSelector, fakeOtherUseCase);
         } catch (IllegalArgumentException e) {
             hasException = true;
         }
@@ -311,7 +314,7 @@ public final class CameraXTest {
                 new FakeUseCaseConfig.Builder().setTargetName("config0").build();
         AttachCameraFakeCase fakeUseCase = new AttachCameraFakeCase(config0);
 
-        CameraX.bindToLifecycle(mLifecycle, fakeUseCase);
+        CameraX.bindToLifecycle(mLifecycle, CAMERA_SELECTOR, fakeUseCase);
 
         assertThat(fakeUseCase.getCameraControl(mCameraId)).isEqualTo(
                 mCameraInternal.getCameraControlInternal());
@@ -325,7 +328,7 @@ public final class CameraXTest {
                 new FakeUseCaseConfig.Builder().setTargetName("config0").build();
         AttachCameraFakeCase fakeUseCase = spy(new AttachCameraFakeCase(config0));
 
-        CameraX.bindToLifecycle(mLifecycle, fakeUseCase);
+        CameraX.bindToLifecycle(mLifecycle, CAMERA_SELECTOR, fakeUseCase);
 
         Mockito.verify(fakeUseCase).onCameraControlReady(mCameraId);
     }
@@ -337,7 +340,7 @@ public final class CameraXTest {
         FakeUseCaseConfig config0 =
                 new FakeUseCaseConfig.Builder().setTargetName("config0").build();
         AttachCameraFakeCase fakeUseCase = new AttachCameraFakeCase(config0);
-        CameraX.bindToLifecycle(mLifecycle, fakeUseCase);
+        CameraX.bindToLifecycle(mLifecycle, CAMERA_SELECTOR, fakeUseCase);
 
         CameraX.unbind(fakeUseCase);
 
@@ -359,7 +362,7 @@ public final class CameraXTest {
         fakeConfigBuilder.setUseCaseEventCallback(eventCallback);
         AttachCameraFakeCase fakeUseCase = new AttachCameraFakeCase(fakeConfigBuilder.build());
 
-        CameraX.bindToLifecycle(mLifecycle, fakeUseCase);
+        CameraX.bindToLifecycle(mLifecycle, CAMERA_SELECTOR, fakeUseCase);
         Mockito.verify(eventCallback).onBind(mCameraId);
 
         CameraX.unbind(fakeUseCase);
@@ -387,33 +390,19 @@ public final class CameraXTest {
     public void canGetActiveUseCases_afterBindToLifecycle() {
         initCameraX();
         FakeUseCaseConfig config0 =
-                new FakeUseCaseConfig.Builder()
-                        .setTargetName("config0")
-                        .setLensFacing(CAMERA_LENS_FACING).build();
+                new FakeUseCaseConfig.Builder().setTargetName("config0").build();
         FakeUseCase fakeUseCase = new FakeUseCase(config0);
         FakeOtherUseCaseConfig config1 =
-                new FakeOtherUseCaseConfig.Builder()
-                        .setTargetName("config1")
-                        .setLensFacing(CAMERA_LENS_FACING).build();
+                new FakeOtherUseCaseConfig.Builder().setTargetName("config1").build();
         FakeOtherUseCase fakeOtherUseCase = new FakeOtherUseCase(config1);
 
-        CameraX.bindToLifecycle(mLifecycle, fakeUseCase, fakeOtherUseCase);
+        CameraX.bindToLifecycle(mLifecycle, CAMERA_SELECTOR, fakeUseCase, fakeOtherUseCase);
         mLifecycle.startAndResume();
 
         Collection<UseCase> useCases = CameraX.getActiveUseCases();
 
         assertThat(useCases.contains(fakeUseCase)).isTrue();
         assertThat(useCases.contains(fakeOtherUseCase)).isTrue();
-    }
-
-    @Test
-    public void canGetCameraIdWithConfig() throws CameraInfoUnavailableException {
-        initCameraX();
-        FakeUseCaseConfig.Builder fakeConfigBuilder = new FakeUseCaseConfig.Builder();
-        fakeConfigBuilder.setLensFacing(CAMERA_LENS_FACING);
-        String cameraId = CameraX.getCameraWithCameraDeviceConfig(fakeConfigBuilder.build());
-
-        assertThat(cameraId).isEqualTo(mCameraId);
     }
 
     @Test(expected = CameraInfoUnavailableException.class)
@@ -442,8 +431,7 @@ public final class CameraXTest {
 
             SessionConfig.Builder builder = new SessionConfig.Builder();
 
-            CameraDeviceConfig config = getBoundDeviceConfig();
-            String cameraId = getCameraIdUnchecked(config);
+            String cameraId = getBoundCameraId();
             attachToCamera(cameraId, builder.build());
             return suggestedResolutionMap;
         }

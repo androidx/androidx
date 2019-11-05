@@ -45,6 +45,7 @@ import androidx.camera.camera2.Camera2Config;
 import androidx.camera.camera2.impl.CameraEventCallback;
 import androidx.camera.camera2.impl.CameraEventCallbacks;
 import androidx.camera.core.AppConfig;
+import androidx.camera.core.CameraSelector;
 import androidx.camera.core.CameraX;
 import androidx.camera.core.ImageCapture;
 import androidx.camera.core.ImageCaptureConfig;
@@ -135,6 +136,8 @@ public class ExtensionTest {
                 mLensFacing);
         Preview preview = ExtensionsTestUtil.createPreviewWithEffect(mEffectMode, mLensFacing);
 
+        CameraSelector cameraSelector =
+                new CameraSelector.Builder().requireLensFacing(mLensFacing).build();
         mInstrumentation.runOnMainSync(
                 () -> {
                     // To set the update listener and Preview will change to active state.
@@ -154,7 +157,7 @@ public class ExtensionTest {
                                 }
                             }));
 
-                    CameraX.bindToLifecycle(mLifecycleOwner, preview, imageCapture);
+                    CameraX.bindToLifecycle(mLifecycleOwner, cameraSelector, preview, imageCapture);
 
                     imageCapture.takePicture(CameraXExecutors.mainThreadExecutor(),
                             mockOnImageCapturedCallback);

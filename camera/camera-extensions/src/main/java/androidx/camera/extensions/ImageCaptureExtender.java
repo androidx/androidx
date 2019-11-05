@@ -29,8 +29,8 @@ import androidx.camera.camera2.Camera2Config;
 import androidx.camera.camera2.impl.CameraEventCallback;
 import androidx.camera.camera2.impl.CameraEventCallbacks;
 import androidx.camera.core.CameraIdFilter;
-import androidx.camera.core.CameraIdFilterSet;
 import androidx.camera.core.CameraInfoUnavailableException;
+import androidx.camera.core.CameraSelector;
 import androidx.camera.core.CameraX;
 import androidx.camera.core.CaptureBundle;
 import androidx.camera.core.CaptureConfig;
@@ -39,6 +39,7 @@ import androidx.camera.core.Config;
 import androidx.camera.core.ImageCaptureConfig;
 import androidx.camera.core.LensFacing;
 import androidx.camera.core.UseCase;
+import androidx.camera.core.impl.utils.CameraSelectorUtil;
 import androidx.camera.extensions.ExtensionsErrorListener.ExtensionsErrorCode;
 import androidx.camera.extensions.ExtensionsManager.EffectMode;
 import androidx.camera.extensions.impl.CaptureProcessorImpl;
@@ -73,10 +74,13 @@ public abstract class ImageCaptureExtender {
     /**
      * Indicates whether extension function can support with {@link ImageCaptureConfig.Builder}
      *
+     * @param cameraSelector The selector that determines a camera that will be checked for the
+     *                       availability of extensions.
+     *
      * @return True if the specific extension function is supported for the camera device.
      */
-    public boolean isExtensionAvailable() {
-        LensFacing lensFacing = mBuilder.build().getLensFacing();
+    public boolean isExtensionAvailable(@NonNull CameraSelector cameraSelector) {
+        LensFacing lensFacing = cameraSelector.getLensFacing();
         Set<String> availableCameraIds = null;
         try {
             availableCameraIds = CameraUtil.getCameraIdSetWithLensFacing(lensFacing);
@@ -96,26 +100,33 @@ public abstract class ImageCaptureExtender {
      * <p>Image capture extension has dependence on preview extension. A
      * PREVIEW_EXTENSION_REQUIRED error will be thrown if corresponding preview extension is not
      * enabled together.
+     *
+     * @param cameraSelector The selector used to determine the camera for which to enable
+     *                       extensions.
      */
-    public void enableExtension() {
+    public void enableExtension(@NonNull CameraSelector cameraSelector) {
         // Add extension camera id filter to config.
         ExtensionCameraIdFilter extensionCameraIdFilter = new ExtensionCameraIdFilter(mImpl);
         CameraIdFilter currentCameraIdFilter = mBuilder.build().getCameraIdFilter(null);
+        CameraSelector.Builder selectorBuilder =
+                CameraSelector.Builder.fromSelector(cameraSelector);
         if (currentCameraIdFilter == null) {
-            mBuilder.setCameraIdFilter(extensionCameraIdFilter);
+            selectorBuilder.appendFilter(extensionCameraIdFilter);
         } else {
-            CameraIdFilterSet cameraIdFilterSet = new CameraIdFilterSet();
-            cameraIdFilterSet.addCameraIdFilter(currentCameraIdFilter);
-            cameraIdFilterSet.addCameraIdFilter(extensionCameraIdFilter);
-            mBuilder.setCameraIdFilter(cameraIdFilterSet);
+            selectorBuilder.appendFilter(currentCameraIdFilter);
+            selectorBuilder.appendFilter(extensionCameraIdFilter);
         }
 
-        String cameraId = CameraUtil.getCameraId(mBuilder.build());
+        CameraSelector selectorWithFilters = selectorBuilder.build();
+        String cameraId = CameraUtil.getCameraId(selectorWithFilters);
         if (cameraId == null) {
             // If there's no available camera id for the extender to function, just return here
             // and it will be no-ops.
             return;
         }
+
+        mBuilder.setCameraIdFilter(
+                CameraSelectorUtil.toCameraDeviceConfig(selectorWithFilters).getCameraIdFilter());
 
         CameraCharacteristics cameraCharacteristics = CameraUtil.getCameraCharacteristics(cameraId);
         mImpl.init(cameraId, cameraCharacteristics);

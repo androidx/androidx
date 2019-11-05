@@ -19,6 +19,7 @@ package androidx.camera.lifecycle;
 import android.os.Handler;
 
 import androidx.annotation.NonNull;
+import androidx.camera.core.CameraSelector;
 import androidx.camera.core.CameraX;
 import androidx.camera.core.ImageAnalysis;
 import androidx.camera.core.ImageCapture;
@@ -60,23 +61,33 @@ public class LifecycleCameraProvider {
      * <p>Currently up to 3 use cases may be bound to a {@link Lifecycle} at any time. Exceeding
      * capability of target camera device will throw an IllegalArgumentException.
      *
-     * <p>A UseCase should only be bound to a single lifecycle at a time.  Attempting to bind a
-     * UseCase to a Lifecycle when it is already bound to another Lifecycle is an error, and the
-     * UseCase binding will not change.
+     * <p>A UseCase should only be bound to a single lifecycle and camera selector a time.
+     * Attempting to bind a use case to a lifecycle when it is already bound to another lifecycle
+     * is an error, and the use case binding will not change. Attempting to bind the same use case
+     * to multiple camera selectors is also an error and will not change the binding.
+     *
+     * <p>If different use cases are bound to different camera selectors that resolve to distinct
+     * cameras, but the same lifecycle, only one of the cameras will operate at a time. The
+     * non-operating camera will not become active until it is the only camera with use cases bound.
      *
      * <p>Only {@link UseCase} bound to latest active {@link Lifecycle} can keep alive.
      * {@link UseCase} bound to other {@link Lifecycle} will be stopped.
      *
      * @param lifecycleOwner The lifecycleOwner which controls the lifecycle transitions of the use
      *                       cases.
+     * @param cameraSelector The camera selector which determines the camera to use for set of
+     *                       use cases.
      * @param useCases       The use cases to bind to a lifecycle.
      * @throws IllegalStateException If the use case has already been bound to another lifecycle
      *                               or method is not called on main thread.
+     * @throws IllegalArgumentException If the provided camera selector is unable to resolve a
+     *                                  camera to be used for the given use cases.
      */
     @SuppressWarnings("lambdaLast")
     public static void bindToLifecycle(@NonNull LifecycleOwner lifecycleOwner,
+            @NonNull CameraSelector cameraSelector,
             @NonNull UseCase... useCases) {
-        CameraX.bindToLifecycle(lifecycleOwner, useCases);
+        CameraX.bindToLifecycle(lifecycleOwner, cameraSelector, useCases);
     }
 
     /**

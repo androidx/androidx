@@ -46,6 +46,7 @@ import android.util.Size;
 import androidx.annotation.NonNull;
 import androidx.camera.camera2.Camera2AppConfig;
 import androidx.camera.core.CameraInfoUnavailableException;
+import androidx.camera.core.CameraSelector;
 import androidx.camera.core.CameraX;
 import androidx.camera.core.LensFacing;
 import androidx.camera.core.Preview;
@@ -138,15 +139,15 @@ public class PreviewExtenderTest {
         when(mockPreviewExtenderImpl.isExtensionAvailable(any(String.class),
                 any(CameraCharacteristics.class))).thenReturn(true);
 
-        PreviewConfig.Builder configBuilder = new PreviewConfig.Builder().setLensFacing(
-                LensFacing.BACK);
+        PreviewConfig.Builder configBuilder = new PreviewConfig.Builder();
 
         FakePreviewExtender fakePreviewExtender = new FakePreviewExtender(configBuilder,
                 mockPreviewExtenderImpl);
-        fakePreviewExtender.enableExtension();
+        CameraSelector cameraSelector =
+                new CameraSelector.Builder().requireLensFacing(LensFacing.BACK).build();
+        fakePreviewExtender.enableExtension(cameraSelector);
 
         Preview useCase = new Preview(configBuilder.build());
-
         mInstrumentation.runOnMainSync(new Runnable() {
             @Override
             public void run() {
@@ -154,7 +155,7 @@ public class PreviewExtenderTest {
                 useCase.setPreviewSurfaceCallback(
                         createSurfaceTextureProvider(NO_OP_SURFACE_TEXTURE_CALLBACK));
 
-                CameraX.bindToLifecycle(mFakeLifecycle, useCase);
+                CameraX.bindToLifecycle(mFakeLifecycle, cameraSelector, useCase);
             }
         });
 
@@ -215,12 +216,13 @@ public class PreviewExtenderTest {
 
         when(mockPreviewExtenderImpl.getCaptureStage()).thenReturn(fakeCaptureStageImpl);
 
-        PreviewConfig.Builder configBuilder = new PreviewConfig.Builder().setLensFacing(
-                LensFacing.BACK);
+        PreviewConfig.Builder configBuilder = new PreviewConfig.Builder();
 
         FakePreviewExtender fakePreviewExtender = new FakePreviewExtender(configBuilder,
                 mockPreviewExtenderImpl);
-        fakePreviewExtender.enableExtension();
+        CameraSelector cameraSelector =
+                new CameraSelector.Builder().requireLensFacing(LensFacing.BACK).build();
+        fakePreviewExtender.enableExtension(cameraSelector);
 
         Preview preview = new Preview(configBuilder.build());
 
@@ -231,7 +233,7 @@ public class PreviewExtenderTest {
                 preview.setPreviewSurfaceCallback(
                         createSurfaceTextureProvider(NO_OP_SURFACE_TEXTURE_CALLBACK));
 
-                CameraX.bindToLifecycle(mFakeLifecycle, preview);
+                CameraX.bindToLifecycle(mFakeLifecycle, cameraSelector, preview);
             }
         });
 
@@ -268,13 +270,13 @@ public class PreviewExtenderTest {
         when(mockPreviewExtenderImpl.isExtensionAvailable(any(String.class),
                 any(CameraCharacteristics.class))).thenReturn(true);
 
-        PreviewConfig.Builder configBuilder = new PreviewConfig.Builder().setLensFacing(
-                LensFacing.BACK);
+        PreviewConfig.Builder configBuilder = new PreviewConfig.Builder();
         FakePreviewExtender fakePreviewExtender = new FakePreviewExtender(configBuilder,
                 mockPreviewExtenderImpl);
-        fakePreviewExtender.enableExtension();
+        CameraSelector cameraSelector =
+                new CameraSelector.Builder().requireLensFacing(LensFacing.BACK).build();
+        fakePreviewExtender.enableExtension(cameraSelector);
         Preview preview = new Preview(configBuilder.build());
-
         mInstrumentation.runOnMainSync(new Runnable() {
             @Override
             public void run() {
@@ -282,7 +284,7 @@ public class PreviewExtenderTest {
                 preview.setPreviewSurfaceCallback(
                         createSurfaceTextureProvider(NO_OP_SURFACE_TEXTURE_CALLBACK));
 
-                CameraX.bindToLifecycle(mFakeLifecycle, preview);
+                CameraX.bindToLifecycle(mFakeLifecycle, cameraSelector, preview);
             }
         });
 
@@ -299,7 +301,7 @@ public class PreviewExtenderTest {
         assumeTrue(ExtensionVersion.getRuntimeVersion().compareTo(Version.VERSION_1_1) >= 0);
 
         LensFacing lensFacing = CameraX.getDefaultLensFacing();
-        PreviewConfig.Builder configBuilder = new PreviewConfig.Builder().setLensFacing(lensFacing);
+        PreviewConfig.Builder configBuilder = new PreviewConfig.Builder();
 
         PreviewExtenderImpl mockPreviewExtenderImpl = mock(PreviewExtenderImpl.class);
         when(mockPreviewExtenderImpl.isExtensionAvailable(any(), any())).thenReturn(true);
@@ -317,8 +319,10 @@ public class PreviewExtenderTest {
         // Checks the config does not include supported resolutions before applying effect mode.
         assertThat(configBuilder.build().getSupportedResolutions(null)).isNull();
 
+        CameraSelector cameraSelector =
+                new CameraSelector.Builder().requireLensFacing(lensFacing).build();
         // Checks the config includes supported resolutions after applying effect mode.
-        fakeExtender.enableExtension();
+        fakeExtender.enableExtension(cameraSelector);
         List<Pair<Integer, Size[]>> resultFormatResolutionsPairList =
                 configBuilder.build().getSupportedResolutions(null);
         assertThat(resultFormatResolutionsPairList).isNotNull();

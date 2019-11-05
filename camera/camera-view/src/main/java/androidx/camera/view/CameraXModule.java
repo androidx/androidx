@@ -35,6 +35,7 @@ import androidx.camera.core.AspectRatio;
 import androidx.camera.core.CameraInfo;
 import androidx.camera.core.CameraInfoUnavailableException;
 import androidx.camera.core.CameraOrientationUtil;
+import androidx.camera.core.CameraSelector;
 import androidx.camera.core.CameraX;
 import androidx.camera.core.FlashMode;
 import androidx.camera.core.ImageCapture;
@@ -196,13 +197,10 @@ final class CameraXModule {
         }
 
         mImageCaptureConfigBuilder.setTargetRotation(getDisplaySurfaceRotation());
-        mImageCaptureConfigBuilder.setLensFacing(mCameraLensFacing);
         mImageCapture = new ImageCapture(mImageCaptureConfigBuilder.build());
 
         mVideoCaptureConfigBuilder.setTargetRotation(getDisplaySurfaceRotation());
-        mVideoCaptureConfigBuilder.setLensFacing(mCameraLensFacing);
         mVideoCapture = new VideoCapture(mVideoCaptureConfigBuilder.build());
-        mPreviewConfigBuilder.setLensFacing(mCameraLensFacing);
 
         // Adjusts the preview resolution according to the view size and the target aspect ratio.
         int height = (int) (getMeasuredWidth() / targetAspectRatio.floatValue());
@@ -254,12 +252,15 @@ final class CameraXModule {
             }
         });
 
+        CameraSelector cameraSelector =
+                new CameraSelector.Builder().requireLensFacing(mCameraLensFacing).build();
         if (getCaptureMode() == CaptureMode.IMAGE) {
-            CameraX.bindToLifecycle(mCurrentLifecycle, mImageCapture, mPreview);
+            CameraX.bindToLifecycle(mCurrentLifecycle, cameraSelector, mImageCapture, mPreview);
         } else if (getCaptureMode() == CaptureMode.VIDEO) {
-            CameraX.bindToLifecycle(mCurrentLifecycle, mVideoCapture, mPreview);
+            CameraX.bindToLifecycle(mCurrentLifecycle, cameraSelector, mVideoCapture, mPreview);
         } else {
-            CameraX.bindToLifecycle(mCurrentLifecycle, mImageCapture, mVideoCapture, mPreview);
+            CameraX.bindToLifecycle(mCurrentLifecycle, cameraSelector, mImageCapture,
+                    mVideoCapture, mPreview);
         }
         setZoomRatio(UNITY_ZOOM_SCALE);
         mCurrentLifecycle.getLifecycle().addObserver(mCurrentLifecycleObserver);
