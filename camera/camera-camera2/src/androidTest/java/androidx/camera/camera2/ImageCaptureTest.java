@@ -332,7 +332,7 @@ public final class ImageCaptureTest {
         File saveLocation = File.createTempFile("test", ".jpg");
         saveLocation.deleteOnExit();
         Metadata metadata = new Metadata();
-        metadata.isReversedHorizontal = true;
+        metadata.setReversedHorizontal(true);
         OnImageSavedCallback callback = mock(OnImageSavedCallback.class);
         useCase.takePicture(saveLocation, metadata, mListenerExecutor, callback);
 
@@ -359,7 +359,7 @@ public final class ImageCaptureTest {
         File saveLocation = File.createTempFile("test", ".jpg");
         saveLocation.deleteOnExit();
         Metadata metadata = new Metadata();
-        metadata.isReversedVertical = true;
+        metadata.setReversedVertical(true);
         OnImageSavedCallback callback = mock(OnImageSavedCallback.class);
         useCase.takePicture(saveLocation, metadata, mListenerExecutor, callback);
 
@@ -384,7 +384,7 @@ public final class ImageCaptureTest {
         saveLocation.deleteOnExit();
         Location location = new Location("ImageCaptureTest");
         Metadata metadata = new Metadata();
-        metadata.location = location;
+        metadata.setLocation(location);
         OnImageSavedCallback callback = mock(OnImageSavedCallback.class);
         useCase.takePicture(saveLocation, metadata, mListenerExecutor, callback);
 
