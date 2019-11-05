@@ -45,6 +45,7 @@ import android.view.Surface;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
+import androidx.annotation.experimental.UseExperimental;
 import androidx.camera.camera2.impl.util.FakeRepeatingUseCase;
 import androidx.camera.core.AppConfig;
 import androidx.camera.core.CameraControlInternal;
@@ -526,6 +527,7 @@ public final class ImageCaptureTest {
     }
 
     @Test
+    @UseExperimental(markerClass = ExperimentalCamera2Interop.class)
     public void camera2InteropCaptureSessionCallbacks() throws InterruptedException {
         ImageCaptureConfig.Builder configBuilder = new ImageCaptureConfig.Builder();
         CameraCaptureSession.CaptureCallback captureCallback =

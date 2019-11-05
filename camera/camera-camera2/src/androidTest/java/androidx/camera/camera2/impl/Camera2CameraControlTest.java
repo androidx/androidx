@@ -147,11 +147,13 @@ public final class Camera2CameraControlTest {
                 mSessionConfigArgumentCaptor.capture());
         SessionConfig sessionConfig = mSessionConfigArgumentCaptor.getValue();
         Camera2Config repeatingConfig = new Camera2Config(sessionConfig.getImplementationOptions());
-        assertThat(repeatingConfig.getCaptureRequestOption(CaptureRequest.SCALER_CROP_REGION, null))
+        assertThat(repeatingConfig.getCaptureRequestOptionInternal(
+                CaptureRequest.SCALER_CROP_REGION, null))
                 .isEqualTo(rect);
 
         Camera2Config singleConfig = new Camera2Config(mCamera2CameraControl.getSessionOptions());
-        assertThat(singleConfig.getCaptureRequestOption(CaptureRequest.SCALER_CROP_REGION, null))
+        assertThat(singleConfig.getCaptureRequestOptionInternal(
+                CaptureRequest.SCALER_CROP_REGION, null))
                 .isEqualTo(rect);
     }
 
@@ -159,7 +161,7 @@ public final class Camera2CameraControlTest {
     public void defaultAFAWBMode_ShouldBeCAFWhenNotFocusLocked() {
         Camera2Config singleConfig = new Camera2Config(mCamera2CameraControl.getSessionOptions());
         assertThat(
-                singleConfig.getCaptureRequestOption(
+                singleConfig.getCaptureRequestOptionInternal(
                         CaptureRequest.CONTROL_MODE, CaptureRequest.CONTROL_MODE_OFF))
                 .isEqualTo(CaptureRequest.CONTROL_MODE_AUTO);
 
@@ -228,7 +230,7 @@ public final class Camera2CameraControlTest {
         assertAeMode(camera2Config, CONTROL_AE_MODE_ON);
 
         assertThat(
-                camera2Config.getCaptureRequestOption(
+                camera2Config.getCaptureRequestOptionInternal(
                         CaptureRequest.FLASH_MODE, FLASH_MODE_OFF))
                 .isEqualTo(FLASH_MODE_TORCH);
         assertThat(mCamera2CameraControl.isTorchOn()).isTrue();
@@ -248,7 +250,8 @@ public final class Camera2CameraControlTest {
 
         assertAeMode(camera2Config, CONTROL_AE_MODE_ON_AUTO_FLASH);
 
-        assertThat(camera2Config.getCaptureRequestOption(CaptureRequest.FLASH_MODE, -1))
+        assertThat(camera2Config.getCaptureRequestOptionInternal(
+                CaptureRequest.FLASH_MODE, -1))
                 .isEqualTo(-1);
         assertThat(mCamera2CameraControl.isTorchOn()).isFalse();
 
@@ -274,7 +277,7 @@ public final class Camera2CameraControlTest {
         Camera2Config resultCaptureConfig =
                 new Camera2Config(captureConfig.getImplementationOptions());
         assertThat(
-                resultCaptureConfig.getCaptureRequestOption(
+                resultCaptureConfig.getCaptureRequestOptionInternal(
                         CaptureRequest.CONTROL_AF_TRIGGER, null))
                 .isEqualTo(CaptureRequest.CONTROL_AF_TRIGGER_START);
     }
@@ -291,7 +294,7 @@ public final class Camera2CameraControlTest {
         Camera2Config resultCaptureConfig =
                 new Camera2Config(captureConfig.getImplementationOptions());
         assertThat(
-                resultCaptureConfig.getCaptureRequestOption(
+                resultCaptureConfig.getCaptureRequestOptionInternal(
                         CaptureRequest.CONTROL_AE_PRECAPTURE_TRIGGER, null))
                 .isEqualTo(CaptureRequest.CONTROL_AE_PRECAPTURE_TRIGGER_START);
     }
@@ -308,13 +311,13 @@ public final class Camera2CameraControlTest {
         Camera2Config resultCaptureConfig =
                 new Camera2Config(captureConfig.getImplementationOptions());
         assertThat(
-                resultCaptureConfig.getCaptureRequestOption(
+                resultCaptureConfig.getCaptureRequestOptionInternal(
                         CaptureRequest.CONTROL_AF_TRIGGER, null))
                 .isEqualTo(CaptureRequest.CONTROL_AF_TRIGGER_CANCEL);
 
         if (Build.VERSION.SDK_INT >= 23) {
             assertThat(
-                    resultCaptureConfig.getCaptureRequestOption(
+                    resultCaptureConfig.getCaptureRequestOptionInternal(
                             CaptureRequest.CONTROL_AE_PRECAPTURE_TRIGGER, null))
                     .isEqualTo(CaptureRequest.CONTROL_AE_PRECAPTURE_TRIGGER_CANCEL);
         }
@@ -332,11 +335,11 @@ public final class Camera2CameraControlTest {
         Camera2Config resultCaptureConfig =
                 new Camera2Config(captureConfig.getImplementationOptions());
         assertThat(
-                resultCaptureConfig.getCaptureRequestOption(
+                resultCaptureConfig.getCaptureRequestOptionInternal(
                         CaptureRequest.CONTROL_AF_TRIGGER, null))
                 .isEqualTo(CaptureRequest.CONTROL_AF_TRIGGER_CANCEL);
         assertThat(
-                resultCaptureConfig.getCaptureRequestOption(
+                resultCaptureConfig.getCaptureRequestOptionInternal(
                         CaptureRequest.CONTROL_AE_PRECAPTURE_TRIGGER, null))
                 .isNull();
     }
@@ -354,13 +357,13 @@ public final class Camera2CameraControlTest {
                 new Camera2Config(captureConfig.getImplementationOptions());
 
         assertThat(
-                resultCaptureConfig.getCaptureRequestOption(
+                resultCaptureConfig.getCaptureRequestOptionInternal(
                         CaptureRequest.CONTROL_AF_TRIGGER, null))
                 .isNull();
 
         if (Build.VERSION.SDK_INT >= 23) {
             assertThat(
-                    resultCaptureConfig.getCaptureRequestOption(
+                    resultCaptureConfig.getCaptureRequestOptionInternal(
                             CaptureRequest.CONTROL_AE_PRECAPTURE_TRIGGER, null))
                     .isEqualTo(CaptureRequest.CONTROL_AE_PRECAPTURE_TRIGGER_CANCEL);
         }
@@ -385,25 +388,25 @@ public final class Camera2CameraControlTest {
         // Here we verify only 3A region count is correct.  Values correctness are left to
         // FocusMeteringControlTest.
         assertThat(
-                repeatingConfig.getCaptureRequestOption(
+                repeatingConfig.getCaptureRequestOptionInternal(
                         CaptureRequest.CONTROL_AF_REGIONS, null)).hasLength(1);
         assertThat(
-                repeatingConfig.getCaptureRequestOption(
+                repeatingConfig.getCaptureRequestOptionInternal(
                         CaptureRequest.CONTROL_AE_REGIONS, null)).hasLength(1);
         assertThat(
-                repeatingConfig.getCaptureRequestOption(
+                repeatingConfig.getCaptureRequestOptionInternal(
                         CaptureRequest.CONTROL_AWB_REGIONS, null)).hasLength(1);
 
 
         Camera2Config singleConfig = new Camera2Config(mCamera2CameraControl.getSessionOptions());
         assertThat(
-                singleConfig.getCaptureRequestOption(
+                singleConfig.getCaptureRequestOptionInternal(
                         CaptureRequest.CONTROL_AF_REGIONS, null)).hasLength(1);
         assertThat(
-                singleConfig.getCaptureRequestOption(
+                singleConfig.getCaptureRequestOptionInternal(
                         CaptureRequest.CONTROL_AE_REGIONS, null)).hasLength(1);
         assertThat(
-                singleConfig.getCaptureRequestOption(
+                singleConfig.getCaptureRequestOptionInternal(
                         CaptureRequest.CONTROL_AWB_REGIONS, null)).hasLength(1);
     }
 
@@ -426,8 +429,9 @@ public final class Camera2CameraControlTest {
                 new Camera2Config(captureConfig.getImplementationOptions());
 
         // Trigger AF
-        assertThat(resultCaptureConfig.getCaptureRequestOption(CaptureRequest.CONTROL_AF_TRIGGER,
-                null)).isEqualTo(CaptureRequest.CONTROL_AF_TRIGGER_START);
+        assertThat(resultCaptureConfig.getCaptureRequestOptionInternal(
+                CaptureRequest.CONTROL_AF_TRIGGER, null))
+                .isEqualTo(CaptureRequest.CONTROL_AF_TRIGGER_START);
     }
 
     @Test
@@ -464,25 +468,25 @@ public final class Camera2CameraControlTest {
         Camera2Config repeatingConfig = new Camera2Config(sessionConfig.getImplementationOptions());
 
         assertThat(
-                repeatingConfig.getCaptureRequestOption(
+                repeatingConfig.getCaptureRequestOptionInternal(
                         CaptureRequest.CONTROL_AF_REGIONS, null)).isNull();
         assertThat(
-                repeatingConfig.getCaptureRequestOption(
+                repeatingConfig.getCaptureRequestOptionInternal(
                         CaptureRequest.CONTROL_AE_REGIONS, null)).isNull();
         assertThat(
-                repeatingConfig.getCaptureRequestOption(
+                repeatingConfig.getCaptureRequestOptionInternal(
                         CaptureRequest.CONTROL_AWB_REGIONS, null)).isNull();
 
 
         Camera2Config singleConfig = new Camera2Config(mCamera2CameraControl.getSessionOptions());
         assertThat(
-                singleConfig.getCaptureRequestOption(
+                singleConfig.getCaptureRequestOptionInternal(
                         CaptureRequest.CONTROL_AF_REGIONS, null)).isNull();
         assertThat(
-                singleConfig.getCaptureRequestOption(
+                singleConfig.getCaptureRequestOptionInternal(
                         CaptureRequest.CONTROL_AE_REGIONS, null)).isNull();
         assertThat(
-                singleConfig.getCaptureRequestOption(
+                singleConfig.getCaptureRequestOptionInternal(
                         CaptureRequest.CONTROL_AWB_REGIONS, null)).isNull();
     }
 
@@ -508,8 +512,9 @@ public final class Camera2CameraControlTest {
                 new Camera2Config(captureConfig.getImplementationOptions());
 
         // Trigger AF
-        assertThat(resultCaptureConfig.getCaptureRequestOption(CaptureRequest.CONTROL_AF_TRIGGER,
-                null)).isEqualTo(CaptureRequest.CONTROL_AF_TRIGGER_CANCEL);
+        assertThat(resultCaptureConfig.getCaptureRequestOptionInternal(
+                CaptureRequest.CONTROL_AF_TRIGGER, null))
+                .isEqualTo(CaptureRequest.CONTROL_AF_TRIGGER_CANCEL);
     }
 
     private void verifyAfMode(int expectAfMode) {
@@ -587,7 +592,7 @@ public final class Camera2CameraControlTest {
 
     private void assertAfMode(Camera2Config config, int afMode) {
         if (isAfModeSupported(afMode)) {
-            assertThat(config.getCaptureRequestOption(
+            assertThat(config.getCaptureRequestOptionInternal(
                     CaptureRequest.CONTROL_AF_MODE, null)).isEqualTo(afMode);
         } else {
             int fallbackMode;
@@ -599,14 +604,14 @@ public final class Camera2CameraControlTest {
                 fallbackMode = CONTROL_AF_MODE_OFF;
             }
 
-            assertThat(config.getCaptureRequestOption(
+            assertThat(config.getCaptureRequestOptionInternal(
                     CaptureRequest.CONTROL_AF_MODE, null)).isEqualTo(fallbackMode);
         }
     }
 
     private void assertAeMode(Camera2Config config, int aeMode) {
         if (isAeModeSupported(aeMode)) {
-            assertThat(config.getCaptureRequestOption(
+            assertThat(config.getCaptureRequestOptionInternal(
                     CaptureRequest.CONTROL_AE_MODE, null)).isEqualTo(aeMode);
         } else {
             int fallbackMode;
@@ -616,14 +621,14 @@ public final class Camera2CameraControlTest {
                 fallbackMode = CONTROL_AE_MODE_OFF;
             }
 
-            assertThat(config.getCaptureRequestOption(
+            assertThat(config.getCaptureRequestOptionInternal(
                     CaptureRequest.CONTROL_AE_MODE, null)).isEqualTo(fallbackMode);
         }
     }
 
     private void assertAwbMode(Camera2Config config, int awbMode) {
         if (isAwbModeSupported(awbMode)) {
-            assertThat(config.getCaptureRequestOption(
+            assertThat(config.getCaptureRequestOptionInternal(
                     CaptureRequest.CONTROL_AWB_MODE, null)).isEqualTo(awbMode);
         } else {
             int fallbackMode;
@@ -633,7 +638,7 @@ public final class Camera2CameraControlTest {
                 fallbackMode = CONTROL_AWB_MODE_OFF;
             }
 
-            assertThat(config.getCaptureRequestOption(
+            assertThat(config.getCaptureRequestOptionInternal(
                     CaptureRequest.CONTROL_AWB_MODE, null)).isEqualTo(fallbackMode);
         }
     }
@@ -678,7 +683,8 @@ public final class Camera2CameraControlTest {
         Camera2Config camera2Config = new Camera2Config(sessionConfig.getImplementationOptions());
 
         reset(controlUpdateCallback);
-        return camera2Config.getCaptureRequestOption(CaptureRequest.SCALER_CROP_REGION, null);
+        return camera2Config.getCaptureRequestOptionInternal(
+                CaptureRequest.SCALER_CROP_REGION, null);
     }
 
     @Test

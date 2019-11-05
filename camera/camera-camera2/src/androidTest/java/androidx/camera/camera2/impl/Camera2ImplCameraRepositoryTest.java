@@ -25,7 +25,9 @@ import android.util.Size;
 import android.view.Surface;
 
 import androidx.annotation.NonNull;
+import androidx.annotation.experimental.UseExperimental;
 import androidx.camera.camera2.Camera2Config;
+import androidx.camera.camera2.ExperimentalCamera2Interop;
 import androidx.camera.camera2.impl.util.SemaphoreReleasingCamera2Callbacks.DeviceStateCallback;
 import androidx.camera.camera2.impl.util.SemaphoreReleasingCamera2Callbacks.SessionStateCallback;
 import androidx.camera.core.CameraFactory;
@@ -81,6 +83,7 @@ public final class Camera2ImplCameraRepositoryTest {
     }
 
     @Before
+    @UseExperimental(markerClass = ExperimentalCamera2Interop.class)
     public void setUp() {
         assumeTrue(CameraUtil.deviceHasCamera());
 

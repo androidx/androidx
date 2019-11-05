@@ -29,6 +29,7 @@ dependencies {
 
     implementation("androidx.core:core:1.1.0")
     implementation("androidx.annotation:annotation:1.0.0")
+    implementation("androidx.annotation:annotation-experimental:1.0.0-beta01")
     implementation("androidx.concurrent:concurrent-futures:1.0.0")
     implementation(GUAVA_LISTENABLE_FUTURE)
 
