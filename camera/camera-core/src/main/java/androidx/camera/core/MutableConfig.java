@@ -24,7 +24,9 @@ import androidx.annotation.RestrictTo.Scope;
  * MutableConfig is a {@link Config} that can be modified.
  *
  * <p>MutableConfig is the interface used to create immutable Config objects.
+ * @hide
  */
+@RestrictTo(Scope.LIBRARY_GROUP)
 public interface MutableConfig extends Config {
 
     /**
@@ -35,9 +37,7 @@ public interface MutableConfig extends Config {
      * @param opt      The option to be added or modified
      * @param value    The value to insert for this option.
      * @param <ValueT> The type of the value being inserted.
-     * @hide
      */
-    @RestrictTo(Scope.LIBRARY_GROUP)
     <ValueT> void insertOption(Option<ValueT> opt, ValueT value);
 
     /**
@@ -47,9 +47,7 @@ public interface MutableConfig extends Config {
      * @param <ValueT> The type of the value being removed.
      * @return The value that previously existed for <code>opt</code>, or <code>null</code> if the
      * option did not exist in this configuration.
-     * @hide
      */
-    @RestrictTo(Scope.LIBRARY_GROUP)
     @Nullable
     <ValueT> ValueT removeOption(Option<ValueT> opt);
 }
