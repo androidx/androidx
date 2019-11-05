@@ -14,23 +14,11 @@
  * limitations under the License.
  */
 
-package androidx.ui.core.input
+package androidx.ui.input
 
 import android.view.KeyEvent
 import androidx.test.filters.SmallTest
 import androidx.ui.text.TextRange
-import androidx.ui.input.BackspaceKeyEditOp
-import androidx.ui.input.CommitTextEditOp
-import androidx.ui.input.DeleteSurroundingTextEditOp
-import androidx.ui.input.DeleteSurroundingTextInCodePointsEditOp
-import androidx.ui.input.EditOperation
-import androidx.ui.input.FinishComposingTextEditOp
-import androidx.ui.input.InputEventListener
-import androidx.ui.input.InputState
-import androidx.ui.input.MoveCursorEditOp
-import androidx.ui.input.SetComposingRegionEditOp
-import androidx.ui.input.SetComposingTextEditOp
-import androidx.ui.input.SetSelectionEditOp
 import com.nhaarman.mockitokotlin2.any
 import com.nhaarman.mockitokotlin2.argumentCaptor
 import com.nhaarman.mockitokotlin2.mock
@@ -54,7 +42,12 @@ class RecordingInputConnectionTest {
     @Before
     fun setup() {
         listener = mock()
-        ic = RecordingInputConnection(InputState("", TextRange(0, 0)), listener)
+        ic = RecordingInputConnection(
+            InputState(
+                "",
+                TextRange(0, 0)
+            ), listener
+        )
     }
 
     @Test

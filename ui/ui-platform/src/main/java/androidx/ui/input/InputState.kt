@@ -14,10 +14,9 @@
  * limitations under the License.
  */
 
-package androidx.ui.core.input
+package androidx.ui.input
 
 import android.view.inputmethod.ExtractedText
-import androidx.ui.input.InputState
 
 internal fun InputState.toExtractedText(): ExtractedText {
     val res = ExtractedText()
