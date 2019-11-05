@@ -32,6 +32,7 @@ import androidx.annotation.Nullable;
 import androidx.annotation.RequiresPermission;
 import androidx.annotation.UiThread;
 import androidx.camera.core.AspectRatio;
+import androidx.camera.core.Camera;
 import androidx.camera.core.CameraInfo;
 import androidx.camera.core.CameraInfoUnavailableException;
 import androidx.camera.core.CameraOrientationUtil;
@@ -88,6 +89,8 @@ final class CameraXModule {
     private long mMaxVideoDuration = CameraView.INDEFINITE_VIDEO_DURATION;
     private long mMaxVideoSize = CameraView.INDEFINITE_VIDEO_SIZE;
     private FlashMode mFlash = FlashMode.OFF;
+    @Nullable
+    private Camera mCamera;
     @Nullable
     private ImageCapture mImageCapture;
     @Nullable
@@ -255,11 +258,13 @@ final class CameraXModule {
         CameraSelector cameraSelector =
                 new CameraSelector.Builder().requireLensFacing(mCameraLensFacing).build();
         if (getCaptureMode() == CaptureMode.IMAGE) {
-            CameraX.bindToLifecycle(mCurrentLifecycle, cameraSelector, mImageCapture, mPreview);
+            mCamera = CameraX.bindToLifecycle(mCurrentLifecycle, cameraSelector, mImageCapture,
+                    mPreview);
         } else if (getCaptureMode() == CaptureMode.VIDEO) {
-            CameraX.bindToLifecycle(mCurrentLifecycle, cameraSelector, mVideoCapture, mPreview);
+            mCamera = CameraX.bindToLifecycle(mCurrentLifecycle, cameraSelector, mVideoCapture,
+                    mPreview);
         } else {
-            CameraX.bindToLifecycle(mCurrentLifecycle, cameraSelector, mImageCapture,
+            mCamera = CameraX.bindToLifecycle(mCurrentLifecycle, cameraSelector, mImageCapture,
                     mVideoCapture, mPreview);
         }
         setZoomRatio(UNITY_ZOOM_SCALE);
@@ -429,10 +434,10 @@ final class CameraXModule {
     }
 
     public void setZoomRatio(float zoomRatio) {
-        try {
-            CameraX.getCameraControl(mCameraLensFacing).setZoomRatio(zoomRatio);
-        } catch (CameraInfoUnavailableException e) {
-            Log.e(TAG, "Failed to set zoom ratio", e);
+        if (mCamera != null) {
+            mCamera.getCameraControl().setZoomRatio(zoomRatio);
+        } else {
+            Log.e(TAG, "Failed to set zoom ratio");
         }
     }
 
@@ -491,7 +496,7 @@ final class CameraXModule {
             // Remove previous use cases
             CameraX.unbind(mImageCapture, mVideoCapture, mPreview);
         }
-
+        mCamera = null;
         mCurrentLifecycle = null;
     }
 
@@ -647,6 +652,11 @@ final class CameraXModule {
      */
     void onPreviewSourceDimensUpdated(int width, int height) {
         mCameraView.onPreviewSourceDimensUpdated(width, height);
+    }
+
+    @Nullable
+    public Camera getCamera() {
+        return mCamera;
     }
 
     @NonNull
