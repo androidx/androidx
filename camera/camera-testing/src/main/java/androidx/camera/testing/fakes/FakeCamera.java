@@ -23,7 +23,9 @@ import android.view.Surface;
 import androidx.annotation.IntRange;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
+import androidx.camera.core.CameraControl;
 import androidx.camera.core.CameraControlInternal;
+import androidx.camera.core.CameraInfo;
 import androidx.camera.core.CameraInfoInternal;
 import androidx.camera.core.CameraInternal;
 import androidx.camera.core.CaptureConfig;
@@ -353,4 +355,17 @@ public class FakeCamera implements CameraInternal {
         // notifySurfaceDetached calls.
         mConfiguredDeferrableSurfaces.clear();
     }
+
+    @NonNull
+    @Override
+    public CameraControl getCameraControl() {
+        return getCameraControlInternal();
+    }
+
+    @NonNull
+    @Override
+    public CameraInfo getCameraInfo() {
+        return getCameraInfoInternal();
+    }
+
 }
