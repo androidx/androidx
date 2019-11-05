@@ -77,8 +77,10 @@ private fun computeLineHeightForEmptyText(
         density = density,
         resourceLoader = resourceLoader,
         constraints = ParagraphConstraints(width = Float.POSITIVE_INFINITY)
-    ).height.roundToInt().ipx
+    ).height.toIntPx()
 }
+
+private fun Float.toIntPx(): IntPx = ceil(this).roundToInt().ipx
 
 internal class TextFieldDelegate {
     companion object {
@@ -97,9 +99,9 @@ internal class TextFieldDelegate {
             } else {
                 // TextField want to fill the required width but if infinite width is passed,
                 // falling back to wrap-content behavior since it may be in the horizontal scroller.
-                val intrinsics = textDelegate.layoutIntrinsics()
+                textDelegate.layoutIntrinsics()
                 textDelegate.layout(Constraints.tightConstraintsForWidth(
-                    ceil(intrinsics.maxIntrinsicWidth).px.round()
+                    textDelegate.maxIntrinsicWidth
                 ))
             }
 
@@ -111,9 +113,9 @@ internal class TextFieldDelegate {
                     resourceLoader = textDelegate.resourceLoader
                 )
             } else {
-                textDelegate.height.px.round()
+                textDelegate.height
             }
-            val width = ceil(textDelegate.width).px.round()
+            val width = textDelegate.width
             return Pair(width, height)
         }
 

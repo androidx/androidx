@@ -22,6 +22,7 @@ import androidx.ui.core.Px
 import androidx.ui.core.PxBounds
 import androidx.ui.core.PxPosition
 import androidx.ui.core.px
+import androidx.ui.core.toPx
 import androidx.ui.text.TextDelegate
 import androidx.ui.text.TextRange
 import kotlin.math.max
@@ -80,7 +81,7 @@ internal fun getTextSelectionInfo(
     val startPx = selectionCoordinates.first
     val endPx = selectionCoordinates.second
 
-    val bounds = PxBounds(Px.Zero, Px.Zero, textDelegate.width.px, textDelegate.height.px)
+    val bounds = PxBounds(Px.Zero, Px.Zero, textDelegate.width.toPx(), textDelegate.height.toPx())
     if (!mode.isSelected(bounds, start = startPx, end = endPx)) {
         return null
     } else {
@@ -155,9 +156,9 @@ private fun getSelectionBorder(
     var containsWholeSelectionBorder = false
 
     val top = 0.px
-    val bottom = textDelegate.height.px
+    val bottom = textDelegate.height.toPx()
     val left = 0.px
-    val right = textDelegate.width.px
+    val right = textDelegate.width.toPx()
     // If the current text composable contains the whole selection's border, then find the exact
     // character offset of the border, and the flag checking if the composable contains the whole
     // selection's border will be set to true.

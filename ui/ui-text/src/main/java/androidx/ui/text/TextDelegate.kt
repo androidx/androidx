@@ -20,18 +20,17 @@ import androidx.annotation.RestrictTo
 import androidx.annotation.VisibleForTesting
 import androidx.ui.core.Constraints
 import androidx.ui.core.Density
+import androidx.ui.core.IntPx
 import androidx.ui.core.IntPxSize
 import androidx.ui.core.LayoutDirection
 import androidx.ui.core.PxPosition
 import androidx.ui.core.Sp
 import androidx.ui.core.constrain
 import androidx.ui.core.isInherit
-import androidx.ui.core.px
-import androidx.ui.core.round
+import androidx.ui.core.ipx
 import androidx.ui.core.sp
 import androidx.ui.engine.geometry.Offset
 import androidx.ui.engine.geometry.Rect
-import androidx.ui.engine.geometry.Size
 import androidx.ui.graphics.BlendMode
 import androidx.ui.graphics.Canvas
 import androidx.ui.graphics.Color
@@ -43,6 +42,8 @@ import androidx.ui.text.style.TextAlign
 import androidx.ui.text.style.TextDirection
 import androidx.ui.text.style.TextDirectionAlgorithm
 import androidx.ui.text.style.TextOverflow
+import kotlin.math.ceil
+import kotlin.math.roundToInt
 
 /** The default font size if none is specified. */
 private val DefaultFontSize: Sp = 14.sp
@@ -124,23 +125,24 @@ class TextDelegate(
          * The text layout is already computed.
          */
         val multiParagraph: MultiParagraph,
+
         /**
-         * The amount of space required to paint this text.
+         * The amount of space required to paint this text in IntPx.
          */
-        val size: Size,
+        val size: IntPxSize,
 
         /**
          * The minimum width provided while calculating this result.
          */
-        val minWidth: Float,
+        val minWidth: IntPx,
 
         /**
          * The maximum width provided while calculating this result.
          */
-        val maxWidth: Float
+        val maxWidth: IntPx
     ) {
         private val didOverflowHeight: Boolean get() = multiParagraph.didExceedMaxLines
-        val didOverflowWidth: Boolean get() = size.width < multiParagraph.width
+        val didOverflowWidth: Boolean get() = size.width.value < multiParagraph.width
         val hasVisualOverflow: Boolean get() = didOverflowWidth || didOverflowHeight
     }
 
@@ -172,6 +174,9 @@ class TextDelegate(
 
     private var overflowShader: Shader? = null
 
+    @VisibleForTesting
+    internal var paragraphIntrinsics: MultiParagraphIntrinsics? = null
+
     private inline fun <T> assumeLayout(block: (LayoutResult) -> T) =
         block(layoutResult ?: throw AssertionError("layout must be called first"))
 
@@ -185,57 +190,48 @@ class TextDelegate(
      *
      * Valid only after [layout] has been called.
      */
-    val minIntrinsicWidth: Float
-        get() = assumeIntrinsics { it.minIntrinsicWidth }
+    val minIntrinsicWidth: IntPx get() = assumeIntrinsics { it.minIntrinsicWidth.toIntPx() }
 
     /**
      * The width at which increasing the width of the text no longer decreases the height.
      *
      * Valid only after [layout] has been called.
      */
-    val maxIntrinsicWidth: Float
-        get() = assumeIntrinsics { it.maxIntrinsicWidth }
-
-    @VisibleForTesting
-    internal var paragraphIntrinsics: MultiParagraphIntrinsics? = null
+    val maxIntrinsicWidth: IntPx get() = assumeIntrinsics { it.maxIntrinsicWidth.toIntPx() }
 
     /**
      * The horizontal space required to paint this text.
      *
      * Valid only after [layout] has been called.
      */
-    val width: Float
-        get() = assumeLayout { it.size.width }
-
-    /**
-     * The vertical space from the top of text box to the baseline of the first line.
-     *
-     * Valid only after [layout] has been called.
-     */
-    val firstBaseline: Float
-        get() = assumeLayout { it.multiParagraph.firstBaseline }
-
-    /**
-     * The vertical space from the top of text box to the baseline of the last line.
-     *
-     * Valid only after [layout] has been called.
-     */
-    val lastBaseline: Float
-        get() = assumeLayout { it.multiParagraph.lastBaseline }
+    val width: IntPx get() = assumeLayout { it.size.width }
 
     /**
      * The vertical space required to paint this text.
      *
      * Valid only after [layout] has been called.
      */
-    val height: Float
-        get() = assumeLayout { it.size.height }
+    val height: IntPx get() = assumeLayout { it.size.height }
+
+    /**
+     * The vertical space from the top of text box to the baseline of the first line.
+     *
+     * Valid only after [layout] has been called.
+     */
+    val firstBaseline: IntPx get() = assumeLayout { it.multiParagraph.firstBaseline.toIntPx() }
+
+    /**
+     * The vertical space from the top of text box to the baseline of the last line.
+     *
+     * Valid only after [layout] has been called.
+     */
+    val lastBaseline: IntPx get() = assumeLayout { it.multiParagraph.lastBaseline.toIntPx() }
 
     init {
         assert(maxLines == null || maxLines > 0)
     }
 
-    fun layoutIntrinsics(): MultiParagraphIntrinsics {
+    fun layoutIntrinsics() {
         var intrinsics = paragraphIntrinsics ?: MultiParagraphIntrinsics(
             annotatedString = text,
             textStyle = textStyle,
@@ -245,8 +241,6 @@ class TextDelegate(
         )
 
         paragraphIntrinsics = intrinsics
-
-        return intrinsics
     }
 
     /**
@@ -256,39 +250,36 @@ class TextDelegate(
      * while still being greater than or equal to `minWidth` and less than or equal to `maxWidth`.
      */
     private fun layoutText(minWidth: Float, maxWidth: Float): MultiParagraph {
-        val paragraphIntrinsics = layoutIntrinsics()
+        layoutIntrinsics()
+        assumeIntrinsics { paragraphIntrinsics ->
+            // if minWidth == maxWidth the width is fixed.
+            //    therefore we can pass that value to our paragraph and use it
+            // if minWidth != maxWidth there is a range
+            //    then we should check if the max intrinsic width is in this range to decide the
+            //    width to be passed to Paragraph
+            //        if max intrinsic width is between minWidth and maxWidth
+            //           we can use it to layout
+            //        else if max intrinsic width is greater than maxWidth, we can only use maxWidth
+            //        else if max intrinsic width is less than minWidth, we should use minWidth
+            val width = if (minWidth == maxWidth) {
+                maxWidth
+            } else {
+                paragraphIntrinsics.maxIntrinsicWidth.coerceIn(minWidth, maxWidth)
+            }
 
-        // if minWidth == maxWidth the width is fixed.
-        //    therefore we can pass that value to our paragraph and use it
-        // if minWidth != maxWidth there is a range
-        //    then we should check if the max intrinsic width is in this range to decide the
-        //    width to be passed to Paragraph
-        //        if max intrinsic width is between minWidth and maxWidth
-        //           we can use it to layout
-        //        else if max intrinsic width is greater than maxWidth, we can only use maxWidth
-        //        else if max intrinsic width is less than minWidth, we should use minWidth
-        val width = if (minWidth == maxWidth) {
-            maxWidth
-        } else {
-            paragraphIntrinsics.maxIntrinsicWidth.coerceIn(minWidth, maxWidth)
+            return MultiParagraph(
+                intrinsics = paragraphIntrinsics,
+                maxLines = maxLines,
+                ellipsis = overflow == TextOverflow.Ellipsis,
+                constraints = ParagraphConstraints(width = width)
+            )
         }
-
-        return MultiParagraph(
-            intrinsics = paragraphIntrinsics,
-            maxLines = maxLines,
-            ellipsis = overflow == TextOverflow.Ellipsis,
-            constraints = ParagraphConstraints(width = width)
-        )
     }
 
     fun layout(constraints: Constraints) {
-        val minWidth = constraints.minWidth.value.toFloat()
+        val minWidth = constraints.minWidth
         val widthMatters = softWrap || overflow == TextOverflow.Ellipsis
-        val maxWidth = if (widthMatters) {
-            constraints.maxWidth.value.toFloat()
-        } else {
-            Float.POSITIVE_INFINITY
-        }
+        val maxWidth = if (widthMatters) constraints.maxWidth else IntPx.Infinity
 
         // If the layout result is the same one we computed before, just return the previous
         // result.
@@ -296,13 +287,11 @@ class TextDelegate(
             if (it.minWidth == minWidth && it.maxWidth == maxWidth) return@layout
         }
 
-        val multiParagraph = layoutText(minWidth, maxWidth)
+        val multiParagraph = layoutText(minWidth.value.toFloat(), maxWidth.value.toFloat())
 
         val size = constraints.constrain(
-            IntPxSize(multiParagraph.width.px.round(), multiParagraph.height.px.round())
-        ).let {
-            Size(it.width.value.toFloat(), it.height.value.toFloat())
-        }
+            IntPxSize(multiParagraph.width.toIntPx(), multiParagraph.height.toIntPx())
+        )
 
         layoutResult = LayoutResult(multiParagraph, size, minWidth, maxWidth).also {
             overflowShader = createOverflowShader(it)
@@ -323,22 +312,11 @@ class TextDelegate(
      * the [TextDelegate] constructor or to the [text] property.
      */
     fun paint(canvas: Canvas) = assumeLayout { layoutResult ->
-        // Ideally we could compute the min/max intrinsic width/height with a
-        // non-destructive operation. However, currently, computing these values
-        // will destroy state inside the painter. If that happens, we need to
-        // get back the correct state by calling layout again.
-        //
-        // TODO(abarth): Make computing the min/max intrinsic width/height
-        // a non-destructive operation.
-        //
-        // If you remove this call, make sure that changing the textAlign still
-        // works properly.
-        // TODO(qqd): Need to figure out where this constraints come from and how to make
-        // it non-null. For now Compose Text version does not need to layout text again. Comment it.
-        // layoutTextWithConstraints(constraints!!)
+        val width = layoutResult.size.width.value.toFloat()
+        val height = layoutResult.size.height.value.toFloat()
 
         if (layoutResult.hasVisualOverflow) {
-            val bounds = Rect.fromLTWH(0f, 0f, layoutResult.size.width, layoutResult.size.height)
+            val bounds = Rect.fromLTWH(0f, 0f, width, height)
             if (overflowShader != null) {
                 // This layer limits what the shader below blends with to be just the text
                 // (as opposed to the text and its background).
@@ -350,10 +328,10 @@ class TextDelegate(
         }
 
         layoutResult.multiParagraph.paint(canvas)
-        val size = layoutResult.size
+
         if (layoutResult.hasVisualOverflow) {
             if (overflowShader != null) {
-                val bounds = Rect.fromLTWH(0f, 0f, size.width, size.height)
+                val bounds = Rect.fromLTWH(0f, 0f, width, height)
                 val paint = Paint()
                 paint.blendMode = BlendMode.multiply
                 paint.shader = overflowShader
@@ -478,13 +456,15 @@ private fun TextDelegate.createOverflowShader(
 
         val fadeWidth = paragraph.maxIntrinsicWidth
         val fadeHeight = paragraph.height
+        val width = layoutResult.size.width.value.toFloat()
+
         if (layoutResult.didOverflowWidth) {
             // FIXME: Should only fade the last line, i.e., should use last line's direction.
             // (b/139496055)
             val (fadeStart, fadeEnd) = if (layoutDirection == LayoutDirection.Rtl) {
                 Pair(fadeWidth, 0.0f)
             } else {
-                Pair(layoutResult.size.width - fadeWidth, layoutResult.size.width)
+                Pair(width - fadeWidth, width)
             }
             LinearGradientShader(
                 Offset(fadeStart, 0.0f),
@@ -492,7 +472,7 @@ private fun TextDelegate.createOverflowShader(
                 listOf(Color(0xFFFFFFFF), Color(0x00FFFFFF))
             )
         } else {
-            val fadeEnd = layoutResult.size.height
+            val fadeEnd = layoutResult.size.height.value.toFloat()
             val fadeStart = fadeEnd - fadeHeight
             LinearGradientShader(
                 Offset(0.0f, fadeStart),
@@ -520,3 +500,5 @@ internal fun resolveTextDirectionAlgorithm(
             LayoutDirection.Rtl -> TextDirectionAlgorithm.ContentOrRtl
         }
 }
+
+private fun Float.toIntPx(): IntPx = ceil(this).roundToInt().ipx
