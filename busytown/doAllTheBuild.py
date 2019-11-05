@@ -48,7 +48,9 @@ def runCommand(commandText):
 
 def runGradleBuilds():
     runCommand(" ".join([preargs + distarg, androidxGradleCommand, postargs]))
+    runCommand(" ".join([preargs + distarg, androidxGradleCommand, "-PdisallowExecution", postargs]))
     runCommand(" ".join([preargs + distargC, composeGradleCommand, postargs]))
+    runCommand(" ".join([preargs + distargC, composeGradleCommand, "-PdisallowExecution", postargs]))
 
 def mergeAggregateBuildInfoFiles() :
     androidxBuildInfo = json.load(open("androidx_aggregate_build_info.txt"))["artifacts"]
