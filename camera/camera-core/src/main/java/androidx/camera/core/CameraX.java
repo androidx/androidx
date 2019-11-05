@@ -484,6 +484,7 @@ public final class CameraX {
     }
 
     /**
+     * TODO(b/142844259): Remove/hide this API after the bindToLifecycle can return the Camera.
      * Returns the camera info for the camera with the given lens facing.
      *
      * @param lensFacing the lens facing of the camera
@@ -505,6 +506,7 @@ public final class CameraX {
     }
 
     /**
+     * TODO(b/142844259): Remove/hide this API after the bindToLifecycle can return the Camera.
      * Returns the camera control for the camera with the given lens facing.
      *
      * @param lensFacing the lens facing of the camera

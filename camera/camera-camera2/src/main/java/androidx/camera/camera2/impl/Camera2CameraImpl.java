@@ -36,10 +36,11 @@ import androidx.annotation.Nullable;
 import androidx.annotation.WorkerThread;
 import androidx.camera.camera2.impl.annotation.CameraExecutor;
 import androidx.camera.camera2.impl.compat.CameraManagerCompat;
+import androidx.camera.core.CameraControl;
 import androidx.camera.core.CameraControlInternal;
 import androidx.camera.core.CameraDeviceStateCallbacks;
+import androidx.camera.core.CameraInfo;
 import androidx.camera.core.CameraInfoInternal;
-import androidx.camera.core.CameraInfoUnavailableException;
 import androidx.camera.core.CameraInternal;
 import androidx.camera.core.CaptureConfig;
 import androidx.camera.core.DeferrableSurface;
@@ -97,9 +98,7 @@ final class Camera2CameraImpl implements CameraInternal {
     /** Handle to the camera service. */
     private final CameraManagerCompat mCameraManager;
 
-    private final Object mCameraInfoLock = new Object();
     /** The handler for camera callbacks and use case state management calls. */
-
     @SuppressWarnings("WeakerAccess") /* synthetic accessor */
     final Handler mHandler;
     @CameraExecutor
@@ -119,9 +118,7 @@ final class Camera2CameraImpl implements CameraInternal {
     private final Camera2CameraControl mCameraControlInternal;
     private final StateCallback mStateCallback = new StateCallback();
     /** Information about the characteristics of this camera */
-    // Nullable because this is lazily instantiated
-    @GuardedBy("mCameraInfoLock")
-    @Nullable
+    @NonNull
     private CameraInfoInternal mCameraInfoInternal;
     /** The handle to the opened camera. */
     @Nullable
@@ -168,6 +165,8 @@ final class Camera2CameraImpl implements CameraInternal {
      *                                   that are available to be opened on the device.
      * @param handler                    the handler for the thread on which all camera
      *                                   operations run
+     * @throws IllegalStateException if the {@link CameraCharacteristics} is unavailable. This
+     *                               could occur if the camera was disconnected.
      */
     Camera2CameraImpl(CameraManagerCompat cameraManager, String cameraId,
             @NonNull Observable<Integer> availableCamerasObservable, Handler handler) {
@@ -185,10 +184,11 @@ final class Camera2CameraImpl implements CameraInternal {
                     mCameraManager.unwrap().getCameraCharacteristics(mCameraId);
             mCameraControlInternal = new Camera2CameraControl(cameraCharacteristics,
                     executorScheduler, executorScheduler, new ControlUpdateListenerInternal());
-            @SuppressWarnings("ConstantConditions") /* characteristic on all devices */
-            int supportedHardwareLevel = cameraCharacteristics.get(
-                    CameraCharacteristics.INFO_SUPPORTED_HARDWARE_LEVEL);
-            mCaptureSessionBuilder.setSupportedHardwareLevel(supportedHardwareLevel);
+            mCameraInfoInternal = new Camera2CameraInfo(cameraCharacteristics,
+                    mCameraControlInternal.getZoomControl());
+            Camera2CameraInfo camera2CameraInfo = (Camera2CameraInfo) mCameraInfoInternal;
+            mCaptureSessionBuilder.setSupportedHardwareLevel(
+                    camera2CameraInfo.getSupportedHardwareLevel());
         } catch (CameraAccessException e) {
             throw new IllegalStateException("Cannot access camera", e);
         }
@@ -373,14 +373,9 @@ final class Camera2CameraImpl implements CameraInternal {
                         + "error) state. Current state: "
                         + mState + " (error: " + getErrorMessage(mCameraDeviceError) + ")");
 
-        boolean isLegacyDevice = false;
-        try {
-            Camera2CameraInfo camera2CameraInfo = (Camera2CameraInfo) getCameraInfoInternal();
-            isLegacyDevice = camera2CameraInfo.getSupportedHardwareLevel()
-                    == CameraCharacteristics.INFO_SUPPORTED_HARDWARE_LEVEL_LEGACY;
-        } catch (CameraInfoUnavailableException e) {
-            Log.w(TAG, "Check legacy device failed.", e);
-        }
+        Camera2CameraInfo camera2CameraInfo = (Camera2CameraInfo) getCameraInfoInternal();
+        boolean isLegacyDevice = camera2CameraInfo.getSupportedHardwareLevel()
+                == CameraCharacteristics.INFO_SUPPORTED_HARDWARE_LEVEL_LEGACY;
 
         // TODO: Check if any sessions have been previously configured. We can probably skip
         // configAndClose if there haven't been any sessions configured yet.
@@ -848,16 +843,8 @@ final class Camera2CameraImpl implements CameraInternal {
     /** Returns an interface to retrieve characteristics of the camera. */
     @NonNull
     @Override
-    public CameraInfoInternal getCameraInfoInternal() throws CameraInfoUnavailableException {
-        synchronized (mCameraInfoLock) {
-            if (mCameraInfoInternal == null) {
-                // Lazily instantiate camera info
-                mCameraInfoInternal = new Camera2CameraInfo(mCameraManager.unwrap(), mCameraId,
-                        mCameraControlInternal.getZoomControl());
-            }
-
-            return mCameraInfoInternal;
-        }
+    public CameraInfoInternal getCameraInfoInternal() {
+        return mCameraInfoInternal;
     }
 
     /** Opens the camera device */
@@ -1072,6 +1059,18 @@ final class Camera2CameraImpl implements CameraInternal {
     @Override
     public String toString() {
         return String.format(Locale.US, "Camera@%x[id=%s]", hashCode(), mCameraId);
+    }
+
+    @NonNull
+    @Override
+    public CameraControl getCameraControl() {
+        return getCameraControlInternal();
+    }
+
+    @NonNull
+    @Override
+    public CameraInfo getCameraInfo() {
+        return getCameraInfoInternal();
     }
 
     enum InternalState {
