@@ -21,15 +21,21 @@ import static com.google.common.truth.Truth.assertThat;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
+import android.content.Context;
 import android.media.Image;
 import android.os.Build;
 import android.os.Handler;
 import android.os.HandlerThread;
-import android.util.Size;
 
 import androidx.annotation.NonNull;
 import androidx.camera.core.impl.utils.executor.CameraXExecutors;
+import androidx.camera.testing.fakes.FakeAppConfig;
+import androidx.camera.testing.fakes.FakeCamera;
+import androidx.camera.testing.fakes.FakeCameraFactory;
+import androidx.camera.testing.fakes.FakeLifecycleOwner;
+import androidx.test.core.app.ApplicationProvider;
 import androidx.test.filters.MediumTest;
+import androidx.test.platform.app.InstrumentationRegistry;
 
 import org.junit.After;
 import org.junit.Before;
@@ -42,9 +48,8 @@ import org.robolectric.shadow.api.Shadow;
 import org.robolectric.shadows.ShadowLooper;
 
 import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
+import java.util.concurrent.ExecutionException;
 import java.util.concurrent.Executor;
 
 /**
@@ -57,7 +62,6 @@ import java.util.concurrent.Executor;
         ShadowImageReader.class})
 public class ImageAnalysisTest {
 
-    private static final Size DEFAULT_RESOLUTION = new Size(640, 480);
     private static final int QUEUE_DEPTH = 8;
     private static final Image MOCK_IMAGE_1 = createMockImage(1);
     private static final Image MOCK_IMAGE_2 = createMockImage(2);
@@ -69,26 +73,39 @@ public class ImageAnalysisTest {
     private List<Image> mImagesReceived;
     private ImageAnalysis mImageAnalysis;
 
+    private HandlerThread mBackgroundThread;
+
     @Before
     public void setUp() {
         HandlerThread callbackThread = new HandlerThread("Callback");
         callbackThread.start();
         mCallbackHandler = new Handler(callbackThread.getLooper());
 
-        HandlerThread backgroundThread = new HandlerThread("Background");
-        backgroundThread.start();
-        mBackgroundHandler = new Handler(backgroundThread.getLooper());
+        mBackgroundThread = new HandlerThread("Background");
+        mBackgroundThread.start();
+        mBackgroundHandler = new Handler(mBackgroundThread.getLooper());
         mBackgroundExecutor = CameraXExecutors.newHandlerExecutor(mBackgroundHandler);
 
         mImagesReceived = new ArrayList<>();
 
         ShadowImageReader.clear();
+
+        FakeCameraFactory cameraFactory = new FakeCameraFactory();
+        cameraFactory.insertDefaultBackCamera(ShadowCameraX.DEFAULT_CAMERA_ID,
+                () -> new FakeCamera(ShadowCameraX.DEFAULT_CAMERA_ID));
+
+        AppConfig appConfig = AppConfig.Builder.fromConfig(
+                FakeAppConfig.create()).setCameraFactory(cameraFactory).build();
+
+        Context context = ApplicationProvider.getApplicationContext();
+        CameraX.initialize(context, appConfig);
     }
 
     @After
-    public void tearDown() {
-        mImageAnalysis.clear();
+    public void tearDown() throws ExecutionException, InterruptedException {
+        InstrumentationRegistry.getInstrumentation().runOnMainSync(CameraX::unbindAll);
         mImagesReceived.clear();
+        CameraX.shutdown().get();
     }
 
     @Test
@@ -212,9 +229,13 @@ public class ImageAnalysisTest {
                     }
                 });
 
-        Map<String, Size> suggestedResolutionMap = new HashMap<>();
-        suggestedResolutionMap.put(ShadowCameraX.DEFAULT_CAMERA_ID, DEFAULT_RESOLUTION);
-        mImageAnalysis.updateSuggestedResolution(suggestedResolutionMap);
+        FakeLifecycleOwner lifecycleOwner = new FakeLifecycleOwner();
+        CameraSelector cameraSelector =
+                new CameraSelector.Builder().requireLensFacing(LensFacing.BACK).build();
+        InstrumentationRegistry.getInstrumentation().runOnMainSync(() -> {
+            CameraX.bindToLifecycle(lifecycleOwner, cameraSelector, mImageAnalysis);
+            lifecycleOwner.startAndResume();
+        });
     }
 
     /**

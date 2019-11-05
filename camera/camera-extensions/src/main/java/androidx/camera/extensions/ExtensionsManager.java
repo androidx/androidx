@@ -22,6 +22,7 @@ import android.util.Log;
 import androidx.annotation.GuardedBy;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
+import androidx.camera.core.CameraSelector;
 import androidx.camera.core.CameraX;
 import androidx.camera.core.ImageCapture;
 import androidx.camera.core.ImageCaptureConfig;
@@ -188,7 +189,8 @@ public final class ExtensionsManager {
     private static boolean checkImageCaptureExtensionCapability(EffectMode effectMode,
             LensFacing lensFacing) {
         ImageCaptureConfig.Builder builder = new ImageCaptureConfig.Builder();
-        builder.setLensFacing(lensFacing);
+        CameraSelector selector =
+                new CameraSelector.Builder().requireLensFacing(lensFacing).build();
         ImageCaptureExtender extender;
 
         switch (effectMode) {
@@ -213,7 +215,7 @@ public final class ExtensionsManager {
                 return false;
         }
 
-        return extender.isExtensionAvailable();
+        return extender.isExtensionAvailable(selector);
     }
 
     /**
@@ -245,7 +247,8 @@ public final class ExtensionsManager {
     private static boolean checkPreviewExtensionCapability(EffectMode effectMode,
             LensFacing lensFacing) {
         PreviewConfig.Builder builder = new PreviewConfig.Builder();
-        builder.setLensFacing(lensFacing);
+        CameraSelector cameraSelector =
+                new CameraSelector.Builder().requireLensFacing(lensFacing).build();
         PreviewExtender extender;
 
         switch (effectMode) {
@@ -270,7 +273,7 @@ public final class ExtensionsManager {
                 return false;
         }
 
-        return extender.isExtensionAvailable();
+        return extender.isExtensionAvailable(cameraSelector);
     }
 
     private ExtensionsManager() {

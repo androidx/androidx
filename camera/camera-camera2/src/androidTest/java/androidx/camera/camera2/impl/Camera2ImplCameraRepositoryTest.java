@@ -72,6 +72,7 @@ public final class Camera2ImplCameraRepositoryTest {
     private CameraFactory mCameraFactory;
     private CountDownLatch mLatchForDeviceClose;
     private CameraDevice.StateCallback mDeviceStateCallback;
+    private String mCameraId;
 
     private String getCameraIdForLensFacingUnchecked(LensFacing lensFacing) {
         try {
@@ -112,12 +113,10 @@ public final class Camera2ImplCameraRepositoryTest {
         mCameraRepository.init(mCameraFactory);
         mUseCaseGroup = new UseCaseGroup();
 
-        FakeUseCaseConfig.Builder configBuilder =
-                new FakeUseCaseConfig.Builder()
-                        .setLensFacing(LensFacing.BACK);
+        FakeUseCaseConfig.Builder configBuilder = new FakeUseCaseConfig.Builder();
         new Camera2Config.Extender(configBuilder).setDeviceStateCallback(mDeviceStateCallback);
         mConfig = configBuilder.build();
-        String mCameraId = getCameraIdForLensFacingUnchecked(mConfig.getLensFacing());
+        mCameraId = getCameraIdForLensFacingUnchecked(LensFacing.BACK);
         mUseCase = new CallbackAttachingFakeUseCase(mConfig, mCameraId);
         mUseCaseGroup.addUseCase(mUseCase);
     }
@@ -136,9 +135,7 @@ public final class Camera2ImplCameraRepositoryTest {
 
     @Test
     public void cameraDeviceCallsAreForwardedToCallback() throws InterruptedException {
-        mUseCase.addStateChangeCallback(
-                mCameraRepository.getCamera(
-                        getCameraIdForLensFacingUnchecked(mConfig.getLensFacing())));
+        mUseCase.addStateChangeCallback(mCameraRepository.getCamera(mCameraId));
         mUseCase.doNotifyActive();
         mCameraRepository.onGroupActive(mUseCaseGroup);
 
@@ -153,9 +150,7 @@ public final class Camera2ImplCameraRepositoryTest {
 
     @Test
     public void cameraSessionCallsAreForwardedToCallback() throws InterruptedException {
-        mUseCase.addStateChangeCallback(
-                mCameraRepository.getCamera(
-                        getCameraIdForLensFacingUnchecked(mConfig.getLensFacing())));
+        mUseCase.addStateChangeCallback(mCameraRepository.getCamera(mCameraId));
         mUseCase.doNotifyActive();
         mCameraRepository.onGroupActive(mUseCaseGroup);
 
@@ -194,7 +189,6 @@ public final class Camera2ImplCameraRepositoryTest {
         @Override
         protected UseCaseConfig.Builder<?, ?, ?> getDefaultBuilder(LensFacing lensFacing) {
             return new FakeUseCaseConfig.Builder()
-                    .setLensFacing(lensFacing)
                     .setSessionOptionUnpacker(new Camera2SessionOptionUnpacker());
         }
 

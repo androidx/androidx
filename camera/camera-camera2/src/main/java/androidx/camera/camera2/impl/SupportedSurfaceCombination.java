@@ -210,10 +210,11 @@ final class SupportedSurfaceCombination {
             // Attach SurfaceConfig of original use cases since it will impact the new use cases
             if (originalUseCases != null) {
                 for (UseCase useCase : originalUseCases) {
-                    CameraDeviceConfig config = (CameraDeviceConfig) useCase.getUseCaseConfig();
+                    CameraDeviceConfig deviceConfig =
+                            Preconditions.checkNotNull(useCase.getBoundDeviceConfig());
                     String useCaseCameraId;
                     try {
-                        useCaseCameraId = CameraX.getCameraWithCameraDeviceConfig(config);
+                        useCaseCameraId = CameraX.getCameraWithCameraDeviceConfig(deviceConfig);
                     } catch (CameraInfoUnavailableException e) {
                         throw new IllegalArgumentException(
                                 "Unable to get camera id for the camera device config.", e);

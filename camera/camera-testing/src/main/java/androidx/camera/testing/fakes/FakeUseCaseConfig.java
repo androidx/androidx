@@ -35,7 +35,8 @@ import java.util.UUID;
 
 /** A fake configuration for {@link FakeUseCase}. */
 public class FakeUseCaseConfig
-        implements UseCaseConfig<FakeUseCase>, CameraDeviceConfig {
+        implements UseCaseConfig<FakeUseCase>,
+        CameraDeviceConfig { // TODO(b/142840814): Remove device config in favor of CameraSelector
 
     private final Config mConfig;
 
@@ -226,7 +227,6 @@ public class FakeUseCaseConfig
         public Builder() {
             mOptionsBundle = MutableOptionsBundle.create();
             setTargetClass(FakeUseCase.class);
-            setLensFacing(LensFacing.BACK);
         }
 
         @Override

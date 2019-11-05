@@ -207,7 +207,8 @@ public class ImageCapture extends UseCase {
     }
 
     @SuppressWarnings("WeakerAccess") /* synthetic accessor */
-    SessionConfig.Builder createPipeline(ImageCaptureConfig config, Size resolution) {
+    SessionConfig.Builder createPipeline(@NonNull String cameraId,
+            @NonNull ImageCaptureConfig config, @NonNull Size resolution) {
         Threads.checkMainThread();
         SessionConfig.Builder sessionConfigBuilder = SessionConfig.Builder.createFrom(config);
         sessionConfigBuilder.addRepeatingCameraCaptureCallback(mSessionCallbackChecker);
@@ -273,10 +274,14 @@ public class ImageCapture extends UseCase {
             public void onError(@NonNull SessionConfig sessionConfig,
                     @NonNull SessionConfig.SessionError error) {
                 clearPipeline();
-                String cameraId = getCameraIdUnchecked(config);
-                mSessionConfigBuilder = createPipeline(config, resolution);
-                attachToCamera(cameraId, mSessionConfigBuilder.build());
-                notifyReset();
+                // Ensure the bound camera has not changed before resetting.
+                // TODO(b/143915543): Ensure this never gets called by a camera that is not bound
+                //  to this use case so we don't need to do this check.
+                if (isCurrentlyBoundCamera(cameraId)) {
+                    mSessionConfigBuilder = createPipeline(cameraId, config, resolution);
+                    attachToCamera(cameraId, mSessionConfigBuilder.build());
+                    notifyReset();
+                }
             }
         });
 
@@ -330,7 +335,7 @@ public class ImageCapture extends UseCase {
     }
 
     private CameraControlInternal getCurrentCameraControl() {
-        String cameraId = getCameraIdUnchecked(mConfig);
+        String cameraId = getBoundCameraId();
         return getCameraControl(cameraId);
     }
 
@@ -585,7 +590,19 @@ public class ImageCapture extends UseCase {
     private void sendImageCaptureRequest(
             @Nullable Executor listenerExecutor, OnImageCapturedCallback callback) {
 
-        String cameraId = getCameraIdUnchecked(mConfig);
+        String cameraId;
+        try {
+            // TODO(b/143734846): From here on, the image capture request should be
+            //  self-contained and use this camera ID for everything. Currently the pre-capture
+            //  sequence does not follow this approach and could fail if this use case is unbound
+            //  or unbound to a different camera in the middle of pre-capture.
+            cameraId = getBoundCameraId();
+        } catch (Throwable e) {
+            // Not bound. Notify callback.
+            callback.onError(ImageCaptureError.INVALID_CAMERA,
+                    "Not bound to a valid Camera [" + ImageCapture.this + "]", e);
+            return;
+        }
 
         // Get the relative rotation or default to 0 if the camera info is unavailable
         int relativeRotation = 0;
@@ -708,7 +725,7 @@ public class ImageCapture extends UseCase {
     @RestrictTo(Scope.LIBRARY_GROUP)
     protected Map<String, Size> onSuggestedResolutionUpdated(
             @NonNull Map<String, Size> suggestedResolutionMap) {
-        String cameraId = getCameraIdUnchecked(mConfig);
+        String cameraId = getBoundCameraId();
         Size resolution = suggestedResolutionMap.get(cameraId);
         if (resolution == null) {
             throw new IllegalArgumentException(
@@ -724,7 +741,7 @@ public class ImageCapture extends UseCase {
             mImageReader.close();
         }
 
-        mSessionConfigBuilder = createPipeline(mConfig, resolution);
+        mSessionConfigBuilder = createPipeline(cameraId, mConfig, resolution);
 
         attachToCamera(cameraId, mSessionConfigBuilder.build());
 
@@ -1052,6 +1069,11 @@ public class ImageCapture extends UseCase {
          * An error indicating the request cannot be done due to camera is closed.
          */
         CAMERA_CLOSED,
+
+        /**
+         * An error indicating this ImageCapture is not bound to a valid camera.
+         */
+        INVALID_CAMERA
     }
 
     /**

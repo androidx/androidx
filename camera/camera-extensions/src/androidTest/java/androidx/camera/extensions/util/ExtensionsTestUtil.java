@@ -24,14 +24,15 @@ import android.hardware.camera2.CameraAccessException;
 import android.hardware.camera2.CameraCharacteristics;
 
 import androidx.annotation.NonNull;
-import androidx.camera.core.CameraDeviceConfig;
 import androidx.camera.core.CameraInfoUnavailableException;
+import androidx.camera.core.CameraSelector;
 import androidx.camera.core.CameraX;
 import androidx.camera.core.ImageCapture;
 import androidx.camera.core.ImageCaptureConfig;
 import androidx.camera.core.LensFacing;
 import androidx.camera.core.Preview;
 import androidx.camera.core.PreviewConfig;
+import androidx.camera.core.impl.utils.CameraSelectorUtil;
 import androidx.camera.extensions.AutoImageCaptureExtender;
 import androidx.camera.extensions.AutoPreviewExtender;
 import androidx.camera.extensions.BeautyImageCaptureExtender;
@@ -118,8 +119,9 @@ public class ExtensionsTestUtil {
     @NonNull
     public static ImageCaptureConfig.Builder createImageCaptureConfigBuilderWithEffect(
             @NonNull EffectMode effectMode, @NonNull LensFacing lensFacing) {
-        ImageCaptureConfig.Builder builder =
-                new ImageCaptureConfig.Builder().setLensFacing(lensFacing);
+        ImageCaptureConfig.Builder builder = new ImageCaptureConfig.Builder();
+        CameraSelector selector =
+                new CameraSelector.Builder().requireLensFacing(lensFacing).build();
         ImageCaptureExtender extender = null;
 
         switch (effectMode) {
@@ -143,8 +145,8 @@ public class ExtensionsTestUtil {
         // Applies effect configs if it is not normal mode.
         if (effectMode != EffectMode.NORMAL) {
             assertNotNull(extender);
-            assertTrue(extender.isExtensionAvailable());
-            extender.enableExtension();
+            assertTrue(extender.isExtensionAvailable(selector));
+            extender.enableExtension(selector);
         }
 
         return builder;
@@ -162,8 +164,9 @@ public class ExtensionsTestUtil {
     public static PreviewConfig.Builder createPreviewConfigBuilderWithEffect(
             @NonNull EffectMode effectMode,
             @NonNull LensFacing lensFacing) {
-        PreviewConfig.Builder builder =
-                new PreviewConfig.Builder().setLensFacing(lensFacing);
+        PreviewConfig.Builder builder = new PreviewConfig.Builder();
+        CameraSelector selector =
+                new CameraSelector.Builder().requireLensFacing(lensFacing).build();
         PreviewExtender extender = null;
 
         switch (effectMode) {
@@ -187,8 +190,8 @@ public class ExtensionsTestUtil {
         // Applies effect configs if it is not normal mode.
         if (effectMode != EffectMode.NORMAL) {
             assertNotNull(extender);
-            assertTrue(extender.isExtensionAvailable());
-            extender.enableExtension();
+            assertTrue(extender.isExtensionAvailable(selector));
+            extender.enableExtension(selector);
         }
 
         return builder;
@@ -299,11 +302,11 @@ public class ExtensionsTestUtil {
         }
         assertNotNull(impl);
 
-        ImageCaptureConfig.Builder configBuilder = new ImageCaptureConfig.Builder().setLensFacing(
-                lensFacing);
+        CameraSelector cameraSelector =
+                new CameraSelector.Builder().requireLensFacing(lensFacing).build();
 
         String cameraId = CameraX.getCameraWithCameraDeviceConfig(
-                ((CameraDeviceConfig) configBuilder.build()));
+                CameraSelectorUtil.toCameraDeviceConfig(cameraSelector));
         CameraCharacteristics cameraCharacteristics =
                 CameraUtil.getCameraManager().getCameraCharacteristics(
                         CameraX.getCameraWithLensFacing(lensFacing));
@@ -346,10 +349,11 @@ public class ExtensionsTestUtil {
         }
         assertNotNull(impl);
 
-        PreviewConfig.Builder configBuilder = new PreviewConfig.Builder().setLensFacing(lensFacing);
+        CameraSelector cameraSelector =
+                new CameraSelector.Builder().requireLensFacing(lensFacing).build();
 
         String cameraId = CameraX.getCameraWithCameraDeviceConfig(
-                ((CameraDeviceConfig) configBuilder.build()));
+                CameraSelectorUtil.toCameraDeviceConfig(cameraSelector));
         CameraCharacteristics cameraCharacteristics =
                 CameraUtil.getCameraManager().getCameraCharacteristics(
                         CameraX.getCameraWithLensFacing(lensFacing));

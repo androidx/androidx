@@ -24,7 +24,9 @@ import android.util.Size
 import android.view.ViewGroup
 import androidx.annotation.experimental.UseExperimental
 import androidx.camera.camera2.Camera2Config
+
 import androidx.camera.camera2.ExperimentalCamera2Interop
+import androidx.camera.core.CameraSelector
 import androidx.camera.core.ImageCapture
 import androidx.camera.core.ImageCaptureConfig
 import androidx.camera.core.LensFacing
@@ -79,7 +81,8 @@ internal fun cameraXOpenCamera(
         if (params.cameraXDeviceStateCallback != null &&
             params.cameraXPreviewSessionStateCallback != null) {
             params.cameraXPreviewConfig =
-                cameraXPreviewUseCaseBuilder(params.id, testConfig.focusMode,
+                cameraXPreviewUseCaseBuilder(
+                    testConfig.focusMode,
                     params.cameraXDeviceStateCallback!!,
                     params.cameraXPreviewSessionStateCallback!!)
         }
@@ -117,6 +120,10 @@ internal fun cameraXOpenCamera(
                 })
         }
 
+        // TODO: As of 0.3.0 CameraX can only use front and back cameras.
+        //  Update in future versions
+        val cameraXcameraID = if (params.id.equals("0")) LensFacing.BACK else LensFacing.FRONT
+        val cameraSelector = CameraSelector.Builder().requireLensFacing(cameraXcameraID).build()
         when (testConfig.currentRunningTest) {
             //  Only the preview is required
             TestType.PREVIEW,
@@ -124,7 +131,10 @@ internal fun cameraXOpenCamera(
             TestType.MULTI_SWITCH -> {
                 params.timer.openStart = System.currentTimeMillis()
                 activity.runOnUiThread {
-                    LifecycleCameraProvider.bindToLifecycle(lifecycleOwner, previewUseCase)
+                    LifecycleCameraProvider.bindToLifecycle(
+                        lifecycleOwner, cameraSelector,
+                        previewUseCase
+                    )
                     params.cameraXLifecycle.start()
                 }
             }
@@ -136,7 +146,8 @@ internal fun cameraXOpenCamera(
                 if (params.cameraXDeviceStateCallback != null &&
                     params.cameraXCaptureSessionCallback != null) {
                     params.cameraXCaptureConfig =
-                        cameraXImageCaptureUseCaseBuilder(params.id, testConfig.focusMode,
+                        cameraXImageCaptureUseCaseBuilder(
+                            testConfig.focusMode,
                             params.cameraXDeviceStateCallback!!,
                             params.cameraXCaptureSessionCallback!!)
                 }
@@ -144,9 +155,12 @@ internal fun cameraXOpenCamera(
                 params.cameraXImageCaptureUseCase = ImageCapture(params.cameraXCaptureConfig)
 
                 params.timer.openStart = System.currentTimeMillis()
+
                 activity.runOnUiThread {
-                    LifecycleCameraProvider.bindToLifecycle(lifecycleOwner, previewUseCase,
-                        params.cameraXImageCaptureUseCase)
+                    LifecycleCameraProvider.bindToLifecycle(
+                        lifecycleOwner, cameraSelector,
+                        previewUseCase, params.cameraXImageCaptureUseCase
+                    )
                     params.cameraXLifecycle.start()
                 }
             }
@@ -270,16 +284,12 @@ private fun isCameraSurfaceTextureReleased(texture: SurfaceTexture): Boolean {
  */
 @UseExperimental(markerClass = ExperimentalCamera2Interop::class)
 private fun cameraXPreviewUseCaseBuilder(
-    id: String,
     focusMode: FocusMode,
     deviceStateCallback: CameraDevice.StateCallback,
     sessionCaptureStateCallback: CameraCaptureSession.StateCallback
 ): PreviewConfig {
 
-    // TODO: As of 0.3.0 CameraX can only use front and back cameras. Update in future versions
-    val cameraXcameraID = if (id.equals("0")) LensFacing.BACK else LensFacing.FRONT
     val configBuilder = PreviewConfig.Builder()
-        .setLensFacing(cameraXcameraID)
     Camera2Config.Extender(configBuilder)
         .setDeviceStateCallback(deviceStateCallback)
         .setSessionStateCallback(sessionCaptureStateCallback)
@@ -295,18 +305,13 @@ private fun cameraXPreviewUseCaseBuilder(
  */
 @UseExperimental(markerClass = ExperimentalCamera2Interop::class)
 private fun cameraXImageCaptureUseCaseBuilder(
-    id: String,
     focusMode: FocusMode,
     deviceStateCallback:
     CameraDevice.StateCallback,
     sessionCaptureCallback: CameraCaptureSession.CaptureCallback
 ): ImageCaptureConfig {
 
-    // TODO: As of 0.3.0 CameraX can only use front and back cameras. Update in future versions
-    val cameraXcameraID = if (id.equals("0")) LensFacing.BACK else LensFacing.FRONT
-
     val configBuilder = ImageCaptureConfig.Builder()
-        .setLensFacing(cameraXcameraID)
         .setCaptureMode(ImageCapture.CaptureMode.MAX_QUALITY)
     Camera2Config.Extender(configBuilder)
         .setDeviceStateCallback(deviceStateCallback)

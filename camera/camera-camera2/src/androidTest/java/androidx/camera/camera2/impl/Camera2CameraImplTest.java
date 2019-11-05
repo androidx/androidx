@@ -45,9 +45,9 @@ import androidx.camera.camera2.impl.compat.CameraManagerCompat;
 import androidx.camera.core.CameraCaptureCallback;
 import androidx.camera.core.CameraCaptureResult;
 import androidx.camera.core.CameraControl;
-import androidx.camera.core.CameraDeviceConfig;
 import androidx.camera.core.CameraFactory;
 import androidx.camera.core.CameraInternal;
+import androidx.camera.core.CameraSelector;
 import androidx.camera.core.CaptureConfig;
 import androidx.camera.core.DeferrableSurface;
 import androidx.camera.core.ImmediateSurface;
@@ -56,6 +56,7 @@ import androidx.camera.core.Observable;
 import androidx.camera.core.SessionConfig;
 import androidx.camera.core.UseCase;
 import androidx.camera.core.UseCaseConfig;
+import androidx.camera.core.impl.utils.CameraSelectorUtil;
 import androidx.camera.core.impl.utils.executor.CameraXExecutors;
 import androidx.camera.core.impl.utils.futures.Futures;
 import androidx.camera.testing.CameraUtil;
@@ -802,10 +803,10 @@ public final class Camera2CameraImplTest {
 
     private UseCase createUseCase() {
         FakeUseCaseConfig.Builder configBuilder =
-                new FakeUseCaseConfig.Builder()
-                        .setTargetName("UseCase")
-                        .setLensFacing(DEFAULT_LENS_FACING);
-        TestUseCase testUseCase = new TestUseCase(configBuilder.build(),
+                new FakeUseCaseConfig.Builder().setTargetName("UseCase");
+        CameraSelector selector =
+                new CameraSelector.Builder().requireLensFacing(LensFacing.BACK).build();
+        TestUseCase testUseCase = new TestUseCase(configBuilder.build(), selector,
                 mMockOnImageAvailableListener);
         Map<String, Size> suggestedResolutionMap = new HashMap<>();
         suggestedResolutionMap.put(mCameraId, new Size(640, 480));
@@ -937,10 +938,12 @@ public final class Camera2CameraImplTest {
         ImageReader mImageReader;
         FakeUseCaseConfig mConfig;
         List<ImageReader> mPreviousReaders = new ArrayList<>();
+        private String mCameraId;
 
         TestUseCase(
-                FakeUseCaseConfig config,
-                ImageReader.OnImageAvailableListener listener) {
+                @NonNull FakeUseCaseConfig config,
+                @NonNull CameraSelector cameraSelector,
+                @NonNull ImageReader.OnImageAvailableListener listener) {
             super(config);
             // Ensure we're using the combined configuration (user config + defaults)
             mConfig = (FakeUseCaseConfig) getUseCaseConfig();
@@ -948,9 +951,10 @@ public final class Camera2CameraImplTest {
             mImageAvailableListener = listener;
             mHandlerThread.start();
             mHandler = new Handler(mHandlerThread.getLooper());
+            onBind(CameraSelectorUtil.toCameraDeviceConfig(cameraSelector));
             Map<String, Size> suggestedResolutionMap = new HashMap<>();
-            String cameraId = getCameraIdForLensFacingUnchecked(config.getLensFacing());
-            suggestedResolutionMap.put(cameraId, new Size(640, 480));
+            mCameraId = getCameraIdForLensFacingUnchecked(getBoundDeviceConfig().getLensFacing());
+            suggestedResolutionMap.put(mCameraId, new Size(640, 480));
             updateSuggestedResolution(suggestedResolutionMap);
         }
 
@@ -958,7 +962,6 @@ public final class Camera2CameraImplTest {
         @Override
         protected UseCaseConfig.Builder<?, ?, ?> getDefaultBuilder(LensFacing lensFacing) {
             return new FakeUseCaseConfig.Builder()
-                    .setLensFacing(lensFacing)
                     .setSessionOptionUnpacker(new Camera2SessionOptionUnpacker());
         }
 
@@ -980,9 +983,7 @@ public final class Camera2CameraImplTest {
         @NonNull
         protected Map<String, Size> onSuggestedResolutionUpdated(
                 @NonNull Map<String, Size> suggestedResolutionMap) {
-            LensFacing lensFacing = ((CameraDeviceConfig) getUseCaseConfig()).getLensFacing();
-            String cameraId = getCameraIdForLensFacingUnchecked(lensFacing);
-            Size resolution = suggestedResolutionMap.get(cameraId);
+            Size resolution = suggestedResolutionMap.get(mCameraId);
             SessionConfig.Builder builder = SessionConfig.Builder.createFrom(mConfig);
 
             builder.setTemplateType(CameraDevice.TEMPLATE_PREVIEW);
@@ -1000,7 +1001,7 @@ public final class Camera2CameraImplTest {
             mImageReader.setOnImageAvailableListener(mImageAvailableListener, mHandler);
             builder.addSurface(new ImmediateSurface(mImageReader.getSurface()));
 
-            attachToCamera(cameraId, builder.build());
+            attachToCamera(mCameraId, builder.build());
             return suggestedResolutionMap;
         }
     }

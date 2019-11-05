@@ -35,6 +35,7 @@ import android.view.ViewGroup;
 import androidx.annotation.NonNull;
 import androidx.camera.camera2.Camera2AppConfig;
 import androidx.camera.core.AppConfig;
+import androidx.camera.core.CameraSelector;
 import androidx.camera.core.CameraX;
 import androidx.camera.core.DisplayOrientedMeteringPointFactory;
 import androidx.camera.core.LensFacing;
@@ -195,9 +196,7 @@ public class TextureViewMeteringPointFactoryTest {
     }
 
     private void startAndWaitForCameraReady(LensFacing lensFacing) throws InterruptedException {
-        PreviewConfig.Builder previewConfigBuilder =
-                new PreviewConfig.Builder()
-                        .setLensFacing(lensFacing);
+        PreviewConfig.Builder previewConfigBuilder = new PreviewConfig.Builder();
 
         Preview preview = new Preview(previewConfigBuilder.build());
         mInstrumentation.runOnMainSync(() -> {
@@ -232,9 +231,12 @@ public class TextureViewMeteringPointFactoryTest {
                         }
                     }));
 
+            CameraSelector cameraSelector =
+                    new CameraSelector.Builder().requireLensFacing(lensFacing).build();
+
             // SurfaceTexture#getTransformMatrix is initialized properly when camera starts
             // to output.
-            CameraX.bindToLifecycle(mLifecycle, preview);
+            CameraX.bindToLifecycle(mLifecycle, cameraSelector, preview);
             mLifecycle.startAndResume();
         });
 

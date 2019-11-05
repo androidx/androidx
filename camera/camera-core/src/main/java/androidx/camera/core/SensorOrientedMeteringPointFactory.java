@@ -68,8 +68,8 @@ public class SensorOrientedMeteringPointFactory extends MeteringPointFactory {
      * make the XY the normalized coordinates [0..1].
      *
      * <p>useCaseForFov is used to determine the FOV of this translation. This useCaseForFov needs
-     * to be bound via CameraX#bindToLifecycle(LifecycleOwner, UseCase...) first. Otherwise
-     * it will throw a {@link IllegalStateException}
+     * to be bound via {@code CameraX#bindToLifecycle(LifecycleOwner, CameraSelector, UseCase...)}
+     * first. Otherwise it will throw a {@link IllegalStateException}
      *
      * @param width the logical width of FOV in sensor orientation.
      * @param height the logical height of FOV in sensor orientation.
