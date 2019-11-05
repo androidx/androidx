@@ -24,7 +24,9 @@ import android.hardware.camera2.CameraCaptureSession.CaptureCallback;
 import android.hardware.camera2.CaptureRequest;
 import android.os.Build;
 
+import androidx.annotation.experimental.UseExperimental;
 import androidx.camera.camera2.Camera2Config;
+import androidx.camera.camera2.ExperimentalCamera2Interop;
 import androidx.camera.core.CameraCaptureCallback;
 import androidx.camera.core.CaptureConfig;
 import androidx.camera.core.ImageCaptureConfig;
@@ -51,6 +53,7 @@ public final class Camera2CaptureOptionUnpackerTest {
     }
 
     @Test
+    @UseExperimental(markerClass = ExperimentalCamera2Interop.class)
     public void unpackerExtractsCaptureCallbacks() {
         ImageCaptureConfig.Builder imageCaptureConfigBuilder = new ImageCaptureConfig.Builder();
         CaptureCallback captureCallback = mock(CaptureCallback.class);
@@ -69,6 +72,7 @@ public final class Camera2CaptureOptionUnpackerTest {
     }
 
     @Test
+    @UseExperimental(markerClass = ExperimentalCamera2Interop.class)
     public void unpackerExtractsOptions() {
         ImageCaptureConfig.Builder imageCaptureConfigBuilder = new ImageCaptureConfig.Builder();
 
@@ -85,10 +89,10 @@ public final class Camera2CaptureOptionUnpackerTest {
 
         Camera2Config config = new Camera2Config(captureConfig.getImplementationOptions());
 
-        assertThat(config.getCaptureRequestOption(
+        assertThat(config.getCaptureRequestOptionInternal(
                 CaptureRequest.CONTROL_AF_MODE, CaptureRequest.CONTROL_AF_MODE_OFF))
                 .isEqualTo(CaptureRequest.CONTROL_AF_MODE_AUTO);
-        assertThat(config.getCaptureRequestOption(
+        assertThat(config.getCaptureRequestOptionInternal(
                 CaptureRequest.FLASH_MODE, CaptureRequest.FLASH_MODE_OFF))
                 .isEqualTo(CaptureRequest.FLASH_MODE_TORCH);
     }

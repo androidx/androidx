@@ -99,7 +99,8 @@ public final class ImageCaptureOptionUnpackerTest {
 
         CaptureConfig captureConfig = captureBuilder.build();
         Camera2Config camera2Config = new Camera2Config(captureConfig.getImplementationOptions());
-        assertThat(camera2Config.getCaptureRequestOption(CaptureRequest.CONTROL_ENABLE_ZSL, null))
+        assertThat(camera2Config.getCaptureRequestOptionInternal(
+                CaptureRequest.CONTROL_ENABLE_ZSL, null))
                 .isNull();
     }
 
@@ -115,7 +116,8 @@ public final class ImageCaptureOptionUnpackerTest {
 
         CaptureConfig captureConfig = captureBuilder.build();
         Camera2Config camera2Config = new Camera2Config(captureConfig.getImplementationOptions());
-        assertThat(camera2Config.getCaptureRequestOption(CaptureRequest.CONTROL_ENABLE_ZSL, null))
+        assertThat(camera2Config.getCaptureRequestOptionInternal(
+                CaptureRequest.CONTROL_ENABLE_ZSL, null))
                 .isEqualTo(false);
     }
 
@@ -131,7 +133,8 @@ public final class ImageCaptureOptionUnpackerTest {
 
         CaptureConfig captureConfig = captureBuilder.build();
         Camera2Config camera2Config = new Camera2Config(captureConfig.getImplementationOptions());
-        assertThat(camera2Config.getCaptureRequestOption(CaptureRequest.CONTROL_ENABLE_ZSL, null))
+        assertThat(camera2Config.getCaptureRequestOptionInternal(
+                CaptureRequest.CONTROL_ENABLE_ZSL, null))
                 .isEqualTo(true);
     }
 
@@ -147,7 +150,8 @@ public final class ImageCaptureOptionUnpackerTest {
 
         CaptureConfig captureConfig = captureBuilder.build();
         Camera2Config camera2Config = new Camera2Config(captureConfig.getImplementationOptions());
-        assertThat(camera2Config.getCaptureRequestOption(CaptureRequest.CONTROL_ENABLE_ZSL, null))
+        assertThat(camera2Config.getCaptureRequestOptionInternal(
+                CaptureRequest.CONTROL_ENABLE_ZSL, null))
                 .isNull();
     }
 
@@ -163,7 +167,8 @@ public final class ImageCaptureOptionUnpackerTest {
 
         CaptureConfig captureConfig = captureBuilder.build();
         Camera2Config camera2Config = new Camera2Config(captureConfig.getImplementationOptions());
-        assertThat(camera2Config.getCaptureRequestOption(CaptureRequest.CONTROL_ENABLE_ZSL, null))
+        assertThat(camera2Config.getCaptureRequestOptionInternal(
+                CaptureRequest.CONTROL_ENABLE_ZSL, null))
                 .isNull();
     }
 
@@ -179,7 +184,8 @@ public final class ImageCaptureOptionUnpackerTest {
 
         CaptureConfig captureConfig = captureBuilder.build();
         Camera2Config camera2Config = new Camera2Config(captureConfig.getImplementationOptions());
-        assertThat(camera2Config.getCaptureRequestOption(CaptureRequest.CONTROL_ENABLE_ZSL, null))
+        assertThat(camera2Config.getCaptureRequestOptionInternal(
+                CaptureRequest.CONTROL_ENABLE_ZSL, null))
                 .isEqualTo(false);
     }
 
@@ -195,7 +201,8 @@ public final class ImageCaptureOptionUnpackerTest {
 
         CaptureConfig captureConfig = captureBuilder.build();
         Camera2Config camera2Config = new Camera2Config(captureConfig.getImplementationOptions());
-        assertThat(camera2Config.getCaptureRequestOption(CaptureRequest.CONTROL_ENABLE_ZSL, null))
+        assertThat(camera2Config.getCaptureRequestOptionInternal(
+                CaptureRequest.CONTROL_ENABLE_ZSL, null))
                 .isEqualTo(true);
     }
 
@@ -211,7 +218,8 @@ public final class ImageCaptureOptionUnpackerTest {
 
         CaptureConfig captureConfig = captureBuilder.build();
         Camera2Config camera2Config = new Camera2Config(captureConfig.getImplementationOptions());
-        assertThat(camera2Config.getCaptureRequestOption(CaptureRequest.CONTROL_ENABLE_ZSL, null))
+        assertThat(camera2Config.getCaptureRequestOptionInternal(
+                CaptureRequest.CONTROL_ENABLE_ZSL, null))
                 .isNull();
     }
 
@@ -227,7 +235,8 @@ public final class ImageCaptureOptionUnpackerTest {
 
         CaptureConfig captureConfig = captureBuilder.build();
         Camera2Config camera2Config = new Camera2Config(captureConfig.getImplementationOptions());
-        assertThat(camera2Config.getCaptureRequestOption(CaptureRequest.CONTROL_ENABLE_ZSL, null))
+        assertThat(camera2Config.getCaptureRequestOptionInternal(
+                CaptureRequest.CONTROL_ENABLE_ZSL, null))
                 .isNull();
     }
 
@@ -243,7 +252,8 @@ public final class ImageCaptureOptionUnpackerTest {
 
         CaptureConfig captureConfig = captureBuilder.build();
         Camera2Config camera2Config = new Camera2Config(captureConfig.getImplementationOptions());
-        assertThat(camera2Config.getCaptureRequestOption(CaptureRequest.CONTROL_ENABLE_ZSL, null))
+        assertThat(camera2Config.getCaptureRequestOptionInternal(
+                CaptureRequest.CONTROL_ENABLE_ZSL, null))
                 .isNull();
     }
 
@@ -259,7 +269,8 @@ public final class ImageCaptureOptionUnpackerTest {
 
         CaptureConfig captureConfig = captureBuilder.build();
         Camera2Config camera2Config = new Camera2Config(captureConfig.getImplementationOptions());
-        assertThat(camera2Config.getCaptureRequestOption(CaptureRequest.CONTROL_ENABLE_ZSL, null))
+        assertThat(camera2Config.getCaptureRequestOptionInternal(
+                CaptureRequest.CONTROL_ENABLE_ZSL, null))
                 .isNull();
     }
 }
