@@ -27,8 +27,7 @@ package androidx.paging
 internal sealed class PageEvent<T : Any> {
     data class Insert<T : Any>(
         val loadType: LoadType,
-        val data: List<List<T>>,
-        val sourcePageRelativePosition: Int,
+        val pages: List<TransformedPage<T>>,
         val placeholdersBefore: Int,
         val placeholdersAfter: Int
     ) : PageEvent<T>() {
