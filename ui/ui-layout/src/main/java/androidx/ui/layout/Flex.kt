@@ -22,6 +22,7 @@ import androidx.ui.core.Alignment
 import androidx.ui.core.AlignmentLine
 import androidx.ui.core.Constraints
 import androidx.ui.core.DensityScope
+import androidx.ui.core.HorizontalAlignmentLine
 import androidx.ui.core.IntPx
 import androidx.ui.core.IntPxPosition
 import androidx.ui.core.IntPxSize
@@ -35,6 +36,7 @@ import androidx.ui.core.LayoutModifier
 import androidx.ui.core.Measurable
 import androidx.ui.core.Modifier
 import androidx.ui.core.ParentData
+import androidx.ui.core.VerticalAlignmentLine
 import androidx.ui.core.isFinite
 import androidx.ui.core.px
 import androidx.ui.core.round
@@ -190,12 +192,27 @@ sealed class FlexScope {
             FlexChildProperties(0f, FlexFit.Loose)
         )
     }
+
+    /**
+     * A layout modifier within a [Column] or [Row] that positions target component in a
+     * perpendicular direction according to the [AlignmentLine] which is provided through the
+     * [alignmentLineBlock].
+     * If target component is the only component with the specified RelativeToSiblings modifier
+     * within a Column or Row, then the component will be positioned using
+     * [ColumnScope.Gravity.Start] in Column or [RowScope.Gravity.Top] in Row respectively.
+     *
+     * Example usage:
+     * @sample androidx.ui.layout.samples.SimpleRelativeToSiblings
+     */
+    @Suppress("unused")
+    fun Gravity.RelativeToSiblings(alignmentLineBlock: (Placeable) -> IntPx): LayoutModifier =
+        SiblingsAlignedModifier.WithAlignmentLineBlock(alignmentLineBlock)
 }
 
 /**
  * A ColumnScope provides a scope for the children of a [Column].
  */
-@Suppress("unused")
+@Suppress("unused") // Note: Gravity object provides a scope only but is never used itself
 class ColumnScope internal constructor() : FlexScope() {
     /**
      * A layout modifier within a Column that positions target component in a horizontal direction
@@ -213,6 +230,19 @@ class ColumnScope internal constructor() : FlexScope() {
      * so that its end edge is aligned to the end edge of the horizontal axis.
      */
     val Gravity.End: LayoutModifier get() = EndGravityModifier
+    /**
+     * A layout modifier within a [Column] that positions target component in a perpendicular
+     * direction according to the [AlignmentLine].
+     * If target component is the only component within a Column with the specified
+     * RelativeToSiblings modifier, or if the provided alignment line is not defined for the
+     * component, the component will be positioned using [Gravity.Start].
+     *
+     * Example usage:
+     *
+     * @sample androidx.ui.layout.samples.SimpleRelativeToSiblingsInColumn
+     */
+    fun Gravity.RelativeToSiblings(alignmentLine: VerticalAlignmentLine): LayoutModifier =
+        SiblingsAlignedModifier.WithAlignmentLine(alignmentLine)
 
     internal companion object {
         val StartGravityModifier: LayoutModifier = GravityModifier(CrossAxisAlignment.Start)
@@ -224,7 +254,7 @@ class ColumnScope internal constructor() : FlexScope() {
 /**
  * A RowScope provides a scope for the children of a [Row].
  */
-@Suppress("unused")
+@Suppress("unused") // Note: Gravity object provides a scope only but is never used itself
 class RowScope internal constructor() : FlexScope() {
     /**
      * A layout modifier within a Row that positions target component in a vertical direction
@@ -241,6 +271,18 @@ class RowScope internal constructor() : FlexScope() {
      * so that its bottom edge is aligned to the bottom edge of the vertical axis.
      */
     val Gravity.Bottom: LayoutModifier get() = BottomGravityModifier
+    /**
+     * A layout modifier within a [Row] that positions target component in a perpendicular
+     * direction according to the [AlignmentLine].
+     * If target component is the only component within a Row with the specified
+     * RelativeToSiblings modifier, or if the provided alignment line is not defined for the
+     * component, the component will be positioned using [Gravity.Top].
+     *
+     * Example usage:
+     * @sample androidx.ui.layout.samples.SimpleRelativeToSiblingsInRow
+     */
+    fun Gravity.RelativeToSiblings(alignmentLine: HorizontalAlignmentLine): LayoutModifier =
+        SiblingsAlignedModifier.WithAlignmentLine(alignmentLine)
 
     internal companion object {
         val TopGravityModifier: LayoutModifier = GravityModifier(CrossAxisAlignment.Start)
@@ -479,7 +521,7 @@ enum class MainAxisAlignment(internal val aligner: Aligner) {
  */
 // TODO(popam): refine this API surface with modifiers - add type safety for alignment orientation.
 class CrossAxisAlignment private constructor(
-    internal val alignmentLine: AlignmentLine?
+    internal val alignmentLineProvider: AlignmentLineProvider? = null
 ) {
     companion object {
         /**
@@ -503,7 +545,14 @@ class CrossAxisAlignment private constructor(
         /**
          * Align children by their baseline.
          */
-        fun AlignmentLine(alignmentLine: AlignmentLine) = CrossAxisAlignment(alignmentLine)
+        fun AlignmentLine(alignmentLine: AlignmentLine) =
+            CrossAxisAlignment(AlignmentLineProvider.Value(alignmentLine))
+        /**
+         * Align children relative to their siblings using the alignment line provided as a
+         * parameter using [AlignmentLineProvider].
+         */
+        internal fun Relative(alignmentLineProvider: AlignmentLineProvider) =
+            CrossAxisAlignment(alignmentLineProvider)
     }
 }
 
@@ -653,8 +702,14 @@ private fun FlexLayout(
                 )
                 inflexibleSpace += placeable.mainAxisSize()
                 crossAxisSpace = max(crossAxisSpace, placeable.crossAxisSize())
-                if (crossAxisAlignment.alignmentLine != null) {
-                    val alignmentLinePosition = placeable[crossAxisAlignment.alignmentLine]
+
+                val lineProvider = children[i].crossAxisAlignment?.alignmentLineProvider
+                    ?: crossAxisAlignment.alignmentLineProvider
+                if (lineProvider != null) {
+                    val alignmentLinePosition = when (lineProvider) {
+                        is AlignmentLineProvider.Block -> lineProvider.lineProviderBlock(placeable)
+                        is AlignmentLineProvider.Value -> placeable[lineProvider.line]
+                    }
                     beforeCrossAxisAlignmentLine = max(
                         beforeCrossAxisAlignmentLine,
                         alignmentLinePosition ?: 0.ipx
@@ -745,8 +800,8 @@ private fun FlexLayout(
                 .align(mainAxisLayoutSize, childrenMainAxisSize)
             placeables.forEachIndexed { index, placeable ->
                 placeable!!
-                val childCrossAligment = children[index].crossAxisAlignment ?: crossAxisAlignment
-                val crossAxis = when (childCrossAligment) {
+                val childCrossAlignment = children[index].crossAxisAlignment ?: crossAxisAlignment
+                val crossAxis = when (childCrossAlignment) {
                     CrossAxisAlignment.Start -> IntPx.Zero
                     CrossAxisAlignment.Stretch -> IntPx.Zero
                     CrossAxisAlignment.End -> {
@@ -761,8 +816,13 @@ private fun FlexLayout(
                         ).y
                     }
                     else -> {
-                        val alignmentLinePosition =
-                            placeable[crossAxisAlignment.alignmentLine!!]
+                        val provider = children[index].crossAxisAlignment?.alignmentLineProvider
+                            ?: crossAxisAlignment.alignmentLineProvider
+                        val alignmentLinePosition = when (provider) {
+                            is AlignmentLineProvider.Block -> provider.lineProviderBlock(placeable)
+                            is AlignmentLineProvider.Value -> placeable[provider.line]
+                            else -> null
+                        }
                         if (alignmentLinePosition != null) {
                             beforeCrossAxisAlignmentLine - alignmentLinePosition
                         } else {
@@ -1012,6 +1072,60 @@ private data class FlexModifier(val flexProperties: FlexChildProperties) : Layou
     }
 }
 
+private sealed class SiblingsAlignedModifier : LayoutModifier {
+    override fun DensityScope.modifyConstraints(constraints: Constraints) = constraints
+
+    override fun DensityScope.modifySize(
+        constraints: Constraints,
+        childSize: IntPxSize
+    ) = childSize
+
+    override fun DensityScope.minIntrinsicWidthOf(measurable: Measurable, height: IntPx) =
+        measurable.minIntrinsicWidth(height)
+    override fun DensityScope.maxIntrinsicWidthOf(measurable: Measurable, height: IntPx) =
+        measurable.maxIntrinsicWidth(height)
+
+    override fun DensityScope.minIntrinsicHeightOf(measurable: Measurable, width: IntPx) =
+        measurable.minIntrinsicHeight(width)
+
+    override fun DensityScope.maxIntrinsicHeightOf(measurable: Measurable, width: IntPx) =
+        measurable.maxIntrinsicHeight(width)
+
+    override fun DensityScope.modifyPosition(
+        childPosition: IntPxPosition,
+        childSize: IntPxSize,
+        containerSize: IntPxSize
+    ) = childPosition
+
+    override fun DensityScope.modifyAlignmentLine(line: AlignmentLine, value: IntPx?) = value
+
+    abstract override fun DensityScope.modifyParentData(parentData: Any?): Any?
+
+    internal data class WithAlignmentLineBlock(val block: (Placeable) -> IntPx) :
+        SiblingsAlignedModifier() {
+        override fun DensityScope.modifyParentData(parentData: Any?): Any? {
+            return ((parentData as? FlexChildProperties) ?: FlexChildProperties()).also {
+                if (it.crossAxisAlignment == null) {
+                    it.crossAxisAlignment =
+                        CrossAxisAlignment.Relative(AlignmentLineProvider.Block(block))
+                }
+            }
+        }
+    }
+
+    internal data class WithAlignmentLine(val line: AlignmentLine) :
+        SiblingsAlignedModifier() {
+        override fun DensityScope.modifyParentData(parentData: Any?): Any? {
+            return ((parentData as? FlexChildProperties) ?: FlexChildProperties()).also {
+                if (it.crossAxisAlignment == null) {
+                    it.crossAxisAlignment =
+                        CrossAxisAlignment.Relative(AlignmentLineProvider.Value(line))
+                }
+            }
+        }
+    }
+}
+
 private data class GravityModifier(val alignment: CrossAxisAlignment) : LayoutModifier {
     override fun DensityScope.modifyConstraints(constraints: Constraints) = constraints
 
@@ -1060,3 +1174,11 @@ private data class FlexChildProperties(
     var fit: FlexFit? = null,
     var crossAxisAlignment: CrossAxisAlignment? = null
 )
+
+/**
+ * Provides the alignment line.
+ */
+internal sealed class AlignmentLineProvider {
+    data class Block(val lineProviderBlock: (Placeable) -> IntPx) : AlignmentLineProvider()
+    data class Value(val line: AlignmentLine) : AlignmentLineProvider()
+}

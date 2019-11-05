@@ -17,11 +17,13 @@
 package androidx.ui.layout.samples
 
 import androidx.compose.Composable
-import androidx.compose.composer
 import androidx.ui.core.Dp
 import androidx.ui.core.Layout
 import androidx.ui.core.Modifier
+import androidx.ui.core.VerticalAlignmentLine
+import androidx.ui.core.ipx
 import androidx.ui.core.max
+import androidx.ui.core.min
 import androidx.ui.foundation.shape.DrawShape
 import androidx.ui.foundation.shape.RectangleShape
 import androidx.ui.graphics.Color
@@ -47,9 +49,32 @@ fun SizedRectangle(
 }
 
 /**
+ * Same as [SizedRectangle] but has two alignment lines [Start] and [End].
+ */
+@Composable
+fun SizedRectangleWithLines(
+    modifier: Modifier = Modifier.None,
+    color: Color,
+    width: Dp? = null,
+    height: Dp? = null
+) {
+    Layout(children = { DrawRectangle(color = color) }, modifier = modifier) { _, constraints ->
+        val widthPx = max(width?.toIntPx() ?: constraints.maxWidth, constraints.minWidth)
+        val heightPx = max(height?.toIntPx() ?: constraints.maxHeight, constraints.minHeight)
+        layout(widthPx, heightPx, mapOf(Start to 0.ipx, End to widthPx)) {}
+    }
+}
+
+/**
  * Draws a rectangle of a given color in the space of the parent layout.
  */
 @Composable
 fun DrawRectangle(color: Color) {
     DrawShape(shape = RectangleShape, color = color)
 }
+
+/**
+ * Alignment lines for [SizedRectangleWithLines].
+ */
+internal val Start = VerticalAlignmentLine(::min)
+internal val End = VerticalAlignmentLine(::min)

@@ -20,6 +20,7 @@ package androidx.ui.layout {
   }
 
   public final class ColumnScope extends androidx.ui.layout.FlexScope {
+    method public androidx.ui.core.LayoutModifier RelativeToSiblings(androidx.ui.layout.Gravity, androidx.ui.core.VerticalAlignmentLine alignmentLine);
     method public androidx.ui.core.LayoutModifier getCenter(androidx.ui.layout.Gravity);
     method public androidx.ui.core.LayoutModifier getEnd(androidx.ui.layout.Gravity);
     method public androidx.ui.core.LayoutModifier getStart(androidx.ui.layout.Gravity);
@@ -133,6 +134,7 @@ package androidx.ui.layout {
 
   public abstract sealed class FlexScope {
     method public final androidx.ui.core.LayoutModifier Flexible(float flex, boolean tight = true);
+    method public final androidx.ui.core.LayoutModifier RelativeToSiblings(androidx.ui.layout.Gravity, kotlin.jvm.functions.Function1<? super androidx.ui.core.Placeable,androidx.ui.core.IntPx> alignmentLineBlock);
     method public final androidx.ui.core.LayoutModifier getInflexible();
     property public final androidx.ui.core.LayoutModifier Inflexible;
   }
@@ -176,6 +178,7 @@ package androidx.ui.layout {
   }
 
   public final class RowScope extends androidx.ui.layout.FlexScope {
+    method public androidx.ui.core.LayoutModifier RelativeToSiblings(androidx.ui.layout.Gravity, androidx.ui.core.HorizontalAlignmentLine alignmentLine);
     method public androidx.ui.core.LayoutModifier getBottom(androidx.ui.layout.Gravity);
     method public androidx.ui.core.LayoutModifier getCenter(androidx.ui.layout.Gravity);
     method public androidx.ui.core.LayoutModifier getTop(androidx.ui.layout.Gravity);
