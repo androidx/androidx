@@ -16,10 +16,16 @@
 
 package androidx.camera.core;
 
+import androidx.annotation.GuardedBy;
+import androidx.annotation.Nullable;
+import androidx.camera.core.impl.utils.futures.Futures;
+import androidx.concurrent.futures.CallbackToFutureAdapter;
+import androidx.core.os.OperationCanceledException;
+
+import com.google.common.util.concurrent.ListenableFuture;
+
 import java.util.concurrent.Executor;
 import java.util.concurrent.atomic.AtomicBoolean;
-import java.util.concurrent.atomic.AtomicInteger;
-import java.util.concurrent.atomic.AtomicReference;
 
 /**
  * Abstract Analyzer that wraps around {@link ImageAnalysis.Analyzer} and implements
@@ -31,29 +37,72 @@ import java.util.concurrent.atomic.AtomicReference;
 abstract class ImageAnalysisAbstractAnalyzer implements ImageReaderProxy.OnImageAvailableListener {
 
     // Member variables from ImageAnalysis.
-    private final AtomicReference<ImageAnalysis.Analyzer> mSubscribedAnalyzer;
-    private final AtomicInteger mRelativeRotation;
-    final AtomicReference<Executor> mUserExecutor;
+    @GuardedBy("mAnalyzerLock")
+    private ImageAnalysis.Analyzer mSubscribedAnalyzer;
+    private volatile int mRelativeRotation;
+    @GuardedBy("mAnalyzerLock")
+    private Executor mUserExecutor;
+
+    private final Object mAnalyzerLock = new Object();
 
     // Flag that reflects the state of ImageAnalysis.
     private AtomicBoolean mIsClosed;
 
-    ImageAnalysisAbstractAnalyzer(AtomicReference<ImageAnalysis.Analyzer> subscribedAnalyzer,
-            AtomicInteger relativeRotation, AtomicReference<Executor> userExecutor) {
-        mSubscribedAnalyzer = subscribedAnalyzer;
-        mRelativeRotation = relativeRotation;
-        mUserExecutor = userExecutor;
+    ImageAnalysisAbstractAnalyzer() {
         mIsClosed = new AtomicBoolean(false);
     }
 
     /**
      * Analyzes a {@link ImageProxy} using the wrapped {@link ImageAnalysis.Analyzer}.
+     *
+     * <p> The analysis will run on the executor provided by {@link #setAnalyzer(Executor,
+     * ImageAnalysis.Analyzer)}. Once the analysis successfully finishes the returned
+     * ListenableFuture will succeed, otherwise an exception will be set on it.
+     *
+     * @return The future which will complete once analysis has finished or it failed.
      */
-    void analyzeImage(ImageProxy imageProxy) {
-        ImageAnalysis.Analyzer analyzer = mSubscribedAnalyzer.get();
-        if (analyzer != null && !isClosed()) {
+    ListenableFuture<Void> analyzeImage(ImageProxy imageProxy) {
+        Executor executor;
+        ImageAnalysis.Analyzer analyzer;
+        synchronized (mAnalyzerLock) {
+            executor = mUserExecutor;
+            analyzer = mSubscribedAnalyzer;
+        }
+
+        ListenableFuture<Void> future;
+
+        if (analyzer != null && executor != null) {
             // When the analyzer exists and ImageAnalysis is active.
-            analyzer.analyze(imageProxy, mRelativeRotation.get());
+            future = CallbackToFutureAdapter.getFuture(
+                    completer ->  {
+                        executor.execute(() -> {
+                            if (!isClosed()) {
+                                analyzer.analyze(imageProxy, mRelativeRotation);
+                                completer.set(null);
+                            } else {
+                                completer.setException(new OperationCanceledException("Closed "
+                                        + "before analysis"));
+                            }
+                        });
+                    return "analyzeImage";
+                    });
+        } else {
+            future = Futures.immediateFailedFuture(new OperationCanceledException("No analyzer "
+                    + "or executor currently set."));
+        }
+
+        return future;
+    }
+
+    void setRelativeRotation(int relativeRotation) {
+        mRelativeRotation = relativeRotation;
+    }
+
+    void setAnalyzer(@Nullable Executor userExecutor,
+            @Nullable ImageAnalysis.Analyzer subscribedAnalyzer) {
+        synchronized (mAnalyzerLock) {
+            mSubscribedAnalyzer = subscribedAnalyzer;
+            mUserExecutor = userExecutor;
         }
     }
 

@@ -22,19 +22,17 @@ import android.util.Size;
 import android.view.Display;
 import android.view.Surface;
 
+import androidx.annotation.GuardedBy;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.annotation.RestrictTo;
 import androidx.annotation.RestrictTo.Scope;
-import androidx.annotation.UiThread;
 import androidx.camera.core.ImageOutputConfig.RotationValue;
 import androidx.camera.core.impl.utils.Threads;
 import androidx.camera.core.impl.utils.executor.CameraXExecutors;
 
 import java.util.Map;
 import java.util.concurrent.Executor;
-import java.util.concurrent.atomic.AtomicInteger;
-import java.util.concurrent.atomic.AtomicReference;
 
 /**
  * A use case providing CPU accessible images for an app to perform image analysis on.
@@ -58,18 +56,18 @@ public final class ImageAnalysis extends UseCase {
     // ImageReader depth for KEEP_ONLY_LATEST mode.
     private static final int NON_BLOCKING_IMAGE_DEPTH = 4;
 
-    final AtomicReference<Analyzer> mSubscribedAnalyzer;
-    final AtomicReference<Executor> mAnalyzerExecutor;
-    final AtomicInteger mRelativeRotation = new AtomicInteger();
     private final ImageAnalysisConfig.Builder mUseCaseConfigBuilder;
     @SuppressWarnings("WeakerAccess") /* synthetic access */
-    final ImageAnalysisBlockingAnalyzer mImageAnalysisBlockingAnalyzer;
-    @SuppressWarnings("WeakerAccess") /* synthetic access */
-    final ImageAnalysisNonBlockingAnalyzer mImageAnalysisNonBlockingAnalyzer;
+    final ImageAnalysisAbstractAnalyzer mImageAnalysisAbstractAnalyzer;
+    @GuardedBy("mAnalysisLock")
+    private ImageAnalysis.Analyzer mSubscribedAnalyzer;
+
     @Nullable
     ImageReaderProxy mImageReader;
     @Nullable
     private DeferrableSurface mDeferrableSurface;
+
+    private final Object mAnalysisLock = new Object();
 
     /**
      * Creates a new image analysis use case from the given configuration.
@@ -82,17 +80,14 @@ public final class ImageAnalysis extends UseCase {
 
         // Get the combined configuration with defaults
         ImageAnalysisConfig combinedConfig = (ImageAnalysisConfig) getUseCaseConfig();
-        mSubscribedAnalyzer = new AtomicReference<>();
-        mAnalyzerExecutor = new AtomicReference<>();
         setImageFormat(ImageReaderFormatRecommender.chooseCombo().imageAnalysisFormat());
-        // Init both instead of lazy loading to void synchronization.
-        mImageAnalysisBlockingAnalyzer = new ImageAnalysisBlockingAnalyzer(mSubscribedAnalyzer,
-                mRelativeRotation,
-                mAnalyzerExecutor);
-        mImageAnalysisNonBlockingAnalyzer = new ImageAnalysisNonBlockingAnalyzer(
-                mSubscribedAnalyzer, mRelativeRotation,
-                mAnalyzerExecutor, config.getBackgroundExecutor(
-                CameraXExecutors.highPriorityExecutor()));
+
+        if (combinedConfig.getBackpressureStrategy() == BackpressureStrategy.BLOCK_PRODUCER) {
+            mImageAnalysisAbstractAnalyzer = new ImageAnalysisBlockingAnalyzer();
+        } else {
+            mImageAnalysisAbstractAnalyzer = new ImageAnalysisNonBlockingAnalyzer(
+                    config.getBackgroundExecutor(CameraXExecutors.highPriorityExecutor()));
+        }
     }
 
     @SuppressWarnings("WeakerAccess") /* synthetic accessor */
@@ -119,16 +114,9 @@ public final class ImageAnalysis extends UseCase {
 
         tryUpdateRelativeRotation(cameraId);
 
-        ImageReaderProxy.OnImageAvailableListener onImageAvailableListener;
-
-        if (config.getBackpressureStrategy() == BackpressureStrategy.BLOCK_PRODUCER) {
-            onImageAvailableListener = mImageAnalysisBlockingAnalyzer;
-            mImageAnalysisBlockingAnalyzer.open();
-        } else {
-            onImageAvailableListener = mImageAnalysisNonBlockingAnalyzer;
-            mImageAnalysisNonBlockingAnalyzer.open();
-        }
-        mImageReader.setOnImageAvailableListener(onImageAvailableListener, backgroundExecutor);
+        mImageAnalysisAbstractAnalyzer.open();
+        mImageReader.setOnImageAvailableListener(mImageAnalysisAbstractAnalyzer,
+                backgroundExecutor);
 
         SessionConfig.Builder sessionConfigBuilder = SessionConfig.Builder.createFrom(config);
 
@@ -156,8 +144,7 @@ public final class ImageAnalysis extends UseCase {
      */
     void clearPipeline() {
         Threads.checkMainThread();
-        mImageAnalysisNonBlockingAnalyzer.close();
-        mImageAnalysisBlockingAnalyzer.close();
+        mImageAnalysisAbstractAnalyzer.close();
 
         final DeferrableSurface deferrableSurface = mDeferrableSurface;
         mDeferrableSurface = null;
@@ -181,15 +168,14 @@ public final class ImageAnalysis extends UseCase {
      * Removes a previously set analyzer.
      *
      * <p>This will stop data from streaming to the {@link ImageAnalysis}.
-     *
-     * @throws IllegalStateException If not called on main thread.
      */
-    @UiThread
     public void clearAnalyzer() {
-        Threads.checkMainThread();
-        mAnalyzerExecutor.set(null);
-        if (mSubscribedAnalyzer.getAndSet(null) != null) {
-            notifyInactive();
+        synchronized (mAnalysisLock) {
+            mImageAnalysisAbstractAnalyzer.setAnalyzer(null, null);
+            if (mSubscribedAnalyzer != null) {
+                notifyInactive();
+            }
+            mSubscribedAnalyzer = null;
         }
     }
 
@@ -261,17 +247,16 @@ public final class ImageAnalysis extends UseCase {
      * set at any time.
      *
      * @param executor The executor in which the
-     * {@link ImageAnalysis.Analyzer#analyze(ImageProxy, int)} will be run.
+     *                 {@link ImageAnalysis.Analyzer#analyze(ImageProxy, int)} will be run.
      * @param analyzer of the images.
-     * @throws IllegalStateException If not called on main thread.
      */
-    @UiThread
     public void setAnalyzer(@NonNull Executor executor, @NonNull Analyzer analyzer) {
-        Threads.checkMainThread();
-        mAnalyzerExecutor.set(executor);
-        Analyzer previousAnalyzer = mSubscribedAnalyzer.getAndSet(analyzer);
-        if (previousAnalyzer == null && analyzer != null) {
-            notifyActive();
+        synchronized (mAnalysisLock) {
+            mImageAnalysisAbstractAnalyzer.setAnalyzer(executor, analyzer);
+            if (mSubscribedAnalyzer == null) {
+                notifyActive();
+            }
+            mSubscribedAnalyzer = analyzer;
         }
     }
 
@@ -346,7 +331,7 @@ public final class ImageAnalysis extends UseCase {
         // Get the relative rotation or default to 0 if the camera info is unavailable
         try {
             CameraInfoInternal cameraInfoInternal = CameraX.getCameraInfo(cameraId);
-            mRelativeRotation.set(
+            mImageAnalysisAbstractAnalyzer.setRelativeRotation(
                     cameraInfoInternal.getSensorRotationDegrees(
                             config.getTargetRotation(Surface.ROTATION_0)));
         } catch (CameraInfoUnavailableException e) {
