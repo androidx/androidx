@@ -39,6 +39,6 @@ class XmlNavigationActivity : BaseNavigationActivity() {
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        setContentView(R.layout.navigation_activity)
+        setContentView(R.layout.navigation_activity_no_graph)
     }
 }
