@@ -140,6 +140,25 @@ package androidx.ui.core {
     property public final kotlin.jvm.functions.Function3<androidx.ui.core.DrawReceiver,androidx.ui.graphics.Canvas,androidx.ui.core.PxSize,kotlin.Unit>? onPaintWithChildren;
   }
 
+  public final class FocusNode extends androidx.ui.core.ComponentNode {
+    ctor public FocusNode();
+    method public boolean captureFocus();
+    method public boolean freeFocus();
+    method public androidx.ui.focus.FocusDetailedState getFocusState();
+    method public androidx.ui.core.LayoutCoordinates? getLayoutCoordinates();
+    method public kotlin.jvm.functions.Function0<kotlin.Unit> getRecompose();
+    method public androidx.ui.core.Ref<androidx.ui.core.FocusNode>? getRef();
+    method public void requestFocus(boolean propagateFocus = true);
+    method public void setFocusState$lintWithKotlin(androidx.ui.focus.FocusDetailedState p);
+    method public void setLayoutCoordinates(androidx.ui.core.LayoutCoordinates? p);
+    method public void setRecompose(kotlin.jvm.functions.Function0<kotlin.Unit> value);
+    method public void setRef(androidx.ui.core.Ref<androidx.ui.core.FocusNode>? value);
+    property public final androidx.ui.focus.FocusDetailedState focusState;
+    property public final androidx.ui.core.LayoutCoordinates? layoutCoordinates;
+    property public final kotlin.jvm.functions.Function0<kotlin.Unit> recompose;
+    property public final androidx.ui.core.Ref<androidx.ui.core.FocusNode>? ref;
+  }
+
   public final class LayoutNode extends androidx.ui.core.ComponentNode implements androidx.ui.core.Measurable {
     ctor public LayoutNode();
     method public boolean getAffectsParentSize();
@@ -320,6 +339,15 @@ package androidx.ui.core {
   public interface SemanticsTreeProvider {
     method public java.util.List<androidx.ui.core.SemanticsTreeNode> getAllSemanticNodes();
     method public void sendEvent(android.view.MotionEvent event);
+  }
+
+}
+
+package androidx.ui.core.focus {
+
+  public final class FocusNodeUtilsKt {
+    ctor public FocusNodeUtilsKt();
+    method public static void initializeFocusState(androidx.ui.core.FocusNode);
   }
 
 }

@@ -350,6 +350,26 @@ package androidx.ui.core.selection {
 
 }
 
+package androidx.ui.focus {
+
+  public final class FocusOperator {
+    ctor public FocusOperator();
+    method public androidx.ui.focus.FocusDetailedState getFocusDetailedState();
+    method public androidx.ui.focus.FocusState getFocusState();
+    method public void requestFocus();
+    property public final androidx.ui.focus.FocusDetailedState focusDetailedState;
+    property public final androidx.ui.focus.FocusState focusState;
+  }
+
+  public final class FocusableKt {
+    ctor public FocusableKt();
+    method public static void Focusable(androidx.ui.focus.FocusOperator focusOperator = +memo({ 
+    <init>()
+}), kotlin.jvm.functions.Function1<? super androidx.ui.focus.FocusOperator,kotlin.Unit> children);
+  }
+
+}
+
 package androidx.ui.graphics.vector {
 
   public final class VectorAsset {

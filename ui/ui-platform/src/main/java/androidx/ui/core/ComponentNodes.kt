@@ -17,8 +17,17 @@ package androidx.ui.core
 
 import androidx.compose.Emittable
 import androidx.ui.core.semantics.SemanticsConfiguration
+import androidx.ui.focus.FocusDetailedState.Active
+import androidx.ui.focus.FocusDetailedState.Inactive
+import androidx.ui.focus.FocusDetailedState.Disabled
+import androidx.ui.focus.FocusDetailedState.Captured
+import androidx.ui.focus.FocusDetailedState.ActiveParent
 import androidx.ui.graphics.Canvas
 import androidx.ui.engine.geometry.Shape
+import androidx.ui.core.focus.findParentFocusNode
+import androidx.ui.core.focus.ownerHasFocus
+import androidx.ui.core.focus.requestFocusForOwner
+import androidx.ui.focus.FocusDetailedState
 import kotlin.properties.ReadWriteProperty
 import kotlin.reflect.KProperty
 
@@ -346,6 +355,289 @@ class PointerInputNode : ComponentNode() {
 }
 
 /**
+ * Backing node that implements focus.
+ */
+class FocusNode : ComponentNode() {
+    /**
+     * Implementation oddity around composition; used to capture a reference to this
+     * [FocusNode] when composed. This is a reverse property that mutates its right-hand side.
+     *
+     * TODO: Once we finalize the API consider removing this and replace this with an
+     *  interface that sets the value as a property on the object that needs it.
+     */
+    var ref: Ref<FocusNode>?
+        get() = null
+        set(value) {
+            value?.value = this
+        }
+
+    /**
+     * The recompose function of the Recompose component this [FocusNode] is hosted in.
+     *
+     * We need to trigger re-composition manually because we determine focus during composition, and
+     * editing an @Model object during composition does not trigger a re-composition.
+     *
+     * TODO (b/144897112): Remove manual recomposition.
+     */
+    private lateinit var _recompose: () -> Unit
+    var recompose: () -> Unit
+        get() = _recompose
+        set(value) { _recompose = value }
+
+    /**
+     * The focus state for the current component. When the component is in the [Active] state, it
+     * receives key events and other actions. We use [FocusDetailedState]s internally and
+     * developers have the option to build their components using [FocusDetailedState], or a
+     * subset of states defined in [FocusState][androidx.ui.focus.FocusState].
+     */
+    var focusState: FocusDetailedState = Inactive
+        internal set
+
+    /**
+     * The [LayoutCoordinates] of the [OnChildPositioned][androidx.ui.core.OnChildPositioned]
+     * component that hosts the child components of this [FocusNode].
+     */
+    @Suppress("KDocUnresolvedReference")
+    var layoutCoordinates: LayoutCoordinates? = null
+
+    /**
+     * The list of focusable children of this [FocusNode]. The [ComponentNode] base class defines
+     * [children] of this node, but the [focusableChildren] set includes all the [FocusNode]s
+     * that are directly reachable from this [FocusNode].
+     */
+    private val focusableChildren = mutableSetOf<FocusNode>()
+
+    /**
+     * The [FocusNode] from the set of [focusableChildren] that is currently [Active].
+     */
+    private var focusedChild: FocusNode? = null
+
+    /**
+     * Add this focusable child to the parent's focusable children list.
+     */
+    override fun attach(owner: Owner) {
+        findParentFocusNode()?.focusableChildren?.add(this)
+        super.attach(owner)
+    }
+
+    /**
+     * Remove this focusable child from the parent's focusable children list.
+     */
+    override fun detach() {
+        // TODO (b/144119129): If this node is focused, let the parent know that it needs to
+        //  grant focus to another focus node.
+        super.detach()
+        findParentFocusNode()?.focusableChildren?.remove(this)
+    }
+
+    /**
+     * Request focus for this node.
+     *
+     * @param propagateFocus Whether the focus should be propagated to the node's children.
+     *
+     * In Compose, the parent [FocusNode] controls focus for its focusable children.Calling this
+     * function will send a focus request to this [FocusNode]'s parent [FocusNode].
+     */
+    fun requestFocus(propagateFocus: Boolean = true) {
+
+        when (focusState) {
+            Active, Captured, Disabled -> return
+            ActiveParent -> {
+                /** We don't need to do anything if [propagateFocus] is true,
+                since this subtree already has focus.*/
+                if (!propagateFocus && focusedChild?.clearFocus() ?: true) {
+                    grantFocus(propagateFocus)
+                }
+            }
+            Inactive -> {
+                val focusParent = findParentFocusNode()
+                if (focusParent == null) {
+                    // TODO (b/144116848) : Find out if the view hosting this composable is in focus.
+                    //  The top most focusable is [Active] only if the view hosting this composable is
+                    //  in focus. For now, we are making the assumption that our activity has only one
+                    //  view, and it is always in focus.
+                    //  Also, if the host AndroidComposeView does not have focus, request focus.
+                    //  Proceed to grant focus to this node only if the host view gains focus.
+                    grantFocus(propagateFocus)
+                    recompose()
+                } else {
+                    focusParent.requestFocusForChild(this, propagateFocus)
+                }
+            }
+        }
+    }
+
+    /**
+     * Deny requests to clear focus.
+     *
+     * This is used when a component wants to hold onto focus (eg. A phone number field with an
+     * invalid number.
+     *
+     * @return true if the focus was successfully captured. False otherwise.
+     */
+    fun captureFocus(): Boolean {
+        if (focusState == Active) {
+            focusState = Captured
+            return true
+        } else {
+            return false
+        }
+    }
+
+    /**
+     * When the node is in the [Captured] state, it rejects all requests to clear focus. Calling
+     * [freeFocus] puts the node in the [Active] state, where it is no longer preventing other
+     * nodes from requesting focus.
+     *
+     * @return true if the captured focus was released. If the node is not in the [Captured]
+     * state. this function returns false to indicate that this operation was a no-op.
+     */
+    fun freeFocus(): Boolean {
+        if (focusState == Captured) {
+            focusState = Active
+            return true
+        } else {
+            return false
+        }
+    }
+
+    /**
+     * This function grants focus to this node.
+     *
+     * @param propagateFocus Whether the focus should be propagated to the node's children.
+     *
+     * Note: This function is private, and should only be called by a parent [FocusNode] to grant
+     * focus to one of its child [FocusNode]s.
+     */
+    private fun grantFocus(propagateFocus: Boolean) {
+
+        // TODO (b/144126570) use ChildFocusablility.
+        //  For now we assume children get focus before parent).
+
+        // TODO (b/144126759): Design a system to decide which child get's focus.
+        //  for now we grant focus to the first child.
+        val focusedCandidate = focusableChildren.firstOrNull()
+
+        if (focusedCandidate == null || !propagateFocus) {
+            // No Focused Children, or we don't want to propagate focus to children.
+            focusState = Active
+        } else {
+            focusState = ActiveParent
+            focusedChild = focusedCandidate
+            focusedCandidate.grantFocus(propagateFocus)
+            focusedCandidate.recompose()
+        }
+    }
+
+    /**
+     * This function clears focus from this node.
+     *
+     * Note: This function is private, and should only be called by a parent [FocusNode] to clear
+     * focus from one of its child [FocusNode]s.
+     */
+    private fun clearFocus(): Boolean {
+        return when (focusState) {
+
+            Active -> {
+                focusState = Inactive
+                true
+            }
+            /**
+             * If the node is [ActiveParent], we need to clear focus from the [Active] descendant
+             * first, before clearing focus of this node.
+             */
+            ActiveParent -> focusedChild?.clearFocus() ?: error("No Focused Child")
+            /**
+             * If the node is [Captured], deny requests to clear focus.
+             */
+            Captured -> false
+            /**
+             * Nothing to do if the node is not focused. Even though the node ends up in a
+             * cleared state, we return false to indicate that we didn't change any state (This
+             * return value is used to trigger a recomposition, so returning false will not
+             * trigger any recomposition).
+             */
+            Inactive, Disabled -> false
+        }
+    }
+
+    /**
+     * Focusable children of this [FocusNode] can use this function to request focus.
+     *
+     * @param childNode: The node that is requesting focus.
+     * @param propagateFocus Whether the focus should be propagated to the node's children.
+     * @return true if focus was granted, false otherwise.
+     */
+    private fun requestFocusForChild(childNode: FocusNode, propagateFocus: Boolean): Boolean {
+
+        // Only this node's children can ask for focus.
+        if (!focusableChildren.contains(childNode)) {
+            error("Non child node cannot request focus.")
+        }
+
+        return when (focusState) {
+            /**
+             * If this node is [Active], it can give focus to the requesting child.
+             */
+            Active -> {
+                focusState = ActiveParent
+                focusedChild = childNode
+                childNode.grantFocus(propagateFocus)
+                recompose()
+                true
+            }
+            /**
+             * If this node is [ActiveParent] ie, one of the parent's descendants is [Active],
+             * remove focus from the currently focused child and grant it to the requesting child.
+             */
+            ActiveParent -> {
+                val previouslyFocusedNode = focusedChild ?: error("no focusedChild found")
+                if (previouslyFocusedNode.clearFocus()) {
+                    focusedChild = childNode
+                    childNode.grantFocus(propagateFocus)
+                    previouslyFocusedNode.recompose()
+                    childNode.recompose()
+                    true
+                } else {
+                    // Currently focused component does not want to give up focus.
+                    false
+                }
+            }
+            /**
+             * If this node is not [Active], we must gain focus first before granting it
+             * to the requesting child.
+             */
+            Inactive -> {
+                val focusParent = findParentFocusNode()
+                if (focusParent == null) {
+                    requestFocusForOwner()
+                    // If the owner successfully gains focus, proceed otherwise return false.
+                    if (ownerHasFocus()) {
+                        focusState = Active
+                        requestFocusForChild(childNode, propagateFocus)
+                    } else {
+                        false
+                    }
+                } else if (focusParent.requestFocusForChild(this, propagateFocus = false)) {
+                    requestFocusForChild(childNode, propagateFocus)
+                } else {
+                    // Could not gain focus, so have no focus to give.
+                    false
+                }
+            }
+            /**
+             * If this node is [Captured], decline requests from the children.
+             */
+            Captured -> false
+            /**
+             * Children of a [Disabled] parent should also be [Disabled].
+             */
+            Disabled -> error("non root FocusNode needs a focusable parent")
+        }
+    }
+}
+
+/**
  * Backing node for the Draw component.
  */
 class DrawNode : ComponentNode() {
@@ -404,6 +696,7 @@ class LayoutNode : ComponentNode(), Measurable {
             measurables: List<Measurable>,
             constraints: Constraints
         ): MeasureScope.LayoutResult
+
         /**
          * The function used to calculate [IntrinsicMeasurable.minIntrinsicWidth].
          */
@@ -412,6 +705,7 @@ class LayoutNode : ComponentNode(), Measurable {
             measurables: List<IntrinsicMeasurable>,
             h: IntPx
         ): IntPx
+
         /**
          * The lambda used to calculate [IntrinsicMeasurable.minIntrinsicHeight].
          */
@@ -420,6 +714,7 @@ class LayoutNode : ComponentNode(), Measurable {
             measurables: List<IntrinsicMeasurable>,
             w: IntPx
         ): IntPx
+
         /**
          * The function used to calculate [IntrinsicMeasurable.maxIntrinsicWidth].
          */
@@ -428,6 +723,7 @@ class LayoutNode : ComponentNode(), Measurable {
             measurables: List<IntrinsicMeasurable>,
             h: IntPx
         ): IntPx
+
         /**
          * The lambda used to calculate [IntrinsicMeasurable.maxIntrinsicHeight].
          */
@@ -1097,28 +1393,31 @@ class SemanticsComponentNode(
      * merged with the semantics of any ancestors (if the ancestor allows that).
      *
      * Whether descendants of this composable can add their semantic information to the
-     * [SemanticsNode] introduced by this configuration is controlled by
-     * [explicitChildNodes].
+     * [SemanticsNode][androidx.ui.core.semantics.SemanticNode] introduced by this configuration is
+     * controlled by [explicitChildNodes].
      */
+    @Suppress("KDocUnresolvedReference")
     container: Boolean = false,
     /**
      * Whether descendants of this composable are allowed to add semantic information
-     * to the [SemanticsNode] annotated by this composable.
+     * to the [SemanticsNode][androidx.ui.core.semantics.SemanticNode] annotated by this composable.
      *
-     * When set to false descendants are allowed to annotate [SemanticNode]s of
+     * When set to false descendants are allowed to annotate [SemanticNodes][androidx.ui.core
+     * .semantics.SemanticNode] of
      * their parent with the semantic information they want to contribute to the
      * semantic tree.
      * When set to true the only way for descendants to contribute semantic
      * information to the semantic tree is to introduce new explicit
-     * [SemanticNode]s to the tree.
+     * [SemanticNodes][androidx.ui.core.semantics.SemanticNode] to the tree.
      *
      * If the semantics properties of this node include
-     * [SemanticsProperties.scopesRoute] set to true, then [explicitChildNodes]
-     * must be true also.
+     * [scopesRoute][androidx.ui.semantics.SemanticsProperties.scopesRoute] set to
+     * true, then [explicitChildNodes] must be true also.
      *
      * This setting is often used in combination with [SemanticsConfiguration.isSemanticBoundary]
      * to create semantic boundaries that are either writable or not for children.
      */
+    @Suppress("KDocUnresolvedReference")
     explicitChildNodes: Boolean = false
 ) : ComponentNode() {
     private var needsSemanticsUpdate = true
