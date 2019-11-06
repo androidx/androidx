@@ -23,6 +23,7 @@ import android.view.View;
 import android.view.WindowManager;
 
 import androidx.annotation.NonNull;
+import androidx.camera.core.impl.utils.CameraSelectorUtil;
 
 /**
  * A {@link MeteringPointFactory} that can convert a {@link View} (x, y) into a
@@ -44,6 +45,8 @@ import androidx.annotation.NonNull;
  * width/height of this {@link DisplayOrientedMeteringPointFactory} should be (480, 640).  And
  * the (x, y) from the {@link View} should be converted to (x + (480-240)/2, y + (640 - 320)/2)
  * first.
+ *
+ * @see MeteringPoint
  */
 public final class DisplayOrientedMeteringPointFactory extends MeteringPointFactory {
     /** The logical width of FoV in current display orientation */
@@ -51,16 +54,16 @@ public final class DisplayOrientedMeteringPointFactory extends MeteringPointFact
     /** The logical height of FoV in current display orientation */
     private final float mHeight;
     /** Lens facing is required for correctly adjusted for front camera */
-    private final LensFacing mLensFacing;
+    private final CameraSelector mCameraSelector;
     /** {@link Display} used for detecting display orientation */
     @NonNull
     private final Display mDisplay;
     @NonNull
-    private final CameraInfo mCameraInfo;
+    private final CameraInfoInternal mCameraInfo;
 
     /**
      * Creates a {@link DisplayOrientedMeteringPointFactory} for converting View (x, y) into a
-     * {@link MeteringPoint} based on default display's orientation and {@link LensFacing}.
+     * {@link MeteringPoint} based on default display's orientation and {@link CameraSelector}.
      *
      * <p>The width/height of this factory forms a coordinate left-top (0, 0) - right-bottom
      * (width, height) which represents the full camera preview FOV in default display's
@@ -69,22 +72,23 @@ public final class DisplayOrientedMeteringPointFactory extends MeteringPointFact
      * {@link View}, it is as simple as passing View's width/height and passing View (x, y)
      * directly to create a {@link MeteringPoint}.
      *
-     * @param context    context to get the {@link WindowManager} for default display rotation.
-     * @param lensFacing current lens facing.
-     * @param width      the width of the coordinate which are mapped to the full camera preview
-     *                   FOV in default display's orientation.
-     * @param height     the height of the coordinate which are mapped to the full camera preview
-     *                   FOVin default display's orientation.
+     * @param context        context to get the {@link WindowManager} for default display rotation.
+     * @param cameraSelector current cameraSelector to choose camera.
+     * @param width          the width of the coordinate which are mapped to the full camera preview
+     *                       FOV in default display's orientation.
+     * @param height         the height of the coordinate which are mapped to the full camera
+     *                       preview
+     *                       FOVin default display's orientation.
      */
     public DisplayOrientedMeteringPointFactory(@NonNull Context context,
-            @NonNull LensFacing lensFacing, float width, float height) {
+            @NonNull CameraSelector cameraSelector, float width, float height) {
         this(((WindowManager) context.getSystemService(Context.WINDOW_SERVICE)).getDefaultDisplay(),
-                lensFacing, width, height);
+                cameraSelector, width, height);
     }
 
     /**
      * Creates a {@link DisplayOrientedMeteringPointFactory} for converting View (x, y) into a
-     * {@link MeteringPoint} based on custom display's rotation and {@link LensFacing}. This is
+     * {@link MeteringPoint} based on custom display's rotation and {@link CameraSelector}. This is
      * used in multi-display situation.
      *
      * <p>The width/height of this factory forms a coordinate left-top (0, 0) - right-bottom
@@ -94,25 +98,33 @@ public final class DisplayOrientedMeteringPointFactory extends MeteringPointFact
      * {@link View}, it is as simple as passing View's width/height and passing View (x, y)
      * directly to create a {@link MeteringPoint}.
      *
-     * @param display    {@link Display} to get the orientation from.
-     * @param lensFacing current lens facing.
-     * @param width      the width of the coordinate which are mapped to the full camera preview
-     *                   FOV in given display's orientation.
-     * @param height     the height of the coordinate which are mapped to the full camera preview
-     *                   FOV in given display's orientation.
+     * @param display        {@link Display} to get the orientation from.
+     * @param cameraSelector current cameraSelector to choose camera.
+     * @param width          the width of the coordinate which are mapped to the full camera preview
+     *                       FOV in given display's orientation.
+     * @param height         the height of the coordinate which are mapped to the full camera
+     *                       preview
+     *                       FOV in given display's orientation.
      */
     public DisplayOrientedMeteringPointFactory(@NonNull Display display,
-            @NonNull LensFacing lensFacing, float width, float height) {
+            @NonNull CameraSelector cameraSelector, float width, float height) {
         mWidth = width;
         mHeight = height;
-        mLensFacing = lensFacing;
+        mCameraSelector = cameraSelector;
         mDisplay = display;
         try {
-            String cameraId = CameraX.getCameraWithLensFacing(lensFacing);
+            String cameraId =
+                    CameraX.getCameraWithCameraDeviceConfig(
+                            CameraSelectorUtil.toCameraDeviceConfig(mCameraSelector));
             mCameraInfo = CameraX.getCameraInfo(cameraId);
         } catch (Exception e) {
-            throw new IllegalArgumentException("Can not find CameraInfo : " + lensFacing);
+            throw new IllegalArgumentException(
+                    "Unable to get camera id for the CameraSelector.", e);
         }
+    }
+
+    private LensFacing getLensFacing() {
+        return mCameraInfo.getLensFacing();
     }
 
     /**
@@ -124,7 +136,7 @@ public final class DisplayOrientedMeteringPointFactory extends MeteringPointFact
         float width = mWidth;
         float height = mHeight;
 
-        boolean compensateForMirroring = (mLensFacing == LensFacing.FRONT);
+        boolean compensateForMirroring = (getLensFacing() == LensFacing.FRONT);
         int relativeCameraOrientation = getRelativeCameraOrientation(compensateForMirroring);
         float outputX = x;
         float outputY = y;

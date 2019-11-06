@@ -50,7 +50,7 @@ import androidx.camera.core.FocusMeteringAction;
 import androidx.camera.core.ImageAnalysis;
 import androidx.camera.core.MeteringPoint;
 import androidx.camera.core.MeteringPointFactory;
-import androidx.camera.core.SensorOrientedMeteringPointFactory;
+import androidx.camera.core.SurfaceOrientedMeteringPointFactory;
 import androidx.camera.core.impl.utils.executor.CameraXExecutors;
 import androidx.test.core.app.ApplicationProvider;
 import androidx.test.filters.SmallTest;
@@ -96,8 +96,8 @@ public class FocusMeteringControlTest {
     private static final int AREA_HEIGHT2 =
             (int) (MeteringPointFactory.getDefaultPointSize() * SENSOR_HEIGHT2);
 
-    private final SensorOrientedMeteringPointFactory mPointFactory =
-            new SensorOrientedMeteringPointFactory(1, 1);
+    private final SurfaceOrientedMeteringPointFactory mPointFactory =
+            new SurfaceOrientedMeteringPointFactory(1, 1);
     private FocusMeteringControl mFocusMeteringControl;
 
     private final MeteringPoint mPoint1 = mPointFactory.createPoint(0, 0);
@@ -392,8 +392,8 @@ public class FocusMeteringControlTest {
                 new Size(1920, 1080));
         when(imageAnalysis.getAttachedCameraIds()).thenReturn(Sets.newHashSet(CAMERA0_ID));
 
-        SensorOrientedMeteringPointFactory factory =
-                new SensorOrientedMeteringPointFactory(1.0f, 1.0f, imageAnalysis);
+        SurfaceOrientedMeteringPointFactory factory =
+                new SurfaceOrientedMeteringPointFactory(1.0f, 1.0f, imageAnalysis);
 
         MeteringPoint point = factory.createPoint(0, 0);
         mFocusMeteringControl.startFocusAndMetering(FocusMeteringAction.Builder.from(point).build(),

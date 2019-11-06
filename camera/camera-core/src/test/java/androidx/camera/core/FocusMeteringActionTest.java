@@ -34,8 +34,8 @@ import java.util.concurrent.TimeUnit;
 @RunWith(RobolectricTestRunner.class)
 @DoNotInstrument
 public class FocusMeteringActionTest {
-    private SensorOrientedMeteringPointFactory mPointFactory =
-            new SensorOrientedMeteringPointFactory(1.0f, 1.0f);
+    private SurfaceOrientedMeteringPointFactory mPointFactory =
+            new SurfaceOrientedMeteringPointFactory(1.0f, 1.0f);
 
     MeteringPoint mPoint1 = mPointFactory.createPoint(0, 0);
     MeteringPoint mPoint2 = mPointFactory.createPoint(1, 1);

@@ -60,8 +60,8 @@ import androidx.camera.core.FlashMode;
 import androidx.camera.core.FocusMeteringAction;
 import androidx.camera.core.FocusMeteringAction.MeteringMode;
 import androidx.camera.core.LensFacing;
-import androidx.camera.core.SensorOrientedMeteringPointFactory;
 import androidx.camera.core.SessionConfig;
+import androidx.camera.core.SurfaceOrientedMeteringPointFactory;
 import androidx.camera.core.impl.utils.executor.CameraXExecutors;
 import androidx.camera.testing.CameraUtil;
 import androidx.camera.testing.HandlerUtil;
@@ -372,7 +372,7 @@ public final class Camera2CameraControlTest {
     @Test
     public void startFocusAndMetering_3ARegionsUpdatedInSessionAndSessionOptions()
             throws InterruptedException {
-        SensorOrientedMeteringPointFactory factory = new SensorOrientedMeteringPointFactory(1.0f,
+        SurfaceOrientedMeteringPointFactory factory = new SurfaceOrientedMeteringPointFactory(1.0f,
                 1.0f);
         FocusMeteringAction action = FocusMeteringAction.Builder.from(factory.createPoint(0, 0))
                 .build();
@@ -412,7 +412,7 @@ public final class Camera2CameraControlTest {
 
     @Test
     public void startFocusAndMetering_AfIsTriggeredProperly() throws InterruptedException {
-        SensorOrientedMeteringPointFactory factory = new SensorOrientedMeteringPointFactory(1.0f,
+        SurfaceOrientedMeteringPointFactory factory = new SurfaceOrientedMeteringPointFactory(1.0f,
                 1.0f);
         FocusMeteringAction action = FocusMeteringAction.Builder.from(factory.createPoint(0, 0))
                 .build();
@@ -436,7 +436,7 @@ public final class Camera2CameraControlTest {
 
     @Test
     public void startFocusAndMetering_AFNotInvolved_AfIsNotTriggered() throws InterruptedException {
-        SensorOrientedMeteringPointFactory factory = new SensorOrientedMeteringPointFactory(1.0f,
+        SurfaceOrientedMeteringPointFactory factory = new SurfaceOrientedMeteringPointFactory(1.0f,
                 1.0f);
         FocusMeteringAction action = FocusMeteringAction.Builder.from(factory.createPoint(0, 0),
                 MeteringMode.AE_AWB)
@@ -451,7 +451,7 @@ public final class Camera2CameraControlTest {
 
     @Test
     public void cancelFocusAndMetering_3ARegionsReset() throws InterruptedException {
-        SensorOrientedMeteringPointFactory factory = new SensorOrientedMeteringPointFactory(1.0f,
+        SurfaceOrientedMeteringPointFactory factory = new SurfaceOrientedMeteringPointFactory(1.0f,
                 1.0f);
         FocusMeteringAction action = FocusMeteringAction.Builder.from(factory.createPoint(0, 0))
                 .build();
@@ -492,7 +492,7 @@ public final class Camera2CameraControlTest {
 
     @Test
     public void cancelFocusAndMetering_cancelAfProperly() throws InterruptedException {
-        SensorOrientedMeteringPointFactory factory = new SensorOrientedMeteringPointFactory(1.0f,
+        SurfaceOrientedMeteringPointFactory factory = new SurfaceOrientedMeteringPointFactory(1.0f,
                 1.0f);
         FocusMeteringAction action = FocusMeteringAction.Builder.from(factory.createPoint(0, 0))
                 .build();
@@ -527,7 +527,7 @@ public final class Camera2CameraControlTest {
 
     @Test
     public void cancelFocusAndMetering_AFNotInvolved_notCancelAF() throws InterruptedException {
-        SensorOrientedMeteringPointFactory factory = new SensorOrientedMeteringPointFactory(1.0f,
+        SurfaceOrientedMeteringPointFactory factory = new SurfaceOrientedMeteringPointFactory(1.0f,
                 1.0f);
         FocusMeteringAction action = FocusMeteringAction.Builder.from(factory.createPoint(0, 0),
                 MeteringMode.AE_ONLY)
@@ -545,7 +545,7 @@ public final class Camera2CameraControlTest {
 
     @Test
     public void startFocus_afModeIsSetToAuto() throws InterruptedException {
-        SensorOrientedMeteringPointFactory factory = new SensorOrientedMeteringPointFactory(1.0f,
+        SurfaceOrientedMeteringPointFactory factory = new SurfaceOrientedMeteringPointFactory(1.0f,
                 1.0f);
         FocusMeteringAction action = FocusMeteringAction.Builder.from(factory.createPoint(0, 0))
                 .build();

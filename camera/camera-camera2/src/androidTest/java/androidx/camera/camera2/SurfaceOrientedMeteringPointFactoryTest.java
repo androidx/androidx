@@ -33,7 +33,7 @@ import androidx.camera.core.ImageAnalysisConfig;
 import androidx.camera.core.LensFacing;
 import androidx.camera.core.MeteringPoint;
 import androidx.camera.core.MeteringPointFactory;
-import androidx.camera.core.SensorOrientedMeteringPointFactory;
+import androidx.camera.core.SurfaceOrientedMeteringPointFactory;
 import androidx.camera.testing.CameraUtil;
 import androidx.camera.testing.fakes.FakeLifecycleOwner;
 import androidx.lifecycle.LifecycleOwner;
@@ -46,12 +46,12 @@ import org.junit.Test;
 
 import java.util.concurrent.ExecutionException;
 
-public final class SensorOrientedMeteringPointFactoryTest {
+public final class SurfaceOrientedMeteringPointFactoryTest {
     private static final float WIDTH = 480;
     private static final float HEIGHT = 640;
     private final Instrumentation mInstrumentation = InstrumentationRegistry.getInstrumentation();
     private LifecycleOwner mLifecycle;
-    SensorOrientedMeteringPointFactory mPointFactory;
+    SurfaceOrientedMeteringPointFactory mPointFactory;
     @Before
     public void setUp() {
         Context context = ApplicationProvider.getApplicationContext();
@@ -59,7 +59,7 @@ public final class SensorOrientedMeteringPointFactoryTest {
 
         CameraX.initialize(context, config);
         mLifecycle = new FakeLifecycleOwner();
-        mPointFactory = new SensorOrientedMeteringPointFactory(WIDTH, HEIGHT);
+        mPointFactory = new SurfaceOrientedMeteringPointFactory(WIDTH, HEIGHT);
     }
 
     @After
@@ -129,7 +129,7 @@ public final class SensorOrientedMeteringPointFactoryTest {
             }
         });
 
-        SensorOrientedMeteringPointFactory factory = new SensorOrientedMeteringPointFactory(
+        SurfaceOrientedMeteringPointFactory factory = new SurfaceOrientedMeteringPointFactory(
                 WIDTH, HEIGHT, imageAnalysis);
         MeteringPoint point = factory.createPoint(0f, 0f);
         assertThat(point.getSurfaceAspectRatio()).isEqualTo(new Rational(4, 3));
@@ -147,7 +147,7 @@ public final class SensorOrientedMeteringPointFactoryTest {
         ImageAnalysis imageAnalysis = new ImageAnalysis(imageAnalysisConfig);
 
         // This will throw IllegalStateException.
-        SensorOrientedMeteringPointFactory factory = new SensorOrientedMeteringPointFactory(
+        SurfaceOrientedMeteringPointFactory factory = new SurfaceOrientedMeteringPointFactory(
                 WIDTH, HEIGHT, imageAnalysis);
     }
 }
