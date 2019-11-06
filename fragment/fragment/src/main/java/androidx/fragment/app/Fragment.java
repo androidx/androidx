@@ -1124,6 +1124,11 @@ public class Fragment implements ComponentCallbacks, OnCreateContextMenuListener
      * <li> {@link #onAttach(Activity)} and {@link #onActivityCreated(Bundle)} <b>will</b>
      * still be called.
      * </ul>
+     *
+     * @param retain <code>true</code> to retain this fragment instance across configuration
+     *               changes, <code>false</code> otherwise.
+     *
+     * @see #getRetainInstance()
      */
     public void setRetainInstance(boolean retain) {
         mRetainInstance = retain;
@@ -1138,6 +1143,13 @@ public class Fragment implements ComponentCallbacks, OnCreateContextMenuListener
         }
     }
 
+    /**
+     * Returns <code>true</code> if this fragment instance's state will be retained across
+     * configuration changes, and <code>false</code> if it will not.
+     *
+     * @return whether or not this fragment instance will be retained.
+     * @see #setRetainInstance(boolean)
+     */
     final public boolean getRetainInstance() {
         return mRetainInstance;
     }
