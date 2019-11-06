@@ -121,14 +121,17 @@ public interface CameraControlInternal extends CameraControl {
         public void submitCaptureRequests(@NonNull List<CaptureConfig> captureConfigs) {
         }
 
+        @NonNull
         @Override
-        public void startFocusAndMetering(@NonNull FocusMeteringAction action) {
-
+        public ListenableFuture<FocusMeteringResult> startFocusAndMetering(
+                @NonNull FocusMeteringAction action) {
+            return Futures.immediateFuture(FocusMeteringResult.emptyInstance());
         }
 
+        @NonNull
         @Override
-        public void cancelFocusAndMetering() {
-
+        public ListenableFuture<Void> cancelFocusAndMetering() {
+            return Futures.immediateFuture(null);
         }
 
         @NonNull

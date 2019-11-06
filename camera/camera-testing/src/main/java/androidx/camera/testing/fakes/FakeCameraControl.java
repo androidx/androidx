@@ -28,6 +28,7 @@ import androidx.camera.core.CameraControlInternal;
 import androidx.camera.core.CaptureConfig;
 import androidx.camera.core.FlashMode;
 import androidx.camera.core.FocusMeteringAction;
+import androidx.camera.core.FocusMeteringResult;
 import androidx.camera.core.SessionConfig;
 import androidx.camera.core.impl.utils.futures.Futures;
 
@@ -149,12 +150,17 @@ public final class FakeCameraControl implements CameraControlInternal {
         mControlUpdateCallback.onCameraControlUpdateSessionConfig(mSessionConfigBuilder.build());
     }
 
+    @NonNull
     @Override
-    public void startFocusAndMetering(@NonNull FocusMeteringAction action) {
+    public ListenableFuture<FocusMeteringResult> startFocusAndMetering(
+            @NonNull FocusMeteringAction action) {
+        return Futures.immediateFuture(FocusMeteringResult.emptyInstance());
     }
 
+    @NonNull
     @Override
-    public void cancelFocusAndMetering() {
+    public ListenableFuture<Void> cancelFocusAndMetering() {
+        return Futures.immediateFuture(null);
     }
 
     /** Sets a listener to be notified when there are new capture request submitted */
