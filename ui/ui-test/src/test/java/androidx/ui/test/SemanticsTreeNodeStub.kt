@@ -15,13 +15,21 @@
  */
 package androidx.ui.test
 
-import androidx.ui.core.PxPosition
+import androidx.ui.core.ComponentNode
 import androidx.ui.core.SemanticsTreeNode
 import androidx.ui.core.semantics.SemanticsConfiguration
+import androidx.ui.engine.geometry.Rect
 
 class SemanticsTreeNodeStub(override val data: SemanticsConfiguration) : SemanticsTreeNode {
     override val parent: SemanticsTreeNode?
         get() = null
     override val children: Set<SemanticsTreeNode> = setOf()
-    override val globalPosition: PxPosition? = null
+    override val globalRect: Rect? = null
+
+    override fun findClosestParentNode(selector: (ComponentNode) -> Boolean): ComponentNode? {
+        // TODO(b/143866294): currently we do not have a way of specifying a hierarchy in
+        // FakeSemanticsTreeInteraction, this needs to be implemented after we stop flattening
+        // the hierarchy
+        return null
+    }
 }

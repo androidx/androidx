@@ -17,18 +17,28 @@ package androidx.ui.core
 
 import android.view.MotionEvent
 import androidx.ui.core.semantics.SemanticsConfiguration
+import androidx.ui.engine.geometry.Rect
 
 /**
  * Represent a node in the semantics tree together with information about its parent and children.
  *
- * @param parent Parent of this node or null if none
- * @param data The actual semantics data of this node
+ * [parent] Parent of this node or null if none
+ * [data] The actual semantics data of this node
+ * [children] A list of this node's [SemanticsTreeNode] children
+ * [globalRect] A rectangle that stores the position and size of the node
  */
 interface SemanticsTreeNode {
     val parent: SemanticsTreeNode?
     val data: SemanticsConfiguration
     val children: Set<SemanticsTreeNode>
-    val globalPosition: PxPosition?
+    val globalRect: Rect?
+
+    /**
+     * Executes [selector] on every parent of this semantics node and returns the closest
+     * [ComponentNode] to return `true` from [selector] or null if [selector] returns false
+     * for all ancestors.
+     */
+    fun findClosestParentNode(selector: (ComponentNode) -> Boolean): ComponentNode?
 }
 
 /**

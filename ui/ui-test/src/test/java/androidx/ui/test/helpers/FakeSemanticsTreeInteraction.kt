@@ -18,6 +18,7 @@ package androidx.ui.test.helpers
 
 import androidx.ui.core.SemanticsTreeNode
 import androidx.ui.core.semantics.SemanticsConfiguration
+import androidx.ui.engine.geometry.Rect
 import androidx.ui.test.SemanticsNodeInteraction
 import androidx.ui.test.SemanticsTreeInteraction
 import androidx.ui.test.SemanticsTreeNodeStub
@@ -71,6 +72,10 @@ internal class FakeSemanticsTreeInteraction internal constructor(
         return semanticsToUse
             .map { it.semanticsTreeNode.data }
             .contains(semanticsConfiguration)
+    }
+
+    override fun isInScreenBounds(rectangle: Rect): Boolean {
+        TODO("catalintudor: implement")
     }
 
     override fun waitForIdleCompose(): Boolean {

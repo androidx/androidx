@@ -32,9 +32,12 @@ import androidx.test.espresso.Espresso
 import androidx.test.espresso.NoMatchingViewException
 import androidx.test.espresso.ViewAssertion
 import androidx.test.espresso.matcher.ViewMatchers
+import androidx.ui.core.PxPosition
 import androidx.ui.core.SemanticsTreeNode
 import androidx.ui.core.SemanticsTreeProvider
+import androidx.ui.core.px
 import androidx.ui.core.semantics.SemanticsConfiguration
+import androidx.ui.engine.geometry.Rect
 import androidx.ui.test.SemanticsNodeInteraction
 import androidx.ui.test.SemanticsTreeInteraction
 import java.util.concurrent.CountDownLatch
@@ -179,6 +182,28 @@ internal class AndroidSemanticsTreeInteraction internal constructor(
             .treeProvider
             .getAllSemanticNodes()
             .any { it.data == semanticsConfiguration }
+    }
+
+    override fun isInScreenBounds(rectangle: Rect): Boolean {
+        val displayMetrics = findActivityAndTreeProvider()
+            .context
+            .resources
+            .displayMetrics
+
+        val bottomRight = PxPosition(
+            displayMetrics.widthPixels.px,
+            displayMetrics.heightPixels.px
+        )
+
+        val screenRect = Rect.fromLTWH(
+            0.px.value,
+            0.px.value,
+            bottomRight.x.value,
+            bottomRight.y.value
+        )
+
+        return screenRect.contains(rectangle.getTopLeft()) &&
+                screenRect.contains(rectangle.getBottomRight())
     }
 
     private fun findActivityAndTreeProvider(): CollectedInfo {

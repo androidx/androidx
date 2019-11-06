@@ -24,10 +24,10 @@ fun SemanticsNodeInteraction.doClick(): SemanticsNodeInteraction {
     // assertHasClickAction()
 
     // TODO(catalintudor): get real coordinates after Semantics API is ready (b/125702443)
-    val globalCoordinates = semanticsTreeNode.globalPosition
+    val globalRect = semanticsTreeNode.globalRect
         ?: throw AssertionError("Semantic Node has no child layout to perform click on!")
-    val x = globalCoordinates.x.value + 1f
-    val y = globalCoordinates.y.value + 1f
+    val x = globalRect.left + 1f
+    val y = globalRect.top + 1f
 
     semanticsTreeInteraction.sendClick(x, y)
 

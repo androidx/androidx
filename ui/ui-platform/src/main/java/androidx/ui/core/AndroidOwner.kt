@@ -149,6 +149,7 @@ class AndroidComposeView constructor(context: Context) :
         }
         isFocusableInTouchMode = true
         clipChildren = false
+        root.isPlaced = true
     }
 
     override fun onInvalidate(drawNode: DrawNode) {
