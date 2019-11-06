@@ -894,6 +894,7 @@ public class MediaSession implements AutoCloseable {
      * Information of a controller.
      */
     public static final class ControllerInfo {
+        @SuppressWarnings("UnusedVariable")
         private final int mControllerVersion;
         private final RemoteUserInfo mRemoteUserInfo;
         private final boolean mIsTrusted;

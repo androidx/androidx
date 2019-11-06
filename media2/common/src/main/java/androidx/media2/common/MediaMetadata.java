@@ -735,31 +735,6 @@ public final class MediaMetadata extends CustomVersionedParcelable {
         METADATA_KEYS_TYPE.put(METADATA_KEY_EXTRAS, METADATA_TYPE_BUNDLE);
     }
 
-    private static final @MediaMetadata.TextKey
-    String[] PREFERRED_DESCRIPTION_ORDER = {
-            METADATA_KEY_TITLE,
-            METADATA_KEY_ARTIST,
-            METADATA_KEY_ALBUM,
-            METADATA_KEY_ALBUM_ARTIST,
-            METADATA_KEY_WRITER,
-            METADATA_KEY_AUTHOR,
-            METADATA_KEY_COMPOSER
-    };
-
-    private static final @MediaMetadata.BitmapKey
-    String[] PREFERRED_BITMAP_ORDER = {
-            METADATA_KEY_DISPLAY_ICON,
-            METADATA_KEY_ART,
-            METADATA_KEY_ALBUM_ART
-    };
-
-    private static final @MediaMetadata.TextKey
-    String[] PREFERRED_URI_ORDER = {
-            METADATA_KEY_DISPLAY_ICON_URI,
-            METADATA_KEY_ART_URI,
-            METADATA_KEY_ALBUM_ART_URI
-    };
-
     @ParcelField(1)
     Bundle mBundle;
 
