@@ -119,7 +119,8 @@ class MediaBrowserImplLegacy extends MediaControllerImplLegacy implements
         if (browserCompat == null) {
             return LibraryResult.createFutureWithResult(RESULT_ERROR_SESSION_DISCONNECTED);
         }
-        SubscribeCallback callback = new SubscribeCallback();
+        ResolvableFuture<LibraryResult> future = ResolvableFuture.create();
+        SubscribeCallback callback = new SubscribeCallback(future);
         synchronized (mLock) {
             List<SubscribeCallback> list = mSubscribeCallbacks.get(parentId);
             if (list == null) {
@@ -128,10 +129,8 @@ class MediaBrowserImplLegacy extends MediaControllerImplLegacy implements
             }
             list.add(callback);
         }
-        browserCompat.subscribe(parentId, getExtras(params), callback);
-
-        // No way to get result. Just return success.
-        return LibraryResult.createFutureWithResult(LibraryResult.RESULT_SUCCESS);
+        browserCompat.subscribe(parentId, createOptions(params), callback);
+        return future;
     }
 
     @Override
@@ -165,9 +164,7 @@ class MediaBrowserImplLegacy extends MediaControllerImplLegacy implements
         }
 
         final ResolvableFuture<LibraryResult> future = ResolvableFuture.create();
-        Bundle options = createBundle(params);
-        options.putInt(MediaBrowserCompat.EXTRA_PAGE, page);
-        options.putInt(MediaBrowserCompat.EXTRA_PAGE_SIZE, pageSize);
+        Bundle options = createOptions(params, page, pageSize);
         browserCompat.subscribe(parentId, options, new GetChildrenCallback(future, parentId));
         return future;
     }
@@ -254,16 +251,14 @@ class MediaBrowserImplLegacy extends MediaControllerImplLegacy implements
 
     @Override
     public ListenableFuture<LibraryResult> getSearchResult(@NonNull final String query,
-            final int page, final int pageSize, @Nullable final LibraryParams param) {
+            final int page, final int pageSize, @Nullable final LibraryParams params) {
         MediaBrowserCompat browserCompat = getBrowserCompat();
         if (browserCompat == null) {
             return LibraryResult.createFutureWithResult(RESULT_ERROR_SESSION_DISCONNECTED);
         }
 
         final ResolvableFuture<LibraryResult> future = ResolvableFuture.create();
-        Bundle options = createBundle(param);
-        options.putInt(MediaBrowserCompat.EXTRA_PAGE, page);
-        options.putInt(MediaBrowserCompat.EXTRA_PAGE_SIZE, pageSize);
+        Bundle options = createOptions(params, page, pageSize);
         browserCompat.search(query, options, new MediaBrowserCompat.SearchCallback() {
             @Override
             public void onSearchResult(@NonNull final String query, final Bundle extrasSent,
@@ -297,9 +292,16 @@ class MediaBrowserImplLegacy extends MediaControllerImplLegacy implements
         }
     }
 
-    private static Bundle createBundle(@Nullable LibraryParams params) {
+    private static Bundle createOptions(@Nullable LibraryParams params) {
         return params == null || params.getExtras() == null
                 ? new Bundle() : new Bundle(params.getExtras());
+    }
+
+    private static Bundle createOptions(@Nullable LibraryParams params, int page, int pageSize) {
+        Bundle options = createOptions(params);
+        options.putInt(MediaBrowserCompat.EXTRA_PAGE, page);
+        options.putInt(MediaBrowserCompat.EXTRA_PAGE_SIZE, pageSize);
+        return options;
     }
 
     private static Bundle getExtras(@Nullable LibraryParams params) {
@@ -358,17 +360,20 @@ class MediaBrowserImplLegacy extends MediaControllerImplLegacy implements
     }
 
     private class SubscribeCallback extends SubscriptionCallback {
-        SubscribeCallback() {
+        final ResolvableFuture<LibraryResult> mFuture;
+
+        SubscribeCallback(ResolvableFuture<LibraryResult> future) {
+            mFuture = future;
         }
 
         @Override
         public void onError(@NonNull String parentId) {
-            onChildrenLoadedInternal(parentId, null);
+            onErrorInternal();
         }
 
         @Override
         public void onError(@NonNull String parentId, @NonNull Bundle options) {
-            onChildrenLoadedInternal(parentId, null);
+            onErrorInternal();
         }
 
         @Override
@@ -382,6 +387,12 @@ class MediaBrowserImplLegacy extends MediaControllerImplLegacy implements
                 @NonNull List<MediaBrowserCompat.MediaItem> children,
                 @NonNull final Bundle options) {
             onChildrenLoadedInternal(parentId, children);
+        }
+
+        private void onErrorInternal() {
+            // Don't need to unsubscribe here, because MediaBrowserServiceCompat can notify children
+            // changed after the initial failure and MediaBrowserCompat could receive the changes.
+            mFuture.set(new LibraryResult(RESULT_ERROR_UNKNOWN));
         }
 
         private void onChildrenLoadedInternal(@NonNull final String parentId,
@@ -412,6 +423,7 @@ class MediaBrowserImplLegacy extends MediaControllerImplLegacy implements
                     callback.onChildrenChanged(getMediaBrowser(), parentId, itemCount, params);
                 }
             });
+            mFuture.set(new LibraryResult(RESULT_SUCCESS));
         }
     }
 
@@ -427,12 +439,12 @@ class MediaBrowserImplLegacy extends MediaControllerImplLegacy implements
 
         @Override
         public void onError(@NonNull String parentId) {
-            mFuture.set(new LibraryResult(RESULT_ERROR_UNKNOWN));
+            onErrorInternal();
         }
 
         @Override
         public void onError(@NonNull String parentId, @NonNull Bundle options) {
-            mFuture.set(new LibraryResult(RESULT_ERROR_UNKNOWN));
+            onErrorInternal();
         }
 
         @Override
@@ -445,6 +457,10 @@ class MediaBrowserImplLegacy extends MediaControllerImplLegacy implements
         public void onChildrenLoaded(@NonNull final String parentId,
                 @NonNull List<MediaBrowserCompat.MediaItem> children, @NonNull Bundle options) {
             onChildrenLoadedInternal(parentId, children);
+        }
+
+        private void onErrorInternal() {
+            mFuture.set(new LibraryResult(RESULT_ERROR_UNKNOWN));
         }
 
         private void onChildrenLoadedInternal(@NonNull final String parentId,
