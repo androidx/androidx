@@ -24,6 +24,7 @@ import android.graphics.BitmapFactory;
 import android.media.MediaMetadataRetriever;
 import android.net.Uri;
 import android.os.AsyncTask;
+import android.widget.Toast;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
@@ -31,14 +32,18 @@ import androidx.core.content.ContextCompat;
 import androidx.media.AudioAttributesCompat;
 import androidx.media2.common.MediaItem;
 import androidx.media2.common.MediaMetadata;
+import androidx.media2.common.SessionPlayer;
 import androidx.media2.common.UriMediaItem;
 import androidx.media2.player.MediaPlayer;
 import androidx.media2.session.MediaSession;
 import androidx.media2.session.MediaSessionService;
 
+import com.google.common.util.concurrent.ListenableFuture;
+
 import java.lang.ref.WeakReference;
 import java.util.List;
 import java.util.concurrent.Executor;
+import java.util.concurrent.TimeUnit;
 
 /**
  * Test service for VideoPlayerActivity
@@ -60,7 +65,8 @@ public class VideoSessionService extends MediaSessionService {
                     .setUsage(AudioAttributesCompat.USAGE_MEDIA)
                     .setContentType(AudioAttributesCompat.CONTENT_TYPE_MOVIE).build();
             mMediaPlayer = new MediaPlayer(this);
-            mMediaPlayer.setAudioAttributes(mAudioAttributes);
+            showToastIfFailed(mMediaPlayer.setAudioAttributes(mAudioAttributes),
+                    "Failed to set audio attribute.");
         }
 
         List<MediaSession> sessions = getSessions();
@@ -102,6 +108,24 @@ public class VideoSessionService extends MediaSessionService {
         return mMediaSession;
     }
 
+    void showToastIfFailed(ListenableFuture<SessionPlayer.PlayerResult> result,
+            String errorMessage) {
+        result.addListener(() -> {
+            boolean showToastMessage = false;
+            try {
+                SessionPlayer.PlayerResult playerResult = result.get(0, TimeUnit.MILLISECONDS);
+                if (playerResult.getResultCode() != SessionPlayer.PlayerResult.RESULT_SUCCESS) {
+                    showToastMessage = true;
+                }
+            } catch (Exception e) {
+                showToastMessage = true;
+            }
+            if (showToastMessage) {
+                Toast.makeText(this, errorMessage, Toast.LENGTH_SHORT);
+            }
+        }, ContextCompat.getMainExecutor(this));
+    }
+
     class SessionCallback extends MediaSession.SessionCallback {
         @Nullable
         @Override
@@ -119,7 +143,8 @@ public class VideoSessionService extends MediaSessionService {
             // TODO: Temporary fix for multiple calls of setMediaItem not working properly.
             //  (b/135728285)
             mMediaPlayer.reset();
-            mMediaPlayer.setAudioAttributes(mAudioAttributes);
+            showToastIfFailed(mMediaPlayer.setAudioAttributes(mAudioAttributes),
+                    "Failed to set audio attribute.");
             return currentItem;
         }
     }

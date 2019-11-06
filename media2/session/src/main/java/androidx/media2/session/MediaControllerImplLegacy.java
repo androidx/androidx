@@ -23,12 +23,6 @@ import static androidx.media2.common.BaseResult.RESULT_ERROR_BAD_VALUE;
 import static androidx.media2.common.SessionPlayer.BUFFERING_STATE_UNKNOWN;
 import static androidx.media2.common.SessionPlayer.PLAYER_STATE_IDLE;
 import static androidx.media2.common.SessionPlayer.UNKNOWN_TIME;
-import static androidx.media2.session.MediaConstants.ARGUMENT_COMMAND_CODE;
-import static androidx.media2.session.MediaConstants.ARGUMENT_ICONTROLLER_CALLBACK;
-import static androidx.media2.session.MediaConstants.ARGUMENT_PACKAGE_NAME;
-import static androidx.media2.session.MediaConstants.ARGUMENT_PID;
-import static androidx.media2.session.MediaConstants.ARGUMENT_UID;
-import static androidx.media2.session.MediaConstants.CONTROLLER_COMMAND_BY_COMMAND_CODE;
 import static androidx.media2.session.SessionResult.RESULT_ERROR_NOT_SUPPORTED;
 import static androidx.media2.session.SessionResult.RESULT_ERROR_SESSION_DISCONNECTED;
 import static androidx.media2.session.SessionResult.RESULT_SUCCESS;
@@ -41,7 +35,6 @@ import android.os.Build;
 import android.os.Bundle;
 import android.os.Handler;
 import android.os.HandlerThread;
-import android.os.Process;
 import android.os.ResultReceiver;
 import android.support.v4.media.MediaBrowserCompat;
 import android.support.v4.media.MediaMetadataCompat;
@@ -57,7 +50,6 @@ import androidx.annotation.GuardedBy;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.concurrent.futures.ResolvableFuture;
-import androidx.core.app.BundleCompat;
 import androidx.core.util.ObjectsCompat;
 import androidx.media2.common.MediaItem;
 import androidx.media2.common.MediaMetadata;
@@ -951,45 +943,6 @@ class MediaControllerImplLegacy implements MediaController.MediaControllerImpl {
                 }
             }
         });
-    }
-
-    private void sendCommand(@SessionCommand.CommandCode int commandCode) {
-        sendCommand(commandCode, null);
-    }
-
-    private void sendCommand(@SessionCommand.CommandCode int commandCode, Bundle args) {
-        if (args == null) {
-            args = new Bundle();
-        }
-        args.putInt(ARGUMENT_COMMAND_CODE, commandCode);
-        sendCommand(CONTROLLER_COMMAND_BY_COMMAND_CODE, args, null);
-    }
-
-    private void sendCommand(String command) {
-        sendCommand(command, null, null);
-    }
-
-    @SuppressWarnings("WeakerAccess") /* synthetic access */
-    void sendCommand(String command, ResultReceiver receiver) {
-        sendCommand(command, null, receiver);
-    }
-
-    private void sendCommand(String command, Bundle args, ResultReceiver receiver) {
-        if (args == null) {
-            args = new Bundle();
-        }
-        MediaControllerCompat controller;
-        ControllerCompatCallback callback;
-        synchronized (mLock) {
-            controller = mControllerCompat;
-            callback = mControllerCompatCallback;
-        }
-        BundleCompat.putBinder(args, ARGUMENT_ICONTROLLER_CALLBACK,
-                callback.getIControllerCallback().asBinder());
-        args.putString(ARGUMENT_PACKAGE_NAME, mContext.getPackageName());
-        args.putInt(ARGUMENT_UID, Process.myUid());
-        args.putInt(ARGUMENT_PID, Process.myPid());
-        controller.sendCommand(command, args, receiver);
     }
 
     @SuppressWarnings({"GuardedBy", "WeakerAccess"}) /* WeakerAccess for synthetic access */
