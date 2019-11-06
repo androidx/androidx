@@ -196,15 +196,13 @@ public final class FakeCameraFactory implements CameraFactory {
                 mCachedLensFacingToIdMap.get(lensFacing));
     }
 
-    private static final class SettableLensFacingCameraIdFilter implements
-            LensFacingCameraIdFilter {
-        private final LensFacing mLensFacing;
+    private static final class SettableLensFacingCameraIdFilter extends LensFacingCameraIdFilter {
         @Nullable
         private final Set<String> mIds;
 
         SettableLensFacingCameraIdFilter(@NonNull LensFacing lensFacing,
                 @Nullable Set<String> ids) {
-            mLensFacing = lensFacing;
+            super(lensFacing);
             mIds = ids;
         }
 
@@ -219,12 +217,6 @@ public final class FakeCameraFactory implements CameraFactory {
             Set<String> resultCameraIdSet = new TreeSet<>(cameraIds);
             resultCameraIdSet.retainAll(mIds);
             return resultCameraIdSet;
-        }
-
-        @Override
-        @NonNull
-        public LensFacing getLensFacing() {
-            return mLensFacing;
         }
     }
 }

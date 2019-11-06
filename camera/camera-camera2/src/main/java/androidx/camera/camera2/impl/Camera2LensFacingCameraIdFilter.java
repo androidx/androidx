@@ -36,14 +36,13 @@ import java.util.Set;
  * @hide
  */
 @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
-public final class Camera2LensFacingCameraIdFilter implements LensFacingCameraIdFilter {
+public final class Camera2LensFacingCameraIdFilter extends LensFacingCameraIdFilter {
     private static final String TAG = "Camera2LensFacingCIF";
-    private LensFacing mLensFacing;
     private CameraManager mCameraManager;
 
-    Camera2LensFacingCameraIdFilter(@NonNull CameraManager cameraManager,
-            @NonNull LensFacing lensFacing) {
-        mLensFacing = lensFacing;
+    Camera2LensFacingCameraIdFilter(@NonNull LensFacing lensFacing,
+            @NonNull CameraManager cameraManager) {
+        super(lensFacing);
         mCameraManager = cameraManager;
     }
 
@@ -63,18 +62,12 @@ public final class Camera2LensFacingCameraIdFilter implements LensFacingCameraId
             if (lensFacingInteger == null) {
                 continue;
             }
-            if (lensFacingInteger.equals(cameraXLensFacingToCamera2LensFacing(mLensFacing))) {
+            if (lensFacingInteger.equals(cameraXLensFacingToCamera2LensFacing(getLensFacing()))) {
                 resultCameraIdSet.add(cameraId);
             }
         }
 
         return resultCameraIdSet;
-    }
-
-    @Override
-    @NonNull
-    public LensFacing getLensFacing() {
-        return mLensFacing;
     }
 
     private Integer cameraXLensFacingToCamera2LensFacing(LensFacing lensFacing) {

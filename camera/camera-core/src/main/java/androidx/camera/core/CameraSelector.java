@@ -136,9 +136,7 @@ public final class CameraSelector {
          */
         @NonNull
         public Builder requireLensFacing(@NonNull LensFacing lensFacing) {
-            CameraIdFilter cameraFilter = CameraX.getCameraFactory().getLensFacingCameraIdFilter(
-                    lensFacing);
-            mCameraFilterSet.add(cameraFilter);
+            mCameraFilterSet.add(new LensFacingCameraIdFilter(lensFacing));
             return this;
         }
 

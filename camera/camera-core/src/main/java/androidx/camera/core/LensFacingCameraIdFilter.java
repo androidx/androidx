@@ -19,14 +19,32 @@ package androidx.camera.core;
 import androidx.annotation.NonNull;
 import androidx.annotation.RestrictTo;
 
+import java.util.Set;
+
 /**
  * A filter selects camera id with specified lens facing from a camera id set.
  *
  * @hide
  */
 @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
-public interface LensFacingCameraIdFilter extends CameraIdFilter {
+public class LensFacingCameraIdFilter implements CameraIdFilter {
+    private LensFacing mLensFacing;
+
+    public LensFacingCameraIdFilter(@NonNull LensFacing lensFacing) {
+        mLensFacing = lensFacing;
+    }
+
+    @Override
+    @NonNull
+    public Set<String> filter(@NonNull Set<String> cameraIds) {
+        LensFacingCameraIdFilter lensFacingCameraIdFilter =
+                CameraX.getCameraFactory().getLensFacingCameraIdFilter(mLensFacing);
+        return lensFacingCameraIdFilter.filter(cameraIds);
+    }
+
     /** Returns the lens facing associated with this lens facing camera id filter. */
     @NonNull
-    LensFacing getLensFacing();
+    public LensFacing getLensFacing() {
+        return mLensFacing;
+    }
 }
