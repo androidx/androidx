@@ -660,6 +660,13 @@ public class NotificationCompat {
     public static final int GROUP_ALERT_CHILDREN = Notification.GROUP_ALERT_CHILDREN;
 
     /**
+     * Constant for the {@link Builder#setGroup(String) group key} that's added to notifications
+     * that are not already grouped when {@link Builder#setNotificationSilent()} is used when
+     * {@link Build.VERSION#SDK_INT} is >= {@link Build.VERSION_CODES#O}.
+     */
+    public static final String GROUP_KEY_SILENT = "silent";
+
+    /**
      * Builder class for {@link NotificationCompat} objects.  Allows easier control over
      * all the flags, as well as help constructing the typical notification layouts.
      * <p>
@@ -744,6 +751,7 @@ public class NotificationCompat {
         boolean mAllowSystemGeneratedContextualActions;
         BubbleMetadata mBubbleMetadata;
         Notification mNotification = new Notification();
+        boolean mSilent;
 
         /**
          * @deprecated This field was not meant to be public.
@@ -860,6 +868,15 @@ public class NotificationCompat {
         public Builder setSmallIcon(int icon, int level) {
             mNotification.icon = icon;
             mNotification.iconLevel = level;
+            return this;
+        }
+
+        /**
+         * Silences this instance of the notification, regardless of the sounds or vibrations set
+         * on the notification or notification channel.
+         */
+        public @NonNull Builder setNotificationSilent() {
+            mSilent = true;
             return this;
         }
 

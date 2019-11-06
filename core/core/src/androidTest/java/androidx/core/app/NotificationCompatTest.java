@@ -23,6 +23,7 @@ import static androidx.core.app.NotificationCompat.DEFAULT_VIBRATE;
 import static androidx.core.app.NotificationCompat.GROUP_ALERT_ALL;
 import static androidx.core.app.NotificationCompat.GROUP_ALERT_CHILDREN;
 import static androidx.core.app.NotificationCompat.GROUP_ALERT_SUMMARY;
+import static androidx.core.app.NotificationCompat.GROUP_KEY_SILENT;
 
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
@@ -445,6 +446,123 @@ public class NotificationCompatTest extends BaseInstrumentationTestCase<TestActi
             assertTrue((n2.defaults & DEFAULT_LIGHTS) != 0);
             assertTrue((n2.defaults & DEFAULT_SOUND) != 0);
             assertTrue((n2.defaults & DEFAULT_VIBRATE) != 0);
+        }
+    }
+
+    @Test
+    public void testSetNotificationSilent() throws Throwable {
+
+        Notification nSummary = new NotificationCompat.Builder(mActivityTestRule.getActivity())
+                .setVibrate(new long[] {235})
+                .setSound(Uri.EMPTY)
+                .setDefaults(DEFAULT_ALL)
+                .setGroupSummary(true)
+                .setTicker("summary")
+                .setNotificationSilent()
+                .build();
+
+        Notification nChild = new NotificationCompat.Builder(mActivityTestRule.getActivity())
+                .setVibrate(new long[] {235})
+                .setSound(Uri.EMPTY)
+                .setDefaults(DEFAULT_ALL)
+                .setGroupSummary(false)
+                .setTicker("child")
+                .setNotificationSilent()
+                .build();
+
+        if (Build.VERSION.SDK_INT >= 20 && !(Build.VERSION.SDK_INT >= 26)) {
+            assertNull(nSummary.sound);
+            assertNull(nSummary.vibrate);
+            assertTrue((nSummary.defaults & DEFAULT_LIGHTS) != 0);
+            assertTrue((nSummary.defaults & DEFAULT_SOUND) == 0);
+            assertTrue((nSummary.defaults & DEFAULT_VIBRATE) == 0);
+
+            assertNull(nChild.sound);
+            assertNull(nChild.vibrate);
+            assertTrue((nChild.defaults & DEFAULT_LIGHTS) != 0);
+            assertTrue((nChild.defaults & DEFAULT_SOUND) == 0);
+            assertTrue((nChild.defaults & DEFAULT_VIBRATE) == 0);
+        }
+
+        if (Build.VERSION.SDK_INT >= 26) {
+            assertEquals(GROUP_ALERT_SUMMARY, nChild.getGroupAlertBehavior());
+            assertEquals(GROUP_ALERT_CHILDREN, nSummary.getGroupAlertBehavior());
+            assertEquals(GROUP_KEY_SILENT, nChild.getGroup());
+            assertEquals(GROUP_KEY_SILENT, nSummary.getGroup());
+        } else if (Build.VERSION.SDK_INT >= 20) {
+            assertNull(nChild.getGroup());
+            assertNull(nSummary.getGroup());
+        }
+    }
+
+    @Test
+    public void testSetNotificationSilent_doesNotOverrideGroup() throws Throwable {
+        final String groupKey = "grouped";
+
+        Notification nSummary = new NotificationCompat.Builder(mActivityTestRule.getActivity())
+                .setVibrate(new long[] {235})
+                .setSound(Uri.EMPTY)
+                .setDefaults(DEFAULT_ALL)
+                .setGroupSummary(true)
+                .setGroup(groupKey)
+                .setTicker("summary")
+                .setNotificationSilent()
+                .build();
+
+        Notification nChild = new NotificationCompat.Builder(mActivityTestRule.getActivity())
+                .setVibrate(new long[] {235})
+                .setSound(Uri.EMPTY)
+                .setDefaults(DEFAULT_ALL)
+                .setGroupSummary(false)
+                .setGroup(groupKey)
+                .setTicker("child")
+                .setNotificationSilent()
+                .build();
+
+        if (Build.VERSION.SDK_INT >= 26) {
+            assertEquals(GROUP_ALERT_SUMMARY, nChild.getGroupAlertBehavior());
+            assertEquals(GROUP_ALERT_CHILDREN, nSummary.getGroupAlertBehavior());
+        }
+        if (Build.VERSION.SDK_INT >= 20) {
+            assertEquals(groupKey, nChild.getGroup());
+            assertEquals(groupKey, nSummary.getGroup());
+        }
+    }
+
+    @Test
+    public void testSetNotificationSilent_notSilenced() throws Throwable {
+
+        Notification nSummary = new NotificationCompat.Builder(mActivityTestRule.getActivity())
+                .setVibrate(new long[] {235})
+                .setSound(Uri.EMPTY)
+                .setDefaults(DEFAULT_ALL)
+                .setGroup("grouped")
+                .setGroupSummary(true)
+                .build();
+
+        Notification nChild = new NotificationCompat.Builder(mActivityTestRule.getActivity())
+                .setVibrate(new long[] {235})
+                .setSound(Uri.EMPTY)
+                .setDefaults(DEFAULT_ALL)
+                .setGroup("grouped")
+                .setGroupSummary(false)
+                .build();
+
+        assertNotNull(nSummary.sound);
+        assertNotNull(nSummary.vibrate);
+        assertTrue((nSummary.defaults & DEFAULT_LIGHTS) != 0);
+        assertTrue((nSummary.defaults & DEFAULT_SOUND) != 0);
+        assertTrue((nSummary.defaults & DEFAULT_VIBRATE) != 0);
+
+        assertNotNull(nChild.sound);
+        assertNotNull(nChild.vibrate);
+        assertTrue((nChild.defaults & DEFAULT_LIGHTS) != 0);
+        assertTrue((nChild.defaults & DEFAULT_SOUND) != 0);
+        assertTrue((nChild.defaults & DEFAULT_VIBRATE) != 0);
+
+        if (Build.VERSION.SDK_INT >= 26) {
+            assertEquals(GROUP_ALERT_ALL, nChild.getGroupAlertBehavior());
+            assertEquals(GROUP_ALERT_ALL, nSummary.getGroupAlertBehavior());
         }
     }
 
