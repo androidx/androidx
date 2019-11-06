@@ -16,17 +16,14 @@
 
 package androidx.ui.core
 
-import android.app.Activity
-import androidx.benchmark.junit4.BenchmarkRule
 import androidx.test.filters.LargeTest
-import androidx.test.rule.ActivityTestRule
-import androidx.ui.benchmark.measureDrawPerf
-import androidx.ui.benchmark.measureFirstCompose
-import androidx.ui.benchmark.measureFirstDraw
-import androidx.ui.benchmark.measureFirstLayout
-import androidx.ui.benchmark.measureFirstMeasure
-import androidx.ui.benchmark.measureLayoutPerf
-import androidx.ui.test.DisableTransitions
+import androidx.ui.benchmark.ComposeBenchmarkRule
+import androidx.ui.benchmark.benchmarkDrawPerf
+import androidx.ui.benchmark.benchmarkFirstCompose
+import androidx.ui.benchmark.benchmarkFirstDraw
+import androidx.ui.benchmark.benchmarkFirstLayout
+import androidx.ui.benchmark.benchmarkFirstMeasure
+import androidx.ui.benchmark.benchmarkLayoutPerf
 import androidx.ui.test.TextBenchmarkTestRule
 import org.junit.Rule
 import org.junit.Test
@@ -41,19 +38,12 @@ import org.junit.runners.Parameterized
 class TextBasicBenchmark(
     private val textLength: Int
 ) {
-    @get:Rule
-    val benchmarkRule = BenchmarkRule()
-
-    @get:Rule
-    val activityRule = ActivityTestRule(Activity::class.java)
-
-    @get:Rule
-    val disableAnimationRule = DisableTransitions()
 
     @get:Rule
     val textBenchmarkRule = TextBenchmarkTestRule()
 
-    private val activity: Activity get() = activityRule.activity
+    @get:Rule
+    val benchmarkRule = ComposeBenchmarkRule()
 
     companion object {
         @JvmStatic
@@ -68,9 +58,8 @@ class TextBasicBenchmark(
     @Test
     fun first_compose() {
         textBenchmarkRule.generator { textGenerator ->
-            benchmarkRule.measureFirstCompose(
-                activity,
-                TextBasicTestCase(activity, textLength, textGenerator)
+            benchmarkRule.benchmarkFirstCompose(
+                TextBasicTestCase(textLength, textGenerator)
             )
         }
     }
@@ -82,9 +71,8 @@ class TextBasicBenchmark(
     @Test
     fun first_measure() {
         textBenchmarkRule.generator { textGenerator ->
-            benchmarkRule.measureFirstMeasure(
-                activity,
-                TextBasicTestCase(activity, textLength, textGenerator)
+            benchmarkRule.benchmarkFirstMeasure(
+                TextBasicTestCase(textLength, textGenerator)
             )
         }
     }
@@ -96,9 +84,8 @@ class TextBasicBenchmark(
     @Test
     fun first_layout() {
         textBenchmarkRule.generator { textGenerator ->
-            benchmarkRule.measureFirstLayout(
-                activity,
-                TextBasicTestCase(activity, textLength, textGenerator)
+            benchmarkRule.benchmarkFirstLayout(
+                TextBasicTestCase(textLength, textGenerator)
             )
         }
     }
@@ -109,9 +96,8 @@ class TextBasicBenchmark(
     @Test
     fun first_draw() {
         textBenchmarkRule.generator { textGenerator ->
-            benchmarkRule.measureFirstDraw(
-                activity,
-                TextBasicTestCase(activity, textLength, textGenerator)
+            benchmarkRule.benchmarkFirstDraw(
+                TextBasicTestCase(textLength, textGenerator)
             )
         }
     }
@@ -123,9 +109,8 @@ class TextBasicBenchmark(
     @Test
     fun layout() {
         textBenchmarkRule.generator { textGenerator ->
-            benchmarkRule.measureLayoutPerf(
-                activity,
-                TextBasicTestCase(activity, textLength, textGenerator)
+            benchmarkRule.benchmarkLayoutPerf(
+                TextBasicTestCase(textLength, textGenerator)
             )
         }
     }
@@ -136,9 +121,8 @@ class TextBasicBenchmark(
     @Test
     fun draw() {
         textBenchmarkRule.generator { textGenerator ->
-            benchmarkRule.measureDrawPerf(
-                activity,
-                TextBasicTestCase(activity, textLength, textGenerator)
+            benchmarkRule.benchmarkDrawPerf(
+                TextBasicTestCase(textLength, textGenerator)
             )
         }
     }

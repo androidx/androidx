@@ -16,19 +16,15 @@
 
 package androidx.ui.benchmark.test
 
-import android.app.Activity
-import androidx.benchmark.junit4.BenchmarkRule
 import androidx.compose.Composable
-import androidx.compose.FrameManager
 import androidx.compose.State
 import androidx.test.filters.LargeTest
 import androidx.compose.state
 import androidx.compose.unaryPlus
-import androidx.test.rule.ActivityTestRule
-import androidx.ui.benchmark.measureFirstCompose
-import androidx.ui.benchmark.toggleStateMeasureRecompose
+import androidx.ui.benchmark.ComposeBenchmarkRule
+import androidx.ui.benchmark.benchmarkFirstCompose
+import androidx.ui.benchmark.toggleStateBenchmarkRecompose
 import androidx.ui.core.dp
-import androidx.ui.core.setContent
 import androidx.ui.layout.Column
 import androidx.ui.layout.Container
 import androidx.ui.test.ComposeTestCase
@@ -42,40 +38,36 @@ import org.junit.runners.JUnit4
 @RunWith(JUnit4::class)
 class TrailingLambdaBenchmark {
     @get:Rule
-    val benchmarkRule = BenchmarkRule()
-
-    @get:Rule
-    val activityRule = ActivityTestRule(Activity::class.java)
-
-    private val activity: Activity get() = activityRule.activity
+    val benchmarkRule = ComposeBenchmarkRule()
 
     @Test
     fun withTrailingLambdas_compose() {
-        benchmarkRule.measureFirstCompose(activity, WithTrailingLambdas(activity))
+        benchmarkRule.benchmarkFirstCompose(WithTrailingLambdas())
     }
 
     @Test
     fun withTrailingLambdas_recompose() {
-        benchmarkRule.toggleStateMeasureRecompose(activity, WithTrailingLambdas(activity))
+        benchmarkRule.toggleStateBenchmarkRecompose(WithTrailingLambdas())
     }
 
     @Test
     fun withoutTrailingLambdas_compose() {
-        benchmarkRule.measureFirstCompose(activity, WithoutTrailingLambdas(activity))
+        benchmarkRule.benchmarkFirstCompose(WithoutTrailingLambdas())
     }
 
     @Test
     fun withoutTrailingLambdas_recompose() {
-        benchmarkRule.toggleStateMeasureRecompose(activity, WithoutTrailingLambdas(activity))
+        benchmarkRule.toggleStateBenchmarkRecompose(WithoutTrailingLambdas())
     }
 }
 
-private sealed class TrailingLambdaTestCase(activity: Activity) : ComposeTestCase(activity),
+private sealed class TrailingLambdaTestCase() : ComposeTestCase,
     ToggleableTestCase {
 
     var numberState: State<Int>? = null
 
-    override fun setComposeContent(activity: Activity) = activity.setContent {
+    @Composable
+    override fun emitContent() {
         val number = +state { 5 }
         numberState = number
 
@@ -88,20 +80,19 @@ private sealed class TrailingLambdaTestCase(activity: Activity) : ComposeTestCas
                 emitContent(number = number.value, content = content)
             }
         }
-    }!!
+    }
 
     override fun toggleState() {
         with(numberState!!) {
             value = if (value == 5) 10 else 5
         }
-        FrameManager.nextFrame()
     }
 
     @Composable
     abstract fun emitContent(number: Int, content: @Composable() () -> Unit)
 }
 
-private class WithTrailingLambdas(activity: Activity) : TrailingLambdaTestCase(activity) {
+private class WithTrailingLambdas : TrailingLambdaTestCase() {
     @Composable
     override fun emitContent(number: Int, content: @Composable() () -> Unit) {
         EmptyComposable(number = number) {
@@ -110,7 +101,7 @@ private class WithTrailingLambdas(activity: Activity) : TrailingLambdaTestCase(a
     }
 }
 
-private class WithoutTrailingLambdas(activity: Activity) : TrailingLambdaTestCase(activity) {
+private class WithoutTrailingLambdas : TrailingLambdaTestCase() {
     @Composable
     override fun emitContent(number: Int, content: @Composable() () -> Unit) {
         EmptyComposable(number = number, children = content)

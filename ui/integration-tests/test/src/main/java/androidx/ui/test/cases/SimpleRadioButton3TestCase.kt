@@ -16,25 +16,23 @@
 
 package androidx.ui.test.cases
 
-import android.app.Activity
+import androidx.compose.Composable
 import androidx.compose.memo
 import androidx.compose.unaryPlus
 import androidx.ui.core.Draw
 import androidx.ui.core.PxSize
 import androidx.ui.core.dp
 import androidx.ui.core.minDimension
-import androidx.ui.core.setContent
 import androidx.ui.engine.geometry.Offset
 import androidx.ui.graphics.Canvas
 import androidx.ui.graphics.Paint
 import androidx.ui.graphics.PaintingStyle
 import androidx.ui.layout.Container
 
-class SimpleRadioButton3TestCase(
-    activity: Activity
-) : BaseSimpleRadioButtonTestCase(activity) {
+class SimpleRadioButton3TestCase : BaseSimpleRadioButtonTestCase() {
 
-    override fun setComposeContent(activity: Activity) = activity.setContent {
+    @Composable
+    override fun emitContent() {
         Container(width = 48.dp, height = 48.dp) {
             val innerSize = getInnerSize()
             val borderPaint = +memo { Paint().apply { style = PaintingStyle.stroke } }
@@ -46,5 +44,5 @@ class SimpleRadioButton3TestCase(
                 canvas.drawCircle(center, innerRadius, fillPaint)
             }
         }
-    }!!
+    }
 }

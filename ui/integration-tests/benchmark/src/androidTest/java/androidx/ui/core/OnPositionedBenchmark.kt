@@ -16,16 +16,13 @@
 
 package androidx.ui.core
 
-import android.app.Activity
-import androidx.benchmark.junit4.BenchmarkRule
 import androidx.compose.Composable
-import androidx.compose.FrameManager
 import androidx.compose.State
 import androidx.compose.state
 import androidx.compose.unaryPlus
 import androidx.test.filters.LargeTest
-import androidx.test.rule.ActivityTestRule
-import androidx.ui.benchmark.toggleStateMeasureLayout
+import androidx.ui.benchmark.ComposeBenchmarkRule
+import androidx.ui.benchmark.toggleStateBenchmarkLayout
 import androidx.ui.layout.Center
 import androidx.ui.layout.Container
 import androidx.ui.test.ComposeTestCase
@@ -40,29 +37,23 @@ import org.junit.runners.JUnit4
 class OnPositionedBenchmark {
 
     @get:Rule
-    val benchmarkRule = BenchmarkRule()
-
-    @get:Rule
-    val activityRule = ActivityTestRule(Activity::class.java)
-
-    private val activity: Activity get() = activityRule.activity
+    val benchmarkRule = ComposeBenchmarkRule()
 
     @Test
     fun deepHierarchyOnPositioned_layout() {
-        benchmarkRule.toggleStateMeasureLayout(
-            activity,
-            DeepHierarchyOnPositionedTestCase(activity)
+        benchmarkRule.toggleStateBenchmarkLayout(
+            DeepHierarchyOnPositionedTestCase()
         )
     }
 }
 
-private class DeepHierarchyOnPositionedTestCase(
-    activity: Activity
-) : ComposeTestCase(activity), ToggleableTestCase {
+private class DeepHierarchyOnPositionedTestCase :
+    ComposeTestCase, ToggleableTestCase {
 
     private lateinit var state: State<Dp>
 
-    override fun setComposeContent(activity: Activity) = activity.setContent {
+    @Composable
+    override fun emitContent() {
         val size = +state { 200.dp }
         this.state = size
         Center {
@@ -70,7 +61,7 @@ private class DeepHierarchyOnPositionedTestCase(
                 StaticChildren(100)
             }
         }
-    }!!
+    }
 
     @Composable
     private fun StaticChildren(count: Int) {
@@ -85,6 +76,5 @@ private class DeepHierarchyOnPositionedTestCase(
 
     override fun toggleState() {
         state.value = if (state.value == 200.dp) 150.dp else 200.dp
-        FrameManager.nextFrame()
     }
 }

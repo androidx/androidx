@@ -16,15 +16,12 @@
 
 package androidx.ui.test.cases
 
-import android.app.Activity
 import androidx.compose.Composable
-import androidx.compose.FrameManager
 import androidx.compose.memo
 import androidx.compose.unaryPlus
 import androidx.ui.core.Text
 import androidx.ui.core.WithDensity
 import androidx.ui.core.px
-import androidx.ui.core.setContent
 import androidx.ui.foundation.ColoredRect
 import androidx.ui.graphics.Color
 import androidx.ui.layout.Column
@@ -45,12 +42,11 @@ import kotlin.random.Random
 /**
  * Test case that puts many horizontal scrollers in a vertical scroller
  */
-class NestedScrollerTestCase(
-    activity: Activity
-) : ComposeTestCase(activity), ToggleableTestCase {
+class NestedScrollerTestCase : ComposeTestCase, ToggleableTestCase {
     private val scrollerPosition = ScrollerPosition()
 
-    override fun setComposeContent(activity: Activity) = activity.setContent {
+    @Composable
+    override fun emitContent() {
         MaterialTheme {
             Surface {
                 VerticalScroller {
@@ -62,11 +58,10 @@ class NestedScrollerTestCase(
                 }
             }
         }
-    }!!
+    }
 
     override fun toggleState() {
         scrollerPosition.value = if (scrollerPosition.value == 0.px) 10.px else 0.px
-        FrameManager.nextFrame()
     }
 
     @Composable

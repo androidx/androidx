@@ -16,33 +16,28 @@
 
 package androidx.ui.benchmark.test
 
-import android.app.Activity
-import androidx.benchmark.junit4.BenchmarkRule
 import androidx.compose.Composable
-import androidx.compose.FrameManager
 import androidx.compose.State
 import androidx.compose.state
 import androidx.compose.unaryPlus
 import androidx.test.filters.LargeTest
-import androidx.test.rule.ActivityTestRule
-import androidx.ui.benchmark.measureDrawPerf
-import androidx.ui.benchmark.measureFirstCompose
-import androidx.ui.benchmark.measureFirstDraw
-import androidx.ui.benchmark.measureFirstLayout
-import androidx.ui.benchmark.measureFirstMeasure
-import androidx.ui.benchmark.measureLayoutPerf
-import androidx.ui.benchmark.toggleStateMeasureDraw
-import androidx.ui.benchmark.toggleStateMeasureLayout
-import androidx.ui.benchmark.toggleStateMeasureMeasure
-import androidx.ui.benchmark.toggleStateMeasureRecompose
+import androidx.ui.benchmark.ComposeBenchmarkRule
+import androidx.ui.benchmark.benchmarkDrawPerf
+import androidx.ui.benchmark.benchmarkFirstCompose
+import androidx.ui.benchmark.benchmarkFirstDraw
+import androidx.ui.benchmark.benchmarkFirstLayout
+import androidx.ui.benchmark.benchmarkFirstMeasure
+import androidx.ui.benchmark.benchmarkLayoutPerf
+import androidx.ui.benchmark.toggleStateBenchmarkDraw
+import androidx.ui.benchmark.toggleStateBenchmarkLayout
+import androidx.ui.benchmark.toggleStateBenchmarkMeasure
+import androidx.ui.benchmark.toggleStateBenchmarkRecompose
 import androidx.ui.core.Dp
 import androidx.ui.core.dp
-import androidx.ui.core.setContent
 import androidx.ui.layout.Container
 import androidx.ui.layout.Padding
 import androidx.ui.layout.Spacing
 import androidx.ui.test.ComposeTestCase
-import androidx.ui.test.DisableTransitions
 import androidx.ui.test.ToggleableTestCase
 import org.junit.Rule
 import org.junit.Test
@@ -53,118 +48,110 @@ import org.junit.runners.JUnit4
 @RunWith(JUnit4::class)
 class PaddingBenchmark {
     @get:Rule
-    val benchmarkRule = BenchmarkRule()
-
-    @get:Rule
-    val activityRule = ActivityTestRule(Activity::class.java)
-
-    @get:Rule
-    val disableAnimationRule = DisableTransitions()
-
-    private val activity: Activity get() = activityRule.activity
+    val benchmarkRule = ComposeBenchmarkRule()
 
     @Test
     fun noModifier_first_compose() {
-        benchmarkRule.measureFirstCompose(activity, NoModifierTestCase(activity))
+        benchmarkRule.benchmarkFirstCompose(NoModifierTestCase())
     }
 
     @Test
     fun noModifier_first_measure() {
-        benchmarkRule.measureFirstMeasure(activity, NoModifierTestCase(activity))
+        benchmarkRule.benchmarkFirstMeasure(NoModifierTestCase())
     }
 
     @Test
     fun noModifier_first_layout() {
-        benchmarkRule.measureFirstLayout(activity, NoModifierTestCase(activity))
+        benchmarkRule.benchmarkFirstLayout(NoModifierTestCase())
     }
 
     @Test
     fun noModifier_first_draw() {
-        benchmarkRule.measureFirstDraw(activity, NoModifierTestCase(activity))
+        benchmarkRule.benchmarkFirstDraw(NoModifierTestCase())
     }
 
     @Test
     fun noModifier_togglePadding_recompose() {
-        benchmarkRule.toggleStateMeasureRecompose(activity, NoModifierTestCase(activity))
+        benchmarkRule.toggleStateBenchmarkRecompose(NoModifierTestCase())
     }
 
     @Test
     fun noModifier_togglePadding_measure() {
-        benchmarkRule.toggleStateMeasureMeasure(activity, NoModifierTestCase(activity))
+        benchmarkRule.toggleStateBenchmarkMeasure(NoModifierTestCase())
     }
 
     @Test
     fun noModifier_togglePadding_layout() {
-        benchmarkRule.toggleStateMeasureLayout(activity, NoModifierTestCase(activity))
+        benchmarkRule.toggleStateBenchmarkLayout(NoModifierTestCase())
     }
 
     @Test
     fun noModifier_togglePadding_draw() {
-        benchmarkRule.toggleStateMeasureDraw(activity, NoModifierTestCase(activity))
+        benchmarkRule.toggleStateBenchmarkDraw(NoModifierTestCase())
     }
 
     @Test
     fun noModifier_layout() {
-        benchmarkRule.measureLayoutPerf(activity, NoModifierTestCase(activity))
+        benchmarkRule.benchmarkLayoutPerf(NoModifierTestCase())
     }
 
     @Test
     fun noModifier_draw() {
-        benchmarkRule.measureDrawPerf(activity, NoModifierTestCase(activity))
+        benchmarkRule.benchmarkDrawPerf(NoModifierTestCase())
     }
 
     @Test
     fun modifier_first_compose() {
-        benchmarkRule.measureFirstCompose(activity, ModifierTestCase(activity))
+        benchmarkRule.benchmarkFirstCompose(ModifierTestCase())
     }
 
     @Test
     fun modifier_first_measure() {
-        benchmarkRule.measureFirstMeasure(activity, ModifierTestCase(activity))
+        benchmarkRule.benchmarkFirstMeasure(ModifierTestCase())
     }
 
     @Test
     fun modifier_first_layout() {
-        benchmarkRule.measureFirstLayout(activity, ModifierTestCase(activity))
+        benchmarkRule.benchmarkFirstLayout(ModifierTestCase())
     }
 
     @Test
     fun modifier_first_draw() {
-        benchmarkRule.measureFirstDraw(activity, ModifierTestCase(activity))
+        benchmarkRule.benchmarkFirstDraw(ModifierTestCase())
     }
 
     @Test
     fun modifier_togglePadding_recompose() {
-        benchmarkRule.toggleStateMeasureRecompose(activity, ModifierTestCase(activity))
+        benchmarkRule.toggleStateBenchmarkRecompose(ModifierTestCase())
     }
 
     @Test
     fun modifier_togglePadding_measure() {
-        benchmarkRule.toggleStateMeasureMeasure(activity, ModifierTestCase(activity))
+        benchmarkRule.toggleStateBenchmarkMeasure(ModifierTestCase())
     }
 
     @Test
     fun modifier_togglePadding_layout() {
-        benchmarkRule.toggleStateMeasureLayout(activity, ModifierTestCase(activity))
+        benchmarkRule.toggleStateBenchmarkLayout(ModifierTestCase())
     }
 
     @Test
     fun modifier_togglePadding_draw() {
-        benchmarkRule.toggleStateMeasureDraw(activity, ModifierTestCase(activity))
+        benchmarkRule.toggleStateBenchmarkDraw(ModifierTestCase())
     }
 
     @Test
     fun modifier_layout() {
-        benchmarkRule.measureLayoutPerf(activity, ModifierTestCase(activity))
+        benchmarkRule.benchmarkLayoutPerf(ModifierTestCase())
     }
 
     @Test
     fun modifier_draw() {
-        benchmarkRule.measureDrawPerf(activity, ModifierTestCase(activity))
+        benchmarkRule.benchmarkDrawPerf(ModifierTestCase())
     }
 }
 
-private sealed class PaddingTestCase(activity: Activity) : ComposeTestCase(activity),
+private sealed class PaddingTestCase : ComposeTestCase,
     ToggleableTestCase {
 
     var paddingState: State<Dp>? = null
@@ -173,10 +160,10 @@ private sealed class PaddingTestCase(activity: Activity) : ComposeTestCase(activ
         with(paddingState!!) {
             value = if (value == 5.dp) 10.dp else 5.dp
         }
-        FrameManager.nextFrame()
     }
 
-    override fun setComposeContent(activity: Activity) = activity.setContent {
+    @Composable
+    override fun emitContent() {
         val padding = +state { 5.dp }
         paddingState = padding
 
@@ -191,13 +178,13 @@ private sealed class PaddingTestCase(activity: Activity) : ComposeTestCase(activ
                 }
             }
         }
-    }!!
+    }
 
     @Composable
     abstract fun emitPaddedContainer(padding: Dp, child: @Composable() () -> Unit)
 }
 
-private class ModifierTestCase(activity: Activity) : PaddingTestCase(activity) {
+private class ModifierTestCase : PaddingTestCase() {
 
     @Composable
     override fun emitPaddedContainer(padding: Dp, child: @Composable() () -> Unit) {
@@ -205,7 +192,7 @@ private class ModifierTestCase(activity: Activity) : PaddingTestCase(activity) {
     }
 }
 
-private class NoModifierTestCase(activity: Activity) : PaddingTestCase(activity) {
+private class NoModifierTestCase : PaddingTestCase() {
 
     @Composable
     override fun emitPaddedContainer(padding: Dp, child: @Composable() () -> Unit) {

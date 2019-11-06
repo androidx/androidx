@@ -23,7 +23,7 @@
          tools:ignore="HardcodedDebugMode"
          tools:replace="android:debuggable">
         <activity
-            android:name="androidx.ui.test.android.DefaultTestActivity"
+            android:name="android.app.Activity"
             android:theme="@style/TestTheme"/>
     </application>
 </manifest>

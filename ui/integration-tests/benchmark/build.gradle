@@ -31,18 +31,25 @@ plugins {
 
 dependencies {
     kotlinPlugin project(path: ":compose:compose-compiler", configuration: "embeddablePlugin")
+
     implementation project(":benchmark:benchmark-junit4")
     implementation project(":compose:compose-runtime")
     implementation project(":ui:integration-tests:test")
+    implementation project(":ui:ui-test")
     implementation(KOTLIN_STDLIB)
+    implementation(KOTLIN_REFLECT)
+    implementation(ANDROIDX_TEST_RULES)
     implementation(JUNIT)
+
     androidTestImplementation project(":ui:ui-core")
     androidTestImplementation project(":ui:ui-framework")
     androidTestImplementation project(":ui:ui-layout")
     androidTestImplementation project(":ui:ui-material")
     androidTestImplementation project(":ui:ui-platform")
     androidTestImplementation project(":ui:ui-test")
+    androidTestImplementation project(":compose:compose-runtime")
     androidTestImplementation(ANDROIDX_TEST_EXT_JUNIT)
+    androidTestImplementation(KOTLIN_TEST_COMMON)
     androidTestImplementation(ANDROIDX_TEST_RULES)
     androidTestImplementation(TRUTH)
 }

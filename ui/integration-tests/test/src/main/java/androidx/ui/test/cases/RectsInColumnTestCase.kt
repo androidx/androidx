@@ -16,15 +16,12 @@
 
 package androidx.ui.test.cases
 
-import android.app.Activity
 import androidx.compose.Composable
-import androidx.compose.FrameManager
 import androidx.compose.State
 import androidx.compose.state
 import androidx.compose.unaryPlus
 import androidx.ui.foundation.ColoredRect
 import androidx.ui.core.dp
-import androidx.ui.core.setContent
 import androidx.ui.graphics.Color
 import androidx.ui.layout.Column
 import androidx.ui.material.MaterialTheme
@@ -39,13 +36,13 @@ import androidx.ui.test.ToggleableTestCase
  * Note: Each rectangle has its own model so changes should always affect only the first one.
  */
 class RectsInColumnTestCase(
-    activity: Activity,
     private val amountOfRectangles: Int
-) : ComposeTestCase(activity), ToggleableTestCase {
+) : ComposeTestCase, ToggleableTestCase {
 
     private val states = mutableListOf<State<Color>>()
 
-    override fun setComposeContent(activity: Activity) = activity.setContent {
+    @Composable
+    override fun emitContent() {
         MaterialTheme {
             Surface {
                 Column {
@@ -55,7 +52,7 @@ class RectsInColumnTestCase(
                 }
             }
         }
-    }!!
+    }
 
     override fun toggleState() {
         val state = states.first()
@@ -64,7 +61,6 @@ class RectsInColumnTestCase(
         } else {
             state.value = Color.Magenta
         }
-        FrameManager.nextFrame()
     }
 
     @Composable

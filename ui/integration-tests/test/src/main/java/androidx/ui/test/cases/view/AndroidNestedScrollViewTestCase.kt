@@ -22,21 +22,19 @@ import android.view.ViewGroup
 import android.widget.HorizontalScrollView
 import androidx.ui.graphics.Color
 import androidx.ui.graphics.toArgb
-import androidx.ui.test.AndroidTestCase
 import androidx.ui.test.R
 import androidx.ui.test.ToggleableTestCase
+import androidx.ui.test.benchmark.android.AndroidTestCase
 import androidx.ui.test.cases.NestedScrollerTestCase
 import kotlin.random.Random
 
 /**
  * Version of [NestedScrollerTestCase] using Android views.
  */
-class AndroidNestedScrollViewTestCase(
-    activity: Activity
-) : AndroidTestCase(activity), ToggleableTestCase {
+class AndroidNestedScrollViewTestCase : AndroidTestCase, ToggleableTestCase {
     lateinit var firstScrollView: HorizontalScrollView
 
-    override fun createViewContent(activity: Activity): ViewGroup {
+    override fun getContent(activity: Activity): ViewGroup {
         val scrollView = activity.layoutInflater.inflate(R.layout.simple_store, null) as ViewGroup
         visitImages(scrollView) { view ->
             val color = Color(

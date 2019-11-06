@@ -16,16 +16,12 @@
 
 package androidx.ui.test.cases
 
-import android.app.Activity
 import androidx.compose.Composable
-import androidx.compose.CompositionContext
-import androidx.compose.FrameManager
 import androidx.compose.memo
 import androidx.compose.unaryPlus
 import androidx.ui.core.Draw
 import androidx.ui.core.dp
 import androidx.ui.core.px
-import androidx.ui.core.setContent
 import androidx.ui.core.toRect
 import androidx.ui.graphics.Color
 import androidx.ui.layout.Column
@@ -42,12 +38,11 @@ import androidx.ui.test.ToggleableTestCase
 /**
  * Test case that puts a large number of boxes in a column in a vertical scroller to force scrolling.
  */
-class ScrollerTestCase(
-    activity: Activity
-) : ComposeTestCase(activity), ToggleableTestCase {
+class ScrollerTestCase() : ComposeTestCase, ToggleableTestCase {
     private val scrollerPosition = ScrollerPosition()
 
-    override fun setComposeContent(activity: Activity): CompositionContext = activity.setContent {
+    @Composable
+    override fun emitContent() {
         VerticalScroller(
             scrollerPosition = scrollerPosition
         ) {
@@ -75,11 +70,10 @@ class ScrollerTestCase(
                 }
             }
         }
-    }!!
+    }
 
     override fun toggleState() {
         scrollerPosition.value = if (scrollerPosition.value == 0.px) 10.px else 0.px
-        FrameManager.nextFrame()
     }
 
     @Composable

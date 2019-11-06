@@ -16,8 +16,6 @@
 
 package androidx.ui.test.cases
 
-import android.app.Activity
-import androidx.compose.FrameManager
 import androidx.compose.State
 import androidx.compose.state
 import androidx.compose.unaryPlus
@@ -26,9 +24,7 @@ import androidx.ui.core.dp
 import androidx.ui.test.ComposeTestCase
 import androidx.ui.test.ToggleableTestCase
 
-abstract class BaseSimpleRadioButtonTestCase(
-    activity: Activity
-) : ComposeTestCase(activity), ToggleableTestCase {
+abstract class BaseSimpleRadioButtonTestCase : ComposeTestCase, ToggleableTestCase {
 
     private var state: State<Dp>? = null
 
@@ -46,6 +42,5 @@ abstract class BaseSimpleRadioButtonTestCase(
                 10.dp
             }
         }
-        FrameManager.nextFrame()
     }
 }

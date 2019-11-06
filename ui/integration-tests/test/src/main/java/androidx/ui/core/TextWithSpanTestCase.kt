@@ -16,8 +16,7 @@
 
 package androidx.ui.core
 
-import android.app.Activity
-import android.view.ViewGroup
+import androidx.compose.Composable
 import androidx.ui.graphics.Color
 import androidx.ui.layout.ConstrainedBox
 import androidx.ui.layout.DpConstraints
@@ -30,26 +29,21 @@ import androidx.ui.text.TextStyle
  * The benchmark test case for [Text], where the input is some [Span]s with [TextStyle]s on it.
  */
 class TextWithSpanTestCase(
-    activity: Activity,
-    private val textLength: Int,
-    private val randomTextGenerator: RandomTextGenerator
-) : ComposeTestCase(activity) {
-
-    private lateinit var textPieces: List<Pair<String, TextStyle>>
+    textLength: Int,
+    randomTextGenerator: RandomTextGenerator
+) : ComposeTestCase {
 
     /**
      * Trick to avoid the text word cache.
-     * @see TextBasicTestCase.setupContentInternal
+     * @see TextBasicTestCase.text
      */
-    override fun setupContentInternal(activity: Activity): ViewGroup {
-        textPieces = randomTextGenerator.nextStyledWordList(
-            length = textLength,
-            hasMetricAffectingStyle = true
-        )
-        return super.setupContentInternal(activity)
-    }
+    private val textPieces = randomTextGenerator.nextStyledWordList(
+        length = textLength,
+        hasMetricAffectingStyle = true
+    )
 
-    override fun setComposeContent(activity: Activity) = activity.setContent {
+    @Composable
+    override fun emitContent() {
         Wrap {
             ConstrainedBox(constraints = DpConstraints.tightConstraintsForWidth(160.dp)) {
                 Text(style = TextStyle(color = Color.Black, fontSize = 8.sp)) {
@@ -59,5 +53,5 @@ class TextWithSpanTestCase(
                 }
             }
         }
-    }!!
+    }
 }

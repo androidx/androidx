@@ -22,21 +22,20 @@ import android.view.ViewGroup
 import android.widget.CheckBox
 import android.widget.LinearLayout
 import android.widget.TextView
-import androidx.ui.test.AndroidTestCase
 import androidx.ui.test.R
+import androidx.ui.test.benchmark.android.AndroidTestCase
 import androidx.ui.test.cases.CheckboxesInRowsTestCase
 
 /**
  * Version of [CheckboxesInRowsTestCase] using Android views.
  */
 class AndroidCheckboxesInLinearLayoutTestCase(
-    activity: Activity,
     private val amountOfCheckboxes: Int
-) : AndroidTestCase(activity) {
+) : AndroidTestCase {
 
     private val checkboxes = mutableListOf<CheckBox>()
 
-    override fun createViewContent(activity: Activity): ViewGroup {
+    override fun getContent(activity: Activity): ViewGroup {
         val column = LinearLayout(activity)
         column.orientation = LinearLayout.VERTICAL
         column.layoutParams = ViewGroup.LayoutParams(

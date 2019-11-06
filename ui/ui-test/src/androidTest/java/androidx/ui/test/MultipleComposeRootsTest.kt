@@ -16,6 +16,7 @@
 
 package androidx.ui.test
 
+import android.app.Activity
 import android.widget.FrameLayout
 import android.widget.LinearLayout
 import android.widget.TextView
@@ -32,7 +33,6 @@ import androidx.ui.foundation.selection.ToggleableState
 import androidx.ui.material.MaterialTheme
 import androidx.ui.material.TriStateCheckbox
 import androidx.ui.material.surface.Surface
-import androidx.ui.test.android.DefaultTestActivity
 import org.junit.Rule
 import org.junit.Test
 import org.junit.runner.RunWith
@@ -60,9 +60,7 @@ class CheckboxState(var value: ToggleableState = ToggleableState.Off) {
 class MultipleComposeRootsTest {
 
     @get:Rule
-    val activityTestRule = ActivityTestRule<DefaultTestActivity>(
-        DefaultTestActivity::class.java
-    )
+    val activityTestRule = ActivityTestRule<Activity>(Activity::class.java)
 
     @get:Rule
     val disableTransitions = DisableTransitions()

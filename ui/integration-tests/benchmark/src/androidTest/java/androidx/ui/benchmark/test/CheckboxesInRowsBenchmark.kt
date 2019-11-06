@@ -16,22 +16,19 @@
 
 package androidx.ui.benchmark.test
 
-import android.app.Activity
-import androidx.benchmark.junit4.BenchmarkRule
 import androidx.test.filters.LargeTest
-import androidx.test.rule.ActivityTestRule
-import androidx.ui.benchmark.measureDrawPerf
-import androidx.ui.benchmark.measureFirstCompose
-import androidx.ui.benchmark.measureFirstDraw
-import androidx.ui.benchmark.measureFirstLayout
-import androidx.ui.benchmark.measureFirstMeasure
-import androidx.ui.benchmark.measureLayoutPerf
-import androidx.ui.benchmark.toggleStateMeasureDraw
-import androidx.ui.benchmark.toggleStateMeasureLayout
-import androidx.ui.benchmark.toggleStateMeasureMeasure
-import androidx.ui.benchmark.toggleStateMeasureRecompose
+import androidx.ui.benchmark.ComposeBenchmarkRule
+import androidx.ui.benchmark.benchmarkDrawPerf
+import androidx.ui.benchmark.benchmarkFirstCompose
+import androidx.ui.benchmark.benchmarkFirstDraw
+import androidx.ui.benchmark.benchmarkFirstLayout
+import androidx.ui.benchmark.benchmarkFirstMeasure
+import androidx.ui.benchmark.benchmarkLayoutPerf
+import androidx.ui.benchmark.toggleStateBenchmarkDraw
+import androidx.ui.benchmark.toggleStateBenchmarkLayout
+import androidx.ui.benchmark.toggleStateBenchmarkMeasure
+import androidx.ui.benchmark.toggleStateBenchmarkRecompose
 import androidx.ui.test.cases.CheckboxesInRowsTestCase
-import androidx.ui.test.DisableTransitions
 import org.junit.Rule
 import org.junit.Test
 import org.junit.runner.RunWith
@@ -51,73 +48,55 @@ class CheckboxesInRowsBenchmark(private val numberOfCheckboxes: Int) {
     }
 
     @get:Rule
-    val benchmarkRule = BenchmarkRule()
-
-    @get:Rule
-    val activityRule = ActivityTestRule(Activity::class.java)
-
-    @get:Rule
-    val disableAnimationRule = DisableTransitions()
-
-    private val activity: Activity get() = activityRule.activity
+    val benchmarkRule = ComposeBenchmarkRule()
 
     @Test
     fun first_compose() {
-        benchmarkRule.measureFirstCompose(activity,
-            CheckboxesInRowsTestCase(activity, numberOfCheckboxes))
+        benchmarkRule.benchmarkFirstCompose(CheckboxesInRowsTestCase(numberOfCheckboxes))
     }
 
     @Test
     fun first_measure() {
-        benchmarkRule.measureFirstMeasure(activity,
-            CheckboxesInRowsTestCase(activity, numberOfCheckboxes))
+        benchmarkRule.benchmarkFirstMeasure(CheckboxesInRowsTestCase(numberOfCheckboxes))
     }
 
     @Test
     fun first_layout() {
-        benchmarkRule.measureFirstLayout(activity,
-            CheckboxesInRowsTestCase(activity, numberOfCheckboxes))
+        benchmarkRule.benchmarkFirstLayout(CheckboxesInRowsTestCase(numberOfCheckboxes))
     }
 
     @Test
     fun first_draw() {
-        benchmarkRule.measureFirstDraw(activity,
-            CheckboxesInRowsTestCase(activity, numberOfCheckboxes))
+        benchmarkRule.benchmarkFirstDraw(CheckboxesInRowsTestCase(numberOfCheckboxes))
     }
 
     @Test
     fun toggleCheckbox_recompose() {
-        benchmarkRule.toggleStateMeasureRecompose(activity,
-            CheckboxesInRowsTestCase(activity, numberOfCheckboxes))
+        benchmarkRule.toggleStateBenchmarkRecompose(CheckboxesInRowsTestCase(numberOfCheckboxes))
     }
 
     @Test
     fun toggleCheckbox_measure() {
-        benchmarkRule.toggleStateMeasureMeasure(activity,
-            CheckboxesInRowsTestCase(activity, numberOfCheckboxes))
+        benchmarkRule.toggleStateBenchmarkMeasure(CheckboxesInRowsTestCase(numberOfCheckboxes))
     }
 
     @Test
     fun toggleCheckbox_layout() {
-        benchmarkRule.toggleStateMeasureLayout(activity,
-            CheckboxesInRowsTestCase(activity, numberOfCheckboxes))
+        benchmarkRule.toggleStateBenchmarkLayout(CheckboxesInRowsTestCase(numberOfCheckboxes))
     }
 
     @Test
     fun toggleCheckbox_draw() {
-        benchmarkRule.toggleStateMeasureDraw(activity,
-            CheckboxesInRowsTestCase(activity, numberOfCheckboxes))
+        benchmarkRule.toggleStateBenchmarkDraw(CheckboxesInRowsTestCase(numberOfCheckboxes))
     }
 
     @Test
     fun layout() {
-        benchmarkRule.measureLayoutPerf(activity,
-            CheckboxesInRowsTestCase(activity, numberOfCheckboxes))
+        benchmarkRule.benchmarkLayoutPerf(CheckboxesInRowsTestCase(numberOfCheckboxes))
     }
 
     @Test
     fun draw() {
-        benchmarkRule.measureDrawPerf(activity,
-            CheckboxesInRowsTestCase(activity, numberOfCheckboxes))
+        benchmarkRule.benchmarkDrawPerf(CheckboxesInRowsTestCase(numberOfCheckboxes))
     }
 }
