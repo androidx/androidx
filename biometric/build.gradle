@@ -13,6 +13,7 @@ dependencies {
     api("androidx.appcompat:appcompat:1.1.0")
     api("androidx.core:core:1.1.0")
     api("androidx.fragment:fragment:1.1.0")
+    api(project(":lifecycle:lifecycle-viewmodel"))
 
     androidTestImplementation(ANDROIDX_TEST_CORE)
     androidTestImplementation(ANDROIDX_TEST_EXT_JUNIT)
