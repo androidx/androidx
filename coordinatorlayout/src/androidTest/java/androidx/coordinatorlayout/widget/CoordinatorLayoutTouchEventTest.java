@@ -405,8 +405,9 @@ public class CoordinatorLayoutTouchEventTest {
         verifyNoMoreInteractions(touchDelegate);
         Touch[] touches = new Touch[] {
                 onInterceptTouch(downEvent),
-                onInterceptTouch(moveEvent),
-                onInterceptTouch(upEvent)};
+                onTouch(downEvent),
+                onTouch(moveEvent),
+                onTouch(upEvent)};
         verifyTouches(mView1, touches);
         verifyTouches(mView2, touches);
         verifyTouches(mView3, touches);
@@ -420,7 +421,7 @@ public class CoordinatorLayoutTouchEventTest {
         final MotionEvent moveEvent = obtainEvent(MotionEvent.ACTION_MOVE);
         final MotionEvent upEvent = obtainEvent(MotionEvent.ACTION_UP);
 
-        when(mBehavior2.onInterceptTouchEvent(mCoordinatorLayout, mView2, moveEvent))
+        when(mBehavior2.onTouchEvent(mCoordinatorLayout, mView2, moveEvent))
                 .thenReturn(true);
         mActivityTestRule.runOnUiThread(new Runnable() {
             @Override
@@ -437,15 +438,15 @@ public class CoordinatorLayoutTouchEventTest {
         verifyNoMoreInteractions(touchDelegate);
         verifyTouches(mView1,
                 onInterceptTouch(downEvent),
-                onInterceptTouch(MotionEvent.ACTION_CANCEL));
+                onTouch(MotionEvent.ACTION_CANCEL));
         verifyTouches(mView2,
                 onInterceptTouch(downEvent),
-                onInterceptTouch(moveEvent),
+                onTouch(moveEvent),
                 onTouch(upEvent));
         verifyTouches(mView3,
                 onInterceptTouch(downEvent),
-                onInterceptTouch(moveEvent),
-                onInterceptTouch(MotionEvent.ACTION_CANCEL));
+                onTouch(moveEvent),
+                onTouch(MotionEvent.ACTION_CANCEL));
     }
 
     private static void verifyTouches(View view, Touch... touches) {
