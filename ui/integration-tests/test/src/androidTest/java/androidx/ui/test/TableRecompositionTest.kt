@@ -16,18 +16,21 @@
 
 package androidx.ui.test
 
-import android.app.Activity
-import androidx.compose.FrameManager
 import androidx.test.filters.MediumTest
-import androidx.test.rule.ActivityTestRule
-import androidx.ui.test.cases.TableRecompositionTestCase
+import androidx.ui.core.dp
+import androidx.ui.foundation.ColoredRect
+import androidx.ui.graphics.Color
+import androidx.ui.layout.Padding
+import androidx.ui.layout.Table
+import androidx.ui.material.MaterialTheme
+import androidx.ui.material.surface.Surface
 import org.junit.Rule
 import org.junit.Test
 import org.junit.runner.RunWith
 import org.junit.runners.Parameterized
 
 /**
- * Ensure correctness of [TableRecompositionTestCase].
+ * Assert table recompositions.
  */
 @MediumTest
 @RunWith(Parameterized::class)
@@ -40,27 +43,28 @@ class TableRecompositionTest(private val numberOfCells: Int) {
     }
 
     @get:Rule
-    val activityRule = ActivityTestRule(Activity::class.java)
-
-    @get:Rule
-    val disableAnimationRule = DisableTransitions()
+    val composeRule = createComposeRule(disableTransitions = true)
 
     @Test
     fun testTable_recomposition() {
-        activityRule.runOnUiThreadSync {
-            val testCase = TableRecompositionTestCase(activityRule.activity, numberOfCells)
-            testCase.runToFirstDraw()
-
-            testCase.assertMeasureSizeIsPositive()
-
-            FrameManager.nextFrame()
-            testCase.recomposeSyncAssertNoChanges()
-
-            testCase.measure()
-            testCase.layout()
-            testCase.drawSlow()
-            FrameManager.nextFrame()
-            testCase.recomposeSyncAssertNoChanges()
+        composeRule.forGivenContent {
+            MaterialTheme {
+                Surface {
+                    Table(columns = numberOfCells) {
+                        tableDecoration(overlay = false) { }
+                        repeat(numberOfCells) {
+                            tableRow {
+                                Padding(2.dp) {
+                                    ColoredRect(color = Color.Black, width = 100.dp, height = 50.dp)
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        }.performTestWithEventsControl {
+            doFrame()
+            assertNoPendingChanges()
         }
     }
 }

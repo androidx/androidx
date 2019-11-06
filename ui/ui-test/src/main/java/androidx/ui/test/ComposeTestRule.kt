@@ -18,7 +18,6 @@ package androidx.ui.test
 
 import android.util.DisplayMetrics
 import androidx.compose.Composable
-import androidx.test.rule.ActivityTestRule
 import androidx.ui.core.Density
 import androidx.ui.test.android.AndroidComposeTestRule
 import org.junit.rules.TestRule
@@ -32,7 +31,6 @@ import org.junit.rules.TestRule
  * you can still create [AndroidComposeTestRule] directly and access its underlying ActivityTestRule
  */
 interface ComposeTestRule : TestRule {
-
     /**
      * Current device screen's density.
      */
@@ -44,6 +42,18 @@ interface ComposeTestRule : TestRule {
     fun setContent(composable: @Composable() () -> Unit)
 
     /**
+     * Takes the given content and prepares it for execution-controlled test via
+     * [ComposeTestCaseSetup].
+     */
+    fun forGivenContent(composable: @Composable() () -> Unit): ComposeTestCaseSetup
+
+    /**
+     * Takes the given test case and prepares it for execution-controlled test via
+     * [ComposeTestCaseSetup].
+     */
+    fun forGivenTestCase(testCase: ComposeTestCase): ComposeTestCaseSetup
+
+    /**
      * Runs action on UI thread with a guarantee that any operations modifying Compose data model
      * are safe to do in this block.
      */
@@ -51,6 +61,19 @@ interface ComposeTestRule : TestRule {
 
     // TODO(pavlis): Provide better abstraction for host side reusability
     val displayMetrics: DisplayMetrics get
+}
+
+/**
+ * Helper interface to run execution-controlled test via [ComposeTestRule].
+ */
+interface ComposeTestCaseSetup {
+    /**
+     * Takes the content provided via [ComposeTestRule#setContent] and runs the given test
+     * instruction. The test is executed on the main thread and prevents interference from Activity
+     * so the frames can be controlled manually. See [ComposeExecutionControl] for available
+     * methods.
+     */
+    fun performTestWithEventsControl(block: ComposeExecutionControl.() -> Unit)
 }
 
 /**

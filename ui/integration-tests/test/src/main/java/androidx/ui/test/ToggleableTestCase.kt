@@ -17,25 +17,10 @@
 package androidx.ui.test
 
 /**
- * Runs the given test case and toggle its state using the given lambda. Asserts that recomposition
- * happens and has changes and also asserts that the no more compositions is needed.
+ * Test case that allows to trigger a change of state. This is run multiple times by the benchmarks.
+ * So it needs to do back and forth changes (like check, un-check checkbox) or scroll back and forth
+ * to run indefinitely.
  */
-fun runComposeTestWithStateToggleAndAssertRecompositions(
-    testCase: ComposeTestCase,
-    toggleState: () -> Unit
-) {
-    testCase.runToFirstDraw()
-
-    testCase.assertMeasureSizeIsPositive()
-
-    testCase.recomposeSyncAssertNoChanges()
-
-    // Change state
-    toggleState.invoke()
-
-    // Recompose our changes
-    testCase.recomposeSyncAssertHadChanges()
-
-    // No other compositions should be pending
-    testCase.recomposeSyncAssertNoChanges()
+interface ToggleableTestCase {
+    fun toggleState()
 }

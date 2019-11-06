@@ -16,7 +16,8 @@
   -->
 <manifest package="androidx.ui.test" xmlns:android="http://schemas.android.com/apk/res/android">
      <application>
-         <activity android:name="androidx.ui.test.android.DefaultTestActivity" android:theme="@android:style/Theme.Material.NoActionBar.Fullscreen"/>
+         <activity android:name="android.app.Activity"
+             android:theme="@android:style/Theme.Material.NoActionBar.Fullscreen"/>
     </application>
 </manifest>
 

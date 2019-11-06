@@ -16,12 +16,8 @@
 
 package androidx.ui.test
 
-import android.app.Activity
 import androidx.test.filters.MediumTest
-import androidx.test.rule.ActivityTestRule
 import androidx.ui.test.cases.CheckboxesInRowsTestCase
-import androidx.ui.test.cases.RectsInColumnSharedModelTestCase
-import androidx.ui.test.cases.RectsInColumnTestCase
 import org.junit.Rule
 import org.junit.Test
 import org.junit.runner.RunWith
@@ -41,19 +37,20 @@ class CheckboxesInRowsTest(private val numberOfCheckboxes: Int) {
     }
 
     @get:Rule
-    val activityRule = ActivityTestRule(Activity::class.java)
-
-    @get:Rule
-    val disableAnimationRule = DisableTransitions()
+    val composeTestRule = createComposeRule(disableTransitions = true)
 
     @Test
     fun toggleRectangleColor_compose() {
-        activityRule.runOnUiThreadSync {
-            val testCase = CheckboxesInRowsTestCase(activityRule.activity,
-                numberOfCheckboxes)
-            runComposeTestWithStateToggleAndAssertRecompositions(testCase) {
+        val testCase = CheckboxesInRowsTestCase(numberOfCheckboxes)
+        composeTestRule
+            .forGivenTestCase(testCase)
+            .performTestWithEventsControl {
+                doFrame()
+                assertNoPendingChanges()
+                assertMeasureSizeIsPositive()
                 testCase.toggleState()
+                doFrame()
+                assertNoPendingChanges()
             }
-        }
     }
 }

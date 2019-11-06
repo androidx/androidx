@@ -16,11 +16,9 @@
 
 package androidx.ui.test.cases
 
-import android.app.Activity
-import androidx.compose.FrameManager
+import androidx.compose.Composable
 import androidx.compose.Model
 import androidx.ui.core.dp
-import androidx.ui.core.setContent
 import androidx.ui.foundation.ColoredRect
 import androidx.ui.graphics.Color
 import androidx.ui.layout.Column
@@ -39,13 +37,13 @@ private class RectanglesInColumnTestCaseColorModel(var color: Color)
  * that the whole loop has to be re-run when model changes.
  */
 class RectsInColumnSharedModelTestCase(
-    activity: Activity,
     private val amountOfRectangles: Int
-) : ComposeTestCase(activity), ToggleableTestCase {
+) : ComposeTestCase, ToggleableTestCase {
 
     private val model = RectanglesInColumnTestCaseColorModel(Color.Black)
 
-    override fun setComposeContent(activity: Activity) = activity.setContent {
+    @Composable
+    override fun emitContent() {
         MaterialTheme {
             Column {
                 repeat(amountOfRectangles) { i ->
@@ -57,7 +55,7 @@ class RectsInColumnSharedModelTestCase(
                 }
             }
         }
-    }!!
+    }
 
     override fun toggleState() {
         if (model.color == Color.Magenta) {
@@ -65,6 +63,5 @@ class RectsInColumnSharedModelTestCase(
         } else {
             model.color = Color.Magenta
         }
-        FrameManager.nextFrame()
     }
 }
