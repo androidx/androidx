@@ -61,6 +61,7 @@ import java.util.Collections;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
+import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.atomic.AtomicInteger;
 
 /**
@@ -358,8 +359,8 @@ public abstract class FragmentManager {
     private final AtomicInteger mBackStackIndex = new AtomicInteger();
 
     private ArrayList<OnBackStackChangedListener> mBackStackChangeListeners;
-    private HashMap<Fragment, HashSet<CancellationSignal>>
-            mExitAnimationCancellationSignals = new HashMap<>();
+    private ConcurrentHashMap<Fragment, HashSet<CancellationSignal>>
+            mExitAnimationCancellationSignals = new ConcurrentHashMap<>();
     private final FragmentTransition.Callback mFragmentTransitionCallback =
             new FragmentTransition.Callback() {
                 @Override
@@ -1300,15 +1301,18 @@ public abstract class FragmentManager {
                     // fall through
                 case Fragment.CREATED:
                     if (newState < Fragment.CREATED) {
-                        if (mDestroyed) {
-                            // The fragment's containing activity is
-                            // being destroyed, but this fragment is
-                            // currently animating away.  Stop the
-                            // animation right now -- it is not needed,
-                            // and we can't wait anymore. we need to destroy
-                            // the view now and cancel the animation
-                            if (mExitAnimationCancellationSignals.get(f) != null) {
-                                cancelExitAnimation(f);
+                        boolean beingRemoved = f.mRemoving && !f.isInBackStack();
+                        if (beingRemoved || mNonConfig.shouldDestroy(f)) {
+                            makeInactive(f);
+                        } else {
+                            if (f.mTargetWho != null) {
+                                Fragment target = findActiveFragment(f.mTargetWho);
+                                if (target != null && target.getRetainInstance()) {
+                                    // Only keep references to other retained Fragments
+                                    // to avoid developers accessing Fragments that
+                                    // are never coming back
+                                    f.mTarget = target;
+                                }
                             }
                         }
                         if (mExitAnimationCancellationSignals.get(f) != null) {
@@ -1327,20 +1331,10 @@ public abstract class FragmentManager {
                     // fall through
                 case Fragment.ATTACHED:
                     if (newState < Fragment.ATTACHED) {
-                        boolean beingRemoved = f.mRemoving && !f.isInBackStack();
                         fragmentStateManager.detach();
-                        if (beingRemoved || mNonConfig.shouldDestroy(f)) {
-                            makeInactive(f);
-                        } else {
-                            if (f.mTargetWho != null) {
-                                Fragment target = findActiveFragment(f.mTargetWho);
-                                if (target != null && target.getRetainInstance()) {
-                                    // Only keep references to other retained Fragments
-                                    // to avoid developers accessing Fragments that
-                                    // are never coming back
-                                    f.mTarget = target;
-                                }
-                            }
+                        boolean beingRemoved = f.mRemoving && !f.isInBackStack();
+                        if (beingRemoved) {
+                            f.initState();
                         }
                     }
             }
@@ -1617,7 +1611,6 @@ public abstract class FragmentManager {
             // even after the Fragment is removed.
             f.mTarget = findActiveFragment(f.mTargetWho);
         }
-        f.initState();
     }
 
     void addFragment(@NonNull Fragment fragment) {
@@ -2411,14 +2404,10 @@ public abstract class FragmentManager {
      * This is used prior to saving the state so that the correct state is saved.
      */
     private void endAnimatingAwayFragments() {
-        for (FragmentStateManager fragmentStateManager : mActive.values()) {
-            if (fragmentStateManager != null) {
-                Fragment fragment = fragmentStateManager.getFragment();
-                if (mExitAnimationCancellationSignals.get(fragment) != null) {
-                    // Give up waiting for the animation and just end it.
-                    cancelExitAnimation(fragment);
-                    moveToState(fragment, fragment.getStateAfterAnimating());
-                }
+        if (!mExitAnimationCancellationSignals.isEmpty()) {
+            for (Fragment fragment: mExitAnimationCancellationSignals.keySet()) {
+                cancelExitAnimation(fragment);
+                moveToState(fragment, fragment.getStateAfterAnimating());
             }
         }
     }
@@ -2841,6 +2830,7 @@ public abstract class FragmentManager {
     void dispatchDestroy() {
         mDestroyed = true;
         execPendingActions(true);
+        endAnimatingAwayFragments();
         dispatchStateChange(Fragment.INITIALIZING);
         mHost = null;
         mContainer = null;
