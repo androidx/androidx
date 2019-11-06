@@ -500,6 +500,36 @@ public class MediaBrowserLegacyTest extends MediaSessionTestBase {
         Thread.sleep(TIMEOUT_MS);
     }
 
+    @Test
+    public void testSubscribe_failed() throws Exception {
+        prepareLooper();
+        final String testParentId = "testSubscribe_failed";
+        final CountDownLatch subscribeLatch = new CountDownLatch(1);
+        MockMediaBrowserServiceCompat.setMediaBrowserServiceProxy(new Proxy() {
+            @Override
+            public void onLoadChildren(String parentId,
+                    Result<List<MediaBrowserCompat.MediaItem>> result, Bundle option) {
+                // Called by subscribe and notifyChildrenChanged()
+                assertEquals(testParentId, parentId);
+
+                // Cannot use Result#sendError() for sending error here. The API is specific to
+                // custom action.
+                result.sendResult(null);
+
+                // Shouldn't call notifyChildrenChanged() again here because it will call
+                // onLoadChildren() again for getting list of children.
+                if (subscribeLatch.getCount() > 0) {
+                    subscribeLatch.countDown();
+                }
+            }
+        });
+        MediaBrowser browser = createBrowser(new MediaBrowser.BrowserCallback() {});
+        LibraryResult result = browser.subscribe(testParentId, null)
+                .get(TIMEOUT_MS, TimeUnit.MILLISECONDS);
+        assertNotEquals(RESULT_SUCCESS, result.getResultCode());
+        assertTrue(subscribeLatch.await(TIMEOUT_MS, TimeUnit.MILLISECONDS));
+    }
+
     private static MediaBrowserCompat.MediaItem createMediaItem(String mediaId) {
         final MediaDescriptionCompat desc = new MediaDescriptionCompat.Builder()
                 .setMediaId(mediaId).setTitle("title: " + mediaId).build();
