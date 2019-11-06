@@ -96,7 +96,6 @@ class NotificationCompatBuilder implements NotificationBuilderWithBuilderAccesso
             mBuilder.setSubText(b.mSubText)
                     .setUsesChronometer(b.mUseChronometer)
                     .setPriority(b.mPriority);
-
             for (NotificationCompat.Action action : b.mActions) {
                 addAction(action);
             }
@@ -213,6 +212,21 @@ class NotificationCompatBuilder implements NotificationBuilderWithBuilderAccesso
             // TODO: Consider roundtripping NotificationCompat.BubbleMetadata on pre-Q platforms.
             mBuilder.setBubbleMetadata(
                     NotificationCompat.BubbleMetadata.toPlatform(b.mBubbleMetadata));
+        }
+
+        if (b.mSilent) {
+            if (mBuilderCompat.mGroupSummary) {
+                mGroupAlertBehavior = GROUP_ALERT_CHILDREN;
+            } else {
+                mGroupAlertBehavior = GROUP_ALERT_SUMMARY;
+            }
+
+            if (Build.VERSION.SDK_INT >= 26) {
+                if (TextUtils.isEmpty(mBuilderCompat.mGroupKey)) {
+                    mBuilder.setGroup(NotificationCompat.GROUP_KEY_SILENT);
+                }
+                mBuilder.setGroupAlertBehavior(mGroupAlertBehavior);
+            }
         }
     }
 
