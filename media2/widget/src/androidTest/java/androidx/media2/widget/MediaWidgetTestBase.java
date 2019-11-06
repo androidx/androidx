@@ -24,6 +24,7 @@ import android.text.TextUtils;
 import android.view.View;
 
 import androidx.annotation.GuardedBy;
+import androidx.annotation.IdRes;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.core.content.ContextCompat;
@@ -91,9 +92,7 @@ public class MediaWidgetTestBase extends MediaTestBase {
     }
 
     MediaItem createTestMediaItem() {
-        Uri testVideoUri = Uri.parse(
-                "android.resource://" + mContext.getPackageName() + "/"
-                        + R.raw.testvideo_with_2_subtitle_tracks);
+        Uri testVideoUri = getResourceUri(R.raw.testvideo_with_2_subtitle_tracks);
         return createTestMediaItem(testVideoUri);
     }
 
@@ -112,13 +111,15 @@ public class MediaWidgetTestBase extends MediaTestBase {
 
     List<MediaItem> createTestPlaylist() {
         List<MediaItem> list = new ArrayList<>();
-        list.add(createTestMediaItem(Uri.parse("android.resource://" + mContext.getPackageName()
-                + "/" + R.raw.test_file_scheme_video), "id_1"));
-        list.add(createTestMediaItem(Uri.parse("android.resource://" + mContext.getPackageName()
-                + "/" + R.raw.test_music), "id_2"));
-        list.add(createTestMediaItem(Uri.parse("android.resource://" + mContext.getPackageName()
-                + "/" + R.raw.testvideo_with_2_subtitle_tracks), "id_3"));
+        list.add(createTestMediaItem(getResourceUri(R.raw.test_file_scheme_video), "id_1"));
+        list.add(createTestMediaItem(getResourceUri(R.raw.test_music), "id_2"));
+        list.add(createTestMediaItem(getResourceUri(R.raw.testvideo_with_2_subtitle_tracks),
+                "id_3"));
         return list;
+    }
+
+    Uri getResourceUri(@IdRes int resId) {
+        return Uri.parse("android.resource://" + mContext.getPackageName() + "/" + resId);
     }
 
     // TODO(b/138091975) Do not ignore returned Futures if feasible.
