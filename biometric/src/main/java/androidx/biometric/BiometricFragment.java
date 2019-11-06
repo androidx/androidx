@@ -234,17 +234,18 @@ public class BiometricFragment extends Fragment {
     }
 
     @Override
-    public void onCreate(Bundle savedInstanceState) {
+    public void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setRetainInstance(true);
     }
 
-    public void setBundle(Bundle bundle) {
+    void setBundle(@Nullable Bundle bundle) {
         mBundle = bundle;
     }
 
     boolean isDeviceCredentialAllowed() {
-        return mBundle.getBoolean(BiometricPrompt.KEY_ALLOW_DEVICE_CREDENTIAL, false);
+        return mBundle != null
+                && mBundle.getBoolean(BiometricPrompt.KEY_ALLOW_DEVICE_CREDENTIAL, false);
     }
 
     @Override
@@ -254,10 +255,11 @@ public class BiometricFragment extends Fragment {
     }
 
     @Override
+    @Nullable
     public View onCreateView(@NonNull LayoutInflater inflater, @Nullable ViewGroup container,
             @Nullable Bundle savedInstanceState) {
         // Start the actual authentication when the fragment is attached.
-        if (!mShowing) {
+        if (!mShowing && mBundle != null) {
             mNegativeButtonText = mBundle.getCharSequence(BiometricPrompt.KEY_NEGATIVE_TEXT);
 
             final android.hardware.biometrics.BiometricPrompt.Builder builder =

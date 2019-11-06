@@ -69,4 +69,12 @@ public class BiometricFragmentTest {
         verify(callback).onAuthenticationSucceeded(resultCaptor.capture());
         assertThat(resultCaptor.getValue().getCryptoObject()).isNull();
     }
+
+    @Test
+    @UiThreadTest
+    public void testIsDeviceCredentialAllowed_ReturnsFalse_WhenBundleIsNull() {
+        final BiometricFragment biometricFragment = BiometricFragment.newInstance();
+        biometricFragment.setBundle(null);
+        assertThat(biometricFragment.isDeviceCredentialAllowed()).isFalse();
+    }
 }
