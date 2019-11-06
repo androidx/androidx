@@ -57,7 +57,6 @@ public class SensorOrientedMeteringPointFactory extends MeteringPointFactory {
     public SensorOrientedMeteringPointFactory(float width, float height) {
         mWidth = width;
         mHeight = height;
-        mFovAspectRatio = null;
     }
 
     /**
@@ -77,13 +76,13 @@ public class SensorOrientedMeteringPointFactory extends MeteringPointFactory {
      */
     public SensorOrientedMeteringPointFactory(float width, float height,
             @NonNull UseCase useCaseForFov) {
+        super(getUseCaseAspectRatio(useCaseForFov));
         mWidth = width;
         mHeight = height;
-        mFovAspectRatio = getUseCaseAspectRatio(useCaseForFov);
     }
 
     @Nullable
-    private Rational getUseCaseAspectRatio(@Nullable UseCase useCase) {
+    private static Rational getUseCaseAspectRatio(@Nullable UseCase useCase) {
         if (useCase == null) {
             return null;
         }

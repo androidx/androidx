@@ -68,49 +68,46 @@ public final class SensorOrientedMeteringPointFactoryTest {
     }
 
     @Test
-    public void defaultWeightAndAreaSize() {
+    public void defaultAreaSize() {
         MeteringPoint point = mPointFactory.createPoint(0, 0);
-        assertThat(point.getSize()).isEqualTo(MeteringPointFactory.DEFAULT_AREASIZE);
-        assertThat(point.getWeight()).isEqualTo(MeteringPointFactory.DEFAULT_WEIGHT);
-        assertThat(point.getFovAspectRatio()).isNull();
+        assertThat(point.getSize()).isEqualTo(MeteringPointFactory.getDefaultPointSize());
+        assertThat(point.getSurfaceAspectRatio()).isNull();
     }
 
     @Test
-    public void createPointWithValidWeightAndAreaSize() {
+    public void createPointWithValidAreaSize() {
         final float areaSize = 0.2f;
-        final float weight = 0.5f;
-        MeteringPoint point = mPointFactory.createPoint(0, 0, areaSize, weight);
+        MeteringPoint point = mPointFactory.createPoint(0, 0, areaSize);
         assertThat(point.getSize()).isEqualTo(areaSize);
-        assertThat(point.getWeight()).isEqualTo(weight);
-        assertThat(point.getFovAspectRatio()).isNull();
+        assertThat(point.getSurfaceAspectRatio()).isNull();
     }
 
     @Test
     public void createPointLeftTop_correctValueSet() {
         MeteringPoint meteringPoint = mPointFactory.createPoint(0f, 0f);
-        assertThat(meteringPoint.getNormalizedCropRegionX()).isEqualTo(0f);
-        assertThat(meteringPoint.getNormalizedCropRegionY()).isEqualTo(0f);
+        assertThat(meteringPoint.getX()).isEqualTo(0f);
+        assertThat(meteringPoint.getY()).isEqualTo(0f);
     }
 
     @Test
     public void createPointLeftBottom_correctValueSet() {
         MeteringPoint meteringPoint2 = mPointFactory.createPoint(0f, HEIGHT);
-        assertThat(meteringPoint2.getNormalizedCropRegionX()).isEqualTo(0f);
-        assertThat(meteringPoint2.getNormalizedCropRegionY()).isEqualTo(1f);
+        assertThat(meteringPoint2.getX()).isEqualTo(0f);
+        assertThat(meteringPoint2.getY()).isEqualTo(1f);
     }
 
     @Test
     public void createPointRightTop_correctValueSet() {
         MeteringPoint meteringPoint3 = mPointFactory.createPoint(WIDTH, 0f);
-        assertThat(meteringPoint3.getNormalizedCropRegionX()).isEqualTo(1f);
-        assertThat(meteringPoint3.getNormalizedCropRegionY()).isEqualTo(0f);
+        assertThat(meteringPoint3.getX()).isEqualTo(1f);
+        assertThat(meteringPoint3.getY()).isEqualTo(0f);
     }
 
     @Test
     public void createPointRightBottom_correctValueSet() {
         MeteringPoint meteringPoint4 = mPointFactory.createPoint(WIDTH, HEIGHT);
-        assertThat(meteringPoint4.getNormalizedCropRegionX()).isEqualTo(1f);
-        assertThat(meteringPoint4.getNormalizedCropRegionY()).isEqualTo(1f);
+        assertThat(meteringPoint4.getX()).isEqualTo(1f);
+        assertThat(meteringPoint4.getY()).isEqualTo(1f);
     }
 
     @Test
@@ -135,7 +132,7 @@ public final class SensorOrientedMeteringPointFactoryTest {
         SensorOrientedMeteringPointFactory factory = new SensorOrientedMeteringPointFactory(
                 WIDTH, HEIGHT, imageAnalysis);
         MeteringPoint point = factory.createPoint(0f, 0f);
-        assertThat(point.getFovAspectRatio()).isEqualTo(new Rational(4, 3));
+        assertThat(point.getSurfaceAspectRatio()).isEqualTo(new Rational(4, 3));
     }
 
     @Test(expected = IllegalStateException.class)

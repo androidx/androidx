@@ -109,27 +109,24 @@ public class DisplayOrientedMeteringPointFactoryTest {
     }
 
     @Test
-    public void defaultWeightAndAreaSize() {
+    public void defaultAreaSize() {
         DisplayOrientedMeteringPointFactory factory = new DisplayOrientedMeteringPointFactory(
                 mMockContext, LensFacing.BACK, WIDTH, HEIGHT);
 
         MeteringPoint point = factory.createPoint(0, 0);
-        assertThat(point.getSize()).isEqualTo(MeteringPointFactory.DEFAULT_AREASIZE);
-        assertThat(point.getWeight()).isEqualTo(MeteringPointFactory.DEFAULT_WEIGHT);
-        assertThat(point.getFovAspectRatio()).isNull();
+        assertThat(point.getSize()).isEqualTo(MeteringPointFactory.getDefaultPointSize());
+        assertThat(point.getSurfaceAspectRatio()).isNull();
     }
 
     @Test
-    public void createPointWithValidWeightAndAreaSize() {
+    public void createPointWithValidAreaSize() {
         DisplayOrientedMeteringPointFactory factory = new DisplayOrientedMeteringPointFactory(
                 mMockContext, LensFacing.BACK, WIDTH, HEIGHT);
 
         final float areaSize = 0.2f;
-        final float weight = 0.5f;
-        MeteringPoint point = factory.createPoint(0, 0, areaSize, weight);
+        MeteringPoint point = factory.createPoint(0, 0, areaSize);
         assertThat(point.getSize()).isEqualTo(areaSize);
-        assertThat(point.getWeight()).isEqualTo(weight);
-        assertThat(point.getFovAspectRatio()).isNull();
+        assertThat(point.getSurfaceAspectRatio()).isNull();
     }
 
     @Test
@@ -140,22 +137,22 @@ public class DisplayOrientedMeteringPointFactoryTest {
                 mMockContext, LensFacing.BACK, WIDTH, HEIGHT);
 
         MeteringPoint meteringPoint = factory.createPoint(0f, 0f);
-        assertThat(meteringPoint.getNormalizedCropRegionX()).isEqualTo(0f);
-        assertThat(meteringPoint.getNormalizedCropRegionY()).isEqualTo(1f);
+        assertThat(meteringPoint.getX()).isEqualTo(0f);
+        assertThat(meteringPoint.getY()).isEqualTo(1f);
 
         MeteringPoint meteringPoint2 = factory.createPoint(0f, HEIGHT);
-        assertThat(meteringPoint2.getNormalizedCropRegionX()).isEqualTo(1f);
-        assertThat(meteringPoint2.getNormalizedCropRegionY()).isEqualTo(1f);
+        assertThat(meteringPoint2.getX()).isEqualTo(1f);
+        assertThat(meteringPoint2.getY()).isEqualTo(1f);
 
         MeteringPoint meteringPoint3 = factory.createPoint(WIDTH, 0f);
 
-        assertThat(meteringPoint3.getNormalizedCropRegionX()).isEqualTo(0f);
-        assertThat(meteringPoint3.getNormalizedCropRegionY()).isEqualTo(0f);
+        assertThat(meteringPoint3.getX()).isEqualTo(0f);
+        assertThat(meteringPoint3.getY()).isEqualTo(0f);
 
         MeteringPoint meteringPoint4 = factory.createPoint(WIDTH, HEIGHT);
 
-        assertThat(meteringPoint4.getNormalizedCropRegionX()).isEqualTo(1f);
-        assertThat(meteringPoint4.getNormalizedCropRegionY()).isEqualTo(0f);
+        assertThat(meteringPoint4.getX()).isEqualTo(1f);
+        assertThat(meteringPoint4.getY()).isEqualTo(0f);
     }
 
     @Test
@@ -166,22 +163,22 @@ public class DisplayOrientedMeteringPointFactoryTest {
                 mMockContext, LensFacing.FRONT, WIDTH, HEIGHT);
 
         MeteringPoint meteringPoint = factory.createPoint(0f, 0f);
-        assertThat(meteringPoint.getNormalizedCropRegionX()).isEqualTo(1f);
-        assertThat(meteringPoint.getNormalizedCropRegionY()).isEqualTo(1f);
+        assertThat(meteringPoint.getX()).isEqualTo(1f);
+        assertThat(meteringPoint.getY()).isEqualTo(1f);
 
         MeteringPoint meteringPoint2 = factory.createPoint(0f, HEIGHT);
-        assertThat(meteringPoint2.getNormalizedCropRegionX()).isEqualTo(0f);
-        assertThat(meteringPoint2.getNormalizedCropRegionY()).isEqualTo(1f);
+        assertThat(meteringPoint2.getX()).isEqualTo(0f);
+        assertThat(meteringPoint2.getY()).isEqualTo(1f);
 
         MeteringPoint meteringPoint3 = factory.createPoint(WIDTH, 0f);
 
-        assertThat(meteringPoint3.getNormalizedCropRegionX()).isEqualTo(1f);
-        assertThat(meteringPoint3.getNormalizedCropRegionY()).isEqualTo(0f);
+        assertThat(meteringPoint3.getX()).isEqualTo(1f);
+        assertThat(meteringPoint3.getY()).isEqualTo(0f);
 
         MeteringPoint meteringPoint4 = factory.createPoint(WIDTH, HEIGHT);
 
-        assertThat(meteringPoint4.getNormalizedCropRegionX()).isEqualTo(0f);
-        assertThat(meteringPoint4.getNormalizedCropRegionY()).isEqualTo(0f);
+        assertThat(meteringPoint4.getX()).isEqualTo(0f);
+        assertThat(meteringPoint4.getY()).isEqualTo(0f);
     }
 
     @Test
@@ -192,22 +189,22 @@ public class DisplayOrientedMeteringPointFactoryTest {
                 mMockContext, LensFacing.BACK, WIDTH, HEIGHT);
 
         MeteringPoint meteringPoint = factory.createPoint(0f, 0f);
-        assertThat(meteringPoint.getNormalizedCropRegionX()).isEqualTo(0f);
-        assertThat(meteringPoint.getNormalizedCropRegionY()).isEqualTo(0f);
+        assertThat(meteringPoint.getX()).isEqualTo(0f);
+        assertThat(meteringPoint.getY()).isEqualTo(0f);
 
         MeteringPoint meteringPoint2 = factory.createPoint(0f, HEIGHT);
-        assertThat(meteringPoint2.getNormalizedCropRegionX()).isEqualTo(0f);
-        assertThat(meteringPoint2.getNormalizedCropRegionY()).isEqualTo(1f);
+        assertThat(meteringPoint2.getX()).isEqualTo(0f);
+        assertThat(meteringPoint2.getY()).isEqualTo(1f);
 
         MeteringPoint meteringPoint3 = factory.createPoint(WIDTH, 0f);
 
-        assertThat(meteringPoint3.getNormalizedCropRegionX()).isEqualTo(1f);
-        assertThat(meteringPoint3.getNormalizedCropRegionY()).isEqualTo(0f);
+        assertThat(meteringPoint3.getX()).isEqualTo(1f);
+        assertThat(meteringPoint3.getY()).isEqualTo(0f);
 
         MeteringPoint meteringPoint4 = factory.createPoint(WIDTH, HEIGHT);
 
-        assertThat(meteringPoint4.getNormalizedCropRegionX()).isEqualTo(1f);
-        assertThat(meteringPoint4.getNormalizedCropRegionY()).isEqualTo(1f);
+        assertThat(meteringPoint4.getX()).isEqualTo(1f);
+        assertThat(meteringPoint4.getY()).isEqualTo(1f);
     }
 
     @Test
@@ -218,22 +215,22 @@ public class DisplayOrientedMeteringPointFactoryTest {
                 mMockContext, LensFacing.FRONT, WIDTH, HEIGHT);
 
         MeteringPoint meteringPoint = factory.createPoint(0f, 0f);
-        assertThat(meteringPoint.getNormalizedCropRegionX()).isEqualTo(1f);
-        assertThat(meteringPoint.getNormalizedCropRegionY()).isEqualTo(0f);
+        assertThat(meteringPoint.getX()).isEqualTo(1f);
+        assertThat(meteringPoint.getY()).isEqualTo(0f);
 
         MeteringPoint meteringPoint2 = factory.createPoint(0f, HEIGHT);
-        assertThat(meteringPoint2.getNormalizedCropRegionX()).isEqualTo(1f);
-        assertThat(meteringPoint2.getNormalizedCropRegionY()).isEqualTo(1f);
+        assertThat(meteringPoint2.getX()).isEqualTo(1f);
+        assertThat(meteringPoint2.getY()).isEqualTo(1f);
 
         MeteringPoint meteringPoint3 = factory.createPoint(WIDTH, 0f);
 
-        assertThat(meteringPoint3.getNormalizedCropRegionX()).isEqualTo(0f);
-        assertThat(meteringPoint3.getNormalizedCropRegionY()).isEqualTo(0f);
+        assertThat(meteringPoint3.getX()).isEqualTo(0f);
+        assertThat(meteringPoint3.getY()).isEqualTo(0f);
 
         MeteringPoint meteringPoint4 = factory.createPoint(WIDTH, HEIGHT);
 
-        assertThat(meteringPoint4.getNormalizedCropRegionX()).isEqualTo(0f);
-        assertThat(meteringPoint4.getNormalizedCropRegionY()).isEqualTo(1f);
+        assertThat(meteringPoint4.getX()).isEqualTo(0f);
+        assertThat(meteringPoint4.getY()).isEqualTo(1f);
     }
 
     @Test
@@ -244,22 +241,22 @@ public class DisplayOrientedMeteringPointFactoryTest {
                 mMockContext, LensFacing.BACK, WIDTH, HEIGHT);
 
         MeteringPoint meteringPoint = factory.createPoint(0f, 0f);
-        assertThat(meteringPoint.getNormalizedCropRegionX()).isEqualTo(1f);
-        assertThat(meteringPoint.getNormalizedCropRegionY()).isEqualTo(0f);
+        assertThat(meteringPoint.getX()).isEqualTo(1f);
+        assertThat(meteringPoint.getY()).isEqualTo(0f);
 
         MeteringPoint meteringPoint2 = factory.createPoint(0f, HEIGHT);
-        assertThat(meteringPoint2.getNormalizedCropRegionX()).isEqualTo(0f);
-        assertThat(meteringPoint2.getNormalizedCropRegionY()).isEqualTo(0f);
+        assertThat(meteringPoint2.getX()).isEqualTo(0f);
+        assertThat(meteringPoint2.getY()).isEqualTo(0f);
 
         MeteringPoint meteringPoint3 = factory.createPoint(WIDTH, 0f);
 
-        assertThat(meteringPoint3.getNormalizedCropRegionX()).isEqualTo(1f);
-        assertThat(meteringPoint3.getNormalizedCropRegionY()).isEqualTo(1f);
+        assertThat(meteringPoint3.getX()).isEqualTo(1f);
+        assertThat(meteringPoint3.getY()).isEqualTo(1f);
 
         MeteringPoint meteringPoint4 = factory.createPoint(WIDTH, HEIGHT);
 
-        assertThat(meteringPoint4.getNormalizedCropRegionX()).isEqualTo(0f);
-        assertThat(meteringPoint4.getNormalizedCropRegionY()).isEqualTo(1f);
+        assertThat(meteringPoint4.getX()).isEqualTo(0f);
+        assertThat(meteringPoint4.getY()).isEqualTo(1f);
     }
 
     @Test
@@ -270,22 +267,22 @@ public class DisplayOrientedMeteringPointFactoryTest {
                 mMockContext, LensFacing.FRONT, WIDTH, HEIGHT);
 
         MeteringPoint meteringPoint = factory.createPoint(0f, 0f);
-        assertThat(meteringPoint.getNormalizedCropRegionX()).isEqualTo(0f);
-        assertThat(meteringPoint.getNormalizedCropRegionY()).isEqualTo(0f);
+        assertThat(meteringPoint.getX()).isEqualTo(0f);
+        assertThat(meteringPoint.getY()).isEqualTo(0f);
 
         MeteringPoint meteringPoint2 = factory.createPoint(0f, HEIGHT);
-        assertThat(meteringPoint2.getNormalizedCropRegionX()).isEqualTo(1f);
-        assertThat(meteringPoint2.getNormalizedCropRegionY()).isEqualTo(0f);
+        assertThat(meteringPoint2.getX()).isEqualTo(1f);
+        assertThat(meteringPoint2.getY()).isEqualTo(0f);
 
         MeteringPoint meteringPoint3 = factory.createPoint(WIDTH, 0f);
 
-        assertThat(meteringPoint3.getNormalizedCropRegionX()).isEqualTo(0f);
-        assertThat(meteringPoint3.getNormalizedCropRegionY()).isEqualTo(1f);
+        assertThat(meteringPoint3.getX()).isEqualTo(0f);
+        assertThat(meteringPoint3.getY()).isEqualTo(1f);
 
         MeteringPoint meteringPoint4 = factory.createPoint(WIDTH, HEIGHT);
 
-        assertThat(meteringPoint4.getNormalizedCropRegionX()).isEqualTo(1f);
-        assertThat(meteringPoint4.getNormalizedCropRegionY()).isEqualTo(1f);
+        assertThat(meteringPoint4.getX()).isEqualTo(1f);
+        assertThat(meteringPoint4.getY()).isEqualTo(1f);
     }
 
     @Test
@@ -296,22 +293,22 @@ public class DisplayOrientedMeteringPointFactoryTest {
                 mMockContext, LensFacing.BACK, WIDTH, HEIGHT);
 
         MeteringPoint meteringPoint = factory.createPoint(0f, 0f);
-        assertThat(meteringPoint.getNormalizedCropRegionX()).isEqualTo(1f);
-        assertThat(meteringPoint.getNormalizedCropRegionY()).isEqualTo(1f);
+        assertThat(meteringPoint.getX()).isEqualTo(1f);
+        assertThat(meteringPoint.getY()).isEqualTo(1f);
 
         MeteringPoint meteringPoint2 = factory.createPoint(0f, HEIGHT);
-        assertThat(meteringPoint2.getNormalizedCropRegionX()).isEqualTo(1f);
-        assertThat(meteringPoint2.getNormalizedCropRegionY()).isEqualTo(0f);
+        assertThat(meteringPoint2.getX()).isEqualTo(1f);
+        assertThat(meteringPoint2.getY()).isEqualTo(0f);
 
         MeteringPoint meteringPoint3 = factory.createPoint(WIDTH, 0f);
 
-        assertThat(meteringPoint3.getNormalizedCropRegionX()).isEqualTo(0f);
-        assertThat(meteringPoint3.getNormalizedCropRegionY()).isEqualTo(1f);
+        assertThat(meteringPoint3.getX()).isEqualTo(0f);
+        assertThat(meteringPoint3.getY()).isEqualTo(1f);
 
         MeteringPoint meteringPoint4 = factory.createPoint(WIDTH, HEIGHT);
 
-        assertThat(meteringPoint4.getNormalizedCropRegionX()).isEqualTo(0f);
-        assertThat(meteringPoint4.getNormalizedCropRegionY()).isEqualTo(0f);
+        assertThat(meteringPoint4.getX()).isEqualTo(0f);
+        assertThat(meteringPoint4.getY()).isEqualTo(0f);
     }
 
     @Test
@@ -322,22 +319,22 @@ public class DisplayOrientedMeteringPointFactoryTest {
                 mMockContext, LensFacing.FRONT, WIDTH, HEIGHT);
 
         MeteringPoint meteringPoint = factory.createPoint(0f, 0f);
-        assertThat(meteringPoint.getNormalizedCropRegionX()).isEqualTo(0f);
-        assertThat(meteringPoint.getNormalizedCropRegionY()).isEqualTo(1f);
+        assertThat(meteringPoint.getX()).isEqualTo(0f);
+        assertThat(meteringPoint.getY()).isEqualTo(1f);
 
         MeteringPoint meteringPoint2 = factory.createPoint(0f, HEIGHT);
-        assertThat(meteringPoint2.getNormalizedCropRegionX()).isEqualTo(0f);
-        assertThat(meteringPoint2.getNormalizedCropRegionY()).isEqualTo(0f);
+        assertThat(meteringPoint2.getX()).isEqualTo(0f);
+        assertThat(meteringPoint2.getY()).isEqualTo(0f);
 
         MeteringPoint meteringPoint3 = factory.createPoint(WIDTH, 0f);
 
-        assertThat(meteringPoint3.getNormalizedCropRegionX()).isEqualTo(1f);
-        assertThat(meteringPoint3.getNormalizedCropRegionY()).isEqualTo(1f);
+        assertThat(meteringPoint3.getX()).isEqualTo(1f);
+        assertThat(meteringPoint3.getY()).isEqualTo(1f);
 
         MeteringPoint meteringPoint4 = factory.createPoint(WIDTH, HEIGHT);
 
-        assertThat(meteringPoint4.getNormalizedCropRegionX()).isEqualTo(1f);
-        assertThat(meteringPoint4.getNormalizedCropRegionY()).isEqualTo(0f);
+        assertThat(meteringPoint4.getX()).isEqualTo(1f);
+        assertThat(meteringPoint4.getY()).isEqualTo(0f);
     }
 
     @Test
@@ -348,22 +345,22 @@ public class DisplayOrientedMeteringPointFactoryTest {
                 mMockDisplay, LensFacing.FRONT, WIDTH, HEIGHT);
 
         MeteringPoint meteringPoint = factory.createPoint(0f, 0f);
-        assertThat(meteringPoint.getNormalizedCropRegionX()).isEqualTo(0f);
-        assertThat(meteringPoint.getNormalizedCropRegionY()).isEqualTo(1f);
+        assertThat(meteringPoint.getX()).isEqualTo(0f);
+        assertThat(meteringPoint.getY()).isEqualTo(1f);
 
         MeteringPoint meteringPoint2 = factory.createPoint(0f, HEIGHT);
-        assertThat(meteringPoint2.getNormalizedCropRegionX()).isEqualTo(0f);
-        assertThat(meteringPoint2.getNormalizedCropRegionY()).isEqualTo(0f);
+        assertThat(meteringPoint2.getX()).isEqualTo(0f);
+        assertThat(meteringPoint2.getY()).isEqualTo(0f);
 
         MeteringPoint meteringPoint3 = factory.createPoint(WIDTH, 0f);
 
-        assertThat(meteringPoint3.getNormalizedCropRegionX()).isEqualTo(1f);
-        assertThat(meteringPoint3.getNormalizedCropRegionY()).isEqualTo(1f);
+        assertThat(meteringPoint3.getX()).isEqualTo(1f);
+        assertThat(meteringPoint3.getY()).isEqualTo(1f);
 
         MeteringPoint meteringPoint4 = factory.createPoint(WIDTH, HEIGHT);
 
-        assertThat(meteringPoint4.getNormalizedCropRegionX()).isEqualTo(1f);
-        assertThat(meteringPoint4.getNormalizedCropRegionY()).isEqualTo(0f);
+        assertThat(meteringPoint4.getX()).isEqualTo(1f);
+        assertThat(meteringPoint4.getY()).isEqualTo(0f);
     }
 
 }
