@@ -274,6 +274,9 @@ package androidx.exifinterface.media {
     field public static final String TAG_MODEL = "Model";
     field public static final String TAG_NEW_SUBFILE_TYPE = "NewSubfileType";
     field public static final String TAG_OECF = "OECF";
+    field public static final String TAG_OFFSET_TIME = "OffsetTime";
+    field public static final String TAG_OFFSET_TIME_DIGITIZED = "OffsetTimeDigitized";
+    field public static final String TAG_OFFSET_TIME_ORIGINAL = "OffsetTimeOriginal";
     field public static final String TAG_ORF_ASPECT_FRAME = "AspectFrame";
     field public static final String TAG_ORF_PREVIEW_IMAGE_LENGTH = "PreviewImageLength";
     field public static final String TAG_ORF_PREVIEW_IMAGE_START = "PreviewImageStart";
