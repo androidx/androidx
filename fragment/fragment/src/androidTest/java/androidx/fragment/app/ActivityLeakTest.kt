@@ -48,6 +48,7 @@ object NotRetained : LeakConfiguration() {
 }
 
 object Retained : LeakConfiguration() {
+    @Suppress("DEPRECATION")
     override fun commit(fragmentManager: FragmentManager) = StrictFragment().apply {
         retainInstance = true
     }.also {

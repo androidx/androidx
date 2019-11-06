@@ -1157,6 +1157,7 @@ public abstract class FragmentManager {
         return mCurState >= state;
     }
 
+    @SuppressWarnings("deprecation")
     void moveToState(@NonNull Fragment f, int newState) {
         FragmentStateManager fragmentStateManager = mActive.get(f.mWho);
         if (fragmentStateManager == null) {

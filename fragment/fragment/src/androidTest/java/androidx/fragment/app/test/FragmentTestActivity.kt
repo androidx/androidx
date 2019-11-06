@@ -43,6 +43,7 @@ class FragmentTestActivity : FragmentActivity(R.layout.activity_content) {
         val childFragment: ChildFragment
             get() = childFragmentManager.findFragmentByTag(CHILD_FRAGMENT_TAG) as ChildFragment
 
+        @Suppress("DEPRECATION")
         override fun onCreate(savedInstanceState: Bundle?) {
             super.onCreate(savedInstanceState)
 

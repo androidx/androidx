@@ -287,6 +287,7 @@ class TargetFragmentLifeCycleTest {
      * Test the availability of getTargetFragment() when the target fragment is
      * retained and the referrer fragment is not retained.
      */
+    @Suppress("DEPRECATION")
     @Test
     @UiThreadTest
     fun targetFragmentRetainedNonRetained() {
@@ -323,6 +324,7 @@ class TargetFragmentLifeCycleTest {
      * Test the availability of getTargetFragment() when the target fragment is
      * not retained and the referrer fragment is retained.
      */
+    @Suppress("DEPRECATION")
     @Test
     @UiThreadTest
     fun targetFragmentNonRetainedRetained() {
@@ -358,6 +360,7 @@ class TargetFragmentLifeCycleTest {
      * Test the availability of getTargetFragment() when the target fragment is
      * retained and the referrer fragment is also retained.
      */
+    @Suppress("DEPRECATION")
     @Test
     @UiThreadTest
     fun targetFragmentRetainedRetained() {
