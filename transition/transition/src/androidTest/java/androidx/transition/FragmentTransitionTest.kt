@@ -21,6 +21,7 @@ import android.os.Bundle
 import android.view.View
 import androidx.core.app.SharedElementCallback
 import androidx.fragment.app.Fragment
+import androidx.fragment.app.FragmentActivity
 import androidx.fragment.app.FragmentManager
 import androidx.fragment.app.TargetTracking
 import androidx.test.filters.MediumTest
@@ -49,7 +50,7 @@ import org.mockito.Mockito.verify
 class FragmentTransitionTest(private val reorderingAllowed: Boolean) {
 
     @get:Rule
-    val activityRule = ActivityTestRule(FragmentTestActivity::class.java)
+    val activityRule = ActivityTestRule(FragmentTransitionTestActivity::class.java)
 
     private val instrumentation = InstrumentationRegistry.getInstrumentation()
     private lateinit var fragmentManager: FragmentManager
@@ -59,7 +60,6 @@ class FragmentTransitionTest(private val reorderingAllowed: Boolean) {
 
     @Before
     fun setup() {
-        activityRule.setContentView(R.layout.simple_container)
         onBackStackChangedTimes = 0
         fragmentManager = activityRule.activity.supportFragmentManager
         fragmentManager.addOnBackStackChangedListener(onBackStackChangedListener)
@@ -1262,3 +1262,5 @@ class FragmentTransitionTest(private val reorderingAllowed: Boolean) {
         }
     }
 }
+
+class FragmentTransitionTestActivity : FragmentActivity(R.layout.simple_container)
