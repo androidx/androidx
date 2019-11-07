@@ -60,7 +60,6 @@ import androidx.camera.core.PreviewSurfaceProviders;
 import androidx.camera.core.UseCase;
 import androidx.camera.core.VideoCapture;
 import androidx.camera.core.VideoCaptureConfig;
-import androidx.camera.core.impl.utils.CameraSelectorUtil;
 import androidx.camera.core.impl.utils.executor.CameraXExecutors;
 import androidx.camera.lifecycle.LifecycleCameraProvider;
 import androidx.core.app.ActivityCompat;
@@ -92,7 +91,7 @@ import java.util.concurrent.atomic.AtomicReference;
  * lifecycle events are handled internally by CameraX.
  */
 public class CameraXActivity extends AppCompatActivity
-        implements ActivityCompat.OnRequestPermissionsResultCallback, View.OnLayoutChangeListener {
+        implements ActivityCompat.OnRequestPermissionsResultCallback {
     private static final String TAG = "CameraXActivity";
     private static final int PERMISSIONS_REQUEST_CODE = 42;
     // Possible values for this intent key: "backward" or "forward".
@@ -222,7 +221,7 @@ public class CameraXActivity extends AppCompatActivity
                         viewGroup.removeView(mTextureView);
                         viewGroup.addView(mTextureView);
                         mTextureView.setSurfaceTexture(surfaceTexture);
-                        transformPreview();
+                        transformPreview(resolution);
                     }
 
                     @Override
@@ -242,22 +241,8 @@ public class CameraXActivity extends AppCompatActivity
         }
     }
 
-    @SuppressWarnings("RestrictedApi")
-    void transformPreview() {
-        // TODO(b/143793233): We should not be using internal APIs to get the resolution here.
-        //  This should be switched to public APIs.
-        String cameraId;
-        try {
-            cameraId = CameraX.getCameraWithCameraDeviceConfig(
-                    CameraSelectorUtil.toCameraDeviceConfig(mCurrentCameraSelector));
-        } catch (CameraInfoUnavailableException e) {
-            throw new IllegalArgumentException(
-                    "Unable to get camera id for the camera lens facing "
-                            + mCurrentCameraLensFacing, e);
-        }
-        Size srcResolution = mPreview.getAttachedSurfaceResolution(cameraId);
-
-        if (srcResolution.getWidth() == 0 || srcResolution.getHeight() == 0) {
+    void transformPreview(@NonNull Size resolution) {
+        if (resolution.getWidth() == 0 || resolution.getHeight() == 0) {
             return;
         }
 
@@ -279,7 +264,7 @@ public class CameraXActivity extends AppCompatActivity
         int displayRotation = getDisplayRotation();
         Size scaled =
                 calculatePreviewViewDimens(
-                        srcResolution, viewWidth, viewHeight, displayRotation);
+                        resolution, viewWidth, viewHeight, displayRotation);
 
         // Compute the center of the view.
         int centerX = viewWidth / 2;
@@ -912,12 +897,6 @@ public class CameraXActivity extends AppCompatActivity
         }
 
         return true;
-    }
-
-    @Override
-    public void onLayoutChange(View v, int left, int top, int right, int bottom, int oldLeft,
-            int oldTop, int oldRight, int oldBottom) {
-        transformPreview();
     }
 
     /** A {@link Callable} whose return value can be set. */
