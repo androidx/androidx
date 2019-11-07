@@ -1191,9 +1191,19 @@ public class ImageCapture extends UseCase {
         /**
          * Indicates an upside down mirroring, equivalent to a horizontal mirroring (reflection)
          * followed by a 180 degree rotation.
+         *
+         * <p>The reflection is meant to be applied to the upright image (after rotation to the
+         * target orientation). When saving the image to file, it is combined with the rotation
+         * degrees, to generate the corresponding EXIF orientation value.
          */
         private boolean mIsReversedHorizontal;
-        /** Indicates a left-right mirroring (reflection). */
+        /**
+         * Indicates a left-right mirroring (reflection).
+         *
+         * <p>The reflection is meant to be applied to the upright image (after rotation to the
+         * target orientation). When saving the image to file, it is combined with the rotation
+         * degrees, to generate the corresponding EXIF orientation value.
+         */
         private boolean mIsReversedVertical;
         /** Data representing a geographic location. */
         @Nullable
