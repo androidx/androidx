@@ -21,6 +21,7 @@ import android.view.MotionEvent;
 import android.widget.LinearLayout;
 import android.widget.TextView;
 
+import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.recyclerview.selection.ItemDetailsLookup.ItemDetails;
 import androidx.recyclerview.widget.RecyclerView;
@@ -60,6 +61,12 @@ final class FancyHolder extends RecyclerView.ViewHolder {
             @Override
             public boolean inSelectionHotspot(MotionEvent e) {
                 return FancyHolder.this.inSelectRegion(e);
+            }
+
+            @NonNull
+            @Override
+            public String toString() {
+                return FancyHolder.this.toString();
             }
         };
     }
@@ -107,5 +114,10 @@ final class FancyHolder extends RecyclerView.ViewHolder {
 
     ItemDetails<Uri> getItemDetails() {
         return mDetails;
+    }
+
+    @Override
+    public String toString() {
+        return "Item{name:" + mLabel.getText() + ", url:" + mKey + "}";
     }
 }
