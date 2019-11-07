@@ -873,13 +873,17 @@ public final class ImageAnalysisConfig
          * smaller than the target resolution, as determined by the Camera implementation. However,
          * if no resolution exists that is equal to or larger than the target resolution, the
          * nearest available resolution smaller than the target resolution will be chosen.
+         * Resolutions with the same aspect ratio of the provided {@link Size} will be considered in
+         * higher priority before resolutions of different aspect ratios.
          *
          * <p>It is not allowed to set both target aspect ratio and target resolution on the same
          * use case.  Attempting so will throw an IllegalArgumentException when building the
          * Config.
          *
-         * <p>The target aspect ratio will also be set the same as the aspect ratio of the provided
-         * {@link Size}. Make sure to set the target resolution with the correct orientation.
+         * <p>The resolution {@link Size} should be expressed at the use cases's target rotation.
+         * For example, a device with portrait natural orientation in natural target
+         * rotation requesting a portrait image may specify 480x640, and the same device, rotated
+         * 90 degrees and targeting landscape orientation may specify 640x480.
          *
          * @param resolution The target resolution to choose from supported output sizes list.
          * @return The current Builder.
