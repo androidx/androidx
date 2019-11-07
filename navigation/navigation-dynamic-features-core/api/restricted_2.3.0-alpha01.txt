@@ -4,7 +4,6 @@ package androidx.navigation.dynamicfeatures {
   @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP) public interface Constants {
     field public static final String DESTINATION_ARGS = "dfn:destinationArgs";
     field public static final String DESTINATION_ID = "dfn:destinationId";
-    field public static final String DESTINATION_NAVOPTS = "dfn:destinationNavOpts";
     field public static final String KEY_NAVIGATED = "dfn:navigated";
   }
 
@@ -66,10 +65,7 @@ package androidx.navigation.dynamicfeatures {
     method public Exception? getException();
     method public int getSessionId();
     method public androidx.lifecycle.LiveData<com.google.android.play.core.splitinstall.SplitInstallSessionState!> getStatus();
-    method public boolean hasException();
-    method public static boolean isEndState(int);
     method public boolean isInstallRequired();
-    method public void setSessionId(int);
   }
 
 }

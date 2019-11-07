@@ -25,18 +25,15 @@ package androidx.navigation.dynamicfeatures.fragment.ui {
     ctor public AbstractProgressFragment();
     ctor public AbstractProgressFragment(int);
     method protected abstract void onCancelled();
-    method protected abstract void onException(Exception);
-    method protected abstract void onFailed();
-    method protected abstract void onProgress(long, long);
-    method public static void setArguments(androidx.navigation.dynamicfeatures.fragment.ui.AbstractProgressFragment, int, android.os.Bundle?);
+    method protected abstract void onFailed(int);
+    method protected abstract void onProgress(int, long, long);
   }
 
   public final class DefaultProgressFragment extends androidx.navigation.dynamicfeatures.fragment.ui.AbstractProgressFragment {
     ctor public DefaultProgressFragment();
     method protected void onCancelled();
-    method protected void onException(Exception);
-    method protected void onFailed();
-    method protected void onProgress(long, long);
+    method protected void onFailed(int);
+    method protected void onProgress(int, long, long);
   }
 
 }

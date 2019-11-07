@@ -16,7 +16,9 @@
 
 package androidx.navigation.dynamicfeatures.fragment.ui;
 
-import android.annotation.SuppressLint;
+import android.content.ComponentName;
+import android.content.pm.PackageManager;
+import android.graphics.drawable.Drawable;
 import android.os.Bundle;
 import android.view.View;
 import android.widget.ImageView;
@@ -27,6 +29,8 @@ import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.navigation.dynamicfeatures.fragment.R;
 
+import com.google.android.play.core.splitinstall.model.SplitInstallErrorCode;
+
 /**
  * The default fragment to display during installation progress.
  */
@@ -34,7 +38,7 @@ public final class DefaultProgressFragment extends AbstractProgressFragment {
 
     private TextView mModuleName;
     private ProgressBar mProgressBar;
-    private int mTotalDownloadSize = 0;
+    private static final int PROGRESS_MAX = 100;
 
     /**
      * Create a {@link DefaultProgressFragment}.
@@ -48,36 +52,42 @@ public final class DefaultProgressFragment extends AbstractProgressFragment {
         super.onViewCreated(view, savedInstanceState);
         mModuleName = view.findViewById(R.id.module_name);
         mProgressBar = view.findViewById(R.id.installation_progress);
+        mProgressBar.setIndeterminate(true);
+        mProgressBar.setMax(PROGRESS_MAX);
 
         ImageView activityIcon = view.findViewById(R.id.progress_icon);
-        // TODO: Change this for the target activity icon.
-        activityIcon.setImageDrawable(
-                requireActivity().getPackageManager().getDefaultActivityIcon());
-    }
-
-    @Override
-    protected void onException(@NonNull Exception exception) {
-        mModuleName.setText(exception.getMessage());
-    }
-
-    @SuppressLint("DefaultLocale")
-    @Override
-    protected void onProgress(long bytesDownloaded, long bytesTotal) {
-
-        if (mTotalDownloadSize == 0) {
-            mTotalDownloadSize = Long.valueOf(bytesTotal).intValue();
+        Drawable icon;
+        try {
+            icon = requireActivity().getPackageManager().getActivityIcon(
+                            new ComponentName(requireContext(), requireActivity().getClass()));
+        } catch (PackageManager.NameNotFoundException e) {
+            icon = requireActivity().getPackageManager().getDefaultActivityIcon();
         }
-        mProgressBar.setProgress(Long.valueOf(bytesDownloaded).intValue());
+        activityIcon.setImageDrawable(icon);
+    }
+
+    @Override
+    protected void onProgress(int status, long bytesDownloaded, long bytesTotal) {
+        mProgressBar.setVisibility(View.VISIBLE);
+        if (bytesTotal > 0) {
+            mProgressBar.setIndeterminate(false);
+            mProgressBar.setProgress(
+                    Long.valueOf((PROGRESS_MAX * bytesDownloaded) / bytesTotal).intValue()
+            );
+        } else {
+            mProgressBar.setIndeterminate(true);
+        }
     }
 
     @Override
     protected void onCancelled() {
+        mProgressBar.setVisibility(View.INVISIBLE);
         mModuleName.setText(R.string.installation_cancelled);
     }
 
     @Override
-    protected void onFailed() {
+    protected void onFailed(@SplitInstallErrorCode int errorCode) {
+        mProgressBar.setVisibility(View.INVISIBLE);
         mModuleName.setText(R.string.installation_failed);
     }
-
 }
