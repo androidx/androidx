@@ -14,9 +14,9 @@
  * limitations under the License.
  */
 
-package androidx.navigation.dynamicfeatures;
+package androidx.navigation.dynamicfeatures
 
-import androidx.annotation.RestrictTo;
+import androidx.annotation.RestrictTo
 
 /**
  * Internal constants for dynamic feature navigator.
@@ -24,8 +24,8 @@ import androidx.annotation.RestrictTo;
  * @hide
  */
 @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
-public interface Constants {
-    String KEY_NAVIGATED = "dfn:navigated";
-    String DESTINATION_ID = "dfn:destinationId";
-    String DESTINATION_ARGS = "dfn:destinationArgs";
+object Constants {
+    const val KEY_NAVIGATED = "dfn:navigated"
+    const val DESTINATION_ID = "dfn:destinationId"
+    const val DESTINATION_ARGS = "dfn:destinationArgs"
 }

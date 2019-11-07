@@ -45,6 +45,6 @@ class DynamicGraphNavigatorTest {
     fun testInstallDefaultProgressDestination() {
         val navDestination = mock(NavDestination::class.java)
         navigator.installDefaultProgressDestination { navDestination }
-        assertEquals(navDestination, navigator.progressDestinationSupplier!!.progressDestination)
+        assertEquals(navDestination, navigator.defaultProgressDestinationSupplier!!.invoke())
     }
 }

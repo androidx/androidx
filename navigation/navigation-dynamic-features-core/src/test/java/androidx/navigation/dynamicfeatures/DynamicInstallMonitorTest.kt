@@ -34,7 +34,7 @@ class DynamicInstallMonitorTest {
         val monitor = DynamicInstallMonitor()
         val manager = mock(SplitInstallManager::class.java)
 
-        monitor.setSplitInstallManager(manager)
+        monitor.splitInstallManager = manager
         monitor.cancelInstall()
 
         verify(manager, times(0)).cancelInstall(anyInt())
@@ -45,7 +45,7 @@ class DynamicInstallMonitorTest {
         val monitor = DynamicInstallMonitor()
         val manager = mock(SplitInstallManager::class.java)
 
-        monitor.setSplitInstallManager(manager)
+        monitor.splitInstallManager = manager
         monitor.sessionId = 1
         monitor.cancelInstall()
 
