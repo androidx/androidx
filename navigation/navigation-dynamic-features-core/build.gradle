@@ -27,9 +27,7 @@ plugins {
 }
 
 dependencies {
-    api("androidx.core:core:1.1.0")
-    implementation("androidx.collection:collection:1.1.0")
-    implementation(project(":navigation:navigation-runtime"))
+    api(project(":navigation:navigation-runtime"))
     api("com.google.android.play:core:1.6.4")
 
     testImplementation(ANDROIDX_TEST_CORE)

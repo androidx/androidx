@@ -27,12 +27,8 @@ plugins {
 }
 
 dependencies {
-    api("androidx.core:core:1.1.0")
-    implementation("androidx.collection:collection:1.0.0")
-    implementation(project(":navigation:navigation-dynamic-features-activity"))
-    implementation(project(":navigation:navigation-dynamic-features-core"))
-    implementation(project(":navigation:navigation-runtime"))
-    implementation(project(":navigation:navigation-fragment"))
+    api(project(":navigation:navigation-dynamic-features-activity"))
+    api(project(":navigation:navigation-fragment"))
 
     testImplementation(ANDROIDX_TEST_CORE)
     testImplementation(ANDROIDX_TEST_EXT_JUNIT)
