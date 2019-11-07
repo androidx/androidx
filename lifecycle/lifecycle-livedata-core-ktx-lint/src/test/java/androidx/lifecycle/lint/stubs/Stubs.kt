@@ -21,7 +21,11 @@ import com.android.tools.lint.checks.infrastructure.LintDetectorTest.java
 private val LIVEDATA = java("""
     package androidx.lifecycle;
 
-    public abstract class LiveData<T> { }
+    public abstract class LiveData<T> {
+        protected void postValue(T value) {}
+        protected void setValue(T value) {}
+        public T getValue() {}
+    }
 """).indented()
 
 private val MUTABLE_LIVEDATA = java("""
@@ -29,6 +33,8 @@ private val MUTABLE_LIVEDATA = java("""
 
     public class MutableLiveData<T> extends LiveData<T> {
         public MutableLiveData() {}
+        @Override public void postValue(T value) { super.postValue(value); }
+        @Override public void setValue(T value) { super.setValue(value); }
     }
 """).indented()
 
