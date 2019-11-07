@@ -38,7 +38,7 @@ class DynamicNavHostFragmentTest {
 
     @Test
     fun createSplitInstallManager() {
-        val fragment = DynamicNavHostFragment()
+        val fragment = TestDynamicNavHostFragment()
         with(ActivityScenario.launch(NavigationActivity::class.java)) {
             withActivity {
                 supportFragmentManager.beginTransaction()
@@ -56,4 +56,8 @@ class NavigationActivity : FragmentActivity() {
         setContentView(R.layout.dynamic_activity_layout)
         super.onCreate(savedInstanceState)
     }
+}
+
+class TestDynamicNavHostFragment : DynamicNavHostFragment() {
+    public override fun createSplitInstallManager() = super.createSplitInstallManager()
 }
