@@ -416,6 +416,9 @@ public class ImageCapture extends UseCase {
      * {@link Display#getRotation()} of the default display at the time the
      * use case is created.
      *
+     * <p>takePicture uses the target rotation at the time it begins executing (which may be delayed
+     * waiting on a previous takePicture call to complete).
+     *
      * @param rotation Target rotation of the output image, expressed as one of
      *                 {@link Surface#ROTATION_0}, {@link Surface#ROTATION_90},
      *                 {@link Surface#ROTATION_180}, or {@link Surface#ROTATION_270}.
