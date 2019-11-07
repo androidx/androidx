@@ -57,10 +57,7 @@ package androidx.navigation.dynamicfeatures {
     method public Exception? getException();
     method public int getSessionId();
     method public androidx.lifecycle.LiveData<com.google.android.play.core.splitinstall.SplitInstallSessionState!> getStatus();
-    method public boolean hasException();
-    method public static boolean isEndState(int);
     method public boolean isInstallRequired();
-    method public void setSessionId(int);
   }
 
 }

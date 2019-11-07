@@ -111,7 +111,7 @@ public final class DynamicIncludeGraphNavigator extends
             // no need to remove previous destination, id is used as key in map
             outerNav.addDestination(includedNav);
             Navigator<NavDestination> navigator = mNavigatorProvider
-                    .getNavigator(outerNav.getNavigatorName());
+                    .getNavigator(includedNav.getNavigatorName());
             return navigator.navigate(includedNav, args, navOptions, navigatorExtras);
         }
     }
@@ -165,14 +165,11 @@ public final class DynamicIncludeGraphNavigator extends
                         "graphResName must be set for dynamic navigation");
             }
             setGraphResourceName(graphResourceName);
-            a.recycle();
 
-            final TypedArray graphAttrs = context.getResources().obtainAttributes(attrs,
-                    R.styleable.DynamicGraphNavigator);
-            String moduleName = a.getString(R.styleable.DynamicGraphNavigator_moduleName);
+            String moduleName = a.getString(R.styleable.DynamicIncludeGraphNavigator_moduleName);
             setModuleName(moduleName);
 
-            graphAttrs.recycle();
+            a.recycle();
         }
 
         /**

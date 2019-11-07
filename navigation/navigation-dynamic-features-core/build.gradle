@@ -30,7 +30,7 @@ dependencies {
     api("androidx.core:core:1.1.0")
     implementation("androidx.collection:collection:1.1.0")
     implementation(project(":navigation:navigation-runtime"))
-    implementation("com.google.android.play:core:1.6.1")
+    api("com.google.android.play:core:1.6.4")
 
     testImplementation(ANDROIDX_TEST_CORE)
     testImplementation(ANDROIDX_TEST_EXT_JUNIT)
