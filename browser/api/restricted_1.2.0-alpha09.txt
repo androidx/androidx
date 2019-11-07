@@ -60,7 +60,6 @@ package androidx.browser.browseractions {
     method @Deprecated public androidx.browser.browseractions.BrowserActionsIntent.Builder! setUrlType(@androidx.browser.browseractions.BrowserActionsIntent.BrowserActionsUrlType int);
   }
 
-
 }
 
 package androidx.browser.customtabs {
@@ -107,7 +106,7 @@ package androidx.browser.customtabs {
   }
 
   public final class CustomTabsIntent {
-    method public static androidx.browser.customtabs.CustomTabColorSchemeParams getColorSchemeParams(android.content.Intent, @androidx.browser.customtabs.CustomTabsIntent.ColorScheme int);
+    method public static androidx.browser.customtabs.CustomTabColorSchemeParams getColorSchemeParams(android.content.Intent, int);
     method public static int getMaxToolbarItems();
     method public void launchUrl(android.content.Context!, android.net.Uri!);
     method public static android.content.Intent! setAlwaysUseBrowserUI(android.content.Intent!);
@@ -158,8 +157,8 @@ package androidx.browser.customtabs {
     method public androidx.browser.customtabs.CustomTabsIntent.Builder setActionButton(android.graphics.Bitmap, String, android.app.PendingIntent, boolean);
     method public androidx.browser.customtabs.CustomTabsIntent.Builder setActionButton(android.graphics.Bitmap, String, android.app.PendingIntent);
     method public androidx.browser.customtabs.CustomTabsIntent.Builder setCloseButtonIcon(android.graphics.Bitmap);
-    method public androidx.browser.customtabs.CustomTabsIntent.Builder setColorScheme(@androidx.browser.customtabs.CustomTabsIntent.ColorScheme int);
-    method public androidx.browser.customtabs.CustomTabsIntent.Builder setColorSchemeParams(@androidx.browser.customtabs.CustomTabsIntent.ColorScheme int, androidx.browser.customtabs.CustomTabColorSchemeParams);
+    method public androidx.browser.customtabs.CustomTabsIntent.Builder setColorScheme(int);
+    method public androidx.browser.customtabs.CustomTabsIntent.Builder setColorSchemeParams(int, androidx.browser.customtabs.CustomTabColorSchemeParams);
     method public androidx.browser.customtabs.CustomTabsIntent.Builder setExitAnimations(android.content.Context, @AnimRes int, @AnimRes int);
     method public androidx.browser.customtabs.CustomTabsIntent.Builder setInstantAppsEnabled(boolean);
     method public androidx.browser.customtabs.CustomTabsIntent.Builder setNavigationBarColor(@ColorInt int);
@@ -171,7 +170,6 @@ package androidx.browser.customtabs {
     method public androidx.browser.customtabs.CustomTabsIntent.Builder setToolbarColor(@ColorInt int);
   }
 
-
   public abstract class CustomTabsService extends android.app.Service {
     ctor public CustomTabsService();
     method protected boolean cleanUpSession(androidx.browser.customtabs.CustomTabsSessionToken!);
@@ -180,7 +178,7 @@ package androidx.browser.customtabs {
     method protected abstract boolean newSession(androidx.browser.customtabs.CustomTabsSessionToken!);
     method public android.os.IBinder! onBind(android.content.Intent!);
     method @androidx.browser.customtabs.CustomTabsService.Result protected abstract int postMessage(androidx.browser.customtabs.CustomTabsSessionToken!, String!, android.os.Bundle!);
-    method protected abstract boolean receiveFile(androidx.browser.customtabs.CustomTabsSessionToken, android.net.Uri, @androidx.browser.customtabs.CustomTabsService.FilePurpose int, android.os.Bundle?);
+    method protected abstract boolean receiveFile(androidx.browser.customtabs.CustomTabsSessionToken, android.net.Uri, int, android.os.Bundle?);
     method protected abstract boolean requestPostMessageChannel(androidx.browser.customtabs.CustomTabsSessionToken!, android.net.Uri!);
     method protected abstract boolean updateVisuals(androidx.browser.customtabs.CustomTabsSessionToken!, android.os.Bundle!);
     method protected abstract boolean validateRelationship(androidx.browser.customtabs.CustomTabsSessionToken!, @androidx.browser.customtabs.CustomTabsService.Relation int, android.net.Uri!, android.os.Bundle!);
@@ -201,7 +199,6 @@ package androidx.browser.customtabs {
     field public static final String TRUSTED_WEB_ACTIVITY_CATEGORY = "androidx.browser.trusted.category.TrustedWebActivities";
   }
 
-
   @IntDef({androidx.browser.customtabs.CustomTabsService.RELATION_USE_AS_ORIGIN, androidx.browser.customtabs.CustomTabsService.RELATION_HANDLE_ALL_URLS}) @java.lang.annotation.Retention(java.lang.annotation.RetentionPolicy.SOURCE) public static @interface CustomTabsService.Relation {
   }
 
@@ -218,14 +215,13 @@ package androidx.browser.customtabs {
     method @VisibleForTesting public static androidx.browser.customtabs.CustomTabsSession createMockSessionForTesting(android.content.ComponentName);
     method public boolean mayLaunchUrl(android.net.Uri, android.os.Bundle?, java.util.List<android.os.Bundle!>?);
     method @androidx.browser.customtabs.CustomTabsService.Result public int postMessage(String, android.os.Bundle?);
-    method public boolean receiveFile(android.net.Uri, @androidx.browser.customtabs.CustomTabsService.FilePurpose int, android.os.Bundle?);
+    method public boolean receiveFile(android.net.Uri, int, android.os.Bundle?);
     method public boolean requestPostMessageChannel(android.net.Uri);
     method public boolean setActionButton(android.graphics.Bitmap, String);
     method public boolean setSecondaryToolbarViews(android.widget.RemoteViews?, int[]?, android.app.PendingIntent?);
     method @Deprecated public boolean setToolbarItem(int, android.graphics.Bitmap, String);
     method public boolean validateRelationship(@androidx.browser.customtabs.CustomTabsService.Relation int, android.net.Uri, android.os.Bundle?);
   }
-
 
   public class CustomTabsSessionToken {
     method public static androidx.browser.customtabs.CustomTabsSessionToken createMockSessionTokenForTesting();
@@ -234,13 +230,12 @@ package androidx.browser.customtabs {
     method public boolean isAssociatedWith(androidx.browser.customtabs.CustomTabsSession);
   }
 
-
   public class PostMessageService extends android.app.Service {
     ctor public PostMessageService();
     method public android.os.IBinder! onBind(android.content.Intent!);
   }
 
-  public abstract class PostMessageServiceConnection implements androidx.browser.customtabs.PostMessageBackend android.content.ServiceConnection {
+  public abstract class PostMessageServiceConnection implements android.content.ServiceConnection {
     ctor public PostMessageServiceConnection(androidx.browser.customtabs.CustomTabsSessionToken!);
     method public boolean bindSessionToPostMessageService(android.content.Context!, String!);
     method public final boolean notifyMessageChannelReady(android.os.Bundle!);
@@ -262,7 +257,6 @@ package androidx.browser.customtabs {
 }
 
 package androidx.browser.trusted {
-
 
   public final class Token {
     method public static androidx.browser.trusted.Token? create(String, android.content.pm.PackageManager);
@@ -370,7 +364,7 @@ package androidx.browser.trusted.sharing {
   }
 
   public final class ShareTarget {
-    ctor public ShareTarget(String, @androidx.browser.trusted.sharing.ShareTarget.RequestMethod String?, @androidx.browser.trusted.sharing.ShareTarget.EncodingType String?, androidx.browser.trusted.sharing.ShareTarget.Params);
+    ctor public ShareTarget(String, String?, String?, androidx.browser.trusted.sharing.ShareTarget.Params);
     method public static androidx.browser.trusted.sharing.ShareTarget? fromBundle(android.os.Bundle);
     method public android.os.Bundle toBundle();
     field public static final String ENCODING_TYPE_MULTIPART = "multipart/form-data";
@@ -382,11 +376,10 @@ package androidx.browser.trusted.sharing {
     field public static final String METHOD_GET = "GET";
     field public static final String METHOD_POST = "POST";
     field public final String action;
-    field @androidx.browser.trusted.sharing.ShareTarget.EncodingType public final String? encodingType;
-    field @androidx.browser.trusted.sharing.ShareTarget.RequestMethod public final String? method;
+    field public final String? encodingType;
+    field public final String? method;
     field public final androidx.browser.trusted.sharing.ShareTarget.Params params;
   }
-
 
   public static final class ShareTarget.FileFormField {
     ctor public ShareTarget.FileFormField(String, java.util.List<java.lang.String!>);
@@ -405,7 +398,6 @@ package androidx.browser.trusted.sharing {
     field public final String? text;
     field public final String? title;
   }
-
 
 }
 

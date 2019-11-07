@@ -15,7 +15,6 @@ package androidx.versionedparcelable {
     method public abstract int value();
   }
 
-
   public class ParcelUtils {
     method @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP_PREFIX) public static <T extends androidx.versionedparcelable.VersionedParcelable> T! fromInputStream(java.io.InputStream!);
     method @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP_PREFIX) public static <T extends androidx.versionedparcelable.VersionedParcelable> T! fromParcelable(android.os.Parcelable!);

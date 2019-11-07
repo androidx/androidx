@@ -763,7 +763,6 @@ package androidx.leanback.app {
     field @Deprecated public static final int BG_NONE = 0; // 0x0
   }
 
-
   @Deprecated public class PlaybackFragmentGlueHost extends androidx.leanback.media.PlaybackGlueHost implements androidx.leanback.widget.PlaybackSeekUi {
     ctor @Deprecated public PlaybackFragmentGlueHost(androidx.leanback.app.PlaybackFragment!);
     method @Deprecated public void fadeOut();
@@ -806,7 +805,6 @@ package androidx.leanback.app {
     field public static final int BG_LIGHT = 2; // 0x2
     field public static final int BG_NONE = 0; // 0x0
   }
-
 
   public class PlaybackSupportFragmentGlueHost extends androidx.leanback.media.PlaybackGlueHost implements androidx.leanback.widget.PlaybackSeekUi {
     ctor public PlaybackSupportFragmentGlueHost(androidx.leanback.app.PlaybackSupportFragment!);
@@ -1489,7 +1487,6 @@ package androidx.leanback.transition {
     ctor public SlideNoPropagation(android.content.Context!, android.util.AttributeSet!);
   }
 
-
   @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP_PREFIX) public final class TransitionHelper {
     method public static void addSharedElement(android.app.FragmentTransaction!, android.view.View!, String!);
     method public static void addTarget(Object!, android.view.View!);
@@ -1558,7 +1555,6 @@ package androidx.leanback.transition {
 }
 
 package androidx.leanback.util {
-
 
   @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP_PREFIX) public final class StateMachine {
     ctor public StateMachine();
@@ -2003,7 +1999,6 @@ package androidx.leanback.widget {
     method public androidx.leanback.widget.Parallax.IntProperty! getOverviewRowBottom();
     method public androidx.leanback.widget.Parallax.IntProperty! getOverviewRowTop();
   }
-
 
   public abstract class DiffCallback<Value> {
     ctor public DiffCallback();
@@ -3539,7 +3534,6 @@ package androidx.leanback.widget {
     method public void setColumnWidth(int);
     method public void setNumColumns(int);
   }
-
 
   public interface ViewHolderTask {
     method public void run(androidx.recyclerview.widget.RecyclerView.ViewHolder!);

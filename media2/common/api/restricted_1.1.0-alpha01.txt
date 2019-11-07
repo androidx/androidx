@@ -79,15 +79,15 @@ package androidx.media2.common {
 
   public final class MediaMetadata extends androidx.versionedparcelable.CustomVersionedParcelable {
     method public boolean containsKey(String);
-    method public android.graphics.Bitmap? getBitmap(@androidx.media2.common.MediaMetadata.BitmapKey String);
+    method public android.graphics.Bitmap? getBitmap(String);
     method public android.os.Bundle? getExtras();
-    method public float getFloat(@androidx.media2.common.MediaMetadata.FloatKey String);
-    method public long getLong(@androidx.media2.common.MediaMetadata.LongKey String);
+    method public float getFloat(String);
+    method public long getLong(String);
     method public String? getMediaId();
     method @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP) public Object? getObject(String);
-    method public androidx.media2.common.Rating? getRating(@androidx.media2.common.MediaMetadata.RatingKey String);
-    method public String? getString(@androidx.media2.common.MediaMetadata.TextKey String);
-    method public CharSequence? getText(@androidx.media2.common.MediaMetadata.TextKey String);
+    method public androidx.media2.common.Rating? getRating(String);
+    method public String? getString(String);
+    method public CharSequence? getText(String);
     method public java.util.Set<java.lang.String!> keySet();
     method public int size();
     field public static final long BROWSABLE_TYPE_ALBUMS = 2L; // 0x2L
@@ -136,24 +136,18 @@ package androidx.media2.common {
     field public static final long STATUS_NOT_DOWNLOADED = 0L; // 0x0L
   }
 
-
   public static final class MediaMetadata.Builder {
     ctor public MediaMetadata.Builder();
     ctor public MediaMetadata.Builder(androidx.media2.common.MediaMetadata);
     method public androidx.media2.common.MediaMetadata build();
-    method public androidx.media2.common.MediaMetadata.Builder putBitmap(@androidx.media2.common.MediaMetadata.BitmapKey String, android.graphics.Bitmap?);
-    method public androidx.media2.common.MediaMetadata.Builder putFloat(@androidx.media2.common.MediaMetadata.LongKey String, float);
-    method public androidx.media2.common.MediaMetadata.Builder putLong(@androidx.media2.common.MediaMetadata.LongKey String, long);
-    method public androidx.media2.common.MediaMetadata.Builder putRating(@androidx.media2.common.MediaMetadata.RatingKey String, androidx.media2.common.Rating?);
-    method public androidx.media2.common.MediaMetadata.Builder putString(@androidx.media2.common.MediaMetadata.TextKey String, String?);
-    method public androidx.media2.common.MediaMetadata.Builder putText(@androidx.media2.common.MediaMetadata.TextKey String, CharSequence?);
+    method public androidx.media2.common.MediaMetadata.Builder putBitmap(String, android.graphics.Bitmap?);
+    method public androidx.media2.common.MediaMetadata.Builder putFloat(String, float);
+    method public androidx.media2.common.MediaMetadata.Builder putLong(String, long);
+    method public androidx.media2.common.MediaMetadata.Builder putRating(String, androidx.media2.common.Rating?);
+    method public androidx.media2.common.MediaMetadata.Builder putString(String, String?);
+    method public androidx.media2.common.MediaMetadata.Builder putText(String, CharSequence?);
     method public androidx.media2.common.MediaMetadata.Builder setExtras(android.os.Bundle?);
   }
-
-
-
-
-
 
   @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP) public class MediaParcelUtils {
     method public static <T extends androidx.versionedparcelable.VersionedParcelable> T? fromParcelable(androidx.versionedparcelable.ParcelImpl);
@@ -267,9 +261,8 @@ package androidx.media2.common {
     method @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP) public static com.google.common.util.concurrent.ListenableFuture<androidx.media2.common.SessionPlayer.PlayerResult!> createFuture(int);
     method public long getCompletionTime();
     method public androidx.media2.common.MediaItem? getMediaItem();
-    method @androidx.media2.common.SessionPlayer.PlayerResult.ResultCode public int getResultCode();
+    method public int getResultCode();
   }
-
 
   @IntDef({androidx.media2.common.SessionPlayer.PLAYER_STATE_IDLE, androidx.media2.common.SessionPlayer.PLAYER_STATE_PAUSED, androidx.media2.common.SessionPlayer.PLAYER_STATE_PLAYING, androidx.media2.common.SessionPlayer.PLAYER_STATE_ERROR}) @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP) @java.lang.annotation.Retention(java.lang.annotation.RetentionPolicy.SOURCE) public static @interface SessionPlayer.PlayerState {
   }

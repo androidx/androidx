@@ -1,11 +1,11 @@
 // Signature format: 3.0
 package androidx.slice.builders {
 
-  @androidx.slice.builders.SliceMarker public final class CellBuilderDsl extends androidx.slice.builders.GridRowBuilder.CellBuilder {
+  public final class CellBuilderDsl extends androidx.slice.builders.GridRowBuilder.CellBuilder {
     ctor public CellBuilderDsl();
   }
 
-  @androidx.slice.builders.SliceMarker public final class GridRowBuilderDsl extends androidx.slice.builders.GridRowBuilder {
+  public final class GridRowBuilderDsl extends androidx.slice.builders.GridRowBuilder {
     ctor public GridRowBuilderDsl();
   }
 
@@ -15,15 +15,15 @@ package androidx.slice.builders {
     method public static inline androidx.slice.builders.GridRowBuilder seeMoreCell(androidx.slice.builders.GridRowBuilderDsl, kotlin.jvm.functions.Function1<? super androidx.slice.builders.CellBuilderDsl,kotlin.Unit> buildCell);
   }
 
-  @androidx.slice.builders.SliceMarker public final class HeaderBuilderDsl extends androidx.slice.builders.ListBuilder.HeaderBuilder {
+  public final class HeaderBuilderDsl extends androidx.slice.builders.ListBuilder.HeaderBuilder {
     ctor public HeaderBuilderDsl();
   }
 
-  @androidx.slice.builders.SliceMarker public final class InputRangeBuilderDsl extends androidx.slice.builders.ListBuilder.InputRangeBuilder {
+  public final class InputRangeBuilderDsl extends androidx.slice.builders.ListBuilder.InputRangeBuilder {
     ctor public InputRangeBuilderDsl();
   }
 
-  @androidx.slice.builders.SliceMarker public final class ListBuilderDsl extends androidx.slice.builders.ListBuilder {
+  public final class ListBuilderDsl extends androidx.slice.builders.ListBuilder {
     ctor public ListBuilderDsl(android.content.Context context, android.net.Uri uri, long ttl);
   }
 
@@ -40,14 +40,13 @@ package androidx.slice.builders {
     method public static androidx.slice.builders.SliceAction toggleSliceAction(android.app.PendingIntent pendingIntent, androidx.core.graphics.drawable.IconCompat? icon = null, CharSequence title, boolean isChecked);
   }
 
-  @androidx.slice.builders.SliceMarker public final class RangeBuilderDsl extends androidx.slice.builders.ListBuilder.RangeBuilder {
+  public final class RangeBuilderDsl extends androidx.slice.builders.ListBuilder.RangeBuilder {
     ctor public RangeBuilderDsl();
   }
 
-  @androidx.slice.builders.SliceMarker public final class RowBuilderDsl extends androidx.slice.builders.ListBuilder.RowBuilder {
+  public final class RowBuilderDsl extends androidx.slice.builders.ListBuilder.RowBuilder {
     ctor public RowBuilderDsl();
   }
-
 
 }
 

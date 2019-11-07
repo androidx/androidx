@@ -189,7 +189,7 @@ package android.support.v4.media {
     method public boolean isThumbUp();
     method public static android.support.v4.media.RatingCompat! newHeartRating(boolean);
     method public static android.support.v4.media.RatingCompat! newPercentageRating(float);
-    method public static android.support.v4.media.RatingCompat! newStarRating(@android.support.v4.media.RatingCompat.StarStyle int, float);
+    method public static android.support.v4.media.RatingCompat! newStarRating(int, float);
     method public static android.support.v4.media.RatingCompat! newThumbRating(boolean);
     method public static android.support.v4.media.RatingCompat! newUnratedRating(@android.support.v4.media.RatingCompat.Style int);
     method public void writeToParcel(android.os.Parcel!, int);
@@ -202,7 +202,6 @@ package android.support.v4.media {
     field public static final int RATING_PERCENTAGE = 6; // 0x6
     field public static final int RATING_THUMB_UP_DOWN = 2; // 0x2
   }
-
 
   @IntDef({android.support.v4.media.RatingCompat.RATING_NONE, android.support.v4.media.RatingCompat.RATING_HEART, android.support.v4.media.RatingCompat.RATING_THUMB_UP_DOWN, android.support.v4.media.RatingCompat.RATING_3_STARS, android.support.v4.media.RatingCompat.RATING_4_STARS, android.support.v4.media.RatingCompat.RATING_5_STARS, android.support.v4.media.RatingCompat.RATING_PERCENTAGE}) @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP_PREFIX) @java.lang.annotation.Retention(java.lang.annotation.RetentionPolicy.SOURCE) public static @interface RatingCompat.Style {
   }
@@ -442,7 +441,7 @@ package android.support.v4.media.session {
     method public Object! getPlaybackState();
     method public long getPosition();
     method @android.support.v4.media.session.PlaybackStateCompat.State public int getState();
-    method public static int toKeyCode(@android.support.v4.media.session.PlaybackStateCompat.MediaKeyAction long);
+    method public static int toKeyCode(long);
     method public void writeToParcel(android.os.Parcel!, int);
     field public static final long ACTION_FAST_FORWARD = 64L; // 0x40L
     field public static final long ACTION_PAUSE = 2L; // 0x2L
@@ -540,7 +539,6 @@ package android.support.v4.media.session {
     method public android.support.v4.media.session.PlaybackStateCompat.CustomAction.Builder! setExtras(android.os.Bundle!);
   }
 
-
   @IntDef({android.support.v4.media.session.PlaybackStateCompat.REPEAT_MODE_INVALID, android.support.v4.media.session.PlaybackStateCompat.REPEAT_MODE_NONE, android.support.v4.media.session.PlaybackStateCompat.REPEAT_MODE_ONE, android.support.v4.media.session.PlaybackStateCompat.REPEAT_MODE_ALL, android.support.v4.media.session.PlaybackStateCompat.REPEAT_MODE_GROUP}) @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP_PREFIX) @java.lang.annotation.Retention(java.lang.annotation.RetentionPolicy.SOURCE) public static @interface PlaybackStateCompat.RepeatMode {
   }
 
@@ -558,7 +556,7 @@ package androidx.media {
     method public int getContentType();
     method public int getFlags();
     method public int getLegacyStreamType();
-    method @androidx.media.AudioAttributesCompat.AttributeUsage public int getUsage();
+    method public int getUsage();
     method public int getVolumeControlStream();
     method public Object? unwrap();
     method public static androidx.media.AudioAttributesCompat? wrap(Object);
@@ -587,20 +585,15 @@ package androidx.media {
     field public static final int USAGE_VOICE_COMMUNICATION_SIGNALLING = 3; // 0x3
   }
 
-
-
   public static class AudioAttributesCompat.Builder {
     ctor public AudioAttributesCompat.Builder();
     ctor public AudioAttributesCompat.Builder(androidx.media.AudioAttributesCompat!);
     method public androidx.media.AudioAttributesCompat! build();
-    method public androidx.media.AudioAttributesCompat.Builder! setContentType(@androidx.media.AudioAttributesCompat.AttributeContentType int);
+    method public androidx.media.AudioAttributesCompat.Builder! setContentType(int);
     method public androidx.media.AudioAttributesCompat.Builder! setFlags(int);
     method public androidx.media.AudioAttributesCompat.Builder! setLegacyStreamType(int);
-    method public androidx.media.AudioAttributesCompat.Builder! setUsage(@androidx.media.AudioAttributesCompat.AttributeUsage int);
+    method public androidx.media.AudioAttributesCompat.Builder! setUsage(int);
   }
-
-
-
 
   public class AudioFocusRequestCompat {
     method public androidx.media.AudioAttributesCompat getAudioAttributesCompat();
@@ -629,8 +622,6 @@ package androidx.media {
     field public static final int AUDIOFOCUS_GAIN_TRANSIENT_EXCLUSIVE = 4; // 0x4
     field public static final int AUDIOFOCUS_GAIN_TRANSIENT_MAY_DUCK = 3; // 0x3
   }
-
-
 
   public abstract class MediaBrowserServiceCompat extends android.app.Service {
     ctor public MediaBrowserServiceCompat();
@@ -733,8 +724,8 @@ package androidx.media.session {
 
   public class MediaButtonReceiver extends android.content.BroadcastReceiver {
     ctor public MediaButtonReceiver();
-    method public static android.app.PendingIntent! buildMediaButtonPendingIntent(android.content.Context!, @android.support.v4.media.session.PlaybackStateCompat.MediaKeyAction long);
-    method public static android.app.PendingIntent! buildMediaButtonPendingIntent(android.content.Context!, android.content.ComponentName!, @android.support.v4.media.session.PlaybackStateCompat.MediaKeyAction long);
+    method public static android.app.PendingIntent! buildMediaButtonPendingIntent(android.content.Context!, long);
+    method public static android.app.PendingIntent! buildMediaButtonPendingIntent(android.content.Context!, android.content.ComponentName!, long);
     method public static android.view.KeyEvent! handleIntent(android.support.v4.media.session.MediaSessionCompat!, android.content.Intent!);
     method public void onReceive(android.content.Context!, android.content.Intent!);
   }

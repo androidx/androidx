@@ -40,7 +40,6 @@ package androidx.ui.input {
     method public void process(androidx.ui.input.EditingBuffer buffer);
   }
 
-
   public final class EditingBuffer {
     ctor public EditingBuffer(String initialText, androidx.ui.text.TextRange initialSelection);
     field public static final int NOWHERE = -1; // 0xffffffff
@@ -111,7 +110,6 @@ package androidx.ui.input {
     method public androidx.ui.input.OffsetMap getIdentityOffsetMap();
     property public final androidx.ui.input.OffsetMap identityOffsetMap;
   }
-
 
   public final class PasswordVisualTransformation implements androidx.ui.input.VisualTransformation {
     ctor public PasswordVisualTransformation(char mask);
@@ -467,7 +465,6 @@ package androidx.ui.text {
     method public static String toUpperCase(String, androidx.ui.text.Locale locale);
     method public static String toUpperCase(String, androidx.ui.text.LocaleList localeList);
   }
-
 
   public final class TextDelegateKt {
     ctor public TextDelegateKt();

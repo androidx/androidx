@@ -496,7 +496,6 @@ package androidx.preference {
   }
 
   public class PreferenceViewHolder extends androidx.recyclerview.widget.RecyclerView.ViewHolder {
-    method @RestrictTo(androidx.annotation.RestrictTo.Scope.TESTS) public static androidx.preference.PreferenceViewHolder! createInstanceForTests(android.view.View!);
     method public android.view.View! findViewById(@IdRes int);
     method public boolean isDividerAllowedAbove();
     method public boolean isDividerAllowedBelow();

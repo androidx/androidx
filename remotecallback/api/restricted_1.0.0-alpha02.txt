@@ -59,19 +59,18 @@ package androidx.remotecallback {
   }
 
   public class RemoteCallback {
-    ctor @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP_PREFIX) public RemoteCallback(android.content.Context, @androidx.remotecallback.RemoteCallback.RemoteCallbackType int, android.content.Intent, String, android.os.Bundle);
+    ctor @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP_PREFIX) public RemoteCallback(android.content.Context, int, android.content.Intent, String, android.os.Bundle);
     method public static <T extends androidx.remotecallback.CallbackReceiver> T! create(Class<T!>!, android.content.Context!);
     method public android.os.Bundle! getArgumentBundle();
     method public String! getMethodName();
     method public String getReceiverClass();
-    method @androidx.remotecallback.RemoteCallback.RemoteCallbackType public int getType();
+    method public int getType();
     method public android.app.PendingIntent! toPendingIntent();
     field @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP_PREFIX) public static final String EXTRA_METHOD = "remotecallback.method";
     field public static final androidx.remotecallback.RemoteCallback! LOCAL;
     field public static final int TYPE_PROVIDER = 1; // 0x1
     field public static final int TYPE_RECEIVER = 0; // 0x0
   }
-
 
 }
 

@@ -1,7 +1,6 @@
 // Signature format: 3.0
 package androidx.paging {
 
-
   public abstract class DataSource<Key, Value> {
     method @AnyThread public void addInvalidatedCallback(androidx.paging.DataSource.InvalidatedCallback onInvalidatedCallback);
     method @AnyThread public final void addInvalidatedCallback(kotlin.jvm.functions.Function0<kotlin.Unit> onInvalidatedCallback);
@@ -33,7 +32,6 @@ package androidx.paging {
   public final class DataSourceKt {
     ctor public DataSourceKt();
   }
-
 
   public abstract class ItemKeyedDataSource<Key, Value> extends androidx.paging.DataSource<Key,Value> {
     ctor public ItemKeyedDataSource();
@@ -330,7 +328,6 @@ package androidx.paging {
     method public final <V> androidx.paging.PositionalDataSource<V> mapByPage(androidx.arch.core.util.Function<java.util.List<T>,java.util.List<V>> function);
     method public final <V> androidx.paging.PositionalDataSource<V> mapByPage(kotlin.jvm.functions.Function1<? super java.util.List<? extends T>,? extends java.util.List<? extends V>> function);
   }
-
 
   public abstract static class PositionalDataSource.LoadInitialCallback<T> {
     ctor public PositionalDataSource.LoadInitialCallback();

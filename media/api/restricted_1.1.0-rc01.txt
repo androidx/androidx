@@ -426,7 +426,6 @@ package android.support.v4.media.session {
     field public static final int UNKNOWN_ID = -1; // 0xffffffff
   }
 
-
   @IntDef(flag=true, value={android.support.v4.media.session.MediaSessionCompat.FLAG_HANDLES_MEDIA_BUTTONS, android.support.v4.media.session.MediaSessionCompat.FLAG_HANDLES_TRANSPORT_CONTROLS, android.support.v4.media.session.MediaSessionCompat.FLAG_HANDLES_QUEUE_COMMANDS}) @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP_PREFIX) @java.lang.annotation.Retention(java.lang.annotation.RetentionPolicy.SOURCE) public static @interface MediaSessionCompat.SessionFlags {
   }
 
@@ -706,7 +705,6 @@ package androidx.media {
     method public static boolean areSameOptions(android.os.Bundle!, android.os.Bundle!);
     method public static boolean hasDuplicatedItems(android.os.Bundle!, android.os.Bundle!);
   }
-
 
   public abstract class MediaBrowserServiceCompat extends android.app.Service {
     ctor public MediaBrowserServiceCompat();

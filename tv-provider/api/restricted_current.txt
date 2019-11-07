@@ -1,89 +1,6 @@
 // Signature format: 3.0
 package androidx.tvprovider.media.tv {
 
-
-  @IntDef({androidx.tvprovider.media.tv.BasePreviewProgram.ASPECT_RATIO_UNKNOWN, androidx.tvprovider.media.tv.TvContractCompat.PreviewProgramColumns.ASPECT_RATIO_16_9, androidx.tvprovider.media.tv.TvContractCompat.PreviewProgramColumns.ASPECT_RATIO_3_2, androidx.tvprovider.media.tv.TvContractCompat.PreviewProgramColumns.ASPECT_RATIO_4_3, androidx.tvprovider.media.tv.TvContractCompat.PreviewProgramColumns.ASPECT_RATIO_1_1, androidx.tvprovider.media.tv.TvContractCompat.PreviewProgramColumns.ASPECT_RATIO_2_3, androidx.tvprovider.media.tv.TvContractCompat.PreviewProgramColumns.ASPECT_RATIO_MOVIE_POSTER}) @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP_PREFIX) @java.lang.annotation.Retention(java.lang.annotation.RetentionPolicy.SOURCE) public static @interface BasePreviewProgram.AspectRatio {
-  }
-
-  @IntDef({androidx.tvprovider.media.tv.BasePreviewProgram.AVAILABILITY_UNKNOWN, androidx.tvprovider.media.tv.TvContractCompat.PreviewProgramColumns.AVAILABILITY_AVAILABLE, androidx.tvprovider.media.tv.TvContractCompat.PreviewProgramColumns.AVAILABILITY_FREE_WITH_SUBSCRIPTION, androidx.tvprovider.media.tv.TvContractCompat.PreviewProgramColumns.AVAILABILITY_PAID_CONTENT, androidx.tvprovider.media.tv.TvContractCompat.PreviewProgramColumns.AVAILABILITY_PURCHASED, androidx.tvprovider.media.tv.TvContractCompat.PreviewProgramColumns.AVAILABILITY_FREE}) @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP_PREFIX) @java.lang.annotation.Retention(java.lang.annotation.RetentionPolicy.SOURCE) public static @interface BasePreviewProgram.Availability {
-  }
-
-  public abstract static class BasePreviewProgram.Builder<T extends androidx.tvprovider.media.tv.BasePreviewProgram.Builder> extends androidx.tvprovider.media.tv.BaseProgram.Builder<T> {
-    ctor public BasePreviewProgram.Builder();
-    ctor public BasePreviewProgram.Builder(androidx.tvprovider.media.tv.BasePreviewProgram!);
-    method public T! setAuthor(String!);
-    method public T! setAvailability(@androidx.tvprovider.media.tv.BasePreviewProgram.Availability int);
-    method @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP_PREFIX) public T! setBrowsable(boolean);
-    method public T! setContentId(String!);
-    method public T! setDurationMillis(int);
-    method public T! setEndTimeUtcMillis(long);
-    method public T! setGenre(String!);
-    method public T! setIntent(android.content.Intent!);
-    method public T! setIntentUri(android.net.Uri!);
-    method public T! setInteractionCount(long);
-    method public T! setInteractionType(@androidx.tvprovider.media.tv.BasePreviewProgram.InteractionType int);
-    method public T! setInternalProviderId(String!);
-    method public T! setItemCount(int);
-    method public T! setLastPlaybackPositionMillis(int);
-    method public T! setLive(boolean);
-    method public T! setLogoContentDescription(String!);
-    method public T! setLogoUri(android.net.Uri!);
-    method public T! setOfferPrice(String!);
-    method public T! setPosterArtAspectRatio(@androidx.tvprovider.media.tv.BasePreviewProgram.AspectRatio int);
-    method public T! setPreviewAudioUri(android.net.Uri!);
-    method public T! setPreviewVideoUri(android.net.Uri!);
-    method public T! setReleaseDate(String!);
-    method public T! setReleaseDate(java.util.Date!);
-    method public T! setStartTimeUtcMillis(long);
-    method public T! setStartingPrice(String!);
-    method public T! setThumbnailAspectRatio(@androidx.tvprovider.media.tv.BasePreviewProgram.AspectRatio int);
-    method public T! setTransient(boolean);
-    method public T! setTvSeriesItemType(@androidx.tvprovider.media.tv.BasePreviewProgram.TvSeriesItemType int);
-    method public T! setType(@androidx.tvprovider.media.tv.BasePreviewProgram.Type int);
-  }
-
-  @IntDef({androidx.tvprovider.media.tv.BasePreviewProgram.INTERACTION_TYPE_UNKNOWN, androidx.tvprovider.media.tv.TvContractCompat.PreviewProgramColumns.INTERACTION_TYPE_VIEWS, androidx.tvprovider.media.tv.TvContractCompat.PreviewProgramColumns.INTERACTION_TYPE_LISTENS, androidx.tvprovider.media.tv.TvContractCompat.PreviewProgramColumns.INTERACTION_TYPE_FOLLOWERS, androidx.tvprovider.media.tv.TvContractCompat.PreviewProgramColumns.INTERACTION_TYPE_FANS, androidx.tvprovider.media.tv.TvContractCompat.PreviewProgramColumns.INTERACTION_TYPE_LIKES, androidx.tvprovider.media.tv.TvContractCompat.PreviewProgramColumns.INTERACTION_TYPE_THUMBS, androidx.tvprovider.media.tv.TvContractCompat.PreviewProgramColumns.INTERACTION_TYPE_VIEWERS}) @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP_PREFIX) @java.lang.annotation.Retention(java.lang.annotation.RetentionPolicy.SOURCE) public static @interface BasePreviewProgram.InteractionType {
-  }
-
-  @IntDef({androidx.tvprovider.media.tv.TvContractCompat.PreviewProgramColumns.TV_SERIES_ITEM_TYPE_EPISODE, androidx.tvprovider.media.tv.TvContractCompat.PreviewProgramColumns.TV_SERIES_ITEM_TYPE_CHAPTER}) @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP_PREFIX) @java.lang.annotation.Retention(java.lang.annotation.RetentionPolicy.SOURCE) public static @interface BasePreviewProgram.TvSeriesItemType {
-  }
-
-  @IntDef({androidx.tvprovider.media.tv.BasePreviewProgram.TYPE_UNKNOWN, androidx.tvprovider.media.tv.TvContractCompat.PreviewProgramColumns.TYPE_MOVIE, androidx.tvprovider.media.tv.TvContractCompat.PreviewProgramColumns.TYPE_TV_SERIES, androidx.tvprovider.media.tv.TvContractCompat.PreviewProgramColumns.TYPE_TV_SEASON, androidx.tvprovider.media.tv.TvContractCompat.PreviewProgramColumns.TYPE_TV_EPISODE, androidx.tvprovider.media.tv.TvContractCompat.PreviewProgramColumns.TYPE_CLIP, androidx.tvprovider.media.tv.TvContractCompat.PreviewProgramColumns.TYPE_EVENT, androidx.tvprovider.media.tv.TvContractCompat.PreviewProgramColumns.TYPE_CHANNEL, androidx.tvprovider.media.tv.TvContractCompat.PreviewProgramColumns.TYPE_TRACK, androidx.tvprovider.media.tv.TvContractCompat.PreviewProgramColumns.TYPE_ALBUM, androidx.tvprovider.media.tv.TvContractCompat.PreviewProgramColumns.TYPE_ARTIST, androidx.tvprovider.media.tv.TvContractCompat.PreviewProgramColumns.TYPE_PLAYLIST, androidx.tvprovider.media.tv.TvContractCompat.PreviewProgramColumns.TYPE_STATION, androidx.tvprovider.media.tv.TvContractCompat.PreviewProgramColumns.TYPE_GAME}) @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP_PREFIX) @java.lang.annotation.Retention(java.lang.annotation.RetentionPolicy.SOURCE) public static @interface BasePreviewProgram.Type {
-  }
-
-
-  public abstract static class BaseProgram.Builder<T extends androidx.tvprovider.media.tv.BaseProgram.Builder> {
-    ctor public BaseProgram.Builder();
-    ctor public BaseProgram.Builder(androidx.tvprovider.media.tv.BaseProgram!);
-    method public T! setAudioLanguages(String![]!);
-    method public T! setCanonicalGenres(@androidx.tvprovider.media.tv.TvContractCompat.Programs.Genres.Genre String![]!);
-    method public T! setContentRatings(android.media.tv.TvContentRating![]!);
-    method public T! setDescription(String!);
-    method public T! setEpisodeNumber(int);
-    method public T! setEpisodeNumber(String!, int);
-    method public T! setEpisodeTitle(String!);
-    method public T! setId(long);
-    method public T! setInternalProviderData(byte[]!);
-    method public T! setInternalProviderFlag1(long);
-    method public T! setInternalProviderFlag2(long);
-    method public T! setInternalProviderFlag3(long);
-    method public T! setInternalProviderFlag4(long);
-    method public T! setLongDescription(String!);
-    method @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP_PREFIX) public T! setPackageName(String!);
-    method public T! setPosterArtUri(android.net.Uri!);
-    method public T! setReviewRating(String!);
-    method public T! setReviewRatingStyle(int);
-    method public T! setSearchable(boolean);
-    method public T! setSeasonNumber(int);
-    method public T! setSeasonNumber(String!, int);
-    method public T! setSeasonTitle(String!);
-    method public T! setThumbnailUri(android.net.Uri!);
-    method public T! setTitle(String!);
-    method public T! setVideoHeight(int);
-    method public T! setVideoWidth(int);
-    field @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP_PREFIX) protected android.content.ContentValues! mValues;
-  }
-
   public final class Channel {
     method public static androidx.tvprovider.media.tv.Channel! fromCursor(android.database.Cursor!);
     method public int getAppLinkColor();
@@ -246,15 +163,69 @@ package androidx.tvprovider.media.tv {
     method public void updateWatchNextProgram(androidx.tvprovider.media.tv.WatchNextProgram, long);
   }
 
-  public final class PreviewProgram extends androidx.tvprovider.media.tv.BasePreviewProgram {
+  public final class PreviewProgram {
     method public static androidx.tvprovider.media.tv.PreviewProgram! fromCursor(android.database.Cursor!);
+    method public String![]! getAudioLanguages();
+    method public String! getAuthor();
+    method public int getAvailability();
+    method public String![]! getCanonicalGenres();
     method public long getChannelId();
+    method public String! getContentId();
+    method public android.media.tv.TvContentRating![]! getContentRatings();
+    method public String! getDescription();
+    method public int getDurationMillis();
+    method public long getEndTimeUtcMillis();
+    method public String! getEpisodeNumber();
+    method public String! getEpisodeTitle();
+    method public String! getGenre();
+    method public long getId();
+    method public android.content.Intent! getIntent() throws java.net.URISyntaxException;
+    method public android.net.Uri! getIntentUri();
+    method public long getInteractionCount();
+    method public int getInteractionType();
+    method public byte[]! getInternalProviderDataByteArray();
+    method public Long! getInternalProviderFlag1();
+    method public Long! getInternalProviderFlag2();
+    method public Long! getInternalProviderFlag3();
+    method public Long! getInternalProviderFlag4();
+    method public String! getInternalProviderId();
+    method public int getItemCount();
+    method public int getLastPlaybackPositionMillis();
+    method public String! getLogoContentDescription();
+    method public android.net.Uri! getLogoUri();
+    method public String! getLongDescription();
+    method public String! getOfferPrice();
+    method @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP_PREFIX) public String! getPackageName();
+    method public int getPosterArtAspectRatio();
+    method public android.net.Uri! getPosterArtUri();
+    method public android.net.Uri! getPreviewAudioUri();
+    method public android.net.Uri! getPreviewVideoUri();
+    method public String! getReleaseDate();
+    method public String! getReviewRating();
+    method public int getReviewRatingStyle();
+    method public String! getSeasonNumber();
+    method public String! getSeasonTitle();
+    method public long getStartTimeUtcMillis();
+    method public String! getStartingPrice();
+    method public int getThumbnailAspectRatio();
+    method public android.net.Uri! getThumbnailUri();
+    method public String! getTitle();
+    method public int getTvSeriesItemType();
+    method public int getType();
+    method public int getVideoHeight();
+    method public int getVideoWidth();
     method public int getWeight();
     method public boolean hasAnyUpdatedValues(androidx.tvprovider.media.tv.PreviewProgram!);
+    method public boolean isBrowsable();
+    method public boolean isLive();
+    method public boolean isSearchable();
+    method public boolean isTransient();
+    method public android.content.ContentValues! toContentValues();
+    method @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP_PREFIX) public android.content.ContentValues! toContentValues(boolean);
     field @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP_PREFIX) public static final String![]! PROJECTION;
   }
 
-  public static final class PreviewProgram.Builder extends androidx.tvprovider.media.tv.BasePreviewProgram.Builder<androidx.tvprovider.media.tv.PreviewProgram.Builder> {
+  public static final class PreviewProgram.Builder {
     ctor public PreviewProgram.Builder();
     ctor public PreviewProgram.Builder(androidx.tvprovider.media.tv.PreviewProgram!);
     method public androidx.tvprovider.media.tv.PreviewProgram! build();
@@ -262,22 +233,47 @@ package androidx.tvprovider.media.tv {
     method public androidx.tvprovider.media.tv.PreviewProgram.Builder! setWeight(int);
   }
 
-  public final class Program extends androidx.tvprovider.media.tv.BaseProgram implements java.lang.Comparable<androidx.tvprovider.media.tv.Program> {
+  public final class Program implements java.lang.Comparable<androidx.tvprovider.media.tv.Program> {
     method public int compareTo(androidx.tvprovider.media.tv.Program);
     method public static androidx.tvprovider.media.tv.Program! fromCursor(android.database.Cursor!);
+    method public String![]! getAudioLanguages();
     method public String![]! getBroadcastGenres();
+    method public String![]! getCanonicalGenres();
     method public long getChannelId();
+    method public android.media.tv.TvContentRating![]! getContentRatings();
+    method public String! getDescription();
     method public long getEndTimeUtcMillis();
+    method public String! getEpisodeNumber();
+    method public String! getEpisodeTitle();
+    method public long getId();
+    method public byte[]! getInternalProviderDataByteArray();
+    method public Long! getInternalProviderFlag1();
+    method public Long! getInternalProviderFlag2();
+    method public Long! getInternalProviderFlag3();
+    method public Long! getInternalProviderFlag4();
+    method public String! getLongDescription();
+    method @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP_PREFIX) public String! getPackageName();
+    method public android.net.Uri! getPosterArtUri();
+    method public String! getReviewRating();
+    method public int getReviewRatingStyle();
+    method public String! getSeasonNumber();
+    method public String! getSeasonTitle();
     method public long getStartTimeUtcMillis();
+    method public android.net.Uri! getThumbnailUri();
+    method public String! getTitle();
+    method public int getVideoHeight();
+    method public int getVideoWidth();
     method public boolean isRecordingProhibited();
+    method public boolean isSearchable();
+    method public android.content.ContentValues! toContentValues();
     field @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP_PREFIX) public static final String![]! PROJECTION;
   }
 
-  public static class Program.Builder extends androidx.tvprovider.media.tv.BaseProgram.Builder<androidx.tvprovider.media.tv.Program.Builder> {
+  public static class Program.Builder {
     ctor public Program.Builder();
     ctor public Program.Builder(androidx.tvprovider.media.tv.Program!);
     method public androidx.tvprovider.media.tv.Program! build();
-    method public androidx.tvprovider.media.tv.Program.Builder! setBroadcastGenres(@androidx.tvprovider.media.tv.TvContractCompat.Programs.Genres.Genre String![]!);
+    method public androidx.tvprovider.media.tv.Program.Builder! setBroadcastGenres(String![]!);
     method public androidx.tvprovider.media.tv.Program.Builder! setChannelId(long);
     method public androidx.tvprovider.media.tv.Program.Builder! setEndTimeUtcMillis(long);
     method public androidx.tvprovider.media.tv.Program.Builder! setRecordingProhibited(boolean);
@@ -571,8 +567,8 @@ package androidx.tvprovider.media.tv {
   }
 
   public static final class TvContractCompat.Programs.Genres {
-    method @androidx.tvprovider.media.tv.TvContractCompat.Programs.Genres.Genre public static String![]! decode(String);
-    method public static String! encode(@androidx.tvprovider.media.tv.TvContractCompat.Programs.Genres.Genre java.lang.String!...);
+    method public static String![]! decode(String);
+    method public static String! encode(java.lang.String!...);
     method public static boolean isCanonical(String!);
     field public static final String ANIMAL_WILDLIFE = "ANIMAL_WILDLIFE";
     field public static final String ARTS = "ARTS";
@@ -592,7 +588,6 @@ package androidx.tvprovider.media.tv {
     field public static final String TECH_SCIENCE = "TECH_SCIENCE";
     field public static final String TRAVEL = "TRAVEL";
   }
-
 
   public static final class TvContractCompat.RecordedPrograms implements androidx.tvprovider.media.tv.TvContractCompat.BaseTvColumns {
     field public static final String COLUMN_AUDIO_LANGUAGE = "audio_language";
@@ -680,16 +675,70 @@ package androidx.tvprovider.media.tv {
     method public static android.media.tv.TvContentRating![]! stringToContentRatings(String!);
   }
 
-  public final class WatchNextProgram extends androidx.tvprovider.media.tv.BasePreviewProgram {
+  public final class WatchNextProgram {
     method public static androidx.tvprovider.media.tv.WatchNextProgram! fromCursor(android.database.Cursor!);
+    method public String![]! getAudioLanguages();
+    method public String! getAuthor();
+    method public int getAvailability();
+    method public String![]! getCanonicalGenres();
+    method public String! getContentId();
+    method public android.media.tv.TvContentRating![]! getContentRatings();
+    method public String! getDescription();
+    method public int getDurationMillis();
+    method public long getEndTimeUtcMillis();
+    method public String! getEpisodeNumber();
+    method public String! getEpisodeTitle();
+    method public String! getGenre();
+    method public long getId();
+    method public android.content.Intent! getIntent() throws java.net.URISyntaxException;
+    method public android.net.Uri! getIntentUri();
+    method public long getInteractionCount();
+    method public int getInteractionType();
+    method public byte[]! getInternalProviderDataByteArray();
+    method public Long! getInternalProviderFlag1();
+    method public Long! getInternalProviderFlag2();
+    method public Long! getInternalProviderFlag3();
+    method public Long! getInternalProviderFlag4();
+    method public String! getInternalProviderId();
+    method public int getItemCount();
     method public long getLastEngagementTimeUtcMillis();
+    method public int getLastPlaybackPositionMillis();
+    method public String! getLogoContentDescription();
+    method public android.net.Uri! getLogoUri();
+    method public String! getLongDescription();
+    method public String! getOfferPrice();
+    method @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP_PREFIX) public String! getPackageName();
+    method public int getPosterArtAspectRatio();
+    method public android.net.Uri! getPosterArtUri();
+    method public android.net.Uri! getPreviewAudioUri();
+    method public android.net.Uri! getPreviewVideoUri();
+    method public String! getReleaseDate();
+    method public String! getReviewRating();
+    method public int getReviewRatingStyle();
+    method public String! getSeasonNumber();
+    method public String! getSeasonTitle();
+    method public long getStartTimeUtcMillis();
+    method public String! getStartingPrice();
+    method public int getThumbnailAspectRatio();
+    method public android.net.Uri! getThumbnailUri();
+    method public String! getTitle();
+    method public int getTvSeriesItemType();
+    method public int getType();
+    method public int getVideoHeight();
+    method public int getVideoWidth();
     method @androidx.tvprovider.media.tv.WatchNextProgram.WatchNextType public int getWatchNextType();
     method public boolean hasAnyUpdatedValues(androidx.tvprovider.media.tv.WatchNextProgram!);
+    method public boolean isBrowsable();
+    method public boolean isLive();
+    method public boolean isSearchable();
+    method public boolean isTransient();
+    method public android.content.ContentValues! toContentValues();
+    method @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP_PREFIX) public android.content.ContentValues! toContentValues(boolean);
     field @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP_PREFIX) public static final String![]! PROJECTION;
     field public static final int WATCH_NEXT_TYPE_UNKNOWN = -1; // 0xffffffff
   }
 
-  public static final class WatchNextProgram.Builder extends androidx.tvprovider.media.tv.BasePreviewProgram.Builder<androidx.tvprovider.media.tv.WatchNextProgram.Builder> {
+  public static final class WatchNextProgram.Builder {
     ctor public WatchNextProgram.Builder();
     ctor public WatchNextProgram.Builder(androidx.tvprovider.media.tv.WatchNextProgram!);
     method public androidx.tvprovider.media.tv.WatchNextProgram! build();
