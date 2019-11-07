@@ -26,9 +26,19 @@ import java.util.concurrent.CancellationException;
 import java.util.concurrent.Future;
 
 /**
- * An interface for controlling camera's zoom, focus and metering across all use cases.
+ * The {@link CameraControl} provides various asynchronous operations like zoom, focus and
+ * metering which affects output of all {@link UseCase}s currently bound to that camera.
  *
- * <p>Applications can retrieve the interface via {@link Camera#getCameraControl()}.
+ * <p>The application can retrieve the {@link CameraControl} instance via
+ * {@link Camera#getCameraControl()}. {@link CameraControl} is ready to start operations
+ * immediately after {@link Camera} is retrieved and {@link UseCase}s are bound to that camera.
+ * When all {@link UseCase}s are unbound, or when camera is closing or closed because
+ * lifecycle onStop happens, the {@link CameraControl} will reject all operations.
+ *
+ * <p>Each method Of {@link CameraControl} returns a {@link ListenableFuture} which apps can use to
+ * check the asynchronous result. If the operation is not allowed in current state, the returned
+ * {@link ListenableFuture} will fail immediately with
+ * {@link CameraControl.OperationCanceledException}.
  */
 public interface CameraControl {
     /**

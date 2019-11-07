@@ -18,6 +18,8 @@ package androidx.camera.core;
 
 import androidx.annotation.NonNull;
 
+import com.google.common.util.concurrent.ListenableFuture;
+
 /**
  * The camera interface. It is used to control the flow of data to use cases, control the
  * camera via the {@link CameraControl}, and publish the state of the camera via {@link CameraInfo}.
@@ -25,9 +27,18 @@ import androidx.annotation.NonNull;
 public interface Camera {
 
     /**
-     * Returns a control which can be used to drive this camera's settings.
+     * Returns the {@link CameraControl} for the {@link Camera}.
      *
-     * @return the {@link CameraControl}.
+     * <p>The {@link CameraControl} provides various asynchronous operations like zoom, focus and
+     * metering. {@link CameraControl} is ready to start operations immediately after use cases
+     * are bound to the {@link Camera}. When all {@link UseCase}s are unbound, or when camera is
+     * closing or closed because lifecycle onStop happens, the {@link CameraControl} will reject
+     * all operations.
+     *
+     * <p>Each method of {@link CameraControl} returns a {@link ListenableFuture} which apps can
+     * use to check the asynchronous result. If the operation is not allowed in current state,
+     * the returned {@link ListenableFuture} will fail immediately with
+     * {@link CameraControl.OperationCanceledException}.
      */
     @NonNull
     CameraControl getCameraControl();
