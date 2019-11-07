@@ -34,7 +34,7 @@ import androidx.lifecycle.MutableLiveData;
  * <p>This camera info can be constructed with fake values.
  */
 public final class FakeCameraInfoInternal implements CameraInfoInternal {
-
+    private final String mCameraId;
     private final int mSensorRotation;
     @CameraSelector.LensFacing
     private final int mLensFacing;
@@ -45,12 +45,21 @@ public final class FakeCameraInfoInternal implements CameraInfoInternal {
     private MutableLiveData<Float> mZoomRatio = new MutableLiveData<>(1.0f);
     private MutableLiveData<Float> mZoomPercentage = new MutableLiveData<>(0f);
 
-
     public FakeCameraInfoInternal() {
         this(/*sensorRotation=*/ 0, /*lensFacing=*/ CameraSelector.LENS_FACING_BACK);
     }
 
+    public FakeCameraInfoInternal(@NonNull String cameraId) {
+        this(cameraId, 0, CameraSelector.LENS_FACING_BACK);
+    }
+
     public FakeCameraInfoInternal(int sensorRotation, @CameraSelector.LensFacing int lensFacing) {
+        this("0", sensorRotation, lensFacing);
+    }
+
+    public FakeCameraInfoInternal(@NonNull String cameraId, int sensorRotation,
+            @CameraSelector.LensFacing int lensFacing) {
+        mCameraId = cameraId;
         mSensorRotation = sensorRotation;
         mLensFacing = lensFacing;
     }
@@ -59,6 +68,12 @@ public final class FakeCameraInfoInternal implements CameraInfoInternal {
     @Override
     public Integer getLensFacing() {
         return mLensFacing;
+    }
+
+    @NonNull
+    @Override
+    public String getCameraId() {
+        return mCameraId;
     }
 
     @Override

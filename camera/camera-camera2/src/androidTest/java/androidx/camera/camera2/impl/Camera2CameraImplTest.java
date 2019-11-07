@@ -57,11 +57,12 @@ import androidx.camera.core.Observable;
 import androidx.camera.core.SessionConfig;
 import androidx.camera.core.UseCase;
 import androidx.camera.core.UseCaseConfig;
-import androidx.camera.core.impl.utils.CameraSelectorUtil;
 import androidx.camera.core.impl.utils.executor.CameraXExecutors;
 import androidx.camera.core.impl.utils.futures.Futures;
 import androidx.camera.testing.CameraUtil;
 import androidx.camera.testing.HandlerUtil;
+import androidx.camera.testing.fakes.FakeCamera;
+import androidx.camera.testing.fakes.FakeCameraInfoInternal;
 import androidx.camera.testing.fakes.FakeUseCase;
 import androidx.camera.testing.fakes.FakeUseCaseConfig;
 import androidx.test.core.app.ApplicationProvider;
@@ -990,9 +991,13 @@ public final class Camera2CameraImplTest {
             mImageAvailableListener = listener;
             mHandlerThread.start();
             mHandler = new Handler(mHandlerThread.getLooper());
-            onBind(CameraSelectorUtil.toCameraDeviceConfig(cameraSelector));
             Map<String, Size> suggestedResolutionMap = new HashMap<>();
-            mCameraId = getCameraIdForLensFacingUnchecked(getBoundDeviceConfig().getLensFacing());
+            Integer lensFacing =
+                    cameraSelector.getLensFacing() == null ? CameraSelector.LENS_FACING_BACK :
+                            cameraSelector.getLensFacing();
+            mCameraId = getCameraIdForLensFacingUnchecked(lensFacing);
+            onBind(new FakeCamera(mCameraId, null,
+                    new FakeCameraInfoInternal(0, lensFacing)));
             suggestedResolutionMap.put(mCameraId, new Size(640, 480));
             updateSuggestedResolution(suggestedResolutionMap);
         }

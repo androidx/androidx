@@ -28,12 +28,12 @@ import android.util.Size;
 import android.view.Surface;
 
 import androidx.annotation.NonNull;
-import androidx.camera.core.impl.utils.CameraSelectorUtil;
 import androidx.camera.testing.DeferrableSurfacesUtil;
 import androidx.camera.testing.fakes.FakeAppConfig;
+import androidx.camera.testing.fakes.FakeCamera;
+import androidx.camera.testing.fakes.FakeCameraInfoInternal;
 import androidx.camera.testing.fakes.FakeUseCase;
 import androidx.camera.testing.fakes.FakeUseCaseConfig;
-import androidx.core.util.Preconditions;
 import androidx.test.core.app.ApplicationProvider;
 import androidx.test.ext.junit.runners.AndroidJUnit4;
 import androidx.test.filters.LargeTest;
@@ -341,8 +341,8 @@ public class UseCaseAttachStateTest {
 
         TestUseCase(FakeUseCaseConfig config, CameraSelector selector, String cameraId) {
             super(config);
-            CameraDeviceConfig deviceConfig = CameraSelectorUtil.toCameraDeviceConfig(selector);
-            onBind(deviceConfig);
+            onBind(new FakeCamera(cameraId, null,
+                    new FakeCameraInfoInternal(0, selector.getLensFacing())));
             Map<String, Size> suggestedResolutionMap = new HashMap<>();
             suggestedResolutionMap.put(cameraId, new Size(640, 480));
             updateSuggestedResolution(suggestedResolutionMap);
@@ -359,14 +359,9 @@ public class UseCaseAttachStateTest {
             builder.addSessionStateCallback(mSessionStateCallback);
             builder.addRepeatingCameraCaptureCallback(mCameraCaptureCallback);
 
-            CameraDeviceConfig config = Preconditions.checkNotNull(getBoundDeviceConfig());
-            try {
-                String cameraId = CameraX.getCameraWithCameraDeviceConfig(config);
-                attachToCamera(cameraId, builder.build());
-            } catch (CameraInfoUnavailableException e) {
-                throw new IllegalArgumentException(
-                        "Unable to get camera id for the camera device config.", e);
-            }
+            String cameraId = getBoundCameraId();
+            attachToCamera(cameraId, builder.build());
+
             return suggestedResolutionMap;
         }
     }

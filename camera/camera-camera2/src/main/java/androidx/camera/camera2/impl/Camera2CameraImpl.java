@@ -96,10 +96,6 @@ final class Camera2CameraImpl implements CameraInternal {
     @GuardedBy("mAttachedUseCaseLock")
     private final UseCaseAttachState mUseCaseAttachState;
 
-    /** The identifier for the {@link CameraDevice} */
-    @SuppressWarnings("WeakerAccess") /* synthetic accessor */
-    final String mCameraId;
-
     /** Handle to the camera service. */
     private final CameraManagerCompat mCameraManager;
 
@@ -123,8 +119,9 @@ final class Camera2CameraImpl implements CameraInternal {
     private final Camera2CameraControl mCameraControlInternal;
     private final StateCallback mStateCallback = new StateCallback();
     /** Information about the characteristics of this camera */
+    @SuppressWarnings("WeakerAccess") /* synthetic accessor */
     @NonNull
-    private CameraInfoInternal mCameraInfoInternal;
+    final CameraInfoInternal mCameraInfoInternal;
     /** The handle to the opened camera. */
     @Nullable
     @SuppressWarnings("WeakerAccess") /* synthetic accessor */
@@ -178,7 +175,6 @@ final class Camera2CameraImpl implements CameraInternal {
     Camera2CameraImpl(CameraManagerCompat cameraManager, String cameraId,
             @NonNull Observable<Integer> availableCamerasObservable, Handler handler) {
         mCameraManager = cameraManager;
-        mCameraId = cameraId;
         mAvailableCamerasObservable = availableCamerasObservable;
         mHandler = handler;
         ScheduledExecutorService executorScheduler = CameraXExecutors.newHandlerExecutor(mHandler);
@@ -188,7 +184,7 @@ final class Camera2CameraImpl implements CameraInternal {
 
         try {
             CameraCharacteristics cameraCharacteristics =
-                    mCameraManager.unwrap().getCameraCharacteristics(mCameraId);
+                    mCameraManager.unwrap().getCameraCharacteristics(cameraId);
             mCameraControlInternal = new Camera2CameraControl(cameraCharacteristics,
                     executorScheduler, executorScheduler, new ControlUpdateListenerInternal());
             mCameraInfoInternal = new Camera2CameraInfoImpl(
@@ -206,7 +202,7 @@ final class Camera2CameraImpl implements CameraInternal {
         mCaptureSessionBuilder.setScheduledExecutorService(executorScheduler);
         mCaptureSession = mCaptureSessionBuilder.build();
 
-        mCameraAvailability = new CameraAvailability(mCameraId);
+        mCameraAvailability = new CameraAvailability(cameraId);
 
         // Register an observer to update the number of available cameras
         mAvailableCamerasObservable.addObserver(mExecutor, mCameraAvailability);
@@ -273,7 +269,7 @@ final class Camera2CameraImpl implements CameraInternal {
             return;
         }
 
-        Log.d(TAG, "Closing camera: " + mCameraId);
+        Log.d(TAG, "Closing camera: " + mCameraInfoInternal.getCameraId());
         switch (mState) {
             case OPENED:
                 setState(InternalState.CLOSING);
@@ -339,7 +335,8 @@ final class Camera2CameraImpl implements CameraInternal {
 
             @Override
             public void onFailure(Throwable t) {
-                Log.d(TAG, "Unable to configure camera " + mCameraId + " due to " + t.getMessage());
+                Log.d(TAG, "Unable to configure camera " + mCameraInfoInternal.getCameraId()
+                        + " due to " + t.getMessage());
                 mConfiguringForClose.remove(dummySession);
                 resetCaptureSession(false);
                 closeAndCleanupRunner.run();
@@ -572,7 +569,8 @@ final class Camera2CameraImpl implements CameraInternal {
             return;
         }
 
-        Log.d(TAG, "Use case " + useCase + " ACTIVE for camera " + mCameraId);
+        Log.d(TAG,
+                "Use case " + useCase + " ACTIVE for camera " + mCameraInfoInternal.getCameraId());
 
         synchronized (mAttachedUseCaseLock) {
             reattachUseCaseSurfaces(useCase);
@@ -595,7 +593,8 @@ final class Camera2CameraImpl implements CameraInternal {
             return;
         }
 
-        Log.d(TAG, "Use case " + useCase + " INACTIVE for camera " + mCameraId);
+        Log.d(TAG, "Use case " + useCase + " INACTIVE for camera "
+                + mCameraInfoInternal.getCameraId());
         synchronized (mAttachedUseCaseLock) {
             mUseCaseAttachState.setUseCaseInactive(useCase);
         }
@@ -616,7 +615,8 @@ final class Camera2CameraImpl implements CameraInternal {
             return;
         }
 
-        Log.d(TAG, "Use case " + useCase + " UPDATED for camera " + mCameraId);
+        Log.d(TAG,
+                "Use case " + useCase + " UPDATED for camera " + mCameraInfoInternal.getCameraId());
         synchronized (mAttachedUseCaseLock) {
             reattachUseCaseSurfaces(useCase);
             mUseCaseAttachState.updateUseCase(useCase);
@@ -637,7 +637,8 @@ final class Camera2CameraImpl implements CameraInternal {
             return;
         }
 
-        Log.d(TAG, "Use case " + useCase + " RESET for camera " + mCameraId);
+        Log.d(TAG,
+                "Use case " + useCase + " RESET for camera " + mCameraInfoInternal.getCameraId());
         synchronized (mAttachedUseCaseLock) {
             reattachUseCaseSurfaces(useCase);
             mUseCaseAttachState.updateUseCase(useCase);
@@ -657,7 +658,8 @@ final class Camera2CameraImpl implements CameraInternal {
             return;
         }
         SessionConfig sessionConfig = mUseCaseAttachState.getUseCaseSessionConfig(useCase);
-        SessionConfig newSessionConfig = useCase.getSessionConfig(mCameraId);
+        SessionConfig newSessionConfig = useCase.getSessionConfig(
+                mCameraInfoInternal.getCameraId());
 
         List<DeferrableSurface> currentSurfaces = sessionConfig.getSurfaces();
         List<DeferrableSurface> newSurfaces = newSessionConfig.getSurfaces();
@@ -679,14 +681,14 @@ final class Camera2CameraImpl implements CameraInternal {
 
     private void notifyAttachToUseCaseSurfaces(UseCase useCase) {
         for (DeferrableSurface surface : useCase.getSessionConfig(
-                mCameraId).getSurfaces()) {
+                mCameraInfoInternal.getCameraId()).getSurfaces()) {
             surface.notifySurfaceAttached();
         }
     }
 
     private void notifyDetachFromUseCaseSurfaces(UseCase useCase) {
         for (DeferrableSurface surface : useCase.getSessionConfig(
-                mCameraId).getSurfaces()) {
+                mCameraInfoInternal.getCameraId()).getSurfaces()) {
             surface.notifySurfaceDetached();
         }
     }
@@ -737,7 +739,8 @@ final class Camera2CameraImpl implements CameraInternal {
             return;
         }
 
-        Log.d(TAG, "Use cases " + useCases + " ONLINE for camera " + mCameraId);
+        Log.d(TAG, "Use cases " + useCases + " ONLINE for camera "
+                + mCameraInfoInternal.getCameraId());
         List<UseCase> useCasesChangedToOnline = new ArrayList<>();
         synchronized (mAttachedUseCaseLock) {
             for (UseCase useCase : useCases) {
@@ -767,17 +770,17 @@ final class Camera2CameraImpl implements CameraInternal {
     }
 
     private void notifyStateOnlineToUseCases(List<UseCase> useCases) {
-        CameraXExecutors.mainThreadExecutor().execute(()-> {
+        CameraXExecutors.mainThreadExecutor().execute(() -> {
             for (UseCase useCase : useCases) {
-                useCase.onStateOnline(mCameraId);
+                useCase.onStateOnline(mCameraInfoInternal.getCameraId());
             }
         });
     }
 
     private void notifyStateOfflineToUseCases(List<UseCase> useCases) {
-        CameraXExecutors.mainThreadExecutor().execute(()-> {
+        CameraXExecutors.mainThreadExecutor().execute(() -> {
             for (UseCase useCase : useCases) {
-                useCase.onStateOffline(mCameraId);
+                useCase.onStateOffline(mCameraInfoInternal.getCameraId());
             }
         });
     }
@@ -785,7 +788,8 @@ final class Camera2CameraImpl implements CameraInternal {
     private void updateCameraControlPreviewAspectRatio(Collection<UseCase> useCases) {
         for (UseCase useCase : useCases) {
             if (useCase instanceof Preview) {
-                Size resolutoin = useCase.getAttachedSurfaceResolution(mCameraId);
+                Size resolutoin = useCase.getAttachedSurfaceResolution(
+                        mCameraInfoInternal.getCameraId());
                 Rational aspectRatio = new Rational(resolutoin.getWidth(), resolutoin.getHeight());
                 mCameraControlInternal.setPreviewAspectRatio(aspectRatio);
                 return;
@@ -822,7 +826,8 @@ final class Camera2CameraImpl implements CameraInternal {
             return;
         }
 
-        Log.d(TAG, "Use cases " + useCases + " OFFLINE for camera " + mCameraId);
+        Log.d(TAG, "Use cases " + useCases + " OFFLINE for camera "
+                + mCameraInfoInternal.getCameraId());
         clearCameraControlPreviewAspectRatio(useCases);
         synchronized (mAttachedUseCaseLock) {
             List<UseCase> useCasesChangedToOffline = new ArrayList<>();
@@ -872,27 +877,30 @@ final class Camera2CameraImpl implements CameraInternal {
         // to open the camera again.
         if (!mCameraAvailability.isCameraAvailable()) {
             Log.d(TAG, "No cameras available. Waiting for available camera before opening camera: "
-                    + mCameraId);
+                    + mCameraInfoInternal.getCameraId());
             setState(InternalState.PENDING_OPEN);
             return;
         } else {
             setState(InternalState.OPENING);
         }
 
-        Log.d(TAG, "Opening camera: " + mCameraId);
+        Log.d(TAG, "Opening camera: " + mCameraInfoInternal.getCameraId());
 
         try {
-            mCameraManager.openCamera(mCameraId, mExecutor, createDeviceStateCallback());
+            mCameraManager.openCamera(mCameraInfoInternal.getCameraId(), mExecutor,
+                    createDeviceStateCallback());
         } catch (CameraAccessException e) {
             // Camera2 will call the onError() callback with the specific error code that caused
             // this failure. No need to do anything here.
-            Log.d(TAG, "Unable to open camera " + mCameraId + " due to " + e.getMessage());
+            Log.d(TAG, "Unable to open camera " + mCameraInfoInternal.getCameraId() + " due to "
+                    + e.getMessage());
         }
     }
 
     /** Updates the capture request configuration for the current capture session. */
     @SuppressWarnings("WeakerAccess") /* synthetic accessor */
-    @ExecutedBy("mHandler") // TODO(b/115747543): mExecutor currently wraps mHandler, so this
+    @ExecutedBy("mHandler")
+    // TODO(b/115747543): mExecutor currently wraps mHandler, so this
     // handles mExecutor and mHandler. Replace with mExecutor once mHandler is removed.
     void updateCaptureSessionConfig() {
         ValidatingBuilder validatingBuilder;
@@ -941,15 +949,17 @@ final class Camera2CameraImpl implements CameraInternal {
             @Override
             public void onFailure(Throwable t) {
                 if (t instanceof CameraAccessException) {
-                    Log.d(TAG, "Unable to configure camera " + mCameraId + " due to "
-                            + t.getMessage());
+                    Log.d(TAG, "Unable to configure camera " + mCameraInfoInternal.getCameraId()
+                            + " due to " + t.getMessage());
                 } else if (t instanceof CancellationException) {
-                    Log.d(TAG, "Unable to configure camera " + mCameraId + " cancelled");
+                    Log.d(TAG, "Unable to configure camera " + mCameraInfoInternal.getCameraId()
+                            + " cancelled");
                 } else if (t instanceof DeferrableSurface.SurfaceClosedException) {
                     postSurfaceClosedError((DeferrableSurface.SurfaceClosedException) t);
                 } else if (t instanceof TimeoutException) {
                     // TODO: Consider to handle the timeout error.
-                    Log.e(TAG, "Unable to configure camera " + mCameraId + ", timeout!");
+                    Log.e(TAG, "Unable to configure camera " + mCameraInfoInternal.getCameraId()
+                            + ", timeout!");
                 } else {
                     // Throw the unexpected error.
                     throw new RuntimeException(t);
@@ -985,7 +995,8 @@ final class Camera2CameraImpl implements CameraInternal {
         Executor executor = CameraXExecutors.mainThreadExecutor();
 
         for (UseCase useCase : mUseCaseAttachState.getOnlineUseCases()) {
-            SessionConfig sessionConfigError = useCase.getSessionConfig(mCameraId);
+            SessionConfig sessionConfigError = useCase.getSessionConfig(
+                    mCameraInfoInternal.getCameraId());
             if (sessionConfigError.getSurfaces().contains(e.getDeferrableSurface())) {
                 List<SessionConfig.ErrorListener> errorListeners =
                         sessionConfigError.getErrorListeners();
@@ -1059,7 +1070,8 @@ final class Camera2CameraImpl implements CameraInternal {
         }
 
         for (UseCase useCase : activeUseCases) {
-            SessionConfig sessionConfig = useCase.getSessionConfig(mCameraId);
+            SessionConfig sessionConfig = useCase.getSessionConfig(
+                    mCameraInfoInternal.getCameraId());
             // Query the repeating surfaces attached to this use case, then add them to the builder.
             List<DeferrableSurface> surfaces =
                     sessionConfig.getRepeatingCaptureConfig().getSurfaces();
@@ -1109,7 +1121,7 @@ final class Camera2CameraImpl implements CameraInternal {
             captureConfigsWithSurface.add(builder.build());
         }
 
-        Log.d(TAG, "issue capture request for camera " + mCameraId);
+        Log.d(TAG, "issue capture request for camera " + mCameraInfoInternal.getCameraId());
 
         mCaptureSession.issueCaptureRequests(captureConfigsWithSurface);
     }
@@ -1117,7 +1129,8 @@ final class Camera2CameraImpl implements CameraInternal {
     @NonNull
     @Override
     public String toString() {
-        return String.format(Locale.US, "Camera@%x[id=%s]", hashCode(), mCameraId);
+        return String.format(Locale.US, "Camera@%x[id=%s]", hashCode(),
+                mCameraInfoInternal.getCameraId());
     }
 
     @NonNull

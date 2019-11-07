@@ -55,6 +55,12 @@ public class ShadowCameraX {
             return CameraSelector.LENS_FACING_BACK;
         }
 
+        @NonNull
+        @Override
+        public String getCameraId() {
+            return DEFAULT_CAMERA_ID;
+        }
+
         @Override
         public int getSensorRotationDegrees() {
             return 0;

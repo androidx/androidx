@@ -98,21 +98,21 @@ public interface CameraDeviceSurfaceManager {
     /**
      * Checks whether a corrected aspect ratio is required due to device constraints.
      *
-     * @param cameraDeviceConfig to check if the device requires a corrected aspect ratio.
+     * @param cameraId the camera id of the camera device used by the use cases
      * @return the check result that whether aspect ratio need to be corrected
      */
-    boolean requiresCorrectedAspectRatio(@NonNull CameraDeviceConfig cameraDeviceConfig);
+    boolean requiresCorrectedAspectRatio(@NonNull String cameraId);
 
 
     /**
      * Returns the corrected aspect ratio for the given use case configuration or {@code null} if
      * no correction is needed.
      *
-     * @param deviceConfig to identify device which may require correction
+     * @param cameraId the camera id of the camera device used by the use cases
      * @param rotation desired rotation of output aspect ratio relative to natural orientation
      * @return the corrected aspect ratio for the use case
      */
     @Nullable
-    Rational getCorrectedAspectRatio(@NonNull CameraDeviceConfig deviceConfig,
+    Rational getCorrectedAspectRatio(@NonNull String cameraId,
             @ImageOutputConfig.RotationValue int rotation);
 }

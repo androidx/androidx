@@ -28,7 +28,6 @@ import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.annotation.RestrictTo;
 import androidx.annotation.RestrictTo.Scope;
-import androidx.camera.core.impl.utils.CameraSelectorUtil;
 import androidx.camera.core.impl.utils.Threads;
 import androidx.camera.core.impl.utils.executor.CameraXExecutors;
 import androidx.camera.core.impl.utils.futures.FutureCallback;
@@ -263,11 +262,10 @@ public final class CameraX {
             }
         }
 
-        CameraDeviceConfig deviceConfig =
-                CameraSelectorUtil.toCameraDeviceConfig(selectorBuilder.build());
         String newCameraId = null;
         try {
-            newCameraId = getCameraWithCameraDeviceConfig(deviceConfig);
+            newCameraId =
+                    selectorBuilder.build().select(getCameraFactory().getAvailableCameraIds());
         } catch (CameraInfoUnavailableException e) {
             throw new IllegalArgumentException(
                     "Unable to find a camera for the given camera selector.", e);
@@ -275,10 +273,11 @@ public final class CameraX {
 
         // Try to get the camera before bind to the use case, and throw the IllegalArgumentException
         // if the camera not found.
-        Camera camera = cameraX.getCameraRepository().getCamera(newCameraId);
+        CameraInternal camera = cameraX.getCameraRepository().getCamera(newCameraId);
 
         for (UseCase useCase : useCases) {
-            useCase.onBind(deviceConfig);
+            // Sets bound camera to use case.
+            useCase.onBind(camera);
         }
 
         calculateSuggestedResolutions(lifecycleOwner, newCameraId, useCases);

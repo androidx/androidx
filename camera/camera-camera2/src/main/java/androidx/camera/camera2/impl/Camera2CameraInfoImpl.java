@@ -59,6 +59,7 @@ public final class Camera2CameraInfoImpl implements CameraInfoInternal {
     /** @hide */
     @RestrictTo(Scope.LIBRARY)
     @NonNull
+    @Override
     public String getCameraId() {
         return mCameraId;
     }
