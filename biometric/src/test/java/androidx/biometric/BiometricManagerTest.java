@@ -27,19 +27,20 @@ import static org.mockito.Mockito.when;
 
 import android.os.Build;
 
-import androidx.test.ext.junit.runners.AndroidJUnit4;
 import androidx.test.filters.MediumTest;
-import androidx.test.filters.SdkSuppress;
 
 import org.junit.Test;
 import org.junit.runner.RunWith;
+import org.robolectric.RobolectricTestRunner;
+import org.robolectric.annotation.Config;
+import org.robolectric.annotation.internal.DoNotInstrument;
 
 @MediumTest
-@RunWith(AndroidJUnit4.class)
+@RunWith(RobolectricTestRunner.class)
+@DoNotInstrument
 public class BiometricManagerTest {
-
     @Test
-    @SdkSuppress(minSdkVersion = Build.VERSION_CODES.Q)
+    @Config(minSdk = Build.VERSION_CODES.Q)
     public void testCanAuthenticate_ReturnsSuccess_WhenFrameworkManagerReturnsSuccess() {
         final android.hardware.biometrics.BiometricManager frameworkBiometricManager =
                 mock(android.hardware.biometrics.BiometricManager.class);
@@ -50,7 +51,7 @@ public class BiometricManagerTest {
     }
 
     @Test
-    @SdkSuppress(minSdkVersion = Build.VERSION_CODES.Q)
+    @Config(minSdk = Build.VERSION_CODES.Q)
     public void testCanAuthenticate_ReturnsError_WhenFrameworkManagerReturnsNoneEnrolledError() {
         final android.hardware.biometrics.BiometricManager frameworkBiometricManager =
                 mock(android.hardware.biometrics.BiometricManager.class);
@@ -61,7 +62,7 @@ public class BiometricManagerTest {
     }
 
     @Test
-    @SdkSuppress(minSdkVersion = Build.VERSION_CODES.Q)
+    @Config(minSdk = Build.VERSION_CODES.Q)
     public void testCanAuthenticate_ReturnsError_WhenFrameworkManagerReturnsHardwareError() {
         final android.hardware.biometrics.BiometricManager frameworkBiometricManager =
                 mock(android.hardware.biometrics.BiometricManager.class);

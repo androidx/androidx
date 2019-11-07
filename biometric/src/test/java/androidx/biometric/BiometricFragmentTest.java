@@ -25,20 +25,21 @@ import android.content.DialogInterface;
 import android.os.Build;
 
 import androidx.annotation.NonNull;
-import androidx.test.annotation.UiThreadTest;
-import androidx.test.ext.junit.runners.AndroidJUnit4;
 import androidx.test.filters.LargeTest;
-import androidx.test.filters.SdkSuppress;
 
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.ArgumentCaptor;
+import org.robolectric.RobolectricTestRunner;
+import org.robolectric.annotation.Config;
+import org.robolectric.annotation.internal.DoNotInstrument;
 
 import java.util.concurrent.Executor;
 
 @LargeTest
-@RunWith(AndroidJUnit4.class)
-@SdkSuppress(minSdkVersion = Build.VERSION_CODES.P)
+@RunWith(RobolectricTestRunner.class)
+@DoNotInstrument
+@Config(minSdk = Build.VERSION_CODES.P)
 public class BiometricFragmentTest {
     private static final DialogInterface.OnClickListener CLICK_LISTENER =
             new DialogInterface.OnClickListener() {
@@ -55,7 +56,6 @@ public class BiometricFragmentTest {
     };
 
     @Test
-    @UiThreadTest
     public void testOnAuthenticationSucceeded_TriggersCallbackWithNullCrypto_WhenGivenNullResult() {
         final BiometricFragment biometricFragment = BiometricFragment.newInstance();
         final BiometricPrompt.AuthenticationCallback callback =
@@ -71,7 +71,6 @@ public class BiometricFragmentTest {
     }
 
     @Test
-    @UiThreadTest
     public void testIsDeviceCredentialAllowed_ReturnsFalse_WhenBundleIsNull() {
         final BiometricFragment biometricFragment = BiometricFragment.newInstance();
         biometricFragment.setBundle(null);

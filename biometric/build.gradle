@@ -14,6 +14,13 @@ dependencies {
     api("androidx.core:core:1.1.0")
     api("androidx.fragment:fragment:1.1.0")
 
+    testImplementation(ANDROIDX_TEST_CORE)
+    testImplementation(ANDROIDX_TEST_RUNNER)
+    testImplementation(JUNIT)
+    testImplementation(MOCKITO_CORE)
+    testImplementation(ROBOLECTRIC)
+    testImplementation(TRUTH)
+
     androidTestImplementation(ANDROIDX_TEST_CORE)
     androidTestImplementation(ANDROIDX_TEST_EXT_JUNIT)
     androidTestImplementation(ANDROIDX_TEST_RULES)
