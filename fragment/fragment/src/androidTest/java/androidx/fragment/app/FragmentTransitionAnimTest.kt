@@ -23,7 +23,7 @@ import android.os.Build
 import android.transition.ChangeBounds
 import android.view.View
 import android.view.animation.Animation
-import android.view.animation.TranslateAnimation
+import android.view.animation.AnimationUtils
 import androidx.annotation.AnimRes
 import androidx.fragment.test.R
 import androidx.test.core.app.ActivityScenario
@@ -63,7 +63,7 @@ class FragmentTransitionAnimTest(private val reorderingAllowed: Boolean) {
 
             fragmentManager.beginTransaction()
                 .setReorderingAllowed(reorderingAllowed)
-                .setCustomAnimations(ENTER, EXIT)
+                .setCustomAnimations(R.anim.fade_in, R.anim.fade_out)
                 .add(R.id.fragmentContainer, fragment)
                 .addToBackStack(null)
                 .commit()
@@ -87,12 +87,13 @@ class FragmentTransitionAnimTest(private val reorderingAllowed: Boolean) {
             // exit transition
             fragmentManager.beginTransaction()
                 .setReorderingAllowed(reorderingAllowed)
-                .setCustomAnimations(ENTER, EXIT)
+                .setCustomAnimations(R.anim.fade_in, R.anim.fade_out)
                 .remove(fragment)
                 .addToBackStack(null)
                 .commit()
             executePendingTransactions()
 
+            assertThat(fragment.startAnimationLatch.await(TIMEOUT, TimeUnit.MILLISECONDS)).isTrue()
             fragment.waitForTransition()
             assertThat(fragment.exitAnimationLatch.await(TIMEOUT, TimeUnit.MILLISECONDS)).isTrue()
             assertThat(onBackStackChangedTimes).isEqualTo(2)
@@ -113,7 +114,7 @@ class FragmentTransitionAnimTest(private val reorderingAllowed: Boolean) {
 
             fragmentManager.beginTransaction()
                 .setReorderingAllowed(reorderingAllowed)
-                .setCustomAnimations(ENTER, EXIT)
+                .setCustomAnimations(R.anim.fade_in, R.anim.fade_out)
                 .add(R.id.fragmentContainer, fragment)
                 .addToBackStack(null)
                 .commit()
@@ -137,12 +138,13 @@ class FragmentTransitionAnimTest(private val reorderingAllowed: Boolean) {
             // exit transition
             fragmentManager.beginTransaction()
                 .setReorderingAllowed(reorderingAllowed)
-                .setCustomAnimations(ENTER, EXIT)
+                .setCustomAnimations(R.anim.fade_in, R.anim.fade_out)
                 .remove(fragment)
                 .addToBackStack(null)
                 .commit()
             executePendingTransactions()
 
+            assertThat(fragment.startAnimationLatch.await(TIMEOUT, TimeUnit.MILLISECONDS)).isTrue()
             fragment.waitForTransition()
             assertThat(fragment.exitAnimationLatch.await(TIMEOUT, TimeUnit.MILLISECONDS)).isTrue()
             assertThat(onBackStackChangedTimes).isEqualTo(2)
@@ -250,6 +252,7 @@ class FragmentTransitionAnimTest(private val reorderingAllowed: Boolean) {
     }
 
     class TransitionAnimationFragment : TransitionFragment(R.layout.scene1) {
+        val startAnimationLatch = CountDownLatch(1)
         val exitAnimationLatch = CountDownLatch(1)
 
         override fun onCreateAnimation(transit: Int, enter: Boolean, nextAnim: Int): Animation? {
@@ -257,10 +260,11 @@ class FragmentTransitionAnimTest(private val reorderingAllowed: Boolean) {
                 return null
             }
 
-            return TranslateAnimation(-10f, 0f, 0f, 0f).apply {
-                duration = 300
+            return AnimationUtils.loadAnimation(activity, nextAnim).apply {
                 setAnimationListener(object : Animation.AnimationListener {
-                    override fun onAnimationStart(animation: Animation) { }
+                    override fun onAnimationStart(animation: Animation) {
+                        startAnimationLatch.countDown()
+                    }
 
                     override fun onAnimationEnd(animation: Animation) {
                         if (!enter) {
