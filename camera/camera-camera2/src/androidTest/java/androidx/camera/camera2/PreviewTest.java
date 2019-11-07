@@ -72,8 +72,8 @@ public final class PreviewTest {
     public GrantPermissionRule mRuntimePermissionRule = GrantPermissionRule.grant(
             Manifest.permission.CAMERA);
 
-    private static final Preview.PreviewSurfaceCallback MOCK_PREVIEW_SURFACE_CALLBACK =
-            mock(Preview.PreviewSurfaceCallback.class);
+    private static final Preview.PreviewSurfaceProvider MOCK_PREVIEW_SURFACE_PROVIDER =
+            mock(Preview.PreviewSurfaceProvider.class);
 
     private final Instrumentation mInstrumentation = InstrumentationRegistry.getInstrumentation();
 
@@ -84,7 +84,7 @@ public final class PreviewTest {
     private FakeLifecycleOwner mLifecycleOwner;
     private Semaphore mSurfaceFutureSemaphore;
     private Semaphore mSaveToReleaseSemaphore;
-    private Preview.PreviewSurfaceCallback mPreviewSurfaceCallbackWithFrameAvailableListener =
+    private Preview.PreviewSurfaceProvider mPreviewSurfaceProviderWithFrameAvailableListener =
             createSurfaceTextureProvider(new PreviewSurfaceProviders.SurfaceTextureCallback() {
                 @Override
                 public void onSurfaceTextureReady(@NonNull SurfaceTexture surfaceTexture,
@@ -137,19 +137,19 @@ public final class PreviewTest {
 
     @Test
     @UiThreadTest
-    public void getAndSetPreviewSurfaceCallback() {
+    public void getAndSetPreviewSurfaceProvider() {
         Preview preview = mDefaultBuilder.build();
-        preview.setPreviewSurfaceCallback(MOCK_PREVIEW_SURFACE_CALLBACK);
-        assertThat(preview.getPreviewSurfaceCallback()).isEqualTo(MOCK_PREVIEW_SURFACE_CALLBACK);
+        preview.setPreviewSurfaceProvider(MOCK_PREVIEW_SURFACE_PROVIDER);
+        assertThat(preview.getPreviewSurfaceProvider()).isEqualTo(MOCK_PREVIEW_SURFACE_PROVIDER);
     }
 
     @Test
     @UiThreadTest
-    public void removePreviewSurfaceCallback() {
+    public void removePreviewSurfaceProvider() {
         Preview preview = mDefaultBuilder.build();
-        preview.setPreviewSurfaceCallback(MOCK_PREVIEW_SURFACE_CALLBACK);
-        preview.setPreviewSurfaceCallback(null);
-        assertThat(preview.getPreviewSurfaceCallback()).isNull();
+        preview.setPreviewSurfaceProvider(MOCK_PREVIEW_SURFACE_PROVIDER);
+        preview.setPreviewSurfaceProvider(null);
+        assertThat(preview.getPreviewSurfaceProvider()).isNull();
     }
 
     //TODO(b/143514107): This API is being removed from preview. This test should be moved.
@@ -173,8 +173,8 @@ public final class PreviewTest {
 
         // Act.
         mInstrumentation.runOnMainSync(() -> {
-            preview.setPreviewSurfaceCallback(CameraXExecutors.mainThreadExecutor(),
-                    mPreviewSurfaceCallbackWithFrameAvailableListener);
+            preview.setPreviewSurfaceProvider(CameraXExecutors.mainThreadExecutor(),
+                    mPreviewSurfaceProviderWithFrameAvailableListener);
             CameraX.bindToLifecycle(mLifecycleOwner, mCameraSelector, preview);
         });
 
@@ -191,11 +191,11 @@ public final class PreviewTest {
     }
 
     @Test
-    public void setPreviewSurfaceCallbackBeforeBind_getsFrame() throws InterruptedException {
+    public void setPreviewSurfaceProviderBeforeBind_getsFrame() throws InterruptedException {
         mInstrumentation.runOnMainSync(() -> {
             // Arrange.
             Preview preview = mDefaultBuilder.build();
-            preview.setPreviewSurfaceCallback(mPreviewSurfaceCallbackWithFrameAvailableListener);
+            preview.setPreviewSurfaceProvider(mPreviewSurfaceProviderWithFrameAvailableListener);
 
             // Act.
             CameraX.bindToLifecycle(mLifecycleOwner, mCameraSelector, preview);
@@ -206,16 +206,16 @@ public final class PreviewTest {
         assertThat(mSurfaceFutureSemaphore.tryAcquire(10, TimeUnit.SECONDS)).isTrue();
     }
 
-    @Suppress // TODO(b/143703289): Remove suppression once callback can be set after bind
+    @Suppress // TODO(b/143703289): Remove suppression once provider can be set after bind
     @Test
-    public void setPreviewSurfaceCallbackAfterBind_getsFrame() throws InterruptedException {
+    public void setPreviewSurfaceProviderAfterBind_getsFrame() throws InterruptedException {
         mInstrumentation.runOnMainSync(() -> {
             // Arrange.
             Preview preview = mDefaultBuilder.build();
             CameraX.bindToLifecycle(mLifecycleOwner, mCameraSelector, preview);
 
             // Act.
-            preview.setPreviewSurfaceCallback(mPreviewSurfaceCallbackWithFrameAvailableListener);
+            preview.setPreviewSurfaceProvider(mPreviewSurfaceProviderWithFrameAvailableListener);
             mLifecycleOwner.startAndResume();
         });
 

@@ -141,7 +141,7 @@ public class ExtensionTest {
         mInstrumentation.runOnMainSync(
                 () -> {
                     // To set the update listener and Preview will change to active state.
-                    preview.setPreviewSurfaceCallback(createSurfaceTextureProvider(
+                    preview.setPreviewSurfaceProvider(createSurfaceTextureProvider(
                             new PreviewSurfaceProviders.SurfaceTextureCallback() {
                                 @Override
                                 public void onSurfaceTextureReady(
