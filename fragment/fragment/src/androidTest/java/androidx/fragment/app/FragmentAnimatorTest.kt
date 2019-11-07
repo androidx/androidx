@@ -28,6 +28,7 @@ import androidx.core.view.ViewCompat
 import androidx.fragment.app.test.FragmentTestActivity
 import androidx.fragment.test.R
 import androidx.lifecycle.ViewModelStore
+import androidx.test.annotation.UiThreadTest
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import androidx.test.filters.LargeTest
 import androidx.test.rule.ActivityTestRule
@@ -478,7 +479,9 @@ class FragmentAnimatorTest {
         // Now fragment2 should be animating away
         assertThat(fragment2.isAdded).isFalse()
         assertThat(fm1.findFragmentByTag("2"))
-            .isEqualTo(fragment2) // still exists because it is animating
+            .isEqualTo(null) // fragmentManager does not know about animating fragment
+        assertThat(fragment2.parentFragmentManager)
+            .isEqualTo(fm1) // but the animating fragment knows the fragmentManager
 
         val fc2 = fc1.restart(activityRule, viewModelStore)
 
@@ -489,6 +492,95 @@ class FragmentAnimatorTest {
         val fragment1restored = fm2.findFragmentByTag("1")!!
         assertThat(fragment1restored).isNotNull()
         assertThat(fragment1restored.view).isNotNull()
+    }
+
+    // Test to ensure animators going when the FragmentManager is destroyed are cancelled
+    @Test
+    @UiThreadTest
+    fun cancelAllAnimatorsWhenFragmentManagerDestroyed() {
+        val viewModelStore = ViewModelStore()
+        val fc1 = activityRule.startupFragmentController(viewModelStore)
+
+        val fm1 = fc1.supportFragmentManager
+
+        val fragment1 = AnimatorFragment(R.layout.scene1)
+        fm1.beginTransaction()
+            .add(R.id.fragmentContainer, fragment1, "1")
+            .setReorderingAllowed(true)
+            .commit()
+        activityRule.waitForExecution()
+
+        val fragment2 = AnimatorFragment()
+
+        fm1.beginTransaction()
+            .setCustomAnimations(0, 0, 0, R.animator.slow_fade_out)
+            .replace(R.id.fragmentContainer, fragment2, "2")
+            .addToBackStack(null)
+            .setReorderingAllowed(true)
+            .commit()
+        activityRule.executePendingTransactions(fm1)
+
+        fm1.popBackStack()
+
+        activityRule.executePendingTransactions(fm1)
+        // ensure the animation was started
+        assertThat(fragment2.wasStarted).isTrue()
+
+        fc1.dispatchDestroy()
+
+        assertThat(fragment2.endLatch.await(1000, TimeUnit.MILLISECONDS)).isFalse()
+    }
+
+    // Ensures that when a Fragment that is animating away gets readded the state is properly
+    // updated
+    @Test
+    @UiThreadTest // Needed in order to add a fragment during the animation, otherwise the
+    // animation ends before the transaction is executed.
+    fun reAddAnimatingAwayAnimatorFragment() {
+        val viewModelStore = ViewModelStore()
+        val fc1 = activityRule.startupFragmentController(viewModelStore)
+
+        val fm1 = fc1.supportFragmentManager
+
+        val fragment1 = AnimatorFragment(R.layout.scene1)
+        fm1.beginTransaction()
+            .add(R.id.fragmentContainer, fragment1, "1")
+            .setReorderingAllowed(true)
+            .commit()
+        activityRule.waitForExecution()
+
+        val fragment2 = AnimatorFragment()
+
+        fm1.beginTransaction()
+            .setCustomAnimations(0, 0, 0, R.animator.slow_fade_out)
+            .replace(R.id.fragmentContainer, fragment2, "2")
+            .addToBackStack(null)
+            .setReorderingAllowed(true)
+            .commit()
+        activityRule.executePendingTransactions(fm1)
+
+        fm1.popBackStack()
+
+        activityRule.executePendingTransactions(fm1)
+        // ensure the animation was started
+        assertThat(fragment2.wasStarted).isTrue()
+        // Now fragment2 should be animating away
+        assertThat(fragment2.isAdded).isFalse()
+        assertThat(fm1.findFragmentByTag("2"))
+            .isEqualTo(null) // fragmentManager does not know about animating fragment
+        assertThat(fragment2.parentFragmentManager)
+            .isEqualTo(fm1) // but the animating fragment knows the fragmentManager
+
+        fm1.beginTransaction()
+            .setCustomAnimations(0, 0, 0, R.animator.slow_fade_out)
+            .replace(R.id.fragmentContainer, fragment2, "2")
+            .addToBackStack(null)
+            .setReorderingAllowed(true)
+            .commit()
+        activityRule.executePendingTransactions(fm1)
+
+        assertThat(fragment2.isAdded).isTrue()
+        assertThat(fm1.findFragmentByTag("2")).isEqualTo(fragment2)
     }
 
     private fun assertEnterPopExit(fragment: AnimatorFragment) {
