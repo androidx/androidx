@@ -43,7 +43,7 @@ public class ShadowCameraX {
 
     private static final CameraInfo DEFAULT_CAMERA_INFO = new CameraInfoInternal() {
         MutableLiveData<Boolean> mFlashAvailability = new MutableLiveData<>(Boolean.TRUE);
-        MutableLiveData<TorchState> mTorchState = new MutableLiveData<>(TorchState.DISABLED);
+        MutableLiveData<Integer> mTorchState = new MutableLiveData<>(TorchState.DISABLED);
         MutableLiveData<Float> mZoomRatio = new MutableLiveData<>(1.0f);
         MutableLiveData<Float> mMaxZoomRatio = new MutableLiveData<>(4.0f);
         MutableLiveData<Float> mMinZoomRatio = new MutableLiveData<>(1.0f);
@@ -72,7 +72,8 @@ public class ShadowCameraX {
 
         @NonNull
         @Override
-        public LiveData<TorchState> getTorchState() {
+        @TorchState
+        public LiveData<Integer> getTorchState() {
             return mTorchState;
         }
 
