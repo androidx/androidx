@@ -30,6 +30,7 @@ import androidx.recyclerview.widget.RecyclerView;
 final class GestureDetectorOnItemTouchListenerAdapter implements RecyclerView.OnItemTouchListener {
 
     private final GestureDetector mDetector;
+
     GestureDetectorOnItemTouchListenerAdapter(@NonNull GestureDetector detector) {
         checkArgument(detector != null);
 
@@ -38,15 +39,19 @@ final class GestureDetectorOnItemTouchListenerAdapter implements RecyclerView.On
 
     @Override
     public boolean onInterceptTouchEvent(@NonNull RecyclerView rv, @NonNull MotionEvent e) {
-        // Regardless of whether or not gesture detector detects something, don't
-        // consume the event stream. The concept of intercepting is alien to GestureDetector.
-        mDetector.onTouchEvent(e);
-        return false;
+        // While the idea of "intercepting" an event stream isn't consistent
+        // with the world-view of GestureDetector, failure to return true here
+        // resulted in a bug where a context menu shown on an item view was not
+        // visible...despite returning reporting that the menu was shown.
+        // See b/143494310 for further details.
+        return mDetector.onTouchEvent(e);
     }
 
     @Override
-    public void onTouchEvent(@NonNull RecyclerView rv, @NonNull MotionEvent e) {}
+    public void onTouchEvent(@NonNull RecyclerView rv, @NonNull MotionEvent e) {
+    }
 
     @Override
-    public void onRequestDisallowInterceptTouchEvent(boolean disallowIntercept) {}
+    public void onRequestDisallowInterceptTouchEvent(boolean disallowIntercept) {
+    }
 }

@@ -35,8 +35,6 @@ import androidx.recyclerview.widget.RecyclerView.OnItemTouchListener;
  */
 final class EventRouter implements OnItemTouchListener {
 
-    private static final String TAG = "EventRouter";
-
     private final ToolHandlerRegistry<OnItemTouchListener> mDelegates;
 
     EventRouter() {
