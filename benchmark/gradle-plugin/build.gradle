@@ -29,7 +29,8 @@ plugins {
     id("java-gradle-plugin")
 }
 
-apply from: "kotlin-dsl-dependency.gradle.kts"
+apply from: "../../buildSrc/kotlin-dsl-dependency.gradle"
+
 
 ext.generatedResources = "$buildDir/generated/resources"
 ext.prebuiltsRoot = "${project.projectDir.getParentFile()}/../../../prebuilts"
@@ -40,6 +41,7 @@ sourceSets {
 }
 
 dependencies {
+    implementation findGradleKotlinDsl()
     implementation gradleApi()
     implementation("com.android.tools.build:gradle:3.6.0-beta02")
     implementation(KOTLIN_STDLIB)
