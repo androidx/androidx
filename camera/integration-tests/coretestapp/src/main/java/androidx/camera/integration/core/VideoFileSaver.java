@@ -53,7 +53,7 @@ public class VideoFileSaver implements OnVideoSavedCallback {
     }
 
     @Override
-    public void onError(@NonNull VideoCaptureError videoCaptureError, @NonNull String message,
+    public void onError(@VideoCaptureError int videoCaptureError, @NonNull String message,
             @Nullable Throwable cause) {
 
         Log.e(TAG, "Error: " + videoCaptureError + ", " + message);
