@@ -16,19 +16,18 @@
 
 package androidx.biometric;
 
-import androidx.test.annotation.UiThreadTest;
-import androidx.test.ext.junit.runners.AndroidJUnit4;
 import androidx.test.filters.LargeTest;
 
 import org.junit.Test;
 import org.junit.runner.RunWith;
+import org.robolectric.RobolectricTestRunner;
+import org.robolectric.annotation.internal.DoNotInstrument;
 
 @LargeTest
-@RunWith(AndroidJUnit4.class)
+@RunWith(RobolectricTestRunner.class)
+@DoNotInstrument
 public class FingerprintDialogFragmentTest {
-
     @Test
-    @UiThreadTest
     public void testDismissSafely_DoesNotCrash_WhenNotAssociatedWithFragmentManager() {
         final FingerprintDialogFragment dialogFragment = FingerprintDialogFragment.newInstance();
         dialogFragment.dismissSafely();
