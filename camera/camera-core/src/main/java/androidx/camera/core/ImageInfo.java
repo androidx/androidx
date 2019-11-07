@@ -17,10 +17,16 @@
 package androidx.camera.core;
 
 import androidx.annotation.Nullable;
+import androidx.annotation.RestrictTo;
 
 /** Metadata for an image. */
 public interface ImageInfo {
-    /** Returns the tag of the metadata. */
+    /**
+     * Returns the tag of the metadata.
+     *
+     * @hide
+     * */
+    @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
     @Nullable
     Object getTag();
     /** Returns the timestamp of the metadata. */
