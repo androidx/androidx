@@ -39,7 +39,6 @@ import androidx.annotation.NonNull;
 import androidx.camera.camera2.Camera2AppConfig;
 import androidx.camera.camera2.Camera2Config;
 import androidx.camera.core.AppConfig;
-import androidx.camera.core.CameraControl;
 import androidx.camera.core.CameraControlInternal.ControlUpdateCallback;
 import androidx.camera.core.CameraInfoUnavailableException;
 import androidx.camera.core.CameraX;
@@ -159,7 +158,7 @@ public final class ZoomControlDeviceTest {
             result.get(100, TimeUnit.MILLISECONDS);
         } catch (InterruptedException | TimeoutException e) {
         } catch (ExecutionException ee) {
-            assertThat(ee.getCause()).isInstanceOf(CameraControl.ArgumentOutOfRangeException.class);
+            assertThat(ee.getCause()).isInstanceOf(IllegalArgumentException.class);
             return;
         }
 
