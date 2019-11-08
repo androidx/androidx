@@ -207,7 +207,7 @@ public final class ImageAnalysis extends UseCase {
      * sensor to set rotation, to process landscape images when the device is rotated by examining
      * the rotation received by the Analyzer function.
      *
-     * <p>If no target rotation is set by the application, it is set to the value of
+     * <p>If not set here or by configuration, the target rotation will default to the value of
      * {@link Display#getRotation()} of the default display at the time the
      * use case is created.
      *
