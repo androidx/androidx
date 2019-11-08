@@ -16,12 +16,19 @@
 
 package androidx.camera.core;
 
+import androidx.annotation.IntDef;
+
+import java.lang.annotation.Retention;
+import java.lang.annotation.RetentionPolicy;
+
 /** The camera flash torch state. */
-public enum TorchState {
+@IntDef({TorchState.UNAVAILABLE, TorchState.ENABLED, TorchState.DISABLED})
+@Retention(RetentionPolicy.SOURCE)
+public @interface TorchState {
     /** The camera device does not have flash unit or does not support torch mode. */
-    UNAVAILABLE,
+    int UNAVAILABLE = 0;
     /** Torch is on. */
-    ENABLED,
+    int ENABLED = 1;
     /** Torch is off. */
-    DISABLED
+    int DISABLED = 2;
 }

@@ -38,7 +38,7 @@ public final class FakeCameraInfoInternal implements CameraInfoInternal {
     private final int mSensorRotation;
     private final LensFacing mLensFacing;
     private MutableLiveData<Boolean> mFlashAvailability = new MutableLiveData<>(Boolean.TRUE);
-    private MutableLiveData<TorchState> mTorchState = new MutableLiveData<>(TorchState.DISABLED);
+    private MutableLiveData<Integer> mTorchState = new MutableLiveData<>(TorchState.DISABLED);
     private MutableLiveData<Float> mMaxZoom = new MutableLiveData<>(4.0f);
     private MutableLiveData<Float> mMinZoom = new MutableLiveData<>(1.0f);
     private MutableLiveData<Float> mZoomRatio = new MutableLiveData<>(1.0f);
@@ -88,7 +88,7 @@ public final class FakeCameraInfoInternal implements CameraInfoInternal {
 
     @NonNull
     @Override
-    public LiveData<TorchState> getTorchState() {
+    public LiveData<Integer> getTorchState() {
         return mTorchState;
     }
 

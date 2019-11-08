@@ -26,7 +26,6 @@ import androidx.camera.core.CameraInfoInternal;
 import androidx.camera.core.CameraOrientationUtil;
 import androidx.camera.core.ImageOutputConfig.RotationValue;
 import androidx.camera.core.LensFacing;
-import androidx.camera.core.TorchState;
 import androidx.core.util.Preconditions;
 import androidx.lifecycle.LiveData;
 import androidx.lifecycle.MutableLiveData;
@@ -142,7 +141,7 @@ final class Camera2CameraInfo implements CameraInfoInternal {
 
     @NonNull
     @Override
-    public LiveData<TorchState> getTorchState() {
+    public LiveData<Integer> getTorchState() {
         // TODO(b/143514107): implement #getTorchState and return a functional LiveData
         throw new UnsupportedOperationException("Not implement");
     }
