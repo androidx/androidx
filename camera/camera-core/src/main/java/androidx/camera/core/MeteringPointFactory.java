@@ -95,12 +95,17 @@ public abstract class MeteringPointFactory {
     /**
      * Creates a {@link MeteringPoint} by x, y.
      *
-     * <p>The (x, y) is a position from the area defined by specific
-     * {@link MeteringPointFactory} implementation.
+     * <p>The (x, y) is a position from the area defined by the specific
+     * {@link MeteringPointFactory} implementation, such as
+     * {@link DisplayOrientedMeteringPointFactory} or {@link SurfaceOrientedMeteringPointFactory}.
+     *
+     * @see DisplayOrientedMeteringPointFactory
+     * @see SurfaceOrientedMeteringPointFactory
      *
      * @param x x to be converted.
      * @param y y to be converted.
      * @return A {@link MeteringPoint} that is converted into normalized surface (x, y).
+     *
      */
     @NonNull
     public final MeteringPoint createPoint(float x, float y) {
@@ -110,8 +115,12 @@ public abstract class MeteringPointFactory {
     /**
      * Creates a {@link MeteringPoint} by x, y, size.
      *
-     * <p>The (x, y) is a position from the area defined by specific
-     * {@link MeteringPointFactory} implementation.
+     * <p>The (x, y) is a position from the area defined by the specific
+     * {@link MeteringPointFactory} implementation, such as
+     * {@link DisplayOrientedMeteringPointFactory} or {@link SurfaceOrientedMeteringPointFactory}.
+     *
+     * @see DisplayOrientedMeteringPointFactory
+     * @see SurfaceOrientedMeteringPointFactory
      *
      * @param x    x to be converted.
      * @param y    y to be converted.
