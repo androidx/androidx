@@ -38,18 +38,42 @@ public final class TestEvents {
      * Common mouse event types...for your convenience.
      */
     public static final class Mouse {
-        public static final MotionEvent CLICK =
-                TestEvents.builder().mouse().primary().build();
-        public static final MotionEvent CTRL_CLICK =
-                TestEvents.builder().mouse().primary().ctrl().build();
-        public static final MotionEvent ALT_CLICK =
-                TestEvents.builder().mouse().primary().alt().build();
-        public static final MotionEvent SHIFT_CLICK =
-                TestEvents.builder().mouse().primary().shift().build();
-        public static final MotionEvent SECONDARY_CLICK =
-                TestEvents.builder().mouse().secondary().build();
-        public static final MotionEvent TERTIARY_CLICK =
-                TestEvents.builder().mouse().tertiary().build();
+        public static final MotionEvent CLICK = TestEvents.builder()
+                .mouse()
+                .primary()
+                // Note that when using a BT mouse
+                // right-click action is ACTION_DOWN, not
+                // ACTION_POINTER_DOWN as one might expect.
+                .action(MotionEvent.ACTION_DOWN)
+                .build();
+        public static final MotionEvent CTRL_CLICK = TestEvents.builder()
+                .mouse()
+                .primary()
+                .down()
+                .ctrl()
+                .build();
+        public static final MotionEvent ALT_CLICK = TestEvents.builder()
+                .mouse()
+                .primary()
+                .down()
+                .alt()
+                .build();
+        public static final MotionEvent SHIFT_CLICK = TestEvents.builder()
+                .mouse()
+                .primary()
+                .down()
+                .shift()
+                .build();
+        public static final MotionEvent SECONDARY_CLICK = TestEvents.builder()
+                .mouse()
+                .secondary()
+                .down()
+                .build();
+        public static final MotionEvent TERTIARY_CLICK = TestEvents.builder()
+                .mouse()
+                .tertiary()
+                .down()
+                .build();
     }
 
     /**
@@ -66,10 +90,11 @@ public final class TestEvents {
     @IntDef(flag = true, value = {
             MotionEvent.ACTION_DOWN,
             MotionEvent.ACTION_MOVE,
-            MotionEvent.ACTION_UP
+            MotionEvent.ACTION_UP,
     })
     @Retention(RetentionPolicy.SOURCE)
-    public @interface Action {}
+    public @interface Action {
+    }
 
     // Add other types from MotionEvent.TOOL_TYPE_ as needed.
     @IntDef(flag = true, value = {
@@ -79,21 +104,24 @@ public final class TestEvents {
             MotionEvent.TOOL_TYPE_UNKNOWN
     })
     @Retention(RetentionPolicy.SOURCE)
-    public @interface ToolType {}
+    public @interface ToolType {
+    }
 
     @IntDef(flag = true, value = {
             MotionEvent.BUTTON_PRIMARY,
             MotionEvent.BUTTON_SECONDARY
     })
     @Retention(RetentionPolicy.SOURCE)
-    public @interface Button {}
+    public @interface Button {
+    }
 
     @IntDef(flag = true, value = {
             KeyEvent.META_SHIFT_ON,
             KeyEvent.META_CTRL_ON
     })
     @Retention(RetentionPolicy.SOURCE)
-    public @interface Key {}
+    public @interface Key {
+    }
 
     private static final class State {
         private @Action int mAction = ACTION_UNSET;
@@ -118,7 +146,6 @@ public final class TestEvents {
 
         /**
          * @param action Any action specified in {@link MotionEvent}.
-         * @return
          */
         public Builder action(int action) {
             mState.mAction = action;
@@ -182,6 +209,17 @@ public final class TestEvents {
             for (int key : keys) {
                 mState.mKeys.remove(key);
             }
+            return this;
+        }
+
+        /**
+         * Sets action to MotionEvent#ACTION_DOWN which can be used
+         * with most tool types including mouse.
+         *
+         * <p>NOTE: ACTION_POINTER_DOWN is used for secondary pointers.
+         */
+        public Builder down() {
+            action(MotionEvent.ACTION_DOWN);
             return this;
         }
 
@@ -273,7 +311,7 @@ public final class TestEvents {
                     0,     // edge flags
                     0,     // int source,
                     0      // int flags
-                    );
+            );
         }
     }
 }
