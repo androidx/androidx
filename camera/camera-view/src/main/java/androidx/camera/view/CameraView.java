@@ -790,8 +790,8 @@ public final class CameraView extends ViewGroup {
                 mCameraTextureView);
         float afPointWidth = 1.0f / 6.0f;  // 1/6 total area
         float aePointWidth = afPointWidth * 1.5f;
-        MeteringPoint afPoint = pointFactory.createPoint(x, y, afPointWidth, 1.0f);
-        MeteringPoint aePoint = pointFactory.createPoint(x, y, aePointWidth, 1.0f);
+        MeteringPoint afPoint = pointFactory.createPoint(x, y, afPointWidth);
+        MeteringPoint aePoint = pointFactory.createPoint(x, y, aePointWidth);
 
         try {
             CameraX.getCameraControl(getCameraLensFacing()).startFocusAndMetering(

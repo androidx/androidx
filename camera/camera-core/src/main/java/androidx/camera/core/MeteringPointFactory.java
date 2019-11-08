@@ -21,34 +21,73 @@ import android.util.Rational;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
+import androidx.annotation.RestrictTo;
 
 /**
- * A Factory to create a {@link MeteringPoint}.
+ * A factory to create a {@link MeteringPoint}.
  *
- * <p>MeteringPointFactory implementations must extends this class and implement
- * translatePoint(float x, float y). Users can call createPoint(float x, float y) to create a
- * {@link MeteringPoint} with default areaSize and weight. There is a variation of createPoint
- * that accepts areaSize and weight as well.
+ * <p>Users can call {@link #createPoint(float, float)} to
+ * create a {@link MeteringPoint} with x, y, default size. There are also another
+ * variant, {@link #createPoint(float, float, float)} for apps that want to also specify size.
+ *
+ * @see MeteringPoint
  */
 public abstract class MeteringPointFactory {
-    public static final float DEFAULT_AREASIZE = 0.15f;
-    public static final float DEFAULT_WEIGHT = 1.0f;
+    /**
+     * Surface aspect ratio used to created {@link MeteringPoint}s. Null for using Preview
+     * aspect ratio.
+     *
+     * @see MeteringPoint#getSurfaceAspectRatio()
+     */
     @Nullable
-    protected Rational mFovAspectRatio = null; // null for using Preview aspect ratio.
+    private Rational mSurfaceAspectRatio;
 
     /**
-     * Translates a logical x/y into the normalized crop region x/y.
+     * Constructor that use Preview aspect ratio for {@link MeteringPoint}.
      *
-     * <p>The logical x/y is with respect to related to the implementations. Implementations specify
-     * the logical width/height and define the orientation of the area. Some are sensor-oriented and
-     * some are display-oriented. The logical x/y is the position from the area defined by the width
-     * , height and the orientation.
+     * @hide
+     */
+    @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
+    public MeteringPointFactory() {
+        this(null);
+    }
+
+    /**
+     * Constructor that takes a custom surface aspect ratio for {@link MeteringPoint}.
      *
-     * Implementation must implement this method for coordinates translation.
+     * @hide
+     */
+    @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
+    public MeteringPointFactory(@Nullable Rational surfaceAspectRatio) {
+        mSurfaceAspectRatio = surfaceAspectRatio;
+    }
+
+    /**
+     * Returns default point size. It is the default size of the MeteringPoint width and height
+     * (ranging from 0 to 1).
      *
-     * @param x the logical x to be translated.
-     * @param y the logical y to be translated.
-     * @return a {@link PointF} consisting of translated normalized crop region x/y,
+     * @see MeteringPoint#getSize()
+     */
+    public static float getDefaultPointSize() {
+        // width of MeteringPoint = 0.15 * cropRegion.width
+        // height of MeteringPoint = 0.15 * cropRegion.height
+        return 0.15f;
+    }
+
+    /**
+     * Convert a (x, y) into the normalized surface (x, y) which can then be converted to sensor
+     * coordinates by {@link CameraControl}.
+     *
+     * <p>The meaning of (x, y) is defined by {@link MeteringPointFactory} implementations. It is
+     * tailored by specific needs. For example, when performing focus and metering on a point
+     * in preview,  the (x, y) could be defined as (x, y) in a View. Each implementations is
+     * responsible to convert this (x, y) into a normalized surface coordinates.
+     *
+     * Implementation must implement this method for coordinates conversion.
+     *
+     * @param x x to be converted.
+     * @param y y to be converted.
+     * @return a {@link PointF} consisting of converted normalized surface coordinates.
      */
     @NonNull
     protected abstract PointF convertPoint(float x, float y);
@@ -56,31 +95,34 @@ public abstract class MeteringPointFactory {
     /**
      * Creates a {@link MeteringPoint} by x, y.
      *
-     * <p>The x/y is the position from the area defined by the width, height and the orientation in
-     * specific {@link MeteringPointFactory} implementation.
+     * <p>The (x, y) is a position from the area defined by specific
+     * {@link MeteringPointFactory} implementation.
+     *
+     * @param x x to be converted.
+     * @param y y to be converted.
+     * @return A {@link MeteringPoint} that is converted into normalized surface (x, y).
      */
     @NonNull
     public final MeteringPoint createPoint(float x, float y) {
-        return createPoint(x, y, DEFAULT_AREASIZE, DEFAULT_WEIGHT);
+        return createPoint(x, y, getDefaultPointSize());
     }
 
     /**
-     * Creates a {@link MeteringPoint} by x , y , areaSize and weight.
+     * Creates a {@link MeteringPoint} by x, y, size.
      *
-     * <p>The x/y is the position from the area defined by the width, height and the orientation in
-     * specific {@link MeteringPointFactory} implementation.
+     * <p>The (x, y) is a position from the area defined by specific
+     * {@link MeteringPointFactory} implementation.
      *
-     * @param x          the logical x to be translated
-     * @param y          the logical y to be translated
-     * @param size  size of the point. The value is ranging from 0 to 1 meaning the
-     *                   percentage of crop region width/height.
-     * @param weight     weight of metering region ranging from 0 to 1.
-     * @return A {@link MeteringPoint} that is translated into normalized crop region x/y.
+     * @param x    x to be converted.
+     * @param y    y to be converted.
+     * @param size size of the MeteringPoint width and height(ranging from 0 to 1). It is the
+     *             percentage of the sensor width/height (or crop region width/height if
+     *             crop region is set).
+     * @return A {@link MeteringPoint} that is converted into normalized surface (x, y).
      */
     @NonNull
-    public final MeteringPoint createPoint(float x, float y, float size, float weight) {
+    public final MeteringPoint createPoint(float x, float y, float size) {
         PointF convertedPoint = convertPoint(x, y);
-        return new MeteringPoint(convertedPoint.x, convertedPoint.y, size, weight,
-                mFovAspectRatio);
+        return new MeteringPoint(convertedPoint.x, convertedPoint.y, size, mSurfaceAspectRatio);
     }
 }

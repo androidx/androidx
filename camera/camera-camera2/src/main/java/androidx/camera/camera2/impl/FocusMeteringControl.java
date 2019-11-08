@@ -154,12 +154,12 @@ class FocusMeteringControl {
             @NonNull Rational defaultAspectRatio) {
         // Use default aspect ratio unless there is a custom aspect ratio in MeteringPoint.
         Rational fovAspectRatio = defaultAspectRatio;
-        if (meteringPoint.getFovAspectRatio() != null) {
-            fovAspectRatio = meteringPoint.getFovAspectRatio();
+        if (meteringPoint.getSurfaceAspectRatio() != null) {
+            fovAspectRatio = meteringPoint.getSurfaceAspectRatio();
         }
 
-        PointF adjustedPoint = new PointF(meteringPoint.getNormalizedCropRegionX(),
-                meteringPoint.getNormalizedCropRegionY());
+        PointF adjustedPoint = new PointF(meteringPoint.getX(),
+                meteringPoint.getY());
         if (!fovAspectRatio.equals(cropRegionAspectRatio)) {
 
             if (fovAspectRatio.compareTo(cropRegionAspectRatio) > 0) {
@@ -200,11 +200,7 @@ class FocusMeteringControl {
         focusRect.top = rangeLimit(focusRect.top, cropRegion.bottom, cropRegion.top);
         focusRect.bottom = rangeLimit(focusRect.bottom, cropRegion.bottom, cropRegion.top);
 
-        int weight = (int) (meteringPoint.getWeight() * MeteringRectangle.METERING_WEIGHT_MAX);
-
-        weight = rangeLimit(weight, MeteringRectangle.METERING_WEIGHT_MAX,
-                MeteringRectangle.METERING_WEIGHT_MIN);
-        return new MeteringRectangle(focusRect, weight);
+        return new MeteringRectangle(focusRect, MeteringRectangle.METERING_WEIGHT_MAX);
     }
 
     @WorkerThread

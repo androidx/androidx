@@ -70,6 +70,10 @@ import java.util.concurrent.TimeUnit;
 @RunWith(AndroidJUnit4.class)
 public class TextureViewMeteringPointFactoryTest {
     public static final float TOLERANCE = 0.000001f;
+    private static final CameraSelector FRONT_CAM =
+            new CameraSelector.Builder().requireLensFacing(LensFacing.FRONT).build();
+    private static final CameraSelector BACK_CAM =
+            new CameraSelector.Builder().requireLensFacing(LensFacing.BACK).build();
     @Rule
     public GrantPermissionRule mRuntimePermissionRule = GrantPermissionRule.grant(
             Manifest.permission.CAMERA);
@@ -128,7 +132,7 @@ public class TextureViewMeteringPointFactoryTest {
 
         // Creates the DisplayOrientedMeteringPointFactory with same width / height as TextureView
         DisplayOrientedMeteringPointFactory displayFactory =
-                new DisplayOrientedMeteringPointFactory(mContext, LensFacing.BACK,
+                new DisplayOrientedMeteringPointFactory(mContext, BACK_CAM,
                         mTextureView.getWidth(), mTextureView.getHeight());
 
         // Uses DisplayOrientedMeteringPointFactory to verify if coordinates are correct.
@@ -147,7 +151,7 @@ public class TextureViewMeteringPointFactoryTest {
 
         // Creates the DisplayOrientedMeteringPointFactory with same width / height as TextureView
         DisplayOrientedMeteringPointFactory displayFactory =
-                new DisplayOrientedMeteringPointFactory(mContext, LensFacing.FRONT,
+                new DisplayOrientedMeteringPointFactory(mContext, FRONT_CAM,
                         mWidth, mHeight);
 
         // Uses DisplayOrientedMeteringPointFactory to verify if coordinates are correct.
@@ -190,8 +194,8 @@ public class TextureViewMeteringPointFactoryTest {
     }
 
     private boolean isValid(MeteringPoint pt) {
-        boolean xValid = pt.getNormalizedCropRegionX() >= 0 && pt.getNormalizedCropRegionX() <= 1f;
-        boolean yValid = pt.getNormalizedCropRegionY() >= 0 && pt.getNormalizedCropRegionY() <= 1f;
+        boolean xValid = pt.getX() >= 0 && pt.getX() <= 1f;
+        boolean yValid = pt.getY() >= 0 && pt.getY() <= 1f;
         return xValid && yValid;
     }
 
@@ -254,9 +258,9 @@ public class TextureViewMeteringPointFactoryTest {
         point1 = factory1.createPoint(0f, 0f);
         point2 = factory2.createPoint(0f, 0f);
         assertThat(isValid(point1)).isTrue();
-        Assert.assertEquals(point1.getNormalizedCropRegionX(), point2.getNormalizedCropRegionX(),
+        Assert.assertEquals(point1.getX(), point2.getX(),
                 TOLERANCE);
-        Assert.assertEquals(point1.getNormalizedCropRegionY(), point2.getNormalizedCropRegionY(),
+        Assert.assertEquals(point1.getY(), point2.getY(),
                 TOLERANCE);
 
         // left-bottom corner
@@ -264,9 +268,9 @@ public class TextureViewMeteringPointFactoryTest {
         point2 = factory2.createPoint(0f, mHeight);
 
         assertThat(isValid(point1)).isTrue();
-        Assert.assertEquals(point1.getNormalizedCropRegionX(), point2.getNormalizedCropRegionX(),
+        Assert.assertEquals(point1.getX(), point2.getX(),
                 TOLERANCE);
-        Assert.assertEquals(point1.getNormalizedCropRegionY(), point2.getNormalizedCropRegionY(),
+        Assert.assertEquals(point1.getY(), point2.getY(),
                 TOLERANCE);
 
         // right-top corner
@@ -274,9 +278,9 @@ public class TextureViewMeteringPointFactoryTest {
         point2 = factory2.createPoint(mWidth, 0f);
 
         assertThat(isValid(point1)).isTrue();
-        Assert.assertEquals(point1.getNormalizedCropRegionX(), point2.getNormalizedCropRegionX(),
+        Assert.assertEquals(point1.getX(), point2.getX(),
                 TOLERANCE);
-        Assert.assertEquals(point1.getNormalizedCropRegionY(), point2.getNormalizedCropRegionY(),
+        Assert.assertEquals(point1.getY(), point2.getY(),
                 TOLERANCE);
 
         // right-bottom corner
@@ -284,9 +288,9 @@ public class TextureViewMeteringPointFactoryTest {
         point2 = factory2.createPoint(mWidth, mHeight);
 
         assertThat(isValid(point1)).isTrue();
-        Assert.assertEquals(point1.getNormalizedCropRegionX(), point2.getNormalizedCropRegionX(),
+        Assert.assertEquals(point1.getX(), point2.getX(),
                 TOLERANCE);
-        Assert.assertEquals(point1.getNormalizedCropRegionY(), point2.getNormalizedCropRegionY(),
+        Assert.assertEquals(point1.getY(), point2.getY(),
                 TOLERANCE);
 
         // some random point
@@ -294,9 +298,9 @@ public class TextureViewMeteringPointFactoryTest {
         point2 = factory2.createPoint(100, 120);
 
         assertThat(isValid(point1)).isTrue();
-        Assert.assertEquals(point1.getNormalizedCropRegionX(), point2.getNormalizedCropRegionX(),
+        Assert.assertEquals(point1.getX(), point2.getX(),
                 TOLERANCE);
-        Assert.assertEquals(point1.getNormalizedCropRegionY(), point2.getNormalizedCropRegionY(),
+        Assert.assertEquals(point1.getY(), point2.getY(),
                 TOLERANCE);
     }
 }
