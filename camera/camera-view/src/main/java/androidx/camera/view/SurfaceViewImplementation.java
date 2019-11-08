@@ -20,7 +20,6 @@ import android.util.Log;
 import android.util.Size;
 import android.view.Surface;
 import android.view.SurfaceHolder;
-import android.view.SurfaceView;
 import android.widget.FrameLayout;
 
 import androidx.annotation.NonNull;
@@ -40,8 +39,7 @@ final class SurfaceViewImplementation implements PreviewView.Implementation {
 
     // Synthetic Accessor
     @SuppressWarnings("WeakerAccess")
-    // TODO(b/17519540): subclass SurfaceView to allow matrix transform.
-    SurfaceView mSurfaceView;
+    TransformableSurfaceView mSurfaceView;
 
     // Synthetic Accessor
     @SuppressWarnings("WeakerAccess")
@@ -74,7 +72,7 @@ final class SurfaceViewImplementation implements PreviewView.Implementation {
      */
     @Override
     public void init(@NonNull FrameLayout parent) {
-        mSurfaceView = new SurfaceView(parent.getContext());
+        mSurfaceView = new TransformableSurfaceView(parent.getContext());
         mSurfaceView.setLayoutParams(
                 new FrameLayout.LayoutParams(
                         FrameLayout.LayoutParams.MATCH_PARENT,
