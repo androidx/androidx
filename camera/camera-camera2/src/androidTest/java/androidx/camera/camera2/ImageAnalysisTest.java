@@ -160,7 +160,7 @@ public final class ImageAnalysisTest {
         analyzerAnalyzesImagesWithStrategy(BackpressureStrategy.BLOCK_PRODUCER);
     }
 
-    private void analyzerAnalyzesImagesWithStrategy(BackpressureStrategy backpressureStrategy)
+    private void analyzerAnalyzesImagesWithStrategy(@BackpressureStrategy int backpressureStrategy)
             throws InterruptedException {
         ImageAnalysisConfig config = new ImageAnalysisConfig.Builder().setBackpressureStrategy(
                 backpressureStrategy).build();
@@ -201,7 +201,7 @@ public final class ImageAnalysisTest {
         ImageAnalysisConfig defaultConfig = ImageAnalysis.DEFAULT_CONFIG.getConfig(null);
 
         // Will throw if strategy does not exist
-        BackpressureStrategy strategy = defaultConfig.getBackpressureStrategy();
+        @BackpressureStrategy int strategy = defaultConfig.getBackpressureStrategy();
 
         // Should not be null
         assertThat(strategy).isNotNull();

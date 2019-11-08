@@ -23,6 +23,7 @@ import android.view.Display;
 import android.view.Surface;
 
 import androidx.annotation.GuardedBy;
+import androidx.annotation.IntDef;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.annotation.RestrictTo;
@@ -31,6 +32,8 @@ import androidx.camera.core.ImageOutputConfig.RotationValue;
 import androidx.camera.core.impl.utils.Threads;
 import androidx.camera.core.impl.utils.executor.CameraXExecutors;
 
+import java.lang.annotation.Retention;
+import java.lang.annotation.RetentionPolicy;
 import java.util.Map;
 import java.util.concurrent.Executor;
 
@@ -100,7 +103,7 @@ public final class ImageAnalysis extends UseCase {
 
         int imageQueueDepth =
                 config.getBackpressureStrategy() == BackpressureStrategy.BLOCK_PRODUCER
-                ? config.getImageQueueDepth() : NON_BLOCKING_IMAGE_DEPTH;
+                        ? config.getImageQueueDepth() : NON_BLOCKING_IMAGE_DEPTH;
 
         mImageReader =
                 ImageReaderProxys.createCompatibleReader(
@@ -353,9 +356,11 @@ public final class ImageAnalysis extends UseCase {
      * generally reserve a large portion of the device's memory, they cannot be buffered
      * unbounded and indefinitely. The backpressure strategy defines how to deal with this scenario.
      *
-     * @see ImageAnalysisConfig.Builder#setBackpressureStrategy(BackpressureStrategy)
+     * @see ImageAnalysisConfig.Builder#setBackpressureStrategy(int)
      */
-    public enum BackpressureStrategy {
+    @IntDef({BackpressureStrategy.KEEP_ONLY_LATEST, BackpressureStrategy.BLOCK_PRODUCER})
+    @Retention(RetentionPolicy.SOURCE)
+    public @interface BackpressureStrategy {
         /**
          * Only deliver the latest image to the analyzer, dropping images as they arrive.
          *
@@ -375,7 +380,7 @@ public final class ImageAnalysis extends UseCase {
          *
          * @see ImageAnalysisConfig.Builder#setBackgroundExecutor(Executor)
          */
-        KEEP_ONLY_LATEST,
+        int KEEP_ONLY_LATEST = 0;
         /**
          * Block the producer from generating new images.
          *
@@ -395,7 +400,7 @@ public final class ImageAnalysis extends UseCase {
          *
          * @see ImageAnalysisConfig.Builder#setImageQueueDepth(int)
          */
-        BLOCK_PRODUCER,
+        int BLOCK_PRODUCER = 1;
     }
 
     /**
@@ -444,7 +449,8 @@ public final class ImageAnalysis extends UseCase {
      */
     @RestrictTo(Scope.LIBRARY_GROUP)
     public static final class Defaults implements ConfigProvider<ImageAnalysisConfig> {
-        private static final BackpressureStrategy DEFAULT_BACKPRESSURE_STRATEGY =
+        @BackpressureStrategy
+        private static final int DEFAULT_BACKPRESSURE_STRATEGY =
                 BackpressureStrategy.KEEP_ONLY_LATEST;
         private static final int DEFAULT_IMAGE_QUEUE_DEPTH = 6;
         private static final Size DEFAULT_TARGET_RESOLUTION = new Size(640, 480);
