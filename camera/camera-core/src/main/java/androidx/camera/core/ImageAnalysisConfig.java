@@ -891,9 +891,9 @@ public final class ImageAnalysisConfig
          * Config.
          *
          * <p>The resolution {@link Size} should be expressed at the use cases's target rotation.
-         * For example, a device with portrait natural orientation in natural target
-         * rotation requesting a portrait image may specify 480x640, and the same device, rotated
-         * 90 degrees and targeting landscape orientation may specify 640x480.
+         * For example, a device with portrait natural orientation in natural target rotation
+         * requesting a portrait image may specify 480x640, and the same device, rotated 90 degrees
+         * and targeting landscape orientation may specify 640x480.
          *
          * <p>If not set, resolution of 640x480 will be selected to use in priority.
          *
