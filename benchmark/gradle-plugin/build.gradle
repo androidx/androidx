@@ -43,7 +43,7 @@ sourceSets {
 dependencies {
     implementation findGradleKotlinDsl()
     implementation gradleApi()
-    implementation("com.android.tools.build:gradle:3.6.0-beta02")
+    implementation("com.android.tools.build:gradle:3.6.0-beta03")
     implementation(KOTLIN_STDLIB)
 
     testImplementation gradleTestKit()
