@@ -19,6 +19,7 @@ package androidx.camera.core;
 import android.util.Pair;
 import android.util.Rational;
 import android.util.Size;
+import android.view.Display;
 import android.view.Surface;
 
 import androidx.annotation.NonNull;
@@ -929,6 +930,9 @@ public final class VideoCaptureConfig
          * <p>The name should be a value that can uniquely identify an instance of the object being
          * configured.
          *
+         * <p>If not set, the target name will default to an unique name automatically generated
+         * with the class canonical name and random UUID.
+         *
          * @param targetName A unique string identifier for the instance of the class being
          *                   configured.
          * @return the current Builder.
@@ -1022,6 +1026,9 @@ public final class VideoCaptureConfig
          * ratio which may differ from the request, possibly due to device constraints.
          * Application code should check the resulting output's resolution.
          *
+         * <p>If not set, resolutions with aspect ratio 4:3 will be considered in higher
+         * priority.
+         *
          * @param aspectRatio A {@link AspectRatio} representing the ratio of the
          *                    target's width and height.
          * @return The current Builder.
@@ -1039,6 +1046,9 @@ public final class VideoCaptureConfig
          * <p>This is one of four valid values: {@link Surface#ROTATION_0}, {@link
          * Surface#ROTATION_90}, {@link Surface#ROTATION_180}, {@link Surface#ROTATION_270}.
          * Rotation values are relative to the "natural" rotation, {@link Surface#ROTATION_0}.
+         *
+         * <p>If not set, the target rotation will default to the value of
+         * {@link Display#getRotation()} of the default display at the time the use case is created.
          *
          * @param rotation The rotation of the intended target.
          * @return The current Builder.
@@ -1118,6 +1128,9 @@ public final class VideoCaptureConfig
 
         /**
          * Sets the default executor that will be used for background tasks.
+         *
+         * <p>If not set, the background executor will default to an automatically generated
+         * {@link Executor}.
          *
          * @param executor The executor which will be used for background tasks.
          * @return the current Builder.
