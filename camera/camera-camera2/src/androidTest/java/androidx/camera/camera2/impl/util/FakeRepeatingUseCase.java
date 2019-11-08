@@ -78,6 +78,8 @@ public class FakeRepeatingUseCase extends FakeUseCase {
             throw new IllegalArgumentException(
                     "Unable to get camera id for the camera device config.", e);
         }
+
+        notifyActive();
     }
 
     @Override

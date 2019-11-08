@@ -16,12 +16,17 @@
 
 package androidx.camera.testing.fakes;
 
+import android.util.Pair;
+import android.util.Rational;
+import android.util.Size;
+
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.camera.core.CameraDeviceConfig;
 import androidx.camera.core.CameraIdFilter;
 import androidx.camera.core.CaptureConfig;
 import androidx.camera.core.Config;
+import androidx.camera.core.ImageOutputConfig;
 import androidx.camera.core.LensFacing;
 import androidx.camera.core.MutableConfig;
 import androidx.camera.core.MutableOptionsBundle;
@@ -30,12 +35,14 @@ import androidx.camera.core.SessionConfig;
 import androidx.camera.core.UseCase;
 import androidx.camera.core.UseCaseConfig;
 
+import java.util.List;
 import java.util.Set;
 import java.util.UUID;
 
 /** A fake configuration for {@link FakeUseCase}. */
 public class FakeUseCaseConfig
         implements UseCaseConfig<FakeUseCase>,
+        ImageOutputConfig,
         CameraDeviceConfig { // TODO(b/142840814): Remove device config in favor of CameraSelector
 
     private final Config mConfig;
@@ -211,6 +218,90 @@ public class FakeUseCaseConfig
     @NonNull
     public UseCase.EventCallback getUseCaseEventCallback() {
         return retrieveOption(OPTION_USE_CASE_EVENT_CALLBACK);
+    }
+
+    // Implementations of ImageOutputConfig default methods
+
+    @Nullable
+    @Override
+    public Rational getTargetAspectRatioCustom(@Nullable Rational valueIfMissing) {
+        return retrieveOption(OPTION_TARGET_ASPECT_RATIO_CUSTOM, valueIfMissing);
+    }
+
+    @NonNull
+    @Override
+    public Rational getTargetAspectRatioCustom() {
+        return retrieveOption(OPTION_TARGET_ASPECT_RATIO_CUSTOM);
+    }
+
+    @Override
+    public boolean hasTargetAspectRatio() {
+        return false;
+    }
+
+    @Override
+    public int getTargetAspectRatio() {
+        return retrieveOption(OPTION_TARGET_ASPECT_RATIO);
+
+    }
+
+    @Override
+    public int getTargetRotation(int valueIfMissing) {
+        return retrieveOption(OPTION_TARGET_ROTATION, valueIfMissing);
+    }
+
+    @Override
+    public int getTargetRotation() {
+        return retrieveOption(OPTION_TARGET_ROTATION);
+    }
+
+    @Nullable
+    @Override
+    public Size getTargetResolution(@Nullable Size valueIfMissing) {
+        return retrieveOption(OPTION_TARGET_RESOLUTION, valueIfMissing);
+    }
+
+    @NonNull
+    @Override
+    public Size getTargetResolution() {
+        return retrieveOption(OPTION_TARGET_RESOLUTION);
+    }
+
+    @Nullable
+    @Override
+    public Size getDefaultResolution(@Nullable Size valueIfMissing) {
+        return retrieveOption(OPTION_DEFAULT_RESOLUTION, valueIfMissing);
+    }
+
+    @NonNull
+    @Override
+    public Size getDefaultResolution() {
+        return retrieveOption(OPTION_DEFAULT_RESOLUTION);
+    }
+
+    @Nullable
+    @Override
+    public Size getMaxResolution(@Nullable Size valueIfMissing) {
+        return retrieveOption(OPTION_MAX_RESOLUTION, valueIfMissing);
+    }
+
+    @NonNull
+    @Override
+    public Size getMaxResolution() {
+        return retrieveOption(OPTION_MAX_RESOLUTION);
+    }
+
+    @Nullable
+    @Override
+    public List<Pair<Integer, Size[]>> getSupportedResolutions(
+            @Nullable List<Pair<Integer, Size[]>> valueIfMissing) {
+        return retrieveOption(OPTION_SUPPORTED_RESOLUTIONS, valueIfMissing);
+    }
+
+    @NonNull
+    @Override
+    public List<Pair<Integer, Size[]>> getSupportedResolutions() {
+        return retrieveOption(OPTION_SUPPORTED_RESOLUTIONS);
     }
 
     // End of the default implementation of Config
