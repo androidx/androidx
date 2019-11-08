@@ -68,7 +68,7 @@ public interface CameraInfo {
      * @return a {@link LiveData} containing current torch state.
      */
     @NonNull
-    LiveData<TorchState> getTorchState();
+    LiveData<Integer> getTorchState();
 
     /**
      * Returns a {@link LiveData} of current zoom ratio.
