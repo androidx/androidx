@@ -28,6 +28,7 @@ import androidx.annotation.RestrictTo;
 import androidx.annotation.RestrictTo.Scope;
 import androidx.camera.core.ImageCapture.CaptureMode;
 
+import java.io.File;
 import java.util.List;
 import java.util.Set;
 import java.util.UUID;
@@ -599,6 +600,12 @@ public final class ImageCaptureConfig
     /**
      * Returns the executor that will be used for IO tasks.
      *
+     * <p> This executor will be used for any IO tasks specifically for ImageCapture, such as
+     * {@link ImageCapture#takePicture(File, Executor, ImageCapture.OnImageSavedCallback)}
+     * and {@link ImageCapture#takePicture(File, ImageCapture.Metadata, Executor,
+     * ImageCapture.OnImageSavedCallback)}. If no executor is set, then a default Executor
+     * specifically for IO will be used instead.
+     *
      * @param valueIfMissing The value to return if this configuration option has not been set.
      * @return The stored value or <code>valueIfMissing</code> if the value does not exist in this
      * configuration.
@@ -611,6 +618,12 @@ public final class ImageCaptureConfig
 
     /**
      * Returns the executor that will be used for IO tasks.
+     *
+     * <p> This executor will be used for any IO tasks specifically for ImageCapture, such as
+     * {@link ImageCapture#takePicture(File, Executor, ImageCapture.OnImageSavedCallback)}
+     * and {@link ImageCapture#takePicture(File, ImageCapture.Metadata, Executor,
+     * ImageCapture.OnImageSavedCallback)}. If no executor is set, then a default Executor
+     * specifically for IO will be used instead.
      *
      * @return The stored value, if it exists in this configuration.
      * @throws IllegalArgumentException if the option does not exist in this configuration.
@@ -1125,6 +1138,12 @@ public final class ImageCaptureConfig
 
         /**
          * Sets the default executor that will be used for IO tasks.
+         *
+         * <p> This executor will be used for any IO tasks specifically for ImageCapture, such as
+         * {@link ImageCapture#takePicture(File, Executor, ImageCapture.OnImageSavedCallback)}
+         * and {@link ImageCapture#takePicture(File, ImageCapture.Metadata, Executor,
+         * ImageCapture.OnImageSavedCallback)}. If no executor is set, then a default Executor
+         * specifically for IO will be used instead.
          *
          * @param executor The executor which will be used for IO tasks.
          * @return the current Builder.
