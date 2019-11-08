@@ -686,7 +686,7 @@ public class BiometricPrompt implements BiometricConstants {
                 if (!bridge.isConfirmingDeviceCredential()) {
                     final BiometricManager biometricManager = BiometricManager.from(activity);
                     if (biometricManager.canAuthenticate() != BiometricManager.BIOMETRIC_SUCCESS) {
-                        Utils.launchDeviceCredentialConfirmation(
+                        DeviceCredentialLauncher.launchConfirmation(
                                 TAG, activity, info.getBundle(), null /* onLaunch */);
                         return;
                     }

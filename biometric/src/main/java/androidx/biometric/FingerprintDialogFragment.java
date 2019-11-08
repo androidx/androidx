@@ -160,7 +160,7 @@ public class FingerprintDialogFragment extends DialogFragment {
                             return;
                         }
 
-                        Utils.launchDeviceCredentialConfirmation(
+                        DeviceCredentialLauncher.launchConfirmation(
                                 TAG, FingerprintDialogFragment.this.getActivity(), mBundle,
                                 new Runnable() {
                                     @Override
