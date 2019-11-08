@@ -28,7 +28,6 @@ plugins {
 
 dependencies {
     api(project(":navigation:navigation-dynamic-features-core"))
-    api(project(":navigation:navigation-runtime-ktx"))
     api(KOTLIN_STDLIB)
 
     testImplementation(ANDROIDX_TEST_CORE)
