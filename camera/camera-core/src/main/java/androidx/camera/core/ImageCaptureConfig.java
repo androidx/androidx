@@ -39,7 +39,6 @@ public final class ImageCaptureConfig
         implements UseCaseConfig<ImageCapture>,
         ImageOutputConfig,
         CameraDeviceConfig, // TODO(b/142840814): Remove in favor of CameraSelector
-        ThreadConfig,
         IoConfig {
 
     // Option Declarations:
@@ -568,33 +567,6 @@ public final class ImageCaptureConfig
         return retrieveOption(OPTION_SUPPORTED_RESOLUTIONS);
     }
 
-    // Implementations of ThreadConfig default methods
-
-    /**
-     * Returns the executor that will be used for background tasks.
-     *
-     * @param valueIfMissing The value to return if this configuration option has not been set.
-     * @return The stored value or <code>valueIfMissing</code> if the value does not exist in this
-     * configuration.
-     */
-    @Override
-    @Nullable
-    public Executor getBackgroundExecutor(@Nullable Executor valueIfMissing) {
-        return retrieveOption(OPTION_BACKGROUND_EXECUTOR, valueIfMissing);
-    }
-
-    /**
-     * Returns the executor that will be used for background tasks.
-     *
-     * @return The stored value, if it exists in this configuration.
-     * @throws IllegalArgumentException if the option does not exist in this configuration.
-     */
-    @Override
-    @NonNull
-    public Executor getBackgroundExecutor() {
-        return retrieveOption(OPTION_BACKGROUND_EXECUTOR);
-    }
-
     // Implementations of IO default methods
 
     /**
@@ -742,7 +714,6 @@ public final class ImageCaptureConfig
             ImageCapture, ImageCaptureConfig, Builder>,
             ImageOutputConfig.Builder<Builder>,
             CameraDeviceConfig.Builder<Builder>,
-            ThreadConfig.Builder<Builder>,
             IoConfig.Builder<Builder> {
 
         private final MutableOptionsBundle mMutableConfig;
@@ -1116,21 +1087,6 @@ public final class ImageCaptureConfig
         @Override
         public Builder setMaxResolution(@NonNull Size resolution) {
             getMutableConfig().insertOption(OPTION_MAX_RESOLUTION, resolution);
-            return this;
-        }
-
-        // Implementations of ThreadConfig.Builder default methods
-
-        /**
-         * Sets the default executor that will be used for background tasks.
-         *
-         * @param executor The executor which will be used for background tasks.
-         * @return the current Builder.
-         */
-        @Override
-        @NonNull
-        public Builder setBackgroundExecutor(@NonNull Executor executor) {
-            getMutableConfig().insertOption(OPTION_BACKGROUND_EXECUTOR, executor);
             return this;
         }
 
