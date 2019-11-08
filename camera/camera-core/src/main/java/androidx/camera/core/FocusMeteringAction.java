@@ -24,6 +24,8 @@ import androidx.annotation.VisibleForTesting;
 import androidx.camera.core.impl.utils.executor.CameraXExecutors;
 import androidx.core.util.Preconditions;
 
+import com.google.common.util.concurrent.ListenableFuture;
+
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
@@ -207,7 +209,8 @@ public final class FocusMeteringAction {
         }
 
         /**
-         * Creates the Builder from a {@link MeteringPoint} with default {@link MeteringMode}.
+         * Creates the Builder from a {@link MeteringPoint} with default
+         * mode {@link MeteringMode#AF_AE_AWB}.
          */
         @NonNull
         public static Builder from(@NonNull MeteringPoint meteringPoint) {
@@ -224,7 +227,13 @@ public final class FocusMeteringAction {
         }
 
         /**
-         * Adds another {@link MeteringPoint} with default {@link MeteringMode}.
+         * Adds another {@link MeteringPoint} with default mode {@link MeteringMode#AF_AE_AWB}.
+         *
+         * <p>If more points are added than what current device supports for AF/AE/AWB, only the
+         * first region and then in order up to the number of regions supported by the device
+         * will be enabled. If it turns out no added points can be supported on the device, the
+         * returned {@link ListenableFuture} in
+         * {@link CameraControl#startFocusAndMetering(FocusMeteringAction)} will fail immediately.
          */
         @NonNull
         public Builder addPoint(@NonNull MeteringPoint point) {
@@ -233,6 +242,12 @@ public final class FocusMeteringAction {
 
         /**
          * Adds another {@link MeteringPoint} with specified {@link MeteringMode}.
+         *
+         * <p>If more points are added than what current device supports for AF/AE/AWB, only the
+         * first region and then in order up to the number of regions supported by the device
+         * will be enabled. If it turns out no added points can be supported on the device, the
+         * returned {@link ListenableFuture} in
+         * {@link CameraControl#startFocusAndMetering(FocusMeteringAction)} will fail immediately.
          */
         @NonNull
         public Builder addPoint(@NonNull MeteringPoint point, @NonNull MeteringMode mode) {
