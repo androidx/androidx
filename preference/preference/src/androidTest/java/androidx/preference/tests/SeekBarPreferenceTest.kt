@@ -173,7 +173,7 @@ class SeekBarPreferenceTest {
     // Seems that these tests are flaky on certain devices with large screens due to the swipe not
     // fully dragging from one end to another. Should be safer to only run them on newer devices
     // where they are stable.
-    @SdkSuppress(minSdkVersion = Build.VERSION_CODES.N)
+    @SdkSuppress(minSdkVersion = Build.VERSION_CODES.P)
     fun testSeekBarPreferenceChangeListener() {
         // How many times the change listener has been called
         var updateCount = 0
@@ -208,7 +208,7 @@ class SeekBarPreferenceTest {
     // Seems that these tests are flaky on certain devices with large screens due to the swipe not
     // fully dragging from one end to another. Should be safer to only run them on newer devices
     // where they are stable.
-    @SdkSuppress(minSdkVersion = Build.VERSION_CODES.N)
+    @SdkSuppress(minSdkVersion = Build.VERSION_CODES.P)
     fun testSeekBarPreferenceChangeListenerWithContinuousUpdates() {
         // How many times the change listener has been called
         var updateCount = 0
