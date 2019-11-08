@@ -1230,8 +1230,46 @@ package androidx.core.hardware.fingerprint {
 
 package androidx.core.location {
 
+  public abstract class GnssStatusCompat {
+    method @FloatRange(from=0, to=360) public abstract float getAzimuthDegrees(@IntRange(from=0) int);
+    method @FloatRange(from=0) public abstract float getCarrierFrequencyHz(@IntRange(from=0) int);
+    method @FloatRange(from=0, to=63) public abstract float getCn0DbHz(@IntRange(from=0) int);
+    method @androidx.core.location.GnssStatusCompat.ConstellationType public abstract int getConstellationType(@IntRange(from=0) int);
+    method @FloatRange(from=0xffffffa6, to=90) public abstract float getElevationDegrees(@IntRange(from=0) int);
+    method @IntRange(from=0) public abstract int getSatelliteCount();
+    method @IntRange(from=1, to=200) public abstract int getSvid(@IntRange(from=0) int);
+    method public abstract boolean hasAlmanacData(@IntRange(from=0) int);
+    method public abstract boolean hasCarrierFrequencyHz(@IntRange(from=0) int);
+    method public abstract boolean hasEphemerisData(@IntRange(from=0) int);
+    method public abstract boolean usedInFix(@IntRange(from=0) int);
+    method @RequiresApi(android.os.Build.VERSION_CODES.N) public static androidx.core.location.GnssStatusCompat wrap(android.location.GnssStatus);
+    method public static androidx.core.location.GnssStatusCompat wrap(android.location.GpsStatus);
+    field public static final int CONSTELLATION_BEIDOU = 5; // 0x5
+    field public static final int CONSTELLATION_GALILEO = 6; // 0x6
+    field public static final int CONSTELLATION_GLONASS = 3; // 0x3
+    field public static final int CONSTELLATION_GPS = 1; // 0x1
+    field public static final int CONSTELLATION_IRNSS = 7; // 0x7
+    field public static final int CONSTELLATION_QZSS = 4; // 0x4
+    field public static final int CONSTELLATION_SBAS = 2; // 0x2
+    field public static final int CONSTELLATION_UNKNOWN = 0; // 0x0
+  }
+
+  public abstract static class GnssStatusCompat.Callback {
+    ctor public GnssStatusCompat.Callback();
+    method public void onFirstFix(@IntRange(from=0) int);
+    method public void onSatelliteStatusChanged(androidx.core.location.GnssStatusCompat);
+    method public void onStarted();
+    method public void onStopped();
+  }
+
+  @java.lang.annotation.Retention(java.lang.annotation.RetentionPolicy.SOURCE) @IntDef({androidx.core.location.GnssStatusCompat.CONSTELLATION_UNKNOWN, androidx.core.location.GnssStatusCompat.CONSTELLATION_GPS, androidx.core.location.GnssStatusCompat.CONSTELLATION_SBAS, androidx.core.location.GnssStatusCompat.CONSTELLATION_GLONASS, androidx.core.location.GnssStatusCompat.CONSTELLATION_QZSS, androidx.core.location.GnssStatusCompat.CONSTELLATION_BEIDOU, androidx.core.location.GnssStatusCompat.CONSTELLATION_GALILEO, androidx.core.location.GnssStatusCompat.CONSTELLATION_IRNSS}) public static @interface GnssStatusCompat.ConstellationType {
+  }
+
   public final class LocationManagerCompat {
     method public static boolean isLocationEnabled(android.location.LocationManager);
+    method @RequiresPermission(android.Manifest.permission.ACCESS_FINE_LOCATION) public static boolean registerGnssStatusCallback(android.location.LocationManager, androidx.core.location.GnssStatusCompat.Callback, android.os.Handler);
+    method @RequiresPermission(android.Manifest.permission.ACCESS_FINE_LOCATION) public static boolean registerGnssStatusCallback(android.location.LocationManager, java.util.concurrent.Executor, androidx.core.location.GnssStatusCompat.Callback);
+    method public static void unregisterGnssStatusCallback(android.location.LocationManager, androidx.core.location.GnssStatusCompat.Callback);
   }
 
 }
