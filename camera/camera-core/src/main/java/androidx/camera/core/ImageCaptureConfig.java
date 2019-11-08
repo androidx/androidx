@@ -431,7 +431,7 @@ public final class ImageCaptureConfig
      */
     @Nullable
     @Override
-    public AspectRatio getTargetAspectRatio(@Nullable AspectRatio valueIfMissing) {
+    public Integer getTargetAspectRatio(@Nullable Integer valueIfMissing) {
         return retrieveOption(OPTION_TARGET_ASPECT_RATIO, valueIfMissing);
     }
 
@@ -441,9 +441,9 @@ public final class ImageCaptureConfig
      * @return The stored value, if it exists in this configuration.
      * @throws IllegalArgumentException if the option does not exist in this configuration.
      */
-    @NonNull
+    @AspectRatio
     @Override
-    public AspectRatio getTargetAspectRatio() {
+    public int getTargetAspectRatio() {
         return retrieveOption(OPTION_TARGET_ASPECT_RATIO);
     }
 
@@ -1029,7 +1029,7 @@ public final class ImageCaptureConfig
          */
         @NonNull
         @Override
-        public Builder setTargetAspectRatio(@NonNull AspectRatio aspectRatio) {
+        public Builder setTargetAspectRatio(@AspectRatio int aspectRatio) {
             getMutableConfig().insertOption(OPTION_TARGET_ASPECT_RATIO, aspectRatio);
             return this;
         }
