@@ -168,8 +168,8 @@ public class BiometricFragment extends Fragment {
                 @Override
                 public void onClick(DialogInterface dialog, int which) {
                     if (which == DialogInterface.BUTTON_NEGATIVE) {
-                        Utils.launchDeviceCredentialConfirmation(TAG,
-                                BiometricFragment.this.getActivity(), mBundle, null /* onLaunch */);
+                        DeviceCredentialLauncher.launchConfirmation(
+                                TAG, getActivity(), mBundle, null /* onLaunch */);
                     }
                 }
             };
