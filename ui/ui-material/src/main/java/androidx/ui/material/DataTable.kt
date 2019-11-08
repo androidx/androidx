@@ -40,8 +40,7 @@ import androidx.ui.layout.Column
 import androidx.ui.layout.Container
 import androidx.ui.layout.CrossAxisAlignment
 import androidx.ui.layout.EdgeInsets
-import androidx.ui.layout.ExpandedWidth
-import androidx.ui.layout.LayoutSize
+import androidx.ui.layout.Expanded
 import androidx.ui.layout.MainAxisAlignment
 import androidx.ui.layout.Row
 import androidx.ui.layout.Table
@@ -485,9 +484,8 @@ fun DataTable(
             table()
             Container(height = dataRowHeight, padding = cellSpacing) {
                 Row(
-                    ExpandedWidth,
+                    Expanded,
                     mainAxisAlignment = MainAxisAlignment.End,
-                    crossAxisSize = LayoutSize.Expand,
                     crossAxisAlignment = CrossAxisAlignment.Center
                 ) {
                     val pages = (rows.size - 1) / pagination.rowsPerPage + 1
