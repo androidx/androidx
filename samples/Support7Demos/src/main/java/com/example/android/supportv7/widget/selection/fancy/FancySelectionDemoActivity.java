@@ -20,12 +20,16 @@ import android.content.Context;
 import android.net.Uri;
 import android.os.Bundle;
 import android.util.Log;
+import android.view.ContextMenu;
 import android.view.Menu;
+import android.view.MenuInflater;
 import android.view.MenuItem;
 import android.view.MotionEvent;
+import android.view.View;
 import android.widget.Toast;
 
 import androidx.annotation.CallSuper;
+import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.recyclerview.selection.ItemDetailsLookup.ItemDetails;
 import androidx.recyclerview.selection.ItemKeyProvider;
@@ -46,6 +50,7 @@ public class FancySelectionDemoActivity extends AppCompatActivity {
     private static final String TAG = "SelectionDemos";
     private static final String EXTRA_COLUMN_COUNT = "demo-column-count";
 
+    private RecyclerView mRecView;
     private FancySelectionDemoAdapter mAdapter;
     private SelectionTracker<Uri> mSelectionTracker;
 
@@ -57,19 +62,19 @@ public class FancySelectionDemoActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
 
         setContentView(R.layout.selection_demo_layout);
-        RecyclerView recView = (RecyclerView) findViewById(R.id.list);
+        mRecView = (RecyclerView) findViewById(R.id.list);
 
         mLayout = new GridLayoutManager(this, mColumnCount);
-        recView.setLayoutManager(mLayout);
+        mRecView.setLayoutManager(mLayout);
         mAdapter = new FancySelectionDemoAdapter(this);
-        recView.setAdapter(mAdapter);
+        mRecView.setAdapter(mAdapter);
         ItemKeyProvider<Uri> keyProvider = mAdapter.getItemKeyProvider();
 
         SelectionTracker.Builder<Uri> builder = new SelectionTracker.Builder<>(
                 "fancy-demo",
-                recView,
+                mRecView,
                 keyProvider,
-                new FancyDetailsLookup(recView),
+                new FancyDetailsLookup(mRecView),
                 StorageStrategy.createParcelableStorage(Uri.class));
 
         // Override default behaviors and build in multi select mode.
@@ -142,13 +147,44 @@ public class FancySelectionDemoActivity extends AppCompatActivity {
                 // TODO: Add columns
                 mLayout.setSpanCount(++mColumnCount);
                 return true;
-
             case R.id.option_menu_remove_column:
                 mLayout.setSpanCount(--mColumnCount);
                 return true;
-
             default:
                 return super.onOptionsItemSelected(item);
+        }
+    }
+
+
+    @Override
+    public void onCreateContextMenu(ContextMenu menu, View v,
+            ContextMenu.ContextMenuInfo menuInfo) {
+        super.onCreateContextMenu(menu, v, menuInfo);
+        int selectionSize = mSelectionTracker.getSelection().size();
+        if (selectionSize == 0) {
+            return;
+        }
+        final MenuInflater inflater = getMenuInflater();
+        inflater.inflate(R.menu.selection_demo_item_actions, menu);
+
+        MenuItem item = menu.findItem(R.id.option_menu_item_eat_single);
+        item.setEnabled(selectionSize == 1);
+        item.setVisible(selectionSize == 1);
+
+        item = menu.findItem(R.id.option_menu_item_eat_multiple);
+        item.setEnabled(selectionSize > 1);
+        item.setVisible(selectionSize > 1);
+    }
+
+    @Override
+    public boolean onContextItemSelected(@NonNull MenuItem item) {
+        switch (item.getItemId()) {
+            case R.id.option_menu_item_eat_single:
+            case R.id.option_menu_item_eat_multiple:
+                toast(this, "Num, num, num...done!");
+                return true;
+            default:
+                return super.onContextItemSelected(item);
         }
     }
 
@@ -177,10 +213,14 @@ public class FancySelectionDemoActivity extends AppCompatActivity {
         mAdapter.loadData();
     }
 
+    // Tracking focus separately from explicit selection
+    // can be useful when providing a mouse friendly experience.
+    // Observe the behavior of file managers for an example.
     private static final class FocusDelegate extends
             androidx.recyclerview.selection.FocusDelegate<Uri> {
 
         private final Context mContext;
+        private ItemDetails<Uri> mFocusedItem;
 
         private FocusDelegate(Context context) {
             mContext = context;
@@ -188,22 +228,25 @@ public class FancySelectionDemoActivity extends AppCompatActivity {
 
         @Override
         public void focusItem(ItemDetails<Uri> item) {
-            toast(mContext, "Focused item: " + item.getSelectionKey());
+            mFocusedItem = item;
+            Log.i(TAG, "focusItem called for " + item);
         }
 
         @Override
         public boolean hasFocusedItem() {
-            return false;
+            return mFocusedItem != null;
         }
 
         @Override
         public int getFocusedPosition() {
-            return 0;
+            return mFocusedItem != null
+                    ? mFocusedItem.getPosition()
+                    : RecyclerView.NO_POSITION;
         }
 
         @Override
         public void clearFocus() {
-            toast(mContext, "Cleared focus.");
+            mFocusedItem = null;
         }
     }
 
@@ -218,13 +261,15 @@ public class FancySelectionDemoActivity extends AppCompatActivity {
 
         @Override
         public boolean onItemActivated(ItemDetails<Uri> item, MotionEvent e) {
-            toast(mContext, "Activate item: " + item.getSelectionKey());
+            toast(mContext, "Activate item: " + item);
             return true;
         }
     }
 
-    private static final class OnContextClickListener implements
+    private final class OnContextClickListener implements
             androidx.recyclerview.selection.OnContextClickListener {
+
+        private boolean mShowByViewHolder;
 
         private final Context mContext;
 
@@ -234,10 +279,23 @@ public class FancySelectionDemoActivity extends AppCompatActivity {
 
         @Override
         public boolean onContextClick(MotionEvent e) {
-            toast(mContext, "Context click received.");
+            View view = mRecView.findChildViewUnder(e.getX(), e.getY());
+
+            float x = e.getX() - view.getLeft();
+            float y = e.getY() - view.getTop();
+
+            registerForContextMenu(view);
+            if (view.showContextMenu(x, y)) {
+                Log.i(TAG,
+                        "showContextMenu on view " + view.getClass().getSimpleName()
+                                + " returned "
+                                + "true for "
+                                + "event: " + e);
+            }
+            unregisterForContextMenu(view);
             return true;
         }
-    };
+    }
 
     private static final class OnDragInitiatedListener implements
             androidx.recyclerview.selection.OnDragInitiatedListener {

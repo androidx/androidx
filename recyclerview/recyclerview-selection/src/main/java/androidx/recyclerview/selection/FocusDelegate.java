@@ -61,7 +61,22 @@ public abstract class FocusDelegate<K> {
     public abstract boolean hasFocusedItem();
 
     /**
-     * @return the position of the currently focused item, if any.
+     * Returns the position of the currently focused item, or
+     * {@link RecyclerView#NO_POSITION} if nothing is focused.
+     *
+     * <p>You must implement this feature if you intend your app
+     * to work well with mouse and keyboard. Selection
+     * ranges are inferred from focused item when there is
+     * no explicit last-selected item.
+     *
+     * <p>You can manage and advance focus using keyboard arrows,
+     * reflecting this state visibly in the view item.
+     * Use can then press shift, then click another item with
+     * their mouse to select all items between the focused
+     * item and the clicked item.
+     *
+     * @return the position of the currently focused item,
+     *     or {@code RecyclerView#NO_POSITION} if none.
      */
     public abstract int getFocusedPosition();
 
