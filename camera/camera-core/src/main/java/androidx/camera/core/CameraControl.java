@@ -22,6 +22,9 @@ import androidx.annotation.RestrictTo;
 
 import com.google.common.util.concurrent.ListenableFuture;
 
+import java.util.concurrent.CancellationException;
+import java.util.concurrent.Future;
+
 /**
  * An interface for controlling camera's zoom, focus and metering across all use cases.
  *
@@ -99,8 +102,7 @@ public interface CameraControl {
      * @return a {@link ListenableFuture} which is finished when current repeating request
      * result contains the requested zoom ratio. It fails with
      * {@link OperationCanceledException} if there is newer value being set or camera is closed.
-     * If ratio is out of range, it fails with
-     * {@link CameraControl.ArgumentOutOfRangeException}.
+     * If ratio is out of range, it fails with {@link IllegalArgumentException}.
      */
     @NonNull
     ListenableFuture<Void> setZoomRatio(float ratio);
@@ -118,32 +120,19 @@ public interface CameraControl {
      * @return a {@link ListenableFuture} which is finished when current repeating request
      * result contains the requested zoom percentage. It fails with
      * {@link OperationCanceledException} if there is newer value being set or camera is closed.
-     * If percentage is out of range, it fails with
-     * {@link CameraControl.ArgumentOutOfRangeException}.
+     * If percentage is out of range, it fails with {@link IllegalArgumentException}.
      */
     @NonNull
     ListenableFuture<Void> setZoomPercentage(@FloatRange(from = 0f, to = 1f) float percentage);
 
     /**
-     * An exception thrown when the argument is out of range.
-     */
-    final class ArgumentOutOfRangeException extends Exception {
-        /** @hide */
-        @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
-        public ArgumentOutOfRangeException(@NonNull String message) {
-            super(message);
-        }
-
-        /** @hide */
-        @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
-        public ArgumentOutOfRangeException(@NonNull String message, @NonNull Throwable cause) {
-            super(message, cause);
-        }
-    }
-
-    /**
      * An exception representing a failure that the operation is canceled which might be caused by
      * a new value is set or camera is closed.
+     *
+     * <p>This is different from {@link CancellationException}. While
+     * {@link CancellationException} means the {@link ListenableFuture} was cancelled by
+     * {@link Future#cancel(boolean)}, {@link OperationCanceledException} occurs when there is
+     * something wrong inside CameraControl and it has to cancel the operation.
      */
     final class OperationCanceledException extends Exception {
         /** @hide */

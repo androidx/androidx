@@ -28,7 +28,6 @@ import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.annotation.VisibleForTesting;
 import androidx.annotation.WorkerThread;
-import androidx.camera.core.CameraControl;
 import androidx.camera.core.CameraControl.OperationCanceledException;
 import androidx.camera.core.CameraInfo;
 import androidx.camera.core.impl.utils.futures.Futures;
@@ -197,8 +196,7 @@ final class ZoomControl {
      * @return a {@link ListenableFuture} which is finished when current repeating request
      *     result contains the requested zoom ratio. It fails with
      *     {@link OperationCanceledException} if there is newer value being set or camera is closed.
-     *     If ratio is out of range, it fails with
-     *     {@link CameraControl.ArgumentOutOfRangeException}.
+     *     If ratio is out of range, it fails with {@link IllegalArgumentException}.
      */
     @NonNull
     ListenableFuture<Void> setZoomRatio(float ratio) {
@@ -212,14 +210,13 @@ final class ZoomControl {
             }
 
             // If the requested ratio is out of range, it will not modify zoom value but report
-            // ArgumentOutOfRangeException in returned ListenableFuture.
+            // IllegalArgumentException in returned ListenableFuture.
             if (ratio > getMaxZoomRatio().getValue() || ratio < getMinZoomRatio().getValue()) {
                 String outOfRangeDesc = "Requested zoomRatio " + ratio + " is not within valid "
                         + "range [" + getMinZoomRatio().getValue() + " , "
                         + getMaxZoomRatio().getValue() + "]";
 
-                return Futures.immediateFailedFuture(
-                        new CameraControl.ArgumentOutOfRangeException(outOfRangeDesc));
+                return Futures.immediateFailedFuture(new IllegalArgumentException(outOfRangeDesc));
             }
 
             return setZoomRatioInternal(ratio, true);
@@ -291,8 +288,7 @@ final class ZoomControl {
      * @return a {@link ListenableFuture} which is finished when current repeating request
      *     result contains the requested zoom percentage. It fails with
      *     {@link OperationCanceledException} if there is newer value being set or camera is closed.
-     *     If percentage is out of range, it fails with
-     *     {@link CameraControl.ArgumentOutOfRangeException}.
+     *     If percentage is out of range, it fails with {@link IllegalArgumentException}.
      */
     @NonNull
     ListenableFuture<Void> setZoomPercentage(@FloatRange(from = 0f, to = 1f) float percentage) {
@@ -306,12 +302,11 @@ final class ZoomControl {
             }
 
             // If the requested percentage is out of range, it will not modify zoom value but
-            // report ArgumentOutOfRangeException in returned ListenableFuture.
+            // report IllegalArgumentException in returned ListenableFuture.
             if (percentage > 1.0f || percentage < 0f) {
                 String outOfRangeDesc = "Requested zoomPercentage " + percentage + " is not within"
                         + " valid range [0..1]";
-                return Futures.immediateFailedFuture(
-                        new CameraControl.ArgumentOutOfRangeException(outOfRangeDesc));
+                return Futures.immediateFailedFuture(new IllegalArgumentException(outOfRangeDesc));
             }
 
             float ratio = getRatioByPercentage(percentage);
