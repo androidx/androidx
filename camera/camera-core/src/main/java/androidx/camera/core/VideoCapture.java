@@ -37,6 +37,7 @@ import android.view.Display;
 import android.view.Surface;
 
 import androidx.annotation.GuardedBy;
+import androidx.annotation.IntDef;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.annotation.RestrictTo;
@@ -46,6 +47,8 @@ import androidx.camera.core.impl.utils.executor.CameraXExecutors;
 
 import java.io.File;
 import java.io.IOException;
+import java.lang.annotation.Retention;
+import java.lang.annotation.RetentionPolicy;
 import java.nio.ByteBuffer;
 import java.util.Map;
 import java.util.concurrent.Executor;
@@ -230,7 +233,7 @@ public class VideoCapture extends UseCase {
      * called.
      *
      * <p>StartRecording() is asynchronous. User needs to check if any error occurs by setting the
-     * {@link OnVideoSavedCallback#onError(VideoCaptureError, String, Throwable)}.
+     * {@link OnVideoSavedCallback#onError(int, String, Throwable)}.
      *
      * @param saveLocation Location to save the video capture
      * @param executor     The executor in which the callback methods will be run.
@@ -249,7 +252,7 @@ public class VideoCapture extends UseCase {
      * called.
      *
      * <p>StartRecording() is asynchronous. User needs to check if any error occurs by setting the
-     * {@link OnVideoSavedCallback#onError(VideoCaptureError, String, Throwable)}.
+     * {@link OnVideoSavedCallback#onError(int, String, Throwable)}.
      *
      * @param saveLocation Location to save the video capture
      * @param metadata     Metadata to save with the recorded video
@@ -361,7 +364,7 @@ public class VideoCapture extends UseCase {
      *
      * <p>stopRecording() is asynchronous API. User need to check if {@link
      * OnVideoSavedCallback#onVideoSaved(File)} or
-     * {@link OnVideoSavedCallback#onError(VideoCaptureError, String, Throwable)} be called
+     * {@link OnVideoSavedCallback#onError(int, String, Throwable)} be called
      * before startRecording.
      */
     public void stopRecording() {
@@ -854,28 +857,31 @@ public class VideoCapture extends UseCase {
      * Describes the error that occurred during video capture operations.
      *
      * <p>This is a parameter sent to the error callback functions set in listeners such as {@link
-     * VideoCapture.OnVideoSavedCallback#onError(VideoCaptureError, String, Throwable)}.
+     * VideoCapture.OnVideoSavedCallback#onError(int, String, Throwable)}.
      *
      * <p>See message parameter in onError callback or log for more details.
      */
-    public enum VideoCaptureError {
+    @IntDef({VideoCaptureError.UNKNOWN_ERROR, VideoCaptureError.ENCODER_ERROR,
+            VideoCaptureError.MUXER_ERROR, VideoCaptureError.RECORDING_IN_PROGRESS})
+    @Retention(RetentionPolicy.SOURCE)
+    public @interface VideoCaptureError {
         /**
          * An unknown error occurred.
          *
          * <p>See message parameter in onError callback or log for more details.
          */
-        UNKNOWN_ERROR,
+        int UNKNOWN_ERROR = 0;
         /**
          * An error occurred with encoder state, either when trying to change state or when an
          * unexpected state change occurred.
          */
-        ENCODER_ERROR,
+        int ENCODER_ERROR = 1;
         /** An error with muxer state such as during creation or when stopping. */
-        MUXER_ERROR,
+        int MUXER_ERROR = 2;
         /**
          * An error indicating start recording was called when video recording is still in progress.
          */
-        RECORDING_IN_PROGRESS
+        int RECORDING_IN_PROGRESS = 3;
     }
 
     /** Listener containing callbacks for video file I/O events. */
@@ -884,7 +890,7 @@ public class VideoCapture extends UseCase {
         void onVideoSaved(@NonNull File file);
 
         /** Called when an error occurs while attempting to save the video. */
-        void onError(@NonNull VideoCaptureError videoCaptureError, @NonNull String message,
+        void onError(@VideoCaptureError int videoCaptureError, @NonNull String message,
                 @Nullable Throwable cause);
     }
 
@@ -973,7 +979,7 @@ public class VideoCapture extends UseCase {
         }
 
         @Override
-        public void onError(@NonNull VideoCaptureError videoCaptureError, @NonNull String message,
+        public void onError(@VideoCaptureError int videoCaptureError, @NonNull String message,
                 @Nullable Throwable cause) {
             try {
                 mExecutor.execute(

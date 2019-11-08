@@ -209,7 +209,7 @@ class CaptureViewOnTouchListener
 
     @Override
     public void onError(
-            @NonNull VideoCapture.VideoCaptureError videoCaptureError,
+            @VideoCapture.VideoCaptureError int videoCaptureError,
             @NonNull String message,
             @Nullable Throwable cause) {
         report("Failure");
