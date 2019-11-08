@@ -50,7 +50,7 @@ import androidx.camera.core.FocusMeteringAction;
 import androidx.camera.core.ImageAnalysis;
 import androidx.camera.core.MeteringPoint;
 import androidx.camera.core.MeteringPointFactory;
-import androidx.camera.core.SensorOrientedMeteringPointFactory;
+import androidx.camera.core.SurfaceOrientedMeteringPointFactory;
 import androidx.camera.core.impl.utils.executor.CameraXExecutors;
 import androidx.test.core.app.ApplicationProvider;
 import androidx.test.filters.SmallTest;
@@ -88,16 +88,16 @@ public class FocusMeteringControlTest {
     private static final int SENSOR_HEIGHT2 = 1080;
 
     private static final int AREA_WIDTH =
-            (int) (MeteringPointFactory.DEFAULT_AREASIZE * SENSOR_WIDTH);
+            (int) (MeteringPointFactory.getDefaultPointSize() * SENSOR_WIDTH);
     private static final int AREA_HEIGHT =
-            (int) (MeteringPointFactory.DEFAULT_AREASIZE * SENSOR_HEIGHT);
+            (int) (MeteringPointFactory.getDefaultPointSize() * SENSOR_HEIGHT);
     private static final int AREA_WIDTH2 =
-            (int) (MeteringPointFactory.DEFAULT_AREASIZE * SENSOR_WIDTH2);
+            (int) (MeteringPointFactory.getDefaultPointSize() * SENSOR_WIDTH2);
     private static final int AREA_HEIGHT2 =
-            (int) (MeteringPointFactory.DEFAULT_AREASIZE * SENSOR_HEIGHT2);
+            (int) (MeteringPointFactory.getDefaultPointSize() * SENSOR_HEIGHT2);
 
-    private final SensorOrientedMeteringPointFactory mPointFactory =
-            new SensorOrientedMeteringPointFactory(1, 1);
+    private final SurfaceOrientedMeteringPointFactory mPointFactory =
+            new SurfaceOrientedMeteringPointFactory(1, 1);
     private FocusMeteringControl mFocusMeteringControl;
 
     private final MeteringPoint mPoint1 = mPointFactory.createPoint(0, 0);
@@ -343,8 +343,9 @@ public class FocusMeteringControlTest {
                 PREVIEW_ASPECT_RATIO_4_X_3);
         MeteringRectangle[] afRects = getAfRects(mFocusMeteringControl);
 
-        final int areaWidth = (int) (MeteringPointFactory.DEFAULT_AREASIZE * cropRect.width());
-        final int areaHeight = (int) (MeteringPointFactory.DEFAULT_AREASIZE * cropRect.height());
+        final int areaWidth = (int) (MeteringPointFactory.getDefaultPointSize() * cropRect.width());
+        final int areaHeight =
+                (int) (MeteringPointFactory.getDefaultPointSize() * cropRect.height());
         Rect adjustedRect = new Rect(cropRect.centerX() - areaWidth / 2,
                 cropRect.centerY() - areaHeight / 2,
                 cropRect.centerX() + areaWidth / 2,
@@ -391,8 +392,8 @@ public class FocusMeteringControlTest {
                 new Size(1920, 1080));
         when(imageAnalysis.getAttachedCameraIds()).thenReturn(Sets.newHashSet(CAMERA0_ID));
 
-        SensorOrientedMeteringPointFactory factory =
-                new SensorOrientedMeteringPointFactory(1.0f, 1.0f, imageAnalysis);
+        SurfaceOrientedMeteringPointFactory factory =
+                new SurfaceOrientedMeteringPointFactory(1.0f, 1.0f, imageAnalysis);
 
         MeteringPoint point = factory.createPoint(0, 0);
         mFocusMeteringControl.startFocusAndMetering(FocusMeteringAction.Builder.from(point).build(),
@@ -405,50 +406,10 @@ public class FocusMeteringControlTest {
     }
 
     @Test
-    public void weight_ConvertedCorrect() {
-        MeteringPoint point1 = mPointFactory.createPoint(0, 0, 0.2f, 1.0f);
-        MeteringPoint point2 = mPointFactory.createPoint(0, 0, 0.2f, 0.5f);
-        MeteringPoint point3 = mPointFactory.createPoint(0, 0, 0.2f, 0.1f);
-
-        mFocusMeteringControl.startFocusAndMetering(FocusMeteringAction.Builder.from(point1)
-                .addPoint(point2)
-                .addPoint(point3).build(), PREVIEW_ASPECT_RATIO_4_X_3);
-        MeteringRectangle[] afRects = getAfRects(mFocusMeteringControl);
-
-        assertThat(afRects.length).isEqualTo(3);
-        assertThat(afRects[0].getMeteringWeight()).isEqualTo(
-                (int) (MeteringRectangle.METERING_WEIGHT_MAX * 1.0f));
-        assertThat(afRects[1].getMeteringWeight()).isEqualTo(
-                (int) (MeteringRectangle.METERING_WEIGHT_MAX * 0.5f));
-        assertThat(afRects[2].getMeteringWeight()).isEqualTo(
-                (int) (MeteringRectangle.METERING_WEIGHT_MAX * 0.1f));
-    }
-
-    @Test
-    public void invalidWeight_ConvertedCorrect() {
-        MeteringPoint point1 = mPointFactory.createPoint(0, 0, 0.2f, 1.1f);
-        MeteringPoint point2 = mPointFactory.createPoint(0, 0, 0.2f, -0.3f);
-        MeteringPoint point3 = mPointFactory.createPoint(0, 0, 0.2f, 90000f);
-
-        mFocusMeteringControl.startFocusAndMetering(FocusMeteringAction.Builder.from(point1)
-                .addPoint(point2)
-                .addPoint(point3).build(), PREVIEW_ASPECT_RATIO_4_X_3);
-        MeteringRectangle[] afRects = getAfRects(mFocusMeteringControl);
-
-        assertThat(afRects.length).isEqualTo(3);
-        assertThat(afRects[0].getMeteringWeight()).isEqualTo(
-                MeteringRectangle.METERING_WEIGHT_MAX);
-        assertThat(afRects[1].getMeteringWeight()).isEqualTo(
-                MeteringRectangle.METERING_WEIGHT_MIN);
-        assertThat(afRects[2].getMeteringWeight()).isEqualTo(
-                MeteringRectangle.METERING_WEIGHT_MAX);
-    }
-
-    @Test
     public void pointSize_ConvertedCorrect() {
-        MeteringPoint point1 = mPointFactory.createPoint(0.5f, 0.5f, 1.0f, 1.0f);
-        MeteringPoint point2 = mPointFactory.createPoint(0.5f, 0.5f, 0.5f, 1.0f);
-        MeteringPoint point3 = mPointFactory.createPoint(0.5f, 0.5f, 0.1f, 1.0f);
+        MeteringPoint point1 = mPointFactory.createPoint(0.5f, 0.5f, 1.0f);
+        MeteringPoint point2 = mPointFactory.createPoint(0.5f, 0.5f, 0.5f);
+        MeteringPoint point3 = mPointFactory.createPoint(0.5f, 0.5f, 0.1f);
 
         mFocusMeteringControl.startFocusAndMetering(FocusMeteringAction.Builder.from(point1)
                 .addPoint(point2)

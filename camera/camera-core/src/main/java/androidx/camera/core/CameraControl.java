@@ -83,7 +83,7 @@ public interface CameraControl {
      *
      * <p>Clear the AF/AE/AWB regions and update current AF mode to continuous AF (if
      * supported). If current {@link FocusMeteringAction} has not completed, the returned
-     * {@Link ListenableFuture} in {@link #startFocusAndMetering} will fail with
+     * {@link ListenableFuture} in {@link #startFocusAndMetering} will fail with
      * {@link OperationCanceledException}.
      *
      * @return A {@link ListenableFuture} which completes when the AF/AE/AWB regions is clear and AF
