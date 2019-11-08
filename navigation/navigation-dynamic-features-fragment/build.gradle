@@ -26,15 +26,23 @@ plugins {
     id("kotlin-android")
 }
 
+android {
+    buildTypes {
+        debug {
+            testCoverageEnabled = false // Breaks Kotlin compiler.
+        }
+    }
+}
+
 dependencies {
     api(project(":navigation:navigation-dynamic-features-activity"))
-    api(project(":navigation:navigation-fragment"))
+    api(project(":navigation:navigation-fragment-ktx"))
+    api(KOTLIN_STDLIB)
 
     testImplementation(ANDROIDX_TEST_CORE)
     testImplementation(ANDROIDX_TEST_EXT_JUNIT)
     testImplementation(ANDROIDX_TEST_RUNNER)
     testImplementation(JUNIT)
-    testImplementation(KOTLIN_STDLIB)
     testImplementation(MOCKITO_CORE)
     testImplementation(TRUTH)
 
@@ -44,7 +52,6 @@ dependencies {
     androidTestImplementation(ANDROIDX_TEST_RUNNER)
     androidTestImplementation(DEXMAKER_MOCKITO, libs.exclude_bytebuddy)
     androidTestImplementation(ESPRESSO_CORE)
-    androidTestImplementation(KOTLIN_STDLIB)
     androidTestImplementation(MOCKITO_CORE, libs.exclude_bytebuddy)
     androidTestImplementation(TRUTH)
     androidTestImplementation project(':internal-testutils-runtime'), {
