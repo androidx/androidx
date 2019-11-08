@@ -27,7 +27,6 @@ import android.Manifest;
 import android.app.Activity;
 import android.content.Context;
 import android.view.LayoutInflater;
-import android.view.SurfaceView;
 import android.view.TextureView;
 import android.view.View;
 import android.view.ViewGroup;
@@ -79,7 +78,7 @@ public class PreviewViewTest {
         final PreviewView previewView = new PreviewView(mContext);
         setContentView(previewView);
 
-        assertThat(getImplementationView()).isInstanceOf(SurfaceView.class);
+        assertThat(getImplementationView()).isInstanceOf(TransformableSurfaceView.class);
         assertThat(previewView.getImplementationMode()).isEqualTo(SURFACE_VIEW);
     }
 
@@ -91,7 +90,7 @@ public class PreviewViewTest {
                 R.layout.preview_view_surface_view_mode, null, false);
         setContentView(previewView);
 
-        assertThat(getImplementationView()).isInstanceOf(SurfaceView.class);
+        assertThat(getImplementationView()).isInstanceOf(TransformableSurfaceView.class);
         assertThat(previewView.getImplementationMode()).isEqualTo(SURFACE_VIEW);
     }
 
@@ -103,7 +102,7 @@ public class PreviewViewTest {
         previewView.setImplementationMode(SURFACE_VIEW);
         setContentView(previewView);
 
-        assertThat(getImplementationView()).isInstanceOf(SurfaceView.class);
+        assertThat(getImplementationView()).isInstanceOf(TransformableSurfaceView.class);
         assertThat(previewView.getImplementationMode()).isEqualTo(SURFACE_VIEW);
     }
 
