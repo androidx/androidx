@@ -439,7 +439,7 @@ public final class Camera2CameraControlTest {
         SurfaceOrientedMeteringPointFactory factory = new SurfaceOrientedMeteringPointFactory(1.0f,
                 1.0f);
         FocusMeteringAction action = FocusMeteringAction.Builder.from(factory.createPoint(0, 0),
-                MeteringMode.AE_AWB)
+                MeteringMode.AE | MeteringMode.AWB)
                 .build();
         mCamera2CameraControl.startFocusAndMetering(action);
         HandlerUtil.waitForLooperToIdle(mHandler);
@@ -530,7 +530,7 @@ public final class Camera2CameraControlTest {
         SurfaceOrientedMeteringPointFactory factory = new SurfaceOrientedMeteringPointFactory(1.0f,
                 1.0f);
         FocusMeteringAction action = FocusMeteringAction.Builder.from(factory.createPoint(0, 0),
-                MeteringMode.AE_ONLY)
+                MeteringMode.AE)
                 .build();
         mCamera2CameraControl.startFocusAndMetering(action);
         HandlerUtil.waitForLooperToIdle(mHandler);
