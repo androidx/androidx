@@ -342,7 +342,7 @@ fun PopupAlignmentDemo() {
             ColoredContainer(
                 height = heightSize,
                 width = widthSize,
-                color = Color(0xFFFF0000.toInt()),
+                color = Color(0xFFFF0000),
                 alignment = Alignment.BottomCenter
             ) {
                 Popup(popupAlignment.value) {
@@ -489,7 +489,7 @@ fun PopupInsideScroller() {
                 ColoredContainer(
                     width = 80.dp,
                     height = 160.dp,
-                    color = Color(0xFF00FF00.toInt())
+                    color = Color(0xFF00FF00)
                 ) {
                     Popup(alignment = Alignment.Center) {
                         ClickableTextWithBackground(text = "Centered", color = Color.Cyan)

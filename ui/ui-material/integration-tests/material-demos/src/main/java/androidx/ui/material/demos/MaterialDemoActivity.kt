@@ -130,7 +130,7 @@ abstract class MaterialDemoActivity : Activity() {
             if (savedValue.isNullOrBlank()) {
                 null
             } else {
-                val parsedColor = Color(java.lang.Long.parseLong(savedValue, 16).toInt())
+                val parsedColor = Color(java.lang.Long.parseLong(savedValue, 16))
                 parameter to parsedColor
             }
         }.toMap()
@@ -179,8 +179,8 @@ abstract class MaterialDemoActivity : Activity() {
      * or light-on-dark color pair.
      */
     private fun generateColorPair(): Pair<Color, Color> {
-        val darkColor = Color(DARK_PALETTE_COLORS.random().toInt())
-        val lightColor = Color(LIGHT_PALETTE_COLORS.random().toInt())
+        val darkColor = Color(DARK_PALETTE_COLORS.random())
+        val lightColor = Color(LIGHT_PALETTE_COLORS.random())
         val isMainColorLight = Random.nextBoolean()
         return if (isMainColorLight) {
             (lightColor to darkColor)

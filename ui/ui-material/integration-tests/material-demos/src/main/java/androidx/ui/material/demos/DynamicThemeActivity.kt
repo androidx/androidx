@@ -146,8 +146,8 @@ private fun ScrollingContent(scrollFraction: ScrollFraction) {
 private fun Cards() {
     Column {
         repeat(20) { index ->
-            val shapeColor = lerp(Color(0xFF303030.toInt()), Color.White, index / 19f)
-            val textColor = lerp(Color.White, Color(0xFF303030.toInt()), index / 19f)
+            val shapeColor = lerp(Color(0xFF303030), Color.White, index / 19f)
+            val textColor = lerp(Color.White, Color(0xFF303030), index / 19f)
             Padding(25.dp) {
                 Container(ExpandedWidth, height = 150.dp) {
                     // TODO: ideally this would be a Card but currently Surface consumes every
@@ -165,9 +165,9 @@ private fun Cards() {
 private fun interpolateTheme(fraction: Float): ColorPalette {
     val interpolatedFraction = FastOutSlowInEasing(fraction)
 
-    val primary = lerp(Color(0xFF6200EE.toInt()), Color(0xFF303030.toInt()), interpolatedFraction)
-    val secondary = lerp(Color(0xFF03DAC6.toInt()), Color(0xFFBB86FC.toInt()), interpolatedFraction)
-    val background = lerp(Color.White, Color(0xFF121212.toInt()), interpolatedFraction)
+    val primary = lerp(Color(0xFF6200EE), Color(0xFF303030), interpolatedFraction)
+    val secondary = lerp(Color(0xFF03DAC6), Color(0xFFBB86FC), interpolatedFraction)
+    val background = lerp(Color.White, Color(0xFF121212), interpolatedFraction)
 
     return ColorPalette(
         primary = primary,

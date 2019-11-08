@@ -93,13 +93,13 @@ interface ColorPalette {
  * [https://material.io/design/color/the-color-system.html#color-theme-creation].
  */
 fun ColorPalette(
-    primary: Color = Color(0xFF6200EE.toInt()),
-    primaryVariant: Color = Color(0xFF3700B3.toInt()),
-    secondary: Color = Color(0xFF03DAC6.toInt()),
-    secondaryVariant: Color = Color(0xFF018786.toInt()),
+    primary: Color = Color(0xFF6200EE),
+    primaryVariant: Color = Color(0xFF3700B3),
+    secondary: Color = Color(0xFF03DAC6),
+    secondaryVariant: Color = Color(0xFF018786),
     background: Color = Color.White,
     surface: Color = Color.White,
-    error: Color = Color(0xFFB00020.toInt()),
+    error: Color = Color(0xFFB00020),
     onPrimary: Color = Color.White,
     onSecondary: Color = Color.Black,
     onBackground: Color = Color.Black,

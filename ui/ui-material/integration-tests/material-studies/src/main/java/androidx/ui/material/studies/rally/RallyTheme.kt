@@ -41,7 +41,7 @@ val rallyBlue = Color(0xFF72DEFF)
 fun RallyTheme(children: @Composable() () -> Unit) {
     val colors = ColorPalette(
         primary = rallyGreen,
-        surface = Color(0xFF26282F.toInt()),
+        surface = Color(0xFF26282F),
         onSurface = Color.White,
         background = Color(0xFF26282F),
         onBackground = Color.White

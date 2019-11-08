@@ -21,25 +21,15 @@ import androidx.compose.Ambient
 import androidx.compose.Composable
 import androidx.compose.ambient
 import androidx.compose.effectOf
-import androidx.compose.memo
-import androidx.compose.unaryPlus
 import androidx.ui.core.CurrentTextStyleProvider
-import androidx.ui.core.ambientDensity
 import androidx.ui.core.dp
 import androidx.ui.core.sp
-import androidx.ui.core.withDensity
 import androidx.ui.engine.geometry.Shape
 import androidx.ui.foundation.shape.RectangleShape
 import androidx.ui.foundation.shape.corner.RoundedCornerShape
-import androidx.ui.graphics.Color
-import androidx.ui.graphics.luminance
-import androidx.ui.material.ripple.CurrentRippleTheme
-import androidx.ui.material.ripple.DefaultRippleEffectFactory
-import androidx.ui.material.ripple.RippleTheme
-import androidx.ui.material.surface.CurrentBackground
-import androidx.ui.text.font.FontWeight
-import androidx.ui.text.font.FontFamily
 import androidx.ui.text.TextStyle
+import androidx.ui.text.font.FontFamily
+import androidx.ui.text.font.FontWeight
 
 /**
  * This component defines the styling principles from the Material design specification. It must be
@@ -68,11 +58,7 @@ fun MaterialTheme(
 ) {
     ProvideColorPalette(colors) {
         Typography.Provider(value = typography) {
-            CurrentTextStyleProvider(value = typography.body1) {
-                MaterialRippleTheme {
-                    MaterialShapeTheme(children = children)
-                }
-            }
+            CurrentTextStyleProvider(value = typography.body1, children = children)
         }
     }
 }
@@ -95,7 +81,7 @@ object MaterialTheme {
  *
  * To access values within this ambient, use [themeTextStyle].
  */
-val Typography = Ambient.of<MaterialTypography> { error("No typography found!") }
+val Typography = Ambient.of { MaterialTypography() }
 
 /**
  * Data class holding typography definitions as defined by the [Material typography specification](https://material.io/design/typography/the-type-system.html#type-scale).
@@ -160,33 +146,6 @@ data class MaterialTypography(
 )
 
 /**
- * Applies the default [RippleTheme] parameters based on the Material Design
- * guidelines for descendants
- */
-@Composable
-private fun MaterialRippleTheme(children: @Composable() () -> Unit) {
-    val defaultTheme = +memo {
-        RippleTheme(
-            factory = DefaultRippleEffectFactory,
-            defaultColor = effectOf {
-                val background = +ambient(CurrentBackground)
-                val textColor = +textColorForBackground(background)
-                when {
-                    textColor != null -> textColor
-                    background.alpha == 0f || background.luminance() >= 0.5 -> Color.Black
-                    else -> Color.White
-                }
-            },
-            opacity = effectOf {
-                val isDarkTheme = (+MaterialTheme.colors()).surface.luminance() < 0.5f
-                if (isDarkTheme) 0.24f else 0.12f
-            }
-        )
-    }
-    CurrentRippleTheme.Provider(value = defaultTheme, children = children)
-}
-
-/**
  * Helper effect that resolves [TextStyle]s from the [Typography] ambient by applying
  * [choosingBlock].
  *
@@ -210,36 +169,18 @@ data class Shapes(
     /**
      * Shape used for [Button]
      */
-    val button: Shape,
+    val button: Shape = RoundedCornerShape(4.dp),
     /**
      * Shape used for [androidx.ui.material.surface.Card]
      */
-    val card: Shape
+    val card: Shape = RectangleShape
     // TODO(Andrey): Add shapes for other surfaces? will see what we need.
 )
 
 /**
  * Ambient used to specify the default shapes for the surfaces.
- *
- * @see [MaterialShapeTheme] for the default Material Design value
  */
-val CurrentShapeAmbient = Ambient.of<Shapes> {
-    throw IllegalStateException("No default shapes provided.")
-}
-
-/**
- * Applies the default [Shape]s for all the surfaces.
- */
-@Composable
-fun MaterialShapeTheme(children: @Composable() () -> Unit) {
-    val value = withDensity(+ambientDensity()) {
-        Shapes(
-            button = RoundedCornerShape(4.dp),
-            card = RectangleShape
-        )
-    }
-    CurrentShapeAmbient.Provider(value = value, children = children)
-}
+val CurrentShapeAmbient = Ambient.of { Shapes() }
 
 /**
  * Helper effect to resolve [Shape]s from the [CurrentShapeAmbient] ambient by applying

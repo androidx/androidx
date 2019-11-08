@@ -37,8 +37,8 @@ import androidx.ui.text.font.FontWeight
 @Composable
 fun MaterialThemeSample() {
     val colors = ColorPalette(
-        primary = Color(0xFF1EB980.toInt()),
-        surface = Color(0xFF26282F.toInt()),
+        primary = Color(0xFF1EB980),
+        surface = Color(0xFF26282F),
         onSurface = Color.White
     )
 

@@ -536,5 +536,5 @@ fun DataTable(
 private val DataRowHeight = 52.dp
 private val HeaderRowHeight = 56.dp
 private val CellSpacing = EdgeInsets(left = 16.dp, right = 16.dp)
-private val BorderColor = Color(0xFFC6C6C6.toInt())
+private val BorderColor = Color(0xFFC6C6C6)
 private val BorderWidth = 1.dp
