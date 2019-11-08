@@ -44,7 +44,6 @@ import androidx.ui.material.MaterialTheme
 import androidx.ui.material.TextButtonStyle
 import androidx.ui.material.ripple.Ripple
 import androidx.ui.material.surface.Card
-import androidx.ui.material.themeTextStyle
 import java.util.Locale
 
 /**
@@ -73,7 +72,7 @@ fun RallyAlertCard() {
                             modifier = Spacing(12.dp) wraps ExpandedWidth,
                             mainAxisAlignment = MainAxisAlignment.SpaceBetween
                         ) {
-                            Text(text = "Alerts", style = +themeTextStyle { subtitle2 })
+                            Text(text = "Alerts", style = (+MaterialTheme.typography()).subtitle2)
                             Button(text = "See All", onClick = { }, style = TextButtonStyle())
                         }
                     }
@@ -89,7 +88,7 @@ fun RallyAlertCard() {
                     Container {
                         Row(Spacing(12.dp)) {
                             Text(
-                                style = +themeTextStyle { body1 },
+                                style = (+MaterialTheme.typography()).body1,
                                 modifier = Flexible(1f),
                                 text = alertMessage
                             )
@@ -113,8 +112,8 @@ fun RallyAccountsOverviewCard() {
     Card {
         Column {
             Column(modifier = Spacing(12.dp)) {
-                Text(text = "Accounts", style = +themeTextStyle { body1 })
-                Text(text = "$12,132.49", style = +themeTextStyle { h3 })
+                Text(text = "Accounts", style = (+MaterialTheme.typography()).body1)
+                Text(text = "$12,132.49", style = (+MaterialTheme.typography()).h3)
             }
             Divider(color = rallyGreen, height = 1.dp)
             Column(modifier = Spacing(12.dp)) {
@@ -161,8 +160,8 @@ fun RallyAccountsCard() {
                                 DrawAnimatedCircle(accountsProportion, colors)
                             }
                             Column(crossAxisAlignment = CrossAxisAlignment.Center) {
-                                Text(text = "Total", style = +themeTextStyle { body1 })
-                                Text(text = "$12,132.49", style = +themeTextStyle { h3 })
+                                Text(text = "Total", style = (+MaterialTheme.typography()).body1)
+                                Text(text = "$12,132.49", style = (+MaterialTheme.typography()).h3)
                             }
                         }
                     }
@@ -212,15 +211,15 @@ fun RallyAccountRow(name: String, number: String, amount: String, color: Color) 
             AccountIndicator(color = color)
             WidthSpacer(width = 8.dp)
             Column(crossAxisAlignment = CrossAxisAlignment.Start) {
-                Text(text = name, style = +themeTextStyle { body1 })
-                Text(text = "•••••$number", style = +themeTextStyle { subtitle1 })
+                Text(text = name, style = (+MaterialTheme.typography()).body1)
+                Text(text = "•••••$number", style = (+MaterialTheme.typography()).subtitle1)
             }
         }
         expanded(flex = 1.0f) {
             FixedSpacer(width = 0.dp, height = 0.dp)
         }
         inflexible {
-            Text(text = "$ $amount", style = +themeTextStyle { h6 })
+            Text(text = "$ $amount", style = (+MaterialTheme.typography()).h6)
         }
     }
 }
@@ -241,8 +240,8 @@ fun RallyBillsOverviewCard() {
     Card {
         Column {
             Column(modifier = Spacing(12.dp)) {
-                Text(text = "Bills", style = +themeTextStyle { subtitle2 })
-                Text(text = "$1,810.00", style = +themeTextStyle { h3 })
+                Text(text = "Bills", style = (+MaterialTheme.typography()).subtitle2)
+                Text(text = "$1,810.00", style = (+MaterialTheme.typography()).h3)
             }
             Divider(color = rallyGreen, height = 1.dp)
             // TODO: change to proper bill items
@@ -291,8 +290,8 @@ fun RallyBillsCard() {
                         DrawAnimatedCircle(accountsProportion, colors)
                     }
                     Column(crossAxisAlignment = CrossAxisAlignment.Center) {
-                        Text(text = "Due", style = +themeTextStyle { body1 })
-                        Text(text = "$1,810.00", style = +themeTextStyle { h3 })
+                        Text(text = "Due", style = (+MaterialTheme.typography()).body1)
+                        Text(text = "$1,810.00", style = (+MaterialTheme.typography()).h3)
                     }
                 }
             }

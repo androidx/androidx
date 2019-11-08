@@ -85,7 +85,7 @@ data class ButtonStyle(
  */
 fun ContainedButtonStyle(
     color: Color = (+MaterialTheme.colors()).primary,
-    shape: Shape = +themeShape { button },
+    shape: Shape = (+MaterialTheme.shapes()).button,
     elevation: Dp = 2.dp,
     rippleColor: Color? = null
 ) = ButtonStyle(
@@ -123,7 +123,7 @@ fun OutlinedButtonStyle(
         1.dp
     ),
     color: Color = (+MaterialTheme.colors()).surface,
-    shape: Shape = +themeShape { button },
+    shape: Shape = (+MaterialTheme.shapes()).button,
     elevation: Dp = 0.dp,
     contentColor: Color? = (+MaterialTheme.colors()).primary
 ) = ButtonStyle(
@@ -151,7 +151,7 @@ fun OutlinedButtonStyle(
  * @param contentColor The color used by text and Ripple.
  */
 fun TextButtonStyle(
-    shape: Shape = +themeShape { button },
+    shape: Shape = (+MaterialTheme.shapes()).button,
     contentColor: Color? = (+MaterialTheme.colors()).primary
 ) = ButtonStyle(
     color = Color.Transparent,
@@ -167,7 +167,7 @@ fun TextButtonStyle(
  * To make a button clickable, you must provide an onClick. If no onClick is provided, this button will display
  * itself as disabled.
  *
- * The default text style for internal [Text] components will be set to [MaterialTypography.button]. Text color will
+ * The default text style for internal [Text] components will be set to [Typography.button]. Text color will
  * try to match the correlated color for the background color. For example if the background color is set to
  * [ColorPalette.primary] then the text will by default use [ColorPalette.onPrimary].
  *
@@ -192,7 +192,7 @@ fun Button(
             Clickable(onClick = onClick) {
                 Container(constraints = ButtonConstraints, padding = style.paddings) {
                     CurrentTextStyleProvider(
-                        value = +themeTextStyle { button.merge(style.textStyle) },
+                        value = (+MaterialTheme.typography()).button.merge(style.textStyle),
                         children = children
                     )
                 }
@@ -208,7 +208,7 @@ fun Button(
  * To make a button clickable, you must provide an onClick. If no onClick is provided, this button will display
  * itself as disabled.
  *
- * The default text style for internal [Text] components will be set to [MaterialTypography.button]. Text color will
+ * The default text style for internal [Text] components will be set to [Typography.button]. Text color will
  * try to match the correlated color for the background color. For example if the background color is set to
  * [ColorPalette.primary] then the text will by default use [ColorPalette.onPrimary].
  *

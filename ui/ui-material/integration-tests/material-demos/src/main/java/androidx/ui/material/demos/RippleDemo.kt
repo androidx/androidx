@@ -30,7 +30,6 @@ import androidx.ui.layout.Padding
 import androidx.ui.material.MaterialTheme
 import androidx.ui.material.ripple.Ripple
 import androidx.ui.material.surface.Card
-import androidx.ui.material.themeTextStyle
 
 @Composable
 fun RippleDemo() {
@@ -45,7 +44,10 @@ fun RippleDemo() {
                         Container(expanded = true) {
                             Ripple(bounded = true) {
                                 Container(width = 100.dp, height = 50.dp) {
-                                    Text(text = "inner", style = +themeTextStyle { body1 })
+                                    Text(
+                                        text = "inner",
+                                        style = (+MaterialTheme.typography()).body1
+                                    )
                                 }
                             }
                         }

@@ -164,7 +164,10 @@ class RadioGroupScope internal constructor() {
                 Row(ExpandedWidth, mainAxisAlignment = MainAxisAlignment.Start) {
                     RadioButton(selected = selected, onSelect = onSelect, color = radioColor)
                     Padding(left = DefaultRadioLabelOffset) {
-                        Text(text = text, style = +themeTextStyle { body1.merge(textStyle) })
+                        Text(
+                            text = text,
+                            style = (+MaterialTheme.typography()).body1.merge(textStyle)
+                        )
                     }
                 }
             }

@@ -16,20 +16,9 @@
 
 package androidx.ui.material
 
-import androidx.annotation.CheckResult
-import androidx.compose.Ambient
 import androidx.compose.Composable
 import androidx.compose.ambient
-import androidx.compose.effectOf
 import androidx.ui.core.CurrentTextStyleProvider
-import androidx.ui.core.dp
-import androidx.ui.core.sp
-import androidx.ui.engine.geometry.Shape
-import androidx.ui.foundation.shape.RectangleShape
-import androidx.ui.foundation.shape.corner.RoundedCornerShape
-import androidx.ui.text.TextStyle
-import androidx.ui.text.font.FontFamily
-import androidx.ui.text.font.FontWeight
 
 /**
  * This component defines the styling principles from the Material design specification. It must be
@@ -42,7 +31,7 @@ import androidx.ui.text.font.FontWeight
  * and the typography defined in the [Material Type Scale spec](https://material.io/design/typography/the-type-system.html#type-scale).
  *
  * All values may be set by providing this component with the [colors][ColorPalette] and
- * [typography][MaterialTypography] attributes. Use this to configure the overall theme of your
+ * [typography][Typography] attributes. Use this to configure the overall theme of your
  * application.
  *
  * @sample androidx.ui.material.samples.MaterialThemeSample
@@ -53,140 +42,37 @@ import androidx.ui.text.font.FontWeight
 @Composable
 fun MaterialTheme(
     colors: ColorPalette = ColorPalette(),
-    typography: MaterialTypography = MaterialTypography(),
+    typography: Typography = Typography(),
     children: @Composable() () -> Unit
 ) {
     ProvideColorPalette(colors) {
-        Typography.Provider(value = typography) {
+        TypographyAmbient.Provider(value = typography) {
             CurrentTextStyleProvider(value = typography.body1, children = children)
         }
     }
 }
 
+/**
+ * Contains functions to access the current theme values provided at the call site's position in
+ * the hierarchy.
+ */
 object MaterialTheme {
     /**
      * Retrieves the current [ColorPalette] at the call site's position in the hierarchy.
      *
      * @sample androidx.ui.material.samples.ThemeColorSample
      */
-    fun colors() = ambient(Colors)
-}
+    fun colors() = ambient(ColorAmbient)
 
-/**
- * This Ambient holds on to the current definition of typography for this application as described
- * by the Material spec.  You can read the values in it when creating custom components that want
- * to use Material types, as well as override the values when you want to re-style a part of your
- * hierarchy. Material components related to text such as [Button] will use this Ambient
- * to set values with which to style children text components.
- *
- * To access values within this ambient, use [themeTextStyle].
- */
-val Typography = Ambient.of { MaterialTypography() }
-
-/**
- * Data class holding typography definitions as defined by the [Material typography specification](https://material.io/design/typography/the-type-system.html#type-scale).
- */
-data class MaterialTypography(
-    // TODO(clara): case
-    // TODO(clara): letter spacing (specs don't match)
-    // TODO(clara): b/123001228 need a font abstraction layer
-    // TODO(clara): fontSize should be a Dp, translating here will loose context changes
-    val h1: TextStyle = TextStyle(
-        fontFamily = FontFamily("Roboto"),
-        fontWeight = FontWeight.W100,
-        fontSize = 96.sp),
-    val h2: TextStyle = TextStyle(
-        fontFamily = FontFamily("Roboto"),
-        fontWeight = FontWeight.W100,
-        fontSize = 60.sp),
-    val h3: TextStyle = TextStyle(
-        fontFamily = FontFamily("Roboto"),
-        fontWeight = FontWeight.Normal,
-        fontSize = 48.sp),
-    val h4: TextStyle = TextStyle(
-        fontFamily = FontFamily("Roboto"),
-        fontWeight = FontWeight.Normal,
-        fontSize = 34.sp),
-    val h5: TextStyle = TextStyle(
-        fontFamily = FontFamily("Roboto"),
-        fontWeight = FontWeight.Normal,
-        fontSize = 24.sp),
-    val h6: TextStyle = TextStyle(
-        fontFamily = FontFamily("Roboto"),
-        fontWeight = FontWeight.W500,
-        fontSize = 20.sp),
-    val subtitle1: TextStyle = TextStyle(
-        fontFamily = FontFamily("Roboto"),
-        fontWeight = FontWeight.Normal,
-        fontSize = 16.sp),
-    val subtitle2: TextStyle = TextStyle(
-        fontFamily = FontFamily("Roboto"),
-        fontWeight = FontWeight.W500,
-        fontSize = 14.sp),
-    val body1: TextStyle = TextStyle(
-        fontFamily = FontFamily("Roboto"),
-        fontWeight = FontWeight.Normal,
-        fontSize = 16.sp),
-    val body2: TextStyle = TextStyle(
-        fontFamily = FontFamily("Roboto"),
-        fontWeight = FontWeight.Normal,
-        fontSize = 14.sp),
-    val button: TextStyle = TextStyle(
-        fontFamily = FontFamily("Roboto"),
-        fontWeight = FontWeight.W500,
-        fontSize = 14.sp),
-    val caption: TextStyle = TextStyle(
-        fontFamily = FontFamily("Roboto"),
-        fontWeight = FontWeight.Normal,
-        fontSize = 12.sp),
-    val overline: TextStyle = TextStyle(
-        fontFamily = FontFamily("Roboto"),
-        fontWeight = FontWeight.Normal,
-        fontSize = 10.sp)
-)
-
-/**
- * Helper effect that resolves [TextStyle]s from the [Typography] ambient by applying
- * [choosingBlock].
- *
- * @sample androidx.ui.material.samples.ThemeTextStyleSample
- */
-@CheckResult(suggest = "+")
-fun themeTextStyle(
-    choosingBlock: MaterialTypography.() -> TextStyle
-) = effectOf<TextStyle> {
-    (+ambient(Typography)).choosingBlock()
-}
-
-// Shapes
-
-/**
- * Data class holding current shapes for common surfaces like Button or Card.
- */
-// TODO(Andrey): should have small, medium, large components categories. b/129278276
-// See https://material.io/design/shape/applying-shape-to-ui.html#baseline-shape-values
-data class Shapes(
     /**
-     * Shape used for [Button]
+     * Retrieves the current [Typography] at the call site's position in the hierarchy.
+     *
+     * @sample androidx.ui.material.samples.ThemeTextStyleSample
      */
-    val button: Shape = RoundedCornerShape(4.dp),
+    fun typography() = ambient(TypographyAmbient)
+
     /**
-     * Shape used for [androidx.ui.material.surface.Card]
+     * Retrieves the current [Shapes] at the call site's position in the hierarchy.
      */
-    val card: Shape = RectangleShape
-    // TODO(Andrey): Add shapes for other surfaces? will see what we need.
-)
-
-/**
- * Ambient used to specify the default shapes for the surfaces.
- */
-val CurrentShapeAmbient = Ambient.of { Shapes() }
-
-/**
- * Helper effect to resolve [Shape]s from the [CurrentShapeAmbient] ambient by applying
- * [choosingBlock].
- */
-@CheckResult(suggest = "+")
-fun themeShape(
-    choosingBlock: Shapes.() -> Shape
-) = effectOf<Shape> { (+ambient(CurrentShapeAmbient)).choosingBlock() }
+    fun shapes() = ambient(ShapeAmbient)
+}

@@ -30,7 +30,7 @@ import androidx.ui.layout.HeightSpacer
 import androidx.ui.layout.Row
 import androidx.ui.layout.WidthSpacer
 import androidx.ui.material.Divider
-import androidx.ui.material.themeTextStyle
+import androidx.ui.material.MaterialTheme
 
 class DividersSpacersActivity : MaterialDemoActivity() {
 
@@ -75,7 +75,7 @@ class DividersSpacersActivity : MaterialDemoActivity() {
     @Composable
     fun Item(text: String, color: Color? = null) {
         val avatarSize = ItemSize - ItemPadding * 2
-        val textStyle = +themeTextStyle { body1 }
+        val textStyle = (+MaterialTheme.typography()).body1
         Container(height = ItemSize, padding = EdgeInsets(ItemPadding)) {
             Row(crossAxisAlignment = CrossAxisAlignment.Center) {
                 if (color != null) {

@@ -50,7 +50,7 @@ import androidx.ui.text.TextStyle
  *  when it is null.
  * @param minSize Minimum size of the button. Defaults to [FabSize]
  * @param shape Defines the Button's shape as well its shadow. When null is provided it uses
- *  the [Shapes.button] from [CurrentShapeAmbient].
+ *  the [Shapes.button] from [ShapeAmbient].
  * @param color The background color
  * @param elevation The z-coordinate at which to place this button. This controls the size
  *  of the shadow below the button.
@@ -68,7 +68,7 @@ fun FloatingActionButton(
         Ripple(bounded = true, enabled = onClick != null) {
             Clickable(onClick) {
                 Container(constraints = DpConstraints(minWidth = minSize, minHeight = minSize)) {
-                    CurrentTextStyleProvider(+themeTextStyle { button }, children)
+                    CurrentTextStyleProvider((+MaterialTheme.typography()).button, children)
                 }
             }
         }

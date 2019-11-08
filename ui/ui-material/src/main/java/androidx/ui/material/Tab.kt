@@ -578,7 +578,7 @@ private fun TabTransition(
 
 @Composable
 private fun TabText(text: String, color: Color) {
-    val buttonTextStyle = +themeTextStyle { button }
+    val buttonTextStyle = (+MaterialTheme.typography()).button
     Padding(left = HorizontalTextPadding, right = HorizontalTextPadding) {
         Text(
             text = text,

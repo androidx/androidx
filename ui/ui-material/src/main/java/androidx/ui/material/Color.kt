@@ -123,7 +123,7 @@ fun ColorPalette(
 /**
  * Default observable backing implementation for [ColorPalette].
  *
- * Typically we would just change the value of the [Colors] ambient when the theme changes, but
+ * Typically we would just change the value of the [ColorAmbient] ambient when the theme changes, but
  * in the case of wide-reaching data such as colors in the [MaterialTheme], this will cause almost
  * every UI component on a screen to be recomposed. In reality, we only want to recompose
  * components that consume the specific color(s) that have been changed - so this default
@@ -209,7 +209,7 @@ private fun ObservableColorPalette.updateColorsFrom(other: ColorPalette): Observ
 
 /**
  * Memoizes and mutates the given [colorPalette] if it is an [ObservableColorPalette], otherwise
- * just provides the given palette in the [Colors] [Ambient].
+ * just provides the given palette in the [ColorAmbient] [Ambient].
  */
 @Composable
 internal fun ProvideColorPalette(colorPalette: ColorPalette, children: @Composable() () -> Unit) {
@@ -221,7 +221,7 @@ internal fun ProvideColorPalette(colorPalette: ColorPalette, children: @Composab
         }
         else -> colorPalette
     }
-    Colors.Provider(palette, children)
+    ColorAmbient.Provider(palette, children)
 }
 
 /**
@@ -229,4 +229,4 @@ internal fun ProvideColorPalette(colorPalette: ColorPalette, children: @Composab
  *
  * To retrieve the current value of this ambient, use [MaterialTheme.colors].
  */
-internal val Colors = Ambient.of { ColorPalette() }
+internal val ColorAmbient = Ambient.of { ColorPalette() }

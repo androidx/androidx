@@ -46,9 +46,9 @@ import androidx.ui.layout.FlexColumn
 import androidx.ui.layout.Padding
 import androidx.ui.material.Tab
 import androidx.ui.material.TabRow
-import androidx.ui.material.themeTextStyle
 import androidx.ui.graphics.Image
 import androidx.ui.layout.ExpandedHeight
+import androidx.ui.material.MaterialTheme
 
 @Sampled
 @Composable
@@ -65,7 +65,7 @@ fun TextTabs() {
             Center {
                 Text(
                     text = "Text tab ${state.value + 1} selected",
-                    style = +themeTextStyle { body1 }
+                    style = (+MaterialTheme.typography()).body1
                 )
             }
         }
@@ -86,7 +86,7 @@ fun IconTabs(image: Image) {
             Center {
                 Text(
                     text = "Icon tab ${state.value + 1} selected",
-                    style = +themeTextStyle { body1 }
+                    style = (+MaterialTheme.typography()).body1
                 )
             }
         }
@@ -112,7 +112,7 @@ fun TextAndIconTabs(image: Image) {
             Center {
                 Text(
                     text = "Text and icon tab ${state.value + 1} selected",
-                    style = +themeTextStyle { body1 }
+                    style = (+MaterialTheme.typography()).body1
                 )
             }
         }
@@ -144,7 +144,7 @@ fun ScrollingTextTabs() {
             Center {
                 Text(
                     text = "Scrolling text tab ${state.value + 1} selected",
-                    style = +themeTextStyle { body1 }
+                    style = (+MaterialTheme.typography()).body1
                 )
             }
         }
@@ -170,7 +170,7 @@ fun FancyTabs() {
             Center {
                 Text(
                     text = "Fancy tab ${state.value + 1} selected",
-                    style = +themeTextStyle { body1 }
+                    style = (+MaterialTheme.typography()).body1
                 )
             }
         }
@@ -204,7 +204,7 @@ fun FancyIndicatorTabs() {
             Center {
                 Text(
                     text = "Fancy indicator tab ${state.value + 1} selected",
-                    style = +themeTextStyle { body1 }
+                    style = (+MaterialTheme.typography()).body1
                 )
             }
         }
@@ -235,7 +235,7 @@ fun FancyIndicatorContainerTabs() {
             Center {
                 Text(
                     text = "Fancy transition tab ${state.value + 1} selected",
-                    style = +themeTextStyle { body1 }
+                    style = (+MaterialTheme.typography()).body1
                 )
             }
         }
@@ -276,7 +276,7 @@ fun ScrollingFancyIndicatorContainerTabs() {
             Center {
                 Text(
                     text = "Scrolling fancy transition tab ${state.value + 1} selected",
-                    style = +themeTextStyle { body1 }
+                    style = (+MaterialTheme.typography()).body1
                 )
             }
         }
@@ -296,7 +296,7 @@ fun FancyTab(title: String, onClick: () -> Unit, selected: Boolean) {
                 val color = if (selected) Color.Red else Color.Gray
                 ColoredRect(height = 10.dp, width = 10.dp, color = color)
                 Padding(5.dp) {
-                    Text(text = title, style = +themeTextStyle { body1 })
+                    Text(text = title, style = (+MaterialTheme.typography()).body1)
                 }
             }
         }

@@ -199,10 +199,9 @@ class ButtonTest {
     fun buttonTest_ContainedButtonPropagateDefaultTextStyle() {
         composeTestRule.setMaterialContent {
             Button(onClick = {}, style = ContainedButtonStyle()) {
-                Truth.assertThat(+currentTextStyle())
-                    .isEqualTo(+themeTextStyle {
-                        button.copy(color = (+MaterialTheme.colors()).onPrimary)
-                    })
+                val style = (+MaterialTheme.typography()).button
+                    .copy(color = (+MaterialTheme.colors()).onPrimary)
+                Truth.assertThat(+currentTextStyle()).isEqualTo(style)
             }
         }
     }
@@ -211,10 +210,9 @@ class ButtonTest {
     fun buttonTest_OutlinedButtonPropagateDefaultTextStyle() {
         composeTestRule.setMaterialContent {
             Button(onClick = {}, style = OutlinedButtonStyle()) {
-                Truth.assertThat(+currentTextStyle())
-                    .isEqualTo(+themeTextStyle {
-                        button.copy(color = (+MaterialTheme.colors()).primary)
-                    })
+                val style = (+MaterialTheme.typography()).button
+                    .copy(color = (+MaterialTheme.colors()).primary)
+                Truth.assertThat(+currentTextStyle()).isEqualTo(style)
             }
         }
     }
@@ -223,10 +221,9 @@ class ButtonTest {
     fun buttonTest_TextButtonPropagateDefaultTextStyle() {
         composeTestRule.setMaterialContent {
             Button(onClick = {}, style = OutlinedButtonStyle()) {
-                Truth.assertThat(+currentTextStyle())
-                    .isEqualTo(+themeTextStyle {
-                        button.copy(color = (+MaterialTheme.colors()).primary)
-                    })
+                val style = (+MaterialTheme.typography()).button
+                    .copy(color = (+MaterialTheme.colors()).primary)
+                Truth.assertThat(+currentTextStyle()).isEqualTo(style)
             }
         }
     }

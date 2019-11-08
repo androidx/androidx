@@ -91,7 +91,7 @@ fun TopAppBar(
         startContent = navigationIcon,
         title = {
             // Text color comes from the underlying Surface
-            CurrentTextStyleProvider(value = +themeTextStyle { h6 }, children = title)
+            CurrentTextStyleProvider(value = (+MaterialTheme.typography()).h6, children = title)
         },
         endContent = null
     )
@@ -134,7 +134,7 @@ fun <T> TopAppBar(
         startContent = navigationIcon,
         title = {
             // Text color comes from the underlying Surface
-            CurrentTextStyleProvider(value = +themeTextStyle { h6 }, children = title)
+            CurrentTextStyleProvider(value = (+MaterialTheme.typography()).h6, children = title)
         },
         endContent = getActions(actionData, MaxIconsInTopAppBar, action)
     )

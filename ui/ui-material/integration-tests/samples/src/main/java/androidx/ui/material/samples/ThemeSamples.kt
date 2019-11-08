@@ -26,13 +26,11 @@ import androidx.ui.graphics.Color
 import androidx.ui.material.ColorPalette
 import androidx.ui.material.FloatingActionButton
 import androidx.ui.material.MaterialTheme
-import androidx.ui.material.MaterialTypography
-import androidx.ui.material.themeTextStyle
+import androidx.ui.material.Typography
 import androidx.ui.text.TextStyle
 import androidx.ui.text.font.FontFamily
 import androidx.ui.text.font.FontWeight
 
-// TODO: add shape theme
 @Sampled
 @Composable
 fun MaterialThemeSample() {
@@ -42,7 +40,7 @@ fun MaterialThemeSample() {
         onSurface = Color.White
     )
 
-    val typography = MaterialTypography(
+    val typography = Typography(
         h1 = TextStyle(fontFamily = FontFamily("RobotoCondensed"),
             fontWeight = FontWeight.W100,
             fontSize = 96.sp),
@@ -67,5 +65,5 @@ fun ThemeColorSample() {
 @Sampled
 @Composable
 fun ThemeTextStyleSample() {
-    Text(text = "H4 styled text", style = +themeTextStyle { h4 })
+    Text(text = "H4 styled text", style = (+MaterialTheme.typography()).h4)
 }

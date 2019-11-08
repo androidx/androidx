@@ -25,19 +25,19 @@ import androidx.ui.layout.Column
 import androidx.ui.layout.CrossAxisAlignment
 import androidx.ui.layout.EdgeInsets
 import androidx.ui.layout.Padding
-import androidx.ui.material.surface.Surface
-import androidx.ui.material.samples.TriStateCheckboxSample
-import androidx.ui.material.samples.SwitchSample
+import androidx.ui.material.MaterialTheme
 import androidx.ui.material.samples.CustomRadioGroupSample
 import androidx.ui.material.samples.DefaultRadioGroupSample
 import androidx.ui.material.samples.RadioButtonSample
-import androidx.ui.material.themeTextStyle
+import androidx.ui.material.samples.SwitchSample
+import androidx.ui.material.samples.TriStateCheckboxSample
+import androidx.ui.material.surface.Surface
 
 class SelectionControlsActivity : MaterialDemoActivity() {
 
     @Composable
     override fun materialContent() {
-        val headerStyle = +themeTextStyle { h6 }
+        val headerStyle = (+MaterialTheme.typography()).h6
         val padding = EdgeInsets(10.dp)
 
         Surface(color = Color.White) {

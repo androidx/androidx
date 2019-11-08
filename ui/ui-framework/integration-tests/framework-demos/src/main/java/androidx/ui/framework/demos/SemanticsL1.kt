@@ -28,7 +28,6 @@ import androidx.ui.layout.CrossAxisAlignment
 import androidx.ui.layout.MainAxisAlignment
 import androidx.ui.material.Button
 import androidx.ui.material.MaterialTheme
-import androidx.ui.material.themeTextStyle
 import androidx.compose.Composable
 import androidx.compose.state
 import androidx.compose.unaryPlus
@@ -193,7 +192,7 @@ private fun InvokeActionsByType(actions: Set<SemanticAction<out Any?>> = setOf()
     val primary = actions.firstOrNull { it.types.contains(AccessibilityAction.Primary) }
     val secondary =
         actions.firstOrNull { it.types.contains(AccessibilityAction.Secondary) }
-    Text(text = "Accessibility Actions By Type", style = +themeTextStyle { h6.copy() })
+    Text(text = "Accessibility Actions By Type", style = (+MaterialTheme.typography()).h6)
     Row(
         ExpandedWidth,
         mainAxisAlignment = MainAxisAlignment.SpaceEvenly
@@ -214,7 +213,7 @@ private fun InvokeActionsByType(actions: Set<SemanticAction<out Any?>> = setOf()
 private fun InvokeActionsByPhrase(actions: Set<SemanticAction<out Any?>> = setOf()) {
     Text(
         text = "Accessibility Actions By Phrase",
-        style = +themeTextStyle { h6.copy() })
+        style = (+MaterialTheme.typography()).h6)
     Row(
         ExpandedWidth,
         mainAxisAlignment = MainAxisAlignment.SpaceEvenly
@@ -234,7 +233,7 @@ private fun InvokeActionsByPhrase(actions: Set<SemanticAction<out Any?>> = setOf
 private fun InvokeActionsByAssistantAction(actions: Set<SemanticAction<out Any?>> = setOf()) {
     val positive = actions.firstOrNull { it.types.contains(PolarityAction.Positive) }
     val negative = actions.firstOrNull { it.types.contains(PolarityAction.Negative) }
-    Text(text = "Assistant Actions", style = +themeTextStyle { h6.copy() })
+    Text(text = "Assistant Actions", style = (+MaterialTheme.typography()).h6)
     Row(
         ExpandedWidth,
         mainAxisAlignment = MainAxisAlignment.SpaceEvenly
@@ -261,7 +260,7 @@ private fun InvokeActionsByParameters(actions: Set<SemanticAction<out Any?>> = s
     @Suppress("UNCHECKED_CAST")
     val unitAction =
         actions.firstOrNull { it.defaultParam is Unit } as SemanticAction<Unit>?
-    Text(text = "Actions using Parameters", style = +themeTextStyle { h6.copy() })
+    Text(text = "Actions using Parameters", style = (+MaterialTheme.typography()).h6)
     Row(
         ExpandedWidth,
         mainAxisAlignment = MainAxisAlignment.SpaceEvenly

@@ -469,7 +469,7 @@ private fun OffsetToBaselineOrCenter(offset: Dp, children: @Composable() () -> U
 }
 
 private data class ListItemTextStyle(
-    val style: MaterialTypography.() -> TextStyle,
+    val style: Typography.() -> TextStyle,
     val color: ColorPalette.() -> Color,
     val opacity: Float
 )
@@ -481,8 +481,9 @@ private fun applyTextStyle(
     if (children == null) return null
     return {
         val colors = +MaterialTheme.colors()
+        val typography = +MaterialTheme.typography()
         val textColor = textStyle.color(colors).copy(alpha = textStyle.opacity)
-        val appliedTextStyle = (+themeTextStyle(textStyle.style)).copy(color = textColor)
+        val appliedTextStyle = textStyle.style(typography).copy(color = textColor)
         CurrentTextStyleProvider(appliedTextStyle, children)
     }
 }

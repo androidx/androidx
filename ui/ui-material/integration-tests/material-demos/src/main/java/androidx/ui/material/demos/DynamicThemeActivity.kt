@@ -24,7 +24,6 @@ import androidx.compose.Model
 import androidx.compose.memo
 import androidx.compose.unaryPlus
 import androidx.ui.core.Alignment
-import androidx.ui.core.Px
 import androidx.ui.core.Text
 import androidx.ui.core.dp
 import androidx.ui.core.setContent
@@ -51,7 +50,6 @@ import androidx.ui.material.FloatingActionButton
 import androidx.ui.material.MaterialTheme
 import androidx.ui.material.TopAppBar
 import androidx.ui.material.surface.Surface
-import androidx.ui.material.themeTextStyle
 import androidx.ui.text.TextStyle
 import kotlin.math.round
 
@@ -125,7 +123,7 @@ private fun BottomBar(scrollFraction: ScrollFraction) {
     BottomAppBar<Any>(fabConfiguration = FabConfiguration(fab = {
         FloatingActionButton(
             text = fabText,
-            textStyle = +themeTextStyle { h5 },
+            textStyle = (+MaterialTheme.typography()).h5,
             color = secondary,
             onClick = {}
         )
