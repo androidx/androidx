@@ -41,9 +41,10 @@ import android.widget.TextView;
 import android.widget.Toast;
 
 import androidx.annotation.NonNull;
+import androidx.annotation.Nullable;
 import androidx.annotation.VisibleForTesting;
 import androidx.appcompat.app.AppCompatActivity;
-import androidx.camera.core.CameraInfo;
+import androidx.camera.core.Camera;
 import androidx.camera.core.CameraInfoUnavailableException;
 import androidx.camera.core.CameraSelector;
 import androidx.camera.core.CameraX;
@@ -235,7 +236,7 @@ public class CameraXActivity extends AppCompatActivity
             mViewIdlingResource.increment();
         }
 
-        if (!bindToLifecycleSafely(mPreview, R.id.PreviewToggle)) {
+        if (bindToLifecycleSafely(mPreview, R.id.PreviewToggle) == null) {
             mPreview = null;
             return;
         }
@@ -394,7 +395,7 @@ public class CameraXActivity extends AppCompatActivity
         TextView textView = this.findViewById(R.id.textView);
         mAnalysisIdlingResource.increment();
 
-        if (!bindToLifecycleSafely(mImageAnalysis, R.id.AnalysisToggle)) {
+        if (bindToLifecycleSafely(mImageAnalysis, R.id.AnalysisToggle) == null) {
             mImageAnalysis = null;
             return;
         }
@@ -469,12 +470,17 @@ public class CameraXActivity extends AppCompatActivity
 
         mImageCapture = new ImageCapture(config);
 
-        if (!bindToLifecycleSafely(mImageCapture, R.id.PhotoToggle)) {
+        Camera camera = bindToLifecycleSafely(mImageCapture, R.id.PhotoToggle);
+        if (camera == null) {
             Button button = this.findViewById(R.id.Picture);
             button.setOnClickListener(null);
             mImageCapture = null;
             return;
         }
+
+        LiveData<Boolean> isFlashAvailable = camera.getCameraInfo().isFlashAvailable();
+        ImageButton flashToggle = findViewById(R.id.flash_toggle);
+        flashToggle.setVisibility(isFlashAvailable.getValue() ? View.VISIBLE : View.INVISIBLE);
 
         Button button = this.findViewById(R.id.Picture);
         final Format formatter = new SimpleDateFormat("yyyy-MM-dd-HH-mm-ss-SSS");
@@ -569,17 +575,6 @@ public class CameraXActivity extends AppCompatActivity
     private void refreshFlashButtonIcon() {
         ImageButton flashToggle = findViewById(R.id.flash_toggle);
         if (mImageCapture != null) {
-
-            try {
-                CameraInfo cameraInfo = CameraX.getCameraInfo(mCurrentCameraLensFacing);
-                LiveData<Boolean> isFlashAvailable = cameraInfo.isFlashAvailable();
-                flashToggle.setVisibility(
-                        isFlashAvailable.getValue() ? View.VISIBLE : View.INVISIBLE);
-            } catch (CameraInfoUnavailableException e) {
-                Log.w(TAG, "Cannot get flash available information", e);
-                flashToggle.setVisibility(View.INVISIBLE);
-            }
-
             flashToggle.setOnClickListener(new View.OnClickListener() {
                 @Override
                 public void onClick(View v) {
@@ -656,7 +651,7 @@ public class CameraXActivity extends AppCompatActivity
 
         mVideoCapture = new VideoCapture(config);
 
-        if (!bindToLifecycleSafely(mVideoCapture, R.id.VideoToggle)) {
+        if (bindToLifecycleSafely(mVideoCapture, R.id.VideoToggle) == null) {
             Button button = this.findViewById(R.id.Video);
             button.setOnClickListener(null);
             mVideoCapture = null;
@@ -884,19 +879,18 @@ public class CameraXActivity extends AppCompatActivity
         }
     }
 
-    private boolean bindToLifecycleSafely(UseCase useCase, int buttonViewId) {
+    @Nullable
+    private Camera bindToLifecycleSafely(UseCase useCase, int buttonViewId) {
         try {
-            LifecycleCameraProvider.bindToLifecycle(this, mCurrentCameraSelector, useCase);
+            return LifecycleCameraProvider.bindToLifecycle(this, mCurrentCameraSelector, useCase);
         } catch (IllegalArgumentException e) {
             Log.e(TAG, e.getMessage());
             Toast.makeText(getApplicationContext(), "Bind too many use cases.", Toast.LENGTH_SHORT)
                     .show();
             Button button = this.findViewById(buttonViewId);
             button.setBackgroundColor(Color.RED);
-            return false;
         }
-
-        return true;
+        return null;
     }
 
     /** A {@link Callable} whose return value can be set. */

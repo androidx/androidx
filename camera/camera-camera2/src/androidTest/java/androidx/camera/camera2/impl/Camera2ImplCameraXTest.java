@@ -40,6 +40,9 @@ import androidx.camera.camera2.Camera2Config;
 import androidx.camera.camera2.ExperimentalCamera2Interop;
 import androidx.camera.camera2.impl.util.SemaphoreReleasingCamera2Callbacks.DeviceStateCallback;
 import androidx.camera.camera2.impl.util.SemaphoreReleasingCamera2Callbacks.SessionCaptureCallback;
+import androidx.camera.core.Camera;
+import androidx.camera.core.CameraControl;
+import androidx.camera.core.CameraInfo;
 import androidx.camera.core.CameraInfoUnavailableException;
 import androidx.camera.core.CameraSelector;
 import androidx.camera.core.CameraX;
@@ -54,6 +57,7 @@ import androidx.camera.testing.CameraUtil;
 import androidx.camera.testing.fakes.FakeLifecycleOwner;
 import androidx.lifecycle.MutableLiveData;
 import androidx.lifecycle.Observer;
+import androidx.test.annotation.UiThreadTest;
 import androidx.test.core.app.ApplicationProvider;
 import androidx.test.ext.junit.runners.AndroidJUnit4;
 import androidx.test.filters.FlakyTest;
@@ -493,5 +497,29 @@ public final class Camera2ImplCameraXTest {
         });
 
         verify(mDeviceStateCallback, timeout(3000).times(1)).onClosed(any(CameraDevice.class));
+    }
+
+    @Test
+    @UiThreadTest
+    public void cameraInfo_getCameraInfoFromCamera() {
+        ImageAnalysisConfig.Builder builder = new ImageAnalysisConfig.Builder();
+        ImageAnalysisConfig config = builder.build();
+        ImageAnalysis useCase = new ImageAnalysis(config);
+
+        Camera camera = CameraX.bindToLifecycle(mLifecycle, DEFAULT_SELECTOR, useCase);
+
+        assertThat(camera.getCameraInfo()).isInstanceOf(CameraInfo.class);
+    }
+
+    @Test
+    @UiThreadTest
+    public void cameraControl_getCameraControlFromCamera() {
+        ImageAnalysisConfig.Builder builder = new ImageAnalysisConfig.Builder();
+        ImageAnalysisConfig config = builder.build();
+        ImageAnalysis useCase = new ImageAnalysis(config);
+
+        Camera camera = CameraX.bindToLifecycle(mLifecycle, DEFAULT_SELECTOR, useCase);
+
+        assertThat(camera.getCameraControl()).isInstanceOf(CameraControl.class);
     }
 }
