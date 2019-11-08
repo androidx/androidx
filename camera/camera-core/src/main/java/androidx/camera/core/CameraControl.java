@@ -61,8 +61,10 @@ public interface CameraControl {
      * other actions will be cancelled.
      *
      * <p>If the {@link FocusMeteringAction} specifies more AF/AE/AWB regions than what is
-     * supported on current device, only the first AF/AE/AWB regions which are supported on the
-     * device will be enabled.
+     * supported on current device, only the first region and then in order up to the number of
+     * regions supported by the device will be enabled. If it turns out no added regions can be
+     * supported on the device, the returned {@link ListenableFuture} in
+     * {@link CameraControl#startFocusAndMetering(FocusMeteringAction)} will fail immediately.
      *
      * @param action the {@link FocusMeteringAction} to be executed.
      * @return A {@link ListenableFuture} which completes when auto focus is done. The result of
