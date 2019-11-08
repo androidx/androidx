@@ -46,7 +46,8 @@ public final class FakeCameraControl implements CameraControlInternal {
     private final ControlUpdateCallback mControlUpdateCallback;
     private final SessionConfig.Builder mSessionConfigBuilder = new SessionConfig.Builder();
     private boolean mIsTorchOn = false;
-    private FlashMode mFlashMode = FlashMode.OFF;
+    @FlashMode
+    private int mFlashMode = FlashMode.OFF;
     private ArrayList<CaptureConfig> mSubmittedCaptureRequests = new ArrayList<>();
     private OnNewCaptureRequestListener mOnNewCaptureRequestListener;
 
@@ -95,14 +96,14 @@ public final class FakeCameraControl implements CameraControlInternal {
         Log.d(TAG, "setCropRegion(" + crop + ")");
     }
 
-    @NonNull
+    @FlashMode
     @Override
-    public FlashMode getFlashMode() {
+    public int getFlashMode() {
         return mFlashMode;
     }
 
     @Override
-    public void setFlashMode(@NonNull FlashMode flashMode) {
+    public void setFlashMode(@FlashMode int flashMode) {
         mFlashMode = flashMode;
         Log.d(TAG, "setFlashMode(" + mFlashMode + ")");
     }

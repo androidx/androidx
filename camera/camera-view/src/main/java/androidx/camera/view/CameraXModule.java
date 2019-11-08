@@ -87,7 +87,8 @@ final class CameraXModule {
     private CameraView.CaptureMode mCaptureMode = CaptureMode.IMAGE;
     private long mMaxVideoDuration = CameraView.INDEFINITE_VIDEO_DURATION;
     private long mMaxVideoSize = CameraView.INDEFINITE_VIDEO_SIZE;
-    private FlashMode mFlash = FlashMode.OFF;
+    @FlashMode
+    private int mFlash = FlashMode.OFF;
     @Nullable
     private ImageCapture mImageCapture;
     @Nullable
@@ -553,12 +554,12 @@ final class CameraXModule {
         return available;
     }
 
-    @NonNull
-    public FlashMode getFlash() {
+    @FlashMode
+    public int getFlash() {
         return mFlash;
     }
 
-    public void setFlash(@NonNull FlashMode flash) {
+    public void setFlash(@FlashMode int flash) {
         this.mFlash = flash;
 
         if (mImageCapture == null) {
