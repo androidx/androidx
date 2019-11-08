@@ -19,6 +19,7 @@ package androidx.camera.lifecycle;
 import android.os.Handler;
 
 import androidx.annotation.NonNull;
+import androidx.camera.core.Camera;
 import androidx.camera.core.CameraSelector;
 import androidx.camera.core.CameraX;
 import androidx.camera.core.ImageAnalysis;
@@ -78,16 +79,18 @@ public class LifecycleCameraProvider {
      * @param cameraSelector The camera selector which determines the camera to use for set of
      *                       use cases.
      * @param useCases       The use cases to bind to a lifecycle.
-     * @throws IllegalStateException If the use case has already been bound to another lifecycle
-     *                               or method is not called on main thread.
+     * @return The {@link Camera} instance which is determined by the camera selector.
+     * @throws IllegalStateException    If the use case has already been bound to another lifecycle
+     *                                  or method is not called on main thread.
      * @throws IllegalArgumentException If the provided camera selector is unable to resolve a
      *                                  camera to be used for the given use cases.
      */
     @SuppressWarnings("lambdaLast")
-    public static void bindToLifecycle(@NonNull LifecycleOwner lifecycleOwner,
+    @NonNull
+    public static Camera bindToLifecycle(@NonNull LifecycleOwner lifecycleOwner,
             @NonNull CameraSelector cameraSelector,
             @NonNull UseCase... useCases) {
-        CameraX.bindToLifecycle(lifecycleOwner, cameraSelector, useCases);
+        return CameraX.bindToLifecycle(lifecycleOwner, cameraSelector, useCases);
     }
 
     /**
