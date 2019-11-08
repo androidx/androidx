@@ -86,22 +86,13 @@ abstract class ForwardingImageProxy implements ImageProxy {
     }
 
     @Override
-    public synchronized long getTimestamp() {
-        return mImage.getTimestamp();
-    }
-
-    @Override
-    public synchronized void setTimestamp(long timestamp) {
-        mImage.setTimestamp(timestamp);
-    }
-
-    @Override
     @NonNull
     public synchronized ImageProxy.PlaneProxy[] getPlanes() {
         return mImage.getPlanes();
     }
 
     @Override
+    @NonNull
     public synchronized ImageInfo getImageInfo() {
         return mImage.getImageInfo();
     }

@@ -227,7 +227,7 @@ public final class ImageAnalysisTest {
         ImageProperties(ImageProxy image, int rotationDegrees) {
             this.mResolution = new Size(image.getWidth(), image.getHeight());
             this.mFormat = image.getFormat();
-            this.mTimestamp = image.getTimestamp();
+            this.mTimestamp = image.getImageInfo().getTimestamp();
             this.mRotationDegrees = rotationDegrees;
         }
 

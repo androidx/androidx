@@ -93,14 +93,14 @@ public final class Camera2ImplCameraXTest {
             new ImageAnalysis.Analyzer() {
                 @Override
                 public void analyze(@NonNull ImageProxy image, int rotationDegrees) {
-                    mAnalysisResult.postValue(image.getTimestamp());
+                    mAnalysisResult.postValue(image.getImageInfo().getTimestamp());
                 }
             };
     private final ImageAnalysis.Analyzer mImageAnalyzer2 =
             new ImageAnalysis.Analyzer() {
                 @Override
                 public void analyze(@NonNull ImageProxy image, int rotationDegrees) {
-                    mAnalysisResult2.postValue(image.getTimestamp());
+                    mAnalysisResult2.postValue(image.getImageInfo().getTimestamp());
                 }
             };
     @Rule

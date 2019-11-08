@@ -108,13 +108,7 @@ public final class AndroidImageProxyTest {
 
     @Test
     public void getTimestamp_returnsTimestampForWrappedImage() {
-        assertThat(mImageProxy.getTimestamp()).isEqualTo(INITIAL_TIMESTAMP);
-    }
-
-    public void setTimestamp_setsTimestampForWrappedImage() {
-        mImageProxy.setTimestamp(INITIAL_TIMESTAMP + 10);
-
-        assertThat(mImageProxy.getTimestamp()).isEqualTo(INITIAL_TIMESTAMP + 10);
+        assertThat(mImageProxy.getImageInfo().getTimestamp()).isEqualTo(INITIAL_TIMESTAMP);
     }
 
     @Test

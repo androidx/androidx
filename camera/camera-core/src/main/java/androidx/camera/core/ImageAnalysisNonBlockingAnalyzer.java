@@ -112,7 +112,7 @@ final class ImageAnalysisNonBlockingAnalyzer extends ImageAnalysisAbstractAnalyz
         long postedImageTimestamp = mPostedImageTimestamp.get();
         long finishedImageTimestamp = mFinishedImageTimestamp.get();
 
-        if (imageProxy.getTimestamp() <= postedImageTimestamp) {
+        if (imageProxy.getImageInfo().getTimestamp() <= postedImageTimestamp) {
             // Discard image that is in wrong order. Reposted cached image can be in this state.
             imageProxy.close();
             return;
@@ -127,7 +127,7 @@ final class ImageAnalysisNonBlockingAnalyzer extends ImageAnalysisAbstractAnalyz
             return;
         }
 
-        mPostedImageTimestamp.set(imageProxy.getTimestamp());
+        mPostedImageTimestamp.set(imageProxy.getImageInfo().getTimestamp());
 
         ListenableFuture<Void> analyzeFuture = analyzeImage(imageProxy);
 
@@ -156,7 +156,7 @@ final class ImageAnalysisNonBlockingAnalyzer extends ImageAnalysisAbstractAnalyz
     @SuppressWarnings("WeakerAccess") /* synthetic access */
     synchronized void finishImage(ImageProxy imageProxy) {
         try {
-            mFinishedImageTimestamp.set(imageProxy.getTimestamp());
+            mFinishedImageTimestamp.set(imageProxy.getImageInfo().getTimestamp());
             imageProxy.close();
         } catch (IllegalStateException e) {
             Log.d(TAG, "Image already closed");

@@ -16,28 +16,35 @@
 
 package androidx.camera.core;
 
-import androidx.annotation.NonNull;
+import androidx.annotation.Nullable;
 
-/**
- * An {@link ImageProxy} which overwrites the {@link ImageInfo}.
- */
-final class SettableImageProxy extends ForwardingImageProxy{
-    private final ImageInfo mImageInfo;
+class SettableImageInfo implements ImageInfo {
 
-    /**
-     * Constructor for a {@link SettableImageProxy}.
-     *
-     * @param imageProxy The {@link ImageProxy} to forward.
-     * @param imageInfo The {@link ImageInfo} to overwrite with.
-     */
-    SettableImageProxy(ImageProxy imageProxy, ImageInfo imageInfo) {
-        super(imageProxy);
-        mImageInfo = imageInfo;
+    private Object mTag;
+    private long mTimestamp;
+
+    SettableImageInfo(Object tag, long timestamp) {
+        mTag = tag;
+        mTimestamp = timestamp;
     }
 
     @Override
-    @NonNull
-    public ImageInfo getImageInfo() {
-        return mImageInfo;
+    @Nullable
+    public Object getTag() {
+        return mTag;
     }
+
+    public void setTag(@Nullable Object tag) {
+        mTag = tag;
+    }
+
+    @Override
+    public long getTimestamp() {
+        return mTimestamp;
+    }
+
+    public void setTimestamp(long timestamp) {
+        mTimestamp = timestamp;
+    }
+
 }

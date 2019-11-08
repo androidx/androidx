@@ -111,11 +111,9 @@ public final class MetadataImageReaderTest {
         triggerImageAvailable(TIMESTAMP_1);
         mSemaphore.acquire();
 
-        assertThat(firstReceivedImageProxy.get().getTimestamp()).isEqualTo(TIMESTAMP_0);
         assertThat(firstReceivedImageProxy.get().getImageInfo().getTimestamp()).isEqualTo(
                 TIMESTAMP_0);
 
-        assertThat(secondReceivedImageProxy.get().getTimestamp()).isEqualTo(TIMESTAMP_1);
         assertThat(secondReceivedImageProxy.get().getImageInfo().getTimestamp()).isEqualTo(
                 TIMESTAMP_1);
     }
@@ -132,7 +130,6 @@ public final class MetadataImageReaderTest {
                     public void onImageAvailable(ImageReaderProxy imageReader) {
                         // Checks if the output contains the first matched ImageProxy.
                         ImageProxy resultImage = imageReader.acquireNextImage();
-                        assertThat(resultImage.getTimestamp()).isEqualTo(TIMESTAMP_0);
                         assertThat(resultImage.getImageInfo().getTimestamp()).isEqualTo(
                                 TIMESTAMP_0);
                         mSemaphore.release();
@@ -149,7 +146,6 @@ public final class MetadataImageReaderTest {
                     public void onImageAvailable(ImageReaderProxy imageReader) {
                         // Checks if the MetadataImageReader can output the other ImageProxy.
                         ImageProxy resultImage = imageReader.acquireNextImage();
-                        assertThat(resultImage.getTimestamp()).isEqualTo(TIMESTAMP_1);
                         assertThat(resultImage.getImageInfo().getTimestamp()).isEqualTo(
                                 TIMESTAMP_1);
                         mSemaphore.release();
@@ -214,7 +210,6 @@ public final class MetadataImageReaderTest {
         triggerImageAvailable(TIMESTAMP_0);
         mSemaphore.acquire();
 
-        assertThat(receivedImage.get().getTimestamp()).isEqualTo(TIMESTAMP_0);
         assertThat(receivedImage.get().getImageInfo().getTimestamp()).isEqualTo(
                 TIMESTAMP_0);
 

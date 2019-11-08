@@ -332,7 +332,7 @@ class MetadataImageReader implements ImageReaderProxy, ForwardingImageProxy.OnIm
                     if (image != null) {
                         numAcquired++;
                         // Add the incoming Image to pending list and do the matching logic.
-                        mPendingImages.put(image.getTimestamp(), image);
+                        mPendingImages.put(image.getImageInfo().getTimestamp(), image);
                         matchImages();
                     }
                 }

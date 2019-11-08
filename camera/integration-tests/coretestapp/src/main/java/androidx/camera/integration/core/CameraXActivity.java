@@ -45,9 +45,7 @@ import androidx.annotation.Nullable;
 import androidx.annotation.VisibleForTesting;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.camera.core.Camera;
-import androidx.camera.core.CameraInfoUnavailableException;
 import androidx.camera.core.CameraSelector;
-import androidx.camera.core.CameraX;
 import androidx.camera.core.FlashMode;
 import androidx.camera.core.ImageAnalysis;
 import androidx.camera.core.ImageAnalysisConfig;
@@ -409,7 +407,8 @@ public class CameraXActivity extends AppCompatActivity
                         // setValue()
                         // here. If we weren't on the main thread, we would have to call postValue()
                         // instead.
-                        mImageAnalysisResult.setValue(Long.toString(image.getTimestamp()));
+                        mImageAnalysisResult.setValue(
+                                Long.toString(image.getImageInfo().getTimestamp()));
 
                         if (!mAnalysisIdlingResource.isIdleNow()) {
                             mAnalysisIdlingResource.decrement();
