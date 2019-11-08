@@ -21,6 +21,7 @@ import androidx.ui.test.ComposeTestCase
 import androidx.ui.test.ComposeExecutionControl
 import androidx.ui.test.ComposeTestCaseSetup
 import androidx.ui.test.ComposeTestRule
+import androidx.ui.test.setupContent
 
 class AndroidComposeTestCaseSetup(
     private val testRule: ComposeTestRule,
@@ -30,7 +31,7 @@ class AndroidComposeTestCaseSetup(
     override fun performTestWithEventsControl(block: ComposeExecutionControl.() -> Unit) {
         testRule.runOnUiThread {
             // TODO: Ensure that no composition exists at this stage!
-            val runner = AndroidComposeTestCaseRunner(testCase, activity)
+            val runner = AndroidComposeTestCaseRunner({ testCase }, activity)
             try {
                 runner.setupContent()
                 block.invoke(runner)

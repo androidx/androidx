@@ -42,151 +42,152 @@ class SimpleRadioButtonBenchmark {
     @get:Rule
     val benchmarkRule = ComposeBenchmarkRule(enableTransitions = true)
 
+    private val button1CaseFactory = { SimpleRadioButton1TestCase() }
+    private val button2CaseFactory = { SimpleRadioButton2TestCase() }
+    private val button3CaseFactory = { SimpleRadioButton3TestCase() }
+
     @Test
     fun radio_button_1_first_compose() {
-        benchmarkRule.benchmarkFirstCompose(SimpleRadioButton1TestCase())
+        benchmarkRule.benchmarkFirstCompose(button1CaseFactory)
     }
 
     @Test
     fun radio_button_1_first_measure() {
-        benchmarkRule.benchmarkFirstMeasure(SimpleRadioButton1TestCase())
+        benchmarkRule.benchmarkFirstMeasure(button1CaseFactory)
     }
 
     @Test
     fun radio_button_1_first_layout() {
-        benchmarkRule.benchmarkFirstLayout(SimpleRadioButton1TestCase())
+        benchmarkRule.benchmarkFirstLayout(button1CaseFactory)
     }
 
     @Test
     fun radio_button_1_first_draw() {
-        benchmarkRule.benchmarkFirstDraw(SimpleRadioButton1TestCase())
+        benchmarkRule.benchmarkFirstDraw(button1CaseFactory)
     }
 
     @Test
     fun radio_button_1_update_recompose() {
-        benchmarkRule.toggleStateBenchmarkRecompose(SimpleRadioButton1TestCase())
+        benchmarkRule.toggleStateBenchmarkRecompose(button1CaseFactory)
     }
 
     @Test
     fun radio_button_1_update_measure() {
-        benchmarkRule.toggleStateBenchmarkMeasure(SimpleRadioButton1TestCase())
+        benchmarkRule.toggleStateBenchmarkMeasure(button1CaseFactory)
     }
 
     @Test
     fun radio_button_1_update_layout() {
-        benchmarkRule.toggleStateBenchmarkLayout(SimpleRadioButton1TestCase())
+        benchmarkRule.toggleStateBenchmarkLayout(button1CaseFactory)
     }
 
     @Test
     fun radio_button_1_update_draw() {
-        benchmarkRule.toggleStateBenchmarkDraw(SimpleRadioButton1TestCase())
+        benchmarkRule.toggleStateBenchmarkDraw(button1CaseFactory)
     }
 
     @Test
     fun radio_button_1_layout() {
-        benchmarkRule.benchmarkLayoutPerf(SimpleRadioButton1TestCase())
+        benchmarkRule.benchmarkLayoutPerf(button1CaseFactory)
     }
 
     @Test
     fun radio_button_1_draw() {
-        benchmarkRule.benchmarkDrawPerf(SimpleRadioButton1TestCase())
+        benchmarkRule.benchmarkDrawPerf(button1CaseFactory)
     }
 
     @Test
     fun radio_button_2_first_compose() {
-        benchmarkRule.benchmarkFirstCompose(SimpleRadioButton2TestCase())
+        benchmarkRule.benchmarkFirstCompose(button2CaseFactory)
     }
 
     @Test
     fun radio_button_2_first_measure() {
-        benchmarkRule.benchmarkFirstMeasure(SimpleRadioButton2TestCase())
+        benchmarkRule.benchmarkFirstMeasure(button2CaseFactory)
     }
 
     @Test
     fun radio_button_2_first_layout() {
-        benchmarkRule.benchmarkFirstLayout(SimpleRadioButton2TestCase())
+        benchmarkRule.benchmarkFirstLayout(button2CaseFactory)
     }
 
     @Test
     fun radio_button_2_first_draw() {
-        benchmarkRule.benchmarkFirstDraw(SimpleRadioButton2TestCase())
+        benchmarkRule.benchmarkFirstDraw(button2CaseFactory)
     }
 
     @Test
     fun radio_button_2_update_recompose() {
-        benchmarkRule.toggleStateBenchmarkRecompose(SimpleRadioButton2TestCase())
+        benchmarkRule.toggleStateBenchmarkRecompose(button2CaseFactory)
     }
 
     @Test
     fun radio_button_2_update_measure() {
-        benchmarkRule.toggleStateBenchmarkMeasure(SimpleRadioButton2TestCase())
+        benchmarkRule.toggleStateBenchmarkMeasure(button2CaseFactory)
     }
 
     @Test
     fun radio_button_2_update_layout() {
-        benchmarkRule.toggleStateBenchmarkLayout(SimpleRadioButton2TestCase())
+        benchmarkRule.toggleStateBenchmarkLayout(button2CaseFactory)
     }
 
     @Test
     fun radio_button_2_update_draw() {
-        benchmarkRule.toggleStateBenchmarkDraw(SimpleRadioButton2TestCase())
+        benchmarkRule.toggleStateBenchmarkDraw(button2CaseFactory)
     }
 
     @Test
     fun radio_button_2_layout() {
-        benchmarkRule.benchmarkLayoutPerf(SimpleRadioButton2TestCase())
+        benchmarkRule.benchmarkLayoutPerf(button2CaseFactory)
     }
 
     @Test
     fun radio_button_2_draw() {
-        benchmarkRule.benchmarkDrawPerf(SimpleRadioButton2TestCase())
+        benchmarkRule.benchmarkDrawPerf(button2CaseFactory)
     }
 
     @Test
     fun radio_button_3_first_compose() {
-        benchmarkRule.benchmarkFirstCompose(SimpleRadioButton3TestCase())
+        benchmarkRule.benchmarkFirstCompose(button3CaseFactory)
     }
 
     @Test
     fun radio_button_3_first_measure() {
-        benchmarkRule.benchmarkFirstMeasure(SimpleRadioButton3TestCase())
+        benchmarkRule.benchmarkFirstMeasure(button3CaseFactory)
     }
 
     @Test
     fun radio_button_3_first_layout() {
-        benchmarkRule.benchmarkFirstLayout(SimpleRadioButton3TestCase())
+        benchmarkRule.benchmarkFirstLayout(button3CaseFactory)
     }
 
     @Test
     fun radio_button_3_first_draw() {
-        benchmarkRule.benchmarkFirstDraw(SimpleRadioButton3TestCase())
+        benchmarkRule.benchmarkFirstDraw(button3CaseFactory)
     }
 
     @Test
     fun radio_button_3_update_measure() {
-        benchmarkRule.toggleStateBenchmarkMeasure(SimpleRadioButton3TestCase(),
-            toggleCausesRecompose = false)
+        benchmarkRule.toggleStateBenchmarkMeasure(button3CaseFactory, toggleCausesRecompose = false)
     }
 
     @Test
     fun radio_button_3_update_layout() {
-        benchmarkRule.toggleStateBenchmarkLayout(SimpleRadioButton3TestCase(),
-            toggleCausesRecompose = false)
+        benchmarkRule.toggleStateBenchmarkLayout(button3CaseFactory, toggleCausesRecompose = false)
     }
 
     @Test
     fun radio_button_3_update_draw() {
-        benchmarkRule.toggleStateBenchmarkDraw(SimpleRadioButton3TestCase(),
-            toggleCausesRecompose = false)
+        benchmarkRule.toggleStateBenchmarkDraw(button3CaseFactory, toggleCausesRecompose = false)
     }
 
     @Test
     fun radio_button_3_layout() {
-        benchmarkRule.benchmarkLayoutPerf(SimpleRadioButton3TestCase())
+        benchmarkRule.benchmarkLayoutPerf(button3CaseFactory)
     }
 
     @Test
     fun radio_button_3_draw() {
-        benchmarkRule.benchmarkDrawPerf(SimpleRadioButton3TestCase())
+        benchmarkRule.benchmarkDrawPerf(button3CaseFactory)
     }
 }

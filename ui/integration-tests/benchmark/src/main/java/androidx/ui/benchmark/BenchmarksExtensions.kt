@@ -23,12 +23,13 @@ import androidx.ui.test.assertNoPendingChanges
 import androidx.ui.test.benchmark.android.AndroidTestCase
 import androidx.ui.test.doFramesUntilNoChangesPending
 import androidx.ui.test.recomposeAssertHadChanges
+import androidx.ui.test.setupContent
 
 /**
  * Measures measure and layout performance of the given test case by toggling measure constraints.
  */
-fun ComposeBenchmarkRule.benchmarkLayoutPerf(testCase: ComposeTestCase) {
-    runBenchmarkFor(testCase) {
+fun ComposeBenchmarkRule.benchmarkLayoutPerf(caseFactory: () -> ComposeTestCase) {
+    runBenchmarkFor(caseFactory) {
         doFramesUntilNoChangesPending()
 
         val width = measuredWidth
@@ -64,8 +65,8 @@ fun ComposeBenchmarkRule.benchmarkLayoutPerf(testCase: ComposeTestCase) {
     }
 }
 
-fun ComposeBenchmarkRule.benchmarkLayoutPerf(testCase: AndroidTestCase) {
-    runBenchmarkFor(testCase) {
+fun AndroidBenchmarkRule.benchmarkLayoutPerf(caseFactory: () -> AndroidTestCase) {
+    runBenchmarkFor(caseFactory) {
         doFrame()
 
         val width = measuredWidth
@@ -104,8 +105,8 @@ fun ComposeBenchmarkRule.benchmarkLayoutPerf(testCase: AndroidTestCase) {
 /**
  * Measures draw performance of the given test case by invalidating the view hierarchy.
  */
-fun ComposeBenchmarkRule.benchmarkDrawPerf(testCase: AndroidTestCase) {
-    runBenchmarkFor(testCase) {
+fun AndroidBenchmarkRule.benchmarkDrawPerf(caseFactory: () -> AndroidTestCase) {
+    runBenchmarkFor(caseFactory) {
         doFrame()
 
         measureRepeated {
@@ -124,8 +125,8 @@ fun ComposeBenchmarkRule.benchmarkDrawPerf(testCase: AndroidTestCase) {
 /**
  * Measures draw performance of the given test case by invalidating the view hierarchy.
  */
-fun ComposeBenchmarkRule.benchmarkDrawPerf(testCase: ComposeTestCase) {
-    runBenchmarkFor(testCase) {
+fun ComposeBenchmarkRule.benchmarkDrawPerf(caseFactory: () -> ComposeTestCase) {
+    runBenchmarkFor(caseFactory) {
         doFramesUntilNoChangesPending()
 
         measureRepeated {
@@ -144,10 +145,15 @@ fun ComposeBenchmarkRule.benchmarkDrawPerf(testCase: ComposeTestCase) {
 /**
  * Measures the time of the first composition of the given compose test case.
  */
-fun ComposeBenchmarkRule.benchmarkFirstCompose(testCase: ComposeTestCase) {
-    runBenchmarkFor(testCase) {
+fun ComposeBenchmarkRule.benchmarkFirstCompose(caseFactory: () -> ComposeTestCase) {
+    runBenchmarkFor(caseFactory) {
         measureRepeated {
-            setupContent()
+            runWithTimingDisabled {
+                createTestCase()
+            }
+
+            emitContent()
+
             runWithTimingDisabled {
                 assertNoPendingChanges()
                 disposeContent()
@@ -159,8 +165,8 @@ fun ComposeBenchmarkRule.benchmarkFirstCompose(testCase: ComposeTestCase) {
 /**
  * Measures the time of the first set content of the given Android test case.
  */
-fun ComposeBenchmarkRule.benchmarkFirstSetContent(testCase: AndroidTestCase) {
-    runBenchmarkFor(testCase) {
+fun AndroidBenchmarkRule.benchmarkFirstSetContent(caseFactory: () -> AndroidTestCase) {
+    runBenchmarkFor(caseFactory) {
         measureRepeated {
             setupContent()
             runWithTimingDisabled {
@@ -173,8 +179,8 @@ fun ComposeBenchmarkRule.benchmarkFirstSetContent(testCase: AndroidTestCase) {
 /**
  * Measures the time of the first measure of the given test case.
  */
-fun ComposeBenchmarkRule.benchmarkFirstMeasure(testCase: ComposeTestCase) {
-    runBenchmarkFor(testCase) {
+fun ComposeBenchmarkRule.benchmarkFirstMeasure(caseFactory: () -> ComposeTestCase) {
+    runBenchmarkFor(caseFactory) {
         measureRepeated {
             runWithTimingDisabled {
                 setupContent()
@@ -193,8 +199,8 @@ fun ComposeBenchmarkRule.benchmarkFirstMeasure(testCase: ComposeTestCase) {
 /**
  * Measures the time of the first measure of the given test case.
  */
-fun ComposeBenchmarkRule.benchmarkFirstMeasure(testCase: AndroidTestCase) {
-    runBenchmarkFor(testCase) {
+fun AndroidBenchmarkRule.benchmarkFirstMeasure(caseFactory: () -> AndroidTestCase) {
+    runBenchmarkFor(caseFactory) {
         measureRepeated {
             runWithTimingDisabled {
                 setupContent()
@@ -213,8 +219,8 @@ fun ComposeBenchmarkRule.benchmarkFirstMeasure(testCase: AndroidTestCase) {
 /**
  * Measures the time of the first layout of the given test case.
  */
-fun ComposeBenchmarkRule.benchmarkFirstLayout(testCase: ComposeTestCase) {
-    runBenchmarkFor(testCase) {
+fun ComposeBenchmarkRule.benchmarkFirstLayout(caseFactory: () -> ComposeTestCase) {
+    runBenchmarkFor(caseFactory) {
         measureRepeated {
             runWithTimingDisabled {
                 setupContent()
@@ -234,8 +240,8 @@ fun ComposeBenchmarkRule.benchmarkFirstLayout(testCase: ComposeTestCase) {
 /**
  * Measures the time of the first layout of the given test case.
  */
-fun ComposeBenchmarkRule.benchmarkFirstLayout(testCase: AndroidTestCase) {
-    runBenchmarkFor(testCase) {
+fun AndroidBenchmarkRule.benchmarkFirstLayout(caseFactory: () -> AndroidTestCase) {
+    runBenchmarkFor(caseFactory) {
         measureRepeated {
             runWithTimingDisabled {
                 setupContent()
@@ -255,8 +261,8 @@ fun ComposeBenchmarkRule.benchmarkFirstLayout(testCase: AndroidTestCase) {
 /**
  * Measures the time of the first draw of the given test case.
  */
-fun ComposeBenchmarkRule.benchmarkFirstDraw(testCase: ComposeTestCase) {
-    runBenchmarkFor(testCase) {
+fun ComposeBenchmarkRule.benchmarkFirstDraw(caseFactory: () -> ComposeTestCase) {
+    runBenchmarkFor(caseFactory) {
         measureRepeated {
             runWithTimingDisabled {
                 setupContent()
@@ -279,8 +285,8 @@ fun ComposeBenchmarkRule.benchmarkFirstDraw(testCase: ComposeTestCase) {
 /**
  * Measures the time of the first draw of the given test case.
  */
-fun ComposeBenchmarkRule.benchmarkFirstDraw(testCase: AndroidTestCase) {
-    runBenchmarkFor(testCase) {
+fun AndroidBenchmarkRule.benchmarkFirstDraw(caseFactory: () -> AndroidTestCase) {
+    runBenchmarkFor(caseFactory) {
         measureRepeated {
             runWithTimingDisabled {
                 setupContent()
@@ -304,14 +310,14 @@ fun ComposeBenchmarkRule.benchmarkFirstDraw(testCase: AndroidTestCase) {
  *  Measures recomposition time of the hierarchy after changing a state.
  */
 fun <T> ComposeBenchmarkRule.toggleStateBenchmarkRecompose(
-    testCase: T
+    caseFactory: () -> T
 ) where T : ComposeTestCase, T : ToggleableTestCase {
-    runBenchmarkFor(testCase) {
+    runBenchmarkFor(caseFactory) {
         doFramesUntilNoChangesPending()
 
         measureRepeated {
             runWithTimingDisabled {
-                testCase.toggleState()
+                getTestCase().toggleState()
             }
             recomposeAssertHadChanges()
             assertNoPendingChanges()
@@ -323,15 +329,15 @@ fun <T> ComposeBenchmarkRule.toggleStateBenchmarkRecompose(
  *  Measures measure time of the hierarchy after changing a state.
  */
 fun <T> ComposeBenchmarkRule.toggleStateBenchmarkMeasure(
-    testCase: T,
+    caseFactory: () -> T,
     toggleCausesRecompose: Boolean = true
 ) where T : ComposeTestCase, T : ToggleableTestCase {
-    runBenchmarkFor(testCase) {
+    runBenchmarkFor(caseFactory) {
         doFramesUntilNoChangesPending()
 
         measureRepeated {
             runWithTimingDisabled {
-                testCase.toggleState()
+                getTestCase().toggleState()
                 if (toggleCausesRecompose) {
                     recomposeAssertHadChanges()
                 }
@@ -348,15 +354,15 @@ fun <T> ComposeBenchmarkRule.toggleStateBenchmarkMeasure(
  *  Measures layout time of the hierarchy after changing a state.
  */
 fun <T> ComposeBenchmarkRule.toggleStateBenchmarkLayout(
-    testCase: T,
+    caseFactory: () -> T,
     toggleCausesRecompose: Boolean = true
 ) where T : ComposeTestCase, T : ToggleableTestCase {
-    runBenchmarkFor(testCase) {
+    runBenchmarkFor(caseFactory) {
         doFramesUntilNoChangesPending()
 
         measureRepeated {
             runWithTimingDisabled {
-                testCase.toggleState()
+                getTestCase().toggleState()
                 if (toggleCausesRecompose) {
                     recomposeAssertHadChanges()
                 }
@@ -374,15 +380,15 @@ fun <T> ComposeBenchmarkRule.toggleStateBenchmarkLayout(
  *  Measures draw time of the hierarchy after changing a state.
  */
 fun <T> ComposeBenchmarkRule.toggleStateBenchmarkDraw(
-    testCase: T,
+    caseFactory: () -> T,
     toggleCausesRecompose: Boolean = true
 ) where T : ComposeTestCase, T : ToggleableTestCase {
-    runBenchmarkFor(testCase) {
+    runBenchmarkFor(caseFactory) {
         doFramesUntilNoChangesPending()
 
         measureRepeated {
             runWithTimingDisabled {
-                testCase.toggleState()
+                getTestCase().toggleState()
                 if (toggleCausesRecompose) {
                     recomposeAssertHadChanges()
                 }
@@ -403,15 +409,15 @@ fun <T> ComposeBenchmarkRule.toggleStateBenchmarkDraw(
 /**
  *  Measures measure time of the hierarchy after changing a state.
  */
-fun <T> ComposeBenchmarkRule.toggleStateBenchmarkMeasure(
-    testCase: T
+fun <T> AndroidBenchmarkRule.toggleStateBenchmarkMeasure(
+    caseFactory: () -> T
 ) where T : AndroidTestCase, T : ToggleableTestCase {
-    runBenchmarkFor(testCase) {
+    runBenchmarkFor(caseFactory) {
         doFrame()
 
         measureRepeated {
             runWithTimingDisabled {
-                testCase.toggleState()
+                getTestCase().toggleState()
             }
             measure()
         }
@@ -421,15 +427,15 @@ fun <T> ComposeBenchmarkRule.toggleStateBenchmarkMeasure(
 /**
  *  Measures layout time of the hierarchy after changing a state.
  */
-fun <T> ComposeBenchmarkRule.toggleStateBenchmarkLayout(
-    testCase: T
+fun <T> AndroidBenchmarkRule.toggleStateBenchmarkLayout(
+    caseFactory: () -> T
 ) where T : AndroidTestCase, T : ToggleableTestCase {
-    runBenchmarkFor(testCase) {
+    runBenchmarkFor(caseFactory) {
         doFrame()
 
         measureRepeated {
             runWithTimingDisabled {
-                testCase.toggleState()
+                getTestCase().toggleState()
                 measure()
             }
             layout()
@@ -440,15 +446,15 @@ fun <T> ComposeBenchmarkRule.toggleStateBenchmarkLayout(
 /**
  *  Measures draw time of the hierarchy after changing a state.
  */
-fun <T> ComposeBenchmarkRule.toggleStateBenchmarkDraw(
-    testCase: T
+fun <T> AndroidBenchmarkRule.toggleStateBenchmarkDraw(
+    caseFactory: () -> T
 ) where T : AndroidTestCase, T : ToggleableTestCase {
-    runBenchmarkFor(testCase) {
+    runBenchmarkFor(caseFactory) {
         doFrame()
 
         measureRepeated {
             runWithTimingDisabled {
-                testCase.toggleState()
+                getTestCase().toggleState()
                 measure()
                 layout()
                 drawPrepare()

@@ -20,63 +20,53 @@ import android.app.Activity
 import androidx.benchmark.junit4.BenchmarkRule
 import androidx.benchmark.junit4.measureRepeated
 import androidx.test.rule.ActivityTestRule
-import androidx.ui.test.ComposeBenchmarkScope
 import androidx.ui.test.ComposeTestCase
-import androidx.ui.test.DisableTransitions
-import androidx.ui.test.android.createAndroidComposeBenchmarkRunner
 import androidx.ui.test.benchmark.android.AndroidTestCase
+import androidx.ui.test.benchmark.android.AndroidTestCaseRunner
 import org.junit.rules.TestRule
 import org.junit.runner.Description
 import org.junit.runners.model.Statement
 
 /**
- * Rule to be used to run Compose / Android benchmarks.
+ * Rule to be used to run Android benchmarks.
  */
-// TODO(pavlis): Move this to a separate module, something like androidx.ui.test-benchmark
-class ComposeBenchmarkRule(
-    private val enableTransitions: Boolean = false
-) : TestRule {
+class AndroidBenchmarkRule : TestRule {
 
-    private val activityTestRule = ActivityTestRule<Activity>(Activity::class.java)
+    private val activityTestRule =
+        ActivityTestRule<Activity>(
+            Activity::class.java
+        )
 
     val benchmarkRule = BenchmarkRule()
 
-    private val disableTransitionsRule = DisableTransitions()
-
     override fun apply(base: Statement, description: Description?): Statement {
-        val statement = benchmarkRule.apply(
+        return benchmarkRule.apply(
             activityTestRule.apply(base, description), description!!)
-        if (!enableTransitions) {
-            return disableTransitionsRule.apply(statement, description)
-        }
-        return statement
     }
 
     /**
-     * Runs benchmark for the given [ComposeTestCase].
+     * Runs benchmark for the given [AndroidTestCase].
      *
-     * Note that benchmark by default runs on the ui thread and disposes composition afterwards.
+     * Note that benchmark by default runs on the ui thread.
      *
      * @param givenTestCase The test case to be executed
      * @param block The benchmark instruction to be performed over the given test case
      */
-    fun <T : ComposeTestCase> runBenchmarkFor(
+    fun <T : AndroidTestCase> runBenchmarkFor(
         givenTestCase: () -> T,
-        block: ComposeBenchmarkScope<T>.() -> Unit
+        block: AndroidTestCaseRunner<T>.() -> Unit
     ) {
-        require(givenTestCase !is AndroidTestCase) {
-            "Expected ${ComposeTestCase::class.simpleName}!"
+        require(givenTestCase !is ComposeTestCase) {
+            "Expected ${AndroidTestCase::class.simpleName}!"
         }
 
         activityTestRule.runOnUiThread {
-            // TODO(pavlis): Assert that there is no existing composition before we run benchmark
-            val runner = createAndroidComposeBenchmarkRunner(givenTestCase,
-                activityTestRule.activity)
-            try {
-                block(runner)
-            } finally {
-                runner.disposeContent()
-            }
+            val runner =
+                AndroidTestCaseRunner(
+                    givenTestCase,
+                    activityTestRule.activity
+                )
+            block(runner)
         }
     }
 

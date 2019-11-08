@@ -63,13 +63,13 @@ class TextMultiStyleBenchmark(
     @Test
     fun first_compose() {
         textBenchmarkRule.generator { textGenerator ->
-            benchmarkRule.benchmarkFirstCompose(
+            benchmarkRule.benchmarkFirstCompose {
                 TextMultiStyleTestCase(
                     textLength,
                     styleCount,
                     textGenerator
                 )
-            )
+            }
         }
     }
 
@@ -80,13 +80,13 @@ class TextMultiStyleBenchmark(
     @Test
     fun first_measure() {
         textBenchmarkRule.generator { textGenerator ->
-            benchmarkRule.benchmarkFirstMeasure(
+            benchmarkRule.benchmarkFirstMeasure {
                 TextMultiStyleTestCase(
                     textLength,
                     styleCount,
                     textGenerator
                 )
-            )
+            }
         }
     }
 
@@ -97,13 +97,13 @@ class TextMultiStyleBenchmark(
     @Test
     fun first_layout() {
         textBenchmarkRule.generator { textGenerator ->
-            benchmarkRule.benchmarkFirstLayout(
+            benchmarkRule.benchmarkFirstLayout {
                 TextMultiStyleTestCase(
                     textLength,
                     styleCount,
                     textGenerator
                 )
-            )
+            }
         }
     }
 
@@ -114,13 +114,13 @@ class TextMultiStyleBenchmark(
     @Test
     fun first_draw() {
         textBenchmarkRule.generator { textGenerator ->
-            benchmarkRule.benchmarkFirstDraw(
+            benchmarkRule.benchmarkFirstDraw {
                 TextMultiStyleTestCase(
                     textLength,
                     styleCount,
                     textGenerator
                 )
-            )
+            }
         }
     }
 
@@ -132,13 +132,13 @@ class TextMultiStyleBenchmark(
     @Test
     fun layout() {
         textBenchmarkRule.generator { textGenerator ->
-            benchmarkRule.benchmarkLayoutPerf(
+            benchmarkRule.benchmarkLayoutPerf {
                 TextMultiStyleTestCase(
                     textLength,
                     styleCount,
                     textGenerator
                 )
-            )
+            }
         }
     }
 
@@ -148,13 +148,13 @@ class TextMultiStyleBenchmark(
     @Test
     fun draw() {
         textBenchmarkRule.generator { textGenerator ->
-            benchmarkRule.benchmarkDrawPerf(
+            benchmarkRule.benchmarkDrawPerf {
                 TextMultiStyleTestCase(
                     textLength,
                     styleCount,
                     textGenerator
                 )
-            )
+            }
         }
     }
 }

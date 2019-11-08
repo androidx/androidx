@@ -40,15 +40,22 @@ package androidx.ui.test {
     method public androidx.ui.test.CollectedSizes assertWidthEqualsTo(kotlin.jvm.functions.Function1<? super androidx.ui.core.DensityScope,androidx.ui.core.IntPx> expectedWidthPx);
   }
 
-  public interface ComposeBenchmarkScope extends androidx.ui.test.ComposeExecutionControl {
+  public interface ComposeBenchmarkScope<T> extends androidx.ui.test.ComposeExecutionControl {
+    method public void createTestCase();
     method public void disposeContent();
     method public void draw();
     method public void drawFinish();
     method public void drawPrepare();
+    method public void emitContent();
+    method public T! getTestCase();
     method public void invalidateViews();
     method public void measureWithSpec(int widthSpec, int heightSpec);
     method public void requestLayout();
-    method public void setupContent();
+  }
+
+  public final class ComposeBenchmarkScopeKt {
+    ctor public ComposeBenchmarkScopeKt();
+    method public static <T> void setupContent(androidx.ui.test.ComposeBenchmarkScope<T>);
   }
 
   public interface ComposeExecutionControl {
@@ -162,7 +169,7 @@ package androidx.ui.test.android {
 
   public final class AndroidComposeTestCaseRunnerKt {
     ctor public AndroidComposeTestCaseRunnerKt();
-    method public static androidx.ui.test.ComposeBenchmarkScope createAndroidComposeBenchmarkRunner(androidx.ui.test.ComposeTestCase testCase, android.app.Activity activity);
+    method public static <T extends androidx.ui.test.ComposeTestCase> androidx.ui.test.ComposeBenchmarkScope<T> createAndroidComposeBenchmarkRunner(kotlin.jvm.functions.Function0<? extends T> testCaseFactory, android.app.Activity activity);
   }
 
   public final class AndroidComposeTestCaseSetup implements androidx.ui.test.ComposeTestCaseSetup {
