@@ -14,18 +14,8 @@
   See the License for the specific language governing permissions and
   limitations under the License.
   -->
-<manifest package="androidx.ui.tooling" xmlns:android="http://schemas.android.com/apk/res/android"
-    xmlns:tools="http://schemas.android.com/tools">
 
-    <application
-        android:debuggable="false"
-        tools:ignore="HardcodedDebugMode"
-        tools:replace="android:debuggable"
-        >
-        <activity android:name="androidx.ui.tooling.ComposeViewAdapterTest$Companion$TestActivity"
-            android:theme="@style/TestTheme"/>
-        <activity android:name="androidx.ui.tooling.TestActivity"
-            android:theme="@style/TestTheme"/>
-    </application>
-</manifest>
-
+<androidx.ui.tooling.preview.ComposeViewAdapter xmlns:android="http://schemas.android.com/apk/res/android"
+    android:id="@+id/compose_view_adapter"
+    android:orientation="vertical" android:layout_width="match_parent"
+    android:layout_height="match_parent" />
