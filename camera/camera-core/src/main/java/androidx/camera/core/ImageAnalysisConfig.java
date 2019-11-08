@@ -43,7 +43,7 @@ public final class ImageAnalysisConfig
     // Option Declarations:
     // *********************************************************************************************
 
-    static final Option<BackpressureStrategy> OPTION_BACKPRESSURE_STRATEGY =
+    static final Option<Integer> OPTION_BACKPRESSURE_STRATEGY =
             Option.create("camerax.core.imageAnalysis.backpressureStrategy",
                     BackpressureStrategy.class);
     static final Option<Integer> OPTION_IMAGE_QUEUE_DEPTH =
@@ -67,11 +67,10 @@ public final class ImageAnalysisConfig
      * @param valueIfMissing The value to return if this configuration option has not been set.
      * @return The stored value or <code>valueIfMissing</code> if the value does not exist in this
      * configuration.
-     * @see ImageAnalysisConfig.Builder#setBackpressureStrategy(BackpressureStrategy)
+     * @see ImageAnalysisConfig.Builder#setBackpressureStrategy(int)
      */
-    @Nullable
-    public BackpressureStrategy getBackpressureStrategy(
-            @Nullable BackpressureStrategy valueIfMissing) {
+    @BackpressureStrategy
+    public int getBackpressureStrategy(@BackpressureStrategy int valueIfMissing) {
         return retrieveOption(OPTION_BACKPRESSURE_STRATEGY, valueIfMissing);
     }
 
@@ -84,8 +83,8 @@ public final class ImageAnalysisConfig
      * @return The stored value, if it exists in this configuration.
      * @throws IllegalArgumentException if the option does not exist in this configuration.
      */
-    @NonNull
-    public BackpressureStrategy getBackpressureStrategy() {
+    @BackpressureStrategy
+    public int getBackpressureStrategy() {
         return retrieveOption(OPTION_BACKPRESSURE_STRATEGY);
     }
 
@@ -649,7 +648,7 @@ public final class ImageAnalysisConfig
          * @return The current Builder.
          */
         @NonNull
-        public Builder setBackpressureStrategy(@NonNull BackpressureStrategy strategy) {
+        public Builder setBackpressureStrategy(@BackpressureStrategy int strategy) {
             getMutableConfig().insertOption(OPTION_BACKPRESSURE_STRATEGY, strategy);
             return this;
         }
@@ -702,7 +701,7 @@ public final class ImageAnalysisConfig
          *
          * @return A {@link ImageAnalysisConfig} populated with the current state.
          * @throws IllegalArgumentException if attempting to set both target aspect ratio and
-         * target resolution.
+         *                                  target resolution.
          */
         @Override
         @NonNull
