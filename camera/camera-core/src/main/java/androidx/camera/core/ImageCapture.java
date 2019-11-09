@@ -31,6 +31,7 @@ import android.util.Size;
 import android.view.Display;
 import android.view.Surface;
 
+import androidx.annotation.IntDef;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.annotation.RestrictTo;
@@ -53,6 +54,8 @@ import androidx.concurrent.futures.CallbackToFutureAdapter;
 import com.google.common.util.concurrent.ListenableFuture;
 
 import java.io.File;
+import java.lang.annotation.Retention;
+import java.lang.annotation.RetentionPolicy;
 import java.util.ArrayList;
 import java.util.Deque;
 import java.util.HashSet;
@@ -107,7 +110,7 @@ public class ImageCapture extends UseCase {
     @SuppressWarnings("WeakerAccess") /* synthetic accessor */
     final Deque<ImageCaptureRequest> mImageCaptureRequests = new ConcurrentLinkedDeque<>();
     @SuppressWarnings("WeakerAccess") /* synthetic accessor */
-    SessionConfig.Builder mSessionConfigBuilder;
+            SessionConfig.Builder mSessionConfigBuilder;
     private final CaptureConfig mCaptureConfig;
     private final ExecutorService mExecutor =
             Executors.newFixedThreadPool(
@@ -524,9 +527,9 @@ public class ImageCapture extends UseCase {
                     }
 
                     @Override
-                    public void onError(
-                            ImageSaver.SaveError error, String message, @Nullable Throwable cause) {
-                        ImageCaptureError imageCaptureError = ImageCaptureError.UNKNOWN_ERROR;
+                    public void onError(ImageSaver.SaveError error, String message,
+                            @Nullable Throwable cause) {
+                        @ImageCaptureError int imageCaptureError = ImageCaptureError.UNKNOWN_ERROR;
                         switch (error) {
                             case FILE_IO_FAILED:
                                 imageCaptureError = ImageCaptureError.FILE_IO_ERROR;
@@ -559,8 +562,7 @@ public class ImageCapture extends UseCase {
                     }
 
                     @Override
-                    public void onError(
-                            @NonNull ImageCaptureError error, @NonNull String message,
+                    public void onError(@ImageCaptureError int error, @NonNull String message,
                             @Nullable Throwable cause) {
                         imageSavedCallback.onError(error, message, cause);
                     }
@@ -695,7 +697,8 @@ public class ImageCapture extends UseCase {
     }
 
     @SuppressWarnings("WeakerAccess") /* synthetic accessor */
-    ImageCaptureError getError(Throwable throwable) {
+    @ImageCaptureError
+    int getError(Throwable throwable) {
         if (throwable instanceof CameraClosedException) {
             return ImageCaptureError.CAMERA_CLOSED;
         } else if (throwable instanceof CaptureFailedException) {
@@ -1048,35 +1051,39 @@ public class ImageCapture extends UseCase {
      * ImageCapture#takePicture(Executor, OnImageCapturedCallback)}).
      *
      * <p>This is a parameter sent to the error callback functions set in listeners such as {@link
-     * ImageCapture.OnImageSavedCallback#onError(ImageCaptureError, String, Throwable)}.
+     * ImageCapture.OnImageSavedCallback#onError(int, String, Throwable)}.
      */
-    public enum ImageCaptureError {
+    @IntDef({ImageCaptureError.UNKNOWN_ERROR, ImageCaptureError.FILE_IO_ERROR,
+            ImageCaptureError.CAPTURE_FAILED, ImageCaptureError.CAMERA_CLOSED,
+            ImageCaptureError.INVALID_CAMERA})
+    @Retention(RetentionPolicy.SOURCE)
+    public @interface ImageCaptureError {
         /**
          * An unknown error occurred.
          *
          * <p>See message parameter in onError callback or log for more details.
          */
-        UNKNOWN_ERROR,
+        int UNKNOWN_ERROR = 0;
         /**
          * An error occurred while attempting to read or write a file, such as when saving an image
          * to a File.
          */
-        FILE_IO_ERROR,
+        int FILE_IO_ERROR = 1;
 
         /**
          * An error reported by camera framework indicating the capture request is failed.
          */
-        CAPTURE_FAILED,
+        int CAPTURE_FAILED = 2;
 
         /**
          * An error indicating the request cannot be done due to camera is closed.
          */
-        CAMERA_CLOSED,
+        int CAMERA_CLOSED = 3;
 
         /**
          * An error indicating this ImageCapture is not bound to a valid camera.
          */
-        INVALID_CAMERA
+        int INVALID_CAMERA = 4;
     }
 
     /**
@@ -1106,7 +1113,7 @@ public class ImageCapture extends UseCase {
 
         /** Called when an error occurs while attempting to save an image. */
         void onError(
-                @NonNull ImageCaptureError imageCaptureError,
+                @ImageCaptureError int imageCaptureError,
                 @NonNull String message,
                 @Nullable Throwable cause);
     }
@@ -1147,8 +1154,7 @@ public class ImageCapture extends UseCase {
         }
 
         /** Callback for when an error occurred during image capture. */
-        public void onError(
-                @NonNull ImageCaptureError imageCaptureError, @NonNull String message,
+        public void onError(@ImageCaptureError int imageCaptureError, @NonNull String message,
                 @Nullable Throwable cause) {
         }
     }
@@ -1438,8 +1444,8 @@ public class ImageCapture extends UseCase {
             }
         }
 
-        void notifyCallbackError(final ImageCaptureError imageCaptureError, final String message,
-                final Throwable cause) {
+        void notifyCallbackError(final @ImageCaptureError int imageCaptureError,
+                final String message, final Throwable cause) {
             try {
                 mListenerExecutor.execute(
                         () -> mCallback.onError(imageCaptureError, message, cause));

@@ -347,7 +347,7 @@ public class CameraExtensionsActivity extends AppCompatActivity
 
                                     @Override
                                     public void onError(
-                                            @NonNull ImageCapture.ImageCaptureError error,
+                                            @ImageCapture.ImageCaptureError int error,
                                             @NonNull String message,
                                             Throwable cause) {
                                         Log.e(TAG, "Failed to save image - " + message, cause);

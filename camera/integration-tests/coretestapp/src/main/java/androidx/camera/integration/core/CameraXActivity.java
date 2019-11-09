@@ -45,9 +45,7 @@ import androidx.annotation.Nullable;
 import androidx.annotation.VisibleForTesting;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.camera.core.Camera;
-import androidx.camera.core.CameraInfoUnavailableException;
 import androidx.camera.core.CameraSelector;
-import androidx.camera.core.CameraX;
 import androidx.camera.core.FlashMode;
 import androidx.camera.core.ImageAnalysis;
 import androidx.camera.core.ImageAnalysisConfig;
@@ -525,7 +523,7 @@ public class CameraXActivity extends AppCompatActivity
 
                                     @Override
                                     public void onError(
-                                            @NonNull ImageCapture.ImageCaptureError error,
+                                            @ImageCapture.ImageCaptureError int error,
                                             @NonNull String message,
                                             Throwable cause) {
                                         Log.e(TAG, "Failed to save image.", cause);
