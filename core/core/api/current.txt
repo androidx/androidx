@@ -976,6 +976,7 @@ package androidx.core.content.res {
     method public static float getFloat(android.content.res.Resources, @DimenRes int);
     method public static android.graphics.Typeface? getFont(android.content.Context, @FontRes int) throws android.content.res.Resources.NotFoundException;
     method public static void getFont(android.content.Context, @FontRes int, androidx.core.content.res.ResourcesCompat.FontCallback, android.os.Handler?) throws android.content.res.Resources.NotFoundException;
+    field @AnyRes public static final int ID_NULL = 0; // 0x0
   }
 
   public abstract static class ResourcesCompat.FontCallback {
