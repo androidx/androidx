@@ -33,6 +33,7 @@ import android.os.Looper;
 import android.util.Log;
 import android.util.TypedValue;
 
+import androidx.annotation.AnyRes;
 import androidx.annotation.ColorInt;
 import androidx.annotation.ColorRes;
 import androidx.annotation.DimenRes;
@@ -56,6 +57,13 @@ import java.io.IOException;
  */
 public final class ResourcesCompat {
     private static final String TAG = "ResourcesCompat";
+
+    /**
+     * The {@code null} resource ID. This denotes an invalid resource ID that is returned by the
+     * system when a resource is not found or the value is set to {@code @null} in XML.
+     */
+    @AnyRes
+    public static final int ID_NULL = 0;
 
     /**
      * Return a drawable object associated with a particular resource ID and
