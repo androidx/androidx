@@ -33,6 +33,8 @@ import static androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP;
 import static androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP_PREFIX;
 import static androidx.slice.core.SliceHints.ICON_IMAGE;
 import static androidx.slice.core.SliceHints.LARGE_IMAGE;
+import static androidx.slice.core.SliceHints.RAW_IMAGE_LARGE;
+import static androidx.slice.core.SliceHints.RAW_IMAGE_SMALL;
 import static androidx.slice.core.SliceHints.SMALL_IMAGE;
 import static androidx.slice.core.SliceHints.UNKNOWN_IMAGE;
 
@@ -160,9 +162,7 @@ public class SliceActionImpl implements SliceAction {
         SliceItem iconItem = SliceQuery.find(actionItem.getSlice(), FORMAT_IMAGE);
         if (iconItem != null) {
             mIcon = iconItem.getIcon();
-            mImageMode = iconItem.hasHint(HINT_NO_TINT)
-                    ? iconItem.hasHint(HINT_LARGE) ? LARGE_IMAGE : SMALL_IMAGE
-                    : ICON_IMAGE;
+            mImageMode = parseImageMode(iconItem);
         }
         SliceItem titleItem = SliceQuery.find(actionItem.getSlice(), FORMAT_TEXT, HINT_TITLE,
                 null /* nonHints */);
@@ -371,5 +371,22 @@ public class SliceActionImpl implements SliceAction {
 
     public void setActivity(boolean isActivity) {
         mIsActivity = isActivity;
+    }
+
+    /**
+     * @hide
+     */
+    @RestrictTo(LIBRARY_GROUP_PREFIX)
+    public static int parseImageMode(@NonNull SliceItem iconItem) {
+        if (!iconItem.hasHint(HINT_NO_TINT)) {
+            return ICON_IMAGE;
+        }
+        if (iconItem.hasHint(SliceHints.HINT_RAW)) {
+            return iconItem.hasHint(HINT_LARGE) ? RAW_IMAGE_LARGE : RAW_IMAGE_SMALL;
+        }
+        if (iconItem.hasHint(HINT_LARGE)) {
+            return LARGE_IMAGE;
+        }
+        return SMALL_IMAGE;
     }
 }

@@ -245,6 +245,7 @@ package androidx.slice.core {
     method public boolean isChecked();
     method public boolean isDefaultToggle();
     method public boolean isToggle();
+    method @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP_PREFIX) public static int parseImageMode(androidx.slice.SliceItem);
     method public void setActivity(boolean);
     method public androidx.slice.core.SliceActionImpl! setChecked(boolean);
     method public androidx.slice.core.SliceActionImpl? setContentDescription(CharSequence);
@@ -254,10 +255,13 @@ package androidx.slice.core {
   @RequiresApi(19) @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP_PREFIX) public class SliceHints {
     field public static final String HINT_ACTIVITY = "activity";
     field public static final String HINT_CACHED = "cached";
+    field public static final String HINT_RAW = "raw";
     field public static final String HINT_SELECTION_OPTION = "selection_option";
     field public static final int ICON_IMAGE = 0; // 0x0
     field public static final long INFINITY = -1L; // 0xffffffffffffffffL
     field public static final int LARGE_IMAGE = 2; // 0x2
+    field public static final int RAW_IMAGE_LARGE = 4; // 0x4
+    field public static final int RAW_IMAGE_SMALL = 3; // 0x3
     field public static final String SLICE_METADATA_KEY = "android.metadata.SLICE_URI";
     field public static final int SMALL_IMAGE = 1; // 0x1
     field public static final String SUBTYPE_MILLIS = "millis";
@@ -265,10 +269,10 @@ package androidx.slice.core {
     field public static final String SUBTYPE_SELECTION = "selection";
     field public static final String SUBTYPE_SELECTION_OPTION_KEY = "selection_option_key";
     field public static final String SUBTYPE_SELECTION_OPTION_VALUE = "selection_option_value";
-    field public static final int UNKNOWN_IMAGE = 3; // 0x3
+    field public static final int UNKNOWN_IMAGE = 5; // 0x5
   }
 
-  @IntDef({androidx.slice.core.SliceHints.LARGE_IMAGE, androidx.slice.core.SliceHints.SMALL_IMAGE, androidx.slice.core.SliceHints.ICON_IMAGE, androidx.slice.core.SliceHints.UNKNOWN_IMAGE}) @java.lang.annotation.Retention(java.lang.annotation.RetentionPolicy.SOURCE) public static @interface SliceHints.ImageMode {
+  @IntDef({androidx.slice.core.SliceHints.LARGE_IMAGE, androidx.slice.core.SliceHints.SMALL_IMAGE, androidx.slice.core.SliceHints.ICON_IMAGE, androidx.slice.core.SliceHints.RAW_IMAGE_SMALL, androidx.slice.core.SliceHints.RAW_IMAGE_LARGE, androidx.slice.core.SliceHints.UNKNOWN_IMAGE}) @java.lang.annotation.Retention(java.lang.annotation.RetentionPolicy.SOURCE) public static @interface SliceHints.ImageMode {
   }
 
   @RequiresApi(19) @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP_PREFIX) public class SliceQuery {

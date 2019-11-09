@@ -30,9 +30,8 @@ import static android.app.slice.SliceItem.FORMAT_SLICE;
 import static android.app.slice.SliceItem.FORMAT_TEXT;
 
 import static androidx.slice.Slice.EXTRA_SELECTION;
+import static androidx.slice.core.SliceHints.HINT_RAW;
 import static androidx.slice.core.SliceHints.HINT_SELECTION_OPTION;
-import static androidx.slice.core.SliceHints.ICON_IMAGE;
-import static androidx.slice.core.SliceHints.SMALL_IMAGE;
 import static androidx.slice.core.SliceHints.SUBTYPE_MIN;
 import static androidx.slice.core.SliceHints.SUBTYPE_SELECTION_OPTION_KEY;
 import static androidx.slice.core.SliceHints.SUBTYPE_SELECTION_OPTION_VALUE;
@@ -817,7 +816,6 @@ public class RowView extends SliceChildView implements View.OnClickListener,
      */
     private boolean addItem(SliceItem sliceItem, int color, boolean isStart) {
         IconCompat icon = null;
-        int imageMode = 0;
         SliceItem timeStamp = null;
         ViewGroup container = isStart ? mStartContainer : mEndContainer;
         if (FORMAT_SLICE.equals(sliceItem.getFormat())
@@ -835,22 +833,25 @@ public class RowView extends SliceChildView implements View.OnClickListener,
 
         if (FORMAT_IMAGE.equals(sliceItem.getFormat())) {
             icon = sliceItem.getIcon();
-            imageMode = sliceItem.hasHint(HINT_NO_TINT) ? SMALL_IMAGE : ICON_IMAGE;
         } else if (FORMAT_LONG.equals(sliceItem.getFormat())) {
             timeStamp = sliceItem;
         }
         View addedView = null;
         if (icon != null) {
-            boolean isIcon = imageMode == ICON_IMAGE;
+            boolean isIcon = !sliceItem.hasHint(HINT_NO_TINT);
+            boolean useIntrinsicSize = sliceItem.hasHint(HINT_RAW);
+            final float density = getResources().getDisplayMetrics().density;
             ImageView iv = new ImageView(getContext());
-            iv.setImageDrawable(icon.loadDrawable(getContext()));
+            Drawable d = icon.loadDrawable(getContext());
+            iv.setImageDrawable(d);
             if (isIcon && color != -1) {
                 iv.setColorFilter(color);
             }
             container.addView(iv);
             LinearLayout.LayoutParams lp = (LinearLayout.LayoutParams) iv.getLayoutParams();
-            lp.width = mImageSize;
-            lp.height = mImageSize;
+            lp.width = useIntrinsicSize ? Math.round(d.getIntrinsicWidth() / density) : mImageSize;
+            lp.height = useIntrinsicSize ? Math.round(d.getIntrinsicHeight() / density) :
+                    mImageSize;
             iv.setLayoutParams(lp);
             int p = isIcon ? mIconSize / 2 : 0;
             iv.setPadding(p, p, p, p);

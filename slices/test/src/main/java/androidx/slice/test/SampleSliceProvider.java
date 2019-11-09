@@ -21,6 +21,8 @@ import static android.text.Spanned.SPAN_EXCLUSIVE_EXCLUSIVE;
 import static androidx.slice.builders.ListBuilder.ICON_IMAGE;
 import static androidx.slice.builders.ListBuilder.INFINITY;
 import static androidx.slice.builders.ListBuilder.LARGE_IMAGE;
+import static androidx.slice.builders.ListBuilder.RAW_IMAGE_LARGE;
+import static androidx.slice.builders.ListBuilder.RAW_IMAGE_SMALL;
 import static androidx.slice.builders.ListBuilder.SMALL_IMAGE;
 
 import android.app.PendingIntent;
@@ -110,6 +112,7 @@ public class SampleSliceProvider extends SliceProvider {
             "longtext",
             "loading",
             "selection",
+            "notification"
     };
 
     /**
@@ -205,6 +208,8 @@ public class SampleSliceProvider extends SliceProvider {
                 return createLoadingSlice(sliceUri);
             case "/selection":
                 return createSelectionSlice(sliceUri);
+            case "/notification":
+                return createNotificationSlice(sliceUri);
         }
         Log.w(TAG, String.format("Unknown uri: %s", sliceUri));
         return null;
@@ -340,7 +345,7 @@ public class SampleSliceProvider extends SliceProvider {
         SliceAction primaryAction = SliceAction.create(pi, ic, LARGE_IMAGE, "Cats you follow");
         gb.setPrimaryAction(primaryAction);
         gb.addCell(new GridRowBuilder.CellBuilder()
-                .addImage(ic, LARGE_IMAGE));
+                .addImage(ic, RAW_IMAGE_LARGE));
         b.addGridRow(gb);
         return b.build();
     }
@@ -1170,6 +1175,36 @@ public class SampleSliceProvider extends SliceProvider {
                         .setInputAction(getBroadcastIntent(ACTION_TOAST,
                                 "handle card type selection"))
                         .setContentDescription("selection for card type"))
+                .build();
+    }
+
+    private Slice createNotificationSlice(Uri sliceUri) {
+        final IconCompat icon = IconCompat.createWithResource(getContext(), R.drawable.message);
+        final SliceAction action = SliceAction.create(getBroadcastIntent(ACTION_TOAST,
+                "View notifications"), icon, ICON_IMAGE, "Notifications");
+        SliceAction toggleAction = SliceAction.createToggle(
+                getBroadcastIntent(ACTION_TOAST, "toggle action"), "toggle", false);
+        return new ListBuilder(getContext(), sliceUri, INFINITY)
+                .addRow(new RowBuilder()
+                        .setTitleItem(icon, RAW_IMAGE_SMALL)
+                        .setTitle("Manage Message Notifications")
+                        .setSubtitle("7 notification channels. Tap to manage all.")
+                        .setPrimaryAction(action))
+                .addRow(new RowBuilder()
+                        .setTitle("Chat heads active")
+                        .setSubtitle("~6 per week")
+                        .setPrimaryAction(action)
+                        .addEndItem(toggleAction))
+                .addRow(new RowBuilder()
+                        .setTitle("Chats and calls")
+                        .setSubtitle("~2 per week")
+                        .setPrimaryAction(action)
+                        .addEndItem(toggleAction))
+                .addRow(new RowBuilder()
+                        .setTitle("Other")
+                        .setSubtitle("~2 per week")
+                        .setPrimaryAction(action)
+                        .addEndItem(toggleAction))
                 .build();
     }
 

@@ -315,6 +315,14 @@ public class SliceUtils {
         }
     }
 
+    /**
+     * @hide
+     */
+    @RestrictTo(RestrictTo.Scope.LIBRARY)
+    public static int parseImageMode(@NonNull SliceItem iconItem) {
+        return SliceActionImpl.parseImageMode(iconItem);
+    }
+
     private static boolean doesStreamStartWith(String parcelName, BufferedInputStream inputStream) {
         byte[] data = parcelName.getBytes(Charset.forName("UTF-16"));
         byte[] buf = new byte[data.length];

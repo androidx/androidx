@@ -146,7 +146,7 @@ public class ListBuilder extends TemplateSliceBuilder {
      */
     @RestrictTo(RestrictTo.Scope.LIBRARY)
     @IntDef({
-            LARGE_IMAGE, SMALL_IMAGE, ICON_IMAGE, UNKNOWN_IMAGE
+            LARGE_IMAGE, SMALL_IMAGE, ICON_IMAGE, RAW_IMAGE_SMALL, RAW_IMAGE_LARGE, UNKNOWN_IMAGE
     })
     @Retention(RetentionPolicy.SOURCE)
     public @interface ImageMode{}
@@ -163,6 +163,16 @@ public class ListBuilder extends TemplateSliceBuilder {
      * Indicates that an image presented in a larger size and it shouldn't be tinted.
      */
     public static final int LARGE_IMAGE = SliceHints.LARGE_IMAGE;
+    /**
+     * Indicates that an image should be presented in its intrinsic size and shouldn't be tinted.
+     * If SliceView in the call-site doesn't support RAW_IMAGE, fallback to SMALL_IMAGE instead.
+     */
+    public static final int RAW_IMAGE_SMALL = SliceHints.RAW_IMAGE_SMALL;
+    /**
+     * Indicates that an image should be presented in its intrinsic size and shouldn't be tinted.
+     * If SliceView in the call-site doesn't support RAW_IMAGE, fallback to LARGE_IMAGE instead.
+     */
+    public static final int RAW_IMAGE_LARGE = SliceHints.RAW_IMAGE_LARGE;
     /**
      * Indicates that an image mode is unknown.
      */

@@ -17,8 +17,6 @@
 package androidx.slice.builders.impl;
 
 import static android.app.slice.Slice.HINT_HORIZONTAL;
-import static android.app.slice.Slice.HINT_LARGE;
-import static android.app.slice.Slice.HINT_NO_TINT;
 import static android.app.slice.Slice.HINT_PARTIAL;
 import static android.app.slice.Slice.HINT_SEE_MORE;
 import static android.app.slice.Slice.HINT_TITLE;
@@ -26,8 +24,6 @@ import static android.app.slice.Slice.SUBTYPE_CONTENT_DESCRIPTION;
 import static android.app.slice.Slice.SUBTYPE_LAYOUT_DIRECTION;
 
 import static androidx.annotation.RestrictTo.Scope.LIBRARY;
-import static androidx.slice.builders.ListBuilder.ICON_IMAGE;
-import static androidx.slice.builders.ListBuilder.LARGE_IMAGE;
 
 import android.app.PendingIntent;
 import android.net.Uri;
@@ -43,7 +39,6 @@ import androidx.slice.builders.GridRowBuilder;
 import androidx.slice.builders.GridRowBuilder.CellBuilder;
 import androidx.slice.builders.SliceAction;
 
-import java.util.ArrayList;
 import java.util.List;
 
 /**
@@ -216,17 +211,7 @@ public class GridRowBuilderListV1Impl extends TemplateBuilderImpl {
         /**
          */
         private void addImage(@Nullable IconCompat image, int imageMode, boolean isLoading) {
-            ArrayList<String> hints = new ArrayList<>();
-            if (imageMode != ICON_IMAGE) {
-                hints.add(HINT_NO_TINT);
-            }
-            if (imageMode == LARGE_IMAGE) {
-                hints.add(HINT_LARGE);
-            }
-            if (isLoading) {
-                hints.add(HINT_PARTIAL);
-            }
-            getBuilder().addIcon(image, null, hints);
+            getBuilder().addIcon(image, null, parseImageMode(imageMode, isLoading));
         }
 
         /**

@@ -30,18 +30,14 @@ import static android.app.slice.SliceItem.FORMAT_LONG;
 import static android.app.slice.SliceItem.FORMAT_SLICE;
 import static android.app.slice.SliceItem.FORMAT_TEXT;
 
-import static androidx.slice.core.SliceHints.ICON_IMAGE;
-import static androidx.slice.core.SliceHints.LARGE_IMAGE;
-import static androidx.slice.core.SliceHints.SMALL_IMAGE;
 import static androidx.slice.core.SliceHints.UNKNOWN_IMAGE;
-
-import android.app.slice.Slice;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.annotation.RequiresApi;
 import androidx.annotation.RestrictTo;
 import androidx.slice.SliceItem;
+import androidx.slice.SliceUtils;
 import androidx.slice.core.SliceActionImpl;
 import androidx.slice.core.SliceQuery;
 
@@ -283,13 +279,7 @@ public class GridContent extends SliceContent {
                             mTitleItem = item;
                         }
                     } else if (imageCount < 1 && FORMAT_IMAGE.equals(item.getFormat())) {
-                        if (item.hasHint(Slice.HINT_NO_TINT)) {
-                            mImageMode = item.hasHint(Slice.HINT_LARGE)
-                                    ? LARGE_IMAGE
-                                    : SMALL_IMAGE;
-                        } else {
-                            mImageMode = ICON_IMAGE;
-                        }
+                        mImageMode = SliceUtils.parseImageMode(item);
                         imageCount++;
                         mHasImage = true;
                         mCellItems.add(item);
