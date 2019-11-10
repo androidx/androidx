@@ -1069,6 +1069,12 @@ public final class ImageCaptureConfig
          * requesting a portrait image may specify 480x640, and the same device, rotated 90 degrees
          * and targeting landscape orientation may specify 640x480.
          *
+         * <p>The maximum available resolution that could be selected for an {@link ImageCapture}
+         * will depend on the camera device's capability.
+         *
+         * <p>If not set, the largest available resolution will be selected to use. Usually,
+         * users will intend to get the largest still image that the camera device can support.
+         *
          * @param resolution The target resolution to choose from supported output sizes list.
          * @return The current Builder.
          */
