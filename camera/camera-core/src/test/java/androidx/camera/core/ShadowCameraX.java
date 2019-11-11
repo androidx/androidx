@@ -17,6 +17,7 @@
 package androidx.camera.core;
 
 import androidx.annotation.NonNull;
+import androidx.annotation.Nullable;
 import androidx.camera.testing.fakes.FakeCameraDeviceSurfaceManager;
 import androidx.lifecycle.LiveData;
 import androidx.lifecycle.MutableLiveData;
@@ -50,7 +51,7 @@ public class ShadowCameraX {
         MutableLiveData<Float> mLinearZoom = new MutableLiveData<>(0f);
 
         @Override
-        public LensFacing getLensFacing() {
+        public Integer getLensFacing() {
             return LensFacing.BACK;
         }
 
@@ -121,12 +122,12 @@ public class ShadowCameraX {
     }
 
     /**
-     * Shadow of {@link CameraX#getDefaultUseCaseConfig(Class, LensFacing)}.
+     * Shadow of {@link CameraX#getDefaultUseCaseConfig(Class, Integer)}.
      */
     @SuppressWarnings("unchecked")
     @Implementation
     public static <C extends UseCaseConfig<?>> C getDefaultUseCaseConfig(
-            Class<C> configType, LensFacing lensFacing) {
+            Class<C> configType, @Nullable Integer lensFacing) {
         return (C) DEFAULT_IMAGE_ANALYSIS_CONFIG;
     }
 

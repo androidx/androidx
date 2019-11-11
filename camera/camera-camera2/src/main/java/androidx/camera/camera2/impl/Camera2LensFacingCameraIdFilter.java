@@ -40,7 +40,7 @@ public final class Camera2LensFacingCameraIdFilter extends LensFacingCameraIdFil
     private static final String TAG = "Camera2LensFacingCIF";
     private CameraManager mCameraManager;
 
-    Camera2LensFacingCameraIdFilter(@NonNull LensFacing lensFacing,
+    Camera2LensFacingCameraIdFilter(@LensFacing int lensFacing,
             @NonNull CameraManager cameraManager) {
         super(lensFacing);
         mCameraManager = cameraManager;
@@ -70,13 +70,13 @@ public final class Camera2LensFacingCameraIdFilter extends LensFacingCameraIdFil
         return resultCameraIdSet;
     }
 
-    private Integer cameraXLensFacingToCamera2LensFacing(LensFacing lensFacing) {
+    private Integer cameraXLensFacingToCamera2LensFacing(@LensFacing int lensFacing) {
         Integer lensFacingInteger = -1;
         switch (lensFacing) {
-            case BACK:
+            case LensFacing.BACK:
                 lensFacingInteger = CameraMetadata.LENS_FACING_BACK;
                 break;
-            case FRONT:
+            case LensFacing.FRONT:
                 lensFacingInteger = CameraMetadata.LENS_FACING_FRONT;
                 break;
         }

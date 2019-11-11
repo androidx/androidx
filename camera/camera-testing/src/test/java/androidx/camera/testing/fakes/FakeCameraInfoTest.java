@@ -38,7 +38,8 @@ import org.robolectric.annotation.internal.DoNotInstrument;
 public final class FakeCameraInfoTest {
 
     private static final int SENSOR_ROTATION_DEGREES = 90;
-    private static final LensFacing LENS_FACING = LensFacing.FRONT;
+    @LensFacing
+    private static final int LENS_FACING = LensFacing.FRONT;
 
     private FakeCameraInfoInternal mFakeCameraInfo;
 

@@ -24,6 +24,7 @@ import androidx.camera.core.CameraFactory;
 import androidx.camera.core.CameraInternal;
 import androidx.camera.core.LensFacing;
 import androidx.camera.core.LensFacingCameraIdFilter;
+import androidx.camera.core.LensFacingConverter;
 import androidx.core.util.Pair;
 import androidx.core.util.Preconditions;
 
@@ -49,12 +50,12 @@ public final class FakeCameraFactory implements CameraFactory {
     @Nullable
     private Set<String> mCachedCameraIds;
     @Nullable
-    private Map<LensFacing, Set<String>> mCachedLensFacingToIdMap;
+    private Map<Integer, Set<String>> mCachedLensFacingToIdMap;
     private String mFrontCameraId = DEFAULT_FRONT_ID;
     private String mBackCameraId = DEFAULT_BACK_ID;
 
     @SuppressWarnings("WeakerAccess") /* synthetic accessor */
-    final Map<String, Pair<LensFacing, Callable<CameraInternal>>> mCameraMap = new HashMap<>();
+    final Map<String, Pair<Integer, Callable<CameraInternal>>> mCameraMap = new HashMap<>();
 
     public FakeCameraFactory() {
     }
@@ -62,7 +63,7 @@ public final class FakeCameraFactory implements CameraFactory {
     @Override
     @NonNull
     public CameraInternal getCamera(@NonNull String cameraId) {
-        Pair<LensFacing, Callable<CameraInternal>> cameraPair = mCameraMap.get(cameraId);
+        Pair<Integer, Callable<CameraInternal>> cameraPair = mCameraMap.get(cameraId);
         if (cameraPair != null) {
             try {
                 Callable<CameraInternal> cameraCallable = Preconditions.checkNotNull(
@@ -81,7 +82,7 @@ public final class FakeCameraFactory implements CameraFactory {
      * @param cameraId       Identifier to use for the camera.
      * @param cameraInternal Callable used to provide the Camera implementation.
      */
-    public void insertCamera(@NonNull LensFacing lensFacing, @NonNull String cameraId,
+    public void insertCamera(@LensFacing int lensFacing, @NonNull String cameraId,
             @NonNull Callable<CameraInternal> cameraInternal) {
         // Invalidate caches
         mCachedCameraIds = null;
@@ -94,8 +95,8 @@ public final class FakeCameraFactory implements CameraFactory {
      * Inserts a camera and sets it as the default front camera.
      *
      * <p>This is a convenience method for calling
-     * {@link #insertCamera(LensFacing, String, Callable)}
-     * followed by {@link #setDefaultCameraIdForLensFacing(LensFacing, String)} with
+     * {@link #insertCamera(int, String, Callable)}
+     * followed by {@link #setDefaultCameraIdForLensFacing(int, String)} with
      * {@link LensFacing#FRONT} for all lens facing arguments.
      *
      * @param cameraId       Identifier to use for the front camera.
@@ -111,8 +112,8 @@ public final class FakeCameraFactory implements CameraFactory {
      * Inserts a camera and sets it as the default back camera.
      *
      * <p>This is a convenience method for calling
-     * {@link #insertCamera(LensFacing, String, Callable)}
-     * followed by {@link #setDefaultCameraIdForLensFacing(LensFacing, String)} with
+     * {@link #insertCamera(int, String, Callable)}
+     * followed by {@link #setDefaultCameraIdForLensFacing(int, String)} with
      * {@link LensFacing#BACK} for all lens facing arguments.
      *
      * @param cameraId       Identifier to use for the back camera.
@@ -125,18 +126,18 @@ public final class FakeCameraFactory implements CameraFactory {
     }
 
     /**
-     * Sets the camera ID which will be returned by {@link #cameraIdForLensFacing(LensFacing)}.
+     * Sets the camera ID which will be returned by {@link #cameraIdForLensFacing(int)}.
      *
      * @param lensFacing The {@link LensFacing} to set.
      * @param cameraId   The camera ID which will be returned.
      */
-    public void setDefaultCameraIdForLensFacing(@NonNull LensFacing lensFacing,
+    public void setDefaultCameraIdForLensFacing(@LensFacing int lensFacing,
             @NonNull String cameraId) {
         switch (lensFacing) {
-            case FRONT:
+            case LensFacing.FRONT:
                 mFrontCameraId = cameraId;
                 break;
-            case BACK:
+            case LensFacing.BACK:
                 mBackCameraId = cameraId;
                 break;
             default:
@@ -158,11 +159,11 @@ public final class FakeCameraFactory implements CameraFactory {
 
     @Override
     @Nullable
-    public String cameraIdForLensFacing(@NonNull LensFacing lensFacing) {
+    public String cameraIdForLensFacing(@LensFacing int lensFacing) {
         switch (lensFacing) {
-            case FRONT:
+            case LensFacing.FRONT:
                 return mFrontCameraId;
-            case BACK:
+            case LensFacing.BACK:
                 return mBackCameraId;
             default:
                 return null;
@@ -171,19 +172,19 @@ public final class FakeCameraFactory implements CameraFactory {
 
     @Override
     @NonNull
-    public LensFacingCameraIdFilter getLensFacingCameraIdFilter(@NonNull LensFacing lensFacing) {
+    public LensFacingCameraIdFilter getLensFacingCameraIdFilter(@LensFacing int lensFacing) {
         // Lazily cache the map of LensFacing to set of camera ids. This cache will be
         // invalidated anytime a new camera is added.
         if (mCachedLensFacingToIdMap == null) {
             // Create empty sets of ids for all LensFacing types
-            HashMap<LensFacing, Set<String>> lensFacingToIdMap = new HashMap<>();
-            for (LensFacing l : LensFacing.values()) {
+            HashMap<Integer, Set<String>> lensFacingToIdMap = new HashMap<>();
+            for (int l : LensFacingConverter.values()) {
                 // Use a TreeSet to ensure lexical ordering of ids
                 lensFacingToIdMap.put(l, new TreeSet<>());
             }
 
             // Populate the sets of ids
-            for (Map.Entry<String, Pair<LensFacing, Callable<CameraInternal>>> entry :
+            for (Map.Entry<String, Pair<Integer, Callable<CameraInternal>>> entry :
                     mCameraMap.entrySet()) {
                 Preconditions.checkNotNull(lensFacingToIdMap.get(entry.getValue().first))
                         .add(entry.getKey());
@@ -200,8 +201,7 @@ public final class FakeCameraFactory implements CameraFactory {
         @Nullable
         private final Set<String> mIds;
 
-        SettableLensFacingCameraIdFilter(@NonNull LensFacing lensFacing,
-                @Nullable Set<String> ids) {
+        SettableLensFacingCameraIdFilter(@LensFacing int lensFacing, @Nullable Set<String> ids) {
             super(lensFacing);
             mIds = ids;
         }

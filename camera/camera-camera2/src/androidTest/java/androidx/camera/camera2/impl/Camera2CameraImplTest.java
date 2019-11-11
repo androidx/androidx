@@ -101,7 +101,8 @@ import java.util.concurrent.atomic.AtomicReference;
 @LargeTest
 @RunWith(AndroidJUnit4.class)
 public final class Camera2CameraImplTest {
-    private static final LensFacing DEFAULT_LENS_FACING = LensFacing.BACK;
+    @LensFacing
+    private static final int DEFAULT_LENS_FACING = LensFacing.BACK;
     // For the purpose of this test, always say we have 1 camera available.
     private static final int DEFAULT_AVAILABLE_CAMERA_COUNT = 1;
     private static final Set<CameraInternal.State> STABLE_STATES = new HashSet<>(Arrays.asList(
@@ -123,7 +124,7 @@ public final class Camera2CameraImplTest {
     OnImageAvailableListener mMockOnImageAvailableListener;
     String mCameraId;
 
-    private static String getCameraIdForLensFacingUnchecked(LensFacing lensFacing) {
+    private static String getCameraIdForLensFacingUnchecked(@LensFacing int lensFacing) {
         try {
             return sCameraFactory.cameraIdForLensFacing(lensFacing);
         } catch (Exception e) {
@@ -960,7 +961,7 @@ public final class Camera2CameraImplTest {
 
         // we need to set Camera2OptionUnpacker to the Config to enable the camera2 callback hookup.
         @Override
-        protected UseCaseConfig.Builder<?, ?, ?> getDefaultBuilder(LensFacing lensFacing) {
+        protected UseCaseConfig.Builder<?, ?, ?> getDefaultBuilder(Integer lensFacing) {
             return new FakeUseCaseConfig.Builder()
                     .setSessionOptionUnpacker(new Camera2SessionOptionUnpacker());
         }

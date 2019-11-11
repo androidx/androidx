@@ -296,7 +296,7 @@ public final class CameraUtil {
      * @return True if the device supports the lensFacing.
      * @throws IllegalStateException if the CAMERA permission is not currently granted.
      */
-    public static boolean hasCameraWithLensFacing(@NonNull LensFacing lensFacing) {
+    public static boolean hasCameraWithLensFacing(@LensFacing int lensFacing) {
 
         CameraManager cameraManager = getCameraManager();
 
@@ -311,10 +311,10 @@ public final class CameraUtil {
         // Convert to from CameraX enum to Camera2 CameraMetadata
         Integer lensFacingInteger = -1;
         switch (lensFacing) {
-            case BACK:
+            case LensFacing.BACK:
                 lensFacingInteger = CameraMetadata.LENS_FACING_BACK;
                 break;
-            case FRONT:
+            case LensFacing.FRONT:
                 lensFacingInteger = CameraMetadata.LENS_FACING_FRONT;
                 break;
         }
@@ -356,8 +356,8 @@ public final class CameraUtil {
      * @param lensFacingInteger The lens facing integer, as defined in {@link CameraMetadata}.
      * @return The lens facing enum.
      */
-    @NonNull
-    public static LensFacing getLensFacingEnumFromInt(
+    @LensFacing
+    public static int getLensFacingEnumFromInt(
             @SupportedLensFacingInt int lensFacingInteger) {
         switch (lensFacingInteger) {
             case CameraMetadata.LENS_FACING_BACK:

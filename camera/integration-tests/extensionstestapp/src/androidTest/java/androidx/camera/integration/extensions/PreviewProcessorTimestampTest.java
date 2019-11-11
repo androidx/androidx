@@ -96,7 +96,8 @@ public class PreviewProcessorTimestampTest {
     private FakeLifecycleOwner mLifecycleOwner;
     private CameraDevice.StateCallback mCameraStatusCallback;
     private ExtensionsManager.EffectMode mEffectMode;
-    private LensFacing mLensFacing;
+    @LensFacing
+    private int mLensFacing;
     private CountDownLatch mLatch;
     private CountDownLatch mInputTimestampsLatch;
     private CountDownLatch mOutputTimestampsLatch;
@@ -128,7 +129,7 @@ public class PreviewProcessorTimestampTest {
     }
 
     public PreviewProcessorTimestampTest(ExtensionsManager.EffectMode effectMode,
-            LensFacing lensFacing) {
+            @LensFacing int lensFacing) {
         mEffectMode = effectMode;
         mLensFacing = lensFacing;
     }
@@ -283,7 +284,8 @@ public class PreviewProcessorTimestampTest {
     /**
      * To invoke the enableExtension() method for different effect.
      */
-    private void enableExtension(ExtensionsManager.EffectMode effectMode, LensFacing lensFacing) {
+    private void enableExtension(ExtensionsManager.EffectMode effectMode,
+            @LensFacing int lensFacing) {
 
         CameraSelector cameraSelector =
                 new CameraSelector.Builder().requireLensFacing(lensFacing).build();

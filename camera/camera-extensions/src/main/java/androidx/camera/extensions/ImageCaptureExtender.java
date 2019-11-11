@@ -37,7 +37,6 @@ import androidx.camera.core.CaptureConfig;
 import androidx.camera.core.CaptureStage;
 import androidx.camera.core.Config;
 import androidx.camera.core.ImageCapture;
-import androidx.camera.core.LensFacing;
 import androidx.camera.core.UseCase;
 import androidx.camera.core.impl.utils.CameraSelectorUtil;
 import androidx.camera.extensions.ExtensionsErrorListener.ExtensionsErrorCode;
@@ -76,11 +75,10 @@ public abstract class ImageCaptureExtender {
      *
      * @param cameraSelector The selector that determines a camera that will be checked for the
      *                       availability of extensions.
-     *
      * @return True if the specific extension function is supported for the camera device.
      */
     public boolean isExtensionAvailable(@NonNull CameraSelector cameraSelector) {
-        LensFacing lensFacing = cameraSelector.getLensFacing();
+        Integer lensFacing = cameraSelector.getLensFacing();
         Set<String> availableCameraIds = null;
         try {
             availableCameraIds = CameraUtil.getCameraIdSetWithLensFacing(lensFacing);

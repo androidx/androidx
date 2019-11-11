@@ -41,8 +41,8 @@ public interface CameraDeviceConfig {
      * @hide
      */
     @RestrictTo(Scope.LIBRARY_GROUP)
-    Option<LensFacing> OPTION_LENS_FACING =
-            Option.create("camerax.core.camera.lensFacing", LensFacing.class);
+    Option<Integer> OPTION_LENS_FACING =
+            Option.create("camerax.core.camera.lensFacing", int.class);
 
     /**
      * Option: camerax.core.camera.cameraIdFilter
@@ -65,7 +65,7 @@ public interface CameraDeviceConfig {
      */
     @RestrictTo(Scope.LIBRARY_GROUP)
     @Nullable
-    LensFacing getLensFacing(@Nullable LensFacing valueIfMissing);
+    Integer getLensFacing(@Nullable Integer valueIfMissing);
 
     /**
      * Retrieves the lens facing direction for the primary camera to be configured.
@@ -75,8 +75,8 @@ public interface CameraDeviceConfig {
      * @hide
      */
     @RestrictTo(Scope.LIBRARY_GROUP)
-    @NonNull
-    LensFacing getLensFacing();
+    @LensFacing
+    int getLensFacing();
 
     /**
      * Retrieves the {@link CameraIdFilter} that filter out the unavailable camera ids.
@@ -122,7 +122,7 @@ public interface CameraDeviceConfig {
          */
         @NonNull
         @RestrictTo(Scope.LIBRARY_GROUP)
-        B setLensFacing(@NonNull LensFacing lensFacing);
+        B setLensFacing(@LensFacing int lensFacing);
 
         /**
          * Sets the {@link CameraIdFilter} that filter out the unavailable camera ids.

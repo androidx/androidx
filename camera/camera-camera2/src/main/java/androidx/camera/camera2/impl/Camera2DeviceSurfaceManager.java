@@ -32,7 +32,6 @@ import androidx.camera.core.CameraDeviceConfig;
 import androidx.camera.core.CameraDeviceSurfaceManager;
 import androidx.camera.core.CameraX;
 import androidx.camera.core.ImageOutputConfig;
-import androidx.camera.core.LensFacing;
 import androidx.camera.core.SurfaceConfig;
 import androidx.camera.core.UseCase;
 import androidx.core.util.Preconditions;
@@ -307,7 +306,7 @@ public final class Camera2DeviceSurfaceManager implements CameraDeviceSurfaceMan
      * no correction is needed.
      *
      * @param deviceConfig to identify device which may require correction
-     * @param rotation desired rotation of output aspect ratio relative to natural orientation
+     * @param rotation     desired rotation of output aspect ratio relative to natural orientation
      * @return the corrected aspect ratio for the use case
      * @throws IllegalStateException if not initialized
      */
@@ -331,7 +330,7 @@ public final class Camera2DeviceSurfaceManager implements CameraDeviceSurfaceMan
     private String getCameraIdFromConfig(@NonNull CameraDeviceConfig config) {
         String cameraId;
         try {
-            LensFacing lensFacing = config.getLensFacing(null);
+            Integer lensFacing = config.getLensFacing(null);
             // Adds default lensFacing if the user doesn't specify the lens facing.
             if (lensFacing == null) {
                 lensFacing = CameraX.getDefaultLensFacing();

@@ -82,7 +82,8 @@ import java.util.concurrent.atomic.AtomicLong;
 @RunWith(AndroidJUnit4.class)
 @UseExperimental(markerClass = ExperimentalCamera2Interop.class)
 public final class Camera2ImplCameraXTest {
-    private static final LensFacing DEFAULT_LENS_FACING = LensFacing.BACK;
+    @LensFacing
+    private static final int DEFAULT_LENS_FACING = LensFacing.BACK;
     private static final CameraSelector DEFAULT_SELECTOR =
             new CameraSelector.Builder().requireLensFacing(DEFAULT_LENS_FACING).build();
     private final MutableLiveData<Long> mAnalysisResult = new MutableLiveData<>();

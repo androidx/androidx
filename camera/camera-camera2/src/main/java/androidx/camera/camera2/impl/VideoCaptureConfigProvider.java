@@ -22,13 +22,13 @@ import android.util.Log;
 import android.util.Rational;
 import android.view.WindowManager;
 
+import androidx.annotation.Nullable;
 import androidx.annotation.RestrictTo;
 import androidx.annotation.RestrictTo.Scope;
 import androidx.camera.core.CameraFactory;
 import androidx.camera.core.CameraX;
 import androidx.camera.core.CaptureConfig;
 import androidx.camera.core.ConfigProvider;
-import androidx.camera.core.LensFacing;
 import androidx.camera.core.SessionConfig;
 import androidx.camera.core.VideoCapture;
 import androidx.camera.core.VideoCaptureConfig;
@@ -53,7 +53,7 @@ public final class VideoCaptureConfigProvider implements ConfigProvider<VideoCap
     }
 
     @Override
-    public VideoCaptureConfig getConfig(LensFacing lensFacing) {
+    public VideoCaptureConfig getConfig(@Nullable Integer lensFacing) {
         VideoCaptureConfig.Builder builder =
                 VideoCaptureConfig.Builder.fromConfig(
                         VideoCapture.DEFAULT_CONFIG.getConfig(lensFacing));
@@ -74,7 +74,7 @@ public final class VideoCaptureConfigProvider implements ConfigProvider<VideoCap
 
         try {
             // Add default lensFacing if we can
-            LensFacing checkedLensFacing =
+            Integer checkedLensFacing =
                     (lensFacing != null) ? lensFacing : CameraX.getDefaultLensFacing();
             String defaultId = mCameraFactory.cameraIdForLensFacing(checkedLensFacing);
             if (defaultId != null) {

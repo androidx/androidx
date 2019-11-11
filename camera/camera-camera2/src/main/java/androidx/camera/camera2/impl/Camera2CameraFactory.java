@@ -93,7 +93,7 @@ public final class Camera2CameraFactory implements CameraFactory {
 
     @Override
     @Nullable
-    public String cameraIdForLensFacing(@NonNull LensFacing lensFacing)
+    public String cameraIdForLensFacing(@LensFacing int lensFacing)
             throws CameraInfoUnavailableException {
         Set<String> availableCameraIds = getLensFacingCameraIdFilter(
                 lensFacing).filter(getAvailableCameraIds());
@@ -107,7 +107,7 @@ public final class Camera2CameraFactory implements CameraFactory {
 
     @Override
     @NonNull
-    public LensFacingCameraIdFilter getLensFacingCameraIdFilter(@NonNull LensFacing lensFacing) {
+    public LensFacingCameraIdFilter getLensFacingCameraIdFilter(@LensFacing int lensFacing) {
         return new Camera2LensFacingCameraIdFilter(lensFacing, mCameraManager.unwrap());
     }
 }

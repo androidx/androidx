@@ -97,14 +97,14 @@ public final class CameraSelector {
      */
     @RestrictTo(Scope.LIBRARY_GROUP)
     @Nullable
-    public LensFacing getLensFacing() {
-        LensFacing currentLensFacing = null;
+    public Integer getLensFacing() {
+        Integer currentLensFacing = null;
         for (CameraIdFilter filter : mCameraFilterSet) {
             if (filter instanceof LensFacingCameraIdFilter) {
-                LensFacing newLensFacing = ((LensFacingCameraIdFilter) filter).getLensFacing();
+                Integer newLensFacing = ((LensFacingCameraIdFilter) filter).getLensFacing();
                 if (currentLensFacing == null) {
                     currentLensFacing = newLensFacing;
-                } else if (newLensFacing != currentLensFacing) {
+                } else if (!currentLensFacing.equals(newLensFacing)) {
                     // TODO(b/122975195): Now we assume the lens facing of a camera is either
                     //  FRONT or BACK, so if there's conflicting lens facings set, throws an
                     //  exception. It needs to be revisited if we have a third lens facing enum
@@ -137,7 +137,7 @@ public final class CameraSelector {
          * instead of replacing the previous setting.
          */
         @NonNull
-        public Builder requireLensFacing(@NonNull LensFacing lensFacing) {
+        public Builder requireLensFacing(@LensFacing int lensFacing) {
             mCameraFilterSet.add(new LensFacingCameraIdFilter(lensFacing));
             return this;
         }

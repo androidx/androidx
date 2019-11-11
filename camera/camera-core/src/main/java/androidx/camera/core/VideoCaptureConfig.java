@@ -376,7 +376,7 @@ public final class VideoCaptureConfig
     @RestrictTo(Scope.LIBRARY_GROUP)
     @Override
     @Nullable
-    public LensFacing getLensFacing(@Nullable LensFacing valueIfMissing) {
+    public Integer getLensFacing(@Nullable Integer valueIfMissing) {
         return retrieveOption(OPTION_LENS_FACING, valueIfMissing);
     }
 
@@ -389,8 +389,8 @@ public final class VideoCaptureConfig
      */
     @RestrictTo(Scope.LIBRARY_GROUP)
     @Override
-    @NonNull
-    public LensFacing getLensFacing() {
+    @LensFacing
+    public int getLensFacing() {
         return retrieveOption(OPTION_LENS_FACING);
     }
 
@@ -957,7 +957,7 @@ public final class VideoCaptureConfig
         @RestrictTo(Scope.LIBRARY_GROUP)
         @Override
         @NonNull
-        public Builder setLensFacing(@NonNull LensFacing lensFacing) {
+        public Builder setLensFacing(@LensFacing int lensFacing) {
             getMutableConfig().insertOption(OPTION_LENS_FACING, lensFacing);
             return this;
         }

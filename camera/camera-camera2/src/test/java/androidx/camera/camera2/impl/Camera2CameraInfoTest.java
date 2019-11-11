@@ -52,7 +52,8 @@ public class Camera2CameraInfoTest {
 
     private static final String CAMERA0_ID = "0";
     private static final int CAMERA0_SENSOR_ORIENTATION = 90;
-    private static final LensFacing CAMERA0_LENS_FACING_ENUM = LensFacing.BACK;
+    @LensFacing
+    private static final int CAMERA0_LENS_FACING_ENUM = LensFacing.BACK;
     private static final int CAMERA0_LENS_FACING_INT = CameraCharacteristics.LENS_FACING_BACK;
     private static final boolean CAMERA0_FLASH_INFO_BOOLEAN = true;
 

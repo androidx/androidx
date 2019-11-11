@@ -110,7 +110,8 @@ public final class ImageCaptureTest {
 
     private static final Size DEFAULT_RESOLUTION = new Size(640, 480);
     private static final Size GUARANTEED_RESOLUTION = new Size(640, 480);
-    private static final LensFacing BACK_LENS_FACING = LensFacing.BACK;
+    @LensFacing
+    private static final int BACK_LENS_FACING = LensFacing.BACK;
     private static final CameraSelector BACK_SELECTOR =
             new CameraSelector.Builder().requireLensFacing(BACK_LENS_FACING).build();
 

@@ -109,13 +109,14 @@ public abstract class UseCase {
      * the pre-populated builder. If <code>null</code> is returned, then the user-supplied
      * configuration will be used directly.
      *
-     * @param lensFacing The {@link LensFacing} that the default builder will target to.
+     * @param lensFacing The {@link androidx.camera.core.LensFacing} that the default builder
+     *                   will target to.
      * @return A builder pre-populated with use case default options.
      * @hide
      */
     @RestrictTo(Scope.LIBRARY_GROUP)
     @Nullable
-    protected UseCaseConfig.Builder<?, ?, ?> getDefaultBuilder(LensFacing lensFacing) {
+    protected UseCaseConfig.Builder<?, ?, ?> getDefaultBuilder(@Nullable Integer lensFacing) {
         return null;
     }
 
@@ -143,7 +144,7 @@ public abstract class UseCase {
     private void updateUseCaseConfig(@NonNull UseCaseConfig<?> useCaseConfig,
             @Nullable CameraDeviceConfig boundDeviceConfig) {
         // Attempt to retrieve builder containing defaults for this use case's config
-        LensFacing lensFacing = null;
+        Integer lensFacing = null;
         if (boundDeviceConfig != null) {
             lensFacing = boundDeviceConfig.getLensFacing(null);
         }

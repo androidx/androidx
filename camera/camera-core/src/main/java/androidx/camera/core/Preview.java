@@ -349,7 +349,7 @@ public class Preview extends UseCase {
     @Override
     @Nullable
     @RestrictTo(Scope.LIBRARY_GROUP)
-    protected UseCaseConfig.Builder<?, ?, ?> getDefaultBuilder(LensFacing lensFacing) {
+    protected UseCaseConfig.Builder<?, ?, ?> getDefaultBuilder(@Nullable Integer lensFacing) {
         PreviewConfig defaults = CameraX.getDefaultUseCaseConfig(PreviewConfig.class, lensFacing);
         if (defaults != null) {
             return Builder.fromConfig(defaults);
@@ -505,10 +505,10 @@ public class Preview extends UseCase {
          *     }
          * </code></pre>
          *
-         * @param resolution the resolution required by CameraX, which is in image sensor
-         *                   coordinate system.
+         * @param resolution           the resolution required by CameraX, which is in image sensor
+         *                             coordinate system.
          * @param surfaceReleaseFuture it's safe to release the returned Surface return by the
-         *                            method, after this {@link ListenableFuture} finishes.
+         *                             method, after this {@link ListenableFuture} finishes.
          * @return A ListenableFuture that contains the implementer created Surface.
          *
          * {@see Preview} for rotation details
@@ -545,7 +545,7 @@ public class Preview extends UseCase {
         }
 
         @Override
-        public PreviewConfig getConfig(LensFacing lensFacing) {
+        public PreviewConfig getConfig(@Nullable Integer lensFacing) {
             return DEFAULT_CONFIG;
         }
     }
@@ -687,7 +687,7 @@ public class Preview extends UseCase {
         @RestrictTo(Scope.LIBRARY_GROUP)
         @Override
         @NonNull
-        public Builder setLensFacing(@NonNull LensFacing lensFacing) {
+        public Builder setLensFacing(@LensFacing int lensFacing) {
             getMutableConfig().insertOption(OPTION_LENS_FACING, lensFacing);
             return this;
         }
@@ -729,7 +729,7 @@ public class Preview extends UseCase {
          * <p>This method will remove any value set by setTargetAspectRatio().
          *
          * <p>For Preview, the value will be used to calculate the suggested resolution size in
-         * {@link Preview.PreviewSurfaceCallback#createSurfaceFuture(Size)}.
+         * {@link Preview.PreviewSurfaceProvider#provideSurface(Size, ListenableFuture)}.
          *
          * @param aspectRatio A {@link Rational} representing the ratio of the target's width and
          *                    height.
@@ -793,7 +793,6 @@ public class Preview extends UseCase {
          *
          * @param rotation The rotation of the intended target.
          * @return The current Builder.
-         *
          * @see #setTargetResolution(Size)
          */
         @NonNull

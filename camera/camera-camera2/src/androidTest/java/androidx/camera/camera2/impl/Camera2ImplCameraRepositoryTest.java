@@ -74,7 +74,7 @@ public final class Camera2ImplCameraRepositoryTest {
     private CameraDevice.StateCallback mDeviceStateCallback;
     private String mCameraId;
 
-    private String getCameraIdForLensFacingUnchecked(LensFacing lensFacing) {
+    private String getCameraIdForLensFacingUnchecked(@LensFacing int lensFacing) {
         try {
             return mCameraFactory.cameraIdForLensFacing(lensFacing);
         } catch (Exception e) {
@@ -187,7 +187,7 @@ public final class Camera2ImplCameraRepositoryTest {
 
         // we need to set Camera2OptionUnpacker to the Config to enable the camera2 callback hookup.
         @Override
-        protected UseCaseConfig.Builder<?, ?, ?> getDefaultBuilder(LensFacing lensFacing) {
+        protected UseCaseConfig.Builder<?, ?, ?> getDefaultBuilder(Integer lensFacing) {
             return new FakeUseCaseConfig.Builder()
                     .setSessionOptionUnpacker(new Camera2SessionOptionUnpacker());
         }

@@ -29,6 +29,7 @@ import android.content.Context;
 import android.util.Size;
 
 import androidx.annotation.NonNull;
+import androidx.annotation.Nullable;
 import androidx.camera.core.impl.utils.executor.CameraXExecutors;
 import androidx.camera.testing.fakes.FakeCamera;
 import androidx.camera.testing.fakes.FakeCameraDeviceSurfaceManager;
@@ -58,8 +59,10 @@ import java.util.concurrent.Executors;
 @MediumTest
 @RunWith(AndroidJUnit4.class)
 public final class CameraXTest {
-    private static final LensFacing CAMERA_LENS_FACING = LensFacing.BACK;
-    private static final LensFacing CAMERA_LENS_FACING_FRONT = LensFacing.FRONT;
+    @LensFacing
+    private static final int CAMERA_LENS_FACING = LensFacing.BACK;
+    @LensFacing
+    private static final int CAMERA_LENS_FACING_FRONT = LensFacing.FRONT;
     private static final CameraSelector CAMERA_SELECTOR =
             new CameraSelector.Builder().requireLensFacing(CAMERA_LENS_FACING).build();
     private static final String CAMERA_ID = "0";
@@ -84,7 +87,7 @@ public final class CameraXTest {
         defaultConfigFactory.installDefaultProvider(FakeUseCaseConfig.class,
                 new ConfigProvider<FakeUseCaseConfig>() {
                     @Override
-                    public FakeUseCaseConfig getConfig(LensFacing lensFacing) {
+                    public FakeUseCaseConfig getConfig(@Nullable Integer lensFacing) {
                         return new FakeUseCaseConfig.Builder().getUseCaseConfig();
                     }
                 });

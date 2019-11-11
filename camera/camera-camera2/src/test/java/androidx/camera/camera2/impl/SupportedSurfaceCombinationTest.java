@@ -572,10 +572,10 @@ public final class SupportedSurfaceCombinationTest {
         VideoCaptureConfig videoCaptureConfig =
                 (VideoCaptureConfig) videoCapture.getUseCaseConfig();
 
-        LensFacing previewLensFacing = previewConfig.getLensFacing(null);
-        LensFacing imageCaptureLensFacing = imageCaptureConfig.getLensFacing(null);
-        LensFacing imageAnalysisLensFacing = imageAnalysisConfig.getLensFacing(null);
-        LensFacing videoCaptureLensFacing = videoCaptureConfig.getLensFacing(null);
+        Integer previewLensFacing = previewConfig.getLensFacing(null);
+        Integer imageCaptureLensFacing = imageCaptureConfig.getLensFacing(null);
+        Integer imageAnalysisLensFacing = imageAnalysisConfig.getLensFacing(null);
+        Integer videoCaptureLensFacing = videoCaptureConfig.getLensFacing(null);
 
         assertThat(previewLensFacing).isNotNull();
         assertThat(imageCaptureLensFacing).isNotNull();
@@ -1101,7 +1101,7 @@ public final class SupportedSurfaceCombinationTest {
                 StreamConfigurationMapUtil.generateFakeStreamConfigurationMap(
                         supportedFormats, mSupportedSizes));
 
-        LensFacing lensFacingEnum = CameraUtil.getLensFacingEnumFromInt(lensFacing);
+        @LensFacing int lensFacingEnum = CameraUtil.getLensFacingEnumFromInt(lensFacing);
         mCameraFactory.insertCamera(lensFacingEnum, cameraId, () -> new FakeCamera(cameraId, null,
                 new Camera2CameraInfo(characteristics, mock(ZoomControl.class))));
     }

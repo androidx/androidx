@@ -28,9 +28,10 @@ import java.util.Set;
  */
 @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
 public class LensFacingCameraIdFilter implements CameraIdFilter {
-    private LensFacing mLensFacing;
+    @LensFacing
+    private int mLensFacing;
 
-    public LensFacingCameraIdFilter(@NonNull LensFacing lensFacing) {
+    public LensFacingCameraIdFilter(@LensFacing int lensFacing) {
         mLensFacing = lensFacing;
     }
 
@@ -43,8 +44,8 @@ public class LensFacingCameraIdFilter implements CameraIdFilter {
     }
 
     /** Returns the lens facing associated with this lens facing camera id filter. */
-    @NonNull
-    public LensFacing getLensFacing() {
+    @LensFacing
+    public int getLensFacing() {
         return mLensFacing;
     }
 }

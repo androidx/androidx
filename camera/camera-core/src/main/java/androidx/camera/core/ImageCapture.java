@@ -357,7 +357,7 @@ public class ImageCapture extends UseCase {
     @Override
     @Nullable
     @RestrictTo(Scope.LIBRARY_GROUP)
-    protected UseCaseConfig.Builder<?, ?, ?> getDefaultBuilder(LensFacing lensFacing) {
+    protected UseCaseConfig.Builder<?, ?, ?> getDefaultBuilder(@Nullable Integer lensFacing) {
         ImageCaptureConfig defaults = CameraX.getDefaultUseCaseConfig(
                 ImageCaptureConfig.class, lensFacing);
         if (defaults != null) {
@@ -1138,14 +1138,14 @@ public class ImageCapture extends UseCase {
          * mode is set to MAX_QUALITY, images may take longer to capture.
          */
         @SuppressLint("MinMaxConstant") // It is a name but not a constant number.
-        MAX_QUALITY,
+                MAX_QUALITY,
         /**
          * Optimizes capture pipeline to prioritize latency over image quality. When the capture
          * mode is set to MIN_LATENCY, images may capture faster but the image quality may be
          * reduced.
          */
         @SuppressLint("MinMaxConstant") // It is a name but not a constant number.
-        MIN_LATENCY
+                MIN_LATENCY
     }
 
     /** Listener containing callbacks for image file I/O events. */
@@ -1255,7 +1255,7 @@ public class ImageCapture extends UseCase {
         }
 
         @Override
-        public ImageCaptureConfig getConfig(LensFacing lensFacing) {
+        public ImageCaptureConfig getConfig(@Nullable Integer lensFacing) {
             return DEFAULT_CONFIG;
         }
     }
@@ -1778,7 +1778,7 @@ public class ImageCapture extends UseCase {
         @RestrictTo(Scope.LIBRARY_GROUP)
         @Override
         @NonNull
-        public Builder setLensFacing(@NonNull LensFacing lensFacing) {
+        public Builder setLensFacing(@LensFacing int lensFacing) {
             getMutableConfig().insertOption(OPTION_LENS_FACING, lensFacing);
             return this;
         }
@@ -1882,10 +1882,11 @@ public class ImageCapture extends UseCase {
          * {@link android.view.Display#getRotation()} of the default display at the time the use
          * case is created.
          *
+         * @see androidx.camera.core.ImageCapture#setTargetRotation(int)
+         *          * @see android.view.OrientationEventListener
+         *
          * @param rotation The rotation of the intended target.
          * @return The current Builder.
-         * @see androidx.camera.core.ImageCapture#setTargetRotation(int)
-         * @see android.view.OrientationEventListener
          */
         @NonNull
         @Override

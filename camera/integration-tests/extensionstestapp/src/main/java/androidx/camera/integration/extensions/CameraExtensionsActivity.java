@@ -439,7 +439,7 @@ public class CameraExtensionsActivity extends AppCompatActivity
 
         try {
             Log.d(TAG, "Camera Facing: " + mCurrentCameraFacing);
-            LensFacing facing = LensFacing.BACK;
+            @LensFacing int facing;
             if (mCurrentCameraFacing.equalsIgnoreCase("BACK")) {
                 facing = LensFacing.BACK;
             } else if (mCurrentCameraFacing.equalsIgnoreCase("FRONT")) {

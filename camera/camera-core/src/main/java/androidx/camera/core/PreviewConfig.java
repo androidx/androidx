@@ -175,7 +175,7 @@ public final class PreviewConfig
     @RestrictTo(Scope.LIBRARY_GROUP)
     @Override
     @Nullable
-    public LensFacing getLensFacing(@Nullable LensFacing valueIfMissing) {
+    public Integer getLensFacing(@Nullable Integer valueIfMissing) {
         return retrieveOption(OPTION_LENS_FACING, valueIfMissing);
     }
 
@@ -188,8 +188,8 @@ public final class PreviewConfig
      */
     @RestrictTo(Scope.LIBRARY_GROUP)
     @Override
-    @NonNull
-    public LensFacing getLensFacing() {
+    @LensFacing
+    public int getLensFacing() {
         return retrieveOption(OPTION_LENS_FACING);
     }
 

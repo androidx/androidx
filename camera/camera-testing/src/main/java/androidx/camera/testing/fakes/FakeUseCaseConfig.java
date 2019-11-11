@@ -116,13 +116,13 @@ public class FakeUseCaseConfig
 
     @Override
     @Nullable
-    public LensFacing getLensFacing(@Nullable LensFacing valueIfMissing) {
+    public Integer getLensFacing(@Nullable Integer valueIfMissing) {
         return retrieveOption(OPTION_LENS_FACING, valueIfMissing);
     }
 
     @Override
-    @NonNull
-    public LensFacing getLensFacing() {
+    @LensFacing
+    public int getLensFacing() {
         return retrieveOption(OPTION_LENS_FACING);
     }
 
@@ -274,7 +274,7 @@ public class FakeUseCaseConfig
 
         @Override
         @NonNull
-        public Builder setLensFacing(@NonNull LensFacing lensFacing) {
+        public Builder setLensFacing(@LensFacing int lensFacing) {
             getMutableConfig().insertOption(OPTION_LENS_FACING, lensFacing);
             return this;
         }
