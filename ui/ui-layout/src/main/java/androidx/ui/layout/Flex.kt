@@ -306,15 +306,12 @@ class RowScope internal constructor() : FlexScope() {
  * Default is [MainAxisAlignment.Start].
  * @param crossAxisAlignment The alignment of the layout's children in cross axis direction.
  * Default is [CrossAxisAlignment.Start].
- * @param crossAxisSize The size of the layout in the cross axis dimension.
- * Default is [LayoutSize.Wrap].
  */
 @Composable
 fun Row(
     modifier: Modifier = Modifier.None,
     mainAxisAlignment: MainAxisAlignment = MainAxisAlignment.Start,
     crossAxisAlignment: CrossAxisAlignment = CrossAxisAlignment.Start,
-    crossAxisSize: LayoutSize = LayoutSize.Wrap,
     block: @Composable() RowScope.() -> Unit
 ) {
     FlexLayout(
@@ -322,7 +319,7 @@ fun Row(
         modifier = modifier,
         mainAxisAlignment = mainAxisAlignment,
         crossAxisAlignment = crossAxisAlignment,
-        crossAxisSize = crossAxisSize,
+        crossAxisSize = LayoutSize.Wrap,
         layoutChildren = { RowScope().block() }
     )
 }
@@ -342,15 +339,12 @@ fun Row(
  * Default is [MainAxisAlignment.Start].
  * @param crossAxisAlignment The alignment of the layout's children in cross axis direction.
  * Default is [CrossAxisAlignment.Start].
- * @param crossAxisSize The size of the layout in the cross axis dimension.
- * Default is [LayoutSize.Wrap].
  */
 @Composable
 fun Column(
     modifier: Modifier = Modifier.None,
     mainAxisAlignment: MainAxisAlignment = MainAxisAlignment.Start,
     crossAxisAlignment: CrossAxisAlignment = CrossAxisAlignment.Start,
-    crossAxisSize: LayoutSize = LayoutSize.Wrap,
     block: @Composable() ColumnScope.() -> Unit
 ) {
     FlexLayout(
@@ -358,7 +352,7 @@ fun Column(
         modifier = modifier,
         mainAxisAlignment = mainAxisAlignment,
         crossAxisAlignment = crossAxisAlignment,
-        crossAxisSize = crossAxisSize,
+        crossAxisSize = LayoutSize.Wrap,
         layoutChildren = { ColumnScope().block() }
     )
 }
