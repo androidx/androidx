@@ -31,6 +31,7 @@ import androidx.ui.core.Ref
 import androidx.ui.core.px
 import androidx.compose.Composable
 import androidx.ui.core.AlignmentLine
+import androidx.ui.core.Constraints
 import androidx.ui.core.IntPx
 import androidx.ui.core.Layout
 import androidx.ui.core.coerceIn
@@ -173,6 +174,16 @@ open class LayoutTest {
                 height.coerceIn(constraints.minHeight, constraints.maxHeight),
                 alignmentLines
             ) {}
+        }
+    }
+
+    @Composable
+    internal fun WithInfiniteConstraints(children: @Composable() () -> Unit) {
+        Layout(children) { measurables, _ ->
+            val placeables = measurables.map { it.measure(Constraints()) }
+            layout(0.ipx, 0.ipx) {
+                placeables.forEach { it.place(0.ipx, 0.ipx) }
+            }
         }
     }
 

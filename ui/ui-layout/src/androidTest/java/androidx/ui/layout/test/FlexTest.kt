@@ -59,6 +59,7 @@ import androidx.ui.layout.FlexRow
 import androidx.ui.layout.Gravity
 import androidx.ui.layout.Row
 import androidx.ui.layout.Wrap
+import org.junit.Assert
 import org.junit.Assert.assertNotNull
 import org.junit.Assert.assertTrue
 import org.junit.Ignore
@@ -1485,6 +1486,32 @@ class FlexTest : LayoutTest() {
             expandedChildSize
         )
     }
+
+    @Test
+    fun testRow_measuresChildrenCorrectly_whenMeasuredWithInfiniteWidth() = withDensity(density) {
+        val rowMinWidth = 100.dp
+        val inflexibleChildWidth = 30.dp
+        val latch = CountDownLatch(1)
+        show {
+            WithInfiniteConstraints {
+                ConstrainedBox(DpConstraints(minWidth = rowMinWidth)) {
+                    Row {
+                        FixedSizeLayout(inflexibleChildWidth.toIntPx(), 0.ipx, mapOf())
+                        Container(Flexible(1f)) {
+                            OnPositioned { coordinates ->
+                                Assert.assertEquals(
+                                    (rowMinWidth.toIntPx() - inflexibleChildWidth.toIntPx()).toPx(),
+                                    coordinates.size.width
+                                )
+                                latch.countDown()
+                            }
+                        }
+                    }
+                }
+            }
+        }
+        assertTrue(latch.await(1, TimeUnit.SECONDS))
+    }
     // endregion
 
     // region Size tests in Column
@@ -1850,6 +1877,34 @@ class FlexTest : LayoutTest() {
             PxSize(size, columnHeight),
             expandedChildSize
         )
+    }
+
+    @Test
+    fun testColumn_measuresChildrenCorrectly_whenMeasuredWithInfiniteWidth() =
+        withDensity(density) {
+        val columnMinHeight = 100.dp
+        val inflexibleChildHeight = 30.dp
+        val latch = CountDownLatch(1)
+        show {
+            WithInfiniteConstraints {
+                ConstrainedBox(DpConstraints(minHeight = columnMinHeight)) {
+                    Column {
+                        FixedSizeLayout(0.ipx, inflexibleChildHeight.toIntPx(), mapOf())
+                        Container(Flexible(1f)) {
+                            OnPositioned { coordinates ->
+                                Assert.assertEquals(
+                                    (columnMinHeight.toIntPx() - inflexibleChildHeight.toIntPx())
+                                        .toPx(),
+                                    coordinates.size.height
+                                )
+                                latch.countDown()
+                            }
+                        }
+                    }
+                }
+            }
+        }
+        assertTrue(latch.await(1, TimeUnit.SECONDS))
     }
     // endregion
 
