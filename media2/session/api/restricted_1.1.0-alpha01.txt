@@ -326,7 +326,7 @@ package androidx.media2.session {
     field public static final int COMMAND_CODE_LIBRARY_SUBSCRIBE = 50001; // 0xc351
     field public static final int COMMAND_CODE_LIBRARY_UNSUBSCRIBE = 50002; // 0xc352
     field public static final int COMMAND_CODE_PLAYER_ADD_PLAYLIST_ITEM = 10013; // 0x271d
-    field @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP) public static final int COMMAND_CODE_PLAYER_DESELECT_TRACK = 11002; // 0x2afa
+    field public static final int COMMAND_CODE_PLAYER_DESELECT_TRACK = 11002; // 0x2afa
     field public static final int COMMAND_CODE_PLAYER_GET_CURRENT_MEDIA_ITEM = 10016; // 0x2720
     field public static final int COMMAND_CODE_PLAYER_GET_PLAYLIST = 10005; // 0x2715
     field public static final int COMMAND_CODE_PLAYER_GET_PLAYLIST_METADATA = 10012; // 0x271c
@@ -337,12 +337,13 @@ package androidx.media2.session {
     field public static final int COMMAND_CODE_PLAYER_REMOVE_PLAYLIST_ITEM = 10014; // 0x271e
     field public static final int COMMAND_CODE_PLAYER_REPLACE_PLAYLIST_ITEM = 10015; // 0x271f
     field public static final int COMMAND_CODE_PLAYER_SEEK_TO = 10003; // 0x2713
-    field @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP) public static final int COMMAND_CODE_PLAYER_SELECT_TRACK = 11001; // 0x2af9
+    field public static final int COMMAND_CODE_PLAYER_SELECT_TRACK = 11001; // 0x2af9
     field public static final int COMMAND_CODE_PLAYER_SET_MEDIA_ITEM = 10018; // 0x2722
     field public static final int COMMAND_CODE_PLAYER_SET_PLAYLIST = 10006; // 0x2716
     field public static final int COMMAND_CODE_PLAYER_SET_REPEAT_MODE = 10011; // 0x271b
     field public static final int COMMAND_CODE_PLAYER_SET_SHUFFLE_MODE = 10010; // 0x271a
     field public static final int COMMAND_CODE_PLAYER_SET_SPEED = 10004; // 0x2714
+    field public static final int COMMAND_CODE_PLAYER_SET_SURFACE = 11000; // 0x2af8
     field public static final int COMMAND_CODE_PLAYER_SKIP_TO_NEXT_PLAYLIST_ITEM = 10009; // 0x2719
     field public static final int COMMAND_CODE_PLAYER_SKIP_TO_PLAYLIST_ITEM = 10007; // 0x2717
     field public static final int COMMAND_CODE_PLAYER_SKIP_TO_PREVIOUS_PLAYLIST_ITEM = 10008; // 0x2718
