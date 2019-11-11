@@ -479,5 +479,9 @@ class FragmentStateManager {
         mFragment.mHost = null;
         mFragment.mParentFragment = null;
         mFragment.mFragmentManager = null;
+        boolean beingRemoved = mFragment.mRemoving && !mFragment.isInBackStack();
+        if (beingRemoved) {
+            mFragment.initState();
+        }
     }
 }
