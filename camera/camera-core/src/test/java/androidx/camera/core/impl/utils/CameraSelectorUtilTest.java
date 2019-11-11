@@ -24,14 +24,21 @@ import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
+import android.content.Context;
 import android.os.Build;
 
+import androidx.camera.core.AppConfig;
 import androidx.camera.core.CameraDeviceConfig;
 import androidx.camera.core.CameraIdFilter;
 import androidx.camera.core.CameraSelector;
+import androidx.camera.core.CameraX;
 import androidx.camera.core.LensFacing;
+import androidx.camera.testing.fakes.FakeAppConfig;
+import androidx.test.core.app.ApplicationProvider;
 import androidx.test.filters.SmallTest;
 
+import org.junit.After;
+import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.robolectric.RobolectricTestRunner;
@@ -40,6 +47,7 @@ import org.robolectric.annotation.internal.DoNotInstrument;
 
 import java.util.Collections;
 import java.util.Set;
+import java.util.concurrent.ExecutionException;
 
 @SmallTest
 @RunWith(RobolectricTestRunner.class)
@@ -48,6 +56,18 @@ import java.util.Set;
 public class CameraSelectorUtilTest {
 
     private static final Set<String> SINGLE_ID_SET = Collections.singleton("0");
+
+    @Before
+    public void setUp() throws ExecutionException, InterruptedException {
+        Context context = ApplicationProvider.getApplicationContext();
+        AppConfig appConfig = FakeAppConfig.create();
+        CameraX.initialize(context, appConfig).get();
+    }
+
+    @After
+    public void tearDown() throws ExecutionException, InterruptedException {
+        CameraX.shutdown().get();
+    }
 
     @Test
     public void convertedCameraDeviceConfig_hasFrontLensFacing() {

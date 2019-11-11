@@ -136,4 +136,14 @@ public class CameraSelectorTest {
 
         assertThat(cameraSelector.getCameraFilterSet()).containsAtLeast(filter0, filter1, filter2);
     }
+
+    @Test
+    public void canSelectDefaultBackCamera() {
+        assertThat(CameraSelector.DEFAULT_BACK_CAMERA.select(mCameraIds)).isEqualTo(REAR_ID);
+    }
+
+    @Test
+    public void canSelectDefaultFrontCamera() {
+        assertThat(CameraSelector.DEFAULT_FRONT_CAMERA.select(mCameraIds)).isEqualTo(FRONT_ID);
+    }
 }

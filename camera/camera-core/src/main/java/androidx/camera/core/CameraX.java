@@ -330,7 +330,6 @@ public final class CameraX {
      *
      * @param useCases The collection of use cases to remove.
      * @throws IllegalStateException If not called on main thread.
-     *
      * @hide
      */
     @RestrictTo(Scope.LIBRARY_GROUP)
@@ -375,7 +374,6 @@ public final class CameraX {
      * <p>This will initiate a close of every currently open camera.
      *
      * @throws IllegalStateException If not called on main thread.
-     *
      * @hide
      */
     @RestrictTo(Scope.LIBRARY_GROUP)
@@ -460,9 +458,8 @@ public final class CameraX {
         LensFacing lensFacing = config.getLensFacing(null);
         if (lensFacing != null) {
             // Filters camera ids with lens facing.
-            availableCameraIds =
-                    LensFacingCameraIdFilter.createLensFacingCameraIdFilter(lensFacing)
-                            .filter(availableCameraIds);
+            availableCameraIds = CameraX.getCameraFactory().getLensFacingCameraIdFilter(
+                    lensFacing).filter(availableCameraIds);
         } else {
             throw new IllegalArgumentException("Lens facing isn't set in the config.");
         }

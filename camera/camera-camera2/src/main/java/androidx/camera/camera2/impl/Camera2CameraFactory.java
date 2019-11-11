@@ -108,6 +108,6 @@ public final class Camera2CameraFactory implements CameraFactory {
     @Override
     @NonNull
     public LensFacingCameraIdFilter getLensFacingCameraIdFilter(@NonNull LensFacing lensFacing) {
-        return new Camera2LensFacingCameraIdFilter(mCameraManager.unwrap(), lensFacing);
+        return new Camera2LensFacingCameraIdFilter(lensFacing, mCameraManager.unwrap());
     }
 }
