@@ -57,7 +57,7 @@ class CameraUtil {
             throws CameraInfoUnavailableException {
         Set<String> availableCameraIds = CameraX.getCameraFactory().getAvailableCameraIds();
         LensFacingCameraIdFilter lensFacingCameraIdFilter =
-                LensFacingCameraIdFilter.createLensFacingCameraIdFilter(lensFacing);
+                CameraX.getCameraFactory().getLensFacingCameraIdFilter(lensFacing);
         availableCameraIds = lensFacingCameraIdFilter.filter(availableCameraIds);
 
         return availableCameraIds;

@@ -27,6 +27,13 @@ import java.util.Set;
  * A set of requirements and priorities used to select a camera.
  */
 public final class CameraSelector {
+    /** A static {@link CameraSelector} that selects the default front facing camera. */
+    public static final CameraSelector DEFAULT_FRONT_CAMERA =
+            new CameraSelector.Builder().requireLensFacing(LensFacing.FRONT).build();
+    /** A static {@link CameraSelector} that selects the default back facing camera. */
+    public static final CameraSelector DEFAULT_BACK_CAMERA =
+            new CameraSelector.Builder().requireLensFacing(LensFacing.BACK).build();
+
     private LinkedHashSet<CameraIdFilter> mCameraFilterSet;
 
     CameraSelector(LinkedHashSet<CameraIdFilter> cameraFilterSet) {
@@ -129,14 +136,13 @@ public final class CameraSelector {
          */
         @NonNull
         public Builder requireLensFacing(@NonNull LensFacing lensFacing) {
-            CameraIdFilter cameraFilter = LensFacingCameraIdFilter.createLensFacingCameraIdFilter(
-                    lensFacing);
-            mCameraFilterSet.add(cameraFilter);
+            mCameraFilterSet.add(new LensFacingCameraIdFilter(lensFacing));
             return this;
         }
 
         /**
          * Appends a CameraIdFilter to the current set of filters.
+         *
          * @hide
          */
         @RestrictTo(Scope.LIBRARY_GROUP)

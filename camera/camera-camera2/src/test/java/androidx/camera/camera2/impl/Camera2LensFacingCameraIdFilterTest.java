@@ -86,7 +86,7 @@ public class Camera2LensFacingCameraIdFilterTest {
     @Test
     public void canFilterBackCamera() {
         Camera2LensFacingCameraIdFilter lensFacingCameraIdFilter =
-                new Camera2LensFacingCameraIdFilter(mCameraManager, LensFacing.BACK);
+                new Camera2LensFacingCameraIdFilter(LensFacing.BACK, mCameraManager);
         mCameraIds = lensFacingCameraIdFilter.filter(mCameraIds);
         assertThat(mCameraIds).contains(CAMERA0_ID);
         assertThat(mCameraIds).doesNotContain(CAMERA1_ID);
@@ -95,7 +95,7 @@ public class Camera2LensFacingCameraIdFilterTest {
     @Test
     public void canFilterFrontCamera() {
         Camera2LensFacingCameraIdFilter lensFacingCameraIdFilter =
-                new Camera2LensFacingCameraIdFilter(mCameraManager, LensFacing.FRONT);
+                new Camera2LensFacingCameraIdFilter(LensFacing.FRONT, mCameraManager);
         mCameraIds = lensFacingCameraIdFilter.filter(mCameraIds);
         assertThat(mCameraIds).contains(CAMERA1_ID);
         assertThat(mCameraIds).doesNotContain(CAMERA0_ID);
