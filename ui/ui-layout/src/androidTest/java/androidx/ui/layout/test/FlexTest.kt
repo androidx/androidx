@@ -31,7 +31,6 @@ import androidx.ui.core.withDensity
 import androidx.ui.layout.ConstrainedBox
 import androidx.ui.layout.CrossAxisAlignment
 import androidx.ui.layout.DpConstraints
-import androidx.ui.layout.LayoutSize
 import androidx.ui.layout.MainAxisAlignment
 import androidx.compose.Composable
 import androidx.ui.core.Alignment
@@ -1221,7 +1220,7 @@ class FlexTest : LayoutTest() {
         lateinit var rowSize: PxSize
         show {
             Center {
-                Row(crossAxisSize = LayoutSize.Expand) {
+                Row(ExpandedHeight) {
                     FixedSpacer(width = sizeDp, height = sizeDp)
                     FixedSpacer(width = (sizeDp * 2), height = (sizeDp * 2))
 
@@ -1251,7 +1250,7 @@ class FlexTest : LayoutTest() {
         lateinit var rowSize: PxSize
         show {
             Center {
-                Row(crossAxisSize = LayoutSize.Wrap) {
+                Row {
                     FixedSpacer(width = sizeDp, height = sizeDp)
                     FixedSpacer(width = (sizeDp * 2), height = (sizeDp * 2))
 
@@ -1382,7 +1381,7 @@ class FlexTest : LayoutTest() {
         show {
             Center {
                 ConstrainedBox(constraints = DpConstraints(maxHeight = rowHeightDp)) {
-                    Row(crossAxisSize = LayoutSize.Expand) {
+                    Row(ExpandedHeight) {
                         FixedSpacer(width = sizeDp, height = sizeDp)
                         FixedSpacer(width = sizeDp * 2, height = sizeDp * 2)
 
@@ -1408,14 +1407,14 @@ class FlexTest : LayoutTest() {
     @Test
     fun testRow_withMinCrossAxisSize_respectsMinHeightConstraint() = withDensity(density) {
         val sizeDp = 50.dp
-        val rowHeightDp = 250.dp
+        val rowHeightDp = 150.dp
 
         val drawLatch = CountDownLatch(1)
         lateinit var rowSize: PxSize
         show {
             Center {
-                ConstrainedBox(constraints = DpConstraints(maxHeight = rowHeightDp)) {
-                    Row(crossAxisSize = LayoutSize.Expand) {
+                ConstrainedBox(constraints = DpConstraints(minHeight = rowHeightDp)) {
+                    Row {
                         FixedSpacer(width = sizeDp, height = sizeDp)
                         FixedSpacer(width = sizeDp * 2, height = sizeDp * 2)
 
@@ -1613,7 +1612,7 @@ class FlexTest : LayoutTest() {
         lateinit var columnSize: PxSize
         show {
             Center {
-                Column(crossAxisSize = LayoutSize.Expand) {
+                Column(ExpandedWidth) {
                     FixedSpacer(width = sizeDp, height = sizeDp)
                     FixedSpacer(width = (sizeDp * 2), height = (sizeDp * 2))
 
@@ -1643,7 +1642,7 @@ class FlexTest : LayoutTest() {
         lateinit var columnSize: PxSize
         show {
             Center {
-                Column(crossAxisSize = LayoutSize.Wrap) {
+                Column {
                     FixedSpacer(width = sizeDp, height = sizeDp)
                     FixedSpacer(width = (sizeDp * 2), height = (sizeDp * 2))
 
@@ -1774,7 +1773,7 @@ class FlexTest : LayoutTest() {
         show {
             Center {
                 ConstrainedBox(constraints = DpConstraints(maxWidth = columnWidthDp)) {
-                    Column(crossAxisSize = LayoutSize.Expand) {
+                    Column(ExpandedWidth) {
                         FixedSpacer(width = sizeDp, height = sizeDp)
                         FixedSpacer(width = sizeDp * 2, height = sizeDp * 2)
 
@@ -1800,14 +1799,14 @@ class FlexTest : LayoutTest() {
     @Test
     fun testColumn_withMinCrossAxisSize_respectsMinWidthConstraint() = withDensity(density) {
         val sizeDp = 50.dp
-        val columnWidthDp = 250.dp
+        val columnWidthDp = 150.dp
 
         val drawLatch = CountDownLatch(1)
         lateinit var columnSize: PxSize
         show {
             Center {
                 ConstrainedBox(constraints = DpConstraints(minWidth = columnWidthDp)) {
-                    Column(crossAxisSize = LayoutSize.Wrap) {
+                    Column {
                         FixedSpacer(width = sizeDp, height = sizeDp)
                         FixedSpacer(width = sizeDp * 2, height = sizeDp * 2)
 
