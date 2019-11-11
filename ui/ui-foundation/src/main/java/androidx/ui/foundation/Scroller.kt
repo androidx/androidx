@@ -22,10 +22,12 @@ import androidx.compose.Composable
 import androidx.compose.Model
 import androidx.compose.memo
 import androidx.compose.unaryPlus
+import androidx.ui.core.Alignment
 import androidx.ui.core.Clip
 import androidx.ui.core.Constraints
 import androidx.ui.core.IntPx
 import androidx.ui.core.Layout
+import androidx.ui.core.Modifier
 import androidx.ui.core.Px
 import androidx.ui.core.RepaintBoundary
 import androidx.ui.core.gesture.PressGestureDetector
@@ -131,15 +133,17 @@ class ScrollerPosition(initial: Float = 0f) {
  *
  * @param scrollerPosition state of this Scroller that holds current scroll position and provides
  * user with useful methods like smooth scrolling
+ * @param modifier Modifier to be applied to the Scroller content layout
  * @param isScrollable param to enabled or disable touch input scrolling, default is true
  */
 @Composable
 fun VerticalScroller(
     scrollerPosition: ScrollerPosition = +memo { ScrollerPosition() },
+    modifier: Modifier = Modifier.None,
     isScrollable: Boolean = true,
     child: @Composable() () -> Unit
 ) {
-    Scroller(scrollerPosition, true, isScrollable, child)
+    Scroller(scrollerPosition, modifier, true, isScrollable, child)
 }
 
 /**
@@ -159,20 +163,23 @@ fun VerticalScroller(
  *
  * @param scrollerPosition state of this Scroller that holds current scroll position and provides
  * user with useful methods like smooth scrolling
+ * @param modifier Modifier to be applied to the Scroller content layout
  * @param isScrollable param to enabled or disable touch input scrolling, default is true
  */
 @Composable
 fun HorizontalScroller(
     scrollerPosition: ScrollerPosition = +memo { ScrollerPosition() },
+    modifier: Modifier = Modifier.None,
     isScrollable: Boolean = true,
     child: @Composable() () -> Unit
 ) {
-    Scroller(scrollerPosition, false, isScrollable, child)
+    Scroller(scrollerPosition, modifier, false, isScrollable, child)
 }
 
 @Composable
 private fun Scroller(
     scrollerPosition: ScrollerPosition,
+    modifier: Modifier,
     isVertical: Boolean,
     isScrollable: Boolean,
     child: @Composable() () -> Unit
@@ -197,6 +204,7 @@ private fun Scroller(
                     scrollerPosition.holder.setBounds(-it.value, 0f)
                     scrollerPosition.maxPosition = it
                 },
+                modifier = modifier,
                 isVertical = isVertical,
                 child = child
             )
@@ -207,49 +215,54 @@ private fun Scroller(
 @Composable
 private fun ScrollerLayout(
     scrollerPosition: ScrollerPosition,
+    modifier: Modifier,
     onMaxPositionChanged: (Px) -> Unit,
     isVertical: Boolean,
     child: @Composable() () -> Unit
 ) {
-    Layout(children = {
-        Clip(RectangleShape) {
-            Container {
-                RepaintBoundary(children = child)
+    Layout(
+        modifier = modifier,
+        children = {
+            Clip(RectangleShape) {
+                Container(alignment = Alignment.TopLeft) {
+                    RepaintBoundary(children = child)
+                }
+            }
+        },
+        measureBlock = { measurables, constraints ->
+            if (measurables.size > 1) {
+                throw IllegalStateException("Only one child is allowed in a VerticalScroller")
+            }
+            val childConstraints = constraints.copy(
+                maxHeight = if (isVertical) IntPx.Infinity else constraints.maxHeight,
+                maxWidth = if (isVertical) constraints.maxWidth else IntPx.Infinity
+            )
+            val childMeasurable = measurables.firstOrNull()
+            val placeable = childMeasurable?.measure(childConstraints)
+            val width: IntPx
+            val height: IntPx
+            if (placeable == null) {
+                width = constraints.minWidth
+                height = constraints.minHeight
+            } else {
+                width = min(placeable.width, constraints.maxWidth)
+                height = min(placeable.height, constraints.maxHeight)
+            }
+            layout(width, height) {
+                val childHeight = placeable?.height?.toPx() ?: 0.px
+                val childWidth = placeable?.width?.toPx() ?: 0.px
+                val scrollHeight = childHeight - height.toPx()
+                val scrollWidth = childWidth - width.toPx()
+                val side = if (isVertical) scrollHeight else scrollWidth
+                if (side != scrollerPosition.maxPosition) {
+                    onMaxPositionChanged(side)
+                }
+                val xOffset = if (isVertical) 0.ipx else -scrollerPosition.value.round()
+                val yOffset = if (isVertical) -scrollerPosition.value.round() else 0.ipx
+                placeable?.place(xOffset, yOffset)
             }
         }
-    }) { measurables, constraints ->
-        if (measurables.size > 1) {
-            throw IllegalStateException("Only one child is allowed in a VerticalScroller")
-        }
-        val childConstraints = constraints.copy(
-            maxHeight = if (isVertical) IntPx.Infinity else constraints.maxHeight,
-            maxWidth = if (isVertical) constraints.maxWidth else IntPx.Infinity
-        )
-        val childMeasurable = measurables.firstOrNull()
-        val placeable = childMeasurable?.measure(childConstraints)
-        val width: IntPx
-        val height: IntPx
-        if (placeable == null) {
-            width = constraints.minWidth
-            height = constraints.minHeight
-        } else {
-            width = min(placeable.width, constraints.maxWidth)
-            height = min(placeable.height, constraints.maxHeight)
-        }
-        layout(width, height) {
-            val childHeight = placeable?.height?.toPx() ?: 0.px
-            val childWidth = placeable?.width?.toPx() ?: 0.px
-            val scrollHeight = childHeight - height.toPx()
-            val scrollWidth = childWidth - width.toPx()
-            val side = if (isVertical) scrollHeight else scrollWidth
-            if (side != scrollerPosition.maxPosition) {
-                onMaxPositionChanged(side)
-            }
-            val xOffset = if (isVertical) 0.ipx else -scrollerPosition.value.round()
-            val yOffset = if (isVertical) -scrollerPosition.value.round() else 0.ipx
-            placeable?.place(xOffset, yOffset)
-        }
-    }
+    )
 }
 
 private val ScrollerDefaultFriction = 0.35f
