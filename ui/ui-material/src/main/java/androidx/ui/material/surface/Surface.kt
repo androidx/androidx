@@ -25,6 +25,7 @@ import androidx.ui.core.CurrentTextStyleProvider
 import androidx.ui.core.Dp
 import androidx.ui.core.DrawShadow
 import androidx.ui.core.Layout
+import androidx.ui.core.Modifier
 import androidx.ui.core.Text
 import androidx.ui.core.dp
 import androidx.ui.core.ipx
@@ -60,6 +61,7 @@ import androidx.ui.text.TextStyle
  * values use [CurrentTextStyleProvider] or provide direct styling to your components.
  * @see textColorForBackground
  *
+ * @param modifier Modifier to be applied to the layout corresponding to the surface
  * @param shape Defines the surface's shape as well its shadow. A shadow is only
  *  displayed if the [elevation] is greater than zero.
  * @param color The background color. Use [Color.Transparent] to have no color.
@@ -69,13 +71,14 @@ import androidx.ui.text.TextStyle
  */
 @Composable
 fun Surface(
+    modifier: Modifier = Modifier.None,
     shape: Shape = RectangleShape,
     color: Color = +themeColor { surface },
     border: Border? = null,
     elevation: Dp = 0.dp,
     children: @Composable() () -> Unit
 ) {
-    SurfaceLayout {
+    SurfaceLayout(modifier) {
         if (elevation > 0.dp) {
             DrawShadow(shape = shape, elevation = elevation)
         }
@@ -109,8 +112,8 @@ val CurrentBackground = Ambient.of { Color.Transparent }
  */
 // TODO("Andrey: Should be replaced with some basic layout implementation when we have it")
 @Composable
-private fun SurfaceLayout(children: @Composable() () -> Unit) {
-    Layout(children) { measurables, constraints ->
+private fun SurfaceLayout(modifier: Modifier = Modifier.None, children: @Composable() () -> Unit) {
+    Layout(children, modifier) { measurables, constraints ->
         if (measurables.size > 1) {
             throw IllegalStateException("Surface can have only one direct measurable child!")
         }
