@@ -1169,12 +1169,6 @@ public abstract class FragmentManager {
         }
         newState = Math.min(newState, fragmentStateManager.computeMaxState());
         if (f.mState <= newState) {
-            // For fragments that are created from a layout, when restoring from
-            // state we don't want to allow them to be created until they are
-            // being reloaded from the layout.
-            if (f.mFromLayout && !f.mInLayout) {
-                return;
-            }
             // If we are moving to the same state, we do not need to give up on the animation.
             if (f.mState < newState && !mExitAnimationCancellationSignals.isEmpty()) {
                 // The fragment is currently being animated...  but!  Now we

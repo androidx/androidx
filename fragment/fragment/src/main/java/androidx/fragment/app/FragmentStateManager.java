@@ -142,6 +142,12 @@ class FragmentStateManager {
         // Assume the Fragment can go all the way to resumed by default
         int maxState = Fragment.RESUMED;
 
+        // For fragments that are created from a layout using the <fragment> tag
+        // (mFromLayout), don't allow their state to progress until they are
+        // actually added to the layout (mInLayout).
+        if (mFragment.mFromLayout && !mFragment.mInLayout) {
+            maxState = Math.min(maxState, mFragment.mState);
+        }
         // Fragments that are not currently added will sit in the CREATED state.
         if (!mFragment.mAdded) {
             maxState = Math.min(maxState, Fragment.CREATED);
