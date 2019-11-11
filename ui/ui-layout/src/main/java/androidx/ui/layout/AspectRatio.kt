@@ -17,11 +17,9 @@
 package androidx.ui.layout
 
 import androidx.compose.Composable
-import androidx.ui.core.AlignmentLine
 import androidx.ui.core.Constraints
 import androidx.ui.core.DensityScope
 import androidx.ui.core.IntPx
-import androidx.ui.core.IntPxPosition
 import androidx.ui.core.IntPxSize
 import androidx.ui.core.Layout
 import androidx.ui.core.LayoutModifier
@@ -68,11 +66,6 @@ private data class AspectRatioModifier(val aspectRatio: Float) : LayoutModifier 
             constraints
     }
 
-    override fun DensityScope.modifySize(
-        constraints: Constraints,
-        childSize: IntPxSize
-    ) = childSize
-
     override fun DensityScope.minIntrinsicWidthOf(measurable: Measurable, height: IntPx): IntPx {
         return if (height == IntPx.Infinity) measurable.minIntrinsicWidth(height)
         else height * aspectRatio
@@ -92,16 +85,6 @@ private data class AspectRatioModifier(val aspectRatio: Float) : LayoutModifier 
         return if (width == IntPx.Infinity) measurable.maxIntrinsicHeight(width)
         else width / aspectRatio
     }
-
-    override fun DensityScope.modifyPosition(
-        childPosition: IntPxPosition,
-        childSize: IntPxSize,
-        containerSize: IntPxSize
-    ): IntPxPosition = childPosition
-
-    override fun DensityScope.modifyAlignmentLine(line: AlignmentLine, value: IntPx?) = value
-
-    override fun DensityScope.modifyParentData(parentData: Any?): Any? = parentData
 }
 
 /**

@@ -23,37 +23,54 @@ interface LayoutModifier : Modifier.Element {
     /**
      * Modifies [constraints] for performing measurement of the modified layout element.
      */
-    fun DensityScope.modifyConstraints(constraints: Constraints): Constraints
+    fun DensityScope.modifyConstraints(constraints: Constraints): Constraints = constraints
 
     /**
      * Returns the container size of a modified layout element given the original container
      * measurement [constraints] and the measured [childSize].
      */
-    fun DensityScope.modifySize(constraints: Constraints, childSize: IntPxSize): IntPxSize
+    fun DensityScope.modifySize(constraints: Constraints, childSize: IntPxSize): IntPxSize =
+        childSize
 
     /**
      * Determines the modified minimum intrinsic width of [measurable].
      * See [Measurable.minIntrinsicWidth].
      */
-    fun DensityScope.minIntrinsicWidthOf(measurable: Measurable, height: IntPx): IntPx
+    fun DensityScope.minIntrinsicWidthOf(measurable: Measurable, height: IntPx): IntPx {
+        val constraints = Constraints(maxHeight = height)
+        val layoutWidth = measurable.minIntrinsicWidth(modifyConstraints(constraints).maxHeight)
+        return modifySize(constraints, IntPxSize(layoutWidth, height)).width
+    }
 
     /**
      * Determines the modified maximum intrinsic width of [measurable].
      * See [Measurable.maxIntrinsicWidth].
      */
-    fun DensityScope.maxIntrinsicWidthOf(measurable: Measurable, height: IntPx): IntPx
+    fun DensityScope.maxIntrinsicWidthOf(measurable: Measurable, height: IntPx): IntPx {
+        val constraints = Constraints(maxHeight = height)
+        val layoutWidth = measurable.maxIntrinsicWidth(modifyConstraints(constraints).maxHeight)
+        return modifySize(constraints, IntPxSize(layoutWidth, height)).width
+    }
 
     /**
      * Determines the modified minimum intrinsic height of [measurable].
      * See [Measurable.minIntrinsicHeight].
      */
-    fun DensityScope.minIntrinsicHeightOf(measurable: Measurable, width: IntPx): IntPx
+    fun DensityScope.minIntrinsicHeightOf(measurable: Measurable, width: IntPx): IntPx {
+        val constraints = Constraints(maxWidth = width)
+        val layoutHeight = measurable.minIntrinsicHeight(modifyConstraints(constraints).maxWidth)
+        return modifySize(constraints, IntPxSize(width, layoutHeight)).height
+    }
 
     /**
      * Determines the modified maximum intrinsic height of [measurable].
      * See [Measurable.maxIntrinsicHeight].
      */
-    fun DensityScope.maxIntrinsicHeightOf(measurable: Measurable, width: IntPx): IntPx
+    fun DensityScope.maxIntrinsicHeightOf(measurable: Measurable, width: IntPx): IntPx {
+        val constraints = Constraints(maxWidth = width)
+        val layoutHeight = measurable.maxIntrinsicHeight(modifyConstraints(constraints).maxWidth)
+        return modifySize(constraints, IntPxSize(width, layoutHeight)).height
+    }
 
     /**
      * Returns the position of a modified child of size [childSize] within a container of
@@ -63,7 +80,7 @@ interface LayoutModifier : Modifier.Element {
         childPosition: IntPxPosition,
         childSize: IntPxSize,
         containerSize: IntPxSize
-    ): IntPxPosition
+    ): IntPxPosition = childPosition
 
     /**
      * Returns the modified position of [line] given its unmodified [value].
@@ -71,10 +88,10 @@ interface LayoutModifier : Modifier.Element {
     fun DensityScope.modifyAlignmentLine(
         line: AlignmentLine,
         value: IntPx?
-    ): IntPx?
+    ): IntPx? = value
 
     /**
      * Provides a parentData given the [parentData] already provided through the modifier's chain.
      */
-    fun DensityScope.modifyParentData(parentData: Any?): Any?
+    fun DensityScope.modifyParentData(parentData: Any?): Any? = parentData
 }

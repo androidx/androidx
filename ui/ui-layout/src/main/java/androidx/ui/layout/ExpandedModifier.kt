@@ -16,14 +16,9 @@
 
 package androidx.ui.layout
 
-import androidx.ui.core.AlignmentLine
 import androidx.ui.core.Constraints
 import androidx.ui.core.DensityScope
-import androidx.ui.core.IntPx
-import androidx.ui.core.IntPxPosition
-import androidx.ui.core.IntPxSize
 import androidx.ui.core.LayoutModifier
-import androidx.ui.core.Measurable
 import androidx.ui.core.hasBoundedHeight
 import androidx.ui.core.hasBoundedWidth
 import androidx.ui.core.withTight
@@ -34,7 +29,15 @@ import androidx.ui.core.withTight
  * Example usage:
  * @sample androidx.ui.layout.samples.SimpleExpandedWidthModifier
  */
-val ExpandedWidth: LayoutModifier = ExpandedModifier.ExpandedWidth
+val ExpandedWidth: LayoutModifier = object : LayoutModifier {
+    override fun DensityScope.modifyConstraints(constraints: Constraints): Constraints {
+        return if (constraints.hasBoundedWidth) {
+            constraints.withTight(width = constraints.maxWidth)
+        } else {
+            constraints
+        }
+    }
+}
 
 /**
  * A layout modifier that forces a a target component to fill all available height.
@@ -42,7 +45,15 @@ val ExpandedWidth: LayoutModifier = ExpandedModifier.ExpandedWidth
  * Example usage:
  * @sample androidx.ui.layout.samples.SimpleExpandedHeightModifier
  */
-val ExpandedHeight: LayoutModifier = ExpandedModifier.ExpandedHeight
+val ExpandedHeight: LayoutModifier = object : LayoutModifier {
+    override fun DensityScope.modifyConstraints(constraints: Constraints): Constraints {
+        return if (constraints.hasBoundedHeight) {
+            constraints.withTight(height = constraints.maxHeight)
+        } else {
+            constraints
+        }
+    }
+}
 
 /**
  * A layout modifier that forces a target component to fill all available space.
@@ -50,69 +61,12 @@ val ExpandedHeight: LayoutModifier = ExpandedModifier.ExpandedHeight
  * Example usage:
  * @sample androidx.ui.layout.samples.SimpleExpandedModifier
  */
-val Expanded: LayoutModifier = ExpandedModifier.Expanded
-
-/**
- * A layout modifier that forces a target component to occupy all available space in a given
- * dimension.
- */
-private sealed class ExpandedModifier : LayoutModifier {
-    object ExpandedWidth : ExpandedModifier() {
-        override fun DensityScope.modifyConstraints(constraints: Constraints): Constraints {
-            return if (constraints.hasBoundedWidth) {
-                constraints.withTight(width = constraints.maxWidth)
-            } else {
-                constraints
-            }
+val Expanded: LayoutModifier = object : LayoutModifier {
+    override fun DensityScope.modifyConstraints(constraints: Constraints): Constraints {
+        return if (constraints.hasBoundedWidth && constraints.hasBoundedHeight) {
+            Constraints.tightConstraints(constraints.maxWidth, constraints.maxHeight)
+        } else {
+            constraints
         }
     }
-
-    object ExpandedHeight : ExpandedModifier() {
-        override fun DensityScope.modifyConstraints(constraints: Constraints): Constraints {
-            return if (constraints.hasBoundedHeight) {
-                constraints.withTight(height = constraints.maxHeight)
-            } else {
-                constraints
-            }
-        }
-    }
-
-    object Expanded : ExpandedModifier() {
-        override fun DensityScope.modifyConstraints(constraints: Constraints): Constraints {
-            return if (constraints.hasBoundedWidth && constraints.hasBoundedHeight) {
-                Constraints.tightConstraints(constraints.maxWidth, constraints.maxHeight)
-            } else {
-                constraints
-            }
-        }
-    }
-
-    abstract override fun DensityScope.modifyConstraints(constraints: Constraints): Constraints
-
-    override fun DensityScope.modifySize(
-        constraints: Constraints,
-        childSize: IntPxSize
-    ): IntPxSize = childSize
-
-    override fun DensityScope.minIntrinsicWidthOf(measurable: Measurable, height: IntPx): IntPx =
-        measurable.minIntrinsicWidth(height)
-
-    override fun DensityScope.maxIntrinsicWidthOf(measurable: Measurable, height: IntPx): IntPx =
-        measurable.maxIntrinsicWidth(height)
-
-    override fun DensityScope.minIntrinsicHeightOf(measurable: Measurable, width: IntPx): IntPx =
-        measurable.minIntrinsicHeight(width)
-
-    override fun DensityScope.maxIntrinsicHeightOf(measurable: Measurable, width: IntPx): IntPx =
-        measurable.maxIntrinsicHeight(width)
-
-    override fun DensityScope.modifyPosition(
-        childPosition: IntPxPosition,
-        childSize: IntPxSize,
-        containerSize: IntPxSize
-    ): IntPxPosition = childPosition
-
-    override fun DensityScope.modifyAlignmentLine(line: AlignmentLine, value: IntPx?) = value
-
-    override fun DensityScope.modifyParentData(parentData: Any?): Any? = parentData
 }
