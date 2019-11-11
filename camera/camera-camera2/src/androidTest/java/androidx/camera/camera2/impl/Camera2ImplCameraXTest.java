@@ -94,14 +94,14 @@ public final class Camera2ImplCameraXTest {
                 @Override
                 public void analyze(@NonNull ImageProxy image, int rotationDegrees) {
                     mAnalysisResult.postValue(image.getImageInfo().getTimestamp());
+
+                    image.close();
                 }
             };
     private final ImageAnalysis.Analyzer mImageAnalyzer2 =
-            new ImageAnalysis.Analyzer() {
-                @Override
-                public void analyze(@NonNull ImageProxy image, int rotationDegrees) {
-                    mAnalysisResult2.postValue(image.getImageInfo().getTimestamp());
-                }
+            (image, rotationDegrees) -> {
+                mAnalysisResult2.postValue(image.getImageInfo().getTimestamp());
+                image.close();
             };
     @Rule
     public GrantPermissionRule mRuntimePermissionRule = GrantPermissionRule.grant(

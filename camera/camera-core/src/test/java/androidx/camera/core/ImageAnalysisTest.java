@@ -27,7 +27,6 @@ import android.os.Build;
 import android.os.Handler;
 import android.os.HandlerThread;
 
-import androidx.annotation.NonNull;
 import androidx.camera.core.impl.utils.executor.CameraXExecutors;
 import androidx.camera.testing.fakes.FakeAppConfig;
 import androidx.camera.testing.fakes.FakeCamera;
@@ -222,12 +221,11 @@ public class ImageAnalysisTest {
                 .build());
 
         mImageAnalysis.setAnalyzer(CameraXExecutors.newHandlerExecutor(mCallbackHandler),
-                new ImageAnalysis.Analyzer() {
-                    @Override
-                    public void analyze(@NonNull ImageProxy image, int rotationDegrees) {
-                        mImagesReceived.add(image.getImage());
-                    }
-                });
+                (image, rotationDegrees) -> {
+                    mImagesReceived.add(image.getImage());
+                    image.close();
+                }
+        );
 
         FakeLifecycleOwner lifecycleOwner = new FakeLifecycleOwner();
         CameraSelector cameraSelector =

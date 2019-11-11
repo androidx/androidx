@@ -97,6 +97,7 @@ public final class ImageAnalysisTest {
                         mAnalysisResults.add(new ImageProperties(image, rotationDegrees));
                     }
                     mAnalysisResultsSemaphore.release();
+                    image.close();
                 };
         Context context = ApplicationProvider.getApplicationContext();
         AppConfig config = Camera2AppConfig.create(context);
