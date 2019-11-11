@@ -27,14 +27,18 @@ import com.android.tools.lint.detector.api.Severity
 import com.android.tools.lint.detector.api.SourceCodeScanner
 import com.android.tools.lint.detector.api.UastLintUtils
 import com.android.tools.lint.detector.api.isKotlin
+import com.intellij.psi.PsiClassType
 import com.intellij.psi.PsiMethod
 import com.intellij.psi.PsiVariable
 import org.jetbrains.kotlin.psi.KtCallExpression
 import org.jetbrains.kotlin.psi.KtNullableType
+import org.jetbrains.kotlin.psi.KtTypeReference
 import org.jetbrains.uast.UAnnotated
 import org.jetbrains.uast.UCallExpression
+import org.jetbrains.uast.UClass
 import org.jetbrains.uast.UElement
 import org.jetbrains.uast.UReferenceExpression
+import org.jetbrains.uast.getUastParentOfType
 import org.jetbrains.uast.isNullLiteral
 import org.jetbrains.uast.kotlin.KotlinUSimpleReferenceExpression
 import org.jetbrains.uast.resolveToUElement
@@ -73,36 +77,61 @@ class NonNullableMutableLiveDataDetector : Detector(), SourceCodeScanner {
         if (!isKotlin(node.sourcePsi) || !context.evaluator.isMemberInSubClassOf(method,
                 "androidx.lifecycle.LiveData", false)) return
 
-        val receiver = (node.receiver as KotlinUSimpleReferenceExpression).resolve()
-        val assignment = UastLintUtils.findLastAssignment(receiver as PsiVariable, node)
-        val constructorExpression = assignment.sourcePsi as KtCallExpression
-        val liveDataType = constructorExpression.typeArguments.singleOrNull() ?: return
+        val receiverType = node.receiverType as PsiClassType
+        val liveDataType = if (receiverType.hasParameters()) {
+            val receiver = (node.receiver as KotlinUSimpleReferenceExpression).resolve()
+            val assignment = UastLintUtils.findLastAssignment(receiver as PsiVariable, node)
+            val constructorExpression = assignment.sourcePsi as KtCallExpression
+            constructorExpression.typeArguments.singleOrNull()?.typeReference
+        } else {
+            getTypeArg(receiverType)
+        } ?: return
 
-        if (liveDataType.typeReference?.typeElement !is KtNullableType) {
-            val liveDataFix = fix()
-                .name("Change `LiveData` type to nullable")
-                .replace()
-                .with("?")
-                .range(context.getLocation(liveDataType))
-                .end()
-                .build()
+        if (liveDataType.typeElement !is KtNullableType) {
+            val fixes = mutableListOf<LintFix>()
+            if (context.getLocation(liveDataType).file == context.file) {
+                // Quick Fixes can only be applied to current file
+                fixes.add(fix()
+                    .name("Change `LiveData` type to nullable")
+                    .replace()
+                    .with("?")
+                    .range(context.getLocation(liveDataType))
+                    .end()
+                    .build())
+            }
             val argument = node.valueArguments[0]
             if (argument.isNullLiteral()) {
                 // Don't report null!! quick fix.
                 report(context, argument, "Cannot set non-nullable LiveData value to `null`",
-                    liveDataFix)
+                    fixes)
             } else if (argument.isNullable()) {
-                val nullAssertionFix = fix()
+                fixes.add(fix()
                     .name("Add non-null asserted (!!) call")
                     .replace()
                     .with("!!")
                     .range(context.getLocation(argument))
                     .end()
-                    .build()
-                report(context, argument, "Expected non-nullable value", liveDataFix,
-                    nullAssertionFix)
+                    .build())
+                report(context, argument, "Expected non-nullable value", fixes)
             }
         }
+    }
+
+    /**
+     * Iterates [classType]'s hierarchy to find its [androidx.lifecycle.LiveData] value type.
+     *
+     * @param classType The [PsiClassType] to search
+     * @return The LiveData type argument.
+     */
+    private fun getTypeArg(classType: PsiClassType): KtTypeReference {
+        val cls = classType.resolve().getUastParentOfType<UClass>()
+        val parentPsiType = cls?.superClassType as PsiClassType
+        if (parentPsiType.hasParameters()) {
+            val parentTypeReference = cls.uastSuperTypes[0]
+            val superType = (parentTypeReference.sourcePsi as KtTypeReference).typeElement
+            return superType!!.typeArgumentsAsTypes[0]
+        }
+        return getTypeArg(parentPsiType)
     }
 
     /**
@@ -117,8 +146,15 @@ class NonNullableMutableLiveDataDetector : Detector(), SourceCodeScanner {
         context: JavaContext,
         element: UElement,
         message: String,
-        vararg fixes: LintFix
-    ) = context.report(ISSUE, context.getLocation(element), message, fix().alternatives(*fixes))
+        fixes: List<LintFix>
+    ) {
+        if (fixes.isEmpty()) {
+            context.report(ISSUE, context.getLocation(element), message)
+        } else {
+            context.report(ISSUE, context.getLocation(element), message,
+                fix().alternatives(*fixes.toTypedArray()))
+        }
+    }
 }
 
 /**

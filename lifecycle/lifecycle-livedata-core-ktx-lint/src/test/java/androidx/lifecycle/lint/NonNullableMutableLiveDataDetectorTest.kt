@@ -65,11 +65,22 @@ class NonNullableMutableLiveDataDetectorTest : LintDetectorTest() {
                     val x = true
                     liveData.value = x
                     liveData.postValue(bar(5))
+                    val myLiveData = MyLiveData()
+                    liveData.value = x
                 }
 
                 fun bar(x: Int): Boolean {
                     return x > 0
                 }
+            """).indented(),
+            kotlin("""
+                package com.example
+
+                import androidx.lifecycle.MutableLiveData
+
+                class MyLiveData : MyLiveData2()
+                open class MyLiveData2 : GenericLiveData<Boolean>()
+                open class GenericLiveData<T> : MutableLiveData<T>()
             """).indented()
         ).expectClean()
     }
@@ -149,6 +160,40 @@ Fix for src/com/example/test.kt line 7: Change `LiveData` type to nullable:
 @@ -6 +6
 -     val liveData = MutableLiveData<Boolean>()
 +     val liveData = MutableLiveData<Boolean?>()
+        """)
+    }
+
+    @Test
+    fun classHierarchyTest() {
+        check(
+            kotlin("""
+                package com.example
+
+                fun foo() {
+                    val liveData = MyLiveData()
+                    val bar: Boolean? = true
+                    liveData.value = bar
+                }
+            """).indented(),
+            kotlin("""
+                package com.example
+
+                import androidx.lifecycle.MutableLiveData
+
+                class MyLiveData : MyLiveData2()
+                open class MyLiveData2 : GenericLiveData<Boolean>()
+                open class GenericLiveData<T> : MutableLiveData<T>()
+            """).indented()
+        ).expect("""
+src/com/example/test.kt:6: Error: Expected non-nullable value [NullSafeMutableLiveData]
+    liveData.value = bar
+                     ~~~
+1 errors, 0 warnings
+        """).expectFixDiffs("""
+Fix for src/com/example/test.kt line 6: Add non-null asserted (!!) call:
+@@ -6 +6
+-     liveData.value = bar
++     liveData.value = bar!!
         """)
     }
 }
