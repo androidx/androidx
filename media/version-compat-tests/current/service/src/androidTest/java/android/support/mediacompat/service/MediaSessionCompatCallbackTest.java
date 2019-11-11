@@ -383,13 +383,11 @@ public class MediaSessionCompatCallbackTest {
     }
 
     /**
-     * Tests {@link MediaSessionCompat#setCallback} with {@code null}.
-     * From API 28, {@code setCallback(null)} should remove all posted callback messages.
-     * Therefore, no callback should be called once {@code setCallback(null)} is done.
+     * Tests whether {@link MediaSessionCompat#setCallback} with {@code null} stops receiving
+     * callback methods.
      */
     @Test
     @SmallTest
-    @SdkSuppress(minSdkVersion = Build.VERSION_CODES.P)
     public void testSetCallbackWithNullShouldRemoveCallbackMessages() throws Exception {
         mSession.setActive(true);
         mCallback.reset(1);
@@ -403,6 +401,31 @@ public class MediaSessionCompatCallbackTest {
         });
         assertFalse(mCallback.await(WAIT_TIME_FOR_NO_RESPONSE_MS));
         assertEquals("Callback shouldn't be called.", 0, mCallback.mOnPlayCalledCount);
+    }
+
+    /**
+     * Tests whether {@link MediaSessionCompat#setCallback} with different callback prevents
+     * old callback from receiving callback methods.
+     */
+    @Test
+    @SmallTest
+    public void testSetCallbacWithDifferentCallback() throws Exception {
+        mSession.setActive(true);
+        mCallback.reset(1);
+        final MediaSessionCallback newCallback = new MediaSessionCallback();
+        newCallback.reset(1);
+        getInstrumentation().runOnMainSync(new Runnable() {
+            @Override
+            public void run() {
+                sendMediaKeyEventFromController(KeyEvent.KEYCODE_MEDIA_PLAY_PAUSE, false);
+                mSession.setCallback(newCallback);
+            }
+        });
+        assertFalse(mCallback.await(WAIT_TIME_FOR_NO_RESPONSE_MS));
+        assertEquals("Callback shouldn't be called.", 0, mCallback.mOnPlayCalledCount);
+
+        assertFalse(newCallback.await(WAIT_TIME_FOR_NO_RESPONSE_MS));
+        assertEquals("Callback shouldn't be called.", 0, newCallback.mOnPlayCalledCount);
     }
 
     @Test
@@ -1064,6 +1087,57 @@ public class MediaSessionCompatCallbackTest {
         CustomParcelable customParcelableOut =
                 mCallback.mQueueDescription.getExtras().getParcelable("customParcelable");
         assertEquals(testValue, customParcelableOut.mValue);
+    }
+
+    /**
+     * Tests b/139093164.
+     */
+    @Test
+    @SmallTest
+    public void testCallbacksAfterReleased() {
+        getInstrumentation().runOnMainSync(new Runnable() {
+            @Override
+            public void run() {
+                mSession.setActive(true);
+
+                // Dispatch media key events from the controller while blocking the looper for the
+                // session callback. For blocking purpose, create a local media controller here
+                // rather than using RemoteMediaController.
+                MediaControllerCompat controller =
+                        new MediaControllerCompat(getApplicationContext(),
+                                mSession.getSessionToken());
+                long currentTimeMs = System.currentTimeMillis();
+                KeyEvent down = new KeyEvent(
+                        currentTimeMs, currentTimeMs, KeyEvent.ACTION_DOWN,
+                        KeyEvent.KEYCODE_MEDIA_PLAY_PAUSE, 0);
+                KeyEvent up = new KeyEvent(
+                        currentTimeMs, System.currentTimeMillis(), KeyEvent.ACTION_UP,
+                        KeyEvent.KEYCODE_MEDIA_PLAY_PAUSE, 0);
+                controller.dispatchMediaButtonEvent(down);
+                controller.dispatchMediaButtonEvent(up);
+
+                // Keeps the old reference to prevent GC.
+                MediaSessionCompat oldSession = mSession;
+
+                // Recreate media session with the same callback reference.
+                mSession.release();
+                mSession = new MediaSessionCompat(getApplicationContext(), TEST_SESSION_TAG,
+                        null, null, mSessionInfo);
+                mSession.setCallback(mCallback, mHandler);
+
+                // Do something with old session, just not to be optimized away.
+                oldSession.setActive(false);
+            }
+        });
+        // Post asserts to the main thread to ensure that mCallback has received all pended
+        // callbacks.
+        getInstrumentation().runOnMainSync(new Runnable() {
+            @Override
+            public void run() {
+                assertEquals(0, mCallback.mOnPlayCalledCount);
+                assertFalse(mCallback.mOnPauseCalled);
+            }
+        });
     }
 
     private void setPlaybackState(int state) {
