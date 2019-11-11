@@ -447,12 +447,13 @@ public final class CameraXTest {
         assertThat(useCases.contains(fakeOtherUseCase)).isTrue();
     }
 
-    @Test(expected = CameraInfoUnavailableException.class)
-    public void cameraInfo_returnFlashAvailableFailed_forFrontCamera()
+    @Test(expected = IllegalArgumentException.class)
+    public void cameraInfo_cannotRetrieveCameraInfo_forFrontCamera()
             throws CameraInfoUnavailableException {
         initCameraX();
-        CameraInfo cameraInfo = CameraX.getCameraInfo(LensFacing.FRONT);
-        cameraInfo.isFlashAvailable();
+        // Expect throw the IllegalArgumentException when try to get the cameraInfo from the camera
+        // which does not exist.
+        CameraX.getCameraInfo(CAMERA_ID_FRONT);
     }
 
     @Test
