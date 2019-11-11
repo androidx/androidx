@@ -31,9 +31,7 @@ sealed class DragDirection {
     internal abstract val yProjection: (Px) -> Float
     internal abstract val isDraggableInDirection: (
         direction: Direction,
-        minValue: Float,
-        currentValue: Float,
-        maxValue: Float
+        currentValue: Float
     ) -> Boolean
 
     internal open fun project(pos: PxPosition) = xProjection(pos.x) + yProjection(pos.y)
@@ -44,16 +42,12 @@ sealed class DragDirection {
     object Horizontal : DragDirection() {
         internal override val xProjection: (Px) -> Float = { it.value }
         internal override val yProjection: (Px) -> Float = { 0f }
-        internal override val isDraggableInDirection: (
-            direction: Direction,
-            minValue: Float,
-            currentValue: Float,
-            maxValue: Float
-        ) -> Boolean =
-            { direction, minValue, currentValue, maxValue ->
+        internal override val isDraggableInDirection:
+                    (direction: Direction, currentValue: Float) -> Boolean =
+            { direction, _ ->
                 when (direction) {
-                    Direction.RIGHT -> currentValue <= maxValue
-                    Direction.LEFT -> currentValue >= minValue
+                    Direction.RIGHT -> true
+                    Direction.LEFT -> true
                     else -> false
                 }
             }
@@ -67,14 +61,12 @@ sealed class DragDirection {
         internal override val yProjection: (Px) -> Float = { it.value }
         internal override val isDraggableInDirection: (
             direction: Direction,
-            minValue: Float,
-            currentValue: Float,
-            maxValue: Float
+            currentValue: Float
         ) -> Boolean =
-            { direction, minValue, currentValue, maxValue ->
+            { direction, _ ->
                 when (direction) {
-                    Direction.UP -> currentValue <= maxValue
-                    Direction.DOWN -> currentValue >= minValue
+                    Direction.UP -> true
+                    Direction.DOWN -> true
                     else -> false
                 }
             }

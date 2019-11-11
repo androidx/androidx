@@ -40,6 +40,7 @@ import androidx.ui.core.px
 import androidx.ui.core.toRect
 import androidx.ui.core.withDensity
 import androidx.ui.foundation.Clickable
+import androidx.ui.foundation.ValueHolder
 import androidx.ui.foundation.gestures.DragDirection
 import androidx.ui.graphics.Paint
 import androidx.ui.graphics.PaintingStyle
@@ -49,7 +50,6 @@ import androidx.ui.layout.EdgeInsets
 import androidx.ui.layout.Stack
 import androidx.ui.lerp
 import androidx.ui.material.internal.StateDraggable
-import androidx.ui.material.internal.ValueModel
 import androidx.ui.material.surface.Surface
 
 /**
@@ -129,7 +129,6 @@ fun ModalDrawerLayout(
             val maxValue = 0f
 
             val anchors = listOf(minValue to DrawerState.Closed, maxValue to DrawerState.Opened)
-
             StateDraggable(
                 state = drawerState,
                 onStateChange = onStateChange,
@@ -210,7 +209,6 @@ fun BottomDrawerLayout(
                 openedValue to DrawerState.Opened,
                 minValue to DrawerState.Opened
             )
-
             StateDraggable(
                 state = drawerState,
                 onStateChange = onStateChange,
@@ -238,7 +236,7 @@ fun BottomDrawerLayout(
 
 @Composable
 private fun DrawerContent(
-    xOffset: ValueModel,
+    xOffset: ValueHolder<Float>,
     constraints: DpConstraints,
     children: @Composable() () -> Unit
 ) {
@@ -255,7 +253,7 @@ private fun DrawerContent(
 
 @Composable
 private fun BottomDrawerContent(
-    yOffset: ValueModel,
+    yOffset: ValueHolder<Float>,
     constraints: DpConstraints,
     children: @Composable() () -> Unit
 ) {
@@ -298,8 +296,8 @@ private fun Scrim(
 // TODO: consider make pretty and move to public
 @Composable
 private fun WithOffset(
-    xOffset: ValueModel? = null,
-    yOffset: ValueModel? = null,
+    xOffset: ValueHolder<Float>? = null,
+    yOffset: ValueHolder<Float>? = null,
     child: @Composable() () -> Unit
 ) {
     Layout(children = {

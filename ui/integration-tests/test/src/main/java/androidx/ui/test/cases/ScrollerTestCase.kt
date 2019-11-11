@@ -73,7 +73,7 @@ class ScrollerTestCase() : ComposeTestCase, ToggleableTestCase {
     }
 
     override fun toggleState() {
-        scrollerPosition.value = if (scrollerPosition.value == 0.px) 10.px else 0.px
+        scrollerPosition.scrollTo(if (scrollerPosition.value == 0.px) 10.px else 0.px)
     }
 
     @Composable

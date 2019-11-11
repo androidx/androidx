@@ -208,13 +208,7 @@ private fun ScrollableTabRow(
         }
     }
 
-    HorizontalScroller(
-        scrollerPosition = scrollableTabData.position,
-        onScrollPositionChanged = { position, _ ->
-            scrollableTabData.position.value = position
-            scrollableTabData.currentScrollPosition = position
-        }
-    ) {
+    HorizontalScroller(scrollerPosition = scrollableTabData.position) {
         Layout(tabs, indicator, divider) { measurables, constraints ->
             val tabPlaceables = mutableListOf<Pair<Placeable, IntPx>>()
             val minTabWidth = ScrollableTabRowMinimumTabWidth.toIntPx()
@@ -285,13 +279,9 @@ private class ScrollableTabData(
 
     val position = ScrollerPosition()
 
-    // Need to use a separate var here - directly consuming position.value will cause recompositions
-    // as it is an @Model class
-    var currentScrollPosition: Px = Px.Zero
-
     private fun isTabFullyVisible(index: Int): Boolean {
         val tabPosition = tabPositions[index]
-        val leftEdgeStart = currentScrollPosition
+        val leftEdgeStart = position.value
         val leftEdgeVisible = leftEdgeStart <= tabPosition.left.toPx()
         val rightEdgeEnd = leftEdgeStart + visibleWidth
         val rightEdgeVisible = rightEdgeEnd >= tabPosition.right.toPx()
