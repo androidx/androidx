@@ -1428,9 +1428,10 @@ public final class ViewPager2 extends ViewGroup {
 
         @Override
         public void onInitializeAccessibilityNodeInfo(AccessibilityNodeInfo info) {
-            addCollectionInfo(info);
+            AccessibilityNodeInfoCompat infoCompat = AccessibilityNodeInfoCompat.wrap(info);
+            addCollectionInfo(infoCompat);
             if (Build.VERSION.SDK_INT >= 16) {
-                addScrollActions(info);
+                addScrollActions(infoCompat);
             }
         }
 
@@ -1533,7 +1534,7 @@ public final class ViewPager2 extends ViewGroup {
             }
         }
 
-        private void addCollectionInfo(AccessibilityNodeInfo info) {
+        private void addCollectionInfo(AccessibilityNodeInfoCompat infoCompat) {
             int rowCount = 0;
             int colCount = 0;
             if (getAdapter() != null) {
@@ -1543,15 +1544,14 @@ public final class ViewPager2 extends ViewGroup {
                     colCount = getAdapter().getItemCount();
                 }
             }
-            AccessibilityNodeInfoCompat nodeInfoCompat = AccessibilityNodeInfoCompat.wrap(info);
             AccessibilityNodeInfoCompat.CollectionInfoCompat collectionInfo =
                     AccessibilityNodeInfoCompat.CollectionInfoCompat.obtain(rowCount, colCount,
                             /* hierarchical= */false,
                             AccessibilityNodeInfoCompat.CollectionInfoCompat.SELECTION_MODE_NONE);
-            nodeInfoCompat.setCollectionInfo(collectionInfo);
+            infoCompat.setCollectionInfo(collectionInfo);
         }
 
-        private void addScrollActions(AccessibilityNodeInfo info) {
+        private void addScrollActions(AccessibilityNodeInfoCompat infoCompat) {
             final Adapter<?> adapter = getAdapter();
             if (adapter == null) {
                 return;
@@ -1560,14 +1560,13 @@ public final class ViewPager2 extends ViewGroup {
             if (itemCount == 0 || !isUserInputEnabled()) {
                 return;
             }
-            final AccessibilityNodeInfoCompat infoCompat = AccessibilityNodeInfoCompat.wrap(info);
             if (mCurrentItem > 0) {
                 infoCompat.addAction(AccessibilityNodeInfoCompat.ACTION_SCROLL_BACKWARD);
             }
             if (mCurrentItem < itemCount - 1) {
                 infoCompat.addAction(AccessibilityNodeInfoCompat.ACTION_SCROLL_FORWARD);
             }
-            info.setScrollable(true);
+            infoCompat.setScrollable(true);
         }
     }
 
