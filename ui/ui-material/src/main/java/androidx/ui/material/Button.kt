@@ -179,7 +179,12 @@ fun Button(
     style: ButtonStyle = ContainedButtonStyle(),
     children: @Composable() () -> Unit
 ) {
-    Surface(style.shape, style.color, style.border, style.elevation) {
+    Surface(
+        shape = style.shape,
+        color = style.color,
+        border = style.border,
+        elevation = style.elevation
+    ) {
         Ripple(bounded = true, color = style.rippleColor, enabled = onClick != null) {
             Clickable(onClick = onClick) {
                 Container(constraints = ButtonConstraints, padding = style.paddings) {
