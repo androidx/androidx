@@ -19,7 +19,7 @@ package androidx.lifecycle;
 import androidx.annotation.NonNull;
 
 /**
- * @deprecated Use {@code android.support.v7.app.AppCompatActivity}
+ * @deprecated Use {@code androidx.appcompat.app.AppCompatActivity}
  * which extends {@link LifecycleOwner}, so there are no use cases for this class.
  */
 @SuppressWarnings({"WeakerAccess", "unused"})
