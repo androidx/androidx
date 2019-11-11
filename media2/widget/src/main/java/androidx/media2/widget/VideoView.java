@@ -23,6 +23,7 @@ import android.graphics.drawable.BitmapDrawable;
 import android.graphics.drawable.Drawable;
 import android.util.AttributeSet;
 import android.util.Log;
+import android.view.Surface;
 import android.view.View;
 
 import androidx.annotation.IntDef;
@@ -318,12 +319,15 @@ public class VideoView extends SelectiveLayout {
      * {@link SessionPlayer} that was previously set.
      * <p>
      * If VideoView has a {@link MediaControlView} instance, this controller will also be set to it.
+     * <p>
+     * Calling this method will automatically set VideoView's surface to {@link MediaController}
+     * by calling {@link MediaController#setSurface(Surface)}. If the {@link MediaController} is
+     * connected to a {@link MediaSession} and that {@link MediaSession} is associated with a
+     * {@link SessionPlayer}, VideoView's surface will be set to that {@link SessionPlayer}.
      *
      * @param controller the controller
      * @see #setPlayer
      */
-    // TODO: Update Javadoc to mention that setting a surface to player will be automatically
-    //  handled by VideoView after MediaController#setSurface is unhidden. (b/134749006)
     public void setMediaController(@NonNull MediaController controller) {
         if (controller == null) {
             throw new NullPointerException("controller must not be null");
@@ -354,12 +358,13 @@ public class VideoView extends SelectiveLayout {
      * set.
      * <p>
      * If VideoView has a {@link MediaControlView} instance, this player will also be set to it.
+     * <p>
+     * Calling this method will automatically set VideoView's surface to {@link SessionPlayer}
+     * by calling {@link SessionPlayer#setSurface(Surface)}.
      *
      * @param player the player
      * @see #setMediaController
      */
-    // TODO: Update Javadoc to mention that setting a surface to player will be automatically
-    //  handled by VideoView after MediaController#setSurface is unhidden. (b/134749006)
     public void setPlayer(@NonNull SessionPlayer player) {
         if (player == null) {
             throw new NullPointerException("player must not be null");
