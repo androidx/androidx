@@ -616,16 +616,9 @@ public class ImageCapture extends UseCase {
             return;
         }
 
-        // Get the relative rotation or default to 0 if the camera info is unavailable
-        int relativeRotation = 0;
-        try {
-            CameraInfoInternal cameraInfoInternal = CameraX.getCameraInfo(cameraId);
-            relativeRotation =
-                    cameraInfoInternal.getSensorRotationDegrees(
-                            mConfig.getTargetRotation(Surface.ROTATION_0));
-        } catch (CameraInfoUnavailableException e) {
-            Log.e(TAG, "Unable to retrieve camera sensor orientation.", e);
-        }
+        CameraInfoInternal cameraInfoInternal = CameraX.getCameraInfo(cameraId);
+        int relativeRotation = cameraInfoInternal.getSensorRotationDegrees(
+                mConfig.getTargetRotation(Surface.ROTATION_0));
 
         Rational targetRatio = mConfig.getTargetAspectRatioCustom(null);
         targetRatio = ImageUtil.rotate(targetRatio, relativeRotation);

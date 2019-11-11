@@ -126,5 +126,5 @@ public interface CameraInternal extends Camera, UseCase.StateChangeCallback {
 
     /** Returns an interface to retrieve characteristics of the camera. */
     @NonNull
-    CameraInfoInternal getCameraInfoInternal() throws CameraInfoUnavailableException;
+    CameraInfoInternal getCameraInfoInternal();
 }

@@ -507,14 +507,13 @@ public final class CameraX {
      *
      * @param cameraId the internal id of the camera
      * @return the camera info if it can be retrieved for the given id.
-     * @throws CameraInfoUnavailableException if unable to access cameras, perhaps due to
-     *                                        insufficient permissions.
+     * @throws IllegalArgumentException if unable to access cameras, perhaps due to
+     *                                  insufficient permissions.
      * @hide
      */
     @RestrictTo(Scope.LIBRARY_GROUP)
     @Nullable
-    public static CameraInfoInternal getCameraInfo(String cameraId)
-            throws CameraInfoUnavailableException {
+    public static CameraInfoInternal getCameraInfo(String cameraId) {
         CameraX cameraX = checkInitialized();
 
         return cameraX.getCameraRepository().getCamera(cameraId).getCameraInfoInternal();

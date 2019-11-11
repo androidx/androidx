@@ -461,8 +461,7 @@ public final class CameraXTest {
     }
 
     @Test(expected = IllegalArgumentException.class)
-    public void cameraInfo_cannotRetrieveCameraInfo_forFrontCamera()
-            throws CameraInfoUnavailableException {
+    public void cameraInfo_cannotRetrieveCameraInfo_forFrontCamera() {
         initCameraX();
         // Expect throw the IllegalArgumentException when try to get the cameraInfo from the camera
         // which does not exist.

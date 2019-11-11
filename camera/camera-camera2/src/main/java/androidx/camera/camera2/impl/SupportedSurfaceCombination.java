@@ -449,13 +449,8 @@ final class SupportedSurfaceCombination {
     }
 
     private boolean isRotationNeeded(int targetRotation) {
-        int sensorRotationDegrees;
-        try {
-            sensorRotationDegrees = CameraX.getCameraInfo(mCameraId).getSensorRotationDegrees(
-                    targetRotation);
-        } catch (CameraInfoUnavailableException e) {
-            throw new IllegalArgumentException("Unable to retrieve camera sensor orientation.", e);
-        }
+        int sensorRotationDegrees = CameraX.getCameraInfo(mCameraId).getSensorRotationDegrees(
+                targetRotation);
         return sensorRotationDegrees == 90 || sensorRotationDegrees == 270;
     }
 
