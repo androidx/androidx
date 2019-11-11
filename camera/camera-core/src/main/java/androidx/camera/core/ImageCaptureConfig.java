@@ -805,12 +805,9 @@ public final class ImageCaptureConfig
         /**
          * Sets the {@link FlashMode}.
          *
-         * <p>When the torch is enabled via {@link CameraControl#enableTorch(boolean)}, the torch
-         * will remain enabled during photo capture regardless of {@link FlashMode} setting. When
-         * the torch is disabled, flash will function as specified by
-         * {@link #setFlashMode(FlashMode)}.
-         *
          * <p>If not set, the flash mode will default to {@link FlashMode#OFF}.
+         *
+         * <p>See {@link ImageCapture#setFlashMode(FlashMode)} for more information.
          *
          * @param flashMode The requested flash mode.
          * @return The current Builder.
