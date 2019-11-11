@@ -19,6 +19,7 @@ package androidx.ui.test
 import androidx.compose.Composable
 import androidx.compose.Model
 import androidx.test.filters.MediumTest
+import androidx.ui.core.IntPx
 import androidx.ui.core.Layout
 import androidx.ui.core.sp
 import androidx.ui.text.TextStyle
@@ -153,9 +154,18 @@ class IsDisplayedTests {
             val style = TextStyle(fontSize = 30.sp)
             Padding(padding = 10.dp) {
                 Center {
-                    Row {
-                        for (i in 1..100) {
-                            Text(text = i.toString(), style = style)
+                    // TODO(popam): remove this when a modifier can be used instead
+                    Layout({
+                        Row {
+                            for (i in 1..100) {
+                                Text(text = i.toString(), style = style)
+                            }
+                        }
+                    }) { measurables, constraints ->
+                        val placeable =
+                            measurables[0].measure(constraints.copy(maxWidth = IntPx.Infinity))
+                        layout(placeable.width, placeable.height) {
+                            placeable.place(0.ipx, 0.ipx)
                         }
                     }
                 }

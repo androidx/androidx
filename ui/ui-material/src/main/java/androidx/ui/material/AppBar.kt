@@ -61,8 +61,8 @@ import androidx.ui.graphics.Path
 import androidx.ui.graphics.PathOperation
 import androidx.ui.layout.Align
 import androidx.ui.layout.AlignmentLineOffset
-import androidx.ui.layout.Center
 import androidx.ui.layout.Expanded
+import androidx.ui.layout.ExpandedHeight
 import androidx.ui.layout.Padding
 import androidx.ui.text.TextStyle
 import kotlin.math.sqrt
@@ -158,8 +158,8 @@ private fun BaseTopAppBar(
             if (startContent != null) {
                 inflexible {
                     Container(
+                        modifier = ExpandedHeight,
                         width = AppBarTitleStartPadding,
-                        expanded = true,
                         alignment = Alignment.CenterLeft,
                         children = startContent
                     )
@@ -180,7 +180,11 @@ private fun BaseTopAppBar(
             }
             if (endContent != null) {
                 inflexible {
-                    Center(children = endContent)
+                    Container(
+                        modifier = ExpandedHeight,
+                        alignment = Alignment.Center,
+                        children = endContent
+                    )
                 }
             }
         }

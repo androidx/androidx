@@ -87,8 +87,8 @@ class FlexChildren internal constructor() {
  * according to their flex weights.
  *
  * [FlexRow] children can be:
- * - [inflexible] meaning that the child is not flex, and it should be measured with loose
- * constraints to determine its preferred width
+ * - [inflexible] meaning that the child is not flex, and it should be measured first
+ * to determine its size, before the expanded and flexible children are measured
  * - [expanded] meaning that the child is flexible, and it should be assigned a width according
  * to its flex weight relative to its flexible children. The child is forced to occupy the
  * entire width assigned by the parent
@@ -128,8 +128,8 @@ fun FlexRow(
  * according to their flex weights.
  *
  * [FlexColumn] children can be:
- * - [inflexible] meaning that the child is not flex, and it should be measured with
- * loose constraints to determine its preferred height
+ * - [inflexible] meaning that the child is not flex, and it should be measured first
+ * to determine its size, before the expanded and flexible children are measured
  * - [expanded] meaning that the child is flexible, and it should be assigned a
  * height according to its flex weight relative to its flexible children. The child is forced
  * to occupy the entire height assigned by the parent
@@ -172,7 +172,9 @@ sealed class FlexScope {
      * A layout modifier within a [Column] or [Row] that makes the target component flexible.
      * It will be assigned a space according to its flex weight relative to the flexible siblings.
      * When [tight] is set to true, the target component is forced to occupy the entire space
-     * assigned to it by the parent.
+     * assigned to it by the parent. [Flexible] children will be measured after all the
+     * [Inflexible] ones have been measured, in order to divide the unclaimed space between
+     * them.
      */
     fun Flexible(flex: Float, tight: Boolean = true): LayoutModifier =
         if (tight) {
@@ -183,7 +185,13 @@ sealed class FlexScope {
 
     /**
      * A layout modifier within a [Column] or [Row] that makes the target component inflexible.
-     * It will be measured with the loose infinite constraints to determine its preferred size.
+     * All [Inflexible] children will be measured before the [Flexible] ones. They will be
+     * measured in the order they appear, without min constraints and with max constraints in
+     * the main direction of the layout (maxHeight for Column and maxWidth for Row) such that
+     * the sum of the space occupied by inflexible children will not exceed the incoming constraint
+     * of the [Column] or [Row]: for example the first child of a [Column] will be measured with
+     * maxHeight = column's maxHeight; the second child will be measured with maxHeight = column's
+     * maxHeight - first child's height, and so on.
      */
     val Inflexible: LayoutModifier = inflexibleModifier
 
@@ -566,11 +574,6 @@ internal data class OrientationIndependentConstraints(
         if (orientation === LayoutOrientation.Horizontal) c.maxHeight else c.maxWidth
     )
 
-    // Creates a new instance with the same cross axis constraints and unbounded main axis.
-    fun looseMainAxis() = OrientationIndependentConstraints(
-        IntPx.Zero, IntPx.Infinity, crossAxisMin, crossAxisMax
-    )
-
     // Creates a new instance with the same main axis constraints and maximum tight cross axis.
     fun stretchCrossAxis() = OrientationIndependentConstraints(
         mainAxisMin,
@@ -684,7 +687,10 @@ private fun FlexLayout(
             } else {
                 val placeable = child.measure(
                     // Ask for preferred main axis size.
-                    constraints.looseMainAxis().let {
+                    constraints.copy(
+                        mainAxisMin = 0.ipx,
+                        mainAxisMax = constraints.mainAxisMax - inflexibleSpace
+                    ).let {
                         if (child.crossAxisAlignment == CrossAxisAlignment.Stretch ||
                             crossAxisAlignment == CrossAxisAlignment.Stretch
                         ) {
