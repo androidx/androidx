@@ -64,5 +64,4 @@ androidx {
     mavenGroup = LibraryGroups.VIEWPAGER2
     inceptionYear = "2017"
     description = "AndroidX Widget ViewPager2"
-    failOnDeprecationWarnings = false
 }
