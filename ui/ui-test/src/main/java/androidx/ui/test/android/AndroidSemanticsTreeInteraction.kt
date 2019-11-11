@@ -155,20 +155,17 @@ internal class AndroidSemanticsTreeInteraction internal constructor(
 
     override fun sendClick(x: Float, y: Float) {
         performAction { treeProvider ->
+            val downTime = SystemClock.uptimeMillis()
             val eventDown = MotionEvent.obtain(
-                SystemClock.uptimeMillis(), 10,
+                downTime, downTime,
                 MotionEvent.ACTION_DOWN, x, y, 0
             )
             treeProvider.sendEvent(eventDown)
             eventDown.recycle()
 
             val eventUp = MotionEvent.obtain(
-                SystemClock.uptimeMillis(),
-                10,
-                MotionEvent.ACTION_UP,
-                x,
-                y,
-                0
+                downTime, downTime + 10,
+                MotionEvent.ACTION_UP, x, y, 0
             )
             treeProvider.sendEvent(eventUp)
             eventUp.recycle()
