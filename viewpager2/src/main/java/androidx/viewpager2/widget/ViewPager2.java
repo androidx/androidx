@@ -1560,11 +1560,12 @@ public final class ViewPager2 extends ViewGroup {
             if (itemCount == 0 || !isUserInputEnabled()) {
                 return;
             }
+            final AccessibilityNodeInfoCompat infoCompat = AccessibilityNodeInfoCompat.wrap(info);
             if (mCurrentItem > 0) {
-                info.addAction(AccessibilityNodeInfoCompat.ACTION_SCROLL_BACKWARD);
+                infoCompat.addAction(AccessibilityNodeInfoCompat.ACTION_SCROLL_BACKWARD);
             }
             if (mCurrentItem < itemCount - 1) {
-                info.addAction(AccessibilityNodeInfoCompat.ACTION_SCROLL_FORWARD);
+                infoCompat.addAction(AccessibilityNodeInfoCompat.ACTION_SCROLL_FORWARD);
             }
             info.setScrollable(true);
         }
