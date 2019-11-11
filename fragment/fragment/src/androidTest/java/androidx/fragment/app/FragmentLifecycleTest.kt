@@ -21,6 +21,7 @@ import android.os.Bundle
 import android.util.AttributeSet
 import android.view.LayoutInflater
 import android.view.Menu
+import android.view.View
 import android.view.ViewGroup
 import android.widget.TextView
 import androidx.core.view.ViewCompat
@@ -1078,6 +1079,65 @@ class FragmentLifecycleTest {
             .that(childFragment2.mOnInflateCount).isEqualTo(1)
     }
 
+    /**
+     * When a Fragment is added solely via a <fragment> tag, we need to specifically
+     * test what happens when a configuration change, etc. happens that removes the
+     * <fragment> tag from the layout.
+     *
+     * What should happen is that the Fragment remains in the FragmentManager, but it
+     * does not receive any Lifecycle changes until it is re-added to the layout.
+     *
+     * SwappingInflatedParentFragment switches between two layouts: one with a
+     * <fragment> tag and one without. This allows us to test the transitions
+     * between the two just by restarting the FragmentController (effectively
+     * going through a virtual configuration change between two different layouts).
+     */
+    @Test
+    @UiThreadTest
+    fun inflatedFragmentNotInLayout() {
+        val viewModelStore = ViewModelStore()
+        var fc = activityRule.startupFragmentController(viewModelStore)
+        var fm = fc.supportFragmentManager
+
+        var parentFragment = SwappingInflatedParentFragment()
+        fm.beginTransaction().add(android.R.id.content, parentFragment).commit()
+        fm.executePendingTransactions()
+
+        var childFragment = parentFragment.childFragmentManager
+            .findFragmentById(R.id.inflated_fragment)
+        // The child fragment was added via a <fragment> tag, so it
+        // should receive lifecycle events by default
+        assertThat(childFragment).isNotNull()
+        assertThat(childFragment!!.lifecycle.currentState)
+            .isEqualTo(Lifecycle.State.RESUMED)
+
+        fc = fc.restart(activityRule, viewModelStore, false)
+        fm = fc.supportFragmentManager
+
+        parentFragment = fm.findFragmentById(android.R.id.content) as
+                SwappingInflatedParentFragment
+        childFragment = parentFragment.childFragmentManager
+            .findFragmentById(R.id.inflated_fragment)
+        // Ensure the Fragment is still in the FragmentManager, but hasn't moved
+        // forward in Lifecycle since it isn't in the layout this time
+        assertThat(childFragment).isNotNull()
+        assertThat(childFragment!!.lifecycle.currentState)
+            .isEqualTo(Lifecycle.State.INITIALIZED)
+
+        fc = fc.restart(activityRule, viewModelStore, false)
+        fm = fc.supportFragmentManager
+
+        parentFragment = fm.findFragmentById(android.R.id.content) as
+                SwappingInflatedParentFragment
+        childFragment = parentFragment.childFragmentManager
+            .findFragmentById(R.id.inflated_fragment)
+        // Now that the <fragment> tag is back, the fragment should receive
+        // lifecycle events again
+        assertThat(childFragment).isNotNull()
+        assertThat(childFragment!!.lifecycle.currentState)
+            .isEqualTo(Lifecycle.State.RESUMED)
+    }
+
     private fun executePendingTransactions(fm: FragmentManager) {
         activityRule.runOnUiThread { fm.executePendingTransactions() }
     }
@@ -1190,6 +1250,36 @@ class FragmentLifecycleTest {
         override fun onInflate(context: Context, attrs: AttributeSet, savedInstanceState: Bundle?) {
             super.onInflate(context, attrs, savedInstanceState)
             mOnInflateCount++
+        }
+    }
+
+    /**
+     * A fragment which swaps between two layouts every time it is created: one with
+     * a <fragment> tag and one empty layout.
+     */
+    class SwappingInflatedParentFragment : Fragment() {
+        private var count = 0
+
+        override fun onCreate(savedInstanceState: Bundle?) {
+            super.onCreate(savedInstanceState)
+            count = savedInstanceState?.getInt("COUNT") ?: 0
+        }
+
+        override fun onCreateView(
+            inflater: LayoutInflater,
+            container: ViewGroup?,
+            savedInstanceState: Bundle?
+        ): View? {
+            return inflater.inflate(if (count % 2 == 0) {
+                R.layout.activity_inflated_fragment
+            } else {
+                R.layout.activity_content
+            }, container, false)
+        }
+
+        override fun onSaveInstanceState(outState: Bundle) {
+            super.onSaveInstanceState(outState)
+            outState.putInt("COUNT", count + 1)
         }
     }
 }
