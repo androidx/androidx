@@ -17,61 +17,62 @@
 package androidx.ui.foundation.gestures
 
 import androidx.compose.Composable
-import androidx.compose.memo
-import androidx.compose.unaryPlus
 import androidx.ui.core.PxPosition
-import androidx.ui.foundation.animation.AnimatedFloatDragController
-import androidx.ui.foundation.animation.AnchorsFlingConfig
-import androidx.ui.core.gesture.TouchSlopDragGestureDetector
 import androidx.ui.core.gesture.DragObserver
+import androidx.ui.core.gesture.TouchSlopDragGestureDetector
 import androidx.ui.core.px
+import androidx.ui.foundation.ValueHolder
+import androidx.ui.foundation.animation.AnimatedValueHolder
 
 /**
  * Component that provides high-level drag functionality reflected in one value
  *
  * The common usecase for this component is when you need to be able to drag/scroll something
- * on the screen and represent it as one value via [DragValueController].
+ * on the screen and represent it as one value via [ValueHolder].
  *
- * If you need to control the whole dragging flow, consider using [TouchSlopDragGestureDetector] instead.
+ * If you need to control the whole dragging flow,
+ * consider using [TouchSlopDragGestureDetector] instead.
  *
  * @sample androidx.ui.foundation.samples.DraggableSample
  *
- * By using [AnimatedFloatDragController] with [AnchorsFlingConfig] you can achieve behaviour
- * when value is gravitating to predefined set of points after drag has ended.
+ * By using [AnimatedValueHolder] as dragValue you can achieve
+ * fling behaviour by calling fling on it
  *
  * @sample androidx.ui.foundation.samples.AnchoredDraggableSample
  *
- * @param dragDirection direction in which drag should be happening.
- * Either [DragDirection.Vertical] or [DragDirection.Horizontal]
- * @param minValue lower bound for draggable value in this component
- * @param maxValue upper bound for draggable value in this component
- * @param valueController controller to control value and how it will consume drag events,
- * such as drag, fling or change of dragging bounds. The default is [FloatDragValueController],
- * which provides simple move-as-much-as-user-drags login with no fling support.
- * @param callback callback to react to drag events
+ * @param dragDirection direction in which drag should be happening
+ * @param dragValue value holder for value that needs to be dragged
+ * @param onDragValueChangeRequested callback to be invoked when drag happened and
+ * change on dragValue is requested. The value should be updated synchronously
+ * in order to provide smooth dragging experience
+ * @param onDragStarted callback that will be invoked when drag has been started after touch slop
+ * has been passed, with starting position provided
+ * @param onDragStopped callback that will be invoked when drag stops, with velocity provided
+ * @param enabled whether or not drag is enabled
  */
 @Composable
 fun Draggable(
     dragDirection: DragDirection,
-    minValue: Float = Float.MIN_VALUE,
-    maxValue: Float = Float.MAX_VALUE,
-    valueController: DragValueController = +memo(minValue) { FloatDragValueController(minValue) },
-    callback: DraggableCallback? = null,
-    children: @Composable() (Float) -> Unit
+    dragValue: ValueHolder<Float>,
+    onDragValueChangeRequested: (Float) -> Unit,
+    onDragStarted: (startedPosition: PxPosition) -> Unit = {},
+    onDragStopped: (velocity: Float) -> Unit = {},
+    enabled: Boolean = true,
+    children: @Composable() () -> Unit
 ) {
-    fun current() = valueController.currentValue
-    +memo(valueController, minValue, maxValue) {
-        valueController.setBounds(minValue, maxValue)
-    }
     TouchSlopDragGestureDetector(
         dragObserver = object : DragObserver {
 
+            override fun onStart(downPosition: PxPosition) {
+                if (enabled) onDragStarted(downPosition)
+            }
+
             override fun onDrag(dragDistance: PxPosition): PxPosition {
-                callback?.notifyDrag()
+                if (!enabled) return PxPosition.Origin
+                val oldValue = dragValue.value
                 val projected = dragDirection.project(dragDistance)
-                val newValue = (current() + projected).coerceIn(minValue, maxValue)
-                val consumed = newValue - current()
-                valueController.onDrag(newValue)
+                onDragValueChangeRequested(oldValue + projected)
+                val consumed = dragValue.value - oldValue
                 val fractionConsumed = if (projected == 0f) 0f else consumed / projected
                 return PxPosition(
                     dragDirection.xProjection(dragDistance.x).px * fractionConsumed,
@@ -80,34 +81,16 @@ fun Draggable(
             }
 
             override fun onStop(velocity: PxPosition) {
-                val projected = dragDirection.project(velocity)
-                valueController.onDragEnd(projected) {
-                    callback?.notifyFinished(it)
-                }
+                if (enabled) onDragStopped(dragDirection.project(velocity))
             }
         },
         canDrag = { direction ->
-            dragDirection.isDraggableInDirection(direction, minValue, current(), maxValue)
-        }
-    ) {
-        children(current())
-    }
-}
-
-class DraggableCallback(
-    private val onDragStarted: () -> Unit = {},
-    private val onDragSettled: (Float) -> Unit = {}
-) {
-    private var startNotified: Boolean = false
-    internal fun notifyDrag() {
-        if (!startNotified) {
-            startNotified = true
-            onDragStarted()
-        }
-    }
-
-    internal fun notifyFinished(final: Float) {
-        startNotified = false
-        onDragSettled(final)
-    }
+            enabled && dragDirection
+                .isDraggableInDirection(
+                    direction,
+                    dragValue.value
+                )
+        },
+        children = children
+    )
 }

@@ -73,20 +73,26 @@ package androidx.ui.foundation {
     ctor public ScrollerKt();
     method public static void HorizontalScroller(androidx.ui.foundation.ScrollerPosition scrollerPosition = +memo({ 
     <init>()
-}), kotlin.jvm.functions.Function2<? super androidx.ui.core.Px,? super androidx.ui.core.Px,kotlin.Unit> onScrollPositionChanged = { position, _ -> scrollerPosition.value = position }, boolean isScrollable = true, kotlin.jvm.functions.Function0<kotlin.Unit> child);
+}), boolean isScrollable = true, kotlin.jvm.functions.Function0<kotlin.Unit> child);
     method public static void VerticalScroller(androidx.ui.foundation.ScrollerPosition scrollerPosition = +memo({ 
     <init>()
-}), kotlin.jvm.functions.Function2<? super androidx.ui.core.Px,? super androidx.ui.core.Px,kotlin.Unit> onScrollPositionChanged = { position, _ -> scrollerPosition.value = position }, boolean isScrollable = true, kotlin.jvm.functions.Function0<kotlin.Unit> child);
+}), boolean isScrollable = true, kotlin.jvm.functions.Function0<kotlin.Unit> child);
   }
 
   public final class ScrollerPosition {
+    ctor public ScrollerPosition(float initial);
     ctor public ScrollerPosition();
+    method public androidx.ui.foundation.animation.FlingConfig getFlingConfig();
+    method public androidx.ui.core.Px getMaxPosition();
     method public androidx.ui.core.Px getValue();
     method public void scrollBy(androidx.ui.core.Px value);
     method public void scrollTo(androidx.ui.core.Px value);
-    method public void setValue(androidx.ui.core.Px p);
+    method public void setFlingConfig(androidx.ui.foundation.animation.FlingConfig p);
+    method public void setMaxPosition$lintWithKotlin(androidx.ui.core.Px p);
     method public void smoothScrollBy(androidx.ui.core.Px value, kotlin.jvm.functions.Function2<? super androidx.animation.AnimationEndReason,? super java.lang.Float,kotlin.Unit> onEnd = { _, _ ->  });
     method public void smoothScrollTo(androidx.ui.core.Px value, kotlin.jvm.functions.Function2<? super androidx.animation.AnimationEndReason,? super java.lang.Float,kotlin.Unit> onEnd = { _, _ ->  });
+    property public final androidx.ui.foundation.animation.FlingConfig flingConfig;
+    property public final androidx.ui.core.Px maxPosition;
     property public final androidx.ui.core.Px value;
   }
 
@@ -109,22 +115,28 @@ package androidx.ui.foundation {
     method public static void drawBorders(androidx.ui.layout.TableChildren, androidx.ui.foundation.shape.border.Border defaultBorder = Border(Color.Black, Dp.Hairline), kotlin.jvm.functions.Function1<? super androidx.ui.foundation.DrawBordersReceiver,kotlin.Unit> block);
   }
 
+  public interface ValueHolder<T> {
+    method public T getValue();
+    property public abstract T value;
+  }
+
 }
 
 package androidx.ui.foundation.animation {
 
-  public final class AnimatedFloatDragController implements androidx.ui.foundation.gestures.DragValueController {
-    ctor public AnimatedFloatDragController(androidx.animation.AnimatedFloat animatedFloat, androidx.ui.foundation.animation.FlingConfig? flingConfig);
-    ctor public AnimatedFloatDragController(float initialValue, androidx.ui.foundation.animation.FlingConfig? flingConfig);
+  public final class AnimatedValueHolder implements androidx.ui.foundation.ValueHolder<java.lang.Float> {
+    ctor public AnimatedValueHolder(float initial);
+    method public void fling(androidx.ui.foundation.animation.FlingConfig config, float startVelocity);
     method public androidx.animation.AnimatedFloat getAnimatedFloat();
-    method public float getCurrentValue();
-    method public boolean getEnabled();
-    method public void onDrag(float target);
-    method public void onDragEnd(float velocity, kotlin.jvm.functions.Function1<? super java.lang.Float,kotlin.Unit> onValueSettled);
-    method public void setBounds(float min, float max);
-    method public void setEnabled(boolean p);
-    property public float currentValue;
-    property public final boolean enabled;
+    method public Float! getValue();
+    method public void setBounds(float min = Float.NEGATIVE_INFINITY, float max = Float.POSITIVE_INFINITY);
+    property public final androidx.animation.AnimatedFloat animatedFloat;
+    property public Float! value;
+  }
+
+  public final class AnimatedValueHolderKt {
+    ctor public AnimatedValueHolderKt();
+    method @CheckResult(suggest="+") public static androidx.compose.Effect<androidx.ui.foundation.animation.AnimatedValueHolder> animatedDragValue(float initial, float minBound, float maxBound);
   }
 
   public final class FlingConfig {
@@ -168,16 +180,9 @@ package androidx.ui.foundation.gestures {
     property public abstract float currentValue;
   }
 
-  public final class DraggableCallback {
-    ctor public DraggableCallback(kotlin.jvm.functions.Function0<kotlin.Unit> onDragStarted, kotlin.jvm.functions.Function1<? super java.lang.Float,kotlin.Unit> onDragSettled);
-    ctor public DraggableCallback();
-  }
-
   public final class DraggableKt {
     ctor public DraggableKt();
-    method public static void Draggable(androidx.ui.foundation.gestures.DragDirection dragDirection, float minValue = Float.MIN_VALUE, float maxValue = Float.MAX_VALUE, androidx.ui.foundation.gestures.DragValueController valueController = +memo(minValue, { 
-    <init>(minValue)
-}), androidx.ui.foundation.gestures.DraggableCallback? callback = null, kotlin.jvm.functions.Function1<? super java.lang.Float,kotlin.Unit> children);
+    method public static void Draggable(androidx.ui.foundation.gestures.DragDirection dragDirection, androidx.ui.foundation.ValueHolder<java.lang.Float> dragValue, kotlin.jvm.functions.Function1<? super java.lang.Float,kotlin.Unit> onDragValueChangeRequested, kotlin.jvm.functions.Function1<? super androidx.ui.core.PxPosition,kotlin.Unit> onDragStarted = {}, kotlin.jvm.functions.Function1<? super java.lang.Float,kotlin.Unit> onDragStopped = {}, boolean enabled = true, kotlin.jvm.functions.Function0<kotlin.Unit> children);
   }
 
   public final class FloatDragValueController implements androidx.ui.foundation.gestures.DragValueController {

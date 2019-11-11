@@ -1,10 +1,12 @@
 // Baseline format: 1.0
-ListenerLast: androidx.ui.foundation.gestures.DraggableKt#Draggable(androidx.ui.foundation.gestures.DragDirection, float, float, androidx.ui.foundation.gestures.DragValueController, androidx.ui.foundation.gestures.DraggableCallback, kotlin.jvm.functions.Function1<? super java.lang.Float,kotlin.Unit>) parameter #5:
-    Listeners should always be at end of argument list (method `Draggable`)
+AutoBoxing: androidx.ui.foundation.animation.AnimatedValueHolder#getValue():
+    Must avoid boxed primitives (`java.lang.Float`)
 
 
 MissingNullability: androidx.ui.foundation.Strings#INSTANCE:
     Missing nullability on field `INSTANCE` in class `class androidx.ui.foundation.Strings`
+MissingNullability: androidx.ui.foundation.animation.AnimatedValueHolder#getValue():
+    Missing nullability on method `getValue` return
 MissingNullability: androidx.ui.foundation.gestures.DragDirection.Horizontal#INSTANCE:
     Missing nullability on field `INSTANCE` in class `class androidx.ui.foundation.gestures.DragDirection.Horizontal`
 MissingNullability: androidx.ui.foundation.gestures.DragDirection.Vertical#INSTANCE:
