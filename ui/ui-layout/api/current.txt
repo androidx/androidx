@@ -190,6 +190,19 @@ package androidx.ui.layout {
     property public final androidx.ui.core.LayoutModifier Top;
   }
 
+  public final class SizeModifiersKt {
+    ctor public SizeModifiersKt();
+    method public static androidx.ui.core.LayoutModifier Height(androidx.ui.core.Dp value);
+    method public static androidx.ui.core.LayoutModifier MaxHeight(androidx.ui.core.Dp value);
+    method public static androidx.ui.core.LayoutModifier MaxSize(androidx.ui.core.Dp maxWidth, androidx.ui.core.Dp maxHeight);
+    method public static androidx.ui.core.LayoutModifier MaxWidth(androidx.ui.core.Dp value);
+    method public static androidx.ui.core.LayoutModifier MinHeight(androidx.ui.core.Dp value);
+    method public static androidx.ui.core.LayoutModifier MinSize(androidx.ui.core.Dp minWidth, androidx.ui.core.Dp minHeight);
+    method public static androidx.ui.core.LayoutModifier MinWidth(androidx.ui.core.Dp value);
+    method public static androidx.ui.core.LayoutModifier Size(androidx.ui.core.Dp width, androidx.ui.core.Dp height);
+    method public static androidx.ui.core.LayoutModifier Width(androidx.ui.core.Dp value);
+  }
+
   public final class SpacerKt {
     ctor public SpacerKt();
     method public static void FixedSpacer(androidx.ui.core.Dp width, androidx.ui.core.Dp height);
