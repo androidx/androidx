@@ -1326,10 +1326,6 @@ public abstract class FragmentManager {
                 case Fragment.ATTACHED:
                     if (newState < Fragment.ATTACHED) {
                         fragmentStateManager.detach();
-                        boolean beingRemoved = f.mRemoving && !f.isInBackStack();
-                        if (beingRemoved) {
-                            f.initState();
-                        }
                     }
             }
         }
