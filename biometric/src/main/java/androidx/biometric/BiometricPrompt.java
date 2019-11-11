@@ -706,8 +706,9 @@ public class BiometricPrompt implements BiometricConstants {
 
         // Force some devices to fall back to fingerprint in order to support strong (crypto) auth.
         final boolean shouldForceFingerprint = DEBUG_FORCE_FINGERPRINT
-                || (activity != null && crypto != null && Utils.shouldUseFingerprintForCrypto(
-                        activity, Build.MANUFACTURER, Build.MODEL));
+                || (activity != null && crypto != null
+                        && DeviceConfig.shouldUseFingerprintForCrypto(
+                                activity, Build.MANUFACTURER, Build.MODEL));
 
         if (!shouldForceFingerprint && canUseBiometricFragment()) {
             BiometricFragment biometricFragment =
@@ -748,7 +749,8 @@ public class BiometricPrompt implements BiometricConstants {
             mFingerprintDialogFragment.setNegativeButtonListener(mNegativeButtonListener);
             mFingerprintDialogFragment.setBundle(bundle);
 
-            if (activity != null && !Utils.shouldHideFingerprintDialog(activity, Build.MODEL)) {
+            if (activity != null
+                    && !DeviceConfig.shouldHideFingerprintDialog(activity, Build.MODEL)) {
                 if (fingerprintDialogFragment == null) {
                     mFingerprintDialogFragment.show(fragmentManager, DIALOG_FRAGMENT_TAG);
                 } else if (mFingerprintDialogFragment.isDetached()) {

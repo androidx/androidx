@@ -118,9 +118,8 @@ public class FingerprintDialogFragment extends DialogFragment {
                     break;
                 case DISPLAYED_FOR_500_MS:
                     final Context context = getContext();
-                    mDismissInstantly =
-                            context != null && Utils.shouldHideFingerprintDialog(
-                                    context, Build.MODEL);
+                    mDismissInstantly = context != null
+                            && DeviceConfig.shouldHideFingerprintDialog(context, Build.MODEL);
                     break;
             }
         }
@@ -327,11 +326,12 @@ public class FingerprintDialogFragment extends DialogFragment {
 
     /**
      * @return The effective millisecond delay to wait before hiding the dialog, while respecting
-     * the result of {@link Utils#shouldAlwaysHideFingerprintDialogInstantly(String)}.
+     * the result of {@link DeviceConfig#shouldHideFingerprintDialog(Context, String)}.
      */
     static int getHideDialogDelay(Context context) {
-        return context != null && Utils.shouldHideFingerprintDialog(
-                context, Build.MODEL) ? 0 : MESSAGE_DISPLAY_TIME_MS;
+        return context != null && DeviceConfig.shouldHideFingerprintDialog(context, Build.MODEL)
+                ? 0
+                : MESSAGE_DISPLAY_TIME_MS;
     }
 
     private boolean isDeviceCredentialAllowed() {
