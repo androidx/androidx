@@ -43,6 +43,8 @@ import androidx.ui.foundation.gestures.Draggable
 import androidx.ui.foundation.shape.RectangleShape
 import androidx.ui.layout.Constraints
 import androidx.ui.layout.Container
+import androidx.ui.semantics.ScrollTo
+import androidx.ui.semantics.Semantics
 
 /**
  * This is the state of a [VerticalScroller] and [HorizontalScroller] that
@@ -186,28 +188,40 @@ private fun Scroller(
 ) {
     val direction =
         if (isVertical) DragDirection.Vertical else DragDirection.Horizontal
-    PressGestureDetector(onPress = { scrollerPosition.scrollTo(scrollerPosition.value) }) {
-        Draggable(
-            dragValue = scrollerPosition.holder,
-            onDragValueChangeRequested = {
-                scrollerPosition.holder.animatedFloat.snapTo(it)
-            },
-            onDragStopped = {
-                scrollerPosition.holder.fling(scrollerPosition.flingConfig, it)
-            },
-            dragDirection = direction,
-            enabled = isScrollable
-        ) {
-            ScrollerLayout(
-                scrollerPosition = scrollerPosition,
-                onMaxPositionChanged = {
-                    scrollerPosition.holder.setBounds(-it.value, 0f)
-                    scrollerPosition.maxPosition = it
+    Semantics(properties = {
+        if (isScrollable) {
+            ScrollTo(action = { x, y ->
+                if (isVertical) {
+                    scrollerPosition.scrollBy(y)
+                } else {
+                    scrollerPosition.scrollBy(x)
+                }
+            })
+        }
+    }) {
+        PressGestureDetector(onPress = { scrollerPosition.scrollTo(scrollerPosition.value) }) {
+            Draggable(
+                dragValue = scrollerPosition.holder,
+                onDragValueChangeRequested = {
+                    scrollerPosition.holder.animatedFloat.snapTo(it)
                 },
-                modifier = modifier,
-                isVertical = isVertical,
-                child = child
-            )
+                onDragStopped = {
+                    scrollerPosition.holder.fling(scrollerPosition.flingConfig, it)
+                },
+                dragDirection = direction,
+                enabled = isScrollable
+            ) {
+                ScrollerLayout(
+                    scrollerPosition = scrollerPosition,
+                    onMaxPositionChanged = {
+                        scrollerPosition.holder.setBounds(-it.value, 0f)
+                        scrollerPosition.maxPosition = it
+                    },
+                    modifier = modifier,
+                    isVertical = isVertical,
+                    child = child
+                )
+            }
         }
     }
 }
