@@ -519,29 +519,29 @@ package androidx.core.app {
     method public androidx.core.app.NotificationCompat.Builder! extend(androidx.core.app.NotificationCompat.Builder!);
     method @ColorInt public int getColor();
     method public android.graphics.Bitmap! getLargeIcon();
-    method public androidx.core.app.NotificationCompat.CarExtender.UnreadConversation! getUnreadConversation();
+    method @Deprecated public androidx.core.app.NotificationCompat.CarExtender.UnreadConversation! getUnreadConversation();
     method public androidx.core.app.NotificationCompat.CarExtender! setColor(@ColorInt int);
     method public androidx.core.app.NotificationCompat.CarExtender! setLargeIcon(android.graphics.Bitmap!);
-    method public androidx.core.app.NotificationCompat.CarExtender! setUnreadConversation(androidx.core.app.NotificationCompat.CarExtender.UnreadConversation!);
+    method @Deprecated public androidx.core.app.NotificationCompat.CarExtender! setUnreadConversation(androidx.core.app.NotificationCompat.CarExtender.UnreadConversation!);
   }
 
-  public static class NotificationCompat.CarExtender.UnreadConversation {
-    method public long getLatestTimestamp();
-    method public String![]! getMessages();
-    method public String! getParticipant();
-    method public String![]! getParticipants();
-    method public android.app.PendingIntent! getReadPendingIntent();
-    method public androidx.core.app.RemoteInput! getRemoteInput();
-    method public android.app.PendingIntent! getReplyPendingIntent();
+  @Deprecated public static class NotificationCompat.CarExtender.UnreadConversation {
+    method @Deprecated public long getLatestTimestamp();
+    method @Deprecated public String![]! getMessages();
+    method @Deprecated public String! getParticipant();
+    method @Deprecated public String![]! getParticipants();
+    method @Deprecated public android.app.PendingIntent! getReadPendingIntent();
+    method @Deprecated public androidx.core.app.RemoteInput! getRemoteInput();
+    method @Deprecated public android.app.PendingIntent! getReplyPendingIntent();
   }
 
-  public static class NotificationCompat.CarExtender.UnreadConversation.Builder {
-    ctor public NotificationCompat.CarExtender.UnreadConversation.Builder(String!);
-    method public androidx.core.app.NotificationCompat.CarExtender.UnreadConversation.Builder! addMessage(String!);
-    method public androidx.core.app.NotificationCompat.CarExtender.UnreadConversation! build();
-    method public androidx.core.app.NotificationCompat.CarExtender.UnreadConversation.Builder! setLatestTimestamp(long);
-    method public androidx.core.app.NotificationCompat.CarExtender.UnreadConversation.Builder! setReadPendingIntent(android.app.PendingIntent!);
-    method public androidx.core.app.NotificationCompat.CarExtender.UnreadConversation.Builder! setReplyAction(android.app.PendingIntent!, androidx.core.app.RemoteInput!);
+  @Deprecated public static class NotificationCompat.CarExtender.UnreadConversation.Builder {
+    ctor @Deprecated public NotificationCompat.CarExtender.UnreadConversation.Builder(String!);
+    method @Deprecated public androidx.core.app.NotificationCompat.CarExtender.UnreadConversation.Builder! addMessage(String!);
+    method @Deprecated public androidx.core.app.NotificationCompat.CarExtender.UnreadConversation! build();
+    method @Deprecated public androidx.core.app.NotificationCompat.CarExtender.UnreadConversation.Builder! setLatestTimestamp(long);
+    method @Deprecated public androidx.core.app.NotificationCompat.CarExtender.UnreadConversation.Builder! setReadPendingIntent(android.app.PendingIntent!);
+    method @Deprecated public androidx.core.app.NotificationCompat.CarExtender.UnreadConversation.Builder! setReplyAction(android.app.PendingIntent!, androidx.core.app.RemoteInput!);
   }
 
   public static class NotificationCompat.DecoratedCustomViewStyle extends androidx.core.app.NotificationCompat.Style {

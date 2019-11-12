@@ -5182,7 +5182,11 @@ public class NotificationCompat {
          *
          * @param unreadConversation The unread part of the conversation this notification conveys.
          * @return This object for method chaining.
+         *
+         * @deprecated {@link UnreadConversation} is no longer supported. Use {@link MessagingStyle}
+         * instead.
          */
+        @Deprecated
         public CarExtender setUnreadConversation(UnreadConversation unreadConversation) {
             mUnreadConversation = unreadConversation;
             return this;
@@ -5191,14 +5195,22 @@ public class NotificationCompat {
         /**
          * Returns the unread conversation conveyed by this notification.
          * @see #setUnreadConversation(UnreadConversation)
+         *
+         * @deprecated {@link UnreadConversation} is no longer supported. Use {@link MessagingStyle}
+         * instead.
          */
+        @Deprecated
         public UnreadConversation getUnreadConversation() {
             return mUnreadConversation;
         }
 
         /**
          * A class which holds the unread messages from a conversation.
+         *
+         * @deprecated {@link UnreadConversation} is no longer supported. Use {@link MessagingStyle}
+         * instead.
          */
+        @Deprecated
         public static class UnreadConversation {
             private final String[] mMessages;
             private final RemoteInput mRemoteInput;
