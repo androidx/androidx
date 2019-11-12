@@ -778,9 +778,7 @@ public class ExifInterface {
      *      <li>Length = 7</li>
      *      <li>Default = None</li>
      *  </ul>
-     * @hide
      */
-    @RestrictTo(RestrictTo.Scope.LIBRARY)
     public static final String TAG_OFFSET_TIME = "OffsetTime";
     /**
      *  <p>A tag used to record the offset from UTC (the time difference from Universal Time
@@ -797,9 +795,7 @@ public class ExifInterface {
      *      <li>Length = 7</li>
      *      <li>Default = None</li>
      *  </ul>
-     * @hide
      */
-    @RestrictTo(RestrictTo.Scope.LIBRARY)
     public static final String TAG_OFFSET_TIME_ORIGINAL = "OffsetTimeOriginal";
     /**
      *  <p>A tag used to record the offset from UTC (the time difference from Universal Time
@@ -816,9 +812,7 @@ public class ExifInterface {
      *      <li>Length = 7</li>
      *      <li>Default = None</li>
      *  </ul>
-     * @hide
      */
-    @RestrictTo(RestrictTo.Scope.LIBRARY)
     public static final String TAG_OFFSET_TIME_DIGITIZED = "OffsetTimeDigitized";
     /**
      *  <p>A tag used to record fractions of seconds for {@link #TAG_DATETIME}.</p>
