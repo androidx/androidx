@@ -21,9 +21,18 @@ import androidx.annotation.RequiresFeature;
 import androidx.annotation.RestrictTo;
 
 /**
- * AndroidX side JsReplyProxy class. An instance will be given by {@link
- * androidx.webkit.WebViewCompat.WebMessageListener#onPostMessage()}. See also {@link
- * androidx.webkit.WebViewCompat#addWebMessageListener()}.
+ * This class represents the JavaScript object injected by {@link
+ * WebViewCompat#addWebMessageListener(android.webkit.WebView, String, List,
+ * WebViewCompat.WebMessageListener) WebViewCompat#addWebMessageListener}. An instance will be given
+ * by {@link WebViewCompat.WebMessageListener#onPostMessage(android.webkit.WebView,
+ * WebMessageCompat, android.net.Uri, boolean, JsReplyProxy) WebMessageListener#onPostMessage}.
+ * The app can use {@link #postMessage(String)} to talk to the JavaScript context.
+ *
+ * <p>
+ * There is a 1:1 relationship between this object and the JavaScript object in a frame.
+ *
+ * @see WebViewCompat#addWebMessageListener(android.webkit.WebView, String, List,
+ * WebViewCompat.WebMessageListener).
  *
  * TODO(ctzsm): unhide
  * @hide
@@ -31,10 +40,10 @@ import androidx.annotation.RestrictTo;
 @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
 public abstract class JsReplyProxy {
     /**
-     * Post a String message to the injected JavaScript object which send this {@link
+     * Post a String message to the injected JavaScript object which sent this {@link
      * JsReplyProxy}.
      *
-     * @param message Message send from app to the corresponding JavaScript object.
+     * @param message The data to send to the JavaScript context.
      */
     @RequiresFeature(name = WebViewFeature.WEB_MESSAGE_LISTENER,
             enforcement = "androidx.webkit.WebViewFeature#isFeatureSupported")
