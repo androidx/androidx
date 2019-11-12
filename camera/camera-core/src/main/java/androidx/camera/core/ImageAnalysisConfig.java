@@ -894,6 +894,11 @@ public final class ImageAnalysisConfig
          * requesting a portrait image may specify 480x640, and the same device, rotated 90 degrees
          * and targeting landscape orientation may specify 640x480.
          *
+         * <p>The maximum available resolution that could be selected for an {@link ImageAnalysis}
+         * is limited to be under 1080p. The limitation of 1080p for {@link ImageAnalysis} has
+         * considered both performance and quality factors so that users can obtain reasonable
+         * quality and smooth output stream under 1080p.
+         *
          * <p>If not set, resolution of 640x480 will be selected to use in priority.
          *
          * @param resolution The target resolution to choose from supported output sizes list.
