@@ -50,8 +50,7 @@ import androidx.annotation.RequiresPermission;
 import androidx.annotation.RestrictTo;
 import androidx.annotation.RestrictTo.Scope;
 import androidx.annotation.UiThread;
-import androidx.camera.core.CameraInfoUnavailableException;
-import androidx.camera.core.CameraX;
+import androidx.camera.core.Camera;
 import androidx.camera.core.FlashMode;
 import androidx.camera.core.FocusMeteringAction;
 import androidx.camera.core.FocusMeteringAction.MeteringMode;
@@ -793,13 +792,14 @@ public final class CameraView extends ViewGroup {
         MeteringPoint afPoint = pointFactory.createPoint(x, y, afPointWidth);
         MeteringPoint aePoint = pointFactory.createPoint(x, y, aePointWidth);
 
-        try {
-            CameraX.getCameraControl(getCameraLensFacing()).startFocusAndMetering(
+        Camera camera = mCameraModule.getCamera();
+        if (camera != null) {
+            camera.getCameraControl().startFocusAndMetering(
                     FocusMeteringAction.Builder.from(afPoint, MeteringMode.AF_ONLY)
                             .addPoint(aePoint, MeteringMode.AE_ONLY)
                             .build());
-        } catch (CameraInfoUnavailableException e) {
-            Log.d(TAG, "cannot access camera", e);
+        } else {
+            Log.d(TAG, "cannot access camera");
         }
 
         return true;
