@@ -265,6 +265,7 @@ includeProject(":work:work-gcm", "work/workmanager-gcm")
 includeProject(":work:work-runtime-ktx", "work/workmanager-ktx")
 includeProject(":work:work-rxjava2", "work/workmanager-rxjava2")
 includeProject(":work:work-testing", "work/workmanager-testing")
+includeProject(":work:work-runtime-lint", "work/workmanager-lint")
 includeProject(":work:work-benchmark", "work/workmanager-benchmark")
 includeProject(":work:integration-tests:testapp", "work/integration-tests/testapp")
 
