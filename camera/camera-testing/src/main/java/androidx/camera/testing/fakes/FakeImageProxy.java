@@ -40,6 +40,8 @@ public final class FakeImageProxy implements ImageProxy {
     private int mWidth = 0;
     private Long mTimestamp = -1L;
     private PlaneProxy[] mPlaneProxy = new PlaneProxy[0];
+
+    @NonNull
     private ImageInfo mImageInfo;
     private Image mImage;
     @SuppressWarnings("WeakerAccess") /* synthetic accessor */
@@ -50,6 +52,10 @@ public final class FakeImageProxy implements ImageProxy {
     @SuppressWarnings("WeakerAccess") /* synthetic accessor */
     @GuardedBy("mReleaseLock")
     CallbackToFutureAdapter.Completer<Void> mReleaseCompleter;
+
+    public FakeImageProxy(@NonNull ImageInfo imageInfo) {
+        mImageInfo = imageInfo;
+    }
 
     @Override
     public void close() {
@@ -88,22 +94,13 @@ public final class FakeImageProxy implements ImageProxy {
     }
 
     @Override
-    public long getTimestamp() {
-        return mTimestamp;
-    }
-
-    @Override
-    public void setTimestamp(long timestamp) {
-        mTimestamp = timestamp;
-    }
-
-    @Override
     @NonNull
     public PlaneProxy[] getPlanes() {
         return mPlaneProxy;
     }
 
     @Override
+    @NonNull
     public ImageInfo getImageInfo() {
         return mImageInfo;
     }
@@ -131,7 +128,7 @@ public final class FakeImageProxy implements ImageProxy {
         mPlaneProxy = planeProxy;
     }
 
-    public void setImageInfo(ImageInfo imageInfo) {
+    public void setImageInfo(@NonNull ImageInfo imageInfo) {
         mImageInfo = imageInfo;
     }
 

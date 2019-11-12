@@ -49,8 +49,8 @@ public class SettableImageProxyBundleTest {
     private static final long TIMESTAMP_1 = 20L;
     private final ImageInfo mImageInfo0 = new FakeImageInfo();
     private final ImageInfo mImageInfo1 = new FakeImageInfo();
-    private final ImageProxy mImageProxy0 = new FakeImageProxy();
-    private final ImageProxy mImageProxy1 = new FakeImageProxy();
+    private ImageProxy mImageProxy0;
+    private ImageProxy mImageProxy1;
     private List<Integer> mCaptureIdList;
     private SettableImageProxyBundle mImageProxyBundle;
 
@@ -60,8 +60,8 @@ public class SettableImageProxyBundleTest {
         ((FakeImageInfo) mImageInfo1).setTimestamp(TIMESTAMP_1);
         ((FakeImageInfo) mImageInfo0).setTag(CAPTURE_ID_0);
         ((FakeImageInfo) mImageInfo1).setTag(CAPTURE_ID_1);
-        mImageProxy0.setTimestamp(TIMESTAMP_0);
-        mImageProxy1.setTimestamp(TIMESTAMP_1);
+        mImageProxy0 = new FakeImageProxy(mImageInfo0);
+        mImageProxy1 = new FakeImageProxy(mImageInfo1);
         ((FakeImageProxy) mImageProxy0).setImageInfo(mImageInfo0);
         ((FakeImageProxy) mImageProxy1).setImageInfo(mImageInfo1);
 
@@ -86,15 +86,15 @@ public class SettableImageProxyBundleTest {
 
         // Checks if the results match what was input.
         assertThat(result0.getImageInfo()).isSameInstanceAs(mImageInfo0);
-        assertThat(result0.getTimestamp()).isSameInstanceAs(mImageProxy0.getTimestamp());
+        assertThat(result0).isSameInstanceAs(mImageProxy0);
         assertThat(result1.getImageInfo()).isSameInstanceAs(mImageInfo1);
-        assertThat(result1.getTimestamp()).isSameInstanceAs(mImageProxy1.getTimestamp());
+        assertThat(result1).isSameInstanceAs(mImageProxy1);
     }
 
     @Test(expected = IllegalArgumentException.class)
     public void exceptionWhenAddingImageWithInvalidCaptureId() {
         ImageInfo imageInfo = new FakeImageInfo();
-        ImageProxy imageProxy = new FakeImageProxy();
+        ImageProxy imageProxy = new FakeImageProxy(imageInfo);
 
         // Adds an ImageProxy with a capture id which doesn't exist in the initial list.
         ((FakeImageInfo) imageInfo).setTag(CAPTURE_ID_NONEXISTANT);

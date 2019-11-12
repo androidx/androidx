@@ -407,7 +407,8 @@ public class CameraXActivity extends AppCompatActivity
                         // setValue()
                         // here. If we weren't on the main thread, we would have to call postValue()
                         // instead.
-                        mImageAnalysisResult.setValue(Long.toString(image.getTimestamp()));
+                        mImageAnalysisResult.setValue(
+                                Long.toString(image.getImageInfo().getTimestamp()));
 
                         if (!mAnalysisIdlingResource.isIdleNow()) {
                             mAnalysisIdlingResource.decrement();

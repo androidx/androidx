@@ -37,10 +37,9 @@ import org.robolectric.annotation.internal.DoNotInstrument;
 public final class SingleImageProxyBundleTest {
     @Test
     public void successfulCreationFromImageProxy() {
-        FakeImageProxy imageProxy = new FakeImageProxy();
         FakeImageInfo imageInfo = new FakeImageInfo();
         imageInfo.setTag(1);
-        imageProxy.setImageInfo(imageInfo);
+        FakeImageProxy imageProxy = new FakeImageProxy(imageInfo);
 
         SingleImageProxyBundle bundle = new SingleImageProxyBundle(imageProxy);
 
@@ -49,7 +48,7 @@ public final class SingleImageProxyBundleTest {
 
     @Test
     public void successfulCreationFromImageProxyAndCaptureId() {
-        FakeImageProxy imageProxy = new FakeImageProxy();
+        FakeImageProxy imageProxy = new FakeImageProxy(new FakeImageInfo());
 
         SingleImageProxyBundle bundle = new SingleImageProxyBundle(imageProxy, 1);
 
@@ -58,7 +57,7 @@ public final class SingleImageProxyBundleTest {
 
     @Test(expected = IllegalArgumentException.class)
     public void failsCreationIfNoImageInfo() {
-        FakeImageProxy imageProxy = new FakeImageProxy();
+        FakeImageProxy imageProxy = new FakeImageProxy(new FakeImageInfo());
         imageProxy.setImageInfo(null);
 
         // Should throw IllegalArgumentException
@@ -67,7 +66,7 @@ public final class SingleImageProxyBundleTest {
 
     @Test(expected = IllegalArgumentException.class)
     public void failsCreationIfNoTag() {
-        FakeImageProxy imageProxy = new FakeImageProxy();
+        FakeImageProxy imageProxy = new FakeImageProxy(new FakeImageInfo());
         FakeImageInfo imageInfo = new FakeImageInfo();
         imageInfo.setTag(null);
         imageProxy.setImageInfo(imageInfo);
@@ -78,7 +77,7 @@ public final class SingleImageProxyBundleTest {
 
     @Test(expected = IllegalArgumentException.class)
     public void failsCreationIfTagIsNotInteger() {
-        FakeImageProxy imageProxy = new FakeImageProxy();
+        FakeImageProxy imageProxy = new FakeImageProxy(new FakeImageInfo());
         FakeImageInfo imageInfo = new FakeImageInfo();
         imageInfo.setTag(new Object());
         imageProxy.setImageInfo(imageInfo);

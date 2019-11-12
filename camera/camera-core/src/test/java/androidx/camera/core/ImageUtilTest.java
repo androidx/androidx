@@ -33,6 +33,7 @@ import android.util.Base64;
 import android.util.Rational;
 import android.util.Size;
 
+import androidx.camera.testing.fakes.FakeImageInfo;
 import androidx.camera.testing.fakes.FakeImageProxy;
 import androidx.test.filters.SmallTest;
 
@@ -74,7 +75,7 @@ public class ImageUtilTest {
                     + "KKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAoo"
                     + "ooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiii"
                     + "gAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooA//9k=";
-    private final FakeImageProxy mImage = new FakeImageProxy();
+    private FakeImageProxy mImage;
     @Mock
     private final ImageProxy.PlaneProxy mDataPlane = mock(ImageProxy.PlaneProxy.class);
     private final ByteBuffer mDataBuffer =
@@ -83,6 +84,7 @@ public class ImageUtilTest {
 
     @Before
     public void setUp() {
+        mImage = new FakeImageProxy(new FakeImageInfo());
         mImage.setFormat(ImageFormat.JPEG);
         mImage.setWidth(WIDTH);
         mImage.setHeight(HEIGHT);

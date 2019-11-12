@@ -49,13 +49,11 @@ public class AdaptingPreviewProcessorTest {
     public void setup() {
         mImpl = mock(PreviewImageProcessorImpl.class);
 
-        FakeImageProxy fakeImageProxy = new FakeImageProxy();
-        fakeImageProxy.setImage(mock(Image.class));
-
         FakeImageInfo fakeImageInfo = new FakeImageInfo();
         fakeImageInfo.setTag(1);
 
-        fakeImageProxy.setImageInfo(fakeImageInfo);
+        FakeImageProxy fakeImageProxy = new FakeImageProxy(fakeImageInfo);
+        fakeImageProxy.setImage(mock(Image.class));
 
         mImageProxyBundle = new SingleImageProxyBundle(fakeImageProxy);
         mAdaptingPreviewProcessor = new AdaptingPreviewProcessor(mImpl);
