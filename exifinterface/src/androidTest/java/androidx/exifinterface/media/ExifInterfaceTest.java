@@ -944,7 +944,8 @@ public class ExifInterfaceTest {
         fis.read(exifBytes);
 
         ByteArrayInputStream bin = new ByteArrayInputStream(exifBytes);
-        ExifInterface exifInterface = ExifInterface.fromStandalone(bin);
+        ExifInterface exifInterface =
+                new ExifInterface(bin, ExifInterface.STREAM_TYPE_EXIF_DATA_ONLY);
         compareWithExpectedValue(exifInterface, expectedValue, verboseTag, true);
     }
 
