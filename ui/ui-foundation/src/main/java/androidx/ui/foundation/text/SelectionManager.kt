@@ -102,6 +102,14 @@ internal class SelectionManager(private val selectionRegistrar: SelectionRegistr
         }
     }
 
+    // This is for PressGestureDetector to cancel the selection.
+    fun onRelease() {
+        // Call mergeSelections with an out of boundary input to inform all text widgets to
+        // cancel their individual selection.
+        mergeSelections(PxPosition(-1.px, -1.px), PxPosition(-1.px, -1.px))
+        onSelectionChange(null)
+    }
+
     val longPressDragObserver = object : LongPressDragObserver {
         override fun onLongPress(pxPosition: PxPosition) {
             if (draggingHandle) return
