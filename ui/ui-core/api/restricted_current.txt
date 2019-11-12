@@ -181,7 +181,7 @@ package androidx.ui.core {
     method public default androidx.ui.core.IntPx toIntPx(androidx.ui.core.Sp);
     method public default androidx.ui.core.Px toPx(androidx.ui.core.Dp);
     method public default androidx.ui.core.Px toPx(androidx.ui.core.Sp);
-    method public default androidx.ui.core.PxSize toPx(androidx.ui.core.Size);
+    method public default androidx.ui.core.PxSize toPx-s2Mz6-8(long);
     method public default androidx.ui.engine.geometry.Rect toRect(androidx.ui.core.Bounds);
     method public default androidx.ui.core.Sp toSp(androidx.ui.core.Dp);
     method public default androidx.ui.core.Sp toSp(androidx.ui.core.Px);
@@ -263,16 +263,16 @@ package androidx.ui.core {
 
   public final class DpKt {
     ctor public DpKt();
-    method public static inline androidx.ui.core.Position Position(androidx.ui.core.Dp x, androidx.ui.core.Dp y);
-    method public static inline androidx.ui.core.Size Size(androidx.ui.core.Dp width, androidx.ui.core.Dp height);
-    method public static androidx.ui.core.Position center(androidx.ui.core.Size);
+    method public static inline long Position(androidx.ui.core.Dp x, androidx.ui.core.Dp y);
+    method public static inline long Size(androidx.ui.core.Dp width, androidx.ui.core.Dp height);
+    method public static long center-s2Mz6-8(long);
     method public static inline androidx.ui.core.Dp coerceAtLeast(androidx.ui.core.Dp, androidx.ui.core.Dp minimumValue);
     method public static inline androidx.ui.core.Dp coerceAtMost(androidx.ui.core.Dp, androidx.ui.core.Dp maximumValue);
     method public static inline androidx.ui.core.Dp coerceIn(androidx.ui.core.Dp, androidx.ui.core.Dp minimumValue, androidx.ui.core.Dp maximumValue);
     method public static inline operator float div(float, androidx.ui.core.Dp other);
     method public static inline operator float div(double, androidx.ui.core.Dp other);
     method public static inline operator float div(int, androidx.ui.core.Dp other);
-    method public static androidx.ui.core.Dp getDistance(androidx.ui.core.Position);
+    method public static androidx.ui.core.Dp getDistance-JXBE4ew(long);
     method public static inline androidx.ui.core.Dp getDp(int);
     method public static inline androidx.ui.core.Dp getDp(double);
     method public static inline androidx.ui.core.Dp getDp(float);
@@ -280,17 +280,17 @@ package androidx.ui.core {
     method public static inline androidx.ui.core.Dp getWidth(androidx.ui.core.Bounds);
     method public static inline boolean isFinite(androidx.ui.core.Dp);
     method public static androidx.ui.core.Dp lerp(androidx.ui.core.Dp start, androidx.ui.core.Dp stop, float fraction);
-    method public static androidx.ui.core.Position lerp(androidx.ui.core.Position start, androidx.ui.core.Position stop, float fraction);
+    method public static long lerp-SuMVOfk(long start, long stop, float fraction);
     method public static inline androidx.ui.core.Dp max(androidx.ui.core.Dp a, androidx.ui.core.Dp b);
     method public static inline androidx.ui.core.Dp min(androidx.ui.core.Dp a, androidx.ui.core.Dp b);
     method public static inline operator androidx.ui.core.Dp times(float, androidx.ui.core.Dp other);
     method public static inline operator androidx.ui.core.Dp times(double, androidx.ui.core.Dp other);
     method public static inline operator androidx.ui.core.Dp times(int, androidx.ui.core.Dp other);
-    method public static inline operator androidx.ui.core.Size times(int, androidx.ui.core.Size size);
-    method public static inline operator androidx.ui.core.Size times(float, androidx.ui.core.Size size);
-    method public static inline operator androidx.ui.core.Size times(double, androidx.ui.core.Size size);
-    method public static androidx.ui.core.Bounds toBounds(androidx.ui.core.Size);
-    method public static inline androidx.ui.core.Size toSize(androidx.ui.core.Bounds);
+    method public static inline operator long times-Ze-JISM(int, long size);
+    method public static inline operator long times-doH9uME(float, long size);
+    method public static inline operator long times-nKWVx08(double, long size);
+    method public static androidx.ui.core.Bounds toBounds-s2Mz6-8(long);
+    method public static inline long toSize(androidx.ui.core.Bounds);
   }
 
   public final inline class DpSquared {
@@ -676,14 +676,17 @@ package androidx.ui.core {
     method public static boolean positionChangedIgnoreConsumed(androidx.ui.core.PointerInputChange);
   }
 
-  public final class Position {
-    method public androidx.ui.core.Position copy(long value);
-    method public inline androidx.ui.core.Dp getX();
-    method public inline androidx.ui.core.Dp getY();
-    method public inline operator androidx.ui.core.Position minus(androidx.ui.core.Position other);
-    method public inline operator androidx.ui.core.Position plus(androidx.ui.core.Position other);
-    property public final inline androidx.ui.core.Dp x;
-    property public final inline androidx.ui.core.Dp y;
+  public final inline class Position {
+    ctor public Position();
+    method public static long constructor-impl(internal long value);
+    method public static boolean equals-impl(long p, Object? p1);
+    method public static boolean equals-impl0(long p1, long p2);
+    method public static androidx.ui.core.Dp getX-impl(long $this);
+    method public static androidx.ui.core.Dp getY-impl(long $this);
+    method public static int hashCode-impl(long p);
+    method public static inline operator long minus-JXBE4ew(long $this, long other);
+    method public static inline operator long plus-JXBE4ew(long $this, long other);
+    method public static String toString-impl(long p);
   }
 
   public final class Px {
@@ -865,18 +868,21 @@ package androidx.ui.core {
     method public static android.graphics.RectF toFrameworkRectF(androidx.ui.engine.geometry.Rect);
   }
 
-  public final class Size {
-    method public androidx.ui.core.Size copy(long value);
-    method public inline operator androidx.ui.core.Size div(int other);
-    method public inline operator androidx.ui.core.Size div(float other);
-    method public inline operator androidx.ui.core.Size div(double other);
-    method public inline androidx.ui.core.Dp getHeight();
-    method public inline androidx.ui.core.Dp getWidth();
-    method public inline operator androidx.ui.core.Size times(int other);
-    method public inline operator androidx.ui.core.Size times(float other);
-    method public inline operator androidx.ui.core.Size times(double other);
-    property public final inline androidx.ui.core.Dp height;
-    property public final inline androidx.ui.core.Dp width;
+  public final inline class Size {
+    ctor public Size();
+    method public static long constructor-impl(internal long value);
+    method public static inline operator long div-impl(long $this, int other);
+    method public static inline operator long div-impl(long $this, float other);
+    method public static inline operator long div-impl(long $this, double other);
+    method public static boolean equals-impl(long p, Object? p1);
+    method public static boolean equals-impl0(long p1, long p2);
+    method public static androidx.ui.core.Dp getHeight-impl(long $this);
+    method public static androidx.ui.core.Dp getWidth-impl(long $this);
+    method public static int hashCode-impl(long p);
+    method public static inline operator long times-impl(long $this, int other);
+    method public static inline operator long times-impl(long $this, float other);
+    method public static inline operator long times-impl(long $this, double other);
+    method public static String toString-impl(long p);
   }
 
   public final class Sp {
