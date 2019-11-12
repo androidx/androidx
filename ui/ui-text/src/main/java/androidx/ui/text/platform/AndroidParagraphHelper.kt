@@ -139,7 +139,7 @@ internal fun TextPaint.applyTextStyle(
 
 internal fun createStyledText(
     text: String,
-    lineHeight: Sp?,
+    lineHeight: Sp,
     textIndent: TextIndent?,
     textStyles: List<AnnotatedString.Item<TextStyle>>,
     density: Density,
@@ -148,10 +148,10 @@ internal fun createStyledText(
     if (textStyles.isEmpty() && textIndent == null) return text
     val spannableString = SpannableString(text)
 
-    lineHeight?.let {
+    if (lineHeight != Sp.Inherit) {
         withDensity(density) {
             spannableString.setSpan(
-                LineHeightSpan(ceil(it.toPx().value).toInt()),
+                LineHeightSpan(ceil(lineHeight.toPx().value).toInt()),
                 0,
                 text.length,
                 Spanned.SPAN_EXCLUSIVE_EXCLUSIVE

@@ -3160,7 +3160,7 @@ class ParagraphIntegrationTest {
         textAlign: TextAlign? = null,
         fontSize: Sp = Sp.Inherit,
         maxLines: Int? = null,
-        lineHeight: Sp? = null,
+        lineHeight: Sp = Sp.Inherit,
         textStyles: List<AnnotatedString.Item<TextStyle>> = listOf(),
         fontFamily: FontFamily = fontFamilyMeasureFont,
         localeList: LocaleList? = null,
