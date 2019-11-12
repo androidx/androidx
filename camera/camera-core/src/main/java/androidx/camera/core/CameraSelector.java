@@ -28,9 +28,11 @@ import java.util.Set;
  */
 public final class CameraSelector {
     /** A static {@link CameraSelector} that selects the default front facing camera. */
+    @NonNull
     public static final CameraSelector DEFAULT_FRONT_CAMERA =
             new CameraSelector.Builder().requireLensFacing(LensFacing.FRONT).build();
     /** A static {@link CameraSelector} that selects the default back facing camera. */
+    @NonNull
     public static final CameraSelector DEFAULT_BACK_CAMERA =
             new CameraSelector.Builder().requireLensFacing(LensFacing.BACK).build();
 
