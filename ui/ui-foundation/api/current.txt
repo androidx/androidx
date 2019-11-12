@@ -73,10 +73,10 @@ package androidx.ui.foundation {
     ctor public ScrollerKt();
     method public static void HorizontalScroller(androidx.ui.foundation.ScrollerPosition scrollerPosition = +memo({ 
     <init>()
-}), boolean isScrollable = true, kotlin.jvm.functions.Function0<kotlin.Unit> child);
+}), androidx.ui.core.Modifier modifier = Modifier.None, boolean isScrollable = true, kotlin.jvm.functions.Function0<kotlin.Unit> child);
     method public static void VerticalScroller(androidx.ui.foundation.ScrollerPosition scrollerPosition = +memo({ 
     <init>()
-}), boolean isScrollable = true, kotlin.jvm.functions.Function0<kotlin.Unit> child);
+}), androidx.ui.core.Modifier modifier = Modifier.None, boolean isScrollable = true, kotlin.jvm.functions.Function0<kotlin.Unit> child);
   }
 
   public final class ScrollerPosition {
