@@ -114,20 +114,6 @@ public final class ForwardingImageProxyTest {
     }
 
     @Test
-    public void getTimestamp_returnsTimestampForWrappedImage() {
-        when(mBaseImageProxy.getTimestamp()).thenReturn(138990020L);
-
-        assertThat(mImageProxy.getTimestamp()).isEqualTo(138990020L);
-    }
-
-    @Test
-    public void setTimestamp_setsTimestampForWrappedImage() {
-        mImageProxy.setTimestamp(138990020L);
-
-        verify(mBaseImageProxy).setTimestamp(138990020L);
-    }
-
-    @Test
     public void getPlanes_returnsPlanesForWrappedImage() {
         when(mBaseImageProxy.getPlanes())
                 .thenReturn(new ImageProxy.PlaneProxy[]{mYPlane, mUPlane, mVPlane});

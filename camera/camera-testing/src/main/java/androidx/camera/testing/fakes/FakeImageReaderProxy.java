@@ -212,18 +212,14 @@ public class FakeImageReaderProxy implements ImageReaderProxy {
     }
 
     private FakeImageProxy generateFakeImageProxy(Object tag, long timestamp) {
-        FakeImageProxy fakeImageProxy = new FakeImageProxy();
+        FakeImageInfo fakeImageInfo = new FakeImageInfo();
+        fakeImageInfo.setTag(tag);
+        fakeImageInfo.setTimestamp(timestamp);
+
+        FakeImageProxy fakeImageProxy = new FakeImageProxy(fakeImageInfo);
         fakeImageProxy.setFormat(mImageFormat);
         fakeImageProxy.setHeight(mHeight);
         fakeImageProxy.setWidth(mWidth);
-        fakeImageProxy.setTimestamp(timestamp);
-
-        if (tag != null) {
-            FakeImageInfo fakeImageInfo = new FakeImageInfo();
-            fakeImageInfo.setTag(tag);
-            fakeImageInfo.setTimestamp(timestamp);
-            fakeImageProxy.setImageInfo(fakeImageInfo);
-        }
 
         return fakeImageProxy;
     }

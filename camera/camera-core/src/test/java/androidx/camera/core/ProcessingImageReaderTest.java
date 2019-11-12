@@ -144,7 +144,8 @@ public final class ProcessingImageReaderTest {
         // initial lists are ready. Then checks if the output has matched timestamp.
         for (Integer id : captureIdToTime.keySet()) {
             assertThat(bundle.getImageProxy(id).get(0,
-                    TimeUnit.SECONDS).getTimestamp()).isEqualTo(captureIdToTime.get(id));
+                    TimeUnit.SECONDS).getImageInfo().getTimestamp()).isEqualTo(
+                    captureIdToTime.get(id));
         }
     }
 

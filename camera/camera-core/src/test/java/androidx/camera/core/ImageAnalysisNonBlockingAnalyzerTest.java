@@ -51,6 +51,7 @@ public class ImageAnalysisNonBlockingAnalyzerTest {
     @Before
     public void setup() {
         mImageProxy = mock(ImageProxy.class);
+        when(mImageProxy.getImageInfo()).thenReturn(mock(ImageInfo.class));
         mImageReaderProxy = mock(ImageReaderProxy.class);
 
         when(mImageReaderProxy.acquireLatestImage()).thenReturn(mImageProxy);

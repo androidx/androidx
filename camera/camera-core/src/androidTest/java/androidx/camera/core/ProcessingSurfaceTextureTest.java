@@ -101,7 +101,7 @@ public final class ProcessingSurfaceTextureTest {
                         mCaptureStage.getId());
                 ImageProxy imageProxy = imageProxyListenableFuture.get(100, TimeUnit.MILLISECONDS);
                 Image image = mImageWriter.dequeueInputImage();
-                image.setTimestamp(imageProxy.getTimestamp());
+                image.setTimestamp(imageProxy.getImageInfo().getTimestamp());
                 mImageWriter.queueInputImage(image);
             } catch (ExecutionException | TimeoutException | InterruptedException e) {
             }

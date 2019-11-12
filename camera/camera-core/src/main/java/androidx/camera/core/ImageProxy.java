@@ -24,7 +24,7 @@ import androidx.annotation.Nullable;
 
 import java.nio.ByteBuffer;
 
-/** An image proxy which has an analogous interface as {@link android.media.Image}. */
+/** An image proxy which has a similar interface as {@link android.media.Image}. */
 public interface ImageProxy extends AutoCloseable {
     /**
      * Closes the underlying {@link android.media.Image}.
@@ -75,20 +75,6 @@ public interface ImageProxy extends AutoCloseable {
     int getWidth();
 
     /**
-     * Returns the timestamp.
-     *
-     * @see android.media.Image#getTimestamp()
-     */
-    long getTimestamp();
-
-    /**
-     * Sets the timestamp.
-     *
-     * @see android.media.Image#setTimestamp(long)
-     */
-    void setTimestamp(long timestamp);
-
-    /**
      * Returns the array of planes.
      *
      * @see android.media.Image#getPlanes()
@@ -121,15 +107,8 @@ public interface ImageProxy extends AutoCloseable {
         ByteBuffer getBuffer();
     }
 
-    // TODO(b/123902197): HardwareBuffer access is provided on higher API levels. Wrap
-    // getHardwareBuffer() once we figure out how to provide compatibility with lower API levels.
-
-    /**
-     * Returns the {@link ImageInfo}.
-     *
-     * <p> Will be null if there is no associated additional metadata.
-     */
-    @Nullable
+    /** Returns the {@link ImageInfo}. */
+    @NonNull
     ImageInfo getImageInfo();
 
     /**
