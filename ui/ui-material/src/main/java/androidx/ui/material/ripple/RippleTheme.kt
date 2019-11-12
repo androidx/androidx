@@ -16,10 +16,15 @@
 
 package androidx.ui.material.ripple
 
-import androidx.ui.graphics.Color
 import androidx.compose.Ambient
 import androidx.compose.Effect
+import androidx.compose.ambient
+import androidx.compose.effectOf
+import androidx.ui.graphics.Color
+import androidx.ui.graphics.luminance
 import androidx.ui.material.MaterialTheme
+import androidx.ui.material.surface.CurrentBackground
+import androidx.ui.material.textColorForBackground
 
 /**
  * Defines the appearance and the behavior for [Ripple]s.
@@ -45,6 +50,21 @@ data class RippleTheme(
     val opacity: Effect<Float>
 )
 
-val CurrentRippleTheme = Ambient.of<RippleTheme> {
-    error("No RippleTheme provided. Please add MaterialTheme as an ancestor.")
-}
+val CurrentRippleTheme = Ambient.of { DefaultRippleTheme }
+
+private val DefaultRippleTheme = RippleTheme(
+        factory = DefaultRippleEffectFactory,
+        defaultColor = effectOf {
+            val background = +ambient(CurrentBackground)
+            val textColor = +textColorForBackground(background)
+            when {
+                textColor != null -> textColor
+                background.alpha == 0f || background.luminance() >= 0.5 -> Color.Black
+                else -> Color.White
+            }
+        },
+        opacity = effectOf {
+            val isDarkTheme = (+MaterialTheme.colors()).surface.luminance() < 0.5f
+            if (isDarkTheme) 0.24f else 0.12f
+        }
+    )

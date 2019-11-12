@@ -49,14 +49,13 @@ import androidx.ui.material.ripple.Ripple
  * @param onCheckedChange callback to be invoked when Switch is being clicked,
  * therefore the change of checked state is requested.
  * if `null`, Switch appears in [checked] state and remains disabled
- * @param color optional active color for Switch,
- * by default [MaterialColors.secondaryVariant] will be used
+ * @param color active color for Switch,
  */
 @Composable
 fun Switch(
     checked: Boolean,
     onCheckedChange: ((Boolean) -> Unit)?,
-    color: Color = +themeColor { secondaryVariant }
+    color: Color = (+MaterialTheme.colors()).secondaryVariant
 ) {
     Wrap {
         Ripple(bounded = false) {
@@ -94,11 +93,11 @@ private fun SwitchImpl(checked: Boolean, onCheckedChange: ((Boolean) -> Unit)?, 
 
 @Composable
 private fun DrawSwitch(checked: Boolean, checkedThumbColor: Color, thumbValue: ValueHolder<Float>) {
-    val thumbColor = if (checked) checkedThumbColor else +themeColor { surface }
+    val thumbColor = if (checked) checkedThumbColor else (+MaterialTheme.colors()).surface
     val trackColor = if (checked) {
         checkedThumbColor.copy(alpha = CheckedTrackOpacity)
     } else {
-        (+themeColor { onSurface }).copy(alpha = UncheckedTrackOpacity)
+        (+MaterialTheme.colors()).onSurface.copy(alpha = UncheckedTrackOpacity)
     }
     Draw { canvas, parentSize ->
         drawTrack(canvas, parentSize, trackColor)

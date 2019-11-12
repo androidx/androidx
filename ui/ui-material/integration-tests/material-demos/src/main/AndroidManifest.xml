@@ -121,6 +121,7 @@
 
         <activity
             android:name=".AppBarActivity"
+            android:theme="@android:style/Theme.Material.Light.NoActionBar"
             android:configChanges="orientation|screenSize"
             android:label="Material/App Bar">
             <intent-filter>
@@ -139,6 +140,7 @@
         </activity>
 
         <activity android:name=".TabActivity"
+            android:theme="@android:style/Theme.Material.Light.NoActionBar"
             android:configChanges="orientation|screenSize"
             android:label="Material/Tabs">
             <intent-filter>
@@ -182,6 +184,26 @@
         <activity android:name=".ListItemActivity"
             android:configChanges="orientation|screenSize"
             android:label="Material/List Items">
+            <intent-filter>
+                <action android:name="android.intent.action.MAIN" />
+                <category android:name="androidx.ui.demos.SAMPLE_CODE" />
+            </intent-filter>
+        </activity>
+
+        <activity android:name=".MaterialThemeActivity"
+            android:theme="@android:style/Theme.Material.Light.NoActionBar"
+            android:configChanges="orientation|screenSize"
+            android:label="Material/Material Theme">
+            <intent-filter>
+                <action android:name="android.intent.action.MAIN" />
+                <category android:name="androidx.ui.demos.SAMPLE_CODE" />
+            </intent-filter>
+        </activity>
+
+        <activity android:name=".DynamicThemeActivity"
+            android:theme="@android:style/Theme.Material.Light.NoActionBar"
+            android:configChanges="orientation|screenSize"
+            android:label="Material/Dynamic Theme">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
                 <category android:name="androidx.ui.demos.SAMPLE_CODE" />

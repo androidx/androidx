@@ -35,9 +35,9 @@ import androidx.ui.foundation.shape.DrawShape
 import androidx.ui.foundation.shape.RectangleShape
 import androidx.ui.foundation.shape.border.DrawBorder
 import androidx.ui.graphics.Color
-import androidx.ui.material.MaterialColors
+import androidx.ui.material.ColorPalette
+import androidx.ui.material.MaterialTheme
 import androidx.ui.material.textColorForBackground
-import androidx.ui.material.themeColor
 import androidx.ui.text.TextStyle
 
 /**
@@ -56,8 +56,8 @@ import androidx.ui.text.TextStyle
  * visually relates to other surfaces and how that surface casts shadows.
  *
  * The text color for inner [Text] components will try to match the correlated color
- * for the background [color]. For example, on [MaterialColors.surface] background
- * [MaterialColors.onSurface] will be used for text. To modify these default style
+ * for the background [color]. For example, on [ColorPalette.surface] background
+ * [ColorPalette.onSurface] will be used for text. To modify these default style
  * values use [CurrentTextStyleProvider] or provide direct styling to your components.
  * @see textColorForBackground
  *
@@ -73,7 +73,7 @@ import androidx.ui.text.TextStyle
 fun Surface(
     modifier: Modifier = Modifier.None,
     shape: Shape = RectangleShape,
-    color: Color = +themeColor { surface },
+    color: Color = (+MaterialTheme.colors()).surface,
     border: Border? = null,
     elevation: Dp = 0.dp,
     children: @Composable() () -> Unit

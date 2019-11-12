@@ -29,7 +29,6 @@ import androidx.ui.core.AutofillAmbient
 import androidx.ui.core.AutofillTreeAmbient
 import androidx.ui.core.TextField
 import androidx.ui.core.Text
-import androidx.ui.material.themeTextStyle
 import androidx.ui.core.LayoutCoordinates
 import androidx.ui.core.OnChildPositioned
 import androidx.ui.core.PxPosition
@@ -53,8 +52,8 @@ class ExplicitAutofillTypesActivity : Activity() {
                     val nameState = +state { "Enter name here" }
                     val emailState = +state { "Enter email here" }
                     val autofill = +ambient(AutofillAmbient)
-                    val labelStyle = +themeTextStyle { subtitle1.copy() }
-                    val textStyle = +themeTextStyle { h6.copy() }
+                    val labelStyle = (+MaterialTheme.typography()).subtitle1
+                    val textStyle = (+MaterialTheme.typography()).h6
 
                     Text("Name", style = labelStyle)
                     Autofill(

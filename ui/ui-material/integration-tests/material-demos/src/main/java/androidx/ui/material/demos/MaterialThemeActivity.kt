@@ -17,18 +17,27 @@
 package androidx.ui.material.demos
 
 import androidx.compose.Composable
-import androidx.ui.core.Text
-import androidx.ui.graphics.Color
-import androidx.compose.unaryPlus
-import androidx.ui.material.MaterialTheme
+import androidx.ui.layout.Center
+import androidx.ui.layout.FlexColumn
+import androidx.ui.material.samples.MaterialThemeSample
+import androidx.ui.material.samples.ThemeColorSample
+import androidx.ui.material.samples.ThemeTextStyleSample
 
-open class TextActivity : MaterialDemoActivity() {
-
+class MaterialThemeActivity : MaterialDemoActivity() {
     @Composable
     override fun materialContent() {
-        val textColor = Color(0xFFFF0000)
-        Text(
-            text = "Hello",
-            style = (+MaterialTheme.typography()).h1.copy(color = textColor))
+        FlexColumn {
+            expanded(1f) {
+                Center {
+                    MaterialThemeSample()
+                }
+                Center {
+                    ThemeColorSample()
+                }
+                Center {
+                    ThemeTextStyleSample()
+                }
+            }
+        }
     }
 }

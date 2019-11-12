@@ -42,11 +42,11 @@ import androidx.ui.layout.ExpandedHeight
 import androidx.ui.layout.MainAxisAlignment
 import androidx.ui.material.Button
 import androidx.ui.material.ContainedButtonStyle
+import androidx.ui.material.MaterialTheme
 import androidx.ui.material.samples.ButtonWithTextSample
 import androidx.ui.material.samples.ContainedButtonSample
 import androidx.ui.material.samples.OutlinedButtonSample
 import androidx.ui.material.samples.TextButtonSample
-import androidx.ui.material.themeColor
 
 class ButtonActivity : MaterialDemoActivity() {
 
@@ -65,13 +65,16 @@ class ButtonActivity : MaterialDemoActivity() {
 
                 TextButtonSample(onClick)
 
-                Button("SECONDARY COLOR", onClick, ContainedButtonStyle(+themeColor { secondary }))
+                Button(
+                    "SECONDARY COLOR",
+                    onClick,
+                    ContainedButtonStyle((+MaterialTheme.colors()).secondary))
 
                 ButtonWithTextSample(onClick)
 
                 // TODO(Andrey): Disabled button has wrong bg and text color for now.
                 // Need to figure out where will we store their styling. Not a part of
-                // MaterialColors right now and specs are not clear about this.
+                // ColorPalette right now and specs are not clear about this.
                 Button("DISABLED. TODO")
             }
         }

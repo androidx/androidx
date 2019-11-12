@@ -317,7 +317,7 @@ fun DataTable(
     headerRowHeight: Dp = HeaderRowHeight,
     cellSpacing: EdgeInsets = CellSpacing,
     border: Border = Border(color = BorderColor, width = BorderWidth),
-    selectedColor: Color = +themeColor { primary.copy(alpha = 0.08f) },
+    selectedColor: Color = (+MaterialTheme.colors()).primary.copy(alpha = 0.08f),
     pagination: DataTablePagination? = null,
     sorting: DataTableSorting? = null,
     block: DataTableChildren.() -> Unit
@@ -536,5 +536,5 @@ fun DataTable(
 private val DataRowHeight = 52.dp
 private val HeaderRowHeight = 56.dp
 private val CellSpacing = EdgeInsets(left = 16.dp, right = 16.dp)
-private val BorderColor = Color(0xFFC6C6C6.toInt())
+private val BorderColor = Color(0xFFC6C6C6)
 private val BorderWidth = 1.dp

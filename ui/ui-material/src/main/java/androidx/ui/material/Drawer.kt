@@ -278,7 +278,7 @@ private fun Scrim(
     val scrimContent = @Composable {
         Container(expanded = true) {
             val paint = +memo { Paint().apply { style = PaintingStyle.fill } }
-            val color = +themeColor { onSurface }
+            val color = (+MaterialTheme.colors()).onSurface
             Draw { canvas, parentSize ->
                 val scrimAlpha = fraction() * ScrimDefaultOpacity
                 paint.color = color.copy(alpha = scrimAlpha)

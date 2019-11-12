@@ -23,8 +23,7 @@ import androidx.ui.core.dp
 import androidx.ui.engine.geometry.Shape
 import androidx.ui.foundation.shape.border.Border
 import androidx.ui.graphics.Color
-import androidx.ui.material.themeColor
-import androidx.ui.material.themeShape
+import androidx.ui.material.MaterialTheme
 
 /**
  * Cards are [Surface]s that display content and actions on a single topic.
@@ -38,8 +37,8 @@ import androidx.ui.material.themeShape
  */
 @Composable
 fun Card(
-    shape: Shape = +themeShape { card },
-    color: Color = +themeColor { surface },
+    shape: Shape = (+MaterialTheme.shapes()).card,
+    color: Color = (+MaterialTheme.colors()).surface,
     border: Border? = null,
     elevation: Dp = 1.dp,
     children: @Composable() () -> Unit
