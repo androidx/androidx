@@ -544,26 +544,6 @@ public final class CameraX {
     }
 
     /**
-     * TODO(b/142838064): Remove this method after clean up the usage in CameraX.
-     *
-     * @param lensFacing the lens facing of the camera
-     * @return the {@link CameraControl}.
-     * @throws CameraInfoUnavailableException if unable to access cameras, perhaps due to
-     *                                        insufficient permissions.
-     * @hide
-     */
-    @RestrictTo(Scope.LIBRARY_GROUP)
-    @NonNull
-    public static CameraControl getCameraControl(@NonNull LensFacing lensFacing)
-            throws CameraInfoUnavailableException {
-        CameraX cameraX = checkInitialized();
-
-        String cameraId = getCameraWithLensFacing(lensFacing);
-        return (CameraControl) cameraX.getCameraRepository().getCamera(
-                cameraId).getCameraControlInternal();
-    }
-
-    /**
      * Returns the {@link CameraDeviceSurfaceManager} which can be used to query for valid surface
      * configurations.
      *
