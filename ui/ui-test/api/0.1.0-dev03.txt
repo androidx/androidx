@@ -4,6 +4,7 @@ package androidx.ui.test {
   public final class ActionsKt {
     ctor public ActionsKt();
     method public static androidx.ui.test.SemanticsNodeInteraction doClick(androidx.ui.test.SemanticsNodeInteraction);
+    method public static androidx.ui.test.SemanticsNodeInteraction doScrollTo(androidx.ui.test.SemanticsNodeInteraction);
     method public static boolean waitForIdleCompose();
   }
 
@@ -115,6 +116,7 @@ package androidx.ui.test {
   public final class FiltersKt {
     ctor public FiltersKt();
     method public static boolean getHasClickAction(androidx.ui.core.semantics.SemanticsConfiguration);
+    method public static boolean getHasScrollAction(androidx.ui.core.semantics.SemanticsConfiguration);
     method public static boolean isInMutuallyExclusiveGroup(androidx.ui.core.semantics.SemanticsConfiguration);
     method public static boolean isToggleable(androidx.ui.core.semantics.SemanticsConfiguration);
   }

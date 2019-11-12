@@ -95,7 +95,7 @@ internal class AndroidSemanticsTreeInteraction internal constructor(
         return foundNodes.first()
     }
 
-    private fun performAction(action: (SemanticsTreeProvider) -> Unit) {
+    override fun performAction(action: (SemanticsTreeProvider) -> Unit) {
         val collectedInfo = findActivityAndTreeProvider()
 
         handler.post(object : Runnable {

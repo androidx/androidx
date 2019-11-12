@@ -16,6 +16,7 @@
 
 package androidx.ui.semantics
 
+import androidx.ui.core.Px
 import androidx.ui.text.style.TextDirection
 
 object SemanticsProperties {
@@ -43,6 +44,9 @@ class SemanticsActions {
     companion object {
         val OnClick = SemanticsPropertyKey<AccessibilityAction<() -> Unit>>("OnClick")
 
+        val ScrollTo =
+            SemanticsPropertyKey<AccessibilityAction<(x: Px, y: Px) -> Unit>>("ScrollTo")
+
         val CustomActions =
             SemanticsPropertyKey<List<AccessibilityAction<() -> Unit>>>("CustomActions")
     }
@@ -60,8 +64,14 @@ var SemanticsPropertyReceiver.textDirection by SemanticsProperties.TextDirection
 
 var SemanticsPropertyReceiver.onClick by SemanticsActions.OnClick
 
+var SemanticsPropertyReceiver.ScrollTo by SemanticsActions.ScrollTo
+
 fun SemanticsPropertyReceiver.onClick(label: String? = null, action: () -> Unit) {
     this[SemanticsActions.OnClick] = AccessibilityAction(label, action)
+}
+
+fun SemanticsPropertyReceiver.ScrollTo(label: String? = null, action: (x: Px, y: Px) -> Unit) {
+    this[SemanticsActions.ScrollTo] = AccessibilityAction(label, action)
 }
 
 var SemanticsPropertyReceiver.customActions by SemanticsActions.CustomActions
