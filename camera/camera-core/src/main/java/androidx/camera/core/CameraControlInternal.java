@@ -50,15 +50,15 @@ public interface CameraControlInternal extends CameraControl {
     void setCropRegion(@Nullable Rect crop);
 
     /** Returns the current flash mode. */
-    @NonNull
-    FlashMode getFlashMode();
+    @FlashMode
+    int getFlashMode();
 
     /**
      * Sets current flash mode
      *
      * @param flashMode the {@link FlashMode}.
      */
-    void setFlashMode(@NonNull FlashMode flashMode);
+    void setFlashMode(@FlashMode int flashMode);
 
     /** Returns if current torch is enabled or not. */
     // TODO(b/143514107): remove this API when CameraInfo#getTorchState implementation is done.
@@ -83,14 +83,14 @@ public interface CameraControlInternal extends CameraControl {
         public void setCropRegion(@Nullable Rect crop) {
         }
 
-        @NonNull
+        @FlashMode
         @Override
-        public FlashMode getFlashMode() {
+        public int getFlashMode() {
             return FlashMode.OFF;
         }
 
         @Override
-        public void setFlashMode(@NonNull FlashMode flashMode) {
+        public void setFlashMode(@FlashMode int flashMode) {
         }
 
         @NonNull

@@ -576,7 +576,7 @@ public class CameraXActivity extends AppCompatActivity
             flashToggle.setOnClickListener(new View.OnClickListener() {
                 @Override
                 public void onClick(View v) {
-                    FlashMode flashMode = mImageCapture.getFlashMode();
+                    @FlashMode int flashMode = mImageCapture.getFlashMode();
                     if (flashMode == FlashMode.ON) {
                         mImageCapture.setFlashMode(FlashMode.OFF);
                     } else if (flashMode == FlashMode.OFF) {
@@ -587,15 +587,15 @@ public class CameraXActivity extends AppCompatActivity
                     refreshFlashButtonIcon();
                 }
             });
-            FlashMode flashMode = mImageCapture.getFlashMode();
+            @FlashMode int flashMode = mImageCapture.getFlashMode();
             switch (flashMode) {
-                case ON:
+                case FlashMode.ON:
                     flashToggle.setImageResource(R.drawable.ic_flash_on);
                     break;
-                case OFF:
+                case FlashMode.OFF:
                     flashToggle.setImageResource(R.drawable.ic_flash_off);
                     break;
-                case AUTO:
+                case FlashMode.AUTO:
                     flashToggle.setImageResource(R.drawable.ic_flash_auto);
                     break;
             }

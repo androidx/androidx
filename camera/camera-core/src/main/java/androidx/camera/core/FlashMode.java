@@ -16,27 +16,34 @@
 
 package androidx.camera.core;
 
+import androidx.annotation.IntDef;
+
+import java.lang.annotation.Retention;
+import java.lang.annotation.RetentionPolicy;
+
 /**
  * The flash mode options when taking a picture using ImageCapture.
  *
  * <p>Applications can check if flash is available and update UI component if necessary via
  * {@link CameraInfo#isFlashAvailable()}. If no flash is available, then the FlashMode set to
- * {@link ImageCapture#setFlashMode(FlashMode)} will take no effect for the subsequent photo
+ * {@link ImageCapture#setFlashMode(int)} will take no effect for the subsequent photo
  * capture requests and they will act like {@link FlashMode#OFF}.
  *
  * <p>When the torch is enabled via {@link CameraControl#enableTorch(boolean)}, the torch
  * will remain enabled during photo capture regardless of flash mode setting. When
  * the torch is disabled, flash will function as specified by
- * {@link ImageCapture#setFlashMode(FlashMode)}.
+ * {@link ImageCapture#setFlashMode(int)}.
  */
-public enum FlashMode {
+@IntDef({FlashMode.AUTO, FlashMode.ON, FlashMode.OFF})
+@Retention(RetentionPolicy.SOURCE)
+public @interface FlashMode {
     /**
      * Auto flash. The flash will be used according to the camera system's determination when taking
      * a picture.
      */
-    AUTO,
+    int AUTO = 0;
     /** Always flash. The flash will always be used when taking a picture. */
-    ON,
+    int ON = 1;
     /** No flash. The flash will never be used when taking a picture. */
-    OFF
+    int OFF = 2;
 }

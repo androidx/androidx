@@ -51,8 +51,8 @@ public interface CameraControl {
      *
      * <p>When the torch is enabled, the torch will remain enabled during photo capture regardless
      * of {@link FlashMode} setting. When the torch is disabled, flash will function as
-     * {@link FlashMode} set by either {@link ImageCapture#setFlashMode(FlashMode)} or
-     * {@link ImageCaptureConfig.Builder#setFlashMode(FlashMode)}.
+     * {@link FlashMode} set by either {@link ImageCapture#setFlashMode(int)} or
+     * {@link ImageCaptureConfig.Builder#setFlashMode(int)}.
      *
      * @param torch true to open the torch, false to close it.
      * @return A {@link ListenableFuture} which is successful when the torch was changed to the
