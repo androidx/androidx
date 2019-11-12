@@ -28,7 +28,7 @@ import androidx.ui.layout.Column
 import androidx.ui.layout.Container
 import androidx.ui.layout.CrossAxisAlignment
 import androidx.ui.layout.EdgeInsets
-import androidx.ui.layout.ExpandedHeight
+import androidx.ui.layout.ExpandedWidth
 import androidx.ui.layout.HeightSpacer
 import androidx.ui.layout.MainAxisAlignment
 import androidx.ui.layout.Row
@@ -163,7 +163,7 @@ private fun AlertDialogButtonLayout(
     dismissButton: @Composable() (() -> Unit)?,
     buttonLayout: AlertDialogButtonLayout
 ) {
-    Container(padding = ButtonsPadding, alignment = Alignment.CenterRight, expanded = true) {
+    Container(ExpandedWidth, padding = ButtonsPadding, alignment = Alignment.CenterRight) {
         if (buttonLayout == AlertDialogButtonLayout.SideBySide) {
             Row(mainAxisAlignment = MainAxisAlignment.End) {
                 if (dismissButton != null) {
@@ -174,7 +174,7 @@ private fun AlertDialogButtonLayout(
                 confirmButton()
             }
         } else {
-            Column(ExpandedHeight) {
+            Column {
                 confirmButton()
 
                 if (dismissButton != null) {

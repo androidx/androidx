@@ -34,6 +34,7 @@ import androidx.ui.layout.DpConstraints
 import androidx.ui.layout.MainAxisAlignment
 import androidx.compose.Composable
 import androidx.ui.core.Alignment
+import androidx.ui.core.Constraints
 import androidx.ui.core.Dp
 import androidx.ui.core.FirstBaseline
 import androidx.ui.core.HorizontalAlignmentLine
@@ -42,6 +43,7 @@ import androidx.ui.core.Modifier
 import androidx.ui.core.OnChildPositioned
 import androidx.ui.core.OnPositioned
 import androidx.ui.core.VerticalAlignmentLine
+import androidx.ui.core.WithConstraints
 import androidx.ui.core.globalPosition
 import androidx.ui.core.max
 import androidx.ui.core.min
@@ -1495,15 +1497,71 @@ class FlexTest : LayoutTest() {
             WithInfiniteConstraints {
                 ConstrainedBox(DpConstraints(minWidth = rowMinWidth)) {
                     Row {
-                        FixedSizeLayout(inflexibleChildWidth.toIntPx(), 0.ipx, mapOf())
-                        Container(Flexible(1f)) {
-                            OnPositioned { coordinates ->
-                                Assert.assertEquals(
-                                    (rowMinWidth.toIntPx() - inflexibleChildWidth.toIntPx()).toPx(),
-                                    coordinates.size.width
-                                )
-                                latch.countDown()
-                            }
+                        WithConstraints { constraints ->
+                            Assert.assertEquals(Constraints(), constraints)
+                            FixedSizeLayout(inflexibleChildWidth.toIntPx(), 0.ipx, mapOf())
+                        }
+                        WithConstraints { constraints ->
+                            Assert.assertEquals(Constraints(), constraints)
+                            FixedSizeLayout(inflexibleChildWidth.toIntPx(), 0.ipx, mapOf())
+                        }
+                        Layout({}, Flexible(1f)) { _, constraints ->
+                            Assert.assertEquals(
+                                rowMinWidth.toIntPx() - inflexibleChildWidth.toIntPx() * 2,
+                                constraints.minWidth
+                            )
+                            Assert.assertEquals(
+                                rowMinWidth.toIntPx() - inflexibleChildWidth.toIntPx() * 2,
+                                constraints.maxWidth
+                            )
+                            latch.countDown()
+                            layout(0.ipx, 0.ipx) { }
+                        }
+                    }
+                }
+            }
+        }
+        assertTrue(latch.await(1, TimeUnit.SECONDS))
+    }
+
+    @Test
+    fun testRow_measuresInflexibleChildrenCorrectly() = withDensity(density) {
+        val availableWidth = 100.dp
+        val childWidth = 50.dp
+        val availableHeight = 200.dp
+        val childHeight = 100.dp
+        val latch = CountDownLatch(1)
+        show {
+            Wrap {
+                ConstrainedBox(
+                    DpConstraints(
+                        minWidth = availableWidth,
+                        maxWidth = availableWidth,
+                        minHeight = availableHeight,
+                        maxHeight = availableHeight
+                    )
+                ) {
+                    Row {
+                        WithConstraints { constraints ->
+                            Assert.assertEquals(
+                                Constraints(
+                                    maxWidth = availableWidth.toIntPx(),
+                                    maxHeight = availableHeight.toIntPx()
+                                ),
+                                constraints
+                            )
+                            FixedSizeLayout(childWidth.toIntPx(), childHeight.toIntPx(), mapOf())
+                        }
+                        WithConstraints { constraints ->
+                            Assert.assertEquals(
+                                Constraints(
+                                    maxWidth = availableWidth.toIntPx() - childWidth.toIntPx(),
+                                    maxHeight = availableHeight.toIntPx()
+                                ),
+                                constraints
+                            )
+                            FixedSizeLayout(childWidth.toIntPx(), childHeight.toIntPx(), mapOf())
+                            latch.countDown()
                         }
                     }
                 }
@@ -1879,7 +1937,7 @@ class FlexTest : LayoutTest() {
     }
 
     @Test
-    fun testColumn_measuresChildrenCorrectly_whenMeasuredWithInfiniteWidth() =
+    fun testColumn_measuresChildrenCorrectly_whenMeasuredWithInfiniteHeight() =
         withDensity(density) {
         val columnMinHeight = 100.dp
         val inflexibleChildHeight = 30.dp
@@ -1888,16 +1946,70 @@ class FlexTest : LayoutTest() {
             WithInfiniteConstraints {
                 ConstrainedBox(DpConstraints(minHeight = columnMinHeight)) {
                     Column {
-                        FixedSizeLayout(0.ipx, inflexibleChildHeight.toIntPx(), mapOf())
-                        Container(Flexible(1f)) {
-                            OnPositioned { coordinates ->
-                                Assert.assertEquals(
-                                    (columnMinHeight.toIntPx() - inflexibleChildHeight.toIntPx())
-                                        .toPx(),
-                                    coordinates.size.height
-                                )
-                                latch.countDown()
-                            }
+                        WithConstraints { constraints ->
+                            Assert.assertEquals(Constraints(), constraints)
+                            FixedSizeLayout(0.ipx, inflexibleChildHeight.toIntPx(), mapOf())
+                        }
+                        WithConstraints { constraints ->
+                            Assert.assertEquals(Constraints(), constraints)
+                            FixedSizeLayout(0.ipx, inflexibleChildHeight.toIntPx(), mapOf())
+                        }
+                        Layout({}, Flexible(1f)) { _, constraints ->
+                            assertEquals(
+                                columnMinHeight.toIntPx() - inflexibleChildHeight.toIntPx() * 2,
+                                constraints.minHeight
+                            )
+                            assertEquals(
+                                columnMinHeight.toIntPx() - inflexibleChildHeight.toIntPx() * 2,
+                                constraints.maxHeight
+                            )
+                            latch.countDown()
+                            layout(0.ipx, 0.ipx) { }
+                        }
+                    }
+                }
+            }
+        }
+    }
+
+    @Test
+    fun testColumn_measuresInflexibleChildrenCorrectly() = withDensity(density) {
+        val availableWidth = 100.dp
+        val childWidth = 50.dp
+        val availableHeight = 200.dp
+        val childHeight = 100.dp
+        val latch = CountDownLatch(1)
+        show {
+            Wrap {
+                ConstrainedBox(
+                    DpConstraints(
+                        minWidth = availableWidth,
+                        maxWidth = availableWidth,
+                        minHeight = availableHeight,
+                        maxHeight = availableHeight
+                    )
+                ) {
+                    Column {
+                        WithConstraints { constraints ->
+                            Assert.assertEquals(
+                                Constraints(
+                                    maxWidth = availableWidth.toIntPx(),
+                                    maxHeight = availableHeight.toIntPx()
+                                ),
+                                constraints
+                            )
+                            FixedSizeLayout(childWidth.toIntPx(), childHeight.toIntPx(), mapOf())
+                        }
+                        WithConstraints { constraints ->
+                            Assert.assertEquals(
+                                Constraints(
+                                    maxWidth = availableWidth.toIntPx(),
+                                    maxHeight = availableHeight.toIntPx() - childHeight.toIntPx()
+                                ),
+                                constraints
+                            )
+                            FixedSizeLayout(childWidth.toIntPx(), childHeight.toIntPx(), mapOf())
+                            latch.countDown()
                         }
                     }
                 }

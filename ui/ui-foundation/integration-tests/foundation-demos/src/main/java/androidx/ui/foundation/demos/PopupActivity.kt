@@ -89,7 +89,6 @@ class PopupActivity : Activity() {
                     expanded(flex = 1f) {
                         Container(
                             alignment = Alignment.Center,
-                            expanded = true,
                             constraints = DpConstraints(maxWidth = 300.dp)
                         ) {
                             val description: String = {
