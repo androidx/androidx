@@ -320,7 +320,7 @@ fun Row(
     modifier: Modifier = Modifier.None,
     mainAxisAlignment: MainAxisAlignment = MainAxisAlignment.Start,
     crossAxisAlignment: CrossAxisAlignment = CrossAxisAlignment.Start,
-    block: @Composable() RowScope.() -> Unit
+    children: @Composable() RowScope.() -> Unit
 ) {
     FlexLayout(
         orientation = LayoutOrientation.Horizontal,
@@ -328,7 +328,7 @@ fun Row(
         mainAxisAlignment = mainAxisAlignment,
         crossAxisAlignment = crossAxisAlignment,
         crossAxisSize = LayoutSize.Wrap,
-        layoutChildren = { RowScope().block() }
+        children = { RowScope().children() }
     )
 }
 
@@ -353,7 +353,7 @@ fun Column(
     modifier: Modifier = Modifier.None,
     mainAxisAlignment: MainAxisAlignment = MainAxisAlignment.Start,
     crossAxisAlignment: CrossAxisAlignment = CrossAxisAlignment.Start,
-    block: @Composable() ColumnScope.() -> Unit
+    children: @Composable() ColumnScope.() -> Unit
 ) {
     FlexLayout(
         orientation = LayoutOrientation.Vertical,
@@ -361,7 +361,7 @@ fun Column(
         mainAxisAlignment = mainAxisAlignment,
         crossAxisAlignment = crossAxisAlignment,
         crossAxisSize = LayoutSize.Wrap,
-        layoutChildren = { ColumnScope().block() }
+        children = { ColumnScope().children() }
     )
 }
 
@@ -638,7 +638,7 @@ private fun Flex(
         mainAxisAlignment = mainAxisAlignment,
         crossAxisSize = crossAxisSize,
         crossAxisAlignment = crossAxisAlignment,
-        layoutChildren = flexChildren
+        children = flexChildren
     )
 }
 
@@ -653,7 +653,7 @@ private fun FlexLayout(
     mainAxisAlignment: MainAxisAlignment,
     crossAxisSize: LayoutSize,
     crossAxisAlignment: CrossAxisAlignment,
-    layoutChildren: @Composable() () -> Unit
+    children: @Composable() () -> Unit
 ) {
     fun Placeable.mainAxisSize() =
         if (orientation == LayoutOrientation.Horizontal) width else height
@@ -661,13 +661,13 @@ private fun FlexLayout(
         if (orientation == LayoutOrientation.Horizontal) height else width
 
     Layout(
-        layoutChildren,
+        children,
         modifier = modifier,
         minIntrinsicWidthMeasureBlock = MinIntrinsicWidthMeasureBlock(orientation),
         minIntrinsicHeightMeasureBlock = MinIntrinsicHeightMeasureBlock(orientation),
         maxIntrinsicWidthMeasureBlock = MaxIntrinsicWidthMeasureBlock(orientation),
         maxIntrinsicHeightMeasureBlock = MaxIntrinsicHeightMeasureBlock(orientation)
-    ) { children, outerConstraints ->
+    ) { measurables, outerConstraints ->
         val constraints = OrientationIndependentConstraints(outerConstraints, orientation)
 
         var totalFlex = 0f
@@ -676,10 +676,10 @@ private fun FlexLayout(
         var beforeCrossAxisAlignmentLine = IntPx.Zero
         var afterCrossAxisAlignmentLine = IntPx.Zero
 
-        val placeables = arrayOfNulls<Placeable>(children.size)
+        val placeables = arrayOfNulls<Placeable>(measurables.size)
         // First measure children with zero flex.
-        for (i in 0 until children.size) {
-            val child = children[i]
+        for (i in 0 until measurables.size) {
+            val child = measurables[i]
             val flex = child.flex
 
             if (flex > 0f) {
@@ -703,7 +703,7 @@ private fun FlexLayout(
                 inflexibleSpace += placeable.mainAxisSize()
                 crossAxisSpace = max(crossAxisSpace, placeable.crossAxisSize())
 
-                val lineProvider = children[i].crossAxisAlignment?.alignmentLineProvider
+                val lineProvider = measurables[i].crossAxisAlignment?.alignmentLineProvider
                     ?: crossAxisAlignment.alignmentLineProvider
                 if (lineProvider != null) {
                     val alignmentLinePosition = when (lineProvider) {
@@ -733,8 +733,8 @@ private fun FlexLayout(
 
         var flexibleSpace = IntPx.Zero
 
-        for (i in 0 until children.size) {
-            val child = children[i]
+        for (i in 0 until measurables.size) {
+            val child = measurables[i]
             val flex = child.flex
             if (flex > 0f) {
                 val childMainAxisSize = max(
@@ -800,7 +800,8 @@ private fun FlexLayout(
                 .align(mainAxisLayoutSize, childrenMainAxisSize)
             placeables.forEachIndexed { index, placeable ->
                 placeable!!
-                val childCrossAlignment = children[index].crossAxisAlignment ?: crossAxisAlignment
+                val childCrossAlignment =
+                    measurables[index].crossAxisAlignment ?: crossAxisAlignment
                 val crossAxis = when (childCrossAlignment) {
                     CrossAxisAlignment.Start -> IntPx.Zero
                     CrossAxisAlignment.Stretch -> IntPx.Zero
@@ -816,7 +817,7 @@ private fun FlexLayout(
                         ).y
                     }
                     else -> {
-                        val provider = children[index].crossAxisAlignment?.alignmentLineProvider
+                        val provider = measurables[index].crossAxisAlignment?.alignmentLineProvider
                             ?: crossAxisAlignment.alignmentLineProvider
                         val alignmentLinePosition = when (provider) {
                             is AlignmentLineProvider.Block -> provider.lineProviderBlock(placeable)
