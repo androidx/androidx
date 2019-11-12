@@ -52,6 +52,7 @@ import androidx.annotation.RestrictTo.Scope;
 import androidx.annotation.UiThread;
 import androidx.camera.core.Camera;
 import androidx.camera.core.FlashMode;
+import androidx.camera.core.FlashModeHelper;
 import androidx.camera.core.FocusMeteringAction;
 import androidx.camera.core.FocusMeteringAction.MeteringMode;
 import androidx.camera.core.ImageCapture.OnImageCapturedCallback;
@@ -268,7 +269,7 @@ public final class CameraView extends ViewGroup {
         state.putInt(EXTRA_SCALE_TYPE, getScaleType().getId());
         state.putFloat(EXTRA_ZOOM_RATIO, getZoomRatio());
         state.putBoolean(EXTRA_PINCH_TO_ZOOM_ENABLED, isPinchToZoomEnabled());
-        state.putString(EXTRA_FLASH, getFlash().name());
+        state.putString(EXTRA_FLASH, FlashModeHelper.nameOf(getFlash()));
         state.putLong(EXTRA_MAX_VIDEO_DURATION, getMaxVideoDuration());
         state.putLong(EXTRA_MAX_VIDEO_SIZE, getMaxVideoSize());
         if (getCameraLensFacing() != null) {
@@ -289,7 +290,7 @@ public final class CameraView extends ViewGroup {
             setScaleType(ScaleType.fromId(state.getInt(EXTRA_SCALE_TYPE)));
             setZoomRatio(state.getFloat(EXTRA_ZOOM_RATIO));
             setPinchToZoomEnabled(state.getBoolean(EXTRA_PINCH_TO_ZOOM_ENABLED));
-            setFlash(FlashMode.valueOf(state.getString(EXTRA_FLASH)));
+            setFlash(FlashModeHelper.valueOf(state.getString(EXTRA_FLASH)));
             setMaxVideoDuration(state.getLong(EXTRA_MAX_VIDEO_DURATION));
             setMaxVideoSize(state.getLong(EXTRA_MAX_VIDEO_SIZE));
             String lensFacingString = state.getString(EXTRA_CAMERA_DIRECTION);
@@ -655,7 +656,7 @@ public final class CameraView extends ViewGroup {
     /**
      * Takes a video and calls the OnVideoSavedCallback when done.
      *
-     * @param file The destination.
+     * @param file     The destination.
      * @param executor The executor in which the callback methods will be run.
      * @param callback Callback which will receive success or failure.
      */
@@ -722,13 +723,13 @@ public final class CameraView extends ViewGroup {
     }
 
     /** Gets the active flash strategy. */
-    @NonNull
-    public FlashMode getFlash() {
+    @FlashMode
+    public int getFlash() {
         return mCameraModule.getFlash();
     }
 
     /** Sets the active flash strategy. */
-    public void setFlash(@NonNull FlashMode flashMode) {
+    public void setFlash(@FlashMode int flashMode) {
         mCameraModule.setFlash(flashMode);
     }
 
@@ -1003,6 +1004,7 @@ public final class CameraView extends ViewGroup {
         PinchToZoomGestureDetector(Context context) {
             this(context, new S());
         }
+
         PinchToZoomGestureDetector(Context context, S s) {
             super(context, s);
             s.setRealGestureDetector(this);
@@ -1016,7 +1018,7 @@ public final class CameraView extends ViewGroup {
             if (scale > 1f) {
                 scale = 1.0f + (scale - 1.0f) * 2;
             } else {
-                scale = 1.0f -  (1.0f - scale) * 2;
+                scale = 1.0f - (1.0f - scale) * 2;
             }
 
             float newRatio = getZoomRatio() * scale;

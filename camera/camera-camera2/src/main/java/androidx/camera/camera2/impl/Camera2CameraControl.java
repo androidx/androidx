@@ -72,7 +72,8 @@ public final class Camera2CameraControl implements CameraControlInternal {
     private final ZoomControl mZoomControl;
     // use volatile modifier to make these variables in sync in all threads.
     private volatile boolean mIsTorchOn = false;
-    private volatile FlashMode mFlashMode = FlashMode.OFF;
+    @FlashMode
+    private volatile int mFlashMode = FlashMode.OFF;
     private volatile boolean mIsActive = false;
 
     //******************** Should only be accessed by executor *****************************//
@@ -167,15 +168,15 @@ public final class Camera2CameraControl implements CameraControlInternal {
         mExecutor.execute(() -> setCropRegionInternal(crop));
     }
 
-    @NonNull
+    @FlashMode
     @Override
-    public FlashMode getFlashMode() {
+    public int getFlashMode() {
         return mFlashMode;
     }
 
     /** {@inheritDoc} */
     @Override
-    public void setFlashMode(@NonNull FlashMode flashMode) {
+    public void setFlashMode(@FlashMode int flashMode) {
         // update mFlashMode immediately so that following getFlashMode() returns correct value.
         mFlashMode = flashMode;
 
@@ -328,13 +329,13 @@ public final class Camera2CameraControl implements CameraControlInternal {
                     CaptureRequest.FLASH_MODE_TORCH);
         } else {
             switch (mFlashMode) {
-                case OFF:
+                case FlashMode.OFF:
                     aeMode = CaptureRequest.CONTROL_AE_MODE_ON;
                     break;
-                case ON:
+                case FlashMode.ON:
                     aeMode = CaptureRequest.CONTROL_AE_MODE_ON_ALWAYS_FLASH;
                     break;
-                case AUTO:
+                case FlashMode.AUTO:
                     aeMode = CaptureRequest.CONTROL_AE_MODE_ON_AUTO_FLASH;
                     break;
             }

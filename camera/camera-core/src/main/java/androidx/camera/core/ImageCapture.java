@@ -156,7 +156,8 @@ public class ImageCapture extends UseCase {
      */
     private boolean mEnableCheck3AConverged;
     /** Current flash mode. */
-    private FlashMode mFlashMode;
+    @FlashMode
+    private int mFlashMode;
 
     /**
      * Creates a new image capture use case from the given configuration.
@@ -353,8 +354,8 @@ public class ImageCapture extends UseCase {
      *
      * @return the {@link FlashMode}.
      */
-    @NonNull
-    public FlashMode getFlashMode() {
+    @FlashMode
+    public int getFlashMode() {
         return mFlashMode;
     }
 
@@ -369,11 +370,11 @@ public class ImageCapture extends UseCase {
      *
      * <p>When the torch is enabled via {@link CameraControl#enableTorch(boolean)}, the torch
      * will remain enabled during photo capture regardless of {@link FlashMode} setting. When
-     * the torch is disabled, flash will function as specified by {@link #setFlashMode(FlashMode)}.
+     * the torch is disabled, flash will function as specified by {@link #setFlashMode(int)}.
      *
      * @param flashMode the {@link FlashMode}.
      */
-    public void setFlashMode(@NonNull FlashMode flashMode) {
+    public void setFlashMode(@FlashMode int flashMode) {
         this.mFlashMode = flashMode;
         getCurrentCameraControl().setFlashMode(flashMode);
     }
@@ -841,11 +842,11 @@ public class ImageCapture extends UseCase {
 
     boolean isFlashRequired(TakePictureState state) {
         switch (getFlashMode()) {
-            case ON:
+            case FlashMode.ON:
                 return true;
-            case AUTO:
+            case FlashMode.AUTO:
                 return state.mPreCaptureState.getAeState() == AeState.FLASH_REQUIRED;
-            case OFF:
+            case FlashMode.OFF:
                 return false;
         }
         throw new AssertionError(getFlashMode());
@@ -1177,7 +1178,8 @@ public class ImageCapture extends UseCase {
     public static final class Defaults
             implements ConfigProvider<ImageCaptureConfig> {
         private static final CaptureMode DEFAULT_CAPTURE_MODE = CaptureMode.MIN_LATENCY;
-        private static final FlashMode DEFAULT_FLASH_MODE = FlashMode.OFF;
+        @FlashMode
+        private static final int DEFAULT_FLASH_MODE = FlashMode.OFF;
         private static final int DEFAULT_SURFACE_OCCUPANCY_PRIORITY = 4;
 
         private static final ImageCaptureConfig DEFAULT_CONFIG;

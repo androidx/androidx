@@ -48,7 +48,7 @@ public final class ImageCaptureConfig
     static final Option<CaptureMode> OPTION_IMAGE_CAPTURE_MODE =
             Option.create(
                     "camerax.core.imageCapture.captureMode", CaptureMode.class);
-    static final Option<FlashMode> OPTION_FLASH_MODE =
+    static final Option<Integer> OPTION_FLASH_MODE =
             Option.create("camerax.core.imageCapture.flashMode", FlashMode.class);
     static final Option<CaptureBundle> OPTION_CAPTURE_BUNDLE =
             Option.create("camerax.core.imageCapture.captureBundle", CaptureBundle.class);
@@ -100,7 +100,7 @@ public final class ImageCaptureConfig
      * configuration.
      */
     @Nullable
-    public FlashMode getFlashMode(@Nullable FlashMode valueIfMissing) {
+    public Integer getFlashMode(@Nullable Integer valueIfMissing) {
         return retrieveOption(OPTION_FLASH_MODE, valueIfMissing);
     }
 
@@ -110,8 +110,8 @@ public final class ImageCaptureConfig
      * @return The stored value, if it exists in this configuration.
      * @throws IllegalArgumentException if the option does not exist in this configuration.
      */
-    @NonNull
-    public FlashMode getFlashMode() {
+    @FlashMode
+    public int getFlashMode() {
         return retrieveOption(OPTION_FLASH_MODE);
     }
 
@@ -807,13 +807,13 @@ public final class ImageCaptureConfig
          *
          * <p>If not set, the flash mode will default to {@link FlashMode#OFF}.
          *
-         * <p>See {@link ImageCapture#setFlashMode(FlashMode)} for more information.
+         * <p>See {@link ImageCapture#setFlashMode(int)} for more information.
          *
          * @param flashMode The requested flash mode.
          * @return The current Builder.
          */
         @NonNull
-        public Builder setFlashMode(@NonNull FlashMode flashMode) {
+        public Builder setFlashMode(@FlashMode int flashMode) {
             getMutableConfig().insertOption(OPTION_FLASH_MODE, flashMode);
             return this;
         }

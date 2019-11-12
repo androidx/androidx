@@ -119,15 +119,15 @@ public final class ToggleButtonUITest {
         // There are 3 different states of flash mode: ON, OFF and AUTO.
         // By pressing flash mode toggle button, the flash mode would switch to the next state.
         // The flash mode would loop in following sequence: OFF -> AUTO -> ON -> OFF.
-        FlashMode mode1 = useCase.getFlashMode();
+        @FlashMode int mode1 = useCase.getFlashMode();
 
         onView(withId(R.id.flash_toggle)).perform(click());
-        FlashMode mode2 = useCase.getFlashMode();
+        @FlashMode int mode2 = useCase.getFlashMode();
         // After the switch, the mode2 should be different from mode1.
         assertNotEquals(mode2, mode1);
 
         onView(withId(R.id.flash_toggle)).perform(click());
-        FlashMode mode3 = useCase.getFlashMode();
+        @FlashMode int mode3 = useCase.getFlashMode();
         // The mode3 should be different from first and second time.
         assertNotEquals(mode3, mode2);
         assertNotEquals(mode3, mode1);
