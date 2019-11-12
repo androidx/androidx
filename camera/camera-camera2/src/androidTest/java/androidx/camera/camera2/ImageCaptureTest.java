@@ -544,7 +544,7 @@ public final class ImageCaptureTest {
         OnImageCapturedCallback callback = createMockOnImageCapturedCallback(null);
         imageCapture.takePicture(mListenerExecutor, callback);
 
-        verify(callback, timeout(3000)).onError(any(ImageCaptureError.class),
+        verify(callback, timeout(3000)).onError(any(Integer.class),
                 anyString(), any(IllegalArgumentException.class));
 
     }
@@ -586,7 +586,7 @@ public final class ImageCaptureTest {
         imageCapture.takePicture(mListenerExecutor, callback);
 
         // It should get onError() callback twice.
-        verify(callback, timeout(3000).times(2)).onError(any(ImageCaptureError.class), anyString(),
+        verify(callback, timeout(3000).times(2)).onError(any(Integer.class), anyString(),
                 any(IllegalArgumentException.class));
 
     }
@@ -612,8 +612,7 @@ public final class ImageCaptureTest {
         captureSubmittedLatch.await(500, TimeUnit.MILLISECONDS);
         fakeCameraControl.notifyAllRequestOnCaptureCancelled();
 
-        ArgumentCaptor<ImageCaptureError> errorCaptor =
-                ArgumentCaptor.forClass(ImageCaptureError.class);
+        ArgumentCaptor<Integer> errorCaptor = ArgumentCaptor.forClass(Integer.class);
         verify(callback, timeout(500).times(1)).onError(errorCaptor.capture(),
                 any(String.class),
                 any(Throwable.class));
@@ -644,8 +643,7 @@ public final class ImageCaptureTest {
         captureSubmittedLatch.await(500, TimeUnit.MILLISECONDS);
         fakeCameraControl.notifyAllRequestsOnCaptureFailed();
 
-        ArgumentCaptor<ImageCaptureError> errorCaptor =
-                ArgumentCaptor.forClass(ImageCaptureError.class);
+        ArgumentCaptor<Integer> errorCaptor = ArgumentCaptor.forClass(Integer.class);
         verify(callback, timeout(500).times(1)).onError(errorCaptor.capture(),
                 any(String.class),
                 any(Throwable.class));
@@ -673,8 +671,7 @@ public final class ImageCaptureTest {
 
         mInstrumentation.runOnMainSync(() -> imageCapture.onStateOffline(mCameraId));
 
-        ArgumentCaptor<ImageCaptureError> errorCaptor =
-                ArgumentCaptor.forClass(ImageCaptureError.class);
+        ArgumentCaptor<Integer> errorCaptor = ArgumentCaptor.forClass(Integer.class);
         verify(callback, timeout(500).times(3)).onError(errorCaptor.capture(),
                 any(String.class),
                 any(Throwable.class));
@@ -693,8 +690,7 @@ public final class ImageCaptureTest {
         OnImageCapturedCallback callback = createMockOnImageCapturedCallback(null);
         imageCapture.takePicture(mListenerExecutor, callback);
 
-        ArgumentCaptor<ImageCaptureError> errorCaptor =
-                ArgumentCaptor.forClass(ImageCaptureError.class);
+        ArgumentCaptor<Integer> errorCaptor = ArgumentCaptor.forClass(Integer.class);
         verify(callback, timeout(500)).onError(errorCaptor.capture(), any(String.class),
                 any(Throwable.class));
         assertThat(errorCaptor.getValue()).isEqualTo(ImageCaptureError.INVALID_CAMERA);

@@ -171,8 +171,8 @@ public class ExtensionTest {
         imageProxy.getValue().close(); // Close the image after verification.
 
         // Verify the take picture should not have any error happen.
-        verify(mockOnImageCapturedCallback, never()).onError(
-                any(ImageCapture.ImageCaptureError.class), anyString(), any(Throwable.class));
+        verify(mockOnImageCapturedCallback, never()).onError(any(Integer.class), anyString(),
+                any(Throwable.class));
     }
 
     @Test

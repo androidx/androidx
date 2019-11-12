@@ -34,8 +34,8 @@ import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.camera.core.ImageCapture.ImageCaptureError;
 import androidx.camera.core.ImageCapture.OnImageSavedCallback;
-import androidx.camera.core.VideoCapture;
 import androidx.camera.core.VideoCapture.OnVideoSavedCallback;
+import androidx.camera.core.VideoCapture.VideoCaptureError;
 import androidx.camera.core.impl.utils.executor.CameraXExecutors;
 import androidx.camera.view.CameraView;
 import androidx.camera.view.CameraView.CaptureMode;
@@ -201,17 +201,19 @@ class CaptureViewOnTouchListener
         broadcastVideo(file);
     }
 
+    /**
+     * This method overrides both
+     * {@link OnVideoSavedCallback#onError(int, String, Throwable)} and
+     * {@link OnImageSavedCallback#onError(int, String, Throwable)} which have the same signature
+     * . For now they both have the same implementation, if ever this changes, the implementation
+     * will need to take into account that the {@param error} can be either a
+     * {@link VideoCaptureError} or a {@link ImageCaptureError}.
+     *
+     * @param error Is either a {@link VideoCaptureError} or a
+     *              {@link ImageCaptureError}.
+     */
     @Override
-    public void onError(@NonNull ImageCaptureError imageCaptureError, @NonNull String message,
-            @Nullable Throwable cause) {
-        report("Failure");
-    }
-
-    @Override
-    public void onError(
-            @VideoCapture.VideoCaptureError int videoCaptureError,
-            @NonNull String message,
-            @Nullable Throwable cause) {
+    public void onError(int error, @NonNull String message, @Nullable Throwable cause) {
         report("Failure");
     }
 
