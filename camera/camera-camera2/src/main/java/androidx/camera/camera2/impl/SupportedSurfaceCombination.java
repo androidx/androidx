@@ -364,16 +364,16 @@ final class SupportedSurfaceCombination {
         List<Size> sizesNotMatchAspectRatio = new ArrayList<>();
 
         Rational aspectRatio = null;
-        AspectRatio targetAspectRatio = config.getTargetAspectRatio(null);
+        Integer targetAspectRatio = config.getTargetAspectRatio(null);
         if (targetAspectRatio != null) {
             // Checks the sensor orientation.
             boolean isSensorLandscapeOrientation = isRotationNeeded(Surface.ROTATION_0);
             switch (targetAspectRatio) {
-                case RATIO_4_3:
+                case AspectRatio.RATIO_4_3:
                     aspectRatio =
                             isSensorLandscapeOrientation ? ASPECT_RATIO_4_3 : ASPECT_RATIO_3_4;
                     break;
-                case RATIO_16_9:
+                case AspectRatio.RATIO_16_9:
                     aspectRatio =
                             isSensorLandscapeOrientation ? ASPECT_RATIO_16_9 : ASPECT_RATIO_9_16;
                     break;

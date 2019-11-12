@@ -16,10 +16,17 @@
 
 package androidx.camera.core;
 
+import androidx.annotation.IntDef;
+
+import java.lang.annotation.Retention;
+import java.lang.annotation.RetentionPolicy;
+
 /** The aspect ratio of the use case. */
-public enum AspectRatio {
+@IntDef({AspectRatio.RATIO_4_3, AspectRatio.RATIO_16_9})
+@Retention(RetentionPolicy.SOURCE)
+public @interface AspectRatio {
     /** 4:3 standard aspect ratio. */
-    RATIO_4_3,
+    int RATIO_4_3 = 0;
     /** 16:9 standard aspect ratio. */
-    RATIO_16_9
+    int RATIO_16_9 = 1;
 }
