@@ -176,7 +176,7 @@ public final class FakeCameraControl implements CameraControlInternal {
 
     @NonNull
     @Override
-    public ListenableFuture<Void> setZoomPercentage(float percentage) {
+    public ListenableFuture<Void> setLinearZoom(float linearZoom) {
         return Futures.immediateFuture(null);
     }
 

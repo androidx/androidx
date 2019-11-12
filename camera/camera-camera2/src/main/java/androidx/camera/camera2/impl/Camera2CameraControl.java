@@ -157,8 +157,8 @@ public final class Camera2CameraControl implements CameraControlInternal {
 
     @NonNull
     @Override
-    public ListenableFuture<Void> setZoomPercentage(float percentage) {
-        return mZoomControl.setZoomPercentage(percentage);
+    public ListenableFuture<Void> setLinearZoom(float linearZoom) {
+        return mZoomControl.setLinearZoom(linearZoom);
     }
 
     /** {@inheritDoc} */

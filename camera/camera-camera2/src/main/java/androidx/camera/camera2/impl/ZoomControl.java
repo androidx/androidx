@@ -44,18 +44,18 @@ import com.google.common.util.concurrent.ListenableFuture;
  * Implementation of zoom control used within CameraControl and CameraInfo.
  *
  * <p>It consists of setters and getters. Setters like {@link #setZoomRatio(float)} and
- * {@link #setZoomPercentage(float)} return a {@link ListenableFuture} which apps can
+ * {@link #setLinearZoom(float)} return a {@link ListenableFuture} which apps can
  * use to await the async result.  Getters like {@link #getZoomRatio()},
- * {@link #getZoomPercentage()}, {@link #getMaxZoomRatio()}, and {@link #getMinZoomRatio()}
+ * {@link #getLinearZoom()}, {@link #getMaxZoomRatio()}, and {@link #getMinZoomRatio()}
  * return a {@link LiveData} which apps can get immediate value from by
  * {@link LiveData#getValue()} or observe the changes by
  * {@link LiveData#observe(LifecycleOwner, Observer)}.
  *
  * <p>{@link #setZoomRatio(float)} accepts zoom ratio from {@link #getMinZoomRatio()} to
- * {@link #getMaxZoomRatio()}. Alternatively, app can call {@link #setZoomPercentage(float)} to
- * specify the zoom by percentage. The percentage value is a float ranging from 0 to 1 representing
- * the minimum zoom to maximum zoom respectively. The benefits of using zoom percentage is it
- * ensures the FOV width/height is changed linearly.
+ * {@link #getMaxZoomRatio()}. Alternatively, app can call {@link #setLinearZoom(float)} to
+ * specify the zoom by a [0..1] percentage. The linearZoom value is a float ranging from 0 to 1
+ * representing the minimum zoom to maximum zoom respectively. The benefits of using linear zoom
+ * is it ensures the FOV width/height is changed linearly.
  *
  * <p>The operation (the setters) will throw {@link IllegalStateException} if {@link ZoomControl} is
  * not active. All states are reset to default values once it is inactive. We should set active
@@ -76,7 +76,7 @@ final class ZoomControl {
     private final MutableLiveData<Float> mMinZoomRatioLiveData;
     // Stores separate percentage data because we want to preserve the exact percentage value which
     // developers pass to us. Inferring the percentage from zoomRatio could be different from it.
-    private final MutableLiveData<Float> mZoomPercentageLiveData;
+    private final MutableLiveData<Float> mLinearZoomLiveData;
 
     @SuppressWarnings("WeakerAccess") /* synthetic accessor */
     final Object mCompleterLock = new Object();
@@ -104,7 +104,7 @@ final class ZoomControl {
         mZoomRatioLiveData = new MutableLiveData<>(DEFAULT_ZOOM_RATIO);
         mMaxZoomRatioLiveData = new MutableLiveData<>(getMaxDigitalZoom());
         mMinZoomRatioLiveData = new MutableLiveData<>(MIN_ZOOM);
-        mZoomPercentageLiveData = new MutableLiveData<>(0f);
+        mLinearZoomLiveData = new MutableLiveData<>(0f);
         camera2CameraControl.addCaptureResultListener(mCaptureResultListener);
     }
 
@@ -144,7 +144,7 @@ final class ZoomControl {
 
         if (shouldResetDefault) {
             setLiveDataValue(mZoomRatioLiveData, DEFAULT_ZOOM_RATIO);
-            setLiveDataValue(mZoomPercentageLiveData, 0f);
+            setLiveDataValue(mLinearZoomLiveData, 0f);
             mCamera2CameraControl.setCropRegion(null);
         }
 
@@ -187,8 +187,8 @@ final class ZoomControl {
     /**
      * Sets current zoom by ratio.
      *
-     * <p>It modifies both current zoom ratio and zoom percentage so if apps are observing
-     * zoomRatio or zoomPercentage, they will get the update as well. If the ratio is
+     * <p>It modifies both current zoom ratio and linear zoom percentage so if apps are observing
+     * zoomRatio or linearZoom, they will get the update as well. If the ratio is
      * smaller than {@link CameraInfo#getMinZoomRatio()} or larger than
      * {@link CameraInfo#getMaxZoomRatio()}, it won't modify current zoom ratio. It is
      * applications' duty to clamp the ratio.
@@ -244,7 +244,7 @@ final class ZoomControl {
 
         setLiveDataValue(mZoomRatioLiveData, ratio);
         if (updatePercentage) {
-            setLiveDataValue(mZoomPercentageLiveData, getPercentageByRatio(ratio));
+            setLiveDataValue(mLinearZoomLiveData, getPercentageByRatio(ratio));
         }
 
         Rect targetRegion = getCropRectByRatio(sensorRect, ratio);
@@ -276,22 +276,22 @@ final class ZoomControl {
     }
 
     /**
-     * Sets current zoom by percentage ranging from 0f to 1.0f. Percentage 0f represents the
-     * minimum zoom while percentage 1.0f represents the maximum zoom. One advantage of zoom
-     * percentage is that it ensures FOV varies linearly with the percentage value.
+     * Sets current zoom by a float percentage ranging from 0f to 1.0f. LinearZoom 0f represents the
+     * minimum zoom while linearZoom 1.0f represents the maximum zoom. The advantage of
+     * linearZoom is that it ensures FOV varies linearly with the percentage value.
      *
-     * <p>It modifies both current zoom ratio and zoom percentage so if apps are observing
-     * zoomRatio or zoomPercentage, they will get the update as well. If the percentage is not in
-     * the range [0..1], it won't modify current zoom percentage and zoom ratio. It is
-     * applications' duty to clamp the zoomPercentage within [0..1].
+     * <p>It modifies both current zoom ratio and linear zoom so if apps are observing
+     * zoomRatio or linearZoom, they will get the update as well. If the percentage is not in
+     * the range [0..1], it won't modify current linearZoom  and zoom ratio. It is
+     * applications' duty to clamp the linearZoom within [0..1].
      *
      * @return a {@link ListenableFuture} which is finished when current repeating request
-     *     result contains the requested zoom percentage. It fails with
+     *     result contains the requested linearZoom. It fails with
      *     {@link OperationCanceledException} if there is newer value being set or camera is closed.
-     *     If percentage is out of range, it fails with {@link IllegalArgumentException}.
+     *     If value is not in [0..1], it fails with {@link IllegalArgumentException}.
      */
     @NonNull
-    ListenableFuture<Void> setZoomPercentage(@FloatRange(from = 0f, to = 1f) float percentage) {
+    ListenableFuture<Void> setLinearZoom(@FloatRange(from = 0f, to = 1f) float linearZoom) {
         // Wrapping the whole method in synchronized block in case mActive is changed to false in
         // the middle of the method. To avoid the deadlock problem, we only perform variable
         // assignment in the setActive() synchronized block.
@@ -301,16 +301,16 @@ final class ZoomControl {
                         new OperationCanceledException("Camera is not active."));
             }
 
-            // If the requested percentage is out of range, it will not modify zoom value but
+            // If the requested linearZoom is out of range, it will not modify zoom value but
             // report IllegalArgumentException in returned ListenableFuture.
-            if (percentage > 1.0f || percentage < 0f) {
-                String outOfRangeDesc = "Requested zoomPercentage " + percentage + " is not within"
+            if (linearZoom > 1.0f || linearZoom < 0f) {
+                String outOfRangeDesc = "Requested linearZoom " + linearZoom + " is not within"
                         + " valid range [0..1]";
                 return Futures.immediateFailedFuture(new IllegalArgumentException(outOfRangeDesc));
             }
 
-            float ratio = getRatioByPercentage(percentage);
-            setLiveDataValue(mZoomPercentageLiveData, percentage);
+            float ratio = getRatioByPercentage(linearZoom);
+            setLiveDataValue(mLinearZoomLiveData, linearZoom);
             return setZoomRatioInternal(ratio, false);
         }
     }
@@ -374,7 +374,7 @@ final class ZoomControl {
     }
 
     /**
-     * Returns a {@link LiveData} of current zoom percentage which is in range [0..1].
+     * Returns a {@link LiveData} of current linearZoom which is in range [0..1].
      * Percentage 0 represents the maximum zoom while percentage 1.0 represents the maximum zoom.
      *
      * <p>Apps can either get immediate value via {@link LiveData#getValue()} (The value is never
@@ -385,8 +385,8 @@ final class ZoomControl {
      * @return a {@link LiveData} containing current zoom percentage.
      */
     @NonNull
-    LiveData<Float> getZoomPercentage() {
-        return mZoomPercentageLiveData;
+    LiveData<Float> getLinearZoom() {
+        return mLinearZoomLiveData;
     }
 
     private float getMaxDigitalZoom() {

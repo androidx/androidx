@@ -142,7 +142,7 @@ public interface CameraControlInternal extends CameraControl {
 
         @NonNull
         @Override
-        public ListenableFuture<Void> setZoomPercentage(float percentage) {
+        public ListenableFuture<Void> setLinearZoom(float linearZoom) {
             return Futures.immediateFuture(null);
         }
     };

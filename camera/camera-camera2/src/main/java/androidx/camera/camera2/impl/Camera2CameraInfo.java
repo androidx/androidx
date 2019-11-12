@@ -166,7 +166,7 @@ final class Camera2CameraInfo implements CameraInfoInternal {
 
     @NonNull
     @Override
-    public LiveData<Float> getZoomPercentage() {
-        return mZoomControl.getZoomPercentage();
+    public LiveData<Float> getLinearZoom() {
+        return mZoomControl.getLinearZoom();
     }
 }

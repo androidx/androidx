@@ -229,8 +229,8 @@ public final class ZoomControlDeviceTest {
 
     @UiThreadTest
     @Test
-    public void setZoomPercentageBy0_isSameAsMinRatio() {
-        mZoomControl.setZoomPercentage(0);
+    public void setLinearZoomBy0_isSameAsMinRatio() {
+        mZoomControl.setLinearZoom(0);
         float ratioAtPercentage0 = mZoomControl.getZoomRatio().getValue();
 
         mZoomControl.setZoomRatio(mZoomControl.getMinZoomRatio().getValue());
@@ -241,8 +241,8 @@ public final class ZoomControlDeviceTest {
 
     @UiThreadTest
     @Test
-    public void setZoomPercentageBy1_isSameAsMaxRatio() {
-        mZoomControl.setZoomPercentage(1);
+    public void setLinearZoomBy1_isSameAsMaxRatio() {
+        mZoomControl.setLinearZoom(1);
         float ratioAtPercentage1 = mZoomControl.getZoomRatio().getValue();
 
         mZoomControl.setZoomRatio(mZoomControl.getMaxZoomRatio().getValue());
@@ -253,14 +253,14 @@ public final class ZoomControlDeviceTest {
 
     @UiThreadTest
     @Test
-    public void setZoomPercentageBy0_5_isHalfCropWidth() throws InterruptedException {
-        mZoomControl.setZoomPercentage(1f);
+    public void setLinearZoomBy0_5_isHalfCropWidth() throws InterruptedException {
+        mZoomControl.setLinearZoom(1f);
         HandlerUtil.waitForLooperToIdle(mHandler);
         Rect cropRegionMaxZoom = getSessionCropRegion(mControlUpdateCallback);
 
         Rect cropRegionMinZoom = getSensorRect();
 
-        mZoomControl.setZoomPercentage(0.5f);
+        mZoomControl.setLinearZoom(0.5f);
         HandlerUtil.waitForLooperToIdle(mHandler);
         Rect cropRegionHalfZoom = getSessionCropRegion(mControlUpdateCallback);
 
@@ -270,14 +270,14 @@ public final class ZoomControlDeviceTest {
 
     @UiThreadTest
     @Test
-    public void setZoomPercentage_cropWidthChangedLinearly() throws InterruptedException {
+    public void setLinearZoom_cropWidthChangedLinearly() throws InterruptedException {
         // crop region in percentage == 0 is null, need to use sensor rect instead.
         Rect prevCropRegion = getSensorRect();
 
         float prevWidthDelta = 0;
         for (float percentage = 0.1f; percentage < 1.0f; percentage += 0.1f) {
 
-            mZoomControl.setZoomPercentage(percentage);
+            mZoomControl.setLinearZoom(percentage);
             HandlerUtil.waitForLooperToIdle(mHandler);
             Rect cropRegion = getSessionCropRegion(mControlUpdateCallback);
 
@@ -294,29 +294,29 @@ public final class ZoomControlDeviceTest {
 
     @UiThreadTest
     @Test
-    public void setZoomPercentage_largerThan1_zoomUnmodified() {
-        mZoomControl.setZoomPercentage(0.5f);
-        mZoomControl.setZoomPercentage(1.1f);
-        assertThat(mZoomControl.getZoomPercentage().getValue()).isEqualTo(0.5f);
+    public void setLinearZoom_largerThan1_zoomUnmodified() {
+        mZoomControl.setLinearZoom(0.5f);
+        mZoomControl.setLinearZoom(1.1f);
+        assertThat(mZoomControl.getLinearZoom().getValue()).isEqualTo(0.5f);
     }
 
     @Test
-    public void setZoomPercentage_largerThan1_outOfRangeExeception() {
-        ListenableFuture<Void> result = mZoomControl.setZoomPercentage(1.1f);
+    public void setLinearZoom_largerThan1_outOfRangeExeception() {
+        ListenableFuture<Void> result = mZoomControl.setLinearZoom(1.1f);
         assertThrowOutOfRangeExceptionOnListenableFuture(result);
     }
 
     @UiThreadTest
     @Test
-    public void setZoomPercentage_smallerThan0_zoomUnmodified() {
-        mZoomControl.setZoomPercentage(0.5f);
-        mZoomControl.setZoomPercentage(-0.1f);
-        assertThat(mZoomControl.getZoomPercentage().getValue()).isEqualTo(0.5f);
+    public void setLinearZoom_smallerThan0_zoomUnmodified() {
+        mZoomControl.setLinearZoom(0.5f);
+        mZoomControl.setLinearZoom(-0.1f);
+        assertThat(mZoomControl.getLinearZoom().getValue()).isEqualTo(0.5f);
     }
 
     @Test
-    public void setZoomPercentage_smallerThan0_outOfRangeExeception() {
-        ListenableFuture<Void> result = mZoomControl.setZoomPercentage(-0.1f);
+    public void setLinearZoom_smallerThan0_outOfRangeExeception() {
+        ListenableFuture<Void> result = mZoomControl.setLinearZoom(-0.1f);
         assertThrowOutOfRangeExceptionOnListenableFuture(result);
     }
 
@@ -324,7 +324,7 @@ public final class ZoomControlDeviceTest {
     @Test
     public void getterLiveData_defaultValueIsNonNull() {
         assertThat(mZoomControl.getZoomRatio().getValue()).isNotNull();
-        assertThat(mZoomControl.getZoomPercentage().getValue()).isNotNull();
+        assertThat(mZoomControl.getLinearZoom().getValue()).isNotNull();
         assertThat(mZoomControl.getMaxZoomRatio().getValue()).isNotNull();
         assertThat(mZoomControl.getMinZoomRatio().getValue()).isNotNull();
     }
@@ -378,9 +378,9 @@ public final class ZoomControlDeviceTest {
             }
         });
 
-        mZoomControl.setZoomPercentage(0.1f);
-        mZoomControl.setZoomPercentage(0.2f);
-        mZoomControl.setZoomPercentage(0.3f);
+        mZoomControl.setLinearZoom(0.1f);
+        mZoomControl.setLinearZoom(0.2f);
+        mZoomControl.setLinearZoom(0.3f);
 
         assertTrue(latch.await(500, TimeUnit.MILLISECONDS));
     }
@@ -395,7 +395,7 @@ public final class ZoomControlDeviceTest {
         FakeLifecycleOwner lifecycleOwner = new FakeLifecycleOwner();
         lifecycleOwner.startAndResume();
 
-        mZoomControl.getZoomPercentage().observe(lifecycleOwner, new Observer<Float>() {
+        mZoomControl.getLinearZoom().observe(lifecycleOwner, new Observer<Float>() {
             @Override
             public void onChanged(Float value) {
                 if (value == 0.1f) {
@@ -408,9 +408,9 @@ public final class ZoomControlDeviceTest {
             }
         });
 
-        mZoomControl.setZoomPercentage(0.1f);
-        mZoomControl.setZoomPercentage(0.2f);
-        mZoomControl.setZoomPercentage(0.3f);
+        mZoomControl.setLinearZoom(0.1f);
+        mZoomControl.setLinearZoom(0.2f);
+        mZoomControl.setLinearZoom(0.3f);
 
         assertTrue(latch1.await(500, TimeUnit.MILLISECONDS));
         assertTrue(latch2.await(500, TimeUnit.MILLISECONDS));
@@ -425,7 +425,7 @@ public final class ZoomControlDeviceTest {
         FakeLifecycleOwner lifecycleOwner = new FakeLifecycleOwner();
         lifecycleOwner.startAndResume();
 
-        mZoomControl.getZoomPercentage().observe(lifecycleOwner, new Observer<Float>() {
+        mZoomControl.getLinearZoom().observe(lifecycleOwner, new Observer<Float>() {
             @Override
             public void onChanged(Float value) {
                 if (value != 0f) {
@@ -451,7 +451,7 @@ public final class ZoomControlDeviceTest {
     @UiThreadTest
     @Test
     public void getZoomPercentageDefaultValue() {
-        assertThat(mZoomControl.getZoomPercentage().getValue()).isEqualTo(0);
+        assertThat(mZoomControl.getLinearZoom().getValue()).isEqualTo(0);
     }
 
     @UiThreadTest
@@ -484,12 +484,12 @@ public final class ZoomControlDeviceTest {
     @Test
     public void valueIsResetAfterInactive() {
         mZoomControl.setActive(true);
-        mZoomControl.setZoomPercentage(0.2f); // this will change ratio and percentage.
+        mZoomControl.setLinearZoom(0.2f); // this will change ratio and percentage.
 
         mZoomControl.setActive(false);
 
         assertThat(mZoomControl.getZoomRatio().getValue()).isEqualTo(
                 mZoomControl.DEFAULT_ZOOM_RATIO);
-        assertThat(mZoomControl.getZoomPercentage().getValue()).isEqualTo(0);
+        assertThat(mZoomControl.getLinearZoom().getValue()).isEqualTo(0);
     }
 }

@@ -654,7 +654,7 @@ public final class Camera2CameraControlTest {
         return new Rect(0, 0, rect.width(), rect.height());
     }
 
-    // Here we just test if setZoomRatio / setZoomPercentage is working. For thorough tests, we
+    // Here we just test if setZoomRatio / setLinearZoom is working. For thorough tests, we
     // do it on ZoomControlTest and ZoomControlRoboTest.
     @Test
     public void setZoomRatio_CropRegionIsUpdatedCorrectly() throws InterruptedException {
@@ -688,15 +688,15 @@ public final class Camera2CameraControlTest {
     }
 
     @Test
-    public void setZoomPercentage_CropRegionIsUpdatedCorrectly() throws InterruptedException {
+    public void setLinearZoom_CropRegionIsUpdatedCorrectly() throws InterruptedException {
         assumeTrue(isZoomSupported());
-        mCamera2CameraControl.setZoomPercentage(1.0f);
+        mCamera2CameraControl.setLinearZoom(1.0f);
         HandlerUtil.waitForLooperToIdle(mHandler);
 
         Rect cropRegionMaxZoom = getSessionCropRegion(mControlUpdateCallback);
         Rect cropRegionMinZoom = getSensorRect();
 
-        mCamera2CameraControl.setZoomPercentage(0.5f);
+        mCamera2CameraControl.setLinearZoom(0.5f);
 
         HandlerUtil.waitForLooperToIdle(mHandler);
 
@@ -725,9 +725,9 @@ public final class Camera2CameraControlTest {
     }
 
     @Test
-    public void setZoomPercentage_cameraControlInactive_operationCanceled() {
+    public void setLinearZoom_cameraControlInactive_operationCanceled() {
         mCamera2CameraControl.setActive(false);
-        ListenableFuture<Void> listenableFuture = mCamera2CameraControl.setZoomPercentage(0.0f);
+        ListenableFuture<Void> listenableFuture = mCamera2CameraControl.setLinearZoom(0.0f);
         try {
             listenableFuture.get(1000, TimeUnit.MILLISECONDS);
         } catch (ExecutionException e) {

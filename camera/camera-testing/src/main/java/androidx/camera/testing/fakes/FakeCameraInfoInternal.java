@@ -112,7 +112,7 @@ public final class FakeCameraInfoInternal implements CameraInfoInternal {
 
     @NonNull
     @Override
-    public LiveData<Float> getZoomPercentage() {
+    public LiveData<Float> getLinearZoom() {
         return mZoomPercentage;
     }
 }
