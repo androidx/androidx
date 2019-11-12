@@ -1114,10 +1114,20 @@ public class ImageCapture extends UseCase {
 
     /** Listener containing callbacks for image file I/O events. */
     public interface OnImageSavedCallback {
-        /** Called when an image has been successfully saved. */
+        /**
+         * Called when an image has been successfully saved.
+         *
+         * @param file The file object which the image is saved to
+         */
         void onImageSaved(@NonNull File file);
 
-        /** Called when an error occurs while attempting to save an image. */
+        /**
+         * Called when an error occurs while attempting to save an image.
+         *
+         * @param imageCaptureError The type of error composed by CameraX
+         * @param message           The error message composed by CameraX
+         * @param cause             The throwable from lower-layer error
+         */
         void onError(
                 @ImageCaptureError int imageCaptureError,
                 @NonNull String message,
@@ -1159,7 +1169,13 @@ public class ImageCapture extends UseCase {
             image.close();
         }
 
-        /** Callback for when an error occurred during image capture. */
+        /**
+         * Callback for when an error occurred during image capture.
+         *
+         * @param imageCaptureError The type of error composed by CameraX
+         * @param message           The error message composed by CameraX
+         * @param cause             The throwable from lower-layer error
+         */
         public void onError(@ImageCaptureError int imageCaptureError, @NonNull String message,
                 @Nullable Throwable cause) {
         }
