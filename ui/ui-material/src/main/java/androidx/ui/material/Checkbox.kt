@@ -53,13 +53,13 @@ import androidx.ui.graphics.StrokeCap
  * @param onCheckedChange callback to be invoked when checkbox is being clicked,
  * therefore the change of checked state in requested.
  * If `null`, Checkbox will appears in the [checked] state and remains disabled
- * @param color custom color for checkbox. By default [MaterialColors.secondary] will be used
+ * @param color custom color for checkbox
  */
 @Composable
 fun Checkbox(
     checked: Boolean,
     onCheckedChange: ((Boolean) -> Unit)?,
-    color: Color = +themeColor { secondary }
+    color: Color = (+MaterialTheme.colors()).secondary
 ) {
     TriStateCheckbox(
         value = ToggleableState(checked),
@@ -83,13 +83,13 @@ fun Checkbox(
  * @param onClick callback to be invoked when checkbox is being clicked,
  * therefore the change of ToggleableState state is requested.
  * If `null`, TriStateCheckbox appears in the [value] state and remains disabled
- * @param color custom color for checkbox. By default [MaterialColors.secondary] will be used
+ * @param color custom color for checkbox
  */
 @Composable
 fun TriStateCheckbox(
     value: ToggleableState,
     onClick: (() -> Unit)?,
-    color: Color = +themeColor { secondary }
+    color: Color = (+MaterialTheme.colors()).secondary
 ) {
     Wrap {
         Ripple(bounded = false) {
@@ -106,7 +106,7 @@ fun TriStateCheckbox(
 
 @Composable
 private fun DrawCheckbox(value: ToggleableState, activeColor: Color) {
-    val unselectedColor = (+themeColor { onSurface }).copy(alpha = UncheckedBoxOpacity)
+    val unselectedColor = (+MaterialTheme.colors()).onSurface.copy(alpha = UncheckedBoxOpacity)
     val definition = +memo(activeColor, unselectedColor) {
         generateTransitionDefinition(activeColor, unselectedColor)
     }

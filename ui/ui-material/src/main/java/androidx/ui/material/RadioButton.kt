@@ -85,7 +85,6 @@ fun RadioGroup(children: @Composable RadioGroupScope.() -> Unit) {
  * @param onSelectedChange callback to be invoked when RadioButton is clicked,
  * therefore the selection of this item is requested
  * @param radioColor color for RadioButtons when selected.
- * [MaterialColors.secondary] is used by default
  * @param textStyle parameters for text customization
  */
 @Composable
@@ -93,7 +92,7 @@ fun RadioGroup(
     options: List<String>,
     selectedOption: String?,
     onSelectedChange: (String) -> Unit,
-    radioColor: Color = +themeColor { secondary },
+    radioColor: Color = (+MaterialTheme.colors()).secondary,
     textStyle: TextStyle? = null
 ) {
     RadioGroup {
@@ -146,11 +145,10 @@ class RadioGroupScope internal constructor() {
      * Places [RadioButton] and [Text] inside the [Row].
      *
      * @param selected whether or not radio button in this item is selected
-     * @param onSelect callback to be invoked when your item is being clicked,
-     * therefore the selection of this item is requested. Not invoked if item is already selected
+     * @param onSelect callback to be invoked when your item is being clicked, therefore the
+     * selection of this item is requested. Not invoked if item is already selected
      * @param text to put as a label description of this item
-     * @param radioColor color for RadioButtons when selected.
-     * [MaterialColors.secondary] is used by default
+     * @param radioColor color for RadioButtons when selected
      * @param textStyle parameters for text customization
      */
     @Composable
@@ -158,7 +156,7 @@ class RadioGroupScope internal constructor() {
         selected: Boolean,
         onSelect: () -> Unit,
         text: String,
-        radioColor: Color = +themeColor { secondary },
+        radioColor: Color = (+MaterialTheme.colors()).secondary,
         textStyle: TextStyle? = null
     ) {
         RadioGroupItem(selected = selected, onSelect = onSelect) {
@@ -166,7 +164,10 @@ class RadioGroupScope internal constructor() {
                 Row(ExpandedWidth, mainAxisAlignment = MainAxisAlignment.Start) {
                     RadioButton(selected = selected, onSelect = onSelect, color = radioColor)
                     Padding(left = DefaultRadioLabelOffset) {
-                        Text(text = text, style = +themeTextStyle { body1.merge(textStyle) })
+                        Text(
+                            text = text,
+                            style = (+MaterialTheme.typography()).body1.merge(textStyle)
+                        )
                     }
                 }
             }
@@ -186,13 +187,13 @@ class RadioGroupScope internal constructor() {
  * @param selected boolean state for this button: either it is selected or not
  * @param onSelect callback to be invoked when RadioButton is being clicked,
  * therefore the selection of this item is requested. Not invoked if item is already selected
- * @param color optional color. [MaterialColors.secondary] is used by default
+ * @param color color of the RadioButton
  */
 @Composable
 fun RadioButton(
     selected: Boolean,
     onSelect: (() -> Unit)?,
-    color: Color = +themeColor { secondary }
+    color: Color = (+MaterialTheme.colors()).secondary
 ) {
     Wrap {
         Ripple(bounded = false) {
@@ -202,7 +203,7 @@ fun RadioButton(
                 Padding(padding = RadioButtonPadding) {
                     Container(width = RadioButtonSize, height = RadioButtonSize) {
                         val unselectedColor =
-                            (+themeColor { onSurface }).copy(alpha = UnselectedOpacity)
+                            (+MaterialTheme.colors()).onSurface.copy(alpha = UnselectedOpacity)
                         val definition = +memo(color, unselectedColor) {
                             generateTransitionDefinition(color, unselectedColor)
                         }

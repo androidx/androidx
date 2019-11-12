@@ -45,9 +45,9 @@ import androidx.ui.material.samples.SimpleBottomAppBarNoFab
 import androidx.ui.material.samples.SimpleTopAppBarNavIcon
 import androidx.ui.material.samples.SimpleTopAppBarNavIconWithActions
 import androidx.ui.material.surface.Surface
-import androidx.ui.material.themeTextStyle
 import androidx.ui.graphics.imageFromResource
 import androidx.ui.layout.ExpandedHeight
+import androidx.ui.material.MaterialTheme
 
 class AppBarActivity : MaterialDemoActivity() {
 
@@ -149,6 +149,6 @@ class AppBarActivity : MaterialDemoActivity() {
 
     @Composable
     private fun DemoText(text: String) {
-        Text(text, style = +themeTextStyle { h6 })
+        Text(text, style = (+MaterialTheme.typography()).h6)
     }
 }

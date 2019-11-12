@@ -28,8 +28,8 @@ import androidx.ui.layout.Spacing
 import androidx.ui.material.AlertDialog
 import androidx.ui.material.Button
 import androidx.ui.material.Divider
+import androidx.ui.material.MaterialTheme
 import androidx.ui.material.TextButtonStyle
-import androidx.ui.material.themeColor
 
 @Composable
 fun RallyAlertDialog(
@@ -46,7 +46,7 @@ fun RallyAlertDialog(
                 Column(crossAxisAlignment = CrossAxisAlignment.Stretch) {
                     Divider(
                         Spacing(left = 12.dp, right = 12.dp),
-                        color = (+themeColor { onSurface }).copy(alpha = .2f)
+                        color = (+MaterialTheme.colors()).onSurface.copy(alpha = 0.2f)
                     )
                     Button(text = buttonText, onClick = onDismiss, style = style)
                 }

@@ -17,7 +17,6 @@
 package androidx.ui.material
 
 import androidx.compose.Composable
-import androidx.compose.ambient
 import androidx.compose.unaryPlus
 import androidx.ui.core.Alignment
 import androidx.ui.core.CurrentTextStyleProvider
@@ -33,6 +32,8 @@ import androidx.ui.layout.HeightSpacer
 import androidx.ui.layout.MainAxisAlignment
 import androidx.ui.layout.Row
 import androidx.ui.layout.WidthSpacer
+import androidx.ui.material.AlertDialogButtonLayout.SideBySide
+import androidx.ui.material.AlertDialogButtonLayout.Stacked
 import androidx.ui.material.surface.Surface
 
 /**
@@ -53,9 +54,9 @@ import androidx.ui.material.surface.Surface
  * or pressing the back button.
  * @param title The title of the Dialog which should specify the purpose of the Dialog. The title
  * is not mandatory, because there may be sufficient information inside the [text]. Provided text
- * style will be [MaterialTypography.h6].
+ * style will be [Typography.h6].
  * @param text The text which presents the details regarding the Dialog's purpose. Provided text
- * style will be [MaterialTypography.body1].
+ * style will be [Typography.body1].
  * @param confirmButton A button which is meant to confirm a proposed action, thus resolving
  * what triggered the dialog.
  * @param dismissButton A button which is meant to dismiss the dialog.
@@ -97,9 +98,9 @@ fun AlertDialog(
  * or pressing the back button.
  * @param title The title of the Dialog which should specify the purpose of the Dialog. The title
  * is not mandatory, because there may be sufficient information inside the [text]. Provided text
- * style will be [MaterialTypography.h6].
+ * style will be [Typography.h6].
  * @param text The text which presents the details regarding the Dialog's purpose. Provided text
- * style will be [MaterialTypography.body1].
+ * style will be [Typography.body1].
  * @param buttons Function that emits the layout with the buttons
  */
 @Suppress("USELESS_CAST")
@@ -111,8 +112,8 @@ fun AlertDialog(
     buttons: @Composable() () -> Unit
 ) {
     // TODO: Find a cleaner way to pass the properties of the MaterialTheme
-    val currentColors = +ambient(Colors)
-    val currentTypography = +ambient(Typography)
+    val currentColors = +MaterialTheme.colors()
+    val currentTypography = +MaterialTheme.typography()
     Dialog(onCloseRequest = onCloseRequest) {
         MaterialTheme(colors = currentColors, typography = currentTypography) {
             Surface(shape = AlertDialogShape) {
@@ -123,7 +124,7 @@ fun AlertDialog(
                                 alignment = Alignment.CenterLeft,
                                 padding = TitlePadding
                             ) {
-                                val textStyle = +themeTextStyle { h6 }
+                                val textStyle = (+MaterialTheme.typography()).h6
                                 CurrentTextStyleProvider(textStyle, title)
                             }
                         } else {
@@ -133,7 +134,7 @@ fun AlertDialog(
                         }
 
                         Container(alignment = Alignment.CenterLeft, padding = TextPadding) {
-                            val textStyle = +themeTextStyle { body1 }
+                            val textStyle = (+MaterialTheme.typography()).body1
                             CurrentTextStyleProvider(textStyle, text)
                         }
                         HeightSpacer(height = TextToButtonsHeight)

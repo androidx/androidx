@@ -36,7 +36,7 @@ class TextColorsTest {
 
     @Test
     fun textColorForBackgroundUsesCorrectValues() {
-        val colors = MaterialColors(
+        val colors = ColorPalette(
             primary = Color(0),
             onPrimary = Color(1),
             secondary = Color(2),
@@ -51,20 +51,20 @@ class TextColorsTest {
         composeTestRule.setContent {
             MaterialTheme(colors = colors) {
                 assertEquals(
-                    +textColorForBackground(+themeColor { primary }),
-                    +themeColor { onPrimary }
+                    +textColorForBackground((+MaterialTheme.colors()).primary),
+                    (+MaterialTheme.colors()).onPrimary
                 )
                 assertEquals(
-                    +textColorForBackground(+themeColor { secondary }),
-                    +themeColor { onSecondary }
+                    +textColorForBackground((+MaterialTheme.colors()).secondary),
+                    (+MaterialTheme.colors()).onSecondary
                 )
                 assertEquals(
-                    +textColorForBackground(+themeColor { background }),
-                    +themeColor { onBackground }
+                    +textColorForBackground((+MaterialTheme.colors()).background),
+                    (+MaterialTheme.colors()).onBackground
                 )
                 assertEquals(
-                    +textColorForBackground(+themeColor { surface }),
-                    +themeColor { onSurface }
+                    +textColorForBackground((+MaterialTheme.colors()).surface),
+                    (+MaterialTheme.colors()).onSurface
                 )
                 assertNull(+textColorForBackground(Color(100)))
             }

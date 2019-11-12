@@ -18,9 +18,9 @@ package androidx.ui.material.studies
 
 import androidx.ui.layout.FlexColumn
 import androidx.ui.material.surface.Surface
-import androidx.ui.material.themeColor
 import androidx.compose.Composable
 import androidx.compose.unaryPlus
+import androidx.ui.material.MaterialTheme
 
 /**
  * This file contains Material components that are needed to build the Rally app and not
@@ -35,7 +35,7 @@ fun Scaffold(appBar: @Composable() () -> Unit, children: @Composable() () -> Uni
             appBar()
         }
         expanded(flex = 1.0f) {
-            Surface(color = +themeColor { background }) {
+            Surface(color = (+MaterialTheme.colors()).surface) {
                 children()
             }
         }

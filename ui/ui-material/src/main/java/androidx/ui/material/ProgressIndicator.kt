@@ -54,13 +54,12 @@ import kotlin.math.max
  *
  * @param progress The progress of this progress indicator, where 0.0 represents no progress and 1.0
  * represents full progress
- * @param color The color of the progress indicator. [MaterialColors.primary] is used when no color
- * is provided
+ * @param color The color of the progress indicator.
  */
 @Composable
 fun LinearProgressIndicator(
     @FloatRange(from = 0.0, to = 1.0) progress: Float,
-    color: Color = +themeColor { primary }
+    color: Color = (+MaterialTheme.colors()).primary
 ) {
     DeterminateProgressIndicator(progress = progress) {
         Wrap {
@@ -83,11 +82,10 @@ fun LinearProgressIndicator(
  * An indeterminate linear progress indicator that represents continual progress without a defined
  * start or end point.
  *
- * @param color The color of the progress indicator. [MaterialColors.primary] is used when no color
- * is provided
+ * @param color The color of the progress indicator.
  */
 @Composable
-fun LinearProgressIndicator(color: Color = +themeColor { primary }) {
+fun LinearProgressIndicator(color: Color = (+MaterialTheme.colors()).primary) {
     Wrap {
         Container(width = LinearIndicatorWidth, height = StrokeWidth) {
             val paint = +paint(color, StrokeCap.butt)
@@ -158,13 +156,12 @@ private fun drawLinearIndicatorBackground(
  *
  * @param progress The progress of this progress indicator, where 0.0 represents no progress and 1.0
  * represents full progress
- * @param color The color of the progress indicator. [MaterialColors.primary] is used when no color
- * is provided
+ * @param color The color of the progress indicator.
  */
 @Composable
 fun CircularProgressIndicator(
     @FloatRange(from = 0.0, to = 1.0) progress: Float,
-    color: Color = +themeColor { primary }
+    color: Color = (+MaterialTheme.colors()).primary
 ) {
     DeterminateProgressIndicator(progress = progress) {
         CircularIndicatorContainer {
@@ -189,11 +186,10 @@ fun CircularProgressIndicator(
  * An indeterminate circular progress indicator that represents continual progress without a defined
  * start or end point.
  *
- * @param color The color of the progress indicator. [MaterialColors.primary] is used when no color
- * is provided
+ * @param color The color of the progress indicator.
  */
 @Composable
-fun CircularProgressIndicator(color: Color = +themeColor { primary }) {
+fun CircularProgressIndicator(color: Color = (+MaterialTheme.colors()).primary) {
     CircularIndicatorContainer {
         val paint = +paint(color, StrokeCap.square)
         Transition(definition = CircularIndeterminateTransition, toState = 1) { state ->

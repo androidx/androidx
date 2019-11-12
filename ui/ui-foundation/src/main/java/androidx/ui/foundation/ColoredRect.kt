@@ -17,13 +17,12 @@
 package androidx.ui.foundation
 
 import androidx.compose.Composable
-import androidx.compose.trace
 import androidx.ui.core.Dp
 import androidx.ui.core.Modifier
 import androidx.ui.foundation.shape.DrawShape
 import androidx.ui.foundation.shape.RectangleShape
-import androidx.ui.graphics.Color
 import androidx.ui.graphics.Brush
+import androidx.ui.graphics.Color
 import androidx.ui.graphics.SolidColor
 import androidx.ui.layout.Container
 

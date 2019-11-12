@@ -21,13 +21,12 @@ import android.os.Bundle
 import androidx.compose.Composable
 import androidx.ui.core.Alignment
 import androidx.ui.core.dp
-import androidx.ui.foundation.shape.border.Border
 import androidx.ui.foundation.shape.GenericShape
+import androidx.ui.foundation.shape.border.Border
 import androidx.ui.graphics.Color
 import androidx.ui.layout.FixedSpacer
 import androidx.ui.layout.Wrap
 import androidx.ui.material.Button
-import androidx.ui.material.MaterialTheme
 import androidx.ui.material.OutlinedButtonStyle
 
 class CustomShapeActivity : MaterialDemoActivity() {
@@ -39,13 +38,6 @@ class CustomShapeActivity : MaterialDemoActivity() {
 
     @Composable
     override fun materialContent() {
-        CustomShapeDemo()
-    }
-}
-
-@Composable
-fun CustomShapeDemo() {
-    MaterialTheme {
         Wrap(Alignment.Center) {
             Button(
                 onClick = {},

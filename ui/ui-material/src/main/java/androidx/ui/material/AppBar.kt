@@ -77,14 +77,13 @@ import kotlin.math.sqrt
  * @sample androidx.ui.material.samples.SimpleTopAppBarNavIcon
  *
  * @param title The title to be displayed in the center of the TopAppBar
- * @param color An optional color for the TopAppBar. By default [MaterialColors.primary] will be
- * used.
+ * @param color An optional color for the TopAppBar
  * @param navigationIcon The navigation icon displayed at the start of the TopAppBar
  */
 @Composable
 fun TopAppBar(
     title: @Composable() () -> Unit,
-    color: Color = +themeColor { primary },
+    color: Color = (+MaterialTheme.colors()).primary,
     navigationIcon: @Composable() (() -> Unit)? = null
 ) {
     BaseTopAppBar(
@@ -92,7 +91,7 @@ fun TopAppBar(
         startContent = navigationIcon,
         title = {
             // Text color comes from the underlying Surface
-            CurrentTextStyleProvider(value = +themeTextStyle { h6 }, children = title)
+            CurrentTextStyleProvider(value = (+MaterialTheme.typography()).h6, children = title)
         },
         endContent = null
     )
@@ -108,8 +107,7 @@ fun TopAppBar(
  * @sample androidx.ui.material.samples.SimpleTopAppBarNavIconWithActions
  *
  * @param title The title to be displayed in the center of the TopAppBar
- * @param color An optional color for the TopAppBar. By default [MaterialColors.primary] will be
- * used.
+ * @param color An optional color for the TopAppBar
  * @param navigationIcon The navigation icon displayed at the start of the TopAppBar
  * @param actionData A list of data representing the actions to be displayed at the end of
  * the TopAppBar. Any remaining actions that do not fit on the TopAppBar should typically be
@@ -126,7 +124,7 @@ fun TopAppBar(
 fun <T> TopAppBar(
     title: @Composable() () -> Unit,
     actionData: List<T>,
-    color: Color = +themeColor { primary },
+    color: Color = (+MaterialTheme.colors()).primary,
     navigationIcon: @Composable() (() -> Unit)? = null,
     action: @Composable() (T) -> Unit
     // TODO: support overflow menu here with the remainder of the list
@@ -136,7 +134,7 @@ fun <T> TopAppBar(
         startContent = navigationIcon,
         title = {
             // Text color comes from the underlying Surface
-            CurrentTextStyleProvider(value = +themeTextStyle { h6 }, children = title)
+            CurrentTextStyleProvider(value = (+MaterialTheme.typography()).h6, children = title)
         },
         endContent = getActions(actionData, MaxIconsInTopAppBar, action)
     )
@@ -144,7 +142,7 @@ fun <T> TopAppBar(
 
 @Composable
 private fun BaseTopAppBar(
-    color: Color = +themeColor { primary },
+    color: Color = (+MaterialTheme.colors()).primary,
     startContent: @Composable() (() -> Unit)?,
     title: @Composable() () -> Unit,
     endContent: @Composable() (() -> Unit)?
@@ -261,8 +259,7 @@ object BottomAppBar {
  *
  * For examples using a cutout FAB, see [FabConfiguration], which controls the shape of the cutout.
  *
- * @param color An optional color for the BottomAppBar. By default [MaterialColors.primary]
- * will be used.
+ * @param color An optional color for the BottomAppBar
  * @param navigationIcon The navigation icon displayed in the BottomAppBar. Note that if
  * [fabConfiguration] is [FabPosition.End] aligned, this parameter must be null / not set.
  * @param fabConfiguration The [FabConfiguration] that controls how / where
@@ -280,7 +277,7 @@ object BottomAppBar {
  */
 @Composable
 fun <T> BottomAppBar(
-    color: Color = +themeColor { primary },
+    color: Color = (+MaterialTheme.colors()).primary,
     navigationIcon: @Composable() (() -> Unit)? = null,
     fabConfiguration: FabConfiguration? = null,
     actionData: List<T> = emptyList(),
@@ -604,7 +601,7 @@ internal fun calculateRoundedEdgeIntercept(
 
 @Composable
 private fun BaseBottomAppBar(
-    color: Color = +themeColor { primary },
+    color: Color = (+MaterialTheme.colors()).primary,
     startContent: @Composable() (() -> Unit)?,
     fabContainer: @Composable() (() -> Unit)?,
     shape: Shape = RectangleShape,

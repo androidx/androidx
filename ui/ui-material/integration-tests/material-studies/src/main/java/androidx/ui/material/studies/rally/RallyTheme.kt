@@ -17,15 +17,12 @@
 package androidx.ui.material.studies.rally
 
 import androidx.compose.Composable
-import androidx.compose.ambient
 import androidx.compose.unaryPlus
 import androidx.ui.core.em
 import androidx.ui.core.sp
 import androidx.ui.graphics.Color
-import androidx.ui.material.Colors
-import androidx.ui.material.MaterialColors
+import androidx.ui.material.ColorPalette
 import androidx.ui.material.MaterialTheme
-import androidx.ui.material.MaterialTypography
 import androidx.ui.material.Typography
 import androidx.ui.text.TextStyle
 import androidx.ui.text.font.FontFamily
@@ -40,14 +37,14 @@ val rallyBlue = Color(0xFF72DEFF)
 
 @Composable
 fun RallyTheme(children: @Composable() () -> Unit) {
-    val colors = MaterialColors(
+    val colors = ColorPalette(
         primary = rallyGreen,
-        surface = Color(0xFF33333D),
+        surface = Color(0xFF26282F),
         onSurface = Color.White,
         background = Color(0xFF26282F),
         onBackground = Color.White
     )
-    val typography = MaterialTypography(
+    val typography = Typography(
         h1 = TextStyle(fontFamily = FontFamily("RobotoCondensed"),
             fontWeight = FontWeight.W100,
             fontSize = 96.sp),
@@ -94,12 +91,12 @@ fun RallyTheme(children: @Composable() () -> Unit) {
 
 @Composable
 fun RallyDialogThemeOverlay(children: @Composable() () -> Unit) {
-    val dialogColors = (+ambient(Colors)).copy(
+    val dialogColors = ColorPalette(
         primary = Color.White,
         surface = Color(0xFF1E1E1E),
         onSurface = Color.White
     )
-    val currentTypography = +ambient(Typography)
+    val currentTypography = +MaterialTheme.typography()
     val dialogTypography = currentTypography.copy(
         body1 = currentTypography.body1.copy(
             fontFamily = FontFamily("RobotoCondensed"),
