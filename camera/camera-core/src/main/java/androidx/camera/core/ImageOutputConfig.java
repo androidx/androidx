@@ -66,7 +66,7 @@ public interface ImageOutputConfig {
      * @hide
      */
     @RestrictTo(Scope.LIBRARY_GROUP)
-    Option<AspectRatio> OPTION_TARGET_ASPECT_RATIO =
+    Option<Integer> OPTION_TARGET_ASPECT_RATIO =
             Option.create("camerax.core.imageOutput.targetAspectRatio", AspectRatio.class);
 
     /**
@@ -151,7 +151,7 @@ public interface ImageOutputConfig {
      * configuration.
      */
     @Nullable
-    AspectRatio getTargetAspectRatio(@Nullable AspectRatio valueIfMissing);
+    Integer getTargetAspectRatio(@Nullable Integer valueIfMissing);
 
     /**
      * Retrieves the aspect ratio of the target intending to use images from this configuration.
@@ -159,8 +159,8 @@ public interface ImageOutputConfig {
      * @return The stored value, if it exists in this configuration.
      * @throws IllegalArgumentException if the option does not exist in this configuration.
      */
-    @NonNull
-    AspectRatio getTargetAspectRatio();
+    @AspectRatio
+    int getTargetAspectRatio();
 
     /**
      * Retrieves the rotation of the target intending to use images from this configuration.
@@ -333,7 +333,7 @@ public interface ImageOutputConfig {
          * @return The current Builder.
          */
         @NonNull
-        B setTargetAspectRatio(@NonNull AspectRatio aspectRatio);
+        B setTargetAspectRatio(@AspectRatio int aspectRatio);
 
         /**
          * Sets the rotation of the intended target for images from this configuration.
