@@ -1004,14 +1004,13 @@ public class FragmentActivity extends ComponentActivity implements
             if (fragment == null) {
                 continue;
             }
-            if (fragment.getLifecycle().getCurrentState().isAtLeast(Lifecycle.State.STARTED)) {
-                fragment.mLifecycleRegistry.setCurrentState(state);
-                hadNotMarked = true;
-            }
-
             if (fragment.getHost() != null) {
                 FragmentManager childFragmentManager = fragment.getChildFragmentManager();
                 hadNotMarked |= markState(childFragmentManager, state);
+            }
+            if (fragment.getLifecycle().getCurrentState().isAtLeast(Lifecycle.State.STARTED)) {
+                fragment.mLifecycleRegistry.setCurrentState(state);
+                hadNotMarked = true;
             }
         }
         return hadNotMarked;

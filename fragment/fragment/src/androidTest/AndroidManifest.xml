@@ -44,6 +44,7 @@
         <activity android:name="androidx.fragment.app.ContainerViewActivity"/>
         <activity android:name="androidx.fragment.app.OnBackPressedFragmentActivity"/>
         <activity android:name="androidx.fragment.app.OnResumeTestActivity" />
+        <activity android:name="androidx.fragment.app.FragmentArchLifecycleActivity" />
         <activity android:name="androidx.fragment.app.FragmentSavedStateActivity" />
         <activity android:name="androidx.fragment.app.FragmentFinishEarlyTestActivity" />
         <activity android:name="androidx.fragment.app.SimpleContainerActivity" />
