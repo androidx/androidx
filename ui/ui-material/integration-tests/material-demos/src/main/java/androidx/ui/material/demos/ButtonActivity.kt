@@ -66,9 +66,9 @@ class ButtonActivity : MaterialDemoActivity() {
                 TextButtonSample(onClick)
 
                 Button(
-                    "SECONDARY COLOR",
-                    onClick,
-                    ContainedButtonStyle((+MaterialTheme.colors()).secondary))
+                    text = "SECONDARY COLOR",
+                    onClick = onClick,
+                    style = ContainedButtonStyle((+MaterialTheme.colors()).secondary))
 
                 ButtonWithTextSample(onClick)
 
