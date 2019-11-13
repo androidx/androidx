@@ -25,6 +25,7 @@ import androidx.compose.unaryPlus
 import androidx.ui.animation.ColorPropKey
 import androidx.ui.animation.Transition
 import androidx.ui.core.Draw
+import androidx.ui.core.Modifier
 import androidx.ui.core.dp
 import androidx.ui.engine.geometry.Offset
 import androidx.ui.engine.geometry.RRect
@@ -36,7 +37,6 @@ import androidx.ui.foundation.selection.TriStateToggleable
 import androidx.ui.graphics.Color
 import androidx.ui.layout.Container
 import androidx.ui.layout.Padding
-import androidx.ui.layout.Wrap
 import androidx.ui.material.ripple.Ripple
 import androidx.ui.graphics.Paint
 import androidx.ui.graphics.PaintingStyle
@@ -53,18 +53,21 @@ import androidx.ui.graphics.StrokeCap
  * @param onCheckedChange callback to be invoked when checkbox is being clicked,
  * therefore the change of checked state in requested.
  * If `null`, Checkbox will appears in the [checked] state and remains disabled
+ * @param modifier Modifier to be applied to the layout of the checkbox
  * @param color custom color for checkbox
  */
 @Composable
 fun Checkbox(
     checked: Boolean,
     onCheckedChange: ((Boolean) -> Unit)?,
+    modifier: Modifier = Modifier.None,
     color: Color = (+MaterialTheme.colors()).secondary
 ) {
     TriStateCheckbox(
         value = ToggleableState(checked),
         onClick = onCheckedChange?.let { { it(!checked) } },
-        color = color
+        color = color,
+        modifier = modifier
     )
 }
 
@@ -83,15 +86,17 @@ fun Checkbox(
  * @param onClick callback to be invoked when checkbox is being clicked,
  * therefore the change of ToggleableState state is requested.
  * If `null`, TriStateCheckbox appears in the [value] state and remains disabled
+ * @param modifier Modifier to be applied to the layout of the checkbox
  * @param color custom color for checkbox
  */
 @Composable
 fun TriStateCheckbox(
     value: ToggleableState,
     onClick: (() -> Unit)?,
+    modifier: Modifier = Modifier.None,
     color: Color = (+MaterialTheme.colors()).secondary
 ) {
-    Wrap {
+    Container(modifier) {
         Ripple(bounded = false) {
             TriStateToggleable(value = value, onToggle = onClick) {
                 Padding(padding = CheckboxDefaultPadding) {
