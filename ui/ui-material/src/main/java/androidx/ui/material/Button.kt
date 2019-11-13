@@ -22,6 +22,7 @@ import androidx.compose.Immutable
 import androidx.compose.unaryPlus
 import androidx.ui.core.CurrentTextStyleProvider
 import androidx.ui.core.Dp
+import androidx.ui.core.Modifier
 import androidx.ui.core.Text
 import androidx.ui.core.dp
 import androidx.ui.engine.geometry.Shape
@@ -173,11 +174,13 @@ fun TextButtonStyle(
  *
  * @sample androidx.ui.material.samples.ButtonSample
  *
+ * @param modifier Modifier to be applied to the button.
  * @param onClick Will be called when the user clicks the button. The button will be disabled if it is null.
  * @param style Contains the styling parameters for the button.
  */
 @Composable
 fun Button(
+    modifier: Modifier = Modifier.None,
     onClick: (() -> Unit)? = null,
     style: ButtonStyle = ContainedButtonStyle(),
     children: @Composable() () -> Unit
@@ -186,7 +189,8 @@ fun Button(
         shape = style.shape,
         color = style.color,
         border = style.border,
-        elevation = style.elevation
+        elevation = style.elevation,
+        modifier = modifier
     ) {
         Ripple(bounded = true, color = style.rippleColor, enabled = onClick != null) {
             Clickable(onClick = onClick) {
@@ -217,16 +221,18 @@ fun Button(
  * There is a different overload for this component that takes a lambda of customizable content.
  *
  * @param text The text to display.
+ * @param modifier Modifier to be applied to the button.
  * @param onClick Will be called when the user clicks the button. The button will be disabled if it is null.
  * @param style Contains the styling parameters for the button.
  */
 @Composable
 fun Button(
     text: String,
+    modifier: Modifier = Modifier.None,
     onClick: (() -> Unit)? = null,
     style: ButtonStyle = ContainedButtonStyle()
 ) {
-    Button(style = style, onClick = onClick) {
+    Button(modifier = modifier, style = style, onClick = onClick) {
         Text(text = text)
     }
 }
