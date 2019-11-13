@@ -37,7 +37,7 @@ import java.util.concurrent.ExecutionException;
  */
 public final class PreviewSurfaceProviders {
 
-    private static final String TAG = "PreviewUtil";
+    private static final String TAG = "PreviewSurfaceProviders";
 
     private PreviewSurfaceProviders() {
     }
@@ -55,7 +55,7 @@ public final class PreviewSurfaceProviders {
      *
      * <pre><code>
      * preview.setPreviewSurfaceCallback(createPreviewSurfaceCallback(
-     *         new PreviewUtil.SurfaceTextureCallback() {
+     *         new PreviewSurfaceProviders.SurfaceTextureCallback() {
      *             &#64;Override
      *             public void onSurfaceTextureReady(@NonNull SurfaceTexture surfaceTexture) {
      *                 // Maybe remove and re-add the TextureView to its parent.
@@ -125,7 +125,8 @@ public final class PreviewSurfaceProviders {
     public interface SurfaceTextureCallback {
 
         /**
-         * Called when {@link SurfaceTexture} is ready to be set.
+         * Called when a {@link Preview} {@link SurfaceTexture} has been created and is ready to
+         * be used by the application.
          *
          * <p> This is called when the preview {@link SurfaceTexture} is created and ready. The
          * most common usage is to set it to a {@link TextureView}. Example:

@@ -17,7 +17,6 @@
 package androidx.camera.core;
 
 import android.graphics.ImageFormat;
-import android.graphics.PixelFormat;
 import android.graphics.SurfaceTexture;
 import android.media.ImageReader;
 import android.media.MediaCodec;
@@ -48,9 +47,45 @@ import java.util.concurrent.Executor;
 /**
  * A use case that provides a camera preview stream for displaying on-screen.
  *
- * <p>The preview stream is connected to the {@link Surface} provided
- * via{@link PreviewSurfaceCallback}. The application decides how the {@link Surface} is shown,
+ * <p>The preview stream is connected to the {@link Surface} provided via
+ * {@link PreviewSurfaceCallback}. The application decides how the {@link Surface} is shown,
  * and is responsible for managing the {@link Surface} lifecycle after providing it.
+ *
+ * <p> To display the preview with the correct orientation, app needs to take different actions
+ * based on the source of the Surface. If the {@link Surface} is backed by a {@link SurfaceView},
+ * it will always be in the device's display orientation. If the {@link Surface} is backed by
+ * {@link ImageReader}, {@link MediaCodec} or other objects, it's the application's
+ * responsibility to calculate the rotation. If the {@link Surface} is backed by a
+ * {@link SurfaceTexture}, {@link SurfaceTexture#getTransformMatrix(float[])} can be used to
+ * transform the preview to natural orientation. The value is available after a frame is pushed
+ * to the {@link SurfaceTexture} and its
+ * {@link SurfaceTexture.OnFrameAvailableListener#onFrameAvailable(SurfaceTexture)} has been called.
+ * {@link TextureView} handles this automatically and always puts the preview in the
+ * natural orientation. To further transform the {@link TextureView} to display orientation,
+ * the app needs to apply the current display rotation. Example:
+ * <pre>
+ *     <code>
+ *         switch (getWindowManager().getDefaultDisplay().getRotation()) {
+ *             case Surface.ROTATION_0:
+ *                 displayRotation = 0;
+ *                 break;
+ *             case Surface.ROTATION_90:
+ *                 displayRotation = 90;
+ *                 break;
+ *             case Surface.ROTATION_180:
+ *                 displayRotation = 180;
+ *                 break;
+ *             case Surface.ROTATION_270:
+ *                 displayRotation = 270;
+ *                 break;
+ *             default:
+ *                 throw new UnsupportedOperationException(
+ *                         "Unsupported display rotation: " + displayRotation);
+ *         }
+ *         matrix.postRotate(-displayRotation, centerX, centerY);
+ *         textureView.setTransform(matrix);
+ *     </code>
+ * </pre>
  */
 public class Preview extends UseCase {
     /**
@@ -175,8 +210,8 @@ public class Preview extends UseCase {
      * data.
      *
      * <p> To displaying preview with a {@link TextureView}, consider using
-     * {@link PreviewSurfaceProviders
-     * #createSurfaceTextureProvider(PreviewSurfaceProviders.SurfaceTextureCallback)}
+     * {@link PreviewSurfaceProviders#createSurfaceTextureProvider(
+     *PreviewSurfaceProviders.SurfaceTextureCallback)}
      * to create the callback.
      *
      * @return the last set callback or {@code null} if no listener is set
@@ -195,8 +230,8 @@ public class Preview extends UseCase {
      * data.
      *
      * <p> To displaying preview with a {@link TextureView}, consider using
-     * {@link PreviewSurfaceProviders
-     * #createSurfaceTextureProvider(PreviewSurfaceProviders.SurfaceTextureCallback)}
+     * {@link PreviewSurfaceProviders#createSurfaceTextureProvider(
+     *PreviewSurfaceProviders.SurfaceTextureCallback)}
      * to create the callback.
      *
      * @param previewSurfaceCallback PreviewSurfaceCallback that provides a Preview.
@@ -369,31 +404,27 @@ public class Preview extends UseCase {
 
 
     /**
-     * A callback to access the Preview Surface.
+     * A callback for the application to provide a {@link Surface} to CameraX.
+     *
+     * <p> This interface is implemented by the application to provide a {@link Surface}, and then
+     * called by CameraX when a preview output Surface is needed or is no longer in use by CameraX.
+     *
+     * @see Preview#setPreviewSurfaceCallback(PreviewSurfaceCallback)
      */
     public interface PreviewSurfaceCallback {
 
         /**
-         * Creates preview output Surface with the given resolution and format.
+         * For the application to create an output Surface with the given resolution.
          *
-         * <p> This is called when Preview needs a valid {@link Surface}. e.g. when the Preview is
-         * bound to lifecycle. If the {@link Surface} is backed by a {@link SurfaceTexture}, both
-         * the {@link Surface} and the {@link ListenableFuture} need to be recreated each time this
-         * is invoked. The implementer is also responsible to hold a reference to the
-         * {@link SurfaceTexture} since the weak reference from {@link Surface} does not prevent
-         * it to be garbage collected. If the {@link Surface} backed by a {@link SurfaceView},
-         * the {@link PixelFormat} should always be the default {@link PixelFormat#OPAQUE}.
-         *
-         * <p> To display the preview with the correct orientation, if the {@link Surface} is
-         * backed by a {@link SurfaceTexture}, {@link SurfaceTexture#getTransformMatrix(float[])}
-         * can be used to transform the preview to natural orientation ({@link TextureView}
-         * handles this automatically); if the {@link Surface} is backed by a {@link SurfaceView}
-         * , it will always be in display orientation; for {@link Surface} backed by
-         * {@link ImageReader}, {@link MediaCodec} or other objects, it's implementer's
-         * responsibility to calculate the rotation.
+         * <p> This is called when {@link Preview} needs a valid {@link Surface}. e.g. when the
+         * {@link Preview} is bound to lifecycle. If the {@link Surface} is backed by a
+         * {@link SurfaceTexture}, both the {@link Surface} and the {@link ListenableFuture} need
+         * to be recreated each time this is invoked. The application is also responsible to hold
+         * a reference to the {@link SurfaceTexture} since the weak reference from
+         * {@link Surface} does not prevent it to be garbage collected.
          *
          * <p> It's most common to use it with a {@link SurfaceView} or a {@link TextureView}.
-         * For {@link TextureView}, see {@link PreviewSurfaceProviders} for creating {@link Surface}
+         * For {@link TextureView}, {@link PreviewSurfaceProviders} for creating {@link Surface}
          * backed by a {@link SurfaceTexture}. For {@link SurfaceView}, the creation is in the
          * hands of the {@link SurfaceView}. Use {@link CallbackToFutureAdapter} to wait for the
          * creation of the {@link Surface} in {@link android.view.SurfaceHolder.Callback
@@ -423,8 +454,9 @@ public class Preview extends UseCase {
          * }
          * </code></pre>
          *
-         * @param resolution  the resolution required by CameraX.
-         * @return A ListenableFuture that contains the implementer created Surface.
+         * @param resolution the resolution of the {@link Surface} to create. The value is
+         *                   based on the coordinate system of the image sensor.
+         * @return A ListenableFuture that contains the application created Surface.
          */
         @NonNull
         ListenableFuture<Surface> createSurfaceFuture(@NonNull Size resolution);
@@ -434,7 +466,7 @@ public class Preview extends UseCase {
          *
          * <p> This method is called when the {@link Surface} previously returned from
          * {@link #createSurfaceFuture(Size)} is no longer being used by the camera system, and
-         * it's safe to be released during or after this is called. The implementer is
+         * it's safe to be released during or after this is called. The application is
          * responsible to release the {@link Surface} when it's also no longer being used by the
          * app.
          *
