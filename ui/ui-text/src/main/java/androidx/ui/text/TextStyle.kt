@@ -20,6 +20,7 @@ import androidx.ui.core.Em
 import androidx.ui.core.Sp
 import androidx.ui.core.em
 import androidx.ui.core.isInherit
+import androidx.ui.core.lerp
 import androidx.ui.core.sp
 import androidx.ui.graphics.Color
 import androidx.ui.graphics.Shadow
@@ -113,22 +114,6 @@ data class TextStyle(
     }
 }
 
-private fun lerpColor(a: Color?, b: Color?, t: Float): Color? {
-    if (a == null && b == null) {
-        return null
-    }
-    val start = a ?: b!!.copy(alpha = 0f)
-    val end = b ?: a!!.copy(alpha = 0f)
-    return lerp(start, end, t)
-}
-
-private fun lerpFloat(a: Float?, b: Float?, t: Float, default: Float = 0f): Float? {
-    if (a == null && b == null) return null
-    val start = a ?: default
-    val end = b ?: default
-    return lerp(start, end, t)
-}
-
 /**
  * @param a An sp value. Maybe [Sp.Inherit]
  * @param b An sp value. Maybe [Sp.Inherit]
@@ -140,14 +125,7 @@ private fun lerpSp(a: Sp, b: Sp, t: Float, default: Sp = 0f.sp): Sp {
     return androidx.ui.core.lerp(start, end, t)
 }
 
-private fun lerpEm(a: Em?, b: Em?, t: Float, default: Em = 0f.em): Em? {
-    if (a == null && b == null) return null
-    val start = a ?: default
-    val end = b ?: default
-    return androidx.ui.core.lerp(start, end, t)
-}
-
-private fun <T> lerpDiscrete(a: T?, b: T?, t: Float): T? = if (t < 0.5) a else b
+private fun <T> lerpDiscrete(a: T, b: T, t: Float): T = if (t < 0.5) a else b
 
 /**
  * Interpolate between two text styles.
@@ -162,56 +140,25 @@ private fun <T> lerpDiscrete(a: T?, b: T?, t: Float): T? = if (t < 0.5) a else b
  * between [start] and [stop]. The interpolation can be extrapolated beyond 0.0 and
  * 1.0, so negative values and values greater than 1.0 are valid.
  */
-fun lerp(start: TextStyle? = null, stop: TextStyle? = null, fraction: Float): TextStyle? {
-    val aIsNull = start == null
-    val bIsNull = stop == null
-
-    if (aIsNull && bIsNull) return null
-
-    if (start == null) {
-        val newB = stop?.copy() ?: TextStyle()
-        return if (fraction < 0.5) {
-            TextStyle(
-                color = lerpColor(null, newB.color, fraction),
-                fontWeight = lerp(null, newB.fontWeight, fraction)
-            )
-        } else {
-            newB.copy(
-                color = lerpColor(null, newB.color, fraction),
-                fontWeight = lerp(null, newB.fontWeight, fraction)
-            )
-        }
-    }
-
-    if (stop == null) {
-        return if (fraction < 0.5) {
-            start.copy(
-                color = lerpColor(start.color, null, fraction),
-                fontWeight = lerp(start.fontWeight, null, fraction)
-            )
-        } else {
-            TextStyle(
-                color = lerpColor(start.color, null, fraction),
-                fontWeight = lerp(start.fontWeight, null, fraction)
-            )
-        }
-    }
-
+fun lerp(start: TextStyle, stop: TextStyle, fraction: Float): TextStyle {
     return TextStyle(
-        color = lerpColor(start.color, stop.color, fraction),
+        color = lerp(start.color ?: Color.Black, stop.color ?: Color.Black, fraction),
         fontFamily = lerpDiscrete(
             start.fontFamily,
             stop.fontFamily,
             fraction
         ),
         fontSize = lerpSp(start.fontSize, stop.fontSize, fraction),
-        fontSizeScale = lerpFloat(
-            start.fontSizeScale,
-            stop.fontSizeScale,
-            fraction,
-            1f
+        fontSizeScale = lerp(
+            start.fontSizeScale ?: 1.0f,
+            stop.fontSizeScale ?: 1.0f,
+            fraction
         ),
-        fontWeight = lerp(start.fontWeight, stop.fontWeight, fraction),
+        fontWeight = lerp(
+            start.fontWeight ?: FontWeight.Normal,
+            stop.fontWeight ?: FontWeight.Normal,
+            fraction
+        ),
         fontStyle = lerpDiscrete(
             start.fontStyle,
             stop.fontStyle,
@@ -227,9 +174,9 @@ fun lerp(start: TextStyle? = null, stop: TextStyle? = null, fraction: Float): Te
             stop.fontFeatureSettings,
             fraction
         ),
-        letterSpacing = lerpEm(
-            start.letterSpacing,
-            stop.letterSpacing,
+        letterSpacing = lerp(
+            start.letterSpacing ?: 0.em,
+            stop.letterSpacing ?: 0.em,
             fraction
         ),
         baselineShift = lerp(

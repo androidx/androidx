@@ -431,81 +431,6 @@ class TextStyleTest {
     }
 
     @Test
-    fun `lerp with both Null Textstyles`() {
-        val newTextStyle = lerp(fraction = 1.0f)
-
-        assertThat(newTextStyle).isEqualTo(null)
-    }
-
-    @Test
-    fun `lerp color with a is Null and t is smaller than half`() {
-        val color = Color(0xFF00FF00)
-        val t = 0.3f
-        val textStyle = TextStyle(color = color)
-
-        val newTextStyle = lerp(stop = textStyle, fraction = t)
-
-        assertThat(newTextStyle?.color).isEqualTo(
-            lerp(
-                start = color.copy(alpha = 0f),
-                stop = color,
-                fraction = t
-            )
-        )
-    }
-
-    @Test
-    fun `lerp color with a is Null and t is larger than half`() {
-        val color = Color(0xFF00FF00)
-        val t = 0.8f
-        val textStyle = TextStyle(color = color)
-
-        val newTextStyle = lerp(stop = textStyle, fraction = t)
-
-        assertThat(newTextStyle?.color).isEqualTo(
-            lerp(
-                start = color.copy(alpha = 0f),
-                stop = color,
-                fraction = t
-            )
-        )
-    }
-
-    @Test
-    fun `lerp color with b is Null and t is smaller than half`() {
-        val color = Color(0xFF00FF00)
-        val t = 0.3f
-        val textStyle = TextStyle(color = color)
-
-        val newTextStyle = lerp(start = textStyle, fraction = t)
-
-        assertThat(newTextStyle?.color).isEqualTo(
-            lerp(
-                start = color,
-                stop = color.copy(alpha = 0f),
-                fraction = t
-            )
-        )
-    }
-
-    @Test
-    fun `lerp color with b is Null and t is larger than half`() {
-        val color = Color(0xFF00FF00)
-        val t = 0.8f
-        val textStyle = TextStyle(color = color)
-
-        val newTextStyle = lerp(start = textStyle, fraction = t)
-
-        assertThat(newTextStyle?.color).isEqualTo(
-            lerp(
-                start = color,
-                stop = color.copy(alpha = 0f),
-                fraction = t
-            )
-        )
-    }
-
-    @Test
     fun `lerp color with a and b are not Null`() {
         val color1 = Color(0xFF00FF00)
         val color2 = Color(0x00FFFF00)
@@ -515,51 +440,7 @@ class TextStyleTest {
 
         val newTextStyle = lerp(start = textStyle1, stop = textStyle2, fraction = t)
 
-        assertThat(newTextStyle?.color).isEqualTo(lerp(start = color1, stop = color2, fraction = t))
-    }
-
-    @Test
-    fun `lerp fontFamily with a is Null and t is smaller than half`() {
-        val fontFamily = FontFamily(genericFamily = "sans-serif")
-        val t = 0.3f
-        val textStyle = TextStyle(fontFamily = fontFamily)
-
-        val newTextStyle = lerp(stop = textStyle, fraction = t)
-
-        assertThat(newTextStyle?.fontFamily).isNull()
-    }
-
-    @Test
-    fun `lerp fontFamily with a is Null and t is larger than half`() {
-        val fontFamily = FontFamily(genericFamily = "sans-serif")
-        val t = 0.7f
-        val textStyle = TextStyle(fontFamily = fontFamily)
-
-        val newTextStyle = lerp(stop = textStyle, fraction = t)
-
-        assertThat(newTextStyle?.fontFamily).isEqualTo(fontFamily)
-    }
-
-    @Test
-    fun `lerp fontFamily with b is Null and t is smaller than half`() {
-        val fontFamily = FontFamily(genericFamily = "sans-serif")
-        val t = 0.3f
-        val textStyle = TextStyle(fontFamily = fontFamily)
-
-        val newTextStyle = lerp(start = textStyle, fraction = t)
-
-        assertThat(newTextStyle?.fontFamily).isEqualTo(fontFamily)
-    }
-
-    @Test
-    fun `lerp fontFamily with b is Null and t is larger than half`() {
-        val fontFamily = FontFamily(genericFamily = "sans-serif")
-        val t = 0.7f
-        val textStyle = TextStyle(fontFamily = fontFamily)
-
-        val newTextStyle = lerp(start = textStyle, fraction = t)
-
-        assertThat(newTextStyle?.fontFamily).isNull()
+        assertThat(newTextStyle.color).isEqualTo(lerp(start = color1, stop = color2, fraction = t))
     }
 
     @Test
@@ -572,7 +453,7 @@ class TextStyleTest {
 
         val newTextStyle = lerp(start = textStyle1, stop = textStyle2, fraction = t)
 
-        assertThat(newTextStyle?.fontFamily).isEqualTo(fontFamily1)
+        assertThat(newTextStyle.fontFamily).isEqualTo(fontFamily1)
     }
 
     @Test
@@ -585,53 +466,7 @@ class TextStyleTest {
 
         val newTextStyle = lerp(start = textStyle1, stop = textStyle2, fraction = t)
 
-        assertThat(newTextStyle?.fontFamily).isEqualTo(fontFamily2)
-    }
-
-    @Test
-    fun `lerp fontSize with a is Null and t is smaller than half`() {
-        val fontSize = 8.sp
-        val t = 0.3f
-        val textStyle = TextStyle(fontSize = fontSize)
-
-        val newTextStyle = lerp(stop = textStyle, fraction = t)
-
-        assertThat(newTextStyle).isNotNull()
-        assertThat(newTextStyle!!.fontSize.isInherit()).isTrue()
-    }
-
-    @Test
-    fun `lerp fontSize with a is Null and t is larger than half`() {
-        val fontSize = 8.sp
-        val t = 0.8f
-        val textStyle = TextStyle(fontSize = fontSize)
-
-        val newTextStyle = lerp(stop = textStyle, fraction = t)
-
-        assertThat(newTextStyle?.fontSize).isEqualTo(fontSize)
-    }
-
-    @Test
-    fun `lerp fontSize with b is Null and t is smaller than half`() {
-        val fontSize = 8.sp
-        val t = 0.3f
-        val textStyle = TextStyle(fontSize = fontSize)
-
-        val newTextStyle = lerp(start = textStyle, fraction = t)
-
-        assertThat(newTextStyle?.fontSize).isEqualTo(fontSize)
-    }
-
-    @Test
-    fun `lerp fontSize with b is Null and t is larger than half`() {
-        val fontSize = 8.sp
-        val t = 0.8f
-        val textStyle = TextStyle(fontSize = fontSize)
-
-        val newTextStyle = lerp(start = textStyle, fraction = t)
-
-        assertThat(newTextStyle).isNotNull()
-        assertThat(newTextStyle!!.fontSize.isInherit()).isTrue()
+        assertThat(newTextStyle.fontFamily).isEqualTo(fontFamily2)
     }
 
     @Test
@@ -645,7 +480,7 @@ class TextStyleTest {
         val newTextStyle = lerp(start = textStyle1, stop = textStyle2, fraction = t)
 
         // a + (b - a) * t = 8.0f + (16.0f  - 8.0f) * 0.8f = 14.4f
-        assertThat(newTextStyle?.fontSize).isEqualTo(14.4.sp)
+        assertThat(newTextStyle.fontSize).isEqualTo(14.4.sp)
     }
 
     @Test
@@ -659,90 +494,7 @@ class TextStyleTest {
         val newTextStyle = lerp(start = textStyle1, stop = textStyle2, fraction = t)
 
         // a + (b - a) * t = 2.0f + (4.0f  - 2.0f) * 0.8f = 3.6f
-        assertThat(newTextStyle?.fontSizeScale).isEqualTo(3.6f)
-    }
-
-    @Test
-    fun `lerp fontSizeScale with a not Null and b is Null`() {
-        val fontSizeScale = 2.0f
-        val t = 0.8f
-        val textStyle1 = TextStyle(fontSizeScale = fontSizeScale)
-        val textStyle2 = TextStyle()
-
-        val newTextStyle = lerp(start = textStyle1, stop = textStyle2, fraction = t)
-
-        // b is Null and is considered 1.0f
-        // a + (b - a) * t = 2.0f + (1.0f  - 2.0f) * 0.8f = 1.2f
-        assertThat(newTextStyle?.fontSizeScale).isEqualTo(1.2f)
-    }
-
-    @Test
-    fun `lerp fontSizeScale with a is Null and b not Null`() {
-        val fontSizeScale = 2.0f
-        val t = 0.8f
-        val textStyle1 = TextStyle()
-        val textStyle2 = TextStyle(fontSizeScale = fontSizeScale)
-
-        val newTextStyle = lerp(start = textStyle1, stop = textStyle2, fraction = t)
-
-        // a is Null and is considered 1.0f
-        // a + (b - a) * t = 1.0f + (2.0f  - 1.0f) * 0.8f = 1.8f
-        assertThat(newTextStyle?.fontSizeScale).isEqualTo(1.8f)
-    }
-
-    @Test
-    fun `lerp fontSizeScale with a and b are Null`() {
-        val t = 0.8f
-        val textStyle1 = TextStyle()
-        val textStyle2 = TextStyle()
-
-        val newTextStyle = lerp(start = textStyle1, stop = textStyle2, fraction = t)
-
-        assertThat(newTextStyle?.fontSizeScale).isNull()
-    }
-
-    @Test
-    fun `lerp fontWeight with a is Null and t is smaller than half`() {
-        val fontWeight = FontWeight.W700
-        val t = 0.3f
-        val textStyle = TextStyle(fontWeight = fontWeight)
-
-        val newTextStyle = lerp(stop = textStyle, fraction = t)
-
-        assertThat(newTextStyle?.fontWeight).isEqualTo(lerp(null, fontWeight, t))
-    }
-
-    @Test
-    fun `lerp fontWeight with a is Null and t is larger than half`() {
-        val fontWeight = FontWeight.W700
-        val t = 0.8f
-        val textStyle = TextStyle(fontWeight = fontWeight)
-
-        val newTextStyle = lerp(stop = textStyle, fraction = t)
-
-        assertThat(newTextStyle?.fontWeight).isEqualTo(lerp(null, fontWeight, t))
-    }
-
-    @Test
-    fun `lerp fontWeight with b is Null and t is smaller than half`() {
-        val fontWeight = FontWeight.W700
-        val t = 0.3f
-        val textStyle = TextStyle(fontWeight = fontWeight)
-
-        val newTextStyle = lerp(start = textStyle, fraction = t)
-
-        assertThat(newTextStyle?.fontWeight).isEqualTo(lerp(fontWeight, null, t))
-    }
-
-    @Test
-    fun `lerp fontWeight with b is Null and t is larger than half`() {
-        val fontWeight = FontWeight.W700
-        val t = 0.8f
-        val textStyle = TextStyle(fontWeight = fontWeight)
-
-        val newTextStyle = lerp(start = textStyle, fraction = t)
-
-        assertThat(newTextStyle?.fontWeight).isEqualTo(lerp(fontWeight, null, t))
+        assertThat(newTextStyle.fontSizeScale).isEqualTo(3.6f)
     }
 
     @Test
@@ -755,51 +507,7 @@ class TextStyleTest {
 
         val newTextStyle = lerp(start = textStyle1, stop = textStyle2, fraction = t)
 
-        assertThat(newTextStyle?.fontWeight).isEqualTo(lerp(fontWeight1, fontWeight2, t))
-    }
-
-    @Test
-    fun `lerp fontStyle with a is Null and t is smaller than half`() {
-        val fontStyle = FontStyle.Italic
-        val t = 0.3f
-        val textStyle = TextStyle(fontStyle = fontStyle)
-
-        val newTextStyle = lerp(stop = textStyle, fraction = t)
-
-        assertThat(newTextStyle?.fontStyle).isNull()
-    }
-
-    @Test
-    fun `lerp fontStyle with a is Null and t is larger than half`() {
-        val fontStyle = FontStyle.Italic
-        val t = 0.8f
-        val textStyle = TextStyle(fontStyle = fontStyle)
-
-        val newTextStyle = lerp(stop = textStyle, fraction = t)
-
-        assertThat(newTextStyle?.fontStyle).isEqualTo(fontStyle)
-    }
-
-    @Test
-    fun `lerp fontStyle with b is Null and t is smaller than half`() {
-        val fontStyle = FontStyle.Italic
-        val t = 0.3f
-        val textStyle = TextStyle(fontStyle = fontStyle)
-
-        val newTextStyle = lerp(start = textStyle, fraction = t)
-
-        assertThat(newTextStyle?.fontStyle).isEqualTo(fontStyle)
-    }
-
-    @Test
-    fun `lerp fontStyle with b is Null and t is larger than half`() {
-        val fontStyle = FontStyle.Italic
-        val t = 0.8f
-        val textStyle = TextStyle(fontStyle = fontStyle)
-
-        val newTextStyle = lerp(start = textStyle, fraction = t)
-
-        assertThat(newTextStyle?.fontStyle).isNull()
+        assertThat(newTextStyle.fontWeight).isEqualTo(lerp(fontWeight1, fontWeight2, t))
     }
 
     @Test
@@ -813,7 +521,7 @@ class TextStyleTest {
 
         val newTextStyle = lerp(start = textStyle1, stop = textStyle2, fraction = t)
 
-        assertThat(newTextStyle?.fontStyle).isEqualTo(fontStyle1)
+        assertThat(newTextStyle.fontStyle).isEqualTo(fontStyle1)
     }
 
     @Test
@@ -827,51 +535,7 @@ class TextStyleTest {
 
         val newTextStyle = lerp(start = textStyle1, stop = textStyle2, fraction = t)
 
-        assertThat(newTextStyle?.fontStyle).isEqualTo(fontStyle2)
-    }
-
-    @Test
-    fun `lerp fontSynthesis with a is Null and t is smaller than half`() {
-        val fontSynthesis = FontSynthesis.Style
-        val t = 0.3f
-        val textStyle = TextStyle(fontSynthesis = fontSynthesis)
-
-        val newTextStyle = lerp(stop = textStyle, fraction = t)
-
-        assertThat(newTextStyle?.fontSynthesis).isNull()
-    }
-
-    @Test
-    fun `lerp fontSynthesis with a is Null and t is larger than half`() {
-        val fontSynthesis = FontSynthesis.Style
-        val t = 0.8f
-        val textStyle = TextStyle(fontSynthesis = fontSynthesis)
-
-        val newTextStyle = lerp(stop = textStyle, fraction = t)
-
-        assertThat(newTextStyle?.fontSynthesis).isEqualTo(fontSynthesis)
-    }
-
-    @Test
-    fun `lerp fontSynthesis with b is Null and t is smaller than half`() {
-        val fontSynthesis = FontSynthesis.Style
-        val t = 0.3f
-        val textStyle = TextStyle(fontSynthesis = fontSynthesis)
-
-        val newTextStyle = lerp(start = textStyle, fraction = t)
-
-        assertThat(newTextStyle?.fontSynthesis).isEqualTo(fontSynthesis)
-    }
-
-    @Test
-    fun `lerp fontSynthesis with b is Null and t is larger than half`() {
-        val fontSynthesis = FontSynthesis.Style
-        val t = 0.8f
-        val textStyle = TextStyle(fontSynthesis = fontSynthesis)
-
-        val newTextStyle = lerp(start = textStyle, fraction = t)
-
-        assertThat(newTextStyle?.fontSynthesis).isNull()
+        assertThat(newTextStyle.fontStyle).isEqualTo(fontStyle2)
     }
 
     @Test
@@ -886,7 +550,7 @@ class TextStyleTest {
 
         val newTextStyle = lerp(start = textStyle1, stop = textStyle2, fraction = t)
 
-        assertThat(newTextStyle?.fontSynthesis).isEqualTo(fontSynthesis1)
+        assertThat(newTextStyle.fontSynthesis).isEqualTo(fontSynthesis1)
     }
 
     @Test
@@ -901,51 +565,7 @@ class TextStyleTest {
 
         val newTextStyle = lerp(start = textStyle1, stop = textStyle2, fraction = t)
 
-        assertThat(newTextStyle?.fontSynthesis).isEqualTo(fontSynthesis2)
-    }
-
-    @Test
-    fun `lerp fontFeatureSettings with a is Null and t is smaller than half`() {
-        val fontFeatureSettings = "\"kern\" 0"
-        val t = 0.3f
-        val textStyle = TextStyle(fontFeatureSettings = fontFeatureSettings)
-
-        val newTextStyle = lerp(stop = textStyle, fraction = t)
-
-        assertThat(newTextStyle?.fontFeatureSettings).isNull()
-    }
-
-    @Test
-    fun `lerp fontFeatureSettings with a is Null and t is larger than half`() {
-        val fontFeatureSettings = "\"kern\" 0"
-        val t = 0.8f
-        val textStyle = TextStyle(fontFeatureSettings = fontFeatureSettings)
-
-        val newTextStyle = lerp(stop = textStyle, fraction = t)
-
-        assertThat(newTextStyle?.fontFeatureSettings).isEqualTo(fontFeatureSettings)
-    }
-
-    @Test
-    fun `lerp fontFeatureSettings with b is Null and t is smaller than half`() {
-        val fontFeatureSettings = "\"kern\" 0"
-        val t = 0.3f
-        val textStyle = TextStyle(fontFeatureSettings = fontFeatureSettings)
-
-        val newTextStyle = lerp(start = textStyle, fraction = t)
-
-        assertThat(newTextStyle?.fontFeatureSettings).isEqualTo(fontFeatureSettings)
-    }
-
-    @Test
-    fun `lerp fontFeatureSettings with b is Null and t is larger than half`() {
-        val fontFeatureSettings = "\"kern\" 0"
-        val t = 0.8f
-        val textStyle = TextStyle(fontFeatureSettings = fontFeatureSettings)
-
-        val newTextStyle = lerp(start = textStyle, fraction = t)
-
-        assertThat(newTextStyle?.fontFeatureSettings).isNull()
+        assertThat(newTextStyle.fontSynthesis).isEqualTo(fontSynthesis2)
     }
 
     @Test
@@ -960,7 +580,7 @@ class TextStyleTest {
 
         val newTextStyle = lerp(start = textStyle1, stop = textStyle2, fraction = t)
 
-        assertThat(newTextStyle?.fontFeatureSettings).isEqualTo(fontFeatureSettings1)
+        assertThat(newTextStyle.fontFeatureSettings).isEqualTo(fontFeatureSettings1)
     }
 
     @Test
@@ -975,51 +595,7 @@ class TextStyleTest {
 
         val newTextStyle = lerp(start = textStyle1, stop = textStyle2, fraction = t)
 
-        assertThat(newTextStyle?.fontFeatureSettings).isEqualTo(fontFeatureSettings2)
-    }
-
-    @Test
-    fun `lerp letterSpacing with a is Null and t is smaller than half`() {
-        val letterSpacing = 2.em
-        val t = 0.3f
-        val textStyle = TextStyle(letterSpacing = letterSpacing)
-
-        val newTextStyle = lerp(stop = textStyle, fraction = t)
-
-        assertThat(newTextStyle?.letterSpacing).isNull()
-    }
-
-    @Test
-    fun `lerp letterSpacing with a is Null and t is larger than half`() {
-        val letterSpacing = 2.em
-        val t = 0.8f
-        val textStyle = TextStyle(letterSpacing = letterSpacing)
-
-        val newTextStyle = lerp(stop = textStyle, fraction = t)
-
-        assertThat(newTextStyle?.letterSpacing).isEqualTo(letterSpacing)
-    }
-
-    @Test
-    fun `lerp letterSpacing with b is Null and t is smaller than half`() {
-        val letterSpacing = 2.em
-        val t = 0.3f
-        val textStyle = TextStyle(letterSpacing = letterSpacing)
-
-        val newTextStyle = lerp(start = textStyle, fraction = t)
-
-        assertThat(newTextStyle?.letterSpacing).isEqualTo(letterSpacing)
-    }
-
-    @Test
-    fun `lerp letterSpacing with b is Null and t is larger than half`() {
-        val letterSpacing = 2.em
-        val t = 0.8f
-        val textStyle = TextStyle(letterSpacing = letterSpacing)
-
-        val newTextStyle = lerp(start = textStyle, fraction = t)
-
-        assertThat(newTextStyle?.letterSpacing).isNull()
+        assertThat(newTextStyle.fontFeatureSettings).isEqualTo(fontFeatureSettings2)
     }
 
     @Test
@@ -1032,52 +608,8 @@ class TextStyleTest {
 
         val newTextStyle = lerp(start = textStyle1, stop = textStyle2, fraction = t)
 
-        assertThat(newTextStyle?.baselineShift)
+        assertThat(newTextStyle.baselineShift)
             .isEqualTo(lerp(baselineShift1, baselineShift2, t))
-    }
-
-    @Test
-    fun `lerp textGeometricTransform with a is Null and t is smaller than half`() {
-        val textTransform = TextGeometricTransform(scaleX = 1.5f)
-        val t = 0.3f
-        val textStyle = TextStyle(textGeometricTransform = textTransform)
-
-        val newTextStyle = lerp(stop = textStyle, fraction = t)
-
-        assertThat(newTextStyle?.textGeometricTransform).isNull()
-    }
-
-    @Test
-    fun `lerp textGeometricTransform with a is Null and t is larger than half`() {
-        val textTransform = TextGeometricTransform(scaleX = 1.5f)
-        val t = 0.7f
-        val textStyle = TextStyle(textGeometricTransform = textTransform)
-
-        val newTextStyle = lerp(stop = textStyle, fraction = t)
-
-        assertThat(newTextStyle?.textGeometricTransform).isEqualTo(textTransform)
-    }
-
-    @Test
-    fun `lerp textGeometricTransform with b is Null and t is smaller than half`() {
-        val textTransform = TextGeometricTransform(scaleX = 1.5f)
-        val t = 0.3f
-        val textStyle = TextStyle(textGeometricTransform = textTransform)
-
-        val newTextStyle = lerp(start = textStyle, fraction = t)
-
-        assertThat(newTextStyle?.textGeometricTransform).isEqualTo(textTransform)
-    }
-
-    @Test
-    fun `lerp textGeometricTransform with b is Null and t is larger than half`() {
-        val textTransform = TextGeometricTransform(scaleX = 1.5f)
-        val t = 0.7f
-        val textStyle = TextStyle(textGeometricTransform = textTransform)
-
-        val newTextStyle = lerp(start = textStyle, fraction = t)
-
-        assertThat(newTextStyle?.textGeometricTransform).isNull()
     }
 
     @Test
@@ -1092,52 +624,8 @@ class TextStyleTest {
 
         val newTextStyle = lerp(start = textStyle1, stop = textStyle2, fraction = t)
 
-        assertThat(newTextStyle?.textGeometricTransform)
+        assertThat(newTextStyle.textGeometricTransform)
             .isEqualTo(lerp(textTransform1, textTransform2, t))
-    }
-
-    @Test
-    fun `lerp locale with a is Null and t is smaller than half`() {
-        val localeList = LocaleList("en-US")
-        val t = 0.2f
-        val textStyle = TextStyle(localeList = localeList)
-
-        val newTextStyle = lerp(stop = textStyle, fraction = t)
-
-        assertThat(newTextStyle?.localeList).isNull()
-    }
-
-    @Test
-    fun `lerp locale with a is Null and t is larger than half`() {
-        val localeList = LocaleList("en-US")
-        val t = 0.8f
-        val textStyle = TextStyle(localeList = localeList)
-
-        val newTextStyle = lerp(stop = textStyle, fraction = t)
-
-        assertThat(newTextStyle?.localeList).isEqualTo(localeList)
-    }
-
-    @Test
-    fun `lerp locale with b is Null and t is smaller than half`() {
-        val localeList = LocaleList("en-US")
-        val t = 0.2f
-        val textStyle = TextStyle(localeList = localeList)
-
-        val newTextStyle = lerp(start = textStyle, fraction = t)
-
-        assertThat(newTextStyle?.localeList).isEqualTo(localeList)
-    }
-
-    @Test
-    fun `lerp locale with b is Null and t is larger than half`() {
-        val localeList = LocaleList("en-US")
-        val t = 0.8f
-        val textStyle = TextStyle(localeList = localeList)
-
-        val newTextStyle = lerp(start = textStyle, fraction = t)
-
-        assertThat(newTextStyle?.localeList).isNull()
     }
 
     @Test
@@ -1150,7 +638,7 @@ class TextStyleTest {
 
         val newTextStyle = lerp(start = textStyle1, stop = textStyle2, fraction = t)
 
-        assertThat(newTextStyle?.localeList).isEqualTo(localeList1)
+        assertThat(newTextStyle.localeList).isEqualTo(localeList1)
     }
 
     @Test
@@ -1163,50 +651,7 @@ class TextStyleTest {
 
         val newTextStyle = lerp(start = textStyle1, stop = textStyle2, fraction = t)
 
-        assertThat(newTextStyle?.localeList).isEqualTo(localeList2)
-    }
-
-    @Test
-    fun `lerp background with a is Null and t is smaller than half`() {
-        val color = Color(0xFF00FF00)
-        val t = 0.2f
-        val textStyle = TextStyle(background = color)
-
-        val newTextStyle = lerp(stop = textStyle, fraction = t)
-
-        assertThat(newTextStyle?.background).isNull()
-    }
-
-    @Test
-    fun `lerp background with a is Null and t is larger than half`() {
-        val color = Color(0xFF00FF00)
-        val t = 0.8f
-        val textStyle = TextStyle(background = color)
-
-        val newTextStyle = lerp(stop = textStyle, fraction = t)
-
-        assertThat(newTextStyle?.background).isEqualTo(color)
-    }
-
-    @Test
-    fun `lerp background with b is Null and t is smaller than half`() {
-        val color = Color(0xFF00FF00)
-        val t = 0.2f
-        val textStyle = TextStyle(background = color)
-
-        val newTextStyle = lerp(start = textStyle, fraction = t)
-
-        assertThat(newTextStyle?.background).isEqualTo(color)
-    }
-
-    @Test
-    fun `lerp background with b is Null and t is larger than half`() {
-        val t = 0.8f
-        val textStyle = TextStyle(background = Color(0xFF00FF00))
-
-        val newTextStyle = lerp(start = textStyle, fraction = t)
-
-        assertThat(newTextStyle?.background).isNull()
+        assertThat(newTextStyle.localeList).isEqualTo(localeList2)
     }
 
     @Test
@@ -1219,7 +664,7 @@ class TextStyleTest {
 
         val newTextStyle = lerp(start = textStyle1, stop = textStyle2, fraction = t)
 
-        assertThat(newTextStyle?.background).isEqualTo(color1)
+        assertThat(newTextStyle.background).isEqualTo(color1)
     }
 
     @Test
@@ -1232,51 +677,7 @@ class TextStyleTest {
 
         val newTextStyle = lerp(start = textStyle1, stop = textStyle2, fraction = t)
 
-        assertThat(newTextStyle?.background).isEqualTo(color2)
-    }
-
-    @Test
-    fun `lerp decoration with a is Null and t is smaller than half`() {
-        val decoration = TextDecoration.LineThrough
-        val t = 0.2f
-        val textStyle = TextStyle(decoration = decoration)
-
-        val newTextStyle = lerp(stop = textStyle, fraction = t)
-
-        assertThat(newTextStyle?.decoration).isNull()
-    }
-
-    @Test
-    fun `lerp decoration with a is Null and t is larger than half`() {
-        val decoration = TextDecoration.LineThrough
-        val t = 0.8f
-        val textStyle = TextStyle(decoration = decoration)
-
-        val newTextStyle = lerp(stop = textStyle, fraction = t)
-
-        assertThat(newTextStyle?.decoration).isEqualTo(decoration)
-    }
-
-    @Test
-    fun `lerp decoration with b is Null and t is smaller than half`() {
-        val decoration = TextDecoration.LineThrough
-        val t = 0.2f
-        val textStyle = TextStyle(decoration = decoration)
-
-        val newTextStyle = lerp(start = textStyle, fraction = t)
-
-        assertThat(newTextStyle?.decoration).isEqualTo(decoration)
-    }
-
-    @Test
-    fun `lerp decoration with b is Null and t is larger than half`() {
-        val decoration = TextDecoration.LineThrough
-        val t = 0.8f
-        val textStyle = TextStyle(decoration = decoration)
-
-        val newTextStyle = lerp(start = textStyle, fraction = t)
-
-        assertThat(newTextStyle?.decoration).isNull()
+        assertThat(newTextStyle.background).isEqualTo(color2)
     }
 
     @Test
@@ -1289,7 +690,7 @@ class TextStyleTest {
 
         val newTextStyle = lerp(start = textStyle1, stop = textStyle2, fraction = t)
 
-        assertThat(newTextStyle?.decoration).isEqualTo(decoration1)
+        assertThat(newTextStyle.decoration).isEqualTo(decoration1)
     }
 
     @Test
@@ -1302,6 +703,6 @@ class TextStyleTest {
 
         val newTextStyle = lerp(start = textStyle1, stop = textStyle2, fraction = t)
 
-        assertThat(newTextStyle?.decoration).isEqualTo(decoration2)
+        assertThat(newTextStyle.decoration).isEqualTo(decoration2)
     }
 }

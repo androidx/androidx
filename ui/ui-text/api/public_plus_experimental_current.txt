@@ -365,7 +365,7 @@ package androidx.ui.text {
 
   public final class TextStyleKt {
     ctor public TextStyleKt();
-    method public static androidx.ui.text.TextStyle? lerp(androidx.ui.text.TextStyle? start = null, androidx.ui.text.TextStyle? stop = null, float fraction);
+    method public static androidx.ui.text.TextStyle lerp(androidx.ui.text.TextStyle start, androidx.ui.text.TextStyle stop, float fraction);
   }
 
 }
@@ -472,7 +472,7 @@ package androidx.ui.text.font {
 
   public final class FontWeightKt {
     ctor public FontWeightKt();
-    method public static androidx.ui.text.font.FontWeight lerp(androidx.ui.text.font.FontWeight? start, androidx.ui.text.font.FontWeight? stop, float fraction);
+    method public static androidx.ui.text.font.FontWeight lerp(androidx.ui.text.font.FontWeight start, androidx.ui.text.font.FontWeight stop, float fraction);
   }
 
 }
