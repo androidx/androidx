@@ -165,8 +165,8 @@ public class Camera2CameraInfoTest {
         ZoomControl zoomControl = mock(ZoomControl.class);
         CameraInfoInternal cameraInfo = new Camera2CameraInfo(mCameraCharacteristics0,
                 zoomControl);
-        when(zoomControl.getZoomPercentage()).thenReturn(new MutableLiveData<>(0.2f));
-        assertThat(cameraInfo.getZoomPercentage().getValue()).isEqualTo(0.2f);
+        when(zoomControl.getLinearZoom()).thenReturn(new MutableLiveData<>(0.2f));
+        assertThat(cameraInfo.getLinearZoom().getValue()).isEqualTo(0.2f);
     }
 
     @Test

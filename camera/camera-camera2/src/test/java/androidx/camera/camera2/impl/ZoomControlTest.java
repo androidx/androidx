@@ -194,10 +194,10 @@ public class ZoomControlTest {
     }
 
     @Test
-    public void setZoomPercentage_valueIsAlive_ListenableFutureSucceeded()
+    public void setLinearZoom_valueIsAlive_ListenableFutureSucceeded()
             throws InterruptedException {
         CountDownLatch latch = new CountDownLatch(1);
-        ListenableFuture<Void> listenableFuture = mZoomControl.setZoomPercentage(0.1f);
+        ListenableFuture<Void> listenableFuture = mZoomControl.setLinearZoom(0.1f);
 
         float targetRatio = mZoomControl.getZoomRatio().getValue();
         TotalCaptureResult result = mockCaptureResult(getCropRectByRatio(targetRatio));
@@ -273,14 +273,14 @@ public class ZoomControlTest {
     }
 
     @Test
-    public void setZoomPercentage_newPercentageIsSet_operationCanceled()
+    public void setLinearZoom_newPercentageIsSet_operationCanceled()
             throws InterruptedException {
         CountDownLatch latchForOp1Canceled = new CountDownLatch(1);
         CountDownLatch latchForOp2Canceled = new CountDownLatch(1);
         CountDownLatch latchForOp3Succeeded = new CountDownLatch(1);
-        ListenableFuture<Void> listenableFuture = mZoomControl.setZoomPercentage(0.1f);
-        ListenableFuture<Void> listenableFuture2 = mZoomControl.setZoomPercentage(0.2f);
-        ListenableFuture<Void> listenableFuture3 = mZoomControl.setZoomPercentage(0.3f);
+        ListenableFuture<Void> listenableFuture = mZoomControl.setLinearZoom(0.1f);
+        ListenableFuture<Void> listenableFuture2 = mZoomControl.setLinearZoom(0.2f);
+        ListenableFuture<Void> listenableFuture3 = mZoomControl.setLinearZoom(0.3f);
         float ratioForPercentage = mZoomControl.getZoomRatio().getValue();
 
         TotalCaptureResult result = mockCaptureResult(getCropRectByRatio(ratioForPercentage));
@@ -334,7 +334,7 @@ public class ZoomControlTest {
         CountDownLatch latchForOp2Canceled = new CountDownLatch(1);
         CountDownLatch latchForOp3Succeeded = new CountDownLatch(1);
         ListenableFuture<Void> listenableFuture = mZoomControl.setZoomRatio(2f);
-        ListenableFuture<Void> listenableFuture2 = mZoomControl.setZoomPercentage(0.1f);
+        ListenableFuture<Void> listenableFuture2 = mZoomControl.setLinearZoom(0.1f);
         ListenableFuture<Void> listenableFuture3 = mZoomControl.setZoomRatio(4f);
 
         TotalCaptureResult result = mockCaptureResult(getCropRectByRatio(4.0f));
@@ -401,9 +401,9 @@ public class ZoomControlTest {
     }
 
     @Test
-    public void setZoomPercentage_whenInActive_operationCanceled() {
+    public void setLinearZoom_whenInActive_operationCanceled() {
         mZoomControl.setActive(false);
-        ListenableFuture<Void> listenableFuture = mZoomControl.setZoomPercentage(0f);
+        ListenableFuture<Void> listenableFuture = mZoomControl.setLinearZoom(0f);
 
         try {
             listenableFuture.get(1000, TimeUnit.MILLISECONDS);
@@ -441,9 +441,9 @@ public class ZoomControlTest {
     }
 
     @Test
-    public void setZoomPercentage_afterInActive_operationCanceled() throws InterruptedException {
+    public void setLinearZoom_afterInActive_operationCanceled() throws InterruptedException {
         CountDownLatch latch = new CountDownLatch(1);
-        ListenableFuture<Void> listenableFuture = mZoomControl.setZoomPercentage(0.3f);
+        ListenableFuture<Void> listenableFuture = mZoomControl.setLinearZoom(0.3f);
         Futures.addCallback(listenableFuture, new FutureCallback<Void>() {
             @Override
             public void onSuccess(@Nullable Void result) {
@@ -480,7 +480,7 @@ public class ZoomControlTest {
 
         zoomControl.setZoomRatio(3.0f);
         assertThat(zoomControl.getZoomRatio().getValue()).isEqualTo(1.0f);
-        assertThat(zoomControl.getZoomPercentage().getValue()).isEqualTo(0.0f);
+        assertThat(zoomControl.getLinearZoom().getValue()).isEqualTo(0.0f);
     }
 
     @Test
@@ -501,12 +501,12 @@ public class ZoomControlTest {
 
         zoomControl.setZoomRatio(0.2f);
         assertThat(zoomControl.getZoomRatio().getValue()).isEqualTo(1.0f);
-        assertThat(zoomControl.getZoomPercentage().getValue()).isEqualTo(0.0f);
+        assertThat(zoomControl.getLinearZoom().getValue()).isEqualTo(0.0f);
     }
 
 
     @Test
-    public void setZoomPercentageValidValue_WhenZoomNotSupported_zoomIsMin()
+    public void setLinearZoomValidValue_WhenZoomNotSupported_zoomIsMin()
             throws CameraAccessException {
         CameraManager cameraManager =
                 (CameraManager) ApplicationProvider.getApplicationContext().getSystemService(
@@ -521,14 +521,14 @@ public class ZoomControlTest {
         ZoomControl zoomControl = new ZoomControl(mCamera2CameraControl, cameraCharacteristics);
         zoomControl.setActive(true);
 
-        zoomControl.setZoomPercentage(0.4f);
+        zoomControl.setLinearZoom(0.4f);
         assertThat(zoomControl.getZoomRatio().getValue()).isEqualTo(1.0f);
         // percentage is updated correctly but the zoomRatio is always 1.0f if zoom not supported.
-        assertThat(zoomControl.getZoomPercentage().getValue()).isEqualTo(0.4f);
+        assertThat(zoomControl.getLinearZoom().getValue()).isEqualTo(0.4f);
     }
 
     @Test
-    public void setZoomPercentageSmallerThan0_WhenZoomNotSupported_zoomIsMin()
+    public void setLinearZoomSmallerThan0_WhenZoomNotSupported_zoomIsMin()
             throws CameraAccessException {
         CameraManager cameraManager =
                 (CameraManager) ApplicationProvider.getApplicationContext().getSystemService(
@@ -543,15 +543,15 @@ public class ZoomControlTest {
         ZoomControl zoomControl = new ZoomControl(mCamera2CameraControl, cameraCharacteristics);
         zoomControl.setActive(true);
 
-        zoomControl.setZoomPercentage(0.3f);
-        zoomControl.setZoomPercentage(-0.2f);
+        zoomControl.setLinearZoom(0.3f);
+        zoomControl.setLinearZoom(-0.2f);
         assertThat(zoomControl.getZoomRatio().getValue()).isEqualTo(1.0f);
         // percentage not changed but the zoomRatio is always 1.0f if zoom not supported.
-        assertThat(zoomControl.getZoomPercentage().getValue()).isEqualTo(0.3f);
+        assertThat(zoomControl.getLinearZoom().getValue()).isEqualTo(0.3f);
     }
 
     @Test
-    public void setZoomPercentageLargerThan1_WhenZoomNotSupported_zoomIsMin()
+    public void setLinearZoomLargerThan1_WhenZoomNotSupported_zoomIsMin()
             throws CameraAccessException {
         CameraManager cameraManager =
                 (CameraManager) ApplicationProvider.getApplicationContext().getSystemService(
@@ -566,10 +566,10 @@ public class ZoomControlTest {
         ZoomControl zoomControl = new ZoomControl(mCamera2CameraControl, cameraCharacteristics);
         zoomControl.setActive(true);
 
-        zoomControl.setZoomPercentage(0.3f);
-        zoomControl.setZoomPercentage(1.2f);
+        zoomControl.setLinearZoom(0.3f);
+        zoomControl.setLinearZoom(1.2f);
         assertThat(zoomControl.getZoomRatio().getValue()).isEqualTo(1.0f);
         // percentage not changed but the zoomRatio is always 1.0f if zoom not supported.
-        assertThat(zoomControl.getZoomPercentage().getValue()).isEqualTo(0.3f);
+        assertThat(zoomControl.getLinearZoom().getValue()).isEqualTo(0.3f);
     }
 }

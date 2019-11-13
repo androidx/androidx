@@ -47,7 +47,7 @@ public class ShadowCameraX {
         MutableLiveData<Float> mZoomRatio = new MutableLiveData<>(1.0f);
         MutableLiveData<Float> mMaxZoomRatio = new MutableLiveData<>(4.0f);
         MutableLiveData<Float> mMinZoomRatio = new MutableLiveData<>(1.0f);
-        MutableLiveData<Float> mZoomPercentage = new MutableLiveData<>(0f);
+        MutableLiveData<Float> mLinearZoom = new MutableLiveData<>(0f);
 
         @Override
         public LensFacing getLensFacing() {
@@ -97,8 +97,8 @@ public class ShadowCameraX {
 
         @NonNull
         @Override
-        public LiveData<Float> getZoomPercentage() {
-            return mZoomPercentage;
+        public LiveData<Float> getLinearZoom() {
+            return mLinearZoom;
         }
     };
 
