@@ -19,6 +19,7 @@ package androidx.camera.core;
 import static com.google.common.truth.Truth.assertThat;
 
 import static junit.framework.Assert.assertFalse;
+import static junit.framework.TestCase.assertSame;
 
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.spy;
@@ -275,6 +276,18 @@ public final class CameraXTest {
         mLifecycle.destroy();
 
         CameraX.bindToLifecycle(mLifecycle, CAMERA_SELECTOR, useCase);
+    }
+
+    @Test
+    @UiThreadTest
+    public void bind_returnTheSameCameraForSameSelector() {
+        // This test scope does not include the Extension, so we only bind a fake use case with a
+        // simple lensFacing selector.
+        initCameraX();
+        Camera camera1 = CameraX.bindToLifecycle(mLifecycle, CAMERA_SELECTOR, new FakeUseCase());
+        Camera camera2 = CameraX.bindToLifecycle(mLifecycle, CAMERA_SELECTOR, new FakeUseCase());
+
+        assertSame(camera1, camera2);
     }
 
     @Test
