@@ -92,8 +92,8 @@ public class MediaControlView_WithPlayerTest extends MediaWidgetTestBase {
         mMediaControlView = mActivity.findViewById(
                 androidx.media2.widget.test.R.id.mediacontrolview);
 
-        Uri fileSchemeUri = Uri.parse("android.resource://" + mContext.getPackageName() + "/"
-                + androidx.media2.widget.test.R.raw.test_file_scheme_video);
+        Uri fileSchemeUri = getResourceUri(
+                androidx.media2.widget.test.R.raw.test_file_scheme_video);
         mFileSchemeMediaItem = createTestMediaItem(fileSchemeUri);
         checkAttachedToWindow(mMediaControlView);
     }
@@ -359,8 +359,7 @@ public class MediaControlView_WithPlayerTest extends MediaWidgetTestBase {
 
     @Test
     public void testSubtitleButtonVisibilityForMusicFile() throws Throwable {
-        Uri uri = Uri.parse("android.resource://" + mContext.getPackageName() + "/"
-                + androidx.media2.widget.test.R.raw.test_music);
+        Uri uri = getResourceUri(androidx.media2.widget.test.R.raw.test_music);
         final MediaItem uriMediaItem = createTestMediaItem(uri);
 
         final CountDownLatch latch = new CountDownLatch(1);
@@ -382,8 +381,8 @@ public class MediaControlView_WithPlayerTest extends MediaWidgetTestBase {
 
     @Test
     public void testUpdateAndSelectSubtitleTrack() throws Throwable {
-        Uri uri = Uri.parse("android.resource://" + mContext.getPackageName() + "/"
-                + androidx.media2.widget.test.R.raw.testvideo_with_2_subtitle_tracks);
+        Uri uri = getResourceUri(
+                androidx.media2.widget.test.R.raw.testvideo_with_2_subtitle_tracks);
 
         final String subtitleTrackOffText = mContext.getResources().getString(
                 R.string.MediaControlView_subtitle_off_text);

@@ -16,6 +16,11 @@
 
 package androidx.media2.widget;
 
+import static androidx.media2.widget.AspectRatioMatcher.withAspectRatio;
+import static androidx.test.espresso.Espresso.onView;
+import static androidx.test.espresso.assertion.ViewAssertions.matches;
+
+import static org.hamcrest.CoreMatchers.instanceOf;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertTrue;
@@ -27,7 +32,6 @@ import static org.mockito.Mockito.verify;
 import android.app.Activity;
 import android.content.res.AssetFileDescriptor;
 import android.graphics.Bitmap;
-import android.net.Uri;
 import android.os.Build;
 import android.os.Handler;
 import android.os.HandlerThread;
@@ -322,49 +326,40 @@ public class VideoView_WithPlayerTest extends MediaWidgetTestBase {
 
     @Test
     public void testOnVideoSizeChanged() throws Throwable {
-        final Uri nonMusicUri = Uri.parse("android.resource://" + mContext.getPackageName() + "/"
-                + R.raw.testvideo_with_2_subtitle_tracks);
-        final Uri musicUri = Uri.parse("android.resource://" + mContext.getPackageName() + "/"
-                + R.raw.test_music);
-        final String nonMusicMediaId = "nonMusic";
-        final String musicMediaId = "music";
-        final VideoSize nonMusicVideoSize = new VideoSize(160, 90);
-        final VideoSize musicVideoSize = new VideoSize(0, 0);
-
-        final CountDownLatch latchForNonMusicItem = new CountDownLatch(1);
-        final CountDownLatch latchForMusicItem = new CountDownLatch(1);
-
         List<MediaItem> playlist = new ArrayList<>();
-        playlist.add(createTestMediaItem(nonMusicUri, nonMusicMediaId));
-        playlist.add(createTestMediaItem(musicUri, musicMediaId));
+        playlist.add(createTestMediaItem(getResourceUri(R.raw.testvideo_with_2_subtitle_tracks)));
+        playlist.add(createTestMediaItem(getResourceUri(R.raw.test_music)));
 
-        final PlayerWrapper playerWrapper = createPlayerWrapper(new PlayerWrapper.PlayerCallback() {
+        VideoSize videoSizeFor1stItem = new VideoSize(160, 90);
+        VideoSize videoSizeFor2ndItem = new VideoSize(0, 0);
+
+        CountDownLatch latchFor1stItem = new CountDownLatch(1);
+        CountDownLatch latchFor2ndItem = new CountDownLatch(1);
+
+        PlayerWrapper playerWrapper = createPlayerWrapper(new PlayerWrapper.PlayerCallback() {
             @Override
             void onVideoSizeChanged(@NonNull PlayerWrapper player, @NonNull VideoSize videoSize) {
-                MediaItem item = player.getCurrentMediaItem();
-                if (item == null) {
-                    return;
-                }
-                String mediaId = item.getMediaId();
-                if (nonMusicMediaId.equals(mediaId)) {
+                if (latchFor1stItem.getCount() > 0) {
                     if (player.mController != null
                             && videoSize.getHeight() == 0 && videoSize.getWidth() == 0) {
                         // PlayerWrapper could notify onVideoSizeChanged with VideoSize of (0, 0)
                         // right after its MediaController is connected. Ignore this case.
                         return;
                     }
-                    assertEquals(nonMusicVideoSize, videoSize);
-                    latchForNonMusicItem.countDown();
-                } else if (musicMediaId.equals(mediaId)) {
-                    assertEquals(musicVideoSize, videoSize);
-                    latchForMusicItem.countDown();
+                    assertEquals(videoSizeFor1stItem, videoSize);
+                    latchFor1stItem.countDown();
+                } else if (latchFor2ndItem.getCount() > 0) {
+                    assertEquals(videoSizeFor2ndItem, videoSize);
+                    latchFor2ndItem.countDown();
                 }
             }
         }, null, playlist);
         setPlayerWrapper(playerWrapper);
-        assertTrue(latchForNonMusicItem.await(WAIT_TIME_MS, TimeUnit.MILLISECONDS));
+        assertTrue(latchFor1stItem.await(WAIT_TIME_MS, TimeUnit.MILLISECONDS));
+        onView(instanceOf(VideoSurfaceView.class)).check(matches(
+                withAspectRatio(videoSizeFor1stItem.getWidth(), videoSizeFor1stItem.getHeight())));
         playerWrapper.skipToNextItem();
-        assertTrue(latchForMusicItem.await(WAIT_TIME_MS, TimeUnit.MILLISECONDS));
+        assertTrue(latchFor2ndItem.await(WAIT_TIME_MS, TimeUnit.MILLISECONDS));
     }
 
     private void setPlayerWrapper(final PlayerWrapper playerWrapper) throws Throwable {
