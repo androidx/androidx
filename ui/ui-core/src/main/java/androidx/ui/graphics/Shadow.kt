@@ -36,7 +36,7 @@ data class Shadow(
 fun lerp(start: Shadow, stop: Shadow, fraction: Float): Shadow {
     return Shadow(
         lerp(start.color, stop.color, fraction),
-        Offset.lerp(start.offset, stop.offset, fraction)!!,
+        Offset.lerp(start.offset, stop.offset, fraction),
         lerp(start.blurRadius, stop.blurRadius, fraction)
     )
 }

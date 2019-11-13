@@ -999,7 +999,7 @@ package androidx.ui.engine.geometry {
     method public androidx.ui.engine.geometry.Offset getInfinite();
     method public androidx.ui.engine.geometry.Offset getZero();
     method public boolean isValid(androidx.ui.engine.geometry.Offset offset);
-    method public androidx.ui.engine.geometry.Offset? lerp(androidx.ui.engine.geometry.Offset start, androidx.ui.engine.geometry.Offset stop, float fraction);
+    method public androidx.ui.engine.geometry.Offset lerp(androidx.ui.engine.geometry.Offset start, androidx.ui.engine.geometry.Offset stop, float fraction);
     property public final androidx.ui.engine.geometry.Offset infinite;
     property public final androidx.ui.engine.geometry.Offset zero;
   }

@@ -86,12 +86,12 @@ data class Offset(override val dx: Float, override val dy: Float) : OffsetBase {
          * Values for [fraction] are usually obtained from an [Animation<Float>], such as
          * an `AnimationController`.
          */
-        fun lerp(start: Offset, stop: Offset, fraction: Float): Offset? {
+        fun lerp(start: Offset, stop: Offset, fraction: Float): Offset {
             return Offset(lerp(start.dx, stop.dx, fraction), lerp(start.dy, stop.dy, fraction))
         }
 
         fun isValid(offset: Offset): Boolean {
-            assert(Float.NaN != offset.dx && Float.NaN != offset.dy) {
+            assert(!offset.dx.isNaN() && !offset.dy.isNaN()) {
                 "Offset argument contained a NaN value."
             }
             return true
@@ -181,7 +181,7 @@ data class Offset(override val dx: Float, override val dy: Float) : OffsetBase {
      * ```
      */
     fun translate(translateX: Float, translateY: Float): Offset =
-            Offset(dx + translateX, dy + translateY)
+        Offset(dx + translateX, dy + translateY)
 
     /**
      * Unary negation operator.
@@ -246,7 +246,7 @@ data class Offset(override val dx: Float, override val dy: Float) : OffsetBase {
      */
     // TODO(Filip): Original operator ~/ could not be overriden in Kotlin
     fun truncDiv(operand: Float) =
-            Offset(truncate(dx / operand), truncate(dy / operand))
+        Offset(truncate(dx / operand), truncate(dy / operand))
 
     /**
      * Modulo (remainder) operator.
