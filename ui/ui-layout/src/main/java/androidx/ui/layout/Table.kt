@@ -479,13 +479,13 @@ fun Table(
     columns: Int,
     alignment: (columnIndex: Int) -> Alignment = { Alignment.TopLeft },
     columnWidth: (columnIndex: Int) -> TableColumnWidth = { TableColumnWidth.Flex(1f) },
-    block: TableChildren.() -> Unit
+    children: TableChildren.() -> Unit
 ) {
     var verticalOffsets: Array<IntPx>? = null
     var horizontalOffsets: Array<IntPx>? = null
 
     val tableChildren: @Composable() () -> Unit = with(TableChildren()) {
-        apply(block)
+        apply(children)
         val composable = @Composable {
             if (tableDecorationsUnderlay.isNotEmpty()) {
                 WithConstraints {
@@ -516,10 +516,10 @@ fun Table(
         minIntrinsicHeightMeasureBlock = MinIntrinsicHeightMeasureBlock(columns, columnWidth),
         maxIntrinsicWidthMeasureBlock = MaxIntrinsicWidthMeasureBlock(columns, columnWidth),
         maxIntrinsicHeightMeasureBlock = MaxIntrinsicHeightMeasureBlock(columns, columnWidth)
-    ) { children, constraints ->
-        val measurables = children.filter { it.rowIndex != null }.groupBy { it.rowIndex }
-        val rows = measurables.size
-        fun measurableAt(row: Int, column: Int) = measurables[row]?.getOrNull(column)
+    ) { measurables, constraints ->
+        val rowMeasurables = measurables.filter { it.rowIndex != null }.groupBy { it.rowIndex }
+        val rows = rowMeasurables.size
+        fun measurableAt(row: Int, column: Int) = rowMeasurables[row]?.getOrNull(column)
         val placeables = Array(rows) { arrayOfNulls<Placeable>(columns) }
 
         // Compute column widths and collect flex information.
@@ -590,7 +590,7 @@ fun Table(
             constraints.constrain(IntPxSize(columnOffsets[columns], rowOffsets[rows]))
 
         layout(tableSize.width, tableSize.height) {
-            children.first().takeIf { it.rowIndex == null }
+            measurables.first().takeIf { it.rowIndex == null }
                 ?.measure(Constraints.tightConstraints(tableSize.width, tableSize.height))
                 ?.place(IntPx.Zero, IntPx.Zero)
             for (row in 0 until rows) {
@@ -609,8 +609,8 @@ fun Table(
                     }
                 }
             }
-            if (children.size > 1) {
-                children.last().takeIf { it.rowIndex == null }
+            if (measurables.size > 1) {
+                measurables.last().takeIf { it.rowIndex == null }
                     ?.measure(Constraints.tightConstraints(tableSize.width, tableSize.height))
                     ?.place(IntPx.Zero, IntPx.Zero)
             }
