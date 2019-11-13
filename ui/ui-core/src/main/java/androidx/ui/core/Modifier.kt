@@ -90,7 +90,7 @@ interface Modifier {
      * Wraps another [Modifier] with this one, returning the new chain.
      */
     infix fun wraps(other: Modifier): Modifier =
-        if (other === None) this else other.foldOut(this, ::CombinedModifier)
+        if (other === None) this else foldOut(other, ::CombinedModifier)
 
     /**
      * An empty [Modifier] that contains no [elements][Element].
