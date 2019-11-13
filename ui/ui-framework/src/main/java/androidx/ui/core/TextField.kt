@@ -90,6 +90,7 @@ import androidx.ui.text.TextStyle
 @Composable
 fun TextField(
     value: String,
+    modifier: Modifier = Modifier.None,
     onValueChange: (String) -> Unit = {},
     textStyle: TextStyle? = null,
     keyboardType: KeyboardType = KeyboardType.Text,
@@ -114,6 +115,7 @@ fun TextField(
 
     BaseTextField(
         value = fullModel.value,
+        modifier = modifier,
         onValueChange = {
             val prevValue = fullModel.value.text
             fullModel.value = it
@@ -196,6 +198,7 @@ data class EditorModel(
 @Composable
 fun TextField(
     value: EditorModel,
+    modifier: Modifier = Modifier.None,
     onValueChange: (EditorModel) -> Unit = {},
     textStyle: TextStyle? = null,
     keyboardType: KeyboardType = KeyboardType.Text,
@@ -220,6 +223,7 @@ fun TextField(
 
     BaseTextField(
         value = fullModel.value,
+        modifier = modifier,
         onValueChange = {
             val prevState = fullModel.value
             fullModel.value = it
@@ -293,6 +297,7 @@ fun TextField(
 fun TextField(
     model: EditorModel,
     compositionRange: TextRange?,
+    modifier: Modifier = Modifier.None,
     onValueChange: (EditorModel, TextRange?) -> Unit = { _, _ -> },
     textStyle: TextStyle? = null,
     keyboardType: KeyboardType = KeyboardType.Text,
@@ -305,6 +310,7 @@ fun TextField(
 ) {
     BaseTextField(
         value = InputState(model.text, model.selection, compositionRange),
+        modifier = modifier,
         onValueChange = { onValueChange(EditorModel(it.text, it.selection), it.composition) },
         textStyle = textStyle,
         keyboardType = keyboardType,
@@ -323,6 +329,7 @@ fun TextField(
 @Composable
 internal fun BaseTextField(
     value: InputState,
+    modifier: Modifier,
     onValueChange: (InputState) -> Unit = { },
     textStyle: TextStyle? = null,
     keyboardType: KeyboardType = KeyboardType.Text,
@@ -424,6 +431,7 @@ internal fun BaseTextField(
             }
         ) {
             Layout(
+                modifier = modifier,
                 children = @Composable {
                     OnPositioned {
                         if (textInputService != null) {
