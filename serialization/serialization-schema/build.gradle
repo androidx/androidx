@@ -34,6 +34,7 @@ dependencies {
 androidx {
     name = "AndroidX Serialization - Schema"
     publish = Publish.NONE
+    toolingProject = true
     compilationTarget = CompilationTarget.HOST
     mavenVersion = LibraryVersions.SERIALIZATION
     mavenGroup = LibraryGroups.SERIALIZATION
