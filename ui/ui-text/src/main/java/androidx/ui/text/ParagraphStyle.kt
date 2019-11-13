@@ -43,14 +43,14 @@ import androidx.ui.text.style.TextIndent
 data class ParagraphStyle constructor(
     val textAlign: TextAlign? = null,
     val textDirectionAlgorithm: TextDirectionAlgorithm? = null,
-    val lineHeight: Sp? = null,
+    val lineHeight: Sp = Sp.Inherit,
     val textIndent: TextIndent? = null
 ) {
     init {
-        lineHeight?.let {
+        if (lineHeight != Sp.Inherit) {
             // Since we are checking if it's negative, no need to convert Sp into Px at this point.
-            assert(it.value >= 0f) {
-                "lineHeight can't be negative ($it)"
+            assert(lineHeight.value >= 0f) {
+                "lineHeight can't be negative (${lineHeight.value})"
             }
         }
     }
@@ -65,7 +65,7 @@ data class ParagraphStyle constructor(
         if (other == null) return this
 
         return ParagraphStyle(
-            lineHeight = other.lineHeight ?: this.lineHeight,
+            lineHeight = if (other.lineHeight == Sp.Inherit) this.lineHeight else other.lineHeight,
             textIndent = other.textIndent ?: this.textIndent,
             textAlign = other.textAlign ?: this.textAlign,
             textDirectionAlgorithm = other.textDirectionAlgorithm
