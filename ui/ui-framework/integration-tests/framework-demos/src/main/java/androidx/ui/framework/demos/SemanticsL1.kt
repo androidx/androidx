@@ -24,7 +24,6 @@ import androidx.ui.core.gesture.PressGestureDetector
 import androidx.ui.core.px
 import androidx.ui.layout.Column
 import androidx.ui.layout.Container
-import androidx.ui.layout.CrossAxisAlignment
 import androidx.ui.layout.MainAxisAlignment
 import androidx.ui.material.Button
 import androidx.ui.material.MaterialTheme
@@ -33,6 +32,7 @@ import androidx.compose.state
 import androidx.compose.unaryPlus
 import androidx.ui.layout.ExpandedHeight
 import androidx.ui.layout.ExpandedWidth
+import androidx.ui.layout.Gravity
 
 /** A [SemanticProperty] is used to store semantic information about a component.
  *
@@ -174,12 +174,13 @@ fun Semantics(
                 InvokeActionsByParameters(actions)
             }
         }
-        Row(
-            ExpandedWidth,
-            mainAxisAlignment = MainAxisAlignment.Center,
-            crossAxisAlignment = CrossAxisAlignment.Center
-        ) {
-            Container(height = 300.dp, width = 500.dp, children = children)
+        Row(ExpandedWidth, mainAxisAlignment = MainAxisAlignment.Center) {
+            Container(
+                height = 300.dp,
+                width = 500.dp,
+                modifier = Gravity.Center,
+                children = children
+            )
         }
     }
 }

@@ -52,7 +52,7 @@ import androidx.ui.core.Text
 import androidx.ui.core.VerticalAlignmentLine
 import androidx.ui.core.sp
 import androidx.ui.layout.AlignmentLineOffset
-import androidx.ui.layout.CrossAxisAlignment
+import androidx.ui.layout.Gravity
 import androidx.ui.layout.Wrap
 import androidx.ui.layout.samples.DrawRectangle
 import androidx.ui.layout.samples.SizedRectangle
@@ -387,9 +387,9 @@ fun PositionUsingAlignmentLine() {
 
 @Composable
 fun RowBaselineAlignment() {
-    Row(crossAxisAlignment = CrossAxisAlignment.AlignmentLine(FirstBaseline)) {
-        Text("First text")
-        Column {
+    Row {
+        Text("First text", modifier = Gravity.RelativeToSiblings(FirstBaseline))
+        Column(modifier = Gravity.RelativeToSiblings(FirstBaseline)) {
             SizedRectangle(color = Color.Blue, width = 10.dp, height = 50.dp)
             Padding(30.dp) {
                 Text("Second text", style = TextStyle(fontSize = 45.sp))

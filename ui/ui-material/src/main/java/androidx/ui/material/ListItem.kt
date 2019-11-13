@@ -260,7 +260,7 @@ private object TwoLine {
     ) {
         val minHeight = if (icon == null) MinHeight else MinHeightWithIcon
         ConstrainedBox(constraints = DpConstraints(minHeight = minHeight)) {
-            FlexRow(crossAxisAlignment = CrossAxisAlignment.Start) {
+            FlexRow {
                 inflexible {
                     if (icon != null) {
                         Container(
@@ -357,7 +357,7 @@ private object ThreeLine {
         trailing: @Composable() (() -> Unit)?
     ) {
         ConstrainedBox(constraints = DpConstraints(minHeight = MinHeight)) {
-            FlexRow(crossAxisAlignment = CrossAxisAlignment.Start) {
+            FlexRow {
                 inflexible {
                     if (icon != null) {
                         Container(

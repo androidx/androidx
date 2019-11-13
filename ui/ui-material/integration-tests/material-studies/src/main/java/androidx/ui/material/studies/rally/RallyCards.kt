@@ -28,10 +28,10 @@ import androidx.ui.foundation.VerticalScroller
 import androidx.ui.graphics.Color
 import androidx.ui.layout.Column
 import androidx.ui.layout.Container
-import androidx.ui.layout.CrossAxisAlignment
 import androidx.ui.layout.ExpandedWidth
 import androidx.ui.layout.FixedSpacer
 import androidx.ui.layout.FlexRow
+import androidx.ui.layout.Gravity
 import androidx.ui.layout.HeightSpacer
 import androidx.ui.layout.MainAxisAlignment
 import androidx.ui.layout.Row
@@ -159,9 +159,17 @@ fun RallyAccountsCard() {
                             Container(height = 300.dp, expanded = true) {
                                 DrawAnimatedCircle(accountsProportion, colors)
                             }
-                            Column(crossAxisAlignment = CrossAxisAlignment.Center) {
-                                Text(text = "Total", style = (+MaterialTheme.typography()).body1)
-                                Text(text = "$12,132.49", style = (+MaterialTheme.typography()).h3)
+                            Column {
+                                Text(
+                                    text = "Total",
+                                    style = (+MaterialTheme.typography()).body1,
+                                    modifier = Gravity.Center
+                                )
+                                Text(
+                                    text = "$12,132.49",
+                                    style = (+MaterialTheme.typography()).h3,
+                                    modifier = Gravity.Center
+                                )
                             }
                         }
                     }
@@ -210,7 +218,7 @@ fun RallyAccountRow(name: String, number: String, amount: String, color: Color) 
         inflexible {
             AccountIndicator(color = color)
             WidthSpacer(width = 8.dp)
-            Column(crossAxisAlignment = CrossAxisAlignment.Start) {
+            Column {
                 Text(text = name, style = (+MaterialTheme.typography()).body1)
                 Text(text = "•••••$number", style = (+MaterialTheme.typography()).subtitle1)
             }
@@ -289,9 +297,17 @@ fun RallyBillsCard() {
                     Container(height = 300.dp, expanded = true) {
                         DrawAnimatedCircle(accountsProportion, colors)
                     }
-                    Column(crossAxisAlignment = CrossAxisAlignment.Center) {
-                        Text(text = "Due", style = (+MaterialTheme.typography()).body1)
-                        Text(text = "$1,810.00", style = (+MaterialTheme.typography()).h3)
+                    Column {
+                        Text(
+                            text = "Due",
+                            style = (+MaterialTheme.typography()).body1,
+                            modifier = Gravity.Center
+                        )
+                        Text(
+                            text = "$1,810.00",
+                            style = (+MaterialTheme.typography()).h3,
+                            modifier = Gravity.Center
+                        )
                     }
                 }
             }

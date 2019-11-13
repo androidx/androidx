@@ -41,7 +41,6 @@ import androidx.ui.layout.Align
 import androidx.ui.layout.Column
 import androidx.ui.layout.ConstrainedBox
 import androidx.ui.layout.Container
-import androidx.ui.layout.CrossAxisAlignment
 import androidx.ui.layout.DpConstraints
 import androidx.ui.layout.Row
 import androidx.ui.test.android.AndroidComposeTestRule
@@ -220,7 +219,7 @@ class ScrollerTest {
                     Align(alignment = Alignment.TopLeft) {
                         ConstrainedBox(constraints = constraints) {
                             VerticalScroller(scrollerPosition = scrollerPosition) {
-                                Column(crossAxisAlignment = CrossAxisAlignment.Start) {
+                                Column {
                                     colors.forEach { color ->
                                         Container(
                                             height = 5.px.toDp(),
@@ -258,7 +257,7 @@ class ScrollerTest {
                     Align(alignment = Alignment.TopLeft) {
                         ConstrainedBox(constraints = constraints) {
                             HorizontalScroller(scrollerPosition = scrollerPosition) {
-                                Row(crossAxisAlignment = CrossAxisAlignment.Start) {
+                                Row {
                                     colors.forEach { color ->
                                         Container(
                                             width = 5.px.toDp(),

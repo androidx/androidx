@@ -23,7 +23,6 @@ import androidx.ui.core.Text
 import androidx.ui.core.dp
 import androidx.ui.layout.Column
 import androidx.ui.layout.Container
-import androidx.ui.layout.CrossAxisAlignment
 import androidx.ui.layout.HeightSpacer
 import androidx.ui.layout.MainAxisAlignment
 import androidx.ui.layout.Row
@@ -32,10 +31,12 @@ import androidx.ui.layout.Wrap
 import androidx.ui.graphics.Color
 import androidx.ui.text.TextStyle
 import androidx.compose.Composable
+import androidx.ui.core.Modifier
 import androidx.ui.core.setContent
 import androidx.ui.core.sp
 import androidx.ui.layout.ExpandedHeight
 import androidx.ui.layout.ExpandedWidth
+import androidx.ui.layout.Gravity
 import androidx.ui.layout.samples.DrawRectangle
 
 class LayoutActivity : Activity() {
@@ -64,10 +65,7 @@ fun ContainerWithBackground(
 @Composable
 fun LayoutDemo() {
     val lightGrey = Color(0xFFCFD8DC)
-    Column(
-        mainAxisAlignment = MainAxisAlignment.Start,
-        crossAxisAlignment = CrossAxisAlignment.Start
-    ) {
+    Column(mainAxisAlignment = MainAxisAlignment.Start) {
         Text(text = "Row", style = TextStyle(fontSize = 48.sp))
         ContainerWithBackground(width = ExampleSize, color = lightGrey) {
             Row(ExpandedWidth) {
@@ -97,22 +95,16 @@ fun LayoutDemo() {
         }
         HeightSpacer(height = 24.dp)
         ContainerWithBackground(width = ExampleSize, color = lightGrey) {
-            Row(
-                ExpandedWidth,
-                crossAxisAlignment = CrossAxisAlignment.Start
-            ) {
+            Row(ExpandedWidth) {
                 PurpleSquare()
                 CyanSquare()
             }
         }
         HeightSpacer(height = 24.dp)
         ContainerWithBackground(width = ExampleSize, color = lightGrey) {
-            Row(
-                ExpandedWidth,
-                crossAxisAlignment = CrossAxisAlignment.End
-            ) {
-                PurpleSquare()
-                CyanSquare()
+            Row(ExpandedWidth) {
+                PurpleSquare(Gravity.Bottom)
+                CyanSquare(Gravity.Bottom)
             }
         }
         HeightSpacer(height = 24.dp)
@@ -146,22 +138,16 @@ fun LayoutDemo() {
             }
             WidthSpacer(width = 24.dp)
             ContainerWithBackground(height = ExampleSize, color = lightGrey) {
-                Column(
-                    ExpandedHeight,
-                    crossAxisAlignment = CrossAxisAlignment.Start
-                ) {
+                Column(ExpandedHeight) {
                     PurpleSquare()
                     CyanSquare()
                 }
             }
             WidthSpacer(width = 24.dp)
             ContainerWithBackground(height = ExampleSize, color = lightGrey) {
-                Column(
-                    ExpandedHeight,
-                    crossAxisAlignment = CrossAxisAlignment.End
-                ) {
-                    PurpleSquare()
-                    CyanSquare()
+                Column(ExpandedHeight) {
+                    PurpleSquare(Gravity.End)
+                    CyanSquare(Gravity.End)
                 }
             }
         }
@@ -169,15 +155,15 @@ fun LayoutDemo() {
 }
 
 @Composable
-fun PurpleSquare() {
-    Container(width = BigSize, height = BigSize) {
+fun PurpleSquare(modifier: Modifier = Modifier.None) {
+    Container(width = BigSize, height = BigSize, modifier = modifier) {
         DrawRectangle(color = Color(0xFF6200EE))
     }
 }
 
 @Composable
-fun CyanSquare() {
-    Container(width = SmallSize, height = SmallSize) {
+fun CyanSquare(modifier: Modifier = Modifier.None) {
+    Container(width = SmallSize, height = SmallSize, modifier = modifier) {
         DrawRectangle(color = Color(0xFF03DAC6))
     }
 }

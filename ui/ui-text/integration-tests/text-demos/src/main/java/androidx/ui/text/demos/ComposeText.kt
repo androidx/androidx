@@ -28,7 +28,6 @@ import androidx.ui.text.font.FontFamily
 import androidx.ui.graphics.Color
 import androidx.ui.graphics.lerp
 import androidx.ui.layout.Column
-import androidx.ui.layout.CrossAxisAlignment
 import androidx.ui.layout.Row
 import androidx.ui.foundation.VerticalScroller
 import androidx.ui.text.ParagraphStyle
@@ -65,7 +64,7 @@ val fontSize10: Sp = 30.sp
 @Composable
 fun TextDemo() {
     VerticalScroller {
-        Column(crossAxisAlignment = CrossAxisAlignment.Start) {
+        Column {
             TagLine(tag = "color, fontSize, fontWeight and fontStyle")
             TextDemoBasic()
             TagLine(tag = "color, fontSize, fontWeight, fontFamily, fontStyle, letterSpacing, " +
@@ -369,10 +368,7 @@ fun TextDemoTextAlign() {
     for (i in 1..10) {
         text = "$text$displayText "
     }
-    Column(
-        ExpandedHeight,
-        crossAxisAlignment = CrossAxisAlignment.Start
-    ) {
+    Column(ExpandedHeight) {
         SecondTagLine(tag = "textAlign = TextAlign.Left")
         Text(paragraphStyle = ParagraphStyle(textAlign = TextAlign.Left)) {
             Span(text = displayText, style = TextStyle(fontSize = fontSize8))
@@ -441,10 +437,7 @@ fun TextDemoSoftWrap() {
     val textStyle =
         TextStyle(fontSize = fontSize8, color = Color(0xFFFF0000))
 
-    Column(
-        ExpandedHeight,
-        crossAxisAlignment = CrossAxisAlignment.Start
-    ) {
+    Column(ExpandedHeight) {
         Text {
             Span(text = text, style = textStyle)
         }

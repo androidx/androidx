@@ -26,7 +26,6 @@ import androidx.ui.core.toRect
 import androidx.ui.graphics.Color
 import androidx.ui.layout.Column
 import androidx.ui.layout.Container
-import androidx.ui.layout.CrossAxisAlignment
 import androidx.ui.foundation.ScrollerPosition
 import androidx.ui.foundation.VerticalScroller
 import androidx.ui.graphics.Paint
@@ -46,10 +45,7 @@ class ScrollerTestCase() : ComposeTestCase, ToggleableTestCase {
         VerticalScroller(
             scrollerPosition = scrollerPosition
         ) {
-            Column(
-                ExpandedHeight,
-                crossAxisAlignment = CrossAxisAlignment.Start
-            ) {
+            Column(ExpandedHeight) {
                 for (green in 0..0xFF) {
                     ColorStripe(0xFF, green, 0)
                 }

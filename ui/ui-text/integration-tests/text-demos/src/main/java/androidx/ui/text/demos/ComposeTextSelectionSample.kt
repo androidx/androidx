@@ -33,7 +33,6 @@ import androidx.ui.foundation.shape.RectangleShape
 import androidx.ui.foundation.text.SelectionContainer
 import androidx.ui.graphics.Color
 import androidx.ui.layout.Column
-import androidx.ui.layout.CrossAxisAlignment
 import androidx.ui.layout.FlexRow
 import androidx.ui.layout.Padding
 import androidx.ui.text.AnnotatedString
@@ -90,7 +89,7 @@ fun TextSelectionSample() {
             onSelectionChange = { selection.value = it }
         ) {
             Padding(12.dp) {
-                Column(crossAxisAlignment = CrossAxisAlignment.Start) {
+                Column {
                     Basics()
                     AddTextElement()
                     langContent.forEach {

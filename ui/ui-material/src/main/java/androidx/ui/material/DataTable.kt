@@ -38,9 +38,9 @@ import androidx.ui.graphics.Color
 import androidx.ui.graphics.Image
 import androidx.ui.layout.Column
 import androidx.ui.layout.Container
-import androidx.ui.layout.CrossAxisAlignment
 import androidx.ui.layout.EdgeInsets
 import androidx.ui.layout.Expanded
+import androidx.ui.layout.Gravity
 import androidx.ui.layout.MainAxisAlignment
 import androidx.ui.layout.Row
 import androidx.ui.layout.Table
@@ -483,48 +483,49 @@ fun DataTable(
         Column {
             table()
             Container(height = dataRowHeight, padding = cellSpacing) {
-                Row(
-                    Expanded,
-                    mainAxisAlignment = MainAxisAlignment.End,
-                    crossAxisAlignment = CrossAxisAlignment.Center
-                ) {
+                Row(Expanded, mainAxisAlignment = MainAxisAlignment.End) {
                     val pages = (rows.size - 1) / pagination.rowsPerPage + 1
                     val startRow = pagination.rowsPerPage * pagination.page
                     val endRow = (startRow + pagination.rowsPerPage).coerceAtMost(rows.size)
+                    val modifier = Gravity.Center
 
                     // TODO(calintat): Replace this with a dropdown menu whose items are taken
                     //  from availableRowsPerPage (filtered to those that are in the range
                     //  0 until rows.size). When an item is selected, it should invoke
                     //  onRowsPerPageChange with the appropriate value.
-                    Text(text = "Rows per page: ${pagination.rowsPerPage}")
+                    Text(text = "Rows per page: ${pagination.rowsPerPage}", modifier = modifier)
 
                     WidthSpacer(width = 32.dp)
 
-                    Text(text = "${startRow + 1}-$endRow of ${rows.size}")
+                    Text(text = "${startRow + 1}-$endRow of ${rows.size}", modifier = modifier)
 
                     WidthSpacer(width = 32.dp)
 
                     // TODO(calintat): Replace this with an image button with chevron_left icon.
-                    Ripple(bounded = false) {
-                        Clickable(onClick = {
-                            val newPage = pagination.page - 1
-                            if (newPage >= 0)
-                                pagination.onPageChange.invoke(newPage)
-                        }) {
-                            Text(text = "Prev")
+                    Container(modifier = modifier) {
+                        Ripple(bounded = false) {
+                            Clickable(onClick = {
+                                val newPage = pagination.page - 1
+                                if (newPage >= 0)
+                                    pagination.onPageChange.invoke(newPage)
+                            }) {
+                                Text(text = "Prev")
+                            }
                         }
                     }
 
                     WidthSpacer(width = 24.dp)
 
                     // TODO(calintat): Replace this with an image button with chevron_right icon.
-                    Ripple(bounded = false) {
-                        Clickable(onClick = {
-                            val newPage = pagination.page + 1
-                            if (newPage < pages)
-                                pagination.onPageChange.invoke(newPage)
-                        }) {
-                            Text(text = "Next")
+                    Container(modifier = modifier) {
+                        Ripple(bounded = false) {
+                            Clickable(onClick = {
+                                val newPage = pagination.page + 1
+                                if (newPage < pages)
+                                    pagination.onPageChange.invoke(newPage)
+                            }) {
+                                Text(text = "Next")
+                            }
                         }
                     }
                 }
