@@ -23,7 +23,7 @@ import androidx.annotation.RestrictTo;
  * Result of the {@link CameraControl#startFocusAndMetering(FocusMeteringAction)}.
  */
 public final class FocusMeteringResult {
-    private boolean mIsFocusedSuccessfully;
+    private boolean mIsFocusSuccessful;
 
     /** @hide */
     @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
@@ -35,18 +35,21 @@ public final class FocusMeteringResult {
     /** @hide */
     @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
     @NonNull
-    public static FocusMeteringResult create(boolean isFocusLocked) {
-        return new FocusMeteringResult(isFocusLocked);
+    public static FocusMeteringResult create(boolean isFocusSuccess) {
+        return new FocusMeteringResult(isFocusSuccess);
     }
 
-    private FocusMeteringResult(boolean isFocused) {
-        mIsFocusedSuccessfully = isFocused;
+    private FocusMeteringResult(boolean isFocusSuccess) {
+        mIsFocusSuccessful = isFocusSuccess;
     }
 
     /**
-     * Returns if AF is Focused successfully or not.
+     * Returns if auto focus is successful.
+     *
+     * <p>If AF is requested in {@link FocusMeteringAction} but current camera does not support
+     * AF, it will return true. If AF is not requested, it will return false.
      */
-    public boolean isFocusedSuccessfully() {
-        return mIsFocusedSuccessfully;
+    public boolean isFocusSuccessful() {
+        return mIsFocusSuccessful;
     }
 }
