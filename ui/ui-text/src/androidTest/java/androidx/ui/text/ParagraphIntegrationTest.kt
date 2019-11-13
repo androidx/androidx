@@ -17,7 +17,6 @@ package androidx.ui.text
 
 import androidx.test.filters.SdkSuppress
 import androidx.test.filters.SmallTest
-import androidx.test.filters.Suppress
 import androidx.test.platform.app.InstrumentationRegistry
 import androidx.ui.core.Density
 import androidx.ui.core.PxPosition
@@ -430,8 +429,8 @@ class ParagraphIntegrationTest {
         }
     }
 
-    @Suppress
     @Test(expected = java.lang.IndexOutOfBoundsException::class)
+    @SdkSuppress(minSdkVersion = 26)
     fun getBoundingBox_ltr_textPosition_larger_than_length_throw_exception() {
         withDensity(defaultDensity) {
             val text = "abc"
