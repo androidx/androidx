@@ -267,14 +267,14 @@ package androidx.ui.text {
   }
 
   public final class ParagraphStyle {
-    ctor public ParagraphStyle(androidx.ui.text.style.TextAlign? textAlign, androidx.ui.text.style.TextDirectionAlgorithm? textDirectionAlgorithm, androidx.ui.core.Sp? lineHeight, androidx.ui.text.style.TextIndent? textIndent);
+    ctor public ParagraphStyle(androidx.ui.text.style.TextAlign? textAlign, androidx.ui.text.style.TextDirectionAlgorithm? textDirectionAlgorithm, androidx.ui.core.Sp lineHeight, androidx.ui.text.style.TextIndent? textIndent);
     ctor public ParagraphStyle();
     method public androidx.ui.text.style.TextAlign? component1();
     method public androidx.ui.text.style.TextDirectionAlgorithm? component2();
-    method public androidx.ui.core.Sp? component3();
+    method public androidx.ui.core.Sp component3();
     method public androidx.ui.text.style.TextIndent? component4();
-    method public androidx.ui.text.ParagraphStyle copy(androidx.ui.text.style.TextAlign? textAlign, androidx.ui.text.style.TextDirectionAlgorithm? textDirectionAlgorithm, androidx.ui.core.Sp? lineHeight, androidx.ui.text.style.TextIndent? textIndent);
-    method public androidx.ui.core.Sp? getLineHeight();
+    method public androidx.ui.text.ParagraphStyle copy(androidx.ui.text.style.TextAlign? textAlign, androidx.ui.text.style.TextDirectionAlgorithm? textDirectionAlgorithm, androidx.ui.core.Sp lineHeight, androidx.ui.text.style.TextIndent? textIndent);
+    method public androidx.ui.core.Sp getLineHeight();
     method public androidx.ui.text.style.TextAlign? getTextAlign();
     method public androidx.ui.text.style.TextDirectionAlgorithm? getTextDirectionAlgorithm();
     method public androidx.ui.text.style.TextIndent? getTextIndent();
