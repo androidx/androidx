@@ -20,4 +20,22 @@
     <string name="not_localized_format">NotLocalizedFormatText:%d</string>
     <string name="localized">DefaultLocaleText</string>
     <string name="localized_format">DefaultLocaleFormatText:%d</string>
+
+    <string-array name="string_array">
+        <item>string1</item>
+        <item>string2</item>
+    </string-array>
+
+    <integer name="integer_value">123</integer>
+
+    <integer-array name="integer_array">
+        <item>234</item>
+        <item>345</item>
+    </integer-array>
+
+    <bool name="boolean_value">true</bool>
+
+    <dimen name="dimension_value">32dp</dimen>
+
+    <color name="color_resource">#12345678</color>
 </resources>

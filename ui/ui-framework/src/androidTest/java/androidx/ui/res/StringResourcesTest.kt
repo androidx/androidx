@@ -150,4 +150,16 @@ class StringResourcesTest {
             }
         }
     }
+
+    @Test
+    fun stringArrayResource() {
+        val context = InstrumentationRegistry.getInstrumentation().targetContext
+
+        composeTestRule.setContent {
+            ContextAmbient.Provider(value = context) {
+                assertThat(+stringArrayResource(R.array.string_array))
+                    .isEqualTo(arrayOf("string1", "string2"))
+            }
+        }
+    }
 }
