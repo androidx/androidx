@@ -31,6 +31,8 @@ import androidx.annotation.RestrictTo;
  * variant, {@link #createPoint(float, float, float)} for apps that want to also specify size.
  *
  * @see MeteringPoint
+ * @see #createPoint(float, float)
+ * @see #createPoint(float, float, float)
  */
 public abstract class MeteringPointFactory {
     /**
@@ -88,7 +90,10 @@ public abstract class MeteringPointFactory {
      * @param x x to be converted.
      * @param y y to be converted.
      * @return a {@link PointF} consisting of converted normalized surface coordinates.
+     *
+     * @hide
      */
+    @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
     @NonNull
     protected abstract PointF convertPoint(float x, float y);
 

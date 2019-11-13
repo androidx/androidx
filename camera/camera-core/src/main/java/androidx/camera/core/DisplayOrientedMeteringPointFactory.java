@@ -67,10 +67,11 @@ public final class DisplayOrientedMeteringPointFactory extends MeteringPointFact
      *
      * <p>The width/height of this factory forms a coordinate left-top (0, 0) - right-bottom
      * (width, height) which represents the full camera preview FOV in default display's
-     * orientation. The (x, y) passed to {@link MeteringPointFactory#convertPoint(float, float)}
-     * should be adjusted to this coordinate first. For apps showing full camera preview in a
-     * {@link View}, it is as simple as passing View's width/height and passing View (x, y)
-     * directly to create a {@link MeteringPoint}.
+     * orientation. For apps showing full camera preview in a {@link View}, it is as simple as
+     * passing View's width/height and passing View (x, y) directly to create a
+     * {@link MeteringPoint}. Otherwise the (x, y) passed to
+     * {@link MeteringPointFactory#createPoint(float, float)} should be adjusted to this
+     * coordinate system first.
      *
      * @param context        context to get the {@link WindowManager} for default display rotation.
      * @param cameraSelector current cameraSelector to choose camera.
@@ -92,11 +93,12 @@ public final class DisplayOrientedMeteringPointFactory extends MeteringPointFact
      * used in multi-display situation.
      *
      * <p>The width/height of this factory forms a coordinate left-top (0, 0) - right-bottom
-     * (width, height) which represents the full camera preview FOV in given display's
-     * orientation. The (x, y) passed to {@link MeteringPointFactory#convertPoint(float, float)}
-     * should be adjusted to this coordinate first. For apps showing full camera preview in a
-     * {@link View}, it is as simple as passing View's width/height and passing View (x, y)
-     * directly to create a {@link MeteringPoint}.
+     * (width, height) which represents the full camera preview FOV in default display's
+     * orientation. For apps showing full camera preview in a {@link View}, it is as simple as
+     * passing View's width/height and passing View (x, y) directly to create a
+     * {@link MeteringPoint}. Otherwise the (x, y) passed to
+     * {@link MeteringPointFactory#createPoint(float, float)} should be adjusted to this
+     * coordinate system first.
      *
      * @param display        {@link Display} to get the orientation from.
      * @param cameraSelector current cameraSelector to choose camera.
