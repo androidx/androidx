@@ -575,7 +575,7 @@ class AndroidComposeView constructor(context: Context) :
     }
 
     override fun sendEvent(event: MotionEvent) {
-        onTouchEvent(event)
+        dispatchTouchEvent(event)
     }
 
     private val textInputServiceAndroid = TextInputServiceAndroid(this)
