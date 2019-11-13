@@ -20,6 +20,7 @@ import androidx.compose.Composable
 import androidx.compose.unaryPlus
 import androidx.ui.core.CurrentTextStyleProvider
 import androidx.ui.core.Dp
+import androidx.ui.core.Modifier
 import androidx.ui.core.Text
 import androidx.ui.core.dp
 import androidx.ui.engine.geometry.Shape
@@ -46,6 +47,7 @@ import androidx.ui.text.TextStyle
  *
  * @see FloatingActionButton overload for the variants with an icon or an icon and a text.
  *
+ * @param modifier Modifier to be applied to the button.
  * @param onClick will be called when user clicked on the button. The button will be disabled
  *  when it is null.
  * @param minSize Minimum size of the button. Defaults to [FabSize]
@@ -57,6 +59,7 @@ import androidx.ui.text.TextStyle
  */
 @Composable
 fun FloatingActionButton(
+    modifier: Modifier = Modifier.None,
     onClick: (() -> Unit)? = null,
     minSize: Dp = FabSize,
     shape: Shape = CircleShape,
@@ -64,7 +67,7 @@ fun FloatingActionButton(
     elevation: Dp = 6.dp,
     children: @Composable() () -> Unit
 ) {
-    Surface(shape = shape, color = color, elevation = elevation) {
+    Surface(modifier = modifier, shape = shape, color = color, elevation = elevation) {
         Ripple(bounded = true, enabled = onClick != null) {
             Clickable(onClick) {
                 Container(constraints = DpConstraints(minWidth = minSize, minHeight = minSize)) {
@@ -85,6 +88,7 @@ fun FloatingActionButton(
  * @see FloatingActionButton overload for the variants with a custom content or an icon and a text.
  *
  * @param icon Image to draw in the center.
+ * @param modifier Modifier to be applied to the button.
  * @param onClick will be called when user clicked on the button. The button will be disabled
  *  when it is null.
  * @param color The background color
@@ -94,12 +98,19 @@ fun FloatingActionButton(
 @Composable
 fun FloatingActionButton(
     icon: Image,
+    modifier: Modifier = Modifier.None,
     onClick: (() -> Unit)? = null,
     shape: Shape = CircleShape,
     color: Color = (+MaterialTheme.colors()).primary,
     elevation: Dp = 6.dp
 ) {
-    FloatingActionButton(onClick = onClick, shape = shape, color = color, elevation = elevation) {
+    FloatingActionButton(
+        modifier = modifier,
+        onClick = onClick,
+        shape = shape,
+        color = color,
+        elevation = elevation
+    ) {
         SimpleImage(image = icon)
     }
 }
@@ -112,6 +123,7 @@ fun FloatingActionButton(
  * @see FloatingActionButton overload for the variants with a custom content or an icon.
  *
  * @param text Text to display.
+ * @param modifier Modifier to be applied to the button.
  * @param icon Image to draw to the left of the text. It is optional.
  * @param textStyle Optional [TextStyle] to apply for a [text]
  * @param onClick will be called when user clicked on the button. The button will be disabled
@@ -123,6 +135,7 @@ fun FloatingActionButton(
 @Composable
 fun FloatingActionButton(
     text: String,
+    modifier: Modifier = Modifier.None,
     icon: Image? = null,
     textStyle: TextStyle? = null,
     onClick: (() -> Unit)? = null,
@@ -130,6 +143,7 @@ fun FloatingActionButton(
     elevation: Dp = 6.dp
 ) {
     FloatingActionButton(
+        modifier = modifier,
         onClick = onClick,
         color = color,
         elevation = elevation,
