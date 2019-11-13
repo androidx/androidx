@@ -105,8 +105,8 @@ public interface CameraControl {
     /**
      * Sets current zoom by ratio.
      *
-     * <p>It modifies both current zoom ratio and zoom percentage so if apps are observing
-     * zoomRatio or zoomPercentage, they will get the update as well. If the ratio is
+     * <p>It modifies both current zoomRatio and linearZoom so if apps are observing
+     * zoomRatio or linearZoom, they will get the update as well. If the ratio is
      * smaller than {@link CameraInfo#getMinZoomRatio()} or larger than
      * {@link CameraInfo#getMaxZoomRatio()}, it won't modify current zoom ratio. It is
      * applications' duty to clamp the ratio.
@@ -120,22 +120,22 @@ public interface CameraControl {
     ListenableFuture<Void> setZoomRatio(float ratio);
 
     /**
-     * Sets current zoom by percentage ranging from 0f to 1.0f. Percentage 0f represents the
-     * minimum zoom while percentage 1.0f represents the maximum zoom. One advantage of zoom
-     * percentage is that it ensures FOV varies linearly with the percentage value.
+     * Sets current zoom by a linear zoom value ranging from 0f to 1.0f. LinearZoom 0f represents
+     * the minimum zoom while linearZoom 1.0f represents the maximum zoom. The advantage of
+     * linearZoom is that it ensures FOV varies linearly with the linearZoom value.
      *
-     * <p>It modifies both current zoom ratio and zoom percentage so if apps are observing
-     * zoomRatio or zoomPercentage, they will get the update as well. If the percentage is not in
-     * the range [0..1], it won't modify current zoom percentage and zoom ratio. It is
-     * applications' duty to clamp the zoomPercentage within [0..1].
+     * <p>It modifies both current zoomRatio and linearZoom so if apps are observing
+     * zoomRatio or linearZoom, they will get the update as well. If the linearZoom is not in
+     * the range [0..1], it won't modify current linearZoom and zoomRatio. It is the
+     * application's duty to clamp the linearZoom within [0..1].
      *
      * @return a {@link ListenableFuture} which is finished when current repeating request
-     * result contains the requested zoom percentage. It fails with
+     * result contains the requested linearZoom. It fails with
      * {@link OperationCanceledException} if there is newer value being set or camera is closed.
-     * If percentage is out of range, it fails with {@link IllegalArgumentException}.
+     * If linearZoom is not in range [0..1], it fails with {@link IllegalArgumentException}.
      */
     @NonNull
-    ListenableFuture<Void> setZoomPercentage(@FloatRange(from = 0f, to = 1f) float percentage);
+    ListenableFuture<Void> setLinearZoom(@FloatRange(from = 0f, to = 1f) float linearZoom);
 
     /**
      * An exception representing a failure that the operation is canceled which might be caused by

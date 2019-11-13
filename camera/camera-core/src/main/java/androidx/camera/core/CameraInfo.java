@@ -77,7 +77,7 @@ public interface CameraInfo {
      * null, it has default value in the beginning) or they can observe it via
      * {@link LiveData#observe(LifecycleOwner, Observer)} to update zoom UI accordingly.
      *
-     * <p>Setting zoom ratio or zoom percentage will both trigger the change event.
+     * <p>Setting zoomRatio or linearZoom will both trigger the change event.
      *
      * @return a {@link LiveData} containing current zoom ratio.
      */
@@ -115,16 +115,16 @@ public interface CameraInfo {
     LiveData<Float> getMinZoomRatio();
 
     /**
-     * Returns a {@link LiveData} of current zoom percentage which is in range [0..1].
-     * Percentage 0 represents the maximum zoom while percentage 1.0 represents the maximum zoom.
+     * Returns a {@link LiveData} of current linearZoom which is in range [0..1].
+     * LinearZoom 0 represents the maximum zoom while linearZoom 1.0 represents the maximum zoom.
      *
      * <p>Apps can either get immediate value via {@link LiveData#getValue()} (The value is never
      * null, it has default value in the beginning) or they can observe it via
      * {@link LiveData#observe(LifecycleOwner, Observer)} to update zoom UI accordingly.
-     * <p>Setting zoom ratio or zoom percentage will both trigger the change event.
+     * <p>Setting zoomRatio or linearZoom will both trigger the change event.
      *
-     * @return a {@link LiveData} containing current zoom percentage.
+     * @return a {@link LiveData} containing current linearZoom.
      */
     @NonNull
-    LiveData<Float> getZoomPercentage();
+    LiveData<Float> getLinearZoom();
 }
