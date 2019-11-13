@@ -69,6 +69,11 @@ open class SemanticsPropertyKey<T>(
 // This needs to be in core because it needs to be accessible from platform
 data class AccessibilityAction<T : Function<Unit>>(val label: String?, val action: T)
 
+data class AccessibilityRangeInfo(
+    val current: Float,
+    val range: ClosedFloatingPointRange<Float>
+)
+
 interface SemanticsPropertyReceiver {
     operator fun <T> set(key: SemanticsPropertyKey<T>, value: T)
 }
