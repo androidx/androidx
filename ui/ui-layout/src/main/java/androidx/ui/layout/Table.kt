@@ -41,6 +41,7 @@ import androidx.ui.core.withDensity
  * Collects information about the children of a [Table] when
  * its body is executed with a [TableChildren] as argument.
  */
+@LayoutScopeMarker
 class TableChildren internal constructor() {
     internal val tableChildren = mutableListOf<@Composable() () -> Unit>()
     internal val tableDecorationsOverlay = mutableListOf<TableDecoration>()

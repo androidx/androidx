@@ -132,7 +132,7 @@ package androidx.ui.layout {
     method public static void Row(androidx.ui.core.Modifier modifier = Modifier.None, androidx.ui.layout.MainAxisAlignment mainAxisAlignment = androidx.ui.layout.MainAxisAlignment.Start, androidx.ui.layout.CrossAxisAlignment crossAxisAlignment = CrossAxisAlignment.Start, kotlin.jvm.functions.Function1<? super androidx.ui.layout.RowScope,kotlin.Unit> block);
   }
 
-  public abstract sealed class FlexScope {
+  @androidx.ui.layout.LayoutScopeMarker public abstract sealed class FlexScope {
     method public final androidx.ui.core.LayoutModifier Flexible(float flex, boolean tight = true);
     method public final androidx.ui.core.LayoutModifier RelativeToSiblings(androidx.ui.layout.Gravity, kotlin.jvm.functions.Function1<? super androidx.ui.core.Placeable,androidx.ui.core.IntPx> alignmentLineBlock);
     method public final androidx.ui.core.LayoutModifier getInflexible();
@@ -161,6 +161,9 @@ package androidx.ui.layout {
     method public static void MaxIntrinsicWidth(kotlin.jvm.functions.Function0<kotlin.Unit> children);
     method public static void MinIntrinsicHeight(kotlin.jvm.functions.Function0<kotlin.Unit> children);
     method public static void MinIntrinsicWidth(kotlin.jvm.functions.Function0<kotlin.Unit> children);
+  }
+
+  @kotlin.DslMarker public @interface LayoutScopeMarker {
   }
 
   public enum LayoutSize {
@@ -203,7 +206,7 @@ package androidx.ui.layout {
     method public static androidx.ui.core.LayoutModifier Spacing(androidx.ui.core.Dp all = 0.dp);
   }
 
-  public final class StackChildren {
+  @androidx.ui.layout.LayoutScopeMarker public final class StackChildren {
     ctor public StackChildren();
     method public void aligned(androidx.ui.core.Alignment alignment, boolean loose = true, kotlin.jvm.functions.Function0<kotlin.Unit> children);
     method public void expanded(kotlin.jvm.functions.Function0<kotlin.Unit> children);
@@ -215,7 +218,7 @@ package androidx.ui.layout {
     method public static void Stack(androidx.ui.core.Modifier modifier = Modifier.None, kotlin.jvm.functions.Function1<? super androidx.ui.layout.StackChildren,kotlin.Unit> block);
   }
 
-  public final class TableChildren {
+  @androidx.ui.layout.LayoutScopeMarker public final class TableChildren {
     method public void tableDecoration(boolean overlay, kotlin.jvm.functions.Function1<? super androidx.ui.layout.TableDecorationChildren,kotlin.Unit> decoration);
     method public void tableRow(kotlin.jvm.functions.Function0<kotlin.Unit> children);
   }
