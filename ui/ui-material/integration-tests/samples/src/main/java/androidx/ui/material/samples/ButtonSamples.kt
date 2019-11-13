@@ -28,32 +28,32 @@ import androidx.ui.text.TextStyle
 @Sampled
 @Composable
 fun OutlinedButtonSample(onClick: () -> Unit) {
-    Button("Outlined Button", onClick, OutlinedButtonStyle())
+    Button(text = "Outlined Button", onClick = onClick, style = OutlinedButtonStyle())
 }
 
 @Sampled
 @Composable
 fun ContainedButtonSample(onClick: () -> Unit) {
     // ContainedButtonStyle is the default style.
-    Button("Contained Button", onClick)
+    Button(text = "Contained Button", onClick = onClick)
 }
 
 @Sampled
 @Composable
 fun TextButtonSample(onClick: () -> Unit) {
-    Button("Text Button", onClick, TextButtonStyle())
+    Button(text = "Text Button", onClick = onClick, style = TextButtonStyle())
 }
 
 @Sampled
 @Composable
 fun ButtonSample(onClick: () -> Unit) {
-    Button(onClick) {
-        Text("Custom text style", style = TextStyle(color = Color.Green))
+    Button(onClick = onClick) {
+        Text(text = "Custom text style", style = TextStyle(color = Color.Green))
     }
 }
 
 @Sampled
 @Composable
 fun ButtonWithTextSample(onClick: () -> Unit) {
-    Button("Button", onClick)
+    Button(text = "Button", onClick = onClick)
 }
