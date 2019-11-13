@@ -403,6 +403,11 @@ package androidx.ui.graphics.vector.compat {
 
 package androidx.ui.res {
 
+  public final class ColorResourcesKt {
+    ctor public ColorResourcesKt();
+    method @CheckResult(suggest="+") public static androidx.compose.Effect<androidx.ui.graphics.Color> colorResource(@ColorRes int id);
+  }
+
   public final class DeferredResource<T> {
     method public androidx.ui.res.Resource<T> getResource();
     property public final androidx.ui.res.Resource<T> resource;
@@ -427,6 +432,14 @@ package androidx.ui.res {
     ctor public PendingResource(T? resource);
   }
 
+  public final class PrimitiveResourcesKt {
+    ctor public PrimitiveResourcesKt();
+    method @CheckResult(suggest="+") public static androidx.compose.Effect<java.lang.Boolean> booleanResource(@BoolRes int id);
+    method @CheckResult(suggest="+") public static androidx.compose.Effect<androidx.ui.core.Dp> dimensionResource(@DimenRes int id);
+    method @CheckResult(suggest="+") public static androidx.compose.Effect<int[]> integerArrayResource(@ArrayRes int id);
+    method @CheckResult(suggest="+") public static androidx.compose.Effect<java.lang.Integer> integerResource(@IntegerRes int id);
+  }
+
   public abstract sealed class Resource<T> {
     method public final T? getResource();
   }
@@ -437,6 +450,7 @@ package androidx.ui.res {
 
   public final class StringResourcesKt {
     ctor public StringResourcesKt();
+    method @CheckResult(suggest="+") public static androidx.compose.Effect<java.lang.String[]> stringArrayResource(@ArrayRes int id);
     method @CheckResult(suggest="+") public static androidx.compose.Effect<java.lang.String> stringResource(@StringRes int id);
     method @CheckResult(suggest="+") public static androidx.compose.Effect<java.lang.String> stringResource(@StringRes int id, java.lang.Object... formatArgs);
   }
