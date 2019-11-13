@@ -38,6 +38,7 @@ import androidx.ui.core.tightMax
  * Collects information about the children of a [Stack] when its body is executed
  * with a [StackChildren] instance as argument.
  */
+@LayoutScopeMarker
 class StackChildren {
     private val _stackChildren = mutableListOf<@Composable() () -> Unit>()
     internal val stackChildren: List<@Composable() () -> Unit>

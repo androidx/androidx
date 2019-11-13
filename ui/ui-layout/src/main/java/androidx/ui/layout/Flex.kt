@@ -167,6 +167,7 @@ fun FlexColumn(
 /**
  * A FlexScope provides a scope for Inflexible/Flexible functions.
  */
+@LayoutScopeMarker
 sealed class FlexScope {
     /**
      * A layout modifier within a [Column] or [Row] that makes the target component flexible.
