@@ -796,8 +796,8 @@ public final class CameraView extends ViewGroup {
         Camera camera = mCameraModule.getCamera();
         if (camera != null) {
             camera.getCameraControl().startFocusAndMetering(
-                    FocusMeteringAction.Builder.from(afPoint, MeteringMode.AF_ONLY)
-                            .addPoint(aePoint, MeteringMode.AE_ONLY)
+                    FocusMeteringAction.Builder.from(afPoint, MeteringMode.AF)
+                            .addPoint(aePoint, MeteringMode.AE)
                             .build());
         } else {
             Log.d(TAG, "cannot access camera");

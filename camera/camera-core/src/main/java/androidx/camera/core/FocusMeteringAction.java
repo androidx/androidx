@@ -16,6 +16,7 @@
 
 package androidx.camera.core;
 
+import androidx.annotation.IntDef;
 import androidx.annotation.IntRange;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
@@ -26,6 +27,8 @@ import androidx.core.util.Preconditions;
 
 import com.google.common.util.concurrent.ListenableFuture;
 
+import java.lang.annotation.Retention;
+import java.lang.annotation.RetentionPolicy;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
@@ -37,17 +40,17 @@ import java.util.concurrent.atomic.AtomicBoolean;
  * A configuration used to trigger a focus and/or metering action.
  *
  * <p>To construct a {@link FocusMeteringAction}, apps have to create a {@link Builder} by
- * {@link Builder#from(MeteringPoint)} or {@link Builder#from(MeteringPoint, MeteringMode)}.
+ * {@link Builder#from(MeteringPoint)} or {@link Builder#from(MeteringPoint, int)}.
  * {@link MeteringPoint} is a point used to specify the focus/metering areas. Apps can use various
  * {@link MeteringPointFactory} to create the points. When the {@link FocusMeteringAction} is built,
  * pass it to {@link CameraControl#startFocusAndMetering(FocusMeteringAction)} to initiate the focus
  * and metering action.
  *
- * <p>The default {@link MeteringMode} is {@link MeteringMode#AF_AE_AWB} which means the point is
- * used for all AF/AE/AWB regions. Apps can set the proper {@link MeteringMode} to optionally
- * exclude some 3A regions. Multiple regions for specific 3A type are also supported via
- * {@link Builder#addPoint(MeteringPoint)} or
- * {@link Builder#addPoint(MeteringPoint, MeteringMode)}. App can also this API to enable
+ * <p>The default {@link MeteringMode} is {@link MeteringMode#AF} | {@link MeteringMode#AE} |
+ * {@link MeteringMode#AWB} which means the point is used for all AF/AE/AWB regions. Apps can set
+ * the proper {@link MeteringMode} to optionally exclude some 3A regions. Multiple regions for
+ * specific 3A type are also supported via {@link Builder#addPoint(MeteringPoint)} or
+ * {@link Builder#addPoint(MeteringPoint, int)}. App can also this API to enable
  * different region for AF and AE respectively.
  *
  * <p>If any AF points are specified, it will trigger AF to start a manual AF scan and cancel AF
@@ -63,7 +66,8 @@ import java.util.concurrent.atomic.AtomicBoolean;
  * to disable auto-cancel.
  */
 public final class FocusMeteringAction {
-    static final MeteringMode DEFAULT_METERINGMODE = MeteringMode.AF_AE_AWB;
+    @MeteringMode
+    static final int DEFAULT_METERINGMODE = MeteringMode.AF | MeteringMode.AE | MeteringMode.AWB;
     static final long DEFAULT_AUTOCANCEL_DURATION = 5000;
     private final List<MeteringPoint> mMeteringPointsAf;
     private final List<MeteringPoint> mMeteringPointsAe;
@@ -171,20 +175,18 @@ public final class FocusMeteringAction {
      * Focus/Metering mode used to specify which 3A regions is activated for corresponding
      * {@link MeteringPoint}.
      */
-    public enum MeteringMode {
-        AF_AE_AWB,
-        AF_AE,
-        AE_AWB,
-        AF_AWB,
-        AF_ONLY,
-        AE_ONLY,
-        AWB_ONLY
+    @IntDef(flag = true, value = {MeteringMode.AF, MeteringMode.AE, MeteringMode.AWB})
+    @Retention(RetentionPolicy.SOURCE)
+    public @interface MeteringMode {
+        int AF = 1;
+        int AE = 1 << 1;
+        int AWB = 1 << 2;
     }
 
     /**
      * The builder used to create the {@link FocusMeteringAction}. App must use
      * {@link Builder#from(MeteringPoint)}
-     * or {@link Builder#from(MeteringPoint, MeteringMode)} to create the {@link Builder}.
+     * or {@link Builder#from(MeteringPoint, int)} to create the {@link Builder}.
      */
     public static class Builder {
         @SuppressWarnings("WeakerAccess") /* synthetic accessor */
@@ -204,13 +206,13 @@ public final class FocusMeteringAction {
             this(point, DEFAULT_METERINGMODE);
         }
 
-        private Builder(@NonNull MeteringPoint point, @NonNull MeteringMode mode) {
+        private Builder(@NonNull MeteringPoint point, @MeteringMode int mode) {
             addPoint(point, mode);
         }
 
         /**
          * Creates the Builder from a {@link MeteringPoint} with default
-         * mode {@link MeteringMode#AF_AE_AWB}.
+         * mode {@link MeteringMode#AF} | {@link MeteringMode#AE} | {@link MeteringMode#AWB}.
          */
         @NonNull
         public static Builder from(@NonNull MeteringPoint meteringPoint) {
@@ -222,12 +224,13 @@ public final class FocusMeteringAction {
          */
         @NonNull
         public static Builder from(@NonNull MeteringPoint meteringPoint,
-                @NonNull MeteringMode mode) {
+                @MeteringMode int mode) {
             return new Builder(meteringPoint, mode);
         }
 
         /**
-         * Adds another {@link MeteringPoint} with default mode {@link MeteringMode#AF_AE_AWB}.
+         * Adds another {@link MeteringPoint} with default mode {@link MeteringMode#AF} |
+         * {@link MeteringMode#AE} | {@link MeteringMode#AWB}.
          *
          * <p>If more points are added than what current device supports for AF/AE/AWB, only the
          * first region and then in order up to the number of regions supported by the device
@@ -248,27 +251,23 @@ public final class FocusMeteringAction {
          * will be enabled. If it turns out no added points can be supported on the device, the
          * returned {@link ListenableFuture} in
          * {@link CameraControl#startFocusAndMetering(FocusMeteringAction)} will fail immediately.
+         *
+         * @param mode Must be a valid {@link MeteringMode}, otherwise an
+         *             {@link IllegalArgumentException} is thrown.
          */
         @NonNull
-        public Builder addPoint(@NonNull MeteringPoint point, @NonNull MeteringMode mode) {
-            if (mode == MeteringMode.AF_AE_AWB
-                    || mode == MeteringMode.AF_AE
-                    || mode == MeteringMode.AF_AWB
-                    || mode == MeteringMode.AF_ONLY) {
+        public Builder addPoint(@NonNull MeteringPoint point, @MeteringMode int mode) {
+            Preconditions.checkArgument(
+                    (mode >= MeteringMode.AF) && (mode <= (MeteringMode.AF | MeteringMode.AE
+                            | MeteringMode.AWB)), "Invalid metering mode " + mode);
+
+            if ((mode & MeteringMode.AF) != 0) {
                 mMeteringPointsAf.add(point);
             }
-
-            if (mode == MeteringMode.AF_AE_AWB
-                    || mode == MeteringMode.AF_AE
-                    || mode == MeteringMode.AE_AWB
-                    || mode == MeteringMode.AE_ONLY) {
+            if ((mode & MeteringMode.AE) != 0) {
                 mMeteringPointsAe.add(point);
             }
-
-            if (mode == MeteringMode.AF_AE_AWB
-                    || mode == MeteringMode.AE_AWB
-                    || mode == MeteringMode.AF_AWB
-                    || mode == MeteringMode.AWB_ONLY) {
+            if ((mode & MeteringMode.AWB) != 0) {
                 mMeteringPointsAwb.add(point);
             }
             return this;
