@@ -295,6 +295,7 @@ public final class PreviewConfig
      * configuration.
      * @hide Preview always set the rotation to device's nature orientation.
      */
+    @RestrictTo(Scope.LIBRARY_GROUP)
     @Override
     @RotationValue
     public int getTargetRotation(int valueIfMissing) {
@@ -312,6 +313,7 @@ public final class PreviewConfig
      * @throws IllegalArgumentException if the option does not exist in this configuration.
      * @hide Preview always set the rotation to device's nature orientation.
      */
+    @RestrictTo(Scope.LIBRARY_GROUP)
     @Override
     @RotationValue
     public int getTargetRotation() {
@@ -413,7 +415,9 @@ public final class PreviewConfig
      * @param valueIfMissing The value to return if this configuration option has not been set.
      * @return The stored value or <code>valueIfMissing</code> if the value does not exist in this
      * configuration.
+     * @hide Background executor not used in {@link Preview}.
      */
+    @RestrictTo(Scope.LIBRARY_GROUP)
     @Override
     @Nullable
     public Executor getBackgroundExecutor(@Nullable Executor valueIfMissing) {
@@ -800,7 +804,9 @@ public final class PreviewConfig
          *
          * @param rotation The rotation of the intended target.
          * @return The current Builder.
+         * @hide Preview always set the rotation to device's nature orientation.
          */
+        @RestrictTo(Scope.LIBRARY_GROUP)
         @NonNull
         @Override
         public Builder setTargetRotation(@RotationValue int rotation) {
@@ -894,7 +900,9 @@ public final class PreviewConfig
          *
          * @param executor The executor which will be used for background tasks.
          * @return the current Builder.
+         * @hide Background executor not used in {@link Preview}.
          */
+        @RestrictTo(Scope.LIBRARY_GROUP)
         @Override
         @NonNull
         public Builder setBackgroundExecutor(@NonNull Executor executor) {
