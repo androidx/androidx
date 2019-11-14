@@ -168,7 +168,7 @@ public final class AnimatorSet extends Animator implements AnimationHandler.Anim
     // fixes their side.
     private AnimatorListenerAdapter mDummyListener = new AnimatorListenerAdapter() {
         @Override
-        public void onAnimationEnd(Animator animation) {
+        public void onAnimationEnd(@NonNull Animator animation) {
             if (mNodeMap.get(animation) == null) {
                 throw new AndroidRuntimeException("Error: animation ended is not in the node map");
             }
@@ -286,7 +286,7 @@ public final class AnimatorSet extends Animator implements AnimationHandler.Anim
      * @param target The object being animated
      */
     @Override
-    public void setTarget(@NonNull Object target) {
+    public void setTarget(@Nullable Object target) {
         int size = mNodes.size();
         for (int i = 1; i < size; i++) {
             Node node = mNodes.get(i);
@@ -1245,6 +1245,7 @@ public final class AnimatorSet extends Animator implements AnimationHandler.Anim
         handler.removeCallback(this);
     }
 
+    @NonNull
     @Override
     public AnimatorSet clone() {
         final AnimatorSet anim = (AnimatorSet) super.clone();
@@ -1271,7 +1272,7 @@ public final class AnimatorSet extends Animator implements AnimationHandler.Anim
         anim.mEvents = new ArrayList<AnimationEvent>();
         anim.mDummyListener = new AnimatorListenerAdapter() {
             @Override
-            public void onAnimationEnd(Animator animation) {
+            public void onAnimationEnd(@NonNull Animator animation) {
                 if (anim.mNodeMap.get(animation) == null) {
                     throw new AndroidRuntimeException("Error: animation ended is not in the node"
                             + " map");
@@ -1700,6 +1701,7 @@ public final class AnimatorSet extends Animator implements AnimationHandler.Anim
             this.mAnimation = animation;
         }
 
+        @NonNull
         @Override
         public Node clone() {
             try {
@@ -1794,6 +1796,7 @@ public final class AnimatorSet extends Animator implements AnimationHandler.Anim
             }
         }
 
+        @NonNull
         @Override
         public String toString() {
             String eventStr = mEvent == ANIMATION_START ? "start" : (

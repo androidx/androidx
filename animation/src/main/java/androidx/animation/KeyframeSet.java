@@ -21,6 +21,7 @@ import android.util.Log;
 
 import androidx.animation.Keyframe.FloatKeyframe;
 import androidx.animation.Keyframe.IntKeyframe;
+import androidx.annotation.NonNull;
 
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -179,6 +180,7 @@ class KeyframeSet<T> implements Keyframes<T> {
         return mFirstKeyframe.getType();
     }
 
+    @NonNull
     @Override
     public KeyframeSet clone() {
         List<Keyframe<T>> keyframes = mKeyframes;
@@ -259,6 +261,7 @@ class KeyframeSet<T> implements Keyframes<T> {
         return mLastKeyframe.getValue();
     }
 
+    @NonNull
     @Override
     public String toString() {
         String returnVal = " ";

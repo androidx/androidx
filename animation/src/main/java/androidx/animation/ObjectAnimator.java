@@ -1020,6 +1020,7 @@ public final class ObjectAnimator extends ValueAnimator {
         return mInitialized;
     }
 
+    @NonNull
     @Override
     public ObjectAnimator clone() {
         final ObjectAnimator anim = (ObjectAnimator) super.clone();

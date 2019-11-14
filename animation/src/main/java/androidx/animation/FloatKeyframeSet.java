@@ -17,6 +17,7 @@
 package androidx.animation;
 
 import androidx.animation.Keyframe.FloatKeyframe;
+import androidx.annotation.NonNull;
 
 import java.util.List;
 
@@ -40,6 +41,7 @@ class FloatKeyframeSet extends KeyframeSet<Float> implements Keyframes.FloatKeyf
         return getFloatValue(fraction);
     }
 
+    @NonNull
     @Override
     public FloatKeyframeSet clone() {
         final List<Keyframe<Float>> keyframes = mKeyframes;

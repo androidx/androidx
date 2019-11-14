@@ -268,6 +268,7 @@ public abstract class Keyframe<T> implements Cloneable {
         return mValueType;
     }
 
+    @NonNull
     @Override
     public abstract Keyframe clone();
 
@@ -299,6 +300,7 @@ public abstract class Keyframe<T> implements Cloneable {
             mHasValue = (value != null);
         }
 
+        @NonNull
         @Override
         public ObjectKeyframe<T> clone() {
             ObjectKeyframe<T> kfClone = new ObjectKeyframe<>(getFraction(),
@@ -348,6 +350,7 @@ public abstract class Keyframe<T> implements Cloneable {
             }
         }
 
+        @NonNull
         @Override
         public IntKeyframe clone() {
             IntKeyframe kfClone = mHasValue ? new IntKeyframe(getFraction(), mValue) :
@@ -396,6 +399,7 @@ public abstract class Keyframe<T> implements Cloneable {
             }
         }
 
+        @NonNull
         @Override
         public FloatKeyframe clone() {
             FloatKeyframe kfClone = mHasValue ? new FloatKeyframe(getFraction(), mValue) :

@@ -18,6 +18,8 @@ package androidx.animation;
 import android.graphics.Path;
 import android.graphics.PointF;
 
+import androidx.annotation.NonNull;
+
 import java.util.ArrayList;
 import java.util.List;
 
@@ -126,6 +128,7 @@ class PathKeyframes implements Keyframes<PointF> {
         return PointF.class;
     }
 
+    @NonNull
     @Override
     public Keyframes clone() {
         Keyframes clone = null;
@@ -215,6 +218,7 @@ class PathKeyframes implements Keyframes<PointF> {
             return mEmptyFrames;
         }
 
+        @NonNull
         @Override
         @SuppressWarnings("unchecked")
         public Keyframes<T> clone() {
