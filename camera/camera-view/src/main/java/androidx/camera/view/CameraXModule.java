@@ -33,8 +33,6 @@ import androidx.annotation.RequiresPermission;
 import androidx.annotation.UiThread;
 import androidx.camera.core.AspectRatio;
 import androidx.camera.core.Camera;
-import androidx.camera.core.CameraInfo;
-import androidx.camera.core.CameraInfoUnavailableException;
 import androidx.camera.core.CameraOrientationUtil;
 import androidx.camera.core.CameraSelector;
 import androidx.camera.core.CameraX;
@@ -49,8 +47,11 @@ import androidx.camera.core.PreviewConfig;
 import androidx.camera.core.VideoCapture;
 import androidx.camera.core.VideoCapture.OnVideoSavedCallback;
 import androidx.camera.core.VideoCaptureConfig;
+import androidx.camera.core.impl.utils.executor.CameraXExecutors;
+import androidx.camera.core.impl.utils.futures.FutureCallback;
 import androidx.camera.core.impl.utils.futures.Futures;
 import androidx.camera.view.CameraView.CaptureMode;
+import androidx.concurrent.futures.CallbackToFutureAdapter;
 import androidx.lifecycle.Lifecycle;
 import androidx.lifecycle.LifecycleObserver;
 import androidx.lifecycle.LifecycleOwner;
@@ -91,7 +92,11 @@ final class CameraXModule {
     @FlashMode
     private int mFlash = FlashMode.OFF;
     @Nullable
-    private Camera mCamera;
+    @SuppressWarnings("WeakerAccess") /* synthetic accessor */
+    Camera mCamera;
+    @Nullable
+    @SuppressWarnings("WeakerAccess") /* synthetic accessor */
+    CallbackToFutureAdapter.Completer<Size> mResolutionUpdateCompleter;
     @Nullable
     private ImageCapture mImageCapture;
     @Nullable
@@ -150,38 +155,34 @@ final class CameraXModule {
             throw new IllegalArgumentException("Cannot bind to lifecycle in a destroyed state.");
         }
 
-        final int cameraOrientation;
-        try {
-            Set<LensFacing> available = getAvailableCameraLensFacing();
+        ListenableFuture<Size> resolutionUpdateFuture = CallbackToFutureAdapter.getFuture(
+                completer -> {
+                    mResolutionUpdateCompleter = completer;
+                    return "PreviewResolutionUpdate";
+                });
 
-            if (available.isEmpty()) {
-                Log.w(TAG, "Unable to bindToLifeCycle since no cameras available");
-                mCameraLensFacing = null;
-            }
+        Set<LensFacing> available = getAvailableCameraLensFacing();
 
-            // Ensure the current camera exists, or default to another camera
-            if (mCameraLensFacing != null && !available.contains(mCameraLensFacing)) {
-                Log.w(TAG, "Camera does not exist with direction " + mCameraLensFacing);
+        if (available.isEmpty()) {
+            Log.w(TAG, "Unable to bindToLifeCycle since no cameras available");
+            mCameraLensFacing = null;
+        }
 
-                // Default to the first available camera direction
-                mCameraLensFacing = available.iterator().next();
+        // Ensure the current camera exists, or default to another camera
+        if (mCameraLensFacing != null && !available.contains(mCameraLensFacing)) {
+            Log.w(TAG, "Camera does not exist with direction " + mCameraLensFacing);
 
-                Log.w(TAG, "Defaulting to primary camera with direction " + mCameraLensFacing);
-            }
+            // Default to the first available camera direction
+            mCameraLensFacing = available.iterator().next();
 
-            // Do not attempt to create use cases for a null cameraLensFacing. This could occur if
-            // the
-            // user explicitly sets the LensFacing to null, or if we determined there
-            // were no available cameras, which should be logged in the logic above.
-            if (mCameraLensFacing == null) {
-                return;
-            }
-            CameraInfo cameraInfo = CameraX.getCameraInfo(getLensFacing());
-            cameraOrientation = cameraInfo.getSensorRotationDegrees();
-        } catch (CameraInfoUnavailableException e) {
-            throw new IllegalStateException("Unable to get Camera Info.", e);
-        } catch (Exception e) {
-            throw new IllegalStateException("Unable to bind to lifecycle.", e);
+            Log.w(TAG, "Defaulting to primary camera with direction " + mCameraLensFacing);
+        }
+
+        // Do not attempt to create use cases for a null cameraLensFacing. This could occur if
+        // the user explicitly sets the LensFacing to null, or if we determined there
+        // were no available cameras, which should be logged in the logic above.
+        if (mCameraLensFacing == null) {
+            return;
         }
 
         // Set the preferred aspect ratio as 4:3 if it is IMAGE only mode. Set the preferred aspect
@@ -218,17 +219,10 @@ final class CameraXModule {
             @NonNull
             @Override
             public ListenableFuture<Surface> createSurfaceFuture(@NonNull Size resolution) {
-                boolean needReverse = cameraOrientation != 0 && cameraOrientation != 180;
-                int textureWidth =
-                        needReverse
-                                ? resolution.getHeight()
-                                : resolution.getWidth();
-                int textureHeight =
-                        needReverse
-                                ? resolution.getWidth()
-                                : resolution.getHeight();
-                CameraXModule.this.onPreviewSourceDimensUpdated(textureWidth,
-                        textureHeight);
+                // The PreviewSurfaceCallback#createSurfaceFuture() might come asynchronously.
+                // It cannot guarantee the callback time, so we store the resolution result in
+                // the listenableFuture.
+                mResolutionUpdateCompleter.set(resolution);
                 // Create SurfaceTexture and Surface.
                 SurfaceTexture surfaceTexture = new SurfaceTexture(0);
                 surfaceTexture.setDefaultBufferSize(resolution.getWidth(),
@@ -268,6 +262,32 @@ final class CameraXModule {
             mCamera = CameraX.bindToLifecycle(mCurrentLifecycle, cameraSelector, mImageCapture,
                     mVideoCapture, mPreview);
         }
+
+        // Register the listener on the resolutionUpdateFuture, and we can get the resolution
+        // result immediately if it has been set or it will callback once the resolution result
+        // is ready.
+        Futures.addCallback(resolutionUpdateFuture, new FutureCallback<Size>() {
+            @Override
+            public void onSuccess(@Nullable Size result) {
+                if (result == null) {
+                    Log.w(TAG, "PreviewSourceDimensUpdate fail");
+                    return;
+                }
+
+                int cameraOrientation =
+                        mCamera != null ? mCamera.getCameraInfo().getSensorRotationDegrees() : 0;
+                boolean needReverse = cameraOrientation != 0 && cameraOrientation != 180;
+                int textureWidth = needReverse ? result.getHeight() : result.getWidth();
+                int textureHeight = needReverse ? result.getWidth() : result.getHeight();
+                onPreviewSourceDimensUpdated(textureWidth, textureHeight);
+            }
+
+            @Override
+            public void onFailure(Throwable t) {
+                Log.d(TAG, "PreviewSourceDimensUpdate fail", t);
+            }
+        }, CameraXExecutors.mainThreadExecutor());
+
         setZoomRatio(UNITY_ZOOM_SCALE);
         mCurrentLifecycle.getLifecycle().addObserver(mCurrentLifecycleObserver);
         // Enable flash setting in ImageCapture after use cases are created and binded.
@@ -427,9 +447,9 @@ final class CameraXModule {
     }
 
     public float getZoomRatio() {
-        try {
-            return CameraX.getCameraInfo(mCameraLensFacing).getZoomRatio().getValue();
-        } catch (CameraInfoUnavailableException e) {
+        if (mCamera != null) {
+            return mCamera.getCameraInfo().getZoomRatio().getValue();
+        } else {
             return UNITY_ZOOM_SCALE;
         }
     }
@@ -443,17 +463,17 @@ final class CameraXModule {
     }
 
     public float getMinZoomRatio() {
-        try {
-            return CameraX.getCameraInfo(mCameraLensFacing).getMinZoomRatio().getValue();
-        } catch (CameraInfoUnavailableException e) {
+        if (mCamera != null) {
+            return mCamera.getCameraInfo().getMinZoomRatio().getValue();
+        } else {
             return UNITY_ZOOM_SCALE;
         }
     }
 
     public float getMaxZoomRatio() {
-        try {
-            return CameraX.getCameraInfo(mCameraLensFacing).getMaxZoomRatio().getValue();
-        } catch (CameraInfoUnavailableException e) {
+        if (mCamera != null) {
+            return mCamera.getCameraInfo().getMaxZoomRatio().getValue();
+        } else {
             return ZOOM_NOT_SUPPORTED;
         }
     }
@@ -472,16 +492,12 @@ final class CameraXModule {
 
     int getRelativeCameraOrientation(boolean compensateForMirroring) {
         int rotationDegrees = 0;
-        try {
-            CameraInfo cameraInfo = CameraX.getCameraInfo(getLensFacing());
-            rotationDegrees = cameraInfo.getSensorRotationDegrees(getDisplaySurfaceRotation());
+        if (mCamera != null) {
+            rotationDegrees =
+                    mCamera.getCameraInfo().getSensorRotationDegrees(getDisplaySurfaceRotation());
             if (compensateForMirroring) {
                 rotationDegrees = (360 - rotationDegrees) % 360;
             }
-        } catch (CameraInfoUnavailableException e) {
-            Log.e(TAG, "Failed to get CameraInfo", e);
-        } catch (Exception e) {
-            Log.e(TAG, "Failed to query camera", e);
         }
 
         return rotationDegrees;
