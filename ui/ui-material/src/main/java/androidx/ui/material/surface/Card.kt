@@ -19,6 +19,7 @@ package androidx.ui.material.surface
 import androidx.compose.Composable
 import androidx.compose.unaryPlus
 import androidx.ui.core.Dp
+import androidx.ui.core.Modifier
 import androidx.ui.core.dp
 import androidx.ui.engine.geometry.Shape
 import androidx.ui.foundation.shape.border.Border
@@ -28,6 +29,7 @@ import androidx.ui.material.MaterialTheme
 /**
  * Cards are [Surface]s that display content and actions on a single topic.
  *
+ * @param modifier Modifier to be applied to the layout of the card.
  * @param shape Defines the surface's shape as well its shadow. A shadow is only
  *  displayed if the [elevation] is greater than zero.
  * @param color The background color.
@@ -37,6 +39,7 @@ import androidx.ui.material.MaterialTheme
  */
 @Composable
 fun Card(
+    modifier: Modifier = Modifier.None,
     shape: Shape = (+MaterialTheme.shapes()).card,
     color: Color = (+MaterialTheme.colors()).surface,
     border: Border? = null,
@@ -44,6 +47,7 @@ fun Card(
     children: @Composable() () -> Unit
 ) {
     Surface(
+        modifier = modifier,
         shape = shape,
         color = color,
         elevation = elevation,
