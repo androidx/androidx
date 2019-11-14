@@ -2284,8 +2284,6 @@ data class PaddingModifier(
         if (value == null) return null
         return if (line.horizontal) value + left else value + top
     }
-
-    override fun DensityScope.modifyParentData(parentData: Any?): Any? = parentData
 }
 
 @Model
