@@ -45,4 +45,45 @@ object Stubs {
             """
     )
         .indented().within("src")
+
+    val WORK_REQUEST: TestFile = kotlin(
+        "androidx/work/WorkRequest.kt",
+        """
+            package androidx.work
+
+            open class WorkRequest
+        """
+    ).indented().within("src")
+
+    val ONE_TIME_WORK_REQUEST: TestFile = kotlin(
+        "androidx/work/OneTimeWorkRequest.kt",
+        """
+            package androidx.work
+
+            class OneTimeWorkRequest: WorkRequest()
+        """
+    ).indented().within("src")
+
+    val PERIODIC_WORK_REQUEST: TestFile = kotlin(
+        "androidx/work/PeriodicWorkRequest.kt",
+        """
+            package androidx.work
+
+            class PeriodicWorkRequest: WorkRequest()
+        """
+    ).indented().within("src")
+
+    val WORK_MANAGER: TestFile = kotlin(
+        "androidx/work/WorkManager.kt",
+        """
+                 package androidx.work
+
+                 interface WorkManager {
+                    fun enqueue(request: WorkRequest)
+                    fun enqueue(requests: List<WorkRequest>)
+                    fun enqueueUniqueWork(name: String, request: PeriodicWorkRequest)
+                 }
+            """
+    )
+        .indented().within("src")
 }
