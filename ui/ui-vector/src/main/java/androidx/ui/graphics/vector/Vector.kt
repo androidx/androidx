@@ -17,19 +17,19 @@
 package androidx.ui.graphics.vector
 
 import android.graphics.Matrix
+import androidx.ui.core.Px
 import androidx.ui.engine.geometry.Offset
+import androidx.ui.graphics.BlendMode
+import androidx.ui.graphics.Brush
 import androidx.ui.graphics.Canvas
+import androidx.ui.graphics.Color
+import androidx.ui.graphics.ColorFilter
 import androidx.ui.graphics.Image
 import androidx.ui.graphics.Paint
 import androidx.ui.graphics.PaintingStyle
 import androidx.ui.graphics.Path
 import androidx.ui.graphics.StrokeCap
 import androidx.ui.graphics.StrokeJoin
-import androidx.ui.core.Px
-import androidx.ui.graphics.BlendMode
-import androidx.ui.graphics.Brush
-import androidx.ui.graphics.Color
-import androidx.ui.graphics.ColorFilter
 import androidx.ui.graphics.withSave
 import kotlin.math.ceil
 
@@ -74,6 +74,19 @@ fun addPathNodes(pathStr: String?): List<PathNode> =
     }
 
 sealed class VNode {
+
+    /**
+     * Callback invoked whenever the node in the vector tree is modified in a way that would
+     * change the output of the Vector
+     */
+    // TODO (b/144849567) don't make this publicly accessible after the vector graphics modules
+    //  are merged
+    open var invalidateListener: (() -> Unit)? = null
+
+    fun invalidate() {
+        invalidateListener?.invoke()
+    }
+
     abstract fun draw(canvas: Canvas)
 }
 
@@ -90,7 +103,12 @@ class VectorComponent(
         pivotY = 0.0f
         scaleX = defaultWidth.value / viewportWidth
         scaleY = defaultHeight.value / viewportHeight
+        invalidateListener = {
+            isDirty = true
+        }
     }
+
+    private var isDirty: Boolean = true
 
     private var tintPaint: Paint? = null
 
@@ -116,7 +134,10 @@ class VectorComponent(
                 ceil(defaultHeight.value).toInt()
             )
             cachedImage = targetImage
+        }
+        if (isDirty) {
             root.draw(Canvas(targetImage))
+            isDirty = false
         }
         canvas.drawImage(targetImage, Offset.zero, obtainTintPaint(tintColor, blendMode))
     }
@@ -157,71 +178,98 @@ class PathComponent(val name: String) : VNode() {
 
     var fill: Brush? = null
         set(value) {
-            field = value
-            updateFillPaint {
-                field?.applyTo(this)
+            if (field != value) {
+                field = value
+                updateFillPaint {
+                    field?.applyTo(this)
+                }
+                invalidate()
             }
         }
 
     var fillAlpha: Float = DefaultAlpha
         set(value) {
-            field = value
-            updateFillPaint {
-                alpha = field
+            if (field != value) {
+                field = value
+                updateFillPaint {
+                    alpha = field
+                }
+                invalidate()
             }
         }
 
     var pathData: List<PathNode> = EmptyPath
         set(value) {
-            field = value
-            isPathDirty = true
+            if (field != value) {
+                field = value
+                isPathDirty = true
+                invalidate()
+            }
         }
 
     var strokeAlpha: Float = DefaultAlpha
         set(value) {
-            field = value
-            updateStrokePaint {
-                alpha = field
+            if (field != value) {
+                field = value
+                updateStrokePaint {
+                    alpha = field
+                }
+                invalidate()
             }
         }
 
     var strokeLineWidth: Float = DefaultStrokeLineWidth
         set(value) {
-            field = value
-            updateStrokePaint {
-                strokeWidth = field
+            if (field != value) {
+                field = value
+                updateStrokePaint {
+                    strokeWidth = field
+                }
+                invalidate()
             }
         }
 
     var stroke: Brush? = null
         set(value) {
-            field = value
-            updateStrokePaint {
-                field?.applyTo(this)
+            if (field != value) {
+                field = value
+                updateStrokePaint {
+                    field?.applyTo(this)
+                }
+                invalidate()
             }
         }
 
     var strokeLineCap: StrokeCap = DefaultStrokeLineCap
         set(value) {
-            field = value
-            updateStrokePaint {
-                strokeCap = field
+            if (field != value) {
+                field = value
+                updateStrokePaint {
+                    strokeCap = field
+                }
+                invalidate()
             }
         }
 
     var strokeLineJoin: StrokeJoin = DefaultStrokeLineJoin
         set(value) {
-            field = value
-            updateStrokePaint {
-                strokeJoin = field
+            if (field != value) {
+                field = value
+                updateStrokePaint {
+                    strokeJoin = field
+                }
+                invalidate()
             }
         }
 
     var strokeLineMiter: Float = DefaultStrokeLineMiter
         set(value) {
-            field = value
-            updateStrokePaint {
-                strokeMiterLimit = field
+            if (field != value) {
+                field = value
+                updateStrokePaint {
+                    strokeMiterLimit = field
+                }
+                invalidate()
             }
         }
 
@@ -314,8 +362,11 @@ class GroupComponent(val name: String = DefaultGroupName) : VNode() {
 
     var clipPathData: List<PathNode> = EmptyPath
         set(value) {
-            field = value
-            isClipPathDirty = true
+            if (field != value) {
+                field = value
+                isClipPathDirty = true
+                invalidate()
+            }
         }
 
     private val willClipPath: Boolean
@@ -325,6 +376,14 @@ class GroupComponent(val name: String = DefaultGroupName) : VNode() {
 
     private var clipPath: Path? = null
     private var parser: PathParser? = null
+
+    override var invalidateListener: (() -> Unit)? = null
+        set(value) {
+            field = value
+            for (child in children) {
+                child.invalidateListener = value
+            }
+        }
 
     private fun updateClipPath() {
         if (willClipPath) {
@@ -350,44 +409,65 @@ class GroupComponent(val name: String = DefaultGroupName) : VNode() {
 
     var rotation: Float = DefaultRotation
         set(value) {
-            field = value
-            isMatrixDirty = true
+            if (field != value) {
+                field = value
+                isMatrixDirty = true
+                invalidate()
+            }
         }
 
     var pivotX: Float = DefaultPivotX
         set(value) {
-            field = value
-            isMatrixDirty = true
+            if (field != value) {
+                field = value
+                isMatrixDirty = true
+                invalidate()
+            }
         }
 
     var pivotY: Float = DefaultPivotY
         set(value) {
-            field = value
-            isMatrixDirty = true
+            if (field != value) {
+                field = value
+                isMatrixDirty = true
+                invalidate()
+            }
         }
 
     var scaleX: Float = DefaultScaleX
         set(value) {
-            field = value
-            isMatrixDirty = true
+            if (field != value) {
+                field = value
+                isMatrixDirty = true
+                invalidate()
+            }
         }
 
     var scaleY: Float = DefaultScaleY
         set(value) {
-            field = value
-            isMatrixDirty = true
+            if (field != value) {
+                field = value
+                isMatrixDirty = true
+                invalidate()
+            }
         }
 
     var translationX: Float = DefaultTranslationX
         set(value) {
-            field = value
-            isMatrixDirty = true
+            if (field != value) {
+                field = value
+                isMatrixDirty = true
+                invalidate()
+            }
         }
 
     var translationY: Float = DefaultTranslationY
         set(value) {
-            field = value
-            isMatrixDirty = true
+            if (field != value) {
+                field = value
+                isMatrixDirty = true
+                invalidate()
+            }
         }
 
     private var isMatrixDirty = true
@@ -417,6 +497,8 @@ class GroupComponent(val name: String = DefaultGroupName) : VNode() {
         } else {
             children.add(instance)
         }
+        instance.invalidateListener = invalidateListener
+        invalidate()
     }
 
     fun move(from: Int, to: Int, count: Int) {
@@ -435,12 +517,15 @@ class GroupComponent(val name: String = DefaultGroupName) : VNode() {
                 children.add(to - 1, node)
             }
         }
+        invalidate()
     }
 
     fun remove(index: Int, count: Int) {
         repeat(count) {
+            children[index].invalidateListener = null
             children.removeAt(index)
         }
+        invalidate()
     }
 
     override fun draw(canvas: Canvas) {

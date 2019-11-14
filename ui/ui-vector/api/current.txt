@@ -27,6 +27,7 @@ package androidx.ui.graphics.vector {
     method public void setTranslationX(float value);
     method public void setTranslationY(float value);
     property public final java.util.List<androidx.ui.graphics.vector.PathNode> clipPathData;
+    property public kotlin.jvm.functions.Function0<kotlin.Unit>? invalidateListener;
     property public final float pivotX;
     property public final float pivotY;
     property public final float rotation;
@@ -72,6 +73,10 @@ package androidx.ui.graphics.vector {
 
   public abstract sealed class VNode {
     method public abstract void draw(androidx.ui.graphics.Canvas canvas);
+    method public kotlin.jvm.functions.Function0<kotlin.Unit>? getInvalidateListener();
+    method public final void invalidate();
+    method public void setInvalidateListener(kotlin.jvm.functions.Function0<kotlin.Unit>? p);
+    property public kotlin.jvm.functions.Function0<kotlin.Unit>? invalidateListener;
   }
 
   public final class VectorComponent extends androidx.ui.graphics.vector.VNode {
