@@ -36,7 +36,6 @@ import androidx.camera.core.ImageAnalysis;
 import androidx.camera.core.ImageAnalysisConfig;
 import androidx.camera.core.ImageCapture;
 import androidx.camera.core.ImageCaptureConfig;
-import androidx.camera.core.ImageProxy;
 import androidx.camera.core.LensFacing;
 import androidx.camera.core.Preview;
 import androidx.camera.core.PreviewConfig;
@@ -213,13 +212,10 @@ public final class UseCaseCombinationTest {
                 new ImageAnalysisConfig.Builder()
                         .setTargetName("ImageAnalysis")
                         .build();
-        mImageAnalyzer =
-                new ImageAnalysis.Analyzer() {
-                    @Override
-                    public void analyze(@NonNull ImageProxy image, int rotationDegrees) {
-                        mAnalysisResult.postValue(image.getImageInfo().getTimestamp());
-                    }
-                };
+        mImageAnalyzer = (image, rotationDegrees) -> {
+            mAnalysisResult.postValue(image.getImageInfo().getTimestamp());
+            image.close();
+        };
         mImageAnalysis = new ImageAnalysis(imageAnalysisConfig);
     }
 

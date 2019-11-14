@@ -16,7 +16,10 @@
 
 package androidx.camera.core;
 
+import static org.junit.Assert.assertEquals;
+import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.verifyZeroInteractions;
@@ -30,6 +33,7 @@ import androidx.test.filters.SmallTest;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
+import org.mockito.ArgumentCaptor;
 import org.robolectric.RobolectricTestRunner;
 import org.robolectric.annotation.Config;
 import org.robolectric.annotation.internal.DoNotInstrument;
@@ -46,12 +50,13 @@ public class ImageAnalysisNonBlockingAnalyzerTest {
     private ImageAnalysis.Analyzer mAnalyzer;
     private ImageReaderProxy mImageReaderProxy;
     private ImageProxy mImageProxy;
-
+    private ImageInfo mImageInfo;
 
     @Before
     public void setup() {
+        mImageInfo = mock(ImageInfo.class);
         mImageProxy = mock(ImageProxy.class);
-        when(mImageProxy.getImageInfo()).thenReturn(mock(ImageInfo.class));
+        when(mImageProxy.getImageInfo()).thenReturn(mImageInfo);
         mImageReaderProxy = mock(ImageReaderProxy.class);
 
         when(mImageReaderProxy.acquireLatestImage()).thenReturn(mImageProxy);
@@ -83,12 +88,12 @@ public class ImageAnalysisNonBlockingAnalyzerTest {
     }
 
     @Test
-    public void imageClosedWhenAnalyzerOpen() {
+    public void imageNotClosedWhenAnalyzerOpen() {
         mImageAnalysisNonBlockingAnalyzer.open();
 
         mImageAnalysisNonBlockingAnalyzer.onImageAvailable(mImageReaderProxy);
 
-        verify(mImageProxy, times(1)).close();
+        verify(mImageProxy, never()).close();
     }
 
     @Test
@@ -97,6 +102,12 @@ public class ImageAnalysisNonBlockingAnalyzerTest {
 
         mImageAnalysisNonBlockingAnalyzer.onImageAvailable(mImageReaderProxy);
 
-        verify(mAnalyzer, times(1)).analyze(mImageProxy, ROTATION.get());
+        ArgumentCaptor<ImageProxy> imageProxyArgumentCaptor =
+                ArgumentCaptor.forClass(ImageProxy.class);
+        verify(mAnalyzer, times(1)).analyze(
+                imageProxyArgumentCaptor.capture(), eq(ROTATION.get()));
+        // Check for equality of ImageInfo because it won't necessarily be same instance of
+        // ImageProxy that is analyzed, but an equivalent instance.
+        assertEquals(mImageInfo, imageProxyArgumentCaptor.getValue().getImageInfo());
     }
 }

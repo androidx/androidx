@@ -44,8 +44,9 @@ import java.util.concurrent.Executor;
  * is provided to an {@link ImageAnalysis.Analyzer} function which can be implemented by application
  * code, where it can access image data for application analysis via an {@link ImageProxy}.
  *
- * <p>After the analyzer function returns, the {@link ImageProxy} will be closed and the
- * corresponding {@link android.media.Image} is released back to the {@link ImageReader}.
+ * <p>The application is responsible for calling {@link ImageProxy#close()} to close the image.
+ * Failing to close the image will cause future images to be stalled or dropped depending on the
+ * {@link BackpressureStrategy}.
  */
 public final class ImageAnalysis extends UseCase {
     /**
@@ -356,6 +357,10 @@ public final class ImageAnalysis extends UseCase {
      * generally reserve a large portion of the device's memory, they cannot be buffered
      * unbounded and indefinitely. The backpressure strategy defines how to deal with this scenario.
      *
+     * <p>The receiver of the {@link ImageProxy} is responsible for explicitly closing the image
+     * by calling {@link ImageProxy#close()}. However, the image will only be valid when the
+     * ImageAnalysis instance is bound to a camera.
+     *
      * @see ImageAnalysisConfig.Builder#setBackpressureStrategy(int)
      */
     @IntDef({BackpressureStrategy.KEEP_ONLY_LATEST, BackpressureStrategy.BLOCK_PRODUCER})
@@ -368,7 +373,8 @@ public final class ImageAnalysis extends UseCase {
          * {@link ImageAnalysisConfig.Builder#setImageQueueDepth(int)}. Only one image will be
          * delivered for analysis at a time. If more images are produced while that image is
          * being analyzed, they will be dropped and not queued for delivery. Once the image being
-         * analyzed is closed, the next latest image will be delivered.
+         * analyzed is closed by calling {@link ImageProxy#close()}, the next latest image will be
+         * delivered.
          *
          * <p>Internally this strategy may make use of an internal {@link Executor} to receive
          * and drop images from the producer. A performance-tuned executor will be created

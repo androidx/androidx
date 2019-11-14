@@ -51,7 +51,6 @@ import androidx.camera.core.ImageAnalysis;
 import androidx.camera.core.ImageAnalysisConfig;
 import androidx.camera.core.ImageCapture;
 import androidx.camera.core.ImageCaptureConfig;
-import androidx.camera.core.ImageProxy;
 import androidx.camera.core.LensFacing;
 import androidx.camera.core.Preview;
 import androidx.camera.core.PreviewConfig;
@@ -400,21 +399,20 @@ public class CameraXActivity extends AppCompatActivity
 
         mImageAnalysis.setAnalyzer(
                 CameraXExecutors.mainThreadExecutor(),
-                new ImageAnalysis.Analyzer() {
-                    @Override
-                    public void analyze(@NonNull ImageProxy image, int rotationDegrees) {
-                        // Since we set the callback handler to a main thread handler, we can call
-                        // setValue()
-                        // here. If we weren't on the main thread, we would have to call postValue()
-                        // instead.
-                        mImageAnalysisResult.setValue(
-                                Long.toString(image.getImageInfo().getTimestamp()));
+                (image, rotationDegrees) -> {
+                    // Since we set the callback handler to a main thread handler, we can call
+                    // setValue() here. If we weren't on the main thread, we would have to call
+                    // postValue() instead.
+                    mImageAnalysisResult.setValue(
+                            Long.toString(image.getImageInfo().getTimestamp()));
 
-                        if (!mAnalysisIdlingResource.isIdleNow()) {
-                            mAnalysisIdlingResource.decrement();
-                        }
+                    if (!mAnalysisIdlingResource.isIdleNow()) {
+                        mAnalysisIdlingResource.decrement();
                     }
-                });
+
+                    image.close();
+                }
+        );
         mImageAnalysisResult.observe(
                 this,
                 new Observer<String>() {
