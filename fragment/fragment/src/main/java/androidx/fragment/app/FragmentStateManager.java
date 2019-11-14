@@ -468,7 +468,7 @@ class FragmentStateManager {
         }
     }
 
-    void detach() {
+    void detach(@NonNull FragmentManagerViewModel nonConfig) {
         if (FragmentManager.isLoggingEnabled(Log.DEBUG)) {
             Log.d(TAG, "movefrom ATTACHED: " + mFragment);
         }
@@ -480,7 +480,10 @@ class FragmentStateManager {
         mFragment.mParentFragment = null;
         mFragment.mFragmentManager = null;
         boolean beingRemoved = mFragment.mRemoving && !mFragment.isInBackStack();
-        if (beingRemoved) {
+        if (beingRemoved || nonConfig.shouldDestroy(mFragment)) {
+            if (FragmentManager.isLoggingEnabled(Log.DEBUG)) {
+                Log.d(TAG, "initState called for fragment: " + mFragment);
+            }
             mFragment.initState();
         }
     }
