@@ -26,7 +26,6 @@ import androidx.inspection.InspectorFactory;
  * Factory for SqliteInspector
  */
 public final class SqliteInspectorFactory extends InspectorFactory<SqliteInspector> {
-
     @VisibleForTesting static final String SQLITE_INSPECTOR_ID = "androidx.sqlite.inspection";
 
     public SqliteInspectorFactory() {
@@ -37,6 +36,6 @@ public final class SqliteInspectorFactory extends InspectorFactory<SqliteInspect
     @Override
     public SqliteInspector createInspector(@NonNull Connection connection,
             @NonNull InspectorEnvironment environment) {
-        return new SqliteInspector(connection);
+        return new SqliteInspector(connection, environment);
     }
 }
