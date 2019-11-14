@@ -34,24 +34,9 @@ internal class DispatchQueue {
     private var paused: Boolean = true
     // handler thread
     private var finished: Boolean = false
+    private var isDraining: Boolean = false
 
     private val queue: Queue<Runnable> = ArrayDeque<Runnable>()
-
-    private val consumer = Runnable {
-        // this one runs inside Dispatchers.Main
-        // if it should run, grabs an item, runs it
-        // if it has more, will re-enqueue
-        // To avoid starving Dispatchers.Main, we don't consume more than 1
-        if (!canRun()) {
-            return@Runnable
-        }
-        val next = queue.poll() ?: return@Runnable
-        try {
-            next.run()
-        } finally {
-            maybeEnqueueConsumer()
-        }
-    }
 
     @MainThread
     fun pause() {
@@ -67,19 +52,31 @@ internal class DispatchQueue {
             "Cannot resume a finished dispatcher"
         }
         paused = false
-        maybeEnqueueConsumer()
+        drainQueue()
     }
 
     @MainThread
     fun finish() {
         finished = true
-        maybeEnqueueConsumer()
+        drainQueue()
     }
 
     @MainThread
-    fun maybeEnqueueConsumer() {
-        if (queue.isNotEmpty()) {
-            Dispatchers.Main.immediate.dispatch(EmptyCoroutineContext, consumer)
+    fun drainQueue() {
+        if (isDraining) {
+            // Block re-entrant calls to avoid deep stacks
+            return
+        }
+        try {
+            isDraining = true
+            while (queue.isNotEmpty()) {
+                if (!canRun()) {
+                    break
+                }
+                queue.poll()?.run()
+            }
+        } finally {
+            isDraining = false
         }
     }
 
@@ -90,9 +87,15 @@ internal class DispatchQueue {
     @ExperimentalCoroutinesApi
     @SuppressLint("WrongThread") // false negative, we are checking the thread
     fun runOrEnqueue(runnable: Runnable) {
-        Dispatchers.Main.immediate.dispatch(EmptyCoroutineContext, Runnable {
-            enqueue(runnable)
-        })
+        with(Dispatchers.Main.immediate) {
+            if (isDispatchNeeded(EmptyCoroutineContext)) {
+                dispatch(EmptyCoroutineContext, Runnable {
+                    enqueue(runnable)
+                })
+            } else {
+                enqueue(runnable)
+            }
+        }
     }
 
     @MainThread
@@ -100,6 +103,6 @@ internal class DispatchQueue {
         check(queue.offer(runnable)) {
             "cannot enqueue any more runnables"
         }
-        maybeEnqueueConsumer()
+        drainQueue()
     }
 }
