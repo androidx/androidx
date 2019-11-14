@@ -1,6 +1,10 @@
 // Signature format: 3.0
 package androidx.ui.foundation {
 
+  public final class AdapterListKt {
+    method public static <T> void AdapterList(java.util.List<? extends T> data, androidx.ui.core.Modifier modifier = Modifier.None, kotlin.jvm.functions.Function1<? super T,kotlin.Unit> itemCallback);
+  }
+
   public final class Border {
     ctor public Border(androidx.ui.unit.Dp size, androidx.ui.graphics.Brush brush);
     method public androidx.ui.unit.Dp component1();

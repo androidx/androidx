@@ -446,7 +446,7 @@ class AndroidComposeView constructor(context: Context) :
     /**
      * Iterates through all LayoutNodes that have requested layout and measures and lays them out
      */
-    internal fun measureAndLayout() {
+    override fun measureAndLayout() {
         trace("AndroidOwner:measureAndLayout") {
             if (relayoutNodes.isNotEmpty()) {
                 duringMeasureLayout = true

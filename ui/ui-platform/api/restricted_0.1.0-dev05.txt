@@ -30,6 +30,7 @@ package androidx.ui.core {
     method public androidx.ui.core.semantics.SemanticsOwner getSemanticsOwner();
     method public boolean getShowLayoutBounds();
     method public androidx.ui.input.TextInputService getTextInputService();
+    method public void measureAndLayout();
     method public void observeDrawModelReads(androidx.ui.core.RepaintBoundaryNode node, kotlin.jvm.functions.Function0<kotlin.Unit> block);
     method public void observeLayoutModelReads(androidx.ui.core.LayoutNode node, kotlin.jvm.functions.Function0<kotlin.Unit> block);
     method public void observeMeasureModelReads(androidx.ui.core.LayoutNode node, kotlin.jvm.functions.Function0<kotlin.Unit> block);
@@ -274,6 +275,7 @@ package androidx.ui.core {
     method public long getMeasureIteration();
     method public androidx.ui.core.semantics.SemanticsOwner getSemanticsOwner();
     method public boolean getShowLayoutBounds();
+    method public void measureAndLayout();
     method public void observeDrawModelReads(androidx.ui.core.RepaintBoundaryNode node, kotlin.jvm.functions.Function0<kotlin.Unit> block);
     method public void observeLayoutModelReads(androidx.ui.core.LayoutNode node, kotlin.jvm.functions.Function0<kotlin.Unit> block);
     method public void observeMeasureModelReads(androidx.ui.core.LayoutNode node, kotlin.jvm.functions.Function0<kotlin.Unit> block);

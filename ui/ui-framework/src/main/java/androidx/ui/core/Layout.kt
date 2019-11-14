@@ -243,7 +243,7 @@ internal class IntrinsicsMeasureScope(
  * Default [LayoutNode.MeasureBlocks] object implementation, providing intrinsic measurements
  * that use the measure block replacing the measure calls with intrinsic measurement calls.
  */
-@PublishedApi internal fun MeasuringIntrinsicsMeasureBlocks(measureBlock: MeasureBlock) =
+fun MeasuringIntrinsicsMeasureBlocks(measureBlock: MeasureBlock) =
     object : LayoutNode.MeasureBlocks {
         override fun measure(
             measureScope: MeasureScope,
