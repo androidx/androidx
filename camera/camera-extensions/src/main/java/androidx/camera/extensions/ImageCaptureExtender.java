@@ -107,7 +107,7 @@ public abstract class ImageCaptureExtender {
     public void enableExtension(@NonNull CameraSelector cameraSelector) {
         // Add extension camera id filter to config.
         ExtensionCameraIdFilter extensionCameraIdFilter = new ExtensionCameraIdFilter(mImpl);
-        CameraIdFilter currentCameraIdFilter = mBuilder.build().getCameraIdFilter(null);
+        CameraIdFilter currentCameraIdFilter = mBuilder.getUseCaseConfig().getCameraIdFilter(null);
         CameraSelector.Builder selectorBuilder =
                 CameraSelector.Builder.fromSelector(cameraSelector);
         if (currentCameraIdFilter == null) {

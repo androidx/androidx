@@ -53,7 +53,6 @@ import androidx.camera.core.ImageCapture;
 import androidx.camera.core.ImageCaptureConfig;
 import androidx.camera.core.LensFacing;
 import androidx.camera.core.Preview;
-import androidx.camera.core.PreviewConfig;
 import androidx.camera.core.PreviewSurfaceProviders;
 import androidx.camera.core.UseCase;
 import androidx.camera.core.VideoCapture;
@@ -200,12 +199,9 @@ public class CameraXActivity extends AppCompatActivity
     }
 
     void enablePreview() {
-        PreviewConfig config =
-                new PreviewConfig.Builder()
-                        .setTargetName("Preview")
-                        .build();
-
-        mPreview = new Preview(config);
+        mPreview = new Preview.Builder()
+                .setTargetName("Preview")
+                .build();
         Log.d(TAG, "enablePreview");
         mPreview.setPreviewSurfaceCallback(createSurfaceTextureProvider(
                 new PreviewSurfaceProviders.SurfaceTextureCallback() {
@@ -383,12 +379,9 @@ public class CameraXActivity extends AppCompatActivity
     }
 
     void enableImageAnalysis() {
-        ImageAnalysisConfig config =
-                new ImageAnalysisConfig.Builder()
-                        .setTargetName("ImageAnalysis")
-                        .build();
-
-        mImageAnalysis = new ImageAnalysis(config);
+        mImageAnalysis = new ImageAnalysisConfig.Builder()
+                .setTargetName("ImageAnalysis")
+                .build();
         TextView textView = this.findViewById(R.id.textView);
         mAnalysisIdlingResource.increment();
 
@@ -459,13 +452,10 @@ public class CameraXActivity extends AppCompatActivity
     }
 
     void enableImageCapture() {
-        ImageCaptureConfig config =
-                new ImageCaptureConfig.Builder()
-                        .setCaptureMode(mCaptureMode)
-                        .setTargetName("ImageCapture")
-                        .build();
-
-        mImageCapture = new ImageCapture(config);
+        mImageCapture = new ImageCaptureConfig.Builder()
+                .setCaptureMode(mCaptureMode)
+                .setTargetName("ImageCapture")
+                .build();
 
         Camera camera = bindToLifecycleSafely(mImageCapture, R.id.PhotoToggle);
         if (camera == null) {
@@ -641,12 +631,9 @@ public class CameraXActivity extends AppCompatActivity
     }
 
     void enableVideoCapture() {
-        VideoCaptureConfig config =
-                new VideoCaptureConfig.Builder()
-                        .setTargetName("VideoCapture")
-                        .build();
-
-        mVideoCapture = new VideoCapture(config);
+        mVideoCapture = new VideoCaptureConfig.Builder()
+                .setTargetName("VideoCapture")
+                .build();
 
         if (bindToLifecycleSafely(mVideoCapture, R.id.VideoToggle) == null) {
             Button button = this.findViewById(R.id.Video);

@@ -773,6 +773,12 @@ public final class VideoCaptureConfig
             return mMutableConfig;
         }
 
+        @NonNull
+        @Override
+        public VideoCaptureConfig getUseCaseConfig() {
+            return new VideoCaptureConfig(OptionsBundle.from(mMutableConfig));
+        }
+
         /**
          * Builds an immutable {@link VideoCaptureConfig} from the current state.
          *
@@ -780,7 +786,7 @@ public final class VideoCaptureConfig
          */
         @Override
         @NonNull
-        public VideoCaptureConfig build() {
+        public VideoCapture build() {
             // Error at runtime for using both setTargetResolution and setTargetAspectRatio on
             // the same config.
             if (getMutableConfig().retrieveOption(OPTION_TARGET_ASPECT_RATIO, null) != null
@@ -789,7 +795,7 @@ public final class VideoCaptureConfig
                         "Cannot use both setTargetResolution and setTargetAspectRatio on the same "
                                 + "config.");
             }
-            return new VideoCaptureConfig(OptionsBundle.from(mMutableConfig));
+            return new VideoCapture(getUseCaseConfig());
         }
 
         /**

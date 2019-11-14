@@ -689,6 +689,18 @@ public final class ImageAnalysisConfig
         }
 
         /**
+         * {@inheritDoc}
+         *
+         * @hide
+         */
+        @RestrictTo(Scope.LIBRARY_GROUP)
+        @NonNull
+        @Override
+        public ImageAnalysisConfig getUseCaseConfig() {
+            return new ImageAnalysisConfig(OptionsBundle.from(mMutableConfig));
+        }
+
+        /**
          * Builds an immutable {@link ImageAnalysisConfig} from the current state.
          *
          * @return A {@link ImageAnalysisConfig} populated with the current state.
@@ -697,7 +709,7 @@ public final class ImageAnalysisConfig
          */
         @Override
         @NonNull
-        public ImageAnalysisConfig build() {
+        public ImageAnalysis build() {
             // Error at runtime for using both setTargetResolution and setTargetAspectRatio on
             // the same config.
             if (getMutableConfig().retrieveOption(OPTION_TARGET_ASPECT_RATIO, null) != null
@@ -706,7 +718,7 @@ public final class ImageAnalysisConfig
                         "Cannot use both setTargetResolution and setTargetAspectRatio on the same"
                                 + " config.");
             }
-            return new ImageAnalysisConfig(OptionsBundle.from(mMutableConfig));
+            return new ImageAnalysis(getUseCaseConfig());
         }
 
         // Implementations of TargetConfig.Builder default methods

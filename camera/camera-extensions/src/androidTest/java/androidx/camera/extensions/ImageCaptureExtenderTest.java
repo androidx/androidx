@@ -119,7 +119,7 @@ public class ImageCaptureExtenderTest {
                         imageCaptureAdapter).setCaptureProcessor(
                         mock(CaptureProcessor.class));
 
-        ImageCapture useCase = new ImageCapture(configBuilder.build());
+        ImageCapture useCase = configBuilder.build();
 
         LensFacing lensFacing = CameraX.getDefaultLensFacing();
         CameraSelector cameraSelector = new CameraSelector.Builder()
@@ -177,7 +177,7 @@ public class ImageCaptureExtenderTest {
         new Camera2Config.Extender(configBuilder).setCameraEventCallback(
                 new CameraEventCallbacks(imageCaptureAdapter));
 
-        ImageCapture useCase = new ImageCapture(configBuilder.build());
+        ImageCapture useCase = configBuilder.build();
 
         LensFacing lensFacing = CameraX.getDefaultLensFacing();
         CameraSelector cameraSelector = new CameraSelector.Builder()
@@ -242,14 +242,14 @@ public class ImageCaptureExtenderTest {
                 mockImageCaptureExtenderImpl);
 
         // Checks the config does not include supported resolutions before applying effect mode.
-        assertThat(configBuilder.build().getSupportedResolutions(null)).isNull();
+        assertThat(configBuilder.getUseCaseConfig().getSupportedResolutions(null)).isNull();
 
         // Checks the config includes supported resolutions after applying effect mode.
         CameraSelector selector =
                 new CameraSelector.Builder().requireLensFacing(lensFacing).build();
         fakeExtender.enableExtension(selector);
         List<Pair<Integer, Size[]>> resultFormatResolutionsPairList =
-                configBuilder.build().getSupportedResolutions(null);
+                configBuilder.getUseCaseConfig().getSupportedResolutions(null);
         assertThat(resultFormatResolutionsPairList).isNotNull();
 
         // Checks the result and target pair lists are the same

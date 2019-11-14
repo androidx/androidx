@@ -57,7 +57,7 @@ public class ExtendableUseCaseConfigFactoryTest {
 
         @Override
         public FakeUseCaseConfig getConfig(LensFacing lensFacing) {
-            return new FakeUseCaseConfig.Builder().build();
+            return new FakeUseCaseConfig.Builder().getUseCaseConfig();
         }
     }
 }

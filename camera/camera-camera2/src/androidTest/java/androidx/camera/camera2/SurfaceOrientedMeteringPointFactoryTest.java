@@ -52,6 +52,7 @@ public final class SurfaceOrientedMeteringPointFactoryTest {
     private final Instrumentation mInstrumentation = InstrumentationRegistry.getInstrumentation();
     private LifecycleOwner mLifecycle;
     SurfaceOrientedMeteringPointFactory mPointFactory;
+
     @Before
     public void setUp() {
         Context context = ApplicationProvider.getApplicationContext();
@@ -114,12 +115,10 @@ public final class SurfaceOrientedMeteringPointFactoryTest {
     public void createPointWithFoVUseCase_success() {
         assumeTrue(CameraUtil.hasCameraWithLensFacing(LensFacing.BACK));
 
-        ImageAnalysisConfig imageAnalysisConfig =
-                new ImageAnalysisConfig.Builder()
-                        .setTargetAspectRatio(AspectRatio.RATIO_4_3)
-                        .setTargetName("ImageAnalysis")
-                        .build();
-        ImageAnalysis imageAnalysis = new ImageAnalysis(imageAnalysisConfig);
+        ImageAnalysis imageAnalysis = new ImageAnalysisConfig.Builder()
+                .setTargetAspectRatio(AspectRatio.RATIO_4_3)
+                .setTargetName("ImageAnalysis")
+                .build();
         CameraSelector cameraSelector =
                 new CameraSelector.Builder().requireLensFacing(LensFacing.BACK).build();
         mInstrumentation.runOnMainSync(new Runnable() {
@@ -139,12 +138,10 @@ public final class SurfaceOrientedMeteringPointFactoryTest {
     public void createPointWithFoVUseCase_FailedNotBound() {
         assumeTrue(CameraUtil.hasCameraWithLensFacing(LensFacing.BACK));
 
-        ImageAnalysisConfig imageAnalysisConfig =
-                new ImageAnalysisConfig.Builder()
-                        .setTargetAspectRatio(AspectRatio.RATIO_4_3)
-                        .setTargetName("ImageAnalysis")
-                        .build();
-        ImageAnalysis imageAnalysis = new ImageAnalysis(imageAnalysisConfig);
+        ImageAnalysis imageAnalysis = new ImageAnalysisConfig.Builder()
+                .setTargetAspectRatio(AspectRatio.RATIO_4_3)
+                .setTargetName("ImageAnalysis")
+                .build();
 
         // This will throw IllegalStateException.
         SurfaceOrientedMeteringPointFactory factory = new SurfaceOrientedMeteringPointFactory(

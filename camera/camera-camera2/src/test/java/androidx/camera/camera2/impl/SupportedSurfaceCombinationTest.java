@@ -477,10 +477,9 @@ public final class SupportedSurfaceCombinationTest {
                         mContext, LEGACY_CAMERA_ID, mMockCamcorderProfileHelper);
 
         Rational targetAspectRatio = new Rational(9, 16);
-        PreviewConfig.Builder previewConfigBuilder = new PreviewConfig.Builder();
-
-        previewConfigBuilder.setTargetAspectRatio(AspectRatio.RATIO_16_9);
-        Preview preview = new Preview(previewConfigBuilder.build());
+        final Preview preview = new Preview.Builder()
+                .setTargetAspectRatio(AspectRatio.RATIO_16_9)
+                .build();
 
         // Ensure we are bound to a camera to ensure aspect ratio correction is applied.
         FakeLifecycleOwner fakeLifecycle = new FakeLifecycleOwner();
@@ -526,13 +525,9 @@ public final class SupportedSurfaceCombinationTest {
                 new SupportedSurfaceCombination(
                         mContext, LIMITED_CAMERA_ID, mMockCamcorderProfileHelper);
 
-        PreviewConfig.Builder previewConfigBuilder = new PreviewConfig.Builder();
-        ImageCaptureConfig.Builder imageCaptureConfigBuilder = new ImageCaptureConfig.Builder();
-        ImageAnalysisConfig.Builder imageAnalysisConfigBuilder = new ImageAnalysisConfig.Builder();
-
-        Preview preview = new Preview(previewConfigBuilder.build());
-        ImageCapture imageCapture = new ImageCapture(imageCaptureConfigBuilder.build());
-        ImageAnalysis imageAnalysis = new ImageAnalysis(imageAnalysisConfigBuilder.build());
+        Preview preview = new Preview.Builder().build();
+        ImageCapture imageCapture = new ImageCaptureConfig.Builder().build();
+        ImageAnalysis imageAnalysis = new ImageAnalysisConfig.Builder().build();
 
         List<UseCase> useCases = new ArrayList<>();
         useCases.add(preview);
@@ -564,10 +559,10 @@ public final class SupportedSurfaceCombinationTest {
     public void checkDefaultLensFacingForMixedUseCase() {
         setupCamera(/* supportsRaw= */ false);
 
-        Preview preview = new Preview(new PreviewConfig.Builder().build());
-        ImageCapture imageCapture = new ImageCapture(new ImageCaptureConfig.Builder().build());
-        ImageAnalysis imageAnalysis = new ImageAnalysis(new ImageAnalysisConfig.Builder().build());
-        VideoCapture videoCapture = new VideoCapture(new VideoCaptureConfig.Builder().build());
+        Preview preview = new Preview.Builder().build();
+        ImageCapture imageCapture = new ImageCaptureConfig.Builder().build();
+        ImageAnalysis imageAnalysis = new ImageAnalysisConfig.Builder().build();
+        VideoCapture videoCapture = new VideoCaptureConfig.Builder().build();
 
         PreviewConfig previewConfig = (PreviewConfig) preview.getUseCaseConfig();
         ImageCaptureConfig imageCaptureConfig =
@@ -603,9 +598,9 @@ public final class SupportedSurfaceCombinationTest {
         */
         final int displayWidth = 1080;
         final int displayHeight = 2220;
-        PreviewConfig.Builder previewConfigBuilder = new PreviewConfig.Builder();
-        previewConfigBuilder.setTargetResolution(new Size(displayHeight, displayWidth));
-        Preview preview = new Preview(previewConfigBuilder.build());
+        Preview preview = new Preview.Builder()
+                .setTargetResolution(new Size(displayHeight, displayWidth))
+                .build();
 
         List<UseCase> useCases = new ArrayList<>();
         useCases.add(preview);
@@ -637,9 +632,9 @@ public final class SupportedSurfaceCombinationTest {
         // The resolution selection will filter out the sizes which are smaller than min(640x480,
         // TARGET_RESOLUTION)
         final Size targetResolution = new Size(240, 320);
-        PreviewConfig.Builder previewConfigBuilder = new PreviewConfig.Builder();
-        previewConfigBuilder.setTargetResolution(targetResolution);
-        Preview preview = new Preview(previewConfigBuilder.build());
+        Preview preview = new Preview.Builder()
+                .setTargetResolution(targetResolution)
+                .build();
 
         List<UseCase> useCases = new ArrayList<>();
         useCases.add(preview);
@@ -660,17 +655,15 @@ public final class SupportedSurfaceCombinationTest {
                 new SupportedSurfaceCombination(
                         mContext, LEGACY_CAMERA_ID, mMockCamcorderProfileHelper);
 
-        PreviewConfig.Builder previewConfigBuilder = new PreviewConfig.Builder();
-        VideoCaptureConfig.Builder videoCaptureConfigBuilder = new VideoCaptureConfig.Builder();
-        ImageCaptureConfig.Builder imageCaptureConfigBuilder = new ImageCaptureConfig.Builder();
-
-        previewConfigBuilder.setTargetAspectRatio(AspectRatio.RATIO_16_9);
-        videoCaptureConfigBuilder.setTargetAspectRatio(AspectRatio.RATIO_16_9);
-        imageCaptureConfigBuilder.setTargetAspectRatio(AspectRatio.RATIO_16_9);
-
-        ImageCapture imageCapture = new ImageCapture(imageCaptureConfigBuilder.build());
-        VideoCapture videoCapture = new VideoCapture(videoCaptureConfigBuilder.build());
-        Preview preview = new Preview(previewConfigBuilder.build());
+        ImageCapture imageCapture = new ImageCaptureConfig.Builder()
+                .setTargetAspectRatio(AspectRatio.RATIO_16_9)
+                .build();
+        VideoCapture videoCapture = new VideoCaptureConfig.Builder()
+                .setTargetAspectRatio(AspectRatio.RATIO_16_9)
+                .build();
+        Preview preview = new Preview.Builder()
+                .setTargetAspectRatio(AspectRatio.RATIO_16_9)
+                .build();
 
         List<UseCase> useCases = new ArrayList<>();
         useCases.add(imageCapture);
@@ -689,17 +682,15 @@ public final class SupportedSurfaceCombinationTest {
                 new SupportedSurfaceCombination(
                         mContext, LIMITED_CAMERA_ID, mMockCamcorderProfileHelper);
 
-        PreviewConfig.Builder previewConfigBuilder = new PreviewConfig.Builder();
-        VideoCaptureConfig.Builder videoCaptureConfigBuilder = new VideoCaptureConfig.Builder();
-        ImageCaptureConfig.Builder imageCaptureConfigBuilder = new ImageCaptureConfig.Builder();
-
-        previewConfigBuilder.setTargetAspectRatio(AspectRatio.RATIO_16_9);
-        videoCaptureConfigBuilder.setTargetAspectRatio(AspectRatio.RATIO_16_9);
-        imageCaptureConfigBuilder.setTargetAspectRatio(AspectRatio.RATIO_16_9);
-
-        ImageCapture imageCapture = new ImageCapture(imageCaptureConfigBuilder.build());
-        VideoCapture videoCapture = new VideoCapture(videoCaptureConfigBuilder.build());
-        Preview preview = new Preview(previewConfigBuilder.build());
+        ImageCapture imageCapture = new ImageCaptureConfig.Builder()
+                .setTargetAspectRatio(AspectRatio.RATIO_16_9)
+                .build();
+        VideoCapture videoCapture = new VideoCaptureConfig.Builder()
+                .setTargetAspectRatio(AspectRatio.RATIO_16_9)
+                .build();
+        Preview preview = new Preview.Builder()
+                .setTargetAspectRatio(AspectRatio.RATIO_16_9)
+                .build();
 
         List<UseCase> useCases = new ArrayList<>();
         useCases.add(imageCapture);
@@ -727,16 +718,15 @@ public final class SupportedSurfaceCombinationTest {
         2. supportedOutputSizes for ImageCapture and Preview in
         SupportedSurfaceCombination#getAllPossibleSizeArrangements are the same.
         */
-        ImageCaptureConfig.Builder imageCaptureConfigBuilder = new ImageCaptureConfig.Builder();
-        PreviewConfig.Builder previewConfigBuilder = new PreviewConfig.Builder();
-        ImageAnalysisConfig.Builder imageAnalysisConfigBuilder = new ImageAnalysisConfig.Builder();
-
-        imageCaptureConfigBuilder.setTargetResolution(mDisplaySize);
-        ImageCapture imageCapture = new ImageCapture(imageCaptureConfigBuilder.build());
-        previewConfigBuilder.setTargetResolution(mDisplaySize);
-        Preview preview = new Preview(previewConfigBuilder.build());
-        imageAnalysisConfigBuilder.setTargetResolution(mDisplaySize);
-        ImageAnalysis imageAnalysis = new ImageAnalysis(imageAnalysisConfigBuilder.build());
+        ImageCapture imageCapture = new ImageCaptureConfig.Builder()
+                .setTargetResolution(mDisplaySize)
+                .build();
+        Preview preview = new Preview.Builder()
+                .setTargetResolution(mDisplaySize)
+                .build();
+        ImageAnalysis imageAnalysis = new ImageAnalysisConfig.Builder()
+                .setTargetResolution(mDisplaySize)
+                .build();
 
         List<UseCase> useCases = new ArrayList<>();
         useCases.add(imageCapture);
@@ -757,17 +747,15 @@ public final class SupportedSurfaceCombinationTest {
                 new SupportedSurfaceCombination(
                         mContext, FULL_CAMERA_ID, mMockCamcorderProfileHelper);
 
-        PreviewConfig.Builder previewConfigBuilder = new PreviewConfig.Builder();
-        ImageCaptureConfig.Builder imageCaptureConfigBuilder = new ImageCaptureConfig.Builder();
-        ImageAnalysisConfig.Builder imageAnalysisConfigBuilder = new ImageAnalysisConfig.Builder();
-
-        previewConfigBuilder.setTargetAspectRatio(AspectRatio.RATIO_16_9);
-        imageCaptureConfigBuilder.setTargetAspectRatio(AspectRatio.RATIO_16_9);
-        imageAnalysisConfigBuilder.setTargetAspectRatio(AspectRatio.RATIO_16_9);
-
-        Preview preview = new Preview(previewConfigBuilder.build());
-        ImageCapture imageCapture = new ImageCapture(imageCaptureConfigBuilder.build());
-        ImageAnalysis imageAnalysis = new ImageAnalysis(imageAnalysisConfigBuilder.build());
+        Preview preview = new Preview.Builder()
+                .setTargetAspectRatio(AspectRatio.RATIO_16_9)
+                .build();
+        ImageCapture imageCapture = new ImageCaptureConfig.Builder()
+                .setTargetAspectRatio(AspectRatio.RATIO_16_9)
+                .build();
+        ImageAnalysis imageAnalysis = new ImageAnalysisConfig.Builder()
+                .setTargetAspectRatio(AspectRatio.RATIO_16_9)
+                .build();
 
         List<UseCase> useCases = new ArrayList<>();
         useCases.add(imageCapture);
@@ -796,11 +784,11 @@ public final class SupportedSurfaceCombinationTest {
         setupCamera(/* supportsRaw= */ false);
 
         boolean previewExceptionHappened = false;
-        PreviewConfig.Builder previewConfigBuilder = new PreviewConfig.Builder()
+        Preview.Builder previewBuilder = new Preview.Builder()
                 .setTargetResolution(mDisplaySize)
                 .setTargetAspectRatio(AspectRatio.RATIO_16_9);
         try {
-            previewConfigBuilder.build();
+            previewBuilder.build();
         } catch (IllegalArgumentException e) {
             previewExceptionHappened = true;
         }
@@ -836,24 +824,22 @@ public final class SupportedSurfaceCombinationTest {
                 new SupportedSurfaceCombination(
                         mContext, LIMITED_CAMERA_ID, mMockCamcorderProfileHelper);
 
-        PreviewConfig.Builder previewConfigBuilder = new PreviewConfig.Builder();
-        VideoCaptureConfig.Builder videoCaptureConfigBuilder = new VideoCaptureConfig.Builder();
-        ImageCaptureConfig.Builder imageCaptureConfigBuilder = new ImageCaptureConfig.Builder();
-
         List<Pair<Integer, Size[]>> formatResolutionsPairList = new ArrayList<>();
         formatResolutionsPairList.add(Pair.create(ImageFormat.JPEG, new Size[]{mAnalysisSize}));
         formatResolutionsPairList.add(
                 Pair.create(ImageFormat.YUV_420_888, new Size[]{mAnalysisSize}));
         formatResolutionsPairList.add(Pair.create(ImageFormat.PRIVATE, new Size[]{mAnalysisSize}));
 
-        // Sets customized supported resolutions to 640x480 only.
-        imageCaptureConfigBuilder.setSupportedResolutions(formatResolutionsPairList);
-        videoCaptureConfigBuilder.setSupportedResolutions(formatResolutionsPairList);
-        previewConfigBuilder.setSupportedResolutions(formatResolutionsPairList);
-
-        ImageCapture imageCapture = new ImageCapture(imageCaptureConfigBuilder.build());
-        VideoCapture videoCapture = new VideoCapture(videoCaptureConfigBuilder.build());
-        Preview preview = new Preview(previewConfigBuilder.build());
+        // Sets use cases customized supported resolutions to 640x480 only.
+        ImageCapture imageCapture = new ImageCaptureConfig.Builder()
+                .setSupportedResolutions(formatResolutionsPairList)
+                .build();
+        VideoCapture videoCapture = new VideoCaptureConfig.Builder()
+                .setSupportedResolutions(formatResolutionsPairList)
+                .build();
+        Preview preview = new Preview.Builder()
+                .setSupportedResolutions(formatResolutionsPairList)
+                .build();
 
         List<UseCase> useCases = new ArrayList<>();
         useCases.add(imageCapture);
@@ -1031,17 +1017,14 @@ public final class SupportedSurfaceCombinationTest {
                 new SupportedSurfaceCombination(
                         mContext, LEGACY_CAMERA_ID, mMockCamcorderProfileHelper);
 
-        PreviewConfig.Builder previewConfigBuilder = new PreviewConfig.Builder();
-        ImageCaptureConfig.Builder imageCaptureConfigBuilder = new ImageCaptureConfig.Builder();
-
-        previewConfigBuilder.setTargetAspectRatio(AspectRatio.RATIO_16_9);
-        imageCaptureConfigBuilder.setTargetAspectRatio(AspectRatio.RATIO_16_9);
-
-        previewConfigBuilder.setDefaultResolution(mMod16Size);
-        imageCaptureConfigBuilder.setDefaultResolution(mMod16Size);
-
-        Preview preview = new Preview(previewConfigBuilder.build());
-        ImageCapture imageCapture = new ImageCapture(imageCaptureConfigBuilder.build());
+        Preview preview = new Preview.Builder()
+                .setTargetAspectRatio(AspectRatio.RATIO_16_9)
+                .setDefaultResolution(mMod16Size)
+                .build();
+        ImageCapture imageCapture = new ImageCaptureConfig.Builder()
+                .setTargetAspectRatio(AspectRatio.RATIO_16_9)
+                .setDefaultResolution(mMod16Size)
+                .build();
 
         List<UseCase> useCases = new ArrayList<>();
         useCases.add(preview);

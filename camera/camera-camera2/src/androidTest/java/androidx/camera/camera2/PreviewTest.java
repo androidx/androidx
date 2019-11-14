@@ -38,7 +38,6 @@ import androidx.camera.core.CameraX;
 import androidx.camera.core.CaptureConfig;
 import androidx.camera.core.LensFacing;
 import androidx.camera.core.Preview;
-import androidx.camera.core.PreviewConfig;
 import androidx.camera.core.PreviewSurfaceProviders;
 import androidx.camera.core.SessionConfig;
 import androidx.camera.core.impl.utils.executor.CameraXExecutors;
@@ -78,7 +77,7 @@ public final class PreviewTest {
 
     private final Instrumentation mInstrumentation = InstrumentationRegistry.getInstrumentation();
 
-    private PreviewConfig mDefaultConfig;
+    private Preview.Builder mDefaultBuilder;
 
     private CameraSelector mCameraSelector;
     private String mCameraId;
@@ -118,7 +117,8 @@ public final class PreviewTest {
         }
 
         // init CameraX before creating Preview to get preview size with CameraX's context
-        mDefaultConfig = Preview.DEFAULT_CONFIG.getConfig(LensFacing.BACK);
+        mDefaultBuilder = Preview.Builder.fromConfig(
+                Preview.DEFAULT_CONFIG.getConfig(LensFacing.BACK));
         mSurfaceFutureSemaphore = new Semaphore(/*permits=*/ 0);
         mSaveToReleaseSemaphore = new Semaphore(/*permits=*/ 0);
         mCameraSelector = new CameraSelector.Builder().requireLensFacing(LensFacing.BACK).build();
@@ -138,7 +138,7 @@ public final class PreviewTest {
     @Test
     @UiThreadTest
     public void getAndSetPreviewSurfaceCallback() {
-        Preview preview = new Preview(mDefaultConfig);
+        Preview preview = mDefaultBuilder.build();
         preview.setPreviewSurfaceCallback(MOCK_PREVIEW_SURFACE_CALLBACK);
         assertThat(preview.getPreviewSurfaceCallback()).isEqualTo(MOCK_PREVIEW_SURFACE_CALLBACK);
     }
@@ -146,7 +146,7 @@ public final class PreviewTest {
     @Test
     @UiThreadTest
     public void removePreviewSurfaceCallback() {
-        Preview preview = new Preview(mDefaultConfig);
+        Preview preview = mDefaultBuilder.build();
         preview.setPreviewSurfaceCallback(MOCK_PREVIEW_SURFACE_CALLBACK);
         preview.setPreviewSurfaceCallback(null);
         assertThat(preview.getPreviewSurfaceCallback()).isNull();
@@ -156,7 +156,7 @@ public final class PreviewTest {
     @Test
     @UiThreadTest
     public void torchModeCanBeSet() {
-        Preview useCase = new Preview(mDefaultConfig);
+        Preview useCase = mDefaultBuilder.build();
         CameraX.bindToLifecycle(mLifecycleOwner, mCameraSelector, useCase);
         CameraControlInternal cameraControl = getFakeCameraControl();
         useCase.attachCameraControl(mCameraId, cameraControl);
@@ -169,8 +169,7 @@ public final class PreviewTest {
     @Test
     public void previewDetached_onSafeToReleaseCalled() throws InterruptedException {
         // Arrange.
-        PreviewConfig config = new PreviewConfig.Builder().build();
-        Preview preview = new Preview(config);
+        Preview preview = new Preview.Builder().build();
 
         // Act.
         mInstrumentation.runOnMainSync(() -> {
@@ -195,7 +194,7 @@ public final class PreviewTest {
     public void setPreviewSurfaceCallbackBeforeBind_getsFrame() throws InterruptedException {
         mInstrumentation.runOnMainSync(() -> {
             // Arrange.
-            Preview preview = new Preview(mDefaultConfig);
+            Preview preview = mDefaultBuilder.build();
             preview.setPreviewSurfaceCallback(mPreviewSurfaceCallbackWithFrameAvailableListener);
 
             // Act.
@@ -212,7 +211,7 @@ public final class PreviewTest {
     public void setPreviewSurfaceCallbackAfterBind_getsFrame() throws InterruptedException {
         mInstrumentation.runOnMainSync(() -> {
             // Arrange.
-            Preview preview = new Preview(mDefaultConfig);
+            Preview preview = mDefaultBuilder.build();
             CameraX.bindToLifecycle(mLifecycleOwner, mCameraSelector, preview);
 
             // Act.

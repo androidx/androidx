@@ -109,7 +109,7 @@ public class PreviewProcessorTimestampTest {
     SurfaceTexture.OnFrameAvailableListener mOnFrameAvailableListener;
 
     private ImageCaptureConfig.Builder mImageCaptureConfigBuilder;
-    private PreviewConfig.Builder mPreviewConfigBuilder;
+    private Preview.Builder mPreviewBuilder;
     private ImageAnalysisConfig.Builder mImageAnalysisConfigBuilder;
 
     @Parameterized.Parameters
@@ -147,7 +147,7 @@ public class PreviewProcessorTimestampTest {
         mLifecycleOwner = new FakeLifecycleOwner();
 
         mImageCaptureConfigBuilder = new ImageCaptureConfig.Builder();
-        mPreviewConfigBuilder = new PreviewConfig.Builder();
+        mPreviewBuilder = new Preview.Builder();
         mImageAnalysisConfigBuilder = new ImageAnalysisConfig.Builder();
         mCameraStatusCallback = new CameraDevice.StateCallback() {
             @Override
@@ -237,16 +237,15 @@ public class PreviewProcessorTimestampTest {
         enableExtension(mEffectMode, mLensFacing);
 
         // To test bind/unbind and take picture.
-        ImageCapture imageCapture = new ImageCapture(mImageCaptureConfigBuilder.build());
+        ImageCapture imageCapture = mImageCaptureConfigBuilder.build();
 
-        PreviewConfig previewConfig = mPreviewConfigBuilder
-                .build();
+        PreviewConfig previewConfig = mPreviewBuilder.getUseCaseConfig();
         CaptureProcessor previewCaptureProcessor = previewConfig.getCaptureProcessor(null);
         assumeNotNull(previewCaptureProcessor);
-        mPreviewConfigBuilder.setCaptureProcessor(
+        mPreviewBuilder.setCaptureProcessor(
                 new TimestampCaptureProcessor(previewCaptureProcessor, mTimestampListener));
 
-        Preview preview = new Preview(mPreviewConfigBuilder.build());
+        Preview preview = mPreviewBuilder.build();
 
         // To set the update listener and Preview will change to active state.
         preview.setPreviewSurfaceCallback(createSurfaceTextureProvider(
@@ -296,25 +295,25 @@ public class PreviewProcessorTimestampTest {
         switch (effectMode) {
             case HDR:
                 imageCaptureExtender = HdrImageCaptureExtender.create(mImageCaptureConfigBuilder);
-                previewExtender = HdrPreviewExtender.create(mPreviewConfigBuilder);
+                previewExtender = HdrPreviewExtender.create(mPreviewBuilder);
                 break;
             case BOKEH:
                 imageCaptureExtender = BokehImageCaptureExtender.create(
                         mImageCaptureConfigBuilder);
-                previewExtender = BokehPreviewExtender.create(mPreviewConfigBuilder);
+                previewExtender = BokehPreviewExtender.create(mPreviewBuilder);
                 break;
             case BEAUTY:
                 imageCaptureExtender = BeautyImageCaptureExtender.create(
                         mImageCaptureConfigBuilder);
-                previewExtender = BeautyPreviewExtender.create(mPreviewConfigBuilder);
+                previewExtender = BeautyPreviewExtender.create(mPreviewBuilder);
                 break;
             case NIGHT:
                 imageCaptureExtender = NightImageCaptureExtender.create(mImageCaptureConfigBuilder);
-                previewExtender = NightPreviewExtender.create(mPreviewConfigBuilder);
+                previewExtender = NightPreviewExtender.create(mPreviewBuilder);
                 break;
             case AUTO:
                 imageCaptureExtender = AutoImageCaptureExtender.create(mImageCaptureConfigBuilder);
-                previewExtender = AutoPreviewExtender.create(mPreviewConfigBuilder);
+                previewExtender = AutoPreviewExtender.create(mPreviewBuilder);
                 break;
         }
 

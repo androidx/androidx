@@ -744,6 +744,18 @@ public final class ImageCaptureConfig
         }
 
         /**
+         * {@inheritDoc}
+         *
+         * @hide
+         */
+        @RestrictTo(Scope.LIBRARY_GROUP)
+        @NonNull
+        @Override
+        public ImageCaptureConfig getUseCaseConfig() {
+            return new ImageCaptureConfig(OptionsBundle.from(mMutableConfig));
+        }
+
+        /**
          * Builds an immutable {@link ImageCaptureConfig} from the current state.
          *
          * @return A {@link ImageCaptureConfig} populated with the current state.
@@ -752,7 +764,7 @@ public final class ImageCaptureConfig
          */
         @Override
         @NonNull
-        public ImageCaptureConfig build() {
+        public ImageCapture build() {
             // Error at runtime for using both setTargetResolution and setTargetAspectRatio on
             // the same config.
             if (getMutableConfig().retrieveOption(OPTION_TARGET_ASPECT_RATIO, null) != null
@@ -761,7 +773,7 @@ public final class ImageCaptureConfig
                         "Cannot use both setTargetResolution and setTargetAspectRatio on the same "
                                 + "config.");
             }
-            return new ImageCaptureConfig(OptionsBundle.from(mMutableConfig));
+            return new ImageCapture(getUseCaseConfig());
         }
 
         /**

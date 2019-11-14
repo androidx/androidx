@@ -28,7 +28,6 @@ import androidx.camera.core.ImageCapture;
 import androidx.camera.core.ImageCaptureConfig;
 import androidx.camera.core.LensFacing;
 import androidx.camera.core.Preview;
-import androidx.camera.core.PreviewConfig;
 import androidx.camera.core.impl.utils.executor.CameraXExecutors;
 import androidx.camera.core.impl.utils.futures.Futures;
 import androidx.camera.extensions.impl.InitializerImpl;
@@ -246,7 +245,7 @@ public final class ExtensionsManager {
 
     private static boolean checkPreviewExtensionCapability(EffectMode effectMode,
             LensFacing lensFacing) {
-        PreviewConfig.Builder builder = new PreviewConfig.Builder();
+        Preview.Builder builder = new Preview.Builder();
         CameraSelector cameraSelector =
                 new CameraSelector.Builder().requireLensFacing(lensFacing).build();
         PreviewExtender extender;

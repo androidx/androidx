@@ -43,7 +43,6 @@ import androidx.camera.core.ImageCapture.OnImageSavedCallback;
 import androidx.camera.core.ImageCaptureConfig;
 import androidx.camera.core.LensFacing;
 import androidx.camera.core.Preview;
-import androidx.camera.core.PreviewConfig;
 import androidx.camera.core.VideoCapture;
 import androidx.camera.core.VideoCapture.OnVideoSavedCallback;
 import androidx.camera.core.VideoCaptureConfig;
@@ -81,7 +80,7 @@ final class CameraXModule {
     private static final Rational ASPECT_RATIO_9_16 = new Rational(9, 16);
     private static final Rational ASPECT_RATIO_3_4 = new Rational(3, 4);
 
-    private final PreviewConfig.Builder mPreviewConfigBuilder;
+    private final Preview.Builder mPreviewBuilder;
     private final VideoCaptureConfig.Builder mVideoCaptureConfigBuilder;
     private final ImageCaptureConfig.Builder mImageCaptureConfigBuilder;
     private final CameraView mCameraView;
@@ -123,7 +122,7 @@ final class CameraXModule {
     CameraXModule(CameraView view) {
         this.mCameraView = view;
 
-        mPreviewConfigBuilder = new PreviewConfig.Builder().setTargetName("Preview");
+        mPreviewBuilder = new Preview.Builder().setTargetName("Preview");
 
         mImageCaptureConfigBuilder =
                 new ImageCaptureConfig.Builder().setTargetName("ImageCapture");
@@ -202,16 +201,16 @@ final class CameraXModule {
         }
 
         mImageCaptureConfigBuilder.setTargetRotation(getDisplaySurfaceRotation());
-        mImageCapture = new ImageCapture(mImageCaptureConfigBuilder.build());
+        mImageCapture = mImageCaptureConfigBuilder.build();
 
         mVideoCaptureConfigBuilder.setTargetRotation(getDisplaySurfaceRotation());
-        mVideoCapture = new VideoCapture(mVideoCaptureConfigBuilder.build());
+        mVideoCapture = mVideoCaptureConfigBuilder.build();
 
         // Adjusts the preview resolution according to the view size and the target aspect ratio.
         int height = (int) (getMeasuredWidth() / targetAspectRatio.floatValue());
-        mPreviewConfigBuilder.setTargetResolution(new Size(getMeasuredWidth(), height));
+        mPreviewBuilder.setTargetResolution(new Size(getMeasuredWidth(), height));
 
-        mPreview = new Preview(mPreviewConfigBuilder.build());
+        mPreview = mPreviewBuilder.build();
         mPreview.setPreviewSurfaceCallback(new Preview.PreviewSurfaceCallback() {
             // Thread safe because it only accessed on the default executor, which is UI thread.
             Map<Surface, SurfaceTexture> mSurfaceTextureMap = new HashMap<>();

@@ -163,9 +163,8 @@ public final class ImageAnalysisTest {
 
     private void analyzerAnalyzesImagesWithStrategy(@BackpressureStrategy int backpressureStrategy)
             throws InterruptedException {
-        ImageAnalysisConfig config = new ImageAnalysisConfig.Builder().setBackpressureStrategy(
+        ImageAnalysis useCase = new ImageAnalysisConfig.Builder().setBackpressureStrategy(
                 backpressureStrategy).build();
-        ImageAnalysis useCase = new ImageAnalysis(config);
         mInstrumentation.runOnMainSync(() -> {
             CameraX.bindToLifecycle(mLifecycleOwner, mCameraSelector, useCase);
             mLifecycleOwner.startAndResume();
@@ -182,8 +181,7 @@ public final class ImageAnalysisTest {
     @Test
     @UiThreadTest
     public void analyzerDoesNotAnalyzeImages_whenCameraIsNotOpen() throws InterruptedException {
-        ImageAnalysisConfig config = new ImageAnalysisConfig.Builder().build();
-        ImageAnalysis useCase = new ImageAnalysis(config);
+        ImageAnalysis useCase = new ImageAnalysisConfig.Builder().build();
         // Bind but do not start lifecycle
         CameraX.bindToLifecycle(mLifecycleOwner, mCameraSelector, useCase);
         useCase.setAnalyzer(CameraXExecutors.newHandlerExecutor(mHandler), mAnalyzer);

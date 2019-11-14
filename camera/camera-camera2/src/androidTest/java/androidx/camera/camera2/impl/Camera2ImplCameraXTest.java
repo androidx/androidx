@@ -147,7 +147,7 @@ public final class Camera2ImplCameraXTest {
             public void run() {
                 ImageAnalysisConfig.Builder builder = new ImageAnalysisConfig.Builder();
                 new Camera2Config.Extender(builder).setDeviceStateCallback(mDeviceStateCallback);
-                ImageAnalysis useCase = new ImageAnalysis(builder.build());
+                ImageAnalysis useCase = builder.build();
 
                 CameraX.bindToLifecycle(mLifecycle, DEFAULT_SELECTOR, useCase);
                 useCase.setAnalyzer(CameraXExecutors.mainThreadExecutor(), mImageAnalyzer);
@@ -180,10 +180,9 @@ public final class Camera2ImplCameraXTest {
             public void run() {
                 ImageAnalysisConfig.Builder builder = new ImageAnalysisConfig.Builder();
                 new Camera2Config.Extender(builder).setDeviceStateCallback(mDeviceStateCallback);
-                ImageAnalysis useCase = new ImageAnalysis(builder.build());
+                ImageAnalysis useCase = builder.build();
 
-                ImageAnalysisConfig config2 = new ImageAnalysisConfig.Builder().build();
-                ImageAnalysis useCase2 = new ImageAnalysis(config2);
+                ImageAnalysis useCase2 = new ImageAnalysisConfig.Builder().build();
 
                 CameraX.bindToLifecycle(mLifecycle, DEFAULT_SELECTOR, useCase, useCase2);
 
@@ -216,7 +215,7 @@ public final class Camera2ImplCameraXTest {
                 new Camera2Config.Extender(configBuilder)
                         .setDeviceStateCallback(deviceStateCallback)
                         .setSessionCaptureCallback(sessionCaptureCallback);
-                ImageAnalysis useCase = new ImageAnalysis(configBuilder.build());
+                ImageAnalysis useCase = configBuilder.build();
                 CameraX.bindToLifecycle(mLifecycle, DEFAULT_SELECTOR, useCase);
                 useCase.setAnalyzer(CameraXExecutors.mainThreadExecutor(), mImageAnalyzer);
                 mAnalysisResult.observe(mLifecycle, createCountIncrementingObserver(observedCount));
@@ -253,8 +252,7 @@ public final class Camera2ImplCameraXTest {
     public void bind_opensCamera() {
         ImageAnalysisConfig.Builder builder = new ImageAnalysisConfig.Builder();
         new Camera2Config.Extender(builder).setDeviceStateCallback(mDeviceStateCallback);
-        ImageAnalysisConfig config = builder.build();
-        ImageAnalysis useCase = new ImageAnalysis(config);
+        ImageAnalysis useCase = builder.build();
 
         mInstrumentation.runOnMainSync(new Runnable() {
             @Override
@@ -272,8 +270,7 @@ public final class Camera2ImplCameraXTest {
     public void bind_opensCamera_withOutAnalyzer() {
         ImageAnalysisConfig.Builder builder = new ImageAnalysisConfig.Builder();
         new Camera2Config.Extender(builder).setDeviceStateCallback(mDeviceStateCallback);
-        ImageAnalysisConfig config = builder.build();
-        ImageAnalysis useCase = new ImageAnalysis(config);
+        ImageAnalysis useCase = builder.build();
 
         mInstrumentation.runOnMainSync(new Runnable() {
             @Override
@@ -295,8 +292,7 @@ public final class Camera2ImplCameraXTest {
         new Camera2Config.Extender(builder).setDeviceStateCallback(mDeviceStateCallback)
                 .setSessionStateCallback(mockSessionStateCallback);
 
-        ImageAnalysisConfig config = builder.build();
-        ImageAnalysis useCase = new ImageAnalysis(config);
+        ImageAnalysis useCase = builder.build();
 
         mInstrumentation.runOnMainSync(new Runnable() {
             @Override
@@ -321,8 +317,7 @@ public final class Camera2ImplCameraXTest {
         for (int i = 0; i < 2; i++) {
             CameraDevice.StateCallback callback = mock(CameraDevice.StateCallback.class);
             new Camera2Config.Extender(builder).setDeviceStateCallback(callback);
-            ImageAnalysisConfig config = builder.build();
-            ImageAnalysis useCase = new ImageAnalysis(config);
+            ImageAnalysis useCase = builder.build();
 
             mInstrumentation.runOnMainSync(new Runnable() {
                 @Override
@@ -352,8 +347,7 @@ public final class Camera2ImplCameraXTest {
         for (int i = 0; i < 2; i++) {
             CameraDevice.StateCallback callback = mock(CameraDevice.StateCallback.class);
             new Camera2Config.Extender(builder).setDeviceStateCallback(callback);
-            ImageAnalysisConfig config = builder.build();
-            ImageAnalysis useCase = new ImageAnalysis(config);
+            ImageAnalysis useCase = builder.build();
 
             mInstrumentation.runOnMainSync(new Runnable() {
                 @Override
@@ -380,8 +374,7 @@ public final class Camera2ImplCameraXTest {
     public void unbindAll_closesAllCameras() {
         ImageAnalysisConfig.Builder builder = new ImageAnalysisConfig.Builder();
         new Camera2Config.Extender(builder).setDeviceStateCallback(mDeviceStateCallback);
-        ImageAnalysisConfig config = builder.build();
-        ImageAnalysis useCase = new ImageAnalysis(config);
+        ImageAnalysis useCase = builder.build();
 
         mInstrumentation.runOnMainSync(new Runnable() {
             @Override
@@ -407,8 +400,7 @@ public final class Camera2ImplCameraXTest {
     public void unbindAllAssociatedUseCase_closesCamera() {
         ImageAnalysisConfig.Builder builder = new ImageAnalysisConfig.Builder();
         new Camera2Config.Extender(builder).setDeviceStateCallback(mDeviceStateCallback);
-        ImageAnalysisConfig config = builder.build();
-        ImageAnalysis useCase = new ImageAnalysis(config);
+        ImageAnalysis useCase = builder.build();
 
         mInstrumentation.runOnMainSync(new Runnable() {
             @Override
@@ -434,14 +426,11 @@ public final class Camera2ImplCameraXTest {
     public void unbindPartialAssociatedUseCase_doesNotCloseCamera() throws InterruptedException {
         ImageAnalysisConfig.Builder builder = new ImageAnalysisConfig.Builder();
         new Camera2Config.Extender(builder).setDeviceStateCallback(mDeviceStateCallback);
-        ImageAnalysisConfig config0 = builder.build();
-        ImageAnalysis useCase0 = new ImageAnalysis(config0);
+        ImageAnalysis useCase0 = builder.build();
 
-        ImageCaptureConfig configuration =
-                new ImageCaptureConfig.Builder()
-                        .setCaptureMode(ImageCapture.CaptureMode.MAX_QUALITY)
-                        .build();
-        ImageCapture useCase1 = new ImageCapture(configuration);
+        ImageCapture useCase1 = new ImageCaptureConfig.Builder()
+                .setCaptureMode(ImageCapture.CaptureMode.MAX_QUALITY)
+                .build();
 
         mInstrumentation.runOnMainSync(new Runnable() {
             @Override
@@ -469,14 +458,11 @@ public final class Camera2ImplCameraXTest {
     public void unbindAllAssociatedUseCaseInParts_ClosesCamera() {
         ImageAnalysisConfig.Builder builder = new ImageAnalysisConfig.Builder();
         new Camera2Config.Extender(builder).setDeviceStateCallback(mDeviceStateCallback);
-        ImageAnalysisConfig config0 = builder.build();
-        ImageAnalysis useCase0 = new ImageAnalysis(config0);
+        ImageAnalysis useCase0 = builder.build();
 
-        ImageCaptureConfig configuration =
-                new ImageCaptureConfig.Builder()
-                        .setCaptureMode(ImageCapture.CaptureMode.MAX_QUALITY)
-                        .build();
-        ImageCapture useCase1 = new ImageCapture(configuration);
+        ImageCapture useCase1 = new ImageCaptureConfig.Builder()
+                .setCaptureMode(ImageCapture.CaptureMode.MAX_QUALITY)
+                .build();
 
         mInstrumentation.runOnMainSync(new Runnable() {
             @Override
@@ -503,8 +489,7 @@ public final class Camera2ImplCameraXTest {
     @UiThreadTest
     public void cameraInfo_getCameraInfoFromCamera() {
         ImageAnalysisConfig.Builder builder = new ImageAnalysisConfig.Builder();
-        ImageAnalysisConfig config = builder.build();
-        ImageAnalysis useCase = new ImageAnalysis(config);
+        ImageAnalysis useCase = builder.build();
 
         Camera camera = CameraX.bindToLifecycle(mLifecycle, DEFAULT_SELECTOR, useCase);
 
@@ -515,8 +500,7 @@ public final class Camera2ImplCameraXTest {
     @UiThreadTest
     public void cameraControl_getCameraControlFromCamera() {
         ImageAnalysisConfig.Builder builder = new ImageAnalysisConfig.Builder();
-        ImageAnalysisConfig config = builder.build();
-        ImageAnalysis useCase = new ImageAnalysis(config);
+        ImageAnalysis useCase = builder.build();
 
         Camera camera = CameraX.bindToLifecycle(mLifecycle, DEFAULT_SELECTOR, useCase);
 

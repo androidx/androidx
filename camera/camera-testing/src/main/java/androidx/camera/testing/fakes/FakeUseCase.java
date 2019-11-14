@@ -43,7 +43,7 @@ public class FakeUseCase extends UseCase {
      * Creates a new instance of a {@link FakeUseCase} with a default configuration.
      */
     public FakeUseCase() {
-        this(new FakeUseCaseConfig.Builder().build());
+        this(new FakeUseCaseConfig.Builder().getUseCaseConfig());
     }
 
     @Override

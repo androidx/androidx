@@ -30,7 +30,7 @@ import android.util.SparseIntArray
 import android.view.Surface
 import androidx.appcompat.app.AppCompatActivity
 import androidx.camera.core.ImageCaptureConfig
-import androidx.camera.core.PreviewConfig
+import androidx.camera.core.Preview
 import androidx.camera.integration.antelope.MainActivity.Companion.FIXED_FOCUS_DISTANCE
 import androidx.camera.integration.antelope.MainActivity.Companion.cameraParams
 import androidx.camera.integration.antelope.MainActivity.Companion.logd
@@ -165,9 +165,9 @@ fun initializeCameras(activity: MainActivity) {
                 previewSurfaceView = activity.surface_preview
                 cameraXPreviewTexture = activity.texture_preview
 
-                cameraXPreviewConfig = PreviewConfig.Builder().build()
+                cameraXPreviewBuilder = Preview.Builder()
 
-                cameraXCaptureConfig = ImageCaptureConfig.Builder().build()
+                cameraXCaptureBuilder = ImageCaptureConfig.Builder()
 
                 imageAvailableListener =
                     ImageAvailableListener(activity, this, TestConfig())
@@ -220,10 +220,13 @@ fun setupImageReader(activity: MainActivity, params: CameraParams, testConfig: T
             params.cam2MinSize
 
         params.imageReader?.close()
-        params.imageReader = ImageReader.newInstance(size.width, size.height,
-            ImageFormat.JPEG, 5)
+        params.imageReader = ImageReader.newInstance(
+            size.width, size.height,
+            ImageFormat.JPEG, 5
+        )
         params.imageReader?.setOnImageAvailableListener(
-            params.imageAvailableListener, params.backgroundHandler)
+            params.imageAvailableListener, params.backgroundHandler
+        )
     }
 }
 

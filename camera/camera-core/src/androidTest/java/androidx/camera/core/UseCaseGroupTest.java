@@ -45,11 +45,11 @@ public final class UseCaseGroupTest {
     public void setUp() {
         FakeUseCaseConfig fakeUseCaseConfig = new FakeUseCaseConfig.Builder()
                 .setTargetName("fakeUseCaseConfig")
-                .build();
+                .getUseCaseConfig();
         FakeOtherUseCaseConfig fakeOtherUseCaseConfig =
                 new FakeOtherUseCaseConfig.Builder()
                         .setTargetName("fakeOtherUseCaseConfig")
-                        .build();
+                        .getUseCaseConfig();
         mUseCaseGroup = new UseCaseGroup();
         mFakeUseCase = new FakeUseCase(fakeUseCaseConfig);
         mFakeOtherUseCase = new FakeOtherUseCase(fakeOtherUseCaseConfig);

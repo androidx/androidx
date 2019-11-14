@@ -35,6 +35,7 @@ import androidx.camera.core.SessionConfig;
 
 /**
  * Provides defaults for {@link PreviewConfig} in the Camera2 implementation.
+ *
  * @hide
  */
 @RestrictTo(Scope.LIBRARY)
@@ -53,8 +54,8 @@ public final class PreviewConfigProvider implements ConfigProvider<PreviewConfig
 
     @Override
     public PreviewConfig getConfig(LensFacing lensFacing) {
-        PreviewConfig.Builder builder =
-                PreviewConfig.Builder.fromConfig(Preview.DEFAULT_CONFIG.getConfig(lensFacing));
+        Preview.Builder builder = Preview.Builder.fromConfig(
+                Preview.DEFAULT_CONFIG.getConfig(lensFacing));
 
         // SessionConfig containing all intrinsic properties needed for Preview
         SessionConfig.Builder sessionBuilder = new SessionConfig.Builder();
@@ -89,6 +90,6 @@ public final class PreviewConfigProvider implements ConfigProvider<PreviewConfig
             Log.w(TAG, "Unable to determine default lens facing for Preview.", e);
         }
 
-        return builder.build();
+        return builder.getUseCaseConfig();
     }
 }
