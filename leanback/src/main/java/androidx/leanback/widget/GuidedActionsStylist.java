@@ -682,11 +682,7 @@ public class GuidedActionsStylist implements FragmentAnimationProvider {
     public void onBindViewHolder(ViewHolder vh, GuidedAction action) {
         vh.mAction = action;
         if (vh.mTitleView != null) {
-            if (action.isEditable()) {
-                vh.mTitleView.setInputType(action.getInputType());
-            } else {
-                vh.mTitleView.setInputType(InputType.TYPE_NULL);
-            }
+            vh.mTitleView.setInputType(action.getInputType());
             vh.mTitleView.setText(action.getTitle());
             vh.mTitleView.setAlpha(action.isEnabled() ? mEnabledTextAlpha : mDisabledTextAlpha);
             vh.mTitleView.setFocusable(false);
@@ -704,11 +700,7 @@ public class GuidedActionsStylist implements FragmentAnimationProvider {
             }
         }
         if (vh.mDescriptionView != null) {
-            if (action.isDescriptionEditable()) {
-                vh.mDescriptionView.setInputType(action.getDescriptionInputType());
-            } else {
-                vh.mDescriptionView.setInputType(InputType.TYPE_NULL);
-            }
+            vh.mDescriptionView.setInputType(action.getDescriptionInputType());
             vh.mDescriptionView.setText(action.getDescription());
             vh.mDescriptionView.setVisibility(TextUtils.isEmpty(action.getDescription())
                     ? View.GONE : View.VISIBLE);
