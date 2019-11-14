@@ -8,7 +8,7 @@ plugins {
 
 dependencies {
     api 'com.google.android.material:material:1.0.0'
-    implementation(project(":appcompat"))
+    implementation(project(":appcompat:appcompat"))
     implementation(project(":cardview"))
     implementation(project(":core:core"))
     implementation(project(":gridlayout"))
