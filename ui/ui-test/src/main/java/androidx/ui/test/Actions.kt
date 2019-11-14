@@ -26,6 +26,7 @@ import androidx.ui.semantics.SemanticsActions
 /**
  * Performs a click action on the given component.
  */
+// TODO(jellefresen): Move method to GestureScope.kt and add semantics doClick action here
 fun SemanticsNodeInteraction.doClick(): SemanticsNodeInteraction {
     // TODO(b/129400818): uncomment this after Merge Semantics is merged
     // assertHasClickAction()
@@ -36,7 +37,9 @@ fun SemanticsNodeInteraction.doClick(): SemanticsNodeInteraction {
     val x = globalRect.left + 1f
     val y = globalRect.top + 1f
 
-    semanticsTreeInteraction.sendClick(x, y)
+    semanticsTreeInteraction.sendInput {
+        it.sendClick(x, y)
+    }
 
     return this
 }
@@ -82,6 +85,23 @@ fun SemanticsNodeInteraction.doScrollTo(): SemanticsNodeInteraction {
         )
     }
 
+    return this
+}
+
+/**
+ * Executes the gestures specified in the given block.
+ *
+ * Example usage:
+ * findByTag("myWidget")
+ *    .doGesture {
+ *        sendSwipeUp()
+ *    }
+ */
+fun SemanticsNodeInteraction.doGesture(
+    block: GestureScope.() -> Unit
+): SemanticsNodeInteraction {
+    val scope = GestureScope(this)
+    scope.block()
     return this
 }
 
