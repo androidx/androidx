@@ -454,8 +454,6 @@ fun TextDemoSoftWrap() {
     }
 }
 
-// TODO(qqd): Impelement text demo for overflow and maxLines.
-
 @Composable
 fun TexDemoTextOverflowFade() {
     var text = ""
