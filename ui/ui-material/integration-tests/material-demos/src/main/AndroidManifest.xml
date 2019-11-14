@@ -14,8 +14,7 @@
   ~ limitations under the License
   -->
 
-<manifest
-    xmlns:android="http://schemas.android.com/apk/res/android"
+<manifest xmlns:android="http://schemas.android.com/apk/res/android"
     package="androidx.ui.material.demos">
 
     <application>
@@ -121,16 +120,17 @@
 
         <activity
             android:name=".AppBarActivity"
-            android:theme="@android:style/Theme.Material.Light.NoActionBar"
             android:configChanges="orientation|screenSize"
-            android:label="Material/App Bar">
+            android:label="Material/App Bar"
+            android:theme="@android:style/Theme.Material.Light.NoActionBar">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
                 <category android:name="androidx.ui.demos.SAMPLE_CODE" />
             </intent-filter>
         </activity>
 
-        <activity android:name=".CustomShapeActivity"
+        <activity
+            android:name=".CustomShapeActivity"
             android:configChanges="orientation|screenSize"
             android:label="Material/Custom shapes">
             <intent-filter>
@@ -139,31 +139,34 @@
             </intent-filter>
         </activity>
 
-        <activity android:name=".TabActivity"
-            android:theme="@android:style/Theme.Material.Light.NoActionBar"
+        <activity
+            android:name=".TabActivity"
             android:configChanges="orientation|screenSize"
-            android:label="Material/Tabs">
+            android:label="Material/Tabs"
+            android:theme="@android:style/Theme.Material.Light.NoActionBar">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
                 <category android:name="androidx.ui.demos.SAMPLE_CODE" />
             </intent-filter>
         </activity>
 
-        <activity android:name=".DataTableActivity"
-                  android:configChanges="orientation|screenSize"
-                  android:label="Material/Data tables">
+        <activity
+            android:name=".DataTableActivity"
+            android:configChanges="orientation|screenSize"
+            android:label="Material/Data tables">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
                 <category android:name="androidx.ui.demos.SAMPLE_CODE" />
             </intent-filter>
         </activity>
 
-        <activity android:name=".MaterialSettingsActivity"
-                  android:label="Material Theme Settings"
-                  android:theme="@style/Theme.AppCompat.Light.DarkActionBar">
-        </activity>
+        <activity
+            android:name=".MaterialSettingsActivity"
+            android:label="Material Theme Settings"
+            android:theme="@style/Theme.AppCompat.Light.DarkActionBar"></activity>
 
-        <activity android:name=".SideBySideAlertDialogActivity"
+        <activity
+            android:name=".SideBySideAlertDialogActivity"
             android:configChanges="orientation|screenSize"
             android:label="Material/AlertDialog.SideBySide">
             <intent-filter>
@@ -172,7 +175,8 @@
             </intent-filter>
         </activity>
 
-        <activity android:name=".StackedAlertDialogActivity"
+        <activity
+            android:name=".StackedAlertDialogActivity"
             android:configChanges="orientation|screenSize"
             android:label="Material/AlertDialog.Stacked">
             <intent-filter>
@@ -181,7 +185,8 @@
             </intent-filter>
         </activity>
 
-        <activity android:name=".ListItemActivity"
+        <activity
+            android:name=".ListItemActivity"
             android:configChanges="orientation|screenSize"
             android:label="Material/List Items">
             <intent-filter>
@@ -189,21 +194,30 @@
                 <category android:name="androidx.ui.demos.SAMPLE_CODE" />
             </intent-filter>
         </activity>
-
-        <activity android:name=".MaterialThemeActivity"
-            android:theme="@android:style/Theme.Material.Light.NoActionBar"
+        <activity
+            android:name=".MaterialThemeActivity"
             android:configChanges="orientation|screenSize"
-            android:label="Material/Material Theme">
+            android:label="Material/Material Theme"
+            android:theme="@android:style/Theme.Material.Light.NoActionBar">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
                 <category android:name="androidx.ui.demos.SAMPLE_CODE" />
             </intent-filter>
         </activity>
-
-        <activity android:name=".DynamicThemeActivity"
-            android:theme="@android:style/Theme.Material.Light.NoActionBar"
+        <activity
+            android:name=".DynamicThemeActivity"
             android:configChanges="orientation|screenSize"
-            android:label="Material/Dynamic Theme">
+            android:label="Material/Dynamic Theme"
+            android:theme="@android:style/Theme.Material.Light.NoActionBar">
+            <intent-filter>
+                <action android:name="android.intent.action.MAIN" />
+                <category android:name="androidx.ui.demos.SAMPLE_CODE" />
+            </intent-filter>
+        </activity>
+        <activity
+            android:name=".SliderActivity"
+            android:configChanges="orientation|screenSize"
+            android:label="Material/Slider">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
                 <category android:name="androidx.ui.demos.SAMPLE_CODE" />
