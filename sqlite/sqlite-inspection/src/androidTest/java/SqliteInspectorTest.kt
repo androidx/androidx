@@ -23,6 +23,7 @@ import androidx.inspection.InspectorEnvironment.EntryHook
 import androidx.inspection.InspectorEnvironment.ExitHook
 import androidx.inspection.testing.InspectorTester
 import androidx.sqlite.inspection.SqliteInspectorProtocol.Command
+import androidx.sqlite.inspection.SqliteInspectorProtocol.Event
 import androidx.sqlite.inspection.SqliteInspectorProtocol.Response
 import androidx.sqlite.inspection.SqliteInspectorProtocol.TrackDatabasesCommand
 import androidx.sqlite.inspection.SqliteInspectorProtocol.TrackDatabasesResponse
@@ -67,18 +68,35 @@ class SqliteInspectorTest {
 
     @Test
     fun test_track_databases() = runBlocking {
+        // prepare test environment
         val environment = FakeInspectorEnvironment()
         val inspectorTester =
             InspectorTester(SqliteInspectorFactory.SQLITE_INSPECTOR_ID, environment)
+        // prepare test environment: registered hooks
         assertThat(environment.consumeRegisteredHooks()).isEmpty()
+        // prepare test environment: register 'already open' instances
+        val alreadyOpenInstances = listOf(createDatabase("db1"), createDatabase("db2"))
+        environment.registerInstancesToFind(alreadyOpenInstances)
 
-        // evaluate response
+        // send request and evaluate response
         inspectorTester.sendCommand(createTrackDatabasesCommand().toByteArray())
             .let { responseBytes ->
                 assertThat(responseBytes).isNotEmpty()
                 val response = Response.parseFrom(responseBytes)
                 assertThat(response).isEqualTo(createTrackDatabasesResponse())
             }
+
+        // evaluate 'already-open' instances are found
+        alreadyOpenInstances.let { expected ->
+            val actual = expected.indices.map {
+                Event.parseFrom(inspectorTester.channel.receive()).databaseOpened
+            }
+            assertThat(inspectorTester.channel.isEmpty).isTrue()
+            assertThat(actual.map { it.id }.takeWhile { it >= 0 }.distinct()).hasSize(expected.size)
+            expected.forEachIndexed { ix, _ ->
+                assertThat(actual[ix].name).isEqualTo(expected[ix].path)
+            }
+        }
 
         // evaluate registered hooks
         val hookEntries = environment.consumeRegisteredHooks()
@@ -93,17 +111,16 @@ class SqliteInspectorTest {
             assertThat(inspectorTester.channel.isEmpty).isTrue()
             @Suppress("UNCHECKED_CAST")
             val exitHook = (entry as ExitHookEntry).exitHook as ExitHook<SQLiteDatabase>
-            val database = createDatabase("db")
+            val database = createDatabase("db3")
             assertThat(exitHook.onExit(database)).isSameInstanceAs(database)
             inspectorTester.channel.receive().let { responseBytes ->
                 assertThat(responseBytes).isNotEmpty()
-                val response = SqliteInspectorProtocol.Event.parseFrom(responseBytes)
+                val response = Event.parseFrom(responseBytes)
                 assertThat(response.hasDatabaseOpened()).isTrue()
                 assertThat(response.databaseOpened.name).isEqualTo(database.path)
             }
         }
 
-        // TODO: verify already-open-database events sent
         assertThat(environment.consumeRegisteredHooks()).isEmpty()
         inspectorTester.dispose()
     }
@@ -136,10 +153,6 @@ class SqliteInspectorTest {
 
         fun registerInstancesToFind(instances: List<Any>) {
             instancesToFind.addAll(instances)
-        }
-
-        fun unregisterInstancesToFind(instances: List<Any>) {
-            instancesToFind.removeAll(instances)
         }
 
         /**
