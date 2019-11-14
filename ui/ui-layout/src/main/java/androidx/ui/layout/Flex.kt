@@ -24,7 +24,6 @@ import androidx.ui.core.Constraints
 import androidx.ui.core.DensityScope
 import androidx.ui.core.HorizontalAlignmentLine
 import androidx.ui.core.IntPx
-import androidx.ui.core.IntPxPosition
 import androidx.ui.core.IntPxSize
 import androidx.ui.core.Placeable
 import androidx.ui.core.ipx
@@ -33,7 +32,6 @@ import androidx.ui.core.IntrinsicMeasurable
 import androidx.ui.core.IntrinsicMeasureBlock
 import androidx.ui.core.Layout
 import androidx.ui.core.LayoutModifier
-import androidx.ui.core.Measurable
 import androidx.ui.core.Modifier
 import androidx.ui.core.ParentData
 import androidx.ui.core.VerticalAlignmentLine
@@ -1022,45 +1020,6 @@ private fun intrinsicCrossAxisSize(
 }
 
 private data class FlexModifier(val flexProperties: FlexChildProperties) : LayoutModifier {
-    override fun DensityScope.modifyConstraints(constraints: Constraints): Constraints {
-        return constraints
-    }
-
-    override fun DensityScope.modifySize(
-        constraints: Constraints,
-        childSize: IntPxSize
-    ): IntPxSize {
-        return childSize
-    }
-
-    override fun DensityScope.minIntrinsicWidthOf(measurable: Measurable, height: IntPx): IntPx {
-        return measurable.minIntrinsicWidth(height)
-    }
-
-    override fun DensityScope.maxIntrinsicWidthOf(measurable: Measurable, height: IntPx): IntPx {
-        return measurable.maxIntrinsicWidth(height)
-    }
-
-    override fun DensityScope.minIntrinsicHeightOf(measurable: Measurable, width: IntPx): IntPx {
-        return measurable.minIntrinsicHeight(width)
-    }
-
-    override fun DensityScope.maxIntrinsicHeightOf(measurable: Measurable, width: IntPx): IntPx {
-        return measurable.maxIntrinsicHeight(width)
-    }
-
-    override fun DensityScope.modifyPosition(
-        childPosition: IntPxPosition,
-        childSize: IntPxSize,
-        containerSize: IntPxSize
-    ): IntPxPosition {
-        return childPosition
-    }
-
-    override fun DensityScope.modifyAlignmentLine(line: AlignmentLine, value: IntPx?): IntPx? {
-        return value
-    }
-
     override fun DensityScope.modifyParentData(parentData: Any?): FlexChildProperties {
         return ((parentData as? FlexChildProperties) ?: FlexChildProperties()).also {
             it.flex = flexProperties.flex
@@ -1070,32 +1029,6 @@ private data class FlexModifier(val flexProperties: FlexChildProperties) : Layou
 }
 
 private sealed class SiblingsAlignedModifier : LayoutModifier {
-    override fun DensityScope.modifyConstraints(constraints: Constraints) = constraints
-
-    override fun DensityScope.modifySize(
-        constraints: Constraints,
-        childSize: IntPxSize
-    ) = childSize
-
-    override fun DensityScope.minIntrinsicWidthOf(measurable: Measurable, height: IntPx) =
-        measurable.minIntrinsicWidth(height)
-    override fun DensityScope.maxIntrinsicWidthOf(measurable: Measurable, height: IntPx) =
-        measurable.maxIntrinsicWidth(height)
-
-    override fun DensityScope.minIntrinsicHeightOf(measurable: Measurable, width: IntPx) =
-        measurable.minIntrinsicHeight(width)
-
-    override fun DensityScope.maxIntrinsicHeightOf(measurable: Measurable, width: IntPx) =
-        measurable.maxIntrinsicHeight(width)
-
-    override fun DensityScope.modifyPosition(
-        childPosition: IntPxPosition,
-        childSize: IntPxSize,
-        containerSize: IntPxSize
-    ) = childPosition
-
-    override fun DensityScope.modifyAlignmentLine(line: AlignmentLine, value: IntPx?) = value
-
     abstract override fun DensityScope.modifyParentData(parentData: Any?): Any?
 
     internal data class WithAlignmentLineBlock(val block: (Placeable) -> IntPx) :
@@ -1120,33 +1053,6 @@ private sealed class SiblingsAlignedModifier : LayoutModifier {
 }
 
 private data class GravityModifier(val alignment: CrossAxisAlignment) : LayoutModifier {
-    override fun DensityScope.modifyConstraints(constraints: Constraints) = constraints
-
-    override fun DensityScope.modifySize(
-        constraints: Constraints,
-        childSize: IntPxSize
-    ) = childSize
-
-    override fun DensityScope.minIntrinsicWidthOf(measurable: Measurable, height: IntPx) =
-        measurable.minIntrinsicWidth(height)
-
-    override fun DensityScope.maxIntrinsicWidthOf(measurable: Measurable, height: IntPx) =
-        measurable.maxIntrinsicWidth(height)
-
-    override fun DensityScope.minIntrinsicHeightOf(measurable: Measurable, width: IntPx) =
-        measurable.minIntrinsicHeight(width)
-
-    override fun DensityScope.maxIntrinsicHeightOf(measurable: Measurable, width: IntPx) =
-        measurable.maxIntrinsicHeight(width)
-
-    override fun DensityScope.modifyPosition(
-        childPosition: IntPxPosition,
-        childSize: IntPxSize,
-        containerSize: IntPxSize
-    ) = childPosition
-
-    override fun DensityScope.modifyAlignmentLine(line: AlignmentLine, value: IntPx?) = value
-
     override fun DensityScope.modifyParentData(parentData: Any?): FlexChildProperties {
         return ((parentData as? FlexChildProperties) ?: FlexChildProperties()).also {
             it.crossAxisAlignment = alignment

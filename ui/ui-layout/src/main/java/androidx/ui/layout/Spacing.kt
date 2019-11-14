@@ -21,18 +21,13 @@ import androidx.ui.core.dp
 import androidx.ui.core.min
 import androidx.ui.core.offset
 import androidx.compose.Composable
-import androidx.ui.core.AlignmentLine
 import androidx.ui.core.Constraints
 import androidx.ui.core.DensityScope
-import androidx.ui.core.IntPx
 import androidx.ui.core.IntPxPosition
 import androidx.ui.core.IntPxSize
 import androidx.ui.core.Layout
 import androidx.ui.core.LayoutModifier
-import androidx.ui.core.Measurable
-import androidx.ui.core.coerceAtLeast
 import androidx.ui.core.coerceIn
-import androidx.ui.core.ipx
 
 /**
  * Layout modifier that applies whitespace spacing on specified sides of the target layout.
@@ -68,22 +63,6 @@ private data class SpacingModifier(
     val right: Dp = 0.dp,
     val bottom: Dp = 0.dp
 ) : LayoutModifier {
-    override fun DensityScope.minIntrinsicWidthOf(measurable: Measurable, height: IntPx): IntPx =
-        measurable.minIntrinsicWidth((height - (top + bottom).toIntPx()).coerceAtLeast(0.ipx)) +
-                (left + right).toIntPx()
-
-    override fun DensityScope.maxIntrinsicWidthOf(measurable: Measurable, height: IntPx): IntPx =
-        measurable.maxIntrinsicWidth((height - (top + bottom).toIntPx()).coerceAtLeast(0.ipx)) +
-                (left + right).toIntPx()
-
-    override fun DensityScope.minIntrinsicHeightOf(measurable: Measurable, width: IntPx): IntPx =
-        measurable.minIntrinsicHeight((width - (left + right).toIntPx()).coerceAtLeast(0.ipx)) +
-                (top + bottom).toIntPx()
-
-    override fun DensityScope.maxIntrinsicHeightOf(measurable: Measurable, width: IntPx): IntPx =
-        measurable.maxIntrinsicHeight((width - (left + right).toIntPx()).coerceAtLeast(0.ipx)) +
-                (top + bottom).toIntPx()
-
     override fun DensityScope.modifyConstraints(
         constraints: Constraints
     ) = constraints.offset(
@@ -106,14 +85,6 @@ private data class SpacingModifier(
         childSize: IntPxSize,
         containerSize: IntPxSize
     ) = IntPxPosition(left.toIntPx() + childPosition.x, top.toIntPx() + childPosition.y)
-
-    override fun DensityScope.modifyAlignmentLine(line: AlignmentLine, value: IntPx?): IntPx? {
-        if (value == null) return null
-
-        return if (line.horizontal) value + left.toIntPx() else value + top.toIntPx()
-    }
-
-    override fun DensityScope.modifyParentData(parentData: Any?): Any? = parentData
 }
 
 /**
