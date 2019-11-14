@@ -25,6 +25,7 @@ import com.android.tools.lint.detector.api.Issue
 class WorkManagerIssueRegistry : IssueRegistry() {
     override val minApi: Int = CURRENT_API
     override val issues: List<Issue> = listOf(
-        BadConfigurationProviderIssueDetector.ISSUE
+        BadConfigurationProviderIssueDetector.ISSUE,
+        PeriodicEnqueueIssueDetector.ISSUE
     )
 }
