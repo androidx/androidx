@@ -65,21 +65,21 @@ class FragmentArchLifecycleTest {
     fun testNestedFragmentLifecycle() {
         with(ActivityScenario.launch(FragmentArchLifecycleActivity::class.java)) {
 
-            val parent = withActivity {
-                supportFragmentManager.findFragmentById(R.id.content)
-                        as NestedLifecycleFragmentParent
-            }
-            val collectedEvents = parent.collectedEvents
+            val collectedEvents = withActivity { collectedEvents }
 
             assertThat(collectedEvents)
                 .containsExactly(
+                    "activity" to Lifecycle.Event.ON_CREATE,
                     // TODO b/127528777 Properly nest ON_CREATE callbacks
                     "child" to Lifecycle.Event.ON_CREATE,
                     "parent" to Lifecycle.Event.ON_CREATE,
 
+                    "activity" to Lifecycle.Event.ON_START,
                     "parent" to Lifecycle.Event.ON_START,
                     "child" to Lifecycle.Event.ON_START,
 
+                    "activity" to Lifecycle.Event.ON_RESUME,
+                    "post_activity" to Lifecycle.Event.ON_RESUME,
                     "parent" to Lifecycle.Event.ON_RESUME,
                     "child" to Lifecycle.Event.ON_RESUME
                 )
@@ -94,12 +94,15 @@ class FragmentArchLifecycleTest {
                 .containsExactly(
                     "child" to Lifecycle.Event.ON_PAUSE,
                     "parent" to Lifecycle.Event.ON_PAUSE,
+                    "activity" to Lifecycle.Event.ON_PAUSE,
 
                     "child" to Lifecycle.Event.ON_STOP,
                     "parent" to Lifecycle.Event.ON_STOP,
+                    "activity" to Lifecycle.Event.ON_STOP,
 
                     "child" to Lifecycle.Event.ON_DESTROY,
-                    "parent" to Lifecycle.Event.ON_DESTROY
+                    "parent" to Lifecycle.Event.ON_DESTROY,
+                    "activity" to Lifecycle.Event.ON_DESTROY
                 )
                 .inOrder()
         }
@@ -113,17 +116,21 @@ class FragmentArchLifecycleTest {
             val parent = withActivity {
                 fm.findFragmentById(R.id.content) as NestedLifecycleFragmentParent
             }
-            val collectedEvents = parent.collectedEvents
+            val collectedEvents = withActivity { collectedEvents }
 
             assertThat(collectedEvents)
                 .containsExactly(
+                    "activity" to Lifecycle.Event.ON_CREATE,
                     // TODO b/127528777 Properly nest ON_CREATE callbacks
                     "child" to Lifecycle.Event.ON_CREATE,
                     "parent" to Lifecycle.Event.ON_CREATE,
 
+                    "activity" to Lifecycle.Event.ON_START,
                     "parent" to Lifecycle.Event.ON_START,
                     "child" to Lifecycle.Event.ON_START,
 
+                    "activity" to Lifecycle.Event.ON_RESUME,
+                    "post_activity" to Lifecycle.Event.ON_RESUME,
                     "parent" to Lifecycle.Event.ON_RESUME,
                     "child" to Lifecycle.Event.ON_RESUME
                 )
@@ -154,7 +161,10 @@ class FragmentArchLifecycleTest {
 }
 
 class FragmentArchLifecycleActivity : FragmentActivity(R.layout.activity_content) {
+    val collectedEvents = mutableListOf<Pair<String, Lifecycle.Event>>()
+
     override fun onCreate(savedInstanceState: Bundle?) {
+        collectedEvents.add("activity" to Lifecycle.Event.ON_CREATE)
         super.onCreate(savedInstanceState)
         if (savedInstanceState == null) {
             supportFragmentManager.beginTransaction()
@@ -162,14 +172,46 @@ class FragmentArchLifecycleActivity : FragmentActivity(R.layout.activity_content
                 .commitNow()
         }
     }
+
+    override fun onStart() {
+        collectedEvents.add("activity" to Lifecycle.Event.ON_START)
+        super.onStart()
+    }
+
+    override fun onResume() {
+        collectedEvents.add("activity" to Lifecycle.Event.ON_RESUME)
+        super.onResume()
+    }
+
+    override fun onPostResume() {
+        collectedEvents.add("post_activity" to Lifecycle.Event.ON_RESUME)
+        super.onPostResume()
+    }
+
+    override fun onPause() {
+        super.onPause()
+        collectedEvents.add("activity" to Lifecycle.Event.ON_PAUSE)
+    }
+
+    override fun onStop() {
+        super.onStop()
+        collectedEvents.add("activity" to Lifecycle.Event.ON_STOP)
+    }
+
+    override fun onDestroy() {
+        super.onDestroy()
+        collectedEvents.add("activity" to Lifecycle.Event.ON_DESTROY)
+    }
 }
 
 class NestedLifecycleFragmentParent : StrictFragment() {
-    val collectedEvents = mutableListOf<Pair<String, Lifecycle.Event>>()
+    private val archLifecycleActivity by lazy {
+        requireActivity() as FragmentArchLifecycleActivity
+    }
 
     init {
         lifecycle.addObserver(LifecycleEventObserver { _, event ->
-            collectedEvents.add("parent" to event)
+            archLifecycleActivity.collectedEvents.add("parent" to event)
         })
     }
 
@@ -185,7 +227,7 @@ class NestedLifecycleFragmentParent : StrictFragment() {
     override fun onAttachFragment(childFragment: Fragment) {
         super.onAttachFragment(childFragment)
         childFragment.lifecycle.addObserver(LifecycleEventObserver { _, event ->
-            collectedEvents.add("child" to event)
+            archLifecycleActivity.collectedEvents.add("child" to event)
         })
     }
 }
