@@ -44,11 +44,11 @@ class AnimationGestureSemanticsActivity : Activity() {
     private val sizeKey = FloatPropKey()
     private val transitionDefinition = transitionDefinition {
         state(ComponentState.Pressed) {
-            this[colorKey] = Color(alpha = 255, red = 200, green = 0, blue = 0)
+            this[colorKey] = Color(red = 200, green = 0, blue = 0, alpha = 255)
             this[sizeKey] = 0.2f
         }
         state(ComponentState.Released) {
-            this[colorKey] = Color(alpha = 255, red = 0, green = 200, blue = 0)
+            this[colorKey] = Color(red = 0, green = 200, blue = 0, alpha = 255)
             this[sizeKey] = 1.0f
         }
     }

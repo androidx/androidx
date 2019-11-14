@@ -79,14 +79,14 @@ class ScrollerTest {
         get() = (composeTestRule as AndroidComposeTestRule).activityTestRule.activity
 
     val colors = listOf(
-        Color(alpha = 0xFF, red = 0xFF, green = 0, blue = 0),
-        Color(alpha = 0xFF, red = 0xFF, green = 0xA5, blue = 0),
-        Color(alpha = 0xFF, red = 0xFF, green = 0xFF, blue = 0),
-        Color(alpha = 0xFF, red = 0xA5, green = 0xFF, blue = 0),
-        Color(alpha = 0xFF, red = 0, green = 0xFF, blue = 0),
-        Color(alpha = 0xFF, red = 0, green = 0xFF, blue = 0xA5),
-        Color(alpha = 0xFF, red = 0, green = 0, blue = 0xFF),
-        Color(alpha = 0xFF, red = 0xA5, green = 0, blue = 0xFF)
+        Color(red = 0xFF, green = 0, blue = 0, alpha = 0xFF),
+        Color(red = 0xFF, green = 0xA5, blue = 0, alpha = 0xFF),
+        Color(red = 0xFF, green = 0xFF, blue = 0, alpha = 0xFF),
+        Color(red = 0xA5, green = 0xFF, blue = 0, alpha = 0xFF),
+        Color(red = 0, green = 0xFF, blue = 0, alpha = 0xFF),
+        Color(red = 0, green = 0xFF, blue = 0xA5, alpha = 0xFF),
+        Color(red = 0, green = 0, blue = 0xFF, alpha = 0xFF),
+        Color(red = 0xA5, green = 0, blue = 0xFF, alpha = 0xFF)
     )
 
     var drawLatch = CountDownLatch(1)

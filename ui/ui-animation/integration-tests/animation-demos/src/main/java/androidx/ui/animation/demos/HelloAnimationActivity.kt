@@ -60,11 +60,11 @@ private enum class OverlayState {
 
 private val definition = transitionDefinition {
     state(OverlayState.Open) {
-        this[background] = Color(alpha = 255, red = 128, green = 128, blue = 128)
+        this[background] = Color(red = 128, green = 128, blue = 128, alpha = 255)
         this[y] = 1f // percentage
     }
     state(OverlayState.Closed) {
-        this[background] = Color(alpha = 255, red = 188, green = 222, blue = 145)
+        this[background] = Color(red = 188, green = 222, blue = 145, alpha = 255)
         this[y] = 0f // percentage
     }
 }
