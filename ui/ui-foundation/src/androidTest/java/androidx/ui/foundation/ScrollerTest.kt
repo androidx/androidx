@@ -22,6 +22,7 @@ import android.view.PixelCopy
 import android.view.View
 import android.view.ViewGroup
 import android.view.ViewTreeObserver
+import androidx.compose.Composable
 import androidx.test.filters.SdkSuppress
 import androidx.test.filters.SmallTest
 import androidx.ui.core.Alignment
@@ -43,9 +44,18 @@ import androidx.ui.layout.ConstrainedBox
 import androidx.ui.layout.Container
 import androidx.ui.layout.CrossAxisAlignment
 import androidx.ui.layout.DpConstraints
+import androidx.ui.core.Text
+import androidx.ui.core.dp
+import androidx.ui.core.sp
+import androidx.ui.layout.Padding
 import androidx.ui.layout.Row
 import androidx.ui.test.android.AndroidComposeTestRule
+import androidx.ui.test.assertIsDisplayed
+import androidx.ui.test.assertIsNotDisplayed
 import androidx.ui.test.createComposeRule
+import androidx.ui.test.doScrollTo
+import androidx.ui.test.findByText
+import androidx.ui.text.TextStyle
 import org.junit.Assert.assertEquals
 import org.junit.Assert.assertTrue
 import org.junit.Before
@@ -208,6 +218,54 @@ class ScrollerTest {
         validateHorizontalScroller(10, 30)
     }
 
+    @Test
+    fun verticalScroller_scrollTo_scrollForward() {
+        createScrollableContent(isVertical = true)
+
+        findByText("50")
+            .assertIsNotDisplayed()
+            .doScrollTo()
+            .assertIsDisplayed()
+    }
+    @Test
+    fun horizontalScroller_scrollTo_scrollForward() {
+        createScrollableContent(isVertical = false)
+
+        findByText("50")
+            .assertIsNotDisplayed()
+            .doScrollTo()
+            .assertIsDisplayed()
+    }
+
+    @Test
+    fun verticalScroller_scrollTo_scrollBack() {
+        createScrollableContent(isVertical = true)
+
+        findByText("50")
+            .assertIsNotDisplayed()
+            .doScrollTo()
+            .assertIsDisplayed()
+
+        findByText("20")
+            .assertIsNotDisplayed()
+            .doScrollTo()
+            .assertIsDisplayed()
+    }
+    @Test
+    fun horizontalScroller_scrollTo_scrollBack() {
+        createScrollableContent(isVertical = false)
+
+        findByText("50")
+            .assertIsNotDisplayed()
+            .doScrollTo()
+            .assertIsDisplayed()
+
+        findByText("20")
+            .assertIsNotDisplayed()
+            .doScrollTo()
+            .assertIsDisplayed()
+    }
+
     private fun composeVerticalScroller(
         scrollerPosition: ScrollerPosition = ScrollerPosition(),
         height: IntPx = 40.ipx
@@ -328,6 +386,32 @@ class ScrollerTest {
                     "Expected $expectedColor, but got ${Color(pixel)} at $x, $y",
                     expectedColor.toArgb(), pixel
                 )
+            }
+        }
+    }
+
+    private fun createScrollableContent(isVertical: Boolean) {
+        composeTestRule.setContent {
+            val style = TextStyle(fontSize = 30.sp)
+            val content = @Composable {
+                for (i in 1..100) {
+                    Text(text = i.toString(), style = style)
+                }
+            }
+            Padding(padding = 10.dp) {
+                if (isVertical) {
+                    VerticalScroller {
+                        Column {
+                            content()
+                        }
+                    }
+                } else {
+                    HorizontalScroller {
+                        Row {
+                            content()
+                        }
+                    }
+                }
             }
         }
     }

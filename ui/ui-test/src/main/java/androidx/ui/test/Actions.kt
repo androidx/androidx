@@ -16,6 +16,13 @@
 
 package androidx.ui.test
 
+import androidx.ui.core.PxPosition
+import androidx.ui.core.SemanticsComponentNode
+import androidx.ui.core.findLastLayoutChild
+import androidx.ui.core.localToGlobal
+import androidx.ui.core.px
+import androidx.ui.semantics.SemanticsActions
+
 /**
  * Performs a click action on the given component.
  */
@@ -30,6 +37,50 @@ fun SemanticsNodeInteraction.doClick(): SemanticsNodeInteraction {
     val y = globalRect.top + 1f
 
     semanticsTreeInteraction.sendClick(x, y)
+
+    return this
+}
+
+/**
+ * Scrolls to a component using SemanticsActions. It first identifies a parent component with a
+ * Semantics ScrollTo action, then it retrieves the location of the current element and computes
+ * the relative coordinates that will be used by the scroller.
+ *
+ * Throws [AssertionError] if there is no parent component with ScrollTo SemanticsAction, the
+ * current semantics component doesn't have a bounding rectangle set or if a layout node used to
+ * compute the relative coordinates to be fed to the ScrollTo action can't be found.
+ */
+fun SemanticsNodeInteraction.doScrollTo(): SemanticsNodeInteraction {
+    // find containing component with scroll action
+    val scrollableSemanticsNode = semanticsTreeNode.findClosestParentNode {
+        it is SemanticsComponentNode && it.semanticsConfiguration.hasScrollAction
+    } as SemanticsComponentNode?
+
+    if (scrollableSemanticsNode == null) {
+        throw AssertionError(
+            "Semantic Node has no parent layout with a Scroll SemanticsAction"
+        )
+    }
+
+    val globalRect = semanticsTreeNode.globalRect
+        ?: throw AssertionError(
+            "Semantic Node has no coordinates set!"
+        )
+
+    val layoutNode = scrollableSemanticsNode.findLastLayoutChild { true }
+        ?: throw AssertionError(
+            "No Layout Node found!"
+        )
+
+    val position = layoutNode.localToGlobal(PxPosition(0.px, 0.px))
+
+    semanticsTreeInteraction.performAction {
+        scrollableSemanticsNode.semanticsConfiguration[SemanticsActions.ScrollTo].action(
+            globalRect.left.px - position.x,
+            globalRect.top.px - position.y
+
+        )
+    }
 
     return this
 }

@@ -17,6 +17,7 @@
 package androidx.ui.test.helpers
 
 import androidx.ui.core.SemanticsTreeNode
+import androidx.ui.core.SemanticsTreeProvider
 import androidx.ui.core.semantics.SemanticsConfiguration
 import androidx.ui.engine.geometry.Rect
 import androidx.ui.test.SemanticsNodeInteraction
@@ -62,6 +63,10 @@ internal class FakeSemanticsTreeInteraction internal constructor(
         }
 
         return foundNodes.first()
+    }
+
+    override fun performAction(action: (SemanticsTreeProvider) -> Unit) {
+        TODO("replace with host side interaction")
     }
 
     override fun sendClick(x: Float, y: Float) {

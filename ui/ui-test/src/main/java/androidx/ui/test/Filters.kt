@@ -30,6 +30,9 @@ val SemanticsConfiguration.isToggleable: Boolean
 val SemanticsConfiguration.hasClickAction: Boolean
     get() = SemanticsActions.OnClick in this
 
+val SemanticsConfiguration.hasScrollAction: Boolean
+    get() = SemanticsActions.ScrollTo in this
+
 // TODO(ryanmentley/pavlis): Do we want these convenience functions?
 /**
  * Verifies that a component is in a mutually exclusive group - that is,
