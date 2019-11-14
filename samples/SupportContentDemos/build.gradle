@@ -26,7 +26,7 @@ dependencies {
     implementation(MATERIAL)
     implementation(project(":transition:transition"))
     implementation(project(":recyclerview:recyclerview"))
-    implementation(project(":appcompat"))
+    implementation(project(":appcompat:appcompat"))
     implementation(project(":contentpager"))
     implementation(project(":cardview"))
     implementation(project(":coordinatorlayout"))

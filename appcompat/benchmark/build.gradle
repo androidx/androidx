@@ -25,7 +25,7 @@ plugins {
 }
 
 dependencies {
-    androidTestImplementation(project(":appcompat"))
+    androidTestImplementation(project(":appcompat:appcompat"))
     androidTestImplementation(project(":benchmark:benchmark-junit4"))
     androidTestImplementation(ANDROIDX_TEST_EXT_JUNIT)
     androidTestImplementation(ANDROIDX_TEST_CORE)

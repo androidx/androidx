@@ -22,7 +22,7 @@ plugins {
 dependencies {
     implementation(project(":vectordrawable"))
     implementation(project(":vectordrawable-animated"))
-    implementation(project(":appcompat"))
+    implementation(project(":appcompat:appcompat"))
 }
 
 android {

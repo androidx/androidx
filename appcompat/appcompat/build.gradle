@@ -45,7 +45,7 @@ android {
     }
 
     sourceSets {
-        main.res.srcDirs 'res', 'res-public'
+        main.res.srcDirs += 'src/main/res-public'
     }
 
     aaptOptions {
