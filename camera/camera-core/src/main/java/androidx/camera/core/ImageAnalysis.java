@@ -138,6 +138,7 @@ public final class ImageAnalysis extends UseCase {
                 // TODO(b/143915543): Ensure this never gets called by a camera that is not bound
                 //  to this use case so we don't need to do this check.
                 if (isCurrentlyBoundCamera(cameraId)) {
+                    // Only reset the pipeline when the bound camera is the same.
                     SessionConfig.Builder sessionConfigBuilder = createPipeline(cameraId, config,
                             resolution);
                     attachToCamera(cameraId, sessionConfigBuilder.build());
