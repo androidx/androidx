@@ -310,6 +310,7 @@ class MultiParagraphIntegrationTest {
         assertThat(paragraph.getParagraphDirection(0)).isEqualTo(TextDirection.Ltr)
         assertThat(paragraph.getParagraphDirection(1)).isEqualTo(TextDirection.Rtl)
         assertThat(paragraph.getParagraphDirection(2)).isEqualTo(TextDirection.Ltr)
+        assertThat(paragraph.getParagraphDirection(3)).isEqualTo(TextDirection.Ltr)
     }
 
     @Test
@@ -324,6 +325,7 @@ class MultiParagraphIntegrationTest {
         assertThat(paragraph.getParagraphDirection(0)).isEqualTo(TextDirection.Ltr)
         assertThat(paragraph.getParagraphDirection(1)).isEqualTo(TextDirection.Rtl)
         assertThat(paragraph.getParagraphDirection(2)).isEqualTo(TextDirection.Ltr)
+        assertThat(paragraph.getParagraphDirection(3)).isEqualTo(TextDirection.Ltr)
     }
 
     @Test
@@ -338,6 +340,7 @@ class MultiParagraphIntegrationTest {
         assertThat(paragraph.getParagraphDirection(0)).isEqualTo(TextDirection.Ltr)
         assertThat(paragraph.getParagraphDirection(1)).isEqualTo(TextDirection.Rtl)
         assertThat(paragraph.getParagraphDirection(2)).isEqualTo(TextDirection.Rtl)
+        assertThat(paragraph.getParagraphDirection(3)).isEqualTo(TextDirection.Rtl)
     }
 
     @Test
@@ -350,7 +353,7 @@ class MultiParagraphIntegrationTest {
             )
         )
 
-        for (i in 0 until text.length) {
+        for (i in 0..text.length) {
             assertWithMessage("getParagraphDirection($i) failed")
                 .that(paragraph.getParagraphDirection(i)).isEqualTo(TextDirection.Ltr)
         }
@@ -366,7 +369,7 @@ class MultiParagraphIntegrationTest {
             )
         )
 
-        for (i in 0 until text.length) {
+        for (i in 0..text.length) {
             assertWithMessage("getParagraphDirection($i) failed")
                 .that(paragraph.getParagraphDirection(i)).isEqualTo(TextDirection.Rtl)
         }
