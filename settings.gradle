@@ -93,6 +93,7 @@ includeProject(":camera:integration-tests:camera-testapp-timing", "camera/integr
 includeProject(":camera:integration-tests:camera-testapp-view", "camera/integration-tests/viewtestapp")
 includeProject(":camera:integration-tests:camera-testlib-extensions", "camera/integration-tests/extensionstestlib")
 includeProject(":car", "car/core")
+includeProject(":car-app:app", "car-app/app")
 includeProject(":car-moderator", "car/moderator")
 includeProject(":cardview", "cardview")
 includeProject(":collection:collection", "collection/collection")
