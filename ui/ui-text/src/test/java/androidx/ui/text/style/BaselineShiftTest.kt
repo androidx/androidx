@@ -24,35 +24,12 @@ import org.junit.runners.JUnit4
 @RunWith(JUnit4::class)
 class BaselineShiftTest {
     @Test
-    fun `lerp null with null returns null`() {
-        assertThat(lerp(null, null, 1.0f)).isNull()
-    }
-
-    @Test
-    fun `lerp a with null returns a times (1 - t)`() {
-        val a = BaselineShift(1.0f)
-        val t = 0.3f
-
-        val lerpBaselineShift = lerp(a, null, t)
-        assertThat(lerpBaselineShift?.multiplier).isEqualTo(a.multiplier * (1 - t))
-    }
-
-    @Test
-    fun `lerp b with null returns b times t`() {
-        val b = BaselineShift(1.0f)
-        val t = 0.3f
-
-        val lerpBaselineShift = lerp(null, b, t)
-        assertThat(lerpBaselineShift?.multiplier).isEqualTo(b.multiplier * t)
-    }
-
-    @Test
     fun `lerp a with b`() {
         val a = BaselineShift(1.0f)
         val b = BaselineShift(2.0f)
         val t = 0.3f
 
         val lerpBaselineShift = lerp(a, b, t)
-        assertThat(lerpBaselineShift?.multiplier).isEqualTo(1.3f)
+        assertThat(lerpBaselineShift.multiplier).isEqualTo(1.3f)
     }
 }

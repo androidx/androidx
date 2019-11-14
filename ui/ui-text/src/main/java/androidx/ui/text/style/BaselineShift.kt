@@ -45,15 +45,6 @@ import androidx.ui.lerp
 /**
  * Linearly interpolate two [BaselineShift]s.
  */
-fun lerp(start: BaselineShift?, stop: BaselineShift?, fraction: Float): BaselineShift? {
-    if (start == null && stop == null) {
-        return null
-    }
-    if (start == null) {
-        return BaselineShift(stop!!.multiplier * fraction)
-    }
-    if (stop == null) {
-        return BaselineShift(start.multiplier * (1f - fraction))
-    }
+fun lerp(start: BaselineShift, stop: BaselineShift, fraction: Float): BaselineShift {
     return BaselineShift(lerp(start.multiplier, stop.multiplier, fraction))
 }

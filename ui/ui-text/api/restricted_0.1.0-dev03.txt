@@ -540,7 +540,7 @@ package androidx.ui.text.style {
 
   public final class BaselineShiftKt {
     ctor public BaselineShiftKt();
-    method public static androidx.ui.text.style.BaselineShift? lerp(androidx.ui.text.style.BaselineShift? start, androidx.ui.text.style.BaselineShift? stop, float fraction);
+    method public static androidx.ui.text.style.BaselineShift lerp(androidx.ui.text.style.BaselineShift start, androidx.ui.text.style.BaselineShift stop, float fraction);
   }
 
   public enum TextAlign {

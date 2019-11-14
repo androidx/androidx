@@ -1023,50 +1023,6 @@ class TextStyleTest {
     }
 
     @Test
-    fun `lerp baselineShift with a is Null and t is smaller than half`() {
-        val baselineShift = BaselineShift.Superscript
-        val t = 0.3f
-        val textStyle = TextStyle(baselineShift = baselineShift)
-
-        val newTextStyle = lerp(stop = textStyle, fraction = t)
-
-        assertThat(newTextStyle?.baselineShift).isNull()
-    }
-
-    @Test
-    fun `lerp baselineShift with a is Null and t is larger than half`() {
-        val baselineShift = BaselineShift.Superscript
-        val t = 0.7f
-        val textStyle = TextStyle(baselineShift = baselineShift)
-
-        val newTextStyle = lerp(stop = textStyle, fraction = t)
-
-        assertThat(newTextStyle?.baselineShift).isEqualTo(baselineShift)
-    }
-
-    @Test
-    fun `lerp baselineShift with b is Null and t is smaller than half`() {
-        val baselineShift = BaselineShift.Superscript
-        val t = 0.3f
-        val textStyle = TextStyle(baselineShift = baselineShift)
-
-        val newTextStyle = lerp(start = textStyle, fraction = t)
-
-        assertThat(newTextStyle?.baselineShift).isEqualTo(baselineShift)
-    }
-
-    @Test
-    fun `lerp baselineShift with b is Null and t is larger than half`() {
-        val baselineShift = BaselineShift.Superscript
-        val t = 0.7f
-        val textStyle = TextStyle(baselineShift = baselineShift)
-
-        val newTextStyle = lerp(start = textStyle, fraction = t)
-
-        assertThat(newTextStyle?.baselineShift).isNull()
-    }
-
-    @Test
     fun `lerp baselineShift with a and b are not Null`() {
         val baselineShift1 = BaselineShift(1.0f)
         val baselineShift2 = BaselineShift(2.0f)
