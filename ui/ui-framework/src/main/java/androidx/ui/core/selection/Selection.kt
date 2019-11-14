@@ -66,11 +66,9 @@ data class Selection(
         val layoutCoordinates: LayoutCoordinates?
     )
 
-    // TODO(qqd): add tests, important
     fun merge(other: Selection?): Selection {
         if (other == null) return this
 
-        // TODO(qqd): combine two selections' contents with styles together.
         var selection = this
 
         other.start.layoutCoordinates?.let {

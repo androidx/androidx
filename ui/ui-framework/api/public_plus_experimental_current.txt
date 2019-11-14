@@ -299,8 +299,8 @@ package androidx.ui.core.selection {
   }
 
   public interface SelectionRegistrar {
-    method public Object subscribe(androidx.ui.core.selection.TextSelectionHandler handler);
-    method public void unsubscribe(Object key);
+    method public androidx.ui.core.selection.TextSelectionHandler subscribe(androidx.ui.core.selection.TextSelectionHandler handler);
+    method public void unsubscribe(androidx.ui.core.selection.TextSelectionHandler key);
   }
 
   public final class SelectionRegistrarKt {
