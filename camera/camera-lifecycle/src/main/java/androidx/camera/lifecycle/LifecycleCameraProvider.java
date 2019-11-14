@@ -20,6 +20,7 @@ import android.os.Handler;
 
 import androidx.annotation.NonNull;
 import androidx.camera.core.Camera;
+import androidx.camera.core.CameraInfoUnavailableException;
 import androidx.camera.core.CameraSelector;
 import androidx.camera.core.CameraX;
 import androidx.camera.core.ImageAnalysis;
@@ -131,6 +132,24 @@ public class LifecycleCameraProvider {
      */
     public static void unbindAll() {
         CameraX.unbindAll();
+    }
+
+    /**
+     * Checks whether this provider supports at least one camera that meets the requirements from a
+     * {@link CameraSelector}.
+     *
+     * <p>If this method returns {@code true}, then the camera selector can be used with
+     * {@link #bindToLifecycle(LifecycleOwner, CameraSelector, UseCase...)} to bind use cases and
+     * retrieve a {@link Camera} instance.
+     *
+     * @param cameraSelector the {@link CameraSelector} that filters available cameras.
+     * @return true if the device has at least one available camera, otherwise false.
+     * @throws CameraInfoUnavailableException if unable to access cameras, perhaps due to
+     *                                        insufficient permissions.
+     */
+    public static boolean hasCamera(@NonNull CameraSelector cameraSelector)
+            throws CameraInfoUnavailableException {
+        return CameraX.hasCamera(cameraSelector);
     }
 
     private LifecycleCameraProvider() {}

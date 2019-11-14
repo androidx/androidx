@@ -401,7 +401,9 @@ public final class CameraX {
      * @return true if the device has at least one available camera, otherwise false.
      * @throws CameraInfoUnavailableException if unable to access cameras, perhaps due to
      *                                        insufficient permissions.
+     * @hide
      */
+    @RestrictTo(Scope.LIBRARY_GROUP)
     public static boolean hasCamera(@NonNull CameraSelector cameraSelector)
             throws CameraInfoUnavailableException {
         checkInitialized();
