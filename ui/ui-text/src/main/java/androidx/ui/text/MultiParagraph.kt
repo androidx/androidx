@@ -302,7 +302,7 @@ class MultiParagraph(
     fun getHorizontalPosition(offset: Int, usePrimaryDirection: Boolean): Float {
         requireIndexInRangeInclusiveEnd(offset)
 
-        val paragraphIndex = if (offset == annotatedString.text.length) {
+        val paragraphIndex = if (offset == annotatedString.length) {
             paragraphInfoList.lastIndex
         } else {
             findParagraphByIndex(paragraphInfoList, offset)
@@ -317,9 +317,9 @@ class MultiParagraph(
      * Get the text direction of the paragraph containing the given offset.
      */
     fun getParagraphDirection(offset: Int): TextDirection {
-        requireIndexInRange(offset)
+        requireIndexInRangeInclusiveEnd(offset)
 
-        val paragraphIndex = if (offset == annotatedString.text.length) {
+        val paragraphIndex = if (offset == annotatedString.length) {
             paragraphInfoList.lastIndex
         } else {
             findParagraphByIndex(paragraphInfoList, offset)
@@ -334,9 +334,9 @@ class MultiParagraph(
      * Get the text direction of the character at the given offset.
      */
     fun getBidiRunDirection(offset: Int): TextDirection {
-        requireIndexInRange(offset)
+        requireIndexInRangeInclusiveEnd(offset)
 
-        val paragraphIndex = if (offset == annotatedString.text.length) {
+        val paragraphIndex = if (offset == annotatedString.length) {
             paragraphInfoList.lastIndex
         } else {
             findParagraphByIndex(paragraphInfoList, offset)
@@ -368,7 +368,7 @@ class MultiParagraph(
     fun getCursorRect(offset: Int): Rect {
         requireIndexInRangeInclusiveEnd(offset)
 
-        val paragraphIndex = if (offset == annotatedString.text.length) {
+        val paragraphIndex = if (offset == annotatedString.length) {
             paragraphInfoList.lastIndex
         } else {
             findParagraphByIndex(paragraphInfoList, offset)
@@ -385,9 +385,13 @@ class MultiParagraph(
      * beyond the end of the text, you get the last line.
      */
     fun getLineForOffset(offset: Int): Int {
-        requireIndexInRange(offset)
+        requireIndexInRangeInclusiveEnd(offset)
 
-        val paragraphIndex = findParagraphByIndex(paragraphInfoList, offset)
+        val paragraphIndex = if (offset == annotatedString.length) {
+            paragraphInfoList.lastIndex
+        } else {
+            findParagraphByIndex(paragraphInfoList, offset)
+        }
         return with(paragraphInfoList[paragraphIndex]) {
             paragraph.getLineForOffset(offset.toLocalIndex()).toGlobalLineIndex()
         }
@@ -450,13 +454,13 @@ class MultiParagraph(
 
     private fun requireIndexInRange(offset: Int) {
         require(offset in annotatedString.text.indices) {
-            "offset($offset) is out of bounds [0, ${annotatedString.text.length})"
+            "offset($offset) is out of bounds [0, ${annotatedString.length})"
         }
     }
 
     private fun requireIndexInRangeInclusiveEnd(offset: Int) {
         require(offset in 0..annotatedString.text.length) {
-            "offset($offset) is out of bounds [0, ${annotatedString.text.length}]"
+            "offset($offset) is out of bounds [0, ${annotatedString.length}]"
         }
     }
 
