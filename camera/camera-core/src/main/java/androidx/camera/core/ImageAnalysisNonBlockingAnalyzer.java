@@ -16,8 +16,6 @@
 
 package androidx.camera.core;
 
-import android.util.Log;
-
 import androidx.annotation.GuardedBy;
 import androidx.annotation.NonNull;
 import androidx.camera.core.impl.utils.executor.CameraXExecutors;
@@ -26,8 +24,10 @@ import androidx.camera.core.impl.utils.futures.Futures;
 
 import com.google.common.util.concurrent.ListenableFuture;
 
+import java.lang.ref.WeakReference;
 import java.util.concurrent.Executor;
 import java.util.concurrent.atomic.AtomicLong;
+import java.util.concurrent.atomic.AtomicReference;
 
 /**
  * OnImageAvailableListener with non-blocking behavior. Analyzes images in a non-blocking way by
@@ -50,13 +50,13 @@ final class ImageAnalysisNonBlockingAnalyzer extends ImageAnalysisAbstractAnalyz
 
     // Timestamp of the last image posted to user callback thread.
     private final AtomicLong mPostedImageTimestamp;
-    // Timestamp of the last image finished being processed by user callback thread.
-    private final AtomicLong mFinishedImageTimestamp;
+
+    private final AtomicReference<CacheAnalyzingImageProxy> mPostedImage;
 
     ImageAnalysisNonBlockingAnalyzer(Executor executor) {
         mBackgroundExecutor = executor;
+        mPostedImage = new AtomicReference<>();
         mPostedImageTimestamp = new AtomicLong();
-        mFinishedImageTimestamp = new AtomicLong();
         open();
     }
 
@@ -74,9 +74,8 @@ final class ImageAnalysisNonBlockingAnalyzer extends ImageAnalysisAbstractAnalyz
         super.open();
         mCachedImage = null;
         mPostedImageTimestamp.set(-1);
-        mFinishedImageTimestamp.set(mPostedImageTimestamp.get());
+        mPostedImage.set(null);
     }
-
 
     @Override
     synchronized void close() {
@@ -109,17 +108,17 @@ final class ImageAnalysisNonBlockingAnalyzer extends ImageAnalysisAbstractAnalyz
             imageProxy.close();
             return;
         }
-        long postedImageTimestamp = mPostedImageTimestamp.get();
-        long finishedImageTimestamp = mFinishedImageTimestamp.get();
 
-        if (imageProxy.getImageInfo().getTimestamp() <= postedImageTimestamp) {
+        CacheAnalyzingImageProxy postedImage = mPostedImage.get();
+        if (postedImage != null
+                && imageProxy.getImageInfo().getTimestamp() <= mPostedImageTimestamp.get()) {
             // Discard image that is in wrong order. Reposted cached image can be in this state.
             imageProxy.close();
             return;
         }
 
-        if (postedImageTimestamp > finishedImageTimestamp) {
-            // If analyzer is busy, cache the new image.
+        if (postedImage != null && !postedImage.isClosed()) {
+            // If the posted image hasn't been closed, cache the new image.
             if (mCachedImage != null) {
                 mCachedImage.close();
             }
@@ -127,39 +126,59 @@ final class ImageAnalysisNonBlockingAnalyzer extends ImageAnalysisAbstractAnalyz
             return;
         }
 
-        mPostedImageTimestamp.set(imageProxy.getImageInfo().getTimestamp());
+        postedImage = new CacheAnalyzingImageProxy(imageProxy, this);
+        mPostedImage.set(postedImage);
+        mPostedImageTimestamp.set(postedImage.getImageInfo().getTimestamp());
 
-        ListenableFuture<Void> analyzeFuture = analyzeImage(imageProxy);
+        ListenableFuture<Void> analyzeFuture = analyzeImage(postedImage);
 
         // Callback to close the image only after analysis complete regardless of success
         Futures.addCallback(analyzeFuture, new FutureCallback<Void>() {
             @Override
             public void onSuccess(Void result) {
-                finishImage(imageProxy);
-
-                mBackgroundExecutor.execute(new Runnable() {
-                    @Override
-                    public void run() {
-                        analyzeCachedImage();
-                    }
-                });
+                // No-op. Keep dropping the images until user closes the current one.
             }
 
             @Override
             public void onFailure(Throwable t) {
-                finishImage(imageProxy);
+                // Close the image if we didn't post it to user.
+                imageProxy.close();
             }
         }, CameraXExecutors.directExecutor());
     }
 
-    // Finish processing image for handling dropping behavior
-    @SuppressWarnings("WeakerAccess") /* synthetic access */
-    synchronized void finishImage(ImageProxy imageProxy) {
-        try {
-            mFinishedImageTimestamp.set(imageProxy.getImageInfo().getTimestamp());
-            imageProxy.close();
-        } catch (IllegalStateException e) {
-            Log.d(TAG, "Image already closed");
+    /**
+     * An {@link ImageProxy} which will trigger analysis of the cached ImageProxy if it exists.
+     */
+    static class CacheAnalyzingImageProxy extends ForwardingImageProxy {
+
+        // So that if the user holds onto the ImageProxy instance the analyzer can still be GC'ed
+        WeakReference<ImageAnalysisNonBlockingAnalyzer> mNonBlockingAnalyzerWeakReference;
+
+        private boolean mClosed = false;
+
+        /**
+         * Creates a new instance which wraps the given image.
+         *
+         * @param image               to wrap
+         * @param nonBlockingAnalyzer instance of the nonblocking analyzer
+         */
+        CacheAnalyzingImageProxy(ImageProxy image,
+                ImageAnalysisNonBlockingAnalyzer nonBlockingAnalyzer) {
+            super(image);
+            mNonBlockingAnalyzerWeakReference = new WeakReference<>(nonBlockingAnalyzer);
+
+            addOnImageCloseListener((imageProxy) -> {
+                mClosed = true;
+                ImageAnalysisNonBlockingAnalyzer analyzer = mNonBlockingAnalyzerWeakReference.get();
+                if (analyzer != null) {
+                    analyzer.mBackgroundExecutor.execute(analyzer::analyzeCachedImage);
+                }
+            });
+        }
+
+        boolean isClosed() {
+            return mClosed;
         }
     }
 }

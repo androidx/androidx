@@ -57,7 +57,8 @@ abstract class ImageAnalysisAbstractAnalyzer implements ImageReaderProxy.OnImage
      *
      * <p> The analysis will run on the executor provided by {@link #setAnalyzer(Executor,
      * ImageAnalysis.Analyzer)}. Once the analysis successfully finishes the returned
-     * ListenableFuture will succeed, otherwise an exception will be set on it.
+     * ListenableFuture will succeed. If the future fails then it means the {@link
+     * androidx.camera.core.ImageAnalysis.Analyzer} was not called so the image needs to be closed.
      *
      * @return The future which will complete once analysis has finished or it failed.
      */

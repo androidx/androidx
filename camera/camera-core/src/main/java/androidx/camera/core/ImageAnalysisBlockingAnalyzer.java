@@ -42,7 +42,7 @@ final class ImageAnalysisBlockingAnalyzer extends ImageAnalysisAbstractAnalyzer 
         Futures.addCallback(analyzeFuture, new FutureCallback<Void>() {
             @Override
             public void onSuccess(Void result) {
-                image.close();
+                // No-op. Keep blocking the image reader until user closes the current one.
             }
 
             @Override
