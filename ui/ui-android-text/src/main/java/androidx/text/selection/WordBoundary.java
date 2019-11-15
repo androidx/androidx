@@ -55,8 +55,6 @@ public class WordBoundary {
     public WordBoundary(Locale locale, CharSequence text) {
         mLocale = locale;
         mText = text;
-        // TODO(qqd): Find a minimum range to pass to WordIterator that covers offset but equals or
-        // is more than a word, for performance reason.
         mWordIterator = new WordIterator(mText, 0, mText.length(), mLocale);
     }
 
