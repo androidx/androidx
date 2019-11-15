@@ -95,18 +95,6 @@ public final class ImageCaptureConfig
     /**
      * Returns the {@link FlashMode}.
      *
-     * @param valueIfMissing The value to return if this configuration option has not been set.
-     * @return The stored value or <code>valueIfMissing</code> if the value does not exist in this
-     * configuration.
-     */
-    @Nullable
-    public Integer getFlashMode(@Nullable Integer valueIfMissing) {
-        return retrieveOption(OPTION_FLASH_MODE, valueIfMissing);
-    }
-
-    /**
-     * Returns the {@link FlashMode}.
-     *
      * @return The stored value, if it exists in this configuration.
      * @throws IllegalArgumentException if the option does not exist in this configuration.
      */
@@ -423,17 +411,9 @@ public final class ImageCaptureConfig
         return retrieveOption(OPTION_TARGET_ASPECT_RATIO_CUSTOM);
     }
 
-    /**
-     * Retrieves the aspect ratio of the target intending to use images from this configuration.
-     *
-     * @param valueIfMissing The value to return if this configuration option has not been set.
-     * @return The stored value or <code>valueIfMissing</code> if the value does not exist in this
-     * configuration.
-     */
-    @Nullable
     @Override
-    public Integer getTargetAspectRatio(@Nullable Integer valueIfMissing) {
-        return retrieveOption(OPTION_TARGET_ASPECT_RATIO, valueIfMissing);
+    public boolean hasTargetAspectRatio() {
+        return containsOption(OPTION_TARGET_ASPECT_RATIO);
     }
 
     /**
@@ -768,7 +748,7 @@ public final class ImageCaptureConfig
          *
          * @return A {@link ImageCaptureConfig} populated with the current state.
          * @throws IllegalArgumentException if attempting to set both target aspect ratio and
-         * target resolution.
+         *                                  target resolution.
          */
         @Override
         @NonNull

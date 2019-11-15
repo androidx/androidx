@@ -462,17 +462,9 @@ public final class VideoCaptureConfig
         return retrieveOption(OPTION_TARGET_ASPECT_RATIO_CUSTOM);
     }
 
-    /**
-     * Retrieves the aspect ratio of the target intending to use images from this configuration.
-     *
-     * @param valueIfMissing The value to return if this configuration option has not been set.
-     * @return The stored value or <code>valueIfMissing</code> if the value does not exist in this
-     * configuration.
-     */
-    @Nullable
     @Override
-    public Integer getTargetAspectRatio(@Nullable Integer valueIfMissing) {
-        return retrieveOption(OPTION_TARGET_ASPECT_RATIO, valueIfMissing);
+    public boolean hasTargetAspectRatio() {
+        return containsOption(OPTION_TARGET_ASPECT_RATIO);
     }
 
     /**

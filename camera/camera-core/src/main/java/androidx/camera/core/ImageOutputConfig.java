@@ -144,14 +144,12 @@ public interface ImageOutputConfig {
     Rational getTargetAspectRatioCustom();
 
     /**
-     * Retrieves the aspect ratio of the target intending to use images from this configuration.
+     * Verifies whether the aspect ratio of the target intending to use images from this
+     * configuration is set.
      *
-     * @param valueIfMissing The value to return if this configuration option has not been set.
-     * @return The stored value or <code>valueIfMissing</code> if the value does not exist in this
-     * configuration.
+     * @return true is the value exists in this configuration, false otherwise.
      */
-    @Nullable
-    Integer getTargetAspectRatio(@Nullable Integer valueIfMissing);
+    boolean hasTargetAspectRatio();
 
     /**
      * Retrieves the aspect ratio of the target intending to use images from this configuration.
