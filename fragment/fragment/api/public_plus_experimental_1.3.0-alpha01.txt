@@ -331,22 +331,22 @@ package androidx.fragment.app {
   @Deprecated public class FragmentManagerNonConfig {
   }
 
-  public abstract class FragmentPagerAdapter extends androidx.viewpager.widget.PagerAdapter {
+  @Deprecated public abstract class FragmentPagerAdapter extends androidx.viewpager.widget.PagerAdapter {
     ctor @Deprecated public FragmentPagerAdapter(androidx.fragment.app.FragmentManager);
-    ctor public FragmentPagerAdapter(androidx.fragment.app.FragmentManager, int);
-    method public abstract androidx.fragment.app.Fragment getItem(int);
-    method public long getItemId(int);
-    method public boolean isViewFromObject(android.view.View, Object);
-    field public static final int BEHAVIOR_RESUME_ONLY_CURRENT_FRAGMENT = 1; // 0x1
+    ctor @Deprecated public FragmentPagerAdapter(androidx.fragment.app.FragmentManager, int);
+    method @Deprecated public abstract androidx.fragment.app.Fragment getItem(int);
+    method @Deprecated public long getItemId(int);
+    method @Deprecated public boolean isViewFromObject(android.view.View, Object);
+    field @Deprecated public static final int BEHAVIOR_RESUME_ONLY_CURRENT_FRAGMENT = 1; // 0x1
     field @Deprecated public static final int BEHAVIOR_SET_USER_VISIBLE_HINT = 0; // 0x0
   }
 
-  public abstract class FragmentStatePagerAdapter extends androidx.viewpager.widget.PagerAdapter {
+  @Deprecated public abstract class FragmentStatePagerAdapter extends androidx.viewpager.widget.PagerAdapter {
     ctor @Deprecated public FragmentStatePagerAdapter(androidx.fragment.app.FragmentManager);
-    ctor public FragmentStatePagerAdapter(androidx.fragment.app.FragmentManager, int);
-    method public abstract androidx.fragment.app.Fragment getItem(int);
-    method public boolean isViewFromObject(android.view.View, Object);
-    field public static final int BEHAVIOR_RESUME_ONLY_CURRENT_FRAGMENT = 1; // 0x1
+    ctor @Deprecated public FragmentStatePagerAdapter(androidx.fragment.app.FragmentManager, int);
+    method @Deprecated public abstract androidx.fragment.app.Fragment getItem(int);
+    method @Deprecated public boolean isViewFromObject(android.view.View, Object);
+    field @Deprecated public static final int BEHAVIOR_RESUME_ONLY_CURRENT_FRAGMENT = 1; // 0x1
     field @Deprecated public static final int BEHAVIOR_SET_USER_VISIBLE_HINT = 0; // 0x0
   }
 
