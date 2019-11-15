@@ -126,7 +126,7 @@ public abstract class SelectionTracker<K> {
      * of the selection that will not reflect future changes
      * to selection.
      */
-    public abstract Selection<K> getSelection();
+    public abstract @NonNull Selection<K> getSelection();
 
     /**
      * Updates {@code dest} to reflect the current selection.
@@ -183,7 +183,7 @@ public abstract class SelectionTracker<K> {
 
     /** @hide */
     @RestrictTo(LIBRARY)
-    protected abstract AdapterDataObserver getAdapterDataObserver();
+    protected abstract @NonNull AdapterDataObserver getAdapterDataObserver();
 
     /**
      * Attempts to establish a range selection at {@code position}, selecting the item
@@ -560,7 +560,7 @@ public abstract class SelectionTracker<K> {
          * @param predicate the predicate to be used.
          * @return this
          */
-        public Builder<K> withSelectionPredicate(
+        public @NonNull Builder<K> withSelectionPredicate(
                 @NonNull SelectionPredicate<K> predicate) {
 
             checkArgument(predicate != null);
@@ -575,7 +575,7 @@ public abstract class SelectionTracker<K> {
          * @param monitor the monitor to be used
          * @return this
          */
-        public Builder<K> withOperationMonitor(
+        public @NonNull Builder<K> withOperationMonitor(
                 @NonNull OperationMonitor monitor) {
 
             checkArgument(monitor != null);
@@ -589,7 +589,7 @@ public abstract class SelectionTracker<K> {
          * @param delegate the delegate to be used
          * @return this
          */
-        public Builder<K> withFocusDelegate(@NonNull FocusDelegate<K> delegate) {
+        public @NonNull Builder<K> withFocusDelegate(@NonNull FocusDelegate<K> delegate) {
             checkArgument(delegate != null);
             mFocusDelegate = delegate;
             return this;
@@ -601,7 +601,7 @@ public abstract class SelectionTracker<K> {
          * @param listener the listener to be used
          * @return this
          */
-        public Builder<K> withOnItemActivatedListener(
+        public @NonNull Builder<K> withOnItemActivatedListener(
                 @NonNull OnItemActivatedListener<K> listener) {
 
             checkArgument(listener != null);
@@ -616,7 +616,7 @@ public abstract class SelectionTracker<K> {
          * @param listener the listener to be used
          * @return this
          */
-        public Builder<K> withOnContextClickListener(
+        public @NonNull Builder<K> withOnContextClickListener(
                 @NonNull OnContextClickListener listener) {
 
             checkArgument(listener != null);
@@ -631,7 +631,7 @@ public abstract class SelectionTracker<K> {
          * @param listener the listener to be used
          * @return this
          */
-        public Builder<K> withOnDragInitiatedListener(
+        public @NonNull Builder<K> withOnDragInitiatedListener(
                 @NonNull OnDragInitiatedListener listener) {
 
             checkArgument(listener != null);
@@ -651,7 +651,7 @@ public abstract class SelectionTracker<K> {
          * and only that tool type. This method will be removed in a future release.
          */
         @Deprecated
-        public Builder<K> withGestureTooltypes(int... toolTypes) {
+        public @NonNull Builder<K> withGestureTooltypes(@NonNull int... toolTypes) {
             Log.w(TAG, "Setting gestureTooltypes is likely to result in unexpected behavior.");
             mGestureToolTypes = toolTypes;
             return this;
@@ -662,7 +662,7 @@ public abstract class SelectionTracker<K> {
          *
          * @return this
          */
-        public Builder<K> withBandOverlay(@DrawableRes int bandOverlayId) {
+        public @NonNull Builder<K> withBandOverlay(@DrawableRes int bandOverlayId) {
             mBandOverlayId = bandOverlayId;
             return this;
         }
@@ -672,7 +672,7 @@ public abstract class SelectionTracker<K> {
          *
          * @return this
          */
-        public Builder<K> withBandPredicate(@NonNull BandPredicate bandPredicate) {
+        public @NonNull Builder<K> withBandPredicate(@NonNull BandPredicate bandPredicate) {
             mBandPredicate = bandPredicate;
             return this;
         }
@@ -690,7 +690,7 @@ public abstract class SelectionTracker<K> {
          * and only that tool type. This method will be removed in a future release.
          */
         @Deprecated
-        public Builder<K> withPointerTooltypes(int... toolTypes) {
+        public @NonNull Builder<K> withPointerTooltypes(@NonNull int... toolTypes) {
             Log.w(TAG, "Setting pointerTooltypes is likely to result in unexpected behavior.");
             mPointerToolTypes = toolTypes;
             return this;
@@ -701,7 +701,7 @@ public abstract class SelectionTracker<K> {
          *
          * @return this
          */
-        public SelectionTracker<K> build() {
+        public @NonNull SelectionTracker<K> build() {
 
             DefaultSelectionTracker<K> tracker = new DefaultSelectionTracker<>(
                     mSelectionId, mKeyProvider, mSelectionPredicate, mStorage);

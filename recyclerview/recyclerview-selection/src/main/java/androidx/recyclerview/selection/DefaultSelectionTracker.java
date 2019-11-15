@@ -115,7 +115,7 @@ public class DefaultSelectionTracker<K> extends SelectionTracker<K> implements R
     }
 
     @Override
-    public Selection<K> getSelection() {
+    public @NonNull Selection<K> getSelection() {
         return mSelection;
     }
 
@@ -384,7 +384,7 @@ public class DefaultSelectionTracker<K> extends SelectionTracker<K> implements R
     }
 
     @Override
-    protected AdapterDataObserver getAdapterDataObserver() {
+    protected @NonNull AdapterDataObserver getAdapterDataObserver() {
         return mAdapterObserver;
     }
 

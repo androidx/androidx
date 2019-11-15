@@ -18,6 +18,7 @@ package androidx.recyclerview.selection.testing;
 
 import android.view.MotionEvent;
 
+import androidx.annotation.NonNull;
 import androidx.recyclerview.selection.ItemDetailsLookup.ItemDetails;
 import androidx.recyclerview.widget.RecyclerView;
 
@@ -55,7 +56,7 @@ public final class TestItemDetails extends ItemDetails<String> {
     }
 
     @Override
-    public boolean inDragRegion(MotionEvent event) {
+    public boolean inDragRegion(@NonNull MotionEvent event) {
         return mInDragRegion;
     }
 
@@ -90,7 +91,7 @@ public final class TestItemDetails extends ItemDetails<String> {
     }
 
     @Override
-    public boolean inSelectionHotspot(MotionEvent e) {
+    public boolean inSelectionHotspot(@NonNull MotionEvent e) {
         return mInSelectionHotspot;
     }
 }

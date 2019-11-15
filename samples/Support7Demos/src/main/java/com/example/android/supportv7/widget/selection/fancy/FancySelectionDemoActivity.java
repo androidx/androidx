@@ -18,6 +18,7 @@ package com.example.android.supportv7.widget.selection.fancy;
 
 import android.content.Context;
 import android.net.Uri;
+import android.os.Build;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.ContextMenu;
@@ -30,6 +31,7 @@ import android.widget.Toast;
 
 import androidx.annotation.CallSuper;
 import androidx.annotation.NonNull;
+import androidx.annotation.RequiresApi;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.recyclerview.selection.ItemDetailsLookup.ItemDetails;
 import androidx.recyclerview.selection.ItemKeyProvider;
@@ -83,9 +85,9 @@ public class FancySelectionDemoActivity extends AppCompatActivity {
         mSelectionTracker = builder
                 .withSelectionPredicate(SelectionPredicates.createSelectAnything())
                 .withOnDragInitiatedListener(new OnDragInitiatedListener(this))
-                .withOnContextClickListener(new OnContextClickListener(this))
+                .withOnContextClickListener(new OnContextClickListener())
                 .withOnItemActivatedListener(new OnItemActivatedListener(this))
-                .withFocusDelegate(new FocusDelegate(this))
+                .withFocusDelegate(new FocusDelegate())
                 .withBandOverlay(R.drawable.selection_demo_band_overlay)
                 .build();
 
@@ -107,7 +109,7 @@ public class FancySelectionDemoActivity extends AppCompatActivity {
     }
 
     @Override
-    protected void onSaveInstanceState(Bundle state) {
+    protected void onSaveInstanceState(@NonNull Bundle state) {
         super.onSaveInstanceState(state);
         mSelectionTracker.onSaveInstanceState(state);
         state.putInt(EXTRA_COLUMN_COUNT, mColumnCount);
@@ -219,15 +221,10 @@ public class FancySelectionDemoActivity extends AppCompatActivity {
     private static final class FocusDelegate extends
             androidx.recyclerview.selection.FocusDelegate<Uri> {
 
-        private final Context mContext;
         private ItemDetails<Uri> mFocusedItem;
 
-        private FocusDelegate(Context context) {
-            mContext = context;
-        }
-
         @Override
-        public void focusItem(ItemDetails<Uri> item) {
+        public void focusItem(@NonNull ItemDetails<Uri> item) {
             mFocusedItem = item;
             Log.i(TAG, "focusItem called for " + item);
         }
@@ -269,14 +266,7 @@ public class FancySelectionDemoActivity extends AppCompatActivity {
     private final class OnContextClickListener implements
             androidx.recyclerview.selection.OnContextClickListener {
 
-        private boolean mShowByViewHolder;
-
-        private final Context mContext;
-
-        OnContextClickListener(Context context) {
-            mContext = context;
-        }
-
+        @RequiresApi(api = Build.VERSION_CODES.N)
         @Override
         public boolean onContextClick(MotionEvent e) {
             View view = mRecView.findChildViewUnder(e.getX(), e.getY());

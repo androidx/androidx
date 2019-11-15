@@ -24,6 +24,7 @@ import static org.junit.Assert.assertTrue;
 import android.os.Bundle;
 import android.util.SparseBooleanArray;
 
+import androidx.annotation.NonNull;
 import androidx.recyclerview.selection.SelectionTracker.SelectionPredicate;
 import androidx.recyclerview.selection.testing.Bundles;
 import androidx.recyclerview.selection.testing.SelectionProbe;
@@ -68,7 +69,7 @@ public class DefaultSelectionTrackerTest {
         mSelectionPredicate = new SelectionPredicate<String>() {
 
             @Override
-            public boolean canSetStateForKey(String id, boolean nextState) {
+            public boolean canSetStateForKey(@NonNull String id, boolean nextState) {
                 return !nextState || !mIgnored.contains(id);
             }
 
