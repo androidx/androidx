@@ -17,6 +17,7 @@
 package androidx.recyclerview.selection;
 
 import static androidx.core.util.Preconditions.checkArgument;
+import static androidx.recyclerview.selection.Shared.DEBUG;
 
 import android.util.Log;
 import android.view.MotionEvent;
@@ -36,7 +37,6 @@ import androidx.recyclerview.widget.RecyclerView;
 final class TouchInputHandler<K> extends MotionInputHandler<K> {
 
     private static final String TAG = "TouchInputDelegate";
-    private static final boolean DEBUG = false;
 
     private final ItemDetailsLookup<K> mDetailsLookup;
     private final SelectionPredicate<K> mSelectionPredicate;
@@ -75,6 +75,11 @@ final class TouchInputHandler<K> extends MotionInputHandler<K> {
 
     @Override
     public boolean onSingleTapUp(@NonNull MotionEvent e) {
+        if (DEBUG) {
+            checkArgument(MotionEvents.isFingerEvent(e));
+            checkArgument(MotionEvents.isActionUp(e));
+        }
+
         if (!mDetailsLookup.overItemWithSelectionKey(e)) {
             if (DEBUG) Log.d(TAG, "Tap not associated w/ model item. Clearing selection.");
             mSelectionTracker.clearSelection();
@@ -108,6 +113,11 @@ final class TouchInputHandler<K> extends MotionInputHandler<K> {
 
     @Override
     public void onLongPress(@NonNull MotionEvent e) {
+        if (DEBUG) {
+            checkArgument(MotionEvents.isFingerEvent(e));
+            checkArgument(MotionEvents.isActionDown(e));
+        }
+
         if (!mDetailsLookup.overItemWithSelectionKey(e)) {
             if (DEBUG) Log.d(TAG, "Ignoring LongPress on non-model-backed item.");
             return;

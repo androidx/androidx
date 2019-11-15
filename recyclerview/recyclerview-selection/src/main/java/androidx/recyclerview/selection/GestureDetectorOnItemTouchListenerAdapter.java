@@ -55,3 +55,4 @@ final class GestureDetectorOnItemTouchListenerAdapter implements RecyclerView.On
     public void onRequestDisallowInterceptTouchEvent(boolean disallowIntercept) {
     }
 }
+

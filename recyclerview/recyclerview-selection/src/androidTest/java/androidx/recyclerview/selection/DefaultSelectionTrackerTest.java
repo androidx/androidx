@@ -147,11 +147,29 @@ public class DefaultSelectionTrackerTest {
     }
 
     @Test
-    public void testDeselect_NotifiesSelectionChanged() {
+    public void testDeselect_SelectionChange_Notifies() {
         mTracker.select(mItems.get(7));
         mTracker.deselect(mItems.get(7));
 
         mListener.assertSelectionChanged();
+    }
+
+    @Test
+    public void testClearSelection_ClearSelection_Notifies() {
+        mTracker.select(mItems.get(7));
+        mTracker.clearSelection();
+
+        mListener.assertSelectionCleared();
+    }
+
+    // This test is important as failure to short circuit
+    // would result in infinte recursion during reset operations.
+    @Test
+    public void testClearSelection_ClearSelection_EmptyDoesNotNotify() {
+        // Already empty...but we'll try anyway.
+        mTracker.clearSelection();
+
+        assertFalse(mListener.wasSelectionCleared());
     }
 
     @Test

@@ -46,7 +46,6 @@ import java.util.Set;
  * {@link SelectionPredicate#canSelectMultiple()}.
  *
  * @param <K> Selection key type. @see {@link StorageStrategy} for supported types.
- *
  * @hide
  */
 @RestrictTo(LIBRARY)
@@ -71,11 +70,11 @@ public class DefaultSelectionTracker<K> extends SelectionTracker<K> {
     /**
      * Creates a new instance.
      *
-     * @param selectionId A unique string identifying this selection in the context
-     *        of the activity or fragment.
-     * @param keyProvider client supplied class providing access to stable ids.
+     * @param selectionId        A unique string identifying this selection in the context
+     *                           of the activity or fragment.
+     * @param keyProvider        client supplied class providing access to stable ids.
      * @param selectionPredicate A predicate allowing the client to disallow selection
-     * @param storage Strategy for storing typed selection in bundle.
+     * @param storage            Strategy for storing typed selection in bundle.
      */
     public DefaultSelectionTracker(
             @NonNull String selectionId,
@@ -144,7 +143,7 @@ public class DefaultSelectionTracker<K> extends SelectionTracker<K> {
 
     private boolean setItemsSelectedQuietly(@NonNull Iterable<K> keys, boolean selected) {
         boolean changed = false;
-        for (K key: keys) {
+        for (K key : keys) {
             boolean itemChanged = selected
                     ? canSetState(key, true) && mSelection.add(key)
                     : canSetState(key, false) && mSelection.remove(key);
@@ -158,12 +157,18 @@ public class DefaultSelectionTracker<K> extends SelectionTracker<K> {
 
     @Override
     public boolean clearSelection() {
+        // Short circuiting guards against infinite recurision during reset.
+        // See companion test for some supporting details.
         if (!hasSelection()) {
+            if (DEBUG) Log.d(TAG, "Ignoring clearSelection request. No selection.");
             return false;
         }
+        if (DEBUG) Log.d(TAG, "Handling clearSelection request.");
 
         clearProvisionalSelection();
         clearPrimarySelection();
+        notifySelectionCleared();
+
         return true;
     }
 
@@ -192,6 +197,12 @@ public class DefaultSelectionTracker<K> extends SelectionTracker<K> {
         }
 
         return prevSelection;
+    }
+
+    void reset() {
+        if (DEBUG) Log.d(TAG, "Received reset request.");
+        clearSelection();
+        mRange = null;
     }
 
     @Override
@@ -278,8 +289,10 @@ public class DefaultSelectionTracker<K> extends SelectionTracker<K> {
             return;
         }
 
-        if (DEBUG) Log.i(TAG, "Extending provision range to position: " + position);
-        checkState(isRangeActive(), "Range start point not set.");
+        if (DEBUG) {
+            Log.i(TAG, "Extending provision range to position: " + position);
+            checkState(isRangeActive(), "Range start point not set.");
+        }
         extendRange(position, Range.TYPE_PROVISIONAL);
     }
 
@@ -292,13 +305,23 @@ public class DefaultSelectionTracker<K> extends SelectionTracker<K> {
      * point before calling on {@link #endRange()}.
      *
      * @param position The new end position for the selection range.
-     * @param type The type of selection the range should utilize.
+     * @param type     The type of selection the range should utilize.
      */
     private void extendRange(int position, @RangeType int type) {
-        checkState(isRangeActive(), "Range start point not set.");
+        if (!isRangeActive()) {
+            Log.e(TAG, "Ignoring attempt to extend unestablished range. Ignoring.");
+            if (DEBUG) {
+                throw new IllegalStateException("Attempted to extend unestablished range.");
+            }
+            return;
+        }
 
         if (position == RecyclerView.NO_POSITION) {
-            Log.w(TAG, "Invalid position: Cannot extend selection to: " + position);
+            Log.w(TAG, "Ignoring attempt to extend range to invalid position: " + position);
+            if (DEBUG) {
+                throw new IllegalStateException(
+                        "Attempting to extend range to invalid position: " + position);
+            }
             return;
         }
 
@@ -317,7 +340,7 @@ public class DefaultSelectionTracker<K> extends SelectionTracker<K> {
         }
 
         Map<K, Boolean> delta = mSelection.setProvisionalSelection(newSelection);
-        for (Map.Entry<K, Boolean> entry: delta.entrySet()) {
+        for (Map.Entry<K, Boolean> entry : delta.entrySet()) {
             notifyItemStateChanged(entry.getKey(), entry.getValue());
         }
 
@@ -406,11 +429,17 @@ public class DefaultSelectionTracker<K> extends SelectionTracker<K> {
         }
     }
 
+    private void notifySelectionCleared() {
+        for (SelectionObserver<K> observer : mObservers) {
+            observer.onSelectionCleared();
+        }
+    }
+
     private void notifySelectionCleared(@NonNull Selection<K> selection) {
-        for (K key: selection.mSelection) {
+        for (K key : selection.mSelection) {
             notifyItemStateChanged(key, false);
         }
-        for (K key: selection.mProvisionalSelection) {
+        for (K key : selection.mProvisionalSelection) {
             notifyItemStateChanged(key, false);
         }
     }

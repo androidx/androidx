@@ -17,7 +17,6 @@
 package androidx.recyclerview.selection;
 
 import static androidx.core.util.Preconditions.checkArgument;
-import static androidx.core.util.Preconditions.checkState;
 import static androidx.recyclerview.selection.Shared.DEBUG;
 import static androidx.recyclerview.selection.Shared.VERBOSE;
 
@@ -123,7 +122,11 @@ final class MouseInputHandler<K> extends MotionInputHandler<K> {
     // tap on an item when there is an existing selection. We could extend
     // a selection, we could clear selection (then launch)
     private void onItemClick(@NonNull MotionEvent e, @NonNull ItemDetails<K> item) {
-        checkState(mSelectionTracker.hasSelection());
+        if (!mSelectionTracker.hasSelection()) {
+            Log.e(TAG, "Call to onItemClick w/o selection.");
+            if (DEBUG) throw new IllegalStateException("Call to onItemClick w/o selection.");
+            return;
+        }
         checkArgument(item != null);
 
         if (shouldExtendRange(e)) {
