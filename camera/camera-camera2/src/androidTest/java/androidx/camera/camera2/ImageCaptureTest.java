@@ -289,8 +289,7 @@ public final class ImageCaptureTest {
     }
 
     @Test
-    public void canSaveFile_withRotation()
-            throws IOException, CameraInfoUnavailableException {
+    public void canSaveFile_withRotation() throws IOException {
         ImageCaptureConfig config =
                 new ImageCaptureConfig.Builder().setTargetRotation(Surface.ROTATION_0).build();
         ImageCapture useCase = new ImageCapture(config);

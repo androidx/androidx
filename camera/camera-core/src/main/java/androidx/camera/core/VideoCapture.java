@@ -299,17 +299,9 @@ public class VideoCapture extends UseCase {
             return;
         }
 
-        // Get the relative rotation or default to 0 if the camera info is unavailable
-        int relativeRotation = 0;
-        try {
-            CameraInfoInternal cameraInfoInternal = CameraX.getCameraInfo(cameraId);
-            relativeRotation =
-                    cameraInfoInternal.getSensorRotationDegrees(
-                            ((ImageOutputConfig) getUseCaseConfig())
-                                    .getTargetRotation(Surface.ROTATION_0));
-        } catch (CameraInfoUnavailableException e) {
-            Log.e(TAG, "Unable to retrieve camera sensor orientation.", e);
-        }
+        CameraInfoInternal cameraInfoInternal = CameraX.getCameraInfo(cameraId);
+        int relativeRotation = cameraInfoInternal.getSensorRotationDegrees(
+                ((ImageOutputConfig) getUseCaseConfig()).getTargetRotation(Surface.ROTATION_0));
 
         try {
             synchronized (mMuxerLock) {

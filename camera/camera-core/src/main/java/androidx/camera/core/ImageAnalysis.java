@@ -339,15 +339,10 @@ public final class ImageAnalysis extends UseCase {
 
     private void tryUpdateRelativeRotation(String cameraId) {
         ImageOutputConfig config = (ImageOutputConfig) getUseCaseConfig();
-        // Get the relative rotation or default to 0 if the camera info is unavailable
-        try {
-            CameraInfoInternal cameraInfoInternal = CameraX.getCameraInfo(cameraId);
-            mImageAnalysisAbstractAnalyzer.setRelativeRotation(
-                    cameraInfoInternal.getSensorRotationDegrees(
-                            config.getTargetRotation(Surface.ROTATION_0)));
-        } catch (CameraInfoUnavailableException e) {
-            Log.e(TAG, "Unable to retrieve camera sensor orientation.", e);
-        }
+        CameraInfoInternal cameraInfoInternal = CameraX.getCameraInfo(cameraId);
+        mImageAnalysisAbstractAnalyzer.setRelativeRotation(
+                cameraInfoInternal.getSensorRotationDegrees(
+                        config.getTargetRotation(Surface.ROTATION_0)));
     }
 
     /**
