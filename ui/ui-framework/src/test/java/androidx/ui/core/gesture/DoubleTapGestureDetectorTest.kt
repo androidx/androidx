@@ -33,8 +33,6 @@ import com.nhaarman.mockitokotlin2.any
 import com.nhaarman.mockitokotlin2.mock
 import com.nhaarman.mockitokotlin2.never
 import com.nhaarman.mockitokotlin2.verify
-import kotlinx.coroutines.ObsoleteCoroutinesApi
-import kotlinx.coroutines.test.TestCoroutineContext
 import org.junit.Before
 import org.junit.Test
 import org.junit.runner.RunWith
@@ -45,12 +43,13 @@ import java.util.concurrent.TimeUnit
 //  1. More complex multi-pointer scenarios testing how consumption affects firing events
 //  2. More complex multi-pointer scenarios testing how pointers effect consumption
 
-@ObsoleteCoroutinesApi
+@kotlinx.coroutines.ObsoleteCoroutinesApi
 @RunWith(JUnit4::class)
 class DoubleTapGestureDetectorTest {
 
     private val DoubleTapTimeoutMillis = 100.milliseconds
-    private val testContext = TestCoroutineContext()
+    @Suppress("DEPRECATION")
+    private val testContext = kotlinx.coroutines.test.TestCoroutineContext()
     private val onDoubleTap: (PxPosition) -> Unit = mock()
     private lateinit var mRecognizer: DoubleTapGestureRecognizer
 
