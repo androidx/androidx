@@ -19,7 +19,6 @@ import android.graphics.ColorFilter;
 import android.graphics.PixelFormat;
 import android.graphics.Rect;
 import android.graphics.drawable.Drawable;
-import android.text.InputType;
 import android.util.AttributeSet;
 import android.view.ActionMode;
 import android.view.KeyEvent;
@@ -157,11 +156,10 @@ public class GuidedActionEditText extends EditText implements ImeKeyMonitor,
 
     @Override
     public boolean onTouchEvent(@NonNull MotionEvent event) {
-        // b/143562736 when in touch screen mode, if the EditText is not focusable and not editable
+        // b/143562736 when in touch screen mode, if the EditText is not focusable
         // and not text selectable, it does not need TouchEvent; let parent handle TouchEvent,
         // e.g. receives onClick event.
-        if (isInTouchMode() && !isFocusableInTouchMode() && getInputType() == InputType.TYPE_NULL
-                && !isTextSelectable()) {
+        if (isInTouchMode() && !isFocusableInTouchMode() && !isTextSelectable()) {
             return false;
         }
         return super.onTouchEvent(event);
