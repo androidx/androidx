@@ -107,7 +107,6 @@ interface Paragraph {
     /**
      * Returns the bottom y coordinate of the given line.
      */
-    // TODO(qqd) add tests
     fun getLineBottom(lineIndex: Int): Float
 
     /** Returns the height of the given line. */

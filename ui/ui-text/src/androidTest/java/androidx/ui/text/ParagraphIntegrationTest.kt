@@ -2124,6 +2124,23 @@ class ParagraphIntegrationTest {
     }
 
     @Test
+    fun getLineBottom() {
+        withDensity(defaultDensity) {
+            val text = "aaa\nbbb"
+
+            val fontSize = 50.sp
+            val fontSizeInPx = fontSize.toPx().value
+
+            val paragraph = simpleParagraph(
+                text = text,
+                fontSize = fontSize
+            )
+            assertThat(paragraph.getLineBottom(0)).isEqualTo(fontSizeInPx)
+            assertThat(paragraph.getLineBottom(1)).isEqualTo(fontSize.value * (2f + 1f / 5f))
+        }
+    }
+
+    @Test
     fun lineHeight_returnsSameAsGiven() {
         withDensity(defaultDensity) {
             val text = "abcdefgh"
