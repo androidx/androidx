@@ -41,8 +41,12 @@ import androidx.camera.integration.antelope.MainActivity.Companion.logd
 import androidx.camera.integration.antelope.PrefHelper
 import androidx.camera.integration.antelope.TestConfig
 import androidx.camera.integration.antelope.TestType
-import androidx.camera.lifecycle.LifecycleCameraProvider
+import androidx.camera.lifecycle.ProcessCameraProvider
 import androidx.lifecycle.LifecycleOwner
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.GlobalScope
+import kotlinx.coroutines.guava.await
+import kotlinx.coroutines.launch
 
 /**
  * Opens the camera using the Camera X API and starts the open counter. The open call will complete
@@ -122,6 +126,7 @@ internal fun cameraXOpenCamera(
 
         // TODO: As of 0.3.0 CameraX can only use front and back cameras.
         //  Update in future versions
+        val cameraProviderFuture = ProcessCameraProvider.getInstance(activity)
         val cameraXcameraID = if (params.id.equals("0")) LensFacing.BACK else LensFacing.FRONT
         val cameraSelector = CameraSelector.Builder().requireLensFacing(cameraXcameraID).build()
         when (testConfig.currentRunningTest) {
@@ -130,8 +135,9 @@ internal fun cameraXOpenCamera(
             TestType.SWITCH_CAMERA,
             TestType.MULTI_SWITCH -> {
                 params.timer.openStart = System.currentTimeMillis()
-                activity.runOnUiThread {
-                    LifecycleCameraProvider.bindToLifecycle(
+                GlobalScope.launch(Dispatchers.Main) {
+                    val cameraProvider = cameraProviderFuture.await()
+                    cameraProvider.bindToLifecycle(
                         lifecycleOwner, cameraSelector,
                         previewUseCase
                     )
@@ -158,8 +164,9 @@ internal fun cameraXOpenCamera(
 
                 params.timer.openStart = System.currentTimeMillis()
 
-                activity.runOnUiThread {
-                    LifecycleCameraProvider.bindToLifecycle(
+                GlobalScope.launch(Dispatchers.Main) {
+                    val cameraProvider = cameraProviderFuture.await()
+                    cameraProvider.bindToLifecycle(
                         lifecycleOwner, cameraSelector,
                         previewUseCase, params.cameraXImageCaptureUseCase
                     )
@@ -186,8 +193,10 @@ internal fun closeCameraX(activity: MainActivity, params: CameraParams, testConf
         params.cameraXLifecycle.finish()
 
         // CameraX calls need to be on the main thread
-        activity.runOnUiThread {
-            LifecycleCameraProvider.unbindAll()
+        val cameraProviderFuture = ProcessCameraProvider.getInstance(activity)
+        GlobalScope.launch(Dispatchers.Main) {
+            val cameraProvider = cameraProviderFuture.await()
+            cameraProvider.unbindAll()
         }
     }
     if ((testConfig.currentRunningTest == TestType.SWITCH_CAMERA) ||

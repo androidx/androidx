@@ -740,9 +740,33 @@ public final class CameraX {
     @NonNull
     private static CameraX checkInitialized() {
         CameraX cameraX = waitInitialized();
-        Preconditions.checkState(cameraX != null && cameraX.isInitializedInternal(),
+        Preconditions.checkState(cameraX.isInitializedInternal(),
                 "Must call CameraX.initialize() first");
         return cameraX;
+    }
+
+    /**
+     * Returns a future which contains a CameraX instance after initialization is complete.
+     *
+     * @hide
+     */
+    @RestrictTo(Scope.LIBRARY_GROUP)
+    @NonNull
+    public static ListenableFuture<CameraX> getInstance() {
+        ListenableFuture<Void> initFuture;
+        CameraX cameraX;
+        synchronized (sInitializeLock) {
+            if (!sTargetInitialized) {
+                return Futures.immediateFailedFuture(new IllegalStateException("Must "
+                        + "call CameraX.initialize() first"));
+            }
+
+            initFuture = sInitializeFuture;
+            cameraX = sInstance;
+        }
+
+        return Futures.transform(initFuture, nullVoid -> cameraX,
+                CameraXExecutors.directExecutor());
     }
 
     /**
@@ -750,31 +774,20 @@ public final class CameraX {
      *
      * @throws IllegalStateException if the initialization is fail or timeout
      */
-    @Nullable
+    @NonNull
     private static CameraX waitInitialized() {
-        ListenableFuture<Void> future;
-        CameraX cameraX;
-        synchronized (sInitializeLock) {
-            if (!sTargetInitialized) {
-                return null;
-            }
-            future = sInitializeFuture;
-            cameraX = sInstance;
+        ListenableFuture<CameraX> future = getInstance();
+        try {
+            return future.get(WAIT_INITIALIZED_TIMEOUT, TimeUnit.SECONDS);
+        } catch (ExecutionException e) {
+            throw new IllegalStateException(e);
+        } catch (TimeoutException e) {
+            throw new IllegalStateException(e);
+        } catch (InterruptedException e) {
+            // Throw exception when get interrupted because the initialization could not be
+            // finished yet.
+            throw new IllegalStateException(e);
         }
-        if (!future.isDone()) {
-            try {
-                future.get(WAIT_INITIALIZED_TIMEOUT, TimeUnit.SECONDS);
-            } catch (ExecutionException e) {
-                throw new IllegalStateException(e);
-            } catch (TimeoutException e) {
-                throw new IllegalStateException(e);
-            } catch (InterruptedException e) {
-                // Throw exception when get interrupted because the initialization could not be
-                // finished yet.
-                throw new IllegalStateException(e);
-            }
-        }
-        return cameraX;
     }
 
     /**

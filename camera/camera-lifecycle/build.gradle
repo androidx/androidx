@@ -22,12 +22,27 @@ import androidx.build.Publish
 plugins {
     id("AndroidXPlugin")
     id("com.android.library")
+    id("kotlin-android")
 }
 
 dependencies {
     api(project(":camera:camera-core"))
     api("androidx.lifecycle:lifecycle-common:2.1.0")
+    implementation("androidx.core:core:1.1.0")
     annotationProcessor(AUTO_VALUE)
+
+    androidTestImplementation(ANDROIDX_TEST_EXT_JUNIT)
+    androidTestImplementation(ANDROIDX_TEST_CORE)
+    androidTestImplementation(ANDROIDX_TEST_RUNNER)
+    androidTestImplementation(ANDROIDX_TEST_RULES)
+    androidTestImplementation(TRUTH)
+    androidTestImplementation project(":camera:camera-testing"), {
+        exclude group: "androidx.camera", module: "camera-core"
+    }
+    androidTestImplementation(KOTLIN_STDLIB)
+    androidTestImplementation(KOTLIN_COROUTINES_ANDROID)
+    androidTestImplementation(KOTLIN_COROUTINES_GUAVA)
+    androidTestImplementation(project(":internal-testutils-truth"))
 }
 
 android {

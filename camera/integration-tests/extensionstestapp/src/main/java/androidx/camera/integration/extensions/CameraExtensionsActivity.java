@@ -46,8 +46,6 @@ import androidx.camera.core.Preview;
 import androidx.camera.core.PreviewSurfaceProviders;
 import androidx.camera.core.UseCase;
 import androidx.camera.core.impl.utils.executor.CameraXExecutors;
-import androidx.camera.core.impl.utils.futures.FutureCallback;
-import androidx.camera.core.impl.utils.futures.Futures;
 import androidx.camera.extensions.AutoImageCaptureExtender;
 import androidx.camera.extensions.AutoPreviewExtender;
 import androidx.camera.extensions.BeautyImageCaptureExtender;
@@ -60,11 +58,15 @@ import androidx.camera.extensions.HdrImageCaptureExtender;
 import androidx.camera.extensions.HdrPreviewExtender;
 import androidx.camera.extensions.NightImageCaptureExtender;
 import androidx.camera.extensions.NightPreviewExtender;
-import androidx.camera.lifecycle.LifecycleCameraProvider;
+import androidx.camera.lifecycle.ProcessCameraProvider;
+import androidx.concurrent.futures.CallbackToFutureAdapter;
 import androidx.core.app.ActivityCompat;
 import androidx.core.content.ContextCompat;
 import androidx.test.espresso.idling.CountingIdlingResource;
 
+import com.google.common.base.Preconditions;
+import com.google.common.util.concurrent.FutureCallback;
+import com.google.common.util.concurrent.Futures;
 import com.google.common.util.concurrent.ListenableFuture;
 
 import java.io.File;
@@ -75,7 +77,6 @@ import java.util.Calendar;
 import java.util.List;
 import java.util.Locale;
 import java.util.concurrent.Callable;
-import java.util.concurrent.FutureTask;
 import java.util.concurrent.atomic.AtomicReference;
 
 /** An activity that shows off how extensions can be applied */
@@ -87,8 +88,8 @@ public class CameraExtensionsActivity extends AppCompatActivity
     private static final CameraSelector CAMERA_SELECTOR =
             new CameraSelector.Builder().requireLensFacing(LensFacing.BACK).build();
 
-    private final SettableCallable<Boolean> mSettableResult = new SettableCallable<>();
-    private final FutureTask<Boolean> mCompletableFuture = new FutureTask<>(mSettableResult);
+    boolean mPermissionsGranted = false;
+    private CallbackToFutureAdapter.Completer<Boolean> mPermissionCompleter;
 
     /** The cameraId to use. Assume that 0 is the typical back facing camera. */
     private String mCurrentCameraId = "0";
@@ -106,6 +107,8 @@ public class CameraExtensionsActivity extends AppCompatActivity
     @SuppressWarnings("WeakerAccess")
     TextureView mTextureView;
 
+    ProcessCameraProvider mCameraProvider;
+
     /**
      * Creates a preview use case.
      *
@@ -119,7 +122,7 @@ public class CameraExtensionsActivity extends AppCompatActivity
 
     void enablePreview() {
         if (mPreview != null) {
-            LifecycleCameraProvider.unbind(mPreview);
+            mCameraProvider.unbind(mPreview);
         }
 
         Preview.Builder builder = new Preview.Builder()
@@ -354,7 +357,7 @@ public class CameraExtensionsActivity extends AppCompatActivity
 
     void disableImageCapture() {
         if (mImageCapture != null) {
-            LifecycleCameraProvider.unbind(mImageCapture);
+            mCameraProvider.unbind(mImageCapture);
             mImageCapture = null;
         }
 
@@ -384,7 +387,7 @@ public class CameraExtensionsActivity extends AppCompatActivity
             useCases.add(mImageCapture);
         }
         useCases.add(mPreview);
-        LifecycleCameraProvider.bindToLifecycle(this, CAMERA_SELECTOR,
+        mCameraProvider.bindToLifecycle(this, CAMERA_SELECTOR,
                 useCases.toArray(new UseCase[useCases.size()]));
     }
 
@@ -396,6 +399,7 @@ public class CameraExtensionsActivity extends AppCompatActivity
         }
     }
 
+    @SuppressWarnings("UnstableApiUsage")
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -415,26 +419,38 @@ public class CameraExtensionsActivity extends AppCompatActivity
             }
         }
 
-        new Thread(
-                new Runnable() {
-                    @Override
-                    public void run() {
-                        setupCamera();
-                    }
-                })
-                .start();
-        setupPermissions();
+        ListenableFuture<ProcessCameraProvider> cameraProviderFuture =
+                ProcessCameraProvider.getInstance(this);
+        Futures.addCallback(setupPermissions(), new FutureCallback<Boolean>() {
+            @Override
+            public void onSuccess(@Nullable Boolean result) {
+                mPermissionsGranted = Preconditions.checkNotNull(result);
+                Futures.addCallback(cameraProviderFuture,
+                        new FutureCallback<ProcessCameraProvider>() {
+                            @Override
+                            public void onSuccess(@Nullable ProcessCameraProvider result) {
+                                mCameraProvider = result;
+                                setupCamera();
+                            }
+
+                            @Override
+                            public void onFailure(Throwable t) {
+                                throw new RuntimeException("Failed to get camera provider", t);
+                            }
+                        }, ContextCompat.getMainExecutor(CameraExtensionsActivity.this));
+            }
+
+            @Override
+            public void onFailure(Throwable t) {
+                throw new RuntimeException("Failed to get permissions", t);
+            }
+        }, ContextCompat.getMainExecutor(this));
     }
 
-    private void setupCamera() {
-        try {
-            // Wait for permissions before proceeding.
-            if (!mCompletableFuture.get()) {
-                Log.d(TAG, "Permissions denied.");
-                return;
-            }
-        } catch (Exception e) {
-            Log.e(TAG, "Exception occurred getting permission future: " + e);
+    void setupCamera() {
+        if (!mPermissionsGranted) {
+            Log.d(TAG, "Permissions denied.");
+            return;
         }
 
         try {
@@ -463,7 +479,7 @@ public class CameraExtensionsActivity extends AppCompatActivity
                     public void onSuccess(
                             @Nullable ExtensionsManager.ExtensionsAvailability availability) {
                         // Run this on the UI thread to manipulate the Textures & Views.
-                        CameraExtensionsActivity.this.runOnUiThread(() -> createUseCases());
+                        createUseCases();
                     }
 
                     @Override
@@ -475,13 +491,17 @@ public class CameraExtensionsActivity extends AppCompatActivity
         );
     }
 
-    private void setupPermissions() {
-        if (!allPermissionsGranted()) {
-            makePermissionRequest();
-        } else {
-            mSettableResult.set(true);
-            mCompletableFuture.run();
-        }
+    private ListenableFuture<Boolean> setupPermissions() {
+        return CallbackToFutureAdapter.getFuture(completer -> {
+            mPermissionCompleter = completer;
+            if (!allPermissionsGranted()) {
+                makePermissionRequest();
+            } else {
+                mPermissionCompleter.set(true);
+            }
+
+            return "get_permissions";
+        });
     }
 
     private void makePermissionRequest() {
@@ -538,12 +558,10 @@ public class CameraExtensionsActivity extends AppCompatActivity
                 if (grantResults.length > 0
                         && grantResults[0] == PackageManager.PERMISSION_GRANTED) {
                     Log.d(TAG, "Permissions Granted.");
-                    mSettableResult.set(true);
-                    mCompletableFuture.run();
+                    mPermissionCompleter.set(true);
                 } else {
                     Log.d(TAG, "Permissions Denied.");
-                    mSettableResult.set(false);
-                    mCompletableFuture.run();
+                    mPermissionCompleter.set(false);
                 }
                 return;
             }
