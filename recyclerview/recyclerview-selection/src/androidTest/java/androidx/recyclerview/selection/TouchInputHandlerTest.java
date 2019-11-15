@@ -16,7 +16,9 @@
 
 package androidx.recyclerview.selection;
 
-import static androidx.recyclerview.selection.testing.TestEvents.Touch.TAP;
+import static androidx.recyclerview.selection.testing.TestEvents.Touch.DOWN;
+import static androidx.recyclerview.selection.testing.TestEvents.Touch.MOVE;
+import static androidx.recyclerview.selection.testing.TestEvents.Touch.UP;
 
 import static org.junit.Assert.assertFalse;
 
@@ -40,13 +42,9 @@ import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 
-import java.util.List;
-
 @RunWith(AndroidJUnit4.class)
 @SmallTest
 public final class TouchInputHandlerTest {
-
-    private static final List<String> ITEMS = TestData.createStringData(100);
 
     private TouchInputHandler<String> mInputDelegate;
     private SelectionTracker<String> mSelectionMgr;
@@ -62,24 +60,24 @@ public final class TouchInputHandlerTest {
     public void setUp() {
         mSelectionMgr = SelectionTrackers.createStringTracker("input-handler-test", 100);
         mDetailsLookup = new TestItemDetailsLookup();
-        mSelectionPredicate = new TestSelectionPredicate();
+        mSelectionPredicate = new TestSelectionPredicate<>();
         mSelection = new SelectionProbe(mSelectionMgr);
         mGestureStarted = new TestRunnable();
         mHapticPerformer = new TestRunnable();
-        mActivationCallbacks = new TestOnItemActivatedListener();
+        mActivationCallbacks = new TestOnItemActivatedListener<>();
         mDragInitiatedListener = new TestDragListener();
 
-        mInputDelegate = new TouchInputHandler(
+        mInputDelegate = new TouchInputHandler<>(
                 mSelectionMgr,
-                new TestItemKeyProvider(
+                new TestItemKeyProvider<>(
                         ItemKeyProvider.SCOPE_MAPPED,
-                        new TestAdapter(TestData.createStringData(100))),
+                        new TestAdapter<>(TestData.createStringData(100))),
                 mDetailsLookup,
                 mSelectionPredicate,
                 mGestureStarted,
                 mDragInitiatedListener,
                 mActivationCallbacks,
-                new TestFocusDelegate(),
+                new TestFocusDelegate<>(),
                 mHapticPerformer);
     }
 
@@ -87,14 +85,14 @@ public final class TouchInputHandlerTest {
     public void testTap_ActivatesWhenNoExistingSelection() {
         ItemDetails<String> doc = mDetailsLookup.initAt(11);
 
-        mInputDelegate.onSingleTapUp(TAP);
+        mInputDelegate.onSingleTapUp(UP);
 
         mActivationCallbacks.assertActivated(doc);
     }
 
     @Test
     public void testScroll_shouldNotBeTrapped() {
-        assertFalse(mInputDelegate.onScroll(null, TAP, -1, -1));
+        assertFalse(mInputDelegate.onScroll(null, MOVE, -1, -1));
     }
 
     @Test
@@ -102,7 +100,7 @@ public final class TouchInputHandlerTest {
         mSelectionPredicate.setReturnValue(true);
         mDetailsLookup.initAt(7);
 
-        mInputDelegate.onLongPress(TAP);
+        mInputDelegate.onLongPress(DOWN);
 
         mSelection.assertSelection(7);
     }
@@ -112,9 +110,9 @@ public final class TouchInputHandlerTest {
         mSelectionPredicate.setReturnValue(true);
         mDetailsLookup.initAt(7);
 
-        mInputDelegate.onLongPress(TAP);
+        mInputDelegate.onLongPress(DOWN);
 
-        mHapticPerformer.assertRan();
+        mHapticPerformer.assertRun();
     }
 
     @Test
@@ -122,9 +120,9 @@ public final class TouchInputHandlerTest {
         mSelectionPredicate.setReturnValue(true);
         mDetailsLookup.initAt(7);
 
-        mInputDelegate.onLongPress(TAP);
+        mInputDelegate.onLongPress(DOWN);
 
-        mGestureStarted.assertRan();
+        mGestureStarted.assertRun();
     }
 
     @Test
@@ -132,7 +130,7 @@ public final class TouchInputHandlerTest {
         mSelectionPredicate.setReturnValue(true);
         mDetailsLookup.initAt(7);
 
-        mInputDelegate.onLongPress(TAP);
+        mInputDelegate.onLongPress(DOWN);
 
         mDragInitiatedListener.assertDragInitiated(false);
     }
@@ -143,7 +141,7 @@ public final class TouchInputHandlerTest {
         mSelectionMgr.select("7");
         mDetailsLookup.initAt(7);
 
-        mInputDelegate.onLongPress(TAP);
+        mInputDelegate.onLongPress(DOWN);
 
         mDragInitiatedListener.assertDragInitiated(true);
     }
@@ -154,9 +152,9 @@ public final class TouchInputHandlerTest {
         mSelectionMgr.select("7");
         mDetailsLookup.initAt(7);
 
-        mInputDelegate.onLongPress(TAP);
+        mInputDelegate.onLongPress(DOWN);
 
-        mHapticPerformer.assertRan();
+        mHapticPerformer.assertRun();
     }
 
     @Test
@@ -164,7 +162,7 @@ public final class TouchInputHandlerTest {
         mSelectionPredicate.setReturnValue(true);
 
         mDetailsLookup.initAt(7).setInItemSelectRegion(true);
-        mInputDelegate.onSingleTapUp(TAP);
+        mInputDelegate.onSingleTapUp(UP);
 
         mSelection.assertSelection(7);
     }
@@ -174,7 +172,7 @@ public final class TouchInputHandlerTest {
         mSelectionMgr.select("11");
 
         mDetailsLookup.initAt(11).setInItemSelectRegion(true);
-        mInputDelegate.onSingleTapUp(TAP);
+        mInputDelegate.onSingleTapUp(UP);
 
         mSelection.assertNoSelection();
     }
@@ -184,13 +182,13 @@ public final class TouchInputHandlerTest {
         mSelectionPredicate.setReturnValue(true);
 
         mDetailsLookup.initAt(7);
-        mInputDelegate.onLongPress(TAP);
+        mInputDelegate.onLongPress(DOWN);
 
         mDetailsLookup.initAt(99);
-        mInputDelegate.onLongPress(TAP);
+        mInputDelegate.onLongPress(DOWN);
 
         mDetailsLookup.initAt(13);
-        mInputDelegate.onLongPress(TAP);
+        mInputDelegate.onLongPress(DOWN);
 
         mSelection.assertSelection(7, 13, 99);
     }
@@ -200,7 +198,7 @@ public final class TouchInputHandlerTest {
         mSelectionMgr.select("11");
 
         mDetailsLookup.initAt(11);
-        mInputDelegate.onSingleTapUp(TAP);
+        mInputDelegate.onSingleTapUp(UP);
 
         mSelection.assertNoSelection();
     }
@@ -210,14 +208,14 @@ public final class TouchInputHandlerTest {
         mSelectionMgr.select("7");
         mDetailsLookup.initAt(7);
 
-        mInputDelegate.onLongPress(TAP);
+        mInputDelegate.onLongPress(DOWN);
 
         mSelectionMgr.select("11");
         mDetailsLookup.initAt(11);
-        mInputDelegate.onSingleTapUp(TAP);
+        mInputDelegate.onSingleTapUp(UP);
 
         mDetailsLookup.initAt(RecyclerView.NO_POSITION).setInItemSelectRegion(false);
-        mInputDelegate.onSingleTapUp(TAP);
+        mInputDelegate.onSingleTapUp(UP);
 
         mSelection.assertNoSelection();
     }

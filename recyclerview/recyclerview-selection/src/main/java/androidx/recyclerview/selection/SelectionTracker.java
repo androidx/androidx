@@ -22,6 +22,7 @@ import static androidx.core.util.Preconditions.checkArgument;
 import android.content.Context;
 import android.os.Bundle;
 import android.os.Parcelable;
+import android.util.Log;
 import android.view.GestureDetector;
 import android.view.HapticFeedbackConstants;
 import android.view.MotionEvent;
@@ -88,6 +89,8 @@ import java.util.Set;
  * @param <K> Selection key type. @see {@link StorageStrategy} for supported types.
  */
 public abstract class SelectionTracker<K> {
+
+    private static final String TAG = "SelectionTracker";
 
     /**
      * This value is included in the payload when SelectionTracker notifies RecyclerView
@@ -303,6 +306,16 @@ public abstract class SelectionTracker<K> {
         }
 
         /**
+         * Called when Selection is cleared.
+         * TODO(smckay): Make public in a future public API.
+         *
+         * @hide
+         */
+        @RestrictTo(LIBRARY)
+        protected void onSelectionCleared() {
+        }
+
+        /**
          * Called when the underlying data set has changed. After this method is called
          * SelectionTracker will traverse the existing selection,
          * calling {@link #onItemStateChanged(K, boolean)} for each selected item,
@@ -492,10 +505,9 @@ public abstract class SelectionTracker<K> {
         private BandPredicate mBandPredicate;
         private int mBandOverlayId = R.drawable.selection_band_overlay;
 
-        // TODO(b/138958244): Support resetting state in response to unknown > cancel events.
+        // TODO(b/144500333): Remove support for overriding gesture and pointer tooltypes.
         private int[] mGestureToolTypes = new int[]{
-                MotionEvent.TOOL_TYPE_FINGER,
-                MotionEvent.TOOL_TYPE_UNKNOWN
+                MotionEvent.TOOL_TYPE_FINGER
         };
 
         private int[] mPointerToolTypes = new int[]{
@@ -630,12 +642,17 @@ public abstract class SelectionTracker<K> {
 
         /**
          * Replaces default tap and gesture tool-types. Defaults are:
-         * {@link MotionEvent#TOOL_TYPE_FINGER} and {@link MotionEvent#TOOL_TYPE_UNKNOWN}.
+         * {@link MotionEvent#TOOL_TYPE_FINGER}.
          *
          * @param toolTypes the tool types to be used
          * @return this
+         *
+         * @deprecated GestureSelection is best bound to {@link MotionEvent#TOOL_TYPE_FINGER},
+         * and only that tool type. This method will be removed in a future release.
          */
+        @Deprecated
         public Builder<K> withGestureTooltypes(int... toolTypes) {
+            Log.w(TAG, "Setting gestureTooltypes is likely to result in unexpected behavior.");
             mGestureToolTypes = toolTypes;
             return this;
         }
@@ -656,8 +673,6 @@ public abstract class SelectionTracker<K> {
          * @return this
          */
         public Builder<K> withBandPredicate(@NonNull BandPredicate bandPredicate) {
-            checkArgument(bandPredicate != null);
-
             mBandPredicate = bandPredicate;
             return this;
         }
@@ -670,8 +685,13 @@ public abstract class SelectionTracker<K> {
          *
          * @param toolTypes the tool types to be used
          * @return this
+         *
+         * @deprecated PointerSelection is best bound to {@link MotionEvent#TOOL_TYPE_MOUSE},
+         * and only that tool type. This method will be removed in a future release.
          */
+        @Deprecated
         public Builder<K> withPointerTooltypes(int... toolTypes) {
+            Log.w(TAG, "Setting pointerTooltypes is likely to result in unexpected behavior.");
             mPointerToolTypes = toolTypes;
             return this;
         }
@@ -683,7 +703,7 @@ public abstract class SelectionTracker<K> {
          */
         public SelectionTracker<K> build() {
 
-            SelectionTracker<K> tracker = new DefaultSelectionTracker<>(
+            DefaultSelectionTracker<K> tracker = new DefaultSelectionTracker<>(
                     mSelectionId, mKeyProvider, mSelectionPredicate, mStorage);
 
             // Event glue between RecyclerView and SelectionTracker keeps the classes separate
@@ -691,6 +711,8 @@ public abstract class SelectionTracker<K> {
             // represent the same data in different ways.
             EventBridge.install(mAdapter, tracker, mKeyProvider);
 
+            // Scroller is stateful and can be reset, but we don't manage it directly.
+            // GestureSelectionHelper will reset scroller when it is reset.
             AutoScroller scroller =
                     new ViewAutoScroller(ViewAutoScroller.createScrollHost(mRecyclerView));
 
@@ -701,6 +723,8 @@ public abstract class SelectionTracker<K> {
             // GestureRouter is responsible for routing GestureDetector events
             // to tool-type specific handlers.
             GestureRouter<MotionInputHandler<K>> gestureRouter = new GestureRouter<>();
+
+            // GestureDetector cancels itself in response to ACTION_CANCEL events.
             GestureDetector gestureDetector = new GestureDetector(mContext, gestureRouter);
 
             // GestureSelectionHelper provides logic that interprets a combination
@@ -717,6 +741,29 @@ public abstract class SelectionTracker<K> {
             mRecyclerView.addOnItemTouchListener(eventRouter);
             mRecyclerView.addOnItemTouchListener(
                     new GestureDetectorOnItemTouchListenerAdapter(gestureDetector));
+
+            // Reset manager listens for cancel events from RecyclerView. In response to that it
+            // advises other classes it is time to reset state.
+            ResetManager<K> resetMgr = new ResetManager<>();
+
+            // Register ResetManager to:
+            //
+            // 1. Monitor selection reset which can be invoked by clients in response
+            //    to back key press and some application lifecycle events.
+            //
+            // 2. Monitor ACTION_CANCEL events (which arrive exclusively
+            // via TOOL_TYPE_UNKNOWN).
+            tracker.addObserver(resetMgr.getSelectionObserver());
+
+            // CAUTION! Registering resetMgr directly with RecyclerView#addOnItemTouchListener
+            // will not work as expected. Once EventRouter returns true, RecyclerView will
+            // no longer dispatch any events to other listeners for the duration of the
+            // stream, not even ACTION_CANCEL events.
+            eventRouter.set(MotionEvent.TOOL_TYPE_UNKNOWN, resetMgr.getInputListener());
+
+            resetMgr.addResetListener(tracker::reset);
+            resetMgr.addResetListener(mMonitor::reset);
+            resetMgr.addResetListener(gestureHelper::reset);
 
             // But before you move on, there's more work to do. Event plumbing has been
             // installed, but we haven't registered any of our helpers or callbacks.
@@ -822,14 +869,14 @@ public abstract class SelectionTracker<K> {
                         mBandPredicate,
                         mFocusDelegate,
                         mMonitor);
+
+                resetMgr.addResetListener(bandHelper::reset);
             }
 
             OnItemTouchListener pointerEventHandler = new PointerDragEventInterceptor(
                     mDetailsLookup, mOnDragInitiatedListener, bandHelper);
 
-            for (int toolType : mPointerToolTypes) {
-                eventRouter.set(toolType, pointerEventHandler);
-            }
+            eventRouter.set(MotionEvent.TOOL_TYPE_MOUSE, pointerEventHandler);
 
             return tracker;
         }

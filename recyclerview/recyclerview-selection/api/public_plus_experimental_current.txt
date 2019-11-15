@@ -115,12 +115,12 @@ package androidx.recyclerview.selection {
     method public androidx.recyclerview.selection.SelectionTracker.Builder<K!>! withBandOverlay(@DrawableRes int);
     method public androidx.recyclerview.selection.SelectionTracker.Builder<K!>! withBandPredicate(androidx.recyclerview.selection.BandPredicate);
     method public androidx.recyclerview.selection.SelectionTracker.Builder<K!>! withFocusDelegate(androidx.recyclerview.selection.FocusDelegate<K!>);
-    method public androidx.recyclerview.selection.SelectionTracker.Builder<K!>! withGestureTooltypes(int...);
+    method @Deprecated public androidx.recyclerview.selection.SelectionTracker.Builder<K!>! withGestureTooltypes(int...);
     method public androidx.recyclerview.selection.SelectionTracker.Builder<K!>! withOnContextClickListener(androidx.recyclerview.selection.OnContextClickListener);
     method public androidx.recyclerview.selection.SelectionTracker.Builder<K!>! withOnDragInitiatedListener(androidx.recyclerview.selection.OnDragInitiatedListener);
     method public androidx.recyclerview.selection.SelectionTracker.Builder<K!>! withOnItemActivatedListener(androidx.recyclerview.selection.OnItemActivatedListener<K!>);
     method public androidx.recyclerview.selection.SelectionTracker.Builder<K!>! withOperationMonitor(androidx.recyclerview.selection.OperationMonitor);
-    method public androidx.recyclerview.selection.SelectionTracker.Builder<K!>! withPointerTooltypes(int...);
+    method @Deprecated public androidx.recyclerview.selection.SelectionTracker.Builder<K!>! withPointerTooltypes(int...);
     method public androidx.recyclerview.selection.SelectionTracker.Builder<K!>! withSelectionPredicate(androidx.recyclerview.selection.SelectionTracker.SelectionPredicate<K!>);
   }
 

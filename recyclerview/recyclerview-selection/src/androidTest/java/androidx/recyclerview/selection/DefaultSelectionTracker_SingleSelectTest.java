@@ -16,8 +16,6 @@
 
 package androidx.recyclerview.selection;
 
-import static org.junit.Assert.fail;
-
 import androidx.recyclerview.selection.testing.SelectionProbe;
 import androidx.recyclerview.selection.testing.TestAdapter;
 import androidx.recyclerview.selection.testing.TestItemKeyProvider;
@@ -74,10 +72,7 @@ public class DefaultSelectionTracker_SingleSelectTest {
         mTracker.select(mItems.get(3));
         mListener.reset();
 
-        try {
-            mTracker.extendRange(10);
-            fail("Should have thrown.");
-        } catch (Exception expected) { }
+        mTracker.extendRange(10);
 
         mListener.assertSelectionUnchanged();
         mSelection.assertSelection(3);
