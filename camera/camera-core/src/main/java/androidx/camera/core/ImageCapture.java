@@ -376,7 +376,15 @@ public class ImageCapture extends UseCase {
      */
     public void setFlashMode(@FlashMode int flashMode) {
         this.mFlashMode = flashMode;
-        getCurrentCameraControl().setFlashMode(flashMode);
+        // The camera control will be ready after the use case is attached. The {@link
+        // CameraDeviceConfig} containing camera id info is also generated at meanwhile. Developers
+        // may update flash mode before the use case is bound. If the camera control has been
+        // ready, directly updating the flash mode into camera control. If the camera control has
+        // been not ready yet, just saving the flash mode and updating into camera control when
+        // camera control ready callback is called.
+        if (getBoundDeviceConfig() != null) {
+            getCurrentCameraControl().setFlashMode(flashMode);
+        }
     }
 
     /**
