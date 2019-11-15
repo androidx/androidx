@@ -35,8 +35,9 @@ import java.util.Locale;
  *
  */
 class WordIterator {
-    // TODO(qqd): Investigate the reason of the width of the window being 50, and how the
-    // performance is impacted as this window width grows or shrinks.
+    // The size of the WINDOW_WIDTH is currently 50, as in Android.
+    // According to Wikipedia https://en.wikipedia.org/wiki/Longest_word_in_English , the longest
+    // English word in English contains 45 letters. Then 50 is a good number for WINDOW_WIDTH.
     // Size of the window for the word iterator, should be greater than the longest word's length
     private static final int WINDOW_WIDTH = 50;
 
