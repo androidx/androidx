@@ -16,6 +16,7 @@
 
 package androidx.camera.lifecycle;
 
+import android.app.Application;
 import android.content.Context;
 import android.os.Handler;
 
@@ -57,17 +58,28 @@ public final class ProcessCameraProvider implements LifecycleCameraProvider {
      * {@link LifecycleOwner} with
      * {@link #bindToLifecycle(LifecycleOwner, CameraSelector, UseCase...)}.
      *
-     * <p>The instance must be initialized with {@link CameraX#initialize(Context, AppConfig)}
-     * before this method is called, or an {@link IllegalStateException} will be thrown.
+     * <p>The instance must be initialized by subclassing the application's {@link Application}
+     * class and implementing {@link AppConfig.Provider}. For example, the following will
+     * initialize this process camera provider with a Camera2 implementation from
+     * {@link androidx.camera.camera2}:
+     * <pre>{@code
+     * public class MyApplication extends Application implements AppConfig.Provider {
+     *
+     *     public AppConfig getAppConfig() {
+     *         return Camera2AppConfig.create(Application.this);
+     *     }
+     * }
+     * }</pre>
      *
      * @return A future which will contain the {@link ProcessCameraProvider}. Cancellation of
      * this future is a no-op.
+     * @throws IllegalStateException if no {@link AppConfig} has been provided by the application.
      */
     @NonNull
     public static ListenableFuture<ProcessCameraProvider> getInstance(
             @NonNull Context context) {
         Preconditions.checkNotNull(context);
-        return Futures.transform(CameraX.getInstance(), cameraX -> sAppInstance,
+        return Futures.transform(CameraX.getOrCreateInstance(context), cameraX -> sAppInstance,
                 CameraXExecutors.directExecutor());
     }
 
