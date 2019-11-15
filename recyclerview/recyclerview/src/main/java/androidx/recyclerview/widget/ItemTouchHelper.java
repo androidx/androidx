@@ -34,6 +34,7 @@ import android.view.animation.Interpolator;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
+import androidx.annotation.VisibleForTesting;
 import androidx.core.view.GestureDetectorCompat;
 import androidx.core.view.ViewCompat;
 import androidx.recyclerview.R;
@@ -243,6 +244,7 @@ public class ItemTouchHelper extends RecyclerView.ItemDecoration
      * Using framework animators has the side effect of clashing with ItemAnimator, creating
      * jumpy UIs.
      */
+    @VisibleForTesting
     List<RecoverAnimation> mRecoverAnimations = new ArrayList<>();
 
     private int mSlop;
@@ -498,6 +500,7 @@ public class ItemTouchHelper extends RecyclerView.ItemDecoration
         final int recoverAnimSize = mRecoverAnimations.size();
         for (int i = recoverAnimSize - 1; i >= 0; i--) {
             final RecoverAnimation recoverAnimation = mRecoverAnimations.get(0);
+            recoverAnimation.cancel();
             mCallback.clearView(mRecyclerView, recoverAnimation.mViewHolder);
         }
         mRecoverAnimations.clear();
@@ -2365,7 +2368,8 @@ public class ItemTouchHelper extends RecyclerView.ItemDecoration
         }
     }
 
-    private static class RecoverAnimation implements Animator.AnimatorListener {
+    @VisibleForTesting
+    static class RecoverAnimation implements Animator.AnimatorListener {
 
         final float mStartDx;
 
@@ -2379,7 +2383,8 @@ public class ItemTouchHelper extends RecyclerView.ItemDecoration
 
         final int mActionState;
 
-        private final ValueAnimator mValueAnimator;
+        @VisibleForTesting
+        final ValueAnimator mValueAnimator;
 
         final int mAnimationType;
 
