@@ -16,18 +16,20 @@
 
 package androidx.recyclerview.selection;
 
-import static androidx.recyclerview.selection.testing.TestEvents.Mouse;
-import static androidx.recyclerview.selection.testing.TestEvents.Touch;
-
 import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertTrue;
 
+import android.graphics.Point;
 import android.graphics.Rect;
+import android.view.MotionEvent;
 
+import androidx.annotation.NonNull;
+import androidx.recyclerview.selection.GridModel.GridHost;
 import androidx.recyclerview.selection.testing.TestAdapter;
 import androidx.recyclerview.selection.testing.TestAutoScroller;
 import androidx.recyclerview.selection.testing.TestBandPredicate;
 import androidx.recyclerview.selection.testing.TestData;
+import androidx.recyclerview.selection.testing.TestEvents;
 import androidx.recyclerview.selection.testing.TestItemKeyProvider;
 import androidx.recyclerview.widget.RecyclerView.OnScrollListener;
 import androidx.test.ext.junit.runners.AndroidJUnit4;
@@ -46,135 +48,148 @@ public class BandSelectionHelperTest {
 
     private List<String> mItems;
     private BandSelectionHelper<String> mBandController;
-    private boolean mIsActive;
-    private TestBandHost mBandHost;
+    private TestHostEnvironment mHostEnv;
     private TestBandPredicate mBandPredicate;
     private TestAdapter<String> mAdapter;
     private SelectionTracker<String> mTracker;
+    TestItemKeyProvider<String> mKeyProvider;
+
+    // Builder for all drag events. Twiddle the button's and other stuff as needed.
+    TestEvents.Builder mBaseEvent;
 
     @Before
     public void setup() throws Exception {
         mItems = TestData.createStringData(10);
-        mIsActive = false;
         mAdapter = new TestAdapter<>();
         mAdapter.updateTestModelIds(mItems);
-        mBandHost = new TestBandHost();
+        mKeyProvider = new TestItemKeyProvider<>(ItemKeyProvider.SCOPE_MAPPED, mAdapter);
+        mHostEnv = new TestHostEnvironment();
         mBandPredicate = new TestBandPredicate();
-        ItemKeyProvider<String> keyProvider =
-                new TestItemKeyProvider<>(ItemKeyProvider.SCOPE_MAPPED, mAdapter);
+
         OperationMonitor operationMonitor = new OperationMonitor();
 
         mTracker = new DefaultSelectionTracker<>(
                 "band-selection-test",
-                keyProvider,
+                mKeyProvider,
                 SelectionPredicates.createSelectAnything(),
                 StorageStrategy.createStringStorage());
 
-        EventBridge.install(mAdapter, mTracker, keyProvider);
+        EventBridge.install(mAdapter, mTracker, mKeyProvider);
         FocusDelegate<String> focusDelegate = FocusDelegate.dummy();
 
         mBandController = new BandSelectionHelper<String>(
-                mBandHost,
+                mHostEnv,
                 new TestAutoScroller(),
-                keyProvider,
+                mKeyProvider,
                 mTracker,
                 mBandPredicate,
                 focusDelegate,
-                operationMonitor) {
-            @Override
-            public boolean isActive() {
-                return mIsActive;
-            }
-        };
+                operationMonitor);
+
+        // No buttons pressed. Tests can fiddle with this as needed.
+        mBaseEvent = TestEvents.builder()
+                .location(1, 1)
+                .mouse()
+                .move();
     }
 
-    @Test
-    public void testReset_HidesBand() {
-        mIsActive = true;
-        mBandController.reset();
-        mBandHost.assertBandHidden();
+    private boolean startBandSelect() {
+        return startBandSelect(mBaseEvent.primary().build());
+    }
+
+    // Allows tests to pass an event that might not start band selection.
+    private boolean startBandSelect(MotionEvent e) {
+        mBandController.onInterceptTouchEvent(null, e);
+        return mBandController.isResetRequired();
+    }
+
+    private boolean stopBandSelect() {
+        mBandController.onInterceptTouchEvent(null, mBaseEvent.up().build());
+        return !mBandController.isResetRequired();
     }
 
     @Test
     public void testStart() {
-        assertTrue(mBandController.shouldStart(Mouse.PRIMARY_DRAG));
+        assertTrue(startBandSelect());
     }
 
     @Test
-    public void testStart_NoItems() {
+    public void testStart_RejectedByPredicate() {
+        mBandPredicate.setCanInitiate(false);
+        assertFalse(startBandSelect());
+    }
+
+    @Test
+    public void testRequiresReset() {
+        assertFalse(mBandController.isResetRequired());
+        startBandSelect();
+        assertTrue(mBandController.isResetRequired());
+    }
+
+    @Test
+    public void testReset() {
+        startBandSelect();
+        mBandController.reset();
+        assertFalse(mBandController.isResetRequired());
+    }
+
+    @Test
+    public void testReset_HidesBand() {
+        startBandSelect();
+        mBandController.reset();
+        mHostEnv.assertBandHidden();
+    }
+
+    @Test
+    public void testStart_IgnoresNonPrimaryDragEvents() {
+        // W/ no buttons pressed.
+        assertFalse(startBandSelect(mBaseEvent.build()));
+
+        // With wrong buttons pressed.
+        assertFalse(startBandSelect(mBaseEvent.secondary().build()));
+        assertFalse(startBandSelect(mBaseEvent.tertiary().build()));
+    }
+
+    @Test
+    public void testStart_IgnoresNonMoveEvents() {
+        // Primary button has to be pressed for controller to pay attention to an event.
+        mBaseEvent.primary();
+
+        // Override MOVE action with UP and DOWN to verify they are ignored.
+        assertFalse(startBandSelect(mBaseEvent.up().build()));
+        assertFalse(startBandSelect(mBaseEvent.down().build()));
+    }
+
+    @Test
+    public void testStarts_NoItems() {
         // Band selection can happen in a view without any items.
         mAdapter.updateTestModelIds(Collections.<String>emptyList());
-        assertTrue(mBandController.shouldStart(Mouse.PRIMARY_DRAG));
-    }
 
-    @Test
-    public void testNoStart_NoButtons() {
-        assertFalse(mBandController.shouldStart(Mouse.MOVE));
-    }
-
-    @Test
-    public void testNoStart_SecondaryButton() {
-        assertFalse(mBandController.shouldStart(Mouse.SECONDARY_DRAG));
-    }
-
-    @Test
-    public void testNoStart_TertiaryButton() {
-        assertFalse(mBandController.shouldStart(Mouse.TERTIARY_DRAG));
-    }
-
-    @Test
-    public void testNoStart_Touch() {
-        assertFalse(mBandController.shouldStart(Touch.MOVE));
-    }
-
-    @Test
-    public void testNoStart_RejectedByPredicate() {
-        mBandPredicate.setCanInitiate(false);
-        assertFalse(mBandController.shouldStart(Mouse.PRIMARY_DRAG));
-    }
-
-    @Test
-    public void testNoStart() {
-        // only starts on
-        assertFalse(mBandController.shouldStart(Mouse.DOWN));
-        assertFalse(mBandController.shouldStart(Mouse.UP));
-        assertFalse(mBandController.shouldStart(Mouse.POINTER_UP));
-        assertFalse(mBandController.shouldStart(Mouse.POINTER_DOWN));
-    }
-
-
-    @Test
-    public void testNoStart_AlreadyStarted() {
-        mIsActive = true;
-        assertFalse(mBandController.shouldStart(Mouse.PRIMARY_DRAG));
+        assertTrue(startBandSelect());
     }
 
     @Test
     public void testStops() {
-        mIsActive = true;
-        assertTrue(mBandController.shouldStop(Mouse.UP));
+        startBandSelect();
+        assertTrue(stopBandSelect());
     }
 
     @Test
-    public void testNoStop_Down() {
-        mIsActive = true;
-        // Not really sure when this would, happen, maybe a secondary
-        // or tertiary button press while dragging?
-        assertFalse(mBandController.shouldStop(Touch.DOWN));  // :) Touch Down!
+    public void testStop_IgnoresUpWhenNotStarted() {
+        assertTrue(stopBandSelect());
     }
 
-    @Test
-    public void testNoStop_NotActive() {
-        assertFalse(mBandController.shouldStop(Mouse.UP));
-        assertFalse(mBandController.shouldStop(Touch.MOVE));
-    }
+    // GridHost extends BandHost. We satisfy both by implementing GridHost.
+    private final class TestHostEnvironment extends GridHost<String> {
 
-    private final class TestBandHost extends BandSelectionHelper.BandHost<String> {
         private boolean mBandHidden;
 
         @Override
         GridModel<String> createGridModel() {
-            throw new UnsupportedOperationException();
+            return new GridModel<String>(
+                    this,
+                    mKeyProvider,
+                    SelectionPredicates.createSelectAnything());
         }
 
         @Override
@@ -194,6 +209,42 @@ public class BandSelectionHelperTest {
 
         @Override
         void addOnScrollListener(OnScrollListener listener) {
+            // ignored for testing
+        }
+
+        @Override
+        void removeOnScrollListener(@NonNull OnScrollListener listener) {
+            // ignored for testing
+        }
+
+        @Override
+        Point createAbsolutePoint(@NonNull Point relativePoint) {
+            throw new UnsupportedOperationException();
+        }
+
+        @Override
+        Rect getAbsoluteRectForChildViewAt(int index) {
+            throw new UnsupportedOperationException();
+        }
+
+        @Override
+        int getAdapterPositionAt(int index) {
+            throw new UnsupportedOperationException();
+        }
+
+        @Override
+        int getColumnCount() {
+            throw new UnsupportedOperationException();
+        }
+
+        @Override
+        int getVisibleChildCount() {
+            return 0;
+        }
+
+        @Override
+        boolean hasView(int adapterPosition) {
+            throw new UnsupportedOperationException();
         }
     }
 }

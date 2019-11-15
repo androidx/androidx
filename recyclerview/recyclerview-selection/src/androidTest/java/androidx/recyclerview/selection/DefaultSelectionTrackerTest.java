@@ -219,6 +219,70 @@ public class DefaultSelectionTrackerTest {
     }
 
     @Test
+    public void testRequiresReset_ForSelection() {
+        mTracker.select(mItems.get(1));
+
+        assertTrue(mTracker.isResetRequired());
+    }
+
+    @Test
+    public void testRequiresReset_ForProvisionalSelection() {
+        Set<String> items = new HashSet<>();
+        items.add(mItems.get(1));
+
+        mTracker.setProvisionalSelection(items);
+
+        assertTrue(mTracker.isResetRequired());
+    }
+
+    @Test
+    public void testRequiresReset_ForEstablishedRange() {
+        mTracker.startRange(15);
+
+        assertTrue(mTracker.isResetRequired());
+    }
+
+    @Test
+    public void testReset_ForSelection() {
+        mTracker.select(mItems.get(1));
+
+        mTracker.reset();
+        assertFalse(mTracker.isResetRequired());
+    }
+
+    @Test
+    public void testReset_ForProvisionalSelection() {
+        Set<String> items = new HashSet<>();
+        items.add(mItems.get(1));
+        mTracker.setProvisionalSelection(items);
+
+        mTracker.reset();
+        assertFalse(mTracker.isResetRequired());
+    }
+
+    @Test
+    public void testReset_Combined() {
+        mTracker.select(mItems.get(1));
+
+        Set<String> items = new HashSet<>();
+        items.add(mItems.get(1));
+        mTracker.setProvisionalSelection(items);
+
+        mTracker.startRange(15);
+
+        mTracker.reset();
+        assertFalse(mTracker.isResetRequired());
+    }
+
+    @Test
+    public void testReset_ForEstablishedRange() {
+        mTracker.startRange(15);
+
+        mTracker.reset();
+        assertFalse(mTracker.isResetRequired());
+    }
+
+    @Test
     public void testRangeSelection() {
         mTracker.startRange(15);
         mTracker.extendRange(19);

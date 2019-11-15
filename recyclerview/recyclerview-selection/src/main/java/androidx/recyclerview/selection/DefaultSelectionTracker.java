@@ -50,7 +50,7 @@ import java.util.Set;
  */
 @RestrictTo(LIBRARY)
 @SuppressWarnings("unchecked")
-public class DefaultSelectionTracker<K> extends SelectionTracker<K> {
+public class DefaultSelectionTracker<K> extends SelectionTracker<K> implements Resettable {
 
     private static final String TAG = "DefaultSelectionTracker";
     private static final String EXTRA_SELECTION_PREFIX = "androidx.recyclerview.selection";
@@ -106,6 +106,9 @@ public class DefaultSelectionTracker<K> extends SelectionTracker<K> {
         mObservers.add(callback);
     }
 
+    /**
+     * @return true if there is a primary or previsional selection.
+     */
     @Override
     public boolean hasSelection() {
         return !mSelection.isEmpty();
@@ -157,8 +160,6 @@ public class DefaultSelectionTracker<K> extends SelectionTracker<K> {
 
     @Override
     public boolean clearSelection() {
-        // Short circuiting guards against infinite recurision during reset.
-        // See companion test for some supporting details.
         if (!hasSelection()) {
             if (DEBUG) Log.d(TAG, "Ignoring clearSelection request. No selection.");
             return false;
@@ -199,10 +200,16 @@ public class DefaultSelectionTracker<K> extends SelectionTracker<K> {
         return prevSelection;
     }
 
-    void reset() {
+    @Override
+    public void reset() {
         if (DEBUG) Log.d(TAG, "Received reset request.");
         clearSelection();
         mRange = null;
+    }
+
+    @Override
+    public boolean isResetRequired() {
+        return hasSelection() || isRangeActive();
     }
 
     @Override

@@ -761,9 +761,9 @@ public abstract class SelectionTracker<K> {
             // stream, not even ACTION_CANCEL events.
             eventRouter.set(MotionEvent.TOOL_TYPE_UNKNOWN, resetMgr.getInputListener());
 
-            resetMgr.addResetListener(tracker::reset);
-            resetMgr.addResetListener(mMonitor::reset);
-            resetMgr.addResetListener(gestureHelper::reset);
+            resetMgr.addResetHandler(tracker);
+            resetMgr.addResetHandler(mMonitor.asResettable());
+            resetMgr.addResetHandler(gestureHelper);
 
             // But before you move on, there's more work to do. Event plumbing has been
             // installed, but we haven't registered any of our helpers or callbacks.
@@ -870,7 +870,7 @@ public abstract class SelectionTracker<K> {
                         mFocusDelegate,
                         mMonitor);
 
-                resetMgr.addResetListener(bandHelper::reset);
+                resetMgr.addResetHandler(bandHelper);
             }
 
             OnItemTouchListener pointerEventHandler = new PointerDragEventInterceptor(

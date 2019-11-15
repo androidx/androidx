@@ -81,6 +81,7 @@ package androidx.recyclerview.selection {
     method public void onChanged();
   }
 
+
   public class Selection<K> implements java.lang.Iterable<K> {
     method public boolean contains(K?);
     method public boolean isEmpty();
