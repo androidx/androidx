@@ -233,8 +233,8 @@ fun lerp(start: TextStyle? = null, stop: TextStyle? = null, fraction: Float): Te
             fraction
         ),
         baselineShift = lerp(
-            start.baselineShift,
-            stop.baselineShift,
+            start.baselineShift ?: BaselineShift(0f),
+            stop.baselineShift ?: BaselineShift(0f),
             fraction
         ),
         textGeometricTransform = lerp(
