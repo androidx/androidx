@@ -410,17 +410,25 @@ public class ImageCapture extends UseCase {
      * Sets the desired rotation of the output image.
      *
      * <p>This will affect the EXIF rotation metadata in images saved by takePicture calls and the
-     * rotation value returned by {@link OnImageCapturedCallback}.
-     *
-     * <p>In most cases this should be set to the current rotation returned by {@link
-     * Display#getRotation()}.  In that case, the output rotation from takePicture calls will be the
-     * rotation, which if applied to the output image, will make it match the display orientation.
+     * rotation value returned by {@link OnImageCapturedCallback}.  These will be set
+     * to be the rotation, which if applied to the output image data, will make the image match
+     * target rotation specified here.
      *
      * <p>While rotation can also be set via
      * {@link ImageCaptureConfig.Builder#setTargetRotation(int)}, using
      * {@link ImageCapture#setTargetRotation(int)} allows the target rotation to be set dynamically.
-     * This can be useful if an app locks itself to portrait, and uses the orientation sensor
-     * to set rotation to take landscape images when the device is rotated.
+     *
+     * <p>In general, it is best to use an {@link android.view.OrientationEventListener} to
+     * set the target rotation.  This way, the rotation output will indicate
+     * which way is down for a given image.  This is important since display orientation may be
+     * locked by device default, user setting, or app configuration,
+     * and some devices may not transition to a reverse-portrait display orientation.  In
+     * these cases, use {@link androidx.camera.core.ImageCapture#setTargetRotation} to set
+     * target rotation dynamically according to the
+     * {@link android.view.OrientationEventListener}, without re-creating the use case.  Note
+     * the OrientationEventListener output of degrees in the range [0..359] should be converted to
+     * a surface rotation, i.e. one of {@link Surface#ROTATION_0}, {@link Surface#ROTATION_90},
+     * {@link Surface#ROTATION_180}, or {@link Surface#ROTATION_270}.
      *
      * <p>If no target rotation is set by the application, it is set to the value of
      * {@link Display#getRotation()} of the default display at the time the

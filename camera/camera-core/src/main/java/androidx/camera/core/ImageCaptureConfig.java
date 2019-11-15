@@ -20,7 +20,6 @@ import android.graphics.ImageFormat;
 import android.util.Pair;
 import android.util.Rational;
 import android.util.Size;
-import android.view.Display;
 import android.view.Surface;
 
 import androidx.annotation.NonNull;
@@ -1029,12 +1028,26 @@ public final class ImageCaptureConfig
         /**
          * Sets the rotation of the intended target for images from this configuration.
          *
+         * <p>This will affect the EXIF rotation metadata in images saved by takePicture calls and
+         * the rotation value returned by
+         * {@link androidx.camera.core.ImageCapture.OnImageCapturedCallback}.  These will be set to
+         * be the rotation, which if applied to the output image data, will make the image match the
+         * target rotation specified here.
+         *
          * <p>This is one of four valid values: {@link Surface#ROTATION_0}, {@link
          * Surface#ROTATION_90}, {@link Surface#ROTATION_180}, {@link Surface#ROTATION_270}.
          * Rotation values are relative to the "natural" rotation, {@link Surface#ROTATION_0}.
          *
+         * <p>In general, it is best to additionally set the target rotation dynamically on the use
+         * case.  See {@link androidx.camera.core.ImageCapture#setTargetRotation(int)} for
+         * additional documentation.
+         *
          * <p>If not set, the target rotation will default to the value of
-         * {@link Display#getRotation()} of the default display at the time the use case is created.
+         * {@link android.view.Display#getRotation()} of the default display at the time the use
+         * case is created.
+         *
+         * @see androidx.camera.core.ImageCapture#setTargetRotation(int)
+         * @see android.view.OrientationEventListener
          *
          * @param rotation The rotation of the intended target.
          * @return The current Builder.
