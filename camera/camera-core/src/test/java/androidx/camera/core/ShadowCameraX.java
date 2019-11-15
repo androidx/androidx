@@ -117,7 +117,7 @@ public class ShadowCameraX {
      * Shadow of {@link CameraX#getCameraInfo(String)}.
      */
     @Implementation
-    public static CameraInfo getCameraInfo(String cameraId) throws CameraInfoUnavailableException {
+    public static CameraInfo getCameraInfo(String cameraId) {
         return DEFAULT_CAMERA_INFO;
     }
 
