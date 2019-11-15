@@ -889,7 +889,7 @@ public final class ImageCaptureConfig
         }
 
         /**
-         * Sets the name of the target object being configured.
+         * Sets the name of the target object being configured, used only for debug logging.
          *
          * <p>The name should be a value that can uniquely identify an instance of the object being
          * configured.
