@@ -33,7 +33,6 @@ import androidx.compose.unaryPlus
 import androidx.test.filters.SdkSuppress
 import androidx.test.filters.SmallTest
 import androidx.test.rule.ActivityTestRule
-import androidx.ui.core.AlignmentLine
 import androidx.ui.core.AndroidComposeView
 import androidx.ui.core.Constraints
 import androidx.ui.core.ContextAmbient
@@ -2181,15 +2180,9 @@ data class PaddingModifier(
     )
 
     override fun DensityScope.modifyPosition(
-        childPosition: IntPxPosition,
         childSize: IntPxSize,
         containerSize: IntPxSize
-    ) = IntPxPosition(left + childPosition.x, top + childPosition.y)
-
-    override fun DensityScope.modifyAlignmentLine(line: AlignmentLine, value: IntPx?): IntPx? {
-        if (value == null) return null
-        return if (line.horizontal) value + left else value + top
-    }
+    ) = IntPxPosition(left, top)
 }
 
 @Model

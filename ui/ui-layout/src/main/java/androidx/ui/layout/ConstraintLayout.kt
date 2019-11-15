@@ -34,7 +34,6 @@ import androidx.ui.core.DensityScope
 import androidx.ui.core.Dp
 import androidx.ui.core.FirstBaseline
 import androidx.ui.core.IntPx
-import androidx.ui.core.IntPxPosition
 import androidx.ui.core.IntPxSize
 import androidx.ui.core.Layout
 import androidx.ui.core.LayoutModifier
@@ -679,11 +678,6 @@ private data class TagModifier(val tag: Any) : LayoutModifier {
         measurable.minIntrinsicHeight(width)
     override fun DensityScope.maxIntrinsicHeightOf(measurable: Measurable, width: IntPx) =
         measurable.maxIntrinsicHeight(width)
-    override fun DensityScope.modifyPosition(
-        childPosition: IntPxPosition,
-        childSize: IntPxSize,
-        containerSize: IntPxSize
-    ) = childPosition
     override fun DensityScope.modifyAlignmentLine(line: AlignmentLine, value: IntPx?) = value
     override fun DensityScope.modifyParentData(parentData: Any?) = this@TagModifier
 }
