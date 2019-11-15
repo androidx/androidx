@@ -102,8 +102,8 @@ public class SingleFragmentTestBase {
         return activity;
     }
 
-    public SingleFragmentTestActivity launchAndWaitActivity(Class<?> fragmentClass, Options options,
-            long waitTimeMs) {
+    public SingleFragmentTestActivity launchAndWaitActivity(Class<?> fragmentClass,
+            Options options, long waitTimeMs) {
         return launchAndWaitActivity(fragmentClass.getName(), options, waitTimeMs);
     }
 

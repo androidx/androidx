@@ -23,7 +23,10 @@ import static org.mockito.Mockito.timeout;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
+import android.app.Instrumentation;
 import android.content.Intent;
+import android.os.SystemClock;
+import android.view.MotionEvent;
 import android.view.View;
 
 import androidx.leanback.R;
@@ -102,6 +105,31 @@ public class GuidedStepFragmentTestBase {
             }
             return false;
         }
+    }
+
+    public static void tapView(View v) {
+        Instrumentation inst = InstrumentationRegistry.getInstrumentation();
+        int[] xy = new int[2];
+        v.getLocationOnScreen(xy);
+
+        final int viewWidth = v.getWidth();
+        final int viewHeight = v.getHeight();
+
+        final float x = xy[0] + (viewWidth / 2.0f);
+        float y = xy[1] + (viewHeight / 2.0f);
+
+        long downTime = SystemClock.uptimeMillis();
+        long eventTime = SystemClock.uptimeMillis();
+
+        MotionEvent event = MotionEvent.obtain(downTime, eventTime,
+                MotionEvent.ACTION_DOWN, x, y, 0);
+        inst.sendPointerSync(event);
+        inst.waitForIdleSync();
+
+        eventTime = SystemClock.uptimeMillis();
+        event = MotionEvent.obtain(downTime, eventTime, MotionEvent.ACTION_UP, x, y, 0);
+        inst.sendPointerSync(event);
+        inst.waitForIdleSync();
     }
 
     public static void sendKey(int keyCode) {

@@ -31,6 +31,7 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 
+import androidx.leanback.R;
 import androidx.leanback.testutils.PollingCheck;
 import androidx.leanback.widget.GuidedAction;
 import androidx.leanback.widget.GuidedActionsStylist;
@@ -423,6 +424,106 @@ public class GuidedStepSupportFragmentTest extends GuidedStepSupportFragmentTest
                 .getGuidedActionsStylist().getActionsGridView().getChildViewHolder(newFirstView);
         assertEquals(1001, vh.getAction().getId());
 
+    }
+
+    @Test
+    public void tapAction() throws Throwable {
+        final String fragmentName = generateMethodTestName("first");
+        GuidedStepTestSupportFragment.Provider provider = mockProvider(fragmentName);
+        doAnswer(new Answer<Void>() {
+            @Override
+            public Void answer(InvocationOnMock invocation) {
+                List actions = (List) invocation.getArguments()[0];
+                actions.add(new GuidedAction.Builder().id(1000).title("title1").editable(false)
+                        .build());
+                return null;
+            }
+        }).when(provider).onCreateActions(any(List.class), nullable(Bundle.class));
+
+        launchTestActivity(fragmentName);
+
+        // tap some places to enter touch mode
+        View firstView = provider.getFragment().getActionItemView(0);
+        assertTrue(firstView.hasFocus());
+        tapView(provider.getFragment().getGuidanceStylist().getTitleView());
+        assertFalse(provider.getFragment().getView().hasFocus());
+        assertTrue(firstView.isInTouchMode());
+
+        tapView(firstView);
+        assertFalse(firstView.hasFocus());
+        ArgumentCaptor<GuidedAction> actionCapture1 = ArgumentCaptor.forClass(GuidedAction.class);
+        verify(provider, times(1)).onGuidedActionClicked(actionCapture1.capture());
+        PollingCheck.waitFor(new PollingCheck.PollingCheckCondition() {
+            @Override
+            public boolean canProceed() {
+                return actionCapture1.getValue() != null;
+            }
+        });
+        assertEquals(1000, actionCapture1.getValue().getId());
+    }
+
+    @Test
+    public void tapEditTitle() throws Throwable {
+        final String fragmentName = generateMethodTestName("first");
+        GuidedStepTestSupportFragment.Provider provider = mockProvider(fragmentName);
+        doAnswer(new Answer<Void>() {
+            @Override
+            public Void answer(InvocationOnMock invocation) {
+                List actions = (List) invocation.getArguments()[0];
+                actions.add(new GuidedAction.Builder().id(1001).title("edit_title").editable(true)
+                        .build());
+                return null;
+            }
+        }).when(provider).onCreateActions(any(List.class), nullable(Bundle.class));
+
+        launchTestActivity(fragmentName);
+
+        // tap some places to enter touch mode
+        View firstView = provider.getFragment().getActionItemView(0);
+        assertTrue(firstView.hasFocus());
+        tapView(provider.getFragment().getGuidanceStylist().getTitleView());
+        assertFalse(provider.getFragment().getView().hasFocus());
+        assertTrue(firstView.isInTouchMode());
+
+        tapView(firstView);
+        PollingCheck.waitFor(new PollingCheck.PollingCheckCondition() {
+            @Override
+            public boolean canProceed() {
+                return firstView.findViewById(R.id.guidedactions_item_title).hasFocus();
+            }
+        });
+    }
+
+    @Test
+    public void tapEditDescription() throws Throwable {
+        final String fragmentName = generateMethodTestName("first");
+        GuidedStepTestSupportFragment.Provider provider = mockProvider(fragmentName);
+        doAnswer(new Answer<Void>() {
+            @Override
+            public Void answer(InvocationOnMock invocation) {
+                List actions = (List) invocation.getArguments()[0];
+                actions.add(new GuidedAction.Builder().id(1001).description("edit_desc")
+                        .descriptionEditable(true).build());
+                return null;
+            }
+        }).when(provider).onCreateActions(any(List.class), nullable(Bundle.class));
+
+        launchTestActivity(fragmentName);
+
+        // tap some places to enter touch mode
+        View firstView = provider.getFragment().getActionItemView(0);
+        assertTrue(firstView.hasFocus());
+        tapView(provider.getFragment().getGuidanceStylist().getTitleView());
+        assertFalse(provider.getFragment().getView().hasFocus());
+        assertTrue(firstView.isInTouchMode());
+
+        tapView(firstView);
+        PollingCheck.waitFor(new PollingCheck.PollingCheckCondition() {
+            @Override
+            public boolean canProceed() {
+                return firstView.findViewById(R.id.guidedactions_item_description).hasFocus();
+            }
+        });
     }
 
     @Test
