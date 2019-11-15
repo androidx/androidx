@@ -25,6 +25,7 @@ import groovy.util.XmlSlurper
 import org.gradle.api.GradleException
 import org.gradle.api.Plugin
 import org.gradle.api.Project
+import org.gradle.api.file.FileCollection
 import org.gradle.api.provider.ProviderFactory
 import org.jetbrains.kotlin.gradle.dsl.KotlinProjectExtension
 import java.io.File
@@ -70,7 +71,7 @@ abstract class SafeArgsPlugin protected constructor(
             ) { task ->
                 setApplicationId(task, variant)
                 task.rFilePackage = variant.rFilePackage()
-                task.navigationFiles = navigationFiles(variant)
+                task.navigationFiles = navigationFiles(variant, project)
                 task.outputDir = File(project.buildDir, "$GENERATED_PATH/${variant.dirName}")
                 task.incrementalFolder = File(project.buildDir, "$INCREMENTAL_PATH/${task.name}")
                 task.useAndroidX = (project.findProperty("android.useAndroidX") == "true").also {
@@ -108,18 +109,21 @@ abstract class SafeArgsPlugin protected constructor(
         parsed.getProperty("@package").toString()
     }
 
-    private fun navigationFiles(variant: BaseVariant) = providerFactory.provider {
-        variant.sourceSets
-            .flatMap { it.resDirectories }
-            .mapNotNull {
-                File(it, "navigation").let { navFolder ->
-                    if (navFolder.exists() && navFolder.isDirectory) navFolder else null
+    private fun navigationFiles(variant: BaseVariant, project: Project): FileCollection {
+        val fileProvider = providerFactory.provider {
+            variant.sourceSets
+                .flatMap { it.resDirectories }
+                .mapNotNull {
+                    File(it, "navigation").let { navFolder ->
+                        if (navFolder.exists() && navFolder.isDirectory) navFolder else null
+                    }
                 }
-            }
-            .flatMap { navFolder -> navFolder.listFiles().asIterable() }
-            .filter { file -> file.isFile }
-            .groupBy { file -> file.name }
-            .map { entry -> entry.value.last() }
+                .flatMap { navFolder -> navFolder.listFiles().asIterable() }
+                .filter { file -> file.isFile }
+                .groupBy { file -> file.name }
+                .map { entry -> entry.value.last() }
+        }
+        return project.files(fileProvider)
     }
 }
 

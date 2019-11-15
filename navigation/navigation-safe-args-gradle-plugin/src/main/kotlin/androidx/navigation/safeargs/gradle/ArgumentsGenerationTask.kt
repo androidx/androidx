@@ -22,13 +22,16 @@ import com.google.gson.Gson
 import com.google.gson.reflect.TypeToken
 import org.gradle.api.DefaultTask
 import org.gradle.api.GradleException
+import org.gradle.api.file.FileCollection
 import org.gradle.api.provider.Provider
 import org.gradle.api.resources.TextResource
 import org.gradle.api.tasks.Input
 import org.gradle.api.tasks.InputFiles
 import org.gradle.api.tasks.OutputDirectory
 import org.gradle.api.tasks.TaskAction
-import org.gradle.api.tasks.incremental.IncrementalTaskInputs
+import org.gradle.work.ChangeType
+import org.gradle.work.Incremental
+import org.gradle.work.InputChanges
 import java.io.File
 
 private const val MAPPING_FILE = "file_mappings.json"
@@ -50,8 +53,9 @@ open class ArgumentsGenerationTask : DefaultTask() {
     @get:OutputDirectory
     lateinit var outputDir: File
 
+    @get:Incremental
     @get:InputFiles
-    lateinit var navigationFiles: Provider<List<File>>
+    lateinit var navigationFiles: FileCollection
 
     @get:OutputDirectory
     lateinit var incrementalFolder: File
@@ -90,7 +94,7 @@ open class ArgumentsGenerationTask : DefaultTask() {
     }
 
     @TaskAction
-    internal fun taskAction(inputs: IncrementalTaskInputs) {
+    internal fun taskAction(inputs: InputChanges) {
         if (inputs.isIncremental) {
             doIncrementalTaskAction(inputs)
         } else {
@@ -106,16 +110,21 @@ open class ArgumentsGenerationTask : DefaultTask() {
         if (!outputDir.exists() && !outputDir.mkdirs()) {
             throw GradleException("Failed to create directory for navigation arguments")
         }
-        val (mappings, errors) = generateArgs(navigationFiles.get(), outputDir)
+        val (mappings, errors) = generateArgs(navigationFiles.files, outputDir)
         writeMappings(mappings)
         failIfErrors(errors)
     }
 
-    private fun doIncrementalTaskAction(inputs: IncrementalTaskInputs) {
+    private fun doIncrementalTaskAction(inputs: InputChanges) {
         val modifiedFiles = mutableSetOf<File>()
         val removedFiles = mutableSetOf<File>()
-        inputs.outOfDate { change -> modifiedFiles.add(change.file) }
-        inputs.removed { change -> removedFiles.add(change.file) }
+        inputs.getFileChanges(navigationFiles).forEach { change ->
+            if (change.changeType == ChangeType.MODIFIED || change.changeType == ChangeType.ADDED) {
+                modifiedFiles.add(change.file)
+            } else if (change.changeType == ChangeType.REMOVED) {
+                removedFiles.add(change.file)
+            }
+        }
 
         val oldMapping = readMappings()
         val (newMapping, errors) = generateArgs(modifiedFiles, outputDir)
