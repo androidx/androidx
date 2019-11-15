@@ -15,6 +15,8 @@
  */
 package androidx.animation;
 
+import androidx.annotation.NonNull;
+
 import java.util.List;
 
 /**
@@ -58,6 +60,7 @@ interface Keyframes<T> extends Cloneable {
      */
     List<Keyframe<T>> getKeyframes();
 
+    @NonNull
     Keyframes clone();
 
     /**

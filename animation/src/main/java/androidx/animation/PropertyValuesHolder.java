@@ -966,6 +966,7 @@ public class PropertyValuesHolder implements Cloneable {
         }
     }
 
+    @NonNull
     @Override
     public PropertyValuesHolder clone() {
         try {
@@ -1106,6 +1107,7 @@ public class PropertyValuesHolder implements Cloneable {
         return mValueType;
     }
 
+    @NonNull
     @Override
     public String toString() {
         return mPropertyName + ": " + mKeyframes.toString();
@@ -1172,7 +1174,7 @@ public class PropertyValuesHolder implements Cloneable {
         }
 
         @Override
-        public void setProperty(Property property) {
+        public void setProperty(@NonNull Property property) {
             if (property instanceof IntProperty) {
                 mIntProperty = (IntProperty) property;
             } else {
@@ -1181,7 +1183,7 @@ public class PropertyValuesHolder implements Cloneable {
         }
 
         @Override
-        public void setIntValues(int... values) {
+        public void setIntValues(@NonNull int... values) {
             super.setIntValues(values);
             mIntKeyframes = (Keyframes.IntKeyframes) mKeyframes;
         }
@@ -1196,6 +1198,7 @@ public class PropertyValuesHolder implements Cloneable {
             return mIntAnimatedValue;
         }
 
+        @NonNull
         @Override
         public IntPropertyValuesHolder clone() {
             IntPropertyValuesHolder newPVH = (IntPropertyValuesHolder) super.clone();
@@ -1270,7 +1273,7 @@ public class PropertyValuesHolder implements Cloneable {
         }
 
         @Override
-        public void setProperty(Property property) {
+        public void setProperty(@NonNull Property property) {
             if (property instanceof FloatProperty) {
                 mFloatProperty = (FloatProperty) property;
             } else {
@@ -1279,7 +1282,7 @@ public class PropertyValuesHolder implements Cloneable {
         }
 
         @Override
-        public void setFloatValues(float... values) {
+        public void setFloatValues(@NonNull float... values) {
             super.setFloatValues(values);
             mFloatKeyframes = (Keyframes.FloatKeyframes) mKeyframes;
         }
@@ -1294,6 +1297,7 @@ public class PropertyValuesHolder implements Cloneable {
             return mFloatAnimatedValue;
         }
 
+        @NonNull
         @Override
         public FloatPropertyValuesHolder clone() {
             FloatPropertyValuesHolder newPVH = (FloatPropertyValuesHolder) super.clone();
@@ -1540,8 +1544,9 @@ public class PropertyValuesHolder implements Cloneable {
             super(PointF.class, float[].class);
         }
 
+        @NonNull
         @Override
-        public float[] convert(PointF value) {
+        public float[] convert(@NonNull PointF value) {
             mCoordinates[0] = value.x;
             mCoordinates[1] = value.y;
             return mCoordinates;
@@ -1558,8 +1563,9 @@ public class PropertyValuesHolder implements Cloneable {
             super(PointF.class, int[].class);
         }
 
+        @NonNull
         @Override
-        public int[] convert(PointF value) {
+        public int[] convert(@NonNull PointF value) {
             mCoordinates[0] = Math.round(value.x);
             mCoordinates[1] = Math.round(value.y);
             return mCoordinates;

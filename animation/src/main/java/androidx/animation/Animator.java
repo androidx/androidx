@@ -386,6 +386,7 @@ public abstract class Animator implements Cloneable {
         }
     }
 
+    @NonNull
     @Override
     public Animator clone() {
         try {

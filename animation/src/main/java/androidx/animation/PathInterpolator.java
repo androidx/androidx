@@ -24,6 +24,8 @@ import android.util.AttributeSet;
 import android.view.InflateException;
 
 import androidx.annotation.FloatRange;
+import androidx.annotation.NonNull;
+import androidx.annotation.Nullable;
 import androidx.core.graphics.PathParser;
 
 
@@ -57,7 +59,7 @@ public class PathInterpolator implements Interpolator {
      *
      * @param path The <code>Path</code> to use to make the line representing the interpolator.
      */
-    public PathInterpolator(Path path) {
+    public PathInterpolator(@NonNull Path path) {
         initPath(path);
     }
 
@@ -85,7 +87,7 @@ public class PathInterpolator implements Interpolator {
         initCubic(controlX1, controlY1, controlX2, controlY2);
     }
 
-    public PathInterpolator(Context context, AttributeSet attrs) {
+    public PathInterpolator(@NonNull Context context, @Nullable AttributeSet attrs) {
         this(context.getResources(), context.getTheme(), attrs);
     }
 

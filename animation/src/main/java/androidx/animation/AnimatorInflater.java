@@ -131,10 +131,11 @@ public class AnimatorInflater {
     static class PathDataEvaluator implements TypeEvaluator<PathParser.PathDataNode[]> {
         private PathParser.PathDataNode[] mPathData;
 
+        @NonNull
         @Override
         public PathParser.PathDataNode[] evaluate(
-                float fraction, PathParser.PathDataNode[] startPathData,
-                PathParser.PathDataNode[] endPathData) {
+                float fraction, @NonNull PathParser.PathDataNode[] startPathData,
+                @NonNull PathParser.PathDataNode[] endPathData) {
             if (mPathData == null) {
                 mPathData = new PathParser.PathDataNode[startPathData.length];
             }
