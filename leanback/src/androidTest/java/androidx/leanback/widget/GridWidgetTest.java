@@ -88,7 +88,7 @@ public class GridWidgetTest {
     protected GridActivity mActivity;
     protected BaseGridView mGridView;
     protected GridLayoutManager mLayoutManager;
-    private GridLayoutManager.OnLayoutCompleteListener mWaitLayoutListener;
+    private BaseGridView.OnLayoutCompletedListener mWaitLayoutListener;
     protected int mOrientation;
     protected int mNumRows;
     protected int[] mRemovedItems;
@@ -410,11 +410,12 @@ public class GridWidgetTest {
         if (mWaitLayoutListener != null) {
             throw new IllegalStateException("startWaitLayout() already called");
         }
-        if (mLayoutManager.mLayoutCompleteListener != null) {
+        if (mLayoutManager.mOnLayoutCompletedListeners != null
+                && !mLayoutManager.mOnLayoutCompletedListeners.isEmpty()) {
             throw new IllegalStateException("Cannot startWaitLayout()");
         }
-        mWaitLayoutListener = mLayoutManager.mLayoutCompleteListener =
-                mock(GridLayoutManager.OnLayoutCompleteListener.class);
+        mWaitLayoutListener = mock(BaseGridView.OnLayoutCompletedListener.class);
+        mLayoutManager.addOnLayoutCompletedListener(mWaitLayoutListener);
     }
 
     /**
@@ -432,7 +433,7 @@ public class GridWidgetTest {
         if (mWaitLayoutListener == null) {
             throw new IllegalStateException("startWaitLayout() not called");
         }
-        if (mWaitLayoutListener != mLayoutManager.mLayoutCompleteListener) {
+        if (!mLayoutManager.mOnLayoutCompletedListeners.contains(mWaitLayoutListener)) {
             throw new IllegalStateException("layout listener inconistent");
         }
         try {
@@ -441,8 +442,8 @@ public class GridWidgetTest {
                         .onLayoutCompleted(any(RecyclerView.State.class));
             }
         } finally {
+            mLayoutManager.removeOnLayoutCompletedListener(mWaitLayoutListener);
             mWaitLayoutListener = null;
-            mLayoutManager.mLayoutCompleteListener = null;
         }
     }
 

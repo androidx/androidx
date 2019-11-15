@@ -1529,6 +1529,7 @@ package androidx.leanback.widget {
 
   public abstract class BaseGridView extends androidx.recyclerview.widget.RecyclerView {
     method public void addOnChildViewHolderSelectedListener(androidx.leanback.widget.OnChildViewHolderSelectedListener!);
+    method public final void addOnLayoutCompletedListener(androidx.leanback.widget.BaseGridView.OnLayoutCompletedListener);
     method public void animateIn();
     method public void animateOut();
     method public int getChildDrawingOrder(int, int);
@@ -1561,6 +1562,7 @@ package androidx.leanback.widget {
     method public boolean isWindowAlignmentPreferKeyLineOverLowEdge();
     method public boolean onRequestFocusInDescendants(int, android.graphics.Rect!);
     method public void removeOnChildViewHolderSelectedListener(androidx.leanback.widget.OnChildViewHolderSelectedListener!);
+    method public final void removeOnLayoutCompletedListener(androidx.leanback.widget.BaseGridView.OnLayoutCompletedListener);
     method public void setAnimateChildLayout(boolean);
     method public void setChildrenVisibility(int);
     method public void setFocusDrawingOrderEnabled(boolean);
@@ -1617,6 +1619,10 @@ package androidx.leanback.widget {
 
   public static interface BaseGridView.OnKeyInterceptListener {
     method public boolean onInterceptKeyEvent(android.view.KeyEvent!);
+  }
+
+  public static interface BaseGridView.OnLayoutCompletedListener {
+    method public void onLayoutCompleted(androidx.recyclerview.widget.RecyclerView.State);
   }
 
   public static interface BaseGridView.OnMotionInterceptListener {

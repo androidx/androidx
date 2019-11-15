@@ -563,6 +563,9 @@ final class GridLayoutManager extends RecyclerView.LayoutManager {
 
     private ArrayList<OnChildViewHolderSelectedListener> mChildViewHolderSelectedListeners = null;
 
+    @VisibleForTesting
+    ArrayList<BaseGridView.OnLayoutCompletedListener> mOnLayoutCompletedListeners = null;
+
     OnChildLaidOutListener mChildLaidOutListener = null;
 
     /**
@@ -939,6 +942,19 @@ final class GridLayoutManager extends RecyclerView.LayoutManager {
         for (int i = mChildViewHolderSelectedListeners.size() - 1; i >= 0 ; i--) {
             mChildViewHolderSelectedListeners.get(i).onChildViewHolderSelectedAndPositioned(parent,
                     child, position, subposition);
+        }
+    }
+
+    public void addOnLayoutCompletedListener(BaseGridView.OnLayoutCompletedListener listener) {
+        if (mOnLayoutCompletedListeners == null) {
+            mOnLayoutCompletedListeners = new ArrayList<>();
+        }
+        mOnLayoutCompletedListeners.add(listener);
+    }
+
+    public void removeOnLayoutCompletedListener(BaseGridView.OnLayoutCompletedListener listener) {
+        if (mOnLayoutCompletedListeners != null) {
+            mOnLayoutCompletedListeners.remove(listener);
         }
     }
 
@@ -2067,19 +2083,12 @@ final class GridLayoutManager extends RecyclerView.LayoutManager {
         }
     }
 
-    @VisibleForTesting
-    public static class OnLayoutCompleteListener {
-        public void onLayoutCompleted(RecyclerView.State state) {
-        }
-    }
-
-    @VisibleForTesting
-    OnLayoutCompleteListener mLayoutCompleteListener;
-
     @Override
     public void onLayoutCompleted(State state) {
-        if (mLayoutCompleteListener != null) {
-            mLayoutCompleteListener.onLayoutCompleted(state);
+        if (mOnLayoutCompletedListeners != null) {
+            for (BaseGridView.OnLayoutCompletedListener listener : mOnLayoutCompletedListeners) {
+                listener.onLayoutCompleted(state);
+            }
         }
     }
 
