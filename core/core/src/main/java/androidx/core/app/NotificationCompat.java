@@ -16,8 +16,6 @@
 
 package androidx.core.app;
 
-import static android.graphics.drawable.Icon.TYPE_BITMAP;
-
 import static androidx.annotation.Dimension.DP;
 import static androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP_PREFIX;
 
@@ -36,7 +34,6 @@ import android.graphics.Color;
 import android.graphics.PorterDuff;
 import android.graphics.PorterDuffColorFilter;
 import android.graphics.drawable.Drawable;
-import android.graphics.drawable.Icon;
 import android.media.AudioAttributes;
 import android.media.AudioManager;
 import android.net.Uri;
@@ -3333,7 +3330,7 @@ public class NotificationCompat {
                 boolean allowGeneratedReplies, @SemanticAction int semanticAction,
                 boolean showsUserInterface, boolean isContextual) {
             this.mIcon = icon;
-            if (icon != null && icon.getType() == Icon.TYPE_RESOURCE) {
+            if (icon != null && icon.getType() == IconCompat.TYPE_RESOURCE) {
                 this.icon = icon.getResId();
             }
             this.title = NotificationCompat.Builder.limitCharSequenceLength(title);
@@ -5610,7 +5607,7 @@ public class NotificationCompat {
                 if (icon == null) {
                     throw new IllegalArgumentException("Bubbles require non-null icon");
                 }
-                if (icon.getType() == TYPE_BITMAP) {
+                if (icon.getType() == IconCompat.TYPE_BITMAP) {
                     throw new IllegalArgumentException("When using bitmap based icons, Bubbles "
                             + "require TYPE_ADAPTIVE_BITMAP, please use"
                             + " IconCompat#createWithAdaptiveBitmap instead");
