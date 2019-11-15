@@ -35,20 +35,19 @@ import com.nhaarman.mockitokotlin2.any
 import com.nhaarman.mockitokotlin2.mock
 import com.nhaarman.mockitokotlin2.never
 import com.nhaarman.mockitokotlin2.verify
-import kotlinx.coroutines.ObsoleteCoroutinesApi
-import kotlinx.coroutines.test.TestCoroutineContext
 import org.junit.Before
 import org.junit.Test
 import org.junit.runner.RunWith
 import org.junit.runners.JUnit4
 import java.util.concurrent.TimeUnit
 
-@ObsoleteCoroutinesApi
+@kotlinx.coroutines.ObsoleteCoroutinesApi
 @RunWith(JUnit4::class)
 class LongPressGestureDetectorTest {
 
     private val LongPressTimeoutMillis = 100.milliseconds
-    private val testContext = TestCoroutineContext()
+    @Suppress("DEPRECATION")
+    private val testContext = kotlinx.coroutines.test.TestCoroutineContext()
     private val onLongPress: (PxPosition) -> Unit = mock()
     private lateinit var mRecognizer: LongPressGestureRecognizer
 
