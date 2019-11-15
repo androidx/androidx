@@ -263,6 +263,8 @@ class ModelReadsTest {
             }
         }
         assertTrue(latch.await(1, TimeUnit.SECONDS))
+
+        assertCountDownOnlyWhileEnabled(enabled, model)
     }
 
     @Test
