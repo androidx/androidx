@@ -25,6 +25,7 @@ import android.view.MotionEvent;
 import android.view.View;
 import android.view.animation.Interpolator;
 
+import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.annotation.RestrictTo;
 import androidx.leanback.R;
@@ -215,6 +216,20 @@ public abstract class BaseGridView extends RecyclerView {
          * Returns true if the key event should be consumed.
          */
         public boolean onUnhandledKey(KeyEvent event);
+    }
+
+    /**
+     * Interface for receiving notification when BaseGridView has completed a full layout
+     * calculation.
+     */
+    public interface OnLayoutCompletedListener {
+
+        /**
+         * Called after a full layout calculation is finished.
+         *
+         * @param state Transient state of RecyclerView
+         */
+        void onLayoutCompleted(@NonNull RecyclerView.State state);
     }
 
     final GridLayoutManager mLayoutManager;
@@ -662,6 +677,24 @@ public abstract class BaseGridView extends RecyclerView {
      */
     public void setOnChildSelectedListener(OnChildSelectedListener listener) {
         mLayoutManager.setOnChildSelectedListener(listener);
+    }
+
+    /**
+     * Registers a callback to be invoked when the BaseGridView completes a full layout calculation.
+     *
+     * @param listener The listener to be invoked.
+     */
+    public final void addOnLayoutCompletedListener(@NonNull OnLayoutCompletedListener listener) {
+        mLayoutManager.addOnLayoutCompletedListener(listener);
+    }
+
+    /**
+     * Removes a callback to be invoked when the BaseGridView completes a full layout calculation.
+     *
+     * @param listener The listener to be invoked.
+     */
+    public final void removeOnLayoutCompletedListener(@NonNull OnLayoutCompletedListener listener) {
+        mLayoutManager.removeOnLayoutCompletedListener(listener);
     }
 
     /**
