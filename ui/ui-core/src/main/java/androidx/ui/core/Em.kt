@@ -17,6 +17,8 @@
 
 package androidx.ui.core
 
+import androidx.compose.Immutable
+
 /**
  * Dimension value representing Em. 1 Em is defined to be the font size when doing the text layout.
  * For example:
@@ -35,6 +37,7 @@ package androidx.ui.core
  *         }
  *     }
  */
+@Immutable
 data /*inline*/ class Em(val value: Float) {
     /**
      * Add two [Em]s together.

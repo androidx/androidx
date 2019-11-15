@@ -16,6 +16,7 @@
 
 package androidx.ui.text.style
 
+import androidx.compose.Immutable
 import androidx.ui.core.Sp
 import androidx.ui.core.lerp
 import androidx.ui.core.sp
@@ -26,6 +27,7 @@ import androidx.ui.core.sp
  * @param firstLine the amount of indentation applied to the first line.
  * @param restLine the amount of indentation applied to every line except the first line.
  */
+@Immutable
 data class TextIndent(
     val firstLine: Sp = 0.sp,
     val restLine: Sp = 0.sp

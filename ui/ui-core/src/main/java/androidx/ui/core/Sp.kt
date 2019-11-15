@@ -17,6 +17,8 @@
 
 package androidx.ui.core
 
+import androidx.compose.Immutable
+
 /**
  * Dimension value representing scaled pixels (sp). Font related APIs specify their
  * dimensions such as font size in SP with Sp objects. Sp are normally
@@ -30,6 +32,7 @@ package androidx.ui.core
  * [toPx] is normally needed only for painting operations.
  */
 @Suppress("EXPERIMENTAL_FEATURE_WARNING")
+@Immutable
 data /*inline*/ class Sp(val value: Float) {
     /**
      * Add two [Sp]s together.

@@ -16,6 +16,8 @@
 
 package androidx.ui.text.font
 
+import androidx.compose.Immutable
+
 /**
  * Defines a font family. It can be constructed via a generic font family such as serif, sans-serif
  * (i.e. FontFamily("sans-serif"). It can also be constructed by a set of custom fonts.
@@ -23,6 +25,7 @@ package androidx.ui.text.font
  * @sample androidx.ui.text.samples.FontFamilySansSerifSample
  * @sample androidx.ui.text.samples.CustomFontFamilySample
  */
+@Immutable
 data class FontFamily private constructor(val genericFamily: String?, val fonts: List<Font>) :
     List<Font> by fonts {
 
