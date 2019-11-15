@@ -29,11 +29,12 @@ import androidx.ui.core.PointerInputData
 import androidx.ui.core.PointerInputNode
 import androidx.ui.core.PxPosition
 import androidx.ui.core.SemanticsComponentNode
+import androidx.ui.core.Uptime
 import androidx.ui.core.add
 import androidx.ui.core.consumeDownChange
 import androidx.ui.core.consumePositionChange
 import androidx.ui.core.ipx
-import androidx.ui.core.millisecondsToTimestamp
+import androidx.ui.core.milliseconds
 import androidx.ui.core.positionChange
 import androidx.ui.core.px
 import androidx.ui.testutils.down
@@ -307,7 +308,7 @@ class HitPathTrackerTest {
         hitResult.addHitPath(3, listOf(pin1, pin2))
         hitResult.addHitPath(5, listOf(pin3, pin4))
         val event1 = down(3)
-        val event2 = down(5).moveTo(10L.millisecondsToTimestamp(), 7f, 9f)
+        val event2 = down(5).moveTo(10.milliseconds, 7f, 9f)
 
         hitResult.dispatchChanges(
             listOf(event1, event2),
@@ -378,7 +379,7 @@ class HitPathTrackerTest {
         hitResult.addHitPath(3, listOf(parent, child1))
         hitResult.addHitPath(5, listOf(parent, child2))
         val event1 = down(3)
-        val event2 = down(5).moveTo(10L.millisecondsToTimestamp(), 7f, 9f)
+        val event2 = down(5).moveTo(10.milliseconds, 7f, 9f)
 
         hitResult.dispatchChanges(
             listOf(event1, event2),
@@ -456,7 +457,7 @@ class HitPathTrackerTest {
         hitResult.addHitPath(3, listOf(child1, child2))
         hitResult.addHitPath(5, listOf(child1, child2))
         val event1 = down(3)
-        val event2 = down(5).moveTo(10L.millisecondsToTimestamp(), 7f, 9f)
+        val event2 = down(5).moveTo(10.milliseconds, 7f, 9f)
 
         hitResult.dispatchChanges(
             listOf(event1, event2),
@@ -582,7 +583,7 @@ class HitPathTrackerTest {
             }
         })
         hitResult.addHitPath(13, listOf(pin1, pin2, pin3))
-        val change = down(13).moveTo(10L.millisecondsToTimestamp(), 0f, 130f)
+        val change = down(13).moveTo(10.milliseconds, 0f, 130f)
 
         val result = hitResult.dispatchChanges(
             listOf(change),
@@ -661,8 +662,8 @@ class HitPathTrackerTest {
         })
         hitResult.addHitPath(3, listOf(pin1, pin2))
         hitResult.addHitPath(5, listOf(pin3, pin4))
-        val event1 = down(3).moveTo(10L.millisecondsToTimestamp(), 0f, 24f)
-        val event2 = down(5).moveTo(10L.millisecondsToTimestamp(), 0f, -24f)
+        val event1 = down(3).moveTo(10.milliseconds, 0f, 24f)
+        val event2 = down(5).moveTo(10.milliseconds, 0f, -24f)
 
         val result = hitResult.dispatchChanges(
             listOf(event1, event2),
@@ -760,8 +761,8 @@ class HitPathTrackerTest {
         })
         hitResult.addHitPath(3, listOf(parent, child1))
         hitResult.addHitPath(5, listOf(parent, child2))
-        val event1 = down(3).moveTo(10L.millisecondsToTimestamp(), 0f, 1000f)
-        val event2 = down(5).moveTo(10L.millisecondsToTimestamp(), 0f, -1000f)
+        val event1 = down(3).moveTo(10.milliseconds, 0f, 1000f)
+        val event2 = down(5).moveTo(10.milliseconds, 0f, -1000f)
 
         val result = hitResult.dispatchChanges(
             listOf(event1, event2),
@@ -838,8 +839,8 @@ class HitPathTrackerTest {
         })
         hitResult.addHitPath(3, listOf(child1, child2))
         hitResult.addHitPath(5, listOf(child1, child2))
-        val event1 = down(3).moveTo(10L.millisecondsToTimestamp(), 0f, 1000f)
-        val event2 = down(5).moveTo(10L.millisecondsToTimestamp(), 0f, -1000f)
+        val event1 = down(3).moveTo(10.milliseconds, 0f, 1000f)
+        val event2 = down(5).moveTo(10.milliseconds, 0f, -1000f)
 
         val result = hitResult.dispatchChanges(
             listOf(event1, event2),
@@ -2476,7 +2477,7 @@ class HitPathTrackerTest {
         // Assert
 
         hitResult.dispatchChanges(
-            listOf(down(3, 7L.millisecondsToTimestamp(), pointerX.toFloat(), pointerY.toFloat())),
+            listOf(down(3, 7.milliseconds, pointerX.toFloat(), pointerY.toFloat())),
             PointerEventPass.InitialDown, PointerEventPass.PreUp
         )
 
@@ -2490,7 +2491,7 @@ class HitPathTrackerTest {
             PointerInputChange(
                 id = 3,
                 current = PointerInputData(
-                    7L.millisecondsToTimestamp(),
+                    Uptime.Boot + 7.milliseconds,
                     offset - additionalOffset,
                     true
                 ),
@@ -2500,7 +2501,7 @@ class HitPathTrackerTest {
             PointerInputChange(
                 id = 3,
                 current = PointerInputData(
-                    7L.millisecondsToTimestamp(),
+                    Uptime.Boot + 7.milliseconds,
                     offset - middleOffset - additionalOffset,
                     true
                 ),
@@ -2510,7 +2511,7 @@ class HitPathTrackerTest {
             PointerInputChange(
                 id = 3,
                 current = PointerInputData(
-                    7L.millisecondsToTimestamp(),
+                    Uptime.Boot + 7.milliseconds,
                     offset - middleOffset - childOffset - additionalOffset,
                     true
                 ),
@@ -2688,7 +2689,7 @@ class HitPathTrackerTest {
             PointerInputChange(
                 id = 3,
                 current = PointerInputData(
-                    7L.millisecondsToTimestamp(),
+                    Uptime.Boot + 7.milliseconds,
                     pointerPosition - parentOffset2 - additionalOffset2,
                     true
                 ),
@@ -2698,7 +2699,7 @@ class HitPathTrackerTest {
             PointerInputChange(
                 id = 3,
                 current = PointerInputData(
-                    7L.millisecondsToTimestamp(),
+                    Uptime.Boot + 7.milliseconds,
                     pointerPosition - parentOffset2 - childOffset2 - additionalOffset2,
                     true
                 ),
@@ -2716,7 +2717,7 @@ class HitPathTrackerTest {
             listOf(
                 down(
                     3,
-                    7L.millisecondsToTimestamp(),
+                    7.milliseconds,
                     pointerX.toFloat(),
                     pointerY.toFloat()
                 )
@@ -2799,7 +2800,7 @@ class HitPathTrackerTest {
             PointerInputChange(
                 id = 3,
                 current = PointerInputData(
-                    7L.millisecondsToTimestamp(),
+                    Uptime.Boot + 7.milliseconds,
                     pointer1Offset - parent1Offset - additionalOffset,
                     true
                 ),
@@ -2809,7 +2810,7 @@ class HitPathTrackerTest {
             PointerInputChange(
                 id = 3,
                 current = PointerInputData(
-                    7L.millisecondsToTimestamp(),
+                    Uptime.Boot + 7.milliseconds,
                     pointer1Offset - parent1Offset - child1Offset - additionalOffset,
                     true
                 ),
@@ -2829,7 +2830,7 @@ class HitPathTrackerTest {
             PointerInputChange(
                 id = 5,
                 current = PointerInputData(
-                    7L.millisecondsToTimestamp(),
+                    Uptime.Boot + 7.milliseconds,
                     pointer2Offset - parent2Offset - additionalOffset,
                     true
                 ),
@@ -2839,7 +2840,7 @@ class HitPathTrackerTest {
             PointerInputChange(
                 id = 5,
                 current = PointerInputData(
-                    7L.millisecondsToTimestamp(),
+                    Uptime.Boot + 7.milliseconds,
                     pointer2Offset - parent2Offset - child2Offset - additionalOffset,
                     true
                 ),
@@ -2857,13 +2858,13 @@ class HitPathTrackerTest {
             listOf(
                 down(
                     3,
-                    7L.millisecondsToTimestamp(),
+                    7.milliseconds,
                     pointer1Offset.x.value,
                     pointer1Offset.y.value
                 ),
                 down(
                     5,
-                    7L.millisecondsToTimestamp(),
+                    7.milliseconds,
                     pointer2Offset.x.value,
                     pointer2Offset.y.value
                 )
@@ -2948,7 +2949,7 @@ class HitPathTrackerTest {
             PointerInputChange(
                 id = 3,
                 current = PointerInputData(
-                    7L.millisecondsToTimestamp(),
+                    Uptime.Boot + 7.milliseconds,
                     pointer1Offset - parentOffset - additionalOffset,
                     true
                 ),
@@ -2958,7 +2959,7 @@ class HitPathTrackerTest {
             PointerInputChange(
                 id = 5,
                 current = PointerInputData(
-                    7L.millisecondsToTimestamp(),
+                    Uptime.Boot + 7.milliseconds,
                     pointer2Offset - parentOffset - additionalOffset,
                     true
                 ),
@@ -2971,7 +2972,7 @@ class HitPathTrackerTest {
             PointerInputChange(
                 id = 3,
                 current = PointerInputData(
-                    7L.millisecondsToTimestamp(),
+                    Uptime.Boot + 7.milliseconds,
                     pointer1Offset - parentOffset - child1Offset - additionalOffset,
                     true
                 ),
@@ -2984,7 +2985,7 @@ class HitPathTrackerTest {
             PointerInputChange(
                 id = 5,
                 current = PointerInputData(
-                    7L.millisecondsToTimestamp(),
+                    Uptime.Boot + 7.milliseconds,
                     pointer2Offset - parentOffset - child2Offset - additionalOffset,
                     true
                 ),
@@ -2997,13 +2998,13 @@ class HitPathTrackerTest {
             listOf(
                 down(
                     3,
-                    7L.millisecondsToTimestamp(),
+                    7.milliseconds,
                     pointer1Offset.x.value,
                     pointer1Offset.y.value
                 ),
                 down(
                     5,
-                    7L.millisecondsToTimestamp(),
+                    7.milliseconds,
                     pointer2Offset.x.value,
                     pointer2Offset.y.value
                 )
@@ -3077,7 +3078,7 @@ class HitPathTrackerTest {
             PointerInputChange(
                 id = 3,
                 current = PointerInputData(
-                    7L.millisecondsToTimestamp(),
+                    Uptime.Boot + 7.milliseconds,
                     pointerOffset - parentOffset1 - parentOffset2 - childOffset - additionalOffset,
                     true
                 ),
@@ -3089,7 +3090,7 @@ class HitPathTrackerTest {
             listOf(
                 down(
                     3,
-                    7L.millisecondsToTimestamp(),
+                    7.milliseconds,
                     pointerOffset.x.value,
                     pointerOffset.y.value
                 )
@@ -3164,7 +3165,7 @@ class HitPathTrackerTest {
             PointerInputChange(
                 id = 3,
                 current = PointerInputData(
-                    7L.millisecondsToTimestamp(),
+                    Uptime.Boot + 7.milliseconds,
                     pointerOffset - parentOffset1 - parentOffset2 - parentOffset3 -
                             additionalOffset,
                     true
@@ -3175,7 +3176,7 @@ class HitPathTrackerTest {
             PointerInputChange(
                 id = 3,
                 current = PointerInputData(
-                    7L.millisecondsToTimestamp(),
+                    Uptime.Boot + 7.milliseconds,
                     pointerOffset - parentOffset1 - parentOffset2 - parentOffset3 -
                             childOffset1 - childOffset2 - additionalOffset,
                     true
@@ -3194,7 +3195,7 @@ class HitPathTrackerTest {
             listOf(
                 down(
                     3,
-                    7L.millisecondsToTimestamp(),
+                    7.milliseconds,
                     pointerOffset.x.value,
                     pointerOffset.y.value
                 )
@@ -3281,7 +3282,7 @@ class HitPathTrackerTest {
             PointerInputChange(
                 id = 3,
                 current = PointerInputData(
-                    7L.millisecondsToTimestamp(),
+                    Uptime.Boot + 7.milliseconds,
                     PxPosition(pointerXExpected.px, pointerYExpected.px),
                     true
                 ),
@@ -3293,7 +3294,7 @@ class HitPathTrackerTest {
             listOf(
                 down(
                     3,
-                    7L.millisecondsToTimestamp(),
+                    7.milliseconds,
                     pointerX.toFloat(),
                     pointerY.toFloat()
                 )
@@ -3334,7 +3335,7 @@ class HitPathTrackerTest {
             PointerInputChange(
                 id = 3,
                 current = PointerInputData(
-                    7L.millisecondsToTimestamp(),
+                    Uptime.Boot + 7.milliseconds,
                     PxPosition(50.px, 50.px),
                     true
                 ),
@@ -3346,7 +3347,7 @@ class HitPathTrackerTest {
             listOf(
                 down(
                     3,
-                    7L.millisecondsToTimestamp(),
+                    7.milliseconds,
                     150f,
                     250f
                 )

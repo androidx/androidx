@@ -20,7 +20,6 @@ import androidx.ui.core.PointerEventPass
 import androidx.ui.core.PxPosition
 import androidx.ui.core.anyPositionChangeConsumed
 import androidx.ui.core.milliseconds
-import androidx.ui.core.millisecondsToTimestamp
 import androidx.ui.core.px
 import androidx.ui.testutils.consume
 import androidx.ui.testutils.down
@@ -137,8 +136,8 @@ class RawScaleGestureDetectorTest {
 
         // The pointers move and rotate, but the average distance to the center doesn't change, so
         // no scaling occurs.
-        pointer1 = pointer1.moveTo(10L.millisecondsToTimestamp(), 3f, 5f)
-        pointer2 = pointer2.moveTo(10L.millisecondsToTimestamp(), 5f, 3f)
+        pointer1 = pointer1.moveTo(10.milliseconds, 3f, 5f)
+        pointer2 = pointer2.moveTo(10.milliseconds, 5f, 3f)
         recognizer.pointerInputHandler.invokeOverAllPasses(pointer1, pointer2)
 
         assertThat(log.filter { it.methodName == "onStart" }).isEmpty()
@@ -182,9 +181,9 @@ class RawScaleGestureDetectorTest {
 
         // The pointers move and rotate, but the average distance to the center doesn't change, so
         // no scaling occurs.
-        pointer1 = pointer1.moveTo(10L.millisecondsToTimestamp(), 2f, 5f)
-        pointer2 = pointer2.moveTo(10L.millisecondsToTimestamp(), 4f, 2f)
-        pointer3 = pointer3.moveTo(10L.millisecondsToTimestamp(), 5f, 3f)
+        pointer1 = pointer1.moveTo(10.milliseconds, 2f, 5f)
+        pointer2 = pointer2.moveTo(10.milliseconds, 4f, 2f)
+        pointer3 = pointer3.moveTo(10.milliseconds, 5f, 3f)
         recognizer.pointerInputHandler.invokeOverAllPasses(pointer1, pointer2, pointer3)
 
         // Assert
@@ -230,10 +229,10 @@ class RawScaleGestureDetectorTest {
 
         // The pointers move and rotate, but the average distance to the center doesn't change, so
         // no scaling occurs.
-        pointer1 = pointer1.moveTo(10L.millisecondsToTimestamp(), 1f, 2f)
-        pointer2 = pointer2.moveTo(10L.millisecondsToTimestamp(), 4f, 1f)
-        pointer3 = pointer3.moveTo(10L.millisecondsToTimestamp(), 4f, 3f)
-        pointer4 = pointer4.moveTo(10L.millisecondsToTimestamp(), 7f, 2f)
+        pointer1 = pointer1.moveTo(10.milliseconds, 1f, 2f)
+        pointer2 = pointer2.moveTo(10.milliseconds, 4f, 1f)
+        pointer3 = pointer3.moveTo(10.milliseconds, 4f, 3f)
+        pointer4 = pointer4.moveTo(10.milliseconds, 7f, 2f)
         recognizer.pointerInputHandler.invokeOverAllPasses(pointer1, pointer2, pointer3, pointer4)
 
         // Assert
@@ -272,9 +271,9 @@ class RawScaleGestureDetectorTest {
         scaleStartBlocked = false
 
         pointer1 =
-            pointer1.moveTo(10L.millisecondsToTimestamp(), 2f, 2f).consume(-1f, -2f)
+            pointer1.moveTo(10.milliseconds, 2f, 2f).consume(-1f, -2f)
         pointer2 =
-            pointer2.moveTo(10L.millisecondsToTimestamp(), 5f, 1f).consume(1f, -2f)
+            pointer2.moveTo(10.milliseconds, 5f, 1f).consume(1f, -2f)
         recognizer.pointerInputHandler.invokeOverAllPasses(pointer1, pointer2)
 
         assertThat(log.filter { it.methodName == "onStart" }).isEmpty()
@@ -375,8 +374,8 @@ class RawScaleGestureDetectorTest {
         recognizer.pointerInputHandler.invokeOverAllPasses(pointer1, pointer2)
         scaleStartBlocked = false
 
-        pointer1 = pointer1.moveTo(10L.millisecondsToTimestamp(), x = 0f, y = 0f)
-        pointer2 = pointer2.moveTo(10L.millisecondsToTimestamp(), x = 3f, y = 0f)
+        pointer1 = pointer1.moveTo(10.milliseconds, 0f, 0f)
+        pointer2 = pointer2.moveTo(10.milliseconds, 3f, 0f)
         recognizer.pointerInputHandler.invokeOverAllPasses(pointer1, pointer2)
 
         val onScaleLog = log.filter { it.methodName == "onScale" }
@@ -391,8 +390,8 @@ class RawScaleGestureDetectorTest {
         recognizer.pointerInputHandler.invokeOverAllPasses(pointer1, pointer2)
         scaleStartBlocked = false
 
-        pointer1 = pointer1.moveTo(10L.millisecondsToTimestamp(), x = 0f, y = 0f)
-        pointer2 = pointer2.moveTo(10L.millisecondsToTimestamp(), x = 0f, y = 3f)
+        pointer1 = pointer1.moveTo(10.milliseconds, 0f, 0f)
+        pointer2 = pointer2.moveTo(10.milliseconds, 0f, 3f)
         recognizer.pointerInputHandler.invokeOverAllPasses(pointer1, pointer2)
 
         val onScaleLog = log.filter { it.methodName == "onScale" }
@@ -407,8 +406,8 @@ class RawScaleGestureDetectorTest {
         recognizer.pointerInputHandler.invokeOverAllPasses(pointer1, pointer2)
         scaleStartBlocked = false
 
-        pointer1 = pointer1.moveTo(10L.millisecondsToTimestamp(), x = 0f, y = 0f)
-        pointer2 = pointer2.moveTo(10L.millisecondsToTimestamp(), x = 1f, y = 0f)
+        pointer1 = pointer1.moveTo(10.milliseconds, 0f, 0f)
+        pointer2 = pointer2.moveTo(10.milliseconds, 1f, 0f)
         recognizer.pointerInputHandler.invokeOverAllPasses(pointer1, pointer2)
 
         val onScaleLog = log.filter { it.methodName == "onScale" }
@@ -423,8 +422,8 @@ class RawScaleGestureDetectorTest {
         recognizer.pointerInputHandler.invokeOverAllPasses(pointer1, pointer2)
         scaleStartBlocked = false
 
-        pointer1 = pointer1.moveTo(10L.millisecondsToTimestamp(), x = 0f, y = 0f)
-        pointer2 = pointer2.moveTo(10L.millisecondsToTimestamp(), x = 0f, y = 1f)
+        pointer1 = pointer1.moveTo(10.milliseconds, 0f, 0f)
+        pointer2 = pointer2.moveTo(10.milliseconds, 0f, 1f)
         recognizer.pointerInputHandler.invokeOverAllPasses(pointer1, pointer2)
 
         val onScaleLog = log.filter { it.methodName == "onScale" }
@@ -439,8 +438,8 @@ class RawScaleGestureDetectorTest {
         recognizer.pointerInputHandler.invokeOverAllPasses(pointer1, pointer2)
         scaleStartBlocked = false
 
-        pointer1 = pointer1.moveTo(10L.millisecondsToTimestamp(), x = 0f, y = 0f)
-        pointer2 = pointer2.moveTo(10L.millisecondsToTimestamp(), x = 4f, y = 4f)
+        pointer1 = pointer1.moveTo(10.milliseconds, 0f, 0f)
+        pointer2 = pointer2.moveTo(10.milliseconds, 4f, 4f)
         recognizer.pointerInputHandler.invokeOverAllPasses(pointer1, pointer2)
 
         val onScaleLog = log.filter { it.methodName == "onScale" }
@@ -455,8 +454,8 @@ class RawScaleGestureDetectorTest {
         recognizer.pointerInputHandler.invokeOverAllPasses(pointer1, pointer2)
         scaleStartBlocked = false
 
-        pointer1 = pointer1.moveTo(10L.millisecondsToTimestamp(), x = 1f, y = 1f)
-        pointer2 = pointer2.moveTo(10L.millisecondsToTimestamp(), x = 2f, y = 2f)
+        pointer1 = pointer1.moveTo(10.milliseconds, 1f, 1f)
+        pointer2 = pointer2.moveTo(10.milliseconds, 2f, 2f)
         recognizer.pointerInputHandler.invokeOverAllPasses(pointer1, pointer2)
 
         val onScaleLog = log.filter { it.methodName == "onScale" }
@@ -477,7 +476,7 @@ class RawScaleGestureDetectorTest {
         pointer2 = pointer2.moveBy(10.milliseconds, dx = 0f, dy = 0f)
         recognizer.pointerInputHandler.invokeOverAllPasses(pointer1, pointer2)
 
-        pointer1 = pointer1.up(20L.millisecondsToTimestamp())
+        pointer1 = pointer1.up(20.milliseconds)
         pointer2 = pointer2.moveBy(0.milliseconds, dx = 0f, dy = 0f)
         recognizer.pointerInputHandler.invokeOverAllPasses(pointer1, pointer2)
 
@@ -494,7 +493,7 @@ class RawScaleGestureDetectorTest {
         pointer1 = pointer1.moveBy(10.milliseconds, dx = 1f, dy = 0f)
         recognizer.pointerInputHandler.invokeOverAllPasses(pointer1)
 
-        pointer1 = pointer1.up(20L.millisecondsToTimestamp())
+        pointer1 = pointer1.up(20.milliseconds)
         recognizer.pointerInputHandler.invokeOverAllPasses(pointer1)
 
         assertThat(log.filter { it.methodName == "onStop" }).hasSize(0)
@@ -514,7 +513,7 @@ class RawScaleGestureDetectorTest {
         pointer3 = pointer3.moveBy(10.milliseconds, dx = 1f, dy = 1f)
         recognizer.pointerInputHandler.invokeOverAllPasses(pointer1, pointer2, pointer3)
 
-        pointer1 = pointer1.up(20L.millisecondsToTimestamp())
+        pointer1 = pointer1.up(20.milliseconds)
         pointer2 = pointer2.moveBy(10.milliseconds, dx = 0f, dy = 0f)
         pointer3 = pointer3.moveBy(10.milliseconds, dx = 0f, dy = 0f)
         recognizer.pointerInputHandler.invokeOverAllPasses(pointer1, pointer2, pointer3)
@@ -530,11 +529,11 @@ class RawScaleGestureDetectorTest {
         var change2 = down(1, x = 2f, y = 2f)
         recognizer.pointerInputHandler.invokeOverAllPasses(change1, change2)
         scaleStartBlocked = false
-        change1 = change1.moveTo(10L.millisecondsToTimestamp(), 0f, 0f)
-        change2 = change2.moveTo(10L.millisecondsToTimestamp(), 3f, 3f)
+        change1 = change1.moveTo(10.milliseconds, 0f, 0f)
+        change2 = change2.moveTo(10.milliseconds, 3f, 3f)
         recognizer.pointerInputHandler.invokeOverAllPasses(change1, change2)
-        change1 = change1.up(20L.millisecondsToTimestamp())
-        change2 = change2.up(20L.millisecondsToTimestamp())
+        change1 = change1.up(20.milliseconds)
+        change2 = change2.up(20.milliseconds)
         recognizer.pointerInputHandler.invokeOverAllPasses(change1, change2)
 
         assertThat(log.filter { it.methodName == "onStop" }).hasSize(1)
@@ -546,11 +545,11 @@ class RawScaleGestureDetectorTest {
         var change2 = down(1, x = 2f, y = 2f)
         recognizer.pointerInputHandler.invokeOverAllPasses(change1, change2)
         scaleStartBlocked = false
-        change1 = change1.moveTo(10L.millisecondsToTimestamp(), 0f, 0f)
-        change2 = change2.moveTo(10L.millisecondsToTimestamp(), 3f, 3f)
+        change1 = change1.moveTo(10.milliseconds, 0f, 0f)
+        change2 = change2.moveTo(10.milliseconds, 3f, 3f)
         recognizer.pointerInputHandler.invokeOverAllPasses(change1, change2)
-        change1 = change1.up(20L.millisecondsToTimestamp())
-        change2 = change2.moveTo(20L.millisecondsToTimestamp(), 3f, 3f)
+        change1 = change1.up(20.milliseconds)
+        change2 = change2.moveTo(20.milliseconds, 3f, 3f)
         recognizer.pointerInputHandler.invokeOverAllPasses(change1, change2)
 
         assertThat(log.filter { it.methodName == "onStop" }).isEmpty()
@@ -564,11 +563,11 @@ class RawScaleGestureDetectorTest {
         var change2 = down(1, x = 2f, y = 2f)
         recognizer.pointerInputHandler.invokeOverAllPasses(change1, change2)
         scaleStartBlocked = false
-        change1 = change1.moveTo(10L.millisecondsToTimestamp(), 0f, 0f)
-        change2 = change2.moveTo(10L.millisecondsToTimestamp(), 3f, 3f)
+        change1 = change1.moveTo(10.milliseconds, 0f, 0f)
+        change2 = change2.moveTo(10.milliseconds, 3f, 3f)
         recognizer.pointerInputHandler.invokeOverAllPasses(change1, change2)
-        change1 = change1.up(20L.millisecondsToTimestamp())
-        change2 = change2.up(20L.millisecondsToTimestamp())
+        change1 = change1.up(20.milliseconds)
+        change2 = change2.up(20.milliseconds)
         recognizer.pointerInputHandler.invokeOverAllPasses(change1, change2)
 
         assertThat(log).hasSize(3)
@@ -601,8 +600,8 @@ class RawScaleGestureDetectorTest {
         var change1 = down(0, x = 1f, y = 1f)
         var change2 = down(1, x = 2f, y = 2f)
         recognizer.pointerInputHandler.invokeOverAllPasses(change1, change2)
-        change1 = change1.moveTo(10L.millisecondsToTimestamp(), 0f, 0f)
-        change2 = change2.moveTo(10L.millisecondsToTimestamp(), 3f, 3f)
+        change1 = change1.moveTo(10.milliseconds, 0f, 0f)
+        change2 = change2.moveTo(10.milliseconds, 3f, 3f)
         val result = recognizer.pointerInputHandler.invokeOverAllPasses(change1, change2)
 
         assertThat(result.count { !it.anyPositionChangeConsumed() }).isEqualTo(2)
@@ -614,8 +613,8 @@ class RawScaleGestureDetectorTest {
         var change2 = down(1, x = 2f, y = 2f)
         recognizer.pointerInputHandler.invokeOverAllPasses(change1, change2)
         scaleStartBlocked = false
-        change1 = change1.moveTo(10L.millisecondsToTimestamp(), 0f, 0f)
-        change2 = change2.moveTo(10L.millisecondsToTimestamp(), 3f, 3f)
+        change1 = change1.moveTo(10.milliseconds, 0f, 0f)
+        change2 = change2.moveTo(10.milliseconds, 3f, 3f)
         val result = recognizer.pointerInputHandler.invokeOverAllPasses(change1, change2)
 
         assertThat(result.count { !it.anyPositionChangeConsumed() }).isEqualTo(2)
@@ -629,8 +628,8 @@ class RawScaleGestureDetectorTest {
         var change2 = down(1, x = 2f, y = 2f)
         recognizer.pointerInputHandler.invokeOverAllPasses(change1, change2)
         scaleStartBlocked = false
-        change1 = change1.moveTo(10L.millisecondsToTimestamp(), 0f, 0f)
-        change2 = change2.moveTo(10L.millisecondsToTimestamp(), 3f, 3f)
+        change1 = change1.moveTo(10.milliseconds, 0f, 0f)
+        change2 = change2.moveTo(10.milliseconds, 3f, 3f)
         val result = recognizer.pointerInputHandler.invokeOverAllPasses(change1, change2)
 
         assertThat(result.count { !it.anyPositionChangeConsumed() }).isEqualTo(2)
@@ -646,8 +645,8 @@ class RawScaleGestureDetectorTest {
         recognizer.pointerInputHandler.invokeOverAllPasses(change1, change2)
         scaleStartBlocked = false
 
-        change1 = change1.moveTo(10L.millisecondsToTimestamp(), 0f, 0f)
-        change2 = change2.moveTo(10L.millisecondsToTimestamp(), 6f, 0f)
+        change1 = change1.moveTo(10.milliseconds, 0f, 0f)
+        change2 = change2.moveTo(10.milliseconds, 6f, 0f)
         scaleObserver.resultingScaleChange = 2f
         var result = recognizer.pointerInputHandler.invokeOverPasses(
             listOf(change1, change2),
@@ -677,8 +676,8 @@ class RawScaleGestureDetectorTest {
         recognizer.pointerInputHandler.invokeOverAllPasses(change1, change2)
         scaleStartBlocked = false
 
-        change1 = change1.moveTo(10L.millisecondsToTimestamp(), 0f, 0f)
-        change2 = change2.moveTo(10L.millisecondsToTimestamp(), 0f, 6f)
+        change1 = change1.moveTo(10.milliseconds, 0f, 0f)
+        change2 = change2.moveTo(10.milliseconds, 0f, 6f)
         scaleObserver.resultingScaleChange = 2f
         var result = recognizer.pointerInputHandler.invokeOverPasses(
             listOf(change1, change2),
@@ -706,8 +705,8 @@ class RawScaleGestureDetectorTest {
         var change2 = down(1, x = 2f, y = 2f)
         recognizer.pointerInputHandler.invokeOverAllPasses(change1, change2)
         scaleStartBlocked = false
-        change1 = change1.moveTo(10L.millisecondsToTimestamp(), 0f, 0f)
-        change2 = change2.moveTo(10L.millisecondsToTimestamp(), 3f, 3f)
+        change1 = change1.moveTo(10.milliseconds, 0f, 0f)
+        change2 = change2.moveTo(10.milliseconds, 3f, 3f)
         val result = recognizer.pointerInputHandler.invokeOverAllPasses(change1, change2)
 
         assertThat(result.first { it.id == 0 }.consumed.positionChange)
@@ -726,8 +725,8 @@ class RawScaleGestureDetectorTest {
         recognizer.pointerInputHandler.invokeOverAllPasses(change1, change2)
         scaleStartBlocked = false
 
-        change1 = change1.moveTo(10L.millisecondsToTimestamp(), 2f, 0f)
-        change2 = change2.moveTo(10L.millisecondsToTimestamp(), 6f, 0f)
+        change1 = change1.moveTo(10.milliseconds, 2f, 0f)
+        change2 = change2.moveTo(10.milliseconds, 6f, 0f)
         scaleObserver.resultingScaleChange = .75f
         var result = recognizer.pointerInputHandler.invokeOverPasses(
             listOf(change1, change2),
@@ -757,8 +756,8 @@ class RawScaleGestureDetectorTest {
         recognizer.pointerInputHandler.invokeOverAllPasses(change1, change2)
         scaleStartBlocked = false
 
-        change1 = change1.moveTo(10L.millisecondsToTimestamp(), 0f, 2f)
-        change2 = change2.moveTo(10L.millisecondsToTimestamp(), 0f, 6f)
+        change1 = change1.moveTo(10.milliseconds, 0f, 2f)
+        change2 = change2.moveTo(10.milliseconds, 0f, 6f)
         scaleObserver.resultingScaleChange = .75f
         var result = recognizer.pointerInputHandler.invokeOverPasses(
             listOf(change1, change2),
@@ -786,8 +785,8 @@ class RawScaleGestureDetectorTest {
         var change2 = down(1, x = 8f, y = 8f)
         recognizer.pointerInputHandler.invokeOverAllPasses(change1, change2)
         scaleStartBlocked = false
-        change1 = change1.moveTo(10L.millisecondsToTimestamp(), 2f, 2f)
-        change2 = change2.moveTo(10L.millisecondsToTimestamp(), 6f, 6f)
+        change1 = change1.moveTo(10.milliseconds, 2f, 2f)
+        change2 = change2.moveTo(10.milliseconds, 6f, 6f)
         val result = recognizer.pointerInputHandler.invokeOverAllPasses(change1, change2)
 
         assertThat(result[0].consumed.positionChange).isEqualTo(PxPosition(2.px, 2.px))
@@ -804,8 +803,8 @@ class RawScaleGestureDetectorTest {
         recognizer.pointerInputHandler.invokeOverAllPasses(change1, change2)
         scaleStartBlocked = false
 
-        change1 = change1.moveTo(10L.millisecondsToTimestamp(), 2f, 0f)
-        change2 = change2.moveTo(10L.millisecondsToTimestamp(), 8f, 0f)
+        change1 = change1.moveTo(10.milliseconds, 2f, 0f)
+        change2 = change2.moveTo(10.milliseconds, 8f, 0f)
         scaleObserver.resultingScaleChange = 2f
         var result = recognizer.pointerInputHandler.invokeOverPasses(
             listOf(change1, change2),
@@ -835,8 +834,8 @@ class RawScaleGestureDetectorTest {
         recognizer.pointerInputHandler.invokeOverAllPasses(change1, change2)
         scaleStartBlocked = false
 
-        change1 = change1.moveTo(10L.millisecondsToTimestamp(), 0f, 2f)
-        change2 = change2.moveTo(10L.millisecondsToTimestamp(), 0f, 8f)
+        change1 = change1.moveTo(10.milliseconds, 0f, 2f)
+        change2 = change2.moveTo(10.milliseconds, 0f, 8f)
         scaleObserver.resultingScaleChange = 2f
         var result = recognizer.pointerInputHandler.invokeOverPasses(
             listOf(change1, change2),
@@ -866,8 +865,8 @@ class RawScaleGestureDetectorTest {
         recognizer.pointerInputHandler.invokeOverAllPasses(change1, change2)
         scaleStartBlocked = false
 
-        change1 = change1.moveTo(10L.millisecondsToTimestamp(), 0f, 0f)
-        change2 = change2.moveTo(10L.millisecondsToTimestamp(), 4f, 0f)
+        change1 = change1.moveTo(10.milliseconds, 0f, 0f)
+        change2 = change2.moveTo(10.milliseconds, 4f, 0f)
         scaleObserver.resultingScaleChange = .75f
         var result = recognizer.pointerInputHandler.invokeOverPasses(
             listOf(change1, change2),
@@ -897,8 +896,8 @@ class RawScaleGestureDetectorTest {
         recognizer.pointerInputHandler.invokeOverAllPasses(change1, change2)
         scaleStartBlocked = false
 
-        change1 = change1.moveTo(10L.millisecondsToTimestamp(), 0f, 0f)
-        change2 = change2.moveTo(10L.millisecondsToTimestamp(), 0f, 4f)
+        change1 = change1.moveTo(10.milliseconds, 0f, 0f)
+        change2 = change2.moveTo(10.milliseconds, 0f, 4f)
         scaleObserver.resultingScaleChange = .75f
         var result = recognizer.pointerInputHandler.invokeOverPasses(
             listOf(change1, change2),
@@ -928,8 +927,8 @@ class RawScaleGestureDetectorTest {
         recognizer.pointerInputHandler.invokeOverAllPasses(change1, change2)
         scaleStartBlocked = false
 
-        change1 = change1.moveTo(10L.millisecondsToTimestamp(), 0f, -3f)
-        change2 = change2.moveTo(10L.millisecondsToTimestamp(), 0f, 3f)
+        change1 = change1.moveTo(10.milliseconds, 0f, -3f)
+        change2 = change2.moveTo(10.milliseconds, 0f, 3f)
         scaleObserver.resultingScaleChange = 2f
         var result = recognizer.pointerInputHandler.invokeOverPasses(
             listOf(change1, change2),
@@ -959,8 +958,8 @@ class RawScaleGestureDetectorTest {
         recognizer.pointerInputHandler.invokeOverAllPasses(change1, change2)
         scaleStartBlocked = false
 
-        change1 = change1.moveTo(10L.millisecondsToTimestamp(), 0f, -2f)
-        change2 = change2.moveTo(10L.millisecondsToTimestamp(), 0f, 2f)
+        change1 = change1.moveTo(10.milliseconds, 0f, -2f)
+        change2 = change2.moveTo(10.milliseconds, 0f, 2f)
         scaleObserver.resultingScaleChange = .75f
         var result = recognizer.pointerInputHandler.invokeOverPasses(
             listOf(change1, change2),
@@ -987,11 +986,11 @@ class RawScaleGestureDetectorTest {
         var change1 = down(0, x = 1f, y = 1f)
         var change2 = down(1, x = 2f, y = 2f)
         recognizer.pointerInputHandler.invokeOverAllPasses(change1, change2)
-        change1 = change1.moveTo(10L.millisecondsToTimestamp(), 0f, 0f)
-        change2 = change2.moveTo(10L.millisecondsToTimestamp(), 3f, 3f)
+        change1 = change1.moveTo(10.milliseconds, 0f, 0f)
+        change2 = change2.moveTo(10.milliseconds, 3f, 3f)
         recognizer.pointerInputHandler.invokeOverAllPasses(change1, change2)
-        change1 = change1.up(20L.millisecondsToTimestamp())
-        change2 = change2.up(20L.millisecondsToTimestamp())
+        change1 = change1.up(20.milliseconds)
+        change2 = change2.up(20.milliseconds)
         val result = recognizer.pointerInputHandler.invokeOverAllPasses(change1, change2)
 
         assertThat(result.count { it.consumed.downChange }).isEqualTo(0)
@@ -1005,8 +1004,8 @@ class RawScaleGestureDetectorTest {
         var change2 = down(1, x = 2f, y = 2f)
         recognizer.pointerInputHandler.invokeOverAllPasses(change1, change2)
         scaleStartBlocked = false
-        change1 = change1.up(20L.millisecondsToTimestamp())
-        change2 = change2.up(20L.millisecondsToTimestamp())
+        change1 = change1.up(20.milliseconds)
+        change2 = change2.up(20.milliseconds)
         val result = recognizer.pointerInputHandler.invokeOverAllPasses(change1, change2)
 
         assertThat(result.count { it.consumed.downChange }).isEqualTo(0)
@@ -1018,11 +1017,11 @@ class RawScaleGestureDetectorTest {
         var change2 = down(1, x = 2f, y = 2f)
         recognizer.pointerInputHandler.invokeOverAllPasses(change1, change2)
         scaleStartBlocked = false
-        change1 = change1.moveTo(10L.millisecondsToTimestamp(), 0f, 0f)
-        change2 = change2.moveTo(10L.millisecondsToTimestamp(), 3f, 3f)
+        change1 = change1.moveTo(10.milliseconds, 0f, 0f)
+        change2 = change2.moveTo(10.milliseconds, 3f, 3f)
         recognizer.pointerInputHandler.invokeOverAllPasses(change1, change2)
-        change1 = change1.up(20L.millisecondsToTimestamp())
-        change2 = change2.moveTo(20L.millisecondsToTimestamp(), 3f, 3f)
+        change1 = change1.up(20.milliseconds)
+        change2 = change2.moveTo(20.milliseconds, 3f, 3f)
         val result = recognizer.pointerInputHandler.invokeOverAllPasses(change1, change2)
 
         assertThat(result.first { it.id == 0 }.consumed.downChange).isTrue()
@@ -1034,11 +1033,11 @@ class RawScaleGestureDetectorTest {
         var change2 = down(1, x = 2f, y = 2f)
         recognizer.pointerInputHandler.invokeOverAllPasses(change1, change2)
         scaleStartBlocked = false
-        change1 = change1.moveTo(10L.millisecondsToTimestamp(), 0f, 0f)
-        change2 = change2.moveTo(10L.millisecondsToTimestamp(), 3f, 3f)
+        change1 = change1.moveTo(10.milliseconds, 0f, 0f)
+        change2 = change2.moveTo(10.milliseconds, 3f, 3f)
         recognizer.pointerInputHandler.invokeOverAllPasses(change1, change2)
-        change1 = change1.up(20L.millisecondsToTimestamp())
-        change2 = change2.up(20L.millisecondsToTimestamp())
+        change1 = change1.up(20.milliseconds)
+        change2 = change2.up(20.milliseconds)
         val result = recognizer.pointerInputHandler.invokeOverAllPasses(change1, change2)
 
         assertThat(result.count { it.consumed.downChange }).isEqualTo(2)

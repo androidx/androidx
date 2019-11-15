@@ -168,11 +168,6 @@ data class Duration(val nanoseconds: Long) : Comparable<Duration> {
     operator fun plus(other: Duration) = Duration(nanoseconds + other.nanoseconds)
 
     /**
-     * Add this Duration to a [Timestamp] and returns the result as a [Timestamp].
-     */
-    operator fun plus(timestamp: Timestamp) = Timestamp(nanoseconds + timestamp.nanoseconds)
-
-    /**
      * Subtracts [other] from this Duration and returns the difference.
      */
     operator fun minus(other: Duration) = Duration(nanoseconds - other.nanoseconds)

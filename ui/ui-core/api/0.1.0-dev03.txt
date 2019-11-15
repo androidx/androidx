@@ -329,7 +329,6 @@ package androidx.ui.core {
     method public long getNanoseconds();
     method public operator androidx.ui.core.Duration minus(androidx.ui.core.Duration other);
     method public operator androidx.ui.core.Duration plus(androidx.ui.core.Duration other);
-    method public operator androidx.ui.core.Timestamp plus(androidx.ui.core.Timestamp timestamp);
     method public operator androidx.ui.core.Duration times(int factor);
     method public operator androidx.ui.core.Duration times(double factor);
     field public static final androidx.ui.core.Duration.Companion! Companion;
@@ -620,15 +619,15 @@ package androidx.ui.core {
   }
 
   public final class PointerInputData {
-    ctor public PointerInputData(androidx.ui.core.Timestamp? timestamp, androidx.ui.core.PxPosition? position, boolean down);
+    ctor public PointerInputData(androidx.ui.core.Uptime? uptime, androidx.ui.core.PxPosition? position, boolean down);
     ctor public PointerInputData();
-    method public androidx.ui.core.Timestamp? component1();
+    method public androidx.ui.core.Uptime? component1();
     method public androidx.ui.core.PxPosition? component2();
     method public boolean component3();
-    method public androidx.ui.core.PointerInputData copy(androidx.ui.core.Timestamp? timestamp, androidx.ui.core.PxPosition? position, boolean down);
+    method public androidx.ui.core.PointerInputData copy(androidx.ui.core.Uptime? uptime, androidx.ui.core.PxPosition? position, boolean down);
     method public boolean getDown();
     method public androidx.ui.core.PxPosition? getPosition();
-    method public androidx.ui.core.Timestamp? getTimestamp();
+    method public androidx.ui.core.Uptime? getUptime();
   }
 
   public final class PointerInputKt {
@@ -923,22 +922,26 @@ package androidx.ui.core {
     enum_constant public static final androidx.ui.core.TextUnitType Sp;
   }
 
-  public final class Timestamp implements java.lang.Comparable<androidx.ui.core.Timestamp> {
-    ctor public Timestamp(long nanoseconds);
-    method public int compareTo(androidx.ui.core.Timestamp other);
+  public final class Uptime implements java.lang.Comparable<androidx.ui.core.Uptime> {
+    ctor public Uptime(long nanoseconds);
+    method public int compareTo(androidx.ui.core.Uptime other);
     method public long component1();
-    method public androidx.ui.core.Timestamp copy(long nanoseconds);
+    method public androidx.ui.core.Uptime copy(long nanoseconds);
     method public long getNanoseconds();
-    method public operator androidx.ui.core.Timestamp minus(androidx.ui.core.Duration duration);
-    method public operator androidx.ui.core.Duration minus(androidx.ui.core.Timestamp other);
-    method public operator androidx.ui.core.Timestamp plus(androidx.ui.core.Duration duration);
+    method public operator androidx.ui.core.Uptime minus(androidx.ui.core.Duration duration);
+    method public operator androidx.ui.core.Duration minus(androidx.ui.core.Uptime other);
+    method public operator androidx.ui.core.Uptime plus(androidx.ui.core.Duration duration);
+    field public static final androidx.ui.core.Uptime.Companion! Companion;
   }
 
-  public final class Timestamps {
-    ctor public Timestamps();
-    method public static androidx.ui.core.Timestamp millisecondsToTimestamp(long);
-    method public static androidx.ui.core.Timestamp nanosecondsToTimestamp(long);
-    method public static androidx.ui.core.Timestamp secondsToTimestamp(long);
+  public static final class Uptime.Companion {
+    method public androidx.ui.core.Uptime getBoot();
+    property public final androidx.ui.core.Uptime Boot;
+  }
+
+  public final class UptimeKt {
+    ctor public UptimeKt();
+    method public static operator androidx.ui.core.Uptime plus(androidx.ui.core.Duration, androidx.ui.core.Uptime uptime);
   }
 
   public final class Velocity {
@@ -2060,14 +2063,14 @@ package androidx.ui.testutils {
   public final class PointerInputTestUtilKt {
     ctor public PointerInputTestUtilKt();
     method public static androidx.ui.core.PointerInputChange consume(androidx.ui.core.PointerInputChange, float dx = 0f, float dy = 0f, boolean downChange = false);
-    method public static androidx.ui.core.PointerInputChange down(int id = 0, androidx.ui.core.Timestamp timestamp = 0.millisecondsToTimestamp(), float x = 0f, float y = 0f);
+    method public static androidx.ui.core.PointerInputChange down(int id = 0, androidx.ui.core.Duration duration = Duration.Zero, float x = 0f, float y = 0f);
     method public static java.util.List<androidx.ui.core.PointerInputChange> invokeOverAllPasses(kotlin.jvm.functions.Function3<? super java.util.List<androidx.ui.core.PointerInputChange>,? super androidx.ui.core.PointerEventPass,? super androidx.ui.core.IntPxSize,? extends java.util.List<androidx.ui.core.PointerInputChange>>, androidx.ui.core.PointerInputChange pointerInputChanges, androidx.ui.core.IntPxSize size = IntPxSize(Int.MAX_VALUE.ipx, Int.MAX_VALUE.ipx));
     method public static java.util.List<androidx.ui.core.PointerInputChange> invokeOverAllPasses(kotlin.jvm.functions.Function3<? super java.util.List<androidx.ui.core.PointerInputChange>,? super androidx.ui.core.PointerEventPass,? super androidx.ui.core.IntPxSize,? extends java.util.List<androidx.ui.core.PointerInputChange>>, java.util.List<androidx.ui.core.PointerInputChange> pointerInputChanges, androidx.ui.core.IntPxSize size = IntPxSize(Int.MAX_VALUE.ipx, Int.MAX_VALUE.ipx));
     method public static java.util.List<androidx.ui.core.PointerInputChange> invokeOverAllPasses(kotlin.jvm.functions.Function3<? super java.util.List<androidx.ui.core.PointerInputChange>,? super androidx.ui.core.PointerEventPass,? super androidx.ui.core.IntPxSize,? extends java.util.List<androidx.ui.core.PointerInputChange>>, androidx.ui.core.PointerInputChange![] pointerInputChanges, androidx.ui.core.IntPxSize size = IntPxSize(Int.MAX_VALUE.ipx, Int.MAX_VALUE.ipx));
     method public static java.util.List<androidx.ui.core.PointerInputChange> invokeOverPasses(kotlin.jvm.functions.Function3<? super java.util.List<androidx.ui.core.PointerInputChange>,? super androidx.ui.core.PointerEventPass,? super androidx.ui.core.IntPxSize,? extends java.util.List<androidx.ui.core.PointerInputChange>>, java.util.List<androidx.ui.core.PointerInputChange> pointerInputChanges, androidx.ui.core.PointerEventPass![] pointerEventPasses, androidx.ui.core.IntPxSize size = IntPxSize(Int.MAX_VALUE.ipx, Int.MAX_VALUE.ipx));
     method public static androidx.ui.core.PointerInputChange moveBy(androidx.ui.core.PointerInputChange, androidx.ui.core.Duration duration, float dx = 0f, float dy = 0f);
-    method public static androidx.ui.core.PointerInputChange moveTo(androidx.ui.core.PointerInputChange, androidx.ui.core.Timestamp timestamp, float x = 0f, float y = 0f);
-    method public static androidx.ui.core.PointerInputChange up(androidx.ui.core.PointerInputChange, androidx.ui.core.Timestamp timestamp);
+    method public static androidx.ui.core.PointerInputChange moveTo(androidx.ui.core.PointerInputChange, androidx.ui.core.Duration duration, float x = 0f, float y = 0f);
+    method public static androidx.ui.core.PointerInputChange up(androidx.ui.core.PointerInputChange, androidx.ui.core.Duration duration);
   }
 
 }

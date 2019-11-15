@@ -24,7 +24,6 @@ import androidx.ui.core.anyPositionChangeConsumed
 import androidx.ui.core.consumePositionChange
 import androidx.ui.core.ipx
 import androidx.ui.core.milliseconds
-import androidx.ui.core.millisecondsToTimestamp
 import androidx.ui.core.px
 import androidx.ui.testutils.consume
 import androidx.ui.testutils.down
@@ -308,9 +307,9 @@ class RawDragGestureDetectorTest {
     fun pointerInputHandler_blockedDownMoveUp_onStopNotCalled() {
         var change = down()
         recognizer.pointerInputHandler.invokeOverAllPasses(change)
-        change = change.moveTo(10L.millisecondsToTimestamp(), 1f, 1f)
+        change = change.moveTo(10.milliseconds, 1f, 1f)
         recognizer.pointerInputHandler.invokeOverAllPasses(change)
-        change = change.up(20L.millisecondsToTimestamp())
+        change = change.up(20.milliseconds)
         recognizer.pointerInputHandler.invokeOverAllPasses(change)
 
         assertThat(log.filter { it.methodName == "onStop" }).hasSize(0)
@@ -321,7 +320,7 @@ class RawDragGestureDetectorTest {
         var change = down()
         recognizer.pointerInputHandler.invokeOverAllPasses(change)
         dragStartBlocked = false
-        change = change.up(20L.millisecondsToTimestamp())
+        change = change.up(20.milliseconds)
         recognizer.pointerInputHandler.invokeOverAllPasses(change)
 
         assertThat(log.filter { it.methodName == "onStop" }).hasSize(0)
@@ -336,8 +335,8 @@ class RawDragGestureDetectorTest {
         change1 = change1.moveBy(10.milliseconds, 1f, 1f)
         change2 = change2.moveBy(10.milliseconds, -1f, -1f)
         recognizer.pointerInputHandler.invokeOverAllPasses(change1, change2)
-        change1 = change1.up(20L.millisecondsToTimestamp())
-        change2 = change2.up(20L.millisecondsToTimestamp())
+        change1 = change1.up(20.milliseconds)
+        change2 = change2.up(20.milliseconds)
         recognizer.pointerInputHandler.invokeOverAllPasses(change1, change2)
         assertThat(log.filter { it.methodName == "onStop" }).isEmpty()
     }
@@ -349,9 +348,9 @@ class RawDragGestureDetectorTest {
         var change = down()
         recognizer.pointerInputHandler.invokeOverAllPasses(change)
         dragStartBlocked = false
-        change = change.moveTo(10L.millisecondsToTimestamp(), 1f, 1f)
+        change = change.moveTo(10.milliseconds, 1f, 1f)
         recognizer.pointerInputHandler.invokeOverAllPasses(change)
-        change = change.up(20L.millisecondsToTimestamp())
+        change = change.up(20.milliseconds)
         recognizer.pointerInputHandler.invokeOverAllPasses(change)
 
         assertThat(log.filter { it.methodName == "onStop" }).hasSize(1)
@@ -393,7 +392,7 @@ class RawDragGestureDetectorTest {
             recognizer.pointerInputHandler.invokeOverAllPasses(change)
         }
 
-        change = change.up(20L.millisecondsToTimestamp())
+        change = change.up(20.milliseconds)
         recognizer.pointerInputHandler.invokeOverAllPasses(change)
 
         val loggedStops = log.filter { it.methodName == "onStop" }
@@ -412,12 +411,12 @@ class RawDragGestureDetectorTest {
         dragStartBlocked = false
 
         change = change.moveTo(
-            10L.millisecondsToTimestamp(),
+            10.milliseconds,
             0f,
             1f
         )
         recognizer.pointerInputHandler.invokeOverAllPasses(change)
-        change = change.up(20L.millisecondsToTimestamp())
+        change = change.up(20.milliseconds)
         recognizer.pointerInputHandler.invokeOverAllPasses(change)
 
         assertThat(log).hasSize(4)
@@ -443,7 +442,7 @@ class RawDragGestureDetectorTest {
         var change = down()
         recognizer.pointerInputHandler.invokeOverAllPasses(change)
         change = change.moveTo(
-            10L.millisecondsToTimestamp(),
+            10.milliseconds,
             1f,
             0f
         )
@@ -476,7 +475,7 @@ class RawDragGestureDetectorTest {
         dragStartBlocked = false
 
         change = change.moveTo(
-            10L.millisecondsToTimestamp(),
+            10.milliseconds,
             1f,
             1f
         )
@@ -494,7 +493,7 @@ class RawDragGestureDetectorTest {
         dragStartBlocked = false
 
         change = change.moveTo(
-            10L.millisecondsToTimestamp(),
+            10.milliseconds,
             1f,
             1f
         )
@@ -510,7 +509,7 @@ class RawDragGestureDetectorTest {
         dragStartBlocked = false
 
         change = change.moveTo(
-            10L.millisecondsToTimestamp(),
+            10.milliseconds,
             3f,
             -5f
         )
@@ -539,12 +538,12 @@ class RawDragGestureDetectorTest {
         dragStartBlocked = false
 
         change = change.moveTo(
-            10L.millisecondsToTimestamp(),
+            10.milliseconds,
             1f,
             0f
         )
         recognizer.pointerInputHandler.invokeOverAllPasses(change)
-        change = change.up(20L.millisecondsToTimestamp())
+        change = change.up(20.milliseconds)
         val result = recognizer.pointerInputHandler.invokeOverAllPasses(change)
 
         assertThat(result.first().consumed.downChange).isTrue()

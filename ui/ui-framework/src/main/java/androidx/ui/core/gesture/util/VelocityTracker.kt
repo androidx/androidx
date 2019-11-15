@@ -18,7 +18,7 @@ package androidx.ui.core.gesture.util
 
 import androidx.ui.core.Duration
 import androidx.ui.core.PxPosition
-import androidx.ui.core.Timestamp
+import androidx.ui.core.Uptime
 import androidx.ui.core.Velocity
 import androidx.ui.core.inMilliseconds
 import androidx.ui.core.px
@@ -57,9 +57,9 @@ class VelocityTracker {
     // TODO(shepshapard): VelocityTracker needs to be updated to be passed vectors instead of
     //   positions. For velocity tracking, the only thing that is important is the change in
     //   position over time.
-    fun addPosition(time: Timestamp, position: PxPosition) {
+    fun addPosition(uptime: Uptime, position: PxPosition) {
         index = (index + 1) % HistorySize
-        samples[index] = PointAtTime(position, time)
+        samples[index] = PointAtTime(position, uptime)
     }
 
     /**
@@ -157,7 +157,7 @@ class VelocityTracker {
     }
 }
 
-private data class PointAtTime(val point: PxPosition, val time: Timestamp)
+private data class PointAtTime(val point: PxPosition, val time: Uptime)
 
 /**
  * A two dimensional velocity estimate.
