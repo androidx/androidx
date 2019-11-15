@@ -17,6 +17,7 @@
 package androidx.room.processor
 
 import COMMON
+import androidx.room.ext.typeName
 import androidx.room.parser.SQLTypeAffinity
 import androidx.room.processor.ProcessorErrors.RELATION_IN_ENTITY
 import androidx.room.vo.CallType
@@ -28,6 +29,8 @@ import androidx.room.vo.Index
 import androidx.room.vo.Pojo
 import androidx.room.vo.columnNames
 import com.google.testing.compile.JavaFileObjects
+import com.squareup.javapoet.ClassName
+import com.squareup.javapoet.TypeName
 import compileLibrarySource
 import org.hamcrest.CoreMatchers.`is`
 import org.hamcrest.CoreMatchers.hasItems
@@ -35,6 +38,7 @@ import org.hamcrest.MatcherAssert.assertThat
 import org.junit.Test
 import org.junit.runner.RunWith
 import org.junit.runners.JUnit4
+import java.lang.AssertionError
 import javax.lang.model.type.TypeKind.INT
 
 @RunWith(JUnit4::class)
@@ -138,6 +142,46 @@ class TableEntityProcessorTest : BaseEntityParserTest() {
                 public void setId(int id) {}
                 """) { _, _ -> }
                 .compilesWithoutError()
+    }
+
+    @Test
+    fun setterWithAssignableType_2() {
+        singleEntity("""
+                @PrimaryKey
+                private Integer id;
+                public Integer getId() {return id;}
+                public void setId(int id) {}
+                """) { entity, invocation ->
+            val idField = entity.fields.first()
+            val cursorValueReader = idField.cursorValueReader
+                ?: throw AssertionError("must have a cursor value reader")
+            assertThat(cursorValueReader.typeMirror().typeName(),
+                `is`(invocation.typeUtils.getPrimitiveType(INT).typeName()))
+        }.compilesWithoutError()
+            .withWarningContaining(
+                ProcessorErrors.mismatchedSetter(
+                    fieldName = "id",
+                    ownerType = ClassName.bestGuess("foo.bar.MyEntity"),
+                    setterType = TypeName.INT,
+                    fieldType = TypeName.INT.box()
+                )
+            )
+    }
+
+    @Test
+    fun getterWithAssignableType_2() {
+        singleEntity("""
+                @PrimaryKey
+                private Integer id;
+                public int getId() {return id == null ? 0 : id;}
+                public void setId(Integer id) {}
+                """) { entity, invocation ->
+            val idField = entity.fields.first()
+            val statementBinder = idField.statementBinder
+                ?: throw AssertionError("must have a statement binder")
+            assertThat(statementBinder.typeMirror().typeName(),
+                `is`(invocation.typeUtils.getPrimitiveType(INT).typeName()))
+        }.compilesWithoutError()
     }
 
     @Test

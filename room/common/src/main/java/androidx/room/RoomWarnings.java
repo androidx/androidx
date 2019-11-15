@@ -134,6 +134,47 @@ public class RoomWarnings {
     public static final String RELATION_QUERY_WITHOUT_TRANSACTION =
             "ROOM_RELATION_QUERY_WITHOUT_TRANSACTION";
 
+    /**
+     * Reported when an `@Entity` field's type do not exactly match the getter type.
+     * For instance, in the following class:
+     * <pre>
+     * {@code @}Entity
+     * class Foo {
+     *     ...
+     *     private Boolean value;
+     *     public boolean getValue() {
+     *         return value == null ? false : value;
+     *     }
+     * }
+     * </pre>
+     *
+     * Trying to insert this entity into database will always set {@code value} column to
+     * {@code false} when {@code Foo.value} is {@code null} since Room will use the {@code getValue}
+     * method to read the value. So even thought the database column is nullable, it will never
+     * be inserted as {@code null} if inserted as a {@code Foo} instance.
+     */
+    public static final String MISMATCHED_GETTER = "ROOM_MISMATCHED_GETTER_TYPE";
+
+    /**
+     * Reported when an `@Entity` field's type do not exactly match the setter type.
+     * For instance, in the following class:
+     * <pre>
+     * {@code @}Entity
+     * class Foo {
+     *     ...
+     *     private Boolean value;
+     *     public void setValue(boolean value) {
+     *         this.value = value;
+     *     }
+     * }
+     * </pre>
+     *
+     * If Room reads this entity from the database, it will always set {@code Foo.value} to
+     * {@code false} when the column value is {@code null} since Room will use the {@code setValue}
+     * method to write the value.
+     */
+    public static final String MISMATCHED_SETTER = "ROOM_MISMATCHED_SETTER_TYPE";
+
     /** @deprecated This type should not be instantiated as it contains only static methods. */
     @Deprecated
     @SuppressWarnings("PrivateConstructorForUtilityClass")
