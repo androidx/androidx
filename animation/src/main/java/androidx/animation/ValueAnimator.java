@@ -1509,6 +1509,7 @@ public class ValueAnimator extends Animator implements AnimationHandler.Animatio
         return AnimationHandler.getAnimationCount();
     }
 
+    @NonNull
     @Override
     public String toString() {
         String returnVal = "ValueAnimator@" + Integer.toHexString(hashCode());

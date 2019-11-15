@@ -74,13 +74,15 @@ public abstract class BidirectionalTypeConverter<T, V> extends TypeConverter<T, 
             mConverter = converter;
         }
 
+        @NonNull
         @Override
-        public From convertBack(To value) {
+        public From convertBack(@NonNull To value) {
             return mConverter.convert(value);
         }
 
+        @NonNull
         @Override
-        public To convert(From value) {
+        public To convert(@NonNull From value) {
             return mConverter.convertBack(value);
         }
     }

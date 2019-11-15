@@ -17,6 +17,7 @@
 package androidx.animation;
 
 import androidx.animation.Keyframe.IntKeyframe;
+import androidx.annotation.NonNull;
 
 import java.util.List;
 
@@ -40,6 +41,7 @@ class IntKeyframeSet extends KeyframeSet<Integer> implements Keyframes.IntKeyfra
         return getIntValue(fraction);
     }
 
+    @NonNull
     @Override
     public IntKeyframeSet clone() {
         List<Keyframe<Integer>> keyframes = mKeyframes;

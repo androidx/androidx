@@ -25,6 +25,7 @@ import android.graphics.Path;
 import android.graphics.PointF;
 import android.util.Property;
 
+import androidx.annotation.NonNull;
 import androidx.test.annotation.UiThreadTest;
 import androidx.test.ext.junit.runners.AndroidJUnit4;
 import androidx.test.filters.SmallTest;
@@ -692,8 +693,9 @@ public class ObjectAnimatorTest {
         };
         TypeConverter<PointF, Float> converter = new TypeConverter<PointF, Float>(
                 PointF.class, Float.class) {
+            @NonNull
             @Override
-            public Float convert(PointF value) {
+            public Float convert(@NonNull PointF value) {
                 return (float) Math.sqrt(value.x * value.x + value.y * value.y);
             }
         };

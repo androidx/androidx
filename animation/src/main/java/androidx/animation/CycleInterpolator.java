@@ -23,6 +23,8 @@ import android.content.res.TypedArray;
 import android.util.AttributeSet;
 
 import androidx.annotation.FloatRange;
+import androidx.annotation.NonNull;
+import androidx.annotation.Nullable;
 
 /**
  * Repeats the animation for a specified number of cycles. The
@@ -34,7 +36,7 @@ public class CycleInterpolator implements Interpolator {
         mCycles = cycles;
     }
 
-    public CycleInterpolator(Context context, AttributeSet attrs) {
+    public CycleInterpolator(@NonNull Context context, @Nullable AttributeSet attrs) {
         this(context.getResources(), context.getTheme(), attrs);
     }
 

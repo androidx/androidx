@@ -24,6 +24,7 @@ import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertSame;
 import static org.junit.Assert.assertTrue;
 
+import androidx.annotation.NonNull;
 import androidx.test.annotation.UiThreadTest;
 import androidx.test.ext.junit.runners.AndroidJUnit4;
 import androidx.test.filters.SmallTest;
@@ -138,22 +139,22 @@ public class AnimatorSetTest {
         final ArrayList<AnimEvent> animEvents = new ArrayList<>();
         Animator.AnimatorListener listener = new Animator.AnimatorListener() {
             @Override
-            public void onAnimationStart(Animator animation) {
+            public void onAnimationStart(@NonNull Animator animation) {
                 animEvents.add(new AnimEvent(START, animation));
             }
 
             @Override
-            public void onAnimationEnd(Animator animation) {
+            public void onAnimationEnd(@NonNull Animator animation) {
                 animEvents.add(new AnimEvent(END, animation));
             }
 
             @Override
-            public void onAnimationCancel(Animator animation) {
+            public void onAnimationCancel(@NonNull Animator animation) {
 
             }
 
             @Override
-            public void onAnimationRepeat(Animator animation) {
+            public void onAnimationRepeat(@NonNull Animator animation) {
 
             }
         };
@@ -580,14 +581,14 @@ public class AnimatorSetTest {
             public boolean startIsCalled = false;
             public boolean endIsCalled = false;
             @Override
-            public void onAnimationStart(Animator animation) {
+            public void onAnimationStart(@NonNull Animator animation) {
                 assertTrue(animation.isStarted());
                 assertTrue(animation.isRunning());
                 startIsCalled = true;
             }
 
             @Override
-            public void onAnimationEnd(Animator animation) {
+            public void onAnimationEnd(@NonNull Animator animation) {
                 assertFalse(animation.isRunning());
                 assertFalse(animation.isStarted());
                 super.onAnimationEnd(animation);
@@ -621,7 +622,7 @@ public class AnimatorSetTest {
         class StartListener extends AnimatorListenerAdapter {
             public boolean mStartCalled = false;
             @Override
-            public void onAnimationStart(Animator anim) {
+            public void onAnimationStart(@NonNull Animator anim) {
                 mStartCalled = true;
             }
         }
