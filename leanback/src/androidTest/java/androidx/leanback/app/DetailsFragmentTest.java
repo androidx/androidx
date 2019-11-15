@@ -50,6 +50,7 @@ import androidx.leanback.widget.DetailsParallaxDrawable;
 import androidx.leanback.widget.ParallaxTarget;
 import androidx.leanback.widget.RecyclerViewParallax;
 import androidx.leanback.widget.VerticalGridView;
+import androidx.test.filters.FlakyTest;
 import androidx.test.filters.LargeTest;
 import androidx.test.filters.SdkSuppress;
 import androidx.test.platform.app.InstrumentationRegistry;
@@ -475,6 +476,7 @@ public class DetailsFragmentTest extends SingleFragmentTestBase {
         fragmentOnStartWithVideoInternal(DetailsFragmentWithVideo2.class);
     }
 
+    @FlakyTest
     @Test
     public void navigateBetweenRowsAndTitle() throws Throwable {
         SingleFragmentTestActivity activity =
