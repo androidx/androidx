@@ -108,12 +108,8 @@ import androidx.ui.lerp
  * Values for [fraction] are usually obtained from an [Animation<Float>], such as
  * an `AnimationController`.
  */
-fun lerp(start: FontWeight?, stop: FontWeight?, fraction: Float): FontWeight {
-    val index = lerp(
-        start?.index ?: FontWeight.Normal.index,
-        stop?.index ?: FontWeight.Normal.index,
-        fraction
-    ).coerceIn(0, FontWeight.values.size - 1)
+fun lerp(start: FontWeight, stop: FontWeight, fraction: Float): FontWeight {
+    val index = lerp(start.index, stop.index, fraction).coerceIn(0, FontWeight.values.size - 1)
 
     return FontWeight.values[index]
 }

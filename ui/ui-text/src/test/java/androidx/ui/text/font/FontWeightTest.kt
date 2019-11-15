@@ -22,32 +22,6 @@ import org.junit.runners.JUnit4
 
 @RunWith(JUnit4::class)
 class FontWeightTest {
-
-    @Test
-    fun `lerp with null parameters`() {
-        assertThat(lerp(null, null, 0.0f)).isEqualTo(
-            FontWeight.Normal
-        )
-    }
-
-    @Test
-    fun `lerp with one null parameter should use normal for null value`() {
-        assertThat(
-            lerp(
-                FontWeight.W200,
-                null,
-                0.5f
-            )
-        ).isEqualTo(FontWeight.W300)
-        assertThat(
-            lerp(
-                null,
-                FontWeight.W200,
-                0.5f
-            )
-        ).isEqualTo(FontWeight.W300)
-    }
-
     @Test
     fun `lerp at start returns start value`() {
         assertThat(
