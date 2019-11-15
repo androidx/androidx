@@ -20,7 +20,6 @@ import android.media.ImageReader;
 import android.util.Pair;
 import android.util.Rational;
 import android.util.Size;
-import android.view.Display;
 import android.view.Surface;
 
 import androidx.annotation.NonNull;
@@ -849,12 +848,24 @@ public final class ImageAnalysisConfig
         /**
          * Sets the rotation of the intended target for images from this configuration.
          *
+         * <p>The rotation parameter sent to the analyzer will be the rotation, which if applied to
+         * the output image, will make the image match target rotation specified here.
+         *
          * <p>This is one of four valid values: {@link Surface#ROTATION_0}, {@link
          * Surface#ROTATION_90}, {@link Surface#ROTATION_180}, {@link Surface#ROTATION_270}.
          * Rotation values are relative to the "natural" rotation, {@link Surface#ROTATION_0}.
          *
+         * <p>In general, it is best to additionally set the target rotation dynamically on the use
+         * case.  See
+         * {@link androidx.camera.core.ImageAnalysis#setTargetRotation(int)} for additional
+         * documentation.
+         *
          * <p>If not set, the target rotation will default to the value of
-         * {@link Display#getRotation()} of the default display at the time the use case is created.
+         * {@link android.view.Display#getRotation()} of the default display at the time the
+         * use case is created.
+         *
+         * @see androidx.camera.core.ImageAnalysis#setTargetRotation(int)
+         * @see android.view.OrientationEventListener
          *
          * @param rotation The rotation of the intended target.
          * @return The current Builder.
