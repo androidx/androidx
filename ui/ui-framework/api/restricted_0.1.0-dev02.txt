@@ -270,10 +270,12 @@ package androidx.ui.core.input {
 package androidx.ui.core.selection {
 
   public final class Selection {
-    ctor public Selection(androidx.ui.core.selection.Selection.AnchorInfo start, androidx.ui.core.selection.Selection.AnchorInfo end);
+    ctor public Selection(androidx.ui.core.selection.Selection.AnchorInfo start, androidx.ui.core.selection.Selection.AnchorInfo end, boolean areHandlesCrossed);
     method public androidx.ui.core.selection.Selection.AnchorInfo component1();
     method public androidx.ui.core.selection.Selection.AnchorInfo component2();
-    method public androidx.ui.core.selection.Selection copy(androidx.ui.core.selection.Selection.AnchorInfo start, androidx.ui.core.selection.Selection.AnchorInfo end);
+    method public boolean component3();
+    method public androidx.ui.core.selection.Selection copy(androidx.ui.core.selection.Selection.AnchorInfo start, androidx.ui.core.selection.Selection.AnchorInfo end, boolean areHandlesCrossed);
+    method public boolean getAreHandlesCrossed();
     method public androidx.ui.core.selection.Selection.AnchorInfo getEnd();
     method public androidx.ui.core.selection.Selection.AnchorInfo getStart();
     method public androidx.ui.text.TextRange toTextRange();
@@ -338,7 +340,7 @@ package androidx.ui.core.selection {
   }
 
   public interface TextSelectionHandler {
-    method public androidx.ui.core.selection.Selection? getSelection(androidx.ui.core.PxPosition startPosition, androidx.ui.core.PxPosition endPosition, androidx.ui.core.LayoutCoordinates containerLayoutCoordinates, androidx.ui.core.selection.SelectionMode mode);
+    method public androidx.ui.core.selection.Selection? getSelection(androidx.ui.core.PxPosition startPosition, androidx.ui.core.PxPosition endPosition, androidx.ui.core.LayoutCoordinates containerLayoutCoordinates, androidx.ui.core.selection.SelectionMode mode, boolean isInitialSelection);
   }
 
 }

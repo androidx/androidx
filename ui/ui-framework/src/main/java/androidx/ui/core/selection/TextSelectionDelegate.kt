@@ -23,6 +23,8 @@ import androidx.ui.core.PxBounds
 import androidx.ui.core.PxPosition
 import androidx.ui.core.px
 import androidx.ui.core.toPx
+import androidx.ui.core.toRect
+import androidx.ui.engine.geometry.Offset
 import androidx.ui.text.TextDelegate
 import androidx.ui.text.TextRange
 import kotlin.math.max
@@ -37,7 +39,8 @@ internal class TextSelectionDelegate(
         startPosition: PxPosition,
         endPosition: PxPosition,
         containerLayoutCoordinates: LayoutCoordinates,
-        mode: SelectionMode
+        mode: SelectionMode,
+        wordSelectIfCollapsed: Boolean
     ): Selection? {
         val layoutCoordinates = layoutCoordinates.value!!
 
@@ -51,7 +54,8 @@ internal class TextSelectionDelegate(
             textDelegate = textDelegate,
             mode = mode,
             selectionCoordinates = Pair(startPx, endPx),
-            layoutCoordinates = layoutCoordinates
+            layoutCoordinates = layoutCoordinates,
+            wordSelectIfCollapsed = wordSelectIfCollapsed
         )
 
         return if (selection == null) {
@@ -67,133 +71,229 @@ internal class TextSelectionDelegate(
 /**
  * Return information about the current selection in the Text.
  *
- * @param textDelegate The TextDelegate object from Text composable.
+ * @param textDelegate The [TextDelegate] object from Text composable.
  * @param mode The mode of selection.
  * @param selectionCoordinates The positions of the start and end of the selection in Text
  * composable coordinate system.
+ * @param layoutCoordinates The [LayoutCoordinates] of the composable.
+ * @param wordSelectIfCollapsed This flag is ignored if the selection offsets anchors point
+ * different location. If the selection anchors point the same location and this is true, the
+ * result selection will be adjusted to word boundary. Otherwise, the selection will be adjusted
+ * to keep single character selected.
+ *
+ * @return [Selection] of the current composable, or null if the composable is not selected.
  */
 internal fun getTextSelectionInfo(
     textDelegate: TextDelegate,
     mode: SelectionMode,
     selectionCoordinates: Pair<PxPosition, PxPosition>,
-    layoutCoordinates: LayoutCoordinates
+    layoutCoordinates: LayoutCoordinates,
+    wordSelectIfCollapsed: Boolean
 ): Selection? {
-    val startPx = selectionCoordinates.first
-    val endPx = selectionCoordinates.second
+    val startPosition = selectionCoordinates.first
+    val endPosition = selectionCoordinates.second
 
     val bounds = PxBounds(Px.Zero, Px.Zero, textDelegate.width.toPx(), textDelegate.height.toPx())
-    if (!mode.isSelected(bounds, start = startPx, end = endPx)) {
-        return null
-    } else {
-        var (textSelectionStart, containsWholeSelectionStart) = getSelectionBorder(
-            textDelegate = textDelegate,
-            position = startPx,
-            isStart = true
-        )
 
-        var (textSelectionEnd, containsWholeSelectionEnd) = getSelectionBorder(
-            textDelegate = textDelegate,
-            position = endPx,
-            isStart = false
-        )
+    val lastOffset = textDelegate.text.text.length - 1
 
-        if (textSelectionStart == textSelectionEnd) {
-            val wordBoundary = textDelegate.getWordBoundary(textSelectionStart)
-            textSelectionStart = wordBoundary.start
-            textSelectionEnd = wordBoundary.end
-        }
+    val containsWholeSelectionStart =
+        bounds.toRect().contains(Offset(startPosition.x.value, startPosition.y.value))
 
-        return Selection(
-            start = Selection.AnchorInfo(
-                coordinates = getSelectionHandleCoordinates(
-                    textDelegate = textDelegate,
-                    offset = textSelectionStart,
-                    isStart = true
-                ),
-                direction = textDelegate.getBidiRunDirection(textSelectionStart),
-                offset = textSelectionStart,
-                layoutCoordinates = if (containsWholeSelectionStart) layoutCoordinates else null
-            ),
-            end = Selection.AnchorInfo(
-                coordinates = getSelectionHandleCoordinates(
-                    textDelegate = textDelegate,
-                    offset = textSelectionEnd,
-                    isStart = false
-                ),
-                direction = textDelegate.getBidiRunDirection(Math.max(textSelectionEnd - 1, 0)),
-                offset = textSelectionEnd,
-                layoutCoordinates = if (containsWholeSelectionEnd) layoutCoordinates else null
+    val containsWholeSelectionEnd =
+        bounds.toRect().contains(Offset(endPosition.x.value, endPosition.y.value))
+
+    var rawStartOffset =
+        if (containsWholeSelectionStart)
+            textDelegate.getOffsetForPosition(startPosition).coerceIn(0, lastOffset)
+        else
+        // If the composable is selected, the start offset cannot be -1 for this composable. If the
+        // final start offset is still -1, it means this composable is not selected.
+            -1
+    var rawEndOffset =
+        if (containsWholeSelectionEnd)
+            textDelegate.getOffsetForPosition(endPosition).coerceIn(0, lastOffset)
+        else
+        // If the composable is selected, the end offset cannot be -1 for this composable. If the
+        // final end offset is still -1, it means this composable is not selected.
+            -1
+
+    val shouldProcessAsSinglecomposable =
+        containsWholeSelectionStart && containsWholeSelectionEnd
+
+    val (startOffset, endOffset, handlesCrossed) =
+        if (shouldProcessAsSinglecomposable) {
+            processAsSingleComposable(
+                rawStartOffset = rawStartOffset,
+                rawEndOffset = rawEndOffset,
+                wordSelectIfCollapsed = wordSelectIfCollapsed,
+                textDelegate = textDelegate
             )
-        )
-    }
+        } else {
+            processCrossComposable(
+                startPosition = startPosition,
+                endPosition = endPosition,
+                rawStartOffset = rawStartOffset,
+                rawEndOffset = rawEndOffset,
+                lastOffset = lastOffset,
+                mode = mode,
+                bounds = bounds,
+                containsWholeSelectionStart = containsWholeSelectionStart,
+                containsWholeSelectionEnd = containsWholeSelectionEnd
+            )
+        }
+    // nothing is selected
+    if (startOffset == -1 && endOffset == -1) return null
+
+    return Selection(
+        start = Selection.AnchorInfo(
+            coordinates = getSelectionHandleCoordinates(
+                textDelegate = textDelegate,
+                offset = startOffset,
+                isStart = true,
+                areHandlesCrossed = handlesCrossed
+            ),
+            direction = textDelegate.getBidiRunDirection(startOffset),
+            offset = startOffset,
+            layoutCoordinates = if (containsWholeSelectionStart) layoutCoordinates else null
+        ),
+        end = Selection.AnchorInfo(
+            coordinates = getSelectionHandleCoordinates(
+                textDelegate = textDelegate,
+                offset = endOffset,
+                isStart = false,
+                areHandlesCrossed = handlesCrossed
+            ),
+            direction = textDelegate.getBidiRunDirection(Math.max(endOffset - 1, 0)),
+            offset = endOffset,
+            layoutCoordinates = if (containsWholeSelectionEnd) layoutCoordinates else null
+        ),
+        handlesCrossed = handlesCrossed
+    )
 }
 
 /**
- * This function gets the border of the text selection. Border means either start or end of the
- * selection.
+ * This method takes unprocessed selection information as input, and calculates the selection
+ * range and check if the selection handles are crossed, for selection with both start and end
+ * are in the current composable.
  *
- * @param textDelegate TextDelegate instance
- * @param position
- * @param isStart true if called for selection start handle
+ * @param rawStartOffset unprocessed start offset calculated directly from input position
+ * @param rawEndOffset unprocessed end offset calculated directly from input position
+ * @param wordSelectIfCollapsed This flag is ignored if the selection offsets anchors point
+ * different location. If the selection anchors point the same location and this is true, the
+ * result selection will be adjusted to word boundary. Otherwise, the selection will be adjusted
+ * to keep single character selected.
+ * @param textDelegate the [TextDelegate] object from Text composable.
  *
- * @return
+ * @return the final startOffset, endOffset of the selection, and if the start and end are
+ * crossed each other.
  */
-// TODO(qqd) describe function argument [position]
-// TODO(qqd) describe what this function returns
-private fun getSelectionBorder(
-    textDelegate: TextDelegate,
-    // This position is in Text composable coordinate system.
-    position: PxPosition,
-    isStart: Boolean
-): Pair<Int, Boolean> {
-    val textLength = textDelegate.text.text.length
-    // The character offset of the border of selection. The default value is set to the
-    // beginning of the text composable for the start border, and the very last character offset
-    // of the text composable for the end border. If the composable contains the whole selection's
-    // border, this value will be reset.
-    var selectionBorder = if (isStart) 0 else max(textLength - 1, 0)
-    // Flag to check if the composable contains the whole selection's border.
-    var containsWholeSelectionBorder = false
-
-    val top = 0.px
-    val bottom = textDelegate.height.toPx()
-    val left = 0.px
-    val right = textDelegate.width.toPx()
-    // If the current text composable contains the whole selection's border, then find the exact
-    // character offset of the border, and the flag checking if the composable contains the whole
-    // selection's border will be set to true.
-    if (position.x >= left &&
-        position.x < right &&
-        position.y >= top &&
-        position.y < bottom
-    ) {
-        // Constrain the character offset of the selection border to be within the text range
-        // of the current composable.
-        val constrainedSelectionBorderOffset =
-            textDelegate.getOffsetForPosition(position).coerceIn(0, textLength - 1)
-        selectionBorder = constrainedSelectionBorderOffset
-        containsWholeSelectionBorder = true
+private fun processAsSingleComposable(
+    rawStartOffset: Int,
+    rawEndOffset: Int,
+    wordSelectIfCollapsed: Boolean,
+    textDelegate: TextDelegate
+): Triple<Int, Int, Boolean> {
+    var startOffset = rawStartOffset
+    var endOffset = rawEndOffset
+    if (startOffset == endOffset) {
+        if (wordSelectIfCollapsed) {
+            // If the start and end offset are at the same character, and it's the initial
+            // selection, then select a word.
+            val wordBoundary = textDelegate.getWordBoundary(startOffset)
+            startOffset = wordBoundary.start
+            endOffset = wordBoundary.end
+        } else {
+            // If the start and end offset are at the same character, and it's not the
+            // initial selection, then bound to at least one character.
+            endOffset = startOffset + 1
+        }
     }
-    return Pair(selectionBorder, containsWholeSelectionBorder)
+    // Check if the start and end handles are crossed each other.
+    val areHandlesCrossed = startOffset > endOffset
+    return Triple(startOffset, endOffset, areHandlesCrossed)
 }
 
 /**
+ * This method takes unprocessed selection information as input, and calculates the selection
+ * range for current composable, and check if the selection handles are crossed, for selection with
+ * the start and end are in different composables.
+ *
+ * @param startPosition graphical position of the start of the selection, in composable's
+ * coordinates.
+ * @param endPosition graphical position of the end of the selection, in composable's coordinates.
+ * @param rawStartOffset unprocessed start offset calculated directly from input position
+ * @param rawEndOffset unprocessed end offset calculated directly from input position
+ * @param lastOffset the last offset of the text in current composable
+ * @param mode the mode of selection
+ * @param bounds the bounds of the composable
+ * @param containsWholeSelectionStart flag to check if the current composable contains the start of
+ * the selection
+ * @param containsWholeSelectionEnd flag to check if the current composable contains the end of the
+ * selection
+ *
+ * @return the final startOffset, endOffset of the selection, and if the start and end handles are
+ * crossed each other.
+ */
+private fun processCrossComposable(
+    startPosition: PxPosition,
+    endPosition: PxPosition,
+    rawStartOffset: Int,
+    rawEndOffset: Int,
+    lastOffset: Int,
+    mode: SelectionMode,
+    bounds: PxBounds,
+    containsWholeSelectionStart: Boolean,
+    containsWholeSelectionEnd: Boolean
+): Triple<Int, Int, Boolean> {
+    val handlesCrossed = mode.areHandlesCrossed(bounds, startPosition, endPosition)
+    val isSelected = mode.isSelected(
+        bounds,
+        start = if (handlesCrossed) endPosition else startPosition,
+        end = if (handlesCrossed) startPosition else endPosition
+    )
+    var startOffset = if (isSelected && !containsWholeSelectionStart) {
+        // If the composable is selected but the start is not in the composable, bound to the border
+        // of the text in the composable.
+        if (handlesCrossed) max(lastOffset, 0) else 0
+    } else {
+        // This else branch means (isSelected && containsWholeSelectionStart || !isSelected). If the
+        // composable is not selected, the final offset will still be -1, if the composable contains
+        // the start, the final offset has already been calculated earlier.
+        rawStartOffset
+    }
+    var endOffset = if (isSelected && !containsWholeSelectionEnd) {
+        // If the composable is selected but the end is not in the composable, bound to the border
+        // of the text in the composable.
+        if (handlesCrossed) 0 else max(lastOffset, 0)
+    } else {
+        // The same as startOffset.
+        rawEndOffset
+    }
+    return Triple(startOffset, endOffset, handlesCrossed)
+}
+
+/**
+ * This method returns the graphical position where the selection handle should be based on the
+ * offset and other information.
  *
  * @param textDelegate TextDelegate instance
- * @param offset
+ * @param offset character offset to be calculated
  * @param isStart true if called for selection start handle
+ * @param areHandlesCrossed true if the selection handles are crossed
  *
- * @return
+ * @return the graphical position where the selection handle should be.
  */
-// TODO(qqd) describe function argument [offset]
-// TODO(qqd) describe what this function returns
 private fun getSelectionHandleCoordinates(
     textDelegate: TextDelegate,
     offset: Int,
-    isStart: Boolean
+    isStart: Boolean,
+    areHandlesCrossed: Boolean
 ): PxPosition {
     val line = textDelegate.getLineForOffset(offset)
-    val offsetToCheck = if (isStart) offset else Math.max(offset - 1, 0)
+    val offsetToCheck =
+        if (isStart && !areHandlesCrossed || !isStart && areHandlesCrossed) offset
+        else Math.max(offset - 1, 0)
     val bidiRunDirection = textDelegate.getBidiRunDirection(offsetToCheck)
     val paragraphDirection = textDelegate.getParagraphDirection(offset)
 
