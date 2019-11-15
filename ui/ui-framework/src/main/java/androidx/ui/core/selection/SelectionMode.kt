@@ -52,6 +52,24 @@ enum class SelectionMode {
 
             return true
         }
+
+        override fun areHandlesCrossed(
+            bounds: PxBounds,
+            start: PxPosition,
+            end: PxPosition
+        ): Boolean {
+            if (start.y >= bounds.top && start.y < bounds.bottom &&
+                end.y >= bounds.top && end.y < bounds.bottom
+            ) {
+                // When the start and end of the selection are in the same row of widgets, check if
+                // x coordinates of the start and end are crossed each other.
+                return start.x > end.x
+            } else {
+                // When the start and end of the selection are not in the same row of widgets, check
+                // if y coordinates of the start and end are crossed each other.
+                return start.y > end.y
+            }
+        }
     },
 
     /**
@@ -83,18 +101,50 @@ enum class SelectionMode {
 
             return true
         }
+
+        override fun areHandlesCrossed(
+            bounds: PxBounds,
+            start: PxPosition,
+            end: PxPosition
+        ): Boolean {
+            if (start.x >= bounds.left && start.x < bounds.right &&
+                end.x >= bounds.left && end.x < bounds.right
+            ) {
+                // When the start and end of the selection are in the same column of widgets,
+                // check if y coordinates of the start and end are crossed each other.
+                return start.y > end.y
+            } else {
+                // When the start and end of the selection are not in the same column of widgets,
+                // check if x coordinates of the start and end are crossed each other.
+                return start.x > end.x
+            }
+        }
     };
 
-    // TODO(qqd) add function API docs
     /**
      * Decides if Composable which has [bounds], should be accepted by the selection and
      * change its selected state for a selection that starts at [start] and ends at [end].
      *
-     * @param bounds Composable bounds
-     * @param start
-     * @param end
+     * @param bounds Composable bounds of the widget to be checked.
+     * @param start The start coordinates of the selection, in SelectionContainer range.
+     * @param end The end coordinates of the selection, in SelectionContainer range.
      */
     internal abstract fun isSelected(
+        bounds: PxBounds,
+        start: PxPosition,
+        end: PxPosition
+    ): Boolean
+
+    /**
+     * Decides if the [start] and [end] handles of the selection are crossed around a Composable
+     * which has [bounds].
+     * When the end handle is visually crossed the start handle, return true.
+     *
+     * @param bounds Composable bounds of the widget to be checked.
+     * @param start The start coordinates of the selection, in SelectionContainer range.
+     * @param end The end coordinates of the selection, in SelectionContainer range.
+     */
+    internal abstract fun areHandlesCrossed(
         bounds: PxBounds,
         start: PxPosition,
         end: PxPosition
