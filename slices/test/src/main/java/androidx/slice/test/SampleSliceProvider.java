@@ -59,6 +59,7 @@ import androidx.slice.builders.SliceAction;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Calendar;
+import java.util.Random;
 import java.util.concurrent.TimeUnit;
 
 /**
@@ -806,13 +807,18 @@ public class SampleSliceProvider extends SliceProvider {
         IconCompat icon = IconCompat.createWithResource(getContext(), R.drawable.ic_star_on);
         SliceAction primaryAction = SliceAction.create(
                 getBroadcastIntent(ACTION_TOAST, "open download"), icon, ICON_IMAGE,  "Download");
+        int progress = PROGRESS.next();
+        if (progress != 100) {
+            mHandler.postDelayed(() -> getContext().getContentResolver().notifyChange(sliceUri,
+                    null), 500);
+        }
         return new ListBuilder(getContext(), sliceUri, INFINITY)
                 .setAccentColor(0xffff4081)
                 .addRange(new RangeBuilder()
                         .setTitle("Download progress")
                         .setSubtitle("Download is happening")
                         .setMax(100)
-                        .setValue(75)
+                        .setValue(progress)
                         .setPrimaryAction(primaryAction))
                 .build();
     }
@@ -1185,4 +1191,18 @@ public class SampleSliceProvider extends SliceProvider {
         return PendingIntent.getBroadcast(getContext(), requestCode, intent,
                 PendingIntent.FLAG_UPDATE_CURRENT);
     }
+
+    static final class RandomProgressGenerator {
+        private int mProgress = 0;
+        private int mEnd = 100;
+        private int mInterval = 5;
+
+        int next() {
+            if (mProgress >= mEnd) return mEnd;
+            mProgress += new Random().nextInt(mInterval);
+            return Math.min(mEnd, mProgress);
+        }
+    }
+
+    private static final RandomProgressGenerator PROGRESS = new RandomProgressGenerator();
 }
