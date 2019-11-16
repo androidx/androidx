@@ -16,6 +16,7 @@
 
 package androidx.ui.text
 
+import androidx.compose.Immutable
 import androidx.ui.core.Sp
 import androidx.ui.text.style.TextAlign
 import androidx.ui.text.style.TextDirectionAlgorithm
@@ -40,6 +41,7 @@ import androidx.ui.text.style.TextIndent
  * @see [Paragraph]
  * @see [AnnotatedString]
  */
+@Immutable
 data class ParagraphStyle constructor(
     val textAlign: TextAlign? = null,
     val textDirectionAlgorithm: TextDirectionAlgorithm? = null,

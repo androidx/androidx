@@ -15,6 +15,7 @@
  */
 package androidx.ui.text.font
 
+import androidx.compose.Immutable
 import androidx.ui.lerp
 
 /**
@@ -23,6 +24,7 @@ import androidx.ui.lerp
  * @see [Font]
  * @see [FontFamily]
  */
+@Immutable
 /* inline */ data class FontWeight private constructor(
     /**
      * Can be in the range of [1,1000]

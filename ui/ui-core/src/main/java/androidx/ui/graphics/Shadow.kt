@@ -16,6 +16,7 @@
 
 package androidx.ui.graphics
 
+import androidx.compose.Immutable
 import androidx.ui.core.Px
 import androidx.ui.core.lerp
 import androidx.ui.core.px
@@ -24,6 +25,7 @@ import androidx.ui.engine.geometry.Offset
 /**
  * A single shadow.
  */
+@Immutable
 data class Shadow(
     val color: Color = Color(0xFF000000),
     val offset: Offset = Offset.zero,
