@@ -16,6 +16,7 @@
 
 package androidx.ui.text
 
+import androidx.compose.Immutable
 import androidx.ui.text.platform.platformLocaleDelegate
 
 /**
@@ -23,6 +24,7 @@ import androidx.ui.text.platform.platformLocaleDelegate
  *
  * @see [TextStyle]
  */
+@Immutable
 data class LocaleList constructor(val localeList: List<Locale>) : Collection<Locale> {
     companion object {
         /**

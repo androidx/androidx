@@ -16,6 +16,7 @@
 
 package androidx.ui.text.style
 
+import androidx.compose.Immutable
 import androidx.ui.lerp
 
 /**
@@ -25,6 +26,7 @@ import androidx.ui.lerp
  * @param skewX The shear of the text on the horizontal direction. A pixel at (x, y), where y is
  * the distance above baseline, will be transformed to (x + y * skewX, y).
  */
+@Immutable
 data class TextGeometricTransform(
     val scaleX: Float? = null,
     val skewX: Float? = null

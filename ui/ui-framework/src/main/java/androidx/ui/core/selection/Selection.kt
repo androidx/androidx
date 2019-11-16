@@ -16,6 +16,7 @@
 
 package androidx.ui.core.selection
 
+import androidx.compose.Immutable
 import androidx.ui.core.LayoutCoordinates
 import androidx.ui.core.PxPosition
 import androidx.ui.text.TextRange
@@ -24,6 +25,7 @@ import androidx.ui.text.style.TextDirection
 /**
  * Information about the current Selection.
  */
+@Immutable
 data class Selection(
     /**
      * Information about the start of the selection.
@@ -48,6 +50,7 @@ data class Selection(
     /**
      * Contains information about an anchor (start/end) of selection.
      */
+    @Immutable
     data class AnchorInfo(
         /**
          * The coordinates of the graphical position for selection character offset.

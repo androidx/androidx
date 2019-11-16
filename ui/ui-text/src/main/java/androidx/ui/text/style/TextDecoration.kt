@@ -15,9 +15,12 @@
  */
 package androidx.ui.text.style
 
+import androidx.compose.Immutable
+
 /**
  * Defines a horizontal line to be drawn on the text.
  */
+@Immutable
 data class TextDecoration internal constructor(val mask: Int) {
 
     companion object {

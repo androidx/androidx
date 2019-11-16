@@ -16,6 +16,7 @@
 
 package androidx.ui.text.style
 
+import androidx.compose.Immutable
 import androidx.ui.lerp
 
 /**
@@ -26,6 +27,7 @@ import androidx.ui.lerp
  *
  * @param multiplier shift the baseline by multiplier * (baseline - ascent)
  */
+@Immutable
 /*inline*/ data class BaselineShift constructor(
     val multiplier: Float
 ) {

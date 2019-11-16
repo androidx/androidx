@@ -16,6 +16,7 @@
 
 package androidx.ui.text
 
+import androidx.compose.Immutable
 import androidx.ui.core.Em
 import androidx.ui.core.Sp
 import androidx.ui.core.em
@@ -65,6 +66,7 @@ import androidx.ui.text.style.lerp
  *
  *  @see [AnnotatedString]
  */
+@Immutable
 data class TextStyle(
     val color: Color? = null,
     val fontSize: Sp = Sp.Inherit,
