@@ -17,7 +17,7 @@
 package androidx.ui.foundation.text
 
 import androidx.test.filters.SmallTest
-import androidx.ui.core.selection.TextSelectionHandler
+import androidx.ui.core.selection.Selectable
 import com.google.common.truth.Truth.assertThat
 import com.nhaarman.mockitokotlin2.mock
 import org.junit.Test
@@ -29,8 +29,8 @@ import org.junit.runners.JUnit4
 class SelectionRegistrarImplTest {
     @Test
     fun subscribe() {
-        val handler1: TextSelectionHandler = mock()
-        val handler2: TextSelectionHandler = mock()
+        val handler1: Selectable = mock()
+        val handler2: Selectable = mock()
         val selectionRegistrar = SelectionRegistrarImpl()
 
         val id1 = selectionRegistrar.subscribe(handler1)
@@ -38,19 +38,19 @@ class SelectionRegistrarImplTest {
 
         assertThat(id1).isEqualTo(handler1)
         assertThat(id2).isEqualTo(handler2)
-        assertThat(selectionRegistrar.handlers.size).isEqualTo(2)
+        assertThat(selectionRegistrar.selectables.size).isEqualTo(2)
     }
 
     @Test
     fun unsubscribe() {
-        val handler1: TextSelectionHandler = mock()
-        val handler2: TextSelectionHandler = mock()
+        val handler1: Selectable = mock()
+        val handler2: Selectable = mock()
         val selectionRegistrar = SelectionRegistrarImpl()
         selectionRegistrar.subscribe(handler1)
         val id2 = selectionRegistrar.subscribe(handler2)
 
         selectionRegistrar.unsubscribe(id2)
 
-        assertThat(selectionRegistrar.handlers.size).isEqualTo(1)
+        assertThat(selectionRegistrar.selectables.size).isEqualTo(1)
     }
 }

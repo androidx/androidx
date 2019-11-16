@@ -33,13 +33,13 @@ internal class TextSelectionDelegate(
     private val selectionRange: State<TextRange?>,
     private val layoutCoordinates: State<LayoutCoordinates?>,
     private val textDelegate: TextDelegate
-) : TextSelectionHandler {
+) : Selectable {
 
     override fun getSelection(
         startPosition: PxPosition,
         endPosition: PxPosition,
         containerLayoutCoordinates: LayoutCoordinates,
-        wordSelectIfCollapsed: Boolean
+        longPress: Boolean
     ): Selection? {
         val layoutCoordinates = layoutCoordinates.value!!
 
@@ -53,7 +53,7 @@ internal class TextSelectionDelegate(
             textDelegate = textDelegate,
             selectionCoordinates = Pair(startPx, endPx),
             layoutCoordinates = layoutCoordinates,
-            wordSelectIfCollapsed = wordSelectIfCollapsed
+            wordSelectIfCollapsed = longPress
         )
 
         return if (selection == null) {
