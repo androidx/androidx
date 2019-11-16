@@ -1544,7 +1544,7 @@ class AndroidLayoutDrawTest {
                     // This simulates a child that recomposes, for example due to a transition.
                     children(model.offset)
                 }
-                val assumeLayoutBeforeDraw = @Composable {
+                val assumeLayoutBeforeDraw = @Composable { _: IntPx ->
                     // This assumes a layout was done before the draw pass.
                     Layout({
                         Draw { _, _ ->
@@ -1559,7 +1559,7 @@ class AndroidLayoutDrawTest {
 
                 container {
                     recomposingChild {
-                        assumeLayoutBeforeDraw()
+                        assumeLayoutBeforeDraw(it)
                     }
                 }
             }
