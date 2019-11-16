@@ -78,6 +78,7 @@ import androidx.annotation.RequiresApi;
 import androidx.annotation.RestrictTo;
 import androidx.core.graphics.drawable.DrawableCompat;
 import androidx.core.graphics.drawable.IconCompat;
+import androidx.core.view.ViewCompat;
 import androidx.slice.SliceItem;
 import androidx.slice.SliceStructure;
 import androidx.slice.core.SliceAction;
@@ -195,6 +196,9 @@ public class RowView extends SliceChildView implements View.OnClickListener,
         mActionSpinner = findViewById(R.id.action_sent_indicator);
         SliceViewUtil.tintIndeterminateProgressBar(getContext(), mActionSpinner);
         mEndContainer = (LinearLayout) findViewById(android.R.id.widget_frame);
+        ViewCompat.setImportantForAccessibility(this, ViewCompat.IMPORTANT_FOR_ACCESSIBILITY_NO);
+        ViewCompat.setImportantForAccessibility(
+                mContent, ViewCompat.IMPORTANT_FOR_ACCESSIBILITY_NO);
     }
 
     @Override
@@ -557,6 +561,12 @@ public class RowView extends SliceChildView implements View.OnClickListener,
                 && mLoadingActions.contains(mRowAction.getSliceItem())) {
             mShowActionSpinner = true;
         }
+
+        ViewCompat.setImportantForAccessibility(mRootView,
+                (mRootView.isClickable() && mToggles.isEmpty() && mActions.isEmpty())
+                        ? ViewCompat.IMPORTANT_FOR_ACCESSIBILITY_AUTO
+                        : ViewCompat.IMPORTANT_FOR_ACCESSIBILITY_NO
+        );
     }
 
     @Override
