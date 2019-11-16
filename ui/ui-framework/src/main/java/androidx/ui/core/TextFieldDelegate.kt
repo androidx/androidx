@@ -32,7 +32,6 @@ import androidx.ui.input.SetSelectionEditOp
 import androidx.ui.input.TextInputService
 import androidx.ui.input.TransformedText
 import androidx.ui.input.VisualTransformation
-import androidx.ui.input.identityOffsetMap
 import androidx.ui.text.AnnotatedString
 import androidx.ui.text.Paragraph
 import androidx.ui.text.ParagraphConstraints
@@ -317,7 +316,7 @@ internal class TextFieldDelegate {
         ): TransformedText {
             val annotatedString = AnnotatedString(value.text)
             return visualTransformation?.filter(annotatedString)
-                    ?: TransformedText(annotatedString, identityOffsetMap)
+                    ?: TransformedText(annotatedString, OffsetMap.identityOffsetMap)
         }
 
         /**
