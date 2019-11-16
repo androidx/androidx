@@ -20,6 +20,8 @@ import androidx.annotation.RestrictTo
 import androidx.annotation.RestrictTo.Scope.LIBRARY
 import java.text.BreakIterator
 import java.util.Objects
+import kotlin.math.max
+import kotlin.math.min
 
 /**
  * A base class of all EditOperations
@@ -196,11 +198,11 @@ data class DeleteSurroundingTextEditOp(
     override fun process(buffer: EditingBuffer) {
         buffer.delete(
             buffer.selectionEnd,
-            Math.min(buffer.selectionEnd + afterLength, buffer.length)
+            min(buffer.selectionEnd + afterLength, buffer.length)
         )
 
         buffer.delete(
-            Math.max(0, buffer.selectionStart - beforeLength),
+            max(0, buffer.selectionStart - beforeLength),
             buffer.selectionStart
         )
     }

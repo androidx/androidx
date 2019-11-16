@@ -18,6 +18,8 @@
 package androidx.ui.core
 
 import androidx.compose.Immutable
+import kotlin.math.max
+import kotlin.math.min
 
 /**
  * Dimension value representing Em. 1 Em is defined to be the font size when doing the text layout.
@@ -121,9 +123,9 @@ inline operator fun Double.times(other: Em) =
 inline operator fun Int.times(other: Em) =
     Em(this * other.value)
 
-inline fun min(a: Em, b: Em): Em = Em(value = kotlin.math.min(a.value, b.value))
+inline fun min(a: Em, b: Em): Em = Em(value = min(a.value, b.value))
 
-inline fun max(a: Em, b: Em): Em = Em(value = kotlin.math.max(a.value, b.value))
+inline fun max(a: Em, b: Em): Em = Em(value = max(a.value, b.value))
 
 /**
  * Ensures that this value lies in the specified range [minimumValue]..[maximumValue].
