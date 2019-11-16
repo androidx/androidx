@@ -1,13 +1,55 @@
 // Signature format: 3.0
 package androidx.ui.input {
 
+  public final class BackspaceKeyEditOp implements androidx.ui.input.EditOperation {
+    ctor public BackspaceKeyEditOp();
+    method public void process(androidx.ui.input.EditingBuffer buffer);
+  }
+
+  public final class CommitTextEditOp implements androidx.ui.input.EditOperation {
+    ctor public CommitTextEditOp(String text, int newCursorPosition);
+    method public String component1();
+    method public int component2();
+    method public androidx.ui.input.CommitTextEditOp copy(String text, int newCursorPosition);
+    method public int getNewCursorPosition();
+    method public String getText();
+    method public void process(androidx.ui.input.EditingBuffer buffer);
+  }
+
+  public final class DeleteSurroundingTextEditOp implements androidx.ui.input.EditOperation {
+    ctor public DeleteSurroundingTextEditOp(int beforeLength, int afterLength);
+    method public int component1();
+    method public int component2();
+    method public androidx.ui.input.DeleteSurroundingTextEditOp copy(int beforeLength, int afterLength);
+    method public int getAfterLength();
+    method public int getBeforeLength();
+    method public void process(androidx.ui.input.EditingBuffer buffer);
+  }
+
+  public final class DeleteSurroundingTextInCodePointsEditOp implements androidx.ui.input.EditOperation {
+    ctor public DeleteSurroundingTextInCodePointsEditOp(int beforeLength, int afterLength);
+    method public int component1();
+    method public int component2();
+    method public androidx.ui.input.DeleteSurroundingTextInCodePointsEditOp copy(int beforeLength, int afterLength);
+    method public int getAfterLength();
+    method public int getBeforeLength();
+    method public void process(androidx.ui.input.EditingBuffer buffer);
+  }
+
+  public interface EditOperation {
+    method public void process(androidx.ui.input.EditingBuffer buffer);
+  }
 
 
+  public final class EditingBuffer {
+    ctor public EditingBuffer(String initialText, androidx.ui.text.TextRange initialSelection);
+    field public static final int NOWHERE = -1; // 0xffffffff
+  }
 
-
-
-
-
+  public final class FinishComposingTextEditOp implements androidx.ui.input.EditOperation {
+    ctor public FinishComposingTextEditOp();
+    method public void process(androidx.ui.input.EditingBuffer buffer);
+  }
 
   public enum ImeAction {
     enum_constant public static final androidx.ui.input.ImeAction Done;
@@ -33,6 +75,13 @@ package androidx.ui.input {
     enum_constant public static final androidx.ui.input.KeyboardType Uri;
   }
 
+  public final class MoveCursorEditOp implements androidx.ui.input.EditOperation {
+    ctor public MoveCursorEditOp(int amount);
+    method public int component1();
+    method public androidx.ui.input.MoveCursorEditOp copy(int amount);
+    method public int getAmount();
+    method public void process(androidx.ui.input.EditingBuffer buffer);
+  }
 
   public interface OffsetMap {
     method public int originalToTransformed(int offset);
@@ -48,8 +97,35 @@ package androidx.ui.input {
   }
 
 
+  public final class SetComposingRegionEditOp implements androidx.ui.input.EditOperation {
+    ctor public SetComposingRegionEditOp(int start, int end);
+    method public int component1();
+    method public int component2();
+    method public androidx.ui.input.SetComposingRegionEditOp copy(int start, int end);
+    method public int getEnd();
+    method public int getStart();
+    method public void process(androidx.ui.input.EditingBuffer buffer);
+  }
 
+  public final class SetComposingTextEditOp implements androidx.ui.input.EditOperation {
+    ctor public SetComposingTextEditOp(String text, int newCursorPosition);
+    method public String component1();
+    method public int component2();
+    method public androidx.ui.input.SetComposingTextEditOp copy(String text, int newCursorPosition);
+    method public int getNewCursorPosition();
+    method public String getText();
+    method public void process(androidx.ui.input.EditingBuffer buffer);
+  }
 
+  public final class SetSelectionEditOp implements androidx.ui.input.EditOperation {
+    ctor public SetSelectionEditOp(int start, int end);
+    method public int component1();
+    method public int component2();
+    method public androidx.ui.input.SetSelectionEditOp copy(int start, int end);
+    method public int getEnd();
+    method public int getStart();
+    method public void process(androidx.ui.input.EditingBuffer buffer);
+  }
 
 
   public final class TextInputServiceKt {

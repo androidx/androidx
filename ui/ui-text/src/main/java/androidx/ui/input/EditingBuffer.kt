@@ -16,8 +16,6 @@
 
 package androidx.ui.input
 
-import androidx.annotation.RestrictTo
-import androidx.annotation.RestrictTo.Scope.LIBRARY
 import androidx.ui.text.TextRange
 import java.lang.IllegalArgumentException
 
@@ -25,10 +23,7 @@ import java.lang.IllegalArgumentException
  * The editing buffer
  *
  * This class manages the all editing relate states, editing buffers, selection, styles, etc.
- *
- * @hide
  */
-@RestrictTo(LIBRARY)
 class EditingBuffer(
     /**
      * The initial text of this editing buffer
@@ -53,13 +48,13 @@ class EditingBuffer(
     /**
      * The inclusive selection start offset
      */
-    var selectionStart = initialSelection.min
+    internal var selectionStart = initialSelection.min
         private set
 
     /**
      * The exclusive selection end offset
      */
-    var selectionEnd = initialSelection.max
+    internal var selectionEnd = initialSelection.max
         private set
 
     /**
@@ -67,7 +62,7 @@ class EditingBuffer(
      *
      * If there is no composing text, returns -1
      */
-    var compositionStart = NOWHERE
+    internal var compositionStart = NOWHERE
         private set
 
     /**
@@ -75,18 +70,18 @@ class EditingBuffer(
      *
      * If there is no composing text, returns -1
      */
-    var compositionEnd = NOWHERE
+    internal var compositionEnd = NOWHERE
         private set
 
     /**
      * Helper function that returns true if the editing buffer has composition text
      */
-    fun hasComposition(): Boolean = compositionStart != NOWHERE
+    internal fun hasComposition(): Boolean = compositionStart != NOWHERE
 
     /**
      * Helper accessor for cursor offset
      */
-    var cursor: Int
+    internal var cursor: Int
         /**
          * Return the cursor offset.
          *
@@ -104,12 +99,12 @@ class EditingBuffer(
     /**
      * [] operator for the character at the index.
      */
-    operator fun get(index: Int): Char = gapBuffer[index]
+    internal operator fun get(index: Int): Char = gapBuffer[index]
 
     /**
      * Returns the length of the buffer.
      */
-    val length: Int get() = gapBuffer.length
+    internal val length: Int get() = gapBuffer.length
 
     init {
         val start = initialSelection.min
@@ -137,7 +132,7 @@ class EditingBuffer(
      * @throws IndexOutOfBoundsException if start or end offset is outside of current buffer
      * @throws IllegalArgumentException if start is larger than end. (reversed range)
      */
-    fun replace(start: Int, end: Int, text: String) {
+    internal fun replace(start: Int, end: Int, text: String) {
 
         if (start < 0 || start > gapBuffer.length) {
             throw IndexOutOfBoundsException(
@@ -176,7 +171,7 @@ class EditingBuffer(
      * Different from replace method, this doesn't move cursor location to the end of modified text.
      * Instead, preserve the selection with adjusting the deleted text.
      */
-    fun delete(start: Int, end: Int) {
+    internal fun delete(start: Int, end: Int) {
         val deleteRange = TextRange(start, end)
         if (deleteRange.intersects(TextRange(selectionStart, selectionEnd))) {
             // Currently only target for deleteSurroundingText/deleteSurroundingTextInCodePoints.
@@ -279,7 +274,7 @@ class EditingBuffer(
      * @throws IndexOutOfBoundsException if start or end offset is outside of current buffer.
      * @throws IllegalArgumentException if start is larger than end. (reversed range)
      */
-    fun setSelection(start: Int, end: Int) {
+    internal fun setSelection(start: Int, end: Int) {
         if (start < 0 || start > gapBuffer.length) {
             throw IndexOutOfBoundsException(
                 "start ($start) offset is outside of text region ${gapBuffer.length}")
@@ -309,7 +304,7 @@ class EditingBuffer(
      * @throws IllegalArgumentException if start is larger than or equal to end. (reversed or
      *                                  collapsed range)
      */
-    fun setComposition(start: Int, end: Int) {
+    internal fun setComposition(start: Int, end: Int) {
         if (start < 0 || start > gapBuffer.length) {
             throw IndexOutOfBoundsException(
                 "start ($start) offset is outside of text region ${gapBuffer.length}")
@@ -329,7 +324,7 @@ class EditingBuffer(
     /**
      * Removes the ongoing composition text and reset the composition range.
      */
-    fun cancelComposition() {
+    internal fun cancelComposition() {
         replace(compositionStart, compositionEnd, "")
         compositionStart = NOWHERE
         compositionEnd = NOWHERE
@@ -338,7 +333,7 @@ class EditingBuffer(
     /**
      * Commits the ongoing composition text and reset the composition range.
      */
-    fun commitComposition() {
+    internal fun commitComposition() {
         compositionStart = NOWHERE
         compositionEnd = NOWHERE
     }
