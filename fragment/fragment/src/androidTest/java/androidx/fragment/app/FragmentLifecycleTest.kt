@@ -517,6 +517,66 @@ class FragmentLifecycleTest {
             .that(viewLifecycleOwner.lifecycle.currentState).isEqualTo(Lifecycle.State.DESTROYED)
     }
 
+    /**
+     * Test to ensure childFragment gets initState() called when parent is destroyed
+     */
+    @Test
+    @UiThreadTest
+    fun childFragmentInitWhenFragmentManagerDestroyed() {
+        val viewModelStore = ViewModelStore()
+        val fc = activityRule.startupFragmentController(viewModelStore)
+        val fm = fc.supportFragmentManager
+
+        val fragment = StrictViewFragment(R.layout.simple_container)
+        fm.beginTransaction()
+            .add(android.R.id.content, fragment)
+            .commitNow()
+
+        val childFragment = StrictViewFragment()
+
+        fragment.childFragmentManager.beginTransaction()
+            .add(R.id.fragmentContainer, childFragment, "child")
+            .commitNow()
+
+        val lifecycle = childFragment.lifecycle
+
+        fc.restart(activityRule, viewModelStore, false)
+
+        assertWithMessage("ChildFragment lifecycle instance is same")
+            .that(lifecycle).isNotSameInstanceAs(childFragment.lifecycle)
+    }
+
+    /**
+     * Test to ensure childFragment gets initState() called when parent is removed
+     */
+    @Test
+    @UiThreadTest
+    fun childFragmentInitWhenParentRemoved() {
+        val viewModelStore = ViewModelStore()
+        val fc = activityRule.startupFragmentController(viewModelStore)
+        val fm = fc.supportFragmentManager
+
+        val fragment = StrictViewFragment(R.layout.simple_container)
+        fm.beginTransaction()
+            .add(android.R.id.content, fragment)
+            .commitNow()
+
+        val childFragment = StrictViewFragment()
+
+        fragment.childFragmentManager.beginTransaction()
+            .add(R.id.fragmentContainer, childFragment, "child")
+            .commitNow()
+
+        val lifecycle = childFragment.lifecycle
+
+        fm.beginTransaction()
+            .remove(fragment)
+            .commitNow()
+
+        assertWithMessage("ChildFragment lifecycle instance is same")
+            .that(lifecycle).isNotSameInstanceAs(childFragment.lifecycle)
+    }
+
     @Test
     @UiThreadTest
     fun testSetArgumentsLifecycle() {

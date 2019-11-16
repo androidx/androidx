@@ -1325,7 +1325,7 @@ public abstract class FragmentManager {
                     // fall through
                 case Fragment.ATTACHED:
                     if (newState < Fragment.ATTACHED) {
-                        fragmentStateManager.detach();
+                        fragmentStateManager.detach(mNonConfig);
                     }
             }
         }
