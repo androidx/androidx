@@ -774,20 +774,28 @@ public class Preview extends UseCase {
         }
 
         /**
-         * Sets the rotation of the intended target for images from this configuration.
+         * Sets the rotation that the intended target resolution is expressed in.
          *
-         * <p>This is one of four valid values: {@link Surface#ROTATION_0}, {@link
+         * <p>This sets the rotation that is used when specifying a target resolution using
+         * {@link #setTargetResolution(Size)}, which accepts a resolution at the target orientation.
+         *
+         * <p>rotation is one of four valid values: {@link Surface#ROTATION_0}, {@link
          * Surface#ROTATION_90}, {@link Surface#ROTATION_180}, {@link Surface#ROTATION_270}.
          * Rotation values are relative to the "natural" rotation, {@link Surface#ROTATION_0}.
+         *
+         * <p>For example a portrait natural device may specify a portrait image target resolution
+         * as 480x640, and the same device rotated to and displaying in landscape (i.e. as
+         * returned by {@link Display#getRotation()}) may set the target rotation to
+         * {@link Surface#ROTATION_90} and resolution to 640x480.
          *
          * <p>If not set, the target rotation will default to the value of
          * {@link Display#getRotation()} of the default display at the time the use case is created.
          *
          * @param rotation The rotation of the intended target.
          * @return The current Builder.
-         * @hide Preview always set the rotation to device's nature orientation.
+         *
+         * @see #setTargetResolution(Size)
          */
-        @RestrictTo(Scope.LIBRARY_GROUP)
         @NonNull
         @Override
         public Builder setTargetRotation(@ImageOutputConfig.RotationValue int rotation) {
