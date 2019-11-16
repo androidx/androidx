@@ -392,8 +392,7 @@ public abstract class UseCase {
             boundCameraId = getCameraIdUnchecked(deviceConfig);
         }
 
-        // Bound camera changed. Don't attempt reset.
-        return !Objects.equals(cameraId, boundCameraId);
+        return Objects.equals(cameraId, boundCameraId);
     }
 
     /**
