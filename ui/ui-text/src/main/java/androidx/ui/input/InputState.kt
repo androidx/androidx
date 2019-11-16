@@ -16,7 +16,6 @@
 
 package androidx.ui.input
 
-import androidx.annotation.RestrictTo
 import androidx.ui.text.TextRange
 import androidx.ui.text.substring
 
@@ -26,9 +25,7 @@ import androidx.ui.text.substring
  * IME can request editor state with calling getTextBeforeCursor, getSelectedText, etc.
  * This class stores a snapshot of the input state of the edit buffer and provide utility functions
  * for answering these information retrieval requests.
- * @hide
  */
-@RestrictTo(RestrictTo.Scope.LIBRARY)
 data class InputState(
     /**
      * A text visible to IME
