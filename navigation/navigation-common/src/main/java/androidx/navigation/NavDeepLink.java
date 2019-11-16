@@ -56,7 +56,11 @@ class NavDeepLink {
             Matcher matcher = Pattern.compile("(\\?)").matcher(uri);
             if (matcher.find()) {
                 buildPathRegex(uri.substring(0, matcher.start()), uriRegex, fillInPattern);
-                uriRegex.append("(.+)?");
+                // Match either the end of string if all params are optional or match the
+                // question mark and 0 or more characters after it
+                // We do not use '.*' here because the finalregex would replace it with a quoted
+                // version below.
+                uriRegex.append("($|(\\?(.)*))");
             }
             mExactDeepLink = false;
             for (String paramName : parameterizedUri.getQueryParameterNames()) {
