@@ -726,7 +726,7 @@ public class Picker extends FrameLayout {
             }
         }
         VerticalGridView columnView = mColumnViews.get(columnIndex);
-        if (hasFocus()) {
+        if (hasFocus() && !columnView.hasFocus()) {
             columnView.requestFocus();
         }
     }
