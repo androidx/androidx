@@ -35,6 +35,12 @@ dependencies {
     testImplementation(MOCKITO_CORE)
     testImplementation(TRUTH)
     testImplementation("androidx.lifecycle:lifecycle-livedata-core:2.0.0")
+    testImplementation(ANDROIDX_TEST_RUNNER)
+    testImplementation(KOTLIN_COROUTINES_TEST)
+
+    androidTestImplementation(TRUTH)
+    androidTestImplementation(ANDROIDX_TEST_RUNNER)
+    androidTestImplementation(KOTLIN_COROUTINES_TEST)
 }
 
 androidx {
