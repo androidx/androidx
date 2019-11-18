@@ -16,18 +16,24 @@
 
 <resources>
     <array name="exifbyteorderii_jpg">
+        <!--Whether thumbnail exists-->
         <item>true</item>
         <item>3500</item>
         <item>6265</item>
         <item>512</item>
         <item>288</item>
         <item>true</item>
+        <!--Whether GPS LatLong information exists-->
         <item>false</item>
         <item>0</item>
         <item>0</item>
         <item>0.0</item>
         <item>0.0</item>
         <item>0.0</item>
+        <!--Whether Make information exists-->
+        <item>true</item>
+        <item>160</item>
+        <item>8</item>
         <item>SAMSUNG</item>
         <item>SM-N900S</item>
         <item>2.200</item>
@@ -54,18 +60,24 @@
         <item>0</item>
     </array>
     <array name="exifbyteorderii_standalone">
+        <!--Whether thumbnail exists-->
         <item>true</item>
         <item>3494</item>
         <item>6265</item>
         <item>512</item>
         <item>288</item>
         <item>true</item>
+        <!--Whether GPS LatLong information exists-->
         <item>false</item>
         <item>0</item>
         <item>0</item>
         <item>0.0</item>
         <item>0.0</item>
         <item>0.0</item>
+        <!--Whether Make information exists-->
+        <item>true</item>
+        <item>154</item>
+        <item>8</item>
         <item>SAMSUNG</item>
         <item>SM-N900S</item>
         <item>2.200</item>
@@ -92,18 +104,24 @@
         <item>0</item>
     </array>
     <array name="exifbyteordermm_jpg">
+        <!--Whether thumbnail exists-->
         <item>false</item>
         <item>0</item>
         <item>0</item>
         <item>0</item>
         <item>0</item>
         <item>false</item>
+        <!--Whether GPS LatLong information exists-->
         <item>true</item>
-        <item>572</item>
+        <item>584</item>
         <item>24</item>
         <item>0.0</item>
         <item>0.0</item>
         <item>0.0</item>
+        <!--Whether Make information exists-->
+        <item>true</item>
+        <item>414</item>
+        <item>4</item>
         <item>LGE</item>
         <item>Nexus 5</item>
         <item>2.400</item>
@@ -130,18 +148,24 @@
         <item>0</item>
     </array>
     <array name="exifbyteordermm_standalone">
+        <!--Whether thumbnail exists-->
         <item>false</item>
         <item>0</item>
         <item>0</item>
         <item>0</item>
         <item>0</item>
         <item>false</item>
+        <!--Whether GPS LatLong information exists-->
         <item>true</item>
-        <item>572</item>
+        <item>578</item>
         <item>24</item>
         <item>0.0</item>
         <item>0.0</item>
         <item>0.0</item>
+        <!--Whether Make information exists-->
+        <item>true</item>
+        <item>408</item>
+        <item>4</item>
         <item>LGE</item>
         <item>Nexus 5</item>
         <item>2.400</item>
@@ -168,18 +192,24 @@
         <item>0</item>
     </array>
     <array name="lg_g4_iso_800_dng">
+        <!--Whether thumbnail exists-->
         <item>true</item>
-        <item>0</item>
+        <item>12570</item>
         <item>15179</item>
         <item>256</item>
         <item>144</item>
         <item>true</item>
+        <!--Whether GPS LatLong information exists-->
         <item>true</item>
         <item>12486</item>
         <item>24</item>
         <item>53.834507</item>
         <item>10.69585</item>
         <item>0.0</item>
+        <!--Whether Make information exists-->
+        <item>true</item>
+        <item>102</item>
+        <item>4</item>
         <item>LGE</item>
         <item>LG-H815</item>
         <item>1.800</item>
@@ -206,18 +236,24 @@
         <item>10067</item>
     </array>
     <array name="lg_g4_iso_800_jpg">
+        <!--Whether thumbnail exists-->
         <item>false</item>
         <item>0</item>
         <item>0</item>
         <item>0</item>
         <item>0</item>
         <item>false</item>
+        <!--Whether GPS LatLong information exists-->
         <item>true</item>
-        <item>1662</item>
+        <item>1692</item>
         <item>24</item>
         <item>53.834507</item>
         <item>10.69585</item>
         <item>0.0</item>
+        <!--Whether Make information exists-->
+        <item>true</item>
+        <item>84</item>
+        <item>4</item>
         <item>LGE</item>
         <item>LG-H815</item>
         <item>1.800</item>
@@ -244,18 +280,24 @@
         <item>13197</item>
     </array>
     <array name="exifbyteorderii_png">
+        <!--Whether thumbnail exists-->
         <item>true</item>
         <item>212271</item>
         <item>6265</item>
         <item>512</item>
         <item>288</item>
         <item>true</item>
+        <!--Whether GPS LatLong information exists-->
         <item>false</item>
         <item>0</item>
         <item>0</item>
         <item>0.0</item>
         <item>0.0</item>
         <item>0.0</item>
+        <!--Whether Make information exists-->
+        <item>true</item>
+        <item>211525</item>
+        <item>8</item>
         <item>SAMSUNG</item>
         <item>SM-N900S</item>
         <item>2.200</item>
@@ -282,18 +324,24 @@
         <item>0</item>
     </array>
     <array name="exifbyteorderii_webp">
+        <!--Whether thumbnail exists-->
         <item>true</item>
         <item>9646</item>
         <item>6265</item>
         <item>512</item>
         <item>288</item>
         <item>true</item>
+        <!--Whether GPS LatLong information exists-->
         <item>false</item>
         <item>0</item>
         <item>0</item>
         <item>0.0</item>
         <item>0.0</item>
         <item>0.0</item>
+        <!--Whether Make information exists-->
+        <item>true</item>
+        <item>6306</item>
+        <item>8</item>
         <item>SAMSUNG</item>
         <item>SM-N900S</item>
         <item>2.200</item>
