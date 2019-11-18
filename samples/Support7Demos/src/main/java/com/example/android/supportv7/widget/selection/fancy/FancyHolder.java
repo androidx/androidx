@@ -54,12 +54,12 @@ final class FancyHolder extends RecyclerView.ViewHolder {
             }
 
             @Override
-            public boolean inDragRegion(MotionEvent e) {
+            public boolean inDragRegion(@NonNull MotionEvent e) {
                 return FancyHolder.this.inDragRegion(e);
             }
 
             @Override
-            public boolean inSelectionHotspot(MotionEvent e) {
+            public boolean inSelectionHotspot(@NonNull MotionEvent e) {
                 return FancyHolder.this.inSelectRegion(e);
             }
 

@@ -37,7 +37,7 @@ import androidx.recyclerview.widget.RecyclerView.OnItemTouchListener;
  * when used in conjunction with RecyclerView and other classes in the ReyclerView
  * selection support package.
  */
-final class GestureSelectionHelper implements OnItemTouchListener {
+final class GestureSelectionHelper implements OnItemTouchListener, Resettable {
 
     private static final String TAG = "GestureSelectionHelper";
 
@@ -162,10 +162,16 @@ final class GestureSelectionHelper implements OnItemTouchListener {
     /**
      * Immediately "Stops" active gesture selection, and resets all related state.
      */
+    @Override
     public void reset() {
         if (DEBUG) Log.d(TAG, "Received reset request.");
         mStarted = false;
         mScroller.reset();
+    }
+
+    @Override
+    public boolean isResetRequired() {
+        return mStarted;
     }
 
     private void endSelection() {

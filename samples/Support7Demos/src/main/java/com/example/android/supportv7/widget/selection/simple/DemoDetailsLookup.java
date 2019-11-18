@@ -18,6 +18,7 @@ package com.example.android.supportv7.widget.selection.simple;
 import android.view.MotionEvent;
 import android.view.View;
 
+import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.recyclerview.selection.ItemDetailsLookup;
 import androidx.recyclerview.widget.RecyclerView;
@@ -35,7 +36,7 @@ final class DemoDetailsLookup extends ItemDetailsLookup<Long> {
     }
 
     @Override
-    public ItemDetails<Long> getItemDetails(MotionEvent e) {
+    public ItemDetails<Long> getItemDetails(@NonNull MotionEvent e) {
         @Nullable View view = mRecView.findChildViewUnder(e.getX(), e.getY());
         if (view != null) {
             ViewHolder holder = mRecView.getChildViewHolder(view);

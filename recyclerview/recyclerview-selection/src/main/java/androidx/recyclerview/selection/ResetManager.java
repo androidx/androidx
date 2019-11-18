@@ -30,11 +30,9 @@ import java.util.ArrayList;
 import java.util.List;
 
 /**
- * Manager resetting various states across the lib.
- *
- * E.g....
- * When selection is explicitly cleared, reset.
- * When cancel event is received, reset.
+ * Class managing resetting of library state in response to specific
+ * events like clearing of selection and MotionEvent.ACTION_CANCEL
+ * events.
  *
  * @param <K> Selection key type. @see {@link StorageStrategy} for supported types.
  */
@@ -42,7 +40,7 @@ final class ResetManager<K> {
 
     private static final String TAG = "ResetManager";
 
-    private final List<Runnable> mListeners = new ArrayList<>();
+    private final List<Resettable> mResetHandlers = new ArrayList<>();
 
     private final OnItemTouchListener mInputListener = new OnItemTouchListener() {
         @Override
@@ -50,7 +48,7 @@ final class ResetManager<K> {
                 @NonNull MotionEvent e) {
             if (MotionEvents.isActionCancel(e)) {
                 if (DEBUG) Log.d(TAG, "Received CANCEL event.");
-                notifyResetListeners();
+                callResetHandlers();
             }
             return false;
         }
@@ -64,23 +62,29 @@ final class ResetManager<K> {
         }
     };
 
+    // Resettable interface has a #requiresReset method because DefaultSelectionTracker
+    // (owner of the state we observer with our SelectionObserver) is, itself,
+    // a Resettable. Such an arrangement introduces the real possibility of infinite recursion.
+    // When we call reset on DefaultSelectionTracker it'll eventually call back to
+    // notify us of the change via onSelectionCleared. We avoid recursion by
+    // checking #requiresReset before calling reset again.
     private final SelectionObserver<K> mSelectionObserver = new SelectionObserver<K>() {
         @Override
         protected void onSelectionCleared() {
             if (DEBUG) Log.d(TAG, "Received onSelectionCleared event.");
-            notifyResetListeners();
+            callResetHandlers();
         }
 
         @Override
         public void onSelectionRefresh() {
             if (DEBUG) Log.d(TAG, "Received onSelectionRefresh event.");
-            notifyResetListeners();
+            callResetHandlers();
         }
 
         @Override
         public void onSelectionRestored() {
             if (DEBUG) Log.d(TAG, "Received onSelectionRestored event.");
-            notifyResetListeners();
+            callResetHandlers();
         }
     };
 
@@ -93,19 +97,17 @@ final class ResetManager<K> {
     }
 
     /**
-     * Registers a new listener.
+     * Registers a new Resettable.
      */
-    void addResetListener(@NonNull Runnable listener) {
-        mListeners.add(listener);
+    void addResetHandler(@NonNull Resettable handler) {
+        mResetHandlers.add(handler);
     }
 
-    public void forceReset() {
-        notifyResetListeners();
-    }
-
-    void notifyResetListeners() {
-        for (Runnable listener : mListeners) {
-            listener.run();
+    void callResetHandlers() {
+        for (Resettable handler : mResetHandlers) {
+            if (handler.isResetRequired()) {
+                handler.reset();
+            }
         }
     }
 }
