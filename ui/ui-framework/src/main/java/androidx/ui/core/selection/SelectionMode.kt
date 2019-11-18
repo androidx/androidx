@@ -22,7 +22,7 @@ import androidx.ui.core.PxPosition
 /**
  * The enum class allows user to decide the selection mode.
  */
-enum class SelectionMode {
+internal enum class SelectionMode {
     /**
      * When selection handles are dragged across composables, selection extends by row, for example,
      * when the end selection handle is dragged down, upper rows will be selected first, and the

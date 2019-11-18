@@ -33,7 +33,6 @@ interface TextSelectionHandler {
      * @param startPosition graphical position of the start of the selection
      * @param endPosition graphical position of the end of the selection
      * @param containerLayoutCoordinates [LayoutCoordinates] of the widget
-     * @param mode [SelectionMode] of the selection
      * @param wordSelectIfCollapsed This flag is ignored if the selection offsets anchors point
      * different location. If the selection anchors point the same location and this is true, the
      * result selection will be adjusted to word boundary. Otherwise, the selection will be adjusted
@@ -43,7 +42,6 @@ interface TextSelectionHandler {
         startPosition: PxPosition,
         endPosition: PxPosition,
         containerLayoutCoordinates: LayoutCoordinates,
-        mode: SelectionMode,
         wordSelectIfCollapsed: Boolean
     ): Selection?
 }
