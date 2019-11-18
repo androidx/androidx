@@ -39,7 +39,7 @@ public class ShadowCameraX {
                                 @NonNull SessionConfig.Builder builder) {
                             // no op.
                         }
-                    }).build();
+                    }).getUseCaseConfig();
 
     private static final CameraInfo DEFAULT_CAMERA_INFO = new CameraInfoInternal() {
         MutableLiveData<Boolean> mFlashAvailability = new MutableLiveData<>(Boolean.TRUE);

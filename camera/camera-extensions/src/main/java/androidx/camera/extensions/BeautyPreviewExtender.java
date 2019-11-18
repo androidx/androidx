@@ -20,7 +20,7 @@ import android.util.Log;
 
 import androidx.annotation.NonNull;
 import androidx.camera.core.CameraSelector;
-import androidx.camera.core.PreviewConfig;
+import androidx.camera.core.Preview;
 import androidx.camera.extensions.ExtensionsManager.EffectMode;
 import androidx.camera.extensions.impl.BeautyPreviewExtenderImpl;
 
@@ -34,9 +34,9 @@ public class BeautyPreviewExtender extends PreviewExtender {
      * Create a new instance of the beauty extender.
      *
      * @param builder Builder that will be used to create the configurations for the
-     * {@link androidx.camera.core.Preview}.
+     *                {@link androidx.camera.core.Preview}.
      */
-    public static BeautyPreviewExtender create(PreviewConfig.Builder builder) {
+    public static BeautyPreviewExtender create(Preview.Builder builder) {
         if (ExtensionVersion.isExtensionVersionSupported()) {
             try {
                 return new VendorBeautyPreviewExtender(builder);
@@ -67,11 +67,12 @@ public class BeautyPreviewExtender extends PreviewExtender {
     static class VendorBeautyPreviewExtender extends BeautyPreviewExtender {
         private final BeautyPreviewExtenderImpl mImpl;
 
-        VendorBeautyPreviewExtender(PreviewConfig.Builder builder) {
+        VendorBeautyPreviewExtender(Preview.Builder builder) {
             mImpl = new BeautyPreviewExtenderImpl();
             init(builder, mImpl, EffectMode.BEAUTY);
         }
     }
 
-    private BeautyPreviewExtender() {}
+    private BeautyPreviewExtender() {
+    }
 }

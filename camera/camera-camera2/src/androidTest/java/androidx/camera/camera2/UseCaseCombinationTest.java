@@ -38,7 +38,6 @@ import androidx.camera.core.ImageCapture;
 import androidx.camera.core.ImageCaptureConfig;
 import androidx.camera.core.LensFacing;
 import androidx.camera.core.Preview;
-import androidx.camera.core.PreviewConfig;
 import androidx.camera.core.PreviewSurfaceProviders;
 import androidx.camera.core.impl.utils.executor.CameraXExecutors;
 import androidx.camera.testing.CameraUtil;
@@ -208,27 +207,20 @@ public final class UseCaseCombinationTest {
     }
 
     private void initImageAnalysis() {
-        ImageAnalysisConfig imageAnalysisConfig =
-                new ImageAnalysisConfig.Builder()
-                        .setTargetName("ImageAnalysis")
-                        .build();
         mImageAnalyzer = (image, rotationDegrees) -> {
             mAnalysisResult.postValue(image.getImageInfo().getTimestamp());
             image.close();
         };
-        mImageAnalysis = new ImageAnalysis(imageAnalysisConfig);
+        mImageAnalysis = new ImageAnalysisConfig.Builder()
+                .setTargetName("ImageAnalysis")
+                .build();
     }
 
     private void initImageCapture() {
-        ImageCaptureConfig imageCaptureConfig = new ImageCaptureConfig.Builder().build();
-
-        mImageCapture = new ImageCapture(imageCaptureConfig);
+        mImageCapture = new ImageCaptureConfig.Builder().build();
     }
 
     private void initPreview() {
-        PreviewConfig.Builder configBuilder =
-                new PreviewConfig.Builder()
-                        .setTargetName("Preview");
-        mPreview = new Preview(configBuilder.build());
+        mPreview = new Preview.Builder().setTargetName("Preview").build();
     }
 }

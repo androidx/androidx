@@ -35,6 +35,7 @@ import androidx.camera.core.SessionConfig;
 
 /**
  * Provides defaults for {@link ImageCaptureConfig} in the Camera2 implementation.
+ *
  * @hide
  */
 @RestrictTo(Scope.LIBRARY)
@@ -91,6 +92,6 @@ public final class ImageCaptureConfigProvider implements ConfigProvider<ImageCap
             Log.w(TAG, "Unable to determine default lens facing for ImageCapture.", e);
         }
 
-        return builder.build();
+        return builder.getUseCaseConfig();
     }
 }

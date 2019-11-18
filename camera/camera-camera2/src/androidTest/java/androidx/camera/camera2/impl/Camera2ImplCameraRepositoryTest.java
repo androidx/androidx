@@ -115,7 +115,7 @@ public final class Camera2ImplCameraRepositoryTest {
 
         FakeUseCaseConfig.Builder configBuilder = new FakeUseCaseConfig.Builder();
         new Camera2Config.Extender(configBuilder).setDeviceStateCallback(mDeviceStateCallback);
-        mConfig = configBuilder.build();
+        mConfig = configBuilder.getUseCaseConfig();
         mCameraId = getCameraIdForLensFacingUnchecked(LensFacing.BACK);
         mUseCase = new CallbackAttachingFakeUseCase(mConfig, mCameraId);
         mUseCaseGroup.addUseCase(mUseCase);

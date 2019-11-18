@@ -24,14 +24,12 @@ import android.util.Size
 import android.view.ViewGroup
 import androidx.annotation.experimental.UseExperimental
 import androidx.camera.camera2.Camera2Config
-
 import androidx.camera.camera2.ExperimentalCamera2Interop
 import androidx.camera.core.CameraSelector
 import androidx.camera.core.ImageCapture
 import androidx.camera.core.ImageCaptureConfig
 import androidx.camera.core.LensFacing
 import androidx.camera.core.Preview
-import androidx.camera.core.PreviewConfig
 import androidx.camera.core.PreviewSurfaceProviders
 import androidx.camera.core.PreviewSurfaceProviders.createSurfaceTextureProvider
 import androidx.camera.core.impl.utils.executor.CameraXExecutors
@@ -69,7 +67,8 @@ internal fun cameraXOpenCamera(
         // Currently we swap out the ids behind the scenes
         // This requires to save the actual camera id for after the test
         if ((testConfig.currentRunningTest == TestType.SWITCH_CAMERA) ||
-            (testConfig.currentRunningTest == TestType.MULTI_SWITCH)) {
+            (testConfig.currentRunningTest == TestType.MULTI_SWITCH)
+        ) {
             testConfig.switchTestRealCameraId = params.id // Save the actual camera ID
             params.id = testConfig.switchTestCurrentCamera
         }
@@ -79,12 +78,14 @@ internal fun cameraXOpenCamera(
             CameraXPreviewSessionStateCallback(activity, params, testConfig)
 
         if (params.cameraXDeviceStateCallback != null &&
-            params.cameraXPreviewSessionStateCallback != null) {
-            params.cameraXPreviewConfig =
+            params.cameraXPreviewSessionStateCallback != null
+        ) {
+            params.cameraXPreviewBuilder =
                 cameraXPreviewUseCaseBuilder(
                     testConfig.focusMode,
                     params.cameraXDeviceStateCallback!!,
-                    params.cameraXPreviewSessionStateCallback!!)
+                    params.cameraXPreviewSessionStateCallback!!
+                )
         }
 
         if (!params.cameraXLifecycle.isFinished()) {
@@ -95,7 +96,7 @@ internal fun cameraXOpenCamera(
         params.cameraXLifecycle = CustomLifecycle()
 
         val lifecycleOwner: LifecycleOwner = params.cameraXLifecycle
-        val previewUseCase = Preview(params.cameraXPreviewConfig)
+        val previewUseCase = params.cameraXPreviewBuilder.build()
 
         // Set preview to observe the surface texture
         activity.runOnUiThread {
@@ -144,15 +145,17 @@ internal fun cameraXOpenCamera(
                     CameraXCaptureSessionCallback(activity, params, testConfig)
 
                 if (params.cameraXDeviceStateCallback != null &&
-                    params.cameraXCaptureSessionCallback != null) {
-                    params.cameraXCaptureConfig =
+                    params.cameraXCaptureSessionCallback != null
+                ) {
+                    params.cameraXCaptureBuilder =
                         cameraXImageCaptureUseCaseBuilder(
                             testConfig.focusMode,
                             params.cameraXDeviceStateCallback!!,
-                            params.cameraXCaptureSessionCallback!!)
+                            params.cameraXCaptureSessionCallback!!
+                        )
                 }
 
-                params.cameraXImageCaptureUseCase = ImageCapture(params.cameraXCaptureConfig)
+                params.cameraXImageCaptureUseCase = params.cameraXCaptureBuilder.build()
 
                 params.timer.openStart = System.currentTimeMillis()
 
@@ -189,7 +192,8 @@ internal fun closeCameraX(activity: MainActivity, params: CameraParams, testConf
         }
     }
     if ((testConfig.currentRunningTest == TestType.SWITCH_CAMERA) ||
-        (testConfig.currentRunningTest == TestType.MULTI_SWITCH)) {
+        (testConfig.currentRunningTest == TestType.MULTI_SWITCH)
+    ) {
         params.id = testConfig.switchTestRealCameraId // Restore the actual camera ID
     }
 
@@ -212,8 +216,10 @@ internal fun cameraXTakePicture(
     logd("CameraX TakePicture: capture start.")
 
     // Pause in multi-captures to make sure HDR routines don't get overloaded
-    logd("CameraX TakePicture. Pausing for " +
-            PrefHelper.getPreviewBuffer(activity) + "ms to let preview run.")
+    logd(
+        "CameraX TakePicture. Pausing for " +
+                PrefHelper.getPreviewBuffer(activity) + "ms to let preview run."
+    )
 
     params.timer.previewFillStart = System.currentTimeMillis()
     Thread.sleep(PrefHelper.getPreviewBuffer(activity))
@@ -287,9 +293,9 @@ private fun cameraXPreviewUseCaseBuilder(
     focusMode: FocusMode,
     deviceStateCallback: CameraDevice.StateCallback,
     sessionCaptureStateCallback: CameraCaptureSession.StateCallback
-): PreviewConfig {
+): Preview.Builder {
 
-    val configBuilder = PreviewConfig.Builder()
+    val configBuilder = Preview.Builder()
     Camera2Config.Extender(configBuilder)
         .setDeviceStateCallback(deviceStateCallback)
         .setSessionStateCallback(sessionCaptureStateCallback)
@@ -297,7 +303,7 @@ private fun cameraXPreviewUseCaseBuilder(
 
     // Prints a log to suppress "fix Parameter 'focusMode' is never used" build error"
     Log.d("Antelope", "focusMode($focusMode) Not enabled.")
-    return configBuilder.build()
+    return configBuilder
 }
 
 /**
@@ -309,7 +315,7 @@ private fun cameraXImageCaptureUseCaseBuilder(
     deviceStateCallback:
     CameraDevice.StateCallback,
     sessionCaptureCallback: CameraCaptureSession.CaptureCallback
-): ImageCaptureConfig {
+): ImageCaptureConfig.Builder {
 
     val configBuilder = ImageCaptureConfig.Builder()
         .setCaptureMode(ImageCapture.CaptureMode.MAX_QUALITY)
@@ -320,5 +326,5 @@ private fun cameraXImageCaptureUseCaseBuilder(
 
     // Prints a log to suppress "fix Parameter 'focusMode' is never used" build error"
     Log.d("Antelope", "focusMode($focusMode) Not enabled.")
-    return configBuilder.build()
+    return configBuilder
 }

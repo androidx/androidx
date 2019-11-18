@@ -42,7 +42,6 @@ import androidx.camera.core.LensFacing;
 import androidx.camera.core.MeteringPoint;
 import androidx.camera.core.MeteringPointFactory;
 import androidx.camera.core.Preview;
-import androidx.camera.core.PreviewConfig;
 import androidx.camera.core.PreviewSurfaceProviders;
 import androidx.camera.testing.CameraUtil;
 import androidx.camera.testing.CoreAppTestUtil;
@@ -200,9 +199,7 @@ public class TextureViewMeteringPointFactoryTest {
     }
 
     private void startAndWaitForCameraReady(LensFacing lensFacing) throws InterruptedException {
-        PreviewConfig.Builder previewConfigBuilder = new PreviewConfig.Builder();
-
-        Preview preview = new Preview(previewConfigBuilder.build());
+        Preview preview = new Preview.Builder().build();
         mInstrumentation.runOnMainSync(() -> {
             preview.setPreviewSurfaceCallback(createSurfaceTextureProvider(
                     new PreviewSurfaceProviders.SurfaceTextureCallback() {

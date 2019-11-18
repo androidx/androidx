@@ -44,7 +44,6 @@ import androidx.camera.core.ImageCapture;
 import androidx.camera.core.ImageCaptureConfig;
 import androidx.camera.core.LensFacing;
 import androidx.camera.core.Preview;
-import androidx.camera.core.PreviewConfig;
 import androidx.camera.core.PreviewSurfaceProviders;
 import androidx.camera.core.UseCase;
 import androidx.camera.core.impl.utils.executor.CameraXExecutors;
@@ -124,9 +123,8 @@ public class CameraExtensionsActivity extends AppCompatActivity
             LifecycleCameraProvider.unbind(mPreview);
         }
 
-        PreviewConfig.Builder builder =
-                new PreviewConfig.Builder()
-                        .setTargetName("Preview");
+        Preview.Builder builder = new Preview.Builder()
+                .setTargetName("Preview");
 
         Log.d(TAG, "Enabling the extended preview");
         if (mCurrentImageCaptureType == ImageCaptureType.IMAGE_CAPTURE_TYPE_BOKEH) {
@@ -166,7 +164,7 @@ public class CameraExtensionsActivity extends AppCompatActivity
             }
         }
 
-        mPreview = new Preview(builder.build());
+        mPreview = builder.build();
         mPreview.setPreviewSurfaceCallback(createSurfaceTextureProvider(
                 new PreviewSurfaceProviders.SurfaceTextureCallback() {
                     @Override
@@ -301,7 +299,7 @@ public class CameraExtensionsActivity extends AppCompatActivity
                 return;
         }
 
-        mImageCapture = new ImageCapture(builder.build());
+        mImageCapture = builder.build();
 
         Button captureButton = findViewById(R.id.Picture);
 

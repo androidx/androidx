@@ -330,17 +330,15 @@ public final class Camera2DeviceSurfaceManagerTest {
 
     @Test
     public void suggestedResolutionsForMixedUseCaseNotSupportedInLegacyDevice() {
-        PreviewConfig.Builder previewConfigBuilder = new PreviewConfig.Builder();
-        VideoCaptureConfig.Builder videoCaptureConfigBuilder = new VideoCaptureConfig.Builder();
-        ImageCaptureConfig.Builder imageCaptureConfigBuilder = new ImageCaptureConfig.Builder();
-
-        previewConfigBuilder.setTargetAspectRatio(AspectRatio.RATIO_16_9);
-        videoCaptureConfigBuilder.setTargetAspectRatio(AspectRatio.RATIO_16_9);
-        imageCaptureConfigBuilder.setTargetAspectRatio(AspectRatio.RATIO_16_9);
-
-        ImageCapture imageCapture = new ImageCapture(imageCaptureConfigBuilder.build());
-        VideoCapture videoCapture = new VideoCapture(videoCaptureConfigBuilder.build());
-        Preview preview = new Preview(previewConfigBuilder.build());
+        ImageCapture imageCapture = new ImageCaptureConfig.Builder()
+                .setTargetAspectRatio(AspectRatio.RATIO_16_9)
+                .build();
+        VideoCapture videoCapture = new VideoCaptureConfig.Builder()
+                .setTargetAspectRatio(AspectRatio.RATIO_16_9)
+                .build();
+        Preview preview = new Preview.Builder()
+                .setTargetAspectRatio(AspectRatio.RATIO_16_9)
+                .build();
 
         List<UseCase> useCases = new ArrayList<>();
         useCases.add(imageCapture);
@@ -361,17 +359,15 @@ public final class Camera2DeviceSurfaceManagerTest {
 
     @Test
     public void getSuggestedResolutionsForMixedUseCaseInLimitedDevice() {
-        PreviewConfig.Builder previewConfigBuilder = new PreviewConfig.Builder();
-        VideoCaptureConfig.Builder videoCaptureConfigBuilder = new VideoCaptureConfig.Builder();
-        ImageCaptureConfig.Builder imageCaptureConfigBuilder = new ImageCaptureConfig.Builder();
-
-        previewConfigBuilder.setTargetAspectRatio(AspectRatio.RATIO_16_9);
-        videoCaptureConfigBuilder.setTargetAspectRatio(AspectRatio.RATIO_16_9);
-        imageCaptureConfigBuilder.setTargetAspectRatio(AspectRatio.RATIO_16_9);
-
-        ImageCapture imageCapture = new ImageCapture(imageCaptureConfigBuilder.build());
-        VideoCapture videoCapture = new VideoCapture(videoCaptureConfigBuilder.build());
-        Preview preview = new Preview(previewConfigBuilder.build());
+        ImageCapture imageCapture = new ImageCaptureConfig.Builder()
+                .setTargetAspectRatio(AspectRatio.RATIO_16_9)
+                .build();
+        VideoCapture videoCapture = new VideoCaptureConfig.Builder()
+                .setTargetAspectRatio(AspectRatio.RATIO_16_9)
+                .build();
+        Preview preview = new Preview.Builder()
+                .setTargetAspectRatio(AspectRatio.RATIO_16_9)
+                .build();
 
         List<UseCase> useCases = new ArrayList<>();
         useCases.add(imageCapture);
@@ -389,7 +385,7 @@ public final class Camera2DeviceSurfaceManagerTest {
     @Test
     public void transformSurfaceConfigWithYUVAnalysisSize() {
         SurfaceConfig surfaceConfig = mSurfaceManager.transformSurfaceConfig(
-                        LEGACY_CAMERA_ID, ImageFormat.YUV_420_888, mAnalysisSize);
+                LEGACY_CAMERA_ID, ImageFormat.YUV_420_888, mAnalysisSize);
         SurfaceConfig expectedSurfaceConfig =
                 SurfaceConfig.create(ConfigType.YUV, ConfigSize.ANALYSIS);
         assertEquals(expectedSurfaceConfig, surfaceConfig);
@@ -398,7 +394,7 @@ public final class Camera2DeviceSurfaceManagerTest {
     @Test
     public void transformSurfaceConfigWithYUVPreviewSize() {
         SurfaceConfig surfaceConfig = mSurfaceManager.transformSurfaceConfig(
-                        LEGACY_CAMERA_ID, ImageFormat.YUV_420_888, mPreviewSize);
+                LEGACY_CAMERA_ID, ImageFormat.YUV_420_888, mPreviewSize);
         SurfaceConfig expectedSurfaceConfig =
                 SurfaceConfig.create(ConfigType.YUV, ConfigSize.PREVIEW);
         assertEquals(expectedSurfaceConfig, surfaceConfig);
@@ -407,7 +403,7 @@ public final class Camera2DeviceSurfaceManagerTest {
     @Test
     public void transformSurfaceConfigWithYUVRecordSize() {
         SurfaceConfig surfaceConfig = mSurfaceManager.transformSurfaceConfig(
-                        LEGACY_CAMERA_ID, ImageFormat.YUV_420_888, mRecordSize);
+                LEGACY_CAMERA_ID, ImageFormat.YUV_420_888, mRecordSize);
         SurfaceConfig expectedSurfaceConfig =
                 SurfaceConfig.create(ConfigType.YUV, SurfaceConfig.ConfigSize.RECORD);
         assertEquals(expectedSurfaceConfig, surfaceConfig);
@@ -416,7 +412,7 @@ public final class Camera2DeviceSurfaceManagerTest {
     @Test
     public void transformSurfaceConfigWithYUVMaximumSize() {
         SurfaceConfig surfaceConfig = mSurfaceManager.transformSurfaceConfig(
-                        LEGACY_CAMERA_ID, ImageFormat.YUV_420_888, mMaximumSize);
+                LEGACY_CAMERA_ID, ImageFormat.YUV_420_888, mMaximumSize);
         SurfaceConfig expectedSurfaceConfig =
                 SurfaceConfig.create(SurfaceConfig.ConfigType.YUV, ConfigSize.MAXIMUM);
         assertEquals(expectedSurfaceConfig, surfaceConfig);
@@ -425,9 +421,9 @@ public final class Camera2DeviceSurfaceManagerTest {
     @Test
     public void transformSurfaceConfigWithYUVNotSupportSize() {
         SurfaceConfig surfaceConfig = mSurfaceManager.transformSurfaceConfig(
-                        LEGACY_CAMERA_ID,
-                        ImageFormat.YUV_420_888,
-                        new Size(mMaximumSize.getWidth() + 1, mMaximumSize.getHeight() + 1));
+                LEGACY_CAMERA_ID,
+                ImageFormat.YUV_420_888,
+                new Size(mMaximumSize.getWidth() + 1, mMaximumSize.getHeight() + 1));
         SurfaceConfig expectedSurfaceConfig =
                 SurfaceConfig.create(ConfigType.YUV, ConfigSize.NOT_SUPPORT);
         assertEquals(expectedSurfaceConfig, surfaceConfig);
@@ -501,10 +497,9 @@ public final class Camera2DeviceSurfaceManagerTest {
                         mContext, LEGACY_CAMERA_ID, mMockCamcorderProfileHelper);
 
         Rational targetAspectRatio = new Rational(9, 16);
-        PreviewConfig.Builder previewConfigBuilder = new PreviewConfig.Builder();
-
-        previewConfigBuilder.setTargetAspectRatio(AspectRatio.RATIO_16_9);
-        PreviewConfig previewConfig = previewConfigBuilder.build();
+        PreviewConfig previewConfig = new Preview.Builder()
+                .setTargetAspectRatio(AspectRatio.RATIO_16_9)
+                .getUseCaseConfig();
 
         CameraDeviceConfig deviceConfig =
                 CameraSelectorUtil.toCameraDeviceConfig(

@@ -27,7 +27,6 @@ import androidx.annotation.Nullable;
 import androidx.camera.core.CameraSelector;
 import androidx.camera.core.LensFacing;
 import androidx.camera.core.Preview;
-import androidx.camera.core.PreviewConfig;
 import androidx.camera.lifecycle.LifecycleCameraProvider;
 import androidx.camera.view.PreviewView;
 import androidx.fragment.app.Fragment;
@@ -68,9 +67,9 @@ public class PreviewViewFragment extends Fragment {
     }
 
     private void bindPreview() {
-        Preview preview = new Preview(new PreviewConfig.Builder()
+        Preview preview = new Preview.Builder()
                 .setTargetName("Preview")
-                .build());
+                .build();
         preview.setPreviewSurfaceCallback(mPreviewView.getPreviewSurfaceCallback());
 
         CameraSelector cameraSelector =

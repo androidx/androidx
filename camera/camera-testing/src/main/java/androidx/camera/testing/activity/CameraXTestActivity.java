@@ -89,12 +89,9 @@ public class CameraXTestActivity extends AppCompatActivity {
             }
         }
 
-        PreviewConfig config =
-                new PreviewConfig.Builder()
-                        .setTargetName("Preview")
-                        .build();
-
-        mPreview = new Preview(config);
+        mPreview = new Preview.Builder()
+                .setTargetName("Preview")
+                .build();
         TextureView textureView = findViewById(R.id.textureView);
         mPreview.setPreviewSurfaceCallback(createSurfaceTextureProvider(
                 new PreviewSurfaceProviders.SurfaceTextureCallback() {
@@ -128,6 +125,7 @@ public class CameraXTestActivity extends AppCompatActivity {
                     CameraX.getCameraWithCameraDeviceConfig(
                             CameraSelectorUtil.toCameraDeviceConfig(cameraSelector));
         } catch (CameraInfoUnavailableException e) {
+            final PreviewConfig config = (PreviewConfig) mPreview.getUseCaseConfig();
             throw new IllegalArgumentException(
                     "Unable to get camera id for the camera device config "
                             + config.getLensFacing(), e);

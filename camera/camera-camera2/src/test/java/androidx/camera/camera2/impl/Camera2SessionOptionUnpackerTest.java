@@ -73,7 +73,7 @@ public final class Camera2SessionOptionUnpackerTest {
                 .setCameraEventCallback(cameraEventCallbacks);
 
         SessionConfig.Builder sessionBuilder = new SessionConfig.Builder();
-        mUnpacker.unpack(imageCaptureConfigBuilder.build(), sessionBuilder);
+        mUnpacker.unpack(imageCaptureConfigBuilder.getUseCaseConfig(), sessionBuilder);
         SessionConfig sessionConfig = sessionBuilder.build();
 
         CameraCaptureCallback interopCallback =
@@ -105,7 +105,7 @@ public final class Camera2SessionOptionUnpackerTest {
                         CaptureRequest.FLASH_MODE, CaptureRequest.FLASH_MODE_TORCH);
 
         SessionConfig.Builder sessionBuilder = new SessionConfig.Builder();
-        mUnpacker.unpack(imageCaptureConfigBuilder.build(), sessionBuilder);
+        mUnpacker.unpack(imageCaptureConfigBuilder.getUseCaseConfig(), sessionBuilder);
         SessionConfig sessionConfig = sessionBuilder.build();
 
         Camera2Config config = new Camera2Config(sessionConfig.getImplementationOptions());
