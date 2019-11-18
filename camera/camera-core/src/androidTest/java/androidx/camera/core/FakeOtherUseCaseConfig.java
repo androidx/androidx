@@ -252,10 +252,16 @@ public class FakeOtherUseCaseConfig
             return mOptionsBundle;
         }
 
+        @NonNull
+        @Override
+        public FakeOtherUseCaseConfig getUseCaseConfig() {
+            return new FakeOtherUseCaseConfig(OptionsBundle.from(mOptionsBundle));
+        }
+
         @Override
         @NonNull
-        public FakeOtherUseCaseConfig build() {
-            return new FakeOtherUseCaseConfig(OptionsBundle.from(mOptionsBundle));
+        public FakeOtherUseCase build() {
+            return new FakeOtherUseCase(getUseCaseConfig());
         }
 
         // Implementations of TargetConfig.Builder default methods

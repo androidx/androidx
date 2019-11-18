@@ -57,7 +57,7 @@ public final class UseCaseSurfaceOccupancyManagerTest {
 
     @Test(expected = IllegalArgumentException.class)
     public void failedWhenBindTooManyImageCapture() {
-        ImageCaptureConfig config = new ImageCaptureConfig.Builder().build();
+        ImageCaptureConfig config = new ImageCaptureConfig.Builder().getUseCaseConfig();
         ImageCapture useCase1 = new ImageCapture(config);
         ImageCapture useCase2 = new ImageCapture(config);
 
@@ -69,7 +69,7 @@ public final class UseCaseSurfaceOccupancyManagerTest {
 
     @Test(expected = IllegalArgumentException.class)
     public void failedWhenBindTooManyVideoCapture() {
-        VideoCaptureConfig config = new VideoCaptureConfig.Builder().build();
+        VideoCaptureConfig config = new VideoCaptureConfig.Builder().getUseCaseConfig();
         VideoCapture useCase1 = new VideoCapture(config);
         VideoCapture useCase2 = new VideoCapture(config);
 
@@ -81,11 +81,8 @@ public final class UseCaseSurfaceOccupancyManagerTest {
 
     @Test
     public void passWhenNotBindTooManyImageVideoCapture() {
-        ImageCaptureConfig imageCaptureConfig = new ImageCaptureConfig.Builder().build();
-        ImageCapture imageCapture = new ImageCapture(imageCaptureConfig);
-
-        VideoCaptureConfig videoCaptureConfig = new VideoCaptureConfig.Builder().build();
-        VideoCapture videoCapture = new VideoCapture(videoCaptureConfig);
+        ImageCapture imageCapture = new ImageCaptureConfig.Builder().build();
+        VideoCapture videoCapture = new VideoCaptureConfig.Builder().build();
 
         UseCaseSurfaceOccupancyManager.checkUseCaseLimitNotExceeded(
                 Collections.<UseCase>singletonList(imageCapture),

@@ -153,18 +153,18 @@ public class ExtensionsTestUtil {
     }
 
     /**
-     * Creates a {@link PreviewConfig.Builder} object for specific {@link EffectMode} and
+     * Creates a {@link Preview.Builder} object for specific {@link EffectMode} and
      * {@link LensFacing}.
      *
      * @param effectMode The effect mode for the created object.
      * @param lensFacing The lens facing for the created object.
-     * @return A {@link PreviewConfig.Builder} object.
+     * @return A {@link Preview.Builder} object.
      */
     @NonNull
-    public static PreviewConfig.Builder createPreviewConfigBuilderWithEffect(
+    public static Preview.Builder createPreviewBuilderWithEffect(
             @NonNull EffectMode effectMode,
             @NonNull LensFacing lensFacing) {
-        PreviewConfig.Builder builder = new PreviewConfig.Builder();
+        Preview.Builder builder = new Preview.Builder();
         CameraSelector selector =
                 new CameraSelector.Builder().requireLensFacing(lensFacing).build();
         PreviewExtender extender = null;
@@ -211,9 +211,7 @@ public class ExtensionsTestUtil {
             @NonNull LensFacing lensFacing) {
         ImageCaptureConfig.Builder imageCaptureConfigBuilder =
                 createImageCaptureConfigBuilderWithEffect(effectMode, lensFacing);
-        ImageCaptureConfig imageCaptureConfig = imageCaptureConfigBuilder.build();
-
-        return imageCaptureConfig;
+        return imageCaptureConfigBuilder.getUseCaseConfig();
     }
 
     /**
@@ -227,11 +225,9 @@ public class ExtensionsTestUtil {
     @NonNull
     public static PreviewConfig createPreviewConfigWithEffect(@NonNull EffectMode effectMode,
             @NonNull LensFacing lensFacing) {
-        PreviewConfig.Builder previewConfigBuilder =
-                createPreviewConfigBuilderWithEffect(effectMode, lensFacing);
-        PreviewConfig previewConfig = previewConfigBuilder.build();
-
-        return previewConfig;
+        Preview.Builder previewBuilder =
+                createPreviewBuilderWithEffect(effectMode, lensFacing);
+        return previewBuilder.getUseCaseConfig();
     }
 
     /**
@@ -247,9 +243,7 @@ public class ExtensionsTestUtil {
             @NonNull LensFacing lensFacing) {
         ImageCaptureConfig imageCaptureConfig = createImageCaptureConfigWithEffect(effectMode,
                 lensFacing);
-        ImageCapture imageCapture = new ImageCapture(imageCaptureConfig);
-
-        return imageCapture;
+        return new ImageCapture(imageCaptureConfig);
     }
 
     /**
@@ -262,10 +256,7 @@ public class ExtensionsTestUtil {
     @NonNull
     public static Preview createPreviewWithEffect(@NonNull EffectMode effectMode,
             @NonNull LensFacing lensFacing) {
-        PreviewConfig previewConfig = createPreviewConfigWithEffect(effectMode, lensFacing);
-        Preview preview = new Preview(previewConfig);
-
-        return preview;
+        return createPreviewBuilderWithEffect(effectMode, lensFacing).build();
     }
 
     /**
@@ -368,7 +359,7 @@ public class ExtensionsTestUtil {
      * {@link ImageCaptureConfig.Builder}.
      *
      * @param effectMode The effect mode for the created object.
-     * @param builder The {@link ImageCaptureConfig.Builder} for the created object.
+     * @param builder    The {@link ImageCaptureConfig.Builder} for the created object.
      * @return An {@link ImageCaptureExtender} object.
      */
     @NonNull
@@ -400,15 +391,15 @@ public class ExtensionsTestUtil {
 
     /**
      * Creates a {@link PreviewExtender} object for specific {@link EffectMode} and
-     * {@link PreviewConfig.Builder}.
+     * {@link Preview.Builder}.
      *
      * @param effectMode The effect mode for the created object.
-     * @param builder The {@link PreviewConfig.Builder} for the created object.
+     * @param builder    The {@link Preview.Builder} for the created object.
      * @return A {@link PreviewExtender} object.
      */
     @NonNull
     public static PreviewExtender createPreviewExtender(@NonNull EffectMode effectMode,
-            @NonNull PreviewConfig.Builder builder) {
+            @NonNull Preview.Builder builder) {
         PreviewExtender extender = null;
 
         switch (effectMode) {

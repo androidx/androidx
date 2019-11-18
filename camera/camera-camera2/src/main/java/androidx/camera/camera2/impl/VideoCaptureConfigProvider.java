@@ -35,6 +35,7 @@ import androidx.camera.core.VideoCaptureConfig;
 
 /**
  * Provides defaults for {@link VideoCaptureConfig} in the Camera2 implementation.
+ *
  * @hide
  */
 @RestrictTo(Scope.LIBRARY)
@@ -91,6 +92,6 @@ public final class VideoCaptureConfigProvider implements ConfigProvider<VideoCap
             Log.w(TAG, "Unable to determine default lens facing for VideoCapture.", e);
         }
 
-        return builder.build();
+        return builder.getUseCaseConfig();
     }
 }

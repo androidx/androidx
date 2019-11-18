@@ -806,7 +806,7 @@ public final class Camera2CameraImplTest {
                 new FakeUseCaseConfig.Builder().setTargetName("UseCase");
         CameraSelector selector =
                 new CameraSelector.Builder().requireLensFacing(LensFacing.BACK).build();
-        TestUseCase testUseCase = new TestUseCase(configBuilder.build(), selector,
+        TestUseCase testUseCase = new TestUseCase(configBuilder.getUseCaseConfig(), selector,
                 mMockOnImageAvailableListener);
         Map<String, Size> suggestedResolutionMap = new HashMap<>();
         suggestedResolutionMap.put(mCameraId, new Size(640, 480));

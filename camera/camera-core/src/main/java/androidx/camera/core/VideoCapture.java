@@ -441,7 +441,7 @@ public class VideoCapture extends UseCase {
         int oldRotation = oldConfig.getTargetRotation(ImageOutputConfig.INVALID_ROTATION);
         if (oldRotation == ImageOutputConfig.INVALID_ROTATION || oldRotation != rotation) {
             mUseCaseConfigBuilder.setTargetRotation(rotation);
-            updateUseCaseConfig(mUseCaseConfigBuilder.build());
+            updateUseCaseConfig(mUseCaseConfigBuilder.getUseCaseConfig());
 
             // TODO(b/122846516): Update session configuration and possibly reconfigure session.
         }
@@ -935,7 +935,7 @@ public class VideoCapture extends UseCase {
                             .setMaxResolution(DEFAULT_MAX_RESOLUTION)
                             .setSurfaceOccupancyPriority(DEFAULT_SURFACE_OCCUPANCY_PRIORITY);
 
-            DEFAULT_CONFIG = builder.build();
+            DEFAULT_CONFIG = builder.getUseCaseConfig();
         }
 
         @Override
@@ -953,8 +953,10 @@ public class VideoCapture extends UseCase {
 
     private final class VideoSavedListenerWrapper implements OnVideoSavedCallback {
 
-        @NonNull Executor mExecutor;
-        @NonNull OnVideoSavedCallback mOnVideoSavedCallback;
+        @NonNull
+        Executor mExecutor;
+        @NonNull
+        OnVideoSavedCallback mOnVideoSavedCallback;
 
         VideoSavedListenerWrapper(@NonNull Executor executor,
                 @NonNull OnVideoSavedCallback onVideoSavedCallback) {

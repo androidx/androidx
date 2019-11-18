@@ -400,7 +400,7 @@ public class ImageCapture extends UseCase {
         Rational oldRatio = oldConfig.getTargetAspectRatioCustom(null);
         if (!aspectRatio.equals(oldRatio)) {
             mUseCaseConfigBuilder.setTargetAspectRatioCustom(aspectRatio);
-            updateUseCaseConfig(mUseCaseConfigBuilder.build());
+            updateUseCaseConfig(mUseCaseConfigBuilder.getUseCaseConfig());
             mConfig = (ImageCaptureConfig) getUseCaseConfig();
 
             // TODO(b/122846516): Reconfigure capture session if the ratio is changed drastically.
@@ -439,7 +439,7 @@ public class ImageCapture extends UseCase {
         int oldRotation = oldConfig.getTargetRotation(ImageOutputConfig.INVALID_ROTATION);
         if (oldRotation == ImageOutputConfig.INVALID_ROTATION || oldRotation != rotation) {
             mUseCaseConfigBuilder.setTargetRotation(rotation);
-            updateUseCaseConfig(mUseCaseConfigBuilder.build());
+            updateUseCaseConfig(mUseCaseConfigBuilder.build().getUseCaseConfig());
             mConfig = (ImageCaptureConfig) getUseCaseConfig();
 
             // TODO(b/122846516): Update session configuration and possibly reconfigure session.
@@ -1201,7 +1201,7 @@ public class ImageCapture extends UseCase {
                             .setFlashMode(DEFAULT_FLASH_MODE)
                             .setSurfaceOccupancyPriority(DEFAULT_SURFACE_OCCUPANCY_PRIORITY);
 
-            DEFAULT_CONFIG = builder.build();
+            DEFAULT_CONFIG = builder.getUseCaseConfig();
         }
 
         @Override

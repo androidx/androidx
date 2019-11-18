@@ -35,7 +35,7 @@ import androidx.camera.core.CameraX;
 import androidx.camera.core.CaptureConfig;
 import androidx.camera.core.Config;
 import androidx.camera.core.LensFacing;
-import androidx.camera.core.PreviewConfig;
+import androidx.camera.core.Preview;
 import androidx.camera.core.UseCase;
 import androidx.camera.core.impl.utils.CameraSelectorUtil;
 import androidx.camera.extensions.ExtensionsErrorListener.ExtensionsErrorCode;
@@ -56,11 +56,11 @@ public abstract class PreviewExtender {
     static final Config.Option<EffectMode> OPTION_PREVIEW_EXTENDER_MODE = Config.Option.create(
             "camerax.extensions.previewExtender.mode", EffectMode.class);
 
-    private PreviewConfig.Builder mBuilder;
+    private Preview.Builder mBuilder;
     PreviewExtenderImpl mImpl;
     private EffectMode mEffectMode;
 
-    void init(PreviewConfig.Builder builder, PreviewExtenderImpl implementation,
+    void init(Preview.Builder builder, PreviewExtenderImpl implementation,
             EffectMode effectMode) {
         mBuilder = builder;
         mImpl = implementation;
@@ -68,12 +68,10 @@ public abstract class PreviewExtender {
     }
 
     /**
-     * Indicates whether extension function can support with
-     * {@link PreviewConfig.Builder}
+     * Indicates whether extension function can support with {@link Preview.Builder}.
      *
      * @param cameraSelector The selector that determines a camera that will be checked for the
      *                       availability of extensions.
-     *
      * @return True if the specific extension function is supported for the camera device.
      */
     public boolean isExtensionAvailable(@NonNull CameraSelector cameraSelector) {
@@ -104,7 +102,7 @@ public abstract class PreviewExtender {
     public void enableExtension(@NonNull CameraSelector cameraSelector) {
         // Add extension camera id filter to config.
         ExtensionCameraIdFilter extensionCameraIdFilter = new ExtensionCameraIdFilter(mImpl);
-        CameraIdFilter currentCameraIdFilter = mBuilder.build().getCameraIdFilter(null);
+        CameraIdFilter currentCameraIdFilter = mBuilder.getUseCaseConfig().getCameraIdFilter(null);
         CameraSelector.Builder selectorBuilder =
                 CameraSelector.Builder.fromSelector(cameraSelector);
         if (currentCameraIdFilter == null) {

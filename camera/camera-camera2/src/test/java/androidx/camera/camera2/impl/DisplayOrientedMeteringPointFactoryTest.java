@@ -88,7 +88,7 @@ public class DisplayOrientedMeteringPointFactoryTest {
                 new ConfigProvider<FakeUseCaseConfig>() {
                     @Override
                     public FakeUseCaseConfig getConfig(LensFacing lensFacing) {
-                        return new FakeUseCaseConfig.Builder().build();
+                        return new FakeUseCaseConfig.Builder().getUseCaseConfig();
                     }
                 });
 

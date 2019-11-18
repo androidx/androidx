@@ -93,7 +93,6 @@ public abstract class UseCase {
      * Creates a named instance of the use case.
      *
      * @param useCaseConfig the configuration object used for this use case
-     *
      * @hide
      */
     @RestrictTo(Scope.LIBRARY_GROUP)
@@ -162,7 +161,7 @@ public abstract class UseCase {
      *
      * @param userConfig           The user-supplied configuration.
      * @param defaultConfigBuilder A builder containing use-case default values, or {@code null}
-     *                            if no default values exist.
+     *                             if no default values exist.
      * @return The configuration that will be used by this use case.
      * @hide
      */
@@ -186,10 +185,9 @@ public abstract class UseCase {
                     objectOpt, userConfig.retrieveOption(objectOpt));
         }
 
-        @SuppressWarnings(
-                "unchecked") // Since builder is a UseCaseConfig.Builder, it should produce a
-                // UseCaseConfig
-                UseCaseConfig<?> defaultConfig = defaultConfigBuilder.build();
+        // Since builder is a UseCaseConfig.Builder, it should produce a UseCaseConfig
+        @SuppressWarnings("unchecked")
+        UseCaseConfig<?> defaultConfig = defaultConfigBuilder.getUseCaseConfig();
         return defaultConfig;
     }
 
@@ -370,6 +368,7 @@ public abstract class UseCase {
     /**
      * Returns the camera ID for the currently bound camera, or throws an exception if no camera is
      * bound.
+     *
      * @hide
      */
     @RestrictTo(Scope.LIBRARY_GROUP)
@@ -382,6 +381,7 @@ public abstract class UseCase {
 
     /**
      * Checks whether the provided camera ID is the currently bound camera ID.
+     *
      * @hide
      */
     @RestrictTo(Scope.LIBRARY_GROUP)
@@ -436,6 +436,7 @@ public abstract class UseCase {
     /**
      * Returns the currently bound {@link CameraDeviceConfig} or {@code null} if none is bound.
      * TODO(b/142840814): Only rely on attached Camera rather than config.
+     *
      * @hide
      */
     @RestrictTo(Scope.LIBRARY_GROUP)
@@ -489,7 +490,6 @@ public abstract class UseCase {
      *                               bound.
      * @return The map with the resolutions that finally used to create the SessionConfig to
      * attach to the camera device.
-     *
      * @hide
      */
     @RestrictTo(Scope.LIBRARY_GROUP)
@@ -528,6 +528,7 @@ public abstract class UseCase {
 
     /**
      * Called when use case is online in camera. This method is called on main thread.
+     *
      * @hide
      */
     @RestrictTo(Scope.LIBRARY_GROUP)

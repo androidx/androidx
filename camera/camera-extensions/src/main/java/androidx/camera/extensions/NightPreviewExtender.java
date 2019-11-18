@@ -20,7 +20,7 @@ import android.util.Log;
 
 import androidx.annotation.NonNull;
 import androidx.camera.core.CameraSelector;
-import androidx.camera.core.PreviewConfig;
+import androidx.camera.core.Preview;
 import androidx.camera.extensions.ExtensionsManager.EffectMode;
 import androidx.camera.extensions.impl.NightPreviewExtenderImpl;
 
@@ -34,9 +34,9 @@ public class NightPreviewExtender extends PreviewExtender {
      * Create a new instance of the night extender.
      *
      * @param builder Builder that will be used to create the configurations for the
-     * {@link androidx.camera.core.Preview}.
+     *                {@link androidx.camera.core.Preview}.
      */
-    public static NightPreviewExtender create(PreviewConfig.Builder builder) {
+    public static NightPreviewExtender create(Preview.Builder builder) {
         if (ExtensionVersion.isExtensionVersionSupported()) {
             try {
                 return new VendorNightPreviewExtender(builder);
@@ -67,11 +67,12 @@ public class NightPreviewExtender extends PreviewExtender {
     static class VendorNightPreviewExtender extends NightPreviewExtender {
         private final NightPreviewExtenderImpl mImpl;
 
-        VendorNightPreviewExtender(PreviewConfig.Builder builder) {
+        VendorNightPreviewExtender(Preview.Builder builder) {
             mImpl = new NightPreviewExtenderImpl();
             init(builder, mImpl, EffectMode.NIGHT);
         }
     }
 
-    private NightPreviewExtender() {}
+    private NightPreviewExtender() {
+    }
 }

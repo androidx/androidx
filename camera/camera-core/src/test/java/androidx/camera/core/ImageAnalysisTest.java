@@ -214,11 +214,11 @@ public class ImageAnalysisTest {
 
     private void setUpImageAnalysisWithStrategy(
             @ImageAnalysis.BackpressureStrategy int backpressureStrategy) {
-        mImageAnalysis = new ImageAnalysis(new ImageAnalysisConfig.Builder()
+        mImageAnalysis = new ImageAnalysisConfig.Builder()
                 .setBackgroundExecutor(mBackgroundExecutor)
                 .setImageQueueDepth(QUEUE_DEPTH)
                 .setBackpressureStrategy(backpressureStrategy)
-                .build());
+                .build();
 
         mImageAnalysis.setAnalyzer(CameraXExecutors.newHandlerExecutor(mCallbackHandler),
                 (image, rotationDegrees) -> {

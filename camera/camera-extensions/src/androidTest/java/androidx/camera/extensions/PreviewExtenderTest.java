@@ -50,7 +50,6 @@ import androidx.camera.core.CameraSelector;
 import androidx.camera.core.CameraX;
 import androidx.camera.core.LensFacing;
 import androidx.camera.core.Preview;
-import androidx.camera.core.PreviewConfig;
 import androidx.camera.core.PreviewSurfaceProviders;
 import androidx.camera.extensions.ExtensionsManager.EffectMode;
 import androidx.camera.extensions.impl.CaptureStageImpl;
@@ -139,7 +138,7 @@ public class PreviewExtenderTest {
         when(mockPreviewExtenderImpl.isExtensionAvailable(any(String.class),
                 any(CameraCharacteristics.class))).thenReturn(true);
 
-        PreviewConfig.Builder configBuilder = new PreviewConfig.Builder();
+        Preview.Builder configBuilder = new Preview.Builder();
 
         FakePreviewExtender fakePreviewExtender = new FakePreviewExtender(configBuilder,
                 mockPreviewExtenderImpl);
@@ -147,7 +146,7 @@ public class PreviewExtenderTest {
                 new CameraSelector.Builder().requireLensFacing(LensFacing.BACK).build();
         fakePreviewExtender.enableExtension(cameraSelector);
 
-        Preview useCase = new Preview(configBuilder.build());
+        Preview useCase = configBuilder.build();
         mInstrumentation.runOnMainSync(new Runnable() {
             @Override
             public void run() {
@@ -216,7 +215,7 @@ public class PreviewExtenderTest {
 
         when(mockPreviewExtenderImpl.getCaptureStage()).thenReturn(fakeCaptureStageImpl);
 
-        PreviewConfig.Builder configBuilder = new PreviewConfig.Builder();
+        Preview.Builder configBuilder = new Preview.Builder();
 
         FakePreviewExtender fakePreviewExtender = new FakePreviewExtender(configBuilder,
                 mockPreviewExtenderImpl);
@@ -224,7 +223,7 @@ public class PreviewExtenderTest {
                 new CameraSelector.Builder().requireLensFacing(LensFacing.BACK).build();
         fakePreviewExtender.enableExtension(cameraSelector);
 
-        Preview preview = new Preview(configBuilder.build());
+        Preview preview = configBuilder.build();
 
         mInstrumentation.runOnMainSync(new Runnable() {
             @Override
@@ -270,13 +269,13 @@ public class PreviewExtenderTest {
         when(mockPreviewExtenderImpl.isExtensionAvailable(any(String.class),
                 any(CameraCharacteristics.class))).thenReturn(true);
 
-        PreviewConfig.Builder configBuilder = new PreviewConfig.Builder();
+        Preview.Builder configBuilder = new Preview.Builder();
         FakePreviewExtender fakePreviewExtender = new FakePreviewExtender(configBuilder,
                 mockPreviewExtenderImpl);
         CameraSelector cameraSelector =
                 new CameraSelector.Builder().requireLensFacing(LensFacing.BACK).build();
         fakePreviewExtender.enableExtension(cameraSelector);
-        Preview preview = new Preview(configBuilder.build());
+        Preview preview = configBuilder.build();
         mInstrumentation.runOnMainSync(new Runnable() {
             @Override
             public void run() {
@@ -301,7 +300,7 @@ public class PreviewExtenderTest {
         assumeTrue(ExtensionVersion.getRuntimeVersion().compareTo(Version.VERSION_1_1) >= 0);
 
         LensFacing lensFacing = CameraX.getDefaultLensFacing();
-        PreviewConfig.Builder configBuilder = new PreviewConfig.Builder();
+        Preview.Builder configBuilder = new Preview.Builder();
 
         PreviewExtenderImpl mockPreviewExtenderImpl = mock(PreviewExtenderImpl.class);
         when(mockPreviewExtenderImpl.isExtensionAvailable(any(), any())).thenReturn(true);
@@ -317,14 +316,14 @@ public class PreviewExtenderTest {
                 mockPreviewExtenderImpl);
 
         // Checks the config does not include supported resolutions before applying effect mode.
-        assertThat(configBuilder.build().getSupportedResolutions(null)).isNull();
+        assertThat(configBuilder.getUseCaseConfig().getSupportedResolutions(null)).isNull();
 
         CameraSelector cameraSelector =
                 new CameraSelector.Builder().requireLensFacing(lensFacing).build();
         // Checks the config includes supported resolutions after applying effect mode.
         fakeExtender.enableExtension(cameraSelector);
         List<Pair<Integer, Size[]>> resultFormatResolutionsPairList =
-                configBuilder.build().getSupportedResolutions(null);
+                configBuilder.getUseCaseConfig().getSupportedResolutions(null);
         assertThat(resultFormatResolutionsPairList).isNotNull();
 
         // Checks the result and target pair lists are the same
@@ -368,7 +367,7 @@ public class PreviewExtenderTest {
     }
 
     private class FakePreviewExtender extends PreviewExtender {
-        FakePreviewExtender(PreviewConfig.Builder builder, PreviewExtenderImpl impl) {
+        FakePreviewExtender(Preview.Builder builder, PreviewExtenderImpl impl) {
             init(builder, impl, EffectMode.NORMAL);
         }
     }
