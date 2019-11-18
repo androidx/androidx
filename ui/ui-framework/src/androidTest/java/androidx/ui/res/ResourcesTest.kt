@@ -22,6 +22,7 @@ import androidx.test.filters.SmallTest
 import androidx.test.platform.app.InstrumentationRegistry
 import androidx.ui.core.ContextAmbient
 import androidx.ui.framework.test.R
+import androidx.ui.graphics.Image
 import androidx.ui.graphics.imageFromResource
 import androidx.ui.test.createComposeRule
 import com.google.common.truth.Truth.assertThat
@@ -66,51 +67,42 @@ class ResourcesTest {
 
         var uiThreadWork: (() -> Unit)? = null
 
-        composeTestRule.setContent {
-            ContextAmbient.Provider(value = context) {
-                val res = +loadResourceInternal(
-                    id = R.drawable.loaded_image,
-                    pendingResource = pendingImage,
-                    failedResource = failedImage,
-                    executor = pendingExecutor,
-                    uiThreadHandler = { uiThreadWork = it },
-                    cacheLock = cacheLock,
-                    requestCache = requestCache,
-                    resourceCache = resourceCache,
-                    loader = { imageFromResource(resource, it) }
-                )
+        fun run(asserts: (DeferredResource<Image>) -> Unit) {
+            composeTestRule.setContent {
+                pendingExecutor.runNow()
+                uiThreadWork?.invoke()
 
-                assertThat(pendingExecutor.runnable).isNotNull()
-                assertThat(res.resource).isInstanceOf(PendingResource::class.java)
-                assertThat(res.resource.resource).isNotNull()
-                assertThat(res.resource.resource!!.nativeImage.sameAs(pendingImage.nativeImage))
-                    .isTrue()
+                ContextAmbient.Provider(value = context) {
+                    val res = +loadResourceInternal(
+                        id = R.drawable.loaded_image,
+                        pendingResource = pendingImage,
+                        failedResource = failedImage,
+                        executor = pendingExecutor,
+                        uiThreadHandler = { uiThreadWork = it },
+                        cacheLock = cacheLock,
+                        requestCache = requestCache,
+                        resourceCache = resourceCache,
+                        loader = { imageFromResource(resource, it) }
+                    )
+
+                    asserts(res)
+                }
             }
         }
 
-        composeTestRule.setContent {
-            ContextAmbient.Provider(value = context) {
-                pendingExecutor.runNow()
-                uiThreadWork!!.invoke()
+        run { res ->
+            assertThat(pendingExecutor.runnable).isNotNull()
+            assertThat(res.resource).isInstanceOf(PendingResource::class.java)
+            assertThat(res.resource.resource).isNotNull()
+            assertThat(res.resource.resource!!.nativeImage.sameAs(pendingImage.nativeImage))
+        }
 
-                val res = +loadResourceInternal(
-                    id = R.drawable.loaded_image,
-                    pendingResource = pendingImage,
-                    failedResource = failedImage,
-                    executor = pendingExecutor,
-                    uiThreadHandler = { uiThreadWork = it },
-                    cacheLock = cacheLock,
-                    requestCache = requestCache,
-                    resourceCache = resourceCache,
-                    loader = { imageFromResource(resource, it) }
-                )
-
-                assertThat(pendingExecutor.runnable).isNull()
-                assertThat(res.resource).isInstanceOf(LoadedResource::class.java)
-                assertThat(res.resource.resource).isNotNull()
-                assertThat(res.resource.resource!!.nativeImage.sameAs(loadedImage.nativeImage))
-                    .isTrue()
-            }
+        run { res ->
+            assertThat(pendingExecutor.runnable).isNull()
+            assertThat(res.resource).isInstanceOf(LoadedResource::class.java)
+            assertThat(res.resource.resource).isNotNull()
+            assertThat(res.resource.resource!!.nativeImage.sameAs(loadedImage.nativeImage))
+                .isTrue()
         }
     }
 
@@ -128,51 +120,43 @@ class ResourcesTest {
 
         var uiThreadWork: (() -> Unit)? = null
 
-        composeTestRule.setContent {
-            ContextAmbient.Provider(value = context) {
-                val res = +loadResourceInternal(
-                    id = R.drawable.loaded_image,
-                    pendingResource = pendingImage,
-                    failedResource = failedImage,
-                    executor = pendingExecutor,
-                    uiThreadHandler = { uiThreadWork = it },
-                    cacheLock = cacheLock,
-                    requestCache = requestCache,
-                    resourceCache = resourceCache,
-                    loader = { throw RuntimeException("Resource Load Failed") }
-                )
+        fun run(asserts: (DeferredResource<Image>) -> Unit) {
+            composeTestRule.setContent {
+                pendingExecutor.runNow()
+                uiThreadWork?.invoke()
 
-                assertThat(pendingExecutor.runnable).isNotNull()
-                assertThat(res.resource).isInstanceOf(PendingResource::class.java)
-                assertThat(res.resource.resource).isNotNull()
-                assertThat(res.resource.resource!!.nativeImage.sameAs(pendingImage.nativeImage))
-                    .isTrue()
+                ContextAmbient.Provider(value = context) {
+                    val res = +loadResourceInternal(
+                        id = R.drawable.loaded_image,
+                        pendingResource = pendingImage,
+                        failedResource = failedImage,
+                        executor = pendingExecutor,
+                        uiThreadHandler = { uiThreadWork = it },
+                        cacheLock = cacheLock,
+                        requestCache = requestCache,
+                        resourceCache = resourceCache,
+                        loader = { throw RuntimeException("Resource Load Failed") }
+                    )
+
+                    asserts(res)
+                }
             }
         }
 
-        composeTestRule.setContent {
-            ContextAmbient.Provider(value = context) {
-                pendingExecutor.runNow()
-                uiThreadWork!!.invoke()
+        run { res ->
+            assertThat(pendingExecutor.runnable).isNotNull()
+            assertThat(res.resource).isInstanceOf(PendingResource::class.java)
+            assertThat(res.resource.resource).isNotNull()
+            assertThat(res.resource.resource!!.nativeImage.sameAs(pendingImage.nativeImage))
+                .isTrue()
+        }
 
-                val res = +loadResourceInternal(
-                    id = R.drawable.loaded_image,
-                    pendingResource = pendingImage,
-                    failedResource = failedImage,
-                    executor = pendingExecutor,
-                    uiThreadHandler = { uiThreadWork = it },
-                    cacheLock = cacheLock,
-                    requestCache = requestCache,
-                    resourceCache = resourceCache,
-                    loader = { throw RuntimeException("Resource Load Failed") }
-                )
-
-                assertThat(pendingExecutor.runnable).isNull()
-                assertThat(res.resource).isInstanceOf(FailedResource::class.java)
-                assertThat(res.resource.resource).isNotNull()
-                assertThat(res.resource.resource!!.nativeImage.sameAs(failedImage.nativeImage))
-                    .isTrue()
-            }
+        run { res ->
+            assertThat(pendingExecutor.runnable).isNull()
+            assertThat(res.resource).isInstanceOf(FailedResource::class.java)
+            assertThat(res.resource.resource).isNotNull()
+            assertThat(res.resource.resource!!.nativeImage.sameAs(failedImage.nativeImage))
+                .isTrue()
         }
     }
 }

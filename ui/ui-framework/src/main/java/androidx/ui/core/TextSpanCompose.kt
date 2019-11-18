@@ -164,16 +164,14 @@ class TextSpanComposition(val composer: TextSpanComposer) {
  * when the [TextSpan] container is composed for the first time.
  */
 private class Root : Component() {
-    fun update() = composer.compose()
+    fun update() = compositionContext.compose()
     lateinit var scope: TextSpanScope
-    lateinit var composer: CompositionContext
+    lateinit var compositionContext: CompositionContext
     lateinit var composable: @Composable() TextSpanScope.() -> Unit
     @Suppress("PLUGIN_ERROR")
     override fun compose() {
-        with(scope.composer.composer) {
-            startGroup(0)
-            scope.composable()
-            endGroup()
+        with(scope) {
+            composable()
         }
     }
 }
@@ -215,7 +213,7 @@ fun compose(
         lateinit var composer: TextSpanComposer
         root = Root()
         setRoot(container, root)
-        root.composer = CompositionContext.prepare(root, parent) {
+        root.compositionContext = CompositionContext.prepare(root, parent) {
             TextSpanComposer(container, this).also { composer = it }
         }
         root.scope = TextSpanScope(TextSpanComposition(composer))
