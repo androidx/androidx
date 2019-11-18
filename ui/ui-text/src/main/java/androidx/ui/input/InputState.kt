@@ -18,6 +18,8 @@ package androidx.ui.input
 
 import androidx.ui.text.TextRange
 import androidx.ui.text.substring
+import kotlin.math.max
+import kotlin.math.min
 
 /**
  * Stores an input state for IME
@@ -50,13 +52,13 @@ data class InputState(
      * Helper function for getting text before selection range.
      */
     fun getTextBeforeSelection(maxChars: Int): String =
-        text.substring(Math.max(0, selection.min - maxChars), selection.min)
+        text.substring(max(0, selection.min - maxChars), selection.min)
 
     /**
      * Helper function for getting text after selection range.
      */
     fun getTextAfterSelection(maxChars: Int): String =
-        text.substring(selection.max, Math.min(selection.max + maxChars, text.length))
+        text.substring(selection.max, min(selection.max + maxChars, text.length))
 
     /**
      * Helper function for getting text currently selected.

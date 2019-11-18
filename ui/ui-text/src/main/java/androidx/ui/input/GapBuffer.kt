@@ -18,6 +18,8 @@ package androidx.ui.input
 
 import android.util.Log
 import androidx.annotation.RestrictTo
+import kotlin.math.max
+import kotlin.math.min
 
 /**
  * The gap buffer implementation
@@ -235,26 +237,30 @@ class PartialGapBuffer(var text: String) {
      * @param end an exclusive end offset for replacement
      * @param text a text to replace
      */
-    fun replace(start: Int, end: Int, buf: String) {
+    fun replace(start: Int, end: Int, text: String) {
         val buffer = buffer
         if (buffer == null) { // First time to create gap buffer
-            val charArray = CharArray(Math.max(BUF_SIZE, buf.length + 2 * SURROUNDING_SIZE))
+            val charArray = CharArray(max(BUF_SIZE, text.length + 2 * SURROUNDING_SIZE))
 
             // Convert surrounding text into buffer.
-            val leftCopyCount = Math.min(start, SURROUNDING_SIZE)
-            val rightCopyCount = Math.min(text.length - end, SURROUNDING_SIZE)
+            val leftCopyCount = min(start, SURROUNDING_SIZE)
+            val rightCopyCount = min(this.text.length - end, SURROUNDING_SIZE)
 
             // Copy left surrounding
-            text.toCharArray(charArray, 0, start - leftCopyCount, start)
+            this.text.toCharArray(charArray, 0, start - leftCopyCount, start)
 
             // Copy right surrounding
-            text.toCharArray(charArray, charArray.size - rightCopyCount, end, end + rightCopyCount)
+            this.text.toCharArray(charArray,
+                charArray.size - rightCopyCount,
+                end,
+                end + rightCopyCount
+            )
 
             // Copy given text into buffer
-            buf.toCharArray(charArray, leftCopyCount)
+            text.toCharArray(charArray, leftCopyCount)
 
             this.buffer = GapBuffer(charArray,
-                leftCopyCount + buf.length, // gap start
+                leftCopyCount + text.length, // gap start
                 charArray.size - rightCopyCount) // gap end
             bufStart = start - leftCopyCount
             bufEnd = end + rightCopyCount
@@ -267,14 +273,14 @@ class PartialGapBuffer(var text: String) {
         if (bufferStart < 0 || bufferEnd > buffer.length()) {
             // Text modification outside of gap buffer has requested. Flush the buffer and try it
             // again.
-            text = toString()
+            this.text = toString()
             this.buffer = null
             bufStart = NOWHERE
             bufEnd = NOWHERE
-            return replace(start, end, buf)
+            return replace(start, end, text)
         }
 
-        buffer.replace(bufferStart, bufferEnd, buf)
+        buffer.replace(bufferStart, bufferEnd, text)
     }
 
     /**

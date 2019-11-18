@@ -164,7 +164,7 @@ internal fun getTextSelectionInfo(
                 isStart = false,
                 areHandlesCrossed = handlesCrossed
             ),
-            direction = textDelegate.getBidiRunDirection(Math.max(endOffset - 1, 0)),
+            direction = textDelegate.getBidiRunDirection(max(endOffset - 1, 0)),
             offset = endOffset,
             layoutCoordinates = if (containsWholeSelectionEnd) layoutCoordinates else null
         ),
@@ -293,7 +293,7 @@ private fun getSelectionHandleCoordinates(
     val line = textDelegate.getLineForOffset(offset)
     val offsetToCheck =
         if (isStart && !areHandlesCrossed || !isStart && areHandlesCrossed) offset
-        else Math.max(offset - 1, 0)
+        else max(offset - 1, 0)
     val bidiRunDirection = textDelegate.getBidiRunDirection(offsetToCheck)
     val paragraphDirection = textDelegate.getParagraphDirection(offset)
 
