@@ -340,6 +340,7 @@ class SaveStateFragmentTest {
         fc2.shutdown(viewModelStore)
     }
 
+    @Suppress("DEPRECATION")
     @Test
     @UiThreadTest
     fun testSavedInstanceStateAfterRestore() {
@@ -685,6 +686,7 @@ class SaveStateFragmentTest {
         val retain: Boolean = false
     ) : StrictFragment() {
 
+        @Suppress("DEPRECATION")
         override fun onCreate(savedInstanceState: Bundle?) {
             super.onCreate(savedInstanceState)
             if (savedInstanceState != null) {

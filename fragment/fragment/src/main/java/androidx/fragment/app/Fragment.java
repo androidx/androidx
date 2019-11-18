@@ -1129,7 +1129,12 @@ public class Fragment implements ComponentCallbacks, OnCreateContextMenuListener
      *               changes, <code>false</code> otherwise.
      *
      * @see #getRetainInstance()
+     * @deprecated Instead of retaining the Fragment itself, use a non-retained Fragment and keep
+     * retained state in a ViewModel attached to that Fragment. The ViewModel's constructor and
+     * its onCleared() callback provide the signal for initial creation and final destruction of
+     * the retained state.
      */
+    @Deprecated
     public void setRetainInstance(boolean retain) {
         mRetainInstance = retain;
         if (mFragmentManager != null) {
@@ -1149,7 +1154,13 @@ public class Fragment implements ComponentCallbacks, OnCreateContextMenuListener
      *
      * @return whether or not this fragment instance will be retained.
      * @see #setRetainInstance(boolean)
+     *
+     * @deprecated Instead of retaining the Fragment itself, use a non-retained Fragment and keep
+     * retained state in a ViewModel attached to that Fragment. The ViewModel's constructor and
+     * its onCleared() callback provide the signal for initial creation and final destruction of
+     * the retained state.
      */
+    @Deprecated
     final public boolean getRetainInstance() {
         return mRetainInstance;
     }

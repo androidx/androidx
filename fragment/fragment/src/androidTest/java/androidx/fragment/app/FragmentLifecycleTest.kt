@@ -621,6 +621,7 @@ class FragmentLifecycleTest {
      * Ensure that FragmentManager rejects commit() and commitNow() prior to restoring
      * saved instance state
      */
+    @Suppress("DEPRECATION")
     @Test
     @UiThreadTest
     fun addRetainedBeforeRestoreSaveState() {
@@ -661,6 +662,7 @@ class FragmentLifecycleTest {
     /**
      * Ensure that FragmentManager
      */
+    @Suppress("DEPRECATION")
     @Test
     @UiThreadTest
     fun addRetainedAfterSaveState() {
@@ -696,6 +698,7 @@ class FragmentLifecycleTest {
             .isNull()
     }
 
+    @Suppress("DEPRECATION")
     @Test
     @UiThreadTest
     fun popBackStackImmediateAfterSaveState() {
@@ -730,6 +733,7 @@ class FragmentLifecycleTest {
         }
     }
 
+    @Suppress("DEPRECATION")
     @Test
     @UiThreadTest
     fun popBackStackAfterSaveState() {
@@ -764,6 +768,7 @@ class FragmentLifecycleTest {
         }
     }
 
+    @Suppress("DEPRECATION")
     @Test
     @UiThreadTest
     fun popBackStackAfterManagerDestroyed() {
@@ -793,6 +798,7 @@ class FragmentLifecycleTest {
         }
     }
 
+    @Suppress("DEPRECATION")
     @Test
     @UiThreadTest
     fun commitWhenFragmentManagerNeverAttached() {
@@ -820,6 +826,7 @@ class FragmentLifecycleTest {
         }
     }
 
+    @Suppress("DEPRECATION")
     @Test
     @UiThreadTest
     fun popBackStackAndFragmentHostDestroyed() {
@@ -856,6 +863,7 @@ class FragmentLifecycleTest {
         }
     }
 
+    @Suppress("DEPRECATION")
     @Test
     @UiThreadTest
     fun commitNowWhenFragmentHostNeverAttached() {
@@ -883,6 +891,7 @@ class FragmentLifecycleTest {
     /**
      * When a fragment is saved in non-config, it should be restored to the same index.
      */
+    @Suppress("DEPRECATION")
     @Test
     @UiThreadTest
     fun restoreNonConfig() {
@@ -935,6 +944,7 @@ class FragmentLifecycleTest {
     /**
      * Check that retained fragments in the backstack correctly restored after two "configChanges"
      */
+    @Suppress("DEPRECATION")
     @Test
     @UiThreadTest
     fun retainedFragmentInBackstack() {
@@ -1280,6 +1290,7 @@ class FragmentLifecycleTest {
         }
     }
 
+    @Suppress("DEPRECATION")
     class OnCreateFragment : Fragment() {
         var onCreateCalled: Boolean = false
 
@@ -1302,6 +1313,7 @@ class FragmentLifecycleTest {
     class RetainedInflatedChildFragment : Fragment(R.layout.nested_inflated_fragment_child) {
         internal var mOnInflateCount = 0
 
+        @Suppress("DEPRECATION")
         override fun onCreate(savedInstanceState: Bundle?) {
             super.onCreate(savedInstanceState)
             retainInstance = true

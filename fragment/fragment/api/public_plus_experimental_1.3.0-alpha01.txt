@@ -49,7 +49,7 @@ package androidx.fragment.app {
     method public final androidx.fragment.app.FragmentManager getParentFragmentManager();
     method public Object? getReenterTransition();
     method public final android.content.res.Resources getResources();
-    method public final boolean getRetainInstance();
+    method @Deprecated public final boolean getRetainInstance();
     method public Object? getReturnTransition();
     method public final androidx.savedstate.SavedStateRegistry getSavedStateRegistry();
     method public Object? getSharedElementEnterTransition();
@@ -134,7 +134,7 @@ package androidx.fragment.app {
     method public void setInitialSavedState(androidx.fragment.app.Fragment.SavedState?);
     method public void setMenuVisibility(boolean);
     method public void setReenterTransition(Object?);
-    method public void setRetainInstance(boolean);
+    method @Deprecated public void setRetainInstance(boolean);
     method public void setReturnTransition(Object?);
     method public void setSharedElementEnterTransition(Object?);
     method public void setSharedElementReturnTransition(Object?);
