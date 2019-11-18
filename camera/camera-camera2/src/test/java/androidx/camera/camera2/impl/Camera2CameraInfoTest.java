@@ -134,19 +134,17 @@ public class Camera2CameraInfoTest {
     }
 
     @Test
-    public void cameraInfo_canReturnFlashAvailable_forBackCamera() {
+    public void cameraInfo_canReturnHasFlashUnit_forBackCamera() {
         CameraInfoInternal cameraInfoInternal = new Camera2CameraInfo(mCameraCharacteristics0,
                 mock(ZoomControl.class));
-        assertThat(cameraInfoInternal.isFlashAvailable().getValue().booleanValue()).isEqualTo(
-                CAMERA0_FLASH_INFO_BOOLEAN);
+        assertThat(cameraInfoInternal.hasFlashUnit()).isEqualTo(CAMERA0_FLASH_INFO_BOOLEAN);
     }
 
     @Test
-    public void cameraInfo_canReturnFlashAvailable_forFrontCamera() {
+    public void cameraInfo_canReturnHasFlashUnit_forFrontCamera() {
         CameraInfoInternal cameraInfoInternal = new Camera2CameraInfo(mCameraCharacteristics1,
                 mock(ZoomControl.class));
-        assertThat(cameraInfoInternal.isFlashAvailable().getValue().booleanValue()).isEqualTo(
-                CAMERA1_FLASH_INFO_BOOLEAN);
+        assertThat(cameraInfoInternal.hasFlashUnit()).isEqualTo(CAMERA1_FLASH_INFO_BOOLEAN);
     }
 
     // zoom related tests just ensure it uses ZoomControl to get the value

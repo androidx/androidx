@@ -58,7 +58,6 @@ import androidx.camera.lifecycle.LifecycleCameraProvider;
 import androidx.concurrent.futures.CallbackToFutureAdapter;
 import androidx.core.app.ActivityCompat;
 import androidx.core.content.ContextCompat;
-import androidx.lifecycle.LiveData;
 import androidx.lifecycle.MutableLiveData;
 import androidx.lifecycle.Observer;
 import androidx.test.espresso.IdlingResource;
@@ -429,9 +428,9 @@ public class CameraXActivity extends AppCompatActivity
             return;
         }
 
-        LiveData<Boolean> isFlashAvailable = camera.getCameraInfo().isFlashAvailable();
+        boolean hasFlashUnit = camera.getCameraInfo().hasFlashUnit();
         ImageButton flashToggle = findViewById(R.id.flash_toggle);
-        flashToggle.setVisibility(isFlashAvailable.getValue() ? View.VISIBLE : View.INVISIBLE);
+        flashToggle.setVisibility(hasFlashUnit ? View.VISIBLE : View.INVISIBLE);
 
         Button button = this.findViewById(R.id.Picture);
         final Format formatter = new SimpleDateFormat("yyyy-MM-dd-HH-mm-ss-SSS");

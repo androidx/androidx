@@ -364,10 +364,10 @@ public class ImageCapture extends UseCase {
      * Set the flash mode.
      *
      * <p>The flash control for the subsequent photo capture requests. See
-     * {@link FlashMode} for the optional settings. Applications can check if flash is available
-     * and update UI component if necessary via {@link CameraInfo#isFlashAvailable()}. If no
-     * flash is available, then calling this API will take no effect for the subsequent photo
-     * capture requests and they will act like {@link FlashMode#OFF}.
+     * {@link FlashMode} for the optional settings. Applications can check if there is a flash unit
+     * via {@link CameraInfo#hasFlashUnit()} and update UI component if necessary. If there is no
+     * flash unit, then calling this API will take no effect for the subsequent photo capture
+     * requests and they will act like {@link FlashMode#OFF}.
      *
      * <p>When the torch is enabled via {@link CameraControl#enableTorch(boolean)}, the torch
      * will remain enabled during photo capture regardless of {@link FlashMode} setting. When
