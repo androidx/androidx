@@ -40,7 +40,7 @@ class LayoutIntrinsics(
      */
     val boringMetrics: BoringLayout.Metrics? by lazy {
         val frameworkTextDir = getTextDirectionHeuristic(textDirectionHeuristic)
-        BoringLayoutCompat.isBoring(charSequence, textPaint, frameworkTextDir)
+        BoringLayoutFactory.measure(charSequence, textPaint, frameworkTextDir)
     }
 
     /**
