@@ -26,11 +26,11 @@ import androidx.test.platform.app.InstrumentationRegistry
 import androidx.text.style.BaselineShiftSpan
 import androidx.text.style.SkewXSpan
 import com.google.common.truth.Truth.assertThat
+import com.nhaarman.mockitokotlin2.any
 import org.junit.Before
 import org.junit.Test
 import org.junit.runner.RunWith
 import org.junit.runners.JUnit4
-import org.mockito.ArgumentMatchers
 import org.mockito.Mockito.doAnswer
 import org.mockito.Mockito.spy
 import org.mockito.stubbing.Answer
@@ -67,12 +67,12 @@ class TextLayoutSpanTest {
         // first baselineShiftSpan is applied
         var expectShift = (-fontSize * spanOutterMult).toInt()
         doAnswer(updatePaintAnswer(baselineShift = expectShift))
-            .`when`(spanOutter).updateMeasureState(ArgumentMatchers.any())
+            .`when`(spanOutter).updateMeasureState(any())
 
         // second baselineShiftSpan is applied
         expectShift = (-fontSize * (spanOutterMult + spanInnerMult)).toInt()
         doAnswer(updatePaintAnswer(baselineShift = expectShift))
-            .`when`(spanInner).updateMeasureState(ArgumentMatchers.any())
+            .`when`(spanInner).updateMeasureState(any())
 
         val paint = simplePaint(fontSize.toFloat())
         TextLayout(
@@ -98,12 +98,12 @@ class TextLayoutSpanTest {
         // first baselineShiftSpan is applied
         var expectShift = (-fontSize * spanOutterMult).toInt()
         doAnswer(updatePaintAnswer(baselineShift = expectShift))
-            .`when`(spanOutter).updateDrawState(ArgumentMatchers.any())
+            .`when`(spanOutter).updateDrawState(any())
 
         // second baselineShiftSpan is applied
         expectShift = (-fontSize * (spanOutterMult + spanInnerMult)).toInt()
         doAnswer(updatePaintAnswer(baselineShift = expectShift))
-            .`when`(spanInner).updateDrawState(ArgumentMatchers.any())
+            .`when`(spanInner).updateDrawState(any())
 
         val paint = simplePaint(fontSize.toFloat())
         TextLayout(
@@ -126,9 +126,9 @@ class TextLayoutSpanTest {
         text.setSpan(spanInner, 0, text.length / 2, Spanned.SPAN_EXCLUSIVE_EXCLUSIVE)
 
         doAnswer(updatePaintAnswer(skewX = skewXOutter))
-            .`when`(spanOutter).updateDrawState(ArgumentMatchers.any())
+            .`when`(spanOutter).updateDrawState(any())
         doAnswer(updatePaintAnswer(skewX = skewXInner + skewXOutter))
-            .`when`(spanInner).updateDrawState(ArgumentMatchers.any())
+            .`when`(spanInner).updateDrawState(any())
 
         TextLayout(
             text,
@@ -150,9 +150,9 @@ class TextLayoutSpanTest {
         text.setSpan(spanInner, 0, text.length / 2, Spanned.SPAN_EXCLUSIVE_EXCLUSIVE)
 
         doAnswer(updatePaintAnswer(skewX = skewXOutter))
-            .`when`(spanOutter).updateMeasureState(ArgumentMatchers.any())
+            .`when`(spanOutter).updateMeasureState(any())
         doAnswer(updatePaintAnswer(skewX = skewXInner + skewXOutter))
-            .`when`(spanInner).updateMeasureState(ArgumentMatchers.any())
+            .`when`(spanInner).updateMeasureState(any())
 
         TextLayout(
             text,
@@ -174,9 +174,9 @@ class TextLayoutSpanTest {
         text.setSpan(spanInner, 0, text.length / 2, Spanned.SPAN_EXCLUSIVE_EXCLUSIVE)
 
         doAnswer(updatePaintAnswer(scaleX = scaleXOutter))
-            .`when`(spanOutter).updateDrawState(ArgumentMatchers.any())
+            .`when`(spanOutter).updateDrawState(any())
         doAnswer(updatePaintAnswer(scaleX = scaleXInner * scaleXOutter))
-            .`when`(spanInner).updateDrawState(ArgumentMatchers.any())
+            .`when`(spanInner).updateDrawState(any())
 
         TextLayout(
             text,
@@ -198,9 +198,9 @@ class TextLayoutSpanTest {
         text.setSpan(spanInner, 0, text.length / 2, Spanned.SPAN_EXCLUSIVE_EXCLUSIVE)
 
         doAnswer(updatePaintAnswer(scaleX = scaleXOutter))
-            .`when`(spanOutter).updateMeasureState(ArgumentMatchers.any())
+            .`when`(spanOutter).updateMeasureState(any())
         doAnswer(updatePaintAnswer(scaleX = scaleXInner * scaleXOutter))
-            .`when`(spanInner).updateMeasureState(ArgumentMatchers.any())
+            .`when`(spanInner).updateMeasureState(any())
 
         TextLayout(
             text,
