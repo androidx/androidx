@@ -114,6 +114,13 @@ package androidx.ui.input {
     method public char getMask();
   }
 
+  public interface PlatformTextInputService {
+    method public void notifyFocusedRect(androidx.ui.engine.geometry.Rect rect);
+    method public void onStateUpdated(androidx.ui.input.InputState model);
+    method public void showSoftwareKeyboard();
+    method public void startInput(androidx.ui.input.InputState initModel, androidx.ui.input.KeyboardType keyboardType, androidx.ui.input.ImeAction imeAction, kotlin.jvm.functions.Function1<? super java.util.List<? extends androidx.ui.input.EditOperation>,kotlin.Unit> onEditCommand, kotlin.jvm.functions.Function1<? super androidx.ui.input.ImeAction,kotlin.Unit> onImeActionPerformed);
+    method public void stopInput();
+  }
 
   public final class SetComposingRegionEditOp implements androidx.ui.input.EditOperation {
     ctor public SetComposingRegionEditOp(int start, int end);
@@ -145,9 +152,19 @@ package androidx.ui.input {
     method public void process(androidx.ui.input.EditingBuffer buffer);
   }
 
+  public class TextInputService {
+    ctor public TextInputService(androidx.ui.input.PlatformTextInputService platformTextInputService);
+    method public void notifyFocusedRect(int token, androidx.ui.engine.geometry.Rect rect);
+    method public void onStateUpdated(int token, androidx.ui.input.InputState model);
+    method public void showSoftwareKeyboard(int token);
+    method public int startInput(androidx.ui.input.InputState initModel, androidx.ui.input.KeyboardType keyboardType, androidx.ui.input.ImeAction imeAction, kotlin.jvm.functions.Function1<? super java.util.List<? extends androidx.ui.input.EditOperation>,kotlin.Unit> onEditCommand, kotlin.jvm.functions.Function1<? super androidx.ui.input.ImeAction,kotlin.Unit> onImeActionPerformed);
+    method public void stopInput(int token);
+  }
 
   public final class TextInputServiceKt {
     ctor public TextInputServiceKt();
+    field public static final int INVALID_SESSION = -1; // 0xffffffff
+    field public static final int NO_SESSION = 0; // 0x0
   }
 
   public final class TransformedText {
