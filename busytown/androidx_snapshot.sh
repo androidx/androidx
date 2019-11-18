@@ -9,5 +9,5 @@ fi
 mkdir -p "$DIST_DIR"
 cd "$SCRIPT_DIR/../../.."
 
-SNAPSHOT=true OUT_DIR=out DIST_DIR="$DIST_DIR" ANDROID_HOME=`pwd`/prebuilts/fullsdk-linux frameworks/support/gradlew -p frameworks/support --no-daemon createArchive
-SNAPSHOT=true OUT_DIR=out/ui DIST_DIR="$DIST_DIR/ui" ANDROID_HOME=`pwd`/prebuilts/fullsdk-linux frameworks/support/ui/gradlew -p frameworks/support/ui --no-daemon createArchive
+SNAPSHOT=true OUT_DIR=out DIST_DIR="$DIST_DIR" ANDROID_HOME=`pwd`/prebuilts/fullsdk-linux frameworks/support/gradlew -p frameworks/support --no-daemon createArchive --offline
+SNAPSHOT=true OUT_DIR=out/ui DIST_DIR="$DIST_DIR/ui" ANDROID_HOME=`pwd`/prebuilts/fullsdk-linux frameworks/support/ui/gradlew -p frameworks/support/ui --no-daemon createArchive --offline
