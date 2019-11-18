@@ -27,7 +27,6 @@ import androidx.ui.foundation.VerticalScroller
 import androidx.ui.foundation.text.SelectionContainer
 import androidx.ui.graphics.Color
 import androidx.ui.layout.Column
-import androidx.ui.layout.CrossAxisAlignment
 import androidx.ui.layout.ExpandedHeight
 import androidx.ui.layout.ExpandedWidth
 import androidx.ui.layout.Row
@@ -39,7 +38,7 @@ import androidx.ui.text.font.FontWeight
 @Composable
 fun TextSelectionDemo() {
     VerticalScroller {
-        Column(crossAxisAlignment = CrossAxisAlignment.Start) {
+        Column {
             TagLine(tag = "selection")
             TextDemoSelection()
             TagLine(tag = "selection with string input")

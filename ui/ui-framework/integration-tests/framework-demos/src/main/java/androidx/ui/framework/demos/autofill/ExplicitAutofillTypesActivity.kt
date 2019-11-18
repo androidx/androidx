@@ -37,7 +37,6 @@ import androidx.ui.core.setContent
 import androidx.ui.input.ImeAction
 import androidx.ui.input.KeyboardType
 import androidx.ui.layout.Column
-import androidx.ui.layout.CrossAxisAlignment
 import androidx.ui.layout.HeightSpacer
 import androidx.ui.material.MaterialTheme
 
@@ -47,7 +46,7 @@ class ExplicitAutofillTypesActivity : Activity() {
         super.onCreate(savedInstanceState)
         setContent {
             MaterialTheme {
-                Column(crossAxisAlignment = CrossAxisAlignment.Start) {
+                Column {
 
                     val nameState = +state { "Enter name here" }
                     val emailState = +state { "Enter email here" }
