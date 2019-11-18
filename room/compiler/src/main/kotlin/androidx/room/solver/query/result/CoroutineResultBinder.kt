@@ -45,6 +45,14 @@ class CoroutineResultBinder(
         inTransaction: Boolean,
         scope: CodeGenScope
     ) {
+        val cancellationSignalVar = scope.getTmpVar("_cancellationSignal")
+        scope.builder().addStatement(
+            "final $T $L = $T.createCancellationSignal()",
+            AndroidTypeNames.CANCELLATION_SIGNAL,
+            cancellationSignalVar,
+            RoomTypeNames.DB_UTIL
+        )
+
         val callableImpl = CallableTypeSpecBuilder(typeArg.typeName()) {
             createRunQueryAndReturnStatements(
                 builder = this,
@@ -58,10 +66,11 @@ class CoroutineResultBinder(
 
         scope.builder().apply {
             addStatement(
-                "return $T.execute($N, $L, $L, $N)",
+                "return $T.execute($N, $L, $L, $L, $N)",
                 RoomCoroutinesTypeNames.COROUTINES_ROOM,
                 dbField,
                 if (inTransaction) "true" else "false",
+                cancellationSignalVar,
                 callableImpl,
                 continuationParamName)
         }
