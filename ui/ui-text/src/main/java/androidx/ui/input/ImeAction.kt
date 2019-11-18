@@ -19,48 +19,48 @@ package androidx.ui.input
 /**
  * Enums used for indicating IME action.
  *
- * @see https://developer.android.com/reference/android/view/inputmethod/EditorInfo.html#IME_MASK_ACTION
+ * @see <https://developer.android.com/reference/android/view/inputmethod/EditorInfo.html#IME_MASK_ACTION>
  */
 enum class ImeAction {
     /**
      * An IME action used to represent that any IME action is associated.
      *
-     * @see https://developer.android.com/reference/android/view/inputmethod/EditorInfo.html#IME_ACTION_UNSPECIFIED
+     * @see <https://developer.android.com/reference/android/view/inputmethod/EditorInfo.html#IME_ACTION_UNSPECIFIED>
      */
     Unspecified,
 
     /**
      * An IME action used to represent that no IME action is available in editor.
      *
-     * @see https://developer.android.com/reference/android/view/inputmethod/EditorInfo.html#IME_ACTION_NONE
+     * @see <https://developer.android.com/reference/android/view/inputmethod/EditorInfo.html#IME_ACTION_NONE>
      */
     NoAction,
 
     /**
      * An IME action used to represent that the "enter" key works as "go" action.
      *
-     * @see https://developer.android.com/reference/android/view/inputmethod/EditorInfo.html#IME_ACTION_GO
+     * @see <https://developer.android.com/reference/android/view/inputmethod/EditorInfo.html#IME_ACTION_GO>
      */
     Go,
 
     /**
      * An IME action used to represent that the "enter" key works as "search" action.
      *
-     * @see https://developer.android.com/reference/android/view/inputmethod/EditorInfo.html#IME_ACTION_SEARCH
+     * @see <https://developer.android.com/reference/android/view/inputmethod/EditorInfo.html#IME_ACTION_SEARCH>
      */
     Search,
 
     /**
      * An IME action used to represent that the "enter" key works as "send" action.
      *
-     * @see https://developer.android.com/reference/android/view/inputmethod/EditorInfo.html#IME_ACTION_SEND
+     * @see <https://developer.android.com/reference/android/view/inputmethod/EditorInfo.html#IME_ACTION_SEND>
      */
     Send,
 
     /**
      * An IME action used to represent that the "enter" key works as "previous" action.
      *
-     * @see https://developer.android.com/reference/android/view/inputmethod/EditorInfo.html#IME_ACTION_PREVIOUS
+     * @see <https://developer.android.com/reference/android/view/inputmethod/EditorInfo.html#IME_ACTION_PREVIOUS>
      */
     Previous,
 
@@ -74,7 +74,7 @@ enum class ImeAction {
     /**
      * An IME action used to represent that the "enter" key works as "done" action.
      *
-     * @see https://developer.android.com/reference/android/view/inputmethod/EditorInfo.html#IME_ACTION_DONE
+     * @see <https://developer.android.com/reference/android/view/inputmethod/EditorInfo.html#IME_ACTION_DONE>
      */
     Done
 }

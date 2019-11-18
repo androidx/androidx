@@ -41,7 +41,7 @@ interface EditOperation {
 /**
  * An edit operation represent commitText callback from InputMethod.
  *
- * @see https://developer.android.com/reference/android/view/inputmethod/InputConnection.html#commitText(java.lang.CharSequence,%20int)
+ * @see <https://developer.android.com/reference/android/view/inputmethod/InputConnection.html#commitText(java.lang.CharSequence,%20int)>
  *
  * @hide
  */
@@ -87,7 +87,7 @@ data class CommitTextEditOp(
 /**
  * An edit operation represents setComposingRegion callback from InputMethod.
  *
- * @see https://developer.android.com/reference/android/view/inputmethod/InputConnection.html#setComposingRegion(int,%2520int)
+ * @see <https://developer.android.com/reference/android/view/inputmethod/InputConnection.html#setComposingRegion(int,%2520int)>
 
  * @hide
  */
@@ -126,7 +126,7 @@ data class SetComposingRegionEditOp(
 /**
  * An edit operation represents setComposingText callback from InputMethod
  *
- * @see https://developer.android.com/reference/android/view/inputmethod/InputConnection.html#setComposingText(java.lang.CharSequence,%2520int)
+ * @see <https://developer.android.com/reference/android/view/inputmethod/InputConnection.html#setComposingText(java.lang.CharSequence,%2520int)>
  *
  * @hide
  */
@@ -178,7 +178,7 @@ data class SetComposingTextEditOp(
 /**
  * An edit operation represents deleteSurroundingText callback from InputMethod
  *
- * @see https://developer.android.com/reference/android/view/inputmethod/InputConnection.html#deleteSurroundingText(int,%2520int)
+ * @see <https://developer.android.com/reference/android/view/inputmethod/InputConnection.html#deleteSurroundingText(int,%2520int)>
  *
  * @hide
  */
@@ -208,7 +208,7 @@ data class DeleteSurroundingTextEditOp(
 /**
  * An edit operation represents deleteSurroundingTextInCodePoitns callback from InputMethod
  *
- * @see https://developer.android.com/reference/android/view/inputmethod/InputConnection.html#deleteSurroundingTextInCodePoints(int,%2520int)
+ * @see <https://developer.android.com/reference/android/view/inputmethod/InputConnection.html#deleteSurroundingTextInCodePoints(int,%2520int)>
  *
  * @hide
  */
@@ -261,7 +261,7 @@ data class DeleteSurroundingTextInCodePointsEditOp(
 /**
  * An edit operation represents setSelection callback from InputMethod
  *
- * @see https://developer.android.com/reference/android/view/inputmethod/InputConnection.html#setSelection(int,%2520int)
+ * @see <https://developer.android.com/reference/android/view/inputmethod/InputConnection.html#setSelection(int,%2520int)>
  *
  * @hide
  */
@@ -291,7 +291,7 @@ data class SetSelectionEditOp(
 /**
  * An edit operation represents finishComposingText callback from InputMEthod
  *
- * @see https://developer.android.com/reference/android/view/inputmethod/InputConnection.html#finishComposingText()
+ * @see <https://developer.android.com/reference/android/view/inputmethod/InputConnection.html#finishComposingText()>
  *
  * @hide
  */
