@@ -16,8 +16,6 @@
 
 package androidx.ui.text
 
-import androidx.annotation.RestrictTo
-
 /**
  * A [TextSpan] object can be styled using its [style] property.
  * The style will be applied to the [text] and the [children].
@@ -31,10 +29,7 @@ import androidx.annotation.RestrictTo
  *
  * @param children Additional spans to include as children. If both [text] and [children] are
  *   non-null, the text will precede the children. The list must not contain any nulls.
- *
- * @hide
  */
-@RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
 class TextSpan(
     val style: TextStyle? = null,
     val text: String? = null,
@@ -45,7 +40,7 @@ class TextSpan(
      * Walks this text span and its descendants in pre-order and calls [visitor]
      * for each span that has text.
      */
-    fun visitTextSpan(visitor: (span: TextSpan) -> Boolean): Boolean {
+    internal fun visitTextSpan(visitor: (span: TextSpan) -> Boolean): Boolean {
         if (text != null) {
             if (!visitor(this)) {
                 return false
@@ -87,9 +82,7 @@ private fun TextSpan.annotatedStringVisitor(builder: AnnotatedString.Builder) {
 
 /**
  * Convert a [TextSpan] into an [AnnotatedString].
- * @hide
  */
-@RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
 fun TextSpan.toAnnotatedString(): AnnotatedString {
     return with(AnnotatedString.Builder()) {
         annotatedStringVisitor(this)

@@ -448,8 +448,17 @@ package androidx.ui.text {
     method public static String substring(CharSequence, androidx.ui.text.TextRange range);
   }
 
+  public final class TextSpan {
+    ctor public TextSpan(androidx.ui.text.TextStyle? style, String? text, java.util.List<androidx.ui.text.TextSpan> children);
+    ctor public TextSpan();
+    method public java.util.List<androidx.ui.text.TextSpan> getChildren();
+    method public androidx.ui.text.TextStyle? getStyle();
+    method public String? getText();
+  }
+
   public final class TextSpanKt {
     ctor public TextSpanKt();
+    method public static androidx.ui.text.AnnotatedString toAnnotatedString(androidx.ui.text.TextSpan);
   }
 
   public final class TextStyle {
