@@ -45,6 +45,8 @@ MissingBuild: androidx.ui.text.AnnotatedString.Builder:
     Missing `build()` method in androidx.ui.text.AnnotatedString.Builder
 
 
+MissingNullability: androidx.ui.input.OffsetMap#Companion:
+    Missing nullability on field `Companion` in class `class androidx.ui.input.OffsetMap`
 MissingNullability: androidx.ui.text.Locale#Companion:
     Missing nullability on field `Companion` in class `class androidx.ui.text.Locale`
 MissingNullability: androidx.ui.text.LocaleList#Companion:

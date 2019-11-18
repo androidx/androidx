@@ -16,7 +16,6 @@
 
 package androidx.ui.input
 
-import androidx.annotation.RestrictTo
 import androidx.ui.text.AnnotatedString
 
 /**
@@ -47,6 +46,16 @@ interface OffsetMap {
      * @see VisualTransformation
      */
     fun transformedToOriginal(offset: Int): Int
+
+    companion object {
+        /**
+         * The offset map used for identity mapping.
+         */
+        val identityOffsetMap = object : OffsetMap {
+            override fun originalToTransformed(offset: Int): Int = offset
+            override fun transformedToOriginal(offset: Int): Int = offset
+        }
+    }
 }
 
 /**
@@ -108,18 +117,7 @@ class PasswordVisualTransformation(val mask: Char = '\u2022') : VisualTransforma
     override fun filter(text: AnnotatedString): TransformedText {
         return TransformedText(
             AnnotatedString(Character.toString(mask).repeat(text.text.length)),
-            identityOffsetMap
+            OffsetMap.identityOffsetMap
         )
     }
-}
-
-/**
- * The offset map used for identity mapping.
- *
- * @hide
- */
-@RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
-val identityOffsetMap = object : OffsetMap {
-    override fun originalToTransformed(offset: Int): Int = offset
-    override fun transformedToOriginal(offset: Int): Int = offset
 }
