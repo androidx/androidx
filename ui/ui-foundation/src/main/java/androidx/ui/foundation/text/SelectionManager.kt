@@ -22,7 +22,6 @@ import androidx.ui.core.gesture.DragObserver
 import androidx.ui.core.gesture.LongPressDragObserver
 import androidx.ui.core.px
 import androidx.ui.core.selection.Selection
-import androidx.ui.core.selection.SelectionMode
 import androidx.ui.core.selection.TextSelectionHandler
 
 /**
@@ -40,11 +39,6 @@ internal class SelectionManager(private val selectionRegistrar: SelectionRegistr
      * called. This is what makes this a "controlled component".
      */
     var onSelectionChange: (Selection?) -> Unit = {}
-
-    /**
-     * Selection mode to be used. Default value is Vertical.
-     */
-    var mode: SelectionMode = SelectionMode.Vertical
 
     /**
      * Layout Coordinates of the selection container.
@@ -101,7 +95,6 @@ internal class SelectionManager(private val selectionRegistrar: SelectionRegistr
                     startPosition = startPosition,
                     endPosition = endPosition,
                     containerLayoutCoordinates = containerLayoutCoordinates,
-                    mode = mode,
                     wordSelectIfCollapsed = wordSelectIfCollapsed
                 )
             )

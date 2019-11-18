@@ -295,11 +295,6 @@ package androidx.ui.core.selection {
     method public int getOffset();
   }
 
-  public enum SelectionMode {
-    enum_constant public static final androidx.ui.core.selection.SelectionMode Horizontal;
-    enum_constant public static final androidx.ui.core.selection.SelectionMode Vertical;
-  }
-
   public interface SelectionRegistrar {
     method public Object subscribe(androidx.ui.core.selection.TextSelectionHandler handler);
     method public void unsubscribe(Object key);
@@ -315,7 +310,7 @@ package androidx.ui.core.selection {
   }
 
   public interface TextSelectionHandler {
-    method public androidx.ui.core.selection.Selection? getSelection(androidx.ui.core.PxPosition startPosition, androidx.ui.core.PxPosition endPosition, androidx.ui.core.LayoutCoordinates containerLayoutCoordinates, androidx.ui.core.selection.SelectionMode mode, boolean wordSelectIfCollapsed);
+    method public androidx.ui.core.selection.Selection? getSelection(androidx.ui.core.PxPosition startPosition, androidx.ui.core.PxPosition endPosition, androidx.ui.core.LayoutCoordinates containerLayoutCoordinates, boolean wordSelectIfCollapsed);
   }
 
 }

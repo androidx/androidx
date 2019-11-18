@@ -22,7 +22,6 @@ import androidx.compose.unaryPlus
 import androidx.ui.core.Span
 import androidx.ui.core.Text
 import androidx.ui.core.selection.Selection
-import androidx.ui.core.selection.SelectionMode
 import androidx.ui.foundation.VerticalScroller
 import androidx.ui.foundation.text.SelectionContainer
 import androidx.ui.graphics.Color
@@ -45,9 +44,6 @@ fun TextSelectionDemo() {
             TextDemoSelectionWithStringInput()
             TagLine(tag = "selection in 2D Array Vertical")
             TextDemoSelection2DArrayVertical()
-            TagLine(tag = "selection in 2D Array Horizontal")
-            TextDemoSelection2DArrayHorizontal()
-            TagLine(tag = "composable textspan")
         }
     }
 }
@@ -136,51 +132,6 @@ fun TextDemoSelection2DArrayVertical() {
     SelectionContainer(
         selection = selection.value,
         onSelectionChange = { selection.value = it }) {
-        Column(ExpandedHeight) {
-            for (i in 0..2) {
-                Row(ExpandedWidth) {
-                    for (j in 0..2) {
-                        Text {
-                            Span(
-                                text = text,
-                                style = TextStyle(
-                                    color = colorList[i * 3 + j],
-                                    fontSize = fontSize6
-                                )
-                            )
-                        }
-                    }
-                }
-            }
-        }
-    }
-}
-
-@Composable
-fun TextDemoSelection2DArrayHorizontal() {
-    var text = ""
-    for (i in 1..3) {
-        text = "$text$displayText" + "\n"
-    }
-
-    val colorList = listOf(
-        Color(0xFFFF0000),
-        Color(0xFF00FF00),
-        Color(0xFF0000FF),
-        Color(0xFF00FFFF),
-        Color(0xFFFF00FF),
-        Color(0xFFFFFF00),
-        Color(0xFF0000FF),
-        Color(0xFF00FF00),
-        Color(0xFFFF0000)
-    )
-
-    val selection = +state<Selection?> { null }
-    SelectionContainer(
-        selection = selection.value,
-        onSelectionChange = { selection.value = it },
-        mode = SelectionMode.Horizontal
-    ) {
         Column(ExpandedHeight) {
             for (i in 0..2) {
                 Row(ExpandedWidth) {
