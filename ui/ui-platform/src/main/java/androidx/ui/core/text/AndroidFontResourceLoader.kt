@@ -18,17 +18,13 @@ package androidx.ui.core.text
 
 import android.content.Context
 import android.graphics.Typeface
-import androidx.annotation.RestrictTo
 import androidx.core.content.res.ResourcesCompat
 import androidx.ui.text.font.Font
 
 /**
  * Android implementation for [Font.ResourceLoader]
- *
- * @hide
  */
-@RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
-class AndroidFontResourceLoader(private val context: Context) : Font.ResourceLoader {
+internal class AndroidFontResourceLoader(private val context: Context) : Font.ResourceLoader {
     override fun load(font: Font): Typeface {
         val resId = context.resources.getIdentifier(
             font.name.substringBefore("."),
