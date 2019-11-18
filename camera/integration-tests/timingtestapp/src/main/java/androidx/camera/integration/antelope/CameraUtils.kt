@@ -29,7 +29,7 @@ import android.os.Build
 import android.util.SparseIntArray
 import android.view.Surface
 import androidx.appcompat.app.AppCompatActivity
-import androidx.camera.core.ImageCaptureConfig
+import androidx.camera.core.ImageCapture
 import androidx.camera.core.Preview
 import androidx.camera.integration.antelope.MainActivity.Companion.FIXED_FOCUS_DISTANCE
 import androidx.camera.integration.antelope.MainActivity.Companion.cameraParams
@@ -167,7 +167,7 @@ fun initializeCameras(activity: MainActivity) {
 
                 cameraXPreviewBuilder = Preview.Builder()
 
-                cameraXCaptureBuilder = ImageCaptureConfig.Builder()
+                cameraXCaptureBuilder = ImageCapture.Builder()
 
                 imageAvailableListener =
                     ImageAvailableListener(activity, this, TestConfig())

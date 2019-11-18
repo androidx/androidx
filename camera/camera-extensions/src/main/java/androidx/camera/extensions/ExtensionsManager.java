@@ -25,7 +25,6 @@ import androidx.annotation.Nullable;
 import androidx.camera.core.CameraSelector;
 import androidx.camera.core.CameraX;
 import androidx.camera.core.ImageCapture;
-import androidx.camera.core.ImageCaptureConfig;
 import androidx.camera.core.LensFacing;
 import androidx.camera.core.Preview;
 import androidx.camera.core.impl.utils.executor.CameraXExecutors;
@@ -187,7 +186,7 @@ public final class ExtensionsManager {
 
     private static boolean checkImageCaptureExtensionCapability(EffectMode effectMode,
             LensFacing lensFacing) {
-        ImageCaptureConfig.Builder builder = new ImageCaptureConfig.Builder();
+        ImageCapture.Builder builder = new ImageCapture.Builder();
         CameraSelector selector =
                 new CameraSelector.Builder().requireLensFacing(lensFacing).build();
         ImageCaptureExtender extender;

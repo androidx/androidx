@@ -109,17 +109,17 @@ public class ExtensionsTestUtil {
     }
 
     /**
-     * Creates an {@link ImageCaptureConfig.Builder} object for specific {@link EffectMode} and
+     * Creates an {@link ImageCapture.Builder} object for specific {@link EffectMode} and
      * {@link LensFacing}.
      *
      * @param effectMode The effect mode for the created object.
      * @param lensFacing The lens facing for the created object.
-     * @return An {@link ImageCaptureConfig.Builder} object.
+     * @return An {@link ImageCapture.Builder} object.
      */
     @NonNull
-    public static ImageCaptureConfig.Builder createImageCaptureConfigBuilderWithEffect(
+    public static ImageCapture.Builder createImageCaptureConfigBuilderWithEffect(
             @NonNull EffectMode effectMode, @NonNull LensFacing lensFacing) {
-        ImageCaptureConfig.Builder builder = new ImageCaptureConfig.Builder();
+        ImageCapture.Builder builder = new ImageCapture.Builder();
         CameraSelector selector =
                 new CameraSelector.Builder().requireLensFacing(lensFacing).build();
         ImageCaptureExtender extender = null;
@@ -209,7 +209,7 @@ public class ExtensionsTestUtil {
     public static ImageCaptureConfig createImageCaptureConfigWithEffect(
             @NonNull EffectMode effectMode,
             @NonNull LensFacing lensFacing) {
-        ImageCaptureConfig.Builder imageCaptureConfigBuilder =
+        ImageCapture.Builder imageCaptureConfigBuilder =
                 createImageCaptureConfigBuilderWithEffect(effectMode, lensFacing);
         return imageCaptureConfigBuilder.getUseCaseConfig();
     }
@@ -241,9 +241,7 @@ public class ExtensionsTestUtil {
     @NonNull
     public static ImageCapture createImageCaptureWithEffect(@NonNull EffectMode effectMode,
             @NonNull LensFacing lensFacing) {
-        ImageCaptureConfig imageCaptureConfig = createImageCaptureConfigWithEffect(effectMode,
-                lensFacing);
-        return new ImageCapture(imageCaptureConfig);
+        return createImageCaptureConfigBuilderWithEffect(effectMode, lensFacing).build();
     }
 
     /**
@@ -356,15 +354,15 @@ public class ExtensionsTestUtil {
 
     /**
      * Creates an {@link ImageCaptureExtender} object for specific {@link EffectMode} and
-     * {@link ImageCaptureConfig.Builder}.
+     * {@link ImageCapture.Builder}.
      *
      * @param effectMode The effect mode for the created object.
-     * @param builder    The {@link ImageCaptureConfig.Builder} for the created object.
+     * @param builder    The {@link ImageCapture.Builder} for the created object.
      * @return An {@link ImageCaptureExtender} object.
      */
     @NonNull
     public static ImageCaptureExtender createImageCaptureExtender(@NonNull EffectMode effectMode,
-            @NonNull ImageCaptureConfig.Builder builder) {
+            @NonNull ImageCapture.Builder builder) {
         ImageCaptureExtender extender = null;
 
         switch (effectMode) {

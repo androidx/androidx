@@ -36,7 +36,7 @@ import androidx.camera.core.CaptureBundle;
 import androidx.camera.core.CaptureConfig;
 import androidx.camera.core.CaptureStage;
 import androidx.camera.core.Config;
-import androidx.camera.core.ImageCaptureConfig;
+import androidx.camera.core.ImageCapture;
 import androidx.camera.core.LensFacing;
 import androidx.camera.core.UseCase;
 import androidx.camera.core.impl.utils.CameraSelectorUtil;
@@ -60,11 +60,11 @@ public abstract class ImageCaptureExtender {
     static final Config.Option<EffectMode> OPTION_IMAGE_CAPTURE_EXTENDER_MODE =
             Config.Option.create("camerax.extensions.imageCaptureExtender.mode", EffectMode.class);
 
-    private ImageCaptureConfig.Builder mBuilder;
+    private ImageCapture.Builder mBuilder;
     private ImageCaptureExtenderImpl mImpl;
     private EffectMode mEffectMode;
 
-    void init(ImageCaptureConfig.Builder builder, ImageCaptureExtenderImpl implementation,
+    void init(ImageCapture.Builder builder, ImageCaptureExtenderImpl implementation,
             EffectMode effectMode) {
         mBuilder = builder;
         mImpl = implementation;
@@ -72,7 +72,7 @@ public abstract class ImageCaptureExtender {
     }
 
     /**
-     * Indicates whether extension function can support with {@link ImageCaptureConfig.Builder}
+     * Indicates whether extension function can support with {@link ImageCapture.Builder}
      *
      * @param cameraSelector The selector that determines a camera that will be checked for the
      *                       availability of extensions.

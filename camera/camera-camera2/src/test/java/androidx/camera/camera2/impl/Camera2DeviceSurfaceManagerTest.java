@@ -330,7 +330,7 @@ public final class Camera2DeviceSurfaceManagerTest {
 
     @Test
     public void suggestedResolutionsForMixedUseCaseNotSupportedInLegacyDevice() {
-        ImageCapture imageCapture = new ImageCaptureConfig.Builder()
+        ImageCapture imageCapture = new ImageCapture.Builder()
                 .setTargetAspectRatio(AspectRatio.RATIO_16_9)
                 .build();
         VideoCapture videoCapture = new VideoCaptureConfig.Builder()
@@ -359,7 +359,7 @@ public final class Camera2DeviceSurfaceManagerTest {
 
     @Test
     public void getSuggestedResolutionsForMixedUseCaseInLimitedDevice() {
-        ImageCapture imageCapture = new ImageCaptureConfig.Builder()
+        ImageCapture imageCapture = new ImageCapture.Builder()
                 .setTargetAspectRatio(AspectRatio.RATIO_16_9)
                 .build();
         VideoCapture videoCapture = new VideoCaptureConfig.Builder()

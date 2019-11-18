@@ -16,6 +16,30 @@
 
 package androidx.camera.core;
 
+import static androidx.camera.core.ImageCaptureConfig.OPTION_BUFFER_FORMAT;
+import static androidx.camera.core.ImageCaptureConfig.OPTION_CAMERA_ID_FILTER;
+import static androidx.camera.core.ImageCaptureConfig.OPTION_CAPTURE_BUNDLE;
+import static androidx.camera.core.ImageCaptureConfig.OPTION_CAPTURE_CONFIG_UNPACKER;
+import static androidx.camera.core.ImageCaptureConfig.OPTION_CAPTURE_PROCESSOR;
+import static androidx.camera.core.ImageCaptureConfig.OPTION_DEFAULT_CAPTURE_CONFIG;
+import static androidx.camera.core.ImageCaptureConfig.OPTION_DEFAULT_SESSION_CONFIG;
+import static androidx.camera.core.ImageCaptureConfig.OPTION_FLASH_MODE;
+import static androidx.camera.core.ImageCaptureConfig.OPTION_IMAGE_CAPTURE_MODE;
+import static androidx.camera.core.ImageCaptureConfig.OPTION_IO_EXECUTOR;
+import static androidx.camera.core.ImageCaptureConfig.OPTION_LENS_FACING;
+import static androidx.camera.core.ImageCaptureConfig.OPTION_MAX_CAPTURE_STAGES;
+import static androidx.camera.core.ImageCaptureConfig.OPTION_MAX_RESOLUTION;
+import static androidx.camera.core.ImageCaptureConfig.OPTION_SESSION_CONFIG_UNPACKER;
+import static androidx.camera.core.ImageCaptureConfig.OPTION_SUPPORTED_RESOLUTIONS;
+import static androidx.camera.core.ImageCaptureConfig.OPTION_SURFACE_OCCUPANCY_PRIORITY;
+import static androidx.camera.core.ImageCaptureConfig.OPTION_TARGET_ASPECT_RATIO;
+import static androidx.camera.core.ImageCaptureConfig.OPTION_TARGET_ASPECT_RATIO_CUSTOM;
+import static androidx.camera.core.ImageCaptureConfig.OPTION_TARGET_CLASS;
+import static androidx.camera.core.ImageCaptureConfig.OPTION_TARGET_NAME;
+import static androidx.camera.core.ImageCaptureConfig.OPTION_TARGET_RESOLUTION;
+import static androidx.camera.core.ImageCaptureConfig.OPTION_TARGET_ROTATION;
+import static androidx.camera.core.ImageCaptureConfig.OPTION_USE_CASE_EVENT_CALLBACK;
+
 import android.annotation.SuppressLint;
 import android.graphics.ImageFormat;
 import android.location.Location;
@@ -26,6 +50,7 @@ import android.os.HandlerThread;
 import android.os.Looper;
 import android.os.SystemClock;
 import android.util.Log;
+import android.util.Pair;
 import android.util.Rational;
 import android.util.Size;
 import android.view.Display;
@@ -62,6 +87,7 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
+import java.util.UUID;
 import java.util.concurrent.ConcurrentLinkedDeque;
 import java.util.concurrent.Executor;
 import java.util.concurrent.ExecutorService;
@@ -89,6 +115,7 @@ import java.util.concurrent.atomic.AtomicInteger;
  */
 @SuppressWarnings("ClassCanBeStatic") // TODO(b/141958189): Suppressed during upgrade to AGP 3.6.
 public class ImageCapture extends UseCase {
+
     /**
      * Provides a static configuration with implementation-agnostic options.
      *
@@ -139,9 +166,10 @@ public class ImageCapture extends UseCase {
      * by {@link #takePicture(Executor, OnImageCapturedCallback)}
      */
     private final CaptureProcessor mCaptureProcessor;
-    private final ImageCaptureConfig.Builder mUseCaseConfigBuilder;
-    @SuppressWarnings("WeakerAccess") /* synthetic accessor */
-            ImageReaderProxy mImageReader;
+    private final Builder mUseCaseConfigBuilder;
+    /** synthetic accessor */
+    @SuppressWarnings("WeakerAccess")
+    ImageReaderProxy mImageReader;
     /** Callback used to match the {@link ImageProxy} with the {@link ImageInfo}. */
     private CameraCaptureCallback mMetadataMatchingCaptureCallback;
     private ImageCaptureConfig mConfig;
@@ -165,9 +193,9 @@ public class ImageCapture extends UseCase {
      * @param userConfig for this use case instance
      * @throws IllegalArgumentException if the configuration is invalid.
      */
-    public ImageCapture(@NonNull ImageCaptureConfig userConfig) {
+    ImageCapture(@NonNull ImageCaptureConfig userConfig) {
         super(userConfig);
-        mUseCaseConfigBuilder = ImageCaptureConfig.Builder.fromConfig(userConfig);
+        mUseCaseConfigBuilder = Builder.fromConfig(userConfig);
         // Ensure we're using the combined configuration (user config + defaults)
         mConfig = (ImageCaptureConfig) getUseCaseConfig();
         mCaptureMode = mConfig.getCaptureMode();
@@ -333,7 +361,7 @@ public class ImageCapture extends UseCase {
         ImageCaptureConfig defaults = CameraX.getDefaultUseCaseConfig(
                 ImageCaptureConfig.class, lensFacing);
         if (defaults != null) {
-            return ImageCaptureConfig.Builder.fromConfig(defaults);
+            return Builder.fromConfig(defaults);
         }
 
         return null;
@@ -419,29 +447,26 @@ public class ImageCapture extends UseCase {
      * Sets the desired rotation of the output image.
      *
      * <p>This will affect the EXIF rotation metadata in images saved by takePicture calls and the
-     * rotation value returned by {@link OnImageCapturedCallback}.  These will be set
-     * to be the rotation, which if applied to the output image data, will make the image match
-     * target rotation specified here.
+     * rotation value returned by {@link OnImageCapturedCallback}.  These will be set to be the
+     * rotation, which if applied to the output image data, will make the image match target
+     * rotation specified here.
      *
-     * <p>While rotation can also be set via
-     * {@link ImageCaptureConfig.Builder#setTargetRotation(int)}, using
+     * <p>While rotation can also be set via {@link Builder#setTargetRotation(int)}, using
      * {@link ImageCapture#setTargetRotation(int)} allows the target rotation to be set dynamically.
      *
      * <p>In general, it is best to use an {@link android.view.OrientationEventListener} to
-     * set the target rotation.  This way, the rotation output will indicate
-     * which way is down for a given image.  This is important since display orientation may be
-     * locked by device default, user setting, or app configuration,
-     * and some devices may not transition to a reverse-portrait display orientation.  In
-     * these cases, use {@link androidx.camera.core.ImageCapture#setTargetRotation} to set
-     * target rotation dynamically according to the
-     * {@link android.view.OrientationEventListener}, without re-creating the use case.  Note
+     * set the target rotation.  This way, the rotation output will indicate which way is down for
+     * a given image.  This is important since display orientation may be locked by device
+     * default, user setting, or app configuration, and some devices may not transition to a
+     * reverse-portrait display orientation. In these cases,
+     * use {@link ImageCapture#setTargetRotation} to set target rotation dynamically according to
+     * the {@link android.view.OrientationEventListener}, without re-creating the use case.  Note
      * the OrientationEventListener output of degrees in the range [0..359] should be converted to
      * a surface rotation, i.e. one of {@link Surface#ROTATION_0}, {@link Surface#ROTATION_90},
      * {@link Surface#ROTATION_180}, or {@link Surface#ROTATION_270}.
      *
      * <p>If no target rotation is set by the application, it is set to the value of
-     * {@link Display#getRotation()} of the default display at the time the
-     * use case is created.
+     * {@link Display#getRotation()} of the default display at the time the use case is created.
      *
      * <p>takePicture uses the target rotation at the time it begins executing (which may be delayed
      * waiting on a previous takePicture call to complete).
@@ -1167,7 +1192,7 @@ public class ImageCapture extends UseCase {
          * A rotation of 90 degrees would mean rotating the image 90 degrees clockwise produces an
          * image that will match the display orientation.
          *
-         * <p>See also {@link ImageCaptureConfig.Builder#setTargetRotation(int)} and
+         * <p>See also {@link Builder#setTargetRotation(int)} and
          * {@link #setTargetRotation(int)}.
          *
          * <p>Timestamps are in nanoseconds and monotonic and can be compared to timestamps from
@@ -1220,8 +1245,8 @@ public class ImageCapture extends UseCase {
         private static final ImageCaptureConfig DEFAULT_CONFIG;
 
         static {
-            ImageCaptureConfig.Builder builder =
-                    new ImageCaptureConfig.Builder()
+            Builder builder =
+                    new Builder()
                             .setCaptureMode(DEFAULT_CAPTURE_MODE)
                             .setFlashMode(DEFAULT_FLASH_MODE)
                             .setSurfaceOccupancyPriority(DEFAULT_SURFACE_OCCUPANCY_PRIORITY);
@@ -1505,6 +1530,513 @@ public class ImageCapture extends UseCase {
             } catch (RejectedExecutionException e) {
                 Log.e(TAG, "Unable to post to the supplied executor.");
             }
+        }
+    }
+
+    /** Builder for an {@link ImageCapture}. */
+    public static final class Builder implements
+            UseCaseConfig.Builder<ImageCapture, ImageCaptureConfig, Builder>,
+            ImageOutputConfig.Builder<Builder>,
+            CameraDeviceConfig.Builder<Builder>,
+            IoConfig.Builder<Builder> {
+
+        private final MutableOptionsBundle mMutableConfig;
+
+        /** Creates a new Builder object. */
+        public Builder() {
+            this(MutableOptionsBundle.create());
+        }
+
+        private Builder(MutableOptionsBundle mutableConfig) {
+            mMutableConfig = mutableConfig;
+
+            Class<?> oldConfigClass =
+                    mutableConfig.retrieveOption(TargetConfig.OPTION_TARGET_CLASS, null);
+            if (oldConfigClass != null && !oldConfigClass.equals(ImageCapture.class)) {
+                throw new IllegalArgumentException(
+                        "Invalid target class configuration for "
+                                + Builder.this
+                                + ": "
+                                + oldConfigClass);
+            }
+
+            setTargetClass(ImageCapture.class);
+        }
+
+        /**
+         * Generates a Builder from another Config object
+         *
+         * @param configuration An immutable configuration to pre-populate this builder.
+         * @return The new Builder.
+         */
+        @NonNull
+        public static Builder fromConfig(@NonNull ImageCaptureConfig configuration) {
+            return new Builder(MutableOptionsBundle.from(configuration));
+        }
+
+        /**
+         * {@inheritDoc}
+         *
+         * @hide
+         */
+        @RestrictTo(Scope.LIBRARY_GROUP)
+        @Override
+        @NonNull
+        public MutableConfig getMutableConfig() {
+            return mMutableConfig;
+        }
+
+        /**
+         * {@inheritDoc}
+         *
+         * @hide
+         */
+        @RestrictTo(Scope.LIBRARY_GROUP)
+        @NonNull
+        @Override
+        public ImageCaptureConfig getUseCaseConfig() {
+            return new ImageCaptureConfig(OptionsBundle.from(mMutableConfig));
+        }
+
+        /**
+         * Builds an immutable {@link ImageCapture} from the current state.
+         *
+         * @return A {@link ImageCapture} populated with the current state.
+         * @throws IllegalArgumentException if attempting to set both target aspect ratio and
+         *                                  target resolution.
+         */
+        @Override
+        @NonNull
+        public ImageCapture build() {
+            // Error at runtime for using both setTargetResolution and setTargetAspectRatio on
+            // the same config.
+            if (getMutableConfig().retrieveOption(OPTION_TARGET_ASPECT_RATIO, null) != null
+                    && getMutableConfig().retrieveOption(OPTION_TARGET_RESOLUTION, null) != null) {
+                throw new IllegalArgumentException(
+                        "Cannot use both setTargetResolution and setTargetAspectRatio on the same "
+                                + "config.");
+            }
+            return new ImageCapture(getUseCaseConfig());
+        }
+
+        /**
+         * Sets the image capture mode.
+         *
+         * <p>Valid capture modes are {@link CaptureMode#MIN_LATENCY}, which prioritizes latency
+         * over image quality, or {@link CaptureMode#MAX_QUALITY}, which prioritizes image quality
+         * over latency.
+         *
+         * <p>If not set, the capture mode will default to {@link CaptureMode#MIN_LATENCY}.
+         *
+         * @param captureMode The requested image capture mode.
+         * @return The current Builder.
+         */
+        @NonNull
+        public Builder setCaptureMode(@NonNull CaptureMode captureMode) {
+            getMutableConfig().insertOption(OPTION_IMAGE_CAPTURE_MODE, captureMode);
+            return this;
+        }
+
+        /**
+         * Sets the {@link FlashMode}.
+         *
+         * <p>If not set, the flash mode will default to {@link FlashMode#OFF}.
+         *
+         * <p>See {@link ImageCapture#setFlashMode(int)} for more information.
+         *
+         * @param flashMode The requested flash mode.
+         * @return The current Builder.
+         */
+        @NonNull
+        public Builder setFlashMode(@FlashMode int flashMode) {
+            getMutableConfig().insertOption(OPTION_FLASH_MODE, flashMode);
+            return this;
+        }
+
+        /**
+         * Sets the {@link CaptureBundle}.
+         *
+         * @param captureBundle The requested capture bundle for extension.
+         * @return The current Builder.
+         * @hide
+         */
+        @RestrictTo(Scope.LIBRARY_GROUP)
+        @NonNull
+        public Builder setCaptureBundle(@NonNull CaptureBundle captureBundle) {
+            getMutableConfig().insertOption(OPTION_CAPTURE_BUNDLE, captureBundle);
+            return this;
+        }
+
+        /**
+         * Sets the {@link CaptureProcessor}.
+         *
+         * @param captureProcessor The requested capture processor for extension.
+         * @return The current Builder.
+         * @hide
+         */
+        @RestrictTo(Scope.LIBRARY_GROUP)
+        @NonNull
+        public Builder setCaptureProcessor(@NonNull CaptureProcessor captureProcessor) {
+            getMutableConfig().insertOption(OPTION_CAPTURE_PROCESSOR, captureProcessor);
+            return this;
+        }
+
+        /**
+         * Sets the {@link ImageFormat} of the {@link ImageProxy} returned by the
+         * {@link ImageCapture.OnImageCapturedCallback}.
+         *
+         * <p>Warning. This could lead to an invalid configuration as image format support is per
+         * device. Also, setting the buffer format in conjuncture with image capture extensions will
+         * result in an invalid configuration. In this case {@link
+         * ImageCapture#ImageCapture(ImageCaptureConfig)} will throw an
+         * {@link IllegalArgumentException}.
+         *
+         * @param bufferImageFormat The image format for captured images.
+         * @return The current Builder.
+         * @hide
+         */
+        @RestrictTo(Scope.LIBRARY_GROUP)
+        @NonNull
+        public Builder setBufferFormat(int bufferImageFormat) {
+            getMutableConfig().insertOption(OPTION_BUFFER_FORMAT, bufferImageFormat);
+            return this;
+        }
+
+        /**
+         * Sets the max number of {@link CaptureStage}.
+         *
+         * @param maxCaptureStages The max CaptureStage number.
+         * @return The current Builder.
+         * @hide
+         */
+        @RestrictTo(Scope.LIBRARY_GROUP)
+        @NonNull
+        public Builder setMaxCaptureStages(int maxCaptureStages) {
+            getMutableConfig().insertOption(OPTION_MAX_CAPTURE_STAGES, maxCaptureStages);
+            return this;
+        }
+
+        /** @hide */
+        @RestrictTo(Scope.LIBRARY_GROUP)
+        @Override
+        @NonNull
+        public Builder setSupportedResolutions(@NonNull List<Pair<Integer, Size[]>> resolutions) {
+            getMutableConfig().insertOption(OPTION_SUPPORTED_RESOLUTIONS, resolutions);
+            return this;
+        }
+
+        // Implementations of TargetConfig.Builder default methods
+
+        /** @hide */
+        @RestrictTo(Scope.LIBRARY_GROUP)
+        @Override
+        @NonNull
+        public Builder setTargetClass(@NonNull Class<ImageCapture> targetClass) {
+            getMutableConfig().insertOption(OPTION_TARGET_CLASS, targetClass);
+
+            // If no name is set yet, then generate a unique name
+            if (null == getMutableConfig().retrieveOption(OPTION_TARGET_NAME, null)) {
+                String targetName = targetClass.getCanonicalName() + "-" + UUID.randomUUID();
+                setTargetName(targetName);
+            }
+
+            return this;
+        }
+
+        /**
+         * Sets the name of the target object being configured, used only for debug logging.
+         *
+         * <p>The name should be a value that can uniquely identify an instance of the object being
+         * configured.
+         *
+         * <p>If not set, the target name will default to a unique name automatically generated
+         * with the class canonical name and random UUID.
+         *
+         * @param targetName A unique string identifier for the instance of the class being
+         *                   configured.
+         * @return the current Builder.
+         */
+        @Override
+        @NonNull
+        public Builder setTargetName(@NonNull String targetName) {
+            getMutableConfig().insertOption(OPTION_TARGET_NAME, targetName);
+            return this;
+        }
+
+        // Implementations of CameraDeviceConfig.Builder default methods
+
+        /**
+         * Sets the primary camera to be configured based on the direction the lens is facing.
+         *
+         * <p>If multiple cameras exist with equivalent lens facing direction, the first ("primary")
+         * camera for that direction will be chosen.
+         *
+         * @param lensFacing The direction of the camera's lens.
+         * @return the current Builder.
+         * @hide
+         */
+        @RestrictTo(Scope.LIBRARY_GROUP)
+        @Override
+        @NonNull
+        public Builder setLensFacing(@NonNull LensFacing lensFacing) {
+            getMutableConfig().insertOption(OPTION_LENS_FACING, lensFacing);
+            return this;
+        }
+
+        /**
+         * Sets a {@link CameraIdFilter} that filter out the unavailable camera id.
+         *
+         * <p>The camera id filter will be used to filter those cameras with lens facing
+         * specified in the config.
+         *
+         * @param cameraIdFilter The {@link CameraIdFilter}.
+         * @return the current Builder.
+         * @hide
+         */
+        @RestrictTo(Scope.LIBRARY_GROUP)
+        @Override
+        @NonNull
+        public Builder setCameraIdFilter(@NonNull CameraIdFilter cameraIdFilter) {
+            getMutableConfig().insertOption(OPTION_CAMERA_ID_FILTER, cameraIdFilter);
+            return this;
+        }
+
+        // Implementations of ImageOutputConfig.Builder default methods
+
+        /**
+         * Sets the aspect ratio of the intended target for images from this configuration.
+         *
+         * <p>This is the ratio of the target's width to the image's height, where the numerator of
+         * the provided {@link Rational} corresponds to the width, and the denominator corresponds
+         * to the height.
+         *
+         * <p>The target aspect ratio is used as a hint when determining the resulting output aspect
+         * ratio which may differ from the request, possibly due to device constraints.
+         * Application code should check the resulting output's resolution.
+         *
+         * <p>This method can be used to request an aspect ratio that is not from the standard set
+         * of aspect ratios defined in the {@link AspectRatio}.
+         *
+         * <p>This method will remove any value set by setTargetAspectRatio().
+         *
+         * <p>For ImageCapture, the outputs are the {@link ImageProxy} or the File passed to image
+         * capture listeners.
+         *
+         * @param aspectRatio A {@link Rational} representing the ratio of the target's width and
+         *                    height.
+         * @return The current Builder.
+         * @hide
+         */
+        @RestrictTo(Scope.LIBRARY_GROUP)
+        @NonNull
+        @Override
+        public Builder setTargetAspectRatioCustom(@NonNull Rational aspectRatio) {
+            getMutableConfig().insertOption(OPTION_TARGET_ASPECT_RATIO_CUSTOM, aspectRatio);
+            getMutableConfig().removeOption(OPTION_TARGET_ASPECT_RATIO);
+            return this;
+        }
+
+        /**
+         * Sets the aspect ratio of the intended target for images from this configuration.
+         *
+         * <p>It is not allowed to set both target aspect ratio and target resolution on the same
+         * use case.  Attempting so will throw an IllegalArgumentException when building the
+         * Config.
+         *
+         * <p>The target aspect ratio is used as a hint when determining the resulting output aspect
+         * ratio which may differ from the request, possibly due to device constraints.
+         * Application code should check the resulting output's resolution.
+         *
+         * <p>If not set, resolutions with aspect ratio 4:3 will be considered in higher
+         * priority.
+         *
+         * @param aspectRatio A {@link AspectRatio} representing the ratio of the
+         *                    target's width and height.
+         * @return The current Builder.
+         */
+        @NonNull
+        @Override
+        public Builder setTargetAspectRatio(@AspectRatio int aspectRatio) {
+            getMutableConfig().insertOption(OPTION_TARGET_ASPECT_RATIO, aspectRatio);
+            return this;
+        }
+
+        /**
+         * Sets the rotation of the intended target for images from this configuration.
+         *
+         * <p>This will affect the EXIF rotation metadata in images saved by takePicture calls and
+         * the rotation value returned by
+         * {@link androidx.camera.core.ImageCapture.OnImageCapturedCallback}.  These will be set to
+         * be the rotation, which if applied to the output image data, will make the image match the
+         * target rotation specified here.
+         *
+         * <p>This is one of four valid values: {@link Surface#ROTATION_0}, {@link
+         * Surface#ROTATION_90}, {@link Surface#ROTATION_180}, {@link Surface#ROTATION_270}.
+         * Rotation values are relative to the "natural" rotation, {@link Surface#ROTATION_0}.
+         *
+         * <p>In general, it is best to additionally set the target rotation dynamically on the use
+         * case.  See {@link androidx.camera.core.ImageCapture#setTargetRotation(int)} for
+         * additional documentation.
+         *
+         * <p>If not set, the target rotation will default to the value of
+         * {@link android.view.Display#getRotation()} of the default display at the time the use
+         * case is created.
+         *
+         * @param rotation The rotation of the intended target.
+         * @return The current Builder.
+         * @see androidx.camera.core.ImageCapture#setTargetRotation(int)
+         * @see android.view.OrientationEventListener
+         */
+        @NonNull
+        @Override
+        public Builder setTargetRotation(@RotationValue int rotation) {
+            getMutableConfig().insertOption(OPTION_TARGET_ROTATION, rotation);
+            return this;
+        }
+
+        /**
+         * Sets the intended output target resolution.
+         *
+         * <p>The target resolution attempts to establish a minimum bound for the image resolution.
+         * The actual image resolution will be the closest available resolution in size that is not
+         * smaller than the target resolution, as determined by the Camera implementation. However,
+         * if no resolution exists that is equal to or larger than the target resolution, the
+         * nearest available resolution smaller than the target resolution will be chosen.
+         * Resolutions with the same aspect ratio of the provided {@link Size} will be considered in
+         * higher priority before resolutions of different aspect ratios.
+         *
+         * <p>It is not allowed to set both target aspect ratio and target resolution on the same
+         * use case.  Attempting so will throw an IllegalArgumentException when building the
+         * Config.
+         *
+         * <p>The resolution {@link Size} should be expressed at the use cases's target rotation.
+         * For example, a device with portrait natural orientation in natural target rotation
+         * requesting a portrait image may specify 480x640, and the same device, rotated 90 degrees
+         * and targeting landscape orientation may specify 640x480.
+         *
+         * <p>The maximum available resolution that could be selected for an {@link ImageCapture}
+         * will depend on the camera device's capability.
+         *
+         * <p>If not set, the largest available resolution will be selected to use. Usually,
+         * users will intend to get the largest still image that the camera device can support.
+         *
+         * @param resolution The target resolution to choose from supported output sizes list.
+         * @return The current Builder.
+         */
+        @NonNull
+        @Override
+        public Builder setTargetResolution(@NonNull Size resolution) {
+            getMutableConfig().insertOption(OPTION_TARGET_RESOLUTION, resolution);
+            if (resolution != null) {
+                getMutableConfig().insertOption(OPTION_TARGET_ASPECT_RATIO_CUSTOM,
+                        new Rational(resolution.getWidth(), resolution.getHeight()));
+            }
+            return this;
+        }
+
+        /**
+         * Sets the default resolution of the intended target from this configuration.
+         *
+         * @param resolution The default resolution to choose from supported output sizes list.
+         * @return The current Builder.
+         * @hide
+         */
+        @NonNull
+        @RestrictTo(Scope.LIBRARY_GROUP)
+        @Override
+        public Builder setDefaultResolution(@NonNull Size resolution) {
+            getMutableConfig().insertOption(ImageOutputConfig.OPTION_DEFAULT_RESOLUTION,
+                    resolution);
+            return this;
+        }
+
+        /** @hide */
+        @NonNull
+        @RestrictTo(Scope.LIBRARY_GROUP)
+        @Override
+        public Builder setMaxResolution(@NonNull Size resolution) {
+            getMutableConfig().insertOption(OPTION_MAX_RESOLUTION, resolution);
+            return this;
+        }
+
+        // Implementations of IoConfig.Builder default methods
+
+        /**
+         * Sets the default executor that will be used for IO tasks.
+         *
+         * <p> This executor will be used for any IO tasks specifically for ImageCapture, such as
+         * {@link ImageCapture#takePicture(File, Executor, ImageCapture.OnImageSavedCallback)}
+         * and {@link ImageCapture#takePicture(File, ImageCapture.Metadata, Executor,
+         * ImageCapture.OnImageSavedCallback)}. If no executor is set, then a default Executor
+         * specifically for IO will be used instead.
+         *
+         * @param executor The executor which will be used for IO tasks.
+         * @return the current Builder.
+         */
+        @Override
+        @NonNull
+        public Builder setIoExecutor(@NonNull Executor executor) {
+            getMutableConfig().insertOption(OPTION_IO_EXECUTOR, executor);
+            return this;
+        }
+
+        // Implementations of UseCaseConfig.Builder default methods
+
+        /** @hide */
+        @RestrictTo(Scope.LIBRARY_GROUP)
+        @Override
+        @NonNull
+        public Builder setDefaultSessionConfig(@NonNull SessionConfig sessionConfig) {
+            getMutableConfig().insertOption(OPTION_DEFAULT_SESSION_CONFIG, sessionConfig);
+            return this;
+        }
+
+        /** @hide */
+        @RestrictTo(Scope.LIBRARY_GROUP)
+        @Override
+        @NonNull
+        public Builder setDefaultCaptureConfig(@NonNull CaptureConfig captureConfig) {
+            getMutableConfig().insertOption(OPTION_DEFAULT_CAPTURE_CONFIG, captureConfig);
+            return this;
+        }
+
+        /** @hide */
+        @RestrictTo(Scope.LIBRARY_GROUP)
+        @Override
+        @NonNull
+        public Builder setSessionOptionUnpacker(
+                @NonNull SessionConfig.OptionUnpacker optionUnpacker) {
+            getMutableConfig().insertOption(OPTION_SESSION_CONFIG_UNPACKER, optionUnpacker);
+            return this;
+        }
+
+        /** @hide */
+        @RestrictTo(Scope.LIBRARY_GROUP)
+        @Override
+        @NonNull
+        public Builder setCaptureOptionUnpacker(
+                @NonNull CaptureConfig.OptionUnpacker optionUnpacker) {
+            getMutableConfig().insertOption(OPTION_CAPTURE_CONFIG_UNPACKER, optionUnpacker);
+            return this;
+        }
+
+        /** @hide */
+        @RestrictTo(Scope.LIBRARY_GROUP)
+        @Override
+        @NonNull
+        public Builder setSurfaceOccupancyPriority(int priority) {
+            getMutableConfig().insertOption(OPTION_SURFACE_OCCUPANCY_PRIORITY, priority);
+            return this;
+        }
+
+        /** @hide */
+        @RestrictTo(Scope.LIBRARY_GROUP)
+        @Override
+        @NonNull
+        public Builder setUseCaseEventCallback(
+                @NonNull UseCase.EventCallback useCaseEventCallback) {
+            getMutableConfig().insertOption(OPTION_USE_CASE_EVENT_CALLBACK, useCaseEventCallback);
+            return this;
         }
     }
 }

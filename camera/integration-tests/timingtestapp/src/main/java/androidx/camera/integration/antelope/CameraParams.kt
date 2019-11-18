@@ -25,7 +25,6 @@ import android.os.Handler
 import android.os.HandlerThread
 import android.util.Size
 import androidx.camera.core.ImageCapture
-import androidx.camera.core.ImageCaptureConfig
 import androidx.camera.core.Preview
 import androidx.camera.integration.antelope.MainActivity.Companion.FIXED_FOCUS_DISTANCE
 import androidx.camera.integration.antelope.MainActivity.Companion.INVALID_FOCAL_LENGTH
@@ -105,11 +104,11 @@ class CameraParams {
     internal var cameraXPreviewSessionStateCallback: CameraXPreviewSessionStateCallback? = null
     internal var cameraXCaptureSessionCallback: CameraXCaptureSessionCallback? = null
     internal var cameraXPreviewBuilder: Preview.Builder = Preview.Builder()
-    internal var cameraXCaptureBuilder: ImageCaptureConfig.Builder = ImageCaptureConfig.Builder()
+    internal var cameraXCaptureBuilder: ImageCapture.Builder = ImageCapture.Builder()
 
     // Custom lifecycle for CameraX API
     internal var cameraXLifecycle: CustomLifecycle = CustomLifecycle()
-    internal var cameraXImageCaptureUseCase: ImageCapture = ImageCaptureConfig.Builder().build()
+    internal var cameraXImageCaptureUseCase: ImageCapture = ImageCapture.Builder().build()
 
     // Testing variables
     internal var timer: CameraTimer = CameraTimer()
