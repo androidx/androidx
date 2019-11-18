@@ -20,6 +20,7 @@ import android.view.MotionEvent;
 import android.widget.LinearLayout;
 import android.widget.TextView;
 
+import androidx.annotation.NonNull;
 import androidx.recyclerview.selection.ItemDetailsLookup.ItemDetails;
 import androidx.recyclerview.widget.RecyclerView;
 
@@ -49,12 +50,12 @@ final class DemoHolder extends RecyclerView.ViewHolder {
             }
 
             @Override
-            public boolean inDragRegion(MotionEvent e) {
+            public boolean inDragRegion(@NonNull MotionEvent e) {
                 return DemoHolder.this.inDragRegion(e);
             }
 
             @Override
-            public boolean inSelectionHotspot(MotionEvent e) {
+            public boolean inSelectionHotspot(@NonNull MotionEvent e) {
                 return DemoHolder.this.inSelectRegion(e);
             }
         };

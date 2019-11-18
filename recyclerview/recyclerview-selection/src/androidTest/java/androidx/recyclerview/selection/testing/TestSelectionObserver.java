@@ -20,6 +20,7 @@ import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertTrue;
 
+import androidx.annotation.NonNull;
 import androidx.recyclerview.selection.SelectionTracker.SelectionObserver;
 
 import java.util.HashSet;
@@ -51,7 +52,7 @@ public class TestSelectionObserver<K> extends SelectionObserver<K> {
     }
 
     @Override
-    public void onItemStateChanged(K key, boolean selected) {
+    public void onItemStateChanged(@NonNull K key, boolean selected) {
         if (selected) {
             if (mStrict) {
                 assertNotSelected(key);

@@ -16,6 +16,7 @@
 
 package androidx.recyclerview.selection;
 
+import static androidx.annotation.RestrictTo.Scope.LIBRARY;
 import static androidx.core.util.Preconditions.checkArgument;
 import static androidx.core.util.Preconditions.checkState;
 import static androidx.recyclerview.selection.Shared.DEBUG;
@@ -24,6 +25,7 @@ import android.util.Log;
 
 import androidx.annotation.MainThread;
 import androidx.annotation.NonNull;
+import androidx.annotation.RestrictTo;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -45,8 +47,26 @@ public final class OperationMonitor {
 
     private static final String TAG = "OperationMonitor";
 
+    private final List<OnChangeListener> mListeners = new ArrayList<>();
+
+    // Ideally OperationMonitor would implement Resettable
+    // directly, but Metalava couldn't understand that
+    // `OperationMonitor` was public API while `Resettable` was
+    // not. This is our klunkuy workaround.
+    private final Resettable mResettable = new Resettable() {
+
+        @Override
+        public boolean isResetRequired() {
+            return OperationMonitor.this.isResetRequired();
+        }
+
+        @Override
+        public void reset() {
+            OperationMonitor.this.reset();
+        }
+    };
+
     private int mNumOps = 0;
-    private List<OnChangeListener> mListeners = new ArrayList<>();
 
     @MainThread
     synchronized void start() {
@@ -74,6 +94,8 @@ public final class OperationMonitor {
         }
     }
 
+    /** @hide */
+    @RestrictTo(LIBRARY)
     @MainThread
     synchronized void reset() {
         if (DEBUG) Log.d(TAG, "Received reset request.");
@@ -84,10 +106,15 @@ public final class OperationMonitor {
         notifyStateChanged();
     }
 
+    /** @hide */
+    @RestrictTo(LIBRARY)
+    synchronized boolean isResetRequired() {
+        return isStarted();
+    }
+
     /**
      * @return true if there are any running operations.
      */
-    @SuppressWarnings("unused")
     public synchronized boolean isStarted() {
         return mNumOps > 0;
     }
@@ -123,6 +150,15 @@ public final class OperationMonitor {
         for (OnChangeListener l : mListeners) {
             l.onChanged();
         }
+    }
+
+    /**
+     * Work around b/139109223.
+     * @hide
+     */
+    @RestrictTo(LIBRARY)
+    @NonNull Resettable asResettable() {
+        return mResettable;
     }
 
     /**

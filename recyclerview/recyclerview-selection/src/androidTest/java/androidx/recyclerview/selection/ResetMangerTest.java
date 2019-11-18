@@ -18,7 +18,7 @@ package androidx.recyclerview.selection;
 
 import androidx.recyclerview.selection.testing.TestData;
 import androidx.recyclerview.selection.testing.TestEvents;
-import androidx.recyclerview.selection.testing.TestRunnable;
+import androidx.recyclerview.selection.testing.TestResettable;
 import androidx.test.ext.junit.runners.AndroidJUnit4;
 import androidx.test.filters.SmallTest;
 
@@ -39,51 +39,74 @@ public final class ResetMangerTest {
     private static final List<String> ITEMS = TestData.createStringData(100);
 
     private ResetManager<String> mManager;
-    private TestRunnable mListern1;
-    private TestRunnable mListern2;
+    private TestResettable mResettable1;
+    private TestResettable mResettable2;
 
     @Before
     public void setUp() {
         mManager = new ResetManager();
-        mListern1 = new TestRunnable();
-        mListern2 = new TestRunnable();
-        mManager.addResetListener(mListern1);
-        mManager.addResetListener(mListern2);
+        mResettable1 = new TestResettable(true);
+        mResettable2 = new TestResettable(true);
+        mManager.addResetHandler(mResettable1);
+        mManager.addResetHandler(mResettable2);
     }
 
     @Test
     public void notifiesListenersOnCancelEvent() {
         mManager.getInputListener().onInterceptTouchEvent(null, TestEvents.Unknown.CANCEL);
-        mListern1.assertRun();
-        mListern2.assertRun();
+        mResettable1.assertReset();
+        mResettable2.assertReset();
+    }
+
+    @Test
+    public void notifiesListenersOnSelectionCleared() {
+        mManager.getSelectionObserver().onSelectionCleared();
+        mResettable1.assertReset();
+        mResettable2.assertReset();
+    }
+
+    @Test
+    public void notifiesListenersOnSelectionRefreshed() {
+        mManager.getSelectionObserver().onSelectionRefresh();
+        mResettable1.assertReset();
+        mResettable2.assertReset();
+    }
+
+    @Test
+    public void notifiesListenersOnSelectionRestored() {
+        mManager.getSelectionObserver().onSelectionRestored();
+        mResettable1.assertReset();
+        mResettable2.assertReset();
     }
 
     @Test
     public void ignoresNonCancelEvents() {
         mManager.getInputListener().onInterceptTouchEvent(null, TestEvents.Mouse.CLICK);
         mManager.getInputListener().onInterceptTouchEvent(null, TestEvents.Touch.TAP);
-        mListern1.assertNotRun();
-        mListern2.assertNotRun();
+        mResettable1.assertNotReset();
+        mResettable2.assertNotReset();
     }
 
+
     @Test
-    public void notifiesListenersOnSelectionCleared() {
+    public void ignoresWhenResetNotRequired() {
+        mResettable1.setResetRequired(false);
+        mResettable2.setResetRequired(false);
+
+        mManager.getInputListener().onInterceptTouchEvent(null, TestEvents.Unknown.CANCEL);
+        mResettable1.assertNotReset();
+        mResettable2.assertNotReset();
+
         mManager.getSelectionObserver().onSelectionCleared();
-        mListern1.assertRun();
-        mListern2.assertRun();
-    }
+        mResettable1.assertNotReset();
+        mResettable2.assertNotReset();
 
-    @Test
-    public void notifiesListenersOnSelectionRefreshed() {
         mManager.getSelectionObserver().onSelectionRefresh();
-        mListern1.assertRun();
-        mListern2.assertRun();
-    }
+        mResettable1.assertNotReset();
+        mResettable2.assertNotReset();
 
-    @Test
-    public void notifiesListenersOnSelectionRestored() {
         mManager.getSelectionObserver().onSelectionRestored();
-        mListern1.assertRun();
-        mListern2.assertRun();
+        mResettable1.assertNotReset();
+        mResettable2.assertNotReset();
     }
 }

@@ -78,6 +78,19 @@ public class GestureSelectionHelperTest {
     }
 
     @Test
+    public void testRequiresReset() {
+        mHelper.start();
+        assertTrue(mHelper.isResetRequired());
+    }
+
+    @Test
+    public void testReset() {
+        mHelper.start();
+        mHelper.reset();
+        assertFalse(mHelper.isResetRequired());
+    }
+
+    @Test
     public void testResetsOnCancel() {
         assertFalse(mHelper.onInterceptTouchEvent(null, MOVE));
     }
