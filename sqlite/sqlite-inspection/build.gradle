@@ -66,8 +66,10 @@ protobuf {
 androidx {
     name = "Android SQLite Inspector"
     publish = Publish.NONE
-    mavenVersion = LibraryVersions.SQLITE
-    mavenGroup = LibraryGroups.SQLITE
+    // Decouple SQLITE_INSPECTOR because it depends on
+    // the inspection protocol, which is alpha
+    mavenVersion = LibraryVersions.SQLITE_INSPECTOR
+    mavenGroup = LibraryGroups.INSPECTION_EXTENSIONS
     inceptionYear = "2019"
     toolingProject = true
     description = "The implementation of SQLite Inspector."
