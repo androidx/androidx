@@ -16,7 +16,6 @@
 
 package androidx.ui.input
 
-import androidx.annotation.RestrictTo
 import androidx.ui.engine.geometry.Rect
 
 /**
@@ -30,26 +29,19 @@ typealias InputSessionToken = Int
 
 /**
  * A special session token which represents there is no active input session.
- * @hide
  */
-@RestrictTo(RestrictTo.Scope.LIBRARY)
 const val NO_SESSION: InputSessionToken = 0
 
 /**
  * A special session token which represents the session couldn't be established.
- * @hide
  */
-@RestrictTo(RestrictTo.Scope.LIBRARY)
 const val INVALID_SESSION: InputSessionToken = -1
 
 /**
  * Provide a communication with platform text input service.
- *
- * Open for testing purpose.
- * @hide
  */
-@RestrictTo(RestrictTo.Scope.LIBRARY)
-open class TextInputService(val platformTextInputService: PlatformTextInputService) {
+// Open for testing purposes.
+open class TextInputService(private val platformTextInputService: PlatformTextInputService) {
 
     private var nextSessionToken: Int = 1
     private var currentSessionToken: InputSessionToken = NO_SESSION
@@ -113,10 +105,8 @@ open class TextInputService(val platformTextInputService: PlatformTextInputServi
 }
 
 /**
- * An interface for text input service.
- * @hide
+ * Platform specific text input service.
  */
-@RestrictTo(RestrictTo.Scope.LIBRARY)
 interface PlatformTextInputService {
     /**
      * Start text input session for given client.

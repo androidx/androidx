@@ -29,7 +29,7 @@ import kotlin.math.roundToInt
 /**
  * Provide Android specific input service with the Operating System.
  */
-internal class TextInputServiceAndroid(val view: View) : PlatformTextInputService {
+internal class AndroidTextInputService(val view: View) : PlatformTextInputService {
     /** True if the currently editable composable has connected */
     private var editorHasFocus = false
 

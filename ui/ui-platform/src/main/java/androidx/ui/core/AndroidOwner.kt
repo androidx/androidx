@@ -32,7 +32,7 @@ import android.view.inputmethod.EditorInfo
 import android.view.inputmethod.InputConnection
 import androidx.annotation.RequiresApi
 import androidx.annotation.RestrictTo
-import androidx.ui.input.TextInputServiceAndroid
+import androidx.ui.input.AndroidTextInputService
 import androidx.ui.core.pointerinput.PointerInputEventProcessor
 import androidx.ui.core.pointerinput.toPointerInputEvent
 import androidx.ui.engine.geometry.Outline
@@ -578,7 +578,7 @@ class AndroidComposeView constructor(context: Context) :
         dispatchTouchEvent(event)
     }
 
-    private val textInputServiceAndroid = TextInputServiceAndroid(this)
+    private val textInputServiceAndroid = AndroidTextInputService(this)
 
     /** @hide */
     @RestrictTo(RestrictTo.Scope.LIBRARY)
