@@ -205,10 +205,16 @@ MissingNullability: androidx.ui.engine.geometry.Size#Companion:
     Missing nullability on field `Companion` in class `class androidx.ui.engine.geometry.Size`
 MissingNullability: androidx.ui.graphics.Color#Companion:
     Missing nullability on field `Companion` in class `class androidx.ui.graphics.Color`
+MissingNullability: androidx.ui.graphics.FixedScale#equals(Object) parameter #0:
+    Missing nullability on parameter `p` in method `equals`
+MissingNullability: androidx.ui.graphics.FixedScale#toString():
+    Missing nullability on method `toString` return
 MissingNullability: androidx.ui.graphics.MaskFilter#Companion:
     Missing nullability on field `Companion` in class `class androidx.ui.graphics.MaskFilter`
 MissingNullability: androidx.ui.graphics.Path#Companion:
     Missing nullability on field `Companion` in class `class androidx.ui.graphics.Path`
+MissingNullability: androidx.ui.graphics.ScaleFit#Companion:
+    Missing nullability on field `Companion` in class `class androidx.ui.graphics.ScaleFit`
 MissingNullability: androidx.ui.graphics.colorspace.ColorSpaces#INSTANCE:
     Missing nullability on field `INSTANCE` in class `class androidx.ui.graphics.colorspace.ColorSpaces`
 MissingNullability: androidx.ui.graphics.colorspace.Illuminant#INSTANCE:

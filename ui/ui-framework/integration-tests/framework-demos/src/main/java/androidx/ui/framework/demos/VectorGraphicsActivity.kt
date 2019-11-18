@@ -28,6 +28,7 @@ import androidx.ui.core.setContent
 import androidx.ui.graphics.Color
 import androidx.ui.graphics.HorizontalGradient
 import androidx.ui.graphics.RadialGradient
+import androidx.ui.graphics.ScaleFit
 import androidx.ui.graphics.SolidColor
 import androidx.ui.graphics.TileMode
 import androidx.ui.graphics.VerticalGradient
@@ -52,10 +53,10 @@ class VectorGraphicsActivity : Activity() {
                 val vectorAsset = +loadVectorResource(R.drawable.ic_crane)
                 WithDensity {
                     vectorAsset.resource.resource?.let {
-                        val width = it.defaultWidth.toDp()
-                        val height = it.defaultHeight.toDp()
-                        Container(width = width, height = height) {
-                            DrawVector(it)
+                        Center {
+                            Container(width = 200.dp, height = 100.dp) {
+                                DrawVector(it)
+                            }
                         }
                     }
                 }
@@ -76,7 +77,8 @@ class VectorGraphicsActivity : Activity() {
         DrawVector(
             name = "vectorShape",
             defaultWidth = width,
-            defaultHeight = height
+            defaultHeight = height,
+            scaleFit = ScaleFit.FillMaxDimension
         ) { viewportWidth, viewportHeight ->
             Group(
                 scaleX = 0.75f,

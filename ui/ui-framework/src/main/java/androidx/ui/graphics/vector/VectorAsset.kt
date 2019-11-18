@@ -17,10 +17,12 @@
 package androidx.ui.graphics.vector
 
 import androidx.compose.Composable
+import androidx.ui.core.Alignment
 import androidx.ui.core.Px
 import androidx.ui.graphics.BlendMode
 import androidx.ui.graphics.Brush
 import androidx.ui.graphics.Color
+import androidx.ui.graphics.ScaleFit
 import androidx.ui.graphics.StrokeCap
 import androidx.ui.graphics.StrokeJoin
 import java.util.Stack
@@ -377,7 +379,9 @@ class VectorPath(
 fun DrawVector(
     vectorImage: VectorAsset,
     tintColor: Color = Color.Transparent,
-    tintBlendMode: BlendMode = DefaultTintBlendMode
+    tintBlendMode: BlendMode = DefaultTintBlendMode,
+    alignment: Alignment = Alignment.Center,
+    fit: ScaleFit = ScaleFit.Fit
 ) {
     DrawVector(
         name = vectorImage.name,
@@ -386,7 +390,9 @@ fun DrawVector(
         defaultWidth = vectorImage.defaultWidth,
         defaultHeight = vectorImage.defaultHeight,
         tintColor = tintColor,
-        tintBlendMode = tintBlendMode
+        tintBlendMode = tintBlendMode,
+        alignment = alignment,
+        scaleFit = fit
     ) { _, _ ->
         RenderVectorGroup(group = vectorImage.root)
     }
