@@ -22,8 +22,8 @@ import androidx.ui.core.Text
 import androidx.ui.core.dp
 import androidx.ui.foundation.shape.RectangleShape
 import androidx.ui.layout.Column
-import androidx.ui.layout.CrossAxisAlignment
 import androidx.ui.layout.EdgeInsets
+import androidx.ui.layout.ExpandedWidth
 import androidx.ui.layout.Spacing
 import androidx.ui.material.AlertDialog
 import androidx.ui.material.Button
@@ -43,12 +43,17 @@ fun RallyAlertDialog(
             text = { Text(bodyText) },
             buttons = {
                 val style = TextButtonStyle(RectangleShape).copy(paddings = EdgeInsets(16.dp))
-                Column(crossAxisAlignment = CrossAxisAlignment.Stretch) {
+                Column {
                     Divider(
                         Spacing(left = 12.dp, right = 12.dp),
                         color = (+MaterialTheme.colors()).onSurface.copy(alpha = 0.2f)
                     )
-                    Button(text = buttonText, onClick = onDismiss, style = style)
+                    Button(
+                        text = buttonText,
+                        onClick = onDismiss,
+                        style = style,
+                        modifier = ExpandedWidth
+                    )
                 }
             }
         )

@@ -24,6 +24,7 @@ import androidx.compose.unaryPlus
 import androidx.ui.core.Alignment
 import androidx.ui.core.Dp
 import androidx.ui.core.Draw
+import androidx.ui.core.Modifier
 import androidx.ui.core.Text
 import androidx.ui.core.TextField
 import androidx.ui.core.dp
@@ -51,9 +52,10 @@ import androidx.ui.layout.HeightSpacer
 import androidx.ui.layout.MainAxisAlignment
 import androidx.ui.layout.Wrap
 import androidx.ui.graphics.Paint
-import androidx.ui.layout.CrossAxisAlignment
+import androidx.ui.layout.ColumnScope
 import androidx.ui.layout.ExpandedHeight
 import androidx.ui.layout.ExpandedWidth
+import androidx.ui.layout.Gravity
 import androidx.ui.text.ParagraphStyle
 import androidx.ui.text.TextStyle
 import androidx.ui.text.style.TextAlign
@@ -66,9 +68,9 @@ class PopupActivity : Activity() {
             val exampleIndex = +state { 0 }
             val totalExamples = 9
 
-            Column(crossAxisAlignment = CrossAxisAlignment.Center) {
+            Column {
                 FlexRow(
-                    ExpandedWidth,
+                    ExpandedWidth wraps Gravity.Center,
                     mainAxisAlignment = MainAxisAlignment.SpaceBetween
                 ) {
                     inflexible {
@@ -155,11 +157,11 @@ class PopupActivity : Activity() {
 }
 
 @Composable
-fun PopupToggle() {
+fun ColumnScope.PopupToggle() {
     val showPopup = +state { true }
     val containerSize = 100.dp
 
-    Column(crossAxisAlignment = CrossAxisAlignment.Center) {
+    Column(Gravity.Center) {
         Container(width = containerSize, height = containerSize) {
             if (showPopup.value) {
                 Popup(alignment = Alignment.Center) {
@@ -187,9 +189,8 @@ fun PopupToggle() {
 }
 
 @Composable
-fun PopupWithChangingContent() {
-    Container {
-        Column(crossAxisAlignment = CrossAxisAlignment.Center) {
+fun ColumnScope.PopupWithChangingContent() {
+    Column(Gravity.Center) {
             val heightSize = 120.dp
             val widthSize = 160.dp
             val popupContentState = +state { 0 }
@@ -229,11 +230,10 @@ fun PopupWithChangingContent() {
                 }
             )
         }
-    }
 }
 
 @Composable
-fun PopupWithChangingParent() {
+fun ColumnScope.PopupWithChangingParent() {
     val containerWidth = 400.dp
     val containerHeight = 200.dp
     val parentAlignment = +state { Alignment.TopLeft }
@@ -241,7 +241,7 @@ fun PopupWithChangingParent() {
     val parentHeight = +state { 60.dp }
     val parentSizeChanged = +state { false }
 
-    Column(crossAxisAlignment = CrossAxisAlignment.Center) {
+    Column(Gravity.Center) {
         Container(
             height = containerHeight,
             width = containerWidth,
@@ -290,9 +290,8 @@ fun PopupWithChangingParent() {
 }
 
 @Composable
-fun PopupDropdownAlignment() {
-    Container {
-        Column(crossAxisAlignment = CrossAxisAlignment.Center) {
+fun ColumnScope.PopupDropdownAlignment() {
+    Column(Gravity.Center) {
             val heightSize = 120.dp
             val widthSize = 160.dp
             val dropDownAlignment = +state { DropDownAlignment.Left }
@@ -327,18 +326,17 @@ fun PopupDropdownAlignment() {
                 }
             }
         }
-    }
 }
 
 @Composable
-fun PopupAlignmentDemo() {
-    Container(alignment = Alignment.Center) {
+fun ColumnScope.PopupAlignmentDemo() {
+    Container(Gravity.Center) {
         val heightSize = 200.dp
         val widthSize = 400.dp
         val counter = +state { 0 }
         val popupAlignment = +state { Alignment.TopLeft }
 
-        Column(crossAxisAlignment = CrossAxisAlignment.Center) {
+        Column {
             ColoredContainer(
                 height = heightSize,
                 width = widthSize,
@@ -368,7 +366,7 @@ fun PopupAlignmentDemo() {
             }
 
             HeightSpacer(10.dp)
-            ColoredContainer(color = Color.White) {
+            ColoredContainer(color = Color.White, modifier = Gravity.Center) {
                 Text("Alignment: " + popupAlignment.value.toString())
             }
         }
@@ -376,9 +374,8 @@ fun PopupAlignmentDemo() {
 }
 
 @Composable
-fun PopupWithEditText() {
-    Container {
-        Column(crossAxisAlignment = CrossAxisAlignment.Center) {
+fun ColumnScope.PopupWithEditText() {
+    Column(Gravity.Center) {
             val widthSize = 190.dp
             val heightSize = 120.dp
             val editLineSize = 150.dp
@@ -393,7 +390,8 @@ fun PopupWithEditText() {
             ColoredContainer(
                 height = heightSize,
                 width = widthSize,
-                color = Color.Red
+                color = Color.Red,
+                modifier = Gravity.Center
             ) {
                 if (showPopup.value) {
                     Popup(
@@ -419,13 +417,11 @@ fun PopupWithEditText() {
                 }
             }
         }
-    }
 }
 
 @Composable
-fun PopupWithChangingSize() {
-    Container {
-        Column(crossAxisAlignment = CrossAxisAlignment.Center) {
+fun ColumnScope.PopupWithChangingSize() {
+    Column(Gravity.Center) {
             val showPopup = +state { true }
             val heightSize = 120.dp
             val widthSize = 160.dp
@@ -473,21 +469,16 @@ fun PopupWithChangingSize() {
                 }
             )
         }
-    }
 }
 
 @Composable
-fun PopupInsideScroller() {
+fun ColumnScope.PopupInsideScroller() {
     val heightSize = 400.dp
     val widthSize = 200.dp
-    Container(width = widthSize, height = heightSize) {
+    Container(width = widthSize, height = heightSize, modifier = Gravity.Center) {
         VerticalScroller {
-            Column(
-                ExpandedHeight,
-                crossAxisAlignment = CrossAxisAlignment.Center
-            ) {
-                ColoredContainer(
-                    width = 80.dp,
+            Column(ExpandedHeight) {
+                ColoredContainer(width = 80.dp,
                     height = 160.dp,
                     color = Color(0xFF00FF00)
                 ) {
@@ -497,7 +488,7 @@ fun PopupInsideScroller() {
                 }
 
                 for (i in 0..30) {
-                    Text("Scroll #$i")
+                    Text(text = "Scroll #$i", modifier = Gravity.Center)
                 }
             }
         }
@@ -506,40 +497,39 @@ fun PopupInsideScroller() {
 
 @Composable
 fun PopupOnKeyboardUp() {
-    Container {
-        Column(crossAxisAlignment = CrossAxisAlignment.Center) {
-            val widthSize = 190.dp
-            val heightSize = 120.dp
+    Column {
+        val widthSize = 190.dp
+        val heightSize = 120.dp
 
-            HeightSpacer(350.dp)
-            Text("Start typing in the EditText below the parent(Red rectangle)")
-            ColoredContainer(
-                height = heightSize,
-                width = widthSize,
-                color = Color.Red
-            ) {
-                Popup(Alignment.Center) {
-                    ColoredContainer(color = Color.Green) {
-                        Text("Popup")
-                    }
+        HeightSpacer(350.dp)
+        Text("Start typing in the EditText below the parent(Red rectangle)")
+        ColoredContainer(
+            height = heightSize,
+            width = widthSize,
+            color = Color.Red,
+            modifier = Gravity.Center
+        ) {
+            Popup(Alignment.Center) {
+                ColoredContainer(color = Color.Green) {
+                    Text("Popup")
                 }
             }
-
-            EditLine(initialText = "Continue typing...", color = Color.Gray)
-
-            HeightSpacer(24.dp)
         }
+
+        EditLine(initialText = "Continue typing...", color = Color.Gray)
+
+        HeightSpacer(24.dp)
     }
 }
 
 @Composable
-fun ClickableTextWithBackground(
+fun ColumnScope.ClickableTextWithBackground(
     text: String,
     color: Color,
     onClick: (() -> Unit)? = null,
     padding: EdgeInsets = EdgeInsets(0.dp)
 ) {
-    Wrap {
+    Container(Gravity.Center) {
         DrawShape(RectangleShape, color)
         Clickable(onClick = onClick) {
             Container(padding = padding) {
@@ -551,6 +541,7 @@ fun ClickableTextWithBackground(
 
 @Composable
 fun ColoredContainer(
+    modifier: Modifier = Modifier.None,
     width: Dp? = null,
     height: Dp? = null,
     color: Color,
@@ -560,6 +551,7 @@ fun ColoredContainer(
     children: @Composable() () -> Unit
 ) {
     Container(
+        modifier = modifier,
         width = width,
         height = height,
         alignment = alignment,

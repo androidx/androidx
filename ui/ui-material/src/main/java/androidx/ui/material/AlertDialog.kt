@@ -25,7 +25,6 @@ import androidx.ui.foundation.Dialog
 import androidx.ui.foundation.shape.corner.RoundedCornerShape
 import androidx.ui.layout.Column
 import androidx.ui.layout.Container
-import androidx.ui.layout.CrossAxisAlignment
 import androidx.ui.layout.EdgeInsets
 import androidx.ui.layout.ExpandedWidth
 import androidx.ui.layout.HeightSpacer
@@ -118,7 +117,7 @@ fun AlertDialog(
         MaterialTheme(colors = currentColors, typography = currentTypography) {
             Surface(shape = AlertDialogShape) {
                 Container(width = AlertDialogWidth) {
-                    Column(crossAxisAlignment = CrossAxisAlignment.Start) {
+                    Column {
                         if (title != null) {
                             Container(
                                 alignment = Alignment.CenterLeft,

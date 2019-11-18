@@ -24,8 +24,8 @@ import androidx.ui.foundation.ColoredRect
 import androidx.ui.graphics.Color
 import androidx.ui.layout.Column
 import androidx.ui.layout.Container
-import androidx.ui.layout.CrossAxisAlignment
 import androidx.ui.layout.EdgeInsets
+import androidx.ui.layout.Gravity
 import androidx.ui.layout.HeightSpacer
 import androidx.ui.layout.Row
 import androidx.ui.layout.WidthSpacer
@@ -77,15 +77,17 @@ class DividersSpacersActivity : MaterialDemoActivity() {
         val avatarSize = ItemSize - ItemPadding * 2
         val textStyle = (+MaterialTheme.typography()).body1
         Container(height = ItemSize, padding = EdgeInsets(ItemPadding)) {
-            Row(crossAxisAlignment = CrossAxisAlignment.Center) {
+            Row {
                 if (color != null) {
                     ColoredRect(
                         width = avatarSize,
                         height = avatarSize,
-                        color = color)
+                        color = color,
+                        modifier = Gravity.Center
+                    )
                     WidthSpacer(width = ItemPadding)
                 }
-                Text(text = text, style = textStyle)
+                Text(text = text, style = textStyle, modifier = Gravity.Center)
             }
         }
     }

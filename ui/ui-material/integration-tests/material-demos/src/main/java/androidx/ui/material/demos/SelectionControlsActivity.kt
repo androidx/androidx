@@ -22,7 +22,6 @@ import androidx.ui.core.Text
 import androidx.ui.core.dp
 import androidx.ui.graphics.Color
 import androidx.ui.layout.Column
-import androidx.ui.layout.CrossAxisAlignment
 import androidx.ui.layout.EdgeInsets
 import androidx.ui.layout.Padding
 import androidx.ui.material.MaterialTheme
@@ -42,7 +41,7 @@ class SelectionControlsActivity : MaterialDemoActivity() {
 
         Surface(color = Color.White) {
             Padding(padding = padding) {
-                Column(crossAxisAlignment = CrossAxisAlignment.Start) {
+                Column {
                     Text(text = "Checkbox", style = headerStyle)
                     Padding(padding = padding) {
                         TriStateCheckboxSample()
