@@ -18,6 +18,8 @@
 package androidx.ui.core
 
 import androidx.compose.Immutable
+import kotlin.math.max
+import kotlin.math.min
 
 /**
  * Dimension value representing scaled pixels (sp). Font related APIs specify their
@@ -143,11 +145,11 @@ inline operator fun Int.times(other: Sp) = checkNotInherit(other) {
 }
 
 inline fun min(a: Sp, b: Sp): Sp = checkNotInherit(a, b) {
-    Sp(value = kotlin.math.min(a.value, b.value))
+    Sp(value = min(a.value, b.value))
 }
 
 inline fun max(a: Sp, b: Sp): Sp = checkNotInherit(a, b) {
-    Sp(value = kotlin.math.max(a.value, b.value))
+    Sp(value = max(a.value, b.value))
 }
 
 /**
