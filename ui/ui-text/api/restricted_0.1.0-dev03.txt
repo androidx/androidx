@@ -62,7 +62,25 @@ package androidx.ui.input {
     enum_constant public static final androidx.ui.input.ImeAction Unspecified;
   }
 
+  public interface InputEventListener {
+    method public void onEditOperations(java.util.List<? extends androidx.ui.input.EditOperation> editOps);
+    method public void onImeAction(androidx.ui.input.ImeAction imeAction);
+  }
 
+  public final class InputState {
+    ctor public InputState(String text, androidx.ui.text.TextRange selection, androidx.ui.text.TextRange? composition);
+    ctor public InputState();
+    method public String component1();
+    method public androidx.ui.text.TextRange component2();
+    method public androidx.ui.text.TextRange? component3();
+    method public androidx.ui.input.InputState copy(String text, androidx.ui.text.TextRange selection, androidx.ui.text.TextRange? composition);
+    method public androidx.ui.text.TextRange? getComposition();
+    method public String getSelectedText();
+    method public androidx.ui.text.TextRange getSelection();
+    method public String getText();
+    method public String getTextAfterSelection(int maxChars);
+    method public String getTextBeforeSelection(int maxChars);
+  }
 
   public enum KeyboardType {
     enum_constant public static final androidx.ui.input.KeyboardType Ascii;
