@@ -16,8 +16,6 @@
 
 package androidx.ui.input
 
-import androidx.annotation.RestrictTo
-import androidx.annotation.RestrictTo.Scope.LIBRARY
 import java.text.BreakIterator
 import java.util.Objects
 
@@ -26,10 +24,7 @@ import java.util.Objects
  *
  * An EditOperation is a representation of platform IME API call. For example, in Android,
  * InputConnection#commitText API call is translated to CommitTextEditOp object.
- *
- * @hide
  */
-@RestrictTo(LIBRARY)
 interface EditOperation {
 
     /**
@@ -42,10 +37,7 @@ interface EditOperation {
  * An edit operation represent commitText callback from InputMethod.
  *
  * @see <https://developer.android.com/reference/android/view/inputmethod/InputConnection.html#commitText(java.lang.CharSequence,%20int)>
- *
- * @hide
  */
-@RestrictTo(LIBRARY)
 data class CommitTextEditOp(
     /**
      * The text to commit. We ignore any styles in the original API.
@@ -88,10 +80,7 @@ data class CommitTextEditOp(
  * An edit operation represents setComposingRegion callback from InputMethod.
  *
  * @see <https://developer.android.com/reference/android/view/inputmethod/InputConnection.html#setComposingRegion(int,%2520int)>
-
- * @hide
  */
-@RestrictTo(LIBRARY)
 data class SetComposingRegionEditOp(
     /**
      * The inclusive start offset of the composing region.
@@ -127,10 +116,7 @@ data class SetComposingRegionEditOp(
  * An edit operation represents setComposingText callback from InputMethod
  *
  * @see <https://developer.android.com/reference/android/view/inputmethod/InputConnection.html#setComposingText(java.lang.CharSequence,%2520int)>
- *
- * @hide
  */
-@RestrictTo(LIBRARY)
 data class SetComposingTextEditOp(
     /**
      * The composing text.
@@ -179,10 +165,7 @@ data class SetComposingTextEditOp(
  * An edit operation represents deleteSurroundingText callback from InputMethod
  *
  * @see <https://developer.android.com/reference/android/view/inputmethod/InputConnection.html#deleteSurroundingText(int,%2520int)>
- *
- * @hide
  */
-@RestrictTo(LIBRARY)
 data class DeleteSurroundingTextEditOp(
     /**
      * The number of characters in UTF-16 before the cursor to be deleted.
@@ -209,10 +192,7 @@ data class DeleteSurroundingTextEditOp(
  * An edit operation represents deleteSurroundingTextInCodePoitns callback from InputMethod
  *
  * @see <https://developer.android.com/reference/android/view/inputmethod/InputConnection.html#deleteSurroundingTextInCodePoints(int,%2520int)>
- *
- * @hide
  */
-@RestrictTo(LIBRARY)
 data class DeleteSurroundingTextInCodePointsEditOp(
     /**
      * The number of characters in Unicode code points before the cursor to be deleted.
@@ -262,10 +242,7 @@ data class DeleteSurroundingTextInCodePointsEditOp(
  * An edit operation represents setSelection callback from InputMethod
  *
  * @see <https://developer.android.com/reference/android/view/inputmethod/InputConnection.html#setSelection(int,%2520int)>
- *
- * @hide
  */
-@RestrictTo(LIBRARY)
 data class SetSelectionEditOp(
     /**
      * The inclusive start offset of the selection region.
@@ -292,10 +269,7 @@ data class SetSelectionEditOp(
  * An edit operation represents finishComposingText callback from InputMEthod
  *
  * @see <https://developer.android.com/reference/android/view/inputmethod/InputConnection.html#finishComposingText()>
- *
- * @hide
  */
-@RestrictTo(LIBRARY)
 class FinishComposingTextEditOp : EditOperation {
 
     override fun process(buffer: EditingBuffer) {
@@ -314,10 +288,7 @@ class FinishComposingTextEditOp : EditOperation {
  * If there is composition, delete the text in the composition range.
  * If there is no composition but there is selection, delete whole selected range.
  * If there is no composition and selection, perform backspace key event at the cursor position.
- *
- * @hide
  */
-@RestrictTo(LIBRARY)
 class BackspaceKeyEditOp : EditOperation {
 
     override fun process(buffer: EditingBuffer) {
@@ -355,10 +326,7 @@ class BackspaceKeyEditOp : EditOperation {
  *
  * If there is selection, cancel the selection first and move the cursor to the selection start
  * position. Then perform the cursor movement.
- *
- * @hide
  */
-@RestrictTo(LIBRARY)
 data class MoveCursorEditOp(
     /**
      * The amount of cursor movement.
