@@ -31,19 +31,6 @@ import android.view.autofill.AutofillValue
 import android.view.inputmethod.EditorInfo
 import android.view.inputmethod.InputConnection
 import androidx.annotation.RequiresApi
-import androidx.annotation.RestrictTo
-import androidx.ui.input.AndroidTextInputService
-import androidx.ui.core.pointerinput.PointerInputEventProcessor
-import androidx.ui.core.pointerinput.toPointerInputEvent
-import androidx.ui.engine.geometry.Outline
-import androidx.ui.input.TextInputService
-import androidx.ui.graphics.Canvas
-import androidx.ui.graphics.Path
-import androidx.ui.engine.geometry.Rect
-import androidx.ui.engine.geometry.RRect
-import androidx.ui.engine.geometry.Shape
-import kotlin.math.roundToInt
-import java.util.TreeSet
 import androidx.compose.trace
 import androidx.ui.autofill.AndroidAutofill
 import androidx.ui.autofill.Autofill
@@ -53,6 +40,20 @@ import androidx.ui.autofill.populateViewStructure
 import androidx.ui.autofill.registerCallback
 import androidx.ui.autofill.unregisterCallback
 import androidx.ui.core.NodeStagesModelObserver.Stage
+import androidx.ui.core.pointerinput.PointerInputEventProcessor
+import androidx.ui.core.pointerinput.toPointerInputEvent
+import androidx.ui.core.text.AndroidFontResourceLoader
+import androidx.ui.engine.geometry.Outline
+import androidx.ui.engine.geometry.RRect
+import androidx.ui.engine.geometry.Rect
+import androidx.ui.engine.geometry.Shape
+import androidx.ui.graphics.Canvas
+import androidx.ui.graphics.Path
+import androidx.ui.input.TextInputServiceAndroid
+import androidx.ui.input.TextInputService
+import androidx.ui.text.font.Font
+import java.util.TreeSet
+import kotlin.math.roundToInt
 
 @TargetApi(Build.VERSION_CODES.LOLLIPOP)
 class AndroidComposeView constructor(context: Context) :
@@ -578,11 +579,11 @@ class AndroidComposeView constructor(context: Context) :
         dispatchTouchEvent(event)
     }
 
-    private val textInputServiceAndroid = AndroidTextInputService(this)
+    private val textInputServiceAndroid = TextInputServiceAndroid(this)
 
-    /** @hide */
-    @RestrictTo(RestrictTo.Scope.LIBRARY)
     val textInputService = TextInputService(textInputServiceAndroid)
+
+    val fontLoader: Font.ResourceLoader = AndroidFontResourceLoader(context)
 
     override fun onCheckIsTextEditor(): Boolean = textInputServiceAndroid.isEditorFocused()
 

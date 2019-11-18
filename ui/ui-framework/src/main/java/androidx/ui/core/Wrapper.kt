@@ -20,7 +20,6 @@ import android.content.Context
 import android.content.res.Configuration
 import android.view.ViewGroup
 import androidx.annotation.CheckResult
-import androidx.annotation.RestrictTo
 import androidx.ui.core.input.FocusManager
 import androidx.ui.input.TextInputService
 import androidx.compose.Ambient
@@ -39,7 +38,6 @@ import androidx.compose.state
 import androidx.compose.unaryPlus
 import androidx.ui.autofill.Autofill
 import androidx.ui.autofill.AutofillTree
-import androidx.ui.core.text.AndroidFontResourceLoader
 import androidx.ui.text.font.Font
 import kotlinx.coroutines.Dispatchers
 import kotlin.coroutines.CoroutineContext
@@ -198,7 +196,7 @@ private fun WrapWithAmbients(
         },
         { children ->
             FontLoaderAmbient.Provider(
-                value = AndroidFontResourceLoader(context),
+                value = composeView.fontLoader,
                 children = children
             )
         },
@@ -242,12 +240,8 @@ val LayoutDirectionAmbient = Ambient.of<LayoutDirection>()
 
 val FocusManagerAmbient = Ambient.of<FocusManager>()
 
-internal val TextInputServiceAmbient = Ambient.of<TextInputService?>()
+val TextInputServiceAmbient = Ambient.of<TextInputService?>()
 
-/**
- * @hide
- */
-@RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
 val FontLoaderAmbient = Ambient.of<Font.ResourceLoader>()
 
 /**

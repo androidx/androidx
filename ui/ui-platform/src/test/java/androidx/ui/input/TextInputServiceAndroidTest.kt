@@ -33,9 +33,9 @@ import org.junit.runners.JUnit4
 
 @SmallTest
 @RunWith(JUnit4::class)
-class AndroidTextInputServiceTest {
+class TextInputServiceAndroidTest {
 
-    private lateinit var textInputService: AndroidTextInputService
+    private lateinit var textInputService: TextInputServiceAndroid
     private lateinit var imm: InputMethodManager
 
     @Before
@@ -45,7 +45,7 @@ class AndroidTextInputServiceTest {
         val context: Context = mock()
         whenever(context.getSystemService(eq(Context.INPUT_METHOD_SERVICE))).thenReturn(imm)
         whenever(view.context).thenReturn(context)
-        textInputService = AndroidTextInputService(view)
+        textInputService = TextInputServiceAndroid(view)
     }
 
     @Test
