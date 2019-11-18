@@ -997,7 +997,7 @@ public final class Camera2CameraImplTest {
                             cameraSelector.getLensFacing();
             mCameraId = getCameraIdForLensFacingUnchecked(lensFacing);
             onBind(new FakeCamera(mCameraId, null,
-                    new FakeCameraInfoInternal(0, lensFacing)));
+                    new FakeCameraInfoInternal(mCameraId, 0, lensFacing)));
             suggestedResolutionMap.put(mCameraId, new Size(640, 480));
             updateSuggestedResolution(suggestedResolutionMap);
         }

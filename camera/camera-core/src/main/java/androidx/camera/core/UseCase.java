@@ -347,24 +347,6 @@ public abstract class UseCase {
     }
 
     /**
-     * Gets the camera id defined by the provided camera device config.
-     *
-     * @param deviceConfig the device config
-     * @return the camera id returned by resolving the device config
-     * @hide
-     */
-    @RestrictTo(Scope.LIBRARY_GROUP)
-    @Nullable
-    protected static String getCameraIdUnchecked(@NonNull CameraDeviceConfig deviceConfig) {
-        try {
-            return CameraX.getCameraWithCameraDeviceConfig(deviceConfig);
-        } catch (CameraInfoUnavailableException e) {
-            throw new IllegalArgumentException(
-                    "Unable to get available camera ids from camera manager.", e);
-        }
-    }
-
-    /**
      * Returns the camera ID for the currently bound camera, or throws an exception if no camera is
      * bound.
      *

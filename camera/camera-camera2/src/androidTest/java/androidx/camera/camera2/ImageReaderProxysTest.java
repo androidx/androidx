@@ -31,6 +31,7 @@ import androidx.camera.camera2.impl.Camera2CameraFactory;
 import androidx.camera.camera2.impl.Camera2DeviceSurfaceManager;
 import androidx.camera.core.CameraDeviceSurfaceManager;
 import androidx.camera.core.CameraFactory;
+import androidx.camera.core.CameraInfoUnavailableException;
 import androidx.camera.core.CameraInternal;
 import androidx.camera.core.ImageProxy;
 import androidx.camera.core.ImageReaderProxy;
@@ -104,7 +105,7 @@ public final class ImageReaderProxysTest {
     }
 
     @Before
-    public void setUp() {
+    public void setUp() throws CameraInfoUnavailableException {
         assumeTrue(CameraUtil.deviceHasCamera());
 
         mHandlerThread = new HandlerThread("Background");

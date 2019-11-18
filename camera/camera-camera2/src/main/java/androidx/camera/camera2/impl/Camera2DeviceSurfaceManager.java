@@ -28,9 +28,7 @@ import androidx.annotation.Nullable;
 import androidx.annotation.RestrictTo;
 import androidx.annotation.RestrictTo.Scope;
 import androidx.annotation.VisibleForTesting;
-import androidx.camera.core.CameraDeviceConfig;
 import androidx.camera.core.CameraDeviceSurfaceManager;
-import androidx.camera.core.CameraX;
 import androidx.camera.core.ImageOutputConfig;
 import androidx.camera.core.SurfaceConfig;
 import androidx.camera.core.UseCase;
@@ -327,22 +325,6 @@ public final class Camera2DeviceSurfaceManager implements CameraDeviceSurfaceMan
                     "Fail to find supported surface info - CameraId:" + cameraId);
         }
         return supportedSurfaceCombination.getCorrectedAspectRatio(rotation);
-    }
-
-    private String getCameraIdFromConfig(@NonNull CameraDeviceConfig config) {
-        String cameraId;
-        try {
-            Integer lensFacing = config.getLensFacing(null);
-            // Adds default lensFacing if the user doesn't specify the lens facing.
-            if (lensFacing == null) {
-                lensFacing = CameraX.getDefaultLensFacing();
-            }
-            cameraId = CameraX.getCameraWithLensFacing(lensFacing);
-        } catch (Exception e) {
-            throw new IllegalArgumentException(
-                    "Unable to get camera ID from camera device config.", e);
-        }
-        return cameraId;
     }
 
     private void checkInitialized() {
