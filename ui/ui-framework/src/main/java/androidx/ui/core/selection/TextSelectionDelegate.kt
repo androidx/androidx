@@ -39,7 +39,6 @@ internal class TextSelectionDelegate(
         startPosition: PxPosition,
         endPosition: PxPosition,
         containerLayoutCoordinates: LayoutCoordinates,
-        mode: SelectionMode,
         wordSelectIfCollapsed: Boolean
     ): Selection? {
         val layoutCoordinates = layoutCoordinates.value!!
@@ -52,7 +51,6 @@ internal class TextSelectionDelegate(
 
         val selection = getTextSelectionInfo(
             textDelegate = textDelegate,
-            mode = mode,
             selectionCoordinates = Pair(startPx, endPx),
             layoutCoordinates = layoutCoordinates,
             wordSelectIfCollapsed = wordSelectIfCollapsed
@@ -72,7 +70,6 @@ internal class TextSelectionDelegate(
  * Return information about the current selection in the Text.
  *
  * @param textDelegate The [TextDelegate] object from Text composable.
- * @param mode The mode of selection.
  * @param selectionCoordinates The positions of the start and end of the selection in Text
  * composable coordinate system.
  * @param layoutCoordinates The [LayoutCoordinates] of the composable.
@@ -85,7 +82,6 @@ internal class TextSelectionDelegate(
  */
 internal fun getTextSelectionInfo(
     textDelegate: TextDelegate,
-    mode: SelectionMode,
     selectionCoordinates: Pair<PxPosition, PxPosition>,
     layoutCoordinates: LayoutCoordinates,
     wordSelectIfCollapsed: Boolean
@@ -136,7 +132,6 @@ internal fun getTextSelectionInfo(
                 rawStartOffset = rawStartOffset,
                 rawEndOffset = rawEndOffset,
                 lastOffset = lastOffset,
-                mode = mode,
                 bounds = bounds,
                 containsWholeSelectionStart = containsWholeSelectionStart,
                 containsWholeSelectionEnd = containsWholeSelectionEnd
@@ -225,7 +220,6 @@ private fun processAsSingleComposable(
  * @param rawStartOffset unprocessed start offset calculated directly from input position
  * @param rawEndOffset unprocessed end offset calculated directly from input position
  * @param lastOffset the last offset of the text in current composable
- * @param mode the mode of selection
  * @param bounds the bounds of the composable
  * @param containsWholeSelectionStart flag to check if the current composable contains the start of
  * the selection
@@ -241,14 +235,16 @@ private fun processCrossComposable(
     rawStartOffset: Int,
     rawEndOffset: Int,
     lastOffset: Int,
-    mode: SelectionMode,
     bounds: PxBounds,
     containsWholeSelectionStart: Boolean,
     containsWholeSelectionEnd: Boolean
 ): Triple<Int, Int, Boolean> {
-    val handlesCrossed = mode.areHandlesCrossed(bounds, startPosition, endPosition)
-    val isSelected = mode.isSelected(
-        bounds,
+    val handlesCrossed = SelectionMode.Vertical.areHandlesCrossed(
+        bounds = bounds,
+        start = startPosition,
+        end = endPosition)
+    val isSelected = SelectionMode.Vertical.isSelected(
+        bounds = bounds,
         start = if (handlesCrossed) endPosition else startPosition,
         end = if (handlesCrossed) startPosition else endPosition
     )

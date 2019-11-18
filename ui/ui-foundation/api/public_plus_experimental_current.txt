@@ -364,7 +364,7 @@ package androidx.ui.foundation.text {
 
   public final class SelectionContainerKt {
     ctor public SelectionContainerKt();
-    method public static void SelectionContainer(androidx.ui.core.selection.Selection? selection, kotlin.jvm.functions.Function1<? super androidx.ui.core.selection.Selection,kotlin.Unit> onSelectionChange, androidx.ui.core.selection.SelectionMode mode = SelectionMode.Vertical, kotlin.jvm.functions.Function0<kotlin.Unit> children);
+    method public static void SelectionContainer(androidx.ui.core.selection.Selection? selection, kotlin.jvm.functions.Function1<? super androidx.ui.core.selection.Selection,kotlin.Unit> onSelectionChange, kotlin.jvm.functions.Function0<kotlin.Unit> children);
   }
 
   public final class SelectionHandlesKt {

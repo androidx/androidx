@@ -78,7 +78,6 @@ class TextSelectionDelegateTest {
             val textSelectionInfo = getTextSelectionInfo(
                 textDelegate = textDelegate,
                 selectionCoordinates = Pair(start, end),
-                mode = SelectionMode.Horizontal,
                 layoutCoordinates = mock(),
                 wordSelectIfCollapsed = true
             )
@@ -128,7 +127,6 @@ class TextSelectionDelegateTest {
             val textSelectionInfo = getTextSelectionInfo(
                 textDelegate = textDelegate,
                 selectionCoordinates = Pair(start, end),
-                mode = SelectionMode.Horizontal,
                 layoutCoordinates = mock(),
                 wordSelectIfCollapsed = true
             )
@@ -181,7 +179,6 @@ class TextSelectionDelegateTest {
             val textSelectionInfo = getTextSelectionInfo(
                 textDelegate = textDelegate,
                 selectionCoordinates = Pair(start, end),
-                mode = SelectionMode.Horizontal,
                 layoutCoordinates = mock(),
                 wordSelectIfCollapsed = false
             )
@@ -240,7 +237,6 @@ class TextSelectionDelegateTest {
             val textSelectionInfo = getTextSelectionInfo(
                 textDelegate = textDelegate,
                 selectionCoordinates = Pair(start, end),
-                mode = SelectionMode.Horizontal,
                 layoutCoordinates = mock(),
                 wordSelectIfCollapsed = false
             )
@@ -304,7 +300,6 @@ class TextSelectionDelegateTest {
             val textSelectionInfo = getTextSelectionInfo(
                 textDelegate = textDelegate,
                 selectionCoordinates = Pair(start, end),
-                mode = SelectionMode.Horizontal,
                 layoutCoordinates = mock(),
                 wordSelectIfCollapsed = false
             )
@@ -356,7 +351,6 @@ class TextSelectionDelegateTest {
             // Act.
             val textSelectionInfo = getTextSelectionInfo(
                 selectionCoordinates = Pair(start, end),
-                mode = SelectionMode.Horizontal,
                 textDelegate = textDelegate,
                 layoutCoordinates = mock(),
                 wordSelectIfCollapsed = false
@@ -413,7 +407,6 @@ class TextSelectionDelegateTest {
             // Act.
             val textSelectionInfo = getTextSelectionInfo(
                 selectionCoordinates = Pair(start, end),
-                mode = SelectionMode.Horizontal,
                 textDelegate = textDelegate,
                 layoutCoordinates = mock(),
                 wordSelectIfCollapsed = false
@@ -472,7 +465,6 @@ class TextSelectionDelegateTest {
             // Act.
             val textSelectionInfo = getTextSelectionInfo(
                 selectionCoordinates = Pair(start, end),
-                mode = SelectionMode.Horizontal,
                 textDelegate = textDelegate,
                 layoutCoordinates = mock(),
                 wordSelectIfCollapsed = false
@@ -525,7 +517,6 @@ class TextSelectionDelegateTest {
             // Act.
             val textSelectionInfo = getTextSelectionInfo(
                 selectionCoordinates = Pair(start, end),
-                mode = SelectionMode.Horizontal,
                 textDelegate = textDelegate,
                 layoutCoordinates = mock(),
                 wordSelectIfCollapsed = false
@@ -580,7 +571,6 @@ class TextSelectionDelegateTest {
             // Act.
             val textSelectionInfo = getTextSelectionInfo(
                 selectionCoordinates = Pair(start, end),
-                mode = SelectionMode.Horizontal,
                 textDelegate = textDelegate,
                 layoutCoordinates = mock(),
                 wordSelectIfCollapsed = false
@@ -632,7 +622,6 @@ class TextSelectionDelegateTest {
             // Act.
             val textSelectionInfo = getTextSelectionInfo(
                 selectionCoordinates = Pair(start, end),
-                mode = SelectionMode.Horizontal,
                 textDelegate = textDelegate,
                 layoutCoordinates = mock(),
                 wordSelectIfCollapsed = false
@@ -682,7 +671,6 @@ class TextSelectionDelegateTest {
             // Act.
             val textSelectionInfo = getTextSelectionInfo(
                 selectionCoordinates = Pair(start, end),
-                mode = SelectionMode.Horizontal,
                 textDelegate = textDelegate,
                 layoutCoordinates = mock(),
                 wordSelectIfCollapsed = false
@@ -732,7 +720,6 @@ class TextSelectionDelegateTest {
             // Act.
             val textSelectionInfo = getTextSelectionInfo(
                 selectionCoordinates = Pair(start, end),
-                mode = SelectionMode.Horizontal,
                 textDelegate = textDelegate,
                 layoutCoordinates = mock(),
                 wordSelectIfCollapsed = false
@@ -783,7 +770,6 @@ class TextSelectionDelegateTest {
             // Act.
             val textSelectionInfo = getTextSelectionInfo(
                 selectionCoordinates = Pair(start, end),
-                mode = SelectionMode.Horizontal,
                 textDelegate = textDelegate,
                 layoutCoordinates = mock(),
                 wordSelectIfCollapsed = false
@@ -829,7 +815,6 @@ class TextSelectionDelegateTest {
             // Act.
             val textSelectionInfo = getTextSelectionInfo(
                 selectionCoordinates = Pair(start, end),
-                mode = SelectionMode.Horizontal,
                 textDelegate = textDelegate,
                 layoutCoordinates = mock(),
                 wordSelectIfCollapsed = true

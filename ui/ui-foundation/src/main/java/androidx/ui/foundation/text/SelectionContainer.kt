@@ -28,7 +28,6 @@ import androidx.ui.core.gesture.PressGestureDetector
 import androidx.ui.core.gesture.TouchSlopDragGestureDetector
 import androidx.ui.core.ipx
 import androidx.ui.core.selection.Selection
-import androidx.ui.core.selection.SelectionMode
 import androidx.ui.core.selection.SelectionRegistrarAmbient
 import androidx.ui.foundation.Popup
 import androidx.ui.layout.Container
@@ -47,15 +46,12 @@ fun SelectionContainer(
     selection: Selection?,
     /** A function containing customized behaviour when selection changes. */
     onSelectionChange: (Selection?) -> Unit,
-    /** Selection mode. The default mode is Vertical. */
-    mode: SelectionMode = SelectionMode.Vertical,
     children: @Composable() () -> Unit
 ) {
     val registrarImpl = +memo { SelectionRegistrarImpl() }
     val manager = +memo { SelectionManager(registrarImpl) }
     manager.onSelectionChange = onSelectionChange
     manager.selection = selection
-    manager.mode = mode
 
     SelectionRegistrarAmbient.Provider(value = registrarImpl) {
         val content = @Composable() {
