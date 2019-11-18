@@ -16,8 +16,6 @@
 
 package androidx.camera.integration.core;
 
-import static androidx.camera.core.PreviewSurfaceProviders.createSurfaceTextureProvider;
-
 import android.content.pm.PackageInfo;
 import android.content.pm.PackageManager;
 import android.content.pm.PackageManager.NameNotFoundException;
@@ -32,14 +30,13 @@ import android.util.Log;
 import android.util.Size;
 import android.view.Surface;
 import android.view.TextureView;
-import android.view.TextureView.SurfaceTextureListener;
 import android.view.View;
-import android.view.ViewGroup;
 import android.widget.Button;
 import android.widget.ImageButton;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import androidx.annotation.GuardedBy;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.annotation.VisibleForTesting;
@@ -53,12 +50,12 @@ import androidx.camera.core.ImageCapture;
 import androidx.camera.core.ImageCaptureConfig;
 import androidx.camera.core.LensFacing;
 import androidx.camera.core.Preview;
-import androidx.camera.core.PreviewSurfaceProviders;
 import androidx.camera.core.UseCase;
 import androidx.camera.core.VideoCapture;
 import androidx.camera.core.VideoCaptureConfig;
 import androidx.camera.core.impl.utils.executor.CameraXExecutors;
 import androidx.camera.lifecycle.LifecycleCameraProvider;
+import androidx.concurrent.futures.CallbackToFutureAdapter;
 import androidx.core.app.ActivityCompat;
 import androidx.core.content.ContextCompat;
 import androidx.lifecycle.LiveData;
@@ -67,6 +64,8 @@ import androidx.lifecycle.Observer;
 import androidx.test.espresso.IdlingResource;
 import androidx.test.espresso.idling.CountingIdlingResource;
 
+import com.google.common.util.concurrent.ListenableFuture;
+
 import java.io.File;
 import java.math.BigDecimal;
 import java.text.Format;
@@ -74,6 +73,7 @@ import java.text.SimpleDateFormat;
 import java.util.Calendar;
 import java.util.concurrent.Callable;
 import java.util.concurrent.FutureTask;
+import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.concurrent.atomic.AtomicLong;
 import java.util.concurrent.atomic.AtomicReference;
 
@@ -118,30 +118,6 @@ public class CameraXActivity extends AppCompatActivity
     // Synthetic Accessor
     @SuppressWarnings("WeakerAccess")
     TextureView mTextureView;
-    private final SurfaceTextureListener mSurfaceTextureListener = new SurfaceTextureListener() {
-        @Override
-        public void onSurfaceTextureAvailable(SurfaceTexture surface, int width, int height) {
-
-        }
-
-        @Override
-        public void onSurfaceTextureSizeChanged(SurfaceTexture surface, int width, int height) {
-
-        }
-
-        @Override
-        public boolean onSurfaceTextureDestroyed(SurfaceTexture surface) {
-            return false;
-        }
-
-        @Override
-        public void onSurfaceTextureUpdated(SurfaceTexture surface) {
-            // Wait until surface texture receives enough updates.
-            if (!mViewIdlingResource.isIdleNow()) {
-                mViewIdlingResource.decrement();
-            }
-        }
-    };
 
     // Espresso testing variables
     @VisibleForTesting
@@ -189,8 +165,7 @@ public class CameraXActivity extends AppCompatActivity
                         } else {
                             // Add the use case
                             buttonView.setBackgroundColor(Color.LTGRAY);
-
-                            CameraXActivity.this.enablePreview();
+                            enablePreview();
                         }
                     }
                 });
@@ -203,27 +178,16 @@ public class CameraXActivity extends AppCompatActivity
                 .setTargetName("Preview")
                 .build();
         Log.d(TAG, "enablePreview");
-        mPreview.setPreviewSurfaceCallback(createSurfaceTextureProvider(
-                new PreviewSurfaceProviders.SurfaceTextureCallback() {
-                    @Override
-                    public void onSurfaceTextureReady(@NonNull SurfaceTexture surfaceTexture,
-                            @NonNull Size resolution) {
-                        Log.d(TAG, "onSurfaceTextureReady");
-                        // If TextureView was already created, need to re-add it to change the
-                        // SurfaceTexture.
-                        ViewGroup viewGroup = (ViewGroup) mTextureView.getParent();
-                        viewGroup.removeView(mTextureView);
-                        viewGroup.addView(mTextureView);
-                        mTextureView.setSurfaceTexture(surfaceTexture);
-                        transformPreview(resolution);
-                    }
 
-                    @Override
-                    public void onSafeToRelease(@NonNull SurfaceTexture surfaceTexture) {
-                        Log.d(TAG, "onSafeToRelease");
-                        surfaceTexture.release();
-                    }
-                }));
+        mPreview.setPreviewSurfaceProvider(
+                (resolution, surfaceReleaseFuture) -> CallbackToFutureAdapter.getFuture(
+                        completer -> {
+                            ((PreviewSurfaceTextureListener) mTextureView
+                                    .getSurfaceTextureListener())
+                                    .setSurfaceFutureCompleter(completer,
+                                            resolution, surfaceReleaseFuture);
+                            return "PreviewSurfaceCreation";
+                        }));
 
         for (int i = 0; i < FRAMES_UNTIL_VIEW_IS_READY; i++) {
             mViewIdlingResource.increment();
@@ -689,7 +653,7 @@ public class CameraXActivity extends AppCompatActivity
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_camera_xmain);
         mTextureView = findViewById(R.id.textureView);
-        mTextureView.setSurfaceTextureListener(mSurfaceTextureListener);
+        mTextureView.setSurfaceTextureListener(new PreviewSurfaceTextureListener());
 
         StrictMode.VmPolicy policy =
                 new StrictMode.VmPolicy.Builder().detectAll().penaltyLog().build();
@@ -905,5 +869,113 @@ public class CameraXActivity extends AppCompatActivity
 
     VideoCapture getVideoCapture() {
         return mVideoCapture;
+    }
+
+    /**
+     * Manages the life cycle of the {@link TextureView} {@link SurfaceTexture} for {@link Preview}
+     * use cases.
+     *
+     * This class is responsible for resolving two race conditions: the creation
+     * and the destroy of the {@link Surface}/{@link SurfaceTexture} pair.
+     */
+    final class PreviewSurfaceTextureListener implements
+            TextureView.SurfaceTextureListener {
+
+        @GuardedBy("this")
+        CallbackToFutureAdapter.Completer<Surface> mSurfaceCompleter;
+        @GuardedBy("this")
+        Size mResolution;
+        @GuardedBy("this")
+        SurfaceTexture mSurfaceTexture;
+        @GuardedBy("this")
+        ListenableFuture<Void> mSurfaceSafeToReleaseFuture;
+
+        // Whether the handle is still being used by the consumer(TextureView).
+        AtomicBoolean mIsSurfaceTextureUsedByTextureView = new AtomicBoolean(true);
+        // Whether the handle is still being used by the producer(CameraX).
+        AtomicBoolean mIsSurfaceTextureUsedByPreview = new AtomicBoolean(false);
+
+        /**
+         * Resolves the race condition in {@link SurfaceTexture} creation.
+         */
+        private synchronized void tryToSetSurface() {
+            if (mResolution != null && mSurfaceTexture != null && mSurfaceCompleter != null) {
+                Log.d(TAG, "SurfaceTexture set " + hashCode());
+                // Only set Surface when both the consumer and the producer are ready.
+                mSurfaceTexture.setDefaultBufferSize(mResolution.getWidth(),
+                        mResolution.getHeight());
+                final Surface surface = new Surface(mSurfaceTexture);
+                mSurfaceCompleter.set(surface);
+                mIsSurfaceTextureUsedByPreview.set(true);
+
+                mSurfaceSafeToReleaseFuture.addListener(() -> {
+                    Log.d(TAG, "Preview is ready to release Surface." + hashCode());
+                    surface.release();
+                    mIsSurfaceTextureUsedByPreview.set(false);
+                    tryToReleaseSurfaceTexture();
+                }, ContextCompat.getMainExecutor(CameraXActivity.this));
+            }
+        }
+
+        /**
+         * Resolves the race condition in {@link SurfaceTexture} releasing.
+         */
+        private synchronized void tryToReleaseSurfaceTexture() {
+            if (!mIsSurfaceTextureUsedByTextureView.get()
+                    && !mIsSurfaceTextureUsedByPreview.get()
+                    && mSurfaceTexture != null) {
+                Log.d(TAG, "SurfaceTexture released " + hashCode());
+                // Only release when both the consumer and the producer are done.
+                mSurfaceTexture.release();
+                mSurfaceTexture = null;
+            }
+        }
+
+        synchronized void setSurfaceFutureCompleter(
+                CallbackToFutureAdapter.Completer<Surface> surfaceCompleter,
+                Size resolution,
+                ListenableFuture<Void> surfaceSafeToReleaseFuture) {
+            Log.d(TAG, "SurfaceCompleter set. " + hashCode());
+            mSurfaceCompleter = surfaceCompleter;
+            mResolution = resolution;
+            mSurfaceSafeToReleaseFuture = surfaceSafeToReleaseFuture;
+            transformPreview(resolution);
+            tryToSetSurface();
+        }
+
+        @Override
+        public synchronized void onSurfaceTextureAvailable(SurfaceTexture surfaceTexture, int width,
+                int height) {
+            Log.d(TAG, "TextureView is ready to set SurfaceTexture. " + hashCode());
+            mSurfaceTexture = surfaceTexture;
+            mIsSurfaceTextureUsedByTextureView.set(true);
+            tryToSetSurface();
+        }
+
+        @Override
+        public void onSurfaceTextureSizeChanged(SurfaceTexture surfaceTexture, int width,
+                int height) {
+            Log.d(TAG, "onSurfaceTextureSizeChanged " + width + "x" + height);
+            // No-op.
+        }
+
+        @Override
+        public synchronized boolean onSurfaceTextureDestroyed(SurfaceTexture surfaceTexture) {
+            Log.d(TAG, "TextureView is ready to release SurfaceTexture. " + hashCode());
+            mIsSurfaceTextureUsedByTextureView.set(false);
+            ContextCompat.getMainExecutor(CameraXActivity.this).execute(
+                    this::tryToReleaseSurfaceTexture);
+            // Never auto release. Premature releasing causes CaptureSession to misbehave on LEGACY
+            // devices. Wait for CameraX's signal to release it.
+            return false;
+        }
+
+        @Override
+        public void onSurfaceTextureUpdated(SurfaceTexture surface) {
+            // Wait until surface texture receives enough updates. This is for testing.
+            if (!mViewIdlingResource.isIdleNow()) {
+                mViewIdlingResource.decrement();
+            }
+        }
     }
 }

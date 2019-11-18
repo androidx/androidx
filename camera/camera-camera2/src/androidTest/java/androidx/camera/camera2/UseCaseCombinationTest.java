@@ -120,7 +120,7 @@ public final class UseCaseCombinationTest {
         initPreview();
         initImageCapture();
         mInstrumentation.runOnMainSync(() -> {
-            mPreview.setPreviewSurfaceCallback(createSurfaceTextureProvider(
+            mPreview.setPreviewSurfaceProvider(createSurfaceTextureProvider(
                     new PreviewSurfaceProviders.SurfaceTextureCallback() {
                         @Override
                         public void onSurfaceTextureReady(@NonNull SurfaceTexture surfaceTexture,

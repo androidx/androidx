@@ -100,7 +100,7 @@ internal fun cameraXOpenCamera(
 
         // Set preview to observe the surface texture
         activity.runOnUiThread {
-            previewUseCase.previewSurfaceCallback = createSurfaceTextureProvider(
+            previewUseCase.previewSurfaceProvider = createSurfaceTextureProvider(
                 object : PreviewSurfaceProviders.SurfaceTextureCallback {
 
                     override fun onSafeToRelease(surfaceTexture: SurfaceTexture) {

@@ -20,6 +20,7 @@ import android.util.Size;
 import android.view.Surface;
 
 import androidx.annotation.NonNull;
+import androidx.annotation.Nullable;
 import androidx.camera.core.impl.utils.futures.Futures;
 import androidx.concurrent.futures.CallbackToFutureAdapter;
 
@@ -28,30 +29,32 @@ import com.google.common.util.concurrent.ListenableFuture;
 import java.util.concurrent.Executor;
 
 /**
- * A {@link DeferrableSurface} wraps around user provided {@link Preview.PreviewSurfaceCallback}
+ * A {@link DeferrableSurface} wraps around user provided {@link Preview.PreviewSurfaceProvider}
  * and {@link Executor}.
  */
 final class CallbackDeferrableSurface extends DeferrableSurface implements SurfaceHolder {
 
     @NonNull
     private ListenableFuture<Surface> mSurfaceFuture;
-    @NonNull
-    private Preview.PreviewSurfaceCallback mPreviewSurfaceCallback;
+    @Nullable
+    private CallbackToFutureAdapter.Completer<Void> mCancellationCompleter;
     @NonNull
     private Executor mCallbackExecutor;
 
     CallbackDeferrableSurface(@NonNull Size resolution, @NonNull Executor callbackExecutor,
-            @NonNull Preview.PreviewSurfaceCallback previewSurfaceCallback) {
+            @NonNull Preview.PreviewSurfaceProvider previewSurfaceProvider) {
         mCallbackExecutor = callbackExecutor;
-        mPreviewSurfaceCallback = previewSurfaceCallback;
         // Re-wrap user's ListenableFuture with user's executor.
         mSurfaceFuture = CallbackToFutureAdapter.getFuture(
                 completer -> {
-                    callbackExecutor.execute(() -> {
-                        Futures.propagate(previewSurfaceCallback.createSurfaceFuture(resolution),
-                                completer);
-
-                    });
+                    callbackExecutor.execute(() -> Futures.propagate(
+                            previewSurfaceProvider.provideSurface(resolution,
+                                    CallbackToFutureAdapter.getFuture(
+                                            cancellationCompleter -> {
+                                                mCancellationCompleter = cancellationCompleter;
+                                                return "SurfaceCancellationFuture";
+                                            })),
+                            completer));
                     return "GetSurfaceFutureWithExecutor";
                 });
     }
@@ -66,7 +69,10 @@ final class CallbackDeferrableSurface extends DeferrableSurface implements Surfa
      */
     @Override
     public void release() {
-        setOnSurfaceDetachedListener(mCallbackExecutor,
-                () -> mPreviewSurfaceCallback.onSafeToRelease(mSurfaceFuture));
+        setOnSurfaceDetachedListener(mCallbackExecutor, () -> {
+            if (mCancellationCompleter != null) {
+                mCancellationCompleter.set(null);
+            }
+        });
     }
 }

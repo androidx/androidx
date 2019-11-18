@@ -165,7 +165,7 @@ public class CameraExtensionsActivity extends AppCompatActivity
         }
 
         mPreview = builder.build();
-        mPreview.setPreviewSurfaceCallback(createSurfaceTextureProvider(
+        mPreview.setPreviewSurfaceProvider(createSurfaceTextureProvider(
                 new PreviewSurfaceProviders.SurfaceTextureCallback() {
                     @Override
                     public void onSurfaceTextureReady(@NonNull SurfaceTexture surfaceTexture,

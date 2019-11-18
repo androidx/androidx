@@ -46,11 +46,14 @@ final class SurfaceViewImplementation implements PreviewView.Implementation {
     final CompleterWithSizeCallback mCompleterWithSizeCallback =
             new CompleterWithSizeCallback();
 
-    private Preview.PreviewSurfaceCallback mPreviewSurfaceCallback =
-            new Preview.PreviewSurfaceCallback() {
+    private Preview.PreviewSurfaceProvider mPreviewSurfaceProvider =
+            new Preview.PreviewSurfaceProvider() {
                 @NonNull
                 @Override
-                public ListenableFuture<Surface> createSurfaceFuture(@NonNull Size resolution) {
+                public ListenableFuture<Surface> provideSurface(@NonNull Size resolution,
+                        @NonNull ListenableFuture<Void> surfaceReleaseFuture) {
+                    // No-op on surfaceReleaseFuture because the Surface will be destroyed by
+                    // SurfaceView.
                     return CallbackToFutureAdapter.getFuture(
                             completer -> {
                                 // Post to UI thread for thread safety.
@@ -59,11 +62,6 @@ final class SurfaceViewImplementation implements PreviewView.Implementation {
                                                 completer, resolution));
                                 return "SurfaceViewSurfaceCreation";
                             });
-                }
-
-                @Override
-                public void onSafeToRelease(@NonNull ListenableFuture<Surface> surfaceFuture) {
-                    // No-op. The Surface will be released by SurfaceView when it's done.
                 }
             };
 
@@ -86,8 +84,8 @@ final class SurfaceViewImplementation implements PreviewView.Implementation {
      */
     @NonNull
     @Override
-    public Preview.PreviewSurfaceCallback getPreviewSurfaceCallback() {
-        return mPreviewSurfaceCallback;
+    public Preview.PreviewSurfaceProvider getPreviewSurfaceProvider() {
+        return mPreviewSurfaceProvider;
     }
 
     /**
