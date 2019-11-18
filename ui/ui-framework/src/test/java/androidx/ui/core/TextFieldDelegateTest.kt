@@ -64,11 +64,6 @@ class TextFieldDelegateTest {
     private lateinit var layoutCoordinates: LayoutCoordinates
     private lateinit var multiParagraphIntrinsics: MultiParagraphIntrinsics
 
-    private val identityOffsetMap = object : OffsetMap {
-        override fun originalToTransformed(offset: Int): Int = offset
-        override fun transformedToOriginal(offset: Int): Int = offset
-    }
-
     /**
      * Test implementation of offset map which doubles the offset in transformed text.
      */
@@ -100,7 +95,7 @@ class TextFieldDelegateTest {
             value = InputState(text = "Hello, World", selection = selection),
             selectionColor = selectionColor,
             hasFocus = true,
-            offsetMap = identityOffsetMap
+            offsetMap = OffsetMap.identityOffsetMap
         )
 
         verify(mDelegate, times(1)).paintBackground(
@@ -119,7 +114,7 @@ class TextFieldDelegateTest {
             textDelegate = mDelegate,
             value = InputState(text = "Hello, World", selection = cursor),
             hasFocus = true,
-            offsetMap = identityOffsetMap,
+            offsetMap = OffsetMap.identityOffsetMap,
             selectionColor = Color.Blue
         )
 
@@ -137,7 +132,7 @@ class TextFieldDelegateTest {
             textDelegate = mDelegate,
             value = InputState(text = "Hello, World", selection = cursor),
             hasFocus = false,
-            offsetMap = identityOffsetMap,
+            offsetMap = OffsetMap.identityOffsetMap,
             selectionColor = Color.Blue
         )
 
@@ -180,7 +175,7 @@ class TextFieldDelegateTest {
             position,
             mDelegate,
             processor,
-            identityOffsetMap,
+            OffsetMap.identityOffsetMap,
             onValueChange,
             textInputService,
             dummyInputSessionToken,
@@ -209,7 +204,7 @@ class TextFieldDelegateTest {
             position,
             mDelegate,
             processor,
-            identityOffsetMap,
+            OffsetMap.identityOffsetMap,
             onValueChange,
             textInputService,
             dummyInputSessionToken,
@@ -268,7 +263,7 @@ class TextFieldDelegateTest {
             textInputService,
             dummyInputSessionToken,
             true /* hasFocus */,
-            identityOffsetMap
+            OffsetMap.identityOffsetMap
         )
         verify(textInputService).notifyFocusedRect(eq(dummyInputSessionToken), any())
     }
@@ -284,7 +279,7 @@ class TextFieldDelegateTest {
             textInputService,
             dummyInputSessionToken,
             false /* hasFocus */,
-            identityOffsetMap
+            OffsetMap.identityOffsetMap
         )
         verify(textInputService, never()).notifyFocusedRect(any(), any())
     }
@@ -304,7 +299,7 @@ class TextFieldDelegateTest {
             textInputService,
             dummyInputSessionToken,
             true /* hasFocus */,
-            identityOffsetMap
+            OffsetMap.identityOffsetMap
         )
         verify(textInputService).notifyFocusedRect(eq(dummyInputSessionToken), any())
     }

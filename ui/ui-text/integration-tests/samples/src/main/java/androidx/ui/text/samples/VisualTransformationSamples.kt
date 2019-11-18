@@ -19,7 +19,6 @@ package androidx.ui.text.samples
 import androidx.annotation.Sampled
 import androidx.ui.input.OffsetMap
 import androidx.ui.input.TransformedText
-import androidx.ui.input.identityOffsetMap
 import androidx.ui.text.AnnotatedString
 
 @Sampled
@@ -28,10 +27,10 @@ fun passwordFilter(text: AnnotatedString): TransformedText {
         AnnotatedString("*".repeat(text.text.length)),
 
         /**
-         * identityOffsetMap is a predefined [OffsetMap] that can be used for the transformation
-         * that does not change the character count.
+         * [OffsetMap.identityOffsetMap] is a predefined [OffsetMap] that can be used for the
+         * transformation that does not change the character count.
          */
-        identityOffsetMap
+        OffsetMap.identityOffsetMap
     )
 }
 

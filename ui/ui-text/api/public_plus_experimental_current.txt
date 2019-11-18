@@ -103,6 +103,12 @@ package androidx.ui.input {
   public interface OffsetMap {
     method public int originalToTransformed(int offset);
     method public int transformedToOriginal(int offset);
+    field public static final androidx.ui.input.OffsetMap.Companion! Companion;
+  }
+
+  public static final class OffsetMap.Companion {
+    method public androidx.ui.input.OffsetMap getIdentityOffsetMap();
+    property public final androidx.ui.input.OffsetMap identityOffsetMap;
   }
 
   public final class PasswordVisualTransformation implements androidx.ui.input.VisualTransformation {
@@ -176,10 +182,6 @@ package androidx.ui.input {
 
   public interface VisualTransformation {
     method public androidx.ui.input.TransformedText filter(androidx.ui.text.AnnotatedString text);
-  }
-
-  public final class VisualTransformationKt {
-    ctor public VisualTransformationKt();
   }
 
 }
