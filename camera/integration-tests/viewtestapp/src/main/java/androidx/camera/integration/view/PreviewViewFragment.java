@@ -70,7 +70,8 @@ public class PreviewViewFragment extends Fragment {
         Preview preview = new Preview.Builder()
                 .setTargetName("Preview")
                 .build();
-        preview.setPreviewSurfaceCallback(mPreviewView.getPreviewSurfaceCallback());
+
+        preview.setPreviewSurfaceProvider(mPreviewView.getPreviewSurfaceProvider());
 
         CameraSelector cameraSelector =
                 new CameraSelector.Builder().requireLensFacing(LensFacing.BACK).build();

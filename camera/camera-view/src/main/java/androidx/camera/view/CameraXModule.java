@@ -60,11 +60,8 @@ import com.google.common.util.concurrent.ListenableFuture;
 
 import java.io.File;
 import java.util.Arrays;
-import java.util.HashMap;
 import java.util.LinkedHashSet;
-import java.util.Map;
 import java.util.Set;
-import java.util.concurrent.ExecutionException;
 import java.util.concurrent.Executor;
 import java.util.concurrent.atomic.AtomicBoolean;
 
@@ -110,7 +107,7 @@ final class CameraXModule {
                 public void onDestroy(LifecycleOwner owner) {
                     if (owner == mCurrentLifecycle) {
                         clearCurrentLifecycle();
-                        mPreview.setPreviewSurfaceCallback(null);
+                        mPreview.setPreviewSurfaceProvider(null);
                     }
                 }
             };
@@ -211,42 +208,23 @@ final class CameraXModule {
         mPreviewBuilder.setTargetResolution(new Size(getMeasuredWidth(), height));
 
         mPreview = mPreviewBuilder.build();
-        mPreview.setPreviewSurfaceCallback(new Preview.PreviewSurfaceCallback() {
-            // Thread safe because it only accessed on the default executor, which is UI thread.
-            Map<Surface, SurfaceTexture> mSurfaceTextureMap = new HashMap<>();
-
-            @NonNull
-            @Override
-            public ListenableFuture<Surface> createSurfaceFuture(@NonNull Size resolution) {
-                // The PreviewSurfaceCallback#createSurfaceFuture() might come asynchronously.
+        mPreview.setPreviewSurfaceProvider((resolution, safeToCancelFuture) -> {
+                // The PreviewSurfaceProvider#createSurfaceFuture() might come asynchronously.
                 // It cannot guarantee the callback time, so we store the resolution result in
                 // the listenableFuture.
                 mResolutionUpdateCompleter.set(resolution);
-                // Create SurfaceTexture and Surface.
-                SurfaceTexture surfaceTexture = new SurfaceTexture(0);
-                surfaceTexture.setDefaultBufferSize(resolution.getWidth(),
-                        resolution.getHeight());
-                surfaceTexture.detachFromGLContext();
-                CameraXModule.this.setSurfaceTexture(surfaceTexture);
-                Surface surface = new Surface(surfaceTexture);
-                mSurfaceTextureMap.put(surface, surfaceTexture);
-                return Futures.immediateFuture(surface);
-            }
-
-            @Override
-            public void onSafeToRelease(@NonNull ListenableFuture<Surface> surfaceFuture) {
-                try {
-                    Surface surface = surfaceFuture.get();
-                    surface.release();
-                    SurfaceTexture surfaceTexture = mSurfaceTextureMap.get(surface);
-                    if (surfaceTexture != null) {
-                        surfaceTexture.release();
-                        mSurfaceTextureMap.remove(surface);
-                    }
-                } catch (ExecutionException | InterruptedException e) {
-                    Log.e(TAG, "Failed to release Surface", e);
-                }
-            }
+            // Create SurfaceTexture and Surface.
+            SurfaceTexture surfaceTexture = new SurfaceTexture(0);
+            surfaceTexture.setDefaultBufferSize(resolution.getWidth(),
+                    resolution.getHeight());
+            surfaceTexture.detachFromGLContext();
+            CameraXModule.this.setSurfaceTexture(surfaceTexture);
+            Surface surface = new Surface(surfaceTexture);
+            safeToCancelFuture.addListener(() -> {
+                surface.release();
+                surfaceTexture.release();
+            }, CameraXExecutors.directExecutor());
+            return Futures.immediateFuture(surface);
         });
 
         CameraSelector cameraSelector =

@@ -17,22 +17,16 @@
 package androidx.camera.core;
 
 import android.graphics.SurfaceTexture;
-import android.util.Log;
 import android.util.Size;
 import android.view.Surface;
 import android.view.TextureView;
 
 import androidx.annotation.NonNull;
+import androidx.camera.core.impl.utils.executor.CameraXExecutors;
 import androidx.camera.core.impl.utils.futures.Futures;
 
-import com.google.common.util.concurrent.ListenableFuture;
-
-import java.util.HashMap;
-import java.util.Map;
-import java.util.concurrent.ExecutionException;
-
 /**
- * This class creates implementations of PreviewSurfaceCallback that provide Surfaces that have been
+ * This class creates implementations of PreviewSurfaceProvider that provide Surfaces that have been
  * pre-configured for specific work flows.
  */
 public final class PreviewSurfaceProviders {
@@ -43,23 +37,21 @@ public final class PreviewSurfaceProviders {
     }
 
     /**
-     * Creates a {@link Preview.PreviewSurfaceCallback} that is backed by a {@link SurfaceTexture}.
+     * Creates a {@link Preview.PreviewSurfaceProvider} that is backed by a {@link SurfaceTexture}.
      *
-     * <p>This is a convenience method for creating a {@link Preview.PreviewSurfaceCallback}
+     * <p>This is a convenience method for creating a {@link Preview.PreviewSurfaceProvider}
      * whose {@link Surface} is backed by a {@link SurfaceTexture}. The returned
-     * {@link Preview.PreviewSurfaceCallback} is responsible for creating the {@link SurfaceTexture}
-     * and propagating {@link Preview.PreviewSurfaceCallback#onSafeToRelease(ListenableFuture)}
-     * back to the implementer. The {@link SurfaceTexture} is usually used with a
-     * {@link TextureView}.
+     * {@link Preview.PreviewSurfaceProvider} is responsible for creating the
+     * {@link SurfaceTexture}. The {@link SurfaceTexture} may not be safe to use with
+     * {@link TextureView}
      * Example:
      *
      * <pre><code>
-     * preview.setPreviewSurfaceCallback(createPreviewSurfaceCallback(
+     * preview.setPreviewSurfaceProvider(createPreviewSurfaceProvider(
      *         new PreviewSurfaceProviders.SurfaceTextureCallback() {
      *             &#64;Override
      *             public void onSurfaceTextureReady(@NonNull SurfaceTexture surfaceTexture) {
-     *                 // Maybe remove and re-add the TextureView to its parent.
-     *                 textureView.setSurfaceTexture(surfaceTexture);
+     *                 // Use the SurfaceTexture
      *             }
      *
      *             &#64;Override
@@ -69,49 +61,26 @@ public final class PreviewSurfaceProviders {
      *         }));
      * </code></pre>
      *
-     * <p> Note that the TextureView needs to be removed and re-added from the parent view for the
-     * SurfaceTexture to be attached, because TextureView's existing SurfaceTexture is only
-     * correctly detached once the parent TextureView is removed from the view hierarchy.
-     *
      * @param surfaceTextureCallback callback called when the SurfaceTexture is ready to be
      *                               set/released.
-     * @return a {@link Preview.PreviewSurfaceCallback} to be used with
-     * {@link Preview#setPreviewSurfaceCallback(Preview.PreviewSurfaceCallback)}.
+     * @return a {@link Preview.PreviewSurfaceProvider} to be used with
+     * {@link Preview#setPreviewSurfaceProvider(Preview.PreviewSurfaceProvider)}.
      */
     @NonNull
-    public static Preview.PreviewSurfaceCallback createSurfaceTextureProvider(
+    public static Preview.PreviewSurfaceProvider createSurfaceTextureProvider(
             @NonNull SurfaceTextureCallback surfaceTextureCallback) {
-        return new Preview.PreviewSurfaceCallback() {
-
-            Map<Surface, SurfaceTexture> mSurfaceTextureMap = new HashMap<>();
-
-            @NonNull
-            @Override
-            public ListenableFuture<Surface> createSurfaceFuture(@NonNull Size resolution) {
-                SurfaceTexture surfaceTexture = new SurfaceTexture(0);
-                surfaceTexture.setDefaultBufferSize(resolution.getWidth(),
-                        resolution.getHeight());
-                surfaceTexture.detachFromGLContext();
-                surfaceTextureCallback.onSurfaceTextureReady(surfaceTexture, resolution);
-                Surface surface = new Surface(surfaceTexture);
-                mSurfaceTextureMap.put(surface, surfaceTexture);
-                return Futures.immediateFuture(surface);
-            }
-
-            @Override
-            public void onSafeToRelease(@NonNull ListenableFuture<Surface> surfaceFuture) {
-                try {
-                    Surface surface = surfaceFuture.get();
-                    SurfaceTexture surfaceTexture = mSurfaceTextureMap.get(surface);
-                    if (surfaceTexture != null) {
-                        surfaceTextureCallback.onSafeToRelease(surfaceTexture);
-                        mSurfaceTextureMap.remove(surface);
-                    }
-                    surface.release();
-                } catch (ExecutionException | InterruptedException e) {
-                    Log.w(TAG, "Failed to release the Surface.", e);
-                }
-            }
+        return (resolution, safeToCancelFuture) -> {
+            SurfaceTexture surfaceTexture = new SurfaceTexture(0);
+            surfaceTexture.setDefaultBufferSize(resolution.getWidth(),
+                    resolution.getHeight());
+            surfaceTexture.detachFromGLContext();
+            surfaceTextureCallback.onSurfaceTextureReady(surfaceTexture, resolution);
+            Surface surface = new Surface(surfaceTexture);
+            safeToCancelFuture.addListener(() -> {
+                surface.release();
+                surfaceTextureCallback.onSafeToRelease(surfaceTexture);
+            }, CameraXExecutors.directExecutor());
+            return Futures.immediateFuture(surface);
         };
     }
 

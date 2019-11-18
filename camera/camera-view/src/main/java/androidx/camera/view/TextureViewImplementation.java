@@ -54,7 +54,7 @@ public class TextureViewImplementation implements PreviewView.Implementation {
 
     @NonNull
     @Override
-    public Preview.PreviewSurfaceCallback getPreviewSurfaceCallback() {
+    public Preview.PreviewSurfaceProvider getPreviewSurfaceProvider() {
         return createSurfaceTextureProvider(new PreviewSurfaceProviders.SurfaceTextureCallback() {
             @Override
             public void onSurfaceTextureReady(@NonNull SurfaceTexture surfaceTexture,

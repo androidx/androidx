@@ -116,12 +116,12 @@ public class PreviewView extends FrameLayout {
     }
 
     /**
-     * Gets the {@link Preview.PreviewSurfaceCallback} to be used with
-     * {@link Preview#setPreviewSurfaceCallback(Executor, Preview.PreviewSurfaceCallback)}.
+     * Gets the {@link Preview.PreviewSurfaceProvider} to be used with
+     * {@link Preview#setPreviewSurfaceProvider(Executor, Preview.PreviewSurfaceProvider)}.
      */
     @NonNull
-    public Preview.PreviewSurfaceCallback getPreviewSurfaceCallback() {
-        return mImplementation.getPreviewSurfaceCallback();
+    public Preview.PreviewSurfaceProvider getPreviewSurfaceProvider() {
+        return mImplementation.getPreviewSurfaceProvider();
     }
 
     /**
@@ -137,10 +137,10 @@ public class PreviewView extends FrameLayout {
         void init(@NonNull FrameLayout parent);
 
         /**
-         * Gets the {@link Preview.PreviewSurfaceCallback} to be used with {@link Preview}.
+         * Gets the {@link Preview.PreviewSurfaceProvider} to be used with {@link Preview}.
          */
         @NonNull
-        Preview.PreviewSurfaceCallback getPreviewSurfaceCallback();
+        Preview.PreviewSurfaceProvider getPreviewSurfaceProvider();
     }
 
     /**
