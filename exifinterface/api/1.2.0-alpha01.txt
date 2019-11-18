@@ -6,9 +6,9 @@ package androidx.exifinterface.media {
     ctor public ExifInterface(String) throws java.io.IOException;
     ctor public ExifInterface(java.io.FileDescriptor) throws java.io.IOException;
     ctor public ExifInterface(java.io.InputStream) throws java.io.IOException;
+    ctor public ExifInterface(java.io.InputStream, int) throws java.io.IOException;
     method public void flipHorizontally();
     method public void flipVertically();
-    method public static androidx.exifinterface.media.ExifInterface fromStandalone(java.io.InputStream) throws java.io.IOException;
     method public double getAltitude(double);
     method public String? getAttribute(String);
     method public byte[]? getAttributeBytes(String);
@@ -175,6 +175,8 @@ package androidx.exifinterface.media {
     field public static final short SHARPNESS_HARD = 2; // 0x2
     field public static final short SHARPNESS_NORMAL = 0; // 0x0
     field public static final short SHARPNESS_SOFT = 1; // 0x1
+    field public static final int STREAM_TYPE_EXIF_DATA_ONLY = 1; // 0x1
+    field public static final int STREAM_TYPE_FULL_IMAGE_DATA = 0; // 0x0
     field public static final short SUBJECT_DISTANCE_RANGE_CLOSE_VIEW = 2; // 0x2
     field public static final short SUBJECT_DISTANCE_RANGE_DISTANT_VIEW = 3; // 0x3
     field public static final short SUBJECT_DISTANCE_RANGE_MACRO = 1; // 0x1
