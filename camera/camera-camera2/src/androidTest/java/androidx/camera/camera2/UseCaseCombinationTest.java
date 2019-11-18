@@ -33,7 +33,6 @@ import androidx.camera.core.AppConfig;
 import androidx.camera.core.CameraSelector;
 import androidx.camera.core.CameraX;
 import androidx.camera.core.ImageAnalysis;
-import androidx.camera.core.ImageAnalysisConfig;
 import androidx.camera.core.ImageCapture;
 import androidx.camera.core.LensFacing;
 import androidx.camera.core.Preview;
@@ -210,7 +209,7 @@ public final class UseCaseCombinationTest {
             mAnalysisResult.postValue(image.getImageInfo().getTimestamp());
             image.close();
         };
-        mImageAnalysis = new ImageAnalysisConfig.Builder()
+        mImageAnalysis = new ImageAnalysis.Builder()
                 .setTargetName("ImageAnalysis")
                 .build();
     }

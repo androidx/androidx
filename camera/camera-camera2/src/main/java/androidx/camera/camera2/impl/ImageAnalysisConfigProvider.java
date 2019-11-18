@@ -54,9 +54,8 @@ public final class ImageAnalysisConfigProvider implements ConfigProvider<ImageAn
 
     @Override
     public ImageAnalysisConfig getConfig(LensFacing lensFacing) {
-        ImageAnalysisConfig.Builder builder =
-                ImageAnalysisConfig.Builder.fromConfig(
-                        ImageAnalysis.DEFAULT_CONFIG.getConfig(lensFacing));
+        ImageAnalysis.Builder builder = ImageAnalysis.Builder.fromConfig(
+                ImageAnalysis.DEFAULT_CONFIG.getConfig(lensFacing));
 
         // SessionConfig containing all intrinsic properties needed for ImageAnalysis
         SessionConfig.Builder sessionBuilder = new SessionConfig.Builder();

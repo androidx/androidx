@@ -29,7 +29,6 @@ import androidx.camera.core.AspectRatio;
 import androidx.camera.core.CameraSelector;
 import androidx.camera.core.CameraX;
 import androidx.camera.core.ImageAnalysis;
-import androidx.camera.core.ImageAnalysisConfig;
 import androidx.camera.core.LensFacing;
 import androidx.camera.core.MeteringPoint;
 import androidx.camera.core.MeteringPointFactory;
@@ -115,7 +114,7 @@ public final class SurfaceOrientedMeteringPointFactoryTest {
     public void createPointWithFoVUseCase_success() {
         assumeTrue(CameraUtil.hasCameraWithLensFacing(LensFacing.BACK));
 
-        ImageAnalysis imageAnalysis = new ImageAnalysisConfig.Builder()
+        ImageAnalysis imageAnalysis = new ImageAnalysis.Builder()
                 .setTargetAspectRatio(AspectRatio.RATIO_4_3)
                 .setTargetName("ImageAnalysis")
                 .build();
@@ -138,7 +137,7 @@ public final class SurfaceOrientedMeteringPointFactoryTest {
     public void createPointWithFoVUseCase_FailedNotBound() {
         assumeTrue(CameraUtil.hasCameraWithLensFacing(LensFacing.BACK));
 
-        ImageAnalysis imageAnalysis = new ImageAnalysisConfig.Builder()
+        ImageAnalysis imageAnalysis = new ImageAnalysis.Builder()
                 .setTargetAspectRatio(AspectRatio.RATIO_4_3)
                 .setTargetName("ImageAnalysis")
                 .build();
