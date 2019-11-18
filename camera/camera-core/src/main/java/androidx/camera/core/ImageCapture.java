@@ -535,11 +535,11 @@ public class ImageCapture extends UseCase {
                     }
 
                     @Override
-                    public void onError(ImageSaver.SaveError error, String message,
+                    public void onError(@ImageSaver.SaveError int error, String message,
                             @Nullable Throwable cause) {
                         @ImageCaptureError int imageCaptureError = ImageCaptureError.UNKNOWN_ERROR;
                         switch (error) {
-                            case FILE_IO_FAILED:
+                            case ImageSaver.SaveError.FILE_IO_FAILED:
                                 imageCaptureError = ImageCaptureError.FILE_IO_ERROR;
                                 break;
                             default:
