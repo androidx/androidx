@@ -54,11 +54,11 @@ private val color = ColorPropKey()
 private val definition = transitionDefinition {
     state(ComponentState.Released) {
         this[scale] = 1f
-        this[color] = Color(alpha = 255, red = 0, green = 200, blue = 0)
+        this[color] = Color(red = 0, green = 200, blue = 0, alpha = 255)
     }
     state(ComponentState.Pressed) {
         this[scale] = 3f
-        this[color] = Color(alpha = 255, red = 0, green = 100, blue = 0)
+        this[color] = Color(red = 0, green = 100, blue = 0, alpha = 255)
     }
 }
 
