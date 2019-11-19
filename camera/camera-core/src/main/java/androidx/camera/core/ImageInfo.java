@@ -29,6 +29,13 @@ public interface ImageInfo {
     @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
     @Nullable
     Object getTag();
-    /** Returns the timestamp of the metadata. */
+
+    /** Returns the timestamp of the metadata.
+     *
+     * Details on the timestamp depend on the source providing the image, and the method providing
+     * the image contains more documentation.
+     *
+     * @return the timestamp of the image
+     */
     long getTimestamp();
 }

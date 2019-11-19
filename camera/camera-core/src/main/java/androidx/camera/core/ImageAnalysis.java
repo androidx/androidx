@@ -446,6 +446,15 @@ public final class ImageAnalysis extends UseCase {
          * orientation, rotationDegrees would be the rotation which would align the buffer
          * data ordering to natural orientation.
          *
+         * <p>Timestamps are in nanoseconds and monotonic and can be compared to timestamps from
+         * images produced from UseCases bound to the same camera instance.  More detail is
+         * available depending on the implementation.  For example with CameraX using a
+         * {@link androidx.camera.camera2} implementation additional detail can be found in
+         * {@link android.hardware.camera2.CameraDevice} documentation.
+         *
+         * @see android.media.Image#getTimestamp()
+         * @see android.hardware.camera2.CaptureResult#SENSOR_TIMESTAMP
+         *
          * @param image           The image to analyze
          * @param rotationDegrees The rotation which if applied to the image would make it match
          *                        the current target rotation of {@link ImageAnalysis}, expressed in
