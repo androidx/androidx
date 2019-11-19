@@ -138,24 +138,24 @@ class TextLayout constructor(
 
         val boringMetrics = layoutIntrinsics.boringMetrics
 
+        val widthInt = ceil(width).toInt()
         layout = if (boringMetrics != null && layoutIntrinsics.maxIntrinsicWidth <= width &&
             !hasBaselineShiftSpans) {
-            BoringLayoutCompat.Builder(
-                charSequence,
-                textPaint,
-                ceil(width).toInt(),
-                boringMetrics
+            BoringLayoutFactory.create(
+                text = charSequence,
+                paint = textPaint,
+                width = widthInt,
+                metrics = boringMetrics,
+                alignment = frameworkAlignment,
+                includePadding = includePadding,
+                ellipsize = ellipsize,
+                ellipsizedWidth = widthInt
             )
-                .setAlignment(frameworkAlignment)
-                .setIncludePad(includePadding)
-                .setEllipsize(ellipsize)
-                .setEllipsizedWidth(ceil(width).toInt())
-                .build()
         } else {
             StaticLayoutCompat.Builder(
                 charSequence,
                 textPaint,
-                ceil(width).toInt()
+                widthInt
             )
                 .setAlignment(frameworkAlignment)
                 .setTextDirection(frameworkTextDir)
@@ -163,7 +163,7 @@ class TextLayout constructor(
                 .setLineSpacingMultiplier(lineSpacingMultiplier)
                 .setIncludePad(includePadding)
                 .setEllipsize(ellipsize)
-                .setEllipsizedWidth(ceil(width).toInt())
+                .setEllipsizedWidth(widthInt)
                 .setMaxLines(maxLines)
                 .setBreakStrategy(breakStrategy)
                 .setHyphenationFrequency(hyphenationFrequency)
