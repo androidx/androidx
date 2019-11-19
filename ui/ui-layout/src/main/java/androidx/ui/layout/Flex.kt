@@ -175,12 +175,17 @@ sealed class FlexScope {
      * [Inflexible] ones have been measured, in order to divide the unclaimed space between
      * them.
      */
-    fun Flexible(flex: Float, tight: Boolean = true): LayoutModifier =
-        if (tight) {
+    fun Flexible(
+        @FloatRange(from = 0.0, fromInclusive = false) flex: Float,
+        tight: Boolean = true
+    ): LayoutModifier {
+        require(flex > 0.0) { "Flex value should be greater than zero." }
+        return if (tight) {
             FlexModifier(FlexChildProperties(flex, FlexFit.Tight))
         } else {
             FlexModifier(FlexChildProperties(flex, FlexFit.Loose))
         }
+    }
 
     /**
      * A layout modifier within a [Column] or [Row] that makes the target component inflexible.
