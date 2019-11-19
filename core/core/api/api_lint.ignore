@@ -591,16 +591,12 @@ MissingNullability: androidx.core.app.NotificationCompat.CarExtender#extend(andr
     Missing nullability on parameter `builder` in method `extend`
 MissingNullability: androidx.core.app.NotificationCompat.CarExtender#getLargeIcon():
     Missing nullability on method `getLargeIcon` return
-MissingNullability: androidx.core.app.NotificationCompat.CarExtender#getUnreadConversation():
-    Missing nullability on method `getUnreadConversation` return
 MissingNullability: androidx.core.app.NotificationCompat.CarExtender#setColor(int):
     Missing nullability on method `setColor` return
 MissingNullability: androidx.core.app.NotificationCompat.CarExtender#setLargeIcon(android.graphics.Bitmap):
     Missing nullability on method `setLargeIcon` return
 MissingNullability: androidx.core.app.NotificationCompat.CarExtender#setLargeIcon(android.graphics.Bitmap) parameter #0:
     Missing nullability on parameter `largeIcon` in method `setLargeIcon`
-MissingNullability: androidx.core.app.NotificationCompat.CarExtender#setUnreadConversation(androidx.core.app.NotificationCompat.CarExtender.UnreadConversation):
-    Missing nullability on method `setUnreadConversation` return
 MissingNullability: androidx.core.app.NotificationCompat.CarExtender#setUnreadConversation(androidx.core.app.NotificationCompat.CarExtender.UnreadConversation) parameter #0:
     Missing nullability on parameter `unreadConversation` in method `setUnreadConversation`
 MissingNullability: androidx.core.app.NotificationCompat.CarExtender.UnreadConversation#getMessages():
@@ -919,10 +915,6 @@ MissingNullability: androidx.core.graphics.drawable.IconCompat#createWithResourc
     Missing nullability on method `createWithResource` return
 MissingNullability: androidx.core.graphics.drawable.IconCompat#createWithResource(android.content.Context, int) parameter #0:
     Missing nullability on parameter `context` in method `createWithResource`
-MissingNullability: androidx.core.graphics.drawable.IconCompat#loadDrawable(android.content.Context):
-    Missing nullability on method `loadDrawable` return
-MissingNullability: androidx.core.graphics.drawable.IconCompat#loadDrawable(android.content.Context) parameter #0:
-    Missing nullability on parameter `context` in method `loadDrawable`
 MissingNullability: androidx.core.graphics.drawable.IconCompat#setTint(int):
     Missing nullability on method `setTint` return
 MissingNullability: androidx.core.graphics.drawable.IconCompat#setTintList(android.content.res.ColorStateList):
@@ -935,8 +927,6 @@ MissingNullability: androidx.core.graphics.drawable.IconCompat#setTintMode(andro
     Missing nullability on parameter `mode` in method `setTintMode`
 MissingNullability: androidx.core.graphics.drawable.IconCompat#toBundle():
     Missing nullability on method `toBundle` return
-MissingNullability: androidx.core.graphics.drawable.IconCompat#toIcon():
-    Missing nullability on method `toIcon` return
 MissingNullability: androidx.core.graphics.drawable.RoundedBitmapDrawable#getColorFilter():
     Missing nullability on method `getColorFilter` return
 MissingNullability: androidx.core.graphics.drawable.RoundedBitmapDrawable#onBoundsChange(android.graphics.Rect) parameter #0:
@@ -957,8 +947,6 @@ MissingNullability: androidx.core.net.TrafficStatsCompat#tagSocket(java.net.Sock
     Missing nullability on parameter `socket` in method `tagSocket`
 MissingNullability: androidx.core.net.TrafficStatsCompat#untagSocket(java.net.Socket) parameter #0:
     Missing nullability on parameter `socket` in method `untagSocket`
-MissingNullability: androidx.core.os.EnvironmentCompat#getStorageState(java.io.File):
-    Missing nullability on method `getStorageState` return
 MissingNullability: androidx.core.os.LocaleListCompat#equals(Object) parameter #0:
     Missing nullability on parameter `other` in method `equals`
 MissingNullability: androidx.core.os.LocaleListCompat#get(int):

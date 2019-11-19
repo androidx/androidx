@@ -13,54 +13,10 @@ KotlinOperator: androidx.recyclerview.selection.Selection#contains(K):
     Method can be invoked as a "in" operator from Kotlin: `contains` (this is usually desirable; just make sure it makes sense for this type of object)
 
 
-MissingNullability: androidx.recyclerview.selection.BandPredicate#canInitiate(android.view.MotionEvent) parameter #0:
-    Missing nullability on parameter `e` in method `canInitiate`
 MissingNullability: androidx.recyclerview.selection.Selection#equals(Object) parameter #0:
     Missing nullability on parameter `other` in method `equals`
-MissingNullability: androidx.recyclerview.selection.Selection#iterator():
-    Missing nullability on method `iterator` return
 MissingNullability: androidx.recyclerview.selection.Selection#toString():
     Missing nullability on method `toString` return
-MissingNullability: androidx.recyclerview.selection.SelectionPredicates#createSelectAnything():
-    Missing nullability on method `createSelectAnything` return
-MissingNullability: androidx.recyclerview.selection.SelectionPredicates#createSelectSingleAnything():
-    Missing nullability on method `createSelectSingleAnything` return
-MissingNullability: androidx.recyclerview.selection.SelectionTracker#getSelection():
-    Missing nullability on method `getSelection` return
-MissingNullability: androidx.recyclerview.selection.SelectionTracker.Builder#build():
-    Missing nullability on method `build` return
-MissingNullability: androidx.recyclerview.selection.SelectionTracker.Builder#withBandOverlay(int):
-    Missing nullability on method `withBandOverlay` return
-MissingNullability: androidx.recyclerview.selection.SelectionTracker.Builder#withBandPredicate(androidx.recyclerview.selection.BandPredicate):
-    Missing nullability on method `withBandPredicate` return
-MissingNullability: androidx.recyclerview.selection.SelectionTracker.Builder#withFocusDelegate(androidx.recyclerview.selection.FocusDelegate<K>):
-    Missing nullability on method `withFocusDelegate` return
-MissingNullability: androidx.recyclerview.selection.SelectionTracker.Builder#withGestureTooltypes(int...):
-    Missing nullability on method `withGestureTooltypes` return
-MissingNullability: androidx.recyclerview.selection.SelectionTracker.Builder#withGestureTooltypes(int...) parameter #0:
-    Missing nullability on parameter `toolTypes` in method `withGestureTooltypes`
-MissingNullability: androidx.recyclerview.selection.SelectionTracker.Builder#withOnContextClickListener(androidx.recyclerview.selection.OnContextClickListener):
-    Missing nullability on method `withOnContextClickListener` return
-MissingNullability: androidx.recyclerview.selection.SelectionTracker.Builder#withOnDragInitiatedListener(androidx.recyclerview.selection.OnDragInitiatedListener):
-    Missing nullability on method `withOnDragInitiatedListener` return
-MissingNullability: androidx.recyclerview.selection.SelectionTracker.Builder#withOnItemActivatedListener(androidx.recyclerview.selection.OnItemActivatedListener<K>):
-    Missing nullability on method `withOnItemActivatedListener` return
-MissingNullability: androidx.recyclerview.selection.SelectionTracker.Builder#withOperationMonitor(androidx.recyclerview.selection.OperationMonitor):
-    Missing nullability on method `withOperationMonitor` return
-MissingNullability: androidx.recyclerview.selection.SelectionTracker.Builder#withPointerTooltypes(int...):
-    Missing nullability on method `withPointerTooltypes` return
-MissingNullability: androidx.recyclerview.selection.SelectionTracker.Builder#withPointerTooltypes(int...) parameter #0:
-    Missing nullability on parameter `toolTypes` in method `withPointerTooltypes`
-MissingNullability: androidx.recyclerview.selection.SelectionTracker.Builder#withSelectionPredicate(androidx.recyclerview.selection.SelectionTracker.SelectionPredicate<K>):
-    Missing nullability on method `withSelectionPredicate` return
-MissingNullability: androidx.recyclerview.selection.StorageStrategy#createLongStorage():
-    Missing nullability on method `createLongStorage` return
-MissingNullability: androidx.recyclerview.selection.StorageStrategy#createParcelableStorage(Class<K>):
-    Missing nullability on method `createParcelableStorage` return
-MissingNullability: androidx.recyclerview.selection.StorageStrategy#createParcelableStorage(Class<K>) parameter #0:
-    Missing nullability on parameter `type` in method `createParcelableStorage`
-MissingNullability: androidx.recyclerview.selection.StorageStrategy#createStringStorage():
-    Missing nullability on method `createStringStorage` return
 
 
 VisiblySynchronized: androidx.recyclerview.selection.OperationMonitor#isStarted():

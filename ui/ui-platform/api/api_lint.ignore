@@ -9,5 +9,3 @@ EndsWithImpl: androidx.ui.core.SemanticsTreeNodeImpl:
 
 MissingNullability: androidx.ui.core.semantics.SemanticsNode#Companion:
     Missing nullability on field `Companion` in class `class androidx.ui.core.semantics.SemanticsNode`
-MissingNullability: androidx.ui.internal.Unicode#INSTANCE:
-    Missing nullability on field `INSTANCE` in class `class androidx.ui.internal.Unicode`
