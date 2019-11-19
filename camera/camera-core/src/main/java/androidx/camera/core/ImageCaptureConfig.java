@@ -48,9 +48,9 @@ public final class ImageCaptureConfig
     // Option Declarations:
     // *********************************************************************************************
 
-    static final Option<CaptureMode> OPTION_IMAGE_CAPTURE_MODE =
+    static final Option<Integer> OPTION_IMAGE_CAPTURE_MODE =
             Option.create(
-                    "camerax.core.imageCapture.captureMode", CaptureMode.class);
+                    "camerax.core.imageCapture.captureMode", int.class);
     static final Option<Integer> OPTION_FLASH_MODE =
             Option.create("camerax.core.imageCapture.flashMode", FlashMode.class);
     static final Option<CaptureBundle> OPTION_CAPTURE_BUNDLE =
@@ -72,16 +72,13 @@ public final class ImageCaptureConfig
     }
 
     /**
-     * Returns the {@link CaptureMode}.
+     * Returns whether a {@link CaptureMode} option has been set in this configuration.
      *
-     * @param valueIfMissing The value to return if this configuration option has not been set.
-     * @return The stored value or <code>valueIfMissing</code> if the value does not exist in this
-     * configuration.
+     * @return true if a {@link CaptureMode} option has been set in this configuration, false
+     * otherwise.
      */
-    @Nullable
-    public CaptureMode getCaptureMode(
-            @Nullable CaptureMode valueIfMissing) {
-        return retrieveOption(OPTION_IMAGE_CAPTURE_MODE, valueIfMissing);
+    public boolean hasCaptureMode() {
+        return containsOption(OPTION_IMAGE_CAPTURE_MODE);
     }
 
     /**
@@ -90,8 +87,8 @@ public final class ImageCaptureConfig
      * @return The stored value, if it exists in this configuration.
      * @throws IllegalArgumentException if the option does not exist in this configuration.
      */
-    @NonNull
-    public CaptureMode getCaptureMode() {
+    @CaptureMode
+    public int getCaptureMode() {
         return retrieveOption(OPTION_IMAGE_CAPTURE_MODE);
     }
 
