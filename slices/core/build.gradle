@@ -28,7 +28,7 @@ plugins {
 dependencies {
     implementation "androidx.annotation:annotation:1.1.0"
     implementation "androidx.appcompat:appcompat:1.1.0"
-    api "androidx.collection:collection:1.1.0"
+    implementation "androidx.collection:collection:1.1.0"
 
     androidTestImplementation(ANDROIDX_TEST_EXT_JUNIT)
     androidTestImplementation(ANDROIDX_TEST_CORE)
