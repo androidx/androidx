@@ -116,7 +116,7 @@ fun Color.over(that: Color): Color {
     val a1 = alpha
     val a2 = that.alpha
     val r = mergeColor(red, a1, that.red, a2)
-    val g = mergeColor(green, a1, that.red, a2)
+    val g = mergeColor(green, a1, that.green, a2)
     val b = mergeColor(blue, a1, that.blue, a2)
     val a = a1 + (a2 * (1 - a1))
 

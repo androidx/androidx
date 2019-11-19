@@ -39,9 +39,9 @@ interface DragObserver {
     /**
      * Override to be notified when a drag has started.
      *
-     * This will be called as soon as the DragGestureDetector is allowed to start (canStartDragging is null or
-     * returns true) and the average distance the pointers have moved
-     * are not 0 on both the x and y axes.
+     * This will be called as soon as the DragGestureDetector is allowed to start (canStartDragging
+     * is null or returns true) and the average distance the pointers have moved are not 0 on
+     * both the x and y axes.
      *
      * @param downPosition The pointer input position of the down event.
      *
