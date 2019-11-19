@@ -35,7 +35,7 @@ internal class SelectionRegistrarImpl : SelectionRegistrar {
     /**
      * Allow a Text composable to "register" itself with the manager
      */
-    override fun subscribe(handler: TextSelectionHandler): Any {
+    override fun subscribe(handler: TextSelectionHandler): TextSelectionHandler {
         _handlers.add(handler)
         return handler
     }
@@ -43,7 +43,7 @@ internal class SelectionRegistrarImpl : SelectionRegistrar {
     /**
      * Allow a Text composable to "unregister" itself with the manager
      */
-    override fun unsubscribe(key: Any) {
-        _handlers.remove(key as TextSelectionHandler)
+    override fun unsubscribe(key: TextSelectionHandler) {
+        _handlers.remove(key)
     }
 }

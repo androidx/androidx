@@ -23,10 +23,9 @@ import androidx.compose.Ambient
  *  implementing the interface.
  */
 interface SelectionRegistrar {
-    // TODO(qqd): Replace Any with a type in future.
-    fun subscribe(handler: TextSelectionHandler): Any
+    fun subscribe(handler: TextSelectionHandler): TextSelectionHandler
 
-    fun unsubscribe(key: Any)
+    fun unsubscribe(key: TextSelectionHandler)
 }
 
 /**
