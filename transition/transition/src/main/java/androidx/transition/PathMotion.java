@@ -20,6 +20,8 @@ import android.content.Context;
 import android.graphics.Path;
 import android.util.AttributeSet;
 
+import androidx.annotation.NonNull;
+
 /**
  * This base class can be extended to provide motion along a Path to Transitions.
  *
@@ -43,7 +45,7 @@ public abstract class PathMotion {
     public PathMotion() {
     }
 
-    public PathMotion(Context context, AttributeSet attrs) {
+    public PathMotion(@NonNull Context context, @NonNull AttributeSet attrs) {
     }
 
     /**
@@ -58,5 +60,6 @@ public abstract class PathMotion {
      * must start at point <code>(startX, startY)</code>, typically using
      * {@link android.graphics.Path#moveTo(float, float)} and end at <code>(endX, endY)</code>.
      */
+    @NonNull
     public abstract Path getPath(float startX, float startY, float endX, float endY);
 }
