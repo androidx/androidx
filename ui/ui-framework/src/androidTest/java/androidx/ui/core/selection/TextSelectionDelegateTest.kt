@@ -691,11 +691,11 @@ class TextSelectionDelegateTest {
             assertThat(textSelectionInfo?.end).isNotNull()
             textSelectionInfo?.end?.let {
                 assertThat(it.coordinates).isEqualTo(
-                    PxPosition((fontSizeInPx * (text.length - 1)).px, fontSizeInPx.px)
+                    PxPosition((fontSizeInPx * (text.length)).px, fontSizeInPx.px)
                 )
                 assertThat(it.direction).isEqualTo(TextDirection.Ltr)
                 assertThat(it.layoutCoordinates).isNull()
-                assertThat(it.offset).isEqualTo(text.length - 1)
+                assertThat(it.offset).isEqualTo(text.length)
             }
         }
     }
@@ -730,11 +730,11 @@ class TextSelectionDelegateTest {
             assertThat(textSelectionInfo?.start).isNotNull()
             textSelectionInfo?.start?.let {
                 assertThat(it.coordinates).isEqualTo(
-                    PxPosition(((text.length - 1) * fontSizeInPx).px, fontSizeInPx.px)
+                    PxPosition(((text.length) * fontSizeInPx).px, fontSizeInPx.px)
                 )
                 assertThat(it.direction).isEqualTo(TextDirection.Ltr)
                 assertThat(it.layoutCoordinates).isNull()
-                assertThat(it.offset).isEqualTo(text.length - 1)
+                assertThat(it.offset).isEqualTo(text.length)
             }
 
             assertThat(textSelectionInfo?.end).isNotNull()
