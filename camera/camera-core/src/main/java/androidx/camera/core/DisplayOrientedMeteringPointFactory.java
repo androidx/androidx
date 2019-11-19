@@ -23,6 +23,7 @@ import android.view.View;
 import android.view.WindowManager;
 
 import androidx.annotation.NonNull;
+import androidx.annotation.RestrictTo;
 import androidx.camera.core.impl.utils.CameraSelectorUtil;
 
 /**
@@ -131,7 +132,10 @@ public final class DisplayOrientedMeteringPointFactory extends MeteringPointFact
 
     /**
      * {@inheritDoc}
+     *
+     * @hide
      */
+    @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
     @NonNull
     @Override
     protected PointF convertPoint(float x, float y) {
