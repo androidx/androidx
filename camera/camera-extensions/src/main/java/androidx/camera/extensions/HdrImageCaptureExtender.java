@@ -20,7 +20,7 @@ import android.util.Log;
 
 import androidx.annotation.NonNull;
 import androidx.camera.core.CameraSelector;
-import androidx.camera.core.ImageCaptureConfig;
+import androidx.camera.core.ImageCapture;
 import androidx.camera.extensions.ExtensionsManager.EffectMode;
 import androidx.camera.extensions.impl.HdrImageCaptureExtenderImpl;
 /**
@@ -35,7 +35,7 @@ public class HdrImageCaptureExtender extends ImageCaptureExtender {
      * @param builder Builder that will be used to create the configurations for the
      * {@link androidx.camera.core.ImageCapture}.
      */
-    public static HdrImageCaptureExtender create(ImageCaptureConfig.Builder builder) {
+    public static HdrImageCaptureExtender create(ImageCapture.Builder builder) {
         if (ExtensionVersion.isExtensionVersionSupported()) {
             try {
                 return new VendorHdrImageCaptureExtender(builder);
@@ -66,7 +66,7 @@ public class HdrImageCaptureExtender extends ImageCaptureExtender {
     static class VendorHdrImageCaptureExtender extends HdrImageCaptureExtender {
         private final HdrImageCaptureExtenderImpl mImpl;
 
-        VendorHdrImageCaptureExtender(ImageCaptureConfig.Builder builder) {
+        VendorHdrImageCaptureExtender(ImageCapture.Builder builder) {
             mImpl = new HdrImageCaptureExtenderImpl();
             init(builder, mImpl, EffectMode.HDR);
         }

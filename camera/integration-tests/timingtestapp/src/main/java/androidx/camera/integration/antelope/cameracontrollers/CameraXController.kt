@@ -27,7 +27,6 @@ import androidx.camera.camera2.Camera2Config
 import androidx.camera.camera2.ExperimentalCamera2Interop
 import androidx.camera.core.CameraSelector
 import androidx.camera.core.ImageCapture
-import androidx.camera.core.ImageCaptureConfig
 import androidx.camera.core.LensFacing
 import androidx.camera.core.Preview
 import androidx.camera.core.PreviewSurfaceProviders
@@ -315,9 +314,9 @@ private fun cameraXImageCaptureUseCaseBuilder(
     deviceStateCallback:
     CameraDevice.StateCallback,
     sessionCaptureCallback: CameraCaptureSession.CaptureCallback
-): ImageCaptureConfig.Builder {
+): ImageCapture.Builder {
 
-    val configBuilder = ImageCaptureConfig.Builder()
+    val configBuilder = ImageCapture.Builder()
         .setCaptureMode(ImageCapture.CaptureMode.MAX_QUALITY)
     Camera2Config.Extender(configBuilder)
         .setDeviceStateCallback(deviceStateCallback)

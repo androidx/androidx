@@ -47,7 +47,6 @@ import androidx.camera.core.FlashMode;
 import androidx.camera.core.ImageAnalysis;
 import androidx.camera.core.ImageAnalysisConfig;
 import androidx.camera.core.ImageCapture;
-import androidx.camera.core.ImageCaptureConfig;
 import androidx.camera.core.LensFacing;
 import androidx.camera.core.Preview;
 import androidx.camera.core.UseCase;
@@ -415,7 +414,7 @@ public class CameraXActivity extends AppCompatActivity
     }
 
     void enableImageCapture() {
-        mImageCapture = new ImageCaptureConfig.Builder()
+        mImageCapture = new ImageCapture.Builder()
                 .setCaptureMode(mCaptureMode)
                 .setTargetName("ImageCapture")
                 .build();

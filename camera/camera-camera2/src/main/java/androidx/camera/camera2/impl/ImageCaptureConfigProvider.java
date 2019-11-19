@@ -54,9 +54,8 @@ public final class ImageCaptureConfigProvider implements ConfigProvider<ImageCap
 
     @Override
     public ImageCaptureConfig getConfig(LensFacing lensFacing) {
-        ImageCaptureConfig.Builder builder =
-                ImageCaptureConfig.Builder.fromConfig(
-                        ImageCapture.DEFAULT_CONFIG.getConfig(lensFacing));
+        ImageCapture.Builder builder = ImageCapture.Builder.fromConfig(
+                ImageCapture.DEFAULT_CONFIG.getConfig(lensFacing));
 
         // SessionConfig containing all intrinsic properties needed for ImageCapture
         SessionConfig.Builder sessionBuilder = new SessionConfig.Builder();

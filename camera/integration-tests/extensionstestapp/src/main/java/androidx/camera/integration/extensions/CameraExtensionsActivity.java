@@ -41,7 +41,6 @@ import androidx.appcompat.app.AppCompatActivity;
 import androidx.camera.core.CameraSelector;
 import androidx.camera.core.CameraX;
 import androidx.camera.core.ImageCapture;
-import androidx.camera.core.ImageCaptureConfig;
 import androidx.camera.core.LensFacing;
 import androidx.camera.core.Preview;
 import androidx.camera.core.PreviewSurfaceProviders;
@@ -251,9 +250,7 @@ public class CameraExtensionsActivity extends AppCompatActivity
 
     void enableImageCapture(ImageCaptureType imageCaptureType) {
         mCurrentImageCaptureType = imageCaptureType;
-        ImageCaptureConfig.Builder builder =
-                new ImageCaptureConfig.Builder()
-                        .setTargetName("ImageCapture");
+        ImageCapture.Builder builder = new ImageCapture.Builder().setTargetName("ImageCapture");
         Button toggleButton = findViewById(R.id.PhotoToggle);
         toggleButton.setText(mCurrentImageCaptureType.toString());
 

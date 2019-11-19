@@ -22,7 +22,6 @@ import androidx.camera.camera2.Camera2AppConfig;
 import androidx.camera.core.AppConfig;
 import androidx.camera.core.CameraX;
 import androidx.camera.core.ImageCapture;
-import androidx.camera.core.ImageCaptureConfig;
 import androidx.camera.core.UseCase;
 import androidx.camera.core.VideoCapture;
 import androidx.camera.core.VideoCaptureConfig;
@@ -57,9 +56,9 @@ public final class UseCaseSurfaceOccupancyManagerTest {
 
     @Test(expected = IllegalArgumentException.class)
     public void failedWhenBindTooManyImageCapture() {
-        ImageCaptureConfig config = new ImageCaptureConfig.Builder().getUseCaseConfig();
-        ImageCapture useCase1 = new ImageCapture(config);
-        ImageCapture useCase2 = new ImageCapture(config);
+        ImageCapture.Builder builder = new ImageCapture.Builder();
+        ImageCapture useCase1 = builder.build();
+        ImageCapture useCase2 = builder.build();
 
         // Should throw IllegalArgumentException
         UseCaseSurfaceOccupancyManager.checkUseCaseLimitNotExceeded(
@@ -81,7 +80,7 @@ public final class UseCaseSurfaceOccupancyManagerTest {
 
     @Test
     public void passWhenNotBindTooManyImageVideoCapture() {
-        ImageCapture imageCapture = new ImageCaptureConfig.Builder().build();
+        ImageCapture imageCapture = new ImageCapture.Builder().build();
         VideoCapture videoCapture = new VideoCaptureConfig.Builder().build();
 
         UseCaseSurfaceOccupancyManager.checkUseCaseLimitNotExceeded(

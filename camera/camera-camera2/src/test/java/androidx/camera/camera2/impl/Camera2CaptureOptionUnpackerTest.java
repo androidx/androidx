@@ -29,7 +29,7 @@ import androidx.camera.camera2.Camera2Config;
 import androidx.camera.camera2.ExperimentalCamera2Interop;
 import androidx.camera.core.CameraCaptureCallback;
 import androidx.camera.core.CaptureConfig;
-import androidx.camera.core.ImageCaptureConfig;
+import androidx.camera.core.ImageCapture;
 import androidx.test.filters.SmallTest;
 
 import org.junit.Before;
@@ -55,14 +55,14 @@ public final class Camera2CaptureOptionUnpackerTest {
     @Test
     @UseExperimental(markerClass = ExperimentalCamera2Interop.class)
     public void unpackerExtractsCaptureCallbacks() {
-        ImageCaptureConfig.Builder imageCaptureConfigBuilder = new ImageCaptureConfig.Builder();
+        ImageCapture.Builder imageCaptureBuilder = new ImageCapture.Builder();
         CaptureCallback captureCallback = mock(CaptureCallback.class);
 
-        new Camera2Config.Extender(imageCaptureConfigBuilder)
+        new Camera2Config.Extender(imageCaptureBuilder)
                 .setSessionCaptureCallback(captureCallback);
 
         CaptureConfig.Builder captureBuilder = new CaptureConfig.Builder();
-        mUnpacker.unpack(imageCaptureConfigBuilder.getUseCaseConfig(), captureBuilder);
+        mUnpacker.unpack(imageCaptureBuilder.getUseCaseConfig(), captureBuilder);
         CaptureConfig captureConfig = captureBuilder.build();
 
         CameraCaptureCallback cameraCaptureCallback =
@@ -74,7 +74,7 @@ public final class Camera2CaptureOptionUnpackerTest {
     @Test
     @UseExperimental(markerClass = ExperimentalCamera2Interop.class)
     public void unpackerExtractsOptions() {
-        ImageCaptureConfig.Builder imageCaptureConfigBuilder = new ImageCaptureConfig.Builder();
+        ImageCapture.Builder imageCaptureConfigBuilder = new ImageCapture.Builder();
 
         // Add 2 options to ensure that multiple options can be unpacked.
         new Camera2Config.Extender(imageCaptureConfigBuilder)

@@ -31,7 +31,7 @@ import androidx.annotation.experimental.UseExperimental;
 import androidx.camera.camera2.Camera2Config;
 import androidx.camera.camera2.ExperimentalCamera2Interop;
 import androidx.camera.core.CameraCaptureCallback;
-import androidx.camera.core.ImageCaptureConfig;
+import androidx.camera.core.ImageCapture;
 import androidx.camera.core.SessionConfig;
 import androidx.test.filters.SmallTest;
 
@@ -58,7 +58,7 @@ public final class Camera2SessionOptionUnpackerTest {
     @Test
     @UseExperimental(markerClass = ExperimentalCamera2Interop.class)
     public void unpackerExtractsInteropCallbacks() {
-        ImageCaptureConfig.Builder imageCaptureConfigBuilder = new ImageCaptureConfig.Builder();
+        ImageCapture.Builder imageCaptureBuilder = new ImageCapture.Builder();
         CaptureCallback captureCallback = mock(CaptureCallback.class);
         CameraDevice.StateCallback deviceCallback = mock(CameraDevice.StateCallback.class);
         CameraCaptureSession.StateCallback sessionStateCallback =
@@ -66,14 +66,14 @@ public final class Camera2SessionOptionUnpackerTest {
         CameraEventCallbacks cameraEventCallbacks = mock(CameraEventCallbacks.class);
         when(cameraEventCallbacks.clone()).thenReturn(cameraEventCallbacks);
 
-        new Camera2Config.Extender(imageCaptureConfigBuilder)
+        new Camera2Config.Extender(imageCaptureBuilder)
                 .setSessionCaptureCallback(captureCallback)
                 .setDeviceStateCallback(deviceCallback)
                 .setSessionStateCallback(sessionStateCallback)
                 .setCameraEventCallback(cameraEventCallbacks);
 
         SessionConfig.Builder sessionBuilder = new SessionConfig.Builder();
-        mUnpacker.unpack(imageCaptureConfigBuilder.getUseCaseConfig(), sessionBuilder);
+        mUnpacker.unpack(imageCaptureBuilder.getUseCaseConfig(), sessionBuilder);
         SessionConfig sessionConfig = sessionBuilder.build();
 
         CameraCaptureCallback interopCallback =
@@ -95,7 +95,7 @@ public final class Camera2SessionOptionUnpackerTest {
     @Test
     @UseExperimental(markerClass = ExperimentalCamera2Interop.class)
     public void unpackerExtractsOptions() {
-        ImageCaptureConfig.Builder imageCaptureConfigBuilder = new ImageCaptureConfig.Builder();
+        ImageCapture.Builder imageCaptureConfigBuilder = new ImageCapture.Builder();
 
         // Add 2 options to ensure that multiple options can be unpacked.
         new Camera2Config.Extender(imageCaptureConfigBuilder)

@@ -42,7 +42,6 @@ import androidx.camera.core.CameraX;
 import androidx.camera.core.CaptureProcessor;
 import androidx.camera.core.ImageAnalysisConfig;
 import androidx.camera.core.ImageCapture;
-import androidx.camera.core.ImageCaptureConfig;
 import androidx.camera.core.LensFacing;
 import androidx.camera.core.Preview;
 import androidx.camera.core.PreviewConfig;
@@ -108,7 +107,7 @@ public class PreviewProcessorTimestampTest {
     TimestampCaptureProcessor.TimestampListener mTimestampListener;
     SurfaceTexture.OnFrameAvailableListener mOnFrameAvailableListener;
 
-    private ImageCaptureConfig.Builder mImageCaptureConfigBuilder;
+    private ImageCapture.Builder mImageCaptureBuilder;
     private Preview.Builder mPreviewBuilder;
     private ImageAnalysisConfig.Builder mImageAnalysisConfigBuilder;
 
@@ -146,7 +145,7 @@ public class PreviewProcessorTimestampTest {
 
         mLifecycleOwner = new FakeLifecycleOwner();
 
-        mImageCaptureConfigBuilder = new ImageCaptureConfig.Builder();
+        mImageCaptureBuilder = new ImageCapture.Builder();
         mPreviewBuilder = new Preview.Builder();
         mImageAnalysisConfigBuilder = new ImageAnalysisConfig.Builder();
         mCameraStatusCallback = new CameraDevice.StateCallback() {
@@ -212,7 +211,7 @@ public class PreviewProcessorTimestampTest {
 
         mSurfaceTextureLatch = new CountDownLatch(1);
 
-        new Camera2Config.Extender(mImageCaptureConfigBuilder).setDeviceStateCallback(
+        new Camera2Config.Extender(mImageCaptureBuilder).setDeviceStateCallback(
                 mCameraStatusCallback);
     }
 
@@ -237,7 +236,7 @@ public class PreviewProcessorTimestampTest {
         enableExtension(mEffectMode, mLensFacing);
 
         // To test bind/unbind and take picture.
-        ImageCapture imageCapture = mImageCaptureConfigBuilder.build();
+        ImageCapture imageCapture = mImageCaptureBuilder.build();
 
         PreviewConfig previewConfig = mPreviewBuilder.getUseCaseConfig();
         CaptureProcessor previewCaptureProcessor = previewConfig.getCaptureProcessor(null);
@@ -294,25 +293,23 @@ public class PreviewProcessorTimestampTest {
 
         switch (effectMode) {
             case HDR:
-                imageCaptureExtender = HdrImageCaptureExtender.create(mImageCaptureConfigBuilder);
+                imageCaptureExtender = HdrImageCaptureExtender.create(mImageCaptureBuilder);
                 previewExtender = HdrPreviewExtender.create(mPreviewBuilder);
                 break;
             case BOKEH:
-                imageCaptureExtender = BokehImageCaptureExtender.create(
-                        mImageCaptureConfigBuilder);
+                imageCaptureExtender = BokehImageCaptureExtender.create(mImageCaptureBuilder);
                 previewExtender = BokehPreviewExtender.create(mPreviewBuilder);
                 break;
             case BEAUTY:
-                imageCaptureExtender = BeautyImageCaptureExtender.create(
-                        mImageCaptureConfigBuilder);
+                imageCaptureExtender = BeautyImageCaptureExtender.create(mImageCaptureBuilder);
                 previewExtender = BeautyPreviewExtender.create(mPreviewBuilder);
                 break;
             case NIGHT:
-                imageCaptureExtender = NightImageCaptureExtender.create(mImageCaptureConfigBuilder);
+                imageCaptureExtender = NightImageCaptureExtender.create(mImageCaptureBuilder);
                 previewExtender = NightPreviewExtender.create(mPreviewBuilder);
                 break;
             case AUTO:
-                imageCaptureExtender = AutoImageCaptureExtender.create(mImageCaptureConfigBuilder);
+                imageCaptureExtender = AutoImageCaptureExtender.create(mImageCaptureBuilder);
                 previewExtender = AutoPreviewExtender.create(mPreviewBuilder);
                 break;
         }
