@@ -155,29 +155,6 @@ class TextSpanTest {
         assertThat(textSpan.toString()).isEqualTo(string1 + string2)
     }
 
-    // TODO(qqd): Figure out what to do with codeUnitAt.
-//    @Test
-//    fun `codeUnitAt with negative index`() {
-//        val textSpan = TextSpan(text = string1)
-//
-//        assertThat(textSpan.codeUnitAt(-1)).isNull()
-//    }
-//
-//    @Test
-//    fun `codeUnitAt with index larger than text length`() {
-//        val textSpan = TextSpan(text = string1)
-//
-//        assertThat(textSpan.codeUnitAt(string1.length + 1)).isNull()
-//    }
-//
-//    @Test
-//    fun `codeUnitAt with valid text and index`() {
-//        val textSpan = TextSpan(text = string1)
-//        val index = 0
-//
-//        assertThat(textSpan.codeUnitAt(index)).isEqualTo(string1[index].toInt())
-//    }
-
     @Test
     fun `toAnnotatedString with includeRootStyle default value`() {
         val textStyle = TextStyle(fontSize = 10.sp)

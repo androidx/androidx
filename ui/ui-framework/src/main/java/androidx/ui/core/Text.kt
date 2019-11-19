@@ -28,6 +28,7 @@ import androidx.compose.unaryPlus
 import androidx.ui.core.selection.SelectionRegistrar
 import androidx.ui.core.selection.SelectionRegistrarAmbient
 import androidx.ui.core.selection.TextSelectionDelegate
+import androidx.ui.core.selection.TextSelectionHandler
 import androidx.ui.graphics.Color
 import androidx.ui.semantics.Semantics
 import androidx.ui.semantics.accessibilityLabel
@@ -260,7 +261,7 @@ fun Text(
             density
         ) {
             // if no SelectionContainer is added as parent selectionRegistrar will be null
-            val id: Any? = selectionRegistrar?.let {
+            val id: TextSelectionHandler? = selectionRegistrar?.let {
                 selectionRegistrar.subscribe(
                     TextSelectionDelegate(
                         selectionRange = selectionRange,
