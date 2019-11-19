@@ -59,6 +59,7 @@ import java.util.Locale;
  * TrustedWebActivityService is usable as it is, by adding the following to your AndroidManifest:
  *
  * <pre>
+ * {@code
  * <service
  *     android:name="androidx.browser.trusted.TrustedWebActivityService"
  *     android:enabled="true"
@@ -72,6 +73,7 @@ import java.util.Locale;
  *         <category android:name="android.intent.category.DEFAULT"/>
  *     </intent-filter>
  * </service>
+ * }
  * </pre>
  *
  * The SMALL_ICON resource should point to a drawable to be used for the notification's small icon.

@@ -31,13 +31,15 @@ import java.util.List;
  * It is designed to be persistable as a {@code byte[]}, so you can do this:
  *
  * <pre>
- *     Token token = Token.create(packageName, packageManager);
- *     byte[] serialized = token.serialize();
- *     // Persist serialized.
+ * {@code
+ * Token token = Token.create(packageName, packageManager);
+ * byte[] serialized = token.serialize();
+ * // Persist serialized.
  *
- *     // Some time later...
- *     Token verified = Token.deserialize(serialized);
- *     verified.matches(packageName, packageManager);
+ * // Some time later...
+ * Token verified = Token.deserialize(serialized);
+ * verified.matches(packageName, packageManager);
+ * }
  * </pre>
  */
 public final class Token {
