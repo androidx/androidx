@@ -9,20 +9,12 @@ AcronymName: androidx.work.Operation.State.SUCCESS:
 
 MissingNullability: androidx.work.Constraints#NONE:
     Missing nullability on field `NONE` in class `class androidx.work.Constraints`
-MissingNullability: androidx.work.Constraints#equals(Object) parameter #0:
-    Missing nullability on parameter `o` in method `equals`
 MissingNullability: androidx.work.Constraints.Builder#setTriggerContentMaxDelay(java.time.Duration) parameter #0:
     Missing nullability on parameter `duration` in method `setTriggerContentMaxDelay`
 MissingNullability: androidx.work.Constraints.Builder#setTriggerContentUpdateDelay(java.time.Duration) parameter #0:
     Missing nullability on parameter `duration` in method `setTriggerContentUpdateDelay`
 MissingNullability: androidx.work.Data#EMPTY:
     Missing nullability on field `EMPTY` in class `class androidx.work.Data`
-MissingNullability: androidx.work.Data#equals(Object) parameter #0:
-    Missing nullability on parameter `o` in method `equals`
-MissingNullability: androidx.work.WorkInfo#equals(Object) parameter #0:
-    Missing nullability on parameter `o` in method `equals`
-MissingNullability: androidx.work.WorkInfo#toString():
-    Missing nullability on method `toString` return
 
 
 SetterReturnsThis: androidx.work.WorkRequest.Builder#setBackoffCriteria(androidx.work.BackoffPolicy, java.time.Duration):

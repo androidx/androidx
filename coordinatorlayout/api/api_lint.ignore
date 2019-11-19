@@ -75,8 +75,6 @@ MissingNullability: androidx.coordinatorlayout.widget.CoordinatorLayout.Behavior
     Missing nullability on parameter `context` in method `Behavior`
 MissingNullability: androidx.coordinatorlayout.widget.CoordinatorLayout.Behavior#Behavior(android.content.Context, android.util.AttributeSet) parameter #1:
     Missing nullability on parameter `attrs` in method `Behavior`
-MissingNullability: androidx.coordinatorlayout.widget.CoordinatorLayout.DefaultBehavior#value():
-    Missing nullability on method `value` return
 MissingNullability: androidx.coordinatorlayout.widget.CoordinatorLayout.LayoutParams#LayoutParams(android.view.ViewGroup.LayoutParams) parameter #0:
     Missing nullability on parameter `p` in method `LayoutParams`
 MissingNullability: androidx.coordinatorlayout.widget.CoordinatorLayout.LayoutParams#LayoutParams(android.view.ViewGroup.MarginLayoutParams) parameter #0:

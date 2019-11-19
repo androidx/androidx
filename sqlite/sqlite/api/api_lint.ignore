@@ -35,8 +35,8 @@ ArrayReturn: androidx.sqlite.db.SupportSQLiteQueryBuilder#selection(String, Obje
     Method parameter should be Collection<Object> (or subclass) instead of raw array; was `java.lang.Object[]`
 
 
-MissingBuild: androidx.sqlite.db.SupportSQLiteQueryBuilder:
-    Missing `build()` method in androidx.sqlite.db.SupportSQLiteQueryBuilder
+MissingBuildMethod: androidx.sqlite.db.SupportSQLiteQueryBuilder:
+    androidx.sqlite.db.SupportSQLiteQueryBuilder does not declare a `build()` method, but builder classes are expected to
 
 
 MissingNullability: androidx.sqlite.db.SimpleSQLiteQuery#SimpleSQLiteQuery(String) parameter #0:

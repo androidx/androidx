@@ -229,10 +229,10 @@ ListenerLast: androidx.core.view.GestureDetectorCompat#GestureDetectorCompat(and
     Listeners should always be at end of argument list (method `GestureDetectorCompat`)
 
 
-MissingBuild: androidx.core.app.ShareCompat.IntentBuilder:
-    Missing `build()` method in androidx.core.app.ShareCompat.IntentBuilder
-MissingBuild: androidx.core.app.TaskStackBuilder:
-    Missing `build()` method in androidx.core.app.TaskStackBuilder
+MissingBuildMethod: androidx.core.app.ShareCompat.IntentBuilder:
+    androidx.core.app.ShareCompat.IntentBuilder does not declare a `build()` method, but builder classes are expected to
+MissingBuildMethod: androidx.core.app.TaskStackBuilder:
+    androidx.core.app.TaskStackBuilder does not declare a `build()` method, but builder classes are expected to
 
 
 MissingNullability: androidx.core.app.ActivityCompat#invalidateOptionsMenu(android.app.Activity) parameter #0:
@@ -879,14 +879,6 @@ MissingNullability: androidx.core.database.DatabaseUtilsCompat#concatenateWhere(
     Missing nullability on parameter `a` in method `concatenateWhere`
 MissingNullability: androidx.core.database.DatabaseUtilsCompat#concatenateWhere(String, String) parameter #1:
     Missing nullability on parameter `b` in method `concatenateWhere`
-MissingNullability: androidx.core.graphics.Insets#equals(Object) parameter #0:
-    Missing nullability on parameter `o` in method `equals`
-MissingNullability: androidx.core.graphics.Insets#toString():
-    Missing nullability on method `toString` return
-MissingNullability: androidx.core.graphics.PathSegment#equals(Object) parameter #0:
-    Missing nullability on parameter `o` in method `equals`
-MissingNullability: androidx.core.graphics.PathSegment#toString():
-    Missing nullability on method `toString` return
 MissingNullability: androidx.core.graphics.drawable.DrawableCompat#getColorFilter(android.graphics.drawable.Drawable):
     Missing nullability on method `getColorFilter` return
 MissingNullability: androidx.core.graphics.drawable.DrawableCompat#wrap(android.graphics.drawable.Drawable):
@@ -947,14 +939,10 @@ MissingNullability: androidx.core.net.TrafficStatsCompat#tagSocket(java.net.Sock
     Missing nullability on parameter `socket` in method `tagSocket`
 MissingNullability: androidx.core.net.TrafficStatsCompat#untagSocket(java.net.Socket) parameter #0:
     Missing nullability on parameter `socket` in method `untagSocket`
-MissingNullability: androidx.core.os.LocaleListCompat#equals(Object) parameter #0:
-    Missing nullability on parameter `other` in method `equals`
 MissingNullability: androidx.core.os.LocaleListCompat#get(int):
     Missing nullability on method `get` return
 MissingNullability: androidx.core.os.LocaleListCompat#indexOf(java.util.Locale) parameter #0:
     Missing nullability on parameter `locale` in method `indexOf`
-MissingNullability: androidx.core.os.LocaleListCompat#toString():
-    Missing nullability on method `toString` return
 MissingNullability: androidx.core.os.LocaleListCompat#wrap(Object) parameter #0:
     Missing nullability on parameter `localeList` in method `wrap`
 MissingNullability: androidx.core.os.ParcelableCompat#newCreator(androidx.core.os.ParcelableCompatCreatorCallbacks<T>) parameter #0:
@@ -963,8 +951,6 @@ MissingNullability: androidx.core.os.ParcelableCompatCreatorCallbacks#createFrom
     Missing nullability on parameter `in` in method `createFromParcel`
 MissingNullability: androidx.core.os.ParcelableCompatCreatorCallbacks#createFromParcel(android.os.Parcel, ClassLoader) parameter #1:
     Missing nullability on parameter `loader` in method `createFromParcel`
-MissingNullability: androidx.core.provider.FontRequest#toString():
-    Missing nullability on method `toString` return
 MissingNullability: androidx.core.provider.FontsContractCompat.FontFamilyResult#getFonts():
     Missing nullability on method `getFonts` return
 MissingNullability: androidx.core.provider.FontsContractCompat.FontRequestCallback#onTypefaceRetrieved(android.graphics.Typeface) parameter #0:
@@ -1053,8 +1039,6 @@ MissingNullability: androidx.core.text.PrecomputedTextCompat#setSpan(Object, int
     Missing nullability on parameter `what` in method `setSpan`
 MissingNullability: androidx.core.text.PrecomputedTextCompat#subSequence(int, int):
     Missing nullability on method `subSequence` return
-MissingNullability: androidx.core.text.PrecomputedTextCompat.Params#toString():
-    Missing nullability on method `toString` return
 MissingNullability: androidx.core.text.PrecomputedTextCompat.Params.Builder#setBreakStrategy(int):
     Missing nullability on method `setBreakStrategy` return
 MissingNullability: androidx.core.text.PrecomputedTextCompat.Params.Builder#setHyphenationFrequency(int):
@@ -1077,8 +1061,6 @@ MissingNullability: androidx.core.text.TextDirectionHeuristicsCompat#LTR:
     Missing nullability on field `LTR` in class `class androidx.core.text.TextDirectionHeuristicsCompat`
 MissingNullability: androidx.core.text.TextDirectionHeuristicsCompat#RTL:
     Missing nullability on field `RTL` in class `class androidx.core.text.TextDirectionHeuristicsCompat`
-MissingNullability: androidx.core.util.Pair#equals(Object) parameter #0:
-    Missing nullability on parameter `o` in method `equals`
 MissingNullability: androidx.core.util.PatternsCompat#DOMAIN_NAME:
     Missing nullability on field `DOMAIN_NAME` in class `class androidx.core.util.PatternsCompat`
 MissingNullability: androidx.core.util.PatternsCompat#EMAIL_ADDRESS:
@@ -1141,12 +1123,8 @@ MissingNullability: androidx.core.view.DisplayCutoutCompat#DisplayCutoutCompat(a
     Missing nullability on parameter `safeInsets` in method `DisplayCutoutCompat`
 MissingNullability: androidx.core.view.DisplayCutoutCompat#DisplayCutoutCompat(android.graphics.Rect, java.util.List<android.graphics.Rect>) parameter #1:
     Missing nullability on parameter `boundingRects` in method `DisplayCutoutCompat`
-MissingNullability: androidx.core.view.DisplayCutoutCompat#equals(Object) parameter #0:
-    Missing nullability on parameter `o` in method `equals`
 MissingNullability: androidx.core.view.DisplayCutoutCompat#getBoundingRects():
     Missing nullability on method `getBoundingRects` return
-MissingNullability: androidx.core.view.DisplayCutoutCompat#toString():
-    Missing nullability on method `toString` return
 MissingNullability: androidx.core.view.DragStartHelper#DragStartHelper(android.view.View, androidx.core.view.DragStartHelper.OnDragStartListener) parameter #0:
     Missing nullability on parameter `view` in method `DragStartHelper`
 MissingNullability: androidx.core.view.DragStartHelper#DragStartHelper(android.view.View, androidx.core.view.DragStartHelper.OnDragStartListener) parameter #1:
@@ -1709,8 +1687,6 @@ MissingNullability: androidx.core.view.WindowInsetsCompat#consumeStableInsets():
     Missing nullability on method `consumeStableInsets` return
 MissingNullability: androidx.core.view.WindowInsetsCompat#consumeSystemWindowInsets():
     Missing nullability on method `consumeSystemWindowInsets` return
-MissingNullability: androidx.core.view.WindowInsetsCompat#equals(Object) parameter #0:
-    Missing nullability on parameter `o` in method `equals`
 MissingNullability: androidx.core.view.WindowInsetsCompat#replaceSystemWindowInsets(android.graphics.Rect):
     Missing nullability on method `replaceSystemWindowInsets` return
 MissingNullability: androidx.core.view.WindowInsetsCompat#replaceSystemWindowInsets(android.graphics.Rect) parameter #0:
@@ -1769,8 +1745,6 @@ MissingNullability: androidx.core.view.accessibility.AccessibilityNodeInfoCompat
     Missing nullability on parameter `child` in method `addChild`
 MissingNullability: androidx.core.view.accessibility.AccessibilityNodeInfoCompat#addChild(android.view.View, int) parameter #0:
     Missing nullability on parameter `root` in method `addChild`
-MissingNullability: androidx.core.view.accessibility.AccessibilityNodeInfoCompat#equals(Object) parameter #0:
-    Missing nullability on parameter `obj` in method `equals`
 MissingNullability: androidx.core.view.accessibility.AccessibilityNodeInfoCompat#findAccessibilityNodeInfosByText(String):
     Missing nullability on method `findAccessibilityNodeInfosByText` return
 MissingNullability: androidx.core.view.accessibility.AccessibilityNodeInfoCompat#findAccessibilityNodeInfosByText(String) parameter #0:
@@ -1985,8 +1959,6 @@ MissingNullability: androidx.core.view.accessibility.AccessibilityNodeProviderCo
     Missing nullability on parameter `arguments` in method `performAction`
 MissingNullability: androidx.core.view.accessibility.AccessibilityRecordCompat#AccessibilityRecordCompat(Object) parameter #0:
     Missing nullability on parameter `record` in method `AccessibilityRecordCompat`
-MissingNullability: androidx.core.view.accessibility.AccessibilityRecordCompat#equals(Object) parameter #0:
-    Missing nullability on parameter `obj` in method `equals`
 MissingNullability: androidx.core.view.accessibility.AccessibilityRecordCompat#getMaxScrollX(android.view.accessibility.AccessibilityRecord) parameter #0:
     Missing nullability on parameter `record` in method `getMaxScrollX`
 MissingNullability: androidx.core.view.accessibility.AccessibilityRecordCompat#getMaxScrollY(android.view.accessibility.AccessibilityRecord) parameter #0:
@@ -2015,8 +1987,6 @@ MissingNullability: androidx.core.view.accessibility.AccessibilityViewCommand.Mo
     Missing nullability on method `getHTMLElement` return
 MissingNullability: androidx.core.view.accessibility.AccessibilityViewCommand.SetTextArguments#getText():
     Missing nullability on method `getText` return
-MissingNullability: androidx.core.view.accessibility.AccessibilityWindowInfoCompat#equals(Object) parameter #0:
-    Missing nullability on parameter `obj` in method `equals`
 MissingNullability: androidx.core.view.accessibility.AccessibilityWindowInfoCompat#getAnchor():
     Missing nullability on method `getAnchor` return
 MissingNullability: androidx.core.view.accessibility.AccessibilityWindowInfoCompat#getBoundsInScreen(android.graphics.Rect) parameter #0:

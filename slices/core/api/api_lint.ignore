@@ -17,8 +17,6 @@ MissingNullability: androidx.slice.Slice#getItems():
     Missing nullability on method `getItems` return
 MissingNullability: androidx.slice.Slice#getUri():
     Missing nullability on method `getUri` return
-MissingNullability: androidx.slice.Slice#toString():
-    Missing nullability on method `toString` return
 MissingNullability: androidx.slice.SliceConvert#unwrap(androidx.slice.Slice):
     Missing nullability on method `unwrap` return
 MissingNullability: androidx.slice.SliceConvert#unwrap(androidx.slice.Slice) parameter #0:
@@ -43,8 +41,6 @@ MissingNullability: androidx.slice.SliceItem#getText():
     Missing nullability on method `getText` return
 MissingNullability: androidx.slice.SliceItem#hasHint(String) parameter #0:
     Missing nullability on parameter `hint` in method `hasHint`
-MissingNullability: androidx.slice.SliceItem#toString():
-    Missing nullability on method `toString` return
 MissingNullability: androidx.slice.core.SliceAction#setChecked(boolean):
     Missing nullability on method `setChecked` return
 MissingNullability: androidx.slice.core.SliceAction#setPriority(int):

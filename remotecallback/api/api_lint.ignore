@@ -71,8 +71,6 @@ MissingNullability: androidx.remotecallback.ContentProviderWithCallbacks#call(St
     Missing nullability on parameter `extras` in method `call`
 MissingNullability: androidx.remotecallback.ContentProviderWithCallbacks#createRemoteCallback(android.content.Context) parameter #0:
     Missing nullability on parameter `context` in method `createRemoteCallback`
-MissingNullability: androidx.remotecallback.ExternalInput#value():
-    Missing nullability on method `value` return
 MissingNullability: androidx.remotecallback.RemoteCallback#LOCAL:
     Missing nullability on field `LOCAL` in class `class androidx.remotecallback.RemoteCallback`
 MissingNullability: androidx.remotecallback.RemoteCallback#create(Class<T>, android.content.Context) parameter #0:

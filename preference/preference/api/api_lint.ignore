@@ -361,8 +361,6 @@ MissingNullability: androidx.preference.Preference#setSummary(CharSequence) para
     Missing nullability on parameter `summary` in method `setSummary`
 MissingNullability: androidx.preference.Preference#setTitle(CharSequence) parameter #0:
     Missing nullability on parameter `title` in method `setTitle`
-MissingNullability: androidx.preference.Preference#toString():
-    Missing nullability on method `toString` return
 MissingNullability: androidx.preference.Preference.BaseSavedState#BaseSavedState(android.os.Parcel) parameter #0:
     Missing nullability on parameter `source` in method `BaseSavedState`
 MissingNullability: androidx.preference.Preference.BaseSavedState#BaseSavedState(android.os.Parcelable) parameter #0:
