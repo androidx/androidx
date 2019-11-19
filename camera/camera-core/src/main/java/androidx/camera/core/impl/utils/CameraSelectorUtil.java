@@ -49,7 +49,7 @@ public final class CameraSelectorUtil {
     @NonNull
     public static CameraDeviceConfig toCameraDeviceConfig(@NonNull CameraSelector cameraSelector) {
         MutableOptionsBundle mutableOptionsBundle = MutableOptionsBundle.create();
-        LensFacing lensFacing = cameraSelector.getLensFacing();
+        Integer lensFacing = cameraSelector.getLensFacing();
         if (lensFacing != null) {
             mutableOptionsBundle.insertOption(OPTION_LENS_FACING, lensFacing);
         }
@@ -91,7 +91,7 @@ public final class CameraSelectorUtil {
          */
         @Override
         @Nullable
-        public LensFacing getLensFacing(@Nullable LensFacing valueIfMissing) {
+        public Integer getLensFacing(@Nullable Integer valueIfMissing) {
             try {
                 return getLensFacing();
             } catch (IllegalArgumentException e) {
@@ -106,8 +106,8 @@ public final class CameraSelectorUtil {
          * @throws IllegalArgumentException if the option does not exist in this configuration.
          */
         @Override
-        @NonNull
-        public LensFacing getLensFacing() {
+        @LensFacing
+        public int getLensFacing() {
             return retrieveOption(OPTION_LENS_FACING);
         }
 

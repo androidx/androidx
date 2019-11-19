@@ -299,7 +299,7 @@ public class PreviewExtenderTest {
         // getSupportedResolutions supported since version 1.1
         assumeTrue(ExtensionVersion.getRuntimeVersion().compareTo(Version.VERSION_1_1) >= 0);
 
-        LensFacing lensFacing = CameraX.getDefaultLensFacing();
+        @LensFacing int lensFacing = CameraX.getDefaultLensFacing();
         Preview.Builder configBuilder = new Preview.Builder();
 
         PreviewExtenderImpl mockPreviewExtenderImpl = mock(PreviewExtenderImpl.class);
@@ -342,8 +342,7 @@ public class PreviewExtenderTest {
     }
 
     private List<Pair<Integer, Size[]>> generatePreviewSupportedResolutions(
-            @NonNull LensFacing lensFacing)
-            throws CameraInfoUnavailableException {
+            @LensFacing int lensFacing) throws CameraInfoUnavailableException {
         List<Pair<Integer, Size[]>> formatResolutionsPairList = new ArrayList<>();
         String cameraId =
                 androidx.camera.extensions.CameraUtil.getCameraIdSetWithLensFacing(

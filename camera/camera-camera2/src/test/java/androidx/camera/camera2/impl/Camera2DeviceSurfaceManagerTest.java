@@ -575,7 +575,7 @@ public final class Camera2DeviceSurfaceManagerTest {
                 StreamConfigurationMapUtil.generateFakeStreamConfigurationMap(
                         mSupportedFormats, mSupportedSizes));
 
-        LensFacing lensFacingEnum = CameraUtil.getLensFacingEnumFromInt(lensFacing);
+        @LensFacing int lensFacingEnum = CameraUtil.getLensFacingEnumFromInt(lensFacing);
         mCameraFactory.insertCamera(lensFacingEnum, cameraId, () -> new FakeCamera(cameraId, null,
                 new Camera2CameraInfo(characteristics, mock(ZoomControl.class))));
     }

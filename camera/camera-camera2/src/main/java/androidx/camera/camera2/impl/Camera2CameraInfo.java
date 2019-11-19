@@ -50,7 +50,7 @@ final class Camera2CameraInfo implements CameraInfoInternal {
 
     @Nullable
     @Override
-    public LensFacing getLensFacing() {
+    public Integer getLensFacing() {
         Integer lensFacing = mCameraCharacteristics.get(CameraCharacteristics.LENS_FACING);
         Preconditions.checkNotNull(lensFacing);
         switch (lensFacing) {
@@ -71,7 +71,8 @@ final class Camera2CameraInfo implements CameraInfoInternal {
         // Currently this assumes that a back-facing camera is always opposite to the screen.
         // This may not be the case for all devices, so in the future we may need to handle that
         // scenario.
-        boolean isOppositeFacingScreen = LensFacing.BACK.equals(getLensFacing());
+        final Integer lensFacing = getLensFacing();
+        boolean isOppositeFacingScreen = (lensFacing != null && LensFacing.BACK == lensFacing);
         return CameraOrientationUtil.getRelativeImageRotation(
                 relativeRotationDegrees,
                 sensorOrientation,

@@ -77,7 +77,8 @@ public final class ExtensionsErrorListenerTest {
     }
 
     private EffectMode mEffectMode;
-    private LensFacing mLensFacing;
+    @LensFacing
+    private int mLensFacing;
     private CountDownLatch mLatch;
 
     final AtomicReference<ExtensionsErrorCode> mErrorCode = new AtomicReference<>();
@@ -89,7 +90,7 @@ public final class ExtensionsErrorListenerTest {
         }
     };
 
-    public ExtensionsErrorListenerTest(EffectMode effectMode, LensFacing lensFacing) {
+    public ExtensionsErrorListenerTest(EffectMode effectMode, @LensFacing int lensFacing) {
         mEffectMode = effectMode;
         mLensFacing = lensFacing;
     }

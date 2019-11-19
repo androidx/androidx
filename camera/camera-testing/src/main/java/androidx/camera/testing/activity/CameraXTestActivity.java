@@ -51,8 +51,8 @@ public class CameraXTestActivity extends AppCompatActivity {
     private Preview mPreview;
     @Nullable
     public String mCameraId = null;
-    @NonNull
-    public LensFacing mLensFacing = LensFacing.BACK;
+    @LensFacing
+    public int mLensFacing = LensFacing.BACK;
 
     @VisibleForTesting
     public final CountingIdlingResource mPreviewReady = new CountingIdlingResource("PreviewReady");

@@ -198,7 +198,8 @@ public class TextureViewMeteringPointFactoryTest {
         return xValid && yValid;
     }
 
-    private void startAndWaitForCameraReady(LensFacing lensFacing) throws InterruptedException {
+    private void startAndWaitForCameraReady(@LensFacing int lensFacing)
+            throws InterruptedException {
         Preview preview = new Preview.Builder().build();
         mInstrumentation.runOnMainSync(() -> {
             preview.setPreviewSurfaceProvider(createSurfaceTextureProvider(

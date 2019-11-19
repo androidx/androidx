@@ -59,6 +59,7 @@ import androidx.camera.core.ImageCapture.OnImageCapturedCallback;
 import androidx.camera.core.ImageCapture.OnImageSavedCallback;
 import androidx.camera.core.ImageProxy;
 import androidx.camera.core.LensFacing;
+import androidx.camera.core.LensFacingConverter;
 import androidx.camera.core.MeteringPoint;
 import androidx.camera.core.VideoCapture.OnVideoSavedCallback;
 import androidx.lifecycle.LifecycleOwner;
@@ -125,7 +126,8 @@ public final class CameraView extends ViewGroup {
     private ScaleType mScaleType = ScaleType.CENTER_CROP;
     // For accessibility event
     private MotionEvent mUpEvent;
-    private @Nullable Paint mLayerPaint;
+    @Nullable
+    private Paint mLayerPaint;
 
     public CameraView(@NonNull Context context) {
         this(context, null);
@@ -273,7 +275,8 @@ public final class CameraView extends ViewGroup {
         state.putLong(EXTRA_MAX_VIDEO_DURATION, getMaxVideoDuration());
         state.putLong(EXTRA_MAX_VIDEO_SIZE, getMaxVideoSize());
         if (getCameraLensFacing() != null) {
-            state.putString(EXTRA_CAMERA_DIRECTION, getCameraLensFacing().name());
+            state.putString(EXTRA_CAMERA_DIRECTION,
+                    LensFacingConverter.nameOf(getCameraLensFacing()));
         }
         state.putInt(EXTRA_CAPTURE_MODE, getCaptureMode().getId());
         return state;
@@ -297,7 +300,7 @@ public final class CameraView extends ViewGroup {
             setCameraLensFacing(
                     TextUtils.isEmpty(lensFacingString)
                             ? null
-                            : LensFacing.valueOf(lensFacingString));
+                            : LensFacingConverter.valueOf(lensFacingString));
             setCaptureMode(CaptureMode.fromId(state.getInt(EXTRA_CAPTURE_MODE)));
         } else {
             super.onRestoreInstanceState(savedState);
@@ -683,7 +686,7 @@ public final class CameraView extends ViewGroup {
      * @throws IllegalStateException if the CAMERA permission is not currently granted.
      */
     @RequiresPermission(permission.CAMERA)
-    public boolean hasCameraWithLensFacing(@NonNull LensFacing lensFacing) {
+    public boolean hasCameraWithLensFacing(@LensFacing int lensFacing) {
         return mCameraModule.hasCameraWithLensFacing(lensFacing);
     }
 
@@ -704,7 +707,7 @@ public final class CameraView extends ViewGroup {
      *
      * <p>If called before {@link #bindToLifecycle(LifecycleOwner)}, this will set the camera to be
      * used when first bound to the lifecycle. If the specified lensFacing is not supported by the
-     * device, as determined by {@link #hasCameraWithLensFacing(LensFacing)}, the first supported
+     * device, as determined by {@link #hasCameraWithLensFacing(int)}, the first supported
      * lensFacing will be chosen when {@link #bindToLifecycle(LifecycleOwner)} is called.
      *
      * <p>If called with {@code null} AFTER binding to the lifecycle, the behavior would be
@@ -712,13 +715,13 @@ public final class CameraView extends ViewGroup {
      *
      * @param lensFacing The desired camera lensFacing.
      */
-    public void setCameraLensFacing(@Nullable LensFacing lensFacing) {
+    public void setCameraLensFacing(@Nullable Integer lensFacing) {
         mCameraModule.setCameraLensFacing(lensFacing);
     }
 
     /** Returns the currently selected {@link LensFacing}. */
     @Nullable
-    public LensFacing getCameraLensFacing() {
+    public Integer getCameraLensFacing() {
         return mCameraModule.getLensFacing();
     }
 

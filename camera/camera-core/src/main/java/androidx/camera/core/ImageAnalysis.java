@@ -330,9 +330,9 @@ public final class ImageAnalysis extends UseCase {
     @Override
     @Nullable
     @RestrictTo(Scope.LIBRARY_GROUP)
-    protected UseCaseConfig.Builder<?, ?, ?> getDefaultBuilder(LensFacing lensFacing) {
-        ImageAnalysisConfig defaults = CameraX.getDefaultUseCaseConfig(
-                ImageAnalysisConfig.class, lensFacing);
+    protected UseCaseConfig.Builder<?, ?, ?> getDefaultBuilder(@Nullable Integer lensFacing) {
+        ImageAnalysisConfig defaults = CameraX.getDefaultUseCaseConfig(ImageAnalysisConfig.class,
+                lensFacing);
         if (defaults != null) {
             return Builder.fromConfig(defaults);
         }
@@ -520,7 +520,7 @@ public final class ImageAnalysis extends UseCase {
 
         @NonNull
         @Override
-        public ImageAnalysisConfig getConfig(LensFacing lensFacing) {
+        public ImageAnalysisConfig getConfig(@Nullable Integer lensFacing) {
             return DEFAULT_CONFIG;
         }
     }
@@ -714,7 +714,7 @@ public final class ImageAnalysis extends UseCase {
         @RestrictTo(Scope.LIBRARY_GROUP)
         @Override
         @NonNull
-        public Builder setLensFacing(@NonNull LensFacing lensFacing) {
+        public Builder setLensFacing(@LensFacing int lensFacing) {
             getMutableConfig().insertOption(OPTION_LENS_FACING, lensFacing);
             return this;
         }
@@ -816,10 +816,11 @@ public final class ImageAnalysis extends UseCase {
          * {@link android.view.Display#getRotation()} of the default display at the time the
          * use case is created.
          *
-         * @param rotation The rotation of the intended target.
-         * @return The current Builder.
          * @see androidx.camera.core.ImageAnalysis#setTargetRotation(int)
          * @see android.view.OrientationEventListener
+         *
+         * @param rotation The rotation of the intended target.
+         * @return The current Builder.
          */
         @NonNull
         @Override

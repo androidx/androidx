@@ -16,6 +16,7 @@
 
 package androidx.camera.core;
 
+import androidx.annotation.Nullable;
 import androidx.annotation.RestrictTo;
 import androidx.annotation.RestrictTo.Scope;
 
@@ -23,7 +24,6 @@ import androidx.annotation.RestrictTo.Scope;
  * A class which provides a {@link Config} object.
  *
  * @param <C> the {@link Config} type provided
- *
  * @hide
  */
 @RestrictTo(Scope.LIBRARY_GROUP)
@@ -34,5 +34,5 @@ public interface ConfigProvider<C extends Config> {
      *
      * @param lensFacing The {@link LensFacing} that the configuration provider will target to.
      */
-    C getConfig(LensFacing lensFacing);
+    C getConfig(@Nullable Integer lensFacing);
 }

@@ -16,10 +16,17 @@
 
 package androidx.camera.core;
 
+import androidx.annotation.IntDef;
+
+import java.lang.annotation.Retention;
+import java.lang.annotation.RetentionPolicy;
+
 /** The direction the camera faces relative to device screen. */
-public enum LensFacing {
+@IntDef({LensFacing.FRONT, LensFacing.BACK})
+@Retention(RetentionPolicy.SOURCE)
+public @interface LensFacing {
     /** A camera on the device facing the same direction as the device's screen. */
-    FRONT,
+    int FRONT = 0;
     /** A camera on the device facing the opposite direction as the device's screen. */
-    BACK
+    int BACK = 1;
 }

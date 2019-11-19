@@ -35,5 +35,5 @@ public interface UseCaseConfigFactory {
      * @param lensFacing The {@link LensFacing} that the configuration will target to.
      */
     @Nullable
-    <C extends UseCaseConfig<?>> C getConfig(Class<C> configType, LensFacing lensFacing);
+    <C extends UseCaseConfig<?>> C getConfig(Class<C> configType, @Nullable Integer lensFacing);
 }
