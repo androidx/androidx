@@ -112,8 +112,13 @@ val PagingTouchSlop = TouchSlop * 2.dp
 val PanSlop = TouchSlop * 2.dp
 
 /**
- * The distance a touch has to travel for the framework to be confident that
- * the gesture is a scale gesture.
+ * The absolute cumulative average change in distance of all pointers from the
+ * average pointer over time that must be surpassed to indicate the user is trying to scale.
+ *
+ * For example, if [ScaleSlop] is 5 DP and 2 pointers were 1 DP away from each
+ * other and now are 11.00001 DP away from each other, the gesture will be interpreted to include
+ * scaling (both pointers are slightly more than 5 pixels away from the average of the pointers
+ * than they were).
  */
 val ScaleSlop = TouchSlop
 

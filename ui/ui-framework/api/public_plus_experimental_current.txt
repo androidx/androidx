@@ -225,6 +225,37 @@ package androidx.ui.core.gesture {
     method public static void RawDragGestureDetector(androidx.ui.core.gesture.DragObserver dragObserver, kotlin.jvm.functions.Function0<java.lang.Boolean>? canStartDragging = null, kotlin.jvm.functions.Function0<kotlin.Unit> children);
   }
 
+  public final class RawScaleGestureDetectorKt {
+    ctor public RawScaleGestureDetectorKt();
+    method public static void RawScaleGestureDetector(androidx.ui.core.gesture.RawScaleObserver scaleObserver, kotlin.jvm.functions.Function0<java.lang.Boolean>? canStartScaling = null, kotlin.jvm.functions.Function0<kotlin.Unit> children);
+  }
+
+  public interface RawScaleObserver {
+    method public default float onScale(float scaleFactor);
+    method public default void onStart();
+    method public default void onStop();
+  }
+
+  public final class ScaleGestureDetectorKt {
+    ctor public ScaleGestureDetectorKt();
+    method public static void ScaleGestureDetector(androidx.ui.core.gesture.ScaleObserver scaleObserver, kotlin.jvm.functions.Function0<kotlin.Unit> children);
+  }
+
+  public interface ScaleObserver {
+    method public void onScale(float scaleFactor);
+    method public default void onStart();
+    method public default void onStop();
+  }
+
+  public final class ScaleSlopExceededGestureDetectorKt {
+    ctor public ScaleSlopExceededGestureDetectorKt();
+    method public static void ScaleSlopExceededGestureDetector(kotlin.jvm.functions.Function0<kotlin.Unit> onScaleSlopExceeded, kotlin.jvm.functions.Function0<kotlin.Unit> children);
+  }
+
+  public final class ScaleUtilKt {
+    ctor public ScaleUtilKt();
+  }
+
   public final class TouchSlopDragGestureDetectorKt {
     ctor public TouchSlopDragGestureDetectorKt();
     method public static void TouchSlopDragGestureDetector(androidx.ui.core.gesture.DragObserver dragObserver, kotlin.jvm.functions.Function1<? super androidx.ui.core.Direction,java.lang.Boolean>? canDrag = null, kotlin.jvm.functions.Function0<kotlin.Unit> children);

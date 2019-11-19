@@ -16,7 +16,6 @@
 
 package androidx.ui.core.gesture
 
-import androidx.ui.core.Direction
 import androidx.ui.core.Duration
 import androidx.ui.core.IntPxSize
 import androidx.ui.core.PointerEventPass
@@ -30,6 +29,7 @@ import androidx.ui.core.px
 import androidx.ui.testutils.consume
 import androidx.ui.testutils.down
 import androidx.ui.testutils.invokeOverAllPasses
+import androidx.ui.testutils.invokeOverPasses
 import androidx.ui.testutils.moveBy
 import androidx.ui.testutils.moveTo
 import androidx.ui.testutils.up
@@ -43,7 +43,6 @@ import org.junit.runners.JUnit4
 // Test for cases where things are reset when last pointer goes up
 // Verify methods called during PostUp and PostDown
 // Verify correct behavior when distance is consumed at different moments between passes.
-// Verify that canStartDragging is only called when it needs to be.
 // Verify correct behavior with no DragBlocker
 
 @RunWith(JUnit4::class)
@@ -70,7 +69,7 @@ class RawDragGestureDetectorTest {
 
         val down = down()
         recognizer.pointerInputHandler.invokeOverAllPasses(down)
-        val move = down.moveBy(Duration(milliseconds = 10), 1f, 0f)
+        val move = down.moveBy(10.milliseconds, 1f, 0f)
         recognizer.pointerInputHandler.invokeOverAllPasses(move)
 
         assertThat(log.filter { it.methodName == "onStart" }).isEmpty()
@@ -83,7 +82,7 @@ class RawDragGestureDetectorTest {
         recognizer.pointerInputHandler.invokeOverAllPasses(down)
         dragStartBlocked = false
 
-        val move = down.moveBy(Duration(milliseconds = 10), 0f, 0f)
+        val move = down.moveBy(10.milliseconds, 0f, 0f)
         recognizer.pointerInputHandler.invokeOverAllPasses(move)
 
         assertThat(log.filter { it.methodName == "onStart" }).isEmpty()
@@ -134,19 +133,19 @@ class RawDragGestureDetectorTest {
         // These movements average to no movement.
         pointers[0] =
             pointers[0].moveBy(
-                Duration(milliseconds = 100),
+                100.milliseconds,
                 -1f,
                 -1f
             )
         pointers[1] =
             pointers[1].moveBy(
-                Duration(milliseconds = 100),
+                100.milliseconds,
                 1f,
                 -1f
             )
         pointers[2] =
             pointers[2].moveBy(
-                Duration(milliseconds = 100),
+                100.milliseconds,
                 0f,
                 2f
             )
@@ -166,7 +165,7 @@ class RawDragGestureDetectorTest {
         recognizer.pointerInputHandler.invokeOverAllPasses(down)
         dragStartBlocked = false
 
-        val move = down.moveBy(Duration(milliseconds = 10), 1f, 0f)
+        val move = down.moveBy(10.milliseconds, 1f, 0f)
         recognizer.pointerInputHandler.invokeOverAllPasses(move)
 
         assertThat(log.filter { it.methodName == "onStart" }).hasSize(1)
@@ -182,7 +181,7 @@ class RawDragGestureDetectorTest {
         recognizer.pointerInputHandler.invokeOverAllPasses(down)
         dragStartBlocked = false
 
-        val move = down.moveBy(Duration(milliseconds = 10), 0f, 1f)
+        val move = down.moveBy(10.milliseconds, 0f, 1f)
         recognizer.pointerInputHandler.invokeOverAllPasses(move)
 
         assertThat(log.filter { it.methodName == "onStart" }).hasSize(1)
@@ -198,7 +197,7 @@ class RawDragGestureDetectorTest {
         recognizer.pointerInputHandler.invokeOverAllPasses(down)
         dragStartBlocked = false
 
-        val move = down.moveBy(Duration(milliseconds = 10), 1f, 0f).consume(dx = 2f)
+        val move = down.moveBy(10.milliseconds, 1f, 0f).consume(dx = 2f)
         recognizer.pointerInputHandler.invokeOverAllPasses(move)
 
         assertThat(log.filter { it.methodName == "onStart" }).hasSize(1)
@@ -210,7 +209,7 @@ class RawDragGestureDetectorTest {
     // onDrag called with correct values verification.
 
     @Test
-    fun pointerInputHandler_unblockedMove_onDragCalledWithTotalDistanceDuringPostUp() {
+    fun pointerInputHandler_unblockedMove_onDragCalledWithTotalDistance() {
         var change = down()
         recognizer.pointerInputHandler.invokeOverAllPasses(change)
         dragStartBlocked = false
@@ -220,8 +219,8 @@ class RawDragGestureDetectorTest {
 
         val onDragLog = log.filter { it.methodName == "onDrag" }
         assertThat(onDragLog).hasSize(2)
-        // OnDrags get's called twice each time because DragGestureDetector calls it on both PostUp
-        // and PostDown and the distance is not consumed by PostUp.
+        // OnDrags get's called twice each time because RawDragGestureDetector calls it on both
+        // PostUp and PostDown and the distance is not consumed by PostUp.
         assertThat(onDragLog[0].pxPosition).isEqualTo(PxPosition(5.px, (-2).px))
         assertThat(onDragLog[1].pxPosition).isEqualTo(PxPosition(5.px, (-2).px))
     }
@@ -237,14 +236,14 @@ class RawDragGestureDetectorTest {
 
         // Act
 
-        change = change.moveBy(Duration(milliseconds = 100), 3f, -5f)
+        change = change.moveBy(100.milliseconds, 3f, -5f)
         recognizer.pointerInputHandler.invokeOverAllPasses(change)
-        change = change.moveBy(Duration(milliseconds = 100), -3f, 7f)
+        change = change.moveBy(100.milliseconds, -3f, 7f)
         recognizer.pointerInputHandler.invokeOverAllPasses(change)
-        change = change.moveBy(Duration(milliseconds = 100), 11f, 13f)
+        change = change.moveBy(100.milliseconds, 11f, 13f)
             .consumePositionChange(5.px, 3.px)
         recognizer.pointerInputHandler.invokeOverAllPasses(change)
-        change = change.moveBy(Duration(milliseconds = 100), -13f, -11f)
+        change = change.moveBy(100.milliseconds, -13f, -11f)
             .consumePositionChange((-3).px, (-5).px)
         recognizer.pointerInputHandler.invokeOverAllPasses(change)
 
@@ -252,8 +251,8 @@ class RawDragGestureDetectorTest {
 
         val onDragLog = log.filter { it.methodName == "onDrag" }
         assertThat(onDragLog).hasSize(8)
-        // OnDrags get's called twice each time because DragGestureDetector calls it on both PostUp
-        // and PostDown and the distance is not consumed by PostUp.
+        // OnDrags get's called twice each time because RawDragGestureDetector calls it on both
+        // PostUp and PostDown and the distance is not consumed by PostUp.
         assertThat(onDragLog[0].pxPosition).isEqualTo(PxPosition(3.px, (-5).px))
         assertThat(onDragLog[1].pxPosition).isEqualTo(PxPosition(3.px, (-5).px))
         assertThat(onDragLog[2].pxPosition).isEqualTo(PxPosition((-3).px, 7.px))
@@ -287,7 +286,7 @@ class RawDragGestureDetectorTest {
 
         val onDragLog = log.filter { it.methodName == "onDrag" }
         assertThat(onDragLog).hasSize(2)
-        // 2 onDrags because DragGestureDetector calls onDrag on both PostUp and PostDown and the
+        // 2 onDrags because RawDragGestureDetector calls onDrag on both PostUp and PostDown and the
         // distance is never consumed.
         assertThat(onDragLog[0].pxPosition).isEqualTo(
             PxPosition(
@@ -387,7 +386,7 @@ class RawDragGestureDetectorTest {
 
         repeat(11) {
             change = change.moveBy(
-                Duration(milliseconds = 10),
+                10.milliseconds,
                 incrementPerMilliX,
                 incrementPerMilliY
             )
@@ -423,7 +422,7 @@ class RawDragGestureDetectorTest {
 
         assertThat(log).hasSize(4)
         assertThat(log[0].methodName).isEqualTo("onStart")
-        // 2 onDrags because DragGestureDetector calls onDrag on both PostUp and PostDown and the
+        // 2 onDrags because RawDragGestureDetector calls onDrag on both PostUp and PostDown and the
         // distance is never consumed.
         assertThat(log[1].methodName).isEqualTo("onDrag")
         assertThat(log[2].methodName).isEqualTo("onDrag")
@@ -448,7 +447,22 @@ class RawDragGestureDetectorTest {
             1f,
             0f
         )
-        val result = recognizer.pointerInputHandler.invokeOverAllPasses(change)
+        dragObserver.dragConsume = PxPosition(7.ipx, (-11).ipx)
+        var result = recognizer.pointerInputHandler.invokeOverPasses(
+            listOf(change),
+            PointerEventPass.InitialDown,
+            PointerEventPass.PreUp,
+            PointerEventPass.PreDown,
+            PointerEventPass.PostUp
+        )
+        dragObserver.dragConsume = PxPosition.Origin
+        result = recognizer.pointerInputHandler.invokeOverPasses(
+            result,
+            PointerEventPass.InitialDown,
+            PointerEventPass.PreUp,
+            PointerEventPass.PreDown,
+            PointerEventPass.PostUp
+        )
 
         assertThat(result.first().anyPositionChangeConsumed()).isFalse()
     }
@@ -491,11 +505,8 @@ class RawDragGestureDetectorTest {
 
     @Test
     fun pointerInputHandler_moveCallBackConsumes_changeDistanceConsumedByCorrectAmount() {
-        dragObserver.dragConsume = PxPosition(7.ipx, (-11).ipx)
-
         var change = down()
-        recognizer.pointerInputHandler
-            .invoke(listOf(change), PointerEventPass.PostUp, IntPxSize(0.ipx, 0.ipx))
+        recognizer.pointerInputHandler.invokeOverAllPasses(change, IntPxSize(0.ipx, 0.ipx))
         dragStartBlocked = false
 
         change = change.moveTo(
@@ -503,10 +514,18 @@ class RawDragGestureDetectorTest {
             3f,
             -5f
         )
-        val result = recognizer.pointerInputHandler.invoke(
+        dragObserver.dragConsume = PxPosition(7.ipx, (-11).ipx)
+        var result = recognizer.pointerInputHandler.invokeOverPasses(
             listOf(change),
-            PointerEventPass.PostUp,
-            IntPxSize(0.ipx, 0.ipx)
+            PointerEventPass.InitialDown,
+            PointerEventPass.PreUp,
+            PointerEventPass.PreDown,
+            PointerEventPass.PostUp
+        )
+        dragObserver.dragConsume = PxPosition.Origin
+        result = recognizer.pointerInputHandler.invokeOverPasses(
+            result,
+            PointerEventPass.PostDown
         )
 
         assertThat(result.first().consumed.positionChange.x.value).isEqualTo(7f)
@@ -567,7 +586,6 @@ class RawDragGestureDetectorTest {
 
     data class LogItem(
         val methodName: String,
-        val direction: Direction? = null,
         val pxPosition: PxPosition? = null
     )
 
