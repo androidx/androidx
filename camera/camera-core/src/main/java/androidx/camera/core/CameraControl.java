@@ -45,9 +45,9 @@ public interface CameraControl {
      * Enable the torch or disable the torch.
      *
      * <p>{@link CameraInfo#getTorchState()} can be used to query the torch state.
-     * If the camera doesn't have a flash unit or doesn't support torch (see
-     * {@link TorchState#UNAVAILABLE}), then the call will do nothing and the returned
-     * {@link ListenableFuture} will complete immediately with a failed result.
+     * If the camera doesn't have a flash unit (see {@link CameraInfo#hasFlashUnit()}), then the
+     * call will do nothing, the returned {@link ListenableFuture} will complete immediately with
+     * a failed result and the torch state will be {@link TorchState#OFF}.
      *
      * <p>When the torch is enabled, the torch will remain enabled during photo capture regardless
      * of {@link FlashMode} setting. When the torch is disabled, flash will function as

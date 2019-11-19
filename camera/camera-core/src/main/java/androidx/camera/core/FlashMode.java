@@ -24,10 +24,10 @@ import java.lang.annotation.RetentionPolicy;
 /**
  * The flash mode options when taking a picture using ImageCapture.
  *
- * <p>Applications can check if flash is available and update UI component if necessary via
- * {@link CameraInfo#isFlashAvailable()}. If no flash is available, then the FlashMode set to
- * {@link ImageCapture#setFlashMode(int)} will take no effect for the subsequent photo
- * capture requests and they will act like {@link FlashMode#OFF}.
+ * <p>Applications can check if there is a flash unit via {@link CameraInfo#hasFlashUnit()} and
+ * update UI component if necessary. If there is no flash unit, then the FlashMode set to
+ * {@link ImageCapture#setFlashMode(int)} will take no effect for the subsequent photo capture
+ * requests and they will act like {@link FlashMode#OFF}.
  *
  * <p>When the torch is enabled via {@link CameraControl#enableTorch(boolean)}, the torch
  * will remain enabled during photo capture regardless of flash mode setting. When
