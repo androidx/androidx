@@ -16,14 +16,17 @@
 
 package androidx.ui.animation
 
+import androidx.animation.AnimationClockObservable
 import androidx.animation.PropKey
 import androidx.animation.TransitionAnimation
 import androidx.animation.TransitionDefinition
 import androidx.animation.TransitionState
 import androidx.compose.Composable
 import androidx.compose.Model
+import androidx.compose.ambient
 import androidx.compose.memo
 import androidx.compose.unaryPlus
+import androidx.ui.core.AnimationClockAmbient
 
 /**
  * Composable to use with TransitionDefinition-based animations.
@@ -34,11 +37,12 @@ import androidx.compose.unaryPlus
 fun <T> Transition(
     definition: TransitionDefinition<T>,
     toState: T,
+    clock: AnimationClockObservable = +ambient(AnimationClockAmbient),
     children: @Composable() (state: TransitionState) -> Unit
 ) {
     if (transitionsEnabled) {
         // TODO: This null is workaround for b/132148894
-        val model = +memo(definition, null) { TransitionModel(definition) }
+        val model = +memo(definition, null) { TransitionModel(definition, clock) }
         model.anim.toState(toState)
         children(model)
     } else {
@@ -56,12 +60,13 @@ var transitionsEnabled = true
 // TODO(Doris): Use Clock idea instead of TransitionModel with pulse
 @Model
 private class TransitionModel<T>(
-    transitionDef: TransitionDefinition<T>
+    transitionDef: TransitionDefinition<T>,
+    clock: AnimationClockObservable
 ) : TransitionState {
 
     private var animationPulse = 0L
     internal val anim: TransitionAnimation<T> =
-        transitionDef.createAnimation().apply {
+        transitionDef.createAnimation(clock).apply {
             onUpdate = {
                 animationPulse++
             }
