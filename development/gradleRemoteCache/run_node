@@ -1,0 +1,2 @@
+java -jar /home/$USER/Workspace/gradle-node/build-cache-node-8.1.jar --data-dir /home/$USER/Workspace/data --port 80
+
