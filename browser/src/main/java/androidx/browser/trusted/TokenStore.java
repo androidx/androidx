@@ -27,10 +27,12 @@ import androidx.annotation.WorkerThread;
  * return an instance.
  * Finally, they should execute the following code themselves to set the verified provider:
  * <pre>
- *     TokenStore tokenStore  = ... // Instantiate the implemented class.
- *     String packageName = ... // Package name of the Trusted Web Activity provider.
+ * {@code
+ * TokenStore tokenStore  = ... // Instantiate the implemented class.
+ * String packageName = ... // Package name of the Trusted Web Activity provider.
  *
- *     tokenStore.store(Token.create(packageName, getPackageManager());
+ * tokenStore.store(Token.create(packageName, getPackageManager());
+ * }
  * </pre>
  *
  * There is only a single {@link Token} stored at a time.
