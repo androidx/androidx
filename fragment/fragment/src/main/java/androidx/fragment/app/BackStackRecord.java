@@ -20,7 +20,6 @@ import android.util.Log;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
-import androidx.core.util.LogWriter;
 import androidx.lifecycle.Lifecycle;
 
 import java.io.PrintWriter;

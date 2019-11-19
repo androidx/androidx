@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2011 The Android Open Source Project
+ * Copyright 2019 The Android Open Source Project
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -14,33 +14,20 @@
  * limitations under the License.
  */
 
-package androidx.core.util;
-
-import static androidx.annotation.RestrictTo.Scope.TESTS;
+package androidx.fragment.app;
 
 import android.util.Log;
 
-import androidx.annotation.RestrictTo;
-
 import java.io.Writer;
 
-/**
- * @hide
- * @deprecated Copied to use sites. Do not use.
- */
-@RestrictTo(TESTS) // Prevent new users.
-@Deprecated
-public class LogWriter extends Writer {
+final class LogWriter extends Writer {
     private final String mTag;
     private StringBuilder mBuilder = new StringBuilder(128);
 
     /**
-     * Create a new Writer that sends to the log with the given priority
-     * and tag.
-     *
-     * @param tag A string tag to associate with each printed log statement.
+     * Create a new Writer that sends to the log with the given tag.
      */
-    public LogWriter(String tag) {
+    LogWriter(String tag) {
         mTag = tag;
     }
 

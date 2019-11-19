@@ -1932,11 +1932,11 @@ package androidx.core.util {
     method public static void buildShortClassTag(Object!, StringBuilder!);
   }
 
-  @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP_PREFIX) public class LogWriter extends java.io.Writer {
-    ctor public LogWriter(String!);
-    method public void close();
-    method public void flush();
-    method public void write(char[]!, int, int);
+  @Deprecated @RestrictTo(androidx.annotation.RestrictTo.Scope.TESTS) public class LogWriter extends java.io.Writer {
+    ctor @Deprecated public LogWriter(String!);
+    method @Deprecated public void close();
+    method @Deprecated public void flush();
+    method @Deprecated public void write(char[]!, int, int);
   }
 
   public class ObjectsCompat {

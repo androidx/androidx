@@ -46,7 +46,6 @@ import androidx.annotation.RestrictTo;
 import androidx.annotation.StringRes;
 import androidx.collection.ArraySet;
 import androidx.core.os.CancellationSignal;
-import androidx.core.util.LogWriter;
 import androidx.fragment.R;
 import androidx.lifecycle.Lifecycle;
 import androidx.lifecycle.LifecycleOwner;
