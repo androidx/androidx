@@ -42,8 +42,8 @@ public class ShadowCameraX {
                     }).getUseCaseConfig();
 
     private static final CameraInfo DEFAULT_CAMERA_INFO = new CameraInfoInternal() {
-        MutableLiveData<Boolean> mFlashAvailability = new MutableLiveData<>(Boolean.TRUE);
-        MutableLiveData<Integer> mTorchState = new MutableLiveData<>(TorchState.DISABLED);
+        final boolean mHasFlashUnit = true;
+        MutableLiveData<Integer> mTorchState = new MutableLiveData<>(TorchState.OFF);
         MutableLiveData<Float> mZoomRatio = new MutableLiveData<>(1.0f);
         MutableLiveData<Float> mMaxZoomRatio = new MutableLiveData<>(4.0f);
         MutableLiveData<Float> mMinZoomRatio = new MutableLiveData<>(1.0f);
@@ -64,10 +64,9 @@ public class ShadowCameraX {
             return 0;
         }
 
-        @NonNull
         @Override
-        public LiveData<Boolean> isFlashAvailable() {
-            return mFlashAvailability;
+        public boolean hasFlashUnit() {
+            return mHasFlashUnit;
         }
 
         @NonNull

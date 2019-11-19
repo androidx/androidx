@@ -53,17 +53,18 @@ public interface CameraInfo {
     int getSensorRotationDegrees(@ImageOutputConfig.RotationValue int relativeRotation);
 
     /** Returns if flash unit is available or not. */
-    @NonNull
-    LiveData<Boolean> isFlashAvailable();
+    boolean hasFlashUnit();
 
     /**
      * Returns a {@link LiveData} of current {@link TorchState}.
      *
-     * <p>The torch state can be enabled or disabled via
-     * {@link CameraControl#enableTorch(boolean)} which will trigger the change event to the
-     * returned {@link LiveData}. Apps can either get immediate value via
-     * {@link LiveData#getValue()} or observe it via
+     * <p>The torch can be turned on and off via {@link CameraControl#enableTorch(boolean)} which
+     * will trigger the change event to the returned {@link LiveData}. Apps can either get
+     * immediate value via {@link LiveData#getValue()} or observe it via
      * {@link LiveData#observe(LifecycleOwner, Observer)} to update torch UI accordingly.
+     *
+     * <p>If the camera doesn't have a flash unit (see {@link #hasFlashUnit()}), then the torch
+     * state will be {@link TorchState#OFF}.
      *
      * @return a {@link LiveData} containing current torch state.
      */

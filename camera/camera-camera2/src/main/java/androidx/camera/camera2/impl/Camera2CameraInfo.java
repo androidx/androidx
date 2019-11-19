@@ -28,7 +28,6 @@ import androidx.camera.core.ImageOutputConfig.RotationValue;
 import androidx.camera.core.LensFacing;
 import androidx.core.util.Preconditions;
 import androidx.lifecycle.LiveData;
-import androidx.lifecycle.MutableLiveData;
 
 /**
  * Implementation of the {@link CameraInfoInternal} interface that exposes parameters through
@@ -39,7 +38,6 @@ final class Camera2CameraInfo implements CameraInfoInternal {
     private static final String TAG = "Camera2CameraInfo";
     private final CameraCharacteristics mCameraCharacteristics;
     private final ZoomControl mZoomControl;
-    private final MutableLiveData<Boolean> mFlashAvailability;
 
     Camera2CameraInfo(@NonNull CameraCharacteristics cameraCharacteristics,
             @NonNull ZoomControl zoomControl) {
@@ -47,8 +45,6 @@ final class Camera2CameraInfo implements CameraInfoInternal {
         mCameraCharacteristics = cameraCharacteristics;
         mZoomControl = zoomControl;
 
-        mFlashAvailability = new MutableLiveData<>(
-                mCameraCharacteristics.get(CameraCharacteristics.FLASH_INFO_AVAILABLE));
         logDeviceInfo();
     }
 
@@ -133,10 +129,12 @@ final class Camera2CameraInfo implements CameraInfoInternal {
         Log.i(TAG, "Device Level: " + levelString);
     }
 
-    @NonNull
     @Override
-    public LiveData<Boolean> isFlashAvailable() {
-        return mFlashAvailability;
+    public boolean hasFlashUnit() {
+        Boolean hasFlashUnit = mCameraCharacteristics.get(
+                CameraCharacteristics.FLASH_INFO_AVAILABLE);
+        Preconditions.checkNotNull(hasFlashUnit);
+        return hasFlashUnit;
     }
 
     @NonNull
