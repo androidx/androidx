@@ -1,0 +1,7 @@
+---
+version: 2
+cache:
+  targetSize: 150000
+  maxArtifactSize: 2500
+  credentials:
+    anonymousLevel: "READWRITE"
