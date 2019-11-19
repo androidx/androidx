@@ -24,7 +24,7 @@ import android.view.animation.Animation;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.annotation.RestrictTo;
-import androidx.collection.ArrayMap;
+import androidx.collection.SimpleArrayMap;
 
 import java.util.ArrayList;
 import java.util.Collection;
@@ -81,7 +81,7 @@ public final class AnimatorSet extends Animator implements AnimationHandler.Anim
      * to a single node representing that Animator, not create a new Node
      * if one already exists.
      */
-    ArrayMap<Animator, Node> mNodeMap = new ArrayMap<Animator, Node>();
+    SimpleArrayMap<Animator, Node> mNodeMap = new SimpleArrayMap<Animator, Node>();
 
     /**
      * Contains the start and end events of all the nodes. All these events are sorted in this list.
@@ -1267,7 +1267,7 @@ public final class AnimatorSet extends Animator implements AnimationHandler.Anim
         anim.mSeekState = new SeekState();
         anim.mSelfPulse = true;
         anim.mPlayingSet = new ArrayList<Node>();
-        anim.mNodeMap = new ArrayMap<Animator, Node>();
+        anim.mNodeMap = new SimpleArrayMap<Animator, Node>();
         anim.mNodes = new ArrayList<Node>(nodeCount);
         anim.mEvents = new ArrayList<AnimationEvent>();
         anim.mDummyListener = new AnimatorListenerAdapter() {
