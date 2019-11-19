@@ -3,11 +3,11 @@ package androidx.transition {
 
   public class ArcMotion extends androidx.transition.PathMotion {
     ctor public ArcMotion();
-    ctor public ArcMotion(android.content.Context!, android.util.AttributeSet!);
+    ctor public ArcMotion(android.content.Context, android.util.AttributeSet);
     method public float getMaximumAngle();
     method public float getMinimumHorizontalAngle();
     method public float getMinimumVerticalAngle();
-    method public android.graphics.Path! getPath(float, float, float, float);
+    method public android.graphics.Path getPath(float, float, float, float);
     method public void setMaximumAngle(float);
     method public void setMinimumHorizontalAngle(float);
     method public void setMinimumVerticalAngle(float);
@@ -15,12 +15,12 @@ package androidx.transition {
 
   public class AutoTransition extends androidx.transition.TransitionSet {
     ctor public AutoTransition();
-    ctor public AutoTransition(android.content.Context!, android.util.AttributeSet!);
+    ctor public AutoTransition(android.content.Context, android.util.AttributeSet);
   }
 
   public class ChangeBounds extends androidx.transition.Transition {
     ctor public ChangeBounds();
-    ctor public ChangeBounds(android.content.Context!, android.util.AttributeSet!);
+    ctor public ChangeBounds(android.content.Context, android.util.AttributeSet);
     method public void captureEndValues(androidx.transition.TransitionValues);
     method public void captureStartValues(androidx.transition.TransitionValues);
     method public boolean getResizeClip();
@@ -29,28 +29,28 @@ package androidx.transition {
 
   public class ChangeClipBounds extends androidx.transition.Transition {
     ctor public ChangeClipBounds();
-    ctor public ChangeClipBounds(android.content.Context!, android.util.AttributeSet!);
+    ctor public ChangeClipBounds(android.content.Context, android.util.AttributeSet);
     method public void captureEndValues(androidx.transition.TransitionValues);
     method public void captureStartValues(androidx.transition.TransitionValues);
   }
 
   public class ChangeImageTransform extends androidx.transition.Transition {
     ctor public ChangeImageTransform();
-    ctor public ChangeImageTransform(android.content.Context!, android.util.AttributeSet!);
+    ctor public ChangeImageTransform(android.content.Context, android.util.AttributeSet);
     method public void captureEndValues(androidx.transition.TransitionValues);
     method public void captureStartValues(androidx.transition.TransitionValues);
   }
 
   public class ChangeScroll extends androidx.transition.Transition {
     ctor public ChangeScroll();
-    ctor public ChangeScroll(android.content.Context!, android.util.AttributeSet!);
+    ctor public ChangeScroll(android.content.Context, android.util.AttributeSet);
     method public void captureEndValues(androidx.transition.TransitionValues);
     method public void captureStartValues(androidx.transition.TransitionValues);
   }
 
   public class ChangeTransform extends androidx.transition.Transition {
     ctor public ChangeTransform();
-    ctor public ChangeTransform(android.content.Context!, android.util.AttributeSet!);
+    ctor public ChangeTransform(android.content.Context, android.util.AttributeSet);
     method public void captureEndValues(androidx.transition.TransitionValues);
     method public void captureStartValues(androidx.transition.TransitionValues);
     method public boolean getReparent();
@@ -67,28 +67,28 @@ package androidx.transition {
 
   public class Explode extends androidx.transition.Visibility {
     ctor public Explode();
-    ctor public Explode(android.content.Context!, android.util.AttributeSet!);
+    ctor public Explode(android.content.Context, android.util.AttributeSet);
   }
 
   public class Fade extends androidx.transition.Visibility {
     ctor public Fade(int);
     ctor public Fade();
-    ctor public Fade(android.content.Context!, android.util.AttributeSet!);
+    ctor public Fade(android.content.Context, android.util.AttributeSet);
     field public static final int IN = 1; // 0x1
     field public static final int OUT = 2; // 0x2
   }
 
   public abstract class PathMotion {
     ctor public PathMotion();
-    ctor public PathMotion(android.content.Context!, android.util.AttributeSet!);
-    method public abstract android.graphics.Path! getPath(float, float, float, float);
+    ctor public PathMotion(android.content.Context, android.util.AttributeSet);
+    method public abstract android.graphics.Path getPath(float, float, float, float);
   }
 
   public class PatternPathMotion extends androidx.transition.PathMotion {
     ctor public PatternPathMotion();
-    ctor public PatternPathMotion(android.content.Context!, android.util.AttributeSet!);
+    ctor public PatternPathMotion(android.content.Context, android.util.AttributeSet);
     ctor public PatternPathMotion(android.graphics.Path!);
-    method public android.graphics.Path! getPath(float, float, float, float);
+    method public android.graphics.Path getPath(float, float, float, float);
     method public android.graphics.Path! getPatternPath();
     method public void setPatternPath(android.graphics.Path!);
   }
@@ -115,14 +115,14 @@ package androidx.transition {
   public class Slide extends androidx.transition.Visibility {
     ctor public Slide();
     ctor public Slide(int);
-    ctor public Slide(android.content.Context!, android.util.AttributeSet!);
+    ctor public Slide(android.content.Context, android.util.AttributeSet);
     method public int getSlideEdge();
     method public void setSlideEdge(int);
   }
 
   public abstract class Transition implements java.lang.Cloneable {
     ctor public Transition();
-    ctor public Transition(android.content.Context!, android.util.AttributeSet!);
+    ctor public Transition(android.content.Context, android.util.AttributeSet);
     method public androidx.transition.Transition addListener(androidx.transition.Transition.TransitionListener);
     method public androidx.transition.Transition addTarget(android.view.View);
     method public androidx.transition.Transition addTarget(@IdRes int);
@@ -186,7 +186,7 @@ package androidx.transition {
   }
 
   public class TransitionInflater {
-    method public static androidx.transition.TransitionInflater! from(android.content.Context!);
+    method public static androidx.transition.TransitionInflater from(android.content.Context);
     method public androidx.transition.Transition! inflateTransition(int);
     method public androidx.transition.TransitionManager! inflateTransitionManager(int, android.view.ViewGroup!);
   }
@@ -221,7 +221,7 @@ package androidx.transition {
 
   public class TransitionSet extends androidx.transition.Transition {
     ctor public TransitionSet();
-    ctor public TransitionSet(android.content.Context!, android.util.AttributeSet!);
+    ctor public TransitionSet(android.content.Context, android.util.AttributeSet);
     method public androidx.transition.TransitionSet addListener(androidx.transition.Transition.TransitionListener);
     method public androidx.transition.TransitionSet addTarget(android.view.View);
     method public androidx.transition.TransitionSet addTarget(@IdRes int);
@@ -256,15 +256,15 @@ package androidx.transition {
 
   public abstract class Visibility extends androidx.transition.Transition {
     ctor public Visibility();
-    ctor public Visibility(android.content.Context!, android.util.AttributeSet!);
+    ctor public Visibility(android.content.Context, android.util.AttributeSet);
     method public void captureEndValues(androidx.transition.TransitionValues);
     method public void captureStartValues(androidx.transition.TransitionValues);
     method public int getMode();
     method public boolean isVisible(androidx.transition.TransitionValues!);
-    method public android.animation.Animator! onAppear(android.view.ViewGroup!, androidx.transition.TransitionValues!, int, androidx.transition.TransitionValues!, int);
-    method public android.animation.Animator! onAppear(android.view.ViewGroup!, android.view.View!, androidx.transition.TransitionValues!, androidx.transition.TransitionValues!);
-    method public android.animation.Animator! onDisappear(android.view.ViewGroup!, androidx.transition.TransitionValues!, int, androidx.transition.TransitionValues!, int);
-    method public android.animation.Animator! onDisappear(android.view.ViewGroup!, android.view.View!, androidx.transition.TransitionValues!, androidx.transition.TransitionValues!);
+    method public android.animation.Animator? onAppear(android.view.ViewGroup!, androidx.transition.TransitionValues!, int, androidx.transition.TransitionValues!, int);
+    method public android.animation.Animator? onAppear(android.view.ViewGroup!, android.view.View!, androidx.transition.TransitionValues!, androidx.transition.TransitionValues!);
+    method public android.animation.Animator? onDisappear(android.view.ViewGroup!, androidx.transition.TransitionValues!, int, androidx.transition.TransitionValues!, int);
+    method public android.animation.Animator? onDisappear(android.view.ViewGroup!, android.view.View!, androidx.transition.TransitionValues!, androidx.transition.TransitionValues!);
     method public void setMode(int);
     field public static final int MODE_IN = 1; // 0x1
     field public static final int MODE_OUT = 2; // 0x2

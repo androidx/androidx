@@ -33,6 +33,7 @@ import android.view.View;
 import android.view.ViewGroup;
 
 import androidx.annotation.NonNull;
+import androidx.annotation.Nullable;
 import androidx.core.content.res.TypedArrayUtils;
 import androidx.core.view.ViewCompat;
 
@@ -110,7 +111,7 @@ public class ChangeTransform extends Transition {
 
     @SuppressLint("RestrictedApi") // remove once core lib would be released with the new
     // LIBRARY_GROUP_PREFIX restriction. tracking in b/127286008
-    public ChangeTransform(Context context, AttributeSet attrs) {
+    public ChangeTransform(@NonNull Context context, @NonNull AttributeSet attrs) {
         super(context, attrs);
         TypedArray a = context.obtainStyledAttributes(attrs, Styleable.CHANGE_TRANSFORM);
         mUseOverlay = TypedArrayUtils.getNamedBoolean(a, (XmlPullParser) attrs,
@@ -189,6 +190,7 @@ public class ChangeTransform extends Transition {
     }
 
     @Override
+    @NonNull
     public String[] getTransitionProperties() {
         return sTransitionProperties;
     }
@@ -238,9 +240,11 @@ public class ChangeTransform extends Transition {
         captureValues(transitionValues);
     }
 
+    @Nullable
     @Override
-    public Animator createAnimator(@NonNull ViewGroup sceneRoot, TransitionValues startValues,
-            TransitionValues endValues) {
+    public Animator createAnimator(@NonNull ViewGroup sceneRoot,
+            @Nullable TransitionValues startValues,
+            @Nullable TransitionValues endValues) {
         if (startValues == null || endValues == null
                 || !startValues.values.containsKey(PROPNAME_PARENT)
                 || !endValues.values.containsKey(PROPNAME_PARENT)) {

@@ -112,7 +112,7 @@ public class TransitionSet extends Transition {
 
     @SuppressLint("RestrictedApi") // remove once core lib would be released with the new
     // LIBRARY_GROUP_PREFIX restriction. tracking in b/127286008
-    public TransitionSet(Context context, AttributeSet attrs) {
+    public TransitionSet(@NonNull Context context, @NonNull AttributeSet attrs) {
         super(context, attrs);
         TypedArray a = context.obtainStyledAttributes(attrs, Styleable.TRANSITION_SET);
         int ordering = TypedArrayUtils.getNamedInt(a, (XmlResourceParser) attrs,
