@@ -91,7 +91,7 @@ internal fun getTextSelectionInfo(
 
     val bounds = PxBounds(Px.Zero, Px.Zero, textDelegate.width.toPx(), textDelegate.height.toPx())
 
-    val lastOffset = textDelegate.text.text.length - 1
+    val lastOffset = textDelegate.text.text.length
 
     val containsWholeSelectionStart =
         bounds.toRect().contains(Offset(startPosition.x.value, startPosition.y.value))
