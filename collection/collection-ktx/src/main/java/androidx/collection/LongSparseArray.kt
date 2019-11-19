@@ -18,6 +18,8 @@
 
 package androidx.collection
 
+import kotlin.DeprecationLevel.HIDDEN
+
 /** Returns the number of key/value pairs in the collection. */
 inline val <T> LongSparseArray<T>.size get() = size()
 
@@ -48,7 +50,7 @@ inline fun <T> LongSparseArray<T>.isNotEmpty() = !isEmpty
 
 /** Removes the entry for [key] only if it is mapped to [value]. */
 @Suppress("EXTENSION_SHADOWED_BY_MEMBER") // Binary API compatibility.
-@Deprecated("Replaced with member function. Remove extension import!")
+@Deprecated("Replaced with member function. Remove extension import!", level = HIDDEN)
 fun <T> LongSparseArray<T>.remove(key: Long, value: T) = remove(key, value)
 
 /** Performs the given [action] for each key/value entry. */
