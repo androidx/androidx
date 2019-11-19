@@ -22,7 +22,6 @@ import android.view.View;
 import android.view.ViewGroup;
 
 import androidx.annotation.NonNull;
-import androidx.annotation.Nullable;
 import androidx.collection.ArrayMap;
 import androidx.core.app.SharedElementCallback;
 import androidx.core.os.CancellationSignal;
@@ -1062,11 +1061,10 @@ class FragmentTransition {
         return viewList;
     }
 
-    @Nullable
-    private static ArrayList<View> configureEnteringViewsReordered(
-            @NonNull FragmentTransitionImpl impl, @Nullable Object transition,
-            @Nullable Fragment fragment, @NonNull ArrayList<View> sharedElements,
-            @NonNull View nonExistentView) {
+    @SuppressWarnings("WeakerAccess") /* synthetic access */
+    static ArrayList<View> configureEnteringViewsReordered(FragmentTransitionImpl impl,
+            Object transition,
+            Fragment fragment, ArrayList<View> sharedElements, View nonExistentView) {
         if (fragment != null) {
             changeViewVisibility(fragment.mView, View.VISIBLE);
         }
@@ -1078,7 +1076,7 @@ class FragmentTransition {
     /**
      * Sets the visibility of a View and its children.
      */
-    private static void changeViewVisibility(@NonNull View view, int visibility) {
+    private static void changeViewVisibility(View view, int visibility) {
         if (view instanceof ViewGroup) {
             ViewGroup viewGroup = (ViewGroup) view;
             int count = viewGroup.getChildCount();
