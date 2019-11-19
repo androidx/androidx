@@ -35,7 +35,6 @@ import androidx.camera.core.CameraX;
 import androidx.camera.core.ImageAnalysis;
 import androidx.camera.core.ImageAnalysisConfig;
 import androidx.camera.core.ImageCapture;
-import androidx.camera.core.ImageCaptureConfig;
 import androidx.camera.core.LensFacing;
 import androidx.camera.core.Preview;
 import androidx.camera.core.PreviewSurfaceProviders;
@@ -217,7 +216,7 @@ public final class UseCaseCombinationTest {
     }
 
     private void initImageCapture() {
-        mImageCapture = new ImageCaptureConfig.Builder().build();
+        mImageCapture = new ImageCapture.Builder().build();
     }
 
     private void initPreview() {

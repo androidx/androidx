@@ -49,7 +49,6 @@ import androidx.camera.core.CameraX;
 import androidx.camera.core.ImageAnalysis;
 import androidx.camera.core.ImageAnalysisConfig;
 import androidx.camera.core.ImageCapture;
-import androidx.camera.core.ImageCaptureConfig;
 import androidx.camera.core.ImageProxy;
 import androidx.camera.core.LensFacing;
 import androidx.camera.core.impl.utils.executor.CameraXExecutors;
@@ -428,7 +427,7 @@ public final class Camera2ImplCameraXTest {
         new Camera2Config.Extender(builder).setDeviceStateCallback(mDeviceStateCallback);
         ImageAnalysis useCase0 = builder.build();
 
-        ImageCapture useCase1 = new ImageCaptureConfig.Builder()
+        ImageCapture useCase1 = new ImageCapture.Builder()
                 .setCaptureMode(ImageCapture.CaptureMode.MAX_QUALITY)
                 .build();
 
@@ -460,7 +459,7 @@ public final class Camera2ImplCameraXTest {
         new Camera2Config.Extender(builder).setDeviceStateCallback(mDeviceStateCallback);
         ImageAnalysis useCase0 = builder.build();
 
-        ImageCapture useCase1 = new ImageCaptureConfig.Builder()
+        ImageCapture useCase1 = new ImageCapture.Builder()
                 .setCaptureMode(ImageCapture.CaptureMode.MAX_QUALITY)
                 .build();
 

@@ -92,7 +92,7 @@ public final class ImageCaptureOptionUnpackerTest {
     @Test
     public void unpackWithoutCaptureMode() {
         CaptureConfig.Builder captureBuilder = new CaptureConfig.Builder();
-        ImageCaptureConfig imageCaptureConfig = new ImageCaptureConfig.Builder().getUseCaseConfig();
+        ImageCaptureConfig imageCaptureConfig = new ImageCapture.Builder().getUseCaseConfig();
 
         mUnpacker.setDeviceProperty(PROPERTIES_PIXEL_2_API26);
         mUnpacker.unpack(imageCaptureConfig, captureBuilder);
@@ -107,7 +107,7 @@ public final class ImageCaptureOptionUnpackerTest {
     @Test
     public void unpackWithValidPixel2AndMinLatency() {
         CaptureConfig.Builder captureBuilder = new CaptureConfig.Builder();
-        ImageCaptureConfig imageCaptureConfig = new ImageCaptureConfig.Builder()
+        ImageCaptureConfig imageCaptureConfig = new ImageCapture.Builder()
                 .setCaptureMode(ImageCapture.CaptureMode.MIN_LATENCY)
                 .getUseCaseConfig();
 
@@ -124,7 +124,7 @@ public final class ImageCaptureOptionUnpackerTest {
     @Test
     public void unpackWithValidPixel2AndMaxQuality() {
         CaptureConfig.Builder captureBuilder = new CaptureConfig.Builder();
-        ImageCaptureConfig imageCaptureConfig = new ImageCaptureConfig.Builder()
+        ImageCaptureConfig imageCaptureConfig = new ImageCapture.Builder()
                 .setCaptureMode(ImageCapture.CaptureMode.MAX_QUALITY)
                 .getUseCaseConfig();
 
@@ -141,7 +141,7 @@ public final class ImageCaptureOptionUnpackerTest {
     @Test
     public void unpackWithPixel2NotSupportApiLevelAndMinLatency() {
         CaptureConfig.Builder captureBuilder = new CaptureConfig.Builder();
-        ImageCaptureConfig imageCaptureConfig = new ImageCaptureConfig.Builder()
+        ImageCaptureConfig imageCaptureConfig = new ImageCapture.Builder()
                 .setCaptureMode(ImageCapture.CaptureMode.MIN_LATENCY)
                 .getUseCaseConfig();
 
@@ -158,7 +158,7 @@ public final class ImageCaptureOptionUnpackerTest {
     @Test
     public void unpackWithPixel2NotSupportApiLevelAndMaxQuality() {
         CaptureConfig.Builder captureBuilder = new CaptureConfig.Builder();
-        ImageCaptureConfig imageCaptureConfig = new ImageCaptureConfig.Builder()
+        ImageCaptureConfig imageCaptureConfig = new ImageCapture.Builder()
                 .setCaptureMode(ImageCapture.CaptureMode.MAX_QUALITY)
                 .getUseCaseConfig();
 
@@ -175,7 +175,7 @@ public final class ImageCaptureOptionUnpackerTest {
     @Test
     public void unpackWithValidPixel3AndMinLatency() {
         CaptureConfig.Builder captureBuilder = new CaptureConfig.Builder();
-        ImageCaptureConfig imageCaptureConfig = new ImageCaptureConfig.Builder()
+        ImageCaptureConfig imageCaptureConfig = new ImageCapture.Builder()
                 .setCaptureMode(ImageCapture.CaptureMode.MIN_LATENCY)
                 .getUseCaseConfig();
 
@@ -192,7 +192,7 @@ public final class ImageCaptureOptionUnpackerTest {
     @Test
     public void unpackWithValidPixel3AndMaxQuality() {
         CaptureConfig.Builder captureBuilder = new CaptureConfig.Builder();
-        ImageCaptureConfig imageCaptureConfig = new ImageCaptureConfig.Builder()
+        ImageCaptureConfig imageCaptureConfig = new ImageCapture.Builder()
                 .setCaptureMode(ImageCapture.CaptureMode.MAX_QUALITY)
                 .getUseCaseConfig();
 
@@ -209,7 +209,7 @@ public final class ImageCaptureOptionUnpackerTest {
     @Test
     public void unpackWithPixel3NotSupportApiLevelAndMinLatency() {
         CaptureConfig.Builder captureBuilder = new CaptureConfig.Builder();
-        ImageCaptureConfig imageCaptureConfig = new ImageCaptureConfig.Builder()
+        ImageCaptureConfig imageCaptureConfig = new ImageCapture.Builder()
                 .setCaptureMode(ImageCapture.CaptureMode.MIN_LATENCY)
                 .getUseCaseConfig();
 
@@ -226,7 +226,7 @@ public final class ImageCaptureOptionUnpackerTest {
     @Test
     public void unpackWithPixel3NotSupportApiLevelAndMaxQuality() {
         CaptureConfig.Builder captureBuilder = new CaptureConfig.Builder();
-        ImageCaptureConfig imageCaptureConfig = new ImageCaptureConfig.Builder()
+        ImageCaptureConfig imageCaptureConfig = new ImageCapture.Builder()
                 .setCaptureMode(ImageCapture.CaptureMode.MAX_QUALITY)
                 .getUseCaseConfig();
 
@@ -243,7 +243,7 @@ public final class ImageCaptureOptionUnpackerTest {
     @Test
     public void unpackWithNotSupportManufacture() {
         CaptureConfig.Builder captureBuilder = new CaptureConfig.Builder();
-        ImageCaptureConfig imageCaptureConfig = new ImageCaptureConfig.Builder()
+        ImageCaptureConfig imageCaptureConfig = new ImageCapture.Builder()
                 .setCaptureMode(ImageCapture.CaptureMode.MAX_QUALITY)
                 .getUseCaseConfig();
 
@@ -260,7 +260,7 @@ public final class ImageCaptureOptionUnpackerTest {
     @Test
     public void unpackWithNotSupportModel() {
         CaptureConfig.Builder captureBuilder = new CaptureConfig.Builder();
-        ImageCaptureConfig imageCaptureConfig = new ImageCaptureConfig.Builder()
+        ImageCaptureConfig imageCaptureConfig = new ImageCapture.Builder()
                 .setCaptureMode(ImageCapture.CaptureMode.MAX_QUALITY)
                 .getUseCaseConfig();
 

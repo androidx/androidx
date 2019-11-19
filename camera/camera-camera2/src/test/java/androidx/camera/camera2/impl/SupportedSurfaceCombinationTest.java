@@ -526,7 +526,7 @@ public final class SupportedSurfaceCombinationTest {
                         mContext, LIMITED_CAMERA_ID, mMockCamcorderProfileHelper);
 
         Preview preview = new Preview.Builder().build();
-        ImageCapture imageCapture = new ImageCaptureConfig.Builder().build();
+        ImageCapture imageCapture = new ImageCapture.Builder().build();
         ImageAnalysis imageAnalysis = new ImageAnalysisConfig.Builder().build();
 
         List<UseCase> useCases = new ArrayList<>();
@@ -560,7 +560,7 @@ public final class SupportedSurfaceCombinationTest {
         setupCamera(/* supportsRaw= */ false);
 
         Preview preview = new Preview.Builder().build();
-        ImageCapture imageCapture = new ImageCaptureConfig.Builder().build();
+        ImageCapture imageCapture = new ImageCapture.Builder().build();
         ImageAnalysis imageAnalysis = new ImageAnalysisConfig.Builder().build();
         VideoCapture videoCapture = new VideoCaptureConfig.Builder().build();
 
@@ -655,7 +655,7 @@ public final class SupportedSurfaceCombinationTest {
                 new SupportedSurfaceCombination(
                         mContext, LEGACY_CAMERA_ID, mMockCamcorderProfileHelper);
 
-        ImageCapture imageCapture = new ImageCaptureConfig.Builder()
+        ImageCapture imageCapture = new ImageCapture.Builder()
                 .setTargetAspectRatio(AspectRatio.RATIO_16_9)
                 .build();
         VideoCapture videoCapture = new VideoCaptureConfig.Builder()
@@ -682,7 +682,7 @@ public final class SupportedSurfaceCombinationTest {
                 new SupportedSurfaceCombination(
                         mContext, LIMITED_CAMERA_ID, mMockCamcorderProfileHelper);
 
-        ImageCapture imageCapture = new ImageCaptureConfig.Builder()
+        ImageCapture imageCapture = new ImageCapture.Builder()
                 .setTargetAspectRatio(AspectRatio.RATIO_16_9)
                 .build();
         VideoCapture videoCapture = new VideoCaptureConfig.Builder()
@@ -718,7 +718,7 @@ public final class SupportedSurfaceCombinationTest {
         2. supportedOutputSizes for ImageCapture and Preview in
         SupportedSurfaceCombination#getAllPossibleSizeArrangements are the same.
         */
-        ImageCapture imageCapture = new ImageCaptureConfig.Builder()
+        ImageCapture imageCapture = new ImageCapture.Builder()
                 .setTargetResolution(mDisplaySize)
                 .build();
         Preview preview = new Preview.Builder()
@@ -750,7 +750,7 @@ public final class SupportedSurfaceCombinationTest {
         Preview preview = new Preview.Builder()
                 .setTargetAspectRatio(AspectRatio.RATIO_16_9)
                 .build();
-        ImageCapture imageCapture = new ImageCaptureConfig.Builder()
+        ImageCapture imageCapture = new ImageCapture.Builder()
                 .setTargetAspectRatio(AspectRatio.RATIO_16_9)
                 .build();
         ImageAnalysis imageAnalysis = new ImageAnalysisConfig.Builder()
@@ -795,7 +795,7 @@ public final class SupportedSurfaceCombinationTest {
         assertTrue(previewExceptionHappened);
 
         boolean imageCaptureExceptionHappened = false;
-        ImageCaptureConfig.Builder imageCaptureConfigBuilder = new ImageCaptureConfig.Builder()
+        ImageCapture.Builder imageCaptureConfigBuilder = new ImageCapture.Builder()
                 .setTargetResolution(mDisplaySize)
                 .setTargetAspectRatio(AspectRatio.RATIO_16_9);
         try {
@@ -831,7 +831,7 @@ public final class SupportedSurfaceCombinationTest {
         formatResolutionsPairList.add(Pair.create(ImageFormat.PRIVATE, new Size[]{mAnalysisSize}));
 
         // Sets use cases customized supported resolutions to 640x480 only.
-        ImageCapture imageCapture = new ImageCaptureConfig.Builder()
+        ImageCapture imageCapture = new ImageCapture.Builder()
                 .setSupportedResolutions(formatResolutionsPairList)
                 .build();
         VideoCapture videoCapture = new VideoCaptureConfig.Builder()
@@ -1021,7 +1021,7 @@ public final class SupportedSurfaceCombinationTest {
                 .setTargetAspectRatio(AspectRatio.RATIO_16_9)
                 .setDefaultResolution(mMod16Size)
                 .build();
-        ImageCapture imageCapture = new ImageCaptureConfig.Builder()
+        ImageCapture imageCapture = new ImageCapture.Builder()
                 .setTargetAspectRatio(AspectRatio.RATIO_16_9)
                 .setDefaultResolution(mMod16Size)
                 .build();

@@ -47,7 +47,6 @@ import androidx.camera.core.CameraSelector;
 import androidx.camera.core.CameraX;
 import androidx.camera.core.CaptureProcessor;
 import androidx.camera.core.ImageCapture;
-import androidx.camera.core.ImageCaptureConfig;
 import androidx.camera.core.LensFacing;
 import androidx.camera.extensions.ExtensionsManager.EffectMode;
 import androidx.camera.extensions.impl.CaptureStageImpl;
@@ -113,13 +112,13 @@ public class ImageCaptureExtenderTest {
 
         ImageCaptureExtender.ImageCaptureAdapter imageCaptureAdapter =
                 new ImageCaptureExtender.ImageCaptureAdapter(mockImageCaptureExtenderImpl, null);
-        ImageCaptureConfig.Builder configBuilder =
-                new ImageCaptureConfig.Builder().setCaptureBundle(
+        ImageCapture.Builder builder =
+                new ImageCapture.Builder().setCaptureBundle(
                         imageCaptureAdapter).setUseCaseEventCallback(
                         imageCaptureAdapter).setCaptureProcessor(
                         mock(CaptureProcessor.class));
 
-        ImageCapture useCase = configBuilder.build();
+        ImageCapture useCase = builder.build();
 
         LensFacing lensFacing = CameraX.getDefaultLensFacing();
         CameraSelector cameraSelector = new CameraSelector.Builder()
@@ -169,11 +168,10 @@ public class ImageCaptureExtenderTest {
 
         ImageCaptureExtender.ImageCaptureAdapter imageCaptureAdapter =
                 new ImageCaptureExtender.ImageCaptureAdapter(mockImageCaptureExtenderImpl, null);
-        ImageCaptureConfig.Builder configBuilder =
-                new ImageCaptureConfig.Builder().setCaptureBundle(
-                        imageCaptureAdapter).setUseCaseEventCallback(
-                        imageCaptureAdapter).setCaptureProcessor(
-                        mock(CaptureProcessor.class));
+        ImageCapture.Builder configBuilder = new ImageCapture.Builder().setCaptureBundle(
+                imageCaptureAdapter).setUseCaseEventCallback(
+                imageCaptureAdapter).setCaptureProcessor(
+                mock(CaptureProcessor.class));
         new Camera2Config.Extender(configBuilder).setCameraEventCallback(
                 new CameraEventCallbacks(imageCaptureAdapter));
 
@@ -228,7 +226,7 @@ public class ImageCaptureExtenderTest {
         assumeTrue(ExtensionVersion.getRuntimeVersion().compareTo(Version.VERSION_1_1) >= 0);
 
         LensFacing lensFacing = CameraX.getDefaultLensFacing();
-        ImageCaptureConfig.Builder configBuilder = new ImageCaptureConfig.Builder();
+        ImageCapture.Builder builder = new ImageCapture.Builder();
 
         ImageCaptureExtenderImpl mockImageCaptureExtenderImpl = mock(
                 ImageCaptureExtenderImpl.class);
@@ -238,18 +236,18 @@ public class ImageCaptureExtenderTest {
         when(mockImageCaptureExtenderImpl.getSupportedResolutions()).thenReturn(
                 targetFormatResolutionsPairList);
 
-        ImageCaptureExtender fakeExtender = new FakeImageCaptureExtender(configBuilder,
+        ImageCaptureExtender fakeExtender = new FakeImageCaptureExtender(builder,
                 mockImageCaptureExtenderImpl);
 
         // Checks the config does not include supported resolutions before applying effect mode.
-        assertThat(configBuilder.getUseCaseConfig().getSupportedResolutions(null)).isNull();
+        assertThat(builder.getUseCaseConfig().getSupportedResolutions(null)).isNull();
 
         // Checks the config includes supported resolutions after applying effect mode.
         CameraSelector selector =
                 new CameraSelector.Builder().requireLensFacing(lensFacing).build();
         fakeExtender.enableExtension(selector);
         List<Pair<Integer, Size[]>> resultFormatResolutionsPairList =
-                configBuilder.getUseCaseConfig().getSupportedResolutions(null);
+                builder.getUseCaseConfig().getSupportedResolutions(null);
         assertThat(resultFormatResolutionsPairList).isNotNull();
 
         // Checks the result and target pair lists are the same
@@ -299,7 +297,7 @@ public class ImageCaptureExtenderTest {
     }
 
     final class FakeImageCaptureExtender extends ImageCaptureExtender {
-        FakeImageCaptureExtender(ImageCaptureConfig.Builder builder,
+        FakeImageCaptureExtender(ImageCapture.Builder builder,
                 ImageCaptureExtenderImpl impl) {
             init(builder, impl, EffectMode.NORMAL);
         }

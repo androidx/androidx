@@ -117,7 +117,7 @@ public final class ImageCaptureTest {
     private final Instrumentation mInstrumentation = InstrumentationRegistry.getInstrumentation();
 
     private ExecutorService mListenerExecutor;
-    private ImageCaptureConfig mDefaultConfig;
+    private ImageCapture.Builder mDefaultBuilder;
     private FakeRepeatingUseCase mRepeatingUseCase;
     private FakeUseCaseConfig mFakeUseCaseConfig;
     private String mCameraId;
@@ -148,7 +148,7 @@ public final class ImageCaptureTest {
                 throw new IllegalStateException("Invalid sensor rotation: " + sensorRotation);
         }
 
-        return new ImageCaptureConfig.Builder()
+        return new ImageCapture.Builder()
                 .setTargetRotation(surfaceRotation)
                 .getUseCaseConfig();
     }
@@ -167,7 +167,7 @@ public final class ImageCaptureTest {
             throw new IllegalArgumentException(
                     "Unable to attach to camera with LensFacing " + BACK_LENS_FACING, e);
         }
-        mDefaultConfig = new ImageCaptureConfig.Builder().getUseCaseConfig();
+        mDefaultBuilder = new ImageCapture.Builder();
 
         mFakeUseCaseConfig = new FakeUseCaseConfig.Builder().getUseCaseConfig();
         mRepeatingUseCase = new FakeRepeatingUseCase(mFakeUseCaseConfig, BACK_SELECTOR);
@@ -188,7 +188,7 @@ public final class ImageCaptureTest {
 
     @Test
     public void capturedImageHasCorrectSize() {
-        ImageCapture useCase = new ImageCaptureConfig.Builder().setTargetResolution(
+        ImageCapture useCase = new ImageCapture.Builder().setTargetResolution(
                 DEFAULT_RESOLUTION).setTargetRotation(Surface.ROTATION_0).build();
 
         mInstrumentation.runOnMainSync(
@@ -226,7 +226,7 @@ public final class ImageCaptureTest {
     @FlakyTest //TODO(b/143734846): Callback is not always being called
     @Test
     public void canCaptureMultipleImages() {
-        ImageCapture useCase = new ImageCapture(mDefaultConfig);
+        ImageCapture useCase = mDefaultBuilder.build();
         mInstrumentation.runOnMainSync(
                 () -> {
                     CameraX.bindToLifecycle(mLifecycleOwner, BACK_SELECTOR, useCase);
@@ -247,7 +247,7 @@ public final class ImageCaptureTest {
     @FlakyTest //TODO(b/143734846): Callback is not always being called
     @Test
     public void canCaptureMultipleImagesWithMaxQuality() {
-        ImageCapture useCase = new ImageCaptureConfig.Builder()
+        ImageCapture useCase = new ImageCapture.Builder()
                 .setCaptureMode(ImageCapture.CaptureMode.MAX_QUALITY)
                 .build();
         mInstrumentation.runOnMainSync(
@@ -268,7 +268,7 @@ public final class ImageCaptureTest {
 
     @Test
     public void saveCanSucceed() throws IOException {
-        ImageCapture useCase = new ImageCapture(mDefaultConfig);
+        ImageCapture useCase = mDefaultBuilder.build();
         mInstrumentation.runOnMainSync(
                 () -> {
                     CameraX.bindToLifecycle(mLifecycleOwner, BACK_SELECTOR, useCase);
@@ -286,7 +286,7 @@ public final class ImageCaptureTest {
 
     @Test
     public void canSaveFile_withRotation() throws IOException {
-        ImageCapture useCase = new ImageCaptureConfig.Builder().setTargetRotation(
+        ImageCapture useCase = new ImageCapture.Builder().setTargetRotation(
                 Surface.ROTATION_0).build();
         mInstrumentation.runOnMainSync(
                 () -> {
@@ -316,7 +316,8 @@ public final class ImageCaptureTest {
             throws IOException, CameraInfoUnavailableException {
         // Use a non-rotated configuration since some combinations of rotation + flipping vertically
         // can be equivalent to flipping horizontally
-        ImageCapture useCase = new ImageCapture(createNonRotatedConfiguration());
+        ImageCapture useCase = ImageCapture.Builder.fromConfig(
+                createNonRotatedConfiguration()).build();
         mInstrumentation.runOnMainSync(
                 () -> {
                     CameraX.bindToLifecycle(mLifecycleOwner, BACK_SELECTOR, useCase);
@@ -343,7 +344,8 @@ public final class ImageCaptureTest {
             throws IOException, CameraInfoUnavailableException {
         // Use a non-rotated configuration since some combinations of rotation + flipping
         // horizontally can be equivalent to flipping vertically
-        ImageCapture useCase = new ImageCapture(createNonRotatedConfiguration());
+        ImageCapture useCase = ImageCapture.Builder.fromConfig(
+                createNonRotatedConfiguration()).build();
         mInstrumentation.runOnMainSync(
                 () -> {
                     CameraX.bindToLifecycle(mLifecycleOwner, BACK_SELECTOR, useCase);
@@ -367,7 +369,7 @@ public final class ImageCaptureTest {
 
     @Test
     public void canSaveFile_withAttachedLocation() throws IOException {
-        ImageCapture useCase = new ImageCapture(mDefaultConfig);
+        ImageCapture useCase = mDefaultBuilder.build();
         mInstrumentation.runOnMainSync(
                 () -> {
                     CameraX.bindToLifecycle(mLifecycleOwner, BACK_SELECTOR, useCase);
@@ -392,7 +394,7 @@ public final class ImageCaptureTest {
 
     @Test
     public void canSaveMultipleFiles() throws IOException {
-        ImageCapture useCase = new ImageCapture(mDefaultConfig);
+        ImageCapture useCase = mDefaultBuilder.build();
         mInstrumentation.runOnMainSync(
                 () -> {
                     CameraX.bindToLifecycle(mLifecycleOwner, BACK_SELECTOR, useCase);
@@ -414,7 +416,7 @@ public final class ImageCaptureTest {
 
     @Test
     public void saveWillFail_whenInvalidFilePathIsUsed() {
-        ImageCapture useCase = new ImageCapture(mDefaultConfig);
+        ImageCapture useCase = mDefaultBuilder.build();
         mInstrumentation.runOnMainSync(
                 () -> {
                     CameraX.bindToLifecycle(mLifecycleOwner, BACK_SELECTOR, useCase);
@@ -434,11 +436,11 @@ public final class ImageCaptureTest {
     @Test
     @UseExperimental(markerClass = ExperimentalCamera2Interop.class)
     public void camera2InteropCaptureSessionCallbacks() {
-        ImageCaptureConfig.Builder configBuilder = new ImageCaptureConfig.Builder();
+        ImageCapture.Builder builder = new ImageCapture.Builder();
         CameraCaptureSession.CaptureCallback captureCallback =
                 mock(CameraCaptureSession.CaptureCallback.class);
-        new Camera2Config.Extender(configBuilder).setSessionCaptureCallback(captureCallback);
-        ImageCapture useCase = configBuilder.build();
+        new Camera2Config.Extender(builder).setSessionCaptureCallback(captureCallback);
+        ImageCapture useCase = builder.build();
         mInstrumentation.runOnMainSync(
                 () -> {
                     CameraX.bindToLifecycle(mLifecycleOwner, BACK_SELECTOR, useCase);
@@ -478,7 +480,7 @@ public final class ImageCaptureTest {
         Assume.assumeTrue(resolutions.length > 0);
         Size resolution = resolutions[0];
 
-        ImageCapture useCase = new ImageCaptureConfig.Builder()
+        ImageCapture useCase = new ImageCapture.Builder()
                 .setBufferFormat(ImageFormat.RAW10)
                 .build();
         mInstrumentation.runOnMainSync(
@@ -498,7 +500,7 @@ public final class ImageCaptureTest {
 
     @Test(expected = IllegalArgumentException.class)
     public void constructor_withBufferFormatAndCaptureProcessor_throwsException() {
-        new ImageCaptureConfig.Builder()
+        new ImageCapture.Builder()
                 .setBufferFormat(ImageFormat.RAW_SENSOR)
                 .setCaptureProcessor(mock(CaptureProcessor.class))
                 .build();
@@ -506,7 +508,7 @@ public final class ImageCaptureTest {
 
     @Test(expected = IllegalArgumentException.class)
     public void constructor_maxCaptureStageInvalid_throwsException() {
-        new ImageCaptureConfig.Builder().setMaxCaptureStages(0).build();
+        new ImageCapture.Builder().setMaxCaptureStages(0).build();
     }
 
     @Test
@@ -521,7 +523,7 @@ public final class ImageCaptureTest {
             }
         };
 
-        ImageCapture imageCapture = new ImageCaptureConfig.Builder().setCaptureBundle(
+        ImageCapture imageCapture = new ImageCapture.Builder().setCaptureBundle(
                 captureBundle).build();
 
         mInstrumentation.runOnMainSync(() -> {
@@ -551,7 +553,7 @@ public final class ImageCaptureTest {
             }
         };
 
-        ImageCapture imageCapture = new ImageCaptureConfig.Builder()
+        ImageCapture imageCapture = new ImageCapture.Builder()
                 .setMaxCaptureStages(1)
                 .setCaptureBundle(captureBundle)
                 .setCaptureProcessor(mock(CaptureProcessor.class))
@@ -580,7 +582,7 @@ public final class ImageCaptureTest {
 
     @Test
     public void onCaptureCancelled_onErrorCAMERA_CLOSED() throws InterruptedException {
-        ImageCapture imageCapture = new ImageCaptureConfig.Builder().build();
+        ImageCapture imageCapture = new ImageCapture.Builder().build();
         mInstrumentation.runOnMainSync(() -> {
             CameraX.bindToLifecycle(mLifecycleOwner, BACK_SELECTOR, imageCapture);
             mLifecycleOwner.startAndResume();
@@ -606,7 +608,7 @@ public final class ImageCaptureTest {
 
     @Test
     public void onRequestFailed_OnErrorCAPTURE_FAILED() throws InterruptedException {
-        ImageCapture imageCapture = new ImageCaptureConfig.Builder().build();
+        ImageCapture imageCapture = new ImageCapture.Builder().build();
         mInstrumentation.runOnMainSync(() -> {
             CameraX.bindToLifecycle(mLifecycleOwner, BACK_SELECTOR, imageCapture);
             mLifecycleOwner.startAndResume();
@@ -635,7 +637,7 @@ public final class ImageCaptureTest {
 
     @Test
     public void onStateOffline_abortAllCaptureRequests() {
-        ImageCapture imageCapture = new ImageCaptureConfig.Builder().build();
+        ImageCapture imageCapture = new ImageCapture.Builder().build();
         mInstrumentation.runOnMainSync(() -> {
             CameraX.bindToLifecycle(mLifecycleOwner, BACK_SELECTOR, imageCapture);
             mLifecycleOwner.startAndResume();
@@ -664,7 +666,7 @@ public final class ImageCaptureTest {
 
     @Test
     public void takePictureReturnsErrorNO_CAMERA_whenNotBound() {
-        ImageCapture imageCapture = new ImageCaptureConfig.Builder().build();
+        ImageCapture imageCapture = new ImageCapture.Builder().build();
 
         OnImageCapturedCallback callback = createMockOnImageCapturedCallback(null);
         imageCapture.takePicture(mListenerExecutor, callback);

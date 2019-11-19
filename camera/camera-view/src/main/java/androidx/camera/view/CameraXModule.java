@@ -40,7 +40,6 @@ import androidx.camera.core.FlashMode;
 import androidx.camera.core.ImageCapture;
 import androidx.camera.core.ImageCapture.OnImageCapturedCallback;
 import androidx.camera.core.ImageCapture.OnImageSavedCallback;
-import androidx.camera.core.ImageCaptureConfig;
 import androidx.camera.core.LensFacing;
 import androidx.camera.core.Preview;
 import androidx.camera.core.VideoCapture;
@@ -79,7 +78,7 @@ final class CameraXModule {
 
     private final Preview.Builder mPreviewBuilder;
     private final VideoCaptureConfig.Builder mVideoCaptureConfigBuilder;
-    private final ImageCaptureConfig.Builder mImageCaptureConfigBuilder;
+    private final ImageCapture.Builder mImageCaptureBuilder;
     private final CameraView mCameraView;
     final AtomicBoolean mVideoIsRecording = new AtomicBoolean(false);
     private CameraView.CaptureMode mCaptureMode = CaptureMode.IMAGE;
@@ -121,8 +120,7 @@ final class CameraXModule {
 
         mPreviewBuilder = new Preview.Builder().setTargetName("Preview");
 
-        mImageCaptureConfigBuilder =
-                new ImageCaptureConfig.Builder().setTargetName("ImageCapture");
+        mImageCaptureBuilder = new ImageCapture.Builder().setTargetName("ImageCapture");
 
         mVideoCaptureConfigBuilder =
                 new VideoCaptureConfig.Builder().setTargetName("VideoCapture");
@@ -190,15 +188,15 @@ final class CameraXModule {
 
         Rational targetAspectRatio;
         if (getCaptureMode() == CaptureMode.IMAGE) {
-            mImageCaptureConfigBuilder.setTargetAspectRatio(AspectRatio.RATIO_4_3);
+            mImageCaptureBuilder.setTargetAspectRatio(AspectRatio.RATIO_4_3);
             targetAspectRatio = isDisplayPortrait ? ASPECT_RATIO_3_4 : ASPECT_RATIO_4_3;
         } else {
-            mImageCaptureConfigBuilder.setTargetAspectRatio(AspectRatio.RATIO_16_9);
+            mImageCaptureBuilder.setTargetAspectRatio(AspectRatio.RATIO_16_9);
             targetAspectRatio = isDisplayPortrait ? ASPECT_RATIO_9_16 : ASPECT_RATIO_16_9;
         }
 
-        mImageCaptureConfigBuilder.setTargetRotation(getDisplaySurfaceRotation());
-        mImageCapture = mImageCaptureConfigBuilder.build();
+        mImageCaptureBuilder.setTargetRotation(getDisplaySurfaceRotation());
+        mImageCapture = mImageCaptureBuilder.build();
 
         mVideoCaptureConfigBuilder.setTargetRotation(getDisplaySurfaceRotation());
         mVideoCapture = mVideoCaptureConfigBuilder.build();
