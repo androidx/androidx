@@ -144,6 +144,7 @@ public class SliceProviderCompat {
     public Bundle call(@NonNull String method, @Nullable String arg, @NonNull Bundle extras) {
         if (method.equals(METHOD_SLICE)) {
             Uri uri = extras.getParcelable(EXTRA_BIND_URI);
+            mProvider.validateIncomingAuthority(uri.getAuthority());
             Set<SliceSpec> specs = getSpecs(extras);
 
             Slice s = handleBindSlice(uri, specs, getCallingPackage());
@@ -159,6 +160,7 @@ public class SliceProviderCompat {
         } else if (method.equals(METHOD_MAP_INTENT)) {
             Intent intent = extras.getParcelable(EXTRA_INTENT);
             Uri uri = mProvider.onMapIntentToUri(intent);
+            mProvider.validateIncomingAuthority(uri.getAuthority());
             Bundle b = new Bundle();
             if (uri != null) {
                 Set<SliceSpec> specs = getSpecs(extras);
@@ -178,11 +180,13 @@ public class SliceProviderCompat {
         } else if (method.equals(METHOD_MAP_ONLY_INTENT)) {
             Intent intent = extras.getParcelable(EXTRA_INTENT);
             Uri uri = mProvider.onMapIntentToUri(intent);
+            mProvider.validateIncomingAuthority(uri.getAuthority());
             Bundle b = new Bundle();
             b.putParcelable(EXTRA_SLICE, uri);
             return b;
         } else if (method.equals(METHOD_PIN)) {
             Uri uri = extras.getParcelable(EXTRA_BIND_URI);
+            mProvider.validateIncomingAuthority(uri.getAuthority());
             Set<SliceSpec> specs = getSpecs(extras);
             String pkg = extras.getString(EXTRA_PKG);
             if (mPinnedList.addPin(uri, pkg, specs)) {
@@ -191,6 +195,7 @@ public class SliceProviderCompat {
             return null;
         } else if (method.equals(METHOD_UNPIN)) {
             Uri uri = extras.getParcelable(EXTRA_BIND_URI);
+            mProvider.validateIncomingAuthority(uri.getAuthority());
             String pkg = extras.getString(EXTRA_PKG);
             if (mPinnedList.removePin(uri, pkg)) {
                 handleSliceUnpinned(uri);
@@ -198,6 +203,7 @@ public class SliceProviderCompat {
             return null;
         } else if (method.equals(METHOD_GET_PINNED_SPECS)) {
             Uri uri = extras.getParcelable(EXTRA_BIND_URI);
+            mProvider.validateIncomingAuthority(uri.getAuthority());
             Bundle b = new Bundle();
             ArraySet<SliceSpec> specs = mPinnedList.getSpecs(uri);
             if (specs.size() == 0) {
@@ -207,12 +213,14 @@ public class SliceProviderCompat {
             return b;
         } else if (method.equals(METHOD_GET_DESCENDANTS)) {
             Uri uri = extras.getParcelable(EXTRA_BIND_URI);
+            mProvider.validateIncomingAuthority(uri.getAuthority());
             Bundle b = new Bundle();
             b.putParcelableArrayList(EXTRA_SLICE_DESCENDANTS,
                     new ArrayList<>(handleGetDescendants(uri)));
             return b;
         } else if (method.equals(METHOD_CHECK_PERMISSION)) {
             Uri uri = extras.getParcelable(EXTRA_BIND_URI);
+            mProvider.validateIncomingAuthority(uri.getAuthority());
             String pkg = extras.getString(EXTRA_PKG);
             int pid = extras.getInt(EXTRA_PID);
             int uid = extras.getInt(EXTRA_UID);
@@ -221,6 +229,7 @@ public class SliceProviderCompat {
             return b;
         } else if (method.equals(METHOD_GRANT_PERMISSION)) {
             Uri uri = extras.getParcelable(EXTRA_BIND_URI);
+            mProvider.validateIncomingAuthority(uri.getAuthority());
             String toPkg = extras.getString(EXTRA_PKG);
             if (Binder.getCallingUid() != Process.myUid()) {
                 throw new SecurityException("Only the owning process can manage slice permissions");
@@ -228,6 +237,7 @@ public class SliceProviderCompat {
             mPermissionManager.grantSlicePermission(uri, toPkg);
         } else if (method.equals(METHOD_REVOKE_PERMISSION)) {
             Uri uri = extras.getParcelable(EXTRA_BIND_URI);
+            mProvider.validateIncomingAuthority(uri.getAuthority());
             String toPkg = extras.getString(EXTRA_PKG);
             if (Binder.getCallingUid() != Process.myUid()) {
                 throw new SecurityException("Only the owning process can manage slice permissions");
