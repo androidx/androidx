@@ -28,7 +28,6 @@ import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.annotation.RestrictTo;
 import androidx.annotation.RestrictTo.Scope;
-import androidx.camera.core.impl.CameraDeviceConfig;
 import androidx.camera.core.impl.CameraDeviceSurfaceManager;
 import androidx.camera.core.impl.CameraFactory;
 import androidx.camera.core.impl.CameraIdFilter;
@@ -265,10 +264,11 @@ public final class CameraX {
                 CameraSelector.Builder.fromSelector(cameraSelector);
         // Copy existing filters from use cases into the new selector
         for (UseCase useCase : useCases) {
-            CameraIdFilter filter =
-                    ((CameraDeviceConfig) useCase.getUseCaseConfig()).getCameraIdFilter(null);
-            if (filter != null) {
-                selectorBuilder.appendFilter(filter);
+            CameraSelector selector = useCase.getUseCaseConfig().getCameraSelector(null);
+            if (selector != null) {
+                for (CameraIdFilter filter : selector.getCameraFilterSet()) {
+                    selectorBuilder.appendFilter(filter);
+                }
             }
         }
 

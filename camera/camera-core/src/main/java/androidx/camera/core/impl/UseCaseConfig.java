@@ -18,6 +18,7 @@ package androidx.camera.core.impl;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
+import androidx.camera.core.CameraSelector;
 import androidx.camera.core.ExtendableBuilder;
 import androidx.camera.core.UseCase;
 import androidx.camera.core.internal.TargetConfig;
@@ -66,6 +67,11 @@ public interface UseCaseConfig<T extends UseCase> extends TargetConfig<T>, Confi
      */
     Option<Integer> OPTION_SURFACE_OCCUPANCY_PRIORITY =
             Option.create("camerax.core.useCase.surfaceOccupancyPriority", int.class);
+    /**
+     * Option: camerax.core.useCase.cameraSelector
+     */
+    Option<CameraSelector> OPTION_CAMERA_SELECTOR =
+            Config.Option.create("camerax.core.useCase.cameraSelector", CameraSelector.class);
 
     // *********************************************************************************************
 
@@ -199,6 +205,25 @@ public interface UseCaseConfig<T extends UseCase> extends TargetConfig<T>, Confi
     int getSurfaceOccupancyPriority();
 
     /**
+     * Retrieves the camera selector that this use case requires.
+     *
+     * @param valueIfMissing The value to return if this configuration option has not been set.
+     * @return The stored value or <code>valueIfMissing</code> if the value does not exist in this
+     * configuration.
+     */
+    @Nullable
+    CameraSelector getCameraSelector(@Nullable CameraSelector valueIfMissing);
+
+    /**
+     * Retrieves the camera selector that this use case requires.
+     *
+     * @return The stored value, if it exists in this configuration.
+     * @throws IllegalArgumentException if the option does not exist in this configuration.
+     */
+    @NonNull
+    CameraSelector getCameraSelector();
+
+    /**
      * Builder for a {@link UseCase}.
      *
      * @param <T> The type of the object which will be built by {@link #build()}.
@@ -265,6 +290,15 @@ public interface UseCaseConfig<T extends UseCase> extends TargetConfig<T>, Confi
          */
         @NonNull
         B setSurfaceOccupancyPriority(int priority);
+
+        /**
+         * Sets the camera selector that this use case requires.
+         *
+         * @param cameraSelector The camera filter appended internally.
+         * @return The current Builder.
+         */
+        @NonNull
+        B setCameraSelector(@NonNull CameraSelector cameraSelector);
 
         /**
          * Retrieves the configuration used by this builder.

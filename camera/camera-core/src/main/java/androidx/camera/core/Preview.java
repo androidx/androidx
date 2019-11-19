@@ -36,6 +36,7 @@ import static androidx.camera.core.impl.PreviewConfig.OPTION_TARGET_NAME;
 import static androidx.camera.core.impl.PreviewConfig.OPTION_TARGET_RESOLUTION;
 import static androidx.camera.core.impl.PreviewConfig.OPTION_TARGET_ROTATION;
 import static androidx.camera.core.impl.PreviewConfig.OPTION_USE_CASE_EVENT_CALLBACK;
+import static androidx.camera.core.impl.UseCaseConfig.OPTION_CAMERA_SELECTOR;
 
 import android.graphics.ImageFormat;
 import android.graphics.SurfaceTexture;
@@ -930,6 +931,15 @@ public class Preview extends UseCase {
         @NonNull
         public Builder setSurfaceOccupancyPriority(int priority) {
             getMutableConfig().insertOption(OPTION_SURFACE_OCCUPANCY_PRIORITY, priority);
+            return this;
+        }
+
+        /** @hide */
+        @RestrictTo(Scope.LIBRARY_GROUP)
+        @Override
+        @NonNull
+        public Builder setCameraSelector(@NonNull CameraSelector cameraSelector) {
+            getMutableConfig().insertOption(OPTION_CAMERA_SELECTOR, cameraSelector);
             return this;
         }
 
