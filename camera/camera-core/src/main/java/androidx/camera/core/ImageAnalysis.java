@@ -16,8 +16,30 @@
 
 package androidx.camera.core;
 
+import static androidx.camera.core.CameraDeviceConfig.OPTION_CAMERA_ID_FILTER;
+import static androidx.camera.core.CameraDeviceConfig.OPTION_LENS_FACING;
+import static androidx.camera.core.ImageAnalysisConfig.OPTION_BACKPRESSURE_STRATEGY;
+import static androidx.camera.core.ImageAnalysisConfig.OPTION_IMAGE_QUEUE_DEPTH;
+import static androidx.camera.core.ImageOutputConfig.OPTION_MAX_RESOLUTION;
+import static androidx.camera.core.ImageOutputConfig.OPTION_SUPPORTED_RESOLUTIONS;
+import static androidx.camera.core.ImageOutputConfig.OPTION_TARGET_ASPECT_RATIO;
+import static androidx.camera.core.ImageOutputConfig.OPTION_TARGET_ASPECT_RATIO_CUSTOM;
+import static androidx.camera.core.ImageOutputConfig.OPTION_TARGET_RESOLUTION;
+import static androidx.camera.core.ImageOutputConfig.OPTION_TARGET_ROTATION;
+import static androidx.camera.core.ThreadConfig.OPTION_BACKGROUND_EXECUTOR;
+import static androidx.camera.core.UseCaseConfig.OPTION_CAPTURE_CONFIG_UNPACKER;
+import static androidx.camera.core.UseCaseConfig.OPTION_DEFAULT_CAPTURE_CONFIG;
+import static androidx.camera.core.UseCaseConfig.OPTION_DEFAULT_SESSION_CONFIG;
+import static androidx.camera.core.UseCaseConfig.OPTION_SESSION_CONFIG_UNPACKER;
+import static androidx.camera.core.UseCaseConfig.OPTION_SURFACE_OCCUPANCY_PRIORITY;
+import static androidx.camera.core.UseCaseConfig.OPTION_TARGET_CLASS;
+import static androidx.camera.core.UseCaseConfig.OPTION_TARGET_NAME;
+import static androidx.camera.core.UseCaseConfig.OPTION_USE_CASE_EVENT_CALLBACK;
+
 import android.media.ImageReader;
 import android.util.Log;
+import android.util.Pair;
+import android.util.Rational;
 import android.util.Size;
 import android.view.Display;
 import android.view.Surface;
@@ -34,8 +56,11 @@ import androidx.camera.core.impl.utils.executor.CameraXExecutors;
 
 import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;
+import java.util.List;
 import java.util.Map;
+import java.util.UUID;
 import java.util.concurrent.Executor;
+
 
 /**
  * A use case providing CPU accessible images for an app to perform image analysis on.
@@ -49,6 +74,7 @@ import java.util.concurrent.Executor;
  * {@link BackpressureStrategy}.
  */
 public final class ImageAnalysis extends UseCase {
+
     /**
      * Provides a static configuration with implementation-agnostic options.
      *
@@ -60,14 +86,14 @@ public final class ImageAnalysis extends UseCase {
     // ImageReader depth for KEEP_ONLY_LATEST mode.
     private static final int NON_BLOCKING_IMAGE_DEPTH = 4;
 
-    private final ImageAnalysisConfig.Builder mUseCaseConfigBuilder;
+    private final Builder mUseCaseConfigBuilder;
     @SuppressWarnings("WeakerAccess") /* synthetic access */
     final ImageAnalysisAbstractAnalyzer mImageAnalysisAbstractAnalyzer;
     @GuardedBy("mAnalysisLock")
     private ImageAnalysis.Analyzer mSubscribedAnalyzer;
 
     @Nullable
-    ImageReaderProxy mImageReader;
+    private ImageReaderProxy mImageReader;
     @Nullable
     private DeferrableSurface mDeferrableSurface;
 
@@ -78,9 +104,10 @@ public final class ImageAnalysis extends UseCase {
      *
      * @param config for this use case instance
      */
-    public ImageAnalysis(@NonNull ImageAnalysisConfig config) {
+    @SuppressWarnings("WeakerAccess")
+    ImageAnalysis(@NonNull ImageAnalysisConfig config) {
         super(config);
-        mUseCaseConfigBuilder = ImageAnalysisConfig.Builder.fromConfig(config);
+        mUseCaseConfigBuilder = Builder.fromConfig(config);
 
         // Get the combined configuration with defaults
         ImageAnalysisConfig combinedConfig = (ImageAnalysisConfig) getUseCaseConfig();
@@ -199,19 +226,17 @@ public final class ImageAnalysis extends UseCase {
      * analysis method. The rotation parameter sent to the analyzer will be the rotation, which if
      * applied to the output image, will make the image match target rotation specified here.
      *
-     * <p>While rotation can also be set via
-     * {@link ImageAnalysisConfig.Builder#setTargetRotation(int)}, using
+     * <p>While rotation can also be set via {@link Builder#setTargetRotation(int)}, using
      * {@link ImageAnalysis#setTargetRotation(int)} allows the target rotation to be set
      * dynamically.
      *
      * <p>In general, it is best to use an {@link android.view.OrientationEventListener} to
      * set the target rotation.  This way, the rotation output to the Analyzer will indicate
      * which way is down for a given image.  This is important since display orientation may be
-     * locked by device default, user setting, or app configuration,
-     * and some devices may not transition to a reverse-portrait display orientation.  In
-     * these cases, use {@link androidx.camera.core.ImageAnalysis#setTargetRotation} to set
-     * target rotation dynamically according to the
-     * {@link android.view.OrientationEventListener}, without re-creating the use case.  Note
+     * locked by device default, user setting, or app configuration, and some devices may not
+     * transition to a reverse-portrait display orientation.  In these cases, use
+     * {@link ImageAnalysis#setTargetRotation} to set target rotation dynamically according to
+     * the {@link android.view.OrientationEventListener}, without re-creating the use case. Note
      * the OrientationEventListener output of degrees in the range [0..359] should be converted to
      * a surface rotation, i.e. one of {@link Surface#ROTATION_0}, {@link Surface#ROTATION_90},
      * {@link Surface#ROTATION_180}, or {@link Surface#ROTATION_270}.
@@ -309,7 +334,7 @@ public final class ImageAnalysis extends UseCase {
         ImageAnalysisConfig defaults = CameraX.getDefaultUseCaseConfig(
                 ImageAnalysisConfig.class, lensFacing);
         if (defaults != null) {
-            return ImageAnalysisConfig.Builder.fromConfig(defaults);
+            return Builder.fromConfig(defaults);
         }
 
         return null;
@@ -364,7 +389,7 @@ public final class ImageAnalysis extends UseCase {
      * by calling {@link ImageProxy#close()}. However, the image will only be valid when the
      * ImageAnalysis instance is bound to a camera.
      *
-     * @see ImageAnalysisConfig.Builder#setBackpressureStrategy(int)
+     * @see Builder#setBackpressureStrategy(int)
      */
     @IntDef({BackpressureStrategy.KEEP_ONLY_LATEST, BackpressureStrategy.BLOCK_PRODUCER})
     @Retention(RetentionPolicy.SOURCE)
@@ -372,22 +397,21 @@ public final class ImageAnalysis extends UseCase {
         /**
          * Only deliver the latest image to the analyzer, dropping images as they arrive.
          *
-         * <p>This strategy ignores the value set by
-         * {@link ImageAnalysisConfig.Builder#setImageQueueDepth(int)}. Only one image will be
-         * delivered for analysis at a time. If more images are produced while that image is
-         * being analyzed, they will be dropped and not queued for delivery. Once the image being
-         * analyzed is closed by calling {@link ImageProxy#close()}, the next latest image will be
-         * delivered.
+         * <p>This strategy ignores the value set by {@link Builder#setImageQueueDepth(int)}.
+         * Only one image will be delivered for analysis at a time. If more images are produced
+         * while that image is being analyzed, they will be dropped and not queued for delivery.
+         * Once the image being analyzed is closed by calling {@link ImageProxy#close()}, the
+         * next latest image will be delivered.
          *
          * <p>Internally this strategy may make use of an internal {@link Executor} to receive
          * and drop images from the producer. A performance-tuned executor will be created
          * internally unless one is explicitly provided by
-         * {@link ImageAnalysisConfig.Builder#setBackgroundExecutor(Executor)}. In order to
+         * {@link Builder#setBackgroundExecutor(Executor)}. In order to
          * ensure smooth operation of this backpressure strategy, any user supplied
          * {@link Executor} must be able to quickly respond to tasks posted to it, so setting
          * the executor manually should only be considered in advanced use cases.
          *
-         * @see ImageAnalysisConfig.Builder#setBackgroundExecutor(Executor)
+         * @see Builder#setBackgroundExecutor(Executor)
          */
         int KEEP_ONLY_LATEST = 0;
         /**
@@ -405,9 +429,9 @@ public final class ImageAnalysis extends UseCase {
          * up with frame rate, <i>on average</i>. Failure to keep up with frame rate may lead to
          * jank in the frame stream and a diminished user experience. If more time is needed for
          * analysis on <i>some</i> frames, consider increasing the image queue depth with
-         * {@link ImageAnalysisConfig.Builder#setImageQueueDepth(int)}.
+         * {@link Builder#setImageQueueDepth(int)}.
          *
-         * @see ImageAnalysisConfig.Builder#setImageQueueDepth(int)
+         * @see Builder#setImageQueueDepth(int)
          */
         int BLOCK_PRODUCER = 1;
     }
@@ -464,7 +488,7 @@ public final class ImageAnalysis extends UseCase {
     }
 
     /**
-     * Provides a base static default configuration for the ImageAnalysis
+     * Provides a base static default configuration for the ImageAnalysis.
      *
      * <p>These values may be overridden by the implementation. They only provide a minimum set of
      * defaults that are implementation independent.
@@ -484,20 +508,475 @@ public final class ImageAnalysis extends UseCase {
         private static final ImageAnalysisConfig DEFAULT_CONFIG;
 
         static {
-            ImageAnalysisConfig.Builder builder =
-                    new ImageAnalysisConfig.Builder()
-                            .setBackpressureStrategy(DEFAULT_BACKPRESSURE_STRATEGY)
-                            .setImageQueueDepth(DEFAULT_IMAGE_QUEUE_DEPTH)
-                            .setDefaultResolution(DEFAULT_TARGET_RESOLUTION)
-                            .setMaxResolution(DEFAULT_MAX_RESOLUTION)
-                            .setSurfaceOccupancyPriority(DEFAULT_SURFACE_OCCUPANCY_PRIORITY);
+            Builder builder = new Builder()
+                    .setBackpressureStrategy(DEFAULT_BACKPRESSURE_STRATEGY)
+                    .setImageQueueDepth(DEFAULT_IMAGE_QUEUE_DEPTH)
+                    .setDefaultResolution(DEFAULT_TARGET_RESOLUTION)
+                    .setMaxResolution(DEFAULT_MAX_RESOLUTION)
+                    .setSurfaceOccupancyPriority(DEFAULT_SURFACE_OCCUPANCY_PRIORITY);
 
             DEFAULT_CONFIG = builder.getUseCaseConfig();
         }
 
+        @NonNull
         @Override
         public ImageAnalysisConfig getConfig(LensFacing lensFacing) {
             return DEFAULT_CONFIG;
+        }
+    }
+
+    /** Builder for a {@link ImageAnalysis}. */
+    public static final class Builder
+            implements CameraDeviceConfig.Builder<Builder>,
+            ImageOutputConfig.Builder<Builder>,
+            ThreadConfig.Builder<Builder>,
+            UseCaseConfig.Builder<ImageAnalysis, ImageAnalysisConfig, Builder> {
+
+        private final MutableOptionsBundle mMutableConfig;
+
+        /** Creates a new Builder object. */
+        public Builder() {
+            this(MutableOptionsBundle.create());
+        }
+
+        private Builder(MutableOptionsBundle mutableConfig) {
+            mMutableConfig = mutableConfig;
+
+            Class<?> oldConfigClass =
+                    mutableConfig.retrieveOption(TargetConfig.OPTION_TARGET_CLASS, null);
+            if (oldConfigClass != null && !oldConfigClass.equals(ImageAnalysis.class)) {
+                throw new IllegalArgumentException(
+                        "Invalid target class configuration for "
+                                + Builder.this
+                                + ": "
+                                + oldConfigClass);
+            }
+
+            setTargetClass(ImageAnalysis.class);
+        }
+
+        /**
+         * Generates a Builder from another Config object.
+         *
+         * @param configuration An immutable configuration to pre-populate this builder.
+         * @return The new Builder.
+         */
+        @NonNull
+        public static Builder fromConfig(@NonNull ImageAnalysisConfig configuration) {
+            return new Builder(MutableOptionsBundle.from(configuration));
+        }
+
+        /**
+         * Sets the backpressure strategy to apply to the image producer to deal with scenarios
+         * where images may be produced faster than they can be analyzed.
+         *
+         * <p>The available values are {@link BackpressureStrategy#BLOCK_PRODUCER} and {@link
+         * BackpressureStrategy#KEEP_ONLY_LATEST}.
+         *
+         * <p>If not set, the backpressure strategy will default to
+         * {@link BackpressureStrategy#KEEP_ONLY_LATEST}.
+         *
+         * @param strategy The strategy to use.
+         * @return The current Builder.
+         */
+        @NonNull
+        public Builder setBackpressureStrategy(@BackpressureStrategy int strategy) {
+            getMutableConfig().insertOption(OPTION_BACKPRESSURE_STRATEGY, strategy);
+            return this;
+        }
+
+        /**
+         * Sets the number of images available to the camera pipeline for
+         * {@link BackpressureStrategy#BLOCK_PRODUCER} mode.
+         *
+         * <p>The image queue depth is the number of images available to the camera to fill with
+         * data. This includes the image currently being analyzed by {@link
+         * ImageAnalysis.Analyzer#analyze(ImageProxy, int)}. Increasing the image queue depth
+         * may make camera operation smoother, depending on the {@link BackpressureStrategy}, at
+         * the cost of increased memory usage.
+         *
+         * <p>When the {@link BackpressureStrategy} is set to
+         * {@link BackpressureStrategy#BLOCK_PRODUCER}, increasing the image queue depth may make
+         * the camera pipeline run smoother on systems under high load. However, the time spent
+         * analyzing an image should still be kept under a single frame period for the current
+         * frame rate, <i>on average</i>, to avoid stalling the camera pipeline.
+         *
+         * <p>The value only applies to {@link BackpressureStrategy#BLOCK_PRODUCER} mode.
+         * For {@link BackpressureStrategy#KEEP_ONLY_LATEST} the value is ignored.
+         *
+         * <p>If not set, and this option is used by the selected {@link BackpressureStrategy},
+         * the default will be a queue depth of 6 images.
+         *
+         * @param depth The total number of images available to the camera.
+         * @return The current Builder.
+         */
+        @NonNull
+        public Builder setImageQueueDepth(int depth) {
+            getMutableConfig().insertOption(OPTION_IMAGE_QUEUE_DEPTH, depth);
+            return this;
+        }
+
+        /**
+         * {@inheritDoc}
+         *
+         * @hide
+         */
+        @RestrictTo(Scope.LIBRARY_GROUP)
+        @Override
+        @NonNull
+        public MutableConfig getMutableConfig() {
+            return mMutableConfig;
+        }
+
+        /**
+         * {@inheritDoc}
+         *
+         * @hide
+         */
+        @RestrictTo(Scope.LIBRARY_GROUP)
+        @NonNull
+        @Override
+        public ImageAnalysisConfig getUseCaseConfig() {
+            return new ImageAnalysisConfig(OptionsBundle.from(mMutableConfig));
+        }
+
+        /**
+         * Builds an immutable {@link ImageAnalysis} from the current state.
+         *
+         * @return A {@link ImageAnalysis} populated with the current state.
+         * @throws IllegalArgumentException if attempting to set both target aspect ratio and
+         *                                  target resolution.
+         */
+        @Override
+        @NonNull
+        public ImageAnalysis build() {
+            // Error at runtime for using both setTargetResolution and setTargetAspectRatio on
+            // the same config.
+            if (getMutableConfig().retrieveOption(OPTION_TARGET_ASPECT_RATIO, null) != null
+                    && getMutableConfig().retrieveOption(OPTION_TARGET_RESOLUTION, null) != null) {
+                throw new IllegalArgumentException(
+                        "Cannot use both setTargetResolution and setTargetAspectRatio on the same"
+                                + " config.");
+            }
+            return new ImageAnalysis(getUseCaseConfig());
+        }
+
+        // Implementations of TargetConfig.Builder default methods
+
+        /** @hide */
+        @RestrictTo(Scope.LIBRARY_GROUP)
+        @Override
+        @NonNull
+        public Builder setTargetClass(@NonNull Class<ImageAnalysis> targetClass) {
+            getMutableConfig().insertOption(OPTION_TARGET_CLASS, targetClass);
+
+            // If no name is set yet, then generate a unique name
+            if (null == getMutableConfig().retrieveOption(OPTION_TARGET_NAME, null)) {
+                String targetName = targetClass.getCanonicalName() + "-" + UUID.randomUUID();
+                setTargetName(targetName);
+            }
+
+            return this;
+        }
+
+        /**
+         * Sets the name of the target object being configured, used only for debug logging.
+         *
+         * <p>The name should be a value that can uniquely identify an instance of the object being
+         * configured.
+         *
+         * <p>If not set, the target name will default to a unique name automatically generated
+         * with the class canonical name and random UUID.
+         *
+         * @param targetName A unique string identifier for the instance of the class being
+         *                   configured.
+         * @return the current Builder.
+         */
+        @Override
+        @NonNull
+        public Builder setTargetName(@NonNull String targetName) {
+            getMutableConfig().insertOption(OPTION_TARGET_NAME, targetName);
+            return this;
+        }
+
+        // Implementations of CameraDeviceConfig.Builder default methods
+
+        /**
+         * Sets the primary camera to be configured based on the direction the lens is facing.
+         *
+         * <p>If multiple cameras exist with equivalent lens facing direction, the first ("primary")
+         * camera for that direction will be chosen.
+         *
+         * @param lensFacing The direction of the camera's lens.
+         * @return the current Builder.
+         * @hide
+         */
+        @RestrictTo(Scope.LIBRARY_GROUP)
+        @Override
+        @NonNull
+        public Builder setLensFacing(@NonNull LensFacing lensFacing) {
+            getMutableConfig().insertOption(OPTION_LENS_FACING, lensFacing);
+            return this;
+        }
+
+        /**
+         * Sets a {@link CameraIdFilter} that filters out the unavailable camera id.
+         *
+         * <p>The camera id filter will be used to filter those cameras with lens facing
+         * specified in the config.
+         *
+         * @param cameraIdFilter The {@link CameraIdFilter}.
+         * @return the current Builder.
+         * @hide
+         */
+        @RestrictTo(Scope.LIBRARY_GROUP)
+        @Override
+        @NonNull
+        public Builder setCameraIdFilter(@NonNull CameraIdFilter cameraIdFilter) {
+            getMutableConfig().insertOption(OPTION_CAMERA_ID_FILTER, cameraIdFilter);
+            return this;
+        }
+
+        // Implementations of ImageOutputConfig.Builder default methods
+
+        /**
+         * Sets the aspect ratio of the intended target for images from this configuration.
+         *
+         * <p>This is the ratio of the target's width to the image's height, where the numerator of
+         * the provided {@link Rational} corresponds to the width, and the denominator corresponds
+         * to the height.
+         *
+         * <p>The target aspect ratio is used as a hint when determining the resulting output aspect
+         * ratio which may differ from the request, possibly due to device constraints.
+         * Application code should check the resulting output's resolution.
+         *
+         * <p>This method can be used to request an aspect ratio that is not from the standard set
+         * of aspect ratios defined in the {@link AspectRatio}.
+         *
+         * <p>This method will remove any value set by setTargetAspectRatio().
+         *
+         * <p>For ImageAnalysis, the output is the {@link ImageProxy} passed to the analyzer
+         * function.
+         *
+         * @param aspectRatio A {@link Rational} representing the ratio of the target's width and
+         *                    height.
+         * @return The current Builder.
+         * @hide
+         */
+        @NonNull
+        @RestrictTo(Scope.LIBRARY_GROUP)
+        @Override
+        public Builder setTargetAspectRatioCustom(@NonNull Rational aspectRatio) {
+            getMutableConfig().insertOption(OPTION_TARGET_ASPECT_RATIO_CUSTOM, aspectRatio);
+            getMutableConfig().removeOption(OPTION_TARGET_ASPECT_RATIO);
+            return this;
+        }
+
+        /**
+         * Sets the aspect ratio of the intended target for images from this configuration.
+         *
+         * <p>It is not allowed to set both target aspect ratio and target resolution on the same
+         * use case.  Attempting so will throw an IllegalArgumentException when building the
+         * Config.
+         *
+         * <p>The target aspect ratio is used as a hint when determining the resulting output aspect
+         * ratio which may differ from the request, possibly due to device constraints.
+         * Application code should check the resulting output's resolution.
+         *
+         * <p>If not set, resolutions with aspect ratio 4:3 will be considered in higher
+         * priority.
+         *
+         * @param aspectRatio A {@link AspectRatio} representing the ratio of the
+         *                    target's width and height.
+         * @return The current Builder.
+         */
+        @NonNull
+        @Override
+        public Builder setTargetAspectRatio(@AspectRatio int aspectRatio) {
+            getMutableConfig().insertOption(OPTION_TARGET_ASPECT_RATIO, aspectRatio);
+            return this;
+        }
+
+        /**
+         * Sets the rotation of the intended target for images from this configuration.
+         *
+         * <p>The rotation parameter sent to the analyzer will be the rotation, which if applied to
+         * the output image, will make the image match target rotation specified here.
+         *
+         * <p>This is one of four valid values: {@link Surface#ROTATION_0}, {@link
+         * Surface#ROTATION_90}, {@link Surface#ROTATION_180}, {@link Surface#ROTATION_270}.
+         * Rotation values are relative to the "natural" rotation, {@link Surface#ROTATION_0}.
+         *
+         * <p>In general, it is best to additionally set the target rotation dynamically on the use
+         * case.  See
+         * {@link androidx.camera.core.ImageAnalysis#setTargetRotation(int)} for additional
+         * documentation.
+         *
+         * <p>If not set, the target rotation will default to the value of
+         * {@link android.view.Display#getRotation()} of the default display at the time the
+         * use case is created.
+         *
+         * @param rotation The rotation of the intended target.
+         * @return The current Builder.
+         * @see androidx.camera.core.ImageAnalysis#setTargetRotation(int)
+         * @see android.view.OrientationEventListener
+         */
+        @NonNull
+        @Override
+        public Builder setTargetRotation(@RotationValue int rotation) {
+            getMutableConfig().insertOption(OPTION_TARGET_ROTATION, rotation);
+            return this;
+        }
+
+        /**
+         * Sets the resolution of the intended target from this configuration.
+         *
+         * <p>The target resolution attempts to establish a minimum bound for the image resolution.
+         * The actual image resolution will be the closest available resolution in size that is not
+         * smaller than the target resolution, as determined by the Camera implementation. However,
+         * if no resolution exists that is equal to or larger than the target resolution, the
+         * nearest available resolution smaller than the target resolution will be chosen.
+         * Resolutions with the same aspect ratio of the provided {@link Size} will be considered in
+         * higher priority before resolutions of different aspect ratios.
+         *
+         * <p>It is not allowed to set both target aspect ratio and target resolution on the same
+         * use case.  Attempting so will throw an IllegalArgumentException when building the
+         * Config.
+         *
+         * <p>The resolution {@link Size} should be expressed at the use cases's target rotation.
+         * For example, a device with portrait natural orientation in natural target rotation
+         * requesting a portrait image may specify 480x640, and the same device, rotated 90 degrees
+         * and targeting landscape orientation may specify 640x480.
+         *
+         * <p>The maximum available resolution that could be selected for an {@link ImageAnalysis}
+         * is limited to be under 1080p. The limitation of 1080p for {@link ImageAnalysis} has
+         * considered both performance and quality factors so that users can obtain reasonable
+         * quality and smooth output stream under 1080p.
+         *
+         * <p>If not set, resolution of 640x480 will be selected to use in priority.
+         *
+         * @param resolution The target resolution to choose from supported output sizes list.
+         * @return The current Builder.
+         */
+        @NonNull
+        @Override
+        public Builder setTargetResolution(@NonNull Size resolution) {
+            getMutableConfig()
+                    .insertOption(ImageOutputConfig.OPTION_TARGET_RESOLUTION, resolution);
+            getMutableConfig().insertOption(OPTION_TARGET_ASPECT_RATIO_CUSTOM,
+                    new Rational(resolution.getWidth(), resolution.getHeight()));
+            return this;
+        }
+
+        /**
+         * Sets the default resolution of the intended target from this configuration.
+         *
+         * @param resolution The default resolution to choose from supported output sizes list.
+         * @return The current Builder.
+         * @hide
+         */
+        @NonNull
+        @RestrictTo(Scope.LIBRARY_GROUP)
+        @Override
+        public Builder setDefaultResolution(@NonNull Size resolution) {
+            getMutableConfig().insertOption(ImageOutputConfig.OPTION_DEFAULT_RESOLUTION,
+                    resolution);
+            return this;
+        }
+
+        /** @hide */
+        @NonNull
+        @RestrictTo(Scope.LIBRARY_GROUP)
+        @Override
+        public Builder setMaxResolution(@NonNull Size resolution) {
+            getMutableConfig().insertOption(OPTION_MAX_RESOLUTION, resolution);
+            return this;
+        }
+
+        /** @hide */
+        @RestrictTo(Scope.LIBRARY_GROUP)
+        @Override
+        @NonNull
+        public Builder setSupportedResolutions(@NonNull List<Pair<Integer, Size[]>> resolutions) {
+            getMutableConfig().insertOption(OPTION_SUPPORTED_RESOLUTIONS, resolutions);
+            return this;
+        }
+
+        // Implementations of ThreadConfig.Builder default methods
+
+        /**
+         * Sets the default executor that will be used for background tasks.
+         *
+         * <p>If not set, the background executor will default to an automatically generated
+         * {@link Executor}.
+         *
+         * @param executor The executor which will be used for background tasks.
+         * @return the current Builder.
+         */
+        @Override
+        @NonNull
+        public Builder setBackgroundExecutor(@NonNull Executor executor) {
+            getMutableConfig().insertOption(OPTION_BACKGROUND_EXECUTOR, executor);
+            return this;
+        }
+
+        // Implementations of UseCaseConfig.Builder default methods
+
+        /** @hide */
+        @RestrictTo(Scope.LIBRARY_GROUP)
+        @Override
+        @NonNull
+        public Builder setDefaultSessionConfig(@NonNull SessionConfig sessionConfig) {
+            getMutableConfig().insertOption(OPTION_DEFAULT_SESSION_CONFIG, sessionConfig);
+            return this;
+        }
+
+        /** @hide */
+        @RestrictTo(Scope.LIBRARY_GROUP)
+        @Override
+        @NonNull
+        public Builder setDefaultCaptureConfig(@NonNull CaptureConfig captureConfig) {
+            getMutableConfig().insertOption(OPTION_DEFAULT_CAPTURE_CONFIG, captureConfig);
+            return this;
+        }
+
+        /** @hide */
+        @RestrictTo(Scope.LIBRARY_GROUP)
+        @Override
+        @NonNull
+        public Builder setSessionOptionUnpacker(
+                @NonNull SessionConfig.OptionUnpacker optionUnpacker) {
+            getMutableConfig().insertOption(OPTION_SESSION_CONFIG_UNPACKER, optionUnpacker);
+            return this;
+        }
+
+        /** @hide */
+        @RestrictTo(Scope.LIBRARY_GROUP)
+        @Override
+        @NonNull
+        public Builder setCaptureOptionUnpacker(
+                @NonNull CaptureConfig.OptionUnpacker optionUnpacker) {
+            getMutableConfig().insertOption(OPTION_CAPTURE_CONFIG_UNPACKER, optionUnpacker);
+            return this;
+        }
+
+        /** @hide */
+        @RestrictTo(Scope.LIBRARY_GROUP)
+        @Override
+        @NonNull
+        public Builder setSurfaceOccupancyPriority(int priority) {
+            getMutableConfig().insertOption(OPTION_SURFACE_OCCUPANCY_PRIORITY, priority);
+            return this;
+        }
+
+        /** @hide */
+        @RestrictTo(Scope.LIBRARY_GROUP)
+        @Override
+        @NonNull
+        public Builder setUseCaseEventCallback(
+                @NonNull UseCase.EventCallback useCaseEventCallback) {
+            getMutableConfig().insertOption(OPTION_USE_CASE_EVENT_CALLBACK, useCaseEventCallback);
+            return this;
         }
     }
 }

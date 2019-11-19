@@ -40,7 +40,7 @@ import androidx.camera.camera2.ExperimentalCamera2Interop;
 import androidx.camera.core.CameraSelector;
 import androidx.camera.core.CameraX;
 import androidx.camera.core.CaptureProcessor;
-import androidx.camera.core.ImageAnalysisConfig;
+import androidx.camera.core.ImageAnalysis;
 import androidx.camera.core.ImageCapture;
 import androidx.camera.core.LensFacing;
 import androidx.camera.core.Preview;
@@ -109,7 +109,7 @@ public class PreviewProcessorTimestampTest {
 
     private ImageCapture.Builder mImageCaptureBuilder;
     private Preview.Builder mPreviewBuilder;
-    private ImageAnalysisConfig.Builder mImageAnalysisConfigBuilder;
+    private ImageAnalysis.Builder mImageAnalysisBuilder;
 
     @Parameterized.Parameters
     public static Collection<Object[]> getParameters() {
@@ -147,7 +147,7 @@ public class PreviewProcessorTimestampTest {
 
         mImageCaptureBuilder = new ImageCapture.Builder();
         mPreviewBuilder = new Preview.Builder();
-        mImageAnalysisConfigBuilder = new ImageAnalysisConfig.Builder();
+        mImageAnalysisBuilder = new ImageAnalysis.Builder();
         mCameraStatusCallback = new CameraDevice.StateCallback() {
             @Override
             public void onOpened(@NonNull CameraDevice camera) {

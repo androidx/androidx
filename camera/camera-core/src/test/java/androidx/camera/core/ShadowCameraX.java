@@ -32,7 +32,7 @@ public class ShadowCameraX {
     public static final String DEFAULT_CAMERA_ID = "DEFAULT_CAMERA_ID";
 
     private static final UseCaseConfig<ImageAnalysis> DEFAULT_IMAGE_ANALYSIS_CONFIG =
-            new ImageAnalysisConfig.Builder().setSessionOptionUnpacker(
+            new ImageAnalysis.Builder().setSessionOptionUnpacker(
                     new SessionConfig.OptionUnpacker() {
                         @Override
                         public void unpack(@NonNull UseCaseConfig<?> config,

@@ -527,7 +527,7 @@ public final class SupportedSurfaceCombinationTest {
 
         Preview preview = new Preview.Builder().build();
         ImageCapture imageCapture = new ImageCapture.Builder().build();
-        ImageAnalysis imageAnalysis = new ImageAnalysisConfig.Builder().build();
+        ImageAnalysis imageAnalysis = new ImageAnalysis.Builder().build();
 
         List<UseCase> useCases = new ArrayList<>();
         useCases.add(preview);
@@ -561,7 +561,7 @@ public final class SupportedSurfaceCombinationTest {
 
         Preview preview = new Preview.Builder().build();
         ImageCapture imageCapture = new ImageCapture.Builder().build();
-        ImageAnalysis imageAnalysis = new ImageAnalysisConfig.Builder().build();
+        ImageAnalysis imageAnalysis = new ImageAnalysis.Builder().build();
         VideoCapture videoCapture = new VideoCaptureConfig.Builder().build();
 
         PreviewConfig previewConfig = (PreviewConfig) preview.getUseCaseConfig();
@@ -724,7 +724,7 @@ public final class SupportedSurfaceCombinationTest {
         Preview preview = new Preview.Builder()
                 .setTargetResolution(mDisplaySize)
                 .build();
-        ImageAnalysis imageAnalysis = new ImageAnalysisConfig.Builder()
+        ImageAnalysis imageAnalysis = new ImageAnalysis.Builder()
                 .setTargetResolution(mDisplaySize)
                 .build();
 
@@ -753,7 +753,7 @@ public final class SupportedSurfaceCombinationTest {
         ImageCapture imageCapture = new ImageCapture.Builder()
                 .setTargetAspectRatio(AspectRatio.RATIO_16_9)
                 .build();
-        ImageAnalysis imageAnalysis = new ImageAnalysisConfig.Builder()
+        ImageAnalysis imageAnalysis = new ImageAnalysis.Builder()
                 .setTargetAspectRatio(AspectRatio.RATIO_16_9)
                 .build();
 
@@ -806,7 +806,7 @@ public final class SupportedSurfaceCombinationTest {
         assertTrue(imageCaptureExceptionHappened);
 
         boolean imageAnalysisExceptionHappened = false;
-        ImageAnalysisConfig.Builder imageAnalysisConfigBuilder = new ImageAnalysisConfig.Builder()
+        ImageAnalysis.Builder imageAnalysisConfigBuilder = new ImageAnalysis.Builder()
                 .setTargetResolution(mDisplaySize)
                 .setTargetAspectRatio(AspectRatio.RATIO_16_9);
         try {

@@ -214,7 +214,7 @@ public class ImageAnalysisTest {
 
     private void setUpImageAnalysisWithStrategy(
             @ImageAnalysis.BackpressureStrategy int backpressureStrategy) {
-        mImageAnalysis = new ImageAnalysisConfig.Builder()
+        mImageAnalysis = new ImageAnalysis.Builder()
                 .setBackgroundExecutor(mBackgroundExecutor)
                 .setImageQueueDepth(QUEUE_DEPTH)
                 .setBackpressureStrategy(backpressureStrategy)

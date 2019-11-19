@@ -22,14 +22,14 @@ import androidx.annotation.RestrictTo;
 import java.util.Set;
 
 /**
- * A filter selects certain type of camera id from a camera id set.
+ * A filter that selects a certain type of camera ids from a camera id set.
  *
  * @hide
  */
 @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
 public interface CameraIdFilter {
     /**
-     * Returns a set of camera id with the same type.
+     * Returns a set of camera ids with the same type.
      *
      * @param cameraIds the camera id set to be filtered.
      * @return the available camera id set.
