@@ -38,7 +38,6 @@ import android.hardware.camera2.params.StreamConfigurationMap;
 import android.util.Pair;
 import android.util.Size;
 
-import androidx.annotation.NonNull;
 import androidx.camera.camera2.Camera2AppConfig;
 import androidx.camera.camera2.Camera2Config;
 import androidx.camera.camera2.impl.CameraEventCallbacks;
@@ -120,7 +119,7 @@ public class ImageCaptureExtenderTest {
 
         ImageCapture useCase = builder.build();
 
-        LensFacing lensFacing = CameraX.getDefaultLensFacing();
+        @LensFacing int lensFacing = CameraX.getDefaultLensFacing();
         CameraSelector cameraSelector = new CameraSelector.Builder()
                 .requireLensFacing(lensFacing).build();
         mInstrumentation.runOnMainSync(new Runnable() {
@@ -177,7 +176,7 @@ public class ImageCaptureExtenderTest {
 
         ImageCapture useCase = configBuilder.build();
 
-        LensFacing lensFacing = CameraX.getDefaultLensFacing();
+        @LensFacing int lensFacing = CameraX.getDefaultLensFacing();
         CameraSelector cameraSelector = new CameraSelector.Builder()
                 .requireLensFacing(lensFacing).build();
         mInstrumentation.runOnMainSync(new Runnable() {
@@ -225,7 +224,7 @@ public class ImageCaptureExtenderTest {
         // getSupportedResolutions supported since version 1.1
         assumeTrue(ExtensionVersion.getRuntimeVersion().compareTo(Version.VERSION_1_1) >= 0);
 
-        LensFacing lensFacing = CameraX.getDefaultLensFacing();
+        @LensFacing int lensFacing = CameraX.getDefaultLensFacing();
         ImageCapture.Builder builder = new ImageCapture.Builder();
 
         ImageCaptureExtenderImpl mockImageCaptureExtenderImpl = mock(
@@ -266,7 +265,7 @@ public class ImageCaptureExtenderTest {
     }
 
     private List<Pair<Integer, Size[]>> generateImageCaptureSupportedResolutions(
-            @NonNull LensFacing lensFacing)
+            @LensFacing int lensFacing)
             throws CameraInfoUnavailableException {
         List<Pair<Integer, Size[]>> formatResolutionsPairList = new ArrayList<>();
         String cameraId =

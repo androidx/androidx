@@ -39,5 +39,5 @@ public interface CameraInfoInternal extends CameraInfo {
     // TODO(b/122975195): Remove @Nullable and null return type once we have a LensFacing type which
     // can be used to represent non-BACK or FRONT facing lenses.
     @Nullable
-    LensFacing getLensFacing();
+    Integer getLensFacing();
 }

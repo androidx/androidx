@@ -16,6 +16,7 @@
 
 package androidx.camera.testing.fakes;
 
+import androidx.annotation.NonNull;
 import androidx.annotation.RestrictTo;
 import androidx.annotation.RestrictTo.Scope;
 import androidx.lifecycle.Lifecycle;
@@ -115,6 +116,7 @@ public final class FakeLifecycleOwner implements LifecycleOwner {
         return mLifecycleRegistry.getObserverCount();
     }
 
+    @NonNull
     @Override
     public Lifecycle getLifecycle() {
         return mLifecycleRegistry;

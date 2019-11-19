@@ -118,7 +118,7 @@ public class ExtensionsTestUtil {
      */
     @NonNull
     public static ImageCapture.Builder createImageCaptureConfigBuilderWithEffect(
-            @NonNull EffectMode effectMode, @NonNull LensFacing lensFacing) {
+            @NonNull EffectMode effectMode, @LensFacing int lensFacing) {
         ImageCapture.Builder builder = new ImageCapture.Builder();
         CameraSelector selector =
                 new CameraSelector.Builder().requireLensFacing(lensFacing).build();
@@ -161,9 +161,8 @@ public class ExtensionsTestUtil {
      * @return A {@link Preview.Builder} object.
      */
     @NonNull
-    public static Preview.Builder createPreviewBuilderWithEffect(
-            @NonNull EffectMode effectMode,
-            @NonNull LensFacing lensFacing) {
+    public static Preview.Builder createPreviewBuilderWithEffect(@NonNull EffectMode effectMode,
+            @LensFacing int lensFacing) {
         Preview.Builder builder = new Preview.Builder();
         CameraSelector selector =
                 new CameraSelector.Builder().requireLensFacing(lensFacing).build();
@@ -207,8 +206,7 @@ public class ExtensionsTestUtil {
      */
     @NonNull
     public static ImageCaptureConfig createImageCaptureConfigWithEffect(
-            @NonNull EffectMode effectMode,
-            @NonNull LensFacing lensFacing) {
+            @NonNull EffectMode effectMode, @LensFacing int lensFacing) {
         ImageCapture.Builder imageCaptureConfigBuilder =
                 createImageCaptureConfigBuilderWithEffect(effectMode, lensFacing);
         return imageCaptureConfigBuilder.getUseCaseConfig();
@@ -224,7 +222,7 @@ public class ExtensionsTestUtil {
      */
     @NonNull
     public static PreviewConfig createPreviewConfigWithEffect(@NonNull EffectMode effectMode,
-            @NonNull LensFacing lensFacing) {
+            @LensFacing int lensFacing) {
         Preview.Builder previewBuilder =
                 createPreviewBuilderWithEffect(effectMode, lensFacing);
         return previewBuilder.getUseCaseConfig();
@@ -240,7 +238,7 @@ public class ExtensionsTestUtil {
      */
     @NonNull
     public static ImageCapture createImageCaptureWithEffect(@NonNull EffectMode effectMode,
-            @NonNull LensFacing lensFacing) {
+            @LensFacing int lensFacing) {
         return createImageCaptureConfigBuilderWithEffect(effectMode, lensFacing).build();
     }
 
@@ -253,7 +251,7 @@ public class ExtensionsTestUtil {
      */
     @NonNull
     public static Preview createPreviewWithEffect(@NonNull EffectMode effectMode,
-            @NonNull LensFacing lensFacing) {
+            @LensFacing int lensFacing) {
         return createPreviewBuilderWithEffect(effectMode, lensFacing).build();
     }
 
@@ -267,8 +265,7 @@ public class ExtensionsTestUtil {
      */
     @NonNull
     public static ImageCaptureExtenderImpl createImageCaptureExtenderImpl(
-            @NonNull EffectMode effectMode,
-            @NonNull LensFacing lensFacing)
+            @NonNull EffectMode effectMode, @LensFacing int lensFacing)
             throws CameraInfoUnavailableException, CameraAccessException {
         ImageCaptureExtenderImpl impl = null;
 
@@ -315,7 +312,7 @@ public class ExtensionsTestUtil {
      */
     @NonNull
     public static PreviewExtenderImpl createPreviewExtenderImpl(@NonNull EffectMode effectMode,
-            @NonNull LensFacing lensFacing)
+            @LensFacing int lensFacing)
             throws CameraInfoUnavailableException, CameraAccessException {
         PreviewExtenderImpl impl = null;
 

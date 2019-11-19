@@ -95,9 +95,13 @@ public class CameraViewFragment extends Fragment {
         // Get extra option for setting initial camera direction
         Bundle bundle = getActivity().getIntent().getExtras();
         if (bundle != null) {
-            String cameraDirectionString = bundle.getString(INTENT_EXTRA_CAMERA_DIRECTION);
-            if (cameraDirectionString != null) {
-                LensFacing lensFacing = LensFacing.valueOf(cameraDirectionString.toUpperCase());
+            final String cameraDirectionString = bundle.getString(INTENT_EXTRA_CAMERA_DIRECTION);
+            final boolean isCameraDirectionValid =
+                    cameraDirectionString != null && (cameraDirectionString.equalsIgnoreCase("BACK")
+                            || cameraDirectionString.equalsIgnoreCase("FRONT"));
+            if (isCameraDirectionValid) {
+                @LensFacing int lensFacing = cameraDirectionString.equalsIgnoreCase("BACK")
+                        ? LensFacing.BACK : LensFacing.FRONT;
                 mCameraView.setCameraLensFacing(lensFacing);
             }
 

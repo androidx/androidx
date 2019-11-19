@@ -34,7 +34,6 @@ import androidx.camera.core.CameraSelector;
 import androidx.camera.core.CameraX;
 import androidx.camera.core.CaptureConfig;
 import androidx.camera.core.Config;
-import androidx.camera.core.LensFacing;
 import androidx.camera.core.Preview;
 import androidx.camera.core.UseCase;
 import androidx.camera.core.impl.utils.CameraSelectorUtil;
@@ -75,7 +74,7 @@ public abstract class PreviewExtender {
      * @return True if the specific extension function is supported for the camera device.
      */
     public boolean isExtensionAvailable(@NonNull CameraSelector cameraSelector) {
-        LensFacing lensFacing = cameraSelector.getLensFacing();
+        Integer lensFacing = cameraSelector.getLensFacing();
         Set<String> availableCameraIds = null;
         try {
             availableCameraIds = CameraUtil.getCameraIdSetWithLensFacing(lensFacing);

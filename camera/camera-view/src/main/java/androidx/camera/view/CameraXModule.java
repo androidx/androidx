@@ -41,6 +41,7 @@ import androidx.camera.core.ImageCapture;
 import androidx.camera.core.ImageCapture.OnImageCapturedCallback;
 import androidx.camera.core.ImageCapture.OnImageSavedCallback;
 import androidx.camera.core.LensFacing;
+import androidx.camera.core.LensFacingConverter;
 import androidx.camera.core.Preview;
 import androidx.camera.core.VideoCapture;
 import androidx.camera.core.VideoCapture.OnVideoSavedCallback;
@@ -60,6 +61,7 @@ import com.google.common.util.concurrent.ListenableFuture;
 import java.io.File;
 import java.util.Arrays;
 import java.util.LinkedHashSet;
+import java.util.Objects;
 import java.util.Set;
 import java.util.concurrent.Executor;
 import java.util.concurrent.atomic.AtomicBoolean;
@@ -113,7 +115,7 @@ final class CameraXModule {
     @Nullable
     private LifecycleOwner mNewLifecycle;
     @Nullable
-    private LensFacing mCameraLensFacing = LensFacing.BACK;
+    private Integer mCameraLensFacing = LensFacing.BACK;
 
     CameraXModule(CameraView view) {
         this.mCameraView = view;
@@ -155,7 +157,7 @@ final class CameraXModule {
                     return "PreviewResolutionUpdate";
                 });
 
-        Set<LensFacing> available = getAvailableCameraLensFacing();
+        Set<Integer> available = getAvailableCameraLensFacing();
 
         if (available.isEmpty()) {
             Log.w(TAG, "Unable to bindToLifeCycle since no cameras available");
@@ -207,10 +209,10 @@ final class CameraXModule {
 
         mPreview = mPreviewBuilder.build();
         mPreview.setPreviewSurfaceProvider((resolution, safeToCancelFuture) -> {
-                // The PreviewSurfaceProvider#createSurfaceFuture() might come asynchronously.
-                // It cannot guarantee the callback time, so we store the resolution result in
-                // the listenableFuture.
-                mResolutionUpdateCompleter.set(resolution);
+            // The PreviewSurfaceProvider#createSurfaceFuture() might come asynchronously.
+            // It cannot guarantee the callback time, so we store the resolution result in
+            // the listenableFuture.
+            mResolutionUpdateCompleter.set(resolution);
             // Create SurfaceTexture and Surface.
             SurfaceTexture surfaceTexture = new SurfaceTexture(0);
             surfaceTexture.setDefaultBufferSize(resolution.getWidth(),
@@ -309,7 +311,8 @@ final class CameraXModule {
         }
 
         ImageCapture.Metadata metadata = new ImageCapture.Metadata();
-        metadata.setReversedHorizontal(mCameraLensFacing == LensFacing.FRONT);
+        metadata.setReversedHorizontal(
+                mCameraLensFacing != null && mCameraLensFacing == LensFacing.FRONT);
         mImageCapture.takePicture(saveLocation, metadata, executor, callback);
     }
 
@@ -363,9 +366,9 @@ final class CameraXModule {
 
     // TODO(b/124269166): Rethink how we can handle permissions here.
     @SuppressLint("MissingPermission")
-    public void setCameraLensFacing(@Nullable LensFacing lensFacing) {
+    public void setCameraLensFacing(@Nullable Integer lensFacing) {
         // Setting same lens facing is a no-op, so check for that first
-        if (mCameraLensFacing != lensFacing) {
+        if (!Objects.equals(mCameraLensFacing, lensFacing)) {
             // If we're not bound to a lifecycle, just update the camera that will be opened when we
             // attach to a lifecycle.
             mCameraLensFacing = lensFacing;
@@ -378,7 +381,7 @@ final class CameraXModule {
     }
 
     @RequiresPermission(permission.CAMERA)
-    public boolean hasCameraWithLensFacing(LensFacing lensFacing) {
+    public boolean hasCameraWithLensFacing(@LensFacing int lensFacing) {
         String cameraId;
         try {
             cameraId = CameraX.getCameraWithLensFacing(lensFacing);
@@ -390,14 +393,14 @@ final class CameraXModule {
     }
 
     @Nullable
-    public LensFacing getLensFacing() {
+    public Integer getLensFacing() {
         return mCameraLensFacing;
     }
 
     public void toggleCamera() {
         // TODO(b/124269166): Rethink how we can handle permissions here.
         @SuppressLint("MissingPermission")
-        Set<LensFacing> availableCameraLensFacing = getAvailableCameraLensFacing();
+        Set<Integer> availableCameraLensFacing = getAvailableCameraLensFacing();
 
         if (availableCameraLensFacing.isEmpty()) {
             return;
@@ -532,9 +535,9 @@ final class CameraXModule {
     }
 
     @RequiresPermission(permission.CAMERA)
-    private Set<LensFacing> getAvailableCameraLensFacing() {
+    private Set<Integer> getAvailableCameraLensFacing() {
         // Start with all camera directions
-        Set<LensFacing> available = new LinkedHashSet<>(Arrays.asList(LensFacing.values()));
+        Set<Integer> available = new LinkedHashSet<>(Arrays.asList(LensFacingConverter.values()));
 
         // If we're bound to a lifecycle, remove unavailable cameras
         if (mCurrentLifecycle != null) {

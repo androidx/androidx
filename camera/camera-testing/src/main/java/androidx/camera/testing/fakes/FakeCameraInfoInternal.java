@@ -36,7 +36,8 @@ import androidx.lifecycle.MutableLiveData;
 public final class FakeCameraInfoInternal implements CameraInfoInternal {
 
     private final int mSensorRotation;
-    private final LensFacing mLensFacing;
+    @LensFacing
+    private final int mLensFacing;
     private final boolean mHasFlashUnit = true;
     private MutableLiveData<Integer> mTorchState = new MutableLiveData<>(TorchState.OFF);
     private MutableLiveData<Float> mMaxZoom = new MutableLiveData<>(4.0f);
@@ -45,19 +46,18 @@ public final class FakeCameraInfoInternal implements CameraInfoInternal {
     private MutableLiveData<Float> mZoomPercentage = new MutableLiveData<>(0f);
 
 
-
     public FakeCameraInfoInternal() {
         this(/*sensorRotation=*/ 0, /*lensFacing=*/ LensFacing.BACK);
     }
 
-    public FakeCameraInfoInternal(int sensorRotation, @NonNull LensFacing lensFacing) {
+    public FakeCameraInfoInternal(int sensorRotation, @LensFacing int lensFacing) {
         mSensorRotation = sensorRotation;
         mLensFacing = lensFacing;
     }
 
     @Nullable
     @Override
-    public LensFacing getLensFacing() {
+    public Integer getLensFacing() {
         return mLensFacing;
     }
 
@@ -68,7 +68,7 @@ public final class FakeCameraInfoInternal implements CameraInfoInternal {
         // Currently this assumes that a back-facing camera is always opposite to the screen.
         // This may not be the case for all devices, so in the future we may need to handle that
         // scenario.
-        boolean isOppositeFacingScreen = LensFacing.BACK.equals(getLensFacing());
+        boolean isOppositeFacingScreen = (LensFacing.BACK == getLensFacing());
         return CameraOrientationUtil.getRelativeImageRotation(
                 relativeRotationDegrees,
                 mSensorRotation,

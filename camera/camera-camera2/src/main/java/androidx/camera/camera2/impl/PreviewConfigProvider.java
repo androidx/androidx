@@ -22,13 +22,13 @@ import android.util.Log;
 import android.util.Rational;
 import android.view.WindowManager;
 
+import androidx.annotation.Nullable;
 import androidx.annotation.RestrictTo;
 import androidx.annotation.RestrictTo.Scope;
 import androidx.camera.core.CameraFactory;
 import androidx.camera.core.CameraX;
 import androidx.camera.core.CaptureConfig;
 import androidx.camera.core.ConfigProvider;
-import androidx.camera.core.LensFacing;
 import androidx.camera.core.Preview;
 import androidx.camera.core.PreviewConfig;
 import androidx.camera.core.SessionConfig;
@@ -53,7 +53,7 @@ public final class PreviewConfigProvider implements ConfigProvider<PreviewConfig
     }
 
     @Override
-    public PreviewConfig getConfig(LensFacing lensFacing) {
+    public PreviewConfig getConfig(@Nullable Integer lensFacing) {
         Preview.Builder builder = Preview.Builder.fromConfig(
                 Preview.DEFAULT_CONFIG.getConfig(lensFacing));
 
@@ -72,7 +72,7 @@ public final class PreviewConfigProvider implements ConfigProvider<PreviewConfig
 
         try {
             // Add default lensFacing if we can
-            LensFacing checkedLensFacing =
+            Integer checkedLensFacing =
                     (lensFacing != null) ? lensFacing : CameraX.getDefaultLensFacing();
             String defaultId = mCameraFactory.cameraIdForLensFacing(checkedLensFacing);
             if (defaultId != null) {

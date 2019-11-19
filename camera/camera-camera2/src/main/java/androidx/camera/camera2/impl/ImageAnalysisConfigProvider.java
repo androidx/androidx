@@ -22,6 +22,7 @@ import android.util.Log;
 import android.util.Rational;
 import android.view.WindowManager;
 
+import androidx.annotation.Nullable;
 import androidx.annotation.RestrictTo;
 import androidx.annotation.RestrictTo.Scope;
 import androidx.camera.core.CameraFactory;
@@ -30,7 +31,6 @@ import androidx.camera.core.CaptureConfig;
 import androidx.camera.core.ConfigProvider;
 import androidx.camera.core.ImageAnalysis;
 import androidx.camera.core.ImageAnalysisConfig;
-import androidx.camera.core.LensFacing;
 import androidx.camera.core.SessionConfig;
 
 /**
@@ -53,7 +53,7 @@ public final class ImageAnalysisConfigProvider implements ConfigProvider<ImageAn
     }
 
     @Override
-    public ImageAnalysisConfig getConfig(LensFacing lensFacing) {
+    public ImageAnalysisConfig getConfig(@Nullable Integer lensFacing) {
         ImageAnalysis.Builder builder = ImageAnalysis.Builder.fromConfig(
                 ImageAnalysis.DEFAULT_CONFIG.getConfig(lensFacing));
 
@@ -73,7 +73,7 @@ public final class ImageAnalysisConfigProvider implements ConfigProvider<ImageAn
 
         try {
             // Add default lensFacing if we can
-            LensFacing checkedLensFacing =
+            Integer checkedLensFacing =
                     (lensFacing != null) ? lensFacing : CameraX.getDefaultLensFacing();
             String defaultId = mCameraFactory.cameraIdForLensFacing(checkedLensFacing);
             if (defaultId != null) {

@@ -191,7 +191,7 @@ public final class CameraX {
      * {@link Preview} and then {@link ImageAnalysis}. The resolutions that can be supported depends
      * on the camera device hardware level that there are some default guaranteed resolutions
      * listed in {@link android.hardware.camera2.CameraDevice#createCaptureSession(List,
-     * CameraCaptureSession.StateCallback, Handler)}.
+     * android.hardware.camera2.CameraCaptureSession.StateCallback, Handler)}.
      *
      * <p>Currently up to 3 use cases may be bound to a {@link Lifecycle} at any time. Exceeding
      * capability of target camera device will throw an IllegalArgumentException.
@@ -429,7 +429,7 @@ public final class CameraX {
      */
     @RestrictTo(Scope.LIBRARY_GROUP)
     @Nullable
-    public static String getCameraWithLensFacing(LensFacing lensFacing)
+    public static String getCameraWithLensFacing(@LensFacing int lensFacing)
             throws CameraInfoUnavailableException {
         checkInitialized();
         return getCameraFactory().cameraIdForLensFacing(lensFacing);
@@ -455,7 +455,7 @@ public final class CameraX {
         checkInitialized();
 
         Set<String> availableCameraIds = getCameraFactory().getAvailableCameraIds();
-        LensFacing lensFacing = config.getLensFacing(null);
+        Integer lensFacing = config.getLensFacing(null);
         if (lensFacing != null) {
             // Filters camera ids with lens facing.
             availableCameraIds = CameraX.getCameraFactory().getLensFacingCameraIdFilter(
@@ -478,26 +478,30 @@ public final class CameraX {
     }
 
     /**
-     * Gets the default lens facing or {@code null} if there is no available camera.
+     * Gets the default lens facing, or throws a {@link IllegalStateException} if there is no
+     * available camera.
      *
-     * @return The default lens facing or {@code null}.
+     * @return The default lens facing.
      * @throws CameraInfoUnavailableException if unable to access cameras, perhaps due to
      *                                        insufficient permissions.
      * @hide
      */
     @RestrictTo(Scope.LIBRARY_GROUP)
-    @Nullable
-    public static LensFacing getDefaultLensFacing() throws CameraInfoUnavailableException {
+    @LensFacing
+    public static int getDefaultLensFacing() throws CameraInfoUnavailableException {
         checkInitialized();
 
-        LensFacing lensFacingCandidate = null;
-        List<LensFacing> lensFacingList = Arrays.asList(LensFacing.BACK, LensFacing.FRONT);
-        for (LensFacing lensFacing : lensFacingList) {
+        Integer lensFacingCandidate = null;
+        List<Integer> lensFacingList = Arrays.asList(LensFacing.BACK, LensFacing.FRONT);
+        for (Integer lensFacing : lensFacingList) {
             String cameraId = getCameraFactory().cameraIdForLensFacing(lensFacing);
             if (cameraId != null) {
                 lensFacingCandidate = lensFacing;
                 break;
             }
+        }
+        if (lensFacingCandidate == null) {
+            throw new IllegalStateException("Unable to get default lens facing.");
         }
         return lensFacingCandidate;
     }
@@ -547,8 +551,8 @@ public final class CameraX {
      */
     @RestrictTo(Scope.LIBRARY_GROUP)
     @Nullable
-    public static <C extends UseCaseConfig<?>> C getDefaultUseCaseConfig(
-            Class<C> configType, LensFacing lensFacing) {
+    public static <C extends UseCaseConfig<?>> C getDefaultUseCaseConfig(Class<C> configType,
+            @Nullable Integer lensFacing) {
         CameraX cameraX = checkInitialized();
 
         return cameraX.getDefaultConfigFactory().getConfig(configType, lensFacing);

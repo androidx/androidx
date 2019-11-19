@@ -94,10 +94,11 @@ public class ExtensionTest {
     private final Instrumentation mInstrumentation = InstrumentationRegistry.getInstrumentation();
 
     private EffectMode mEffectMode;
-    private LensFacing mLensFacing;
+    @LensFacing
+    private int mLensFacing;
     private FakeLifecycleOwner mLifecycleOwner;
 
-    public ExtensionTest(EffectMode effectMode, LensFacing lensFacing) {
+    public ExtensionTest(EffectMode effectMode, @LensFacing int lensFacing) {
         mEffectMode = effectMode;
         mLensFacing = lensFacing;
     }

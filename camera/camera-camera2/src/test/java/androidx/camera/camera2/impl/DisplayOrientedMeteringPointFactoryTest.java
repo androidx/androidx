@@ -26,6 +26,7 @@ import android.view.Display;
 import android.view.Surface;
 import android.view.WindowManager;
 
+import androidx.annotation.Nullable;
 import androidx.camera.core.AppConfig;
 import androidx.camera.core.CameraDeviceSurfaceManager;
 import androidx.camera.core.CameraSelector;
@@ -87,7 +88,7 @@ public class DisplayOrientedMeteringPointFactoryTest {
         defaultConfigFactory.installDefaultProvider(FakeUseCaseConfig.class,
                 new ConfigProvider<FakeUseCaseConfig>() {
                     @Override
-                    public FakeUseCaseConfig getConfig(LensFacing lensFacing) {
+                    public FakeUseCaseConfig getConfig(@Nullable Integer lensFacing) {
                         return new FakeUseCaseConfig.Builder().getUseCaseConfig();
                     }
                 });

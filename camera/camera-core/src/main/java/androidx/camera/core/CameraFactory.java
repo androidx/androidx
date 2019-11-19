@@ -41,10 +41,10 @@ public interface CameraFactory {
      * camera with specified lens facing.
      */
     @Nullable
-    String cameraIdForLensFacing(@NonNull LensFacing lensFacing)
+    String cameraIdForLensFacing(@LensFacing int lensFacing)
             throws CameraInfoUnavailableException;
 
     /** Gets a {@link LensFacingCameraIdFilter} with specified lens facing. */
     @NonNull
-    LensFacingCameraIdFilter getLensFacingCameraIdFilter(@NonNull LensFacing lensFacing);
+    LensFacingCameraIdFilter getLensFacingCameraIdFilter(@LensFacing int lensFacing);
 }

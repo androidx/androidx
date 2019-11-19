@@ -22,6 +22,7 @@ import static org.mockito.Mockito.mock;
 import android.content.Context;
 import android.os.Build;
 
+import androidx.annotation.Nullable;
 import androidx.camera.testing.fakes.FakeCamera;
 import androidx.camera.testing.fakes.FakeCameraDeviceSurfaceManager;
 import androidx.camera.testing.fakes.FakeCameraFactory;
@@ -61,7 +62,7 @@ public class CameraSelectorTest {
         defaultConfigFactory.installDefaultProvider(FakeUseCaseConfig.class,
                 new ConfigProvider<FakeUseCaseConfig>() {
                     @Override
-                    public FakeUseCaseConfig getConfig(LensFacing lensFacing) {
+                    public FakeUseCaseConfig getConfig(@Nullable Integer lensFacing) {
                         return new FakeUseCaseConfig.Builder().getUseCaseConfig();
                     }
                 });

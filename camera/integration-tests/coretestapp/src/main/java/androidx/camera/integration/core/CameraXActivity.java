@@ -102,7 +102,8 @@ public class CameraXActivity extends AppCompatActivity
     private VideoFileSaver mVideoFileSaver;
     /** The camera to use */
     CameraSelector mCurrentCameraSelector = BACK_SELECTOR;
-    LensFacing mCurrentCameraLensFacing = LensFacing.BACK;
+    @LensFacing
+    int mCurrentCameraLensFacing = LensFacing.BACK;
 
     // TODO: Move the analysis processing, capture processing to separate threads, so
     // there is smaller impact on the preview.

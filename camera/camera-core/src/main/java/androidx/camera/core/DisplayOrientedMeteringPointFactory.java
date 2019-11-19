@@ -23,6 +23,7 @@ import android.view.View;
 import android.view.WindowManager;
 
 import androidx.annotation.NonNull;
+import androidx.annotation.Nullable;
 import androidx.annotation.RestrictTo;
 import androidx.camera.core.impl.utils.CameraSelectorUtil;
 
@@ -126,7 +127,8 @@ public final class DisplayOrientedMeteringPointFactory extends MeteringPointFact
         }
     }
 
-    private LensFacing getLensFacing() {
+    @Nullable
+    private Integer getLensFacing() {
         return mCameraInfo.getLensFacing();
     }
 
@@ -142,7 +144,8 @@ public final class DisplayOrientedMeteringPointFactory extends MeteringPointFact
         float width = mWidth;
         float height = mHeight;
 
-        boolean compensateForMirroring = (getLensFacing() == LensFacing.FRONT);
+        final Integer lensFacing = getLensFacing();
+        boolean compensateForMirroring = (lensFacing != null && lensFacing == LensFacing.FRONT);
         int relativeCameraOrientation = getRelativeCameraOrientation(compensateForMirroring);
         float outputX = x;
         float outputY = y;

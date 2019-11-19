@@ -75,7 +75,7 @@ public class ImageCaptureExtenderValidationTest {
                 ExtensionsTestUtil.getAllEffectLensFacingCombinations()) {
             ExtensionsManager.EffectMode effectMode =
                     (ExtensionsManager.EffectMode) EffectLensFacingPair[0];
-            LensFacing lensFacing = (LensFacing) EffectLensFacingPair[1];
+            @LensFacing int lensFacing = (int) EffectLensFacingPair[1];
 
             assumeTrue(CameraUtil.hasCameraWithLensFacing(lensFacing));
             assumeTrue(ExtensionsManager.isExtensionAvailable(effectMode, lensFacing));

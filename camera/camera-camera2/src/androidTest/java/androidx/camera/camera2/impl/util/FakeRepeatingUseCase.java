@@ -25,12 +25,12 @@ import android.os.Looper;
 import android.util.Size;
 
 import androidx.annotation.NonNull;
+import androidx.annotation.Nullable;
 import androidx.annotation.RestrictTo;
 import androidx.annotation.RestrictTo.Scope;
 import androidx.camera.core.CameraSelector;
 import androidx.camera.core.CameraX;
 import androidx.camera.core.ImmediateSurface;
-import androidx.camera.core.LensFacing;
 import androidx.camera.core.SessionConfig;
 import androidx.camera.core.UseCaseConfig;
 import androidx.camera.core.impl.utils.CameraSelectorUtil;
@@ -41,6 +41,7 @@ import java.util.Map;
 
 /**
  * A fake {@link FakeUseCase} which contain a repeating surface.
+ *
  * @hide
  */
 @RestrictTo(Scope.LIBRARY)
@@ -81,7 +82,7 @@ public class FakeRepeatingUseCase extends FakeUseCase {
     }
 
     @Override
-    protected UseCaseConfig.Builder<?, ?, ?> getDefaultBuilder(LensFacing lensFacing) {
+    protected UseCaseConfig.Builder<?, ?, ?> getDefaultBuilder(@Nullable Integer lensFacing) {
         return new FakeUseCaseConfig.Builder()
                 .setSessionOptionUnpacker(
                         new SessionConfig.OptionUnpacker() {
