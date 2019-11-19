@@ -45,7 +45,6 @@ import androidx.camera.core.Camera;
 import androidx.camera.core.CameraSelector;
 import androidx.camera.core.FlashMode;
 import androidx.camera.core.ImageAnalysis;
-import androidx.camera.core.ImageAnalysisConfig;
 import androidx.camera.core.ImageCapture;
 import androidx.camera.core.LensFacing;
 import androidx.camera.core.Preview;
@@ -341,7 +340,7 @@ public class CameraXActivity extends AppCompatActivity
     }
 
     void enableImageAnalysis() {
-        mImageAnalysis = new ImageAnalysisConfig.Builder()
+        mImageAnalysis = new ImageAnalysis.Builder()
                 .setTargetName("ImageAnalysis")
                 .build();
         TextView textView = this.findViewById(R.id.textView);
