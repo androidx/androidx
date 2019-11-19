@@ -23,6 +23,7 @@ import android.view.Surface;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
+import androidx.annotation.RestrictTo;
 
 import java.util.Set;
 
@@ -117,8 +118,11 @@ public class SurfaceOrientedMeteringPointFactory extends MeteringPointFactory {
 
     /**
      * {@inheritDoc}
+     *
+     * @hide
      */
     @Override
+    @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
     @NonNull
     protected PointF convertPoint(float x, float y) {
         PointF pt = new PointF(x / mWidth, y / mHeight);
