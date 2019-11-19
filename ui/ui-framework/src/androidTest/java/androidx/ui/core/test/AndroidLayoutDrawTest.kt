@@ -53,7 +53,6 @@ import androidx.ui.core.ParentData
 import androidx.ui.core.Ref
 import androidx.ui.core.RepaintBoundary
 import androidx.ui.core.VerticalAlignmentLine
-import androidx.ui.core.WithConstraints
 import androidx.ui.core.coerceAtLeast
 import androidx.ui.core.coerceIn
 import androidx.ui.core.ipx
@@ -362,102 +361,6 @@ class AndroidLayoutDrawTest {
             }
         }
         validateSquareColors(outerColor = green, innerColor = white, size = 20)
-    }
-
-    @Test
-    fun withConstraintsTest() {
-        val size = 20.ipx
-
-        val countDownLatch = CountDownLatch(1)
-        val topConstraints = Ref<Constraints>()
-        val paddedConstraints = Ref<Constraints>()
-        val firstChildConstraints = Ref<Constraints>()
-        val secondChildConstraints = Ref<Constraints>()
-        activityTestRule.runOnUiThreadIR {
-            activity.setContentInFrameLayout {
-                WithConstraints { constraints ->
-                    topConstraints.value = constraints
-                    Padding(size = size) {
-                        WithConstraints { constraints ->
-                            paddedConstraints.value = constraints
-                            Layout(measureBlock = { _, childConstraints ->
-                                firstChildConstraints.value = childConstraints
-                                layout(size, size) { }
-                            }, children = { })
-                            Layout(measureBlock = { _, chilConstraints ->
-                                secondChildConstraints.value = chilConstraints
-                                layout(size, size) { }
-                            }, children = { })
-                            Draw { _, _ ->
-                                countDownLatch.countDown()
-                            }
-                        }
-                    }
-                }
-            }
-        }
-        assertTrue(countDownLatch.await(1, TimeUnit.SECONDS))
-
-        val expectedPaddedConstraints = Constraints(
-            0.ipx,
-            topConstraints.value!!.maxWidth - size * 2,
-            0.ipx,
-            topConstraints.value!!.maxHeight - size * 2
-        )
-        assertEquals(expectedPaddedConstraints, paddedConstraints.value)
-        assertEquals(paddedConstraints.value, firstChildConstraints.value)
-        assertEquals(paddedConstraints.value, secondChildConstraints.value)
-    }
-
-    @Suppress("UNUSED_ANONYMOUS_PARAMETER")
-    @SdkSuppress(minSdkVersion = Build.VERSION_CODES.O)
-    @Test
-    fun withConstraints_layoutListener() {
-        val green = Color.Green
-        val white = Color.White
-        val model = SquareModel(size = 20.ipx, outerColor = green, innerColor = white)
-
-        activityTestRule.runOnUiThreadIR {
-            activity.setContentInFrameLayout {
-                WithConstraints { constraints ->
-                    Layout(children = {
-                        Draw { canvas, parentSize ->
-                            val paint = Paint()
-                            paint.color = model.outerColor
-                            canvas.drawRect(parentSize.toRect(), paint)
-                        }
-                        Layout(children = {
-                            Draw { canvas, parentSize ->
-                                drawLatch.countDown()
-                                val paint = Paint()
-                                paint.color = model.innerColor
-                                canvas.drawRect(parentSize.toRect(), paint)
-                            }
-                        }) { measurables, constraints2 ->
-                            layout(model.size, model.size) {}
-                        }
-                    }) { measurables, constraints3 ->
-                        val placeable = measurables[0].measure(
-                            Constraints.tightConstraints(
-                                model.size,
-                                model.size
-                            )
-                        )
-                        layout(model.size * 3, model.size * 3) {
-                            placeable.place(model.size, model.size)
-                        }
-                    }
-                }
-            }
-        }
-        validateSquareColors(outerColor = green, innerColor = white, size = 20)
-
-        drawLatch = CountDownLatch(1)
-        activityTestRule.runOnUiThreadIR {
-            model.size = 10.ipx
-        }
-
-        validateSquareColors(outerColor = green, innerColor = white, size = 10)
     }
 
     // Tests that calling measure multiple times on the same Measurable causes an exception
@@ -1512,18 +1415,6 @@ class AndroidLayoutDrawTest {
         assertEquals(8, childLayouts)
     }
 
-    /**
-     * WithConstraints will cause a requestLayout during layout in some circumstances.
-     * The test here is the minimal example from a bug.
-     */
-    @SdkSuppress(minSdkVersion = Build.VERSION_CODES.O)
-    @Test
-    fun requestLayoutDuringLayout() {
-        composeSquaresWithConstraints()
-
-        validateSquareColors(outerColor = Color.Yellow, innerColor = Color.Red, size = 10)
-    }
-
     @Test
     fun testLayoutBeforeDraw_forRecomposingNodesNotAffectingRootSize() {
         val model = OffsetModel(0.ipx)
@@ -1882,29 +1773,6 @@ class AndroidLayoutDrawTest {
         }
     }
 
-    private fun composeSquaresWithConstraints() {
-        val offset = OffsetModel(0.ipx)
-        activityTestRule.runOnUiThreadIR {
-            activity.setContentInFrameLayout {
-                Draw { canvas, parentSize ->
-                    val paint = Paint()
-                    paint.color = Color.Yellow
-                    canvas.drawRect(parentSize.toRect(), paint)
-                    drawLatch.countDown()
-                }
-                Scroller(
-                    onScrollPositionChanged = { position, _ ->
-                        offset.offset = position
-                    },
-                    offset = offset
-                ) {
-                    // Need to pass some param here to a separate function or else it works fine
-                    TestLayout(5)
-                }
-            }
-        }
-    }
-
     private fun validateSquareColors(
         outerColor: Color,
         innerColor: Color,
@@ -2139,35 +2007,7 @@ fun Wrap(children: @Composable() () -> Unit) {
 }
 
 @Composable
-private fun TestLayout(@Suppress("UNUSED_PARAMETER") someInput: Int) {
-    Layout(children = {
-        WithConstraints {
-            NeedsOtherMeasurementComposable(10.ipx)
-        }
-    }) { measurables, constraints ->
-        val withConstraintsPlaceable = measurables[0].measure(constraints)
-
-        layout(30.ipx, 30.ipx) {
-            withConstraintsPlaceable.place(10.ipx, 10.ipx)
-        }
-    }
-}
-
-@Composable
-private fun NeedsOtherMeasurementComposable(foo: IntPx) {
-    Layout(children = {
-        Draw { canvas, parentSize ->
-            val paint = Paint()
-            paint.color = Color.Red
-            canvas.drawRect(parentSize.toRect(), paint)
-        }
-    }) { _, _ ->
-        layout(foo, foo) { }
-    }
-}
-
-@Composable
-private fun Scroller(
+fun Scroller(
     onScrollPositionChanged: (position: IntPx, maxPosition: IntPx) -> Unit,
     offset: OffsetModel,
     child: @Composable() () -> Unit

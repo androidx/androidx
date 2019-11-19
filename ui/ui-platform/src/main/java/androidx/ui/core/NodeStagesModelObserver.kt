@@ -23,7 +23,7 @@ import androidx.compose.ObserverMap
 import androidx.compose.WeakReference
 import androidx.compose.frames.FrameCommitObserver
 import androidx.compose.frames.FrameReadObserver
-import androidx.compose.frames.currentFrame
+import androidx.compose.frames.observeAllReads
 import androidx.compose.frames.registerCommitObserver
 
 /**
@@ -128,7 +128,7 @@ internal class NodeStagesModelObserver(
         check(!isObserving)
         check(currentNodes.isEmpty())
         isObserving = true
-        currentFrame().observeReads(frameReadObserver, block)
+        observeAllReads(frameReadObserver, block)
         isObserving = false
         check(currentNodes.isEmpty())
     }

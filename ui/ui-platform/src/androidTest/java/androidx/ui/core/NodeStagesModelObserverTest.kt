@@ -16,6 +16,7 @@
 
 package androidx.ui.core
 
+import androidx.compose.FrameManager
 import androidx.compose.annotations.Hide
 import androidx.compose.frames.AbstractRecord
 import androidx.compose.frames.Framed
@@ -192,6 +193,38 @@ class NodeStagesModelObserverTest {
         assertTrue(layoutLatch1.await(1, TimeUnit.SECONDS))
         assertTrue(layoutLatch2.await(1, TimeUnit.SECONDS))
         assertTrue(measureLatch.await(1, TimeUnit.SECONDS))
+    }
+
+    @Test
+    fun modelReadTriggersCallbackAfterSwitchingFrameWithinObserveReads() {
+        val node = DrawNode()
+        val countDownLatch = CountDownLatch(1)
+
+        val model = State(0)
+        val modelObserver = NodeStagesModelObserver { _, _ ->
+            assertEquals(1, countDownLatch.count)
+            countDownLatch.countDown()
+        }
+
+        modelObserver.enableModelUpdatesObserving(true)
+
+        open() // open the frame
+
+        modelObserver.observeReads {
+            modelObserver.stage(Stage.Draw, node) {
+                // switch to the next frame.
+                // this will be done by subcomposition, for example.
+                FrameManager.nextFrame()
+                // read the value
+                model.value
+            }
+        }
+
+        model.value++
+        commit() // close the frame
+
+        modelObserver.enableModelUpdatesObserving(false)
+        assertTrue(countDownLatch.await(1, TimeUnit.SECONDS))
     }
 }
 
