@@ -30,10 +30,11 @@ import static org.junit.Assume.assumeTrue;
 
 import android.content.Intent;
 
+import androidx.camera.core.CameraInfo;
 import androidx.camera.core.FlashMode;
 import androidx.camera.core.ImageCapture;
 import androidx.camera.core.LensFacing;
-import androidx.camera.core.Preview;
+import androidx.camera.core.TorchState;
 import androidx.camera.integration.core.idlingresource.ElapsedTimeIdlingResource;
 import androidx.camera.integration.core.idlingresource.WaitForViewToShow;
 import androidx.camera.testing.CameraUtil;
@@ -138,18 +139,19 @@ public final class ToggleButtonUITest {
 
     @Test
     public void testTorchToggleButton() {
-        waitFor(new WaitForViewToShow(R.id.torch_toggle));
+        waitFor(new WaitForViewToShow(R.id.constraintLayout));
+        assumeTrue(detectButtonVisibility(R.id.torch_toggle));
 
-        Preview useCase = mActivityRule.getActivity().getPreview();
-        assertNotNull(useCase);
-        boolean isTorchOn = useCase.isTorchOn();
+        CameraInfo cameraInfo = mActivityRule.getActivity().getCameraInfo();
+        assertNotNull(cameraInfo);
+        boolean isTorchOn = isTorchOn(cameraInfo);
 
         onView(withId(R.id.torch_toggle)).perform(click());
-        assertNotEquals(useCase.isTorchOn(), isTorchOn);
+        assertNotEquals(isTorchOn(cameraInfo), isTorchOn);
 
         // By pressing the torch toggle button two times, it should switch back to original state.
         onView(withId(R.id.torch_toggle)).perform(click());
-        assertEquals(useCase.isTorchOn(), isTorchOn);
+        assertEquals(isTorchOn(cameraInfo), isTorchOn);
 
         waitForIdlingRegistryAndPressBackAndHomeButton();
     }
@@ -193,6 +195,10 @@ public final class ToggleButtonUITest {
         // Returns to Home to restart next test.
         mDevice.pressHome();
         mDevice.wait(Until.hasObject(By.pkg(mLauncherPackageName).depth(0)), IDLE_TIMEOUT_MS);
+    }
+
+    private boolean isTorchOn(CameraInfo cameraInfo) {
+        return cameraInfo.getTorchState().getValue() == TorchState.ON;
     }
 
     private void pressBackAndReturnHome() {

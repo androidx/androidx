@@ -152,20 +152,6 @@ public final class PreviewTest {
         assertThat(preview.getPreviewSurfaceProvider()).isNull();
     }
 
-    //TODO(b/143514107): This API is being removed from preview. This test should be moved.
-    @Test
-    @UiThreadTest
-    public void torchModeCanBeSet() {
-        Preview useCase = mDefaultBuilder.build();
-        CameraX.bindToLifecycle(mLifecycleOwner, mCameraSelector, useCase);
-        CameraControlInternal cameraControl = getFakeCameraControl();
-        useCase.attachCameraControl(mCameraId, cameraControl);
-
-        useCase.enableTorch(true);
-
-        assertThat(useCase.isTorchOn()).isTrue();
-    }
-
     @Test
     public void previewDetached_onSafeToReleaseCalled() throws InterruptedException {
         // Arrange.
