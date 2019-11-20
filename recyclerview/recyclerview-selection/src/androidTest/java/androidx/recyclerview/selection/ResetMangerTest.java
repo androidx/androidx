@@ -66,17 +66,17 @@ public final class ResetMangerTest {
     }
 
     @Test
-    public void notifiesListenersOnSelectionRefreshed() {
+    public void doesNotNotifyListenersOnSelectionRefreshed() {
         mManager.getSelectionObserver().onSelectionRefresh();
-        mResettable1.assertReset();
-        mResettable2.assertReset();
+        mResettable1.assertNotReset();
+        mResettable2.assertNotReset();
     }
 
     @Test
-    public void notifiesListenersOnSelectionRestored() {
+    public void doesNotNotifyListenersOnSelectionRestored() {
         mManager.getSelectionObserver().onSelectionRestored();
-        mResettable1.assertReset();
-        mResettable2.assertReset();
+        mResettable1.assertNotReset();
+        mResettable2.assertNotReset();
     }
 
     @Test
@@ -86,7 +86,6 @@ public final class ResetMangerTest {
         mResettable1.assertNotReset();
         mResettable2.assertNotReset();
     }
-
 
     @Test
     public void ignoresWhenResetNotRequired() {
