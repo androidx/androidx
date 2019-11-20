@@ -120,6 +120,17 @@ class TextSpanComposition(val composer: TextSpanComposer) {
     @Suppress("NOTHING_TO_INLINE")
     inline fun joinKey(left: Any, right: Any?): Any = composer.joinKey(left, right)
 
+    @Suppress("PLUGIN_WARNING")
+    inline fun <T> expr(
+        key: Any,
+        block: () -> T
+    ): T = with(composer) {
+        startGroup(key)
+        val result = block()
+        endGroup()
+        result
+    }
+
     inline fun call(
         key: Any,
         /*crossinline*/
