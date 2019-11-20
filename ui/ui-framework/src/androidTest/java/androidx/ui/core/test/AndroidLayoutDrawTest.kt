@@ -49,6 +49,7 @@ import androidx.ui.core.Layout
 import androidx.ui.core.LayoutModifier
 import androidx.ui.core.Measurable
 import androidx.ui.core.Modifier
+import androidx.ui.core.OnPositioned
 import androidx.ui.core.ParentData
 import androidx.ui.core.Ref
 import androidx.ui.core.RepaintBoundary
@@ -56,12 +57,14 @@ import androidx.ui.core.VerticalAlignmentLine
 import androidx.ui.core.WithConstraints
 import androidx.ui.core.coerceAtLeast
 import androidx.ui.core.coerceIn
+import androidx.ui.core.globalPosition
 import androidx.ui.core.ipx
 import androidx.ui.core.max
 import androidx.ui.core.min
 import androidx.ui.core.offset
 import androidx.ui.core.px
 import androidx.ui.core.setContent
+import androidx.ui.core.toPx
 import androidx.ui.core.toRect
 import androidx.ui.engine.geometry.Rect
 import androidx.ui.framework.test.TestActivity
@@ -1787,6 +1790,48 @@ class AndroidLayoutDrawTest {
         }
     }
 
+    @Test
+    fun layoutNode_handlesChildrenNodeMoveCorrectly() {
+        val size = 50.ipx
+        val model = OffsetModel(0.ipx)
+        var latch = CountDownLatch(2)
+        var wrap1Position = 0.px
+        var wrap2Position = 0.px
+        activityTestRule.runOnUiThreadIR {
+            activity.setContentInFrameLayout {
+                SimpleRow {
+                    for (i in 0 until 2) {
+                        if (model.offset.value == i) {
+                            Wrap(size, size) {
+                                OnPositioned { coordinates ->
+                                    wrap1Position = coordinates.globalPosition.x
+                                    latch.countDown()
+                                }
+                            }
+                        } else {
+                            Wrap(size, size) {
+                                OnPositioned { coordinates ->
+                                    wrap2Position = coordinates.globalPosition.x
+                                    latch.countDown()
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        }
+        assertTrue(latch.await(1, TimeUnit.SECONDS))
+        assertEquals(0.px, wrap1Position)
+        assertEquals(size.toPx(), wrap2Position)
+        latch = CountDownLatch(2)
+        activityTestRule.runOnUiThreadIR {
+            model.offset = 1.ipx
+        }
+        assertTrue(latch.await(1, TimeUnit.SECONDS))
+        assertEquals(size.toPx(), wrap1Position)
+        assertEquals(0.px, wrap2Position)
+    }
+
     private fun composeSquares(model: SquareModel) {
         activityTestRule.runOnUiThreadIR {
             activity.setContentInFrameLayout {
@@ -2127,11 +2172,11 @@ fun Position(size: IntPx, offset: OffsetModel, children: @Composable() () -> Uni
 }
 
 @Composable
-fun Wrap(children: @Composable() () -> Unit) {
+fun Wrap(minWidth: IntPx = 0.ipx, minHeight: IntPx = 0.ipx, children: @Composable() () -> Unit) {
     Layout(children) { measurables, constraints ->
         val placeables = measurables.map { it.measure(constraints) }
-        val width = placeables.maxBy { it.width.value }?.width ?: 0.ipx
-        val height = placeables.maxBy { it.height.value }?.height ?: 0.ipx
+        val width = max(placeables.maxBy { it.width.value }?.width ?: 0.ipx, minWidth)
+        val height = max(placeables.maxBy { it.height.value }?.height ?: 0.ipx, minHeight)
         layout(width, height) {
             placeables.forEach { it.place(0.ipx, 0.ipx) }
         }
@@ -2213,6 +2258,27 @@ fun WrapForceRelayout(model: OffsetModel, children: @Composable() () -> Unit) {
         layout(width, height) {
             model.offset
             placeables.forEach { it.place(0.ipx, 0.ipx) }
+        }
+    }
+}
+
+@Composable
+fun SimpleRow(children: @Composable() () -> Unit) {
+    Layout(children) { measurables, constraints ->
+        var width = 0.ipx
+        var height = 0.ipx
+        val placeables = measurables.map {
+            it.measure(constraints.copy(maxWidth = constraints.maxWidth - width)).also {
+                width += it.width
+                height = max(height, it.height)
+            }
+        }
+        layout(width, height) {
+            var currentWidth = 0.ipx
+            placeables.forEach {
+                it.place(currentWidth, 0.ipx)
+                currentWidth += it.width
+            }
         }
     }
 }
