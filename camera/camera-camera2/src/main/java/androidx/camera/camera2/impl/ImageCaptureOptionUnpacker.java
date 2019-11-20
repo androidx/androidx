@@ -23,13 +23,13 @@ import android.os.Build;
 import androidx.camera.camera2.Camera2Config;
 import androidx.camera.core.CaptureConfig;
 import androidx.camera.core.DeviceProperties;
-import androidx.camera.core.ImageCapture;
+import androidx.camera.core.ImageCapture.CaptureMode;
 import androidx.camera.core.ImageCaptureConfig;
 import androidx.camera.core.UseCaseConfig;
 
 /**
- *  A {@link Camera2CaptureOptionUnpacker} extender for unpacking ImageCapture options into
- *  {@link CaptureConfig.Builder}.
+ * A {@link Camera2CaptureOptionUnpacker} extender for unpacking ImageCapture options into
+ * {@link CaptureConfig.Builder}.
  */
 final class ImageCaptureOptionUnpacker extends Camera2CaptureOptionUnpacker {
 
@@ -47,8 +47,11 @@ final class ImageCaptureOptionUnpacker extends Camera2CaptureOptionUnpacker {
         ImageCaptureConfig imageCaptureConfig = (ImageCaptureConfig) config;
 
         Camera2Config.Builder camera2ConfigBuilder = new Camera2Config.Builder();
-        applyPixelHdrPlusChangeForCaptureMode(
-                imageCaptureConfig.getCaptureMode(null), camera2ConfigBuilder);
+
+        if (imageCaptureConfig.hasCaptureMode()) {
+            applyPixelHdrPlusChangeForCaptureMode(imageCaptureConfig.getCaptureMode(),
+                    camera2ConfigBuilder);
+        }
 
         builder.addImplementationOptions(camera2ConfigBuilder.build());
     }
@@ -60,25 +63,23 @@ final class ImageCaptureOptionUnpacker extends Camera2CaptureOptionUnpacker {
     // TODO(b/123897971):  move the device specific code once we complete the device workaround
     // module.
     @SuppressLint("NewApi")
-    private void applyPixelHdrPlusChangeForCaptureMode(
-            ImageCapture.CaptureMode captureMode, Camera2Config.Builder builder) {
+    private void applyPixelHdrPlusChangeForCaptureMode(@CaptureMode int captureMode,
+            Camera2Config.Builder builder) {
         if ("Google".equals(mDeviceProperties.manufacturer())
                 && ("Pixel 2".equals(mDeviceProperties.model())
                 || "Pixel 3".equals(mDeviceProperties.model()))) {
             if (mDeviceProperties.sdkVersion() >= Build.VERSION_CODES.O) {
-                if (captureMode != null) {
-                    switch (captureMode) {
-                        case MAX_QUALITY:
-                            // enable ZSL to make sure HDR+ is enabled
-                            builder.setCaptureRequestOption(
-                                    CaptureRequest.CONTROL_ENABLE_ZSL, true);
-                            break;
-                        case MIN_LATENCY:
-                            // disable ZSL to turn off HDR+
-                            builder.setCaptureRequestOption(
-                                    CaptureRequest.CONTROL_ENABLE_ZSL, false);
-                            break;
-                    }
+                switch (captureMode) {
+                    case CaptureMode.MAX_QUALITY:
+                        // enable ZSL to make sure HDR+ is enabled
+                        builder.setCaptureRequestOption(
+                                CaptureRequest.CONTROL_ENABLE_ZSL, true);
+                        break;
+                    case CaptureMode.MIN_LATENCY:
+                        // disable ZSL to turn off HDR+
+                        builder.setCaptureRequestOption(
+                                CaptureRequest.CONTROL_ENABLE_ZSL, false);
+                        break;
                 }
             }
         }

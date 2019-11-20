@@ -116,7 +116,8 @@ public class CameraXActivity extends AppCompatActivity
     private ImageCapture mImageCapture;
     private VideoCapture mVideoCapture;
     private Camera mCamera;
-    private ImageCapture.CaptureMode mCaptureMode = ImageCapture.CaptureMode.MIN_LATENCY;
+    @ImageCapture.CaptureMode
+    private int mCaptureMode = ImageCapture.CaptureMode.MIN_LATENCY;
     // Synthetic Accessor
     @SuppressWarnings("WeakerAccess")
     TextureView mTextureView;
