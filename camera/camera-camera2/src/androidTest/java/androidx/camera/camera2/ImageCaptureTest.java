@@ -59,6 +59,7 @@ import androidx.camera.core.CaptureProcessor;
 import androidx.camera.core.CaptureStage;
 import androidx.camera.core.Exif;
 import androidx.camera.core.ImageCapture;
+import androidx.camera.core.ImageCapture.CaptureMode;
 import androidx.camera.core.ImageCapture.ImageCaptureError;
 import androidx.camera.core.ImageCapture.Metadata;
 import androidx.camera.core.ImageCapture.OnImageCapturedCallback;
@@ -249,7 +250,7 @@ public final class ImageCaptureTest {
     @Test
     public void canCaptureMultipleImagesWithMaxQuality() {
         ImageCapture useCase = new ImageCapture.Builder()
-                .setCaptureMode(ImageCapture.CaptureMode.MAX_QUALITY)
+                .setCaptureMode(CaptureMode.MAX_QUALITY)
                 .build();
         mInstrumentation.runOnMainSync(
                 () -> {

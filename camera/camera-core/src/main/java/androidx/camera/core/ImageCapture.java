@@ -155,7 +155,8 @@ public class ImageCapture extends UseCase {
     @NonNull
     final Executor mIoExecutor;
     private final CaptureCallbackChecker mSessionCallbackChecker = new CaptureCallbackChecker();
-    private final CaptureMode mCaptureMode;
+    @CaptureMode
+    private final int mCaptureMode;
 
     /** The set of requests that will be sent to the camera for the final captured image. */
     private final CaptureBundle mCaptureBundle;
@@ -1143,20 +1144,20 @@ public class ImageCapture extends UseCase {
      * Capture mode options for ImageCapture. A picture will always be taken regardless of
      * mode, and the mode will be used on devices that support it.
      */
-    public enum CaptureMode {
+    @IntDef({CaptureMode.MAX_QUALITY, CaptureMode.MIN_LATENCY})
+    @Retention(RetentionPolicy.SOURCE)
+    public @interface CaptureMode {
         /**
          * Optimizes capture pipeline to prioritize image quality over latency. When the capture
          * mode is set to MAX_QUALITY, images may take longer to capture.
          */
-        @SuppressLint("MinMaxConstant") // It is a name but not a constant number.
-                MAX_QUALITY,
+        int MAX_QUALITY = 0;
         /**
          * Optimizes capture pipeline to prioritize latency over image quality. When the capture
          * mode is set to MIN_LATENCY, images may capture faster but the image quality may be
          * reduced.
          */
-        @SuppressLint("MinMaxConstant") // It is a name but not a constant number.
-                MIN_LATENCY
+        int MIN_LATENCY = 1;
     }
 
     /** Listener containing callbacks for image file I/O events. */
@@ -1212,9 +1213,6 @@ public class ImageCapture extends UseCase {
          * {@link androidx.camera.camera2} implementation additional detail can be found in
          * {@link android.hardware.camera2.CameraDevice} documentation.
          *
-         * @see android.media.Image#getTimestamp()
-         * @see android.hardware.camera2.CaptureResult#SENSOR_TIMESTAMP
-         *
          * @param image           The captured image
          * @param rotationDegrees The rotation which if applied to the image would make it match
          *                        the current target rotation of {@link ImageCapture}.
@@ -1247,7 +1245,8 @@ public class ImageCapture extends UseCase {
     @RestrictTo(Scope.LIBRARY_GROUP)
     public static final class Defaults
             implements ConfigProvider<ImageCaptureConfig> {
-        private static final CaptureMode DEFAULT_CAPTURE_MODE = CaptureMode.MIN_LATENCY;
+        @CaptureMode
+        private static final int DEFAULT_CAPTURE_MODE = CaptureMode.MIN_LATENCY;
         @FlashMode
         private static final int DEFAULT_FLASH_MODE = FlashMode.OFF;
         private static final int DEFAULT_SURFACE_OCCUPANCY_PRIORITY = 4;
@@ -1642,7 +1641,7 @@ public class ImageCapture extends UseCase {
          * @return The current Builder.
          */
         @NonNull
-        public Builder setCaptureMode(@NonNull CaptureMode captureMode) {
+        public Builder setCaptureMode(@CaptureMode int captureMode) {
             getMutableConfig().insertOption(OPTION_IMAGE_CAPTURE_MODE, captureMode);
             return this;
         }
@@ -1893,11 +1892,10 @@ public class ImageCapture extends UseCase {
          * {@link android.view.Display#getRotation()} of the default display at the time the use
          * case is created.
          *
-         * @see androidx.camera.core.ImageCapture#setTargetRotation(int)
-         *          * @see android.view.OrientationEventListener
-         *
          * @param rotation The rotation of the intended target.
          * @return The current Builder.
+         * @see androidx.camera.core.ImageCapture#setTargetRotation(int)
+         * * @see android.view.OrientationEventListener
          */
         @NonNull
         @Override
