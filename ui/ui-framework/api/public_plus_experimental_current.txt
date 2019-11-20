@@ -303,6 +303,10 @@ package androidx.ui.core.input {
 
 package androidx.ui.core.selection {
 
+  public interface Selectable {
+    method public androidx.ui.core.selection.Selection? getSelection(androidx.ui.core.PxPosition startPosition, androidx.ui.core.PxPosition endPosition, androidx.ui.core.LayoutCoordinates containerLayoutCoordinates, boolean longPress);
+  }
+
   public final class Selection {
     ctor public Selection(androidx.ui.core.selection.Selection.AnchorInfo start, androidx.ui.core.selection.Selection.AnchorInfo end, boolean handlesCrossed);
     method public androidx.ui.core.selection.Selection.AnchorInfo component1();
@@ -330,8 +334,8 @@ package androidx.ui.core.selection {
   }
 
   public interface SelectionRegistrar {
-    method public androidx.ui.core.selection.TextSelectionHandler subscribe(androidx.ui.core.selection.TextSelectionHandler handler);
-    method public void unsubscribe(androidx.ui.core.selection.TextSelectionHandler key);
+    method public androidx.ui.core.selection.Selectable subscribe(androidx.ui.core.selection.Selectable selectable);
+    method public void unsubscribe(androidx.ui.core.selection.Selectable selectable);
   }
 
   public final class SelectionRegistrarKt {
@@ -341,10 +345,6 @@ package androidx.ui.core.selection {
 
   public final class TextSelectionDelegateKt {
     ctor public TextSelectionDelegateKt();
-  }
-
-  public interface TextSelectionHandler {
-    method public androidx.ui.core.selection.Selection? getSelection(androidx.ui.core.PxPosition startPosition, androidx.ui.core.PxPosition endPosition, androidx.ui.core.LayoutCoordinates containerLayoutCoordinates, boolean wordSelectIfCollapsed);
   }
 
 }

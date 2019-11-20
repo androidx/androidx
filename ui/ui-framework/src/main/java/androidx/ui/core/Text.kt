@@ -25,10 +25,10 @@ import androidx.compose.onCommit
 import androidx.compose.onDispose
 import androidx.compose.state
 import androidx.compose.unaryPlus
+import androidx.ui.core.selection.Selectable
 import androidx.ui.core.selection.SelectionRegistrar
 import androidx.ui.core.selection.SelectionRegistrarAmbient
 import androidx.ui.core.selection.TextSelectionDelegate
-import androidx.ui.core.selection.TextSelectionHandler
 import androidx.ui.graphics.Color
 import androidx.ui.semantics.Semantics
 import androidx.ui.semantics.accessibilityLabel
@@ -42,7 +42,7 @@ import androidx.ui.text.style.TextAlign
 import androidx.ui.text.style.TextOverflow
 import androidx.ui.text.toAnnotatedString
 
-private val DefaultSoftWrap: Boolean = true
+private const val DefaultSoftWrap: Boolean = true
 private val DefaultOverflow: TextOverflow = TextOverflow.Clip
 private val DefaultMaxLines: Int? = null
 
@@ -261,7 +261,7 @@ fun Text(
             density
         ) {
             // if no SelectionContainer is added as parent selectionRegistrar will be null
-            val id: TextSelectionHandler? = selectionRegistrar?.let {
+            val id: Selectable? = selectionRegistrar?.let {
                 selectionRegistrar.subscribe(
                     TextSelectionDelegate(
                         selectionRange = selectionRange,
