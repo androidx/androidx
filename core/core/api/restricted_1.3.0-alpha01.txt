@@ -1577,7 +1577,7 @@ package androidx.core.location {
     method public void onStopped();
   }
 
-  @java.lang.annotation.Retention(java.lang.annotation.RetentionPolicy.SOURCE) @IntDef({androidx.core.location.GnssStatusCompat.CONSTELLATION_UNKNOWN, androidx.core.location.GnssStatusCompat.CONSTELLATION_GPS, androidx.core.location.GnssStatusCompat.CONSTELLATION_SBAS, androidx.core.location.GnssStatusCompat.CONSTELLATION_GLONASS, androidx.core.location.GnssStatusCompat.CONSTELLATION_QZSS, androidx.core.location.GnssStatusCompat.CONSTELLATION_BEIDOU, androidx.core.location.GnssStatusCompat.CONSTELLATION_GALILEO, androidx.core.location.GnssStatusCompat.CONSTELLATION_IRNSS}) public static @interface GnssStatusCompat.ConstellationType {
+  @IntDef({androidx.core.location.GnssStatusCompat.CONSTELLATION_UNKNOWN, androidx.core.location.GnssStatusCompat.CONSTELLATION_GPS, androidx.core.location.GnssStatusCompat.CONSTELLATION_SBAS, androidx.core.location.GnssStatusCompat.CONSTELLATION_GLONASS, androidx.core.location.GnssStatusCompat.CONSTELLATION_QZSS, androidx.core.location.GnssStatusCompat.CONSTELLATION_BEIDOU, androidx.core.location.GnssStatusCompat.CONSTELLATION_GALILEO, androidx.core.location.GnssStatusCompat.CONSTELLATION_IRNSS}) @java.lang.annotation.Retention(java.lang.annotation.RetentionPolicy.SOURCE) public static @interface GnssStatusCompat.ConstellationType {
   }
 
   public final class LocationManagerCompat {
