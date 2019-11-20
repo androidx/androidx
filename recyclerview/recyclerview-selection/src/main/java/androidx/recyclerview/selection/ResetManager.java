@@ -63,7 +63,7 @@ final class ResetManager<K> {
     };
 
     // Resettable interface has a #requiresReset method because DefaultSelectionTracker
-    // (owner of the state we observer with our SelectionObserver) is, itself,
+    // (owner of the state we observe with our SelectionObserver) is, itself,
     // a Resettable. Such an arrangement introduces the real possibility of infinite recursion.
     // When we call reset on DefaultSelectionTracker it'll eventually call back to
     // notify us of the change via onSelectionCleared. We avoid recursion by
@@ -72,18 +72,6 @@ final class ResetManager<K> {
         @Override
         protected void onSelectionCleared() {
             if (DEBUG) Log.d(TAG, "Received onSelectionCleared event.");
-            callResetHandlers();
-        }
-
-        @Override
-        public void onSelectionRefresh() {
-            if (DEBUG) Log.d(TAG, "Received onSelectionRefresh event.");
-            callResetHandlers();
-        }
-
-        @Override
-        public void onSelectionRestored() {
-            if (DEBUG) Log.d(TAG, "Received onSelectionRestored event.");
             callResetHandlers();
         }
     };
