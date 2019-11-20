@@ -316,25 +316,6 @@ public class Preview extends UseCase {
         return getCameraControl(cameraId);
     }
 
-    /**
-     * Sets torch on/off.
-     *
-     * When the torch is on, the torch will remain on during photo capture regardless of flash
-     * setting.  When the torch is off, flash will function as set by {@link ImageCapture}.
-     *
-     * @param torch True if turn on torch, otherwise false
-     */
-    // TODO(b/143514107): remove this API when CameraControl#enableTorch implementation is done.
-    public void enableTorch(boolean torch) {
-        getCurrentCameraControl().enableTorch(torch);
-    }
-
-    /** True if the torch is on */
-    // TODO(b/143514107): remove this API when CameraInfo#getTorchState implementation is done.
-    public boolean isTorchOn() {
-        return getCurrentCameraControl().isTorchOn();
-    }
-
     @NonNull
     @Override
     public String toString() {

@@ -43,6 +43,7 @@ import androidx.camera.core.ImageCapture.OnImageSavedCallback;
 import androidx.camera.core.LensFacing;
 import androidx.camera.core.LensFacingConverter;
 import androidx.camera.core.Preview;
+import androidx.camera.core.TorchState;
 import androidx.camera.core.VideoCapture;
 import androidx.camera.core.VideoCapture.OnVideoSavedCallback;
 import androidx.camera.core.VideoCaptureConfig;
@@ -570,17 +571,17 @@ final class CameraXModule {
     }
 
     public void enableTorch(boolean torch) {
-        if (mPreview == null) {
+        if (mCamera == null) {
             return;
         }
-        mPreview.enableTorch(torch);
+        mCamera.getCameraControl().enableTorch(torch);
     }
 
     public boolean isTorchOn() {
-        if (mPreview == null) {
+        if (mCamera == null) {
             return false;
         }
-        return mPreview.isTorchOn();
+        return mCamera.getCameraInfo().getTorchState().getValue() == TorchState.ON;
     }
 
     public Context getContext() {
