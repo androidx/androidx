@@ -372,7 +372,12 @@ public class ImageCapture extends UseCase {
         return getCameraControl(cameraId);
     }
 
-    /** Configures flash mode to CameraControlInternal once it is ready. */
+    /**
+     * Configures flash mode to CameraControlInternal once it is ready.
+     *
+     * @hide
+     */
+    @RestrictTo(Scope.LIBRARY_GROUP)
     @Override
     protected void onCameraControlReady(@NonNull String cameraId) {
         getCameraControl(cameraId).setFlashMode(mFlashMode);
@@ -622,6 +627,12 @@ public class ImageCapture extends UseCase {
         sendImageCaptureRequest(CameraXExecutors.mainThreadExecutor(), imageCaptureCallbackWrapper);
     }
 
+    /**
+     * {@inheritDoc}
+     *
+     * @hide
+     */
+    @RestrictTo(Scope.LIBRARY_GROUP)
     @UiThread
     @Override
     public void onStateOffline(@NonNull String cameraId) {
