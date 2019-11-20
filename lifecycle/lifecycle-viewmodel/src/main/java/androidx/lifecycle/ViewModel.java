@@ -175,6 +175,9 @@ public abstract class ViewModel {
      */
     @SuppressWarnings({"TypeParameterUnusedInFormals", "unchecked"})
     <T> T getTag(String key) {
+        if (mBagOfTags == null) {
+            return null;
+        }
         synchronized (mBagOfTags) {
             return (T) mBagOfTags.get(key);
         }
