@@ -29,9 +29,9 @@ import androidx.appcompat.widget.Toolbar
 import androidx.navigation.ActivityNavigator
 import androidx.navigation.NavController
 import androidx.navigation.createGraph
-import androidx.navigation.testing.TestNavigator
-import androidx.navigation.testing.test
 import androidx.navigation.ui.setupWithNavController
+import androidx.testutils.TestNavigator
+import androidx.testutils.test
 import com.google.android.material.bottomsheet.BottomSheetDialogFragment
 import com.google.android.material.navigation.NavigationView
 

@@ -45,7 +45,7 @@ dependencies {
         because 'Mirror navigation-runtime dependency graph for -ktx artifacts'
     }
     api(KOTLIN_STDLIB)
-    androidTestImplementation(project(":navigation:navigation-testing"))
+    androidTestImplementation(project(":internal-testutils-navigation"))
     androidTestImplementation(TRUTH)
     androidTestImplementation(ANDROIDX_TEST_EXT_JUNIT)
     androidTestImplementation(ANDROIDX_TEST_CORE)

@@ -17,10 +17,10 @@
 package androidx.navigation
 
 import android.content.Context
-import androidx.navigation.testing.TestNavigator
-import androidx.navigation.testing.test
 import androidx.test.core.app.ApplicationProvider
 import androidx.test.filters.SmallTest
+import androidx.testutils.TestNavigator
+import androidx.testutils.test
 import org.junit.Assert.assertTrue
 import org.junit.Test
 

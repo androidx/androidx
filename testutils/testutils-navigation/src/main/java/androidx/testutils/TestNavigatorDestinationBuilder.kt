@@ -16,7 +16,7 @@
 
 @file:Suppress("NOTHING_TO_INLINE")
 
-package androidx.navigation.testing
+package androidx.testutils
 
 import androidx.annotation.IdRes
 import androidx.navigation.NavDestinationBuilder

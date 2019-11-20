@@ -18,10 +18,10 @@ package androidx.navigation
 
 import androidx.navigation.test.FloatingTestNavigator
 import androidx.navigation.test.R
-import androidx.navigation.testing.TestNavigator
 import androidx.test.core.app.ApplicationProvider
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import androidx.test.filters.MediumTest
+import androidx.testutils.TestNavigator
 import com.google.common.truth.Truth.assertThat
 import org.junit.Test
 import org.junit.runner.RunWith
