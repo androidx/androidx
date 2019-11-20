@@ -267,7 +267,6 @@ package androidx.core.app {
     field public static final String EXTRA_AUDIO_CONTENTS_URI = "android.audioContents";
     field public static final String EXTRA_BACKGROUND_IMAGE_URI = "android.backgroundImageUri";
     field public static final String EXTRA_BIG_TEXT = "android.bigText";
-    field public static final String EXTRA_CHRONOMETER_COUNT_DOWN = "android.chronometerCountDown";
     field public static final String EXTRA_COMPACT_ACTIONS = "android.compactActions";
     field public static final String EXTRA_CONVERSATION_TITLE = "android.conversationTitle";
     field public static final String EXTRA_HIDDEN_CONVERSATION_TITLE = "android.hiddenConversationTitle";
@@ -459,7 +458,6 @@ package androidx.core.app {
     method public androidx.core.app.NotificationCompat.Builder setBubbleMetadata(androidx.core.app.NotificationCompat.BubbleMetadata?);
     method public androidx.core.app.NotificationCompat.Builder! setCategory(String!);
     method public androidx.core.app.NotificationCompat.Builder! setChannelId(String);
-    method @RequiresApi(24) public androidx.core.app.NotificationCompat.Builder setChronometerCountDown(boolean);
     method public androidx.core.app.NotificationCompat.Builder! setColor(@ColorInt int);
     method public androidx.core.app.NotificationCompat.Builder! setColorized(boolean);
     method public androidx.core.app.NotificationCompat.Builder! setContent(android.widget.RemoteViews!);
@@ -1297,7 +1295,7 @@ package androidx.core.graphics {
     method @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP_PREFIX) public static android.graphics.Typeface? findFromCache(android.content.res.Resources, int, int);
   }
 
-  @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP_PREFIX) @RequiresApi(26) public class TypefaceCompatApi26Impl {
+  @RequiresApi(26) @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP_PREFIX) public class TypefaceCompatApi26Impl {
     ctor public TypefaceCompatApi26Impl();
     method protected android.graphics.Typeface? createFromFamiliesWithDefault(Object!);
     method public android.graphics.Typeface? createFromFontFamilyFilesResourceEntry(android.content.Context!, androidx.core.content.res.FontResourcesParserCompat.FontFamilyFilesResourceEntry!, android.content.res.Resources!, int);
@@ -1319,14 +1317,14 @@ package androidx.core.graphics {
     field protected final java.lang.reflect.Method! mFreeze;
   }
 
-  @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP_PREFIX) @RequiresApi(28) public class TypefaceCompatApi28Impl extends androidx.core.graphics.TypefaceCompatApi26Impl {
+  @RequiresApi(28) @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP_PREFIX) public class TypefaceCompatApi28Impl extends androidx.core.graphics.TypefaceCompatApi26Impl {
     ctor public TypefaceCompatApi28Impl();
     method public android.graphics.Typeface! createFromFontFamilyFilesResourceEntry(android.content.Context!, androidx.core.content.res.FontResourcesParserCompat.FontFamilyFilesResourceEntry!, android.content.res.Resources!, int);
     method public android.graphics.Typeface! createFromFontInfo(android.content.Context!, android.os.CancellationSignal!, androidx.core.provider.FontsContractCompat.FontInfo![], int);
     method public android.graphics.Typeface? createFromResourcesFontFile(android.content.Context!, android.content.res.Resources!, int, String!, int);
   }
 
-  @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP) @RequiresApi(29) public class TypefaceCompatApi29Impl {
+  @RequiresApi(29) @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP) public class TypefaceCompatApi29Impl {
     ctor public TypefaceCompatApi29Impl();
     method public android.graphics.Typeface? createFromFontFamilyFilesResourceEntry(android.content.Context!, androidx.core.content.res.FontResourcesParserCompat.FontFamilyFilesResourceEntry!, android.content.res.Resources!, int);
     method public android.graphics.Typeface? createFromFontInfo(android.content.Context!, android.os.CancellationSignal?, androidx.core.provider.FontsContractCompat.FontInfo![], int);
@@ -1586,7 +1584,6 @@ package androidx.core.os {
     method @Deprecated public static boolean isAtLeastOMR1();
     method @Deprecated public static boolean isAtLeastP();
     method @Deprecated public static boolean isAtLeastQ();
-    method public static boolean isAtLeastR();
   }
 
   public final class CancellationSignal {
@@ -1691,7 +1688,7 @@ package androidx.core.provider {
     method public static androidx.core.provider.FontsContractCompat.FontFamilyResult fetchFonts(android.content.Context, android.os.CancellationSignal?, androidx.core.provider.FontRequest) throws android.content.pm.PackageManager.NameNotFoundException;
     method @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP_PREFIX) public static android.graphics.Typeface! getFontSync(android.content.Context!, androidx.core.provider.FontRequest!, androidx.core.content.res.ResourcesCompat.FontCallback?, android.os.Handler?, boolean, int, int);
     method @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP_PREFIX) @VisibleForTesting public static android.content.pm.ProviderInfo? getProvider(android.content.pm.PackageManager, androidx.core.provider.FontRequest, android.content.res.Resources?) throws android.content.pm.PackageManager.NameNotFoundException;
-    method @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP_PREFIX) @RequiresApi(19) public static java.util.Map<android.net.Uri!,java.nio.ByteBuffer!>! prepareFontData(android.content.Context!, androidx.core.provider.FontsContractCompat.FontInfo![]!, android.os.CancellationSignal!);
+    method @RequiresApi(19) @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP_PREFIX) public static java.util.Map<android.net.Uri!,java.nio.ByteBuffer!>! prepareFontData(android.content.Context!, androidx.core.provider.FontsContractCompat.FontInfo![]!, android.os.CancellationSignal!);
     method public static void requestFont(android.content.Context, androidx.core.provider.FontRequest, androidx.core.provider.FontsContractCompat.FontRequestCallback, android.os.Handler);
     method @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP_PREFIX) public static void resetCache();
     field @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP_PREFIX) public static final String PARCEL_FONT_RESULTS = "font_results";
@@ -3466,9 +3463,9 @@ package androidx.core.widget {
     method public static void setCompoundDrawablesRelativeWithIntrinsicBounds(android.widget.TextView, android.graphics.drawable.Drawable?, android.graphics.drawable.Drawable?, android.graphics.drawable.Drawable?, android.graphics.drawable.Drawable?);
     method public static void setCompoundDrawablesRelativeWithIntrinsicBounds(android.widget.TextView, @DrawableRes int, @DrawableRes int, @DrawableRes int, @DrawableRes int);
     method public static void setCustomSelectionActionModeCallback(android.widget.TextView, android.view.ActionMode.Callback);
-    method public static void setFirstBaselineToTopHeight(android.widget.TextView, @Px @IntRange(from=0) int);
-    method public static void setLastBaselineToBottomHeight(android.widget.TextView, @Px @IntRange(from=0) int);
-    method public static void setLineHeight(android.widget.TextView, @Px @IntRange(from=0) int);
+    method public static void setFirstBaselineToTopHeight(android.widget.TextView, @IntRange(from=0) @Px int);
+    method public static void setLastBaselineToBottomHeight(android.widget.TextView, @IntRange(from=0) @Px int);
+    method public static void setLineHeight(android.widget.TextView, @IntRange(from=0) @Px int);
     method public static void setPrecomputedText(android.widget.TextView, androidx.core.text.PrecomputedTextCompat);
     method public static void setTextAppearance(android.widget.TextView, @StyleRes int);
     method public static void setTextMetricsParams(android.widget.TextView, androidx.core.text.PrecomputedTextCompat.Params);

@@ -8,7 +8,7 @@ package androidx.ui.material {
 
   public final class AlertDialogKt {
     ctor public AlertDialogKt();
-    method public static void AlertDialog(kotlin.jvm.functions.Function0<kotlin.Unit> onCloseRequest, kotlin.jvm.functions.Function0<kotlin.Unit>? title = null, kotlin.jvm.functions.Function0<kotlin.Unit> text, kotlin.jvm.functions.Function0<kotlin.Unit> confirmButton, kotlin.jvm.functions.Function0<kotlin.Unit>? dismissButton = null, androidx.ui.material.AlertDialogButtonLayout buttonLayout = androidx.ui.material.AlertDialogButtonLayout.SideBySide);
+    method public static void AlertDialog(kotlin.jvm.functions.Function0<kotlin.Unit> onCloseRequest, kotlin.jvm.functions.Function0<kotlin.Unit>? title = (kotlin.jvm.functions.Function0<? extends kotlin.Unit>)null, kotlin.jvm.functions.Function0<kotlin.Unit> text, kotlin.jvm.functions.Function0<kotlin.Unit> confirmButton, kotlin.jvm.functions.Function0<kotlin.Unit>? dismissButton = (kotlin.jvm.functions.Function0<? extends kotlin.Unit>)null, androidx.ui.material.AlertDialogButtonLayout buttonLayout = androidx.ui.material.AlertDialogButtonLayout.SideBySide);
   }
 
   public final class AppBarKt {
@@ -16,13 +16,13 @@ package androidx.ui.material {
     method public static void AppBarIcon(androidx.ui.graphics.Image icon, kotlin.jvm.functions.Function0<kotlin.Unit> onClick);
     method public static <T> void BottomAppBar(androidx.ui.graphics.Color color = +themeColor({ 
     primary
-}), kotlin.jvm.functions.Function0<kotlin.Unit>? navigationIcon = null, androidx.ui.material.BottomAppBar.FabConfiguration? fabConfiguration = null, java.util.List<? extends T> actionData = emptyList(), kotlin.jvm.functions.Function1<? super T,kotlin.Unit> action = {});
+}), kotlin.jvm.functions.Function0<kotlin.Unit>? navigationIcon = (kotlin.jvm.functions.Function0<? extends kotlin.Unit>)null, androidx.ui.material.BottomAppBar.FabConfiguration? fabConfiguration = null, java.util.List<? extends T> actionData = emptyList(), kotlin.jvm.functions.Function1<? super T,kotlin.Unit> action = {});
     method public static void TopAppBar(kotlin.jvm.functions.Function0<kotlin.Unit> title, androidx.ui.graphics.Color color = +themeColor({ 
     primary
-}), kotlin.jvm.functions.Function0<kotlin.Unit>? navigationIcon = null);
+}), kotlin.jvm.functions.Function0<kotlin.Unit>? navigationIcon = (kotlin.jvm.functions.Function0<? extends kotlin.Unit>)null);
     method public static <T> void TopAppBar(kotlin.jvm.functions.Function0<kotlin.Unit> title, java.util.List<? extends T> actionData, androidx.ui.graphics.Color color = +themeColor({ 
     primary
-}), kotlin.jvm.functions.Function0<kotlin.Unit>? navigationIcon = null, kotlin.jvm.functions.Function1<? super T,kotlin.Unit> action);
+}), kotlin.jvm.functions.Function0<kotlin.Unit>? navigationIcon = (kotlin.jvm.functions.Function0<? extends kotlin.Unit>)null, kotlin.jvm.functions.Function1<? super T,kotlin.Unit> action);
   }
 
   public final class BottomAppBar {
@@ -176,7 +176,7 @@ package androidx.ui.material {
   public final class ListItemKt {
     ctor public ListItemKt();
     method public static void ListItem(String text, androidx.ui.graphics.Image? icon = null, String? secondaryText = null, boolean singleLineSecondaryText = true, String? overlineText = null, String? metaText = null, kotlin.jvm.functions.Function0<kotlin.Unit>? onClick = null);
-    method public static void ListItem(kotlin.jvm.functions.Function0<kotlin.Unit> text, kotlin.jvm.functions.Function0<kotlin.Unit>? icon = null, kotlin.jvm.functions.Function0<kotlin.Unit>? secondaryText = null, boolean singleLineSecondaryText = true, kotlin.jvm.functions.Function0<kotlin.Unit>? overlineText = null, kotlin.jvm.functions.Function0<kotlin.Unit>? trailing = null, kotlin.jvm.functions.Function0<kotlin.Unit>? onClick = null);
+    method public static void ListItem(kotlin.jvm.functions.Function0<kotlin.Unit> text, kotlin.jvm.functions.Function0<kotlin.Unit>? icon = (kotlin.jvm.functions.Function0<? extends kotlin.Unit>)null, kotlin.jvm.functions.Function0<kotlin.Unit>? secondaryText = (kotlin.jvm.functions.Function0<? extends kotlin.Unit>)null, boolean singleLineSecondaryText = true, kotlin.jvm.functions.Function0<kotlin.Unit>? overlineText = (kotlin.jvm.functions.Function0<? extends kotlin.Unit>)null, kotlin.jvm.functions.Function0<kotlin.Unit>? trailing = (kotlin.jvm.functions.Function0<? extends kotlin.Unit>)null, kotlin.jvm.functions.Function0<kotlin.Unit>? onClick = null);
   }
 
   public final class MaterialColors {

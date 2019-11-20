@@ -1,7 +1,7 @@
 // Signature format: 3.0
 package androidx.slice {
 
-  @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP_PREFIX) @RequiresApi(19) public interface Clock {
+  @RequiresApi(19) @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP_PREFIX) public interface Clock {
     method public long currentTimeMillis();
   }
 
@@ -130,14 +130,14 @@ package androidx.slice {
     method public String! getType();
   }
 
-  @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP_PREFIX) @RequiresApi(19) public class SliceSpecs {
+  @RequiresApi(19) @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP_PREFIX) public class SliceSpecs {
     field public static final androidx.slice.SliceSpec! BASIC;
     field public static final androidx.slice.SliceSpec! LIST;
     field public static final androidx.slice.SliceSpec! LIST_V2;
     field public static final androidx.slice.SliceSpec! MESSAGING;
   }
 
-  @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP_PREFIX) @RequiresApi(19) public class SystemClock implements androidx.slice.Clock {
+  @RequiresApi(19) @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP_PREFIX) public class SystemClock implements androidx.slice.Clock {
     ctor public SystemClock();
     method public long currentTimeMillis();
   }
@@ -156,7 +156,7 @@ package androidx.slice.compat {
 
 
 
-  @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP) @RequiresApi(19) public class SliceProviderCompat {
+  @RequiresApi(19) @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP) public class SliceProviderCompat {
     ctor public SliceProviderCompat(androidx.slice.SliceProvider, androidx.slice.compat.CompatPermissionManager, android.content.Context);
     method public static void addSpecs(android.os.Bundle, java.util.Set<androidx.slice.SliceSpec!>);
     method public static androidx.slice.Slice? bindSlice(android.content.Context, android.net.Uri, java.util.Set<androidx.slice.SliceSpec!>);
@@ -224,7 +224,7 @@ package androidx.slice.core {
     method public androidx.slice.core.SliceAction! setPriority(@IntRange(from=0) int);
   }
 
-  @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP_PREFIX) @RequiresApi(19) public class SliceActionImpl implements androidx.slice.core.SliceAction {
+  @RequiresApi(19) @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP_PREFIX) public class SliceActionImpl implements androidx.slice.core.SliceAction {
     ctor public SliceActionImpl(android.app.PendingIntent, androidx.core.graphics.drawable.IconCompat, CharSequence);
     ctor public SliceActionImpl(android.app.PendingIntent, androidx.core.graphics.drawable.IconCompat, @androidx.slice.core.SliceHints.ImageMode int, CharSequence);
     ctor public SliceActionImpl(android.app.PendingIntent, androidx.core.graphics.drawable.IconCompat, CharSequence, boolean);
@@ -251,7 +251,7 @@ package androidx.slice.core {
     method public androidx.slice.core.SliceActionImpl! setPriority(@IntRange(from=0) int);
   }
 
-  @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP_PREFIX) @RequiresApi(19) public class SliceHints {
+  @RequiresApi(19) @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP_PREFIX) public class SliceHints {
     field public static final String HINT_ACTIVITY = "activity";
     field public static final String HINT_CACHED = "cached";
     field public static final String HINT_SELECTION_OPTION = "selection_option";
@@ -271,7 +271,7 @@ package androidx.slice.core {
   @IntDef({androidx.slice.core.SliceHints.LARGE_IMAGE, androidx.slice.core.SliceHints.SMALL_IMAGE, androidx.slice.core.SliceHints.ICON_IMAGE, androidx.slice.core.SliceHints.UNKNOWN_IMAGE}) @java.lang.annotation.Retention(java.lang.annotation.RetentionPolicy.SOURCE) public static @interface SliceHints.ImageMode {
   }
 
-  @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP_PREFIX) @RequiresApi(19) public class SliceQuery {
+  @RequiresApi(19) @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP_PREFIX) public class SliceQuery {
     method public static androidx.slice.SliceItem! find(androidx.slice.Slice!, String!, String!, String!);
     method public static androidx.slice.SliceItem! find(androidx.slice.Slice!, String!);
     method public static androidx.slice.SliceItem! find(androidx.slice.SliceItem!, String!);

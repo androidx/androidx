@@ -98,9 +98,9 @@ package androidx.ui.core {
   public final class TextKt {
     ctor public TextKt();
     method public static void CurrentTextStyleProvider(androidx.ui.text.TextStyle value, kotlin.jvm.functions.Function0<kotlin.Unit> children);
-    method public static void Text(androidx.ui.core.Modifier modifier = Modifier.None, String? text = null, androidx.ui.text.TextStyle? style = null, androidx.ui.text.ParagraphStyle? paragraphStyle = null, boolean softWrap = true, androidx.ui.text.style.TextOverflow overflow = androidx.ui.core.TextKt.DefaultOverflow, Integer? maxLines = androidx.ui.core.TextKt.DefaultMaxLines, androidx.ui.graphics.Color selectionColor = DefaultSelectionColor, kotlin.jvm.functions.Function1<? super androidx.ui.core.TextSpanScope,kotlin.Unit> child);
-    method public static void Text(String text, androidx.ui.core.Modifier modifier = Modifier.None, androidx.ui.text.TextStyle? style = null, androidx.ui.text.ParagraphStyle? paragraphStyle = null, boolean softWrap = true, androidx.ui.text.style.TextOverflow overflow = androidx.ui.core.TextKt.DefaultOverflow, Integer? maxLines = androidx.ui.core.TextKt.DefaultMaxLines, androidx.ui.graphics.Color selectionColor = DefaultSelectionColor);
-    method public static void Text(androidx.ui.text.AnnotatedString text, androidx.ui.core.Modifier modifier = Modifier.None, androidx.ui.text.TextStyle? style = null, androidx.ui.text.ParagraphStyle? paragraphStyle = null, boolean softWrap = true, androidx.ui.text.style.TextOverflow overflow = androidx.ui.core.TextKt.DefaultOverflow, Integer? maxLines = androidx.ui.core.TextKt.DefaultMaxLines, androidx.ui.graphics.Color selectionColor = DefaultSelectionColor);
+    method public static void Text(androidx.ui.core.Modifier modifier = Modifier.None, String? text = null, androidx.ui.text.TextStyle? style = null, androidx.ui.text.ParagraphStyle? paragraphStyle = null, boolean softWrap = true, androidx.ui.text.style.TextOverflow overflow = androidx.ui.core.TextKt.DefaultOverflow, Integer? maxLines = androidx.ui.core.TextKt.DefaultMaxLines, androidx.ui.graphics.Color selectionColor = androidx.ui.core.TextKt.DefaultSelectionColor, kotlin.jvm.functions.Function1<? super androidx.ui.core.TextSpanScope,kotlin.Unit> child);
+    method public static void Text(String text, androidx.ui.core.Modifier modifier = Modifier.None, androidx.ui.text.TextStyle? style = null, androidx.ui.text.ParagraphStyle? paragraphStyle = null, boolean softWrap = true, androidx.ui.text.style.TextOverflow overflow = androidx.ui.core.TextKt.DefaultOverflow, Integer? maxLines = androidx.ui.core.TextKt.DefaultMaxLines, androidx.ui.graphics.Color selectionColor = androidx.ui.core.TextKt.DefaultSelectionColor);
+    method public static void Text(androidx.ui.text.AnnotatedString text, androidx.ui.core.Modifier modifier = Modifier.None, androidx.ui.text.TextStyle? style = null, androidx.ui.text.ParagraphStyle? paragraphStyle = null, boolean softWrap = true, androidx.ui.text.style.TextOverflow overflow = androidx.ui.core.TextKt.DefaultOverflow, Integer? maxLines = androidx.ui.core.TextKt.DefaultMaxLines, androidx.ui.graphics.Color selectionColor = androidx.ui.core.TextKt.DefaultSelectionColor);
     method public static androidx.compose.Effect<androidx.ui.text.TextStyle> currentTextStyle();
     method public static androidx.ui.core.HorizontalAlignmentLine getFirstBaseline();
     method public static androidx.ui.core.HorizontalAlignmentLine getLastBaseline();
@@ -270,28 +270,24 @@ package androidx.ui.core.input {
 package androidx.ui.core.selection {
 
   public final class Selection {
-    ctor public Selection(androidx.ui.core.selection.Selection.AnchorInfo start, androidx.ui.core.selection.Selection.AnchorInfo end, boolean areHandlesCrossed);
-    method public androidx.ui.core.selection.Selection.AnchorInfo component1();
-    method public androidx.ui.core.selection.Selection.AnchorInfo component2();
-    method public boolean component3();
-    method public androidx.ui.core.selection.Selection copy(androidx.ui.core.selection.Selection.AnchorInfo start, androidx.ui.core.selection.Selection.AnchorInfo end, boolean areHandlesCrossed);
-    method public boolean getAreHandlesCrossed();
-    method public androidx.ui.core.selection.Selection.AnchorInfo getEnd();
-    method public androidx.ui.core.selection.Selection.AnchorInfo getStart();
-    method public androidx.ui.text.TextRange toTextRange();
-  }
-
-  public static final class Selection.AnchorInfo {
-    ctor public Selection.AnchorInfo(androidx.ui.core.PxPosition coordinates, androidx.ui.text.style.TextDirection direction, int offset, androidx.ui.core.LayoutCoordinates? layoutCoordinates);
+    ctor public Selection(androidx.ui.core.PxPosition startCoordinates, androidx.ui.core.PxPosition endCoordinates, int startOffset, int endOffset, androidx.ui.text.style.TextDirection startDirection, androidx.ui.text.style.TextDirection endDirection, androidx.ui.core.LayoutCoordinates? startLayoutCoordinates, androidx.ui.core.LayoutCoordinates? endLayoutCoordinates);
     method public androidx.ui.core.PxPosition component1();
-    method public androidx.ui.text.style.TextDirection component2();
+    method public androidx.ui.core.PxPosition component2();
     method public int component3();
-    method public androidx.ui.core.LayoutCoordinates? component4();
-    method public androidx.ui.core.selection.Selection.AnchorInfo copy(androidx.ui.core.PxPosition coordinates, androidx.ui.text.style.TextDirection direction, int offset, androidx.ui.core.LayoutCoordinates? layoutCoordinates);
-    method public androidx.ui.core.PxPosition getCoordinates();
-    method public androidx.ui.text.style.TextDirection getDirection();
-    method public androidx.ui.core.LayoutCoordinates? getLayoutCoordinates();
-    method public int getOffset();
+    method public int component4();
+    method public androidx.ui.text.style.TextDirection component5();
+    method public androidx.ui.text.style.TextDirection component6();
+    method public androidx.ui.core.LayoutCoordinates? component7();
+    method public androidx.ui.core.LayoutCoordinates? component8();
+    method public androidx.ui.core.selection.Selection copy(androidx.ui.core.PxPosition startCoordinates, androidx.ui.core.PxPosition endCoordinates, int startOffset, int endOffset, androidx.ui.text.style.TextDirection startDirection, androidx.ui.text.style.TextDirection endDirection, androidx.ui.core.LayoutCoordinates? startLayoutCoordinates, androidx.ui.core.LayoutCoordinates? endLayoutCoordinates);
+    method public androidx.ui.core.PxPosition getEndCoordinates();
+    method public androidx.ui.text.style.TextDirection getEndDirection();
+    method public androidx.ui.core.LayoutCoordinates? getEndLayoutCoordinates();
+    method public int getEndOffset();
+    method public androidx.ui.core.PxPosition getStartCoordinates();
+    method public androidx.ui.text.style.TextDirection getStartDirection();
+    method public androidx.ui.core.LayoutCoordinates? getStartLayoutCoordinates();
+    method public int getStartOffset();
   }
 
   public final class SelectionKt {
@@ -300,12 +296,13 @@ package androidx.ui.core.selection {
 
   public final class SelectionManager implements androidx.ui.core.selection.SelectionRegistrar {
     ctor public SelectionManager();
+    method public androidx.ui.core.PxPosition getAdjustedCoordinates(androidx.ui.core.PxPosition p);
     method public androidx.ui.core.LayoutCoordinates getContainerLayoutCoordinates();
-    method public androidx.ui.core.gesture.LongPressDragObserver getLongPressDragObserver();
     method public androidx.ui.core.selection.SelectionMode getMode();
     method public kotlin.jvm.functions.Function1<androidx.ui.core.selection.Selection,kotlin.Unit> getOnSelectionChange();
     method public androidx.ui.core.selection.Selection? getSelection();
-    method public androidx.ui.core.gesture.DragObserver handleDragObserver(boolean isStartHandle);
+    method public androidx.ui.core.gesture.DragObserver handleDragObserver(boolean dragStartHandle);
+    method public void onPress(androidx.ui.core.PxPosition position);
     method public void setContainerLayoutCoordinates(androidx.ui.core.LayoutCoordinates p);
     method public void setMode(androidx.ui.core.selection.SelectionMode p);
     method public void setOnSelectionChange(kotlin.jvm.functions.Function1<? super androidx.ui.core.selection.Selection,kotlin.Unit> p);
@@ -313,7 +310,6 @@ package androidx.ui.core.selection {
     method public Object subscribe(androidx.ui.core.selection.TextSelectionHandler handler);
     method public void unsubscribe(Object key);
     property public final androidx.ui.core.LayoutCoordinates containerLayoutCoordinates;
-    property public final androidx.ui.core.gesture.LongPressDragObserver longPressDragObserver;
     property public final androidx.ui.core.selection.SelectionMode mode;
     property public final kotlin.jvm.functions.Function1<androidx.ui.core.selection.Selection,kotlin.Unit> onSelectionChange;
     property public final androidx.ui.core.selection.Selection? selection;
@@ -335,12 +331,8 @@ package androidx.ui.core.selection {
     method public void unsubscribe(Object key);
   }
 
-  public final class TextSelectionDelegateKt {
-    ctor public TextSelectionDelegateKt();
-  }
-
   public interface TextSelectionHandler {
-    method public androidx.ui.core.selection.Selection? getSelection(androidx.ui.core.PxPosition startPosition, androidx.ui.core.PxPosition endPosition, androidx.ui.core.LayoutCoordinates containerLayoutCoordinates, androidx.ui.core.selection.SelectionMode mode, boolean isInitialSelection);
+    method public androidx.ui.core.selection.Selection? getSelection(kotlin.Pair<androidx.ui.core.PxPosition,androidx.ui.core.PxPosition> selectionCoordinates, androidx.ui.core.LayoutCoordinates containerLayoutCoordinates, androidx.ui.core.selection.SelectionMode mode);
   }
 
 }
@@ -430,36 +422,9 @@ package androidx.ui.graphics.vector.compat {
 
 package androidx.ui.res {
 
-  public final class DeferredResource<T> {
-    method public androidx.ui.res.Resource<T> getResource();
-    property public final androidx.ui.res.Resource<T> resource;
-  }
-
-  public final class FailedResource<T> extends androidx.ui.res.Resource<T> {
-    ctor public FailedResource(T? resource, Throwable? throwable);
-    method public Throwable? getThrowable();
-  }
-
   public final class ImageResourcesKt {
     ctor public ImageResourcesKt();
     method @CheckResult(suggest="+") public static androidx.compose.Effect<androidx.ui.graphics.Image> imageResource(@DrawableRes int id);
-    method @CheckResult(suggest="+") public static androidx.compose.Effect<androidx.ui.res.DeferredResource<androidx.ui.graphics.Image>> loadImageResource(int id, androidx.ui.graphics.Image? pendingImage = null, androidx.ui.graphics.Image? failedImage = null);
-  }
-
-  public final class LoadedResource<T> extends androidx.ui.res.Resource<T> {
-    ctor public LoadedResource(T! resource);
-  }
-
-  public final class PendingResource<T> extends androidx.ui.res.Resource<T> {
-    ctor public PendingResource(T? resource);
-  }
-
-  public abstract sealed class Resource<T> {
-    method public final T? getResource();
-  }
-
-  public final class ResourcesKt {
-    ctor public ResourcesKt();
   }
 
   public final class StringResourcesKt {
@@ -470,8 +435,7 @@ package androidx.ui.res {
 
   public final class VectorResourcesKt {
     ctor public VectorResourcesKt();
-    method @CheckResult(suggest="+") public static androidx.compose.Effect<androidx.ui.res.DeferredResource<androidx.ui.graphics.vector.VectorAsset>> loadVectorResource(int id, androidx.ui.graphics.vector.VectorAsset? pendingResource = null, androidx.ui.graphics.vector.VectorAsset? failedResource = null);
-    method @CheckResult(suggest="+") public static androidx.compose.Effect<androidx.ui.graphics.vector.VectorAsset> vectorResource(@DrawableRes int id);
+    method @CheckResult(suggest="+") public static androidx.compose.Effect<androidx.ui.graphics.vector.VectorAsset> vectorResource(@DrawableRes int resId);
   }
 
 }

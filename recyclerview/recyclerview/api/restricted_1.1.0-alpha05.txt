@@ -530,7 +530,7 @@ package androidx.recyclerview.widget {
     field public static final int DIRECTION_TOP = 1; // 0x1
   }
 
-  @java.lang.annotation.Retention(java.lang.annotation.RetentionPolicy.SOURCE) @IntDef({androidx.recyclerview.widget.RecyclerView.EdgeEffectFactory.DIRECTION_LEFT, androidx.recyclerview.widget.RecyclerView.EdgeEffectFactory.DIRECTION_TOP, androidx.recyclerview.widget.RecyclerView.EdgeEffectFactory.DIRECTION_RIGHT, androidx.recyclerview.widget.RecyclerView.EdgeEffectFactory.DIRECTION_BOTTOM}) public static @interface RecyclerView.EdgeEffectFactory.EdgeDirection {
+  @IntDef({androidx.recyclerview.widget.RecyclerView.EdgeEffectFactory.DIRECTION_LEFT, androidx.recyclerview.widget.RecyclerView.EdgeEffectFactory.DIRECTION_TOP, androidx.recyclerview.widget.RecyclerView.EdgeEffectFactory.DIRECTION_RIGHT, androidx.recyclerview.widget.RecyclerView.EdgeEffectFactory.DIRECTION_BOTTOM}) @java.lang.annotation.Retention(java.lang.annotation.RetentionPolicy.SOURCE) public static @interface RecyclerView.EdgeEffectFactory.EdgeDirection {
   }
 
   public abstract static class RecyclerView.ItemAnimator {
