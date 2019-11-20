@@ -16,6 +16,7 @@
 
 package androidx.ui.layout
 
+import androidx.annotation.FloatRange
 import androidx.compose.Composable
 import androidx.ui.core.Constraints
 import androidx.ui.core.DensityScope
@@ -44,9 +45,11 @@ import androidx.ui.core.satisfiedBy
  * Example usage:
  * @sample androidx.ui.layout.samples.SimpleAspectRatio
  *
- * @param value Must be positive non-zero Float.
+ * @param value A positive non-zero value representing the aspect ratio.
  */
-fun AspectRatio(value: Float): LayoutModifier = AspectRatioModifier(value)
+fun AspectRatio(
+    @FloatRange(from = 0.0, fromInclusive = false) value: Float
+): LayoutModifier = AspectRatioModifier(value)
 
 /**
  * A [LayoutModifier] that applies an aspect ratio to the wrapped UI element's size.
