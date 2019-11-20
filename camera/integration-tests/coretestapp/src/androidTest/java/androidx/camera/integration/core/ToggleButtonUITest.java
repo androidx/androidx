@@ -32,6 +32,7 @@ import android.content.Intent;
 
 import androidx.camera.core.FlashMode;
 import androidx.camera.core.ImageCapture;
+import androidx.camera.core.LensFacing;
 import androidx.camera.core.Preview;
 import androidx.camera.integration.core.idlingresource.ElapsedTimeIdlingResource;
 import androidx.camera.integration.core.idlingresource.WaitForViewToShow;
@@ -155,6 +156,7 @@ public final class ToggleButtonUITest {
 
     @Test
     public void testSwitchCameraToggleButton() {
+        assumeTrue(CameraUtil.hasCameraWithLensFacing(LensFacing.FRONT));
         waitFor(new WaitForViewToShow(R.id.direction_toggle));
 
         boolean isPreviewExist = mActivityRule.getActivity().getPreview() != null;
