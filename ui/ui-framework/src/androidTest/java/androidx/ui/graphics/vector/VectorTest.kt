@@ -25,8 +25,6 @@ import androidx.test.filters.SmallTest
 import androidx.test.rule.ActivityTestRule
 import androidx.ui.core.Alignment
 import androidx.ui.core.IntPx
-import androidx.ui.core.Px
-import androidx.ui.core.dp
 import androidx.ui.core.ipx
 import androidx.ui.core.setContent
 import androidx.ui.core.test.AtLeastSize
@@ -91,6 +89,37 @@ class VectorTest {
         assertTrue(drawLatch.await(1, TimeUnit.SECONDS))
         takeScreenShot(500).apply {
             assertEquals(getPixel(480, 480), Color.Cyan.toArgb())
+        }
+    }
+
+    @SdkSuppress(minSdkVersion = Build.VERSION_CODES.O)
+    @Test
+    fun testVectorInvalidation() {
+        val latch1 = CountDownLatch(1)
+        val latch2 = CountDownLatch(1)
+        val testCase = VectorInvalidationTestCase(latch1)
+        rule.runOnUiThreadIR {
+            activity.setContent {
+                testCase.createTestVector()
+            }
+        }
+
+        latch1.await()
+        val size = testCase.vectorSize
+        takeScreenShot(size).apply {
+            assertEquals(Color.Blue.toArgb(), getPixel(5, size - 5))
+            assertEquals(Color.White.toArgb(), getPixel(size - 5, 5))
+        }
+
+        testCase.latch = latch2
+        rule.runOnUiThreadIR {
+            testCase.toggle()
+        }
+
+        latch2.await()
+        takeScreenShot(size).apply {
+            assertEquals(Color.White.toArgb(), getPixel(5, size - 5))
+            assertEquals(Color.Red.toArgb(), getPixel(size - 5, 5))
         }
     }
 
