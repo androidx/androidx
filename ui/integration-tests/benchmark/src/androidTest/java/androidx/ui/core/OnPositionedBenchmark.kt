@@ -41,9 +41,9 @@ class OnPositionedBenchmark {
 
     @Test
     fun deepHierarchyOnPositioned_layout() {
-        benchmarkRule.toggleStateBenchmarkLayout(
+        benchmarkRule.toggleStateBenchmarkLayout({
             DeepHierarchyOnPositionedTestCase()
-        )
+        })
     }
 }
 

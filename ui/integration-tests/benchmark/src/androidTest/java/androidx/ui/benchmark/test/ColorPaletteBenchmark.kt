@@ -43,13 +43,14 @@ class ColorPaletteBenchmark {
 
     @Test
     fun observablePalette_recompose() {
-        benchmarkRule
-            .toggleStateBenchmarkRecomposeForObservableTestCase(ObservableColorPaletteTestCase())
+        benchmarkRule.toggleStateBenchmarkRecomposeForObservableTestCase {
+            ObservableColorPaletteTestCase()
+        }
     }
 
     @Test
     fun immutablePalette_recompose() {
-        benchmarkRule.toggleStateBenchmarkRecompose(ImmutableColorPaletteTestCase())
+        benchmarkRule.toggleStateBenchmarkRecompose { ImmutableColorPaletteTestCase() }
     }
 }
 
@@ -64,14 +65,14 @@ class ColorPaletteBenchmark {
  * trigger the colour change.
  */
 private fun ComposeBenchmarkRule.toggleStateBenchmarkRecomposeForObservableTestCase(
-    testCase: ObservableColorPaletteTestCase
+    caseFactory: () -> ObservableColorPaletteTestCase
 ) {
-    runBenchmarkFor(testCase) {
+    runBenchmarkFor(caseFactory) {
         doFramesUntilNoChangesPending()
 
         measureRepeated {
             runWithTimingDisabled {
-                testCase.toggleState()
+                getTestCase().toggleState()
                 recomposeAssertHadChanges()
             }
             recomposeAssertHadChanges()

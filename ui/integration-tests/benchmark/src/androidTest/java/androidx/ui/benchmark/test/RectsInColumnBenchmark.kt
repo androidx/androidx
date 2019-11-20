@@ -50,53 +50,55 @@ class RectsInColumnBenchmark(private val numberOfRectangles: Int) {
     @get:Rule
     val benchmarkRule = ComposeBenchmarkRule()
 
+    private val rectsInColumnCaseFactory = { RectsInColumnTestCase(numberOfRectangles) }
+
     @Test
     fun first_compose() {
-        benchmarkRule.benchmarkFirstCompose(RectsInColumnTestCase(numberOfRectangles))
+        benchmarkRule.benchmarkFirstCompose(rectsInColumnCaseFactory)
     }
 
     @Test
     fun first_measure() {
-        benchmarkRule.benchmarkFirstMeasure(RectsInColumnTestCase(numberOfRectangles))
+        benchmarkRule.benchmarkFirstMeasure(rectsInColumnCaseFactory)
     }
 
     @Test
     fun first_layout() {
-        benchmarkRule.benchmarkFirstLayout(RectsInColumnTestCase(numberOfRectangles))
+        benchmarkRule.benchmarkFirstLayout(rectsInColumnCaseFactory)
     }
 
     @Test
     fun first_draw() {
-        benchmarkRule.benchmarkFirstDraw(RectsInColumnTestCase(numberOfRectangles))
+        benchmarkRule.benchmarkFirstDraw(rectsInColumnCaseFactory)
     }
 
     @Test
     fun toggleRectangleColor_recompose() {
-        benchmarkRule.toggleStateBenchmarkRecompose(RectsInColumnTestCase(numberOfRectangles))
+        benchmarkRule.toggleStateBenchmarkRecompose(rectsInColumnCaseFactory)
     }
 
     @Test
     fun toggleRectangleColor_measure() {
-        benchmarkRule.toggleStateBenchmarkMeasure(RectsInColumnTestCase(numberOfRectangles))
+        benchmarkRule.toggleStateBenchmarkMeasure(rectsInColumnCaseFactory)
     }
 
     @Test
     fun toggleRectangleColor_layout() {
-        benchmarkRule.toggleStateBenchmarkLayout(RectsInColumnTestCase(numberOfRectangles))
+        benchmarkRule.toggleStateBenchmarkLayout(rectsInColumnCaseFactory)
     }
 
     @Test
     fun toggleRectangleColor_draw() {
-        benchmarkRule.toggleStateBenchmarkDraw(RectsInColumnTestCase(numberOfRectangles))
+        benchmarkRule.toggleStateBenchmarkDraw(rectsInColumnCaseFactory)
     }
 
     @Test
     fun layout() {
-        benchmarkRule.benchmarkLayoutPerf(RectsInColumnTestCase(numberOfRectangles))
+        benchmarkRule.benchmarkLayoutPerf(rectsInColumnCaseFactory)
     }
 
     @Test
     fun draw() {
-        benchmarkRule.benchmarkDrawPerf(RectsInColumnTestCase(numberOfRectangles))
+        benchmarkRule.benchmarkDrawPerf(rectsInColumnCaseFactory)
     }
 }

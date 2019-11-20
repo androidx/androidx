@@ -39,48 +39,51 @@ class ScrollerBenchmark {
     @get:Rule
     val benchmarkRule = ComposeBenchmarkRule()
 
+    private val scrollerCaseFactory = { ScrollerTestCase() }
+
     @Test
     fun first_compose() {
-        benchmarkRule.benchmarkFirstCompose(ScrollerTestCase())
+        benchmarkRule.benchmarkFirstCompose(scrollerCaseFactory)
     }
 
     @Test
     fun first_measure() {
-        benchmarkRule.benchmarkFirstMeasure(ScrollerTestCase())
+        benchmarkRule.benchmarkFirstMeasure(scrollerCaseFactory)
     }
 
     @Test
     fun first_layout() {
-        benchmarkRule.benchmarkFirstLayout(ScrollerTestCase())
+        benchmarkRule.benchmarkFirstLayout(scrollerCaseFactory)
     }
 
     @Test
     fun first_draw() {
-        benchmarkRule.benchmarkFirstDraw(ScrollerTestCase())
+        benchmarkRule.benchmarkFirstDraw(scrollerCaseFactory)
     }
 
     @Test
     fun changeScroll_measure() {
-        benchmarkRule.toggleStateBenchmarkMeasure(ScrollerTestCase(), toggleCausesRecompose = false)
+        benchmarkRule.toggleStateBenchmarkMeasure(scrollerCaseFactory,
+            toggleCausesRecompose = false)
     }
 
     @Test
     fun changeScroll_layout() {
-        benchmarkRule.toggleStateBenchmarkLayout(ScrollerTestCase(), toggleCausesRecompose = false)
+        benchmarkRule.toggleStateBenchmarkLayout(scrollerCaseFactory, toggleCausesRecompose = false)
     }
 
     @Test
     fun changeScroll_draw() {
-        benchmarkRule.toggleStateBenchmarkDraw(ScrollerTestCase(), toggleCausesRecompose = false)
+        benchmarkRule.toggleStateBenchmarkDraw(scrollerCaseFactory, toggleCausesRecompose = false)
     }
 
     @Test
     fun layout() {
-        benchmarkRule.benchmarkLayoutPerf(ScrollerTestCase())
+        benchmarkRule.benchmarkLayoutPerf(scrollerCaseFactory)
     }
 
     @Test
     fun draw() {
-        benchmarkRule.benchmarkDrawPerf(ScrollerTestCase())
+        benchmarkRule.benchmarkDrawPerf(scrollerCaseFactory)
     }
 }

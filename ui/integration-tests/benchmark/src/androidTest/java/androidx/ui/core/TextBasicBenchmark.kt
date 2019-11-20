@@ -58,9 +58,9 @@ class TextBasicBenchmark(
     @Test
     fun first_compose() {
         textBenchmarkRule.generator { textGenerator ->
-            benchmarkRule.benchmarkFirstCompose(
+            benchmarkRule.benchmarkFirstCompose {
                 TextBasicTestCase(textLength, textGenerator)
-            )
+            }
         }
     }
 
@@ -71,9 +71,9 @@ class TextBasicBenchmark(
     @Test
     fun first_measure() {
         textBenchmarkRule.generator { textGenerator ->
-            benchmarkRule.benchmarkFirstMeasure(
+            benchmarkRule.benchmarkFirstMeasure {
                 TextBasicTestCase(textLength, textGenerator)
-            )
+            }
         }
     }
 
@@ -84,9 +84,9 @@ class TextBasicBenchmark(
     @Test
     fun first_layout() {
         textBenchmarkRule.generator { textGenerator ->
-            benchmarkRule.benchmarkFirstLayout(
+            benchmarkRule.benchmarkFirstLayout {
                 TextBasicTestCase(textLength, textGenerator)
-            )
+            }
         }
     }
 
@@ -96,9 +96,9 @@ class TextBasicBenchmark(
     @Test
     fun first_draw() {
         textBenchmarkRule.generator { textGenerator ->
-            benchmarkRule.benchmarkFirstDraw(
+            benchmarkRule.benchmarkFirstDraw {
                 TextBasicTestCase(textLength, textGenerator)
-            )
+            }
         }
     }
 
@@ -109,9 +109,9 @@ class TextBasicBenchmark(
     @Test
     fun layout() {
         textBenchmarkRule.generator { textGenerator ->
-            benchmarkRule.benchmarkLayoutPerf(
+            benchmarkRule.benchmarkLayoutPerf {
                 TextBasicTestCase(textLength, textGenerator)
-            )
+            }
         }
     }
 
@@ -121,9 +121,9 @@ class TextBasicBenchmark(
     @Test
     fun draw() {
         textBenchmarkRule.generator { textGenerator ->
-            benchmarkRule.benchmarkDrawPerf(
+            benchmarkRule.benchmarkDrawPerf {
                 TextBasicTestCase(textLength, textGenerator)
-            )
+            }
         }
     }
 }

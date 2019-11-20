@@ -27,8 +27,8 @@ import android.util.DisplayMetrics
 import android.view.View
 import android.view.ViewGroup
 
-class AndroidTestCaseRunner(
-    private val testCase: AndroidTestCase,
+class AndroidTestCaseRunner<T : AndroidTestCase>(
+    private val testCaseFactory: () -> T,
     private val activity: Activity
 ) {
 
@@ -46,6 +46,8 @@ class AndroidTestCaseRunner(
     private val capture = if (supportsRenderNode) RenderNodeCapture() else PictureCapture()
     private var canvas: Canvas? = null
 
+    private var testCase: T? = null
+
     init {
         val displayMetrics = DisplayMetrics()
         activity.windowManager.defaultDisplay.getMetrics(displayMetrics)
@@ -62,7 +64,8 @@ class AndroidTestCaseRunner(
     }
 
     private fun setupContentInternal(activity: Activity): ViewGroup {
-        return testCase.getContent(activity).also { activity.setContentView(it) }
+        testCase = testCaseFactory()
+        return testCase!!.getContent(activity).also { activity.setContentView(it) }
     }
 
     fun measure() {
@@ -121,6 +124,11 @@ class AndroidTestCaseRunner(
         rootView.removeAllViews()
         // Important so we can set the content again.
         view = null
+        testCase = null
+    }
+
+    fun getTestCase(): T {
+        return testCase!!
     }
 
     private fun getView(): ViewGroup {

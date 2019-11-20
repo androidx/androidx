@@ -17,7 +17,7 @@
 package androidx.ui.benchmark.test.view
 
 import androidx.test.filters.LargeTest
-import androidx.ui.benchmark.ComposeBenchmarkRule
+import androidx.ui.benchmark.AndroidBenchmarkRule
 import androidx.ui.benchmark.benchmarkDrawPerf
 import androidx.ui.benchmark.benchmarkFirstDraw
 import androidx.ui.benchmark.benchmarkFirstLayout
@@ -41,50 +41,52 @@ import org.junit.runners.JUnit4
 class AndroidNestedScrollViewBenchmark {
 
     @get:Rule
-    val benchmarkRule = ComposeBenchmarkRule()
+    val benchmarkRule = AndroidBenchmarkRule()
+
+    private val nestedScrollCaseFactory = { AndroidNestedScrollViewTestCase() }
 
     @Test
     fun first_setContent() {
-        benchmarkRule.benchmarkFirstSetContent(AndroidNestedScrollViewTestCase())
+        benchmarkRule.benchmarkFirstSetContent(nestedScrollCaseFactory)
     }
 
     @Test
     fun first_measure() {
-        benchmarkRule.benchmarkFirstMeasure(AndroidNestedScrollViewTestCase())
+        benchmarkRule.benchmarkFirstMeasure(nestedScrollCaseFactory)
     }
 
     @Test
     fun first_layout() {
-        benchmarkRule.benchmarkFirstLayout(AndroidNestedScrollViewTestCase())
+        benchmarkRule.benchmarkFirstLayout(nestedScrollCaseFactory)
     }
 
     @Test
     fun first_draw() {
-        benchmarkRule.benchmarkFirstDraw(AndroidNestedScrollViewTestCase())
+        benchmarkRule.benchmarkFirstDraw(nestedScrollCaseFactory)
     }
 
     @Test
     fun changeScroll_measure() {
-        benchmarkRule.toggleStateBenchmarkMeasure(AndroidNestedScrollViewTestCase())
+        benchmarkRule.toggleStateBenchmarkMeasure(nestedScrollCaseFactory)
     }
 
     @Test
     fun changeScroll_layout() {
-        benchmarkRule.toggleStateBenchmarkLayout(AndroidNestedScrollViewTestCase())
+        benchmarkRule.toggleStateBenchmarkLayout(nestedScrollCaseFactory)
     }
 
     @Test
     fun changeScroll_draw() {
-        benchmarkRule.toggleStateBenchmarkDraw(AndroidNestedScrollViewTestCase())
+        benchmarkRule.toggleStateBenchmarkDraw(nestedScrollCaseFactory)
     }
 
     @Test
     fun layout() {
-        benchmarkRule.benchmarkLayoutPerf(AndroidNestedScrollViewTestCase())
+        benchmarkRule.benchmarkLayoutPerf(nestedScrollCaseFactory)
     }
 
     @Test
     fun draw() {
-        benchmarkRule.benchmarkDrawPerf(AndroidNestedScrollViewTestCase())
+        benchmarkRule.benchmarkDrawPerf(nestedScrollCaseFactory)
     }
 }

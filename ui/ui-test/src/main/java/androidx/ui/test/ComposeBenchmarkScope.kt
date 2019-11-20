@@ -19,14 +19,25 @@ package androidx.ui.test
 /**
  * Test scope accessible from benchmarks. Provides extended set of hooks for compose benchmarking.
  */
-interface ComposeBenchmarkScope : ComposeExecutionControl {
+interface ComposeBenchmarkScope<T> : ComposeExecutionControl {
     /**
-     * Sets up the content. This is by default called by first invocation of doFrame. However this
-     * is useful in case you need to benchmark first composition.
+     * Instantiates the current [ComposeTestCase] in order to perform benchmarks on it.
      *
-     * If you want to call this multiple times, make sure you call [disposeContent] in between.
+     * This is normally executed as part of [setupContent].
+     *
+     * Do not measure this in benchmark.
      */
-    fun setupContent()
+    fun createTestCase()
+
+    /**
+     * Emits the content. This and [createTestCase] are by default called by first invocation of
+     * doFrame. However this is useful in case you need to benchmark the first composition.
+     *
+     * If you want to call this multiple times, make sure you call [disposeContent] and
+     * [createTestCase] in between. If you don't need to measure this but need to setup the
+     * content consider using [setupContent].
+     */
+    fun emitContent()
 
     /**
      * Request layout on the underlying view. This is should typically not be needed if your
@@ -62,8 +73,28 @@ interface ComposeBenchmarkScope : ComposeExecutionControl {
     fun measureWithSpec(widthSpec: Int, heightSpec: Int)
 
     /**
-     * Disposes the content. This is typically needed when benchmarking the first content setup or
-     * composition.
+     * Disposes the content and destroys the current [ComposeTestCase].
+     *
+     * This is typically needed when benchmarking the first content setup or composition.
      */
     fun disposeContent()
+
+    /**
+     * Returns the current instantiated [ComposeTestCase].
+     *
+     * Make sure you called [setupContent] or [createTestCase] before calling this.
+     */
+    fun getTestCase(): T
+}
+
+/**
+ * Sets up the content. This is by default called by first invocation of
+ * [ComposeBenchmarkScope.doFrame].
+ *
+ * If you want to call this multiple times, make sure you call
+ * [ComposeBenchmarkScope.disposeContent] in between.
+ */
+fun <T> ComposeBenchmarkScope<T>.setupContent() {
+    createTestCase()
+    emitContent()
 }
