@@ -36,7 +36,9 @@ import androidx.ui.core.IntPx
 import androidx.ui.core.Layout
 import androidx.ui.core.coerceIn
 import androidx.ui.core.ipx
+import androidx.ui.core.round
 import androidx.ui.core.setContent
+import androidx.ui.core.toPx
 import org.junit.Assert.assertEquals
 import org.junit.Assert.assertNotNull
 import org.junit.Assert.assertTrue
@@ -246,5 +248,22 @@ open class LayoutTest {
             actual.value.toFloat(),
             0f
         )
+    }
+
+    internal val customArrangement = { totalSize: IntPx, size: List<IntPx> ->
+        val usedSpace = size.fold(0.ipx) { sum, e -> sum + e }
+        val step = if (size.size < 2) {
+            0.px
+        } else {
+            (totalSize - usedSpace).toPx() * 2 / (size.lastIndex * size.size)
+        }
+        val positions = mutableListOf<IntPx>()
+        var current = 0.px
+        size.forEachIndexed { i, childSize ->
+            current += step * i
+            positions.add(current.round())
+            current += childSize.toPx()
+        }
+        positions
     }
 }

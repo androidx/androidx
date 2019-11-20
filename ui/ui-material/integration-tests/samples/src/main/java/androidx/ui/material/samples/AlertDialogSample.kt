@@ -21,7 +21,7 @@ import androidx.compose.Composable
 import androidx.compose.state
 import androidx.compose.unaryPlus
 import androidx.ui.core.Text
-import androidx.ui.layout.MainAxisAlignment
+import androidx.ui.layout.Arrangement
 import androidx.ui.layout.Row
 import androidx.ui.material.AlertDialog
 import androidx.ui.material.AlertDialogButtonLayout
@@ -112,7 +112,7 @@ fun CustomAlertDialogSample() {
                         " which presents the details regarding the Dialog's purpose.")
             },
             buttons = {
-                Row(mainAxisAlignment = MainAxisAlignment.Center) {
+                Row(arrangement = Arrangement.Center) {
                     Button("Button", onClick = { openDialog.value = false })
                 }
             }

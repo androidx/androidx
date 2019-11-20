@@ -61,6 +61,7 @@ import androidx.ui.graphics.Path
 import androidx.ui.graphics.PathOperation
 import androidx.ui.layout.Align
 import androidx.ui.layout.AlignmentLineOffset
+import androidx.ui.layout.Arrangement
 import androidx.ui.layout.Expanded
 import androidx.ui.layout.ExpandedHeight
 import androidx.ui.layout.Padding
@@ -627,10 +628,7 @@ private fun BaseBottomAppBarWithoutFab(
 ) {
     BaseAppBar(color, BottomAppBarElevation, shape) {
         Padding(top = AppBarPadding, bottom = AppBarPadding) {
-            Row(
-                Expanded,
-                mainAxisAlignment = MainAxisAlignment.SpaceBetween
-            ) {
+            Row(Expanded, arrangement = Arrangement.SpaceBetween) {
                 // Using wrap so that even if startContent is null or emits no layout nodes,
                 // we will still force end content to be placed at the end of the row.
                 Wrap(alignment = Alignment.Center, children = startContent ?: {})
