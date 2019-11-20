@@ -17,7 +17,7 @@
 package androidx.ui.text
 
 import androidx.compose.Immutable
-import androidx.ui.core.Sp
+import androidx.ui.core.TextUnit
 import androidx.ui.text.style.TextAlign
 import androidx.ui.text.style.TextDirectionAlgorithm
 import androidx.ui.text.style.TextIndent
@@ -36,7 +36,7 @@ import androidx.ui.text.style.TextIndent
  * @param textDirectionAlgorithm The algorithm to be used to resolve the final text direction:
  * Left To Right or Right To Left.
  * @param textIndent The indentation of the paragraph.
- * @param lineHeight Line height for the [Paragraph] in [Sp] unit
+ * @param lineHeight Line height for the [Paragraph] in [TextUnit] unit, e.g. SP or EM.
  *
  * @see [Paragraph]
  * @see [AnnotatedString]
@@ -45,11 +45,11 @@ import androidx.ui.text.style.TextIndent
 data class ParagraphStyle constructor(
     val textAlign: TextAlign? = null,
     val textDirectionAlgorithm: TextDirectionAlgorithm? = null,
-    val lineHeight: Sp = Sp.Inherit,
+    val lineHeight: TextUnit = TextUnit.Inherit,
     val textIndent: TextIndent? = null
 ) {
     init {
-        if (lineHeight != Sp.Inherit) {
+        if (lineHeight != TextUnit.Inherit) {
             // Since we are checking if it's negative, no need to convert Sp into Px at this point.
             assert(lineHeight.value >= 0f) {
                 "lineHeight can't be negative (${lineHeight.value})"
@@ -67,7 +67,11 @@ data class ParagraphStyle constructor(
         if (other == null) return this
 
         return ParagraphStyle(
-            lineHeight = if (other.lineHeight == Sp.Inherit) this.lineHeight else other.lineHeight,
+            lineHeight = if (other.lineHeight == TextUnit.Inherit) {
+                this.lineHeight
+            } else {
+                other.lineHeight
+            },
             textIndent = other.textIndent ?: this.textIndent,
             textAlign = other.textAlign ?: this.textAlign,
             textDirectionAlgorithm = other.textDirectionAlgorithm

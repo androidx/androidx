@@ -24,9 +24,8 @@ import androidx.ui.core.IntPx
 import androidx.ui.core.IntPxSize
 import androidx.ui.core.LayoutDirection
 import androidx.ui.core.PxPosition
-import androidx.ui.core.Sp
+import androidx.ui.core.TextUnit
 import androidx.ui.core.constrain
-import androidx.ui.core.isInherit
 import androidx.ui.core.ipx
 import androidx.ui.core.sp
 import androidx.ui.engine.geometry.Offset
@@ -46,7 +45,7 @@ import kotlin.math.ceil
 import kotlin.math.roundToInt
 
 /** The default font size if none is specified. */
-private val DefaultFontSize: Sp = 14.sp
+private val DefaultFontSize: TextUnit = 14.sp
 
 /**
  * Resolve text style to be able to pass to underlying paragraphs.
@@ -56,7 +55,7 @@ private val DefaultFontSize: Sp = 14.sp
 private fun resolveTextStyle(style: TextStyle?) =
     if (style == null) {
         TextStyle(fontSize = DefaultFontSize)
-    } else if (style.fontSize.isInherit()) {
+    } else if (style.fontSize.isInherit) {
         style.copy(fontSize = DefaultFontSize)
     } else {
         style

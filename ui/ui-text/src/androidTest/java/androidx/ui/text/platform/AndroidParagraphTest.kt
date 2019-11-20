@@ -295,8 +295,8 @@ class AndroidParagraphTest {
     @Test
     fun testAnnotatedString_setFontSizeScaleOnWholeText() {
         val text = "abcde"
-        val fontSizeScale = 2.0f
-        val textStyle = TextStyle(fontSizeScale = fontSizeScale)
+        val fontSizeScale = 2.0.em
+        val textStyle = TextStyle(fontSize = fontSizeScale)
 
         val paragraph = simpleParagraph(
             text = text,
@@ -305,15 +305,15 @@ class AndroidParagraphTest {
         )
 
         assertThat(paragraph.charSequence).hasSpan(RelativeSizeSpan::class, 0, text.length) {
-            it.sizeChange == fontSizeScale
+            it.sizeChange == fontSizeScale.value
         }
     }
 
     @Test
     fun testAnnotatedString_setFontSizeScaleOnPartText() {
         val text = "abcde"
-        val fontSizeScale = 2.0f
-        val textStyle = TextStyle(fontSizeScale = fontSizeScale)
+        val fontSizeScale = 2.0f.em
+        val textStyle = TextStyle(fontSize = fontSizeScale)
 
         val paragraph = simpleParagraph(
             text = text,
@@ -322,7 +322,7 @@ class AndroidParagraphTest {
         )
 
         assertThat(paragraph.charSequence).hasSpan(RelativeSizeSpan::class, 0, "abc".length) {
-            it.sizeChange == fontSizeScale
+            it.sizeChange == fontSizeScale.value
         }
     }
 
@@ -985,24 +985,6 @@ class AndroidParagraphTest {
             )
 
             assertThat(paragraph.textPaint.textSize).isEqualTo(fontSize.toPx().value)
-        }
-    }
-
-    @Test
-    fun testTextStyle_fontSizeScale_appliedOnTextPaint() {
-        withDensity(defaultDensity) {
-            val fontSize = 100.sp
-            val fontSizeScale = 2f
-            val paragraph = simpleParagraph(
-                text = "",
-                textStyle = TextStyle(
-                    fontSize = fontSize,
-                    fontSizeScale = fontSizeScale
-                ),
-                constraints = ParagraphConstraints(width = 0.0f)
-            )
-
-            assertThat(paragraph.textPaint.textSize).isEqualTo(fontSize.toPx().value *fontSizeScale)
         }
     }
 

@@ -20,7 +20,7 @@ import androidx.test.filters.SmallTest
 import androidx.test.platform.app.InstrumentationRegistry
 import androidx.ui.core.Density
 import androidx.ui.core.PxPosition
-import androidx.ui.core.Sp
+import androidx.ui.core.TextUnit
 import androidx.ui.core.em
 import androidx.ui.core.px
 import androidx.ui.core.sp
@@ -2254,8 +2254,8 @@ class ParagraphIntegrationTest {
             val text = "abcde"
             val fontSize = 20.sp
             val fontSizeInPx = fontSize.toPx().value
-            val fontSizeScale = 0.5f
-            val textStyle = TextStyle(fontSizeScale = fontSizeScale)
+            val em = 0.5.em
+            val textStyle = TextStyle(fontSize = em)
 
             val paragraph = simpleParagraph(
                 text = text,
@@ -2264,7 +2264,7 @@ class ParagraphIntegrationTest {
             )
 
             assertThat(paragraph.getLineRight(0))
-                .isEqualTo(text.length * fontSizeInPx * fontSizeScale)
+                .isEqualTo(text.length * fontSizeInPx * em.value)
         }
     }
 
@@ -2274,11 +2274,11 @@ class ParagraphIntegrationTest {
             val text = "abcde"
             val fontSize = 20.sp
             val fontSizeInPx = fontSize.toPx().value
-            val fontSizeScale = 0.5f
-            val textStyle = TextStyle(fontSizeScale = fontSizeScale)
+            val em = 0.5f.em
+            val textStyle = TextStyle(fontSize = em)
 
-            val fontSizeScaleNested = 2f
-            val textStyleNested = TextStyle(fontSizeScale = fontSizeScaleNested)
+            val emNested = 2f.em
+            val textStyleNested = TextStyle(fontSize = emNested)
 
             val paragraph = simpleParagraph(
                 text = text,
@@ -2290,7 +2290,7 @@ class ParagraphIntegrationTest {
             )
 
             assertThat(paragraph.getLineRight(0))
-                .isEqualTo(text.length * fontSizeInPx * fontSizeScale * fontSizeScaleNested)
+                .isEqualTo(text.length * fontSizeInPx * em.value * emNested.value)
         }
     }
 
@@ -2304,8 +2304,8 @@ class ParagraphIntegrationTest {
             val fontSizeInPx = fontSize.toPx().value
             val fontSizeStyle = TextStyle(fontSize = fontSize)
 
-            val fontSizeScale = 0.5f
-            val fontSizeScaleStyle = TextStyle(fontSizeScale = fontSizeScale)
+            val em = 0.5f.em
+            val fontSizeScaleStyle = TextStyle(fontSize = em)
 
             val paragraph = simpleParagraph(
                 text = text,
@@ -2317,7 +2317,7 @@ class ParagraphIntegrationTest {
             )
 
             assertThat(paragraph.getLineRight(0))
-                .isEqualTo(text.length * fontSizeInPx * fontSizeScale)
+                .isEqualTo(text.length * fontSizeInPx * em.value)
         }
     }
 
@@ -2331,8 +2331,8 @@ class ParagraphIntegrationTest {
             val fontSizeInPx = fontSize.toPx().value
             val fontSizeStyle = TextStyle(fontSize = fontSize)
 
-            val fontSizeScale = 0.5f
-            val fontSizeScaleStyle = TextStyle(fontSizeScale = fontSizeScale)
+            val em = 0.5f.em
+            val fontSizeScaleStyle = TextStyle(fontSize = em)
 
             val paragraph = simpleParagraph(
                 text = text,
@@ -2357,11 +2357,11 @@ class ParagraphIntegrationTest {
             val fontSizeInPx = fontSize.toPx().value
             val fontSizeStyle = TextStyle(fontSize = fontSize)
 
-            val fontSizeScale1 = 0.5f
-            val fontSizeScaleStyle1 = TextStyle(fontSizeScale = fontSizeScale1)
+            val em1 = 0.5f.em
+            val fontSizeScaleStyle1 = TextStyle(fontSize = em1)
 
-            val fontSizeScale2 = 2f
-            val fontSizeScaleStyle2 = TextStyle(fontSizeScale = fontSizeScale2)
+            val em2 = 2f.em
+            val fontSizeScaleStyle2 = TextStyle(fontSize = em2)
 
             val paragraph = simpleParagraph(
                 text = text,
@@ -2374,7 +2374,7 @@ class ParagraphIntegrationTest {
             )
 
             assertThat(paragraph.getLineRight(0))
-                .isEqualTo(text.length * fontSizeInPx * fontSizeScale2)
+                .isEqualTo(text.length * fontSizeInPx * em2.value)
         }
     }
 
@@ -3174,9 +3174,9 @@ class ParagraphIntegrationTest {
         text: String = "",
         textIndent: TextIndent? = null,
         textAlign: TextAlign? = null,
-        fontSize: Sp = Sp.Inherit,
+        fontSize: TextUnit = TextUnit.Inherit,
         maxLines: Int? = null,
-        lineHeight: Sp = Sp.Inherit,
+        lineHeight: TextUnit = TextUnit.Inherit,
         textStyles: List<AnnotatedString.Item<TextStyle>> = listOf(),
         fontFamily: FontFamily = fontFamilyMeasureFont,
         localeList: LocaleList? = null,

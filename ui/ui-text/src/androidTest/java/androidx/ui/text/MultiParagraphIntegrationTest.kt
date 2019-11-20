@@ -21,7 +21,7 @@ import androidx.test.filters.Suppress
 import androidx.test.platform.app.InstrumentationRegistry
 import androidx.ui.core.Density
 import androidx.ui.core.PxPosition
-import androidx.ui.core.Sp
+import androidx.ui.core.TextUnit
 import androidx.ui.core.px
 import androidx.ui.core.sp
 import androidx.ui.core.withDensity
@@ -1235,7 +1235,7 @@ class MultiParagraphIntegrationTest {
 
     private fun simpleMultiParagraphIntrinsics(
         text: AnnotatedString,
-        fontSize: Sp = Sp.Inherit
+        fontSize: TextUnit = TextUnit.Inherit
     ): MultiParagraphIntrinsics {
         return MultiParagraphIntrinsics(
             text,
@@ -1253,7 +1253,7 @@ class MultiParagraphIntegrationTest {
 
     private fun simpleMultiParagraph(
         text: String,
-        fontSize: Sp = Sp.Inherit,
+        fontSize: TextUnit = TextUnit.Inherit,
         paragraphStyle: ParagraphStyle = ParagraphStyle(),
         maxLines: Int? = null,
         width: Float = Float.MAX_VALUE
@@ -1277,7 +1277,7 @@ class MultiParagraphIntegrationTest {
 
     private fun simpleMultiParagraph(
         text: AnnotatedString,
-        fontSize: Sp = Sp.Inherit,
+        fontSize: TextUnit = TextUnit.Inherit,
         paragraphStyle: ParagraphStyle = ParagraphStyle(),
         maxLines: Int? = null,
         width: Float = Float.MAX_VALUE

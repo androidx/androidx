@@ -25,7 +25,7 @@ import androidx.ui.core.Constraints
 import androidx.ui.core.Density
 import androidx.ui.core.LayoutDirection
 import androidx.ui.core.PxPosition
-import androidx.ui.core.Sp
+import androidx.ui.core.TextUnit
 import androidx.ui.core.px
 import androidx.ui.core.sp
 import androidx.ui.core.withDensity
@@ -825,7 +825,7 @@ class TextSelectionDelegateTest {
 
     private fun simpleTextDelegate(
         text: String = "",
-        fontSize: Sp = Sp.Inherit,
+        fontSize: TextUnit = TextUnit.Inherit,
         density: Density
     ): TextDelegate {
         val textStyle = TextStyle(fontSize = fontSize, fontFamily = fontFamily)

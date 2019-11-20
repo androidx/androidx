@@ -18,7 +18,6 @@ package androidx.ui.text.platform
 
 import android.graphics.Typeface
 import android.os.Build
-import android.os.LocaleList as AndroidLocaleList
 import android.text.SpannableString
 import android.text.Spanned
 import android.text.TextPaint
@@ -42,8 +41,9 @@ import androidx.text.style.ShadowSpan
 import androidx.text.style.SkewXSpan
 import androidx.text.style.TypefaceSpan
 import androidx.ui.core.Density
-import androidx.ui.core.Sp
-import androidx.ui.core.isInherit
+import androidx.ui.core.TextUnit
+import androidx.ui.core.TextUnitType
+import androidx.ui.core.px
 import androidx.ui.core.sp
 import androidx.ui.core.withDensity
 import androidx.ui.graphics.toArgb
@@ -59,6 +59,7 @@ import androidx.ui.text.style.TextDirectionAlgorithm
 import androidx.ui.text.style.TextIndent
 import kotlin.math.ceil
 import kotlin.math.roundToInt
+import android.os.LocaleList as AndroidLocaleList
 import java.util.Locale as JavaLocale
 
 internal fun TextPaint.applyTextStyle(
@@ -67,15 +68,14 @@ internal fun TextPaint.applyTextStyle(
     density: Density
 ): TextStyle {
 
-    if (!style.fontSize.isInherit()) {
-        withDensity(density) {
+    when (style.fontSize.type) {
+        TextUnitType.Sp -> withDensity(density) {
             textSize = style.fontSize.toPx().value
         }
-    }
-
-    // fontSizeScale must be applied after fontSize is applied.
-    style.fontSizeScale?.let {
-        textSize *= it
+        TextUnitType.Em -> {
+            textSize *= style.fontSize.value
+        }
+        TextUnitType.Inherit -> {} // Do nothing
     }
 
     if (style.hasFontAttributes()) {
@@ -95,8 +95,15 @@ internal fun TextPaint.applyTextStyle(
         color = it.toArgb()
     }
 
-    style.letterSpacing?.let {
-        letterSpacing = it.value
+    when (style.letterSpacing.type) {
+        TextUnitType.Sp -> withDensity(density) {
+            // Platform accept EM as a letter space. Convert Sp to Em
+            letterSpacing = style.letterSpacing.toPx().value / textSize
+        }
+        TextUnitType.Em -> {
+            letterSpacing = style.letterSpacing.value
+        }
+        TextUnitType.Inherit -> {} // Do nothing
     }
 
     style.fontFeatureSettings?.let {
@@ -139,7 +146,7 @@ internal fun TextPaint.applyTextStyle(
 
 internal fun createStyledText(
     text: String,
-    lineHeight: Sp,
+    lineHeight: TextUnit,
     textIndent: TextIndent?,
     textStyles: List<AnnotatedString.Item<TextStyle>>,
     density: Density,
@@ -148,8 +155,8 @@ internal fun createStyledText(
     if (textStyles.isEmpty() && textIndent == null) return text
     val spannableString = SpannableString(text)
 
-    if (lineHeight != Sp.Inherit) {
-        withDensity(density) {
+    when (lineHeight.type) {
+        TextUnitType.Sp -> withDensity(density) {
             spannableString.setSpan(
                 LineHeightSpan(ceil(lineHeight.toPx().value).toInt()),
                 0,
@@ -157,15 +164,36 @@ internal fun createStyledText(
                 Spanned.SPAN_EXCLUSIVE_EXCLUSIVE
             )
         }
+        TextUnitType.Em -> {
+            // Support line height with EM unit: b/144957855
+        }
+        TextUnitType.Inherit -> {} // Do nothing
     }
 
     textIndent?.let { indent ->
         if (indent.firstLine == 0.sp && indent.restLine == 0.sp) return@let
+        if (indent.firstLine.isInherit || indent.restLine.isInherit) return@let
         withDensity(density) {
+            val firstLine = when (indent.firstLine.type) {
+                TextUnitType.Sp -> indent.firstLine.toPx()
+                TextUnitType.Em -> {
+                    // Support indents with Em unit type: b/144958549
+                    0.px
+                }
+                TextUnitType.Inherit -> { 0.px } // do nothing
+            }
+            val restLine = when (indent.restLine.type) {
+                TextUnitType.Sp -> indent.restLine.toPx()
+                TextUnitType.Em -> {
+                    // Support indents with Em unit type: b/144958549
+                    0.px
+                }
+                TextUnitType.Inherit -> { 0.px } // do nothing
+            }
             spannableString.setSpan(
                 LeadingMarginSpan.Standard(
-                    indent.firstLine.toPx().value.toInt(),
-                    indent.restLine.toPx().value.toInt()
+                    firstLine.value.toInt(),
+                    restLine.value.toInt()
                 ),
                 0,
                 text.length,
@@ -220,8 +248,8 @@ internal fun createStyledText(
             }
         }
 
-        if (!style.fontSize.isInherit()) {
-            withDensity(density) {
+        when (style.fontSize.type) {
+            TextUnitType.Sp -> withDensity(density) {
                 spannableString.setSpan(
                     AbsoluteSizeSpan(style.fontSize.toPx().value.roundToInt(), true),
                     start,
@@ -229,16 +257,15 @@ internal fun createStyledText(
                     Spanned.SPAN_EXCLUSIVE_EXCLUSIVE
                 )
             }
-        }
-
-        // Be aware that fontSizeScale must be applied after fontSize.
-        style.fontSizeScale?.let {
-            spannableString.setSpan(
-                RelativeSizeSpan(it),
-                start,
-                end,
-                Spanned.SPAN_EXCLUSIVE_EXCLUSIVE
-            )
+            TextUnitType.Em -> {
+                spannableString.setSpan(
+                    RelativeSizeSpan(style.fontSize.value),
+                    start,
+                    end,
+                    Spanned.SPAN_EXCLUSIVE_EXCLUSIVE
+                )
+            }
+            TextUnitType.Inherit -> {} // Do nothing
         }
 
         style.fontFeatureSettings?.let {
@@ -277,14 +304,21 @@ internal fun createStyledText(
             )
         }
 
-        style.letterSpacing?.let {
-            spannableString.setSpan(
-                LetterSpacingSpan(it.value),
-                start,
-                end,
-                Spanned.SPAN_EXCLUSIVE_EXCLUSIVE
-            )
+        when (style.letterSpacing.type) {
+            TextUnitType.Sp -> {
+                // Support LetterSpacing with SP unit: b/144957997
+            }
+            TextUnitType.Em -> {
+                spannableString.setSpan(
+                    LetterSpacingSpan(style.letterSpacing.value),
+                    start,
+                    end,
+                    Spanned.SPAN_EXCLUSIVE_EXCLUSIVE
+                )
+            }
+            TextUnitType.Inherit -> {}
         }
+
         style.localeList?.let {
             spannableString.setSpan(
                 if (Build.VERSION.SDK_INT >= 24) {

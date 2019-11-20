@@ -17,16 +17,11 @@
 package androidx.ui.text
 
 import androidx.compose.Immutable
-import androidx.ui.core.Em
-import androidx.ui.core.Sp
-import androidx.ui.core.em
-import androidx.ui.core.isInherit
-import androidx.ui.core.lerp
-import androidx.ui.core.sp
+import androidx.ui.core.TextUnit
+import androidx.ui.core.lerpTextUnit
 import androidx.ui.graphics.Color
 import androidx.ui.graphics.Shadow
 import androidx.ui.graphics.lerp
-import androidx.ui.lerp
 import androidx.ui.text.font.FontFamily
 import androidx.ui.text.font.FontStyle
 import androidx.ui.text.font.FontSynthesis
@@ -44,10 +39,7 @@ import androidx.ui.text.style.lerp
  *
  * @param color The text color.
  * @param fontSize The size of glyphs (in logical pixels) to use when painting the text. This
- * may be [Sp.Inherit] for inheriting from another [TextStyle].
- * @param fontSizeScale The scale factor of the font size. When [fontSize] is also given in this
- *  TextStyle, the final fontSize will be the [fontSize] times this value.
- *  Otherwise, the final fontSize will be the current fontSize times this value.
+ * may be [TextUnit.Inherit] for inheriting from another [TextStyle].
  * @param fontWeight The typeface thickness to use when painting the text (e.g., bold).
  * @param fontStyle The typeface variant to use when drawing the letters (e.g., italic).
  * @param fontSynthesis Whether to synthesize font weight and/or style when the requested weight or
@@ -69,14 +61,13 @@ import androidx.ui.text.style.lerp
 @Immutable
 data class TextStyle(
     val color: Color? = null,
-    val fontSize: Sp = Sp.Inherit,
-    val fontSizeScale: Float? = null,
+    val fontSize: TextUnit = TextUnit.Inherit,
     val fontWeight: FontWeight? = null,
     val fontStyle: FontStyle? = null,
     val fontSynthesis: FontSynthesis? = null,
     val fontFamily: FontFamily? = null,
     val fontFeatureSettings: String? = null,
-    val letterSpacing: Em? = null,
+    val letterSpacing: TextUnit = TextUnit.Inherit,
     val baselineShift: BaselineShift? = null,
     val textGeometricTransform: TextGeometricTransform? = null,
     val localeList: LocaleList? = null,
@@ -99,13 +90,16 @@ data class TextStyle(
         return TextStyle(
             color = other.color ?: this.color,
             fontFamily = other.fontFamily ?: this.fontFamily,
-            fontSize = if (!other.fontSize.isInherit()) other.fontSize else this.fontSize,
-            fontSizeScale = other.fontSizeScale ?: this.fontSizeScale,
+            fontSize = if (!other.fontSize.isInherit) other.fontSize else this.fontSize,
             fontWeight = other.fontWeight ?: this.fontWeight,
             fontStyle = other.fontStyle ?: this.fontStyle,
             fontSynthesis = other.fontSynthesis ?: this.fontSynthesis,
             fontFeatureSettings = other.fontFeatureSettings ?: this.fontFeatureSettings,
-            letterSpacing = other.letterSpacing ?: this.letterSpacing,
+            letterSpacing = if (!other.letterSpacing.isInherit) {
+                other.letterSpacing
+            } else {
+                this.letterSpacing
+            },
             baselineShift = other.baselineShift ?: this.baselineShift,
             textGeometricTransform = other.textGeometricTransform ?: this.textGeometricTransform,
             localeList = other.localeList ?: this.localeList,
@@ -115,16 +109,13 @@ data class TextStyle(
         )
     }
 }
-
 /**
- * @param a An sp value. Maybe [Sp.Inherit]
- * @param b An sp value. Maybe [Sp.Inherit]
+ * @param a An sp value. Maybe [TextUnit.Inherit]
+ * @param b An sp value. Maybe [TextUnit.Inherit]
  */
-private fun lerpSp(a: Sp, b: Sp, t: Float, default: Sp = 0f.sp): Sp {
-    if (a.isInherit() && b.isInherit()) return a
-    val start = if (a.isInherit()) default else a
-    val end = if (b.isInherit()) default else b
-    return androidx.ui.core.lerp(start, end, t)
+private fun lerpTextUnitInheritable(a: TextUnit, b: TextUnit, t: Float): TextUnit {
+    if (a.isInherit && b.isInherit) return a
+    return lerpTextUnit(a, b, t)
 }
 
 private fun <T> lerpDiscrete(a: T, b: T, t: Float): T = if (t < 0.5) a else b
@@ -150,12 +141,7 @@ fun lerp(start: TextStyle, stop: TextStyle, fraction: Float): TextStyle {
             stop.fontFamily,
             fraction
         ),
-        fontSize = lerpSp(start.fontSize, stop.fontSize, fraction),
-        fontSizeScale = lerp(
-            start.fontSizeScale ?: 1.0f,
-            stop.fontSizeScale ?: 1.0f,
-            fraction
-        ),
+        fontSize = lerpTextUnitInheritable(start.fontSize, stop.fontSize, fraction),
         fontWeight = lerp(
             start.fontWeight ?: FontWeight.Normal,
             stop.fontWeight ?: FontWeight.Normal,
@@ -176,9 +162,9 @@ fun lerp(start: TextStyle, stop: TextStyle, fraction: Float): TextStyle {
             stop.fontFeatureSettings,
             fraction
         ),
-        letterSpacing = lerp(
-            start.letterSpacing ?: 0.em,
-            stop.letterSpacing ?: 0.em,
+        letterSpacing = lerpTextUnitInheritable(
+            start.letterSpacing,
+            stop.letterSpacing,
             fraction
         ),
         baselineShift = lerp(
