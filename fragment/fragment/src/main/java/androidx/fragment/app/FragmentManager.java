@@ -3024,8 +3024,12 @@ public abstract class FragmentManager {
     /**
      * Set a {@link FragmentFactory} for this FragmentManager that will be used
      * to create new Fragment instances from this point onward.
+     * <p>
+     * The {@link Fragment#getChildFragmentManager() child FragmentManager} of all Fragments
+     * in this FragmentManager will also use this factory if one is not explicitly set.
      *
      * @param fragmentFactory the factory to use to create new Fragment instances
+     * @see #getFragmentFactory()
      */
     public void setFragmentFactory(@NonNull FragmentFactory fragmentFactory) {
         mFragmentFactory = fragmentFactory;
@@ -3033,6 +3037,10 @@ public abstract class FragmentManager {
 
     /**
      * Gets the current {@link FragmentFactory} used to instantiate new Fragment instances.
+     * <p>
+     * If no factory has been explicitly set on this FragmentManager via
+     * {@link #setFragmentFactory(FragmentFactory)}, the FragmentFactory of the
+     * {@link Fragment#getParentFragmentManager() parent FragmentManager} will be returned.
      *
      * @return the current FragmentFactory
      */
