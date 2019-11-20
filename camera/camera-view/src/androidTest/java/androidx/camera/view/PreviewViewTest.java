@@ -74,16 +74,6 @@ public class PreviewViewTest {
 
     @Test
     @UiThreadTest
-    public void defaultImplementation_isSurfaceView() throws Throwable {
-        final PreviewView previewView = new PreviewView(mContext);
-        setContentView(previewView);
-
-        assertThat(getImplementationView()).isInstanceOf(TransformableSurfaceView.class);
-        assertThat(previewView.getImplementationMode()).isEqualTo(SURFACE_VIEW);
-    }
-
-    @Test
-    @UiThreadTest
     public void implementationIsSurfaceView_whenAttributeSetImplementationModeIsSurfaceView()
             throws Throwable {
         final PreviewView previewView = (PreviewView) LayoutInflater.from(mContext).inflate(

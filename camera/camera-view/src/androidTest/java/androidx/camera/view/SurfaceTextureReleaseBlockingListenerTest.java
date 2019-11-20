@@ -37,8 +37,6 @@ import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 
-import java.util.concurrent.ExecutionException;
-
 @SmallTest
 @RunWith(AndroidJUnit4.class)
 public class SurfaceTextureReleaseBlockingListenerTest {
@@ -64,9 +62,9 @@ public class SurfaceTextureReleaseBlockingListenerTest {
     // isReleased() exists only on 23 and above. Is private prior to 26
     @RequiresApi(23)
     @Test
-    public void surfaceIsValid_ifOnlyReleasedByTextureView() throws ExecutionException,
-            InterruptedException {
+    public void surfaceIsValid_ifOnlyReleasedByTextureView() {
         SurfaceTexture surfaceTexture = new SurfaceTexture(0);
+        surfaceTexture.detachFromGLContext();
         mSurfaceTextureReleaseBlockingListener.setSurfaceTextureSafely(surfaceTexture,
                 mSurfaceReleaseFuture);
 
@@ -79,23 +77,26 @@ public class SurfaceTextureReleaseBlockingListenerTest {
     // isReleased() exists only on 23 and above. Is private prior to 26
     @RequiresApi(23)
     @Test
-    public void surfaceIsValid_ifOnlyReleasedBySurfaceReleaseFuture() throws ExecutionException,
-            InterruptedException {
+    public void surfaceIsValid_ifOnlyReleasedBySurfaceReleaseFuture() {
         SurfaceTexture surfaceTexture = new SurfaceTexture(0);
+        surfaceTexture.detachFromGLContext();
         mSurfaceTextureReleaseBlockingListener.setSurfaceTextureSafely(surfaceTexture,
                 mSurfaceReleaseFuture);
 
         mCompleter.set(null);
 
         assertFalse(surfaceTexture.isReleased());
+
+        // TODO(b/144878737) Remove when SurfaceTexture null dereference issue fixed
+        mSurfaceTextureReleaseBlockingListener.onSurfaceTextureDestroyed(surfaceTexture);
     }
 
     // isReleased() exists only on 23 and above. Is private prior to 26
     @RequiresApi(23)
     @Test
-    public void surfaceIsInvalid_ifReleasedByBothTextureViewAndSurfaceReleaseFuture()
-            throws ExecutionException, InterruptedException {
+    public void surfaceIsInvalid_ifReleasedByBothTextureViewAndSurfaceReleaseFuture() {
         SurfaceTexture surfaceTexture = new SurfaceTexture(0);
+        surfaceTexture.detachFromGLContext();
         mSurfaceTextureReleaseBlockingListener.setSurfaceTextureSafely(surfaceTexture,
                 mSurfaceReleaseFuture);
 
@@ -109,9 +110,13 @@ public class SurfaceTextureReleaseBlockingListenerTest {
     @Test
     public void setSurfaceTextureSafely_callsSetSurfaceTextureOnTextureView() {
         SurfaceTexture surfaceTexture = new SurfaceTexture(0);
+        surfaceTexture.detachFromGLContext();
         mSurfaceTextureReleaseBlockingListener.setSurfaceTextureSafely(surfaceTexture,
                 mSurfaceReleaseFuture);
 
         assertThat(mTextureView.getSurfaceTexture()).isSameInstanceAs(surfaceTexture);
+
+        // TODO(b/144878737) Remove when SurfaceTexture null dereference issue fixed
+        mSurfaceTextureReleaseBlockingListener.onSurfaceTextureDestroyed(surfaceTexture);
     }
 }

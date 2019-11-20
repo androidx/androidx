@@ -16,29 +16,34 @@
 
 package androidx.camera.view;
 
-import static androidx.camera.core.PreviewSurfaceProviders.createSurfaceTextureProvider;
+import static androidx.camera.view.ScaleTypeTransform.transformCenterCrop;
 
+import android.content.Context;
+import android.graphics.Matrix;
 import android.graphics.SurfaceTexture;
-import android.util.Log;
-import android.util.Size;
+import android.view.Display;
+import android.view.Surface;
 import android.view.TextureView;
 import android.view.ViewGroup;
+import android.view.WindowManager;
 import android.widget.FrameLayout;
 
 import androidx.annotation.NonNull;
 import androidx.camera.core.Preview;
-import androidx.camera.core.PreviewSurfaceProviders;
+import androidx.camera.core.impl.utils.executor.CameraXExecutors;
+import androidx.camera.core.impl.utils.futures.Futures;
 
 /**
  * The {@link TextureView} implementation for {@link PreviewView}
  */
 public class TextureViewImplementation implements PreviewView.Implementation {
-
     private static final String TAG = "TextureViewImpl";
 
     // Synthetic Accessor
     @SuppressWarnings("WeakerAccess")
     TextureView mTextureView;
+
+    private SurfaceTextureReleaseBlockingListener mSurfaceTextureListener;
 
     /**
      * {@inheritDoc}
@@ -49,28 +54,44 @@ public class TextureViewImplementation implements PreviewView.Implementation {
         mTextureView.setLayoutParams(
                 new FrameLayout.LayoutParams(FrameLayout.LayoutParams.MATCH_PARENT,
                         FrameLayout.LayoutParams.MATCH_PARENT));
+
+        // Access the setting of the SurfaceTexture safely through the listener instead of
+        // directly on the TextureView
+        mSurfaceTextureListener = new SurfaceTextureReleaseBlockingListener(mTextureView);
+
         parent.addView(mTextureView);
     }
 
     @NonNull
     @Override
     public Preview.PreviewSurfaceProvider getPreviewSurfaceProvider() {
-        return createSurfaceTextureProvider(new PreviewSurfaceProviders.SurfaceTextureCallback() {
-            @Override
-            public void onSurfaceTextureReady(@NonNull SurfaceTexture surfaceTexture,
-                    @NonNull Size resolution) {
-                Log.d(TAG, "onSurfaceTextureReady");
-                final ViewGroup parent = (ViewGroup) mTextureView.getParent();
-                parent.removeView(mTextureView);
-                parent.addView(mTextureView);
-                mTextureView.setSurfaceTexture(surfaceTexture);
-            }
+        return (resolution, surfaceReleaseFuture) -> {
+            // Create the SurfaceTexture. Using a FixedSizeSurfaceTexture, because the
+            // TextureView might try to change the size of the SurfaceTexture if layout has not
+            // yet completed.
+            // TODO(b/144807315) Remove when a solution to TextureView calling
+            //  setDefaultBufferSize() to a resolution not supported by camera2
+            SurfaceTexture surfaceTexture = new FixedSizeSurfaceTexture(0, resolution);
+            surfaceTexture.detachFromGLContext();
+            Surface surface = new Surface(surfaceTexture);
 
-            @Override
-            public void onSafeToRelease(@NonNull SurfaceTexture surfaceTexture) {
-                Log.d(TAG, "onSafeToRelease");
-                surfaceTexture.release();
-            }
-        });
+            Display display = ((WindowManager) mTextureView.getContext().getSystemService(
+                            Context.WINDOW_SERVICE)).getDefaultDisplay();
+
+            // Setup the TextureView for the correct transformation
+            Matrix matrix = transformCenterCrop(resolution, mTextureView, display.getRotation());
+            mTextureView.setTransform(matrix);
+
+            final ViewGroup parent = (ViewGroup) mTextureView.getParent();
+            parent.removeView(mTextureView);
+            parent.addView(mTextureView);
+
+            // Set the SurfaceTexture safely instead of directly calling
+            // mTextureView.setSurfaceTexture(surfaceTexture);
+            mSurfaceTextureListener.setSurfaceTextureSafely(surfaceTexture, surfaceReleaseFuture);
+            surfaceReleaseFuture.addListener(surface::release, CameraXExecutors.directExecutor());
+
+            return Futures.immediateFuture(surface);
+        };
     }
 }
