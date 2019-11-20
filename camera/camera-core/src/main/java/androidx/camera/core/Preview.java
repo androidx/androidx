@@ -493,8 +493,8 @@ public class Preview extends UseCase {
          * @return A ListenableFuture that contains the implementer created Surface.
          *
          * {@see Preview} for rotation details
-         * {@see PreviewConfig.Builder#setTargetResolution(Size)}} for resolution controls
-         * {@see PreviewConfig.Builder#setTargetAspectRatio(int)} for resolution controls
+         * {@see Preview.Builder#setTargetResolution(Size)}} for resolution controls
+         * {@see Preview.Builder#setTargetAspectRatio(int)} for resolution controls
          */
         @NonNull
         ListenableFuture<Surface> provideSurface(@NonNull Size resolution,
