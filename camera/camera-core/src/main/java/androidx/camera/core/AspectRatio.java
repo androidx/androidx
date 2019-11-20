@@ -21,7 +21,10 @@ import androidx.annotation.IntDef;
 import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;
 
-/** The aspect ratio of the use case. */
+/** The aspect ratio of the use case.
+ *
+ * <p>Aspect ratio is the ratio of width to height.
+ */
 @IntDef({AspectRatio.RATIO_4_3, AspectRatio.RATIO_16_9})
 @Retention(RetentionPolicy.SOURCE)
 public @interface AspectRatio {
