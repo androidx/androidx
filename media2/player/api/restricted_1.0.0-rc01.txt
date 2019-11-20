@@ -19,7 +19,7 @@ package androidx.media2.player {
     method @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP_PREFIX) public String getDrmPropertyString(String) throws androidx.media2.player.MediaPlayer.NoDrmSchemeException;
     method public long getDuration();
     method public float getMaxPlayerVolume();
-    method @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP_PREFIX) @RequiresApi(21) public android.os.PersistableBundle! getMetrics();
+    method @RequiresApi(21) @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP_PREFIX) public android.os.PersistableBundle! getMetrics();
     method public int getNextMediaItemIndex();
     method public androidx.media2.player.PlaybackParams getPlaybackParams();
     method @FloatRange(from=0.0f, to=java.lang.Float.MAX_VALUE, fromInclusive=false) public float getPlaybackSpeed();
@@ -452,7 +452,7 @@ package androidx.media2.player {
   public final class PlaybackParams {
     method @androidx.media2.player.PlaybackParams.AudioFallbackMode public Integer? getAudioFallbackMode();
     method public Float? getPitch();
-    method @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP_PREFIX) @RequiresApi(23) public android.media.PlaybackParams! getPlaybackParams();
+    method @RequiresApi(23) @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP_PREFIX) public android.media.PlaybackParams! getPlaybackParams();
     method public Float? getSpeed();
     field public static final int AUDIO_FALLBACK_MODE_DEFAULT = 0; // 0x0
     field public static final int AUDIO_FALLBACK_MODE_FAIL = 2; // 0x2
@@ -464,7 +464,7 @@ package androidx.media2.player {
 
   public static final class PlaybackParams.Builder {
     ctor public PlaybackParams.Builder();
-    ctor @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP_PREFIX) @RequiresApi(23) public PlaybackParams.Builder(android.media.PlaybackParams!);
+    ctor @RequiresApi(23) @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP_PREFIX) public PlaybackParams.Builder(android.media.PlaybackParams!);
     ctor public PlaybackParams.Builder(androidx.media2.player.PlaybackParams);
     method public androidx.media2.player.PlaybackParams build();
     method public androidx.media2.player.PlaybackParams.Builder setAudioFallbackMode(@androidx.media2.player.PlaybackParams.AudioFallbackMode int);

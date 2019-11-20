@@ -70,7 +70,7 @@ package androidx.annotation {
   @java.lang.annotation.Documented @java.lang.annotation.Retention(java.lang.annotation.RetentionPolicy.CLASS) @java.lang.annotation.Target({java.lang.annotation.ElementType.METHOD, java.lang.annotation.ElementType.PARAMETER, java.lang.annotation.ElementType.FIELD, java.lang.annotation.ElementType.LOCAL_VARIABLE}) public @interface FractionRes {
   }
 
-  @java.lang.annotation.Target({java.lang.annotation.ElementType.FIELD, java.lang.annotation.ElementType.METHOD}) @java.lang.annotation.Retention(java.lang.annotation.RetentionPolicy.CLASS) public @interface GuardedBy {
+  @java.lang.annotation.Retention(java.lang.annotation.RetentionPolicy.CLASS) @java.lang.annotation.Target({java.lang.annotation.ElementType.FIELD, java.lang.annotation.ElementType.METHOD}) public @interface GuardedBy {
     method public abstract String value();
   }
 
@@ -80,7 +80,7 @@ package androidx.annotation {
   @java.lang.annotation.Documented @java.lang.annotation.Retention(java.lang.annotation.RetentionPolicy.CLASS) @java.lang.annotation.Target({java.lang.annotation.ElementType.METHOD, java.lang.annotation.ElementType.PARAMETER, java.lang.annotation.ElementType.FIELD, java.lang.annotation.ElementType.LOCAL_VARIABLE}) public @interface IdRes {
   }
 
-  @java.lang.annotation.Target({java.lang.annotation.ElementType.METHOD}) @java.lang.annotation.Retention(java.lang.annotation.RetentionPolicy.SOURCE) public @interface InspectableProperty {
+  @java.lang.annotation.Retention(java.lang.annotation.RetentionPolicy.SOURCE) @java.lang.annotation.Target({java.lang.annotation.ElementType.METHOD}) public @interface InspectableProperty {
     method public abstract int attributeId() default 0;
     method public abstract androidx.annotation.InspectableProperty.EnumEntry[] enumMapping() default {};
     method public abstract androidx.annotation.InspectableProperty.FlagEntry[] flagMapping() default {};
@@ -89,12 +89,12 @@ package androidx.annotation {
     method public abstract androidx.annotation.InspectableProperty.ValueType valueType() default androidx.annotation.InspectableProperty.ValueType.INFERRED;
   }
 
-  @java.lang.annotation.Target({java.lang.annotation.ElementType.TYPE}) @java.lang.annotation.Retention(java.lang.annotation.RetentionPolicy.SOURCE) public static @interface InspectableProperty.EnumEntry {
+  @java.lang.annotation.Retention(java.lang.annotation.RetentionPolicy.SOURCE) @java.lang.annotation.Target({java.lang.annotation.ElementType.TYPE}) public static @interface InspectableProperty.EnumEntry {
     method public abstract String name();
     method public abstract int value();
   }
 
-  @java.lang.annotation.Target({java.lang.annotation.ElementType.TYPE}) @java.lang.annotation.Retention(java.lang.annotation.RetentionPolicy.SOURCE) public static @interface InspectableProperty.FlagEntry {
+  @java.lang.annotation.Retention(java.lang.annotation.RetentionPolicy.SOURCE) @java.lang.annotation.Target({java.lang.annotation.ElementType.TYPE}) public static @interface InspectableProperty.FlagEntry {
     method public abstract int mask() default 0;
     method public abstract String name();
     method public abstract int target();
@@ -180,11 +180,11 @@ package androidx.annotation {
     method public abstract String value() default "";
   }
 
-  @java.lang.annotation.Target({java.lang.annotation.ElementType.FIELD, java.lang.annotation.ElementType.METHOD, java.lang.annotation.ElementType.PARAMETER}) @java.lang.annotation.Retention(java.lang.annotation.RetentionPolicy.CLASS) public static @interface RequiresPermission.Read {
+  @java.lang.annotation.Retention(java.lang.annotation.RetentionPolicy.CLASS) @java.lang.annotation.Target({java.lang.annotation.ElementType.FIELD, java.lang.annotation.ElementType.METHOD, java.lang.annotation.ElementType.PARAMETER}) public static @interface RequiresPermission.Read {
     method public abstract androidx.annotation.RequiresPermission value() default @androidx.annotation.RequiresPermission;
   }
 
-  @java.lang.annotation.Target({java.lang.annotation.ElementType.FIELD, java.lang.annotation.ElementType.METHOD, java.lang.annotation.ElementType.PARAMETER}) @java.lang.annotation.Retention(java.lang.annotation.RetentionPolicy.CLASS) public static @interface RequiresPermission.Write {
+  @java.lang.annotation.Retention(java.lang.annotation.RetentionPolicy.CLASS) @java.lang.annotation.Target({java.lang.annotation.ElementType.FIELD, java.lang.annotation.ElementType.METHOD, java.lang.annotation.ElementType.PARAMETER}) public static @interface RequiresPermission.Write {
     method public abstract androidx.annotation.RequiresPermission value() default @androidx.annotation.RequiresPermission;
   }
 

@@ -755,7 +755,7 @@ package androidx.media {
 
   public static final class MediaSessionManager.RemoteUserInfo {
     ctor public MediaSessionManager.RemoteUserInfo(String, int, int);
-    ctor @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP_PREFIX) @RequiresApi(28) public MediaSessionManager.RemoteUserInfo(android.media.session.MediaSessionManager.RemoteUserInfo!);
+    ctor @RequiresApi(28) @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP_PREFIX) public MediaSessionManager.RemoteUserInfo(android.media.session.MediaSessionManager.RemoteUserInfo!);
     method public String getPackageName();
     method public int getPid();
     method public int getUid();

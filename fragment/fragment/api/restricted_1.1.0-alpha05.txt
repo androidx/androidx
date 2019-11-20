@@ -374,8 +374,8 @@ package androidx.fragment.app {
     method public abstract androidx.fragment.app.FragmentTransaction setBreadCrumbShortTitle(CharSequence?);
     method public abstract androidx.fragment.app.FragmentTransaction setBreadCrumbTitle(@StringRes int);
     method public abstract androidx.fragment.app.FragmentTransaction setBreadCrumbTitle(CharSequence?);
-    method public abstract androidx.fragment.app.FragmentTransaction setCustomAnimations(@AnimatorRes @AnimRes int, @AnimatorRes @AnimRes int);
-    method public abstract androidx.fragment.app.FragmentTransaction setCustomAnimations(@AnimatorRes @AnimRes int, @AnimatorRes @AnimRes int, @AnimatorRes @AnimRes int, @AnimatorRes @AnimRes int);
+    method public abstract androidx.fragment.app.FragmentTransaction setCustomAnimations(@AnimRes @AnimatorRes int, @AnimRes @AnimatorRes int);
+    method public abstract androidx.fragment.app.FragmentTransaction setCustomAnimations(@AnimRes @AnimatorRes int, @AnimRes @AnimatorRes int, @AnimRes @AnimatorRes int, @AnimRes @AnimatorRes int);
     method public abstract androidx.fragment.app.FragmentTransaction setPrimaryNavigationFragment(androidx.fragment.app.Fragment?);
     method public abstract androidx.fragment.app.FragmentTransaction setReorderingAllowed(boolean);
     method public abstract androidx.fragment.app.FragmentTransaction setTransition(int);

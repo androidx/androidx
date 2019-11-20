@@ -167,7 +167,7 @@ package androidx.wear.widget {
     method public void onAnimationFinished();
   }
 
-  @java.lang.annotation.Retention(java.lang.annotation.RetentionPolicy.SOURCE) @IntDef({androidx.wear.widget.ConfirmationOverlay.SUCCESS_ANIMATION, androidx.wear.widget.ConfirmationOverlay.FAILURE_ANIMATION, androidx.wear.widget.ConfirmationOverlay.OPEN_ON_PHONE_ANIMATION}) public static @interface ConfirmationOverlay.OverlayType {
+  @IntDef({androidx.wear.widget.ConfirmationOverlay.SUCCESS_ANIMATION, androidx.wear.widget.ConfirmationOverlay.FAILURE_ANIMATION, androidx.wear.widget.ConfirmationOverlay.OPEN_ON_PHONE_ANIMATION}) @java.lang.annotation.Retention(java.lang.annotation.RetentionPolicy.SOURCE) public static @interface ConfirmationOverlay.OverlayType {
   }
 
   public class CurvingLayoutCallback extends androidx.wear.widget.WearableLinearLayoutManager.LayoutCallback {

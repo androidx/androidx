@@ -34,7 +34,7 @@ package androidx.media2.common {
   }
 
   public class FileMediaItem extends androidx.media2.common.MediaItem {
-    method @VisibleForTesting @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP) public void close() throws java.io.IOException;
+    method @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP) @VisibleForTesting public void close() throws java.io.IOException;
     method @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP_PREFIX) public void decreaseRefCount();
     method public long getFileDescriptorLength();
     method public long getFileDescriptorOffset();
