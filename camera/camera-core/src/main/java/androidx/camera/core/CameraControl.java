@@ -79,10 +79,14 @@ public interface CameraControl {
      * supported on the device, the returned {@link ListenableFuture} in
      * {@link CameraControl#startFocusAndMetering(FocusMeteringAction)} will fail immediately.
      *
+     * @see FocusMeteringAction
+     *
      * @param action the {@link FocusMeteringAction} to be executed.
-     * @return A {@link ListenableFuture} which completes when auto focus is done. The result of
-     * the ListenableFuture is a {@link FocusMeteringResult} which contains a flag indicating
-     * focus is locked successfully or not.
+     * @return A {@link ListenableFuture} which completes with {@link FocusMeteringAction} when
+     * auto focus is done and AF/AE/AWB regions are updated. In case AF points are not added,
+     * auto focus will not be triggered and this {@link ListenableFuture} completes when
+     * AE/AWB regions are updated.
+     *
      */
     @NonNull
     ListenableFuture<FocusMeteringResult> startFocusAndMetering(

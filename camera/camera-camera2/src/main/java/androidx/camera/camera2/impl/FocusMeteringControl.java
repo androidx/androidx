@@ -23,7 +23,6 @@ import android.hardware.camera2.CaptureRequest;
 import android.hardware.camera2.CaptureResult;
 import android.hardware.camera2.params.MeteringRectangle;
 import android.os.Build;
-import android.util.Log;
 import android.util.Rational;
 
 import androidx.annotation.NonNull;
@@ -31,9 +30,15 @@ import androidx.annotation.Nullable;
 import androidx.annotation.WorkerThread;
 import androidx.camera.camera2.Camera2Config;
 import androidx.camera.camera2.impl.annotation.CameraExecutor;
+import androidx.camera.core.CameraControl;
 import androidx.camera.core.CaptureConfig;
 import androidx.camera.core.FocusMeteringAction;
+import androidx.camera.core.FocusMeteringResult;
 import androidx.camera.core.MeteringPoint;
+import androidx.concurrent.futures.CallbackToFutureAdapter;
+import androidx.concurrent.futures.CallbackToFutureAdapter.Completer;
+
+import com.google.common.util.concurrent.ListenableFuture;
 
 import java.util.ArrayList;
 import java.util.Collections;
@@ -90,9 +95,10 @@ class FocusMeteringControl {
      * Constructs a FocusMeteringControl.
      *
      * <p>All tasks scheduled by {@code scheduler} will be immediately executed by {@code executor}.
+     *
      * @param cameraControl Camera control to which this FocusMeteringControl belongs.
-     * @param scheduler Scheduler used for scheduling tasks in the future.
-     * @param executor Camera executor used to run all tasks scheduled on {@code scheduler}.
+     * @param scheduler     Scheduler used for scheduling tasks in the future.
+     * @param executor      Camera executor used to run all tasks scheduled on {@code scheduler}.
      */
     FocusMeteringControl(@NonNull Camera2CameraControl cameraControl,
             @NonNull ScheduledExecutorService scheduler,
@@ -208,11 +214,30 @@ class FocusMeteringControl {
         return Math.min(Math.max(val, min), max);
     }
 
+    ListenableFuture<FocusMeteringResult> startFocusAndMetering(@NonNull FocusMeteringAction action,
+            @Nullable Rational defaultAspectRatio) {
+        return CallbackToFutureAdapter.getFuture(completer -> {
+            mExecutor.execute(
+                    () -> startFocusAndMeteringInternal(completer, action, defaultAspectRatio));
+            return "startFocusAndMetering";
+        });
+    }
+
     @WorkerThread
-    void startFocusAndMetering(@NonNull FocusMeteringAction action,
+    void startFocusAndMeteringInternal(@NonNull Completer<FocusMeteringResult> completer,
+            @NonNull FocusMeteringAction action,
             @Nullable Rational defaultAspectRatio) {
         if (!mIsActive) {
-            Log.e(TAG, "Ignore startFocusAndMetering because camera is not active.");
+            completer.setException(
+                    new CameraControl.OperationCanceledException("Camera is not active."));
+            return;
+        }
+
+        if (action.getMeteringPointsAf().isEmpty()
+                && action.getMeteringPointsAe().isEmpty()
+                && action.getMeteringPointsAwb().isEmpty()) {
+            completer.setException(
+                    new IllegalArgumentException("No AF/AE/AWB MeteringPoints are added."));
             return;
         }
 
@@ -257,12 +282,10 @@ class FocusMeteringControl {
             meteringRectanglesListAWB.add(meteringRectangle);
         }
 
-        executeMeteringAction(meteringRectanglesListAF.toArray(
-                new MeteringRectangle[0]),
-                meteringRectanglesListAE.toArray(
-                        new MeteringRectangle[0]),
-                meteringRectanglesListAWB.toArray(
-                        new MeteringRectangle[0]),
+        executeMeteringAction(completer,
+                meteringRectanglesListAF.toArray(new MeteringRectangle[0]),
+                meteringRectanglesListAE.toArray(new MeteringRectangle[0]),
+                meteringRectanglesListAWB.toArray(new MeteringRectangle[0]),
                 action
         );
     }
@@ -339,6 +362,7 @@ class FocusMeteringControl {
 
     @WorkerThread
     private void executeMeteringAction(
+            @NonNull Completer<FocusMeteringResult> completer,
             @Nullable MeteringRectangle[] afRects,
             @Nullable MeteringRectangle[] aeRects,
             @Nullable MeteringRectangle[] awbRects,
@@ -368,40 +392,37 @@ class FocusMeteringControl {
         // Trigger AF scan if any AF points are added.
         if (shouldTriggerAF()) {
             mCurrentAfState = CaptureResult.CONTROL_AF_STATE_INACTIVE;
-            if (focusMeteringAction.getOnAutoFocusListener() != null) {
-                // Will be called on mExecutor since mSessionCallback was created with mExecutor
-                mSessionListenerForFocus =
-                        result -> {
-                            Integer afState = result.get(CaptureResult.CONTROL_AF_STATE);
-                            if (afState == null) {
-                                return false;
-                            }
+            // Will be called on mExecutor since mSessionCallback was created with mExecutor
+            mSessionListenerForFocus =
+                    result -> {
+                        Integer afState = result.get(CaptureResult.CONTROL_AF_STATE);
+                        if (afState == null) {
+                            return false;
+                        }
 
-                            if (mCurrentAfState == CaptureResult.CONTROL_AF_STATE_ACTIVE_SCAN) {
-                                if (afState == CaptureResult.CONTROL_AF_STATE_FOCUSED_LOCKED) {
-                                    focusMeteringAction.notifyAutoFocusCompleted(true);
-                                    return true; // finished
-                                } else if (afState
-                                        == CaptureResult.CONTROL_AF_STATE_NOT_FOCUSED_LOCKED) {
-                                    focusMeteringAction.notifyAutoFocusCompleted(false);
-                                    return true; // finished
-                                }
+                        if (mCurrentAfState == CaptureResult.CONTROL_AF_STATE_ACTIVE_SCAN) {
+                            if (afState == CaptureResult.CONTROL_AF_STATE_FOCUSED_LOCKED) {
+                                completer.set(FocusMeteringResult.create(true));
+                                return true; // finished
+                            } else if (afState
+                                    == CaptureResult.CONTROL_AF_STATE_NOT_FOCUSED_LOCKED) {
+                                completer.set(FocusMeteringResult.create(false));
+                                return true; // finished
                             }
-                            if (!mCurrentAfState.equals(afState)) {
-                                mCurrentAfState = afState;
-                            }
-                            return false; // continue checking
-                        };
+                        }
+                        if (!mCurrentAfState.equals(afState)) {
+                            mCurrentAfState = afState;
+                        }
+                        return false; // continue checking
+                    };
 
-                mCameraControl.addCaptureResultListener(mSessionListenerForFocus);
-            }
+            mCameraControl.addCaptureResultListener(mSessionListenerForFocus);
 
             mIsInAfAutoMode = true;
             mCameraControl.updateSessionConfig();
             triggerAf();
         } else {
-            // Still calls OnAutoFocusActionListener when AF is not enabled.
-            focusMeteringAction.notifyAutoFocusCompleted(false);
+            completer.set(FocusMeteringResult.create(false));
             mCameraControl.updateSessionConfig();
         }
 
@@ -428,9 +449,6 @@ class FocusMeteringControl {
     void cancelFocusAndMetering() {
         mCameraControl.removeCaptureResultListener(mSessionListenerForFocus);
 
-        if (mCurrentFocusMeteringAction != null) {
-            mCurrentFocusMeteringAction.notifyAutoFocusCompleted(false);
-        }
         disableAutoCancel();
 
         if (shouldTriggerAF()) {
