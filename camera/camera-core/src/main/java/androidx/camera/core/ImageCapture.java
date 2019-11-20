@@ -1216,10 +1216,9 @@ public class ImageCapture extends UseCase {
          * @see android.hardware.camera2.CaptureResult#SENSOR_TIMESTAMP
          *
          * @param image           The captured image
-         * @param rotationDegrees The rotation which if applied to the image will make it match the
-         *                        current target rotation. rotationDegrees is expressed as one of
-         *                        {@link Surface#ROTATION_0}, {@link Surface#ROTATION_90},
-         *                        {@link Surface#ROTATION_180}, or {@link Surface#ROTATION_270}.
+         * @param rotationDegrees The rotation which if applied to the image would make it match
+         *                        the current target rotation of {@link ImageCapture}.
+         *                        rotationDegrees will be a value in {0, 90, 180, 270}.
          */
         public void onCaptureSuccess(@NonNull ImageProxy image, int rotationDegrees) {
             image.close();
