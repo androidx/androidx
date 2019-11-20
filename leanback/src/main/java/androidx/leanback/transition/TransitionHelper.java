@@ -16,6 +16,7 @@ package androidx.leanback.transition;
 import static androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP_PREFIX;
 
 import android.animation.TimeInterpolator;
+import android.annotation.SuppressLint;
 import android.content.Context;
 import android.graphics.Rect;
 import android.os.Build;
@@ -394,18 +395,21 @@ public final class TransitionHelper {
         return new TransitionStub();
     }
 
+    @SuppressLint("ReferencesDeprecated")
     public static void setEnterTransition(android.app.Fragment fragment, Object transition) {
         if (Build.VERSION.SDK_INT >= 21) {
             fragment.setEnterTransition((Transition) transition);
         }
     }
 
+    @SuppressLint("ReferencesDeprecated")
     public static void setExitTransition(android.app.Fragment fragment, Object transition) {
         if (Build.VERSION.SDK_INT >= 21) {
             fragment.setExitTransition((Transition) transition);
         }
     }
 
+    @SuppressLint("ReferencesDeprecated")
     public static void setSharedElementEnterTransition(android.app.Fragment fragment,
             Object transition) {
         if (Build.VERSION.SDK_INT >= 21) {
@@ -413,6 +417,7 @@ public final class TransitionHelper {
         }
     }
 
+    @SuppressLint("ReferencesDeprecated")
     public static void addSharedElement(android.app.FragmentTransaction ft,
             View view, String transitionName) {
         if (Build.VERSION.SDK_INT >= 21) {
