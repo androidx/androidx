@@ -43,21 +43,3 @@ KotlinOperator: androidx.ui.text.style.TextDecoration#contains(androidx.ui.text.
 
 MissingBuildMethod: androidx.ui.text.AnnotatedString.Builder:
     androidx.ui.text.AnnotatedString.Builder does not declare a `build()` method, but builder classes are expected to
-
-
-MissingNullability: androidx.ui.input.OffsetMap#Companion:
-    Missing nullability on field `Companion` in class `class androidx.ui.input.OffsetMap`
-MissingNullability: androidx.ui.text.Locale#Companion:
-    Missing nullability on field `Companion` in class `class androidx.ui.text.Locale`
-MissingNullability: androidx.ui.text.LocaleList#Companion:
-    Missing nullability on field `Companion` in class `class androidx.ui.text.LocaleList`
-MissingNullability: androidx.ui.text.font.FontFamily#Companion:
-    Missing nullability on field `Companion` in class `class androidx.ui.text.font.FontFamily`
-MissingNullability: androidx.ui.text.font.FontWeight#Companion:
-    Missing nullability on field `Companion` in class `class androidx.ui.text.font.FontWeight`
-MissingNullability: androidx.ui.text.style.BaselineShift#Companion:
-    Missing nullability on field `Companion` in class `class androidx.ui.text.style.BaselineShift`
-MissingNullability: androidx.ui.text.style.TextDecoration#Companion:
-    Missing nullability on field `Companion` in class `class androidx.ui.text.style.TextDecoration`
-MissingNullability: androidx.ui.text.style.TextGeometricTransform#Companion:
-    Missing nullability on field `Companion` in class `class androidx.ui.text.style.TextGeometricTransform`

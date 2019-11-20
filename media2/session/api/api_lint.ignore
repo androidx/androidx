@@ -1,10 +1,4 @@
 // Baseline format: 1.0
-InterfaceConstant: androidx.media2.session.MediaLibraryService#SERVICE_INTERFACE:
-    Inconsistent interface constant; expected 'MediaLibraryService'`
-InterfaceConstant: androidx.media2.session.MediaSessionService#SERVICE_INTERFACE:
-    Inconsistent interface constant; expected 'MediaSessionService'`
-
-
 MissingNullability: androidx.media2.session.MediaLibraryService#onBind(android.content.Intent):
     Missing nullability on method `onBind` return
 MissingNullability: androidx.media2.session.MediaSessionService#onStartCommand(android.content.Intent, int, int) parameter #0:

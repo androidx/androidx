@@ -5,7 +5,3 @@ DocumentExceptions: androidx.ui.core.AndroidComposeView#onAttach(androidx.ui.cor
 
 EndsWithImpl: androidx.ui.core.SemanticsTreeNodeImpl:
     Don't expose your implementation details: `SemanticsTreeNodeImpl` ends with `Impl`
-
-
-MissingNullability: androidx.ui.core.semantics.SemanticsNode#Companion:
-    Missing nullability on field `Companion` in class `class androidx.ui.core.semantics.SemanticsNode`

@@ -281,13 +281,13 @@ MissingNullability: androidx.wear.widget.drawer.WearableNavigationDrawerView.Wea
     Missing nullability on method `getItemText` return
 
 
-NoClone: androidx.wear.ambient.AmbientMode#dump(String, java.io.FileDescriptor, java.io.PrintWriter, String[]) parameter #1:
-    Must use ParcelFileDescriptor instead of FileDescriptor in parameter fd in androidx.wear.ambient.AmbientMode.dump(String prefix, java.io.FileDescriptor fd, java.io.PrintWriter writer, String[] args)
-NoClone: androidx.wear.ambient.AmbientModeSupport#dump(String, java.io.FileDescriptor, java.io.PrintWriter, String[]) parameter #1:
-    Must use ParcelFileDescriptor instead of FileDescriptor in parameter fd in androidx.wear.ambient.AmbientModeSupport.dump(String prefix, java.io.FileDescriptor fd, java.io.PrintWriter writer, String[] args)
-
-
 RegistrationName: androidx.wear.widget.SwipeDismissFrameLayout#addCallback(androidx.wear.widget.SwipeDismissFrameLayout.Callback):
     Callback methods should be named register/unregister; was addCallback
 RegistrationName: androidx.wear.widget.SwipeDismissFrameLayout#removeCallback(androidx.wear.widget.SwipeDismissFrameLayout.Callback):
     Callback methods should be named register/unregister; was removeCallback
+
+
+UseParcelFileDescriptor: androidx.wear.ambient.AmbientMode#dump(String, java.io.FileDescriptor, java.io.PrintWriter, String[]) parameter #1:
+    Must use ParcelFileDescriptor instead of FileDescriptor in parameter fd in androidx.wear.ambient.AmbientMode.dump(String prefix, java.io.FileDescriptor fd, java.io.PrintWriter writer, String[] args)
+UseParcelFileDescriptor: androidx.wear.ambient.AmbientModeSupport#dump(String, java.io.FileDescriptor, java.io.PrintWriter, String[]) parameter #1:
+    Must use ParcelFileDescriptor instead of FileDescriptor in parameter fd in androidx.wear.ambient.AmbientModeSupport.dump(String prefix, java.io.FileDescriptor fd, java.io.PrintWriter writer, String[] args)

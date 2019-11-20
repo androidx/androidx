@@ -53,6 +53,28 @@ ConcreteCollection: androidx.recyclerview.widget.RecyclerView.LayoutManager#onAd
     Parameter type is concrete collection (`java.util.ArrayList`); must be higher-level interface
 
 
+InternalField: androidx.recyclerview.widget.LinearLayoutManager.LayoutChunkResult#mConsumed:
+    Internal field mConsumed must not be exposed
+InternalField: androidx.recyclerview.widget.LinearLayoutManager.LayoutChunkResult#mFinished:
+    Internal field mFinished must not be exposed
+InternalField: androidx.recyclerview.widget.LinearLayoutManager.LayoutChunkResult#mFocusable:
+    Internal field mFocusable must not be exposed
+InternalField: androidx.recyclerview.widget.LinearLayoutManager.LayoutChunkResult#mIgnoreConsumed:
+    Internal field mIgnoreConsumed must not be exposed
+InternalField: androidx.recyclerview.widget.LinearSmoothScroller#mDecelerateInterpolator:
+    Internal field mDecelerateInterpolator must not be exposed
+InternalField: androidx.recyclerview.widget.LinearSmoothScroller#mInterimTargetDx:
+    Internal field mInterimTargetDx must not be exposed
+InternalField: androidx.recyclerview.widget.LinearSmoothScroller#mInterimTargetDy:
+    Internal field mInterimTargetDy must not be exposed
+InternalField: androidx.recyclerview.widget.LinearSmoothScroller#mLinearInterpolator:
+    Internal field mLinearInterpolator must not be exposed
+InternalField: androidx.recyclerview.widget.LinearSmoothScroller#mTargetVector:
+    Internal field mTargetVector must not be exposed
+InternalField: androidx.recyclerview.widget.OrientationHelper#mLayoutManager:
+    Internal field mLayoutManager must not be exposed
+
+
 KotlinOperator: androidx.recyclerview.widget.RecyclerView.State#get(int):
     Method can be invoked with an indexing operator from Kotlin: `get` (this is usually desirable; just make sure it makes sense for this type of object)
 KotlinOperator: androidx.recyclerview.widget.SortedList#get(int):
@@ -771,3 +793,37 @@ MissingNullability: androidx.recyclerview.widget.StaggeredGridLayoutManager.Layo
     Missing nullability on parameter `source` in method `LayoutParams`
 MissingNullability: androidx.recyclerview.widget.StaggeredGridLayoutManager.LayoutParams#LayoutParams(androidx.recyclerview.widget.RecyclerView.LayoutParams) parameter #0:
     Missing nullability on parameter `source` in method `LayoutParams`
+
+
+MutableBareField: androidx.recyclerview.widget.LinearLayoutManager.LayoutChunkResult#mConsumed:
+    Bare field mConsumed must be marked final, or moved behind accessors if mutable
+MutableBareField: androidx.recyclerview.widget.LinearLayoutManager.LayoutChunkResult#mFinished:
+    Bare field mFinished must be marked final, or moved behind accessors if mutable
+MutableBareField: androidx.recyclerview.widget.LinearLayoutManager.LayoutChunkResult#mFocusable:
+    Bare field mFocusable must be marked final, or moved behind accessors if mutable
+MutableBareField: androidx.recyclerview.widget.LinearLayoutManager.LayoutChunkResult#mIgnoreConsumed:
+    Bare field mIgnoreConsumed must be marked final, or moved behind accessors if mutable
+MutableBareField: androidx.recyclerview.widget.LinearSmoothScroller#mInterimTargetDx:
+    Bare field mInterimTargetDx must be marked final, or moved behind accessors if mutable
+MutableBareField: androidx.recyclerview.widget.LinearSmoothScroller#mInterimTargetDy:
+    Bare field mInterimTargetDy must be marked final, or moved behind accessors if mutable
+MutableBareField: androidx.recyclerview.widget.LinearSmoothScroller#mTargetVector:
+    Bare field mTargetVector must be marked final, or moved behind accessors if mutable
+MutableBareField: androidx.recyclerview.widget.RecyclerView.ItemAnimator.ItemHolderInfo#bottom:
+    Bare field bottom must be marked final, or moved behind accessors if mutable
+MutableBareField: androidx.recyclerview.widget.RecyclerView.ItemAnimator.ItemHolderInfo#changeFlags:
+    Bare field changeFlags must be marked final, or moved behind accessors if mutable
+MutableBareField: androidx.recyclerview.widget.RecyclerView.ItemAnimator.ItemHolderInfo#left:
+    Bare field left must be marked final, or moved behind accessors if mutable
+MutableBareField: androidx.recyclerview.widget.RecyclerView.ItemAnimator.ItemHolderInfo#right:
+    Bare field right must be marked final, or moved behind accessors if mutable
+MutableBareField: androidx.recyclerview.widget.RecyclerView.ItemAnimator.ItemHolderInfo#top:
+    Bare field top must be marked final, or moved behind accessors if mutable
+MutableBareField: androidx.recyclerview.widget.RecyclerView.LayoutManager.Properties#orientation:
+    Bare field orientation must be marked final, or moved behind accessors if mutable
+MutableBareField: androidx.recyclerview.widget.RecyclerView.LayoutManager.Properties#reverseLayout:
+    Bare field reverseLayout must be marked final, or moved behind accessors if mutable
+MutableBareField: androidx.recyclerview.widget.RecyclerView.LayoutManager.Properties#spanCount:
+    Bare field spanCount must be marked final, or moved behind accessors if mutable
+MutableBareField: androidx.recyclerview.widget.RecyclerView.LayoutManager.Properties#stackFromEnd:
+    Bare field stackFromEnd must be marked final, or moved behind accessors if mutable

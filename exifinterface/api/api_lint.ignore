@@ -11,5 +11,5 @@ MissingNullability: androidx.exifinterface.media.ExifInterface#setGpsInfo(androi
     Missing nullability on parameter `location` in method `setGpsInfo`
 
 
-NoClone: androidx.exifinterface.media.ExifInterface#ExifInterface(java.io.FileDescriptor) parameter #0:
+UseParcelFileDescriptor: androidx.exifinterface.media.ExifInterface#ExifInterface(java.io.FileDescriptor) parameter #0:
     Must use ParcelFileDescriptor instead of FileDescriptor in parameter fileDescriptor in androidx.exifinterface.media.ExifInterface(java.io.FileDescriptor fileDescriptor)

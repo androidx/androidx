@@ -36,7 +36,7 @@ IntentName: android.support.v4.media.MediaBrowserCompat#CUSTOM_ACTION_REMOVE_DOW
 
 
 InterfaceConstant: androidx.media.MediaBrowserServiceCompat#SERVICE_INTERFACE:
-    Inconsistent interface constant; expected 'MediaBrowserServiceCompat'`
+    Inconsistent interface constant; expected 'androidx.media.MediaBrowserServiceCompat'`
 
 
 ListenerLast: android.support.v4.media.MediaBrowserCompat#MediaBrowserCompat(android.content.Context, android.content.ComponentName, android.support.v4.media.MediaBrowserCompat.ConnectionCallback, android.os.Bundle) parameter #3:
@@ -591,8 +591,16 @@ MissingNullability: androidx.media.session.MediaButtonReceiver#onReceive(android
     Missing nullability on parameter `intent` in method `onReceive`
 
 
-NoClone: androidx.media.MediaBrowserServiceCompat#dump(java.io.FileDescriptor, java.io.PrintWriter, String[]) parameter #0:
-    Must use ParcelFileDescriptor instead of FileDescriptor in parameter fd in androidx.media.MediaBrowserServiceCompat.dump(java.io.FileDescriptor fd, java.io.PrintWriter writer, String[] args)
+MutableBareField: android.support.v4.media.session.ParcelableVolumeInfo#audioStream:
+    Bare field audioStream must be marked final, or moved behind accessors if mutable
+MutableBareField: android.support.v4.media.session.ParcelableVolumeInfo#controlType:
+    Bare field controlType must be marked final, or moved behind accessors if mutable
+MutableBareField: android.support.v4.media.session.ParcelableVolumeInfo#currentVolume:
+    Bare field currentVolume must be marked final, or moved behind accessors if mutable
+MutableBareField: android.support.v4.media.session.ParcelableVolumeInfo#maxVolume:
+    Bare field maxVolume must be marked final, or moved behind accessors if mutable
+MutableBareField: android.support.v4.media.session.ParcelableVolumeInfo#volumeType:
+    Bare field volumeType must be marked final, or moved behind accessors if mutable
 
 
 ParcelConstructor: android.support.v4.media.session.ParcelableVolumeInfo#ParcelableVolumeInfo(android.os.Parcel):

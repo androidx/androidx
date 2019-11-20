@@ -9,13 +9,3 @@ AutoBoxing: androidx.ui.material.DataTableSorting#copy(Integer, boolean, java.ut
     Must avoid boxed primitives (`java.lang.Integer`)
 AutoBoxing: androidx.ui.material.DataTableSorting#getColumn():
     Must avoid boxed primitives (`java.lang.Integer`)
-
-
-MissingNullability: androidx.ui.material.BottomAppBar#INSTANCE:
-    Missing nullability on field `INSTANCE` in class `class androidx.ui.material.BottomAppBar`
-MissingNullability: androidx.ui.material.MaterialTheme#INSTANCE:
-    Missing nullability on field `INSTANCE` in class `class androidx.ui.material.MaterialTheme`
-MissingNullability: androidx.ui.material.TabRow#INSTANCE:
-    Missing nullability on field `INSTANCE` in class `class androidx.ui.material.TabRow`
-MissingNullability: androidx.ui.material.ripple.DefaultRippleEffectFactory#INSTANCE:
-    Missing nullability on field `INSTANCE` in class `class androidx.ui.material.ripple.DefaultRippleEffectFactory`

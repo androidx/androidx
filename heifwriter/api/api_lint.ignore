@@ -19,7 +19,7 @@ MissingNullability: androidx.heifwriter.HeifWriter.Builder#setRotation(int):
     Missing nullability on method `setRotation` return
 
 
-NoClone: androidx.heifwriter.HeifWriter.Builder#Builder(java.io.FileDescriptor, int, int, int) parameter #0:
+UseParcelFileDescriptor: androidx.heifwriter.HeifWriter.Builder#Builder(java.io.FileDescriptor, int, int, int) parameter #0:
     Must use ParcelFileDescriptor instead of FileDescriptor in parameter fd in androidx.heifwriter.HeifWriter.Builder(java.io.FileDescriptor fd, int width, int height, int inputMode)
 
 

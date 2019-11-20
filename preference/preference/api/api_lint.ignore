@@ -25,6 +25,10 @@ CallbackMethodName: androidx.preference.PreferenceManager.SimplePreferenceCompar
     Callback method names must follow the on<Something> style: arePreferenceItemsTheSame
 
 
+InternalField: androidx.preference.TwoStatePreference#mChecked:
+    Internal field mChecked must not be exposed
+
+
 MissingNullability: androidx.preference.CheckBoxPreference#CheckBoxPreference(android.content.Context) parameter #0:
     Missing nullability on parameter `context` in method `CheckBoxPreference`
 MissingNullability: androidx.preference.CheckBoxPreference#CheckBoxPreference(android.content.Context, android.util.AttributeSet) parameter #0:
@@ -763,6 +767,10 @@ MissingNullability: androidx.preference.TwoStatePreference#setSummaryOn(CharSequ
     Missing nullability on parameter `summary` in method `setSummaryOn`
 MissingNullability: androidx.preference.TwoStatePreference#syncSummaryView(androidx.preference.PreferenceViewHolder) parameter #0:
     Missing nullability on parameter `holder` in method `syncSummaryView`
+
+
+MutableBareField: androidx.preference.TwoStatePreference#mChecked:
+    Bare field mChecked must be marked final, or moved behind accessors if mutable
 
 
 ParcelConstructor: androidx.preference.Preference.BaseSavedState#BaseSavedState(android.os.Parcel):

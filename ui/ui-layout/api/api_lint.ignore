@@ -3,17 +3,3 @@ DocumentExceptions: androidx.ui.layout.FlexChildren#expanded(float, kotlin.jvm.f
     Method FlexChildren.expanded appears to be throwing java.lang.IllegalArgumentException; this should be listed in the documentation; see https://android.github.io/kotlin-guides/interop.html#document-exceptions
 DocumentExceptions: androidx.ui.layout.FlexChildren#flexible(float, kotlin.jvm.functions.Function0<kotlin.Unit>):
     Method FlexChildren.flexible appears to be throwing java.lang.IllegalArgumentException; this should be listed in the documentation; see https://android.github.io/kotlin-guides/interop.html#document-exceptions
-
-
-MissingNullability: androidx.ui.layout.CrossAxisAlignment#Companion:
-    Missing nullability on field `Companion` in class `class androidx.ui.layout.CrossAxisAlignment`
-MissingNullability: androidx.ui.layout.DpConstraints#Companion:
-    Missing nullability on field `Companion` in class `class androidx.ui.layout.DpConstraints`
-MissingNullability: androidx.ui.layout.Gravity#INSTANCE:
-    Missing nullability on field `INSTANCE` in class `class androidx.ui.layout.Gravity`
-MissingNullability: androidx.ui.layout.TableColumnWidth.MaxIntrinsic#INSTANCE:
-    Missing nullability on field `INSTANCE` in class `class androidx.ui.layout.TableColumnWidth.MaxIntrinsic`
-MissingNullability: androidx.ui.layout.TableColumnWidth.MinIntrinsic#INSTANCE:
-    Missing nullability on field `INSTANCE` in class `class androidx.ui.layout.TableColumnWidth.MinIntrinsic`
-MissingNullability: androidx.ui.layout.TableColumnWidth.Wrap#INSTANCE:
-    Missing nullability on field `INSTANCE` in class `class androidx.ui.layout.TableColumnWidth.Wrap`

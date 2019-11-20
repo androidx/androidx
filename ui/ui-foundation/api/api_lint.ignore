@@ -3,13 +3,5 @@ AutoBoxing: androidx.ui.foundation.animation.AnimatedValueHolder#getValue():
     Must avoid boxed primitives (`java.lang.Float`)
 
 
-MissingNullability: androidx.ui.foundation.Strings#INSTANCE:
-    Missing nullability on field `INSTANCE` in class `class androidx.ui.foundation.Strings`
 MissingNullability: androidx.ui.foundation.animation.AnimatedValueHolder#getValue():
     Missing nullability on method `getValue` return
-MissingNullability: androidx.ui.foundation.gestures.DragDirection.Horizontal#INSTANCE:
-    Missing nullability on field `INSTANCE` in class `class androidx.ui.foundation.gestures.DragDirection.Horizontal`
-MissingNullability: androidx.ui.foundation.gestures.DragDirection.Vertical#INSTANCE:
-    Missing nullability on field `INSTANCE` in class `class androidx.ui.foundation.gestures.DragDirection.Vertical`
-MissingNullability: androidx.ui.foundation.semantics.FoundationSemanticsProperties#INSTANCE:
-    Missing nullability on field `INSTANCE` in class `class androidx.ui.foundation.semantics.FoundationSemanticsProperties`
