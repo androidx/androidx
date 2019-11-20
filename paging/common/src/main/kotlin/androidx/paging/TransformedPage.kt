@@ -16,27 +16,11 @@
 
 package androidx.paging
 
-/**
- * Load access pair - page, and index inside (or adjacent)
- */
-internal data class LoadHint(
-    /**
-     * Index of the accessed page relative to initial load = 0
-     */
-    val sourcePageIndex: Int,
-
-    /**
-     * Index either inside, or (in the case of placeholders) outside of page bounds, reflecting
-     * how closs access was.
-     */
-    val indexInPage: Int
-)
-
-internal class TransformedPage<T : Any>(
+internal data class TransformedPage<T : Any>(
     /**
      * Index of the original page (pre-transformation) relative to initial load = 0
      */
-    val sourcePageIndex: Int,
+    val originalPageOffset: Int,
 
     /**
      * Data to present (post-transformation)
@@ -63,13 +47,13 @@ internal class TransformedPage<T : Any>(
         }
     }
 
-    fun getLoadHint(relativeIndex: Int): LoadHint {
+    fun getLoadHint(relativeIndex: Int): ViewportHint {
         val indexInPage = when {
             relativeIndex < 0 -> relativeIndex
             relativeIndex >= data.size -> relativeIndex - data.size + sourcePageSize
             originalIndices != null -> originalIndices[relativeIndex]
             else -> relativeIndex
         }
-        return LoadHint(sourcePageIndex, indexInPage)
+        return ViewportHint(originalPageOffset, indexInPage)
     }
 }
