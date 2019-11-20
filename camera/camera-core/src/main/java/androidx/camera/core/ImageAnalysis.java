@@ -560,7 +560,9 @@ public final class ImageAnalysis extends UseCase {
          *
          * @param configuration An immutable configuration to pre-populate this builder.
          * @return The new Builder.
+         * @hide
          */
+        @RestrictTo(Scope.LIBRARY_GROUP)
         @NonNull
         public static Builder fromConfig(@NonNull ImageAnalysisConfig configuration) {
             return new Builder(MutableOptionsBundle.from(configuration));
