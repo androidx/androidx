@@ -17,12 +17,13 @@
 package androidx.fragment.app
 
 import android.view.View
-import android.view.ViewGroup
+import android.widget.FrameLayout
 import androidx.fragment.app.test.EmptyFragmentTestActivity
 import androidx.test.core.app.ActivityScenario
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import androidx.test.filters.LargeTest
 import androidx.test.filters.SmallTest
+import androidx.test.platform.app.InstrumentationRegistry
 import androidx.testutils.withActivity
 import com.google.common.truth.Truth.assertThat
 import org.junit.Before
@@ -288,17 +289,16 @@ class FragmentStoreTest {
         }
     }
 
-    @LargeTest
     @Test
     fun testFindFragmentUnder() {
-        val container = mock(ViewGroup::class.java)
-        emptyFragment.mView = mock(View::class.java)
+        val container = FrameLayout(InstrumentationRegistry.getInstrumentation().context)
+        emptyFragment.mView = View(InstrumentationRegistry.getInstrumentation().context)
         emptyFragment.mContainer = container
         fragmentStore.makeActive(emptyStateManager)
         fragmentStore.addFragment(emptyFragment)
 
         val onTopFragment: Fragment = StrictFragment()
-        onTopFragment.mView = mock(View::class.java)
+        onTopFragment.mView = View(InstrumentationRegistry.getInstrumentation().context)
         onTopFragment.mContainer = container
         val onTopStateManager = FragmentStateManager(dispatcher, onTopFragment)
         fragmentStore.makeActive(onTopStateManager)
