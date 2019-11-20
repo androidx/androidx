@@ -38,13 +38,14 @@ final class Camera2CameraInfo implements CameraInfoInternal {
     private static final String TAG = "Camera2CameraInfo";
     private final CameraCharacteristics mCameraCharacteristics;
     private final ZoomControl mZoomControl;
+    private final TorchControl mTorchControl;
 
     Camera2CameraInfo(@NonNull CameraCharacteristics cameraCharacteristics,
-            @NonNull ZoomControl zoomControl) {
+            @NonNull ZoomControl zoomControl, @NonNull TorchControl torchControl) {
         Preconditions.checkNotNull(cameraCharacteristics, "Camera characteristics map is missing");
         mCameraCharacteristics = cameraCharacteristics;
         mZoomControl = zoomControl;
-
+        mTorchControl = torchControl;
         logDeviceInfo();
     }
 
@@ -141,8 +142,7 @@ final class Camera2CameraInfo implements CameraInfoInternal {
     @NonNull
     @Override
     public LiveData<Integer> getTorchState() {
-        // TODO(b/143514107): implement #getTorchState and return a functional LiveData
-        throw new UnsupportedOperationException("Not implement");
+        return mTorchControl.getTorchState();
     }
 
     @NonNull

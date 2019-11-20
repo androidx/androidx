@@ -42,12 +42,15 @@ import androidx.annotation.Nullable;
 import androidx.annotation.VisibleForTesting;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.camera.core.Camera;
+import androidx.camera.core.CameraControl;
+import androidx.camera.core.CameraInfo;
 import androidx.camera.core.CameraSelector;
 import androidx.camera.core.FlashMode;
 import androidx.camera.core.ImageAnalysis;
 import androidx.camera.core.ImageCapture;
 import androidx.camera.core.LensFacing;
 import androidx.camera.core.Preview;
+import androidx.camera.core.TorchState;
 import androidx.camera.core.UseCase;
 import androidx.camera.core.VideoCapture;
 import androidx.camera.core.VideoCaptureConfig;
@@ -112,6 +115,7 @@ public class CameraXActivity extends AppCompatActivity
     private ImageAnalysis mImageAnalysis;
     private ImageCapture mImageCapture;
     private VideoCapture mVideoCapture;
+    private Camera mCamera;
     private ImageCapture.CaptureMode mCaptureMode = ImageCapture.CaptureMode.MIN_LATENCY;
     // Synthetic Accessor
     @SuppressWarnings("WeakerAccess")
@@ -427,10 +431,6 @@ public class CameraXActivity extends AppCompatActivity
             return;
         }
 
-        boolean hasFlashUnit = camera.getCameraInfo().hasFlashUnit();
-        ImageButton flashToggle = findViewById(R.id.flash_toggle);
-        flashToggle.setVisibility(hasFlashUnit ? View.VISIBLE : View.INVISIBLE);
-
         Button button = this.findViewById(R.id.Picture);
         final Format formatter = new SimpleDateFormat("yyyy-MM-dd-HH-mm-ss-SSS");
         final File dir = this.getExternalFilesDir(null);
@@ -489,7 +489,7 @@ public class CameraXActivity extends AppCompatActivity
                     }
                 });
 
-        refreshFlashButtonIcon();
+        refreshFlashButton();
 
 
         Button btnCaptureQuality = this.findViewById(R.id.capture_quality);
@@ -518,42 +518,74 @@ public class CameraXActivity extends AppCompatActivity
         Button btnCaptureQuality = this.findViewById(R.id.capture_quality);
         btnCaptureQuality.setVisibility(View.GONE);
 
-        refreshFlashButtonIcon();
+        refreshFlashButton();
+    }
+
+    private void refreshFlashButton() {
+        ImageButton flashToggle = findViewById(R.id.flash_toggle);
+        if (mImageCapture != null) {
+            CameraInfo cameraInfo = getCameraInfo();
+            if (cameraInfo != null && cameraInfo.hasFlashUnit()) {
+                flashToggle.setVisibility(View.VISIBLE);
+                flashToggle.setOnClickListener(new View.OnClickListener() {
+                    @Override
+                    public void onClick(View v) {
+                        @FlashMode int flashMode = mImageCapture.getFlashMode();
+                        if (flashMode == FlashMode.ON) {
+                            mImageCapture.setFlashMode(FlashMode.OFF);
+                        } else if (flashMode == FlashMode.OFF) {
+                            mImageCapture.setFlashMode(FlashMode.AUTO);
+                        } else if (flashMode == FlashMode.AUTO) {
+                            mImageCapture.setFlashMode(FlashMode.ON);
+                        }
+                        refreshFlashButtonIcon();
+                    }
+                });
+                refreshFlashButtonIcon();
+            } else {
+                flashToggle.setVisibility(View.INVISIBLE);
+                flashToggle.setOnClickListener(null);
+            }
+        } else {
+            flashToggle.setVisibility(View.GONE);
+            flashToggle.setOnClickListener(null);
+        }
     }
 
     private void refreshFlashButtonIcon() {
         ImageButton flashToggle = findViewById(R.id.flash_toggle);
-        if (mImageCapture != null) {
-            flashToggle.setOnClickListener(new View.OnClickListener() {
-                @Override
-                public void onClick(View v) {
-                    @FlashMode int flashMode = mImageCapture.getFlashMode();
-                    if (flashMode == FlashMode.ON) {
-                        mImageCapture.setFlashMode(FlashMode.OFF);
-                    } else if (flashMode == FlashMode.OFF) {
-                        mImageCapture.setFlashMode(FlashMode.AUTO);
-                    } else if (flashMode == FlashMode.AUTO) {
-                        mImageCapture.setFlashMode(FlashMode.ON);
-                    }
-                    refreshFlashButtonIcon();
+        @FlashMode int flashMode = mImageCapture.getFlashMode();
+        switch (flashMode) {
+            case FlashMode.ON:
+                flashToggle.setImageResource(R.drawable.ic_flash_on);
+                break;
+            case FlashMode.OFF:
+                flashToggle.setImageResource(R.drawable.ic_flash_off);
+                break;
+            case FlashMode.AUTO:
+                flashToggle.setImageResource(R.drawable.ic_flash_auto);
+                break;
+        }
+    }
+
+    private void refreshTorchButton() {
+        ImageButton torchToggle = findViewById(R.id.torch_toggle);
+        CameraInfo cameraInfo = getCameraInfo();
+        if (cameraInfo != null && cameraInfo.hasFlashUnit()) {
+            torchToggle.setVisibility(View.VISIBLE);
+            torchToggle.setOnClickListener(v -> {
+                Integer torchState = cameraInfo.getTorchState().getValue();
+                boolean toggledState = !(torchState == TorchState.ON);
+                CameraControl cameraControl = getCameraControl();
+                if (cameraControl != null) {
+                    Log.d(TAG, "Set camera torch: " + toggledState);
+                    cameraControl.enableTorch(toggledState);
                 }
             });
-            @FlashMode int flashMode = mImageCapture.getFlashMode();
-            switch (flashMode) {
-                case FlashMode.ON:
-                    flashToggle.setImageResource(R.drawable.ic_flash_on);
-                    break;
-                case FlashMode.OFF:
-                    flashToggle.setImageResource(R.drawable.ic_flash_off);
-                    break;
-                case FlashMode.AUTO:
-                    flashToggle.setImageResource(R.drawable.ic_flash_auto);
-                    break;
-            }
-
         } else {
-            flashToggle.setVisibility(View.GONE);
-            flashToggle.setOnClickListener(null);
+            Log.d(TAG, "No flash unit");
+            torchToggle.setVisibility(View.INVISIBLE);
+            torchToggle.setOnClickListener(null);
         }
     }
 
@@ -706,6 +738,7 @@ public class CameraXActivity extends AppCompatActivity
                     @Override
                     public void run() {
                         CameraXActivity.this.createUseCases();
+                        refreshTorchButton();
 
                         ImageButton directionToggle = findViewById(R.id.direction_toggle);
                         directionToggle.setVisibility(View.VISIBLE);
@@ -722,20 +755,7 @@ public class CameraXActivity extends AppCompatActivity
 
                                 Log.d(TAG, "Change camera direction: " + mCurrentCameraSelector);
                                 rebindUseCases();
-
-                            }
-                        });
-
-                        ImageButton torchToggle = findViewById(R.id.torch_toggle);
-                        torchToggle.setVisibility(View.VISIBLE);
-                        torchToggle.setOnClickListener(new View.OnClickListener() {
-                            @Override
-                            public void onClick(View v) {
-                                if (mPreview != null) {
-                                    boolean toggledState = !mPreview.isTorchOn();
-                                    Log.d(TAG, "Set camera torch: " + toggledState);
-                                    mPreview.enableTorch(toggledState);
-                                }
+                                refreshTorchButton();
                             }
                         });
                     }
@@ -828,7 +848,9 @@ public class CameraXActivity extends AppCompatActivity
     @Nullable
     private Camera bindToLifecycleSafely(UseCase useCase, int buttonViewId) {
         try {
-            return LifecycleCameraProvider.bindToLifecycle(this, mCurrentCameraSelector, useCase);
+            mCamera = LifecycleCameraProvider.bindToLifecycle(this, mCurrentCameraSelector,
+                    useCase);
+            return mCamera;
         } catch (IllegalArgumentException e) {
             Log.e(TAG, e.getMessage());
             Toast.makeText(getApplicationContext(), "Bind too many use cases.", Toast.LENGTH_SHORT)
@@ -867,6 +889,18 @@ public class CameraXActivity extends AppCompatActivity
 
     VideoCapture getVideoCapture() {
         return mVideoCapture;
+    }
+
+    @VisibleForTesting
+    @Nullable
+    CameraInfo getCameraInfo() {
+        return mCamera != null ? mCamera.getCameraInfo() : null;
+    }
+
+    @VisibleForTesting
+    @Nullable
+    CameraControl getCameraControl() {
+        return mCamera != null ? mCamera.getCameraControl() : null;
     }
 
     /**

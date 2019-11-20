@@ -70,6 +70,7 @@ public final class Camera2CameraControl implements CameraControlInternal {
     volatile Rational mPreviewAspectRatio = null;
     private final FocusMeteringControl mFocusMeteringControl;
     private final ZoomControl mZoomControl;
+    private final TorchControl mTorchControl;
     // use volatile modifier to make these variables in sync in all threads.
     private volatile boolean mIsTorchOn = false;
     @FlashMode
@@ -107,6 +108,7 @@ public final class Camera2CameraControl implements CameraControlInternal {
 
         mFocusMeteringControl = new FocusMeteringControl(this, scheduler, mExecutor);
         mZoomControl = new ZoomControl(this, mCameraCharacteristics);
+        mTorchControl = new TorchControl(this);
 
         // Initialize the session config
         mExecutor.execute(this::updateSessionConfig);
@@ -115,6 +117,11 @@ public final class Camera2CameraControl implements CameraControlInternal {
     @NonNull
     public ZoomControl getZoomControl() {
         return mZoomControl;
+    }
+
+    @NonNull
+    public TorchControl getTorchControl() {
+        return mTorchControl;
     }
 
     /**
@@ -193,7 +200,7 @@ public final class Camera2CameraControl implements CameraControlInternal {
         mExecutor.execute(() -> enableTorchInternal(torch));
 
         // TODO(b/143514107): implement #enableTorch which returns ListenableFuture.
-        return Futures.immediateFuture(null);
+        return mTorchControl.enableTorch(torch);
     }
 
     /** {@inheritDoc} */
