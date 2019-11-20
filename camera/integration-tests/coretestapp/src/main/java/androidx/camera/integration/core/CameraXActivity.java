@@ -119,7 +119,7 @@ public class CameraXActivity extends AppCompatActivity
     private VideoCapture mVideoCapture;
     private Camera mCamera;
     @ImageCapture.CaptureMode
-    private int mCaptureMode = ImageCapture.CaptureMode.MIN_LATENCY;
+    private int mCaptureMode = ImageCapture.CaptureMode.MINIMIZE_LATENCY;
     // Synthetic Accessor
     @SuppressWarnings("WeakerAccess")
     TextureView mTextureView;
@@ -498,13 +498,13 @@ public class CameraXActivity extends AppCompatActivity
         Button btnCaptureQuality = this.findViewById(R.id.capture_quality);
         btnCaptureQuality.setVisibility(View.VISIBLE);
         btnCaptureQuality.setText(
-                mCaptureMode == ImageCapture.CaptureMode.MAX_QUALITY ? "MAX" : "MIN");
+                mCaptureMode == ImageCapture.CaptureMode.MAXIMIZE_QUALITY ? "MAX" : "MIN");
         btnCaptureQuality.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                mCaptureMode = (mCaptureMode == ImageCapture.CaptureMode.MAX_QUALITY
-                        ? ImageCapture.CaptureMode.MIN_LATENCY
-                        : ImageCapture.CaptureMode.MAX_QUALITY);
+                mCaptureMode = (mCaptureMode == ImageCapture.CaptureMode.MAXIMIZE_QUALITY
+                        ? ImageCapture.CaptureMode.MINIMIZE_LATENCY
+                        : ImageCapture.CaptureMode.MAXIMIZE_QUALITY);
                 rebindUseCases();
             }
         });

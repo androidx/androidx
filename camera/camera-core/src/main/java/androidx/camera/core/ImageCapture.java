@@ -229,9 +229,9 @@ public class ImageCapture extends UseCase {
 
         mIoExecutor = mConfig.getIoExecutor(CameraXExecutors.ioExecutor());
 
-        if (mCaptureMode == CaptureMode.MAX_QUALITY) {
+        if (mCaptureMode == CaptureMode.MAXIMIZE_QUALITY) {
             mEnableCheck3AConverged = true; // check 3A convergence in MAX_QUALITY mode
-        } else if (mCaptureMode == CaptureMode.MIN_LATENCY) {
+        } else if (mCaptureMode == CaptureMode.MINIMIZE_LATENCY) {
             mEnableCheck3AConverged = false; // skip 3A convergence in MIN_LATENCY mode
         }
 
@@ -1144,20 +1144,20 @@ public class ImageCapture extends UseCase {
      * Capture mode options for ImageCapture. A picture will always be taken regardless of
      * mode, and the mode will be used on devices that support it.
      */
-    @IntDef({CaptureMode.MAX_QUALITY, CaptureMode.MIN_LATENCY})
+    @IntDef({CaptureMode.MAXIMIZE_QUALITY, CaptureMode.MINIMIZE_LATENCY})
     @Retention(RetentionPolicy.SOURCE)
     public @interface CaptureMode {
         /**
          * Optimizes capture pipeline to prioritize image quality over latency. When the capture
          * mode is set to MAX_QUALITY, images may take longer to capture.
          */
-        int MAX_QUALITY = 0;
+        int MAXIMIZE_QUALITY = 0;
         /**
          * Optimizes capture pipeline to prioritize latency over image quality. When the capture
          * mode is set to MIN_LATENCY, images may capture faster but the image quality may be
          * reduced.
          */
-        int MIN_LATENCY = 1;
+        int MINIMIZE_LATENCY = 1;
     }
 
     /** Listener containing callbacks for image file I/O events. */
@@ -1246,7 +1246,7 @@ public class ImageCapture extends UseCase {
     public static final class Defaults
             implements ConfigProvider<ImageCaptureConfig> {
         @CaptureMode
-        private static final int DEFAULT_CAPTURE_MODE = CaptureMode.MIN_LATENCY;
+        private static final int DEFAULT_CAPTURE_MODE = CaptureMode.MINIMIZE_LATENCY;
         @FlashMode
         private static final int DEFAULT_FLASH_MODE = FlashMode.OFF;
         private static final int DEFAULT_SURFACE_OCCUPANCY_PRIORITY = 4;
@@ -1633,11 +1633,11 @@ public class ImageCapture extends UseCase {
         /**
          * Sets the image capture mode.
          *
-         * <p>Valid capture modes are {@link CaptureMode#MIN_LATENCY}, which prioritizes latency
-         * over image quality, or {@link CaptureMode#MAX_QUALITY}, which prioritizes image quality
-         * over latency.
+         * <p>Valid capture modes are {@link CaptureMode#MINIMIZE_LATENCY}, which prioritizes
+         * latency over image quality, or {@link CaptureMode#MAXIMIZE_QUALITY}, which prioritizes
+         * image quality over latency.
          *
-         * <p>If not set, the capture mode will default to {@link CaptureMode#MIN_LATENCY}.
+         * <p>If not set, the capture mode will default to {@link CaptureMode#MINIMIZE_LATENCY}.
          *
          * @param captureMode The requested image capture mode.
          * @return The current Builder.
