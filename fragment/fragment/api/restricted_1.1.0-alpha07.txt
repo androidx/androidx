@@ -337,7 +337,7 @@ package androidx.fragment.app {
     field @Deprecated public static final int USE_SET_USER_VISIBLE_HINT = 0; // 0x0
   }
 
-  @java.lang.annotation.Retention(java.lang.annotation.RetentionPolicy.SOURCE) @IntDef({androidx.fragment.app.FragmentPagerAdapter.USE_SET_USER_VISIBLE_HINT, androidx.fragment.app.FragmentPagerAdapter.RESUME_ONLY_CURRENT_FRAGMENT}) public static @interface FragmentPagerAdapter.Behavior {
+  @IntDef({androidx.fragment.app.FragmentPagerAdapter.USE_SET_USER_VISIBLE_HINT, androidx.fragment.app.FragmentPagerAdapter.RESUME_ONLY_CURRENT_FRAGMENT}) @java.lang.annotation.Retention(java.lang.annotation.RetentionPolicy.SOURCE) public static @interface FragmentPagerAdapter.Behavior {
   }
 
   public abstract class FragmentStatePagerAdapter extends androidx.viewpager.widget.PagerAdapter {
@@ -349,7 +349,7 @@ package androidx.fragment.app {
     field @Deprecated public static final int USE_SET_USER_VISIBLE_HINT = 0; // 0x0
   }
 
-  @java.lang.annotation.Retention(java.lang.annotation.RetentionPolicy.SOURCE) @IntDef({androidx.fragment.app.FragmentStatePagerAdapter.USE_SET_USER_VISIBLE_HINT, androidx.fragment.app.FragmentStatePagerAdapter.RESUME_ONLY_CURRENT_FRAGMENT}) public static @interface FragmentStatePagerAdapter.Behavior {
+  @IntDef({androidx.fragment.app.FragmentStatePagerAdapter.USE_SET_USER_VISIBLE_HINT, androidx.fragment.app.FragmentStatePagerAdapter.RESUME_ONLY_CURRENT_FRAGMENT}) @java.lang.annotation.Retention(java.lang.annotation.RetentionPolicy.SOURCE) public static @interface FragmentStatePagerAdapter.Behavior {
   }
 
   @Deprecated public class FragmentTabHost extends android.widget.TabHost implements android.widget.TabHost.OnTabChangeListener {
@@ -387,8 +387,8 @@ package androidx.fragment.app {
     method public androidx.fragment.app.FragmentTransaction setBreadCrumbShortTitle(CharSequence?);
     method public androidx.fragment.app.FragmentTransaction setBreadCrumbTitle(@StringRes int);
     method public androidx.fragment.app.FragmentTransaction setBreadCrumbTitle(CharSequence?);
-    method public androidx.fragment.app.FragmentTransaction setCustomAnimations(@AnimatorRes @AnimRes int, @AnimatorRes @AnimRes int);
-    method public androidx.fragment.app.FragmentTransaction setCustomAnimations(@AnimatorRes @AnimRes int, @AnimatorRes @AnimRes int, @AnimatorRes @AnimRes int, @AnimatorRes @AnimRes int);
+    method public androidx.fragment.app.FragmentTransaction setCustomAnimations(@AnimRes @AnimatorRes int, @AnimRes @AnimatorRes int);
+    method public androidx.fragment.app.FragmentTransaction setCustomAnimations(@AnimRes @AnimatorRes int, @AnimRes @AnimatorRes int, @AnimRes @AnimatorRes int, @AnimRes @AnimatorRes int);
     method public androidx.fragment.app.FragmentTransaction setMaxLifecycle(androidx.fragment.app.Fragment, androidx.lifecycle.Lifecycle.State);
     method public androidx.fragment.app.FragmentTransaction setPrimaryNavigationFragment(androidx.fragment.app.Fragment?);
     method public androidx.fragment.app.FragmentTransaction setReorderingAllowed(boolean);

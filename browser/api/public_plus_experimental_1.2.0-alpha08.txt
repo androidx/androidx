@@ -187,10 +187,10 @@ package androidx.browser.customtabs {
     field public static final String TRUSTED_WEB_ACTIVITY_CATEGORY = "androidx.browser.trusted.category.TrustedWebActivities";
   }
 
-  @java.lang.annotation.Retention(java.lang.annotation.RetentionPolicy.SOURCE) @IntDef({androidx.browser.customtabs.CustomTabsService.RELATION_USE_AS_ORIGIN, androidx.browser.customtabs.CustomTabsService.RELATION_HANDLE_ALL_URLS}) public static @interface CustomTabsService.Relation {
+  @IntDef({androidx.browser.customtabs.CustomTabsService.RELATION_USE_AS_ORIGIN, androidx.browser.customtabs.CustomTabsService.RELATION_HANDLE_ALL_URLS}) @java.lang.annotation.Retention(java.lang.annotation.RetentionPolicy.SOURCE) public static @interface CustomTabsService.Relation {
   }
 
-  @java.lang.annotation.Retention(java.lang.annotation.RetentionPolicy.SOURCE) @IntDef({androidx.browser.customtabs.CustomTabsService.RESULT_SUCCESS, androidx.browser.customtabs.CustomTabsService.RESULT_FAILURE_DISALLOWED, androidx.browser.customtabs.CustomTabsService.RESULT_FAILURE_REMOTE_ERROR, androidx.browser.customtabs.CustomTabsService.RESULT_FAILURE_MESSAGING_ERROR}) public static @interface CustomTabsService.Result {
+  @IntDef({androidx.browser.customtabs.CustomTabsService.RESULT_SUCCESS, androidx.browser.customtabs.CustomTabsService.RESULT_FAILURE_DISALLOWED, androidx.browser.customtabs.CustomTabsService.RESULT_FAILURE_REMOTE_ERROR, androidx.browser.customtabs.CustomTabsService.RESULT_FAILURE_MESSAGING_ERROR}) @java.lang.annotation.Retention(java.lang.annotation.RetentionPolicy.SOURCE) public static @interface CustomTabsService.Result {
   }
 
   public abstract class CustomTabsServiceConnection implements android.content.ServiceConnection {

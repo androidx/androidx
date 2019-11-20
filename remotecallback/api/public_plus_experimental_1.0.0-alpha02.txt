@@ -34,7 +34,7 @@ package androidx.remotecallback {
     method public T! createRemoteCallback(android.content.Context!);
   }
 
-  @java.lang.annotation.Target(java.lang.annotation.ElementType.PARAMETER) @java.lang.annotation.Retention(java.lang.annotation.RetentionPolicy.SOURCE) public @interface ExternalInput {
+  @java.lang.annotation.Retention(java.lang.annotation.RetentionPolicy.SOURCE) @java.lang.annotation.Target(java.lang.annotation.ElementType.PARAMETER) public @interface ExternalInput {
     method public abstract String value();
   }
 

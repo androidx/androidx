@@ -1,0 +1,36 @@
+// Signature format: 3.0
+package androidx.vectordrawable.graphics.drawable {
+
+  public interface Animatable2Compat extends android.graphics.drawable.Animatable {
+    method public void clearAnimationCallbacks();
+    method public void registerAnimationCallback(androidx.vectordrawable.graphics.drawable.Animatable2Compat.AnimationCallback);
+    method public boolean unregisterAnimationCallback(androidx.vectordrawable.graphics.drawable.Animatable2Compat.AnimationCallback);
+  }
+
+  public abstract static class Animatable2Compat.AnimationCallback {
+    ctor public Animatable2Compat.AnimationCallback();
+    method public void onAnimationEnd(android.graphics.drawable.Drawable!);
+    method public void onAnimationStart(android.graphics.drawable.Drawable!);
+  }
+
+  public class AnimatedVectorDrawableCompat extends android.graphics.drawable.Drawable implements androidx.vectordrawable.graphics.drawable.Animatable2Compat androidx.core.graphics.drawable.TintAwareDrawable {
+    method public void clearAnimationCallbacks();
+    method public static void clearAnimationCallbacks(android.graphics.drawable.Drawable!);
+    method public static androidx.vectordrawable.graphics.drawable.AnimatedVectorDrawableCompat? create(android.content.Context, @DrawableRes int);
+    method public static androidx.vectordrawable.graphics.drawable.AnimatedVectorDrawableCompat! createFromXmlInner(android.content.Context!, android.content.res.Resources!, org.xmlpull.v1.XmlPullParser!, android.util.AttributeSet!, android.content.res.Resources.Theme!) throws java.io.IOException, org.xmlpull.v1.XmlPullParserException;
+    method public void draw(android.graphics.Canvas!);
+    method public int getOpacity();
+    method public boolean isRunning();
+    method public void registerAnimationCallback(androidx.vectordrawable.graphics.drawable.Animatable2Compat.AnimationCallback);
+    method public static void registerAnimationCallback(android.graphics.drawable.Drawable!, androidx.vectordrawable.graphics.drawable.Animatable2Compat.AnimationCallback!);
+    method public void setAlpha(int);
+    method public void setColorFilter(android.graphics.ColorFilter!);
+    method public void setColorFilter(int, android.graphics.PorterDuff.Mode!);
+    method public void start();
+    method public void stop();
+    method public boolean unregisterAnimationCallback(androidx.vectordrawable.graphics.drawable.Animatable2Compat.AnimationCallback);
+    method public static boolean unregisterAnimationCallback(android.graphics.drawable.Drawable!, androidx.vectordrawable.graphics.drawable.Animatable2Compat.AnimationCallback!);
+  }
+
+}
+

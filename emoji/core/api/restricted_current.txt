@@ -130,7 +130,7 @@ package androidx.emoji.text {
     method @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP_PREFIX) public androidx.text.emoji.flatbuffer.MetadataList! getMetadataList();
   }
 
-  @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP_PREFIX) @RequiresApi(19) public final class TypefaceEmojiSpan extends androidx.emoji.text.EmojiSpan {
+  @RequiresApi(19) @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP_PREFIX) public final class TypefaceEmojiSpan extends androidx.emoji.text.EmojiSpan {
     ctor public TypefaceEmojiSpan(androidx.emoji.text.EmojiMetadata!);
     method public void draw(android.graphics.Canvas, CharSequence!, @IntRange(from=0) int, @IntRange(from=0) int, float, int, int, int, android.graphics.Paint);
   }

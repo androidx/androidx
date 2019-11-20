@@ -131,8 +131,8 @@ package androidx.core.graphics {
     method @ColorLong @RequiresApi(26) public static inline infix long convertTo(@ColorInt int, android.graphics.ColorSpace colorSpace);
     method @ColorLong @RequiresApi(26) public static inline infix long convertTo(@ColorLong long, android.graphics.ColorSpace.Named colorSpace);
     method @ColorLong @RequiresApi(26) public static inline infix long convertTo(@ColorLong long, android.graphics.ColorSpace colorSpace);
-    method @RequiresApi(26) public static inline infix android.graphics.Color! convertTo(android.graphics.Color, android.graphics.ColorSpace.Named colorSpace);
-    method @RequiresApi(26) public static inline infix android.graphics.Color! convertTo(android.graphics.Color, android.graphics.ColorSpace colorSpace);
+    method @RequiresApi(26) public static inline infix android.graphics.Color convertTo(android.graphics.Color, android.graphics.ColorSpace.Named colorSpace);
+    method @RequiresApi(26) public static inline infix android.graphics.Color convertTo(android.graphics.Color, android.graphics.ColorSpace colorSpace);
     method public static inline int getAlpha(@ColorInt int);
     method @RequiresApi(26) public static inline float getAlpha(@ColorLong long);
     method public static inline int getBlue(@ColorInt int);
@@ -466,7 +466,7 @@ package androidx.core.util {
 
   public final class LruCacheKt {
     ctor public LruCacheKt();
-    method public static inline <K, V> android.util.LruCache<K,V> lruCache(int maxSize, kotlin.jvm.functions.Function2<? super K,? super V,java.lang.Integer> sizeOf = { _, _ -> 1 }, kotlin.jvm.functions.Function1<? super K,? extends V> create = { (java.lang.Object)null }, kotlin.jvm.functions.Function4<? super java.lang.Boolean,? super K,? super V,? super V,kotlin.Unit> onEntryRemoved = { _, _, _, _ ->  });
+    method public static inline <K, V> android.util.LruCache<K,V> lruCache(int maxSize, kotlin.jvm.functions.Function2<? super K,? super V,java.lang.Integer> sizeOf = { _, _ -> 1 }, kotlin.jvm.functions.Function1<? super K,? extends V> create = { (V)null }, kotlin.jvm.functions.Function4<? super java.lang.Boolean,? super K,? super V,? super V,kotlin.Unit> onEntryRemoved = { _, _, _, _ ->  });
   }
 
   public final class PairKt {

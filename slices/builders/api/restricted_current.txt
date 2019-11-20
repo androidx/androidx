@@ -113,7 +113,7 @@ package androidx.slice.builders {
     method public androidx.slice.builders.ListBuilder.RowBuilder setTitleItem(androidx.slice.builders.SliceAction, boolean);
   }
 
-  @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP_PREFIX) @RequiresApi(19) public class MessagingSliceBuilder extends androidx.slice.builders.TemplateSliceBuilder {
+  @RequiresApi(19) @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP_PREFIX) public class MessagingSliceBuilder extends androidx.slice.builders.TemplateSliceBuilder {
     ctor public MessagingSliceBuilder(android.content.Context, android.net.Uri);
     method public androidx.slice.builders.MessagingSliceBuilder! add(androidx.slice.builders.MessagingSliceBuilder.MessageBuilder!);
     method public androidx.slice.builders.MessagingSliceBuilder! add(androidx.core.util.Consumer<androidx.slice.builders.MessagingSliceBuilder.MessageBuilder!>!);
