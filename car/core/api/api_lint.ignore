@@ -19,14 +19,14 @@ ListenerLast: androidx.car.widget.ActionListItem#setActions(String, boolean, and
     Listeners should always be at end of argument list (method `setActions`)
 
 
-MissingBuild: androidx.car.app.CarAlertDialog.Builder:
-    Missing `build()` method in androidx.car.app.CarAlertDialog.Builder
-MissingBuild: androidx.car.app.CarListDialog.Builder:
-    Missing `build()` method in androidx.car.app.CarListDialog.Builder
-MissingBuild: androidx.car.app.CarMultipleChoiceDialog.Builder:
-    Missing `build()` method in androidx.car.app.CarMultipleChoiceDialog.Builder
-MissingBuild: androidx.car.app.CarSingleChoiceDialog.Builder:
-    Missing `build()` method in androidx.car.app.CarSingleChoiceDialog.Builder
+MissingBuildMethod: androidx.car.app.CarAlertDialog.Builder:
+    androidx.car.app.CarAlertDialog.Builder does not declare a `build()` method, but builder classes are expected to
+MissingBuildMethod: androidx.car.app.CarListDialog.Builder:
+    androidx.car.app.CarListDialog.Builder does not declare a `build()` method, but builder classes are expected to
+MissingBuildMethod: androidx.car.app.CarMultipleChoiceDialog.Builder:
+    androidx.car.app.CarMultipleChoiceDialog.Builder does not declare a `build()` method, but builder classes are expected to
+MissingBuildMethod: androidx.car.app.CarSingleChoiceDialog.Builder:
+    androidx.car.app.CarSingleChoiceDialog.Builder does not declare a `build()` method, but builder classes are expected to
 
 
 MissingNullability: androidx.car.app.CarAlertDialog#onCreate(android.os.Bundle) parameter #0:
@@ -69,12 +69,8 @@ MissingNullability: androidx.car.util.ColumnCalculator#getInstance(android.conte
     Missing nullability on parameter `context` in method `getInstance`
 MissingNullability: androidx.car.uxrestrictions.CarUxRestrictions#CarUxRestrictions(androidx.car.uxrestrictions.CarUxRestrictions) parameter #0:
     Missing nullability on parameter `uxRestrictions` in method `CarUxRestrictions`
-MissingNullability: androidx.car.uxrestrictions.CarUxRestrictions#equals(Object) parameter #0:
-    Missing nullability on parameter `o` in method `equals`
 MissingNullability: androidx.car.uxrestrictions.CarUxRestrictions#hasSameRestrictionsAs(androidx.car.uxrestrictions.CarUxRestrictions) parameter #0:
     Missing nullability on parameter `other` in method `hasSameRestrictionsAs`
-MissingNullability: androidx.car.uxrestrictions.CarUxRestrictions#toString():
-    Missing nullability on method `toString` return
 MissingNullability: androidx.car.uxrestrictions.OnUxRestrictionsChangedListener#onUxRestrictionsChanged(androidx.car.uxrestrictions.CarUxRestrictions) parameter #0:
     Missing nullability on parameter `restrictionInfo` in method `onUxRestrictionsChanged`
 MissingNullability: androidx.car.widget.ActionListItem#createViewHolder(android.view.View) parameter #0:

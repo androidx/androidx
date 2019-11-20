@@ -17,8 +17,6 @@ MissingNullability: androidx.slice.SliceMetadata#sendToggleAction(androidx.slice
     Missing nullability on parameter `toggleAction` in method `sendToggleAction`
 MissingNullability: androidx.slice.SliceStructure#SliceStructure(androidx.slice.Slice) parameter #0:
     Missing nullability on parameter `s` in method `SliceStructure`
-MissingNullability: androidx.slice.SliceStructure#equals(Object) parameter #0:
-    Missing nullability on parameter `obj` in method `equals`
 MissingNullability: androidx.slice.SliceUtils.SerializeOptions#setActionMode(int):
     Missing nullability on method `setActionMode` return
 MissingNullability: androidx.slice.SliceUtils.SerializeOptions#setImageConversionFormat(android.graphics.Bitmap.CompressFormat, int):
@@ -37,8 +35,6 @@ MissingNullability: androidx.slice.SliceUtils.SliceActionListener#onSliceAction(
     Missing nullability on parameter `context` in method `onSliceAction`
 MissingNullability: androidx.slice.SliceUtils.SliceActionListener#onSliceAction(android.net.Uri, android.content.Context, android.content.Intent) parameter #2:
     Missing nullability on parameter `intent` in method `onSliceAction`
-MissingNullability: androidx.slice.widget.EventInfo#toString():
-    Missing nullability on method `toString` return
 MissingNullability: androidx.slice.widget.SliceLiveData#fromCachedSlice(android.content.Context, java.io.InputStream, androidx.slice.widget.SliceLiveData.OnErrorListener) parameter #2:
     Missing nullability on parameter `listener` in method `fromCachedSlice`
 MissingNullability: androidx.slice.widget.SliceLiveData#fromStream(android.content.Context, java.io.InputStream, androidx.slice.widget.SliceLiveData.OnErrorListener) parameter #2:

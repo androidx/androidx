@@ -67,8 +67,6 @@ MissingNullability: androidx.viewpager.widget.ViewPager.LayoutParams#LayoutParam
     Missing nullability on parameter `attrs` in method `LayoutParams`
 MissingNullability: androidx.viewpager.widget.ViewPager.SavedState#CREATOR:
     Missing nullability on field `CREATOR` in class `class androidx.viewpager.widget.ViewPager.SavedState`
-MissingNullability: androidx.viewpager.widget.ViewPager.SavedState#toString():
-    Missing nullability on method `toString` return
 MissingNullability: androidx.viewpager.widget.ViewPager.SavedState#writeToParcel(android.os.Parcel, int) parameter #0:
     Missing nullability on parameter `out` in method `writeToParcel`
 

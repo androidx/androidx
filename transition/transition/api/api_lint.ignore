@@ -171,8 +171,6 @@ MissingNullability: androidx.transition.Transition#clone():
     Missing nullability on method `clone` return
 MissingNullability: androidx.transition.Transition#setMatchOrder(int...) parameter #0:
     Missing nullability on parameter `matches` in method `setMatchOrder`
-MissingNullability: androidx.transition.Transition#toString():
-    Missing nullability on method `toString` return
 MissingNullability: androidx.transition.Transition.EpicenterCallback#onGetEpicenter(androidx.transition.Transition):
     Missing nullability on method `onGetEpicenter` return
 MissingNullability: androidx.transition.TransitionInflater#from(android.content.Context):
@@ -211,10 +209,6 @@ MissingNullability: androidx.transition.TransitionSet#setPathMotion(androidx.tra
     Missing nullability on parameter `pathMotion` in method `setPathMotion`
 MissingNullability: androidx.transition.TransitionSet#setPropagation(androidx.transition.TransitionPropagation) parameter #0:
     Missing nullability on parameter `propagation` in method `setPropagation`
-MissingNullability: androidx.transition.TransitionValues#equals(Object) parameter #0:
-    Missing nullability on parameter `other` in method `equals`
-MissingNullability: androidx.transition.TransitionValues#toString():
-    Missing nullability on method `toString` return
 MissingNullability: androidx.transition.TransitionValues#values:
     Missing nullability on field `values` in class `class androidx.transition.TransitionValues`
 MissingNullability: androidx.transition.TransitionValues#view:

@@ -159,8 +159,6 @@ MissingNullability: androidx.mediarouter.media.MediaItemStatus#fromBundle(androi
     Missing nullability on parameter `bundle` in method `fromBundle`
 MissingNullability: androidx.mediarouter.media.MediaItemStatus#getExtras():
     Missing nullability on method `getExtras` return
-MissingNullability: androidx.mediarouter.media.MediaItemStatus#toString():
-    Missing nullability on method `toString` return
 MissingNullability: androidx.mediarouter.media.MediaItemStatus.Builder#Builder(androidx.mediarouter.media.MediaItemStatus) parameter #0:
     Missing nullability on parameter `status` in method `Builder`
 MissingNullability: androidx.mediarouter.media.MediaItemStatus.Builder#build():
@@ -197,8 +195,6 @@ MissingNullability: androidx.mediarouter.media.MediaRouteDescriptor#getName():
     Missing nullability on method `getName` return
 MissingNullability: androidx.mediarouter.media.MediaRouteDescriptor#getSettingsActivity():
     Missing nullability on method `getSettingsActivity` return
-MissingNullability: androidx.mediarouter.media.MediaRouteDescriptor#toString():
-    Missing nullability on method `toString` return
 MissingNullability: androidx.mediarouter.media.MediaRouteDescriptor.Builder#Builder(String, String) parameter #0:
     Missing nullability on parameter `id` in method `Builder`
 MissingNullability: androidx.mediarouter.media.MediaRouteDescriptor.Builder#Builder(String, String) parameter #1:
@@ -265,16 +261,12 @@ MissingNullability: androidx.mediarouter.media.MediaRouteDiscoveryRequest#MediaR
     Missing nullability on parameter `selector` in method `MediaRouteDiscoveryRequest`
 MissingNullability: androidx.mediarouter.media.MediaRouteDiscoveryRequest#asBundle():
     Missing nullability on method `asBundle` return
-MissingNullability: androidx.mediarouter.media.MediaRouteDiscoveryRequest#equals(Object) parameter #0:
-    Missing nullability on parameter `o` in method `equals`
 MissingNullability: androidx.mediarouter.media.MediaRouteDiscoveryRequest#fromBundle(android.os.Bundle):
     Missing nullability on method `fromBundle` return
 MissingNullability: androidx.mediarouter.media.MediaRouteDiscoveryRequest#fromBundle(android.os.Bundle) parameter #0:
     Missing nullability on parameter `bundle` in method `fromBundle`
 MissingNullability: androidx.mediarouter.media.MediaRouteDiscoveryRequest#getSelector():
     Missing nullability on method `getSelector` return
-MissingNullability: androidx.mediarouter.media.MediaRouteDiscoveryRequest#toString():
-    Missing nullability on method `toString` return
 MissingNullability: androidx.mediarouter.media.MediaRouteProvider#getContext():
     Missing nullability on method `getContext` return
 MissingNullability: androidx.mediarouter.media.MediaRouteProvider#getHandler():
@@ -305,8 +297,6 @@ MissingNullability: androidx.mediarouter.media.MediaRouteProvider.ProviderMetada
     Missing nullability on method `getComponentName` return
 MissingNullability: androidx.mediarouter.media.MediaRouteProvider.ProviderMetadata#getPackageName():
     Missing nullability on method `getPackageName` return
-MissingNullability: androidx.mediarouter.media.MediaRouteProvider.ProviderMetadata#toString():
-    Missing nullability on method `toString` return
 MissingNullability: androidx.mediarouter.media.MediaRouteProvider.RouteController#onControlRequest(android.content.Intent, androidx.mediarouter.media.MediaRouter.ControlRequestCallback) parameter #0:
     Missing nullability on parameter `intent` in method `onControlRequest`
 MissingNullability: androidx.mediarouter.media.MediaRouteProviderDescriptor#asBundle():
@@ -315,8 +305,6 @@ MissingNullability: androidx.mediarouter.media.MediaRouteProviderDescriptor#from
     Missing nullability on method `fromBundle` return
 MissingNullability: androidx.mediarouter.media.MediaRouteProviderDescriptor#fromBundle(android.os.Bundle) parameter #0:
     Missing nullability on parameter `bundle` in method `fromBundle`
-MissingNullability: androidx.mediarouter.media.MediaRouteProviderDescriptor#toString():
-    Missing nullability on method `toString` return
 MissingNullability: androidx.mediarouter.media.MediaRouteProviderDescriptor.Builder#Builder(androidx.mediarouter.media.MediaRouteProviderDescriptor) parameter #0:
     Missing nullability on parameter `descriptor` in method `Builder`
 MissingNullability: androidx.mediarouter.media.MediaRouteProviderDescriptor.Builder#addRoute(androidx.mediarouter.media.MediaRouteDescriptor):
@@ -347,8 +335,6 @@ MissingNullability: androidx.mediarouter.media.MediaRouteSelector#asBundle():
     Missing nullability on method `asBundle` return
 MissingNullability: androidx.mediarouter.media.MediaRouteSelector#contains(androidx.mediarouter.media.MediaRouteSelector) parameter #0:
     Missing nullability on parameter `selector` in method `contains`
-MissingNullability: androidx.mediarouter.media.MediaRouteSelector#equals(Object) parameter #0:
-    Missing nullability on parameter `o` in method `equals`
 MissingNullability: androidx.mediarouter.media.MediaRouteSelector#fromBundle(android.os.Bundle):
     Missing nullability on method `fromBundle` return
 MissingNullability: androidx.mediarouter.media.MediaRouteSelector#getControlCategories():
@@ -357,8 +343,6 @@ MissingNullability: androidx.mediarouter.media.MediaRouteSelector#hasControlCate
     Missing nullability on parameter `category` in method `hasControlCategory`
 MissingNullability: androidx.mediarouter.media.MediaRouteSelector#matchesControlFilters(java.util.List<android.content.IntentFilter>) parameter #0:
     Missing nullability on parameter `filters` in method `matchesControlFilters`
-MissingNullability: androidx.mediarouter.media.MediaRouteSelector#toString():
-    Missing nullability on method `toString` return
 MissingNullability: androidx.mediarouter.media.MediaRouter#addCallback(androidx.mediarouter.media.MediaRouteSelector, androidx.mediarouter.media.MediaRouter.Callback) parameter #0:
     Missing nullability on parameter `selector` in method `addCallback`
 MissingNullability: androidx.mediarouter.media.MediaRouter#addCallback(androidx.mediarouter.media.MediaRouteSelector, androidx.mediarouter.media.MediaRouter.Callback) parameter #1:
@@ -435,8 +419,6 @@ MissingNullability: androidx.mediarouter.media.MediaRouter.ProviderInfo#getProvi
     Missing nullability on method `getProviderInstance` return
 MissingNullability: androidx.mediarouter.media.MediaRouter.ProviderInfo#getRoutes():
     Missing nullability on method `getRoutes` return
-MissingNullability: androidx.mediarouter.media.MediaRouter.ProviderInfo#toString():
-    Missing nullability on method `toString` return
 MissingNullability: androidx.mediarouter.media.MediaRouter.RouteInfo#getControlFilters():
     Missing nullability on method `getControlFilters` return
 MissingNullability: androidx.mediarouter.media.MediaRouter.RouteInfo#getIconUri():
@@ -445,8 +427,6 @@ MissingNullability: androidx.mediarouter.media.MediaRouter.RouteInfo#getName():
     Missing nullability on method `getName` return
 MissingNullability: androidx.mediarouter.media.MediaRouter.RouteInfo#getProvider():
     Missing nullability on method `getProvider` return
-MissingNullability: androidx.mediarouter.media.MediaRouter.RouteInfo#toString():
-    Missing nullability on method `toString` return
 MissingNullability: androidx.mediarouter.media.MediaSessionStatus#asBundle():
     Missing nullability on method `asBundle` return
 MissingNullability: androidx.mediarouter.media.MediaSessionStatus#fromBundle(android.os.Bundle):
@@ -455,8 +435,6 @@ MissingNullability: androidx.mediarouter.media.MediaSessionStatus#fromBundle(and
     Missing nullability on parameter `bundle` in method `fromBundle`
 MissingNullability: androidx.mediarouter.media.MediaSessionStatus#getExtras():
     Missing nullability on method `getExtras` return
-MissingNullability: androidx.mediarouter.media.MediaSessionStatus#toString():
-    Missing nullability on method `toString` return
 MissingNullability: androidx.mediarouter.media.MediaSessionStatus.Builder#Builder(androidx.mediarouter.media.MediaSessionStatus) parameter #0:
     Missing nullability on parameter `status` in method `Builder`
 MissingNullability: androidx.mediarouter.media.MediaSessionStatus.Builder#build():

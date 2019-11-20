@@ -99,8 +99,6 @@ MissingNullability: android.support.v4.media.MediaDescriptionCompat#fromMediaDes
     Missing nullability on parameter `descriptionObj` in method `fromMediaDescription`
 MissingNullability: android.support.v4.media.MediaDescriptionCompat#getMediaDescription():
     Missing nullability on method `getMediaDescription` return
-MissingNullability: android.support.v4.media.MediaDescriptionCompat#toString():
-    Missing nullability on method `toString` return
 MissingNullability: android.support.v4.media.MediaDescriptionCompat#writeToParcel(android.os.Parcel, int) parameter #0:
     Missing nullability on parameter `dest` in method `writeToParcel`
 MissingNullability: android.support.v4.media.MediaDescriptionCompat.Builder#build():
@@ -207,8 +205,6 @@ MissingNullability: android.support.v4.media.RatingCompat#newThumbRating(boolean
     Missing nullability on method `newThumbRating` return
 MissingNullability: android.support.v4.media.RatingCompat#newUnratedRating(int):
     Missing nullability on method `newUnratedRating` return
-MissingNullability: android.support.v4.media.RatingCompat#toString():
-    Missing nullability on method `toString` return
 MissingNullability: android.support.v4.media.RatingCompat#writeToParcel(android.os.Parcel, int) parameter #0:
     Missing nullability on parameter `dest` in method `writeToParcel`
 MissingNullability: android.support.v4.media.session.MediaControllerCompat#MediaControllerCompat(android.content.Context, android.support.v4.media.session.MediaSessionCompat) parameter #0:
@@ -413,14 +409,10 @@ MissingNullability: android.support.v4.media.session.MediaSessionCompat.QueueIte
     Missing nullability on method `getDescription` return
 MissingNullability: android.support.v4.media.session.MediaSessionCompat.QueueItem#getQueueItem():
     Missing nullability on method `getQueueItem` return
-MissingNullability: android.support.v4.media.session.MediaSessionCompat.QueueItem#toString():
-    Missing nullability on method `toString` return
 MissingNullability: android.support.v4.media.session.MediaSessionCompat.QueueItem#writeToParcel(android.os.Parcel, int) parameter #0:
     Missing nullability on parameter `dest` in method `writeToParcel`
 MissingNullability: android.support.v4.media.session.MediaSessionCompat.Token#CREATOR:
     Missing nullability on field `CREATOR` in class `class android.support.v4.media.session.MediaSessionCompat.Token`
-MissingNullability: android.support.v4.media.session.MediaSessionCompat.Token#equals(Object) parameter #0:
-    Missing nullability on parameter `obj` in method `equals`
 MissingNullability: android.support.v4.media.session.MediaSessionCompat.Token#fromToken(Object):
     Missing nullability on method `fromToken` return
 MissingNullability: android.support.v4.media.session.MediaSessionCompat.Token#fromToken(Object) parameter #0:
@@ -447,8 +439,6 @@ MissingNullability: android.support.v4.media.session.PlaybackStateCompat#getErro
     Missing nullability on method `getErrorMessage` return
 MissingNullability: android.support.v4.media.session.PlaybackStateCompat#getPlaybackState():
     Missing nullability on method `getPlaybackState` return
-MissingNullability: android.support.v4.media.session.PlaybackStateCompat#toString():
-    Missing nullability on method `toString` return
 MissingNullability: android.support.v4.media.session.PlaybackStateCompat#writeToParcel(android.os.Parcel, int) parameter #0:
     Missing nullability on parameter `dest` in method `writeToParcel`
 MissingNullability: android.support.v4.media.session.PlaybackStateCompat.Builder#Builder(android.support.v4.media.session.PlaybackStateCompat) parameter #0:
@@ -499,8 +489,6 @@ MissingNullability: android.support.v4.media.session.PlaybackStateCompat.CustomA
     Missing nullability on method `getExtras` return
 MissingNullability: android.support.v4.media.session.PlaybackStateCompat.CustomAction#getName():
     Missing nullability on method `getName` return
-MissingNullability: android.support.v4.media.session.PlaybackStateCompat.CustomAction#toString():
-    Missing nullability on method `toString` return
 MissingNullability: android.support.v4.media.session.PlaybackStateCompat.CustomAction#writeToParcel(android.os.Parcel, int) parameter #0:
     Missing nullability on parameter `dest` in method `writeToParcel`
 MissingNullability: android.support.v4.media.session.PlaybackStateCompat.CustomAction.Builder#Builder(String, CharSequence, int) parameter #0:
@@ -513,10 +501,6 @@ MissingNullability: android.support.v4.media.session.PlaybackStateCompat.CustomA
     Missing nullability on method `setExtras` return
 MissingNullability: android.support.v4.media.session.PlaybackStateCompat.CustomAction.Builder#setExtras(android.os.Bundle) parameter #0:
     Missing nullability on parameter `extras` in method `setExtras`
-MissingNullability: androidx.media.AudioAttributesCompat#equals(Object) parameter #0:
-    Missing nullability on parameter `o` in method `equals`
-MissingNullability: androidx.media.AudioAttributesCompat#toString():
-    Missing nullability on method `toString` return
 MissingNullability: androidx.media.AudioAttributesCompat.Builder#Builder(androidx.media.AudioAttributesCompat) parameter #0:
     Missing nullability on parameter `aa` in method `Builder`
 MissingNullability: androidx.media.AudioAttributesCompat.Builder#build():
@@ -529,8 +513,6 @@ MissingNullability: androidx.media.AudioAttributesCompat.Builder#setLegacyStream
     Missing nullability on method `setLegacyStreamType` return
 MissingNullability: androidx.media.AudioAttributesCompat.Builder#setUsage(int):
     Missing nullability on method `setUsage` return
-MissingNullability: androidx.media.AudioFocusRequestCompat#equals(Object) parameter #0:
-    Missing nullability on parameter `o` in method `equals`
 MissingNullability: androidx.media.AudioFocusRequestCompat.Builder#build():
     Missing nullability on method `build` return
 MissingNullability: androidx.media.MediaBrowserServiceCompat#dump(java.io.FileDescriptor, java.io.PrintWriter, String[]) parameter #0:

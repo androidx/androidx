@@ -3,14 +3,9 @@ CallbackMethodName: androidx.media2.common.DataSourceCallback:
     Callback method names must follow the on<Something> style: readAt
 
 
-IntentName: androidx.media2.common.MediaMetadata#METADATA_KEY_EXTRAS:
-    Intent extra constant name must be EXTRA_FOO: METADATA_KEY_EXTRAS
-
-
-MissingNullability: androidx.media2.common.MediaItem#toString():
-    Missing nullability on method `toString` return
-MissingNullability: androidx.media2.common.MediaMetadata#toString():
-    Missing nullability on method `toString` return
-
 GenericException: androidx.media2.common.SessionPlayer#close():
     Methods must not throw generic exceptions (`java.lang.Exception`)
+
+
+IntentName: androidx.media2.common.MediaMetadata#METADATA_KEY_EXTRAS:
+    Intent extra constant name must be EXTRA_FOO: METADATA_KEY_EXTRAS

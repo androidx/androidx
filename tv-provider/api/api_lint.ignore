@@ -51,8 +51,6 @@ IntentName: androidx.tvprovider.media.tv.TvContractCompat.WatchNextPrograms#COLU
     Intent action constant name must be ACTION_FOO: COLUMN_INTERACTION_TYPE
 
 
-MissingNullability: androidx.tvprovider.media.tv.Channel#equals(Object) parameter #0:
-    Missing nullability on parameter `other` in method `equals`
 MissingNullability: androidx.tvprovider.media.tv.Channel#fromCursor(android.database.Cursor):
     Missing nullability on method `fromCursor` return
 MissingNullability: androidx.tvprovider.media.tv.Channel#fromCursor(android.database.Cursor) parameter #0:
@@ -101,8 +99,6 @@ MissingNullability: androidx.tvprovider.media.tv.Channel#getVideoFormat():
     Missing nullability on method `getVideoFormat` return
 MissingNullability: androidx.tvprovider.media.tv.Channel#toContentValues():
     Missing nullability on method `toContentValues` return
-MissingNullability: androidx.tvprovider.media.tv.Channel#toString():
-    Missing nullability on method `toString` return
 MissingNullability: androidx.tvprovider.media.tv.Channel.Builder#Builder(androidx.tvprovider.media.tv.Channel) parameter #0:
     Missing nullability on parameter `other` in method `Builder`
 MissingNullability: androidx.tvprovider.media.tv.Channel.Builder#build():
@@ -199,8 +195,6 @@ MissingNullability: androidx.tvprovider.media.tv.Channel.Builder#setVideoFormat(
     Missing nullability on parameter `videoFormat` in method `setVideoFormat`
 MissingNullability: androidx.tvprovider.media.tv.ChannelLogoUtils#loadChannelLogo(android.content.Context, long):
     Missing nullability on method `loadChannelLogo` return
-MissingNullability: androidx.tvprovider.media.tv.PreviewChannel#equals(Object) parameter #0:
-    Missing nullability on parameter `other` in method `equals`
 MissingNullability: androidx.tvprovider.media.tv.PreviewChannel#fromCursor(android.database.Cursor):
     Missing nullability on method `fromCursor` return
 MissingNullability: androidx.tvprovider.media.tv.PreviewChannel#fromCursor(android.database.Cursor) parameter #0:
@@ -235,8 +229,6 @@ MissingNullability: androidx.tvprovider.media.tv.PreviewChannel#getType():
     Missing nullability on method `getType` return
 MissingNullability: androidx.tvprovider.media.tv.PreviewChannel#hasAnyUpdatedValues(androidx.tvprovider.media.tv.PreviewChannel) parameter #0:
     Missing nullability on parameter `update` in method `hasAnyUpdatedValues`
-MissingNullability: androidx.tvprovider.media.tv.PreviewChannel#toString():
-    Missing nullability on method `toString` return
 MissingNullability: androidx.tvprovider.media.tv.PreviewChannel.Builder#Builder(androidx.tvprovider.media.tv.PreviewChannel) parameter #0:
     Missing nullability on parameter `other` in method `Builder`
 MissingNullability: androidx.tvprovider.media.tv.PreviewChannel.Builder#build():
@@ -291,8 +283,6 @@ MissingNullability: androidx.tvprovider.media.tv.PreviewChannelHelper#getPreview
     Missing nullability on method `getPreviewProgram` return
 MissingNullability: androidx.tvprovider.media.tv.PreviewChannelHelper#getWatchNextProgram(long):
     Missing nullability on method `getWatchNextProgram` return
-MissingNullability: androidx.tvprovider.media.tv.PreviewProgram#equals(Object) parameter #0:
-    Missing nullability on parameter `other` in method `equals`
 MissingNullability: androidx.tvprovider.media.tv.PreviewProgram#fromCursor(android.database.Cursor):
     Missing nullability on method `fromCursor` return
 MissingNullability: androidx.tvprovider.media.tv.PreviewProgram#fromCursor(android.database.Cursor) parameter #0:
@@ -301,8 +291,6 @@ MissingNullability: androidx.tvprovider.media.tv.PreviewProgram#hasAnyUpdatedVal
     Missing nullability on parameter `update` in method `hasAnyUpdatedValues`
 MissingNullability: androidx.tvprovider.media.tv.PreviewProgram#toContentValues():
     Missing nullability on method `toContentValues` return
-MissingNullability: androidx.tvprovider.media.tv.PreviewProgram#toString():
-    Missing nullability on method `toString` return
 MissingNullability: androidx.tvprovider.media.tv.PreviewProgram.Builder#Builder(androidx.tvprovider.media.tv.PreviewProgram) parameter #0:
     Missing nullability on parameter `other` in method `Builder`
 MissingNullability: androidx.tvprovider.media.tv.PreviewProgram.Builder#build():
@@ -311,8 +299,6 @@ MissingNullability: androidx.tvprovider.media.tv.PreviewProgram.Builder#setChann
     Missing nullability on method `setChannelId` return
 MissingNullability: androidx.tvprovider.media.tv.PreviewProgram.Builder#setWeight(int):
     Missing nullability on method `setWeight` return
-MissingNullability: androidx.tvprovider.media.tv.Program#equals(Object) parameter #0:
-    Missing nullability on parameter `other` in method `equals`
 MissingNullability: androidx.tvprovider.media.tv.Program#fromCursor(android.database.Cursor):
     Missing nullability on method `fromCursor` return
 MissingNullability: androidx.tvprovider.media.tv.Program#fromCursor(android.database.Cursor) parameter #0:
@@ -321,8 +307,6 @@ MissingNullability: androidx.tvprovider.media.tv.Program#getBroadcastGenres():
     Missing nullability on method `getBroadcastGenres` return
 MissingNullability: androidx.tvprovider.media.tv.Program#toContentValues():
     Missing nullability on method `toContentValues` return
-MissingNullability: androidx.tvprovider.media.tv.Program#toString():
-    Missing nullability on method `toString` return
 MissingNullability: androidx.tvprovider.media.tv.Program.Builder#Builder(androidx.tvprovider.media.tv.Program) parameter #0:
     Missing nullability on parameter `other` in method `Builder`
 MissingNullability: androidx.tvprovider.media.tv.Program.Builder#build():
@@ -413,8 +397,6 @@ MissingNullability: androidx.tvprovider.media.tv.TvContractCompat.RecordedProgra
     Missing nullability on field `CONTENT_URI` in class `class androidx.tvprovider.media.tv.TvContractCompat.RecordedPrograms`
 MissingNullability: androidx.tvprovider.media.tv.TvContractCompat.WatchNextPrograms#CONTENT_URI:
     Missing nullability on field `CONTENT_URI` in class `class androidx.tvprovider.media.tv.TvContractCompat.WatchNextPrograms`
-MissingNullability: androidx.tvprovider.media.tv.WatchNextProgram#equals(Object) parameter #0:
-    Missing nullability on parameter `other` in method `equals`
 MissingNullability: androidx.tvprovider.media.tv.WatchNextProgram#fromCursor(android.database.Cursor):
     Missing nullability on method `fromCursor` return
 MissingNullability: androidx.tvprovider.media.tv.WatchNextProgram#fromCursor(android.database.Cursor) parameter #0:
@@ -423,8 +405,6 @@ MissingNullability: androidx.tvprovider.media.tv.WatchNextProgram#hasAnyUpdatedV
     Missing nullability on parameter `update` in method `hasAnyUpdatedValues`
 MissingNullability: androidx.tvprovider.media.tv.WatchNextProgram#toContentValues():
     Missing nullability on method `toContentValues` return
-MissingNullability: androidx.tvprovider.media.tv.WatchNextProgram#toString():
-    Missing nullability on method `toString` return
 MissingNullability: androidx.tvprovider.media.tv.WatchNextProgram.Builder#Builder(androidx.tvprovider.media.tv.WatchNextProgram) parameter #0:
     Missing nullability on parameter `other` in method `Builder`
 MissingNullability: androidx.tvprovider.media.tv.WatchNextProgram.Builder#build():

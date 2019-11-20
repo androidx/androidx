@@ -53,8 +53,6 @@ MissingNullability: androidx.percentlayout.widget.PercentLayoutHelper.PercentLay
     Missing nullability on parameter `params` in method `restoreLayoutParams`
 MissingNullability: androidx.percentlayout.widget.PercentLayoutHelper.PercentLayoutInfo#restoreMarginLayoutParams(android.view.ViewGroup.MarginLayoutParams) parameter #0:
     Missing nullability on parameter `params` in method `restoreMarginLayoutParams`
-MissingNullability: androidx.percentlayout.widget.PercentLayoutHelper.PercentLayoutInfo#toString():
-    Missing nullability on method `toString` return
 MissingNullability: androidx.percentlayout.widget.PercentLayoutHelper.PercentLayoutParams#getPercentLayoutInfo():
     Missing nullability on method `getPercentLayoutInfo` return
 MissingNullability: androidx.percentlayout.widget.PercentRelativeLayout#PercentRelativeLayout(android.content.Context) parameter #0:

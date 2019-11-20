@@ -131,26 +131,14 @@ MethodNameUnits: androidx.ui.core.Durations#inSeconds(androidx.ui.core.Duration)
     Returned time values must be in milliseconds, was `inSeconds`
 
 
-MissingBuild: androidx.ui.graphics.vector.PathBuilder:
-    Missing `build()` method in androidx.ui.graphics.vector.PathBuilder
+MissingBuildMethod: androidx.ui.graphics.vector.PathBuilder:
+    androidx.ui.graphics.vector.PathBuilder does not declare a `build()` method, but builder classes are expected to
 
 
 MissingNullability: androidx.ui.core.Constraints#Companion:
     Missing nullability on field `Companion` in class `class androidx.ui.core.Constraints`
 MissingNullability: androidx.ui.core.Dp#Companion:
     Missing nullability on field `Companion` in class `class androidx.ui.core.Dp`
-MissingNullability: androidx.ui.core.DpCubed#equals(Object) parameter #0:
-    Missing nullability on parameter `p` in method `equals`
-MissingNullability: androidx.ui.core.DpCubed#toString():
-    Missing nullability on method `toString` return
-MissingNullability: androidx.ui.core.DpInverse#equals(Object) parameter #0:
-    Missing nullability on parameter `p` in method `equals`
-MissingNullability: androidx.ui.core.DpInverse#toString():
-    Missing nullability on method `toString` return
-MissingNullability: androidx.ui.core.DpSquared#equals(Object) parameter #0:
-    Missing nullability on parameter `p` in method `equals`
-MissingNullability: androidx.ui.core.DpSquared#toString():
-    Missing nullability on method `toString` return
 MissingNullability: androidx.ui.core.Duration#Companion:
     Missing nullability on field `Companion` in class `class androidx.ui.core.Duration`
 MissingNullability: androidx.ui.core.IntPx#Companion:
@@ -161,34 +149,14 @@ MissingNullability: androidx.ui.core.Modifier.None#INSTANCE:
     Missing nullability on field `INSTANCE` in class `class androidx.ui.core.Modifier.None`
 MissingNullability: androidx.ui.core.Placeable#PlacementScope:
     Missing nullability on field `PlacementScope` in class `class androidx.ui.core.Placeable`
-MissingNullability: androidx.ui.core.Position#equals(Object) parameter #0:
-    Missing nullability on parameter `p` in method `equals`
-MissingNullability: androidx.ui.core.Position#toString():
-    Missing nullability on method `toString` return
 MissingNullability: androidx.ui.core.Px#Companion:
     Missing nullability on field `Companion` in class `class androidx.ui.core.Px`
-MissingNullability: androidx.ui.core.PxCubed#equals(Object) parameter #0:
-    Missing nullability on parameter `p` in method `equals`
-MissingNullability: androidx.ui.core.PxCubed#toString():
-    Missing nullability on method `toString` return
-MissingNullability: androidx.ui.core.PxInverse#equals(Object) parameter #0:
-    Missing nullability on parameter `p` in method `equals`
-MissingNullability: androidx.ui.core.PxInverse#toString():
-    Missing nullability on method `toString` return
 MissingNullability: androidx.ui.core.PxKt#getMinDimension(androidx.ui.core.PxSize):
     Missing nullability on method `getMinDimension` return
 MissingNullability: androidx.ui.core.PxPosition#Companion:
     Missing nullability on field `Companion` in class `class androidx.ui.core.PxPosition`
 MissingNullability: androidx.ui.core.PxSize#Companion:
     Missing nullability on field `Companion` in class `class androidx.ui.core.PxSize`
-MissingNullability: androidx.ui.core.PxSquared#equals(Object) parameter #0:
-    Missing nullability on parameter `p` in method `equals`
-MissingNullability: androidx.ui.core.PxSquared#toString():
-    Missing nullability on method `toString` return
-MissingNullability: androidx.ui.core.Size#equals(Object) parameter #0:
-    Missing nullability on parameter `p` in method `equals`
-MissingNullability: androidx.ui.core.Size#toString():
-    Missing nullability on method `toString` return
 MissingNullability: androidx.ui.core.Sp#Companion:
     Missing nullability on field `Companion` in class `class androidx.ui.core.Sp`
 MissingNullability: androidx.ui.core.Velocity#Companion:
@@ -205,10 +173,6 @@ MissingNullability: androidx.ui.engine.geometry.Size#Companion:
     Missing nullability on field `Companion` in class `class androidx.ui.engine.geometry.Size`
 MissingNullability: androidx.ui.graphics.Color#Companion:
     Missing nullability on field `Companion` in class `class androidx.ui.graphics.Color`
-MissingNullability: androidx.ui.graphics.FixedScale#equals(Object) parameter #0:
-    Missing nullability on parameter `p` in method `equals`
-MissingNullability: androidx.ui.graphics.FixedScale#toString():
-    Missing nullability on method `toString` return
 MissingNullability: androidx.ui.graphics.MaskFilter#Companion:
     Missing nullability on field `Companion` in class `class androidx.ui.graphics.MaskFilter`
 MissingNullability: androidx.ui.graphics.Path#Companion:
