@@ -15,6 +15,10 @@ CallbackName: androidx.ui.core.gesture.DragObserver:
     Class should be named DragCallback
 CallbackName: androidx.ui.core.gesture.LongPressDragObserver:
     Class should be named LongPressDragCallback
+CallbackName: androidx.ui.core.gesture.RawScaleObserver:
+    Class should be named RawScaleCallback
+CallbackName: androidx.ui.core.gesture.ScaleObserver:
+    Class should be named ScaleCallback
 
 
 DocumentExceptions: androidx.ui.core.MultiComposableMeasurables#get(kotlin.jvm.functions.Function0<kotlin.Unit>):

@@ -1747,8 +1747,6 @@ MissingNullability: androidx.leanback.widget.Action#setLabel1(CharSequence) para
     Missing nullability on parameter `label` in method `setLabel1`
 MissingNullability: androidx.leanback.widget.Action#setLabel2(CharSequence) parameter #0:
     Missing nullability on parameter `label` in method `setLabel2`
-MissingNullability: androidx.leanback.widget.Action#toString():
-    Missing nullability on method `toString` return
 MissingNullability: androidx.leanback.widget.ArrayObjectAdapter#ArrayObjectAdapter(androidx.leanback.widget.Presenter) parameter #0:
     Missing nullability on parameter `presenter` in method `ArrayObjectAdapter`
 MissingNullability: androidx.leanback.widget.ArrayObjectAdapter#ArrayObjectAdapter(androidx.leanback.widget.PresenterSelector) parameter #0:
@@ -1797,8 +1795,6 @@ MissingNullability: androidx.leanback.widget.BaseCardView#generateLayoutParams(a
     Missing nullability on parameter `lp` in method `generateLayoutParams`
 MissingNullability: androidx.leanback.widget.BaseCardView#onCreateDrawableState(int):
     Missing nullability on method `onCreateDrawableState` return
-MissingNullability: androidx.leanback.widget.BaseCardView#toString():
-    Missing nullability on method `toString` return
 MissingNullability: androidx.leanback.widget.BaseCardView.LayoutParams#LayoutParams(android.content.Context, android.util.AttributeSet) parameter #0:
     Missing nullability on parameter `c` in method `LayoutParams`
 MissingNullability: androidx.leanback.widget.BaseCardView.LayoutParams#LayoutParams(android.content.Context, android.util.AttributeSet) parameter #1:

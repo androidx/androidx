@@ -17,24 +17,16 @@ AutoBoxing: androidx.textclassifier.TextLinksParams.Builder#setReferenceTime(Lon
 
 MissingNullability: androidx.textclassifier.TextClassification#getConfidenceScore(String) parameter #0:
     Missing nullability on parameter `entity` in method `getConfidenceScore`
-MissingNullability: androidx.textclassifier.TextClassification#toString():
-    Missing nullability on method `toString` return
 MissingNullability: androidx.textclassifier.TextClassification.Builder#setEntityType(String, float):
     Missing nullability on method `setEntityType` return
 MissingNullability: androidx.textclassifier.TextClassification.Builder#setText(CharSequence):
     Missing nullability on method `setText` return
 MissingNullability: androidx.textclassifier.TextClassification.Request#createFromBundle(android.os.Bundle):
     Missing nullability on method `createFromBundle` return
-MissingNullability: androidx.textclassifier.TextClassificationContext#toString():
-    Missing nullability on method `toString` return
 MissingNullability: androidx.textclassifier.TextClassificationContext.Builder#setWidgetVersion(String):
     Missing nullability on method `setWidgetVersion` return
 MissingNullability: androidx.textclassifier.TextClassificationManager#of(android.content.Context):
     Missing nullability on method `of` return
-MissingNullability: androidx.textclassifier.TextClassificationSessionId#equals(Object) parameter #0:
-    Missing nullability on parameter `obj` in method `equals`
-MissingNullability: androidx.textclassifier.TextClassificationSessionId#toString():
-    Missing nullability on method `toString` return
 MissingNullability: androidx.textclassifier.TextClassifier#NO_OP:
     Missing nullability on field `NO_OP` in class `class androidx.textclassifier.TextClassifier`
 MissingNullability: androidx.textclassifier.TextClassifier.EntityConfig#resolveTypes(java.util.Collection<java.lang.String>):
@@ -55,5 +47,3 @@ MissingNullability: androidx.textclassifier.TextLinksParams#DEFAULT_PARAMS:
     Missing nullability on field `DEFAULT_PARAMS` in class `class androidx.textclassifier.TextLinksParams`
 MissingNullability: androidx.textclassifier.TextSelection#getConfidenceScore(String) parameter #0:
     Missing nullability on parameter `entity` in method `getConfidenceScore`
-MissingNullability: androidx.textclassifier.TextSelection#toString():
-    Missing nullability on method `toString` return

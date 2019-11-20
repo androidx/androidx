@@ -565,10 +565,6 @@ MissingNullability: androidx.recyclerview.widget.RecyclerView.SmoothScroller#onC
     Missing nullability on parameter `child` in method `onChildAttachedToWindow`
 MissingNullability: androidx.recyclerview.widget.RecyclerView.State#put(int, Object) parameter #1:
     Missing nullability on parameter `data` in method `put`
-MissingNullability: androidx.recyclerview.widget.RecyclerView.State#toString():
-    Missing nullability on method `toString` return
-MissingNullability: androidx.recyclerview.widget.RecyclerView.ViewHolder#toString():
-    Missing nullability on method `toString` return
 MissingNullability: androidx.recyclerview.widget.RecyclerViewAccessibilityDelegate#onInitializeAccessibilityEvent(android.view.View, android.view.accessibility.AccessibilityEvent) parameter #0:
     Missing nullability on parameter `host` in method `onInitializeAccessibilityEvent`
 MissingNullability: androidx.recyclerview.widget.RecyclerViewAccessibilityDelegate#onInitializeAccessibilityEvent(android.view.View, android.view.accessibility.AccessibilityEvent) parameter #1:

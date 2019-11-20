@@ -47,8 +47,8 @@ HiddenTypeParameter: androidx.animation.TweenBuilder#build$lintWithKotlin():
     Method androidx.animation.TweenBuilder.build$lintWithKotlin() references hidden type androidx.animation.DurationBasedAnimation<T>.
 
 
-MissingBuild: androidx.animation.AnimationBuilder:
-    Missing `build()` method in androidx.animation.AnimationBuilder
+MissingBuildMethod: androidx.animation.AnimationBuilder:
+    androidx.animation.AnimationBuilder does not declare a `build()` method, but builder classes are expected to
 
 
 MissingNullability: androidx.animation.CubicBezierEasing#invoke(float):

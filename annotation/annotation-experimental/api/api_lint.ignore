@@ -1,5 +1,0 @@
-// Baseline format: 1.0
-MissingNullability: androidx.annotation.experimental.Experimental#level():
-    Missing nullability on method `level` return
-MissingNullability: androidx.annotation.experimental.UseExperimental#markerClass():
-    Missing nullability on method `markerClass` return

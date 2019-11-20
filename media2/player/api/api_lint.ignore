@@ -11,9 +11,5 @@ GenericException: androidx.media2.player.MediaPlayer#close():
     Methods must not throw generic exceptions (`java.lang.Exception`)
 
 
-MissingNullability: androidx.media2.player.MediaTimestamp#equals(Object) parameter #0:
-    Missing nullability on parameter `obj` in method `equals`
-MissingNullability: androidx.media2.player.MediaTimestamp#toString():
-    Missing nullability on method `toString` return
 MissingNullability: androidx.media2.player.TimedMetaData#getMetaData():
     Missing nullability on method `getMetaData` return

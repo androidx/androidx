@@ -41,8 +41,8 @@ KotlinOperator: androidx.ui.text.style.TextDecoration#contains(androidx.ui.text.
     Note that adding the `operator` keyword would allow calling this method using operator syntax
 
 
-MissingBuild: androidx.ui.text.AnnotatedString.Builder:
-    Missing `build()` method in androidx.ui.text.AnnotatedString.Builder
+MissingBuildMethod: androidx.ui.text.AnnotatedString.Builder:
+    androidx.ui.text.AnnotatedString.Builder does not declare a `build()` method, but builder classes are expected to
 
 
 MissingNullability: androidx.ui.input.OffsetMap#Companion:

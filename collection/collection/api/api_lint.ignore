@@ -35,28 +35,18 @@ MissingNullability: androidx.collection.ArrayMap#putAll(java.util.Map<? extends 
     Missing nullability on parameter `map` in method `putAll`
 MissingNullability: androidx.collection.ArrayMap#values():
     Missing nullability on method `values` return
-MissingNullability: androidx.collection.ArraySet#equals(Object) parameter #0:
-    Missing nullability on parameter `object` in method `equals`
 MissingNullability: androidx.collection.ArraySet#iterator():
     Missing nullability on method `iterator` return
-MissingNullability: androidx.collection.ArraySet#toString():
-    Missing nullability on method `toString` return
 MissingNullability: androidx.collection.LongSparseArray#clone():
     Missing nullability on method `clone` return
 MissingNullability: androidx.collection.LongSparseArray#remove(long, Object) parameter #1:
     Missing nullability on parameter `value` in method `remove`
-MissingNullability: androidx.collection.LongSparseArray#toString():
-    Missing nullability on method `toString` return
 MissingNullability: androidx.collection.LruCache#snapshot():
     Missing nullability on method `snapshot` return
-MissingNullability: androidx.collection.LruCache#toString():
-    Missing nullability on method `toString` return
 MissingNullability: androidx.collection.SimpleArrayMap#SimpleArrayMap(androidx.collection.SimpleArrayMap<K,V>) parameter #0:
     Missing nullability on parameter `map` in method `SimpleArrayMap`
 MissingNullability: androidx.collection.SimpleArrayMap#containsValue(Object) parameter #0:
     Missing nullability on parameter `value` in method `containsValue`
-MissingNullability: androidx.collection.SimpleArrayMap#equals(Object) parameter #0:
-    Missing nullability on parameter `object` in method `equals`
 MissingNullability: androidx.collection.SimpleArrayMap#get(Object) parameter #0:
     Missing nullability on parameter `key` in method `get`
 MissingNullability: androidx.collection.SimpleArrayMap#getOrDefault(Object, V) parameter #0:
@@ -67,14 +57,10 @@ MissingNullability: androidx.collection.SimpleArrayMap#remove(Object, Object) pa
     Missing nullability on parameter `key` in method `remove`
 MissingNullability: androidx.collection.SimpleArrayMap#remove(Object, Object) parameter #1:
     Missing nullability on parameter `value` in method `remove`
-MissingNullability: androidx.collection.SimpleArrayMap#toString():
-    Missing nullability on method `toString` return
 MissingNullability: androidx.collection.SparseArrayCompat#clone():
     Missing nullability on method `clone` return
 MissingNullability: androidx.collection.SparseArrayCompat#remove(int, Object) parameter #1:
     Missing nullability on parameter `value` in method `remove`
-MissingNullability: androidx.collection.SparseArrayCompat#toString():
-    Missing nullability on method `toString` return
 
 
 NoClone: androidx.collection.LongSparseArray#clone():
