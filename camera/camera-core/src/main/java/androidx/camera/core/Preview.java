@@ -748,6 +748,8 @@ public class Preview extends UseCase {
         /**
          * Sets the aspect ratio of the intended target for images from this configuration.
          *
+         * <p>The aspect ratio is the ratio of width to height in the sensor orientation.
+         *
          * <p>It is not allowed to set both target aspect ratio and target resolution on the same
          * use case.  Attempting so will throw an IllegalArgumentException when building the
          * Config.
@@ -762,8 +764,8 @@ public class Preview extends UseCase {
          * <p>If not set, resolutions with aspect ratio 4:3 will be considered in higher
          * priority.
          *
-         * @param aspectRatio A {@link AspectRatio} representing the ratio of the
-         *                    target's width and height.
+         * @param aspectRatio The desired Preview {@link AspectRatio}
+         *
          * @return The current Builder.
          */
         @NonNull
