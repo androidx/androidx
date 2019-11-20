@@ -16,8 +16,6 @@
 
 package androidx.camera.core;
 
-import static androidx.camera.core.impl.CameraDeviceConfig.OPTION_CAMERA_ID_FILTER;
-import static androidx.camera.core.impl.CameraDeviceConfig.OPTION_LENS_FACING;
 import static androidx.camera.core.impl.ImageAnalysisConfig.OPTION_BACKPRESSURE_STRATEGY;
 import static androidx.camera.core.impl.ImageAnalysisConfig.OPTION_IMAGE_QUEUE_DEPTH;
 import static androidx.camera.core.impl.ImageOutputConfig.OPTION_MAX_RESOLUTION;
@@ -51,8 +49,6 @@ import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.annotation.RestrictTo;
 import androidx.annotation.RestrictTo.Scope;
-import androidx.camera.core.impl.CameraDeviceConfig;
-import androidx.camera.core.impl.CameraIdFilter;
 import androidx.camera.core.impl.CameraInfoInternal;
 import androidx.camera.core.impl.CaptureConfig;
 import androidx.camera.core.impl.ConfigProvider;
@@ -78,7 +74,6 @@ import java.util.List;
 import java.util.Map;
 import java.util.UUID;
 import java.util.concurrent.Executor;
-
 
 /**
  * A use case providing CPU accessible images for an app to perform image analysis on.
@@ -539,8 +534,7 @@ public final class ImageAnalysis extends UseCase {
 
     /** Builder for a {@link ImageAnalysis}. */
     public static final class Builder
-            implements CameraDeviceConfig.Builder<Builder>,
-            ImageOutputConfig.Builder<Builder>,
+            implements ImageOutputConfig.Builder<Builder>,
             ThreadConfig.Builder<Builder>,
             UseCaseConfig.Builder<ImageAnalysis, ImageAnalysisConfig, Builder> {
 
@@ -710,44 +704,6 @@ public final class ImageAnalysis extends UseCase {
         @NonNull
         public Builder setTargetName(@NonNull String targetName) {
             getMutableConfig().insertOption(OPTION_TARGET_NAME, targetName);
-            return this;
-        }
-
-        // Implementations of CameraDeviceConfig.Builder default methods
-
-        /**
-         * Sets the primary camera to be configured based on the direction the lens is facing.
-         *
-         * <p>If multiple cameras exist with equivalent lens facing direction, the first ("primary")
-         * camera for that direction will be chosen.
-         *
-         * @param lensFacing The direction of the camera's lens.
-         * @return the current Builder.
-         * @hide
-         */
-        @RestrictTo(Scope.LIBRARY_GROUP)
-        @Override
-        @NonNull
-        public Builder setLensFacing(@CameraSelector.LensFacing int lensFacing) {
-            getMutableConfig().insertOption(OPTION_LENS_FACING, lensFacing);
-            return this;
-        }
-
-        /**
-         * Sets a {@link CameraIdFilter} that filters out the unavailable camera id.
-         *
-         * <p>The camera id filter will be used to filter those cameras with lens facing
-         * specified in the config.
-         *
-         * @param cameraIdFilter The {@link CameraIdFilter}.
-         * @return the current Builder.
-         * @hide
-         */
-        @RestrictTo(Scope.LIBRARY_GROUP)
-        @Override
-        @NonNull
-        public Builder setCameraIdFilter(@NonNull CameraIdFilter cameraIdFilter) {
-            getMutableConfig().insertOption(OPTION_CAMERA_ID_FILTER, cameraIdFilter);
             return this;
         }
 

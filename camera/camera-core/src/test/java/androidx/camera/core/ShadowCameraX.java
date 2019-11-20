@@ -18,7 +18,6 @@ package androidx.camera.core;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
-import androidx.camera.core.impl.CameraDeviceConfig;
 import androidx.camera.core.impl.CameraDeviceSurfaceManager;
 import androidx.camera.core.impl.CameraInfoInternal;
 import androidx.camera.core.impl.SessionConfig;
@@ -121,14 +120,6 @@ public class ShadowCameraX {
 
     private static final CameraDeviceSurfaceManager DEFAULT_DEVICE_SURFACE_MANAGER =
             new FakeCameraDeviceSurfaceManager();
-
-    /**
-     * Shadow of {@link ShadowCameraX#getCameraWithCameraDeviceConfig(CameraDeviceConfig)}.
-     */
-    @Implementation
-    public static String getCameraWithCameraDeviceConfig(CameraDeviceConfig config) {
-        return DEFAULT_CAMERA_ID;
-    }
 
     /**
      * Shadow of {@link CameraX#getCameraInfo(String)}.
