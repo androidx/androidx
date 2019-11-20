@@ -16,6 +16,7 @@
 
 package com.example.androidx.webkit;
 
+import android.annotation.SuppressLint;
 import android.net.Uri;
 import android.os.Bundle;
 import android.webkit.WebResourceRequest;
@@ -62,6 +63,7 @@ public class AssetLoaderAjaxActivity extends AppCompatActivity {
     private WebViewAssetLoader mAssetLoader;
     private WebView mWebView;
 
+    @SuppressLint("SetJavaScriptEnabled")
     @Override
     protected void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);

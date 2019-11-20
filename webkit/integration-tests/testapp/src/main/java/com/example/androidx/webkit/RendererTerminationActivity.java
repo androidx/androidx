@@ -16,6 +16,7 @@
 
 package com.example.androidx.webkit;
 
+import android.annotation.SuppressLint;
 import android.app.Dialog;
 import android.content.DialogInterface;
 import android.os.Bundle;
@@ -198,6 +199,7 @@ public class RendererTerminationActivity extends AppCompatActivity {
                 WebViewFeature.WEB_VIEW_RENDERER_CLIENT_BASIC_USAGE));
     }
 
+    @SuppressLint("SetJavaScriptEnabled")
     private void recreateWebView() {
         FrameLayout layout = (FrameLayout) mWebView.getParent();
         LayoutParams params = mWebView.getLayoutParams();

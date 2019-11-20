@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<issues format="5" by="lint 3.6.0-alpha12" client="gradle" variant="debug" version="3.6.0-alpha12">
+<issues format="5" by="lint 3.6.0-beta03" client="gradle" variant="debug" version="3.6.0-beta03">
 
     <issue
         id="Assert"
@@ -8,7 +8,7 @@
         errorLine2="                ~~~~~~">
         <location
             file="src/main/java/com/example/androidx/webkit/RendererTerminationActivity.java"
-            line="217"
+            line="215"
             column="17"/>
     </issue>
 
@@ -79,58 +79,14 @@
     </issue>
 
     <issue
-        id="SetJavaScriptEnabled"
-        message="Using `setJavaScriptEnabled` can introduce XSS vulnerabilities into your application, review carefully."
-        errorLine1="        webViewSettings.setJavaScriptEnabled(true);"
-        errorLine2="        ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
-        <location
-            file="src/main/java/com/example/androidx/webkit/AssetLoaderAjaxActivity.java"
-            line="86"
-            column="9"/>
-    </issue>
-
-    <issue
-        id="SetJavaScriptEnabled"
-        message="Using `setJavaScriptEnabled` can introduce XSS vulnerabilities into your application, review carefully."
-        errorLine1="        mWebView.getSettings().setJavaScriptEnabled(true); // in case site needs JS to render"
-        errorLine2="        ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
-        <location
-            file="src/main/java/com/example/androidx/webkit/LoudInterstitialActivity.java"
-            line="49"
-            column="9"/>
-    </issue>
-
-    <issue
-        id="SetJavaScriptEnabled"
-        message="Using `setJavaScriptEnabled` can introduce XSS vulnerabilities into your application, review carefully."
-        errorLine1="        mWebView.getSettings().setJavaScriptEnabled(true);"
-        errorLine2="        ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
-        <location
-            file="src/main/java/com/example/androidx/webkit/RendererTerminationActivity.java"
-            line="229"
-            column="9"/>
-    </issue>
-
-    <issue
         id="StaticFieldLeak"
         message="This `AsyncTask` class should be static or leaks might occur (anonymous com.example.androidx.webkit.AssetLoaderInternalStorageActivity.WriteFileTask)"
         errorLine1="        new WriteFileTask(mDemoFile, DEMO_HTML_CONTENT) {"
         errorLine2="        ^">
         <location
             file="src/main/java/com/example/androidx/webkit/AssetLoaderInternalStorageActivity.java"
-            line="92"
+            line="96"
             column="9"/>
-    </issue>
-
-    <issue
-        id="StaticFieldLeak"
-        message="This `AsyncTask` class should be static or leaks might occur (com.example.androidx.webkit.AssetLoaderInternalStorageActivity.WriteFileTask)"
-        errorLine1="    private class WriteFileTask extends AsyncTask&lt;Void, Void, Void> {"
-        errorLine2="                  ~~~~~~~~~~~~~">
-        <location
-            file="src/main/java/com/example/androidx/webkit/AssetLoaderInternalStorageActivity.java"
-            line="116"
-            column="19"/>
     </issue>
 
     <issue
@@ -481,7 +437,7 @@
         errorLine2="                                ~~~~~~~~~~~~">
         <location
             file="src/main/java/com/example/androidx/webkit/RendererTerminationActivity.java"
-            line="224"
+            line="222"
             column="33"/>
     </issue>
 
@@ -492,7 +448,7 @@
         errorLine2="                        ~~~~~~~~~">
         <location
             file="src/main/java/com/example/androidx/webkit/RendererTerminationActivity.java"
-            line="235"
+            line="233"
             column="25"/>
     </issue>
 
@@ -503,7 +459,7 @@
         errorLine2="                                    ~~~~~~~~~~~~~~">
         <location
             file="src/main/java/com/example/androidx/webkit/RendererTerminationActivity.java"
-            line="244"
+            line="242"
             column="37"/>
     </issue>
 
@@ -514,7 +470,7 @@
         errorLine2="                                    ~~~~~~~~~~~~">
         <location
             file="src/main/java/com/example/androidx/webkit/RendererTerminationActivity.java"
-            line="254"
+            line="252"
             column="37"/>
     </issue>
 
