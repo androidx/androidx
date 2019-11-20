@@ -25,7 +25,7 @@ import androidx.navigation.NavDestinationDsl
 import androidx.navigation.NavGraphBuilder
 import androidx.navigation.Navigator
 import androidx.navigation.get
-import androidx.navigation.testing.TestNavigator
+import androidx.testutils.TestNavigator
 
 @Navigator.Name("dialog")
 class FloatingTestNavigator : TestNavigator() {

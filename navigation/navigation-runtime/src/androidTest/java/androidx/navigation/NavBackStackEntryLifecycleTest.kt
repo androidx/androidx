@@ -24,11 +24,11 @@ import androidx.lifecycle.LifecycleRegistry
 import androidx.navigation.test.FloatingTestNavigator
 import androidx.navigation.test.R
 import androidx.navigation.test.dialog
-import androidx.navigation.testing.TestNavigator
-import androidx.navigation.testing.test
 import androidx.test.core.app.ApplicationProvider
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import androidx.test.filters.MediumTest
+import androidx.testutils.TestNavigator
+import androidx.testutils.test
 import com.google.common.truth.Truth.assertWithMessage
 import org.junit.Test
 import org.junit.runner.RunWith

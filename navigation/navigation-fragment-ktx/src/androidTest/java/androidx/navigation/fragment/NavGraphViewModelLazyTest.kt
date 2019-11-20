@@ -34,12 +34,12 @@ import androidx.navigation.fragment.ktx.test.R
 import androidx.navigation.navGraphViewModels
 import androidx.navigation.navigation
 import androidx.navigation.plusAssign
-import androidx.navigation.testing.TestNavigator
-import androidx.navigation.testing.test
 import androidx.test.core.app.ActivityScenario
 import androidx.test.core.app.ApplicationProvider
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import androidx.test.filters.LargeTest
+import androidx.testutils.TestNavigator
+import androidx.testutils.test
 import androidx.testutils.withActivity
 import com.google.common.truth.Truth.assertThat
 import org.junit.Test

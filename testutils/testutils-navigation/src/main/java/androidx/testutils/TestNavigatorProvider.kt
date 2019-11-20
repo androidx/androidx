@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package androidx.navigation.testing
+package androidx.testutils
 
 import androidx.navigation.NavGraphNavigator
 import androidx.navigation.NavigatorProvider

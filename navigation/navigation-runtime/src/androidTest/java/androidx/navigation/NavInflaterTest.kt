@@ -21,11 +21,11 @@ import android.content.Context
 import android.net.Uri
 import androidx.navigation.test.R
 import androidx.navigation.test.TestEnum
-import androidx.navigation.testing.TestNavigatorProvider
 import androidx.test.core.app.ApplicationProvider
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import androidx.test.filters.SmallTest
 import androidx.test.platform.app.InstrumentationRegistry
+import androidx.testutils.TestNavigatorProvider
 import com.google.common.truth.Truth.assertThat
 import org.junit.Before
 import org.junit.Test
