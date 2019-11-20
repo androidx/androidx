@@ -17,7 +17,7 @@
 package androidx.ui.benchmark.test.view
 
 import androidx.test.filters.LargeTest
-import androidx.ui.benchmark.ComposeBenchmarkRule
+import androidx.ui.benchmark.AndroidBenchmarkRule
 import androidx.ui.benchmark.benchmarkDrawPerf
 import androidx.ui.benchmark.benchmarkFirstDraw
 import androidx.ui.benchmark.benchmarkFirstLayout
@@ -44,41 +44,39 @@ class AndroidCheckboxesInLinearLayoutBenchmark(private val numberOfCheckboxes: I
     }
 
     @get:Rule
-    val benchmarkRule = ComposeBenchmarkRule()
+    val benchmarkRule = AndroidBenchmarkRule()
+
+    private val checkboxesCaseFactory = {
+        AndroidCheckboxesInLinearLayoutTestCase(numberOfCheckboxes)
+    }
 
     @Test
     fun first_setContent() {
-        benchmarkRule.benchmarkFirstSetContent(
-            AndroidCheckboxesInLinearLayoutTestCase(numberOfCheckboxes))
+        benchmarkRule.benchmarkFirstSetContent(checkboxesCaseFactory)
     }
 
     @Test
     fun first_measure() {
-        benchmarkRule.benchmarkFirstMeasure(
-            AndroidCheckboxesInLinearLayoutTestCase(numberOfCheckboxes))
+        benchmarkRule.benchmarkFirstMeasure(checkboxesCaseFactory)
     }
 
     @Test
     fun first_layout() {
-        benchmarkRule.benchmarkFirstLayout(
-            AndroidCheckboxesInLinearLayoutTestCase(numberOfCheckboxes))
+        benchmarkRule.benchmarkFirstLayout(checkboxesCaseFactory)
     }
 
     @Test
     fun first_draw() {
-        benchmarkRule.benchmarkFirstDraw(
-            AndroidCheckboxesInLinearLayoutTestCase(numberOfCheckboxes))
+        benchmarkRule.benchmarkFirstDraw(checkboxesCaseFactory)
     }
 
     @Test
     fun layout() {
-        benchmarkRule.benchmarkLayoutPerf(
-            AndroidCheckboxesInLinearLayoutTestCase(numberOfCheckboxes))
+        benchmarkRule.benchmarkLayoutPerf(checkboxesCaseFactory)
     }
 
     @Test
     fun draw() {
-        benchmarkRule.benchmarkDrawPerf(
-            AndroidCheckboxesInLinearLayoutTestCase(numberOfCheckboxes))
+        benchmarkRule.benchmarkDrawPerf(checkboxesCaseFactory)
     }
 }

@@ -50,53 +50,55 @@ class CheckboxesInRowsBenchmark(private val numberOfCheckboxes: Int) {
     @get:Rule
     val benchmarkRule = ComposeBenchmarkRule()
 
+    private val checkboxCaseFactory = { CheckboxesInRowsTestCase(numberOfCheckboxes) }
+
     @Test
     fun first_compose() {
-        benchmarkRule.benchmarkFirstCompose(CheckboxesInRowsTestCase(numberOfCheckboxes))
+        benchmarkRule.benchmarkFirstCompose(checkboxCaseFactory)
     }
 
     @Test
     fun first_measure() {
-        benchmarkRule.benchmarkFirstMeasure(CheckboxesInRowsTestCase(numberOfCheckboxes))
+        benchmarkRule.benchmarkFirstMeasure(checkboxCaseFactory)
     }
 
     @Test
     fun first_layout() {
-        benchmarkRule.benchmarkFirstLayout(CheckboxesInRowsTestCase(numberOfCheckboxes))
+        benchmarkRule.benchmarkFirstLayout(checkboxCaseFactory)
     }
 
     @Test
     fun first_draw() {
-        benchmarkRule.benchmarkFirstDraw(CheckboxesInRowsTestCase(numberOfCheckboxes))
+        benchmarkRule.benchmarkFirstDraw(checkboxCaseFactory)
     }
 
     @Test
     fun toggleCheckbox_recompose() {
-        benchmarkRule.toggleStateBenchmarkRecompose(CheckboxesInRowsTestCase(numberOfCheckboxes))
+        benchmarkRule.toggleStateBenchmarkRecompose(checkboxCaseFactory)
     }
 
     @Test
     fun toggleCheckbox_measure() {
-        benchmarkRule.toggleStateBenchmarkMeasure(CheckboxesInRowsTestCase(numberOfCheckboxes))
+        benchmarkRule.toggleStateBenchmarkMeasure(checkboxCaseFactory)
     }
 
     @Test
     fun toggleCheckbox_layout() {
-        benchmarkRule.toggleStateBenchmarkLayout(CheckboxesInRowsTestCase(numberOfCheckboxes))
+        benchmarkRule.toggleStateBenchmarkLayout(checkboxCaseFactory)
     }
 
     @Test
     fun toggleCheckbox_draw() {
-        benchmarkRule.toggleStateBenchmarkDraw(CheckboxesInRowsTestCase(numberOfCheckboxes))
+        benchmarkRule.toggleStateBenchmarkDraw(checkboxCaseFactory)
     }
 
     @Test
     fun layout() {
-        benchmarkRule.benchmarkLayoutPerf(CheckboxesInRowsTestCase(numberOfCheckboxes))
+        benchmarkRule.benchmarkLayoutPerf(checkboxCaseFactory)
     }
 
     @Test
     fun draw() {
-        benchmarkRule.benchmarkDrawPerf(CheckboxesInRowsTestCase(numberOfCheckboxes))
+        benchmarkRule.benchmarkDrawPerf(checkboxCaseFactory)
     }
 }

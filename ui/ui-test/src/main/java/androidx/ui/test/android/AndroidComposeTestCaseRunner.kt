@@ -40,21 +40,22 @@ import androidx.ui.core.DrawNode
 import androidx.ui.core.setContent
 import androidx.ui.test.ComposeBenchmarkScope
 import androidx.ui.test.ComposeTestCase
+import androidx.ui.test.setupContent
 
 /**
  * Factory method to provide implementation of [ComposeBenchmarkScope].
  */
-fun createAndroidComposeBenchmarkRunner(
-    testCase: ComposeTestCase,
+fun <T : ComposeTestCase> createAndroidComposeBenchmarkRunner(
+    testCaseFactory: () -> T,
     activity: Activity
-): ComposeBenchmarkScope {
-    return AndroidComposeTestCaseRunner(testCase, activity)
+): ComposeBenchmarkScope<T> {
+    return AndroidComposeTestCaseRunner(testCaseFactory, activity)
 }
 
-internal class AndroidComposeTestCaseRunner(
-    private val testCase: ComposeTestCase,
+internal class AndroidComposeTestCaseRunner<T : ComposeTestCase>(
+    private val testCaseFactory: () -> T,
     private val activity: Activity
-) : ComposeBenchmarkScope {
+) : ComposeBenchmarkScope<T> {
 
     override val measuredWidth: Int
         get() = view!!.measuredWidth
@@ -80,6 +81,8 @@ internal class AndroidComposeTestCaseRunner(
 
     private var simulationState: SimulationState = SimulationState.Initialized
 
+    private var testCase: T? = null
+
     init {
         val displayMetrics = DisplayMetrics()
         activity.windowManager.defaultDisplay.getMetrics(displayMetrics)
@@ -90,13 +93,24 @@ internal class AndroidComposeTestCaseRunner(
         screenHeightSpec = View.MeasureSpec.makeMeasureSpec(height, View.MeasureSpec.AT_MOST)
     }
 
-    override fun setupContent() {
+    override fun createTestCase() {
         require(view == null) { "Content was already set!" }
+        require(testCase == null) { "Content was already set!" }
+        testCase = testCaseFactory()
+        simulationState = SimulationState.TestCaseCreated
+    }
+
+    override fun emitContent() {
+        require(view == null) { "Content was already set!" }
+        require(testCase != null && simulationState == SimulationState.TestCaseCreated) {
+            "Need to call onPreEmitContent before emitContent!"
+        }
 
         recomposer = Recomposer.current()
-        compositionContext = activity.setContent { testCase.emitContent() }!!
+        compositionContext = activity.setContent { testCase!!.emitContent() }!!
         FrameManager.nextFrame()
         view = findComposeView(activity)!!
+        simulationState = SimulationState.EmitContentDone
     }
 
     override fun hasPendingChanges(): Boolean {
@@ -211,6 +225,7 @@ internal class AndroidComposeTestCaseRunner(
         rootView.removeAllViews()
         // Important so we can set the content again.
         view = null
+        testCase = null
         simulationState = SimulationState.Initialized
     }
 
@@ -241,10 +256,16 @@ internal class AndroidComposeTestCaseRunner(
         require(view != null) { "View was not set! Call setupContent first!" }
         return view!!
     }
+
+    override fun getTestCase(): T {
+        return testCase!!
+    }
 }
 
 private enum class SimulationState {
     Initialized,
+    TestCaseCreated,
+    EmitContentDone,
     MeasureDone,
     LayoutDone,
     DrawPrepared,

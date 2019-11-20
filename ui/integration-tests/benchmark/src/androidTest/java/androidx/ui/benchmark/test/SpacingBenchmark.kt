@@ -50,104 +50,107 @@ class PaddingBenchmark {
     @get:Rule
     val benchmarkRule = ComposeBenchmarkRule()
 
+    private val noModifierCaseFactory = { NoModifierTestCase() }
+    private val modifierCaseFactory = { ModifierTestCase() }
+
     @Test
     fun noModifier_first_compose() {
-        benchmarkRule.benchmarkFirstCompose(NoModifierTestCase())
+        benchmarkRule.benchmarkFirstCompose(noModifierCaseFactory)
     }
 
     @Test
     fun noModifier_first_measure() {
-        benchmarkRule.benchmarkFirstMeasure(NoModifierTestCase())
+        benchmarkRule.benchmarkFirstMeasure(noModifierCaseFactory)
     }
 
     @Test
     fun noModifier_first_layout() {
-        benchmarkRule.benchmarkFirstLayout(NoModifierTestCase())
+        benchmarkRule.benchmarkFirstLayout(noModifierCaseFactory)
     }
 
     @Test
     fun noModifier_first_draw() {
-        benchmarkRule.benchmarkFirstDraw(NoModifierTestCase())
+        benchmarkRule.benchmarkFirstDraw(noModifierCaseFactory)
     }
 
     @Test
     fun noModifier_togglePadding_recompose() {
-        benchmarkRule.toggleStateBenchmarkRecompose(NoModifierTestCase())
+        benchmarkRule.toggleStateBenchmarkRecompose(noModifierCaseFactory)
     }
 
     @Test
     fun noModifier_togglePadding_measure() {
-        benchmarkRule.toggleStateBenchmarkMeasure(NoModifierTestCase())
+        benchmarkRule.toggleStateBenchmarkMeasure(noModifierCaseFactory)
     }
 
     @Test
     fun noModifier_togglePadding_layout() {
-        benchmarkRule.toggleStateBenchmarkLayout(NoModifierTestCase())
+        benchmarkRule.toggleStateBenchmarkLayout(noModifierCaseFactory)
     }
 
     @Test
     fun noModifier_togglePadding_draw() {
-        benchmarkRule.toggleStateBenchmarkDraw(NoModifierTestCase())
+        benchmarkRule.toggleStateBenchmarkDraw(noModifierCaseFactory)
     }
 
     @Test
     fun noModifier_layout() {
-        benchmarkRule.benchmarkLayoutPerf(NoModifierTestCase())
+        benchmarkRule.benchmarkLayoutPerf(noModifierCaseFactory)
     }
 
     @Test
     fun noModifier_draw() {
-        benchmarkRule.benchmarkDrawPerf(NoModifierTestCase())
+        benchmarkRule.benchmarkDrawPerf(noModifierCaseFactory)
     }
 
     @Test
     fun modifier_first_compose() {
-        benchmarkRule.benchmarkFirstCompose(ModifierTestCase())
+        benchmarkRule.benchmarkFirstCompose(modifierCaseFactory)
     }
 
     @Test
     fun modifier_first_measure() {
-        benchmarkRule.benchmarkFirstMeasure(ModifierTestCase())
+        benchmarkRule.benchmarkFirstMeasure(modifierCaseFactory)
     }
 
     @Test
     fun modifier_first_layout() {
-        benchmarkRule.benchmarkFirstLayout(ModifierTestCase())
+        benchmarkRule.benchmarkFirstLayout(modifierCaseFactory)
     }
 
     @Test
     fun modifier_first_draw() {
-        benchmarkRule.benchmarkFirstDraw(ModifierTestCase())
+        benchmarkRule.benchmarkFirstDraw(modifierCaseFactory)
     }
 
     @Test
     fun modifier_togglePadding_recompose() {
-        benchmarkRule.toggleStateBenchmarkRecompose(ModifierTestCase())
+        benchmarkRule.toggleStateBenchmarkRecompose(modifierCaseFactory)
     }
 
     @Test
     fun modifier_togglePadding_measure() {
-        benchmarkRule.toggleStateBenchmarkMeasure(ModifierTestCase())
+        benchmarkRule.toggleStateBenchmarkMeasure(modifierCaseFactory)
     }
 
     @Test
     fun modifier_togglePadding_layout() {
-        benchmarkRule.toggleStateBenchmarkLayout(ModifierTestCase())
+        benchmarkRule.toggleStateBenchmarkLayout(modifierCaseFactory)
     }
 
     @Test
     fun modifier_togglePadding_draw() {
-        benchmarkRule.toggleStateBenchmarkDraw(ModifierTestCase())
+        benchmarkRule.toggleStateBenchmarkDraw(modifierCaseFactory)
     }
 
     @Test
     fun modifier_layout() {
-        benchmarkRule.benchmarkLayoutPerf(ModifierTestCase())
+        benchmarkRule.benchmarkLayoutPerf(modifierCaseFactory)
     }
 
     @Test
     fun modifier_draw() {
-        benchmarkRule.benchmarkDrawPerf(ModifierTestCase())
+        benchmarkRule.benchmarkDrawPerf(modifierCaseFactory)
     }
 }
 

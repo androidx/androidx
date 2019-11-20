@@ -23,6 +23,7 @@ import androidx.ui.layout.DpConstraints
 import androidx.ui.layout.Wrap
 import androidx.ui.test.ComposeTestCase
 import androidx.ui.test.RandomTextGenerator
+import androidx.ui.text.AnnotatedString
 import androidx.ui.text.TextStyle
 
 /**

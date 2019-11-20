@@ -32,7 +32,8 @@ import org.junit.runner.RunWith
 import org.junit.runners.Parameterized
 
 /**
- * The benchmark for [Text] composable with the input being styled text in form of composable [Span]s.
+ * The benchmark for [Text] composable with the input being styled text in form of composable
+ * [Span]s.
  */
 @LargeTest
 @RunWith(Parameterized::class)
@@ -61,12 +62,12 @@ class TextWithSpanBenchmark(
     @Test
     fun first_compose() {
         textBenchmarkRule.generator { textGenerator ->
-            benchmarkRule.benchmarkFirstCompose(
+            benchmarkRule.benchmarkFirstCompose {
                 TextWithSpanTestCase(
                     textLength,
                     textGenerator
                 )
-            )
+            }
         }
     }
 
@@ -77,12 +78,12 @@ class TextWithSpanBenchmark(
     @Test
     fun first_measure() {
         textBenchmarkRule.generator { textGenerator ->
-            benchmarkRule.benchmarkFirstMeasure(
+            benchmarkRule.benchmarkFirstMeasure {
                 TextWithSpanTestCase(
                     textLength,
                     textGenerator
                 )
-            )
+            }
         }
     }
 
@@ -93,12 +94,12 @@ class TextWithSpanBenchmark(
     @Test
     fun first_layout() {
         textBenchmarkRule.generator { textGenerator ->
-            benchmarkRule.benchmarkFirstLayout(
+            benchmarkRule.benchmarkFirstLayout {
                 TextWithSpanTestCase(
                     textLength,
                     textGenerator
                 )
-            )
+            }
         }
     }
 
@@ -108,12 +109,12 @@ class TextWithSpanBenchmark(
     @Test
     fun first_draw() {
         textBenchmarkRule.generator { textGenerator ->
-            benchmarkRule.benchmarkFirstDraw(
+            benchmarkRule.benchmarkFirstDraw {
                 TextWithSpanTestCase(
                     textLength,
                     textGenerator
                 )
-            )
+            }
         }
     }
 
@@ -125,12 +126,12 @@ class TextWithSpanBenchmark(
     @Test
     fun layout() {
         textBenchmarkRule.generator { textGenerator ->
-            benchmarkRule.benchmarkLayoutPerf(
+            benchmarkRule.benchmarkLayoutPerf {
                 TextWithSpanTestCase(
                     textLength,
                     textGenerator
                 )
-            )
+            }
         }
     }
 
@@ -140,12 +141,12 @@ class TextWithSpanBenchmark(
     @Test
     fun draw() {
         textBenchmarkRule.generator { textGenerator ->
-            benchmarkRule.benchmarkDrawPerf(
+            benchmarkRule.benchmarkDrawPerf {
                 TextWithSpanTestCase(
                     textLength,
                     textGenerator
                 )
-            )
+            }
         }
     }
 }
