@@ -33,6 +33,7 @@ import androidx.ui.input.NO_SESSION
 import androidx.ui.input.VisualTransformation
 import androidx.ui.semantics.Semantics
 import androidx.ui.semantics.onClick
+import androidx.ui.text.ParagraphStyle
 import androidx.ui.text.TextDelegate
 import androidx.ui.text.TextRange
 import androidx.ui.text.TextStyle
@@ -93,6 +94,7 @@ fun TextField(
     modifier: Modifier = Modifier.None,
     onValueChange: (String) -> Unit = {},
     textStyle: TextStyle? = null,
+    paragraphStyle: ParagraphStyle? = null,
     keyboardType: KeyboardType = KeyboardType.Text,
     imeAction: ImeAction = ImeAction.Unspecified,
     onFocus: () -> Unit = {},
@@ -124,6 +126,7 @@ fun TextField(
             }
         },
         textStyle = textStyle,
+        paragraphStyle = paragraphStyle,
         keyboardType = keyboardType,
         imeAction = imeAction,
         onFocus = onFocus,
@@ -201,6 +204,7 @@ fun TextField(
     modifier: Modifier = Modifier.None,
     onValueChange: (EditorModel) -> Unit = {},
     textStyle: TextStyle? = null,
+    paragraphStyle: ParagraphStyle? = null,
     keyboardType: KeyboardType = KeyboardType.Text,
     imeAction: ImeAction = ImeAction.Unspecified,
     onFocus: () -> Unit = {},
@@ -232,6 +236,7 @@ fun TextField(
             }
         },
         textStyle = textStyle,
+        paragraphStyle = paragraphStyle,
         keyboardType = keyboardType,
         imeAction = imeAction,
         onFocus = onFocus,
@@ -300,6 +305,7 @@ fun TextField(
     modifier: Modifier = Modifier.None,
     onValueChange: (EditorModel, TextRange?) -> Unit = { _, _ -> },
     textStyle: TextStyle? = null,
+    paragraphStyle: ParagraphStyle? = null,
     keyboardType: KeyboardType = KeyboardType.Text,
     imeAction: ImeAction = ImeAction.Unspecified,
     onFocus: () -> Unit = {},
@@ -313,6 +319,7 @@ fun TextField(
         modifier = modifier,
         onValueChange = { onValueChange(EditorModel(it.text, it.selection), it.composition) },
         textStyle = textStyle,
+        paragraphStyle = paragraphStyle,
         keyboardType = keyboardType,
         imeAction = imeAction,
         onFocus = onFocus,
@@ -332,6 +339,7 @@ internal fun BaseTextField(
     modifier: Modifier,
     onValueChange: (InputState) -> Unit = { },
     textStyle: TextStyle? = null,
+    paragraphStyle: ParagraphStyle? = null,
     keyboardType: KeyboardType = KeyboardType.Text,
     imeAction: ImeAction = ImeAction.Unspecified,
     onFocus: () -> Unit = {},
@@ -365,10 +373,11 @@ internal fun BaseTextField(
                 TextFieldDelegate.applyCompositionDecoration(it, transformed)
             } ?: transformed
         }
-        val textDelegate = +memo(visualText, mergedStyle, density, resourceLoader) {
+        val textDelegate = +memo(visualText, mergedStyle, paragraphStyle, density, resourceLoader) {
             TextDelegate(
                 text = visualText,
                 style = mergedStyle,
+                paragraphStyle = paragraphStyle,
                 density = density,
                 layoutDirection = layoutDirection,
                 resourceLoader = resourceLoader
