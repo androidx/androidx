@@ -213,7 +213,7 @@ package androidx.browser.customtabs {
 
   public final class CustomTabsSession {
     method @VisibleForTesting public static androidx.browser.customtabs.CustomTabsSession createMockSessionForTesting(android.content.ComponentName);
-    method public boolean mayLaunchUrl(android.net.Uri, android.os.Bundle?, java.util.List<android.os.Bundle!>?);
+    method public boolean mayLaunchUrl(android.net.Uri!, android.os.Bundle!, java.util.List<android.os.Bundle!>!);
     method @androidx.browser.customtabs.CustomTabsService.Result public int postMessage(String!, android.os.Bundle!);
     method public boolean receiveFile(android.net.Uri, @androidx.browser.customtabs.CustomTabsService.FilePurpose int, android.os.Bundle?);
     method public boolean requestPostMessageChannel(android.net.Uri!);
@@ -261,14 +261,9 @@ package androidx.browser.customtabs {
 package androidx.browser.trusted {
 
 
-  public final class TrustedWebActivityIntent {
-    method public android.content.Intent getIntent();
-    method public void launchTrustedWebActivity(android.content.Context);
-  }
-
   public class TrustedWebActivityIntentBuilder {
     ctor public TrustedWebActivityIntentBuilder(android.net.Uri);
-    method public androidx.browser.trusted.TrustedWebActivityIntent build(androidx.browser.customtabs.CustomTabsSession);
+    method public android.content.Intent build(androidx.browser.customtabs.CustomTabsSession);
     method public androidx.browser.customtabs.CustomTabsIntent buildCustomTabsIntent();
     method public android.net.Uri getUrl();
     method public androidx.browser.trusted.TrustedWebActivityIntentBuilder setAdditionalTrustedOrigins(java.util.List<java.lang.String!>);

@@ -1,0 +1,19 @@
+// Signature format: 3.0
+package androidx.fragment.app {
+
+  public final class FragmentManagerKt {
+    ctor public FragmentManagerKt();
+    method public static inline void commit(androidx.fragment.app.FragmentManager, boolean allowStateLoss = false, kotlin.jvm.functions.Function1<? super androidx.fragment.app.FragmentTransaction,kotlin.Unit> body);
+    method public static inline void commitNow(androidx.fragment.app.FragmentManager, boolean allowStateLoss = false, kotlin.jvm.functions.Function1<? super androidx.fragment.app.FragmentTransaction,kotlin.Unit> body);
+    method @Deprecated public static inline void transaction(androidx.fragment.app.FragmentManager, boolean now = false, boolean allowStateLoss = false, kotlin.jvm.functions.Function1<? super androidx.fragment.app.FragmentTransaction,kotlin.Unit> body);
+  }
+
+  public final class FragmentViewModelLazyKt {
+    ctor public FragmentViewModelLazyKt();
+    method @MainThread public static inline <reified VM extends androidx.lifecycle.ViewModel> kotlin.Lazy<VM> activityViewModels(androidx.fragment.app.Fragment, kotlin.jvm.functions.Function0<? extends androidx.lifecycle.ViewModelProvider.Factory>? factoryProducer = null);
+    method @MainThread public static <VM extends androidx.lifecycle.ViewModel> kotlin.Lazy<VM> createViewModelLazy(androidx.fragment.app.Fragment, kotlin.reflect.KClass<VM> viewModelClass, kotlin.jvm.functions.Function0<? extends androidx.lifecycle.ViewModelStore> storeProducer, kotlin.jvm.functions.Function0<? extends androidx.lifecycle.ViewModelProvider.Factory>? factoryProducer = null);
+    method @MainThread public static inline <reified VM extends androidx.lifecycle.ViewModel> kotlin.Lazy<VM> viewModels(androidx.fragment.app.Fragment, kotlin.jvm.functions.Function0<? extends androidx.lifecycle.ViewModelStoreOwner> ownerProducer = { this }, kotlin.jvm.functions.Function0<? extends androidx.lifecycle.ViewModelProvider.Factory>? factoryProducer = null);
+  }
+
+}
+

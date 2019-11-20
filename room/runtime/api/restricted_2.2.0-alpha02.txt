@@ -51,8 +51,8 @@ package androidx.room {
     ctor @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP_PREFIX) public InvalidationTracker(androidx.room.RoomDatabase!, java.util.Map<java.lang.String!,java.lang.String!>!, java.util.Map<java.lang.String!,java.util.Set<java.lang.String!>!>!, java.lang.String!...);
     method @WorkerThread public void addObserver(androidx.room.InvalidationTracker.Observer);
     method @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP_PREFIX) public void addWeakObserver(androidx.room.InvalidationTracker.Observer!);
-    method @Deprecated @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP_PREFIX) public <T> androidx.lifecycle.LiveData<T!>! createLiveData(String![]!, java.util.concurrent.Callable<T!>!);
-    method @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP_PREFIX) public <T> androidx.lifecycle.LiveData<T!>! createLiveData(String![]!, boolean, java.util.concurrent.Callable<T!>!);
+    method @Deprecated @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP_PREFIX) public <T> LiveData<T> createLiveData(String![]!, java.util.concurrent.Callable<T!>!);
+    method @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP_PREFIX) public <T> LiveData<T> createLiveData(String![]!, boolean, java.util.concurrent.Callable<T!>!);
     method public void refreshVersionsAsync();
     method @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP_PREFIX) @WorkerThread public void refreshVersionsSync();
     method @WorkerThread public void removeObserver(androidx.room.InvalidationTracker.Observer);
@@ -208,12 +208,13 @@ package androidx.room.migration {
 
 package androidx.room.paging {
 
-  @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP_PREFIX) public abstract class LimitOffsetDataSource<T> extends androidx.paging.PositionalDataSource<T> {
+  @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP_PREFIX) public abstract class LimitOffsetDataSource<T> {
     ctor protected LimitOffsetDataSource(androidx.room.RoomDatabase!, androidx.sqlite.db.SupportSQLiteQuery!, boolean, java.lang.String!...);
     ctor protected LimitOffsetDataSource(androidx.room.RoomDatabase!, androidx.room.RoomSQLiteQuery!, boolean, java.lang.String!...);
     method protected abstract java.util.List<T!>! convertRows(android.database.Cursor!);
-    method public void loadInitial(androidx.paging.PositionalDataSource.LoadInitialParams, androidx.paging.PositionalDataSource.LoadInitialCallback<T!>);
-    method public void loadRange(androidx.paging.PositionalDataSource.LoadRangeParams, androidx.paging.PositionalDataSource.LoadRangeCallback<T!>);
+    method public boolean isInvalid();
+    method public void loadInitial(LoadInitialParams, LoadInitialCallback<T>);
+    method public void loadRange(LoadRangeParams, LoadRangeCallback<T>);
   }
 
 }
@@ -233,7 +234,6 @@ package androidx.room.util {
   }
 
   @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP_PREFIX) public class DBUtil {
-    method public static android.os.CancellationSignal? createCancellationSignal();
     method public static void dropFtsSyncTriggers(androidx.sqlite.db.SupportSQLiteDatabase!);
     method @Deprecated public static android.database.Cursor query(androidx.room.RoomDatabase!, androidx.sqlite.db.SupportSQLiteQuery!, boolean);
     method public static android.database.Cursor query(androidx.room.RoomDatabase, androidx.sqlite.db.SupportSQLiteQuery, boolean, android.os.CancellationSignal?);

@@ -5,9 +5,8 @@ package androidx.room.guava {
     method @Deprecated public static <T> com.google.common.util.concurrent.ListenableFuture<T!>! createListenableFuture(java.util.concurrent.Callable<T!>!, androidx.room.RoomSQLiteQuery!, boolean);
     method @Deprecated public static <T> com.google.common.util.concurrent.ListenableFuture<T!>! createListenableFuture(androidx.room.RoomDatabase!, java.util.concurrent.Callable<T!>!, androidx.room.RoomSQLiteQuery!, boolean);
     method public static <T> com.google.common.util.concurrent.ListenableFuture<T!>! createListenableFuture(androidx.room.RoomDatabase!, boolean, java.util.concurrent.Callable<T!>!, androidx.room.RoomSQLiteQuery!, boolean);
-    method public static <T> com.google.common.util.concurrent.ListenableFuture<T!> createListenableFuture(androidx.room.RoomDatabase, boolean, java.util.concurrent.Callable<T!>, androidx.room.RoomSQLiteQuery, boolean, android.os.CancellationSignal?);
-    method @Deprecated public static <T> com.google.common.util.concurrent.ListenableFuture<T!> createListenableFuture(androidx.room.RoomDatabase, java.util.concurrent.Callable<T!>);
-    method public static <T> com.google.common.util.concurrent.ListenableFuture<T!> createListenableFuture(androidx.room.RoomDatabase, boolean, java.util.concurrent.Callable<T!>);
+    method @Deprecated public static <T> com.google.common.util.concurrent.ListenableFuture<T!>! createListenableFuture(androidx.room.RoomDatabase!, java.util.concurrent.Callable<T!>!);
+    method public static <T> com.google.common.util.concurrent.ListenableFuture<T!>! createListenableFuture(androidx.room.RoomDatabase!, boolean, java.util.concurrent.Callable<T!>!);
   }
 
 }

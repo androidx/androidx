@@ -200,15 +200,15 @@ package androidx.ui.foundation.selection {
 
   public final class ToggleableKt {
     ctor public ToggleableKt();
-    method public static void Toggleable(boolean value, kotlin.jvm.functions.Function1<? super java.lang.Boolean,kotlin.Unit>? onValueChange = null, kotlin.jvm.functions.Function0<kotlin.Unit> children);
-    method public static androidx.ui.foundation.selection.ToggleableState ToggleableState(boolean value);
-    method public static void TriStateToggleable(androidx.ui.foundation.selection.ToggleableState value = androidx.ui.foundation.selection.ToggleableState.On, kotlin.jvm.functions.Function0<kotlin.Unit>? onToggle = null, kotlin.jvm.functions.Function0<kotlin.Unit> children);
+    method public static void Toggleable(boolean checked, kotlin.jvm.functions.Function1<? super java.lang.Boolean,kotlin.Unit>? onCheckedChange = null, kotlin.jvm.functions.Function0<kotlin.Unit> children);
+    method public static androidx.ui.foundation.selection.ToggleableState ToggleableState(boolean checked);
+    method public static void TriStateToggleable(androidx.ui.foundation.selection.ToggleableState value = androidx.ui.foundation.selection.ToggleableState.Checked, kotlin.jvm.functions.Function0<kotlin.Unit>? onToggle = null, kotlin.jvm.functions.Function0<kotlin.Unit> children);
   }
 
   public enum ToggleableState {
+    enum_constant public static final androidx.ui.foundation.selection.ToggleableState Checked;
     enum_constant public static final androidx.ui.foundation.selection.ToggleableState Indeterminate;
-    enum_constant public static final androidx.ui.foundation.selection.ToggleableState Off;
-    enum_constant public static final androidx.ui.foundation.selection.ToggleableState On;
+    enum_constant public static final androidx.ui.foundation.selection.ToggleableState Unchecked;
   }
 
 }

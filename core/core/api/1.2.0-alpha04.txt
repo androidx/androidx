@@ -222,7 +222,6 @@ package androidx.core.app {
     field public static final String EXTRA_AUDIO_CONTENTS_URI = "android.audioContents";
     field public static final String EXTRA_BACKGROUND_IMAGE_URI = "android.backgroundImageUri";
     field public static final String EXTRA_BIG_TEXT = "android.bigText";
-    field public static final String EXTRA_CHRONOMETER_COUNT_DOWN = "android.chronometerCountDown";
     field public static final String EXTRA_COMPACT_ACTIONS = "android.compactActions";
     field public static final String EXTRA_CONVERSATION_TITLE = "android.conversationTitle";
     field public static final String EXTRA_HIDDEN_CONVERSATION_TITLE = "android.hiddenConversationTitle";
@@ -404,7 +403,6 @@ package androidx.core.app {
     method public androidx.core.app.NotificationCompat.Builder setBubbleMetadata(androidx.core.app.NotificationCompat.BubbleMetadata?);
     method public androidx.core.app.NotificationCompat.Builder! setCategory(String!);
     method public androidx.core.app.NotificationCompat.Builder! setChannelId(String);
-    method @RequiresApi(24) public androidx.core.app.NotificationCompat.Builder setChronometerCountDown(boolean);
     method public androidx.core.app.NotificationCompat.Builder! setColor(@ColorInt int);
     method public androidx.core.app.NotificationCompat.Builder! setColorized(boolean);
     method public androidx.core.app.NotificationCompat.Builder! setContent(android.widget.RemoteViews!);
@@ -1281,7 +1279,6 @@ package androidx.core.os {
     method @Deprecated public static boolean isAtLeastOMR1();
     method @Deprecated public static boolean isAtLeastP();
     method @Deprecated public static boolean isAtLeastQ();
-    method public static boolean isAtLeastR();
   }
 
   public final class CancellationSignal {

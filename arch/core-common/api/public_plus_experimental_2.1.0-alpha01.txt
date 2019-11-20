@@ -1,0 +1,15 @@
+// Signature format: 3.0
+package androidx.arch.core.util {
+
+  public interface Cancellable {
+    method public void cancel();
+    method public boolean isCancelled();
+    field public static final androidx.arch.core.util.Cancellable CANCELLED;
+  }
+
+  public interface Function<I, O> {
+    method public O! apply(I!);
+  }
+
+}
+
