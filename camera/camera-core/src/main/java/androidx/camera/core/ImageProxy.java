@@ -16,6 +16,7 @@
 
 package androidx.camera.core;
 
+import android.annotation.SuppressLint;
 import android.graphics.Rect;
 import android.media.Image;
 
@@ -76,6 +77,7 @@ public interface ImageProxy extends AutoCloseable {
      * @see android.media.Image#getPlanes()
      */
     @NonNull
+    @SuppressLint("ArrayReturn")
     PlaneProxy[] getPlanes();
 
     /** A plane proxy which has an analogous interface as {@link android.media.Image.Plane}. */
