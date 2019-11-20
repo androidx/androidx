@@ -17,33 +17,27 @@
 package androidx.ui.foundation.text
 
 import androidx.ui.core.selection.SelectionRegistrar
-import androidx.ui.core.selection.TextSelectionHandler
+import androidx.ui.core.selection.Selectable
 
 internal class SelectionRegistrarImpl : SelectionRegistrar {
     /**
      * This is essentially the list of registered components that want
      * to handle text selection that are below the SelectionContainer.
      */
-    private val _handlers = mutableSetOf<TextSelectionHandler>()
+    private val _selectables = mutableSetOf<Selectable>()
 
     /**
      * Getter for handlers that returns an immutable Set.
      */
-    internal val handlers: Set<TextSelectionHandler>
-        get() = _handlers
+    internal val selectables: Set<Selectable>
+        get() = _selectables
 
-    /**
-     * Allow a Text composable to "register" itself with the manager
-     */
-    override fun subscribe(handler: TextSelectionHandler): TextSelectionHandler {
-        _handlers.add(handler)
-        return handler
+    override fun subscribe(selectable: Selectable): Selectable {
+        _selectables.add(selectable)
+        return selectable
     }
 
-    /**
-     * Allow a Text composable to "unregister" itself with the manager
-     */
-    override fun unsubscribe(key: TextSelectionHandler) {
-        _handlers.remove(key)
+    override fun unsubscribe(selectable: Selectable) {
+        _selectables.remove(selectable)
     }
 }

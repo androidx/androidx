@@ -19,13 +19,18 @@ package androidx.ui.core.selection
 import androidx.compose.Ambient
 
 /**
- *  An interface allowing a Text composable to "register" and "unregister" itself with the class
- *  implementing the interface.
+ *  An interface allowing a composable to subscribe and unsubscribe to selection changes.
  */
 interface SelectionRegistrar {
-    fun subscribe(handler: TextSelectionHandler): TextSelectionHandler
+    /**
+     * Subscribe to SelectionContainer selection changes.
+     */
+    fun subscribe(selectable: Selectable): Selectable
 
-    fun unsubscribe(key: TextSelectionHandler)
+    /**
+     * Unsubscribe from SelectionContainer selection changes.
+     */
+    fun unsubscribe(selectable: Selectable)
 }
 
 /**

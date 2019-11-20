@@ -22,7 +22,7 @@ import androidx.ui.core.gesture.DragObserver
 import androidx.ui.core.gesture.LongPressDragObserver
 import androidx.ui.core.px
 import androidx.ui.core.selection.Selection
-import androidx.ui.core.selection.TextSelectionHandler
+import androidx.ui.core.selection.Selectable
 
 /**
  * A bridge class between user interaction to the text composables for text selection.
@@ -71,10 +71,7 @@ internal class SelectionManager(private val selectionRegistrar: SelectionRegistr
      *
      * @param startPosition [PxPosition] for the start of the selection
      * @param endPosition [PxPosition] for the end of the selection
-     * @param wordSelectIfCollapsed This flag is ignored if the selection offsets anchors point
-     * different location. If the selection anchors point the same location and this is true, the
-     * result selection will be adjusted to word boundary. Otherwise, the selection will be adjusted
-     * to keep single character selected.
+     * @param longPress the selection is a result of long press
      * @param selection initial selection to start with
      *
      * @return [Selection] object which is constructed by combining all Composables that are
@@ -83,19 +80,19 @@ internal class SelectionManager(private val selectionRegistrar: SelectionRegistr
     private fun mergeSelections(
         startPosition: PxPosition,
         endPosition: PxPosition,
-        wordSelectIfCollapsed: Boolean,
+        longPress: Boolean = false,
         selection: Selection? = null
     ): Selection? {
-        val handlers = selectionRegistrar.handlers
+        val handlers = selectionRegistrar.selectables
         return handlers.fold(selection) { mergedSelection: Selection?,
-                                          handler: TextSelectionHandler ->
+                                          handler: Selectable ->
             merge(
                 mergedSelection,
                 handler.getSelection(
                     startPosition = startPosition,
                     endPosition = endPosition,
                     containerLayoutCoordinates = containerLayoutCoordinates,
-                    wordSelectIfCollapsed = wordSelectIfCollapsed
+                    longPress = longPress
                 )
             )
         }
@@ -106,9 +103,9 @@ internal class SelectionManager(private val selectionRegistrar: SelectionRegistr
         // Call mergeSelections with an out of boundary input to inform all text widgets to
         // cancel their individual selection.
         mergeSelections(
-            startPosition = PxPosition(-1.px, -1.px),
-            endPosition = PxPosition(-1.px, -1.px),
-            wordSelectIfCollapsed = false)
+            startPosition = PxPosition((-1).px, (-1).px),
+            endPosition = PxPosition((-1).px, (-1).px)
+        )
         onSelectionChange(null)
     }
 
@@ -119,7 +116,7 @@ internal class SelectionManager(private val selectionRegistrar: SelectionRegistr
                 val selection = mergeSelections(
                     startPosition = pxPosition,
                     endPosition = pxPosition,
-                    wordSelectIfCollapsed = true
+                    longPress = true
                 )
                 onSelectionChange(selection)
                 dragBeginPosition = pxPosition
@@ -138,7 +135,7 @@ internal class SelectionManager(private val selectionRegistrar: SelectionRegistr
                 val selection = mergeSelections(
                     startPosition = dragBeginPosition,
                     endPosition = dragBeginPosition + dragTotalDistance,
-                    wordSelectIfCollapsed = true
+                    longPress = true
                 )
                 onSelectionChange(selection)
                 return dragDistance
@@ -216,7 +213,6 @@ internal class SelectionManager(private val selectionRegistrar: SelectionRegistr
                 val finalSelection = mergeSelections(
                     startPosition = currentStart,
                     endPosition = currentEnd,
-                    wordSelectIfCollapsed = false,
                     selection = selection
                 )
                 onSelectionChange(finalSelection)
