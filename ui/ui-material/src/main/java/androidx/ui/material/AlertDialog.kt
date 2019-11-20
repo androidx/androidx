@@ -102,12 +102,11 @@ fun AlertDialog(
  * style will be [Typography.body1].
  * @param buttons Function that emits the layout with the buttons
  */
-@Suppress("USELESS_CAST")
 @Composable
 fun AlertDialog(
     onCloseRequest: () -> Unit,
-    title: (@Composable() () -> Unit)? = null as @Composable() (() -> Unit)?,
-    text: (@Composable() () -> Unit),
+    title: (@Composable() () -> Unit)? = null,
+    text: @Composable() () -> Unit,
     buttons: @Composable() () -> Unit
 ) {
     // TODO: Find a cleaner way to pass the properties of the MaterialTheme
