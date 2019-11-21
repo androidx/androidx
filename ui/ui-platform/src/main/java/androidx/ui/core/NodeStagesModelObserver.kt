@@ -77,17 +77,27 @@ internal class NodeStagesModelObserver(
     var isObserving = false
         private set
 
+    /**
+     * Observing the model reads can be temporary disabled.
+     * For example if we are currently within the measure stage and we want some code block to
+     * be skipped from the observing we disable if before calling the block, execute block and
+     * then enable it again.
+     */
+    var modelReadEnabled: Boolean = true
+
     private val frameReadObserver: FrameReadObserver = { readValue ->
         check(currentNodes.isNotEmpty()) {
             "The model read happened when there were no active stages. Did you forget to call" +
                     "beforeStage() or stage()"
         }
-        val node = currentNodes.last()
-        val stage = currentStages.last()
-        if (stage == Stage.Layout) {
-            layoutModelMap.add(node, readValue)
-        } else {
-            drawMeasureModelMap.add(node, readValue)
+        if (modelReadEnabled) {
+            val node = currentNodes.last()
+            val stage = currentStages.last()
+            if (stage == Stage.Layout) {
+                layoutModelMap.add(node, readValue)
+            } else {
+                drawMeasureModelMap.add(node, readValue)
+            }
         }
     }
 
@@ -125,6 +135,7 @@ internal class NodeStagesModelObserver(
     }
 
     fun observeReads(block: () -> Unit) {
+        checkNotNull(commitUnsubscribe)
         check(!isObserving)
         check(currentNodes.isEmpty())
         isObserving = true
@@ -134,6 +145,7 @@ internal class NodeStagesModelObserver(
     }
 
     fun beforeStage(stage: Stage, node: ComponentNode) {
+        check(modelReadEnabled) { "no stage starting is allowed while read is disabled" }
         check(isObserving) { "$stage should always be observed for the model reads" }
         if (debugMode) {
             require(stage == Stage.Draw && node is DrawNode || node is LayoutNode) {
@@ -150,6 +162,7 @@ internal class NodeStagesModelObserver(
     }
 
     fun afterStage(stage: Stage, node: ComponentNode) {
+        check(modelReadEnabled) { "no stage finishing is allowed while read is disabled" }
         check(isObserving) { "$stage should always be observed for the model reads" }
         val currentNode = currentNodes.pop()
         require(node == currentNode) {

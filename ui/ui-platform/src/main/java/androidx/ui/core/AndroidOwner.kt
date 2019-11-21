@@ -142,6 +142,10 @@ class AndroidComposeView constructor(context: Context) :
 
     internal fun isObservingModels() = modelObserver.isObserving
 
+    override fun enableModelReadObserving(enabled: Boolean) {
+        modelObserver.modelReadEnabled = enabled
+    }
+
     init {
         setWillNotDraw(false)
         isFocusable = true
