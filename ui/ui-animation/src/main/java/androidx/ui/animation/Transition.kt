@@ -21,6 +21,7 @@ import androidx.animation.PropKey
 import androidx.animation.TransitionAnimation
 import androidx.animation.TransitionDefinition
 import androidx.animation.TransitionState
+import androidx.animation.createAnimation
 import androidx.compose.Composable
 import androidx.compose.Model
 import androidx.compose.ambient
@@ -38,11 +39,13 @@ fun <T> Transition(
     definition: TransitionDefinition<T>,
     toState: T,
     clock: AnimationClockObservable = +ambient(AnimationClockAmbient),
+    onStateChangeFinished: ((T) -> Unit)? = null,
     children: @Composable() (state: TransitionState) -> Unit
 ) {
     if (transitionsEnabled) {
         // TODO: This null is workaround for b/132148894
-        val model = +memo(definition, null) { TransitionModel(definition, clock) }
+        val model = +memo(definition, null) { TransitionModel(definition, toState, clock) }
+        model.anim.onStateChangeFinished = onStateChangeFinished
         model.anim.toState(toState)
         children(model)
     } else {
@@ -61,12 +64,13 @@ var transitionsEnabled = true
 @Model
 private class TransitionModel<T>(
     transitionDef: TransitionDefinition<T>,
+    initState: T,
     clock: AnimationClockObservable
 ) : TransitionState {
 
     private var animationPulse = 0L
     internal val anim: TransitionAnimation<T> =
-        transitionDef.createAnimation(clock).apply {
+        transitionDef.createAnimation(clock, initState).apply {
             onUpdate = {
                 animationPulse++
             }

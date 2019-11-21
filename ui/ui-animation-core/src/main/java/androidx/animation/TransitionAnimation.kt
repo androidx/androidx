@@ -35,7 +35,8 @@ import androidx.animation.InterruptionHandling.UNINTERRUPTIBLE
  */
 class TransitionAnimation<T> (
     private val def: TransitionDefinition<T>,
-    private val clock: AnimationClockObservable
+    private val clock: AnimationClockObservable,
+    initState: T? = null
 ) : TransitionState {
 
     var onUpdate: (() -> Unit)? = null
@@ -61,10 +62,17 @@ class TransitionAnimation<T> (
     // TODO("Create a more efficient code path for default only transition def")
 
     init {
-        currentState = AnimationState(def.defaultState, def.defaultState.name)
+        // If an initial state is specified in the ctor, use that instead of the default state.
+        val defaultState: StateImpl<T>
+        if (initState == null) {
+            defaultState = def.defaultState
+        } else {
+            defaultState = def.states[initState]!!
+        }
+        currentState = AnimationState(defaultState, defaultState.name)
         // Need to come up with a better plan to avoid the foot gun of accidentally modifying state
-        fromState = def.defaultState
-        toState = def.defaultState
+        fromState = defaultState
+        toState = defaultState
     }
 
     // Interpolate current state and the new state
@@ -96,13 +104,14 @@ class TransitionAnimation<T> (
             // props in each state.
         }
 
-        startAnimation()
-
         fromState = AnimationState(currentState, toState.name)
         toState = newState
         if (DEBUG) {
             Log.w("TransAnim", "Animating to new state: ${toState.name}")
         }
+
+        // Start animation should be called after all the setup has been done
+        startAnimation()
     }
 
     private fun getPlayTime(): Long {

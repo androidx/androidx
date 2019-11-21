@@ -21,6 +21,7 @@ import androidx.animation.FloatPropKey
 import androidx.animation.InterruptionHandling
 import androidx.animation.LinearEasing
 import androidx.animation.TransitionAnimation
+import androidx.animation.createAnimation
 import androidx.animation.transitionDefinition
 import androidx.ui.animation.PxPositionPropKey
 import androidx.ui.animation.PxPropKey
