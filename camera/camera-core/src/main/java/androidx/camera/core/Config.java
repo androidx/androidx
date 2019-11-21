@@ -108,7 +108,7 @@ public interface Config {
     /**
      * Extendable builders are used to add externally defined options to a configuration.
      */
-    @SuppressLint("MissingBuild") // The builder interface only define get(set) methods.
+    @SuppressLint("MissingBuildMethod") // The builder interface only define get(set) methods.
     interface ExtendableBuilder {
 
         /**
