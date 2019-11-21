@@ -56,14 +56,12 @@ dependencies {
     implementation(project(":camera:camera-core"))
     implementation(project(":camera:camera-lifecycle"))
     implementation(project(":lifecycle:lifecycle-extensions"))
-    implementation(GUAVA_LISTENABLE_FUTURE)
     implementation("androidx.concurrent:concurrent-futures:1.0.0")
 
     // Android Support Library
     api(CONSTRAINT_LAYOUT, { transitive = true })
     implementation("androidx.appcompat:appcompat:1.1.0")
-    implementation(KOTLIN_STDLIB)
-    implementation(GUAVA_LISTENABLE_FUTURE)
+    implementation(GUAVA_ANDROID)
 
     // Testing framework
     androidTestImplementation(ANDROIDX_TEST_EXT_JUNIT)

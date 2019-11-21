@@ -16,48 +16,79 @@
 
 package androidx.camera.integration.view;
 
+import android.content.Context;
 import android.os.Bundle;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
-import android.widget.FrameLayout;
+import android.widget.Button;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.camera.core.CameraSelector;
 import androidx.camera.core.LensFacing;
 import androidx.camera.core.Preview;
-import androidx.camera.lifecycle.LifecycleCameraProvider;
+import androidx.camera.lifecycle.ProcessCameraProvider;
 import androidx.camera.view.PreviewView;
+import androidx.core.content.ContextCompat;
 import androidx.fragment.app.Fragment;
+
+import com.google.common.base.Preconditions;
+import com.google.common.util.concurrent.FutureCallback;
+import com.google.common.util.concurrent.Futures;
+import com.google.common.util.concurrent.ListenableFuture;
 
 /**
  * A Fragment that displays a PreviewView.
  */
 public class PreviewViewFragment extends Fragment {
+    private static final String TAG = "PreviewViewFragment";
+    @SuppressWarnings("WeakerAccess") /* synthetic accessor */
+            PreviewView mPreviewView;
+    private ListenableFuture<ProcessCameraProvider> mCameraProviderFuture;
 
-    private PreviewView mPreviewView;
-    private FrameLayout mPreviewViewContainer;
+    @Override
+    public void onAttach(@NonNull Context context) {
+        super.onAttach(context);
+        mCameraProviderFuture = ProcessCameraProvider.getInstance(context);
+    }
 
+    @SuppressWarnings("UnstableApiUsage")
     @Override
     public void onViewCreated(@NonNull View view, @Nullable Bundle savedInstanceState) {
         mPreviewView = view.findViewById(R.id.preview_view);
 
-        mPreviewViewContainer = view.findViewById(R.id.container);
+        ViewGroup previewViewContainer = view.findViewById(R.id.container);
 
-        view.findViewById(R.id.toggle_visibility).setOnClickListener(
-                view1 -> {
-                    // Toggle the existence of the PreviewView.
-                    if (mPreviewViewContainer.getChildCount() == 0) {
-                        mPreviewViewContainer.addView(mPreviewView);
-                        bindPreview();
-                    } else {
-                        LifecycleCameraProvider.unbindAll();
-                        mPreviewViewContainer.removeView(mPreviewView);
-                    }
-                });
+        Button toggleButton = view.findViewById(R.id.toggle_visibility);
 
-        bindPreview();
+        Futures.addCallback(mCameraProviderFuture, new FutureCallback<ProcessCameraProvider>() {
+            @Override
+            public void onSuccess(
+                    @Nullable ProcessCameraProvider cameraProvider) {
+                Preconditions.checkNotNull(cameraProvider);
+                toggleButton.setOnClickListener(
+                        view1 -> {
+                            // Toggle the existence of the PreviewView.
+                            if (previewViewContainer.getChildCount() == 0) {
+                                previewViewContainer.addView(mPreviewView);
+                                bindPreview(cameraProvider);
+                            } else {
+                                cameraProvider.unbindAll();
+                                previewViewContainer.removeView(mPreviewView);
+                            }
+                        });
+
+                bindPreview(cameraProvider);
+            }
+
+            @Override
+            public void onFailure(@NonNull Throwable throwable) {
+                Log.e(TAG, "Failed to retrieve camera provider from CameraX. Is CameraX "
+                        + "initialized?", throwable);
+            }
+        }, ContextCompat.getMainExecutor(Preconditions.checkNotNull(getContext())));
     }
 
     @Override
@@ -66,7 +97,8 @@ public class PreviewViewFragment extends Fragment {
 
     }
 
-    private void bindPreview() {
+    @SuppressWarnings("WeakerAccess") /* synthetic accessor */
+    void bindPreview(@NonNull ProcessCameraProvider cameraProvider) {
         Preview preview = new Preview.Builder()
                 .setTargetName("Preview")
                 .build();
@@ -75,7 +107,7 @@ public class PreviewViewFragment extends Fragment {
 
         CameraSelector cameraSelector =
                 new CameraSelector.Builder().requireLensFacing(LensFacing.BACK).build();
-        LifecycleCameraProvider.bindToLifecycle(PreviewViewFragment.this, cameraSelector, preview);
+        cameraProvider.bindToLifecycle(PreviewViewFragment.this, cameraSelector, preview);
     }
 
     @NonNull
