@@ -18,11 +18,11 @@ package androidx.navigation.truth
 
 import androidx.navigation.NavController
 import androidx.navigation.plusAssign
-import androidx.navigation.testing.TestNavigator
 import androidx.navigation.truth.test.R
 import androidx.navigation.truth.NavControllerSubject.Companion.assertThat
 import androidx.test.core.app.ApplicationProvider
 import androidx.test.filters.SmallTest
+import androidx.testutils.TestNavigator
 import androidx.testutils.assertThrows
 import org.junit.Before
 import org.junit.Test

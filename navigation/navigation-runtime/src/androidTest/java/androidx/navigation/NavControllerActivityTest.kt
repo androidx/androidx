@@ -20,10 +20,10 @@ import android.app.Activity
 import android.content.Intent
 import android.net.Uri
 import androidx.navigation.test.R
-import androidx.navigation.testing.TestNavigator
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import androidx.test.filters.LargeTest
 import androidx.test.rule.ActivityTestRule
+import androidx.testutils.TestNavigator
 import com.google.common.truth.Truth.assertThat
 import org.junit.Before
 import org.junit.Rule

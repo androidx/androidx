@@ -42,7 +42,6 @@ dependencies {
     api(project(":lifecycle:lifecycle-viewmodel-ktx"))
     api(KOTLIN_STDLIB)
     androidTestImplementation(project(":fragment:fragment-testing"))
-    androidTestImplementation(project(":navigation:navigation-testing"))
     androidTestImplementation(ANDROIDX_TEST_EXT_JUNIT)
     androidTestImplementation(ANDROIDX_TEST_CORE)
     androidTestImplementation(ANDROIDX_TEST_RUNNER)
@@ -51,7 +50,8 @@ dependencies {
     androidTestImplementation(TRUTH)
     androidTestImplementation(MOCKITO_CORE, libs.exclude_bytebuddy)
     androidTestImplementation(DEXMAKER_MOCKITO, libs.exclude_bytebuddy)
-    androidTestImplementation project(':internal-testutils-runtime')
+    androidTestImplementation(project(":internal-testutils-runtime"))
+    androidTestImplementation(project(":internal-testutils-navigation"))
 }
 
 androidx {

@@ -30,7 +30,6 @@ dependencies {
     api(project(":fragment:fragment"))
     api(project(":navigation:navigation-runtime"))
 
-    androidTestImplementation(project(":navigation:navigation-testing"))
     androidTestImplementation(project(":navigation:navigation-runtime-ktx"))
     androidTestImplementation(ANDROIDX_TEST_EXT_JUNIT)
     androidTestImplementation(ANDROIDX_TEST_CORE)
@@ -41,6 +40,7 @@ dependencies {
     androidTestImplementation project(':internal-testutils-runtime'), {
         exclude group: 'androidx.fragment', module: 'fragment'
     }
+    androidTestImplementation(project(':internal-testutils-navigation'))
 }
 
 androidx {
