@@ -67,7 +67,7 @@ public class PreviewView extends FrameLayout {
         try {
             final int implementationModeId = attributes.getInteger(
                     R.styleable.PreviewView_implementationMode,
-                    ImplementationMode.SURFACE_VIEW.getId());
+                    ImplementationMode.TEXTURE_VIEW.getId());
             mImplementationMode = ImplementationMode.fromId(implementationModeId);
         } finally {
             attributes.recycle();
@@ -147,7 +147,7 @@ public class PreviewView extends FrameLayout {
      * The implementation mode of a {@link PreviewView}
      *
      * <p>Specifies how the Preview surface will be implemented internally: Using a
-     * {@link android.view.SurfaceView} (which is the default) or a {@link android.view.TextureView}
+     * {@link android.view.SurfaceView} or a {@link android.view.TextureView} (which is the default)
      * </p>
      */
     public enum ImplementationMode {

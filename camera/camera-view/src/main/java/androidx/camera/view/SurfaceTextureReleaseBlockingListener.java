@@ -113,6 +113,8 @@ final class SurfaceTextureReleaseBlockingListener implements TextureView.Surface
         // onSurfaceTextureDestroyed called from TextureView so it should always release the
         // Surface and SurfaceTexture
         ListenableFuture<List<Void>> future = Futures.successfulAsList(futureList);
+        // TODO(b/144878737) On API 28 and below exhibits null dereference crash in native code,
+        //  during unit tests. May need a way to check for validity.
         future.addListener(surfaceTexture::release, CameraXExecutors.directExecutor());
 
         mTextureView.setSurfaceTexture(surfaceTexture);
