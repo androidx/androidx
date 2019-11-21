@@ -54,7 +54,7 @@ class PeriodicEnqueueIssueDetectorTest {
             PERIODIC_WORK_REQUEST,
             snippet
         )
-            .allowMissingSdk()
+            .sdkHome(sdkDirectory().value)
             .issues(PeriodicEnqueueIssueDetector.ISSUE)
             .run()
             .expect("""
@@ -94,7 +94,7 @@ class PeriodicEnqueueIssueDetectorTest {
             PERIODIC_WORK_REQUEST,
             snippet
         )
-            .allowMissingSdk()
+            .sdkHome(sdkDirectory().value)
             .issues(PeriodicEnqueueIssueDetector.ISSUE)
             .run()
             .expect("""
@@ -136,7 +136,7 @@ class PeriodicEnqueueIssueDetectorTest {
             PERIODIC_WORK_REQUEST,
             snippet
         )
-            .allowMissingSdk()
+            .sdkHome(sdkDirectory().value)
             .issues(PeriodicEnqueueIssueDetector.ISSUE)
             .run()
             .expect("""
@@ -175,7 +175,7 @@ class PeriodicEnqueueIssueDetectorTest {
             PERIODIC_WORK_REQUEST,
             snippet
         )
-            .allowMissingSdk()
+            .sdkHome(sdkDirectory().value)
             .issues(PeriodicEnqueueIssueDetector.ISSUE)
             .run()
             .expectClean()
@@ -208,7 +208,7 @@ class PeriodicEnqueueIssueDetectorTest {
             PERIODIC_WORK_REQUEST,
             snippet
         )
-            .allowMissingSdk()
+            .sdkHome(sdkDirectory().value)
             .issues(PeriodicEnqueueIssueDetector.ISSUE)
             .run()
             .expectClean()
