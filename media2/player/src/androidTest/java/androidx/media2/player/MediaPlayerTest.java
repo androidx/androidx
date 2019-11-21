@@ -67,8 +67,10 @@ import java.util.Arrays;
 import java.util.List;
 import java.util.Set;
 import java.util.concurrent.BlockingDeque;
+import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.Future;
 import java.util.concurrent.LinkedBlockingDeque;
+import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicInteger;
 import java.util.concurrent.atomic.AtomicReference;
 
@@ -1906,6 +1908,55 @@ public class MediaPlayerTest extends MediaPlayerTestBase {
                         waitForCurrentMediaChangeCount, LARGE_TEST_WAIT_TIME_MS));
         assertEquals(0, onPlaybackCompletedMonitor.getNumSignal());
     }
+
+    @Ignore("Test disabled due to flakiness, see b/144876689")
+    @Test
+    @LargeTest
+    @SdkSuppress(minSdkVersion = Build.VERSION_CODES.KITKAT)
+    public void testOnVideoSizeChanged() throws Exception {
+        List<MediaItem> playlist = new ArrayList<>();
+        playlist.add(createMediaItem(R.raw.testvideo));
+        playlist.add(createMediaItem(R.raw.testmp3));
+        playlist.add(createMediaItem(R.raw.testvideo_with_2_subtitle_tracks));
+
+        VideoSize sizeFor1stItem = new VideoSize(352, 288);
+        VideoSize sizeFor2ndItem = new VideoSize(0, 0);
+        VideoSize sizeFor3rdItem = new VideoSize(160, 90);
+
+        CountDownLatch latchFor1stItem = new CountDownLatch(1);
+        CountDownLatch latchFor2ndItem = new CountDownLatch(1);
+        CountDownLatch latchFor3rdItem = new CountDownLatch(1);
+
+        MediaPlayer.PlayerCallback callback = new MediaPlayer.PlayerCallback() {
+            @Override
+            public void onVideoSizeChanged(@NonNull SessionPlayer player,
+                    @NonNull androidx.media2.common.VideoSize size) {
+                if (latchFor1stItem.getCount() > 0) {
+                    assertEquals(sizeFor1stItem, size);
+                    latchFor1stItem.countDown();
+                } else if (latchFor2ndItem.getCount() > 0) {
+                    assertEquals(sizeFor2ndItem, size);
+                    latchFor2ndItem.countDown();
+                } else if (latchFor3rdItem.getCount() > 0) {
+                    assertEquals(sizeFor3rdItem, size);
+                    latchFor3rdItem.countDown();
+                }
+            }
+        };
+        mPlayer.registerPlayerCallback(mExecutor, callback);
+
+        assertNotNull(mPlayer.setSurface(mActivity.getSurfaceHolder().getSurface()));
+        assertNotNull(mPlayer.setPlaylist(playlist, null));
+        assertNotNull(mPlayer.prepare());
+        assertNotNull(mPlayer.play());
+
+        assertTrue(latchFor1stItem.await(WAIT_TIME_MS, TimeUnit.MILLISECONDS));
+        assertNotNull(mPlayer.skipToNextPlaylistItem());
+        assertTrue(latchFor2ndItem.await(WAIT_TIME_MS, TimeUnit.MILLISECONDS));
+        assertNotNull(mPlayer.skipToNextPlaylistItem());
+        assertTrue(latchFor3rdItem.await(WAIT_TIME_MS, TimeUnit.MILLISECONDS));
+    }
+
 
     private MediaItem createMediaItem() throws Exception {
         return createMediaItem(R.raw.testvideo);
