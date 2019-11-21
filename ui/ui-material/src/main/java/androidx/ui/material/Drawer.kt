@@ -20,7 +20,6 @@ import androidx.animation.PhysicsBuilder
 import androidx.compose.Composable
 import androidx.compose.memo
 import androidx.compose.unaryPlus
-import androidx.ui.core.Alignment
 import androidx.ui.core.Draw
 import androidx.ui.core.IntPx
 import androidx.ui.core.Layout
@@ -136,13 +135,11 @@ fun ModalDrawerLayout(
                 enabled = gesturesEnabled
             ) { model ->
                 Stack {
-                    aligned(Alignment.TopLeft) {
-                        bodyContent()
-                        Scrim(drawerState, onStateChange, fraction = {
-                            calculateFraction(minValue, maxValue, model.value)
-                        })
-                        DrawerContent(model, constraints, drawerContent)
-                    }
+                    bodyContent()
+                    Scrim(drawerState, onStateChange, fraction = {
+                        calculateFraction(minValue, maxValue, model.value)
+                    })
+                    DrawerContent(model, constraints, drawerContent)
                 }
             }
         }
@@ -216,14 +213,12 @@ fun BottomDrawerLayout(
                 enabled = gesturesEnabled
             ) { model ->
                 Stack {
-                    aligned(Alignment.TopLeft) {
-                        bodyContent()
-                        Scrim(drawerState, onStateChange, fraction = {
-                            // as we scroll "from height to 0" , need to reverse fraction
-                            1 - calculateFraction(openedValue, maxValue, model.value)
-                        })
-                        BottomDrawerContent(model, constraints, drawerContent)
-                    }
+                    bodyContent()
+                    Scrim(drawerState, onStateChange, fraction = {
+                        // as we scroll "from height to 0" , need to reverse fraction
+                        1 - calculateFraction(openedValue, maxValue, model.value)
+                    })
+                    BottomDrawerContent(model, constraints, drawerContent)
                 }
             }
         }

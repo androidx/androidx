@@ -19,7 +19,6 @@ package androidx.ui.material.studies.rally
 import androidx.compose.Composable
 import androidx.compose.state
 import androidx.compose.unaryPlus
-import androidx.ui.core.Alignment
 import androidx.ui.core.Text
 import androidx.ui.core.dp
 import androidx.ui.foundation.Clickable
@@ -152,25 +151,23 @@ fun RallyAccountsCard() {
     VerticalScroller {
         Column {
                 Stack(Spacing(16.dp)) {
-                        aligned(Alignment.Center) {
-                            val accountsProportion = listOf(0.595f, 0.045f, 0.095f, 0.195f, 0.045f)
-                            val colors = listOf(0xFF1EB980, 0xFF005D57, 0xFF04B97F, 0xFF37EFBA,
-                                0xFFFAFFBF).map { Color(it) }
-                            Container(height = 300.dp, expanded = true) {
-                                DrawAnimatedCircle(accountsProportion, colors)
-                            }
-                            Column {
-                                Text(
-                                    text = "Total",
-                                    style = (+MaterialTheme.typography()).body1,
-                                    modifier = Gravity.Center
-                                )
-                                Text(
-                                    text = "$12,132.49",
-                                    style = (+MaterialTheme.typography()).h3,
-                                    modifier = Gravity.Center
-                                )
-                            }
+                        val accountsProportion = listOf(0.595f, 0.045f, 0.095f, 0.195f, 0.045f)
+                        val colors = listOf(0xFF1EB980, 0xFF005D57, 0xFF04B97F, 0xFF37EFBA,
+                            0xFFFAFFBF).map { Color(it) }
+                        Container(modifier = Gravity.Center, height = 300.dp, expanded = true) {
+                            DrawAnimatedCircle(accountsProportion, colors)
+                        }
+                        Column(modifier = Gravity.Center) {
+                            Text(
+                                text = "Total",
+                                style = (+MaterialTheme.typography()).body1,
+                                modifier = Gravity.Center
+                            )
+                            Text(
+                                text = "$12,132.49",
+                                style = (+MaterialTheme.typography()).h3,
+                                modifier = Gravity.Center
+                            )
                         }
                     }
                 HeightSpacer(height = 10.dp)
@@ -289,26 +286,24 @@ fun RallyBillsCard() {
     VerticalScroller {
         Column {
             Stack(Spacing(16.dp)) {
-                aligned(alignment = Alignment.Center) {
-                    val accountsProportion = listOf(0.65f, 0.25f, 0.03f, 0.05f)
-                    val colors = listOf(0xFF1EB980, 0xFF005D57, 0xFF04B97F, 0xFF37EFBA).map {
-                        Color(it)
-                    }
-                    Container(height = 300.dp, expanded = true) {
-                        DrawAnimatedCircle(accountsProportion, colors)
-                    }
-                    Column {
-                        Text(
-                            text = "Due",
-                            style = (+MaterialTheme.typography()).body1,
-                            modifier = Gravity.Center
-                        )
-                        Text(
-                            text = "$1,810.00",
-                            style = (+MaterialTheme.typography()).h3,
-                            modifier = Gravity.Center
-                        )
-                    }
+                val accountsProportion = listOf(0.65f, 0.25f, 0.03f, 0.05f)
+                val colors = listOf(0xFF1EB980, 0xFF005D57, 0xFF04B97F, 0xFF37EFBA).map {
+                    Color(it)
+                }
+                Container(modifier = Gravity.Center, height = 300.dp, expanded = true) {
+                    DrawAnimatedCircle(accountsProportion, colors)
+                }
+                Column(modifier = Gravity.Center) {
+                    Text(
+                        text = "Due",
+                        style = (+MaterialTheme.typography()).body1,
+                        modifier = Gravity.Center
+                    )
+                    Text(
+                        text = "$1,810.00",
+                        style = (+MaterialTheme.typography()).h3,
+                        modifier = Gravity.Center
+                    )
                 }
             }
             HeightSpacer(height = 10.dp)

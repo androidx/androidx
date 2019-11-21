@@ -17,7 +17,6 @@
 package androidx.ui.layout
 
 import androidx.ui.core.Constraints
-import androidx.ui.core.Dp
 import androidx.ui.core.IntPx
 import androidx.ui.core.IntPxSize
 import androidx.ui.core.Measurable
@@ -26,105 +25,17 @@ import androidx.ui.core.looseMin
 import androidx.ui.core.max
 import androidx.compose.Composable
 import androidx.ui.core.Alignment
+import androidx.ui.core.DensityScope
 import androidx.ui.core.Layout
+import androidx.ui.core.LayoutModifier
 import androidx.ui.core.Modifier
-import androidx.ui.core.ParentData
-import androidx.ui.core.coerceAtLeast
-import androidx.ui.core.ipx
 import androidx.ui.core.isFinite
-import androidx.ui.core.tightMax
-
-/**
- * Collects information about the children of a [Stack] when its body is executed
- * with a [StackChildren] instance as argument.
- */
-@LayoutScopeMarker
-class StackChildren {
-    private val _stackChildren = mutableListOf<@Composable() () -> Unit>()
-    internal val stackChildren: List<@Composable() () -> Unit>
-        get() = _stackChildren
-
-    /**
-     * Positioned children are positioned in the box of the [Stack] according to the given insets.
-     *
-     * The insets may be null, but at least one inset must be non-null.
-     *
-     * If both insets in a direction (i.e. left-right or top-bottom) are non-null, then the
-     * children will be measured with tight constraints in that direction so that they fill all
-     * the space in that direction minus the insets. For example, if the [Stack] is 100dp wide and
-     * the children have left and right insets of 10dp, the children will be forced to be 80dp wide.
-     *
-     * If only one inset in a direction is non-null, then the children will be measured with
-     * loose constraints in that direction. For example, if the [Stack] is 100dp wide and the
-     * children have 10dp left insets, then the children will be anywhere from 0dp to 90dp wide.
-     *
-     * Finally, if both insets in one direction are null, then the children will be positioned
-     * on that direction according to the specified [fallbackAlignment], which defaults to Center.
-     */
-    fun positioned(
-        leftInset: Dp? = null,
-        topInset: Dp? = null,
-        rightInset: Dp? = null,
-        bottomInset: Dp? = null,
-        fallbackAlignment: Alignment = Alignment.Center,
-        children: @Composable() () -> Unit
-    ) {
-        require(
-            leftInset != null || topInset != null || rightInset != null ||
-                    bottomInset != null
-        ) { "Please specify at least one inset for a positioned." }
-        val data = StackChildData(
-            alignment = fallbackAlignment,
-            leftInset = leftInset, topInset = topInset,
-            rightInset = rightInset, bottomInset = bottomInset
-        )
-        _stackChildren += { ParentData(data = data, children = children) }
-    }
-
-    /**
-     * Aligned children determine the size of the [Stack] and are aligned within the box of the
-     * [Stack] according to the specified [alignment].
-     *
-     * By default, the constraints passed to the [Stack] from its parent are loosened before they
-     * are passed to its children. To pass these constraints unmodified, set [loose] to false.
-     *
-     * @param loose Specifies how the constraints passed to the children are adjusted.
-     */
-    fun aligned(
-        alignment: Alignment,
-        loose: Boolean = true,
-        children: @Composable() () -> Unit
-    ) {
-        val data = StackChildData(
-            alignment = alignment,
-            fit = if (loose) StackFit.Loose else StackFit.PassThrough
-        )
-        _stackChildren += { ParentData(data = data, children = children) }
-    }
-
-    /**
-     * Expanded children are forced to expand to fill the box of the [Stack].
-     */
-    fun expanded(children: @Composable() () -> Unit) {
-        val data = StackChildData(alignment = Alignment.TopLeft, fit = StackFit.Expand)
-        _stackChildren += { ParentData(data = data, children = children) }
-    }
-}
 
 /**
  * A composable that positions its children relative to its edges.
  * The component is useful for drawing children that overlap. The children will always be
  * drawn in the order they are specified in the body of the [Stack].
- *
- * [Stack] children can be:
- * - [aligned], which are aligned in the box of the [Stack]. These are also the children that
- * define the size of the [Stack] box: this will be the maximum between the minimum
- * constraints and the size of the largest child.
- * - [positioned], which are positioned in the box defined as above, according to
- * their specified insets. When the positioning of these is ambiguous in one direction (the
- * component has [null] left and right or top and bottom insets), the positioning in this direction
- * will be resolved according to the positioned child's fallbackAlignment argument.
- * - [expanded], which are forced to expand to fill the box of the [Stack].
+ * Use [Gravity] options to define how to position a target component inside the [Stack] box.
  *
  * Example usage:
  *
@@ -133,29 +44,16 @@ class StackChildren {
 @Composable
 fun Stack(
     modifier: Modifier = Modifier.None,
-    children: StackChildren.() -> Unit
+    children: @Composable() StackScope.() -> Unit
 ) {
-    val stackChildren: @Composable() () -> Unit = with(StackChildren()) {
-        apply(children)
-        val composable = @Composable {
-            stackChildren.forEach {
-                it()
-            }
-        }
-        composable
-    }
+    val stackChildren: @Composable() () -> Unit = { StackScope().children() }
+
     Layout(stackChildren, modifier = modifier) { measurables, constraints ->
         val placeables = arrayOfNulls<Placeable>(measurables.size)
         // First measure aligned children to get the size of the layout.
-        (0 until measurables.size).filter { i -> !measurables[i].positioned }.forEach { i ->
-            val childConstraints = when (measurables[i].stackChildData.fit) {
-                StackFit.Loose -> constraints.looseMin()
-                StackFit.Expand -> constraints.tightMax()
-                StackFit.PassThrough -> constraints
-            }
-            placeables[i] = measurables[i].measure(childConstraints)
+        (0 until measurables.size).filter { i -> !measurables[i].stretch }.forEach { i ->
+            placeables[i] = measurables[i].measure(constraints.looseMin())
         }
-
         val (stackWidth, stackHeight) = with(placeables.filterNotNull()) {
             Pair(
                 max(maxBy { it.width.value }?.width ?: IntPx.Zero, constraints.minWidth),
@@ -163,36 +61,14 @@ fun Stack(
             )
         }
 
-        // Now measure positioned children.
-        (0 until measurables.size).filter { i -> measurables[i].positioned }.forEach { i ->
-            val childData = measurables[i].stackChildData
-            // Obtain width constraints.
-            val childMaxWidth = (stackWidth -
-                    (childData.leftInset?.toIntPx() ?: IntPx.Zero) -
-                    (childData.rightInset?.toIntPx() ?: IntPx.Zero)).coerceAtLeast(0.ipx)
-            val childMinWidth = if (childData.leftInset != null && childData.rightInset != null &&
-                childMaxWidth.isFinite()) {
-                childMaxWidth
-            } else {
-                IntPx.Zero
-            }
-            // Obtain height constraints.
-            val childMaxHeight = (stackHeight -
-                    (childData.topInset?.toIntPx() ?: IntPx.Zero) -
-                    (childData.bottomInset?.toIntPx() ?: IntPx.Zero)).coerceAtLeast(0.ipx)
-            val childMinHeight = if (childData.topInset != null && childData.bottomInset != null &&
-                childMaxHeight.isFinite()) {
-                childMaxHeight
-            } else {
-                IntPx.Zero
-            }
-            measurables[i].measure(
-                Constraints(
-                    childMinWidth, childMaxWidth, childMinHeight, childMaxHeight
-                )
-            ).also {
-                placeables[i] = it
-            }
+        // Now measure stretch children.
+        (0 until measurables.size).filter { i -> measurables[i].stretch }.forEach { i ->
+            // infinity check is needed for intrinsic measurements
+            val minWidth = if (stackWidth.isFinite()) stackWidth else IntPx.Zero
+            val minHeight = if (stackHeight.isFinite()) stackHeight else IntPx.Zero
+            placeables[i] = measurables[i].measure(
+                Constraints(minWidth, stackWidth, minHeight, stackHeight)
+            )
         }
 
         // Position the children.
@@ -202,73 +78,131 @@ fun Stack(
                 val childData = measurable.stackChildData
                 val placeable = placeables[i]!!
 
-                if (!measurable.positioned) {
-                    val position = childData.alignment.align(
-                        IntPxSize(
-                            stackWidth - placeable.width,
-                            stackHeight - placeable.height
-                        )
+                val position = childData.alignment.align(
+                    IntPxSize(
+                        stackWidth - placeable.width,
+                        stackHeight - placeable.height
                     )
-                    placeable.place(position.x, position.y)
-                } else {
-                    val x = when {
-                        childData.leftInset != null -> childData.leftInset.toIntPx()
-                        childData.rightInset != null ->
-                            stackWidth - childData.rightInset.toIntPx() - placeable.width
-                        else -> childData.alignment.align(
-                            IntPxSize(
-                                stackWidth - placeable.width,
-                                stackHeight - placeable.height
-                            )
-                        ).x
-                    }
-                    val y = when {
-                        childData.topInset != null -> childData.topInset.toIntPx()
-                        childData.bottomInset != null ->
-                            stackHeight - childData.bottomInset.toIntPx() - placeable.height
-                        else -> childData.alignment.align(
-                            IntPxSize(
-                                stackWidth - placeable.width,
-                                stackHeight - placeable.height
-                            )
-                        ).y
-                    }
-                    placeable.place(x, y)
-                }
+                )
+                placeable.place(position.x, position.y)
             }
         }
     }
 }
 
 /**
- * Used to control how the constraints of a [Stack] are passed to its aligned children.
+ * A StackScope provides a scope for the children of a [Stack].
  */
-private enum class StackFit {
+@LayoutScopeMarker
+@Suppress("unused") // Note: Gravity object provides a scope only but is never used itself
+class StackScope {
     /**
-     * The constraints passed to the [Stack] from its parent are loosened.
+     * A layout modifier within a [Stack] that makes the target component to occupy the whole
+     * space occupied by the [Stack]. Components using this layout modifier do not define the
+     * size of the [Stack] and are positioned within the stack after its size is calculated to
+     * wrap the non-stretch components.
      */
-    Loose,
+    val Gravity.Stretch: LayoutModifier get() = StretchGravityModifier
+
     /**
-     * The constraints passed to the [Stack] from its parent are tightened to the biggest size allowed.
-     */
-    Expand,
+     * A layout modifier that defines that child should be positioned top-left inside the [Stack].
+     * If the [Stack] wraps its content (by not being constrained to a min size by its own
+     * parent), a child with this gravity option will contribute to the size of the [Stack].
+    */
+    val Gravity.TopLeft: LayoutModifier get() = TopLeftGravityModifier
+
     /**
-     * The constraints passed to the [Stack] from its parent are passed unmodified to the aligned children.
+     * A layout modifier that defines that child should be positioned top-center inside the [Stack].
+     * If the [Stack] wraps its content (by not being constrained to a min size by its own
+     * parent), a child with this gravity option will contribute to the size of the [Stack].
      */
-    PassThrough
+    val Gravity.TopCenter: LayoutModifier get() = TopCenterGravityModifier
+
+    /**
+     * A layout modifier that defines that child should be positioned top-right inside the [Stack].
+     * If the [Stack] wraps its content (by not being constrained to a min size by its own
+     * parent), a child with this gravity option will contribute to the size of the [Stack].
+     */
+    val Gravity.TopRight: LayoutModifier get() = TopRightGravityModifier
+
+    /**
+     * A layout modifier that defines that child should be positioned center-left inside the
+     * [Stack].
+     * If the [Stack] wraps its content (by not being constrained to a min size by its own
+     * parent), a child with this gravity option will contribute to the size of the [Stack].
+     */
+    val Gravity.CenterLeft: LayoutModifier get() = CenterLeftGravityModifier
+
+    /**
+     * A layout modifier that defines that child should be positioned in the center of the [Stack].
+     * If the [Stack] wraps its content (by not being constrained to a min size by its own
+     * parent), a child with this gravity option will contribute to the size of the [Stack].
+     */
+    val Gravity.Center: LayoutModifier get() = CenterGravityModifier
+
+    /**
+     * A layout modifier that defines that child should be positioned center-right inside the
+     * [Stack].
+     * If the [Stack] wraps its content (by not being constrained to a min size by its own
+     * parent), a child with this gravity option will contribute to the size of the [Stack].
+     */
+    val Gravity.CenterRight: LayoutModifier get() = CenterRightGravityModifier
+
+    /**
+     * A layout modifier that defines that child should be positioned bottom-left inside the
+     * [Stack].
+     * If the [Stack] wraps its content (by not being constrained to a min size by its own
+     * parent), a child with this gravity option will contribute to the size of the [Stack].
+     */
+    val Gravity.BottomLeft: LayoutModifier get() = BottomLeftGravityModifier
+
+    /**
+     * A layout modifier that defines that child should be positioned bottom-center inside the
+     * [Stack].
+     * If the [Stack] wraps its content (by not being constrained to a min size by its own
+     * parent), a child with this gravity option will contribute to the size of the [Stack].
+     */
+    val Gravity.BottomCenter: LayoutModifier get() = BottomCenterGravityModifier
+
+    /**
+     * A layout modifier that defines that child should be positioned bottom-right inside the
+     * [Stack].
+     * If the [Stack] wraps its content (by not being constrained to a min size by its own
+     * parent), a child with this gravity option will contribute to the size of the [Stack].
+     */
+    val Gravity.BottomRight: LayoutModifier get() = BottomRightGravityModifier
+
+    internal companion object {
+        val TopLeftGravityModifier: LayoutModifier = StackGravityModifier(Alignment.TopLeft)
+        val TopCenterGravityModifier: LayoutModifier = StackGravityModifier(Alignment.TopCenter)
+        val TopRightGravityModifier: LayoutModifier = StackGravityModifier(Alignment.TopRight)
+        val CenterLeftGravityModifier: LayoutModifier = StackGravityModifier(Alignment.CenterLeft)
+        val CenterGravityModifier: LayoutModifier = StackGravityModifier(Alignment.Center)
+        val CenterRightGravityModifier: LayoutModifier = StackGravityModifier(Alignment.CenterRight)
+        val BottomLeftGravityModifier: LayoutModifier = StackGravityModifier(Alignment.BottomLeft)
+        val BottomCenterGravityModifier: LayoutModifier =
+            StackGravityModifier(Alignment.BottomCenter)
+        val BottomRightGravityModifier: LayoutModifier = StackGravityModifier(Alignment.BottomRight)
+        val StretchGravityModifier: LayoutModifier =
+            StackGravityModifier(Alignment.Center, true)
+    }
 }
 
 private data class StackChildData(
     val alignment: Alignment,
-    val leftInset: Dp? = null,
-    val topInset: Dp? = null,
-    val rightInset: Dp? = null,
-    val bottomInset: Dp? = null,
-    val fit: StackFit = StackFit.Loose
+    val stretch: Boolean = false
 )
 
-private val Measurable.stackChildData: StackChildData get() = this.parentData as StackChildData
-private val Measurable.positioned: Boolean
-    get() = with(stackChildData) {
-        leftInset != null || topInset != null || rightInset != null || bottomInset != null
+private val Measurable.stackChildData: StackChildData
+    get() = (parentData as? StackChildData) ?: StackChildData(Alignment.TopLeft)
+private val Measurable.stretch: Boolean
+    get() = stackChildData.stretch
+
+private data class StackGravityModifier(
+    val alignment: Alignment,
+    val stretch: Boolean = false
+) : LayoutModifier {
+    override fun DensityScope.modifyParentData(parentData: Any?): StackChildData {
+        return ((parentData as? StackChildData) ?: StackChildData(alignment, stretch))
     }
+}
