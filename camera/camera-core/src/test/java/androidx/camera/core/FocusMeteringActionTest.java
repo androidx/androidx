@@ -23,11 +23,9 @@ import androidx.test.filters.SmallTest;
 
 import org.junit.Test;
 import org.junit.runner.RunWith;
-import org.mockito.Mockito;
 import org.robolectric.RobolectricTestRunner;
 import org.robolectric.annotation.internal.DoNotInstrument;
 
-import java.util.concurrent.Executor;
 import java.util.concurrent.TimeUnit;
 
 @SmallTest
@@ -51,7 +49,6 @@ public class FocusMeteringActionTest {
         assertThat(action.getAutoCancelDurationInMillis()).isEqualTo(
                 FocusMeteringAction.DEFAULT_AUTOCANCEL_DURATION);
         assertThat(action.isAutoCancelEnabled()).isTrue();
-        assertThat(action.getOnAutoFocusListener()).isNull();
     }
 
     @Test
@@ -257,40 +254,6 @@ public class FocusMeteringActionTest {
         assertThat(action.getMeteringPointsAf()).containsExactly(mPoint2);
         assertThat(action.getMeteringPointsAe()).containsExactly(mPoint1, mPoint2, mPoint3);
         assertThat(action.getMeteringPointsAwb()).containsExactly(mPoint2);
-    }
-
-    @Test
-    public void onAutoFocusListenerIsSet() {
-        MeteringPoint mPoint1 = mPointFactory.createPoint(0, 0);
-        FocusMeteringAction.OnAutoFocusListener onAutoFocusListener =
-                new FocusMeteringAction.OnAutoFocusListener() {
-                    @Override
-                    public void onFocusCompleted(boolean isFocused) {
-
-                    }
-                };
-
-        FocusMeteringAction action = FocusMeteringAction.Builder.from(mPoint1)
-                .setAutoFocusCallback(onAutoFocusListener)
-                .build();
-
-        assertThat(action.getOnAutoFocusListener()).isEqualTo(onAutoFocusListener);
-    }
-
-    @Test
-    public void onAutoFocusListenerAndExecutorIsSet() {
-        MeteringPoint mPoint1 = mPointFactory.createPoint(0, 0);
-        FocusMeteringAction.OnAutoFocusListener onAutoFocusListener =
-                Mockito.mock(FocusMeteringAction.OnAutoFocusListener.class);
-
-        Executor executor = Mockito.mock(Executor.class);
-
-        FocusMeteringAction action = FocusMeteringAction.Builder.from(mPoint1)
-                .setAutoFocusCallback(executor, onAutoFocusListener)
-                .build();
-
-        assertThat(action.getOnAutoFocusListener()).isEqualTo(onAutoFocusListener);
-        assertThat(action.getListenerExecutor()).isEqualTo(executor);
     }
 
     @Test

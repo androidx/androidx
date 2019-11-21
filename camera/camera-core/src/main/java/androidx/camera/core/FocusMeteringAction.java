@@ -19,10 +19,6 @@ package androidx.camera.core;
 import androidx.annotation.IntDef;
 import androidx.annotation.IntRange;
 import androidx.annotation.NonNull;
-import androidx.annotation.Nullable;
-import androidx.annotation.RestrictTo;
-import androidx.annotation.VisibleForTesting;
-import androidx.camera.core.impl.utils.executor.CameraXExecutors;
 import androidx.core.util.Preconditions;
 
 import com.google.common.util.concurrent.ListenableFuture;
@@ -32,9 +28,7 @@ import java.lang.annotation.RetentionPolicy;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
-import java.util.concurrent.Executor;
 import java.util.concurrent.TimeUnit;
-import java.util.concurrent.atomic.AtomicBoolean;
 
 /**
  * A configuration used to trigger a focus and/or metering action.
@@ -53,12 +47,16 @@ import java.util.concurrent.atomic.AtomicBoolean;
  * {@link Builder#addPoint(MeteringPoint, int)}. App can also this API to enable
  * different region for AF and AE respectively.
  *
- * <p>If any AF points are specified, it will trigger AF to start a manual AF scan and cancel AF
- * trigger when {@link CameraControl#cancelFocusAndMetering()} is called. When triggering AF is
- * done, it will call the {@link OnAutoFocusListener#onFocusCompleted(boolean)} which is set via
- * {@link Builder#setAutoFocusCallback(OnAutoFocusListener)}.  If AF point is not specified or
- * the action is cancelled before AF is locked, CameraX will call the
- * {@link OnAutoFocusListener#onFocusCompleted(boolean)} with isFocusLocked set to false.
+ * <p>If any AF points are specified, it will trigger autofocus to start a manual scan. When
+ * focus is locked and specified AF/AE/AWB regions are updated in capture result, the returned
+ * {@link ListenableFuture} in {@link CameraControl#startFocusAndMetering(FocusMeteringAction)}
+ * will completed with {@link FocusMeteringResult#isFocusSuccessful()} set to indicate if focus is
+ * done successfully or not. If AF point is not specified, it will not trigger autofocus and
+ * simply wait for specified AE/AWB regions being updated to complete the returned
+ * {@link ListenableFuture}. In the case of AF points not specified,
+ * {@link FocusMeteringResult#isFocusSuccessful()} will be set to false. If Af points are
+ * specified but current camera does not support auto focus,
+ * {@link FocusMeteringResult#isFocusSuccessful()} will be set to true .
  *
  * <p>App can set a auto-cancel duration to let CameraX call
  * {@link CameraControl#cancelFocusAndMetering()} automatically in the specified duration. By
@@ -72,28 +70,14 @@ public final class FocusMeteringAction {
     private final List<MeteringPoint> mMeteringPointsAf;
     private final List<MeteringPoint> mMeteringPointsAe;
     private final List<MeteringPoint> mMeteringPointsAwb;
-    private final Executor mListenerExecutor;
-    @SuppressWarnings("WeakerAccess") /* synthetic accessor */
-    final OnAutoFocusListener mOnAutoFocusListener;
     private final long mAutoCancelDurationInMillis;
-    private AtomicBoolean mHasNotifiedListener = new AtomicBoolean(false);
 
     @SuppressWarnings("WeakerAccess") /* synthetic accessor */
     FocusMeteringAction(Builder builder) {
         mMeteringPointsAf = Collections.unmodifiableList(builder.mMeteringPointsAf);
         mMeteringPointsAe = Collections.unmodifiableList(builder.mMeteringPointsAe);
         mMeteringPointsAwb = Collections.unmodifiableList(builder.mMeteringPointsAwb);
-        mListenerExecutor = builder.mListenerExecutor;
-        mOnAutoFocusListener = builder.mOnAutoFocusListener;
         mAutoCancelDurationInMillis = builder.mAutoCancelDurationInMillis;
-    }
-
-    /**
-     * Returns current {@link OnAutoFocusListener}.
-     */
-    @Nullable
-    public OnAutoFocusListener getOnAutoFocusListener() {
-        return mOnAutoFocusListener;
     }
 
     /**
@@ -134,43 +118,6 @@ public final class FocusMeteringAction {
         return mAutoCancelDurationInMillis > 0;
     }
 
-    @VisibleForTesting
-    Executor getListenerExecutor() {
-        return mListenerExecutor;
-    }
-
-    /**
-     * Notifies current {@link OnAutoFocusListener} and ensures it is called once.
-     *
-     * @hide
-     */
-    @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
-    public void notifyAutoFocusCompleted(boolean isFocused) {
-        if (!mHasNotifiedListener.getAndSet(true)) {
-            if (mOnAutoFocusListener != null) {
-                mListenerExecutor.execute(new Runnable() {
-                    @Override
-                    public void run() {
-                        mOnAutoFocusListener.onFocusCompleted(isFocused);
-                    }
-                });
-            }
-        }
-    }
-
-    /**
-     * Listener for receiving auto-focus completion event.
-     */
-    public interface OnAutoFocusListener {
-        /**
-         * Called when camera auto focus completes or when the action is cancelled before
-         * auto-focus completes.
-         *
-         * @param isFocusLocked true if focus is locked successfully, false otherwise.
-         */
-        void onFocusCompleted(boolean isFocusLocked);
-    }
-
     /**
      * Focus/Metering mode used to specify which 3A regions is activated for corresponding
      * {@link MeteringPoint}.
@@ -195,10 +142,6 @@ public final class FocusMeteringAction {
         final List<MeteringPoint> mMeteringPointsAe = new ArrayList<>();
         @SuppressWarnings("WeakerAccess") /* synthetic accessor */
         final List<MeteringPoint> mMeteringPointsAwb = new ArrayList<>();
-        @SuppressWarnings("WeakerAccess") /* synthetic accessor */
-        OnAutoFocusListener mOnAutoFocusListener = null;
-        @SuppressWarnings("WeakerAccess") /* synthetic accessor */
-        Executor mListenerExecutor = CameraXExecutors.mainThreadExecutor();
         @SuppressWarnings("WeakerAccess") /* synthetic accessor */
         long mAutoCancelDurationInMillis = DEFAULT_AUTOCANCEL_DURATION;
 
@@ -270,28 +213,6 @@ public final class FocusMeteringAction {
             if ((mode & MeteringMode.AWB) != 0) {
                 mMeteringPointsAwb.add(point);
             }
-            return this;
-        }
-
-        /**
-         * Sets the {@link OnAutoFocusListener} to be notified when auto-focus completes. The
-         * listener is called on main thread.
-         */
-        @NonNull
-        public Builder setAutoFocusCallback(@NonNull OnAutoFocusListener listener) {
-            mOnAutoFocusListener = listener;
-            return this;
-        }
-
-        /**
-         * Sets the {@link OnAutoFocusListener} to be notified when auto-focus completes. The
-         * listener is called on specified {@link Executor}.
-         */
-        @NonNull
-        public Builder setAutoFocusCallback(@NonNull Executor executor,
-                @NonNull OnAutoFocusListener listener) {
-            mListenerExecutor = executor;
-            mOnAutoFocusListener = listener;
             return this;
         }
 
