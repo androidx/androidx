@@ -18,6 +18,8 @@ package androidx.core.location;
 
 import static android.os.Build.VERSION_CODES;
 
+import static androidx.annotation.RestrictTo.Scope.LIBRARY;
+
 import android.annotation.SuppressLint;
 import android.location.GnssStatus;
 import android.location.GpsSatellite;
@@ -28,6 +30,7 @@ import androidx.annotation.IntDef;
 import androidx.annotation.IntRange;
 import androidx.annotation.NonNull;
 import androidx.annotation.RequiresApi;
+import androidx.annotation.RestrictTo;
 
 import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;
@@ -70,6 +73,10 @@ public abstract class GnssStatusCompat {
     @SuppressLint("InlinedApi")
     public static final int CONSTELLATION_IRNSS = GnssStatus.CONSTELLATION_IRNSS;
 
+    /**
+     * @hide
+     */
+    @RestrictTo(LIBRARY)
     @Retention(RetentionPolicy.SOURCE)
     @IntDef({CONSTELLATION_UNKNOWN, CONSTELLATION_GPS, CONSTELLATION_SBAS, CONSTELLATION_GLONASS,
             CONSTELLATION_QZSS, CONSTELLATION_BEIDOU, CONSTELLATION_GALILEO, CONSTELLATION_IRNSS})

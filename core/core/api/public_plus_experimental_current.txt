@@ -1246,7 +1246,7 @@ package androidx.core.location {
     method @FloatRange(from=0, to=360) public abstract float getAzimuthDegrees(@IntRange(from=0) int);
     method @FloatRange(from=0) public abstract float getCarrierFrequencyHz(@IntRange(from=0) int);
     method @FloatRange(from=0, to=63) public abstract float getCn0DbHz(@IntRange(from=0) int);
-    method @androidx.core.location.GnssStatusCompat.ConstellationType public abstract int getConstellationType(@IntRange(from=0) int);
+    method public abstract int getConstellationType(@IntRange(from=0) int);
     method @FloatRange(from=0xffffffa6, to=90) public abstract float getElevationDegrees(@IntRange(from=0) int);
     method @IntRange(from=0) public abstract int getSatelliteCount();
     method @IntRange(from=1, to=200) public abstract int getSvid(@IntRange(from=0) int);
@@ -1272,9 +1272,6 @@ package androidx.core.location {
     method public void onSatelliteStatusChanged(androidx.core.location.GnssStatusCompat);
     method public void onStarted();
     method public void onStopped();
-  }
-
-  @IntDef({androidx.core.location.GnssStatusCompat.CONSTELLATION_UNKNOWN, androidx.core.location.GnssStatusCompat.CONSTELLATION_GPS, androidx.core.location.GnssStatusCompat.CONSTELLATION_SBAS, androidx.core.location.GnssStatusCompat.CONSTELLATION_GLONASS, androidx.core.location.GnssStatusCompat.CONSTELLATION_QZSS, androidx.core.location.GnssStatusCompat.CONSTELLATION_BEIDOU, androidx.core.location.GnssStatusCompat.CONSTELLATION_GALILEO, androidx.core.location.GnssStatusCompat.CONSTELLATION_IRNSS}) @java.lang.annotation.Retention(java.lang.annotation.RetentionPolicy.SOURCE) public static @interface GnssStatusCompat.ConstellationType {
   }
 
   public final class LocationManagerCompat {
