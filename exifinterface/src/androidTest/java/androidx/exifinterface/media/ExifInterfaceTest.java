@@ -85,17 +85,18 @@ public class ExifInterfaceTest {
     private static final String EXIF_BYTE_ORDER_MM_JPEG = "image_exif_byte_order_mm.jpg";
     private static final String LG_G4_ISO_800_DNG = "lg_g4_iso_800_dng.dng";
     private static final String LG_G4_ISO_800_JPG = "lg_g4_iso_800_jpg.jpg";
-    private static final String WEBP_WITH_EXIF = "webp_with_exif.webp";
     private static final String PNG_WITH_EXIF_BYTE_ORDER_II = "png_with_exif_byte_order_ii.png";
     private static final String PNG_WITHOUT_EXIF = "png_without_exif.png";
+    private static final String WEBP_WITH_EXIF = "webp_with_exif.webp";
+    private static final String WEBP_WITH_ANIM_WITHOUT_EXIF = "webp_with_anim_without_exif.webp";
     private static final int[] IMAGE_RESOURCES = new int[] {
             R.raw.image_exif_byte_order_ii, R.raw.image_exif_byte_order_mm, R.raw.lg_g4_iso_800_dng,
             R.raw.lg_g4_iso_800_jpg, R.raw.png_with_exif_byte_order_ii, R.raw.png_without_exif,
-            R.raw.webp_with_exif};
+            R.raw.webp_with_exif, R.raw.webp_with_anim_without_exif};
     private static final String[] IMAGE_FILENAMES = new String[] {
             EXIF_BYTE_ORDER_II_JPEG, EXIF_BYTE_ORDER_MM_JPEG, LG_G4_ISO_800_DNG,
             LG_G4_ISO_800_JPG, PNG_WITH_EXIF_BYTE_ORDER_II, PNG_WITHOUT_EXIF,
-            WEBP_WITH_EXIF};
+            WEBP_WITH_EXIF, WEBP_WITH_ANIM_WITHOUT_EXIF};
 
     private static final int USER_READ_WRITE = 0600;
     private static final String TEST_TEMP_FILE_NAME = "testImage";
@@ -439,8 +440,23 @@ public class ExifInterfaceTest {
 
     @Test
     @LargeTest
-    public void testExifByteOrderIIWebpForRead() throws Throwable {
-        testExifInterfaceForRead(WEBP_WITH_EXIF, R.array.exifbyteorderii_webp);
+    public void testWebpWithExifForReadAndWrite() throws Throwable {
+        testExifInterfaceForReadAndWrite(WEBP_WITH_EXIF, R.array.exifbyteorderii_webp);
+    }
+
+    @Test
+    @LargeTest
+    public void testWebpWithAnimWithoutExifForWrite() throws Throwable {
+        File imageFile = new File(Environment.getExternalStorageDirectory(),
+                WEBP_WITH_ANIM_WITHOUT_EXIF);
+
+        ExifInterface exifInterface = new ExifInterface(imageFile.getAbsolutePath());
+        exifInterface.setAttribute(ExifInterface.TAG_MAKE, "abc");
+        exifInterface.saveAttributes();
+
+        exifInterface = new ExifInterface(imageFile.getAbsolutePath());
+        String make = exifInterface.getAttribute(ExifInterface.TAG_MAKE);
+        assertEquals("abc", make);
     }
 
     @Test
