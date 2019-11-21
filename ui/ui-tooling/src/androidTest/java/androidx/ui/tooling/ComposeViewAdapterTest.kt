@@ -76,6 +76,21 @@ class ComposeViewAdapterTest {
         }
     }
 
+    @Test
+    fun previewInClass() {
+        activityTestRule.runOnUiThread {
+            composeViewAdapter.init(
+                "androidx.ui.tooling.TestGroup",
+                "InClassPreview",
+                debugViewInfos = true
+            )
+        }
+
+        activityTestRule.runOnUiThread {
+            assertTrue(composeViewAdapter.viewInfos.isNotEmpty())
+        }
+    }
+
     companion object {
         class TestActivity : Activity() {
             override fun onCreate(savedInstanceState: Bundle?) {
