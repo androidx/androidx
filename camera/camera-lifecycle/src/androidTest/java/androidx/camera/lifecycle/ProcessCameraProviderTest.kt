@@ -16,7 +16,6 @@
 
 package androidx.camera.lifecycle
 
-import androidx.camera.core.CameraX
 import androidx.camera.testing.fakes.FakeAppConfig
 import androidx.test.core.app.ApplicationProvider
 import androidx.test.filters.SmallTest
@@ -24,20 +23,12 @@ import androidx.testutils.assertThrows
 import com.google.common.truth.Truth.assertThat
 import kotlinx.coroutines.guava.await
 import kotlinx.coroutines.runBlocking
-import org.junit.After
 import org.junit.Test
 
 @SmallTest
 class ProcessCameraProviderTest {
 
     private val context = ApplicationProvider.getApplicationContext() as android.content.Context
-
-    @After
-    fun tearDown() {
-        runBlocking {
-            CameraX.shutdown().await()
-        }
-    }
 
     @Test
     fun uninitializedGetInstance_throwsISE() {
@@ -50,9 +41,11 @@ class ProcessCameraProviderTest {
 
     @Test
     fun initializedGetInstance_returnsProvider() {
-        CameraX.initialize(context, FakeAppConfig.create())
+        ProcessCameraProvider.initializeInstance(context, FakeAppConfig.create())
         runBlocking {
-            assertThat(ProcessCameraProvider.getInstance(context).await()).isNotNull()
+            val provider = ProcessCameraProvider.getInstance(context).await()
+            assertThat(provider).isNotNull()
+            provider.shutdown().await()
         }
     }
 }

@@ -18,15 +18,24 @@ package androidx.camera.integration.view;
 
 import android.app.Application;
 
+import androidx.annotation.NonNull;
 import androidx.camera.camera2.Camera2AppConfig;
-import androidx.camera.core.CameraX;
+import androidx.camera.core.AppConfig;
+import androidx.camera.lifecycle.ProcessCameraProvider;
 
 /** The application. */
-public class ViewApplication extends Application {
+public class ViewApplication extends Application implements AppConfig.Provider {
     @Override
     public void onCreate() {
         super.onCreate();
 
-        CameraX.initialize(this, Camera2AppConfig.create(this));
+        // TODO(b/144888472): Initialize when needed instead of in Application#onCreate().
+        ProcessCameraProvider.getInstance(this);
+    }
+
+    @NonNull
+    @Override
+    public AppConfig getAppConfig() {
+        return Camera2AppConfig.create(this);
     }
 }
