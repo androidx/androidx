@@ -70,12 +70,12 @@ final class ImageCaptureOptionUnpacker extends Camera2CaptureOptionUnpacker {
                 || "Pixel 3".equals(mDeviceProperties.model()))) {
             if (mDeviceProperties.sdkVersion() >= Build.VERSION_CODES.O) {
                 switch (captureMode) {
-                    case CaptureMode.MAX_QUALITY:
+                    case CaptureMode.MAXIMIZE_QUALITY:
                         // enable ZSL to make sure HDR+ is enabled
                         builder.setCaptureRequestOption(
                                 CaptureRequest.CONTROL_ENABLE_ZSL, true);
                         break;
-                    case CaptureMode.MIN_LATENCY:
+                    case CaptureMode.MINIMIZE_LATENCY:
                         // disable ZSL to turn off HDR+
                         builder.setCaptureRequestOption(
                                 CaptureRequest.CONTROL_ENABLE_ZSL, false);
