@@ -326,7 +326,7 @@ private fun cameraXImageCaptureUseCaseBuilder(
 ): ImageCapture.Builder {
 
     val configBuilder = ImageCapture.Builder()
-        .setCaptureMode(ImageCapture.CaptureMode.MAX_QUALITY)
+        .setCaptureMode(ImageCapture.CaptureMode.MAXIMIZE_QUALITY)
     Camera2Config.Extender(configBuilder)
         .setDeviceStateCallback(deviceStateCallback)
         .setSessionCaptureCallback(sessionCaptureCallback)

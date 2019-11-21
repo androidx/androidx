@@ -247,7 +247,7 @@ public final class ImageCaptureTest {
     @Test
     public void canCaptureMultipleImagesWithMaxQuality() {
         ImageCapture useCase = new ImageCapture.Builder()
-                .setCaptureMode(CaptureMode.MAX_QUALITY)
+                .setCaptureMode(CaptureMode.MAXIMIZE_QUALITY)
                 .build();
         mInstrumentation.runOnMainSync(
                 () -> {

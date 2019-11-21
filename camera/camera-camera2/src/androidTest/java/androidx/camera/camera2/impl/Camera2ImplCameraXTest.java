@@ -428,7 +428,7 @@ public final class Camera2ImplCameraXTest {
         ImageAnalysis useCase0 = builder.build();
 
         ImageCapture useCase1 = new ImageCapture.Builder()
-                .setCaptureMode(ImageCapture.CaptureMode.MAX_QUALITY)
+                .setCaptureMode(ImageCapture.CaptureMode.MAXIMIZE_QUALITY)
                 .build();
 
         mInstrumentation.runOnMainSync(new Runnable() {
@@ -460,7 +460,7 @@ public final class Camera2ImplCameraXTest {
         ImageAnalysis useCase0 = builder.build();
 
         ImageCapture useCase1 = new ImageCapture.Builder()
-                .setCaptureMode(ImageCapture.CaptureMode.MAX_QUALITY)
+                .setCaptureMode(ImageCapture.CaptureMode.MAXIMIZE_QUALITY)
                 .build();
 
         mInstrumentation.runOnMainSync(new Runnable() {
