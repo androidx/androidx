@@ -18,12 +18,19 @@ package androidx.camera.integration.antelope
 
 import android.app.Application
 import androidx.camera.camera2.Camera2AppConfig
-import androidx.camera.core.CameraX
+import androidx.camera.core.AppConfig
+import androidx.camera.lifecycle.ProcessCameraProvider
 
-class TimingApplication : Application() {
+class TimingApplication : Application(), AppConfig.Provider {
+
     override fun onCreate() {
         super.onCreate()
 
-        CameraX.initialize(this, Camera2AppConfig.create(this))
+        // TODO(b/144888472): Initialize when needed instead of in Application#onCreate().
+        ProcessCameraProvider.getInstance(this)
+    }
+
+    override fun getAppConfig(): AppConfig {
+        return Camera2AppConfig.create(this)
     }
 }

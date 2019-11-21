@@ -17,7 +17,6 @@
 package androidx.camera.core;
 
 import android.app.Application;
-import android.content.Context;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
@@ -32,16 +31,15 @@ import java.util.concurrent.Executor;
  * A configuration for adding implementation and user-specific behavior to CameraX.
  *
  * <p>AppConfig provides customizable global application options for CameraX that persist for the
- * lifetime of CameraX in the application from initialization and for the life  of the
- * Application's process.. An implementation of AppConfig is passed to {@link CameraX#initialize}
- * at initialization.  Applications can create and use the implementation of AppConfig provided in
+ * lifetime of CameraX in the application from initialization and for the life of the
+ * Application's process. An implementation of AppConfig must be provided by subclassing the
+ * {@link Application} object and implementing {@link AppConfig.Provider}. Examples of where
+ * this is used can be found in the {@link androidx.camera.lifecycle} package.
+ * Applications can create and use the implementation of AppConfig provided in
  * {@link androidx.camera.camera2}.
  *
- * <p>An example of typical usage is shown in
- * {@link androidx.camera.core.CameraX#initialize(Context, AppConfig)}.
- *
+ * @see androidx.camera.lifecycle
  * @see androidx.camera.core.AppConfig.Builder
- * @see androidx.camera.core.CameraX#initialize(Context, AppConfig)
  */
 public final class AppConfig implements TargetConfig<CameraX>, Config {
 

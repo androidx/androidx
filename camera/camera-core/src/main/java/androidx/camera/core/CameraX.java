@@ -128,8 +128,10 @@ import java.util.concurrent.TimeoutException;
  * thread.  This is because lifecycle events are triggered on main thread and so accessing the use
  * case on the main thread guarantees that lifecycle state changes will not occur during execution
  * of a method call or binding/unbinding.
+ * @hide
  */
 @MainThread
+@RestrictTo(Scope.LIBRARY_GROUP)
 public final class CameraX {
     private static final String TAG = "CameraX";
     private static final long WAIT_INITIALIZED_TIMEOUT = 3L;

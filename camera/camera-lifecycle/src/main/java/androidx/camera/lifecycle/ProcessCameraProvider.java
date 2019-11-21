@@ -21,6 +21,8 @@ import android.content.Context;
 import android.os.Handler;
 
 import androidx.annotation.NonNull;
+import androidx.annotation.RestrictTo;
+import androidx.annotation.RestrictTo.Scope;
 import androidx.camera.core.AppConfig;
 import androidx.camera.core.Camera;
 import androidx.camera.core.CameraInfoUnavailableException;
@@ -81,6 +83,50 @@ public final class ProcessCameraProvider implements LifecycleCameraProvider {
         Preconditions.checkNotNull(context);
         return Futures.transform(CameraX.getOrCreateInstance(context), cameraX -> sAppInstance,
                 CameraXExecutors.directExecutor());
+    }
+
+    /**
+     * Initializes the {@link ProcessCameraProvider} with the given context and config.
+     *
+     * <p>The context enables CameraX to obtain access to necessary services, including the camera
+     * service. For example, the context can be provided by the {@link Application}.
+     *
+     * <p>This method, along with {@link #shutdown()} allows the process
+     * camera provider to be used in test suites which may need to initialize CameraX in
+     * different ways in between tests.
+     *
+     * <p>Once this method is called, the instance can be retrieved with
+     * {@link #getInstance(Context)} without the need for implementing {@link AppConfig.Provider}
+     * in the test suite's {@link Application}.
+     * @param context   for retrieving access to the camera service.
+     * @param appConfig configuration options for the singleton process camera provider instance.
+     * @hide
+     */
+    @RestrictTo(Scope.TESTS)
+    public static void initializeInstance(@NonNull Context context,
+            @NonNull AppConfig appConfig) {
+        CameraX.initialize(context, appConfig);
+    }
+
+    /**
+     * Allows shutting down this {@link ProcessCameraProvider} instance so a new instance can be
+     * retrieved by {@link #getInstance(Context)}.
+     *
+     * <p>Once shutdown, a new instance can be retrieved with
+     * {@link ProcessCameraProvider#getInstance(Context)}.
+     *
+     * <p>This method, along with {@link #initializeInstance(Context, AppConfig)} allows the process
+     * camera provider to be used in test suites which may need to initialize CameraX in
+     * different ways in between tests.
+     *
+     * @return A {@link ListenableFuture} representing the shutdown status. Cancellation of this
+     * future is a no-op.
+     * @hide
+     */
+    @RestrictTo(Scope.TESTS)
+    @NonNull
+    public ListenableFuture<Void> shutdown() {
+        return CameraX.shutdown();
     }
 
     /**
