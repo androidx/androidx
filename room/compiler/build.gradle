@@ -56,10 +56,10 @@ dependencies {
     compile(XERIAL)
     compile(KOTLIN_METADATA_JVM)
     compile(APACHE_COMMONS_CODEC)
+    compile(INTELLIJ_ANNOTATIONS)
     testCompile(GOOGLE_COMPILE_TESTING)
     testCompile project(":paging:paging-common")
     testCompile(JUNIT)
-    testCompile(INTELLIJ_ANNOTATIONS)
     testCompile(JSR250)
     testCompile(MOCKITO_CORE)
     testCompile fileTree(dir: "${SdkHelperKt.getSdkPath(project.rootDir)}/platforms/$SupportConfig.COMPILE_SDK_VERSION/",
