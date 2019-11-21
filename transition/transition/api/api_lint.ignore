@@ -153,6 +153,10 @@ MissingNullability: androidx.transition.VisibilityPropagation#getViewY(androidx.
     Missing nullability on parameter `values` in method `getViewY`
 
 
+MutableBareField: androidx.transition.TransitionValues#view:
+    Bare field view must be marked final, or moved behind accessors if mutable
+
+
 NoClone: androidx.transition.Transition#clone():
     Provide an explicit copy constructor instead of implementing `clone()`
 NoClone: androidx.transition.TransitionSet#clone():

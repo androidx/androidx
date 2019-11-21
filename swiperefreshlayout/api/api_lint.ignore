@@ -1,4 +1,10 @@
 // Baseline format: 1.0
+InternalField: androidx.swiperefreshlayout.widget.SwipeRefreshLayout#mFrom:
+    Internal field mFrom must not be exposed
+InternalField: androidx.swiperefreshlayout.widget.SwipeRefreshLayout#mOriginalOffsetTop:
+    Internal field mOriginalOffsetTop must not be exposed
+
+
 MissingNullability: androidx.swiperefreshlayout.widget.CircularProgressDrawable#draw(android.graphics.Canvas) parameter #0:
     Missing nullability on parameter `canvas` in method `draw`
 MissingNullability: androidx.swiperefreshlayout.widget.CircularProgressDrawable#setColorFilter(android.graphics.ColorFilter) parameter #0:
@@ -65,3 +71,9 @@ MissingNullability: androidx.swiperefreshlayout.widget.SwipeRefreshLayout#setCol
     Missing nullability on parameter `colors` in method `setColorSchemeColors`
 MissingNullability: androidx.swiperefreshlayout.widget.SwipeRefreshLayout#setColorSchemeResources(int...) parameter #0:
     Missing nullability on parameter `colorResIds` in method `setColorSchemeResources`
+
+
+MutableBareField: androidx.swiperefreshlayout.widget.SwipeRefreshLayout#mFrom:
+    Bare field mFrom must be marked final, or moved behind accessors if mutable
+MutableBareField: androidx.swiperefreshlayout.widget.SwipeRefreshLayout#mOriginalOffsetTop:
+    Bare field mOriginalOffsetTop must be marked final, or moved behind accessors if mutable
