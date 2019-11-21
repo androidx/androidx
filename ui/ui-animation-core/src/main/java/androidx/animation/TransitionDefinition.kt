@@ -124,8 +124,8 @@ class TransitionDefinition<T> {
 
     /**
      * Defines all the properties and their values associated with the state with the name: [name]
-     * When a state is specified as default (via [default] = true), transition animation will be
-     * using this default state's property values as its initial values to createAnimation from.
+     * The first state defined in the transition definition will be the default state, whose
+     * property values will be used as its initial values to createAnimation from.
      *
      * Note that the first [MutableTransitionState] created with [state] in a [TransitionDefinition]
      * will be used as the initial state.
@@ -156,7 +156,7 @@ class TransitionDefinition<T> {
     }
 
     /**
-     * Defines a transition from state first value to the second value of the [fromToPair].
+     * Defines a transition from state first value to the second value of the [fromToPairs].
      * When animating from one state to another, [TransitionAnimation] will find the most specific
      * matching transition, and use the animations defined in it for the state transition. Both
      * values in the pair can be null. When they are null, it means a wildcard transition going
@@ -200,7 +200,14 @@ class TransitionDefinition<T> {
     /**
      * Creates a transition animation using the transition definition.
      */
-    fun createAnimation() = TransitionAnimation(this)
+    fun createAnimation() = TransitionAnimation(this, DefaultAnimationClock())
+
+    /**
+     * Creates a transition animation using the transition definition and the given clock.
+     *
+     * @param clock The clock source for animation to get frame time from.
+     */
+    fun createAnimation(clock: AnimationClockObservable) = TransitionAnimation(this, clock)
 
     /**
      * Returns a state holder for the specific state [name]. Useful for the cases

@@ -17,7 +17,6 @@
 package androidx.animation
 
 import android.util.Log
-import android.view.Choreographer
 import androidx.animation.InterruptionHandling.UNINTERRUPTIBLE
 
 /**
@@ -34,13 +33,17 @@ import androidx.animation.InterruptionHandling.UNINTERRUPTIBLE
  * Once a [TransitionDefinition] is instantiated, a [TransitionAnimation] can be created via
  * [TransitionDefinition.createAnimation].
  */
-// TODO: refactor out dependency on choreographer
-class TransitionAnimation<T> : Choreographer.FrameCallback {
+class TransitionAnimation<T> (
+    private val def: TransitionDefinition<T>,
+    private val clock: AnimationClockObservable
+) : TransitionState {
 
     var onUpdate: (() -> Unit)? = null
     var onStateChangeFinished: ((T) -> Unit)? = null
+    var isRunning = false
+        private set
+
     private val UNSET = -1L
-    private var def: TransitionDefinition<T>
     private var fromState: StateImpl<T>
     private var toState: StateImpl<T>
     private val currentState: AnimationState<T>
@@ -49,12 +52,15 @@ class TransitionAnimation<T> : Choreographer.FrameCallback {
     private var pendingState: StateImpl<T>? = null
     private var currentAnimations: MutableMap<PropKey<Any>, Animation<Any>> = mutableMapOf()
     private var startVelocityMap: MutableMap<PropKey<Any>, Float> = mutableMapOf()
-    private var isRunning = false
+    private val animationClockObserver = object : AnimationClockObserver {
+        override fun onAnimationFrame(frameTimeMillis: Long) {
+            doAnimationFrame(frameTimeMillis)
+        }
+    }
 
     // TODO("Create a more efficient code path for default only transition def")
 
-    internal constructor(def: TransitionDefinition<T>) {
-        this.def = def
+    init {
         currentState = AnimationState(def.defaultState, def.defaultState.name)
         // Need to come up with a better plan to avoid the foot gun of accidentally modifying state
         fromState = def.defaultState
@@ -130,24 +136,15 @@ class TransitionAnimation<T> : Choreographer.FrameCallback {
      *
      * @param propKey Property key (defined in [TransitionDefinition]) for a specific property
      */
-    operator fun <T> get(propKey: PropKey<T>): T {
+    override operator fun <T> get(propKey: PropKey<T>): T {
         return currentState[propKey]
-    }
-
-    // TODO: Make this internal
-    override fun doFrame(frameTimeNanos: Long) {
-        if (isRunning) {
-            doAnimationFrame(frameTimeNanos / 1000000L)
-            // TODO: Use refactor out all the dependencies on Choreographer
-            Choreographer.getInstance().postFrameCallback(this)
-        }
     }
 
     // Start animation if not running, otherwise reset start time
     private fun startAnimation() {
         if (!isRunning) {
             isRunning = true
-            Choreographer.getInstance().postFrameCallback(this)
+            clock.subscribe(animationClockObserver)
         } else {
             startTime = lastFrameTime
         }
@@ -205,7 +202,7 @@ class TransitionAnimation<T> : Choreographer.FrameCallback {
     }
 
     private fun endAnimation() {
-        Choreographer.getInstance().removeFrameCallback(this)
+        clock.unsubscribe(animationClockObserver)
         startTime = UNSET
         lastFrameTime = UNSET
         isRunning = false

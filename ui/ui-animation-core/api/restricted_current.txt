@@ -31,6 +31,15 @@ package androidx.animation {
     field public static final int Infinite = 2147483647; // 0x7fffffff
   }
 
+  public interface AnimationClockObservable {
+    method public void subscribe(androidx.animation.AnimationClockObserver observer);
+    method public void unsubscribe(androidx.animation.AnimationClockObserver observer);
+  }
+
+  public interface AnimationClockObserver {
+    method public void onAnimationFrame(long frameTimeMillis);
+  }
+
   public enum AnimationEndReason {
     enum_constant public static final androidx.animation.AnimationEndReason BoundReached;
     enum_constant public static final androidx.animation.AnimationEndReason Interrupted;
@@ -60,6 +69,11 @@ package androidx.animation {
     property public T! value;
   }
 
+  public abstract sealed class BaseAnimationClock implements androidx.animation.AnimationClockObservable {
+    method public void subscribe(androidx.animation.AnimationClockObserver observer);
+    method public void unsubscribe(androidx.animation.AnimationClockObserver observer);
+  }
+
   public final class CubicBezierEasing implements kotlin.jvm.functions.Function1<java.lang.Float,java.lang.Float> {
     ctor public CubicBezierEasing(float a, float b, float c, float d);
     method public Float! invoke(float fraction);
@@ -76,6 +90,11 @@ package androidx.animation {
 
   public final class DecayAnimationKt {
     ctor public DecayAnimationKt();
+  }
+
+  public final class DefaultAnimationClock extends androidx.animation.BaseAnimationClock {
+    ctor public DefaultAnimationClock();
+    method public void dispatchTime$lintWithKotlin(long frameTimeMillis);
   }
 
   public abstract class DurationBasedAnimationBuilder<T> extends androidx.animation.AnimationBuilder<T> {
@@ -150,6 +169,13 @@ package androidx.animation {
   public final class KeyframesBuilder.KeyframeEntity {
   }
 
+  public final class ManualAnimationClock extends androidx.animation.BaseAnimationClock {
+    ctor public ManualAnimationClock(long initTimeMillis);
+    method public long getClockTimeMillis();
+    method public void setClockTimeMillis(long value);
+    property public final long clockTimeMillis;
+  }
+
   public interface MutableTransitionState {
     method public operator <T> void set(androidx.animation.PropKey<T> propKey, T? prop);
   }
@@ -197,14 +223,16 @@ package androidx.animation {
     method public float getTarget();
   }
 
-  public final class TransitionAnimation<T> implements android.view.Choreographer.FrameCallback {
-    method public void doFrame(long frameTimeNanos);
+  public final class TransitionAnimation<T> implements androidx.animation.TransitionState {
+    ctor public TransitionAnimation(androidx.animation.TransitionDefinition<T> def, androidx.animation.AnimationClockObservable clock);
     method public operator <T> T! get(androidx.animation.PropKey<T> propKey);
     method public kotlin.jvm.functions.Function1<T,kotlin.Unit>? getOnStateChangeFinished();
     method public kotlin.jvm.functions.Function0<kotlin.Unit>? getOnUpdate();
+    method public boolean isRunning();
     method public void setOnStateChangeFinished(kotlin.jvm.functions.Function1<? super T,kotlin.Unit>? p);
     method public void setOnUpdate(kotlin.jvm.functions.Function0<kotlin.Unit>? p);
     method public void toState(T? name);
+    property public final boolean isRunning;
     property public final kotlin.jvm.functions.Function1<T,kotlin.Unit>? onStateChangeFinished;
     property public final kotlin.jvm.functions.Function0<kotlin.Unit>? onUpdate;
   }
@@ -212,6 +240,7 @@ package androidx.animation {
   public final class TransitionDefinition<T> {
     ctor public TransitionDefinition();
     method public androidx.animation.TransitionAnimation<T> createAnimation();
+    method public androidx.animation.TransitionAnimation<T> createAnimation(androidx.animation.AnimationClockObservable clock);
     method public androidx.animation.TransitionState getStateFor(T? name);
     method public void snapTransition(kotlin.Pair<? extends T,? extends T>![] fromToPairs, T? nextState = null);
     method public void state(T? name, kotlin.jvm.functions.Function1<? super androidx.animation.MutableTransitionState,kotlin.Unit> init);
