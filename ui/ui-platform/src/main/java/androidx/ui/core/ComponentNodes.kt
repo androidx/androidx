@@ -227,6 +227,7 @@ sealed class ComponentNode : Emittable {
             val child = children.removeAt(fromIndex)
             children.add(toIndex, child)
         }
+        containingLayoutNode?.layoutChildrenDirty = true
     }
 
     /**
@@ -613,7 +614,7 @@ class LayoutNode : ComponentNode(), Measurable {
      * Identifies when [layoutChildren] needs to be recalculated or if it can use
      * the cached value.
      */
-    private var layoutChildrenDirty = false
+    internal var layoutChildrenDirty = false
 
     /**
      * The cached value of [layoutChildren]
