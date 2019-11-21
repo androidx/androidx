@@ -60,6 +60,14 @@ private val definition = transitionDefinition {
         this[scale] = 3f
         this[color] = Color(red = 0, green = 100, blue = 0, alpha = 255)
     }
+    transition {
+        scale using physics {
+            stiffness = 50f
+        }
+        color using physics {
+            stiffness = 50f
+        }
+    }
 }
 
 @Composable

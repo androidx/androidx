@@ -57,3 +57,5 @@ MissingNullability: androidx.animation.FloatPropKey#interpolate(float, float, fl
     Missing nullability on method `interpolate` return
 MissingNullability: androidx.animation.IntPropKey#interpolate(int, int, float):
     Missing nullability on method `interpolate` return
+MissingNullability: androidx.animation.Spring#Companion:
+    Missing nullability on field `Companion` in class `class androidx.animation.Spring`

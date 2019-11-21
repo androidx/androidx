@@ -47,7 +47,7 @@ internal val UNSET = Float.MAX_VALUE
 internal class SpringSimulation(var finalPosition: Float) {
 
     // Natural frequency
-    private var naturalFreq = Math.sqrt(Physics.StiffnessVeryLow.toDouble())
+    private var naturalFreq = Math.sqrt(Spring.StiffnessVeryLow.toDouble())
 
     // Indicates whether the spring has been initialized
     private var initialized = false
@@ -83,7 +83,7 @@ internal class SpringSimulation(var finalPosition: Float) {
      *
      * @return damping ratio of the spring
      */
-    var dampingRatio: Float = Physics.DampingRatioNoBouncy
+    var dampingRatio: Float = Spring.DampingRatioNoBouncy
         set(value) {
             if (value < 0) {
                 throw IllegalArgumentException("Damping ratio must be non-negative")
