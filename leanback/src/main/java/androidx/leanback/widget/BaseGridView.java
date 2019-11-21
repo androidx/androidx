@@ -15,6 +15,7 @@ package androidx.leanback.widget;
 
 import static androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP_PREFIX;
 
+import android.annotation.SuppressLint;
 import android.content.Context;
 import android.content.res.TypedArray;
 import android.graphics.Rect;
@@ -675,6 +676,7 @@ public abstract class BaseGridView extends RecyclerView {
      *
      * @param listener The listener to be invoked.
      */
+    @SuppressLint("ReferencesDeprecated")
     public void setOnChildSelectedListener(OnChildSelectedListener listener) {
         mLayoutManager.setOnChildSelectedListener(listener);
     }
