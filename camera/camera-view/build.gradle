@@ -26,11 +26,13 @@ plugins {
 
 dependencies {
     api("androidx.lifecycle:lifecycle-common:2.0.0")
+    api(project(":camera:camera-core"))
+    implementation project(path: ':camera:camera-lifecycle')
     implementation("androidx.annotation:annotation:1.0.0")
     implementation(GUAVA_LISTENABLE_FUTURE)
+    implementation("androidx.core:core:1.1.0")
     implementation("androidx.concurrent:concurrent-futures:1.0.0")
 
-    api(project(":camera:camera-core"))
     androidTestImplementation(project(":camera:camera-testing"))
     androidTestImplementation(MOCKITO_CORE)
     androidTestImplementation(ESPRESSO_CORE)
