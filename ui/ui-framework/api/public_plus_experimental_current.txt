@@ -139,6 +139,7 @@ package androidx.ui.core {
     method public static void WithDensity(kotlin.jvm.functions.Function1<? super androidx.ui.core.DensityScope,kotlin.Unit> block);
     method @CheckResult(suggest="+") public static androidx.compose.Effect<androidx.ui.core.Density> ambientDensity();
     method public static androidx.compose.Ambient<androidx.ui.core.AndroidComposeView> getAndroidComposeViewAmbient();
+    method public static androidx.compose.Ambient<androidx.animation.AnimationClockObservable> getAnimationClockAmbient();
     method public static androidx.compose.Ambient<androidx.ui.autofill.Autofill> getAutofillAmbient();
     method public static androidx.compose.Ambient<androidx.ui.autofill.AutofillTree> getAutofillTreeAmbient();
     method public static androidx.compose.Ambient<android.content.res.Configuration> getConfigurationAmbient();

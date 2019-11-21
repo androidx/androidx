@@ -19,6 +19,8 @@ import android.app.Activity
 import android.content.Context
 import android.content.res.Configuration
 import android.view.ViewGroup
+import androidx.animation.AnimationClockObservable
+import androidx.animation.DefaultAnimationClock
 import androidx.annotation.CheckResult
 import androidx.ui.core.input.FocusManager
 import androidx.ui.input.TextInputService
@@ -172,6 +174,8 @@ private fun WrapWithAmbients(
         }
     }
 
+    val defaultAnimationClock = +memo { DefaultAnimationClock() }
+
     // Fold all the nested function in order to provide the desired ambient properties
     // Having a lot of methods nested one inside the other will cause a Compile error. The name of
     // the file generated will be unsupported by the compiler because it is too large.
@@ -214,6 +218,9 @@ private fun WrapWithAmbients(
         },
         { children ->
             LayoutDirectionAmbient.Provider(value = layoutDirection, children = children)
+        },
+        { children ->
+            AnimationClockAmbient.Provider(value = defaultAnimationClock, children = children)
         }
     ).fold(content, { current, ambient ->
         { ambient(current) }
@@ -241,6 +248,8 @@ val LayoutDirectionAmbient = Ambient.of<LayoutDirection>()
 val FocusManagerAmbient = Ambient.of<FocusManager>()
 
 val TextInputServiceAmbient = Ambient.of<TextInputService?>()
+
+val AnimationClockAmbient = Ambient.of<AnimationClockObservable>()
 
 val FontLoaderAmbient = Ambient.of<Font.ResourceLoader>()
 

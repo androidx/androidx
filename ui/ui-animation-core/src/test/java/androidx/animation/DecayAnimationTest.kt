@@ -22,7 +22,7 @@ import org.junit.Test
 import org.junit.runner.RunWith
 import org.junit.runners.JUnit4
 
-private const val epsilon = 0.00001f
+const val epsilon = 0.00001f
 
 @RunWith(JUnit4::class)
 class DecayAnimationTest {
