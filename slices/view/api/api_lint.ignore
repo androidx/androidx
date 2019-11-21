@@ -61,3 +61,21 @@ MissingNullability: androidx.slice.widget.SliceView#setOnClickListener(android.v
     Missing nullability on parameter `listener` in method `setOnClickListener`
 MissingNullability: androidx.slice.widget.SliceView#setOnLongClickListener(android.view.View.OnLongClickListener) parameter #0:
     Missing nullability on parameter `listener` in method `setOnLongClickListener`
+
+
+MutableBareField: androidx.slice.widget.EventInfo#actionCount:
+    Bare field actionCount must be marked final, or moved behind accessors if mutable
+MutableBareField: androidx.slice.widget.EventInfo#actionIndex:
+    Bare field actionIndex must be marked final, or moved behind accessors if mutable
+MutableBareField: androidx.slice.widget.EventInfo#actionPosition:
+    Bare field actionPosition must be marked final, or moved behind accessors if mutable
+MutableBareField: androidx.slice.widget.EventInfo#actionType:
+    Bare field actionType must be marked final, or moved behind accessors if mutable
+MutableBareField: androidx.slice.widget.EventInfo#rowIndex:
+    Bare field rowIndex must be marked final, or moved behind accessors if mutable
+MutableBareField: androidx.slice.widget.EventInfo#rowTemplateType:
+    Bare field rowTemplateType must be marked final, or moved behind accessors if mutable
+MutableBareField: androidx.slice.widget.EventInfo#sliceMode:
+    Bare field sliceMode must be marked final, or moved behind accessors if mutable
+MutableBareField: androidx.slice.widget.EventInfo#state:
+    Bare field state must be marked final, or moved behind accessors if mutable

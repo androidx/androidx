@@ -37,16 +37,6 @@ MinMaxConstant: androidx.paging.PagedList.Config#MAX_SIZE_UNBOUNDED:
     If min/max could change in future, make them dynamic methods: androidx.paging.PagedList.Config#MAX_SIZE_UNBOUNDED
 
 
-MissingNullability: androidx.paging.LoadState.Done#INSTANCE:
-    Missing nullability on field `INSTANCE` in class `class androidx.paging.LoadState.Done`
-MissingNullability: androidx.paging.LoadState.Idle#INSTANCE:
-    Missing nullability on field `INSTANCE` in class `class androidx.paging.LoadState.Idle`
-MissingNullability: androidx.paging.LoadState.Loading#INSTANCE:
-    Missing nullability on field `INSTANCE` in class `class androidx.paging.LoadState.Loading`
-MissingNullability: androidx.paging.PagedSource.LoadResult.Page#Companion:
-    Missing nullability on field `Companion` in class `class androidx.paging.PagedSource.LoadResult.Page`
-
-
 RegistrationName: androidx.paging.DataSource#addInvalidatedCallback(androidx.paging.DataSource.InvalidatedCallback):
     Callback methods should be named register/unregister; was addInvalidatedCallback
 RegistrationName: androidx.paging.DataSource#addInvalidatedCallback(kotlin.jvm.functions.Function0<kotlin.Unit>):

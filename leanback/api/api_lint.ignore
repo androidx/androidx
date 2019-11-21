@@ -83,6 +83,22 @@ FractionFloat: androidx.leanback.widget.Parallax.IntProperty#atFraction(float):
     Fractions must use floats, was `androidx.leanback.widget.Parallax.PropertyMarkerValue` in `atFraction`
 
 
+InternalField: androidx.leanback.widget.DetailsOverviewLogoPresenter.ViewHolder#mParentPresenter:
+    Internal field mParentPresenter must not be exposed
+InternalField: androidx.leanback.widget.DetailsOverviewLogoPresenter.ViewHolder#mParentViewHolder:
+    Internal field mParentViewHolder must not be exposed
+InternalField: androidx.leanback.widget.DetailsOverviewRowPresenter.ViewHolder#mDetailsDescriptionViewHolder:
+    Internal field mDetailsDescriptionViewHolder must not be exposed
+InternalField: androidx.leanback.widget.FullWidthDetailsOverviewRowPresenter#mInitialState:
+    Internal field mInitialState must not be exposed
+InternalField: androidx.leanback.widget.FullWidthDetailsOverviewRowPresenter.ViewHolder#mRowListener:
+    Internal field mRowListener must not be exposed
+InternalField: androidx.leanback.widget.PlaybackControlsRowPresenter.ViewHolder#mDescriptionViewHolder:
+    Internal field mDescriptionViewHolder must not be exposed
+InternalField: androidx.leanback.widget.RowPresenter.ViewHolder#mColorDimmer:
+    Internal field mColorDimmer must not be exposed
+
+
 KotlinOperator: androidx.leanback.widget.ObjectAdapter#get(int):
     Method can be invoked with an indexing operator from Kotlin: `get` (this is usually desirable; just make sure it makes sense for this type of object)
 KotlinOperator: androidx.leanback.widget.SparseArrayObjectAdapter#set(int, Object):
@@ -3713,6 +3729,28 @@ MissingNullability: androidx.leanback.widget.picker.TimePicker#TimePicker(androi
     Missing nullability on parameter `context` in method `TimePicker`
 MissingNullability: androidx.leanback.widget.picker.TimePicker#TimePicker(android.content.Context, android.util.AttributeSet, int) parameter #1:
     Missing nullability on parameter `attrs` in method `TimePicker`
+
+
+MutableBareField: androidx.leanback.graphics.BoundsRule#bottom:
+    Bare field bottom must be marked final, or moved behind accessors if mutable
+MutableBareField: androidx.leanback.graphics.BoundsRule#left:
+    Bare field left must be marked final, or moved behind accessors if mutable
+MutableBareField: androidx.leanback.graphics.BoundsRule#right:
+    Bare field right must be marked final, or moved behind accessors if mutable
+MutableBareField: androidx.leanback.graphics.BoundsRule#top:
+    Bare field top must be marked final, or moved behind accessors if mutable
+MutableBareField: androidx.leanback.widget.DetailsOverviewLogoPresenter.ViewHolder#mParentPresenter:
+    Bare field mParentPresenter must be marked final, or moved behind accessors if mutable
+MutableBareField: androidx.leanback.widget.DetailsOverviewLogoPresenter.ViewHolder#mParentViewHolder:
+    Bare field mParentViewHolder must be marked final, or moved behind accessors if mutable
+MutableBareField: androidx.leanback.widget.FullWidthDetailsOverviewRowPresenter#mInitialState:
+    Bare field mInitialState must be marked final, or moved behind accessors if mutable
+MutableBareField: androidx.leanback.widget.SearchOrbView.Colors#brightColor:
+    Bare field brightColor must be marked final, or moved behind accessors if mutable
+MutableBareField: androidx.leanback.widget.SearchOrbView.Colors#color:
+    Bare field color must be marked final, or moved behind accessors if mutable
+MutableBareField: androidx.leanback.widget.SearchOrbView.Colors#iconColor:
+    Bare field iconColor must be marked final, or moved behind accessors if mutable
 
 
 RegistrationName: androidx.leanback.media.PlaybackGlue#addPlayerCallback(androidx.leanback.media.PlaybackGlue.PlayerCallback):

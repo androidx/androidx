@@ -54,7 +54,7 @@ ActionValue: androidx.mediarouter.media.MediaItemStatus#EXTRA_HTTP_STATUS_CODE:
 
 
 InterfaceConstant: androidx.mediarouter.media.MediaRouteProviderService#SERVICE_INTERFACE:
-    Inconsistent interface constant; expected 'MediaRouteProviderService'`
+    Inconsistent interface constant; expected 'androidx.mediarouter.media.MediaRouteProviderService'`
 
 
 KotlinOperator: androidx.mediarouter.media.MediaRouteSelector#contains(androidx.mediarouter.media.MediaRouteSelector):

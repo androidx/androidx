@@ -2099,6 +2099,12 @@ MissingNullability: androidx.core.widget.ScrollerCompat#create(android.content.C
     Missing nullability on parameter `interpolator` in method `create`
 
 
+MutableBareField: androidx.core.app.NotificationCompat.Action#actionIntent:
+    Bare field actionIntent must be marked final, or moved behind accessors if mutable
+MutableBareField: androidx.core.app.NotificationCompat.Action#title:
+    Bare field title must be marked final, or moved behind accessors if mutable
+
+
 NoClone: androidx.core.app.NotificationCompat.Action.WearableExtender#clone():
     Provide an explicit copy constructor instead of implementing `clone()`
 NoClone: androidx.core.app.NotificationCompat.WearableExtender#clone():

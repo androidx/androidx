@@ -135,59 +135,5 @@ MissingBuildMethod: androidx.ui.graphics.vector.PathBuilder:
     androidx.ui.graphics.vector.PathBuilder does not declare a `build()` method, but builder classes are expected to
 
 
-MissingNullability: androidx.ui.core.Constraints#Companion:
-    Missing nullability on field `Companion` in class `class androidx.ui.core.Constraints`
-MissingNullability: androidx.ui.core.Dp#Companion:
-    Missing nullability on field `Companion` in class `class androidx.ui.core.Dp`
-MissingNullability: androidx.ui.core.Duration#Companion:
-    Missing nullability on field `Companion` in class `class androidx.ui.core.Duration`
-MissingNullability: androidx.ui.core.IntPx#Companion:
-    Missing nullability on field `Companion` in class `class androidx.ui.core.IntPx`
-MissingNullability: androidx.ui.core.IntPxPosition#Companion:
-    Missing nullability on field `Companion` in class `class androidx.ui.core.IntPxPosition`
-MissingNullability: androidx.ui.core.Modifier.None#INSTANCE:
-    Missing nullability on field `INSTANCE` in class `class androidx.ui.core.Modifier.None`
-MissingNullability: androidx.ui.core.Placeable#PlacementScope:
-    Missing nullability on field `PlacementScope` in class `class androidx.ui.core.Placeable`
-MissingNullability: androidx.ui.core.Px#Companion:
-    Missing nullability on field `Companion` in class `class androidx.ui.core.Px`
 MissingNullability: androidx.ui.core.PxKt#getMinDimension(androidx.ui.core.PxSize):
     Missing nullability on method `getMinDimension` return
-MissingNullability: androidx.ui.core.PxPosition#Companion:
-    Missing nullability on field `Companion` in class `class androidx.ui.core.PxPosition`
-MissingNullability: androidx.ui.core.PxSize#Companion:
-    Missing nullability on field `Companion` in class `class androidx.ui.core.PxSize`
-MissingNullability: androidx.ui.core.Sp#Companion:
-    Missing nullability on field `Companion` in class `class androidx.ui.core.Sp`
-MissingNullability: androidx.ui.core.Velocity#Companion:
-    Missing nullability on field `Companion` in class `class androidx.ui.core.Velocity`
-MissingNullability: androidx.ui.engine.geometry.Offset#Companion:
-    Missing nullability on field `Companion` in class `class androidx.ui.engine.geometry.Offset`
-MissingNullability: androidx.ui.engine.geometry.RRect#Companion:
-    Missing nullability on field `Companion` in class `class androidx.ui.engine.geometry.RRect`
-MissingNullability: androidx.ui.engine.geometry.Radius#Companion:
-    Missing nullability on field `Companion` in class `class androidx.ui.engine.geometry.Radius`
-MissingNullability: androidx.ui.engine.geometry.Rect#Companion:
-    Missing nullability on field `Companion` in class `class androidx.ui.engine.geometry.Rect`
-MissingNullability: androidx.ui.engine.geometry.Size#Companion:
-    Missing nullability on field `Companion` in class `class androidx.ui.engine.geometry.Size`
-MissingNullability: androidx.ui.graphics.Color#Companion:
-    Missing nullability on field `Companion` in class `class androidx.ui.graphics.Color`
-MissingNullability: androidx.ui.graphics.MaskFilter#Companion:
-    Missing nullability on field `Companion` in class `class androidx.ui.graphics.MaskFilter`
-MissingNullability: androidx.ui.graphics.Path#Companion:
-    Missing nullability on field `Companion` in class `class androidx.ui.graphics.Path`
-MissingNullability: androidx.ui.graphics.ScaleFit#Companion:
-    Missing nullability on field `Companion` in class `class androidx.ui.graphics.ScaleFit`
-MissingNullability: androidx.ui.graphics.colorspace.ColorSpaces#INSTANCE:
-    Missing nullability on field `INSTANCE` in class `class androidx.ui.graphics.colorspace.ColorSpaces`
-MissingNullability: androidx.ui.graphics.colorspace.Illuminant#INSTANCE:
-    Missing nullability on field `INSTANCE` in class `class androidx.ui.graphics.colorspace.Illuminant`
-MissingNullability: androidx.ui.util.Float16#Companion:
-    Missing nullability on field `Companion` in class `class androidx.ui.util.Float16`
-MissingNullability: androidx.ui.vectormath64.Matrix2#Companion:
-    Missing nullability on field `Companion` in class `class androidx.ui.vectormath64.Matrix2`
-MissingNullability: androidx.ui.vectormath64.Matrix3#Companion:
-    Missing nullability on field `Companion` in class `class androidx.ui.vectormath64.Matrix3`
-MissingNullability: androidx.ui.vectormath64.Matrix4#Companion:
-    Missing nullability on field `Companion` in class `class androidx.ui.vectormath64.Matrix4`
