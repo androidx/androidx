@@ -1268,6 +1268,29 @@ package androidx.ui.engine.geometry {
 
 }
 
+package androidx.ui.focus {
+
+  public enum FocusDetailedState {
+    enum_constant public static final androidx.ui.focus.FocusDetailedState Active;
+    enum_constant public static final androidx.ui.focus.FocusDetailedState ActiveParent;
+    enum_constant public static final androidx.ui.focus.FocusDetailedState Captured;
+    enum_constant public static final androidx.ui.focus.FocusDetailedState Disabled;
+    enum_constant public static final androidx.ui.focus.FocusDetailedState Inactive;
+  }
+
+  public enum FocusState {
+    enum_constant public static final androidx.ui.focus.FocusState Focused;
+    enum_constant public static final androidx.ui.focus.FocusState NotFocusable;
+    enum_constant public static final androidx.ui.focus.FocusState NotFocused;
+  }
+
+  public final class FocusStateKt {
+    ctor public FocusStateKt();
+    method public static androidx.ui.focus.FocusState focusState(androidx.ui.focus.FocusDetailedState);
+  }
+
+}
+
 package androidx.ui.graphics {
 
   public final class AndroidCanvasKt {

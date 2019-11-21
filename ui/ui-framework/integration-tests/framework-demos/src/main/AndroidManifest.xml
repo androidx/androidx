@@ -77,7 +77,14 @@
                 <category android:name="androidx.ui.demos.SAMPLE_CODE" />
             </intent-filter>
         </activity>
-
+        <activity android:name=".focus.FocusableActivity"
+            android:configChanges="orientation|screenSize"
+            android:label="Focus">
+            <intent-filter>
+                <action android:name="android.intent.action.MAIN"/>
+                <category android:name="androidx.ui.demos.SAMPLE_CODE"/>
+            </intent-filter>
+        </activity>
         <!-- Simple Movement Based GestureDetector Demos -->
         <activity android:name=".gestures.TouchSlopDragGestureDetectorDemo"
                   android:configChanges="orientation|screenSize"
