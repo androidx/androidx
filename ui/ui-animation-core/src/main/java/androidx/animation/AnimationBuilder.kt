@@ -16,8 +16,8 @@
 
 package androidx.animation
 
-import androidx.animation.Physics.Companion.DampingRatioNoBouncy
-import androidx.animation.Physics.Companion.StiffnessVeryLow
+import androidx.animation.Spring.Companion.DampingRatioNoBouncy
+import androidx.animation.Spring.Companion.StiffnessVeryLow
 
 abstract class AnimationBuilder<T> {
     internal abstract fun build(): Animation<T>
@@ -180,7 +180,7 @@ open class PhysicsBuilder<T>(
 ) : AnimationBuilder<T>() {
 
     override fun build(): Animation<T> =
-        Physics(dampingRatio, stiffness)
+        SpringAnimation(dampingRatio, stiffness)
 }
 
 /**

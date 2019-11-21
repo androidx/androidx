@@ -67,6 +67,16 @@ private val definition = transitionDefinition {
         this[background] = Color(red = 188, green = 222, blue = 145, alpha = 255)
         this[y] = 0f // percentage
     }
+    // Apply this transition to all state changes (i.e. Open -> Closed and Closed -> Open)
+    transition {
+        background using tween {
+            duration = 800
+        }
+        y using physics {
+            // Extremely low stiffness
+            stiffness = 40f
+        }
+    }
 }
 
 val handler = Handler(Looper.getMainLooper())

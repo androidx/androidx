@@ -23,7 +23,7 @@ import kotlin.experimental.ExperimentalTypeInference
  *
  * Each property involved in the states that the transition is from and to can have an animation
  * associated with it. When such an animation is defined, the animation system will be using it
- * instead of the default [Physics] animation to createAnimation the value change for that property.
+ * instead of the default [SpringAnimation] animation to createAnimation the value change for that property.
  *
  * @sample androidx.animation.samples.TransitionSpecWith3Properties
  **/
@@ -50,7 +50,7 @@ class TransitionSpec<S> internal constructor(private val fromToPairs: Array<out 
     /**
      * The default animation to use when it wasn't explicitly provided for a property
      */
-    internal var defaultAnimation: () -> Animation<Any> = { Physics() }
+    internal var defaultAnimation: () -> Animation<Any> = { SpringAnimation() }
 
     private val propAnimation: MutableMap<PropKey<*>, Animation<*>> = mutableMapOf()
     internal fun <T> getAnimationForProp(prop: PropKey<T>): Animation<T> {
@@ -79,9 +79,9 @@ class TransitionSpec<S> internal constructor(private val fromToPairs: Array<out 
         TweenBuilder<T>().apply(init)
 
     /**
-     * Creates a [Physics] animation, initialized with [init]
+     * Creates a [SpringAnimation] animation, initialized with [init]
      *
-     * @param init Initialization function for the [Physics] animation
+     * @param init Initialization function for the [SpringAnimation] animation
      */
     fun <T> physics(init: PhysicsBuilder<T>.() -> Unit): AnimationBuilder<T> =
         PhysicsBuilder<T>().apply(init)
