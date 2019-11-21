@@ -18,6 +18,7 @@ package androidx.leanback.preference;
 
 import static androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP_PREFIX;
 
+import android.annotation.SuppressLint;
 import android.app.Fragment;
 import android.transition.Transition;
 import android.view.Gravity;
@@ -33,6 +34,7 @@ import androidx.leanback.transition.FadeAndShortSlide;
 @RestrictTo(LIBRARY_GROUP_PREFIX)
 public class LeanbackPreferenceFragmentTransitionHelperApi21 {
 
+    @SuppressLint("ReferencesDeprecated")
     public static void addTransitions(Fragment f) {
         final Transition transitionStartEdge = new FadeAndShortSlide(Gravity.START);
         final Transition transitionEndEdge = new FadeAndShortSlide(Gravity.END);

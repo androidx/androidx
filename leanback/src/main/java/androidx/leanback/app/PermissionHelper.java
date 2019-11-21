@@ -15,6 +15,7 @@ package androidx.leanback.app;
 
 import static androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP_PREFIX;
 
+import android.annotation.SuppressLint;
 import android.os.Build;
 
 import androidx.annotation.RestrictTo;
@@ -25,6 +26,7 @@ import androidx.annotation.RestrictTo;
 @RestrictTo(LIBRARY_GROUP_PREFIX)
 public class PermissionHelper {
 
+    @SuppressLint("ReferencesDeprecated")
     public static void requestPermissions(android.app.Fragment fragment, String[] permissions,
             int requestCode) {
         if (Build.VERSION.SDK_INT >= 23) {

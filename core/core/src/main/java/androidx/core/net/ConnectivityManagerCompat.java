@@ -28,6 +28,7 @@ import static android.net.ConnectivityManager.TYPE_WIMAX;
 
 import static androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP_PREFIX;
 
+import android.annotation.SuppressLint;
 import android.content.Intent;
 import android.net.ConnectivityManager;
 import android.net.NetworkInfo;
@@ -132,6 +133,7 @@ public final class ConnectivityManagerCompat {
      * potentially-stale value from
      * {@link ConnectivityManager#EXTRA_NETWORK_INFO}. May be {@code null}.
      */
+    @SuppressLint("ReferencesDeprecated")
     @Nullable
     @RequiresPermission(android.Manifest.permission.ACCESS_NETWORK_STATE)
     public static NetworkInfo getNetworkInfoFromBroadcast(@NonNull ConnectivityManager cm,
