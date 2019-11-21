@@ -30,6 +30,8 @@ import androidx.compose.Composable
  * The passed parameters are only read by Studio when rendering the preview.
  *
  * @param name Display name of this preview allowing to identify it in the panel.
+ * @param group Group name for this @[Preview]. This allows grouping them in the UI and display only
+ * one or more of them.
  * @param apiLevel API level to be used when rendering the annotated @[Composable]
  * @param theme Theme name to be used when rendering the annotated @[Composable]
  * @param widthDp Max width in DP the annotated @[Composable] will be rendered in. Use this to
@@ -49,6 +51,7 @@ import androidx.compose.Composable
 )
 annotation class Preview(
     val name: String = "",
+    val group: String = "",
     @IntRange(from = 1) val apiLevel: Int = -1,
     val theme: String = "",
     // TODO(mount): Make this Dp when they are inline classes

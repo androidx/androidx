@@ -51,6 +51,7 @@ package androidx.ui.tooling.preview {
   @kotlin.annotation.MustBeDocumented @kotlin.annotation.Retention(AnnotationRetention.SOURCE) @kotlin.annotation.Target(allowedTargets=AnnotationTarget.FUNCTION) public @interface Preview {
     method public abstract int apiLevel() default -1;
     method public abstract float fontScale() default 1.0f;
+    method public abstract String group() default "";
     method public abstract int heightDp() default -1;
     method public abstract String locale() default "";
     method public abstract String name() default "";
