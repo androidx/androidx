@@ -120,6 +120,7 @@ public abstract class GnssStatusCompat {
     /**
      * Wraps the given {@link GpsStatus} as GnssStatusCompat.
      */
+    @SuppressLint("ReferencesDeprecated")
     @NonNull
     public static GnssStatusCompat wrap(@NonNull GpsStatus gpsStatus) {
         return new GpsStatusWrapper(gpsStatus);
