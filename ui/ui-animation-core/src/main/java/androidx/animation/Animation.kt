@@ -16,8 +16,6 @@
 
 package androidx.animation
 
-import androidx.animation.Physics.Companion.DampingRatioNoBouncy
-import androidx.animation.Physics.Companion.StiffnessVeryLow
 import kotlin.math.min
 
 const val DEBUG = false
@@ -212,31 +210,19 @@ internal fun <T> Snap(): DurationBasedAnimation<T> =
     Tween(0L, 0L, LinearEasing)
 
 /**
- * [Physics] animation is in its core a spring animation. It is the default animation that the
- * animation system uses to createAnimation from [TransitionState] to [TransitionState] when no
- * animations are specified. Its configuration can be tuned via adjusting the spring parameters,
- * namely [dampingRatio] and [stiffness]. By default, [Physics] animation uses a spring with
- * [dampingRatio] = [DampingRatioNoBouncy]  and [stiffness] = [StiffnessVeryLow].
+ * Physics class contains a number of recommended configurations for physics animations.
  */
-internal class Physics<T>(
-    /**
-     * Damping ratio of the spring. Defaults to [DampingRatioNoBouncy]
-     */
-    dampingRatio: Float = DampingRatioNoBouncy,
-    /**
-     * Stiffness of the spring. Defaults to [StiffnessVeryLow]
-     */
-    stiffness: Float = StiffnessVeryLow
-) : Animation<T> {
-
-    // TODO: Make all of these consts public.
+// TODO: Consider making all animations public, and fold this companion object into
+// SpringAnimation.
+class Spring {
     companion object {
         /**
          * Stiffness constant for extremely stiff spring
          */
         const val StiffnessHigh = 10_000f
         /**
-         * Stiffness constant for medium stiff spring. This is the default stiffness for spring force.
+         * Stiffness constant for medium stiff spring. This is the default stiffness for spring
+         * force.
          */
         const val StiffnessMedium = 1500f
         /**
@@ -254,9 +240,9 @@ internal class Physics<T>(
          */
         const val DampingRatioHighBouncy = 0.2f
         /**
-         * Damping ratio for a medium bouncy spring. This is also the default damping ratio for spring
-         * force. Note for under-damped springs (i.e. damping ratio < 1), the lower the damping ratio,
-         * the more bouncy the spring.
+         * Damping ratio for a medium bouncy spring. This is also the default damping ratio for
+         * spring force. Note for under-damped springs (i.e. damping ratio < 1), the lower the
+         * damping ratio, the more bouncy the spring.
          */
         const val DampingRatioMediumBouncy = 0.5f
         /**
@@ -265,12 +251,31 @@ internal class Physics<T>(
          */
         const val DampingRatioLowBouncy = 0.75f
         /**
-         * Damping ratio for a spring with no bounciness. This damping ratio will create a critically
-         * damped spring that returns to equilibrium within the shortest amount of time without
-         * oscillating.
+         * Damping ratio for a spring with no bounciness. This damping ratio will create a
+         * critically damped spring that returns to equilibrium within the shortest amount of time
+         * without oscillating.
          */
         const val DampingRatioNoBouncy = 1f
     }
+}
+
+/**
+ * [SpringAnimation] animation is in its core a spring animation. It is the default animation that
+ * the animation system uses to createAnimation from [TransitionState] to [TransitionState] when no
+ * animations are specified. Its configuration can be tuned via adjusting the spring parameters,
+ * namely dampingRatio and stiffness. By default, [SpringAnimation] animation uses a spring with
+ * dampingRatio = [Spring.DampingRatioNoBouncy]  and stiffness = [Spring.StiffnessVeryLow].
+ */
+internal class SpringAnimation<T>(
+    /**
+     * Damping ratio of the spring. Defaults to [Spring.DampingRatioNoBouncy]
+     */
+    dampingRatio: Float = Spring.DampingRatioNoBouncy,
+    /**
+     * Stiffness of the spring. Defaults to [Spring.StiffnessVeryLow]
+     */
+    stiffness: Float = Spring.StiffnessMedium
+) : Animation<T> {
 
     private val spring = SpringSimulation(1f).also {
         it.dampingRatio = dampingRatio

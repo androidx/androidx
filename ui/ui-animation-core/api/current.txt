@@ -184,6 +184,22 @@ package androidx.animation {
     method public androidx.animation.DurationBasedAnimation<T> build$lintWithKotlin();
   }
 
+  public final class Spring {
+    ctor public Spring();
+    field public static final androidx.animation.Spring.Companion! Companion;
+    field public static final float DampingRatioHighBouncy = 0.2f;
+    field public static final float DampingRatioLowBouncy = 0.75f;
+    field public static final float DampingRatioMediumBouncy = 0.5f;
+    field public static final float DampingRatioNoBouncy = 1.0f;
+    field public static final float StiffnessHigh = 10000.0f;
+    field public static final float StiffnessLow = 200.0f;
+    field public static final float StiffnessMedium = 1500.0f;
+    field public static final float StiffnessVeryLow = 50.0f;
+  }
+
+  public static final class Spring.Companion {
+  }
+
   public final class SpringSimulationKt {
     ctor public SpringSimulationKt();
   }

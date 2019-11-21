@@ -25,7 +25,7 @@ import androidx.animation.InterruptionHandling.UNINTERRUPTIBLE
  * [TransitionState]) to another. More specifically, it reads the property values out of the new
  * state that it is going to, as well as the animations defined for the properties, and run these
  * animations until all properties have reached their pre-defined values in the new state. When no
- * animation is specified for a property, a default [Physics] animation will be used.
+ * animation is specified for a property, a default [SpringAnimation] animation will be used.
  *
  * [TransitionAnimation] may be interrupted while the animation is on-going by a request to go
  * to another state. [TransitionAnimation] ensures that all the animating properties preserve their
