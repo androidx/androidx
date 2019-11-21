@@ -19,7 +19,6 @@ package androidx.camera.camera2.impl;
 import static com.google.common.truth.Truth.assertThat;
 
 import static org.mockito.ArgumentMatchers.any;
-import static org.mockito.ArgumentMatchers.anyBoolean;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.spy;
@@ -41,13 +40,12 @@ import android.os.Build;
 import android.util.Rational;
 import android.util.Size;
 
-import androidx.annotation.NonNull;
 import androidx.camera.camera2.Camera2Config;
 import androidx.camera.camera2.impl.Camera2CameraControl.CaptureResultListener;
-import androidx.camera.camera2.impl.annotation.CameraExecutor;
 import androidx.camera.core.CameraControlInternal;
 import androidx.camera.core.FocusMeteringAction;
 import androidx.camera.core.FocusMeteringAction.MeteringMode;
+import androidx.camera.core.FocusMeteringResult;
 import androidx.camera.core.ImageAnalysis;
 import androidx.camera.core.MeteringPoint;
 import androidx.camera.core.MeteringPointFactory;
@@ -57,8 +55,8 @@ import androidx.test.core.app.ApplicationProvider;
 import androidx.test.filters.SmallTest;
 
 import com.google.common.collect.Sets;
+import com.google.common.util.concurrent.ListenableFuture;
 
-import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -71,9 +69,7 @@ import org.robolectric.shadows.ShadowCameraCharacteristics;
 import org.robolectric.shadows.ShadowCameraManager;
 import org.robolectric.shadows.ShadowLooper;
 
-import java.util.concurrent.Executor;
-import java.util.concurrent.ExecutorService;
-import java.util.concurrent.Executors;
+import java.util.concurrent.ExecutionException;
 import java.util.concurrent.TimeUnit;
 
 @SmallTest
@@ -115,8 +111,6 @@ public class FocusMeteringControlTest {
 
     private static final Rational PREVIEW_ASPECT_RATIO_4_X_3 = new Rational(4, 3);
     private Camera2CameraControl mCamera2CameraControl;
-    @CameraExecutor
-    private ExecutorService mCameraExecutor;
 
     @Before
     public void setUp() throws CameraAccessException {
@@ -125,10 +119,6 @@ public class FocusMeteringControlTest {
         mFocusMeteringControl.setActive(true);
     }
 
-    @After
-    public void tearDown() {
-        mCameraExecutor.shutdown();
-    }
 
     private FocusMeteringControl initFocusMeteringControl(String cameraID) throws
             CameraAccessException {
@@ -143,16 +133,14 @@ public class FocusMeteringControlTest {
         CameraControlInternal.ControlUpdateCallback updateCallback = mock(
                 CameraControlInternal.ControlUpdateCallback.class);
 
-        mCameraExecutor = Executors.newSingleThreadExecutor();
-
         mCamera2CameraControl = spy(new Camera2CameraControl(
                 cameraCharacteristics,
                 CameraXExecutors.mainThreadExecutor(),
-                mCameraExecutor,
+                CameraXExecutors.directExecutor(),
                 updateCallback));
 
         FocusMeteringControl focusMeteringControl = new FocusMeteringControl(mCamera2CameraControl,
-                CameraXExecutors.mainThreadExecutor(), mCameraExecutor);
+                CameraXExecutors.mainThreadExecutor(), CameraXExecutors.directExecutor());
         focusMeteringControl.setActive(true);
         return focusMeteringControl;
     }
@@ -536,59 +524,54 @@ public class FocusMeteringControlTest {
         verify(mFocusMeteringControl, never()).cancelFocusAndMetering();
     }
 
-    @Test
-    public void onAutoFocusListener_cancelImmediately_calledWithFalse() {
-        FocusMeteringAction.OnAutoFocusListener onAutoFocusListener = mock(
-                FocusMeteringAction.OnAutoFocusListener.class);
-
-        FocusMeteringAction action = FocusMeteringAction.Builder.from(mPoint1)
-                .setAutoFocusCallback(onAutoFocusListener)
-                .build();
-        mFocusMeteringControl.startFocusAndMetering(action, PREVIEW_ASPECT_RATIO_4_X_3);
-        mFocusMeteringControl.cancelFocusAndMetering();
-
-        verify(onAutoFocusListener).onFocusCompleted(false);
+    private void assertFutureFocusCompleted(ListenableFuture<FocusMeteringResult> future,
+            boolean isFocused) throws ExecutionException, InterruptedException {
+        FocusMeteringResult focusMeteringResult = future.get();
+        assertThat(focusMeteringResult.isFocusSuccessful()).isEqualTo(isFocused);
     }
 
     @Test
-    public void onAutoFocusListener_AFNotTriggered_calledWithFalse() {
-        FocusMeteringAction.OnAutoFocusListener onAutoFocusListener = mock(
-                FocusMeteringAction.OnAutoFocusListener.class);
-
+    public void listenableFutureForStart_AEAWB_focusIsFalse()
+            throws ExecutionException, InterruptedException {
         FocusMeteringAction action = FocusMeteringAction.Builder.from(mPoint1,
                 MeteringMode.AE | MeteringMode.AWB)
-                .setAutoFocusCallback(onAutoFocusListener)
                 .build();
-        mFocusMeteringControl.startFocusAndMetering(action, PREVIEW_ASPECT_RATIO_4_X_3);
-
-        verify(onAutoFocusListener).onFocusCompleted(false);
-        Mockito.reset(onAutoFocusListener);
-
-        action = FocusMeteringAction.Builder.from(mPoint1, MeteringMode.AE)
-                .setAutoFocusCallback(onAutoFocusListener)
-                .build();
-        mFocusMeteringControl.startFocusAndMetering(action, PREVIEW_ASPECT_RATIO_4_X_3);
-        verify(onAutoFocusListener).onFocusCompleted(false);
-        Mockito.reset(onAutoFocusListener);
-
-        action = FocusMeteringAction.Builder.from(mPoint1, FocusMeteringAction.MeteringMode.AWB)
-                .setAutoFocusCallback(onAutoFocusListener)
-                .build();
-        mFocusMeteringControl.startFocusAndMetering(action, PREVIEW_ASPECT_RATIO_4_X_3);
-        verify(onAutoFocusListener).onFocusCompleted(false);
-        Mockito.reset(onAutoFocusListener);
+        ListenableFuture<FocusMeteringResult> future =
+                mFocusMeteringControl.startFocusAndMetering(action,
+                        PREVIEW_ASPECT_RATIO_4_X_3);
+        assertFutureFocusCompleted(future, false);
     }
 
     @Test
-    public void onAutoFocusListener_AFLocked_calledWithTrue() {
-        FocusMeteringAction.OnAutoFocusListener onAutoFocusListener = mock(
-                FocusMeteringAction.OnAutoFocusListener.class);
-
-        FocusMeteringAction action = FocusMeteringAction.Builder.from(mPoint1)
-                .setAutoFocusCallback(onAutoFocusListener)
+    public void listenableFutureForStart_AE_focusIsFalse()
+            throws ExecutionException, InterruptedException {
+        FocusMeteringAction action = FocusMeteringAction.Builder.from(mPoint1, MeteringMode.AE)
                 .build();
+        ListenableFuture<FocusMeteringResult> future2 =
+                mFocusMeteringControl.startFocusAndMetering(action, PREVIEW_ASPECT_RATIO_4_X_3);
+        assertFutureFocusCompleted(future2, false);
+    }
 
-        mFocusMeteringControl.startFocusAndMetering(action, PREVIEW_ASPECT_RATIO_4_X_3);
+
+    @Test
+    public void listenableFutureForStart_AWB_focusIsFalse()
+            throws ExecutionException, InterruptedException {
+        FocusMeteringAction action = FocusMeteringAction.Builder.from(mPoint1,
+                FocusMeteringAction.MeteringMode.AWB)
+                .build();
+        ListenableFuture<FocusMeteringResult> future3 =
+                mFocusMeteringControl.startFocusAndMetering(action, PREVIEW_ASPECT_RATIO_4_X_3);
+        assertFutureFocusCompleted(future3, false);
+    }
+
+    @Test
+    public void listenableFutureForStart_AFLocked_calledWithTrue()
+            throws ExecutionException, InterruptedException {
+        FocusMeteringAction action = FocusMeteringAction.Builder.from(mPoint1).build();
+
+        ListenableFuture<FocusMeteringResult> future =
+                mFocusMeteringControl.startFocusAndMetering(action,
+                        PREVIEW_ASPECT_RATIO_4_X_3);
 
         for (CaptureResultListener listener :
                 mCamera2CameraControl.mSessionCallback.mResultListeners) {
@@ -603,54 +586,18 @@ public class FocusMeteringControlTest {
             listener.onCaptureResult(result2);
 
         }
-        verify(onAutoFocusListener).onFocusCompleted(true);
+
+        assertFutureFocusCompleted(future, true);
     }
 
     @Test
-    public void onAutoFocusListener_executorSpecified_calledWithTheExecutor() {
-        FocusMeteringAction.OnAutoFocusListener onAutoFocusListener = mock(
-                FocusMeteringAction.OnAutoFocusListener.class);
+    public void listenableFutureForStart_NotAFLocked_calledWithFalse()
+            throws ExecutionException, InterruptedException {
+        FocusMeteringAction action = FocusMeteringAction.Builder.from(mPoint1).build();
 
-        Executor executor = spy(new Executor() {
-            @Override
-            public void execute(@NonNull Runnable runnable) {
-                runnable.run();
-            }
-        });
-
-        FocusMeteringAction action = FocusMeteringAction.Builder.from(mPoint1)
-                .setAutoFocusCallback(executor, onAutoFocusListener)
-                .build();
-
-        mFocusMeteringControl.startFocusAndMetering(action, PREVIEW_ASPECT_RATIO_4_X_3);
-        for (CaptureResultListener listener :
-                mCamera2CameraControl.mSessionCallback.mResultListeners) {
-            TotalCaptureResult result1 = mock(TotalCaptureResult.class);
-            when(result1.get(CaptureResult.CONTROL_AF_STATE)).thenReturn(
-                    CaptureResult.CONTROL_AF_STATE_ACTIVE_SCAN);
-            listener.onCaptureResult(result1);
-
-            TotalCaptureResult result2 = mock(TotalCaptureResult.class);
-            when(result2.get(CaptureResult.CONTROL_AF_STATE)).thenReturn(
-                    CaptureResult.CONTROL_AF_STATE_FOCUSED_LOCKED);
-            listener.onCaptureResult(result2);
-
-        }
-
-        verify(onAutoFocusListener).onFocusCompleted(true);
-        verify(executor).execute(any());
-    }
-
-    @Test
-    public void onAutoFocusListener_NotAFLocked_calledWithFalse() {
-        FocusMeteringAction.OnAutoFocusListener onAutoFocusListener = mock(
-                FocusMeteringAction.OnAutoFocusListener.class);
-
-        FocusMeteringAction action = FocusMeteringAction.Builder.from(mPoint1)
-                .setAutoFocusCallback(onAutoFocusListener)
-                .build();
-
-        mFocusMeteringControl.startFocusAndMetering(action, PREVIEW_ASPECT_RATIO_4_X_3);
+        ListenableFuture<FocusMeteringResult> future =
+                mFocusMeteringControl.startFocusAndMetering(action,
+                        PREVIEW_ASPECT_RATIO_4_X_3);
 
         for (CaptureResultListener listener :
                 mCamera2CameraControl.mSessionCallback.mResultListeners) {
@@ -663,42 +610,10 @@ public class FocusMeteringControlTest {
             when(result2.get(CaptureResult.CONTROL_AF_STATE)).thenReturn(
                     CaptureResult.CONTROL_AF_STATE_NOT_FOCUSED_LOCKED);
             listener.onCaptureResult(result2);
-
-        }
-        verify(onAutoFocusListener).onFocusCompleted(false);
-    }
-
-    @Test
-    public void onAutoFocusListener_isCalledOnce() {
-        FocusMeteringAction.OnAutoFocusListener onAutoFocusListener = mock(
-                FocusMeteringAction.OnAutoFocusListener.class);
-
-        FocusMeteringAction action = FocusMeteringAction.Builder.from(mPoint1)
-                .setAutoFocusCallback(onAutoFocusListener)
-                .build();
-
-        mFocusMeteringControl.startFocusAndMetering(action, PREVIEW_ASPECT_RATIO_4_X_3);
-
-        for (CaptureResultListener listener :
-                mCamera2CameraControl.mSessionCallback.mResultListeners) {
-            TotalCaptureResult result1 = mock(TotalCaptureResult.class);
-            when(result1.get(CaptureResult.CONTROL_AF_STATE)).thenReturn(
-                    CaptureResult.CONTROL_AF_STATE_ACTIVE_SCAN);
-            listener.onCaptureResult(result1);
-
-            TotalCaptureResult result2 = mock(TotalCaptureResult.class);
-            when(result2.get(CaptureResult.CONTROL_AF_STATE)).thenReturn(
-                    CaptureResult.CONTROL_AF_STATE_FOCUSED_LOCKED);
-            listener.onCaptureResult(result2);
-
         }
 
-        // cancel it and then ensure the OnAutoFocusListener is still called once.
-        mFocusMeteringControl.cancelFocusAndMetering();
-
-        verify(onAutoFocusListener, times(1)).onFocusCompleted(anyBoolean());
+        assertFutureFocusCompleted(future, false);
     }
-
 
     @Test
     public void cancelFocusAndMetering_regionIsReset() {

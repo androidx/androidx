@@ -145,9 +145,7 @@ public final class Camera2CameraControl implements CameraControlInternal {
     @Override
     public ListenableFuture<FocusMeteringResult> startFocusAndMetering(
             @NonNull FocusMeteringAction action) {
-        mExecutor.execute(
-                () -> mFocusMeteringControl.startFocusAndMetering(action, mPreviewAspectRatio));
-        return Futures.immediateFuture(FocusMeteringResult.emptyInstance());
+        return mFocusMeteringControl.startFocusAndMetering(action, mPreviewAspectRatio);
     }
 
     @NonNull
