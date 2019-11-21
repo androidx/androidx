@@ -74,7 +74,6 @@ import androidx.camera.testing.fakes.FakeLifecycleOwner;
 import androidx.camera.testing.fakes.FakeUseCaseConfig;
 import androidx.test.core.app.ApplicationProvider;
 import androidx.test.ext.junit.runners.AndroidJUnit4;
-import androidx.test.filters.FlakyTest;
 import androidx.test.filters.LargeTest;
 import androidx.test.platform.app.InstrumentationRegistry;
 import androidx.test.rule.GrantPermissionRule;
@@ -225,7 +224,6 @@ public final class ImageCaptureTest {
         }
     }
 
-    @FlakyTest //TODO(b/143734846): Callback is not always being called
     @Test
     public void canCaptureMultipleImages() {
         ImageCapture useCase = mDefaultBuilder.build();
@@ -246,7 +244,6 @@ public final class ImageCaptureTest {
                 anyInt());
     }
 
-    @FlakyTest //TODO(b/143734846): Callback is not always being called
     @Test
     public void canCaptureMultipleImagesWithMaxQuality() {
         ImageCapture useCase = new ImageCapture.Builder()
@@ -254,7 +251,8 @@ public final class ImageCaptureTest {
                 .build();
         mInstrumentation.runOnMainSync(
                 () -> {
-                    CameraX.bindToLifecycle(mLifecycleOwner, BACK_SELECTOR, useCase);
+                    CameraX.bindToLifecycle(mLifecycleOwner, BACK_SELECTOR, mRepeatingUseCase,
+                            useCase);
                     mLifecycleOwner.startAndResume();
                 });
 
@@ -264,7 +262,7 @@ public final class ImageCaptureTest {
             useCase.takePicture(mListenerExecutor, callback);
         }
 
-        verify(callback, timeout(5000).times(numImages)).onCaptureSuccess(any(ImageProxy.class),
+        verify(callback, timeout(10000).times(numImages)).onCaptureSuccess(any(ImageProxy.class),
                 anyInt());
     }
 
