@@ -29,6 +29,7 @@ import androidx.ui.core.withDensity
 import androidx.ui.layout.ConstrainedBox
 import androidx.ui.layout.DpConstraints
 import androidx.ui.layout.Wrap
+import kotlin.math.abs
 
 /**
  * Constant to emulate very big but finite constraints
@@ -119,7 +120,8 @@ class CollectedSizes(private val size: PxSize, private val density: Density) {
 }
 
 private fun assertSize(actual: IntPx, expected: IntPx) {
-    if (actual != expected) {
+    // TODO: because if dp and ipx collision. Remove dp assertion later
+    if (abs(actual.value - expected.value) > 1) {
         throw AssertionError("Found size: $actual pixels.\nExpected size $expected pixels")
     }
 }
