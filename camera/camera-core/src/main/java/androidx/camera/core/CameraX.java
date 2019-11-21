@@ -16,6 +16,7 @@
 
 package androidx.camera.core;
 
+import android.app.Application;
 import android.content.Context;
 import android.os.Handler;
 import android.util.Log;
@@ -573,56 +574,62 @@ public final class CameraX {
     @NonNull
     public static ListenableFuture<Void> initialize(@NonNull Context context,
             @NonNull AppConfig appConfig) {
+        synchronized (sInitializeLock) {
+            return initializeLocked(context, appConfig);
+        }
+    }
+
+    @GuardedBy("sInitializeLock")
+    @NonNull
+    private static ListenableFuture<Void> initializeLocked(@NonNull Context context,
+            @NonNull AppConfig appConfig) {
         Preconditions.checkNotNull(context);
         Preconditions.checkNotNull(appConfig);
+        Preconditions.checkState(!sTargetInitialized, "Must call CameraX.shutdown() first.");
+        sTargetInitialized = true;
 
-        synchronized (sInitializeLock) {
-            Preconditions.checkState(!sTargetInitialized, "Must call CameraX.shutdown() first.");
-            sTargetInitialized = true;
-
-            Executor executor = appConfig.getCameraExecutor(null);
-            // Set a default camera executor if not set.
-            if (executor == null) {
-                executor = new CameraExecutor();
-            }
-
-            CameraX cameraX = new CameraX(executor);
-            sInstance = cameraX;
-
-            sInitializeFuture = CallbackToFutureAdapter.getFuture(completer -> {
-                synchronized (sInitializeLock) {
-                    // The sShutdownFuture should always be successful, otherwise it will not
-                    // propagate to transformAsync() due to the behavior of FutureChain.
-                    ListenableFuture<Void> future = FutureChain.from(sShutdownFuture)
-                            .transformAsync(input -> cameraX.initInternal(context, appConfig),
-                                    CameraXExecutors.directExecutor());
-
-                    Futures.addCallback(future, new FutureCallback<Void>() {
-                        @Override
-                        public void onSuccess(@Nullable Void result) {
-                            completer.set(null);
-                        }
-
-                        @Override
-                        public void onFailure(Throwable t) {
-                            Log.w(TAG, "CameraX initialize() failed", t);
-                            // Call shutdown() automatically, if initialization fails.
-                            synchronized (sInitializeLock) {
-                                // Make sure it is the same instance to prevent reinitialization
-                                // during initialization.
-                                if (sInstance == cameraX) {
-                                    shutdown();
-                                }
-                            }
-                            completer.setException(t);
-                        }
-                    }, CameraXExecutors.directExecutor());
-                    return "CameraX-initialize";
-                }
-            });
-
-            return sInitializeFuture;
+        Executor executor = appConfig.getCameraExecutor(null);
+        // Set a default camera executor if not set.
+        if (executor == null) {
+            executor = new CameraExecutor();
         }
+
+        CameraX cameraX = new CameraX(executor);
+        sInstance = cameraX;
+
+        sInitializeFuture = CallbackToFutureAdapter.getFuture(completer -> {
+            synchronized (sInitializeLock) {
+                // The sShutdownFuture should always be successful, otherwise it will not
+                // propagate to transformAsync() due to the behavior of FutureChain.
+                ListenableFuture<Void> future = FutureChain.from(sShutdownFuture)
+                        .transformAsync(input -> cameraX.initInternal(context, appConfig),
+                                CameraXExecutors.directExecutor());
+
+                Futures.addCallback(future, new FutureCallback<Void>() {
+                    @Override
+                    public void onSuccess(@Nullable Void result) {
+                        completer.set(null);
+                    }
+
+                    @Override
+                    public void onFailure(Throwable t) {
+                        Log.w(TAG, "CameraX initialize() failed", t);
+                        // Call shutdown() automatically, if initialization fails.
+                        synchronized (sInitializeLock) {
+                            // Make sure it is the same instance to prevent reinitialization
+                            // during initialization.
+                            if (sInstance == cameraX) {
+                                shutdown();
+                            }
+                        }
+                        completer.setException(t);
+                    }
+                }, CameraXExecutors.directExecutor());
+                return "CameraX-initialize";
+            }
+        });
+
+        return sInitializeFuture;
     }
 
     /**
@@ -633,31 +640,37 @@ public final class CameraX {
     @NonNull
     public static ListenableFuture<Void> shutdown() {
         synchronized (sInitializeLock) {
-            if (!sTargetInitialized) {
-                // If it is already or will be shutdown, return the future directly.
-                return sShutdownFuture;
-            }
-            sTargetInitialized = false;
+            return shutdownLocked();
+        }
+    }
 
-            CameraX cameraX = sInstance;
-            sInstance = null;
-
-            // Do not use FutureChain to chain the initFuture, because FutureChain.transformAsync()
-            // will not propagate if the input initFuture is failed. We want to always
-            // shutdown the CameraX instance to ensure that resources are freed.
-            sShutdownFuture = CallbackToFutureAdapter.getFuture(
-                    completer -> {
-                        synchronized (sInitializeLock) {
-                            // Wait initialize complete
-                            sInitializeFuture.addListener(() -> {
-                                // Wait shutdownInternal complete
-                                Futures.propagate(cameraX.shutdownInternal(), completer);
-                            }, CameraXExecutors.directExecutor());
-                            return "CameraX shutdown";
-                        }
-                    });
+    @GuardedBy("sInitializeLock")
+    @NonNull
+    private static ListenableFuture<Void> shutdownLocked() {
+        if (!sTargetInitialized) {
+            // If it is already or will be shutdown, return the future directly.
             return sShutdownFuture;
         }
+        sTargetInitialized = false;
+
+        CameraX cameraX = sInstance;
+        sInstance = null;
+
+        // Do not use FutureChain to chain the initFuture, because FutureChain.transformAsync()
+        // will not propagate if the input initFuture is failed. We want to always
+        // shutdown the CameraX instance to ensure that resources are freed.
+        sShutdownFuture = CallbackToFutureAdapter.getFuture(
+                completer -> {
+                    synchronized (sInitializeLock) {
+                        // Wait initialize complete
+                        sInitializeFuture.addListener(() -> {
+                            // Wait shutdownInternal complete
+                            Futures.propagate(cameraX.shutdownInternal(), completer);
+                        }, CameraXExecutors.directExecutor());
+                        return "CameraX shutdown";
+                    }
+                });
+        return sShutdownFuture;
     }
 
     /**
@@ -752,20 +765,59 @@ public final class CameraX {
      */
     @RestrictTo(Scope.LIBRARY_GROUP)
     @NonNull
-    public static ListenableFuture<CameraX> getInstance() {
-        ListenableFuture<Void> initFuture;
-        CameraX cameraX;
+    public static ListenableFuture<CameraX> getOrCreateInstance(@NonNull Context context) {
+        Preconditions.checkNotNull(context, "Context must not be null.");
         synchronized (sInitializeLock) {
-            if (!sTargetInitialized) {
-                return Futures.immediateFailedFuture(new IllegalStateException("Must "
-                        + "call CameraX.initialize() first"));
+            ListenableFuture<CameraX> instanceFuture = getInstanceLocked();
+            if (instanceFuture.isDone()) {
+                try {
+                    CameraX instance = instanceFuture.get();
+                } catch (InterruptedException e) {
+                    // Should not be possible since future is complete.
+                    throw new RuntimeException("Unexpected thread interrupt. Should not be "
+                            + "possible since future is already complete.", e);
+                } catch (ExecutionException e) {
+                    // Either initialization failed or initialize() has not been called, ensure we
+                    // can try to reinitialize.
+                    shutdownLocked();
+                    instanceFuture = null;
+                }
             }
 
-            initFuture = sInitializeFuture;
-            cameraX = sInstance;
+            // Attempt initialization through Application
+            if (instanceFuture == null) {
+                Application app = (Application) context.getApplicationContext();
+                if (app instanceof AppConfig.Provider) {
+                    initializeLocked(app, ((AppConfig.Provider) app).getAppConfig());
+                    instanceFuture = getInstanceLocked();
+                } else {
+                    throw new IllegalStateException("CameraX is not initialized properly. Either "
+                            + "CameraX.initialize() needs to have been called or the AppConfig"
+                            + ".Provider interface must be implemented by your Application class.");
+                }
+            }
+
+            return instanceFuture;
+        }
+    }
+
+    @NonNull
+    private static ListenableFuture<CameraX> getInstance() {
+        synchronized (sInitializeLock) {
+            return getInstanceLocked();
+        }
+    }
+
+    @GuardedBy("sInitializeLock")
+    @NonNull
+    private static ListenableFuture<CameraX> getInstanceLocked() {
+        if (!sTargetInitialized) {
+            return Futures.immediateFailedFuture(new IllegalStateException("Must "
+                    + "call CameraX.initialize() first"));
         }
 
-        return Futures.transform(initFuture, nullVoid -> cameraX,
+        CameraX cameraX = sInstance;
+        return Futures.transform(sInitializeFuture, nullVoid -> cameraX,
                 CameraXExecutors.directExecutor());
     }
 

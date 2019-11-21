@@ -16,6 +16,7 @@
 
 package androidx.camera.core;
 
+import android.app.Application;
 import android.content.Context;
 
 import androidx.annotation.NonNull;
@@ -43,6 +44,18 @@ import java.util.concurrent.Executor;
  * @see androidx.camera.core.CameraX#initialize(Context, AppConfig)
  */
 public final class AppConfig implements TargetConfig<CameraX>, Config {
+
+    /**
+     * An interface which can be implemented to provide the configuration for CameraX.
+     *
+     * <p>When implemented by an {@link Application}, this can provide on-demand initialization
+     * of CameraX.
+     */
+    public interface Provider {
+        /** Returns the configuration to use for initializing an instance of CameraX. */
+        @NonNull
+        AppConfig getAppConfig();
+    }
 
     // Option Declarations:
     // *********************************************************************************************
