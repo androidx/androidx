@@ -22,15 +22,15 @@ import androidx.compose.memo
 import androidx.compose.state
 import androidx.compose.unaryPlus
 import androidx.ui.core.Alignment
+import androidx.ui.core.Popup
 import androidx.ui.core.PxPosition
 import androidx.ui.core.Text
+import androidx.ui.core.disposeActivityComposition
 import androidx.ui.core.dp
 import androidx.ui.core.gesture.DragObserver
 import androidx.ui.core.gesture.RawDragGestureDetector
 import androidx.ui.core.round
 import androidx.ui.core.setContent
-import androidx.ui.foundation.Popup
-import androidx.ui.foundation.disposeActivityComposition
 import androidx.ui.foundation.shape.DrawShape
 import androidx.ui.foundation.shape.corner.CircleShape
 import androidx.ui.graphics.Color
