@@ -58,9 +58,7 @@ fun ScaleSlopExceededGestureDetector(
     // TODO(b/129784010): Consider also allowing onStart, onScale, and onEnd to be set individually.
     recognizer.onScaleSlopExceeded = onScaleSlopExceeded
 
-    PointerInputWrapper(pointerInputHandler = recognizer.pointerInputHandler) {
-        children()
-    }
+    PointerInputWrapper(pointerInputHandler = recognizer.pointerInputHandler, children = children)
 }
 
 /**
