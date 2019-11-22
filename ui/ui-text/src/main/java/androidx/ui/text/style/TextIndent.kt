@@ -17,8 +17,8 @@
 package androidx.ui.text.style
 
 import androidx.compose.Immutable
-import androidx.ui.core.Sp
-import androidx.ui.core.lerp
+import androidx.ui.core.TextUnit
+import androidx.ui.core.lerpTextUnit
 import androidx.ui.core.sp
 
 /**
@@ -29,8 +29,8 @@ import androidx.ui.core.sp
  */
 @Immutable
 data class TextIndent(
-    val firstLine: Sp = 0.sp,
-    val restLine: Sp = 0.sp
+    val firstLine: TextUnit = 0.sp,
+    val restLine: TextUnit = 0.sp
 )
 
 /**
@@ -40,7 +40,7 @@ data class TextIndent(
  */
 fun lerp(start: TextIndent, stop: TextIndent, fraction: Float): TextIndent {
     return TextIndent(
-        lerp(start.firstLine, stop.firstLine, fraction),
-        lerp(start.restLine, stop.restLine, fraction)
+        lerpTextUnit(start.firstLine, stop.firstLine, fraction),
+        lerpTextUnit(start.restLine, stop.restLine, fraction)
     )
 }

@@ -9,14 +9,6 @@ AutoBoxing: androidx.ui.text.ParagraphKt#Paragraph(String, androidx.ui.text.Text
     Must avoid boxed primitives (`java.lang.Integer`)
 AutoBoxing: androidx.ui.text.ParagraphKt#Paragraph(androidx.ui.text.ParagraphIntrinsics, Integer, Boolean, androidx.ui.text.ParagraphConstraints) parameter #1:
     Must avoid boxed primitives (`java.lang.Integer`)
-AutoBoxing: androidx.ui.text.TextStyle#TextStyle(androidx.ui.graphics.Color, androidx.ui.core.Sp, Float, androidx.ui.text.font.FontWeight, androidx.ui.text.font.FontStyle, androidx.ui.text.font.FontSynthesis, androidx.ui.text.font.FontFamily, String, androidx.ui.core.Em, androidx.ui.text.style.BaselineShift, androidx.ui.text.style.TextGeometricTransform, androidx.ui.text.LocaleList, androidx.ui.graphics.Color, androidx.ui.text.style.TextDecoration, androidx.ui.graphics.Shadow) parameter #2:
-    Must avoid boxed primitives (`java.lang.Float`)
-AutoBoxing: androidx.ui.text.TextStyle#component3():
-    Must avoid boxed primitives (`java.lang.Float`)
-AutoBoxing: androidx.ui.text.TextStyle#copy(androidx.ui.graphics.Color, androidx.ui.core.Sp, Float, androidx.ui.text.font.FontWeight, androidx.ui.text.font.FontStyle, androidx.ui.text.font.FontSynthesis, androidx.ui.text.font.FontFamily, String, androidx.ui.core.Em, androidx.ui.text.style.BaselineShift, androidx.ui.text.style.TextGeometricTransform, androidx.ui.text.LocaleList, androidx.ui.graphics.Color, androidx.ui.text.style.TextDecoration, androidx.ui.graphics.Shadow) parameter #2:
-    Must avoid boxed primitives (`java.lang.Float`)
-AutoBoxing: androidx.ui.text.TextStyle#getFontSizeScale():
-    Must avoid boxed primitives (`java.lang.Float`)
 AutoBoxing: androidx.ui.text.style.TextGeometricTransform#TextGeometricTransform(Float, Float) parameter #0:
     Must avoid boxed primitives (`java.lang.Float`)
 AutoBoxing: androidx.ui.text.style.TextGeometricTransform#TextGeometricTransform(Float, Float) parameter #1:

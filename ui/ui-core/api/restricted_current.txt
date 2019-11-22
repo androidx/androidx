@@ -172,22 +172,22 @@ package androidx.ui.core {
 
   public interface DensityScope {
     method public androidx.ui.core.Density getDensity();
-    method public default androidx.ui.core.Dp toDp(androidx.ui.core.Sp);
+    method public default androidx.ui.core.Dp toDp(androidx.ui.core.TextUnit);
     method public default androidx.ui.core.Dp toDp(androidx.ui.core.Px);
     method public default androidx.ui.core.Dp toDp(androidx.ui.core.IntPx);
     method public default androidx.ui.core.Dp toDp(float);
     method public default androidx.ui.core.Dp toDp(int);
     method public default androidx.ui.core.IntPx toIntPx(androidx.ui.core.Dp);
-    method public default androidx.ui.core.IntPx toIntPx(androidx.ui.core.Sp);
+    method public default androidx.ui.core.IntPx toIntPx(androidx.ui.core.TextUnit);
     method public default androidx.ui.core.Px toPx(androidx.ui.core.Dp);
-    method public default androidx.ui.core.Px toPx(androidx.ui.core.Sp);
+    method public default androidx.ui.core.Px toPx(androidx.ui.core.TextUnit);
     method public default androidx.ui.core.PxSize toPx-s2Mz6-8(long);
     method public default androidx.ui.engine.geometry.Rect toRect(androidx.ui.core.Bounds);
-    method public default androidx.ui.core.Sp toSp(androidx.ui.core.Dp);
-    method public default androidx.ui.core.Sp toSp(androidx.ui.core.Px);
-    method public default androidx.ui.core.Sp toSp(androidx.ui.core.IntPx);
-    method public default androidx.ui.core.Sp toSp(float);
-    method public default androidx.ui.core.Sp toSp(int);
+    method public default androidx.ui.core.TextUnit toSp(androidx.ui.core.Dp);
+    method public default androidx.ui.core.TextUnit toSp(androidx.ui.core.Px);
+    method public default androidx.ui.core.TextUnit toSp(androidx.ui.core.IntPx);
+    method public default androidx.ui.core.TextUnit toSp(float);
+    method public default androidx.ui.core.TextUnit toSp(int);
     property public abstract androidx.ui.core.Density density;
   }
 
@@ -371,39 +371,6 @@ package androidx.ui.core {
     field public static final long MinutesPerHour = 60L; // 0x3cL
     field public static final long NanosecondsPerMicrosecond = 1000L; // 0x3e8L
     field public static final long SecondsPerMinute = 60L; // 0x3cL
-  }
-
-  public final class Em {
-    ctor public Em(float value);
-    method public inline operator int compareTo(androidx.ui.core.Em other);
-    method public float component1();
-    method public androidx.ui.core.Em copy(float value);
-    method public inline operator androidx.ui.core.Em div(float other);
-    method public inline operator androidx.ui.core.Em div(int other);
-    method public inline operator float div(androidx.ui.core.Em other);
-    method public float getValue();
-    method public inline operator androidx.ui.core.Em minus(androidx.ui.core.Em other);
-    method public inline operator androidx.ui.core.Em plus(androidx.ui.core.Em other);
-    method public inline operator androidx.ui.core.Em times(float other);
-    method public inline operator androidx.ui.core.Em times(int other);
-    method public inline operator androidx.ui.core.Em unaryMinus();
-  }
-
-  public final class EmKt {
-    ctor public EmKt();
-    method public static inline androidx.ui.core.Em coerceAtLeast(androidx.ui.core.Em, androidx.ui.core.Em minimumValue);
-    method public static inline androidx.ui.core.Em coerceAtMost(androidx.ui.core.Em, androidx.ui.core.Em maximumValue);
-    method public static inline androidx.ui.core.Em coerceIn(androidx.ui.core.Em, androidx.ui.core.Em minimumValue, androidx.ui.core.Em maximumValue);
-    method public static inline androidx.ui.core.Em getEm(int);
-    method public static inline androidx.ui.core.Em getEm(double);
-    method public static inline androidx.ui.core.Em getEm(float);
-    method public static androidx.ui.core.Em lerp(androidx.ui.core.Em start, androidx.ui.core.Em stop, float fraction);
-    method public static inline androidx.ui.core.Em max(androidx.ui.core.Em a, androidx.ui.core.Em b);
-    method public static inline androidx.ui.core.Em min(androidx.ui.core.Em a, androidx.ui.core.Em b);
-    method public static inline operator androidx.ui.core.Em times(float, androidx.ui.core.Em other);
-    method public static inline operator androidx.ui.core.Em times(double, androidx.ui.core.Em other);
-    method public static inline operator androidx.ui.core.Em times(int, androidx.ui.core.Em other);
-    method public static inline androidx.ui.core.Em toEm(androidx.ui.core.Sp, androidx.ui.core.Sp fontSize);
   }
 
   public final class HorizontalAlignmentLine extends androidx.ui.core.AlignmentLine {
@@ -885,45 +852,69 @@ package androidx.ui.core {
     method public static String toString-impl(long p);
   }
 
-  public final class Sp {
-    ctor public Sp(float value);
-    method public inline operator int compareTo(androidx.ui.core.Sp other);
-    method public float component1();
-    method public androidx.ui.core.Sp copy(float value);
-    method public inline operator androidx.ui.core.Sp div(float other);
-    method public inline operator androidx.ui.core.Sp div(int other);
-    method public inline operator float div(androidx.ui.core.Sp other);
+  public final class TextUnit {
+    ctor public TextUnit(long packedValue);
+    method public inline operator int compareTo(androidx.ui.core.TextUnit other);
+    method public long component1();
+    method public androidx.ui.core.TextUnit copy(long packedValue);
+    method public inline operator androidx.ui.core.TextUnit div(float other);
+    method public inline operator androidx.ui.core.TextUnit div(double other);
+    method public inline operator androidx.ui.core.TextUnit div(int other);
+    method public inline operator float div(androidx.ui.core.TextUnit other);
+    method public long getPackedValue();
+    method public androidx.ui.core.TextUnitType getType();
     method public float getValue();
-    method public inline operator androidx.ui.core.Sp minus(androidx.ui.core.Sp other);
-    method public inline operator androidx.ui.core.Sp plus(androidx.ui.core.Sp other);
-    method public inline operator androidx.ui.core.Sp times(float other);
-    method public inline operator androidx.ui.core.Sp times(int other);
-    method public inline operator androidx.ui.core.Sp unaryMinus();
-    field public static final androidx.ui.core.Sp.Companion! Companion;
+    method public boolean isEm();
+    method public boolean isInherit();
+    method public boolean isSp();
+    method public inline operator androidx.ui.core.TextUnit minus(androidx.ui.core.TextUnit other);
+    method public inline operator androidx.ui.core.TextUnit plus(androidx.ui.core.TextUnit other);
+    method public inline operator androidx.ui.core.TextUnit times(float other);
+    method public inline operator androidx.ui.core.TextUnit times(double other);
+    method public inline operator androidx.ui.core.TextUnit times(int other);
+    method public inline operator androidx.ui.core.TextUnit unaryMinus();
+    property public final boolean isEm;
+    property public final boolean isInherit;
+    property public final boolean isSp;
+    property public final androidx.ui.core.TextUnitType type;
+    property public final float value;
+    field public static final androidx.ui.core.TextUnit.Companion! Companion;
   }
 
-  public static final class Sp.Companion {
-    method public androidx.ui.core.Sp getInfinity();
-    method public androidx.ui.core.Sp getInherit();
-    property public final androidx.ui.core.Sp Infinity;
-    property public final androidx.ui.core.Sp Inherit;
+  public static final class TextUnit.Companion {
+    method public androidx.ui.core.TextUnit Em(int value);
+    method public androidx.ui.core.TextUnit Em(float value);
+    method public androidx.ui.core.TextUnit Em(double value);
+    method public androidx.ui.core.TextUnit Sp(int value);
+    method public androidx.ui.core.TextUnit Sp(float value);
+    method public androidx.ui.core.TextUnit Sp(double value);
+    method public androidx.ui.core.TextUnit getInherit();
+    property public final androidx.ui.core.TextUnit Inherit;
   }
 
-  public final class SpKt {
-    ctor public SpKt();
-    method public static inline androidx.ui.core.Sp coerceAtLeast(androidx.ui.core.Sp, androidx.ui.core.Sp minimumValue);
-    method public static inline androidx.ui.core.Sp coerceAtMost(androidx.ui.core.Sp, androidx.ui.core.Sp maximumValue);
-    method public static inline androidx.ui.core.Sp coerceIn(androidx.ui.core.Sp, androidx.ui.core.Sp minimumValue, androidx.ui.core.Sp maximumValue);
-    method public static inline androidx.ui.core.Sp getSp(int);
-    method public static inline androidx.ui.core.Sp getSp(double);
-    method public static inline androidx.ui.core.Sp getSp(float);
-    method public static inline boolean isInherit(androidx.ui.core.Sp);
-    method public static androidx.ui.core.Sp lerp(androidx.ui.core.Sp start, androidx.ui.core.Sp stop, float fraction);
-    method public static inline androidx.ui.core.Sp max(androidx.ui.core.Sp a, androidx.ui.core.Sp b);
-    method public static inline androidx.ui.core.Sp min(androidx.ui.core.Sp a, androidx.ui.core.Sp b);
-    method public static inline operator androidx.ui.core.Sp times(float, androidx.ui.core.Sp other);
-    method public static inline operator androidx.ui.core.Sp times(double, androidx.ui.core.Sp other);
-    method public static inline operator androidx.ui.core.Sp times(int, androidx.ui.core.Sp other);
+  public final class TextUnitKt {
+    ctor public TextUnitKt();
+    method public static inline androidx.ui.core.TextUnit coerceAtLeast(androidx.ui.core.TextUnit, androidx.ui.core.TextUnit minimumValue);
+    method public static inline androidx.ui.core.TextUnit coerceAtMost(androidx.ui.core.TextUnit, androidx.ui.core.TextUnit maximumValue);
+    method public static inline androidx.ui.core.TextUnit coerceIn(androidx.ui.core.TextUnit, androidx.ui.core.TextUnit minimumValue, androidx.ui.core.TextUnit maximumValue);
+    method public static androidx.ui.core.TextUnit getEm(float);
+    method public static androidx.ui.core.TextUnit getEm(double);
+    method public static androidx.ui.core.TextUnit getEm(int);
+    method public static androidx.ui.core.TextUnit getSp(float);
+    method public static androidx.ui.core.TextUnit getSp(double);
+    method public static androidx.ui.core.TextUnit getSp(int);
+    method public static androidx.ui.core.TextUnit lerpTextUnit(androidx.ui.core.TextUnit a, androidx.ui.core.TextUnit b, float t);
+    method public static inline androidx.ui.core.TextUnit max(androidx.ui.core.TextUnit a, androidx.ui.core.TextUnit b);
+    method public static inline androidx.ui.core.TextUnit min(androidx.ui.core.TextUnit a, androidx.ui.core.TextUnit b);
+    method public static inline operator androidx.ui.core.TextUnit times(float, androidx.ui.core.TextUnit other);
+    method public static inline operator androidx.ui.core.TextUnit times(double, androidx.ui.core.TextUnit other);
+    method public static inline operator androidx.ui.core.TextUnit times(int, androidx.ui.core.TextUnit other);
+  }
+
+  public enum TextUnitType {
+    enum_constant public static final androidx.ui.core.TextUnitType Em;
+    enum_constant public static final androidx.ui.core.TextUnitType Inherit;
+    enum_constant public static final androidx.ui.core.TextUnitType Sp;
   }
 
   public final class Timestamp implements java.lang.Comparable<androidx.ui.core.Timestamp> {
