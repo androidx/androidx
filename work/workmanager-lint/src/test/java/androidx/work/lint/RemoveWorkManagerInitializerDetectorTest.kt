@@ -67,9 +67,7 @@ class RemoveWorkManagerInitializerDetectorTest {
             ANDROID_APPLICATION,
             WORK_MANAGER_CONFIGURATION_PROVIDER,
             customApplication
-        )
-            .sdkHome(sdkDirectory().value)
-            .issues(RemoveWorkManagerInitializerDetector.ISSUE)
+        ).issues(RemoveWorkManagerInitializerDetector.ISSUE)
             .run()
             .expectClean()
     }
@@ -114,9 +112,7 @@ class RemoveWorkManagerInitializerDetectorTest {
             ANDROID_APPLICATION,
             WORK_MANAGER_CONFIGURATION_PROVIDER,
             customApplication
-        )
-            .sdkHome(sdkDirectory().value)
-            .issues(RemoveWorkManagerInitializerDetector.ISSUE)
+        ).issues(RemoveWorkManagerInitializerDetector.ISSUE)
             .run()
             .expectClean()
     }
@@ -159,9 +155,7 @@ class RemoveWorkManagerInitializerDetectorTest {
             ANDROID_APPLICATION,
             WORK_MANAGER_CONFIGURATION_PROVIDER,
             customApplication
-        )
-            .sdkHome(sdkDirectory().value)
-            .issues(RemoveWorkManagerInitializerDetector.ISSUE)
+        ).issues(RemoveWorkManagerInitializerDetector.ISSUE)
             .run()
             .expect("""
                 project0: Error: Remove androidx.work.impl.WorkManagerInitializer from your AndroidManifest.xml when using on-demand initialization. [RemoveWorkManagerInitializer]
@@ -213,9 +207,7 @@ class RemoveWorkManagerInitializerDetectorTest {
             ANDROID_APPLICATION,
             WORK_MANAGER_CONFIGURATION_PROVIDER,
             customApplication
-        )
-            .sdkHome(sdkDirectory().value)
-            .issues(RemoveWorkManagerInitializerDetector.ISSUE)
+        ).issues(RemoveWorkManagerInitializerDetector.ISSUE)
             .run()
             .expect("""
                 AndroidManifest.xml:5: Error: Remove androidx.work.impl.WorkManagerInitializer from your AndroidManifest.xml when using on-demand initialization. [RemoveWorkManagerInitializer]

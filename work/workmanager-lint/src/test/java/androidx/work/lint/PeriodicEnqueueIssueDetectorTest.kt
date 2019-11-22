@@ -53,9 +53,7 @@ class PeriodicEnqueueIssueDetectorTest {
             ONE_TIME_WORK_REQUEST,
             PERIODIC_WORK_REQUEST,
             snippet
-        )
-            .sdkHome(sdkDirectory().value)
-            .issues(PeriodicEnqueueIssueDetector.ISSUE)
+        ).issues(PeriodicEnqueueIssueDetector.ISSUE)
             .run()
             .expect("""
                 src/androidx/work/WorkManager.kt:4: Warning: Use enqueueUniquePeriodicWork() instead of enqueue() [BadPeriodicWorkRequestEnqueue]
@@ -93,9 +91,7 @@ class PeriodicEnqueueIssueDetectorTest {
             ONE_TIME_WORK_REQUEST,
             PERIODIC_WORK_REQUEST,
             snippet
-        )
-            .sdkHome(sdkDirectory().value)
-            .issues(PeriodicEnqueueIssueDetector.ISSUE)
+        ).issues(PeriodicEnqueueIssueDetector.ISSUE)
             .run()
             .expect("""
                 src/androidx/work/WorkManager.kt:5: Warning: Use enqueueUniquePeriodicWork() instead of enqueue() [BadPeriodicWorkRequestEnqueue]
@@ -135,9 +131,7 @@ class PeriodicEnqueueIssueDetectorTest {
             ONE_TIME_WORK_REQUEST,
             PERIODIC_WORK_REQUEST,
             snippet
-        )
-            .sdkHome(sdkDirectory().value)
-            .issues(PeriodicEnqueueIssueDetector.ISSUE)
+        ).issues(PeriodicEnqueueIssueDetector.ISSUE)
             .run()
             .expect("""
                 src/androidx/work/WorkManager.kt:5: Warning: Use enqueueUniquePeriodicWork() instead of enqueue() [BadPeriodicWorkRequestEnqueue]
@@ -174,9 +168,7 @@ class PeriodicEnqueueIssueDetectorTest {
             ONE_TIME_WORK_REQUEST,
             PERIODIC_WORK_REQUEST,
             snippet
-        )
-            .sdkHome(sdkDirectory().value)
-            .issues(PeriodicEnqueueIssueDetector.ISSUE)
+        ).issues(PeriodicEnqueueIssueDetector.ISSUE)
             .run()
             .expectClean()
     }
@@ -207,9 +199,7 @@ class PeriodicEnqueueIssueDetectorTest {
             ONE_TIME_WORK_REQUEST,
             PERIODIC_WORK_REQUEST,
             snippet
-        )
-            .sdkHome(sdkDirectory().value)
-            .issues(PeriodicEnqueueIssueDetector.ISSUE)
+        ).issues(PeriodicEnqueueIssueDetector.ISSUE)
             .run()
             .expectClean()
     }
