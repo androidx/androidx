@@ -18,6 +18,7 @@
 
 package androidx.core.util
 
+import android.annotation.SuppressLint
 import android.util.Pair
 
 /**
@@ -28,6 +29,7 @@ import android.util.Pair
  * val (first, second) = myPair
  * ```
  */
+@SuppressLint("UnknownNullness")
 @Suppress("HasPlatformType") // Intentionally propagating platform type with unknown nullability.
 inline operator fun <F, S> Pair<F, S>.component1() = first
 
@@ -39,6 +41,7 @@ inline operator fun <F, S> Pair<F, S>.component1() = first
  * val (first, second) = myPair
  * ```
  */
+@SuppressLint("UnknownNullness")
 @Suppress("HasPlatformType") // Intentionally propagating platform type with unknown nullability.
 inline operator fun <F, S> Pair<F, S>.component2() = second
 
