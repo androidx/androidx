@@ -29,7 +29,7 @@ plugins {
 }
 
 dependencies {
-    kotlinPlugin project(path: ":compose:compose-compiler", configuration: "embeddablePlugin")
+    kotlinPlugin project(path: ":compose:compose-compiler")
 
     api project(':ui:ui-core')
     implementation "androidx.collection:collection:1.0.0"
