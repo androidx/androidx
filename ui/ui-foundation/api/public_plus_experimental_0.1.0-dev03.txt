@@ -337,20 +337,3 @@ package androidx.ui.foundation.shape.corner {
 
 }
 
-package androidx.ui.foundation.text {
-
-  public final class SelectionContainerKt {
-    ctor public SelectionContainerKt();
-    method public static void SelectionContainer(androidx.ui.core.selection.Selection? selection, kotlin.jvm.functions.Function1<? super androidx.ui.core.selection.Selection,kotlin.Unit> onSelectionChange, kotlin.jvm.functions.Function0<kotlin.Unit> children);
-  }
-
-  public final class SelectionHandlesKt {
-    ctor public SelectionHandlesKt();
-  }
-
-  public final class SelectionManagerKt {
-    ctor public SelectionManagerKt();
-  }
-
-}
-

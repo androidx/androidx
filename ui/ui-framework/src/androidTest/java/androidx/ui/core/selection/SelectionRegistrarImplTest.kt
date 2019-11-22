@@ -14,10 +14,9 @@
  * limitations under the License.
  */
 
-package androidx.ui.foundation.text
+package androidx.ui.core.selection
 
 import androidx.test.filters.SmallTest
-import androidx.ui.core.selection.Selectable
 import com.google.common.truth.Truth.assertThat
 import com.nhaarman.mockitokotlin2.mock
 import org.junit.Test

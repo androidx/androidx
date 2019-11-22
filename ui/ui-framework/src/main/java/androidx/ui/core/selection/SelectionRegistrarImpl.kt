@@ -14,10 +14,7 @@
  * limitations under the License.
  */
 
-package androidx.ui.foundation.text
-
-import androidx.ui.core.selection.SelectionRegistrar
-import androidx.ui.core.selection.Selectable
+package androidx.ui.core.selection
 
 internal class SelectionRegistrarImpl : SelectionRegistrar {
     /**
