@@ -117,7 +117,7 @@ public interface CameraInfo {
 
     /**
      * Returns a {@link LiveData} of current linearZoom which is in range [0..1].
-     * LinearZoom 0 represents the maximum zoom while linearZoom 1.0 represents the maximum zoom.
+     * LinearZoom 0 represents the minimum zoom while linearZoom 1.0 represents the maximum zoom.
      *
      * <p>Apps can either get immediate value via {@link LiveData#getValue()} (The value is never
      * null, it has default value in the beginning) or they can observe it via

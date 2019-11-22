@@ -66,7 +66,8 @@ public abstract class MeteringPointFactory {
 
     /**
      * Returns default point size. It is the default size of the MeteringPoint width and height
-     * (ranging from 0 to 1).
+     * (ranging from 0 to 1) which is a (noramlized) percentage of the sensor width/height (or crop
+     * region width/height if crop region is set).
      *
      * @see MeteringPoint#getSize()
      */
@@ -130,8 +131,8 @@ public abstract class MeteringPointFactory {
      * @param x    x to be converted.
      * @param y    y to be converted.
      * @param size size of the MeteringPoint width and height(ranging from 0 to 1). It is the
-     *             percentage of the sensor width/height (or crop region width/height if
-     *             crop region is set).
+     *             (normalized) percentage of the sensor width/height (or crop region
+     *             width/height if crop region is set).
      * @return A {@link MeteringPoint} that is converted into normalized surface (x, y).
      */
     @NonNull
