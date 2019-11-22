@@ -81,7 +81,7 @@ import kotlin.math.ceil
  * element in the array is applied to the corresponding line. For lines past the last element in
  * array, the last element repeats.
  * @param layoutIntrinsics previously calculated [LayoutIntrinsics] for this text
- * @see StaticLayoutCompat
+ * @see StaticLayoutFactory
  *
  * @hide
  */
@@ -152,24 +152,26 @@ class TextLayout constructor(
                 ellipsizedWidth = widthInt
             )
         } else {
-            StaticLayoutCompat.Builder(
-                charSequence,
-                textPaint,
-                widthInt
+            StaticLayoutFactory.create(
+                text = charSequence,
+                start = 0,
+                end = charSequence.length,
+                paint = textPaint,
+                width = ceil(width).toInt(),
+                textDir = frameworkTextDir,
+                alignment = frameworkAlignment,
+                maxLines = maxLines,
+                ellipsize = ellipsize,
+                ellipsizedWidth = ceil(width).toInt(),
+                lineSpacingMultiplier = lineSpacingMultiplier,
+                lineSpacingExtra = lineSpacingExtra,
+                justificationMode = justificationMode,
+                includePadding = includePadding,
+                breakStrategy = breakStrategy,
+                hyphenationFrequency = hyphenationFrequency,
+                leftIndents = leftIndents,
+                rightIndents = rightIndents
             )
-                .setAlignment(frameworkAlignment)
-                .setTextDirection(frameworkTextDir)
-                .setLineSpacingExtra(lineSpacingExtra)
-                .setLineSpacingMultiplier(lineSpacingMultiplier)
-                .setIncludePad(includePadding)
-                .setEllipsize(ellipsize)
-                .setEllipsizedWidth(widthInt)
-                .setMaxLines(maxLines)
-                .setBreakStrategy(breakStrategy)
-                .setHyphenationFrequency(hyphenationFrequency)
-                .setJustificationMode(justificationMode)
-                .setIndents(leftIndents, rightIndents)
-                .build()
         }
 
         didExceedMaxLines = if (Build.VERSION.SDK_INT <= 25) {
