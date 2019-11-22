@@ -16,7 +16,7 @@
 
 package androidx.camera.view;
 
-import static androidx.camera.core.PreviewSurfaceProviders.createSurfaceTextureProvider;
+import static androidx.camera.testing.SurfaceTextureProvider.createSurfaceTextureProvider;
 
 import static com.google.common.truth.Truth.assertThat;
 
@@ -42,9 +42,9 @@ import androidx.camera.core.LensFacing;
 import androidx.camera.core.MeteringPoint;
 import androidx.camera.core.MeteringPointFactory;
 import androidx.camera.core.Preview;
-import androidx.camera.core.PreviewSurfaceProviders;
 import androidx.camera.testing.CameraUtil;
 import androidx.camera.testing.CoreAppTestUtil;
+import androidx.camera.testing.SurfaceTextureProvider;
 import androidx.camera.testing.fakes.FakeActivity;
 import androidx.camera.testing.fakes.FakeLifecycleOwner;
 import androidx.test.core.app.ApplicationProvider;
@@ -203,7 +203,7 @@ public class TextureViewMeteringPointFactoryTest {
         Preview preview = new Preview.Builder().build();
         mInstrumentation.runOnMainSync(() -> {
             preview.setPreviewSurfaceProvider(createSurfaceTextureProvider(
-                    new PreviewSurfaceProviders.SurfaceTextureCallback() {
+                    new SurfaceTextureProvider.SurfaceTextureCallback() {
                         @Override
                         public void onSurfaceTextureReady(@NonNull SurfaceTexture surfaceTexture,
                                 @NonNull Size resolution) {

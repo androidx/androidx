@@ -16,7 +16,7 @@
 
 package androidx.camera.camera2;
 
-import static androidx.camera.core.PreviewSurfaceProviders.createSurfaceTextureProvider;
+import static androidx.camera.testing.SurfaceTextureProvider.createSurfaceTextureProvider;
 
 import static com.google.common.truth.Truth.assertThat;
 
@@ -38,10 +38,10 @@ import androidx.camera.core.CameraX;
 import androidx.camera.core.CaptureConfig;
 import androidx.camera.core.LensFacing;
 import androidx.camera.core.Preview;
-import androidx.camera.core.PreviewSurfaceProviders;
 import androidx.camera.core.SessionConfig;
 import androidx.camera.core.impl.utils.executor.CameraXExecutors;
 import androidx.camera.testing.CameraUtil;
+import androidx.camera.testing.SurfaceTextureProvider;
 import androidx.camera.testing.fakes.FakeCameraControl;
 import androidx.camera.testing.fakes.FakeLifecycleOwner;
 import androidx.core.util.Preconditions;
@@ -85,7 +85,7 @@ public final class PreviewTest {
     private Semaphore mSurfaceFutureSemaphore;
     private Semaphore mSaveToReleaseSemaphore;
     private Preview.PreviewSurfaceProvider mPreviewSurfaceProviderWithFrameAvailableListener =
-            createSurfaceTextureProvider(new PreviewSurfaceProviders.SurfaceTextureCallback() {
+            createSurfaceTextureProvider(new SurfaceTextureProvider.SurfaceTextureCallback() {
                 @Override
                 public void onSurfaceTextureReady(@NonNull SurfaceTexture surfaceTexture,
                         @NonNull Size resolution) {

@@ -235,11 +235,6 @@ public class Preview extends UseCase {
      * <p> Setting the callback will signal to the camera that the use case is ready to receive
      * data.
      *
-     * <p> To displaying preview with a {@link TextureView}, consider using
-     * {@link PreviewSurfaceProviders#createSurfaceTextureProvider(
-     *PreviewSurfaceProviders.SurfaceTextureCallback)}
-     * to create the callback.
-     *
      * @return the last set callback or {@code null} if no listener is set
      */
     @UiThread
@@ -254,13 +249,6 @@ public class Preview extends UseCase {
      *
      * <p> Setting the provider will signal to the camera that the use case is ready to receive
      * data.
-     *
-     * TODO(b/144386349) Remove after minimal version of PreviewView implemented since using with
-     * TextureView is not safe.
-     * <p> To display a preview with a {@link TextureView}, consider using
-     * {@link PreviewSurfaceProviders#createSurfaceTextureProvider(
-     *PreviewSurfaceProviders.SurfaceTextureCallback)}
-     * to create the provider.
      *
      * @param executor               on which the previewSurfaceProvider will be triggered.
      * @param previewSurfaceProvider PreviewSurfaceProvider that provides a Preview.
