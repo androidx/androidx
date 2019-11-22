@@ -542,17 +542,12 @@ private fun TabTransition(
 ) {
     val transitionDefinition = +memo(color) {
         transitionDefinition {
-            // TODO: currently the first state set is the 'default' state, so we want to define the
-            // state that is initially selected first, so we don't have any initial animations
-            // when this is supported by transitionDefinition, we should fix this to just set a
-            // default or similar
-            state(selected) {
-                this[TabTintColor] = if (selected) color else color.copy(alpha = InactiveTabOpacity)
+            state(true) {
+                this[TabTintColor] = color
             }
 
-            state(!selected) {
-                this[TabTintColor] =
-                    if (!selected) color else color.copy(alpha = InactiveTabOpacity)
+            state(false) {
+                this[TabTintColor] = color.copy(alpha = InactiveTabOpacity)
             }
 
             transition(toState = false, fromState = true) {
