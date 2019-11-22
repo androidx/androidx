@@ -29,7 +29,7 @@ dependencies {
     implementation(project(":transition:transition"))
     implementation(project(":recyclerview:recyclerview"))
     implementation(project(":appcompat:appcompat"))
-    implementation(project(":cardview"))
+    implementation(project(":cardview:cardview"))
     implementation(project(":core:core"))
 }
 
