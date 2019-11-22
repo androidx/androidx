@@ -59,8 +59,8 @@ dependencies {
         annotationProcessor(project(":room:room-compiler"))
         implementation(project(":room:room-runtime"))
     } else {
-        annotationProcessor("androidx.room:room-compiler:2.2.1")
-        implementation("androidx.room:room-runtime:2.2.1")
+        annotationProcessor("androidx.room:room-compiler:2.2.2")
+        implementation("androidx.room:room-runtime:2.2.2")
     }
 
     implementation(CONSTRAINT_LAYOUT, { transitive = true })
