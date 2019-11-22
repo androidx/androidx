@@ -38,7 +38,6 @@ import androidx.ui.tooling.tables
 import androidx.ui.unit.Px
 import androidx.ui.unit.PxBounds
 import androidx.ui.unit.toRect
-import java.lang.reflect.Modifier
 
 const val TOOLS_NS_URI = "http://schemas.android.com/tools"
 
@@ -207,26 +206,10 @@ internal class ComposeViewAdapter : FrameLayout {
         this.debugViewInfos = debugViewInfos
         setContent {
             WrapPreview {
-                try {
-                    // We need to delay the reflection instantiation of the class until we are
-                    // in the composable to ensure all the right initialization has happened
-                    // and the Composable class loads correctly.
-                    val composableClass = Class.forName(className)
-                    val method = composableClass.getDeclaredMethod(methodName)
-                    method.isAccessible = true
-
-                    if (Modifier.isStatic(method.modifiers)) {
-                        // This is a top level or static method
-                        method.invoke(null)
-                    } else {
-                        // The method is part of a class. We try to instantiate the class with an
-                        // empty constructor.
-                        val instance = composableClass.getConstructor().newInstance()
-                        method.invoke(instance)
-                    }
-                } catch (e: ReflectiveOperationException) {
-                    throw ClassNotFoundException("Composable Method not found", e)
-                }
+                // We need to delay the reflection instantiation of the class until we are in the
+                // composable to ensure all the right initialization has happened and the Composable
+                // class loads correctly.
+                invokeComposableViaReflection(className, methodName)
             }
         }
     }
