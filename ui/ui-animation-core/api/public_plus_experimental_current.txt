@@ -240,7 +240,7 @@ package androidx.animation {
   }
 
   public final class TransitionAnimation<T> implements androidx.animation.TransitionState {
-    ctor public TransitionAnimation(androidx.animation.TransitionDefinition<T> def, androidx.animation.AnimationClockObservable clock);
+    ctor public TransitionAnimation(androidx.animation.TransitionDefinition<T> def, androidx.animation.AnimationClockObservable clock, T? initState);
     method public operator <T> T! get(androidx.animation.PropKey<T> propKey);
     method public kotlin.jvm.functions.Function1<T,kotlin.Unit>? getOnStateChangeFinished();
     method public kotlin.jvm.functions.Function0<kotlin.Unit>? getOnUpdate();
@@ -255,8 +255,6 @@ package androidx.animation {
 
   public final class TransitionDefinition<T> {
     ctor public TransitionDefinition();
-    method public androidx.animation.TransitionAnimation<T> createAnimation();
-    method public androidx.animation.TransitionAnimation<T> createAnimation(androidx.animation.AnimationClockObservable clock);
     method public androidx.animation.TransitionState getStateFor(T? name);
     method public void snapTransition(kotlin.Pair<? extends T,? extends T>![] fromToPairs, T? nextState = null);
     method public void state(T? name, kotlin.jvm.functions.Function1<? super androidx.animation.MutableTransitionState,kotlin.Unit> init);
@@ -266,6 +264,8 @@ package androidx.animation {
 
   public final class TransitionDefinitionKt {
     ctor public TransitionDefinitionKt();
+    method public static <T> androidx.animation.TransitionAnimation<T> createAnimation(androidx.animation.TransitionDefinition<T>);
+    method public static <T> androidx.animation.TransitionAnimation<T> createAnimation(androidx.animation.TransitionDefinition<T>, androidx.animation.AnimationClockObservable clock, T? initState = null);
     method public static <T> androidx.animation.TransitionDefinition<T> transitionDefinition(kotlin.jvm.functions.Function1<? super androidx.animation.TransitionDefinition<T>,kotlin.Unit> init);
   }
 
