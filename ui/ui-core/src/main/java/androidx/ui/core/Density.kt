@@ -68,24 +68,32 @@ interface DensityScope {
     fun Dp.toIntPx(): IntPx = toPx().round()
 
     /**
-     * Convert [Dp] to [Sp]. [Sp] is used for font size, etc.
+     * Convert [Dp] to Sp. Sp is used for font size, etc.
      */
-    fun Dp.toSp(): Sp = Sp(value / density.fontScale)
+    fun Dp.toSp(): TextUnit = TextUnit.Sp(value / density.fontScale)
 
     /**
-     * Convert [Sp] to [Px]. Pixels are used to paint to [Canvas].
+     * Convert Sp to [Px]. Pixels are used to paint to [Canvas].
+     * @throws ArithmeticException if TextUnit other than SP unit is specified.
      */
-    fun Sp.toPx(): Px = Px(value * density.fontScale * density.density)
+    fun TextUnit.toPx(): Px {
+        require(type == TextUnitType.Sp) { "Only Sp can convert to Px" }
+        return Px(value * density.fontScale * density.density)
+    }
 
     /**
-     * Convert [Sp] to [IntPx] by rounding
+     * Convert Sp to [IntPx] by rounding
      */
-    fun Sp.toIntPx(): IntPx = toPx().round()
+    fun TextUnit.toIntPx(): IntPx = toPx().round()
 
     /**
-     * Convert [Sp] to [Dp].
+     * Convert Sp to [Dp].
+     * @throws ArithmeticException if TextUnit other than SP unit is specified.
      */
-    fun Sp.toDp(): Dp = Dp(value * density.fontScale)
+    fun TextUnit.toDp(): Dp {
+        require(type == TextUnitType.Sp) { "Only Sp can convert to Px" }
+        return Dp(value * density.fontScale)
+    }
 
     /**
      * Convert [Px] to [Dp].
@@ -93,9 +101,9 @@ interface DensityScope {
     fun Px.toDp(): Dp = (value / density.density).dp
 
     /**
-     * Convert [Px] to [Sp].
+     * Convert [Px] to Sp.
      */
-    fun Px.toSp(): Sp = (value / (density.fontScale * density.density)).sp
+    fun Px.toSp(): TextUnit = (value / (density.fontScale * density.density)).sp
 
     /**
      * Convert [IntPx] to [Dp].
@@ -103,21 +111,21 @@ interface DensityScope {
     fun IntPx.toDp(): Dp = (value / density.density).dp
 
     /**
-     * Convert [IntPx] to [Sp].
+     * Convert [IntPx] to Sp.
      */
-    fun IntPx.toSp(): Sp = (value / (density.fontScale * density.density)).sp
+    fun IntPx.toSp(): TextUnit = (value / (density.fontScale * density.density)).sp
 
     /** Convert a [Float] pixel value to a Dp */
     fun Float.toDp(): Dp = (this / density.density).dp
 
     /** Convert a [Float] pixel value to a Sp */
-    fun Float.toSp(): Sp = (this / (density.fontScale * density.density)).sp
+    fun Float.toSp(): TextUnit = (this / (density.fontScale * density.density)).sp
 
     /** Convert a [Int] pixel value to a Dp */
     fun Int.toDp(): Dp = toFloat().toDp()
 
     /** Convert a [Int] pixel value to a Sp */
-    fun Int.toSp(): Sp = toFloat().toSp()
+    fun Int.toSp(): TextUnit = toFloat().toSp()
 
     /**
      * Convert a [Size] to a [PxSize].

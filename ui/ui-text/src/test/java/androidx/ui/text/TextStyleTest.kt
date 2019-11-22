@@ -17,7 +17,6 @@
 package androidx.ui.text
 
 import androidx.ui.core.em
-import androidx.ui.core.isInherit
 import androidx.ui.core.sp
 import androidx.ui.text.style.BaselineShift
 import androidx.ui.text.font.FontStyle
@@ -42,10 +41,10 @@ class TextStyleTest {
         val textStyle = TextStyle()
 
         assertThat(textStyle.color).isNull()
-        assertThat(textStyle.fontSize.isInherit()).isTrue()
+        assertThat(textStyle.fontSize.isInherit).isTrue()
         assertThat(textStyle.fontWeight).isNull()
         assertThat(textStyle.fontStyle).isNull()
-        assertThat(textStyle.letterSpacing).isNull()
+        assertThat(textStyle.letterSpacing.isInherit).isTrue()
         assertThat(textStyle.localeList).isNull()
         assertThat(textStyle.background).isNull()
         assertThat(textStyle.decoration).isNull()
@@ -481,20 +480,6 @@ class TextStyleTest {
 
         // a + (b - a) * t = 8.0f + (16.0f  - 8.0f) * 0.8f = 14.4f
         assertThat(newTextStyle.fontSize).isEqualTo(14.4.sp)
-    }
-
-    @Test
-    fun `lerp fontSizeScale with a and b are not Null`() {
-        val fontSizeScale1 = 2.0f
-        val fontSizeScale2 = 4.0f
-        val t = 0.8f
-        val textStyle1 = TextStyle(fontSizeScale = fontSizeScale1)
-        val textStyle2 = TextStyle(fontSizeScale = fontSizeScale2)
-
-        val newTextStyle = lerp(start = textStyle1, stop = textStyle2, fraction = t)
-
-        // a + (b - a) * t = 2.0f + (4.0f  - 2.0f) * 0.8f = 3.6f
-        assertThat(newTextStyle.fontSizeScale).isEqualTo(3.6f)
     }
 
     @Test

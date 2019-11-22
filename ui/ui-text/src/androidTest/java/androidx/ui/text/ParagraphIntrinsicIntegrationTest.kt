@@ -19,7 +19,7 @@ package androidx.ui.text
 import androidx.test.filters.SmallTest
 import androidx.test.platform.app.InstrumentationRegistry
 import androidx.ui.core.Density
-import androidx.ui.core.Sp
+import androidx.ui.core.TextUnit
 import androidx.ui.core.sp
 import androidx.ui.core.withDensity
 import androidx.ui.text.font.asFontFamily
@@ -96,7 +96,7 @@ class ParagraphIntrinsicIntegrationTest {
         withDensity(defaultDensity) {
             val text = "a bb ccc"
             val fontSize = 12.sp
-            val styledFontSize = fontSize * 2
+            val styledFontSize = 24.sp
             val paragraph = paragraphIntrinsics(
                 text = text,
                 fontSize = fontSize,
@@ -182,7 +182,7 @@ class ParagraphIntrinsicIntegrationTest {
         withDensity(defaultDensity) {
             val text = "a bb ccc"
             val fontSize = 12.sp
-            val styledFontSize = fontSize * 2
+            val styledFontSize = 24.sp
             val paragraph = paragraphIntrinsics(
                 text = text,
                 fontSize = fontSize,
@@ -203,7 +203,7 @@ class ParagraphIntrinsicIntegrationTest {
     private fun paragraphIntrinsics(
         text: String = "",
         style: TextStyle? = null,
-        fontSize: Sp = 14.sp,
+        fontSize: TextUnit = 14.sp,
         textStyles: List<AnnotatedString.Item<TextStyle>> = listOf()
     ): ParagraphIntrinsics {
         return ParagraphIntrinsics(

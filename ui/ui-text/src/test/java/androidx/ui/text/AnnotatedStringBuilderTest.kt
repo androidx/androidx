@@ -16,7 +16,7 @@
 
 package androidx.ui.text
 
-import androidx.ui.core.Sp
+import androidx.ui.core.TextUnit
 import androidx.ui.core.em
 import androidx.ui.core.sp
 import androidx.ui.graphics.Color
@@ -566,7 +566,7 @@ class AnnotatedStringBuilderTest {
     private fun createAnnotatedString(
         text: String,
         color: Color = Color.Red,
-        lineHeight: Sp = 20.sp
+        lineHeight: TextUnit = 20.sp
     ): AnnotatedString {
         return AnnotatedString(
             text = text,
