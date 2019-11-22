@@ -1957,6 +1957,49 @@ public class MediaPlayerTest extends MediaPlayerTestBase {
         assertTrue(latchFor3rdItem.await(WAIT_TIME_MS, TimeUnit.MILLISECONDS));
     }
 
+    @Ignore("Test disabled due to flakiness, see b/144972397")
+    @Test
+    @LargeTest
+    @SdkSuppress(minSdkVersion = Build.VERSION_CODES.KITKAT)
+    public void testSeekToEndOfMediaItem() throws Exception {
+        List<MediaItem> playlist = new ArrayList<>();
+        playlist.add(createMediaItem(R.raw.testmp3));
+        playlist.add(createMediaItem(R.raw.testmp3));
+        playlist.add(createMediaItem(R.raw.testmp3));
+
+        List<CountDownLatch> latches = new ArrayList<>();
+        for (int i = 0; i < playlist.size(); i++) {
+            latches.add(new CountDownLatch(1));
+        }
+
+        MediaPlayer.PlayerCallback callback = new MediaPlayer.PlayerCallback() {
+            @Override
+            public void onCurrentMediaItemChanged(@NonNull SessionPlayer player,
+                    @NonNull MediaItem item) {
+                for (int i = 0; i < playlist.size(); i++) {
+                    if (playlist.get(i) == item) {
+                        latches.get(i).countDown();
+                        break;
+                    }
+                }
+            }
+        };
+        mPlayer.registerPlayerCallback(mExecutor, callback);
+
+        assertNotNull(mPlayer.setPlaylist(playlist, null));
+        assertNotNull(mPlayer.prepare());
+        assertFutureSuccess(mPlayer.play());
+
+        for (int i = 0; i < playlist.size(); i++) {
+            assertTrue("onCurrentMediaItemChanged is not called for item i=" + i,
+                    latches.get(i).await(WAIT_TIME_MS, TimeUnit.MILLISECONDS));
+            if (i + 1 < playlist.size()) {
+                long duration = mPlayer.getDuration();
+                assertNotEquals(SessionPlayer.UNKNOWN_TIME, duration);
+                assertFutureSuccess(mPlayer.seekTo(duration));
+            }
+        }
+    }
 
     private MediaItem createMediaItem() throws Exception {
         return createMediaItem(R.raw.testvideo);
