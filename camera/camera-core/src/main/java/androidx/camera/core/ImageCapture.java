@@ -1830,6 +1830,11 @@ public class ImageCapture extends UseCase {
          *
          * <p>This method will remove any value set by setTargetAspectRatio().
          *
+         * <p>setTargetAspectRatioCustom will crop the file outputs from takePicture methods
+         * as opposed to {@link #setTargetAspectRatio(int)} which does not apply a crop.  The source
+         * (pre-crop) resolution will an automatically selected resolution suitable for still
+         * images.
+         *
          * <p>For ImageCapture, the outputs are the {@link ImageProxy} or the File passed to image
          * capture listeners.
          *
