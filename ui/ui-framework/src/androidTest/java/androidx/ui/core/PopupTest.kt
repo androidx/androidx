@@ -27,7 +27,6 @@ import androidx.test.espresso.matcher.ViewMatchers.isDisplayed
 import androidx.test.filters.MediumTest
 import androidx.ui.core.selection.SimpleContainer
 import androidx.ui.test.createComposeRule
-import androidx.ui.test.waitForIdleCompose
 import com.google.common.truth.Truth
 import org.hamcrest.CoreMatchers.instanceOf
 import org.hamcrest.Description
@@ -92,8 +91,6 @@ class PopupTest {
                 }
             }
         }
-
-        waitForIdleCompose()
     }
 
     // TODO(b/139861182): Remove all of this and provide helpers on ComposeTestRule

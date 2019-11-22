@@ -16,24 +16,12 @@
 
 package androidx.ui.test.android
 
-import android.R
-import android.annotation.SuppressLint
 import android.app.Activity
-import android.content.Context
 import android.graphics.Bitmap
 import android.os.Build
 import android.os.Handler
 import android.os.Looper
-import android.view.Choreographer
-import android.view.MotionEvent
-import android.view.View
-import android.view.ViewGroup
 import androidx.annotation.RequiresApi
-import androidx.compose.Recomposer
-import androidx.test.espresso.Espresso
-import androidx.test.espresso.NoMatchingViewException
-import androidx.test.espresso.ViewAssertion
-import androidx.test.espresso.matcher.ViewMatchers
 import androidx.ui.core.PxPosition
 import androidx.ui.core.SemanticsTreeNode
 import androidx.ui.core.SemanticsTreeProvider
@@ -43,8 +31,6 @@ import androidx.ui.engine.geometry.Rect
 import androidx.ui.test.InputDispatcher
 import androidx.ui.test.SemanticsNodeInteraction
 import androidx.ui.test.SemanticsTreeInteraction
-import java.util.concurrent.CountDownLatch
-import java.util.concurrent.TimeUnit
 
 /**
  * Android specific implementation of [SemanticsTreeInteraction].
@@ -52,32 +38,15 @@ import java.util.concurrent.TimeUnit
  * Important highlight is that this implementation is using Espresso underneath to find the current
  * [Activity] that is visible on screen. So it does not rely on any references on activities being
  * held by your tests.
- *
- * @param throwOnRecomposeTimeout Will throw exception if waiting for recomposition timeouts.
  */
 internal class AndroidSemanticsTreeInteraction internal constructor(
-    private val throwOnRecomposeTimeOut: Boolean,
     private val selector: SemanticsConfiguration.() -> Boolean
 ) : SemanticsTreeInteraction {
-
-    /**
-     * Whether after the latest performed action we waited for any pending changes in composition.
-     * This is used in internal tests to verify that actions that are supposed to mutate the
-     * hierarchy as really observed like that.
-     */
-    internal var hadPendingChangesAfterLastAction = false
-
-    // we should not wait more than two frames, but two frames can be much more
-    // than 32ms when we skip a few, so "better" 10x number should work here
-    private val defaultRecomposeWaitTimeMs = 1000L
 
     private val handler = Handler(Looper.getMainLooper())
 
     override fun findAllMatching(): List<SemanticsNodeInteraction> {
-        waitForIdleCompose()
-
-        return findActivityAndTreeProvider()
-            .treeProvider
+        return SynchronizedTreeCollector.collectSemanticsProviders()
             .getAllSemanticNodes()
             .map {
                 SemanticsNodeInteraction(it, this)
@@ -99,79 +68,36 @@ internal class AndroidSemanticsTreeInteraction internal constructor(
     }
 
     override fun performAction(action: (SemanticsTreeProvider) -> Unit) {
-        val collectedInfo = findActivityAndTreeProvider()
+        val collectedInfo = SynchronizedTreeCollector.collectSemanticsProviders()
 
         handler.post(object : Runnable {
             override fun run() {
-                action.invoke(collectedInfo.treeProvider)
+                collectedInfo.treeProviders.forEach {
+                    action.invoke(it)
+                }
             }
         })
 
-        // It might seem we don't need to wait for idle here as every query and action we make
-        // already waits for idle before being executed. However since Espresso could be mixed in
-        // these tests we rather wait to be recomposed before we leave this method to avoid
-        // potential flakes.
-        hadPendingChangesAfterLastAction = waitForIdleCompose()
+        // Since we have our idling resource registered into Espresso we can leave from here
+        // before synchronizing. It can however happen that if a developer needs to perform assert
+        // on some variable change (e.g. click set the right value) they will fail unless they run
+        // that assert as part of composeTestRule.runOnIdleCompose { }. Obviously any shared
+        // variable should not be asserted from other thread but if we would waitForIdle here we
+        // would mask lots of these issues.
     }
 
     override fun sendInput(action: (InputDispatcher) -> Unit) {
-        action(AndroidInputDispatcher(findActivityAndTreeProvider().treeProvider))
-        hadPendingChangesAfterLastAction = waitForIdleCompose()
-    }
-
-    /**
-     * Waits for Compose runtime to be idle - meaning it has no pending changes.
-     *
-     * @return Whether the method had to wait for pending changes or not.
-     */
-    override fun waitForIdleCompose(): Boolean {
-        if (Looper.getMainLooper() == Looper.myLooper()) {
-            throw Exception("Cannot be run on UI thread.")
-        }
-
-        var hadPendingChanges = false
-        val latch = CountDownLatch(1)
-        handler.post(object : Runnable {
-            override fun run() {
-                hadPendingChanges = Recomposer.hasPendingChanges()
-                if (hadPendingChanges) {
-                    scheduleIdleCheck(latch)
-                } else {
-                    latch.countDown()
-                }
-            }
-        })
-        val succeeded = latch.await(defaultRecomposeWaitTimeMs, TimeUnit.MILLISECONDS)
-        if (throwOnRecomposeTimeOut && !succeeded) {
-            throw RecomposeTimeOutException()
-        }
-        return hadPendingChanges
-    }
-
-    private fun scheduleIdleCheck(latch: CountDownLatch) {
-        Choreographer.getInstance().postFrameCallback(object : Choreographer.FrameCallback {
-            @SuppressLint("SyntheticAccessor")
-            override fun doFrame(frameTimeNanos: Long) {
-                if (Recomposer.hasPendingChanges()) {
-                    scheduleIdleCheck(latch)
-                } else {
-                    latch.countDown()
-                }
-            }
-        })
+        action(AndroidInputDispatcher(SynchronizedTreeCollector.collectSemanticsProviders()))
     }
 
     override fun contains(semanticsConfiguration: SemanticsConfiguration): Boolean {
-        waitForIdleCompose()
-
-        return findActivityAndTreeProvider()
-            .treeProvider
+        return SynchronizedTreeCollector.collectSemanticsProviders()
             .getAllSemanticNodes()
             .any { it.data == semanticsConfiguration }
     }
 
     override fun isInScreenBounds(rectangle: Rect): Boolean {
-        val displayMetrics = findActivityAndTreeProvider()
+        val displayMetrics = SynchronizedTreeCollector.collectSemanticsProviders()
             .context
             .resources
             .displayMetrics
@@ -193,10 +119,10 @@ internal class AndroidSemanticsTreeInteraction internal constructor(
 
     @RequiresApi(Build.VERSION_CODES.O)
     override fun captureNodeToBitmap(node: SemanticsTreeNode): Bitmap {
-        val collectedInfo = findActivityAndTreeProvider()
+        val collectedInfo = SynchronizedTreeCollector.collectSemanticsProviders()
 
         // TODO: Share this code with contains() somehow?
-        val exists = collectedInfo.treeProvider
+        val exists = collectedInfo
             .getAllSemanticNodes()
             .any { it.data == node.data }
         if (!exists) {
@@ -221,83 +147,4 @@ internal class AndroidSemanticsTreeInteraction internal constructor(
 
         return captureRegionToBitmap(node.globalRect!!, handler, window)
     }
-
-    private fun findActivityAndTreeProvider(): CollectedInfo {
-        val viewForwarder = ViewForwarder()
-
-        // Use Espresso to find the content view for us.
-        // We can't use onView(instanceOf(SemanticsTreeProvider::class.java)) as Espresso throws
-        // on multiple instances in the tree.
-        Espresso.onView(
-            ViewMatchers.withId(
-                R.id.content
-            )
-        ).check(viewForwarder)
-
-        if (viewForwarder.viewFound == null) {
-            throw IllegalArgumentException("Couldn't find a Compose root in the view hierarchy. " +
-                    "Are you using Compose in your Activity?")
-        }
-
-        val view = viewForwarder.viewFound!! as ViewGroup
-        return CollectedInfo(view.context, collectSemanticTreeProviders(view))
-    }
-
-    private fun collectSemanticTreeProviders(
-        contentViewGroup: ViewGroup
-    ): AggregatedSemanticTreeProvider {
-        val collectedRoots = mutableSetOf<SemanticsTreeProvider>()
-
-        fun collectSemanticTreeProvidersInternal(parent: ViewGroup) {
-            for (index in 0 until parent.childCount) {
-                when (val child = parent.getChildAt(index)) {
-                    is SemanticsTreeProvider -> collectedRoots.add(child)
-                    is ViewGroup -> collectSemanticTreeProvidersInternal(child)
-                    else -> { }
-                }
-            }
-        }
-
-        collectSemanticTreeProvidersInternal(contentViewGroup)
-        return AggregatedSemanticTreeProvider(
-            collectedRoots
-        )
-    }
-
-    /**
-     * There can be multiple Compose views in Android hierarchy and we want to interact with all of
-     * them. This class merges all the semantics trees into one, hiding the fact that the API might
-     * be interacting with several Compose roots.
-     */
-    private class AggregatedSemanticTreeProvider(
-        private val collectedRoots: Set<SemanticsTreeProvider>
-    ) : SemanticsTreeProvider {
-
-        override fun getAllSemanticNodes(): List<SemanticsTreeNode> {
-            // TODO(pavlis): Once we have a tree support we will just add a fake root parent here
-            return collectedRoots.flatMap { it.getAllSemanticNodes() }
-        }
-
-        override fun sendEvent(event: MotionEvent) {
-            // TODO(pavlis): This is not good.
-            collectedRoots.first().sendEvent(event)
-        }
-    }
-
-    /** A hacky way to retrieve views from Espresso matchers. */
-    private class ViewForwarder : ViewAssertion {
-        var viewFound: View? = null
-
-        override fun check(view: View?, noViewFoundException: NoMatchingViewException?) {
-            viewFound = view
-        }
-    }
-
-    internal class RecomposeTimeOutException :
-        Throwable("Waiting for recompose has exceeded the timeout!")
-
-    private data class CollectedInfo(
-        val context: Context,
-        val treeProvider: SemanticsTreeProvider
-    )
 }

@@ -28,7 +28,6 @@ import androidx.ui.input.TextInputService
 import androidx.ui.test.createComposeRule
 import androidx.ui.test.doClick
 import androidx.ui.test.findByTag
-import androidx.ui.test.waitForIdleCompose
 import com.google.common.truth.Truth.assertThat
 import com.nhaarman.mockitokotlin2.any
 import com.nhaarman.mockitokotlin2.argumentCaptor
@@ -70,7 +69,9 @@ class TextFieldTest {
         findByTag("textField")
             .doClick()
 
-        verify(focusManager, times(1)).requestFocus(any())
+        composeTestRule.runOnIdleCompose {
+            verify(focusManager, times(1)).requestFocus(any())
+        }
     }
 
     @Composable
@@ -111,18 +112,21 @@ class TextFieldTest {
         findByTag("textField")
             .doClick()
 
-        // Verify startInput is called and capture the callback.
-        val onEditCommandCaptor = argumentCaptor<(List<EditOperation>) -> Unit>()
-        verify(textInputService, times(1)).startInput(
-            initModel = any(),
-            keyboardType = any(),
-            imeAction = any(),
-            onEditCommand = onEditCommandCaptor.capture(),
-            onImeActionPerformed = any()
-        )
-        assertThat(onEditCommandCaptor.allValues.size).isEqualTo(1)
-        val onEditCommandCallback = onEditCommandCaptor.firstValue
-        assertThat(onEditCommandCallback).isNotNull()
+        var onEditCommandCallback: ((List<EditOperation>) -> Unit)? = null
+        composeTestRule.runOnIdleCompose {
+            // Verify startInput is called and capture the callback.
+            val onEditCommandCaptor = argumentCaptor<(List<EditOperation>) -> Unit>()
+            verify(textInputService, times(1)).startInput(
+                initModel = any(),
+                keyboardType = any(),
+                imeAction = any(),
+                onEditCommand = onEditCommandCaptor.capture(),
+                onImeActionPerformed = any()
+            )
+            assertThat(onEditCommandCaptor.allValues.size).isEqualTo(1)
+            onEditCommandCallback = onEditCommandCaptor.firstValue
+            assertThat(onEditCommandCallback).isNotNull()
+        }
 
         // Performs input events "1", "a", "2", "b", "3". Only numbers should remain.
         arrayOf(
@@ -132,11 +136,13 @@ class TextFieldTest {
             listOf(CommitTextEditOp("b", 1)),
             listOf(CommitTextEditOp("3", 1))
         ).forEach {
-            composeTestRule.runOnUiThread { onEditCommandCallback(it) }
-            waitForIdleCompose()
+            // TODO: This should work only with runOnUiThread. But it seems that these events are
+            // not buffered and chaining multiple of them before composition happens makes them to
+            // get lost.
+            composeTestRule.runOnIdleCompose { onEditCommandCallback!!.invoke(it) }
         }
 
-        composeTestRule.runOnUiThread {
+        composeTestRule.runOnIdleCompose {
             val stateCaptor = argumentCaptor<InputState>()
             verify(textInputService, atLeastOnce())
                 .onStateUpdated(eq(inputSessionToken), stateCaptor.capture())
@@ -183,21 +189,24 @@ class TextFieldTest {
         }
 
         // Perform click to focus in.
-        val element = findByTag("textField")
-        element.doClick()
+        findByTag("textField")
+            .doClick()
 
-        // Verify startInput is called and capture the callback.
-        val onEditCommandCaptor = argumentCaptor<(List<EditOperation>) -> Unit>()
-        verify(textInputService, times(1)).startInput(
-            initModel = any(),
-            keyboardType = any(),
-            imeAction = any(),
-            onEditCommand = onEditCommandCaptor.capture(),
-            onImeActionPerformed = any()
-        )
-        assertThat(onEditCommandCaptor.allValues.size).isEqualTo(1)
-        val onEditCommandCallback = onEditCommandCaptor.firstValue
-        assertThat(onEditCommandCallback).isNotNull()
+        var onEditCommandCallback: ((List<EditOperation>) -> Unit)? = null
+        composeTestRule.runOnIdleCompose {
+            // Verify startInput is called and capture the callback.
+            val onEditCommandCaptor = argumentCaptor<(List<EditOperation>) -> Unit>()
+            verify(textInputService, times(1)).startInput(
+                initModel = any(),
+                keyboardType = any(),
+                imeAction = any(),
+                onEditCommand = onEditCommandCaptor.capture(),
+                onImeActionPerformed = any()
+            )
+            assertThat(onEditCommandCaptor.allValues.size).isEqualTo(1)
+            onEditCommandCallback = onEditCommandCaptor.firstValue
+            assertThat(onEditCommandCallback).isNotNull()
+        }
 
         // Performs input events "1", "a", "2", "b", "3". Only numbers should remain.
         arrayOf(
@@ -207,11 +216,13 @@ class TextFieldTest {
             listOf(CommitTextEditOp("b", 1)),
             listOf(CommitTextEditOp("3", 1))
         ).forEach {
-            composeTestRule.runOnUiThread { onEditCommandCallback(it) }
-            waitForIdleCompose()
+            // TODO: This should work only with runOnUiThread. But it seems that these events are
+            // not buffered and chaining multiple of them before composition happens makes them to
+            // get lost.
+            composeTestRule.runOnIdleCompose { onEditCommandCallback!!.invoke(it) }
         }
 
-        composeTestRule.runOnUiThread {
+        composeTestRule.runOnIdleCompose {
             val stateCaptor = argumentCaptor<InputState>()
             verify(textInputService, atLeastOnce())
                 .onStateUpdated(eq(inputSessionToken), stateCaptor.capture())

@@ -390,6 +390,7 @@ package androidx.ui.core.semantics {
 
   public final class SemanticsConfiguration implements java.lang.Iterable<java.util.Map.Entry<? extends androidx.ui.semantics.SemanticsPropertyKey<?>,?>> kotlin.jvm.internal.markers.KMappedMarker androidx.ui.semantics.SemanticsPropertyReceiver {
     ctor public SemanticsConfiguration();
+    method @Deprecated public void clear();
     method public operator <T> boolean contains(androidx.ui.semantics.SemanticsPropertyKey<T> key);
     method public androidx.ui.core.semantics.SemanticsConfiguration copy();
     method public operator <T> T! get(androidx.ui.semantics.SemanticsPropertyKey<T> key);

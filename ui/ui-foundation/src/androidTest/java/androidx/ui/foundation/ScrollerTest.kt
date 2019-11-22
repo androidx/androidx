@@ -131,22 +131,9 @@ class ScrollerTest {
     fun verticalScroller_SmallContent_Unscrollable() {
         val scrollerPosition = ScrollerPosition()
 
-        // latch to wait for a new max to come on layout
-        val newMaxLatch = CountDownLatch(1)
-
         composeVerticalScroller(scrollerPosition)
 
-        val onGlobalLayout = object : ViewTreeObserver.OnGlobalLayoutListener {
-            override fun onGlobalLayout() {
-                newMaxLatch.countDown()
-            }
-        }
-        composeTestRule.runOnUiThread {
-            activity.window.decorView.viewTreeObserver.addOnGlobalLayoutListener(onGlobalLayout)
-        }
-        assertTrue(newMaxLatch.await(1, TimeUnit.SECONDS))
-        composeTestRule.runOnUiThread {
-            activity.window.decorView.viewTreeObserver.removeOnGlobalLayoutListener(onGlobalLayout)
+        composeTestRule.runOnIdleCompose {
             assertTrue(scrollerPosition.maxPosition == 0.px)
         }
     }
@@ -172,24 +159,12 @@ class ScrollerTest {
 
         validateVerticalScroller(height = height)
 
-        // The 'draw' method will no longer be called because only the position
-        // changes during scrolling. Therefore, we should just wait until the draw stage
-        // completes and the scrolling will be finished by then.
-        val latch = CountDownLatch(1)
-        val onDrawListener = object : ViewTreeObserver.OnDrawListener {
-            override fun onDraw() {
-                latch.countDown()
-            }
-        }
-        composeTestRule.runOnUiThread {
-            activity.window.decorView.viewTreeObserver.addOnDrawListener(onDrawListener)
+        composeTestRule.runOnIdleCompose {
             assertEquals(scrollDistance.toPx(), scrollerPosition.maxPosition)
             scrollerPosition.scrollTo(scrollDistance.toPx())
         }
-        assertTrue(latch.await(1, TimeUnit.SECONDS))
-        composeTestRule.runOnUiThread {
-            activity.window.decorView.viewTreeObserver.removeOnDrawListener(onDrawListener)
-        }
+
+        composeTestRule.runOnIdleCompose {} // Just so the block below is correct
         validateVerticalScroller(offset = scrollDistance, height = height)
     }
 
@@ -225,24 +200,12 @@ class ScrollerTest {
 
         validateHorizontalScroller(width = width)
 
-        // The 'draw' method will no longer be called because only the position
-        // changes during scrolling. Therefore, we should just wait until the draw stage
-        // completes and the scrolling will be finished by then.
-        val latch = CountDownLatch(1)
-        val onDrawListener = object : ViewTreeObserver.OnDrawListener {
-            override fun onDraw() {
-                latch.countDown()
-            }
-        }
-        composeTestRule.runOnUiThread {
-            activity.window.decorView.viewTreeObserver.addOnDrawListener(onDrawListener)
+        composeTestRule.runOnIdleCompose {
             assertEquals(scrollDistance.toPx(), scrollerPosition.maxPosition)
             scrollerPosition.scrollTo(scrollDistance.toPx())
         }
-        assertTrue(latch.await(1, TimeUnit.SECONDS))
-        composeTestRule.runOnUiThread {
-            activity.window.decorView.viewTreeObserver.removeOnDrawListener(onDrawListener)
-        }
+
+        composeTestRule.runOnIdleCompose {} // Just so the block below is correct
         validateHorizontalScroller(offset = scrollDistance, width = width)
     }
 

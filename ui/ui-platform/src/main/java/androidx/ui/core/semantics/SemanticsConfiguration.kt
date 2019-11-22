@@ -178,6 +178,15 @@ class SemanticsConfiguration : SemanticsPropertyReceiver,
         copy.props.putAll(props)
         return copy
     }
+
+    // TODO(b/145977727): Remove this after we start using IDs.
+    @Deprecated("This is only a temporary until IDs are introduced (b/145977727).")
+    fun clear() {
+        props.clear()
+        isSemanticBoundary = false
+        explicitChildNodes = false
+        isMergingSemanticsOfDescendants = false
+    }
 }
 
 fun <T> SemanticsConfiguration.getOrNull(key: SemanticsPropertyKey<T>): T? {

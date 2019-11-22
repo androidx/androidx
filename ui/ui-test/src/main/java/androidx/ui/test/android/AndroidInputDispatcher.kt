@@ -31,7 +31,7 @@ import kotlin.math.min
 import kotlin.math.roundToInt
 
 internal class AndroidInputDispatcher(
-    private val treeProvider: SemanticsTreeProvider
+    private val treeProviders: CollectedProviders
 ) : InputDispatcher {
     /**
      * The minimum time between two successive injected MotionEvents. Ideally, the value should
@@ -45,8 +45,8 @@ internal class AndroidInputDispatcher(
 
     override fun sendClick(x: Float, y: Float) {
         val downTime = SystemClock.uptimeMillis()
-        treeProvider.sendMotionEvent(downTime, downTime, MotionEvent.ACTION_DOWN, x, y)
-        treeProvider.sendMotionEvent(downTime, downTime + eventPeriod, MotionEvent.ACTION_UP, x, y)
+        treeProviders.sendMotionEvent(downTime, downTime, MotionEvent.ACTION_DOWN, x, y)
+        treeProviders.sendMotionEvent(downTime, downTime + eventPeriod, MotionEvent.ACTION_UP, x, y)
     }
 
     override fun sendSwipe(x0: Float, y0: Float, x1: Float, y1: Float, duration: Duration) {
@@ -55,22 +55,22 @@ internal class AndroidInputDispatcher(
         val downTime = SystemClock.uptimeMillis()
         val upTime = downTime + duration.inMilliseconds()
 
-        treeProvider.sendMotionEvent(downTime, downTime, MotionEvent.ACTION_DOWN, x0, y0)
+        treeProviders.sendMotionEvent(downTime, downTime, MotionEvent.ACTION_DOWN, x0, y0)
         while (step++ < steps) {
             val progress = step / steps.toFloat()
             val t = lerp(downTime, upTime, progress)
             val x = lerp(x0, x1, progress)
             val y = lerp(y0, y1, progress)
-            treeProvider.sendMotionEvent(downTime, t, MotionEvent.ACTION_MOVE, x, y)
+            treeProviders.sendMotionEvent(downTime, t, MotionEvent.ACTION_MOVE, x, y)
         }
-        treeProvider.sendMotionEvent(downTime, upTime, MotionEvent.ACTION_UP, x1, y1)
+        treeProviders.sendMotionEvent(downTime, upTime, MotionEvent.ACTION_UP, x1, y1)
     }
 
     /**
      * Sends an event with the given parameters. Method blocks depending on [waitUntilEventTime].
      * @param waitUntilEventTime If `true`, blocks until [eventTime]
      */
-    private fun SemanticsTreeProvider.sendMotionEvent(
+    private fun CollectedProviders.sendMotionEvent(
         downTime: Long,
         eventTime: Long,
         action: Int,
@@ -91,7 +91,7 @@ internal class AndroidInputDispatcher(
      * Sends the [event] to the [SemanticsTreeProvider] and [recycles][MotionEvent.recycle] it
      * regardless of the result. This method blocks until the event is sent.
      */
-    private fun SemanticsTreeProvider.sendAndRecycleEvent(event: MotionEvent) {
+    private fun CollectedProviders.sendAndRecycleEvent(event: MotionEvent) {
         val latch = CountDownLatch(1)
         handler.post {
             try {
