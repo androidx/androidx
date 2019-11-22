@@ -1363,6 +1363,11 @@ package androidx.core.os {
     method public static boolean postDelayed(android.os.Handler, Runnable, Object?, long);
   }
 
+  public class HandlerExecutor implements java.util.concurrent.Executor {
+    ctor public HandlerExecutor(android.os.Handler);
+    method public void execute(Runnable);
+  }
+
   public final class LocaleListCompat {
     method public static androidx.core.os.LocaleListCompat create(java.util.Locale!...);
     method public static androidx.core.os.LocaleListCompat forLanguageTags(String?);

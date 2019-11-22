@@ -16,23 +16,15 @@
 
 package androidx.core.os;
 
-import static androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP_PREFIX;
-
 import android.os.Handler;
 
 import androidx.annotation.NonNull;
-import androidx.annotation.RestrictTo;
 import androidx.core.util.Preconditions;
 
 import java.util.concurrent.Executor;
 import java.util.concurrent.RejectedExecutionException;
 
-/**
- * An adapter {@link Executor} that posts all executed tasks onto the given {@link Handler}.
- *
- * @hide
- */
-@RestrictTo(LIBRARY_GROUP_PREFIX)
+/** An adapter {@link Executor} that posts all executed tasks onto the given {@link Handler}. */
 public class HandlerExecutor implements Executor {
     private final Handler mHandler;
 
@@ -42,7 +34,7 @@ public class HandlerExecutor implements Executor {
 
     @Override
     public void execute(@NonNull Runnable command) {
-        if (!mHandler.post(command)) {
+        if (!mHandler.post(Preconditions.checkNotNull(command))) {
             throw new RejectedExecutionException(mHandler + " is shutting down");
         }
     }
