@@ -442,29 +442,31 @@ public class Preview extends UseCase {
          *
          * Example:
          *
-         * <pre><code>
+         * <pre>
          * class MyPreviewSurfaceProvider implements PreviewSurfaceProvider {
-         *
          *     SurfaceTexture mSurfaceTexture;
          *
-         *     &#64;Override
-         *     public ListenableFuture<Surface> provideSurface(@NonNull Size resolution,
-         *         &#64;NonNull ListenableFuture<Void> surfaceReleaseFuture) {
+         *     {@literal @}Override
+         *     public ListenableFuture{@literal <}Surface{@literal >} provideSurface(
+         *         {@literal @}NonNull Size resolution,
+         *         {@literal @}NonNull ListenableFuture{@literal <}Void{@literal >}
+         *         surfaceReleaseFuture) {
          *         // Create the ListenableFuture for the Surface
          *         mSurfaceTexture = new SurfaceTexture(0);
          *         mSurfaceTexture.detachFromGLContext();
          *         ListenableFuture<Surface> surfaceFuture = CallbackToFutureAdapter.getFuture(
          *             completer -> completer.set(new Surface(mSurfaceTexture));
          *
-         *         Futures.addCallback(surfaceReleaseFuture, new FutureCallback<Void>() {
-         *             &#64;Override
+         *         Futures.addCallback(surfaceReleaseFuture,
+         *             new FutureCallback{@literal <}Void{@literal >}() {
+         *             {@literal @}Override
          *             public void onSuccess(Void result) {
          *                 // mSurfaceTexture is no longer used by the camera so it is safe to
          *                 // release
          *                 mSurfaceTexture.release();
          *             }
          *
-         *             &#64;Override
+         *             {@literal @}Override
          *             public void onFailure(Throwable t) {
          *                 // Should never fail
          *             }
@@ -472,17 +474,14 @@ public class Preview extends UseCase {
          *
          *         return surfaceFuture;
          *     }
-         * </code></pre>
+         * }
+         * </pre>
          *
          * @param resolution           the resolution required by CameraX, which is in image sensor
          *                             coordinate system.
          * @param surfaceReleaseFuture it's safe to release the returned Surface return by the
          *                             method, after this {@link ListenableFuture} finishes.
          * @return A ListenableFuture that contains the implementer created Surface.
-         *
-         * {@see Preview} for rotation details
-         * {@see Preview.Builder#setTargetResolution(Size)}} for resolution controls
-         * {@see Preview.Builder#setTargetAspectRatio(int)} for resolution controls
          */
         @NonNull
         ListenableFuture<Surface> provideSurface(@NonNull Size resolution,
