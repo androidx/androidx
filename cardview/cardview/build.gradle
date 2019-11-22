@@ -12,12 +12,6 @@ dependencies {
     implementation(project(":core:core"))
 }
 
-android {
-    sourceSets {
-        main.res.srcDir("res")
-    }
-}
-
 androidx {
     name = "Android Support CardView v7"
     publish = Publish.SNAPSHOT_AND_RELEASE
