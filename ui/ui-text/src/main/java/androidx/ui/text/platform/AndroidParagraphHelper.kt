@@ -205,7 +205,7 @@ internal fun createStyledText(
     for (textStyle in textStyles) {
         val start = textStyle.start
         val end = textStyle.end
-        val style = textStyle.style
+        val style = textStyle.item
 
         if (start < 0 || start >= text.length || end <= start || end > text.length) continue
 

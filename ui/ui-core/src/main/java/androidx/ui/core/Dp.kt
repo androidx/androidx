@@ -180,7 +180,6 @@ inline fun Dp.coerceIn(minimumValue: Dp, maximumValue: Dp): Dp =
 
 /**
  * Ensures that this value is not less than the specified [minimumValue].
- *
  * @return this value if it's greater than or equal to the [minimumValue] or the
  * [minimumValue] otherwise.
  */
