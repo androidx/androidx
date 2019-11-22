@@ -37,3 +37,13 @@ private fun PrivateSimpleComposablePreview() {
         Text("Private Hello world")
     }
 }
+
+class TestGroup {
+    @Preview
+    @Composable
+    fun InClassPreview() {
+        Surface(color = Color.Red) {
+            Text("In class")
+        }
+    }
+}
