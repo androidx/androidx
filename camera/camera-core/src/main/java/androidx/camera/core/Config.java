@@ -30,7 +30,9 @@ import java.util.Set;
  * <p>Configuration object hold pairs of Options/Values and offer methods for querying whether
  * Options are contained in the configuration along with methods for retrieving the associated
  * values for options.
+ * @hide
  */
+@RestrictTo(Scope.LIBRARY_GROUP)
 public interface Config {
 
     /**

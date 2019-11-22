@@ -252,13 +252,13 @@ public final class AppConfig implements TargetConfig<CameraX>, Config {
         }
 
         /**
-         * Generates a Builder from another {@link Config} object
+         * Generates a Builder from another {@link AppConfig} object
          *
          * @param configuration An immutable configuration to pre-populate this builder.
          * @return The new Builder.
          */
         @NonNull
-        public static Builder fromConfig(@NonNull Config configuration) {
+        public static Builder fromConfig(@NonNull AppConfig configuration) {
             return new Builder(MutableOptionsBundle.from(configuration));
         }
 
