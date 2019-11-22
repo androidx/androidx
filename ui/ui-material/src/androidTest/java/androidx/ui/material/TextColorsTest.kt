@@ -36,7 +36,7 @@ class TextColorsTest {
 
     @Test
     fun textColorForBackgroundUsesCorrectValues() {
-        val colors = ColorPalette(
+        val colors = lightColorPalette(
             primary = Color(0),
             onPrimary = Color(1),
             secondary = Color(2),

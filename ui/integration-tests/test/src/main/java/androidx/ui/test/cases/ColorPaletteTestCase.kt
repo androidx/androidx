@@ -24,6 +24,7 @@ import androidx.compose.unaryPlus
 import androidx.ui.graphics.Color
 import androidx.ui.material.ColorPalette
 import androidx.ui.material.MaterialTheme
+import androidx.ui.material.lightColorPalette
 import androidx.ui.test.ComposeTestCase
 import androidx.ui.test.ToggleableTestCase
 
@@ -65,7 +66,7 @@ sealed class ColorPaletteTestCase : ComposeTestCase, ToggleableTestCase {
  */
 class ObservableColorPaletteTestCase : ColorPaletteTestCase() {
     override fun createPalette(primary: Color): ColorPalette {
-        return ColorPalette(primary = primary)
+        return lightColorPalette(primary = primary)
     }
 }
 
@@ -89,6 +90,7 @@ class ImmutableColorPaletteTestCase : ColorPaletteTestCase() {
         override val onBackground = Color.Black
         override val onSurface = Color.Black
         override val onError = Color.Black
+        override val isLight = true
     }
 }
 

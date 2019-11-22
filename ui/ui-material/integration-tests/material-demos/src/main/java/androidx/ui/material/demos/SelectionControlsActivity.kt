@@ -20,7 +20,6 @@ import androidx.compose.Composable
 import androidx.compose.unaryPlus
 import androidx.ui.core.Text
 import androidx.ui.core.dp
-import androidx.ui.graphics.Color
 import androidx.ui.layout.Column
 import androidx.ui.layout.EdgeInsets
 import androidx.ui.layout.Padding
@@ -30,7 +29,6 @@ import androidx.ui.material.samples.DefaultRadioGroupSample
 import androidx.ui.material.samples.RadioButtonSample
 import androidx.ui.material.samples.SwitchSample
 import androidx.ui.material.samples.TriStateCheckboxSample
-import androidx.ui.material.surface.Surface
 
 class SelectionControlsActivity : MaterialDemoActivity() {
 
@@ -39,29 +37,27 @@ class SelectionControlsActivity : MaterialDemoActivity() {
         val headerStyle = (+MaterialTheme.typography()).h6
         val padding = EdgeInsets(10.dp)
 
-        Surface(color = Color.White) {
-            Padding(padding = padding) {
-                Column {
-                    Text(text = "Checkbox", style = headerStyle)
-                    Padding(padding = padding) {
-                        TriStateCheckboxSample()
-                    }
-                    Text(text = "Switch", style = headerStyle)
-                    Padding(padding = padding) {
-                        SwitchSample()
-                    }
-                    Text(text = "RadioButton", style = headerStyle)
-                    Padding(padding = padding) {
-                        RadioButtonSample()
-                    }
-                    Text(text = "Radio group :: Default usage", style = headerStyle)
-                    Padding(padding = padding) {
-                        DefaultRadioGroupSample()
-                    }
-                    Text(text = "Radio group :: Custom usage", style = headerStyle)
-                    Padding(padding = padding) {
-                        CustomRadioGroupSample()
-                    }
+        Padding(padding = padding) {
+            Column {
+                Text(text = "Checkbox", style = headerStyle)
+                Padding(padding = padding) {
+                    TriStateCheckboxSample()
+                }
+                Text(text = "Switch", style = headerStyle)
+                Padding(padding = padding) {
+                    SwitchSample()
+                }
+                Text(text = "RadioButton", style = headerStyle)
+                Padding(padding = padding) {
+                    RadioButtonSample()
+                }
+                Text(text = "Radio group :: Default usage", style = headerStyle)
+                Padding(padding = padding) {
+                    DefaultRadioGroupSample()
+                }
+                Text(text = "Radio group :: Custom usage", style = headerStyle)
+                Padding(padding = padding) {
+                    CustomRadioGroupSample()
                 }
             }
         }

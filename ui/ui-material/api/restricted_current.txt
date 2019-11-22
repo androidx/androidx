@@ -70,7 +70,8 @@ package androidx.ui.material {
 
   public final class ColorKt {
     ctor public ColorKt();
-    method public static androidx.ui.material.ColorPalette ColorPalette(androidx.ui.graphics.Color primary = Color(4284612846), androidx.ui.graphics.Color primaryVariant = Color(4281794739), androidx.ui.graphics.Color secondary = Color(4278442694), androidx.ui.graphics.Color secondaryVariant = Color(4278290310), androidx.ui.graphics.Color background = Color.White, androidx.ui.graphics.Color surface = Color.White, androidx.ui.graphics.Color error = Color(4289724448), androidx.ui.graphics.Color onPrimary = Color.White, androidx.ui.graphics.Color onSecondary = Color.Black, androidx.ui.graphics.Color onBackground = Color.Black, androidx.ui.graphics.Color onSurface = Color.Black, androidx.ui.graphics.Color onError = Color.White);
+    method public static androidx.ui.material.ColorPalette darkColorPalette(androidx.ui.graphics.Color primary = Color(4290479868), androidx.ui.graphics.Color primaryVariant = Color(4281794739), androidx.ui.graphics.Color secondary = Color(4278442694), androidx.ui.graphics.Color background = Color(4279374354), androidx.ui.graphics.Color surface = Color(4279374354), androidx.ui.graphics.Color error = Color(4291782265), androidx.ui.graphics.Color onPrimary = Color.Black, androidx.ui.graphics.Color onSecondary = Color.Black, androidx.ui.graphics.Color onBackground = Color.White, androidx.ui.graphics.Color onSurface = Color.White, androidx.ui.graphics.Color onError = Color.Black);
+    method public static androidx.ui.material.ColorPalette lightColorPalette(androidx.ui.graphics.Color primary = Color(4284612846), androidx.ui.graphics.Color primaryVariant = Color(4281794739), androidx.ui.graphics.Color secondary = Color(4278442694), androidx.ui.graphics.Color secondaryVariant = Color(4278290310), androidx.ui.graphics.Color background = Color.White, androidx.ui.graphics.Color surface = Color.White, androidx.ui.graphics.Color error = Color(4289724448), androidx.ui.graphics.Color onPrimary = Color.White, androidx.ui.graphics.Color onSecondary = Color.Black, androidx.ui.graphics.Color onBackground = Color.Black, androidx.ui.graphics.Color onSurface = Color.Black, androidx.ui.graphics.Color onError = Color.White);
   }
 
   public interface ColorPalette {
@@ -86,8 +87,10 @@ package androidx.ui.material {
     method public androidx.ui.graphics.Color getSecondary();
     method public androidx.ui.graphics.Color getSecondaryVariant();
     method public androidx.ui.graphics.Color getSurface();
+    method public boolean isLight();
     property public abstract androidx.ui.graphics.Color background;
     property public abstract androidx.ui.graphics.Color error;
+    property public abstract boolean isLight;
     property public abstract androidx.ui.graphics.Color onBackground;
     property public abstract androidx.ui.graphics.Color onError;
     property public abstract androidx.ui.graphics.Color onPrimary;
@@ -185,7 +188,7 @@ package androidx.ui.material {
 
   public final class MaterialThemeKt {
     ctor public MaterialThemeKt();
-    method public static void MaterialTheme(androidx.ui.material.ColorPalette colors = ColorPalette(), androidx.ui.material.Typography typography = androidx.ui.material.Typography(), kotlin.jvm.functions.Function0<kotlin.Unit> children);
+    method public static void MaterialTheme(androidx.ui.material.ColorPalette colors = lightColorPalette(), androidx.ui.material.Typography typography = androidx.ui.material.Typography(), kotlin.jvm.functions.Function0<kotlin.Unit> children);
   }
 
   public final class ProgressIndicatorKt {

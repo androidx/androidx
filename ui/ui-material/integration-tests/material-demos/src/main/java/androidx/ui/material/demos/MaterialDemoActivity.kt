@@ -26,21 +26,29 @@ import androidx.appcompat.app.AppCompatActivity
 import androidx.compose.Composable
 import androidx.compose.FrameManager
 import androidx.compose.Model
+import androidx.compose.unaryPlus
 import androidx.preference.EditTextPreference
+import androidx.preference.PreferenceCategory
 import androidx.preference.PreferenceFragmentCompat
 import androidx.preference.PreferenceManager.getDefaultSharedPreferences
 import androidx.ui.core.setContent
+import androidx.ui.foundation.isSystemInDarkTheme
 import androidx.ui.graphics.Color
 import androidx.ui.graphics.toArgb
 import androidx.ui.material.ColorPalette
 import androidx.ui.material.MaterialTheme
+import androidx.ui.material.darkColorPalette
 import androidx.ui.material.demos.MaterialSettingsActivity.SettingsFragment
-import kotlin.random.Random
+import androidx.ui.material.lightColorPalette
+import androidx.ui.material.surface.Surface
 import kotlin.reflect.full.memberProperties
 
 @Model
 class CurrentColorPalette {
-    var colors: ColorPalette = ColorPalette()
+    var lightColors: ColorPalette = lightColorPalette()
+    var darkColors: ColorPalette = darkColorPalette()
+
+    val colors get() = if (+isSystemInDarkTheme()) darkColors else lightColors
 }
 
 /**
@@ -49,16 +57,18 @@ class CurrentColorPalette {
  */
 abstract class MaterialDemoActivity : Activity() {
 
-    private val currentColors = CurrentColorPalette()
+    private var currentColors = CurrentColorPalette()
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         // Ensure we are in a frame, as this is only normally initialized after the setContent call
         FrameManager.ensureStarted()
-        currentColors.colors = getColorsFromSharedPreferences()
+        currentColors.getColorsFromSharedPreferences()
         setContent {
             MaterialTheme(currentColors.colors) {
-                materialContent()
+                Surface {
+                    materialContent()
+                }
             }
         }
     }
@@ -66,14 +76,15 @@ abstract class MaterialDemoActivity : Activity() {
     override fun onResume() {
         super.onResume()
         // Update colors in case we changed something in settings activity
-        currentColors.colors = getColorsFromSharedPreferences()
+        currentColors.getColorsFromSharedPreferences()
     }
 
     override fun onCreateOptionsMenu(menu: Menu?): Boolean {
-        menu?.add(Menu.NONE, SETTINGS, Menu.NONE, "Theme settings")
-        menu?.add(Menu.NONE, SHUFFLE, Menu.NONE, "Shuffle colors")
-        menu?.add(Menu.NONE, INVERT, Menu.NONE, "Invert color mapping")
-        menu?.add(Menu.NONE, RESET, Menu.NONE, "Reset theme to default")
+        menu?.run {
+            add(Menu.NONE, SETTINGS, Menu.NONE, "Theme settings")
+            add(Menu.NONE, SHUFFLE, Menu.NONE, "Shuffle colors")
+            add(Menu.NONE, RESET, Menu.NONE, "Reset theme to default")
+        }
         return true
     }
 
@@ -81,37 +92,13 @@ abstract class MaterialDemoActivity : Activity() {
         when (item.itemId) {
             SETTINGS -> startActivity(Intent(this, MaterialSettingsActivity::class.java))
             SHUFFLE -> {
-                val colors = generateColorPalette(currentColors.colors)
-                colors.saveColors()
-                currentColors.colors = colors
-            }
-            INVERT -> {
-                // Flip all colors
-                val newPrimary = currentColors.colors.onPrimary
-                val newOnPrimary = currentColors.colors.primary
-                val newSecondary = currentColors.colors.onSecondary
-                val newOnSecondary = currentColors.colors.secondary
-                val colors = ColorPalette(
-                    primary = newPrimary,
-                    primaryVariant = currentColors.colors.primaryVariant,
-                    secondary = newSecondary,
-                    secondaryVariant = currentColors.colors.secondaryVariant,
-                    background = currentColors.colors.background,
-                    surface = currentColors.colors.surface,
-                    error = currentColors.colors.error,
-                    onPrimary = newOnPrimary,
-                    onSecondary = newOnSecondary,
-                    onBackground = currentColors.colors.onBackground,
-                    onSurface = currentColors.colors.onSurface,
-                    onError = currentColors.colors.onError
-                )
-                colors.saveColors()
-                currentColors.colors = colors
+                currentColors.shuffleColors()
+                currentColors.saveColors()
             }
             RESET -> {
                 val sharedPreferences = getDefaultSharedPreferences(this)
                 sharedPreferences.edit().clear().apply()
-                currentColors.colors = getColorsFromSharedPreferences()
+                currentColors.getColorsFromSharedPreferences()
             }
         }
         return true
@@ -122,30 +109,41 @@ abstract class MaterialDemoActivity : Activity() {
      * not present in the [SharedPreferences], its default value as defined in [ColorPalette]
      * will be returned.
      */
-    private fun getColorsFromSharedPreferences(): ColorPalette {
-        val sharedPreferences = getDefaultSharedPreferences(this)
-        val function = ::ColorPalette
-        val parametersToSet = function.parameters.mapNotNull { parameter ->
-            val savedValue = sharedPreferences.getString(parameter.name, "")
-            if (savedValue.isNullOrBlank()) {
-                null
-            } else {
-                val parsedColor = Color(java.lang.Long.parseLong(savedValue, 16))
-                parameter to parsedColor
-            }
-        }.toMap()
-        if (parametersToSet.isEmpty()) return ColorPalette()
-        return ::ColorPalette.callBy(parametersToSet)
+    private fun CurrentColorPalette.getColorsFromSharedPreferences() {
+        val sharedPreferences = getDefaultSharedPreferences(this@MaterialDemoActivity)
+
+        fun getColorsFromSharedPreferences(isLightTheme: Boolean): ColorPalette {
+            val function = if (isLightTheme) ::lightColorPalette else ::darkColorPalette
+            val parametersToSet = function.parameters.mapNotNull { parameter ->
+                val savedValue = sharedPreferences.getString(parameter.name + isLightTheme, "")
+                if (savedValue.isNullOrBlank()) {
+                    null
+                } else {
+                    val parsedColor = Color(java.lang.Long.parseLong(savedValue, 16))
+                    parameter to parsedColor
+                }
+            }.toMap()
+            return function.callBy(parametersToSet)
+        }
+
+        lightColors = getColorsFromSharedPreferences(true)
+        darkColors = getColorsFromSharedPreferences(false)
     }
 
     /**
-     * Persists the current [ColorPalette] to [SharedPreferences].
+     * Persists the current [CurrentColorPalette] to [SharedPreferences].
      */
-    private fun ColorPalette.saveColors() {
-        forEachColorProperty { name, color ->
+    private fun CurrentColorPalette.saveColors() {
+        lightColors.forEachColorProperty { name, color ->
             getDefaultSharedPreferences(this@MaterialDemoActivity)
                 .edit()
-                .putString(name, Integer.toHexString(color.toArgb()))
+                .putString(name + true, Integer.toHexString(color.toArgb()))
+                .apply()
+        }
+        darkColors.forEachColorProperty { name, color ->
+            getDefaultSharedPreferences(this@MaterialDemoActivity)
+                .edit()
+                .putString(name + false, Integer.toHexString(color.toArgb()))
                 .apply()
         }
     }
@@ -155,22 +153,37 @@ abstract class MaterialDemoActivity : Activity() {
      * [ColorPalette.secondary] and [ColorPalette.onSecondary] as dark-on-light or light-on-dark
      * pairs.
      */
-    private fun generateColorPalette(currentColors: ColorPalette): ColorPalette {
-        val (primary, onPrimary) = generateColorPair()
-        val (secondary, onSecondary) = generateColorPair()
-        return ColorPalette(
-            primary = primary,
-            primaryVariant = currentColors.primaryVariant,
-            secondary = secondary,
-            secondaryVariant = currentColors.secondaryVariant,
-            background = currentColors.background,
-            surface = currentColors.surface,
-            error = currentColors.error,
-            onPrimary = onPrimary,
-            onSecondary = onSecondary,
-            onBackground = currentColors.onBackground,
-            onSurface = currentColors.onSurface,
-            onError = currentColors.onError
+    private fun CurrentColorPalette.shuffleColors() {
+        val (lightPrimary, lightOnPrimary) = generateColorPair(true)
+        val (lightSecondary, lightOnSecondary) = generateColorPair(true)
+        lightColors = lightColorPalette(
+            primary = lightPrimary,
+            primaryVariant = lightColors.primaryVariant,
+            secondary = lightSecondary,
+            secondaryVariant = lightColors.secondaryVariant,
+            background = lightColors.background,
+            surface = lightColors.surface,
+            error = lightColors.error,
+            onPrimary = lightOnPrimary,
+            onSecondary = lightOnSecondary,
+            onBackground = lightColors.onBackground,
+            onSurface = lightColors.onSurface,
+            onError = lightColors.onError
+        )
+        val (darkPrimary, darkOnPrimary) = generateColorPair(false)
+        val (darkSecondary, darkOnSecondary) = generateColorPair(false)
+        darkColors = darkColorPalette(
+            primary = darkPrimary,
+            primaryVariant = darkColors.primaryVariant,
+            secondary = darkSecondary,
+            background = darkColors.background,
+            surface = darkColors.surface,
+            error = darkColors.error,
+            onPrimary = darkOnPrimary,
+            onSecondary = darkOnSecondary,
+            onBackground = darkColors.onBackground,
+            onSurface = darkColors.onSurface,
+            onError = darkColors.onError
         )
     }
 
@@ -178,14 +191,13 @@ abstract class MaterialDemoActivity : Activity() {
      * Generate a random dark and light color from the palette, and returns either a dark-on-light
      * or light-on-dark color pair.
      */
-    private fun generateColorPair(): Pair<Color, Color> {
+    private fun generateColorPair(isLightTheme: Boolean): Pair<Color, Color> {
         val darkColor = Color(DARK_PALETTE_COLORS.random())
         val lightColor = Color(LIGHT_PALETTE_COLORS.random())
-        val isMainColorLight = Random.nextBoolean()
-        return if (isMainColorLight) {
-            (lightColor to darkColor)
+        return if (isLightTheme) {
+            darkColor to lightColor
         } else {
-            (darkColor to lightColor)
+            lightColor to darkColor
         }
     }
 
@@ -199,8 +211,7 @@ abstract class MaterialDemoActivity : Activity() {
     companion object {
         private const val SETTINGS = 1
         private const val SHUFFLE = 2
-        private const val INVERT = 3
-        private const val RESET = 4
+        private const val RESET = 3
 
         // Colors taken from https://material.io/design/color -> 2014 Material Design color palettes
 
@@ -465,15 +476,35 @@ class MaterialSettingsActivity : AppCompatActivity() {
         override fun onCreatePreferences(savedInstanceState: Bundle?, rootKey: String?) {
             val context = preferenceManager.context
             val screen = preferenceManager.createPreferenceScreen(context)
+
+            val light = PreferenceCategory(context).apply {
+                title = "Light colors"
+                screen.addPreference(this)
+            }
             // Create new ColorPalette to resolve defaults
-            ColorPalette().forEachColorProperty { name, color ->
+            lightColorPalette().forEachColorProperty { name, color ->
                 val preference = EditTextPreference(context)
-                preference.key = name
+                preference.key = name + true
                 preference.title = name
                 // set the default value to be the default for ColorPalette
                 preference.setDefaultValue(Integer.toHexString(color.toArgb()))
                 preference.summaryProvider = EditTextPreference.SimpleSummaryProvider.getInstance()
-                screen.addPreference(preference)
+                light.addPreference(preference)
+            }
+
+            val dark = PreferenceCategory(context).apply {
+                title = "Dark colors"
+                screen.addPreference(this)
+            }
+
+            darkColorPalette().forEachColorProperty { name, color ->
+                val preference = EditTextPreference(context)
+                preference.key = name + false
+                preference.title = name
+                // set the default value to be the default for ColorPalette
+                preference.setDefaultValue(Integer.toHexString(color.toArgb()))
+                preference.summaryProvider = EditTextPreference.SimpleSummaryProvider.getInstance()
+                dark.addPreference(preference)
             }
             preferenceScreen = screen
         }
@@ -490,7 +521,7 @@ class MaterialSettingsActivity : AppCompatActivity() {
 private fun ColorPalette.forEachColorProperty(action: (name: String, color: Color) -> Unit) {
     ColorPalette::class.memberProperties.forEach { property ->
         val name = property.name
-        val color = property.get(this) as Color
+        val color = property.get(this) as? Color ?: return@forEach
         action(name, color)
     }
 }

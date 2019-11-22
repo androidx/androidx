@@ -49,6 +49,7 @@ import androidx.ui.material.ColorPalette
 import androidx.ui.material.FloatingActionButton
 import androidx.ui.material.MaterialTheme
 import androidx.ui.material.TopAppBar
+import androidx.ui.material.lightColorPalette
 import androidx.ui.material.surface.Surface
 import androidx.ui.text.TextStyle
 import kotlin.math.round
@@ -167,7 +168,7 @@ private fun interpolateTheme(fraction: Float): ColorPalette {
     val secondary = lerp(Color(0xFF03DAC6), Color(0xFFBB86FC), interpolatedFraction)
     val background = lerp(Color.White, Color(0xFF121212), interpolatedFraction)
 
-    return ColorPalette(
+    return lightColorPalette(
         primary = primary,
         secondary = secondary,
         background = background
