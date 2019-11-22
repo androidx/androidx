@@ -47,7 +47,7 @@ public interface LifecycleCameraProvider {
      *
      * <p>If a use case in the argument list is not bound, then it is simply ignored.
      *
-     * <p>After unbinding a UseCase, the UseCase can be and bound to another {@link Lifecycle}
+     * <p>After unbinding a UseCase, the UseCase can be bound to another {@link Lifecycle}
      * however listeners and settings should be reset by the application.
      *
      * @param useCases The collection of use cases to remove.
@@ -68,7 +68,7 @@ public interface LifecycleCameraProvider {
      * Checks whether this provider supports at least one camera that meets the requirements from a
      * {@link CameraSelector}.
      *
-     * <p>If this method returns {@code true}, then the camera selector can be used with to bind
+     * <p>If this method returns {@code true}, then the camera selector can be used to bind
      * use cases and retrieve a {@link Camera} instance.
      *
      * @param cameraSelector the {@link CameraSelector} that filters available cameras.

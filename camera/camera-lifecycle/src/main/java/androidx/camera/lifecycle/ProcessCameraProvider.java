@@ -43,10 +43,19 @@ import com.google.common.util.concurrent.ListenableFuture;
 import java.util.List;
 
 /**
- * A {@link LifecycleCameraProvider} whose resources are scoped to the process lifecycle.
+ * A {@link LifecycleCameraProvider} which can be used to bind to any {@link LifecycleOwner}
+ * within an application's process.
  *
  * <p>Only a single process camera provider can exist within a process, and it can be retrieved
  * with {@link #getInstance(Context)}.
+ *
+ * <p>Heavyweight resources, such as open and running camera devices, will be scoped to the
+ * lifecycle provided to {@link #bindToLifecycle(LifecycleOwner, CameraSelector, UseCase...)}.
+ * Other lightweight resources, such as static camera characteristics, may be retrieved and
+ * cached upon first retrieval of this provider with {@link #getInstance(Context)}, and will
+ * persist for the lifetime of the process.
+ *
+ * <p>This is the standard provider for applications to use.
  */
 public final class ProcessCameraProvider implements LifecycleCameraProvider {
 
