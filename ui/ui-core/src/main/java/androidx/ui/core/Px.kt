@@ -38,7 +38,7 @@ import kotlin.math.sqrt
  */
 @Suppress("EXPERIMENTAL_FEATURE_WARNING")
 @Immutable
-data /*inline*/ class Px(val value: Float) {
+data /*inline*/ class Px(val value: Float) : Comparable<Px> {
     /**
      * Add two [Px]s together.
      */
@@ -100,7 +100,8 @@ data /*inline*/ class Px(val value: Float) {
     /**
      * Compare [Px] with another [Px].
      */
-    inline operator fun compareTo(other: Px) = value.compareTo(other.value)
+    @Suppress("OVERRIDE_BY_INLINE")
+    override inline operator fun compareTo(other: Px) = value.compareTo(other.value)
 
     /**
      * Compares this [Px] to another [IntPx]
@@ -236,7 +237,7 @@ fun lerp(start: Px, stop: Px, fraction: Float): Px {
  */
 @Suppress("EXPERIMENTAL_FEATURE_WARNING")
 @Immutable
-inline class PxSquared(val value: Float) {
+inline class PxSquared(val value: Float) : Comparable<PxSquared> {
     /**
      * Add two DimensionSquares together.
      */
@@ -287,8 +288,11 @@ inline class PxSquared(val value: Float) {
     /**
      * Support comparing PxSquared with comparison operators.
      */
-    inline operator fun compareTo(other: PxSquared) =
+    @Suppress("OVERRIDE_BY_INLINE")
+    override inline operator fun compareTo(other: PxSquared) =
         value.compareTo(other.value)
+
+    override fun toString(): String = "$value.px^2"
 }
 
 /**
@@ -302,7 +306,7 @@ inline class PxSquared(val value: Float) {
  */
 @Suppress("EXPERIMENTAL_FEATURE_WARNING")
 @Immutable
-inline class PxCubed(val value: Float) {
+inline class PxCubed(val value: Float) : Comparable<PxCubed> {
     /**
      * Add two PxCubed together.
      */
@@ -347,7 +351,10 @@ inline class PxCubed(val value: Float) {
     /**
      * Support comparing PxCubed with comparison operators.
      */
-    inline operator fun compareTo(other: PxCubed) = value.compareTo(other.value)
+    @Suppress("OVERRIDE_BY_INLINE")
+    override inline operator fun compareTo(other: PxCubed) = value.compareTo(other.value)
+
+    override fun toString(): String = "$value.px^3"
 }
 
 /**
@@ -361,7 +368,7 @@ inline class PxCubed(val value: Float) {
  */
 @Suppress("EXPERIMENTAL_FEATURE_WARNING")
 @Immutable
-inline class PxInverse(val value: Float) {
+inline class PxInverse(val value: Float) : Comparable<PxInverse> {
     /**
      * Add two PxInverse together.
      */
@@ -406,8 +413,11 @@ inline class PxInverse(val value: Float) {
     /**
      * Support comparing PxInverse with comparison operators.
      */
-    inline operator fun compareTo(other: PxInverse) =
+    @Suppress("OVERRIDE_BY_INLINE")
+    override inline operator fun compareTo(other: PxInverse) =
         value.compareTo(other.value)
+
+    override fun toString(): String = "$value.px^-1"
 }
 
 // -=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
@@ -465,6 +475,8 @@ data class PxSize @PublishedApi internal constructor(@PublishedApi internal val 
      * Returns a PxSize scaled  by dividing [width] and [height] by [other]
      */
     inline operator fun div(other: Double): PxSize = div(other.toFloat())
+
+    override fun toString(): String = "$width x $height"
 
     companion object {
         /**
@@ -554,6 +566,8 @@ data class PxPosition @PublishedApi internal constructor(@PublishedApi internal 
      * Returns a new PxPosition representing the negation of this point.
      */
     inline operator fun unaryMinus() = PxPosition(-x, -y)
+
+    override fun toString(): String = "($x, $y)"
 
     companion object {
         val Origin = PxPosition(0.px, 0.px)

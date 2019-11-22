@@ -39,7 +39,7 @@ import kotlin.math.sqrt
  */
 @Suppress("EXPERIMENTAL_FEATURE_WARNING")
 @Immutable
-data /*inline*/ class Dp(val value: Float) {
+data /*inline*/ class Dp(val value: Float) : Comparable<Dp> {
     /**
      * Add two [Dp]s together.
      */
@@ -101,7 +101,8 @@ data /*inline*/ class Dp(val value: Float) {
     /**
      * Support comparing Dimensions with comparison operators.
      */
-    inline operator fun compareTo(other: Dp) = value.compareTo(other.value)
+    @Suppress("OVERRIDE_BY_INLINE")
+    override inline operator fun compareTo(other: Dp) = value.compareTo(other.value)
 
     override fun toString() = "$value.dp"
 
@@ -227,7 +228,7 @@ fun lerp(start: Dp, stop: Dp, fraction: Float): Dp {
  */
 @Suppress("EXPERIMENTAL_FEATURE_WARNING")
 @Immutable
-inline class DpSquared(val value: Float) {
+inline class DpSquared(val value: Float) : Comparable<DpSquared> {
     /**
      * Add two DimensionSquares together.
      */
@@ -278,8 +279,11 @@ inline class DpSquared(val value: Float) {
     /**
      * Support comparing DpSquared with comparison operators.
      */
-    inline operator fun compareTo(other: DpSquared) =
+    @Suppress("OVERRIDE_BY_INLINE")
+    override inline operator fun compareTo(other: DpSquared) =
         value.compareTo(other.value)
+
+    override fun toString(): String = "$value.dp^2"
 }
 
 /**
@@ -293,7 +297,7 @@ inline class DpSquared(val value: Float) {
  */
 @Suppress("EXPERIMENTAL_FEATURE_WARNING")
 @Immutable
-inline class DpCubed(val value: Float) {
+inline class DpCubed(val value: Float) : Comparable<DpCubed> {
 
     /**
      * Add two DpCubed together.
@@ -339,7 +343,10 @@ inline class DpCubed(val value: Float) {
     /**
      * Support comparing DpCubed with comparison operators.
      */
-    inline operator fun compareTo(other: DpCubed) = value.compareTo(other.value)
+    @Suppress("OVERRIDE_BY_INLINE")
+    override inline operator fun compareTo(other: DpCubed) = value.compareTo(other.value)
+
+    override fun toString(): String = "$value.dp^3"
 }
 /**
  * Holds a unit of an inverse dimensions, such as `1.dp / (2.value * 3.dp)`. [DpSquared],
@@ -352,7 +359,7 @@ inline class DpCubed(val value: Float) {
  */
 @Suppress("EXPERIMENTAL_FEATURE_WARNING")
 @Immutable
-inline class DpInverse(val value: Float) {
+inline class DpInverse(val value: Float) : Comparable<DpInverse> {
     /**
      * Add two DpInverse together.
      */
@@ -397,8 +404,11 @@ inline class DpInverse(val value: Float) {
     /**
      * Support comparing DpInverse with comparison operators.
      */
-    inline operator fun compareTo(other: DpInverse) =
+    @Suppress("OVERRIDE_BY_INLINE")
+    override inline operator fun compareTo(other: DpInverse) =
         value.compareTo(other.value)
+
+    override fun toString(): String = "$value.dp^-1"
 }
 
 // -=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
@@ -457,6 +467,8 @@ inline class Size(@PublishedApi internal val value: Long) {
      * Scales the Size by dividing [width] and [height] by [other]
      */
     inline operator fun div(other: Double): Size = div(other.toFloat())
+
+    override fun toString(): String = "$width x $height"
 }
 
 /**
@@ -517,6 +529,8 @@ inline class Position(@PublishedApi internal val value: Long) {
      */
     inline operator fun plus(other: Position) =
         Position(x + other.x, y + other.y)
+
+    override fun toString(): String = "($x, $y)"
 }
 
 /**

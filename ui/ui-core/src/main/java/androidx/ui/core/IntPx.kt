@@ -30,7 +30,7 @@ import kotlin.math.roundToInt
  */
 @Suppress("EXPERIMENTAL_FEATURE_WARNING")
 @Immutable
-data /*inline*/ class IntPx(val value: Int) {
+data /*inline*/ class IntPx(val value: Int) : Comparable<IntPx> {
     /**
      * Add two [IntPx]s together. Any operation on an
      * [IntPx.Infinity] results in [IntPx.Infinity]
@@ -100,7 +100,8 @@ data /*inline*/ class IntPx(val value: Int) {
     /**
      * Support comparing Dimensions with comparison operators.
      */
-    inline operator fun compareTo(other: IntPx) = value.compareTo(other.value)
+    @Suppress("OVERRIDE_BY_INLINE")
+    override inline operator fun compareTo(other: IntPx) = value.compareTo(other.value)
 
     /**
      * Compares this [IntPx] to another [Px]
@@ -268,6 +269,8 @@ data class IntPxSize @PublishedApi internal constructor(@PublishedApi internal v
      */
     inline operator fun div(other: Int): IntPxSize =
         IntPxSize(width = width / other, height = height / other)
+
+    override fun toString(): String = "$width x $height"
 }
 
 /**
@@ -327,6 +330,8 @@ data class IntPxPosition @PublishedApi internal constructor(
      * Returns a new PxPosition representing the negation of this point.
      */
     inline operator fun unaryMinus() = IntPxPosition(-x, -y)
+
+    override fun toString(): String = "($x, $y)"
 
     companion object {
         val Origin = IntPxPosition(0.ipx, 0.ipx)
