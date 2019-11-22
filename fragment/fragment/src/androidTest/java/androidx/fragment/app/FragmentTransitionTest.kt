@@ -18,6 +18,7 @@ package androidx.fragment.app
 import android.graphics.Rect
 import android.os.Build
 import android.os.Bundle
+import android.transition.Transition
 import android.transition.TransitionSet
 import android.view.View
 import androidx.core.app.SharedElementCallback
@@ -40,6 +41,7 @@ import org.mockito.ArgumentCaptor
 import org.mockito.Mockito.mock
 import org.mockito.Mockito.reset
 import org.mockito.Mockito.verify
+import java.util.concurrent.CountDownLatch
 
 @MediumTest
 @RunWith(Parameterized::class)
@@ -595,6 +597,15 @@ class FragmentTransitionTest(private val reorderingAllowed: Boolean) {
     fun showHideTransition() {
         val fragment1 = setupInitialFragment()
         val fragment2 = TransitionFragment(R.layout.scene2)
+
+        val listener = TestShowHideTransitionListener(fragment1)
+
+        fragment1.exitTransition = TrackingVisibility().apply {
+            setRealTransition(true)
+            addListener(listener)
+        }
+
+        fragment1.setExitTransition(fragment1.exitTransition)
 
         val startBlue = activityRule.findBlue()
         val startGreen = activityRule.findGreen()
@@ -1190,6 +1201,23 @@ class FragmentTransitionTest(private val reorderingAllowed: Boolean) {
             // Ensure all transitions have been executed before onDestroyView was called
             assertThat(endTransitionCountDownLatch.count).isEqualTo(0)
             super.onDestroyView()
+        }
+    }
+
+    class TestShowHideTransitionListener(
+        fragment: TransitionFragment
+    ) : TestTransitionFragmentListener(
+        fragment
+    ) {
+        override fun onTransitionEnd(transition: Transition) {
+            fragment.endTransitionCountDownLatch.countDown()
+            fragment.startTransitionCountDownLatch = CountDownLatch(1)
+        }
+
+        override fun onTransitionStart(transition: Transition) {
+            fragment.startTransitionCountDownLatch.countDown()
+            transition.removeListener(this)
+            transition.addListener(this)
         }
     }
 
