@@ -139,7 +139,7 @@ public abstract class ImageCaptureExtender {
         }
 
         ImageCaptureAdapter imageCaptureAdapter = new ImageCaptureAdapter(mImpl, mEffectMode);
-        new Camera2Config.Extender(mBuilder).setCameraEventCallback(
+        new Camera2Config.Extender<>(mBuilder).setCameraEventCallback(
                 new CameraEventCallbacks(imageCaptureAdapter));
         mBuilder.setUseCaseEventCallback(imageCaptureAdapter);
         mBuilder.setCaptureBundle(imageCaptureAdapter);

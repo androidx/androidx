@@ -226,8 +226,7 @@ public final class AppConfig implements TargetConfig<CameraX>, Config {
 
     /** A builder for generating {@link AppConfig} objects. */
     public static final class Builder
-            implements TargetConfig.Builder<CameraX, AppConfig.Builder>,
-            ExtendableBuilder {
+            implements TargetConfig.Builder<CameraX, AppConfig.Builder> {
 
         private final MutableOptionsBundle mMutableConfig;
 
@@ -320,7 +319,6 @@ public final class AppConfig implements TargetConfig<CameraX>, Config {
          * @hide
          */
         @RestrictTo(Scope.LIBRARY_GROUP)
-        @Override
         @NonNull
         public MutableConfig getMutableConfig() {
             return mMutableConfig;

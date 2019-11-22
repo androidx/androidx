@@ -439,7 +439,7 @@ public final class ImageCaptureTest {
         ImageCapture.Builder builder = new ImageCapture.Builder();
         CameraCaptureSession.CaptureCallback captureCallback =
                 mock(CameraCaptureSession.CaptureCallback.class);
-        new Camera2Config.Extender(builder).setSessionCaptureCallback(captureCallback);
+        new Camera2Config.Extender<>(builder).setSessionCaptureCallback(captureCallback);
         ImageCapture useCase = builder.build();
         mInstrumentation.runOnMainSync(
                 () -> {

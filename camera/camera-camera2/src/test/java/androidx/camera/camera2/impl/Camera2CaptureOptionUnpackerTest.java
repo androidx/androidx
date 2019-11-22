@@ -58,7 +58,7 @@ public final class Camera2CaptureOptionUnpackerTest {
         ImageCapture.Builder imageCaptureBuilder = new ImageCapture.Builder();
         CaptureCallback captureCallback = mock(CaptureCallback.class);
 
-        new Camera2Config.Extender(imageCaptureBuilder)
+        new Camera2Config.Extender<>(imageCaptureBuilder)
                 .setSessionCaptureCallback(captureCallback);
 
         CaptureConfig.Builder captureBuilder = new CaptureConfig.Builder();
@@ -77,7 +77,7 @@ public final class Camera2CaptureOptionUnpackerTest {
         ImageCapture.Builder imageCaptureConfigBuilder = new ImageCapture.Builder();
 
         // Add 2 options to ensure that multiple options can be unpacked.
-        new Camera2Config.Extender(imageCaptureConfigBuilder)
+        new Camera2Config.Extender<>(imageCaptureConfigBuilder)
                 .setCaptureRequestOption(
                         CaptureRequest.CONTROL_AF_MODE, CaptureRequest.CONTROL_AF_MODE_AUTO)
                 .setCaptureRequestOption(

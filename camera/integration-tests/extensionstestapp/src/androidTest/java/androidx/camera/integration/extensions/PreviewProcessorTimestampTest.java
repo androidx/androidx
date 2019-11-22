@@ -212,7 +212,7 @@ public class PreviewProcessorTimestampTest {
 
         mSurfaceTextureLatch = new CountDownLatch(1);
 
-        new Camera2Config.Extender(mImageCaptureBuilder).setDeviceStateCallback(
+        new Camera2Config.Extender<>(mImageCaptureBuilder).setDeviceStateCallback(
                 mCameraStatusCallback);
     }
 

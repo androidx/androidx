@@ -742,7 +742,7 @@ public final class CaptureSessionTest {
                     return builder.build();
                 }
             };
-            new Camera2Config.Extender(camera2ConfigBuilder)
+            new Camera2Config.Extender<>(camera2ConfigBuilder)
                     .setCameraEventCallback(
                             new CameraEventCallbacks(cameraEventCallback));
 
