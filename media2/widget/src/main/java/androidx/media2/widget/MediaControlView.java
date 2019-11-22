@@ -87,48 +87,66 @@ import java.util.Locale;
  * internally create a MediaControlView instance and handle all the commands from buttons inside
  * MediaControlView. It is also possible to create a MediaControlView programmatically and add it
  * to a custom video view. For more information, refer to {@link VideoView}.
- *
- * By default, the buttons inside MediaControlView will not visible unless the corresponding
+ * <p>
+ * By default, the buttons inside MediaControlView will not be visible unless the corresponding
  * {@link SessionCommand} is marked as allowed. For more details, refer to {@link MediaSession}.
  * <p>
- * <em> UI transitions : </em>
+ * <h3>UI transitions</h3>
  * Currently, MediaControlView animates UI transitions between three different modes: full,
- * progress-bar only, and none. Full mode is where all the views are visible; Progress-bar only mode
- * is where only the progress bar is visible and the title, transport controls and other icons are
- * hidden; None mode is where all views are gone. The default interval between each mode is 2000ms,
- * but it can be customized by using {@link VideoView#setMediaControlView(MediaControlView, long)}.
+ * progress-bar only, and none.
+ * <ul>
+ *     <li><b>Full</b> mode is where all the views are visible
+ *     <li><b>Progress-bar only</b> mode is where only the progress bar is visible and the title,
+ *     transport controls and other icons are hidden
+ *     <li><b>None</b> mode is where all views are gone.
+ * </ul>
+ * The default interval between each mode is 2000ms, but it can be customized by using
+ * {@link VideoView#setMediaControlView(MediaControlView, long)}.
+ * <p>
  * Transitions occur based on the following logic:
- *   1) In Full mode
- *     a) If a touch/trackball event is received, will transition to None mode.
- *     b) If a touch/trackball event is not received, will transition to Progress-bar only mode
- *        after the interval.
- *   2) In Progress-bar only mode
- *     a) If a touch/trackball event is received, will transition to Full mode.
- *     b) If a touch/trackball event is not received, will transition to None mode after the
+ * <ol>
+ *   <li> In Full mode
+ *   <ul>
+ *       <li>If a touch/trackball event is received, will transition to None mode.
+ *       <li>If a touch/trackball event is not received, will transition to Progress-bar only mode
+ *       after the interval.
+ *   </ul>
+ *   <li> In Progress-bar only mode
+ *   <ul>
+ *     <li>If a touch/trackball event is received, will transition to Full mode.
+ *     <li>If a touch/trackball event is not received, will transition to None mode after the
  *        interval.
- *   3) In None mode
- *     a) If a touch/trackball event is received, will transition to Full mode.
- *   4) While animating, all touch/trackball event will be ignored.
- *
+ *   </ul>
+ *   <li> In None mode, if a touch/trackball event is received, will transition to Full mode.
+ * </ol>
+ * While animating, all touch/trackball event will be ignored.
  * <p>
- * <em> Customization : </em>
+ * <h3>Customization</h3>
  * In addition, the following customizations are supported:
- *   1) Set focus to the play/pause button by calling {@link #requestPlayButtonFocus()}.
- *   2) Set full screen behavior by calling {@link #setOnFullScreenListener(OnFullScreenListener)}
+ * <ul>
+ *   <li>Set focus to the play/pause button by calling {@link #requestPlayButtonFocus()}.
+ *   <li>Set full screen behavior by calling {@link #setOnFullScreenListener(OnFullScreenListener)}.
+ *   Calling this method will also show the full screen button.
+ * </ul>
  * <p>
- * <em> Displaying metadata : </em>
+ * <h3>Displaying metadata</h3>
  * MediaControlView supports displaying metadata by calling
  * {@link MediaItem#setMetadata(MediaMetadata)}.
- *
- * Metadata display is different for two different media types: music, and non-music.
- * For music, the following metadata are supported:
- * {@link MediaMetadata#METADATA_KEY_TITLE}, {@link MediaMetadata#METADATA_KEY_ARTIST},
- * and {@link MediaMetadata#METADATA_KEY_ALBUM_ART}.
- * If values for these keys are not set, the following default values will be shown, respectively:
- * {@link androidx.media2.widget.R.string#mcv2_music_title_unknown_text}
- * {@link androidx.media2.widget.R.string#mcv2_music_artist_unknown_text}
- * {@link androidx.media2.widget.R.drawable#media2_widget_ic_default_album_image}
- *
+ * Metadata display is different for two different media types: music (sound only, with no video)
+ * and non-music (having video).
+ * <p>
+ * The following table shows the metadata displayed on VideoView and the default
+ * values assigned if the keys are not set:
+ * <table>
+ *     <tr><th>Key</th><th>Default</th></tr>
+ *     <tr><td>{@link MediaMetadata#METADATA_KEY_TITLE}</td>
+ *     <td>{@link androidx.media2.widget.R.string#mcv2_music_title_unknown_text}</td></tr>
+ *     <tr><td>{@link MediaMetadata#METADATA_KEY_ARTIST}</td>
+ *     <td>{@link androidx.media2.widget.R.string#mcv2_music_artist_unknown_text}</td></tr>
+ *     <tr><td>{@link MediaMetadata#METADATA_KEY_ALBUM_ART}</td>
+ *     <td>{@link androidx.media2.widget.R.drawable#media2_widget_ic_default_album_image}</td></tr>
+ *     </table>
+ * <p>
  * For non-music, only {@link MediaMetadata#METADATA_KEY_TITLE} metadata is supported.
  * If the value is not set, the following default value will be shown:
  * {@link androidx.media2.widget.R.string#mcv2_non_music_title_unknown_text}

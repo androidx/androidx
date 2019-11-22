@@ -54,67 +54,108 @@ import java.util.concurrent.TimeUnit;
 import java.util.concurrent.TimeoutException;
 
 /**
- * A high level view for media playbacks that can be integrated with either a {@link SessionPlayer}
+ * A high level view for media playback that can be integrated with either a {@link SessionPlayer}
  * or a {@link MediaController}. Developers can easily implement a video rendering application
- * using this class.
+ * using this class. By default, {@link MediaControlView} is attached so the playback
+ * control buttons are displayed on top of VideoView.
  * <p>
- * For simple use cases not requiring communication with {@link MediaSession}, apps need to create
- * a {@link SessionPlayer} (e.g. {@link androidx.media2.player.MediaPlayer}) and set it to this view
- * by calling {@link #setPlayer}.
- * For more advanced use cases that require {@link MediaSession} (e.g. handling media key events,
- * integrating with other MediaSession apps as Assistant), apps need to create
- * a {@link MediaController} attached to the {@link MediaSession} and set it to this view
- * by calling {@link #setMediaController}.
+ * Contents:
+ * <ol>
+ *     <li><a href="UseCases">Using VideoView with SessionPlayer or MediaController</a>
+ *     <li><a href="UseWithMCV">Using VideoView with MediaControlView</a>
+ *     <li><a href="ViewType">Choosing a view type</a>
+ *     <li><a href="LegacyVideoView">Comparison with android.widget.VideoView</a>
+ *     <li><a href="DisplayMetadata">Displaying Metadata</a>
+ * </ol>
  *
- * <p>
- * <em> View type can be selected : </em>
- * VideoView can render videos on top of TextureView as well as
- * SurfaceView selectively. The default is SurfaceView and it can be changed using
- * {@link #setViewType(int)} method. Using SurfaceView is recommended in most cases for saving
- * battery. TextureView might be preferred for supporting various UIs such as animation and
- * translucency.
- *
- * <p>
- * <em> Differences between {@link android.widget.VideoView android.widget.VideoView} class : </em>
- * {@link VideoView} covers and inherits the most of
- * {@link android.widget.VideoView android.widget.VideoView}'s functionality. The main differences
- * are
+ * <h3 id="UseCases">Using VideoView with SessionPlayer or MediaController</h3>
  * <ul>
- * <li> {@link VideoView} does not create a {@link android.media.MediaPlayer} instance while
- * {@link android.widget.VideoView android.widget.VideoView} does. Instead, either a
- * {@link SessionPlayer} or a {@link MediaController} instance should be created externally and set
- * to {@link VideoView} using {@link #setPlayer(SessionPlayer)} or
- * {@link #setMediaController(MediaController)}, respectively.
- * <li> {@link VideoView} inherits ViewGroup and renders videos using SurfaceView and TextureView
- * selectively while {@link android.widget.VideoView android.widget.VideoView} inherits SurfaceView
- * class.
- * <li> {@link VideoView} is integrated with {@link MediaControlView} and
- * a default MediaControlView instance is attached to this VideoView by default.
- * <li> If a developer wants to attach a custom {@link MediaControlView},
- * assign the custom media control widget using {@link #setMediaControlView}.
- * <li> If {@link VideoView} communicates with {@link MediaSession} by calling
- * {@link #setMediaController(MediaController)}, it will respond to media key events.
+ *     <li> For simple use cases that do not require communication with a {@link MediaSession},
+ *     apps need to create a player instance that extends {@link SessionPlayer} (e.g.
+ *     {@link androidx.media2.player.MediaPlayer}) and link it to this view by calling
+ *     {@link #setPlayer}.
+ *     <li> For more advanced use cases that require a {@link MediaSession} (e.g. handling media
+ *     key events, integrating with other MediaSession apps as Assistant), apps need to create
+ *     a {@link MediaController} that's attached to the {@link MediaSession} and link it to this
+ *     view by calling {@link #setMediaController}.
  * </ul>
  *
+ * <h3 id="UseWithMCV">Using VideoView with MediaControlView</h3>
+ * {@link VideoView} is integrated with {@link MediaControlView} and a MediaControlView
+ * instance is attached to VideoView by default.
  * <p>
- * <em> Displaying metadata : </em>
- * VideoView supports displaying metadata for music by calling
- * {@link MediaItem#setMetadata(MediaMetadata)}. Currently supported metadata are
- * {@link MediaMetadata#METADATA_KEY_TITLE}, {@link MediaMetadata#METADATA_KEY_ARTIST},
- * and {@link MediaMetadata#METADATA_KEY_ALBUM_ART}.
+ * If you want to attach a custom {@link MediaControlView}, assign the custom media
+ * control widget using {@link #setMediaControlView}.
+ * <p>
+ * If you don't want to use {@link MediaControlView}, set
+ * the VideoView attribute {@link androidx.media2.widget.R.attr#enableControlView} to false.
  *
- * If values for these keys are not set, the following default values will be shown, respectively:
- * {@link androidx.media2.widget.R.string#mcv2_music_title_unknown_text}
- * {@link androidx.media2.widget.R.string#mcv2_music_artist_unknown_text}
- * {@link androidx.media2.widget.R.drawable#media2_widget_ic_default_album_image}
+ * <h3 id="ViewType">Choosing a view type</h3>
+ * VideoView can render videos on a TextureView or SurfaceView. The
+ * default is SurfaceView which can be changed by using the {@link #setViewType(int)} method or
+ * by setting the {@link androidx.media2.widget.R.attr#viewType} attribute in the layout file.
+ * <p> Using SurfaceView is recommended in most cases for saving battery life.
+ * TextureView might be preferred for supporting various UIs such as animation and translucency.
  *
+ * <h3 id="LegacyVideoView">Comparison with android.widget.VideoView</h3>
+ * These are the main differences between the media2 VideoView widget and the older android widget:
+ * <ul>
+ * <li>
+ *     {@link android.widget.VideoView android.widget.VideoView} creates a
+ *     {@link android.media.MediaPlayer} instance internally and wraps playback APIs around it.
+ *     <p>
+ *     {@link VideoView androidx.media2.widget.VideoView} does not create a player instance
+ *     internally. Instead, either a {@link SessionPlayer} or a {@link MediaController} instance
+ *     should be created externally and link to {@link VideoView} using
+ *     {@link #setPlayer(SessionPlayer)} or {@link #setMediaController(MediaController)},
+ *     respectively.
+ * <li>
+ *     {@link android.widget.VideoView android.widget.VideoView} inherits from the SurfaceView
+ *     class.
+ *     <p>
+ *     {@link VideoView androidx.media2.widget.VideoView} inherits from ViewGroup and can render
+ *     videos using SurfaceView or TextureView, depending on your choice.
+ * <li>
+ *     A {@link VideoView} can respond to media key events if you call {@link #setMediaController}
+ *     to link it to a {@link MediaController} that's connected to an active {@link MediaSession}.
+ * </ul>
+ *
+ * <h3 id="DisplayMetadata">Displaying Metadata</h3>
+ * When you play music only (sound with no video), VideoView can display album art and other
+ * metadata by calling {@link MediaItem#setMetadata(MediaMetadata)}.
+ * The following table shows the metadata displayed by the VideoView, and the default values
+ * assigned if the keys are not set:
+ * <table>
+ *     <tr><th>Key</th><th>Default</th></tr>
+ *     <tr><td>{@link MediaMetadata#METADATA_KEY_TITLE}</td>
+ *     <td>{@link androidx.media2.widget.R.string#mcv2_music_title_unknown_text}</td></tr>
+ *     <tr><td>{@link MediaMetadata#METADATA_KEY_ARTIST}</td>
+ *     <td>{@link androidx.media2.widget.R.string#mcv2_music_artist_unknown_text}</td></tr>
+ *     <tr><td>{@link MediaMetadata#METADATA_KEY_ALBUM_ART}</td>
+ *     <td>{@link androidx.media2.widget.R.drawable#media2_widget_ic_default_album_image}</td></tr>
+ *     </table>
  * <p>
  * Note: VideoView does not retain its full state when going into the background. In particular, it
- * does not restore the current play state, play position, selected tracks. Applications should save
- * and restore these on their own in {@link android.app.Activity#onSaveInstanceState} and
+ * does not save, and does not restore the current play state, play position, selected tracks.
+ * Applications should save and restore these on their own in
+ * {@link android.app.Activity#onSaveInstanceState} and
  * {@link android.app.Activity#onRestoreInstanceState}.
- * {@link androidx.media2.widget.R.attr#enableControlView}
- * {@link androidx.media2.widget.R.attr#viewType}
+ * <p> Attributes :
+ * <ul>
+ *     <li> {@link androidx.media2.widget.R.attr#enableControlView}
+ *     <li> {@link androidx.media2.widget.R.attr#viewType}
+ * </ul>
+ * <p> Example of attributes for a VideoView with TextureView and no attached control view:
+ * <pre> {@code
+ *  <androidx.media2.widget.VideoView
+ *      android:id="@+id/video_view"
+ *      widget:enableControlView="false"
+ *      widget:viewType="textureView"
+ *  />}</pre>
+ *
+ * @see MediaControlView
+ * @see SessionPlayer
+ * @see MediaController
  */
 public class VideoView extends SelectiveLayout {
     @IntDef({
