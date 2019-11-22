@@ -25,7 +25,6 @@ import androidx.ui.core.dp
 import androidx.ui.layout.Column
 import androidx.ui.layout.Container
 import androidx.ui.layout.FlexColumn
-import androidx.ui.layout.MainAxisAlignment
 import androidx.ui.material.RadioGroup
 import androidx.ui.material.demos.AppBarActivity.BottomAppBarOption.CenterFab
 import androidx.ui.material.demos.AppBarActivity.BottomAppBarOption.CutoutFab
@@ -45,6 +44,7 @@ import androidx.ui.material.samples.SimpleTopAppBarNavIcon
 import androidx.ui.material.samples.SimpleTopAppBarNavIconWithActions
 import androidx.ui.material.surface.Surface
 import androidx.ui.graphics.imageFromResource
+import androidx.ui.layout.Arrangement
 import androidx.ui.layout.ExpandedHeight
 import androidx.ui.material.MaterialTheme
 
@@ -91,10 +91,7 @@ class AppBarActivity : MaterialDemoActivity() {
                     }
                 }
                 flexible(1f) {
-                    Column(
-                        ExpandedHeight,
-                        mainAxisAlignment = MainAxisAlignment.SpaceBetween
-                    ) {
+                    Column(ExpandedHeight, arrangement = Arrangement.SpaceBetween) {
                         DemoText("TopAppBar options")
                         RadioGroup {
                             topAppBarOptions.forEach { topAppBar ->

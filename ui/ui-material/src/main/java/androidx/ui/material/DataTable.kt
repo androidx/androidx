@@ -36,12 +36,12 @@ import androidx.ui.foundation.selection.ToggleableState
 import androidx.ui.foundation.shape.border.Border
 import androidx.ui.graphics.Color
 import androidx.ui.graphics.Image
+import androidx.ui.layout.Arrangement
 import androidx.ui.layout.Column
 import androidx.ui.layout.Container
 import androidx.ui.layout.EdgeInsets
 import androidx.ui.layout.Expanded
 import androidx.ui.layout.Gravity
-import androidx.ui.layout.MainAxisAlignment
 import androidx.ui.layout.Row
 import androidx.ui.layout.Table
 import androidx.ui.layout.TableColumnWidth
@@ -483,7 +483,7 @@ fun DataTable(
         Column {
             table()
             Container(height = dataRowHeight, padding = cellSpacing) {
-                Row(Expanded, mainAxisAlignment = MainAxisAlignment.End) {
+                Row(Expanded, arrangement = Arrangement.End) {
                     val pages = (rows.size - 1) / pagination.rowsPerPage + 1
                     val startRow = pagination.rowsPerPage * pagination.page
                     val endRow = (startRow + pagination.rowsPerPage).coerceAtMost(rows.size)

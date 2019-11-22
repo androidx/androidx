@@ -231,12 +231,13 @@ private fun Flow(
                     placeable.mainAxisSize() +
                         if (j < placeables.lastIndex) mainAxisSpacing.toIntPx() else IntPx.Zero
                 }
-                val aligner = if (i < sequences.lastIndex) {
-                    mainAxisAlignment.aligner
+                val arrangement = if (i < sequences.lastIndex) {
+                    mainAxisAlignment.arrangement
                 } else {
-                    lastLineMainAxisAlignment.aligner
+                    lastLineMainAxisAlignment.arrangement
                 }
-                val mainAxisPositions = aligner.align(mainAxisLayoutSize, childrenMainAxisSizes)
+                val mainAxisPositions =
+                    arrangement.arrangeBlock(mainAxisLayoutSize, childrenMainAxisSizes)
                 placeables.forEachIndexed { j, placeable ->
                     val crossAxis = when (crossAxisAlignment) {
                         FlowCrossAxisAlignment.Start -> IntPx.Zero
