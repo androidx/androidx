@@ -30,7 +30,7 @@ import androidx.ui.core.PxPosition
  * surpassed in a supported direction (see [DragObserver.onDrag]).  When dragging begins,
  * [DragObserver.onStart] is called, followed immediately by a call to [DragObserver.onDrag].
  * [DragObserver.onDrag] is then continuously called whenever pointers have moved.
- * [DragObserver.onDrag] is called when the dragging ends due to all of the pointers no longer
+ * [DragObserver.onStop] is called when the dragging ends due to all of the pointers no longer
  * interacting with the DragGestureDetector (for example, the last finger has been lifted off
  * of the DragGestureDetector).
  *
