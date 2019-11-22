@@ -2119,6 +2119,14 @@ ServiceName: androidx.core.app.NotificationCompat#CATEGORY_SERVICE:
     Inconsistent service value; expected `CATEGORY`, was `service`
 
 
+StreamFiles: androidx.core.content.FileProvider#getUriForFile(android.content.Context, String, java.io.File):
+    Methods accepting `File` should also accept `FileDescriptor` or streams: method androidx.core.content.FileProvider.getUriForFile(android.content.Context,String,java.io.File)
+StreamFiles: androidx.core.os.EnvironmentCompat#getStorageState(java.io.File):
+    Methods accepting `File` should also accept `FileDescriptor` or streams: method androidx.core.os.EnvironmentCompat.getStorageState(java.io.File)
+StreamFiles: androidx.core.util.AtomicFile#AtomicFile(java.io.File):
+    Methods accepting `File` should also accept `FileDescriptor` or streams: constructor androidx.core.util.AtomicFile(java.io.File)
+
+
 VisiblySynchronized: androidx.core.os.CancellationSignal#cancel():
     Internal locks must not be exposed (synchronizing on this or class is still externally observable): method androidx.core.os.CancellationSignal.cancel()
 VisiblySynchronized: androidx.core.os.CancellationSignal#getCancellationSignalObject():

@@ -21,3 +21,7 @@ MissingNullability: androidx.room.RoomDatabase.Builder#fallbackToDestructiveMigr
 
 RegistrationName: androidx.room.RoomDatabase.Builder#addCallback(androidx.room.RoomDatabase.Callback):
     Callback methods should be named register/unregister; was addCallback
+
+
+StreamFiles: androidx.room.RoomDatabase.Builder#createFromFile(java.io.File):
+    Methods accepting `File` should also accept `FileDescriptor` or streams: method androidx.room.RoomDatabase.Builder.createFromFile(java.io.File)

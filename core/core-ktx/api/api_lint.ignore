@@ -39,3 +39,7 @@ PairedRegistration: androidx.core.transition.TransitionKt#addListener(android.tr
     Found addListener but not removeListener in androidx.core.transition.TransitionKt
 PairedRegistration: androidx.core.widget.TextViewKt#addTextChangedListener(android.widget.TextView, kotlin.jvm.functions.Function4<? super java.lang.CharSequence,? super java.lang.Integer,? super java.lang.Integer,? super java.lang.Integer,kotlin.Unit>, kotlin.jvm.functions.Function4<? super java.lang.CharSequence,? super java.lang.Integer,? super java.lang.Integer,? super java.lang.Integer,kotlin.Unit>, kotlin.jvm.functions.Function1<? super android.text.Editable,kotlin.Unit>):
     Found addTextChangedListener but not removeTextChangedListener in androidx.core.widget.TextViewKt
+
+
+StreamFiles: androidx.core.net.UriKt#toUri(java.io.File):
+    Methods accepting `File` should also accept `FileDescriptor` or streams: method androidx.core.net.UriKt.toUri(java.io.File)
