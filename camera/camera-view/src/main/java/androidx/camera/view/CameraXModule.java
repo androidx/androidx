@@ -44,14 +44,17 @@ import androidx.camera.core.LensFacing;
 import androidx.camera.core.LensFacingConverter;
 import androidx.camera.core.Preview;
 import androidx.camera.core.TorchState;
+import androidx.camera.core.UseCase;
 import androidx.camera.core.VideoCapture;
 import androidx.camera.core.VideoCapture.OnVideoSavedCallback;
 import androidx.camera.core.VideoCaptureConfig;
 import androidx.camera.core.impl.utils.executor.CameraXExecutors;
 import androidx.camera.core.impl.utils.futures.FutureCallback;
 import androidx.camera.core.impl.utils.futures.Futures;
+import androidx.camera.lifecycle.ProcessCameraProvider;
 import androidx.camera.view.CameraView.CaptureMode;
 import androidx.concurrent.futures.CallbackToFutureAdapter;
+import androidx.core.util.Preconditions;
 import androidx.lifecycle.Lifecycle;
 import androidx.lifecycle.LifecycleObserver;
 import androidx.lifecycle.LifecycleOwner;
@@ -60,8 +63,10 @@ import androidx.lifecycle.OnLifecycleEvent;
 import com.google.common.util.concurrent.ListenableFuture;
 
 import java.io.File;
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.LinkedHashSet;
+import java.util.List;
 import java.util.Objects;
 import java.util.Set;
 import java.util.concurrent.Executor;
@@ -99,8 +104,10 @@ final class CameraXModule {
     private ImageCapture mImageCapture;
     @Nullable
     private VideoCapture mVideoCapture;
+    @SuppressWarnings("WeakerAccess") /* synthetic accessor */
     @Nullable
     Preview mPreview;
+    @SuppressWarnings("WeakerAccess") /* synthetic accessor */
     @Nullable
     LifecycleOwner mCurrentLifecycle;
     private final LifecycleObserver mCurrentLifecycleObserver =
@@ -115,11 +122,34 @@ final class CameraXModule {
             };
     @Nullable
     private LifecycleOwner mNewLifecycle;
+    @SuppressWarnings("WeakerAccess") /* synthetic accessor */
     @Nullable
-    private Integer mCameraLensFacing = LensFacing.BACK;
+    Integer mCameraLensFacing = LensFacing.BACK;
+    @SuppressWarnings("WeakerAccess") /* synthetic accessor */
+    @Nullable
+    ProcessCameraProvider mCameraProvider;
 
     CameraXModule(CameraView view) {
-        this.mCameraView = view;
+        mCameraView = view;
+
+        Futures.addCallback(ProcessCameraProvider.getInstance(view.getContext()),
+                new FutureCallback<ProcessCameraProvider>() {
+                    // TODO(b/124269166): Rethink how we can handle permissions here.
+                    @SuppressLint("MissingPermission")
+                    @Override
+                    public void onSuccess(@Nullable ProcessCameraProvider provider) {
+                        Preconditions.checkNotNull(provider);
+                        mCameraProvider = provider;
+                        if (mCurrentLifecycle != null) {
+                            bindToLifecycle(mCurrentLifecycle);
+                        }
+                    }
+
+                    @Override
+                    public void onFailure(Throwable t) {
+                        throw new RuntimeException("CameraX failed to initialize.", t);
+                    }
+                }, CameraXExecutors.mainThreadExecutor());
 
         mPreviewBuilder = new Preview.Builder().setTargetName("Preview");
 
@@ -130,7 +160,7 @@ final class CameraXModule {
     }
 
     @RequiresPermission(permission.CAMERA)
-    public void bindToLifecycle(LifecycleOwner lifecycleOwner) {
+    void bindToLifecycle(LifecycleOwner lifecycleOwner) {
         mNewLifecycle = lifecycleOwner;
 
         if (getMeasuredWidth() > 0 && getMeasuredHeight() > 0) {
@@ -150,6 +180,11 @@ final class CameraXModule {
         if (mCurrentLifecycle.getLifecycle().getCurrentState() == Lifecycle.State.DESTROYED) {
             mCurrentLifecycle = null;
             throw new IllegalArgumentException("Cannot bind to lifecycle in a destroyed state.");
+        }
+
+        if (mCameraProvider == null) {
+            // try again once the camera provider is no longer null
+            return;
         }
 
         ListenableFuture<Size> resolutionUpdateFuture = CallbackToFutureAdapter.getFuture(
@@ -231,13 +266,16 @@ final class CameraXModule {
         CameraSelector cameraSelector =
                 new CameraSelector.Builder().requireLensFacing(mCameraLensFacing).build();
         if (getCaptureMode() == CaptureMode.IMAGE) {
-            mCamera = CameraX.bindToLifecycle(mCurrentLifecycle, cameraSelector, mImageCapture,
+            mCamera = mCameraProvider.bindToLifecycle(mCurrentLifecycle, cameraSelector,
+                    mImageCapture,
                     mPreview);
         } else if (getCaptureMode() == CaptureMode.VIDEO) {
-            mCamera = CameraX.bindToLifecycle(mCurrentLifecycle, cameraSelector, mVideoCapture,
+            mCamera = mCameraProvider.bindToLifecycle(mCurrentLifecycle, cameraSelector,
+                    mVideoCapture,
                     mPreview);
         } else {
-            mCamera = CameraX.bindToLifecycle(mCurrentLifecycle, cameraSelector, mImageCapture,
+            mCamera = mCameraProvider.bindToLifecycle(mCurrentLifecycle, cameraSelector,
+                    mImageCapture,
                     mVideoCapture, mPreview);
         }
 
@@ -488,9 +526,22 @@ final class CameraXModule {
     }
 
     void clearCurrentLifecycle() {
-        if (mCurrentLifecycle != null) {
+        if (mCurrentLifecycle != null && mCameraProvider != null) {
             // Remove previous use cases
-            CameraX.unbind(mImageCapture, mVideoCapture, mPreview);
+            List<UseCase> toUnbind = new ArrayList<>();
+            if (mImageCapture != null && mCameraProvider.isBound(mImageCapture)) {
+                toUnbind.add(mImageCapture);
+            }
+            if (mVideoCapture != null && mCameraProvider.isBound(mVideoCapture)) {
+                toUnbind.add(mVideoCapture);
+            }
+            if (mPreview != null && mCameraProvider.isBound(mPreview)) {
+                toUnbind.add(mPreview);
+            }
+
+            if (!toUnbind.isEmpty()) {
+                mCameraProvider.unbind(toUnbind.toArray((new UseCase[0])));
+            }
         }
         mCamera = null;
         mCurrentLifecycle = null;
