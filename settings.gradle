@@ -95,7 +95,7 @@ includeProject(":camera:integration-tests:camera-testlib-extensions", "camera/in
 includeProject(":car", "car/core")
 includeProject(":car-app:app", "car-app/app")
 includeProject(":car-moderator", "car/moderator")
-includeProject(":cardview", "cardview")
+includeProject(":cardview:cardview", "cardview/cardview")
 includeProject(":collection:collection", "collection/collection")
 includeProject(":collection:collection-ktx", "collection/collection-ktx")
 includeProject(":concurrent:concurrent-futures", "concurrent/futures")
