@@ -73,8 +73,8 @@ public class WebViewCompat {
     }
 
     /**
-     * WebMessageListener callback interface. This is used to listen messages from the injected
-     * JavaScript object. See also {@link #addWebMessageListener()}.
+     * This listener receives messages sent on the JavaScript object which was injected by {@link
+     * #addWebMessageListener(WebView, String, List, WebViewCompat.WebMessageListener)}.
      *
      * TODO(ctzsm): unhide.
      * @hide
@@ -82,13 +82,13 @@ public class WebViewCompat {
     @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
     public interface WebMessageListener {
         /**
-         * Receives JavaScript {@code postMessage()} call information from the JavaScript object.
+         * Receives a message sent by a {@code postMessage()} on the injected JavaScript object.
          *
-         * @param view The {@link WebView} issued this message.
-         * @param message The {@link WebMessageCompat} message from JavaScript.
-         * @param sourceOrigin The origin of the frame where the message is from.
-         * @param isMainFrame If the message is from a main frame.
-         * @param replyProxy Used for reply message to the injected JavaScript object.
+         * @param view The {@link WebView} containing the frame which sent this message.
+         * @param message The message from JavaScript.
+         * @param sourceOrigin The origin of the frame that the message is from.
+         * @param isMainFrame {@code true} If the message is from the main frame.
+         * @param replyProxy Used to reply back to the JavaScript object.
          */
         @UiThread
         void onPostMessage(@NonNull WebView view, @NonNull WebMessageCompat message,
@@ -454,30 +454,123 @@ public class WebViewCompat {
     }
 
     /**
-     * Adds a {@link WebMessageListener} to the {@android.webkit.WebView} and inject a JavaScript
-     * object that the {@link WebMessageListener} will listener on.
+     * Adds a {@link WebMessageListener} to the {@link WebView} and injects a JavaScript object into
+     * each frame that the {@link WebMessageListener} will listen on.
      *
      * <p>
-     * The injected JavaScript will be named as {@code jsObjectName}. We will inject the JavaScript
-     * object if the frame's origin matches any of the {@code allowedOriginRules} for every
-     * navigation after this call, the JavaScript object will be available immediately after the
-     * page loads.
+     * The injected JavaScript object will be named {@code jsObjectName} in the global scope. This
+     * will inject the JavaScript object in any frame whose origin matches {@code
+     * allowedOriginRules} for every navigation after this call, and the JavaScript object will be
+     * available immediately when the page begins to load.
      *
      * <p>
-     * This method could be called multiple times so multiple JavaScript objects will be injected.
+     * Each {@code allowedOriginRules} entry must follow the format below:
+     * <table>
+     * <tr><th>Rule</th><th>Description</th><th>Example</th></tr>
+     * <tr><td>{@code [ URL_SCHEME "://" ] HOSTNAME_PATTERN [ ":" PORT ]}</td>
+     * <td>Matches a hostname using a wildcard pattern, and an optional scheme and port
+     * restriction.</td>
+     * <td><ul>
+     * <li>{@code https://*.example.com} - Matches https://calendar.example.com and
+     * https://foo.bar.example.com but not https://example.com</li>
+     * <li>{@code https://foobar.com:8080} - Matches https:// URL on port 8080, whose normalized
+     * host is foobar.com.</li>
+     * <li>{@code *} - Matches URL of any scheme, port and domain.</li>
+     * </ul></td>
+     * </tr>
+     * <tr><td>{@code [ SCHEME "://" ] IP_LITERAL [ ":" PORT ]}</td>
+     * <td>Matches URLs that are IP address literals, and optional scheme and port restrictions.
+     * </td>
+     * <td><ul>
+     * <li>{@code https://127.0.0.1}</li>
+     * <li>{@code https://[::1]} or {@code https://[0:0::1]}- Matches any URL to the IPv6 loopback
+     * address.</li>
+     * <li>{@code https://[::1]:99} - Matches any https:// URL to the IPv6 loopback on port 99.</li>
+     * </ul></td>
+     * </tr>
+     * <tr><td>{@code IP_LITERAL "/" PREFIX_LENGTH_IN_BITS}</td><td>
+     * Matches any URL whose hostname is an IP literal, and falls between the given address
+     * range.</td>
+     * <td><ul>
+     * <li>{@code 192.168.0.0/16}</li>
+     * <li>{@code fefe:13::abc/33} - Note that there are no brackets on the IPv6 literal.</li>
+     * </ul></td>
+     * </tr>
+     * </table>
      *
      * <p>
-     * Note that this is a powerful API, the JavaScript object will be injected when the frame's
-     * origin matches any one of the allowed origins. If a wildcard {@code "*"} is provided, it will
-     * inject JavaScript object to all frames. App should try to void to use the wildcard as much as
-     * possible, instead, passing rules that only matches trusted URLs is highly recommended.
+     * Note that this is a powerful API, as the JavaScript object will be injected when the frame's
+     * origin matches any one of the allowed origins. The HTTPS scheme is strongly recommended for
+     * security; allowing HTTP origins exposes the injected object to any potential network-based
+     * attackers. If a wildcard {@code "*"} is provided, it will inject the JavaScript object to all
+     * frames. A wildcard should only be used if the app wants <b>any</b> third party web page to be
+     * able to use the injected object. When using a wildcard, the app must treat received messages
+     * as untrustworthy and validate any data carefully.
      *
+     * <p>
+     * This method can be called multiple times to inject multiple JavaScript objects.
+     *
+     * <p>
+     * Let's say the injected JavaScript object is named {@code myObject}. We will have following
+     * methods on that object once it is available to use:
+     * <pre class="prettyprint">
+     * // message needs to be a JavaScript String, MessagePorts is an optional parameter.
+     * myObject.postMessage(message[, MessagePorts])
+     *
+     * // To receive the message posted from the app side. event has a "data" property, which is the
+     * // message string from the app side.
+     * myObject.onmessage(event)
+     *
+     * // To be compatible with DOM EventTarget's addEventListener, it accepts type and listener
+     * // parameters, where type can be only "message" type and listener can only be a JavaScript
+     * // function for myObject. An event object will be passed to listener with a "data" property,
+     * // which is the message string from the app side.
+     * myObject.addEventListener(type, listener)
+     *
+     * // To be compatible with DOM EventTarget's removeEventListener, it accepts type and listener
+     * // parameters, where type can be only "message" type and listener can only be a JavaScript
+     * // function for myObject.
+     * myObject.removeEventListener(type, listener)
+     * </pre>
+     *
+     * <p>
+     * We start the communication between JavaScript and the app from the JavaScript side. In order
+     * to send message from the app to JavaScript, it needs to post a message from JavaScript first,
+     * so the app will have a {@link JsReplyProxy} object to respond. Example:
+     * <pre class="prettyprint">
+     * // Web page (in JavaScript)
+     * myObject.onmessage = function(event) {
+     *   // prints "Got it!" when we receive the app's response.
+     *   console.log(event.data);
+     * }
+     * myObject.postMessage("I'm ready!");
+     *
+     * // App (in Java)
+     * WebMessageListener myListener = new WebMessageListener() {
+     *   &#064;Override
+     *   public void onPostMessage(WebView view, WebMessageCompat message, Uri sourceOrigin,
+     *            boolean isMainFrame, JsReplyProxy replyProxy) {
+     *     // do something about view, message, sourceOrigin and isMainFrame.
+     *     replyProxy.postMessage("Got it!");
+     *   }
+     * };
+     * WebViewCompat.addWebMessageListener(webView, "myObject", rules, myListener);
+     * </pre>
+     *
+     * <p>
+     * This method should only be called if {@link WebViewFeature#isFeatureSupported(String)}
+     * returns true for {@link WebViewFeature#WEB_MESSAGE_LISTENER}.
+     *
+     * @param webView The {@link WebView} instance that we are interacting with.
      * @param jsObjectName The name for the injected JavaScript object for this {@link
      *         WebMessageListener}.
      * @param allowedOriginRules A list of matching rules for the allowed origins.
-     * @param listener The {@link WebMessageListener} to be called when received onPostMessage().
-     *
+     * @param listener The {@link WebMessageListener WebMessageListener} to handle postMessage()
+     *         calls on the JavaScript object.
      * @throws IllegalArgumentException If one of the {@code allowedOriginRules} is invalid.
+     *
+     * @see JsReplyProxy
+     * @see WebMessageListener
      *
      * //TODO(ctzsm): unhide
      * @hide
@@ -485,12 +578,12 @@ public class WebViewCompat {
     @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
     @RequiresFeature(name = WebViewFeature.WEB_MESSAGE_LISTENER,
             enforcement = "androidx.webkit.WebViewFeature#isFeatureSupported")
-    public static void addWebMessageListener(@NonNull WebView webview, @NonNull String jsObjectName,
+    public static void addWebMessageListener(@NonNull WebView webView, @NonNull String jsObjectName,
             @NonNull List<String> allowedOriginRules, @NonNull WebMessageListener listener) {
         final WebViewFeatureInternal feature =
                 WebViewFeatureInternal.getFeature(WebViewFeature.WEB_MESSAGE_LISTENER);
         if (feature.isSupportedByWebView()) {
-            getProvider(webview).addWebMessageListener(
+            getProvider(webView).addWebMessageListener(
                     jsObjectName, allowedOriginRules.toArray(new String[0]), listener);
         } else {
             throw WebViewFeatureInternal.getUnsupportedOperationException();
@@ -498,14 +591,22 @@ public class WebViewCompat {
     }
 
     /**
-     * Removes the {@link WebMessageListener} associated with the {@code jsObjectName}.
+     * Removes the {@link WebMessageListener WebMessageListener} associated with {@code
+     * jsObjectName}.
      *
      * <p>
      * Note that after this call, the injected JavaScript object is still in the JavaScript context,
-     * however any message send after this call won't reach to the {@link WebMessageListener}.
+     * however any message sent after this call won't reach the {@link WebMessageListener
+     * WebMessageListener}.
      *
-     * @param jsObjectName The JavaScript object's name that passed to {@link
-     *         #addWebMessageListener()} previously.
+     * <p>
+     * This method should only be called if {@link WebViewFeature#isFeatureSupported(String)}
+     * returns true for {@link WebViewFeature#WEB_MESSAGE_LISTENER}.
+     *
+     * @param jsObjectName The JavaScript object's name that was previously passed to {@link
+     *         #addWebMessageListener(WebView, String,  List, WebMessageListener)}.
+     *
+     * @see #addWebMessageListener(WebView, String, List, WebMessageListener)
      *
      * //TODO(ctzsm): unhide
      * @hide

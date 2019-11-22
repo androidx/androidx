@@ -428,10 +428,9 @@ public class WebViewFeature {
 
     /**
      * Feature for {@link #isFeatureSupported(String)}.
-     * This feature covers
-     * {@link androidx.webkit.WebViewCompat#setWebMessageListener(android.webkit.WebView,
-     * androidx.webkit.WebViewCompat.WebMessageListener, String, String[])}
-     * {@link androidx.webkit.WebViewCompat#removeWebMessageListener()}
+     * This feature covers {@link WebViewCompat#addWebMessageListener(android.webkit.WebView,
+     * String, List, WebViewCompat.WebMessageListener)} and {@link
+     * WebViewCompat#removeWebMessageListener(android.webkit.WebView, String)}.
      *
      * TODO(ctzsm): unhide
      * @hide
