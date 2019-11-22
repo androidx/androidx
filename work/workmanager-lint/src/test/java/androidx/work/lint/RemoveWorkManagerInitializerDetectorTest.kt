@@ -68,7 +68,7 @@ class RemoveWorkManagerInitializerDetectorTest {
             WORK_MANAGER_CONFIGURATION_PROVIDER,
             customApplication
         )
-            .allowMissingSdk()
+            .sdkHome(sdkDirectory().value)
             .issues(RemoveWorkManagerInitializerDetector.ISSUE)
             .run()
             .expectClean()
@@ -115,7 +115,7 @@ class RemoveWorkManagerInitializerDetectorTest {
             WORK_MANAGER_CONFIGURATION_PROVIDER,
             customApplication
         )
-            .allowMissingSdk()
+            .sdkHome(sdkDirectory().value)
             .issues(RemoveWorkManagerInitializerDetector.ISSUE)
             .run()
             .expectClean()
@@ -160,7 +160,7 @@ class RemoveWorkManagerInitializerDetectorTest {
             WORK_MANAGER_CONFIGURATION_PROVIDER,
             customApplication
         )
-            .allowMissingSdk()
+            .sdkHome(sdkDirectory().value)
             .issues(RemoveWorkManagerInitializerDetector.ISSUE)
             .run()
             .expect("""
@@ -214,7 +214,7 @@ class RemoveWorkManagerInitializerDetectorTest {
             WORK_MANAGER_CONFIGURATION_PROVIDER,
             customApplication
         )
-            .allowMissingSdk()
+            .sdkHome(sdkDirectory().value)
             .issues(RemoveWorkManagerInitializerDetector.ISSUE)
             .run()
             .expect("""

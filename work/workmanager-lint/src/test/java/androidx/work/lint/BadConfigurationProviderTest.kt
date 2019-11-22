@@ -45,7 +45,7 @@ class BadConfigurationProviderTest {
             WORK_MANAGER_CONFIGURATION_PROVIDER,
             customApplication
         )
-            .allowMissingSdk()
+            .sdkHome(sdkDirectory().value)
             .issues(BadConfigurationProviderIssueDetector.ISSUE)
             .run()
             .expectClean()
@@ -88,7 +88,7 @@ class BadConfigurationProviderTest {
             customApplication,
             invalidProvider
         )
-            .allowMissingSdk()
+            .sdkHome(sdkDirectory().value)
             .issues(BadConfigurationProviderIssueDetector.ISSUE)
             .run()
             .expect("""
@@ -123,7 +123,7 @@ class BadConfigurationProviderTest {
             WORK_MANAGER_CONFIGURATION_PROVIDER,
             customApplication
         )
-            .allowMissingSdk()
+            .sdkHome(sdkDirectory().value)
             .issues(BadConfigurationProviderIssueDetector.ISSUE)
             .run()
             .expectClean()
