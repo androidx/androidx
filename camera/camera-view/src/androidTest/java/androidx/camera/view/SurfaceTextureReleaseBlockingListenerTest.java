@@ -20,15 +20,19 @@ import static com.google.common.truth.Truth.assertThat;
 
 import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertTrue;
+import static org.mockito.Mockito.atLeastOnce;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.never;
+import static org.mockito.Mockito.verify;
 
 import android.content.Context;
 import android.graphics.SurfaceTexture;
 import android.view.TextureView;
 
-import androidx.annotation.RequiresApi;
 import androidx.concurrent.futures.CallbackToFutureAdapter;
 import androidx.test.core.app.ApplicationProvider;
 import androidx.test.ext.junit.runners.AndroidJUnit4;
+import androidx.test.filters.SdkSuppress;
 import androidx.test.filters.SmallTest;
 
 import com.google.common.util.concurrent.ListenableFuture;
@@ -59,8 +63,12 @@ public class SurfaceTextureReleaseBlockingListenerTest {
                 new SurfaceTextureReleaseBlockingListener(mTextureView);
     }
 
-    // isReleased() exists only on 23 and above. Is private prior to 26
-    @RequiresApi(23)
+    /**
+     * {@link SurfaceTexture#isReleased()} exists only on 23 and above. Is private prior to 26.
+     * @see #surfaceIsValid_ifOnlyReleasedByTextureView22below() for equivalent test on API 22 and
+     * below
+      */
+    @SdkSuppress(minSdkVersion = 23)
     @Test
     public void surfaceIsValid_ifOnlyReleasedByTextureView() {
         SurfaceTexture surfaceTexture = new SurfaceTexture(0);
@@ -74,8 +82,30 @@ public class SurfaceTextureReleaseBlockingListenerTest {
         assertFalse(surfaceTexture.isReleased());
     }
 
-    // isReleased() exists only on 23 and above. Is private prior to 26
-    @RequiresApi(23)
+    /**
+     * {@link SurfaceTexture#isReleased()} exists only on 23 and above. Is private prior to 26.
+     * @see #surfaceIsValid_ifOnlyReleasedByTextureView() for equivalent test on API 23 and above
+     */
+    // See equivalent test for API >= 23 in SurfaceTextureReleaseBlockingListenerAndroidTest
+    @SdkSuppress(maxSdkVersion = 22)
+    @Test
+    public void surfaceIsValid_ifOnlyReleasedByTextureView22below() {
+        SurfaceTexture surfaceTexture = mock(SurfaceTexture.class);
+        mSurfaceTextureReleaseBlockingListener.setSurfaceTextureSafely(surfaceTexture,
+                mSurfaceReleaseFuture);
+
+        // Simulate the TextureView destroying the SurfaceTexture
+        mSurfaceTextureReleaseBlockingListener.onSurfaceTextureDestroyed(surfaceTexture);
+
+        verify(surfaceTexture, never()).release();
+    }
+
+    /**
+     * {@link SurfaceTexture#isReleased()} exists only on 23 and above. Is private prior to 26.
+     * @see #surfaceIsValid_ifOnlyReleasedBySurfaceReleaseFuture22below() for equivalent test on API
+     * 22 and below
+     */
+    @SdkSuppress(minSdkVersion = 23)
     @Test
     public void surfaceIsValid_ifOnlyReleasedBySurfaceReleaseFuture() {
         SurfaceTexture surfaceTexture = new SurfaceTexture(0);
@@ -91,8 +121,33 @@ public class SurfaceTextureReleaseBlockingListenerTest {
         mSurfaceTextureReleaseBlockingListener.onSurfaceTextureDestroyed(surfaceTexture);
     }
 
-    // isReleased() exists only on 23 and above. Is private prior to 26
-    @RequiresApi(23)
+    /**
+     * {@link SurfaceTexture#isReleased()} exists only on 23 and above. Is private prior to 26.
+     * @see #surfaceIsValid_ifOnlyReleasedBySurfaceReleaseFuture() for equivalent test on API 23
+     * and above
+     */
+    @SdkSuppress(maxSdkVersion = 22)
+    @Test
+    public void surfaceIsValid_ifOnlyReleasedBySurfaceReleaseFuture22below() {
+        SurfaceTexture surfaceTexture = mock(SurfaceTexture.class);
+        surfaceTexture.detachFromGLContext();
+        mSurfaceTextureReleaseBlockingListener.setSurfaceTextureSafely(surfaceTexture,
+                mSurfaceReleaseFuture);
+
+        mCompleter.set(null);
+
+        verify(surfaceTexture, never()).release();
+
+        // TODO(b/144878737) Remove when SurfaceTexture null dereference issue fixed
+        mSurfaceTextureReleaseBlockingListener.onSurfaceTextureDestroyed(surfaceTexture);
+    }
+
+    /**
+     * {@link SurfaceTexture#isReleased()} exists only on 23 and above. Is private prior to 26.
+     * @see #surfaceIsInvalid_ifReleasedByBothTextureViewAndSurfaceReleaseFuture22below() for
+     * equivalent test on API 22 and below
+     */
+    @SdkSuppress(minSdkVersion = 23)
     @Test
     public void surfaceIsInvalid_ifReleasedByBothTextureViewAndSurfaceReleaseFuture() {
         SurfaceTexture surfaceTexture = new SurfaceTexture(0);
@@ -105,6 +160,26 @@ public class SurfaceTextureReleaseBlockingListenerTest {
         mCompleter.set(null);
 
         assertTrue(surfaceTexture.isReleased());
+    }
+
+    /**
+     * {@link SurfaceTexture#isReleased()} exists only on 23 and above. Is private prior to 26.
+     * @see #surfaceIsInvalid_ifReleasedByBothTextureViewAndSurfaceReleaseFuture() for equivalent
+     * test on API 23 and above
+     */
+    @SdkSuppress(maxSdkVersion = 22)
+    @Test
+    public void surfaceIsInvalid_ifReleasedByBothTextureViewAndSurfaceReleaseFuture22below() {
+        SurfaceTexture surfaceTexture = mock(SurfaceTexture.class);
+        surfaceTexture.detachFromGLContext();
+        mSurfaceTextureReleaseBlockingListener.setSurfaceTextureSafely(surfaceTexture,
+                mSurfaceReleaseFuture);
+
+        // Simulate the TextureView destroying the SurfaceTexture
+        mSurfaceTextureReleaseBlockingListener.onSurfaceTextureDestroyed(surfaceTexture);
+        mCompleter.set(null);
+
+        verify(surfaceTexture, atLeastOnce()).release();
     }
 
     @Test
