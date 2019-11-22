@@ -1670,7 +1670,7 @@ package androidx.core.os {
     method public static boolean postDelayed(android.os.Handler, Runnable, Object?, long);
   }
 
-  @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP_PREFIX) public class HandlerExecutor implements java.util.concurrent.Executor {
+  public class HandlerExecutor implements java.util.concurrent.Executor {
     ctor public HandlerExecutor(android.os.Handler);
     method public void execute(Runnable);
   }
