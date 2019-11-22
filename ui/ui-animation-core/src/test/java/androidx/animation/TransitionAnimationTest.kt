@@ -28,7 +28,7 @@ class TransitionAnimationTest {
         val clock = ManualAnimationClock(0)
         val anim = TransitionAnimation(def1, clock)
         anim.toState(AnimState.B)
-        val physicsAnim = Physics<Float>()
+        val physicsAnim = SpringAnimation<Float>()
         var playTime = 0L
         do {
             // Increment the time stamp until the animation finishes
@@ -42,6 +42,33 @@ class TransitionAnimationTest {
                 epsilon)
             playTime += 20L
         } while (anim.isRunning)
+    }
+
+    @Test
+    fun testInitialState() {
+        val clock = ManualAnimationClock(0)
+        val anim = TransitionAnimation(def1, clock, AnimState.C)
+        assertEquals(anim[prop1], 1000f)
+        assertEquals(anim[prop2], -250f)
+    }
+
+    @Test
+    fun testStateChangedListener() {
+        val clock = ManualAnimationClock(0)
+        val anim = TransitionAnimation(def1, clock, AnimState.C)
+        var lastState: AnimState? = null
+        anim.onStateChangeFinished = {
+            lastState = it
+        }
+        anim.toState(AnimState.A)
+        // Increment the clock by some large amount to guarantee the finish of the animation
+        clock.clockTimeMillis += 100000
+        assertEquals(AnimState.A, lastState)
+
+        anim.toState(AnimState.B)
+        // Increment the clock by some large amount to guarantee the finish of the animation
+        clock.clockTimeMillis += 100000
+        assertEquals(AnimState.B, lastState)
     }
 }
 
@@ -61,5 +88,10 @@ private val def1 = transitionDefinition {
     state(AnimState.B) {
         this[prop1] = 1f
         this[prop2] = -100f
+    }
+
+    state(AnimState.C) {
+        this[prop1] = 1000f
+        this[prop2] = -250f
     }
 }

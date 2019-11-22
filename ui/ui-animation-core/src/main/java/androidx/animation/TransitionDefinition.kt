@@ -198,23 +198,28 @@ class TransitionDefinition<T> {
     }
 
     /**
-     * Creates a transition animation using the transition definition.
-     */
-    fun createAnimation() = TransitionAnimation(this, DefaultAnimationClock())
-
-    /**
-     * Creates a transition animation using the transition definition and the given clock.
-     *
-     * @param clock The clock source for animation to get frame time from.
-     */
-    fun createAnimation(clock: AnimationClockObservable) = TransitionAnimation(this, clock)
-
-    /**
      * Returns a state holder for the specific state [name]. Useful for the cases
      * where we don't need actual animation to be happening like in tests.
      */
     fun getStateFor(name: T): TransitionState = states.getValue(name)
 }
+
+/**
+ * Creates a transition animation using the transition definition.
+ * // TODO: Ripple impl needs to pass the ambient here clock, then we can remove this function.
+ */
+fun <T> TransitionDefinition<T>.createAnimation() =
+    TransitionAnimation(this, DefaultAnimationClock())
+
+/**
+ * Creates a transition animation using the transition definition and the given clock.
+ *
+ * @param clock The clock source for animation to get frame time from.
+ */
+fun <T> TransitionDefinition<T>.createAnimation(
+    clock: AnimationClockObservable,
+    initState: T? = null
+) = TransitionAnimation(this, clock, initState)
 
 /**
  * Creates a [TransitionDefinition] using the [init] function to initialize it.
