@@ -16,7 +16,7 @@
 
 package androidx.camera.camera2;
 
-import static androidx.camera.core.PreviewSurfaceProviders.createSurfaceTextureProvider;
+import static androidx.camera.testing.SurfaceTextureProvider.createSurfaceTextureProvider;
 
 import static com.google.common.truth.Truth.assertThat;
 
@@ -36,10 +36,10 @@ import androidx.camera.core.ImageAnalysis;
 import androidx.camera.core.ImageCapture;
 import androidx.camera.core.LensFacing;
 import androidx.camera.core.Preview;
-import androidx.camera.core.PreviewSurfaceProviders;
 import androidx.camera.core.impl.utils.executor.CameraXExecutors;
 import androidx.camera.testing.CameraUtil;
 import androidx.camera.testing.GLUtil;
+import androidx.camera.testing.SurfaceTextureProvider;
 import androidx.camera.testing.fakes.FakeLifecycleOwner;
 import androidx.lifecycle.MutableLiveData;
 import androidx.lifecycle.Observer;
@@ -119,7 +119,7 @@ public final class UseCaseCombinationTest {
         initImageCapture();
         mInstrumentation.runOnMainSync(() -> {
             mPreview.setPreviewSurfaceProvider(createSurfaceTextureProvider(
-                    new PreviewSurfaceProviders.SurfaceTextureCallback() {
+                    new SurfaceTextureProvider.SurfaceTextureCallback() {
                         @Override
                         public void onSurfaceTextureReady(@NonNull SurfaceTexture surfaceTexture,
                                 @NonNull Size resolution) {

@@ -15,22 +15,16 @@
  */
 package androidx.camera.integration.extensions;
 
-import static androidx.camera.core.PreviewSurfaceProviders.createSurfaceTextureProvider;
-
 import android.content.Intent;
 import android.content.pm.PackageInfo;
 import android.content.pm.PackageManager;
 import android.content.pm.PackageManager.NameNotFoundException;
-import android.graphics.SurfaceTexture;
 import android.net.Uri;
 import android.os.Bundle;
 import android.os.Environment;
 import android.os.StrictMode;
 import android.util.Log;
-import android.util.Size;
-import android.view.TextureView;
 import android.view.View;
-import android.view.ViewGroup;
 import android.widget.Button;
 import android.widget.Toast;
 
@@ -43,7 +37,6 @@ import androidx.camera.core.CameraX;
 import androidx.camera.core.ImageCapture;
 import androidx.camera.core.LensFacing;
 import androidx.camera.core.Preview;
-import androidx.camera.core.PreviewSurfaceProviders;
 import androidx.camera.core.UseCase;
 import androidx.camera.core.impl.utils.executor.CameraXExecutors;
 import androidx.camera.extensions.AutoImageCaptureExtender;
@@ -59,6 +52,7 @@ import androidx.camera.extensions.HdrPreviewExtender;
 import androidx.camera.extensions.NightImageCaptureExtender;
 import androidx.camera.extensions.NightPreviewExtender;
 import androidx.camera.lifecycle.ProcessCameraProvider;
+import androidx.camera.view.PreviewView;
 import androidx.concurrent.futures.CallbackToFutureAdapter;
 import androidx.core.app.ActivityCompat;
 import androidx.core.content.ContextCompat;
@@ -76,8 +70,6 @@ import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.List;
 import java.util.Locale;
-import java.util.concurrent.Callable;
-import java.util.concurrent.atomic.AtomicReference;
 
 /** An activity that shows off how extensions can be applied */
 public class CameraExtensionsActivity extends AppCompatActivity
@@ -96,24 +88,27 @@ public class CameraExtensionsActivity extends AppCompatActivity
 
     private String mCurrentCameraFacing = "BACK";
 
+    @Nullable
     private Preview mPreview;
+
+    @Nullable
     private ImageCapture mImageCapture;
+
+    @NonNull
     private ImageCaptureType mCurrentImageCaptureType = ImageCaptureType.IMAGE_CAPTURE_TYPE_HDR;
 
     // Espresso testing variables
     @VisibleForTesting
     CountingIdlingResource mTakePictureIdlingResource = new CountingIdlingResource("TakePicture");
-    // Synthetic Accessor
-    @SuppressWarnings("WeakerAccess")
-    TextureView mTextureView;
+
+    private PreviewView mPreviewView;
 
     ProcessCameraProvider mCameraProvider;
 
     /**
      * Creates a preview use case.
      *
-     * <p>This use case observes a {@link SurfaceTexture}. The texture is connected to a {@link
-     * TextureView} to display a camera preview.
+     * <p>This use case uses a {@link PreviewView} to display a camera preview.
      */
     private void createPreview() {
         enablePreview();
@@ -167,26 +162,7 @@ public class CameraExtensionsActivity extends AppCompatActivity
         }
 
         mPreview = builder.build();
-        mPreview.setPreviewSurfaceProvider(createSurfaceTextureProvider(
-                new PreviewSurfaceProviders.SurfaceTextureCallback() {
-                    @Override
-                    public void onSurfaceTextureReady(@NonNull SurfaceTexture surfaceTexture,
-                            @NonNull Size resolution) {
-                        Log.d(TAG, "onSurfaceTextureReady");
-                        // If TextureView was already created, need to re-add it to change the
-                        // SurfaceTexture.
-                        ViewGroup viewGroup = (ViewGroup) mTextureView.getParent();
-                        viewGroup.removeView(mTextureView);
-                        viewGroup.addView(mTextureView);
-                        mTextureView.setSurfaceTexture(surfaceTexture);
-                    }
-
-                    @Override
-                    public void onSafeToRelease(@NonNull SurfaceTexture surfaceTexture) {
-                        Log.d(TAG, "onSafeToRelease");
-                        surfaceTexture.release();
-                    }
-                }));
+        mPreview.setPreviewSurfaceProvider(mPreviewView.getPreviewSurfaceProvider());
     }
 
     enum ImageCaptureType {
@@ -208,44 +184,41 @@ public class CameraExtensionsActivity extends AppCompatActivity
         Button button = findViewById(R.id.PhotoToggle);
         enableImageCapture(mCurrentImageCaptureType);
         button.setOnClickListener(
-                new View.OnClickListener() {
-                    @Override
-                    public void onClick(View view) {
-                        disableImageCapture();
-                        // Toggle to next capture type and enable it and set it as current
-                        switch (mCurrentImageCaptureType) {
-                            case IMAGE_CAPTURE_TYPE_HDR:
-                                enableImageCapture(ImageCaptureType.IMAGE_CAPTURE_TYPE_BOKEH);
-                                enablePreview();
-                                break;
-                            case IMAGE_CAPTURE_TYPE_BOKEH:
-                                enableImageCapture(ImageCaptureType.IMAGE_CAPTURE_TYPE_NIGHT);
-                                enablePreview();
-                                break;
-                            case IMAGE_CAPTURE_TYPE_NIGHT:
-                                enableImageCapture(ImageCaptureType.IMAGE_CAPTURE_TYPE_BEAUTY);
-                                enablePreview();
-                                break;
-                            case IMAGE_CAPTURE_TYPE_BEAUTY:
-                                enableImageCapture(ImageCaptureType.IMAGE_CAPTURE_TYPE_AUTO);
-                                enablePreview();
-                                break;
-                            case IMAGE_CAPTURE_TYPE_AUTO:
-                                enableImageCapture(ImageCaptureType.IMAGE_CAPTURE_TYPE_DEFAULT);
-                                enablePreview();
-                                break;
-                            case IMAGE_CAPTURE_TYPE_DEFAULT:
-                                enableImageCapture(ImageCaptureType.IMAGE_CAPTURE_TYPE_NONE);
-                                enablePreview();
-                                break;
-                            case IMAGE_CAPTURE_TYPE_NONE:
-                                enableImageCapture(ImageCaptureType.IMAGE_CAPTURE_TYPE_HDR);
-                                enablePreview();
-                                break;
-                        }
-                        bindUseCases();
-                        showTakePictureButton();
+                (view) -> {
+                    disableImageCapture();
+                    // Toggle to next capture type and enable it and set it as current
+                    switch (mCurrentImageCaptureType) {
+                        case IMAGE_CAPTURE_TYPE_HDR:
+                            enableImageCapture(ImageCaptureType.IMAGE_CAPTURE_TYPE_BOKEH);
+                            enablePreview();
+                            break;
+                        case IMAGE_CAPTURE_TYPE_BOKEH:
+                            enableImageCapture(ImageCaptureType.IMAGE_CAPTURE_TYPE_NIGHT);
+                            enablePreview();
+                            break;
+                        case IMAGE_CAPTURE_TYPE_NIGHT:
+                            enableImageCapture(ImageCaptureType.IMAGE_CAPTURE_TYPE_BEAUTY);
+                            enablePreview();
+                            break;
+                        case IMAGE_CAPTURE_TYPE_BEAUTY:
+                            enableImageCapture(ImageCaptureType.IMAGE_CAPTURE_TYPE_AUTO);
+                            enablePreview();
+                            break;
+                        case IMAGE_CAPTURE_TYPE_AUTO:
+                            enableImageCapture(ImageCaptureType.IMAGE_CAPTURE_TYPE_DEFAULT);
+                            enablePreview();
+                            break;
+                        case IMAGE_CAPTURE_TYPE_DEFAULT:
+                            enableImageCapture(ImageCaptureType.IMAGE_CAPTURE_TYPE_NONE);
+                            enablePreview();
+                            break;
+                        case IMAGE_CAPTURE_TYPE_NONE:
+                            enableImageCapture(ImageCaptureType.IMAGE_CAPTURE_TYPE_HDR);
+                            enablePreview();
+                            break;
                     }
+                    bindUseCases();
+                    showTakePictureButton();
                 });
 
         Log.i(TAG, "Got UseCase: " + mImageCapture);
@@ -381,7 +354,7 @@ public class CameraExtensionsActivity extends AppCompatActivity
     }
 
     private void bindUseCases() {
-        List<UseCase> useCases = new ArrayList();
+        List<UseCase> useCases = new ArrayList<>();
         // When it is not IMAGE_CAPTURE_TYPE_NONE, mImageCapture won't be null.
         if (mImageCapture != null) {
             useCases.add(mImageCapture);
@@ -408,7 +381,7 @@ public class CameraExtensionsActivity extends AppCompatActivity
         StrictMode.VmPolicy policy =
                 new StrictMode.VmPolicy.Builder().detectAll().penaltyLog().build();
         StrictMode.setVmPolicy(policy);
-        mTextureView = findViewById(R.id.textureView);
+        mPreviewView = findViewById(R.id.previewView);
 
         // Get params from adb extra string
         Bundle bundle = getIntent().getExtras();
@@ -537,14 +510,17 @@ public class CameraExtensionsActivity extends AppCompatActivity
         }
     }
 
+    @Nullable
     public Preview getPreview() {
         return mPreview;
     }
 
+    @Nullable
     public ImageCapture getImageCapture() {
         return mImageCapture;
     }
 
+    @NonNull
     public ImageCaptureType getCurrentImageCaptureType() {
         return mCurrentImageCaptureType;
     }
@@ -567,20 +543,6 @@ public class CameraExtensionsActivity extends AppCompatActivity
             }
             default:
                 // No-op
-        }
-    }
-
-    /** A {@link Callable} whose return value can be set. */
-    private static final class SettableCallable<V> implements Callable<V> {
-        private final AtomicReference<V> mValue = new AtomicReference<>();
-
-        public void set(V value) {
-            mValue.set(value);
-        }
-
-        @Override
-        public V call() {
-            return mValue.get();
         }
     }
 }

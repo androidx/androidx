@@ -20,7 +20,7 @@ import android.graphics.SurfaceTexture
 import android.hardware.camera2.CameraCaptureSession
 import android.hardware.camera2.CameraDevice
 import android.util.Log
-import android.util.Size
+import android.view.Surface
 import android.view.ViewGroup
 import androidx.annotation.experimental.UseExperimental
 import androidx.camera.camera2.Camera2Config
@@ -29,8 +29,6 @@ import androidx.camera.core.CameraSelector
 import androidx.camera.core.ImageCapture
 import androidx.camera.core.LensFacing
 import androidx.camera.core.Preview
-import androidx.camera.core.PreviewSurfaceProviders
-import androidx.camera.core.PreviewSurfaceProviders.createSurfaceTextureProvider
 import androidx.camera.core.impl.utils.executor.CameraXExecutors
 import androidx.camera.integration.antelope.CameraParams
 import androidx.camera.integration.antelope.CameraXImageAvailableListener
@@ -43,6 +41,7 @@ import androidx.camera.integration.antelope.TestConfig
 import androidx.camera.integration.antelope.TestType
 import androidx.camera.lifecycle.ProcessCameraProvider
 import androidx.lifecycle.LifecycleOwner
+import com.google.common.util.concurrent.Futures
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.GlobalScope
 import kotlinx.coroutines.guava.await
@@ -103,25 +102,34 @@ internal fun cameraXOpenCamera(
 
         // Set preview to observe the surface texture
         activity.runOnUiThread {
-            previewUseCase.previewSurfaceProvider = createSurfaceTextureProvider(
-                object : PreviewSurfaceProviders.SurfaceTextureCallback {
+            previewUseCase.previewSurfaceProvider =
+                Preview.PreviewSurfaceProvider { resolution, surfaceReleaseFuture ->
+                    // Create the SurfaceTexture and Surface
+                    val surfaceTexture = SurfaceTexture(0)
+                    surfaceTexture.setDefaultBufferSize(resolution.width, resolution.height)
+                    surfaceTexture.detachFromGLContext()
+                    val surface = Surface(surfaceTexture)
 
-                    override fun onSafeToRelease(surfaceTexture: SurfaceTexture) {
-                        surfaceTexture.release()
+                    // Attach the SurfaceTexture on the TextureView
+                    if (!isCameraSurfaceTextureReleased(surfaceTexture)) {
+                        val viewGroup = params.cameraXPreviewTexture?.parent as ViewGroup
+                        viewGroup.removeView(params.cameraXPreviewTexture)
+                        viewGroup.addView(params.cameraXPreviewTexture)
+                        params.cameraXPreviewTexture?.surfaceTexture = surfaceTexture
                     }
 
-                    override fun onSurfaceTextureReady(
-                        surfaceTexture: SurfaceTexture,
-                        resolution: Size
-                    ) {
-                        if (!isCameraSurfaceTextureReleased(surfaceTexture)) {
-                            val viewGroup = params.cameraXPreviewTexture?.parent as ViewGroup
-                            viewGroup.removeView(params.cameraXPreviewTexture)
-                            viewGroup.addView(params.cameraXPreviewTexture)
-                            params.cameraXPreviewTexture?.surfaceTexture = surfaceTexture
-                        }
-                    }
-                })
+                    // Release the SurfaceTexture and Surface once camera is done with it
+                    surfaceReleaseFuture.addListener(
+                        Runnable {
+                            surface.release()
+                            surfaceTexture.release()
+                        },
+                        CameraXExecutors.directExecutor()
+                    )
+
+                    // Surface provided to camera for producing buffers into
+                    Futures.immediateFuture(surface)
+                }
         }
 
         // TODO: As of 0.3.0 CameraX can only use front and back cameras.

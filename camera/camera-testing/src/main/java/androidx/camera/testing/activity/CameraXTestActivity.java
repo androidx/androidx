@@ -17,7 +17,7 @@
 package androidx.camera.testing.activity;
 
 
-import static androidx.camera.core.PreviewSurfaceProviders.createSurfaceTextureProvider;
+import static androidx.camera.testing.SurfaceTextureProvider.createSurfaceTextureProvider;
 
 import android.graphics.SurfaceTexture;
 import android.os.Bundle;
@@ -36,10 +36,10 @@ import androidx.camera.core.CameraX;
 import androidx.camera.core.LensFacing;
 import androidx.camera.core.Preview;
 import androidx.camera.core.PreviewConfig;
-import androidx.camera.core.PreviewSurfaceProviders;
 import androidx.camera.core.impl.utils.CameraSelectorUtil;
 import androidx.camera.testing.CameraUtil;
 import androidx.camera.testing.R;
+import androidx.camera.testing.SurfaceTextureProvider;
 import androidx.test.espresso.idling.CountingIdlingResource;
 
 /** An activity which starts CameraX preview for testing. */
@@ -94,7 +94,7 @@ public class CameraXTestActivity extends AppCompatActivity {
                 .build();
         TextureView textureView = findViewById(R.id.textureView);
         mPreview.setPreviewSurfaceProvider(createSurfaceTextureProvider(
-                new PreviewSurfaceProviders.SurfaceTextureCallback() {
+                new SurfaceTextureProvider.SurfaceTextureCallback() {
                     @Override
                     public void onSurfaceTextureReady(@NonNull SurfaceTexture surfaceTexture,
                             @NonNull Size resolution) {
