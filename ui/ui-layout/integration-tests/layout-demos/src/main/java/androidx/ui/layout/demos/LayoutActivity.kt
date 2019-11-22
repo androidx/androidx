@@ -24,7 +24,6 @@ import androidx.ui.core.dp
 import androidx.ui.layout.Column
 import androidx.ui.layout.Container
 import androidx.ui.layout.HeightSpacer
-import androidx.ui.layout.MainAxisAlignment
 import androidx.ui.layout.Row
 import androidx.ui.layout.WidthSpacer
 import androidx.ui.layout.Wrap
@@ -34,6 +33,7 @@ import androidx.compose.Composable
 import androidx.ui.core.Modifier
 import androidx.ui.core.setContent
 import androidx.ui.core.sp
+import androidx.ui.layout.Arrangement
 import androidx.ui.layout.ExpandedHeight
 import androidx.ui.layout.ExpandedWidth
 import androidx.ui.layout.Gravity
@@ -65,7 +65,7 @@ fun ContainerWithBackground(
 @Composable
 fun LayoutDemo() {
     val lightGrey = Color(0xFFCFD8DC)
-    Column(mainAxisAlignment = MainAxisAlignment.Start) {
+    Column {
         Text(text = "Row", style = TextStyle(fontSize = 48.sp))
         ContainerWithBackground(width = ExampleSize, color = lightGrey) {
             Row(ExpandedWidth) {
@@ -75,20 +75,14 @@ fun LayoutDemo() {
         }
         HeightSpacer(height = 24.dp)
         ContainerWithBackground(width = ExampleSize, color = lightGrey) {
-            Row(
-                ExpandedWidth,
-                mainAxisAlignment = MainAxisAlignment.Center
-            ) {
+            Row(ExpandedWidth, arrangement = Arrangement.Center) {
                 PurpleSquare()
                 CyanSquare()
             }
         }
         HeightSpacer(height = 24.dp)
         ContainerWithBackground(width = ExampleSize, color = lightGrey) {
-            Row(
-                ExpandedWidth,
-                mainAxisAlignment = MainAxisAlignment.End
-            ) {
+            Row(ExpandedWidth, arrangement = Arrangement.End) {
                 PurpleSquare()
                 CyanSquare()
             }
@@ -118,20 +112,14 @@ fun LayoutDemo() {
             }
             WidthSpacer(width = 24.dp)
             ContainerWithBackground(height = ExampleSize, color = lightGrey) {
-                Column(
-                    ExpandedHeight,
-                    mainAxisAlignment = MainAxisAlignment.Center
-                ) {
+                Column(ExpandedHeight, arrangement = Arrangement.Center) {
                     PurpleSquare()
                     CyanSquare()
                 }
             }
             WidthSpacer(width = 24.dp)
             ContainerWithBackground(height = ExampleSize, color = lightGrey) {
-                Column(
-                    ExpandedHeight,
-                    mainAxisAlignment = MainAxisAlignment.End
-                ) {
+                Column(ExpandedHeight, arrangement = Arrangement.End) {
                     PurpleSquare()
                     CyanSquare()
                 }

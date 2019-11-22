@@ -27,9 +27,9 @@ import androidx.ui.focus.FocusState.NotFocusable
 import androidx.ui.focus.FocusState.Focused
 import androidx.ui.focus.Focusable
 import androidx.ui.graphics.Color
+import androidx.ui.layout.Arrangement
 import androidx.ui.layout.Column
 import androidx.ui.layout.ExpandedWidth
-import androidx.ui.layout.MainAxisAlignment
 import androidx.ui.layout.Row
 import androidx.ui.layout.RowScope
 import androidx.ui.material.MaterialTheme
@@ -41,7 +41,7 @@ class FocusableActivity : Activity() {
         setContent {
             Focusable {
                 MaterialTheme {
-                    Column(mainAxisAlignment = MainAxisAlignment.SpaceEvenly) {
+                    Column(arrangement = Arrangement.SpaceEvenly) {
                         CenteredRow {
                             Text("Click on any focusable to bring it into focus:")
                         }
@@ -81,5 +81,5 @@ private fun FocusableText(text: String) {
 
 @Composable
 private fun CenteredRow(children: @Composable() RowScope.() -> Unit) {
-    Row(modifier = ExpandedWidth, mainAxisAlignment = MainAxisAlignment.Center, children = children)
+    Row(modifier = ExpandedWidth, arrangement = Arrangement.Center, children = children)
 }

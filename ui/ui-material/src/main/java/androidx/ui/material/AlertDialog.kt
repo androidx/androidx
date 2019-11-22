@@ -23,12 +23,12 @@ import androidx.ui.core.CurrentTextStyleProvider
 import androidx.ui.core.dp
 import androidx.ui.foundation.Dialog
 import androidx.ui.foundation.shape.corner.RoundedCornerShape
+import androidx.ui.layout.Arrangement
 import androidx.ui.layout.Column
 import androidx.ui.layout.Container
 import androidx.ui.layout.EdgeInsets
 import androidx.ui.layout.ExpandedWidth
 import androidx.ui.layout.HeightSpacer
-import androidx.ui.layout.MainAxisAlignment
 import androidx.ui.layout.Row
 import androidx.ui.layout.WidthSpacer
 import androidx.ui.material.AlertDialogButtonLayout.SideBySide
@@ -164,7 +164,7 @@ private fun AlertDialogButtonLayout(
 ) {
     Container(ExpandedWidth, padding = ButtonsPadding, alignment = Alignment.CenterRight) {
         if (buttonLayout == AlertDialogButtonLayout.SideBySide) {
-            Row(mainAxisAlignment = MainAxisAlignment.End) {
+            Row(arrangement = Arrangement.End) {
                 if (dismissButton != null) {
                     dismissButton()
                     WidthSpacer(ButtonsWidthSpace)

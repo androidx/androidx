@@ -26,6 +26,7 @@ import androidx.ui.foundation.Clickable
 import androidx.ui.foundation.ColoredRect
 import androidx.ui.foundation.VerticalScroller
 import androidx.ui.graphics.Color
+import androidx.ui.layout.Arrangement
 import androidx.ui.layout.Column
 import androidx.ui.layout.Container
 import androidx.ui.layout.ExpandedWidth
@@ -33,7 +34,6 @@ import androidx.ui.layout.FixedSpacer
 import androidx.ui.layout.FlexRow
 import androidx.ui.layout.Gravity
 import androidx.ui.layout.HeightSpacer
-import androidx.ui.layout.MainAxisAlignment
 import androidx.ui.layout.Row
 import androidx.ui.layout.Spacing
 import androidx.ui.layout.Stack
@@ -70,7 +70,7 @@ fun RallyAlertCard() {
                     Container {
                         Row(
                             modifier = Spacing(12.dp) wraps ExpandedWidth,
-                            mainAxisAlignment = MainAxisAlignment.SpaceBetween
+                            arrangement = Arrangement.SpaceBetween
                         ) {
                             Text(text = "Alerts", style = (+MaterialTheme.typography()).subtitle2)
                             Button(text = "See All", onClick = { }, style = TextButtonStyle())
