@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package androidx.camera.core;
+package androidx.camera.testing;
 
 import android.graphics.SurfaceTexture;
 import android.util.Size;
@@ -22,6 +22,7 @@ import android.view.Surface;
 import android.view.TextureView;
 
 import androidx.annotation.NonNull;
+import androidx.camera.core.Preview;
 import androidx.camera.core.impl.utils.executor.CameraXExecutors;
 import androidx.camera.core.impl.utils.futures.Futures;
 
@@ -29,11 +30,8 @@ import androidx.camera.core.impl.utils.futures.Futures;
  * This class creates implementations of PreviewSurfaceProvider that provide Surfaces that have been
  * pre-configured for specific work flows.
  */
-public final class PreviewSurfaceProviders {
-
-    private static final String TAG = "PreviewSurfaceProviders";
-
-    private PreviewSurfaceProviders() {
+public final class SurfaceTextureProvider {
+    private SurfaceTextureProvider() {
     }
 
     /**
@@ -47,8 +45,8 @@ public final class PreviewSurfaceProviders {
      * Example:
      *
      * <pre><code>
-     * preview.setPreviewSurfaceProvider(createPreviewSurfaceProvider(
-     *         new PreviewSurfaceProviders.SurfaceTextureCallback() {
+     * preview.setPreviewSurfaceProvider(createSurfaceTextureProvider(
+     *         new SurfaceTextureProvider.SurfaceTextureCallback() {
      *             &#64;Override
      *             public void onSurfaceTextureReady(@NonNull SurfaceTexture surfaceTexture) {
      *                 // Use the SurfaceTexture

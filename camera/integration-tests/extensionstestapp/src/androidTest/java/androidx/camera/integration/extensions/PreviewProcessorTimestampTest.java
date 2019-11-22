@@ -16,7 +16,7 @@
 
 package androidx.camera.integration.extensions;
 
-import static androidx.camera.core.PreviewSurfaceProviders.createSurfaceTextureProvider;
+import static androidx.camera.testing.SurfaceTextureProvider.createSurfaceTextureProvider;
 
 import static junit.framework.TestCase.assertEquals;
 import static junit.framework.TestCase.assertNotNull;
@@ -45,7 +45,6 @@ import androidx.camera.core.ImageCapture;
 import androidx.camera.core.LensFacing;
 import androidx.camera.core.Preview;
 import androidx.camera.core.PreviewConfig;
-import androidx.camera.core.PreviewSurfaceProviders;
 import androidx.camera.extensions.AutoImageCaptureExtender;
 import androidx.camera.extensions.AutoPreviewExtender;
 import androidx.camera.extensions.BeautyImageCaptureExtender;
@@ -60,6 +59,7 @@ import androidx.camera.extensions.NightImageCaptureExtender;
 import androidx.camera.extensions.NightPreviewExtender;
 import androidx.camera.extensions.PreviewExtender;
 import androidx.camera.testing.GLUtil;
+import androidx.camera.testing.SurfaceTextureProvider;
 import androidx.camera.testing.TimestampCaptureProcessor;
 import androidx.camera.testing.fakes.FakeLifecycleOwner;
 import androidx.test.filters.MediumTest;
@@ -249,7 +249,7 @@ public class PreviewProcessorTimestampTest {
 
         // To set the update listener and Preview will change to active state.
         preview.setPreviewSurfaceProvider(createSurfaceTextureProvider(
-                new PreviewSurfaceProviders.SurfaceTextureCallback() {
+                new SurfaceTextureProvider.SurfaceTextureCallback() {
                     @Override
                     public void onSurfaceTextureReady(@NonNull SurfaceTexture surfaceTexture,
                             @NonNull Size resolution) {

@@ -16,7 +16,7 @@
 
 package androidx.camera.core;
 
-import static androidx.camera.core.PreviewSurfaceProviders.createSurfaceTextureProvider;
+import static androidx.camera.testing.SurfaceTextureProvider.createSurfaceTextureProvider;
 
 import static com.google.common.truth.Truth.assertThat;
 
@@ -32,6 +32,7 @@ import android.view.Surface;
 import androidx.annotation.NonNull;
 import androidx.annotation.RequiresApi;
 import androidx.camera.core.impl.utils.executor.CameraXExecutors;
+import androidx.camera.testing.SurfaceTextureProvider;
 import androidx.camera.testing.fakes.FakeCameraCaptureResult;
 import androidx.test.filters.SdkSuppress;
 import androidx.test.filters.SmallTest;
@@ -60,7 +61,7 @@ public final class ProcessingSurfaceTextureTest {
             new CallbackDeferrableSurface(RESOLUTION,
                     CameraXExecutors.directExecutor(),
                     createSurfaceTextureProvider(
-                            new PreviewSurfaceProviders.SurfaceTextureCallback() {
+                            new SurfaceTextureProvider.SurfaceTextureCallback() {
                                 @Override
                                 public void onSurfaceTextureReady(
                                         @NonNull SurfaceTexture surfaceTexture,
@@ -146,7 +147,7 @@ public final class ProcessingSurfaceTextureTest {
         ProcessingSurface processingSurface = createProcessingSurfaceTexture(
                 new CallbackDeferrableSurface(RESOLUTION, CameraXExecutors.directExecutor(),
                         createSurfaceTextureProvider(
-                                new PreviewSurfaceProviders.SurfaceTextureCallback() {
+                                new SurfaceTextureProvider.SurfaceTextureCallback() {
                                     @Override
                                     public void onSurfaceTextureReady(
                                             @NonNull SurfaceTexture surfaceTexture,

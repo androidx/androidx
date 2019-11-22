@@ -16,7 +16,7 @@
 
 package androidx.camera.extensions;
 
-import static androidx.camera.core.PreviewSurfaceProviders.createSurfaceTextureProvider;
+import static androidx.camera.testing.SurfaceTextureProvider.createSurfaceTextureProvider;
 
 import static com.google.common.truth.Truth.assertThat;
 
@@ -50,7 +50,6 @@ import androidx.camera.core.CameraSelector;
 import androidx.camera.core.CameraX;
 import androidx.camera.core.LensFacing;
 import androidx.camera.core.Preview;
-import androidx.camera.core.PreviewSurfaceProviders;
 import androidx.camera.extensions.ExtensionsManager.EffectMode;
 import androidx.camera.extensions.impl.CaptureStageImpl;
 import androidx.camera.extensions.impl.PreviewExtenderImpl;
@@ -58,6 +57,7 @@ import androidx.camera.extensions.impl.PreviewImageProcessorImpl;
 import androidx.camera.extensions.impl.RequestUpdateProcessorImpl;
 import androidx.camera.extensions.util.ExtensionsTestUtil;
 import androidx.camera.testing.CameraUtil;
+import androidx.camera.testing.SurfaceTextureProvider;
 import androidx.camera.testing.fakes.FakeLifecycleOwner;
 import androidx.test.core.app.ApplicationProvider;
 import androidx.test.ext.junit.runners.AndroidJUnit4;
@@ -85,9 +85,9 @@ public class PreviewExtenderTest {
     private final Instrumentation mInstrumentation = InstrumentationRegistry.getInstrumentation();
     private FakeLifecycleOwner mFakeLifecycle;
 
-    private static final PreviewSurfaceProviders.SurfaceTextureCallback
+    private static final SurfaceTextureProvider.SurfaceTextureCallback
             NO_OP_SURFACE_TEXTURE_CALLBACK =
-            new PreviewSurfaceProviders.SurfaceTextureCallback() {
+            new SurfaceTextureProvider.SurfaceTextureCallback() {
                 @Override
                 public void onSurfaceTextureReady(
                         @NonNull SurfaceTexture surfaceTexture,
