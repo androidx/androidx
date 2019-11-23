@@ -25,8 +25,8 @@ import android.hardware.camera2.CaptureRequest;
 import android.os.Build;
 
 import androidx.annotation.experimental.UseExperimental;
-import androidx.camera.camera2.Camera2Config;
 import androidx.camera.camera2.ExperimentalCamera2Interop;
+import androidx.camera.camera2.interop.Camera2Interop;
 import androidx.camera.core.CameraCaptureCallback;
 import androidx.camera.core.CaptureConfig;
 import androidx.camera.core.ImageCapture;
@@ -58,7 +58,7 @@ public final class Camera2CaptureOptionUnpackerTest {
         ImageCapture.Builder imageCaptureBuilder = new ImageCapture.Builder();
         CaptureCallback captureCallback = mock(CaptureCallback.class);
 
-        new Camera2Config.Extender<>(imageCaptureBuilder)
+        new Camera2Interop.Extender<>(imageCaptureBuilder)
                 .setSessionCaptureCallback(captureCallback);
 
         CaptureConfig.Builder captureBuilder = new CaptureConfig.Builder();
@@ -77,7 +77,7 @@ public final class Camera2CaptureOptionUnpackerTest {
         ImageCapture.Builder imageCaptureConfigBuilder = new ImageCapture.Builder();
 
         // Add 2 options to ensure that multiple options can be unpacked.
-        new Camera2Config.Extender<>(imageCaptureConfigBuilder)
+        new Camera2Interop.Extender<>(imageCaptureConfigBuilder)
                 .setCaptureRequestOption(
                         CaptureRequest.CONTROL_AF_MODE, CaptureRequest.CONTROL_AF_MODE_AUTO)
                 .setCaptureRequestOption(
@@ -87,12 +87,12 @@ public final class Camera2CaptureOptionUnpackerTest {
         mUnpacker.unpack(imageCaptureConfigBuilder.getUseCaseConfig(), captureBuilder);
         CaptureConfig captureConfig = captureBuilder.build();
 
-        Camera2Config config = new Camera2Config(captureConfig.getImplementationOptions());
+        Camera2ImplConfig config = new Camera2ImplConfig(captureConfig.getImplementationOptions());
 
-        assertThat(config.getCaptureRequestOptionInternal(
+        assertThat(config.getCaptureRequestOption(
                 CaptureRequest.CONTROL_AF_MODE, CaptureRequest.CONTROL_AF_MODE_OFF))
                 .isEqualTo(CaptureRequest.CONTROL_AF_MODE_AUTO);
-        assertThat(config.getCaptureRequestOptionInternal(
+        assertThat(config.getCaptureRequestOption(
                 CaptureRequest.FLASH_MODE, CaptureRequest.FLASH_MODE_OFF))
                 .isEqualTo(CaptureRequest.FLASH_MODE_TORCH);
     }

@@ -18,7 +18,6 @@ package androidx.camera.camera2.impl;
 
 import android.hardware.camera2.CaptureRequest;
 
-import androidx.camera.camera2.Camera2Config;
 import androidx.camera.core.CaptureConfig;
 import androidx.camera.core.Config;
 import androidx.camera.core.Config.Option;
@@ -52,7 +51,7 @@ class Camera2CaptureOptionUnpacker implements CaptureConfig.OptionUnpacker {
         builder.setImplementationOptions(implOptions);
 
         // Get Camera2 extended options
-        final Camera2Config camera2Config = new Camera2Config(config);
+        final Camera2ImplConfig camera2Config = new Camera2ImplConfig(config);
 
         // Apply template type
         builder.setTemplateType(camera2Config.getCaptureRequestTemplate(templateType));
@@ -60,11 +59,11 @@ class Camera2CaptureOptionUnpacker implements CaptureConfig.OptionUnpacker {
         // Add extension callbacks
         builder.addCameraCaptureCallback(
                 CaptureCallbackContainer.create(
-                        camera2Config.getSessionCaptureCallbackInternal(
+                        camera2Config.getSessionCaptureCallback(
                                 Camera2CaptureCallbacks.createNoOpCallback())));
 
         // Copy extension keys
-        Camera2Config.Builder configBuilder = new Camera2Config.Builder();
+        Camera2ImplConfig.Builder configBuilder = new Camera2ImplConfig.Builder();
         for (Option<?> option : camera2Config.getCaptureRequestOptions()) {
             @SuppressWarnings("unchecked")
             // No way to get actual type info here, so treat as Object

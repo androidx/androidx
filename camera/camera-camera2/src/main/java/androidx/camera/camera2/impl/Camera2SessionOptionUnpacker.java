@@ -19,7 +19,6 @@ package androidx.camera.camera2.impl;
 import android.hardware.camera2.CaptureRequest;
 
 import androidx.annotation.NonNull;
-import androidx.camera.camera2.Camera2Config;
 import androidx.camera.core.CameraCaptureSessionStateCallbacks;
 import androidx.camera.core.CameraDeviceStateCallbacks;
 import androidx.camera.core.Config;
@@ -60,30 +59,30 @@ final class Camera2SessionOptionUnpacker implements SessionConfig.OptionUnpacker
         builder.setImplementationOptions(implOptions);
 
         // Get Camera2 extended options
-        final Camera2Config camera2Config = new Camera2Config(config);
+        final Camera2ImplConfig camera2Config = new Camera2ImplConfig(config);
 
         // Apply template type
         builder.setTemplateType(camera2Config.getCaptureRequestTemplate(templateType));
 
         // Add extension callbacks
         builder.addDeviceStateCallback(
-                camera2Config.getDeviceStateCallbackInternal(
+                camera2Config.getDeviceStateCallback(
                         CameraDeviceStateCallbacks.createNoOpCallback()));
         builder.addSessionStateCallback(
-                camera2Config.getSessionStateCallbackInternal(
+                camera2Config.getSessionStateCallback(
                         CameraCaptureSessionStateCallbacks.createNoOpCallback()));
         builder.addCameraCaptureCallback(
                 CaptureCallbackContainer.create(
-                        camera2Config.getSessionCaptureCallbackInternal(
+                        camera2Config.getSessionCaptureCallback(
                                 Camera2CaptureCallbacks.createNoOpCallback())));
 
         MutableOptionsBundle cameraEventConfig = MutableOptionsBundle.create();
-        cameraEventConfig.insertOption(Camera2Config.CAMERA_EVENT_CALLBACK_OPTION,
+        cameraEventConfig.insertOption(Camera2ImplConfig.CAMERA_EVENT_CALLBACK_OPTION,
                 camera2Config.getCameraEventCallback(CameraEventCallbacks.createEmptyCallback()));
         builder.addImplementationOptions(cameraEventConfig);
 
         // Copy extension keys
-        Camera2Config.Builder configBuilder = new Camera2Config.Builder();
+        Camera2ImplConfig.Builder configBuilder = new Camera2ImplConfig.Builder();
         for (Option<?> option : camera2Config.getCaptureRequestOptions()) {
             @SuppressWarnings("unchecked")
             // No way to get actual type info here, so treat as Object

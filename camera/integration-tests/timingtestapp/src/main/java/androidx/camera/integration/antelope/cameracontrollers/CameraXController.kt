@@ -23,7 +23,7 @@ import android.util.Log
 import android.view.Surface
 import android.view.ViewGroup
 import androidx.annotation.experimental.UseExperimental
-import androidx.camera.camera2.Camera2Config
+import androidx.camera.camera2.interop.Camera2Interop
 import androidx.camera.camera2.ExperimentalCamera2Interop
 import androidx.camera.core.CameraSelector
 import androidx.camera.core.ImageCapture
@@ -312,7 +312,7 @@ private fun cameraXPreviewUseCaseBuilder(
 ): Preview.Builder {
 
     val configBuilder = Preview.Builder()
-    Camera2Config.Extender(configBuilder)
+    Camera2Interop.Extender(configBuilder)
         .setDeviceStateCallback(deviceStateCallback)
         .setSessionStateCallback(sessionCaptureStateCallback)
     // TODO(b/142915154): Enables focusMode when CameraX support direct AF mode setting.
@@ -335,7 +335,7 @@ private fun cameraXImageCaptureUseCaseBuilder(
 
     val configBuilder = ImageCapture.Builder()
         .setCaptureMode(ImageCapture.CaptureMode.MAXIMIZE_QUALITY)
-    Camera2Config.Extender(configBuilder)
+    Camera2Interop.Extender(configBuilder)
         .setDeviceStateCallback(deviceStateCallback)
         .setSessionCaptureCallback(sessionCaptureCallback)
     // TODO(b/142915154): Enables focusMode when CameraX support direct AF mode setting.
