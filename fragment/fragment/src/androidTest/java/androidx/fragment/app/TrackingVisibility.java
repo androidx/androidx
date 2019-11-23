@@ -16,6 +16,7 @@
 package androidx.fragment.app;
 
 import android.animation.Animator;
+import android.animation.ObjectAnimator;
 import android.graphics.Rect;
 import android.transition.TransitionValues;
 import android.transition.Visibility;
@@ -28,11 +29,16 @@ import java.util.ArrayList;
 
 /**
  * Visibility transition that tracks which targets are applied to it.
- * This transition does no animation.
+ * By default, this transition does no animation.
  */
 public class TrackingVisibility extends Visibility implements TargetTracking {
     public final ArrayList<View> targets = new ArrayList<>();
     private final Rect[] mEpicenter = new Rect[1];
+    private boolean mRealTransition;
+
+    public void setRealTransition(boolean realTransition) {
+        this.mRealTransition = realTransition;
+    }
 
     @Override
     public Animator onAppear(ViewGroup sceneRoot, View view, TransitionValues startValues,
@@ -56,6 +62,9 @@ public class TrackingVisibility extends Visibility implements TargetTracking {
             mEpicenter[0] = new Rect(epicenter);
         } else {
             mEpicenter[0] = null;
+        }
+        if (mRealTransition) {
+            return ObjectAnimator.ofFloat(view, "transitionAlpha", 0);
         }
         return null;
     }

@@ -36,31 +36,15 @@ open class TransitionFragment(
 ) : StrictViewFragment(contentLayoutId) {
     val enterTransition = TrackingVisibility()
     val reenterTransition = TrackingVisibility()
-    val exitTransition = TrackingVisibility()
+    var exitTransition = TrackingVisibility()
     val returnTransition = TrackingVisibility()
     val sharedElementEnter = TrackingTransition()
     val sharedElementReturn = TrackingTransition()
     var startTransitionCountDownLatch = CountDownLatch(1)
     var endTransitionCountDownLatch = CountDownLatch(1)
 
-    val listener = object : Transition.TransitionListener {
-        override fun onTransitionEnd(transition: Transition) {
-            assertThat(viewLifecycleOwner.lifecycle.currentState)
-                .isNotEqualTo(Lifecycle.State.DESTROYED)
-            endTransitionCountDownLatch.countDown()
-            startTransitionCountDownLatch = CountDownLatch(1)
-        }
-
-        override fun onTransitionResume(transition: Transition) {}
-
-        override fun onTransitionPause(transition: Transition) {}
-
-        override fun onTransitionCancel(transition: Transition) {}
-
-        override fun onTransitionStart(transition: Transition) {
-            startTransitionCountDownLatch.countDown()
-        }
-    }
+    @Suppress("LeakingThis")
+    val listener = TestTransitionFragmentListener(this)
 
     init {
         @Suppress("LeakingThis")
@@ -136,5 +120,27 @@ open class StrictViewFragment(
                 .isTrue()
         }
         super.onDestroy()
+    }
+}
+
+open class TestTransitionFragmentListener(
+    val fragment: TransitionFragment
+) : Transition.TransitionListener {
+
+    override fun onTransitionEnd(transition: Transition) {
+        assertThat(fragment.viewLifecycleOwner.lifecycle.currentState)
+            .isNotEqualTo(Lifecycle.State.DESTROYED)
+        fragment.endTransitionCountDownLatch.countDown()
+        fragment.startTransitionCountDownLatch = CountDownLatch(1)
+    }
+
+    override fun onTransitionResume(transition: Transition) {}
+
+    override fun onTransitionPause(transition: Transition) {}
+
+    override fun onTransitionCancel(transition: Transition) {}
+
+    override fun onTransitionStart(transition: Transition) {
+        fragment.startTransitionCountDownLatch.countDown()
     }
 }
