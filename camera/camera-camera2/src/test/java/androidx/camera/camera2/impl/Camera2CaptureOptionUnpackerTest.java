@@ -25,8 +25,8 @@ import android.hardware.camera2.CaptureRequest;
 import android.os.Build;
 
 import androidx.annotation.experimental.UseExperimental;
-import androidx.camera.camera2.ExperimentalCamera2Interop;
 import androidx.camera.camera2.interop.Camera2Interop;
+import androidx.camera.camera2.interop.ExperimentalCamera2Interop;
 import androidx.camera.core.CameraCaptureCallback;
 import androidx.camera.core.CaptureConfig;
 import androidx.camera.core.ImageCapture;
