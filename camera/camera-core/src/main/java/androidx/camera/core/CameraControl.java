@@ -54,7 +54,7 @@ public interface CameraControl {
      * {@link FlashMode} set by either {@link ImageCapture#setFlashMode(int)} or
      * {@link ImageCapture.Builder#setFlashMode(int)}.
      *
-     * @param torch true to open the torch, false to close it.
+     * @param torch true to turn on the torch, false to turn it off.
      * @return A {@link ListenableFuture} which is successful when the torch was changed to the
      * value specified. It fails when it is unable to change the torch state.
      */
@@ -64,7 +64,7 @@ public interface CameraControl {
     /**
      * Starts a focus and metering action configured by the {@link FocusMeteringAction}.
      *
-     * <p>It will trigger a auto focus action and enable AF/AE/AWB metering regions. The action
+     * <p>It will trigger an auto focus action and enable AF/AE/AWB metering regions. The action
      * is configured by a {@link FocusMeteringAction} which contains the configuration of
      * multiple AF/AE/AWB {@link MeteringPoint}s, auto-cancel duration. See
      * {@link FocusMeteringAction} for more details.
@@ -118,7 +118,8 @@ public interface CameraControl {
      * @return a {@link ListenableFuture} which is finished when current repeating request
      * result contains the requested zoom ratio. It fails with
      * {@link OperationCanceledException} if there is newer value being set or camera is closed.
-     * If ratio is out of range, it fails with {@link IllegalArgumentException}.
+     *
+     * @throws IllegalAccessException if ratio is out of range
      */
     @NonNull
     ListenableFuture<Void> setZoomRatio(float ratio);
@@ -126,17 +127,21 @@ public interface CameraControl {
     /**
      * Sets current zoom by a linear zoom value ranging from 0f to 1.0f. LinearZoom 0f represents
      * the minimum zoom while linearZoom 1.0f represents the maximum zoom. The advantage of
-     * linearZoom is that it ensures FOV varies linearly with the linearZoom value.
+     * linearZoom is that it ensures FOV varies linearly with the linearZoom value, for
+     * use with a slider UI elements (while {@link #setZoomRatio(float)} works well for pinch-zoom
+     * gestures).
      *
      * <p>It modifies both current zoomRatio and linearZoom so if apps are observing
      * zoomRatio or linearZoom, they will get the update as well. If the linearZoom is not in
      * the range [0..1], it won't modify current linearZoom and zoomRatio. It is the
      * application's duty to clamp the linearZoom within [0..1].
      *
+     *
      * @return a {@link ListenableFuture} which is finished when current repeating request
      * result contains the requested linearZoom. It fails with
      * {@link OperationCanceledException} if there is newer value being set or camera is closed.
-     * If linearZoom is not in range [0..1], it fails with {@link IllegalArgumentException}.
+     *
+     * @throws IllegalAccessException if linearZoom is not in range [0..1],
      */
     @NonNull
     ListenableFuture<Void> setLinearZoom(@FloatRange(from = 0f, to = 1f) float linearZoom);
