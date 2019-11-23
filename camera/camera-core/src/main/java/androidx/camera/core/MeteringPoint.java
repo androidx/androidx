@@ -39,7 +39,7 @@ import androidx.annotation.RestrictTo;
  * by the zoom and the final coordinates will be mapped into the crop region. If not set, it is
  * mapped to the sensor active array.
  *
- * <p>Besides defining the nter point of the metering rectangle, there is also the size of the
+ * <p>Besides defining the center point of the metering rectangle, there is also the size of the
  * {@link MeteringPoint}. The size of the {@link MeteringPoint} ranges from 0 to 1.0.
  * The size are the percentage of sensor width and height (or crop region width/height if
  * crop region is set). See formula below:
