@@ -68,6 +68,24 @@ import java.util.concurrent.atomic.AtomicBoolean;
 public class VideoCapture extends UseCase {
 
     /**
+     * An unknown error occurred.
+     *
+     * <p>See message parameter in onError callback or log for more details.
+     */
+    public static final int ERROR_UNKNOWN = 0;
+    /**
+     * An error occurred with encoder state, either when trying to change state or when an
+     * unexpected state change occurred.
+     */
+    public static final int ERROR_ENCODER = 1;
+    /** An error with muxer state such as during creation or when stopping. */
+    public static final int ERROR_MUXER = 2;
+    /**
+     * An error indicating start recording was called when video recording is still in progress.
+     */
+    public static final int ERROR_RECORDING_IN_PROGRESS = 3;
+
+    /**
      * Provides a static configuration with implementation-agnostic options.
      *
      * @hide
@@ -269,7 +287,7 @@ public class VideoCapture extends UseCase {
 
         if (!mEndOfAudioVideoSignal.get()) {
             postListener.onError(
-                    VideoCaptureError.RECORDING_IN_PROGRESS, "It is still in video recording!",
+                    ERROR_RECORDING_IN_PROGRESS, "It is still in video recording!",
                     null);
             return;
         }
@@ -278,7 +296,7 @@ public class VideoCapture extends UseCase {
             // audioRecord start
             mAudioRecorder.startRecording();
         } catch (IllegalStateException e) {
-            postListener.onError(VideoCaptureError.ENCODER_ERROR, "AudioRecorder start fail", e);
+            postListener.onError(ERROR_ENCODER, "AudioRecorder start fail", e);
             return;
         }
 
@@ -294,7 +312,7 @@ public class VideoCapture extends UseCase {
 
         } catch (IllegalStateException e) {
             setupEncoder(cameraId, resolution);
-            postListener.onError(VideoCaptureError.ENCODER_ERROR, "Audio/Video encoder start fail",
+            postListener.onError(ERROR_ENCODER, "Audio/Video encoder start fail",
                     e);
             return;
         }
@@ -319,7 +337,7 @@ public class VideoCapture extends UseCase {
             }
         } catch (IOException e) {
             setupEncoder(cameraId, resolution);
-            postListener.onError(VideoCaptureError.MUXER_ERROR, "MediaMuxer creation failed!", e);
+            postListener.onError(ERROR_MUXER, "MediaMuxer creation failed!", e);
             return;
         }
 
@@ -607,7 +625,7 @@ public class VideoCapture extends UseCase {
                 case MediaCodec.INFO_OUTPUT_FORMAT_CHANGED:
                     if (mMuxerStarted) {
                         videoSavedCallback.onError(
-                                VideoCaptureError.ENCODER_ERROR,
+                                ERROR_ENCODER,
                                 "Unexpected change in video encoding format.",
                                 null);
                         errorOccurred = true;
@@ -637,7 +655,7 @@ public class VideoCapture extends UseCase {
             Log.i(TAG, "videoEncoder stop");
             mVideoEncoder.stop();
         } catch (IllegalStateException e) {
-            videoSavedCallback.onError(VideoCaptureError.ENCODER_ERROR,
+            videoSavedCallback.onError(ERROR_ENCODER,
                     "Video encoder stop failed!", e);
             errorOccurred = true;
         }
@@ -654,7 +672,7 @@ public class VideoCapture extends UseCase {
                 }
             }
         } catch (IllegalStateException e) {
-            videoSavedCallback.onError(VideoCaptureError.MUXER_ERROR, "Muxer stop failed!", e);
+            videoSavedCallback.onError(ERROR_MUXER, "Muxer stop failed!", e);
             errorOccurred = true;
         }
 
@@ -728,13 +746,13 @@ public class VideoCapture extends UseCase {
             mAudioRecorder.stop();
         } catch (IllegalStateException e) {
             videoSavedCallback.onError(
-                    VideoCaptureError.ENCODER_ERROR, "Audio recorder stop failed!", e);
+                    ERROR_ENCODER, "Audio recorder stop failed!", e);
         }
 
         try {
             mAudioEncoder.stop();
         } catch (IllegalStateException e) {
-            videoSavedCallback.onError(VideoCaptureError.ENCODER_ERROR,
+            videoSavedCallback.onError(ERROR_ENCODER,
                     "Audio encoder stop failed!", e);
         }
 
@@ -853,28 +871,13 @@ public class VideoCapture extends UseCase {
      * VideoCapture.OnVideoSavedCallback#onError(int, String, Throwable)}.
      *
      * <p>See message parameter in onError callback or log for more details.
+     *
+     * @hide
      */
-    @IntDef({VideoCaptureError.UNKNOWN_ERROR, VideoCaptureError.ENCODER_ERROR,
-            VideoCaptureError.MUXER_ERROR, VideoCaptureError.RECORDING_IN_PROGRESS})
+    @IntDef({ERROR_UNKNOWN, ERROR_ENCODER, ERROR_MUXER, ERROR_RECORDING_IN_PROGRESS})
     @Retention(RetentionPolicy.SOURCE)
+    @RestrictTo(Scope.LIBRARY_GROUP)
     public @interface VideoCaptureError {
-        /**
-         * An unknown error occurred.
-         *
-         * <p>See message parameter in onError callback or log for more details.
-         */
-        int UNKNOWN_ERROR = 0;
-        /**
-         * An error occurred with encoder state, either when trying to change state or when an
-         * unexpected state change occurred.
-         */
-        int ENCODER_ERROR = 1;
-        /** An error with muxer state such as during creation or when stopping. */
-        int MUXER_ERROR = 2;
-        /**
-         * An error indicating start recording was called when video recording is still in progress.
-         */
-        int RECORDING_IN_PROGRESS = 3;
     }
 
     /** Listener containing callbacks for video file I/O events. */

@@ -22,8 +22,8 @@ import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.camera.core.CameraInfoInternal;
 import androidx.camera.core.CameraOrientationUtil;
+import androidx.camera.core.CameraSelector;
 import androidx.camera.core.ImageOutputConfig.RotationValue;
-import androidx.camera.core.LensFacing;
 import androidx.camera.core.TorchState;
 import androidx.lifecycle.LiveData;
 import androidx.lifecycle.MutableLiveData;
@@ -36,7 +36,7 @@ import androidx.lifecycle.MutableLiveData;
 public final class FakeCameraInfoInternal implements CameraInfoInternal {
 
     private final int mSensorRotation;
-    @LensFacing
+    @CameraSelector.LensFacing
     private final int mLensFacing;
     private final boolean mHasFlashUnit = true;
     private MutableLiveData<Integer> mTorchState = new MutableLiveData<>(TorchState.OFF);
@@ -47,10 +47,10 @@ public final class FakeCameraInfoInternal implements CameraInfoInternal {
 
 
     public FakeCameraInfoInternal() {
-        this(/*sensorRotation=*/ 0, /*lensFacing=*/ LensFacing.BACK);
+        this(/*sensorRotation=*/ 0, /*lensFacing=*/ CameraSelector.LENS_FACING_BACK);
     }
 
-    public FakeCameraInfoInternal(int sensorRotation, @LensFacing int lensFacing) {
+    public FakeCameraInfoInternal(int sensorRotation, @CameraSelector.LensFacing int lensFacing) {
         mSensorRotation = sensorRotation;
         mLensFacing = lensFacing;
     }
@@ -68,7 +68,7 @@ public final class FakeCameraInfoInternal implements CameraInfoInternal {
         // Currently this assumes that a back-facing camera is always opposite to the screen.
         // This may not be the case for all devices, so in the future we may need to handle that
         // scenario.
-        boolean isOppositeFacingScreen = (LensFacing.BACK == getLensFacing());
+        boolean isOppositeFacingScreen = (CameraSelector.LENS_FACING_BACK == getLensFacing());
         return CameraOrientationUtil.getRelativeImageRotation(
                 relativeRotationDegrees,
                 mSensorRotation,

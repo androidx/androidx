@@ -65,8 +65,8 @@ public final class ImageAnalysisConfig
      * Retrieves the backpressure strategy applied to the image producer to deal with scenarios
      * where images may be produced faster than they can be analyzed.
      *
-     * <p>The available values are {@link BackpressureStrategy#BLOCK_PRODUCER} and {@link
-     * BackpressureStrategy#KEEP_ONLY_LATEST}.
+     * <p>The available values are {@link BackpressureStrategy#STRATEGY_BLOCK_PRODUCER} and {@link
+     * BackpressureStrategy#STRATEGY_KEEP_ONLY_LATEST}.
      *
      * @param valueIfMissing The value to return if this configuration option has not been set.
      * @return The stored value or <code>valueIfMissing</code> if the value does not exist in this
@@ -81,8 +81,8 @@ public final class ImageAnalysisConfig
     /**
      * Returns the mode that the image is acquired from {@link ImageReader}.
      *
-     * <p>The available values are {@link BackpressureStrategy#BLOCK_PRODUCER} and {@link
-     * BackpressureStrategy#KEEP_ONLY_LATEST}.
+     * <p>The available values are {@link BackpressureStrategy#STRATEGY_BLOCK_PRODUCER} and {@link
+     * BackpressureStrategy#STRATEGY_KEEP_ONLY_LATEST}.
      *
      * @return The stored value, if it exists in this configuration.
      * @throws IllegalArgumentException if the option does not exist in this configuration.
@@ -250,7 +250,7 @@ public final class ImageAnalysisConfig
      */
     @RestrictTo(Scope.LIBRARY_GROUP)
     @Override
-    @LensFacing
+    @CameraSelector.LensFacing
     public int getLensFacing() {
         return retrieveOption(OPTION_LENS_FACING);
     }
@@ -334,7 +334,7 @@ public final class ImageAnalysisConfig
      * @return The stored value, if it exists in this configuration.
      * @throws IllegalArgumentException if the option does not exist in this configuration.
      */
-    @AspectRatio
+    @AspectRatio.Ratio
     @Override
     public int getTargetAspectRatio() {
         return retrieveOption(OPTION_TARGET_ASPECT_RATIO);

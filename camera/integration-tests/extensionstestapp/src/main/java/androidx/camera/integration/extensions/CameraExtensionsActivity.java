@@ -35,7 +35,6 @@ import androidx.appcompat.app.AppCompatActivity;
 import androidx.camera.core.CameraSelector;
 import androidx.camera.core.CameraX;
 import androidx.camera.core.ImageCapture;
-import androidx.camera.core.LensFacing;
 import androidx.camera.core.Preview;
 import androidx.camera.core.UseCase;
 import androidx.camera.extensions.AutoImageCaptureExtender;
@@ -76,7 +75,7 @@ public class CameraExtensionsActivity extends AppCompatActivity
     private static final int PERMISSIONS_REQUEST_CODE = 42;
 
     private static final CameraSelector CAMERA_SELECTOR =
-            new CameraSelector.Builder().requireLensFacing(LensFacing.BACK).build();
+            new CameraSelector.Builder().requireLensFacing(CameraSelector.LENS_FACING_BACK).build();
 
     boolean mPermissionsGranted = false;
     private CallbackToFutureAdapter.Completer<Boolean> mPermissionCompleter;
@@ -418,11 +417,11 @@ public class CameraExtensionsActivity extends AppCompatActivity
 
         try {
             Log.d(TAG, "Camera Facing: " + mCurrentCameraFacing);
-            @LensFacing int facing;
+            @CameraSelector.LensFacing int facing;
             if (mCurrentCameraFacing.equalsIgnoreCase("BACK")) {
-                facing = LensFacing.BACK;
+                facing = CameraSelector.LENS_FACING_BACK;
             } else if (mCurrentCameraFacing.equalsIgnoreCase("FRONT")) {
-                facing = LensFacing.FRONT;
+                facing = CameraSelector.LENS_FACING_FRONT;
             } else {
                 throw new RuntimeException("Invalid lens facing: " + mCurrentCameraFacing);
             }

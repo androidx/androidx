@@ -42,7 +42,6 @@ import androidx.camera.core.CameraX;
 import androidx.camera.core.CaptureProcessor;
 import androidx.camera.core.ImageAnalysis;
 import androidx.camera.core.ImageCapture;
-import androidx.camera.core.LensFacing;
 import androidx.camera.core.Preview;
 import androidx.camera.core.PreviewConfig;
 import androidx.camera.extensions.AutoImageCaptureExtender;
@@ -96,7 +95,7 @@ public class PreviewProcessorTimestampTest {
     private FakeLifecycleOwner mLifecycleOwner;
     private CameraDevice.StateCallback mCameraStatusCallback;
     private ExtensionsManager.EffectMode mEffectMode;
-    @LensFacing
+    @CameraSelector.LensFacing
     private int mLensFacing;
     private CountDownLatch mLatch;
     private CountDownLatch mInputTimestampsLatch;
@@ -115,21 +114,21 @@ public class PreviewProcessorTimestampTest {
     @Parameterized.Parameters
     public static Collection<Object[]> getParameters() {
         return Arrays.asList(new Object[][]{
-                {ExtensionsManager.EffectMode.BOKEH, LensFacing.FRONT},
-                {ExtensionsManager.EffectMode.BOKEH, LensFacing.BACK},
-                {ExtensionsManager.EffectMode.HDR, LensFacing.FRONT},
-                {ExtensionsManager.EffectMode.HDR, LensFacing.BACK},
-                {ExtensionsManager.EffectMode.BEAUTY, LensFacing.FRONT},
-                {ExtensionsManager.EffectMode.BEAUTY, LensFacing.BACK},
-                {ExtensionsManager.EffectMode.NIGHT, LensFacing.FRONT},
-                {ExtensionsManager.EffectMode.NIGHT, LensFacing.BACK},
-                {ExtensionsManager.EffectMode.AUTO, LensFacing.FRONT},
-                {ExtensionsManager.EffectMode.AUTO, LensFacing.BACK}
+                {ExtensionsManager.EffectMode.BOKEH, CameraSelector.LENS_FACING_FRONT},
+                {ExtensionsManager.EffectMode.BOKEH, CameraSelector.LENS_FACING_BACK},
+                {ExtensionsManager.EffectMode.HDR, CameraSelector.LENS_FACING_FRONT},
+                {ExtensionsManager.EffectMode.HDR, CameraSelector.LENS_FACING_BACK},
+                {ExtensionsManager.EffectMode.BEAUTY, CameraSelector.LENS_FACING_FRONT},
+                {ExtensionsManager.EffectMode.BEAUTY, CameraSelector.LENS_FACING_BACK},
+                {ExtensionsManager.EffectMode.NIGHT, CameraSelector.LENS_FACING_FRONT},
+                {ExtensionsManager.EffectMode.NIGHT, CameraSelector.LENS_FACING_BACK},
+                {ExtensionsManager.EffectMode.AUTO, CameraSelector.LENS_FACING_FRONT},
+                {ExtensionsManager.EffectMode.AUTO, CameraSelector.LENS_FACING_BACK}
         });
     }
 
     public PreviewProcessorTimestampTest(ExtensionsManager.EffectMode effectMode,
-            @LensFacing int lensFacing) {
+            @CameraSelector.LensFacing int lensFacing) {
         mEffectMode = effectMode;
         mLensFacing = lensFacing;
     }
@@ -285,7 +284,7 @@ public class PreviewProcessorTimestampTest {
      * To invoke the enableExtension() method for different effect.
      */
     private void enableExtension(ExtensionsManager.EffectMode effectMode,
-            @LensFacing int lensFacing) {
+            @CameraSelector.LensFacing int lensFacing) {
 
         CameraSelector cameraSelector =
                 new CameraSelector.Builder().requireLensFacing(lensFacing).build();

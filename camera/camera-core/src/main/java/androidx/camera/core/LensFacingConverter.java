@@ -21,7 +21,7 @@ import androidx.annotation.Nullable;
 import androidx.annotation.RestrictTo;
 
 /**
- * Helper class that defines certain enum-like methods for {@link LensFacing}
+ * Helper class that defines certain enum-like methods for {@link CameraSelector.LensFacing}
  *
  * @hide
  */
@@ -32,21 +32,21 @@ public class LensFacingConverter {
     }
 
     /**
-     * @return an array containing the constants of {@link LensFacing} in the order they're
-     * declared.
+     * @return an array containing the constants of {@link CameraSelector.LensFacing} in the
+     * order they're declared.
      */
     @NonNull
     public static Integer[] values() {
-        return new Integer[]{LensFacing.FRONT, LensFacing.BACK};
+        return new Integer[]{CameraSelector.LENS_FACING_FRONT, CameraSelector.LENS_FACING_BACK};
     }
 
     /**
-     * Returns the {@link LensFacing} constant for the specified name
+     * Returns the {@link CameraSelector.LensFacing} constant for the specified name
      *
-     * @param name The name of the {@link LensFacing} to return
-     * @return The {@link LensFacing} constant for the specified name
+     * @param name The name of the {@link CameraSelector.LensFacing} to return
+     * @return The {@link CameraSelector.LensFacing} constant for the specified name
      */
-    @LensFacing
+    @CameraSelector.LensFacing
     public static int valueOf(@Nullable final String name) {
         if (name == null) {
             throw new NullPointerException("name cannot be null");
@@ -54,26 +54,27 @@ public class LensFacingConverter {
 
         switch (name) {
             case "FRONT":
-                return LensFacing.FRONT;
+                return CameraSelector.LENS_FACING_FRONT;
             case "BACK":
-                return LensFacing.BACK;
+                return CameraSelector.LENS_FACING_BACK;
             default:
                 throw new IllegalArgumentException("Unknown len facing name " + name);
         }
     }
 
     /**
-     * Returns the name of the {@link LensFacing} constant, exactly as it is declared.
+     * Returns the name of the {@link CameraSelector.LensFacing} constant, exactly as it is
+     * declared.
      *
-     * @param lensFacing A {@link LensFacing} constant
-     * @return The name of the {@link LensFacing} constant.
+     * @param lensFacing A {@link CameraSelector.LensFacing} constant
+     * @return The name of the {@link CameraSelector.LensFacing} constant.
      */
     @NonNull
-    public static String nameOf(@LensFacing final int lensFacing) {
+    public static String nameOf(@CameraSelector.LensFacing final int lensFacing) {
         switch (lensFacing) {
-            case LensFacing.FRONT:
+            case CameraSelector.LENS_FACING_FRONT:
                 return "FRONT";
-            case LensFacing.BACK:
+            case CameraSelector.LENS_FACING_BACK:
                 return "BACK";
             default:
                 throw new IllegalArgumentException("Unknown lens facing " + lensFacing);

@@ -51,7 +51,6 @@ import androidx.camera.core.CameraSelector;
 import androidx.camera.core.CaptureConfig;
 import androidx.camera.core.DeferrableSurface;
 import androidx.camera.core.ImmediateSurface;
-import androidx.camera.core.LensFacing;
 import androidx.camera.core.Observable;
 import androidx.camera.core.SessionConfig;
 import androidx.camera.core.UseCase;
@@ -101,8 +100,8 @@ import java.util.concurrent.atomic.AtomicReference;
 @LargeTest
 @RunWith(AndroidJUnit4.class)
 public final class Camera2CameraImplTest {
-    @LensFacing
-    private static final int DEFAULT_LENS_FACING = LensFacing.BACK;
+    @CameraSelector.LensFacing
+    private static final int DEFAULT_LENS_FACING = CameraSelector.LENS_FACING_BACK;
     // For the purpose of this test, always say we have 1 camera available.
     private static final int DEFAULT_AVAILABLE_CAMERA_COUNT = 1;
     private static final Set<CameraInternal.State> STABLE_STATES = new HashSet<>(Arrays.asList(
@@ -124,7 +123,8 @@ public final class Camera2CameraImplTest {
     OnImageAvailableListener mMockOnImageAvailableListener;
     String mCameraId;
 
-    private static String getCameraIdForLensFacingUnchecked(@LensFacing int lensFacing) {
+    private static String getCameraIdForLensFacingUnchecked(
+            @CameraSelector.LensFacing int lensFacing) {
         try {
             return sCameraFactory.cameraIdForLensFacing(lensFacing);
         } catch (Exception e) {
@@ -150,8 +150,8 @@ public final class Camera2CameraImplTest {
         mSemaphore = new Semaphore(0);
         mAvailableCameras = new SettableObservable<>(DEFAULT_AVAILABLE_CAMERA_COUNT);
         mCamera2CameraImpl = new Camera2CameraImpl(
-                CameraManagerCompat.from(ApplicationProvider.getApplicationContext()),
-                mCameraId, mAvailableCameras, mCameraHandler);
+                CameraManagerCompat.from(ApplicationProvider.getApplicationContext()), mCameraId,
+                mAvailableCameras, mCameraHandler);
     }
 
     @After
@@ -806,7 +806,8 @@ public final class Camera2CameraImplTest {
         FakeUseCaseConfig.Builder configBuilder =
                 new FakeUseCaseConfig.Builder().setTargetName("UseCase");
         CameraSelector selector =
-                new CameraSelector.Builder().requireLensFacing(LensFacing.BACK).build();
+                new CameraSelector.Builder().requireLensFacing(
+                        CameraSelector.LENS_FACING_BACK).build();
         TestUseCase testUseCase = new TestUseCase(configBuilder.getUseCaseConfig(), selector,
                 mMockOnImageAvailableListener);
         Map<String, Size> suggestedResolutionMap = new HashMap<>();

@@ -59,10 +59,10 @@ import java.util.concurrent.Executors;
 @MediumTest
 @RunWith(AndroidJUnit4.class)
 public final class CameraXTest {
-    @LensFacing
-    private static final int CAMERA_LENS_FACING = LensFacing.BACK;
-    @LensFacing
-    private static final int CAMERA_LENS_FACING_FRONT = LensFacing.FRONT;
+    @CameraSelector.LensFacing
+    private static final int CAMERA_LENS_FACING = CameraSelector.LENS_FACING_BACK;
+    @CameraSelector.LensFacing
+    private static final int CAMERA_LENS_FACING_FRONT = CameraSelector.LENS_FACING_FRONT;
     private static final CameraSelector CAMERA_SELECTOR =
             new CameraSelector.Builder().requireLensFacing(CAMERA_LENS_FACING).build();
     private static final String CAMERA_ID = "0";
@@ -306,10 +306,12 @@ public final class CameraXTest {
         CameraX.initialize(mContext, appConfigBuilder.build());
 
         CameraSelector frontSelector =
-                new CameraSelector.Builder().requireLensFacing(LensFacing.FRONT).build();
+                new CameraSelector.Builder().requireLensFacing(
+                        CameraSelector.LENS_FACING_FRONT).build();
         FakeUseCase fakeUseCase = new FakeUseCaseConfig.Builder().build();
         CameraSelector backSelector =
-                new CameraSelector.Builder().requireLensFacing(LensFacing.BACK).build();
+                new CameraSelector.Builder().requireLensFacing(
+                        CameraSelector.LENS_FACING_BACK).build();
         FakeOtherUseCase fakeOtherUseCase = new FakeOtherUseCaseConfig.Builder().build();
 
         boolean hasException = false;
@@ -336,7 +338,7 @@ public final class CameraXTest {
     public void bindUseCases_withNotExistedLensFacingCamera() {
         initCameraX();
         CameraSelector frontSelector = new CameraSelector.Builder().requireLensFacing(
-                LensFacing.FRONT).build();
+                CameraSelector.LENS_FACING_FRONT).build();
         FakeUseCaseConfig config0 = new FakeUseCaseConfig.Builder().getUseCaseConfig();
         FakeUseCase fakeUseCase = new FakeUseCase(config0);
 
@@ -464,14 +466,16 @@ public final class CameraXTest {
     public void checkHasCameraTrueForExistentCamera() throws CameraInfoUnavailableException {
         initCameraX();
         assertThat(CameraX.hasCamera(
-                new CameraSelector.Builder().requireLensFacing(LensFacing.BACK).build())).isTrue();
+                new CameraSelector.Builder().requireLensFacing(
+                        CameraSelector.LENS_FACING_BACK).build())).isTrue();
     }
 
     @Test
     public void checkHasCameraFalseForNonexistentCamera() throws CameraInfoUnavailableException {
         initCameraX();
         assertThat(CameraX.hasCamera(new CameraSelector.Builder().requireLensFacing(
-                LensFacing.BACK).requireLensFacing(LensFacing.FRONT).build())).isFalse();
+                CameraSelector.LENS_FACING_BACK).requireLensFacing(
+                CameraSelector.LENS_FACING_FRONT).build())).isFalse();
     }
 
     private void initCameraX() {

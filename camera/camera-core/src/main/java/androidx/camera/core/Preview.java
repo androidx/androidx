@@ -655,7 +655,7 @@ public class Preview extends UseCase {
         @RestrictTo(Scope.LIBRARY_GROUP)
         @Override
         @NonNull
-        public Builder setLensFacing(@LensFacing int lensFacing) {
+        public Builder setLensFacing(@CameraSelector.LensFacing int lensFacing) {
             getMutableConfig().insertOption(OPTION_LENS_FACING, lensFacing);
             return this;
         }
@@ -738,7 +738,7 @@ public class Preview extends UseCase {
          */
         @NonNull
         @Override
-        public Builder setTargetAspectRatio(@AspectRatio int aspectRatio) {
+        public Builder setTargetAspectRatio(@AspectRatio.Ratio int aspectRatio) {
             getMutableConfig().insertOption(OPTION_TARGET_ASPECT_RATIO, aspectRatio);
             return this;
         }

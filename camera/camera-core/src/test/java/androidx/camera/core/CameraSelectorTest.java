@@ -69,14 +69,14 @@ public class CameraSelectorTest {
         FakeCameraFactory cameraFactory = new FakeCameraFactory();
         mRearCamera = new FakeCamera(mock(CameraControlInternal.class),
                 new FakeCameraInfoInternal(0,
-                        LensFacing.BACK));
-        cameraFactory.insertCamera(LensFacing.BACK, REAR_ID, () -> mRearCamera);
-        cameraFactory.setDefaultCameraIdForLensFacing(LensFacing.BACK, REAR_ID);
+                        CameraSelector.LENS_FACING_BACK));
+        cameraFactory.insertCamera(CameraSelector.LENS_FACING_BACK, REAR_ID, () -> mRearCamera);
+        cameraFactory.setDefaultCameraIdForLensFacing(CameraSelector.LENS_FACING_BACK, REAR_ID);
         mFrontCamera = new FakeCamera(mock(CameraControlInternal.class),
                 new FakeCameraInfoInternal(0,
-                        LensFacing.FRONT));
-        cameraFactory.insertCamera(LensFacing.FRONT, FRONT_ID, () -> mFrontCamera);
-        cameraFactory.setDefaultCameraIdForLensFacing(LensFacing.FRONT, FRONT_ID);
+                        CameraSelector.LENS_FACING_FRONT));
+        cameraFactory.insertCamera(CameraSelector.LENS_FACING_FRONT, FRONT_ID, () -> mFrontCamera);
+        cameraFactory.setDefaultCameraIdForLensFacing(CameraSelector.LENS_FACING_FRONT, FRONT_ID);
         CameraXConfig.Builder appConfigBuilder =
                 new CameraXConfig.Builder()
                         .setCameraFactory(cameraFactory)
@@ -95,7 +95,7 @@ public class CameraSelectorTest {
     @Test
     public void canSelectWithLensFacing() {
         CameraSelector.Builder cameraSelectorBuilder = new CameraSelector.Builder();
-        cameraSelectorBuilder.requireLensFacing(LensFacing.BACK);
+        cameraSelectorBuilder.requireLensFacing(CameraSelector.LENS_FACING_BACK);
         String result = cameraSelectorBuilder.build().select(mCameraIds);
         assertThat(result).isEqualTo(REAR_ID);
     }
@@ -103,23 +103,24 @@ public class CameraSelectorTest {
     @Test(expected = IllegalArgumentException.class)
     public void exception_ifNoAvailableCamera() {
         CameraSelector.Builder cameraSelectorBuilder = new CameraSelector.Builder();
-        cameraSelectorBuilder.requireLensFacing(LensFacing.BACK).requireLensFacing(
-                LensFacing.FRONT);
+        cameraSelectorBuilder.requireLensFacing(CameraSelector.LENS_FACING_BACK).requireLensFacing(
+                CameraSelector.LENS_FACING_FRONT);
         cameraSelectorBuilder.build().select(mCameraIds);
     }
 
     @Test
     public void canGetLensFacing() {
         CameraSelector.Builder cameraSelectorBuilder = new CameraSelector.Builder();
-        cameraSelectorBuilder.requireLensFacing(LensFacing.BACK);
-        assertThat(cameraSelectorBuilder.build().getLensFacing()).isEqualTo(LensFacing.BACK);
+        cameraSelectorBuilder.requireLensFacing(CameraSelector.LENS_FACING_BACK);
+        assertThat(cameraSelectorBuilder.build().getLensFacing()).isEqualTo(
+                CameraSelector.LENS_FACING_BACK);
     }
 
     @Test(expected = IllegalStateException.class)
     public void exception_ifGetLensFacingConflicted() {
         CameraSelector.Builder cameraSelectorBuilder = new CameraSelector.Builder();
-        cameraSelectorBuilder.requireLensFacing(LensFacing.BACK).requireLensFacing(
-                LensFacing.FRONT);
+        cameraSelectorBuilder.requireLensFacing(CameraSelector.LENS_FACING_BACK).requireLensFacing(
+                CameraSelector.LENS_FACING_FRONT);
         cameraSelectorBuilder.build().getLensFacing();
     }
 

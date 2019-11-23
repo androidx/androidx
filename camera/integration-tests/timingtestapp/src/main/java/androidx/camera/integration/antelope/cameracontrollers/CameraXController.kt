@@ -27,7 +27,6 @@ import androidx.camera.camera2.interop.Camera2Interop
 import androidx.camera.camera2.interop.ExperimentalCamera2Interop
 import androidx.camera.core.CameraSelector
 import androidx.camera.core.ImageCapture
-import androidx.camera.core.LensFacing
 import androidx.camera.core.Preview
 import androidx.camera.core.impl.utils.executor.CameraXExecutors
 import androidx.camera.integration.antelope.CameraParams
@@ -135,7 +134,11 @@ internal fun cameraXOpenCamera(
         // TODO: As of 0.3.0 CameraX can only use front and back cameras.
         //  Update in future versions
         val cameraProviderFuture = ProcessCameraProvider.getInstance(activity)
-        val cameraXcameraID = if (params.id.equals("0")) LensFacing.BACK else LensFacing.FRONT
+        val cameraXcameraID = if (params.id == "0") {
+            CameraSelector.LENS_FACING_BACK
+        } else {
+            CameraSelector.LENS_FACING_FRONT
+        }
         val cameraSelector = CameraSelector.Builder().requireLensFacing(cameraXcameraID).build()
         when (testConfig.currentRunningTest) {
             //  Only the preview is required
@@ -333,8 +336,8 @@ private fun cameraXImageCaptureUseCaseBuilder(
     sessionCaptureCallback: CameraCaptureSession.CaptureCallback
 ): ImageCapture.Builder {
 
-    val configBuilder = ImageCapture.Builder()
-        .setCaptureMode(ImageCapture.CaptureMode.MAXIMIZE_QUALITY)
+    val configBuilder =
+        ImageCapture.Builder().setCaptureMode(ImageCapture.CAPTURE_MODE_MAXIMIZE_QUALITY)
     Camera2Interop.Extender(configBuilder)
         .setDeviceStateCallback(deviceStateCallback)
         .setSessionCaptureCallback(sessionCaptureCallback)

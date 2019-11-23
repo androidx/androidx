@@ -29,7 +29,7 @@ import android.os.Build;
 import android.view.Surface;
 
 import androidx.camera.core.CameraInfoInternal;
-import androidx.camera.core.LensFacing;
+import androidx.camera.core.CameraSelector;
 import androidx.camera.core.TorchState;
 import androidx.lifecycle.MutableLiveData;
 import androidx.test.core.app.ApplicationProvider;
@@ -53,8 +53,8 @@ public class Camera2CameraInfoTest {
 
     private static final String CAMERA0_ID = "0";
     private static final int CAMERA0_SENSOR_ORIENTATION = 90;
-    @LensFacing
-    private static final int CAMERA0_LENS_FACING_ENUM = LensFacing.BACK;
+    @CameraSelector.LensFacing
+    private static final int CAMERA0_LENS_FACING_ENUM = CameraSelector.LENS_FACING_BACK;
     private static final int CAMERA0_LENS_FACING_INT = CameraCharacteristics.LENS_FACING_BACK;
     private static final boolean CAMERA0_FLASH_INFO_BOOLEAN = true;
 

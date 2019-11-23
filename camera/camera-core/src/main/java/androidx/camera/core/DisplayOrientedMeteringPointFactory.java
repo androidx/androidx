@@ -36,7 +36,7 @@ import androidx.camera.core.impl.utils.CameraSelectorUtil;
  * rotating applied, they can simply use view width and height to create the
  * {@link DisplayOrientedMeteringPointFactory} and then pass {@link View} (x, y) to create a
  * {@link MeteringPoint}. This factory will convert the (x, y) into the sensor (x, y) based on
- * display rotation and {@link LensFacing}.
+ * display rotation and lensFacing.
  *
  * <p>If camera preview is scaled, cropped or rotated in the {@link View}, it is applications'
  * duty to transform the coordinates properly so that the width and height of this
@@ -145,7 +145,8 @@ public final class DisplayOrientedMeteringPointFactory extends MeteringPointFact
         float height = mHeight;
 
         final Integer lensFacing = getLensFacing();
-        boolean compensateForMirroring = (lensFacing != null && lensFacing == LensFacing.FRONT);
+        boolean compensateForMirroring =
+                (lensFacing != null && lensFacing == CameraSelector.LENS_FACING_FRONT);
         int relativeCameraOrientation = getRelativeCameraOrientation(compensateForMirroring);
         float outputX = x;
         float outputY = y;

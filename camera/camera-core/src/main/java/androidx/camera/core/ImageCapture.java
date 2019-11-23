@@ -117,6 +117,55 @@ import java.util.concurrent.atomic.AtomicInteger;
 public class ImageCapture extends UseCase {
 
     /**
+     * An unknown error occurred.
+     *
+     * <p>See message parameter in onError callback or log for more details.
+     */
+    public static final int ERROR_UNKNOWN = 0;
+    /**
+     * An error occurred while attempting to read or write a file, such as when saving an image
+     * to a File.
+     */
+    public static final int ERROR_FILE_IO = 1;
+
+    /**
+     * An error reported by camera framework indicating the capture request is failed.
+     */
+    public static final int ERROR_CAPTURE_FAILED = 2;
+
+    /**
+     * An error indicating the request cannot be done due to camera is closed.
+     */
+    public static final int ERROR_CAMERA_CLOSED = 3;
+
+    /**
+     * An error indicating this ImageCapture is not bound to a valid camera.
+     */
+    public static final int ERROR_INVALID_CAMERA = 4;
+
+    /**
+     * Optimizes capture pipeline to prioritize image quality over latency. When the capture
+     * mode is set to MAX_QUALITY, images may take longer to capture.
+     */
+    public static final int CAPTURE_MODE_MAXIMIZE_QUALITY = 0;
+    /**
+     * Optimizes capture pipeline to prioritize latency over image quality. When the capture
+     * mode is set to MIN_LATENCY, images may capture faster but the image quality may be
+     * reduced.
+     */
+    public static final int CAPTURE_MODE_MINIMIZE_LATENCY = 1;
+
+    /**
+     * Auto flash. The flash will be used according to the camera system's determination when taking
+     * a picture.
+     */
+    public static final int FLASH_MODE_AUTO = 0;
+    /** Always flash. The flash will always be used when taking a picture. */
+    public static final int FLASH_MODE_ON = 1;
+    /** No flash. The flash will never be used when taking a picture. */
+    public static final int FLASH_MODE_OFF = 2;
+
+    /**
      * Provides a static configuration with implementation-agnostic options.
      *
      * @hide
@@ -229,9 +278,9 @@ public class ImageCapture extends UseCase {
 
         mIoExecutor = mConfig.getIoExecutor(CameraXExecutors.ioExecutor());
 
-        if (mCaptureMode == CaptureMode.MAXIMIZE_QUALITY) {
+        if (mCaptureMode == CAPTURE_MODE_MAXIMIZE_QUALITY) {
             mEnableCheck3AConverged = true; // check 3A convergence in MAX_QUALITY mode
-        } else if (mCaptureMode == CaptureMode.MINIMIZE_LATENCY) {
+        } else if (mCaptureMode == CAPTURE_MODE_MINIMIZE_LATENCY) {
             mEnableCheck3AConverged = false; // skip 3A convergence in MIN_LATENCY mode
         }
 
@@ -387,7 +436,7 @@ public class ImageCapture extends UseCase {
     /**
      * Get the flash mode.
      *
-     * @return the {@link FlashMode}.
+     * @return the flashMode.
      */
     @FlashMode
     public int getFlashMode() {
@@ -397,17 +446,16 @@ public class ImageCapture extends UseCase {
     /**
      * Set the flash mode.
      *
-     * <p>The flash control for the subsequent photo capture requests. See
-     * {@link FlashMode} for the optional settings. Applications can check if there is a flash unit
-     * via {@link CameraInfo#hasFlashUnit()} and update UI component if necessary. If there is no
-     * flash unit, then calling this API will take no effect for the subsequent photo capture
-     * requests and they will act like {@link FlashMode#OFF}.
+     * <p>The flash control for the subsequent photo capture requests. Applications can check if
+     * there is a flash unit via {@link CameraInfo#hasFlashUnit()} and update UI component if
+     * necessary. If there is no flash unit, then calling this API will take no effect for the
+     * subsequent photo capture requests and they will act like {@link #FLASH_MODE_OFF}.
      *
      * <p>When the torch is enabled via {@link CameraControl#enableTorch(boolean)}, the torch
-     * will remain enabled during photo capture regardless of {@link FlashMode} setting. When
+     * will remain enabled during photo capture regardless of flashMode setting. When
      * the torch is disabled, flash will function as specified by {@link #setFlashMode(int)}.
      *
-     * @param flashMode the {@link FlashMode}.
+     * @param flashMode the flash mode.
      */
     public void setFlashMode(@FlashMode int flashMode) {
         this.mFlashMode = flashMode;
@@ -517,6 +565,7 @@ public class ImageCapture extends UseCase {
      * Captures a new still image and saves to a file.
      *
      * <p>The listener's callback will be called only once for every invocation of this method.
+     *
      * @param saveLocation       Location to store the newly captured image.
      * @param executor           The executor in which the listener callback methods will be run.
      * @param imageSavedCallback Callback to be called for the newly captured image.
@@ -585,12 +634,12 @@ public class ImageCapture extends UseCase {
                     }
 
                     @Override
-                    public void onError(@ImageSaver.SaveError int error, String message,
+                    public void onError(ImageSaver.SaveError error, String message,
                             @Nullable Throwable cause) {
-                        @ImageCaptureError int imageCaptureError = ImageCaptureError.UNKNOWN_ERROR;
+                        @ImageCaptureError int imageCaptureError = ERROR_UNKNOWN;
                         switch (error) {
-                            case ImageSaver.SaveError.FILE_IO_FAILED:
-                                imageCaptureError = ImageCaptureError.FILE_IO_ERROR;
+                            case FILE_IO_FAILED:
+                                imageCaptureError = ERROR_FILE_IO;
                                 break;
                             default:
                                 // Keep the imageCaptureError as UNKNOWN_ERROR
@@ -668,7 +717,7 @@ public class ImageCapture extends UseCase {
             cameraId = getBoundCameraId();
         } catch (Throwable e) {
             // Not bound. Notify callback.
-            callback.onError(ImageCaptureError.INVALID_CAMERA,
+            callback.onError(ERROR_INVALID_CAMERA,
                     "Not bound to a valid Camera [" + ImageCapture.this + "]", e);
             return;
         }
@@ -757,11 +806,11 @@ public class ImageCapture extends UseCase {
     @ImageCaptureError
     int getError(Throwable throwable) {
         if (throwable instanceof CameraClosedException) {
-            return ImageCaptureError.CAMERA_CLOSED;
+            return ERROR_CAMERA_CLOSED;
         } else if (throwable instanceof CaptureFailedException) {
-            return ImageCaptureError.CAPTURE_FAILED;
+            return ERROR_CAPTURE_FAILED;
         } else {
-            return ImageCaptureError.UNKNOWN_ERROR;
+            return ERROR_UNKNOWN;
         }
     }
 
@@ -877,7 +926,7 @@ public class ImageCapture extends UseCase {
     // If app is in min-latency mode and flash ALWAYS/OFF mode, it can still take picture without
     // checking the capture result. Remove this check once no repeating surface issue is fixed.
     private ListenableFuture<CameraCaptureResult> getPreCaptureStateIfNeeded() {
-        if (mEnableCheck3AConverged || getFlashMode() == FlashMode.AUTO) {
+        if (mEnableCheck3AConverged || getFlashMode() == FLASH_MODE_AUTO) {
             return mSessionCallbackChecker.checkCaptureResult(
                     new CaptureCallbackChecker.CaptureResultChecker<CameraCaptureResult>() {
                         @Override
@@ -892,11 +941,11 @@ public class ImageCapture extends UseCase {
 
     boolean isFlashRequired(TakePictureState state) {
         switch (getFlashMode()) {
-            case FlashMode.ON:
+            case FLASH_MODE_ON:
                 return true;
-            case FlashMode.AUTO:
+            case FLASH_MODE_AUTO:
                 return state.mPreCaptureState.getAeState() == AeState.FLASH_REQUIRED;
-            case FlashMode.OFF:
+            case FLASH_MODE_OFF:
                 return false;
         }
         throw new AssertionError(getFlashMode());
@@ -1109,58 +1158,47 @@ public class ImageCapture extends UseCase {
      *
      * <p>This is a parameter sent to the error callback functions set in listeners such as {@link
      * ImageCapture.OnImageSavedCallback#onError(int, String, Throwable)}.
+     *
+     * @hide
      */
-    @IntDef({ImageCaptureError.UNKNOWN_ERROR, ImageCaptureError.FILE_IO_ERROR,
-            ImageCaptureError.CAPTURE_FAILED, ImageCaptureError.CAMERA_CLOSED,
-            ImageCaptureError.INVALID_CAMERA})
+    @IntDef({ERROR_UNKNOWN, ERROR_FILE_IO, ERROR_CAPTURE_FAILED, ERROR_CAMERA_CLOSED,
+            ERROR_INVALID_CAMERA})
     @Retention(RetentionPolicy.SOURCE)
+    @RestrictTo(Scope.LIBRARY_GROUP)
     public @interface ImageCaptureError {
-        /**
-         * An unknown error occurred.
-         *
-         * <p>See message parameter in onError callback or log for more details.
-         */
-        int UNKNOWN_ERROR = 0;
-        /**
-         * An error occurred while attempting to read or write a file, such as when saving an image
-         * to a File.
-         */
-        int FILE_IO_ERROR = 1;
-
-        /**
-         * An error reported by camera framework indicating the capture request is failed.
-         */
-        int CAPTURE_FAILED = 2;
-
-        /**
-         * An error indicating the request cannot be done due to camera is closed.
-         */
-        int CAMERA_CLOSED = 3;
-
-        /**
-         * An error indicating this ImageCapture is not bound to a valid camera.
-         */
-        int INVALID_CAMERA = 4;
     }
 
     /**
      * Capture mode options for ImageCapture. A picture will always be taken regardless of
      * mode, and the mode will be used on devices that support it.
+     *
+     * @hide
      */
-    @IntDef({CaptureMode.MAXIMIZE_QUALITY, CaptureMode.MINIMIZE_LATENCY})
+    @IntDef({CAPTURE_MODE_MAXIMIZE_QUALITY, CAPTURE_MODE_MINIMIZE_LATENCY})
     @Retention(RetentionPolicy.SOURCE)
+    @RestrictTo(Scope.LIBRARY_GROUP)
     public @interface CaptureMode {
-        /**
-         * Optimizes capture pipeline to prioritize image quality over latency. When the capture
-         * mode is set to MAX_QUALITY, images may take longer to capture.
-         */
-        int MAXIMIZE_QUALITY = 0;
-        /**
-         * Optimizes capture pipeline to prioritize latency over image quality. When the capture
-         * mode is set to MIN_LATENCY, images may capture faster but the image quality may be
-         * reduced.
-         */
-        int MINIMIZE_LATENCY = 1;
+    }
+
+    /**
+     * The flash mode options when taking a picture using ImageCapture.
+     *
+     * <p>Applications can check if there is a flash unit via {@link CameraInfo#hasFlashUnit()} and
+     * update UI component if necessary. If there is no flash unit, then the FlashMode set to
+     * {@link #setFlashMode(int)} will take no effect for the subsequent photo capture requests
+     * and they will act like {@link #FLASH_MODE_OFF}.
+     *
+     * <p>When the torch is enabled via {@link CameraControl#enableTorch(boolean)}, the torch
+     * will remain enabled during photo capture regardless of flash mode setting. When
+     * the torch is disabled, flash will function as specified by
+     * {@link #setFlashMode(int)}.
+     *
+     * @hide
+     */
+    @IntDef({FLASH_MODE_AUTO, FLASH_MODE_ON, FLASH_MODE_OFF})
+    @Retention(RetentionPolicy.SOURCE)
+    @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
+    public @interface FlashMode {
     }
 
     /** Listener containing callbacks for image file I/O events. */
@@ -1251,9 +1289,9 @@ public class ImageCapture extends UseCase {
     public static final class Defaults
             implements ConfigProvider<ImageCaptureConfig> {
         @CaptureMode
-        private static final int DEFAULT_CAPTURE_MODE = CaptureMode.MINIMIZE_LATENCY;
+        private static final int DEFAULT_CAPTURE_MODE = CAPTURE_MODE_MINIMIZE_LATENCY;
         @FlashMode
-        private static final int DEFAULT_FLASH_MODE = FlashMode.OFF;
+        private static final int DEFAULT_FLASH_MODE = FLASH_MODE_OFF;
         private static final int DEFAULT_SURFACE_OCCUPANCY_PRIORITY = 4;
 
         private static final ImageCaptureConfig DEFAULT_CONFIG;
@@ -1638,11 +1676,14 @@ public class ImageCapture extends UseCase {
         /**
          * Sets the image capture mode.
          *
-         * <p>Valid capture modes are {@link CaptureMode#MINIMIZE_LATENCY}, which prioritizes
-         * latency over image quality, or {@link CaptureMode#MAXIMIZE_QUALITY}, which prioritizes
+         * <p>Valid capture modes are {@link CaptureMode#CAPTURE_MODE_MINIMIZE_LATENCY}, which
+         * prioritizes
+         * latency over image quality, or {@link CaptureMode#CAPTURE_MODE_MAXIMIZE_QUALITY},
+         * which prioritizes
          * image quality over latency.
          *
-         * <p>If not set, the capture mode will default to {@link CaptureMode#MINIMIZE_LATENCY}.
+         * <p>If not set, the capture mode will default to
+         * {@link CaptureMode#CAPTURE_MODE_MINIMIZE_LATENCY}.
          *
          * @param captureMode The requested image capture mode.
          * @return The current Builder.
@@ -1654,9 +1695,9 @@ public class ImageCapture extends UseCase {
         }
 
         /**
-         * Sets the {@link FlashMode}.
+         * Sets the flashMode.
          *
-         * <p>If not set, the flash mode will default to {@link FlashMode#OFF}.
+         * <p>If not set, the flash mode will default to {@link #FLASH_MODE_OFF}.
          *
          * <p>See {@link ImageCapture#setFlashMode(int)} for more information.
          *
@@ -1794,7 +1835,7 @@ public class ImageCapture extends UseCase {
         @RestrictTo(Scope.LIBRARY_GROUP)
         @Override
         @NonNull
-        public Builder setLensFacing(@LensFacing int lensFacing) {
+        public Builder setLensFacing(@CameraSelector.LensFacing int lensFacing) {
             getMutableConfig().insertOption(OPTION_LENS_FACING, lensFacing);
             return this;
         }
@@ -1878,7 +1919,7 @@ public class ImageCapture extends UseCase {
          */
         @NonNull
         @Override
-        public Builder setTargetAspectRatio(@AspectRatio int aspectRatio) {
+        public Builder setTargetAspectRatio(@AspectRatio.Ratio int aspectRatio) {
             getMutableConfig().insertOption(OPTION_TARGET_ASPECT_RATIO, aspectRatio);
             return this;
         }

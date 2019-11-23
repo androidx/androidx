@@ -49,7 +49,6 @@ import androidx.camera.core.CameraX;
 import androidx.camera.core.ImageAnalysis;
 import androidx.camera.core.ImageCapture;
 import androidx.camera.core.ImageProxy;
-import androidx.camera.core.LensFacing;
 import androidx.camera.core.impl.utils.executor.CameraXExecutors;
 import androidx.camera.testing.CameraUtil;
 import androidx.camera.testing.fakes.FakeLifecycleOwner;
@@ -82,8 +81,8 @@ import java.util.concurrent.atomic.AtomicLong;
 @RunWith(AndroidJUnit4.class)
 @UseExperimental(markerClass = ExperimentalCamera2Interop.class)
 public final class Camera2ImplCameraXTest {
-    @LensFacing
-    private static final int DEFAULT_LENS_FACING = LensFacing.BACK;
+    @CameraSelector.LensFacing
+    private static final int DEFAULT_LENS_FACING = CameraSelector.LENS_FACING_BACK;
     private static final CameraSelector DEFAULT_SELECTOR =
             new CameraSelector.Builder().requireLensFacing(DEFAULT_LENS_FACING).build();
     private final MutableLiveData<Long> mAnalysisResult = new MutableLiveData<>();
@@ -428,7 +427,7 @@ public final class Camera2ImplCameraXTest {
         ImageAnalysis useCase0 = builder.build();
 
         ImageCapture useCase1 = new ImageCapture.Builder()
-                .setCaptureMode(ImageCapture.CaptureMode.MAXIMIZE_QUALITY)
+                .setCaptureMode(ImageCapture.CAPTURE_MODE_MAXIMIZE_QUALITY)
                 .build();
 
         mInstrumentation.runOnMainSync(new Runnable() {
@@ -460,7 +459,7 @@ public final class Camera2ImplCameraXTest {
         ImageAnalysis useCase0 = builder.build();
 
         ImageCapture useCase1 = new ImageCapture.Builder()
-                .setCaptureMode(ImageCapture.CaptureMode.MAXIMIZE_QUALITY)
+                .setCaptureMode(ImageCapture.CAPTURE_MODE_MAXIMIZE_QUALITY)
                 .build();
 
         mInstrumentation.runOnMainSync(new Runnable() {

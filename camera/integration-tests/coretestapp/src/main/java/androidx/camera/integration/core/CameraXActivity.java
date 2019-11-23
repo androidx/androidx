@@ -16,6 +16,10 @@
 
 package androidx.camera.integration.core;
 
+import static androidx.camera.core.ImageCapture.FLASH_MODE_AUTO;
+import static androidx.camera.core.ImageCapture.FLASH_MODE_OFF;
+import static androidx.camera.core.ImageCapture.FLASH_MODE_ON;
+
 import android.content.pm.PackageInfo;
 import android.content.pm.PackageManager;
 import android.content.pm.PackageManager.NameNotFoundException;
@@ -45,10 +49,8 @@ import androidx.camera.core.Camera;
 import androidx.camera.core.CameraControl;
 import androidx.camera.core.CameraInfo;
 import androidx.camera.core.CameraSelector;
-import androidx.camera.core.FlashMode;
 import androidx.camera.core.ImageAnalysis;
 import androidx.camera.core.ImageCapture;
-import androidx.camera.core.LensFacing;
 import androidx.camera.core.Preview;
 import androidx.camera.core.TorchState;
 import androidx.camera.core.UseCase;
@@ -94,9 +96,10 @@ public class CameraXActivity extends AppCompatActivity
     // Possible values for this intent key: "backward" or "forward".
     private static final String INTENT_EXTRA_CAMERA_DIRECTION = "camera_direction";
     static final CameraSelector BACK_SELECTOR =
-            new CameraSelector.Builder().requireLensFacing(LensFacing.BACK).build();
+            new CameraSelector.Builder().requireLensFacing(CameraSelector.LENS_FACING_BACK).build();
     static final CameraSelector FRONT_SELECTOR =
-            new CameraSelector.Builder().requireLensFacing(LensFacing.FRONT).build();
+            new CameraSelector.Builder().requireLensFacing(
+                    CameraSelector.LENS_FACING_FRONT).build();
 
     private boolean mPermissionsGranted = false;
     private CallbackToFutureAdapter.Completer<Boolean> mPermissionsCompleter;
@@ -105,8 +108,8 @@ public class CameraXActivity extends AppCompatActivity
     private VideoFileSaver mVideoFileSaver;
     /** The camera to use */
     CameraSelector mCurrentCameraSelector = BACK_SELECTOR;
-    @LensFacing
-    int mCurrentCameraLensFacing = LensFacing.BACK;
+    @CameraSelector.LensFacing
+    int mCurrentCameraLensFacing = CameraSelector.LENS_FACING_BACK;
     ProcessCameraProvider mCameraProvider;
 
     // TODO: Move the analysis processing, capture processing to separate threads, so
@@ -118,7 +121,7 @@ public class CameraXActivity extends AppCompatActivity
     private VideoCapture mVideoCapture;
     private Camera mCamera;
     @ImageCapture.CaptureMode
-    private int mCaptureMode = ImageCapture.CaptureMode.MINIMIZE_LATENCY;
+    private int mCaptureMode = ImageCapture.CAPTURE_MODE_MINIMIZE_LATENCY;
     // Synthetic Accessor
     @SuppressWarnings("WeakerAccess")
     TextureView mTextureView;
@@ -497,13 +500,13 @@ public class CameraXActivity extends AppCompatActivity
         Button btnCaptureQuality = this.findViewById(R.id.capture_quality);
         btnCaptureQuality.setVisibility(View.VISIBLE);
         btnCaptureQuality.setText(
-                mCaptureMode == ImageCapture.CaptureMode.MAXIMIZE_QUALITY ? "MAX" : "MIN");
+                mCaptureMode == ImageCapture.CAPTURE_MODE_MAXIMIZE_QUALITY ? "MAX" : "MIN");
         btnCaptureQuality.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                mCaptureMode = (mCaptureMode == ImageCapture.CaptureMode.MAXIMIZE_QUALITY
-                        ? ImageCapture.CaptureMode.MINIMIZE_LATENCY
-                        : ImageCapture.CaptureMode.MAXIMIZE_QUALITY);
+                mCaptureMode = (mCaptureMode == ImageCapture.CAPTURE_MODE_MAXIMIZE_QUALITY
+                        ? ImageCapture.CAPTURE_MODE_MINIMIZE_LATENCY
+                        : ImageCapture.CAPTURE_MODE_MAXIMIZE_QUALITY);
                 rebindUseCases();
             }
         });
@@ -532,13 +535,13 @@ public class CameraXActivity extends AppCompatActivity
                 flashToggle.setOnClickListener(new View.OnClickListener() {
                     @Override
                     public void onClick(View v) {
-                        @FlashMode int flashMode = mImageCapture.getFlashMode();
-                        if (flashMode == FlashMode.ON) {
-                            mImageCapture.setFlashMode(FlashMode.OFF);
-                        } else if (flashMode == FlashMode.OFF) {
-                            mImageCapture.setFlashMode(FlashMode.AUTO);
-                        } else if (flashMode == FlashMode.AUTO) {
-                            mImageCapture.setFlashMode(FlashMode.ON);
+                        @ImageCapture.FlashMode int flashMode = mImageCapture.getFlashMode();
+                        if (flashMode == FLASH_MODE_ON) {
+                            mImageCapture.setFlashMode(FLASH_MODE_OFF);
+                        } else if (flashMode == FLASH_MODE_OFF) {
+                            mImageCapture.setFlashMode(FLASH_MODE_AUTO);
+                        } else if (flashMode == FLASH_MODE_AUTO) {
+                            mImageCapture.setFlashMode(FLASH_MODE_ON);
                         }
                         refreshFlashButtonIcon();
                     }
@@ -556,15 +559,15 @@ public class CameraXActivity extends AppCompatActivity
 
     private void refreshFlashButtonIcon() {
         ImageButton flashToggle = findViewById(R.id.flash_toggle);
-        @FlashMode int flashMode = mImageCapture.getFlashMode();
+        @ImageCapture.FlashMode int flashMode = mImageCapture.getFlashMode();
         switch (flashMode) {
-            case FlashMode.ON:
+            case FLASH_MODE_ON:
                 flashToggle.setImageResource(R.drawable.ic_flash_on);
                 break;
-            case FlashMode.OFF:
+            case FLASH_MODE_OFF:
                 flashToggle.setImageResource(R.drawable.ic_flash_off);
                 break;
-            case FlashMode.AUTO:
+            case FLASH_MODE_AUTO:
                 flashToggle.setImageResource(R.drawable.ic_flash_auto);
                 break;
         }
@@ -737,10 +740,10 @@ public class CameraXActivity extends AppCompatActivity
         Log.d(TAG, "Camera direction: " + mCurrentCameraDirection);
         if (mCurrentCameraDirection.equalsIgnoreCase("BACKWARD")) {
             mCurrentCameraSelector = BACK_SELECTOR;
-            mCurrentCameraLensFacing = LensFacing.BACK;
+            mCurrentCameraLensFacing = CameraSelector.LENS_FACING_BACK;
         } else if (mCurrentCameraDirection.equalsIgnoreCase("FORWARD")) {
             mCurrentCameraSelector = FRONT_SELECTOR;
-            mCurrentCameraLensFacing = LensFacing.FRONT;
+            mCurrentCameraLensFacing = CameraSelector.LENS_FACING_FRONT;
         } else {
             throw new RuntimeException("Invalid camera direction: " + mCurrentCameraDirection);
         }
@@ -754,12 +757,12 @@ public class CameraXActivity extends AppCompatActivity
         directionToggle.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                if (mCurrentCameraLensFacing == LensFacing.BACK) {
+                if (mCurrentCameraLensFacing == CameraSelector.LENS_FACING_BACK) {
                     mCurrentCameraSelector = FRONT_SELECTOR;
-                    mCurrentCameraLensFacing = LensFacing.FRONT;
-                } else if (mCurrentCameraLensFacing == LensFacing.FRONT) {
+                    mCurrentCameraLensFacing = CameraSelector.LENS_FACING_FRONT;
+                } else if (mCurrentCameraLensFacing == CameraSelector.LENS_FACING_FRONT) {
                     mCurrentCameraSelector = BACK_SELECTOR;
-                    mCurrentCameraLensFacing = LensFacing.BACK;
+                    mCurrentCameraLensFacing = CameraSelector.LENS_FACING_BACK;
                 }
 
                 Log.d(TAG, "Change camera direction: " + mCurrentCameraSelector);

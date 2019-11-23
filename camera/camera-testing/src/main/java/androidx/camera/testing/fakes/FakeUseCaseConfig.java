@@ -24,10 +24,10 @@ import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.camera.core.CameraDeviceConfig;
 import androidx.camera.core.CameraIdFilter;
+import androidx.camera.core.CameraSelector;
 import androidx.camera.core.CaptureConfig;
 import androidx.camera.core.Config;
 import androidx.camera.core.ImageOutputConfig;
-import androidx.camera.core.LensFacing;
 import androidx.camera.core.MutableConfig;
 import androidx.camera.core.MutableOptionsBundle;
 import androidx.camera.core.OptionsBundle;
@@ -128,7 +128,7 @@ public class FakeUseCaseConfig
     }
 
     @Override
-    @LensFacing
+    @CameraSelector.LensFacing
     public int getLensFacing() {
         return retrieveOption(OPTION_LENS_FACING);
     }
@@ -365,7 +365,7 @@ public class FakeUseCaseConfig
 
         @Override
         @NonNull
-        public Builder setLensFacing(@LensFacing int lensFacing) {
+        public Builder setLensFacing(@CameraSelector.LensFacing int lensFacing) {
             getMutableConfig().insertOption(OPTION_LENS_FACING, lensFacing);
             return this;
         }

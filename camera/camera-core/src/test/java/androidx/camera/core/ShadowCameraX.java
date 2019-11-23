@@ -52,7 +52,7 @@ public class ShadowCameraX {
 
         @Override
         public Integer getLensFacing() {
-            return LensFacing.BACK;
+            return CameraSelector.LENS_FACING_BACK;
         }
 
         @Override
@@ -72,7 +72,7 @@ public class ShadowCameraX {
 
         @NonNull
         @Override
-        @TorchState
+        @TorchState.State
         public LiveData<Integer> getTorchState() {
             return mTorchState;
         }

@@ -38,7 +38,6 @@ import androidx.camera.core.CameraSelector;
 import androidx.camera.core.CameraX;
 import androidx.camera.core.CameraXConfig;
 import androidx.camera.core.DisplayOrientedMeteringPointFactory;
-import androidx.camera.core.LensFacing;
 import androidx.camera.core.MeteringPoint;
 import androidx.camera.core.MeteringPointFactory;
 import androidx.camera.core.Preview;
@@ -70,9 +69,10 @@ import java.util.concurrent.TimeUnit;
 public class TextureViewMeteringPointFactoryTest {
     public static final float TOLERANCE = 0.000001f;
     private static final CameraSelector FRONT_CAM =
-            new CameraSelector.Builder().requireLensFacing(LensFacing.FRONT).build();
+            new CameraSelector.Builder().requireLensFacing(
+                    CameraSelector.LENS_FACING_FRONT).build();
     private static final CameraSelector BACK_CAM =
-            new CameraSelector.Builder().requireLensFacing(LensFacing.BACK).build();
+            new CameraSelector.Builder().requireLensFacing(CameraSelector.LENS_FACING_BACK).build();
     @Rule
     public GrantPermissionRule mRuntimePermissionRule = GrantPermissionRule.grant(
             Manifest.permission.CAMERA);
@@ -123,9 +123,9 @@ public class TextureViewMeteringPointFactoryTest {
 
     @Test
     public void backCamera_translatedPoint_SameAsDisplayOriented() throws Throwable {
-        assumeTrue(CameraUtil.hasCameraWithLensFacing(LensFacing.BACK));
+        assumeTrue(CameraUtil.hasCameraWithLensFacing(CameraSelector.LENS_FACING_BACK));
 
-        startAndWaitForCameraReady(LensFacing.BACK);
+        startAndWaitForCameraReady(CameraSelector.LENS_FACING_BACK);
 
         TextureViewMeteringPointFactory factory = new TextureViewMeteringPointFactory(mTextureView);
 
@@ -142,9 +142,9 @@ public class TextureViewMeteringPointFactoryTest {
 
     @Test
     public void frontCamera_translatedPoint_SameAsDisplayOriented() throws Throwable {
-        assumeTrue(CameraUtil.hasCameraWithLensFacing(LensFacing.FRONT));
+        assumeTrue(CameraUtil.hasCameraWithLensFacing(CameraSelector.LENS_FACING_FRONT));
 
-        startAndWaitForCameraReady(LensFacing.FRONT);
+        startAndWaitForCameraReady(CameraSelector.LENS_FACING_FRONT);
 
         TextureViewMeteringPointFactory factory = new TextureViewMeteringPointFactory(mTextureView);
 
@@ -163,7 +163,7 @@ public class TextureViewMeteringPointFactoryTest {
 
     @Test
     public void xy_OutOfRange() throws Throwable {
-        startAndWaitForCameraReady(LensFacing.BACK);
+        startAndWaitForCameraReady(CameraSelector.LENS_FACING_BACK);
 
         TextureViewMeteringPointFactory factory = new TextureViewMeteringPointFactory(mTextureView);
 
@@ -198,7 +198,7 @@ public class TextureViewMeteringPointFactoryTest {
         return xValid && yValid;
     }
 
-    private void startAndWaitForCameraReady(@LensFacing int lensFacing)
+    private void startAndWaitForCameraReady(@CameraSelector.LensFacing int lensFacing)
             throws InterruptedException {
         Preview preview = new Preview.Builder().build();
         mInstrumentation.runOnMainSync(() -> {

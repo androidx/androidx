@@ -28,10 +28,10 @@ import android.os.Build;
 
 import androidx.annotation.NonNull;
 import androidx.camera.camera2.Camera2Config;
+import androidx.camera.core.CameraSelector;
 import androidx.camera.core.CameraX;
 import androidx.camera.core.CameraXConfig;
 import androidx.camera.core.ImageCapture;
-import androidx.camera.core.LensFacing;
 import androidx.camera.core.Preview;
 import androidx.camera.core.UseCase;
 import androidx.camera.extensions.ExtensionsErrorListener.ExtensionsErrorCode;
@@ -77,7 +77,7 @@ public final class ExtensionsErrorListenerTest {
     }
 
     private EffectMode mEffectMode;
-    @LensFacing
+    @CameraSelector.LensFacing
     private int mLensFacing;
     private CountDownLatch mLatch;
 
@@ -90,7 +90,8 @@ public final class ExtensionsErrorListenerTest {
         }
     };
 
-    public ExtensionsErrorListenerTest(EffectMode effectMode, @LensFacing int lensFacing) {
+    public ExtensionsErrorListenerTest(EffectMode effectMode,
+            @CameraSelector.LensFacing int lensFacing) {
         mEffectMode = effectMode;
         mLensFacing = lensFacing;
     }

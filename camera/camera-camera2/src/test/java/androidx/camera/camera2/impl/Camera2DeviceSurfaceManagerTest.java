@@ -47,7 +47,6 @@ import androidx.camera.core.ImageAnalysisConfig;
 import androidx.camera.core.ImageCapture;
 import androidx.camera.core.ImageCaptureConfig;
 import androidx.camera.core.ImageFormatConstants;
-import androidx.camera.core.LensFacing;
 import androidx.camera.core.Preview;
 import androidx.camera.core.PreviewConfig;
 import androidx.camera.core.SurfaceCombination;
@@ -503,7 +502,8 @@ public final class Camera2DeviceSurfaceManagerTest {
 
         CameraDeviceConfig deviceConfig =
                 CameraSelectorUtil.toCameraDeviceConfig(
-                        new CameraSelector.Builder().requireLensFacing(LensFacing.FRONT).build());
+                        new CameraSelector.Builder().requireLensFacing(
+                                CameraSelector.LENS_FACING_FRONT).build());
         Rational resultAspectRatio = mSurfaceManager.getCorrectedAspectRatio(deviceConfig,
                 previewConfig.getTargetRotation(Surface.ROTATION_0));
 
@@ -527,13 +527,15 @@ public final class Camera2DeviceSurfaceManagerTest {
         addCamera(
                 LEGACY_CAMERA_ID, CameraCharacteristics.INFO_SUPPORTED_HARDWARE_LEVEL_LEGACY, null,
                 CameraCharacteristics.LENS_FACING_FRONT);
-        mCameraFactory.setDefaultCameraIdForLensFacing(LensFacing.FRONT, LEGACY_CAMERA_ID);
+        mCameraFactory.setDefaultCameraIdForLensFacing(CameraSelector.LENS_FACING_FRONT,
+                LEGACY_CAMERA_ID);
 
         addCamera(
                 LIMITED_CAMERA_ID, CameraCharacteristics.INFO_SUPPORTED_HARDWARE_LEVEL_LIMITED,
                 null,
                 CameraCharacteristics.LENS_FACING_BACK);
-        mCameraFactory.setDefaultCameraIdForLensFacing(LensFacing.BACK, LIMITED_CAMERA_ID);
+        mCameraFactory.setDefaultCameraIdForLensFacing(CameraSelector.LENS_FACING_BACK,
+                LIMITED_CAMERA_ID);
 
         addCamera(
                 FULL_CAMERA_ID, CameraCharacteristics.INFO_SUPPORTED_HARDWARE_LEVEL_FULL, null,
@@ -575,7 +577,8 @@ public final class Camera2DeviceSurfaceManagerTest {
                 StreamConfigurationMapUtil.generateFakeStreamConfigurationMap(
                         mSupportedFormats, mSupportedSizes));
 
-        @LensFacing int lensFacingEnum = CameraUtil.getLensFacingEnumFromInt(lensFacing);
+        @CameraSelector.LensFacing int lensFacingEnum = CameraUtil.getLensFacingEnumFromInt(
+                lensFacing);
         mCameraFactory.insertCamera(lensFacingEnum, cameraId, () -> new FakeCamera(cameraId, null,
                 new Camera2CameraInfo(characteristics, mock(ZoomControl.class),
                         mock(TorchControl.class))));

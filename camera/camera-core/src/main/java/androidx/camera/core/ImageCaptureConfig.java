@@ -52,7 +52,7 @@ public final class ImageCaptureConfig
             Option.create(
                     "camerax.core.imageCapture.captureMode", int.class);
     static final Option<Integer> OPTION_FLASH_MODE =
-            Option.create("camerax.core.imageCapture.flashMode", FlashMode.class);
+            Option.create("camerax.core.imageCapture.flashMode", int.class);
     static final Option<CaptureBundle> OPTION_CAPTURE_BUNDLE =
             Option.create("camerax.core.imageCapture.captureBundle", CaptureBundle.class);
     static final Option<CaptureProcessor> OPTION_CAPTURE_PROCESSOR =
@@ -93,12 +93,12 @@ public final class ImageCaptureConfig
     }
 
     /**
-     * Returns the {@link FlashMode}.
+     * Returns the {@link ImageCapture.FlashMode}.
      *
      * @return The stored value, if it exists in this configuration.
      * @throws IllegalArgumentException if the option does not exist in this configuration.
      */
-    @FlashMode
+    @ImageCapture.FlashMode
     public int getFlashMode() {
         return retrieveOption(OPTION_FLASH_MODE);
     }
@@ -338,7 +338,7 @@ public final class ImageCaptureConfig
      */
     @RestrictTo(Scope.LIBRARY_GROUP)
     @Override
-    @LensFacing
+    @CameraSelector.LensFacing
     public int getLensFacing() {
         return retrieveOption(OPTION_LENS_FACING);
     }
@@ -422,7 +422,7 @@ public final class ImageCaptureConfig
      * @return The stored value, if it exists in this configuration.
      * @throws IllegalArgumentException if the option does not exist in this configuration.
      */
-    @AspectRatio
+    @AspectRatio.Ratio
     @Override
     public int getTargetAspectRatio() {
         return retrieveOption(OPTION_TARGET_ASPECT_RATIO);

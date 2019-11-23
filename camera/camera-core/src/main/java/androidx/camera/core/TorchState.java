@@ -17,16 +17,27 @@
 package androidx.camera.core;
 
 import androidx.annotation.IntDef;
+import androidx.annotation.RestrictTo;
 
 import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;
 
 /** The camera flash torch state. */
-@IntDef({TorchState.OFF, TorchState.ON})
-@Retention(RetentionPolicy.SOURCE)
-public @interface TorchState {
+public class TorchState {
     /** Torch is off. */
-    int OFF = 0;
+    public static final int OFF = 0;
     /** Torch is on. */
-    int ON = 1;
+    public static final int ON = 1;
+
+    private TorchState() {
+    }
+
+    /**
+     * @hide
+     */
+    @IntDef({OFF, ON})
+    @Retention(RetentionPolicy.SOURCE)
+    @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
+    public @interface State {
+    }
 }

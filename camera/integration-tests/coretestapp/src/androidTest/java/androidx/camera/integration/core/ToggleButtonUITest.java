@@ -31,9 +31,8 @@ import static org.junit.Assume.assumeTrue;
 import android.content.Intent;
 
 import androidx.camera.core.CameraInfo;
-import androidx.camera.core.FlashMode;
+import androidx.camera.core.CameraSelector;
 import androidx.camera.core.ImageCapture;
-import androidx.camera.core.LensFacing;
 import androidx.camera.core.TorchState;
 import androidx.camera.integration.core.idlingresource.ElapsedTimeIdlingResource;
 import androidx.camera.integration.core.idlingresource.WaitForViewToShow;
@@ -121,15 +120,15 @@ public final class ToggleButtonUITest {
         // There are 3 different states of flash mode: ON, OFF and AUTO.
         // By pressing flash mode toggle button, the flash mode would switch to the next state.
         // The flash mode would loop in following sequence: OFF -> AUTO -> ON -> OFF.
-        @FlashMode int mode1 = useCase.getFlashMode();
+        @ImageCapture.FlashMode int mode1 = useCase.getFlashMode();
 
         onView(withId(R.id.flash_toggle)).perform(click());
-        @FlashMode int mode2 = useCase.getFlashMode();
+        @ImageCapture.FlashMode int mode2 = useCase.getFlashMode();
         // After the switch, the mode2 should be different from mode1.
         assertNotEquals(mode2, mode1);
 
         onView(withId(R.id.flash_toggle)).perform(click());
-        @FlashMode int mode3 = useCase.getFlashMode();
+        @ImageCapture.FlashMode int mode3 = useCase.getFlashMode();
         // The mode3 should be different from first and second time.
         assertNotEquals(mode3, mode2);
         assertNotEquals(mode3, mode1);
@@ -158,7 +157,7 @@ public final class ToggleButtonUITest {
 
     @Test
     public void testSwitchCameraToggleButton() {
-        assumeTrue(CameraUtil.hasCameraWithLensFacing(LensFacing.FRONT));
+        assumeTrue(CameraUtil.hasCameraWithLensFacing(CameraSelector.LENS_FACING_FRONT));
         waitFor(new WaitForViewToShow(R.id.direction_toggle));
 
         boolean isPreviewExist = mActivityRule.getActivity().getPreview() != null;

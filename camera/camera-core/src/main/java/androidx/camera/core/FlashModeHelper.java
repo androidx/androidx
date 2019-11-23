@@ -16,9 +16,14 @@
 
 package androidx.camera.core;
 
+import static androidx.camera.core.ImageCapture.FLASH_MODE_AUTO;
+import static androidx.camera.core.ImageCapture.FLASH_MODE_OFF;
+import static androidx.camera.core.ImageCapture.FLASH_MODE_ON;
+
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.annotation.RestrictTo;
+import androidx.camera.core.ImageCapture.FlashMode;
 
 /**
  * Helper class that defines certain enum-like methods for {@link FlashMode}
@@ -45,11 +50,11 @@ public class FlashModeHelper {
 
         switch (name) {
             case "AUTO":
-                return FlashMode.AUTO;
+                return FLASH_MODE_AUTO;
             case "ON":
-                return FlashMode.ON;
+                return FLASH_MODE_ON;
             case "OFF":
-                return FlashMode.OFF;
+                return FLASH_MODE_OFF;
             default:
                 throw new IllegalArgumentException("Unknown flash mode name " + name);
         }
@@ -64,11 +69,11 @@ public class FlashModeHelper {
     @NonNull
     public static String nameOf(@FlashMode final int flashMode) {
         switch (flashMode) {
-            case FlashMode.AUTO:
+            case FLASH_MODE_AUTO:
                 return "AUTO";
-            case FlashMode.ON:
+            case FLASH_MODE_ON:
                 return "ON";
-            case FlashMode.OFF:
+            case FLASH_MODE_OFF:
                 return "OFF";
             default:
                 throw new IllegalArgumentException("Unknown flash mode " + flashMode);
