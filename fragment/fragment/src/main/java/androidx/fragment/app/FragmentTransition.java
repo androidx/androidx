@@ -310,6 +310,21 @@ class FragmentTransition {
             exitingFragment.setHideReplaced(true);
             impl.scheduleHideFragmentView(exitTransition,
                     exitingFragment.getView(), exitingViews);
+            /* This is required to indicate to the TransitionManager the desired end state of the
+             scene when a hide is used. In the replace case, the exiting Fragment's view is
+             removed from the sceneRoot during the delay, and the TransitionManager is able to
+             calculate the difference between the two switching views. Because we can have
+             exiting child views with transitions, we cannot just mark the entire exiting
+             Fragment view as INVISIBLE or the TransitionManager will not consider the views
+             individually.
+
+            This OneShotPreDrawListener gets fired before the delayed start of the Transition and
+             changes the visibility of any exiting child views that *ARE NOT* shared element
+             transitions. The TransitionManager then properly considers exiting views and marks
+             them as disappearing, applying a transition and a listener to take proper actions
+             once the transition is complete.
+            */
+
             final ViewGroup container = exitingFragment.mContainer;
             OneShotPreDrawListener.add(container, new Runnable() {
                 @Override
