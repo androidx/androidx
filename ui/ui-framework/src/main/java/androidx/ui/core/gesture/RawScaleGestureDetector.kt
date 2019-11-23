@@ -116,9 +116,7 @@ fun RawScaleGestureDetector(
     recognizer.scaleObserver = scaleObserver
     recognizer.canStartScaling = canStartScaling
 
-    PointerInputWrapper(pointerInputHandler = recognizer.pointerInputHandler) {
-        children()
-    }
+    PointerInputWrapper(pointerInputHandler = recognizer.pointerInputHandler, children = children)
 }
 
 internal class RawScaleGestureRecognizer {

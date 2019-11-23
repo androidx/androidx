@@ -184,9 +184,7 @@ internal class ComposeViewAdapter : FrameLayout {
         // ResourcesCompat can not load fonts within Layoutlib and, since Layoutlib always runs
         // the latest version, we do not need it.
         FontLoaderAmbient.Provider(value = LayoutlibFontResourceLoader(context)) {
-            Inspectable {
-                children()
-            }
+            Inspectable(children)
         }
     }
 
