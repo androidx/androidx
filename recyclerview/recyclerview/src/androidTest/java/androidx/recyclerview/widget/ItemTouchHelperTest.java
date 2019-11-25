@@ -23,9 +23,11 @@ import static androidx.recyclerview.widget.ItemTouchHelper.START;
 import static androidx.recyclerview.widget.ItemTouchHelper.SimpleCallback;
 
 import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertTrue;
 
+import android.animation.ValueAnimator;
 import android.os.Build;
 import android.view.Gravity;
 import android.view.ViewConfiguration;
@@ -41,6 +43,7 @@ import androidx.testutils.PollingCheck;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 
+import java.lang.reflect.Field;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -272,6 +275,73 @@ public class ItemTouchHelperTest extends BaseRecyclerViewInstrumentationTest {
         assertEquals(0, mItemTouchHelper.mRecoverAnimations.size());
         assertEquals(0, mItemTouchHelper.mPendingCleanup.size());
         assertTrue(mCallback.isCleared(target));
+    }
+
+    @Test
+    public void attachToRecyclerView_recoveryAnimRunningNullRv_recoveryAnimStopped()
+            throws Throwable {
+
+        // Use reflection to set ValueAnimator animations to normal scale.
+        //
+        // Must be reset to original value at the end of the test.
+        Field durationScale = ValueAnimator.class.getDeclaredField("sDurationScale");
+        durationScale.setAccessible(true);
+        float originalDurationScale = durationScale.getFloat(null);
+        durationScale.setFloat(null, 1f);
+
+        try {
+
+            // Arrange
+
+            final RecyclerViewState rvs = setupItemTouchHelper(setupRecyclerView(), 0,
+                    LEFT | RIGHT);
+            rvs.mLayoutManager.expectLayouts(1);
+            setRecyclerView(rvs.mWrappedRecyclerView);
+            rvs.mLayoutManager.waitForLayout(1);
+
+            // Drag the child view to the right by as many pixels as the child is wide, then release
+            // without waiting for idle sync.
+            int targetX = mRecyclerView.getChildAt(0).getWidth();
+            final RecyclerView.ViewHolder target = mRecyclerView.findViewHolderForAdapterPosition(
+                    1);
+            TouchUtils.dragViewToX(getInstrumentation(), target.itemView, Gravity.CENTER, targetX,
+                    false);
+
+            // Wait for there to be a recovery animation which means that the item is in the process
+            // of animating.
+            PollingCheck.waitFor(1000, new PollingCheck.PollingCheckCondition() {
+                @Override
+                public boolean canProceed() {
+                    return mItemTouchHelper.mRecoverAnimations.size() > 0;
+                }
+            });
+
+            mActivityRule.runOnUiThread(new Runnable() {
+                @Override
+                public void run() {
+                    // Verify the assumption that at this time there should be one, and only one,
+                    // recovery animation running.
+                    assertEquals(1, mItemTouchHelper.mRecoverAnimations.size());
+                    ValueAnimator valueAnimator =
+                            mItemTouchHelper.mRecoverAnimations.get(0).mValueAnimator;
+                    // Verify the assumption that the animator should be currently running.
+                    assertTrue(valueAnimator.isRunning());
+
+                    // Act
+
+                    mItemTouchHelper.attachToRecyclerView(null);
+
+                    // Assert
+
+                    // After we attach to a null RecyclerView, the animation should no longer be
+                    // running.
+                    assertFalse(valueAnimator.isRunning());
+                }
+            });
+        } finally {
+            // Set ValueAnimator scale back to it's original value.
+            durationScale.setFloat(null, originalDurationScale);
+        }
     }
 
     private void waitForAnimations() throws InterruptedException {
