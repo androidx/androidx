@@ -466,3 +466,47 @@ fun <T> AndroidBenchmarkRule.toggleStateBenchmarkDraw(
         }
     }
 }
+
+/**
+ *  Measures recompose, measure and layout time after changing a state.
+ */
+fun <T> ComposeBenchmarkRule.toggleStateBenchmarkComposeMeasureLayout(
+    caseFactory: () -> T
+) where T : ComposeTestCase, T : ToggleableTestCase {
+    runBenchmarkFor(caseFactory) {
+        doFramesUntilNoChangesPending()
+
+        measureRepeated {
+            getTestCase().toggleState()
+            recomposeAssertHadChanges()
+            assertNoPendingChanges()
+            measure()
+            layout()
+            runWithTimingDisabled {
+                drawPrepare()
+                draw()
+                drawFinish()
+            }
+        }
+    }
+}
+
+/**
+ *  Measures measure and layout time after changing a state.
+ */
+fun <T> ComposeBenchmarkRule.toggleStateBenchmarkMeasureLayout(
+    caseFactory: () -> T
+) where T : ComposeTestCase, T : ToggleableTestCase {
+    runBenchmarkFor(caseFactory) {
+        doFramesUntilNoChangesPending()
+
+        measureRepeated {
+            runWithTimingDisabled {
+                getTestCase().toggleState()
+                assertNoPendingChanges()
+            }
+            measure()
+            assertNoPendingChanges()
+        }
+    }
+}

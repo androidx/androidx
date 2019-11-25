@@ -111,6 +111,14 @@ interface Owner {
      */
     fun onRepaintBoundaryParamsChange(repaintBoundaryNode: RepaintBoundaryNode)
 
+    /**
+     * Observing the model reads can be temporary disabled.
+     * For example if we are currently within the measure stage and we want some code block to
+     * be skipped from the observing we disable if before calling the block, execute block and
+     * then enable it again.
+     */
+    fun enableModelReadObserving(enabled: Boolean)
+
     val measureIteration: Long
 }
 
@@ -734,6 +742,32 @@ class LayoutNode : ComponentNode(), Measurable {
         ): IntPx
     }
 
+    abstract class NoIntristicsMeasureBlocks(private val error: String) : MeasureBlocks {
+        override fun minIntrinsicWidth(
+            densityScope: DensityScope,
+            measurables: List<IntrinsicMeasurable>,
+            h: IntPx
+        ) = error(error)
+
+        override fun minIntrinsicHeight(
+            densityScope: DensityScope,
+            measurables: List<IntrinsicMeasurable>,
+            w: IntPx
+        ) = error(error)
+
+        override fun maxIntrinsicWidth(
+            densityScope: DensityScope,
+            measurables: List<IntrinsicMeasurable>,
+            h: IntPx
+        ) = error(error)
+
+        override fun maxIntrinsicHeight(
+            densityScope: DensityScope,
+            measurables: List<IntrinsicMeasurable>,
+            w: IntPx
+        ) = error(error)
+    }
+
     // TODO(popam): used for multi composable children. Consider removing if possible.
     abstract class InnerMeasureScope : MeasureScope() {
         abstract val layoutNode: LayoutNode
@@ -1283,6 +1317,17 @@ class LayoutNode : ComponentNode(), Measurable {
         owner?.onRequestMeasure(this)
     }
 
+    /**
+     * Execute your code within the [block] if you want some code to not be observed for the
+     * model reads even if you are currently inside some observed scope like measuring.
+     */
+    inline fun ignoreModelReads(crossinline block: () -> Unit) {
+        val owner = requireOwner()
+        owner.enableModelReadObserving(false)
+        block()
+        owner.enableModelReadObserving(true)
+    }
+
     internal fun dispatchOnPositionedCallbacks() {
         // There are two types of callbacks:
         // a) when the Layout is positioned - `onPositioned`
@@ -1321,36 +1366,14 @@ class LayoutNode : ComponentNode(), Measurable {
             }
         }
 
-        private val ErrorMeasureBlocks = object : MeasureBlocks {
+        private val ErrorMeasureBlocks = object : NoIntristicsMeasureBlocks(
+            error = "Undefined intrinsics block and it is required"
+        ) {
             override fun measure(
                 measureScope: MeasureScope,
                 measurables: List<Measurable>,
                 constraints: Constraints
             ) = error("Undefined measure and it is required")
-
-            override fun minIntrinsicWidth(
-                densityScope: DensityScope,
-                measurables: List<IntrinsicMeasurable>,
-                h: IntPx
-            ) = error("Undefined intrinsics block and it is required")
-
-            override fun minIntrinsicHeight(
-                densityScope: DensityScope,
-                measurables: List<IntrinsicMeasurable>,
-                w: IntPx
-            ) = error("Undefined intrinsics block and it is required")
-
-            override fun maxIntrinsicWidth(
-                densityScope: DensityScope,
-                measurables: List<IntrinsicMeasurable>,
-                h: IntPx
-            ) = error("Undefined intrinsics block and it is required")
-
-            override fun maxIntrinsicHeight(
-                densityScope: DensityScope,
-                measurables: List<IntrinsicMeasurable>,
-                w: IntPx
-            ) = error("Undefined intrinsics block and it is required")
         }
 
         private fun addLayoutChildren(node: ComponentNode, list: MutableList<LayoutNode>) {

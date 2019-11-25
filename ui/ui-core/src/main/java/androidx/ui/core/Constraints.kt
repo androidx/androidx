@@ -16,6 +16,8 @@
 @file:Suppress("NOTHING_TO_INLINE")
 package androidx.ui.core
 
+import androidx.compose.Immutable
+
 /**
  * Immutable constraints used for measuring child [Layout]s. A parent [Layout]
  * can measure their children using the [measure] method on the corresponding [Measurable]s,
@@ -37,6 +39,7 @@ package androidx.ui.core
  * content, instead of expanding to fill the available space (this is not always true
  * as it depends on the child layout model, but is a common behavior for core layout components).
  */
+@Immutable
 data class Constraints(
     val minWidth: IntPx = IntPx.Zero,
     val maxWidth: IntPx = IntPx.Infinity,

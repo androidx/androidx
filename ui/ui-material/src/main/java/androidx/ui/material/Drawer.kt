@@ -18,23 +18,19 @@ package androidx.ui.material
 
 import androidx.animation.PhysicsBuilder
 import androidx.compose.Composable
-import androidx.compose.ambient
 import androidx.compose.memo
-import androidx.compose.state
 import androidx.compose.unaryPlus
 import androidx.ui.core.Alignment
-import androidx.ui.core.Constraints
-import androidx.ui.core.ContextAmbient
 import androidx.ui.core.Draw
 import androidx.ui.core.IntPx
 import androidx.ui.core.Layout
 import androidx.ui.core.Px
 import androidx.ui.core.RepaintBoundary
+import androidx.ui.core.WithConstraints
 import androidx.ui.core.ambientDensity
 import androidx.ui.core.dp
 import androidx.ui.core.hasBoundedHeight
 import androidx.ui.core.hasBoundedWidth
-import androidx.ui.core.ipx
 import androidx.ui.core.min
 import androidx.ui.core.px
 import androidx.ui.core.toRect
@@ -117,7 +113,7 @@ fun ModalDrawerLayout(
     bodyContent: @Composable() () -> Unit
 ) {
     Container(expanded = true) {
-        NoCompositionWithConstraints { pxConstraints ->
+        WithConstraints { pxConstraints ->
             // TODO : think about Infinite max bounds case
             if (!pxConstraints.hasBoundedWidth) {
                 throw IllegalStateException("Drawer shouldn't have infinite width")
@@ -186,7 +182,7 @@ fun BottomDrawerLayout(
     bodyContent: @Composable() () -> Unit
 ) {
     Container(expanded = true) {
-        NoCompositionWithConstraints { pxConstraints ->
+        WithConstraints { pxConstraints ->
             // TODO : think about Infinite max bounds case
             if (!pxConstraints.hasBoundedHeight) {
                 throw IllegalStateException("Drawer shouldn't have infinite height")
@@ -321,41 +317,6 @@ private fun WithOffset(
             val offX = xOffset?.value?.px ?: 0.px
             val offY = yOffset?.value?.px ?: 0.px
             placeable?.place(offX, offY)
-        }
-    }
-}
-
-// TODO (malkov): This adhoc handmade WithConstrains is to ensure we work fast enough in
-//  DrawerAnimation as well as ensure that all the children will recompose/relayout properly
-// Remove when WithConstraints will be fast enough and work properly with relayouting on @
-@Composable
-private fun NoCompositionWithConstraints(children: @Composable() (Constraints) -> Unit) {
-    val dm = (+ambient(ContextAmbient)).resources.displayMetrics
-    // as a default, we emulate full-activity constraints (which is most cases will be exactly what
-    // we want) and then wait for layout to know proper constraints
-    var stateConstraints by +state {
-        Constraints(
-            minWidth = 0.ipx,
-            minHeight = 0.ipx,
-            maxWidth = dm.widthPixels.ipx,
-            maxHeight = dm.heightPixels.ipx
-        )
-    }
-    Layout({ children(stateConstraints) }) { measurables, constraints ->
-        if (measurables.size > 1) {
-            throw IllegalStateException(
-                "NoCompositionWithConstraints can have only one direct measurable child!"
-            )
-        }
-        val measurable = measurables.firstOrNull()
-        if (constraints != stateConstraints) stateConstraints = constraints
-        if (measurable == null) {
-            layout(constraints.minWidth, constraints.minHeight) {}
-        } else {
-            val placeable = measurable.measure(constraints)
-            layout(placeable.width, placeable.height) {
-                placeable.place(0.ipx, 0.ipx)
-            }
         }
     }
 }

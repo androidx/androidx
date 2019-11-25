@@ -17,6 +17,7 @@ package androidx.ui.core {
     ctor public AndroidComposeView(android.content.Context context);
     method public androidx.ui.core.IntPxPosition calculatePosition();
     method public void callDraw(androidx.ui.graphics.Canvas canvas, androidx.ui.core.ComponentNode node, androidx.ui.core.PxSize parentSize);
+    method public void enableModelReadObserving(boolean enabled);
     method public java.util.List<androidx.ui.core.SemanticsTreeNode> getAllSemanticNodes();
     method public androidx.ui.autofill.Autofill? getAutofill();
     method public androidx.ui.autofill.AutofillTree getAutofillTree();
@@ -180,6 +181,7 @@ package androidx.ui.core {
     method public androidx.ui.core.IntPx getWidth();
     method public androidx.ui.core.IntPx getX();
     method public androidx.ui.core.IntPx getY();
+    method public inline void ignoreModelReads(kotlin.jvm.functions.Function0<kotlin.Unit> block);
     method public boolean isMeasuring();
     method public boolean isPlaced();
     method public androidx.ui.core.IntPx maxIntrinsicHeight(androidx.ui.core.IntPx width);
@@ -239,8 +241,17 @@ package androidx.ui.core {
     method public androidx.ui.core.IntPx minIntrinsicWidth(androidx.ui.core.DensityScope densityScope, java.util.List<? extends androidx.ui.core.IntrinsicMeasurable> measurables, androidx.ui.core.IntPx h);
   }
 
+  public abstract static class LayoutNode.NoIntristicsMeasureBlocks implements androidx.ui.core.LayoutNode.MeasureBlocks {
+    ctor public LayoutNode.NoIntristicsMeasureBlocks(String error);
+    method public Void maxIntrinsicHeight(androidx.ui.core.DensityScope densityScope, java.util.List<? extends androidx.ui.core.IntrinsicMeasurable> measurables, androidx.ui.core.IntPx w);
+    method public Void maxIntrinsicWidth(androidx.ui.core.DensityScope densityScope, java.util.List<? extends androidx.ui.core.IntrinsicMeasurable> measurables, androidx.ui.core.IntPx h);
+    method public Void minIntrinsicHeight(androidx.ui.core.DensityScope densityScope, java.util.List<? extends androidx.ui.core.IntrinsicMeasurable> measurables, androidx.ui.core.IntPx w);
+    method public Void minIntrinsicWidth(androidx.ui.core.DensityScope densityScope, java.util.List<? extends androidx.ui.core.IntrinsicMeasurable> measurables, androidx.ui.core.IntPx h);
+  }
+
   public interface Owner {
     method public androidx.ui.core.IntPxPosition calculatePosition();
+    method public void enableModelReadObserving(boolean enabled);
     method public androidx.ui.core.Density getDensity();
     method public long getMeasureIteration();
     method public void onAttach(androidx.ui.core.ComponentNode node);
