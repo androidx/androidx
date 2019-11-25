@@ -17,7 +17,6 @@ package androidx.ui.core
 
 import androidx.compose.Composable
 import androidx.compose.StructurallyEqual
-import androidx.compose.ambient
 import androidx.compose.remember
 import androidx.compose.onDispose
 import androidx.compose.state
@@ -352,11 +351,11 @@ internal fun BaseTextField(
 
     Wrapper(generation.value) {
         // Ambients
-        val style = ambient(CurrentTextStyleAmbient)
-        val textInputService = ambient(TextInputServiceAmbient)
-        val density = ambient(DensityAmbient)
-        val resourceLoader = ambient(FontLoaderAmbient)
-        val layoutDirection = ambient(LayoutDirectionAmbient)
+        val style = CurrentTextStyleAmbient.current
+        val textInputService = TextInputServiceAmbient.current
+        val density = DensityAmbient.current
+        val resourceLoader = FontLoaderAmbient.current
+        val layoutDirection = LayoutDirectionAmbient.current
 
         // Memos
         val processor = remember { EditProcessor() }
@@ -498,7 +497,7 @@ private fun TextInputEventObserver(
     children: @Composable() () -> Unit
 ) {
     val focused = state { false }
-    val focusManager = ambient(FocusManagerAmbient)
+    val focusManager = FocusManagerAmbient.current
 
     val focusNode = remember {
         val node = object : FocusManager.FocusNode {

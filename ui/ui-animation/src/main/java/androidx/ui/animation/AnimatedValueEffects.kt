@@ -25,7 +25,6 @@ import androidx.animation.ValueHolder
 import androidx.animation.AnimationVector
 import androidx.animation.AnimationVector4D
 import androidx.compose.Composable
-import androidx.compose.ambient
 import androidx.compose.remember
 import androidx.ui.core.AnimationClockAmbient
 import androidx.ui.graphics.Color
@@ -43,7 +42,7 @@ import androidx.ui.graphics.Color
 fun <T, V : AnimationVector> animatedValue(
     initVal: T,
     converter: TwoWayConverter<T, V>,
-    clock: AnimationClockObservable = ambient(AnimationClockAmbient)
+    clock: AnimationClockObservable = AnimationClockAmbient.current
 ): AnimatedValue<T, V> = remember { AnimatedValue(AnimValueHolder(initVal), converter, clock) }
 
 /**
@@ -56,7 +55,7 @@ fun <T, V : AnimationVector> animatedValue(
 @Composable
 fun animatedFloat(
     initVal: Float,
-    clock: AnimationClockObservable = ambient(AnimationClockAmbient)
+    clock: AnimationClockObservable = AnimationClockAmbient.current
 ): AnimatedFloat =
     remember { AnimatedFloat(AnimValueHolder(initVal), clock) }
 
@@ -70,7 +69,7 @@ fun animatedFloat(
 @Composable
 fun animatedColor(
     initVal: Color,
-    clock: AnimationClockObservable = ambient(AnimationClockAmbient)
+    clock: AnimationClockObservable = AnimationClockAmbient.current
 ): AnimatedValue<Color, AnimationVector4D> =
     remember {
         AnimatedValue(

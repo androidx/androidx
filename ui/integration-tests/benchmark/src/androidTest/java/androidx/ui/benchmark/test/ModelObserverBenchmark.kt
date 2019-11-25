@@ -136,16 +136,18 @@ class ModelObserverBenchmark(
     @Test
     fun modelNotification() {
         // assume 5 model changes
-        val changes = setOf(
+        val fakeChanges = setOf(
             models[random.nextInt(numberOfModels)],
             models[random.nextInt(numberOfModels)],
             models[random.nextInt(numberOfModels)],
             models[random.nextInt(numberOfModels)],
             models[random.nextInt(numberOfModels)]
         )
+        val fakeFrame = open(readOnly = true)
+        commit(fakeFrame)
         rule.runOnUiThread {
             rule.measureRepeated {
-                modelObserver.frameCommitObserver(changes)
+                modelObserver.frameCommitObserver(fakeChanges, fakeFrame)
             }
         }
     }

@@ -42,7 +42,7 @@ import androidx.compose.frames.registerCommitObserver
  * @param commitExecutor The executor on which all `onCommit` calls will be made.
  */
 class ModelObserver(private val commitExecutor: (command: () -> Unit) -> Unit) {
-    private val commitObserver: FrameCommitObserver = { committed ->
+    private val commitObserver: FrameCommitObserver = { committed, _ ->
         // This array is in the same order as commitMaps
         val targetsArray: Array<List<Any>>
         var hasValues = false

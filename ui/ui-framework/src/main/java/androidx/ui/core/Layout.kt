@@ -21,7 +21,6 @@ import androidx.compose.Compose
 import androidx.compose.CompositionReference
 import androidx.compose.Context
 import androidx.compose.FrameManager
-import androidx.compose.ambient
 import androidx.compose.compositionReference
 import androidx.compose.remember
 import androidx.ui.unit.Density
@@ -446,7 +445,7 @@ fun WithConstraints(
 ) {
     val state = remember { WithConstrainsState() }
     state.children = children
-    state.context = ambient(ContextAmbient)
+    state.context = ContextAmbient.current
     state.compositionRef = compositionReference()
     // if this code was executed subcomposition must be triggered as well
     state.forceRecompose = true

@@ -16,7 +16,7 @@
 
 package androidx.ui.core.selection
 
-import androidx.compose.Ambient
+import androidx.compose.ambientOf
 
 /**
  *  An interface allowing a composable to subscribe and unsubscribe to selection changes.
@@ -37,4 +37,4 @@ interface SelectionRegistrar {
  * Ambient of SelectionRegistrar. Composables that implement selection logic can use this ambient
  * to get a [SelectionRegistrar] in order to subscribe and unsubscribe to [SelectionRegistrar].
  */
-val SelectionRegistrarAmbient = Ambient.of<SelectionRegistrar>()
+val SelectionRegistrarAmbient = ambientOf<SelectionRegistrar?>()

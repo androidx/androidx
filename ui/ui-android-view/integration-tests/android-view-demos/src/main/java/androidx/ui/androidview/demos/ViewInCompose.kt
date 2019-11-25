@@ -26,7 +26,7 @@ import android.view.View
 import android.widget.FrameLayout
 import android.widget.RelativeLayout
 import android.widget.TextView
-import androidx.compose.ambient
+import androidx.compose.Providers
 import androidx.compose.state
 import androidx.ui.androidview.AndroidView
 import androidx.ui.androidview.adapters.Ref
@@ -51,8 +51,10 @@ class ViewInCompose : Activity() {
                 AndroidView(R.layout.test_layout)
 
                 // Inflate AndroidView from XML with style set.
-                val context = ambient(ContextAmbient)
-                ContextAmbient.Provider(ContextThemeWrapper(context, R.style.TestLayoutStyle)) {
+                val context = ContextAmbient.current
+                Providers(
+                    ContextAmbient provides ContextThemeWrapper(context, R.style.TestLayoutStyle)
+                ) {
                     AndroidView(R.layout.test_layout)
                 }
 

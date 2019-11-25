@@ -26,7 +26,6 @@ import androidx.animation.PhysicsBuilder
 import androidx.animation.TargetAnimation
 import androidx.animation.fling
 import androidx.compose.Composable
-import androidx.compose.ambient
 import androidx.compose.remember
 import androidx.ui.core.DensityAmbient
 import kotlin.math.abs
@@ -72,7 +71,7 @@ fun FlingConfig(
 ): FlingConfig {
     // This function will internally update the calculation of fling decay when the density changes,
     // but the reference to the returned FlingConfig will not change across calls.
-    val density = ambient(DensityAmbient)
+    val density = DensityAmbient.current
     val calculator = remember(density.density) { AndroidFlingCalculator(density) }
     val decayAnimation = remember { AndroidFlingDecayAnimation(calculator) }
         .also { it.flingCalculator = calculator }

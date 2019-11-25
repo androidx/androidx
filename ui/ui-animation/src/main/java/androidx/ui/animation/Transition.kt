@@ -25,7 +25,6 @@ import androidx.animation.AnimationVector
 import androidx.animation.createAnimation
 import androidx.compose.Composable
 import androidx.compose.Model
-import androidx.compose.ambient
 import androidx.compose.remember
 import androidx.ui.core.AnimationClockAmbient
 
@@ -49,7 +48,7 @@ import androidx.ui.core.AnimationClockAmbient
 fun <T> Transition(
     definition: TransitionDefinition<T>,
     toState: T,
-    clock: AnimationClockObservable = ambient(AnimationClockAmbient),
+    clock: AnimationClockObservable = AnimationClockAmbient.current,
     initState: T = toState,
     onStateChangeFinished: ((T) -> Unit)? = null,
     children: @Composable() (state: TransitionState) -> Unit

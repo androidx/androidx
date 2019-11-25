@@ -22,7 +22,6 @@ import android.view.MotionEvent
 import android.view.Window
 import android.widget.FrameLayout
 import androidx.compose.Composable
-import androidx.compose.ambient
 import androidx.compose.disposeComposition
 import androidx.compose.remember
 import androidx.compose.onActive
@@ -46,7 +45,7 @@ import androidx.ui.core.setContent
  */
 @Composable
 fun Dialog(onCloseRequest: () -> Unit, children: @Composable() () -> Unit) {
-    val context = ambient(ContextAmbient)
+    val context = ContextAmbient.current
 
     val dialog = remember(context) { DialogWrapper(context, onCloseRequest) }
     dialog.onCloseRequest = onCloseRequest

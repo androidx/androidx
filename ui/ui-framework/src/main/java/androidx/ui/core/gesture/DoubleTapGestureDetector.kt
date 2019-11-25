@@ -17,7 +17,6 @@
 package androidx.ui.core.gesture
 
 import androidx.compose.Composable
-import androidx.compose.ambient
 import androidx.compose.remember
 import androidx.ui.core.CoroutineContextAmbient
 import androidx.ui.core.PointerEventPass
@@ -54,7 +53,8 @@ fun DoubleTapGestureDetector(
     onDoubleTap: (PxPosition) -> Unit,
     children: @Composable() () -> Unit
 ) {
-    val coroutineContext = ambient(CoroutineContextAmbient)
+    val coroutineContext = CoroutineContextAmbient.current
+    // TODO(shepshapard): coroutineContext should be a field
     val recognizer = remember { DoubleTapGestureRecognizer(coroutineContext) }
     recognizer.onDoubleTap = onDoubleTap
 

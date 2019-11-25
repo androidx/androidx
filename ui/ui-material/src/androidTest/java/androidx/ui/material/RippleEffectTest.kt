@@ -17,6 +17,7 @@ package androidx.ui.material
 
 import androidx.compose.Composable
 import androidx.compose.Model
+import androidx.compose.Providers
 import androidx.test.filters.MediumTest
 import androidx.ui.core.LayoutCoordinates
 import androidx.ui.core.TestTag
@@ -282,7 +283,7 @@ class RippleEffectTest {
             defaultColor,
             opacityCallback
         )
-        CurrentRippleTheme.Provider(value = theme, children = children)
+        Providers(CurrentRippleTheme provides theme, children = children)
     }
 
     private fun testRippleEffect(

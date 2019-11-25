@@ -162,7 +162,7 @@ package androidx.ui.material {
 
   public final class EmphasisKt {
     method public static void ProvideEmphasis(androidx.ui.material.Emphasis emphasis, kotlin.jvm.functions.Function0<kotlin.Unit> children);
-    method public static androidx.compose.Ambient<androidx.ui.material.EmphasisLevels> getEmphasisAmbient();
+    method public static androidx.compose.ProvidableAmbient<androidx.ui.material.EmphasisLevels> getEmphasisAmbient();
   }
 
   public final class EmphasisLevels {
@@ -382,7 +382,7 @@ package androidx.ui.material.ripple {
   }
 
   public final class RippleThemeKt {
-    method public static androidx.compose.Ambient<androidx.ui.material.ripple.RippleTheme> getCurrentRippleTheme();
+    method public static androidx.compose.ProvidableAmbient<androidx.ui.material.ripple.RippleTheme> getCurrentRippleTheme();
   }
 
 }

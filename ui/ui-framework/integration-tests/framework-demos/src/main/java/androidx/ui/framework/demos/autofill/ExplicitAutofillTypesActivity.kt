@@ -20,7 +20,6 @@ import android.app.Activity
 import android.graphics.Rect
 import android.os.Bundle
 import androidx.compose.Composable
-import androidx.compose.ambient
 import androidx.compose.state
 import androidx.ui.autofill.AutofillNode
 import androidx.ui.autofill.AutofillType
@@ -50,7 +49,7 @@ class ExplicitAutofillTypesActivity : Activity() {
 
                     val nameState = state { "Enter name here" }
                     val emailState = state { "Enter email here" }
-                    val autofill = ambient(AutofillAmbient)
+                    val autofill = AutofillAmbient.current
                     val labelStyle = MaterialTheme.typography().subtitle1
                     val textStyle = MaterialTheme.typography().h6
 
@@ -101,7 +100,7 @@ fun Autofill(
 ) {
     val autofillNode = AutofillNode(onFill = onFill, autofillTypes = autofillTypes)
 
-    val autofillTree = ambient(AutofillTreeAmbient)
+    val autofillTree = AutofillTreeAmbient.current
     autofillTree += autofillNode
 
     OnChildPositioned(onPositioned = { autofillNode.boundingBox = it.boundingBox() }) {
