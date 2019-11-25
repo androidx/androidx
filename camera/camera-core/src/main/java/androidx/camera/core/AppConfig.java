@@ -33,10 +33,11 @@ import java.util.concurrent.Executor;
  * <p>AppConfig provides customizable global application options for CameraX that persist for the
  * lifetime of CameraX in the application from initialization and for the life of the
  * Application's process. An implementation of AppConfig must be provided by subclassing the
- * {@link Application} object and implementing {@link AppConfig.Provider}. Examples of where
- * this is used can be found in the {@link androidx.camera.lifecycle} package.
- * Applications can create and use the implementation of AppConfig provided in
- * {@link androidx.camera.camera2}.
+ * {@link Application} object and implementing {@link AppConfig.Provider}.
+ * {@linkplain androidx.camera.lifecycle.ProcessCameraProvider#getInstance(android.content.Context)
+ * An example} of how this is used can be found in the {@link androidx.camera.lifecycle} package.
+ * Applications can create and use {@linkplain androidx.camera.camera2.Camera2AppConfig the
+ * implementation} of AppConfig provided in {@link androidx.camera.camera2}.
  *
  * @see androidx.camera.lifecycle
  * @see androidx.camera.core.AppConfig.Builder
@@ -48,6 +49,10 @@ public final class AppConfig implements TargetConfig<CameraX>, Config {
      *
      * <p>When implemented by an {@link Application}, this can provide on-demand initialization
      * of CameraX.
+     *
+     * <p>{@linkplain
+     * androidx.camera.lifecycle.ProcessCameraProvider#getInstance(android.content.Context) An
+     * example} of how this is used can be found in the {@link androidx.camera.lifecycle} package.
      */
     public interface Provider {
         /** Returns the configuration to use for initializing an instance of CameraX. */
