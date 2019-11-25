@@ -119,7 +119,9 @@ public final class ImageAnalysisTest {
 
         CameraX.shutdown().get();
 
-        mHandlerThread.quitSafely();
+        if (mHandlerThread != null) {
+            mHandlerThread.quitSafely();
+        }
     }
 
     @Test
