@@ -14,19 +14,17 @@
  * limitations under the License.
  */
 
-package androidx.ui.foundation.text
+package androidx.ui.core.selection
 
 import androidx.compose.Composable
 import androidx.compose.memo
 import androidx.compose.unaryPlus
 import androidx.ui.core.Draw
 import androidx.ui.core.dp
-import androidx.ui.core.selection.Selection
 import androidx.ui.engine.geometry.Rect
 import androidx.ui.graphics.Color
 import androidx.ui.graphics.Paint
 import androidx.ui.graphics.Path
-import androidx.ui.layout.Container
 import androidx.ui.text.style.TextDirection
 
 internal val HANDLE_WIDTH = 25.dp
@@ -36,7 +34,7 @@ private val HANDLE_COLOR = Color(0xFF2B28F5.toInt())
 private fun SelectionHandle(left: Boolean) {
     val paint = +memo { Paint().also { it.isAntiAlias = true } }
     paint.color = HANDLE_COLOR
-    Container(width = HANDLE_WIDTH, height = HANDLE_HEIGHT) {
+    SimpleContainer(width = HANDLE_WIDTH, height = HANDLE_HEIGHT) {
         Draw { canvas, _ ->
             var path = Path()
             path.addRect(

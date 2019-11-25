@@ -22,8 +22,8 @@ import androidx.compose.unaryPlus
 import androidx.ui.core.Span
 import androidx.ui.core.Text
 import androidx.ui.core.selection.Selection
+import androidx.ui.core.selection.SelectionContainer
 import androidx.ui.foundation.VerticalScroller
-import androidx.ui.foundation.text.SelectionContainer
 import androidx.ui.graphics.Color
 import androidx.ui.layout.Column
 import androidx.ui.layout.ExpandedHeight
