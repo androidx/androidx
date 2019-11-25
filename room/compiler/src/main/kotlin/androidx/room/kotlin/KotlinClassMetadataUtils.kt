@@ -80,8 +80,8 @@ private class FunctionReader(val result: MutableList<KmFunction>) : KmClassVisit
                     error("Unsupported extension type: $type")
                 }
                 return object : JvmFunctionExtensionVisitor() {
-                    override fun visit(desc: JvmMethodSignature?) {
-                        descriptor = desc!!.asString()
+                    override fun visit(signature: JvmMethodSignature?) {
+                        descriptor = signature!!.asString()
                     }
                 }
             }
@@ -116,8 +116,8 @@ private class ConstructorReader(val result: MutableList<KmConstructor>) : KmClas
                     error("Unsupported extension type: $type")
                 }
                 return object : JvmConstructorExtensionVisitor() {
-                    override fun visit(desc: JvmMethodSignature?) {
-                        descriptor = desc!!.asString()
+                    override fun visit(signature: JvmMethodSignature?) {
+                        descriptor = signature!!.asString()
                     }
                 }
             }
