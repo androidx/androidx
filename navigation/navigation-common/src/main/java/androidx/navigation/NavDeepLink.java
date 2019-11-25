@@ -168,7 +168,7 @@ class NavDeepLink {
                         if (argument.getDefaultValue() != null) {
                             value = argument.getDefaultValue().toString();
                         } else if (argument.isNullable()) {
-                            value = "@null";
+                            value = null;
                         }
                     }
                     if (parseArgument(bundle, argName, value, argument)) {
