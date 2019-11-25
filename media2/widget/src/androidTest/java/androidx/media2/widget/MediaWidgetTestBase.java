@@ -206,7 +206,7 @@ public class MediaWidgetTestBase extends MediaTestBase {
         }
     }
 
-    class DefaultPlayerCallback extends PlayerWrapper.PlayerCallback {
+    static class DefaultPlayerCallback extends PlayerWrapper.PlayerCallback {
         volatile CountDownLatch mItemLatch = new CountDownLatch(1);
         CountDownLatch mPausedLatch = new CountDownLatch(1);
         CountDownLatch mPlayingLatch = new CountDownLatch(1);

@@ -43,6 +43,7 @@ import android.view.View;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
+import androidx.annotation.UiThread;
 import androidx.media2.common.FileMediaItem;
 import androidx.media2.common.MediaItem;
 import androidx.media2.common.SessionPlayer;
@@ -327,39 +328,52 @@ public class VideoView_WithPlayerTest extends MediaWidgetTestBase {
     @Test
     public void testOnVideoSizeChanged() throws Throwable {
         List<MediaItem> playlist = new ArrayList<>();
+        playlist.add(createTestMediaItem(getResourceUri(R.raw.test_file_scheme_video)));
         playlist.add(createTestMediaItem(getResourceUri(R.raw.testvideo_with_2_subtitle_tracks)));
-        playlist.add(createTestMediaItem(getResourceUri(R.raw.test_music)));
 
-        VideoSize videoSizeFor1stItem = new VideoSize(160, 90);
-        VideoSize videoSizeFor2ndItem = new VideoSize(0, 0);
+        VideoSize videoSizeFor1stItem = new VideoSize(352, 288);
+        VideoSize videoSizeFor2ndItem = new VideoSize(160, 90);
 
         CountDownLatch latchFor1stItem = new CountDownLatch(1);
         CountDownLatch latchFor2ndItem = new CountDownLatch(1);
 
-        PlayerWrapper playerWrapper = createPlayerWrapper(new PlayerWrapper.PlayerCallback() {
-            @Override
-            void onVideoSizeChanged(@NonNull PlayerWrapper player, @NonNull VideoSize videoSize) {
-                if (latchFor1stItem.getCount() > 0) {
-                    if (player.mController != null
-                            && videoSize.getHeight() == 0 && videoSize.getWidth() == 0) {
-                        // PlayerWrapper could notify onVideoSizeChanged with VideoSize of (0, 0)
-                        // right after its MediaController is connected. Ignore this case.
-                        return;
-                    }
-                    assertEquals(videoSizeFor1stItem, videoSize);
-                    latchFor1stItem.countDown();
-                } else if (latchFor2ndItem.getCount() > 0) {
-                    assertEquals(videoSizeFor2ndItem, videoSize);
-                    latchFor2ndItem.countDown();
-                }
-            }
-        }, null, playlist);
+        mActivityRule.runOnUiThread(() -> {
+            int parentWidth = mVideoView.getWidth();
+            int parentHeight = mVideoView.getHeight();
+
+            View surfaceView = findVideoSurfaceView();
+            assertNotNull("Couldn't find VideoSurfaceView", surfaceView);
+            surfaceView.addOnLayoutChangeListener(
+                    (v, left, top, right, bottom, oldLeft, oldTop, oldRight, oldBottom) -> {
+                        if (left == 0 && top == 0 && right == parentWidth
+                                && bottom == parentHeight) {
+                            // Ignore layout changes to the default size
+                            return;
+                        }
+                        if (latchFor1stItem.getCount() > 0) {
+                            latchFor1stItem.countDown();
+                        } else if (latchFor2ndItem.getCount() > 0) {
+                            latchFor2ndItem.countDown();
+                        }
+                    });
+        });
+
+        DefaultPlayerCallback playerCallback = new DefaultPlayerCallback();
+        PlayerWrapper playerWrapper = createPlayerWrapper(playerCallback, null, playlist);
         setPlayerWrapper(playerWrapper);
+        assertTrue(playerCallback.mPausedLatch.await(WAIT_TIME_MS, TimeUnit.MILLISECONDS));
+
+        playerWrapper.play();
+        assertTrue(playerCallback.mPlayingLatch.await(WAIT_TIME_MS, TimeUnit.MILLISECONDS));
         assertTrue(latchFor1stItem.await(WAIT_TIME_MS, TimeUnit.MILLISECONDS));
         onView(instanceOf(VideoSurfaceView.class)).check(matches(
                 withAspectRatio(videoSizeFor1stItem.getWidth(), videoSizeFor1stItem.getHeight())));
-        playerWrapper.skipToNextItem();
+
+        // seekTo instead of skipToNextItem (b/144876689)
+        playerWrapper.seekTo(Long.MAX_VALUE);
         assertTrue(latchFor2ndItem.await(WAIT_TIME_MS, TimeUnit.MILLISECONDS));
+        onView(instanceOf(VideoSurfaceView.class)).check(matches(
+                withAspectRatio(videoSizeFor2ndItem.getWidth(), videoSizeFor2ndItem.getHeight())));
     }
 
     private void setPlayerWrapper(final PlayerWrapper playerWrapper) throws Throwable {
@@ -415,6 +429,17 @@ public class VideoView_WithPlayerTest extends MediaWidgetTestBase {
             bitmap = mVideoView.mTextureView.getBitmap(bitmap);
         }
         return bitmap;
+    }
+
+    @UiThread
+    private VideoSurfaceView findVideoSurfaceView() {
+        for (int i = 0; i < mVideoView.getChildCount(); i++) {
+            View child = mVideoView.getChildAt(i);
+            if (child instanceof VideoSurfaceView) {
+                return (VideoSurfaceView) child;
+            }
+        }
+        return null;
     }
 
     private static class SynchronousPixelCopy {
