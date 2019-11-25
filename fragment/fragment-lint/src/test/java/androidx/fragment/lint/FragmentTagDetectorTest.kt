@@ -19,12 +19,9 @@ package androidx.fragment.lint
 import com.android.tools.lint.checks.infrastructure.LintDetectorTest
 import com.android.tools.lint.detector.api.Detector
 import com.android.tools.lint.detector.api.Issue
-import org.junit.Before
 import org.junit.Test
 import org.junit.runner.RunWith
 import org.junit.runners.JUnit4
-import java.io.File
-import java.util.Properties
 
 @RunWith(JUnit4::class)
 class FragmentTagDetectorTest : LintDetectorTest() {
@@ -32,16 +29,6 @@ class FragmentTagDetectorTest : LintDetectorTest() {
     override fun getDetector(): Detector = FragmentTagDetector()
 
     override fun getIssues(): MutableList<Issue> = mutableListOf(FragmentTagDetector.ISSUE)
-
-    private lateinit var sdkDir: File
-
-    @Before
-    fun setup() {
-        val stream = FragmentTagDetectorTest::class.java.classLoader.getResourceAsStream("sdk.prop")
-        val properties = Properties()
-        properties.load(stream)
-        sdkDir = File(properties["sdk.dir"] as String)
-    }
 
     @Test
     fun expectPass() {
@@ -57,7 +44,6 @@ class FragmentTagDetectorTest : LintDetectorTest() {
               android:layout_height="match_parent" />
 </FrameLayout>
             """))
-            .sdkHome(sdkDir)
             .run()
             .expectClean()
     }
@@ -75,7 +61,6 @@ class FragmentTagDetectorTest : LintDetectorTest() {
               android:layout_height="match_parent" />
 </FrameLayout>
             """))
-            .sdkHome(sdkDir)
             .run()
             .expect("""
 res/layout/layout.xml:5: Warning: Replace the <fragment> tag with FragmentContainerView. [FragmentTagUsage]
@@ -98,7 +83,6 @@ res/layout/layout.xml:5: Warning: Replace the <fragment> tag with FragmentContai
               android:layout_height="match_parent" />
 </FrameLayout>
             """))
-            .sdkHome(sdkDir)
             .run()
             .expect("""
 res/layout/layout.xml:5: Warning: Replace the <fragment> tag with FragmentContainerView. [FragmentTagUsage]
