@@ -119,7 +119,7 @@ public interface CameraControl {
      * result contains the requested zoom ratio. It fails with
      * {@link OperationCanceledException} if there is newer value being set or camera is closed.
      *
-     * @throws IllegalAccessException if ratio is out of range
+     * @throws IllegalArgumentException if ratio is out of range
      */
     @NonNull
     ListenableFuture<Void> setZoomRatio(float ratio);
@@ -141,7 +141,7 @@ public interface CameraControl {
      * result contains the requested linearZoom. It fails with
      * {@link OperationCanceledException} if there is newer value being set or camera is closed.
      *
-     * @throws IllegalAccessException if linearZoom is not in range [0..1],
+     * @throws IllegalArgumentException if linearZoom is not in range [0..1],
      */
     @NonNull
     ListenableFuture<Void> setLinearZoom(@FloatRange(from = 0f, to = 1f) float linearZoom);
