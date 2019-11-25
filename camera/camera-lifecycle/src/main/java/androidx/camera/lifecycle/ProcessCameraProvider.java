@@ -71,16 +71,20 @@ public final class ProcessCameraProvider implements LifecycleCameraProvider {
      *
      * <p>The instance must be initialized by subclassing the application's {@link Application}
      * class and implementing {@link AppConfig.Provider}. For example, the following will
-     * initialize this process camera provider with a Camera2 implementation from
-     * {@link androidx.camera.camera2}:
-     * <pre>{@code
+     * initialize this process camera provider with a
+     * {@linkplain androidx.camera.camera2.Camera2AppConfig Camera2 implementation} from
+     * {@link androidx.camera.camera2}.
+     * <p/>
+     * <pre>
      * public class MyApplication extends Application implements AppConfig.Provider {
-     *
+     *     {@literal @}Override
      *     public AppConfig getAppConfig() {
      *         return Camera2AppConfig.create(Application.this);
      *     }
+     *
+     *     . . .
      * }
-     * }</pre>
+     * </pre>
      *
      * @return A future which will contain the {@link ProcessCameraProvider}. Cancellation of
      * this future is a no-op.

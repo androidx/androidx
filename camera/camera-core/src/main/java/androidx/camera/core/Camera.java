@@ -21,8 +21,12 @@ import androidx.annotation.NonNull;
 import com.google.common.util.concurrent.ListenableFuture;
 
 /**
- * The camera interface. It is used to control the flow of data to use cases, control the
+ * The camera interface is used to control the flow of data to use cases, control the
  * camera via the {@link CameraControl}, and publish the state of the camera via {@link CameraInfo}.
+ *
+ * <p>{@linkplain androidx.camera.lifecycle.ProcessCameraProvider#bindToLifecycle(
+ * androidx.lifecycle.LifecycleOwner, CameraSelector, UseCase...) An example} of how to obtain an
+ * instance of this class can be found in the {@link androidx.camera.lifecycle} package.
  */
 public interface Camera {
 
