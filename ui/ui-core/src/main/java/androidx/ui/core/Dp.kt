@@ -197,7 +197,7 @@ inline fun Dp.coerceAtMost(maximumValue: Dp): Dp =
 
 /**
  *
- * Return whether `true` when it is finite or `false` when it is [Dp.Infinity]
+ * Return `true` when it is finite or `false` when it is [Dp.Infinity]
  */
 inline fun Dp.isFinite(): Boolean = value != Float.POSITIVE_INFINITY
 
