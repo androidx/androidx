@@ -25,6 +25,7 @@ import androidx.test.espresso.assertion.ViewAssertions.matches
 import androidx.test.espresso.matcher.BoundedMatcher
 import androidx.test.espresso.matcher.ViewMatchers.isDisplayed
 import androidx.test.filters.MediumTest
+import androidx.ui.core.selection.SimpleContainer
 import androidx.ui.test.createComposeRule
 import androidx.ui.test.waitForIdleCompose
 import com.google.common.truth.Truth
@@ -76,7 +77,7 @@ class PopupTest {
                 // Align the parent of the popup on the TopLeft corner, this results in the global
                 // position of the parent to be (0, 0)
                 TestAlign {
-                    TestContainer(width = parentWidthDp, height = parentHeightDp) {
+                    SimpleContainer(width = parentWidthDp, height = parentHeightDp) {
                         TestTag(testTag) {
                             Popup(alignment = alignment, offset = offset) {
                                 // This is called after the OnChildPosition method in Popup() which
@@ -84,7 +85,7 @@ class PopupTest {
                                 OnPositioned {
                                     measureLatch.countDown()
                                 }
-                                TestContainer(width = popupWidthDp, height = popupHeightDp) {}
+                                SimpleContainer(width = popupWidthDp, height = popupHeightDp) {}
                             }
                         }
                     }
@@ -116,7 +117,7 @@ class PopupTest {
     @Test
     fun popup_isShowing() {
         composeTestRule.setContent {
-            TestContainer {
+            SimpleContainer {
                 TestTag(testTag) {
                     Popup(alignment = Alignment.Center) {
                         Text(popupText)
@@ -138,10 +139,10 @@ class PopupTest {
         }
 
         composeTestRule.setContent {
-            TestContainer {
+            SimpleContainer {
                 TestTag(testTag) {
                     Popup(alignment = Alignment.Center) {
-                        TestContainer(width = popupWidthDp, height = popupHeightDp) {}
+                        SimpleContainer(width = popupWidthDp, height = popupHeightDp) {}
                     }
                 }
             }
@@ -574,51 +575,6 @@ private fun TestAlign(children: @Composable() () -> Unit) {
                     IntPxSize(layoutWidth - placeable.width, layoutHeight - placeable.height)
                 )
                 placeable.place(position.x, position.y)
-            }
-        }
-    }
-}
-
-@Composable
-private fun TestContainer(
-    width: Dp? = null,
-    height: Dp? = null,
-    children: @Composable() () -> Unit
-) {
-    Layout(children) { measurables, incomingConstraints ->
-        val containerConstraints = Constraints()
-            .withTight(width?.toIntPx(), height?.toIntPx())
-            .enforce(incomingConstraints)
-        val childConstraints = containerConstraints.looseMin()
-        var placeable: Placeable? = null
-        val containerWidth = if ((containerConstraints.hasTightWidth) &&
-            containerConstraints.maxWidth.isFinite()
-        ) {
-            containerConstraints.maxWidth
-        } else {
-            placeable = measurables.firstOrNull()?.measure(childConstraints)
-            max((placeable?.width ?: 0.ipx), containerConstraints.minWidth)
-        }
-        val containerHeight = if ((containerConstraints.hasTightHeight) &&
-            containerConstraints.maxHeight.isFinite()
-        ) {
-            containerConstraints.maxHeight
-        } else {
-            if (placeable == null) {
-                placeable = measurables.firstOrNull()?.measure(childConstraints)
-            }
-            max((placeable?.height ?: 0.ipx), containerConstraints.minHeight)
-        }
-        layout(containerWidth, containerHeight) {
-            val p = placeable ?: measurables.firstOrNull()?.measure(childConstraints)
-            p?.let {
-                val position = Alignment.Center.align(
-                    IntPxSize(containerWidth - it.width, containerHeight - it.height)
-                )
-                it.place(
-                    position.x,
-                    position.y
-                )
             }
         }
     }
