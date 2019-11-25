@@ -1965,8 +1965,9 @@ public abstract class FragmentManager {
         }
         mTmpAddedFragments.clear();
 
-        if (!allowReordering) {
-            FragmentTransition.startTransitions(this, records, isRecordPop, startIndex, endIndex,
+        if (!allowReordering && mCurState >= Fragment.CREATED) {
+            FragmentTransition.startTransitions(mHost.getContext(), mContainer,
+                    records, isRecordPop, startIndex, endIndex,
                     false, mFragmentTransitionCallback);
         }
         executeOps(records, isRecordPop, startIndex, endIndex);
@@ -1982,8 +1983,11 @@ public abstract class FragmentManager {
 
         if (postponeIndex != startIndex && allowReordering) {
             // need to run something now
-            FragmentTransition.startTransitions(this, records, isRecordPop, startIndex,
-                    postponeIndex, true, mFragmentTransitionCallback);
+            if (mCurState >= Fragment.CREATED) {
+                FragmentTransition.startTransitions(mHost.getContext(), mContainer,
+                        records, isRecordPop, startIndex,
+                        postponeIndex, true, mFragmentTransitionCallback);
+            }
             moveToState(mCurState, true);
         }
 
@@ -2097,8 +2101,9 @@ public abstract class FragmentManager {
         ArrayList<Boolean> isRecordPop = new ArrayList<>(1);
         records.add(record);
         isRecordPop.add(isPop);
-        if (runTransitions) {
-            FragmentTransition.startTransitions(this, records, isRecordPop, 0, 1, true,
+        if (runTransitions && mCurState >= Fragment.CREATED) {
+            FragmentTransition.startTransitions(mHost.getContext(), mContainer,
+                    records, isRecordPop, 0, 1, true,
                     mFragmentTransitionCallback);
         }
         if (moveToState) {

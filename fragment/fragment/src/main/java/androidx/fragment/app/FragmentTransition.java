@@ -15,6 +15,7 @@
  */
 package androidx.fragment.app;
 
+import android.content.Context;
 import android.graphics.Rect;
 import android.os.Build;
 import android.util.SparseArray;
@@ -107,7 +108,8 @@ class FragmentTransition {
      * that the added Fragments have not created their Views yet and the hierarchy
      * is unknown.
      *
-     * @param fragmentManager The executing FragmentManager
+     * @param context The hosting context
+     * @param fragmentContainer the FragmentContainer for finding the container for each Fragment
      * @param records The list of transactions being executed.
      * @param isRecordPop For each transaction, whether it is a pop transaction or not.
      * @param startIndex The first index into records and isRecordPop to execute as
@@ -118,13 +120,10 @@ class FragmentTransition {
      *                    Views of incoming fragments have been added. false if the
      *                    transaction has yet to be run and Views haven't been created.
      */
-    static void startTransitions(FragmentManager fragmentManager,
+    static void startTransitions(@NonNull Context context,
+            @NonNull FragmentContainer fragmentContainer,
             ArrayList<BackStackRecord> records, ArrayList<Boolean> isRecordPop,
             int startIndex, int endIndex, boolean isReordered, Callback callback) {
-        if (fragmentManager.mCurState < Fragment.CREATED) {
-            return;
-        }
-
         SparseArray<FragmentContainerTransition> transitioningFragments =
                 new SparseArray<>();
         for (int i = startIndex; i < endIndex; i++) {
@@ -138,7 +137,7 @@ class FragmentTransition {
         }
 
         if (transitioningFragments.size() != 0) {
-            final View nonExistentView = new View(fragmentManager.mHost.getContext());
+            final View nonExistentView = new View(context);
             final int numContainers = transitioningFragments.size();
             for (int i = 0; i < numContainers; i++) {
                 int containerId = transitioningFragments.keyAt(i);
@@ -148,12 +147,20 @@ class FragmentTransition {
                 FragmentContainerTransition containerTransition =
                         transitioningFragments.valueAt(i);
 
-                if (isReordered) {
-                    configureTransitionsReordered(fragmentManager, containerId,
-                            containerTransition, nonExistentView, nameOverrides, callback);
-                } else {
-                    configureTransitionsOrdered(fragmentManager, containerId,
-                            containerTransition, nonExistentView, nameOverrides, callback);
+                if (fragmentContainer.onHasView()) {
+                    ViewGroup container = (ViewGroup) fragmentContainer.onFindViewById(
+                            containerId);
+                    if (container == null) {
+                        // No container means no transitions
+                        continue;
+                    }
+                    if (isReordered) {
+                        configureTransitionsReordered(container,
+                                containerTransition, nonExistentView, nameOverrides, callback);
+                    } else {
+                        configureTransitionsOrdered(container,
+                                containerTransition, nonExistentView, nameOverrides, callback);
+                    }
                 }
             }
         }
@@ -215,8 +222,7 @@ class FragmentTransition {
      * reordered. That means that all Fragment Views have been added and incoming fragment
      * Views are marked invisible.
      *
-     * @param fragmentManager The executing FragmentManager
-     * @param containerId The container ID that is executing the transition.
+     * @param container the container that the transitioning fragments are within
      * @param fragments A structure holding the transitioning fragments in this container.
      * @param nonExistentView A View that does not exist in the hierarchy. This is used to
      *                        prevent transitions from acting on other Views when there is no
@@ -225,16 +231,9 @@ class FragmentTransition {
      *                      the final fragment's Views as given in
      *                      {@link FragmentTransaction#addSharedElement(View, String)}.
      */
-    private static void configureTransitionsReordered(FragmentManager fragmentManager,
-            int containerId, FragmentContainerTransition fragments,
+    private static void configureTransitionsReordered(@NonNull ViewGroup container,
+            FragmentContainerTransition fragments,
             View nonExistentView, ArrayMap<String, String> nameOverrides, final Callback callback) {
-        ViewGroup sceneRoot = null;
-        if (fragmentManager.mContainer.onHasView()) {
-            sceneRoot = (ViewGroup) fragmentManager.mContainer.onFindViewById(containerId);
-        }
-        if (sceneRoot == null) {
-            return;
-        }
         final Fragment inFragment = fragments.lastIn;
         final Fragment outFragment = fragments.firstOut;
         final FragmentTransitionImpl impl = chooseImpl(outFragment, inFragment);
@@ -249,7 +248,7 @@ class FragmentTransition {
         Object enterTransition = getEnterTransition(impl, inFragment, inIsPop);
         Object exitTransition = getExitTransition(impl, outFragment, outIsPop);
 
-        Object sharedElementTransition = configureSharedElementsReordered(impl, sceneRoot,
+        Object sharedElementTransition = configureSharedElementsReordered(impl, container,
                 nonExistentView, nameOverrides, fragments, sharedElementsOut, sharedElementsIn,
                 enterTransition, exitTransition);
 
@@ -288,8 +287,8 @@ class FragmentTransition {
             impl.scheduleRemoveTargets(transition,
                     enterTransition, enteringViews, exitTransition, exitingViews,
                     sharedElementTransition, sharedElementsIn);
-            impl.beginDelayedTransition(sceneRoot, transition);
-            impl.setNameOverridesReordered(sceneRoot, sharedElementsOut,
+            impl.beginDelayedTransition(container, transition);
+            impl.setNameOverridesReordered(container, sharedElementsOut,
                     sharedElementsIn, inNames, nameOverrides);
             setViewVisibility(enteringViews, View.VISIBLE);
             impl.swapSharedElementTargets(sharedElementTransition,
@@ -340,8 +339,7 @@ class FragmentTransition {
      * ordered. That means that the transaction has not been executed yet, so incoming
      * Views are not yet known.
      *
-     * @param fragmentManager The executing FragmentManager
-     * @param containerId The container ID that is executing the transition.
+     * @param container the container that the transitioning fragments are within
      * @param fragments A structure holding the transitioning fragments in this container.
      * @param nonExistentView A View that does not exist in the hierarchy. This is used to
      *                        prevent transitions from acting on other Views when there is no
@@ -350,16 +348,9 @@ class FragmentTransition {
      *                      the final fragment's Views as given in
      *                      {@link FragmentTransaction#addSharedElement(View, String)}.
      */
-    private static void configureTransitionsOrdered(FragmentManager fragmentManager,
-            int containerId, FragmentContainerTransition fragments,
+    private static void configureTransitionsOrdered(@NonNull ViewGroup container,
+            FragmentContainerTransition fragments,
             View nonExistentView, ArrayMap<String, String> nameOverrides, final Callback callback) {
-        ViewGroup sceneRoot = null;
-        if (fragmentManager.mContainer.onHasView()) {
-            sceneRoot = (ViewGroup) fragmentManager.mContainer.onFindViewById(containerId);
-        }
-        if (sceneRoot == null) {
-            return;
-        }
         final Fragment inFragment = fragments.lastIn;
         final Fragment outFragment = fragments.firstOut;
         final FragmentTransitionImpl impl = chooseImpl(outFragment, inFragment);
@@ -375,7 +366,7 @@ class FragmentTransition {
         ArrayList<View> sharedElementsOut = new ArrayList<>();
         ArrayList<View> sharedElementsIn = new ArrayList<>();
 
-        Object sharedElementTransition = configureSharedElementsOrdered(impl, sceneRoot,
+        Object sharedElementTransition = configureSharedElementsOrdered(impl, container,
                 nonExistentView, nameOverrides, fragments, sharedElementsOut, sharedElementsIn,
                 enterTransition, exitTransition);
 
@@ -415,12 +406,12 @@ class FragmentTransition {
             impl.scheduleRemoveTargets(transition,
                     enterTransition, enteringViews, exitTransition, exitingViews,
                     sharedElementTransition, sharedElementsIn);
-            scheduleTargetChange(impl, sceneRoot, inFragment, nonExistentView, sharedElementsIn,
+            scheduleTargetChange(impl, container, inFragment, nonExistentView, sharedElementsIn,
                     enterTransition, enteringViews, exitTransition, exitingViews);
-            impl.setNameOverridesOrdered(sceneRoot, sharedElementsIn, nameOverrides);
+            impl.setNameOverridesOrdered(container, sharedElementsIn, nameOverrides);
 
-            impl.beginDelayedTransition(sceneRoot, transition);
-            impl.scheduleNameReset(sceneRoot, sharedElementsIn, nameOverrides);
+            impl.beginDelayedTransition(container, transition);
+            impl.scheduleNameReset(container, sharedElementsIn, nameOverrides);
         }
     }
 
