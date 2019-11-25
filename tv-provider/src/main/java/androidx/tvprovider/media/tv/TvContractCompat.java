@@ -423,9 +423,9 @@ public final class TvContractCompat {
      *
      * @param channelId The ID of the channel to return programs for.
      * @param startTime The start time used to filter programs. The returned programs should have
-     *            {@link Programs#COLUMN_END_TIME_UTC_MILLIS} that is greater than this time.
+     *            {@link Programs#COLUMN_END_TIME_UTC_MILLIS} that is greater than or equal to this time.
      * @param endTime The end time used to filter programs. The returned programs should have
-     *            {@link Programs#COLUMN_START_TIME_UTC_MILLIS} that is less than this time.
+     *            {@link Programs#COLUMN_START_TIME_UTC_MILLIS} that is less than or equal to this time.
      */
     public static Uri buildProgramsUriForChannel(long channelId, long startTime,
             long endTime) {
@@ -438,9 +438,9 @@ public final class TvContractCompat {
      *
      * @param channelUri The URI of the channel to return programs for.
      * @param startTime The start time used to filter programs. The returned programs should have
-     *            {@link Programs#COLUMN_END_TIME_UTC_MILLIS} that is greater than this time.
+     *            {@link Programs#COLUMN_END_TIME_UTC_MILLIS} that is greater than or equal to this time.
      * @param endTime The end time used to filter programs. The returned programs should have
-     *            {@link Programs#COLUMN_START_TIME_UTC_MILLIS} that is less than this time.
+     *            {@link Programs#COLUMN_START_TIME_UTC_MILLIS} that is less than or equal to this time.
      */
     public static Uri buildProgramsUriForChannel(Uri channelUri, long startTime,
             long endTime) {
@@ -2888,7 +2888,7 @@ public final class TvContractCompat {
         /**
          * The watch next type for NEXT. Use this type when the user has watched one or more
          * complete episodes from some episodic content, but there remains more than one episode
-         * remaining or there is one last episode remaining, but it is not “new” in that it was
+         * remaining or there is one last episode remaining, but it is not "new" in that it was
          * released before the user started watching the show.
          *
          * @see #COLUMN_WATCH_NEXT_TYPE
@@ -2907,7 +2907,7 @@ public final class TvContractCompat {
 
         /**
          * The watch next type for WATCHLIST. Use this type when the user has elected to explicitly
-         * add a movie, event or series to a “watchlist” as a manual way of curating what they
+         * add a movie, event or series to a "watchlist" as a manual way of curating what they
          * want to watch next.
          *
          * @see #COLUMN_WATCH_NEXT_TYPE
