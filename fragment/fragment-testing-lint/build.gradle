@@ -27,23 +27,6 @@ plugins {
     id("kotlin")
 }
 
-ext.generatedResources = "$buildDir/generated/sdkResourcesForTest"
-
-sourceSets {
-    test.resources.srcDirs += generatedResources
-}
-
-task generateSdkResource() {
-    outputs.dir(generatedResources)
-    doLast {
-        new File(generatedResources, "sdk.prop").withWriter('UTF-8') { writer ->
-            writer.write("sdk.dir=${SdkHelperKt.getSdkPath(project.rootDir)}")
-        }
-    }
-}
-
-tasks["compileTestJava"].dependsOn generateSdkResource
-
 dependencies {
     // compileOnly because we use lintChecks and it doesn't allow other types of deps
     // this ugly hack exists because of b/63873667

@@ -36,7 +36,6 @@ class ExperimentalDetectorTest {
                 USE_EXPERIMENTAL_JAVA,
                 *testFiles
             )
-            .allowMissingSdk(true)
             .issues(*ExperimentalDetector.ISSUES.toTypedArray())
             .run()
     }

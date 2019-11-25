@@ -20,12 +20,9 @@ import com.android.tools.lint.checks.infrastructure.LintDetectorTest
 import com.android.tools.lint.checks.infrastructure.TestLintResult
 import com.android.tools.lint.detector.api.Detector
 import com.android.tools.lint.detector.api.Issue
-import org.junit.Before
 import org.junit.Test
 import org.junit.runner.RunWith
 import org.junit.runners.JUnit4
-import java.io.File
-import java.util.Properties
 
 @RunWith(JUnit4::class)
 class FragmentLiveDataObserveDetectorTest : LintDetectorTest() {
@@ -35,20 +32,8 @@ class FragmentLiveDataObserveDetectorTest : LintDetectorTest() {
     override fun getIssues(): MutableList<Issue> =
         mutableListOf(UnsafeFragmentLifecycleObserverDetector.LIVEDATA_ISSUE)
 
-    private lateinit var sdkDir: File
-
-    @Before
-    fun setup() {
-        val stream = FragmentLiveDataObserveDetectorTest::class.java.classLoader
-            .getResourceAsStream("sdk.prop")
-        val properties = Properties()
-        properties.load(stream)
-        sdkDir = File(properties["sdk.dir"] as String)
-    }
-
     private fun check(vararg files: TestFile): TestLintResult {
         return lint().files(*files, *LIVEDATA_STUBS)
-            .sdkHome(sdkDir)
             .run()
     }
 

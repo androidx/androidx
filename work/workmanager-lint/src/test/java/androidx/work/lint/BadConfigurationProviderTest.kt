@@ -44,9 +44,7 @@ class BadConfigurationProviderTest {
             ANDROID_APPLICATION,
             WORK_MANAGER_CONFIGURATION_PROVIDER,
             customApplication
-        )
-            .sdkHome(sdkDirectory().value)
-            .issues(BadConfigurationProviderIssueDetector.ISSUE)
+        ).issues(BadConfigurationProviderIssueDetector.ISSUE)
             .run()
             .expectClean()
     }
@@ -87,9 +85,7 @@ class BadConfigurationProviderTest {
             WORK_MANAGER_CONFIGURATION_PROVIDER,
             customApplication,
             invalidProvider
-        )
-            .sdkHome(sdkDirectory().value)
-            .issues(BadConfigurationProviderIssueDetector.ISSUE)
+        ).issues(BadConfigurationProviderIssueDetector.ISSUE)
             .run()
             .expect("""
                 src/com/example/App.kt: Error: Expected Application subtype to implement Configuration.Provider [BadConfigurationProvider]
@@ -122,9 +118,7 @@ class BadConfigurationProviderTest {
             ANDROID_APPLICATION,
             WORK_MANAGER_CONFIGURATION_PROVIDER,
             customApplication
-        )
-            .sdkHome(sdkDirectory().value)
-            .issues(BadConfigurationProviderIssueDetector.ISSUE)
+        ).issues(BadConfigurationProviderIssueDetector.ISSUE)
             .run()
             .expectClean()
     }
