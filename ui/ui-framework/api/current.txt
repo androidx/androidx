@@ -17,6 +17,11 @@ package androidx.ui.core {
     method public static inline void DrawShadow(androidx.ui.engine.geometry.Shape shape, androidx.ui.core.Dp elevation);
   }
 
+  public enum DropDownAlignment {
+    enum_constant public static final androidx.ui.core.DropDownAlignment Left;
+    enum_constant public static final androidx.ui.core.DropDownAlignment Right;
+  }
+
   public final class EditorModel {
     ctor public EditorModel(String text, androidx.ui.text.TextRange selection);
     ctor public EditorModel();
@@ -70,6 +75,24 @@ package androidx.ui.core {
   public final class PointerInputWrapperKt {
     ctor public PointerInputWrapperKt();
     method public static inline void PointerInputWrapper(kotlin.jvm.functions.Function3<? super java.util.List<androidx.ui.core.PointerInputChange>,? super androidx.ui.core.PointerEventPass,? super androidx.ui.core.IntPxSize,? extends java.util.List<androidx.ui.core.PointerInputChange>> pointerInputHandler = { event, _, _ -> event }, kotlin.jvm.functions.Function0<kotlin.Unit> cancelHandler = {}, kotlin.jvm.functions.Function0<kotlin.Unit> children);
+  }
+
+  public final class PopupKt {
+    ctor public PopupKt();
+    method public static void DropdownPopup(androidx.ui.core.DropDownAlignment dropDownAlignment = androidx.ui.core.DropDownAlignment.Left, androidx.ui.core.IntPxPosition offset = IntPxPosition(IntPx.Zero, IntPx.Zero), androidx.ui.core.PopupProperties popupProperties = androidx.ui.core.PopupProperties(), kotlin.jvm.functions.Function0<kotlin.Unit> children);
+    method public static void Popup(androidx.ui.core.Alignment alignment = Alignment.TopLeft, androidx.ui.core.IntPxPosition offset = IntPxPosition(IntPx.Zero, IntPx.Zero), androidx.ui.core.PopupProperties popupProperties = androidx.ui.core.PopupProperties(), kotlin.jvm.functions.Function0<kotlin.Unit> children);
+    method public static void disposeActivityComposition(android.app.Activity activity);
+    method public static boolean isPopupLayout(android.view.View view, String? testTag = null);
+  }
+
+  public final class PopupProperties {
+    ctor public PopupProperties(boolean isFocusable, kotlin.jvm.functions.Function0<kotlin.Unit>? onDismissRequest);
+    ctor public PopupProperties();
+    method public boolean component1();
+    method public kotlin.jvm.functions.Function0<kotlin.Unit>? component2();
+    method public androidx.ui.core.PopupProperties copy(boolean isFocusable, kotlin.jvm.functions.Function0<kotlin.Unit>? onDismissRequest);
+    method public kotlin.jvm.functions.Function0<kotlin.Unit>? getOnDismissRequest();
+    method public boolean isFocusable();
   }
 
   public final class RepaintBoundaryKt {

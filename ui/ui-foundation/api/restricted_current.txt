@@ -40,33 +40,10 @@ package androidx.ui.foundation {
     method public void vertical(int column, kotlin.ranges.IntRange rows = 0 <other> rowCount, androidx.ui.foundation.shape.border.Border border = defaultBorder);
   }
 
-  public enum DropDownAlignment {
-    enum_constant public static final androidx.ui.foundation.DropDownAlignment Left;
-    enum_constant public static final androidx.ui.foundation.DropDownAlignment Right;
-  }
-
   public final class ImageKt {
     ctor public ImageKt();
     method public static void DrawImage(androidx.ui.graphics.Image image, androidx.ui.graphics.Color? tint = null);
     method public static void SimpleImage(androidx.ui.graphics.Image image, androidx.ui.graphics.Color? tint = null);
-  }
-
-  public final class PopupKt {
-    ctor public PopupKt();
-    method public static void DropdownPopup(androidx.ui.foundation.DropDownAlignment dropDownAlignment = androidx.ui.foundation.DropDownAlignment.Left, androidx.ui.core.IntPxPosition offset = IntPxPosition(IntPx.Zero, IntPx.Zero), androidx.ui.foundation.PopupProperties popupProperties = androidx.ui.foundation.PopupProperties(), kotlin.jvm.functions.Function0<kotlin.Unit> children);
-    method public static void Popup(androidx.ui.core.Alignment alignment = Alignment.TopLeft, androidx.ui.core.IntPxPosition offset = IntPxPosition(IntPx.Zero, IntPx.Zero), androidx.ui.foundation.PopupProperties popupProperties = androidx.ui.foundation.PopupProperties(), kotlin.jvm.functions.Function0<kotlin.Unit> children);
-    method public static void disposeActivityComposition(android.app.Activity activity);
-    method public static boolean isPopupLayout(android.view.View view, String? testTag = null);
-  }
-
-  public final class PopupProperties {
-    ctor public PopupProperties(boolean isFocusable, kotlin.jvm.functions.Function0<kotlin.Unit>? onDismissRequest);
-    ctor public PopupProperties();
-    method public boolean component1();
-    method public kotlin.jvm.functions.Function0<kotlin.Unit>? component2();
-    method public androidx.ui.foundation.PopupProperties copy(boolean isFocusable, kotlin.jvm.functions.Function0<kotlin.Unit>? onDismissRequest);
-    method public kotlin.jvm.functions.Function0<kotlin.Unit>? getOnDismissRequest();
-    method public boolean isFocusable();
   }
 
   public final class ScrollerKt {

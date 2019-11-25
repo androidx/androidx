@@ -13,9 +13,10 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package androidx.ui.foundation
+package androidx.ui.core
 
 import android.view.View
+import androidx.compose.Composable
 import androidx.compose.ambient
 import androidx.compose.unaryPlus
 import androidx.test.espresso.Espresso
@@ -24,20 +25,6 @@ import androidx.test.espresso.assertion.ViewAssertions.matches
 import androidx.test.espresso.matcher.BoundedMatcher
 import androidx.test.espresso.matcher.ViewMatchers.isDisplayed
 import androidx.test.filters.MediumTest
-import androidx.ui.core.Alignment
-import androidx.ui.core.AndroidComposeView
-import androidx.ui.core.AndroidComposeViewAmbient
-import androidx.ui.core.IntPx
-import androidx.ui.core.IntPxPosition
-import androidx.ui.core.IntPxSize
-import androidx.ui.core.OnPositioned
-import androidx.ui.core.TestTag
-import androidx.ui.core.Text
-import androidx.ui.core.toPxPosition
-import androidx.ui.core.toPxSize
-import androidx.ui.core.withDensity
-import androidx.ui.layout.Align
-import androidx.ui.layout.Container
 import androidx.ui.test.createComposeRule
 import androidx.ui.test.waitForIdleCompose
 import com.google.common.truth.Truth
@@ -88,8 +75,8 @@ class PopupTest {
 
                 // Align the parent of the popup on the TopLeft corner, this results in the global
                 // position of the parent to be (0, 0)
-                Align(alignment = Alignment.TopLeft) {
-                    Container(width = parentWidthDp, height = parentHeightDp) {
+                TestAlign {
+                    TestContainer(width = parentWidthDp, height = parentHeightDp) {
                         TestTag(testTag) {
                             Popup(alignment = alignment, offset = offset) {
                                 // This is called after the OnChildPosition method in Popup() which
@@ -97,7 +84,7 @@ class PopupTest {
                                 OnPositioned {
                                     measureLatch.countDown()
                                 }
-                                Container(width = popupWidthDp, height = popupHeightDp) {}
+                                TestContainer(width = popupWidthDp, height = popupHeightDp) {}
                             }
                         }
                     }
@@ -129,7 +116,7 @@ class PopupTest {
     @Test
     fun popup_isShowing() {
         composeTestRule.setContent {
-            Container {
+            TestContainer {
                 TestTag(testTag) {
                     Popup(alignment = Alignment.Center) {
                         Text(popupText)
@@ -151,10 +138,10 @@ class PopupTest {
         }
 
         composeTestRule.setContent {
-            Container {
+            TestContainer {
                 TestTag(testTag) {
                     Popup(alignment = Alignment.Center) {
-                        Container(width = popupWidthDp, height = popupHeightDp) {}
+                        TestContainer(width = popupWidthDp, height = popupHeightDp) {}
                     }
                 }
             }
@@ -556,6 +543,82 @@ class PopupTest {
             override fun describeTo(description: Description?) {
                 description?.appendText("with expected position: $expectedPosition" +
                         " but position found: $positionFound")
+            }
+        }
+    }
+}
+
+@Composable
+private fun TestAlign(children: @Composable() () -> Unit) {
+    Layout(children) { measurables, constraints ->
+        val measurable = measurables.firstOrNull()
+        // The child cannot be larger than our max constraints, but we ignore min constraints.
+        val placeable = measurable?.measure(constraints.looseMin())
+
+        // The layout is as large as possible for bounded constraints,
+        // or wrap content otherwise.
+        val layoutWidth = if (constraints.maxWidth.isFinite()) {
+            constraints.maxWidth
+        } else {
+            placeable?.width ?: constraints.minWidth
+        }
+        val layoutHeight = if (constraints.maxHeight.isFinite()) {
+            constraints.maxHeight
+        } else {
+            placeable?.height ?: constraints.minHeight
+        }
+
+        layout(layoutWidth, layoutHeight) {
+            if (placeable != null) {
+                val position = Alignment.TopLeft.align(
+                    IntPxSize(layoutWidth - placeable.width, layoutHeight - placeable.height)
+                )
+                placeable.place(position.x, position.y)
+            }
+        }
+    }
+}
+
+@Composable
+private fun TestContainer(
+    width: Dp? = null,
+    height: Dp? = null,
+    children: @Composable() () -> Unit
+) {
+    Layout(children) { measurables, incomingConstraints ->
+        val containerConstraints = Constraints()
+            .withTight(width?.toIntPx(), height?.toIntPx())
+            .enforce(incomingConstraints)
+        val childConstraints = containerConstraints.looseMin()
+        var placeable: Placeable? = null
+        val containerWidth = if ((containerConstraints.hasTightWidth) &&
+            containerConstraints.maxWidth.isFinite()
+        ) {
+            containerConstraints.maxWidth
+        } else {
+            placeable = measurables.firstOrNull()?.measure(childConstraints)
+            max((placeable?.width ?: 0.ipx), containerConstraints.minWidth)
+        }
+        val containerHeight = if ((containerConstraints.hasTightHeight) &&
+            containerConstraints.maxHeight.isFinite()
+        ) {
+            containerConstraints.maxHeight
+        } else {
+            if (placeable == null) {
+                placeable = measurables.firstOrNull()?.measure(childConstraints)
+            }
+            max((placeable?.height ?: 0.ipx), containerConstraints.minHeight)
+        }
+        layout(containerWidth, containerHeight) {
+            val p = placeable ?: measurables.firstOrNull()?.measure(childConstraints)
+            p?.let {
+                val position = Alignment.Center.align(
+                    IntPxSize(containerWidth - it.width, containerHeight - it.height)
+                )
+                it.place(
+                    position.x,
+                    position.y
+                )
             }
         }
     }
