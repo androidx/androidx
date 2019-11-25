@@ -448,17 +448,16 @@ public final class ImageAnalysis extends UseCase {
          * Analyzes an image to produce a result.
          *
          * <p>This method is called once for each image from the camera, and called at the
-         * frame rate of the camera.  Each analyze call is executed sequentially.
+         * frame rate of the camera. Each analyze call is executed sequentially.
          *
-         * <p>The image passed to this method becomes invalid and is closed after this method
-         * returns. The implementation should not close, nor store external references to this
-         * image, as these references will become invalid.
+         * <p>It is the responsibility of the application to close the image once done with it.
+         * If the images are not closed then it may block further images from being produced
+         * (causing the preview to stall) or drop images as determined by the configured
+         * {@link ImageAnalysis.BackpressureStrategy}. The exact behavior is configurable via
+         * {@link ImageAnalysis.Builder#setBackpressureStrategy(int)}.
          *
-         * <p>When processing takes longer than a single frame of latency, the
-         * {@link ImageAnalysis.BackpressureStrategy} will determine the next image delivered and
-         * stalling behavior.
-         *
-         * <p>Applications can "skip" analyzing a frame by having the analyzer return immediately.
+         * <p>Images produced here will no longer be valid after the {@link ImageAnalysis}
+         * instance that produced it has been unbound from the camera.
          *
          * <p>The image provided has format {@link android.graphics.ImageFormat#YUV_420_888}.
          *
@@ -476,13 +475,12 @@ public final class ImageAnalysis extends UseCase {
          * {@link androidx.camera.camera2} implementation additional detail can be found in
          * {@link android.hardware.camera2.CameraDevice} documentation.
          *
-         * @see android.media.Image#getTimestamp()
-         * @see android.hardware.camera2.CaptureResult#SENSOR_TIMESTAMP
-         *
          * @param image           The image to analyze
          * @param rotationDegrees The rotation which if applied to the image would make it match
          *                        the current target rotation of {@link ImageAnalysis}.
          *                        rotationDegrees will be a value in {0, 90, 180, 270}.
+         * @see android.media.Image#getTimestamp()
+         * @see android.hardware.camera2.CaptureResult#SENSOR_TIMESTAMP
          */
         void analyze(@NonNull ImageProxy image, int rotationDegrees);
     }
@@ -791,7 +789,6 @@ public final class ImageAnalysis extends UseCase {
          * priority.
          *
          * @param aspectRatio The desired ImageAnalysis {@link AspectRatio}
-         *
          * @return The current Builder.
          */
         @NonNull
@@ -820,11 +817,10 @@ public final class ImageAnalysis extends UseCase {
          * {@link android.view.Display#getRotation()} of the default display at the time the
          * use case is created.
          *
-         * @see androidx.camera.core.ImageAnalysis#setTargetRotation(int)
-         * @see android.view.OrientationEventListener
-         *
          * @param rotation The rotation of the intended target.
          * @return The current Builder.
+         * @see androidx.camera.core.ImageAnalysis#setTargetRotation(int)
+         * @see android.view.OrientationEventListener
          */
         @NonNull
         @Override
