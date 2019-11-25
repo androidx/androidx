@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package androidx.ui.foundation
+package androidx.ui.core
 
 import android.app.Activity
 import android.graphics.PixelFormat
@@ -36,20 +36,6 @@ import androidx.compose.memo
 import androidx.compose.onCommit
 import androidx.compose.onDispose
 import androidx.compose.unaryPlus
-import androidx.ui.core.Alignment
-import androidx.ui.core.AndroidComposeView
-import androidx.ui.core.AndroidComposeViewAmbient
-import androidx.ui.core.ContextAmbient
-import androidx.ui.core.IntPx
-import androidx.ui.core.IntPxPosition
-import androidx.ui.core.IntPxSize
-import androidx.ui.core.OnChildPositioned
-import androidx.ui.core.OnPositioned
-import androidx.ui.core.PxPosition
-import androidx.ui.core.PxSize
-import androidx.ui.core.TestTagAmbient
-import androidx.ui.core.round
-import androidx.ui.core.setContent
 
 /**
  * Opens a popup with the given content.
@@ -57,7 +43,7 @@ import androidx.ui.core.setContent
  * The popup is positioned relative to its parent, using the [alignment] and [offset].
  * The popup is visible as long as it is part of the composition hierarchy.
  *
- * @sample androidx.ui.foundation.samples.PopupSample
+ * @sample androidx.ui.framework.samples.PopupSample
  *
  * @param alignment The alignment relative to the parent.
  * @param offset An offset from the original aligned position of the popup.
@@ -93,7 +79,7 @@ fun Popup(
  * The dropdown popup is positioned below its parent, using the [dropDownAlignment] and [offset].
  * The dropdown popup is visible as long as it is part of the composition hierarchy.
  *
- * @sample androidx.ui.foundation.samples.DropdownPopupSample
+ * @sample androidx.ui.framework.samples.DropdownPopupSample
  *
  * @param dropDownAlignment The left or right alignment below the parent.
  * @param offset An offset from the original aligned position of the popup.

@@ -14,15 +14,15 @@
  * limitations under the License.
  */
 
-package androidx.ui.foundation.samples
+package androidx.ui.framework.samples
 
 import androidx.annotation.Sampled
 import androidx.compose.Composable
 import androidx.ui.core.Alignment
+import androidx.ui.core.DropDownAlignment
+import androidx.ui.core.DropdownPopup
+import androidx.ui.core.Popup
 import androidx.ui.core.dp
-import androidx.ui.foundation.DropDownAlignment
-import androidx.ui.foundation.DropdownPopup
-import androidx.ui.foundation.Popup
 import androidx.ui.foundation.shape.DrawShape
 import androidx.ui.foundation.shape.corner.RoundedCornerShape
 import androidx.ui.graphics.Color

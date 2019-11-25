@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package androidx.ui.foundation.demos
+package androidx.ui.framework.demos
 
 import android.app.Activity
 import android.os.Bundle
@@ -24,19 +24,19 @@ import androidx.compose.unaryPlus
 import androidx.ui.core.Alignment
 import androidx.ui.core.Dp
 import androidx.ui.core.Draw
+import androidx.ui.core.DropDownAlignment
+import androidx.ui.core.DropdownPopup
 import androidx.ui.core.Modifier
+import androidx.ui.core.Popup
+import androidx.ui.core.PopupProperties
 import androidx.ui.core.Text
 import androidx.ui.core.TextField
+import androidx.ui.core.disposeActivityComposition
 import androidx.ui.core.dp
 import androidx.ui.core.setContent
 import androidx.ui.core.toRect
 import androidx.ui.foundation.Clickable
-import androidx.ui.foundation.DropDownAlignment
-import androidx.ui.foundation.DropdownPopup
-import androidx.ui.foundation.Popup
-import androidx.ui.foundation.PopupProperties
 import androidx.ui.foundation.VerticalScroller
-import androidx.ui.foundation.disposeActivityComposition
 import androidx.ui.foundation.shape.DrawShape
 import androidx.ui.foundation.shape.RectangleShape
 import androidx.ui.foundation.shape.corner.CircleShape

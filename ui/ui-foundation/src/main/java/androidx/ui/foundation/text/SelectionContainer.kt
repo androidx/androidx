@@ -23,13 +23,13 @@ import androidx.ui.core.Alignment
 import androidx.ui.core.IntPx
 import androidx.ui.core.IntPxPosition
 import androidx.ui.core.OnPositioned
+import androidx.ui.core.Popup
 import androidx.ui.core.gesture.LongPressDragGestureDetector
 import androidx.ui.core.gesture.PressGestureDetector
 import androidx.ui.core.gesture.TouchSlopDragGestureDetector
 import androidx.ui.core.ipx
 import androidx.ui.core.selection.Selection
 import androidx.ui.core.selection.SelectionRegistrarAmbient
-import androidx.ui.foundation.Popup
 import androidx.ui.layout.Container
 import kotlin.math.ceil
 import kotlin.math.roundToInt
