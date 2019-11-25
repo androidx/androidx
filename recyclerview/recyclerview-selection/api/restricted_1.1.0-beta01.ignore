@@ -1,0 +1,9 @@
+// Baseline format: 1.0
+RemovedClass: androidx.recyclerview.selection.AutoScroller:
+    Removed class androidx.recyclerview.selection.AutoScroller
+RemovedClass: androidx.recyclerview.selection.DefaultSelectionTracker:
+    Removed class androidx.recyclerview.selection.DefaultSelectionTracker
+
+
+RemovedMethod: androidx.recyclerview.selection.BandPredicate.NonDraggableArea#NonDraggableArea(androidx.recyclerview.widget.RecyclerView, androidx.recyclerview.selection.ItemDetailsLookup):
+    Removed constructor androidx.recyclerview.selection.BandPredicate.NonDraggableArea(androidx.recyclerview.widget.RecyclerView,androidx.recyclerview.selection.ItemDetailsLookup)
