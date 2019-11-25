@@ -50,7 +50,17 @@
     but which display a custom UI, such as an overlay, when FingerprintManager is invoked.
     -->
     <string-array name="hide_fingerprint_instantly_prefixes">
-        <item>SM-G97</item> <!-- Samsung Galaxy S10/S10+ -->
-        <item>SM-N97</item> <!-- Samsung Galaxy Note 10/10+ -->
+        <!-- Samsung Galaxy S10/S10+ -->
+        <item>SM-G97</item>
+        <item>SC-03L</item>
+        <item>SC-04L</item>
+        <item>SC-05L</item>
+        <item>SCV41</item>
+        <item>SCV42</item>
+
+        <!-- Samsung Galaxy Note 10/10+ -->
+        <item>SM-N97</item>
+        <item>SC-01M</item>
+        <item>SCV45</item>
     </string-array>
 </resources>
