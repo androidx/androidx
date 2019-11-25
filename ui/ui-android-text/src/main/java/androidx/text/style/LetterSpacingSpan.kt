@@ -19,7 +19,6 @@ import android.text.TextPaint
 import android.text.style.MetricAffectingSpan
 import androidx.annotation.RestrictTo
 
-// TODO(haoyuchang): Should support passing pixel when framework is ready.
 /**
  * Span used to adjust the letter spacing.
  *

@@ -74,7 +74,6 @@ androidx {
 
 tasks.withType(KotlinCompile).configureEach {
     kotlinOptions {
-        // TODO(haoyuchang): Temporary disabled, make it true when IR bug b/129076229 is fixed.
-        useIR = false
+        useIR = true
     }
 }
