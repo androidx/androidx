@@ -198,7 +198,7 @@ package androidx.ui.core {
     enum_constant public static final androidx.ui.core.Direction UP;
   }
 
-  public final class Dp {
+  public final class Dp implements java.lang.Comparable<androidx.ui.core.Dp> {
     ctor public Dp(float value);
     method public inline operator int compareTo(androidx.ui.core.Dp other);
     method public float component1();
@@ -225,8 +225,9 @@ package androidx.ui.core {
     property public final androidx.ui.core.Dp Infinity;
   }
 
-  public final inline class DpCubed {
+  public final inline class DpCubed implements java.lang.Comparable<androidx.ui.core.DpCubed> {
     ctor public DpCubed();
+    method public inline operator int compareTo-zqpl1kg(float p);
     method public static inline operator int compareTo-zqpl1kg(float $this, float other);
     method public static float constructor-impl(float value);
     method public static inline operator androidx.ui.core.Dp div-KkBJKWw(float $this, float other);
@@ -240,11 +241,12 @@ package androidx.ui.core {
     method public static inline operator float minus-zqpl1kg(float $this, float dimension);
     method public static inline operator float plus-zqpl1kg(float $this, float dimension);
     method public static inline operator float times-impl(float $this, float other);
-    method public static String toString-impl(float p);
+    method public static String toString-impl(float $this);
   }
 
-  public final inline class DpInverse {
+  public final inline class DpInverse implements java.lang.Comparable<androidx.ui.core.DpInverse> {
     ctor public DpInverse();
+    method public inline operator int compareTo-ASDJgtI(float p);
     method public static inline operator int compareTo-ASDJgtI(float $this, float other);
     method public static float constructor-impl(float value);
     method public static inline operator float div-impl(float $this, float other);
@@ -258,7 +260,7 @@ package androidx.ui.core {
     method public static inline operator float times-impl(float $this, float other);
     method public static inline operator float times-impl(float $this, androidx.ui.core.Dp other);
     method public static inline operator float times-zqpl1kg(float $this, float other);
-    method public static String toString-impl(float p);
+    method public static String toString-impl(float $this);
   }
 
   public final class DpKt {
@@ -293,8 +295,9 @@ package androidx.ui.core {
     method public static inline long toSize(androidx.ui.core.Bounds);
   }
 
-  public final inline class DpSquared {
+  public final inline class DpSquared implements java.lang.Comparable<androidx.ui.core.DpSquared> {
     ctor public DpSquared();
+    method public inline operator int compareTo-KkBJKWw(float p);
     method public static inline operator int compareTo-KkBJKWw(float $this, float other);
     method public static float constructor-impl(float value);
     method public static inline operator float div-KkBJKWw(float $this, float other);
@@ -309,7 +312,7 @@ package androidx.ui.core {
     method public static inline operator float plus-KkBJKWw(float $this, float other);
     method public static inline operator float times-impl(float $this, float other);
     method public static inline operator float times-impl(float $this, androidx.ui.core.Dp other);
-    method public static String toString-impl(float p);
+    method public static String toString-impl(float $this);
   }
 
   public interface DrawReceiver extends androidx.ui.core.DensityScope {
@@ -387,7 +390,7 @@ package androidx.ui.core {
     method public static inline int unpackInt2(long value);
   }
 
-  public final class IntPx {
+  public final class IntPx implements java.lang.Comparable<androidx.ui.core.IntPx> {
     ctor public IntPx(int value);
     method public inline operator int compareTo(androidx.ui.core.IntPx other);
     method public inline operator int compareTo(androidx.ui.core.Px other);
@@ -653,10 +656,10 @@ package androidx.ui.core {
     method public static int hashCode-impl(long p);
     method public static inline operator long minus-JXBE4ew(long $this, long other);
     method public static inline operator long plus-JXBE4ew(long $this, long other);
-    method public static String toString-impl(long p);
+    method public static String toString-impl(long $this);
   }
 
-  public final class Px {
+  public final class Px implements java.lang.Comparable<androidx.ui.core.Px> {
     ctor public Px(float value);
     method public inline operator int compareTo(androidx.ui.core.Px other);
     method public inline operator int compareTo(androidx.ui.core.IntPx other);
@@ -699,8 +702,9 @@ package androidx.ui.core {
     method public androidx.ui.core.Px getTop();
   }
 
-  public final inline class PxCubed {
+  public final inline class PxCubed implements java.lang.Comparable<androidx.ui.core.PxCubed> {
     ctor public PxCubed();
+    method public inline operator int compareTo-syUR1PY(float p);
     method public static inline operator int compareTo-syUR1PY(float $this, float other);
     method public static float constructor-impl(float value);
     method public static inline operator float div-impl(float $this, float other);
@@ -714,11 +718,12 @@ package androidx.ui.core {
     method public static inline operator float minus-syUR1PY(float $this, float dimension);
     method public static inline operator float plus-syUR1PY(float $this, float dimension);
     method public static inline operator float times-impl(float $this, float other);
-    method public static String toString-impl(float p);
+    method public static String toString-impl(float $this);
   }
 
-  public final inline class PxInverse {
+  public final inline class PxInverse implements java.lang.Comparable<androidx.ui.core.PxInverse> {
     ctor public PxInverse();
+    method public inline operator int compareTo-MXEAIGs(float p);
     method public static inline operator int compareTo-MXEAIGs(float $this, float other);
     method public static float constructor-impl(float value);
     method public static inline operator float div-impl(float $this, float other);
@@ -732,7 +737,7 @@ package androidx.ui.core {
     method public static inline operator float times-impl(float $this, androidx.ui.core.Px other);
     method public static inline operator androidx.ui.core.Px times-kVJEwbQ(float $this, float other);
     method public static inline operator float times-syUR1PY(float $this, float other);
-    method public static String toString-impl(float p);
+    method public static String toString-impl(float $this);
   }
 
   public final class PxKt {
@@ -810,8 +815,9 @@ package androidx.ui.core {
     property public final androidx.ui.core.PxSize Zero;
   }
 
-  public final inline class PxSquared {
+  public final inline class PxSquared implements java.lang.Comparable<androidx.ui.core.PxSquared> {
     ctor public PxSquared();
+    method public inline operator int compareTo-kVJEwbQ(float p);
     method public static inline operator int compareTo-kVJEwbQ(float $this, float other);
     method public static float constructor-impl(float value);
     method public static inline operator float div-impl(float $this, float other);
@@ -826,7 +832,7 @@ package androidx.ui.core {
     method public static inline operator float plus-kVJEwbQ(float $this, float other);
     method public static inline operator float times-impl(float $this, float other);
     method public static inline operator float times-impl(float $this, androidx.ui.core.Px other);
-    method public static String toString-impl(float p);
+    method public static String toString-impl(float $this);
   }
 
   public final class RectHelperKt {
@@ -849,7 +855,7 @@ package androidx.ui.core {
     method public static inline operator long times-impl(long $this, int other);
     method public static inline operator long times-impl(long $this, float other);
     method public static inline operator long times-impl(long $this, double other);
-    method public static String toString-impl(long p);
+    method public static String toString-impl(long $this);
   }
 
   public final class TextUnit {
