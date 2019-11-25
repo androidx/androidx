@@ -26,6 +26,8 @@ import androidx.ui.core.Constraints
 import androidx.ui.core.Draw
 import androidx.ui.core.IntPx
 import androidx.ui.core.Layout
+import androidx.ui.core.OnPositioned
+import androidx.ui.core.PxSize
 import androidx.ui.core.Ref
 import androidx.ui.core.WithConstraints
 import androidx.ui.core.ipx
@@ -230,6 +232,107 @@ class WithConstraintsTest {
         assertTrue(latch.await(1, TimeUnit.SECONDS))
     }
 
+    @Test
+    fun withConstraintCallbackIsNotExecutedWithInnerRecompositions() {
+        val model = ValueModel(0)
+        var latch = CountDownLatch(1)
+        var recompositionsCount1 = 0
+        var recompositionsCount2 = 0
+
+        rule.runOnUiThreadIR {
+            activity.setContentInFrameLayout {
+                WithConstraints {
+                    recompositionsCount1++
+                    Container(100.ipx, 100.ipx) {
+                        model.value // model read
+                        recompositionsCount2++
+                        latch.countDown()
+                    }
+                }
+            }
+        }
+        assertTrue(latch.await(1, TimeUnit.SECONDS))
+
+        latch = CountDownLatch(1)
+        rule.runOnUiThread { model.value++ }
+        assertTrue(latch.await(1, TimeUnit.SECONDS))
+        assertEquals(1, recompositionsCount1)
+        assertEquals(2, recompositionsCount2)
+    }
+
+    @Test
+    fun updateConstraintsRecomposingWithConstraints() {
+        val model = ValueModel(50.ipx)
+        var latch = CountDownLatch(1)
+        var actualConstraints: Constraints? = null
+
+        rule.runOnUiThreadIR {
+            activity.setContentInFrameLayout {
+                ChangingConstraintsLayout(model) {
+                    WithConstraints { constraints ->
+                        actualConstraints = constraints
+                        assertEquals(1, latch.count)
+                        latch.countDown()
+                        Container(width = 100.ipx, height = 100.ipx) {}
+                    }
+                }
+            }
+        }
+        assertTrue(latch.await(1, TimeUnit.SECONDS))
+        assertEquals(Constraints.tightConstraints(50.ipx, 50.ipx), actualConstraints)
+
+        latch = CountDownLatch(1)
+        rule.runOnUiThread { model.value = 100.ipx }
+
+        assertTrue(latch.await(1, TimeUnit.SECONDS))
+        assertEquals(Constraints.tightConstraints(100.ipx, 100.ipx), actualConstraints)
+    }
+
+    @Test
+    fun withConstsraintsBehavesAsWrap() {
+        val size = ValueModel(50.ipx)
+        var withConstLatch = CountDownLatch(1)
+        var childLatch = CountDownLatch(1)
+        var withConstSize: PxSize? = null
+        var childSize: PxSize? = null
+
+        rule.runOnUiThreadIR {
+            activity.setContentInFrameLayout {
+                Container(width = 200.ipx, height = 200.ipx) {
+                    WithConstraints {
+                        OnPositioned {
+                            withConstSize = it.size
+                            assertEquals(1, withConstLatch.count)
+                            withConstLatch.countDown()
+                        }
+                        Container(width = size.value, height = size.value) {
+                            OnPositioned {
+                                childSize = it.size
+                                assertEquals(1, childLatch.count)
+                                childLatch.countDown()
+                            }
+                        }
+                    }
+                }
+            }
+        }
+        assertTrue(withConstLatch.await(1, TimeUnit.SECONDS))
+        assertTrue(childLatch.await(1, TimeUnit.SECONDS))
+        var expectedSize = PxSize(50.ipx, 50.ipx)
+        assertEquals(expectedSize, withConstSize)
+        assertEquals(expectedSize, childSize)
+
+        withConstLatch = CountDownLatch(1)
+        childLatch = CountDownLatch(1)
+        rule.runOnUiThread { size.value = 100.ipx }
+
+        assertTrue(withConstLatch.await(1, TimeUnit.SECONDS))
+        assertTrue(childLatch.await(1, TimeUnit.SECONDS))
+        expectedSize = PxSize(100.ipx, 100.ipx)
+        assertEquals(expectedSize, withConstSize)
+        assertEquals(expectedSize, childSize)
+    }
+
     private fun takeScreenShot(size: Int): Bitmap {
         assertTrue(drawLatch.await(1, TimeUnit.SECONDS))
         val bitmap = rule.waitAndScreenShot()
@@ -264,5 +367,25 @@ private fun NeedsOtherMeasurementComposable(foo: IntPx) {
         }
     }) { _, _ ->
         layout(foo, foo) { }
+    }
+}
+
+@Composable
+fun Container(width: IntPx, height: IntPx, children: @Composable() () -> Unit) {
+    Layout(children) { measurables, _ ->
+        val constraint = Constraints(maxWidth = width, maxHeight = height)
+        layout(width, height) {
+            measurables.forEach { it.measure(constraint).place(0.ipx, 0.ipx) }
+        }
+    }
+}
+
+@Composable
+private fun ChangingConstraintsLayout(size: ValueModel<IntPx>, children: @Composable() () -> Unit) {
+    Layout(children) { measurables, _ ->
+        layout(100.ipx, 100.ipx) {
+            val constraints = Constraints.tightConstraints(size.value, size.value)
+            measurables.first().measure(constraints).place(0.ipx, 0.ipx)
+        }
     }
 }

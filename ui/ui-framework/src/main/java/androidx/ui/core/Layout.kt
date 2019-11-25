@@ -18,6 +18,8 @@ package androidx.ui.core
 
 import androidx.compose.Composable
 import androidx.compose.Compose
+import androidx.compose.CompositionReference
+import androidx.compose.Context
 import androidx.compose.ambient
 import androidx.compose.compositionReference
 import androidx.compose.memo
@@ -428,35 +430,54 @@ fun Layout(
  * @sample androidx.ui.framework.samples.WithConstraintsSample
  *
  * The composable will compose the given children, and will position the resulting layout composables
- * in a parent [Layout]. The composable will be as small as possible such that it can fit its
+ * in a parent [Layout]. This layout will be as small as possible such that it can fit its
  * children. If the composition yields multiple layout children, these will be all placed at the
  * top left of the WithConstraints, so consider wrapping them in an additional common
  * parent if different positioning is preferred.
- *
- * Please note that using this composable might be a performance hit, so please use with care.
  */
 @Composable
 fun WithConstraints(
     children: @Composable() (Constraints) -> Unit
 ) {
-    val ref = +compositionReference()
-    val context = +ambient(ContextAmbient)
-    val layoutNodeRef = +memo { Ref<LayoutNode>() }
+    val state = +memo { WithConstrainsState() }
+    state.children = children
+    state.context = +ambient(ContextAmbient)
+    state.compositionRef = +compositionReference()
+    // if this code was executed subcomposition must be triggered as well
+    state.forceRecompose = true
 
-    val measureBlocks = object : LayoutNode.MeasureBlocks {
+    LayoutNode(ref = state.nodeRef, measureBlocks = state.measureBlocks)
+
+    // if LayoutNode scheduled the remeasuring no further steps are needed - subcomposition
+    // will happen later on the measuring stage. otherwise we can assume the LayoutNode
+    // already holds the final Constraints and we should subcompose straight away.
+    // if owner is null this means we are not yet attached. once attached the remeasuring
+    // will be scheduled which would cause subcomposition
+    val layoutNode = state.nodeRef.value!!
+    if (!layoutNode.needsRemeasure && layoutNode.owner != null) {
+        state.subcompose()
+    }
+}
+
+private class WithConstrainsState {
+    var compositionRef: CompositionReference? = null
+    var context: Context? = null
+    val nodeRef = Ref<LayoutNode>()
+    var lastConstraints: Constraints? = null
+    var children: @Composable() (Constraints) -> Unit = {}
+    var forceRecompose = false
+    val measureBlocks = object : LayoutNode.NoIntristicsMeasureBlocks(
+        error = "Intrinsic measurements are not supported by WithConstraints"
+    ) {
         override fun measure(
             measureScope: MeasureScope,
             measurables: List<Measurable>,
             constraints: Constraints
         ): MeasureScope.LayoutResult {
-            val root = layoutNodeRef.value!!
-            // Start subcomposition from the current node.
-            Compose.subcomposeInto(
-                root,
-                context,
-                ref
-            ) {
-                children(constraints)
+            val root = nodeRef.value!!
+            if (lastConstraints != constraints || forceRecompose) {
+                lastConstraints = constraints
+                root.ignoreModelReads { subcompose() }
             }
 
             // Measure the obtained children and compute our size.
@@ -472,42 +493,19 @@ fun WithConstraints(
             maxHeight = min(maxHeight, constraints.maxHeight)
 
             return measureScope.layout(maxWidth, maxHeight) {
-                layoutChildren.forEach { layoutNode ->
-                    layoutNode.place(IntPx.Zero, IntPx.Zero)
-                }
+                layoutChildren.forEach { it.place(IntPx.Zero, IntPx.Zero) }
             }
         }
-
-        override fun minIntrinsicWidth(
-            densityScope: DensityScope,
-            measurables: List<IntrinsicMeasurable>,
-            h: IntPx
-        ) = error("Intrinsic measurements not supported for WithConstraints")
-
-        override fun minIntrinsicHeight(
-            densityScope: DensityScope,
-            measurables: List<IntrinsicMeasurable>,
-            w: IntPx
-        ) = error("Intrinsic measurements not supported for WithConstraints")
-
-        override fun maxIntrinsicWidth(
-            densityScope: DensityScope,
-            measurables: List<IntrinsicMeasurable>,
-            h: IntPx
-        ) = error("Intrinsic measurements not supported for WithConstraints")
-
-        override fun maxIntrinsicHeight(
-            densityScope: DensityScope,
-            measurables: List<IntrinsicMeasurable>,
-            w: IntPx
-        ) = error("Intrinsic measurements not supported for WithConstraints")
     }
 
-    LayoutNode(
-        ref = layoutNodeRef,
-        modifier = Modifier.None,
-        measureBlocks = measureBlocks
-    )
+    fun subcompose() {
+        val node = nodeRef.value!!
+        val constraints = lastConstraints!!
+        Compose.subcomposeInto(node, context!!, compositionRef) {
+            children(constraints)
+        }
+        forceRecompose = false
+    }
 }
 
 /**
