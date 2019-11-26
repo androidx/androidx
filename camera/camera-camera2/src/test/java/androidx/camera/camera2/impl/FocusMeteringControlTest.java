@@ -40,7 +40,6 @@ import android.os.Build;
 import android.util.Rational;
 import android.util.Size;
 
-import androidx.camera.camera2.Camera2Config;
 import androidx.camera.camera2.impl.Camera2CameraControl.CaptureResultListener;
 import androidx.camera.core.CameraControlInternal;
 import androidx.camera.core.FocusMeteringAction;
@@ -199,29 +198,29 @@ public class FocusMeteringControlTest {
     }
 
     private MeteringRectangle[] getAfRects(FocusMeteringControl control) {
-        Camera2Config.Builder configBuilder = new Camera2Config.Builder();
+        Camera2ImplConfig.Builder configBuilder = new Camera2ImplConfig.Builder();
         control.addFocusMeteringOptions(configBuilder);
-        Camera2Config config = configBuilder.build();
+        Camera2ImplConfig config = configBuilder.build();
 
-        return config.getCaptureRequestOptionInternal(CaptureRequest.CONTROL_AF_REGIONS,
+        return config.getCaptureRequestOption(CaptureRequest.CONTROL_AF_REGIONS,
                 new MeteringRectangle[]{});
     }
 
     private MeteringRectangle[] getAeRects(FocusMeteringControl control) {
-        Camera2Config.Builder configBuilder = new Camera2Config.Builder();
+        Camera2ImplConfig.Builder configBuilder = new Camera2ImplConfig.Builder();
         control.addFocusMeteringOptions(configBuilder);
-        Camera2Config config = configBuilder.build();
+        Camera2ImplConfig config = configBuilder.build();
 
-        return config.getCaptureRequestOptionInternal(CaptureRequest.CONTROL_AE_REGIONS,
+        return config.getCaptureRequestOption(CaptureRequest.CONTROL_AE_REGIONS,
                 new MeteringRectangle[]{});
     }
 
     private MeteringRectangle[] getAwbRects(FocusMeteringControl control) {
-        Camera2Config.Builder configBuilder = new Camera2Config.Builder();
+        Camera2ImplConfig.Builder configBuilder = new Camera2ImplConfig.Builder();
         control.addFocusMeteringOptions(configBuilder);
-        Camera2Config config = configBuilder.build();
+        Camera2ImplConfig config = configBuilder.build();
 
-        return config.getCaptureRequestOptionInternal(CaptureRequest.CONTROL_AWB_REGIONS,
+        return config.getCaptureRequestOption(CaptureRequest.CONTROL_AWB_REGIONS,
                 new MeteringRectangle[]{});
     }
 
@@ -748,9 +747,9 @@ public class FocusMeteringControlTest {
     }
 
     private void verifyAfMode(int expectAfMode) {
-        Camera2Config.Builder builder1 = new Camera2Config.Builder();
+        Camera2ImplConfig.Builder builder1 = new Camera2ImplConfig.Builder();
         mFocusMeteringControl.addFocusMeteringOptions(builder1);
-        assertThat(builder1.build().getCaptureRequestOptionInternal(
+        assertThat(builder1.build().getCaptureRequestOption(
                 CaptureRequest.CONTROL_AF_MODE, null))
                 .isEqualTo(expectAfMode);
     }

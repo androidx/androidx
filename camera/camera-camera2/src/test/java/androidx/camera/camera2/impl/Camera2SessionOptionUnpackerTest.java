@@ -28,8 +28,8 @@ import android.hardware.camera2.CaptureRequest;
 import android.os.Build;
 
 import androidx.annotation.experimental.UseExperimental;
-import androidx.camera.camera2.Camera2Config;
 import androidx.camera.camera2.ExperimentalCamera2Interop;
+import androidx.camera.camera2.interop.Camera2Interop;
 import androidx.camera.core.CameraCaptureCallback;
 import androidx.camera.core.ImageCapture;
 import androidx.camera.core.SessionConfig;
@@ -66,10 +66,11 @@ public final class Camera2SessionOptionUnpackerTest {
         CameraEventCallbacks cameraEventCallbacks = mock(CameraEventCallbacks.class);
         when(cameraEventCallbacks.clone()).thenReturn(cameraEventCallbacks);
 
-        new Camera2Config.Extender<>(imageCaptureBuilder)
+        new Camera2Interop.Extender<>(imageCaptureBuilder)
                 .setSessionCaptureCallback(captureCallback)
                 .setDeviceStateCallback(deviceCallback)
-                .setSessionStateCallback(sessionStateCallback)
+                .setSessionStateCallback(sessionStateCallback);
+        new Camera2ImplConfig.Extender<>(imageCaptureBuilder)
                 .setCameraEventCallback(cameraEventCallbacks);
 
         SessionConfig.Builder sessionBuilder = new SessionConfig.Builder();
@@ -88,7 +89,8 @@ public final class Camera2SessionOptionUnpackerTest {
         assertThat(sessionConfig.getSessionStateCallbacks())
                 .containsExactly(sessionStateCallback);
         assertThat(
-                new Camera2Config(sessionConfig.getImplementationOptions()).getCameraEventCallback(
+                new Camera2ImplConfig(
+                        sessionConfig.getImplementationOptions()).getCameraEventCallback(
                         null)).isEqualTo(cameraEventCallbacks);
     }
 
@@ -98,7 +100,7 @@ public final class Camera2SessionOptionUnpackerTest {
         ImageCapture.Builder imageCaptureConfigBuilder = new ImageCapture.Builder();
 
         // Add 2 options to ensure that multiple options can be unpacked.
-        new Camera2Config.Extender<>(imageCaptureConfigBuilder)
+        new Camera2Interop.Extender<>(imageCaptureConfigBuilder)
                 .setCaptureRequestOption(
                         CaptureRequest.CONTROL_AF_MODE, CaptureRequest.CONTROL_AF_MODE_AUTO)
                 .setCaptureRequestOption(
@@ -108,12 +110,12 @@ public final class Camera2SessionOptionUnpackerTest {
         mUnpacker.unpack(imageCaptureConfigBuilder.getUseCaseConfig(), sessionBuilder);
         SessionConfig sessionConfig = sessionBuilder.build();
 
-        Camera2Config config = new Camera2Config(sessionConfig.getImplementationOptions());
+        Camera2ImplConfig config = new Camera2ImplConfig(sessionConfig.getImplementationOptions());
 
-        assertThat(config.getCaptureRequestOptionInternal(
+        assertThat(config.getCaptureRequestOption(
                 CaptureRequest.CONTROL_AF_MODE, CaptureRequest.CONTROL_AF_MODE_OFF))
                 .isEqualTo(CaptureRequest.CONTROL_AF_MODE_AUTO);
-        assertThat(config.getCaptureRequestOptionInternal(
+        assertThat(config.getCaptureRequestOption(
                 CaptureRequest.FLASH_MODE, CaptureRequest.FLASH_MODE_OFF))
                 .isEqualTo(CaptureRequest.FLASH_MODE_TORCH);
     }

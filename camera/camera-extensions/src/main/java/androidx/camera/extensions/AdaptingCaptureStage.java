@@ -19,7 +19,7 @@ package androidx.camera.extensions;
 import android.hardware.camera2.CaptureRequest;
 import android.util.Pair;
 
-import androidx.camera.camera2.Camera2Config;
+import androidx.camera.camera2.impl.Camera2ImplConfig;
 import androidx.camera.core.CaptureConfig;
 import androidx.camera.core.CaptureStage;
 import androidx.camera.extensions.impl.CaptureStageImpl;
@@ -34,7 +34,7 @@ final class AdaptingCaptureStage implements CaptureStage {
     AdaptingCaptureStage(CaptureStageImpl impl) {
         mId = impl.getId();
 
-        Camera2Config.Builder camera2ConfigurationBuilder = new Camera2Config.Builder();
+        Camera2ImplConfig.Builder camera2ConfigurationBuilder = new Camera2ImplConfig.Builder();
 
         for (Pair<CaptureRequest.Key, Object> captureParameter : impl.getParameters()) {
             camera2ConfigurationBuilder.setCaptureRequestOption(captureParameter.first,

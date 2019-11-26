@@ -47,6 +47,7 @@ import android.view.Surface;
 import androidx.annotation.Nullable;
 import androidx.annotation.experimental.UseExperimental;
 import androidx.camera.camera2.impl.util.FakeRepeatingUseCase;
+import androidx.camera.camera2.interop.Camera2Interop;
 import androidx.camera.core.AppConfig;
 import androidx.camera.core.CameraControlInternal;
 import androidx.camera.core.CameraFactory;
@@ -439,7 +440,7 @@ public final class ImageCaptureTest {
         ImageCapture.Builder builder = new ImageCapture.Builder();
         CameraCaptureSession.CaptureCallback captureCallback =
                 mock(CameraCaptureSession.CaptureCallback.class);
-        new Camera2Config.Extender<>(builder).setSessionCaptureCallback(captureCallback);
+        new Camera2Interop.Extender<>(builder).setSessionCaptureCallback(captureCallback);
         ImageCapture useCase = builder.build();
         mInstrumentation.runOnMainSync(
                 () -> {

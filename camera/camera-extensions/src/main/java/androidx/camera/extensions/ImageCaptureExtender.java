@@ -25,7 +25,7 @@ import android.util.Size;
 
 import androidx.annotation.GuardedBy;
 import androidx.annotation.NonNull;
-import androidx.camera.camera2.Camera2Config;
+import androidx.camera.camera2.impl.Camera2ImplConfig;
 import androidx.camera.camera2.impl.CameraEventCallback;
 import androidx.camera.camera2.impl.CameraEventCallbacks;
 import androidx.camera.core.CameraIdFilter;
@@ -139,7 +139,7 @@ public abstract class ImageCaptureExtender {
         }
 
         ImageCaptureAdapter imageCaptureAdapter = new ImageCaptureAdapter(mImpl, mEffectMode);
-        new Camera2Config.Extender<>(mBuilder).setCameraEventCallback(
+        new Camera2ImplConfig.Extender<>(mBuilder).setCameraEventCallback(
                 new CameraEventCallbacks(imageCaptureAdapter));
         mBuilder.setUseCaseEventCallback(imageCaptureAdapter);
         mBuilder.setCaptureBundle(imageCaptureAdapter);

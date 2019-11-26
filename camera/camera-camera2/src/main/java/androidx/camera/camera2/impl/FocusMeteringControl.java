@@ -28,7 +28,6 @@ import android.util.Rational;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.annotation.WorkerThread;
-import androidx.camera.camera2.Camera2Config;
 import androidx.camera.camera2.impl.annotation.CameraExecutor;
 import androidx.camera.core.CameraControl;
 import androidx.camera.core.CaptureConfig;
@@ -132,7 +131,7 @@ class FocusMeteringControl {
      * applies to all repeating requests and single requests.
      */
     @WorkerThread
-    void addFocusMeteringOptions(@NonNull Camera2Config.Builder configBuilder) {
+    void addFocusMeteringOptions(@NonNull Camera2ImplConfig.Builder configBuilder) {
         int afMode = mIsInAfAutoMode
                 ? CaptureRequest.CONTROL_AF_MODE_AUTO
                 : CaptureRequest.CONTROL_AF_MODE_CONTINUOUS_PICTURE;
@@ -304,7 +303,7 @@ class FocusMeteringControl {
         CaptureConfig.Builder builder = new CaptureConfig.Builder();
         builder.setTemplateType(getDefaultTemplate());
         builder.setUseRepeatingSurface(true);
-        Camera2Config.Builder configBuilder = new Camera2Config.Builder();
+        Camera2ImplConfig.Builder configBuilder = new Camera2ImplConfig.Builder();
         configBuilder.setCaptureRequestOption(CaptureRequest.CONTROL_AF_TRIGGER,
                 CaptureRequest.CONTROL_AF_TRIGGER_START);
         builder.addImplementationOptions(configBuilder.build());
@@ -320,7 +319,7 @@ class FocusMeteringControl {
         CaptureConfig.Builder builder = new CaptureConfig.Builder();
         builder.setTemplateType(getDefaultTemplate());
         builder.setUseRepeatingSurface(true);
-        Camera2Config.Builder configBuilder = new Camera2Config.Builder();
+        Camera2ImplConfig.Builder configBuilder = new Camera2ImplConfig.Builder();
         configBuilder.setCaptureRequestOption(CaptureRequest.CONTROL_AE_PRECAPTURE_TRIGGER,
                 CaptureRequest.CONTROL_AE_PRECAPTURE_TRIGGER_START);
         builder.addImplementationOptions(configBuilder.build());
@@ -338,7 +337,7 @@ class FocusMeteringControl {
         builder.setUseRepeatingSurface(true);
         builder.setTemplateType(getDefaultTemplate());
 
-        Camera2Config.Builder configBuilder = new Camera2Config.Builder();
+        Camera2ImplConfig.Builder configBuilder = new Camera2ImplConfig.Builder();
         if (cancelAfTrigger) {
             configBuilder.setCaptureRequestOption(CaptureRequest.CONTROL_AF_TRIGGER,
                     CaptureRequest.CONTROL_AF_TRIGGER_CANCEL);

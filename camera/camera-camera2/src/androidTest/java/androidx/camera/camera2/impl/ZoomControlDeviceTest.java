@@ -37,7 +37,6 @@ import android.os.HandlerThread;
 
 import androidx.annotation.NonNull;
 import androidx.camera.camera2.Camera2AppConfig;
-import androidx.camera.camera2.Camera2Config;
 import androidx.camera.core.AppConfig;
 import androidx.camera.core.CameraControlInternal.ControlUpdateCallback;
 import androidx.camera.core.CameraInfoUnavailableException;
@@ -220,10 +219,11 @@ public final class ZoomControlDeviceTest {
         verify(controlUpdateCallback, times(1)).onCameraControlUpdateSessionConfig(
                 sessionConfigArgumentCaptor.capture());
         SessionConfig sessionConfig = sessionConfigArgumentCaptor.getValue();
-        Camera2Config camera2Config = new Camera2Config(sessionConfig.getImplementationOptions());
+        Camera2ImplConfig camera2Config = new Camera2ImplConfig(
+                sessionConfig.getImplementationOptions());
 
         reset(controlUpdateCallback);
-        return camera2Config.getCaptureRequestOptionInternal(
+        return camera2Config.getCaptureRequestOption(
                 CaptureRequest.SCALER_CROP_REGION, null);
     }
 
@@ -489,7 +489,7 @@ public final class ZoomControlDeviceTest {
         mZoomControl.setActive(false);
 
         assertThat(mZoomControl.getZoomRatio().getValue()).isEqualTo(
-                mZoomControl.DEFAULT_ZOOM_RATIO);
+                ZoomControl.DEFAULT_ZOOM_RATIO);
         assertThat(mZoomControl.getLinearZoom().getValue()).isEqualTo(0);
     }
 }

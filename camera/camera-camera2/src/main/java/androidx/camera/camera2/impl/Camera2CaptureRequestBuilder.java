@@ -24,7 +24,6 @@ import android.view.Surface;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
-import androidx.camera.camera2.Camera2Config;
 import androidx.camera.core.CaptureConfig;
 import androidx.camera.core.Config;
 import androidx.camera.core.DeferrableSurface;
@@ -69,10 +68,10 @@ public class Camera2CaptureRequestBuilder {
 
     private static void applyImplementationOptionToCaptureBuilder(
             CaptureRequest.Builder builder, Config config) {
-        Camera2Config camera2Config = new Camera2Config(config);
+        Camera2ImplConfig camera2Config = new Camera2ImplConfig(config);
         for (Config.Option<?> option : camera2Config.getCaptureRequestOptions()) {
             /* Although type is erased below, it is safe to pass it to CaptureRequest.Builder
-            because these option are created via Camera2Config.Extender.setCaptureRequestOption
+            because these option are created via Camera2Interop.Extender.setCaptureRequestOption
             (CaptureRequest.Key<ValueT> key, ValueT value) and hence the type compatibility of key
             and value are ensured by the compiler. */
             @SuppressWarnings("unchecked")
