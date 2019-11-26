@@ -97,7 +97,7 @@ public final class VideoCaptureTest {
         assumeTrue(CameraUtil.deviceHasCamera());
         mDefaultConfig = VideoCapture.DEFAULT_CONFIG.getConfig(null);
         Context context = ApplicationProvider.getApplicationContext();
-        CameraXConfig cameraXConfig = Camera2AppConfig.create(context);
+        CameraXConfig cameraXConfig = Camera2Config.defaultConfig(context);
         CameraFactory cameraFactory = cameraXConfig.getCameraFactory(/*valueIfMissing=*/ null);
         CameraX.initialize(context, cameraXConfig);
         mLifecycleOwner = new FakeLifecycleOwner();

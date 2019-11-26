@@ -40,7 +40,7 @@ import android.os.Build;
 import android.util.Size;
 
 import androidx.annotation.NonNull;
-import androidx.camera.camera2.Camera2AppConfig;
+import androidx.camera.camera2.Camera2Config;
 import androidx.camera.camera2.impl.Camera2ImplConfig;
 import androidx.camera.camera2.impl.CameraEventCallback;
 import androidx.camera.camera2.impl.CameraEventCallbacks;
@@ -108,7 +108,7 @@ public class ExtensionTest {
         assumeTrue(CameraUtil.deviceHasCamera());
 
         Context context = ApplicationProvider.getApplicationContext();
-        CameraXConfig cameraXConfig = Camera2AppConfig.create(context);
+        CameraXConfig cameraXConfig = Camera2Config.defaultConfig(context);
         CameraX.initialize(context, cameraXConfig);
 
         assumeTrue(CameraUtil.hasCameraWithLensFacing(mLensFacing));

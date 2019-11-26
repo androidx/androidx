@@ -38,7 +38,7 @@ import java.util.concurrent.Executor;
  * {@linkplain androidx.camera.lifecycle.ProcessCameraProvider#getInstance(android.content.Context)
  * An example} of how this is used can be found in the {@link androidx.camera.lifecycle} package.
  *
- * <p>Applications can create and use {@linkplain androidx.camera.camera2.Camera2AppConfig the
+ * <p>Applications can create and use {@linkplain androidx.camera.camera2.Camera2Config the
  * implementation} of AppConfig provided in {@link androidx.camera.camera2}.
  *
  * @see androidx.camera.lifecycle
