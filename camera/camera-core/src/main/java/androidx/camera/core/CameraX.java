@@ -128,6 +128,7 @@ import java.util.concurrent.TimeoutException;
  * thread.  This is because lifecycle events are triggered on main thread and so accessing the use
  * case on the main thread guarantees that lifecycle state changes will not occur during execution
  * of a method call or binding/unbinding.
+ *
  * @hide
  */
 @MainThread
@@ -569,28 +570,28 @@ public final class CameraX {
      * <p>The context enables CameraX to obtain access to necessary services, including the camera
      * service. For example, the context can be provided by the application.
      *
-     * @param context   to attach
-     * @param appConfig configuration options for this application session.
+     * @param context       to attach
+     * @param cameraXConfig configuration options for this application session.
      * @return A {@link ListenableFuture} representing the initialization task.
      */
     @NonNull
     public static ListenableFuture<Void> initialize(@NonNull Context context,
-            @NonNull AppConfig appConfig) {
+            @NonNull CameraXConfig cameraXConfig) {
         synchronized (sInitializeLock) {
-            return initializeLocked(context, appConfig);
+            return initializeLocked(context, cameraXConfig);
         }
     }
 
     @GuardedBy("sInitializeLock")
     @NonNull
     private static ListenableFuture<Void> initializeLocked(@NonNull Context context,
-            @NonNull AppConfig appConfig) {
+            @NonNull CameraXConfig cameraXConfig) {
         Preconditions.checkNotNull(context);
-        Preconditions.checkNotNull(appConfig);
+        Preconditions.checkNotNull(cameraXConfig);
         Preconditions.checkState(!sTargetInitialized, "Must call CameraX.shutdown() first.");
         sTargetInitialized = true;
 
-        Executor executor = appConfig.getCameraExecutor(null);
+        Executor executor = cameraXConfig.getCameraExecutor(null);
         // Set a default camera executor if not set.
         if (executor == null) {
             executor = new CameraExecutor();
@@ -604,7 +605,7 @@ public final class CameraX {
                 // The sShutdownFuture should always be successful, otherwise it will not
                 // propagate to transformAsync() due to the behavior of FutureChain.
                 ListenableFuture<Void> future = FutureChain.from(sShutdownFuture)
-                        .transformAsync(input -> cameraX.initInternal(context, appConfig),
+                        .transformAsync(input -> cameraX.initInternal(context, cameraXConfig),
                                 CameraXExecutors.directExecutor());
 
                 Futures.addCallback(future, new FutureCallback<Void>() {
@@ -690,7 +691,7 @@ public final class CameraX {
     /**
      * Returns true if CameraX is initialized.
      *
-     * <p>Any previous call to {@link #initialize(Context, AppConfig)} would have initialized
+     * <p>Any previous call to {@link #initialize(Context, CameraXConfig)} would have initialized
      * CameraX.
      *
      * @hide
@@ -789,12 +790,12 @@ public final class CameraX {
             // Attempt initialization through Application
             if (instanceFuture == null) {
                 Application app = (Application) context.getApplicationContext();
-                if (app instanceof AppConfig.Provider) {
-                    initializeLocked(app, ((AppConfig.Provider) app).getAppConfig());
+                if (app instanceof CameraXConfig.Provider) {
+                    initializeLocked(app, ((CameraXConfig.Provider) app).getCameraXConfig());
                     instanceFuture = getInstanceLocked();
                 } else {
                     throw new IllegalStateException("CameraX is not initialized properly. Either "
-                            + "CameraX.initialize() needs to have been called or the AppConfig"
+                            + "CameraX.initialize() needs to have been called or the CameraXConfig"
                             + ".Provider interface must be implemented by your Application class.");
                 }
             }
@@ -951,7 +952,7 @@ public final class CameraX {
         return mDefaultConfigFactory;
     }
 
-    private ListenableFuture<Void> initInternal(Context context, AppConfig appConfig) {
+    private ListenableFuture<Void> initInternal(Context context, CameraXConfig cameraXConfig) {
         synchronized (mInitializeLock) {
             Preconditions.checkState(mInitState == InternalInitState.UNINITIALIZED,
                     "CameraX.initInternal() should only be called once per instance");
@@ -963,7 +964,7 @@ public final class CameraX {
                             Exception e = null;
                             try {
                                 mContext = context.getApplicationContext();
-                                mCameraFactory = appConfig.getCameraFactory(null);
+                                mCameraFactory = cameraXConfig.getCameraFactory(null);
                                 if (mCameraFactory == null) {
                                     e = new IllegalArgumentException(
                                             "Invalid app configuration provided. Missing "
@@ -971,7 +972,7 @@ public final class CameraX {
                                     return;
                                 }
 
-                                mSurfaceManager = appConfig.getDeviceSurfaceManager(null);
+                                mSurfaceManager = cameraXConfig.getDeviceSurfaceManager(null);
                                 if (mSurfaceManager == null) {
                                     e = new IllegalArgumentException(
                                             "Invalid app configuration provided. Missing "
@@ -980,7 +981,8 @@ public final class CameraX {
                                 }
                                 mSurfaceManager.init();
 
-                                mDefaultConfigFactory = appConfig.getUseCaseConfigRepository(null);
+                                mDefaultConfigFactory = cameraXConfig.getUseCaseConfigRepository(
+                                        null);
                                 if (mDefaultConfigFactory == null) {
                                     e = new IllegalArgumentException(
                                             "Invalid app configuration provided. Missing "

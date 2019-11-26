@@ -20,15 +20,15 @@ import android.app.Application;
 
 import androidx.annotation.NonNull;
 import androidx.camera.camera2.Camera2AppConfig;
-import androidx.camera.core.AppConfig;
+import androidx.camera.core.CameraXConfig;
 
 
 /** The application. */
-public class CoreApplication extends Application implements AppConfig.Provider {
+public class CoreApplication extends Application implements CameraXConfig.Provider {
 
     @NonNull
     @Override
-    public AppConfig getAppConfig() {
+    public CameraXConfig getCameraXConfig() {
         return Camera2AppConfig.create(this);
     }
 }

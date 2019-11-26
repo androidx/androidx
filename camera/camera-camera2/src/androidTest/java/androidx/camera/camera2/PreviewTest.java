@@ -30,11 +30,11 @@ import android.graphics.SurfaceTexture;
 import android.util.Size;
 
 import androidx.annotation.NonNull;
-import androidx.camera.core.AppConfig;
 import androidx.camera.core.CameraControlInternal;
 import androidx.camera.core.CameraFactory;
 import androidx.camera.core.CameraSelector;
 import androidx.camera.core.CameraX;
+import androidx.camera.core.CameraXConfig;
 import androidx.camera.core.CaptureConfig;
 import androidx.camera.core.LensFacing;
 import androidx.camera.core.Preview;
@@ -105,9 +105,9 @@ public final class PreviewTest {
     public void setUp() {
         assumeTrue(CameraUtil.deviceHasCamera());
         Context context = ApplicationProvider.getApplicationContext();
-        AppConfig appConfig = Camera2AppConfig.create(context);
-        CameraX.initialize(context, appConfig);
-        CameraFactory cameraFactory = Preconditions.checkNotNull(appConfig.getCameraFactory(
+        CameraXConfig cameraXConfig = Camera2AppConfig.create(context);
+        CameraX.initialize(context, cameraXConfig);
+        CameraFactory cameraFactory = Preconditions.checkNotNull(cameraXConfig.getCameraFactory(
                 /*valueIfMissing=*/ null));
         try {
             mCameraId = cameraFactory.cameraIdForLensFacing(LensFacing.BACK);

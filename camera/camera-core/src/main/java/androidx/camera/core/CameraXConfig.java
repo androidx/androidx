@@ -30,19 +30,21 @@ import java.util.concurrent.Executor;
 /**
  * A configuration for adding implementation and user-specific behavior to CameraX.
  *
- * <p>AppConfig provides customizable global application options for CameraX that persist for the
- * lifetime of CameraX in the application from initialization and for the life of the
- * Application's process. An implementation of AppConfig must be provided by subclassing the
- * {@link Application} object and implementing {@link AppConfig.Provider}.
+ * <p>CameraXConfig provides customizable options for camera provider instances that persist for
+ * the lifetime of the provider.
+ *
+ * <p>An implementation of AppConfig must be provided by subclassing the
+ * {@link Application} object and implementing {@link CameraXConfig.Provider}.
  * {@linkplain androidx.camera.lifecycle.ProcessCameraProvider#getInstance(android.content.Context)
  * An example} of how this is used can be found in the {@link androidx.camera.lifecycle} package.
- * Applications can create and use {@linkplain androidx.camera.camera2.Camera2AppConfig the
+ *
+ * <p>Applications can create and use {@linkplain androidx.camera.camera2.Camera2AppConfig the
  * implementation} of AppConfig provided in {@link androidx.camera.camera2}.
  *
  * @see androidx.camera.lifecycle
- * @see androidx.camera.core.AppConfig.Builder
+ * @see CameraXConfig.Builder
  */
-public final class AppConfig implements TargetConfig<CameraX>, Config {
+public final class CameraXConfig implements TargetConfig<CameraX>, Config {
 
     /**
      * An interface which can be implemented to provide the configuration for CameraX.
@@ -57,7 +59,7 @@ public final class AppConfig implements TargetConfig<CameraX>, Config {
     public interface Provider {
         /** Returns the configuration to use for initializing an instance of CameraX. */
         @NonNull
-        AppConfig getAppConfig();
+        CameraXConfig getCameraXConfig();
     }
 
     // Option Declarations:
@@ -82,7 +84,7 @@ public final class AppConfig implements TargetConfig<CameraX>, Config {
 
     private final OptionsBundle mConfig;
 
-    AppConfig(OptionsBundle options) {
+    CameraXConfig(OptionsBundle options) {
         mConfig = options;
     }
 
@@ -224,9 +226,9 @@ public final class AppConfig implements TargetConfig<CameraX>, Config {
     // End of the default implementation of Config
     // *********************************************************************************************
 
-    /** A builder for generating {@link AppConfig} objects. */
+    /** A builder for generating {@link CameraXConfig} objects. */
     public static final class Builder
-            implements TargetConfig.Builder<CameraX, AppConfig.Builder> {
+            implements TargetConfig.Builder<CameraX, CameraXConfig.Builder> {
 
         private final MutableOptionsBundle mMutableConfig;
 
@@ -243,7 +245,7 @@ public final class AppConfig implements TargetConfig<CameraX>, Config {
             if (oldConfigClass != null && !oldConfigClass.equals(CameraX.class)) {
                 throw new IllegalArgumentException(
                         "Invalid target class configuration for "
-                                + AppConfig.Builder.this
+                                + CameraXConfig.Builder.this
                                 + ": "
                                 + oldConfigClass);
             }
@@ -252,13 +254,13 @@ public final class AppConfig implements TargetConfig<CameraX>, Config {
         }
 
         /**
-         * Generates a Builder from another {@link AppConfig} object
+         * Generates a Builder from another {@link CameraXConfig} object
          *
          * @param configuration An immutable configuration to pre-populate this builder.
          * @return The new Builder.
          */
         @NonNull
-        public static Builder fromConfig(@NonNull AppConfig configuration) {
+        public static Builder fromConfig(@NonNull CameraXConfig configuration) {
             return new Builder(MutableOptionsBundle.from(configuration));
         }
 
@@ -313,25 +315,19 @@ public final class AppConfig implements TargetConfig<CameraX>, Config {
             return this;
         }
 
-        /**
-         * {@inheritDoc}
-         *
-         * @hide
-         */
-        @RestrictTo(Scope.LIBRARY_GROUP)
         @NonNull
-        public MutableConfig getMutableConfig() {
+        private MutableConfig getMutableConfig() {
             return mMutableConfig;
         }
 
         /**
-         * Builds an immutable {@link AppConfig} from the current state.
+         * Builds an immutable {@link CameraXConfig} from the current state.
          *
-         * @return A {@link AppConfig} populated with the current state.
+         * @return A {@link CameraXConfig} populated with the current state.
          */
         @NonNull
-        public AppConfig build() {
-            return new AppConfig(OptionsBundle.from(mMutableConfig));
+        public CameraXConfig build() {
+            return new CameraXConfig(OptionsBundle.from(mMutableConfig));
         }
 
         // Implementations of TargetConfig.Builder default methods

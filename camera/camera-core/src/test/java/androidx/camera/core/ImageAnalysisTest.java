@@ -93,11 +93,11 @@ public class ImageAnalysisTest {
         cameraFactory.insertDefaultBackCamera(ShadowCameraX.DEFAULT_CAMERA_ID,
                 () -> new FakeCamera(ShadowCameraX.DEFAULT_CAMERA_ID));
 
-        AppConfig appConfig = AppConfig.Builder.fromConfig(
+        CameraXConfig cameraXConfig = CameraXConfig.Builder.fromConfig(
                 FakeAppConfig.create()).setCameraFactory(cameraFactory).build();
 
         Context context = ApplicationProvider.getApplicationContext();
-        CameraX.initialize(context, appConfig);
+        CameraX.initialize(context, cameraXConfig);
     }
 
     @After

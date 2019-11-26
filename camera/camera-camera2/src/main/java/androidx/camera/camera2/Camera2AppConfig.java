@@ -25,9 +25,9 @@ import androidx.camera.camera2.impl.ImageAnalysisConfigProvider;
 import androidx.camera.camera2.impl.ImageCaptureConfigProvider;
 import androidx.camera.camera2.impl.PreviewConfigProvider;
 import androidx.camera.camera2.impl.VideoCaptureConfigProvider;
-import androidx.camera.core.AppConfig;
 import androidx.camera.core.CameraDeviceSurfaceManager;
 import androidx.camera.core.CameraFactory;
+import androidx.camera.core.CameraXConfig;
 import androidx.camera.core.ExtendableUseCaseConfigFactory;
 import androidx.camera.core.ImageAnalysisConfig;
 import androidx.camera.core.ImageCaptureConfig;
@@ -36,7 +36,7 @@ import androidx.camera.core.VideoCaptureConfig;
 import androidx.core.util.Preconditions;
 
 /**
- * Convenience class for generating a pre-populated Camera2 {@link AppConfig}.
+ * Convenience class for generating a pre-populated Camera2 {@link CameraXConfig}.
  */
 public final class Camera2AppConfig {
 
@@ -44,11 +44,11 @@ public final class Camera2AppConfig {
     }
 
     /**
-     * Creates the {@link AppConfig} containing the Camera2 implementation pieces for
+     * Creates the {@link CameraXConfig} containing the Camera2 implementation pieces for
      * CameraX.
      */
     @NonNull
-    public static AppConfig create(@NonNull Context context) {
+    public static CameraXConfig create(@NonNull Context context) {
         Preconditions.checkNotNull(context);
 
         // Create the camera factory for creating Camera2 camera objects
@@ -68,8 +68,8 @@ public final class Camera2AppConfig {
         configFactory.installDefaultProvider(
                 PreviewConfig.class, new PreviewConfigProvider(cameraFactory, context));
 
-        AppConfig.Builder appConfigBuilder =
-                new AppConfig.Builder()
+        CameraXConfig.Builder appConfigBuilder =
+                new CameraXConfig.Builder()
                         .setCameraFactory(cameraFactory)
                         .setDeviceSurfaceManager(surfaceManager)
                         .setUseCaseConfigFactory(configFactory);

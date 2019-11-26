@@ -40,41 +40,41 @@ import java.util.concurrent.Executor;
 @RunWith(RobolectricTestRunner.class)
 @DoNotInstrument
 @Config(minSdk = Build.VERSION_CODES.LOLLIPOP)
-public class AppConfigTest {
+public class CameraXConfigTest {
 
-    private AppConfig mAppConfig;
+    private CameraXConfig mCameraXConfig;
 
     @Before
     public void setUp() {
-        mAppConfig = FakeAppConfig.create();
+        mCameraXConfig = FakeAppConfig.create();
     }
 
     @Test
     public void canGetConfigTarget() {
-        Class<CameraX> configTarget = mAppConfig.getTargetClass(/*valueIfMissing=*/ null);
+        Class<CameraX> configTarget = mCameraXConfig.getTargetClass(/*valueIfMissing=*/ null);
         assertThat(configTarget).isEqualTo(CameraX.class);
     }
 
     @Test
     public void canGetCameraFactory() {
-        CameraFactory cameraFactory = mAppConfig.getCameraFactory(/*valueIfMissing=*/ null);
+        CameraFactory cameraFactory = mCameraXConfig.getCameraFactory(/*valueIfMissing=*/ null);
         assertThat(cameraFactory).isInstanceOf(FakeCameraFactory.class);
     }
 
     @Test
     public void canGetDeviceSurfaceManager() {
         CameraDeviceSurfaceManager surfaceManager =
-                mAppConfig.getDeviceSurfaceManager(/*valueIfMissing=*/ null);
+                mCameraXConfig.getDeviceSurfaceManager(/*valueIfMissing=*/ null);
         assertThat(surfaceManager).isInstanceOf(FakeCameraDeviceSurfaceManager.class);
     }
 
     @Test
     public void canGetCameraExecutor() {
         Executor mockExecutor = mock(Executor.class);
-        AppConfig appConfig = new AppConfig.Builder()
+        CameraXConfig cameraXConfig = new CameraXConfig.Builder()
                 .setCameraExecutor(mockExecutor)
                 .build();
-        Executor cameraExecutor = appConfig.getCameraExecutor(/*valueIfMissing=*/ null);
+        Executor cameraExecutor = cameraXConfig.getCameraExecutor(/*valueIfMissing=*/ null);
         assertThat(cameraExecutor).isEqualTo(mockExecutor);
     }
 }

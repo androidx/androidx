@@ -19,10 +19,9 @@ package androidx.camera.camera2.impl;
 import android.content.Context;
 
 import androidx.camera.camera2.Camera2AppConfig;
-import androidx.camera.core.AppConfig;
 import androidx.camera.core.CameraX;
+import androidx.camera.core.CameraXConfig;
 import androidx.camera.core.ImageCapture;
-import androidx.camera.core.UseCase;
 import androidx.camera.core.VideoCapture;
 import androidx.camera.core.VideoCaptureConfig;
 import androidx.test.core.app.ApplicationProvider;
@@ -45,8 +44,8 @@ public final class UseCaseSurfaceOccupancyManagerTest {
     @Before
     public void setUp() {
         Context context = ApplicationProvider.getApplicationContext();
-        AppConfig appConfig = Camera2AppConfig.create(context);
-        CameraX.initialize(context, appConfig);
+        CameraXConfig cameraXConfig = Camera2AppConfig.create(context);
+        CameraX.initialize(context, cameraXConfig);
     }
 
     @After
@@ -62,8 +61,8 @@ public final class UseCaseSurfaceOccupancyManagerTest {
 
         // Should throw IllegalArgumentException
         UseCaseSurfaceOccupancyManager.checkUseCaseLimitNotExceeded(
-                Collections.<UseCase>singletonList(useCase1),
-                Collections.<UseCase>singletonList(useCase2));
+                Collections.singletonList(useCase1),
+                Collections.singletonList(useCase2));
     }
 
     @Test(expected = IllegalArgumentException.class)
@@ -74,8 +73,8 @@ public final class UseCaseSurfaceOccupancyManagerTest {
 
         // Should throw IllegalArgumentException
         UseCaseSurfaceOccupancyManager.checkUseCaseLimitNotExceeded(
-                Collections.<UseCase>singletonList(useCase1),
-                Collections.<UseCase>singletonList(useCase2));
+                Collections.singletonList(useCase1),
+                Collections.singletonList(useCase2));
     }
 
     @Test
@@ -84,7 +83,7 @@ public final class UseCaseSurfaceOccupancyManagerTest {
         VideoCapture videoCapture = new VideoCaptureConfig.Builder().build();
 
         UseCaseSurfaceOccupancyManager.checkUseCaseLimitNotExceeded(
-                Collections.<UseCase>singletonList(imageCapture),
-                Collections.<UseCase>singletonList(videoCapture));
+                Collections.singletonList(imageCapture),
+                Collections.singletonList(videoCapture));
     }
 }
