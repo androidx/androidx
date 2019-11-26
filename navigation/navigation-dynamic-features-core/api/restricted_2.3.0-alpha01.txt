@@ -67,9 +67,6 @@ package androidx.navigation.dynamicfeatures {
     method public int getSessionId();
     method public androidx.lifecycle.LiveData<com.google.android.play.core.splitinstall.SplitInstallSessionState> getStatus();
     method public boolean isInstallRequired();
-    method public void setException$lintWithKotlin(Exception? p);
-    method public void setInstallRequired$lintWithKotlin(boolean installRequired);
-    method public void setSessionId$lintWithKotlin(int p);
     property public final Exception? exception;
     property public final boolean isInstallRequired;
     property public final int sessionId;
