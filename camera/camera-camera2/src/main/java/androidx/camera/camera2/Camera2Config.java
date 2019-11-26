@@ -38,17 +38,16 @@ import androidx.core.util.Preconditions;
 /**
  * Convenience class for generating a pre-populated Camera2 {@link CameraXConfig}.
  */
-public final class Camera2AppConfig {
+public final class Camera2Config {
 
-    private Camera2AppConfig() {
+    private Camera2Config() {
     }
 
     /**
-     * Creates the {@link CameraXConfig} containing the Camera2 implementation pieces for
-     * CameraX.
+     * Creates a {@link CameraXConfig} containing the default Camera2 implementation for CameraX.
      */
     @NonNull
-    public static CameraXConfig create(@NonNull Context context) {
+    public static CameraXConfig defaultConfig(@NonNull Context context) {
         Preconditions.checkNotNull(context);
 
         // Create the camera factory for creating Camera2 camera objects

@@ -93,7 +93,7 @@ public final class UseCaseCombinationTest {
         assumeTrue(CameraUtil.deviceHasCamera());
 
         Context context = ApplicationProvider.getApplicationContext();
-        CameraXConfig config = Camera2AppConfig.create(context);
+        CameraXConfig config = Camera2Config.defaultConfig(context);
 
         CameraX.initialize(context, config);
 

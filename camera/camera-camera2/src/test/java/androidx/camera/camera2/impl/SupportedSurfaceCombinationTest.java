@@ -39,7 +39,7 @@ import android.util.Size;
 import android.view.Surface;
 import android.view.WindowManager;
 
-import androidx.camera.camera2.Camera2AppConfig;
+import androidx.camera.camera2.Camera2Config;
 import androidx.camera.core.AspectRatio;
 import androidx.camera.core.CameraSelector;
 import androidx.camera.core.CameraX;
@@ -1109,7 +1109,7 @@ public final class SupportedSurfaceCombinationTest {
 
     private void initCameraX() {
         CameraXConfig cameraXConfig = CameraXConfig.Builder.fromConfig(
-                Camera2AppConfig.create(mContext))
+                Camera2Config.defaultConfig(mContext))
                 .setCameraFactory(mCameraFactory)
                 .build();
         CameraX.initialize(mContext, cameraXConfig);
