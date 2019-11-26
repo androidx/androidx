@@ -20,6 +20,7 @@ import android.app.Activity
 import android.os.Bundle
 import androidx.compose.Composable
 import androidx.ui.core.Draw
+import androidx.ui.core.LayoutTag
 import androidx.ui.core.Text
 import androidx.ui.core.dp
 import androidx.ui.core.setContent
@@ -30,7 +31,6 @@ import androidx.ui.graphics.Paint
 import androidx.ui.layout.constraintlayout.ConstraintLayout
 import androidx.ui.layout.constraintlayout.ConstraintSet
 import androidx.ui.layout.constraintlayout.ConstraintSetBuilderScope
-import androidx.ui.layout.constraintlayout.Tag
 import androidx.ui.text.TextStyle
 
 /**
@@ -84,10 +84,10 @@ fun CLDemo() {
         Draw { canvas, parentSize ->
             canvas.drawRect(parentSize.toRect(), Paint().apply { color = Color.Blue })
         }
-        Text(modifier = Tag("text1"), text = "Text1", style = TextStyle(fontSize = 10.sp))
-        Text(modifier = Tag("text2"), text = "Text2", style = TextStyle(fontSize = 12.sp))
-        Text(modifier = Tag("text3"), text = "Text3", style = TextStyle(fontSize = 14.sp))
-        Text(modifier = Tag("text4"), text = "Text4", style = TextStyle(fontSize = 16.sp))
-        Text(modifier = Tag("text5"), text = "Text5", style = TextStyle(fontSize = 18.sp))
+        Text(modifier = LayoutTag("text1"), text = "Text1", style = TextStyle(fontSize = 10.sp))
+        Text(modifier = LayoutTag("text2"), text = "Text2", style = TextStyle(fontSize = 12.sp))
+        Text(modifier = LayoutTag("text3"), text = "Text3", style = TextStyle(fontSize = 14.sp))
+        Text(modifier = LayoutTag("text4"), text = "Text4", style = TextStyle(fontSize = 16.sp))
+        Text(modifier = LayoutTag("text5"), text = "Text5", style = TextStyle(fontSize = 18.sp))
     }
 }
