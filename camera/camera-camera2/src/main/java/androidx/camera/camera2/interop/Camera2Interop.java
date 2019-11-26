@@ -29,7 +29,6 @@ import android.hardware.camera2.CaptureResult;
 import androidx.annotation.NonNull;
 import androidx.annotation.RestrictTo;
 import androidx.annotation.RestrictTo.Scope;
-import androidx.camera.camera2.ExperimentalCamera2Interop;
 import androidx.camera.camera2.impl.Camera2ImplConfig;
 import androidx.camera.core.Config;
 import androidx.camera.core.ExtendableBuilder;

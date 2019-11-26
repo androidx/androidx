@@ -26,10 +26,10 @@ import android.view.Surface;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.experimental.UseExperimental;
-import androidx.camera.camera2.ExperimentalCamera2Interop;
 import androidx.camera.camera2.impl.util.SemaphoreReleasingCamera2Callbacks.DeviceStateCallback;
 import androidx.camera.camera2.impl.util.SemaphoreReleasingCamera2Callbacks.SessionStateCallback;
 import androidx.camera.camera2.interop.Camera2Interop;
+import androidx.camera.camera2.interop.ExperimentalCamera2Interop;
 import androidx.camera.core.CameraFactory;
 import androidx.camera.core.CameraRepository;
 import androidx.camera.core.ImmediateSurface;
