@@ -104,41 +104,44 @@ internal class SelectionManager(private val selectionRegistrar: SelectionRegistr
             startPosition = PxPosition((-1).px, (-1).px),
             endPosition = PxPosition((-1).px, (-1).px)
         )
-        onSelectionChange(null)
+        if (selection != null) onSelectionChange(null)
     }
 
-    val longPressDragObserver =
-        object : LongPressDragObserver {
-            override fun onLongPress(pxPosition: PxPosition) {
-                if (draggingHandle) return
-                val selection = mergeSelections(
-                    startPosition = pxPosition,
-                    endPosition = pxPosition,
-                    longPress = true
-                )
-                onSelectionChange(selection)
-                dragBeginPosition = pxPosition
-            }
-
-            override fun onDragStart() {
-                super.onDragStart()
-
-                // Zero out the total distance that being dragged.
-                dragTotalDistance = PxPosition.Origin
-            }
-
-            override fun onDrag(dragDistance: PxPosition): PxPosition {
-                dragTotalDistance += dragDistance
-
-                val selection = mergeSelections(
-                    startPosition = dragBeginPosition,
-                    endPosition = dragBeginPosition + dragTotalDistance,
-                    longPress = true
-                )
-                onSelectionChange(selection)
-                return dragDistance
-            }
+    val longPressDragObserver = object : LongPressDragObserver {
+        override fun onLongPress(pxPosition: PxPosition) {
+            if (draggingHandle) return
+            val newSelection = mergeSelections(
+                startPosition = pxPosition,
+                endPosition = pxPosition,
+                longPress = true
+            )
+            if (newSelection != selection) onSelectionChange(newSelection)
+            dragBeginPosition = pxPosition
         }
+
+        override fun onDragStart() {
+            super.onDragStart()
+            // selection never started
+            if (selection == null) return
+            // Zero out the total distance that being dragged.
+            dragTotalDistance = PxPosition.Origin
+        }
+
+        override fun onDrag(dragDistance: PxPosition): PxPosition {
+            // selection never started, did not consume any drag
+            if (selection == null) return PxPosition.Origin
+
+            dragTotalDistance += dragDistance
+            val newSelection = mergeSelections(
+                startPosition = dragBeginPosition,
+                endPosition = dragBeginPosition + dragTotalDistance,
+                longPress = true
+            )
+
+            if (newSelection != selection) onSelectionChange(newSelection)
+            return dragDistance
+        }
+    }
 
     /**
      * Adjust coordinates for given text offset.
