@@ -44,9 +44,6 @@ import org.junit.Test
 import org.junit.runner.RunWith
 import org.junit.runners.JUnit4
 
-// TODO(shepshapard): Write tests that verify consumption behavior that blocks ancestors and
-//  descendants.
-
 @RunWith(JUnit4::class)
 class PressIndicatorGestureDetectorTest {
 
@@ -64,6 +61,13 @@ class PressIndicatorGestureDetectorTest {
 
     @Test
     fun pointerInputHandler_downConsumed_onStartNotCalled() {
+        recognizer.pointerInputHandler.invokeOverAllPasses(listOf(down().consumeDownChange()))
+        verify(recognizer.onStart!!, never()).invoke(any())
+    }
+
+    @Test
+    fun pointerInputHandler_disabledDown_onStartNotCalled() {
+        recognizer.setEnabled(false)
         recognizer.pointerInputHandler.invokeOverAllPasses(listOf(down().consumeDownChange()))
         verify(recognizer.onStart!!, never()).invoke(any())
     }
@@ -148,6 +152,29 @@ class PressIndicatorGestureDetectorTest {
         pointer0 = pointer0.moveTo(100.milliseconds)
         pointer1 = pointer1.up(100.milliseconds)
         recognizer.pointerInputHandler.invokeOverAllPasses(listOf(pointer0, pointer1))
+
+        verify(recognizer.onStop!!, never()).invoke()
+    }
+
+    @Test
+    fun pointerInputHandler_downDisabledUp_onStopNotCalled() {
+        var pointer = down()
+        recognizer.pointerInputHandler.invokeOverAllPasses(listOf(pointer))
+        recognizer.setEnabled(false)
+        pointer = pointer.up(100.milliseconds)
+        recognizer.pointerInputHandler.invokeOverAllPasses(listOf(pointer))
+
+        verify(recognizer.onStop!!, never()).invoke()
+    }
+
+    @Test
+    fun pointerInputHandler_downDisabledEnabledUp_onStopNotCalled() {
+        var pointer = down()
+        recognizer.pointerInputHandler.invokeOverAllPasses(listOf(pointer))
+        recognizer.setEnabled(false)
+        recognizer.setEnabled(true)
+        pointer = pointer.up(100.milliseconds)
+        recognizer.pointerInputHandler.invokeOverAllPasses(listOf(pointer))
 
         verify(recognizer.onStop!!, never()).invoke()
     }
@@ -246,10 +273,19 @@ class PressIndicatorGestureDetectorTest {
         verify(recognizer.onCancel!!, never()).invoke()
     }
 
+    @Test
+    fun pointerInputHandler_notEnabledDownNotEnabled_onCancelNotCalled() {
+        recognizer.setEnabled(false)
+        recognizer.pointerInputHandler.invokeOverAllPasses(down())
+        recognizer.setEnabled(false)
+
+        verify(recognizer.onCancel!!, never()).invoke()
+    }
+
     // Verification of scenarios where onCancel should be called once.
 
     @Test
-    fun pointerInputHandler_downMoveConsumed_onCancelNotCalled() {
+    fun pointerInputHandler_downMoveConsumed_onCancelCalledOnce() {
         var pointer = down()
         recognizer.pointerInputHandler.invokeOverAllPasses(listOf(pointer))
         pointer = pointer.moveBy(100.milliseconds, 5f).consume(1f)
@@ -396,6 +432,15 @@ class PressIndicatorGestureDetectorTest {
         verify(recognizer.onCancel!!, times(2)).invoke()
     }
 
+    @Test
+    fun pointerInputHandler_downDisabled_onCancelCalledOnce() {
+        val pointer = down()
+        recognizer.pointerInputHandler.invokeOverAllPasses(listOf(pointer))
+        recognizer.setEnabled(false)
+
+        verify(recognizer.onCancel!!).invoke()
+    }
+
     // Verification of correct position returned by onStart.
 
     @Test
@@ -407,7 +452,7 @@ class PressIndicatorGestureDetectorTest {
     // Verification of correct consumption behavior.
 
     @Test
-    fun pointerInputHandler_downChangeConsumedDuringPostUp() {
+    fun pointerInputHandler_down_downChangeConsumedDuringPostUp() {
         var pointer = down()
         pointer = recognizer.pointerInputHandler.invokeOverPasses(
             listOf(pointer),
@@ -423,6 +468,14 @@ class PressIndicatorGestureDetectorTest {
             IntPxSize(0.ipx, 0.ipx)
         ).first()
         assertThat(pointer.consumed.downChange, `is`(true))
+    }
+
+    @Test
+    fun pointerInputHandler_disabledDown_noDownChangeConsumed() {
+        recognizer.setEnabled(false)
+        var pointer = down()
+        pointer = recognizer.pointerInputHandler.invokeOverPasses(listOf(pointer)).first()
+        assertThat(pointer.consumed.downChange, `is`(false))
     }
 
     // Verification of correct cancellation handling.

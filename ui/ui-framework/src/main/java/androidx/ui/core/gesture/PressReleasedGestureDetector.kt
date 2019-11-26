@@ -48,15 +48,18 @@ import androidx.ui.core.gesture.util.anyPointersInBounds
  * via [consumeDownOnStart].
  */
 // TODO(b/139020678): Probably has shared functionality with other press based detectors.
+// TODO(b/145238703): consumeDownOnStart should very likely go away.
 @Composable
 fun PressReleasedGestureDetector(
     onRelease: (() -> Unit)? = null,
     consumeDownOnStart: Boolean = true,
+    enabled: Boolean = true,
     children: @Composable() () -> Unit
 ) {
     val recognizer = +memo { PressReleaseGestureRecognizer() }
     recognizer.onRelease = onRelease
     recognizer.consumeDownOnStart = consumeDownOnStart
+    recognizer.setEnabled(enabled)
 
     PointerInputWrapper(pointerInputHandler = recognizer.pointerInputHandler, children = children)
 }
@@ -78,6 +81,15 @@ internal class PressReleaseGestureRecognizer {
      */
     private var active = false
 
+    private var enabled = true
+
+    fun setEnabled(value: Boolean) {
+        enabled = value
+        if (!enabled) {
+            active = false
+        }
+    }
+
     val pointerInputHandler =
         { changes: List<PointerInputChange>, pass: PointerEventPass, bounds: IntPxSize ->
 
@@ -85,7 +97,7 @@ internal class PressReleaseGestureRecognizer {
 
             if (pass == PointerEventPass.PostUp) {
 
-                if (internalChanges.all { it.changedToDown() }) {
+                if (enabled && internalChanges.all { it.changedToDown() }) {
                     // If we have not yet started and all of the changes changed to down, we are
                     // starting.
                     active = true

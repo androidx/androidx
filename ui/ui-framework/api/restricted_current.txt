@@ -232,17 +232,17 @@ package androidx.ui.core.gesture {
 
   public final class PressGestureDetectorKt {
     ctor public PressGestureDetectorKt();
-    method public static void PressGestureDetector(kotlin.jvm.functions.Function1<? super androidx.ui.core.PxPosition,kotlin.Unit>? onPress = null, kotlin.jvm.functions.Function0<kotlin.Unit>? onRelease = null, kotlin.jvm.functions.Function0<kotlin.Unit>? onCancel = null, kotlin.jvm.functions.Function0<kotlin.Unit> children);
+    method public static void PressGestureDetector(kotlin.jvm.functions.Function1<? super androidx.ui.core.PxPosition,kotlin.Unit>? onPress = null, kotlin.jvm.functions.Function0<kotlin.Unit>? onRelease = null, kotlin.jvm.functions.Function0<kotlin.Unit>? onCancel = null, boolean enabled = true, kotlin.jvm.functions.Function0<kotlin.Unit> children);
   }
 
   public final class PressIndicatorGestureDetectorKt {
     ctor public PressIndicatorGestureDetectorKt();
-    method public static void PressIndicatorGestureDetector(kotlin.jvm.functions.Function1<? super androidx.ui.core.PxPosition,kotlin.Unit>? onStart = null, kotlin.jvm.functions.Function0<kotlin.Unit>? onStop = null, kotlin.jvm.functions.Function0<kotlin.Unit>? onCancel = null, kotlin.jvm.functions.Function0<kotlin.Unit> children);
+    method public static void PressIndicatorGestureDetector(kotlin.jvm.functions.Function1<? super androidx.ui.core.PxPosition,kotlin.Unit>? onStart = null, kotlin.jvm.functions.Function0<kotlin.Unit>? onStop = null, kotlin.jvm.functions.Function0<kotlin.Unit>? onCancel = null, boolean enabled = true, kotlin.jvm.functions.Function0<kotlin.Unit> children);
   }
 
   public final class PressReleasedGestureDetectorKt {
     ctor public PressReleasedGestureDetectorKt();
-    method public static void PressReleasedGestureDetector(kotlin.jvm.functions.Function0<kotlin.Unit>? onRelease = null, boolean consumeDownOnStart = true, kotlin.jvm.functions.Function0<kotlin.Unit> children);
+    method public static void PressReleasedGestureDetector(kotlin.jvm.functions.Function0<kotlin.Unit>? onRelease = null, boolean consumeDownOnStart = true, boolean enabled = true, kotlin.jvm.functions.Function0<kotlin.Unit> children);
   }
 
   public final class RawDragGestureDetectorKt {
