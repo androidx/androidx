@@ -24,7 +24,7 @@ import android.view.Surface
 import android.view.ViewGroup
 import androidx.annotation.experimental.UseExperimental
 import androidx.camera.camera2.interop.Camera2Interop
-import androidx.camera.camera2.ExperimentalCamera2Interop
+import androidx.camera.camera2.interop.ExperimentalCamera2Interop
 import androidx.camera.core.CameraSelector
 import androidx.camera.core.ImageCapture
 import androidx.camera.core.LensFacing

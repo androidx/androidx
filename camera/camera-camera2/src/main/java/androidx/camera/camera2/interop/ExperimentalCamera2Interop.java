@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package androidx.camera.camera2;
+package androidx.camera.camera2.interop;
 
 import static java.lang.annotation.RetentionPolicy.CLASS;
 
