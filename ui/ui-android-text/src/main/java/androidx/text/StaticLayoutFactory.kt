@@ -88,6 +88,7 @@ internal object StaticLayoutFactory {
         @JustificationMode
         justificationMode: Int = LayoutCompat.DEFAULT_JUSTIFICATION_MODE,
         includePadding: Boolean = LayoutCompat.DEFAULT_INCLUDE_PADDING,
+        @Suppress("UNUSED_PARAMETER")
         fallbackLineSpacing: Boolean = LayoutCompat.DEFAULT_FALLBACK_LINE_SPACING,
         @BreakStrategy
         breakStrategy: Int = LayoutCompat.DEFAULT_BREAK_STRATEGY,
@@ -117,7 +118,7 @@ internal object StaticLayoutFactory {
                     }
                     setIncludePad(includePadding)
                     if (Build.VERSION.SDK_INT >= 28) {
-                        setUseLineSpacingFromFallbacks(fallbackLineSpacing)
+//                        setUseLineSpacingFromFallbacks(fallbackLineSpacing)
                     }
                     setBreakStrategy(breakStrategy)
                     setHyphenationFrequency(hyphenationFrequency)
