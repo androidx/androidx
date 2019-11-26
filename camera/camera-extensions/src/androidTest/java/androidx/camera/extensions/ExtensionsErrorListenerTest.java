@@ -28,8 +28,8 @@ import android.os.Build;
 
 import androidx.annotation.NonNull;
 import androidx.camera.camera2.Camera2AppConfig;
-import androidx.camera.core.AppConfig;
 import androidx.camera.core.CameraX;
+import androidx.camera.core.CameraXConfig;
 import androidx.camera.core.ImageCapture;
 import androidx.camera.core.LensFacing;
 import androidx.camera.core.Preview;
@@ -100,8 +100,8 @@ public final class ExtensionsErrorListenerTest {
         assumeTrue(CameraUtil.deviceHasCamera());
 
         Context context = ApplicationProvider.getApplicationContext();
-        AppConfig appConfig = Camera2AppConfig.create(context);
-        CameraX.initialize(context, appConfig);
+        CameraXConfig cameraXConfig = Camera2AppConfig.create(context);
+        CameraX.initialize(context, cameraXConfig);
 
         assumeTrue(CameraUtil.hasCameraWithLensFacing(mLensFacing));
         assumeTrue(ExtensionsTestUtil.initExtensions());

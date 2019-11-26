@@ -24,10 +24,10 @@ import android.app.Instrumentation;
 import android.content.Context;
 import android.util.Rational;
 
-import androidx.camera.core.AppConfig;
 import androidx.camera.core.AspectRatio;
 import androidx.camera.core.CameraSelector;
 import androidx.camera.core.CameraX;
+import androidx.camera.core.CameraXConfig;
 import androidx.camera.core.ImageAnalysis;
 import androidx.camera.core.LensFacing;
 import androidx.camera.core.MeteringPoint;
@@ -55,7 +55,7 @@ public final class SurfaceOrientedMeteringPointFactoryTest {
     @Before
     public void setUp() {
         Context context = ApplicationProvider.getApplicationContext();
-        AppConfig config = Camera2AppConfig.create(context);
+        CameraXConfig config = Camera2AppConfig.create(context);
 
         CameraX.initialize(context, config);
         mLifecycle = new FakeLifecycleOwner();

@@ -30,9 +30,9 @@ import android.os.HandlerThread;
 import android.util.Size;
 
 import androidx.annotation.GuardedBy;
-import androidx.camera.core.AppConfig;
 import androidx.camera.core.CameraSelector;
 import androidx.camera.core.CameraX;
+import androidx.camera.core.CameraXConfig;
 import androidx.camera.core.ImageAnalysis;
 import androidx.camera.core.ImageAnalysis.Analyzer;
 import androidx.camera.core.ImageAnalysis.BackpressureStrategy;
@@ -100,7 +100,7 @@ public final class ImageAnalysisTest {
                     image.close();
                 };
         Context context = ApplicationProvider.getApplicationContext();
-        AppConfig config = Camera2AppConfig.create(context);
+        CameraXConfig config = Camera2AppConfig.create(context);
 
         CameraX.initialize(context, config);
 

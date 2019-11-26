@@ -40,10 +40,10 @@ import android.view.Surface;
 import android.view.WindowManager;
 
 import androidx.camera.camera2.Camera2AppConfig;
-import androidx.camera.core.AppConfig;
 import androidx.camera.core.AspectRatio;
 import androidx.camera.core.CameraSelector;
 import androidx.camera.core.CameraX;
+import androidx.camera.core.CameraXConfig;
 import androidx.camera.core.ImageAnalysis;
 import androidx.camera.core.ImageAnalysisConfig;
 import androidx.camera.core.ImageCapture;
@@ -1108,10 +1108,11 @@ public final class SupportedSurfaceCombinationTest {
     }
 
     private void initCameraX() {
-        AppConfig appConfig = AppConfig.Builder.fromConfig(Camera2AppConfig.create(mContext))
+        CameraXConfig cameraXConfig = CameraXConfig.Builder.fromConfig(
+                Camera2AppConfig.create(mContext))
                 .setCameraFactory(mCameraFactory)
                 .build();
-        CameraX.initialize(mContext, appConfig);
+        CameraX.initialize(mContext, cameraXConfig);
     }
 
     private boolean isRawSupported(int[] capabilities) {

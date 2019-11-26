@@ -18,10 +18,10 @@ package androidx.camera.integration.antelope
 
 import android.app.Application
 import androidx.camera.camera2.Camera2AppConfig
-import androidx.camera.core.AppConfig
+import androidx.camera.core.CameraXConfig
 import androidx.camera.lifecycle.ProcessCameraProvider
 
-class TimingApplication : Application(), AppConfig.Provider {
+class TimingApplication : Application(), CameraXConfig.Provider {
 
     override fun onCreate() {
         super.onCreate()
@@ -30,7 +30,7 @@ class TimingApplication : Application(), AppConfig.Provider {
         ProcessCameraProvider.getInstance(this)
     }
 
-    override fun getAppConfig(): AppConfig {
+    override fun getCameraXConfig(): CameraXConfig {
         return Camera2AppConfig.create(this)
     }
 }

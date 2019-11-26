@@ -48,12 +48,12 @@ import androidx.annotation.Nullable;
 import androidx.annotation.experimental.UseExperimental;
 import androidx.camera.camera2.impl.util.FakeRepeatingUseCase;
 import androidx.camera.camera2.interop.Camera2Interop;
-import androidx.camera.core.AppConfig;
 import androidx.camera.core.CameraControlInternal;
 import androidx.camera.core.CameraFactory;
 import androidx.camera.core.CameraInfoUnavailableException;
 import androidx.camera.core.CameraSelector;
 import androidx.camera.core.CameraX;
+import androidx.camera.core.CameraXConfig;
 import androidx.camera.core.CaptureBundle;
 import androidx.camera.core.CaptureConfig;
 import androidx.camera.core.CaptureProcessor;
@@ -160,9 +160,9 @@ public final class ImageCaptureTest {
         assumeTrue(CameraUtil.deviceHasCamera());
         mListenerExecutor = Executors.newSingleThreadExecutor();
         Context context = ApplicationProvider.getApplicationContext();
-        AppConfig appConfig = Camera2AppConfig.create(context);
-        CameraFactory cameraFactory = appConfig.getCameraFactory(null);
-        CameraX.initialize(context, appConfig);
+        CameraXConfig cameraXConfig = Camera2AppConfig.create(context);
+        CameraFactory cameraFactory = cameraXConfig.getCameraFactory(null);
+        CameraX.initialize(context, cameraXConfig);
         try {
             mCameraId = cameraFactory.cameraIdForLensFacing(BACK_LENS_FACING);
         } catch (Exception e) {

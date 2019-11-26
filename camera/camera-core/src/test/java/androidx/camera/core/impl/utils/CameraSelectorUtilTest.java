@@ -27,11 +27,11 @@ import static org.mockito.Mockito.when;
 import android.content.Context;
 import android.os.Build;
 
-import androidx.camera.core.AppConfig;
 import androidx.camera.core.CameraDeviceConfig;
 import androidx.camera.core.CameraIdFilter;
 import androidx.camera.core.CameraSelector;
 import androidx.camera.core.CameraX;
+import androidx.camera.core.CameraXConfig;
 import androidx.camera.core.LensFacing;
 import androidx.camera.testing.fakes.FakeAppConfig;
 import androidx.test.core.app.ApplicationProvider;
@@ -60,8 +60,8 @@ public class CameraSelectorUtilTest {
     @Before
     public void setUp() throws ExecutionException, InterruptedException {
         Context context = ApplicationProvider.getApplicationContext();
-        AppConfig appConfig = FakeAppConfig.create();
-        CameraX.initialize(context, appConfig).get();
+        CameraXConfig cameraXConfig = FakeAppConfig.create();
+        CameraX.initialize(context, cameraXConfig).get();
     }
 
     @After
@@ -80,7 +80,7 @@ public class CameraSelectorUtilTest {
     }
 
     @Test
-    public void  convertedCameraDeviceConfig_hasBackLensFacing() {
+    public void convertedCameraDeviceConfig_hasBackLensFacing() {
         CameraSelector cameraSelector =
                 new CameraSelector.Builder().requireLensFacing(LensFacing.BACK).build();
         CameraDeviceConfig convertedConfig =
@@ -90,7 +90,7 @@ public class CameraSelectorUtilTest {
     }
 
     @Test(expected = IllegalArgumentException.class)
-    public void  convertedCameraDeviceConfig_doesNotContainFilterForEmptySelector() {
+    public void convertedCameraDeviceConfig_doesNotContainFilterForEmptySelector() {
         CameraSelector cameraSelector = new CameraSelector.Builder().build();
         CameraDeviceConfig convertedConfig =
                 CameraSelectorUtil.toCameraDeviceConfig(cameraSelector);

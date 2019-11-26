@@ -73,7 +73,7 @@ public final class CameraXTest {
     private String mCameraId;
     private CameraInternal mCameraInternal;
     private FakeLifecycleOwner mLifecycle;
-    private AppConfig.Builder mAppConfigBuilder;
+    private CameraXConfig.Builder mConfigBuilder;
     private FakeCameraFactory mFakeCameraFactory;
     private CameraDeviceSurfaceManager mFakeSurfaceManager;
     private UseCaseConfigFactory mUseCaseConfigFactory;
@@ -97,8 +97,8 @@ public final class CameraXTest {
                 new FakeCameraInfoInternal(0, CAMERA_LENS_FACING));
         mFakeCameraFactory.insertCamera(CAMERA_LENS_FACING, CAMERA_ID, () -> mCameraInternal);
         mFakeCameraFactory.setDefaultCameraIdForLensFacing(CAMERA_LENS_FACING, CAMERA_ID);
-        mAppConfigBuilder =
-                new AppConfig.Builder()
+        mConfigBuilder =
+                new CameraXConfig.Builder()
                         .setCameraFactory(mFakeCameraFactory)
                         .setDeviceSurfaceManager(mFakeSurfaceManager)
                         .setUseCaseConfigFactory(mUseCaseConfigFactory);
@@ -119,7 +119,7 @@ public final class CameraXTest {
 
     @Test
     public void initDeinit_success() throws ExecutionException, InterruptedException {
-        CameraX.initialize(mContext, mAppConfigBuilder.build()).get();
+        CameraX.initialize(mContext, mConfigBuilder.build()).get();
         assertThat(CameraX.isInitialized()).isTrue();
 
         CameraX.shutdown().get();
@@ -129,10 +129,10 @@ public final class CameraXTest {
     @Test
     public void failInit_shouldInDeinitState() throws InterruptedException {
         // Create an empty config to cause a failed init.
-        AppConfig appConfig = new AppConfig.Builder().build();
+        CameraXConfig cameraXConfig = new CameraXConfig.Builder().build();
         Exception exception = null;
         try {
-            CameraX.initialize(mContext, appConfig).get();
+            CameraX.initialize(mContext, cameraXConfig).get();
         } catch (ExecutionException e) {
             exception = e;
         }
@@ -142,38 +142,38 @@ public final class CameraXTest {
 
     @Test
     public void reinit_success() throws ExecutionException, InterruptedException {
-        CameraX.initialize(mContext, mAppConfigBuilder.build()).get();
+        CameraX.initialize(mContext, mConfigBuilder.build()).get();
         assertThat(CameraX.isInitialized()).isTrue();
 
         CameraX.shutdown().get();
         assertThat(CameraX.isInitialized()).isFalse();
 
-        CameraX.initialize(mContext, mAppConfigBuilder.build()).get();
+        CameraX.initialize(mContext, mConfigBuilder.build()).get();
         assertThat(CameraX.isInitialized()).isTrue();
     }
 
     @Test
     public void reinit_withPreviousFailedInit() throws ExecutionException, InterruptedException {
         // Create an empty config to cause a failed init.
-        AppConfig appConfig = new AppConfig.Builder().build();
+        CameraXConfig cameraXConfig = new CameraXConfig.Builder().build();
         Exception exception = null;
         try {
-            CameraX.initialize(mContext, appConfig).get();
+            CameraX.initialize(mContext, cameraXConfig).get();
         } catch (ExecutionException e) {
             exception = e;
         }
         assertThat(exception).isInstanceOf(ExecutionException.class);
 
-        CameraX.initialize(mContext, mAppConfigBuilder.build()).get();
+        CameraX.initialize(mContext, mConfigBuilder.build()).get();
         assertThat(CameraX.isInitialized()).isTrue();
     }
 
     @Test
     public void initDeinit_withDirectExecutor() {
-        mAppConfigBuilder.setCameraExecutor(CameraXExecutors.directExecutor());
+        mConfigBuilder.setCameraExecutor(CameraXExecutors.directExecutor());
 
         // Don't call Future.get() because its behavior should be the same as synchronous call.
-        CameraX.initialize(mContext, mAppConfigBuilder.build());
+        CameraX.initialize(mContext, mConfigBuilder.build());
         assertThat(CameraX.isInitialized()).isTrue();
 
         CameraX.shutdown();
@@ -184,9 +184,9 @@ public final class CameraXTest {
     public void initDeinit_withMultiThreadExecutor()
             throws ExecutionException, InterruptedException {
         ExecutorService executorService = Executors.newFixedThreadPool(3);
-        mAppConfigBuilder.setCameraExecutor(executorService);
+        mConfigBuilder.setCameraExecutor(executorService);
 
-        CameraX.initialize(mContext, mAppConfigBuilder.build()).get();
+        CameraX.initialize(mContext, mConfigBuilder.build()).get();
         assertThat(CameraX.isInitialized()).isTrue();
 
         CameraX.shutdown().get();
@@ -196,19 +196,19 @@ public final class CameraXTest {
     }
 
     @Test
-    public void init_withDifferentAppConfig() {
+    public void init_withDifferentCameraXConfig() {
         FakeCameraFactory cameraFactory0 = new FakeCameraFactory();
         FakeCameraFactory cameraFactory1 = new FakeCameraFactory();
 
-        mAppConfigBuilder.setCameraFactory(cameraFactory0);
-        CameraX.initialize(mContext, mAppConfigBuilder.build());
+        mConfigBuilder.setCameraFactory(cameraFactory0);
+        CameraX.initialize(mContext, mConfigBuilder.build());
 
         assertThat(CameraX.getCameraFactory()).isEqualTo(cameraFactory0);
 
         CameraX.shutdown();
 
-        mAppConfigBuilder.setCameraFactory(cameraFactory1);
-        CameraX.initialize(mContext, mAppConfigBuilder.build());
+        mConfigBuilder.setCameraFactory(cameraFactory1);
+        CameraX.initialize(mContext, mConfigBuilder.build());
 
         assertThat(CameraX.getCameraFactory()).isEqualTo(cameraFactory1);
     }
@@ -297,8 +297,8 @@ public final class CameraXTest {
                         new FakeCameraInfoInternal(0, CAMERA_LENS_FACING_FRONT));
         mFakeCameraFactory.insertCamera(CAMERA_LENS_FACING_FRONT, CAMERA_ID_FRONT,
                 () -> cameraInternalFront);
-        AppConfig.Builder appConfigBuilder =
-                new AppConfig.Builder()
+        CameraXConfig.Builder appConfigBuilder =
+                new CameraXConfig.Builder()
                         .setCameraFactory(mFakeCameraFactory)
                         .setDeviceSurfaceManager(mFakeSurfaceManager)
                         .setUseCaseConfigFactory(mUseCaseConfigFactory);
@@ -475,7 +475,7 @@ public final class CameraXTest {
     }
 
     private void initCameraX() {
-        CameraX.initialize(mContext, mAppConfigBuilder.build());
+        CameraX.initialize(mContext, mConfigBuilder.build());
     }
 
     /** FakeUseCase that will call attachToCamera */
