@@ -150,7 +150,6 @@ package androidx.ui.core {
     method public kotlin.jvm.functions.Function0<kotlin.Unit> getRecompose();
     method public androidx.ui.core.Ref<androidx.ui.core.FocusNode>? getRef();
     method public void requestFocus(boolean propagateFocus = true);
-    method public void setFocusState$lintWithKotlin(androidx.ui.focus.FocusDetailedState p);
     method public void setLayoutCoordinates(androidx.ui.core.LayoutCoordinates? p);
     method public void setRecompose(kotlin.jvm.functions.Function0<kotlin.Unit> value);
     method public void setRef(androidx.ui.core.Ref<androidx.ui.core.FocusNode>? value);
@@ -197,9 +196,6 @@ package androidx.ui.core {
     method public void setMeasureBlocks(androidx.ui.core.LayoutNode.MeasureBlocks value);
     method public void setMeasuring(boolean p);
     method public void setModifier(androidx.ui.core.Modifier value);
-    method public void setNeedsRelayout$lintWithKotlin(boolean p);
-    method public void setNeedsRemeasure$lintWithKotlin(boolean p);
-    method public void setPlaced$lintWithKotlin(boolean p);
     method public void setPositionedDuringMeasurePass(boolean p);
     method public void setRef(androidx.ui.core.Ref<androidx.ui.core.LayoutNode>? value);
     property public final boolean affectsParentSize;

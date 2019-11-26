@@ -3,7 +3,6 @@ package androidx.lifecycle {
 
   public final class CoroutineLiveDataKt {
     ctor public CoroutineLiveDataKt();
-    method public static suspend <T> Object addDisposableSource(androidx.lifecycle.MediatorLiveData<T>, androidx.lifecycle.LiveData<T> source, kotlin.coroutines.Continuation<? super androidx.lifecycle.EmittedSource> p);
     method public static <T> androidx.lifecycle.LiveData<T> liveData(kotlin.coroutines.CoroutineContext context = EmptyCoroutineContext, long timeoutInMs = 5000L, kotlin.jvm.functions.Function2<? super androidx.lifecycle.LiveDataScope<T>,? super kotlin.coroutines.Continuation<? super kotlin.Unit>,?> block);
     method @RequiresApi(android.os.Build.VERSION_CODES.O) public static <T> androidx.lifecycle.LiveData<T> liveData(kotlin.coroutines.CoroutineContext context = EmptyCoroutineContext, java.time.Duration timeout, kotlin.jvm.functions.Function2<? super androidx.lifecycle.LiveDataScope<T>,? super kotlin.coroutines.Continuation<? super kotlin.Unit>,?> block);
   }
