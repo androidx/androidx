@@ -517,16 +517,15 @@ public class ImageCapture extends UseCase {
      * Captures a new still image and saves to a file.
      *
      * <p>The listener's callback will be called only once for every invocation of this method.
-     *
      * @param saveLocation       Location to store the newly captured image.
      * @param executor           The executor in which the listener callback methods will be run.
-     * @param imageSavedListener Listener to be called for the newly captured image.
+     * @param imageSavedCallback Callback to be called for the newly captured image.
      */
     @SuppressLint("LambdaLast") // Maybe remove after https://issuetracker.google.com/135275901
     public void takePicture(@NonNull File saveLocation,
             @NonNull Executor executor,
-            @NonNull OnImageSavedCallback imageSavedListener) {
-        takePicture(saveLocation, EMPTY_METADATA, executor, imageSavedListener);
+            @NonNull OnImageSavedCallback imageSavedCallback) {
+        takePicture(saveLocation, EMPTY_METADATA, executor, imageSavedCallback);
     }
 
     /**
