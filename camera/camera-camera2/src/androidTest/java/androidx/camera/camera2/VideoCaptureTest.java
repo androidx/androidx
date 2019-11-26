@@ -26,10 +26,10 @@ import android.Manifest;
 import android.app.Instrumentation;
 import android.content.Context;
 
-import androidx.camera.core.AppConfig;
 import androidx.camera.core.CameraFactory;
 import androidx.camera.core.CameraSelector;
 import androidx.camera.core.CameraX;
+import androidx.camera.core.CameraXConfig;
 import androidx.camera.core.LensFacing;
 import androidx.camera.core.UseCase;
 import androidx.camera.core.UseCase.StateChangeCallback;
@@ -97,9 +97,9 @@ public final class VideoCaptureTest {
         assumeTrue(CameraUtil.deviceHasCamera());
         mDefaultConfig = VideoCapture.DEFAULT_CONFIG.getConfig(null);
         Context context = ApplicationProvider.getApplicationContext();
-        AppConfig appConfig = Camera2AppConfig.create(context);
-        CameraFactory cameraFactory = appConfig.getCameraFactory(/*valueIfMissing=*/ null);
-        CameraX.initialize(context, appConfig);
+        CameraXConfig cameraXConfig = Camera2AppConfig.create(context);
+        CameraFactory cameraFactory = cameraXConfig.getCameraFactory(/*valueIfMissing=*/ null);
+        CameraX.initialize(context, cameraXConfig);
         mLifecycleOwner = new FakeLifecycleOwner();
         mCameraSelector = new CameraSelector.Builder().requireLensFacing(LensFacing.BACK).build();
     }

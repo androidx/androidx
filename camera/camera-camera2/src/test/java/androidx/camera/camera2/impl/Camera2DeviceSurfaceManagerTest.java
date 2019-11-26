@@ -36,12 +36,12 @@ import android.util.Size;
 import android.view.Surface;
 import android.view.WindowManager;
 
-import androidx.camera.core.AppConfig;
 import androidx.camera.core.AspectRatio;
 import androidx.camera.core.CameraDeviceConfig;
 import androidx.camera.core.CameraDeviceSurfaceManager;
 import androidx.camera.core.CameraSelector;
 import androidx.camera.core.CameraX;
+import androidx.camera.core.CameraXConfig;
 import androidx.camera.core.ExtendableUseCaseConfigFactory;
 import androidx.camera.core.ImageAnalysisConfig;
 import androidx.camera.core.ImageCapture;
@@ -582,12 +582,12 @@ public final class Camera2DeviceSurfaceManagerTest {
     }
 
     private void initCameraX() {
-        AppConfig appConfig = createFakeAppConfig();
-        CameraX.initialize(mContext, appConfig);
+        CameraXConfig cameraXConfig = createFakeAppConfig();
+        CameraX.initialize(mContext, cameraXConfig);
         mSurfaceManager = CameraX.getSurfaceManager();
     }
 
-    private AppConfig createFakeAppConfig() {
+    private CameraXConfig createFakeAppConfig() {
 
         // Create the DeviceSurfaceManager for Camera2
         CameraDeviceSurfaceManager surfaceManager =
@@ -608,8 +608,8 @@ public final class Camera2DeviceSurfaceManagerTest {
                 PreviewConfig.class,
                 new PreviewConfigProvider(mCameraFactory, mContext));
 
-        AppConfig.Builder appConfigBuilder =
-                new AppConfig.Builder()
+        CameraXConfig.Builder appConfigBuilder =
+                new CameraXConfig.Builder()
                         .setCameraFactory(mCameraFactory)
                         .setDeviceSurfaceManager(surfaceManager)
                         .setUseCaseConfigFactory(configFactory);

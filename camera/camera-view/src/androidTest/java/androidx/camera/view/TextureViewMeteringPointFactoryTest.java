@@ -34,9 +34,9 @@ import android.view.ViewGroup;
 
 import androidx.annotation.NonNull;
 import androidx.camera.camera2.Camera2AppConfig;
-import androidx.camera.core.AppConfig;
 import androidx.camera.core.CameraSelector;
 import androidx.camera.core.CameraX;
+import androidx.camera.core.CameraXConfig;
 import androidx.camera.core.DisplayOrientedMeteringPointFactory;
 import androidx.camera.core.LensFacing;
 import androidx.camera.core.MeteringPoint;
@@ -105,7 +105,7 @@ public class TextureViewMeteringPointFactoryTest {
         CoreAppTestUtil.assumeCompatibleDevice();
 
         mContext = ApplicationProvider.getApplicationContext();
-        AppConfig config = Camera2AppConfig.create(mContext);
+        CameraXConfig config = Camera2AppConfig.create(mContext);
         CameraX.initialize(mContext, config);
         mLifecycle = new FakeLifecycleOwner();
         mLatchForFrameReady = new CountDownLatch(1);

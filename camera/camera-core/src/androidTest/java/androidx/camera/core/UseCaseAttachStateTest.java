@@ -62,15 +62,15 @@ public class UseCaseAttachStateTest {
 
     @Before
     public void setUp() {
-        AppConfig appConfig = FakeAppConfig.create();
-        CameraFactory cameraFactory = appConfig.getCameraFactory(/*valueIfMissing=*/ null);
+        CameraXConfig cameraXConfig = FakeAppConfig.create();
+        CameraFactory cameraFactory = cameraXConfig.getCameraFactory(/*valueIfMissing=*/ null);
         try {
             mCameraId = cameraFactory.cameraIdForLensFacing(LensFacing.BACK);
         } catch (Exception e) {
             throw new IllegalArgumentException(
                     "Unable to attach to camera with LensFacing " + LensFacing.BACK, e);
         }
-        CameraX.initialize(ApplicationProvider.getApplicationContext(), appConfig);
+        CameraX.initialize(ApplicationProvider.getApplicationContext(), cameraXConfig);
     }
 
     @After

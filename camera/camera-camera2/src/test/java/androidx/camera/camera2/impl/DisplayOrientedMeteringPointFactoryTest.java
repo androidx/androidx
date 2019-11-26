@@ -27,10 +27,10 @@ import android.view.Surface;
 import android.view.WindowManager;
 
 import androidx.annotation.Nullable;
-import androidx.camera.core.AppConfig;
 import androidx.camera.core.CameraDeviceSurfaceManager;
 import androidx.camera.core.CameraSelector;
 import androidx.camera.core.CameraX;
+import androidx.camera.core.CameraXConfig;
 import androidx.camera.core.ConfigProvider;
 import androidx.camera.core.DisplayOrientedMeteringPointFactory;
 import androidx.camera.core.ExtendableUseCaseConfigFactory;
@@ -93,13 +93,13 @@ public class DisplayOrientedMeteringPointFactoryTest {
                     }
                 });
 
-        AppConfig appConfig =
-                new AppConfig.Builder()
+        CameraXConfig cameraXConfig =
+                new CameraXConfig.Builder()
                         .setCameraFactory(fakeCameraFactory)
                         .setDeviceSurfaceManager(surfaceManager)
                         .setUseCaseConfigFactory(defaultConfigFactory)
                         .build();
-        CameraX.initialize(context, appConfig);
+        CameraX.initialize(context, cameraXConfig);
 
         mMockDisplay = Mockito.mock(Display.class);
         when(mMockDisplay.getRotation()).thenReturn(Surface.ROTATION_0);
