@@ -117,11 +117,6 @@ public final class FakeCameraControl implements CameraControlInternal {
     }
 
     @Override
-    public boolean isTorchOn() {
-        return mIsTorchOn;
-    }
-
-    @Override
     public void triggerAf() {
         Log.d(TAG, "triggerAf()");
     }

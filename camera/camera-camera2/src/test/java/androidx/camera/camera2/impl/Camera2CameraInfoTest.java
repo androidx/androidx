@@ -30,6 +30,7 @@ import android.view.Surface;
 
 import androidx.camera.core.CameraInfoInternal;
 import androidx.camera.core.LensFacing;
+import androidx.camera.core.TorchState;
 import androidx.lifecycle.MutableLiveData;
 import androidx.test.core.app.ApplicationProvider;
 import androidx.test.filters.SmallTest;
@@ -152,6 +153,14 @@ public class Camera2CameraInfoTest {
         CameraInfoInternal cameraInfoInternal = new Camera2CameraInfo(mCameraCharacteristics1,
                 mMockZoomControl, mMockTorchControl);
         assertThat(cameraInfoInternal.hasFlashUnit()).isEqualTo(CAMERA1_FLASH_INFO_BOOLEAN);
+    }
+
+    @Test
+    public void cameraInfo_canReturnTorchState() {
+        CameraInfoInternal cameraInfoInternal = new Camera2CameraInfo(mCameraCharacteristics0,
+                mMockZoomControl, mMockTorchControl);
+        when(mMockTorchControl.getTorchState()).thenReturn(new MutableLiveData<>(TorchState.OFF));
+        assertThat(cameraInfoInternal.getTorchState().getValue()).isEqualTo(TorchState.OFF);
     }
 
     // zoom related tests just ensure it uses ZoomControl to get the value
