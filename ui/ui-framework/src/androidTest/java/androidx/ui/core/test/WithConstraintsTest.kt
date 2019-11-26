@@ -301,14 +301,20 @@ class WithConstraintsTest {
                 Container(width = 200.ipx, height = 200.ipx) {
                     WithConstraints {
                         OnPositioned {
+                            // OnPositioned can be fired multiple times with the same value
+                            // for example when requestLayout() was triggered on ComposeView.
+                            // if we called twice, let's make sure we got the correct values.
+                            assertTrue(withConstSize == null || withConstSize == it.size)
                             withConstSize = it.size
-                            assertEquals(1, withConstLatch.count)
                             withConstLatch.countDown()
                         }
                         Container(width = size.value, height = size.value) {
                             OnPositioned {
+                                // OnPositioned can be fired multiple times with the same value
+                                // for example when requestLayout() was triggered on ComposeView.
+                                // if we called twice, let's make sure we got the correct values.
+                                assertTrue(childSize == null || childSize == it.size)
                                 childSize = it.size
-                                assertEquals(1, childLatch.count)
                                 childLatch.countDown()
                             }
                         }
@@ -322,6 +328,8 @@ class WithConstraintsTest {
         assertEquals(expectedSize, withConstSize)
         assertEquals(expectedSize, childSize)
 
+        withConstSize = null
+        childSize = null
         withConstLatch = CountDownLatch(1)
         childLatch = CountDownLatch(1)
         rule.runOnUiThread { size.value = 100.ipx }
