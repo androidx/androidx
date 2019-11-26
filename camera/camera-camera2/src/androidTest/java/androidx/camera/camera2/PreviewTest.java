@@ -105,7 +105,7 @@ public final class PreviewTest {
     public void setUp() {
         assumeTrue(CameraUtil.deviceHasCamera());
         Context context = ApplicationProvider.getApplicationContext();
-        CameraXConfig cameraXConfig = Camera2AppConfig.create(context);
+        CameraXConfig cameraXConfig = Camera2Config.defaultConfig(context);
         CameraX.initialize(context, cameraXConfig);
         CameraFactory cameraFactory = Preconditions.checkNotNull(cameraXConfig.getCameraFactory(
                 /*valueIfMissing=*/ null));

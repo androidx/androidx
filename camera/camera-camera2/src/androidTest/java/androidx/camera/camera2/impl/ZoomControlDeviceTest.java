@@ -36,7 +36,7 @@ import android.os.Handler;
 import android.os.HandlerThread;
 
 import androidx.annotation.NonNull;
-import androidx.camera.camera2.Camera2AppConfig;
+import androidx.camera.camera2.Camera2Config;
 import androidx.camera.core.CameraControlInternal.ControlUpdateCallback;
 import androidx.camera.core.CameraInfoUnavailableException;
 import androidx.camera.core.CameraX;
@@ -88,7 +88,7 @@ public final class ZoomControlDeviceTest {
 
         // Init CameraX
         Context context = ApplicationProvider.getApplicationContext();
-        CameraXConfig config = Camera2AppConfig.create(context);
+        CameraXConfig config = Camera2Config.defaultConfig(context);
         CameraX.initialize(context, config);
 
         String cameraId = CameraX.getCameraWithLensFacing(LensFacing.BACK);

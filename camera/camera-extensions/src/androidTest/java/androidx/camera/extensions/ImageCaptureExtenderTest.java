@@ -38,7 +38,7 @@ import android.hardware.camera2.params.StreamConfigurationMap;
 import android.util.Pair;
 import android.util.Size;
 
-import androidx.camera.camera2.Camera2AppConfig;
+import androidx.camera.camera2.Camera2Config;
 import androidx.camera.camera2.impl.Camera2ImplConfig;
 import androidx.camera.camera2.impl.CameraEventCallbacks;
 import androidx.camera.core.CameraInfoUnavailableException;
@@ -88,7 +88,7 @@ public class ImageCaptureExtenderTest {
         mLifecycleOwner = new FakeLifecycleOwner();
 
         Context context = ApplicationProvider.getApplicationContext();
-        CameraX.initialize(context, Camera2AppConfig.create(context));
+        CameraX.initialize(context, Camera2Config.defaultConfig(context));
 
         assumeTrue(ExtensionsTestUtil.initExtensions());
     }

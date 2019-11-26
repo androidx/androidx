@@ -160,7 +160,7 @@ public final class ImageCaptureTest {
         assumeTrue(CameraUtil.deviceHasCamera());
         mListenerExecutor = Executors.newSingleThreadExecutor();
         Context context = ApplicationProvider.getApplicationContext();
-        CameraXConfig cameraXConfig = Camera2AppConfig.create(context);
+        CameraXConfig cameraXConfig = Camera2Config.defaultConfig(context);
         CameraFactory cameraFactory = cameraXConfig.getCameraFactory(null);
         CameraX.initialize(context, cameraXConfig);
         try {

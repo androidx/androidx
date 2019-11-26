@@ -35,7 +35,7 @@ import android.hardware.camera2.CameraDevice;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.experimental.UseExperimental;
-import androidx.camera.camera2.Camera2AppConfig;
+import androidx.camera.camera2.Camera2Config;
 import androidx.camera.camera2.ExperimentalCamera2Interop;
 import androidx.camera.camera2.impl.util.SemaphoreReleasingCamera2Callbacks.DeviceStateCallback;
 import androidx.camera.camera2.impl.util.SemaphoreReleasingCamera2Callbacks.SessionCaptureCallback;
@@ -124,7 +124,7 @@ public final class Camera2ImplCameraXTest {
     public void setUp() {
         assumeTrue(CameraUtil.deviceHasCamera());
         Context context = ApplicationProvider.getApplicationContext();
-        CameraX.initialize(context, Camera2AppConfig.create(context));
+        CameraX.initialize(context, Camera2Config.defaultConfig(context));
         mLifecycle = new FakeLifecycleOwner();
 
         mDeviceStateCallback = mock(CameraDevice.StateCallback.class);

@@ -33,7 +33,7 @@ import android.view.View;
 import android.view.ViewGroup;
 
 import androidx.annotation.NonNull;
-import androidx.camera.camera2.Camera2AppConfig;
+import androidx.camera.camera2.Camera2Config;
 import androidx.camera.core.CameraSelector;
 import androidx.camera.core.CameraX;
 import androidx.camera.core.CameraXConfig;
@@ -105,7 +105,7 @@ public class TextureViewMeteringPointFactoryTest {
         CoreAppTestUtil.assumeCompatibleDevice();
 
         mContext = ApplicationProvider.getApplicationContext();
-        CameraXConfig config = Camera2AppConfig.create(mContext);
+        CameraXConfig config = Camera2Config.defaultConfig(mContext);
         CameraX.initialize(mContext, config);
         mLifecycle = new FakeLifecycleOwner();
         mLatchForFrameReady = new CountDownLatch(1);

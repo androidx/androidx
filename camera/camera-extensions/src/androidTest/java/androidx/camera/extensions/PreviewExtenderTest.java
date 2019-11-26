@@ -44,7 +44,7 @@ import android.util.Pair;
 import android.util.Size;
 
 import androidx.annotation.NonNull;
-import androidx.camera.camera2.Camera2AppConfig;
+import androidx.camera.camera2.Camera2Config;
 import androidx.camera.core.CameraInfoUnavailableException;
 import androidx.camera.core.CameraSelector;
 import androidx.camera.core.CameraX;
@@ -111,7 +111,7 @@ public class PreviewExtenderTest {
         assumeTrue(CameraUtil.hasCameraWithLensFacing(LensFacing.BACK));
 
         Context context = ApplicationProvider.getApplicationContext();
-        CameraX.initialize(context, Camera2AppConfig.create(context));
+        CameraX.initialize(context, Camera2Config.defaultConfig(context));
 
         mFakeLifecycle = new FakeLifecycleOwner();
         mFakeLifecycle.startAndResume();

@@ -18,7 +18,7 @@ package androidx.camera.camera2.impl;
 
 import android.content.Context;
 
-import androidx.camera.camera2.Camera2AppConfig;
+import androidx.camera.camera2.Camera2Config;
 import androidx.camera.core.CameraX;
 import androidx.camera.core.CameraXConfig;
 import androidx.camera.core.ImageCapture;
@@ -44,7 +44,7 @@ public final class UseCaseSurfaceOccupancyManagerTest {
     @Before
     public void setUp() {
         Context context = ApplicationProvider.getApplicationContext();
-        CameraXConfig cameraXConfig = Camera2AppConfig.create(context);
+        CameraXConfig cameraXConfig = Camera2Config.defaultConfig(context);
         CameraX.initialize(context, cameraXConfig);
     }
 

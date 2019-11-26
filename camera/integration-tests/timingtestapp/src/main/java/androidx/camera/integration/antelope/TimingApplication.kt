@@ -17,7 +17,7 @@
 package androidx.camera.integration.antelope
 
 import android.app.Application
-import androidx.camera.camera2.Camera2AppConfig
+import androidx.camera.camera2.Camera2Config
 import androidx.camera.core.CameraXConfig
 import androidx.camera.lifecycle.ProcessCameraProvider
 
@@ -31,6 +31,6 @@ class TimingApplication : Application(), CameraXConfig.Provider {
     }
 
     override fun getCameraXConfig(): CameraXConfig {
-        return Camera2AppConfig.create(this)
+        return Camera2Config.defaultConfig(this)
     }
 }

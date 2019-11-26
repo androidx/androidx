@@ -22,7 +22,7 @@ import android.Manifest;
 import android.content.Context;
 import android.hardware.camera2.CameraAccessException;
 
-import androidx.camera.camera2.Camera2AppConfig;
+import androidx.camera.camera2.Camera2Config;
 import androidx.camera.core.CameraInfoUnavailableException;
 import androidx.camera.core.CameraX;
 import androidx.camera.core.LensFacing;
@@ -53,7 +53,7 @@ public class ImageCaptureExtenderValidationTest {
     public void setUp() throws InterruptedException, ExecutionException, TimeoutException {
         assumeTrue(CameraUtil.deviceHasCamera());
         Context context = ApplicationProvider.getApplicationContext();
-        CameraX.initialize(context, Camera2AppConfig.create(context));
+        CameraX.initialize(context, Camera2Config.defaultConfig(context));
 
         assumeTrue(ExtensionsTestUtil.initExtensions());
     }
