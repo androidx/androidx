@@ -1272,8 +1272,7 @@ public class ImageCapture extends UseCase {
     /** Holder class for metadata that will be saved with captured images. */
     public static final class Metadata {
         /**
-         * Indicates an upside down mirroring, equivalent to a horizontal mirroring (reflection)
-         * followed by a 180 degree rotation.
+         * Indicates a left-right mirroring (reflection).
          *
          * <p>The reflection is meant to be applied to the upright image (after rotation to the
          * target orientation). When saving the image to file, it is combined with the rotation
@@ -1281,7 +1280,8 @@ public class ImageCapture extends UseCase {
          */
         private boolean mIsReversedHorizontal;
         /**
-         * Indicates a left-right mirroring (reflection).
+         * Indicates an upside down mirroring, equivalent to a horizontal mirroring (reflection)
+         * followed by a 180 degree rotation.
          *
          * <p>The reflection is meant to be applied to the upright image (after rotation to the
          * target orientation). When saving the image to file, it is combined with the rotation
@@ -1293,36 +1293,36 @@ public class ImageCapture extends UseCase {
         private Location mLocation;
 
         /**
-         * Gets upside-down mirroring of the capture.
+         * Gets left-right mirroring of the capture.
          *
-         * @return true if the capture is upside-down.
+         * @return true if the capture is left-right mirrored.
          */
         public boolean isReversedHorizontal() {
             return mIsReversedHorizontal;
         }
 
         /**
-         * Sets upside-down mirroring of the capture.
+         * Sets left-right mirroring of the capture.
          *
-         * @param isReversedHorizontal true if the capture is upside-down.
+         * @param isReversedHorizontal true if the capture is left-right mirrored.
          */
         public void setReversedHorizontal(boolean isReversedHorizontal) {
             mIsReversedHorizontal = isReversedHorizontal;
         }
 
         /**
-         * Gets left-right mirroring of the capture.
+         * Gets upside-down mirroring of the capture.
          *
-         * @return true if the capture is left-right mirrored.
+         * @return true if the capture is upside-down.
          */
         public boolean isReversedVertical() {
             return mIsReversedVertical;
         }
 
         /**
-         * Sets left-right mirroring of the capture.
+         * Sets upside-down mirroring of the capture.
          *
-         * @param isReversedVertical true if the capture is left-right mirrored.
+         * @param isReversedVertical true if the capture is upside-down.
          */
         public void setReversedVertical(boolean isReversedVertical) {
             mIsReversedVertical = isReversedVertical;
