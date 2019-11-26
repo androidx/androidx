@@ -522,15 +522,16 @@ public class BiometricPrompt implements BiometricConstants {
 
         @OnLifecycleEvent(Lifecycle.Event.ON_RESUME)
         void onResume() {
+            mBiometricFragment = canUseBiometricFragment()
+                    ? (BiometricFragment) getFragmentManager().findFragmentByTag(
+                            BIOMETRIC_FRAGMENT_TAG)
+                    : null;
+            if (DEBUG && canUseBiometricFragment()) {
+                Log.v(TAG, "BiometricFragment: " + mBiometricFragment);
+            }
             if (canUseBiometricFragment() && mBiometricFragment != null) {
-                mBiometricFragment =
-                        (BiometricFragment) getFragmentManager().findFragmentByTag(
-                                BIOMETRIC_FRAGMENT_TAG);
-                if (DEBUG) Log.v(TAG, "BiometricFragment: " + mBiometricFragment);
-                if (mBiometricFragment != null) {
-                    mBiometricFragment.setCallbacks(mExecutor, mNegativeButtonListener,
-                            mAuthenticationCallback);
-                }
+                mBiometricFragment.setCallbacks(mExecutor, mNegativeButtonListener,
+                        mAuthenticationCallback);
             } else {
                 mFingerprintDialogFragment =
                         (FingerprintDialogFragment) getFragmentManager().findFragmentByTag(
