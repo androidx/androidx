@@ -64,7 +64,7 @@ public final class Camera2ConfigTest {
     public void canExtendWithTemplateType() {
         FakeConfig.Builder builder = new FakeConfig.Builder();
 
-        new Camera2Config.Extender(builder)
+        new Camera2Config.Extender<>(builder)
                 .setCaptureRequestTemplate(CameraDevice.TEMPLATE_PREVIEW);
 
         Camera2Config config = new Camera2Config(builder.build());
@@ -78,7 +78,7 @@ public final class Camera2ConfigTest {
     public void canExtendWithSessionCaptureCallback() {
         FakeConfig.Builder builder = new FakeConfig.Builder();
 
-        new Camera2Config.Extender(builder).setSessionCaptureCallback(SESSION_CAPTURE_CALLBACK);
+        new Camera2Config.Extender<>(builder).setSessionCaptureCallback(SESSION_CAPTURE_CALLBACK);
 
         Camera2Config config = new Camera2Config(builder.build());
 
@@ -90,7 +90,7 @@ public final class Camera2ConfigTest {
     public void canExtendWithSessionStateCallback() {
         FakeConfig.Builder builder = new FakeConfig.Builder();
 
-        new Camera2Config.Extender(builder).setSessionStateCallback(SESSION_STATE_CALLBACK);
+        new Camera2Config.Extender<>(builder).setSessionStateCallback(SESSION_STATE_CALLBACK);
 
         Camera2Config config = new Camera2Config(builder.build());
 
@@ -103,7 +103,7 @@ public final class Camera2ConfigTest {
     public void canExtendWithDeviceStateCallback() {
         FakeConfig.Builder builder = new FakeConfig.Builder();
 
-        new Camera2Config.Extender(builder).setDeviceStateCallback(DEVICE_STATE_CALLBACK);
+        new Camera2Config.Extender<>(builder).setDeviceStateCallback(DEVICE_STATE_CALLBACK);
 
         Camera2Config config = new Camera2Config(builder.build());
 
@@ -115,7 +115,7 @@ public final class Camera2ConfigTest {
     public void canExtendWithCameraEventCallback() {
         FakeConfig.Builder builder = new FakeConfig.Builder();
 
-        new Camera2Config.Extender(builder).setCameraEventCallback(CAMERA_EVENT_CALLBACKS);
+        new Camera2Config.Extender<>(builder).setCameraEventCallback(CAMERA_EVENT_CALLBACKS);
 
         Camera2Config config = new Camera2Config(builder.build());
 
@@ -129,7 +129,7 @@ public final class Camera2ConfigTest {
         FakeConfig.Builder builder = new FakeConfig.Builder();
 
         Range<Integer> fakeRange = new Range<>(0, 30);
-        new Camera2Config.Extender(builder)
+        new Camera2Config.Extender<>(builder)
                 .setCaptureRequestOption(CaptureRequest.CONTROL_AE_TARGET_FPS_RANGE, fakeRange)
                 .setCaptureRequestOption(
                         CaptureRequest.COLOR_CORRECTION_MODE,
@@ -155,7 +155,7 @@ public final class Camera2ConfigTest {
         FakeConfig.Builder builder = new FakeConfig.Builder();
 
         Range<Integer> fakeRange = new Range<>(0, 30);
-        new Camera2Config.Extender(builder)
+        new Camera2Config.Extender<>(builder)
                 .setCaptureRequestOption(CaptureRequest.CONTROL_AE_TARGET_FPS_RANGE, fakeRange)
                 .setCaptureRequestOption(
                         CaptureRequest.COLOR_CORRECTION_MODE,

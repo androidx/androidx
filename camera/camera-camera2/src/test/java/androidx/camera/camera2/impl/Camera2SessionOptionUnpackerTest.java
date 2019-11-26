@@ -66,7 +66,7 @@ public final class Camera2SessionOptionUnpackerTest {
         CameraEventCallbacks cameraEventCallbacks = mock(CameraEventCallbacks.class);
         when(cameraEventCallbacks.clone()).thenReturn(cameraEventCallbacks);
 
-        new Camera2Config.Extender(imageCaptureBuilder)
+        new Camera2Config.Extender<>(imageCaptureBuilder)
                 .setSessionCaptureCallback(captureCallback)
                 .setDeviceStateCallback(deviceCallback)
                 .setSessionStateCallback(sessionStateCallback)
@@ -98,7 +98,7 @@ public final class Camera2SessionOptionUnpackerTest {
         ImageCapture.Builder imageCaptureConfigBuilder = new ImageCapture.Builder();
 
         // Add 2 options to ensure that multiple options can be unpacked.
-        new Camera2Config.Extender(imageCaptureConfigBuilder)
+        new Camera2Config.Extender<>(imageCaptureConfigBuilder)
                 .setCaptureRequestOption(
                         CaptureRequest.CONTROL_AF_MODE, CaptureRequest.CONTROL_AF_MODE_AUTO)
                 .setCaptureRequestOption(

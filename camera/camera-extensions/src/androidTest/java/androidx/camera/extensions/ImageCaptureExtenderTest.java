@@ -171,7 +171,7 @@ public class ImageCaptureExtenderTest {
                 imageCaptureAdapter).setUseCaseEventCallback(
                 imageCaptureAdapter).setCaptureProcessor(
                 mock(CaptureProcessor.class));
-        new Camera2Config.Extender(configBuilder).setCameraEventCallback(
+        new Camera2Config.Extender<>(configBuilder).setCameraEventCallback(
                 new CameraEventCallbacks(imageCaptureAdapter));
 
         ImageCapture useCase = configBuilder.build();
