@@ -97,6 +97,7 @@ public final class Camera2CameraControlTest {
     private HandlerThread mHandlerThread;
     private Handler mHandler;
     private CameraCharacteristics mCameraCharacteristics;
+    private boolean mHasFlashUnit;
 
     @Before
     public void setUp() throws InterruptedException, CameraAccessException,
@@ -109,6 +110,9 @@ public final class Camera2CameraControlTest {
         Camera2CameraFactory camera2CameraFactory = new Camera2CameraFactory(context);
         mCameraCharacteristics = cameraManager.getCameraCharacteristics(
                 camera2CameraFactory.cameraIdForLensFacing(LensFacing.BACK));
+        Boolean hasFlashUnit =
+                mCameraCharacteristics.get(CameraCharacteristics.FLASH_INFO_AVAILABLE);
+        mHasFlashUnit = hasFlashUnit != null && hasFlashUnit.booleanValue();
 
         mControlUpdateCallback = mock(CameraControlInternal.ControlUpdateCallback.class);
         mHandlerThread = new HandlerThread("ControlThread");
@@ -223,6 +227,7 @@ public final class Camera2CameraControlTest {
 
     @Test
     public void enableTorch_aeModeSetAndRequestUpdated() throws InterruptedException {
+        assumeTrue(mHasFlashUnit);
         mCamera2CameraControl.enableTorch(true);
 
         HandlerUtil.waitForLooperToIdle(mHandler);
@@ -239,11 +244,11 @@ public final class Camera2CameraControlTest {
                 camera2Config.getCaptureRequestOption(
                         CaptureRequest.FLASH_MODE, FLASH_MODE_OFF))
                 .isEqualTo(FLASH_MODE_TORCH);
-        assertThat(mCamera2CameraControl.isTorchOn()).isTrue();
     }
 
     @Test
     public void disableTorchFlashModeAuto_aeModeSetAndRequestUpdated() throws InterruptedException {
+        assumeTrue(mHasFlashUnit);
         mCamera2CameraControl.setFlashMode(FlashMode.AUTO);
         mCamera2CameraControl.enableTorch(false);
 
@@ -260,7 +265,6 @@ public final class Camera2CameraControlTest {
         assertThat(camera2Config.getCaptureRequestOption(
                 CaptureRequest.FLASH_MODE, -1))
                 .isEqualTo(-1);
-        assertThat(mCamera2CameraControl.isTorchOn()).isFalse();
 
         verify(mControlUpdateCallback, times(1)).onCameraControlCaptureRequests(
                 mCaptureConfigArgumentCaptor.capture());
