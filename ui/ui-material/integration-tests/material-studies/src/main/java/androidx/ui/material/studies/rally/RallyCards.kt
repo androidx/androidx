@@ -29,14 +29,15 @@ import androidx.ui.layout.Arrangement
 import androidx.ui.layout.Column
 import androidx.ui.layout.Container
 import androidx.ui.layout.ExpandedWidth
-import androidx.ui.layout.FixedSpacer
+import androidx.ui.layout.Size
+import androidx.ui.layout.Spacer
 import androidx.ui.layout.FlexRow
 import androidx.ui.layout.Gravity
-import androidx.ui.layout.HeightSpacer
+import androidx.ui.layout.Height
 import androidx.ui.layout.Row
 import androidx.ui.layout.Spacing
 import androidx.ui.layout.Stack
-import androidx.ui.layout.WidthSpacer
+import androidx.ui.layout.Width
 import androidx.ui.material.Button
 import androidx.ui.material.Divider
 import androidx.ui.material.MaterialTheme
@@ -170,7 +171,7 @@ fun RallyAccountsCard() {
                             )
                         }
                     }
-                HeightSpacer(height = 10.dp)
+                Spacer(Height(10.dp))
                 Card {
                     Column(modifier = Spacing(12.dp)) {
                         RallyAccountRow(
@@ -214,14 +215,14 @@ fun RallyAccountRow(name: String, number: String, amount: String, color: Color) 
     FlexRow(Spacing(top = 12.dp, bottom = 12.dp)) {
         inflexible {
             AccountIndicator(color = color)
-            WidthSpacer(width = 8.dp)
+            Spacer(Width(8.dp))
             Column {
                 Text(text = name, style = (+MaterialTheme.typography()).body1)
                 Text(text = "•••••$number", style = (+MaterialTheme.typography()).subtitle1)
             }
         }
         expanded(flex = 1.0f) {
-            FixedSpacer(width = 0.dp, height = 0.dp)
+            Spacer(Size(width = 0.dp, height = 0.dp))
         }
         inflexible {
             Text(text = "$ $amount", style = (+MaterialTheme.typography()).h6)
@@ -306,7 +307,7 @@ fun RallyBillsCard() {
                     )
                 }
             }
-            HeightSpacer(height = 10.dp)
+            Spacer(Height(10.dp))
             Card {
                 // TODO: change to proper bill items
                 Column(modifier = Spacing(12.dp)) {

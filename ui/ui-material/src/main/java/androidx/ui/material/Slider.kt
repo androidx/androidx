@@ -49,8 +49,9 @@ import androidx.ui.graphics.PointMode
 import androidx.ui.graphics.StrokeCap
 import androidx.ui.layout.Container
 import androidx.ui.layout.DpConstraints
-import androidx.ui.layout.FixedSpacer
 import androidx.ui.layout.Padding
+import androidx.ui.layout.Size
+import androidx.ui.layout.Spacer
 import androidx.ui.lerp
 import androidx.ui.material.ripple.Ripple
 import androidx.ui.material.surface.Surface
@@ -222,7 +223,7 @@ private fun SliderImpl(position: SliderPosition, color: Color, width: Float, pre
                         color = color,
                         elevation = if (pressed) 6.dp else 1.dp
                     ) {
-                        FixedSpacer(width = thumbSize, height = thumbSize)
+                        Spacer(Size(thumbSize, thumbSize))
                     }
                 }
             }

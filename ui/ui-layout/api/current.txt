@@ -225,9 +225,7 @@ package androidx.ui.layout {
 
   public final class SpacerKt {
     ctor public SpacerKt();
-    method public static void FixedSpacer(androidx.ui.core.Dp width, androidx.ui.core.Dp height);
-    method public static void HeightSpacer(androidx.ui.core.Dp height);
-    method public static void WidthSpacer(androidx.ui.core.Dp width);
+    method public static void Spacer(androidx.ui.core.Modifier modifier);
   }
 
   public final class SpacingKt {

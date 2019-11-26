@@ -26,9 +26,10 @@ import androidx.ui.layout.Column
 import androidx.ui.layout.Container
 import androidx.ui.layout.EdgeInsets
 import androidx.ui.layout.Gravity
-import androidx.ui.layout.HeightSpacer
+import androidx.ui.layout.Height
+import androidx.ui.layout.Spacer
 import androidx.ui.layout.Row
-import androidx.ui.layout.WidthSpacer
+import androidx.ui.layout.Width
 import androidx.ui.material.Divider
 import androidx.ui.material.MaterialTheme
 
@@ -60,9 +61,9 @@ class DividersSpacersActivity : MaterialDemoActivity() {
                     }
                 }
             }
-            HeightSpacer(height = 30.dp)
+            Spacer(Height(30.dp))
             Divider(height = 2.dp, color = blackColor)
-            HeightSpacer(height = 10.dp)
+            Spacer(Height(10.dp))
             Column {
                 items.forEach { text ->
                     Item(text = text)
@@ -85,7 +86,7 @@ class DividersSpacersActivity : MaterialDemoActivity() {
                         color = color,
                         modifier = Gravity.Center
                     )
-                    WidthSpacer(width = ItemPadding)
+                    Spacer(Width(ItemPadding))
                 }
                 Text(text = text, style = textStyle, modifier = Gravity.Center)
             }

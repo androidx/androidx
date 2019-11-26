@@ -24,7 +24,8 @@ import androidx.ui.core.dp
 import androidx.ui.foundation.shape.GenericShape
 import androidx.ui.foundation.shape.border.Border
 import androidx.ui.graphics.Color
-import androidx.ui.layout.FixedSpacer
+import androidx.ui.layout.Size
+import androidx.ui.layout.Spacer
 import androidx.ui.layout.Wrap
 import androidx.ui.material.Button
 import androidx.ui.material.OutlinedButtonStyle
@@ -47,7 +48,7 @@ class CustomShapeActivity : MaterialDemoActivity() {
                     border = Border(Color.DarkGray, 1.dp)
                 )
             ) {
-                FixedSpacer(100.dp, 100.dp)
+                Spacer(Size(100.dp, 100.dp))
             }
         }
     }
