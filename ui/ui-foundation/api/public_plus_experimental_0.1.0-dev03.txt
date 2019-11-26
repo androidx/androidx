@@ -65,7 +65,6 @@ package androidx.ui.foundation {
     method public void scrollBy(androidx.ui.core.Px value);
     method public void scrollTo(androidx.ui.core.Px value);
     method public void setFlingConfig(androidx.ui.foundation.animation.FlingConfig p);
-    method public void setMaxPosition$lintWithKotlin(androidx.ui.core.Px p);
     method public void smoothScrollBy(androidx.ui.core.Px value, kotlin.jvm.functions.Function2<? super androidx.animation.AnimationEndReason,? super java.lang.Float,kotlin.Unit> onEnd = { _, _ ->  });
     method public void smoothScrollTo(androidx.ui.core.Px value, kotlin.jvm.functions.Function2<? super androidx.animation.AnimationEndReason,? super java.lang.Float,kotlin.Unit> onEnd = { _, _ ->  });
     property public final androidx.ui.foundation.animation.FlingConfig flingConfig;
