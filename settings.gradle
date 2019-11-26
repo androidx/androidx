@@ -126,7 +126,7 @@ includeProject(":fragment:fragment-testing-lint", "fragment/fragment-testing-lin
 includeProject(":fragment:fragment-truth", "fragment/fragment-truth")
 includeProject(":fakeannotations", "fakeannotations")
 includeProject(":gridlayout", "gridlayout")
-includeProject(":heifwriter", "heifwriter")
+includeProject(":heifwriter:heifwriter", "heifwriter/heifwriter")
 includeProject(":inspection:inspection", "inspection/inspection")
 includeProject(":inspection:inspection-testing", "inspection/inspection-testing")
 includeProject(":interpolator", "interpolator")
