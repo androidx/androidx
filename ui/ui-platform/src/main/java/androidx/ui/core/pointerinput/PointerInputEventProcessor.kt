@@ -26,7 +26,7 @@ import androidx.ui.core.PointerInputChange
 import androidx.ui.core.PointerInputData
 import androidx.ui.core.PointerInputNode
 import androidx.ui.core.PxPosition
-import androidx.ui.core.Timestamp
+import androidx.ui.core.Uptime
 import androidx.ui.core.changedToDownIgnoreConsumed
 import androidx.ui.core.changedToUpIgnoreConsumed
 import androidx.ui.core.toOffset
@@ -242,7 +242,7 @@ private class PointerInputChangeEventProducer {
                 previousPointerInputData.remove(it.id)
             }
         }
-        return PointerInputChangeEvent(pointerEvent.timestamp, changes)
+        return PointerInputChangeEvent(pointerEvent.uptime, changes)
     }
 
     /**
@@ -253,11 +253,11 @@ private class PointerInputChangeEventProducer {
     }
 }
 
-// TODO(shepshapard): The timestamp property probably doesn't need to exist (and therefore, nor does
+// TODO(shepshapard): The uptime property probably doesn't need to exist (and therefore, nor does
 // this class, but going to wait to refactor it out till after things like API review to avoid
 // thrashing.
 private data class PointerInputChangeEvent(
-    val timestamp: Timestamp,
+    val uptime: Uptime,
     val changes: List<PointerInputChange>
 )
 

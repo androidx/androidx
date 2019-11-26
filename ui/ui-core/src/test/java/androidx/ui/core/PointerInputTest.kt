@@ -462,12 +462,12 @@ class PointerInputTest {
         return PointerInputChange(
             0,
             PointerInputData(
-                100L.millisecondsToTimestamp(),
+                Uptime.Boot + 100.milliseconds,
                 PxPosition(currentX.px, currentY.px),
                 currentDown
             ),
             PointerInputData(
-                0L.millisecondsToTimestamp(),
+                Uptime.Boot + 0.milliseconds,
                 PxPosition(previousX.px, previousY.px),
                 previousDown
             ),

@@ -18,7 +18,7 @@ package androidx.ui.core.gesture.util
 
 import androidx.ui.core.IntPxSize
 import androidx.ui.core.ipx
-import androidx.ui.core.millisecondsToTimestamp
+import androidx.ui.core.milliseconds
 import androidx.ui.testutils.down
 import androidx.ui.testutils.up
 import com.google.common.truth.Truth.assertThat
@@ -33,7 +33,7 @@ class GestureUtilsTest {
     fun anyPointersInBounds_1Up_returnsFalse() {
         assertThat(
             listOf(
-                down(x = 0f, y = 0f).up(100L.millisecondsToTimestamp())
+                down(x = 0f, y = 0f).up(100.milliseconds)
             )
                 .anyPointersInBounds(IntPxSize(1.ipx, 1.ipx))
         ).isFalse()

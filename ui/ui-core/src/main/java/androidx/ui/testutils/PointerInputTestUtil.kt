@@ -24,28 +24,27 @@ import androidx.ui.core.PointerInputChange
 import androidx.ui.core.PointerInputData
 import androidx.ui.core.PointerInputHandler
 import androidx.ui.core.PxPosition
-import androidx.ui.core.Timestamp
+import androidx.ui.core.Uptime
 import androidx.ui.core.ipx
-import androidx.ui.core.millisecondsToTimestamp
 import androidx.ui.core.px
 
 fun down(
     id: Int = 0,
-    timestamp: Timestamp = 0L.millisecondsToTimestamp(),
+    duration: Duration = Duration.Zero,
     x: Float = 0f,
     y: Float = 0f
 ): PointerInputChange =
     PointerInputChange(
         id,
-        PointerInputData(timestamp, PxPosition(x.px, y.px), true),
+        PointerInputData(Uptime.Boot + duration, PxPosition(x.px, y.px), true),
         PointerInputData(null, null, false),
         ConsumedData(PxPosition.Origin, false)
     )
 
-fun PointerInputChange.moveTo(timestamp: Timestamp, x: Float = 0f, y: Float = 0f) =
+fun PointerInputChange.moveTo(duration: Duration, x: Float = 0f, y: Float = 0f) =
     copy(
         previous = current,
-        current = PointerInputData(timestamp, PxPosition(x.px, y.px), true),
+        current = PointerInputData(Uptime.Boot + duration, PxPosition(x.px, y.px), true),
         consumed = ConsumedData()
     )
 
@@ -53,17 +52,17 @@ fun PointerInputChange.moveBy(duration: Duration, dx: Float = 0f, dy: Float = 0f
     copy(
         previous = current,
         current = PointerInputData(
-            current.timestamp!! + duration,
+            current.uptime!! + duration,
             PxPosition(current.position!!.x + dx.px, current.position.y + dy.px),
             true
         ),
         consumed = ConsumedData()
     )
 
-fun PointerInputChange.up(timestamp: Timestamp) =
+fun PointerInputChange.up(duration: Duration) =
     copy(
         previous = current,
-        current = PointerInputData(timestamp, null, false),
+        current = PointerInputData(Uptime.Boot + duration, null, false),
         consumed = ConsumedData()
     )
 
