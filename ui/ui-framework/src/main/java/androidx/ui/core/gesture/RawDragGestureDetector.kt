@@ -203,7 +203,7 @@ internal class RawDragGestureRecognizer {
                             velocityTrackers[it.id] = VelocityTracker()
                                 .apply {
                                     addPosition(
-                                        it.current.timestamp!!,
+                                        it.current.uptime!!,
                                         it.current.position!!
                                     )
                                 }
@@ -236,7 +236,7 @@ internal class RawDragGestureRecognizer {
                         // position information, but rather vector information about movement.
                         if (pass == PointerEventPass.PostUp) {
                             velocityTracker.addPosition(
-                                it.current.timestamp!!,
+                                it.current.uptime!!,
                                 it.current.position!!
                             )
                         }

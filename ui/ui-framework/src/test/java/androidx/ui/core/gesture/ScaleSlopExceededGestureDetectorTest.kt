@@ -18,7 +18,6 @@ package androidx.ui.core.gesture
 
 import androidx.ui.core.Duration
 import androidx.ui.core.milliseconds
-import androidx.ui.core.millisecondsToTimestamp
 import androidx.ui.core.px
 import androidx.ui.testutils.down
 import androidx.ui.testutils.invokeOverAllPasses
@@ -455,20 +454,20 @@ class ScaleSlopExceededGestureDetectorTest {
     @Test
     fun onPointerInputChanges_2PointersMoveAroundUnderSlop_onTouchSlopExceededNotCalled() {
         // Arrange
-        var pointer1 = down(0, 0L.millisecondsToTimestamp(), 0f, 0f)
-        var pointer2 = down(1, 0L.millisecondsToTimestamp(), 0f, 50f)
+        var pointer1 = down(0, 0.milliseconds, 0f, 0f)
+        var pointer2 = down(1, 0.milliseconds, 0f, 50f)
         mRecognizer.pointerInputHandler.invokeOverAllPasses(pointer1, pointer2)
 
         // Act
 
         // Translate, rotate and scale up.
         pointer1 = pointer1.moveTo(
-            10L.millisecondsToTimestamp(),
+            10.milliseconds,
             70f,
             100f
         )
         pointer2 = pointer2.moveTo(
-            10L.millisecondsToTimestamp(),
+            10.milliseconds,
             10f,
             100f
         )
@@ -476,12 +475,12 @@ class ScaleSlopExceededGestureDetectorTest {
 
         // Translate, rotate and scale down.
         pointer1 = pointer1.moveTo(
-            20L.millisecondsToTimestamp(),
+            20.milliseconds,
             -40f,
             35f
         )
         pointer2 = pointer2.moveTo(
-            20L.millisecondsToTimestamp(),
+            20.milliseconds,
             -40f,
             75f
         )
@@ -489,12 +488,12 @@ class ScaleSlopExceededGestureDetectorTest {
 
         // Translate, rotate and scale up.
         pointer1 = pointer1.moveTo(
-            30L.millisecondsToTimestamp(),
+            30.milliseconds,
             -20f,
             -20f
         )
         pointer2 = pointer2.moveTo(
-            30L.millisecondsToTimestamp(),
+            30.milliseconds,
             40f,
             -20f
         )
@@ -502,12 +501,12 @@ class ScaleSlopExceededGestureDetectorTest {
 
         // Translate, rotate and scale down.
         pointer1 = pointer1.moveTo(
-            40L.millisecondsToTimestamp(),
+            40.milliseconds,
             20f,
             -40f
         )
         pointer2 = pointer2.moveTo(
-            40L.millisecondsToTimestamp(),
+            40.milliseconds,
             20f,
             -80f
         )
@@ -519,20 +518,20 @@ class ScaleSlopExceededGestureDetectorTest {
     @Test
     fun onPointerInputChanges_2PointersMoveOverIntoAndOverSlop_onTouchSlopExceededCalledOnce() {
         // Arrange
-        var pointer1 = down(0, 0L.millisecondsToTimestamp(), 0f, 0f)
-        var pointer2 = down(1, 0L.millisecondsToTimestamp(), 0f, 20f)
+        var pointer1 = down(0, 0.milliseconds, 0f, 0f)
+        var pointer2 = down(1, 0.milliseconds, 0f, 20f)
         mRecognizer.pointerInputHandler.invokeOverAllPasses(pointer1, pointer2)
 
         // Act
 
         // Over
         pointer1 = pointer1.moveTo(
-            10L.millisecondsToTimestamp(),
+            10.milliseconds,
             0f,
             0f
         )
         pointer2 = pointer2.moveTo(
-            10L.millisecondsToTimestamp(),
+            10.milliseconds,
             0f,
             31f
         )
@@ -540,12 +539,12 @@ class ScaleSlopExceededGestureDetectorTest {
 
         // Under
         pointer1 = pointer1.moveTo(
-            20L.millisecondsToTimestamp(),
+            20.milliseconds,
             0f,
             0f
         )
         pointer2 = pointer2.moveTo(
-            20L.millisecondsToTimestamp(),
+            20.milliseconds,
             0f,
             29f
         )
@@ -553,12 +552,12 @@ class ScaleSlopExceededGestureDetectorTest {
 
         // Over
         pointer1 = pointer1.moveTo(
-            30L.millisecondsToTimestamp(),
+            30.milliseconds,
             0f,
             0f
         )
         pointer2 = pointer2.moveTo(
-            30L.millisecondsToTimestamp(),
+            30.milliseconds,
             0f,
             31f
         )
@@ -571,8 +570,8 @@ class ScaleSlopExceededGestureDetectorTest {
     fun onPointerInputChanges_2PointersStepToSlopThenOverX_onTouchSlopExceededCalledOnceOver() {
 
         // Arrange
-        var pointer1 = down(0, 0L.millisecondsToTimestamp(), 0f, 0f)
-        var pointer2 = down(1, 0L.millisecondsToTimestamp(), 1f, 0f)
+        var pointer1 = down(0, 0.milliseconds, 0f, 0f)
+        var pointer2 = down(1, 0.milliseconds, 1f, 0f)
         mRecognizer.pointerInputHandler.invokeOverAllPasses(pointer1, pointer2)
 
         // Act
@@ -615,8 +614,8 @@ class ScaleSlopExceededGestureDetectorTest {
     @Test
     fun onPointerInputChanges_2PointersStepToSlopThenOverY_onTouchSlopExceededCalledOnceOver() {
         // Arrange
-        var pointer1 = down(0, 0L.millisecondsToTimestamp(), 0f, 0f)
-        var pointer2 = down(1, 0L.millisecondsToTimestamp(), 0f, 1f)
+        var pointer1 = down(0, 0.milliseconds, 0f, 0f)
+        var pointer2 = down(1, 0.milliseconds, 0f, 1f)
         mRecognizer.pointerInputHandler.invokeOverAllPasses(pointer1, pointer2)
 
         // Act
@@ -668,18 +667,18 @@ class ScaleSlopExceededGestureDetectorTest {
         expectedCound: Int
     ) {
         // Arrange
-        var pointer1 = down(0, 0L.millisecondsToTimestamp(), x1s, y1s)
-        var pointer2 = down(1, 0L.millisecondsToTimestamp(), x2s, y2s)
+        var pointer1 = down(0, 0.milliseconds, x1s, y1s)
+        var pointer2 = down(1, 0L.milliseconds, x2s, y2s)
         mRecognizer.pointerInputHandler.invokeOverAllPasses(pointer1, pointer2)
 
         // Act
         pointer1 = pointer1.moveTo(
-            10L.millisecondsToTimestamp(),
+            10.milliseconds,
             x1e,
             y1e
         )
         pointer2 = pointer2.moveTo(
-            10L.millisecondsToTimestamp(),
+            10.milliseconds,
             x2e,
             y2e
         )
@@ -704,24 +703,24 @@ class ScaleSlopExceededGestureDetectorTest {
         expectedCound: Int
     ) {
         // Arrange
-        var pointer1 = down(0, 0L.millisecondsToTimestamp(), x1s, y1s)
-        var pointer2 = down(1, 0L.millisecondsToTimestamp(), x2s, y2s)
-        var pointer3 = down(2, 0L.millisecondsToTimestamp(), x3s, y3s)
+        var pointer1 = down(0, 0.milliseconds, x1s, y1s)
+        var pointer2 = down(1, 0.milliseconds, x2s, y2s)
+        var pointer3 = down(2, 0.milliseconds, x3s, y3s)
         mRecognizer.pointerInputHandler.invokeOverAllPasses(pointer1, pointer2, pointer3)
 
         // Act
         pointer1 = pointer1.moveTo(
-            10L.millisecondsToTimestamp(),
+            10.milliseconds,
             x1e,
             y1e
         )
         pointer2 = pointer2.moveTo(
-            10L.millisecondsToTimestamp(),
+            10.milliseconds,
             x2e,
             y2e
         )
         pointer3 = pointer3.moveTo(
-            10L.millisecondsToTimestamp(),
+            10.milliseconds,
             x3e,
             y3e
         )

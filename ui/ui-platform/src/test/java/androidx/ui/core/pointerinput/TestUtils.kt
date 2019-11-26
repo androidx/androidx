@@ -27,8 +27,9 @@ import androidx.ui.core.PointerEventPass
 import androidx.ui.core.PointerInputChange
 import androidx.ui.core.PointerInputHandler
 import androidx.ui.core.PxPosition
-import androidx.ui.core.Timestamp
+import androidx.ui.core.Uptime
 import androidx.ui.core.ipx
+import androidx.ui.core.PointerInputData
 
 /**
  * This class enables Mockito to spy.
@@ -76,23 +77,23 @@ internal fun LayoutNode.resize(width: IntPx, height: IntPx) {
 
 internal fun PointerInputEventData(
     id: Int,
-    timestamp: Timestamp,
+    uptime: Uptime,
     position: PxPosition?,
     down: Boolean
 ): PointerInputEventData {
-    val pointerInputData = androidx.ui.core.PointerInputData(timestamp, position, down)
+    val pointerInputData = PointerInputData(uptime, position, down)
     return PointerInputEventData(id, pointerInputData)
 }
 
 internal fun PointerInputEvent(
     id: Int,
-    timestamp: Timestamp,
+    uptime: Uptime,
     position: PxPosition?,
     down: Boolean
 ): PointerInputEvent {
     return PointerInputEvent(
-        timestamp,
-        listOf(PointerInputEventData(id, timestamp, position, down))
+        uptime,
+        listOf(PointerInputEventData(id, uptime, position, down))
     )
 }
 

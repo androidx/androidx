@@ -19,10 +19,11 @@ package androidx.ui.core.pointerinput
 import android.view.MotionEvent
 import android.view.MotionEvent.ACTION_POINTER_UP
 import android.view.MotionEvent.ACTION_UP
+import androidx.ui.core.NanosecondsPerMillisecond
 import androidx.ui.core.PointerInputData
 import androidx.ui.core.PxPosition
-import androidx.ui.core.Timestamp
-import androidx.ui.core.millisecondsToTimestamp
+import androidx.ui.core.Uptime
+import androidx.ui.core.milliseconds
 import androidx.ui.core.px
 
 /**
@@ -47,7 +48,7 @@ internal fun MotionEvent.toPointerInputEvent(): PointerInputEvent {
         )
     }
 
-    return PointerInputEvent(eventTime.millisecondsToTimestamp(), pointers)
+    return PointerInputEvent(Uptime.Boot + eventTime.milliseconds, pointers)
 }
 
 /**
@@ -61,7 +62,7 @@ private fun PointerInputEventData(
     return PointerInputEventData(
         motionEvent.getPointerId(index),
         PointerInputData(
-            motionEvent.eventTime.millisecondsToTimestamp(),
+            Uptime(motionEvent.eventTime * NanosecondsPerMillisecond),
             motionEvent,
             index,
             upIndex
@@ -73,7 +74,7 @@ private fun PointerInputEventData(
  * Creates a new [PointerInputData] with coordinates that are relative to the screen.
  */
 private fun PointerInputData(
-    timestamp: Timestamp,
+    uptime: Uptime,
     motionEvent: MotionEvent,
     index: Int,
     upIndex: Int?
@@ -81,7 +82,7 @@ private fun PointerInputData(
     val offset = PxPosition(motionEvent.getX(index).px, motionEvent.getY(index).px)
 
     return PointerInputData(
-        timestamp,
+        uptime,
         offset,
         index != upIndex
     )

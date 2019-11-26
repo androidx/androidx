@@ -306,7 +306,7 @@ package androidx.ui.core.gesture.util {
 
   public final class VelocityTracker {
     ctor public VelocityTracker();
-    method public void addPosition(androidx.ui.core.Timestamp time, androidx.ui.core.PxPosition position);
+    method public void addPosition(androidx.ui.core.Uptime uptime, androidx.ui.core.PxPosition position);
     method public androidx.ui.core.Velocity calculateVelocity();
     method public void resetTracking();
   }

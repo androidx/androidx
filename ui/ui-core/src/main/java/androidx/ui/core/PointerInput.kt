@@ -27,11 +27,12 @@ data class PointerInputChange(
     val consumed: ConsumedData
 )
 
+// TODO(shepshapard): Uptime will be an Inline Class, so it should not be nullable.
 /**
  * Data associated with a pointer
  */
 data class PointerInputData(
-    val timestamp: Timestamp? = null,
+    val uptime: Uptime? = null,
     val position: PxPosition? = null,
     val down: Boolean = false
 )

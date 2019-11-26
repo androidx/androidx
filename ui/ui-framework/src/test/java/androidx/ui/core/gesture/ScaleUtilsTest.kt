@@ -16,7 +16,7 @@
 
 package androidx.ui.core.gesture
 
-import androidx.ui.core.millisecondsToTimestamp
+import androidx.ui.core.milliseconds
 import androidx.ui.testutils.down
 import androidx.ui.testutils.moveTo
 import com.google.common.truth.Truth.assertThat
@@ -172,10 +172,10 @@ class ScaleUtilsTest {
     ) {
         val scaleDifference =
             listOf(
-                down(0, 0L.millisecondsToTimestamp(), x1s, y1s)
-                    .moveTo(10L.millisecondsToTimestamp(), x1e, y1e),
-                down(1, 0L.millisecondsToTimestamp(), x2s, y2s)
-                    .moveTo(10L.millisecondsToTimestamp(), x2e, y2e)
+                down(0, 0.milliseconds, x1s, y1s)
+                    .moveTo(10.milliseconds, x1e, y1e),
+                down(1, 0.milliseconds, x2s, y2s)
+                    .moveTo(10.milliseconds, x2e, y2e)
             ).calculateAllDimensionInformation().calculateScaleDifference()
 
         assertThat(scaleDifference).isEqualTo(expected)
