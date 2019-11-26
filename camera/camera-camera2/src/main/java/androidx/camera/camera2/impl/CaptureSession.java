@@ -29,7 +29,6 @@ import android.view.Surface;
 import androidx.annotation.GuardedBy;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
-import androidx.camera.camera2.Camera2Config;
 import androidx.camera.camera2.impl.annotation.CameraExecutor;
 import androidx.camera.camera2.impl.compat.CameraCaptureSessionCompat;
 import androidx.camera.camera2.impl.compat.CameraDeviceCompat;
@@ -250,7 +249,7 @@ final class CaptureSession {
                             CameraCaptureSessionStateCallbacks.createComboCallback(callbacks);
 
                     // Start check preset CaptureStage information.
-                    CameraEventCallbacks eventCallbacks = new Camera2Config(
+                    CameraEventCallbacks eventCallbacks = new Camera2ImplConfig(
                             sessionConfig.getImplementationOptions()).getCameraEventCallback(
                             CameraEventCallbacks.createEmptyCallback());
                     List<CaptureConfig> presetList =
@@ -320,7 +319,7 @@ final class CaptureSession {
                 case OPENED:
                     // Only issue onDisableSession requests at OPENED state.
                     if (mSessionConfig != null) {
-                        CameraEventCallbacks eventCallbacks = new Camera2Config(
+                        CameraEventCallbacks eventCallbacks = new Camera2ImplConfig(
                                 mSessionConfig.getImplementationOptions()).getCameraEventCallback(
                                 CameraEventCallbacks.createEmptyCallback());
                         List<CaptureConfig> configList =
@@ -513,7 +512,7 @@ final class CaptureSession {
             // P2 SessionConfig options
             CaptureConfig.Builder captureConfigBuilder = CaptureConfig.Builder.from(captureConfig);
 
-            CameraEventCallbacks eventCallbacks = new Camera2Config(
+            CameraEventCallbacks eventCallbacks = new Camera2ImplConfig(
                     mSessionConfig.getImplementationOptions()).getCameraEventCallback(
                     CameraEventCallbacks.createEmptyCallback());
 
@@ -750,7 +749,7 @@ final class CaptureSession {
                         // Issue capture request of enableSession if exists.
                         if (mSessionConfig != null) {
                             Config implOptions = mSessionConfig.getImplementationOptions();
-                            CameraEventCallbacks eventCallbacks = new Camera2Config(
+                            CameraEventCallbacks eventCallbacks = new Camera2ImplConfig(
                                     implOptions).getCameraEventCallback(
                                     CameraEventCallbacks.createEmptyCallback());
                             List<CaptureConfig> list =

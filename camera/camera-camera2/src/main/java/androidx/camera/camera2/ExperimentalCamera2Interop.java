@@ -25,7 +25,7 @@ import java.lang.annotation.Retention;
  * Denotes that the annotated method uses the experimental methods which allow direct access to
  * camera2 classes.
  *
- * <p>The Camera2Config and Camera2Config.Extender exposes the underlying instances of camera2
+ * <p>The Camera2Interop and Camera2Interop.Extender exposes the underlying instances of camera2
  * classes such CameraDevice.StateCallback, CameraCaptureSession.StateCallback and
  * CameraCaptureSession.CaptureCallback. In addition the configs allow setting of camera2
  * CaptureRequest parameters. However, CameraX does not provide any guarantee on how it operates

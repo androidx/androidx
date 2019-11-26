@@ -26,10 +26,10 @@ import android.view.Surface;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.experimental.UseExperimental;
-import androidx.camera.camera2.Camera2Config;
 import androidx.camera.camera2.ExperimentalCamera2Interop;
 import androidx.camera.camera2.impl.util.SemaphoreReleasingCamera2Callbacks.DeviceStateCallback;
 import androidx.camera.camera2.impl.util.SemaphoreReleasingCamera2Callbacks.SessionStateCallback;
+import androidx.camera.camera2.interop.Camera2Interop;
 import androidx.camera.core.CameraFactory;
 import androidx.camera.core.CameraRepository;
 import androidx.camera.core.ImmediateSurface;
@@ -114,7 +114,7 @@ public final class Camera2ImplCameraRepositoryTest {
         mUseCaseGroup = new UseCaseGroup();
 
         FakeUseCaseConfig.Builder configBuilder = new FakeUseCaseConfig.Builder();
-        new Camera2Config.Extender<>(configBuilder).setDeviceStateCallback(mDeviceStateCallback);
+        new Camera2Interop.Extender<>(configBuilder).setDeviceStateCallback(mDeviceStateCallback);
         mConfig = configBuilder.getUseCaseConfig();
         mCameraId = getCameraIdForLensFacingUnchecked(LensFacing.BACK);
         mUseCase = new CallbackAttachingFakeUseCase(mConfig, mCameraId);

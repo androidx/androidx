@@ -41,7 +41,7 @@ import android.util.Size;
 
 import androidx.annotation.NonNull;
 import androidx.camera.camera2.Camera2AppConfig;
-import androidx.camera.camera2.Camera2Config;
+import androidx.camera.camera2.impl.Camera2ImplConfig;
 import androidx.camera.camera2.impl.CameraEventCallback;
 import androidx.camera.camera2.impl.CameraEventCallbacks;
 import androidx.camera.core.AppConfig;
@@ -182,7 +182,8 @@ public class ExtensionTest {
         PreviewConfig previewConfig = ExtensionsTestUtil.createPreviewConfigWithEffect(mEffectMode,
                 mLensFacing);
         assertNotNull(previewConfig.getUseCaseEventCallback());
-        CameraEventCallbacks callback1 = new Camera2Config(previewConfig).getCameraEventCallback(
+        CameraEventCallbacks callback1 = new Camera2ImplConfig(
+                previewConfig).getCameraEventCallback(
                 null);
         assertNotNull(callback1);
         assertEquals(callback1.getAllItems().size(), 1);
@@ -193,7 +194,7 @@ public class ExtensionTest {
                 ExtensionsTestUtil.createImageCaptureConfigWithEffect(mEffectMode, mLensFacing);
         assertNotNull(imageCaptureConfig.getUseCaseEventCallback());
         assertNotNull(imageCaptureConfig.getCaptureBundle());
-        CameraEventCallbacks callback2 = new Camera2Config(
+        CameraEventCallbacks callback2 = new Camera2ImplConfig(
                 imageCaptureConfig).getCameraEventCallback(null);
         assertNotNull(callback2);
         assertEquals(callback2.getAllItems().size(), 1);

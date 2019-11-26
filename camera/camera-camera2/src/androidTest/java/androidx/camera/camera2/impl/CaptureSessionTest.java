@@ -43,7 +43,6 @@ import android.os.HandlerThread;
 import android.view.Surface;
 
 import androidx.annotation.NonNull;
-import androidx.camera.camera2.Camera2Config;
 import androidx.camera.camera2.impl.CaptureSession.State;
 import androidx.camera.core.CameraCaptureCallback;
 import androidx.camera.core.CameraCaptureCallbacks;
@@ -611,8 +610,8 @@ public final class CaptureSessionTest {
     private static <T> CaptureConfig getCaptureConfig(CaptureRequest.Key<T> key, T effectValue,
             CameraCaptureCallback callback) {
         CaptureConfig.Builder captureConfigBuilder = new CaptureConfig.Builder();
-        Camera2Config.Builder camera2ConfigurationBuilder =
-                new Camera2Config.Builder();
+        Camera2ImplConfig.Builder camera2ConfigurationBuilder =
+                new Camera2ImplConfig.Builder();
         camera2ConfigurationBuilder.setCaptureRequestOption(key, effectValue);
         captureConfigBuilder.addImplementationOptions(camera2ConfigurationBuilder.build());
         captureConfigBuilder.addCameraCaptureCallback(callback);
@@ -703,12 +702,13 @@ public final class CaptureSessionTest {
             builder.addRepeatingCameraCaptureCallback(mSessionCameraCaptureCallback);
 
             MutableOptionsBundle testCallbackConfig = MutableOptionsBundle.create();
-            testCallbackConfig.insertOption(Camera2Config.CAMERA_EVENT_CALLBACK_OPTION,
+            testCallbackConfig.insertOption(Camera2ImplConfig.CAMERA_EVENT_CALLBACK_OPTION,
                     new CameraEventCallbacks(mTestCameraEventCallback));
             builder.addImplementationOptions(testCallbackConfig);
 
             MutableOptionsBundle mockCameraEventCallbackConfig = MutableOptionsBundle.create();
-            mockCameraEventCallbackConfig.insertOption(Camera2Config.CAMERA_EVENT_CALLBACK_OPTION,
+            mockCameraEventCallbackConfig.insertOption(
+                    Camera2ImplConfig.CAMERA_EVENT_CALLBACK_OPTION,
                     new CameraEventCallbacks(mMockCameraEventCallback));
             builder.addImplementationOptions(mockCameraEventCallbackConfig);
 
@@ -723,7 +723,7 @@ public final class CaptureSessionTest {
             // P3 | SessionConfig          | AF_MODE_AUTO  | FLASH_MODE_SINGLE  | AE_MODE_ON
             // ==================================================================================
 
-            Camera2Config.Builder camera2ConfigBuilder = new Camera2Config.Builder();
+            Camera2ImplConfig.Builder camera2ConfigBuilder = new Camera2ImplConfig.Builder();
 
             // Add capture request options for CameraEventCallbacks
             CameraEventCallback cameraEventCallback = new CameraEventCallback() {
@@ -731,7 +731,7 @@ public final class CaptureSessionTest {
                 public CaptureConfig onRepeating() {
                     CaptureConfig.Builder builder = new CaptureConfig.Builder();
                     builder.addImplementationOptions(
-                            new Camera2Config.Builder()
+                            new Camera2ImplConfig.Builder()
                                     .setCaptureRequestOption(
                                             CaptureRequest.CONTROL_AF_MODE,
                                             CaptureRequest.CONTROL_AF_MODE_MACRO)
@@ -742,7 +742,7 @@ public final class CaptureSessionTest {
                     return builder.build();
                 }
             };
-            new Camera2Config.Extender<>(camera2ConfigBuilder)
+            new Camera2ImplConfig.Extender<>(camera2ConfigBuilder)
                     .setCameraEventCallback(
                             new CameraEventCallbacks(cameraEventCallback));
 
@@ -765,7 +765,7 @@ public final class CaptureSessionTest {
             captureConfigBuilder.addCameraCaptureCallback(mComboCameraCaptureCallback);
 
             // Add capture request options for CaptureConfig
-            captureConfigBuilder.addImplementationOptions(new Camera2Config.Builder()
+            captureConfigBuilder.addImplementationOptions(new Camera2ImplConfig.Builder()
                     .setCaptureRequestOption(
                             CaptureRequest.CONTROL_AF_MODE, CaptureRequest.CONTROL_AF_MODE_OFF)
                     .build());

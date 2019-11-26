@@ -30,7 +30,6 @@ import androidx.annotation.Nullable;
 import androidx.annotation.RestrictTo;
 import androidx.annotation.VisibleForTesting;
 import androidx.annotation.WorkerThread;
-import androidx.camera.camera2.Camera2Config;
 import androidx.camera.camera2.impl.annotation.CameraExecutor;
 import androidx.camera.core.CameraControlInternal;
 import androidx.camera.core.CaptureConfig;
@@ -295,7 +294,7 @@ public final class Camera2CameraControl implements CameraControlInternal {
             CaptureConfig.Builder singleRequestBuilder = new CaptureConfig.Builder();
             singleRequestBuilder.setTemplateType(getDefaultTemplate());
             singleRequestBuilder.setUseRepeatingSurface(true);
-            Camera2Config.Builder configBuilder = new Camera2Config.Builder();
+            Camera2ImplConfig.Builder configBuilder = new Camera2ImplConfig.Builder();
             configBuilder.setCaptureRequestOption(CaptureRequest.CONTROL_AE_MODE,
                     getSupportedAeMode(CaptureRequest.CONTROL_AE_MODE_ON));
             configBuilder.setCaptureRequestOption(CaptureRequest.FLASH_MODE,
@@ -321,7 +320,7 @@ public final class Camera2CameraControl implements CameraControlInternal {
     @VisibleForTesting
     @WorkerThread
     Config getSessionOptions() {
-        Camera2Config.Builder builder = new Camera2Config.Builder();
+        Camera2ImplConfig.Builder builder = new Camera2ImplConfig.Builder();
         builder.setCaptureRequestOption(
                 CaptureRequest.CONTROL_MODE, CaptureRequest.CONTROL_MODE_AUTO);
 

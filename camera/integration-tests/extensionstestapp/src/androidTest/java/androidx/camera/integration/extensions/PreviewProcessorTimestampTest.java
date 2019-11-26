@@ -35,8 +35,8 @@ import android.util.Size;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.experimental.UseExperimental;
-import androidx.camera.camera2.Camera2Config;
 import androidx.camera.camera2.ExperimentalCamera2Interop;
+import androidx.camera.camera2.interop.Camera2Interop;
 import androidx.camera.core.CameraSelector;
 import androidx.camera.core.CameraX;
 import androidx.camera.core.CaptureProcessor;
@@ -212,7 +212,7 @@ public class PreviewProcessorTimestampTest {
 
         mSurfaceTextureLatch = new CountDownLatch(1);
 
-        new Camera2Config.Extender<>(mImageCaptureBuilder).setDeviceStateCallback(
+        new Camera2Interop.Extender<>(mImageCaptureBuilder).setDeviceStateCallback(
                 mCameraStatusCallback);
     }
 

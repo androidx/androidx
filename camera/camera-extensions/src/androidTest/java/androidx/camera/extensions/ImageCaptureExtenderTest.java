@@ -39,7 +39,7 @@ import android.util.Pair;
 import android.util.Size;
 
 import androidx.camera.camera2.Camera2AppConfig;
-import androidx.camera.camera2.Camera2Config;
+import androidx.camera.camera2.impl.Camera2ImplConfig;
 import androidx.camera.camera2.impl.CameraEventCallbacks;
 import androidx.camera.core.CameraInfoUnavailableException;
 import androidx.camera.core.CameraSelector;
@@ -171,7 +171,7 @@ public class ImageCaptureExtenderTest {
                 imageCaptureAdapter).setUseCaseEventCallback(
                 imageCaptureAdapter).setCaptureProcessor(
                 mock(CaptureProcessor.class));
-        new Camera2Config.Extender<>(configBuilder).setCameraEventCallback(
+        new Camera2ImplConfig.Extender<>(configBuilder).setCameraEventCallback(
                 new CameraEventCallbacks(imageCaptureAdapter));
 
         ImageCapture useCase = configBuilder.build();

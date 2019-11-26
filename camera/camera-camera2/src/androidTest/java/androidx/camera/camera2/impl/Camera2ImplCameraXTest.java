@@ -36,10 +36,10 @@ import android.hardware.camera2.CameraDevice;
 import androidx.annotation.NonNull;
 import androidx.annotation.experimental.UseExperimental;
 import androidx.camera.camera2.Camera2AppConfig;
-import androidx.camera.camera2.Camera2Config;
 import androidx.camera.camera2.ExperimentalCamera2Interop;
 import androidx.camera.camera2.impl.util.SemaphoreReleasingCamera2Callbacks.DeviceStateCallback;
 import androidx.camera.camera2.impl.util.SemaphoreReleasingCamera2Callbacks.SessionCaptureCallback;
+import androidx.camera.camera2.interop.Camera2Interop;
 import androidx.camera.core.Camera;
 import androidx.camera.core.CameraControl;
 import androidx.camera.core.CameraInfo;
@@ -145,7 +145,7 @@ public final class Camera2ImplCameraXTest {
             @Override
             public void run() {
                 ImageAnalysis.Builder builder = new ImageAnalysis.Builder();
-                new Camera2Config.Extender<>(builder).setDeviceStateCallback(mDeviceStateCallback);
+                new Camera2Interop.Extender<>(builder).setDeviceStateCallback(mDeviceStateCallback);
                 ImageAnalysis useCase = builder.build();
 
                 CameraX.bindToLifecycle(mLifecycle, DEFAULT_SELECTOR, useCase);
@@ -178,7 +178,7 @@ public final class Camera2ImplCameraXTest {
             @Override
             public void run() {
                 ImageAnalysis.Builder builder = new ImageAnalysis.Builder();
-                new Camera2Config.Extender<>(builder).setDeviceStateCallback(mDeviceStateCallback);
+                new Camera2Interop.Extender<>(builder).setDeviceStateCallback(mDeviceStateCallback);
                 ImageAnalysis useCase = builder.build();
 
                 ImageAnalysis useCase2 = new ImageAnalysis.Builder().build();
@@ -211,7 +211,7 @@ public final class Camera2ImplCameraXTest {
             @Override
             public void run() {
                 ImageAnalysis.Builder configBuilder = new ImageAnalysis.Builder();
-                new Camera2Config.Extender<>(configBuilder)
+                new Camera2Interop.Extender<>(configBuilder)
                         .setDeviceStateCallback(deviceStateCallback)
                         .setSessionCaptureCallback(sessionCaptureCallback);
                 ImageAnalysis useCase = configBuilder.build();
@@ -250,7 +250,7 @@ public final class Camera2ImplCameraXTest {
     @Test
     public void bind_opensCamera() {
         ImageAnalysis.Builder builder = new ImageAnalysis.Builder();
-        new Camera2Config.Extender<>(builder).setDeviceStateCallback(mDeviceStateCallback);
+        new Camera2Interop.Extender<>(builder).setDeviceStateCallback(mDeviceStateCallback);
         ImageAnalysis useCase = builder.build();
 
         mInstrumentation.runOnMainSync(new Runnable() {
@@ -268,7 +268,7 @@ public final class Camera2ImplCameraXTest {
     @Test
     public void bind_opensCamera_withOutAnalyzer() {
         ImageAnalysis.Builder builder = new ImageAnalysis.Builder();
-        new Camera2Config.Extender<>(builder).setDeviceStateCallback(mDeviceStateCallback);
+        new Camera2Interop.Extender<>(builder).setDeviceStateCallback(mDeviceStateCallback);
         ImageAnalysis useCase = builder.build();
 
         mInstrumentation.runOnMainSync(new Runnable() {
@@ -288,7 +288,7 @@ public final class Camera2ImplCameraXTest {
                 CameraCaptureSession.StateCallback.class);
 
         ImageAnalysis.Builder builder = new ImageAnalysis.Builder();
-        new Camera2Config.Extender<>(builder).setDeviceStateCallback(mDeviceStateCallback)
+        new Camera2Interop.Extender<>(builder).setDeviceStateCallback(mDeviceStateCallback)
                 .setSessionStateCallback(mockSessionStateCallback);
 
         ImageAnalysis useCase = builder.build();
@@ -315,7 +315,7 @@ public final class Camera2ImplCameraXTest {
 
         for (int i = 0; i < 2; i++) {
             CameraDevice.StateCallback callback = mock(CameraDevice.StateCallback.class);
-            new Camera2Config.Extender<>(builder).setDeviceStateCallback(callback);
+            new Camera2Interop.Extender<>(builder).setDeviceStateCallback(callback);
             ImageAnalysis useCase = builder.build();
 
             mInstrumentation.runOnMainSync(new Runnable() {
@@ -345,7 +345,7 @@ public final class Camera2ImplCameraXTest {
 
         for (int i = 0; i < 2; i++) {
             CameraDevice.StateCallback callback = mock(CameraDevice.StateCallback.class);
-            new Camera2Config.Extender<>(builder).setDeviceStateCallback(callback);
+            new Camera2Interop.Extender<>(builder).setDeviceStateCallback(callback);
             ImageAnalysis useCase = builder.build();
 
             mInstrumentation.runOnMainSync(new Runnable() {
@@ -372,7 +372,7 @@ public final class Camera2ImplCameraXTest {
     @Test
     public void unbindAll_closesAllCameras() {
         ImageAnalysis.Builder builder = new ImageAnalysis.Builder();
-        new Camera2Config.Extender<>(builder).setDeviceStateCallback(mDeviceStateCallback);
+        new Camera2Interop.Extender<>(builder).setDeviceStateCallback(mDeviceStateCallback);
         ImageAnalysis useCase = builder.build();
 
         mInstrumentation.runOnMainSync(new Runnable() {
@@ -398,7 +398,7 @@ public final class Camera2ImplCameraXTest {
     @Test
     public void unbindAllAssociatedUseCase_closesCamera() {
         ImageAnalysis.Builder builder = new ImageAnalysis.Builder();
-        new Camera2Config.Extender<>(builder).setDeviceStateCallback(mDeviceStateCallback);
+        new Camera2Interop.Extender<>(builder).setDeviceStateCallback(mDeviceStateCallback);
         ImageAnalysis useCase = builder.build();
 
         mInstrumentation.runOnMainSync(new Runnable() {
@@ -424,7 +424,7 @@ public final class Camera2ImplCameraXTest {
     @Test
     public void unbindPartialAssociatedUseCase_doesNotCloseCamera() throws InterruptedException {
         ImageAnalysis.Builder builder = new ImageAnalysis.Builder();
-        new Camera2Config.Extender<>(builder).setDeviceStateCallback(mDeviceStateCallback);
+        new Camera2Interop.Extender<>(builder).setDeviceStateCallback(mDeviceStateCallback);
         ImageAnalysis useCase0 = builder.build();
 
         ImageCapture useCase1 = new ImageCapture.Builder()
@@ -456,7 +456,7 @@ public final class Camera2ImplCameraXTest {
     @Test
     public void unbindAllAssociatedUseCaseInParts_ClosesCamera() {
         ImageAnalysis.Builder builder = new ImageAnalysis.Builder();
-        new Camera2Config.Extender<>(builder).setDeviceStateCallback(mDeviceStateCallback);
+        new Camera2Interop.Extender<>(builder).setDeviceStateCallback(mDeviceStateCallback);
         ImageAnalysis useCase0 = builder.build();
 
         ImageCapture useCase1 = new ImageCapture.Builder()

@@ -20,7 +20,6 @@ import android.annotation.SuppressLint;
 import android.hardware.camera2.CaptureRequest;
 import android.os.Build;
 
-import androidx.camera.camera2.Camera2Config;
 import androidx.camera.core.CaptureConfig;
 import androidx.camera.core.DeviceProperties;
 import androidx.camera.core.ImageCapture.CaptureMode;
@@ -46,7 +45,7 @@ final class ImageCaptureOptionUnpacker extends Camera2CaptureOptionUnpacker {
         }
         ImageCaptureConfig imageCaptureConfig = (ImageCaptureConfig) config;
 
-        Camera2Config.Builder camera2ConfigBuilder = new Camera2Config.Builder();
+        Camera2ImplConfig.Builder camera2ConfigBuilder = new Camera2ImplConfig.Builder();
 
         if (imageCaptureConfig.hasCaptureMode()) {
             applyPixelHdrPlusChangeForCaptureMode(imageCaptureConfig.getCaptureMode(),
@@ -64,7 +63,7 @@ final class ImageCaptureOptionUnpacker extends Camera2CaptureOptionUnpacker {
     // module.
     @SuppressLint("NewApi")
     private void applyPixelHdrPlusChangeForCaptureMode(@CaptureMode int captureMode,
-            Camera2Config.Builder builder) {
+            Camera2ImplConfig.Builder builder) {
         if ("Google".equals(mDeviceProperties.manufacturer())
                 && ("Pixel 2".equals(mDeviceProperties.model())
                 || "Pixel 3".equals(mDeviceProperties.model()))) {
