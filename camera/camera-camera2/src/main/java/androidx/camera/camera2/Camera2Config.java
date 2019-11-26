@@ -30,6 +30,7 @@ import androidx.annotation.RestrictTo;
 import androidx.annotation.RestrictTo.Scope;
 import androidx.camera.camera2.impl.CameraEventCallbacks;
 import androidx.camera.core.Config;
+import androidx.camera.core.ExtendableBuilder;
 import androidx.camera.core.MutableConfig;
 import androidx.camera.core.MutableOptionsBundle;
 import androidx.camera.core.OptionsBundle;
@@ -121,6 +122,7 @@ public final class Camera2Config implements Config {
 
     /**
      * Returns all capture request options contained in this configuration.
+     *
      * @hide
      */
     @RestrictTo(Scope.LIBRARY)
@@ -305,17 +307,21 @@ public final class Camera2Config implements Config {
     // End of the default implementation of Config
     // *********************************************************************************************
 
-    /** Extends a {@link Config.ExtendableBuilder} to add Camera2 options. */
-    public static final class Extender {
+    /**
+     * Extends a {@link ExtendableBuilder} to add Camera2 options.
+     *
+     * @param <T> the type being built by the extendable builder.
+     */
+    public static final class Extender<T> {
 
-        Config.ExtendableBuilder mBaseBuilder;
+        ExtendableBuilder<T> mBaseBuilder;
 
         /**
          * Creates an Extender that can be used to add Camera2 options to another Builder.
          *
          * @param baseBuilder The builder being extended.
          */
-        public Extender(@NonNull Config.ExtendableBuilder baseBuilder) {
+        public Extender(@NonNull ExtendableBuilder<T> baseBuilder) {
             mBaseBuilder = baseBuilder;
         }
 
@@ -329,7 +335,7 @@ public final class Camera2Config implements Config {
          */
         @NonNull
         @ExperimentalCamera2Interop
-        public <ValueT> Extender setCaptureRequestOption(
+        public <ValueT> Extender<T> setCaptureRequestOption(
                 @NonNull CaptureRequest.Key<ValueT> key, @NonNull ValueT value) {
             // Reify the type so we can obtain the class
             Option<Object> opt = Camera2Config.createCaptureRequestOption(key);
@@ -349,7 +355,7 @@ public final class Camera2Config implements Config {
          */
         @RestrictTo(Scope.LIBRARY)
         @NonNull
-        public Extender setCaptureRequestTemplate(int templateType) {
+        public Extender<T> setCaptureRequestTemplate(int templateType) {
             mBaseBuilder.getMutableConfig().insertOption(TEMPLATE_TYPE_OPTION, templateType);
             return this;
         }
@@ -371,7 +377,8 @@ public final class Camera2Config implements Config {
          */
         @NonNull
         @ExperimentalCamera2Interop
-        public Extender setDeviceStateCallback(@NonNull CameraDevice.StateCallback stateCallback) {
+        public Extender<T> setDeviceStateCallback(
+                @NonNull CameraDevice.StateCallback stateCallback) {
             mBaseBuilder.getMutableConfig().insertOption(DEVICE_STATE_CALLBACK_OPTION,
                     stateCallback);
             return this;
@@ -395,7 +402,7 @@ public final class Camera2Config implements Config {
          */
         @NonNull
         @ExperimentalCamera2Interop
-        public Extender setSessionStateCallback(
+        public Extender<T> setSessionStateCallback(
                 @NonNull CameraCaptureSession.StateCallback stateCallback) {
             mBaseBuilder.getMutableConfig().insertOption(SESSION_STATE_CALLBACK_OPTION,
                     stateCallback);
@@ -422,7 +429,7 @@ public final class Camera2Config implements Config {
          */
         @NonNull
         @ExperimentalCamera2Interop
-        public Extender setSessionCaptureCallback(
+        public Extender<T> setSessionCaptureCallback(
                 @NonNull CameraCaptureSession.CaptureCallback captureCallback) {
             mBaseBuilder.getMutableConfig().insertOption(SESSION_CAPTURE_CALLBACK_OPTION,
                     captureCallback);
@@ -438,7 +445,8 @@ public final class Camera2Config implements Config {
          */
         @RestrictTo(Scope.LIBRARY_GROUP)
         @NonNull
-        public Extender setCameraEventCallback(@NonNull CameraEventCallbacks cameraEventCallbacks) {
+        public Extender<T> setCameraEventCallback(
+                @NonNull CameraEventCallbacks cameraEventCallbacks) {
             mBaseBuilder.getMutableConfig().insertOption(CAMERA_EVENT_CALLBACK_OPTION,
                     cameraEventCallbacks);
             return this;
@@ -450,12 +458,12 @@ public final class Camera2Config implements Config {
      *
      * <p>Use {@link Builder} for creating {@link Config} which contains camera2 options
      * only. And use {@link Extender} to add Camera2 options on existing other {@link
-     * Config.ExtendableBuilder}.
+     * ExtendableBuilder}.
      *
      * @hide
      */
     @RestrictTo(Scope.LIBRARY_GROUP)
-    public static final class Builder implements ExtendableBuilder {
+    public static final class Builder implements ExtendableBuilder<Camera2Config> {
 
         private final MutableOptionsBundle mMutableOptionsBundle = MutableOptionsBundle.create();
 
@@ -492,6 +500,7 @@ public final class Camera2Config implements Config {
          *
          * @return A {@link Camera2Config} populated with the current state.
          */
+        @Override
         @NonNull
         public Camera2Config build() {
             return new Camera2Config(OptionsBundle.from(mMutableOptionsBundle));

@@ -244,7 +244,7 @@ public interface UseCaseConfig<T extends UseCase> extends TargetConfig<T>, Confi
      */
     @RestrictTo(Scope.LIBRARY_GROUP)
     interface Builder<T extends UseCase, C extends UseCaseConfig<T>, B> extends
-            TargetConfig.Builder<T, B>, ExtendableBuilder, UseCaseEventConfig.Builder<B> {
+            TargetConfig.Builder<T, B>, ExtendableBuilder<T>, UseCaseEventConfig.Builder<B> {
 
         /**
          * Sets the default session configuration for this use case.
@@ -322,14 +322,5 @@ public interface UseCaseConfig<T extends UseCase> extends TargetConfig<T>, Confi
         @RestrictTo(Scope.LIBRARY_GROUP)
         @NonNull
         C getUseCaseConfig();
-
-        /**
-         * Builds the target use case using the configuration.
-         *
-         * @hide
-         */
-        @RestrictTo(Scope.LIBRARY_GROUP)
-        @NonNull
-        T build();
     }
 }

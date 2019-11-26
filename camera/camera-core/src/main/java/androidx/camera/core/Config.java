@@ -16,9 +16,6 @@
 
 package androidx.camera.core;
 
-import android.annotation.SuppressLint;
-
-import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.annotation.RestrictTo;
 import androidx.annotation.RestrictTo.Scope;
@@ -33,7 +30,9 @@ import java.util.Set;
  * <p>Configuration object hold pairs of Options/Values and offer methods for querying whether
  * Options are contained in the configuration along with methods for retrieving the associated
  * values for options.
+ * @hide
  */
+@RestrictTo(Scope.LIBRARY_GROUP)
 public interface Config {
 
     /**
@@ -104,23 +103,6 @@ public interface Config {
      */
     @RestrictTo(Scope.LIBRARY_GROUP)
     Set<Option<?>> listOptions();
-
-    /**
-     * Extendable builders are used to add externally defined options to a configuration.
-     */
-    @SuppressLint("MissingBuildMethod") // The builder interface only define get(set) methods.
-    interface ExtendableBuilder {
-
-        /**
-         * Returns the underlying {@link MutableConfig} being modified by this builder.
-         *
-         * @return The underlying {@link MutableConfig}.
-         * @hide
-         */
-        @RestrictTo(Scope.LIBRARY_GROUP)
-        @NonNull
-        MutableConfig getMutableConfig();
-    }
 
     /**
      * A callback for retrieving results of a {@link Config.Option} search.

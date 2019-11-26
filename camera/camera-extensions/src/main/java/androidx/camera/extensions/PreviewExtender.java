@@ -145,7 +145,7 @@ public abstract class PreviewExtender {
                 previewExtenderAdapter = new PreviewExtenderAdapter(mImpl, mEffectMode, null);
         }
 
-        new Camera2Config.Extender(mBuilder).setCameraEventCallback(
+        new Camera2Config.Extender<>(mBuilder).setCameraEventCallback(
                 new CameraEventCallbacks(previewExtenderAdapter));
         mBuilder.setUseCaseEventCallback(previewExtenderAdapter);
         mBuilder.getMutableConfig().insertOption(OPTION_PREVIEW_EXTENDER_MODE, mEffectMode);
