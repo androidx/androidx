@@ -19,8 +19,13 @@ package androidx.ui.core.selection
 import androidx.compose.Composable
 import androidx.compose.memo
 import androidx.compose.unaryPlus
+import androidx.ui.core.Constraints
+import androidx.ui.core.Dp
 import androidx.ui.core.Draw
+import androidx.ui.core.Layout
 import androidx.ui.core.dp
+import androidx.ui.core.ipx
+import androidx.ui.core.withTight
 import androidx.ui.engine.geometry.Rect
 import androidx.ui.graphics.Color
 import androidx.ui.graphics.Paint
@@ -30,40 +35,61 @@ import androidx.ui.text.style.TextDirection
 internal val HANDLE_WIDTH = 25.dp
 internal val HANDLE_HEIGHT = 25.dp
 private val HANDLE_COLOR = Color(0xFF2B28F5.toInt())
+
 @Composable
 private fun SelectionHandle(left: Boolean) {
     val paint = +memo { Paint().also { it.isAntiAlias = true } }
     paint.color = HANDLE_COLOR
-    SimpleContainer(width = HANDLE_WIDTH, height = HANDLE_HEIGHT) {
+    FixedDimension(width = HANDLE_WIDTH, height = HANDLE_HEIGHT) {
         Draw { canvas, _ ->
-            var path = Path()
-            path.addRect(
-                Rect(
-                    top = 0f,
-                    bottom = 0.5f * HANDLE_HEIGHT.toPx().value,
-                    left = if (left) {
-                        0.5f * HANDLE_WIDTH.toPx().value
-                    } else {
-                        0f
-                    },
-                    right = if (left) {
-                        HANDLE_WIDTH.toPx().value
-                    } else {
-                        0.5f * HANDLE_WIDTH.toPx()
-                            .value
-                    }
+            val path = Path().apply {
+                addRect(
+                    Rect(
+                        top = 0f,
+                        bottom = 0.5f * HANDLE_HEIGHT.toPx().value,
+                        left = if (left) {
+                            0.5f * HANDLE_WIDTH.toPx().value
+                        } else {
+                            0f
+                        },
+                        right = if (left) {
+                            HANDLE_WIDTH.toPx().value
+                        } else {
+                            0.5f * HANDLE_WIDTH.toPx().value
+                        }
+                    )
                 )
-            )
-            path.addOval(
-                Rect(
-                    top = 0f,
-                    bottom = HANDLE_HEIGHT.toPx().value,
-                    left = 0f,
-                    right = HANDLE_WIDTH.toPx().value
+
+                addOval(
+                    Rect(
+                        top = 0f,
+                        bottom = HANDLE_HEIGHT.toPx().value,
+                        left = 0f,
+                        right = HANDLE_WIDTH.toPx().value
+                    )
                 )
-            )
+            }
 
             canvas.drawPath(path, paint)
+        }
+    }
+}
+
+@Composable
+private fun FixedDimension(
+    width: Dp,
+    height: Dp,
+    children: @Composable() () -> Unit
+) {
+    Layout(children) { measurables, _ ->
+        val constraints = Constraints().withTight(width.toIntPx(), height.toIntPx())
+        val placeables = measurables.map { measurable ->
+            measurable.measure(constraints)
+        }
+        layout(width.toIntPx(), height.toIntPx()) {
+            placeables.forEach { placeable ->
+                placeable.place(0.ipx, 0.ipx)
+            }
         }
     }
 }

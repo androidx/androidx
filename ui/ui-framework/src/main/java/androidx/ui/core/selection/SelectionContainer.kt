@@ -18,6 +18,7 @@ package androidx.ui.core.selection
 
 import androidx.compose.Composable
 import androidx.compose.memo
+import androidx.compose.state
 import androidx.compose.unaryPlus
 import androidx.ui.core.Alignment
 import androidx.ui.core.Constraints
@@ -44,6 +45,19 @@ import kotlin.math.ceil
 import kotlin.math.roundToInt
 
 /**
+ * Default SelectionContainer to be used in order to make composables selectable by default.
+ */
+@Composable
+internal fun SelectionContainer(children: @Composable() () -> Unit) {
+    val selection = +state<Selection?> { null }
+    SelectionContainer(
+        selection = selection.value,
+        onSelectionChange = { selection.value = it },
+        children = children
+    )
+}
+
+/**
  * Selection Composable.
  *
  * The selection composable wraps composables and let them to be selectable. It paints the selection
@@ -63,19 +77,14 @@ fun SelectionContainer(
     manager.selection = selection
 
     SelectionRegistrarAmbient.Provider(value = registrarImpl) {
-        val content = @Composable() {
+        Wrap {
             // Get the layout coordinates of the selection container. This is for hit test of
             // cross-composable selection.
             OnPositioned(onPositioned = { manager.containerLayoutCoordinates = it })
             PressGestureDetector(onRelease = { manager.onRelease() }) {
-                LongPressDragGestureDetector(manager.longPressDragObserver) {
-                    children()
-                }
+                LongPressDragGestureDetector(manager.longPressDragObserver, children = children)
             }
-        }
-        SimpleContainer {
-            SimpleContainer(children = content)
-            DrawHandles(
+            addHandles(
                 manager = manager,
                 selection = selection,
                 startHandle = { StartSelectionHandle(selection = selection) },
@@ -84,8 +93,7 @@ fun SelectionContainer(
     }
 }
 
-@Composable
-private fun DrawHandles(
+private fun addHandles(
     manager: SelectionManager,
     selection: Selection?,
     startHandle: @Composable() () -> Unit,
@@ -104,7 +112,7 @@ private fun DrawHandles(
             selection.end.coordinates
         )
 
-        SimpleContainer {
+        Wrap {
             Popup(
                 alignment =
                 if (isHandleLtrDirection(selection.start.direction, selection.handlesCrossed)) {
@@ -121,7 +129,7 @@ private fun DrawHandles(
             }
         }
 
-        SimpleContainer {
+        Wrap {
             Popup(
                 alignment =
                 if (isHandleLtrDirection(selection.end.direction, selection.handlesCrossed)) {
@@ -141,6 +149,33 @@ private fun DrawHandles(
 }
 
 private fun Float.toIntPx(): IntPx = ceil(this).roundToInt().ipx
+
+/**
+ * Selection is transparent in terms of measurement and layout and passes the same constraints to
+ * the children.
+ */
+@Composable
+private fun Wrap(children: @Composable() () -> Unit) {
+    Layout(children) { measurables, constraints ->
+        val placeables = measurables.map { measurable ->
+            measurable.measure(constraints)
+        }
+
+        val width = placeables.fold(0.ipx) { maxWidth, placeable ->
+            max(maxWidth, (placeable.width))
+        }
+
+        val height = placeables.fold(0.ipx) { minWidth, placeable ->
+            max(minWidth, (placeable.height))
+        }
+
+        layout(width, height) {
+            placeables.forEach { placeable ->
+                placeable.place(0.ipx, 0.ipx)
+            }
+        }
+    }
+}
 
 /**
  * A Container Box implementation used for selection children and handle layout
