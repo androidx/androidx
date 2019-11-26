@@ -554,7 +554,7 @@ public class BiometricPrompt implements BiometricConstants {
             }
 
             maybeHandleDeviceCredentialResult();
-            maybeInitHandlerBridge(false /* ignoreNextReset */);
+            maybeInitHandlerBridge(false /* startIgnoringReset */);
         }
     };
 
@@ -845,7 +845,7 @@ public class BiometricPrompt implements BiometricConstants {
             return;
         }
 
-        maybeInitHandlerBridge(true /* ignoreNextReset */);
+        maybeInitHandlerBridge(true /* startIgnoringReset */);
 
         // Set the handling device credential flag so the new prompt knows not to launch another
         // instance of the handler activity.
@@ -862,10 +862,10 @@ public class BiometricPrompt implements BiometricConstants {
      * prompt and one hosted by {@link DeviceCredentialHandlerActivity}, and initializes all of the
      * relevant data for the bridge.
      *
-     * @param ignoreNextReset Whether the bridge should ignore the next call to
-     * {@link DeviceCredentialHandlerBridge#reset()} once initialized.
+     * @param startIgnoringReset Whether the bridge should start ignoring calls to
+     *                           {@link DeviceCredentialHandlerBridge#reset()} once initialized.
      */
-    private void maybeInitHandlerBridge(boolean ignoreNextReset) {
+    private void maybeInitHandlerBridge(boolean startIgnoringReset) {
         // Don't create bridge if DeviceCredentialHandlerActivity isn't needed.
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q) {
             return;
@@ -893,8 +893,8 @@ public class BiometricPrompt implements BiometricConstants {
         }
         bridge.setCallbacks(mExecutor, mNegativeButtonListener, mAuthenticationCallback);
 
-        if (ignoreNextReset) {
-            bridge.ignoreNextReset();
+        if (startIgnoringReset) {
+            bridge.startIgnoringReset();
         }
     }
 
