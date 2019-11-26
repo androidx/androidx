@@ -122,10 +122,12 @@ public class DeviceCredentialHandlerActivity extends AppCompatActivity {
         } else if (resultCode == RESULT_OK) {
             bridge.setDeviceCredentialResult(DeviceCredentialHandlerBridge.RESULT_SUCCESS);
             bridge.setConfirmingDeviceCredential(false);
+            bridge.startIgnoringReset();
         } else {
             // Treat any non-OK result as a user cancellation.
             bridge.setDeviceCredentialResult(DeviceCredentialHandlerBridge.RESULT_ERROR);
             bridge.setConfirmingDeviceCredential(false);
+            bridge.startIgnoringReset();
         }
 
         finish();
