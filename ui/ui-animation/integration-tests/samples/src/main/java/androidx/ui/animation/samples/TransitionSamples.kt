@@ -43,7 +43,19 @@ fun TransitionSample() {
 
     @Composable
     fun TransitionBasedColoredRect() {
-        Transition(definition = definition, toState = State.Second) { state ->
+        // This puts the transition in State.First. Any subsequent state change will trigger a
+        // transition animation, as defined in the transition definition.
+        Transition(definition = definition, toState = State.First) { state ->
+            ColoredRect(color = state[ColorKey])
+        }
+    }
+
+    @Composable
+    fun ColorRectWithInitState() {
+        // This starts the transition going from State.First to State.Second when this composable
+        // gets composed for the first time.
+        Transition(definition = definition, initState = State.First, toState = State.Second) {
+                state ->
             ColoredRect(color = state[ColorKey])
         }
     }

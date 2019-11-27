@@ -65,7 +65,7 @@ private val CircularTransition = transitionDefinition {
 fun DrawAnimatedCircle(proportions: List<Float>, colors: List<Color>) {
     val strokeWidthDp = 5.dp
     val paint = +memo { Paint() }
-    Transition(definition = CircularTransition, toState = 1) { state ->
+    Transition(definition = CircularTransition, initState = 0, toState = 1) { state ->
             Draw { canvas, parentSize ->
                 val strokeWidth = strokeWidthDp.toPx().value
                 paint.style = PaintingStyle.stroke
