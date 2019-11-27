@@ -16,6 +16,9 @@
 
 package androidx.enterprise.feedback;
 
+import static androidx.enterprise.feedback.KeyedAppStatesCallback.STATUS_EXCEEDED_BUFFER_ERROR;
+import static androidx.enterprise.feedback.KeyedAppStatesCallback.STATUS_TRANSACTION_TOO_LARGE_ERROR;
+import static androidx.enterprise.feedback.KeyedAppStatesCallback.STATUS_UNKNOWN_ERROR;
 import static androidx.enterprise.feedback.KeyedAppStatesReporter.canPackageReceiveAppStates;
 
 import android.content.ComponentName;
@@ -26,7 +29,7 @@ import android.os.IBinder;
 import android.os.Message;
 import android.os.Messenger;
 import android.os.RemoteException;
-import android.util.Log;
+import android.os.TransactionTooLargeException;
 
 import androidx.annotation.VisibleForTesting;
 
@@ -45,8 +48,6 @@ import java.util.concurrent.Executor;
  */
 class BufferedServiceConnection {
 
-    private static final String LOG_TAG = "BufferedServiceConnecti";
-
     @VisibleForTesting
     static final int MAX_BUFFER_SIZE = 100;
 
@@ -62,7 +63,7 @@ class BufferedServiceConnection {
     boolean mIsDead = false;
     private boolean mHasBound = false;
     @SuppressWarnings("WeakerAccess") /* synthetic access */
-    final Queue<Message> mBuffer = new ArrayDeque<>();
+    final Queue<SendableMessage> mBuffer = new ArrayDeque<>();
     @SuppressWarnings("WeakerAccess") /* synthetic access */
     final Executor mExecutor;
 
@@ -119,6 +120,9 @@ class BufferedServiceConnection {
                     mExecutor.execute(new Runnable() {
                         @Override
                         public void run() {
+                            // If this is now dead then the messages should not be sent, report
+                            // success
+                            reportSuccessOnBufferedMessages();
                             mIsDead = true;
                         }
                     });
@@ -136,6 +140,9 @@ class BufferedServiceConnection {
                                 mMessenger = new Messenger(service);
                                 sendBufferedMessages();
                             } else {
+                                // If this is now dead then the messages should not be sent, report
+                                // success
+                                reportSuccessOnBufferedMessages();
                                 mIsDead = true;
                             }
                         }
@@ -146,6 +153,13 @@ class BufferedServiceConnection {
                 void sendBufferedMessages() {
                     while (!mBuffer.isEmpty()) {
                         trySendMessage(mBuffer.poll());
+                    }
+                }
+
+                @SuppressWarnings("WeakerAccess") /* synthetic access */
+                void reportSuccessOnBufferedMessages() {
+                    while (!mBuffer.isEmpty()) {
+                        mBuffer.poll().onSuccess();
                     }
                 }
 
@@ -169,14 +183,17 @@ class BufferedServiceConnection {
      * <p>The queue is capped at 100 messages. If 100 messages are already queued when send is
      * called and a connection is not established, the earliest message in the queue will be lost.
      */
-    void send(Message message) {
+    void send(SendableMessage message) {
         if (mIsDead) {
+            // Nothing will send on this connection, so we need to report success to allow it to
+            // resolve.
+            message.onSuccess();
             return;
         }
 
         if (mMessenger == null) {
             while (mBuffer.size() >= MAX_BUFFER_SIZE) {
-                mBuffer.poll();
+                mBuffer.poll().dealWithError(STATUS_EXCEEDED_BUFFER_ERROR, /* throwable= */ null);
             }
             mBuffer.add(message);
             return;
@@ -186,11 +203,14 @@ class BufferedServiceConnection {
     }
 
     @SuppressWarnings("WeakerAccess") /* synthetic access */
-    void trySendMessage(Message message) {
+    void trySendMessage(SendableMessage message) {
         try {
-            mMessenger.send(message);
+            mMessenger.send(message.createStateMessage());
+            message.onSuccess();
+        } catch (TransactionTooLargeException e) {
+            message.dealWithError(STATUS_TRANSACTION_TOO_LARGE_ERROR, e);
         } catch (RemoteException e) {
-            Log.e(LOG_TAG, "Error sending message", e);
+            message.dealWithError(STATUS_UNKNOWN_ERROR, e);
         }
     }
 
