@@ -179,7 +179,6 @@ public class GridRowBuilderListV1Impl extends TemplateBuilderImpl {
 
         /**
          */
-        @NonNull
         private void addText(@NonNull CharSequence text) {
             addText(text, false /* isLoading */);
         }
@@ -195,14 +194,12 @@ public class GridRowBuilderListV1Impl extends TemplateBuilderImpl {
 
         /**
          */
-        @NonNull
         private void addTitleText(@NonNull CharSequence text) {
             addTitleText(text, false /* isLoading */);
         }
 
         /**
          */
-        @NonNull
         private void addTitleText(@Nullable CharSequence text, boolean isLoading) {
             @Slice.SliceHint String[] hints = isLoading
                     ? new String[] {HINT_PARTIAL, HINT_TITLE}
@@ -212,14 +209,12 @@ public class GridRowBuilderListV1Impl extends TemplateBuilderImpl {
 
         /**
          */
-        @NonNull
         private void addImage(@NonNull IconCompat image, int imageMode) {
             addImage(image, imageMode, false /* isLoading */);
         }
 
         /**
          */
-        @NonNull
         private void addImage(@Nullable IconCompat image, int imageMode, boolean isLoading) {
             ArrayList<String> hints = new ArrayList<>();
             if (imageMode != ICON_IMAGE) {
@@ -236,7 +231,6 @@ public class GridRowBuilderListV1Impl extends TemplateBuilderImpl {
 
         /**
          */
-        @NonNull
         private void setContentIntent(@NonNull PendingIntent intent) {
             mContentIntent = intent;
         }
