@@ -24,7 +24,6 @@ import androidx.compose.effectOf
 import androidx.compose.memo
 import androidx.compose.onCommit
 import androidx.compose.unaryPlus
-import androidx.ui.core.Alignment
 import androidx.ui.core.Opacity
 import androidx.ui.layout.Stack
 
@@ -64,12 +63,10 @@ fun <T> Crossfade(current: T, children: @Composable() (T) -> Unit) {
         }
     }
     Stack {
-        aligned(Alignment.TopLeft) {
-            state.items.forEach { (key, opacity) ->
-                Key(key = key) {
-                    opacity {
-                        children(key)
-                    }
+        state.items.forEach { (key, opacity) ->
+            Key(key = key) {
+                opacity {
+                    children(key)
                 }
             }
         }

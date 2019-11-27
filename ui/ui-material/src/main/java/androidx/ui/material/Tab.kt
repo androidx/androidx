@@ -31,6 +31,7 @@ import androidx.ui.core.FirstBaseline
 import androidx.ui.core.IntPx
 import androidx.ui.core.LastBaseline
 import androidx.ui.core.Layout
+import androidx.ui.core.Modifier
 import androidx.ui.core.Placeable
 import androidx.ui.core.Px
 import androidx.ui.core.Text
@@ -56,6 +57,7 @@ import androidx.ui.material.TabRow.TabPosition
 import androidx.ui.material.ripple.Ripple
 import androidx.ui.material.surface.Surface
 import androidx.ui.graphics.Image
+import androidx.ui.layout.Gravity
 import androidx.ui.text.ParagraphStyle
 import androidx.ui.text.style.TextAlign
 
@@ -130,8 +132,6 @@ fun <T> TabRow(
     tab: @Composable() (Int, T) -> Unit
 ) {
     Surface(color = (+MaterialTheme.colors()).primary) {
-        val divider = TabRow.Divider
-
         val tabs = @Composable {
             items.forEachIndexed { index, item ->
                 tab(index, item)
@@ -141,9 +141,9 @@ fun <T> TabRow(
         WithExpandedWidth { width ->
             // TODO: force scrollable for tabs that will be too small if they take up equal space?
             if (scrollable) {
-                ScrollableTabRow(width, selectedIndex, tabs, divider, indicatorContainer)
+                ScrollableTabRow(width, selectedIndex, tabs, indicatorContainer)
             } else {
-                FixedTabRow(width, items.size, tabs, divider, indicatorContainer)
+                FixedTabRow(width, items.size, tabs, indicatorContainer)
             }
         }
     }
@@ -154,7 +154,6 @@ private fun FixedTabRow(
     width: IntPx,
     tabCount: Int,
     tabs: @Composable() () -> Unit,
-    divider: @Composable() () -> Unit,
     indicatorContainer: @Composable() (tabPositions: List<TabPosition>) -> Unit
 ) {
     val tabWidth = width / tabCount
@@ -166,14 +165,16 @@ private fun FixedTabRow(
         }
     }
 
+    val divider = @Composable { modifier: Modifier ->
+        TabRow.Divider(modifier)
+    }
+
     Stack {
-        aligned(Alignment.Center) {
-            FlexRow {
-                expanded(1f, tabs)
-            }
+        FlexRow(Gravity.Center) {
+            expanded(1f, tabs)
         }
-        aligned(Alignment.BottomCenter, children = divider)
-        positioned(0.dp, 0.dp, 0.dp, 0.dp) {
+        divider(Gravity.BottomCenter)
+        Container(Gravity.Stretch) {
             indicatorContainer(tabPositions)
         }
     }
@@ -184,7 +185,6 @@ private fun ScrollableTabRow(
     width: IntPx,
     selectedIndex: Int,
     tabs: @Composable() () -> Unit,
-    divider: @Composable() () -> Unit,
     indicatorContainer: @Composable() (tabPositions: List<TabPosition>) -> Unit
 ) {
     val edgeOffset = withDensity(+ambientDensity()) { ScrollableTabRowEdgeOffset.toIntPx() }
@@ -206,6 +206,10 @@ private fun ScrollableTabRow(
         if (tabPositions.isNotEmpty()) {
             indicatorContainer(tabPositions)
         }
+    }
+
+    val divider = @Composable {
+        TabRow.Divider()
     }
 
     HorizontalScroller(scrollerPosition = scrollableTabData.position) {
@@ -411,9 +415,10 @@ object TabRow {
         }
     }
 
-    internal val Divider = @Composable {
+    @Composable
+    internal fun Divider(modifier: Modifier = Modifier.None) {
         val onPrimary = (+MaterialTheme.colors()).primary
-        Divider(color = (onPrimary.copy(alpha = DividerOpacity)))
+        Divider(color = (onPrimary.copy(alpha = DividerOpacity)), modifier = modifier)
     }
 }
 

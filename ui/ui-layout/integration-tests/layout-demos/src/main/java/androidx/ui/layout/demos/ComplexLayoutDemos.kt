@@ -53,6 +53,7 @@ import androidx.ui.core.VerticalAlignmentLine
 import androidx.ui.core.sp
 import androidx.ui.layout.AlignmentLineOffset
 import androidx.ui.layout.Gravity
+import androidx.ui.layout.Spacing
 import androidx.ui.layout.Wrap
 import androidx.ui.layout.samples.DrawRectangle
 import androidx.ui.layout.samples.SizedRectangle
@@ -176,34 +177,21 @@ fun AlignUsage() {
 @Composable
 fun StackUsage() {
     Stack {
-        aligned(Alignment.Center) {
-            SizedRectangle(color = Color(0xFF0000FF), width = 300.dp, height = 300.dp)
-        }
-        aligned(Alignment.TopLeft) {
-            SizedRectangle(color = Color(0xFF00FF00), width = 150.dp, height = 150.dp)
-        }
-        aligned(Alignment.BottomRight) {
-            SizedRectangle(color = Color(0xFFFF0000), width = 150.dp, height = 150.dp)
-        }
-        positioned(
-            leftInset = null, topInset = 20.dp, rightInset = null, bottomInset = 20.dp,
-            fallbackAlignment = Alignment.BottomRight
-        ) {
-            SizedRectangle(color = Color(0xFFFFA500), width = 80.dp)
-            SizedRectangle(color = Color(0xFFA52A2A), width = 20.dp)
-        }
-        positioned(
-            leftInset = 40.dp, topInset = null, rightInset = null, bottomInset = null,
-            fallbackAlignment = Alignment.BottomRight
-        ) {
-            SizedRectangle(color = Color(0xFFB22222), width = 20.dp)
-        }
-        positioned(
-            leftInset = null, topInset = null, rightInset = 40.dp, bottomInset = null,
-            fallbackAlignment = Alignment.BottomRight
-        ) {
-            SizedRectangle(color = Color(0xFFFFFF00), width = 40.dp)
-        }
+        SizedRectangle(Gravity.Stretch, color = Color(0xFFA52A2A))
+        SizedRectangle(Gravity.Stretch wraps Spacing(40.dp), color = Color(0xFFFFA500))
+        SizedRectangle(
+            modifier = Gravity.Center,
+            color = Color(0xFF0000FF),
+            width = 300.dp,
+            height = 300.dp
+        )
+        SizedRectangle(color = Color(0xFF00FF00), width = 150.dp, height = 150.dp)
+        SizedRectangle(
+            modifier = Gravity.BottomRight,
+            color = Color(0xFFFF0000),
+            width = 150.dp,
+            height = 150.dp
+        )
     }
 }
 
