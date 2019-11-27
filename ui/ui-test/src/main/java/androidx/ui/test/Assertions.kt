@@ -179,8 +179,8 @@ fun SemanticsNodeInteraction.assertIsInMutuallyExclusiveGroup(): SemanticsNodeIn
 }
 
 /**
- * Asserts the component's value equals the given value. This is used by
- * [CircularProgressIndicator] to check progress.
+ * Asserts the component's value equals the given value.
+ *
  * For further details please check [SemanticsConfiguration.accessibilityValue].
  * Throws [AssertionError] if the node's value is not equal to `value`, or if the node has no value
  */
