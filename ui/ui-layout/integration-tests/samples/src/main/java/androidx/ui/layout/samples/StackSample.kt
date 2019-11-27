@@ -18,30 +18,29 @@ package androidx.ui.layout.samples
 
 import androidx.annotation.Sampled
 import androidx.compose.Composable
-import androidx.ui.core.Alignment
 import androidx.ui.core.dp
 import androidx.ui.graphics.Color
+import androidx.ui.layout.Expanded
+import androidx.ui.layout.Gravity
+import androidx.ui.layout.Size
+import androidx.ui.layout.Spacing
 import androidx.ui.layout.Stack
 
 @Sampled
 @Composable
 fun SimpleStack() {
     Stack {
-        expanded {
-            SizedRectangle(color = Color(0xFFFFFFFF.toInt()))
-        }
-        aligned(Alignment.Center) {
-            SizedRectangle(color = Color(0xFF0000FF), width = 300.dp, height = 300.dp)
-        }
-        aligned(Alignment.TopLeft) {
-            SizedRectangle(color = Color(0xFF00FF00), width = 150.dp, height = 150.dp)
-        }
-        aligned(Alignment.BottomRight) {
-            SizedRectangle(color = Color(0xFFFF0000), width = 150.dp, height = 150.dp)
-        }
-        positioned(null, 20.dp, null, 20.dp) {
-            SizedRectangle(color = Color(0xFFFFA500), width = 80.dp)
-            SizedRectangle(color = Color(0xFFA52A2A), width = 20.dp)
-        }
+        SizedRectangle(modifier = Expanded, color = Color.Cyan)
+        SizedRectangle(
+            modifier = Gravity.Stretch wraps Spacing(top = 20.dp, bottom = 20.dp),
+            color = Color.Yellow
+        )
+        SizedRectangle(modifier = Gravity.Stretch wraps Spacing(40.dp), color = Color.Magenta)
+        SizedRectangle(modifier = Gravity.Center wraps Size(300.dp, 300.dp), color = Color.Green)
+        SizedRectangle(modifier = Gravity.TopLeft wraps Size(150.dp, 150.dp), color = Color.Red)
+        SizedRectangle(
+            modifier = Gravity.BottomRight wraps Size(150.dp, 150.dp),
+            color = Color.Blue
+        )
     }
 }

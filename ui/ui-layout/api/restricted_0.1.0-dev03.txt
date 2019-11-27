@@ -239,16 +239,33 @@ package androidx.ui.layout {
     method public static androidx.ui.core.LayoutModifier Spacing(androidx.ui.core.Dp all = 0.dp);
   }
 
-  @androidx.ui.layout.LayoutScopeMarker public final class StackChildren {
-    ctor public StackChildren();
-    method public void aligned(androidx.ui.core.Alignment alignment, boolean loose = true, kotlin.jvm.functions.Function0<kotlin.Unit> children);
-    method public void expanded(kotlin.jvm.functions.Function0<kotlin.Unit> children);
-    method public void positioned(androidx.ui.core.Dp? leftInset = null, androidx.ui.core.Dp? topInset = null, androidx.ui.core.Dp? rightInset = null, androidx.ui.core.Dp? bottomInset = null, androidx.ui.core.Alignment fallbackAlignment = Alignment.Center, kotlin.jvm.functions.Function0<kotlin.Unit> children);
-  }
-
   public final class StackKt {
     ctor public StackKt();
-    method public static void Stack(androidx.ui.core.Modifier modifier = Modifier.None, kotlin.jvm.functions.Function1<? super androidx.ui.layout.StackChildren,kotlin.Unit> children);
+    method public static void Stack(androidx.ui.core.Modifier modifier = Modifier.None, kotlin.jvm.functions.Function1<? super androidx.ui.layout.StackScope,kotlin.Unit> children);
+  }
+
+  @androidx.ui.layout.LayoutScopeMarker public final class StackScope {
+    ctor public StackScope();
+    method public androidx.ui.core.LayoutModifier getBottomCenter(androidx.ui.layout.Gravity);
+    method public androidx.ui.core.LayoutModifier getBottomLeft(androidx.ui.layout.Gravity);
+    method public androidx.ui.core.LayoutModifier getBottomRight(androidx.ui.layout.Gravity);
+    method public androidx.ui.core.LayoutModifier getCenter(androidx.ui.layout.Gravity);
+    method public androidx.ui.core.LayoutModifier getCenterLeft(androidx.ui.layout.Gravity);
+    method public androidx.ui.core.LayoutModifier getCenterRight(androidx.ui.layout.Gravity);
+    method public androidx.ui.core.LayoutModifier getStretch(androidx.ui.layout.Gravity);
+    method public androidx.ui.core.LayoutModifier getTopCenter(androidx.ui.layout.Gravity);
+    method public androidx.ui.core.LayoutModifier getTopLeft(androidx.ui.layout.Gravity);
+    method public androidx.ui.core.LayoutModifier getTopRight(androidx.ui.layout.Gravity);
+    property public final androidx.ui.core.LayoutModifier BottomCenter;
+    property public final androidx.ui.core.LayoutModifier BottomLeft;
+    property public final androidx.ui.core.LayoutModifier BottomRight;
+    property public final androidx.ui.core.LayoutModifier Center;
+    property public final androidx.ui.core.LayoutModifier CenterLeft;
+    property public final androidx.ui.core.LayoutModifier CenterRight;
+    property public final androidx.ui.core.LayoutModifier Stretch;
+    property public final androidx.ui.core.LayoutModifier TopCenter;
+    property public final androidx.ui.core.LayoutModifier TopLeft;
+    property public final androidx.ui.core.LayoutModifier TopRight;
   }
 
   @androidx.ui.layout.LayoutScopeMarker public final class TableChildren {

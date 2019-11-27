@@ -23,7 +23,6 @@ import androidx.compose.Composable
 import androidx.compose.Model
 import androidx.compose.memo
 import androidx.compose.unaryPlus
-import androidx.ui.core.Alignment
 import androidx.ui.core.Text
 import androidx.ui.core.dp
 import androidx.ui.core.setContent
@@ -40,6 +39,7 @@ import androidx.ui.layout.Container
 import androidx.ui.layout.Expanded
 import androidx.ui.layout.ExpandedWidth
 import androidx.ui.layout.FlexColumn
+import androidx.ui.layout.Gravity
 import androidx.ui.layout.HeightSpacer
 import androidx.ui.layout.Padding
 import androidx.ui.layout.Stack
@@ -91,20 +91,18 @@ private class ScrollFraction(var fraction: Float = 0f)
 private fun DynamicThemeApp(scrollFraction: ScrollFraction, palette: ColorPalette) {
     MaterialTheme(palette) {
         Stack(Expanded) {
-            expanded {
-                FlexColumn {
-                    inflexible {
-                        TopBar()
-                    }
-                    expanded(1f) {
-                        val background = (+MaterialTheme.colors()).background
-                        Surface(color = background) {
-                            ScrollingContent(scrollFraction)
-                        }
+            FlexColumn(Expanded) {
+                inflexible {
+                    TopBar()
+                }
+                expanded(1f) {
+                    val background = (+MaterialTheme.colors()).background
+                    Surface(color = background) {
+                        ScrollingContent(scrollFraction)
                     }
                 }
             }
-            aligned(Alignment.BottomCenter) {
+            Container(Gravity.BottomCenter) {
                 BottomBar(scrollFraction)
             }
         }
