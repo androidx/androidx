@@ -157,7 +157,6 @@ public class ListBuilderImpl extends TemplateBuilderImpl implements ListBuilder 
     /**
      * Add a row to list builder.
      */
-    @NonNull
     @Override
     public void addRow(@NonNull RowBuilder builder) {
         RowBuilderImpl impl = new RowBuilderImpl(createChildBuilder());
@@ -169,7 +168,6 @@ public class ListBuilderImpl extends TemplateBuilderImpl implements ListBuilder 
     /**
      * Add a row to list builder.
      */
-    @NonNull
     public void addRow(@NonNull RowBuilderImpl builder) {
         checkRow(true, builder.hasText());
         builder.getBuilder().addHints(HINT_LIST_ITEM);
@@ -178,7 +176,6 @@ public class ListBuilderImpl extends TemplateBuilderImpl implements ListBuilder 
 
     /**
      */
-    @NonNull
     @Override
     public void addGridRow(@NonNull GridRowBuilder builder) {
         checkRow(false, false);
@@ -260,7 +257,6 @@ public class ListBuilderImpl extends TemplateBuilderImpl implements ListBuilder 
 
     /**
      */
-    @NonNull
     @Override
     public void setColor(@ColorInt int color) {
         getBuilder().addInt(color, SUBTYPE_COLOR);
@@ -487,7 +483,6 @@ public class ListBuilderImpl extends TemplateBuilderImpl implements ListBuilder 
 
         /**
          */
-        @NonNull
         private void setTitleItem(long timeStamp) {
             mStartItem = new Slice.Builder(getBuilder())
                     .addTimestamp(timeStamp, null).addHints(HINT_TITLE).build();
@@ -495,14 +490,12 @@ public class ListBuilderImpl extends TemplateBuilderImpl implements ListBuilder 
 
         /**
          */
-        @NonNull
         protected void setTitleItem(IconCompat icon, int imageMode) {
             setTitleItem(icon, imageMode, false /* isLoading */);
         }
 
         /**
          */
-        @NonNull
         private void setTitleItem(IconCompat icon, int imageMode, boolean isLoading) {
             ArrayList<String> hints = new ArrayList<>();
             if (imageMode != ICON_IMAGE) {
@@ -524,7 +517,6 @@ public class ListBuilderImpl extends TemplateBuilderImpl implements ListBuilder 
 
         /**
          */
-        @NonNull
         private void setTitleItem(@NonNull SliceAction action) {
             setTitleItem(action, false /* isLoading */);
         }
@@ -541,14 +533,12 @@ public class ListBuilderImpl extends TemplateBuilderImpl implements ListBuilder 
 
         /**
          */
-        @NonNull
         private void setPrimaryAction(@NonNull SliceAction action) {
             mPrimaryAction = action;
         }
 
         /**
          */
-        @NonNull
         private void setTitle(CharSequence title) {
             setTitle(title, false /* isLoading */);
         }
@@ -564,7 +554,6 @@ public class ListBuilderImpl extends TemplateBuilderImpl implements ListBuilder 
 
         /**
          */
-        @NonNull
         protected void setSubtitle(CharSequence subtitle) {
             setSubtitle(subtitle, false /* isLoading */);
         }
@@ -580,7 +569,6 @@ public class ListBuilderImpl extends TemplateBuilderImpl implements ListBuilder 
 
         /**
          */
-        @NonNull
         protected void addEndItem(long timeStamp) {
             mEndItems.add(new Slice.Builder(getBuilder()).addTimestamp(timeStamp,
                     null, new String[0]).build());
@@ -588,14 +576,12 @@ public class ListBuilderImpl extends TemplateBuilderImpl implements ListBuilder 
 
         /**
          */
-        @NonNull
         private void addEndItem(IconCompat icon, int imageMode) {
             addEndItem(icon, imageMode, false /* isLoading */);
         }
 
         /**
          */
-        @NonNull
         private void addEndItem(IconCompat icon, int imageMode, boolean isLoading) {
             ArrayList<String> hints = new ArrayList<>();
             if (imageMode != ICON_IMAGE) {
@@ -617,7 +603,6 @@ public class ListBuilderImpl extends TemplateBuilderImpl implements ListBuilder 
 
         /**
          */
-        @NonNull
         private void addEndItem(@NonNull SliceAction action) {
             addEndItem(action, false /* isLoading */);
         }
