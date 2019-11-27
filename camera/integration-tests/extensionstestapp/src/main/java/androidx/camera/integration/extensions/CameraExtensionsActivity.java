@@ -38,14 +38,12 @@ import androidx.camera.core.ImageCapture;
 import androidx.camera.core.LensFacing;
 import androidx.camera.core.Preview;
 import androidx.camera.core.UseCase;
-import androidx.camera.core.impl.utils.executor.CameraXExecutors;
 import androidx.camera.extensions.AutoImageCaptureExtender;
 import androidx.camera.extensions.AutoPreviewExtender;
 import androidx.camera.extensions.BeautyImageCaptureExtender;
 import androidx.camera.extensions.BeautyPreviewExtender;
 import androidx.camera.extensions.BokehImageCaptureExtender;
 import androidx.camera.extensions.BokehPreviewExtender;
-import androidx.camera.extensions.ExtensionsErrorListener;
 import androidx.camera.extensions.ExtensionsManager;
 import androidx.camera.extensions.HdrImageCaptureExtender;
 import androidx.camera.extensions.HdrPreviewExtender;
@@ -284,48 +282,44 @@ public class CameraExtensionsActivity extends AppCompatActivity
                                 Environment.DIRECTORY_PICTURES),
                         "ExtensionsPictures");
         dir.mkdirs();
-        captureButton.setOnClickListener(
-                new View.OnClickListener() {
-                    @Override
-                    public void onClick(View view) {
-                        mTakePictureIdlingResource.increment();
-                        mImageCapture.takePicture(
-                                new File(
-                                        dir,
-                                        formatter.format(Calendar.getInstance().getTime())
-                                                + mCurrentImageCaptureType.name()
-                                                + ".jpg"),
-                                CameraXExecutors.mainThreadExecutor(),
-                                new ImageCapture.OnImageSavedCallback() {
-                                    @Override
-                                    public void onImageSaved(@NonNull File file) {
-                                        Log.d(TAG, "Saved image to " + file);
+        captureButton.setOnClickListener((view) -> {
+            mTakePictureIdlingResource.increment();
+            mImageCapture.takePicture(
+                    new File(
+                            dir,
+                            formatter.format(Calendar.getInstance().getTime())
+                                    + mCurrentImageCaptureType.name()
+                                    + ".jpg"),
+                    ContextCompat.getMainExecutor(CameraExtensionsActivity.this),
+                    new ImageCapture.OnImageSavedCallback() {
+                        @Override
+                        public void onImageSaved(@NonNull File file) {
+                            Log.d(TAG, "Saved image to " + file);
 
-                                        if (!mTakePictureIdlingResource.isIdleNow()) {
-                                            mTakePictureIdlingResource.decrement();
-                                        }
+                            if (!mTakePictureIdlingResource.isIdleNow()) {
+                                mTakePictureIdlingResource.decrement();
+                            }
 
-                                        // Trigger MediaScanner to scan the file
-                                        Intent intent = new Intent(
-                                                Intent.ACTION_MEDIA_SCANNER_SCAN_FILE);
-                                        intent.setData(Uri.fromFile(file));
-                                        sendBroadcast(intent);
+                            // Trigger MediaScanner to scan the file
+                            Intent intent = new Intent(
+                                    Intent.ACTION_MEDIA_SCANNER_SCAN_FILE);
+                            intent.setData(Uri.fromFile(file));
+                            sendBroadcast(intent);
 
-                                        Toast.makeText(getApplicationContext(),
-                                                "Saved image to " + file,
-                                                Toast.LENGTH_SHORT).show();
-                                    }
+                            Toast.makeText(getApplicationContext(),
+                                    "Saved image to " + file,
+                                    Toast.LENGTH_SHORT).show();
+                        }
 
-                                    @Override
-                                    public void onError(
-                                            @ImageCapture.ImageCaptureError int error,
-                                            @NonNull String message,
-                                            Throwable cause) {
-                                        Log.e(TAG, "Failed to save image - " + message, cause);
-                                    }
-                                });
-                    }
-                });
+                        @Override
+                        public void onError(
+                                @ImageCapture.ImageCaptureError int error,
+                                @NonNull String message,
+                                Throwable cause) {
+                            Log.e(TAG, "Failed to save image - " + message, cause);
+                        }
+                    });
+        });
     }
 
     void disableImageCapture() {
@@ -341,12 +335,8 @@ public class CameraExtensionsActivity extends AppCompatActivity
 
     /** Creates all the use cases. */
     private void createUseCases() {
-        ExtensionsManager.setExtensionsErrorListener(new ExtensionsErrorListener() {
-            @Override
-            public void onError(@NonNull ExtensionsErrorCode errorCode) {
-                Log.d(TAG, "Extensions error in error code: " + errorCode);
-            }
-        });
+        ExtensionsManager.setExtensionsErrorListener((errorCode) ->
+                Log.d(TAG, "Extensions error in error code: " + errorCode));
         createImageCapture();
         createPreview();
         bindUseCases();
@@ -460,7 +450,7 @@ public class CameraExtensionsActivity extends AppCompatActivity
 
                     }
                 },
-                CameraXExecutors.mainThreadExecutor()
+                ContextCompat.getMainExecutor(CameraExtensionsActivity.this)
         );
     }
 

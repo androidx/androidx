@@ -54,7 +54,6 @@ import androidx.camera.core.TorchState;
 import androidx.camera.core.UseCase;
 import androidx.camera.core.VideoCapture;
 import androidx.camera.core.VideoCaptureConfig;
-import androidx.camera.core.impl.utils.executor.CameraXExecutors;
 import androidx.camera.lifecycle.ProcessCameraProvider;
 import androidx.concurrent.futures.CallbackToFutureAdapter;
 import androidx.core.app.ActivityCompat;
@@ -360,7 +359,7 @@ public class CameraXActivity extends AppCompatActivity
         }
 
         mImageAnalysis.setAnalyzer(
-                CameraXExecutors.mainThreadExecutor(),
+                ContextCompat.getMainExecutor(this),
                 (image, rotationDegrees) -> {
                     // Since we set the callback handler to a main thread handler, we can call
                     // setValue() here. If we weren't on the main thread, we would have to call
@@ -451,7 +450,7 @@ public class CameraXActivity extends AppCompatActivity
                                         dir,
                                         formatter.format(Calendar.getInstance().getTime())
                                                 + ".jpg"),
-                                CameraXExecutors.mainThreadExecutor(),
+                                ContextCompat.getMainExecutor(CameraXActivity.this),
                                 new ImageCapture.OnImageSavedCallback() {
                                     @Override
                                     public void onImageSaved(@NonNull File file) {
@@ -640,29 +639,26 @@ public class CameraXActivity extends AppCompatActivity
         }
 
         Button button = this.findViewById(R.id.Video);
-        button.setOnClickListener(
-                new View.OnClickListener() {
-                    @Override
-                    public void onClick(View view) {
-                        Button buttonView = (Button) view;
-                        String text = button.getText().toString();
-                        if (text.equals("Record") && !mVideoFileSaver.isSaving()) {
-                            mVideoCapture.startRecording(
-                                    mVideoFileSaver.getNewVideoFile(),
-                                    CameraXExecutors.mainThreadExecutor(), mVideoFileSaver);
-                            mVideoFileSaver.setSaving();
-                            buttonView.setText("Stop");
-                        } else if (text.equals("Stop") && mVideoFileSaver.isSaving()) {
-                            buttonView.setText("Record");
-                            mVideoCapture.stopRecording();
-                        } else if (text.equals("Record") && mVideoFileSaver.isSaving()) {
-                            buttonView.setText("Stop");
-                            mVideoFileSaver.setSaving();
-                        } else if (text.equals("Stop") && !mVideoFileSaver.isSaving()) {
-                            buttonView.setText("Record");
-                        }
-                    }
-                });
+        button.setOnClickListener((view) -> {
+            Button buttonView = (Button) view;
+            String text = button.getText().toString();
+            if (text.equals("Record") && !mVideoFileSaver.isSaving()) {
+                mVideoCapture.startRecording(
+                        mVideoFileSaver.getNewVideoFile(),
+                        ContextCompat.getMainExecutor(CameraXActivity.this),
+                        mVideoFileSaver);
+                mVideoFileSaver.setSaving();
+                buttonView.setText("Stop");
+            } else if (text.equals("Stop") && mVideoFileSaver.isSaving()) {
+                buttonView.setText("Record");
+                mVideoCapture.stopRecording();
+            } else if (text.equals("Record") && mVideoFileSaver.isSaving()) {
+                buttonView.setText("Stop");
+                mVideoFileSaver.setSaving();
+            } else if (text.equals("Stop") && !mVideoFileSaver.isSaving()) {
+                buttonView.setText("Record");
+            }
+        });
     }
 
     void disableVideoCapture() {
