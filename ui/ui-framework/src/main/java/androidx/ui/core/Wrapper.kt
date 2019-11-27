@@ -40,7 +40,6 @@ import androidx.compose.state
 import androidx.compose.unaryPlus
 import androidx.ui.autofill.Autofill
 import androidx.ui.autofill.AutofillTree
-import androidx.ui.core.selection.SelectionContainer
 import androidx.ui.text.font.Font
 import kotlinx.coroutines.Dispatchers
 import kotlin.coroutines.CoroutineContext
@@ -115,19 +114,8 @@ fun Activity.setContent(
     // kotlinx.coroutines.Dispatchers' not instance of 'Precise Reference: androidx.compose.Ambient'.
     val coroutineContext = Dispatchers.Main
     return Compose.composeInto(composeView.root, this) {
-        WrapWithAmbients(composeView, this, coroutineContext) {
-            WrapWithSelectionContainer(content)
-        }
+        WrapWithAmbients(composeView, this, coroutineContext, content)
     }
-}
-
-/**
- * We want text/image selection to be enabled by default and disabled per widget. Therefore a root
- * level [SelectionContainer] is installed at the root.
- */
-@Composable
-private fun WrapWithSelectionContainer(content: @Composable() () -> Unit) {
-    SelectionContainer(children = content)
 }
 
 /**
@@ -146,9 +134,7 @@ fun ViewGroup.setContent(
     // kotlinx.coroutines.Dispatchers' not instance of 'Precise Reference: androidx.compose.Ambient'.
     val coroutineContext = Dispatchers.Main
     return Compose.composeInto(composeView.root, context) {
-        WrapWithAmbients(composeView, context, coroutineContext) {
-            WrapWithSelectionContainer(content)
-        }
+        WrapWithAmbients(composeView, context, coroutineContext, content)
     }
 }
 
