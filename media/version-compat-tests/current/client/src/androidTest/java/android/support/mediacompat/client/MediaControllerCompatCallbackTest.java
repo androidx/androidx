@@ -69,6 +69,7 @@ import android.content.ComponentName;
 import android.content.Intent;
 import android.graphics.Bitmap;
 import android.media.AudioManager;
+import android.media.session.MediaSession;
 import android.os.Build;
 import android.os.Bundle;
 import android.os.Handler;
@@ -660,6 +661,37 @@ public class MediaControllerCompatCallbackTest {
             callback.mWaitLock.wait(TIME_OUT_MS);
             assertTrue(callback.mOnSessionReadyCalled);
             assertTrue(mController.isSessionReady());
+        }
+    }
+
+    @Test
+    @SmallTest
+    @SdkSuppress(minSdkVersion = 21)
+    public void testOnSessionReadyCalled_fwkMediaSession() throws Exception {
+        mController = null;
+        final MediaSession session = new MediaSession(getInstrumentation().getTargetContext(),
+                "TestFwkSession");
+        final SessionReadyCallback callback = new SessionReadyCallback();
+        synchronized (callback.mWaitLock) {
+            getInstrumentation().runOnMainSync(new Runnable() {
+                @Override
+                public void run() {
+                    try {
+                        // No extra binder exists in API 19. (i.e. session is always ready.)
+                        // onSessionReady() should be posted by registerCallback().
+                        MediaSession.Token fwkToken = session.getSessionToken();
+                        mController = new MediaControllerCompat(
+                                getInstrumentation().getTargetContext(),
+                                MediaSessionCompat.Token.fromToken(fwkToken));
+                        mController.registerCallback(callback, new Handler());
+                    } catch (Exception e) {
+                        fail();
+                    }
+                }
+            });
+            callback.mWaitLock.wait(TIME_OUT_MS);
+            assertFalse(mController.isSessionReady());
+            assertFalse(callback.mOnSessionReadyCalled);
         }
     }
 
