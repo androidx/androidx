@@ -45,7 +45,8 @@ import androidx.ui.layout.Gravity
 import androidx.ui.layout.Row
 import androidx.ui.layout.Table
 import androidx.ui.layout.TableColumnWidth
-import androidx.ui.layout.WidthSpacer
+import androidx.ui.layout.Spacer
+import androidx.ui.layout.Width
 import androidx.ui.material.ripple.Ripple
 import androidx.ui.text.TextStyle
 import androidx.ui.text.font.FontWeight
@@ -211,7 +212,7 @@ class DataTableChildren internal constructor() {
             } else {
                 Row {
                     SimpleImage(image = image)
-                    WidthSpacer(2.dp)
+                    Spacer(Width(2.dp))
                     Text(text = text(j))
                 }
             }
@@ -256,7 +257,7 @@ class DataTableChildren internal constructor() {
             } else {
                 Row {
                     SimpleImage(image = image)
-                    WidthSpacer(2.dp)
+                    Spacer(Width(2.dp))
                     Text(text = text(j))
                 }
             }
@@ -394,7 +395,7 @@ fun DataTable(
                                     headerDecoration = {
                                         // TODO(calintat): Replace with animated arrow icons.
                                         Text(text = if (sorting.ascending) "↑" else "↓")
-                                        WidthSpacer(2.dp)
+                                        Spacer(Width(2.dp))
                                     }
                                 } else {
                                     onSort = {
@@ -495,11 +496,11 @@ fun DataTable(
                     //  onRowsPerPageChange with the appropriate value.
                     Text(text = "Rows per page: ${pagination.rowsPerPage}", modifier = modifier)
 
-                    WidthSpacer(width = 32.dp)
+                    Spacer(Width(32.dp))
 
                     Text(text = "${startRow + 1}-$endRow of ${rows.size}", modifier = modifier)
 
-                    WidthSpacer(width = 32.dp)
+                    Spacer(Width(32.dp))
 
                     // TODO(calintat): Replace this with an image button with chevron_left icon.
                     Container(modifier = modifier) {
@@ -514,7 +515,7 @@ fun DataTable(
                         }
                     }
 
-                    WidthSpacer(width = 24.dp)
+                    Spacer(Width(24.dp))
 
                     // TODO(calintat): Replace this with an image button with chevron_right icon.
                     Container(modifier = modifier) {

@@ -47,7 +47,8 @@ import androidx.ui.layout.Container
 import androidx.ui.layout.FlexRow
 import androidx.ui.layout.MainAxisAlignment
 import androidx.ui.layout.Row
-import androidx.ui.layout.WidthSpacer
+import androidx.ui.layout.Spacer
+import androidx.ui.layout.Width
 import androidx.ui.material.surface.Surface
 import androidx.ui.graphics.Color
 import androidx.ui.layout.EdgeInsets
@@ -725,11 +726,11 @@ private fun <T> AppBarActions(
         shownActions.forEach { (index, shownAction) ->
             action(shownAction)
             if (index != shownActions.lastIndex) {
-                WidthSpacer(width = 24.dp)
+                Spacer(Width(24.dp))
             }
         }
         if (overflowActions.isNotEmpty()) {
-            WidthSpacer(width = 24.dp)
+            Spacer(Width(24.dp))
             // TODO: use overflowActions to build menu here
             Container(width = 12.dp) {
                 Text(text = "${overflowActions.size}", style = TextStyle(fontSize = 15.sp))

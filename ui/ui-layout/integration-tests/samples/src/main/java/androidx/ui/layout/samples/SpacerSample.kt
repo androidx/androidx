@@ -14,20 +14,24 @@
  * limitations under the License.
  */
 
-package androidx.ui.layout
+package androidx.ui.layout.samples
 
+import androidx.annotation.Sampled
 import androidx.compose.Composable
-import androidx.ui.core.Modifier
+import androidx.ui.core.dp
+import androidx.ui.graphics.Color
+import androidx.ui.layout.Row
+import androidx.ui.layout.Spacer
+import androidx.ui.layout.Width
 
-/**
- * Component that represents an empty space layout, whose size can be defined using the [Width],
- * [Height] and [Size] modifiers.
- *
- * @sample androidx.ui.layout.samples.SpacerExample
- *
- * @param modifier modifiers to set to this spacer
- */
+@Sampled
 @Composable
-fun Spacer(modifier: Modifier) {
-    Container(modifier = modifier) {}
+fun SpacerExample() {
+    Row {
+        SizedRectangle(color = Color.Red, width = 100.dp, height = 100.dp)
+        Spacer(modifier = Width(20.dp))
+        SizedRectangle(color = Color.Magenta, width = 100.dp, height = 100.dp)
+        Spacer(modifier = Flexible(1f))
+        SizedRectangle(color = Color.Black, width = 100.dp, height = 100.dp)
+    }
 }

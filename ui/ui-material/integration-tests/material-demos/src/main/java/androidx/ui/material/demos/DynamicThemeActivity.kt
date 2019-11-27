@@ -40,7 +40,8 @@ import androidx.ui.layout.Expanded
 import androidx.ui.layout.ExpandedWidth
 import androidx.ui.layout.FlexColumn
 import androidx.ui.layout.Gravity
-import androidx.ui.layout.HeightSpacer
+import androidx.ui.layout.Height
+import androidx.ui.layout.Spacer
 import androidx.ui.layout.Padding
 import androidx.ui.layout.Stack
 import androidx.ui.material.BottomAppBar
@@ -154,7 +155,7 @@ private fun Cards() {
                 }
             }
         }
-        HeightSpacer(100.dp)
+        Spacer(Height(100.dp))
     }
 }
 

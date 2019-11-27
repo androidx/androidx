@@ -28,9 +28,10 @@ import androidx.ui.layout.Column
 import androidx.ui.layout.Container
 import androidx.ui.layout.EdgeInsets
 import androidx.ui.layout.ExpandedWidth
-import androidx.ui.layout.HeightSpacer
+import androidx.ui.layout.Height
+import androidx.ui.layout.Spacer
 import androidx.ui.layout.Row
-import androidx.ui.layout.WidthSpacer
+import androidx.ui.layout.Width
 import androidx.ui.material.AlertDialogButtonLayout.SideBySide
 import androidx.ui.material.AlertDialogButtonLayout.Stacked
 import androidx.ui.material.surface.Surface
@@ -128,14 +129,14 @@ fun AlertDialog(
                         } else {
                             // TODO(b/138924683): Temporary until padding for the Text's
                             //  baseline
-                            HeightSpacer(NoTitleExtraHeight)
+                            Spacer(Height(NoTitleExtraHeight))
                         }
 
                         Container(alignment = Alignment.CenterLeft, padding = TextPadding) {
                             val textStyle = (+MaterialTheme.typography()).body1
                             CurrentTextStyleProvider(textStyle, text)
                         }
-                        HeightSpacer(height = TextToButtonsHeight)
+                        Spacer(Height(TextToButtonsHeight))
                         buttons()
                     }
                 }
@@ -167,7 +168,7 @@ private fun AlertDialogButtonLayout(
             Row(arrangement = Arrangement.End) {
                 if (dismissButton != null) {
                     dismissButton()
-                    WidthSpacer(ButtonsWidthSpace)
+                    Spacer(Width(ButtonsWidthSpace))
                 }
 
                 confirmButton()
@@ -177,7 +178,7 @@ private fun AlertDialogButtonLayout(
                 confirmButton()
 
                 if (dismissButton != null) {
-                    HeightSpacer(ButtonsHeightSpace)
+                    Spacer(Height(ButtonsHeightSpace))
                     dismissButton()
                 }
             }

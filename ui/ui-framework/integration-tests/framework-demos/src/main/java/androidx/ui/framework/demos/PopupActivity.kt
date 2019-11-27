@@ -48,7 +48,8 @@ import androidx.ui.layout.Container
 import androidx.ui.layout.DpConstraints
 import androidx.ui.layout.EdgeInsets
 import androidx.ui.layout.FlexRow
-import androidx.ui.layout.HeightSpacer
+import androidx.ui.layout.Height
+import androidx.ui.layout.Spacer
 import androidx.ui.layout.MainAxisAlignment
 import androidx.ui.layout.Wrap
 import androidx.ui.graphics.Paint
@@ -221,7 +222,7 @@ fun ColumnScope.PopupWithChangingContent() {
                 }
             }
 
-            HeightSpacer(10.dp)
+            Spacer(Height(10.dp))
             ClickableTextWithBackground(
                 text = "Change content",
                 color = Color.Cyan,
@@ -259,7 +260,7 @@ fun ColumnScope.PopupWithChangingParent() {
                 }
             }
         }
-        HeightSpacer(10.dp)
+        Spacer(Height(10.dp))
         ClickableTextWithBackground(
             text = "Change parent's position",
             color = Color.Cyan,
@@ -271,7 +272,7 @@ fun ColumnScope.PopupWithChangingParent() {
                         Alignment.TopLeft
             }
         )
-        HeightSpacer(10.dp)
+        Spacer(Height(10.dp))
         ClickableTextWithBackground(
             text = "Change parent's size",
             color = Color.Cyan,
@@ -308,7 +309,7 @@ fun ColumnScope.PopupDropdownAlignment() {
                 }
             )
 
-            HeightSpacer(10.dp)
+            Spacer(Height(10.dp))
 
             ColoredContainer(
                 height = heightSize,
@@ -365,7 +366,7 @@ fun ColumnScope.PopupAlignmentDemo() {
                 }
             }
 
-            HeightSpacer(10.dp)
+            Spacer(Height(10.dp))
             ColoredContainer(color = Color.White, modifier = Gravity.Center) {
                 Text("Alignment: " + popupAlignment.value.toString())
             }
@@ -427,7 +428,7 @@ fun ColumnScope.PopupWithChangingSize() {
             val widthSize = 160.dp
             val rectangleState = +state { 0 }
 
-            HeightSpacer(15.dp)
+            Spacer(Height(15.dp))
             ColoredContainer(
                 height = heightSize,
                 width = widthSize,
@@ -460,7 +461,7 @@ fun ColumnScope.PopupWithChangingSize() {
                     }
                 }
             }
-            HeightSpacer(25.dp)
+            Spacer(Height(25.dp))
             ClickableTextWithBackground(
                 text = "Change size",
                 color = Color.Cyan,
@@ -501,7 +502,7 @@ fun PopupOnKeyboardUp() {
         val widthSize = 190.dp
         val heightSize = 120.dp
 
-        HeightSpacer(350.dp)
+        Spacer(Height(350.dp))
         Text("Start typing in the EditText below the parent(Red rectangle)")
         ColoredContainer(
             height = heightSize,
@@ -518,7 +519,7 @@ fun PopupOnKeyboardUp() {
 
         EditLine(initialText = "Continue typing...", color = Color.Gray)
 
-        HeightSpacer(24.dp)
+        Spacer(Height(24.dp))
     }
 }
 

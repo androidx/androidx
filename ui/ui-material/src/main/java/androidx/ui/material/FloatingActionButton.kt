@@ -32,7 +32,8 @@ import androidx.ui.layout.Container
 import androidx.ui.layout.DpConstraints
 import androidx.ui.layout.Padding
 import androidx.ui.layout.Row
-import androidx.ui.layout.WidthSpacer
+import androidx.ui.layout.Spacer
+import androidx.ui.layout.Width
 import androidx.ui.graphics.Image
 import androidx.ui.material.ripple.Ripple
 import androidx.ui.material.surface.Surface
@@ -156,7 +157,7 @@ fun FloatingActionButton(
             Padding(left = ExtendedFabIconPadding, right = ExtendedFabTextPadding) {
                 Row {
                     SimpleImage(image = icon)
-                    WidthSpacer(width = ExtendedFabIconPadding)
+                    Spacer(Width(ExtendedFabIconPadding))
                     Text(text = text, style = textStyle)
                 }
             }
