@@ -124,6 +124,8 @@ package androidx.ui.test {
     ctor public FiltersKt();
     method public static boolean getHasClickAction(androidx.ui.core.semantics.SemanticsConfiguration);
     method public static boolean getHasScrollAction(androidx.ui.core.semantics.SemanticsConfiguration);
+    method public static boolean hasSubstring(androidx.ui.core.semantics.SemanticsConfiguration, String substring, boolean ignoreCase = false);
+    method public static boolean hasText(androidx.ui.core.semantics.SemanticsConfiguration, String text, boolean ignoreCase = false);
     method public static boolean isInMutuallyExclusiveGroup(androidx.ui.core.semantics.SemanticsConfiguration);
     method public static boolean isToggleable(androidx.ui.core.semantics.SemanticsConfiguration);
   }
@@ -133,6 +135,7 @@ package androidx.ui.test {
     method public static androidx.ui.test.SemanticsNodeInteraction find(kotlin.jvm.functions.Function1<? super androidx.ui.core.semantics.SemanticsConfiguration,java.lang.Boolean> selector);
     method public static java.util.List<androidx.ui.test.SemanticsNodeInteraction> findAll(kotlin.jvm.functions.Function1<? super androidx.ui.core.semantics.SemanticsConfiguration,java.lang.Boolean> selector);
     method public static java.util.List<androidx.ui.test.SemanticsNodeInteraction> findAllByTag(String testTag);
+    method public static androidx.ui.test.SemanticsNodeInteraction findBySubstring(String text, boolean ignoreCase = false);
     method public static androidx.ui.test.SemanticsNodeInteraction findByTag(String testTag);
     method public static androidx.ui.test.SemanticsNodeInteraction findByText(String text, boolean ignoreCase = false);
   }

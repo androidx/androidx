@@ -47,13 +47,26 @@ fun findAllByTag(testTag: String): List<SemanticsNodeInteraction> {
 }
 
 /**
- * Finds a component by the given text.
+ * Finds a component with label that matches the given text.
  *
  * For usage patterns see [SemanticsNodeInteraction]
+ * @see findBySubstring to search by substring instead of via exact match.
  */
 fun findByText(text: String, ignoreCase: Boolean = false): SemanticsNodeInteraction {
     return find {
-        getOrNull(SemanticsProperties.AccessibilityLabel).equals(text, ignoreCase)
+        hasText(text, ignoreCase)
+    }
+}
+
+/**
+ *  Finds a component with label that contains the given substring.
+ *
+ * For usage patterns see [SemanticsNodeInteraction]
+ * @see findByText to perform exact matches.
+ */
+fun findBySubstring(text: String, ignoreCase: Boolean = false): SemanticsNodeInteraction {
+    return find {
+        hasSubstring(text, ignoreCase)
     }
 }
 
@@ -62,6 +75,7 @@ fun findByText(text: String, ignoreCase: Boolean = false): SemanticsNodeInteract
  * This tries to match exactly one element and throws [AssertionError] if more than one is matched.
  *
  * For usage patterns see [SemanticsNodeInteraction]
+ * @see findAll to work with multiple elements
  */
 fun find(
     selector: SemanticsConfiguration.() -> Boolean
@@ -70,6 +84,13 @@ fun find(
         .findOne()
 }
 
+/**
+ * Finds all components that match the given condition.
+ *
+ * If you are working with elements that are not supposed to occur multiple times use [find]
+ * instead.
+ * @see find
+ */
 fun findAll(
     selector: SemanticsConfiguration.() -> Boolean
 ): List<SemanticsNodeInteraction> {
