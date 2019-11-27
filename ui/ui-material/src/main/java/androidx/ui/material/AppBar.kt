@@ -16,17 +16,12 @@
 package androidx.ui.material
 
 import androidx.compose.Composable
-import androidx.compose.state
+import androidx.compose.Immutable
 import androidx.ui.core.Alignment
 import androidx.ui.core.CurrentTextStyleProvider
 import androidx.ui.core.LastBaseline
-import androidx.ui.core.Layout
-import androidx.ui.core.LayoutTagParentData
-import androidx.ui.core.OnChildPositioned
-import androidx.ui.core.ParentData
 import androidx.ui.core.Text
 import androidx.ui.core.ambientDensity
-import androidx.ui.core.tag
 import androidx.ui.foundation.Clickable
 import androidx.ui.foundation.SimpleImage
 import androidx.ui.foundation.shape.RectangleShape
@@ -53,15 +48,13 @@ import androidx.ui.layout.Row
 import androidx.ui.layout.Spacer
 import androidx.ui.layout.Wrap
 import androidx.ui.material.BottomAppBar.FabConfiguration
-import androidx.ui.material.BottomAppBar.FabPosition
+import androidx.ui.material.BottomAppBar.FabDockedPosition
 import androidx.ui.material.ripple.Ripple
 import androidx.ui.material.surface.Surface
 import androidx.ui.semantics.Semantics
 import androidx.ui.text.TextStyle
 import androidx.ui.unit.Density
 import androidx.ui.unit.Dp
-import androidx.ui.unit.IntPx
-import androidx.ui.unit.IntPxSize
 import androidx.ui.unit.PxPosition
 import androidx.ui.unit.PxSize
 import androidx.ui.unit.dp
@@ -187,44 +180,48 @@ private fun BaseTopAppBar(
 
 object BottomAppBar {
     /**
-     * Configuration for a [FloatingActionButton] in a [BottomAppBar]
+     * Configuration for a [FloatingActionButton] in a [BottomAppBar].
      *
-     * When [cutoutShape] is provided, a cutout / notch will be 'carved' into the BottomAppBar, with
-     * some extra space on all sides.
+     * This is state that is usually passed down to BottomAppBar by [Scaffold] or by another
+     * scaffold-like component that is aware of [FloatingActionButton] existence and its size and
+     * position.
      *
-     * A typical cutout FAB may look like:
-     * @sample androidx.ui.material.samples.SimpleBottomAppBarCutoutFab
+     * When cutoutShape is provided in BottomAppBar, a cutout / notch will be 'carved' into the
+     * BottomAppBar based on FabConfiguration provided, with some extra space on all sides.
      *
-     * This also works with an extended FAB:
-     * @sample androidx.ui.material.samples.SimpleBottomAppBarExtendedCutoutFab
+     * If you use BottomAppBar with [Scaffold], a typical cutout for
+     * FAB may look like:
+     * @sample androidx.ui.material.samples.SimpleBottomAppBarCutoutWithScaffold
      *
-     * A more complex example with a fancy animating FAB that switches between cut corners and
-     * rounded corners:
-     * @sample androidx.ui.material.samples.SimpleBottomAppBarFancyAnimatingCutoutFab
-     *
-     * @param fabPosition the position of the [FloatingActionButton] attached to the BottomAppBar
-     * @param cutoutShape the shape of the cutout that will be added to the BottomAppBar - this
-     * should typically be the same shape used inside the [fab]. This shape will be drawn with an
-     * offset around all sides. If `null` no cutout will be drawn, and the [fab] will be placed on
-     * top of the BottomAppBar.
-     * @param fab the [FloatingActionButton] that will be attached to the BottomAppBar
+     * @param fabSize the size of the FAB that will be shown on top of BottomAppBar
+     * @param fabTopLeftPosition the top left coordinate of the [FloatingActionButton] on the
+     * screen for BottomAppBar to carve a right cutout if desired
+     * @param fabDockedPosition the docked position of the [FloatingActionButton] in the
+     * [BottomAppBar]
      */
+    @Immutable
     data class FabConfiguration(
-        internal val fabPosition: FabPosition = FabPosition.Center,
-        internal val cutoutShape: Shape? = null,
-        internal val fab: @Composable() () -> Unit
+        internal val fabSize: PxSize,
+        internal val fabTopLeftPosition: PxPosition,
+        internal val fabDockedPosition: FabDockedPosition
     )
 
     /**
-     * The possible positions for a [FloatingActionButton] attached to a [BottomAppBar].
+     * The possible positions for a [FloatingActionButton] docked to a [BottomAppBar].
+     *
+     * The layout of icons within the [BottomAppBar] will depend on the chosen position of the
+     * [FloatingActionButton].
      */
-    enum class FabPosition {
+    enum class FabDockedPosition {
         /**
-         * Positioned in the center of the [BottomAppBar]
+         * Positioned in the center of the [BottomAppBar]. A minimum of one and a maximum of two
+         * additional actions can be placed on the right side of the bar, and navigation icon will
+         * be placed on the left side.
          */
         Center,
         /**
-         * Positioned at the end of the [BottomAppBar]
+         * Positioned at the end of the [BottomAppBar]. A maximum of four additional
+         * actions will be shown on the left side of the bar and there should be no navigation icon.
          */
         End
     }
@@ -241,25 +238,28 @@ object BottomAppBar {
  * - `null`: the [navigationIcon] is displayed at the start, and the actions are displayed
  * at the end
  *
+ * - not null and has [FabDockedPosition.Center] fabPosition: the [navigationIcon] is displayed at
+ * the start, and the actions are displayed at the end
+ *
+ * - not null and has [FabDockedPosition.End] fabPosition: the actions are displayed at the start,
+ * and no navigation icon is supported - setting a navigation icon here will throw an exception.
+ *
+ * See [BottomAppBar anatomy](https://material.io/components/app-bars-bottom/#anatomy) for more
+ * information.
+ *
  * @sample androidx.ui.material.samples.SimpleBottomAppBarNoFab
- *
- * - [FabPosition.Center] aligned: the [navigationIcon] is displayed at the start, and the
- * actions are displayed at the end
- *
- * @sample androidx.ui.material.samples.SimpleBottomAppBarCenterFab
- *
- * - [FabPosition.End] aligned: the actions are displayed at the start, and no navigation
- * icon is supported - setting a navigation icon here will throw an exception.
- *
- * @sample androidx.ui.material.samples.SimpleBottomAppBarEndFab
- *
- * For examples using a cutout FAB, see [FabConfiguration], which controls the shape of the cutout.
  *
  * @param color An optional color for the BottomAppBar
  * @param navigationIcon The navigation icon displayed in the BottomAppBar. Note that if
- * [fabConfiguration] is [FabPosition.End] aligned, this parameter must be null / not set.
- * @param fabConfiguration The [FabConfiguration] that controls how / where
- * the [FloatingActionButton] is placed inside the BottomAppBar.
+ * [fabConfiguration] has fabPosition [FabDockedPosition.End], this parameter must be null /
+ * not set.
+ * @param fabConfiguration The [FabConfiguration] that controls where the [FloatingActionButton]
+ * is placed inside the BottomAppBar. This is used both to determine the cutout position for
+ * BottomAppBar (if cutoutShape is non-null) and to choose proper layout for BottomAppBar. If
+ * null, BottomAppBar will show no cutout and no-FAB layout of icons.
+ * @param cutoutShape the shape of the cutout that will be added to the BottomAppBar - this
+ * should typically be the same shape used inside the [FloatingActionButton]. This shape will be
+ * drawn with an offset around all sides. If null, where will be no cutout.
  * @param actionData A list of data representing the actions to be displayed at the end of
  * the BottomAppBar. Any remaining actions that do not fit on the BottomAppBar should typically be
  * displayed in an overflow menu at the end. This list will be transformed into icons / overflow
@@ -276,93 +276,46 @@ fun <T> BottomAppBar(
     color: Color = MaterialTheme.colors().primary,
     navigationIcon: @Composable() (() -> Unit)? = null,
     fabConfiguration: FabConfiguration? = null,
+    cutoutShape: Shape? = null,
     actionData: List<T> = emptyList(),
     action: @Composable() (T) -> Unit = {}
     // TODO: support overflow menu here with the remainder of the list
 ) {
-    require(navigationIcon == null || fabConfiguration?.fabPosition != FabPosition.End) {
+    require(
+        fabConfiguration == null || navigationIcon == null ||
+                fabConfiguration.fabDockedPosition != FabDockedPosition.End
+    ) {
         "Using a navigation icon with an end-aligned FloatingActionButton is not supported"
     }
-
     if (fabConfiguration == null) {
         BaseBottomAppBar(
             color = color,
             startContent = navigationIcon,
-            fabContainer = null,
-            endContent = getActions(actionData, MaxIconsInBottomAppBarNoFab, action)
+            endContent = getActions(actionData, MaxIconsInBottomAppBarNoFab, action),
+            shape = RectangleShape
         )
-        return
-    }
-
-    // TODO: this causes an unfortunate frame lag as we need to position the fab before we can
-    // know where to draw the cutout - when we have a better way of doing this synchronously we
-    // should fix this.
-    val bottomAppBarCutoutShape = state<BottomAppBarCutoutShape?> { null }
-
-    val fab = if (fabConfiguration.cutoutShape == null) {
-        fabConfiguration.fab
     } else {
-        @Composable {
-            OnChildPositioned(onPositioned = { coords ->
-                val shape = BottomAppBarCutoutShape(
-                    fabConfiguration.cutoutShape,
-                    coords.position,
-                    coords.size
+        val shape =
+            if (cutoutShape != null) {
+                BottomAppBarCutoutShape(
+                    cutoutShape, fabConfiguration.fabTopLeftPosition, fabConfiguration.fabSize
                 )
-                if (bottomAppBarCutoutShape.value != shape) {
-                    bottomAppBarCutoutShape.value = shape
-                }
-            }, children = fabConfiguration.fab)
-        }
-    }
-
-    val shape = bottomAppBarCutoutShape.value ?: RectangleShape
-
-    when (fabConfiguration.fabPosition) {
-        FabPosition.End -> BaseBottomAppBar(
-            color = color,
-            startContent = getActions(actionData, MaxIconsInBottomAppBarEndFab, action),
-            fabContainer = { FabContainerLayout(Alignment.CenterRight, fab) },
-            endContent = null,
-            shape = shape
-        )
-        FabPosition.Center -> BaseBottomAppBar(
-            color = color,
-            startContent = navigationIcon,
-            fabContainer = { FabContainerLayout(Alignment.Center, fab) },
-            endContent = getActions(actionData, MaxIconsInBottomAppBarCenterFab, action),
-            shape = shape
-        )
-    }
-}
-
-// TODO: cleanup when expanded width layouts are supported natively b/140408477
-/**
- * Helper layout that takes up the full width of the app bar, with height equal to the [fab] height.
- * This allows us to use [OnChildPositioned] to get the fab position relative to the app bar, so
- * we can position the cutout in the correct place.
- */
-@Composable
-private fun FabContainerLayout(alignment: Alignment, fab: @Composable() () -> Unit) {
-    Layout(fab) { measurables, constraints ->
-        check(measurables.size == 1) { "Only one child is supported in the FAB container." }
-        val fabPlaceable = measurables.first().measure(constraints)
-        val width = constraints.maxWidth
-        val height = fabPlaceable.height
-
-        // FAB should be offset from the start / end of the app bar
-        val padding = AppBarPadding.toIntPx()
-
-        val fabAlignmentSpace = IntPxSize(
-            width = width - fabPlaceable.width - padding - padding,
-            height = height - fabPlaceable.height
-        )
-
-        val fabPosition = alignment.align(fabAlignmentSpace)
-        layout(width, height) {
-            // Adjust for the padding we added
-            val xPosition = fabPosition.x + padding
-            fabPlaceable.place(xPosition, fabPosition.y)
+            } else {
+                RectangleShape
+            }
+        when (fabConfiguration.fabDockedPosition) {
+            FabDockedPosition.End -> BaseBottomAppBar(
+                color = color,
+                startContent = getActions(actionData, MaxIconsInBottomAppBarEndFab, action),
+                endContent = null,
+                shape = shape
+            )
+            FabDockedPosition.Center -> BaseBottomAppBar(
+                color = color,
+                startContent = navigationIcon,
+                endContent = getActions(actionData, MaxIconsInBottomAppBarCenterFab, action),
+                shape = shape
+            )
         }
     }
 }
@@ -597,25 +550,6 @@ internal fun calculateRoundedEdgeIntercept(
 
 @Composable
 private fun BaseBottomAppBar(
-    color: Color = MaterialTheme.colors().primary,
-    startContent: @Composable() (() -> Unit)?,
-    fabContainer: @Composable() (() -> Unit)?,
-    shape: Shape = RectangleShape,
-    endContent: @Composable() (() -> Unit)?
-) {
-    val appBar = @Composable {
-        BaseBottomAppBarWithoutFab(color, shape, startContent, endContent)
-    }
-
-    if (fabContainer == null) {
-        appBar()
-    } else {
-        BottomAppBarStack(appBar = appBar, fab = fabContainer)
-    }
-}
-
-@Composable
-private fun BaseBottomAppBarWithoutFab(
     color: Color,
     shape: Shape,
     startContent: @Composable() (() -> Unit)?,
@@ -631,49 +565,6 @@ private fun BaseBottomAppBarWithoutFab(
                     Wrap(alignment = Alignment.Center, children = endContent)
                 }
             }
-        }
-    }
-}
-
-/**
- * Simple `Stack` implementation that places [fab] on top (z-axis) of [appBar], with the midpoint
- * of the [fab] aligned to the top edge of the [appBar].
- *
- * This is needed as we want the total height of the BottomAppBar to be equal to the height of
- * [appBar] + half the height of [fab], which is only possible with a custom layout.
- */
-@Composable
-private fun BottomAppBarStack(appBar: @Composable() () -> Unit, fab: @Composable() () -> Unit) {
-    Layout({
-        ParentData(
-            object : LayoutTagParentData {
-                override val tag: Any = "appBar"
-            },
-            appBar
-        )
-        ParentData(
-            object : LayoutTagParentData {
-                override val tag: Any = "fab"
-            },
-            fab
-        )
-    }) { measurables, constraints ->
-        val appBarPlaceable = measurables.first { it.tag == "appBar" }.measure(constraints)
-        val fabPlaceable = measurables.first { it.tag == "fab" }.measure(constraints)
-
-        val layoutWidth = appBarPlaceable.width
-        // Total height is the app bar height + half the fab height
-        val layoutHeight = appBarPlaceable.height + (fabPlaceable.height / 2)
-
-        val appBarVerticalOffset = layoutHeight - appBarPlaceable.height
-
-        // Position the children.
-        layout(layoutWidth, layoutHeight) {
-            // Place app bar in the bottom left
-            appBarPlaceable.place(IntPx.Zero, appBarVerticalOffset)
-
-            // Place fab in the top left
-            fabPlaceable.place(IntPx.Zero, IntPx.Zero)
         }
     }
 }
