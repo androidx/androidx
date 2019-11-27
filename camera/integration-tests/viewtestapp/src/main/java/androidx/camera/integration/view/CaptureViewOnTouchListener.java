@@ -36,9 +36,9 @@ import androidx.camera.core.ImageCapture.ImageCaptureError;
 import androidx.camera.core.ImageCapture.OnImageSavedCallback;
 import androidx.camera.core.VideoCapture.OnVideoSavedCallback;
 import androidx.camera.core.VideoCapture.VideoCaptureError;
-import androidx.camera.core.impl.utils.executor.CameraXExecutors;
 import androidx.camera.view.CameraView;
 import androidx.camera.view.CameraView.CaptureMode;
+import androidx.core.content.ContextCompat;
 
 import java.io.File;
 import java.text.SimpleDateFormat;
@@ -104,7 +104,7 @@ class CaptureViewOnTouchListener
         if (mCameraView.getCaptureMode() == CaptureMode.IMAGE
                 || mCameraView.getCaptureMode() == CaptureMode.MIXED) {
             mCameraView.takePicture(createNewFile(PHOTO_EXTENSION),
-                    CameraXExecutors.mainThreadExecutor(), this);
+                    ContextCompat.getMainExecutor(mCameraView.getContext()), this);
         }
     }
 
@@ -113,7 +113,7 @@ class CaptureViewOnTouchListener
         if (mCameraView.getCaptureMode() == CaptureMode.VIDEO
                 || mCameraView.getCaptureMode() == CaptureMode.MIXED) {
             mCameraView.startRecording(createNewFile(VIDEO_EXTENSION),
-                    CameraXExecutors.mainThreadExecutor(), this);
+                    ContextCompat.getMainExecutor(mCameraView.getContext()), this);
         }
     }
 

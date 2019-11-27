@@ -470,7 +470,7 @@ public class Preview extends UseCase {
          *             public void onFailure(Throwable t) {
          *                 // Should never fail
          *             }
-         *         }, CameraXExecutors.directExecutor());
+         *         }, Executors.newSingleThreadExecutor());
          *
          *         return surfaceFuture;
          *     }
