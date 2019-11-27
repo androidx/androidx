@@ -520,9 +520,9 @@ public class ImageCapture extends UseCase {
      * @param saveLocation       Location to store the newly captured image.
      * @param executor           The executor in which the listener callback methods will be run.
      * @param imageSavedCallback Callback to be called for the newly captured image.
-     * Maybe remove after https://issuetracker.google.com/135275901
-     * Todo: b/145130873 - Methods accepting `File` should also accept `FileDescriptor` or streams
      */
+    // Maybe remove after https://issuetracker.google.com/135275901
+    // Todo: b/145130873 - Methods accepting `File` should also accept `FileDescriptor` or streams
     @SuppressLint({"LambdaLast", "StreamFiles"})
     public void takePicture(@NonNull File saveLocation,
             @NonNull Executor executor,
@@ -543,9 +543,9 @@ public class ImageCapture extends UseCase {
      *                           be included in the EXIF.
      * @param executor           The executor in which the callback methods will be run.
      * @param imageSavedCallback Callback to be called for the newly captured image.
-     * Maybe remove after https://issuetracker.google.com/135275901
-     * Todo: b/145130873 - Methods accepting `File` should also accept `FileDescriptor` or streams
      */
+    // Maybe remove after https://issuetracker.google.com/135275901
+    // Todo: b/145130873 - Methods accepting `File` should also accept `FileDescriptor` or streams
     @SuppressLint({"LambdaLast", "StreamFiles"})
     public void takePicture(
             final @NonNull File saveLocation,
@@ -1169,8 +1169,8 @@ public class ImageCapture extends UseCase {
          * Called when an image has been successfully saved.
          *
          * @param file The file object which the image is saved to
-         * Todo: b/145130873 - Methods accepting `File` should also accept `FileDescriptor`
          */
+        // Todo: b/145130873 - Methods accepting `File` should also accept `FileDescriptor`
         @SuppressLint("StreamFiles")
         void onImageSaved(@NonNull File file);
 
