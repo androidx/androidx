@@ -20,22 +20,52 @@ import androidx.ui.core.semantics.SemanticsConfiguration
 import androidx.ui.core.semantics.getOrNull
 import androidx.ui.foundation.semantics.FoundationSemanticsProperties
 import androidx.ui.semantics.SemanticsActions
+import androidx.ui.semantics.SemanticsProperties
 
 /**
- * Verifies that a component is checkable.
+ * Return whether the component is checkable.
  */
 val SemanticsConfiguration.isToggleable: Boolean
     get() = contains(FoundationSemanticsProperties.ToggleableState)
 
+/**
+ * Return whether the component has a semantics click action defined.
+ */
 val SemanticsConfiguration.hasClickAction: Boolean
     get() = SemanticsActions.OnClick in this
 
+/**
+ * Return whether the component has a semantics scrollable action defined.
+ */
 val SemanticsConfiguration.hasScrollAction: Boolean
     get() = SemanticsActions.ScrollTo in this
 
+/**
+ * Returns whether the component's label matches exactly to the given text.
+ *
+ * @param text Text to match.
+ * @param ignoreCase Whether case should be ignored.
+ * @see hasSubstring
+ */
+fun SemanticsConfiguration.hasText(text: String, ignoreCase: Boolean = false): Boolean {
+    return getOrNull(SemanticsProperties.AccessibilityLabel).equals(text, ignoreCase)
+}
+
+/**
+ * Returns whether the component's label contains the given substring.
+ *
+ * @param substring Substring to check.
+ * @param ignoreCase Whether case should be ignored.
+ * @see hasText
+ */
+fun SemanticsConfiguration.hasSubstring(substring: String, ignoreCase: Boolean = false): Boolean {
+    return getOrNull(SemanticsProperties.AccessibilityLabel)?.contains(substring, ignoreCase)
+        ?: false
+}
+
 // TODO(ryanmentley/pavlis): Do we want these convenience functions?
 /**
- * Verifies that a component is in a mutually exclusive group - that is,
+ * Verifies that the component is in a mutually exclusive group - that is,
  * that [FoundationSemanticsProperties.InMutuallyExclusiveGroup] is set to true
  *
  */
