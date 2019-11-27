@@ -26,11 +26,11 @@ import androidx.ui.core.withDensity
 import androidx.ui.layout.Center
 import androidx.ui.layout.Container
 import androidx.ui.layout.DpConstraints
-import androidx.ui.layout.FixedSpacer
-import androidx.ui.layout.HeightSpacer
-import androidx.ui.layout.WidthSpacer
+import androidx.ui.layout.Height
+import androidx.ui.layout.Spacer
+import androidx.ui.layout.Size
+import androidx.ui.layout.Width
 import com.google.common.truth.Truth
-import androidx.compose.Composable
 import org.junit.Test
 import org.junit.runner.RunWith
 import org.junit.runners.JUnit4
@@ -59,7 +59,7 @@ class SpacerTest : LayoutTest() {
                     size = position.size
                     drawLatch.countDown()
                 }) {
-                    FixedSpacer(width = width, height = height)
+                    Spacer(Size(width = width, height = height))
                 }
             }
         }
@@ -92,7 +92,7 @@ class SpacerTest : LayoutTest() {
                         size = position.size
                         drawLatch.countDown()
                     }) {
-                        FixedSpacer(width = width, height = height)
+                        Spacer(Size(width = width, height = height))
                     }
                 }
             }
@@ -117,7 +117,7 @@ class SpacerTest : LayoutTest() {
                     size = position.size
                     drawLatch.countDown()
                 }) {
-                    WidthSpacer(width = width)
+                    Spacer(Width(width))
                 }
             }
         }
@@ -149,7 +149,7 @@ class SpacerTest : LayoutTest() {
                         size = position.size
                         drawLatch.countDown()
                     }) {
-                        WidthSpacer(width = width)
+                        Spacer(Width(width))
                     }
                 }
             }
@@ -174,7 +174,7 @@ class SpacerTest : LayoutTest() {
                     size = position.size
                     drawLatch.countDown()
                 }) {
-                    HeightSpacer(height = height)
+                    Spacer(Height(height))
                 }
             }
         }
@@ -206,7 +206,7 @@ class SpacerTest : LayoutTest() {
                         size = position.size
                         drawLatch.countDown()
                     }) {
-                        HeightSpacer(height = height)
+                        Spacer(Height(height))
                     }
                 }
             }

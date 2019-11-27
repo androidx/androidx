@@ -23,9 +23,10 @@ import androidx.ui.core.Text
 import androidx.ui.core.dp
 import androidx.ui.layout.Column
 import androidx.ui.layout.Container
-import androidx.ui.layout.HeightSpacer
+import androidx.ui.layout.Height
+import androidx.ui.layout.Spacer
 import androidx.ui.layout.Row
-import androidx.ui.layout.WidthSpacer
+import androidx.ui.layout.Width
 import androidx.ui.layout.Wrap
 import androidx.ui.graphics.Color
 import androidx.ui.text.TextStyle
@@ -73,35 +74,35 @@ fun LayoutDemo() {
                 CyanSquare()
             }
         }
-        HeightSpacer(height = 24.dp)
+        Spacer(Height(24.dp))
         ContainerWithBackground(width = ExampleSize, color = lightGrey) {
             Row(ExpandedWidth, arrangement = Arrangement.Center) {
                 PurpleSquare()
                 CyanSquare()
             }
         }
-        HeightSpacer(height = 24.dp)
+        Spacer(Height(24.dp))
         ContainerWithBackground(width = ExampleSize, color = lightGrey) {
             Row(ExpandedWidth, arrangement = Arrangement.End) {
                 PurpleSquare()
                 CyanSquare()
             }
         }
-        HeightSpacer(height = 24.dp)
+        Spacer(Height(24.dp))
         ContainerWithBackground(width = ExampleSize, color = lightGrey) {
             Row(ExpandedWidth) {
                 PurpleSquare()
                 CyanSquare()
             }
         }
-        HeightSpacer(height = 24.dp)
+        Spacer(Height(24.dp))
         ContainerWithBackground(width = ExampleSize, color = lightGrey) {
             Row(ExpandedWidth) {
                 PurpleSquare(Gravity.Bottom)
                 CyanSquare(Gravity.Bottom)
             }
         }
-        HeightSpacer(height = 24.dp)
+        Spacer(Height(24.dp))
         Text(text = "Column", style = TextStyle(fontSize = 48.sp))
         Row(ExpandedWidth) {
             ContainerWithBackground(height = ExampleSize, color = lightGrey) {
@@ -110,28 +111,28 @@ fun LayoutDemo() {
                     CyanSquare()
                 }
             }
-            WidthSpacer(width = 24.dp)
+            Spacer(Width(24.dp))
             ContainerWithBackground(height = ExampleSize, color = lightGrey) {
                 Column(ExpandedHeight, arrangement = Arrangement.Center) {
                     PurpleSquare()
                     CyanSquare()
                 }
             }
-            WidthSpacer(width = 24.dp)
+            Spacer(Width(24.dp))
             ContainerWithBackground(height = ExampleSize, color = lightGrey) {
                 Column(ExpandedHeight, arrangement = Arrangement.End) {
                     PurpleSquare()
                     CyanSquare()
                 }
             }
-            WidthSpacer(width = 24.dp)
+            Spacer(Width(24.dp))
             ContainerWithBackground(height = ExampleSize, color = lightGrey) {
                 Column(ExpandedHeight) {
                     PurpleSquare()
                     CyanSquare()
                 }
             }
-            WidthSpacer(width = 24.dp)
+            Spacer(Width(24.dp))
             ContainerWithBackground(height = ExampleSize, color = lightGrey) {
                 Column(ExpandedHeight) {
                     PurpleSquare(Gravity.End)

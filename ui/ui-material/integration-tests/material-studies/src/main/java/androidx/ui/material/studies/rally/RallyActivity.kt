@@ -25,7 +25,8 @@ import androidx.ui.core.dp
 import androidx.ui.core.setContent
 import androidx.ui.foundation.VerticalScroller
 import androidx.ui.layout.Column
-import androidx.ui.layout.HeightSpacer
+import androidx.ui.layout.Height
+import androidx.ui.layout.Spacer
 import androidx.ui.layout.Spacing
 import androidx.ui.material.Tab
 import androidx.ui.material.TabRow
@@ -66,9 +67,9 @@ fun RallyBody() {
     VerticalScroller {
         Column(modifier = Spacing(16.dp)) {
             RallyAlertCard()
-            HeightSpacer(height = 10.dp)
+            Spacer(Height(10.dp))
             RallyAccountsOverviewCard()
-            HeightSpacer(height = 10.dp)
+            Spacer(Height(10.dp))
             RallyBillsOverviewCard()
         }
     }

@@ -55,11 +55,12 @@ import androidx.ui.layout.Column
 import androidx.ui.layout.Container
 import androidx.ui.layout.ExpandedHeight
 import androidx.ui.layout.ExpandedWidth
-import androidx.ui.layout.FixedSpacer
 import androidx.ui.layout.FlexColumn
 import androidx.ui.layout.FlexRow
 import androidx.ui.layout.Gravity
 import androidx.ui.layout.Row
+import androidx.ui.layout.Size
+import androidx.ui.layout.Spacer
 import androidx.ui.layout.Wrap
 import org.junit.Assert
 import org.junit.Assert.assertNotNull
@@ -937,8 +938,8 @@ class FlexTest : LayoutTest() {
         show {
             Center {
                 Row(ExpandedWidth) {
-                    FixedSpacer(width = sizeDp, height = sizeDp)
-                    FixedSpacer(width = (sizeDp * 2), height = (sizeDp * 2))
+                    Spacer(Size(width = sizeDp, height = sizeDp))
+                    Spacer(Size(width = (sizeDp * 2), height = (sizeDp * 2)))
 
                     OnPositioned(onPositioned = { coordinates ->
                         rowSize = coordinates.size
@@ -967,8 +968,8 @@ class FlexTest : LayoutTest() {
         show {
             Center {
                 Row {
-                    FixedSpacer(width = sizeDp, height = sizeDp)
-                    FixedSpacer(width = (sizeDp * 2), height = (sizeDp * 2))
+                    Spacer(Size(width = sizeDp, height = sizeDp))
+                    Spacer(Size(width = (sizeDp * 2), height = (sizeDp * 2)))
 
                     OnPositioned(onPositioned = { coordinates ->
                         rowSize = coordinates.size
@@ -1027,8 +1028,8 @@ class FlexTest : LayoutTest() {
         show {
             Center {
                 Row(ExpandedHeight) {
-                    FixedSpacer(width = sizeDp, height = sizeDp)
-                    FixedSpacer(width = (sizeDp * 2), height = (sizeDp * 2))
+                    Spacer(Size(width = sizeDp, height = sizeDp))
+                    Spacer(Size(width = (sizeDp * 2), height = (sizeDp * 2)))
 
                     OnPositioned(onPositioned = { coordinates ->
                         rowSize = coordinates.size
@@ -1057,8 +1058,8 @@ class FlexTest : LayoutTest() {
         show {
             Center {
                 Row {
-                    FixedSpacer(width = sizeDp, height = sizeDp)
-                    FixedSpacer(width = (sizeDp * 2), height = (sizeDp * 2))
+                    Spacer(Size(width = sizeDp, height = sizeDp))
+                    Spacer(Size(width = (sizeDp * 2), height = (sizeDp * 2)))
 
                     OnPositioned(onPositioned = { coordinates ->
                         rowSize = coordinates.size
@@ -1089,8 +1090,8 @@ class FlexTest : LayoutTest() {
             Center {
                 ConstrainedBox(constraints = DpConstraints(maxWidth = rowWidthDp)) {
                     Row(ExpandedWidth) {
-                        FixedSpacer(width = sizeDp, height = sizeDp)
-                        FixedSpacer(width = sizeDp * 2, height = sizeDp * 2)
+                        Spacer(Size(width = sizeDp, height = sizeDp))
+                        Spacer(Size(width = sizeDp * 2, height = sizeDp * 2))
 
                         OnPositioned(onPositioned = { coordinates ->
                             rowSize = coordinates.size
@@ -1155,8 +1156,8 @@ class FlexTest : LayoutTest() {
             Center {
                 ConstrainedBox(constraints = DpConstraints(minWidth = rowWidthDp)) {
                     Row {
-                        FixedSpacer(width = sizeDp, height = sizeDp)
-                        FixedSpacer(width = sizeDp * 2, height = sizeDp * 2)
+                        Spacer(Size(width = sizeDp, height = sizeDp))
+                        Spacer(Size(width = sizeDp * 2, height = sizeDp * 2))
 
                         OnPositioned(onPositioned = { coordinates ->
                             rowSize = coordinates.size
@@ -1188,8 +1189,8 @@ class FlexTest : LayoutTest() {
             Center {
                 ConstrainedBox(constraints = DpConstraints(maxHeight = rowHeightDp)) {
                     Row(ExpandedHeight) {
-                        FixedSpacer(width = sizeDp, height = sizeDp)
-                        FixedSpacer(width = sizeDp * 2, height = sizeDp * 2)
+                        Spacer(Size(width = sizeDp, height = sizeDp))
+                        Spacer(Size(width = sizeDp * 2, height = sizeDp * 2))
 
                         OnPositioned(onPositioned = { coordinates ->
                             rowSize = coordinates.size
@@ -1221,8 +1222,8 @@ class FlexTest : LayoutTest() {
             Center {
                 ConstrainedBox(constraints = DpConstraints(minHeight = rowHeightDp)) {
                     Row {
-                        FixedSpacer(width = sizeDp, height = sizeDp)
-                        FixedSpacer(width = sizeDp * 2, height = sizeDp * 2)
+                        Spacer(Size(width = sizeDp, height = sizeDp))
+                        Spacer(Size(width = sizeDp * 2, height = sizeDp * 2))
 
                         OnPositioned(onPositioned = { coordinates ->
                             rowSize = coordinates.size
@@ -1385,8 +1386,8 @@ class FlexTest : LayoutTest() {
         show {
             Center {
                 Column(ExpandedHeight) {
-                    FixedSpacer(width = sizeDp, height = sizeDp)
-                    FixedSpacer(width = (sizeDp * 2), height = (sizeDp * 2))
+                    Spacer(Size(width = sizeDp, height = sizeDp))
+                    Spacer(Size(width = (sizeDp * 2), height = (sizeDp * 2)))
 
                     OnPositioned(onPositioned = { coordinates ->
                         columnSize = coordinates.size
@@ -1415,8 +1416,8 @@ class FlexTest : LayoutTest() {
         show {
             Center {
                 Column {
-                    FixedSpacer(width = sizeDp, height = sizeDp)
-                    FixedSpacer(width = (sizeDp * 2), height = (sizeDp * 2))
+                    Spacer(Size(width = sizeDp, height = sizeDp))
+                    Spacer(Size(width = (sizeDp * 2), height = (sizeDp * 2)))
 
                     OnPositioned(onPositioned = { coordinates ->
                         columnSize = coordinates.size
@@ -1475,8 +1476,8 @@ class FlexTest : LayoutTest() {
         show {
             Center {
                 Column(ExpandedWidth) {
-                    FixedSpacer(width = sizeDp, height = sizeDp)
-                    FixedSpacer(width = (sizeDp * 2), height = (sizeDp * 2))
+                    Spacer(Size(width = sizeDp, height = sizeDp))
+                    Spacer(Size(width = (sizeDp * 2), height = (sizeDp * 2)))
 
                     OnPositioned(onPositioned = { coordinates ->
                         columnSize = coordinates.size
@@ -1505,8 +1506,8 @@ class FlexTest : LayoutTest() {
         show {
             Center {
                 Column {
-                    FixedSpacer(width = sizeDp, height = sizeDp)
-                    FixedSpacer(width = (sizeDp * 2), height = (sizeDp * 2))
+                    Spacer(Size(width = sizeDp, height = sizeDp))
+                    Spacer(Size(width = (sizeDp * 2), height = (sizeDp * 2)))
 
                     OnPositioned(onPositioned = { coordinates ->
                         columnSize = coordinates.size
@@ -1537,8 +1538,8 @@ class FlexTest : LayoutTest() {
             Center {
                 ConstrainedBox(constraints = DpConstraints(maxHeight = columnHeightDp)) {
                     Column(ExpandedHeight) {
-                        FixedSpacer(width = sizeDp, height = sizeDp)
-                        FixedSpacer(width = sizeDp * 2, height = sizeDp * 2)
+                        Spacer(Size(width = sizeDp, height = sizeDp))
+                        Spacer(Size(width = sizeDp * 2, height = sizeDp * 2))
 
                         OnPositioned(onPositioned = { coordinates ->
                             columnSize = coordinates.size
@@ -1603,8 +1604,8 @@ class FlexTest : LayoutTest() {
             Center {
                 ConstrainedBox(constraints = DpConstraints(minHeight = columnHeightDp)) {
                     Column {
-                        FixedSpacer(width = sizeDp, height = sizeDp)
-                        FixedSpacer(width = sizeDp * 2, height = sizeDp * 2)
+                        Spacer(Size(width = sizeDp, height = sizeDp))
+                        Spacer(Size(width = sizeDp * 2, height = sizeDp * 2))
 
                         OnPositioned(onPositioned = { coordinates ->
                             columnSize = coordinates.size
@@ -1636,8 +1637,8 @@ class FlexTest : LayoutTest() {
             Center {
                 ConstrainedBox(constraints = DpConstraints(maxWidth = columnWidthDp)) {
                     Column(ExpandedWidth) {
-                        FixedSpacer(width = sizeDp, height = sizeDp)
-                        FixedSpacer(width = sizeDp * 2, height = sizeDp * 2)
+                        Spacer(Size(width = sizeDp, height = sizeDp))
+                        Spacer(Size(width = sizeDp * 2, height = sizeDp * 2))
 
                         OnPositioned(onPositioned = { coordinates ->
                             columnSize = coordinates.size
@@ -1669,8 +1670,8 @@ class FlexTest : LayoutTest() {
             Center {
                 ConstrainedBox(constraints = DpConstraints(minWidth = columnWidthDp)) {
                     Column {
-                        FixedSpacer(width = sizeDp, height = sizeDp)
-                        FixedSpacer(width = sizeDp * 2, height = sizeDp * 2)
+                        Spacer(Size(width = sizeDp, height = sizeDp))
+                        Spacer(Size(width = sizeDp * 2, height = sizeDp * 2))
 
                         OnPositioned(onPositioned = { coordinates ->
                             columnSize = coordinates.size
@@ -2440,7 +2441,7 @@ class FlexTest : LayoutTest() {
                             containerSize.value = coordinates.size
                             layoutLatch.countDown()
                         }) {
-                            FixedSpacer(width = childSizeDp, height = childSizeDp)
+                            Spacer(Size(width = childSizeDp, height = childSizeDp))
                         }
                     }
                 }
@@ -2469,7 +2470,7 @@ class FlexTest : LayoutTest() {
                             containerSize.value = coordinates.size
                             layoutLatch.countDown()
                         }) {
-                            FixedSpacer(width = childSizeDp, height = childSizeDp)
+                            Spacer(Size(width = childSizeDp, height = childSizeDp))
                         }
                     }
                 }

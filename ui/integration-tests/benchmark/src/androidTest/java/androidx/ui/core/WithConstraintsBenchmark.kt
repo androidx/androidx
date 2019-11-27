@@ -26,7 +26,7 @@ import androidx.ui.benchmark.toggleStateBenchmarkComposeMeasureLayout
 import androidx.ui.benchmark.toggleStateBenchmarkMeasureLayout
 import androidx.ui.core.Placeable.PlacementScope.place
 import androidx.ui.layout.Container
-import androidx.ui.layout.FixedSpacer
+import androidx.ui.layout.Spacer
 import androidx.ui.test.ComposeTestCase
 import androidx.ui.test.ToggleableTestCase
 import org.junit.Rule
@@ -66,7 +66,7 @@ private class NoWithConstraintsTestCase : ComposeTestCase, ToggleableTestCase {
         val size = +state { 200.dp }
         this.state = size
         Container(width = 300.dp, height = 300.dp) {
-            FixedSpacer(width = size.value, height = size.value)
+            Spacer(androidx.ui.layout.Size(width = size.value, height = size.value))
         }
     }
 
@@ -85,7 +85,7 @@ private class WithConstraintsTestCase : ComposeTestCase, ToggleableTestCase {
         this.state = size
         WithConstraints {
             Container(width = 300.dp, height = 300.dp) {
-                FixedSpacer(width = size.value, height = size.value)
+                Spacer(androidx.ui.layout.Size(width = size.value, height = size.value))
             }
         }
     }

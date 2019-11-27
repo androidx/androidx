@@ -29,7 +29,8 @@ import androidx.ui.layout.Column
 import androidx.ui.layout.Container
 import androidx.ui.layout.ExpandedHeight
 import androidx.ui.layout.ExpandedWidth
-import androidx.ui.layout.HeightSpacer
+import androidx.ui.layout.Height
+import androidx.ui.layout.Spacer
 import androidx.ui.layout.Row
 import androidx.ui.material.BottomDrawerLayout
 import androidx.ui.material.Button
@@ -84,7 +85,7 @@ private fun YourDrawerContent(onStateChange: (DrawerState) -> Unit) {
     Container(expanded = true) {
         Column(ExpandedHeight) {
             Text(text = "Drawer Content")
-            HeightSpacer(20.dp)
+            Spacer(Height(20.dp))
             Button(
                 text = "Close Drawer",
                 onClick = { onStateChange(DrawerState.Closed) })
@@ -97,7 +98,7 @@ private fun YourAppContent(text: String, onDrawerStateChange: (DrawerState) -> U
     Center {
         Column(ExpandedHeight) {
             Text(text = text)
-            HeightSpacer(20.dp)
+            Spacer(Height(20.dp))
             Button(
                 text = "Click to open",
                 onClick = { onDrawerStateChange(DrawerState.Opened) }
