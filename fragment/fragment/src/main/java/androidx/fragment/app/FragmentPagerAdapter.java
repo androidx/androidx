@@ -65,8 +65,11 @@ import java.lang.annotation.RetentionPolicy;
  *
  * {@sample frameworks/support/samples/Support4Demos/src/main/res/layout/fragment_pager_list.xml
  *      complete}
+ *
+ * @deprecated Switch to {@link androidx.viewpager2.widget.ViewPager2} and use
+ * {@link androidx.viewpager2.adapter.FragmentStateAdapter} instead.
  */
-@SuppressWarnings("deprecation")
+@Deprecated
 public abstract class FragmentPagerAdapter extends PagerAdapter {
     private static final String TAG = "FragmentPagerAdapter";
     private static final boolean DEBUG = false;

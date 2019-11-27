@@ -67,8 +67,12 @@ import java.util.ArrayList;
  *
  * {@sample frameworks/support/samples/Support4Demos/src/main/res/layout/fragment_pager_list.xml
  *      complete}
+ *
+ * @deprecated Switch to {@link androidx.viewpager2.widget.ViewPager2} and use
+ * {@link androidx.viewpager2.adapter.FragmentStateAdapter} instead.
  */
 @SuppressWarnings("deprecation")
+@Deprecated
 public abstract class FragmentStatePagerAdapter extends PagerAdapter {
     private static final String TAG = "FragmentStatePagerAdapt";
     private static final boolean DEBUG = false;
