@@ -80,6 +80,13 @@ interface Owner {
     fun onInvalidate(drawNode: DrawNode)
 
     /**
+     * Called from a [LayoutNode], this registers with the underlying view system that a
+     * redraw of the given [layoutNode] is required. It may cause other nodes to redraw, if
+     * necessary. Note that [LayoutNode]s are able to draw due to draw modifiers applied to them.
+     */
+    fun onInvalidate(layoutNode: LayoutNode)
+
+    /**
      * Called by [LayoutNode] to indicate the new size of [layoutNode].
      * The owner may need to track updated layouts.
      */
@@ -850,7 +857,7 @@ class LayoutNode : ComponentNode(), Measurable {
         ): IntPx
     }
 
-    abstract class NoIntristicsMeasureBlocks(private val error: String) : MeasureBlocks {
+    abstract class NoIntrinsicsMeasureBlocks(private val error: String) : MeasureBlocks {
         override fun minIntrinsicWidth(
             densityScope: DensityScope,
             measurables: List<IntrinsicMeasurable>,
@@ -1443,15 +1450,27 @@ class LayoutNode : ComponentNode(), Measurable {
         requestRemeasure()
         parentDataDirty = true
         parentLayoutNode?.layoutChildrenDirty = true
+        onAttach?.invoke(owner)
     }
+
+    /**
+     * Callback to be executed whenever the [LayoutNode] is attached to a new [Owner].
+     */
+    var onAttach: ((Owner) -> Unit)? = null
 
     override fun detach() {
         parentLayoutNode?.layoutChildrenDirty = true
         parentLayoutNode?.requestRemeasure()
         parentDataDirty = true
         alignmentLinesQueryOwner = null
+        onDetach?.invoke(owner!!)
         super.detach()
     }
+
+    /**
+     * Callback to be executed whenever the [LayoutNode] is detached from an [Owner].
+     */
+    var onDetach: ((Owner) -> Unit)? = null
 
     override fun measure(constraints: Constraints): Placeable {
         val owner = requireOwner()
@@ -1581,10 +1600,17 @@ class LayoutNode : ComponentNode(), Measurable {
     }
 
     /**
-     * Used by `ComplexLayoutState` to request a new measurement + layout pass from the owner.
+     * Used to request a new measurement + layout pass from the owner.
      */
     fun requestRemeasure() {
         owner?.onRequestMeasure(this)
+    }
+
+    /**
+     * Used to request a new draw pass from the owner.
+     */
+    fun onInvalidate() {
+        owner?.onInvalidate(this)
     }
 
     /**
@@ -1649,7 +1675,7 @@ class LayoutNode : ComponentNode(), Measurable {
             }
         }
 
-        private val ErrorMeasureBlocks = object : NoIntristicsMeasureBlocks(
+        private val ErrorMeasureBlocks = object : NoIntrinsicsMeasureBlocks(
             error = "Undefined intrinsics block and it is required"
         ) {
             override fun measure(

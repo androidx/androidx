@@ -112,14 +112,7 @@ fun Activity.setContent(
         .getChildAt(0) as? AndroidComposeView
         ?: AndroidComposeView(this).also { setContentView(it) }
 
-    // If this value is inlined where it is used, an error that includes 'Precise Reference:
-    // kotlinx.coroutines.Dispatchers' not instance of 'Precise Reference: androidx.compose.Ambient'.
-    val coroutineContext = Dispatchers.Main
-    return Compose.composeInto(composeView.root, this) {
-        WrapWithAmbients(composeView, this, coroutineContext) {
-            WrapWithSelectionContainer(content)
-        }
-    }
+    return doSetContent(composeView, this, content)
 }
 
 /**
@@ -142,14 +135,17 @@ fun ViewGroup.setContent(
     val composeView =
         if (childCount > 0) { getChildAt(0) as? AndroidComposeView } else { removeAllViews(); null }
         ?: AndroidComposeView(context).also { addView(it) }
+    return doSetContent(composeView, context, content)
+}
 
-    // If this value is inlined where it is used, an error that includes 'Precise Reference:
-    // kotlinx.coroutines.Dispatchers' not instance of 'Precise Reference: androidx.compose.Ambient'.
-    val coroutineContext = Dispatchers.Main
-    return Compose.composeInto(composeView.root, context) {
-        WrapWithAmbients(composeView, context, coroutineContext) {
-            WrapWithSelectionContainer(content)
-        }
+private fun doSetContent(
+    composeView: AndroidComposeView,
+    context: Context,
+    content: @Composable() () -> Unit
+): Composition = Compose.composeInto(composeView.root, context) {
+    remember { composer.adapters?.register(AndroidViewAdapter) }
+    WrapWithAmbients(composeView, context, Dispatchers.Main) {
+        WrapWithSelectionContainer(content)
     }
 }
 
