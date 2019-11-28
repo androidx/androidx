@@ -276,4 +276,6 @@
 
     <string name="menu_item_icon_tinting">AppCompat/Menu Item Icons</string>
     <string name="popup_group_dividers">Display group dividers</string>
+
+    <string name="webview">WebView</string>
 </resources>

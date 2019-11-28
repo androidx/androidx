@@ -94,8 +94,7 @@ public class AppCompatActivity extends FragmentActivity implements AppCompatCall
 
     @Override
     protected void attachBaseContext(Context newBase) {
-        super.attachBaseContext(newBase);
-        getDelegate().attachBaseContext(newBase);
+        super.attachBaseContext(getDelegate().attachBaseContext2(newBase));
     }
 
     @Override

@@ -72,6 +72,7 @@ import android.widget.FrameLayout;
 import android.widget.PopupWindow;
 import android.widget.TextView;
 
+import androidx.annotation.CallSuper;
 import androidx.annotation.IdRes;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
@@ -136,17 +137,17 @@ class AppCompatDelegateImpl extends AppCompatDelegate
 
     private static final int[] sWindowBackgroundStyleable = {android.R.attr.windowBackground};
 
-    private static boolean sInstalledExceptionHandler;
-
     /**
-     * AppCompat selectively uses applyOverrideConfiguration() for DayNight functionality.
-     * Unfortunately the framework has a few bugs around Resources instances on SDKs 21-25,
+     * AppCompat selectively uses an override configuration for DayNight functionality.
+     * Unfortunately the framework has a few issues around Resources instances on SDKs 21-25,
      * resulting in the root Resources instance (i.e. Application) being modified when it
-     * shouldn't be. We can work around it by always calling applyOverrideConfiguration()
-     * where available.
+     * shouldn't be. We can work around it by always calling using an override configuration
+     * where available, to force a local resources instance being used.
      */
     private static final boolean sAlwaysOverrideConfiguration = Build.VERSION.SDK_INT >= 21
             && Build.VERSION.SDK_INT <= 25;
+
+    private static boolean sInstalledExceptionHandler;
 
     static final String EXCEPTION_HANDLER_MESSAGE_SUFFIX= ". If the resource you are"
             + " trying to use is a vector resource, you may be referencing it in an unsupported"
@@ -330,11 +331,13 @@ class AppCompatDelegateImpl extends AppCompatDelegate
         AppCompatDrawableManager.preload();
     }
 
+    @NonNull
     @Override
-    public void attachBaseContext(Context context) {
+    @CallSuper
+    public Context attachBaseContext2(@NonNull final Context baseContext) {
         final Configuration appConfig =
-                context.getApplicationContext().getResources().getConfiguration();
-        final Configuration baseConfig = context.getResources().getConfiguration();
+                baseContext.getApplicationContext().getResources().getConfiguration();
+        final Configuration baseConfig = baseContext.getResources().getConfiguration();
         final Configuration configOverlay;
         if (!appConfig.equals(baseConfig)) {
             configOverlay = generateConfigDelta(appConfig, baseConfig);
@@ -350,9 +353,27 @@ class AppCompatDelegateImpl extends AppCompatDelegate
             }
         }
 
-        // Activity.recreate() cannot be called before attach is complete.
-        applyDayNight(false, configOverlay);
         mBaseContextAttached = true;
+
+        if (Build.VERSION.SDK_INT >= 17) {
+            @ApplyableNightMode final int modeToApply = mapNightMode(baseContext,
+                    calculateNightMode());
+            final Configuration config = createOverrideConfigurationForDayNight(
+                    baseContext, modeToApply, configOverlay);
+
+            final int currentNightMode = baseContext.getResources().getConfiguration().uiMode
+                    & Configuration.UI_MODE_NIGHT_MASK;
+            final int newNightMode = config.uiMode & Configuration.UI_MODE_NIGHT_MASK;
+
+            if (sAlwaysOverrideConfiguration || currentNightMode != newNightMode) {
+                // If the target night mode is different to the new night mode, return a
+                // configuration context with the new config.
+                return super.attachBaseContext2(baseContext.createConfigurationContext(config));
+            }
+        }
+
+        // Otherwise just return the original base context
+        return super.attachBaseContext2(baseContext);
     }
 
     @Override
@@ -363,7 +384,7 @@ class AppCompatDelegateImpl extends AppCompatDelegate
 
         // Our implicit call to applyDayNight() should not recreate until after the Activity is
         // created
-        applyDayNight(false, null);
+        applyDayNight(false);
 
         // We lazily fetch the Window for Activities, to allow DayNight to apply in
         // attachBaseContext
@@ -518,7 +539,7 @@ class AppCompatDelegateImpl extends AppCompatDelegate
 
         // Re-apply Day/Night with the new configuration but disable recreations. Since this
         // configuration change has only just happened we can safely just update the resources now
-        applyDayNight(false, null);
+        applyDayNight(false);
     }
 
     @Override
@@ -2179,29 +2200,28 @@ class AppCompatDelegateImpl extends AppCompatDelegate
 
     @Override
     public boolean applyDayNight() {
-        return applyDayNight(true, null);
+        return applyDayNight(true);
     }
 
     @SuppressWarnings("deprecation")
-    private boolean applyDayNight(final boolean allowRecreation,
-            @Nullable Configuration configOverlay) {
+    private boolean applyDayNight(final boolean allowRecreation) {
         if (mIsDestroyed) {
             // If we're destroyed, ignore the call
             return false;
         }
 
         @NightMode final int nightMode = calculateNightMode();
-        @ApplyableNightMode final int modeToApply = mapNightMode(nightMode);
-        final boolean applied = updateForNightMode(modeToApply, allowRecreation, configOverlay);
+        @ApplyableNightMode final int modeToApply = mapNightMode(mContext, nightMode);
+        final boolean applied = updateForNightMode(modeToApply, allowRecreation);
 
         if (nightMode == MODE_NIGHT_AUTO_TIME) {
-            getAutoTimeNightModeManager().setup();
+            getAutoTimeNightModeManager(mContext).setup();
         } else if (mAutoTimeNightModeManager != null) {
             // Make sure we clean up the existing manager
             mAutoTimeNightModeManager.cleanup();
         }
         if (nightMode == MODE_NIGHT_AUTO_BATTERY) {
-            getAutoBatteryNightModeManager().setup();
+            getAutoBatteryNightModeManager(mContext).setup();
         } else if (mAutoBatteryNightModeManager != null) {
             // Make sure we clean up the existing manager
             mAutoBatteryNightModeManager.cleanup();
@@ -2225,7 +2245,7 @@ class AppCompatDelegateImpl extends AppCompatDelegate
 
     @SuppressWarnings("deprecation")
     @ApplyableNightMode
-    int mapNightMode(@NightMode final int mode) {
+    int mapNightMode(@NonNull Context context, @NightMode final int mode) {
         switch (mode) {
             case MODE_NIGHT_NO:
             case MODE_NIGHT_YES:
@@ -2234,16 +2254,16 @@ class AppCompatDelegateImpl extends AppCompatDelegate
                 return mode;
             case MODE_NIGHT_AUTO_TIME:
                 if (Build.VERSION.SDK_INT >= 23) {
-                    UiModeManager uiModeManager = mContext.getSystemService(UiModeManager.class);
+                    UiModeManager uiModeManager = context.getSystemService(UiModeManager.class);
                     if (uiModeManager.getNightMode() == UiModeManager.MODE_NIGHT_AUTO) {
                         // If we're set to AUTO and the system's auto night mode is already enabled,
                         // we'll just let the system handle it by returning FOLLOW_SYSTEM
                         return MODE_NIGHT_FOLLOW_SYSTEM;
                     }
                 }
-                return getAutoTimeNightModeManager().getApplyableNightMode();
+                return getAutoTimeNightModeManager(context).getApplyableNightMode();
             case MODE_NIGHT_AUTO_BATTERY:
-                return getAutoBatteryNightModeManager().getApplyableNightMode();
+                return getAutoBatteryNightModeManager(context).getApplyableNightMode();
             case MODE_NIGHT_UNSPECIFIED:
                 // If we don't have a mode specified, let the system handle it
                 return MODE_NIGHT_FOLLOW_SYSTEM;
@@ -2258,23 +2278,10 @@ class AppCompatDelegateImpl extends AppCompatDelegate
         return mLocalNightMode != MODE_NIGHT_UNSPECIFIED ? mLocalNightMode : getDefaultNightMode();
     }
 
-    /**
-     * Updates the {@link Resources} configuration {@code uiMode} with the
-     * chosen {@code UI_MODE_NIGHT} value.
-     *
-     * @param mode The new night mode to apply
-     * @param allowRecreation whether to attempt activity recreate
-     * @param configOverlay the developer-provided configuration overlay to use, if any
-     * @return true if an action has been taken (recreation, resources updating, etc)
-     */
-    private boolean updateForNightMode(@ApplyableNightMode final int mode,
-            final boolean allowRecreation, @Nullable Configuration configOverlay) {
-        boolean handled = false;
-
-        final Configuration appConfig = mContext.getApplicationContext()
-                .getResources().getConfiguration();
-        final int applicationNightMode = appConfig.uiMode & Configuration.UI_MODE_NIGHT_MASK;
-
+    @NonNull
+    private Configuration createOverrideConfigurationForDayNight(
+            @NonNull Context context, @ApplyableNightMode final int mode,
+            @Nullable Configuration configOverlay) {
         int newNightMode;
         switch (mode) {
             case MODE_NIGHT_YES:
@@ -2287,64 +2294,56 @@ class AppCompatDelegateImpl extends AppCompatDelegate
             case MODE_NIGHT_FOLLOW_SYSTEM:
                 // If we're following the system, we just use the system default from the
                 // application context
-                newNightMode = applicationNightMode;
+                final Configuration appConfig =
+                        context.getApplicationContext().getResources().getConfiguration();
+                newNightMode = appConfig.uiMode & Configuration.UI_MODE_NIGHT_MASK;
                 break;
         }
 
-        final boolean activityHandlingUiMode = isActivityManifestHandlingUiMode();
-
-        if ((sAlwaysOverrideConfiguration || newNightMode != applicationNightMode)
-                && !activityHandlingUiMode
-                && Build.VERSION.SDK_INT >= 17
-                && !mBaseContextAttached
-                && mHost instanceof android.view.ContextThemeWrapper) {
-            final android.view.ContextThemeWrapper host = (android.view.ContextThemeWrapper) mHost;
-
-            // If we're here then we can try and apply an override configuration on the Context.
-            final Configuration overrideConfig;
-            if (configOverlay != null) {
-                overrideConfig = new Configuration(configOverlay);
-            } else {
-                overrideConfig = new Configuration();
-                overrideConfig.fontScale = 0;
-            }
-            overrideConfig.uiMode =
-                    newNightMode | (overrideConfig.uiMode & ~Configuration.UI_MODE_NIGHT_MASK);
-
-            try {
-                if (DEBUG) {
-                    Log.d(TAG, "updateForNightMode. Applying override config: " + overrideConfig);
-                }
-                host.applyOverrideConfiguration(overrideConfig);
-                handled = true;
-            } catch (IllegalStateException e) {
-                // applyOverrideConfiguration throws an IllegalStateException if its resources
-                // have already been created. Since there's no way to check this beforehand we
-                // just have to try it and catch the exception. We only log if we're actually
-                // trying to apply a uiMode configuration though.
-                if (newNightMode != applicationNightMode) {
-                    Log.w(TAG, "updateForNightMode. Calling applyOverrideConfiguration() failed"
-                            + " with an exception. Will fall back to using"
-                            + " Resources.updateConfiguration()", e);
-                }
-                handled = false;
-            }
+        // If we're here then we can try and apply an override configuration on the Context.
+        final Configuration overrideConf = new Configuration();
+        overrideConf.fontScale = 0;
+        if (configOverlay != null) {
+            overrideConf.setTo(configOverlay);
         }
+        overrideConf.uiMode = newNightMode
+                | (overrideConf.uiMode & ~Configuration.UI_MODE_NIGHT_MASK);
+
+        return overrideConf;
+    }
+
+    /**
+     * Updates the {@link Resources} configuration {@code uiMode} with the
+     * chosen {@code UI_MODE_NIGHT} value.
+     *
+     * @param mode The new night mode to apply
+     * @param allowRecreation whether to attempt activity recreate
+     * @return true if an action has been taken (recreation, resources updating, etc)
+     */
+    private boolean updateForNightMode(@ApplyableNightMode final int mode,
+            final boolean allowRecreation) {
+        boolean handled = false;
+
+        final Configuration overrideConfig =
+                createOverrideConfigurationForDayNight(mContext, mode, null);
+
+        final boolean activityHandlingUiMode = isActivityManifestHandlingUiMode();
 
         final int currentNightMode = mContext.getResources().getConfiguration().uiMode
                 & Configuration.UI_MODE_NIGHT_MASK;
+        final int newNightMode = overrideConfig.uiMode & Configuration.UI_MODE_NIGHT_MASK;
 
-        if (!handled
-                && currentNightMode != newNightMode
+        if (currentNightMode != newNightMode
                 && allowRecreation
                 && !activityHandlingUiMode
                 && mBaseContextAttached
                 && (Build.VERSION.SDK_INT >= 17 || mCreated)
                 && mHost instanceof Activity) {
             // If we're an attached Activity, we can recreate to apply
-            // The SDK_INT check above is because applyOverrideConfiguration only exists on
-            // API 17+, so we don't want to get into an loop of infinite recreations.
-            // On < API 17 we need to use updateConfiguration before we're 'created'
+            // The SDK_INT check above is because createConfigurationContext(), called from
+            // attachBaseContext(), only exists on API 17+, so we don't want to get into an loop
+            // of infinite recreations.
+            // On < API 17 we need to use updateConfiguration() before we're 'created' (below)
             if (DEBUG) {
                 Log.d(TAG, "updateForNightMode. Recreating Activity");
             }
@@ -2357,8 +2356,7 @@ class AppCompatDelegateImpl extends AppCompatDelegate
             if (DEBUG) {
                 Log.d(TAG, "updateForNightMode. Updating resources config");
             }
-            updateResourcesConfigurationForNightMode(newNightMode, activityHandlingUiMode,
-                    configOverlay);
+            updateResourcesConfigurationForNightMode(newNightMode, activityHandlingUiMode, null);
             handled = true;
         }
 
@@ -2431,17 +2429,22 @@ class AppCompatDelegateImpl extends AppCompatDelegate
      */
     @NonNull
     @RestrictTo(LIBRARY)
+    @VisibleForTesting
     final AutoNightModeManager getAutoTimeNightModeManager() {
+        return getAutoTimeNightModeManager(mContext);
+    }
+
+    private AutoNightModeManager getAutoTimeNightModeManager(@NonNull Context context) {
         if (mAutoTimeNightModeManager == null) {
             mAutoTimeNightModeManager = new AutoTimeNightModeManager(
-                    TwilightManager.getInstance(mContext));
+                    TwilightManager.getInstance(context));
         }
         return mAutoTimeNightModeManager;
     }
 
-    private AutoNightModeManager getAutoBatteryNightModeManager() {
+    private AutoNightModeManager getAutoBatteryNightModeManager(@NonNull Context context) {
         if (mAutoBatteryNightModeManager == null) {
-            mAutoBatteryNightModeManager = new AutoBatteryNightModeManager(mContext);
+            mAutoBatteryNightModeManager = new AutoBatteryNightModeManager(context);
         }
         return mAutoBatteryNightModeManager;
     }
