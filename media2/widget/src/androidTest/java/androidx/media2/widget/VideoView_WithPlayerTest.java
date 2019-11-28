@@ -370,7 +370,7 @@ public class VideoView_WithPlayerTest extends MediaWidgetTestBase {
                 withAspectRatio(videoSizeFor1stItem.getWidth(), videoSizeFor1stItem.getHeight())));
 
         // seekTo instead of skipToNextItem (b/144876689)
-        playerWrapper.seekTo(Long.MAX_VALUE);
+        playerWrapper.seekTo(playerWrapper.getDurationMs());
         assertTrue(latchFor2ndItem.await(WAIT_TIME_MS, TimeUnit.MILLISECONDS));
         onView(instanceOf(VideoSurfaceView.class)).check(matches(
                 withAspectRatio(videoSizeFor2ndItem.getWidth(), videoSizeFor2ndItem.getHeight())));
