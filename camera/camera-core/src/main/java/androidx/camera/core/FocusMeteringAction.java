@@ -175,11 +175,19 @@ public final class FocusMeteringAction {
          * Adds another {@link MeteringPoint} with default mode {@link MeteringMode#AF} |
          * {@link MeteringMode#AE} | {@link MeteringMode#AWB}.
          *
+         * <p>The points added here will be appended in order after the point set in
+         * {@link FocusMeteringAction.Builder#from(MeteringPoint)} or
+         * {@link FocusMeteringAction.Builder#from(MeteringPoint, int)}.
+         *
          * <p>If more points are added than what current device supports for AF/AE/AWB, only the
-         * first region and then in order up to the number of regions supported by the device
-         * will be enabled. If it turns out no added points can be supported on the device, the
-         * returned {@link ListenableFuture} in
-         * {@link CameraControl#startFocusAndMetering(FocusMeteringAction)} will fail immediately.
+         * first point and then in order up to the number of points supported on the device
+         * will be enabled.
+         *
+         * <p>If none of the points is supported on the device, this
+         * {@link FocusMeteringAction} will cause
+         * {@link CameraControl#startFocusAndMetering(FocusMeteringAction)} to fail.
+         *
+         * @see CameraControl#startFocusAndMetering(FocusMeteringAction)
          */
         @NonNull
         public Builder addPoint(@NonNull MeteringPoint point) {
@@ -189,14 +197,19 @@ public final class FocusMeteringAction {
         /**
          * Adds another {@link MeteringPoint} with specified {@link MeteringMode}.
          *
-         * <p>If more points are added than what current device supports for AF/AE/AWB, only the
-         * first region and then in order up to the number of regions supported by the device
-         * will be enabled. If it turns out no added points can be supported on the device, the
-         * returned {@link ListenableFuture} in
-         * {@link CameraControl#startFocusAndMetering(FocusMeteringAction)} will fail immediately.
+         * <p>The points added here will be appended in order after the point set in
+         * {@link FocusMeteringAction.Builder#from(MeteringPoint)} or
+         * {@link FocusMeteringAction.Builder#from(MeteringPoint, int)}.
          *
-         * @param mode Must be a valid {@link MeteringMode}, otherwise an
-         *             {@link IllegalArgumentException} is thrown.
+         * <p>If more points are added than what current device supports for AF/AE/AWB, only the
+         * first point and then in order up to the number of points supported on the device
+         * will be enabled.
+         *
+         * <p>If none of the points is supported on the device, this
+         * {@link FocusMeteringAction} will cause
+         * {@link CameraControl#startFocusAndMetering(FocusMeteringAction)} to fail.
+         *
+         * @see CameraControl#startFocusAndMetering(FocusMeteringAction)
          */
         @NonNull
         public Builder addPoint(@NonNull MeteringPoint point, @MeteringMode int mode) {
