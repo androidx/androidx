@@ -27,7 +27,14 @@
                 <category android:name="androidx.ui.demos.SAMPLE_CODE" />
             </intent-filter>
         </activity>
-
+        <activity android:name=".ConstraintLayoutActivity"
+            android:configChanges="orientation|screenSize"
+            android:label="Layout/ConstraintLayout">
+            <intent-filter>
+                <action android:name="android.intent.action.MAIN" />
+                <category android:name="androidx.ui.demos.SAMPLE_CODE" />
+            </intent-filter>
+        </activity>
         <activity android:name=".ComplexLayoutActivity"
             android:configChanges="orientation|screenSize"
             android:label="Layout/Complex layout">

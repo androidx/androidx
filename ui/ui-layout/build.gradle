@@ -39,6 +39,7 @@ dependencies {
     implementation project(":compose:compose-runtime")
     api project(":ui:ui-core")
     implementation project(":ui:ui-framework")
+    implementation(CONSTRAINT_LAYOUT_SOLVER)
 
     testImplementation(ANDROIDX_TEST_RULES)
     testImplementation(ANDROIDX_TEST_RUNNER)
