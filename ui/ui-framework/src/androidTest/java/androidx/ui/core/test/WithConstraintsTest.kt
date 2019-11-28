@@ -18,7 +18,10 @@ package androidx.ui.core.test
 
 import android.graphics.Bitmap
 import android.os.Build
+import androidx.annotation.RequiresApi
 import androidx.compose.Composable
+import androidx.compose.memo
+import androidx.compose.unaryPlus
 import androidx.test.filters.SdkSuppress
 import androidx.test.filters.SmallTest
 import androidx.test.rule.ActivityTestRule
@@ -26,6 +29,7 @@ import androidx.ui.core.Constraints
 import androidx.ui.core.Draw
 import androidx.ui.core.IntPx
 import androidx.ui.core.Layout
+import androidx.ui.core.MeasureBlock
 import androidx.ui.core.OnPositioned
 import androidx.ui.core.PxSize
 import androidx.ui.core.Ref
@@ -341,6 +345,56 @@ class WithConstraintsTest {
         assertEquals(expectedSize, childSize)
     }
 
+    @SdkSuppress(minSdkVersion = Build.VERSION_CODES.O)
+    @Test
+    fun withConstraintsIsNotSwallowingInnerRemeasureRequest() {
+        val model = ValueModel(100.ipx)
+
+        rule.runOnUiThreadIR {
+            activity.setContentInFrameLayout {
+                Container(100.ipx, 100.ipx) {
+                    Draw { canvas, parentSize ->
+                        canvas.drawRect(parentSize.toRect(),
+                            Paint().apply { color = Color.Red })
+                    }
+                    ChangingConstraintsLayout(model) {
+                        WithConstraints { constraints ->
+                            Container(100.ipx, 100.ipx) {
+                                Container(100.ipx, 100.ipx) {
+                                    Layout({
+                                        Draw { canvas, parentSize ->
+                                            canvas.drawRect(parentSize.toRect(),
+                                                Paint().apply { color = Color.Yellow })
+                                            drawLatch.countDown()
+                                        }
+                                    }) { _, _ ->
+                                        // the same as the value inside ValueModel
+                                        val size = constraints.maxWidth
+                                        layout(size, size) {}
+                                    }
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        }
+        takeScreenShot(100).apply {
+            assertRect(color = Color.Yellow)
+        }
+
+        drawLatch = CountDownLatch(1)
+        rule.runOnUiThread {
+            model.value = 50.ipx
+        }
+
+        takeScreenShot(100).apply {
+            assertRect(color = Color.Red, holeSize = 50)
+            assertRect(color = Color.Yellow, size = 50)
+        }
+    }
+
+    @RequiresApi(Build.VERSION_CODES.O)
     private fun takeScreenShot(size: Int): Bitmap {
         assertTrue(drawLatch.await(1, TimeUnit.SECONDS))
         val bitmap = rule.waitAndScreenShot()
@@ -380,12 +434,18 @@ private fun NeedsOtherMeasurementComposable(foo: IntPx) {
 
 @Composable
 fun Container(width: IntPx, height: IntPx, children: @Composable() () -> Unit) {
-    Layout(children) { measurables, _ ->
-        val constraint = Constraints(maxWidth = width, maxHeight = height)
-        layout(width, height) {
-            measurables.forEach { it.measure(constraint).place(0.ipx, 0.ipx) }
+    Layout(children = children, measureBlock = +memo<MeasureBlock>(width, height) {
+        { measurables, _ ->
+            val constraint = Constraints(maxWidth = width, maxHeight = height)
+            layout(width, height) {
+                measurables.forEach {
+                    val placeable = it.measure(constraint)
+                    placeable.place((width - placeable.width) / 2,
+                        (height - placeable.height) / 2)
+                }
+            }
         }
-    }
+    })
 }
 
 @Composable

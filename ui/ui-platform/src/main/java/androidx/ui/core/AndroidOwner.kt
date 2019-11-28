@@ -120,10 +120,19 @@ class AndroidComposeView constructor(context: Context) :
         }
 
     /**
-     * Flag to indicate that we're measuring and we shouldn't be requesting
-     * measure/layout.
+     * Flag to indicate that we're measuring and the nodes, requesting relayout should
+     * be added into [relayoutNodesDuringMeasureLayout].
      */
     private var duringMeasureLayout = false
+    /**
+     * Stores the list of [LayoutNode]s passed to [requestRelayout] while we were
+     * already doing measure/layout stage. This usually happens when we start subcomposition
+     * from inside measure block(like in WithConstraints).
+     * Inside [requestRelayout] we can add a new item into the list we are currently iterating
+     * through inside [measureAndLayout]. To save on the list allocation and iterate through
+     * the copied list we temporary add items into this list instead.
+     */
+    private val relayoutNodesDuringMeasureLayout = mutableListOf<LayoutNode>()
 
     /**
      * This is true when the apk is build with android:debuggable=true.
@@ -135,7 +144,7 @@ class AndroidComposeView constructor(context: Context) :
     private val modelObserver = NodeStagesModelObserver(debugMode) { stage, affectedNode ->
         when (stage) {
             Stage.Draw -> (affectedNode as DrawNode).invalidate()
-            Stage.Measure -> requestMeasure(affectedNode as LayoutNode, false)
+            Stage.Measure -> onRequestMeasure(affectedNode as LayoutNode)
             Stage.Layout -> requestRelayout(affectedNode as LayoutNode)
         }
     }
@@ -212,10 +221,6 @@ class AndroidComposeView constructor(context: Context) :
     }
 
     override fun onRequestMeasure(layoutNode: LayoutNode) {
-        requestMeasure(layoutNode, isNodeChange = true)
-    }
-
-    private fun requestMeasure(layoutNode: LayoutNode, isNodeChange: Boolean) {
         trace("AndroidOwner:onRequestMeasure") {
             layoutNode.requireOwner()
             if (layoutNode.needsRemeasure) {
@@ -238,14 +243,7 @@ class AndroidComposeView constructor(context: Context) :
             }
 
             val parent = layout.parentLayoutNode
-
-            // If we're doing this during the measure/layout
-            // then we shouldn't affect the relayoutNodes. This can happen in rare
-            // cases when using subcomposition, where the measure lambda is set during
-            // measurement.
-            if (duringMeasureLayout) {
-                check(isNodeChange) { "onRequest called during measure/layout" }
-            } else if (parent == null) {
+            if (parent == null) {
                 requestRelayout(layout)
             } else {
                 requestRelayout(parent)
@@ -255,17 +253,10 @@ class AndroidComposeView constructor(context: Context) :
 
     private fun requestRelayout(layoutNode: LayoutNode) {
         layoutNode.requireOwner()
-        if (layoutNode == root || constraints.isZero) {
-            requestLayout()
-            layoutNode.needsRemeasure = true
-        } else if (relayoutNodes.isEmpty()) {
-            // Invalidate and catch measureAndLayout() in the dispatchDraw()
-            invalidateRepaintBoundary(layoutNode)
-        }
+        var nodeToRelayout = layoutNode
 
+        // mark alignments as dirty first
         if (!layoutNode.alignmentLinesRequired) {
-            layoutNode.needsRelayout = true
-            relayoutNodes += layoutNode
             // Mark parents alignment lines as dirty, for cases when we needed alignment lines
             // at some point, but currently they are not queried anymore. If they are actively
             // queried, they will be made dirty below in this method.
@@ -274,19 +265,32 @@ class AndroidComposeView constructor(context: Context) :
                 layout.dirtyAlignmentLines = true
                 layout = layout.parentLayoutNode
             }
-            return
+        } else {
+            var layout = layoutNode
+            while (layout != layoutNode.alignmentLinesQueryOwner && !layout.needsRelayout) {
+                layout.needsRelayout = true
+                layout.dirtyAlignmentLines = true
+                if (layout.parentLayoutNode == null) break
+                layout = layout.parentLayoutNode!!
+            }
+            layout.dirtyAlignmentLines = true
+            nodeToRelayout = layout
         }
 
-        var layout = layoutNode
-        while (layout != layoutNode.alignmentLinesQueryOwner && !layout.needsRelayout) {
-            layout.needsRelayout = true
-            layout.dirtyAlignmentLines = true
-            if (layout.parentLayoutNode == null) break
-            layout = layout.parentLayoutNode!!
+        nodeToRelayout.needsRelayout = true
+        if (duringMeasureLayout) {
+            relayoutNodesDuringMeasureLayout += nodeToRelayout
+        } else {
+            val noRelayoutScheduled = relayoutNodes.isEmpty()
+            relayoutNodes += nodeToRelayout
+            if (nodeToRelayout == root || constraints.isZero) {
+                nodeToRelayout.needsRemeasure = true
+                requestLayout()
+            } else if (noRelayoutScheduled) {
+                // Invalidate and catch measureAndLayout() in the dispatchDraw()
+                invalidateRepaintBoundary(nodeToRelayout)
+            }
         }
-        layout.needsRelayout = true
-        layout.dirtyAlignmentLines = true
-        relayoutNodes += layout
     }
 
     override fun onAttach(node: ComponentNode) {
@@ -324,41 +328,56 @@ class AndroidComposeView constructor(context: Context) :
      * Iterates through all LayoutNodes that have requested layout and measures and lays them out
      */
     internal fun measureAndLayout() {
-        if (relayoutNodes.isEmpty() && repaintBoundaryChanges.isEmpty()) {
-            return
-        }
         trace("AndroidOwner:measureAndLayout") {
-            try {
-                duringMeasureLayout = true
-                measureIteration++
-                val topNode = relayoutNodes.firstOrNull()
-                modelObserver.observeReads {
-                    relayoutNodes.forEach { layoutNode ->
-                        if (layoutNode.needsRemeasure) {
-                            val parent = layoutNode.parentLayoutNode
-                            if (parent != null) {
-                                // This should call measure and layout on the child
-                                val parentLayout = parent
-                                parent.needsRelayout = true
-                                parentLayout.placeChildren()
-                            } else {
-                                layoutNode.measure(layoutNode.constraints)
-                                layoutNode.placeChildren()
+            if (!relayoutNodes.isEmpty()) {
+                try {
+                    duringMeasureLayout = true
+                    measureIteration++
+                    var topNode = relayoutNodes.first()
+                    modelObserver.observeReads {
+                        while (relayoutNodes.isNotEmpty()) {
+                            relayoutNodes.forEach { layoutNode ->
+                                if (layoutNode.needsRemeasure) {
+                                    val parent = layoutNode.parentLayoutNode
+                                    if (parent != null) {
+                                        // This should call measure and layout on the child
+                                        parent.needsRelayout = true
+                                        parent.placeChildren()
+                                    } else {
+                                        layoutNode.measure(layoutNode.constraints)
+                                        layoutNode.placeChildren()
+                                    }
+                                } else if (layoutNode.needsRelayout) {
+                                    layoutNode.placeChildren()
+                                }
                             }
-                        } else if (layoutNode.needsRelayout) {
-                            layoutNode.placeChildren()
+                            relayoutNodes.clear()
+                            if (relayoutNodesDuringMeasureLayout.isNotEmpty()) {
+                                relayoutNodesDuringMeasureLayout.forEach {
+                                    // some of the nodes can be already measured/positioned.
+                                    // for example the direct children of WithConstraints.
+                                    if (it.needsRemeasure || it.needsRemeasure) {
+                                        relayoutNodes += it
+                                        if (it.depth > topNode.depth) {
+                                            topNode = it
+                                        }
+                                    }
+                                }
+                                relayoutNodesDuringMeasureLayout.clear()
+                            }
                         }
                     }
+                    topNode.dispatchOnPositionedCallbacks()
+                } finally {
+                    duringMeasureLayout = false
                 }
-                topNode?.dispatchOnPositionedCallbacks()
+            }
+            if (!repaintBoundaryChanges.isEmpty()) {
                 repaintBoundaryChanges.forEach { node ->
                     val parentSize = node.parentLayoutNode!!.contentSize
                     node.container.setSize(parentSize.width.value, parentSize.height.value)
                 }
-                relayoutNodes.clear()
                 repaintBoundaryChanges.clear()
-            } finally {
-                duringMeasureLayout = false
             }
         }
     }
@@ -452,6 +471,8 @@ class AndroidComposeView constructor(context: Context) :
                 }
                 is LayoutNode -> {
                     if (node.isPlaced) {
+                        require(!node.needsRemeasure) { "$node is not measured, draw requested" }
+                        require(!node.needsRelayout) { "$node is not laid out, draw requested" }
                         node.draw(canvas, density)
                     }
                 }
