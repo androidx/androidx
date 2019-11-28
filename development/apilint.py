@@ -19,16 +19,25 @@
 """Script that will remind developers to run updateApi."""
 
 import argparse
+import os.path
 import sys
 
 
-WARNING_COLOR = '\033[93m'
+
+WARNING_COLOR = '\033[33m'
 END_COLOR = '\033[0m'
 
-WARNING = """
+WARNING_NO_API_FILES = """
 {}**********************************************************************
 You changed library classes, but you have no current.txt changes.
 Did you forget to run ./gradlew updateApi?
+**********************************************************************{}
+""".format(WARNING_COLOR, END_COLOR)
+
+WARNING_OLD_API_FILES = """
+{}**********************************************************************
+Your current.txt is older than your current changes in library classes.
+Did you forget to re-run ./gradlew updateApi?
 **********************************************************************{}
 """.format(WARNING_COLOR, END_COLOR)
 
@@ -40,16 +49,24 @@ def main(args=None):
   args = parser.parse_args()
   api_files = [f for f in args.file
                if f.endswith('.txt') and '/api/' in f]
-  if len(api_files) > 0:
+  source_files = [f for f in args.file
+               if (not "buildSrc/" in f and
+                  "/src/main/" in f or
+                  "/src/commonMain/" in f or
+                  "/src/androidMain/" in f)]
+  if len(source_files) == 0:
     sys.exit(0)
 
-  for f in args.file:
-    if (not "buildSrc/" in f and
-        "/src/main/" in f or
-        "/src/commonMain/" in f or
-        "/src/androidMain/" in f):
-      print(WARNING)
-      sys.exit(77) # 77 is a warning code in repohooks
+  if len(api_files) == 0:
+    print(WARNING_NO_API_FILES)
+    sys.exit(77) # 77 is a warning code in repohooks
+
+  last_source_timestamp = max([os.path.getmtime(f) for f in source_files])
+  last_api_timestamp = max([os.path.getmtime(f) for f in api_files])
+
+  if last_source_timestamp > last_api_timestamp:
+    print(WARNING_OLD_API_FILES)
+    sys.exit(77) # 77 is a warning code in repohooks
   sys.exit(0)
 
 if __name__ == '__main__':
