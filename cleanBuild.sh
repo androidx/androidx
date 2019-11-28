@@ -59,15 +59,17 @@ function confirm() {
 }
 confirm
 
-export OUT_DIR=../../out
+scriptDir="$(cd $(dirname $0) && pwd)"
+checkoutDir="$(cd $scriptDir/../.. && pwd)"
+export OUT_DIR="$checkoutDir/out"
 function removeCaches() {
   echo removing caches
   rm -rf .gradle
   rm -rf buildSrc/.gradle
   rm -f local.properties
-  rm -rf ../../out
+  rm -rf $OUT_DIR
 }
 removeCaches
 
 echo running build
-GRADLE_USER_HOME=../../out ./gradlew --no-daemon $goals
+./gradlew --no-daemon $goals
