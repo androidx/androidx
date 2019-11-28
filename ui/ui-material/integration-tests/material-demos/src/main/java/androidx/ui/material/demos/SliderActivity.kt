@@ -18,25 +18,21 @@ package androidx.ui.material.demos
 
 import androidx.compose.Composable
 import androidx.ui.core.dp
-import androidx.ui.graphics.Color
 import androidx.ui.layout.Column
 import androidx.ui.layout.EdgeInsets
 import androidx.ui.layout.Padding
 import androidx.ui.material.samples.SliderSample
 import androidx.ui.material.samples.StepsSliderSample
-import androidx.ui.material.surface.Surface
 
 class SliderActivity : MaterialDemoActivity() {
     @Composable
     override fun materialContent() {
         val padding = EdgeInsets(10.dp)
 
-        Surface(color = Color.White) {
-            Padding(padding = padding) {
-                Column {
-                    SliderSample()
-                    StepsSliderSample()
-                }
+        Padding(padding = padding) {
+            Column {
+                SliderSample()
+                StepsSliderSample()
             }
         }
     }
