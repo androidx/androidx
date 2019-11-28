@@ -18,14 +18,11 @@ package androidx.ui.material.demos
 
 import androidx.compose.Composable
 import androidx.ui.material.samples.SimpleDataTable
-import androidx.ui.material.surface.Surface
 
 class DataTableActivity : MaterialDemoActivity() {
 
     @Composable
     override fun materialContent() {
-        Surface {
-            SimpleDataTable()
-        }
+        SimpleDataTable()
     }
 }

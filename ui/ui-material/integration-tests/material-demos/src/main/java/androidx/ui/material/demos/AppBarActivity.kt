@@ -22,9 +22,13 @@ import androidx.compose.unaryPlus
 import androidx.ui.core.Alignment
 import androidx.ui.core.Text
 import androidx.ui.core.dp
+import androidx.ui.graphics.imageFromResource
+import androidx.ui.layout.Arrangement
 import androidx.ui.layout.Column
 import androidx.ui.layout.Container
+import androidx.ui.layout.ExpandedHeight
 import androidx.ui.layout.FlexColumn
+import androidx.ui.material.MaterialTheme
 import androidx.ui.material.RadioGroup
 import androidx.ui.material.demos.AppBarActivity.BottomAppBarOption.CenterFab
 import androidx.ui.material.demos.AppBarActivity.BottomAppBarOption.CutoutFab
@@ -34,19 +38,14 @@ import androidx.ui.material.demos.AppBarActivity.BottomAppBarOption.FancyAnimati
 import androidx.ui.material.demos.AppBarActivity.BottomAppBarOption.NoFab
 import androidx.ui.material.demos.AppBarActivity.TopAppBarOption.Actions
 import androidx.ui.material.demos.AppBarActivity.TopAppBarOption.Simple
-import androidx.ui.material.samples.SimpleBottomAppBarCutoutFab
 import androidx.ui.material.samples.SimpleBottomAppBarCenterFab
+import androidx.ui.material.samples.SimpleBottomAppBarCutoutFab
 import androidx.ui.material.samples.SimpleBottomAppBarEndFab
 import androidx.ui.material.samples.SimpleBottomAppBarExtendedCutoutFab
 import androidx.ui.material.samples.SimpleBottomAppBarFancyAnimatingCutoutFab
 import androidx.ui.material.samples.SimpleBottomAppBarNoFab
 import androidx.ui.material.samples.SimpleTopAppBarNavIcon
 import androidx.ui.material.samples.SimpleTopAppBarNavIconWithActions
-import androidx.ui.material.surface.Surface
-import androidx.ui.graphics.imageFromResource
-import androidx.ui.layout.Arrangement
-import androidx.ui.layout.ExpandedHeight
-import androidx.ui.material.MaterialTheme
 
 class AppBarActivity : MaterialDemoActivity() {
 
@@ -77,65 +76,63 @@ class AppBarActivity : MaterialDemoActivity() {
         var selectedTopAppBar by +state { Simple }
         var selectedBottomAppBar by +state { NoFab }
 
-        Surface {
-            FlexColumn {
-                inflexible {
-                    Container(height = 120.dp, alignment = Alignment.TopCenter) {
-                        when (selectedTopAppBar) {
-                            Simple -> SimpleTopAppBarNavIcon(navigationImage)
-                            Actions -> SimpleTopAppBarNavIconWithActions(
-                                favouriteImage,
-                                navigationImage
+        FlexColumn {
+            inflexible {
+                Container(height = 120.dp, alignment = Alignment.TopCenter) {
+                    when (selectedTopAppBar) {
+                        Simple -> SimpleTopAppBarNavIcon(navigationImage)
+                        Actions -> SimpleTopAppBarNavIconWithActions(
+                            favouriteImage,
+                            navigationImage
+                        )
+                    }
+                }
+            }
+            flexible(1f) {
+                Column(ExpandedHeight, arrangement = Arrangement.SpaceBetween) {
+                    DemoText("TopAppBar options")
+                    RadioGroup {
+                        topAppBarOptions.forEach { topAppBar ->
+                            RadioGroupTextItem(
+                                selected = (topAppBar == selectedTopAppBar),
+                                onSelect = { selectedTopAppBar = topAppBar },
+                                text = topAppBar.description
+                            )
+                        }
+                    }
+                    DemoText("BottomAppBar options")
+                    RadioGroup {
+                        bottomAppBarOptions.forEach { bottomAppBar ->
+                            RadioGroupTextItem(
+                                selected = (bottomAppBar == selectedBottomAppBar),
+                                onSelect = { selectedBottomAppBar = bottomAppBar },
+                                text = bottomAppBar.description
                             )
                         }
                     }
                 }
-                flexible(1f) {
-                    Column(ExpandedHeight, arrangement = Arrangement.SpaceBetween) {
-                        DemoText("TopAppBar options")
-                        RadioGroup {
-                            topAppBarOptions.forEach { topAppBar ->
-                                RadioGroupTextItem(
-                                    selected = (topAppBar == selectedTopAppBar),
-                                    onSelect = { selectedTopAppBar = topAppBar },
-                                    text = topAppBar.description
-                                )
-                            }
-                        }
-                        DemoText("BottomAppBar options")
-                        RadioGroup {
-                            bottomAppBarOptions.forEach { bottomAppBar ->
-                                RadioGroupTextItem(
-                                    selected = (bottomAppBar == selectedBottomAppBar),
-                                    onSelect = { selectedBottomAppBar = bottomAppBar },
-                                    text = bottomAppBar.description
-                                )
-                            }
-                        }
-                    }
-                }
-                inflexible {
-                    Container(height = 120.dp, alignment = Alignment.BottomCenter) {
-                        when (selectedBottomAppBar) {
-                            NoFab -> SimpleBottomAppBarNoFab(favouriteImage, navigationImage)
-                            CenterFab -> SimpleBottomAppBarCenterFab(
-                                favouriteImage,
-                                navigationImage
-                            )
-                            EndFab -> SimpleBottomAppBarEndFab(favouriteImage)
-                            CutoutFab -> SimpleBottomAppBarCutoutFab(
-                                favouriteImage,
-                                navigationImage
-                            )
-                            ExtendedCutoutFab -> SimpleBottomAppBarExtendedCutoutFab(
-                                favouriteImage,
-                                navigationImage
-                            )
-                            FancyAnimatingCutoutFab -> SimpleBottomAppBarFancyAnimatingCutoutFab(
-                                favouriteImage,
-                                navigationImage
-                            )
-                        }
+            }
+            inflexible {
+                Container(height = 120.dp, alignment = Alignment.BottomCenter) {
+                    when (selectedBottomAppBar) {
+                        NoFab -> SimpleBottomAppBarNoFab(favouriteImage, navigationImage)
+                        CenterFab -> SimpleBottomAppBarCenterFab(
+                            favouriteImage,
+                            navigationImage
+                        )
+                        EndFab -> SimpleBottomAppBarEndFab(favouriteImage)
+                        CutoutFab -> SimpleBottomAppBarCutoutFab(
+                            favouriteImage,
+                            navigationImage
+                        )
+                        ExtendedCutoutFab -> SimpleBottomAppBarExtendedCutoutFab(
+                            favouriteImage,
+                            navigationImage
+                        )
+                        FancyAnimatingCutoutFab -> SimpleBottomAppBarFancyAnimatingCutoutFab(
+                            favouriteImage,
+                            navigationImage
+                        )
                     }
                 }
             }

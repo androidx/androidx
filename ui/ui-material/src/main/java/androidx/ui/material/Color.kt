@@ -27,6 +27,9 @@ import kotlin.reflect.KProperty
 /**
  * Collection of colors in the [Material color specification]
  * [https://material.io/design/color/the-color-system.html#color-theme-creation].
+ *
+ * To create a light set of colors, use [lightColorPalette]
+ * To create a dark set of colors, use [darkColorPalette]
  */
 interface ColorPalette {
     /**
@@ -86,13 +89,22 @@ interface ColorPalette {
      * Color used for text and icons displayed on top of the error color.
      */
     val onError: Color
+    /**
+     * Whether this ColorPalette is considered as a 'light' or 'dark' set of colors. This affects
+     * default behavior for some components: for example, in a light theme a [TopAppBar] will use
+     * [primary] by default for its background color, when in a dark theme it will use [surface].
+     */
+    val isLight: Boolean
 }
 
 /**
  * Creates a complete color definition for the [Material color specification]
- * [https://material.io/design/color/the-color-system.html#color-theme-creation].
+ * [https://material.io/design/color/the-color-system.html#color-theme-creation] using the default
+ * light theme values.
+ *
+ * @see darkColorPalette
  */
-fun ColorPalette(
+fun lightColorPalette(
     primary: Color = Color(0xFF6200EE),
     primaryVariant: Color = Color(0xFF3700B3),
     secondary: Color = Color(0xFF03DAC6),
@@ -117,7 +129,45 @@ fun ColorPalette(
     onSecondary,
     onBackground,
     onSurface,
-    onError
+    onError,
+    true
+)
+
+/**
+ * Creates a complete color definition for the [Material color specification]
+ * [https://material.io/design/color/the-color-system.html#color-theme-creation] using the default
+ * dark theme values.
+ *
+ * @see lightColorPalette
+ */
+fun darkColorPalette(
+    primary: Color = Color(0xFFBB86FC),
+    primaryVariant: Color = Color(0xFF3700B3),
+    secondary: Color = Color(0xFF03DAC6),
+    background: Color = Color(0xFF121212),
+    surface: Color = Color(0xFF121212),
+    error: Color = Color(0xFFCF6679),
+    onPrimary: Color = Color.Black,
+    onSecondary: Color = Color.Black,
+    onBackground: Color = Color.White,
+    onSurface: Color = Color.White,
+    onError: Color = Color.Black
+): ColorPalette = ObservableColorPalette(
+    primary,
+    primaryVariant,
+    secondary,
+    // Secondary and secondary variant are the same in dark mode, as contrast should be
+    // higher so there is no need for the variant.
+    secondary,
+    background,
+    surface,
+    error,
+    onPrimary,
+    onSecondary,
+    onBackground,
+    onSurface,
+    onError,
+    false
 )
 
 /**
@@ -146,7 +196,8 @@ private class ObservableColorPalette(
     onSecondary: Color,
     onBackground: Color,
     onSurface: Color,
-    onError: Color
+    onError: Color,
+    isLight: Boolean
 ) : ColorPalette {
 
     constructor(colorPalette: ColorPalette) : this(
@@ -161,7 +212,8 @@ private class ObservableColorPalette(
         onSecondary = colorPalette.onSecondary,
         onBackground = colorPalette.onBackground,
         onSurface = colorPalette.onSurface,
-        onError = colorPalette.onError
+        onError = colorPalette.onError,
+        isLight = colorPalette.isLight
     )
 
     override var primary by ObservableColor(primary)
@@ -176,6 +228,7 @@ private class ObservableColorPalette(
     override var onBackground by ObservableColor(onBackground)
     override var onSurface by ObservableColor(onSurface)
     override var onError by ObservableColor(onError)
+    override var isLight by ObservableBoolean(isLight)
 }
 
 @Model
@@ -184,6 +237,15 @@ private class ObservableColor(var color: Color) {
 
     operator fun setValue(thisObj: Any?, property: KProperty<*>, next: Color) {
         if (color != next) color = next
+    }
+}
+
+@Model
+private class ObservableBoolean(var boolean: Boolean) {
+    operator fun getValue(thisObj: Any?, property: KProperty<*>) = boolean
+
+    operator fun setValue(thisObj: Any?, property: KProperty<*>, next: Boolean) {
+        if (boolean != next) boolean = next
     }
 }
 
@@ -204,6 +266,7 @@ private fun ObservableColorPalette.updateColorsFrom(other: ColorPalette): Observ
     onBackground = other.onBackground
     onSurface = other.onSurface
     onError = other.onError
+    isLight = other.isLight
     return this
 }
 
@@ -215,9 +278,7 @@ private fun ObservableColorPalette.updateColorsFrom(other: ColorPalette): Observ
 internal fun ProvideColorPalette(colorPalette: ColorPalette, children: @Composable() () -> Unit) {
     val palette = when (colorPalette) {
         is ObservableColorPalette -> {
-            (+memo<ObservableColorPalette> {
-                ObservableColorPalette(colorPalette)
-            }).updateColorsFrom(colorPalette)
+            (+memo { ObservableColorPalette(colorPalette) }).updateColorsFrom(colorPalette)
         }
         else -> colorPalette
     }
@@ -229,4 +290,4 @@ internal fun ProvideColorPalette(colorPalette: ColorPalette, children: @Composab
  *
  * To retrieve the current value of this ambient, use [MaterialTheme.colors].
  */
-internal val ColorAmbient = Ambient.of { ColorPalette() }
+internal val ColorAmbient = Ambient.of { lightColorPalette() }

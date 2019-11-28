@@ -41,7 +41,7 @@ import androidx.ui.core.CurrentTextStyleProvider
  */
 @Composable
 fun MaterialTheme(
-    colors: ColorPalette = ColorPalette(),
+    colors: ColorPalette = lightColorPalette(),
     typography: Typography = Typography(),
     children: @Composable() () -> Unit
 ) {

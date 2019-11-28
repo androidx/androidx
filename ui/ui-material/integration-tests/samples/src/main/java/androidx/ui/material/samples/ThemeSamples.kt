@@ -22,11 +22,13 @@ import androidx.compose.unaryPlus
 import androidx.ui.core.Text
 import androidx.ui.core.sp
 import androidx.ui.foundation.ColoredRect
+import androidx.ui.foundation.isSystemInDarkTheme
 import androidx.ui.graphics.Color
-import androidx.ui.material.ColorPalette
 import androidx.ui.material.FloatingActionButton
 import androidx.ui.material.MaterialTheme
 import androidx.ui.material.Typography
+import androidx.ui.material.darkColorPalette
+import androidx.ui.material.lightColorPalette
 import androidx.ui.text.TextStyle
 import androidx.ui.text.font.FontFamily
 import androidx.ui.text.font.FontWeight
@@ -34,11 +36,15 @@ import androidx.ui.text.font.FontWeight
 @Sampled
 @Composable
 fun MaterialThemeSample() {
-    val colors = ColorPalette(
-        primary = Color(0xFF1EB980),
-        surface = Color(0xFF26282F),
-        onSurface = Color.White
+    val lightColors = lightColorPalette(
+        primary = Color(0xFF1EB980)
     )
+
+    val darkColors = darkColorPalette(
+        primary = Color(0xFF66ffc7)
+    )
+
+    val colors = if (+isSystemInDarkTheme()) darkColors else lightColors
 
     val typography = Typography(
         h1 = TextStyle(fontFamily = FontFamily("RobotoCondensed"),
@@ -47,11 +53,11 @@ fun MaterialThemeSample() {
         button = TextStyle(fontFamily = FontFamily("RobotoCondensed"),
             fontWeight = FontWeight.W600,
             fontSize = 14.sp)
-
     )
 
     MaterialTheme(colors = colors, typography = typography) {
-        FloatingActionButton("FAB with text style and color from theme", onClick = {})
+        val currentTheme = if ((+MaterialTheme.colors()).isLight) "light" else "dark"
+        FloatingActionButton("FAB with text style and color from $currentTheme theme", onClick = {})
     }
 }
 
@@ -65,5 +71,6 @@ fun ThemeColorSample() {
 @Sampled
 @Composable
 fun ThemeTextStyleSample() {
-    Text(text = "H4 styled text", style = (+MaterialTheme.typography()).h4)
+    val typography = +MaterialTheme.typography()
+    Text(text = "H4 styled text", style = typography.h4)
 }
