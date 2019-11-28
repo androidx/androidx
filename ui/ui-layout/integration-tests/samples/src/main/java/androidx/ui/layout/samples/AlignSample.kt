@@ -22,6 +22,7 @@ import androidx.ui.core.Alignment
 import androidx.ui.core.dp
 import androidx.ui.graphics.Color
 import androidx.ui.layout.Align
+import androidx.ui.layout.Aligned
 import androidx.ui.layout.Center
 import androidx.ui.layout.Column
 import androidx.ui.layout.ExpandedHeight
@@ -43,6 +44,18 @@ fun SimpleCenter() {
     Center {
         SizedRectangle(color = Color.Blue, width = 20.dp, height = 20.dp)
     }
+}
+
+@Sampled
+@Composable
+fun SimpleAlignedModifier() {
+    SizedRectangle(modifier = Aligned.TopCenter, color = Color.Blue, width = 20.dp, height = 20.dp)
+}
+
+@Sampled
+@Composable
+fun SimpleVerticallyAlignedModifier() {
+    SizedRectangle(modifier = Aligned.CenterVertically, color = Color.Blue, height = 50.dp)
 }
 
 @Sampled
