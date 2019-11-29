@@ -30,7 +30,7 @@ import androidx.navigation.dynamicfeatures.DynamicInstallManager
 import androidx.navigation.fragment.FragmentNavigator
 
 /**
- * Dynamic feature navigator for Fragment destinations.
+ * The [Navigator] that enables navigating to destinations within dynamic feature modules.
  */
 @Navigator.Name("fragment")
 class DynamicFragmentNavigator(
@@ -40,9 +40,7 @@ class DynamicFragmentNavigator(
     private val installManager: DynamicInstallManager
 ) : FragmentNavigator(context, manager, containerId) {
 
-    override fun createDestination(): FragmentNavigator.Destination {
-        return Destination(this)
-    }
+    override fun createDestination() = Destination(this)
 
     override fun navigate(
         destination: FragmentNavigator.Destination,

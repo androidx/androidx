@@ -63,7 +63,6 @@ open class DynamicNavHostFragment : NavHostFragment() {
     /**
      * Create a new [SplitInstallManager].
      */
-    protected open fun createSplitInstallManager(): SplitInstallManager {
-        return SplitInstallManagerFactory.create(requireContext())
-    }
+    protected open fun createSplitInstallManager(): SplitInstallManager =
+        SplitInstallManagerFactory.create(requireContext())
 }

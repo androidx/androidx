@@ -89,9 +89,7 @@ class DynamicIncludeGraphNavigator(
         }
     }
 
-    override fun popBackStack(): Boolean {
-        return true
-    }
+    override fun popBackStack() = true
 
     /**
      * The graph for dynamic-include.

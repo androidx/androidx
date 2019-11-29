@@ -34,13 +34,13 @@ import com.google.android.play.core.splitinstall.model.SplitInstallErrorCode
 import com.google.android.play.core.splitinstall.model.SplitInstallSessionStatus
 
 /**
- * The base class for fragments that handle dynamic feature installation.
+ * The base class for [Fragment]s that handle dynamic feature installation.
  *
- * When extending from this class, you are responsible for updating the UI in
- * [onCancelled], [onFailed], [onProgress].
+ * When extending from this class, you are responsible for forwarding installation state changes
+ * to your UI via the provided hooks in [onCancelled], [onFailed], [onProgress].
  *
- * The installation process is handled automatically and navigation will happen
- * once the install is completed.
+ * The installation process itself is handled within the [AbstractProgressFragment] itself.
+ * Navigation to the target destination will occur once the installation is completed.
  */
 abstract class AbstractProgressFragment : Fragment {
 
@@ -117,7 +117,6 @@ abstract class AbstractProgressFragment : Fragment {
     private inner class StateObserver constructor(private val monitor: DynamicInstallMonitor) :
         Observer<SplitInstallSessionState> {
 
-        @Suppress("DEPRECATION")
         override fun onChanged(sessionState: SplitInstallSessionState?) {
             if (sessionState != null) {
                 if (sessionState.hasTerminalStatus()) {
@@ -129,6 +128,8 @@ abstract class AbstractProgressFragment : Fragment {
                         navigate()
                     }
                     SplitInstallSessionStatus.REQUIRES_USER_CONFIRMATION -> try {
+                        @Suppress("DEPRECATION")
+                        // TODO replace once PlayCore ships with code landed in b/145276704.
                         startIntentSenderForResult(
                             sessionState.resolutionIntent().intentSender,
                             INSTALL_REQUEST_CODE, null, 0, 0, 0, null

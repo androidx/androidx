@@ -53,7 +53,7 @@ class DynamicInstallMonitor {
      *
      * @return `true` if installation is required, `false` otherwise.
      */
-    var isInstallRequired: Boolean = false
+    var isInstallRequired = false
         internal set(installRequired) {
             field = installRequired
             if (installRequired) {
@@ -64,7 +64,7 @@ class DynamicInstallMonitor {
     /**
      * The session id from Play Core for this installation session.
      */
-    var sessionId: Int = 0
+    var sessionId = 0
         internal set
 
     /**
@@ -78,7 +78,7 @@ class DynamicInstallMonitor {
      * @hide
      */
     @get:RestrictTo(RestrictTo.Scope.LIBRARY)
-    internal var isUsed: Boolean = false
+    internal var isUsed = false
         private set
 
     /**
