@@ -26,22 +26,18 @@ import androidx.ui.semantics.SemanticsActions
 /**
  * Performs a click action on the given component.
  */
-// TODO(jellefresen): Move method to GestureScope.kt and add semantics doClick action here
 fun SemanticsNodeInteraction.doClick(): SemanticsNodeInteraction {
-    // TODO(b/129400818): uncomment this after Merge Semantics is merged
-    // assertHasClickAction()
-
-    // TODO(catalintudor): get real coordinates after Semantics API is ready (b/125702443)
-    val globalRect = semanticsTreeNode.globalRect
-        ?: throw AssertionError("Semantic Node has no child layout to perform click on!")
-    val x = globalRect.left + 1f
-    val y = globalRect.top + 1f
-
-    semanticsTreeInteraction.sendInput {
-        it.sendClick(x, y)
+    // TODO(jellefresen): Replace with semantics action when semantics merging is done
+    // The problem we currently have is that the click action might be defined on a different
+    // semantics node than we're interacting with now, even though it is "semantically" the same.
+    // E.g., findByText(buttonText) finds the Text's semantics node, but the click action is
+    // defined on the wrapping Button's semantics node.
+    // Since in general the intended click action can be on a wrapping node or a child node, we
+    // can't just forward to the correct node, as we don't know if we should search up or down the
+    // tree.
+    return doGesture {
+        sendClick()
     }
-
-    return this
 }
 
 /**

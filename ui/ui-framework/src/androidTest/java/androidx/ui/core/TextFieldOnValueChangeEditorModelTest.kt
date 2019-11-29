@@ -29,8 +29,9 @@ import androidx.ui.input.SetComposingTextEditOp
 import androidx.ui.input.SetSelectionEditOp
 import androidx.ui.input.TextInputService
 import androidx.ui.test.createComposeRule
-import androidx.ui.test.doClick
+import androidx.ui.test.doGesture
 import androidx.ui.test.findByTag
+import androidx.ui.test.sendClick
 import androidx.ui.test.waitForIdleCompose
 import androidx.ui.text.TextRange
 import com.google.common.truth.Truth.assertThat
@@ -90,7 +91,7 @@ class TextFieldOnValueChangeEditorModelTest {
 
         // Perform click to focus in.
         val element = findByTag("textField")
-        element.doClick()
+        element.doGesture { sendClick(1f, 1f) }
 
         // Verify startInput is called and capture the callback.
         val onEditCommandCaptor = argumentCaptor<(List<EditOperation>) -> Unit>()
