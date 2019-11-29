@@ -53,7 +53,7 @@ import androidx.ui.semantics.Semantics
 @Model
 class ScrollerPosition(initial: Float = 0f) {
 
-    internal val holder = AnimatedValueHolder(initial)
+    internal val holder = AnimatedValueHolder(-initial)
 
     /**
      * maxPosition this scroller that consume this ScrollerPosition can reach, or [Px.Infinity]
