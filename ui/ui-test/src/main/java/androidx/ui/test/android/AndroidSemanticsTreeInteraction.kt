@@ -55,7 +55,7 @@ import java.util.concurrent.TimeUnit
 internal class AndroidSemanticsTreeInteraction internal constructor(
     private val throwOnRecomposeTimeOut: Boolean,
     private val selector: SemanticsConfiguration.() -> Boolean
-) : SemanticsTreeInteraction() {
+) : SemanticsTreeInteraction {
 
     /**
      * Whether after the latest performed action we waited for any pending changes in composition.
