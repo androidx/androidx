@@ -10,7 +10,7 @@ testing.
 cd frameworks/support/
 
 # Optional: you can use Android Studio as your editor
-./studiow -y
+./studiow
 
 # Build the app
 ./gradlew :webkit:integration-tests:testapp:assembleDebug
