@@ -22,6 +22,11 @@ import androidx.ui.core.isFinite
 import androidx.ui.core.looseMin
 import androidx.compose.Composable
 import androidx.ui.core.Alignment
+import androidx.ui.core.Constraints
+import androidx.ui.core.DensityScope
+import androidx.ui.core.IntPxPosition
+import androidx.ui.core.LayoutModifier
+import androidx.ui.core.ipx
 
 /**
  * A layout that takes a child and aligns it within itself, according to the alignment parameter.
@@ -90,7 +95,7 @@ fun Center(children: @Composable() () -> Unit) {
  * by the parent layout rather than the child itself. Different layout models allow different
  * [Gravity] options. For example, [Row] provides Top and Bottom, while [Column] provides
  * Start and End.
- * Unlike [Align], layout children with [Gravity] are aligned only after the size
+ * Unlike [Aligned], layout children with [Gravity] are aligned only after the size
  * of the parent is known, therefore not affecting the size of the parent in order to achieve
  * their own alignment.
  *
@@ -101,3 +106,161 @@ fun Center(children: @Composable() () -> Unit) {
  * @sample androidx.ui.layout.samples.SimpleGravityInColumn
  */
 object Gravity
+
+/**
+ * Provides alignment options for a target layout where the alignment is handled by the modifier
+ * itself (rather than by the layout's parent). To achieve this, the modifier tries to fill the
+ * available space and align the target layout within itself. If the incoming constraints are
+ * infinite, the modifier will wrap the child instead and the alignment will not be achieved.
+ *
+ * Example usage:
+ *
+ * @sample androidx.ui.layout.samples.SimpleAlignedModifier
+ * @sample androidx.ui.layout.samples.SimpleVerticallyAlignedModifier
+ */
+object Aligned {
+    /**
+     * A layout modifier that positions the target component inside its parent to the top in
+     * vertical direction and wraps the component in horizontal direction.
+     */
+    val Top: LayoutModifier =
+        AlignmentModifier(alignment = Alignment.TopLeft, direction = Direction.Vertical)
+
+    /**
+     * A layout modifier that positions the target component in the center of the parent in
+     * vertical direction and wraps the component in horizontal direction.
+     */
+    val CenterVertically: LayoutModifier =
+        AlignmentModifier(alignment = Alignment.CenterLeft, direction = Direction.Vertical)
+
+    /**
+     * A layout modifier that positions the target component inside its parent to the bottom in
+     * vertical direction and wraps the component in horizontal direction.
+     */
+    val Bottom: LayoutModifier =
+        AlignmentModifier(alignment = Alignment.BottomLeft, direction = Direction.Vertical)
+
+    /**
+     * A layout modifier that positions the target component inside its parent to the start edge
+     * in horizontal direction and wraps the component in vertical direction.
+     */
+    val Start: LayoutModifier =
+        AlignmentModifier(alignment = Alignment.TopLeft, direction = Direction.Horizontal)
+
+    /**
+     * A layout modifier that positions the target component in the center of the parent in
+     * horizontal direction and wraps the component in vertical direction.
+     */
+    val CenterHorizontally: LayoutModifier =
+        AlignmentModifier(alignment = Alignment.TopCenter, direction = Direction.Horizontal)
+
+    /**
+     * A layout modifier that positions the target component inside its parent to the end edge
+     * in horizontal direction and wraps the component in vertical direction.
+     */
+    val End: LayoutModifier =
+        AlignmentModifier(alignment = Alignment.TopRight, direction = Direction.Horizontal)
+
+    /**
+     * A layout modifier that positions the target component top-left inside its parent.
+     */
+    val TopLeft: LayoutModifier =
+        AlignmentModifier(alignment = Alignment.TopLeft, direction = Direction.Both)
+
+    /**
+     * A layout modifier that positions the target component top-center inside its parent.
+     */
+    val TopCenter: LayoutModifier =
+        AlignmentModifier(alignment = Alignment.TopCenter, direction = Direction.Both)
+
+    /**
+     * A layout modifier that positions the target component top-right inside its parent.
+     */
+    val TopRight: LayoutModifier =
+        AlignmentModifier(alignment = Alignment.TopRight, direction = Direction.Both)
+
+    /**
+     * A layout modifier that positions the target component center-left inside its parent.
+     */
+    val CenterLeft: LayoutModifier =
+        AlignmentModifier(alignment = Alignment.CenterLeft, direction = Direction.Both)
+
+    /**
+     * A layout modifier that positions the target component in the center of its parent.
+     */
+    val Center: LayoutModifier =
+        AlignmentModifier(alignment = Alignment.Center, direction = Direction.Both)
+
+    /**
+     * A layout modifier that positions the target component center-right inside its parent.
+     */
+    val CenterRight: LayoutModifier =
+        AlignmentModifier(alignment = Alignment.CenterRight, direction = Direction.Both)
+
+    /**
+     * A layout modifier that positions the target component bottom-left inside its parent.
+     */
+    val BottomLeft: LayoutModifier =
+        AlignmentModifier(alignment = Alignment.BottomLeft, direction = Direction.Both)
+
+    /**
+     * A layout modifier that positions the target component bottom-center inside its parent.
+     */
+    val BottomCenter: LayoutModifier =
+        AlignmentModifier(alignment = Alignment.BottomCenter, direction = Direction.Both)
+
+    /**
+     * A layout modifier that positions the target component bottom-right inside its parent.
+     */
+    val BottomRight: LayoutModifier =
+        AlignmentModifier(alignment = Alignment.BottomRight, direction = Direction.Both)
+}
+
+private enum class Direction {
+    Vertical, Horizontal, Both
+}
+
+private data class AlignmentModifier(
+    private val alignment: Alignment,
+    private val direction: Direction
+) : LayoutModifier {
+    override fun DensityScope.modifyConstraints(constraints: Constraints) = when (direction) {
+        Direction.Both -> constraints.looseMin()
+        Direction.Horizontal -> constraints.copy(minWidth = 0.ipx)
+        Direction.Vertical -> constraints.copy(minHeight = 0.ipx)
+    }
+
+    override fun DensityScope.modifySize(
+        constraints: Constraints,
+        childSize: IntPxSize
+    ): IntPxSize {
+        val width = if (
+            direction != Direction.Vertical && constraints.maxWidth.isFinite()
+        ) {
+            constraints.maxWidth
+        } else {
+            childSize.width
+        }
+        val height = if (
+            direction != Direction.Horizontal && constraints.maxHeight.isFinite()
+        ) {
+            constraints.maxHeight
+        } else {
+            childSize.height
+        }
+        return IntPxSize(width, height)
+    }
+
+    override fun DensityScope.modifyPosition(
+        childPosition: IntPxPosition,
+        childSize: IntPxSize,
+        containerSize: IntPxSize
+    ): IntPxPosition {
+        return alignment.align(
+            IntPxSize(
+                containerSize.width - childSize.width,
+                containerSize.height - childSize.height
+            )
+        )
+    }
+}
