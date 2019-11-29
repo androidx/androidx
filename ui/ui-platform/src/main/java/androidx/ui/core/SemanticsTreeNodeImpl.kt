@@ -81,7 +81,7 @@ private fun findAllSemanticNodesInternal(
         )
         parent?.addChild(wrapper)
         nodes.add(wrapper)
-        currentParent = parent
+        currentParent = wrapper
     }
 
     currentNode.visitChildren {
