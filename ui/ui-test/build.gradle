@@ -48,7 +48,7 @@ dependencies {
     testImplementation(TRUTH)
 
     androidTestImplementation(TRUTH)
-
+    androidTestImplementation project(":ui:ui-core")
     androidTestImplementation project(':ui:ui-material')
 }
 

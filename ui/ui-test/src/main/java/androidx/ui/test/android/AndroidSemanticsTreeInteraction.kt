@@ -22,7 +22,6 @@ import android.app.Activity
 import android.content.Context
 import android.os.Handler
 import android.os.Looper
-import android.os.SystemClock
 import android.view.Choreographer
 import android.view.MotionEvent
 import android.view.View
@@ -38,6 +37,7 @@ import androidx.ui.core.SemanticsTreeProvider
 import androidx.ui.core.px
 import androidx.ui.core.semantics.SemanticsConfiguration
 import androidx.ui.engine.geometry.Rect
+import androidx.ui.test.InputDispatcher
 import androidx.ui.test.SemanticsNodeInteraction
 import androidx.ui.test.SemanticsTreeInteraction
 import java.util.concurrent.CountDownLatch
@@ -111,6 +111,11 @@ internal class AndroidSemanticsTreeInteraction internal constructor(
         hadPendingChangesAfterLastAction = waitForIdleCompose()
     }
 
+    override fun sendInput(action: (InputDispatcher) -> Unit) {
+        action(AndroidInputDispatcher(findActivityAndTreeProvider().treeProvider))
+        hadPendingChangesAfterLastAction = waitForIdleCompose()
+    }
+
     /**
      * Waits for Compose runtime to be idle - meaning it has no pending changes.
      *
@@ -151,25 +156,6 @@ internal class AndroidSemanticsTreeInteraction internal constructor(
                 }
             }
         })
-    }
-
-    override fun sendClick(x: Float, y: Float) {
-        performAction { treeProvider ->
-            val downTime = SystemClock.uptimeMillis()
-            val eventDown = MotionEvent.obtain(
-                downTime, downTime,
-                MotionEvent.ACTION_DOWN, x, y, 0
-            )
-            treeProvider.sendEvent(eventDown)
-            eventDown.recycle()
-
-            val eventUp = MotionEvent.obtain(
-                downTime, downTime + 10,
-                MotionEvent.ACTION_UP, x, y, 0
-            )
-            treeProvider.sendEvent(eventUp)
-            eventUp.recycle()
-        }
     }
 
     override fun contains(semanticsConfiguration: SemanticsConfiguration): Boolean {

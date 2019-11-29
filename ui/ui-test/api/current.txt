@@ -4,6 +4,7 @@ package androidx.ui.test {
   public final class ActionsKt {
     ctor public ActionsKt();
     method public static androidx.ui.test.SemanticsNodeInteraction doClick(androidx.ui.test.SemanticsNodeInteraction);
+    method public static androidx.ui.test.SemanticsNodeInteraction doGesture(androidx.ui.test.SemanticsNodeInteraction, kotlin.jvm.functions.Function1<? super androidx.ui.test.GestureScope,kotlin.Unit> block);
     method public static androidx.ui.test.SemanticsNodeInteraction doScrollTo(androidx.ui.test.SemanticsNodeInteraction);
     method public static boolean waitForIdleCompose();
   }
@@ -138,6 +139,18 @@ package androidx.ui.test {
     method public static androidx.ui.test.SemanticsNodeInteraction findBySubstring(String text, boolean ignoreCase = false);
     method public static androidx.ui.test.SemanticsNodeInteraction findByTag(String testTag);
     method public static androidx.ui.test.SemanticsNodeInteraction findByText(String text, boolean ignoreCase = false);
+  }
+
+  public final class GestureScope {
+  }
+
+  public final class GestureScopeKt {
+    ctor public GestureScopeKt();
+    method public static void sendSwipe(androidx.ui.test.GestureScope, float x0, float y0, float x1, float y1, androidx.ui.core.Duration duration = 200.milliseconds);
+    method public static void sendSwipeDown(androidx.ui.test.GestureScope);
+    method public static void sendSwipeLeft(androidx.ui.test.GestureScope);
+    method public static void sendSwipeRight(androidx.ui.test.GestureScope);
+    method public static void sendSwipeUp(androidx.ui.test.GestureScope);
   }
 
   public final class GoldenSemanticsKt {
