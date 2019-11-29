@@ -48,6 +48,38 @@ class GestureScope internal constructor(
 private const val edgeFuzzFactor = 0.083f
 
 /**
+ * Performs a click gesture on the given coordinate on the associated component. The coordinate
+ * ([x], [y]) is in the component's local coordinate system.
+ *
+ * Throws [AssertionError] when the component doesn't have a bounding rectangle set
+ */
+fun GestureScope.sendClick(x: Float, y: Float) {
+    val globalRect = semanticsTreeNode.globalRect
+        ?: throw AssertionError("Semantic Node has no child layout to perform click on!")
+    val xOffset = globalRect.left
+    val yOffset = globalRect.top
+
+    semanticsTreeInteraction.sendInput {
+        it.sendClick(x + xOffset, y + yOffset)
+    }
+}
+
+/**
+ * Performs a click gesture on the associated component. The click is done in the middle of the
+ * component's bounds.
+ *
+ * Throws [AssertionError] when the component doesn't have a bounding rectangle set
+ */
+fun GestureScope.sendClick() {
+    val globalRect = semanticsTreeNode.globalRect
+        ?: throw AssertionError("Semantic Node has no child layout to perform click on!")
+    val x = globalRect.width / 2
+    val y = globalRect.height / 2
+
+    sendClick(x, y)
+}
+
+/**
  * Performs the swipe gesture on the associated component. The MotionEvents are linearly
  * interpolated between ([x0], [y0]) and ([x1], [y1]). The coordinates are in the component's local
  * coordinate system, i.e. (0, 0) is the top left corner of the component. The default duration is
