@@ -425,7 +425,7 @@ package androidx.preference {
     method public androidx.preference.PreferenceManager.PreferenceComparisonCallback! getPreferenceComparisonCallback();
     method public androidx.preference.PreferenceDataStore? getPreferenceDataStore();
     method public androidx.preference.PreferenceScreen! getPreferenceScreen();
-    method public android.content.SharedPreferences! getSharedPreferences();
+    method public android.content.SharedPreferences? getSharedPreferences();
     method public int getSharedPreferencesMode();
     method public String! getSharedPreferencesName();
     method public boolean isStorageDefault();
