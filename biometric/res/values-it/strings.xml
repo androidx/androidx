@@ -17,13 +17,13 @@
 
 <resources xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:xliff="urn:oasis:names:tc:xliff:document:1.2">
-    <string name="fingerprint_dialog_touch_sensor" msgid="5354590751262189738">"Tocca sensore impronte digitali"</string>
+    <string name="fingerprint_dialog_touch_sensor" msgid="5354590751262189738">"Tocca sensore impronte"</string>
     <string name="fingerprint_not_recognized" msgid="5491287833813257925">"Non riconosciuta"</string>
     <string name="accessibility_fingerprint_dialog_help_area" msgid="6241458715391513061">"Area dei messaggi di assistenza"</string>
-    <string name="fingerprint_error_hw_not_available" msgid="3976825677335166260">"Hardware per l\'impronta digitale non disponibile."</string>
+    <string name="fingerprint_error_hw_not_available" msgid="3976825677335166260">"Hardware per l\'impronta non disponibile."</string>
     <string name="fingerprint_error_no_fingerprints" msgid="3350805046152877040">"Nessuna impronta digitale registrata."</string>
-    <string name="fingerprint_error_hw_not_present" msgid="1176237289575184578">"Questo dispositivo non è dotato di sensore di impronte digitali"</string>
-    <string name="fingerprint_error_user_canceled" msgid="3421037373085129417">"Operazione di autenticazione dell\'impronta digitale annullata dall\'utente."</string>
+    <string name="fingerprint_error_hw_not_present" msgid="1176237289575184578">"Questo dispositivo non è dotato di sensore di impronte"</string>
+    <string name="fingerprint_error_user_canceled" msgid="3421037373085129417">"Operazione di autenticazione dell\'impronta annullata dall\'utente."</string>
     <string name="fingerprint_error_lockout" msgid="1651062876313169162">"È stato effettuato un numero eccessivo di tentativi. Riprova più tardi."</string>
     <string name="default_error_msg" msgid="7497355367608150274">"Errore sconosciuto"</string>
     <string name="generic_error_user_canceled" msgid="7474799539658018076">"Autenticazione annullata dall\'utente."</string>

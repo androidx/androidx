@@ -20,7 +20,7 @@
     <string name="fingerprint_dialog_touch_sensor" msgid="5354590751262189738">"حسگر اثر انگشت را لمس کنید"</string>
     <string name="fingerprint_not_recognized" msgid="5491287833813257925">"شناسایی نشد"</string>
     <string name="accessibility_fingerprint_dialog_help_area" msgid="6241458715391513061">"بخش پیام راهنما"</string>
-    <string name="fingerprint_error_hw_not_available" msgid="3976825677335166260">"سخت‌افزار اثرانگشت در دسترس نیست."</string>
+    <string name="fingerprint_error_hw_not_available" msgid="3976825677335166260">"سخت‌افزار اثر انگشت در دسترس نیست."</string>
     <string name="fingerprint_error_no_fingerprints" msgid="3350805046152877040">"اثر انگشتی ثبت نشده است."</string>
     <string name="fingerprint_error_hw_not_present" msgid="1176237289575184578">"این دستگاه حسگر اثر انگشت ندارد"</string>
     <string name="fingerprint_error_user_canceled" msgid="3421037373085129417">"کاربر عملیات اثر انگشت را لغو کرد"</string>
