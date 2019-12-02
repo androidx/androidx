@@ -46,36 +46,36 @@ configurations.all {
 }
 
 dependencies {
-    compile(project(":room:room-common"))
-    compile(project(":room:room-migration"))
-    compile(KOTLIN_STDLIB)
-    compile(AUTO_COMMON)
-    compile(AUTO_VALUE_ANNOTATIONS)
-    compile(JAVAPOET)
-    compile(ANTLR)
-    compile(XERIAL)
-    compile(KOTLIN_METADATA_JVM)
-    compile(APACHE_COMMONS_CODEC)
-    compile(INTELLIJ_ANNOTATIONS)
-    testCompile(GOOGLE_COMPILE_TESTING)
-    testCompile project(":paging:paging-common")
-    testCompile(JUNIT)
-    testCompile(JSR250)
-    testCompile(MOCKITO_CORE)
-    testCompile fileTree(dir: "${SdkHelperKt.getSdkPath(project.rootDir)}/platforms/$SupportConfig.COMPILE_SDK_VERSION/",
+    implementation(project(":room:room-common"))
+    implementation(project(":room:room-migration"))
+    implementation(KOTLIN_STDLIB)
+    implementation(AUTO_COMMON)
+    implementation(AUTO_VALUE_ANNOTATIONS)
+    implementation(JAVAPOET)
+    implementation(ANTLR)
+    implementation(XERIAL)
+    implementation(KOTLIN_METADATA_JVM)
+    implementation(APACHE_COMMONS_CODEC)
+    implementation(INTELLIJ_ANNOTATIONS)
+    testImplementation(GOOGLE_COMPILE_TESTING)
+    testImplementation project(":paging:paging-common")
+    testImplementation(JUNIT)
+    testImplementation(JSR250)
+    testImplementation(MOCKITO_CORE)
+    testImplementation fileTree(dir: "${SdkHelperKt.getSdkPath(project.rootDir)}/platforms/$SupportConfig.COMPILE_SDK_VERSION/",
             include : "android.jar")
-    testCompile fileTree(dir: "${new File(project(":room:room-runtime").buildDir, "libJar")}",
+    testImplementation fileTree(dir: "${new File(project(":room:room-runtime").buildDir, "libJar")}",
             include : "*.jar")
-    testCompile fileTree(dir: "${new File(project(":sqlite:sqlite").buildDir, "libJar")}",
+    testImplementation fileTree(dir: "${new File(project(":sqlite:sqlite").buildDir, "libJar")}",
             include : "*.jar")
-    testCompile files(Jvm.current().getToolsJar())
+    testImplementation files(Jvm.current().getToolsJar())
 }
 
 def generateAntlrTask = task('generateAntlrGrammar', type: JavaExec) {
     def outFolder = file(antlrOut)
     outputs.dir(outFolder)
     inputs.file("$projectDir/SQLite.g4")
-    classpath configurations.runtime
+    classpath configurations.compileClasspath
     main "org.antlr.v4.Tool"
     args "SQLite.g4", "-visitor", "-o", new File(outFolder, "androidx/room/parser").path,
             "-package", "androidx.room.parser"

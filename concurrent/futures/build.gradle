@@ -26,10 +26,10 @@ plugins {
 }
 
 dependencies {
-    compile("androidx.annotation:annotation:1.1.0")
-    compile(GUAVA_LISTENABLE_FUTURE)
-    testCompile(JUNIT)
-    testCompile(TRUTH)
+    api("androidx.annotation:annotation:1.1.0")
+    api(GUAVA_LISTENABLE_FUTURE)
+    testImplementation(JUNIT)
+    testImplementation(TRUTH)
 }
 
 sourceCompatibility = JavaVersion.VERSION_1_7

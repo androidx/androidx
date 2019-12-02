@@ -28,13 +28,13 @@ plugins {
 }
 
 dependencies {
-    compile("androidx.annotation:annotation:1.1.0")
-    compile("androidx.arch.core:core-common:2.0.1")
+    api("androidx.annotation:annotation:1.1.0")
+    api("androidx.arch.core:core-common:2.0.1")
     api(KOTLIN_STDLIB)
     api(KOTLIN_COROUTINES_CORE)
 
-    testCompile(JUNIT)
-    testCompile(MOCKITO_CORE)
+    testImplementation(JUNIT)
+    testImplementation(MOCKITO_CORE)
     testImplementation MOCKITO_KOTLIN, {
         exclude group: 'org.mockito' // to keep control on the mockito version
     }

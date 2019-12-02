@@ -26,11 +26,11 @@ plugins {
 }
 
 dependencies {
-    compile(project(":lifecycle:lifecycle-common"))
-    compile("androidx.annotation:annotation:1.1.0")
+    api(project(":lifecycle:lifecycle-common"))
+    api("androidx.annotation:annotation:1.1.0")
 
-    testCompile(JUNIT)
-    testCompile(MOCKITO_CORE)
+    testImplementation(JUNIT)
+    testImplementation(MOCKITO_CORE)
 }
 
 androidx {
