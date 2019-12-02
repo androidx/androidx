@@ -149,6 +149,31 @@ repositories {
     mavenCentral()
     google()
     gradlePluginPortal()
+
+    ivy {
+        setUrl("https://download.jetbrains.com/kotlin/native/builds/releases")
+        patternLayout {
+            artifact("[revision]/macos/[artifact]-[revision].[ext]")
+        }
+        metadataSources {
+            artifact()
+        }
+        content {
+            includeGroup("")
+        }
+    }
+    ivy {
+        setUrl("https://download.jetbrains.com/kotlin/native/builds/releases")
+        patternLayout {
+            artifact("[revision]/linux/[artifact]-[revision].[ext]")
+        }
+        metadataSources {
+            artifact()
+        }
+        content {
+            includeGroup("")
+        }
+    }
 }
 
 if (artifactName != null) {
@@ -386,7 +411,7 @@ fun copyArtifact(artifact: ResolvedArtifact, internal: Boolean = false) {
     val folder = if (internal) internalFolder else externalFolder
     val moduleVersionId = artifact.moduleVersion.id
     val group = moduleVersionId.group
-    val groupPath = group.split(".").joinToString("/")
+    val groupPath = groupToPath(group)
     val pathComponents = listOf(
         prebuiltsLocation,
         folder,
@@ -436,7 +461,7 @@ fun copyPomFile(
     internal: Boolean = false
 ) {
     val folder = if (internal) internalFolder else externalFolder
-    val groupPath = group.split(".").joinToString("/")
+    val groupPath = groupToPath(group)
     val pathComponents = listOf(
         prebuiltsLocation,
         folder,
@@ -473,6 +498,17 @@ fun copyPomFile(
             // rename to a file called LICENSE
             rename { "LICENSE" }
         }
+    }
+}
+
+/**
+ * Given a groupId, returns a relative filepath telling where to place that group
+ */
+fun groupToPath(group: String): String {
+    if (group != "") {
+        return group.split(".").joinToString("/")
+    } else {
+        return "no-group"
     }
 }
 

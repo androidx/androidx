@@ -1,4 +1,4 @@
-#!/usr/bin/python
+#!/usr/bin/python3
 
 """
 Copyright 2018 The Android Open Source Project
@@ -23,6 +23,7 @@ NAME_HELP = '''
   E.g. android.arch.work:work-runtime-ktx:1.0.0-alpha07
 '''
 
+if sys.version_info[0] < 3: raise Exception("Python 2 is not supported by this script. If your system python calls python 2 after python 2 end-of-life on Jan 1 2020, you should probably change it.")
 
 def main():
     """Parses the command line arguments, and executes the gradle script
@@ -35,13 +36,39 @@ def main():
                         required=True, dest='name')
     parse_result = parser.parse_args()
     artifact_name = parse_result.name
+    if ("kotlin-native-linux" in artifact_name): artifact_name = fix_kotlin_native(artifact_name)
+
     command = './gradlew --build-file build.gradle.kts -PartifactName=%s' % (
         artifact_name)
     process = subprocess.Popen(command,
                                shell=True,
                                stdin=subprocess.PIPE)
     process.communicate()
+    assert not process.returncode
 
+    # Generate our own .pom file so Gradle will use this artifact without also checking the internet.
+    # This can be removed once https://youtrack.jetbrains.com/issue/KT-35049 is resolved
+    if ("kotlin-native-linux" in artifact_name):
+      version = artifact_name.split("@")[0].split(":")[2]
+      output_file = open(f"../../../.././prebuilts/androidx/external/no-group/kotlin-native-linux/{version}/kotlin-native-linux-{version}.pom", 'w+')
+      output_file.write(f"""
+<?xml version="1.0" encoding="UTF-8"?>
+<project xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd" xmlns="http://maven.apache.org/POM/4.0.0"
+    xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
+  <modelVersion>4.0.0</modelVersion>
+  <groupId>org.jetbrains.kotlin</groupId>
+  <artifactId>kotlin-native-linux</artifactId>
+  <version>{version}</version>
+  <name>kotlin-native-linux</name>
+  <url>https://download.jetbrains.com/kotlin/native/builds</url>
+</project>\n""")
+      output_file.close()
+
+#kotlin-native-linux has weird syntax requirements; needs to be :kotlin-native-linux:VERSION@tar.gz
+def fix_kotlin_native(name_arg):
+  if name_arg[0]!=":": name_arg = ":"+name_arg
+  if not name_arg.endswith("@tar.gz"): name_arg += "@tar.gz"
+  return name_arg
 
 if __name__ == '__main__':
     main()
