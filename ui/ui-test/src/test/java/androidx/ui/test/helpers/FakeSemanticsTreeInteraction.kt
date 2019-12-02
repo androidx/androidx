@@ -28,7 +28,7 @@ import androidx.ui.test.semanticsTreeInteractionFactory
 
 internal class FakeSemanticsTreeInteraction internal constructor(
     private val selector: SemanticsConfiguration.() -> Boolean
-) : SemanticsTreeInteraction() {
+) : SemanticsTreeInteraction {
 
     private lateinit var semanticsToUse: List<SemanticsNodeInteraction>
 
