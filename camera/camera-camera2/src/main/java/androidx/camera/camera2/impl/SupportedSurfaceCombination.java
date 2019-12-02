@@ -367,7 +367,7 @@ final class SupportedSurfaceCombination {
         if (config.hasTargetAspectRatio()) {
             // Checks the sensor orientation.
             boolean isSensorLandscapeOrientation = isRotationNeeded(Surface.ROTATION_0);
-            @AspectRatio int targetAspectRatio = config.getTargetAspectRatio();
+            @AspectRatio.Ratio int targetAspectRatio = config.getTargetAspectRatio();
             switch (targetAspectRatio) {
                 case AspectRatio.RATIO_4_3:
                     aspectRatio =

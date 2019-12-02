@@ -50,7 +50,6 @@ import androidx.camera.core.CameraXConfig;
 import androidx.camera.core.ImageCapture;
 import androidx.camera.core.ImageCaptureConfig;
 import androidx.camera.core.ImageProxy;
-import androidx.camera.core.LensFacing;
 import androidx.camera.core.Preview;
 import androidx.camera.core.PreviewConfig;
 import androidx.camera.core.impl.utils.executor.CameraXExecutors;
@@ -94,11 +93,11 @@ public class ExtensionTest {
     private final Instrumentation mInstrumentation = InstrumentationRegistry.getInstrumentation();
 
     private EffectMode mEffectMode;
-    @LensFacing
+    @CameraSelector.LensFacing
     private int mLensFacing;
     private FakeLifecycleOwner mLifecycleOwner;
 
-    public ExtensionTest(EffectMode effectMode, @LensFacing int lensFacing) {
+    public ExtensionTest(EffectMode effectMode, @CameraSelector.LensFacing int lensFacing) {
         mEffectMode = effectMode;
         mLensFacing = lensFacing;
     }

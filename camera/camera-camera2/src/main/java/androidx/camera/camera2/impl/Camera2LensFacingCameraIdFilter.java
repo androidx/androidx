@@ -24,7 +24,7 @@ import android.util.Log;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.RestrictTo;
-import androidx.camera.core.LensFacing;
+import androidx.camera.core.CameraSelector;
 import androidx.camera.core.LensFacingCameraIdFilter;
 
 import java.util.LinkedHashSet;
@@ -40,7 +40,7 @@ public final class Camera2LensFacingCameraIdFilter extends LensFacingCameraIdFil
     private static final String TAG = "Camera2LensFacingCIF";
     private CameraManager mCameraManager;
 
-    Camera2LensFacingCameraIdFilter(@LensFacing int lensFacing,
+    Camera2LensFacingCameraIdFilter(@CameraSelector.LensFacing int lensFacing,
             @NonNull CameraManager cameraManager) {
         super(lensFacing);
         mCameraManager = cameraManager;
@@ -70,13 +70,14 @@ public final class Camera2LensFacingCameraIdFilter extends LensFacingCameraIdFil
         return resultCameraIdSet;
     }
 
-    private Integer cameraXLensFacingToCamera2LensFacing(@LensFacing int lensFacing) {
+    private Integer cameraXLensFacingToCamera2LensFacing(
+            @CameraSelector.LensFacing int lensFacing) {
         Integer lensFacingInteger = -1;
         switch (lensFacing) {
-            case LensFacing.BACK:
+            case CameraSelector.LENS_FACING_BACK:
                 lensFacingInteger = CameraMetadata.LENS_FACING_BACK;
                 break;
-            case LensFacing.FRONT:
+            case CameraSelector.LENS_FACING_FRONT:
                 lensFacingInteger = CameraMetadata.LENS_FACING_FRONT;
                 break;
         }

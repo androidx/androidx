@@ -29,8 +29,8 @@ import androidx.camera.camera2.impl.compat.CameraManagerCompat;
 import androidx.camera.core.CameraFactory;
 import androidx.camera.core.CameraInfoUnavailableException;
 import androidx.camera.core.CameraInternal;
+import androidx.camera.core.CameraSelector;
 import androidx.camera.core.CameraXThreads;
-import androidx.camera.core.LensFacing;
 import androidx.camera.core.LensFacingCameraIdFilter;
 import androidx.camera.core.impl.utils.executor.CameraXExecutors;
 
@@ -93,7 +93,7 @@ public final class Camera2CameraFactory implements CameraFactory {
 
     @Override
     @Nullable
-    public String cameraIdForLensFacing(@LensFacing int lensFacing)
+    public String cameraIdForLensFacing(@CameraSelector.LensFacing int lensFacing)
             throws CameraInfoUnavailableException {
         Set<String> availableCameraIds = getLensFacingCameraIdFilter(
                 lensFacing).filter(getAvailableCameraIds());
@@ -107,7 +107,8 @@ public final class Camera2CameraFactory implements CameraFactory {
 
     @Override
     @NonNull
-    public LensFacingCameraIdFilter getLensFacingCameraIdFilter(@LensFacing int lensFacing) {
+    public LensFacingCameraIdFilter getLensFacingCameraIdFilter(
+            @CameraSelector.LensFacing int lensFacing) {
         return new Camera2LensFacingCameraIdFilter(lensFacing, mCameraManager.unwrap());
     }
 }

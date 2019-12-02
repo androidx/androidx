@@ -32,7 +32,6 @@ import androidx.camera.core.CameraIdFilter;
 import androidx.camera.core.CameraSelector;
 import androidx.camera.core.CameraX;
 import androidx.camera.core.CameraXConfig;
-import androidx.camera.core.LensFacing;
 import androidx.camera.testing.fakes.FakeAppConfig;
 import androidx.test.core.app.ApplicationProvider;
 import androidx.test.filters.SmallTest;
@@ -72,21 +71,23 @@ public class CameraSelectorUtilTest {
     @Test
     public void convertedCameraDeviceConfig_hasFrontLensFacing() {
         CameraSelector cameraSelector =
-                new CameraSelector.Builder().requireLensFacing(LensFacing.FRONT).build();
+                new CameraSelector.Builder().requireLensFacing(
+                        CameraSelector.LENS_FACING_FRONT).build();
         CameraDeviceConfig convertedConfig =
                 CameraSelectorUtil.toCameraDeviceConfig(cameraSelector);
 
-        assertThat(convertedConfig.getLensFacing()).isEqualTo(LensFacing.FRONT);
+        assertThat(convertedConfig.getLensFacing()).isEqualTo(CameraSelector.LENS_FACING_FRONT);
     }
 
     @Test
     public void convertedCameraDeviceConfig_hasBackLensFacing() {
         CameraSelector cameraSelector =
-                new CameraSelector.Builder().requireLensFacing(LensFacing.BACK).build();
+                new CameraSelector.Builder().requireLensFacing(
+                        CameraSelector.LENS_FACING_BACK).build();
         CameraDeviceConfig convertedConfig =
                 CameraSelectorUtil.toCameraDeviceConfig(cameraSelector);
 
-        assertThat(convertedConfig.getLensFacing()).isEqualTo(LensFacing.BACK);
+        assertThat(convertedConfig.getLensFacing()).isEqualTo(CameraSelector.LENS_FACING_BACK);
     }
 
     @Test(expected = IllegalArgumentException.class)

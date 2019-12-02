@@ -15,11 +15,14 @@
  */
 package androidx.camera.core;
 
+import androidx.annotation.IntDef;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.annotation.RestrictTo;
 import androidx.annotation.RestrictTo.Scope;
 
+import java.lang.annotation.Retention;
+import java.lang.annotation.RetentionPolicy;
 import java.util.LinkedHashSet;
 import java.util.Set;
 
@@ -27,14 +30,20 @@ import java.util.Set;
  * A set of requirements and priorities used to select a camera.
  */
 public final class CameraSelector {
+
+    /** A camera on the device facing the same direction as the device's screen. */
+    public static final int LENS_FACING_FRONT = 0;
+    /** A camera on the device facing the opposite direction as the device's screen. */
+    public static final int LENS_FACING_BACK = 1;
+
     /** A static {@link CameraSelector} that selects the default front facing camera. */
     @NonNull
     public static final CameraSelector DEFAULT_FRONT_CAMERA =
-            new CameraSelector.Builder().requireLensFacing(LensFacing.FRONT).build();
+            new CameraSelector.Builder().requireLensFacing(LENS_FACING_FRONT).build();
     /** A static {@link CameraSelector} that selects the default back facing camera. */
     @NonNull
     public static final CameraSelector DEFAULT_BACK_CAMERA =
-            new CameraSelector.Builder().requireLensFacing(LensFacing.BACK).build();
+            new CameraSelector.Builder().requireLensFacing(LENS_FACING_BACK).build();
 
     private LinkedHashSet<CameraIdFilter> mCameraFilterSet;
 
@@ -174,5 +183,16 @@ public final class CameraSelector {
         public CameraSelector build() {
             return new CameraSelector(mCameraFilterSet);
         }
+    }
+
+    /**
+     * The direction the camera faces relative to device screen.
+     *
+     * @hide
+     */
+    @IntDef({LENS_FACING_FRONT, LENS_FACING_BACK})
+    @Retention(RetentionPolicy.SOURCE)
+    @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
+    public @interface LensFacing {
     }
 }

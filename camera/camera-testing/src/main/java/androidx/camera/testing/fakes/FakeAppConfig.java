@@ -18,9 +18,9 @@ package androidx.camera.testing.fakes;
 
 import androidx.annotation.NonNull;
 import androidx.camera.core.CameraDeviceSurfaceManager;
+import androidx.camera.core.CameraSelector;
 import androidx.camera.core.CameraXConfig;
 import androidx.camera.core.ExtendableUseCaseConfigFactory;
-import androidx.camera.core.LensFacing;
 import androidx.camera.core.UseCaseConfigFactory;
 
 /**
@@ -39,10 +39,12 @@ public final class FakeAppConfig {
     @NonNull
     public static CameraXConfig create() {
         FakeCameraFactory cameraFactory = new FakeCameraFactory();
-        cameraFactory.insertCamera(LensFacing.BACK, CAMERA_ID_0,
-                () -> new FakeCamera(null, new FakeCameraInfoInternal(0, LensFacing.BACK)));
-        cameraFactory.insertCamera(LensFacing.FRONT, CAMERA_ID_1,
-                () -> new FakeCamera(null, new FakeCameraInfoInternal(0, LensFacing.FRONT)));
+        cameraFactory.insertCamera(CameraSelector.LENS_FACING_BACK, CAMERA_ID_0,
+                () -> new FakeCamera(null,
+                        new FakeCameraInfoInternal(0, CameraSelector.LENS_FACING_BACK)));
+        cameraFactory.insertCamera(CameraSelector.LENS_FACING_FRONT, CAMERA_ID_1,
+                () -> new FakeCamera(null,
+                        new FakeCameraInfoInternal(0, CameraSelector.LENS_FACING_FRONT)));
 
         CameraDeviceSurfaceManager surfaceManager = new FakeCameraDeviceSurfaceManager();
         UseCaseConfigFactory defaultConfigFactory = new ExtendableUseCaseConfigFactory();

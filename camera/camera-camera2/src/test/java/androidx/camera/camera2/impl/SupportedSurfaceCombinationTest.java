@@ -49,7 +49,6 @@ import androidx.camera.core.ImageAnalysisConfig;
 import androidx.camera.core.ImageCapture;
 import androidx.camera.core.ImageCaptureConfig;
 import androidx.camera.core.ImageFormatConstants;
-import androidx.camera.core.LensFacing;
 import androidx.camera.core.Preview;
 import androidx.camera.core.PreviewConfig;
 import androidx.camera.core.SurfaceCombination;
@@ -484,7 +483,8 @@ public final class SupportedSurfaceCombinationTest {
         // Ensure we are bound to a camera to ensure aspect ratio correction is applied.
         FakeLifecycleOwner fakeLifecycle = new FakeLifecycleOwner();
         CameraSelector cameraSelector =
-                new CameraSelector.Builder().requireLensFacing(LensFacing.FRONT).build();
+                new CameraSelector.Builder().requireLensFacing(
+                        CameraSelector.LENS_FACING_FRONT).build();
         CameraX.bindToLifecycle(fakeLifecycle, cameraSelector, preview);
 
         PreviewConfig config = (PreviewConfig) preview.getUseCaseConfig();
@@ -1041,13 +1041,15 @@ public final class SupportedSurfaceCombinationTest {
         addCamera(
                 LEGACY_CAMERA_ID, CameraCharacteristics.INFO_SUPPORTED_HARDWARE_LEVEL_LEGACY, null,
                 CameraCharacteristics.LENS_FACING_FRONT);
-        mCameraFactory.setDefaultCameraIdForLensFacing(LensFacing.FRONT, LEGACY_CAMERA_ID);
+        mCameraFactory.setDefaultCameraIdForLensFacing(CameraSelector.LENS_FACING_FRONT,
+                LEGACY_CAMERA_ID);
 
         addCamera(
                 LIMITED_CAMERA_ID,
                 CameraCharacteristics.INFO_SUPPORTED_HARDWARE_LEVEL_LIMITED,
                 null, CameraCharacteristics.LENS_FACING_BACK);
-        mCameraFactory.setDefaultCameraIdForLensFacing(LensFacing.BACK, LIMITED_CAMERA_ID);
+        mCameraFactory.setDefaultCameraIdForLensFacing(CameraSelector.LENS_FACING_BACK,
+                LIMITED_CAMERA_ID);
 
         addCamera(
                 FULL_CAMERA_ID, CameraCharacteristics.INFO_SUPPORTED_HARDWARE_LEVEL_FULL, null,
@@ -1101,7 +1103,8 @@ public final class SupportedSurfaceCombinationTest {
                 StreamConfigurationMapUtil.generateFakeStreamConfigurationMap(
                         supportedFormats, mSupportedSizes));
 
-        @LensFacing int lensFacingEnum = CameraUtil.getLensFacingEnumFromInt(lensFacing);
+        @CameraSelector.LensFacing int lensFacingEnum = CameraUtil.getLensFacingEnumFromInt(
+                lensFacing);
         mCameraFactory.insertCamera(lensFacingEnum, cameraId, () -> new FakeCamera(cameraId, null,
                 new Camera2CameraInfo(characteristics, mock(ZoomControl.class),
                         mock(TorchControl.class))));

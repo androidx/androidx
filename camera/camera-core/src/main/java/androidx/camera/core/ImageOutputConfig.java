@@ -157,7 +157,7 @@ public interface ImageOutputConfig {
      * @return The stored value, if it exists in this configuration.
      * @throws IllegalArgumentException if the option does not exist in this configuration.
      */
-    @AspectRatio
+    @AspectRatio.Ratio
     int getTargetAspectRatio();
 
     /**
@@ -331,7 +331,7 @@ public interface ImageOutputConfig {
          * @return The current Builder.
          */
         @NonNull
-        B setTargetAspectRatio(@AspectRatio int aspectRatio);
+        B setTargetAspectRatio(@AspectRatio.Ratio int aspectRatio);
 
         /**
          * Sets the rotation of the intended target for images from this configuration.

@@ -54,11 +54,10 @@ import androidx.annotation.NonNull;
 import androidx.camera.core.CameraControl;
 import androidx.camera.core.CameraControlInternal;
 import androidx.camera.core.CameraInfoUnavailableException;
+import androidx.camera.core.CameraSelector;
 import androidx.camera.core.CaptureConfig;
-import androidx.camera.core.FlashMode;
 import androidx.camera.core.FocusMeteringAction;
-import androidx.camera.core.FocusMeteringAction.MeteringMode;
-import androidx.camera.core.LensFacing;
+import androidx.camera.core.ImageCapture;
 import androidx.camera.core.SessionConfig;
 import androidx.camera.core.SurfaceOrientedMeteringPointFactory;
 import androidx.camera.core.impl.utils.executor.CameraXExecutors;
@@ -102,14 +101,14 @@ public final class Camera2CameraControlTest {
     @Before
     public void setUp() throws InterruptedException, CameraAccessException,
             CameraInfoUnavailableException {
-        assumeTrue(CameraUtil.hasCameraWithLensFacing(LensFacing.BACK));
+        assumeTrue(CameraUtil.hasCameraWithLensFacing(CameraSelector.LENS_FACING_BACK));
 
         Context context = ApplicationProvider.getApplicationContext();
         CameraManager cameraManager = (CameraManager) context.getSystemService(
                 Context.CAMERA_SERVICE);
         Camera2CameraFactory camera2CameraFactory = new Camera2CameraFactory(context);
         mCameraCharacteristics = cameraManager.getCameraCharacteristics(
-                camera2CameraFactory.cameraIdForLensFacing(LensFacing.BACK));
+                camera2CameraFactory.cameraIdForLensFacing(CameraSelector.LENS_FACING_BACK));
         Boolean hasFlashUnit =
                 mCameraCharacteristics.get(CameraCharacteristics.FLASH_INFO_AVAILABLE);
         mHasFlashUnit = hasFlashUnit != null && hasFlashUnit.booleanValue();
@@ -177,7 +176,7 @@ public final class Camera2CameraControlTest {
 
     @Test
     public void setFlashModeAuto_aeModeSetAndRequestUpdated() throws InterruptedException {
-        mCamera2CameraControl.setFlashMode(FlashMode.AUTO);
+        mCamera2CameraControl.setFlashMode(ImageCapture.FLASH_MODE_AUTO);
 
         HandlerUtil.waitForLooperToIdle(mHandler);
 
@@ -188,12 +187,12 @@ public final class Camera2CameraControlTest {
                 sessionConfig.getImplementationOptions());
 
         assertAeMode(camera2Config, CONTROL_AE_MODE_ON_AUTO_FLASH);
-        assertThat(mCamera2CameraControl.getFlashMode()).isEqualTo(FlashMode.AUTO);
+        assertThat(mCamera2CameraControl.getFlashMode()).isEqualTo(ImageCapture.FLASH_MODE_AUTO);
     }
 
     @Test
     public void setFlashModeOff_aeModeSetAndRequestUpdated() throws InterruptedException {
-        mCamera2CameraControl.setFlashMode(FlashMode.OFF);
+        mCamera2CameraControl.setFlashMode(ImageCapture.FLASH_MODE_OFF);
 
         HandlerUtil.waitForLooperToIdle(mHandler);
 
@@ -205,12 +204,12 @@ public final class Camera2CameraControlTest {
 
         assertAeMode(camera2Config, CONTROL_AE_MODE_ON);
 
-        assertThat(mCamera2CameraControl.getFlashMode()).isEqualTo(FlashMode.OFF);
+        assertThat(mCamera2CameraControl.getFlashMode()).isEqualTo(ImageCapture.FLASH_MODE_OFF);
     }
 
     @Test
     public void setFlashModeOn_aeModeSetAndRequestUpdated() throws InterruptedException {
-        mCamera2CameraControl.setFlashMode(FlashMode.ON);
+        mCamera2CameraControl.setFlashMode(ImageCapture.FLASH_MODE_ON);
 
         HandlerUtil.waitForLooperToIdle(mHandler);
 
@@ -222,7 +221,7 @@ public final class Camera2CameraControlTest {
 
         assertAeMode(camera2Config, CONTROL_AE_MODE_ON_ALWAYS_FLASH);
 
-        assertThat(mCamera2CameraControl.getFlashMode()).isEqualTo(FlashMode.ON);
+        assertThat(mCamera2CameraControl.getFlashMode()).isEqualTo(ImageCapture.FLASH_MODE_ON);
     }
 
     @Test
@@ -249,7 +248,7 @@ public final class Camera2CameraControlTest {
     @Test
     public void disableTorchFlashModeAuto_aeModeSetAndRequestUpdated() throws InterruptedException {
         assumeTrue(mHasFlashUnit);
-        mCamera2CameraControl.setFlashMode(FlashMode.AUTO);
+        mCamera2CameraControl.setFlashMode(ImageCapture.FLASH_MODE_AUTO);
         mCamera2CameraControl.enableTorch(false);
 
         HandlerUtil.waitForLooperToIdle(mHandler);
@@ -452,7 +451,7 @@ public final class Camera2CameraControlTest {
         SurfaceOrientedMeteringPointFactory factory = new SurfaceOrientedMeteringPointFactory(1.0f,
                 1.0f);
         FocusMeteringAction action = FocusMeteringAction.Builder.from(factory.createPoint(0, 0),
-                MeteringMode.AE | MeteringMode.AWB)
+                FocusMeteringAction.FLAG_AE | FocusMeteringAction.FLAG_AWB)
                 .build();
         mCamera2CameraControl.startFocusAndMetering(action);
         HandlerUtil.waitForLooperToIdle(mHandler);
@@ -546,7 +545,7 @@ public final class Camera2CameraControlTest {
         SurfaceOrientedMeteringPointFactory factory = new SurfaceOrientedMeteringPointFactory(1.0f,
                 1.0f);
         FocusMeteringAction action = FocusMeteringAction.Builder.from(factory.createPoint(0, 0),
-                MeteringMode.AE)
+                FocusMeteringAction.FLAG_AE)
                 .build();
         mCamera2CameraControl.startFocusAndMetering(action);
         HandlerUtil.waitForLooperToIdle(mHandler);

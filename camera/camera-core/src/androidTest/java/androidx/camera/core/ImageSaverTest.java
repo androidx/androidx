@@ -111,7 +111,7 @@ public class ImageSaverTest {
                 }
 
                 @Override
-                public void onError(@SaveError int saveError, String message,
+                public void onError(SaveError saveError, String message,
                         @Nullable Throwable cause) {
                     mMockCallback.onError(saveError, message, cause);
                     mSemaphore.release();

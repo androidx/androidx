@@ -51,14 +51,13 @@ import androidx.annotation.RestrictTo;
 import androidx.annotation.RestrictTo.Scope;
 import androidx.annotation.UiThread;
 import androidx.camera.core.Camera;
-import androidx.camera.core.FlashMode;
+import androidx.camera.core.CameraSelector;
 import androidx.camera.core.FlashModeHelper;
 import androidx.camera.core.FocusMeteringAction;
-import androidx.camera.core.FocusMeteringAction.MeteringMode;
+import androidx.camera.core.ImageCapture;
 import androidx.camera.core.ImageCapture.OnImageCapturedCallback;
 import androidx.camera.core.ImageCapture.OnImageSavedCallback;
 import androidx.camera.core.ImageProxy;
-import androidx.camera.core.LensFacing;
 import androidx.camera.core.LensFacingConverter;
 import androidx.camera.core.MeteringPoint;
 import androidx.camera.core.VideoCapture.OnVideoSavedCallback;
@@ -219,10 +218,10 @@ public final class CameraView extends ViewGroup {
                     setCameraLensFacing(null);
                     break;
                 case LENS_FACING_FRONT:
-                    setCameraLensFacing(LensFacing.FRONT);
+                    setCameraLensFacing(CameraSelector.LENS_FACING_FRONT);
                     break;
                 case LENS_FACING_BACK:
-                    setCameraLensFacing(LensFacing.BACK);
+                    setCameraLensFacing(CameraSelector.LENS_FACING_BACK);
                     break;
                 default:
                     // Unhandled event.
@@ -231,13 +230,13 @@ public final class CameraView extends ViewGroup {
             int flashMode = a.getInt(R.styleable.CameraView_flash, 0);
             switch (flashMode) {
                 case FLASH_MODE_AUTO:
-                    setFlash(FlashMode.AUTO);
+                    setFlash(ImageCapture.FLASH_MODE_AUTO);
                     break;
                 case FLASH_MODE_ON:
-                    setFlash(FlashMode.ON);
+                    setFlash(ImageCapture.FLASH_MODE_ON);
                     break;
                 case FLASH_MODE_OFF:
-                    setFlash(FlashMode.OFF);
+                    setFlash(ImageCapture.FLASH_MODE_OFF);
                     break;
                 default:
                     // Unhandled event.
@@ -686,7 +685,7 @@ public final class CameraView extends ViewGroup {
      * @throws IllegalStateException if the CAMERA permission is not currently granted.
      */
     @RequiresPermission(permission.CAMERA)
-    public boolean hasCameraWithLensFacing(@LensFacing int lensFacing) {
+    public boolean hasCameraWithLensFacing(@CameraSelector.LensFacing int lensFacing) {
         return mCameraModule.hasCameraWithLensFacing(lensFacing);
     }
 
@@ -719,20 +718,20 @@ public final class CameraView extends ViewGroup {
         mCameraModule.setCameraLensFacing(lensFacing);
     }
 
-    /** Returns the currently selected {@link LensFacing}. */
+    /** Returns the currently selected lensFacing. */
     @Nullable
     public Integer getCameraLensFacing() {
         return mCameraModule.getLensFacing();
     }
 
     /** Gets the active flash strategy. */
-    @FlashMode
+    @ImageCapture.FlashMode
     public int getFlash() {
         return mCameraModule.getFlash();
     }
 
     /** Sets the active flash strategy. */
-    public void setFlash(@FlashMode int flashMode) {
+    public void setFlash(@ImageCapture.FlashMode int flashMode) {
         mCameraModule.setFlash(flashMode);
     }
 
@@ -799,8 +798,8 @@ public final class CameraView extends ViewGroup {
         Camera camera = mCameraModule.getCamera();
         if (camera != null) {
             camera.getCameraControl().startFocusAndMetering(
-                    FocusMeteringAction.Builder.from(afPoint, MeteringMode.AF)
-                            .addPoint(aePoint, MeteringMode.AE)
+                    FocusMeteringAction.Builder.from(afPoint, FocusMeteringAction.FLAG_AF)
+                            .addPoint(aePoint, FocusMeteringAction.FLAG_AE)
                             .build());
         } else {
             Log.d(TAG, "cannot access camera");

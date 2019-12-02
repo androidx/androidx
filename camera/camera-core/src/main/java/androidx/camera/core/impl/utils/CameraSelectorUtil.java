@@ -28,7 +28,6 @@ import androidx.camera.core.CameraIdFilter;
 import androidx.camera.core.CameraIdFilterSet;
 import androidx.camera.core.CameraSelector;
 import androidx.camera.core.Config;
-import androidx.camera.core.LensFacing;
 import androidx.camera.core.MutableOptionsBundle;
 import androidx.camera.core.OptionsBundle;
 
@@ -106,7 +105,7 @@ public final class CameraSelectorUtil {
          * @throws IllegalArgumentException if the option does not exist in this configuration.
          */
         @Override
-        @LensFacing
+        @CameraSelector.LensFacing
         public int getLensFacing() {
             return retrieveOption(OPTION_LENS_FACING);
         }

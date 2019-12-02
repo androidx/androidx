@@ -108,7 +108,7 @@ public final class ImageCaptureOptionUnpackerTest {
     public void unpackWithValidPixel2AndMinLatency() {
         CaptureConfig.Builder captureBuilder = new CaptureConfig.Builder();
         ImageCaptureConfig imageCaptureConfig = new ImageCapture.Builder()
-                .setCaptureMode(ImageCapture.CaptureMode.MINIMIZE_LATENCY)
+                .setCaptureMode(ImageCapture.CAPTURE_MODE_MINIMIZE_LATENCY)
                 .getUseCaseConfig();
 
         mUnpacker.setDeviceProperty(PROPERTIES_PIXEL_2_API26);
@@ -126,7 +126,7 @@ public final class ImageCaptureOptionUnpackerTest {
     public void unpackWithValidPixel2AndMaxQuality() {
         CaptureConfig.Builder captureBuilder = new CaptureConfig.Builder();
         ImageCaptureConfig imageCaptureConfig = new ImageCapture.Builder()
-                .setCaptureMode(ImageCapture.CaptureMode.MAXIMIZE_QUALITY)
+                .setCaptureMode(ImageCapture.CAPTURE_MODE_MAXIMIZE_QUALITY)
                 .getUseCaseConfig();
 
         mUnpacker.setDeviceProperty(PROPERTIES_PIXEL_2_API26);
@@ -144,7 +144,7 @@ public final class ImageCaptureOptionUnpackerTest {
     public void unpackWithPixel2NotSupportApiLevelAndMinLatency() {
         CaptureConfig.Builder captureBuilder = new CaptureConfig.Builder();
         ImageCaptureConfig imageCaptureConfig = new ImageCapture.Builder()
-                .setCaptureMode(ImageCapture.CaptureMode.MINIMIZE_LATENCY)
+                .setCaptureMode(ImageCapture.CAPTURE_MODE_MINIMIZE_LATENCY)
                 .getUseCaseConfig();
 
         mUnpacker.setDeviceProperty(PROPERTIES_PIXEL_2_NOT_SUPPORT_API);
@@ -162,7 +162,7 @@ public final class ImageCaptureOptionUnpackerTest {
     public void unpackWithPixel2NotSupportApiLevelAndMaxQuality() {
         CaptureConfig.Builder captureBuilder = new CaptureConfig.Builder();
         ImageCaptureConfig imageCaptureConfig = new ImageCapture.Builder()
-                .setCaptureMode(ImageCapture.CaptureMode.MAXIMIZE_QUALITY)
+                .setCaptureMode(ImageCapture.CAPTURE_MODE_MAXIMIZE_QUALITY)
                 .getUseCaseConfig();
 
         mUnpacker.setDeviceProperty(PROPERTIES_PIXEL_2_NOT_SUPPORT_API);
@@ -180,7 +180,7 @@ public final class ImageCaptureOptionUnpackerTest {
     public void unpackWithValidPixel3AndMinLatency() {
         CaptureConfig.Builder captureBuilder = new CaptureConfig.Builder();
         ImageCaptureConfig imageCaptureConfig = new ImageCapture.Builder()
-                .setCaptureMode(ImageCapture.CaptureMode.MINIMIZE_LATENCY)
+                .setCaptureMode(ImageCapture.CAPTURE_MODE_MINIMIZE_LATENCY)
                 .getUseCaseConfig();
 
         mUnpacker.setDeviceProperty(PROPERTIES_PIXEL_3_API26);
@@ -198,7 +198,7 @@ public final class ImageCaptureOptionUnpackerTest {
     public void unpackWithValidPixel3AndMaxQuality() {
         CaptureConfig.Builder captureBuilder = new CaptureConfig.Builder();
         ImageCaptureConfig imageCaptureConfig = new ImageCapture.Builder()
-                .setCaptureMode(ImageCapture.CaptureMode.MAXIMIZE_QUALITY)
+                .setCaptureMode(ImageCapture.CAPTURE_MODE_MAXIMIZE_QUALITY)
                 .getUseCaseConfig();
 
         mUnpacker.setDeviceProperty(PROPERTIES_PIXEL_3_API26);
@@ -216,7 +216,7 @@ public final class ImageCaptureOptionUnpackerTest {
     public void unpackWithPixel3NotSupportApiLevelAndMinLatency() {
         CaptureConfig.Builder captureBuilder = new CaptureConfig.Builder();
         ImageCaptureConfig imageCaptureConfig = new ImageCapture.Builder()
-                .setCaptureMode(ImageCapture.CaptureMode.MINIMIZE_LATENCY)
+                .setCaptureMode(ImageCapture.CAPTURE_MODE_MINIMIZE_LATENCY)
                 .getUseCaseConfig();
 
         mUnpacker.setDeviceProperty(PROPERTIES_PIXEL_3_NOT_SUPPORT_API);
@@ -234,7 +234,7 @@ public final class ImageCaptureOptionUnpackerTest {
     public void unpackWithPixel3NotSupportApiLevelAndMaxQuality() {
         CaptureConfig.Builder captureBuilder = new CaptureConfig.Builder();
         ImageCaptureConfig imageCaptureConfig = new ImageCapture.Builder()
-                .setCaptureMode(ImageCapture.CaptureMode.MAXIMIZE_QUALITY)
+                .setCaptureMode(ImageCapture.CAPTURE_MODE_MAXIMIZE_QUALITY)
                 .getUseCaseConfig();
 
         mUnpacker.setDeviceProperty(PROPERTIES_PIXEL_3_NOT_SUPPORT_API);
@@ -252,7 +252,7 @@ public final class ImageCaptureOptionUnpackerTest {
     public void unpackWithNotSupportManufacture() {
         CaptureConfig.Builder captureBuilder = new CaptureConfig.Builder();
         ImageCaptureConfig imageCaptureConfig = new ImageCapture.Builder()
-                .setCaptureMode(ImageCapture.CaptureMode.MAXIMIZE_QUALITY)
+                .setCaptureMode(ImageCapture.CAPTURE_MODE_MAXIMIZE_QUALITY)
                 .getUseCaseConfig();
 
         mUnpacker.setDeviceProperty(PROPERTIES_NOT_GOOGLE);
@@ -270,7 +270,7 @@ public final class ImageCaptureOptionUnpackerTest {
     public void unpackWithNotSupportModel() {
         CaptureConfig.Builder captureBuilder = new CaptureConfig.Builder();
         ImageCaptureConfig imageCaptureConfig = new ImageCapture.Builder()
-                .setCaptureMode(ImageCapture.CaptureMode.MAXIMIZE_QUALITY)
+                .setCaptureMode(ImageCapture.CAPTURE_MODE_MAXIMIZE_QUALITY)
                 .getUseCaseConfig();
 
         mUnpacker.setDeviceProperty(PROPERTIES_NOT_SUPPORT_MODEL);

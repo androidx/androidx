@@ -55,10 +55,12 @@ public final class CameraRepositoryTest {
         mCameraRepository = new CameraRepository();
         FakeCameraFactory fakeCameraFactory = new FakeCameraFactory();
 
-        fakeCameraFactory.insertCamera(LensFacing.BACK, CAMERA_ID_0,
-                () -> new FakeCamera(null, new FakeCameraInfoInternal(0, LensFacing.BACK)));
-        fakeCameraFactory.insertCamera(LensFacing.FRONT, CAMERA_ID_1,
-                () -> new FakeCamera(null, new FakeCameraInfoInternal(0, LensFacing.FRONT)));
+        fakeCameraFactory.insertCamera(CameraSelector.LENS_FACING_BACK, CAMERA_ID_0,
+                () -> new FakeCamera(null,
+                        new FakeCameraInfoInternal(0, CameraSelector.LENS_FACING_BACK)));
+        fakeCameraFactory.insertCamera(CameraSelector.LENS_FACING_FRONT, CAMERA_ID_1,
+                () -> new FakeCamera(null,
+                        new FakeCameraInfoInternal(0, CameraSelector.LENS_FACING_FRONT)));
 
         mCameraRepository.init(fakeCameraFactory);
     }

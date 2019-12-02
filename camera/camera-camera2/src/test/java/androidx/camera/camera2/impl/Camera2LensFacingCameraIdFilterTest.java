@@ -23,7 +23,7 @@ import android.hardware.camera2.CameraCharacteristics;
 import android.hardware.camera2.CameraManager;
 import android.os.Build;
 
-import androidx.camera.core.LensFacing;
+import androidx.camera.core.CameraSelector;
 import androidx.test.core.app.ApplicationProvider;
 import androidx.test.filters.SmallTest;
 
@@ -86,7 +86,8 @@ public class Camera2LensFacingCameraIdFilterTest {
     @Test
     public void canFilterBackCamera() {
         Camera2LensFacingCameraIdFilter lensFacingCameraIdFilter =
-                new Camera2LensFacingCameraIdFilter(LensFacing.BACK, mCameraManager);
+                new Camera2LensFacingCameraIdFilter(CameraSelector.LENS_FACING_BACK,
+                        mCameraManager);
         mCameraIds = lensFacingCameraIdFilter.filter(mCameraIds);
         assertThat(mCameraIds).contains(CAMERA0_ID);
         assertThat(mCameraIds).doesNotContain(CAMERA1_ID);
@@ -95,7 +96,8 @@ public class Camera2LensFacingCameraIdFilterTest {
     @Test
     public void canFilterFrontCamera() {
         Camera2LensFacingCameraIdFilter lensFacingCameraIdFilter =
-                new Camera2LensFacingCameraIdFilter(LensFacing.FRONT, mCameraManager);
+                new Camera2LensFacingCameraIdFilter(CameraSelector.LENS_FACING_FRONT,
+                        mCameraManager);
         mCameraIds = lensFacingCameraIdFilter.filter(mCameraIds);
         assertThat(mCameraIds).contains(CAMERA1_ID);
         assertThat(mCameraIds).doesNotContain(CAMERA0_ID);

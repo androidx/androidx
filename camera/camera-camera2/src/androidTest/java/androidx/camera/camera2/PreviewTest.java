@@ -36,7 +36,6 @@ import androidx.camera.core.CameraSelector;
 import androidx.camera.core.CameraX;
 import androidx.camera.core.CameraXConfig;
 import androidx.camera.core.CaptureConfig;
-import androidx.camera.core.LensFacing;
 import androidx.camera.core.Preview;
 import androidx.camera.core.SessionConfig;
 import androidx.camera.core.impl.utils.executor.CameraXExecutors;
@@ -110,18 +109,20 @@ public final class PreviewTest {
         CameraFactory cameraFactory = Preconditions.checkNotNull(cameraXConfig.getCameraFactory(
                 /*valueIfMissing=*/ null));
         try {
-            mCameraId = cameraFactory.cameraIdForLensFacing(LensFacing.BACK);
+            mCameraId = cameraFactory.cameraIdForLensFacing(CameraSelector.LENS_FACING_BACK);
         } catch (Exception e) {
             throw new IllegalArgumentException(
-                    "Unable to attach to camera with LensFacing " + LensFacing.BACK, e);
+                    "Unable to attach to camera with LensFacing " + CameraSelector.LENS_FACING_BACK,
+                    e);
         }
 
         // init CameraX before creating Preview to get preview size with CameraX's context
         mDefaultBuilder = Preview.Builder.fromConfig(
-                Preview.DEFAULT_CONFIG.getConfig(LensFacing.BACK));
+                Preview.DEFAULT_CONFIG.getConfig(CameraSelector.LENS_FACING_BACK));
         mSurfaceFutureSemaphore = new Semaphore(/*permits=*/ 0);
         mSaveToReleaseSemaphore = new Semaphore(/*permits=*/ 0);
-        mCameraSelector = new CameraSelector.Builder().requireLensFacing(LensFacing.BACK).build();
+        mCameraSelector = new CameraSelector.Builder().requireLensFacing(
+                CameraSelector.LENS_FACING_BACK).build();
         mLifecycleOwner = new FakeLifecycleOwner();
     }
 

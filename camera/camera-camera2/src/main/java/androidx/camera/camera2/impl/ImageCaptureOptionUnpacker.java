@@ -22,6 +22,7 @@ import android.os.Build;
 
 import androidx.camera.core.CaptureConfig;
 import androidx.camera.core.DeviceProperties;
+import androidx.camera.core.ImageCapture;
 import androidx.camera.core.ImageCapture.CaptureMode;
 import androidx.camera.core.ImageCaptureConfig;
 import androidx.camera.core.UseCaseConfig;
@@ -69,12 +70,12 @@ final class ImageCaptureOptionUnpacker extends Camera2CaptureOptionUnpacker {
                 || "Pixel 3".equals(mDeviceProperties.model()))) {
             if (mDeviceProperties.sdkVersion() >= Build.VERSION_CODES.O) {
                 switch (captureMode) {
-                    case CaptureMode.MAXIMIZE_QUALITY:
+                    case ImageCapture.CAPTURE_MODE_MAXIMIZE_QUALITY:
                         // enable ZSL to make sure HDR+ is enabled
                         builder.setCaptureRequestOption(
                                 CaptureRequest.CONTROL_ENABLE_ZSL, true);
                         break;
-                    case CaptureMode.MINIMIZE_LATENCY:
+                    case ImageCapture.CAPTURE_MODE_MINIMIZE_LATENCY:
                         // disable ZSL to turn off HDR+
                         builder.setCaptureRequestOption(
                                 CaptureRequest.CONTROL_ENABLE_ZSL, false);

@@ -27,7 +27,6 @@ import androidx.camera.core.CameraSelector;
 import androidx.camera.core.CameraX;
 import androidx.camera.core.CameraXConfig;
 import androidx.camera.core.ImageAnalysis;
-import androidx.camera.core.LensFacing;
 import androidx.camera.core.impl.utils.executor.CameraXExecutors;
 import androidx.camera.testing.CameraUtil;
 import androidx.camera.testing.fakes.FakeLifecycleOwner;
@@ -50,8 +49,8 @@ import java.util.concurrent.ExecutionException;
 @MediumTest
 @RunWith(AndroidJUnit4.class)
 public class TorchControlDeviceTest {
-    @LensFacing
-    private static final int LENS_FACING = LensFacing.BACK;
+    @CameraSelector.LensFacing
+    private static final int LENS_FACING = CameraSelector.LENS_FACING_BACK;
 
     @Rule
     public GrantPermissionRule mCameraPermissionRule =

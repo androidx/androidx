@@ -16,6 +16,10 @@
 
 package androidx.camera.camera2.impl;
 
+import static androidx.camera.core.ImageCapture.FLASH_MODE_AUTO;
+import static androidx.camera.core.ImageCapture.FLASH_MODE_OFF;
+import static androidx.camera.core.ImageCapture.FLASH_MODE_ON;
+
 import android.graphics.Rect;
 import android.hardware.camera2.CameraCaptureSession;
 import android.hardware.camera2.CameraCaptureSession.CaptureCallback;
@@ -34,9 +38,9 @@ import androidx.camera.camera2.impl.annotation.CameraExecutor;
 import androidx.camera.core.CameraControlInternal;
 import androidx.camera.core.CaptureConfig;
 import androidx.camera.core.Config;
-import androidx.camera.core.FlashMode;
 import androidx.camera.core.FocusMeteringAction;
 import androidx.camera.core.FocusMeteringResult;
+import androidx.camera.core.ImageCapture;
 import androidx.camera.core.SessionConfig;
 import androidx.camera.core.impl.utils.futures.Futures;
 import androidx.core.util.Preconditions;
@@ -72,8 +76,8 @@ public final class Camera2CameraControl implements CameraControlInternal {
     private final TorchControl mTorchControl;
     // use volatile modifier to make these variables in sync in all threads.
     private volatile boolean mIsTorchOn = false;
-    @FlashMode
-    private volatile int mFlashMode = FlashMode.OFF;
+    @ImageCapture.FlashMode
+    private volatile int mFlashMode = FLASH_MODE_OFF;
 
     //******************** Should only be accessed by executor *****************************//
     private Rect mCropRect = null;
@@ -171,7 +175,7 @@ public final class Camera2CameraControl implements CameraControlInternal {
         mExecutor.execute(() -> setCropRegionInternal(crop));
     }
 
-    @FlashMode
+    @ImageCapture.FlashMode
     @Override
     public int getFlashMode() {
         return mFlashMode;
@@ -179,7 +183,7 @@ public final class Camera2CameraControl implements CameraControlInternal {
 
     /** {@inheritDoc} */
     @Override
-    public void setFlashMode(@FlashMode int flashMode) {
+    public void setFlashMode(@ImageCapture.FlashMode int flashMode) {
         // update mFlashMode immediately so that following getFlashMode() returns correct value.
         mFlashMode = flashMode;
 
@@ -323,13 +327,13 @@ public final class Camera2CameraControl implements CameraControlInternal {
                     CaptureRequest.FLASH_MODE_TORCH);
         } else {
             switch (mFlashMode) {
-                case FlashMode.OFF:
+                case FLASH_MODE_OFF:
                     aeMode = CaptureRequest.CONTROL_AE_MODE_ON;
                     break;
-                case FlashMode.ON:
+                case FLASH_MODE_ON:
                     aeMode = CaptureRequest.CONTROL_AE_MODE_ON_ALWAYS_FLASH;
                     break;
-                case FlashMode.AUTO:
+                case FLASH_MODE_AUTO:
                     aeMode = CaptureRequest.CONTROL_AE_MODE_ON_AUTO_FLASH;
                     break;
             }

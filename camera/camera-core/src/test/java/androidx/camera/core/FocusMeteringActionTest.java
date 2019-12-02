@@ -18,7 +18,6 @@ package androidx.camera.core;
 
 import static com.google.common.truth.Truth.assertThat;
 
-import androidx.camera.core.FocusMeteringAction.MeteringMode;
 import androidx.test.filters.SmallTest;
 
 import org.junit.Test;
@@ -54,7 +53,8 @@ public class FocusMeteringActionTest {
     @Test
     public void fromPointWithAFAEAWB() {
         FocusMeteringAction action = FocusMeteringAction.Builder
-                .from(mPoint1, MeteringMode.AF | MeteringMode.AE | MeteringMode.AWB).build();
+                .from(mPoint1, FocusMeteringAction.FLAG_AF | FocusMeteringAction.FLAG_AE
+                        | FocusMeteringAction.FLAG_AWB).build();
         assertThat(action.getMeteringPointsAf()).containsExactly(mPoint1);
         assertThat(action.getMeteringPointsAe()).containsExactly(mPoint1);
         assertThat(action.getMeteringPointsAwb()).containsExactly(mPoint1);
@@ -63,7 +63,7 @@ public class FocusMeteringActionTest {
     @Test
     public void fromPointWithAFAE() {
         FocusMeteringAction action = FocusMeteringAction.Builder
-                .from(mPoint1, MeteringMode.AF | MeteringMode.AE).build();
+                .from(mPoint1, FocusMeteringAction.FLAG_AF | FocusMeteringAction.FLAG_AE).build();
         assertThat(action.getMeteringPointsAf()).containsExactly(mPoint1);
         assertThat(action.getMeteringPointsAe()).containsExactly(mPoint1);
         assertThat(action.getMeteringPointsAwb()).isEmpty();
@@ -72,7 +72,7 @@ public class FocusMeteringActionTest {
     @Test
     public void fromPointWithAFAWB() {
         FocusMeteringAction action = FocusMeteringAction.Builder
-                .from(mPoint1, MeteringMode.AF | MeteringMode.AWB).build();
+                .from(mPoint1, FocusMeteringAction.FLAG_AF | FocusMeteringAction.FLAG_AWB).build();
         assertThat(action.getMeteringPointsAf()).containsExactly(mPoint1);
         assertThat(action.getMeteringPointsAe()).isEmpty();
         assertThat(action.getMeteringPointsAwb()).containsExactly(mPoint1);
@@ -81,7 +81,7 @@ public class FocusMeteringActionTest {
     @Test
     public void fromPointWithAEAWB() {
         FocusMeteringAction action = FocusMeteringAction.Builder
-                .from(mPoint1, MeteringMode.AE | MeteringMode.AWB).build();
+                .from(mPoint1, FocusMeteringAction.FLAG_AE | FocusMeteringAction.FLAG_AWB).build();
         assertThat(action.getMeteringPointsAf()).isEmpty();
         assertThat(action.getMeteringPointsAe()).containsExactly(mPoint1);
         assertThat(action.getMeteringPointsAwb()).containsExactly(mPoint1);
@@ -90,7 +90,7 @@ public class FocusMeteringActionTest {
     @Test
     public void fromPointWithAF() {
         FocusMeteringAction action = FocusMeteringAction.Builder
-                .from(mPoint1, MeteringMode.AF).build();
+                .from(mPoint1, FocusMeteringAction.FLAG_AF).build();
         assertThat(action.getMeteringPointsAf()).containsExactly(mPoint1);
         assertThat(action.getMeteringPointsAe()).isEmpty();
         assertThat(action.getMeteringPointsAwb()).isEmpty();
@@ -99,7 +99,7 @@ public class FocusMeteringActionTest {
     @Test
     public void fromPointWithAE() {
         FocusMeteringAction action = FocusMeteringAction.Builder
-                .from(mPoint1, MeteringMode.AE).build();
+                .from(mPoint1, FocusMeteringAction.FLAG_AE).build();
         assertThat(action.getMeteringPointsAf()).isEmpty();
         assertThat(action.getMeteringPointsAe()).containsExactly(mPoint1);
         assertThat(action.getMeteringPointsAwb()).isEmpty();
@@ -108,7 +108,7 @@ public class FocusMeteringActionTest {
     @Test
     public void fromPointWithAWB() {
         FocusMeteringAction action = FocusMeteringAction.Builder
-                .from(mPoint1, MeteringMode.AWB).build();
+                .from(mPoint1, FocusMeteringAction.FLAG_AWB).build();
         assertThat(action.getMeteringPointsAf()).isEmpty();
         assertThat(action.getMeteringPointsAe()).isEmpty();
         assertThat(action.getMeteringPointsAwb()).containsExactly(mPoint1);
@@ -128,9 +128,15 @@ public class FocusMeteringActionTest {
     @Test
     public void multiplePointsWithSameAF_AE_AWB() {
         FocusMeteringAction action = FocusMeteringAction.Builder
-                .from(mPoint1, MeteringMode.AF | MeteringMode.AE | MeteringMode.AWB)
-                .addPoint(mPoint2, MeteringMode.AF | MeteringMode.AE | MeteringMode.AWB)
-                .addPoint(mPoint3, MeteringMode.AF | MeteringMode.AE | MeteringMode.AWB)
+                .from(mPoint1,
+                        FocusMeteringAction.FLAG_AF | FocusMeteringAction.FLAG_AE
+                                | FocusMeteringAction.FLAG_AWB)
+                .addPoint(mPoint2,
+                        FocusMeteringAction.FLAG_AF | FocusMeteringAction.FLAG_AE
+                                | FocusMeteringAction.FLAG_AWB)
+                .addPoint(mPoint3,
+                        FocusMeteringAction.FLAG_AF | FocusMeteringAction.FLAG_AE
+                                | FocusMeteringAction.FLAG_AWB)
                 .build();
         assertThat(action.getMeteringPointsAf()).containsExactly(mPoint1, mPoint2, mPoint3);
         assertThat(action.getMeteringPointsAe()).containsExactly(mPoint1, mPoint2, mPoint3);
@@ -140,9 +146,9 @@ public class FocusMeteringActionTest {
     @Test
     public void multiplePointsWithSameAF_AE() {
         FocusMeteringAction action = FocusMeteringAction.Builder
-                .from(mPoint1, MeteringMode.AF | MeteringMode.AE)
-                .addPoint(mPoint2, MeteringMode.AF | MeteringMode.AE)
-                .addPoint(mPoint3, MeteringMode.AF | MeteringMode.AE)
+                .from(mPoint1, FocusMeteringAction.FLAG_AF | FocusMeteringAction.FLAG_AE)
+                .addPoint(mPoint2, FocusMeteringAction.FLAG_AF | FocusMeteringAction.FLAG_AE)
+                .addPoint(mPoint3, FocusMeteringAction.FLAG_AF | FocusMeteringAction.FLAG_AE)
                 .build();
         assertThat(action.getMeteringPointsAf()).containsExactly(mPoint1, mPoint2, mPoint3);
         assertThat(action.getMeteringPointsAe()).containsExactly(mPoint1, mPoint2, mPoint3);
@@ -152,9 +158,9 @@ public class FocusMeteringActionTest {
     @Test
     public void multiplePointsWithSameAE_AWB() {
         FocusMeteringAction action = FocusMeteringAction.Builder
-                .from(mPoint1, MeteringMode.AE | MeteringMode.AWB)
-                .addPoint(mPoint2, MeteringMode.AE | MeteringMode.AWB)
-                .addPoint(mPoint3, MeteringMode.AE | MeteringMode.AWB)
+                .from(mPoint1, FocusMeteringAction.FLAG_AE | FocusMeteringAction.FLAG_AWB)
+                .addPoint(mPoint2, FocusMeteringAction.FLAG_AE | FocusMeteringAction.FLAG_AWB)
+                .addPoint(mPoint3, FocusMeteringAction.FLAG_AE | FocusMeteringAction.FLAG_AWB)
                 .build();
         assertThat(action.getMeteringPointsAf()).isEmpty();
         assertThat(action.getMeteringPointsAe()).containsExactly(mPoint1, mPoint2, mPoint3);
@@ -164,9 +170,9 @@ public class FocusMeteringActionTest {
     @Test
     public void multiplePointsWithSameAF_AWB() {
         FocusMeteringAction action = FocusMeteringAction.Builder
-                .from(mPoint1, MeteringMode.AF | MeteringMode.AWB)
-                .addPoint(mPoint2, MeteringMode.AF | MeteringMode.AWB)
-                .addPoint(mPoint3, MeteringMode.AF | MeteringMode.AWB)
+                .from(mPoint1, FocusMeteringAction.FLAG_AF | FocusMeteringAction.FLAG_AWB)
+                .addPoint(mPoint2, FocusMeteringAction.FLAG_AF | FocusMeteringAction.FLAG_AWB)
+                .addPoint(mPoint3, FocusMeteringAction.FLAG_AF | FocusMeteringAction.FLAG_AWB)
                 .build();
         assertThat(action.getMeteringPointsAf()).containsExactly(mPoint1, mPoint2, mPoint3);
         assertThat(action.getMeteringPointsAe()).isEmpty();
@@ -175,9 +181,10 @@ public class FocusMeteringActionTest {
 
     @Test
     public void multiplePointsWithSameAWBOnly() {
-        FocusMeteringAction action = FocusMeteringAction.Builder.from(mPoint1, MeteringMode.AWB)
-                .addPoint(mPoint2, MeteringMode.AWB)
-                .addPoint(mPoint3, MeteringMode.AWB)
+        FocusMeteringAction action = FocusMeteringAction.Builder.from(mPoint1,
+                FocusMeteringAction.FLAG_AWB)
+                .addPoint(mPoint2, FocusMeteringAction.FLAG_AWB)
+                .addPoint(mPoint3, FocusMeteringAction.FLAG_AWB)
                 .build();
         assertThat(action.getMeteringPointsAf()).isEmpty();
         assertThat(action.getMeteringPointsAe()).isEmpty();
@@ -187,9 +194,9 @@ public class FocusMeteringActionTest {
     @Test
     public void multiplePointsWithSameAEOnly() {
         FocusMeteringAction action = FocusMeteringAction.Builder.from(mPoint1,
-                MeteringMode.AE)
-                .addPoint(mPoint2, MeteringMode.AE)
-                .addPoint(mPoint3, MeteringMode.AE)
+                FocusMeteringAction.FLAG_AE)
+                .addPoint(mPoint2, FocusMeteringAction.FLAG_AE)
+                .addPoint(mPoint3, FocusMeteringAction.FLAG_AE)
                 .build();
         assertThat(action.getMeteringPointsAf()).isEmpty();
         assertThat(action.getMeteringPointsAe()).containsExactly(mPoint1, mPoint2, mPoint3);
@@ -199,9 +206,9 @@ public class FocusMeteringActionTest {
     @Test
     public void multiplePointsWithSameAFOnly() {
         FocusMeteringAction action = FocusMeteringAction.Builder.from(mPoint1,
-                MeteringMode.AF)
-                .addPoint(mPoint2, MeteringMode.AF)
-                .addPoint(mPoint3, MeteringMode.AF)
+                FocusMeteringAction.FLAG_AF)
+                .addPoint(mPoint2, FocusMeteringAction.FLAG_AF)
+                .addPoint(mPoint3, FocusMeteringAction.FLAG_AF)
                 .build();
         assertThat(action.getMeteringPointsAf()).containsExactly(mPoint1, mPoint2, mPoint3);
         assertThat(action.getMeteringPointsAe()).isEmpty();
@@ -211,9 +218,9 @@ public class FocusMeteringActionTest {
     @Test
     public void multiplePointsWithAFOnly_AEOnly_AWBOnly() {
         FocusMeteringAction action = FocusMeteringAction.Builder.from(mPoint1,
-                MeteringMode.AF)
-                .addPoint(mPoint2, MeteringMode.AE)
-                .addPoint(mPoint3, MeteringMode.AWB)
+                FocusMeteringAction.FLAG_AF)
+                .addPoint(mPoint2, FocusMeteringAction.FLAG_AE)
+                .addPoint(mPoint3, FocusMeteringAction.FLAG_AWB)
                 .build();
         assertThat(action.getMeteringPointsAf()).containsExactly(mPoint1);
         assertThat(action.getMeteringPointsAe()).containsExactly(mPoint2);
@@ -223,9 +230,9 @@ public class FocusMeteringActionTest {
     @Test
     public void multiplePointsWithAFAE_AEAWB_AFAWB() {
         FocusMeteringAction action = FocusMeteringAction.Builder.from(mPoint1,
-                MeteringMode.AF | MeteringMode.AE)
-                .addPoint(mPoint2, MeteringMode.AE | MeteringMode.AWB)
-                .addPoint(mPoint3, MeteringMode.AF | MeteringMode.AWB)
+                FocusMeteringAction.FLAG_AF | FocusMeteringAction.FLAG_AE)
+                .addPoint(mPoint2, FocusMeteringAction.FLAG_AE | FocusMeteringAction.FLAG_AWB)
+                .addPoint(mPoint3, FocusMeteringAction.FLAG_AF | FocusMeteringAction.FLAG_AWB)
                 .build();
         assertThat(action.getMeteringPointsAf()).containsExactly(mPoint1, mPoint3);
         assertThat(action.getMeteringPointsAe()).containsExactly(mPoint2, mPoint1);
@@ -235,9 +242,10 @@ public class FocusMeteringActionTest {
     @Test
     public void multiplePointsWithAFAEAWB_AEAWB_AFOnly() {
         FocusMeteringAction action = FocusMeteringAction.Builder.from(mPoint1,
-                MeteringMode.AF | MeteringMode.AE | MeteringMode.AWB)
-                .addPoint(mPoint2, MeteringMode.AE | MeteringMode.AWB)
-                .addPoint(mPoint3, MeteringMode.AF)
+                FocusMeteringAction.FLAG_AF | FocusMeteringAction.FLAG_AE
+                        | FocusMeteringAction.FLAG_AWB)
+                .addPoint(mPoint2, FocusMeteringAction.FLAG_AE | FocusMeteringAction.FLAG_AWB)
+                .addPoint(mPoint3, FocusMeteringAction.FLAG_AF)
                 .build();
         assertThat(action.getMeteringPointsAf()).containsExactly(mPoint1, mPoint3);
         assertThat(action.getMeteringPointsAe()).containsExactly(mPoint1, mPoint2);
@@ -247,9 +255,11 @@ public class FocusMeteringActionTest {
     @Test
     public void multiplePointsWithAEOnly_AFAWAEB_AEOnly() {
         FocusMeteringAction action = FocusMeteringAction.Builder.from(mPoint1,
-                MeteringMode.AE)
-                .addPoint(mPoint2, MeteringMode.AF | MeteringMode.AE | MeteringMode.AWB)
-                .addPoint(mPoint3, MeteringMode.AE)
+                FocusMeteringAction.FLAG_AE)
+                .addPoint(mPoint2,
+                        FocusMeteringAction.FLAG_AF | FocusMeteringAction.FLAG_AE
+                                | FocusMeteringAction.FLAG_AWB)
+                .addPoint(mPoint3, FocusMeteringAction.FLAG_AE)
                 .build();
         assertThat(action.getMeteringPointsAf()).containsExactly(mPoint2);
         assertThat(action.getMeteringPointsAe()).containsExactly(mPoint1, mPoint2, mPoint3);

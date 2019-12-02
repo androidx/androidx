@@ -16,6 +16,8 @@
 
 package androidx.camera.view;
 
+import static androidx.camera.core.ImageCapture.FLASH_MODE_OFF;
+
 import android.Manifest.permission;
 import android.annotation.SuppressLint;
 import android.content.Context;
@@ -36,11 +38,9 @@ import androidx.camera.core.Camera;
 import androidx.camera.core.CameraOrientationUtil;
 import androidx.camera.core.CameraSelector;
 import androidx.camera.core.CameraX;
-import androidx.camera.core.FlashMode;
 import androidx.camera.core.ImageCapture;
 import androidx.camera.core.ImageCapture.OnImageCapturedCallback;
 import androidx.camera.core.ImageCapture.OnImageSavedCallback;
-import androidx.camera.core.LensFacing;
 import androidx.camera.core.LensFacingConverter;
 import androidx.camera.core.Preview;
 import androidx.camera.core.TorchState;
@@ -92,8 +92,8 @@ final class CameraXModule {
     private CameraView.CaptureMode mCaptureMode = CaptureMode.IMAGE;
     private long mMaxVideoDuration = CameraView.INDEFINITE_VIDEO_DURATION;
     private long mMaxVideoSize = CameraView.INDEFINITE_VIDEO_SIZE;
-    @FlashMode
-    private int mFlash = FlashMode.OFF;
+    @ImageCapture.FlashMode
+    private int mFlash = FLASH_MODE_OFF;
     @Nullable
     @SuppressWarnings("WeakerAccess") /* synthetic accessor */
     Camera mCamera;
@@ -124,7 +124,7 @@ final class CameraXModule {
     private LifecycleOwner mNewLifecycle;
     @SuppressWarnings("WeakerAccess") /* synthetic accessor */
     @Nullable
-    Integer mCameraLensFacing = LensFacing.BACK;
+    Integer mCameraLensFacing = CameraSelector.LENS_FACING_BACK;
     @SuppressWarnings("WeakerAccess") /* synthetic accessor */
     @Nullable
     ProcessCameraProvider mCameraProvider;
@@ -351,7 +351,7 @@ final class CameraXModule {
 
         ImageCapture.Metadata metadata = new ImageCapture.Metadata();
         metadata.setReversedHorizontal(
-                mCameraLensFacing != null && mCameraLensFacing == LensFacing.FRONT);
+                mCameraLensFacing != null && mCameraLensFacing == CameraSelector.LENS_FACING_FRONT);
         mImageCapture.takePicture(saveLocation, metadata, executor, callback);
     }
 
@@ -420,7 +420,7 @@ final class CameraXModule {
     }
 
     @RequiresPermission(permission.CAMERA)
-    public boolean hasCameraWithLensFacing(@LensFacing int lensFacing) {
+    public boolean hasCameraWithLensFacing(@CameraSelector.LensFacing int lensFacing) {
         String cameraId;
         try {
             cameraId = CameraX.getCameraWithLensFacing(lensFacing);
@@ -450,15 +450,15 @@ final class CameraXModule {
             return;
         }
 
-        if (mCameraLensFacing == LensFacing.BACK
-                && availableCameraLensFacing.contains(LensFacing.FRONT)) {
-            setCameraLensFacing(LensFacing.FRONT);
+        if (mCameraLensFacing == CameraSelector.LENS_FACING_BACK
+                && availableCameraLensFacing.contains(CameraSelector.LENS_FACING_FRONT)) {
+            setCameraLensFacing(CameraSelector.LENS_FACING_FRONT);
             return;
         }
 
-        if (mCameraLensFacing == LensFacing.FRONT
-                && availableCameraLensFacing.contains(LensFacing.BACK)) {
-            setCameraLensFacing(LensFacing.BACK);
+        if (mCameraLensFacing == CameraSelector.LENS_FACING_FRONT
+                && availableCameraLensFacing.contains(CameraSelector.LENS_FACING_BACK)) {
+            setCameraLensFacing(CameraSelector.LENS_FACING_BACK);
             return;
         }
     }
@@ -593,24 +593,24 @@ final class CameraXModule {
 
         // If we're bound to a lifecycle, remove unavailable cameras
         if (mCurrentLifecycle != null) {
-            if (!hasCameraWithLensFacing(LensFacing.BACK)) {
-                available.remove(LensFacing.BACK);
+            if (!hasCameraWithLensFacing(CameraSelector.LENS_FACING_BACK)) {
+                available.remove(CameraSelector.LENS_FACING_BACK);
             }
 
-            if (!hasCameraWithLensFacing(LensFacing.FRONT)) {
-                available.remove(LensFacing.FRONT);
+            if (!hasCameraWithLensFacing(CameraSelector.LENS_FACING_FRONT)) {
+                available.remove(CameraSelector.LENS_FACING_FRONT);
             }
         }
 
         return available;
     }
 
-    @FlashMode
+    @ImageCapture.FlashMode
     public int getFlash() {
         return mFlash;
     }
 
-    public void setFlash(@FlashMode int flash) {
+    public void setFlash(@ImageCapture.FlashMode int flash) {
         this.mFlash = flash;
 
         if (mImageCapture == null) {

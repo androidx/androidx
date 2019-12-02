@@ -50,8 +50,8 @@ public interface CameraControl {
      * a failed result and the torch state will be {@link TorchState#OFF}.
      *
      * <p>When the torch is enabled, the torch will remain enabled during photo capture regardless
-     * of {@link FlashMode} setting. When the torch is disabled, flash will function as
-     * {@link FlashMode} set by either {@link ImageCapture#setFlashMode(int)} or
+     * of the flashMode setting. When the torch is disabled, flash will function as the flash mode
+     * set by either {@link ImageCapture#setFlashMode(int)} or
      * {@link ImageCapture.Builder#setFlashMode(int)}.
      *
      * @param torch true to turn on the torch, false to turn it off.

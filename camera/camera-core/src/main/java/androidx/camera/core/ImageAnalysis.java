@@ -71,9 +71,50 @@ import java.util.concurrent.Executor;
  *
  * <p>The application is responsible for calling {@link ImageProxy#close()} to close the image.
  * Failing to close the image will cause future images to be stalled or dropped depending on the
- * {@link BackpressureStrategy}.
+ * backpressure strategy.
  */
 public final class ImageAnalysis extends UseCase {
+
+    /**
+     * Only deliver the latest image to the analyzer, dropping images as they arrive.
+     *
+     * <p>This strategy ignores the value set by {@link Builder#setImageQueueDepth(int)}.
+     * Only one image will be delivered for analysis at a time. If more images are produced
+     * while that image is being analyzed, they will be dropped and not queued for delivery.
+     * Once the image being analyzed is closed by calling {@link ImageProxy#close()}, the
+     * next latest image will be delivered.
+     *
+     * <p>Internally this strategy may make use of an internal {@link Executor} to receive
+     * and drop images from the producer. A performance-tuned executor will be created
+     * internally unless one is explicitly provided by
+     * {@link Builder#setBackgroundExecutor(Executor)}. In order to
+     * ensure smooth operation of this backpressure strategy, any user supplied
+     * {@link Executor} must be able to quickly respond to tasks posted to it, so setting
+     * the executor manually should only be considered in advanced use cases.
+     *
+     * @see Builder#setBackgroundExecutor(Executor)
+     */
+    public static final int STRATEGY_KEEP_ONLY_LATEST = 0;
+    /**
+     * Block the producer from generating new images.
+     *
+     * <p>Once the producer has produced the number of images equal to the image queue depth,
+     * and none have been closed, the producer will stop producing images. Note that images
+     * may be queued internally and not be delivered to the analyzer until the last delivered
+     * image has been closed with {@link ImageProxy#close()}. These internally queued images
+     * will count towards the total number of images that the producer can provide at any one
+     * time.
+     *
+     * <p>When the producer stops producing images, it may also stop producing images for
+     * other use cases, such as {@link Preview}, so it is important for the analyzer to keep
+     * up with frame rate, <i>on average</i>. Failure to keep up with frame rate may lead to
+     * jank in the frame stream and a diminished user experience. If more time is needed for
+     * analysis on <i>some</i> frames, consider increasing the image queue depth with
+     * {@link Builder#setImageQueueDepth(int)}.
+     *
+     * @see Builder#setImageQueueDepth(int)
+     */
+    public static final int STRATEGY_BLOCK_PRODUCER = 1;
 
     /**
      * Provides a static configuration with implementation-agnostic options.
@@ -113,7 +154,7 @@ public final class ImageAnalysis extends UseCase {
         ImageAnalysisConfig combinedConfig = (ImageAnalysisConfig) getUseCaseConfig();
         setImageFormat(ImageReaderFormatRecommender.chooseCombo().imageAnalysisFormat());
 
-        if (combinedConfig.getBackpressureStrategy() == BackpressureStrategy.BLOCK_PRODUCER) {
+        if (combinedConfig.getBackpressureStrategy() == STRATEGY_BLOCK_PRODUCER) {
             mImageAnalysisAbstractAnalyzer = new ImageAnalysisBlockingAnalyzer();
         } else {
             mImageAnalysisAbstractAnalyzer = new ImageAnalysisNonBlockingAnalyzer(
@@ -130,7 +171,7 @@ public final class ImageAnalysis extends UseCase {
                 CameraXExecutors.highPriorityExecutor());
 
         int imageQueueDepth =
-                config.getBackpressureStrategy() == BackpressureStrategy.BLOCK_PRODUCER
+                config.getBackpressureStrategy() == STRATEGY_BLOCK_PRODUCER
                         ? config.getImageQueueDepth() : NON_BLOCKING_IMAGE_DEPTH;
 
         mImageReader =
@@ -389,51 +430,13 @@ public final class ImageAnalysis extends UseCase {
      * by calling {@link ImageProxy#close()}. However, the image will only be valid when the
      * ImageAnalysis instance is bound to a camera.
      *
+     * @hide
      * @see Builder#setBackpressureStrategy(int)
      */
-    @IntDef({BackpressureStrategy.KEEP_ONLY_LATEST, BackpressureStrategy.BLOCK_PRODUCER})
+    @IntDef({STRATEGY_KEEP_ONLY_LATEST, STRATEGY_BLOCK_PRODUCER})
     @Retention(RetentionPolicy.SOURCE)
+    @RestrictTo(Scope.LIBRARY_GROUP)
     public @interface BackpressureStrategy {
-        /**
-         * Only deliver the latest image to the analyzer, dropping images as they arrive.
-         *
-         * <p>This strategy ignores the value set by {@link Builder#setImageQueueDepth(int)}.
-         * Only one image will be delivered for analysis at a time. If more images are produced
-         * while that image is being analyzed, they will be dropped and not queued for delivery.
-         * Once the image being analyzed is closed by calling {@link ImageProxy#close()}, the
-         * next latest image will be delivered.
-         *
-         * <p>Internally this strategy may make use of an internal {@link Executor} to receive
-         * and drop images from the producer. A performance-tuned executor will be created
-         * internally unless one is explicitly provided by
-         * {@link Builder#setBackgroundExecutor(Executor)}. In order to
-         * ensure smooth operation of this backpressure strategy, any user supplied
-         * {@link Executor} must be able to quickly respond to tasks posted to it, so setting
-         * the executor manually should only be considered in advanced use cases.
-         *
-         * @see Builder#setBackgroundExecutor(Executor)
-         */
-        int KEEP_ONLY_LATEST = 0;
-        /**
-         * Block the producer from generating new images.
-         *
-         * <p>Once the producer has produced the number of images equal to the image queue depth,
-         * and none have been closed, the producer will stop producing images. Note that images
-         * may be queued internally and not be delivered to the analyzer until the last delivered
-         * image has been closed with {@link ImageProxy#close()}. These internally queued images
-         * will count towards the total number of images that the producer can provide at any one
-         * time.
-         *
-         * <p>When the producer stops producing images, it may also stop producing images for
-         * other use cases, such as {@link Preview}, so it is important for the analyzer to keep
-         * up with frame rate, <i>on average</i>. Failure to keep up with frame rate may lead to
-         * jank in the frame stream and a diminished user experience. If more time is needed for
-         * analysis on <i>some</i> frames, consider increasing the image queue depth with
-         * {@link Builder#setImageQueueDepth(int)}.
-         *
-         * @see Builder#setImageQueueDepth(int)
-         */
-        int BLOCK_PRODUCER = 1;
     }
 
     /**
@@ -453,7 +456,7 @@ public final class ImageAnalysis extends UseCase {
          * <p>It is the responsibility of the application to close the image once done with it.
          * If the images are not closed then it may block further images from being produced
          * (causing the preview to stall) or drop images as determined by the configured
-         * {@link ImageAnalysis.BackpressureStrategy}. The exact behavior is configurable via
+         * backpressure strategy. The exact behavior is configurable via
          * {@link ImageAnalysis.Builder#setBackpressureStrategy(int)}.
          *
          * <p>Images produced here will no longer be valid after the {@link ImageAnalysis}
@@ -496,8 +499,7 @@ public final class ImageAnalysis extends UseCase {
     @RestrictTo(Scope.LIBRARY_GROUP)
     public static final class Defaults implements ConfigProvider<ImageAnalysisConfig> {
         @BackpressureStrategy
-        private static final int DEFAULT_BACKPRESSURE_STRATEGY =
-                BackpressureStrategy.KEEP_ONLY_LATEST;
+        private static final int DEFAULT_BACKPRESSURE_STRATEGY = STRATEGY_KEEP_ONLY_LATEST;
         private static final int DEFAULT_IMAGE_QUEUE_DEPTH = 6;
         private static final Size DEFAULT_TARGET_RESOLUTION = new Size(640, 480);
         private static final Size DEFAULT_MAX_RESOLUTION = new Size(1920, 1080);
@@ -570,11 +572,11 @@ public final class ImageAnalysis extends UseCase {
          * Sets the backpressure strategy to apply to the image producer to deal with scenarios
          * where images may be produced faster than they can be analyzed.
          *
-         * <p>The available values are {@link BackpressureStrategy#BLOCK_PRODUCER} and {@link
-         * BackpressureStrategy#KEEP_ONLY_LATEST}.
+         * <p>The available values are {@link #STRATEGY_BLOCK_PRODUCER} and
+         * {@link #STRATEGY_KEEP_ONLY_LATEST}.
          *
          * <p>If not set, the backpressure strategy will default to
-         * {@link BackpressureStrategy#KEEP_ONLY_LATEST}.
+         * {@link #STRATEGY_KEEP_ONLY_LATEST}.
          *
          * @param strategy The strategy to use.
          * @return The current Builder.
@@ -587,24 +589,24 @@ public final class ImageAnalysis extends UseCase {
 
         /**
          * Sets the number of images available to the camera pipeline for
-         * {@link BackpressureStrategy#BLOCK_PRODUCER} mode.
+         * {@link #STRATEGY_BLOCK_PRODUCER} mode.
          *
          * <p>The image queue depth is the number of images available to the camera to fill with
          * data. This includes the image currently being analyzed by {@link
          * ImageAnalysis.Analyzer#analyze(ImageProxy, int)}. Increasing the image queue depth
-         * may make camera operation smoother, depending on the {@link BackpressureStrategy}, at
+         * may make camera operation smoother, depending on the backpressure strategy, at
          * the cost of increased memory usage.
          *
-         * <p>When the {@link BackpressureStrategy} is set to
-         * {@link BackpressureStrategy#BLOCK_PRODUCER}, increasing the image queue depth may make
-         * the camera pipeline run smoother on systems under high load. However, the time spent
-         * analyzing an image should still be kept under a single frame period for the current
-         * frame rate, <i>on average</i>, to avoid stalling the camera pipeline.
+         * <p>When the backpressure strategy is set to {@link #STRATEGY_BLOCK_PRODUCER},
+         * increasing the image queue depth may make the camera pipeline run smoother on systems
+         * under high load. However, the time spent analyzing an image should still be kept under
+         * a single frame period for the current frame rate, <i>on average</i>, to avoid stalling
+         * the camera pipeline.
          *
-         * <p>The value only applies to {@link BackpressureStrategy#BLOCK_PRODUCER} mode.
-         * For {@link BackpressureStrategy#KEEP_ONLY_LATEST} the value is ignored.
+         * <p>The value only applies to {@link #STRATEGY_BLOCK_PRODUCER} mode.
+         * For {@link #STRATEGY_KEEP_ONLY_LATEST} the value is ignored.
          *
-         * <p>If not set, and this option is used by the selected {@link BackpressureStrategy},
+         * <p>If not set, and this option is used by the selected backpressure strategy,
          * the default will be a queue depth of 6 images.
          *
          * @param depth The total number of images available to the camera.
@@ -641,7 +643,7 @@ public final class ImageAnalysis extends UseCase {
         }
 
         /**
-         * Builds an immutable {@link ImageAnalysis} from the current state.
+         * Builds an {@link ImageAnalysis} from the current state.
          *
          * @return A {@link ImageAnalysis} populated with the current state.
          * @throws IllegalArgumentException if attempting to set both target aspect ratio and
@@ -714,7 +716,7 @@ public final class ImageAnalysis extends UseCase {
         @RestrictTo(Scope.LIBRARY_GROUP)
         @Override
         @NonNull
-        public Builder setLensFacing(@LensFacing int lensFacing) {
+        public Builder setLensFacing(@CameraSelector.LensFacing int lensFacing) {
             getMutableConfig().insertOption(OPTION_LENS_FACING, lensFacing);
             return this;
         }
@@ -793,7 +795,7 @@ public final class ImageAnalysis extends UseCase {
          */
         @NonNull
         @Override
-        public Builder setTargetAspectRatio(@AspectRatio int aspectRatio) {
+        public Builder setTargetAspectRatio(@AspectRatio.Ratio int aspectRatio) {
             getMutableConfig().insertOption(OPTION_TARGET_ASPECT_RATIO, aspectRatio);
             return this;
         }
