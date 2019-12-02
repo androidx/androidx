@@ -30,6 +30,7 @@ import android.graphics.drawable.Drawable;
 import android.net.ConnectivityManager;
 import android.os.AsyncTask;
 import android.os.Build;
+import android.text.TextUtils;
 import android.util.AttributeSet;
 import android.util.Log;
 import android.util.SparseArray;
@@ -127,6 +128,7 @@ public class MediaRouteButton extends View {
 
     private boolean mUseDynamicGroup;
     private boolean mAlwaysVisible;
+    private boolean mCheatSheetEnabled;
 
     // The checked state is used when connected to a remote route.
     private static final int[] CHECKED_STATE_SET = {
@@ -367,8 +369,10 @@ public class MediaRouteButton extends View {
      * button when the button is long pressed.
      */
     void setCheatSheetEnabled(boolean enable) {
-        TooltipCompat.setTooltipText(this,
-                enable ? getContext().getString(R.string.mr_button_content_description) : null);
+        if (enable != mCheatSheetEnabled) {
+            mCheatSheetEnabled = enable;
+            updateContentDescription();
+        }
     }
 
     @Override
@@ -671,7 +675,11 @@ public class MediaRouteButton extends View {
                 break;
         }
 
-        setContentDescription(getContext().getString(resId));
+        String contentDesc = getContext().getString(resId);
+        setContentDescription(contentDesc);
+
+        TooltipCompat.setTooltipText(this,
+                mCheatSheetEnabled && !TextUtils.isEmpty(contentDesc) ? contentDesc : null);
     }
 
     private final class MediaRouterCallback extends MediaRouter.Callback {
