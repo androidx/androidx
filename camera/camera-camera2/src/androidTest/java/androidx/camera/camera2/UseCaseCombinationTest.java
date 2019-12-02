@@ -34,7 +34,6 @@ import androidx.camera.core.CameraX;
 import androidx.camera.core.CameraXConfig;
 import androidx.camera.core.ImageAnalysis;
 import androidx.camera.core.ImageCapture;
-import androidx.camera.core.LensFacing;
 import androidx.camera.core.Preview;
 import androidx.camera.core.impl.utils.executor.CameraXExecutors;
 import androidx.camera.testing.CameraUtil;
@@ -66,7 +65,7 @@ import java.util.concurrent.Semaphore;
 @RunWith(AndroidJUnit4.class)
 public final class UseCaseCombinationTest {
     private static final CameraSelector DEFAULT_SELECTOR =
-            new CameraSelector.Builder().requireLensFacing(LensFacing.BACK).build();
+            new CameraSelector.Builder().requireLensFacing(CameraSelector.LENS_FACING_BACK).build();
     private final MutableLiveData<Long> mAnalysisResult = new MutableLiveData<>();
     @Rule
     public GrantPermissionRule mRuntimePermissionRule = GrantPermissionRule.grant(

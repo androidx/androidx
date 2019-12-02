@@ -188,7 +188,7 @@ public final class PreviewConfig
      */
     @RestrictTo(Scope.LIBRARY_GROUP)
     @Override
-    @LensFacing
+    @CameraSelector.LensFacing
     public int getLensFacing() {
         return retrieveOption(OPTION_LENS_FACING);
     }
@@ -272,7 +272,7 @@ public final class PreviewConfig
      * @return The stored value, if it exists in this configuration.
      * @throws IllegalArgumentException if the option does not exist in this configuration.
      */
-    @AspectRatio
+    @AspectRatio.Ratio
     @Override
     public int getTargetAspectRatio() {
         return retrieveOption(OPTION_TARGET_ASPECT_RATIO);

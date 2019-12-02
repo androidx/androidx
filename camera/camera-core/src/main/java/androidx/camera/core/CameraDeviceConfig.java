@@ -75,7 +75,7 @@ public interface CameraDeviceConfig {
      * @hide
      */
     @RestrictTo(Scope.LIBRARY_GROUP)
-    @LensFacing
+    @CameraSelector.LensFacing
     int getLensFacing();
 
     /**
@@ -122,7 +122,7 @@ public interface CameraDeviceConfig {
          */
         @NonNull
         @RestrictTo(Scope.LIBRARY_GROUP)
-        B setLensFacing(@LensFacing int lensFacing);
+        B setLensFacing(@CameraSelector.LensFacing int lensFacing);
 
         /**
          * Sets the {@link CameraIdFilter} that filter out the unavailable camera ids.

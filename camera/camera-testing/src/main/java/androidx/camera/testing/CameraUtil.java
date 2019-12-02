@@ -34,7 +34,7 @@ import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.annotation.RequiresPermission;
 import androidx.camera.core.CameraInternal;
-import androidx.camera.core.LensFacing;
+import androidx.camera.core.CameraSelector;
 import androidx.camera.core.UseCase;
 import androidx.concurrent.futures.CallbackToFutureAdapter;
 import androidx.core.util.Preconditions;
@@ -293,7 +293,7 @@ public final class CameraUtil {
      * @return True if the device supports the lensFacing.
      * @throws IllegalStateException if the CAMERA permission is not currently granted.
      */
-    public static boolean hasCameraWithLensFacing(@LensFacing int lensFacing) {
+    public static boolean hasCameraWithLensFacing(@CameraSelector.LensFacing int lensFacing) {
         @SupportedLensFacingInt
         int lensFacingInteger = getLensFacingIntFromEnum(lensFacing);
         for (String cameraId : getCameraIdListOrThrow()) {
@@ -307,13 +307,13 @@ public final class CameraUtil {
     }
 
     /**
-     * Check if the device has a flash unit with the specified {@link LensFacing}.
+     * Check if the device has a flash unit with the specified lensFacing.
      *
      * @param lensFacing The desired camera lensFacing.
      * @return True if the device has flash unit with the specified LensFacing.
      * @throws IllegalStateException if the CAMERA permission is not currently granted.
      */
-    public static boolean hasFlashUnitWithLensFacing(@LensFacing int lensFacing) {
+    public static boolean hasFlashUnitWithLensFacing(@CameraSelector.LensFacing int lensFacing) {
         @SupportedLensFacingInt
         int lensFacingInteger = getLensFacingIntFromEnum(lensFacing);
         for (String cameraId : getCameraIdListOrThrow()) {
@@ -341,20 +341,19 @@ public final class CameraUtil {
 
 
     /**
-     * Converts a lens facing direction from a {@link CameraMetadata} integer to a
-     * {@link LensFacing}.
+     * Converts a lens facing direction from a {@link CameraMetadata} integer to a lensFacing.
      *
      * @param lensFacingInteger The lens facing integer, as defined in {@link CameraMetadata}.
      * @return The lens facing enum.
      */
-    @LensFacing
+    @CameraSelector.LensFacing
     public static int getLensFacingEnumFromInt(
             @SupportedLensFacingInt int lensFacingInteger) {
         switch (lensFacingInteger) {
             case CameraMetadata.LENS_FACING_BACK:
-                return LensFacing.BACK;
+                return CameraSelector.LENS_FACING_BACK;
             case CameraMetadata.LENS_FACING_FRONT:
-                return LensFacing.FRONT;
+                return CameraSelector.LENS_FACING_FRONT;
             default:
                 throw new IllegalArgumentException(
                         "Unsupported lens facing integer: " + lensFacingInteger);
@@ -362,18 +361,17 @@ public final class CameraUtil {
     }
 
     /**
-     * Converts a lens facing direction from a {@link LensFacing} to a {@link CameraMetadata}
-     * integer.
+     * Converts a lens facing direction from a lensFacing to a {@link CameraMetadata} integer.
      *
-     * @param lensFacing The lens facing enum, as defined in {@link LensFacing}.
+     * @param lensFacing The lens facing enum, as defined in {@link CameraSelector}.
      * @return The lens facing integer.
      */
     @SupportedLensFacingInt
-    private static int getLensFacingIntFromEnum(@LensFacing int lensFacing) {
+    private static int getLensFacingIntFromEnum(@CameraSelector.LensFacing int lensFacing) {
         switch (lensFacing) {
-            case LensFacing.BACK:
+            case CameraSelector.LENS_FACING_BACK:
                 return CameraMetadata.LENS_FACING_BACK;
-            case LensFacing.FRONT:
+            case CameraSelector.LENS_FACING_FRONT:
                 return CameraMetadata.LENS_FACING_FRONT;
             default:
                 throw new IllegalArgumentException("Unsupported lens facing enum: " + lensFacing);

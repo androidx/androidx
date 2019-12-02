@@ -51,9 +51,10 @@ import java.util.concurrent.ExecutionException;
 @RunWith(AndroidJUnit4.class)
 public class UseCaseAttachStateTest {
     private static final CameraSelector BACK_CAMERA_SELECTOR =
-            new CameraSelector.Builder().requireLensFacing(LensFacing.BACK).build();
+            new CameraSelector.Builder().requireLensFacing(CameraSelector.LENS_FACING_BACK).build();
     private static final CameraSelector FRONT_CAMERA_SELECTOR =
-            new CameraSelector.Builder().requireLensFacing(LensFacing.FRONT).build();
+            new CameraSelector.Builder().requireLensFacing(
+                    CameraSelector.LENS_FACING_FRONT).build();
     private final CameraDevice mMockCameraDevice = Mockito.mock(CameraDevice.class);
     private final CameraCaptureSession mMockCameraCaptureSession =
             Mockito.mock(CameraCaptureSession.class);
@@ -65,10 +66,11 @@ public class UseCaseAttachStateTest {
         CameraXConfig cameraXConfig = FakeAppConfig.create();
         CameraFactory cameraFactory = cameraXConfig.getCameraFactory(/*valueIfMissing=*/ null);
         try {
-            mCameraId = cameraFactory.cameraIdForLensFacing(LensFacing.BACK);
+            mCameraId = cameraFactory.cameraIdForLensFacing(CameraSelector.LENS_FACING_BACK);
         } catch (Exception e) {
             throw new IllegalArgumentException(
-                    "Unable to attach to camera with LensFacing " + LensFacing.BACK, e);
+                    "Unable to attach to camera with LensFacing " + CameraSelector.LENS_FACING_BACK,
+                    e);
         }
         CameraX.initialize(ApplicationProvider.getApplicationContext(), cameraXConfig);
     }

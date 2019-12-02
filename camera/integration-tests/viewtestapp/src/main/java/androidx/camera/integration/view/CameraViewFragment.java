@@ -30,7 +30,7 @@ import android.widget.Toast;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
-import androidx.camera.core.LensFacing;
+import androidx.camera.core.CameraSelector;
 import androidx.camera.view.CameraView;
 import androidx.camera.view.CameraView.CaptureMode;
 import androidx.camera.view.CameraView.ScaleType;
@@ -100,8 +100,9 @@ public class CameraViewFragment extends Fragment {
                     cameraDirectionString != null && (cameraDirectionString.equalsIgnoreCase("BACK")
                             || cameraDirectionString.equalsIgnoreCase("FRONT"));
             if (isCameraDirectionValid) {
-                @LensFacing int lensFacing = cameraDirectionString.equalsIgnoreCase("BACK")
-                        ? LensFacing.BACK : LensFacing.FRONT;
+                @CameraSelector.LensFacing int lensFacing = cameraDirectionString.equalsIgnoreCase(
+                        "BACK")
+                        ? CameraSelector.LENS_FACING_BACK : CameraSelector.LENS_FACING_FRONT;
                 mCameraView.setCameraLensFacing(lensFacing);
             }
 
@@ -133,11 +134,13 @@ public class CameraViewFragment extends Fragment {
 
         if (mToggleCameraButton != null) {
             mToggleCameraButton.setVisibility(
-                    (mCameraView.hasCameraWithLensFacing(LensFacing.BACK)
-                            && mCameraView.hasCameraWithLensFacing(LensFacing.FRONT))
+                    (mCameraView.hasCameraWithLensFacing(CameraSelector.LENS_FACING_BACK)
+                            && mCameraView.hasCameraWithLensFacing(
+                            CameraSelector.LENS_FACING_FRONT))
                             ? View.VISIBLE
                             : View.INVISIBLE);
-            mToggleCameraButton.setChecked(mCameraView.getCameraLensFacing() == LensFacing.FRONT);
+            mToggleCameraButton.setChecked(
+                    mCameraView.getCameraLensFacing() == CameraSelector.LENS_FACING_FRONT);
         }
 
         // Set listeners here, or else restoring state will trigger them.
@@ -147,7 +150,8 @@ public class CameraViewFragment extends Fragment {
                         @Override
                         public void onCheckedChanged(CompoundButton b, boolean checked) {
                             mCameraView.setCameraLensFacing(
-                                    checked ? LensFacing.FRONT : LensFacing.BACK);
+                                    checked ? CameraSelector.LENS_FACING_FRONT
+                                            : CameraSelector.LENS_FACING_BACK);
                         }
                     });
         }

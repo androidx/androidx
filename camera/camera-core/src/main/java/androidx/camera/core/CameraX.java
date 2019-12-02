@@ -435,7 +435,7 @@ public final class CameraX {
      */
     @RestrictTo(Scope.LIBRARY_GROUP)
     @Nullable
-    public static String getCameraWithLensFacing(@LensFacing int lensFacing)
+    public static String getCameraWithLensFacing(@CameraSelector.LensFacing int lensFacing)
             throws CameraInfoUnavailableException {
         checkInitialized();
         return getCameraFactory().cameraIdForLensFacing(lensFacing);
@@ -493,12 +493,13 @@ public final class CameraX {
      * @hide
      */
     @RestrictTo(Scope.LIBRARY_GROUP)
-    @LensFacing
+    @CameraSelector.LensFacing
     public static int getDefaultLensFacing() throws CameraInfoUnavailableException {
         checkInitialized();
 
         Integer lensFacingCandidate = null;
-        List<Integer> lensFacingList = Arrays.asList(LensFacing.BACK, LensFacing.FRONT);
+        List<Integer> lensFacingList = Arrays.asList(CameraSelector.LENS_FACING_BACK,
+                CameraSelector.LENS_FACING_FRONT);
         for (Integer lensFacing : lensFacingList) {
             String cameraId = getCameraFactory().cameraIdForLensFacing(lensFacing);
             if (cameraId != null) {

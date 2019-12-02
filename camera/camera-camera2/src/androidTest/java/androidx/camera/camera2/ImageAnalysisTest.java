@@ -38,7 +38,6 @@ import androidx.camera.core.ImageAnalysis.Analyzer;
 import androidx.camera.core.ImageAnalysis.BackpressureStrategy;
 import androidx.camera.core.ImageAnalysisConfig;
 import androidx.camera.core.ImageProxy;
-import androidx.camera.core.LensFacing;
 import androidx.camera.core.UseCase.StateChangeCallback;
 import androidx.camera.core.impl.utils.executor.CameraXExecutors;
 import androidx.camera.testing.CameraUtil;
@@ -107,7 +106,8 @@ public final class ImageAnalysisTest {
         mHandlerThread = new HandlerThread("AnalysisThread");
         mHandlerThread.start();
         mHandler = new Handler(mHandlerThread.getLooper());
-        mCameraSelector = new CameraSelector.Builder().requireLensFacing(LensFacing.BACK).build();
+        mCameraSelector = new CameraSelector.Builder().requireLensFacing(
+                CameraSelector.LENS_FACING_BACK).build();
         mLifecycleOwner = new FakeLifecycleOwner();
     }
 
@@ -154,13 +154,13 @@ public final class ImageAnalysisTest {
     @Test
     public void analyzesImages_withKEEP_ONLY_LATEST_whenCameraIsOpen()
             throws InterruptedException {
-        analyzerAnalyzesImagesWithStrategy(BackpressureStrategy.KEEP_ONLY_LATEST);
+        analyzerAnalyzesImagesWithStrategy(ImageAnalysis.STRATEGY_KEEP_ONLY_LATEST);
     }
 
     @Test
     public void analyzesImages_withBLOCK_PRODUCER_whenCameraIsOpen()
             throws InterruptedException {
-        analyzerAnalyzesImagesWithStrategy(BackpressureStrategy.BLOCK_PRODUCER);
+        analyzerAnalyzesImagesWithStrategy(ImageAnalysis.STRATEGY_BLOCK_PRODUCER);
     }
 
     private void analyzerAnalyzesImagesWithStrategy(@BackpressureStrategy int backpressureStrategy)

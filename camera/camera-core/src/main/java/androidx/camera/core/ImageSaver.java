@@ -18,19 +18,17 @@ package androidx.camera.core;
 
 import android.location.Location;
 
-import androidx.annotation.IntDef;
 import androidx.annotation.Nullable;
 import androidx.camera.core.ImageUtil.CodecFailedException;
 
 import java.io.File;
 import java.io.FileOutputStream;
 import java.io.IOException;
-import java.lang.annotation.Retention;
-import java.lang.annotation.RetentionPolicy;
 import java.util.concurrent.Executor;
 
 final class ImageSaver implements Runnable {
     private static final String TAG = "ImageSaver";
+
     @Nullable
     private final Location mLocation;
     // The image that was captured
@@ -71,7 +69,7 @@ final class ImageSaver implements Runnable {
     @Override
     public void run() {
         // Finally, we save the file to disk
-        Integer saveError = null;
+        SaveError saveError = null;
         String errorMessage = null;
         Exception exception = null;
         try (ImageProxy imageToClose = mImage;
@@ -131,7 +129,7 @@ final class ImageSaver implements Runnable {
         });
     }
 
-    private void postError(final @SaveError int saveError, final String message,
+    private void postError(SaveError saveError, final String message,
             @Nullable final Throwable cause) {
         mExecutor.execute(new Runnable() {
             @Override
@@ -142,23 +140,20 @@ final class ImageSaver implements Runnable {
     }
 
     /** Type of error that occurred during save */
-    @IntDef({SaveError.FILE_IO_FAILED, SaveError.ENCODE_FAILED, SaveError.CROP_FAILED,
-            SaveError.UNKNOWN})
-    @Retention(RetentionPolicy.SOURCE)
-    public @interface SaveError {
+    public enum SaveError {
         /** Failed to write to or close the file */
-        int FILE_IO_FAILED = 0;
+        FILE_IO_FAILED,
         /** Failure when attempting to encode image */
-        int ENCODE_FAILED = 1;
+        ENCODE_FAILED,
         /** Failure when attempting to crop image */
-        int CROP_FAILED = 2;
-        int UNKNOWN = 3;
+        CROP_FAILED,
+        UNKNOWN
     }
 
     public interface OnImageSavedCallback {
 
         void onImageSaved(File file);
 
-        void onError(@SaveError int saveError, String message, @Nullable Throwable cause);
+        void onError(SaveError saveError, String message, @Nullable Throwable cause);
     }
 }

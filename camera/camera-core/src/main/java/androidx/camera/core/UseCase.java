@@ -109,8 +109,7 @@ public abstract class UseCase {
      * the pre-populated builder. If <code>null</code> is returned, then the user-supplied
      * configuration will be used directly.
      *
-     * @param lensFacing The {@link androidx.camera.core.LensFacing} that the default builder
-     *                   will target to.
+     * @param lensFacing The lensFacing that the default builder will target to.
      * @return A builder pre-populated with use case default options.
      * @hide
      */

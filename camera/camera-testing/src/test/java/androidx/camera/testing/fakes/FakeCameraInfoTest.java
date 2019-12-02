@@ -21,7 +21,7 @@ import static com.google.common.truth.Truth.assertThat;
 
 import android.os.Build;
 
-import androidx.camera.core.LensFacing;
+import androidx.camera.core.CameraSelector;
 import androidx.test.filters.SmallTest;
 
 import org.junit.Before;
@@ -38,8 +38,8 @@ import org.robolectric.annotation.internal.DoNotInstrument;
 public final class FakeCameraInfoTest {
 
     private static final int SENSOR_ROTATION_DEGREES = 90;
-    @LensFacing
-    private static final int LENS_FACING = LensFacing.FRONT;
+    @CameraSelector.LensFacing
+    private static final int LENS_FACING = CameraSelector.LENS_FACING_FRONT;
 
     private FakeCameraInfoInternal mFakeCameraInfo;
 

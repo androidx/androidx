@@ -24,8 +24,8 @@ import android.hardware.camera2.CameraAccessException;
 
 import androidx.camera.camera2.Camera2Config;
 import androidx.camera.core.CameraInfoUnavailableException;
+import androidx.camera.core.CameraSelector;
 import androidx.camera.core.CameraX;
-import androidx.camera.core.LensFacing;
 import androidx.camera.extensions.impl.ImageCaptureExtenderImpl;
 import androidx.camera.extensions.util.ExtensionsTestUtil;
 import androidx.camera.testing.CameraUtil;
@@ -75,7 +75,7 @@ public class ImageCaptureExtenderValidationTest {
                 ExtensionsTestUtil.getAllEffectLensFacingCombinations()) {
             ExtensionsManager.EffectMode effectMode =
                     (ExtensionsManager.EffectMode) EffectLensFacingPair[0];
-            @LensFacing int lensFacing = (int) EffectLensFacingPair[1];
+            @CameraSelector.LensFacing int lensFacing = (int) EffectLensFacingPair[1];
 
             assumeTrue(CameraUtil.hasCameraWithLensFacing(lensFacing));
             assumeTrue(ExtensionsManager.isExtensionAvailable(effectMode, lensFacing));

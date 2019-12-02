@@ -24,8 +24,8 @@ import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.camera.core.CameraInfoInternal;
 import androidx.camera.core.CameraOrientationUtil;
+import androidx.camera.core.CameraSelector;
 import androidx.camera.core.ImageOutputConfig.RotationValue;
-import androidx.camera.core.LensFacing;
 import androidx.core.util.Preconditions;
 import androidx.lifecycle.LiveData;
 
@@ -56,9 +56,9 @@ final class Camera2CameraInfo implements CameraInfoInternal {
         Preconditions.checkNotNull(lensFacing);
         switch (lensFacing) {
             case CameraCharacteristics.LENS_FACING_FRONT:
-                return LensFacing.FRONT;
+                return CameraSelector.LENS_FACING_FRONT;
             case CameraCharacteristics.LENS_FACING_BACK:
-                return LensFacing.BACK;
+                return CameraSelector.LENS_FACING_BACK;
             default:
                 return null;
         }
@@ -73,7 +73,8 @@ final class Camera2CameraInfo implements CameraInfoInternal {
         // This may not be the case for all devices, so in the future we may need to handle that
         // scenario.
         final Integer lensFacing = getLensFacing();
-        boolean isOppositeFacingScreen = (lensFacing != null && LensFacing.BACK == lensFacing);
+        boolean isOppositeFacingScreen =
+                (lensFacing != null && CameraSelector.LENS_FACING_BACK == lensFacing);
         return CameraOrientationUtil.getRelativeImageRotation(
                 relativeRotationDegrees,
                 sensorOrientation,

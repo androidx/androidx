@@ -389,7 +389,7 @@ public final class VideoCaptureConfig
      */
     @RestrictTo(Scope.LIBRARY_GROUP)
     @Override
-    @LensFacing
+    @CameraSelector.LensFacing
     public int getLensFacing() {
         return retrieveOption(OPTION_LENS_FACING);
     }
@@ -473,7 +473,7 @@ public final class VideoCaptureConfig
      * @return The stored value, if it exists in this configuration.
      * @throws IllegalArgumentException if the option does not exist in this configuration.
      */
-    @AspectRatio
+    @AspectRatio.Ratio
     @Override
     public int getTargetAspectRatio() {
         return retrieveOption(OPTION_TARGET_ASPECT_RATIO);
@@ -957,7 +957,7 @@ public final class VideoCaptureConfig
         @RestrictTo(Scope.LIBRARY_GROUP)
         @Override
         @NonNull
-        public Builder setLensFacing(@LensFacing int lensFacing) {
+        public Builder setLensFacing(@CameraSelector.LensFacing int lensFacing) {
             getMutableConfig().insertOption(OPTION_LENS_FACING, lensFacing);
             return this;
         }
@@ -1033,7 +1033,7 @@ public final class VideoCaptureConfig
          */
         @NonNull
         @Override
-        public Builder setTargetAspectRatio(@AspectRatio int aspectRatio) {
+        public Builder setTargetAspectRatio(@AspectRatio.Ratio int aspectRatio) {
             getMutableConfig().insertOption(OPTION_TARGET_ASPECT_RATIO, aspectRatio);
             return this;
         }

@@ -16,6 +16,8 @@
 
 package androidx.camera.testing.fakes;
 
+import static androidx.camera.core.ImageCapture.FLASH_MODE_OFF;
+
 import android.graphics.Rect;
 import android.util.Log;
 
@@ -26,9 +28,9 @@ import androidx.camera.core.CameraCaptureFailure;
 import androidx.camera.core.CameraCaptureResult;
 import androidx.camera.core.CameraControlInternal;
 import androidx.camera.core.CaptureConfig;
-import androidx.camera.core.FlashMode;
 import androidx.camera.core.FocusMeteringAction;
 import androidx.camera.core.FocusMeteringResult;
+import androidx.camera.core.ImageCapture;
 import androidx.camera.core.SessionConfig;
 import androidx.camera.core.impl.utils.futures.Futures;
 
@@ -46,8 +48,8 @@ public final class FakeCameraControl implements CameraControlInternal {
     private final ControlUpdateCallback mControlUpdateCallback;
     private final SessionConfig.Builder mSessionConfigBuilder = new SessionConfig.Builder();
     private boolean mIsTorchOn = false;
-    @FlashMode
-    private int mFlashMode = FlashMode.OFF;
+    @ImageCapture.FlashMode
+    private int mFlashMode = FLASH_MODE_OFF;
     private ArrayList<CaptureConfig> mSubmittedCaptureRequests = new ArrayList<>();
     private OnNewCaptureRequestListener mOnNewCaptureRequestListener;
 
@@ -96,14 +98,14 @@ public final class FakeCameraControl implements CameraControlInternal {
         Log.d(TAG, "setCropRegion(" + crop + ")");
     }
 
-    @FlashMode
+    @ImageCapture.FlashMode
     @Override
     public int getFlashMode() {
         return mFlashMode;
     }
 
     @Override
-    public void setFlashMode(@FlashMode int flashMode) {
+    public void setFlashMode(@ImageCapture.FlashMode int flashMode) {
         mFlashMode = flashMode;
         Log.d(TAG, "setFlashMode(" + mFlashMode + ")");
     }

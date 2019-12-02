@@ -29,7 +29,6 @@ import androidx.camera.core.CameraSelector;
 import androidx.camera.core.CameraX;
 import androidx.camera.core.ImageCapture;
 import androidx.camera.core.ImageCaptureConfig;
-import androidx.camera.core.LensFacing;
 import androidx.camera.core.Preview;
 import androidx.camera.core.PreviewConfig;
 import androidx.camera.core.impl.utils.CameraSelectorUtil;
@@ -74,16 +73,16 @@ public class ExtensionsTestUtil {
     @NonNull
     public static Collection<Object[]> getAllEffectLensFacingCombinations() {
         return Arrays.asList(new Object[][]{
-                {EffectMode.BOKEH, LensFacing.FRONT},
-                {EffectMode.BOKEH, LensFacing.BACK},
-                {EffectMode.HDR, LensFacing.FRONT},
-                {EffectMode.HDR, LensFacing.BACK},
-                {EffectMode.BEAUTY, LensFacing.FRONT},
-                {EffectMode.BEAUTY, LensFacing.BACK},
-                {EffectMode.NIGHT, LensFacing.FRONT},
-                {EffectMode.NIGHT, LensFacing.BACK},
-                {EffectMode.AUTO, LensFacing.FRONT},
-                {EffectMode.AUTO, LensFacing.BACK}
+                {EffectMode.BOKEH, CameraSelector.LENS_FACING_FRONT},
+                {EffectMode.BOKEH, CameraSelector.LENS_FACING_BACK},
+                {EffectMode.HDR, CameraSelector.LENS_FACING_FRONT},
+                {EffectMode.HDR, CameraSelector.LENS_FACING_BACK},
+                {EffectMode.BEAUTY, CameraSelector.LENS_FACING_FRONT},
+                {EffectMode.BEAUTY, CameraSelector.LENS_FACING_BACK},
+                {EffectMode.NIGHT, CameraSelector.LENS_FACING_FRONT},
+                {EffectMode.NIGHT, CameraSelector.LENS_FACING_BACK},
+                {EffectMode.AUTO, CameraSelector.LENS_FACING_FRONT},
+                {EffectMode.AUTO, CameraSelector.LENS_FACING_BACK}
         });
     }
 
@@ -110,7 +109,7 @@ public class ExtensionsTestUtil {
 
     /**
      * Creates an {@link ImageCapture.Builder} object for specific {@link EffectMode} and
-     * {@link LensFacing}.
+     * {@link CameraSelector.LensFacing}.
      *
      * @param effectMode The effect mode for the created object.
      * @param lensFacing The lens facing for the created object.
@@ -118,7 +117,7 @@ public class ExtensionsTestUtil {
      */
     @NonNull
     public static ImageCapture.Builder createImageCaptureConfigBuilderWithEffect(
-            @NonNull EffectMode effectMode, @LensFacing int lensFacing) {
+            @NonNull EffectMode effectMode, @CameraSelector.LensFacing int lensFacing) {
         ImageCapture.Builder builder = new ImageCapture.Builder();
         CameraSelector selector =
                 new CameraSelector.Builder().requireLensFacing(lensFacing).build();
@@ -154,7 +153,7 @@ public class ExtensionsTestUtil {
 
     /**
      * Creates a {@link Preview.Builder} object for specific {@link EffectMode} and
-     * {@link LensFacing}.
+     * {@link CameraSelector.LensFacing}.
      *
      * @param effectMode The effect mode for the created object.
      * @param lensFacing The lens facing for the created object.
@@ -162,7 +161,7 @@ public class ExtensionsTestUtil {
      */
     @NonNull
     public static Preview.Builder createPreviewBuilderWithEffect(@NonNull EffectMode effectMode,
-            @LensFacing int lensFacing) {
+            @CameraSelector.LensFacing int lensFacing) {
         Preview.Builder builder = new Preview.Builder();
         CameraSelector selector =
                 new CameraSelector.Builder().requireLensFacing(lensFacing).build();
@@ -198,7 +197,7 @@ public class ExtensionsTestUtil {
 
     /**
      * Creates an {@link ImageCaptureConfig} object for specific {@link EffectMode} and
-     * {@link LensFacing}.
+     * {@link CameraSelector.LensFacing}.
      *
      * @param effectMode The effect mode for the created object.
      * @param lensFacing The lens facing for the created object.
@@ -206,7 +205,7 @@ public class ExtensionsTestUtil {
      */
     @NonNull
     public static ImageCaptureConfig createImageCaptureConfigWithEffect(
-            @NonNull EffectMode effectMode, @LensFacing int lensFacing) {
+            @NonNull EffectMode effectMode, @CameraSelector.LensFacing int lensFacing) {
         ImageCapture.Builder imageCaptureConfigBuilder =
                 createImageCaptureConfigBuilderWithEffect(effectMode, lensFacing);
         return imageCaptureConfigBuilder.getUseCaseConfig();
@@ -214,7 +213,7 @@ public class ExtensionsTestUtil {
 
     /**
      * Creates a {@link PreviewConfig} object for specific {@link EffectMode} and
-     * {@link LensFacing}.
+     * {@link CameraSelector.LensFacing}.
      *
      * @param effectMode The effect mode for the created object.
      * @param lensFacing The lens facing for the created object.
@@ -222,7 +221,7 @@ public class ExtensionsTestUtil {
      */
     @NonNull
     public static PreviewConfig createPreviewConfigWithEffect(@NonNull EffectMode effectMode,
-            @LensFacing int lensFacing) {
+            @CameraSelector.LensFacing int lensFacing) {
         Preview.Builder previewBuilder =
                 createPreviewBuilderWithEffect(effectMode, lensFacing);
         return previewBuilder.getUseCaseConfig();
@@ -230,7 +229,7 @@ public class ExtensionsTestUtil {
 
     /**
      * Creates an {@link ImageCapture} object for specific {@link EffectMode} and
-     * {@link LensFacing}.
+     * {@link CameraSelector.LensFacing}.
      *
      * @param effectMode The effect mode for the created object.
      * @param lensFacing The lens facing for the created object.
@@ -238,12 +237,13 @@ public class ExtensionsTestUtil {
      */
     @NonNull
     public static ImageCapture createImageCaptureWithEffect(@NonNull EffectMode effectMode,
-            @LensFacing int lensFacing) {
+            @CameraSelector.LensFacing int lensFacing) {
         return createImageCaptureConfigBuilderWithEffect(effectMode, lensFacing).build();
     }
 
     /**
-     * Creates a {@link Preview} object for specific {@link EffectMode} and {@link LensFacing}.
+     * Creates a {@link Preview} object for specific {@link EffectMode} and
+     * {@link CameraSelector.LensFacing}.
      *
      * @param effectMode The effect mode for the created object.
      * @param lensFacing The lens facing for the created object.
@@ -251,13 +251,13 @@ public class ExtensionsTestUtil {
      */
     @NonNull
     public static Preview createPreviewWithEffect(@NonNull EffectMode effectMode,
-            @LensFacing int lensFacing) {
+            @CameraSelector.LensFacing int lensFacing) {
         return createPreviewBuilderWithEffect(effectMode, lensFacing).build();
     }
 
     /**
      * Creates an {@link ImageCaptureExtenderImpl} object for specific {@link EffectMode} and
-     * {@link LensFacing}.
+     * {@link CameraSelector.LensFacing}.
      *
      * @param effectMode The effect mode for the created object.
      * @param lensFacing The lens facing for the created object.
@@ -265,7 +265,7 @@ public class ExtensionsTestUtil {
      */
     @NonNull
     public static ImageCaptureExtenderImpl createImageCaptureExtenderImpl(
-            @NonNull EffectMode effectMode, @LensFacing int lensFacing)
+            @NonNull EffectMode effectMode, @CameraSelector.LensFacing int lensFacing)
             throws CameraInfoUnavailableException, CameraAccessException {
         ImageCaptureExtenderImpl impl = null;
 
@@ -304,7 +304,7 @@ public class ExtensionsTestUtil {
 
     /**
      * Creates a {@link PreviewExtenderImpl} object for specific {@link EffectMode} and
-     * {@link LensFacing}.
+     * {@link CameraSelector.LensFacing}.
      *
      * @param effectMode The effect mode for the created object.
      * @param lensFacing The lens facing for the created object.
@@ -312,7 +312,7 @@ public class ExtensionsTestUtil {
      */
     @NonNull
     public static PreviewExtenderImpl createPreviewExtenderImpl(@NonNull EffectMode effectMode,
-            @LensFacing int lensFacing)
+            @CameraSelector.LensFacing int lensFacing)
             throws CameraInfoUnavailableException, CameraAccessException {
         PreviewExtenderImpl impl = null;
 

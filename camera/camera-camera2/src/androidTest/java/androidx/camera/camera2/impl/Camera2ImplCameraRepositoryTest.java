@@ -32,8 +32,8 @@ import androidx.camera.camera2.interop.Camera2Interop;
 import androidx.camera.camera2.interop.ExperimentalCamera2Interop;
 import androidx.camera.core.CameraFactory;
 import androidx.camera.core.CameraRepository;
+import androidx.camera.core.CameraSelector;
 import androidx.camera.core.ImmediateSurface;
-import androidx.camera.core.LensFacing;
 import androidx.camera.core.SessionConfig;
 import androidx.camera.core.UseCaseConfig;
 import androidx.camera.core.UseCaseGroup;
@@ -74,7 +74,7 @@ public final class Camera2ImplCameraRepositoryTest {
     private CameraDevice.StateCallback mDeviceStateCallback;
     private String mCameraId;
 
-    private String getCameraIdForLensFacingUnchecked(@LensFacing int lensFacing) {
+    private String getCameraIdForLensFacingUnchecked(@CameraSelector.LensFacing int lensFacing) {
         try {
             return mCameraFactory.cameraIdForLensFacing(lensFacing);
         } catch (Exception e) {
@@ -116,7 +116,7 @@ public final class Camera2ImplCameraRepositoryTest {
         FakeUseCaseConfig.Builder configBuilder = new FakeUseCaseConfig.Builder();
         new Camera2Interop.Extender<>(configBuilder).setDeviceStateCallback(mDeviceStateCallback);
         mConfig = configBuilder.getUseCaseConfig();
-        mCameraId = getCameraIdForLensFacingUnchecked(LensFacing.BACK);
+        mCameraId = getCameraIdForLensFacingUnchecked(CameraSelector.LENS_FACING_BACK);
         mUseCase = new CallbackAttachingFakeUseCase(mConfig, mCameraId);
         mUseCaseGroup.addUseCase(mUseCase);
     }

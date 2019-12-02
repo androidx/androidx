@@ -16,12 +16,15 @@
 
 package androidx.camera.core;
 
+import static androidx.camera.core.ImageCapture.FLASH_MODE_OFF;
+
 import android.graphics.Rect;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.annotation.RestrictTo;
 import androidx.annotation.RestrictTo.Scope;
+import androidx.camera.core.ImageCapture.FlashMode;
 import androidx.camera.core.impl.utils.futures.Futures;
 
 import com.google.common.util.concurrent.ListenableFuture;
@@ -82,7 +85,7 @@ public interface CameraControlInternal extends CameraControl {
         @FlashMode
         @Override
         public int getFlashMode() {
-            return FlashMode.OFF;
+            return FLASH_MODE_OFF;
         }
 
         @Override

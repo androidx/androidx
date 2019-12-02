@@ -110,7 +110,7 @@ public class ImageAnalysisTest {
     @Test
     public void nonBlockingAnalyzerClosed_imageNotAnalyzed() {
         // Arrange.
-        setUpImageAnalysisWithStrategy(ImageAnalysis.BackpressureStrategy.KEEP_ONLY_LATEST);
+        setUpImageAnalysisWithStrategy(ImageAnalysis.STRATEGY_KEEP_ONLY_LATEST);
 
         // Act.
         // Receive images from camera feed.
@@ -138,7 +138,7 @@ public class ImageAnalysisTest {
     @Test
     public void blockingAnalyzerClosed_imageNotAnalyzed() {
         // Arrange.
-        setUpImageAnalysisWithStrategy(ImageAnalysis.BackpressureStrategy.BLOCK_PRODUCER);
+        setUpImageAnalysisWithStrategy(ImageAnalysis.STRATEGY_BLOCK_PRODUCER);
 
         // Act.
         // Receive images from camera feed.
@@ -158,7 +158,7 @@ public class ImageAnalysisTest {
     @Test
     public void keepOnlyLatestStrategy_doesNotBlock() {
         // Arrange.
-        setUpImageAnalysisWithStrategy(ImageAnalysis.BackpressureStrategy.KEEP_ONLY_LATEST);
+        setUpImageAnalysisWithStrategy(ImageAnalysis.STRATEGY_KEEP_ONLY_LATEST);
 
         // Act.
         // Receive images from camera feed.
@@ -192,7 +192,7 @@ public class ImageAnalysisTest {
     @Test
     public void blockProducerStrategy_doesNotDropFrames() {
         // Arrange.
-        setUpImageAnalysisWithStrategy(ImageAnalysis.BackpressureStrategy.BLOCK_PRODUCER);
+        setUpImageAnalysisWithStrategy(ImageAnalysis.STRATEGY_BLOCK_PRODUCER);
 
         // Act.
         // Receive images from camera feed.
@@ -229,7 +229,8 @@ public class ImageAnalysisTest {
 
         FakeLifecycleOwner lifecycleOwner = new FakeLifecycleOwner();
         CameraSelector cameraSelector =
-                new CameraSelector.Builder().requireLensFacing(LensFacing.BACK).build();
+                new CameraSelector.Builder().requireLensFacing(
+                        CameraSelector.LENS_FACING_BACK).build();
         InstrumentationRegistry.getInstrumentation().runOnMainSync(() -> {
             CameraX.bindToLifecycle(lifecycleOwner, cameraSelector, mImageAnalysis);
             lifecycleOwner.startAndResume();

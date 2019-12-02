@@ -61,14 +61,11 @@ import androidx.camera.core.CaptureProcessor;
 import androidx.camera.core.CaptureStage;
 import androidx.camera.core.Exif;
 import androidx.camera.core.ImageCapture;
-import androidx.camera.core.ImageCapture.CaptureMode;
-import androidx.camera.core.ImageCapture.ImageCaptureError;
 import androidx.camera.core.ImageCapture.Metadata;
 import androidx.camera.core.ImageCapture.OnImageCapturedCallback;
 import androidx.camera.core.ImageCapture.OnImageSavedCallback;
 import androidx.camera.core.ImageCaptureConfig;
 import androidx.camera.core.ImageProxy;
-import androidx.camera.core.LensFacing;
 import androidx.camera.testing.CameraUtil;
 import androidx.camera.testing.fakes.FakeCameraControl;
 import androidx.camera.testing.fakes.FakeCaptureStage;
@@ -112,8 +109,8 @@ public final class ImageCaptureTest {
 
     private static final Size DEFAULT_RESOLUTION = new Size(640, 480);
     private static final Size GUARANTEED_RESOLUTION = new Size(640, 480);
-    @LensFacing
-    private static final int BACK_LENS_FACING = LensFacing.BACK;
+    @CameraSelector.LensFacing
+    private static final int BACK_LENS_FACING = CameraSelector.LENS_FACING_BACK;
     private static final CameraSelector BACK_SELECTOR =
             new CameraSelector.Builder().requireLensFacing(BACK_LENS_FACING).build();
 
@@ -249,7 +246,7 @@ public final class ImageCaptureTest {
     @Test
     public void canCaptureMultipleImagesWithMaxQuality() {
         ImageCapture useCase = new ImageCapture.Builder()
-                .setCaptureMode(CaptureMode.MAXIMIZE_QUALITY)
+                .setCaptureMode(ImageCapture.CAPTURE_MODE_MAXIMIZE_QUALITY)
                 .build();
         mInstrumentation.runOnMainSync(
                 () -> {
@@ -432,7 +429,7 @@ public final class ImageCaptureTest {
 
         // Wait for the signal that the image has been saved.
         verify(callback, timeout(2000))
-                .onError(eq(ImageCaptureError.FILE_IO_ERROR), anyString(), any(Throwable.class));
+                .onError(eq(ImageCapture.ERROR_FILE_IO), anyString(), any(Throwable.class));
     }
 
     @Test
@@ -605,7 +602,7 @@ public final class ImageCaptureTest {
         verify(callback, timeout(500).times(1)).onError(errorCaptor.capture(),
                 any(String.class),
                 any(Throwable.class));
-        assertThat(errorCaptor.getValue()).isEqualTo(ImageCaptureError.CAMERA_CLOSED);
+        assertThat(errorCaptor.getValue()).isEqualTo(ImageCapture.ERROR_CAMERA_CLOSED);
     }
 
     @Test
@@ -634,7 +631,7 @@ public final class ImageCaptureTest {
         verify(callback, timeout(500).times(1)).onError(errorCaptor.capture(),
                 any(String.class),
                 any(Throwable.class));
-        assertThat(errorCaptor.getValue()).isEqualTo(ImageCaptureError.CAPTURE_FAILED);
+        assertThat(errorCaptor.getValue()).isEqualTo(ImageCapture.ERROR_CAPTURE_FAILED);
     }
 
     @Test
@@ -661,9 +658,9 @@ public final class ImageCaptureTest {
                 any(String.class),
                 any(Throwable.class));
         assertThat(errorCaptor.getAllValues()).containsExactly(
-                ImageCaptureError.CAMERA_CLOSED,
-                ImageCaptureError.CAMERA_CLOSED,
-                ImageCaptureError.CAMERA_CLOSED);
+                ImageCapture.ERROR_CAMERA_CLOSED,
+                ImageCapture.ERROR_CAMERA_CLOSED,
+                ImageCapture.ERROR_CAMERA_CLOSED);
     }
 
     @Test
@@ -676,7 +673,7 @@ public final class ImageCaptureTest {
         ArgumentCaptor<Integer> errorCaptor = ArgumentCaptor.forClass(Integer.class);
         verify(callback, timeout(500)).onError(errorCaptor.capture(), any(String.class),
                 any(Throwable.class));
-        assertThat(errorCaptor.getValue()).isEqualTo(ImageCaptureError.INVALID_CAMERA);
+        assertThat(errorCaptor.getValue()).isEqualTo(ImageCapture.ERROR_INVALID_CAMERA);
     }
 
     private static final class ImageProperties {

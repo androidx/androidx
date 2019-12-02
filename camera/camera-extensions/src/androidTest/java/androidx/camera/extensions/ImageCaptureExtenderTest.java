@@ -46,7 +46,6 @@ import androidx.camera.core.CameraSelector;
 import androidx.camera.core.CameraX;
 import androidx.camera.core.CaptureProcessor;
 import androidx.camera.core.ImageCapture;
-import androidx.camera.core.LensFacing;
 import androidx.camera.extensions.ExtensionsManager.EffectMode;
 import androidx.camera.extensions.impl.CaptureStageImpl;
 import androidx.camera.extensions.impl.ImageCaptureExtenderImpl;
@@ -119,7 +118,7 @@ public class ImageCaptureExtenderTest {
 
         ImageCapture useCase = builder.build();
 
-        @LensFacing int lensFacing = CameraX.getDefaultLensFacing();
+        @CameraSelector.LensFacing int lensFacing = CameraX.getDefaultLensFacing();
         CameraSelector cameraSelector = new CameraSelector.Builder()
                 .requireLensFacing(lensFacing).build();
         mInstrumentation.runOnMainSync(new Runnable() {
@@ -176,7 +175,7 @@ public class ImageCaptureExtenderTest {
 
         ImageCapture useCase = configBuilder.build();
 
-        @LensFacing int lensFacing = CameraX.getDefaultLensFacing();
+        @CameraSelector.LensFacing int lensFacing = CameraX.getDefaultLensFacing();
         CameraSelector cameraSelector = new CameraSelector.Builder()
                 .requireLensFacing(lensFacing).build();
         mInstrumentation.runOnMainSync(new Runnable() {
@@ -224,7 +223,7 @@ public class ImageCaptureExtenderTest {
         // getSupportedResolutions supported since version 1.1
         assumeTrue(ExtensionVersion.getRuntimeVersion().compareTo(Version.VERSION_1_1) >= 0);
 
-        @LensFacing int lensFacing = CameraX.getDefaultLensFacing();
+        @CameraSelector.LensFacing int lensFacing = CameraX.getDefaultLensFacing();
         ImageCapture.Builder builder = new ImageCapture.Builder();
 
         ImageCaptureExtenderImpl mockImageCaptureExtenderImpl = mock(
@@ -265,7 +264,7 @@ public class ImageCaptureExtenderTest {
     }
 
     private List<Pair<Integer, Size[]>> generateImageCaptureSupportedResolutions(
-            @LensFacing int lensFacing)
+            @CameraSelector.LensFacing int lensFacing)
             throws CameraInfoUnavailableException {
         List<Pair<Integer, Size[]>> formatResolutionsPairList = new ArrayList<>();
         String cameraId =
