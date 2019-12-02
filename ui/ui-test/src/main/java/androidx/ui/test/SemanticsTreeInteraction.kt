@@ -26,22 +26,21 @@ import androidx.ui.test.android.AndroidSemanticsTreeInteraction
  * extension functions. This class is expected to have Android and host side specific
  * implementations.
  */
-// TODO(jellefresen): Convert to interface, no need for an abstract class
-internal abstract class SemanticsTreeInteraction {
+internal interface SemanticsTreeInteraction {
 
-    internal abstract fun findAllMatching(): List<SemanticsNodeInteraction>
+    fun findAllMatching(): List<SemanticsNodeInteraction>
 
-    internal abstract fun findOne(): SemanticsNodeInteraction
+    fun findOne(): SemanticsNodeInteraction
 
-    internal abstract fun performAction(action: (SemanticsTreeProvider) -> Unit)
+    fun performAction(action: (SemanticsTreeProvider) -> Unit)
 
-    internal abstract fun sendInput(action: (InputDispatcher) -> Unit)
+    fun sendInput(action: (InputDispatcher) -> Unit)
 
-    internal abstract fun contains(semanticsConfiguration: SemanticsConfiguration): Boolean
+    fun contains(semanticsConfiguration: SemanticsConfiguration): Boolean
 
-    internal abstract fun isInScreenBounds(rectangle: Rect): Boolean
+    fun isInScreenBounds(rectangle: Rect): Boolean
 
-    internal abstract fun waitForIdleCompose(): Boolean
+    fun waitForIdleCompose(): Boolean
 }
 
 internal var semanticsTreeInteractionFactory: (
