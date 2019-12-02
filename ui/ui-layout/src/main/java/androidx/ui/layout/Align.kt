@@ -252,7 +252,6 @@ private data class AlignmentModifier(
     }
 
     override fun DensityScope.modifyPosition(
-        childPosition: IntPxPosition,
         childSize: IntPxSize,
         containerSize: IntPxSize
     ): IntPxPosition {

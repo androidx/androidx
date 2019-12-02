@@ -77,10 +77,9 @@ interface LayoutModifier : Modifier.Element {
      * size [containerSize].
      */
     fun DensityScope.modifyPosition(
-        childPosition: IntPxPosition,
         childSize: IntPxSize,
         containerSize: IntPxSize
-    ): IntPxPosition = childPosition
+    ): IntPxPosition = IntPxPosition.Origin
 
     /**
      * Returns the modified position of [line] given its unmodified [value].

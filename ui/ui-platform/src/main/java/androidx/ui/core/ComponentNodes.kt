@@ -851,7 +851,8 @@ class LayoutNode : ComponentNode(), Measurable {
     /**
      * The position of the inner layout node content
      */
-    val contentPosition: IntPxPosition get() = innerLayoutNodeWrapper.position
+    var contentPosition: IntPxPosition = IntPxPosition.Origin
+        private set
 
     /**
      * The size of the inner layout node content
@@ -1027,6 +1028,12 @@ class LayoutNode : ComponentNode(), Measurable {
         var position = Origin
 
         /**
+         * Calculate and set the content position based on the given offset and any internal
+         * positioning.
+         */
+        abstract fun calculateContentPosition(offset: IntPxPosition)
+
+        /**
          * Assigns a layout size to this [LayoutNodeWrapper] given the assigned innermost size
          * from the call to [MeasureScope.layout]. Assigns and returns [modifiedSize].
          */
@@ -1034,6 +1041,7 @@ class LayoutNode : ComponentNode(), Measurable {
     }
 
     private inner class InnerPlaceable : LayoutNodeWrapper(), DensityScope {
+
         override fun measure(constraints: Constraints): Placeable {
             val layoutResult = measureBlocks.measure(measureScope, layoutChildren, constraints)
             handleLayoutResult(layoutResult)
@@ -1060,8 +1068,10 @@ class LayoutNode : ComponentNode(), Measurable {
 
         override fun performPlace(position: IntPxPosition) {
             isPlaced = true
-            if (position != this.position) {
-                this.position = position
+            this.position = position
+            val oldContentPosition = contentPosition
+            layoutNodeWrapper.calculateContentPosition(IntPxPosition.Origin)
+            if (oldContentPosition != contentPosition) {
                 owner?.onPositionChange(this@LayoutNode)
             }
             placeChildren()
@@ -1074,7 +1084,13 @@ class LayoutNode : ComponentNode(), Measurable {
             return innermostSize
         }
 
-        override fun get(line: AlignmentLine): IntPx? = calculateAlignmentLines()[line]
+        override operator fun get(line: AlignmentLine): IntPx? {
+            return calculateAlignmentLines()[line]
+        }
+
+        override fun calculateContentPosition(offset: IntPxPosition) {
+            contentPosition = position + offset
+        }
     }
 
     private inner class ModifiedLayoutNode(
@@ -1145,15 +1161,20 @@ class LayoutNode : ComponentNode(), Measurable {
             private set
 
         override fun performPlace(position: IntPxPosition) {
+            this.position = position
             val placeable = measuredPlaceable ?: error("Placeable not measured")
-            this.position = with(layoutModifier) {
-                measureScope.modifyPosition(position, placeable.size, size)
+            val relativePosition = with(layoutModifier) {
+                measureScope.modifyPosition(placeable.size, size)
             }
-            placeable.place(this.position)
+            placeable.place(relativePosition)
         }
 
-        override fun get(line: AlignmentLine): IntPx? = with(layoutModifier) {
-            measureScope.modifyAlignmentLine(line, wrapped[line])
+        override operator fun get(line: AlignmentLine): IntPx? = with(layoutModifier) {
+            var lineValue = measureScope.modifyAlignmentLine(line, wrapped[line])
+            if (lineValue != null) {
+                lineValue += if (line.horizontal) wrapped.position.y else wrapped.position.x
+            }
+            lineValue
         }
 
         override fun layoutSize(innermostSize: IntPxSize): IntPxSize = with(layoutModifier) {
@@ -1161,6 +1182,10 @@ class LayoutNode : ComponentNode(), Measurable {
             measureScope.modifySize(constraints, wrapped.layoutSize(innermostSize)).also {
                 size = it
             }
+        }
+
+        override fun calculateContentPosition(offset: IntPxPosition) {
+            wrapped.calculateContentPosition(position + offset)
         }
     }
 
@@ -1259,8 +1284,9 @@ class LayoutNode : ComponentNode(), Measurable {
                 layoutChildren.forEach { child ->
                     if (!child.isPlaced) return@forEach
                     child.alignmentLines.entries.forEach { (childLine, linePosition) ->
+                        val offset = child.contentPosition
                         val linePositionInContainer = linePosition +
-                                if (childLine.horizontal) child.y else child.x
+                                    if (childLine.horizontal) offset.y else offset.x
                         // If the line was already provided by a previous child, merge the values.
                         alignmentLines[childLine] = if (childLine in alignmentLines) {
                             childLine.merge(
