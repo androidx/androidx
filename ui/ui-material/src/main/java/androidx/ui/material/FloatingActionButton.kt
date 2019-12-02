@@ -42,7 +42,7 @@ import androidx.ui.text.TextStyle
 /**
  * A floating action button (FAB) is a [Button] to represents the primary action of a screen.
  *
- * By default it adds the circle shape, the [FabSize] size and the centering for the content.
+ * By default it uses a circle shape and centers its content.
  *
  * @sample androidx.ui.material.samples.FloatingActionButtonCustomContent
  *
@@ -51,7 +51,7 @@ import androidx.ui.text.TextStyle
  * @param modifier Modifier to be applied to the button.
  * @param onClick will be called when user clicked on the button. The button will be disabled
  *  when it is null.
- * @param minSize Minimum size of the button. Defaults to [FabSize]
+ * @param minSize Minimum size of the FAB.
  * @param shape Defines the Button's shape as well its shadow. When null is provided it uses
  *  the [Shapes.button] from [ShapeAmbient].
  * @param color The background color
@@ -82,7 +82,7 @@ fun FloatingActionButton(
 /**
  * A floating action button (FAB) is a [Button] to represents the primary action of a screen.
  *
- * It draws the [icon] in the center of the FAB with [FabSize] size.
+ * It draws the [icon] in the center of the FAB.
  *
  * @sample androidx.ui.material.samples.FloatingActionButtonSimple
  *
@@ -165,7 +165,7 @@ fun FloatingActionButton(
     }
 }
 
-val FabSize = 56.dp
-val ExtendedFabHeight = 48.dp
-val ExtendedFabIconPadding = 12.dp
-val ExtendedFabTextPadding = 20.dp
+private val FabSize = 56.dp
+private val ExtendedFabHeight = 48.dp
+private val ExtendedFabIconPadding = 12.dp
+private val ExtendedFabTextPadding = 20.dp
