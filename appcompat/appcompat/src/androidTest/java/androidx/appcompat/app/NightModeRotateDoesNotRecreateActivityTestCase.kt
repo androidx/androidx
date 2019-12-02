@@ -69,8 +69,12 @@ class NightModeRotateDoesNotRecreateActivityTestCase(private val setMode: NightS
 
     @Test
     fun testRotateDoesNotRecreateActivity() {
-        // Don't run this test on SDK 26 because it has issues with setRequestedOrientation.
-        if (Build.VERSION.SDK_INT == 26) {
+        // Don't run this test on SDK 26 because it has issues with setRequestedOrientation. Also
+        // don't run it on SDK 24 (Nexus Player) or SDK 23 (Pixel C) because those devices only
+        // support a single orientation and there doesn't seem to be a way to query supported
+        // screen orientations.
+        val sdkInt = Build.VERSION.SDK_INT
+        if (sdkInt == 26 || sdkInt == 24 || sdkInt == 23) {
             return
         }
 
