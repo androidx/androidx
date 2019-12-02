@@ -81,10 +81,9 @@ private data class SpacingModifier(
     )
 
     override fun DensityScope.modifyPosition(
-        childPosition: IntPxPosition,
         childSize: IntPxSize,
         containerSize: IntPxSize
-    ) = IntPxPosition(left.toIntPx() + childPosition.x, top.toIntPx() + childPosition.y)
+    ) = IntPxPosition(left.toIntPx(), top.toIntPx())
 }
 
 /**
