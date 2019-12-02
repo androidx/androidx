@@ -30,6 +30,7 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.view.Window;
 
+import androidx.annotation.CallSuper;
 import androidx.annotation.IdRes;
 import androidx.annotation.IntDef;
 import androidx.annotation.LayoutRes;
@@ -373,9 +374,20 @@ public abstract class AppCompatDelegate {
     public abstract void addContentView(View v, ViewGroup.LayoutParams lp);
 
     /**
-     * Should be called from {@link Activity#attachBaseContext(Context)}
+     * @deprecated use {@link #attachBaseContext2(Context)} instead.
      */
+    @Deprecated
     public void attachBaseContext(Context context) {
+    }
+
+    /**
+     * Should be called from {@link Activity#attachBaseContext(Context)}.
+     */
+    @NonNull
+    @CallSuper
+    public Context attachBaseContext2(@NonNull Context context) {
+        attachBaseContext(context);
+        return context;
     }
 
     /**
