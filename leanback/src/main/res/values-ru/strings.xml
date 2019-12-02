@@ -21,8 +21,8 @@ limitations under the License.
     <string name="orb_search_action" msgid="7534843523462177008">"Поиск"</string>
     <string name="lb_search_bar_hint" msgid="4819380969103509861">"Поиск"</string>
     <string name="lb_search_bar_hint_speech" msgid="2795474673510974502">"Произнесите запрос"</string>
-    <string name="lb_search_bar_hint_with_title" msgid="7453744869467668159">"Искать здесь: <xliff:g id="SEARCH_CONTEXT">%1$s</xliff:g>"</string>
-    <string name="lb_search_bar_hint_with_title_speech" msgid="5851694095153624617">"Произнесите запрос для поиска здесь: <xliff:g id="SEARCH_CONTEXT">%1$s</xliff:g>"</string>
+    <string name="lb_search_bar_hint_with_title" msgid="7453744869467668159">"Найти <xliff:g id="SEARCH_CONTEXT">%1$s</xliff:g>"</string>
+    <string name="lb_search_bar_hint_with_title_speech" msgid="5851694095153624617">"Произнесите запрос, чтобы найти <xliff:g id="SEARCH_CONTEXT">%1$s</xliff:g>"</string>
     <string name="lb_control_display_fast_forward_multiplier" msgid="2721825378927619928">"%1$dX"</string>
     <string name="lb_control_display_rewind_multiplier" msgid="6173753802428649303">"%1$dX"</string>
     <string name="lb_playback_controls_play" msgid="1590369760862605402">"Воспроизвести"</string>
