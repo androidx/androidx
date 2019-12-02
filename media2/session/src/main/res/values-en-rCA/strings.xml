@@ -17,9 +17,9 @@
 
 <resources xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:xliff="urn:oasis:names:tc:xliff:document:1.2">
-    <string name="default_notification_channel_name" msgid="6743534657295236036">"Právě hraje"</string>
-    <string name="play_button_content_description" msgid="6034272287948142298">"Přehrát"</string>
-    <string name="pause_button_content_description" msgid="4221330012095125431">"Pozastavit"</string>
-    <string name="skip_to_previous_item_button_content_description" msgid="7233771088610629683">"Přejít na předchozí položku"</string>
-    <string name="skip_to_next_item_button_content_description" msgid="17824442457643717">"Přejít na další položku"</string>
+    <string name="default_notification_channel_name" msgid="6743534657295236036">"Now playing"</string>
+    <string name="play_button_content_description" msgid="6034272287948142298">"Play"</string>
+    <string name="pause_button_content_description" msgid="4221330012095125431">"Pause"</string>
+    <string name="skip_to_previous_item_button_content_description" msgid="7233771088610629683">"Skip to previous item"</string>
+    <string name="skip_to_next_item_button_content_description" msgid="17824442457643717">"Skip to next item"</string>
 </resources>
