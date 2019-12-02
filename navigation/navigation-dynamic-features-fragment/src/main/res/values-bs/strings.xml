@@ -19,6 +19,6 @@
     xmlns:xliff="urn:oasis:names:tc:xliff:document:1.2">
     <string name="installation_failed" msgid="863287960437940689">"Instalacija nije uspjela."</string>
     <string name="installation_cancelled" msgid="475402237100444685">"Instalacija je otkazana."</string>
-    <string name="installing_module" msgid="5968445461040787716">"Modul za instaliranje:"</string>
+    <string name="installing_module" msgid="5968445461040787716">"Instaliranje modula:"</string>
     <string name="progress" msgid="8366783942222789124">"Napredak:"</string>
 </resources>
