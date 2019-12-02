@@ -24,8 +24,8 @@ plugins {
 dependencies {
     implementation("androidx.annotation:annotation:1.1.0")
     implementation("androidx.core:core:1.1.0")
-    implementation(project(":animation"))
-    implementation(project(":animation:testing"))
+    implementation(project(":animation:animation"))
+    implementation(project(":animation:animation-testing"))
 
     implementation(ANDROIDX_TEST_EXT_JUNIT, libs.exclude_for_espresso)
     implementation(ANDROIDX_TEST_CORE, libs.exclude_for_espresso)
