@@ -20,7 +20,7 @@
     <string name="fingerprint_dialog_touch_sensor" msgid="5354590751262189738">"Торкніться сканера відбитків пальців"</string>
     <string name="fingerprint_not_recognized" msgid="5491287833813257925">"Не розпізнано"</string>
     <string name="accessibility_fingerprint_dialog_help_area" msgid="6241458715391513061">"Область довідкового повідомлення"</string>
-    <string name="fingerprint_error_hw_not_available" msgid="3976825677335166260">"Апаратне забезпечення для сканування відбитка недоступне."</string>
+    <string name="fingerprint_error_hw_not_available" msgid="3976825677335166260">"Сканер відбитків пальців недоступний."</string>
     <string name="fingerprint_error_no_fingerprints" msgid="3350805046152877040">"Відбитки пальців не зареєстровано."</string>
     <string name="fingerprint_error_hw_not_present" msgid="1176237289575184578">"На цьому пристрої немає сканера відбитків пальців"</string>
     <string name="fingerprint_error_user_canceled" msgid="3421037373085129417">"Користувач скасував дію з відбитком пальця."</string>
