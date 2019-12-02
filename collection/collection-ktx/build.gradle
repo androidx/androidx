@@ -25,11 +25,11 @@ plugins {
 }
 
 dependencies {
-    compile(project(":collection:collection"))
-    compile(KOTLIN_STDLIB)
-    testCompile(JUNIT)
-    testCompile(TRUTH)
-    testCompile(project(":internal-testutils-truth"))
+    api(project(":collection:collection"))
+    api(KOTLIN_STDLIB)
+    testImplementation(JUNIT)
+    testImplementation(TRUTH)
+    testImplementation(project(":internal-testutils-truth"))
 }
 
 androidx {

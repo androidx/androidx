@@ -38,13 +38,13 @@ sourceSets {
 }
 
 dependencies {
-    compile(AGP_STABLE)
-    compile(KOTLIN_GRADLE_PLUGIN)
+    implementation(AGP_STABLE)
+    implementation(KOTLIN_GRADLE_PLUGIN)
     compile project(":navigation:navigation-safe-args-generator")
     compile gradleApi()
-    compile(GSON)
-    testCompile gradleTestKit()
-    testCompile(JUNIT)
+    implementation(GSON)
+    testImplementation gradleTestKit()
+    testImplementation(JUNIT)
 }
 
 task generateSdkResource() {

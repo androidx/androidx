@@ -30,7 +30,7 @@ plugins {
 apply(plugin: "com.google.protobuf")
 
 dependencies {
-    compile(PROTOBUF)
+    implementation(PROTOBUF)
 }
 
 tasks.withType(Jar) {

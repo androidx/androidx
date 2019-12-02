@@ -31,7 +31,7 @@ dependencies {
     testImplementation(MOCKITO_CORE)
 }
 
-// Used by testCompile in room-compiler
+// Used by testImplementation in room-compiler
 android.libraryVariants.all { variant ->
     def name = variant.name
     def suffix = name.capitalize()

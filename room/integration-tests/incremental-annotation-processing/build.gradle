@@ -35,7 +35,7 @@ sourceSets {
 
 
 dependencies {
-    compile(KOTLIN_STDLIB)
+    implementation(KOTLIN_STDLIB)
     testImplementation(JUNIT)
     testImplementation(TRUTH)
     testImplementation gradleTestKit()

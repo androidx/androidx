@@ -19,7 +19,7 @@ import static androidx.build.dependencies.DependenciesKt.*
 apply plugin: 'java'
 
 dependencies {
-    compile(JAVAPOET)
+    implementation(JAVAPOET)
 }
 
 // The "javadoc" task is unused so we don't want it to appear in the output of `./gradlew tasks`

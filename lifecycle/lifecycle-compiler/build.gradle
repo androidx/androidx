@@ -22,13 +22,13 @@ configurations.all {
 }
 
 dependencies {
-    compile(project(":lifecycle:lifecycle-common"))
-    compile(KOTLIN_STDLIB)
-    compile(AUTO_COMMON)
-    compile(JAVAPOET)
-    testCompile(GOOGLE_COMPILE_TESTING)
-    testCompile(JSR250)
-    testCompile files(org.gradle.internal.jvm.Jvm.current().getToolsJar())
+    implementation(project(":lifecycle:lifecycle-common"))
+    implementation(KOTLIN_STDLIB)
+    implementation(AUTO_COMMON)
+    implementation(JAVAPOET)
+    testImplementation(GOOGLE_COMPILE_TESTING)
+    testImplementation(JSR250)
+    testImplementation files(org.gradle.internal.jvm.Jvm.current().getToolsJar())
 }
 
 // we actually need to compile :lifecycle:lifecycle-common, but compileJava is easier
