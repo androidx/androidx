@@ -31,6 +31,12 @@ package androidx.ui.test {
     method public static void verifyHierarchy(androidx.ui.test.SemanticsNodeInteraction, kotlin.jvm.functions.Function1<? super androidx.ui.core.semantics.SemanticsConfiguration,java.lang.String> assertionMessage, kotlin.jvm.functions.Function1<? super androidx.ui.core.semantics.SemanticsConfiguration,java.lang.Boolean> condition);
   }
 
+  public final class BitmapHelpersKt {
+    ctor public BitmapHelpersKt();
+    method public static void assertPixels(android.graphics.Bitmap, androidx.ui.core.IntPxSize? expectedSize = null, kotlin.jvm.functions.Function1<? super androidx.ui.core.IntPxPosition,androidx.ui.graphics.Color> expectedColorProvider);
+    method @RequiresApi(android.os.Build.VERSION_CODES.O) public static android.graphics.Bitmap captureToBitmap(androidx.ui.test.SemanticsNodeInteraction);
+  }
+
   public final class CollectedSizes {
     ctor public CollectedSizes(androidx.ui.core.PxSize size, androidx.ui.core.Density density);
     method public androidx.ui.test.CollectedSizes assertHeightEqualsTo(androidx.ui.core.Dp expectedHeight);
@@ -96,6 +102,7 @@ package androidx.ui.test {
   }
 
   public interface ComposeTestRule extends org.junit.rules.TestRule {
+    method @RequiresApi(android.os.Build.VERSION_CODES.O) public android.graphics.Bitmap captureScreenOnIdle();
     method public androidx.ui.test.ComposeTestCaseSetup forGivenContent(kotlin.jvm.functions.Function0<kotlin.Unit> composable);
     method public androidx.ui.test.ComposeTestCaseSetup forGivenTestCase(androidx.ui.test.ComposeTestCase testCase);
     method public androidx.ui.core.Density getDensity();
@@ -199,6 +206,7 @@ package androidx.ui.test.android {
     ctor public AndroidComposeTestRule(boolean disableTransitions, boolean shouldThrowOnRecomposeTimeout);
     ctor public AndroidComposeTestRule();
     method public org.junit.runners.model.Statement apply(org.junit.runners.model.Statement base, org.junit.runner.Description? description);
+    method @RequiresApi(android.os.Build.VERSION_CODES.O) public android.graphics.Bitmap captureScreenOnIdle();
     method public androidx.ui.test.ComposeTestCaseSetup forGivenContent(kotlin.jvm.functions.Function0<kotlin.Unit> composable);
     method public androidx.ui.test.ComposeTestCaseSetup forGivenTestCase(androidx.ui.test.ComposeTestCase testCase);
     method public androidx.test.rule.ActivityTestRule<android.app.Activity> getActivityTestRule();
@@ -214,6 +222,10 @@ package androidx.ui.test.android {
   public final class AndroidComposeTestRule.AndroidComposeStatement extends org.junit.runners.model.Statement {
     ctor public AndroidComposeTestRule.AndroidComposeStatement(org.junit.runners.model.Statement base);
     method public void evaluate();
+  }
+
+  public final class WindowCaptureKt {
+    ctor public WindowCaptureKt();
   }
 
 }

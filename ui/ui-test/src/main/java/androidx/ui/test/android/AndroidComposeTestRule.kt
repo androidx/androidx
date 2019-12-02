@@ -17,14 +17,20 @@
 package androidx.ui.test.android
 
 import android.app.Activity
+import android.graphics.Bitmap
+import android.os.Build
+import android.os.Handler
+import android.os.Looper
 import android.util.DisplayMetrics
 import android.view.ViewGroup
 import android.view.ViewTreeObserver
+import androidx.annotation.RequiresApi
 import androidx.compose.Composable
 import androidx.test.rule.ActivityTestRule
 import androidx.ui.animation.transitionsEnabled
 import androidx.ui.core.Density
 import androidx.ui.core.setContent
+import androidx.ui.engine.geometry.Rect
 import androidx.ui.test.ComposeTestCase
 import androidx.ui.test.ComposeTestCaseSetup
 import androidx.ui.test.ComposeTestRule
@@ -43,6 +49,8 @@ class AndroidComposeTestRule(
 ) : ComposeTestRule {
 
     val activityTestRule = ActivityTestRule<Activity>(Activity::class.java)
+
+    private val handler: Handler = Handler(Looper.getMainLooper())
 
     override val density: Density get() = Density(activityTestRule.activity)
 
@@ -109,6 +117,21 @@ class AndroidComposeTestRule(
             testCase,
             activityTestRule.activity
         )
+    }
+
+    @RequiresApi(Build.VERSION_CODES.O)
+    override fun captureScreenOnIdle(): Bitmap {
+        AndroidSemanticsTreeInteraction(throwOnRecomposeTimeOut = true, selector = { true })
+            .waitForIdleCompose()
+        val contentView = activityTestRule.activity.findViewById<ViewGroup>(android.R.id.content)
+
+        val screenRect = Rect.fromLTWH(
+            0f,
+            0f,
+            contentView.width.toFloat(),
+            contentView.height.toFloat()
+        )
+        return captureRegionToBitmap(screenRect, handler, activityTestRule.activity.window)
     }
 
     inner class AndroidComposeStatement(
