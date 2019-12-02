@@ -28,14 +28,14 @@ sourceCompatibility = JavaVersion.VERSION_1_7
 targetCompatibility = JavaVersion.VERSION_1_7
 
 dependencies {
-    compile project(':jetifier-core')
-    compile("org.ow2.asm:asm:6.0")
-    compile("org.ow2.asm:asm-util:6.0")
-    compile("org.ow2.asm:asm-commons:6.0")
-    compile("org.jdom:jdom2:2.0.6")
-    compile(KOTLIN_STDLIB)
-    testCompile("junit:junit:4.12")
-    testCompile(TRUTH)
+    api(project(":jetifier-core"))
+    api("org.ow2.asm:asm:6.0")
+    api("org.ow2.asm:asm-util:6.0")
+    api("org.ow2.asm:asm-commons:6.0")
+    api("org.jdom:jdom2:2.0.6")
+    api(KOTLIN_STDLIB)
+    testImplementation("junit:junit:4.12")
+    testImplementation(TRUTH)
 }
 
 androidx {

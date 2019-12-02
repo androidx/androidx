@@ -26,10 +26,10 @@ plugins {
 }
 
 dependencies {
-    compile("androidx.annotation:annotation:1.1.0")
+    api("androidx.annotation:annotation:1.1.0")
 
-    testCompile(JUNIT)
-    testCompile(MOCKITO_CORE)
+    testImplementation(JUNIT)
+    testImplementation(MOCKITO_CORE)
 }
 
 sourceCompatibility = JavaVersion.VERSION_1_7

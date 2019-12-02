@@ -36,20 +36,20 @@ sourceSets {
 }
 
 dependencies {
-    compile(XPP3)
-    compile(XMLPULL)
-    compile(KOTLIN_STDLIB)
+    implementation(XPP3)
+    implementation(XMLPULL)
+    implementation(KOTLIN_STDLIB)
 
-    compile(JAVAPOET)
-    compile(KOTLINPOET)
+    implementation(JAVAPOET)
+    implementation(KOTLINPOET)
 
-    testCompile(JUNIT)
-    testCompile(GOOGLE_COMPILE_TESTING)
-    testCompile fileTree(dir: "${SdkHelperKt.getSdkPath(project.rootDir)}/platforms/$SupportConfig.COMPILE_SDK_VERSION/",
+    testImplementation(JUNIT)
+    testImplementation(GOOGLE_COMPILE_TESTING)
+    testImplementation fileTree(dir: "${SdkHelperKt.getSdkPath(project.rootDir)}/platforms/$SupportConfig.COMPILE_SDK_VERSION/",
             include : "android.jar")
-    testCompile fileTree(dir: "${new File(project(":navigation:navigation-common").buildDir, "libJar")}",
+    testImplementation fileTree(dir: "${new File(project(":navigation:navigation-common").buildDir, "libJar")}",
             include : "*.jar")
-    testCompile files(Jvm.current().getToolsJar())
+    testImplementation files(Jvm.current().getToolsJar())
 }
 
 tasks.findByName("test").doFirst {

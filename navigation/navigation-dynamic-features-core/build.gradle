@@ -48,7 +48,7 @@ dependencies {
     androidTestImplementation(TRUTH)
 }
 
-//used by testCompile safe-args-generator
+//used by testImplementation safe-args-generator
 android.libraryVariants.all { variant ->
     def name = variant.name
     def suffix = name.capitalize()

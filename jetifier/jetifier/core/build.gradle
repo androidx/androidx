@@ -29,10 +29,10 @@ sourceCompatibility = JavaVersion.VERSION_1_7
 targetCompatibility = JavaVersion.VERSION_1_7
 
 dependencies {
-    compile("com.google.code.gson:gson:2.8.0")
-    compile(KOTLIN_STDLIB)
-    testCompile("junit:junit:4.12")
-    testCompile(TRUTH)
+    api("com.google.code.gson:gson:2.8.0")
+    api(KOTLIN_STDLIB)
+    testImplementation("junit:junit:4.12")
+    testImplementation(TRUTH)
 }
 
 androidx {

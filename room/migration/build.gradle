@@ -26,12 +26,12 @@ plugins {
 }
 
 dependencies {
-    compile(project(":room:room-common"))
-    compile(KOTLIN_STDLIB)
-    compile(GSON)
-    testCompile(JUNIT)
-    testCompile(INTELLIJ_ANNOTATIONS)
-    testCompile(MOCKITO_CORE)
+    implementation(project(":room:room-common"))
+    implementation(KOTLIN_STDLIB)
+    implementation(GSON)
+    testImplementation(JUNIT)
+    testImplementation(INTELLIJ_ANNOTATIONS)
+    testImplementation(MOCKITO_CORE)
 }
 
 androidx {
