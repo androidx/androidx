@@ -16,6 +16,10 @@
 
 package androidx.ui.test
 
+import android.graphics.Bitmap
+import android.os.Build
+import androidx.annotation.RequiresApi
+import androidx.ui.core.SemanticsTreeNode
 import androidx.ui.core.SemanticsTreeProvider
 import androidx.ui.core.semantics.SemanticsConfiguration
 import androidx.ui.engine.geometry.Rect
@@ -41,6 +45,9 @@ internal interface SemanticsTreeInteraction {
     fun isInScreenBounds(rectangle: Rect): Boolean
 
     fun waitForIdleCompose(): Boolean
+
+    @RequiresApi(Build.VERSION_CODES.O)
+    fun captureNodeToBitmap(node: SemanticsTreeNode): Bitmap
 }
 
 internal var semanticsTreeInteractionFactory: (

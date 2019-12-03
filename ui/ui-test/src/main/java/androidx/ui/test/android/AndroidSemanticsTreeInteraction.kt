@@ -20,12 +20,15 @@ import android.R
 import android.annotation.SuppressLint
 import android.app.Activity
 import android.content.Context
+import android.graphics.Bitmap
+import android.os.Build
 import android.os.Handler
 import android.os.Looper
 import android.view.Choreographer
 import android.view.MotionEvent
 import android.view.View
 import android.view.ViewGroup
+import androidx.annotation.RequiresApi
 import androidx.compose.Recomposer
 import androidx.test.espresso.Espresso
 import androidx.test.espresso.NoMatchingViewException
@@ -177,7 +180,6 @@ internal class AndroidSemanticsTreeInteraction internal constructor(
             displayMetrics.widthPixels.px,
             displayMetrics.heightPixels.px
         )
-
         val screenRect = Rect.fromLTWH(
             0.px.value,
             0.px.value,
@@ -187,6 +189,37 @@ internal class AndroidSemanticsTreeInteraction internal constructor(
 
         return screenRect.contains(rectangle.getTopLeft()) &&
                 screenRect.contains(rectangle.getBottomRight())
+    }
+
+    @RequiresApi(Build.VERSION_CODES.O)
+    override fun captureNodeToBitmap(node: SemanticsTreeNode): Bitmap {
+        val collectedInfo = findActivityAndTreeProvider()
+
+        // TODO: Share this code with contains() somehow?
+        val exists = collectedInfo.treeProvider
+            .getAllSemanticNodes()
+            .any { it.data == node.data }
+        if (!exists) {
+            throw AssertionError("The required node is no longer in the tree!")
+        }
+
+        if (collectedInfo.context !is Activity) {
+            // TODO(pavlis): Espresso might have the windows already somewhere internally ...
+            throw AssertionError("The context assigned to your composable holder view cannot be " +
+                    "cast to Activity. So this function can't access its window to capture the " +
+                    "bitmap.")
+        }
+        val window = collectedInfo.context.window
+
+        // TODO(pavlis): Consider doing assertIsDisplayed here. Will need to move things around.
+
+        // TODO(pavlis): Make sure that the Activity actually hosts the view. As in case of popup
+        // it wouldn't. This will require us rewriting the structure how we collect the nodes.
+
+        // TODO(pavlis): Add support for popups. So if we find composable hosted in popup we can
+        // grab its reference to its window (need to add a hook to popup).
+
+        return captureRegionToBitmap(node.globalRect!!, handler, window)
     }
 
     private fun findActivityAndTreeProvider(): CollectedInfo {
