@@ -9,5 +9,5 @@ fi
 mkdir -p "$DIST_DIR"
 cd "$SCRIPT_DIR/../../.."
 
-OUT_DIR=out DIST_DIR="$DIST_DIR" ANDROID_HOME=`pwd`/prebuilts/fullsdk-linux frameworks/support/gradlew -p frameworks/support --no-daemon test jacocoTestReport zipEcFiles --info
-OUT_DIR=out/ui DIST_DIR="$DIST_DIR/ui" ANDROID_HOME=`pwd`/prebuilts/fullsdk-linux frameworks/support/ui/gradlew -p frameworks/support/ui --no-daemon test jacocoTestReport zipEcFiles --info
+OUT_DIR=out DIST_DIR="$DIST_DIR" ANDROID_HOME=`pwd`/prebuilts/fullsdk-linux frameworks/support/gradlew -p frameworks/support --no-daemon test jacocoTestReport zipEcFiles --info --offline
+OUT_DIR=out/ui DIST_DIR="$DIST_DIR/ui" ANDROID_HOME=`pwd`/prebuilts/fullsdk-linux frameworks/support/ui/gradlew -p frameworks/support/ui --no-daemon test jacocoTestReport zipEcFiles --info --offline
