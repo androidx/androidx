@@ -17,13 +17,12 @@
 package androidx.ui.foundation
 
 import androidx.compose.Composable
+import androidx.compose.memo
+import androidx.compose.unaryPlus
 import androidx.ui.core.Dp
 import androidx.ui.core.Modifier
-import androidx.ui.foundation.shape.DrawShape
-import androidx.ui.foundation.shape.RectangleShape
 import androidx.ui.graphics.Brush
 import androidx.ui.graphics.Color
-import androidx.ui.graphics.SolidColor
 import androidx.ui.layout.Container
 
 /**
@@ -48,9 +47,10 @@ fun ColoredRect(
     width: Dp? = null,
     height: Dp? = null
 ) {
-    Container(modifier = modifier, width = width, height = height, expanded = true) {
-        DrawShape(RectangleShape, brush)
-    }
+    val background = +memo(brush) { background(brush) }
+    Container(
+        modifier = modifier wraps background, width = width, height = height, expanded = true
+    ) {}
 }
 
 /**
@@ -69,5 +69,8 @@ fun ColoredRect(
     width: Dp? = null,
     height: Dp? = null
 ) {
-    ColoredRect(brush = SolidColor(color), modifier = modifier, width = width, height = height)
+    val background = +memo(color) { background(color) }
+    Container(
+        modifier = modifier wraps background, width = width, height = height, expanded = true
+    ) {}
 }

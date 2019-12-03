@@ -1,6 +1,14 @@
 // Signature format: 3.0
 package androidx.ui.foundation {
 
+  public final class BackgroundKt {
+    ctor public BackgroundKt();
+    method public static androidx.ui.core.DrawModifier background(androidx.ui.graphics.Color color);
+    method public static androidx.ui.core.DrawModifier background(androidx.ui.graphics.Brush brush);
+    method public static androidx.ui.core.DrawModifier background(androidx.ui.engine.geometry.Shape shape, androidx.ui.graphics.Color color);
+    method public static androidx.ui.core.DrawModifier background(androidx.ui.engine.geometry.Shape shape, androidx.ui.graphics.Brush brush);
+  }
+
   public final class ClickableKt {
     ctor public ClickableKt();
     method public static void Clickable(kotlin.jvm.functions.Function0<kotlin.Unit>? onClick = null, boolean consumeDownOnStart = false, kotlin.jvm.functions.Function0<kotlin.Unit> children);

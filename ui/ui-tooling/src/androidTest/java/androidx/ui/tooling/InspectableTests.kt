@@ -18,12 +18,16 @@ package androidx.ui.tooling
 
 import androidx.compose.SlotTable
 import androidx.test.filters.SmallTest
+import androidx.ui.core.Draw
 import androidx.ui.core.DrawNode
 import androidx.ui.core.dp
 import androidx.ui.core.px
+import androidx.ui.core.toRect
 import androidx.ui.foundation.ColoredRect
 import androidx.ui.graphics.Color
+import androidx.ui.graphics.Paint
 import androidx.ui.layout.Column
+import androidx.ui.layout.Container
 import org.junit.Assert.assertEquals
 import org.junit.Assert.assertFalse
 import org.junit.Assert.assertNotEquals
@@ -41,7 +45,12 @@ class InspectableTests : ToolingTest() {
         show {
             Inspectable {
                 Column {
-                    ColoredRect(color = Color(0xFF), width = 100.dp, height = 100.dp)
+                    Container(width = 100.dp, height = 100.dp) {
+                        Draw { canvas, size ->
+                            val paint = Paint().also { it.color = Color(0xFF) }
+                            canvas.drawRect(size.toRect(), paint)
+                        }
+                    }
                 }
             }
         }

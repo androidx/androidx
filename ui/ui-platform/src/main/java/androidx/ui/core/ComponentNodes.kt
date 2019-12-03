@@ -16,18 +16,18 @@
 package androidx.ui.core
 
 import androidx.compose.Emittable
-import androidx.ui.core.semantics.SemanticsConfiguration
-import androidx.ui.focus.FocusDetailedState.Active
-import androidx.ui.focus.FocusDetailedState.Inactive
-import androidx.ui.focus.FocusDetailedState.Disabled
-import androidx.ui.focus.FocusDetailedState.Captured
-import androidx.ui.focus.FocusDetailedState.ActiveParent
-import androidx.ui.graphics.Canvas
-import androidx.ui.engine.geometry.Shape
 import androidx.ui.core.focus.findParentFocusNode
 import androidx.ui.core.focus.ownerHasFocus
 import androidx.ui.core.focus.requestFocusForOwner
+import androidx.ui.core.semantics.SemanticsConfiguration
+import androidx.ui.engine.geometry.Shape
 import androidx.ui.focus.FocusDetailedState
+import androidx.ui.focus.FocusDetailedState.Active
+import androidx.ui.focus.FocusDetailedState.ActiveParent
+import androidx.ui.focus.FocusDetailedState.Captured
+import androidx.ui.focus.FocusDetailedState.Disabled
+import androidx.ui.focus.FocusDetailedState.Inactive
+import androidx.ui.graphics.Canvas
 import kotlin.properties.ReadWriteProperty
 import kotlin.reflect.KProperty
 
@@ -118,6 +118,11 @@ interface Owner {
      * then enable it again.
      */
     fun enableModelReadObserving(enabled: Boolean)
+
+    /**
+     * Causes the [node] to draw into [canvas].
+     */
+    fun callDraw(canvas: Canvas, node: ComponentNode, parentSize: PxSize)
 
     val measureIteration: Long
 }
@@ -1015,7 +1020,11 @@ class LayoutNode : ComponentNode(), Measurable {
             // Rebuild layoutNodeWrapper
             val oldPlaceable = layoutNodeWrapper
             layoutNodeWrapper = modifier.foldOut(innerLayoutNodeWrapper) { mod, toWrap ->
-                if (mod is LayoutModifier) ModifiedLayoutNode(toWrap, mod) else toWrap
+                when (mod) {
+                    is LayoutModifier -> ModifiedLayoutNode(toWrap, mod)
+                    is DrawModifier -> DrawLayoutNodeWrapper(toWrap, mod)
+                    else -> toWrap
+                }
             }
             // Optimize the case where the layout itself is not modified. A common reason for
             // this is if no wrapping actually occurs above because no LayoutModifiers are
@@ -1042,6 +1051,11 @@ class LayoutNode : ComponentNode(), Measurable {
          * from the call to [MeasureScope.layout]. Assigns and returns [modifiedSize].
          */
         abstract fun layoutSize(innermostSize: IntPxSize): IntPxSize
+
+        /**
+         * Draws the content of the LayoutNode
+         */
+        abstract fun draw(canvas: Canvas, density: Density)
     }
 
     private inner class InnerPlaceable : LayoutNodeWrapper(), DensityScope {
@@ -1094,6 +1108,16 @@ class LayoutNode : ComponentNode(), Measurable {
 
         override fun calculateContentPosition(offset: IntPxPosition) {
             contentPosition = position + offset
+        }
+
+        override fun draw(canvas: Canvas, density: Density) {
+            val x = position.x.value.toFloat()
+            val y = position.y.value.toFloat()
+            canvas.translate(x, y)
+            val owner = requireOwner()
+            val sizePx = size.toPxSize()
+            children.forEach { child -> owner.callDraw(canvas, child, sizePx) }
+            canvas.translate(-x, -y)
         }
     }
 
@@ -1191,6 +1215,73 @@ class LayoutNode : ComponentNode(), Measurable {
         override fun calculateContentPosition(offset: IntPxPosition) {
             wrapped.calculateContentPosition(position + offset)
         }
+
+        override fun draw(canvas: Canvas, density: Density) {
+            val x = position.x.value.toFloat()
+            val y = position.y.value.toFloat()
+            canvas.translate(x, y)
+            wrapped.draw(canvas, density)
+            canvas.translate(-x, -y)
+        }
+    }
+
+    private class DrawLayoutNodeWrapper(
+        val wrapped: LayoutNodeWrapper,
+        val drawModifier: DrawModifier
+    ) : LayoutNodeWrapper(), () -> Unit {
+        private var density: Density? = null
+        private var canvas: Canvas? = null
+
+        override fun calculateContentPosition(offset: IntPxPosition) {
+            wrapped.calculateContentPosition(position + offset)
+        }
+
+        override fun layoutSize(innermostSize: IntPxSize): IntPxSize =
+            wrapped.layoutSize(innermostSize)
+
+        override fun get(line: AlignmentLine): IntPx? = wrapped.get(line)
+
+        override val size: IntPxSize
+            get() = wrapped.size
+
+        override fun performPlace(position: IntPxPosition) {
+            this.position = position
+            wrapped.place(IntPxPosition.Origin)
+        }
+
+        override fun measure(constraints: Constraints): Placeable {
+            wrapped.measure(constraints)
+            return this
+        }
+
+        override val parentData: Any?
+            get() = wrapped.parentData
+
+        override fun minIntrinsicWidth(height: IntPx): IntPx = wrapped.minIntrinsicWidth(height)
+
+        override fun maxIntrinsicWidth(height: IntPx): IntPx = wrapped.maxIntrinsicWidth(height)
+
+        override fun minIntrinsicHeight(width: IntPx): IntPx = wrapped.minIntrinsicHeight(width)
+
+        override fun maxIntrinsicHeight(width: IntPx): IntPx = wrapped.maxIntrinsicHeight(width)
+
+        override fun draw(canvas: Canvas, density: Density) {
+            val x = position.x.value.toFloat()
+            val y = position.y.value.toFloat()
+            canvas.translate(x, y)
+            this.density = density
+            this.canvas = canvas
+            val pxSize = size.toPxSize()
+            drawModifier.draw(density, this, canvas, pxSize)
+            this.density = null
+            this.canvas = null
+            canvas.translate(-x, -y)
+        }
+
+        // This is the implementation of drawContent()
+        override fun invoke() {
+            wrapped.draw(canvas!!, density!!)
+        }
     }
 
     internal val coordinates: LayoutCoordinates = LayoutNodeCoordinates(this)
@@ -1261,6 +1352,8 @@ class LayoutNode : ComponentNode(), Measurable {
             layoutNodeWrapper.place(x, y)
         }
     }
+
+    fun draw(canvas: Canvas, density: Density) = layoutNodeWrapper.draw(canvas, density)
 
     fun placeChildren() {
         if (needsRelayout) {
