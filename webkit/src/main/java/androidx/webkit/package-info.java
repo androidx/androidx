@@ -27,7 +27,7 @@
  * <pre class="prettyprint">
  *dependencies {
  *    ...
- *    implementation 'androidx.webkit:webkit:1.0.0'
+ *    implementation 'androidx.webkit:webkit:1.1.0'
  *}</pre>
  *
  * <p><b>Migrating to androidx.webkit</b>
