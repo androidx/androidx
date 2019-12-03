@@ -759,10 +759,9 @@ public class MediaController implements AutoCloseable {
     }
 
     /**
-     * Requests that the {@link SessionPlayer} associated with the connected {@link MediaSession}
-     * rates the media. This will cause the rating to be set for the
-     * current user. The rating style must follow the user rating style from the session.
-     * You can get the rating style from the session through the
+     * Requests that the connected {@link MediaSession} rates the media. This will cause the rating
+     * to be set for the current user. The rating style must follow the user rating style from the
+     * session.You can get the rating style from the session through the
      * {@link MediaMetadata#getRating(String)} with the key
      * {@link MediaMetadata#METADATA_KEY_USER_RATING}.
      * <p>
