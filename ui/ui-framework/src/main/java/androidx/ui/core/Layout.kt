@@ -434,9 +434,12 @@ fun Layout(
  * children. If the composition yields multiple layout children, these will be all placed at the
  * top left of the WithConstraints, so consider wrapping them in an additional common
  * parent if different positioning is preferred.
+ *
+ * @param modifier Modifier to be applied to the introduced layout.
  */
 @Composable
 fun WithConstraints(
+    modifier: Modifier = Modifier.None,
     children: @Composable() (Constraints) -> Unit
 ) {
     val state = +memo { WithConstrainsState() }
@@ -446,7 +449,7 @@ fun WithConstraints(
     // if this code was executed subcomposition must be triggered as well
     state.forceRecompose = true
 
-    LayoutNode(ref = state.nodeRef, measureBlocks = state.measureBlocks)
+    LayoutNode(modifier = modifier, ref = state.nodeRef, measureBlocks = state.measureBlocks)
 
     // if LayoutNode scheduled the remeasuring no further steps are needed - subcomposition
     // will happen later on the measuring stage. otherwise we can assume the LayoutNode
