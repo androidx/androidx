@@ -363,7 +363,7 @@ public class CameraXActivity extends AppCompatActivity
 
         mImageAnalysis.setAnalyzer(
                 ContextCompat.getMainExecutor(this),
-                (image, rotationDegrees) -> {
+                (image) -> {
                     // Since we set the callback handler to a main thread handler, we can call
                     // setValue() here. If we weren't on the main thread, we would have to call
                     // postValue() instead.

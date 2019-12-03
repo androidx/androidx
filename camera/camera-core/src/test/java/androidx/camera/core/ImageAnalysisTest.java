@@ -221,7 +221,7 @@ public class ImageAnalysisTest {
                 .build();
 
         mImageAnalysis.setAnalyzer(CameraXExecutors.newHandlerExecutor(mCallbackHandler),
-                (image, rotationDegrees) -> {
+                (image) -> {
                     mImagesReceived.add(image.getImage());
                     image.close();
                 }
