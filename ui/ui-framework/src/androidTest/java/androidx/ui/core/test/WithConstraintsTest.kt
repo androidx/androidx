@@ -21,6 +21,7 @@ import android.os.Build
 import androidx.annotation.RequiresApi
 import androidx.compose.Composable
 import androidx.compose.memo
+import androidx.compose.state
 import androidx.compose.unaryPlus
 import androidx.test.filters.SdkSuppress
 import androidx.test.filters.SmallTest
@@ -395,6 +396,34 @@ class WithConstraintsTest {
     }
 
     @RequiresApi(Build.VERSION_CODES.O)
+    @Test
+    fun updateModelInMeasuringAndReadItInCompositionWorksInsideWithConstraints() {
+        val latch = CountDownLatch(1)
+        rule.runOnUiThread {
+            activity.setContentInFrameLayout {
+                Container(width = 100.ipx, height = 100.ipx) {
+                        WithConstraints {
+                            // this replicates the popular pattern we currently use
+                            // where we save some data calculated in the measuring block
+                            // and then use it in the next composition frame
+                            var model by +state { false }
+                            Layout({
+                                if (model) {
+                                    latch.countDown()
+                                }
+                            }) { _, _ ->
+                                if (!model) {
+                                    model = true
+                                }
+                                layout(100.ipx, 100.ipx) {}
+                            }
+                        }
+                }
+            }
+        }
+        assertTrue(latch.await(1, TimeUnit.SECONDS))
+    }
+
     private fun takeScreenShot(size: Int): Bitmap {
         assertTrue(drawLatch.await(1, TimeUnit.SECONDS))
         val bitmap = rule.waitAndScreenShot()
