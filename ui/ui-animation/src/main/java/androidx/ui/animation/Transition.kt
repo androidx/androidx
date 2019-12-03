@@ -30,21 +30,33 @@ import androidx.compose.unaryPlus
 import androidx.ui.core.AnimationClockAmbient
 
 /**
- * Composable to use with TransitionDefinition-based animations.
+ * Composable to use with [TransitionDefinition]-based animations.
+ *
+ * @param definition Transition definition that defines states and transitions
+ * @param toState New state to transition to
+ * @param clock Animation clock that pulses animations when time changes. By default the clock is
+ *              read from the ambient.
+ * @param initState Optional initial state for the transition. When undefined, the initial state
+ *                  will be set to the first [toState] seen in the transition.
+ * @param onStateChangeFinished An optional listener to get notified when state change animation
+ *                              has completed
+ * @param children The children composables that will be animated
  *
  * @sample androidx.ui.animation.samples.TransitionSample
  */
+// TODO: The list of params is getting a bit long. Consider grouping them.
 @Composable
 fun <T> Transition(
     definition: TransitionDefinition<T>,
     toState: T,
     clock: AnimationClockObservable = +ambient(AnimationClockAmbient),
+    initState: T = toState,
     onStateChangeFinished: ((T) -> Unit)? = null,
     children: @Composable() (state: TransitionState) -> Unit
 ) {
     if (transitionsEnabled) {
         // TODO: This null is workaround for b/132148894
-        val model = +memo(definition, null) { TransitionModel(definition, toState, clock) }
+        val model = +memo(definition, null) { TransitionModel(definition, initState, clock) }
         model.anim.onStateChangeFinished = onStateChangeFinished
         model.anim.toState(toState)
         children(model)
