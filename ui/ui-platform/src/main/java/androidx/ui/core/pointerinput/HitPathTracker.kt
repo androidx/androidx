@@ -18,18 +18,16 @@ package androidx.ui.core.pointerinput
 
 import androidx.ui.core.IntPxPosition
 import androidx.ui.core.IntPxSize
-import androidx.ui.core.LayoutNode
 import androidx.ui.core.PointerEventPass
 import androidx.ui.core.PointerInputChange
 import androidx.ui.core.PointerInputNode
 import androidx.ui.core.hasNoLayoutDescendants
 import androidx.ui.core.ipx
-import androidx.ui.core.positionRelativeToRoot
 import androidx.ui.core.isAttached
+import androidx.ui.core.positionRelativeToRoot
 import androidx.ui.core.visitLayoutChildren
-import java.lang.IllegalStateException
-import kotlin.math.min
 import kotlin.math.max
+import kotlin.math.min
 
 /**
  * Organizes pointers and the [PointerInputNode]s that they hit into a hierarchy such that
@@ -148,6 +146,10 @@ internal class HitPathTracker {
         root.refreshPositionInformation(additionalPointerOffset)
     }
 
+    // TODO(b/145305910): removeDetachedPointerInputNodes and
+    //  removePointerInputNodesWithNoLayoutNodeDescendants should not wait to be called during
+    //  dispatching of pointer input events.  Changing PointerInputNodes to be PointerInputModifiers
+    //  will fix this for us.
     /**
      * Convenience method that removes PointerInputNodes that are no longer valid and refreshes the
      * offset information for those that are.
@@ -165,8 +167,7 @@ internal class HitPathTracker {
 // TODO(shepshapard): This really should be private. Currently some tests inspect the node's
 // directly which is unnecessary and bad practice.
 internal class Node(
-    val pointerInputNode: PointerInputNode? = null,
-    val layoutNode: LayoutNode? = null
+    val pointerInputNode: PointerInputNode? = null
 ) {
     val pointerIds: MutableSet<Int> = mutableSetOf()
     val children: MutableSet<Node> = mutableSetOf()
@@ -193,11 +194,13 @@ internal class Node(
         }
 
         if (relevantChanges.isEmpty()) {
-            throw IllegalStateException("Currently, HitPathTracker is operating under the " +
-                    "assumption that there should never be a circumstance in which it is tracking" +
-                    " a PointerInputNode where when it receives pointerInputChanges, none are " +
-                    "relevant to that PointerInputNode.  This assumption may not hold true in " +
-                    "the future, but currently it assumes it can abide by this contract.")
+            throw IllegalStateException(
+                "Currently, HitPathTracker is operating under the assumption that there should " +
+                        "never be a circumstance in which it is tracking a PointerInputNode " +
+                        "where when it receives pointerInputChanges, none are relevant to that " +
+                        "PointerInputNode.  This assumption may not hold true in the future, but " +
+                        "currently it assumes it can abide by this contract."
+            )
         }
 
         // For each relevant change:
@@ -253,26 +256,30 @@ internal class Node(
         children.clear()
     }
 
-    // TODO(b/142486858): Should cancel events be dispatched to PointerInputNodes that have been
-    //  removed from the tree?
     fun removeDetachedPointerInputNodes() {
-        children.removeAll {
-            it.pointerInputNode != null && !it.pointerInputNode.isAttached()
-        }
-        children.forEach {
-            it.removeDetachedPointerInputNodes()
-        }
+        children.removeAndProcess(
+            removeIf = {
+                it.pointerInputNode != null && !it.pointerInputNode.isAttached()
+            },
+            ifRemoved = {
+                it.dispatchCancel()
+            },
+            ifKept = {
+                it.removeDetachedPointerInputNodes()
+            })
     }
 
-    // TODO(shepshapard): Not sure if this functionality should exist.  The question will be moot
-    //  when/if PointerInputNodes are converted into modifiers.
     fun removePointerInputNodesWithNoLayoutNodeDescendants() {
-        children.removeAll {
-            it.pointerInputNode != null && it.pointerInputNode.hasNoLayoutDescendants()
-        }
-        children.forEach {
-            it.removePointerInputNodesWithNoLayoutNodeDescendants()
-        }
+        children.removeAndProcess(
+            removeIf = {
+                it.pointerInputNode != null && it.pointerInputNode.hasNoLayoutDescendants()
+            },
+            ifRemoved = {
+                it.dispatchCancel()
+            },
+            ifKept = {
+                it.removePointerInputNodesWithNoLayoutNodeDescendants()
+            })
     }
 
     fun removePointerId(pointerId: Int) {
@@ -350,6 +357,24 @@ internal class Node(
     private inline fun <K, V> MutableMap<K, V>.replaceEverything(f: (V) -> V) {
         for (entry in this) {
             entry.setValue(f(entry.value))
+        }
+    }
+}
+
+private fun <T> MutableIterable<T>.removeAndProcess(
+    removeIf: (T) -> Boolean,
+    ifRemoved: (T) -> Unit,
+    ifKept: (T) -> Unit
+) {
+    with(iterator()) {
+        while (hasNext()) {
+            val next = next()
+            if (removeIf(next)) {
+                remove()
+                ifRemoved(next)
+            } else {
+                ifKept(next)
+            }
         }
     }
 }

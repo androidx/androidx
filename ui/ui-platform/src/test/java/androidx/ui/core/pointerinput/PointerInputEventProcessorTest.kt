@@ -1908,64 +1908,6 @@ class PointerInputEventProcessorTest {
     }
 
     @Test
-    fun process_pointerInputNodeRemovedDuringInput_correctPointerInputChangesReceived() {
-
-        // Arrange
-
-        val childLayoutNode = LayoutNode(0, 0, 100, 100)
-        val childPointerInputNode: PointerInputNode = PointerInputNode().apply {
-            emitInsertAt(0, childLayoutNode)
-            pointerInputHandler = spy(MyPointerInputHandler())
-        }
-        val parentLayoutNode: LayoutNode = LayoutNode(0, 0, 100, 100).apply {
-            emitInsertAt(0, childPointerInputNode)
-        }
-        val parentPointerInputNode: PointerInputNode = PointerInputNode().apply {
-            emitInsertAt(0, parentLayoutNode)
-            pointerInputHandler = spy(MyPointerInputHandler())
-        }
-        root.emitInsertAt(0, parentPointerInputNode)
-
-        val offset = PxPosition(50.px, 50.px)
-
-        val down = PointerInputEvent(0, Uptime.Boot + 7.milliseconds, offset, true)
-        val up = PointerInputEvent(0, Uptime.Boot + 11.milliseconds, null, false)
-
-        val expectedDownChange = PointerInputChange(
-            id = 0,
-            current = PointerInputData(Uptime.Boot + 7.milliseconds, offset, true),
-            previous = PointerInputData(null, null, false),
-            consumed = ConsumedData()
-        )
-
-        val expectedUpChange = PointerInputChange(
-            id = 0,
-            current = PointerInputData(Uptime.Boot + 11.milliseconds, null, false),
-            previous = PointerInputData(Uptime.Boot + 7.milliseconds, offset, true),
-            consumed = ConsumedData()
-        )
-
-        // Act
-
-        pointerInputEventProcessor.process(down, IntPxPosition.Origin)
-        parentLayoutNode.emitRemoveAt(0, 1)
-        pointerInputEventProcessor.process(up, IntPxPosition.Origin)
-
-        // Assert
-
-        PointerEventPass.values().forEach {
-            verify(parentPointerInputNode.pointerInputHandler)
-                .invoke(eq(listOf(expectedDownChange)), eq(it), any())
-            verify(childPointerInputNode.pointerInputHandler)
-                .invoke(eq(listOf(expectedDownChange)), eq(it), any())
-            verify(parentPointerInputNode.pointerInputHandler)
-                .invoke(eq(listOf(expectedUpChange)), eq(it), any())
-        }
-        verifyNoMoreInteractions(parentPointerInputNode.pointerInputHandler)
-        verifyNoMoreInteractions(childPointerInputNode.pointerInputHandler)
-    }
-
-    @Test
     fun processCancel_noPointers_doesntCrash() {
         pointerInputEventProcessor.processCancel()
     }
@@ -2458,5 +2400,191 @@ class PointerInputEventProcessorTest {
             pointerInputNode.pointerInputHandler,
             pointerInputNode.cancelHandler
         )
+    }
+
+    @Test
+    fun process_pointerInputNodeRemovedDuringInput_correctPointerInputChangesReceived() {
+
+        // Arrange
+
+        val childLayoutNode = LayoutNode(0, 0, 100, 100)
+        val childPointerInputNode: PointerInputNode = PointerInputNode().apply {
+            emitInsertAt(0, childLayoutNode)
+            pointerInputHandler = spy(MyPointerInputHandler())
+        }
+        val parentLayoutNode: LayoutNode = LayoutNode(0, 0, 100, 100).apply {
+            emitInsertAt(0, childPointerInputNode)
+        }
+        val parentPointerInputNode: PointerInputNode = PointerInputNode().apply {
+            emitInsertAt(0, parentLayoutNode)
+            pointerInputHandler = spy(MyPointerInputHandler())
+        }
+        root.emitInsertAt(0, parentPointerInputNode)
+
+        val offset = PxPosition(50.px, 50.px)
+
+        val down = PointerInputEvent(0, Uptime.Boot + 7.milliseconds, offset, true)
+        val up = PointerInputEvent(0, Uptime.Boot + 11.milliseconds, null, false)
+
+        val expectedDownChange = PointerInputChange(
+            id = 0,
+            current = PointerInputData(Uptime.Boot + 7.milliseconds, offset, true),
+            previous = PointerInputData(null, null, false),
+            consumed = ConsumedData()
+        )
+
+        val expectedUpChange = PointerInputChange(
+            id = 0,
+            current = PointerInputData(Uptime.Boot + 11.milliseconds, null, false),
+            previous = PointerInputData(Uptime.Boot + 7.milliseconds, offset, true),
+            consumed = ConsumedData()
+        )
+
+        // Act
+
+        pointerInputEventProcessor.process(down, IntPxPosition.Origin)
+        parentLayoutNode.emitRemoveAt(0, 1)
+        pointerInputEventProcessor.process(up, IntPxPosition.Origin)
+
+        // Assert
+
+        PointerEventPass.values().forEach {
+            verify(parentPointerInputNode.pointerInputHandler)
+                .invoke(eq(listOf(expectedDownChange)), eq(it), any())
+            verify(childPointerInputNode.pointerInputHandler)
+                .invoke(eq(listOf(expectedDownChange)), eq(it), any())
+            verify(parentPointerInputNode.pointerInputHandler)
+                .invoke(eq(listOf(expectedUpChange)), eq(it), any())
+        }
+        verifyNoMoreInteractions(parentPointerInputNode.pointerInputHandler)
+        verifyNoMoreInteractions(childPointerInputNode.pointerInputHandler)
+    }
+
+    @Test
+    fun process_pointerInputNodeRemovedDuringInput_cancelDispatchedToCorrectPointerInputNode() {
+
+        // Arrange
+
+        val childLayoutNode = LayoutNode(0, 0, 100, 100)
+        val childPointerInputNode: PointerInputNode = PointerInputNode().apply {
+            emitInsertAt(0, childLayoutNode)
+            cancelHandler = spy(MyCancelHandler())
+        }
+        val parentLayoutNode: LayoutNode = LayoutNode(0, 0, 100, 100).apply {
+            emitInsertAt(0, childPointerInputNode)
+        }
+        val parentPointerInputNode: PointerInputNode = PointerInputNode().apply {
+            emitInsertAt(0, parentLayoutNode)
+            cancelHandler = spy(MyCancelHandler())
+        }
+        root.emitInsertAt(0, parentPointerInputNode)
+
+        val down =
+            PointerInputEvent(0, Uptime.Boot + 7.milliseconds, PxPosition(50.px, 50.px), true)
+
+        val up = PointerInputEvent(0, Uptime.Boot + 11.milliseconds, null, false)
+
+        // Act
+
+        pointerInputEventProcessor.process(down, IntPxPosition.Origin)
+        parentLayoutNode.emitRemoveAt(0, 1)
+        pointerInputEventProcessor.process(up, IntPxPosition.Origin)
+
+        // Assert
+        verify(childPointerInputNode.cancelHandler).invoke()
+        verify(parentPointerInputNode.cancelHandler, never()).invoke()
+    }
+
+    @Test
+    fun process_childLayoutNodeRemovedDuringInput_correctPointerInputChangesReceived() {
+
+        // Arrange
+
+        val childLayoutNode = LayoutNode(0, 0, 100, 100)
+        val childPointerInputNode: PointerInputNode = PointerInputNode().apply {
+            emitInsertAt(0, childLayoutNode)
+            pointerInputHandler = spy(MyPointerInputHandler())
+        }
+        val parentLayoutNode: LayoutNode = LayoutNode(0, 0, 100, 100).apply {
+            emitInsertAt(0, childPointerInputNode)
+        }
+        val parentPointerInputNode: PointerInputNode = PointerInputNode().apply {
+            emitInsertAt(0, parentLayoutNode)
+            pointerInputHandler = spy(MyPointerInputHandler())
+        }
+        root.emitInsertAt(0, parentPointerInputNode)
+
+        val offset = PxPosition(50.px, 50.px)
+
+        val down = PointerInputEvent(0, Uptime.Boot + 7.milliseconds, offset, true)
+        val up = PointerInputEvent(0, Uptime.Boot + 11.milliseconds, null, false)
+
+        val expectedDownChange = PointerInputChange(
+            id = 0,
+            current = PointerInputData(Uptime.Boot + 7.milliseconds, offset, true),
+            previous = PointerInputData(null, null, false),
+            consumed = ConsumedData()
+        )
+
+        val expectedUpChange = PointerInputChange(
+            id = 0,
+            current = PointerInputData(Uptime.Boot + 11.milliseconds, null, false),
+            previous = PointerInputData(Uptime.Boot + 7.milliseconds, offset, true),
+            consumed = ConsumedData()
+        )
+
+        // Act
+
+        pointerInputEventProcessor.process(down, IntPxPosition.Origin)
+        childPointerInputNode.emitRemoveAt(0, 1)
+        pointerInputEventProcessor.process(up, IntPxPosition.Origin)
+
+        // Assert
+
+        PointerEventPass.values().forEach {
+            verify(parentPointerInputNode.pointerInputHandler)
+                .invoke(eq(listOf(expectedDownChange)), eq(it), any())
+            verify(childPointerInputNode.pointerInputHandler)
+                .invoke(eq(listOf(expectedDownChange)), eq(it), any())
+            verify(parentPointerInputNode.pointerInputHandler)
+                .invoke(eq(listOf(expectedUpChange)), eq(it), any())
+        }
+        verifyNoMoreInteractions(parentPointerInputNode.pointerInputHandler)
+        verifyNoMoreInteractions(childPointerInputNode.pointerInputHandler)
+    }
+
+    @Test
+    fun process_childLayoutNodeRemovedDuringInput_cancelDispatchedToCorrectPointerInputNode() {
+
+        // Arrange
+
+        val childLayoutNode = LayoutNode(0, 0, 100, 100)
+        val childPointerInputNode: PointerInputNode = PointerInputNode().apply {
+            emitInsertAt(0, childLayoutNode)
+            cancelHandler = spy(MyCancelHandler())
+        }
+        val parentLayoutNode: LayoutNode = LayoutNode(0, 0, 100, 100).apply {
+            emitInsertAt(0, childPointerInputNode)
+        }
+        val parentPointerInputNode: PointerInputNode = PointerInputNode().apply {
+            emitInsertAt(0, parentLayoutNode)
+            cancelHandler = spy(MyCancelHandler())
+        }
+        root.emitInsertAt(0, parentPointerInputNode)
+
+        val down =
+            PointerInputEvent(0, Uptime.Boot + 7.milliseconds, PxPosition(50.px, 50.px), true)
+
+        val up = PointerInputEvent(0, Uptime.Boot + 11.milliseconds, null, false)
+
+        // Act
+
+        pointerInputEventProcessor.process(down, IntPxPosition.Origin)
+        childPointerInputNode.emitRemoveAt(0, 1)
+        pointerInputEventProcessor.process(up, IntPxPosition.Origin)
+
+        // Assert
+        verify(childPointerInputNode.cancelHandler).invoke()
+        verify(parentPointerInputNode.cancelHandler, never()).invoke()
     }
 }

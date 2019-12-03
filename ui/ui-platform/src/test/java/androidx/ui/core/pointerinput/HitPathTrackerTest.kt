@@ -43,6 +43,7 @@ import com.google.common.truth.Truth.assertThat
 import com.nhaarman.mockitokotlin2.any
 import com.nhaarman.mockitokotlin2.eq
 import com.nhaarman.mockitokotlin2.inOrder
+import com.nhaarman.mockitokotlin2.never
 import com.nhaarman.mockitokotlin2.spy
 import com.nhaarman.mockitokotlin2.verify
 import com.nhaarman.mockitokotlin2.verifyNoMoreInteractions
@@ -901,33 +902,49 @@ class HitPathTrackerTest {
     }
 
     @Test
-    fun removeDetachedPointerInputNodes_complexNothingDetached_nothingRemoved() {
+    fun removeDetachedPointerInputNodes_complexNothingDetached_nothingRemovedNoCancelsCalled() {
 
         // Arrange.
 
-        val pin1 = PointerInputNode()
+        val neverCalled: () -> Unit = spy {}
 
-        val pin2 = PointerInputNode()
-        val pin3 = PointerInputNode().apply {
-            emitInsertAt(0, pin2)
+        val pin1 = PointerInputNode().apply {
+            this.cancelHandler = neverCalled
         }
 
-        val pin4 = PointerInputNode()
+        val pin2 = PointerInputNode().apply {
+            this.cancelHandler = neverCalled
+        }
+        val pin3 = PointerInputNode().apply {
+            emitInsertAt(0, pin2)
+            this.cancelHandler = neverCalled
+        }
+
+        val pin4 = PointerInputNode().apply {
+            this.cancelHandler = neverCalled
+        }
         val pin5 = PointerInputNode().apply {
             emitInsertAt(0, pin4)
+            this.cancelHandler = neverCalled
         }
         val pin6 = PointerInputNode().apply {
             emitInsertAt(0, pin5)
+            this.cancelHandler = neverCalled
         }
 
-        val pin7 = PointerInputNode()
-        val pin8 = PointerInputNode()
+        val pin7 = PointerInputNode().apply {
+            this.cancelHandler = neverCalled
+        }
+        val pin8 = PointerInputNode().apply {
+            this.cancelHandler = neverCalled
+        }
         val layoutNode = LayoutNode().apply {
             emitInsertAt(0, pin7)
             emitInsertAt(1, pin8)
         }
         val pin9 = PointerInputNode().apply {
             emitInsertAt(0, layoutNode)
+            this.cancelHandler = neverCalled
         }
 
         compositionRoot.emitInsertAt(0, pin1)
@@ -978,33 +995,48 @@ class HitPathTrackerTest {
             })
         }
         assertThat(areEqual(hitResult.root, expectedRoot)).isTrue()
+        verifyNoMoreInteractions(neverCalled)
     }
 
     //  compositionRoot, root -> middle -> leaf
     @Test
-    fun removeDetachedPointerInputNodes_1PathRootDetached_fullPathRemoved() {
-        val leaf = PointerInputNode()
+    fun removeDetachedPointerInputNodes_1PathRootDetached_allRemovedAndCorrectCancels() {
+        val leaf = PointerInputNode().apply {
+            cancelHandler = spy {}
+        }
         val middle = PointerInputNode().apply {
             emitInsertAt(0, leaf)
+            cancelHandler = spy {}
         }
         val root = PointerInputNode().apply {
             emitInsertAt(0, middle)
+            cancelHandler = spy {}
         }
         hitResult.addHitPath(0, listOf(root, middle, leaf))
 
         hitResult.removeDetachedPointerInputNodes()
 
         assertThat(areEqual(hitResult.root, Node())).isTrue()
+        inOrder(leaf.cancelHandler, middle.cancelHandler, root.cancelHandler) {
+            verify(leaf.cancelHandler).invoke()
+            verify(middle.cancelHandler).invoke()
+            verify(root.cancelHandler).invoke()
+        }
     }
 
     //  compositionRoot -> root, middle -> child
     @Test
-    fun removeDetachedPointerInputNodes_1PathMiddleDetached_itAndAncestorsRemoved() {
-        val child = PointerInputNode()
+    fun removeDetachedPointerInputNodes_1PathMiddleDetached_removesAndCancelsCorrect() {
+        val child = PointerInputNode().apply {
+            cancelHandler = spy {}
+        }
         val middle = PointerInputNode().apply {
             emitInsertAt(0, child)
+            cancelHandler = spy {}
         }
-        val root = PointerInputNode()
+        val root = PointerInputNode().apply {
+            cancelHandler = spy {}
+        }
         compositionRoot.add(root)
         hitResult.addHitPath(0, listOf(root, middle, child))
 
@@ -1017,15 +1049,25 @@ class HitPathTrackerTest {
         }
 
         assertThat(areEqual(hitResult.root, expectedRoot)).isTrue()
+        inOrder(child.cancelHandler, middle.cancelHandler) {
+            verify(child.cancelHandler).invoke()
+            verify(middle.cancelHandler).invoke()
+        }
+        verify(root.cancelHandler, never()).invoke()
     }
 
     //  compositionRoot -> root -> middle, leaf
     @Test
-    fun removeDetachedPointerInputNodes_1PathLeafDetached_justLeafRemoved() {
-        val leaf = PointerInputNode()
-        val middle = PointerInputNode()
+    fun removeDetachedPointerInputNodes_1PathLeafDetached_removesAndCancelsCorrect() {
+        val leaf = PointerInputNode().apply {
+            cancelHandler = spy {}
+        }
+        val middle = PointerInputNode().apply {
+            cancelHandler = spy {}
+        }
         val root = PointerInputNode().apply {
             emitInsertAt(0, middle)
+            cancelHandler = spy {}
         }
         compositionRoot.add(root)
         hitResult.addHitPath(0, listOf(root, middle, leaf))
@@ -1042,35 +1084,52 @@ class HitPathTrackerTest {
         }
 
         assertThat(areEqual(hitResult.root, expectedRoot)).isTrue()
+        verify(leaf.cancelHandler).invoke()
+        verifyNoMoreInteractions(middle.cancelHandler, root.cancelHandler)
     }
 
     //  compositionRoot -> root1 -> middle1 -> leaf1
     //  compositionRoot -> root2 -> middle2 -> leaf2
     //  compositionRoot, root3 -> middle3 -> leaf3
     @Test
-    fun removeDetachedPointerInputNodes_3Roots1Detached_correctRootAndAncestorsRemoved() {
-        val leaf1 = PointerInputNode()
+    fun removeDetachedPointerInputNodes_3Roots1Detached_removesAndCancelsCorrect() {
+
+        val neverCalled: () -> Unit = spy {}
+
+        val leaf1 = PointerInputNode().apply {
+            cancelHandler = neverCalled
+        }
         val middle1 = PointerInputNode().apply {
             emitInsertAt(0, leaf1)
+            cancelHandler = neverCalled
         }
         val root1 = PointerInputNode().apply {
             emitInsertAt(0, middle1)
+            cancelHandler = neverCalled
         }
 
-        val leaf2 = PointerInputNode()
+        val leaf2 = PointerInputNode().apply {
+            cancelHandler = neverCalled
+        }
         val middle2 = PointerInputNode().apply {
             emitInsertAt(0, leaf2)
+            cancelHandler = neverCalled
         }
         val root2 = PointerInputNode().apply {
             emitInsertAt(0, middle2)
+            cancelHandler = neverCalled
         }
 
-        val leaf3 = PointerInputNode()
+        val leaf3 = PointerInputNode().apply {
+            cancelHandler = spy {}
+        }
         val middle3 = PointerInputNode().apply {
             emitInsertAt(0, leaf3)
+            cancelHandler = spy {}
         }
         val root3 = PointerInputNode().apply {
             emitInsertAt(0, middle3)
+            cancelHandler = spy {}
         }
 
         compositionRoot.emitInsertAt(0, root1)
@@ -1104,33 +1163,55 @@ class HitPathTrackerTest {
         }
 
         assertThat(areEqual(hitResult.root, expectedRoot)).isTrue()
+        inOrder(leaf3.cancelHandler, middle3.cancelHandler, root3.cancelHandler) {
+            verify(leaf3.cancelHandler).invoke()
+            verify(middle3.cancelHandler).invoke()
+            verify(root3.cancelHandler).invoke()
+        }
+        verify(neverCalled, never()).invoke()
     }
 
     //  compositionRoot -> root1, middle1 -> leaf1
     //  compositionRoot -> root2 -> middle2 -> leaf2
     //  compositionRoot -> root3 -> middle3 -> leaf3
     @Test
-    fun removeDetachedPointerInputNodes_3Roots1MiddleDetached_correctMiddleAndAncestorsRemoved() {
-        val leaf1 = PointerInputNode()
+    fun removeDetachedPointerInputNodes_3Roots1MiddleDetached_removesAndCancelsCorrect() {
+
+        val neverCalled: () -> Unit = spy {}
+
+        val leaf1 = PointerInputNode().apply {
+            cancelHandler = spy {}
+        }
         val middle1 = PointerInputNode().apply {
             emitInsertAt(0, leaf1)
+            cancelHandler = spy {}
         }
-        val root1 = PointerInputNode()
+        val root1 = PointerInputNode().apply {
+            cancelHandler = neverCalled
+        }
 
-        val leaf2 = PointerInputNode()
+        val leaf2 = PointerInputNode().apply {
+            cancelHandler = neverCalled
+        }
         val middle2 = PointerInputNode().apply {
             emitInsertAt(0, leaf2)
+            cancelHandler = neverCalled
         }
         val root2 = PointerInputNode().apply {
             emitInsertAt(0, middle2)
+            cancelHandler = neverCalled
         }
 
-        val leaf3 = PointerInputNode()
+        val leaf3 = PointerInputNode().apply {
+            cancelHandler = neverCalled
+        }
         val middle3 = PointerInputNode().apply {
             emitInsertAt(0, leaf3)
+            cancelHandler = neverCalled
         }
         val root3 = PointerInputNode().apply {
             emitInsertAt(0, middle3)
+            cancelHandler = neverCalled
         }
 
         compositionRoot.emitInsertAt(0, root1)
@@ -1168,33 +1249,54 @@ class HitPathTrackerTest {
         }
 
         assertThat(areEqual(hitResult.root, expectedRoot)).isTrue()
+        inOrder(leaf1.cancelHandler, middle1.cancelHandler) {
+            verify(leaf1.cancelHandler).invoke()
+            verify(middle1.cancelHandler).invoke()
+        }
+        verify(neverCalled, never()).invoke()
     }
 
     //  compositionRoot -> root1 -> middle1 -> leaf1
     //  compositionRoot -> root2 -> middle2, leaf2
     //  compositionRoot -> root3 -> middle3 -> leaf3
     @Test
-    fun removeDetachedPointerInputNodes_3Roots1LeafDetached_correctLeafRemoved() {
-        val leaf1 = PointerInputNode()
+    fun removeDetachedPointerInputNodes_3Roots1LeafDetached_removesAndCancelsCorrect() {
+
+        val neverCalled: () -> Unit = spy {}
+
+        val leaf1 = PointerInputNode().apply {
+            cancelHandler = neverCalled
+        }
         val middle1 = PointerInputNode().apply {
             emitInsertAt(0, leaf1)
+            cancelHandler = neverCalled
         }
         val root1 = PointerInputNode().apply {
             emitInsertAt(0, middle1)
+            cancelHandler = neverCalled
         }
 
-        val leaf2 = PointerInputNode()
-        val middle2 = PointerInputNode()
+        val leaf2 = PointerInputNode().apply {
+            cancelHandler = spy {}
+        }
+        val middle2 = PointerInputNode().apply {
+            cancelHandler = neverCalled
+        }
         val root2 = PointerInputNode().apply {
             emitInsertAt(0, middle2)
+            cancelHandler = neverCalled
         }
 
-        val leaf3 = PointerInputNode()
+        val leaf3 = PointerInputNode().apply {
+            cancelHandler = neverCalled
+        }
         val middle3 = PointerInputNode().apply {
             emitInsertAt(0, leaf3)
+            cancelHandler = neverCalled
         }
         val root3 = PointerInputNode().apply {
             emitInsertAt(0, middle3)
+            cancelHandler = neverCalled
         }
 
         compositionRoot.emitInsertAt(0, root1)
@@ -1235,35 +1337,52 @@ class HitPathTrackerTest {
         }
 
         assertThat(areEqual(hitResult.root, expectedRoot)).isTrue()
+        verify(leaf2.cancelHandler).invoke()
+        verify(neverCalled, never()).invoke()
     }
 
     //  compositionRoot, root1 -> middle1 -> leaf1
     //  compositionRoot -> root2 -> middle2 -> leaf2
     //  compositionRoot, root3 -> middle3 -> leaf3
     @Test
-    fun removeDetachedPointerInputNodes_3Roots2Detached_correct2RootsAndAncestorsRemoved() {
-        val leaf1 = PointerInputNode()
+    fun removeDetachedPointerInputNodes_3Roots2Detached_removesAndCancelsCorrect() {
+
+        val neverCalled: () -> Unit = spy {}
+
+        val leaf1 = PointerInputNode().apply {
+            cancelHandler = spy {}
+        }
         val middle1 = PointerInputNode().apply {
             emitInsertAt(0, leaf1)
+            cancelHandler = spy {}
         }
         val root1 = PointerInputNode().apply {
             emitInsertAt(0, middle1)
+            cancelHandler = spy {}
         }
 
-        val leaf2 = PointerInputNode()
+        val leaf2 = PointerInputNode().apply {
+            cancelHandler = neverCalled
+        }
         val middle2 = PointerInputNode().apply {
             emitInsertAt(0, leaf2)
+            cancelHandler = neverCalled
         }
         val root2 = PointerInputNode().apply {
             emitInsertAt(0, middle2)
+            cancelHandler = neverCalled
         }
 
-        val leaf3 = PointerInputNode()
+        val leaf3 = PointerInputNode().apply {
+            cancelHandler = spy {}
+        }
         val middle3 = PointerInputNode().apply {
             emitInsertAt(0, leaf3)
+            cancelHandler = spy {}
         }
         val root3 = PointerInputNode().apply {
             emitInsertAt(0, middle3)
+            cancelHandler = spy {}
         }
 
         compositionRoot.emitInsertAt(0, root2)
@@ -1287,31 +1406,60 @@ class HitPathTrackerTest {
         }
 
         assertThat(areEqual(hitResult.root, expectedRoot)).isTrue()
+
+        inOrder(leaf1.cancelHandler, middle1.cancelHandler, root1.cancelHandler) {
+            verify(leaf1.cancelHandler).invoke()
+            verify(middle1.cancelHandler).invoke()
+            verify(root1.cancelHandler).invoke()
+        }
+        inOrder(leaf3.cancelHandler, middle3.cancelHandler, root3.cancelHandler) {
+            verify(leaf3.cancelHandler).invoke()
+            verify(middle3.cancelHandler).invoke()
+            verify(root3.cancelHandler).invoke()
+        }
+        verify(neverCalled, never()).invoke()
     }
 
     //  compositionRoot -> root1, middle1 -> leaf1
     //  compositionRoot -> root2, middle2 -> leaf2
     //  compositionRoot -> root3 -> middle3 -> leaf3
     @Test
-    fun removeDetachedPointerInputNodes_3Roots2MiddlesDetached_correct2NodesAndAncestorsRemoved() {
-        val leaf1 = PointerInputNode()
+    fun removeDetachedPointerInputNodes_3Roots2MiddlesDetached_removesAndCancelsCorrect() {
+
+        val neverCalled: () -> Unit = spy {}
+
+        val leaf1 = PointerInputNode().apply {
+            cancelHandler = spy {}
+        }
         val middle1 = PointerInputNode().apply {
             emitInsertAt(0, leaf1)
+            cancelHandler = spy {}
         }
-        val root1 = PointerInputNode()
+        val root1 = PointerInputNode().apply {
+            cancelHandler = neverCalled
+        }
 
-        val leaf2 = PointerInputNode()
+        val leaf2 = PointerInputNode().apply {
+            cancelHandler = spy {}
+        }
         val middle2 = PointerInputNode().apply {
             emitInsertAt(0, leaf2)
+            cancelHandler = spy {}
         }
-        val root2 = PointerInputNode()
+        val root2 = PointerInputNode().apply {
+            cancelHandler = neverCalled
+        }
 
-        val leaf3 = PointerInputNode()
+        val leaf3 = PointerInputNode().apply {
+            cancelHandler = neverCalled
+        }
         val middle3 = PointerInputNode().apply {
             emitInsertAt(0, leaf3)
+            cancelHandler = neverCalled
         }
         val root3 = PointerInputNode().apply {
             emitInsertAt(0, middle3)
+            cancelHandler = neverCalled
         }
 
         compositionRoot.emitInsertAt(0, root1)
@@ -1343,31 +1491,58 @@ class HitPathTrackerTest {
         }
 
         assertThat(areEqual(hitResult.root, expectedRoot)).isTrue()
+
+        inOrder(leaf1.cancelHandler, middle1.cancelHandler) {
+            verify(leaf1.cancelHandler).invoke()
+            verify(middle1.cancelHandler).invoke()
+        }
+        inOrder(leaf2.cancelHandler, middle2.cancelHandler) {
+            verify(leaf2.cancelHandler).invoke()
+            verify(middle2.cancelHandler).invoke()
+        }
+        verify(neverCalled, never()).invoke()
     }
 
     //  compositionRoot -> root1 -> middle1 -> leaf1
     //  compositionRoot -> root2 -> middle2, leaf2
     //  compositionRoot -> root3 -> middle3, leaf3
     @Test
-    fun removeDetachedPointerInputNodes_3Roots2LeafsDetached_correct2LeafsRemoved() {
-        val leaf1 = PointerInputNode()
+    fun removeDetachedPointerInputNodes_3Roots2LeafsDetached_removesAndCancelsCorrect() {
+
+        val neverCalled: () -> Unit = spy {}
+
+        val leaf1 = PointerInputNode().apply {
+            cancelHandler = neverCalled
+        }
         val middle1 = PointerInputNode().apply {
             emitInsertAt(0, leaf1)
+            cancelHandler = neverCalled
         }
         val root1 = PointerInputNode().apply {
             emitInsertAt(0, middle1)
+            cancelHandler = neverCalled
         }
 
-        val leaf2 = PointerInputNode()
-        val middle2 = PointerInputNode()
+        val leaf2 = PointerInputNode().apply {
+            cancelHandler = spy {}
+        }
+        val middle2 = PointerInputNode().apply {
+            cancelHandler = neverCalled
+        }
         val root2 = PointerInputNode().apply {
             emitInsertAt(0, middle2)
+            cancelHandler = neverCalled
         }
 
-        val leaf3 = PointerInputNode()
-        val middle3 = PointerInputNode()
+        val leaf3 = PointerInputNode().apply {
+            cancelHandler = spy {}
+        }
+        val middle3 = PointerInputNode().apply {
+            cancelHandler = neverCalled
+        }
         val root3 = PointerInputNode().apply {
             emitInsertAt(0, middle3)
+            cancelHandler = neverCalled
         }
 
         compositionRoot.emitInsertAt(0, root1)
@@ -1405,35 +1580,50 @@ class HitPathTrackerTest {
         }
 
         assertThat(areEqual(hitResult.root, expectedRoot)).isTrue()
+        verify(leaf2.cancelHandler).invoke()
+        verify(leaf3.cancelHandler).invoke()
+        verify(neverCalled, never()).invoke()
     }
 
     //  compositionRoot, root1 -> middle1 -> leaf1
     //  compositionRoot, root2 -> middle2 -> leaf2
     //  compositionRoot, root3 -> middle3 -> leaf3
     @Test
-    fun removeDetachedPointerInputNodes_3Roots3Detached_all3RootsAndAncestorsRemoved() {
-        val leaf1 = PointerInputNode()
+    fun removeDetachedPointerInputNodes_3Roots3Detached_allRemovedAndCancelsCorrect() {
+        val leaf1 = PointerInputNode().apply {
+            cancelHandler = spy {}
+        }
         val middle1 = PointerInputNode().apply {
             emitInsertAt(0, leaf1)
+            cancelHandler = spy {}
         }
         val root1 = PointerInputNode().apply {
             emitInsertAt(0, middle1)
+            cancelHandler = spy {}
         }
 
-        val leaf2 = PointerInputNode()
+        val leaf2 = PointerInputNode().apply {
+            cancelHandler = spy {}
+        }
         val middle2 = PointerInputNode().apply {
             emitInsertAt(0, leaf2)
+            cancelHandler = spy {}
         }
         val root2 = PointerInputNode().apply {
             emitInsertAt(0, middle2)
+            cancelHandler = spy {}
         }
 
-        val leaf3 = PointerInputNode()
+        val leaf3 = PointerInputNode().apply {
+            cancelHandler = spy {}
+        }
         val middle3 = PointerInputNode().apply {
             emitInsertAt(0, leaf3)
+            cancelHandler = spy {}
         }
         val root3 = PointerInputNode().apply {
             emitInsertAt(0, middle3)
+            cancelHandler = spy {}
         }
 
         hitResult.addHitPath(3, listOf(root1, middle1, leaf1))
@@ -1445,30 +1635,63 @@ class HitPathTrackerTest {
         val expectedRoot = Node()
 
         assertThat(areEqual(hitResult.root, expectedRoot)).isTrue()
+        inOrder(leaf1.cancelHandler, middle1.cancelHandler, root1.cancelHandler) {
+            verify(leaf1.cancelHandler).invoke()
+            verify(middle1.cancelHandler).invoke()
+            verify(root1.cancelHandler).invoke()
+        }
+        inOrder(leaf2.cancelHandler, middle2.cancelHandler, root2.cancelHandler) {
+            verify(leaf2.cancelHandler).invoke()
+            verify(middle2.cancelHandler).invoke()
+            verify(root2.cancelHandler).invoke()
+        }
+        inOrder(leaf3.cancelHandler, middle3.cancelHandler, root3.cancelHandler) {
+            verify(leaf3.cancelHandler).invoke()
+            verify(middle3.cancelHandler).invoke()
+            verify(root3.cancelHandler).invoke()
+        }
     }
 
     //  compositionRoot -> root1, middle1 -> leaf1
     //  compositionRoot -> root2, middle2 -> leaf2
     //  compositionRoot -> root3, middle3 -> leaf3
     @Test
-    fun removeDetachedPointerInputNodes_3Roots3MiddlesDetached_all3MiddlesAndAncestorsRemoved() {
-        val leaf1 = PointerInputNode()
+    fun removeDetachedPointerInputNodes_3Roots3MiddlesDetached_removesAndCancelsCorrect() {
+
+        val neverCalled: () -> Unit = spy {}
+
+        val leaf1 = PointerInputNode().apply {
+            cancelHandler = spy {}
+        }
         val middle1 = PointerInputNode().apply {
             emitInsertAt(0, leaf1)
+            cancelHandler = spy {}
         }
-        val root1 = PointerInputNode()
+        val root1 = PointerInputNode().apply {
+            cancelHandler = neverCalled
+        }
 
-        val leaf2 = PointerInputNode()
+        val leaf2 = PointerInputNode().apply {
+            cancelHandler = spy {}
+        }
         val middle2 = PointerInputNode().apply {
             emitInsertAt(0, leaf2)
+            cancelHandler = spy {}
         }
-        val root2 = PointerInputNode()
+        val root2 = PointerInputNode().apply {
+            cancelHandler = neverCalled
+        }
 
-        val leaf3 = PointerInputNode()
+        val leaf3 = PointerInputNode().apply {
+            cancelHandler = spy {}
+        }
         val middle3 = PointerInputNode().apply {
             emitInsertAt(0, leaf3)
+            cancelHandler = spy {}
         }
-        val root3 = PointerInputNode()
+        val root3 = PointerInputNode().apply {
+            cancelHandler = neverCalled
+        }
 
         compositionRoot.emitInsertAt(0, root1)
         compositionRoot.emitInsertAt(1, root2)
@@ -1493,29 +1716,60 @@ class HitPathTrackerTest {
         }
 
         assertThat(areEqual(hitResult.root, expectedRoot)).isTrue()
+        inOrder(leaf1.cancelHandler, middle1.cancelHandler) {
+            verify(leaf1.cancelHandler).invoke()
+            verify(middle1.cancelHandler).invoke()
+        }
+        inOrder(leaf2.cancelHandler, middle2.cancelHandler) {
+            verify(leaf2.cancelHandler).invoke()
+            verify(middle2.cancelHandler).invoke()
+        }
+        inOrder(leaf3.cancelHandler, middle3.cancelHandler) {
+            verify(leaf3.cancelHandler).invoke()
+            verify(middle3.cancelHandler).invoke()
+        }
+        verify(neverCalled, never()).invoke()
     }
 
     //  compositionRoot -> root1 -> middle1, leaf1
     //  compositionRoot -> root2 -> middle2, leaf2
     //  compositionRoot -> root3 -> middle3, leaf3
     @Test
-    fun removeDetachedPointerInputNodes_3Roots3LeafsDetached_all3LeafsRemoved() {
-        val leaf1 = PointerInputNode()
-        val middle1 = PointerInputNode()
+    fun removeDetachedPointerInputNodes_3Roots3LeafsDetached_removesAndCancelsCorrect() {
+
+        val neverCalled: () -> Unit = spy {}
+
+        val leaf1 = PointerInputNode().apply {
+            cancelHandler = spy {}
+        }
+        val middle1 = PointerInputNode().apply {
+            cancelHandler = neverCalled
+        }
         val root1 = PointerInputNode().apply {
             emitInsertAt(0, middle1)
+            cancelHandler = neverCalled
         }
 
-        val leaf2 = PointerInputNode()
-        val middle2 = PointerInputNode()
+        val leaf2 = PointerInputNode().apply {
+            cancelHandler = spy {}
+        }
+        val middle2 = PointerInputNode().apply {
+            cancelHandler = neverCalled
+        }
         val root2 = PointerInputNode().apply {
             emitInsertAt(0, middle2)
+            cancelHandler = neverCalled
         }
 
-        val leaf3 = PointerInputNode()
-        val middle3 = PointerInputNode()
+        val leaf3 = PointerInputNode().apply {
+            cancelHandler = spy {}
+        }
+        val middle3 = PointerInputNode().apply {
+            cancelHandler = neverCalled
+        }
         val root3 = PointerInputNode().apply {
             emitInsertAt(0, middle3)
+            cancelHandler = neverCalled
         }
 
         compositionRoot.emitInsertAt(0, root1)
@@ -1550,31 +1804,52 @@ class HitPathTrackerTest {
         }
 
         assertThat(areEqual(hitResult.root, expectedRoot)).isTrue()
+        verify(leaf1.cancelHandler).invoke()
+        verify(leaf2.cancelHandler).invoke()
+        verify(leaf3.cancelHandler).invoke()
+        verify(neverCalled, never()).invoke()
     }
 
     // compositionRoot, root1 -> middle1 -> leaf1
     // compositionRoot -> root2, middle2, leaf2
     // compositionRoot -> root3 -> middle3, leaf3
     @Test
-    fun removeDetachedPointerInputNodes_3RootsStaggeredDetached_correctPathsRemoved() {
-        val leaf1 = PointerInputNode()
+    fun removeDetachedPointerInputNodes_3RootsStaggeredDetached_removesAndCancelsCorrect() {
+
+        val neverCalled: () -> Unit = spy {}
+
+        val leaf1 = PointerInputNode().apply {
+            cancelHandler = spy {}
+        }
         val middle1 = PointerInputNode().apply {
             emitInsertAt(0, leaf1)
+            cancelHandler = spy {}
         }
         val root1 = PointerInputNode().apply {
             emitInsertAt(0, middle1)
+            cancelHandler = spy {}
         }
 
-        val leaf2 = PointerInputNode()
+        val leaf2 = PointerInputNode().apply {
+            cancelHandler = spy {}
+        }
         val middle2 = PointerInputNode().apply {
             emitInsertAt(0, leaf2)
+            cancelHandler = spy {}
         }
-        val root2 = PointerInputNode()
+        val root2 = PointerInputNode().apply {
+            cancelHandler = neverCalled
+        }
 
-        val leaf3 = PointerInputNode()
-        val middle3 = PointerInputNode()
+        val leaf3 = PointerInputNode().apply {
+            cancelHandler = spy {}
+        }
+        val middle3 = PointerInputNode().apply {
+            cancelHandler = neverCalled
+        }
         val root3 = PointerInputNode().apply {
             emitInsertAt(0, middle3)
+            cancelHandler = neverCalled
         }
 
         compositionRoot.emitInsertAt(0, root2)
@@ -1599,6 +1874,17 @@ class HitPathTrackerTest {
         }
 
         assertThat(areEqual(hitResult.root, expectedRoot)).isTrue()
+        inOrder(leaf1.cancelHandler, middle1.cancelHandler, root1.cancelHandler) {
+            verify(leaf1.cancelHandler).invoke()
+            verify(middle1.cancelHandler).invoke()
+            verify(root1.cancelHandler).invoke()
+        }
+        inOrder(leaf2.cancelHandler, middle2.cancelHandler) {
+            verify(leaf2.cancelHandler).invoke()
+            verify(middle2.cancelHandler).invoke()
+        }
+        verify(leaf3.cancelHandler).invoke()
+        verify(neverCalled, never()).invoke()
     }
 
     // compositionRoot, root ->
@@ -1606,20 +1892,29 @@ class HitPathTrackerTest {
     //   layoutNode -> middle2 -> leaf2
     //   layoutNode -> middle3 -> leaf3
     @Test
-    fun removeDetachedPointerInputNodes_rootWith3MiddlesDetached_allRemoved() {
-        val leaf1 = PointerInputNode()
+    fun removeDetachedPointerInputNodes_rootWith3MiddlesDetached_allRemovedAndCorrectCancels() {
+        val leaf1 = PointerInputNode().apply {
+            cancelHandler = spy {}
+        }
         val middle1 = PointerInputNode().apply {
             emitInsertAt(0, leaf1)
+            cancelHandler = spy {}
         }
 
-        val leaf2 = PointerInputNode()
+        val leaf2 = PointerInputNode().apply {
+            cancelHandler = spy {}
+        }
         val middle2 = PointerInputNode().apply {
             emitInsertAt(0, leaf2)
+            cancelHandler = spy {}
         }
 
-        val leaf3 = PointerInputNode()
+        val leaf3 = PointerInputNode().apply {
+            cancelHandler = spy {}
+        }
         val middle3 = PointerInputNode().apply {
             emitInsertAt(0, leaf3)
+            cancelHandler = spy {}
         }
 
         val layoutNode = LayoutNode().apply {
@@ -1630,6 +1925,7 @@ class HitPathTrackerTest {
 
         val root = PointerInputNode().apply {
             emitInsertAt(0, layoutNode)
+            cancelHandler = spy {}
         }
 
         hitResult.addHitPath(3, listOf(root, middle1, leaf1))
@@ -1641,6 +1937,21 @@ class HitPathTrackerTest {
         val expectedRoot = Node()
 
         assertThat(areEqual(hitResult.root, expectedRoot)).isTrue()
+        inOrder(leaf1.cancelHandler, middle1.cancelHandler, root.cancelHandler) {
+            verify(leaf1.cancelHandler).invoke()
+            verify(middle1.cancelHandler).invoke()
+            verify(root.cancelHandler).invoke()
+        }
+        inOrder(leaf2.cancelHandler, middle2.cancelHandler, root.cancelHandler) {
+            verify(leaf2.cancelHandler).invoke()
+            verify(middle2.cancelHandler).invoke()
+            verify(root.cancelHandler).invoke()
+        }
+        inOrder(leaf3.cancelHandler, middle3.cancelHandler, root.cancelHandler) {
+            verify(leaf3.cancelHandler).invoke()
+            verify(middle3.cancelHandler).invoke()
+            verify(root.cancelHandler).invoke()
+        }
     }
 
     // compositionRoot -> root ->
@@ -1648,20 +1959,32 @@ class HitPathTrackerTest {
     //   layoutNode -> middle2 -> leaf2
     //   layoutNode, middle3 -> leaf3
     @Test
-    fun removeDetachedPointerInputNodes_rootWith3Middles1Detached_correctMiddleRemoved() {
-        val leaf1 = PointerInputNode()
+    fun removeDetachedPointerInputNodes_rootWith3Middles1Detached_removesAndCancelsCorrect() {
+
+        val neverCalled: () -> Unit = spy {}
+
+        val leaf1 = PointerInputNode().apply {
+            cancelHandler = neverCalled
+        }
         val middle1 = PointerInputNode().apply {
             emitInsertAt(0, leaf1)
+            cancelHandler = neverCalled
         }
 
-        val leaf2 = PointerInputNode()
+        val leaf2 = PointerInputNode().apply {
+            cancelHandler = neverCalled
+        }
         val middle2 = PointerInputNode().apply {
             emitInsertAt(0, leaf2)
+            cancelHandler = neverCalled
         }
 
-        val leaf3 = PointerInputNode()
+        val leaf3 = PointerInputNode().apply {
+            cancelHandler = spy {}
+        }
         val middle3 = PointerInputNode().apply {
             emitInsertAt(0, leaf3)
+            cancelHandler = spy {}
         }
 
         val layoutNode = LayoutNode().apply {
@@ -1671,6 +1994,7 @@ class HitPathTrackerTest {
 
         val root = PointerInputNode().apply {
             emitInsertAt(0, layoutNode)
+            cancelHandler = neverCalled
         }
 
         compositionRoot.emitInsertAt(0, root)
@@ -1702,6 +2026,11 @@ class HitPathTrackerTest {
         }
 
         assertThat(areEqual(hitResult.root, expectedRoot)).isTrue()
+        inOrder(leaf3.cancelHandler, middle3.cancelHandler) {
+            verify(leaf3.cancelHandler).invoke()
+            verify(middle3.cancelHandler).invoke()
+        }
+        verify(neverCalled, never()).invoke()
     }
 
     // compositionRoot -> root ->
@@ -1709,20 +2038,32 @@ class HitPathTrackerTest {
     //   layoutNode, middle2 -> leaf2
     //   layoutNode -> middle3 -> leaf3
     @Test
-    fun removeDetachedPointerInputNodes_rootWith3Middles2Detached_correctMiddlesRemoved() {
-        val leaf1 = PointerInputNode()
+    fun removeDetachedPointerInputNodes_rootWith3Middles2Detached_removesAndCancelsCorrect() {
+
+        val neverCalled: () -> Unit = spy {}
+
+        val leaf1 = PointerInputNode().apply {
+            cancelHandler = spy {}
+        }
         val middle1 = PointerInputNode().apply {
             emitInsertAt(0, leaf1)
+            cancelHandler = spy {}
         }
 
-        val leaf2 = PointerInputNode()
+        val leaf2 = PointerInputNode().apply {
+            cancelHandler = spy {}
+        }
         val middle2 = PointerInputNode().apply {
             emitInsertAt(0, leaf2)
+            cancelHandler = spy {}
         }
 
-        val leaf3 = PointerInputNode()
+        val leaf3 = PointerInputNode().apply {
+            cancelHandler = neverCalled
+        }
         val middle3 = PointerInputNode().apply {
             emitInsertAt(0, leaf3)
+            cancelHandler = neverCalled
         }
 
         val layoutNode = LayoutNode().apply {
@@ -1731,6 +2072,7 @@ class HitPathTrackerTest {
 
         val root = PointerInputNode().apply {
             emitInsertAt(0, layoutNode)
+            cancelHandler = neverCalled
         }
 
         compositionRoot.emitInsertAt(0, root)
@@ -1756,6 +2098,15 @@ class HitPathTrackerTest {
         }
 
         assertThat(areEqual(hitResult.root, expectedRoot)).isTrue()
+        inOrder(leaf1.cancelHandler, middle1.cancelHandler) {
+            verify(leaf1.cancelHandler).invoke()
+            verify(middle1.cancelHandler).invoke()
+        }
+        inOrder(leaf2.cancelHandler, middle2.cancelHandler) {
+            verify(leaf2.cancelHandler).invoke()
+            verify(middle2.cancelHandler).invoke()
+        }
+        verify(neverCalled, never()).invoke()
     }
 
     // compositionRoot -> root ->
@@ -1764,25 +2115,38 @@ class HitPathTrackerTest {
     //   layoutNode, middle3 -> leaf3
     @Test
     fun removeDetachedPointerInputNodes_rootWith3MiddlesAllDetached_allMiddlesRemoved() {
-        val leaf1 = PointerInputNode()
+
+        val neverCalled: () -> Unit = spy {}
+
+        val leaf1 = PointerInputNode().apply {
+            cancelHandler = spy {}
+        }
         val middle1 = PointerInputNode().apply {
             emitInsertAt(0, leaf1)
+            cancelHandler = spy {}
         }
 
-        val leaf2 = PointerInputNode()
+        val leaf2 = PointerInputNode().apply {
+            cancelHandler = spy {}
+        }
         val middle2 = PointerInputNode().apply {
             emitInsertAt(0, leaf2)
+            cancelHandler = spy {}
         }
 
-        val leaf3 = PointerInputNode()
+        val leaf3 = PointerInputNode().apply {
+            cancelHandler = spy {}
+        }
         val middle3 = PointerInputNode().apply {
             emitInsertAt(0, leaf3)
+            cancelHandler = spy {}
         }
 
         val layoutNode = LayoutNode()
 
         val root = PointerInputNode().apply {
             emitInsertAt(0, layoutNode)
+            cancelHandler = neverCalled
         }
 
         compositionRoot.emitInsertAt(0, root)
@@ -1802,6 +2166,19 @@ class HitPathTrackerTest {
         }
 
         assertThat(areEqual(hitResult.root, expectedRoot)).isTrue()
+        inOrder(leaf1.cancelHandler, middle1.cancelHandler) {
+            verify(leaf1.cancelHandler).invoke()
+            verify(middle1.cancelHandler).invoke()
+        }
+        inOrder(leaf2.cancelHandler, middle2.cancelHandler) {
+            verify(leaf2.cancelHandler).invoke()
+            verify(middle2.cancelHandler).invoke()
+        }
+        inOrder(leaf3.cancelHandler, middle3.cancelHandler) {
+            verify(leaf3.cancelHandler).invoke()
+            verify(middle3.cancelHandler).invoke()
+        }
+        verify(neverCalled, never()).invoke()
     }
 
     // compositionRoot -> root -> middle ->
@@ -1810,9 +2187,18 @@ class HitPathTrackerTest {
     //   layoutNode -> leaf3
     @Test
     fun removeDetachedPointerInputNodes_middleWith3Leafs1Detached_correctLeafRemoved() {
-        val leaf1 = PointerInputNode()
-        val leaf2 = PointerInputNode()
-        val leaf3 = PointerInputNode()
+
+        val neverCalled: () -> Unit = spy {}
+
+        val leaf1 = PointerInputNode().apply {
+            cancelHandler = neverCalled
+        }
+        val leaf2 = PointerInputNode().apply {
+            cancelHandler = spy {}
+        }
+        val leaf3 = PointerInputNode().apply {
+            cancelHandler = neverCalled
+        }
 
         val layoutNode = LayoutNode().apply {
             emitInsertAt(0, leaf1)
@@ -1821,10 +2207,12 @@ class HitPathTrackerTest {
 
         val middle = PointerInputNode().apply {
             emitInsertAt(0, layoutNode)
+            cancelHandler = neverCalled
         }
 
         val root = PointerInputNode().apply {
             emitInsertAt(0, middle)
+            cancelHandler = neverCalled
         }
 
         compositionRoot.emitInsertAt(0, root)
@@ -1855,6 +2243,8 @@ class HitPathTrackerTest {
         }
 
         assertThat(areEqual(hitResult.root, expectedRoot)).isTrue()
+        verify(leaf2.cancelHandler).invoke()
+        verify(neverCalled, never()).invoke()
     }
 
     // compositionRoot -> root -> middle ->
@@ -1863,9 +2253,18 @@ class HitPathTrackerTest {
     //   layoutNode, leaf3
     @Test
     fun removeDetachedPointerInputNodes_middleWith3Leafs2Detached_correctLeafsRemoved() {
-        val leaf1 = PointerInputNode()
-        val leaf2 = PointerInputNode()
-        val leaf3 = PointerInputNode()
+
+        val neverCalled: () -> Unit = spy {}
+
+        val leaf1 = PointerInputNode().apply {
+            cancelHandler = spy {}
+        }
+        val leaf2 = PointerInputNode().apply {
+            cancelHandler = neverCalled
+        }
+        val leaf3 = PointerInputNode().apply {
+            cancelHandler = spy {}
+        }
 
         val layoutNode = LayoutNode().apply {
             emitInsertAt(0, leaf2)
@@ -1873,10 +2272,12 @@ class HitPathTrackerTest {
 
         val middle = PointerInputNode().apply {
             emitInsertAt(0, layoutNode)
+            cancelHandler = neverCalled
         }
 
         val root = PointerInputNode().apply {
             emitInsertAt(0, middle)
+            cancelHandler = neverCalled
         }
 
         compositionRoot.emitInsertAt(0, root)
@@ -1904,6 +2305,9 @@ class HitPathTrackerTest {
         }
 
         assertThat(areEqual(hitResult.root, expectedRoot)).isTrue()
+        verify(leaf1.cancelHandler).invoke()
+        verify(leaf3.cancelHandler).invoke()
+        verify(neverCalled, never()).invoke()
     }
 
     // compositionRoot -> root -> middle ->
@@ -1912,18 +2316,29 @@ class HitPathTrackerTest {
     //   layoutNode, leaf3
     @Test
     fun removeDetachedPointerInputNodes_middleWith3LeafsAllDetached_allLeafsRemoved() {
-        val leaf1 = PointerInputNode()
-        val leaf2 = PointerInputNode()
-        val leaf3 = PointerInputNode()
+
+        val neverCalled: () -> Unit = spy {}
+
+        val leaf1 = PointerInputNode().apply {
+            cancelHandler = spy {}
+        }
+        val leaf2 = PointerInputNode().apply {
+            cancelHandler = spy {}
+        }
+        val leaf3 = PointerInputNode().apply {
+            cancelHandler = spy {}
+        }
 
         val layoutNode = LayoutNode()
 
         val middle = PointerInputNode().apply {
             emitInsertAt(0, layoutNode)
+            cancelHandler = neverCalled
         }
 
         val root = PointerInputNode().apply {
             emitInsertAt(0, middle)
+            cancelHandler = neverCalled
         }
 
         compositionRoot.emitInsertAt(0, root)
@@ -1948,6 +2363,10 @@ class HitPathTrackerTest {
         }
 
         assertThat(areEqual(hitResult.root, expectedRoot)).isTrue()
+        verify(leaf1.cancelHandler).invoke()
+        verify(leaf2.cancelHandler).invoke()
+        verify(leaf3.cancelHandler).invoke()
+        verify(neverCalled, never()).invoke()
     }
 
     @Test
@@ -1962,27 +2381,32 @@ class HitPathTrackerTest {
 
     // PointerInputNode
     @Test
-    fun removePointerInputNodesWithNoLayoutNodeDescendants_justPin_pinRemoved() {
-        val pointerInputNode = PointerInputNode()
-        hitResult.addHitPath(0, listOf(pointerInputNode))
-
-        hitResult.removePointerInputNodesWithNoLayoutNodeDescendants()
-
-        assertThat(areEqual(hitResult.root, Node())).isTrue()
-    }
-
-    // PointerInputNode -> DrawNode
-    @Test
-    fun removePointerInputNodesWithNoLayoutNodeDescendants_dnInPin_pinRemoved() {
-        val drawNode = DrawNode()
+    fun removePointerInputNodesWithNoLayoutNodeDescendants_justPin_pinRemovedCancelCalledOnce() {
         val pointerInputNode = PointerInputNode().apply {
-            emitInsertAt(0, drawNode)
+            cancelHandler = spy {}
         }
         hitResult.addHitPath(0, listOf(pointerInputNode))
 
         hitResult.removePointerInputNodesWithNoLayoutNodeDescendants()
 
         assertThat(areEqual(hitResult.root, Node())).isTrue()
+        verify(pointerInputNode.cancelHandler).invoke()
+    }
+
+    // PointerInputNode -> DrawNode
+    @Test
+    fun removePointerInputNodesWithNoLayoutNodeDescendants_dnInPin_pinRemovedCancelCalledOnce() {
+        val drawNode = DrawNode()
+        val pointerInputNode = PointerInputNode().apply {
+            emitInsertAt(0, drawNode)
+            cancelHandler = spy {}
+        }
+        hitResult.addHitPath(0, listOf(pointerInputNode))
+
+        hitResult.removePointerInputNodesWithNoLayoutNodeDescendants()
+
+        assertThat(areEqual(hitResult.root, Node())).isTrue()
+        verify(pointerInputNode.cancelHandler).invoke()
     }
 
     // PointerInputNode -> SemanticsNode
@@ -1991,54 +2415,69 @@ class HitPathTrackerTest {
         val semanticsNode = SemanticsComponentNode()
         val pointerInputNode = PointerInputNode().apply {
             emitInsertAt(0, semanticsNode)
+            cancelHandler = spy {}
         }
         hitResult.addHitPath(0, listOf(pointerInputNode))
 
         hitResult.removePointerInputNodesWithNoLayoutNodeDescendants()
 
         assertThat(areEqual(hitResult.root, Node())).isTrue()
+        verify(pointerInputNode.cancelHandler).invoke()
     }
 
     // PointerInputNode A -> PointerInputNode B -> SemanticsNode
     @Test
-    fun removePointerInputNodesWithNoLayoutNodeDescendants_smInPinInPin_pinsRemoved() {
+    fun removePointerInputNodesWithNoLayoutNodeDescendants_smInPinInPin_removesAndCancelsCorrect() {
         val semanticsNode = SemanticsComponentNode()
         val pointerInputNodeB = PointerInputNode().apply {
             emitInsertAt(0, semanticsNode)
+            cancelHandler = spy {}
         }
         val pointerInputNodeA = PointerInputNode().apply {
             emitInsertAt(0, pointerInputNodeB)
+            cancelHandler = spy {}
         }
         hitResult.addHitPath(0, listOf(pointerInputNodeA, pointerInputNodeB))
 
         hitResult.removePointerInputNodesWithNoLayoutNodeDescendants()
 
         assertThat(areEqual(hitResult.root, Node())).isTrue()
+        inOrder(pointerInputNodeB.cancelHandler, pointerInputNodeA.cancelHandler) {
+            verify(pointerInputNodeB.cancelHandler).invoke()
+            verify(pointerInputNodeA.cancelHandler).invoke()
+        }
     }
 
     // PointerInputNode A -> PointerInputNode B -> DrawNode
     @Test
-    fun removePointerInputNodesWithNoLayoutNodeDescendants_dnInPinInPin_pisnRemoved() {
+    fun removePointerInputNodesWithNoLayoutNodeDescendants_dnInPinInPin_removesAndCancelsCorrect() {
         val drawnode = DrawNode()
         val pointerInputNodeB = PointerInputNode().apply {
             emitInsertAt(0, drawnode)
+            cancelHandler = spy {}
         }
         val pointerInputNodeA = PointerInputNode().apply {
             emitInsertAt(0, pointerInputNodeB)
+            cancelHandler = spy {}
         }
         hitResult.addHitPath(0, listOf(pointerInputNodeA, pointerInputNodeB))
 
         hitResult.removePointerInputNodesWithNoLayoutNodeDescendants()
 
         assertThat(areEqual(hitResult.root, Node())).isTrue()
+        inOrder(pointerInputNodeB.cancelHandler, pointerInputNodeA.cancelHandler) {
+            verify(pointerInputNodeB.cancelHandler).invoke()
+            verify(pointerInputNodeA.cancelHandler).invoke()
+        }
     }
 
     // PointerInputNode -> LayoutNode
     @Test
-    fun removePointerInputNodesWithNoLayoutNodeDescendants_pinWithLn_nothingRemoved() {
+    fun removePointerInputNodesWithNoLayoutNodeDescendants_pinWithLn_noRemovesOrCancels() {
         val layoutNode = LayoutNode(0, 0, 100, 100)
         val pointerInputNode = PointerInputNode().apply {
             emitInsertAt(0, layoutNode)
+            cancelHandler = spy {}
         }
         hitResult.addHitPath(0, listOf(pointerInputNode))
 
@@ -2048,17 +2487,23 @@ class HitPathTrackerTest {
             children.add(Node(pointerInputNode).apply { pointerIds.add(0) })
         }
         assertThat(areEqual(hitResult.root, expectedRoot)).isTrue()
+        verify(pointerInputNode.cancelHandler, never()).invoke()
     }
 
     // PointerInputNode A -> PointerInputNode B -> LayoutNode
     @Test
-    fun removePointerInputNodesWithNoLayoutNodeDescendants_lnInPinInPin_nothingRemoved() {
+    fun removePointerInputNodesWithNoLayoutNodeDescendants_lnInPinInPin_noRemovesOrCancels() {
+
+        val neverCalled: () -> Unit = spy {}
+
         val layoutNode = LayoutNode(0, 0, 100, 100)
         val pointerInputNodeB = PointerInputNode().apply {
             emitInsertAt(0, layoutNode)
+            cancelHandler = neverCalled
         }
         val pointerInputNodeA = PointerInputNode().apply {
             emitInsertAt(0, pointerInputNodeB)
+            cancelHandler = neverCalled
         }
         hitResult.addHitPath(0, listOf(pointerInputNodeA, pointerInputNodeB))
 
@@ -2074,17 +2519,21 @@ class HitPathTrackerTest {
         }
 
         assertThat(areEqual(hitResult.root, expectedRoot)).isTrue()
+        verify(neverCalled, never()).invoke()
     }
 
     // PointerInputNode A -> LayoutNode -> PointerInputNode B
     @Test
-    fun removePointerInputNodesWithNoLayoutNodeDescendants_PinInLnInPin_childPinRemoved() {
-        val pointerInputNodeB = PointerInputNode()
+    fun removePointerInputNodesWithNoLayoutNodeDescendants_PinInLnInPin_removesAndCancelsCorrect() {
+        val pointerInputNodeB = PointerInputNode().apply {
+            cancelHandler = spy {}
+        }
         val layoutNode = LayoutNode(0, 0, 100, 100).apply {
             emitInsertAt(0, pointerInputNodeB)
         }
         val pointerInputNodeA = PointerInputNode().apply {
             emitInsertAt(0, layoutNode)
+            cancelHandler = spy {}
         }
         hitResult.addHitPath(0, listOf(pointerInputNodeA, pointerInputNodeB))
 
@@ -2097,20 +2546,29 @@ class HitPathTrackerTest {
         }
 
         assertThat(areEqual(hitResult.root, expectedRoot)).isTrue()
+        verify(pointerInputNodeB.cancelHandler).invoke()
+        verify(pointerInputNodeA.cancelHandler, never()).invoke()
     }
 
     // PointerInputNode A -> PointerInputNode B -> LayoutNode
     // PointerInputNode A -> PointerInputNode C
     @Test
-    fun removePointerInputNodesWithNoLayoutNodeDescendants_2BranchesOneHasLn_otherBranchRemoved() {
+    fun removePointerInputNodesWithNoLayoutNodeDescendants_2BranchOneHasLn_removesCancelsCorrect() {
+
+        val neverCalled: () -> Unit = spy {}
+
         val layoutNode = LayoutNode(0, 0, 100, 100)
         val pointerInputNodeB = PointerInputNode().apply {
             emitInsertAt(0, layoutNode)
+            cancelHandler = neverCalled
         }
-        val pointerInputNodeC = PointerInputNode()
+        val pointerInputNodeC = PointerInputNode().apply {
+            cancelHandler = spy {}
+        }
         val pointerInputNodeA = PointerInputNode().apply {
             emitInsertAt(0, pointerInputNodeB)
             emitInsertAt(0, pointerInputNodeC)
+            cancelHandler = neverCalled
         }
         hitResult.addHitPath(0, listOf(pointerInputNodeA, pointerInputNodeB))
         hitResult.addHitPath(1, listOf(pointerInputNodeA, pointerInputNodeC))
@@ -2128,6 +2586,8 @@ class HitPathTrackerTest {
         }
 
         assertThat(areEqual(hitResult.root, expectedRoot)).isTrue()
+        verify(pointerInputNodeC.cancelHandler).invoke()
+        verify(neverCalled, never()).invoke()
     }
 
     // arrange: root(3) -> middle(3) -> leaf(3)
@@ -3392,7 +3852,8 @@ class HitPathTrackerTest {
         pointerInputNodeChild.cancelHandler = spy(MyCancelHandler())
         pointerInputNodeMiddle.cancelHandler = spy(MyCancelHandler())
         pointerInputNodeParent.cancelHandler = spy(MyCancelHandler())
-        hitResult.addHitPath(3,
+        hitResult.addHitPath(
+            3,
             listOf(pointerInputNodeParent, pointerInputNodeMiddle, pointerInputNodeChild)
         )
 
@@ -3494,7 +3955,8 @@ class HitPathTrackerTest {
         val pointerInputNodeChild = PointerInputNode()
         val pointerInputNodeMiddle = PointerInputNode()
         val pointerInputNodeParent = PointerInputNode()
-        hitResult.addHitPath(3,
+        hitResult.addHitPath(
+            3,
             listOf(pointerInputNodeParent, pointerInputNodeMiddle, pointerInputNodeChild)
         )
 
