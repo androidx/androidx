@@ -35,6 +35,7 @@ import com.google.common.truth.Truth.assertWithMessage
 import org.junit.After
 import org.junit.Assert.fail
 import org.junit.Before
+import org.junit.Ignore
 import org.junit.Rule
 import org.junit.Test
 import org.junit.runner.RunWith
@@ -592,6 +593,7 @@ class FragmentTransitionTest(private val reorderingAllowed: Boolean) {
     }
 
     // Ensure that transitions are done when a fragment is shown and hidden
+    @Ignore // TODO: needs to be suppressed until b/145554838 is fixed
     @Test
     fun showHideTransition() {
         val fragment1 = setupInitialFragment()
