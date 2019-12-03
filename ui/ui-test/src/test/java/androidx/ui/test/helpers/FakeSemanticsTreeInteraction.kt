@@ -16,6 +16,7 @@
 
 package androidx.ui.test.helpers
 
+import android.graphics.Bitmap
 import androidx.ui.core.SemanticsTreeNode
 import androidx.ui.core.SemanticsTreeProvider
 import androidx.ui.core.semantics.SemanticsConfiguration
@@ -86,5 +87,9 @@ internal class FakeSemanticsTreeInteraction internal constructor(
 
     override fun waitForIdleCompose(): Boolean {
         return semanticsTreeInteractionFactory(selector).waitForIdleCompose()
+    }
+
+    override fun captureNodeToBitmap(node: SemanticsTreeNode): Bitmap {
+        TODO("not implemented")
     }
 }
