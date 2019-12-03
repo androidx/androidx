@@ -38,6 +38,11 @@ final class CameraCaptureResultImageInfo implements ImageInfo {
         return mCameraCaptureResult.getTimestamp();
     }
 
+    @Override
+    public int getRotationDegrees() {
+        return 0;
+    }
+
     CameraCaptureResult getCameraCaptureResult() {
         return mCameraCaptureResult;
     }

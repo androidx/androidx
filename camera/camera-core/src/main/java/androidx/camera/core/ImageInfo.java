@@ -38,4 +38,11 @@ public interface ImageInfo {
      * @return the timestamp of the image
      */
     long getTimestamp();
+
+    /**
+      * The rotation which if applied to the image would make it match the current target
+     * rotation of the {@link UseCase} that produced it. The rotationDegrees will be a value in {0,
+     * 90, 180, 270}.
+     */
+    int getRotationDegrees();
 }

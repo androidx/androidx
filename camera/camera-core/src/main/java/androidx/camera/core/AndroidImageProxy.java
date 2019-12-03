@@ -54,7 +54,7 @@ final class AndroidImageProxy implements ImageProxy {
             mPlanes = new PlaneProxy[0];
         }
 
-        mImageInfo = new SettableImageInfo(null, image.getTimestamp());
+        mImageInfo = ImmutableImageInfo.create(null, image.getTimestamp(), 0);
     }
 
     @Override
