@@ -70,5 +70,6 @@
     <string name="renderer_terminated_description">WebView renderer was terminated.</string>
     <string name="renderer_unresponsive_description">WebView renderer has become unresponsive.</string>
     <string name="fullscreen_activity_title">Fullscreen web contents Demo</string>
+    <string name="js_java_interaction_activity_title">JavaScript - Java communication</string>
     <string name="web_message_listener_activity_title">WebMessageListener Demo</string>
 </resources>

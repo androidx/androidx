@@ -103,6 +103,9 @@
             android:name=".FullscreenActivity"
             android:exported="true" />
         <activity
+            android:name=".JsJavaInteractionActivity"
+            android:exported="true" />
+        <activity
             android:name=".WebMessageListenerActivity"
             android:exported="true" />
     </application>
