@@ -27,41 +27,41 @@ class TransformedPageTest {
     @Test
     fun loadHintNoLookup() {
         val page = TransformedPage(
-            sourcePageIndex = 0,
+            originalPageOffset = 0,
             data = listOf('a', 'b'),
             sourcePageSize = 2,
             originalIndices = null
         )
 
         // negative - index pass-through
-        assertEquals(LoadHint(0, -1), page.getLoadHint(-1))
+        assertEquals(ViewportHint(0, -1), page.getLoadHint(-1))
 
         // verify non-lookup behavior (index pass-through)
-        assertEquals(LoadHint(0, 0), page.getLoadHint(0))
-        assertEquals(LoadHint(0, 1), page.getLoadHint(1))
+        assertEquals(ViewportHint(0, 0), page.getLoadHint(0))
+        assertEquals(ViewportHint(0, 1), page.getLoadHint(1))
 
         // oob - index passthrough (because data size == source size)
-        assertEquals(LoadHint(0, 2), page.getLoadHint(2))
+        assertEquals(ViewportHint(0, 2), page.getLoadHint(2))
     }
 
     @Test
     fun loadHintLookup() {
         val page = TransformedPage(
             data = listOf('a', 'b'),
-            sourcePageIndex = -4,
+            originalPageOffset = -4,
             sourcePageSize = 30,
             originalIndices = listOf(10, 20)
         )
         // negative - index pass-through
-        assertEquals(LoadHint(-4, -1), page.getLoadHint(-1))
+        assertEquals(ViewportHint(-4, -1), page.getLoadHint(-1))
 
         // verify lookup behavior
-        assertEquals(LoadHint(-4, 10), page.getLoadHint(0))
-        assertEquals(LoadHint(-4, 20), page.getLoadHint(1))
+        assertEquals(ViewportHint(-4, 10), page.getLoadHint(0))
+        assertEquals(ViewportHint(-4, 20), page.getLoadHint(1))
 
         // if we access placeholder just after a page with lookup, we offset according to
         // sourcePageSize, since the list may have been filtered, and we want to clearly signal
         // that we're at the end
-        assertEquals(LoadHint(-4, 30), page.getLoadHint(2))
+        assertEquals(ViewportHint(-4, 30), page.getLoadHint(2))
     }
 }

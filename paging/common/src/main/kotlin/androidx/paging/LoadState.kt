@@ -29,17 +29,23 @@ sealed class LoadState {
     /**
      * Indicates the PagedList is not currently loading, and no error currently observed.
      */
-    object Idle : LoadState()
+    object Idle : LoadState() {
+        override fun toString() = "Idle"
+    }
 
     /**
      * Loading is in progress.
      */
-    object Loading : LoadState()
+    object Loading : LoadState() {
+        override fun toString() = "Loading"
+    }
 
     /**
      * Loading is complete.
      */
-    object Done : LoadState()
+    object Done : LoadState() {
+        override fun toString() = "Done"
+    }
 
     /**
      * Loading hit an error.
@@ -48,5 +54,7 @@ sealed class LoadState {
      *
      * @see androidx.paging.PagedList.retry
      */
-    data class Error(val error: Throwable) : LoadState()
+    data class Error(val error: Throwable) : LoadState() {
+        override fun toString() = "Error: $error"
+    }
 }
