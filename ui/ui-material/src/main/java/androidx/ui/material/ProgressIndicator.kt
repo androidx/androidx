@@ -93,7 +93,8 @@ fun LinearProgressIndicator(color: Color = (+MaterialTheme.colors()).primary) {
                 color.copy(alpha = BackgroundOpacity),
                 StrokeCap.butt
             )
-            Transition(definition = LinearIndeterminateTransition, toState = 1) { state ->
+            Transition(definition = LinearIndeterminateTransition, initState = 0, toState = 1) {
+                    state ->
                 val firstLineHead = state[FirstLineHeadProp]
                 val firstLineTail = state[FirstLineTailProp]
                 val secondLineHead = state[SecondLineHeadProp]
@@ -192,7 +193,8 @@ fun CircularProgressIndicator(
 fun CircularProgressIndicator(color: Color = (+MaterialTheme.colors()).primary) {
     CircularIndicatorContainer {
         val paint = +paint(color, StrokeCap.square)
-        Transition(definition = CircularIndeterminateTransition, toState = 1) { state ->
+        Transition(definition = CircularIndeterminateTransition, initState = 0, toState = 1) {
+                state ->
             val currentRotation = state[IterationProp]
             val baseRotation = state[BaseRotationProp]
 
