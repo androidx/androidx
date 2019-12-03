@@ -72,6 +72,24 @@ class FragmentStore {
         fragment.mAdded = true;
     }
 
+    void dispatchStateChange(int state) {
+        // Must add them in the proper order. mActive fragments may be out of order
+        for (Fragment f : mAdded) {
+            FragmentStateManager fragmentStateManager = mActive.get(f.mWho);
+            if (fragmentStateManager != null) {
+                fragmentStateManager.setFragmentManagerState(state);
+            }
+        }
+
+        // Now iterate through all active fragments. These will include those that are removed
+        // and detached.
+        for (FragmentStateManager fragmentStateManager : mActive.values()) {
+            if (fragmentStateManager != null) {
+                fragmentStateManager.setFragmentManagerState(state);
+            }
+        }
+    }
+
     void removeFragment(@NonNull Fragment fragment) {
         synchronized (mAdded) {
             mAdded.remove(fragment);
