@@ -22,10 +22,10 @@
     <string name="mr_cast_button_disconnected" msgid="5501231066847739632">"Tombol Cast. Terputus"</string>
     <string name="mr_cast_button_connecting" msgid="8959304318293841992">"Tombol Cast. Menghubungkan"</string>
     <string name="mr_cast_button_connected" msgid="1350095112462806159">"Tombol Cast. Terhubung"</string>
-    <string name="mr_chooser_title" msgid="7548226170787476564">"Cast ke"</string>
+    <string name="mr_chooser_title" msgid="7548226170787476564">"Transmisikan ke"</string>
     <string name="mr_chooser_searching" msgid="5504553798429329689">"Mencari perangkat"</string>
     <string name="mr_controller_disconnect" msgid="1370654436555555647">"Putuskan hubungan"</string>
-    <string name="mr_controller_stop_casting" msgid="7617024847862349259">"Hentikan cast"</string>
+    <string name="mr_controller_stop_casting" msgid="7617024847862349259">"Hentikan transmisi"</string>
     <string name="mr_controller_close_description" msgid="5468775621814500662">"Tutup"</string>
     <string name="mr_controller_play" msgid="4443315438268112801">"Putar"</string>
     <string name="mr_controller_pause" msgid="4701315813294065305">"Jeda"</string>
