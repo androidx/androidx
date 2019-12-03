@@ -67,8 +67,8 @@ public class MainActivity extends AppCompatActivity {
                         getResources().getString(R.string.fullscreen_activity_title),
                         new Intent(activityContext, FullscreenActivity.class)),
                 new MenuListView.MenuItem(
-                        getResources().getString(R.string.web_message_listener_activity_title),
-                        new Intent(activityContext, WebMessageListenerActivity.class)),
+                        getResources().getString(R.string.js_java_interaction_activity_title),
+                        new Intent(activityContext, JsJavaInteractionActivity.class)),
         };
         listView.setItems(menuItems);
     }
