@@ -44,6 +44,8 @@ class FragmentStateManager {
     @NonNull
     private final Fragment mFragment;
 
+    private int mFragmentManagerState = Fragment.INITIALIZING;
+
     /**
      * Create a FragmentStateManager from a brand new Fragment instance.
      *
@@ -133,20 +135,35 @@ class FragmentStateManager {
     }
 
     /**
+     * Set the state of the FragmentManager. This will be used by
+     * {@link #computeMaxState()} to limit the max state of the Fragment.
+     *
+     * @param state one of the constants in {@link Fragment}
+     */
+    void setFragmentManagerState(int state) {
+        mFragmentManagerState = state;
+    }
+
+    /**
      * Compute the maximum state that the Fragment should be in given the internal
-     * state of the Fragment.
+     * state of the Fragment and the signals passed into FragmentStateManager.
      *
      * @return the maximum state that the Fragment should be in
      */
     int computeMaxState() {
-        // Assume the Fragment can go all the way to resumed by default
-        int maxState = Fragment.RESUMED;
+        // Assume the Fragment can go as high as the FragmentManager's state
+        int maxState = mFragmentManagerState;
 
-        // For fragments that are created from a layout using the <fragment> tag
-        // (mFromLayout), don't allow their state to progress until they are
-        // actually added to the layout (mInLayout).
-        if (mFragment.mFromLayout && !mFragment.mInLayout) {
-            maxState = Math.min(maxState, mFragment.mState);
+        // For fragments that are created from a layout using the <fragment> tag (mFromLayout)
+        if (mFragment.mFromLayout) {
+            if (mFragment.mInLayout) {
+                // Move them immediately to CREATED when they are
+                // actually added to the layout (mInLayout).
+                maxState = Math.max(mFragmentManagerState, Fragment.CREATED);
+            } else {
+                // But don't allow their state to progress if they're not in a layout
+                maxState = Math.min(maxState, mFragment.mState);
+            }
         }
         // Fragments that are not currently added will sit in the CREATED state.
         if (!mFragment.mAdded) {

@@ -1122,6 +1122,8 @@ public abstract class FragmentManager {
             // just to clean them up without them ever being added to mActive.
             // For these cases, a brand new FragmentStateManager is enough.
             fragmentStateManager = new FragmentStateManager(mLifecycleCallbacksDispatcher, f);
+            // Only allow this FragmentStateManager to go up to CREATED at the most
+            fragmentStateManager.setFragmentManagerState(Fragment.CREATED);
         }
         newState = Math.min(newState, fragmentStateManager.computeMaxState());
         if (f.mState <= newState) {
@@ -1521,6 +1523,8 @@ public abstract class FragmentManager {
             }
             f.mRetainInstanceChangedWhileDetached = false;
         }
+        // Catch the FragmentStateManager up to our current state
+        fragmentStateManager.setFragmentManagerState(mCurState);
         if (isLoggingEnabled(Log.VERBOSE)) Log.v(TAG, "Added fragment to active set " + f);
     }
 
@@ -2446,6 +2450,10 @@ public abstract class FragmentManager {
                 }
                 fragmentStateManager.restoreState(mHost.getContext().getClassLoader());
                 mFragmentStore.makeActive(fragmentStateManager);
+                // Catch the FragmentStateManager up to our current state
+                // In almost all cases, this is Fragment.INITIALIZING, but just in
+                // case a FragmentController does something...unique, let's do this anyways.
+                fragmentStateManager.setFragmentManagerState(mCurState);
             }
         }
 
@@ -2597,6 +2605,7 @@ public abstract class FragmentManager {
     private void dispatchStateChange(int nextState) {
         try {
             mExecutingActions = true;
+            mFragmentStore.dispatchStateChange(nextState);
             moveToState(nextState, false);
         } finally {
             mExecutingActions = false;
