@@ -22,14 +22,16 @@ import androidx.ui.lerp
 /**
  * Define a geometric transformation on text.
  *
- * @param scaleX The scale of the text on the horizontal direction.
+ * @param scaleX The scale of the text on the horizontal direction. The default value is 1.0f, i.e
+ * no scaling.
  * @param skewX The shear of the text on the horizontal direction. A pixel at (x, y), where y is
- * the distance above baseline, will be transformed to (x + y * skewX, y).
+ * the distance above baseline, will be transformed to (x + y * skewX, y). The default value is
+ * 0.0f i.e. no skewing.
  */
 @Immutable
 data class TextGeometricTransform(
-    val scaleX: Float? = null,
-    val skewX: Float? = null
+    val scaleX: Float = 1.0f,
+    val skewX: Float = 0f
 ) {
     companion object {
         internal val None = TextGeometricTransform(1.0f, 0.0f)
@@ -41,15 +43,8 @@ fun lerp(
     stop: TextGeometricTransform,
     fraction: Float
 ): TextGeometricTransform {
-    val scaleX = if (start.scaleX == null && stop.scaleX == null) {
-        null
-    } else {
-        lerp(start.scaleX ?: 1.0f, stop.scaleX ?: 1.0f, fraction)
-    }
-    val skewX = if (start.skewX == null && stop.skewX == null) {
-        null
-    } else {
-        lerp(start.skewX ?: 0.0f, stop.skewX ?: 0.0f, fraction)
-    }
-    return TextGeometricTransform(scaleX, skewX)
+    return TextGeometricTransform(
+        lerp(start.scaleX, stop.scaleX, fraction),
+        lerp(start.skewX, stop.skewX, fraction)
+    )
 }

@@ -690,13 +690,13 @@ package androidx.ui.text.style {
   }
 
   public final class TextGeometricTransform {
-    ctor public TextGeometricTransform(Float? scaleX, Float? skewX);
+    ctor public TextGeometricTransform(float scaleX, float skewX);
     ctor public TextGeometricTransform();
-    method public Float? component1();
-    method public Float? component2();
-    method public androidx.ui.text.style.TextGeometricTransform copy(Float? scaleX, Float? skewX);
-    method public Float? getScaleX();
-    method public Float? getSkewX();
+    method public float component1();
+    method public float component2();
+    method public androidx.ui.text.style.TextGeometricTransform copy(float scaleX, float skewX);
+    method public float getScaleX();
+    method public float getSkewX();
     field public static final androidx.ui.text.style.TextGeometricTransform.Companion! Companion;
   }
 
