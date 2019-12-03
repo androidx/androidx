@@ -23,51 +23,12 @@ import androidx.ui.core.Text
 import androidx.ui.core.dp
 import androidx.ui.core.ipx
 import androidx.ui.graphics.Color
-import androidx.ui.layout.Center
 import androidx.ui.layout.Column
 import androidx.ui.layout.Container
 import androidx.ui.layout.LayoutExpandedHeight
-import androidx.ui.layout.FlexColumn
-import androidx.ui.layout.FlexRow
 import androidx.ui.layout.LayoutGravity
 import androidx.ui.layout.Row
 import androidx.ui.text.TextStyle
-
-@Sampled
-@Composable
-fun SimpleFlexRow() {
-    FlexRow {
-        expanded(flex = 2f) {
-            Center {
-                SizedRectangle(color = Color(0xFF0000FF), width = 40.dp, height = 40.dp)
-            }
-        }
-        inflexible {
-            SizedRectangle(color = Color(0xFFFF0000), width = 40.dp)
-        }
-        expanded(flex = 1f) {
-            SizedRectangle(color = Color(0xFF00FF00))
-        }
-    }
-}
-
-@Sampled
-@Composable
-fun SimpleFlexColumn() {
-    FlexColumn {
-        expanded(flex = 2f) {
-            Center {
-                SizedRectangle(color = Color(0xFF0000FF), width = 40.dp, height = 40.dp)
-            }
-        }
-        inflexible {
-            SizedRectangle(color = Color(0xFFFF0000), height = 40.dp)
-        }
-        expanded(flex = 1f) {
-            SizedRectangle(color = Color(0xFF00FF00))
-        }
-    }
-}
 
 @Sampled
 @Composable

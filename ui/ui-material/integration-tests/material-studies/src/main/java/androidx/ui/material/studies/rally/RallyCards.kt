@@ -28,12 +28,10 @@ import androidx.ui.graphics.Color
 import androidx.ui.layout.Arrangement
 import androidx.ui.layout.Column
 import androidx.ui.layout.Container
-import androidx.ui.layout.FlexRow
 import androidx.ui.layout.LayoutExpandedWidth
 import androidx.ui.layout.LayoutGravity
 import androidx.ui.layout.LayoutHeight
 import androidx.ui.layout.LayoutPadding
-import androidx.ui.layout.LayoutSize
 import androidx.ui.layout.LayoutWidth
 import androidx.ui.layout.Row
 import androidx.ui.layout.Spacer
@@ -212,21 +210,15 @@ fun RallyAccountsCard() {
  */
 @Composable
 fun RallyAccountRow(name: String, number: String, amount: String, color: Color) {
-    FlexRow(LayoutPadding(top = 12.dp, bottom = 12.dp)) {
-        inflexible {
-            AccountIndicator(color = color)
-            Spacer(LayoutWidth(8.dp))
-            Column {
-                Text(text = name, style = (+MaterialTheme.typography()).body1)
-                Text(text = "•••••$number", style = (+MaterialTheme.typography()).subtitle1)
-            }
+    Row(LayoutPadding(top = 12.dp, bottom = 12.dp)) {
+        AccountIndicator(color = color)
+        Spacer(LayoutWidth(8.dp))
+        Column {
+            Text(text = name, style = (+MaterialTheme.typography()).body1)
+            Text(text = "•••••$number", style = (+MaterialTheme.typography()).subtitle1)
         }
-        expanded(flex = 1.0f) {
-            Spacer(LayoutSize(width = 0.dp, height = 0.dp))
-        }
-        inflexible {
-            Text(text = "$ $amount", style = (+MaterialTheme.typography()).h6)
-        }
+        Spacer(LayoutFlexible(1f))
+        Text(text = "$ $amount", style = (+MaterialTheme.typography()).h6)
     }
 }
 

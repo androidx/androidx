@@ -29,7 +29,7 @@ import androidx.ui.core.isFinite
 import androidx.ui.core.max
 
 /**
- * A composable that places its children in a horizontal flow. Unlike [Row] or [FlexRow], if the
+ * A composable that places its children in a horizontal flow. Unlike [Row], if the
  * horizontal space is too small to put all the children in one row, multiple rows may be used.
  *
  * Note that just like [Row], flex values cannot be used with [FlowRow].
@@ -68,7 +68,7 @@ fun FlowRow(
 }
 
 /**
- * A composable that places its children in a vertical flow. Unlike [Column] or [FlexColumn], if the
+ * A composable that places its children in a vertical flow. Unlike [Column], if the
  * vertical space is too small to put all the children in one column, multiple columns may be used.
  *
  * Note that just like [Column], flex values cannot be used with [FlowColumn].

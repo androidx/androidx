@@ -37,7 +37,6 @@ import androidx.ui.core.Px
 import androidx.ui.core.Text
 import androidx.ui.core.WithConstraints
 import androidx.ui.core.ambientDensity
-import androidx.ui.core.coerceIn
 import androidx.ui.core.dp
 import androidx.ui.core.max
 import androidx.ui.core.sp
@@ -52,10 +51,11 @@ import androidx.ui.foundation.selection.MutuallyExclusiveSetItem
 import androidx.ui.graphics.Color
 import androidx.ui.graphics.Image
 import androidx.ui.layout.Container
-import androidx.ui.layout.FlexRow
 import androidx.ui.layout.LayoutExpandedWidth
 import androidx.ui.layout.LayoutGravity
+import androidx.ui.layout.LayoutHeight
 import androidx.ui.layout.Padding
+import androidx.ui.layout.Row
 import androidx.ui.layout.Stack
 import androidx.ui.material.TabRow.IndicatorTransition
 import androidx.ui.material.TabRow.TabPosition
@@ -134,18 +134,24 @@ fun <T> TabRow(
     tab: @Composable() (Int, T) -> Unit
 ) {
     Surface(color = (+MaterialTheme.colors()).primary) {
-        val tabs = @Composable {
-            items.forEachIndexed { index, item ->
-                tab(index, item)
-            }
-        }
-
         WithConstraints { constraints ->
             val width = constraints.maxWidth
             // TODO: force scrollable for tabs that will be too small if they take up equal space?
             if (scrollable) {
+                val tabs = @Composable {
+                    items.forEachIndexed { index, item ->
+                        tab(index, item)
+                    }
+                }
                 ScrollableTabRow(width, selectedIndex, tabs, indicatorContainer)
             } else {
+                val tabs = @Composable { modifier: Modifier ->
+                    items.forEachIndexed { index, item ->
+                        Container(modifier) {
+                            tab(index, item)
+                        }
+                    }
+                }
                 FixedTabRow(width, items.size, tabs, indicatorContainer)
             }
         }
@@ -156,7 +162,7 @@ fun <T> TabRow(
 private fun FixedTabRow(
     width: IntPx,
     tabCount: Int,
-    tabs: @Composable() () -> Unit,
+    tabs: @Composable() (Modifier) -> Unit,
     indicatorContainer: @Composable() (tabPositions: List<TabPosition>) -> Unit
 ) {
     val tabWidth = width / tabCount
@@ -173,8 +179,8 @@ private fun FixedTabRow(
     }
 
     Stack(LayoutExpandedWidth) {
-        FlexRow(LayoutGravity.Center) {
-            expanded(1f, tabs)
+        Row(LayoutGravity.Center) {
+            tabs(LayoutFlexible(1f))
         }
         divider(LayoutGravity.BottomCenter)
         Container(LayoutGravity.Stretch) {
@@ -459,7 +465,7 @@ private fun BaseTab(selected: Boolean, onSelected: () -> Unit, children: @Compos
 @Composable
 private fun TextTab(text: String, selected: Boolean, onSelected: () -> Unit, tint: Color) {
     BaseTab(selected = selected, onSelected = onSelected) {
-        Container(height = SmallTabHeight) {
+        Container(LayoutExpandedWidth + LayoutHeight(SmallTabHeight)) {
             TabTransition(color = tint, selected = selected) { tabTintColor ->
                 TabTextBaselineLayout {
                     TabText(text, tabTintColor)
@@ -480,7 +486,7 @@ private fun TextTab(text: String, selected: Boolean, onSelected: () -> Unit, tin
 @Composable
 private fun IconTab(icon: Image, selected: Boolean, onSelected: () -> Unit, tint: Color) {
     BaseTab(selected = selected, onSelected = onSelected) {
-        Container(height = SmallTabHeight) {
+        Container(LayoutExpandedWidth + LayoutHeight(SmallTabHeight)) {
             TabTransition(color = tint, selected = selected) { tabTintColor ->
                 TabIcon(icon, tabTintColor)
             }
@@ -507,7 +513,7 @@ private fun CombinedTab(
     tint: Color
 ) {
     BaseTab(selected = selected, onSelected = onSelected) {
-        Container(height = LargeTabHeight) {
+        Container(LayoutExpandedWidth + LayoutHeight(LargeTabHeight)) {
             TabTransition(color = tint, selected = selected) { tabTintColor ->
                 TabTextBaselineLayout(
                     icon = { TabIcon(icon, tabTintColor) },

@@ -44,15 +44,12 @@ import androidx.ui.foundation.SimpleImage
 import androidx.ui.foundation.shape.RectangleShape
 import androidx.ui.foundation.shape.corner.CircleShape
 import androidx.ui.layout.Container
-import androidx.ui.layout.FlexRow
-import androidx.ui.layout.MainAxisAlignment
 import androidx.ui.layout.Row
 import androidx.ui.layout.Spacer
 import androidx.ui.layout.LayoutWidth
 import androidx.ui.material.surface.Surface
 import androidx.ui.graphics.Color
 import androidx.ui.layout.EdgeInsets
-import androidx.ui.layout.LayoutSize
 import androidx.ui.layout.Wrap
 import androidx.ui.material.BottomAppBar.FabConfiguration
 import androidx.ui.material.BottomAppBar.FabPosition
@@ -60,9 +57,9 @@ import androidx.ui.material.ripple.Ripple
 import androidx.ui.graphics.Image
 import androidx.ui.graphics.Path
 import androidx.ui.graphics.PathOperation
-import androidx.ui.layout.Align
 import androidx.ui.layout.AlignmentLineOffset
 import androidx.ui.layout.Arrangement
+import androidx.ui.layout.LayoutAlign
 import androidx.ui.layout.LayoutExpanded
 import androidx.ui.layout.LayoutExpandedHeight
 import androidx.ui.layout.Padding
@@ -150,42 +147,34 @@ private fun BaseTopAppBar(
     endContent: @Composable() (() -> Unit)?
 ) {
     BaseAppBar(color, TopAppBarElevation, RectangleShape) {
-        FlexRow(
-            mainAxisAlignment = MainAxisAlignment.SpaceBetween,
-            crossAxisSize = LayoutSize.Expand
-        ) {
+        Row(arrangement = Arrangement.SpaceBetween) {
             // We only want to reserve space here if we have some start content
             if (startContent != null) {
-                inflexible {
-                    Container(
-                        modifier = LayoutExpandedHeight,
-                        width = AppBarTitleStartPadding,
-                        alignment = Alignment.CenterLeft,
-                        children = startContent
-                    )
-                }
+                Container(
+                    modifier = LayoutExpandedHeight,
+                    width = AppBarTitleStartPadding,
+                    alignment = Alignment.CenterLeft,
+                    children = startContent
+                )
             }
-            expanded(1f) {
-                Align(Alignment.BottomLeft) {
-                    AlignmentLineOffset(
-                        alignmentLine = LastBaseline,
-                        after = withDensity(+ambientDensity()) { AppBarTitleBaselineOffset.toDp() }
-                    ) {
-                        // TODO: AlignmentLineOffset requires a child, so in case title() is
-                        // empty we just add an empty wrap here - should be fixed when we move to
-                        // modifiers.
-                        Wrap(children = title)
-                    }
+            // TODO(soboleva): rework this once AlignmentLineOffset is a modifier
+            Container(LayoutFlexible(1f) + LayoutAlign.BottomLeft) {
+                AlignmentLineOffset(
+                    alignmentLine = LastBaseline,
+                    after = withDensity(+ambientDensity()) { AppBarTitleBaselineOffset.toDp() }
+                ) {
+                    // TODO: AlignmentLineOffset requires a child, so in case title() is
+                    // empty we just add an empty wrap here - should be fixed when we move to
+                    // modifiers.
+                    Wrap(children = title)
                 }
             }
             if (endContent != null) {
-                inflexible {
-                    Container(
-                        modifier = LayoutExpandedHeight,
-                        alignment = Alignment.Center,
-                        children = endContent
-                    )
-                }
+                Container(
+                    modifier = LayoutExpandedHeight,
+                    alignment = Alignment.Center,
+                    children = endContent
+                )
             }
         }
     }
