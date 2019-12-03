@@ -9,5 +9,5 @@ fi
 mkdir -p "$DIST_DIR"
 cd "$SCRIPT_DIR/../../.."
 
-OUT_DIR=out DIST_DIR="$DIST_DIR" ANDROID_HOME=`pwd`/prebuilts/fullsdk-linux frameworks/support/gradlew -p frameworks/support --no-daemon buildTestApks -Pandroidx.enableAffectedModuleDetection -Pandroidx.changedProjects
-OUT_DIR=out/ui DIST_DIR="$DIST_DIR/ui" ANDROID_HOME=`pwd`/prebuilts/fullsdk-linux frameworks/support/ui/gradlew -p frameworks/support/ui --no-daemon buildTestApks -Pandroidx.enableAffectedModuleDetection -Pandroidx.changedProjects
+OUT_DIR=out DIST_DIR="$DIST_DIR" ANDROID_HOME=`pwd`/prebuilts/fullsdk-linux frameworks/support/gradlew -p frameworks/support --no-daemon buildTestApks -Pandroidx.enableAffectedModuleDetection -Pandroidx.changedProjects --offline
+OUT_DIR=out/ui DIST_DIR="$DIST_DIR/ui" ANDROID_HOME=`pwd`/prebuilts/fullsdk-linux frameworks/support/ui/gradlew -p frameworks/support/ui --no-daemon buildTestApks -Pandroidx.enableAffectedModuleDetection -Pandroidx.changedProjects --offline
