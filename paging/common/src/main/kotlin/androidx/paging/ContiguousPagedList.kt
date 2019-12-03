@@ -46,7 +46,7 @@ open class ContiguousPagedList<K : Any, V : Any>(
     pagedSource,
     PagedStorage<V>(),
     config
-), PagedStorage.Callback, Pager.PageConsumer<V> {
+), PagedStorage.Callback, LegacyPager.PageConsumer<V> {
     internal companion object {
         internal fun getPrependItemsRequested(
             prefetchDistance: Int,
@@ -79,14 +79,14 @@ open class ContiguousPagedList<K : Any, V : Any>(
     private val shouldTrim = config.maxSize != Config.MAX_SIZE_UNBOUNDED
 
     @Suppress("UNCHECKED_CAST")
-    private val pager = Pager(
+    private val pager = LegacyPager(
         coroutineScope,
         config,
         pagedSource,
         notifyDispatcher,
         backgroundDispatcher,
         this,
-        storage as Pager.KeyProvider<K>
+        storage as LegacyPager.KeyProvider<K>
     )
 
     @Suppress("UNCHECKED_CAST")
