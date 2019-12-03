@@ -50,11 +50,15 @@ import androidx.ui.core.Measurable
 import androidx.ui.core.Modifier
 import androidx.ui.core.OnPositioned
 import androidx.ui.core.ParentData
+import androidx.ui.core.PxSize
 import androidx.ui.core.Ref
 import androidx.ui.core.RepaintBoundary
 import androidx.ui.core.VerticalAlignmentLine
 import androidx.ui.core.coerceAtLeast
 import androidx.ui.core.coerceIn
+import androidx.ui.core.draw
+import androidx.ui.core.drawWithContent
+import androidx.ui.core.DrawModifier
 import androidx.ui.core.globalPosition
 import androidx.ui.core.ipx
 import androidx.ui.core.max
@@ -64,10 +68,15 @@ import androidx.ui.core.px
 import androidx.ui.core.setContent
 import androidx.ui.core.toPx
 import androidx.ui.core.toRect
+import androidx.ui.engine.geometry.Outline
+import androidx.ui.engine.geometry.RRect
 import androidx.ui.engine.geometry.Rect
+import androidx.ui.engine.geometry.Shape
+import androidx.ui.engine.geometry.drawOutline
 import androidx.ui.framework.test.TestActivity
 import androidx.ui.graphics.Color
 import androidx.ui.graphics.Paint
+import androidx.ui.graphics.PaintingStyle
 import org.junit.Assert.assertEquals
 import org.junit.Assert.assertFalse
 import org.junit.Assert.assertNull
@@ -82,6 +91,7 @@ import org.junit.runners.JUnit4
 import java.lang.Math.abs
 import java.util.concurrent.CountDownLatch
 import java.util.concurrent.TimeUnit
+import kotlin.math.sqrt
 
 /**
  * Corresponds to ContainingViewTest, but tests single composition measure, layout and draw.
@@ -1722,6 +1732,161 @@ class AndroidLayoutDrawTest {
         assertEquals(0.px, wrap2Position)
     }
 
+    @SdkSuppress(minSdkVersion = Build.VERSION_CODES.O)
+    @Test
+    fun drawModifier_drawPositioning() {
+        val outerColor = Color.Blue
+        val innerColor = Color.White
+        activityTestRule.runOnUiThreadIR {
+            activity.setContentInFrameLayout {
+                FixedSize(30.ipx, background(outerColor)) {
+                    Draw { canvas, parentSize ->
+                        canvas.drawRect(parentSize.toRect(), Paint().apply { color = outerColor })
+                    }
+                    FixedSize(10.ipx, PaddingModifier(10.ipx) wraps background(
+                        innerColor
+                    )
+                    ) {
+                        Draw { _, _ ->
+                            drawLatch.countDown()
+                        }
+                    }
+                }
+            }
+        }
+        Thread.sleep(3000)
+        validateSquareColors(outerColor = outerColor, innerColor = innerColor, size = 10)
+    }
+
+    @SdkSuppress(minSdkVersion = Build.VERSION_CODES.O)
+    @Test
+    fun drawModifier_oneModifier() {
+        val outerColor = Color.Blue
+        val innerColor = Color.White
+        activityTestRule.runOnUiThreadIR {
+            activity.setContentInFrameLayout {
+                val colorModifier = draw { canvas, size ->
+                    val paint = Paint()
+                    paint.style = PaintingStyle.fill
+                    paint.color = outerColor
+                    canvas.drawRect(size.toRect(), paint)
+                    paint.color = innerColor
+                    canvas.drawRect(Rect(10f, 10f, 20f, 20f), paint)
+                    drawLatch.countDown()
+                }
+                FixedSize(30.ipx, colorModifier) {}
+            }
+        }
+        validateSquareColors(outerColor = outerColor, innerColor = innerColor, size = 10)
+    }
+
+    @SdkSuppress(minSdkVersion = Build.VERSION_CODES.O)
+    @Test
+    fun drawModifier_nestedModifiers() {
+        val outerColor = Color.Blue
+        val innerColor = Color.White
+        activityTestRule.runOnUiThreadIR {
+            activity.setContentInFrameLayout {
+                val countDownModifier = draw { _, _ ->
+                    drawLatch.countDown()
+                }
+                FixedSize(30.ipx, countDownModifier wraps background(
+                    color = outerColor
+                )
+                ) {
+                    Padding(10.ipx) {
+                        FixedSize(10.ipx,
+                            background(color = innerColor)
+                        ) {}
+                    }
+                }
+            }
+        }
+        validateSquareColors(outerColor = outerColor, innerColor = innerColor, size = 10)
+    }
+
+    @SdkSuppress(minSdkVersion = Build.VERSION_CODES.O)
+    @Test
+    fun drawModifier_withLayoutModifier() {
+        val outerColor = Color.Blue
+        val innerColor = Color.White
+        activityTestRule.runOnUiThreadIR {
+            activity.setContentInFrameLayout {
+                FixedSize(30.ipx,
+                    background(color = outerColor)
+                ) {
+                    FixedSize(
+                        size = 10.ipx,
+                        modifier = PaddingModifier(10.ipx) wraps background(
+                            color = innerColor
+                        )
+                    ) {
+                        Draw { _, _ ->
+                            drawLatch.countDown()
+                        }
+                    }
+                }
+            }
+        }
+        validateSquareColors(outerColor = outerColor, innerColor = innerColor, size = 10)
+    }
+
+    @SdkSuppress(minSdkVersion = Build.VERSION_CODES.O)
+    @Test
+    fun drawModifier_withLayout() {
+        val outerColor = Color.Blue
+        val innerColor = Color.White
+        activityTestRule.runOnUiThreadIR {
+            activity.setContentInFrameLayout {
+                val drawAndOffset = drawWithContent { canvas, size ->
+                    val paint = Paint().apply { color = outerColor }
+                    canvas.drawRect(size.toRect(), paint)
+                    canvas.translate(10f, 10f)
+                    drawChildren()
+                    canvas.translate(-10f, -10f)
+                }
+                FixedSize(30.ipx, drawAndOffset) {
+                    FixedSize(
+                        size = 10.ipx, modifier = background(
+                            color = innerColor
+                        )
+                    ) {
+                        Draw { _, _ ->
+                            drawLatch.countDown()
+                        }
+                    }
+                }
+            }
+        }
+        validateSquareColors(outerColor = outerColor, innerColor = innerColor, size = 10)
+    }
+
+    @SdkSuppress(minSdkVersion = Build.VERSION_CODES.O)
+    @Test
+    fun drawModifier_withShape() {
+        val outerColor = Color.Blue
+        val innerColor = Color.White
+        activityTestRule.runOnUiThreadIR {
+            activity.setContentInFrameLayout {
+                FixedSize(30.ipx, background(outerColor)) {
+                    FixedSize(
+                        size = 10.ipx,
+                        modifier = PaddingModifier(10.ipx) wraps
+                                background(
+                                    shape = CircleShape,
+                                    color = innerColor
+                                )
+                    ) {
+                        Draw { _, _ ->
+                            drawLatch.countDown()
+                        }
+                    }
+                }
+            }
+        }
+        validateCircleColors(outerColor = outerColor, innerColor = innerColor, size = 10)
+    }
+
     private fun composeSquares(model: SquareModel) {
         activityTestRule.runOnUiThreadIR {
             activity.setContentInFrameLayout {
@@ -1846,6 +2011,39 @@ class AndroidLayoutDrawTest {
         }
     }
 
+    private fun validateCircleColors(
+        outerColor: Color,
+        innerColor: Color,
+        size: Int
+    ) {
+        assertTrue(drawLatch.await(1, TimeUnit.SECONDS))
+        val bitmap = activityTestRule.waitAndScreenShot()
+        val totalSize = size * 3
+        assertEquals(totalSize, bitmap.width)
+        assertEquals(totalSize, bitmap.height)
+        val center = size * 1.5f
+        for (x in 0 until totalSize) {
+            for (y in 0 until totalSize) {
+                val pixel = Color(bitmap.getPixel(x, y))
+
+                val xDist = x - center
+                val yDist = y - center
+                val distance = sqrt(xDist * xDist + yDist * yDist)
+                if (distance > (size / 2f) + 1) {
+                    assertColorsEqual(outerColor, pixel) {
+                        "Background at [$x, $y] should be $outerColor, but was $pixel"
+                    }
+                } else if (distance < (size / 2f) - 1) {
+                    assertColorsEqual(innerColor, pixel) {
+                        "Circle at [$x, $y] should be $innerColor, but was $pixel"
+                    }
+                }
+                // everything else is on the border and is going to be some combination
+                // of innerColor and outerColor. We'll just ignore them.
+            }
+        }
+    }
+
     @Composable
     private fun FillColor(color: Color, doCountDown: Boolean = true) {
         Draw { canvas, parentSize ->
@@ -1939,6 +2137,25 @@ fun AtLeastSize(
         modifier = modifier,
         children = children
     )
+}
+
+@Composable
+fun FixedSize(
+    size: IntPx,
+    modifier: Modifier = Modifier.None,
+    children: @Composable() () -> Unit
+) {
+    Layout(children = children, modifier = modifier) { measurables, _ ->
+        val newConstraints = Constraints.tightConstraints(size, size)
+        val placeables = measurables.map { m ->
+            m.measure(newConstraints)
+        }
+        layout(size, size) {
+            placeables.forEach { child ->
+                child.place(0.ipx, 0.ipx)
+            }
+        }
+    }
 }
 
 @Composable
@@ -2270,4 +2487,27 @@ fun Activity.setContentInFrameLayout(children: @Composable() () -> Unit) {
         ViewGroup.LayoutParams(ViewGroup.LayoutParams.WRAP_CONTENT,
             ViewGroup.LayoutParams.WRAP_CONTENT))
     frameLayout.setContent(children)
+}
+
+val CircleShape = object : Shape {
+    override fun createOutline(size: PxSize, density: Density): Outline {
+        return Outline.Rounded(
+            RRect(
+                rect = size.toRect(),
+                radiusX = size.width.value / 2f,
+                radiusY = size.height.value / 2f
+            )
+        )
+    }
+}
+
+fun background(color: Color) = draw { canvas, size ->
+    val paint = Paint().apply { this.color = color }
+    canvas.drawRect(size.toRect(), paint)
+}
+
+fun background(shape: Shape, color: Color): DrawModifier = draw { canvas, size ->
+    val paint = Paint().apply { this.color = color }
+    val outline = shape.createOutline(size, density)
+    canvas.drawOutline(outline, paint)
 }

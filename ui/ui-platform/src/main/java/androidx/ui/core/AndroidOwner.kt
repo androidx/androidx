@@ -407,7 +407,7 @@ class AndroidComposeView constructor(context: Context) :
     override fun onDraw(canvas: android.graphics.Canvas) {
     }
 
-    fun callDraw(
+    override fun callDraw(
         canvas: Canvas,
         node: ComponentNode,
         parentSize: PxSize
@@ -452,22 +452,7 @@ class AndroidComposeView constructor(context: Context) :
                 }
                 is LayoutNode -> {
                     if (node.isPlaced) {
-                        val contentPos = node.contentPosition
-                        val doTranslate = contentPos.x != 0.ipx || contentPos.y != 0.ipx
-                        if (doTranslate) {
-                            canvas.save()
-                            canvas.translate(
-                                contentPos.x.value.toFloat(),
-                                contentPos.y.value.toFloat()
-                            )
-                        }
-                        val contentSize = node.contentSize.toPxSize()
-                        node.visitChildren { child ->
-                            callDraw(canvas, child, contentSize)
-                        }
-                        if (doTranslate) {
-                            canvas.restore()
-                        }
+                        node.draw(canvas, density)
                     }
                 }
                 else -> node.visitChildren {

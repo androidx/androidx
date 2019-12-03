@@ -161,6 +161,7 @@ package androidx.ui.core {
 
   public final class LayoutNode extends androidx.ui.core.ComponentNode implements androidx.ui.core.Measurable {
     ctor public LayoutNode();
+    method public void draw(androidx.ui.graphics.Canvas canvas, androidx.ui.core.Density density);
     method public boolean getAffectsParentSize();
     method public androidx.ui.core.Constraints getConstraints();
     method public androidx.ui.core.IntPxPosition getContentPosition();
@@ -247,6 +248,7 @@ package androidx.ui.core {
 
   public interface Owner {
     method public androidx.ui.core.IntPxPosition calculatePosition();
+    method public void callDraw(androidx.ui.graphics.Canvas canvas, androidx.ui.core.ComponentNode node, androidx.ui.core.PxSize parentSize);
     method public void enableModelReadObserving(boolean enabled);
     method public androidx.ui.core.Density getDensity();
     method public long getMeasureIteration();
