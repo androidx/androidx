@@ -222,14 +222,14 @@ package androidx.ui.text {
   }
 
   public static final class AnnotatedString.Item<T> {
-    ctor public AnnotatedString.Item(T! style, int start, int end);
+    ctor public AnnotatedString.Item(T! item, int start, int end);
     method public T! component1();
     method public int component2();
     method public int component3();
-    method public androidx.ui.text.AnnotatedString.Item<T> copy(T! style, int start, int end);
+    method public androidx.ui.text.AnnotatedString.Item<T> copy(T! item, int start, int end);
     method public int getEnd();
+    method public T! getItem();
     method public int getStart();
-    method public T! getStyle();
   }
 
   public final class AnnotatedStringKt {

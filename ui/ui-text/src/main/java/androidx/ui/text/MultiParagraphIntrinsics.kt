@@ -57,7 +57,7 @@ class MultiParagraphIntrinsics(
                     intrinsics = ParagraphIntrinsics(
                         text = annotatedString.text,
                         paragraphStyle = resolveTextDirection(
-                            paragraphStyleItem.style,
+                            paragraphStyleItem.item,
                             paragraphStyle
                         ),
                         textStyles = annotatedString.textStyles,

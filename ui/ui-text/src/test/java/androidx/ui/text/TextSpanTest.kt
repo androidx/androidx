@@ -164,7 +164,7 @@ class TextSpanTest {
 
         // By default includeRootStyle = true and TextStyle on root node should be converted.
         assertThat(annotatedString.textStyles.size).isEqualTo(1)
-        assertThat(annotatedString.textStyles[0].style).isEqualTo(textStyle)
+        assertThat(annotatedString.textStyles[0].item).isEqualTo(textStyle)
         assertThat(annotatedString.textStyles[0].start).isEqualTo(0)
         assertThat(annotatedString.textStyles[0].end).isEqualTo(text.length)
     }
@@ -202,11 +202,11 @@ class TextSpanTest {
         assertThat(annotatedString.text).isEqualTo(text1 + text2)
         assertThat(annotatedString.textStyles.size).isEqualTo(2)
 
-        assertThat(annotatedString.textStyles[0].style).isEqualTo(textStyle1)
+        assertThat(annotatedString.textStyles[0].item).isEqualTo(textStyle1)
         assertThat(annotatedString.textStyles[0].start).isEqualTo(0)
         assertThat(annotatedString.textStyles[0].end).isEqualTo((text1 + text2).length)
 
-        assertThat(annotatedString.textStyles[1].style).isEqualTo(textStyle2)
+        assertThat(annotatedString.textStyles[1].item).isEqualTo(textStyle2)
         assertThat(annotatedString.textStyles[1].start).isEqualTo(text1.length)
         assertThat(annotatedString.textStyles[1].end).isEqualTo((text1 + text2).length)
     }
@@ -258,25 +258,25 @@ class TextSpanTest {
         assertThat(annotatedString.text).isEqualTo(text1 + text2 + text3)
         assertThat(annotatedString.textStyles.size).isEqualTo(5)
 
-        assertThat(annotatedString.textStyles[0].style).isEqualTo(textStyleRoot)
+        assertThat(annotatedString.textStyles[0].item).isEqualTo(textStyleRoot)
         assertThat(annotatedString.textStyles[0].start).isEqualTo(0)
         assertThat(annotatedString.textStyles[0].end)
             .isEqualTo((text1 + text2 + text3).length)
 
-        assertThat(annotatedString.textStyles[1].style).isEqualTo(textStyleLeaf1)
+        assertThat(annotatedString.textStyles[1].item).isEqualTo(textStyleLeaf1)
         assertThat(annotatedString.textStyles[1].start).isEqualTo(0)
         assertThat(annotatedString.textStyles[1].end).isEqualTo(text1.length)
 
-        assertThat(annotatedString.textStyles[2].style).isEqualTo(textStyleInner)
+        assertThat(annotatedString.textStyles[2].item).isEqualTo(textStyleInner)
         assertThat(annotatedString.textStyles[2].start).isEqualTo(text1.length)
         assertThat(annotatedString.textStyles[2].end)
             .isEqualTo((text1 + text2 + text3).length)
 
-        assertThat(annotatedString.textStyles[3].style).isEqualTo(textStyleLeaf2)
+        assertThat(annotatedString.textStyles[3].item).isEqualTo(textStyleLeaf2)
         assertThat(annotatedString.textStyles[3].start).isEqualTo(text1.length)
         assertThat(annotatedString.textStyles[3].end).isEqualTo((text1 + text2).length)
 
-        assertThat(annotatedString.textStyles[4].style).isEqualTo(textStyleLeaf3)
+        assertThat(annotatedString.textStyles[4].item).isEqualTo(textStyleLeaf3)
         assertThat(annotatedString.textStyles[4].start).isEqualTo((text1 + text2).length)
         assertThat(annotatedString.textStyles[4].end)
             .isEqualTo((text1 + text2 + text3).length)
