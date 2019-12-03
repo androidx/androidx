@@ -148,26 +148,26 @@ class AnnotatedStringBuilderTest {
 
         val expectedString = "$text$appendedText"
         val expectedTextStyles = listOf(
-            AnnotatedString.Item(
-                style = TextStyle(color),
+            TextStyleSpan(
+                item = TextStyle(color),
                 start = 0,
                 end = text.length
             ),
-            AnnotatedString.Item(
-                style = TextStyle(appendedColor),
+            TextStyleSpan(
+                item = TextStyle(appendedColor),
                 start = text.length,
                 end = expectedString.length
             )
         )
 
         val expectedParagraphStyles = listOf(
-            AnnotatedString.Item(
-                style = ParagraphStyle(lineHeight = lineHeight),
+            ParagraphStyleSpan(
+                item = ParagraphStyle(lineHeight = lineHeight),
                 start = 0,
                 end = text.length
             ),
-            AnnotatedString.Item(
-                style = ParagraphStyle(lineHeight = appendedLineHeight),
+            ParagraphStyleSpan(
+                item = ParagraphStyle(lineHeight = appendedLineHeight),
                 start = text.length,
                 end = expectedString.length
             )
@@ -190,7 +190,7 @@ class AnnotatedStringBuilderTest {
 
         assertThat(buildResult.text).isEqualTo(text)
         assertThat(buildResult.textStyles).hasSize(1)
-        assertThat(buildResult.textStyles[0].style).isEqualTo(style)
+        assertThat(buildResult.textStyles[0].item).isEqualTo(style)
         assertThat(buildResult.textStyles[0].start).isEqualTo(0)
         assertThat(buildResult.textStyles[0].end).isEqualTo(buildResult.length)
     }
@@ -216,7 +216,7 @@ class AnnotatedStringBuilderTest {
         assertThat(buildResult.textStyles).hasSize(3)
 
         styles.forEachIndexed { index, textStyle ->
-            assertThat(buildResult.textStyles[index].style).isEqualTo(textStyle)
+            assertThat(buildResult.textStyles[index].item).isEqualTo(textStyle)
             assertThat(buildResult.textStyles[index].end).isEqualTo(buildResult.length)
         }
 
@@ -243,11 +243,11 @@ class AnnotatedStringBuilderTest {
         assertThat(buildResult.text).isEqualTo("Test me")
         assertThat(buildResult.textStyles).hasSize(2)
 
-        assertThat(buildResult.textStyles[0].style).isEqualTo(textStyle1)
+        assertThat(buildResult.textStyles[0].item).isEqualTo(textStyle1)
         assertThat(buildResult.textStyles[0].start).isEqualTo(0)
         assertThat(buildResult.textStyles[0].end).isEqualTo(buildResult.length)
 
-        assertThat(buildResult.textStyles[1].style).isEqualTo(textStyle2)
+        assertThat(buildResult.textStyles[1].item).isEqualTo(textStyle2)
         assertThat(buildResult.textStyles[1].start).isEqualTo("Test".length)
         assertThat(buildResult.textStyles[1].end).isEqualTo(buildResult.length)
     }
@@ -271,7 +271,7 @@ class AnnotatedStringBuilderTest {
         assertThat(buildResult.text).isEmpty()
         assertThat(buildResult.textStyles).hasSize(3)
         styles.forEachIndexed { index, textStyle ->
-            assertThat(buildResult.textStyles[index].style).isEqualTo(textStyle)
+            assertThat(buildResult.textStyles[index].item).isEqualTo(textStyle)
             assertThat(buildResult.textStyles[index].start).isEqualTo(buildResult.length)
             assertThat(buildResult.textStyles[index].end).isEqualTo(buildResult.length)
         }
@@ -305,7 +305,7 @@ class AnnotatedStringBuilderTest {
 
         assertThat(buildResult.textStyles).hasSize(4)
         styles.forEachIndexed { index, textStyle ->
-            assertThat(buildResult.textStyles[index].style).isEqualTo(textStyle)
+            assertThat(buildResult.textStyles[index].item).isEqualTo(textStyle)
         }
     }
 
@@ -338,7 +338,7 @@ class AnnotatedStringBuilderTest {
 
         assertThat(buildResult.textStyles).hasSize(4)
         styles.forEachIndexed { index, textStyle ->
-            assertThat(buildResult.textStyles[index].style).isEqualTo(textStyle)
+            assertThat(buildResult.textStyles[index].item).isEqualTo(textStyle)
         }
     }
 
@@ -368,11 +368,11 @@ class AnnotatedStringBuilderTest {
         assertThat(buildResult.textStyles).hasSize(2)
 
         // the order is first applied is in the second
-        assertThat(buildResult.textStyles[0].style).isEqualTo((textStyle1))
+        assertThat(buildResult.textStyles[0].item).isEqualTo((textStyle1))
         assertThat(buildResult.textStyles[0].start).isEqualTo(("Style0".length))
         assertThat(buildResult.textStyles[0].end).isEqualTo(("Style0Style1".length))
 
-        assertThat(buildResult.textStyles[1].style).isEqualTo((textStyle2))
+        assertThat(buildResult.textStyles[1].item).isEqualTo((textStyle2))
         assertThat(buildResult.textStyles[1].start).isEqualTo(("Style0Style1".length))
         assertThat(buildResult.textStyles[1].end).isEqualTo(("Style0Style1Style2".length))
     }
@@ -451,7 +451,7 @@ class AnnotatedStringBuilderTest {
 
         assertThat(buildResult.paragraphStyles).isEmpty()
         assertThat(buildResult.textStyles).isEqualTo(
-            listOf(AnnotatedString.Item(style, 0, buildResult.length))
+            listOf(TextStyleSpan(style, 0, buildResult.length))
         )
     }
 
@@ -467,7 +467,7 @@ class AnnotatedStringBuilderTest {
 
         assertThat(buildResult.textStyles).isEmpty()
         assertThat(buildResult.paragraphStyles).isEqualTo(
-            listOf(AnnotatedString.Item(style, 0, buildResult.length))
+            listOf(ParagraphStyleSpan(style, 0, buildResult.length))
         )
     }
 
@@ -506,12 +506,12 @@ class AnnotatedStringBuilderTest {
 
         val expectedString = "$text1 $text2"
         val expectedTextStyles = listOf(
-            AnnotatedString.Item(textStyle1, 0, text1.length),
-            AnnotatedString.Item(textStyle2, text1.length + 1, expectedString.length)
+            TextStyleSpan(textStyle1, 0, text1.length),
+            TextStyleSpan(textStyle2, text1.length + 1, expectedString.length)
         )
         val expectedParagraphStyles = listOf(
-            AnnotatedString.Item(paragraphStyle1, 0, text1.length),
-            AnnotatedString.Item(paragraphStyle2, text1.length + 1, expectedString.length)
+            ParagraphStyleSpan(paragraphStyle1, 0, text1.length),
+            ParagraphStyleSpan(paragraphStyle2, text1.length + 1, expectedString.length)
         )
 
         assertThat(buildResult.text).isEqualTo(expectedString)
@@ -571,15 +571,15 @@ class AnnotatedStringBuilderTest {
         return AnnotatedString(
             text = text,
             textStyles = listOf(
-                AnnotatedString.Item(
-                    style = TextStyle(color),
+                TextStyleSpan(
+                    item = TextStyle(color),
                     start = 0,
                     end = text.length
                 )
             ),
             paragraphStyles = listOf(
-                AnnotatedString.Item(
-                    style = ParagraphStyle(lineHeight = lineHeight),
+                ParagraphStyleSpan(
+                    item = ParagraphStyle(lineHeight = lineHeight),
                     start = 0,
                     end = text.length
                 )

@@ -101,8 +101,8 @@ class ParagraphIntrinsicIntegrationTest {
                 text = text,
                 fontSize = fontSize,
                 textStyles = listOf(
-                    AnnotatedString.Item(
-                        style = TextStyle(fontSize = styledFontSize),
+                    TextStyleSpan(
+                        item = TextStyle(fontSize = styledFontSize),
                         start = "a ".length,
                         end = "a bb ".length
                     )
@@ -187,8 +187,8 @@ class ParagraphIntrinsicIntegrationTest {
                 text = text,
                 fontSize = fontSize,
                 textStyles = listOf(
-                    AnnotatedString.Item(
-                        style = TextStyle(fontSize = styledFontSize),
+                    TextStyleSpan(
+                        item = TextStyle(fontSize = styledFontSize),
                         start = "a".length,
                         end = "a bb ".length
                     )

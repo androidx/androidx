@@ -1181,17 +1181,17 @@ class MultiParagraphIntegrationTest {
         val text = AnnotatedString(
             text = "ab",
             paragraphStyles = listOf(
-                AnnotatedString.Item(
-                    style = ParagraphStyle(
+                ParagraphStyleSpan(
+                    item = ParagraphStyle(
                         textDirectionAlgorithm = TextDirectionAlgorithm.ContentOrLtr
                     ),
                     start = 0,
                     end = "a".length
                 ),
-                AnnotatedString.Item(
+                ParagraphStyleSpan(
                     // skip setting [TextDirectionAlgorithm] on purpose, should inherit from the
                     // main [ParagraphStyle]
-                    style = ParagraphStyle(),
+                    item = ParagraphStyle(),
                     start = "a".length,
                     end = "ab".length
                 )

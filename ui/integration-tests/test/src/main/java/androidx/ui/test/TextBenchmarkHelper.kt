@@ -123,7 +123,7 @@ class RandomTextGenerator(
                 AnnotatedString.Item(
                     start = start,
                     end = end,
-                    style = textStyleList[styleIndex++ % textStyleList.size]
+                    item = textStyleList[styleIndex++ % textStyleList.size]
                 )
             }
         }
