@@ -32,7 +32,7 @@ import androidx.ui.core.Placeable
 import androidx.ui.core.Popup
 import androidx.ui.core.enforce
 import androidx.ui.core.gesture.LongPressDragGestureDetector
-import androidx.ui.core.gesture.PressGestureDetector
+import androidx.ui.core.gesture.PressReleasedGestureDetector
 import androidx.ui.core.gesture.TouchSlopDragGestureDetector
 import androidx.ui.core.hasTightHeight
 import androidx.ui.core.hasTightWidth
@@ -81,7 +81,7 @@ fun SelectionContainer(
             // Get the layout coordinates of the selection container. This is for hit test of
             // cross-composable selection.
             OnPositioned(onPositioned = { manager.containerLayoutCoordinates = it })
-            PressGestureDetector(onRelease = { manager.onRelease() }) {
+            PressReleasedGestureDetector(onRelease = { manager.onRelease() }) {
                 LongPressDragGestureDetector(manager.longPressDragObserver, children = children)
             }
             addHandles(
