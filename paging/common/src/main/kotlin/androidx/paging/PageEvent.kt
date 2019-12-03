@@ -28,15 +28,15 @@ internal sealed class PageEvent<T : Any> {
     data class Insert<T : Any>(
         val loadType: LoadType,
         val pages: List<TransformedPage<T>>,
-        val placeholdersBefore: Int,
-        val placeholdersAfter: Int
+        val placeholdersStart: Int,
+        val placeholdersEnd: Int
     ) : PageEvent<T>() {
         init {
-            require(placeholdersBefore >= 0) {
-                "Invalid placeholdersBefore $placeholdersBefore"
+            require(placeholdersStart >= 0) {
+                "Invalid placeholdersBefore $placeholdersStart"
             }
-            require(placeholdersAfter >= 0) {
-                "Invalid placeholdersAfter $placeholdersAfter"
+            require(placeholdersEnd >= 0) {
+                "Invalid placeholdersAfter $placeholdersEnd"
             }
         }
     }
