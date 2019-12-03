@@ -29,12 +29,19 @@ message Command {
   // Wrapped specialised Command.
   oneof OneOf {
     TrackDatabasesCommand track_databases = 1;
+    GetSchemaCommand get_schema = 2;
   }
 }
 
 // Request for the Inspector to track database connections (existing and new)
 // and notify of those via DatabaseOpenedEvent objects.
 message TrackDatabasesCommand {}
+
+// Request for the Inspector to return schema information for a given database.
+message GetSchemaCommand {
+  // Id uniquely identifying a connection to the database.
+  int32 id = 1;
+}
 
 // --- Responses ---
 
@@ -44,11 +51,41 @@ message Response {
   // Wrapped specialised Response.
   oneof OneOf {
     TrackDatabasesResponse track_databases = 1;
+    GetSchemaResponse get_schema = 2;
+    ErrorOccurredResponse error_occurred = 400;
   }
 }
 
 // Object expected as a response to TrackDatabasesCommand.
 message TrackDatabasesResponse {}
+
+// Object expected as a response to GetSchemaCommand.
+message GetSchemaResponse {
+  repeated Table tables = 1;
+}
+
+// Schema information for a table
+message Table {
+  string name = 1;
+  repeated Column columns = 2;
+}
+
+// Schema information for a table column
+message Column {
+  string name = 1;
+  // Column type affinity
+  string type = 2;
+}
+
+// General Error message
+// TODO: decide on a more fine-grained approach
+// TODO: decide if to unify ErrorOccurredResponse and ErrorOccurredEvent
+message ErrorOccurredResponse {
+  // Main error message.
+  string message = 1;
+  // Optional stack trace.
+  string stack_trace = 2;
+}
 
 // --- Events ---
 
@@ -58,7 +95,7 @@ message Event {
   // Wrapped specialised Event.
   oneof union {
     DatabaseOpenedEvent database_opened = 1;
-    ErrorOccurredEvent error_occurred = 2;
+    ErrorOccurredEvent error_occurred = 400;
   }
 }
 
@@ -76,6 +113,7 @@ message DatabaseOpenedEvent {
 
 // General Error message
 // TODO: decide on a more fine-grained approach
+// TODO: decide if to unify ErrorOccurredResponse and ErrorOccurredEvent
 message ErrorOccurredEvent {
   // Main error message.
   string message = 1;

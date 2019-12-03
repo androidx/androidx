@@ -16,27 +16,39 @@
 
 package androidx.sqlite.inspection;
 
+import android.database.Cursor;
 import android.database.sqlite.SQLiteDatabase;
 
 import androidx.annotation.GuardedBy;
 import androidx.annotation.NonNull;
+import androidx.annotation.Nullable;
 import androidx.annotation.VisibleForTesting;
 import androidx.inspection.Connection;
 import androidx.inspection.Inspector;
 import androidx.inspection.InspectorEnvironment;
+import androidx.sqlite.inspection.SqliteInspectorProtocol.Column;
 import androidx.sqlite.inspection.SqliteInspectorProtocol.Command;
 import androidx.sqlite.inspection.SqliteInspectorProtocol.DatabaseOpenedEvent;
 import androidx.sqlite.inspection.SqliteInspectorProtocol.ErrorOccurredEvent;
+import androidx.sqlite.inspection.SqliteInspectorProtocol.ErrorOccurredResponse;
 import androidx.sqlite.inspection.SqliteInspectorProtocol.Event;
+import androidx.sqlite.inspection.SqliteInspectorProtocol.GetSchemaCommand;
+import androidx.sqlite.inspection.SqliteInspectorProtocol.GetSchemaResponse;
+import androidx.sqlite.inspection.SqliteInspectorProtocol.Response;
+import androidx.sqlite.inspection.SqliteInspectorProtocol.Table;
 import androidx.sqlite.inspection.SqliteInspectorProtocol.TrackDatabasesResponse;
 
 import com.google.protobuf.InvalidProtocolBufferException;
 
 import java.io.PrintWriter;
 import java.io.StringWriter;
+import java.util.ArrayList;
+import java.util.Collections;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 
 /**
  * Inspector to work with SQLite databases
@@ -44,12 +56,21 @@ import java.util.Map;
 final class SqliteInspector extends Inspector {
     // TODO: identify all SQLiteDatabase openDatabase methods
     @SuppressWarnings("WeakerAccess")
-    @VisibleForTesting static String sOpenDatabaseCommandSignature = "openDatabase"
+    @VisibleForTesting static final String sOpenDatabaseCommandSignature = "openDatabase"
             + "("
             + "Ljava/io/File;"
             + "Landroid/database/sqlite/SQLiteDatabase$OpenParams;"
             + ")"
             + "Landroid/database/sqlite/SQLiteDatabase;";
+
+    private static final String sQueryTableNames =
+            "SELECT name FROM sqlite_master WHERE type='table'";
+
+    private static final String sQueryTableInfo = "PRAGMA table_info(%s)";
+
+    // TODO: decide if to expose the 'android_metadata' table
+    private static final Set<String> sHiddenTables = new HashSet<>(Collections.singletonList(
+            "android_metadata"));
 
     private final DatabaseRegistry mDatabaseRegistry = new DatabaseRegistry();
     private final InspectorEnvironment mEnvironment;
@@ -64,7 +85,9 @@ final class SqliteInspector extends Inspector {
         try {
             Command command = Command.parseFrom(data);
             if (command.hasTrackDatabases()) {
-                onTrackDatabases(callback);
+                handleTrackDatabases(callback);
+            } else if (command.hasGetSchema()) {
+                handleGetSchema(command.getGetSchema(), callback);
             } else {
                 // TODO: handle unrecognised command
             }
@@ -73,7 +96,7 @@ final class SqliteInspector extends Inspector {
         }
     }
 
-    private void onTrackDatabases(CommandCallback callback) {
+    private void handleTrackDatabases(CommandCallback callback) {
         callback.reply(SqliteInspectorProtocol.Response.newBuilder().setTrackDatabases(
                 TrackDatabasesResponse.getDefaultInstance()).build().toByteArray());
 
@@ -94,36 +117,88 @@ final class SqliteInspector extends Inspector {
         }
     }
 
+    private void handleGetSchema(GetSchemaCommand command, CommandCallback callback) {
+        final int databaseId = command.getId();
+        SQLiteDatabase database = mDatabaseRegistry.getDatabase(databaseId);
+
+        callback.reply((database != null
+                        ? querySchema(database)
+                        : createErrorOccurredResponse("No database with id=" + databaseId, null)
+                ).toByteArray()
+        );
+    }
+
+    private @NonNull Response querySchema(SQLiteDatabase database) {
+        Cursor cursor = database.rawQuery(sQueryTableNames, null);
+        List<String> tableNames = new ArrayList<>();
+        while (cursor.moveToNext()) {
+            String table = cursor.getString(0);
+            if (!sHiddenTables.contains(table)) {
+                tableNames.add(table);
+            }
+        }
+        cursor.close();
+
+        GetSchemaResponse.Builder schemaBuilder = GetSchemaResponse.newBuilder();
+        for (String table : tableNames) {
+            Table.Builder tableBuilder = Table.newBuilder();
+            tableBuilder.setName(table);
+            String query = String.format(sQueryTableInfo, table);
+            Cursor tableInfo = database.rawQuery(query, null);
+            int nameIndex = tableInfo.getColumnIndex("name");
+            int typeIndex = tableInfo.getColumnIndex("type");
+            while (tableInfo.moveToNext()) {
+                Column column =
+                        Column.newBuilder()
+                                .setName(tableInfo.getString(nameIndex))
+                                .setType(tableInfo.getString(typeIndex))
+                                .build();
+                tableBuilder.addColumns(column);
+            }
+            schemaBuilder.addTables(tableBuilder.build());
+            tableInfo.close();
+        }
+        return Response.newBuilder().setGetSchema(schemaBuilder.build()).build();
+    }
+
     @SuppressWarnings("WeakerAccess")
         // avoiding a synthetic accessor
     void onDatabaseAdded(SQLiteDatabase database) {
-        byte[] response;
+        Event response;
         try {
             int id = mDatabaseRegistry.addDatabase(database);
             String name = database.getPath();
             response = createDatabaseOpenedEvent(id, name);
         } catch (IllegalArgumentException exception) {
-            response = createDatabaseOpenedEvent(exception);
+            response = createErrorOccurredEvent(exception);
         }
 
-        getConnection().sendEvent(response);
+        getConnection().sendEvent(response.toByteArray());
     }
 
-    private byte[] createDatabaseOpenedEvent(int id, String name) {
+    private Event createDatabaseOpenedEvent(int id, String name) {
         return Event.newBuilder().setDatabaseOpened(
                 DatabaseOpenedEvent.newBuilder().setId(id).setName(name).build())
-                .build()
-                .toByteArray();
+                .build();
     }
 
-    private byte[] createDatabaseOpenedEvent(IllegalArgumentException exception) {
+    private Event createErrorOccurredEvent(IllegalArgumentException exception) {
         return Event.newBuilder().setErrorOccurred(
                 ErrorOccurredEvent.newBuilder()
                         .setMessage(exception.getMessage())
                         .setStackTrace(stackTraceFromException(exception))
                         .build())
-                .build()
-                .toByteArray();
+                .build();
+    }
+
+    private Response createErrorOccurredResponse(@NonNull String message,
+            @SuppressWarnings("SameParameterValue") @Nullable String stackTrace) {
+        return Response.newBuilder().setErrorOccurred(
+                ErrorOccurredResponse.newBuilder()
+                        .setMessage(message)
+                        .setStackTrace(stackTrace)
+                        .build())
+                .build();
     }
 
     @NonNull
@@ -135,7 +210,10 @@ final class SqliteInspector extends Inspector {
 
     static class DatabaseRegistry {
         private final Object mLock = new Object();
-        @GuardedBy("mLock") private int mNextId = 0;
+
+        // starting from '1' to distinguish from '0' which could stand for an unset parameter
+        @GuardedBy("mLock") private int mNextId = 1;
+
         @GuardedBy("mLock") private final Map<Integer, SQLiteDatabase> mDatabases = new HashMap<>();
 
         /**
@@ -163,6 +241,12 @@ final class SqliteInspector extends Inspector {
                 int id = mNextId++;
                 mDatabases.put(id, database);
                 return id;
+            }
+        }
+
+        @Nullable SQLiteDatabase getDatabase(int databaseId) {
+            synchronized (mLock) {
+                return mDatabases.get(databaseId);
             }
         }
     }
