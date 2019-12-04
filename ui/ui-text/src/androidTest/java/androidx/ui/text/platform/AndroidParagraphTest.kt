@@ -550,12 +550,7 @@ class AndroidParagraphTest {
     @Test
     fun testAnnotatedString_setTextGeometricTransformWithNull_noSpanSet() {
         val text = "abcde"
-        val textStyle =
-            TextStyle(textGeometricTransform = TextGeometricTransform(
-                null,
-                null
-            )
-            )
+        val textStyle = TextStyle(textGeometricTransform = TextGeometricTransform())
 
         val paragraph = simpleParagraph(
             text = text,
@@ -573,8 +568,7 @@ class AndroidParagraphTest {
         val scaleX = 0.5f
         val textStyle = TextStyle(
             textGeometricTransform = TextGeometricTransform(
-                scaleX,
-                null
+                scaleX = scaleX
             )
         )
 
@@ -596,8 +590,7 @@ class AndroidParagraphTest {
         val skewX = 1f
         val textStyle =
             TextStyle(textGeometricTransform = TextGeometricTransform(
-                null,
-                skewX
+                skewX = skewX
             )
             )
 

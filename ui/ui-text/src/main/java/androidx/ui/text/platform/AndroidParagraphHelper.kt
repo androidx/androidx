@@ -110,12 +110,12 @@ internal fun TextPaint.applyTextStyle(
         fontFeatureSettings = it
     }
 
-    style.textGeometricTransform?.scaleX?.let {
-        textScaleX *= it
+    style.textGeometricTransform?.let {
+        textScaleX *= it.scaleX
     }
 
-    style.textGeometricTransform?.skewX?.let {
-        textSkewX += it
+    style.textGeometricTransform?.let {
+        textSkewX += it.skewX
     }
 
     style.shadow?.let {
@@ -286,22 +286,26 @@ internal fun createStyledText(
             )
         }
 
-        style.textGeometricTransform?.scaleX?.let {
-            spannableString.setSpan(
-                ScaleXSpan(it),
-                start,
-                end,
-                Spanned.SPAN_EXCLUSIVE_EXCLUSIVE
-            )
+        style.textGeometricTransform?.let {
+            if (it.scaleX != 1.0f) {
+                spannableString.setSpan(
+                    ScaleXSpan(it.scaleX),
+                    start,
+                    end,
+                    Spanned.SPAN_EXCLUSIVE_EXCLUSIVE
+                )
+            }
         }
 
-        style.textGeometricTransform?.skewX?.let {
-            spannableString.setSpan(
-                SkewXSpan(it),
-                start,
-                end,
-                Spanned.SPAN_EXCLUSIVE_EXCLUSIVE
-            )
+        style.textGeometricTransform?.let {
+            if (it.skewX != 0f) {
+                spannableString.setSpan(
+                    SkewXSpan(it.skewX),
+                    start,
+                    end,
+                    Spanned.SPAN_EXCLUSIVE_EXCLUSIVE
+                )
+            }
         }
 
         when (style.letterSpacing.type) {
