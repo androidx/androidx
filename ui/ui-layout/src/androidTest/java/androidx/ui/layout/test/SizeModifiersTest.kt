@@ -29,19 +29,19 @@ import androidx.ui.core.dp
 import androidx.ui.core.ipx
 import androidx.ui.core.withDensity
 import androidx.ui.layout.Align
-import androidx.ui.layout.AspectRatio
+import androidx.ui.layout.LayoutAspectRatio
 import androidx.ui.layout.Column
 import androidx.ui.layout.Container
-import androidx.ui.layout.Height
-import androidx.ui.layout.MaxHeight
-import androidx.ui.layout.MaxSize
-import androidx.ui.layout.MaxWidth
-import androidx.ui.layout.MinHeight
-import androidx.ui.layout.MinSize
-import androidx.ui.layout.MinWidth
+import androidx.ui.layout.LayoutHeight
+import androidx.ui.layout.LayoutMaxHeight
+import androidx.ui.layout.LayoutMaxSize
+import androidx.ui.layout.LayoutMaxWidth
+import androidx.ui.layout.LayoutMinHeight
+import androidx.ui.layout.LayoutMinSize
+import androidx.ui.layout.LayoutMinWidth
 import androidx.ui.layout.Row
-import androidx.ui.layout.Size
-import androidx.ui.layout.Width
+import androidx.ui.layout.LayoutSize
+import androidx.ui.layout.LayoutWidth
 import org.junit.Test
 import org.junit.runner.RunWith
 import org.junit.runners.JUnit4
@@ -64,27 +64,30 @@ class SizeModifiersTest : LayoutTest() {
             Align(alignment = Alignment.TopLeft) {
                 Column {
                     Container(
-                        MaxWidth(sizeDp * 2) wraps MinWidth(sizeDp) wraps Height(sizeDp)
+                        LayoutMaxWidth(sizeDp * 2) wraps LayoutMinWidth(sizeDp) wraps
+                                LayoutHeight(sizeDp)
                     ) {
                         SaveLayoutInfo(size[0], position[0], positionedLatch)
                     }
-                    Container(MaxWidth(sizeDp * 2) wraps Height(sizeDp)) {
+                    Container(LayoutMaxWidth(sizeDp * 2) wraps LayoutHeight(sizeDp)) {
                         SaveLayoutInfo(size[1], position[1], positionedLatch)
                     }
-                    Container(MinWidth(sizeDp) wraps Height(sizeDp)) {
+                    Container(LayoutMinWidth(sizeDp) wraps LayoutHeight(sizeDp)) {
                         SaveLayoutInfo(size[2], position[2], positionedLatch)
                     }
                     Container(
-                        MaxWidth(sizeDp) wraps MinWidth(sizeDp * 2) wraps Height(sizeDp)
+                        LayoutMaxWidth(sizeDp) wraps LayoutMinWidth(sizeDp * 2) wraps
+                                LayoutHeight(sizeDp)
                     ) {
                         SaveLayoutInfo(size[3], position[3], positionedLatch)
                     }
                     Container(
-                        MinWidth(sizeDp * 2) wraps MaxWidth(sizeDp) wraps Height(sizeDp)
+                        LayoutMinWidth(sizeDp * 2) wraps LayoutMaxWidth(sizeDp) wraps
+                                LayoutHeight(sizeDp)
                     ) {
                         SaveLayoutInfo(size[4], position[4], positionedLatch)
                     }
-                    Container(Width(sizeDp) wraps Height(sizeDp)) {
+                    Container(LayoutWidth(sizeDp) wraps LayoutHeight(sizeDp)) {
                         SaveLayoutInfo(size[5], position[5], positionedLatch)
                     }
                 }
@@ -123,27 +126,30 @@ class SizeModifiersTest : LayoutTest() {
             Align(alignment = Alignment.TopLeft) {
                 Row {
                     Container(
-                        MaxHeight(sizeDp * 2) wraps MinHeight(sizeDp) wraps Width(sizeDp)
+                        LayoutMaxHeight(sizeDp * 2) wraps LayoutMinHeight(sizeDp) wraps
+                                LayoutWidth(sizeDp)
                     ) {
                         SaveLayoutInfo(size[0], position[0], positionedLatch)
                     }
-                    Container(MaxHeight(sizeDp * 2) wraps Width(sizeDp)) {
+                    Container(LayoutMaxHeight(sizeDp * 2) wraps LayoutWidth(sizeDp)) {
                         SaveLayoutInfo(size[1], position[1], positionedLatch)
                     }
-                    Container(MinHeight(sizeDp) wraps Width(sizeDp)) {
+                    Container(LayoutMinHeight(sizeDp) wraps LayoutWidth(sizeDp)) {
                         SaveLayoutInfo(size[2], position[2], positionedLatch)
                     }
                     Container(
-                        MaxHeight(sizeDp) wraps MinHeight(sizeDp * 2) wraps Width(sizeDp)
+                        LayoutMaxHeight(sizeDp) wraps LayoutMinHeight(sizeDp * 2) wraps
+                                LayoutWidth(sizeDp)
                     ) {
                         SaveLayoutInfo(size[3], position[3], positionedLatch)
                     }
                     Container(
-                        MinHeight(sizeDp * 2) wraps MaxHeight(sizeDp) wraps Width(sizeDp)
+                        LayoutMinHeight(sizeDp * 2) wraps LayoutMaxHeight(sizeDp) wraps
+                                LayoutWidth(sizeDp)
                     ) {
                         SaveLayoutInfo(size[4], position[4], positionedLatch)
                     }
-                    Container(Height(sizeDp) wraps Width(sizeDp)) {
+                    Container(LayoutHeight(sizeDp) wraps LayoutWidth(sizeDp)) {
                         SaveLayoutInfo(size[5], position[5], positionedLatch)
                     }
                 }
@@ -182,28 +188,28 @@ class SizeModifiersTest : LayoutTest() {
             Align(alignment = Alignment.TopLeft) {
                 Row {
                     Container(
-                        MaxSize(sizeDp * 2, sizeDp * 2)
-                                wraps MinSize(sizeDp, sizeDp)
+                        LayoutMaxSize(sizeDp * 2, sizeDp * 2)
+                                wraps LayoutMinSize(sizeDp, sizeDp)
                     ) {
                         SaveLayoutInfo(size[0], position[0], positionedLatch)
                     }
                     Container(
-                        MaxSize(sizeDp, sizeDp) wraps MinSize(sizeDp * 2, sizeDp)
+                        LayoutMaxSize(sizeDp, sizeDp) wraps LayoutMinSize(sizeDp * 2, sizeDp)
                     ) {
                         SaveLayoutInfo(size[1], position[1], positionedLatch)
                     }
                     Container(
-                        MinSize(sizeDp, sizeDp) wraps MaxSize(sizeDp * 2, sizeDp * 2)
+                        LayoutMinSize(sizeDp, sizeDp) wraps LayoutMaxSize(sizeDp * 2, sizeDp * 2)
                     ) {
                         SaveLayoutInfo(size[2], position[2], positionedLatch)
                     }
                     Container(
-                        MinSize(sizeDp * 2, sizeDp * 2)
-                                wraps MaxSize(sizeDp, sizeDp)
+                        LayoutMinSize(sizeDp * 2, sizeDp * 2)
+                                wraps LayoutMaxSize(sizeDp, sizeDp)
                     ) {
                         SaveLayoutInfo(size[3], position[3], positionedLatch)
                     }
-                    Container(Size(sizeDp, sizeDp)) {
+                    Container(LayoutSize(sizeDp, sizeDp)) {
                         SaveLayoutInfo(size[4], position[4], positionedLatch)
                     }
                 }
@@ -243,7 +249,7 @@ class SizeModifiersTest : LayoutTest() {
                         constrainedBoxSize.value = coordinates.size
                         positionedLatch.countDown()
                     }) {
-                        Container(Width(sizeDp * 2) wraps Height(sizeDp * 3)) {
+                        Container(LayoutWidth(sizeDp * 2) wraps LayoutHeight(sizeDp * 3)) {
                             Container(expanded = true) {
                                 SaveLayoutInfo(
                                     size = childSize,
@@ -274,21 +280,22 @@ class SizeModifiersTest : LayoutTest() {
         show {
             Align(alignment = Alignment.TopLeft) {
                 Row {
-                    Container(MaxWidth(Dp.Infinity)) {
+                    Container(LayoutMaxWidth(Dp.Infinity)) {
                         Container(width = sizeDp, height = sizeDp) {
                             SaveLayoutInfo(size[0], position[0], positionedLatch)
                         }
                     }
-                    Container(MaxHeight(Dp.Infinity)) {
+                    Container(LayoutMaxHeight(Dp.Infinity)) {
                         Container(width = sizeDp, height = sizeDp) {
                             SaveLayoutInfo(size[1], position[1], positionedLatch)
                         }
                     }
-                    Container(Width(sizeDp) wraps Height(sizeDp) wraps MaxWidth(Dp.Infinity)
-                            wraps MaxHeight(Dp.Infinity)) {
+                    Container(LayoutWidth(sizeDp) wraps LayoutHeight(sizeDp) wraps
+                            LayoutMaxWidth(Dp.Infinity)
+                            wraps LayoutMaxHeight(Dp.Infinity)) {
                         SaveLayoutInfo(size[2], position[2], positionedLatch)
                     }
-                    Container(MaxSize(Dp.Infinity, Dp.Infinity)) {
+                    Container(LayoutMaxSize(Dp.Infinity, Dp.Infinity)) {
                         Container(width = sizeDp, height = sizeDp) {
                             SaveLayoutInfo(size[3], position[3], positionedLatch)
                         }
@@ -307,8 +314,8 @@ class SizeModifiersTest : LayoutTest() {
     @Test
     fun testMinWidthModifier_hasCorrectIntrinsicMeasurements() = withDensity(density) {
         testIntrinsics(@Composable {
-            Container(MinWidth(10.dp)) {
-                Container(AspectRatio(1f)) { }
+            Container(LayoutMinWidth(10.dp)) {
+                Container(LayoutAspectRatio(1f)) { }
             }
         }) { minIntrinsicWidth, minIntrinsicHeight, maxIntrinsicWidth, maxIntrinsicHeight ->
             // Min width.
@@ -337,8 +344,8 @@ class SizeModifiersTest : LayoutTest() {
     @Test
     fun testMaxWidthModifier_hasCorrectIntrinsicMeasurements() = withDensity(density) {
         testIntrinsics(@Composable {
-            Container(MaxWidth(20.dp)) {
-                Container(AspectRatio(1f)) { }
+            Container(LayoutMaxWidth(20.dp)) {
+                Container(LayoutAspectRatio(1f)) { }
             }
         }) { minIntrinsicWidth, minIntrinsicHeight, maxIntrinsicWidth, maxIntrinsicHeight ->
             // Min width.
@@ -367,8 +374,8 @@ class SizeModifiersTest : LayoutTest() {
     @Test
     fun testMinHeightModifier_hasCorrectIntrinsicMeasurements() = withDensity(density) {
         testIntrinsics(@Composable {
-            Container(MinHeight(30.dp)) {
-                Container(AspectRatio(1f)) { }
+            Container(LayoutMinHeight(30.dp)) {
+                Container(LayoutAspectRatio(1f)) { }
             }
         }) { minIntrinsicWidth, minIntrinsicHeight, maxIntrinsicWidth, maxIntrinsicHeight ->
             // Min width.
@@ -397,8 +404,8 @@ class SizeModifiersTest : LayoutTest() {
     @Test
     fun testMaxHeightModifier_hasCorrectIntrinsicMeasurements() = withDensity(density) {
         testIntrinsics(@Composable {
-            Container(MaxHeight(40.dp)) {
-                Container(AspectRatio(1f)) { }
+            Container(LayoutMaxHeight(40.dp)) {
+                Container(LayoutAspectRatio(1f)) { }
             }
         }) { minIntrinsicWidth, minIntrinsicHeight, maxIntrinsicWidth, maxIntrinsicHeight ->
             // Min width.
@@ -427,8 +434,8 @@ class SizeModifiersTest : LayoutTest() {
     @Test
     fun testWidthModifier_hasCorrectIntrinsicMeasurements() = withDensity(density) {
         testIntrinsics(@Composable {
-            Container(Width(10.dp)) {
-                Container(AspectRatio(1f)) { }
+            Container(LayoutWidth(10.dp)) {
+                Container(LayoutAspectRatio(1f)) { }
             }
         }) { minIntrinsicWidth, minIntrinsicHeight, maxIntrinsicWidth, maxIntrinsicHeight ->
             // Min width.
@@ -457,8 +464,8 @@ class SizeModifiersTest : LayoutTest() {
     @Test
     fun testHeightModifier_hasCorrectIntrinsicMeasurements() = withDensity(density) {
         testIntrinsics(@Composable {
-            Container(Height(10.dp)) {
-                Container(AspectRatio(1f)) { }
+            Container(LayoutHeight(10.dp)) {
+                Container(LayoutAspectRatio(1f)) { }
             }
         }) { minIntrinsicWidth, minIntrinsicHeight, maxIntrinsicWidth, maxIntrinsicHeight ->
             // Min width.
@@ -487,9 +494,9 @@ class SizeModifiersTest : LayoutTest() {
     @Test
     fun testWidthHeightModifiers_hasCorrectIntrinsicMeasurements() = withDensity(density) {
         testIntrinsics(@Composable {
-            Container(MinWidth(10.dp) wraps MaxWidth(20.dp) wraps MinHeight(30.dp) wraps
-                    MaxHeight(40.dp)) {
-                Container(AspectRatio(1f)) { }
+            Container(LayoutMinWidth(10.dp) wraps LayoutMaxWidth(20.dp) wraps
+                    LayoutMinHeight(30.dp) wraps LayoutMaxHeight(40.dp)) {
+                Container(LayoutAspectRatio(1f)) { }
             }
         }) { minIntrinsicWidth, minIntrinsicHeight, maxIntrinsicWidth, maxIntrinsicHeight ->
             // Min width.
@@ -518,8 +525,8 @@ class SizeModifiersTest : LayoutTest() {
     @Test
     fun testMinSizeModifier_hasCorrectIntrinsicMeasurements() = withDensity(density) {
         testIntrinsics(@Composable {
-            Container(MinSize(20.dp, 30.dp)) {
-                Container(AspectRatio(1f)) { }
+            Container(LayoutMinSize(20.dp, 30.dp)) {
+                Container(LayoutAspectRatio(1f)) { }
             }
         }) { minIntrinsicWidth, minIntrinsicHeight, maxIntrinsicWidth, maxIntrinsicHeight ->
             // Min width.
@@ -548,8 +555,8 @@ class SizeModifiersTest : LayoutTest() {
     @Test
     fun testMaxSizeModifier_hasCorrectIntrinsicMeasurements() = withDensity(density) {
         testIntrinsics(@Composable {
-            Container(MaxSize(40.dp, 50.dp)) {
-                Container(AspectRatio(1f)) { }
+            Container(LayoutMaxSize(40.dp, 50.dp)) {
+                Container(LayoutAspectRatio(1f)) { }
             }
         }) { minIntrinsicWidth, minIntrinsicHeight, maxIntrinsicWidth, maxIntrinsicHeight ->
             // Min width.
@@ -578,8 +585,8 @@ class SizeModifiersTest : LayoutTest() {
     @Test
     fun testSizeModifier_hasCorrectIntrinsicMeasurements() = withDensity(density) {
         testIntrinsics(@Composable {
-            Container(Size(40.dp, 50.dp)) {
-                Container(AspectRatio(1f)) { }
+            Container(LayoutSize(40.dp, 50.dp)) {
+                Container(LayoutAspectRatio(1f)) { }
             }
         }) { minIntrinsicWidth, minIntrinsicHeight, maxIntrinsicWidth, maxIntrinsicHeight ->
             // Min width.

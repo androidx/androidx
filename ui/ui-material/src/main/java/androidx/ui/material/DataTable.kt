@@ -40,13 +40,13 @@ import androidx.ui.layout.Arrangement
 import androidx.ui.layout.Column
 import androidx.ui.layout.Container
 import androidx.ui.layout.EdgeInsets
-import androidx.ui.layout.Expanded
-import androidx.ui.layout.Gravity
+import androidx.ui.layout.LayoutExpanded
+import androidx.ui.layout.LayoutGravity
 import androidx.ui.layout.Row
 import androidx.ui.layout.Table
 import androidx.ui.layout.TableColumnWidth
 import androidx.ui.layout.Spacer
-import androidx.ui.layout.Width
+import androidx.ui.layout.LayoutWidth
 import androidx.ui.material.ripple.Ripple
 import androidx.ui.text.TextStyle
 import androidx.ui.text.font.FontWeight
@@ -212,7 +212,7 @@ class DataTableChildren internal constructor() {
             } else {
                 Row {
                     SimpleImage(image = image)
-                    Spacer(Width(2.dp))
+                    Spacer(LayoutWidth(2.dp))
                     Text(text = text(j))
                 }
             }
@@ -257,7 +257,7 @@ class DataTableChildren internal constructor() {
             } else {
                 Row {
                     SimpleImage(image = image)
-                    Spacer(Width(2.dp))
+                    Spacer(LayoutWidth(2.dp))
                     Text(text = text(j))
                 }
             }
@@ -395,7 +395,7 @@ fun DataTable(
                                     headerDecoration = {
                                         // TODO(calintat): Replace with animated arrow icons.
                                         Text(text = if (sorting.ascending) "↑" else "↓")
-                                        Spacer(Width(2.dp))
+                                        Spacer(LayoutWidth(2.dp))
                                     }
                                 } else {
                                     onSort = {
@@ -484,11 +484,11 @@ fun DataTable(
         Column {
             table()
             Container(height = dataRowHeight, padding = cellSpacing) {
-                Row(Expanded, arrangement = Arrangement.End) {
+                Row(LayoutExpanded, arrangement = Arrangement.End) {
                     val pages = (rows.size - 1) / pagination.rowsPerPage + 1
                     val startRow = pagination.rowsPerPage * pagination.page
                     val endRow = (startRow + pagination.rowsPerPage).coerceAtMost(rows.size)
-                    val modifier = Gravity.Center
+                    val modifier = LayoutGravity.Center
 
                     // TODO(calintat): Replace this with a dropdown menu whose items are taken
                     //  from availableRowsPerPage (filtered to those that are in the range
@@ -496,11 +496,11 @@ fun DataTable(
                     //  onRowsPerPageChange with the appropriate value.
                     Text(text = "Rows per page: ${pagination.rowsPerPage}", modifier = modifier)
 
-                    Spacer(Width(32.dp))
+                    Spacer(LayoutWidth(32.dp))
 
                     Text(text = "${startRow + 1}-$endRow of ${rows.size}", modifier = modifier)
 
-                    Spacer(Width(32.dp))
+                    Spacer(LayoutWidth(32.dp))
 
                     // TODO(calintat): Replace this with an image button with chevron_left icon.
                     Container(modifier = modifier) {
@@ -515,7 +515,7 @@ fun DataTable(
                         }
                     }
 
-                    Spacer(Width(24.dp))
+                    Spacer(LayoutWidth(24.dp))
 
                     // TODO(calintat): Replace this with an image button with chevron_right icon.
                     Container(modifier = modifier) {

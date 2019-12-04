@@ -21,7 +21,7 @@ import androidx.compose.Composable
 import androidx.ui.core.dp
 import androidx.ui.foundation.ColoredRect
 import androidx.ui.graphics.Color
-import androidx.ui.layout.AspectRatio
+import androidx.ui.layout.LayoutAspectRatio
 import androidx.ui.layout.Container
 import androidx.ui.layout.DpConstraints
 
@@ -29,6 +29,6 @@ import androidx.ui.layout.DpConstraints
 @Composable
 fun SimpleAspectRatio() {
     Container(constraints = DpConstraints.tightConstraintsForWidth(100.dp)) {
-        ColoredRect(color = Color.Gray, modifier = AspectRatio(2f))
+        ColoredRect(color = Color.Gray, modifier = LayoutAspectRatio(2f))
     }
 }

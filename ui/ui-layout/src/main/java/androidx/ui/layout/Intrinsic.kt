@@ -165,13 +165,13 @@ fun MaxIntrinsicWidth(children: @Composable() () -> Unit) {
  *
  * @sample androidx.ui.layout.samples.MatchParentDividerForAspectRatio
  *
- * The sample builds a layout containing two [AspectRatio]s separated by a divider, where the
- * divider is sized according to the height of the taller [AspectRatio].
+ * The sample builds a layout containing two [LayoutAspectRatio]s separated by a divider, where the
+ * divider is sized according to the height of the taller [LayoutAspectRatio].
  *
  * Here [MaxIntrinsicHeight] is adding a speculative height measurement pass for the [FlexRow],
- * whose maximum intrinsic height will correspond to the height of the taller [AspectRatio]. Then
+ * whose maximum intrinsic height will correspond to the height of the taller [LayoutAspectRatio]. Then
  * [MaxIntrinsicHeight] will measure the [FlexRow] with tight height, the same as the premeasured
- * maximum intrinsic height, which due to [CrossAxisAlignment.Stretch] will force the [AspectRatio]s
+ * maximum intrinsic height, which due to [CrossAxisAlignment.Stretch] will force the [LayoutAspectRatio]s
  * and the divider to use the same height.
  */
 @Composable

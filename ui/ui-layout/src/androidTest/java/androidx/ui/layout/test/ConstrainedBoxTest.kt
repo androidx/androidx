@@ -28,7 +28,7 @@ import androidx.ui.core.dp
 import androidx.ui.core.px
 import androidx.ui.core.withDensity
 import androidx.ui.layout.Align
-import androidx.ui.layout.AspectRatio
+import androidx.ui.layout.LayoutAspectRatio
 import androidx.ui.layout.ConstrainedBox
 import androidx.ui.layout.Container
 import androidx.ui.layout.DpConstraints
@@ -141,7 +141,7 @@ class ConstrainedBoxTest : LayoutTest() {
     fun testConstrainedBox_hasCorrectIntrinsicMeasurements() = withDensity(density) {
         testIntrinsics(@Composable {
             ConstrainedBox(constraints = DpConstraints(10.dp, 20.dp, 30.dp, 40.dp)) {
-                Container(AspectRatio(1f)) { }
+                Container(LayoutAspectRatio(1f)) { }
             }
         }) { minIntrinsicWidth, minIntrinsicHeight, maxIntrinsicWidth, maxIntrinsicHeight ->
             // Min width.

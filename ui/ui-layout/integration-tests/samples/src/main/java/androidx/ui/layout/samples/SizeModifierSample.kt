@@ -22,18 +22,18 @@ import androidx.ui.core.dp
 import androidx.ui.foundation.shape.DrawShape
 import androidx.ui.foundation.shape.RectangleShape
 import androidx.ui.graphics.Color
-import androidx.ui.layout.AspectRatio
+import androidx.ui.layout.LayoutAspectRatio
 import androidx.ui.layout.Center
 import androidx.ui.layout.Container
-import androidx.ui.layout.Height
-import androidx.ui.layout.Size
-import androidx.ui.layout.Width
+import androidx.ui.layout.LayoutHeight
+import androidx.ui.layout.LayoutSize
+import androidx.ui.layout.LayoutWidth
 
 @Sampled
 @Composable
 fun SimpleSizeModifier() {
     Center {
-        Container(modifier = Size(width = 100.dp, height = 100.dp)) {
+        Container(modifier = LayoutSize(width = 100.dp, height = 100.dp)) {
             DrawShape(shape = RectangleShape, color = Color.Red)
         }
     }
@@ -43,7 +43,7 @@ fun SimpleSizeModifier() {
 @Composable
 fun SimpleWidthModifier() {
     Center {
-        Container(modifier = Width(100.dp) wraps AspectRatio(1f)) {
+        Container(modifier = LayoutWidth(100.dp) wraps LayoutAspectRatio(1f)) {
             DrawShape(shape = RectangleShape, color = Color.Magenta)
         }
     }
@@ -53,7 +53,7 @@ fun SimpleWidthModifier() {
 @Composable
 fun SimpleHeightModifier() {
     Center {
-        Container(modifier = Height(100.dp) wraps AspectRatio(1f)) {
+        Container(modifier = LayoutHeight(100.dp) wraps LayoutAspectRatio(1f)) {
             DrawShape(shape = RectangleShape, color = Color.Blue)
         }
     }

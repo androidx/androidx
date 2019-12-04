@@ -35,8 +35,8 @@ import androidx.ui.benchmark.toggleStateBenchmarkRecompose
 import androidx.ui.core.Dp
 import androidx.ui.core.dp
 import androidx.ui.layout.Container
+import androidx.ui.layout.LayoutPadding
 import androidx.ui.layout.Padding
-import androidx.ui.layout.Spacing
 import androidx.ui.test.ComposeTestCase
 import androidx.ui.test.ToggleableTestCase
 import org.junit.Rule
@@ -191,7 +191,7 @@ private class ModifierTestCase : PaddingTestCase() {
 
     @Composable
     override fun emitPaddedContainer(padding: Dp, child: @Composable() () -> Unit) {
-        Container(expanded = true, modifier = Spacing(padding), children = child)
+        Container(expanded = true, modifier = LayoutPadding(padding), children = child)
     }
 }
 

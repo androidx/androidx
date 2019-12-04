@@ -20,8 +20,8 @@ import androidx.compose.Composable
 import androidx.ui.core.Modifier
 
 /**
- * Component that represents an empty space layout, whose size can be defined using the [Width],
- * [Height] and [Size] modifiers.
+ * Component that represents an empty space layout, whose size can be defined using the [LayoutWidth],
+ * [LayoutHeight] and [LayoutSize] modifiers.
  *
  * @sample androidx.ui.layout.samples.SpacerExample
  *

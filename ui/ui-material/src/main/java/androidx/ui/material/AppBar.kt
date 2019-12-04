@@ -48,7 +48,7 @@ import androidx.ui.layout.FlexRow
 import androidx.ui.layout.MainAxisAlignment
 import androidx.ui.layout.Row
 import androidx.ui.layout.Spacer
-import androidx.ui.layout.Width
+import androidx.ui.layout.LayoutWidth
 import androidx.ui.material.surface.Surface
 import androidx.ui.graphics.Color
 import androidx.ui.layout.EdgeInsets
@@ -63,8 +63,8 @@ import androidx.ui.graphics.PathOperation
 import androidx.ui.layout.Align
 import androidx.ui.layout.AlignmentLineOffset
 import androidx.ui.layout.Arrangement
-import androidx.ui.layout.Expanded
-import androidx.ui.layout.ExpandedHeight
+import androidx.ui.layout.LayoutExpanded
+import androidx.ui.layout.LayoutExpandedHeight
 import androidx.ui.layout.Padding
 import androidx.ui.text.TextStyle
 import kotlin.math.sqrt
@@ -158,7 +158,7 @@ private fun BaseTopAppBar(
             if (startContent != null) {
                 inflexible {
                     Container(
-                        modifier = ExpandedHeight,
+                        modifier = LayoutExpandedHeight,
                         width = AppBarTitleStartPadding,
                         alignment = Alignment.CenterLeft,
                         children = startContent
@@ -181,7 +181,7 @@ private fun BaseTopAppBar(
             if (endContent != null) {
                 inflexible {
                     Container(
-                        modifier = ExpandedHeight,
+                        modifier = LayoutExpandedHeight,
                         alignment = Alignment.Center,
                         children = endContent
                     )
@@ -629,7 +629,7 @@ private fun BaseBottomAppBarWithoutFab(
 ) {
     BaseAppBar(color, BottomAppBarElevation, shape) {
         Padding(top = AppBarPadding, bottom = AppBarPadding) {
-            Row(Expanded, arrangement = Arrangement.SpaceBetween) {
+            Row(LayoutExpanded, arrangement = Arrangement.SpaceBetween) {
                 // Using wrap so that even if startContent is null or emits no layout nodes,
                 // we will still force end content to be placed at the end of the row.
                 Wrap(alignment = Alignment.Center, children = startContent ?: {})
@@ -726,11 +726,11 @@ private fun <T> AppBarActions(
         shownActions.forEach { (index, shownAction) ->
             action(shownAction)
             if (index != shownActions.lastIndex) {
-                Spacer(Width(24.dp))
+                Spacer(LayoutWidth(24.dp))
             }
         }
         if (overflowActions.isNotEmpty()) {
-            Spacer(Width(24.dp))
+            Spacer(LayoutWidth(24.dp))
             // TODO: use overflowActions to build menu here
             Container(width = 12.dp) {
                 Text(text = "${overflowActions.size}", style = TextStyle(fontSize = 15.sp))

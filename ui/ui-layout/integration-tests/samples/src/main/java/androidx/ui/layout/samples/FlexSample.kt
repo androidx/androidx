@@ -26,10 +26,10 @@ import androidx.ui.graphics.Color
 import androidx.ui.layout.Center
 import androidx.ui.layout.Column
 import androidx.ui.layout.Container
-import androidx.ui.layout.ExpandedHeight
+import androidx.ui.layout.LayoutExpandedHeight
 import androidx.ui.layout.FlexColumn
 import androidx.ui.layout.FlexRow
-import androidx.ui.layout.Gravity
+import androidx.ui.layout.LayoutGravity
 import androidx.ui.layout.Row
 import androidx.ui.text.TextStyle
 
@@ -77,11 +77,11 @@ fun SimpleRow() {
         // size.
         SizedRectangle(color = Color.Magenta, width = 40.dp, height = 80.dp)
         // Inflexible, the child will have the specified size.
-        SizedRectangle(Inflexible, color = Color.Red, width = 80.dp, height = 40.dp)
+        SizedRectangle(LayoutInflexible, color = Color.Red, width = 80.dp, height = 40.dp)
         // Flexible, the child will occupy have of the remaining width.
-        SizedRectangle(Flexible(1f), color = Color.Yellow, height = 40.dp)
+        SizedRectangle(LayoutFlexible(1f), color = Color.Yellow, height = 40.dp)
         // Flexible not tight, the child will occupy at most half of the remaining width.
-        SizedRectangle(Flexible(1f, tight = false), color = Color.Green, height = 80.dp)
+        SizedRectangle(LayoutFlexible(1f, tight = false), color = Color.Green, height = 80.dp)
     }
 }
 
@@ -93,11 +93,11 @@ fun SimpleColumn() {
         // size.
         SizedRectangle(color = Color.Magenta, width = 40.dp, height = 80.dp)
         // Inflexible, the child will have the specified size.
-        SizedRectangle(Inflexible, color = Color.Red, width = 80.dp, height = 40.dp)
+        SizedRectangle(LayoutInflexible, color = Color.Red, width = 80.dp, height = 40.dp)
         // Flexible, the child will occupy have of the remaining height.
-        SizedRectangle(Flexible(1f), color = Color.Yellow, width = 40.dp)
+        SizedRectangle(LayoutFlexible(1f), color = Color.Yellow, width = 40.dp)
         // Flexible not tight, the child will occupy at most half of the remaining height.
-        SizedRectangle(Flexible(1f, tight = false), color = Color.Green, width = 80.dp)
+        SizedRectangle(LayoutFlexible(1f, tight = false), color = Color.Green, width = 80.dp)
     }
 }
 
@@ -108,19 +108,19 @@ fun SimpleRelativeToSiblings() {
         // Center of the first rectangle is aligned to the right edge of the second rectangle and
         // left edge of the third one.
         SizedRectangle(
-            Gravity.RelativeToSiblings { it.width * 0.5 },
+            LayoutGravity.RelativeToSiblings { it.width * 0.5 },
             color = Color.Blue,
             width = 80.dp,
             height = 40.dp
         )
         SizedRectangle(
-            Gravity.RelativeToSiblings { it.width },
+            LayoutGravity.RelativeToSiblings { it.width },
             color = Color.Magenta,
             width = 80.dp,
             height = 40.dp
         )
         SizedRectangle(
-            Gravity.RelativeToSiblings { 0.ipx },
+            LayoutGravity.RelativeToSiblings { 0.ipx },
             color = Color.Red,
             width = 80.dp,
             height = 40.dp
@@ -131,15 +131,15 @@ fun SimpleRelativeToSiblings() {
 @Sampled
 @Composable
 fun SimpleRelativeToSiblingsInRow() {
-    Row(ExpandedHeight) {
+    Row(LayoutExpandedHeight) {
         // Center of the colored rectangle is aligned to first baseline of the text.
         SizedRectangle(
             color = Color.Red,
             width = 80.dp,
             height = 40.dp,
-            modifier = Gravity.RelativeToSiblings { it.height * 0.5 }
+            modifier = LayoutGravity.RelativeToSiblings { it.height * 0.5 }
         )
-        Container(width = 80.dp, modifier = Gravity.RelativeToSiblings(FirstBaseline)) {
+        Container(width = 80.dp, modifier = LayoutGravity.RelativeToSiblings(FirstBaseline)) {
             Text(text = "Text.", style = TextStyle(background = Color.Cyan))
         }
     }
@@ -152,19 +152,19 @@ fun SimpleRelativeToSiblingsInColumn() {
         // Center of the first rectangle is aligned to the right edge of the second rectangle and
         // left edge of the third one.
         SizedRectangle(
-            Gravity.RelativeToSiblings { it.width * 0.5 },
+            LayoutGravity.RelativeToSiblings { it.width * 0.5 },
             color = Color.Blue,
             width = 80.dp,
             height = 40.dp
         )
         SizedRectangleWithLines(
-            Gravity.RelativeToSiblings(End),
+            LayoutGravity.RelativeToSiblings(End),
             color = Color.Magenta,
             width = 80.dp,
             height = 40.dp
         )
         SizedRectangleWithLines(
-            Gravity.RelativeToSiblings(Start),
+            LayoutGravity.RelativeToSiblings(Start),
             color = Color.Red,
             width = 80.dp,
             height = 40.dp

@@ -46,8 +46,8 @@ import androidx.ui.layout.Padding
 import androidx.ui.material.Tab
 import androidx.ui.material.TabRow
 import androidx.ui.graphics.Image
-import androidx.ui.layout.ExpandedHeight
-import androidx.ui.layout.Gravity
+import androidx.ui.layout.LayoutExpandedHeight
+import androidx.ui.layout.LayoutGravity
 import androidx.ui.material.MaterialTheme
 
 @Sampled
@@ -289,14 +289,15 @@ fun ScrollingFancyIndicatorContainerTabs() {
 fun FancyTab(title: String, onClick: () -> Unit, selected: Boolean) {
     MutuallyExclusiveSetItem(selected = selected, onClick = onClick) {
         Container(height = 50.dp, padding = EdgeInsets(10.dp)) {
-            Column(ExpandedHeight) {
+            Column(LayoutExpandedHeight) {
                 val color = if (selected) Color.Red else Color.Gray
-                ColoredRect(height = 10.dp, width = 10.dp, color = color, modifier = Gravity.Center)
+                ColoredRect(height = 10.dp, width = 10.dp, color = color,
+                    modifier = LayoutGravity.Center)
                 Padding(5.dp) {
                     Text(
                         text = title,
                         style = (+MaterialTheme.typography()).body1,
-                        modifier = Gravity.Center
+                        modifier = LayoutGravity.Center
                     )
                 }
             }

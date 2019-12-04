@@ -41,22 +41,22 @@ import androidx.ui.foundation.shape.DrawShape
 import androidx.ui.foundation.shape.RectangleShape
 import androidx.ui.foundation.shape.corner.CircleShape
 import androidx.ui.graphics.Color
+import androidx.ui.graphics.Paint
 import androidx.ui.input.ImeAction
 import androidx.ui.input.KeyboardType
 import androidx.ui.layout.Column
+import androidx.ui.layout.ColumnScope
 import androidx.ui.layout.Container
 import androidx.ui.layout.DpConstraints
 import androidx.ui.layout.EdgeInsets
 import androidx.ui.layout.FlexRow
-import androidx.ui.layout.Height
-import androidx.ui.layout.Spacer
+import androidx.ui.layout.LayoutExpandedHeight
+import androidx.ui.layout.LayoutExpandedWidth
+import androidx.ui.layout.LayoutGravity
+import androidx.ui.layout.LayoutHeight
 import androidx.ui.layout.MainAxisAlignment
+import androidx.ui.layout.Spacer
 import androidx.ui.layout.Wrap
-import androidx.ui.graphics.Paint
-import androidx.ui.layout.ColumnScope
-import androidx.ui.layout.ExpandedHeight
-import androidx.ui.layout.ExpandedWidth
-import androidx.ui.layout.Gravity
 import androidx.ui.text.TextStyle
 import androidx.ui.text.style.TextAlign
 
@@ -70,7 +70,7 @@ class PopupActivity : Activity() {
 
             Column {
                 FlexRow(
-                    ExpandedWidth wraps Gravity.Center,
+                    LayoutExpandedWidth wraps LayoutGravity.Center,
                     mainAxisAlignment = MainAxisAlignment.SpaceBetween
                 ) {
                     inflexible {
@@ -161,7 +161,7 @@ fun ColumnScope.PopupToggle() {
     val showPopup = +state { true }
     val containerSize = 100.dp
 
-    Column(Gravity.Center) {
+    Column(LayoutGravity.Center) {
         Container(width = containerSize, height = containerSize) {
             if (showPopup.value) {
                 Popup(alignment = Alignment.Center) {
@@ -190,7 +190,7 @@ fun ColumnScope.PopupToggle() {
 
 @Composable
 fun ColumnScope.PopupWithChangingContent() {
-    Column(Gravity.Center) {
+    Column(LayoutGravity.Center) {
             val heightSize = 120.dp
             val widthSize = 160.dp
             val popupContentState = +state { 0 }
@@ -221,7 +221,7 @@ fun ColumnScope.PopupWithChangingContent() {
                 }
             }
 
-            Spacer(Height(10.dp))
+            Spacer(LayoutHeight(10.dp))
             ClickableTextWithBackground(
                 text = "Change content",
                 color = Color.Cyan,
@@ -241,7 +241,7 @@ fun ColumnScope.PopupWithChangingParent() {
     val parentHeight = +state { 60.dp }
     val parentSizeChanged = +state { false }
 
-    Column(Gravity.Center) {
+    Column(LayoutGravity.Center) {
         Container(
             height = containerHeight,
             width = containerWidth,
@@ -259,7 +259,7 @@ fun ColumnScope.PopupWithChangingParent() {
                 }
             }
         }
-        Spacer(Height(10.dp))
+        Spacer(LayoutHeight(10.dp))
         ClickableTextWithBackground(
             text = "Change parent's position",
             color = Color.Cyan,
@@ -271,7 +271,7 @@ fun ColumnScope.PopupWithChangingParent() {
                         Alignment.TopLeft
             }
         )
-        Spacer(Height(10.dp))
+        Spacer(LayoutHeight(10.dp))
         ClickableTextWithBackground(
             text = "Change parent's size",
             color = Color.Cyan,
@@ -291,7 +291,7 @@ fun ColumnScope.PopupWithChangingParent() {
 
 @Composable
 fun ColumnScope.PopupDropdownAlignment() {
-    Column(Gravity.Center) {
+    Column(LayoutGravity.Center) {
             val heightSize = 120.dp
             val widthSize = 160.dp
             val dropDownAlignment = +state { DropDownAlignment.Left }
@@ -308,7 +308,7 @@ fun ColumnScope.PopupDropdownAlignment() {
                 }
             )
 
-            Spacer(Height(10.dp))
+            Spacer(LayoutHeight(10.dp))
 
             ColoredContainer(
                 height = heightSize,
@@ -330,7 +330,7 @@ fun ColumnScope.PopupDropdownAlignment() {
 
 @Composable
 fun ColumnScope.PopupAlignmentDemo() {
-    Container(Gravity.Center) {
+    Container(LayoutGravity.Center) {
         val heightSize = 200.dp
         val widthSize = 400.dp
         val counter = +state { 0 }
@@ -365,8 +365,8 @@ fun ColumnScope.PopupAlignmentDemo() {
                 }
             }
 
-            Spacer(Height(10.dp))
-            ColoredContainer(color = Color.White, modifier = Gravity.Center) {
+            Spacer(LayoutHeight(10.dp))
+            ColoredContainer(color = Color.White, modifier = LayoutGravity.Center) {
                 Text("Alignment: " + popupAlignment.value.toString())
             }
         }
@@ -375,7 +375,7 @@ fun ColumnScope.PopupAlignmentDemo() {
 
 @Composable
 fun ColumnScope.PopupWithEditText() {
-    Column(Gravity.Center) {
+    Column(LayoutGravity.Center) {
             val widthSize = 190.dp
             val heightSize = 120.dp
             val editLineSize = 150.dp
@@ -391,7 +391,7 @@ fun ColumnScope.PopupWithEditText() {
                 height = heightSize,
                 width = widthSize,
                 color = Color.Red,
-                modifier = Gravity.Center
+                modifier = LayoutGravity.Center
             ) {
                 if (showPopup.value) {
                     Popup(
@@ -421,13 +421,13 @@ fun ColumnScope.PopupWithEditText() {
 
 @Composable
 fun ColumnScope.PopupWithChangingSize() {
-    Column(Gravity.Center) {
+    Column(LayoutGravity.Center) {
             val showPopup = +state { true }
             val heightSize = 120.dp
             val widthSize = 160.dp
             val rectangleState = +state { 0 }
 
-            Spacer(Height(15.dp))
+            Spacer(LayoutHeight(15.dp))
             ColoredContainer(
                 height = heightSize,
                 width = widthSize,
@@ -460,7 +460,7 @@ fun ColumnScope.PopupWithChangingSize() {
                     }
                 }
             }
-            Spacer(Height(25.dp))
+            Spacer(LayoutHeight(25.dp))
             ClickableTextWithBackground(
                 text = "Change size",
                 color = Color.Cyan,
@@ -475,9 +475,9 @@ fun ColumnScope.PopupWithChangingSize() {
 fun ColumnScope.PopupInsideScroller() {
     val heightSize = 400.dp
     val widthSize = 200.dp
-    Container(width = widthSize, height = heightSize, modifier = Gravity.Center) {
+    Container(width = widthSize, height = heightSize, modifier = LayoutGravity.Center) {
         VerticalScroller {
-            Column(ExpandedHeight) {
+            Column(LayoutExpandedHeight) {
                 ColoredContainer(width = 80.dp,
                     height = 160.dp,
                     color = Color(0xFF00FF00)
@@ -488,7 +488,7 @@ fun ColumnScope.PopupInsideScroller() {
                 }
 
                 for (i in 0..30) {
-                    Text(text = "Scroll #$i", modifier = Gravity.Center)
+                    Text(text = "Scroll #$i", modifier = LayoutGravity.Center)
                 }
             }
         }
@@ -501,13 +501,13 @@ fun PopupOnKeyboardUp() {
         val widthSize = 190.dp
         val heightSize = 120.dp
 
-        Spacer(Height(350.dp))
+        Spacer(LayoutHeight(350.dp))
         Text("Start typing in the EditText below the parent(Red rectangle)")
         ColoredContainer(
             height = heightSize,
             width = widthSize,
             color = Color.Red,
-            modifier = Gravity.Center
+            modifier = LayoutGravity.Center
         ) {
             Popup(Alignment.Center) {
                 ColoredContainer(color = Color.Green) {
@@ -518,7 +518,7 @@ fun PopupOnKeyboardUp() {
 
         EditLine(initialText = "Continue typing...", color = Color.Gray)
 
-        Spacer(Height(24.dp))
+        Spacer(LayoutHeight(24.dp))
     }
 }
 
@@ -529,7 +529,7 @@ fun ColumnScope.ClickableTextWithBackground(
     onClick: (() -> Unit)? = null,
     padding: EdgeInsets = EdgeInsets(0.dp)
 ) {
-    Container(Gravity.Center) {
+    Container(LayoutGravity.Center) {
         DrawShape(RectangleShape, color)
         Clickable(onClick = onClick) {
             Container(padding = padding) {

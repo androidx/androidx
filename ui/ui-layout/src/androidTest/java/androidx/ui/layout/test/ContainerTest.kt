@@ -36,7 +36,7 @@ import androidx.ui.layout.ConstrainedBox
 import androidx.ui.layout.Container
 import androidx.ui.layout.DpConstraints
 import androidx.ui.layout.EdgeInsets
-import androidx.ui.layout.Size
+import androidx.ui.layout.LayoutSize
 import androidx.ui.layout.Spacer
 import androidx.ui.layout.Row
 import androidx.ui.layout.Wrap
@@ -311,7 +311,7 @@ class ContainerTest : LayoutTest() {
         show {
             Wrap {
                 Container(padding = edgeInsets) {
-                    Spacer(Size(width = childSizeDp, height = childSizeDp))
+                    Spacer(LayoutSize(width = childSizeDp, height = childSizeDp))
                     OnPositioned(onPositioned = { coordinates ->
                         containerSize = coordinates.size
                         latch.countDown()
@@ -340,7 +340,7 @@ class ContainerTest : LayoutTest() {
                         childCoordinates = coordinates
                         latch.countDown()
                     }) {
-                        Spacer(Size(width = childSize, height = childSize))
+                        Spacer(LayoutSize(width = childSize, height = childSize))
                     }
                 }
             }

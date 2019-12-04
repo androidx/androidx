@@ -32,12 +32,12 @@ import androidx.ui.core.ipx
 import androidx.ui.core.px
 import androidx.ui.core.withDensity
 import androidx.ui.layout.Align
-import androidx.ui.layout.Aligned
-import androidx.ui.layout.AspectRatio
+import androidx.ui.layout.LayoutAlign
+import androidx.ui.layout.LayoutAspectRatio
 import androidx.ui.layout.Container
-import androidx.ui.layout.ExpandedHeight
-import androidx.ui.layout.Size
-import androidx.ui.layout.Width
+import androidx.ui.layout.LayoutExpandedHeight
+import androidx.ui.layout.LayoutSize
+import androidx.ui.layout.LayoutWidth
 import org.junit.Assert.assertEquals
 import org.junit.Test
 import org.junit.runner.RunWith
@@ -105,7 +105,7 @@ class AlignTest : LayoutTest() {
                     position = alignPosition,
                     positionedLatch = positionedLatch
                 )
-                Container(modifier = Aligned.BottomRight wraps Size(sizeDp, sizeDp)) {
+                Container(modifier = LayoutAlign.BottomRight wraps LayoutSize(sizeDp, sizeDp)) {
                     SaveLayoutInfo(
                         size = childSize,
                         position = childPosition,
@@ -145,7 +145,7 @@ class AlignTest : LayoutTest() {
                     position = alignPosition,
                     positionedLatch = positionedLatch
                 )
-                Container(modifier = Aligned.End wraps ExpandedHeight wraps Width(sizeDp)) {
+                Container(LayoutAlign.End wraps LayoutExpandedHeight wraps LayoutWidth(sizeDp)) {
                     SaveLayoutInfo(
                         size = childSize,
                         position = childPosition,
@@ -233,7 +233,7 @@ class AlignTest : LayoutTest() {
                             position = alignPosition,
                             positionedLatch = positionedLatch
                         )
-                        Container(modifier = Aligned.BottomRight wraps Size(sizeDp, sizeDp)) {
+                        Container(LayoutAlign.BottomRight wraps LayoutSize(sizeDp, sizeDp)) {
                             SaveLayoutInfo(
                                 size = childSize,
                                 position = childPosition,
@@ -295,7 +295,7 @@ class AlignTest : LayoutTest() {
     fun testAlign_hasCorrectIntrinsicMeasurements() = withDensity(density) {
         testIntrinsics(@Composable {
             Align(alignment = Alignment.TopLeft) {
-                Container(AspectRatio(2f)) { }
+                Container(LayoutAspectRatio(2f)) { }
             }
         }) { minIntrinsicWidth, minIntrinsicHeight, maxIntrinsicWidth, maxIntrinsicHeight ->
             // Min width.
@@ -316,7 +316,7 @@ class AlignTest : LayoutTest() {
     @Test
     fun test2DAlignedModifier_hasCorrectIntrinsicMeasurements() = withDensity(density) {
         testIntrinsics(@Composable {
-            Container(Aligned.TopLeft wraps AspectRatio(2f)) { }
+            Container(LayoutAlign.TopLeft wraps LayoutAspectRatio(2f)) { }
         }) { minIntrinsicWidth, minIntrinsicHeight, maxIntrinsicWidth, maxIntrinsicHeight ->
             // Min width.
             assertEquals(0.ipx, minIntrinsicWidth(0.ipx))
@@ -343,7 +343,7 @@ class AlignTest : LayoutTest() {
     @Test
     fun test1DAlignedModifier_hasCorrectIntrinsicMeasurements() = withDensity(density) {
         testIntrinsics(@Composable {
-            Container(Aligned.CenterVertically wraps AspectRatio(2f)) { }
+            Container(LayoutAlign.CenterVertically wraps LayoutAspectRatio(2f)) { }
         }) { minIntrinsicWidth, minIntrinsicHeight, maxIntrinsicWidth, maxIntrinsicHeight ->
 
             // Min width.
@@ -463,13 +463,14 @@ class AlignTest : LayoutTest() {
         show {
             Layout(
                 children = {
-                    Container(Size(parentSize, parentSize)) {
+                    Container(LayoutSize(parentSize, parentSize)) {
                         SaveLayoutInfo(
                             size = alignSize,
                             position = alignPosition,
                             positionedLatch = positionedLatch
                         )
-                        Container(Aligned.BottomRight wraps Size(childSizeDp, childSizeDp)) {
+                        Container(LayoutAlign.BottomRight wraps
+                                LayoutSize(childSizeDp, childSizeDp)) {
                             SaveLayoutInfo(
                                 size = childSize,
                                 position = childPosition,

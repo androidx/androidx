@@ -22,8 +22,8 @@ import androidx.ui.graphics.imageFromResource
 import androidx.ui.layout.Arrangement
 import androidx.ui.layout.Center
 import androidx.ui.layout.Column
-import androidx.ui.layout.ExpandedHeight
-import androidx.ui.layout.Gravity
+import androidx.ui.layout.LayoutExpandedHeight
+import androidx.ui.layout.LayoutGravity
 import androidx.ui.material.FloatingActionButton
 
 class FloatingActionButtonActivity : MaterialDemoActivity() {
@@ -33,17 +33,18 @@ class FloatingActionButtonActivity : MaterialDemoActivity() {
         val icon = imageFromResource(resources, R.drawable.ic_favorite)
         Center {
             val onClick: () -> Unit = { Log.e("FABDemo", "onClick") }
-            Column(ExpandedHeight, arrangement = Arrangement.SpaceEvenly) {
-                FloatingActionButton(icon = icon, onClick = onClick, modifier = Gravity.Center)
+            Column(LayoutExpandedHeight, arrangement = Arrangement.SpaceEvenly) {
+                FloatingActionButton(icon = icon, onClick = onClick,
+                    modifier = LayoutGravity.Center)
                 FloatingActionButton(
                     text = "EXTENDED",
                     onClick = onClick,
-                    modifier = Gravity.Center
+                    modifier = LayoutGravity.Center
                 )
                 FloatingActionButton(
                     icon = icon, text = "ADD TO FAVS",
                     onClick = onClick,
-                    modifier = Gravity.Center
+                    modifier = LayoutGravity.Center
                 )
             }
         }

@@ -36,10 +36,10 @@ import androidx.ui.core.IntPx
 import androidx.ui.core.Layout
 import androidx.ui.core.OnPositioned
 import androidx.ui.core.enforce
-import androidx.ui.layout.Aligned
-import androidx.ui.layout.AspectRatio
-import androidx.ui.layout.Size
-import androidx.ui.layout.Wrapped
+import androidx.ui.layout.LayoutAlign
+import androidx.ui.layout.LayoutAspectRatio
+import androidx.ui.layout.LayoutSize
+import androidx.ui.layout.LayoutWrapped
 import org.junit.Test
 import org.junit.runner.RunWith
 import org.junit.runners.JUnit4
@@ -91,12 +91,12 @@ class WrapTest : LayoutTest() {
         val positionedLatch = CountDownLatch(2)
         val wrapSize = Ref<PxSize>()
         show {
-            Container(Wrapped) {
+            Container(LayoutWrapped) {
                 OnPositioned(onPositioned = { coordinates ->
                     wrapSize.value = coordinates.size
                     positionedLatch.countDown()
                 })
-                Container(Size(sizeDp, sizeDp)) { }
+                Container(LayoutSize(sizeDp, sizeDp)) { }
             }
         }
         positionedLatch.await(1, TimeUnit.SECONDS)
@@ -156,14 +156,14 @@ class WrapTest : LayoutTest() {
         val childSize = Ref<PxSize>()
         val childPosition = Ref<PxPosition>()
         show {
-            Container(Aligned.TopLeft) {
+            Container(LayoutAlign.TopLeft) {
                 OnChildPositioned(onPositioned = { coordinates ->
                     wrapSize.value = coordinates.size
                     positionedLatch.countDown()
                 }) {
                     Layout(
                         children = {
-                            Container(Wrapped wraps Size(sizeDp, sizeDp)) {
+                            Container(LayoutWrapped wraps LayoutSize(sizeDp, sizeDp)) {
                                 SaveLayoutInfo(
                                     size = childSize,
                                     position = childPosition,
@@ -242,7 +242,7 @@ class WrapTest : LayoutTest() {
     fun testWrap_hasCorrectIntrinsicMeasurements() = withDensity(density) {
         testIntrinsics(@Composable {
             Wrap {
-                Container(modifier = AspectRatio(2f)) { }
+                Container(modifier = LayoutAspectRatio(2f)) { }
             }
         }) { minIntrinsicWidth, minIntrinsicHeight, maxIntrinsicWidth, maxIntrinsicHeight ->
             // Min width.
@@ -263,7 +263,7 @@ class WrapTest : LayoutTest() {
     @Test
     fun testWrappedModifier_hasCorrectIntrinsicMeasurements() = withDensity(density) {
         testIntrinsics(@Composable {
-            Container(modifier = AspectRatio(2f) wraps Wrapped) { }
+            Container(modifier = LayoutAspectRatio(2f) wraps LayoutWrapped) { }
         }) { minIntrinsicWidth, minIntrinsicHeight, maxIntrinsicWidth, maxIntrinsicHeight ->
             // Min width.
             assertEquals(25.dp.toIntPx() * 2, minIntrinsicWidth(25.dp.toIntPx()))
