@@ -106,7 +106,7 @@ class TextDelegate(
     val text: AnnotatedString,
     style: TextStyle? = null,
     paragraphStyle: ParagraphStyle? = null,
-    val maxLines: Int? = null,
+    val maxLines: Int = Int.MAX_VALUE,
     val softWrap: Boolean = true,
     val overflow: TextOverflow = TextOverflow.Clip,
     val density: Density,
@@ -227,7 +227,7 @@ class TextDelegate(
     val lastBaseline: IntPx get() = assumeLayout { it.multiParagraph.lastBaseline.toIntPx() }
 
     init {
-        assert(maxLines == null || maxLines > 0)
+        assert(maxLines > 0)
     }
 
     fun layoutIntrinsics() {
