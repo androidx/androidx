@@ -42,8 +42,7 @@ class FragmentAnim {
     }
 
     static AnimationOrAnimator loadAnimation(@NonNull Context context,
-            @NonNull FragmentContainer fragmentContainer, @NonNull Fragment fragment,
-            boolean enter) {
+            @NonNull Fragment fragment, boolean enter) {
         int transit = fragment.getNextTransition();
         int nextAnim = fragment.getNextAnim();
         // Clear the Fragment animation
@@ -53,10 +52,9 @@ class FragmentAnim {
         // removing fragment will be cleared. If reordering is allowed, this will only be true
         // after all records in a transaction have been executed and the visible removing
         // fragment has the correct animation, so it is time to clear it.
-        View container = fragmentContainer.onFindViewById(fragment.mContainerId);
-        if (container != null
-                && container.getTag(R.id.visible_removing_fragment_view_tag) != null) {
-            container.setTag(R.id.visible_removing_fragment_view_tag, null);
+        if (fragment.mContainer != null
+                && fragment.mContainer.getTag(R.id.visible_removing_fragment_view_tag) != null) {
+            fragment.mContainer.setTag(R.id.visible_removing_fragment_view_tag, null);
         }
         // If there is a transition on the container, clear those set on the fragment
         if (fragment.mContainer != null && fragment.mContainer.getLayoutTransition() != null) {
