@@ -24,6 +24,7 @@ import androidx.inspection.InspectorEnvironment.ExitHook
 import androidx.inspection.testing.InspectorTester
 import androidx.sqlite.inspection.SqliteInspectorProtocol.Command
 import androidx.sqlite.inspection.SqliteInspectorProtocol.Event
+import androidx.sqlite.inspection.SqliteInspectorProtocol.GetSchemaCommand
 import androidx.sqlite.inspection.SqliteInspectorProtocol.Response
 import androidx.sqlite.inspection.SqliteInspectorProtocol.TrackDatabasesCommand
 import androidx.sqlite.inspection.SqliteInspectorProtocol.TrackDatabasesResponse
@@ -39,6 +40,7 @@ import org.junit.Rule
 import org.junit.Test
 import org.junit.rules.TemporaryFolder
 import org.junit.runner.RunWith
+import java.util.Collections.singletonList
 
 @MediumTest
 @RunWith(AndroidJUnit4::class)
@@ -92,7 +94,7 @@ class SqliteInspectorTest {
                 Event.parseFrom(inspectorTester.channel.receive()).databaseOpened
             }
             assertThat(inspectorTester.channel.isEmpty).isTrue()
-            assertThat(actual.map { it.id }.takeWhile { it >= 0 }.distinct()).hasSize(expected.size)
+            assertThat(actual.map { it.id }.distinct()).hasSize(expected.size)
             expected.forEachIndexed { ix, _ ->
                 assertThat(actual[ix].name).isEqualTo(expected[ix].path)
             }
@@ -125,17 +127,92 @@ class SqliteInspectorTest {
         inspectorTester.dispose()
     }
 
+    @Test
+    fun test_get_schema() = runBlocking {
+        // prepare test environment
+        val expectedColumns1 = listOf(
+            "t" to "TEXT",
+            "nu" to "NUMERIC",
+            "i" to "INTEGER",
+            "r" to "REAL",
+            "b" to "BLOB"
+        )
+        val expectedColumns2 = listOf(
+            "id" to "INTEGER",
+            "name" to "TEXT"
+        )
+        val alreadyOpenInstances = singletonList(
+            createDatabase(
+                "db1",
+                "CREATE TABLE t1(${expectedColumns1.foldCommaSeparated()});",
+                "CREATE TABLE t2 (${expectedColumns2.foldCommaSeparated()}, " +
+                        "PRIMARY KEY(${expectedColumns2.map { it.first }.joinToString { it }}));"
+            )
+        )
+        val environment = FakeInspectorEnvironment()
+        environment.registerInstancesToFind(alreadyOpenInstances)
+        val inspectorTester =
+            InspectorTester(SqliteInspectorFactory.SQLITE_INSPECTOR_ID, environment)
+
+        // get id of the database from track databases event
+        inspectorTester.sendCommand(createTrackDatabasesCommand().toByteArray())
+        val databaseOpenedEvent = Event.parseFrom(inspectorTester.channel.receive()).databaseOpened
+
+        // query schema and validate the response
+        inspectorTester.sendCommand(
+            createGetSchemaCommand(databaseOpenedEvent.id).toByteArray()
+        ).let { response ->
+            val tables =
+                Response.parseFrom(response).getSchema.tablesList.sortedBy { it.name }
+            assertThat(tables).hasSize(2)
+            val table1 = tables[0]
+            val table2 = tables[1]
+            val actualColumns1 = table1.columnsList.sortedBy { it.name }
+            val actualColumns2 = table2.columnsList.sortedBy { it.name }
+
+            assertThat(table1.name).isEqualTo("t1")
+            assertThat(table2.name).isEqualTo("t2")
+
+            assertThat(actualColumns1).hasSize(expectedColumns1.size)
+            assertThat(actualColumns2).hasSize(expectedColumns2.size)
+
+            expectedColumns1.sortedBy { it.first }.forEachIndexed { ix, (name, type) ->
+                assertThat(actualColumns1[ix].name).isEqualTo(name)
+                assertThat(actualColumns1[ix].type).isEqualTo(type)
+            }
+
+            expectedColumns2.sortedBy { it.first }.forEachIndexed { ix, (name, type) ->
+                assertThat(actualColumns2[ix].name).isEqualTo(name)
+                assertThat(actualColumns2[ix].type).isEqualTo(type)
+            }
+        }
+
+        inspectorTester.dispose()
+    }
+
+    private fun List<Pair<String, String>>.foldCommaSeparated(): String =
+        joinToString { (a, b) -> "$a $b" }
+
     private fun createTrackDatabasesCommand(): Command =
         Command.newBuilder().setTrackDatabases(TrackDatabasesCommand.getDefaultInstance()).build()
 
     private fun createTrackDatabasesResponse(): Response =
         Response.newBuilder().setTrackDatabases(TrackDatabasesResponse.getDefaultInstance()).build()
 
-    private fun createDatabase(databaseName: String): SQLiteDatabase {
+    private fun createGetSchemaCommand(databaseId: Int): Command {
+        return Command.newBuilder().setGetSchema(
+            GetSchemaCommand.newBuilder().setId(databaseId).build()
+        ).build()
+    }
+
+    private fun createDatabase(
+        databaseName: String,
+        vararg queries: String
+    ): SQLiteDatabase {
         val context = ApplicationProvider.getApplicationContext() as android.content.Context
         val path = tempDirectory.newFile(databaseName).absolutePath
         val openHelper = object : SQLiteOpenHelper(context, path, null, 1) {
-            override fun onCreate(db: SQLiteDatabase?) = Unit
+            override fun onCreate(db: SQLiteDatabase?) = queries.forEach { db!!.execSQL(it) }
             override fun onUpgrade(db: SQLiteDatabase?, oldVersion: Int, newVersion: Int) = Unit
         }
         return openHelper.readableDatabase
