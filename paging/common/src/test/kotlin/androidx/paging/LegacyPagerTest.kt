@@ -30,7 +30,7 @@ import org.junit.runner.RunWith
 import org.junit.runners.JUnit4
 
 @RunWith(JUnit4::class)
-class PagerTest {
+class LegacyPagerTest {
     private val testDispatcher = TestDispatcher()
     private val data = List(9) { "$it" }
 
@@ -73,7 +73,7 @@ class PagerTest {
         val pageResult: LoadResult<*, String>
     )
 
-    private class MockConsumer : Pager.PageConsumer<String> {
+    private class MockConsumer : LegacyPager.PageConsumer<String> {
         private val results: MutableList<Result> = arrayListOf()
         private val stateChanges: MutableList<StateChange> = arrayListOf()
 
@@ -111,7 +111,7 @@ class PagerTest {
         consumer: MockConsumer,
         start: Int = 0,
         end: Int = 10
-    ): Pager<Int, String> {
+    ): LegacyPager<Int, String> {
         val config = Config(2, 2, true, 10, Config.MAX_SIZE_UNBOUNDED)
         val pagedSource = ImmediateListDataSource(data)
 
@@ -136,14 +136,14 @@ class PagerTest {
         consumer.storage = storage
 
         @Suppress("UNCHECKED_CAST")
-        return Pager(
+        return LegacyPager(
             GlobalScope,
             config,
             pagedSource,
             DirectDispatcher,
             testDispatcher,
             consumer,
-            storage as Pager.KeyProvider<Int>
+            storage as LegacyPager.KeyProvider<Int>
         )
     }
 
