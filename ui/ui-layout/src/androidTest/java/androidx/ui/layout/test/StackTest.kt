@@ -73,7 +73,7 @@ class StackTest : LayoutTest() {
                             )
                         }
 
-                        Container(LayoutGravity.Stretch wraps LayoutPadding(10.dp)) {
+                        Container(LayoutGravity.Stretch + LayoutPadding(10.dp)) {
                             SaveLayoutInfo(
                                 size = positionedChildSize,
                                 position = positionedChildPosition,
@@ -171,7 +171,7 @@ class StackTest : LayoutTest() {
                             )
                         }
                         Container(
-                            LayoutGravity.Stretch wraps LayoutPadding(
+                            LayoutGravity.Stretch + LayoutPadding(
                                 left = insetDp,
                                 top = insetDp
                             ),
@@ -185,7 +185,7 @@ class StackTest : LayoutTest() {
                             )
                         }
                         Container(
-                            LayoutGravity.Stretch wraps LayoutPadding(
+                            LayoutGravity.Stretch + LayoutPadding(
                                 right = insetDp,
                                 bottom = insetDp
                             ),
@@ -199,7 +199,7 @@ class StackTest : LayoutTest() {
                             )
                         }
                         Container(
-                            LayoutGravity.Stretch wraps LayoutPadding(
+                            LayoutGravity.Stretch + LayoutPadding(
                                 left = insetDp,
                                 right = insetDp
                             ),
@@ -212,7 +212,7 @@ class StackTest : LayoutTest() {
                             )
                         }
                         Container(
-                            LayoutGravity.Stretch wraps LayoutPadding(
+                            LayoutGravity.Stretch + LayoutPadding(
                                 top = insetDp,
                                 bottom = insetDp
                             ),
@@ -308,14 +308,14 @@ class StackTest : LayoutTest() {
 
         testIntrinsics(@Composable {
             Stack {
-                Container(LayoutGravity.TopLeft wraps LayoutAspectRatio(2f)) { }
+                Container(LayoutGravity.TopLeft + LayoutAspectRatio(2f)) { }
                 ConstrainedBox(
                     DpConstraints.tightConstraints(testWidth, testHeight),
                     LayoutGravity.BottomCenter
                 ) { }
                 ConstrainedBox(
                     DpConstraints.tightConstraints(200.dp, 200.dp),
-                    LayoutGravity.Stretch wraps LayoutPadding(10.dp)
+                    LayoutGravity.Stretch + LayoutPadding(10.dp)
                 ) { }
             }
         }) { minIntrinsicWidth, minIntrinsicHeight, maxIntrinsicWidth, maxIntrinsicHeight ->
@@ -343,7 +343,7 @@ class StackTest : LayoutTest() {
         testIntrinsics(@Composable {
             Stack {
                 ConstrainedBox(
-                    modifier = LayoutGravity.Stretch wraps LayoutPadding(10.dp),
+                    modifier = LayoutGravity.Stretch + LayoutPadding(10.dp),
                     constraints = DpConstraints.tightConstraints(200.dp, 200.dp)
                 ) { }
             }

@@ -70,7 +70,7 @@ class PopupActivity : Activity() {
 
             Column {
                 FlexRow(
-                    LayoutExpandedWidth wraps LayoutGravity.Center,
+                    LayoutExpandedWidth + LayoutGravity.Center,
                     mainAxisAlignment = MainAxisAlignment.SpaceBetween
                 ) {
                     inflexible {

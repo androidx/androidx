@@ -1743,7 +1743,7 @@ class AndroidLayoutDrawTest {
                     Draw { canvas, parentSize ->
                         canvas.drawRect(parentSize.toRect(), Paint().apply { color = outerColor })
                     }
-                    FixedSize(10.ipx, PaddingModifier(10.ipx) wraps background(
+                    FixedSize(10.ipx, PaddingModifier(10.ipx) + background(
                         innerColor
                     )
                     ) {
@@ -1790,7 +1790,7 @@ class AndroidLayoutDrawTest {
                 val countDownModifier = draw { _, _ ->
                     drawLatch.countDown()
                 }
-                FixedSize(30.ipx, countDownModifier wraps background(
+                FixedSize(30.ipx, countDownModifier + background(
                     color = outerColor
                 )
                 ) {
@@ -1817,7 +1817,7 @@ class AndroidLayoutDrawTest {
                 ) {
                     FixedSize(
                         size = 10.ipx,
-                        modifier = PaddingModifier(10.ipx) wraps background(
+                        modifier = PaddingModifier(10.ipx) + background(
                             color = innerColor
                         )
                     ) {
@@ -1871,11 +1871,10 @@ class AndroidLayoutDrawTest {
                 FixedSize(30.ipx, background(outerColor)) {
                     FixedSize(
                         size = 10.ipx,
-                        modifier = PaddingModifier(10.ipx) wraps
-                                background(
-                                    shape = CircleShape,
-                                    color = innerColor
-                                )
+                        modifier = PaddingModifier(10.ipx) + background(
+                            shape = CircleShape,
+                            color = innerColor
+                        )
                     ) {
                         Draw { _, _ ->
                             drawLatch.countDown()

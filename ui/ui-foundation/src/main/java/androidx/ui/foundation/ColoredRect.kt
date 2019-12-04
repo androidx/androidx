@@ -49,7 +49,7 @@ fun ColoredRect(
 ) {
     val background = +memo(brush) { background(brush) }
     Container(
-        modifier = modifier wraps background, width = width, height = height, expanded = true
+        modifier = modifier + background, width = width, height = height, expanded = true
     ) {}
 }
 
@@ -71,6 +71,6 @@ fun ColoredRect(
 ) {
     val background = +memo(color) { background(color) }
     Container(
-        modifier = modifier wraps background, width = width, height = height, expanded = true
+        modifier = modifier + background, width = width, height = height, expanded = true
     ) {}
 }

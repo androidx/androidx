@@ -21,12 +21,12 @@ import org.junit.Test
 
 class ModifierTest {
     /**
-     * Verifies that the [Modifier.wraps] operation results in [Modifier] instances that
+     * Verifies that the [Modifier.plus] operation results in [Modifier] instances that
      * [Modifier.foldIn] and [Modifier.foldOut] in the expected order.
      */
     @Test
     fun wrapElementChain() {
-        val chain = SampleModifier(1) wraps SampleModifier(2) wraps SampleModifier(3)
+        val chain = SampleModifier(1) + SampleModifier(2) + SampleModifier(3)
         val forwards = chain.foldIn(emptyList<Int>()) { acc, e ->
             acc + (e as SampleModifier).value
         }

@@ -64,30 +64,27 @@ class SizeModifiersTest : LayoutTest() {
             Align(alignment = Alignment.TopLeft) {
                 Column {
                     Container(
-                        LayoutMaxWidth(sizeDp * 2) wraps LayoutMinWidth(sizeDp) wraps
-                                LayoutHeight(sizeDp)
+                        LayoutMaxWidth(sizeDp * 2) + LayoutMinWidth(sizeDp) + LayoutHeight(sizeDp)
                     ) {
                         SaveLayoutInfo(size[0], position[0], positionedLatch)
                     }
-                    Container(LayoutMaxWidth(sizeDp * 2) wraps LayoutHeight(sizeDp)) {
+                    Container(LayoutMaxWidth(sizeDp * 2) + LayoutHeight(sizeDp)) {
                         SaveLayoutInfo(size[1], position[1], positionedLatch)
                     }
-                    Container(LayoutMinWidth(sizeDp) wraps LayoutHeight(sizeDp)) {
+                    Container(LayoutMinWidth(sizeDp) + LayoutHeight(sizeDp)) {
                         SaveLayoutInfo(size[2], position[2], positionedLatch)
                     }
                     Container(
-                        LayoutMaxWidth(sizeDp) wraps LayoutMinWidth(sizeDp * 2) wraps
-                                LayoutHeight(sizeDp)
+                        LayoutMaxWidth(sizeDp) + LayoutMinWidth(sizeDp * 2) + LayoutHeight(sizeDp)
                     ) {
                         SaveLayoutInfo(size[3], position[3], positionedLatch)
                     }
                     Container(
-                        LayoutMinWidth(sizeDp * 2) wraps LayoutMaxWidth(sizeDp) wraps
-                                LayoutHeight(sizeDp)
+                        LayoutMinWidth(sizeDp * 2) + LayoutMaxWidth(sizeDp) + LayoutHeight(sizeDp)
                     ) {
                         SaveLayoutInfo(size[4], position[4], positionedLatch)
                     }
-                    Container(LayoutWidth(sizeDp) wraps LayoutHeight(sizeDp)) {
+                    Container(LayoutWidth(sizeDp) + LayoutHeight(sizeDp)) {
                         SaveLayoutInfo(size[5], position[5], positionedLatch)
                     }
                 }
@@ -126,30 +123,27 @@ class SizeModifiersTest : LayoutTest() {
             Align(alignment = Alignment.TopLeft) {
                 Row {
                     Container(
-                        LayoutMaxHeight(sizeDp * 2) wraps LayoutMinHeight(sizeDp) wraps
-                                LayoutWidth(sizeDp)
+                        LayoutMaxHeight(sizeDp * 2) + LayoutMinHeight(sizeDp) + LayoutWidth(sizeDp)
                     ) {
                         SaveLayoutInfo(size[0], position[0], positionedLatch)
                     }
-                    Container(LayoutMaxHeight(sizeDp * 2) wraps LayoutWidth(sizeDp)) {
+                    Container(LayoutMaxHeight(sizeDp * 2) + LayoutWidth(sizeDp)) {
                         SaveLayoutInfo(size[1], position[1], positionedLatch)
                     }
-                    Container(LayoutMinHeight(sizeDp) wraps LayoutWidth(sizeDp)) {
+                    Container(LayoutMinHeight(sizeDp) + LayoutWidth(sizeDp)) {
                         SaveLayoutInfo(size[2], position[2], positionedLatch)
                     }
                     Container(
-                        LayoutMaxHeight(sizeDp) wraps LayoutMinHeight(sizeDp * 2) wraps
-                                LayoutWidth(sizeDp)
+                        LayoutMaxHeight(sizeDp) + LayoutMinHeight(sizeDp * 2) + LayoutWidth(sizeDp)
                     ) {
                         SaveLayoutInfo(size[3], position[3], positionedLatch)
                     }
                     Container(
-                        LayoutMinHeight(sizeDp * 2) wraps LayoutMaxHeight(sizeDp) wraps
-                                LayoutWidth(sizeDp)
+                        LayoutMinHeight(sizeDp * 2) + LayoutMaxHeight(sizeDp) + LayoutWidth(sizeDp)
                     ) {
                         SaveLayoutInfo(size[4], position[4], positionedLatch)
                     }
-                    Container(LayoutHeight(sizeDp) wraps LayoutWidth(sizeDp)) {
+                    Container(LayoutHeight(sizeDp) + LayoutWidth(sizeDp)) {
                         SaveLayoutInfo(size[5], position[5], positionedLatch)
                     }
                 }
@@ -188,24 +182,22 @@ class SizeModifiersTest : LayoutTest() {
             Align(alignment = Alignment.TopLeft) {
                 Row {
                     Container(
-                        LayoutMaxSize(sizeDp * 2, sizeDp * 2)
-                                wraps LayoutMinSize(sizeDp, sizeDp)
+                        LayoutMaxSize(sizeDp * 2, sizeDp * 2) + LayoutMinSize(sizeDp, sizeDp)
                     ) {
                         SaveLayoutInfo(size[0], position[0], positionedLatch)
                     }
                     Container(
-                        LayoutMaxSize(sizeDp, sizeDp) wraps LayoutMinSize(sizeDp * 2, sizeDp)
+                        LayoutMaxSize(sizeDp, sizeDp) + LayoutMinSize(sizeDp * 2, sizeDp)
                     ) {
                         SaveLayoutInfo(size[1], position[1], positionedLatch)
                     }
                     Container(
-                        LayoutMinSize(sizeDp, sizeDp) wraps LayoutMaxSize(sizeDp * 2, sizeDp * 2)
+                        LayoutMinSize(sizeDp, sizeDp) + LayoutMaxSize(sizeDp * 2, sizeDp * 2)
                     ) {
                         SaveLayoutInfo(size[2], position[2], positionedLatch)
                     }
                     Container(
-                        LayoutMinSize(sizeDp * 2, sizeDp * 2)
-                                wraps LayoutMaxSize(sizeDp, sizeDp)
+                        LayoutMinSize(sizeDp * 2, sizeDp * 2) + LayoutMaxSize(sizeDp, sizeDp)
                     ) {
                         SaveLayoutInfo(size[3], position[3], positionedLatch)
                     }
@@ -249,7 +241,7 @@ class SizeModifiersTest : LayoutTest() {
                         constrainedBoxSize.value = coordinates.size
                         positionedLatch.countDown()
                     }) {
-                        Container(LayoutWidth(sizeDp * 2) wraps LayoutHeight(sizeDp * 3)) {
+                        Container(LayoutWidth(sizeDp * 2) + LayoutHeight(sizeDp * 3)) {
                             Container(expanded = true) {
                                 SaveLayoutInfo(
                                     size = childSize,
@@ -290,9 +282,10 @@ class SizeModifiersTest : LayoutTest() {
                             SaveLayoutInfo(size[1], position[1], positionedLatch)
                         }
                     }
-                    Container(LayoutWidth(sizeDp) wraps LayoutHeight(sizeDp) wraps
-                            LayoutMaxWidth(Dp.Infinity)
-                            wraps LayoutMaxHeight(Dp.Infinity)) {
+                    Container(
+                        LayoutWidth(sizeDp) + LayoutHeight(sizeDp) + LayoutMaxWidth(Dp.Infinity) +
+                                LayoutMaxHeight(Dp.Infinity)
+                    ) {
                         SaveLayoutInfo(size[2], position[2], positionedLatch)
                     }
                     Container(LayoutMaxSize(Dp.Infinity, Dp.Infinity)) {
@@ -494,8 +487,8 @@ class SizeModifiersTest : LayoutTest() {
     @Test
     fun testWidthHeightModifiers_hasCorrectIntrinsicMeasurements() = withDensity(density) {
         testIntrinsics(@Composable {
-            Container(LayoutMinWidth(10.dp) wraps LayoutMaxWidth(20.dp) wraps
-                    LayoutMinHeight(30.dp) wraps LayoutMaxHeight(40.dp)) {
+            Container(LayoutMinWidth(10.dp) + LayoutMaxWidth(20.dp) + LayoutMinHeight(30.dp) +
+                    LayoutMaxHeight(40.dp)) {
                 Container(LayoutAspectRatio(1f)) { }
             }
         }) { minIntrinsicWidth, minIntrinsicHeight, maxIntrinsicWidth, maxIntrinsicHeight ->

@@ -112,7 +112,8 @@ class ExpandedModifierTest : LayoutTest() {
     private fun verifyIntrinsicMeasurements(expandedModifier: Modifier) = withDensity(density) {
         // intrinsic measurements do not change with the ExpandedModifier
         testIntrinsics(@Composable {
-            Container(expandedModifier wraps LayoutAspectRatio(2f),
+            Container(
+                expandedModifier + LayoutAspectRatio(2f),
                 width = 30.dp, height = 40.dp) { }
         }) { minIntrinsicWidth, minIntrinsicHeight, maxIntrinsicWidth, maxIntrinsicHeight ->
             // Width
