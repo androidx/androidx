@@ -1270,7 +1270,9 @@ package androidx.core.graphics {
   public final class Insets {
     method public static androidx.core.graphics.Insets of(int, int, int, int);
     method public static androidx.core.graphics.Insets of(android.graphics.Rect);
-    method @RequiresApi(api=29) @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP_PREFIX) public static androidx.core.graphics.Insets wrap(android.graphics.Insets);
+    method @RequiresApi(api=29) public static androidx.core.graphics.Insets toCompatInsets(android.graphics.Insets);
+    method @RequiresApi(api=29) public android.graphics.Insets toPlatformInsets();
+    method @Deprecated @RequiresApi(api=29) @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP_PREFIX) public static androidx.core.graphics.Insets wrap(android.graphics.Insets);
     field public static final androidx.core.graphics.Insets NONE;
     field public final int bottom;
     field public final int left;
@@ -2734,10 +2736,10 @@ package androidx.core.view {
   }
 
   public class WindowInsetsCompat {
-    ctor public WindowInsetsCompat(androidx.core.view.WindowInsetsCompat!);
-    method public androidx.core.view.WindowInsetsCompat! consumeDisplayCutout();
-    method public androidx.core.view.WindowInsetsCompat! consumeStableInsets();
-    method public androidx.core.view.WindowInsetsCompat! consumeSystemWindowInsets();
+    ctor public WindowInsetsCompat(androidx.core.view.WindowInsetsCompat?);
+    method public androidx.core.view.WindowInsetsCompat? consumeDisplayCutout();
+    method public androidx.core.view.WindowInsetsCompat? consumeStableInsets();
+    method public androidx.core.view.WindowInsetsCompat? consumeSystemWindowInsets();
     method public androidx.core.view.DisplayCutoutCompat? getDisplayCutout();
     method public androidx.core.graphics.Insets getMandatorySystemGestureInsets();
     method public int getStableInsetBottom();
@@ -2757,10 +2759,22 @@ package androidx.core.view {
     method public boolean hasSystemWindowInsets();
     method public boolean isConsumed();
     method public boolean isRound();
-    method public androidx.core.view.WindowInsetsCompat! replaceSystemWindowInsets(int, int, int, int);
-    method public androidx.core.view.WindowInsetsCompat! replaceSystemWindowInsets(android.graphics.Rect!);
+    method @Deprecated public androidx.core.view.WindowInsetsCompat? replaceSystemWindowInsets(int, int, int, int);
+    method @Deprecated public androidx.core.view.WindowInsetsCompat? replaceSystemWindowInsets(android.graphics.Rect);
     method @RequiresApi(20) public android.view.WindowInsets? toWindowInsets();
     method @RequiresApi(20) public static androidx.core.view.WindowInsetsCompat toWindowInsetsCompat(android.view.WindowInsets);
+  }
+
+  public static final class WindowInsetsCompat.Builder {
+    ctor public WindowInsetsCompat.Builder();
+    ctor public WindowInsetsCompat.Builder(androidx.core.view.WindowInsetsCompat);
+    method public androidx.core.view.WindowInsetsCompat build();
+    method public androidx.core.view.WindowInsetsCompat.Builder setDisplayCutout(androidx.core.view.DisplayCutoutCompat?);
+    method public androidx.core.view.WindowInsetsCompat.Builder setMandatorySystemGestureInsets(androidx.core.graphics.Insets);
+    method public androidx.core.view.WindowInsetsCompat.Builder setStableInsets(androidx.core.graphics.Insets);
+    method public androidx.core.view.WindowInsetsCompat.Builder setSystemGestureInsets(androidx.core.graphics.Insets);
+    method public androidx.core.view.WindowInsetsCompat.Builder setSystemWindowInsets(androidx.core.graphics.Insets);
+    method public androidx.core.view.WindowInsetsCompat.Builder setTappableElementInsets(androidx.core.graphics.Insets);
   }
 
 }

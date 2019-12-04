@@ -115,12 +115,34 @@ public final class Insets {
     }
 
     /**
+     * @deprecated Use {@link #toCompatInsets(android.graphics.Insets)} instead.
      * @hide
      */
     @RequiresApi(api = 29)
     @NonNull
+    @Deprecated
     @RestrictTo(LIBRARY_GROUP_PREFIX)
     public static Insets wrap(@NonNull android.graphics.Insets insets) {
+        return toCompatInsets(insets);
+    }
+
+    /**
+     * Return a copy of the given {@link android.graphics.Insets} instance, converted to be an
+     * {@link Insets} instance from AndroidX.
+     */
+    @RequiresApi(api = 29)
+    @NonNull
+    public static Insets toCompatInsets(@NonNull android.graphics.Insets insets) {
         return Insets.of(insets.left, insets.top, insets.right, insets.bottom);
+    }
+
+    /**
+     * Return a copy this instance, converted to be an {@link android.graphics.Insets} instance
+     * from the platform.
+     */
+    @RequiresApi(api = 29)
+    @NonNull
+    public android.graphics.Insets toPlatformInsets() {
+        return android.graphics.Insets.of(left, top, right, bottom);
     }
 }
