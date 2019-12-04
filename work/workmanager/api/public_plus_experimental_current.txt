@@ -125,10 +125,11 @@ package androidx.work {
   }
 
   public final class ForegroundInfo {
-    ctor public ForegroundInfo(android.app.Notification);
-    ctor public ForegroundInfo(android.app.Notification, int);
+    ctor public ForegroundInfo(int, android.app.Notification);
+    ctor public ForegroundInfo(int, android.app.Notification, int);
     method public int getForegroundServiceType();
     method public android.app.Notification getNotification();
+    method public int getNotificationId();
   }
 
   public interface ForegroundUpdater {

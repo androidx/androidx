@@ -1,0 +1,5 @@
+// Baseline format: 1.0
+RemovedMethod: androidx.work.ForegroundInfo#ForegroundInfo(android.app.Notification):
+    Removed constructor androidx.work.ForegroundInfo(android.app.Notification)
+RemovedMethod: androidx.work.ForegroundInfo#ForegroundInfo(android.app.Notification, int):
+    Removed constructor androidx.work.ForegroundInfo(android.app.Notification,int)
