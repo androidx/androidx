@@ -595,9 +595,9 @@ public class MediaController implements AutoCloseable {
     }
 
     /**
-     * Requests that the {@link SessionPlayer} associated with the connected {@link MediaSession}
-     * sets the volume of the output that is playing on. The command will
-     * be ignored if it does not support {@link VolumeProviderCompat#VOLUME_CONTROL_ABSOLUTE}.
+     * Requests that the connected {@link MediaSession} sets the volume of the output that is
+     * playing on. The command will be ignored if it does not support
+     * {@link VolumeProviderCompat#VOLUME_CONTROL_ABSOLUTE}.
      * <p>
      * If the session is local playback, this changes the device's volume with the stream that
      * session's player is using. Flags will be specified for the {@link AudioManager}.
@@ -619,9 +619,8 @@ public class MediaController implements AutoCloseable {
     }
 
     /**
-     * Requests that the {@link SessionPlayer} associated with the connected {@link MediaSession}
-     * adjusts the volume of the output that is playing on.
-     * The direction must be one of {@link AudioManager#ADJUST_LOWER},
+     * Requests that the connected {@link MediaSession} adjusts the volume of the output that is
+     * playing on. The direction must be one of {@link AudioManager#ADJUST_LOWER},
      * {@link AudioManager#ADJUST_RAISE}, or {@link AudioManager#ADJUST_SAME}.
      * <p>
      * The command will be ignored if the session does not support
