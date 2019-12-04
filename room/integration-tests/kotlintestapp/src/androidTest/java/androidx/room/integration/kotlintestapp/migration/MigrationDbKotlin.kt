@@ -28,6 +28,7 @@ import androidx.room.Query
 import androidx.room.Insert
 import androidx.room.Ignore
 import androidx.room.Dao
+import androidx.room.RoomWarnings
 import androidx.sqlite.db.SupportSQLiteDatabase
 
 @Database(version = MigrationDbKotlin.LATEST_VERSION,
@@ -63,6 +64,7 @@ abstract class MigrationDbKotlin : RoomDatabase() {
         }
     }
 
+    @SuppressWarnings(RoomWarnings.MISSING_INDEX_ON_FOREIGN_KEY_CHILD)
     @Entity(foreignKeys = arrayOf(ForeignKey(entity = Entity1::class,
             parentColumns = arrayOf("name"),
             childColumns = arrayOf("name"),

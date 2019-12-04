@@ -26,6 +26,7 @@ import androidx.room.Query
 import androidx.room.Relation
 import androidx.room.Room
 import androidx.room.RoomDatabase
+import androidx.room.Transaction
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import androidx.test.filters.SmallTest
 import androidx.test.platform.app.InstrumentationRegistry
@@ -100,9 +101,11 @@ class ConstructorInheritanceTest {
         fun loadById2(id: Long): Child2
 
         @Suppress("unused")
+        @Transaction
         @Query("SELECT * FROM Child1 WHERE id = :id")
         fun loadGroupById1(id: Long): ChildGroup1
 
+        @Transaction
         @Query("SELECT * FROM Child1 WHERE id = :id")
         fun loadGroupById2(id: Long): ChildGroup2
     }

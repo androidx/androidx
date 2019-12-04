@@ -21,11 +21,13 @@ package androidx.room.integration.kotlintestapp.vo
 
 import androidx.room.Entity
 import androidx.room.PrimaryKey
+import androidx.room.RoomWarnings
 import androidx.room.TypeConverter
 import androidx.room.TypeConverters
 
 @Entity
 @TypeConverters(CategoryListConverter::class)
+@SuppressWarnings(RoomWarnings.MISMATCHED_GETTER)
 class EntityWithJavaPojoList {
     @PrimaryKey
     var id: Long = 0
