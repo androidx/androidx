@@ -42,7 +42,6 @@ import androidx.camera.core.SessionConfig;
 import androidx.camera.core.impl.CameraControlInternal;
 import androidx.camera.core.impl.CaptureConfig;
 import androidx.camera.core.impl.Config;
-import androidx.camera.core.impl.utils.futures.Futures;
 import androidx.core.util.Preconditions;
 
 import com.google.common.util.concurrent.ListenableFuture;
@@ -79,7 +78,6 @@ final class Camera2CameraControl implements CameraControlInternal {
     //******************** Should only be accessed by executor *****************************//
     private Rect mCropRect = null;
     //**************************************************************************************//
-
 
     /**
      * Constructor for a Camera2CameraControl.
@@ -140,6 +138,14 @@ final class Camera2CameraControl implements CameraControlInternal {
         mPreviewAspectRatio = previewAspectRatio;
     }
 
+    /**
+     * Sets a {@link CaptureRequest.Builder} to get the default capture request parameters in order
+     * to compare the 3A regions in CaptureResult in FocusMeteringControl.
+     */
+    public void setDefaultRequestBuilder(@NonNull CaptureRequest.Builder builder) {
+        mFocusMeteringControl.setDefaultRequestBuilder(builder);
+    }
+
     @NonNull
     @Override
     public ListenableFuture<FocusMeteringResult> startFocusAndMetering(
@@ -150,8 +156,7 @@ final class Camera2CameraControl implements CameraControlInternal {
     @NonNull
     @Override
     public ListenableFuture<Void> cancelFocusAndMetering() {
-        mExecutor.execute(mFocusMeteringControl::cancelFocusAndMetering);
-        return Futures.immediateFuture(null);
+        return mFocusMeteringControl.cancelFocusAndMetering();
     }
 
     @NonNull
@@ -229,8 +234,7 @@ final class Camera2CameraControl implements CameraControlInternal {
         mExecutor.execute(() -> submitCaptureRequestsInternal(captureConfigs));
     }
 
-    @WorkerThread
-    private int getDefaultTemplate() {
+    int getDefaultTemplate() {
         return CameraDevice.TEMPLATE_PREVIEW;
     }
 
@@ -448,6 +452,21 @@ final class Camera2CameraControl implements CameraControlInternal {
             }
         }
         return false;
+    }
+
+    int getMaxAfRegionCount() {
+        Integer count = mCameraCharacteristics.get(CameraCharacteristics.CONTROL_MAX_REGIONS_AF);
+        return count == null ? 0 : count;
+    }
+
+    int getMaxAeRegionCount() {
+        Integer count = mCameraCharacteristics.get(CameraCharacteristics.CONTROL_MAX_REGIONS_AE);
+        return count == null ? 0 : count;
+    }
+
+    int getMaxAwbRegionCount() {
+        Integer count = mCameraCharacteristics.get(CameraCharacteristics.CONTROL_MAX_REGIONS_AWB);
+        return count == null ? 0 : count;
     }
 
     /** An interface to listen to camera capture results. */
