@@ -177,9 +177,9 @@ fun lerp(start: SpanStyle, stop: SpanStyle, fraction: Float): SpanStyle {
             fraction
         ),
         localeList = lerpDiscrete(start.localeList, stop.localeList, fraction),
-        background = lerpDiscrete(
-            start.background,
-            stop.background,
+        background = lerp(
+            start.background ?: Color.Transparent,
+            stop.background ?: Color.Transparent,
             fraction
         ),
         decoration = lerpDiscrete(
