@@ -33,7 +33,13 @@ import androidx.ui.text.style.TextGeometricTransform
 import androidx.ui.text.style.lerp
 
 /**
- * Styling configuration for a text span.
+ * Styling configuration for a text span. This configuration only allows character level styling,
+ * in order to set paragraph level styling such as line height, or text alignment please see
+ * [ParagraphStyle].
+ *
+ * @sample androidx.ui.text.samples.SpanStyleSample
+ *
+ * @sample androidx.ui.text.samples.AnnotatedStringBuilderSample
  *
  * @param color The text color.
  * @param fontSize The size of glyphs (in logical pixels) to use when painting the text. This
@@ -56,6 +62,7 @@ import androidx.ui.text.style.lerp
  *
  * @see [AnnotatedString]
  * @see [TextStyle]
+ * @see [ParagraphStyle]
  */
 @Immutable
 data class SpanStyle(

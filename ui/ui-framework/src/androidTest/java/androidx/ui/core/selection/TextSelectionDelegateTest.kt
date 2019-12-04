@@ -31,8 +31,8 @@ import androidx.ui.core.sp
 import androidx.ui.core.withDensity
 import androidx.ui.text.AnnotatedString
 import androidx.ui.text.ParagraphStyle
+import androidx.ui.text.SpanStyle
 import androidx.ui.text.TextDelegate
-import androidx.ui.text.TextStyle
 import androidx.ui.text.font.Font
 import androidx.ui.text.font.FontStyle
 import androidx.ui.text.font.FontWeight
@@ -828,8 +828,8 @@ class TextSelectionDelegateTest {
         fontSize: TextUnit = TextUnit.Inherit,
         density: Density
     ): TextDelegate {
-        val textStyle = TextStyle(fontSize = fontSize, fontFamily = fontFamily)
-        val annotatedString = AnnotatedString(text, textStyle)
+        val spanStyle = SpanStyle(fontSize = fontSize, fontFamily = fontFamily)
+        val annotatedString = AnnotatedString(text, spanStyle)
         val textDelegate = TextDelegate(
             text = annotatedString,
             paragraphStyle = ParagraphStyle(),

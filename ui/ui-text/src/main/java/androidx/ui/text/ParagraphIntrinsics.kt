@@ -46,7 +46,7 @@ interface ParagraphIntrinsics {
     text: String,
     style: TextStyle,
     paragraphStyle: ParagraphStyle,
-    textStyles: List<AnnotatedString.Item<TextStyle>>,
+    spanStyles: List<AnnotatedString.Item<SpanStyle>>,
     density: Density,
     resourceLoader: Font.ResourceLoader
 ): ParagraphIntrinsics {
@@ -57,7 +57,7 @@ interface ParagraphIntrinsics {
         typefaceAdapter = TypefaceAdapter(
             resourceLoader = resourceLoader
         ),
-        textStyles = textStyles,
+        spanStyles = spanStyles,
         density = density
     )
 }

@@ -29,8 +29,8 @@ import androidx.compose.Recomposer
 import androidx.compose.SlotTable
 import androidx.compose.ViewValidator
 import androidx.compose.cache
+import androidx.ui.text.SpanStyle
 import androidx.ui.text.TextSpan
-import androidx.ui.text.TextStyle
 import java.util.WeakHashMap
 
 /**
@@ -263,7 +263,7 @@ class TextSpanScope internal constructor(val composer: TextSpanComposition)
 @Composable
 fun TextSpanScope.Span(
     text: String? = null,
-    style: TextStyle? = null,
+    style: SpanStyle? = null,
     child: @Composable TextSpanScope.() -> Unit
 ) {
     TextSpan(text = text, style = style) {
@@ -274,7 +274,7 @@ fun TextSpanScope.Span(
 @Composable
 fun TextSpanScope.Span(
     text: String? = null,
-    style: TextStyle? = null
+    style: SpanStyle? = null
 ) {
     TextSpan(text = text, style = style)
 }

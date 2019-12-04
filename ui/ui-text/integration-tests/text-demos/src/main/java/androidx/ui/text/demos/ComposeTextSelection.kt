@@ -30,6 +30,7 @@ import androidx.ui.layout.ExpandedHeight
 import androidx.ui.layout.ExpandedWidth
 import androidx.ui.layout.Row
 import androidx.ui.text.LocaleList
+import androidx.ui.text.SpanStyle
 import androidx.ui.text.TextStyle
 import androidx.ui.text.font.FontStyle
 import androidx.ui.text.font.FontWeight
@@ -58,7 +59,7 @@ fun TextDemoSelection() {
         onSelectionChange = { selection.value = it }) {
         Text {
             Span(
-                style = TextStyle(
+                style = SpanStyle(
                     color = Color(0xFFFF0000),
                     fontSize = fontSize6,
                     fontWeight = FontWeight.W200,
@@ -70,7 +71,7 @@ fun TextDemoSelection() {
                 Span(text = "$displayTextChinese   ")
                 Span(
                     text = displayTextHindi,
-                    style = TextStyle(
+                    style = SpanStyle(
                         color = Color(0xFF0000FF),
                         fontSize = fontSize10,
                         fontWeight = FontWeight.W800,
@@ -80,11 +81,11 @@ fun TextDemoSelection() {
                 Span(text = "$arabicSentence")
                 Span(
                     text = "\n先帝创业未半而中道崩殂，今天下三分，益州疲弊，此诚危急存亡之秋也。",
-                    style = TextStyle(localeList = LocaleList("zh-CN"))
+                    style = SpanStyle(localeList = LocaleList("zh-CN"))
                 )
                 Span(
                     text = "\nまず、現在天下が魏・呉・蜀に分れており、そのうち蜀は疲弊していることを指摘する。",
-                    style = TextStyle(localeList = LocaleList("ja-JP"))
+                    style = SpanStyle(localeList = LocaleList("ja-JP"))
                 )
             }
         }
@@ -139,7 +140,7 @@ fun TextDemoSelection2DArrayVertical() {
                         Text {
                             Span(
                                 text = text,
-                                style = TextStyle(
+                                style = SpanStyle(
                                     color = colorList[i * 3 + j],
                                     fontSize = fontSize6
                                 )

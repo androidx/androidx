@@ -131,8 +131,8 @@ package androidx.ui.core {
 
   public final class TextSpanComposeKt {
     ctor public TextSpanComposeKt();
-    method public static void Span(androidx.ui.core.TextSpanScope, String? text = null, androidx.ui.text.TextStyle? style = null, kotlin.jvm.functions.Function1<? super androidx.ui.core.TextSpanScope,kotlin.Unit> child);
-    method public static void Span(androidx.ui.core.TextSpanScope, String? text = null, androidx.ui.text.TextStyle? style = null);
+    method public static void Span(androidx.ui.core.TextSpanScope, String? text = null, androidx.ui.text.SpanStyle? style = null, kotlin.jvm.functions.Function1<? super androidx.ui.core.TextSpanScope,kotlin.Unit> child);
+    method public static void Span(androidx.ui.core.TextSpanScope, String? text = null, androidx.ui.text.SpanStyle? style = null);
     method public static void compose(androidx.ui.text.TextSpan container, androidx.compose.CompositionReference? parent = null, kotlin.jvm.functions.Function1<? super androidx.ui.core.TextSpanScope,kotlin.Unit> composable);
     method public static void disposeComposition(androidx.ui.text.TextSpan container, androidx.compose.CompositionReference? parent = null);
   }

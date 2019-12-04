@@ -87,7 +87,7 @@ fun TextDemoParagraphLineHeight() {
     Text(
         text = AnnotatedString(
             text = text1 + text2 + text3,
-            textStyles = listOf(),
+            spanStyles = listOf(),
             paragraphStyles = listOf(
                 AnnotatedString.Item(
                     ParagraphStyle(lineHeight = 30.sp),

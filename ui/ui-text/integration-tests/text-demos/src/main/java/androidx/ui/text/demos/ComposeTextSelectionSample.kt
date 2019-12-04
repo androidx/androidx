@@ -37,6 +37,7 @@ import androidx.ui.layout.FlexRow
 import androidx.ui.layout.Padding
 import androidx.ui.text.AnnotatedString
 import androidx.ui.text.ParagraphStyle
+import androidx.ui.text.SpanStyle
 import androidx.ui.text.TextStyle
 import androidx.ui.text.withStyle
 
@@ -48,8 +49,8 @@ val headerParagraph = ParagraphStyle(lineHeight = 36.sp)
 val header2 = TextStyle(fontSize = 18.sp, color = Color(0xFF707070))
 val header2Paragraph = ParagraphStyle(lineHeight = 30.sp)
 
-val link = TextStyle(color = Color(0xFF03a9f4))
-val highlight = TextStyle(background = Color(0xFFefefef))
+val link = SpanStyle(color = Color(0xFF03a9f4))
+val highlight = SpanStyle(background = Color(0xFFefefef))
 
 val rectColor = Color(0xFFffb74d)
 
@@ -165,7 +166,7 @@ fun AddTextElement() {
     EmptyRect()
     Text(
         text = AnnotatedString {
-            withStyle(commonStyle) {
+            withStyle(commonStyle.toSpanStyle()) {
                 append(
                     "The setContent block defines the activity's layout. Instead of " +
                             "defining the layout contents with an XML file, we call " +
@@ -194,7 +195,7 @@ fun MultiParagraph() {
     )
     Text(
         text = AnnotatedString {
-            withStyle(commonStyle) {
+            withStyle(commonStyle.toSpanStyle()) {
                 withStyle(commonParagraph) {
                     append(
                         "Composable functions can only be called from within the scope of " +

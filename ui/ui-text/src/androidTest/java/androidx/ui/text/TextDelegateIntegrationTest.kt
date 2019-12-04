@@ -55,8 +55,8 @@ class TextDelegateIntegrationTest {
         withDensity(density) {
             val fontSize = 20.sp
             val text = "Hello"
-            val textStyle = TextStyle(fontSize = fontSize, fontFamily = fontFamily)
-            val annotatedString = AnnotatedString(text, textStyle)
+            val spanStyle = SpanStyle(fontSize = fontSize, fontFamily = fontFamily)
+            val annotatedString = AnnotatedString(text, spanStyle)
             val textDelegate = TextDelegate(
                 text = annotatedString,
                 paragraphStyle = ParagraphStyle(),
@@ -76,8 +76,8 @@ class TextDelegateIntegrationTest {
         withDensity(density) {
             val fontSize = 20.sp
             val text = "Hello"
-            val textStyle = TextStyle(fontSize = fontSize, fontFamily = fontFamily)
-            val annotatedString = AnnotatedString(text, textStyle)
+            val spanStyle = SpanStyle(fontSize = fontSize, fontFamily = fontFamily)
+            val annotatedString = AnnotatedString(text, spanStyle)
             val textDelegate = TextDelegate(
                 text = annotatedString,
                 paragraphStyle = ParagraphStyle(),
@@ -98,8 +98,8 @@ class TextDelegateIntegrationTest {
         withDensity(density) {
             val fontSize = 20.sp
             val text = "Hello"
-            val textStyle = TextStyle(fontSize = fontSize, fontFamily = fontFamily)
-            val annotatedString = AnnotatedString(text, textStyle)
+            val spanStyle = SpanStyle(fontSize = fontSize, fontFamily = fontFamily)
+            val annotatedString = AnnotatedString(text, spanStyle)
             val textDelegate = TextDelegate(
                 text = annotatedString,
                 paragraphStyle = ParagraphStyle(),
@@ -120,8 +120,8 @@ class TextDelegateIntegrationTest {
     fun width_getter_with_small_width() {
         val text = "Hello"
         val width = 80.ipx
-        val textStyle = TextStyle(fontSize = 20.sp, fontFamily = fontFamily)
-        val annotatedString = AnnotatedString(text, textStyle)
+        val spanStyle = SpanStyle(fontSize = 20.sp, fontFamily = fontFamily)
+        val annotatedString = AnnotatedString(text, spanStyle)
         val textDelegate = TextDelegate(
             text = annotatedString,
             paragraphStyle = ParagraphStyle(),
@@ -139,9 +139,9 @@ class TextDelegateIntegrationTest {
     fun height_getter() {
         withDensity(density) {
             val fontSize = 20.sp
-            val textStyle = TextStyle(fontSize = fontSize, fontFamily = fontFamily)
+            val spanStyle = SpanStyle(fontSize = fontSize, fontFamily = fontFamily)
             val text = "hello"
-            val annotatedString = AnnotatedString(text, textStyle)
+            val annotatedString = AnnotatedString(text, spanStyle)
             val textDelegate = TextDelegate(
                 text = annotatedString,
                 paragraphStyle = ParagraphStyle(),
@@ -176,7 +176,7 @@ class TextDelegateIntegrationTest {
         val text = "Hello"
         val annotatedString = AnnotatedString(
             text,
-            TextStyle(fontSize = 20.sp, fontFamily = fontFamily)
+            SpanStyle(fontSize = 20.sp, fontFamily = fontFamily)
         )
 
         val textDelegate = TextDelegate(
@@ -202,7 +202,7 @@ class TextDelegateIntegrationTest {
 
             val annotatedString = AnnotatedString(
                 text,
-                TextStyle(fontSize = fontSize, fontFamily = fontFamily)
+                SpanStyle(fontSize = fontSize, fontFamily = fontFamily)
             )
 
             val textDelegate = TextDelegate(
@@ -225,8 +225,8 @@ class TextDelegateIntegrationTest {
     @Test
     fun hasOverflowShaderFalse() {
         val text = "Hello"
-        val textStyle = TextStyle(fontSize = 20.sp, fontFamily = fontFamily)
-        val annotatedString = AnnotatedString(text, textStyle)
+        val spanStyle = SpanStyle(fontSize = 20.sp, fontFamily = fontFamily)
+        val annotatedString = AnnotatedString(text, spanStyle)
         val textDelegate = TextDelegate(
             text = annotatedString,
             paragraphStyle = ParagraphStyle(),
@@ -249,8 +249,8 @@ class TextDelegateIntegrationTest {
         for (i in 1..15) {
             text += "Hello World"
         }
-        val textStyle = TextStyle(fontSize = 20.sp, fontFamily = fontFamily)
-        val annotatedString = AnnotatedString(text, textStyle)
+        val spanStyle = SpanStyle(fontSize = 20.sp, fontFamily = fontFamily)
+        val annotatedString = AnnotatedString(text, spanStyle)
 
         val textDelegate = TextDelegate(
             text = annotatedString,
@@ -275,10 +275,10 @@ class TextDelegateIntegrationTest {
     fun hasOverflowShaderFadeVerticallyTrue() {
         var text = ""
         for (i in 1..30) {
-            text = text + "Hello World"
+            text += "Hello World"
         }
-        val textStyle = TextStyle(fontSize = 20.sp, fontFamily = fontFamily)
-        val annotatedString = AnnotatedString(text, textStyle)
+        val spanStyle = SpanStyle(fontSize = 20.sp, fontFamily = fontFamily)
+        val annotatedString = AnnotatedString(text, spanStyle)
         val textDelegate = TextDelegate(
             text = annotatedString,
             paragraphStyle = ParagraphStyle(),
@@ -304,8 +304,8 @@ class TextDelegateIntegrationTest {
             val fontSize = 20.sp
             val fontSizeInPx = fontSize.toPx().value
             val text = "HelloHello"
-            val textStyle = TextStyle(fontSize = fontSize, fontFamily = fontFamily)
-            val annotatedString = AnnotatedString(text, textStyle)
+            val spanStyle = SpanStyle(fontSize = fontSize, fontFamily = fontFamily)
+            val annotatedString = AnnotatedString(text, spanStyle)
             val textDelegate = TextDelegate(
                 text = annotatedString,
                 paragraphStyle = ParagraphStyle(),
@@ -365,8 +365,8 @@ class TextDelegateIntegrationTest {
             val fontSize = 20.sp
             val fontSizeInPx = fontSize.toPx().value
             val text = "Hello"
-            val textStyle = TextStyle(fontSize = fontSize, fontFamily = fontFamily)
-            val annotatedString = AnnotatedString(text, textStyle)
+            val spanStyle = SpanStyle(fontSize = fontSize, fontFamily = fontFamily)
+            val annotatedString = AnnotatedString(text, spanStyle)
             val textDelegate = TextDelegate(
                 text = annotatedString,
                 paragraphStyle = ParagraphStyle(),
@@ -419,8 +419,8 @@ class TextDelegateIntegrationTest {
             val selectionRTLEnd = 2
             val fontSize = 20.sp
             val fontSizeInPx = fontSize.toPx().value
-            val textStyle = TextStyle(fontSize = fontSize, fontFamily = fontFamily)
-            val annotatedString = AnnotatedString(text, textStyle)
+            val spanStyle = SpanStyle(fontSize = fontSize, fontFamily = fontFamily)
+            val annotatedString = AnnotatedString(text, spanStyle)
             val textDelegate = TextDelegate(
                 text = annotatedString,
                 paragraphStyle = ParagraphStyle(),
@@ -482,8 +482,8 @@ class TextDelegateIntegrationTest {
             val fontSize = 20.sp
             val fontSizeInPx = fontSize.toPx().value
             val text = "Hello"
-            val textStyle = TextStyle(fontSize = fontSize, fontFamily = fontFamily)
-            val annotatedString = AnnotatedString(text, textStyle)
+            val spanStyle = SpanStyle(fontSize = fontSize, fontFamily = fontFamily)
+            val annotatedString = AnnotatedString(text, spanStyle)
             val selectionColor = Color(0x66AABB33)
             val textDelegate = TextDelegate(
                 text = annotatedString,

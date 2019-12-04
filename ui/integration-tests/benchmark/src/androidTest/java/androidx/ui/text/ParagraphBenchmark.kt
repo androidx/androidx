@@ -69,21 +69,21 @@ class ParagraphBenchmark(
 
     private fun text(textGenerator: RandomTextGenerator): AnnotatedString {
         val text = textGenerator.nextParagraph(textLength)
-        val textStyles = if (textType == TextType.StyledText) {
+        val spanStyles = if (textType == TextType.StyledText) {
             textGenerator.createStyles(text)
         } else {
             listOf()
         }
-        return AnnotatedString(text = text, textStyles = textStyles)
+        return AnnotatedString(text = text, spanStyles = spanStyles)
     }
 
     private fun paragraph(
         text: String,
-        textStyles: List<AnnotatedString.Item<TextStyle>>,
+        spanStyles: List<AnnotatedString.Item<SpanStyle>>,
         constraints: ParagraphConstraints
     ): Paragraph {
         return Paragraph(
-            paragraphIntrinsics = paragraphIntrinsics(text, textStyles),
+            paragraphIntrinsics = paragraphIntrinsics(text, spanStyles),
             constraints = constraints
         )
     }
@@ -94,13 +94,13 @@ class ParagraphBenchmark(
         val annotatedString = text(textGenerator)
         return paragraphIntrinsics(
             text = annotatedString.text,
-            textStyles = annotatedString.textStyles
+            spanStyles = annotatedString.spanStyles
         )
     }
 
     private fun paragraphIntrinsics(
         text: String,
-        textStyles: List<AnnotatedString.Item<TextStyle>>
+        spanStyles: List<AnnotatedString.Item<SpanStyle>>
     ): ParagraphIntrinsics {
         return ParagraphIntrinsics(
             text = text,
@@ -110,7 +110,7 @@ class ParagraphBenchmark(
                 textDirectionAlgorithm = TextDirectionAlgorithm.ContentOrLtr
             ),
             resourceLoader = resourceLoader,
-            textStyles = textStyles
+            spanStyles = spanStyles
         )
     }
 
@@ -156,7 +156,7 @@ class ParagraphBenchmark(
 
                 paragraph(
                     text = textAndWidth.first.text,
-                    textStyles = textAndWidth.first.textStyles,
+                    spanStyles = textAndWidth.first.spanStyles,
                     constraints = ParagraphConstraints(textAndWidth.second)
                 )
             }

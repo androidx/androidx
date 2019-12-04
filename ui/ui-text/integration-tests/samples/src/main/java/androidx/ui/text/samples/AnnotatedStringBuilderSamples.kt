@@ -21,14 +21,14 @@ import androidx.ui.core.sp
 import androidx.ui.graphics.Color
 import androidx.ui.text.AnnotatedString
 import androidx.ui.text.ParagraphStyle
-import androidx.ui.text.TextStyle
+import androidx.ui.text.SpanStyle
 import androidx.ui.text.withStyle
 
 @Sampled
 fun AnnotatedStringBuilderSample() {
     with(AnnotatedString.Builder("Hello")) {
         // push green text style so that any appended text will be green
-        pushStyle(TextStyle(color = Color.Green))
+        pushStyle(SpanStyle(color = Color.Green))
         // append new text, this text will be rendered as green
         append(" World")
         // pop the green style
@@ -36,7 +36,7 @@ fun AnnotatedStringBuilderSample() {
         // append a string without style
         append("!")
         // then style the last added word as red, exclamation mark will be red
-        addStyle(TextStyle(color = Color.Red), "Hello World".length, this.length)
+        addStyle(SpanStyle(color = Color.Red), "Hello World".length, this.length)
 
         toAnnotatedString()
     }
@@ -46,7 +46,7 @@ fun AnnotatedStringBuilderSample() {
 fun AnnotatedStringBuilderPushSample() {
     with(AnnotatedString.Builder()) {
         // push green text color so that any appended text will be rendered green
-        pushStyle(TextStyle(color = Color.Green))
+        pushStyle(SpanStyle(color = Color.Green))
         // append string, this text will be rendered green
         append("Hello")
         // pop the green text style
@@ -77,7 +77,7 @@ fun AnnotatedStringBuilderPushParagraphStyleSample() {
 @Sampled
 fun AnnotatedStringBuilderWithStyleSample() {
     with(AnnotatedString.Builder()) {
-        withStyle(TextStyle(color = Color.Green)) {
+        withStyle(SpanStyle(color = Color.Green)) {
             // green text style will be applied to all text in this block
             append("Hello")
         }
@@ -90,12 +90,12 @@ fun AnnotatedStringBuilderLambdaSample() {
     // create an AnnotatedString using the lambda builder
     AnnotatedString {
         // append "Hello" with red text color
-        withStyle(TextStyle(color = Color.Red)) {
+        withStyle(SpanStyle(color = Color.Red)) {
             append("Hello")
         }
         append(" ")
         // append "Hello" with blue text color
-        withStyle(TextStyle(color = Color.Blue)) {
+        withStyle(SpanStyle(color = Color.Blue)) {
             append("World!")
         }
     }

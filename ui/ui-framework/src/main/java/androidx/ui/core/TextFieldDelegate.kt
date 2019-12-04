@@ -36,6 +36,7 @@ import androidx.ui.text.AnnotatedString
 import androidx.ui.text.Paragraph
 import androidx.ui.text.ParagraphConstraints
 import androidx.ui.text.ParagraphStyle
+import androidx.ui.text.SpanStyle
 import androidx.ui.text.TextDelegate
 import androidx.ui.text.TextRange
 import androidx.ui.text.TextStyle
@@ -70,7 +71,7 @@ private fun computeLineHeightForEmptyText(
         paragraphStyle = ParagraphStyle(
             textDirectionAlgorithm = TextDirectionAlgorithm.ContentOrLtr
         ),
-        textStyles = listOf(),
+        spanStyles = listOf(),
         maxLines = 1,
         ellipsis = false,
         density = density,
@@ -332,8 +333,11 @@ internal class TextFieldDelegate {
         ): TransformedText =
             TransformedText(
                 AnnotatedString.Builder(transformed.transformedText).apply {
-                    addStyle(TextStyle(decoration = TextDecoration.Underline),
-                        compositionRange.start, compositionRange.end)
+                    addStyle(
+                        SpanStyle(decoration = TextDecoration.Underline),
+                        compositionRange.start,
+                        compositionRange.end
+                    )
                 }.toAnnotatedString(),
                 transformed.offsetMap
             )
