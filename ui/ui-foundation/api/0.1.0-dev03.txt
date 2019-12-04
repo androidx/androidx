@@ -20,6 +20,12 @@ package androidx.ui.foundation {
     method public static void ColoredRect(androidx.ui.graphics.Color color, androidx.ui.core.Modifier modifier = Modifier.None, androidx.ui.core.Dp? width = null, androidx.ui.core.Dp? height = null);
   }
 
+  public final class ContentColorKt {
+    ctor public ContentColorKt();
+    method public static void ProvideContentColor(androidx.ui.graphics.Color color, kotlin.jvm.functions.Function0<kotlin.Unit> children);
+    method public static androidx.ui.graphics.Color contentColor();
+  }
+
   public final class DarkThemeKt {
     ctor public DarkThemeKt();
     method public static androidx.compose.Effect<java.lang.Boolean> isSystemInDarkTheme();

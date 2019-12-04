@@ -17,31 +17,10 @@
 package androidx.ui.material
 
 import androidx.annotation.FloatRange
-import androidx.ui.graphics.Color
-import androidx.compose.effectOf
 import androidx.compose.unaryPlus
 import androidx.ui.core.currentTextStyle
+import androidx.ui.graphics.Color
 import androidx.ui.text.TextStyle
-
-/**
- * Tries to match the background color to correlated text color. For example,
- * on [ColorPalette.primary] background [ColorPalette.onPrimary] will be used.
- * If the background is not from the [ColorPalette] the text color will not be
- * automatically resolved.
- */
-fun textColorForBackground(background: Color) = effectOf<Color?> {
-    val themeColorPalette = +MaterialTheme.colors()
-    when (background) {
-        themeColorPalette.primary -> themeColorPalette.onPrimary
-        themeColorPalette.primaryVariant -> themeColorPalette.onPrimary
-        themeColorPalette.secondary -> themeColorPalette.onSecondary
-        themeColorPalette.secondaryVariant -> themeColorPalette.onSecondary
-        themeColorPalette.background -> themeColorPalette.onBackground
-        themeColorPalette.surface -> themeColorPalette.onSurface
-        themeColorPalette.error -> themeColorPalette.onError
-        else -> null
-    }
-}
 
 /**
  * TEMPORARY solution to apply an opacity for the [TextStyle] even if it has no
