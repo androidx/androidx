@@ -38,7 +38,7 @@ class BenchmarkPluginTest {
 
     private lateinit var buildToolsVersion: String
     private lateinit var compileSdkVersion: String
-    private lateinit var prebuiltsRepo: String
+    private lateinit var prebuiltsRoot: String
     private lateinit var minSdkVersion: String
 
     private lateinit var buildFile: File
@@ -51,7 +51,7 @@ class BenchmarkPluginTest {
         val stream = BenchmarkPluginTest::class.java.classLoader.getResourceAsStream("sdk.prop")
         val properties = Properties()
         properties.load(stream)
-        prebuiltsRepo = properties.getProperty("prebuiltsRepo")
+        prebuiltsRoot = properties.getProperty("prebuiltsRoot")
         compileSdkVersion = properties.getProperty("compileSdkVersion")
         buildToolsVersion = properties.getProperty("buildToolsVersion")
         minSdkVersion = properties.getProperty("minSdkVersion")
@@ -92,8 +92,8 @@ class BenchmarkPluginTest {
             }
 
             repositories {
-                maven { url "$prebuiltsRepo/androidx/external" }
-                maven { url "$prebuiltsRepo/androidx/internal" }
+                maven { url "$prebuiltsRoot/androidx/external" }
+                maven { url "$prebuiltsRoot/androidx/internal" }
             }
 
             android {
@@ -126,8 +126,8 @@ class BenchmarkPluginTest {
             }
 
             repositories {
-                maven { url "$prebuiltsRepo/androidx/external" }
-                maven { url "$prebuiltsRepo/androidx/internal" }
+                maven { url "$prebuiltsRoot/androidx/external" }
+                maven { url "$prebuiltsRoot/androidx/internal" }
             }
 
             android {
@@ -159,8 +159,8 @@ class BenchmarkPluginTest {
             }
 
             repositories {
-                maven { url "$prebuiltsRepo/androidx/external" }
-                maven { url "$prebuiltsRepo/androidx/internal" }
+                maven { url "$prebuiltsRoot/androidx/external" }
+                maven { url "$prebuiltsRoot/androidx/internal" }
             }
 
             android {
@@ -193,8 +193,8 @@ class BenchmarkPluginTest {
             }
 
             repositories {
-                maven { url "$prebuiltsRepo/androidx/external" }
-                maven { url "$prebuiltsRepo/androidx/internal" }
+                maven { url "$prebuiltsRoot/androidx/external" }
+                maven { url "$prebuiltsRoot/androidx/internal" }
             }
 
             android {
@@ -223,8 +223,8 @@ class BenchmarkPluginTest {
             }
 
             repositories {
-                maven { url "$prebuiltsRepo/androidx/external" }
-                maven { url "$prebuiltsRepo/androidx/internal" }
+                maven { url "$prebuiltsRoot/androidx/external" }
+                maven { url "$prebuiltsRoot/androidx/internal" }
             }
 
             android {
@@ -257,8 +257,8 @@ class BenchmarkPluginTest {
             }
 
             repositories {
-                maven { url "$prebuiltsRepo/androidx/external" }
-                maven { url "$prebuiltsRepo/androidx/internal" }
+                maven { url "$prebuiltsRoot/androidx/external" }
+                maven { url "$prebuiltsRoot/androidx/internal" }
             }
 
             android {
@@ -305,8 +305,8 @@ class BenchmarkPluginTest {
             }
 
             repositories {
-                maven { url "$prebuiltsRepo/androidx/external" }
-                maven { url "$prebuiltsRepo/androidx/internal" }
+                maven { url "$prebuiltsRoot/androidx/external" }
+                maven { url "$prebuiltsRoot/androidx/internal" }
             }
 
             android {
@@ -362,8 +362,8 @@ class BenchmarkPluginTest {
             }
 
             repositories {
-                maven { url "$prebuiltsRepo/androidx/external" }
-                maven { url "$prebuiltsRepo/androidx/internal" }
+                maven { url "$prebuiltsRoot/androidx/external" }
+                maven { url "$prebuiltsRoot/androidx/internal" }
             }
 
             android {
@@ -412,8 +412,8 @@ class BenchmarkPluginTest {
             }
 
             repositories {
-                maven { url "$prebuiltsRepo/androidx/external" }
-                maven { url "$prebuiltsRepo/androidx/internal" }
+                maven { url "$prebuiltsRoot/androidx/external" }
+                maven { url "$prebuiltsRoot/androidx/internal" }
             }
 
             android {
@@ -467,8 +467,8 @@ class BenchmarkPluginTest {
             }
 
             repositories {
-                maven { url "$prebuiltsRepo/androidx/external" }
-                maven { url "$prebuiltsRepo/androidx/internal" }
+                maven { url "$prebuiltsRoot/androidx/external" }
+                maven { url "$prebuiltsRoot/androidx/internal" }
             }
 
             android {
@@ -505,8 +505,8 @@ class BenchmarkPluginTest {
             }
 
             repositories {
-                maven { url "$prebuiltsRepo/androidx/external" }
-                maven { url "$prebuiltsRepo/androidx/internal" }
+                maven { url "$prebuiltsRoot/androidx/external" }
+                maven { url "$prebuiltsRoot/androidx/internal" }
             }
 
             android {

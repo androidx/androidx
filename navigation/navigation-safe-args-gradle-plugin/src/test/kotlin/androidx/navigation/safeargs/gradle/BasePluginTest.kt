@@ -51,7 +51,7 @@ abstract class BasePluginTest {
     val testProjectDir = TemporaryFolder()
 
     internal var buildFile: File = File("")
-    internal var prebuiltsRepo = ""
+    internal var prebuiltsRoot = ""
     internal var compileSdkVersion = ""
     internal var buildToolsVersion = ""
     internal var minSdkVersion = ""
@@ -110,7 +110,7 @@ abstract class BasePluginTest {
         val stream = BasePluginTest::class.java.classLoader.getResourceAsStream("sdk.prop")
         val properties = Properties()
         properties.load(stream)
-        prebuiltsRepo = properties.getProperty("prebuiltsRepo")
+        prebuiltsRoot = properties.getProperty("prebuiltsRoot")
         compileSdkVersion = properties.getProperty("compileSdkVersion")
         buildToolsVersion = properties.getProperty("buildToolsVersion")
         minSdkVersion = properties.getProperty("minSdkVersion")
@@ -135,8 +135,8 @@ abstract class BasePluginTest {
             }
 
             repositories {
-                maven { url "$prebuiltsRepo/androidx/external" }
-                maven { url "$prebuiltsRepo/androidx/internal" }
+                maven { url "$prebuiltsRoot/androidx/external" }
+                maven { url "$prebuiltsRoot/androidx/internal" }
             }
 
             android {
@@ -174,8 +174,8 @@ abstract class BasePluginTest {
 
             allprojects {
                 repositories {
-                    maven { url "$prebuiltsRepo/androidx/external" }
-                    maven { url "$prebuiltsRepo/androidx/internal" }
+                    maven { url "$prebuiltsRoot/androidx/external" }
+                    maven { url "$prebuiltsRoot/androidx/internal" }
                 }
             }
         """.trimIndent()
@@ -192,8 +192,8 @@ abstract class BasePluginTest {
             }
 
             repositories {
-                maven { url "$prebuiltsRepo/androidx/external" }
-                maven { url "$prebuiltsRepo/androidx/internal" }
+                maven { url "$prebuiltsRoot/androidx/external" }
+                maven { url "$prebuiltsRoot/androidx/internal" }
             }
 
             android {

@@ -55,7 +55,7 @@ class RoomIncrementalAnnotationProcessingTest(private val withIncrementalRoom: B
     val expect: Expect = Expect.create()
 
     // Properties to set up test project
-    private lateinit var prebuiltsRepo: String
+    private lateinit var prebuiltsRoot: String
     private lateinit var agpDependency: String
     private lateinit var localSupportRepo: String
     private lateinit var compileSdkVersion: String
@@ -111,7 +111,7 @@ class RoomIncrementalAnnotationProcessingTest(private val withIncrementalRoom: B
             .getResourceAsStream("sdk.prop")
             .use { input ->
                 val properties = Properties().apply { load(input) }
-                prebuiltsRepo = properties.getProperty("prebuiltsRepo")
+                prebuiltsRoot = properties.getProperty("prebuiltsRoot")
                 localSupportRepo = properties.getProperty("localSupportRepo")
                 agpDependency = properties.getProperty("agpDependency")
                 compileSdkVersion = properties.getProperty("compileSdkVersion")
@@ -133,8 +133,8 @@ class RoomIncrementalAnnotationProcessingTest(private val withIncrementalRoom: B
             """
             buildscript {
                 repositories {
-                    maven { url "$prebuiltsRepo/androidx/external" }
-                    maven { url "$prebuiltsRepo/androidx/internal" }
+                    maven { url "$prebuiltsRoot/androidx/external" }
+                    maven { url "$prebuiltsRoot/androidx/internal" }
                 }
                 dependencies {
                     classpath "$agpDependency"
@@ -144,10 +144,10 @@ class RoomIncrementalAnnotationProcessingTest(private val withIncrementalRoom: B
             apply plugin: 'com.android.application'
 
             repositories {
-                maven { url "$prebuiltsRepo/androidx/external" }
+                maven { url "$prebuiltsRoot/androidx/external" }
                 maven { url "$localSupportRepo" }
                 maven {
-                    url "$prebuiltsRepo/androidx/internal"
+                    url "$prebuiltsRoot/androidx/internal"
                     content {
                         excludeModule("androidx.room", "room-compiler")
                     }
