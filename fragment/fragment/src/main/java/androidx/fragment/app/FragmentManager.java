@@ -374,8 +374,8 @@ public abstract class FragmentManager {
             new FragmentLifecycleCallbacksDispatcher(this);
 
     int mCurState = Fragment.INITIALIZING;
-    FragmentHostCallback<?> mHost;
-    FragmentContainer mContainer;
+    private FragmentHostCallback<?> mHost;
+    private FragmentContainer mContainer;
     private Fragment mParent;
     @SuppressWarnings("WeakerAccess") /* synthetic access */
     @Nullable
@@ -386,7 +386,7 @@ public abstract class FragmentManager {
         @NonNull
         @Override
         public Fragment instantiate(@NonNull ClassLoader classLoader, @NonNull String className) {
-            return mHost.instantiate(mHost.getContext(), className, null);
+            return getHost().instantiate(getHost().getContext(), className, null);
         }
     };
 
@@ -2503,9 +2503,19 @@ public abstract class FragmentManager {
         }
     }
 
+    @NonNull
+    FragmentHostCallback<?> getHost() {
+        return mHost;
+    }
+
     @Nullable
     Fragment getParent() {
         return mParent;
+    }
+
+    @NonNull
+    FragmentContainer getContainer() {
+        return mContainer;
     }
 
     void attachController(@NonNull FragmentHostCallback<?> host,
