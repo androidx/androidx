@@ -73,7 +73,7 @@ public class WorkProgressUpdater implements ProgressUpdater {
             @Override
             public void run() {
                 String workSpecId = id.toString();
-                Logger.get().info(TAG, String.format("Updating progress for %s (%s)", id, data));
+                Logger.get().debug(TAG, String.format("Updating progress for %s (%s)", id, data));
                 mWorkDatabase.beginTransaction();
                 try {
                     WorkSpecDao workSpecDao = mWorkDatabase.workSpecDao();

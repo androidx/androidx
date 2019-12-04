@@ -39,6 +39,8 @@ import androidx.work.impl.utils.taskexecutor.TaskExecutor;
 
 import java.util.HashMap;
 import java.util.HashSet;
+import java.util.Iterator;
+import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
@@ -60,7 +62,6 @@ public class SystemForegroundDispatcher implements WorkConstraintsCallback, Exec
     private static final String KEY_NOTIFICATION = "KEY_NOTIFICATION";
     private static final String KEY_NOTIFICATION_ID = "KEY_NOTIFICATION_ID";
     private static final String KEY_FOREGROUND_SERVICE_TYPE = "KEY_FOREGROUND_SERVICE_TYPE";
-    private static final String KEY_NOTIFICATION_TAG = "KEY_NOTIFICATION_TAG";
     private static final String KEY_WORKSPEC_ID = "KEY_WORKSPEC_ID";
 
     // actions
@@ -76,6 +77,12 @@ public class SystemForegroundDispatcher implements WorkConstraintsCallback, Exec
 
     @SuppressWarnings("WeakerAccess") // Synthetic access
     final Object mLock;
+
+    @SuppressWarnings("WeakerAccess") // Synthetic access
+    String mCurrentForegroundWorkSpecId;
+
+    @SuppressWarnings("WeakerAccess") // Synthetic access
+    final Map<String, ForegroundInfo> mForegroundInfoById;
 
     @SuppressWarnings("WeakerAccess") // Synthetic access
     final Map<String, WorkSpec> mWorkSpecById;
@@ -94,6 +101,8 @@ public class SystemForegroundDispatcher implements WorkConstraintsCallback, Exec
         mLock = new Object();
         mWorkManagerImpl = WorkManagerImpl.getInstance(mContext);
         mTaskExecutor = mWorkManagerImpl.getWorkTaskExecutor();
+        mCurrentForegroundWorkSpecId = null;
+        mForegroundInfoById = new LinkedHashMap<>();
         mTrackedWorkSpecs = new HashSet<>();
         mWorkSpecById = new HashMap<>();
         mConstraintsTracker = new WorkConstraintsTracker(mContext, mTaskExecutor, this);
@@ -110,6 +119,8 @@ public class SystemForegroundDispatcher implements WorkConstraintsCallback, Exec
         mLock = new Object();
         mWorkManagerImpl = workManagerImpl;
         mTaskExecutor = mWorkManagerImpl.getWorkTaskExecutor();
+        mCurrentForegroundWorkSpecId = null;
+        mForegroundInfoById = new LinkedHashMap<>();
         mTrackedWorkSpecs = new HashSet<>();
         mWorkSpecById = new HashMap<>();
         mConstraintsTracker = tracker;
@@ -127,8 +138,43 @@ public class SystemForegroundDispatcher implements WorkConstraintsCallback, Exec
             }
         }
         if (removed) {
-            // Stop tracking
+            // Stop tracking constraints.
             mConstraintsTracker.replace(mTrackedWorkSpecs);
+        }
+
+        // Promote new notifications to the foreground if necessary.
+        ForegroundInfo removedInfo = mForegroundInfoById.remove(workSpecId);
+        if (workSpecId.equals(mCurrentForegroundWorkSpecId)) {
+            if (mForegroundInfoById.size() > 0) {
+                // Find the next eligible ForegroundInfo
+                // LinkedHashMap uses insertion order, so find the last one because that was
+                // the most recent ForegroundInfo used. That way when different WorkSpecs share
+                // notification ids, we still end up in a reasonably good place.
+                Iterator<Map.Entry<String, ForegroundInfo>> iterator =
+                        mForegroundInfoById.entrySet().iterator();
+
+                Map.Entry<String, ForegroundInfo> entry = iterator.next();
+                while (iterator.hasNext()) {
+                    entry = iterator.next();
+                }
+
+                mCurrentForegroundWorkSpecId = entry.getKey();
+                if (mCallback != null) {
+                    ForegroundInfo info = entry.getValue();
+                    mCallback.startForeground(
+                            info.getNotificationId(),
+                            info.getForegroundServiceType(),
+                            info.getNotification());
+
+                    // We used NotificationManager before to update notifications, so ensure
+                    // that we reference count the Notification instance down by
+                    // cancelling the notification.
+                    mCallback.cancelNotification(info.getNotificationId());
+                }
+            }
+        } else if (mCallback != null && removedInfo != null) {
+            // Explicitly remove this notification instance to decrease the reference count.
+            mCallback.cancelNotification(removedInfo.getNotificationId());
         }
     }
 
@@ -191,10 +237,26 @@ public class SystemForegroundDispatcher implements WorkConstraintsCallback, Exec
     private void handleNotify(@NonNull Intent intent) {
         int notificationId = intent.getIntExtra(KEY_NOTIFICATION_ID, 0);
         int notificationType = intent.getIntExtra(KEY_FOREGROUND_SERVICE_TYPE, 0);
-        String notificationTag = intent.getStringExtra(KEY_NOTIFICATION_TAG);
+        String workSpecId = intent.getStringExtra(KEY_WORKSPEC_ID);
         Notification notification = intent.getParcelableExtra(KEY_NOTIFICATION);
+        Logger.get().debug(TAG,
+                String.format("Notifying with (id: %s, workSpecId: %s, notificationType: %s)",
+                        notificationId, workSpecId, notificationType));
+
         if (notification != null && mCallback != null) {
-            mCallback.notify(notificationId, notificationType, notificationTag, notification);
+            // Keep track of this ForegroundInfo
+            ForegroundInfo info = new ForegroundInfo(
+                    notificationId, notification, notificationType);
+
+            mForegroundInfoById.put(workSpecId, info);
+            if (TextUtils.isEmpty(mCurrentForegroundWorkSpecId)) {
+                // This is the current workSpecId which owns the Foreground lifecycle.
+                mCurrentForegroundWorkSpecId = workSpecId;
+                mCallback.startForeground(notificationId, notificationType, notification);
+            } else {
+                // Update notification
+                mCallback.notify(notificationId, notification);
+            }
         }
     }
 
@@ -288,7 +350,7 @@ public class SystemForegroundDispatcher implements WorkConstraintsCallback, Exec
         intent.putExtra(KEY_NOTIFICATION_ID, info.getNotificationId());
         intent.putExtra(KEY_FOREGROUND_SERVICE_TYPE, info.getForegroundServiceType());
         intent.putExtra(KEY_NOTIFICATION, info.getNotification());
-        intent.putExtra(KEY_NOTIFICATION_TAG, workSpecId);
+        intent.putExtra(KEY_WORKSPEC_ID, workSpecId);
         return intent;
     }
 
@@ -310,13 +372,23 @@ public class SystemForegroundDispatcher implements WorkConstraintsCallback, Exec
      */
     interface Callback {
         /**
-         * Used to update the {@link Notification}.
+         * An implementation of this callback should call
+         * {@link android.app.Service#startForeground(int, Notification, int)}.
          */
-        void notify(
+        void startForeground(
                 int notificationId,
                 int notificationType,
-                @Nullable String notificationTag,
                 @NonNull Notification notification);
+
+        /**
+         * Used to update the {@link Notification}.
+         */
+        void notify(int notificationId, @NonNull Notification notification);
+
+        /**
+         * Used to cancel a {@link Notification}.
+         */
+        void cancelNotification(int notificationId);
 
         /**
          * Used to stop the {@link SystemForegroundService}.
