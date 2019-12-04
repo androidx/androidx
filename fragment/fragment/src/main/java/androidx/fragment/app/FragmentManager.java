@@ -1165,7 +1165,7 @@ public abstract class FragmentManager {
                             }
                         }
 
-                        fragmentStateManager.attach(mHost, this, mParent);
+                        fragmentStateManager.attach();
                     }
                     // fall through
                 case Fragment.ATTACHED:
@@ -1182,7 +1182,7 @@ public abstract class FragmentManager {
                     }
 
                     if (newState > Fragment.CREATED) {
-                        fragmentStateManager.createView(mContainer);
+                        fragmentStateManager.createView();
                         fragmentStateManager.activityCreated();
                         fragmentStateManager.restoreViewState();
                     }
@@ -1277,7 +1277,7 @@ public abstract class FragmentManager {
                             f.setStateAfterAnimating(newState);
                             newState = Fragment.CREATED;
                         } else {
-                            fragmentStateManager.destroy(mHost, mNonConfig);
+                            fragmentStateManager.destroy(mNonConfig);
                         }
                     }
                     // fall through
@@ -2467,7 +2467,8 @@ public abstract class FragmentManager {
                 }
                 // We need to ensure that onDestroy and any other clean up is done
                 // so move the Fragment up to CREATED, then mark it as being removed, then
-                // destroy it.
+                // destroy it without actually adding the Fragment to the FragmentStore
+                f.mFragmentManager = this;
                 moveToState(f, Fragment.CREATED);
                 f.mRemoving = true;
                 moveToState(f, Fragment.INITIALIZING);
