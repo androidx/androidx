@@ -27,7 +27,7 @@ plugins {
 dependencies {
     implementation("androidx.annotation:annotation:1.1.0")
     implementation("androidx.core:core:1.1.0")
-    implementation(project(":animation"))
+    implementation(project(":animation:animation"))
     implementation(ANDROIDX_TEST_EXT_JUNIT)
     implementation(ANDROIDX_TEST_CORE)
 }
