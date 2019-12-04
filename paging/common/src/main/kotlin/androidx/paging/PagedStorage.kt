@@ -26,7 +26,7 @@ import java.util.AbstractList
  * This class only holds data, and does not have any notion of the ideas of async loads, or
  * prefetching.
  */
-internal class PagedStorage<T : Any> : AbstractList<T>, Pager.KeyProvider<Any>,
+internal class PagedStorage<T : Any> : AbstractList<T>, LegacyPager.KeyProvider<Any>,
     NullPaddedList<T> {
     private val pages = mutableListOf<Page<*, T>>()
 

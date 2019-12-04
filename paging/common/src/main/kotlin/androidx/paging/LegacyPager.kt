@@ -22,7 +22,7 @@ import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.launch
 import java.util.concurrent.atomic.AtomicBoolean
 
-internal class Pager<K : Any, V : Any>(
+internal class LegacyPager<K : Any, V : Any>(
     private val pagedListScope: CoroutineScope,
     val config: PagedList.Config,
     val source: PagedSource<K, V>,
