@@ -171,6 +171,29 @@ fun darkColorPalette(
 )
 
 /**
+ * Tries to match [color] to a color in this ColorPalette, and then returns the corresponding
+ * `on` color.
+ *
+ * For example, when [color] is [ColorPalette.primary], this will return
+ * [ColorPalette.onPrimary]. If [color] is not present in the theme, this will return `null`.
+ *
+ * @return the matching `on` color for [color]. If [color] is not part of the theme's
+ * [ColorPalette], then returns `null`.
+ */
+fun ColorPalette.contentColorFor(color: Color): Color? {
+    return when (color) {
+        primary -> onPrimary
+        primaryVariant -> onPrimary
+        secondary -> onSecondary
+        secondaryVariant -> onSecondary
+        background -> onBackground
+        surface -> onSurface
+        error -> onError
+        else -> null
+    }
+}
+
+/**
  * Default observable backing implementation for [ColorPalette].
  *
  * Typically we would just change the value of the [ColorAmbient] ambient when the theme changes, but

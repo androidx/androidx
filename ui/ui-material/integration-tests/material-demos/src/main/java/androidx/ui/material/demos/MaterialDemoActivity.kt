@@ -66,7 +66,7 @@ abstract class MaterialDemoActivity : Activity() {
         currentColors.getColorsFromSharedPreferences()
         setContent {
             MaterialTheme(currentColors.colors) {
-                Surface {
+                Surface(color = (+MaterialTheme.colors()).background) {
                     materialContent()
                 }
             }
