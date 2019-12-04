@@ -18,6 +18,7 @@
 package androidx.ui.core
 
 import androidx.compose.Immutable
+import androidx.ui.lerp
 
 /**
  * We encode the unit information and float value into the single 64-bit long integer.
@@ -396,5 +397,5 @@ internal inline fun <T> checkArithmetic(a: TextUnit, b: TextUnit, c: TextUnit, b
 }
 
 fun lerpTextUnit(a: TextUnit, b: TextUnit, t: Float): TextUnit = checkArithmetic(a, b) {
-    return pack(a.rawType, a.value + (b.value - a.value) * t)
+    return pack(a.rawType, lerp(a.value, b.value, t))
 }
