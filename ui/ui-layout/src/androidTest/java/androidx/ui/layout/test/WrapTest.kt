@@ -31,9 +31,15 @@ import androidx.ui.layout.DpConstraints
 import androidx.ui.layout.Wrap
 import androidx.compose.Composable
 import androidx.ui.core.Alignment
+import androidx.ui.core.Constraints
 import androidx.ui.core.IntPx
+import androidx.ui.core.Layout
+import androidx.ui.core.OnPositioned
+import androidx.ui.core.enforce
+import androidx.ui.layout.Aligned
 import androidx.ui.layout.AspectRatio
-import org.junit.Assert.assertEquals
+import androidx.ui.layout.Size
+import androidx.ui.layout.Wrapped
 import org.junit.Test
 import org.junit.runner.RunWith
 import org.junit.runners.JUnit4
@@ -78,6 +84,27 @@ class WrapTest : LayoutTest() {
     }
 
     @Test
+    fun testWrappedModifier() = withDensity(density) {
+        val sizeDp = 50.dp
+        val size = sizeDp.toIntPx()
+
+        val positionedLatch = CountDownLatch(2)
+        val wrapSize = Ref<PxSize>()
+        show {
+            Container(Wrapped) {
+                OnPositioned(onPositioned = { coordinates ->
+                    wrapSize.value = coordinates.size
+                    positionedLatch.countDown()
+                })
+                Container(Size(sizeDp, sizeDp)) { }
+            }
+        }
+        positionedLatch.await(1, TimeUnit.SECONDS)
+
+        assertEquals(PxSize(size, size), wrapSize.value)
+    }
+
+    @Test
     fun testWrap_respectsMinConstraints() = withDensity(density) {
         val sizeDp = 50.dp
         val size = sizeDp.toIntPx()
@@ -115,6 +142,58 @@ class WrapTest : LayoutTest() {
         assertEquals(PxSize(doubleSize, doubleSize), wrapSize.value)
         assertEquals(PxSize(size, size), childSize.value)
         assertEquals(PxPosition(0.px, 0.px), childPosition.value)
+    }
+
+    @Test
+    fun testWrappedModifier_respectsMinConstraints() = withDensity(density) {
+        val sizeDp = 50.dp
+        val size = sizeDp.toIntPx()
+        val doubleSizeDp = sizeDp * 2
+        val doubleSize = doubleSizeDp.toIntPx()
+
+        val positionedLatch = CountDownLatch(2)
+        val wrapSize = Ref<PxSize>()
+        val childSize = Ref<PxSize>()
+        val childPosition = Ref<PxPosition>()
+        show {
+            Container(Aligned.TopLeft) {
+                OnChildPositioned(onPositioned = { coordinates ->
+                    wrapSize.value = coordinates.size
+                    positionedLatch.countDown()
+                }) {
+                    Layout(
+                        children = {
+                            Container(Wrapped wraps Size(sizeDp, sizeDp)) {
+                                SaveLayoutInfo(
+                                    size = childSize,
+                                    position = childPosition,
+                                    positionedLatch = positionedLatch
+                                )
+                            }
+                        },
+                        measureBlock = { measurables, incomingConstraints ->
+                            val measurable = measurables.first()
+                            val constraints = Constraints(
+                                minWidth = doubleSizeDp.toIntPx(),
+                                minHeight = doubleSizeDp.toIntPx()
+                            ).enforce(incomingConstraints)
+                            val placeable = measurable.measure(constraints)
+                            layout(placeable.width, placeable.height) {
+                                placeable.place(PxPosition.Origin)
+                            }
+                        }
+                    )
+                }
+            }
+        }
+        positionedLatch.await(1, TimeUnit.SECONDS)
+
+        assertEquals(PxSize(doubleSize, doubleSize), wrapSize.value)
+        assertEquals(PxSize(size, size), childSize.value)
+        assertEquals(
+            PxPosition((doubleSize - size) / 2, (doubleSize - size) / 2),
+            childPosition.value
+        )
     }
 
     @Test
@@ -165,6 +244,26 @@ class WrapTest : LayoutTest() {
             Wrap {
                 Container(modifier = AspectRatio(2f)) { }
             }
+        }) { minIntrinsicWidth, minIntrinsicHeight, maxIntrinsicWidth, maxIntrinsicHeight ->
+            // Min width.
+            assertEquals(25.dp.toIntPx() * 2, minIntrinsicWidth(25.dp.toIntPx()))
+            assertEquals(0.dp.toIntPx(), minIntrinsicWidth(IntPx.Infinity))
+            // Min height.
+            assertEquals(50.dp.toIntPx() / 2, minIntrinsicHeight(50.dp.toIntPx()))
+            assertEquals(0.dp.toIntPx(), minIntrinsicHeight(IntPx.Infinity))
+            // Max width.
+            assertEquals(25.dp.toIntPx() * 2, maxIntrinsicWidth(25.dp.toIntPx()))
+            assertEquals(0.dp.toIntPx(), maxIntrinsicWidth(IntPx.Infinity))
+            // Max height.
+            assertEquals(50.dp.toIntPx() / 2, maxIntrinsicHeight(50.dp.toIntPx()))
+            assertEquals(0.dp.toIntPx(), maxIntrinsicHeight(IntPx.Infinity))
+        }
+    }
+
+    @Test
+    fun testWrappedModifier_hasCorrectIntrinsicMeasurements() = withDensity(density) {
+        testIntrinsics(@Composable {
+            Container(modifier = AspectRatio(2f) wraps Wrapped) { }
         }) { minIntrinsicWidth, minIntrinsicHeight, maxIntrinsicWidth, maxIntrinsicHeight ->
             // Min width.
             assertEquals(25.dp.toIntPx() * 2, minIntrinsicWidth(25.dp.toIntPx()))
