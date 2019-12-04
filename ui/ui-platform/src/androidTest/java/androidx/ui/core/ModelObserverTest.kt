@@ -27,7 +27,6 @@ import androidx.compose.frames.open
 import androidx.compose.frames.readable
 import androidx.compose.frames.writable
 import androidx.test.filters.SmallTest
-import androidx.ui.core.NodeStagesModelObserver.Stage
 import org.junit.Assert.assertEquals
 import org.junit.Assert.assertTrue
 import org.junit.Test
@@ -38,7 +37,7 @@ import java.util.concurrent.TimeUnit
 
 @SmallTest
 @RunWith(JUnit4::class)
-class NodeStagesModelObserverTest {
+class ModelObserverTest {
 
     @Test
     fun modelChangeTriggersCallback() {
@@ -46,22 +45,20 @@ class NodeStagesModelObserverTest {
         val countDownLatch = CountDownLatch(1)
 
         val model = State(0)
-        val modelObserver = NodeStagesModelObserver { stage, affectedNode ->
-            assertEquals(Stage.Draw, stage)
+        val modelObserver = ModelObserver()
+        modelObserver.enableModelUpdatesObserving(true)
+
+        open() // open the frame
+
+        val onCommitListener: (DrawNode) -> Unit = { affectedNode ->
             assertEquals(node, affectedNode)
             assertEquals(1, countDownLatch.count)
             countDownLatch.countDown()
         }
 
-        modelObserver.enableModelUpdatesObserving(true)
-
-        open() // open the frame
-
-        modelObserver.observeReads {
-            modelObserver.stage(Stage.Draw, node) {
-                // read the value
-                model.value
-            }
+        modelObserver.observeReads(node, onCommitListener) {
+            // read the value
+            model.value
         }
 
         model.value++
@@ -83,40 +80,37 @@ class NodeStagesModelObserverTest {
         val measureModel = State(0)
         val layoutModel = State(0)
 
-        val modelObserver = NodeStagesModelObserver { stage, affectedNode ->
-            when (stage) {
-                Stage.Draw -> {
-                    assertEquals(drawNode, affectedNode)
-                    assertEquals(1, drawLatch.count)
-                    drawLatch.countDown()
-                }
-                Stage.Measure -> {
-                    assertEquals(measureNode, affectedNode)
-                    assertEquals(1, measureLatch.count)
-                    measureLatch.countDown()
-                }
-                Stage.Layout -> {
-                    assertEquals(layoutNode, affectedNode)
-                    assertEquals(1, layoutLatch.count)
-                    layoutLatch.countDown()
-                }
-            }
+        val onCommitDrawListener: (DrawNode) -> Unit = { affectedNode ->
+            assertEquals(drawNode, affectedNode)
+            assertEquals(1, drawLatch.count)
+            drawLatch.countDown()
         }
+        val onCommitMeasureListener: (LayoutNode) -> Unit = { affectedNode ->
+            assertEquals(measureNode, affectedNode)
+            assertEquals(1, measureLatch.count)
+            measureLatch.countDown()
+        }
+        val onCommitLayoutListener: (LayoutNode) -> Unit = { affectedNode ->
+            assertEquals(layoutNode, affectedNode)
+            assertEquals(1, layoutLatch.count)
+            layoutLatch.countDown()
+        }
+        val modelObserver = ModelObserver()
 
         modelObserver.enableModelUpdatesObserving(true)
 
         open() // open the frame
 
-        modelObserver.observeReads {
-            modelObserver.stage(Stage.Layout, layoutNode) {
-                layoutModel.value
-            }
-            modelObserver.stage(Stage.Measure, measureNode) {
-                measureModel.value
-            }
-            modelObserver.stage(Stage.Draw, drawNode) {
-                drawModel.value
-            }
+        modelObserver.observeReads(layoutNode, onCommitLayoutListener) {
+            layoutModel.value
+        }
+
+        modelObserver.observeReads(measureNode, onCommitMeasureListener) {
+            measureModel.value
+        }
+
+        modelObserver.observeReads(drawNode, onCommitDrawListener) {
+            drawModel.value
         }
 
         drawModel.value++
@@ -142,44 +136,38 @@ class NodeStagesModelObserverTest {
         val layoutModel2 = State(0)
         val measureModel = State(0)
 
-        val modelObserver = NodeStagesModelObserver { stage, affectedNode ->
-            when (stage) {
-                Stage.Layout -> {
-                    when (affectedNode) {
-                        layoutNode1 -> {
-                            assertEquals(1, layoutLatch1.count)
-                            layoutLatch1.countDown()
-                        }
-                        layoutNode2 -> {
-                            assertEquals(1, layoutLatch2.count)
-                            layoutLatch2.countDown()
-                        }
-                        measureNode -> {
-                            throw IllegalStateException("measureNode called with Stage.Layout")
-                        }
-                    }
+        val onCommitMeasureListener: (LayoutNode) -> Unit = { affectedNode ->
+            assertEquals(affectedNode, measureNode)
+            assertEquals(measureLatch.count, 1)
+            measureLatch.countDown()
+        }
+        val onCommitLayoutListener: (LayoutNode) -> Unit = { affectedNode ->
+            when (affectedNode) {
+                layoutNode1 -> {
+                    assertEquals(1, layoutLatch1.count)
+                    layoutLatch1.countDown()
                 }
-                Stage.Measure -> {
-                    assertEquals(affectedNode, measureNode)
-                    assertEquals(measureLatch.count, 1)
-                    measureLatch.countDown()
+                layoutNode2 -> {
+                    assertEquals(1, layoutLatch2.count)
+                    layoutLatch2.countDown()
                 }
-                else -> throw IllegalStateException("Unexpected stage $stage")
+                measureNode -> {
+                    throw IllegalStateException("measureNode called with Stage.Layout")
+                }
             }
         }
+        val modelObserver = ModelObserver()
 
         modelObserver.enableModelUpdatesObserving(true)
 
         open() // open the frame
 
-        modelObserver.observeReads {
-            modelObserver.stage(Stage.Layout, layoutNode1) {
-                layoutModel1.value
-                modelObserver.stage(Stage.Layout, layoutNode2) {
-                    layoutModel2.value
-                    modelObserver.stage(Stage.Measure, measureNode) {
-                        measureModel.value
-                    }
+        modelObserver.observeReads(layoutNode1, onCommitLayoutListener) {
+            layoutModel1.value
+            modelObserver.observeReads(layoutNode2, onCommitLayoutListener) {
+                layoutModel2.value
+                modelObserver.observeReads(measureNode, onCommitMeasureListener) {
+                    measureModel.value
                 }
             }
         }
@@ -201,23 +189,22 @@ class NodeStagesModelObserverTest {
         val countDownLatch = CountDownLatch(1)
 
         val model = State(0)
-        val modelObserver = NodeStagesModelObserver { _, _ ->
+        val onCommitListener: (DrawNode) -> Unit = { _ ->
             assertEquals(1, countDownLatch.count)
             countDownLatch.countDown()
         }
+        val modelObserver = ModelObserver()
 
         modelObserver.enableModelUpdatesObserving(true)
 
         open() // open the frame
 
-        modelObserver.observeReads {
-            modelObserver.stage(Stage.Draw, node) {
-                // switch to the next frame.
-                // this will be done by subcomposition, for example.
-                FrameManager.nextFrame()
-                // read the value
-                model.value
-            }
+        modelObserver.observeReads(node, onCommitListener) {
+            // switch to the next frame.
+            // this will be done by subcomposition, for example.
+            FrameManager.nextFrame()
+            // read the value
+            model.value
         }
 
         model.value++
