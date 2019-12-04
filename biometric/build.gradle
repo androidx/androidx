@@ -32,10 +32,6 @@ dependencies {
 }
 
 android {
-    sourceSets {
-        main.res.srcDirs 'res'
-    }
-
     aaptOptions {
         noCompress 'ttf'
     }
