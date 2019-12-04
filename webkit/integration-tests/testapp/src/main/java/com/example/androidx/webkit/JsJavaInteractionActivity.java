@@ -42,6 +42,11 @@ public class JsJavaInteractionActivity extends AppCompatActivity {
                 new MenuListView.MenuItem(
                         getResources().getString(R.string.web_message_listener_activity_title),
                         new Intent(activityContext, WebMessageListenerActivity.class)),
+                new MenuListView.MenuItem(
+                        getResources().getString(
+                                R.string.web_message_listener_malicious_website_activity_title),
+                        new Intent(
+                                activityContext, WebMessageListenerMaliciousWebsiteActivity.class)),
         };
         listView.setItems(menuItems);
     }
