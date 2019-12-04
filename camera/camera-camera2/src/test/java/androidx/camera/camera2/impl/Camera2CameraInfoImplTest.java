@@ -49,7 +49,7 @@ import org.robolectric.shadows.ShadowCameraManager;
 @RunWith(RobolectricTestRunner.class)
 @DoNotInstrument
 @Config(minSdk = Build.VERSION_CODES.LOLLIPOP)
-public class Camera2CameraInfoTest {
+public class Camera2CameraInfoImplTest {
 
     private static final String CAMERA0_ID = "0";
     private static final int CAMERA0_SENSOR_ORIENTATION = 90;
@@ -89,22 +89,25 @@ public class Camera2CameraInfoTest {
 
     @Test
     public void canCreateCameraInfo() {
-        CameraInfoInternal cameraInfoInternal = new Camera2CameraInfo(mCameraCharacteristics0,
-                mMockZoomControl, mMockTorchControl);
+        CameraInfoInternal cameraInfoInternal =
+                new Camera2CameraInfoImpl(CAMERA0_ID, mCameraCharacteristics0, mMockZoomControl,
+                        mMockTorchControl);
         assertThat(cameraInfoInternal).isNotNull();
     }
 
     @Test
     public void cameraInfo_canReturnSensorOrientation() {
-        CameraInfoInternal cameraInfoInternal = new Camera2CameraInfo(mCameraCharacteristics0,
-                mMockZoomControl, mMockTorchControl);
+        CameraInfoInternal cameraInfoInternal =
+                new Camera2CameraInfoImpl(CAMERA0_ID, mCameraCharacteristics0, mMockZoomControl,
+                        mMockTorchControl);
         assertThat(cameraInfoInternal.getSensorRotationDegrees()).isEqualTo(
                 CAMERA0_SENSOR_ORIENTATION);
     }
 
     @Test
     public void cameraInfo_canCalculateCorrectRelativeRotation_forBackCamera() {
-        CameraInfoInternal cameraInfoInternal = new Camera2CameraInfo(mCameraCharacteristics0,
+        CameraInfoInternal cameraInfoInternal =
+                new Camera2CameraInfoImpl(CAMERA0_ID, mCameraCharacteristics0,
                 mMockZoomControl, mMockTorchControl);
 
         // Note: these numbers depend on the camera being a back-facing camera.
@@ -120,8 +123,9 @@ public class Camera2CameraInfoTest {
 
     @Test
     public void cameraInfo_canCalculateCorrectRelativeRotation_forFrontCamera() {
-        CameraInfoInternal cameraInfoInternal = new Camera2CameraInfo(mCameraCharacteristics1,
-                mMockZoomControl, mMockTorchControl);
+        CameraInfoInternal cameraInfoInternal =
+                new Camera2CameraInfoImpl(CAMERA1_ID, mCameraCharacteristics1, mMockZoomControl,
+                        mMockTorchControl);
 
         // Note: these numbers depend on the camera being a front-facing camera.
         assertThat(cameraInfoInternal.getSensorRotationDegrees(Surface.ROTATION_0))
@@ -136,29 +140,33 @@ public class Camera2CameraInfoTest {
 
     @Test
     public void cameraInfo_canReturnLensFacing() {
-        CameraInfoInternal cameraInfoInternal = new Camera2CameraInfo(mCameraCharacteristics0,
-                mMockZoomControl, mMockTorchControl);
+        CameraInfoInternal cameraInfoInternal =
+                new Camera2CameraInfoImpl(CAMERA0_ID, mCameraCharacteristics0, mMockZoomControl,
+                        mMockTorchControl);
         assertThat(cameraInfoInternal.getLensFacing()).isEqualTo(CAMERA0_LENS_FACING_ENUM);
     }
 
     @Test
     public void cameraInfo_canReturnHasFlashUnit_forBackCamera() {
-        CameraInfoInternal cameraInfoInternal = new Camera2CameraInfo(mCameraCharacteristics0,
-                mMockZoomControl, mMockTorchControl);
+        CameraInfoInternal cameraInfoInternal =
+                new Camera2CameraInfoImpl(CAMERA0_ID, mCameraCharacteristics0, mMockZoomControl,
+                        mMockTorchControl);
         assertThat(cameraInfoInternal.hasFlashUnit()).isEqualTo(CAMERA0_FLASH_INFO_BOOLEAN);
     }
 
     @Test
     public void cameraInfo_canReturnHasFlashUnit_forFrontCamera() {
-        CameraInfoInternal cameraInfoInternal = new Camera2CameraInfo(mCameraCharacteristics1,
-                mMockZoomControl, mMockTorchControl);
+        CameraInfoInternal cameraInfoInternal =
+                new Camera2CameraInfoImpl(CAMERA1_ID, mCameraCharacteristics1, mMockZoomControl,
+                        mMockTorchControl);
         assertThat(cameraInfoInternal.hasFlashUnit()).isEqualTo(CAMERA1_FLASH_INFO_BOOLEAN);
     }
 
     @Test
     public void cameraInfo_canReturnTorchState() {
-        CameraInfoInternal cameraInfoInternal = new Camera2CameraInfo(mCameraCharacteristics0,
-                mMockZoomControl, mMockTorchControl);
+        CameraInfoInternal cameraInfoInternal =
+                new Camera2CameraInfoImpl(CAMERA0_ID, mCameraCharacteristics0, mMockZoomControl,
+                        mMockTorchControl);
         when(mMockTorchControl.getTorchState()).thenReturn(new MutableLiveData<>(TorchState.OFF));
         assertThat(cameraInfoInternal.getTorchState().getValue()).isEqualTo(TorchState.OFF);
     }
@@ -167,32 +175,36 @@ public class Camera2CameraInfoTest {
     // Full tests are performed at ZoomControlTest / ZoomControlRoboTest.
     @Test
     public void cameraInfo_getZoomRatio_valueIsCorrect() {
-        CameraInfoInternal cameraInfo = new Camera2CameraInfo(mCameraCharacteristics0,
-                mMockZoomControl, mMockTorchControl);
+        CameraInfoInternal cameraInfo =
+                new Camera2CameraInfoImpl(CAMERA0_ID, mCameraCharacteristics0, mMockZoomControl,
+                        mMockTorchControl);
         when(mMockZoomControl.getZoomRatio()).thenReturn(new MutableLiveData<>(3.0f));
         assertThat(cameraInfo.getZoomRatio().getValue()).isEqualTo(3.0f);
     }
 
     @Test
     public void cameraInfo_getZoomPercentage_valueIsCorrect() {
-        CameraInfoInternal cameraInfo = new Camera2CameraInfo(mCameraCharacteristics0,
-                mMockZoomControl, mMockTorchControl);
+        CameraInfoInternal cameraInfo =
+                new Camera2CameraInfoImpl(CAMERA0_ID, mCameraCharacteristics0, mMockZoomControl,
+                        mMockTorchControl);
         when(mMockZoomControl.getLinearZoom()).thenReturn(new MutableLiveData<>(0.2f));
         assertThat(cameraInfo.getLinearZoom().getValue()).isEqualTo(0.2f);
     }
 
     @Test
     public void cameraInfo_getMaxZoomRatio_valueIsCorrect() {
-        CameraInfoInternal cameraInfo = new Camera2CameraInfo(mCameraCharacteristics0,
-                mMockZoomControl, mMockTorchControl);
+        CameraInfoInternal cameraInfo =
+                new Camera2CameraInfoImpl(CAMERA0_ID, mCameraCharacteristics0, mMockZoomControl,
+                        mMockTorchControl);
         when(mMockZoomControl.getMaxZoomRatio()).thenReturn(new MutableLiveData<>(8.0f));
         assertThat(cameraInfo.getMaxZoomRatio().getValue()).isEqualTo(8.0f);
     }
 
     @Test
     public void cameraInfo_getMinZoomRatio_valueIsCorrect() {
-        CameraInfoInternal cameraInfo = new Camera2CameraInfo(mCameraCharacteristics0,
-                mMockZoomControl, mMockTorchControl);
+        CameraInfoInternal cameraInfo =
+                new Camera2CameraInfoImpl(CAMERA0_ID, mCameraCharacteristics0, mMockZoomControl,
+                        mMockTorchControl);
         when(mMockZoomControl.getMinZoomRatio()).thenReturn(new MutableLiveData<>(1.0f));
         assertThat(cameraInfo.getMinZoomRatio().getValue()).isEqualTo(1.0f);
     }
