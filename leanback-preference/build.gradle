@@ -12,7 +12,7 @@ dependencies {
     implementation("androidx.collection:collection:1.0.0")
     api("androidx.appcompat:appcompat:1.0.0")
     api("androidx.recyclerview:recyclerview:1.0.0")
-    api(project(":preference:preference"))
+    api("androidx.preference:preference:1.1.0")
     api(project(":leanback"))
 }
 
