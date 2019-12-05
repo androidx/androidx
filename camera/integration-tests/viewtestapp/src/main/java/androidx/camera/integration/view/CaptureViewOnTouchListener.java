@@ -214,7 +214,7 @@ class CaptureViewOnTouchListener
      */
     @Override
     public void onError(int error, @NonNull String message, @Nullable Throwable cause) {
-        report("Failure");
+        report("Failure: " + message);
     }
 
     private void report(String msg) {
