@@ -1232,7 +1232,7 @@ public abstract class FragmentManager {
                                         && f.mView.getVisibility() == View.VISIBLE
                                         && f.mPostponedAlpha >= 0) {
                                     anim = FragmentAnim.loadAnimation(mHost.getContext(),
-                                            mContainer, f, false);
+                                            f, false);
                                 }
                                 f.mPostponedAlpha = 0;
                                 if (anim != null) {
@@ -1353,7 +1353,7 @@ public abstract class FragmentManager {
     private void completeShowHideFragment(@NonNull final Fragment fragment) {
         if (fragment.mView != null) {
             FragmentAnim.AnimationOrAnimator anim = FragmentAnim.loadAnimation(
-                    mHost.getContext(), mContainer, fragment, !fragment.mHidden);
+                    mHost.getContext(), fragment, !fragment.mHidden);
             if (anim != null && anim.animator != null) {
                 anim.animator.setTarget(fragment.mView);
                 if (fragment.mHidden) {
@@ -1440,7 +1440,7 @@ public abstract class FragmentManager {
                 f.mIsNewlyAdded = false;
                 // run animations:
                 FragmentAnim.AnimationOrAnimator anim = FragmentAnim.loadAnimation(
-                        mHost.getContext(), mContainer, f, true);
+                        mHost.getContext(), f, true);
                 if (anim != null) {
                     if (anim.animation != null) {
                         f.mView.startAnimation(anim.animation);
