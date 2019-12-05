@@ -13,9 +13,11 @@
      See the License for the specific language governing permissions and
      limitations under the License.
 -->
-<manifest package="androidx.ui.core" xmlns:android="http://schemas.android.com/apk/res/android">
+<manifest xmlns:android="http://schemas.android.com/apk/res/android"
+    package="androidx.ui.unit.test">
 
-    <application>
+    <!-- TODO(147665937): Remove android:process when b/147665937 is fixed -->
+    <application android:process="androidx.ui.unit">
         <activity android:name="androidx.ui.unit.DpDeviceTest$Companion$TestActivity"
             android:theme="@android:style/Theme.Material.NoActionBar.Fullscreen"/>
         <activity android:name="androidx.ui.unit.SpDeviceTest$Companion$TestActivity"
