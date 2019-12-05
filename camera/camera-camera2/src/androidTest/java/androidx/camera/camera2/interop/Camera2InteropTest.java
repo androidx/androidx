@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2019 The Android Open Source Project
+ * Copyright 2019 The Android Open Source Project
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package androidx.camera.camera2;
+package androidx.camera.camera2.interop;
 
 import static com.google.common.truth.Truth.assertThat;
 
@@ -28,8 +28,6 @@ import androidx.annotation.experimental.UseExperimental;
 import androidx.camera.camera2.impl.Camera2CaptureCallbacks;
 import androidx.camera.camera2.impl.Camera2ImplConfig;
 import androidx.camera.camera2.impl.CameraEventCallbacks;
-import androidx.camera.camera2.interop.Camera2Interop;
-import androidx.camera.camera2.interop.ExperimentalCamera2Interop;
 import androidx.camera.core.CameraCaptureSessionStateCallbacks;
 import androidx.camera.core.CameraDeviceStateCallbacks;
 import androidx.camera.core.Config;

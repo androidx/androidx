@@ -184,10 +184,12 @@ final class Camera2CameraImpl implements CameraInternal {
                     mCameraManager.unwrap().getCameraCharacteristics(mCameraId);
             mCameraControlInternal = new Camera2CameraControl(cameraCharacteristics,
                     executorScheduler, executorScheduler, new ControlUpdateListenerInternal());
-            mCameraInfoInternal = new Camera2CameraInfo(cameraCharacteristics,
+            mCameraInfoInternal = new Camera2CameraInfoImpl(
+                    cameraId,
+                    cameraCharacteristics,
                     mCameraControlInternal.getZoomControl(),
                     mCameraControlInternal.getTorchControl());
-            Camera2CameraInfo camera2CameraInfo = (Camera2CameraInfo) mCameraInfoInternal;
+            Camera2CameraInfoImpl camera2CameraInfo = (Camera2CameraInfoImpl) mCameraInfoInternal;
             mCaptureSessionBuilder.setSupportedHardwareLevel(
                     camera2CameraInfo.getSupportedHardwareLevel());
         } catch (CameraAccessException e) {
@@ -374,7 +376,7 @@ final class Camera2CameraImpl implements CameraInternal {
                         + "error) state. Current state: "
                         + mState + " (error: " + getErrorMessage(mCameraDeviceError) + ")");
 
-        Camera2CameraInfo camera2CameraInfo = (Camera2CameraInfo) getCameraInfoInternal();
+        Camera2CameraInfoImpl camera2CameraInfo = (Camera2CameraInfoImpl) getCameraInfoInternal();
         boolean isLegacyDevice = camera2CameraInfo.getSupportedHardwareLevel()
                 == CameraCharacteristics.INFO_SUPPORTED_HARDWARE_LEVEL_LEGACY;
 
