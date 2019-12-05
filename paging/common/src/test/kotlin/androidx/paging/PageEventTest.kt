@@ -25,12 +25,6 @@ import kotlin.test.assertEquals
 import kotlin.test.assertFailsWith
 import kotlin.test.assertSame
 
-@Suppress("TestFunctionName")
-private fun <T : Any> TransformablePage(data: List<T>) = TransformablePage(
-    data = data,
-    originalPageOffset = 0
-)
-
 @RunWith(JUnit4::class)
 class PageEventTest {
     @Test
@@ -136,7 +130,7 @@ class PageEventTest {
                 pages = listOf(TransformablePage(
                     originalPageOffset = 0,
                     data = listOf("a", "b"),
-                    sourcePageSize = 4,
+                    originalPageSize = 4,
                     originalIndices = listOf(0, 2)
                 )),
                 placeholdersEnd = 4
@@ -145,7 +139,7 @@ class PageEventTest {
                 pages = listOf(TransformablePage(
                     originalPageOffset = 0,
                     data = listOf('a', 'b'),
-                    sourcePageSize = 4,
+                    originalPageSize = 4,
                     originalIndices = listOf(0, 2)
                 )),
                 placeholdersEnd = 4
@@ -168,7 +162,7 @@ class PageEventTest {
                     TransformablePage(
                         originalPageOffset = 0,
                         data = listOf('a', 'b', 'd'),
-                        sourcePageSize = 4,
+                        originalPageSize = 4,
                         originalIndices = listOf(0, 1, 3)
                     )
                 ),
@@ -184,7 +178,7 @@ class PageEventTest {
                     TransformablePage(
                         originalPageOffset = 0,
                         data = listOf('b', 'd'),
-                        sourcePageSize = 4,
+                        originalPageSize = 4,
                         originalIndices = listOf(1, 3)
                     )
                 ),
@@ -211,7 +205,7 @@ class PageEventTest {
                     TransformablePage(
                         originalPageOffset = 0,
                         data = listOf("a1", "a2", "b1", "b2"),
-                        sourcePageSize = 2,
+                        originalPageSize = 2,
                         originalIndices = listOf(0, 0, 1, 1)
                     )
                 ),
@@ -230,7 +224,7 @@ class PageEventTest {
                     TransformablePage(
                         originalPageOffset = 0,
                         data = listOf("a1", "-", "a2", "-", "b1", "-", "b2", "-"),
-                        sourcePageSize = 2,
+                        originalPageSize = 2,
                         originalIndices = listOf(0, 0, 0, 0, 1, 1, 1, 1)
                     )
                 ),

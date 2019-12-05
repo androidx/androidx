@@ -113,6 +113,10 @@ package androidx.paging {
     property public abstract int trailingNullCount;
   }
 
+  public final class PageEventKt {
+    ctor public PageEventKt();
+  }
+
   public abstract class PageKeyedDataSource<Key, Value> extends androidx.paging.DataSource<Key,Value> {
     ctor public PageKeyedDataSource();
     method public abstract void loadAfter(androidx.paging.PageKeyedDataSource.LoadParams<Key> params, androidx.paging.PageKeyedDataSource.LoadCallback<Key,Value> callback);
@@ -352,6 +356,10 @@ package androidx.paging {
     ctor public PositionalDataSource.LoadRangeParams(int startPosition, int loadSize);
     field public final int loadSize;
     field public final int startPosition;
+  }
+
+  public final class SeparatorsKt {
+    ctor public SeparatorsKt();
   }
 
 }

@@ -30,7 +30,7 @@ internal data class TransformablePage<T : Any>(
     /**
      * Size of the original page (pre-transformation)
      */
-    val sourcePageSize: Int,
+    val originalPageSize: Int,
 
     /**
      * Optional lookup table for page indices.
@@ -58,7 +58,7 @@ internal data class TransformablePage<T : Any>(
     fun getLoadHint(relativeIndex: Int): ViewportHint {
         val indexInPage = when {
             relativeIndex < 0 -> relativeIndex
-            relativeIndex >= data.size -> relativeIndex - data.size + sourcePageSize
+            relativeIndex >= data.size -> relativeIndex - data.size + originalPageSize
             originalIndices != null -> originalIndices[relativeIndex]
             else -> relativeIndex
         }

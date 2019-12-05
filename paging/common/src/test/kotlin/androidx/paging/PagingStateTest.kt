@@ -30,7 +30,7 @@ internal fun <T : Any> PagingState.Producer<T>.init(
     indexOfInitialPage: Int = 0
 ) = processEvent(
     PageEvent.Insert.Refresh(
-        pages = listOfTransformablePages(pages, indexOfInitialPage),
+        pages = pages.toTransformablePages(indexOfInitialPage),
         placeholdersStart = placeholdersStart,
         placeholdersEnd = placeholdersEnd
     )
@@ -77,17 +77,6 @@ internal fun <T : Any> PagingState.Producer<T>.dropPages(
         placeholdersRemaining = placeholdersRemaining
     )
 )
-
-private fun <T : Any> listOfTransformablePages(
-    pages: List<List<T>>,
-    indexOfInitialPage: Int = 0
-) = pages.mapIndexed { index, list ->
-    TransformablePage(
-        data = list,
-        originalPageOffset = index - indexOfInitialPage
-    )
-}
-
 @Suppress("TestFunctionName")
 internal fun <T : Any> PagingState(
     pages: List<List<T>>,
@@ -101,7 +90,7 @@ internal fun <T : Any> PagingState(
 ) = PagingState(
     leadingNullCount = placeholdersStart,
     trailingNullCount = placeholdersEnd,
-    pages = listOfTransformablePages(pages, indexOfInitialPage),
+    pages = pages.toTransformablePages(indexOfInitialPage),
     loadStateRefresh = refresh,
     loadStateStart = start,
     loadStateEnd = end,
