@@ -411,6 +411,46 @@ package androidx.ui.text {
     method public androidx.ui.text.ParagraphStyle merge(androidx.ui.text.ParagraphStyle? other = null);
   }
 
+  public final class SpanStyle {
+    ctor public SpanStyle(androidx.ui.graphics.Color? color, androidx.ui.core.TextUnit fontSize, androidx.ui.text.font.FontWeight? fontWeight, androidx.ui.text.font.FontStyle? fontStyle, androidx.ui.text.font.FontSynthesis? fontSynthesis, androidx.ui.text.font.FontFamily? fontFamily, String? fontFeatureSettings, androidx.ui.core.TextUnit letterSpacing, androidx.ui.text.style.BaselineShift? baselineShift, androidx.ui.text.style.TextGeometricTransform? textGeometricTransform, androidx.ui.text.LocaleList? localeList, androidx.ui.graphics.Color? background, androidx.ui.text.style.TextDecoration? decoration, androidx.ui.graphics.Shadow? shadow);
+    ctor public SpanStyle();
+    method public androidx.ui.graphics.Color? component1();
+    method public androidx.ui.text.style.TextGeometricTransform? component10();
+    method public androidx.ui.text.LocaleList? component11();
+    method public androidx.ui.graphics.Color? component12();
+    method public androidx.ui.text.style.TextDecoration? component13();
+    method public androidx.ui.graphics.Shadow? component14();
+    method public androidx.ui.core.TextUnit component2();
+    method public androidx.ui.text.font.FontWeight? component3();
+    method public androidx.ui.text.font.FontStyle? component4();
+    method public androidx.ui.text.font.FontSynthesis? component5();
+    method public androidx.ui.text.font.FontFamily? component6();
+    method public String? component7();
+    method public androidx.ui.core.TextUnit component8();
+    method public androidx.ui.text.style.BaselineShift? component9();
+    method public androidx.ui.text.SpanStyle copy(androidx.ui.graphics.Color? color, androidx.ui.core.TextUnit fontSize, androidx.ui.text.font.FontWeight? fontWeight, androidx.ui.text.font.FontStyle? fontStyle, androidx.ui.text.font.FontSynthesis? fontSynthesis, androidx.ui.text.font.FontFamily? fontFamily, String? fontFeatureSettings, androidx.ui.core.TextUnit letterSpacing, androidx.ui.text.style.BaselineShift? baselineShift, androidx.ui.text.style.TextGeometricTransform? textGeometricTransform, androidx.ui.text.LocaleList? localeList, androidx.ui.graphics.Color? background, androidx.ui.text.style.TextDecoration? decoration, androidx.ui.graphics.Shadow? shadow);
+    method public androidx.ui.graphics.Color? getBackground();
+    method public androidx.ui.text.style.BaselineShift? getBaselineShift();
+    method public androidx.ui.graphics.Color? getColor();
+    method public androidx.ui.text.style.TextDecoration? getDecoration();
+    method public androidx.ui.text.font.FontFamily? getFontFamily();
+    method public String? getFontFeatureSettings();
+    method public androidx.ui.core.TextUnit getFontSize();
+    method public androidx.ui.text.font.FontStyle? getFontStyle();
+    method public androidx.ui.text.font.FontSynthesis? getFontSynthesis();
+    method public androidx.ui.text.font.FontWeight? getFontWeight();
+    method public androidx.ui.core.TextUnit getLetterSpacing();
+    method public androidx.ui.text.LocaleList? getLocaleList();
+    method public androidx.ui.graphics.Shadow? getShadow();
+    method public androidx.ui.text.style.TextGeometricTransform? getTextGeometricTransform();
+    method public androidx.ui.text.SpanStyle merge(androidx.ui.text.SpanStyle? other = null);
+  }
+
+  public final class SpanStyleKt {
+    ctor public SpanStyleKt();
+    method public static androidx.ui.text.SpanStyle lerp(androidx.ui.text.SpanStyle start, androidx.ui.text.SpanStyle stop, float fraction);
+  }
+
   public final class StringKt {
     ctor public StringKt();
     method public static String capitalize(String, androidx.ui.text.Locale locale);
@@ -499,6 +539,7 @@ package androidx.ui.text {
     method public androidx.ui.graphics.Shadow? getShadow();
     method public androidx.ui.text.style.TextGeometricTransform? getTextGeometricTransform();
     method public androidx.ui.text.TextStyle merge(androidx.ui.text.TextStyle? other = null);
+    method public androidx.ui.text.SpanStyle toSpanStyle();
   }
 
   public final class TextStyleKt {

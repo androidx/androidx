@@ -18,19 +18,15 @@ package androidx.ui.text
 
 import androidx.compose.Immutable
 import androidx.ui.core.TextUnit
-import androidx.ui.core.lerpTextUnit
 import androidx.ui.graphics.Color
 import androidx.ui.graphics.Shadow
-import androidx.ui.graphics.lerp
 import androidx.ui.text.font.FontFamily
 import androidx.ui.text.font.FontStyle
 import androidx.ui.text.font.FontSynthesis
 import androidx.ui.text.font.FontWeight
-import androidx.ui.text.font.lerp
 import androidx.ui.text.style.BaselineShift
 import androidx.ui.text.style.TextDecoration
 import androidx.ui.text.style.TextGeometricTransform
-import androidx.ui.text.style.lerp
 
 /**
  * Styling configuration for a `Text`.
@@ -57,6 +53,8 @@ import androidx.ui.text.style.lerp
  * @param shadow The shadow effect applied on the text.
  *
  *  @see [AnnotatedString]
+ *  @see [SpanStyle]
+ *  @see [ParagraphStyle]
  */
 @Immutable
 data class TextStyle(
@@ -75,6 +73,40 @@ data class TextStyle(
     val decoration: TextDecoration? = null,
     val shadow: Shadow? = null
 ) {
+    internal constructor(spanStyle: SpanStyle) : this (
+        color = spanStyle.color,
+        fontSize = spanStyle.fontSize,
+        fontWeight = spanStyle.fontWeight,
+        fontStyle = spanStyle.fontStyle,
+        fontSynthesis = spanStyle.fontSynthesis,
+        fontFamily = spanStyle.fontFamily,
+        fontFeatureSettings = spanStyle.fontFeatureSettings,
+        letterSpacing = spanStyle.letterSpacing,
+        baselineShift = spanStyle.baselineShift,
+        textGeometricTransform = spanStyle.textGeometricTransform,
+        localeList = spanStyle.localeList,
+        background = spanStyle.background,
+        decoration = spanStyle.decoration,
+        shadow = spanStyle.shadow
+    )
+
+    fun toSpanStyle(): SpanStyle = SpanStyle(
+        color = color,
+        fontSize = fontSize,
+        fontWeight = fontWeight,
+        fontStyle = fontStyle,
+        fontSynthesis = fontSynthesis,
+        fontFamily = fontFamily,
+        fontFeatureSettings = fontFeatureSettings,
+        letterSpacing = letterSpacing,
+        baselineShift = baselineShift,
+        textGeometricTransform = textGeometricTransform,
+        localeList = localeList,
+        background = background,
+        decoration = decoration,
+        shadow = shadow
+    )
+
     /**
      * Returns a new text style that is a combination of this style and the given [other] style.
      *
@@ -86,39 +118,9 @@ data class TextStyle(
      */
     fun merge(other: TextStyle? = null): TextStyle {
         if (other == null) return this
-
-        return TextStyle(
-            color = other.color ?: this.color,
-            fontFamily = other.fontFamily ?: this.fontFamily,
-            fontSize = if (!other.fontSize.isInherit) other.fontSize else this.fontSize,
-            fontWeight = other.fontWeight ?: this.fontWeight,
-            fontStyle = other.fontStyle ?: this.fontStyle,
-            fontSynthesis = other.fontSynthesis ?: this.fontSynthesis,
-            fontFeatureSettings = other.fontFeatureSettings ?: this.fontFeatureSettings,
-            letterSpacing = if (!other.letterSpacing.isInherit) {
-                other.letterSpacing
-            } else {
-                this.letterSpacing
-            },
-            baselineShift = other.baselineShift ?: this.baselineShift,
-            textGeometricTransform = other.textGeometricTransform ?: this.textGeometricTransform,
-            localeList = other.localeList ?: this.localeList,
-            background = other.background ?: this.background,
-            decoration = other.decoration ?: this.decoration,
-            shadow = other.shadow ?: this.shadow
-        )
+        return TextStyle(toSpanStyle().merge(other.toSpanStyle()))
     }
 }
-/**
- * @param a An sp value. Maybe [TextUnit.Inherit]
- * @param b An sp value. Maybe [TextUnit.Inherit]
- */
-private fun lerpTextUnitInheritable(a: TextUnit, b: TextUnit, t: Float): TextUnit {
-    if (a.isInherit && b.isInherit) return a
-    return lerpTextUnit(a, b, t)
-}
-
-private fun <T> lerpDiscrete(a: T, b: T, t: Float): T = if (t < 0.5) a else b
 
 /**
  * Interpolate between two text styles.
@@ -134,64 +136,5 @@ private fun <T> lerpDiscrete(a: T, b: T, t: Float): T = if (t < 0.5) a else b
  * 1.0, so negative values and values greater than 1.0 are valid.
  */
 fun lerp(start: TextStyle, stop: TextStyle, fraction: Float): TextStyle {
-    return TextStyle(
-        color = lerp(start.color ?: Color.Black, stop.color ?: Color.Black, fraction),
-        fontFamily = lerpDiscrete(
-            start.fontFamily,
-            stop.fontFamily,
-            fraction
-        ),
-        fontSize = lerpTextUnitInheritable(start.fontSize, stop.fontSize, fraction),
-        fontWeight = lerp(
-            start.fontWeight ?: FontWeight.Normal,
-            stop.fontWeight ?: FontWeight.Normal,
-            fraction
-        ),
-        fontStyle = lerpDiscrete(
-            start.fontStyle,
-            stop.fontStyle,
-            fraction
-        ),
-        fontSynthesis = lerpDiscrete(
-            start.fontSynthesis,
-            stop.fontSynthesis,
-            fraction
-        ),
-        fontFeatureSettings = lerpDiscrete(
-            start.fontFeatureSettings,
-            stop.fontFeatureSettings,
-            fraction
-        ),
-        letterSpacing = lerpTextUnitInheritable(
-            start.letterSpacing,
-            stop.letterSpacing,
-            fraction
-        ),
-        baselineShift = lerp(
-            start.baselineShift ?: BaselineShift(0f),
-            stop.baselineShift ?: BaselineShift(0f),
-            fraction
-        ),
-        textGeometricTransform = lerp(
-            start.textGeometricTransform ?: TextGeometricTransform.None,
-            stop.textGeometricTransform ?: TextGeometricTransform.None,
-            fraction
-        ),
-        localeList = lerpDiscrete(start.localeList, stop.localeList, fraction),
-        background = lerpDiscrete(
-            start.background,
-            stop.background,
-            fraction
-        ),
-        decoration = lerpDiscrete(
-            start.decoration,
-            stop.decoration,
-            fraction
-        ),
-        shadow = lerp(
-            start.shadow ?: Shadow(),
-            stop.shadow ?: Shadow(),
-            fraction
-        )
-    )
+    return TextStyle(lerp(start.toSpanStyle(), stop.toSpanStyle(), fraction))
 }
