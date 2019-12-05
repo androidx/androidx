@@ -16,12 +16,9 @@
 
 package androidx.camera.core;
 
-import static androidx.camera.testing.SurfaceTextureProvider.createSurfaceTextureProvider;
-
 import static com.google.common.truth.Truth.assertThat;
 
 import android.graphics.ImageFormat;
-import android.graphics.SurfaceTexture;
 import android.media.Image;
 import android.media.ImageWriter;
 import android.os.Handler;
@@ -32,11 +29,11 @@ import android.view.Surface;
 import androidx.annotation.NonNull;
 import androidx.annotation.RequiresApi;
 import androidx.camera.core.impl.utils.executor.CameraXExecutors;
-import androidx.camera.testing.SurfaceTextureProvider;
+import androidx.camera.core.impl.utils.futures.Futures;
 import androidx.camera.testing.fakes.FakeCameraCaptureResult;
+import androidx.test.ext.junit.runners.AndroidJUnit4;
 import androidx.test.filters.SdkSuppress;
 import androidx.test.filters.SmallTest;
-import androidx.test.runner.AndroidJUnit4;
 
 import com.google.common.util.concurrent.ListenableFuture;
 
@@ -52,29 +49,25 @@ import java.util.concurrent.TimeoutException;
 
 @SmallTest
 @RunWith(AndroidJUnit4.class)
-@SdkSuppress(minSdkVersion = 23)
-public final class ProcessingSurfaceTextureTest {
+@SdkSuppress(minSdkVersion = 23) // This test uses ImageWriter which is supported from api 23.
+public final class ProcessingSurfaceTest {
 
     private static final Size RESOLUTION = new Size(640, 480);
     private static final int FORMAT = ImageFormat.YUV_420_888;
     private static final CallbackDeferrableSurface NO_OP_CALLBACK_DEFERRABLE_SURFACE =
-            new CallbackDeferrableSurface(RESOLUTION,
-                    CameraXExecutors.directExecutor(),
-                    createSurfaceTextureProvider(
-                            new SurfaceTextureProvider.SurfaceTextureCallback() {
-                                @Override
-                                public void onSurfaceTextureReady(
-                                        @NonNull SurfaceTexture surfaceTexture,
-                                        @NonNull Size resolution) {
-                                    // No-op.
-                                }
-
-                                @Override
-                                public void onSafeToRelease(
-                                        @NonNull SurfaceTexture surfaceTexture) {
-                                    // No-op.
-                                }
-                            }));
+            new CallbackDeferrableSurface(RESOLUTION, CameraXExecutors.directExecutor(),
+                    new Preview.PreviewSurfaceProvider() {
+                @NonNull
+                @Override
+                public ListenableFuture<Surface> provideSurface(@NonNull Size resolution,
+                                @NonNull ListenableFuture<Void> surfaceReleaseFuture) {
+                    ImageReaderProxy imageReaderProxy =
+                            ImageReaderProxys.createIsolatedReader(
+                                    resolution.getWidth(), resolution.getHeight(),
+                                    ImageFormat.YUV_420_888, 2);
+                    return Futures.immediateFuture(imageReaderProxy.getSurface());
+                }
+            });
 
     private HandlerThread mBackgroundThread;
     private Handler mBackgroundHandler;
@@ -86,7 +79,7 @@ public final class ProcessingSurfaceTextureTest {
      * ImageWriter unable to dequeue Image that writes into SurfaceTexture since format is PRIVATE
      * on APIs prior to 28.
      */
-    @RequiresApi(28)
+    @RequiresApi(23)
     private CaptureProcessor mCaptureProcessor = new CaptureProcessor() {
         ImageWriter mImageWriter;
 
@@ -128,7 +121,7 @@ public final class ProcessingSurfaceTextureTest {
 
     @Test
     public void validInputSurface() throws ExecutionException, InterruptedException {
-        ProcessingSurface processingSurface = createProcessingSurfaceTexture(
+        ProcessingSurface processingSurface = createProcessingSurface(
                 NO_OP_CALLBACK_DEFERRABLE_SURFACE);
 
         Surface surface = processingSurface.getSurface().get();
@@ -137,41 +130,45 @@ public final class ProcessingSurfaceTextureTest {
     }
 
     @Test
-    @SdkSuppress(minSdkVersion = 28)
     public void writeToInputSurface_userOutputSurfaceReceivesFrame() throws ExecutionException,
             InterruptedException {
         // Arrange.
         final Semaphore frameReceivedSemaphore = new Semaphore(0);
 
-        // Create ProcessingSurfaceTexture with user Surface.
-        ProcessingSurface processingSurface = createProcessingSurfaceTexture(
+        // Create ProcessingSurface with user Surface.
+        ProcessingSurface processingSurface = createProcessingSurface(
                 new CallbackDeferrableSurface(RESOLUTION, CameraXExecutors.directExecutor(),
-                        createSurfaceTextureProvider(
-                                new SurfaceTextureProvider.SurfaceTextureCallback() {
-                                    @Override
-                                    public void onSurfaceTextureReady(
-                                            @NonNull SurfaceTexture surfaceTexture,
-                                            @NonNull Size resolution) {
-                                        surfaceTexture.setOnFrameAvailableListener(
-                                                surfaceTexture1 -> frameReceivedSemaphore.release(),
-                                                mBackgroundHandler);
-                                    }
+                        new Preview.PreviewSurfaceProvider() {
+                            @NonNull
+                            @Override
+                            public ListenableFuture<Surface> provideSurface(
+                                    @NonNull Size resolution,
+                                    @NonNull ListenableFuture<Void> surfaceReleaseFuture) {
+                                ImageReaderProxy imageReaderProxy =
+                                        ImageReaderProxys.createIsolatedReader(
+                                                resolution.getWidth(), resolution.getHeight(),
+                                                ImageFormat.YUV_420_888, 2);
 
-                                    @Override
-                                    public void onSafeToRelease(
-                                            @NonNull SurfaceTexture surfaceTexture) {
-                                        surfaceTexture.release();
-                                    }
-                                })));
+                                imageReaderProxy.setOnImageAvailableListener(
+                                        new ImageReaderProxy.OnImageAvailableListener() {
+                                            @Override
+                                            public void onImageAvailable(
+                                                    ImageReaderProxy imageReader) {
+                                                frameReceivedSemaphore.release();
+                                            }
+                                        }, CameraXExecutors.directExecutor());
+                                return Futures.immediateFuture(imageReaderProxy.getSurface());
+                            }
+                        }));
 
-        // Act: Send one frame to processingSurfaceTexture.
+        // Act: Send one frame to processingSurface.
         triggerImage(processingSurface, 1);
 
         // Assert: verify that the frame has been received or time-out after 1 second.
         assertThat(frameReceivedSemaphore.tryAcquire(1, TimeUnit.SECONDS)).isTrue();
     }
 
-    private ProcessingSurface createProcessingSurfaceTexture(
+    private ProcessingSurface createProcessingSurface(
             CallbackDeferrableSurface callbackDeferrableSurface) {
         return new ProcessingSurface(
                 RESOLUTION.getWidth(),
@@ -186,7 +183,7 @@ public final class ProcessingSurfaceTextureTest {
     @Test
     public void getSurfaceThrowsExceptionWhenClosed() {
         ProcessingSurface processingSurface =
-                createProcessingSurfaceTexture(NO_OP_CALLBACK_DEFERRABLE_SURFACE);
+                createProcessingSurface(NO_OP_CALLBACK_DEFERRABLE_SURFACE);
 
         processingSurface.close();
 
@@ -207,7 +204,7 @@ public final class ProcessingSurfaceTextureTest {
     @Test(expected = IllegalStateException.class)
     public void getCameraCaptureCallbackThrowsExceptionWhenReleased() {
         ProcessingSurface processingSurface =
-                createProcessingSurfaceTexture(NO_OP_CALLBACK_DEFERRABLE_SURFACE);
+                createProcessingSurface(NO_OP_CALLBACK_DEFERRABLE_SURFACE);
 
         processingSurface.release();
 
