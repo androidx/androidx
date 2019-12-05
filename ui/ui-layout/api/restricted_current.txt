@@ -420,13 +420,7 @@ package androidx.ui.layout.constraintlayout {
     method public androidx.ui.layout.constraintlayout.ConstraintSetBuilderScope.HorizontalAnchor.BarrierAnchor createTopBarrier(androidx.ui.layout.constraintlayout.ConstraintSetBuilderScope.ConstrainedLayoutReference... elements);
     method public androidx.ui.layout.constraintlayout.ConstraintSetBuilderScope.VerticalChain createVerticalChain(androidx.ui.layout.constraintlayout.ConstraintSetBuilderScope.ConstrainedLayoutReference![] elements, androidx.ui.layout.constraintlayout.ConstraintSetBuilderScope.ChainStyle chainStyle = ChainStyle.Spread);
     method public androidx.ui.layout.constraintlayout.ConstraintSetBuilderScope.ConstrainedLayoutReference getParent();
-    method public Object! getParentDimension();
-    method public Object! getSpreadDimension();
-    method public Object! getWrapDimension();
     method public androidx.ui.layout.constraintlayout.ConstraintSetBuilderScope.ConstrainedLayoutReference tag(Object tag);
-    property public final Object! ParentDimension;
-    property public final Object! SpreadDimension;
-    property public final Object! WrapDimension;
     property public final androidx.ui.layout.constraintlayout.ConstraintSetBuilderScope.ConstrainedLayoutReference parent;
   }
 
