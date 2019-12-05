@@ -1,0 +1,82 @@
+/*
+ * Copyright 2019 The Android Open Source Project
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *      http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+
+package androidx.ui.test.util
+
+import com.google.common.truth.FloatSubject
+import com.google.common.truth.Truth.assertThat
+import com.google.common.truth.Truth.assertWithMessage
+import java.io.PrintWriter
+import java.io.StringWriter
+import kotlin.math.sign
+
+fun FloatSubject.isAlmostEqualTo(f: Float, tolerance: Float) {
+    isWithin(f * tolerance).of(f)
+}
+
+/**
+ * Checks that the values are progressing in a strictly monotonous direction between [a] and [b].
+ * If [a] and [b] are equal, all values in the list should be that value too. The edges [a] and
+ * [b] allow a [tolerance] per pixel (e.g., [a] = 10 and [tolerance] = .01 allows 9.9 and higher).
+ * The default [tolerance] is `1e-6f` per pixel.
+ */
+fun List<Float>.isMonotonousBetween(a: Float, b: Float, tolerance: Float = 1e-6f) {
+    val expectedSign = sign(b - a)
+    if (expectedSign == 0f) {
+        forEach { assertThat(it).isAlmostEqualTo(a, tolerance) }
+    } else {
+        forEach { assertThat(it).isAlmostBetween(a, b, tolerance) }
+        zipWithNext { curr, next -> sign(next - curr) }.forEach {
+            assertThat(it).isEqualTo(expectedSign)
+        }
+    }
+}
+
+/**
+ * Checks that the float value is between [a] and [b], allowing a [tolerance] on either side that
+ * is relative to that value. I.e., on side [a], the float value can be `[a] * [tolerance]` off.
+ * The order of [a] and [b] doesn't matter, the float value must be _between_ them.
+ */
+fun FloatSubject.isAlmostBetween(a: Float, b: Float, tolerance: Float) {
+    if (a < b) {
+        isAtLeast(a * (1 - tolerance))
+        isAtMost(b * (1 + tolerance))
+    } else {
+        isAtLeast(b * (1 - tolerance))
+        isAtMost(a * (1 + tolerance))
+    }
+}
+
+/**
+ * Runs the [block] and asserts that an [AssertionError] is thrown if [expectError] is `true`, or
+ * that it is not thrown if [expectError] is `false`.
+ */
+fun expectAssertionError(expectError: Boolean, block: () -> Unit) {
+    var thrown = false
+    var errorMessage = "Expected an AssertionError, got nothing"
+    try {
+        block()
+    } catch (e: AssertionError) {
+        thrown = true
+        val sw = StringWriter()
+        val pw = PrintWriter(sw)
+        e.printStackTrace(pw)
+        pw.close()
+        sw.close()
+        errorMessage = "Expected no AssertionError, got:\n==============\n$sw=============="
+    }
+    assertWithMessage(errorMessage).that(thrown).isEqualTo(expectError)
+}
