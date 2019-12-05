@@ -20,6 +20,7 @@
     <GlyphID id="1" name="1em"/>
     <GlyphID id="2" name="1em_rtl"/>
     <GlyphID id="3" name="space"/>
+    <GlyphID id="4" name="linefeed"/>
   </GlyphOrder>
 
   <head>
@@ -130,12 +131,14 @@
     <mtx name="1em" width="1000" lsb="0"/>
     <mtx name="1em_rtl" width="1000" lsb="0"/>
     <mtx name="space" width="1000" lsb="0"/>
+    <mtx name="linefeed" width="500" lsb="0"/>
   </hmtx>
 
   <cmap>
     <tableVersion version="0"/>
     <cmap_format_4 platformID="3" platEncID="10" language="0">
         <map code="0x0009" name="1em" /> <!-- TAB -->
+        <map code="0x000A" name="linefeed" /> <!-- LINEFEED -->
         <map code="0x0020" name="space" /> <!-- SPACE -->
         <map code="0x002C" name="1em" /> <!-- , -->
         <map code="0x002D" name="1em" /> <!-- - -->
@@ -247,14 +250,16 @@
         <instructions />
     </TTGlyph>
     <TTGlyph name="space" xMin="0" yMin="-200" xMax="1000" yMax="800">
-            <contour>
-                <pt x="0" y="0" on="1"/>
-                <pt x="1000" y="0" on="1"/>
-                <pt x="1000" y="10" on="1"/>
-                <pt x="0" y="10" on="1"/>
-            </contour>
-            <instructions />
-        </TTGlyph>
+        <contour>
+            <pt x="0" y="0" on="1"/>
+            <pt x="1000" y="0" on="1"/>
+            <pt x="1000" y="10" on="1"/>
+            <pt x="0" y="10" on="1"/>
+        </contour>
+        <instructions />
+    </TTGlyph>
+    <TTGlyph name="linefeed" xMin="0" yMin="-200" xMax="0" yMax="800"/>
+
   </glyf>
 
   <name>
