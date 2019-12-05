@@ -42,7 +42,7 @@ class TextDelegateTest() {
             layoutDirection = LayoutDirection.Ltr
         )
 
-        assertThat(textDelegate.maxLines).isNull()
+        assertThat(textDelegate.maxLines).isEqualTo(Int.MAX_VALUE)
         assertThat(textDelegate.overflow).isEqualTo(TextOverflow.Clip)
     }
 

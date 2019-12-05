@@ -1187,8 +1187,8 @@ class AndroidParagraphTest {
         textIndent: TextIndent? = null,
         textAlign: TextAlign? = null,
         textDirectionAlgorithm: TextDirectionAlgorithm? = TextDirectionAlgorithm.ContentOrLtr,
-        ellipsis: Boolean? = null,
-        maxLines: Int? = null,
+        ellipsis: Boolean = false,
+        maxLines: Int = Int.MAX_VALUE,
         constraints: ParagraphConstraints,
         textStyle: TextStyle? = null,
         typefaceAdapter: TypefaceAdapter = TypefaceAdapter()

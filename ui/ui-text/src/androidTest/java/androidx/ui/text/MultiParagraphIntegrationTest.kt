@@ -1255,7 +1255,7 @@ class MultiParagraphIntegrationTest {
         text: String,
         fontSize: TextUnit = TextUnit.Inherit,
         paragraphStyle: ParagraphStyle = ParagraphStyle(),
-        maxLines: Int? = null,
+        maxLines: Int = Int.MAX_VALUE,
         width: Float = Float.MAX_VALUE
     ): MultiParagraph {
         return MultiParagraph(
@@ -1279,7 +1279,7 @@ class MultiParagraphIntegrationTest {
         text: AnnotatedString,
         fontSize: TextUnit = TextUnit.Inherit,
         paragraphStyle: ParagraphStyle = ParagraphStyle(),
-        maxLines: Int? = null,
+        maxLines: Int = Int.MAX_VALUE,
         width: Float = Float.MAX_VALUE
     ): MultiParagraph {
         return MultiParagraph(
