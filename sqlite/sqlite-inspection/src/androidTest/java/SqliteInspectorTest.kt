@@ -117,7 +117,7 @@ class SqliteInspectorTest {
     }
 
     @Test
-    fun test_get_schema() = runBlocking {
+    fun test_get_schema_complex_tables() {
         // prepare test environment
         val database = Database(
             "db1",
@@ -137,34 +137,50 @@ class SqliteInspectorTest {
             )
         )
 
-        TestEnvironment.setUp(alreadyOpenDatabases = listOf(database)).run {
-            // get id of the database from track databases event
+        test_get_schema(listOf(database))
+    }
+
+    @Test
+    fun test_get_schema_multiple_databases() {
+        test_get_schema(
+            listOf(
+                Database("db3", Table("t3", Column("c3", "BLOB"))),
+                Database("db2", Table("t2", Column("c2", "TEXT"))),
+                Database("db1", Table("t1", Column("c1", "TEXT")))
+            )
+        )
+    }
+
+    private fun test_get_schema(alreadyOpenDatabases: List<Database>) = runBlocking {
+        assertThat(alreadyOpenDatabases).isNotEmpty()
+
+        // prepare test environment
+        TestEnvironment.setUp(alreadyOpenDatabases).run {
             sendCommand(createTrackDatabasesCommand())
-            val databaseOpenedEvent = receiveEvent().databaseOpened
+            val databaseConnections =
+                alreadyOpenDatabases.indices.map { receiveEvent().databaseOpened }
 
-            // query schema and validate the response
-            sendCommand(createGetSchemaCommand(databaseOpenedEvent.id)).let { response ->
-                val tables = response.getSchema.tablesList.sortedBy { it.name }
-                assertThat(tables).hasSize(2)
-                val table1 = tables[0]
-                val table2 = tables[1]
-                val actualColumns1 = table1.columnsList.sortedBy { it.name }
-                val actualColumns2 = table2.columnsList.sortedBy { it.name }
+            val schemas =
+                databaseConnections
+                    .sortedBy { it.name }
+                    .map { sendCommand(createGetSchemaCommand(it.id)).getSchema }
 
-                assertThat(table1.name).isEqualTo(database.tables[0].name)
-                assertThat(table2.name).isEqualTo(database.tables[1].name)
+            alreadyOpenDatabases
+                .sortedBy { it.path }
+                .forEach2(schemas) { expectedSchema, actualSchema ->
+                    val expectedTables = expectedSchema.tables.sortedBy { it.name }
+                    val actualTables = actualSchema.tablesList.sortedBy { it.name }
 
-                assertThat(actualColumns1).hasSize(database.tables[0].columns.size)
-                assertThat(actualColumns2).hasSize(database.tables[1].columns.size)
+                    expectedTables.forEach2(actualTables) { expectedTable, actualTable ->
+                        assertThat(actualTable.name).isEqualTo(expectedTable.name)
 
-                database.tables[0].columns.sortedBy { it.name }.forEachIndexed { ix, (name, type) ->
-                    assertThat(actualColumns1[ix].name).isEqualTo(name)
-                    assertThat(actualColumns1[ix].type).isEqualTo(type)
-                }
+                        val expectedColumns = expectedTable.columns.sortedBy { it.name }
+                        val actualColumns = actualTable.columnsList.sortedBy { it.name }
 
-                database.tables[1].columns.sortedBy { it.name }.forEachIndexed { ix, (name, type) ->
-                    assertThat(actualColumns2[ix].name).isEqualTo(name)
-                    assertThat(actualColumns2[ix].type).isEqualTo(type)
+                        expectedColumns.forEach2(actualColumns) { expectedColumn, actualColumn ->
+                            assertThat(actualColumn.name).isEqualTo(expectedColumn.name)
+                            assertThat(actualColumn.type).isEqualTo(expectedColumn.type)
+                        }
                 }
             }
 
@@ -199,6 +215,12 @@ class SqliteInspectorTest {
 
         fun assertNoQueuedEvents() {
             assertThat(inspectorTester.channel.isEmpty).isTrue()
+        }
+
+        /** Iterates over two lists of the same size */
+        fun <A, B> List<A>.forEach2(other: List<B>, action: (A, B) -> Unit) {
+            assertThat(this.size).isEqualTo(other.size)
+            zip(other, action)
         }
 
         companion object {
