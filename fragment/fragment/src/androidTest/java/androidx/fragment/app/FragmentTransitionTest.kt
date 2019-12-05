@@ -33,7 +33,6 @@ import com.google.common.truth.Truth.assertThat
 import org.junit.After
 import org.junit.Assert.fail
 import org.junit.Before
-import org.junit.Ignore
 import org.junit.Rule
 import org.junit.Test
 import org.junit.runner.RunWith
@@ -43,6 +42,7 @@ import org.mockito.Mockito.mock
 import org.mockito.Mockito.reset
 import org.mockito.Mockito.verify
 import java.util.concurrent.CountDownLatch
+import java.util.concurrent.TimeUnit
 
 @MediumTest
 @RunWith(Parameterized::class)
@@ -594,7 +594,6 @@ class FragmentTransitionTest(private val reorderingAllowed: Boolean) {
     }
 
     // Ensure that transitions are done when a fragment is shown and hidden
-    @Ignore // TODO: needs to be suppressed until b/145554838 is fixed
     @Test
     fun showHideTransition() {
         val fragment1 = setupInitialFragment()
@@ -622,6 +621,7 @@ class FragmentTransitionTest(private val reorderingAllowed: Boolean) {
         activityRule.waitForExecution()
         fragment1.waitForTransition()
         fragment2.waitForTransition()
+        fragment1.exitTransition.endAnimatorCountDownLatch.await(1000, TimeUnit.MILLISECONDS)
 
         val endGreen = findViewById(fragment2, R.id.greenSquare)
         val endBlue = findViewById(fragment2, R.id.blueSquare)

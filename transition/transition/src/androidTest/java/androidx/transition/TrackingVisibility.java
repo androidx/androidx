@@ -16,6 +16,7 @@
 package androidx.transition;
 
 import android.animation.Animator;
+import android.animation.AnimatorListenerAdapter;
 import android.animation.ObjectAnimator;
 import android.graphics.Rect;
 import android.view.View;
@@ -24,6 +25,7 @@ import android.view.ViewGroup;
 import androidx.fragment.app.TargetTracking;
 
 import java.util.ArrayList;
+import java.util.concurrent.CountDownLatch;
 
 /**
  * Visibility transition that tracks which targets are applied to it.
@@ -33,6 +35,7 @@ public class TrackingVisibility extends Visibility implements TargetTracking {
     public final ArrayList<View> targets = new ArrayList<>();
     private final Rect[] mEpicenter = new Rect[1];
     private boolean mRealTransition;
+    public CountDownLatch endAnimatorCountDownLatch = new CountDownLatch(1);
 
     public void setRealTransition(boolean realTransition) {
         this.mRealTransition = realTransition;
@@ -62,7 +65,27 @@ public class TrackingVisibility extends Visibility implements TargetTracking {
             mEpicenter[0] = null;
         }
         if (mRealTransition) {
-            return ObjectAnimator.ofFloat(view, "transitionAlpha", 0);
+            Animator animator = ObjectAnimator.ofFloat(view, "transitionAlpha", 0);
+            // We need to wait until the exiting Transition has completed. Just adding a listener
+            // is not enough because it will not be last listener to get an onTransitionEnd
+            // callback, so we have to add a listener on the Animator that runs the Transition
+            // and wait for that to end.
+            animator.addListener(new AnimatorListenerAdapter() {
+                @Override
+                public void onAnimationStart(Animator animation) {
+                    super.onAnimationStart(animation);
+                    animation.removeListener(this);
+                    animation.addListener(this);
+                    endAnimatorCountDownLatch = new CountDownLatch(1);
+                }
+
+                @Override
+                public void onAnimationEnd(Animator animation) {
+                    endAnimatorCountDownLatch.countDown();
+                    animation.removeListener(this);
+                }
+            });
+            return animator;
         }
         return null;
     }
