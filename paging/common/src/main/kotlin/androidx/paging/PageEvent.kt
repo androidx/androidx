@@ -20,14 +20,11 @@ package androidx.paging
  * Events in the stream from paging fetch logic to UI.
  *
  * Every event sent to the UI is a PageEvent, and will be processed atomically.
- *
- * TODO:
- *  - transformations
  */
 internal sealed class PageEvent<T : Any> {
     data class Insert<T : Any>(
         val loadType: LoadType,
-        val pages: List<TransformedPage<T>>,
+        val pages: List<TransformablePage<T>>,
         val placeholdersStart: Int,
         val placeholdersEnd: Int
     ) : PageEvent<T>() {
@@ -38,6 +35,59 @@ internal sealed class PageEvent<T : Any> {
             require(placeholdersEnd >= 0) {
                 "Invalid placeholdersAfter $placeholdersEnd"
             }
+        }
+
+        private inline fun <R : Any> mapInternal(
+            predicate: (TransformablePage<T>) -> TransformablePage<R>
+        ): PageEvent<R> = Insert(
+            loadType = loadType,
+            pages = pages.map(predicate),
+            placeholdersStart = placeholdersStart,
+            placeholdersEnd = placeholdersEnd
+        )
+
+        override fun <R : Any> map(predicate: (T) -> R): PageEvent<R> = mapInternal {
+            TransformablePage(
+                originalPageOffset = it.originalPageOffset,
+                data = it.data.map(predicate),
+                sourcePageSize = it.sourcePageSize,
+                originalIndices = it.originalIndices
+            )
+        }
+
+        override fun <R : Any> flatMap(transform: (T) -> Iterable<R>): PageEvent<R> = mapInternal {
+            val data = mutableListOf<R>()
+            val originalIndices = mutableListOf<Int>()
+            it.data.forEachIndexed { index, t ->
+                data += transform(t)
+                val indexToStore = it.originalIndices?.get(index) ?: index
+                while (originalIndices.size < data.size) {
+                    originalIndices.add(indexToStore)
+                }
+            }
+            TransformablePage(
+                originalPageOffset = it.originalPageOffset,
+                data = data,
+                sourcePageSize = it.sourcePageSize,
+                originalIndices = originalIndices
+            )
+        }
+
+        override fun filter(predicate: (T) -> Boolean): PageEvent<T> = mapInternal {
+            val data = mutableListOf<T>()
+            val originalIndices = mutableListOf<Int>()
+            it.data.forEachIndexed { index, t ->
+                if (predicate(t)) {
+                    data.add(t)
+                    originalIndices.add(it.originalIndices?.get(index) ?: index)
+                }
+            }
+            TransformablePage(
+                originalPageOffset = it.originalPageOffset,
+                data = data,
+                sourcePageSize = it.sourcePageSize,
+                originalIndices = originalIndices
+            )
         }
     }
 
@@ -59,4 +109,12 @@ internal sealed class PageEvent<T : Any> {
         val loadType: LoadType,
         val loadState: LoadState
     ) : PageEvent<T>()
+
+    @Suppress("UNCHECKED_CAST")
+    open fun <R : Any> map(predicate: (T) -> R): PageEvent<R> = this as PageEvent<R>
+
+    @Suppress("UNCHECKED_CAST")
+    open fun <R : Any> flatMap(transform: (T) -> Iterable<R>): PageEvent<R> = this as PageEvent<R>
+
+    open fun filter(predicate: (T) -> Boolean): PageEvent<T> = this
 }

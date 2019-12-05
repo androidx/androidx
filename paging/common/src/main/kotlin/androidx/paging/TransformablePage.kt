@@ -16,7 +16,7 @@
 
 package androidx.paging
 
-internal data class TransformedPage<T : Any>(
+internal data class TransformablePage<T : Any>(
     /**
      * Index of the original page (pre-transformation) relative to initial load = 0
      */
@@ -38,8 +38,16 @@ internal data class TransformedPage<T : Any>(
      * If provided, this table provides a mapping from presentation index -> original,
      * pre-transformation index.
      */
-    private val originalIndices: List<Int>?
+    val originalIndices: List<Int>?
 ) {
+    /**
+     * Simple constructor for creating pre-transformation pages, which don't need an index lookup
+     */
+    constructor(
+        originalPageOffset: Int,
+        data: List<T>
+    ) : this(originalPageOffset, data, data.size, null)
+
     init {
         require(originalIndices == null || originalIndices.size == data.size) {
             "If originalIndices (size = ${originalIndices!!.size}) is provided," +

@@ -23,14 +23,12 @@ import kotlin.test.assertEquals
 
 @Suppress("SameParameterValue")
 @RunWith(JUnit4::class)
-class TransformedPageTest {
+class TransformablePageTest {
     @Test
     fun loadHintNoLookup() {
-        val page = TransformedPage(
+        val page = TransformablePage(
             originalPageOffset = 0,
-            data = listOf('a', 'b'),
-            sourcePageSize = 2,
-            originalIndices = null
+            data = listOf('a', 'b')
         )
 
         // negative - index pass-through
@@ -46,7 +44,7 @@ class TransformedPageTest {
 
     @Test
     fun loadHintLookup() {
-        val page = TransformedPage(
+        val page = TransformablePage(
             data = listOf('a', 'b'),
             originalPageOffset = -4,
             sourcePageSize = 30,

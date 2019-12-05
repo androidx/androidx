@@ -31,7 +31,7 @@ internal fun <T : Any> PagingState.Producer<T>.init(
 ) = processEvent(
     PageEvent.Insert(
         loadType = LoadType.REFRESH,
-        pages = TransformedPages(pages, indexOfInitialPage),
+        pages = listOfTransformablePages(pages, indexOfInitialPage),
         placeholdersStart = placeholdersStart,
         placeholdersEnd = placeholdersEnd
     )
@@ -45,12 +45,12 @@ internal fun <T : Any> PagingState.Producer<T>.insertPage(
 ) = processEvent(
     PageEvent.Insert(
         loadType = if (isPrepend) LoadType.START else LoadType.END,
-        pages = listOf(TransformedPage(
-            originalPageOffset = originalPageOffset,
-            data = page,
-            sourcePageSize = page.size,
-            originalIndices = null
-        )),
+        pages = listOf(
+            TransformablePage(
+                originalPageOffset = originalPageOffset,
+                data = page
+            )
+        ),
         placeholdersStart = if (isPrepend) placeholdersRemaining else 0,
         placeholdersEnd = if (isPrepend) 0 else placeholdersRemaining
     )
@@ -67,19 +67,17 @@ internal fun <T : Any> PagingState.Producer<T>.dropPages(
     )
 )
 
-@Suppress("TestFunctionName")
-private fun <T : Any> TransformedPages(
+private fun <T : Any> listOfTransformablePages(
     pages: List<List<T>>,
     indexOfInitialPage: Int = 0
 ) = pages.mapIndexed { index, list ->
-    TransformedPage(
-        originalPageOffset = index - indexOfInitialPage,
+    TransformablePage(
         data = list,
-        sourcePageSize = list.size,
-        originalIndices = null
+        originalPageOffset = index - indexOfInitialPage
     )
 }
 
+@Suppress("TestFunctionName")
 internal fun <T : Any> PagingState(
     pages: List<List<T>>,
     placeholdersStart: Int = 0,
@@ -92,7 +90,7 @@ internal fun <T : Any> PagingState(
 ) = PagingState(
     leadingNullCount = placeholdersStart,
     trailingNullCount = placeholdersEnd,
-    pages = TransformedPages(pages, indexOfInitialPage),
+    pages = listOfTransformablePages(pages, indexOfInitialPage),
     loadStateRefresh = refresh,
     loadStateStart = start,
     loadStateEnd = end,
