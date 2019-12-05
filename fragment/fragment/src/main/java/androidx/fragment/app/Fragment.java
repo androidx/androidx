@@ -69,6 +69,7 @@ import androidx.lifecycle.SavedStateViewModelFactory;
 import androidx.lifecycle.ViewModelProvider;
 import androidx.lifecycle.ViewModelStore;
 import androidx.lifecycle.ViewModelStoreOwner;
+import androidx.lifecycle.ViewTreeLifecycleOwner;
 import androidx.loader.app.LoaderManager;
 import androidx.savedstate.SavedStateRegistry;
 import androidx.savedstate.SavedStateRegistryController;
@@ -2732,6 +2733,10 @@ public class Fragment implements ComponentCallbacks, OnCreateContextMenuListener
         if (mView != null) {
             // Initialize the view lifecycle
             mViewLifecycleOwner.initialize();
+            // Tell the fragment's new view about it before we tell anyone listening
+            // to mViewLifecycleOwnerLiveData and before onViewCreated, so that calls to
+            // ViewTreeLifecycleOwner.get() return something meaningful
+            ViewTreeLifecycleOwner.set(mView, mViewLifecycleOwner);
             // Then inform any Observers of the new LifecycleOwner
             mViewLifecycleOwnerLiveData.setValue(mViewLifecycleOwner);
         } else {
