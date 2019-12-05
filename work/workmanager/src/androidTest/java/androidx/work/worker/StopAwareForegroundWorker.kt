@@ -40,10 +40,12 @@ class StopAwareForegroundWorker(val context: Context, val parameters: WorkerPara
             .setContentText(Content)
             .build()
 
-        return ForegroundInfo(notification)
+        return ForegroundInfo(NotificationId, notification)
     }
 
     companion object {
+        // Notification Id
+        private const val NotificationId = 42
         // Channel id
         private const val ChannelId = "Channel"
         // Ticker

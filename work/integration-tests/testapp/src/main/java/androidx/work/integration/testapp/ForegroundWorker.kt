@@ -69,7 +69,7 @@ class ForegroundWorker(context: Context, parameters: WorkerParameters) :
             .setOngoing(true)
             .build()
 
-        return ForegroundInfo(notification)
+        return ForegroundInfo(NotificationId, notification)
     }
 
     @RequiresApi(Build.VERSION_CODES.O)

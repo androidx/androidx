@@ -33,7 +33,6 @@ import androidx.work.impl.WorkDatabase
 import androidx.work.impl.WorkManagerImpl
 import androidx.work.impl.constraints.WorkConstraintsCallback
 import androidx.work.impl.constraints.WorkConstraintsTracker
-import androidx.work.impl.foreground.SystemForegroundDispatcher.NOTIFICATION_ID
 import androidx.work.impl.foreground.SystemForegroundDispatcher.createCancelWorkIntent
 import androidx.work.impl.foreground.SystemForegroundDispatcher.createNotifyIntent
 import androidx.work.impl.foreground.SystemForegroundDispatcher.createStartForegroundIntent
@@ -134,12 +133,13 @@ class SystemForegroundDispatcherTest {
     @Test
     fun testHandleNotify() {
         val workSpecId = "workSpecId"
+        val notificationId = 1
         val notification = mock(Notification::class.java)
-        val metadata = ForegroundInfo(notification)
+        val metadata = ForegroundInfo(notificationId, notification)
         val intent = createNotifyIntent(context, workSpecId, metadata)
         dispatcher.onStartCommand(intent)
         verify(dispatcherCallback, times(1))
-            .notify(eq(NOTIFICATION_ID), eq(0), eq(workSpecId), any<Notification>())
+            .notify(eq(notificationId), eq(0), eq(workSpecId), any<Notification>())
     }
 
     @Test
