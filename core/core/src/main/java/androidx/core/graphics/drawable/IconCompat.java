@@ -109,7 +109,7 @@ public class IconCompat extends CustomVersionedParcelable {
     public static final int TYPE_ADAPTIVE_BITMAP = Icon.TYPE_ADAPTIVE_BITMAP;
     // TODO: (b/143878043) replace with android.graphics.drawable.TYPE_URI_ADAPTIVE_BITMAP
     /**
-     * An icon that was created using {@link #createWithContentUriForAdaptiveBitmap}.
+     * An icon that was created using {@link #createWithAdaptiveBitmapContentUri}.
      */
     public static final int TYPE_URI_ADAPTIVE_BITMAP = 6;
 
@@ -328,9 +328,9 @@ public class IconCompat extends CustomVersionedParcelable {
      * @param uri A uri referring to local content:// or file:// image data.
      */
     // TODO: (b/143878043) update comment when corresponding api is available
-    // @see android.graphics.drawable.Icon#createWithContentUriForAdaptiveBitmap(String)
+    // @see android.graphics.drawable.Icon#createWithAdaptiveBitmapContentUri(String)
     @NonNull
-    public static IconCompat createWithContentUriForAdaptiveBitmap(@NonNull String uri) {
+    public static IconCompat createWithAdaptiveBitmapContentUri(@NonNull String uri) {
         if (uri == null) {
             throw new IllegalArgumentException("Uri must not be null.");
         }
@@ -346,13 +346,13 @@ public class IconCompat extends CustomVersionedParcelable {
      * @param uri A uri referring to local content:// or file:// image data.
      */
     // TODO: (b/143878043) update comment when corresponding api is available
-    // @see android.graphics.drawable.Icon#createWithContentUriForAdaptiveBitmap(String)
+    // @see android.graphics.drawable.Icon#createWithAdaptiveBitmapContentUri(String)
     @NonNull
-    public static IconCompat createWithContentUriForAdaptiveBitmap(@NonNull Uri uri) {
+    public static IconCompat createWithAdaptiveBitmapContentUri(@NonNull Uri uri) {
         if (uri == null) {
             throw new IllegalArgumentException("Uri must not be null.");
         }
-        return createWithContentUriForAdaptiveBitmap(uri.toString());
+        return createWithAdaptiveBitmapContentUri(uri.toString());
     }
 
     /**
@@ -539,7 +539,7 @@ public class IconCompat extends CustomVersionedParcelable {
                 icon = Icon.createWithContentUri((String) mObj1);
                 break;
             case TYPE_URI_ADAPTIVE_BITMAP:
-                // TODO: (b/143878043) call Icon#createWithContentUriForAdaptiveBitmap
+                // TODO: (b/143878043) call Icon#createWithAdaptiveBitmapContentUri
                 if (context == null) {
                     throw new IllegalArgumentException(
                             "Context is required to resolve the file uri of the icon: " + getUri());
@@ -990,7 +990,7 @@ public class IconCompat extends CustomVersionedParcelable {
             case TYPE_URI:
                 return createWithContentUri(getUri(icon));
             case TYPE_URI_ADAPTIVE_BITMAP:
-                return createWithContentUriForAdaptiveBitmap(getUri(icon));
+                return createWithAdaptiveBitmapContentUri(getUri(icon));
         }
         IconCompat iconCompat = new IconCompat(TYPE_UNKNOWN);
         iconCompat.mObj1 = icon;
@@ -1012,7 +1012,7 @@ public class IconCompat extends CustomVersionedParcelable {
             case TYPE_URI:
                 return createWithContentUri(getUri(icon));
             case TYPE_URI_ADAPTIVE_BITMAP:
-                return createWithContentUriForAdaptiveBitmap(getUri(icon));
+                return createWithAdaptiveBitmapContentUri(getUri(icon));
         }
         IconCompat iconCompat = new IconCompat(TYPE_UNKNOWN);
         iconCompat.mObj1 = icon;
