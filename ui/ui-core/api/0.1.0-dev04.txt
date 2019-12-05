@@ -919,7 +919,7 @@ package androidx.ui.core {
     method public static androidx.ui.core.TextUnit getSp(float);
     method public static androidx.ui.core.TextUnit getSp(double);
     method public static androidx.ui.core.TextUnit getSp(int);
-    method public static androidx.ui.core.TextUnit lerpTextUnit(androidx.ui.core.TextUnit a, androidx.ui.core.TextUnit b, float t);
+    method public static androidx.ui.core.TextUnit lerp(androidx.ui.core.TextUnit a, androidx.ui.core.TextUnit b, float t);
     method public static inline androidx.ui.core.TextUnit max(androidx.ui.core.TextUnit a, androidx.ui.core.TextUnit b);
     method public static inline androidx.ui.core.TextUnit min(androidx.ui.core.TextUnit a, androidx.ui.core.TextUnit b);
     method public static inline operator androidx.ui.core.TextUnit times(float, androidx.ui.core.TextUnit other);

@@ -18,8 +18,8 @@ package androidx.ui.text.style
 
 import androidx.compose.Immutable
 import androidx.ui.core.TextUnit
-import androidx.ui.core.lerpTextUnit
 import androidx.ui.core.sp
+import androidx.ui.text.lerpTextUnitInheritable
 
 /**
  * Specify the indentation of a paragraph.
@@ -36,11 +36,17 @@ data class TextIndent(
 /**
  * Linearly interpolate between two [TextIndent]s.
  *
- * @see [lerp]
+ * The [fraction] argument represents position on the timeline, with 0.0 meaning
+ * that the interpolation has not started, returning [start] (or something
+ * equivalent to [start]), 1.0 meaning that the interpolation has finished,
+ * returning [stop] (or something equivalent to [stop]), and values in between
+ * meaning that the interpolation is at the relevant point on the timeline
+ * between [start] and [stop]. The interpolation can be extrapolated beyond 0.0 and
+ * 1.0, so negative values and values greater than 1.0 are valid.
  */
 fun lerp(start: TextIndent, stop: TextIndent, fraction: Float): TextIndent {
     return TextIndent(
-        lerpTextUnit(start.firstLine, stop.firstLine, fraction),
-        lerpTextUnit(start.restLine, stop.restLine, fraction)
+        lerpTextUnitInheritable(start.firstLine, stop.firstLine, fraction),
+        lerpTextUnitInheritable(start.restLine, stop.restLine, fraction)
     )
 }

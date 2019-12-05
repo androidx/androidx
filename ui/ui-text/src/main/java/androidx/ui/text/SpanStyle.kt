@@ -18,7 +18,7 @@ package androidx.ui.text
 
 import androidx.compose.Immutable
 import androidx.ui.core.TextUnit
-import androidx.ui.core.lerpTextUnit
+import androidx.ui.core.lerp
 import androidx.ui.graphics.Color
 import androidx.ui.graphics.Shadow
 import androidx.ui.graphics.lerp
@@ -60,9 +60,9 @@ import androidx.ui.text.style.lerp
  * @param decoration The decorations to paint near the text (e.g., an underline).
  * @param shadow The shadow effect applied on the text.
  *
- * @see [AnnotatedString]
- * @see [TextStyle]
- * @see [ParagraphStyle]
+ * @see AnnotatedString
+ * @see TextStyle
+ * @see ParagraphStyle
  */
 @Immutable
 data class SpanStyle(
@@ -119,12 +119,16 @@ data class SpanStyle(
  * @param a An sp value. Maybe [TextUnit.Inherit]
  * @param b An sp value. Maybe [TextUnit.Inherit]
  */
-private fun lerpTextUnitInheritable(a: TextUnit, b: TextUnit, t: Float): TextUnit {
+internal fun lerpTextUnitInheritable(a: TextUnit, b: TextUnit, t: Float): TextUnit {
     if (a.isInherit && b.isInherit) return a
-    return lerpTextUnit(a, b, t)
+    return lerp(a, b, t)
 }
 
-private fun <T> lerpDiscrete(a: T, b: T, t: Float): T = if (t < 0.5) a else b
+/**
+ * Lerp between two values that cannot be transitioned. Returns [a] if [fraction] is smaller than
+ * 0.5 otherwise [b].
+ */
+internal fun <T> lerpDiscrete(a: T, b: T, fraction: Float): T = if (fraction < 0.5) a else b
 
 /**
  * Interpolate between two span styles.

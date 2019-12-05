@@ -27,8 +27,8 @@ import androidx.ui.text.platform.platformLocaleDelegate
  * locale-sensitive operation— the number should be formatted according to the customs and
  * conventions of the user's native country, region, or culture.
  *
- * @see [TextStyle]
- * @see [SpanStyle]
+ * @see TextStyle
+ * @see SpanStyle
  */
 @Immutable
 class Locale internal constructor(internal val platformLocale: PlatformLocale) {

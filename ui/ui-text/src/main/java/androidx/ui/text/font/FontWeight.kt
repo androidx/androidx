@@ -21,8 +21,8 @@ import androidx.ui.lerp
 /**
  * The thickness of the glyphs, in a range of [1, 1000].
  *
- * @see [Font]
- * @see [FontFamily]
+ * @see Font
+ * @see FontFamily
  */
 @Immutable
 /* inline */ data class FontWeight private constructor(

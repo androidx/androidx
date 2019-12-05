@@ -26,15 +26,24 @@ import kotlin.reflect.KType
 import kotlin.reflect.full.primaryConstructor
 
 @RunWith(JUnit4::class)
-class TextStyleAndSpanStyleTest {
+class TextSpanParagraphStyleTest {
 
     @Test
-    fun spanStyle_is_covered_by_textStyle() {
+    fun spanStyle_is_covered_by_TextStyle() {
         val spanStyleParameters = constructorParams(SpanStyle::class)
         val textStyleParameters = constructorParams(TextStyle::class)
 
         // assert that textStyleParameters contains all of spanStyleParameters
         assertThat(textStyleParameters).containsAtLeastElementsIn(spanStyleParameters)
+    }
+
+    @Test
+    fun paragraphStyle_is_covered_by_TextStyle() {
+        val paragraphStyleParameters = constructorParams(ParagraphStyle::class)
+        val textStyleParameters = constructorParams(TextStyle::class)
+
+        // assert that paragraphStyleParameters contains all of spanStyleParameters
+        assertThat(textStyleParameters).containsAtLeastElementsIn(paragraphStyleParameters)
     }
 
     private fun <T : Any> constructorParams(clazz: KClass<T>): List<Parameter> {

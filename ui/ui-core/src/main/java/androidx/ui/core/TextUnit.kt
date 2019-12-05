@@ -396,6 +396,6 @@ internal inline fun <T> checkArithmetic(a: TextUnit, b: TextUnit, c: TextUnit, b
     return block()
 }
 
-fun lerpTextUnit(a: TextUnit, b: TextUnit, t: Float): TextUnit = checkArithmetic(a, b) {
+fun lerp(a: TextUnit, b: TextUnit, t: Float): TextUnit = checkArithmetic(a, b) {
     return pack(a.rawType, lerp(a.value, b.value, t))
 }
