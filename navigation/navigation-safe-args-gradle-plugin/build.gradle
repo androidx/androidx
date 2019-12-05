@@ -28,10 +28,6 @@ plugins {
     id("java-gradle-plugin")
 }
 
-sourceSets {
-    test.java.srcDirs += 'src/tests/kotlin'
-}
-
 dependencies {
     implementation(AGP_STABLE)
     implementation(KOTLIN_GRADLE_PLUGIN)
