@@ -447,7 +447,7 @@ private fun TextDelegate.createOverflowShader(
             text = "\u2026", // horizontal ellipsis
             style = textStyle,
             paragraphStyle = paragraphStyle,
-            textStyles = listOf(),
+            spanStyles = listOf(),
             density = density,
             resourceLoader = resourceLoader,
             constraints = ParagraphConstraints(Float.POSITIVE_INFINITY)

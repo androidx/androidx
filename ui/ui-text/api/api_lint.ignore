@@ -5,7 +5,7 @@ AutoBoxing: androidx.ui.text.MultiParagraph#MultiParagraph(androidx.ui.text.Mult
     Must avoid boxed primitives (`java.lang.Integer`)
 AutoBoxing: androidx.ui.text.MultiParagraph#getMaxLines():
     Must avoid boxed primitives (`java.lang.Integer`)
-AutoBoxing: androidx.ui.text.ParagraphKt#Paragraph(String, androidx.ui.text.TextStyle, androidx.ui.text.ParagraphStyle, java.util.List<androidx.ui.text.AnnotatedString.Item<androidx.ui.text.TextStyle>>, Integer, Boolean, androidx.ui.text.ParagraphConstraints, androidx.ui.core.Density, androidx.ui.text.font.Font.ResourceLoader) parameter #4:
+AutoBoxing: androidx.ui.text.ParagraphKt#Paragraph(String, androidx.ui.text.TextStyle, androidx.ui.text.ParagraphStyle, java.util.List<androidx.ui.text.AnnotatedString.Item<androidx.ui.text.SpanStyle>>, Integer, Boolean, androidx.ui.text.ParagraphConstraints, androidx.ui.core.Density, androidx.ui.text.font.Font.ResourceLoader) parameter #4:
     Must avoid boxed primitives (`java.lang.Integer`)
 AutoBoxing: androidx.ui.text.ParagraphKt#Paragraph(androidx.ui.text.ParagraphIntrinsics, Integer, Boolean, androidx.ui.text.ParagraphConstraints) parameter #1:
     Must avoid boxed primitives (`java.lang.Integer`)

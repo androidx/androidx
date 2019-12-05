@@ -191,14 +191,14 @@ package androidx.ui.input {
 package androidx.ui.text {
 
   public final class AnnotatedString {
-    ctor public AnnotatedString(String text, java.util.List<androidx.ui.text.AnnotatedString.Item<androidx.ui.text.TextStyle>> textStyles, java.util.List<androidx.ui.text.AnnotatedString.Item<androidx.ui.text.ParagraphStyle>> paragraphStyles);
+    ctor public AnnotatedString(String text, java.util.List<androidx.ui.text.AnnotatedString.Item<androidx.ui.text.SpanStyle>> spanStyles, java.util.List<androidx.ui.text.AnnotatedString.Item<androidx.ui.text.ParagraphStyle>> paragraphStyles);
     method public String component1();
-    method public java.util.List<androidx.ui.text.AnnotatedString.Item<androidx.ui.text.TextStyle>> component2();
+    method public java.util.List<androidx.ui.text.AnnotatedString.Item<androidx.ui.text.SpanStyle>> component2();
     method public java.util.List<androidx.ui.text.AnnotatedString.Item<androidx.ui.text.ParagraphStyle>> component3();
-    method public androidx.ui.text.AnnotatedString copy(String text, java.util.List<androidx.ui.text.AnnotatedString.Item<androidx.ui.text.TextStyle>> textStyles, java.util.List<androidx.ui.text.AnnotatedString.Item<androidx.ui.text.ParagraphStyle>> paragraphStyles);
+    method public androidx.ui.text.AnnotatedString copy(String text, java.util.List<androidx.ui.text.AnnotatedString.Item<androidx.ui.text.SpanStyle>> spanStyles, java.util.List<androidx.ui.text.AnnotatedString.Item<androidx.ui.text.ParagraphStyle>> paragraphStyles);
     method public java.util.List<androidx.ui.text.AnnotatedString.Item<androidx.ui.text.ParagraphStyle>> getParagraphStyles();
+    method public java.util.List<androidx.ui.text.AnnotatedString.Item<androidx.ui.text.SpanStyle>> getSpanStyles();
     method public String getText();
-    method public java.util.List<androidx.ui.text.AnnotatedString.Item<androidx.ui.text.TextStyle>> getTextStyles();
     method public operator androidx.ui.text.AnnotatedString plus(androidx.ui.text.AnnotatedString other);
   }
 
@@ -207,7 +207,7 @@ package androidx.ui.text {
     ctor public AnnotatedString.Builder();
     ctor public AnnotatedString.Builder(String text);
     ctor public AnnotatedString.Builder(androidx.ui.text.AnnotatedString text);
-    method public void addStyle(androidx.ui.text.TextStyle style, int start, int end);
+    method public void addStyle(androidx.ui.text.SpanStyle style, int start, int end);
     method public void addStyle(androidx.ui.text.ParagraphStyle style, int start, int end);
     method public void append(String text);
     method public void append(char p);
@@ -215,7 +215,7 @@ package androidx.ui.text {
     method public int getLength();
     method public void popStyle();
     method public void popStyle(int index);
-    method public int pushStyle(androidx.ui.text.TextStyle style);
+    method public int pushStyle(androidx.ui.text.SpanStyle style);
     method public int pushStyle(androidx.ui.text.ParagraphStyle style);
     method public androidx.ui.text.AnnotatedString toAnnotatedString();
     property public final int length;
@@ -234,7 +234,7 @@ package androidx.ui.text {
 
   public final class AnnotatedStringKt {
     ctor public AnnotatedStringKt();
-    method public static androidx.ui.text.AnnotatedString AnnotatedString(String text, androidx.ui.text.TextStyle textStyle, androidx.ui.text.ParagraphStyle? paragraphStyle = null);
+    method public static androidx.ui.text.AnnotatedString AnnotatedString(String text, androidx.ui.text.SpanStyle spanStyle, androidx.ui.text.ParagraphStyle? paragraphStyle = null);
     method public static androidx.ui.text.AnnotatedString AnnotatedString(String text, androidx.ui.text.ParagraphStyle paragraphStyle);
     method public static inline androidx.ui.text.AnnotatedString AnnotatedString(kotlin.jvm.functions.Function1<? super androidx.ui.text.AnnotatedString.Builder,kotlin.Unit> builder);
     method public static androidx.ui.text.AnnotatedString capitalize(androidx.ui.text.AnnotatedString, androidx.ui.text.LocaleList localeList = LocaleList.current);
@@ -243,7 +243,7 @@ package androidx.ui.text {
     method public static androidx.ui.text.AnnotatedString subSequence(androidx.ui.text.AnnotatedString, int start, int end);
     method public static androidx.ui.text.AnnotatedString toLowerCase(androidx.ui.text.AnnotatedString, androidx.ui.text.LocaleList localeList = LocaleList.current);
     method public static androidx.ui.text.AnnotatedString toUpperCase(androidx.ui.text.AnnotatedString, androidx.ui.text.LocaleList localeList = LocaleList.current);
-    method public static inline <R> R withStyle(androidx.ui.text.AnnotatedString.Builder, androidx.ui.text.TextStyle style, kotlin.jvm.functions.Function1<? super androidx.ui.text.AnnotatedString.Builder,? extends R> block);
+    method public static inline <R> R withStyle(androidx.ui.text.AnnotatedString.Builder, androidx.ui.text.SpanStyle style, kotlin.jvm.functions.Function1<? super androidx.ui.text.AnnotatedString.Builder,? extends R> block);
     method public static inline <R> R withStyle(androidx.ui.text.AnnotatedString.Builder, androidx.ui.text.ParagraphStyle style, kotlin.jvm.functions.Function1<? super androidx.ui.text.AnnotatedString.Builder,? extends R> block);
   }
 
@@ -387,12 +387,12 @@ package androidx.ui.text {
 
   public final class ParagraphIntrinsicsKt {
     ctor public ParagraphIntrinsicsKt();
-    method public static androidx.ui.text.ParagraphIntrinsics ParagraphIntrinsics(String text, androidx.ui.text.TextStyle style, androidx.ui.text.ParagraphStyle paragraphStyle, java.util.List<androidx.ui.text.AnnotatedString.Item<androidx.ui.text.TextStyle>> textStyles, androidx.ui.core.Density density, androidx.ui.text.font.Font.ResourceLoader resourceLoader);
+    method public static androidx.ui.text.ParagraphIntrinsics ParagraphIntrinsics(String text, androidx.ui.text.TextStyle style, androidx.ui.text.ParagraphStyle paragraphStyle, java.util.List<androidx.ui.text.AnnotatedString.Item<androidx.ui.text.SpanStyle>> spanStyles, androidx.ui.core.Density density, androidx.ui.text.font.Font.ResourceLoader resourceLoader);
   }
 
   public final class ParagraphKt {
     ctor public ParagraphKt();
-    method public static androidx.ui.text.Paragraph Paragraph(String text, androidx.ui.text.TextStyle style, androidx.ui.text.ParagraphStyle paragraphStyle, java.util.List<androidx.ui.text.AnnotatedString.Item<androidx.ui.text.TextStyle>> textStyles, Integer? maxLines = null, Boolean? ellipsis = null, androidx.ui.text.ParagraphConstraints constraints, androidx.ui.core.Density density, androidx.ui.text.font.Font.ResourceLoader resourceLoader);
+    method public static androidx.ui.text.Paragraph Paragraph(String text, androidx.ui.text.TextStyle style, androidx.ui.text.ParagraphStyle paragraphStyle, java.util.List<androidx.ui.text.AnnotatedString.Item<androidx.ui.text.SpanStyle>> spanStyles, Integer? maxLines = null, Boolean? ellipsis = null, androidx.ui.text.ParagraphConstraints constraints, androidx.ui.core.Density density, androidx.ui.text.font.Font.ResourceLoader resourceLoader);
     method public static androidx.ui.text.Paragraph Paragraph(androidx.ui.text.ParagraphIntrinsics paragraphIntrinsics, Integer? maxLines = null, Boolean? ellipsis = null, androidx.ui.text.ParagraphConstraints constraints);
   }
 
@@ -494,10 +494,10 @@ package androidx.ui.text {
   }
 
   public final class TextSpan {
-    ctor public TextSpan(androidx.ui.text.TextStyle? style, String? text, java.util.List<androidx.ui.text.TextSpan> children);
+    ctor public TextSpan(androidx.ui.text.SpanStyle? style, String? text, java.util.List<androidx.ui.text.TextSpan> children);
     ctor public TextSpan();
     method public java.util.List<androidx.ui.text.TextSpan> getChildren();
-    method public androidx.ui.text.TextStyle? getStyle();
+    method public androidx.ui.text.SpanStyle? getStyle();
     method public String? getText();
   }
 
