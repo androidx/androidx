@@ -1,16 +1,4 @@
 // Baseline format: 1.0
-AutoBoxing: androidx.ui.text.MultiParagraph#MultiParagraph(androidx.ui.text.AnnotatedString, androidx.ui.text.SpanStyle, androidx.ui.text.ParagraphStyle, Integer, Boolean, androidx.ui.text.ParagraphConstraints, androidx.ui.core.Density, androidx.ui.text.font.Font.ResourceLoader) parameter #3:
-    Must avoid boxed primitives (`java.lang.Integer`)
-AutoBoxing: androidx.ui.text.MultiParagraph#MultiParagraph(androidx.ui.text.MultiParagraphIntrinsics, Integer, Boolean, androidx.ui.text.ParagraphConstraints) parameter #1:
-    Must avoid boxed primitives (`java.lang.Integer`)
-AutoBoxing: androidx.ui.text.MultiParagraph#getMaxLines():
-    Must avoid boxed primitives (`java.lang.Integer`)
-AutoBoxing: androidx.ui.text.ParagraphKt#Paragraph(String, androidx.ui.text.SpanStyle, androidx.ui.text.ParagraphStyle, java.util.List<androidx.ui.text.AnnotatedString.Item<androidx.ui.text.SpanStyle>>, Integer, Boolean, androidx.ui.text.ParagraphConstraints, androidx.ui.core.Density, androidx.ui.text.font.Font.ResourceLoader) parameter #4:
-    Must avoid boxed primitives (`java.lang.Integer`)
-AutoBoxing: androidx.ui.text.ParagraphKt#Paragraph(androidx.ui.text.ParagraphIntrinsics, Integer, Boolean, androidx.ui.text.ParagraphConstraints) parameter #1:
-    Must avoid boxed primitives (`java.lang.Integer`)
-
-
 KotlinOperator: androidx.ui.text.font.FontFamily#contains(androidx.ui.text.font.Font):
     Note that adding the `operator` keyword would allow calling this method using operator syntax
 KotlinOperator: androidx.ui.text.style.TextDecoration#contains(androidx.ui.text.style.TextDecoration):

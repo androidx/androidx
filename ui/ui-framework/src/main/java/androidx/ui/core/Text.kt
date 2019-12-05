@@ -33,7 +33,6 @@ import androidx.ui.graphics.Color
 import androidx.ui.semantics.Semantics
 import androidx.ui.semantics.accessibilityLabel
 import androidx.ui.text.AnnotatedString
-import androidx.ui.text.ParagraphStyle
 import androidx.ui.text.TextDelegate
 import androidx.ui.text.TextRange
 import androidx.ui.text.TextSpan
@@ -56,9 +55,7 @@ internal val DefaultSelectionColor = Color(0x6633B5E5)
  * same line depending on the layout constraints.
  *
  * @param modifier Modifier to apply to this layout node.
- * @param style Style configuration that applies at character level such as color, font etc.
- * @param paragraphStyle Style configuration that applies only to paragraphs such as text
- * alignment, or text direction.
+ * @param style Style configuration for the text such as color, font, line height etc.
  * @param softWrap Whether the text should break at soft line breaks. If false, the glyphs in the
  * text will be positioned as if there was unlimited horizontal space. If [softWrap] is false,
  * [overflow] and [TextAlign] may have unexpected effects.
@@ -71,7 +68,6 @@ internal val DefaultSelectionColor = Color(0x6633B5E5)
 fun Text(
     modifier: Modifier = Modifier.None,
     style: TextStyle? = null,
-    paragraphStyle: ParagraphStyle? = null,
     softWrap: Boolean = DefaultSoftWrap,
     overflow: TextOverflow = DefaultOverflow,
     maxLines: Int = DefaultMaxLines,
@@ -86,7 +82,6 @@ fun Text(
         text = rootTextSpan.toAnnotatedString(),
         modifier = modifier,
         style = style,
-        paragraphStyle = paragraphStyle,
         softWrap = softWrap,
         overflow = overflow,
         maxLines = maxLines
@@ -98,9 +93,7 @@ fun Text(
  *
  * @param text The text to be displayed.
  * @param modifier Modifier to apply to this layout node.
- * @param style Style configuration that applies at character level such as color, font etc.
- * @param paragraphStyle Style configuration that applies only to paragraphs such as text
- * alignment, or text direction.
+ * @param style Style configuration for the text such as color, font, line height etc.
  * @param softWrap Whether the text should break at soft line breaks. If false, the glyphs in the
  * text will be positioned as if there was unlimited horizontal space. If [softWrap] is false,
  * [overflow] and [TextAlign] may have unexpected effects.
@@ -114,7 +107,6 @@ fun Text(
     text: String,
     modifier: Modifier = Modifier.None,
     style: TextStyle? = null,
-    paragraphStyle: ParagraphStyle? = null,
     softWrap: Boolean = DefaultSoftWrap,
     overflow: TextOverflow = DefaultOverflow,
     maxLines: Int = DefaultMaxLines
@@ -123,7 +115,6 @@ fun Text(
         text = AnnotatedString(text),
         modifier = modifier,
         style = style,
-        paragraphStyle = paragraphStyle,
         softWrap = softWrap,
         overflow = overflow,
         maxLines = maxLines
@@ -136,9 +127,7 @@ fun Text(
  *
  * @param text AnnotatedString encoding a styled text.
  * @param modifier Modifier to apply to this layout node.
- * @param style Style configuration that applies at character level such as color, font etc.
- * @param paragraphStyle Style configuration that applies only to paragraphs such as text
- * alignment, or text direction.
+ * @param style Style configuration for the text such as color, font, line height etc.
  * @param softWrap Whether the text should break at soft line breaks. If false, the glyphs in the
  * text will be positioned as if there was unlimited horizontal space. If [softWrap] is false,
  * [overflow] and [TextAlign] may have unexpected effects.
@@ -152,7 +141,6 @@ fun Text(
     text: AnnotatedString,
     modifier: Modifier = Modifier.None,
     style: TextStyle? = null,
-    paragraphStyle: ParagraphStyle? = null,
     softWrap: Boolean = DefaultSoftWrap,
     overflow: TextOverflow = DefaultOverflow,
     maxLines: Int = DefaultMaxLines
@@ -182,7 +170,6 @@ fun Text(
         val textDelegate = +memo(
             text,
             mergedStyle,
-            paragraphStyle,
             softWrap,
             overflow,
             maxLines,
@@ -191,7 +178,7 @@ fun Text(
             TextDelegate(
                 text = text,
                 spanStyle = mergedStyle.toSpanStyle(),
-                paragraphStyle = paragraphStyle,
+                paragraphStyle = mergedStyle.toParagraphStyle(),
                 softWrap = softWrap,
                 overflow = overflow,
                 maxLines = maxLines,
@@ -252,7 +239,6 @@ fun Text(
         +onCommit(
             text,
             mergedStyle,
-            paragraphStyle,
             softWrap,
             overflow,
             maxLines,

@@ -30,7 +30,6 @@ import androidx.ui.graphics.lerp
 import androidx.ui.layout.Column
 import androidx.ui.layout.Row
 import androidx.ui.foundation.VerticalScroller
-import androidx.ui.text.ParagraphStyle
 import androidx.ui.graphics.Shadow
 import androidx.ui.text.TextStyle
 import androidx.ui.text.style.TextOverflow
@@ -286,9 +285,7 @@ fun TextDemoHeight() {
                 style = SpanStyle(fontSize = fontSize8)
             )
         }
-        Text(
-            paragraphStyle = ParagraphStyle(lineHeight = 50.sp)
-        ) {
+        Text(style = TextStyle(lineHeight = 50.sp)) {
             Span(
                 text = "$displayText\n$displayText   ",
                 style = SpanStyle(
@@ -370,15 +367,15 @@ fun TextDemoTextAlign() {
     }
     Column(ExpandedHeight) {
         SecondTagLine(tag = "textAlign = TextAlign.Left")
-        Text(paragraphStyle = ParagraphStyle(textAlign = TextAlign.Left)) {
+        Text(style = TextStyle(textAlign = TextAlign.Left)) {
             Span(text = displayText, style = SpanStyle(fontSize = fontSize8))
         }
         SecondTagLine(tag = "textAlign = TextAlign.Right")
-        Text(paragraphStyle = ParagraphStyle(textAlign = TextAlign.Right)) {
+        Text(style = TextStyle(textAlign = TextAlign.Right)) {
             Span(text = displayText, style = SpanStyle(fontSize = fontSize8))
         }
         SecondTagLine(tag = "textAlign = TextAlign.Center")
-        Text(paragraphStyle = ParagraphStyle(textAlign = TextAlign.Center)) {
+        Text(style = TextStyle(textAlign = TextAlign.Center)) {
             Span(text = displayText, style = SpanStyle(fontSize = fontSize8))
         }
         SecondTagLine(tag = "textAlign = default and TextAlign.Justify")
@@ -391,7 +388,7 @@ fun TextDemoTextAlign() {
                 )
             )
         }
-        Text(paragraphStyle = ParagraphStyle(textAlign = TextAlign.Justify)) {
+        Text(style = TextStyle(textAlign = TextAlign.Justify)) {
             Span(
                 text = text,
                 style = SpanStyle(
@@ -401,27 +398,19 @@ fun TextDemoTextAlign() {
             )
         }
         SecondTagLine(tag = "textAlgin = TextAlign.Start for Ltr")
-        Text(paragraphStyle = ParagraphStyle(textAlign = TextAlign.Start)) {
+        Text(style = TextStyle(textAlign = TextAlign.Start)) {
             Span(text = displayText, style = SpanStyle(fontSize = fontSize8))
         }
         SecondTagLine(tag = "textAlgin = TextAlign.Start for Rtl")
-        Text(
-            paragraphStyle = ParagraphStyle(
-                textAlign = TextAlign.Start
-            )
-        ) {
+        Text(style = TextStyle(textAlign = TextAlign.Start)) {
             Span(text = displayText, style = SpanStyle(fontSize = fontSize8))
         }
         SecondTagLine(tag = "textAlgin = TextAlign.End for Ltr")
-        Text(paragraphStyle = ParagraphStyle(textAlign = TextAlign.End)) {
+        Text(style = TextStyle(textAlign = TextAlign.End)) {
             Span(text = displayText, style = SpanStyle(fontSize = fontSize8))
         }
         SecondTagLine(tag = "textAlgin = TextAlign.End for Rtl")
-        Text(
-            paragraphStyle = ParagraphStyle(
-                textAlign = TextAlign.End
-            )
-        ) {
+        Text(style = TextStyle(textAlign = TextAlign.End)) {
             Span(text = displayText, style = SpanStyle(fontSize = fontSize8))
         }
     }
