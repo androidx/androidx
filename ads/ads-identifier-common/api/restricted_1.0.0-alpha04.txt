@@ -1,0 +1,11 @@
+// Signature format: 3.0
+package androidx.ads.identifier {
+
+  @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP) public class AdvertisingIdUtils {
+    method public static java.util.List<android.content.pm.ServiceInfo!> getAdvertisingIdProviderServices(android.content.pm.PackageManager);
+    method public static android.content.pm.ServiceInfo? selectServiceByPriority(java.util.List<android.content.pm.ServiceInfo!>, android.content.pm.PackageManager);
+    field public static final String GET_AD_ID_ACTION = "androidx.ads.identifier.provider.GET_AD_ID";
+  }
+
+}
+
