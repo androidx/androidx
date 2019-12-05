@@ -210,7 +210,6 @@ public class AudioFocusRequestCompat {
 
         // Flags
         private boolean mPauseOnDuck;
-        private boolean mAcceptsDelayedFocusGain;
 
         /**
          * Constructs a new {@code Builder}, and specifies how audio focus will be requested. Valid

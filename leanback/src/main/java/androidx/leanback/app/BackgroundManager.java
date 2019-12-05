@@ -34,7 +34,6 @@ import android.os.Handler;
 import android.util.Log;
 import android.view.View;
 import android.view.Window;
-import android.view.animation.AnimationUtils;
 import android.view.animation.Interpolator;
 
 import androidx.annotation.ColorInt;
@@ -107,8 +106,6 @@ public final class BackgroundManager {
     boolean mAttached;
     private long mLastSetTime;
 
-    private final Interpolator mAccelerateInterpolator;
-    private final Interpolator mDecelerateInterpolator;
     final ValueAnimator mAnimator;
 
     static class BitmapDrawable extends Drawable {
@@ -568,10 +565,6 @@ public final class BackgroundManager {
         mHandler = new Handler();
 
         Interpolator defaultInterpolator = new FastOutLinearInInterpolator();
-        mAccelerateInterpolator = AnimationUtils.loadInterpolator(mContext,
-                android.R.anim.accelerate_interpolator);
-        mDecelerateInterpolator = AnimationUtils.loadInterpolator(mContext,
-                android.R.anim.decelerate_interpolator);
 
         mAnimator = ValueAnimator.ofInt(0, FULL_ALPHA);
         mAnimator.addListener(mAnimationListener);

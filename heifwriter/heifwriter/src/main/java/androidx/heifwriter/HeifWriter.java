@@ -327,9 +327,6 @@ public final class HeifWriter implements AutoCloseable {
                     + ", inputMode: " + inputMode);
         }
 
-        MediaFormat format = MediaFormat.createVideoFormat(
-                MediaFormat.MIMETYPE_IMAGE_ANDROID_HEIC, width, height);
-
         // set to 1 initially, and wait for output format to know for sure
         mNumTiles = 1;
 

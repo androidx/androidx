@@ -439,7 +439,6 @@ public final class TextClassification {
         private static final String EXTRA_END_INDEX = "end";
         private static final String EXTRA_DEFAULT_LOCALES = "locales";
         private static final String EXTRA_REFERENCE_TIME = "reftime";
-        private static final String EXTRA_CALLING_PACKAGE_NAME = "calling_package";
 
         private final CharSequence mText;
         private final int mStartIndex;

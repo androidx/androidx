@@ -257,10 +257,6 @@ public class CameraXActivity extends AppCompatActivity
         // Do corresponding scale to resolve the deformation problem
         matrix.postScale(xScale, yScale, centerX, centerY);
 
-        // Compute the new left/top positions to do translate
-        int layoutL = centerX - (scaled.getWidth() / 2);
-        int layoutT = centerY - (scaled.getHeight() / 2);
-
         mTextureView.setTransform(matrix);
     }
 

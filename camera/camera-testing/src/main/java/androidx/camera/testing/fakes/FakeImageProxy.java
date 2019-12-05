@@ -38,7 +38,6 @@ public final class FakeImageProxy implements ImageProxy {
     private int mFormat = 0;
     private int mHeight = 0;
     private int mWidth = 0;
-    private Long mTimestamp = -1L;
     private PlaneProxy[] mPlaneProxy = new PlaneProxy[0];
 
     @NonNull
