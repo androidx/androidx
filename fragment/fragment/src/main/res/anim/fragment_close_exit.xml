@@ -14,8 +14,6 @@
   See the License for the specific language governing permissions and
   limitations under the License.
   -->
-
-<!--Taken from https://googleplex-android.googlesource.com/platform/frameworks/base/+/HEAD/core/res/res/anim/activity_close_exit.xml-->
 <set xmlns:android="http://schemas.android.com/apk/res/android"
     android:shareInterpolator="false"
     android:zAdjustment="top">
@@ -26,7 +24,7 @@
         android:fillBefore="true"
         android:fillAfter="true"
         android:interpolator="@android:anim/linear_interpolator"
-        android:startOffset="33"
+        android:startOffset="66"
         android:duration="50"/>
     <scale
         android:fromXScale="1"
@@ -39,5 +37,5 @@
         android:fillBefore="true"
         android:fillAfter="true"
         android:interpolator="@anim/fragment_fast_out_extra_slow_in"
-        android:duration="400"/>
+        android:duration="300"/>
 </set>
