@@ -22,6 +22,8 @@ import android.view.Surface;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
+import androidx.annotation.RestrictTo;
+import androidx.annotation.RestrictTo.Scope;
 import androidx.camera.core.CameraInfoInternal;
 import androidx.camera.core.CameraOrientationUtil;
 import androidx.camera.core.CameraSelector;
@@ -32,21 +34,33 @@ import androidx.lifecycle.LiveData;
 /**
  * Implementation of the {@link CameraInfoInternal} interface that exposes parameters through
  * camera2.
+ * @hide
  */
-final class Camera2CameraInfo implements CameraInfoInternal {
+@RestrictTo(Scope.LIBRARY)
+public final class Camera2CameraInfoImpl implements CameraInfoInternal {
 
     private static final String TAG = "Camera2CameraInfo";
+    private final String mCameraId;
     private final CameraCharacteristics mCameraCharacteristics;
     private final ZoomControl mZoomControl;
     private final TorchControl mTorchControl;
 
-    Camera2CameraInfo(@NonNull CameraCharacteristics cameraCharacteristics,
+    Camera2CameraInfoImpl(@NonNull String cameraId,
+            @NonNull CameraCharacteristics cameraCharacteristics,
             @NonNull ZoomControl zoomControl, @NonNull TorchControl torchControl) {
         Preconditions.checkNotNull(cameraCharacteristics, "Camera characteristics map is missing");
+        mCameraId = Preconditions.checkNotNull(cameraId);
         mCameraCharacteristics = cameraCharacteristics;
         mZoomControl = zoomControl;
         mTorchControl = torchControl;
         logDeviceInfo();
+    }
+
+    /** @hide */
+    @RestrictTo(Scope.LIBRARY)
+    @NonNull
+    public String getCameraId() {
+        return mCameraId;
     }
 
     @Nullable
