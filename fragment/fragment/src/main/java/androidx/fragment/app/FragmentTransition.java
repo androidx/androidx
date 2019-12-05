@@ -1140,7 +1140,7 @@ class FragmentTransition {
      */
     public static void calculatePopFragments(BackStackRecord transaction,
             SparseArray<FragmentContainerTransition> transitioningFragments, boolean isReordered) {
-        if (!transaction.mManager.mContainer.onHasView()) {
+        if (!transaction.mManager.getContainer().onHasView()) {
             return; // nothing to see, so no transitions
         }
         final int numOps = transaction.mOps.size();

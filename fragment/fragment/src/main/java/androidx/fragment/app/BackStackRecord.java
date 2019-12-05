@@ -135,8 +135,8 @@ final class BackStackRecord extends FragmentTransaction implements
     }
 
     BackStackRecord(@NonNull FragmentManager manager) {
-        super(manager.getFragmentFactory(), manager.mHost != null
-                ? manager.mHost.getContext().getClassLoader()
+        super(manager.getFragmentFactory(), manager.getHost() != null
+                ? manager.getHost().getContext().getClassLoader()
                 : null);
         mManager = manager;
     }
@@ -163,7 +163,7 @@ final class BackStackRecord extends FragmentTransaction implements
     @Nullable
     public CharSequence getBreadCrumbTitle() {
         if (mBreadCrumbTitleRes != 0) {
-            return mManager.mHost.getContext().getText(mBreadCrumbTitleRes);
+            return mManager.getHost().getContext().getText(mBreadCrumbTitleRes);
         }
         return mBreadCrumbTitleText;
     }
@@ -173,7 +173,7 @@ final class BackStackRecord extends FragmentTransaction implements
     @Nullable
     public CharSequence getBreadCrumbShortTitle() {
         if (mBreadCrumbShortTitleRes != 0) {
-            return mManager.mHost.getContext().getText(mBreadCrumbShortTitleRes);
+            return mManager.getHost().getContext().getText(mBreadCrumbShortTitleRes);
         }
         return mBreadCrumbShortTitleText;
     }

@@ -2532,7 +2532,7 @@ public class Fragment implements ComponentCallbacks, OnCreateContextMenuListener
         ensureAnimationInfo().mEnterTransitionPostponed = true;
         Handler handler;
         if (mFragmentManager != null) {
-            handler = mFragmentManager.mHost.getHandler();
+            handler = mFragmentManager.getHost().getHandler();
         } else {
             handler = new Handler(Looper.getMainLooper());
         }
@@ -2551,10 +2551,14 @@ public class Fragment implements ComponentCallbacks, OnCreateContextMenuListener
      * @see Activity#startPostponedEnterTransition()
      */
     public void startPostponedEnterTransition() {
-        if (mFragmentManager == null || mFragmentManager.mHost == null) {
+        if (mAnimationInfo == null || !ensureAnimationInfo().mEnterTransitionPostponed) {
+            // If you never called postponeEnterTransition(), there's nothing for us to do
+            return;
+        }
+        if (mHost == null) {
             ensureAnimationInfo().mEnterTransitionPostponed = false;
-        } else if (Looper.myLooper() != mFragmentManager.mHost.getHandler().getLooper()) {
-            mFragmentManager.mHost.getHandler().postAtFrontOfQueue(new Runnable() {
+        } else if (Looper.myLooper() != mHost.getHandler().getLooper()) {
+            mHost.getHandler().postAtFrontOfQueue(new Runnable() {
                 @Override
                 public void run() {
                     callStartTransitionListener();
