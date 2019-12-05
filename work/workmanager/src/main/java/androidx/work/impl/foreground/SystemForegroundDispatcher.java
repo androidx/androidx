@@ -69,10 +69,6 @@ public class SystemForegroundDispatcher implements WorkConstraintsCallback, Exec
     private static final String ACTION_STOP_FOREGROUND = "ACTION_STOP_FOREGROUND";
     private static final String ACTION_CANCEL_WORK = "ACTION_CANCEL_WORK";
 
-    // constants
-    @VisibleForTesting
-    public static final int NOTIFICATION_ID = 42;
-
     private Context mContext;
     private WorkManagerImpl mWorkManagerImpl;
     private final TaskExecutor mTaskExecutor;
@@ -289,7 +285,7 @@ public class SystemForegroundDispatcher implements WorkConstraintsCallback, Exec
             @NonNull ForegroundInfo info) {
         Intent intent = new Intent(context, SystemForegroundService.class);
         intent.setAction(ACTION_NOTIFY);
-        intent.putExtra(KEY_NOTIFICATION_ID, NOTIFICATION_ID);
+        intent.putExtra(KEY_NOTIFICATION_ID, info.getNotificationId());
         intent.putExtra(KEY_FOREGROUND_SERVICE_TYPE, info.getForegroundServiceType());
         intent.putExtra(KEY_NOTIFICATION, info.getNotification());
         intent.putExtra(KEY_NOTIFICATION_TAG, workSpecId);

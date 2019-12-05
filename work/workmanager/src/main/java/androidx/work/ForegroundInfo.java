@@ -19,7 +19,6 @@ package androidx.work;
 import android.app.Notification;
 
 import androidx.annotation.NonNull;
-import androidx.annotation.Nullable;
 
 /**
  * The information required when a {@link ListenableWorker} runs in the context of a foreground
@@ -27,6 +26,7 @@ import androidx.annotation.Nullable;
  */
 public final class ForegroundInfo {
 
+    private final int mNotificationId;
     private final int mForegroundServiceType;
     private final Notification mNotification;
 
@@ -34,14 +34,15 @@ public final class ForegroundInfo {
      * Creates an instance of {@link ForegroundInfo} with a {@link Notification}.
      * <p>
      * On API 29 and above, you can specify a {@code foregroundServiceType} by using the
-     * {@link #ForegroundInfo(Notification, int)} constructor; otherwise, a default {@code
+     * {@link #ForegroundInfo(int, Notification, int)} constructor; otherwise, a default {@code
      * foregroundServiceType} of {@code 0} will be used.
      *
-     * @param notification The {@link Notification} to show when the Worker is running in the
-     *                     context of a foreground {@link android.app.Service}
+     * @param notificationId The {@link Notification} id
+     * @param notification   The {@link Notification} to show when the Worker is running in the
+     *                       context of a foreground {@link android.app.Service}
      */
-    public ForegroundInfo(@NonNull Notification notification) {
-        this(notification, 0);
+    public ForegroundInfo(int notificationId, @NonNull Notification notification) {
+        this(notificationId, notification, 0);
     }
 
     /**
@@ -51,12 +52,24 @@ public final class ForegroundInfo {
      * For more information look at {@code android.app.Service#startForeground(int,
      * Notification, int)}.
      *
-     * @param notification     The {@link Notification}
+     * @param notificationId        The {@link Notification} id
+     * @param notification          The {@link Notification}
      * @param foregroundServiceType The foreground {@link android.app.Service} type
      */
-    public ForegroundInfo(@NonNull Notification notification, int foregroundServiceType) {
+    public ForegroundInfo(
+            int notificationId,
+            @NonNull Notification notification,
+            int foregroundServiceType) {
+        mNotificationId = notificationId;
         mNotification = notification;
         mForegroundServiceType = foregroundServiceType;
+    }
+
+    /**
+     * @return The {@link Notification} id to be used
+     */
+    public int getNotificationId() {
+        return mNotificationId;
     }
 
     /**
@@ -75,29 +88,30 @@ public final class ForegroundInfo {
     }
 
     @Override
-    public boolean equals(@Nullable Object other) {
-        if (this == other) return true;
-        if (other == null || getClass() != other.getClass()) return false;
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (o == null || getClass() != o.getClass()) return false;
 
-        ForegroundInfo that = (ForegroundInfo) other;
+        ForegroundInfo that = (ForegroundInfo) o;
 
+        if (mNotificationId != that.mNotificationId) return false;
         if (mForegroundServiceType != that.mForegroundServiceType) return false;
-        return mNotification != null ? mNotification.equals(that.mNotification)
-                : that.mNotification == null;
+        return mNotification.equals(that.mNotification);
     }
 
     @Override
     public int hashCode() {
-        int result = mForegroundServiceType;
-        result = 31 * result + (mNotification != null ? mNotification.hashCode() : 0);
+        int result = mNotificationId;
+        result = 31 * result + mForegroundServiceType;
+        result = 31 * result + mNotification.hashCode();
         return result;
     }
 
-    @NonNull
     @Override
     public String toString() {
         final StringBuilder sb = new StringBuilder("ForegroundInfo{");
-        sb.append("mForegroundServiceType=").append(mForegroundServiceType);
+        sb.append("mNotificationId=").append(mNotificationId);
+        sb.append(", mForegroundServiceType=").append(mForegroundServiceType);
         sb.append(", mNotification=").append(mNotification);
         sb.append('}');
         return sb.toString();
