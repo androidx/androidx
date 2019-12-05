@@ -7,32 +7,6 @@ DocumentExceptions: androidx.paging.PagedList.Config.Builder#setPageSize(int):
     Method Builder.setPageSize appears to be throwing java.lang.IllegalArgumentException; this should be listed in the documentation; see https://android.github.io/kotlin-guides/interop.html#document-exceptions
 
 
-HiddenTypeParameter: androidx.paging.DataSource#load$lintWithKotlin(androidx.paging.DataSource.Params<Key>, kotlin.coroutines.Continuation<? super androidx.paging.DataSource.BaseResult<Value>>) parameter #0:
-    Parameter params references hidden type androidx.paging.DataSource.Params<Key>.
-HiddenTypeParameter: androidx.paging.DataSource#load$lintWithKotlin(androidx.paging.DataSource.Params<Key>, kotlin.coroutines.Continuation<? super androidx.paging.DataSource.BaseResult<Value>>) parameter #1:
-    Parameter p references hidden type class androidx.paging.DataSource.BaseResult.
-HiddenTypeParameter: androidx.paging.ItemKeyedDataSource#load$lintWithKotlin(androidx.paging.DataSource.Params<Key>, kotlin.coroutines.Continuation<? super androidx.paging.DataSource.BaseResult<Value>>) parameter #0:
-    Parameter params references hidden type androidx.paging.DataSource.Params<Key>.
-HiddenTypeParameter: androidx.paging.ItemKeyedDataSource#load$lintWithKotlin(androidx.paging.DataSource.Params<Key>, kotlin.coroutines.Continuation<? super androidx.paging.DataSource.BaseResult<Value>>) parameter #1:
-    Parameter p references hidden type class androidx.paging.DataSource.BaseResult.
-HiddenTypeParameter: androidx.paging.ItemKeyedDataSource#loadAfter$lintWithKotlin(androidx.paging.ItemKeyedDataSource.LoadParams<Key>, kotlin.coroutines.Continuation<? super androidx.paging.DataSource.BaseResult<Value>>) parameter #1:
-    Parameter p references hidden type class androidx.paging.DataSource.BaseResult.
-HiddenTypeParameter: androidx.paging.ItemKeyedDataSource#loadBefore$lintWithKotlin(androidx.paging.ItemKeyedDataSource.LoadParams<Key>, kotlin.coroutines.Continuation<? super androidx.paging.DataSource.BaseResult<Value>>) parameter #1:
-    Parameter p references hidden type class androidx.paging.DataSource.BaseResult.
-HiddenTypeParameter: androidx.paging.ItemKeyedDataSource#loadInitial$lintWithKotlin(androidx.paging.ItemKeyedDataSource.LoadInitialParams<Key>, kotlin.coroutines.Continuation<? super androidx.paging.DataSource.BaseResult<Value>>) parameter #1:
-    Parameter p references hidden type class androidx.paging.DataSource.BaseResult.
-HiddenTypeParameter: androidx.paging.PageKeyedDataSource#load$lintWithKotlin(androidx.paging.DataSource.Params<Key>, kotlin.coroutines.Continuation<? super androidx.paging.DataSource.BaseResult<Value>>) parameter #0:
-    Parameter params references hidden type androidx.paging.DataSource.Params<Key>.
-HiddenTypeParameter: androidx.paging.PageKeyedDataSource#load$lintWithKotlin(androidx.paging.DataSource.Params<Key>, kotlin.coroutines.Continuation<? super androidx.paging.DataSource.BaseResult<Value>>) parameter #1:
-    Parameter p references hidden type class androidx.paging.DataSource.BaseResult.
-HiddenTypeParameter: androidx.paging.PositionalDataSource#load$lintWithKotlin(androidx.paging.DataSource.Params<java.lang.Integer>, kotlin.coroutines.Continuation<? super androidx.paging.DataSource.BaseResult<T>>) parameter #0:
-    Parameter params references hidden type androidx.paging.DataSource.Params<java.lang.Integer>.
-HiddenTypeParameter: androidx.paging.PositionalDataSource#load$lintWithKotlin(androidx.paging.DataSource.Params<java.lang.Integer>, kotlin.coroutines.Continuation<? super androidx.paging.DataSource.BaseResult<T>>) parameter #1:
-    Parameter p references hidden type class androidx.paging.DataSource.BaseResult.
-HiddenTypeParameter: androidx.paging.PositionalDataSource#loadInitial$lintWithKotlin(androidx.paging.PositionalDataSource.LoadInitialParams, kotlin.coroutines.Continuation<? super androidx.paging.DataSource.BaseResult<T>>) parameter #1:
-    Parameter p references hidden type class androidx.paging.DataSource.BaseResult.
-
-
 MinMaxConstant: androidx.paging.PagedList.Config#MAX_SIZE_UNBOUNDED:
     If min/max could change in future, make them dynamic methods: androidx.paging.PagedList.Config#MAX_SIZE_UNBOUNDED
 
