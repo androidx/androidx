@@ -35,15 +35,13 @@ android {
 }
 
 dependencies {
-    api(project(":navigation:navigation-common-ktx"))
+    api(project(":navigation:navigation-runtime-ktx"))
 
-    testImplementation(JUNIT)
-    testImplementation(MOCKITO_CORE)
-
-    androidTestImplementation(ANDROIDX_TEST_EXT_JUNIT)
+    androidTestImplementation(project(":internal-testutils-navigation"))
     androidTestImplementation(ANDROIDX_TEST_CORE)
+    androidTestImplementation(ANDROIDX_TEST_EXT_JUNIT)
     androidTestImplementation(ANDROIDX_TEST_RUNNER)
-    androidTestImplementation(ESPRESSO_CORE)
+    androidTestImplementation(TRUTH)
 }
 
 androidx {
