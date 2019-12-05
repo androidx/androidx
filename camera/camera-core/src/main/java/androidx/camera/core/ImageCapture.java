@@ -501,9 +501,9 @@ public class ImageCapture extends UseCase {
      * Sets the desired rotation of the output image.
      *
      * <p>This will affect the EXIF rotation metadata in images saved by takePicture calls and the
-     * rotation value returned by {@link OnImageCapturedCallback}.  These will be set to be the
-     * rotation, which if applied to the output image data, will make the image match target
-     * rotation specified here.
+     * {@link ImageInfo#getRotationDegrees()} value of the {@link ImageProxy} returned by
+     * {@link OnImageCapturedCallback}. These will be set to be the rotation, which if applied to
+     * the output image data, will make the image match target rotation specified here.
      *
      * <p>While rotation can also be set via {@link Builder#setTargetRotation(int)}, using
      * {@link ImageCapture#setTargetRotation(int)} allows the target rotation to be set dynamically.
@@ -1927,11 +1927,11 @@ public class ImageCapture extends UseCase {
         /**
          * Sets the rotation of the intended target for images from this configuration.
          *
-         * <p>This will affect the EXIF rotation metadata in images saved by takePicture calls and
-         * the rotation value returned by
-         * {@link androidx.camera.core.ImageCapture.OnImageCapturedCallback}.  These will be set to
-         * be the rotation, which if applied to the output image data, will make the image match the
-         * target rotation specified here.
+         * This will affect the EXIF rotation metadata in images saved by takePicture calls and the
+         * {@link ImageInfo#getRotationDegrees()} value of the {@link ImageProxy} returned by
+         * {@link OnImageCapturedCallback}. These will be set to be the rotation, which if
+         * applied to the output image data, will make the image match the target rotation
+         * specified here.
          *
          * <p>This is one of four valid values: {@link Surface#ROTATION_0}, {@link
          * Surface#ROTATION_90}, {@link Surface#ROTATION_180}, {@link Surface#ROTATION_270}.
