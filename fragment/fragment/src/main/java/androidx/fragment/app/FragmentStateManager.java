@@ -172,8 +172,9 @@ class FragmentStateManager {
                 // actually added to the layout (mInLayout).
                 maxState = Math.max(mFragmentManagerState, Fragment.CREATED);
             } else {
-                // But don't allow their state to progress if they're not in a layout
-                maxState = Math.min(maxState, mFragment.mState);
+                // But don't allow their state to progress upward beyond CREATED
+                // if they're not in a layout
+                maxState = Math.min(maxState, Fragment.CREATED);
             }
         }
         // Fragments that are not currently added will sit in the CREATED state.
@@ -212,7 +213,7 @@ class FragmentStateManager {
     }
 
     void ensureInflatedView() {
-        if (mFragment.mFromLayout && !mFragment.mPerformedCreateView) {
+        if (mFragment.mFromLayout && mFragment.mInLayout && !mFragment.mPerformedCreateView) {
             if (FragmentManager.isLoggingEnabled(Log.DEBUG)) {
                 Log.d(TAG, "moveto CREATE_VIEW: " + mFragment);
             }

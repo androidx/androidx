@@ -27,8 +27,10 @@ import android.widget.TextView
 import androidx.core.view.ViewCompat
 import androidx.fragment.app.FragmentManager.FragmentLifecycleCallbacks
 import androidx.fragment.app.test.EmptyFragmentTestActivity
+import androidx.fragment.app.test.TestViewModel
 import androidx.fragment.test.R
 import androidx.lifecycle.Lifecycle
+import androidx.lifecycle.ViewModelProvider
 import androidx.lifecycle.ViewModelStore
 import androidx.test.annotation.UiThreadTest
 import androidx.test.ext.junit.runners.AndroidJUnit4
@@ -1155,7 +1157,7 @@ class FragmentLifecycleTest {
      * <fragment> tag from the layout.
      *
      * What should happen is that the Fragment remains in the FragmentManager, but it
-     * does not receive any Lifecycle changes until it is re-added to the layout.
+     * should not move beyond CREATED until it is re-added to the layout.
      *
      * SwappingInflatedParentFragment switches between two layouts: one with a
      * <fragment> tag and one without. This allows us to test the transitions
@@ -1189,10 +1191,10 @@ class FragmentLifecycleTest {
         childFragment = parentFragment.childFragmentManager
             .findFragmentById(R.id.inflated_fragment)
         // Ensure the Fragment is still in the FragmentManager, but hasn't moved
-        // forward in Lifecycle since it isn't in the layout this time
+        // beyond CREATED since it isn't in the layout this time
         assertThat(childFragment).isNotNull()
         assertThat(childFragment!!.lifecycle.currentState)
-            .isEqualTo(Lifecycle.State.INITIALIZED)
+            .isEqualTo(Lifecycle.State.CREATED)
 
         fc = fc.restart(activityRule, viewModelStore, false)
         fm = fc.supportFragmentManager
@@ -1206,6 +1208,53 @@ class FragmentLifecycleTest {
         assertThat(childFragment).isNotNull()
         assertThat(childFragment!!.lifecycle.currentState)
             .isEqualTo(Lifecycle.State.RESUMED)
+    }
+
+    /**
+     * Confirm that when a Fragment added via the <fragment> tag is removed from the layout
+     * that we still clear any non config state when the FragmentManager is destroyed.
+     */
+    @Test
+    @UiThreadTest
+    fun inflatedFragmentNotInLayoutDestroysViewModel() {
+        val viewModelStore = ViewModelStore()
+        var fc = activityRule.startupFragmentController(viewModelStore)
+        var fm = fc.supportFragmentManager
+
+        var parentFragment = SwappingInflatedParentFragment()
+        fm.beginTransaction().add(android.R.id.content, parentFragment).commit()
+        fm.executePendingTransactions()
+
+        var childFragment = parentFragment.childFragmentManager
+            .findFragmentById(R.id.inflated_fragment)
+        // The child fragment was added via a <fragment> tag, so it
+        // should receive lifecycle events by default
+        assertThat(childFragment).isNotNull()
+        assertThat(childFragment!!.lifecycle.currentState)
+            .isEqualTo(Lifecycle.State.RESUMED)
+
+        // Add a ViewModel to the child fragment so that it has some retained state
+        val createdViewModel = ViewModelProvider(childFragment)[TestViewModel::class.java]
+
+        fc = fc.restart(activityRule, viewModelStore, false)
+        fm = fc.supportFragmentManager
+
+        parentFragment = fm.findFragmentById(android.R.id.content) as
+                SwappingInflatedParentFragment
+        childFragment = parentFragment.childFragmentManager
+            .findFragmentById(R.id.inflated_fragment)
+        // Ensure the Fragment is still in the FragmentManager, but hasn't moved
+        // beyond CREATED since it isn't in the layout this time
+        assertThat(childFragment).isNotNull()
+        assertThat(childFragment!!.lifecycle.currentState)
+            .isEqualTo(Lifecycle.State.CREATED)
+        assertThat(createdViewModel.cleared)
+            .isFalse()
+
+        fc.shutdown(viewModelStore, true)
+
+        assertThat(createdViewModel.cleared)
+            .isTrue()
     }
 
     private fun executePendingTransactions(fm: FragmentManager) {
