@@ -638,6 +638,40 @@ class SpanStyleTest {
     }
 
     @Test
+    fun `lerp background with a and b are Null and t is smaller than half`() {
+        val spanStyle1 = SpanStyle(background = null)
+        val spanStyle2 = SpanStyle(background = null)
+
+        val newSpanStyle = lerp(start = spanStyle1, stop = spanStyle2, fraction = 0.1f)
+
+        assertThat(newSpanStyle.background).isEqualTo(Color.Transparent)
+    }
+
+    @Test
+    fun `lerp background with a is Null and b is not Null`() {
+        val t = 0.1f
+        val spanStyle1 = SpanStyle(background = null)
+        val color2 = Color(0xf)
+        val spanStyle2 = SpanStyle(background = color2)
+
+        val newSpanStyle = lerp(start = spanStyle1, stop = spanStyle2, fraction = t)
+
+        assertThat(newSpanStyle.background).isEqualTo(lerp(Color.Transparent, color2, t))
+    }
+
+    @Test
+    fun `lerp background with a is Not Null and b is Null`() {
+        val t = 0.1f
+        val color1 = Color(0xf)
+        val spanStyle1 = SpanStyle(background = color1)
+        val spanStyle2 = SpanStyle(background = null)
+
+        val newSpanStyle = lerp(start = spanStyle1, stop = spanStyle2, fraction = t)
+
+        assertThat(newSpanStyle.background).isEqualTo(lerp(color1, Color.Transparent, t))
+    }
+
+    @Test
     fun `lerp background with a and b are not Null and t is smaller than half`() {
         val color1 = Color(0x0)
         val color2 = Color(0xf)
@@ -647,7 +681,7 @@ class SpanStyleTest {
 
         val newSpanStyle = lerp(start = spanStyle1, stop = spanStyle2, fraction = t)
 
-        assertThat(newSpanStyle.background).isEqualTo(color1)
+        assertThat(newSpanStyle.background).isEqualTo(lerp(color1, color2, t))
     }
 
     @Test
@@ -660,7 +694,7 @@ class SpanStyleTest {
 
         val newSpanStyle = lerp(start = spanStyle1, stop = spanStyle2, fraction = t)
 
-        assertThat(newSpanStyle.background).isEqualTo(color2)
+        assertThat(newSpanStyle.background).isEqualTo(lerp(color1, color2, t))
     }
 
     @Test

@@ -18,17 +18,19 @@ package androidx.ui.text
 
 import androidx.ui.core.em
 import androidx.ui.core.sp
-import androidx.ui.text.style.BaselineShift
+import androidx.ui.engine.geometry.Offset
+import androidx.ui.graphics.Color
+import androidx.ui.graphics.Shadow
+import androidx.ui.graphics.lerp
+import androidx.ui.text.font.FontFamily
 import androidx.ui.text.font.FontStyle
 import androidx.ui.text.font.FontSynthesis
 import androidx.ui.text.font.FontWeight
+import androidx.ui.text.font.lerp
+import androidx.ui.text.style.BaselineShift
 import androidx.ui.text.style.TextDecoration
 import androidx.ui.text.style.TextGeometricTransform
-import androidx.ui.text.font.FontFamily
 import androidx.ui.text.style.lerp
-import androidx.ui.graphics.Color
-import androidx.ui.graphics.lerp
-import androidx.ui.text.font.lerp
 import com.google.common.truth.Truth.assertThat
 import org.junit.Test
 import org.junit.runner.RunWith
@@ -640,6 +642,40 @@ class TextStyleTest {
     }
 
     @Test
+    fun `lerp background with a and b are Null and t is smaller than half`() {
+        val textStyle1 = TextStyle(background = null)
+        val textStyle2 = TextStyle(background = null)
+
+        val newTextStyle = lerp(start = textStyle1, stop = textStyle2, fraction = 0.1f)
+
+        assertThat(newTextStyle.background).isEqualTo(Color.Transparent)
+    }
+
+    @Test
+    fun `lerp background with a is Null and b is not Null`() {
+        val t = 0.1f
+        val textStyle1 = TextStyle(background = null)
+        val color2 = Color(0xf)
+        val textStyle2 = TextStyle(background = color2)
+
+        val newTextStyle = lerp(start = textStyle1, stop = textStyle2, fraction = t)
+
+        assertThat(newTextStyle.background).isEqualTo(lerp(Color.Transparent, color2, t))
+    }
+
+    @Test
+    fun `lerp background with a is Not Null and b is Null`() {
+        val t = 0.1f
+        val color1 = Color(0xf)
+        val textStyle1 = TextStyle(background = color1)
+        val textStyle2 = TextStyle(background = null)
+
+        val newTextStyle = lerp(start = textStyle1, stop = textStyle2, fraction = t)
+
+        assertThat(newTextStyle.background).isEqualTo(lerp(color1, Color.Transparent, t))
+    }
+
+    @Test
     fun `lerp background with a and b are not Null and t is smaller than half`() {
         val color1 = Color(0x0)
         val color2 = Color(0xf)
@@ -649,7 +685,7 @@ class TextStyleTest {
 
         val newTextStyle = lerp(start = textStyle1, stop = textStyle2, fraction = t)
 
-        assertThat(newTextStyle.background).isEqualTo(color1)
+        assertThat(newTextStyle.background).isEqualTo(lerp(color1, color2, t))
     }
 
     @Test
@@ -662,7 +698,7 @@ class TextStyleTest {
 
         val newTextStyle = lerp(start = textStyle1, stop = textStyle2, fraction = t)
 
-        assertThat(newTextStyle.background).isEqualTo(color2)
+        assertThat(newTextStyle.background).isEqualTo(lerp(color1, color2, t))
     }
 
     @Test
@@ -689,5 +725,59 @@ class TextStyleTest {
         val newTextStyle = lerp(start = textStyle1, stop = textStyle2, fraction = t)
 
         assertThat(newTextStyle.decoration).isEqualTo(decoration2)
+    }
+
+    @Test
+    fun `toSpanStyle return attributes with correct values`() {
+        val color = Color.Red
+        val fontSize = 56.sp
+        val fontWeight = FontWeight.Bold
+        val fontStyle = FontStyle.Italic
+        val fontSynthesis = FontSynthesis.All
+        val fontFamily = FontFamily("myfontfamily")
+        val fontFeatureSettings = "font feature settings"
+        val letterSpacing = 0.2.sp
+        val baselineShift = BaselineShift.Subscript
+        val textGeometricTransform = TextGeometricTransform(scaleX = 0.5f, skewX = 0.6f)
+        val localeList = LocaleList("tr-TR")
+        val background = Color.Yellow
+        val decoration = TextDecoration.Underline
+        val shadow = Shadow(color = Color.Green, offset = Offset(2f, 4f))
+
+        val textStyle = TextStyle(
+            color = color,
+            fontSize = fontSize,
+            fontWeight = fontWeight,
+            fontStyle = fontStyle,
+            fontSynthesis = fontSynthesis,
+            fontFamily = fontFamily,
+            fontFeatureSettings = fontFeatureSettings,
+            letterSpacing = letterSpacing,
+            baselineShift = baselineShift,
+            textGeometricTransform = textGeometricTransform,
+            localeList = localeList,
+            background = background,
+            decoration = decoration,
+            shadow = shadow
+        )
+
+        assertThat(textStyle.toSpanStyle()).isEqualTo(
+            SpanStyle(
+                color = color,
+                fontSize = fontSize,
+                fontWeight = fontWeight,
+                fontStyle = fontStyle,
+                fontSynthesis = fontSynthesis,
+                fontFamily = fontFamily,
+                fontFeatureSettings = fontFeatureSettings,
+                letterSpacing = letterSpacing,
+                baselineShift = baselineShift,
+                textGeometricTransform = textGeometricTransform,
+                localeList = localeList,
+                background = background,
+                decoration = decoration,
+                shadow = shadow
+            )
+        )
     }
 }
