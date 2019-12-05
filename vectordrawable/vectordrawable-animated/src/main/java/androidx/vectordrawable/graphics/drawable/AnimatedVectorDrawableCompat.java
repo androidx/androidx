@@ -1,15 +1,17 @@
 /*
  * Copyright (C) 2015 The Android Open Source Project
  *
- * Licensed under the Apache License, Version 2.0 (the "License"); you may not use this file except
- * in compliance with the License. You may obtain a copy of the License at
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
  *
- * http://www.apache.org/licenses/LICENSE-2.0
+ *      http://www.apache.org/licenses/LICENSE-2.0
  *
- * Unless required by applicable law or agreed to in writing, software distributed under the License
- * is distributed on an "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express
- * or implied. See the License for the specific language governing permissions and limitations under
- * the License.
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
  */
 
 package androidx.vectordrawable.graphics.drawable;
@@ -498,8 +500,8 @@ public class AnimatedVectorDrawableCompat extends VectorDrawableCommon
                             setupAnimatorsForTarget(target, objectAnimator);
                         } else {
                             a.recycle();
-                            throw new IllegalStateException("Context can't be null when inflating" +
-                                    " animators");
+                            throw new IllegalStateException("Context can't be null when inflating"
+                                    + " animators");
                         }
                     }
                     a.recycle();
@@ -545,7 +547,7 @@ public class AnimatedVectorDrawableCompat extends VectorDrawableCommon
     private static class AnimatedVectorDrawableDelegateState extends ConstantState {
         private final ConstantState mDelegateState;
 
-        public AnimatedVectorDrawableDelegateState(ConstantState state) {
+        AnimatedVectorDrawableDelegateState(ConstantState state) {
             mDelegateState = state;
         }
 
@@ -595,7 +597,7 @@ public class AnimatedVectorDrawableCompat extends VectorDrawableCommon
         ArrayList<Animator> mAnimators;
         ArrayMap<Animator, String> mTargetNameMap;
 
-        public AnimatedVectorDrawableCompatState(Context context,
+        AnimatedVectorDrawableCompatState(Context context,
                 AnimatedVectorDrawableCompatState copy, Callback owner, Resources res) {
             if (copy != null) {
                 mChangingConfigurations = copy.mChangingConfigurations;
