@@ -631,7 +631,7 @@ public final class CameraView extends ViewGroup {
     }
 
     /**
-     * Takes a picture, and calls {@link OnImageCapturedCallback#onCaptureSuccess(ImageProxy, int)}
+     * Takes a picture, and calls {@link OnImageCapturedCallback#onCaptureSuccess(ImageProxy)}
      * once when done.
      *
      * @param executor The executor in which the callback methods will be run.

@@ -17,7 +17,6 @@
 package androidx.camera.core;
 
 import static org.junit.Assert.assertEquals;
-import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.times;
@@ -105,9 +104,12 @@ public class ImageAnalysisNonBlockingAnalyzerTest {
         ArgumentCaptor<ImageProxy> imageProxyArgumentCaptor =
                 ArgumentCaptor.forClass(ImageProxy.class);
         verify(mAnalyzer, times(1)).analyze(
-                imageProxyArgumentCaptor.capture(), eq(ROTATION.get()));
+                imageProxyArgumentCaptor.capture());
         // Check for equality of ImageInfo because it won't necessarily be same instance of
         // ImageProxy that is analyzed, but an equivalent instance.
-        assertEquals(mImageInfo, imageProxyArgumentCaptor.getValue().getImageInfo());
+        ImageInfo capturedImageInfo = imageProxyArgumentCaptor.getValue().getImageInfo();
+        assertEquals(mImageInfo.getTag(), capturedImageInfo.getTag());
+        assertEquals(mImageInfo.getTimestamp(), capturedImageInfo.getTimestamp());
+        assertEquals(ROTATION.get(), capturedImageInfo.getRotationDegrees());
     }
 }

@@ -21,7 +21,6 @@ import static com.google.common.truth.Truth.assertThat;
 import static org.junit.Assume.assumeTrue;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.argThat;
-import static org.mockito.Matchers.anyInt;
 import static org.mockito.Matchers.anyString;
 import static org.mockito.Matchers.eq;
 import static org.mockito.Mockito.doAnswer;
@@ -201,8 +200,7 @@ public final class ImageCaptureTest {
         OnImageCapturedCallback callback = createMockOnImageCapturedCallback(imageProperties);
         useCase.takePicture(mListenerExecutor, callback);
         // Wait for the signal that the image has been captured.
-        verify(callback, timeout(1000)).onCaptureSuccess(any(ImageProxy.class),
-                anyInt());
+        verify(callback, timeout(1000)).onCaptureSuccess(any(ImageProxy.class));
 
         Size sizeEnvelope = imageProperties.get().size;
         // Some devices may not be able to fit the requested resolution within the image
@@ -239,8 +237,7 @@ public final class ImageCaptureTest {
         }
 
         // Wait for the signal that the image has been captured.
-        verify(callback, timeout(5000).times(numImages)).onCaptureSuccess(any(ImageProxy.class),
-                anyInt());
+        verify(callback, timeout(5000).times(numImages)).onCaptureSuccess(any(ImageProxy.class));
     }
 
     @Test
@@ -261,8 +258,7 @@ public final class ImageCaptureTest {
             useCase.takePicture(mListenerExecutor, callback);
         }
 
-        verify(callback, timeout(10000).times(numImages)).onCaptureSuccess(any(ImageProxy.class),
-                anyInt());
+        verify(callback, timeout(10000).times(numImages)).onCaptureSuccess(any(ImageProxy.class));
     }
 
     @Test
@@ -449,7 +445,7 @@ public final class ImageCaptureTest {
         OnImageCapturedCallback callback = createMockOnImageCapturedCallback(null);
         useCase.takePicture(mListenerExecutor, callback);
         // Wait for the signal that the image has been captured.
-        verify(callback, timeout(1000)).onCaptureSuccess(any(ImageProxy.class), anyInt());
+        verify(callback, timeout(1000)).onCaptureSuccess(any(ImageProxy.class));
 
         // Note: preview callbacks also fire on interop listener.
         ArgumentMatcher<CaptureRequest> matcher = new ArgumentMatcher<CaptureRequest>() {
@@ -492,7 +488,7 @@ public final class ImageCaptureTest {
         OnImageCapturedCallback callback = createMockOnImageCapturedCallback(imageProperties);
         useCase.takePicture(mListenerExecutor, callback);
         // Wait for the signal that the image has been captured.
-        verify(callback, timeout(1000)).onCaptureSuccess(any(ImageProxy.class), anyInt());
+        verify(callback, timeout(1000)).onCaptureSuccess(any(ImageProxy.class));
 
         assertThat(imageProperties.get().format).isEqualTo(ImageFormat.RAW10);
     }
@@ -689,17 +685,15 @@ public final class ImageCaptureTest {
                 i -> {
                     ImageProxy image = i.getArgument(0);
                     if (resultProperties != null) {
-                        int rotationDegrees = i.getArgument(1);
                         ImageProperties imageProperties = new ImageProperties();
                         imageProperties.size = new Size(image.getWidth(), image.getHeight());
                         imageProperties.format = image.getFormat();
-                        imageProperties.rotationDegrees = rotationDegrees;
+                        imageProperties.rotationDegrees = image.getImageInfo().getRotationDegrees();
                         resultProperties.set(imageProperties);
                     }
                     image.close();
                     return null;
-                }).when(callback).onCaptureSuccess(any(ImageProxy.class),
-                anyInt());
+                }).when(callback).onCaptureSuccess(any(ImageProxy.class));
 
         return callback;
     }

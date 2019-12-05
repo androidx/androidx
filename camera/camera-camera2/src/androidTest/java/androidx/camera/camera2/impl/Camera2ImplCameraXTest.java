@@ -33,7 +33,6 @@ import android.hardware.camera2.CameraCaptureSession;
 import android.hardware.camera2.CameraCharacteristics;
 import android.hardware.camera2.CameraDevice;
 
-import androidx.annotation.NonNull;
 import androidx.annotation.experimental.UseExperimental;
 import androidx.camera.camera2.Camera2Config;
 import androidx.camera.camera2.impl.util.SemaphoreReleasingCamera2Callbacks.DeviceStateCallback;
@@ -48,7 +47,6 @@ import androidx.camera.core.CameraSelector;
 import androidx.camera.core.CameraX;
 import androidx.camera.core.ImageAnalysis;
 import androidx.camera.core.ImageCapture;
-import androidx.camera.core.ImageProxy;
 import androidx.camera.core.impl.utils.executor.CameraXExecutors;
 import androidx.camera.testing.CameraUtil;
 import androidx.camera.testing.fakes.FakeLifecycleOwner;
@@ -88,16 +86,12 @@ public final class Camera2ImplCameraXTest {
     private final MutableLiveData<Long> mAnalysisResult = new MutableLiveData<>();
     private final MutableLiveData<Long> mAnalysisResult2 = new MutableLiveData<>();
     private final ImageAnalysis.Analyzer mImageAnalyzer =
-            new ImageAnalysis.Analyzer() {
-                @Override
-                public void analyze(@NonNull ImageProxy image, int rotationDegrees) {
-                    mAnalysisResult.postValue(image.getImageInfo().getTimestamp());
-
-                    image.close();
-                }
+            (image) -> {
+                mAnalysisResult.postValue(image.getImageInfo().getTimestamp());
+                image.close();
             };
     private final ImageAnalysis.Analyzer mImageAnalyzer2 =
-            (image, rotationDegrees) -> {
+            (image) -> {
                 mAnalysisResult2.postValue(image.getImageInfo().getTimestamp());
                 image.close();
             };

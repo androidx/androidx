@@ -25,7 +25,6 @@ import static junit.framework.TestCase.assertNotNull;
 
 import static org.junit.Assume.assumeTrue;
 import static org.mockito.ArgumentMatchers.any;
-import static org.mockito.ArgumentMatchers.anyInt;
 import static org.mockito.ArgumentMatchers.anyString;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.never;
@@ -166,7 +165,7 @@ public class ExtensionTest {
         // Verify the image captured.
         ArgumentCaptor<ImageProxy> imageProxy = ArgumentCaptor.forClass(ImageProxy.class);
         verify(mockOnImageCapturedCallback, timeout(3000)).onCaptureSuccess(
-                imageProxy.capture(), anyInt());
+                imageProxy.capture());
         assertNotNull(imageProxy.getValue());
         imageProxy.getValue().close(); // Close the image after verification.
 

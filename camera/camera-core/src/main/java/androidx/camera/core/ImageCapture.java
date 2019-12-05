@@ -655,12 +655,12 @@ public class ImageCapture extends UseCase {
         OnImageCapturedCallback imageCaptureCallbackWrapper =
                 new OnImageCapturedCallback() {
                     @Override
-                    public void onCaptureSuccess(@NonNull ImageProxy image, int rotationDegrees) {
+                    public void onCaptureSuccess(@NonNull ImageProxy image) {
                         mIoExecutor.execute(
                                 new ImageSaver(
                                         image,
                                         saveLocation,
-                                        rotationDegrees,
+                                        image.getImageInfo().getRotationDegrees(),
                                         metadata.isReversedHorizontal(),
                                         metadata.isReversedVertical(),
                                         metadata.getLocation(),
@@ -1257,11 +1257,8 @@ public class ImageCapture extends UseCase {
          * {@link android.hardware.camera2.CameraDevice} documentation.
          *
          * @param image           The captured image
-         * @param rotationDegrees The rotation which if applied to the image would make it match
-         *                        the current target rotation of {@link ImageCapture}.
-         *                        rotationDegrees will be a value in {0, 90, 180, 270}.
          */
-        public void onCaptureSuccess(@NonNull ImageProxy image, int rotationDegrees) {
+        public void onCaptureSuccess(@NonNull ImageProxy image) {
             image.close();
         }
 
@@ -1564,7 +1561,10 @@ public class ImageCapture extends UseCase {
                                         mTargetRatio));
                     }
 
-                    mCallback.onCaptureSuccess(image, mRotationDegrees);
+                    ImageInfo imageInfo = ImmutableImageInfo.create(image.getImageInfo().getTag(),
+                            image.getImageInfo().getTimestamp(), mRotationDegrees);
+
+                    mCallback.onCaptureSuccess(new SettableImageProxy(image, imageInfo));
                 });
             } catch (RejectedExecutionException e) {
                 Log.e(TAG, "Unable to post to the supplied executor.");

@@ -263,7 +263,7 @@ public final class ImageAnalysis extends UseCase {
      * Sets the target rotation.
      *
      * <p>This informs the use case so it can adjust the rotation value sent to
-     * {@link Analyzer#analyze(ImageProxy, int)} which provides rotation information to the
+     * {@link Analyzer#analyze(ImageProxy)} which provides rotation information to the
      * analysis method. The rotation parameter sent to the analyzer will be the rotation, which if
      * applied to the output image, will make the image match target rotation specified here.
      *
@@ -332,7 +332,7 @@ public final class ImageAnalysis extends UseCase {
      * set at any time.
      *
      * @param executor The executor in which the
-     *                 {@link ImageAnalysis.Analyzer#analyze(ImageProxy, int)} will be run.
+     *                 {@link ImageAnalysis.Analyzer#analyze(ImageProxy)} will be run.
      * @param analyzer of the images.
      */
     public void setAnalyzer(@NonNull Executor executor, @NonNull Analyzer analyzer) {
@@ -444,7 +444,7 @@ public final class ImageAnalysis extends UseCase {
      *
      * <p>Implement Analyzer and pass it to {@link ImageAnalysis#setAnalyzer(Executor, Analyzer)}
      * to receive images and perform custom processing by implementing the
-     * {@link ImageAnalysis.Analyzer#analyze(ImageProxy, int)} function.
+     * {@link ImageAnalysis.Analyzer#analyze(ImageProxy)} function.
      */
     public interface Analyzer {
         /**
@@ -479,13 +479,11 @@ public final class ImageAnalysis extends UseCase {
          * {@link android.hardware.camera2.CameraDevice} documentation.
          *
          * @param image           The image to analyze
-         * @param rotationDegrees The rotation which if applied to the image would make it match
-         *                        the current target rotation of {@link ImageAnalysis}.
-         *                        rotationDegrees will be a value in {0, 90, 180, 270}.
+
          * @see android.media.Image#getTimestamp()
          * @see android.hardware.camera2.CaptureResult#SENSOR_TIMESTAMP
          */
-        void analyze(@NonNull ImageProxy image, int rotationDegrees);
+        void analyze(@NonNull ImageProxy image);
     }
 
     /**
@@ -593,7 +591,7 @@ public final class ImageAnalysis extends UseCase {
          *
          * <p>The image queue depth is the number of images available to the camera to fill with
          * data. This includes the image currently being analyzed by {@link
-         * ImageAnalysis.Analyzer#analyze(ImageProxy, int)}. Increasing the image queue depth
+         * ImageAnalysis.Analyzer#analyze(ImageProxy)}. Increasing the image queue depth
          * may make camera operation smoother, depending on the backpressure strategy, at
          * the cost of increased memory usage.
          *

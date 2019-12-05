@@ -78,7 +78,12 @@ abstract class ImageAnalysisAbstractAnalyzer implements ImageReaderProxy.OnImage
                     completer ->  {
                         executor.execute(() -> {
                             if (!isClosed()) {
-                                analyzer.analyze(imageProxy, mRelativeRotation);
+                                ImageInfo imageInfo = ImmutableImageInfo.create(
+                                        imageProxy.getImageInfo().getTag(),
+                                        imageProxy.getImageInfo().getTimestamp(),
+                                        mRelativeRotation);
+
+                                analyzer.analyze(new SettableImageProxy(imageProxy, imageInfo));
                                 completer.set(null);
                             } else {
                                 completer.setException(new OperationCanceledException("Closed "
