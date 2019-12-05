@@ -10,10 +10,6 @@ plugins {
     id("kotlin")
 }
 
-sourceSets {
-    test.java.srcDirs += 'src/tests/kotlin'
-}
-
 // Temporary hack to stop AS to adding two guavas into test's classpath
 configurations.all {
     resolutionStrategy {

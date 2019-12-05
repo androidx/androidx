@@ -34,7 +34,6 @@ plugins {
 def antlrOut = "$buildDir/generated/antlr/grammar-gen/"
 sourceSets {
     main.java.srcDirs += 'src/main/grammar-gen'
-    test.java.srcDirs += 'src/tests/kotlin'
     main.java.srcDirs += antlrOut
 }
 
