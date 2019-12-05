@@ -38,8 +38,8 @@ import kotlin.math.max
  */
 class MultiParagraph(
     val intrinsics: MultiParagraphIntrinsics,
-    val maxLines: Int? = null,
-    ellipsis: Boolean? = null,
+    val maxLines: Int = DefaultMaxLines,
+    ellipsis: Boolean = false,
     constraints: ParagraphConstraints
 ) {
 
@@ -62,8 +62,8 @@ class MultiParagraph(
         annotatedString: AnnotatedString,
         textStyle: TextStyle,
         paragraphStyle: ParagraphStyle,
-        maxLines: Int? = null,
-        ellipsis: Boolean? = null,
+        maxLines: Int = Int.MAX_VALUE,
+        ellipsis: Boolean = false,
         constraints: ParagraphConstraints,
         density: Density,
         resourceLoader: Font.ResourceLoader

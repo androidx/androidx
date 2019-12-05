@@ -26,7 +26,6 @@ import androidx.text.LayoutCompat.ALIGN_RIGHT
 import androidx.text.LayoutCompat.DEFAULT_ALIGNMENT
 import androidx.text.LayoutCompat.DEFAULT_JUSTIFICATION_MODE
 import androidx.text.LayoutCompat.DEFAULT_LINESPACING_MULTIPLIER
-import androidx.text.LayoutCompat.DEFAULT_MAX_LINES
 import androidx.text.LayoutCompat.JUSTIFICATION_MODE_INTER_WORD
 import androidx.text.TextLayout
 import androidx.text.selection.WordBoundary
@@ -51,8 +50,8 @@ import java.util.Locale as JavaLocale
  */
 internal class AndroidParagraph constructor(
     val paragraphIntrinsics: AndroidParagraphIntrinsics,
-    val maxLines: Int?,
-    val ellipsis: Boolean?,
+    val maxLines: Int,
+    val ellipsis: Boolean,
     val constraints: ParagraphConstraints
 ) : Paragraph {
 
@@ -61,8 +60,8 @@ internal class AndroidParagraph constructor(
         style: TextStyle,
         paragraphStyle: ParagraphStyle,
         spanStyles: List<AnnotatedString.Item<SpanStyle>>,
-        maxLines: Int?,
-        ellipsis: Boolean?,
+        maxLines: Int,
+        ellipsis: Boolean,
         constraints: ParagraphConstraints,
         typefaceAdapter: TypefaceAdapter,
         density: Density
@@ -85,21 +84,18 @@ internal class AndroidParagraph constructor(
     override val width: Float
 
     init {
-        maxLines?.let {
-            require(it >= 1) { "maxLines should be greater than 0" }
-        }
+        require(maxLines >= 1) { "maxLines should be greater than 0" }
 
         val paragraphStyle = paragraphIntrinsics.paragraphStyle
 
         val alignment = toLayoutAlign(paragraphStyle.textAlign)
 
-        val maxLines = maxLines ?: DEFAULT_MAX_LINES
         val justificationMode = when (paragraphStyle.textAlign) {
             TextAlign.Justify -> JUSTIFICATION_MODE_INTER_WORD
             else -> DEFAULT_JUSTIFICATION_MODE
         }
 
-        val ellipsize = if (ellipsis == true) {
+        val ellipsize = if (ellipsis) {
             TextUtils.TruncateAt.END
         } else {
             null
@@ -124,10 +120,7 @@ internal class AndroidParagraph constructor(
     override val height: Float
         get() = layout.let {
             val lineCount = it.lineCount
-            if (maxLines != null &&
-                maxLines >= 0 &&
-                maxLines < lineCount
-            ) {
+            if (maxLines < lineCount) {
                 it.getLineBottom(maxLines - 1)
             } else {
                 it.height.toFloat()
@@ -144,7 +137,7 @@ internal class AndroidParagraph constructor(
         get() = layout.getLineBaseline(0)
 
     override val lastBaseline: Float
-        get() = if (maxLines != null && maxLines in 0 until lineCount) {
+        get() = if (maxLines < lineCount) {
             layout.getLineBaseline(maxLines - 1)
         } else {
             layout.getLineBaseline(lineCount - 1)

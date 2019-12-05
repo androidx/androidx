@@ -26,6 +26,8 @@ import androidx.ui.text.platform.AndroidParagraphIntrinsics
 import androidx.ui.text.platform.TypefaceAdapter
 import androidx.ui.text.style.TextDirection
 
+internal const val DefaultMaxLines = Int.MAX_VALUE
+
 /**
  * A paragraph of text that is laid out.
  *
@@ -221,8 +223,8 @@ interface Paragraph {
     style: TextStyle,
     paragraphStyle: ParagraphStyle,
     spanStyles: List<AnnotatedString.Item<SpanStyle>>,
-    maxLines: Int? = null,
-    ellipsis: Boolean? = null,
+    maxLines: Int = DefaultMaxLines,
+    ellipsis: Boolean = false,
     constraints: ParagraphConstraints,
     density: Density,
     resourceLoader: Font.ResourceLoader
@@ -253,8 +255,8 @@ interface Paragraph {
  */
 /* actual */ fun Paragraph(
     paragraphIntrinsics: ParagraphIntrinsics,
-    maxLines: Int? = null,
-    ellipsis: Boolean? = null,
+    maxLines: Int = DefaultMaxLines,
+    ellipsis: Boolean = false,
     constraints: ParagraphConstraints
 ): Paragraph {
     return AndroidParagraph(
