@@ -26,9 +26,11 @@ import android.os.IBinder;
 import android.os.RemoteException;
 import android.util.Log;
 
+import androidx.annotation.GuardedBy;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.annotation.RestrictTo;
+import androidx.collection.ArrayMap;
 
 /**
  * Base class for message library services.
@@ -58,7 +60,10 @@ public class MessageLibraryService extends Service {
     static final String TAG = "MsgLibService";
 
     @SuppressWarnings("WeakerAccess") /* synthetic access */
-    BrowserInfo mConnectedBrowser;
+    final Object mLock = new Object();
+    @GuardedBy("mLock")
+    @SuppressWarnings("WeakerAccess") /* synthetic access */
+    final ArrayMap<IBinder, BrowserRecord> mBrowserRecords = new ArrayMap<>();
 
     private ServiceStub mServiceStub;
 
@@ -162,14 +167,17 @@ public class MessageLibraryService extends Service {
                 return;
             }
             final ConnectionRequest request = ConnectionRequest.fromBundle(connectionRequest);
-            // TODO(sungsoo): Allow multiple connections.
-            if (mConnectedBrowser != null || request == null) {
+            if (request == null) {
                 try {
                     browser.notifyDisconnected();
                 } catch (RemoteException ex) {
                     Log.w(TAG, "Calling notifyDisconnected() failed");
                 }
                 return;
+            }
+            IBinder browserBinder = browser.asBinder();
+            synchronized (mLock) {
+                mBrowserRecords.remove(browserBinder);
             }
 
             final int uid = Binder.getCallingUid();
@@ -182,11 +190,18 @@ public class MessageLibraryService extends Service {
                 BrowserInfo browserInfo = new BrowserInfo(request, pid, uid);
                 MessageCommandGroup allowedCommands = onConnect(browserInfo);
                 if (allowedCommands != null) {
-                    mConnectedBrowser = browserInfo;
+                    BrowserRecord record = new BrowserRecord(browser, browserInfo, allowedCommands);
+                    synchronized (mLock) {
+                        mBrowserRecords.put(browserBinder, record);
+                    }
                     try {
+                        browserBinder.linkToDeath(record, 0);
                         browser.notifyConnected(allowedCommands.toBundle());
                     } catch (RemoteException ex) {
                         Log.w(TAG, "Calling notifyConnected() failed");
+                        synchronized (mLock) {
+                            mBrowserRecords.remove(browserBinder);
+                        }
                     }
                 } else {
                     try {
@@ -202,7 +217,36 @@ public class MessageLibraryService extends Service {
 
         @Override
         public void disconnect(IMessageBrowser browser, int seq) {
-            // TODO(sungsoo): implement this
+            synchronized (mLock) {
+                IBinder browserBinder = browser.asBinder();
+                BrowserRecord record = mBrowserRecords.remove(browserBinder);
+                try {
+                    browserBinder.unlinkToDeath(record, 0);
+                    browser.notifyDisconnected();
+                } catch (RemoteException e) {
+                    Log.w(TAG, "Calling notifyDisconnected() failed");
+                }
+            }
+        }
+    }
+
+    private class BrowserRecord implements IBinder.DeathRecipient {
+        public IMessageBrowser browser;
+        public BrowserInfo browserInfo;
+        public MessageCommandGroup allowedCommands;
+
+        BrowserRecord(IMessageBrowser browser, BrowserInfo browserInfo,
+                MessageCommandGroup allowedCommands) {
+            this.browser = browser;
+            this.browserInfo = browserInfo;
+            this.allowedCommands = allowedCommands;
+        }
+
+        @Override
+        public void binderDied() {
+            synchronized (mLock) {
+                mBrowserRecords.remove(browser.asBinder());
+            }
         }
     }
 }

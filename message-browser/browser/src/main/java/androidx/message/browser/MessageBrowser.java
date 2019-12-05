@@ -86,7 +86,7 @@ public class MessageBrowser {
     int mNextSequenceNumber;
     @GuardedBy("mLock")
     @SuppressWarnings("WeakerAccess") /* synthetic access */
-    IMessageLibraryService mServiceBinder;
+    IMessageLibraryService mService;
     @GuardedBy("mLock")
     @SuppressWarnings("WeakerAccess") /* synthetic access */
     int mBrowserState;
@@ -123,12 +123,28 @@ public class MessageBrowser {
             if (mBrowserState == STATE_CLOSED || mBrowserState == STATE_CLOSING) return;
             try {
                 if (mBrowserState == STATE_CONNECTING || mBrowserState == STATE_CONNECTED) {
-                    mServiceBinder.disconnect(mBrowserStub, mNextSequenceNumber++);
+                    mService.disconnect(mBrowserStub, mNextSequenceNumber++);
                 }
             } catch (RemoteException e) {
                 Log.w(TAG, "Service " + mServiceComponent + " has died prematurely");
             }
             mBrowserState = STATE_CLOSING;
+        }
+    }
+
+    void notifyConnected(MessageCommandGroup allowedCommands) {
+        if (mCallbackExecutor != null) {
+            mCallbackExecutor.execute(() -> {
+                mBrowserCallback.onConnected(MessageBrowser.this, allowedCommands);
+            });
+        }
+    }
+
+    void notifyDisconnected() {
+        if (mCallbackExecutor != null) {
+            mCallbackExecutor.execute(() -> {
+                mBrowserCallback.onDisconnected(MessageBrowser.this);
+            });
         }
     }
 
@@ -229,6 +245,7 @@ public class MessageBrowser {
     /**
      * @hide
      */
+    // TODO(sungsoo): consider to add onError().
     @RestrictTo(LIBRARY)
     public abstract static class BrowserCallback {
         /**
@@ -259,25 +276,19 @@ public class MessageBrowser {
             synchronized (mLock) {
                 mBrowserState = STATE_CONNECTED;
             }
-            if (mCallbackExecutor != null) {
-                mCallbackExecutor.execute(() -> {
-                    mBrowserCallback.onConnected(MessageBrowser.this,
-                            MessageCommandGroup.fromBundle(allowedCommands));
-                });
-            }
+            MessageBrowser.this.notifyConnected(MessageCommandGroup.fromBundle(allowedCommands));
         }
 
         @Override
         public void notifyDisconnected() {
             synchronized (mLock) {
-                mBrowserState = (mBrowserState == STATE_CLOSING)
-                        ? STATE_CLOSED : STATE_DISCONNECTED;
+                if (mBrowserState == STATE_CLOSING) {
+                    mBrowserState = STATE_CLOSED;
+                } else if (mBrowserState != STATE_ERROR) {
+                    mBrowserState = STATE_DISCONNECTED;
+                }
             }
-            if (mCallbackExecutor != null) {
-                mCallbackExecutor.execute(() -> {
-                    mBrowserCallback.onDisconnected(MessageBrowser.this);
-                });
-            }
+            MessageBrowser.this.notifyDisconnected();
         }
     }
 
@@ -285,7 +296,6 @@ public class MessageBrowser {
     private class MessageLibraryServiceConnection implements ServiceConnection {
         MessageLibraryServiceConnection() {}
 
-        // TODO(sungsoo): Implement onServiceDisconnected
         @Override
         public void onServiceConnected(ComponentName componentName, IBinder iBinder) {
             // Note that it's always main-thread.
@@ -300,28 +310,30 @@ public class MessageBrowser {
                     mBrowserState = STATE_ERROR;
                     return;
                 }
-                mServiceBinder = IMessageLibraryService.Stub.asInterface(iBinder);
-                if (mServiceBinder == null) {
+                mService = IMessageLibraryService.Stub.asInterface(iBinder);
+                if (mService == null) {
                     Log.wtf(TAG, "Service interface is missing.");
                     mBrowserState = STATE_ERROR;
+                    MessageBrowser.this.notifyDisconnected();
                     return;
                 }
                 mBrowserState = STATE_CONNECTING;
                 try {
-                    mServiceBinder.connect(mBrowserStub, mNextSequenceNumber++,
+                    mService.connect(mBrowserStub, mNextSequenceNumber++,
                             mConnectionRequest.toBundle());
                 } catch (RemoteException e) {
                     Log.w(TAG, "Service " + mServiceComponent + " has died prematurely");
                     mBrowserState = STATE_ERROR;
+                    MessageBrowser.this.notifyDisconnected();
                     close();
                 }
             }
         }
 
         @Override
-        public void onServiceDisconnected(ComponentName componentName) {
+        public void onServiceDisconnected(ComponentName name) {
             synchronized (mLock) {
-                mServiceBinder = null;
+                mService = null;
             }
         }
     }
