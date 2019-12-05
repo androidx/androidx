@@ -63,8 +63,8 @@ import com.google.common.util.concurrent.ListenableFuture;
 
 import java.util.ArrayList;
 import java.util.Collection;
-import java.util.HashMap;
 import java.util.HashSet;
+import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Locale;
 import java.util.Map;
@@ -154,7 +154,8 @@ final class Camera2CameraImpl implements CameraInternal {
     @SuppressWarnings("WeakerAccess") /* synthetic accessor */
     CallbackToFutureAdapter.Completer<Void> mUserReleaseNotifier;
     @SuppressWarnings("WeakerAccess") /* synthetic accessor */
-    final Map<CaptureSession, ListenableFuture<Void>> mReleasedCaptureSessions = new HashMap<>();
+    final Map<CaptureSession, ListenableFuture<Void>> mReleasedCaptureSessions =
+            new LinkedHashMap<>();
 
     private final Observable<Integer> mAvailableCamerasObservable;
     private final CameraAvailability mCameraAvailability;
@@ -322,9 +323,11 @@ final class Camera2CameraImpl implements CameraInternal {
                 mCameraDevice);
         Futures.addCallback(openDummyCaptureSession, new FutureCallback<Void>() {
             @Override
+            @WorkerThread
             public void onSuccess(@Nullable Void result) {
                 mConfiguringForClose.remove(dummySession);
                 resetCaptureSession(false);
+                closeStaleCaptureSessions(dummySession);
 
                 // Don't need to abort captures since there are none submitted for this session.
                 ListenableFuture<Void> releaseFuture = releaseSession(
@@ -925,12 +928,14 @@ final class Camera2CameraImpl implements CameraInternal {
             return;
         }
 
-        ListenableFuture<Void> openCaptureSession = mCaptureSession.open(
-                validatingBuilder.build(), mCameraDevice);
+        CaptureSession captureSession = mCaptureSession;
+        ListenableFuture<Void> openCaptureSession = captureSession.open(validatingBuilder.build(),
+                mCameraDevice);
         Futures.addCallback(openCaptureSession, new FutureCallback<Void>() {
             @Override
+            @WorkerThread
             public void onSuccess(@Nullable Void result) {
-                // Nothing to do.
+                closeStaleCaptureSessions(captureSession);
             }
 
             @Override
@@ -951,6 +956,28 @@ final class Camera2CameraImpl implements CameraInternal {
                 }
             }
         }, mExecutor);
+    }
+
+    @SuppressWarnings("GuardedBy") // TODO(b/141959507): Suppressed during upgrade to AGP 3.6.
+    void closeStaleCaptureSessions(CaptureSession captureSession) {
+        // Once the new CameraCaptureSession is created, the under closing
+        // CameraCaptureSession can be treated as closed (more detail in b/144817309).
+        // Trigger the CaptureSession#forceClose() to finish the session release flow.
+        if (Build.VERSION.SDK_INT < Build.VERSION_CODES.M) {
+            CaptureSession[] captureSessions = mReleasedCaptureSessions.keySet().toArray(
+                    new CaptureSession[mReleasedCaptureSessions.size()]);
+            for (CaptureSession releasingSession : captureSessions) {
+                // The new created CaptureSession might going to release before the previous
+                // CameraCaptureSession is configured.
+                // The code in this section would like to mark the previous CaptureSession to Closed
+                // state if a new CaptureSession is configured. So we only force close the capture
+                // session that created before the current configured session instance.
+                if (captureSession == releasingSession) {
+                    break;
+                }
+                releasingSession.forceClose();
+            }
+        }
     }
 
     @SuppressWarnings("GuardedBy") // TODO(b/141959507): Suppressed during upgrade to AGP 3.6.

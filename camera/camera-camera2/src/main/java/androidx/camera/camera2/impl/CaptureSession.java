@@ -42,7 +42,6 @@ import androidx.camera.core.DeferrableSurface;
 import androidx.camera.core.DeferrableSurfaces;
 import androidx.camera.core.MutableOptionsBundle;
 import androidx.camera.core.SessionConfig;
-import androidx.camera.core.impl.utils.executor.CameraXExecutors;
 import androidx.camera.core.impl.utils.futures.FutureChain;
 import androidx.camera.core.impl.utils.futures.Futures;
 import androidx.concurrent.futures.CallbackToFutureAdapter;
@@ -213,6 +212,8 @@ final class CaptureSession {
      *                      configurations which may or may not be currently active in issuing
      *                      capture requests.
      * @param cameraDevice  the camera with which to generate the capture session
+     * @return A {@link ListenableFuture} that will be completed once the
+     * {@link CameraCaptureSession} has been configured.
      */
     @NonNull
     @SuppressWarnings("GuardedBy") // TODO(b/141959507): Suppressed during upgrade to AGP 3.6.
@@ -373,13 +374,6 @@ final class CaptureSession {
 
                                 return "openCaptureSession[session=" + CaptureSession.this + "]";
                             });
-
-                    openFuture.addListener(() -> {
-                        synchronized (mStateLock) {
-                            mOpenCaptureSessionCompleter = null;
-                        }
-                    }, CameraXExecutors.directExecutor());
-
                     return openFuture;
                 default:
                     return Futures.immediateFailedFuture(new CancellationException(
@@ -436,9 +430,6 @@ final class CaptureSession {
                     mState = State.CLOSED;
                     mSessionConfig = null;
                     mCameraEventOnRepeatingOptions = null;
-                    if (mOpenCaptureSessionCompleter != null) {
-                        mOpenCaptureSessionCompleter.setCancelled();
-                    }
                     closeConfiguredDeferrableSurfaces();
 
                     break;
@@ -482,9 +473,10 @@ final class CaptureSession {
                     // Fall through
                 case OPENING:
                     mState = State.RELEASING;
-                    if (mOpenCaptureSessionCompleter != null) {
-                        mOpenCaptureSessionCompleter.setCancelled();
-                    }
+                    // Not cancel the openCaptureSessionFuture since the create capture session
+                    // flow cannot interrupt. The release should start after the capture session is
+                    // configured.
+
                     // Fall through
                 case RELEASING:
                     if (mReleaseFuture == null) {
@@ -848,6 +840,11 @@ final class CaptureSession {
         @Override
         public void onConfigured(@NonNull CameraCaptureSession session) {
             synchronized (mStateLock) {
+                Preconditions.checkNotNull(mOpenCaptureSessionCompleter,
+                        "OpenCaptureSession completer should not null");
+                mOpenCaptureSessionCompleter.set(null);
+                mOpenCaptureSessionCompleter = null;
+
                 switch (mState) {
                     case UNINITIALIZED:
                     case INITIALIZED:
@@ -858,9 +855,6 @@ final class CaptureSession {
                                 "onConfigured() should not be possible in state: " + mState);
                     case OPENING:
                         mState = State.OPENED;
-                        Preconditions.checkNotNull(mOpenCaptureSessionCompleter,
-                                "OpenCaptureSession completer should not null");
-                        mOpenCaptureSessionCompleter.set(null);
                         mCameraCaptureSession = session;
 
                         // Issue capture request of enableSession if exists.
@@ -937,6 +931,12 @@ final class CaptureSession {
         @Override
         public void onConfigureFailed(@NonNull CameraCaptureSession session) {
             synchronized (mStateLock) {
+                Preconditions.checkNotNull(mOpenCaptureSessionCompleter,
+                        "OpenCaptureSession completer should not null");
+                mOpenCaptureSessionCompleter.setException(new CancellationException(
+                        "onConfigureFailed"));
+                mOpenCaptureSessionCompleter = null;
+
                 switch (mState) {
                     case UNINITIALIZED:
                     case INITIALIZED:
@@ -946,11 +946,6 @@ final class CaptureSession {
                         throw new IllegalStateException(
                                 "onConfiguredFailed() should not be possible in state: " + mState);
                     case OPENING:
-                        Preconditions.checkNotNull(mOpenCaptureSessionCompleter,
-                                "OpenCaptureSession completer should not null");
-                        mOpenCaptureSessionCompleter.setException(new CancellationException(
-                                "onConfigureFailed"));
-                        // Fall through
                     case CLOSED:
                         mState = State.CLOSED;
                         mCameraCaptureSession = session;

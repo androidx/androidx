@@ -32,9 +32,13 @@ import android.hardware.camera2.CameraAccessException;
 import android.hardware.camera2.CameraCaptureSession;
 import android.hardware.camera2.CameraCharacteristics;
 import android.hardware.camera2.CameraDevice;
+import android.hardware.camera2.CaptureRequest;
+import android.hardware.camera2.TotalCaptureResult;
 
+import androidx.annotation.NonNull;
 import androidx.annotation.experimental.UseExperimental;
 import androidx.camera.camera2.Camera2Config;
+import androidx.camera.camera2.impl.util.SemaphoreReleasingCamera2Callbacks;
 import androidx.camera.camera2.impl.util.SemaphoreReleasingCamera2Callbacks.DeviceStateCallback;
 import androidx.camera.camera2.impl.util.SemaphoreReleasingCamera2Callbacks.SessionCaptureCallback;
 import androidx.camera.camera2.interop.Camera2Interop;
@@ -66,7 +70,9 @@ import org.junit.Rule;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 
+import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.ExecutionException;
+import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicLong;
 
 /**
@@ -238,6 +244,97 @@ public final class Camera2ImplCameraXTest {
         // Additional frames should not be observed.
         final Long secondObservedCount = observedCount.get();
         assertThat(secondObservedCount).isEqualTo(firstObservedCount);
+    }
+
+    @Test
+    public void resumePauseInShortTime_theCaptureSessionShouldOpenAndCloseCorrectly()
+            throws InterruptedException {
+        // To test the CaptureSession should open/close correctly or we might fail to close the
+        // camera device due to the wrong capture session state.
+        //
+        // This test simulate to rotate the device and switch the camera.
+        // Test contains the following steps:
+        // (1) Bind use case to lifecycle and wait for the stream is opened.
+        // (2) Set the lifeCycle pause and resume to simulate the app was closed and then reopened.
+        // Similar to rotate the device.
+        // (3) Set the lifeCycle pause and resume again to simulate the device was rotated back
+        // to the original position.
+        // (4) Switch the camera and verify the target camera is opened successfully.
+
+
+        // Make sure the test environment have front/back camera.
+        assumeTrue(CameraUtil.hasCameraWithLensFacing(CameraSelector.LENS_FACING_FRONT));
+        assumeTrue(CameraUtil.hasCameraWithLensFacing(CameraSelector.LENS_FACING_BACK));
+
+        SemaphoreReleasingCamera2Callbacks.SessionStateCallback sessionStateCallback =
+                new SemaphoreReleasingCamera2Callbacks.SessionStateCallback();
+        final CountDownLatch lock = new CountDownLatch(5);
+        final CameraCaptureSession.CaptureCallback callback =
+                new CameraCaptureSession.CaptureCallback() {
+                    @Override
+                    public void onCaptureCompleted(@NonNull CameraCaptureSession session,
+                            @NonNull CaptureRequest request, @NonNull TotalCaptureResult result) {
+                        lock.countDown();
+                    }
+                };
+        mInstrumentation.runOnMainSync(new Runnable() {
+            @Override
+            public void run() {
+                ImageAnalysis.Builder configBuilder = new ImageAnalysis.Builder();
+                new Camera2Interop.Extender<>(configBuilder).setSessionCaptureCallback(
+                        callback).setSessionStateCallback(sessionStateCallback);
+                ImageAnalysis useCase = configBuilder.build();
+                CameraSelector selectorBack = new CameraSelector.Builder().requireLensFacing(
+                        CameraSelector.LENS_FACING_BACK).build();
+                CameraX.bindToLifecycle(mLifecycle, selectorBack, useCase);
+                useCase.setAnalyzer(CameraXExecutors.mainThreadExecutor(), mImageAnalyzer);
+
+                mLifecycle.startAndResume();
+            }
+        });
+
+        // Wait a little bit for the camera to open and stream frames.
+        lock.await(3000, TimeUnit.MILLISECONDS);
+
+        // Pause/Resume the lifeCycle twice to simulate the test step (2) and (3).
+        for (int i = 0; i < 2; i++) {
+            mInstrumentation.runOnMainSync(new Runnable() {
+                @Override
+                public void run() {
+                    // Pause/Resume the lifeCycle to create and close the capture session. the new
+                    // camera capture session will be opened immediately after a previous
+                    // CaptureSession is opened, and the previous CaptureSession will going to close
+                    // right after the new CaptureSession is opened.
+                    mLifecycle.pauseAndStop();
+                    mLifecycle.startAndResume();
+                }
+            });
+            // Wait for the capture session is configured.
+            sessionStateCallback.waitForOnConfigured(1);
+        }
+
+        mInstrumentation.runOnMainSync(new Runnable() {
+            @Override
+            public void run() {
+                // Unbind all useCase and switch to another camera to verify the camera close flow.
+                CameraX.unbindAll();
+
+                // The camera switch only success after all the exist CaptureSession was
+                // closed successfully.
+                ImageAnalysis.Builder configBuilder = new ImageAnalysis.Builder();
+                new Camera2Interop.Extender<>(configBuilder).setDeviceStateCallback(
+                        mDeviceStateCallback);
+                ImageAnalysis useCase = configBuilder.build();
+                CameraSelector selectorFront = new CameraSelector.Builder().requireLensFacing(
+                        CameraSelector.LENS_FACING_FRONT).build();
+                CameraX.bindToLifecycle(mLifecycle, selectorFront, useCase);
+                useCase.setAnalyzer(CameraXExecutors.mainThreadExecutor(), mImageAnalyzer);
+            }
+        });
+
+        // The front camera should open successfully. If the test fail, the CameraX might
+        // in wrong internal state, and the CameraX#shutdown() might stuck.
+        verify(mDeviceStateCallback, timeout(3000)).onOpened(any(CameraDevice.class));
     }
 
     @Test

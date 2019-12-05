@@ -573,27 +573,6 @@ public final class CaptureSessionTest {
     }
 
     @Test
-    public void closeImmediateAfterOpenCaptureSession() {
-        // The mock cameraDevice is used to simulate the createCaptureSession task takes a long
-        // time.
-        CameraDevice mockCameraDevice = mock(CameraDevice.class);
-        CaptureSession captureSession = createCaptureSession(mTestParameters0);
-        captureSession.setSessionConfig(mTestParameters0.mSessionConfig);
-
-        FutureCallback<Void> mockFutureCallback = mock(FutureCallback.class);
-        ArgumentCaptor<Throwable> throwableCaptor = ArgumentCaptor.forClass(Throwable.class);
-        Futures.addCallback(captureSession.open(mTestParameters0.mSessionConfig,
-                mockCameraDevice), mockFutureCallback, AsyncTask.THREAD_POOL_EXECUTOR);
-        captureSession.close();
-
-        // The captureSession opening should callback onFailure with a CancellationException.
-        verify(mockFutureCallback, timeout(3000).times(1)).onFailure(throwableCaptor.capture());
-        assertThat(throwableCaptor.getValue()).isInstanceOf(CancellationException.class);
-        // After the close invoked, CaptureSession should change to CLOSED or RELEASED state
-        assertThat(captureSession.getState()).isAnyOf(State.CLOSED, State.RELEASED);
-    }
-
-    @Test
     public void cancelOpenCaptureSessionListenableFuture_shouldNoop() {
         CaptureSession captureSession = createCaptureSession(mTestParameters0);
         captureSession.setSessionConfig(mTestParameters0.mSessionConfig);
