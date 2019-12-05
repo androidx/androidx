@@ -14,25 +14,18 @@
  * limitations under the License.
  */
 
+import androidx.build.SdkResourceGenerator
+
 import static androidx.build.dependencies.DependenciesKt.*
-import androidx.build.SupportConfig
 
 plugins {
     id("AndroidXPlugin")
     id("kotlin")
 }
 
-def generatedResources = "$buildDir/generated/resources"
-def prebuiltsRoot = SupportConfig.getPrebuiltsRootPath(project)
-def localSupportRepo = SupportConfig.getSupportRepoPath(project)
-def agpDependency = AGP_LATEST
-def debugKeystore = "${SupportConfig.getKeystore(project)}"
-
 sourceSets {
     test.java.srcDirs += 'src/tests/kotlin'
-    test.resources.srcDirs += generatedResources
 }
-
 
 dependencies {
     implementation(KOTLIN_STDLIB)
@@ -42,28 +35,7 @@ dependencies {
 
 }
 
-task generateSdkResource() {
-    inputs.property("prebuiltsRoot", prebuiltsRoot)
-    inputs.property("localSupportRepo", localSupportRepo)
-    inputs.property("compileSdkVersion", SupportConfig.TARGET_SDK_VERSION)
-    inputs.property("buildToolsVersion", SupportConfig.BUILD_TOOLS_VERSION)
-    inputs.property("minSdkVersion", SupportConfig.DEFAULT_MIN_SDK_VERSION)
-    inputs.property("debugKeystore", debugKeystore)
-    outputs.dir(generatedResources)
-    doLast {
-        new File(generatedResources, "sdk.prop").withWriter('UTF-8') { writer ->
-            writer.write("prebuiltsRepo=$prebuiltsRoot\n")
-            writer.write("localSupportRepo=$localSupportRepo\n")
-            writer.write("agpDependency=$agpDependency\n")
-            writer.write("compileSdkVersion=$SupportConfig.TARGET_SDK_VERSION\n")
-            writer.write("buildToolsVersion=$SupportConfig.BUILD_TOOLS_VERSION\n")
-            writer.write("minSdkVersion=$SupportConfig.DEFAULT_MIN_SDK_VERSION\n")
-            writer.write("debugKeystore=$debugKeystore\n")
-        }
-    }
-}
-
-tasks.findByName("compileTestKotlin").dependsOn(generateSdkResource)
+SdkResourceGenerator.generateForHostTest(project)
 
 tasks.findByPath("test").dependsOn(
         tasks.findByPath(":room:room-common:publish"),

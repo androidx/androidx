@@ -19,8 +19,8 @@ import androidx.build.CompilationTarget
 import androidx.build.LibraryGroups
 import androidx.build.LibraryVersions
 import androidx.build.AndroidXExtension
-import androidx.build.SupportConfig
 import androidx.build.Publish
+import androidx.build.SdkResourceGenerator
 
 plugins {
     id("AndroidXPlugin")
@@ -28,55 +28,21 @@ plugins {
     id("java-gradle-plugin")
 }
 
-ext.generatedResources = "$buildDir/generated/resources"
-ext.prebuiltsRoot = SupportConfig.getPrebuiltsRootPath(project)
-ext.debugKeystore = SupportConfig.getKeystore(project)
-
 sourceSets {
     test.java.srcDirs += 'src/tests/kotlin'
-    test.resources.srcDirs += generatedResources
 }
 
 dependencies {
     implementation(AGP_STABLE)
     implementation(KOTLIN_GRADLE_PLUGIN)
-    compile project(":navigation:navigation-safe-args-generator")
-    compile gradleApi()
+    api(project(":navigation:navigation-safe-args-generator"))
+    api(gradleApi())
     implementation(GSON)
-    testImplementation gradleTestKit()
+    testImplementation(gradleTestKit())
     testImplementation(JUNIT)
 }
 
-task generateSdkResource() {
-    def NAVIGATION_COMMON = "androidx.navigation:navigation-common:2.0.0"
-    inputs.property("prebuiltsRoot", prebuiltsRoot)
-    inputs.property("compileSdkVersion", SupportConfig.COMPILE_SDK_VERSION)
-    inputs.property("buildToolsVersion", SupportConfig.BUILD_TOOLS_VERSION)
-    inputs.property("minSdkVersion", SupportConfig.DEFAULT_MIN_SDK_VERSION)
-    inputs.property("debugKeystore", debugKeystore)
-    inputs.property("navigationCommon", NAVIGATION_COMMON)
-    inputs.property("kotlinStdlib", KOTLIN_STDLIB)
-    outputs.dir(generatedResources)
-    doLast {
-        // Properties.write will have a timestamp, that invalidates the task,
-        // so we don't use it and write a file manually
-        new File(generatedResources, "sdk.prop").withWriter('UTF-8') { writer ->
-            writer.write("prebuiltsRepo=$prebuiltsRoot\n")
-            writer.write("compileSdkVersion=\"$SupportConfig.COMPILE_SDK_VERSION\"\n")
-            writer.write("buildToolsVersion=$SupportConfig.BUILD_TOOLS_VERSION\n")
-            writer.write("minSdkVersion=$SupportConfig.DEFAULT_MIN_SDK_VERSION\n")
-            writer.write("debugKeystore=$debugKeystore\n")
-            writer.write("navigationCommon=$NAVIGATION_COMMON\n")
-            writer.write("kotlinStdlib=$KOTLIN_STDLIB\n")
-        }
-    }
-}
-
-test {
-    testLogging { showStandardStreams = true }
-}
-
-tasks["compileTestJava"].dependsOn generateSdkResource
+SdkResourceGenerator.generateForHostTest(project)
 
 gradlePlugin {
     plugins {

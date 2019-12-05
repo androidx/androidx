@@ -34,8 +34,8 @@ class JavaPluginTest : BasePluginTest() {
             }
 
             repositories {
-                maven { url "$prebuiltsRepo/androidx/external" }
-                maven { url "$prebuiltsRepo/androidx/internal" }
+                maven { url "$prebuiltsRoot/androidx/external" }
+                maven { url "$prebuiltsRoot/androidx/internal" }
             }
 
             android {
