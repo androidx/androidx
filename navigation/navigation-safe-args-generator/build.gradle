@@ -31,10 +31,6 @@ plugins {
     id("kotlin")
 }
 
-sourceSets {
-    test.java.srcDirs += 'src/tests/kotlin'
-}
-
 dependencies {
     implementation(XPP3)
     implementation(XMLPULL)

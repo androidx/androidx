@@ -31,10 +31,6 @@ plugins {
 
 apply from: "../../buildSrc/kotlin-dsl-dependency.gradle"
 
-sourceSets {
-    test.java.srcDirs += 'src/main/kotlin'
-}
-
 dependencies {
     implementation findGradleKotlinDsl()
     implementation gradleApi()

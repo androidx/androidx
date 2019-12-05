@@ -23,16 +23,11 @@ plugins {
     id("kotlin")
 }
 
-sourceSets {
-    test.java.srcDirs += 'src/tests/kotlin'
-}
-
 dependencies {
     implementation(KOTLIN_STDLIB)
     testImplementation(JUNIT)
     testImplementation(TRUTH)
     testImplementation gradleTestKit()
-
 }
 
 SdkResourceGenerator.generateForHostTest(project)
