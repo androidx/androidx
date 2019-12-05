@@ -102,8 +102,8 @@ class FragmentLayoutInflaterFactory implements LayoutInflater.Factory2 {
             fragment.mTag = tag;
             fragment.mInLayout = true;
             fragment.mFragmentManager = mFragmentManager;
-            fragment.mHost = mFragmentManager.mHost;
-            fragment.onInflate(mFragmentManager.mHost.getContext(), attrs,
+            fragment.mHost = mFragmentManager.getHost();
+            fragment.onInflate(mFragmentManager.getHost().getContext(), attrs,
                     fragment.mSavedFragmentState);
             mFragmentManager.addFragment(fragment);
             mFragmentManager.moveToState(fragment);
@@ -119,9 +119,10 @@ class FragmentLayoutInflaterFactory implements LayoutInflater.Factory2 {
             // This fragment was retained from a previous instance; get it
             // going now.
             fragment.mInLayout = true;
-            fragment.mHost = mFragmentManager.mHost;
+            fragment.mFragmentManager = mFragmentManager;
+            fragment.mHost = mFragmentManager.getHost();
             // Give the Fragment the attributes to initialize itself.
-            fragment.onInflate(mFragmentManager.mHost.getContext(), attrs,
+            fragment.onInflate(mFragmentManager.getHost().getContext(), attrs,
                     fragment.mSavedFragmentState);
         }
 
