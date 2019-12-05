@@ -22,7 +22,7 @@ package androidx.paging
 internal data class PagingState<T : Any>(
     override val leadingNullCount: Int,
     override val trailingNullCount: Int,
-    private val pages: List<TransformedPage<T>>,
+    private val pages: List<TransformablePage<T>>,
     override val storageCount: Int = pages.fullCount(),
     val loadStateRefresh: LoadState,
     val loadStateStart: LoadState,
@@ -86,7 +86,7 @@ internal data class PagingState<T : Any>(
         private var leadingNullCount: Int = 0
         private var trailingNullCount: Int = 0
         private var size: Int = 0
-        private var pages: List<TransformedPage<T>> = listOf()
+        private var pages: List<TransformablePage<T>> = listOf()
         private var storageCount: Int = 0
 
         private var stateRefresh: LoadState = LoadState.Loading
@@ -162,7 +162,7 @@ internal data class PagingState<T : Any>(
     }
 
     companion object {
-        internal fun <T : Any> List<TransformedPage<T>>.fullCount() = sumBy { it.data.size }
+        internal fun <T : Any> List<TransformablePage<T>>.fullCount() = sumBy { it.data.size }
 
         internal val noopHintReceiver: (ViewportHint) -> Unit = {}
 
