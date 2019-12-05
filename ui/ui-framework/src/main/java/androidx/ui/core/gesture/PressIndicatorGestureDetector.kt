@@ -53,12 +53,14 @@ fun PressIndicatorGestureDetector(
     onStart: ((PxPosition) -> Unit)? = null,
     onStop: (() -> Unit)? = null,
     onCancel: (() -> Unit)? = null,
+    enabled: Boolean = true,
     children: @Composable() () -> Unit
 ) {
     val recognizer = +memo { PressIndicatorGestureRecognizer() }
     recognizer.onStart = onStart
     recognizer.onStop = onStop
     recognizer.onCancel = onCancel
+    recognizer.setEnabled(enabled)
 
     PointerInputWrapper(
         pointerInputHandler = recognizer.pointerInputHandler,
@@ -89,8 +91,11 @@ internal class PressIndicatorGestureRecognizer {
     /**
      * Called if onStart was attempted to be called (it may have been null), and either:
      * 1. Pointer movement was consumed by the time [PointerEventPass.PostDown] reaches this
-     * gesture detector.
-     * 2. The Compose root is notified that it will no longer receive input, and thus onStop
+     * gesture recognizer.
+     * 2. [setEnabled] is called with false.
+     * 3. This gesture recognizer is removed from the hierarchy, or it has no descendants
+     * to define it's position or size.
+     * 4. The Compose root is notified that it will no longer receive input, and thus onStop
      * will never be reached (For example, the Android View that hosts compose receives
      * MotionEvent.ACTION_CANCEL).
      *
@@ -99,14 +104,47 @@ internal class PressIndicatorGestureRecognizer {
      */
     var onCancel: (() -> Unit)? = null
 
-    private var started = false
+    private var state = State.Idle
+
+    /**
+     * Sets whether this gesture recognizer is enabled.  True by default.
+     *
+     * When enabled, this gesture recognizer will act normally.
+     *
+     * When disabled, this gesture recognizer will not process any input.  No aspects
+     * of any [PointerInputChange]s will be consumed and no callbacks will be called.
+     *
+     * If the last callback that was attempted to be called was [onStart] ([onStart] may have
+     * been false) and [enabled] is false, [onCancel] will be called.
+     */
+    fun setEnabled(enabled: Boolean) {
+        if (state == State.Started) {
+            // If the state is Started and we were passed true, we don't want to change it to
+            // Enabled.
+            // If the state is Started and we were passed false, we can set to Disabled and
+            // call the cancel callback.
+            if (!enabled) {
+                state = State.Disabled
+                onCancel?.invoke()
+            }
+        } else {
+            // If the state is anything but Started, just set the state according to the value
+            // we were passed.
+            state =
+                if (enabled) {
+                    State.Idle
+                } else {
+                    State.Disabled
+                }
+        }
+    }
 
     val pointerInputHandler =
         { changes: List<PointerInputChange>, pass: PointerEventPass, bounds: IntPxSize ->
 
             var internalChanges = changes
 
-            if (pass == PointerEventPass.InitialDown && started) {
+            if (pass == PointerEventPass.InitialDown && state == State.Started) {
                 internalChanges = internalChanges.map {
                     if (it.changedToDown()) {
                         it.consumeDownChange()
@@ -118,50 +156,52 @@ internal class PressIndicatorGestureRecognizer {
 
             if (pass == PointerEventPass.PostUp) {
 
-                if (!started && internalChanges.all { it.changedToDown() }) {
+                if (state == State.Idle && internalChanges.all { it.changedToDown() }) {
                     // If we have not yet started and all of the changes changed to down, we are
                     // starting.
-                    started = true
+                    state = State.Started
                     onStart?.invoke(internalChanges.first().current.position!!)
-                    internalChanges = internalChanges.map { it.consumeDownChange() }
-                } else if (started) {
+                } else if (state == State.Started) {
                     if (internalChanges.all { it.changedToUpIgnoreConsumed() }) {
                         // If we have started and all of the changes changed to up, we are stopping.
-                        started = false
+                        state = State.Idle
                         onStop?.invoke()
                     } else if (!internalChanges.anyPointersInBounds(bounds)) {
                         // If all of the down pointers are currently out of bounds, we should cancel
                         // as this indicates that the user does not which to trigger a press based
                         // event.
-                        started = false
+                        state = State.Idle
                         onCancel?.invoke()
                     }
                 }
 
-                if (started) {
+                if (state == State.Started) {
                     internalChanges = internalChanges.map { it.consumeDownChange() }
                 }
             }
 
-            if (pass == PointerEventPass.PostDown &&
-                started &&
-                internalChanges
-                    .any { it.anyPositionChangeConsumed() }
+            if (
+                pass == PointerEventPass.PostDown &&
+                state == State.Started &&
+                internalChanges.any { it.anyPositionChangeConsumed() }
             ) {
                 // On the final pass, if we have started and any of the changes had consumed
                 // position changes, we cancel.
-                cancel()
+                state = State.Idle
+                onCancel?.invoke()
             }
 
             internalChanges
         }
 
-    var cancelHandler = ::cancel
-
-    private fun cancel() {
-        if (started) {
-            started = false
+    val cancelHandler = {
+        if (state == State.Started) {
+            state = State.Idle
             onCancel?.invoke()
         }
+    }
+
+    private enum class State {
+        Disabled, Idle, Started
     }
 }

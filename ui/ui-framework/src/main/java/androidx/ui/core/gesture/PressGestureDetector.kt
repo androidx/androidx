@@ -24,12 +24,14 @@ fun PressGestureDetector(
     onPress: ((PxPosition) -> Unit)? = null,
     onRelease: (() -> Unit)? = null,
     onCancel: (() -> Unit)? = null,
+    enabled: Boolean = true,
     children: @Composable() () -> Unit
 ) {
-    PressIndicatorGestureDetector(onStart = onPress, onCancel = onCancel) {
+    PressIndicatorGestureDetector(onStart = onPress, onCancel = onCancel, enabled = enabled) {
         PressReleasedGestureDetector(
             onRelease = onRelease,
             consumeDownOnStart = false,
+            enabled = enabled,
             children = children
         )
     }

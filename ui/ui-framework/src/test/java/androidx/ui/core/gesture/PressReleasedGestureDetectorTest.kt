@@ -48,6 +48,8 @@ class PressReleasedGestureDetectorTest {
         recognizer.onRelease = mock()
     }
 
+    // Verification for when onReleased should not be called.
+
     @Test
     fun pointerInputHandler_down_onReleaseNotCalled() {
         recognizer.pointerInputHandler.invokeOverAllPasses(listOf(down()))
@@ -135,6 +137,42 @@ class PressReleasedGestureDetectorTest {
     }
 
     @Test
+    fun pointerInputHandler_disabledDownUp_onReleaseNotCalled() {
+        recognizer.setEnabled(false)
+        var pointer = down()
+        recognizer.pointerInputHandler.invokeOverAllPasses(listOf(pointer))
+        pointer = pointer.up(100.milliseconds)
+        recognizer.pointerInputHandler.invokeOverAllPasses(listOf(pointer))
+
+        verify(recognizer.onRelease!!, never()).invoke()
+    }
+
+    @Test
+    fun pointerInputHandler_disabledDownEnabledUp_onReleaseNotCalled() {
+        recognizer.setEnabled(false)
+        var pointer = down()
+        recognizer.pointerInputHandler.invokeOverAllPasses(listOf(pointer))
+        recognizer.setEnabled(true)
+        pointer = pointer.up(100.milliseconds)
+        recognizer.pointerInputHandler.invokeOverAllPasses(listOf(pointer))
+
+        verify(recognizer.onRelease!!, never()).invoke()
+    }
+
+    @Test
+    fun pointerInputHandler_downDisabledUp_onReleaseNotCalled() {
+        var pointer = down()
+        recognizer.pointerInputHandler.invokeOverAllPasses(listOf(pointer))
+        recognizer.setEnabled(false)
+        pointer = pointer.up(100.milliseconds)
+        recognizer.pointerInputHandler.invokeOverAllPasses(listOf(pointer))
+
+        verify(recognizer.onRelease!!, never()).invoke()
+    }
+
+    // Verification for when onReleased should be called.
+
+    @Test
     fun pointerInputHandler_downUp_onReleaseCalledOnce() {
         var pointer = down()
         recognizer.pointerInputHandler.invokeOverAllPasses(listOf(pointer))
@@ -173,10 +211,17 @@ class PressReleasedGestureDetectorTest {
     }
 
     @Test
-    fun pointerInputHandler_consumeDownOnStartIsDefault_downChangeConsumed() {
-        val pointerEventChange = recognizer.pointerInputHandler.invokeOverAllPasses(listOf(down()))
-        assertThat(pointerEventChange.first().consumed.downChange, `is`(true))
+    fun pointerInputHandler_downEnabledUp_onReleaseCalled() {
+        var pointer = down()
+        recognizer.pointerInputHandler.invokeOverAllPasses(listOf(pointer))
+        recognizer.setEnabled(true)
+        pointer = pointer.up(100.milliseconds)
+        recognizer.pointerInputHandler.invokeOverAllPasses(listOf(pointer))
+
+        verify(recognizer.onRelease!!).invoke()
     }
+
+    // Verification for when the down change should not be consumed.
 
     @Test
     fun pointerInputHandler_consumeDownOnStartIsFalse_downChangeNotConsumed() {
@@ -186,12 +231,54 @@ class PressReleasedGestureDetectorTest {
     }
 
     @Test
-    fun pointerInputHandler_upChangeConsumed() {
+    fun pointerInputHandler_disabledAndConsumeDownOnStartIsDefault_downChangeNotConsumed() {
+        recognizer.setEnabled(false)
+        val pointerEventChange = recognizer.pointerInputHandler.invokeOverAllPasses(listOf(down()))
+        assertThat(pointerEventChange.first().consumed.downChange, `is`(false))
+    }
+
+    // Verification for when the down change should be consumed.
+
+    @Test
+    fun pointerInputHandler_consumeDownOnStartIsDefault_downChangeConsumed() {
+        val pointerEventChange = recognizer.pointerInputHandler.invokeOverAllPasses(listOf(down()))
+        assertThat(pointerEventChange.first().consumed.downChange, `is`(true))
+    }
+
+    // Verification for when the up change should not be consumed.
+
+    @Test
+    fun pointerInputHandler_disabledDownUp_upChangeNotConsumed() {
+        recognizer.setEnabled(false)
         var pointer = down()
         recognizer.pointerInputHandler.invokeOverAllPasses(listOf(pointer))
         pointer = pointer.up(100.milliseconds)
+        val pointerEventChange = recognizer.pointerInputHandler.invokeOverAllPasses(pointer)
+
+        assertThat(pointerEventChange.first().consumed.downChange, `is`(false))
+    }
+
+    @Test
+    fun pointerInputHandler_disabledDownEnabledUp_upChangeNotConsumed() {
+        recognizer.setEnabled(false)
+        var pointer = down()
+        recognizer.pointerInputHandler.invokeOverAllPasses(listOf(pointer))
+        recognizer.setEnabled(true)
+        pointer = pointer.up(100.milliseconds)
         val pointerEventChange = recognizer.pointerInputHandler.invokeOverAllPasses(listOf(pointer))
-        assertThat(pointerEventChange.first().consumed.downChange, `is`(true))
+
+        assertThat(pointerEventChange.first().consumed.downChange, `is`(false))
+    }
+
+    @Test
+    fun pointerInputHandler_downDisabledUp_upChangeNotConsumed() {
+        var pointer = down()
+        recognizer.pointerInputHandler.invokeOverAllPasses(listOf(pointer))
+        recognizer.setEnabled(false)
+        pointer = pointer.up(100.milliseconds)
+        val pointerEventChange = recognizer.pointerInputHandler.invokeOverAllPasses(listOf(pointer))
+
+        assertThat(pointerEventChange.first().consumed.downChange, `is`(false))
     }
 
     @Test
@@ -246,6 +333,19 @@ class PressReleasedGestureDetectorTest {
 
         assertThat(result.first().consumed.downChange, `is`(false))
     }
+
+    // Verification for when the up change should be consumed.
+
+    @Test
+    fun pointerInputHandler_upChangeConsumed() {
+        var pointer = down()
+        recognizer.pointerInputHandler.invokeOverAllPasses(listOf(pointer))
+        pointer = pointer.up(100.milliseconds)
+        val pointerEventChange = recognizer.pointerInputHandler.invokeOverAllPasses(listOf(pointer))
+        assertThat(pointerEventChange.first().consumed.downChange, `is`(true))
+    }
+
+    // Verification for during what pass the changes are consumed.
 
     @Test
     fun pointerInputHandler_downChangeConsumedDuringPostUp() {
