@@ -204,7 +204,7 @@ public final class UseCaseCombinationTest {
     }
 
     private void initImageAnalysis() {
-        mImageAnalyzer = (image, rotationDegrees) -> {
+        mImageAnalyzer = (image) -> {
             mAnalysisResult.postValue(image.getImageInfo().getTimestamp());
             image.close();
         };

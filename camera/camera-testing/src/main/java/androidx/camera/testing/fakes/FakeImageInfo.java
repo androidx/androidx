@@ -25,12 +25,16 @@ import androidx.camera.core.ImageInfo;
 public final class FakeImageInfo implements ImageInfo {
     private Object mTag;
     private long mTimestamp;
+    private int mRotationDegrees;
 
     public void setTag(Object tag) {
         mTag = tag;
     }
     public void setTimestamp(long timestamp) {
         mTimestamp = timestamp;
+    }
+    public void setRotationDegrees(int rotationDegrees) {
+        mRotationDegrees = rotationDegrees;
     }
 
     @Override
@@ -41,5 +45,10 @@ public final class FakeImageInfo implements ImageInfo {
     @Override
     public long getTimestamp() {
         return mTimestamp;
+    }
+
+    @Override
+    public int getRotationDegrees() {
+        return mRotationDegrees;
     }
 }

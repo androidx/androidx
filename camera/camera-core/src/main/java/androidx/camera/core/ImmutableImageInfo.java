@@ -18,33 +18,21 @@ package androidx.camera.core;
 
 import androidx.annotation.Nullable;
 
-class SettableImageInfo implements ImageInfo {
+import com.google.auto.value.AutoValue;
 
-    private Object mTag;
-    private long mTimestamp;
-
-    SettableImageInfo(Object tag, long timestamp) {
-        mTag = tag;
-        mTimestamp = timestamp;
+@AutoValue
+abstract class ImmutableImageInfo implements ImageInfo {
+    public static ImageInfo create(@Nullable Object tag, long timestamp, int rotationDegrees) {
+        return new AutoValue_ImmutableImageInfo(tag, timestamp, rotationDegrees);
     }
 
     @Override
     @Nullable
-    public Object getTag() {
-        return mTag;
-    }
-
-    public void setTag(@Nullable Object tag) {
-        mTag = tag;
-    }
+    public abstract Object getTag();
 
     @Override
-    public long getTimestamp() {
-        return mTimestamp;
-    }
+    public abstract long getTimestamp();
 
-    public void setTimestamp(long timestamp) {
-        mTimestamp = timestamp;
-    }
-
+    @Override
+    public abstract int getRotationDegrees();
 }

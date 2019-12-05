@@ -81,8 +81,7 @@ public class TorchControlDeviceTest {
         // UseCase must have repeating surface. Create and bind ImageAnalysis as repeating surface.
         ImageAnalysis imageAnalysis = new ImageAnalysis.Builder().build();
         // Make ImageAnalysis active.
-        imageAnalysis.setAnalyzer(CameraXExecutors.mainThreadExecutor(),
-                (image, rotationDegrees) -> image.close());
+        imageAnalysis.setAnalyzer(CameraXExecutors.mainThreadExecutor(), (image) -> image.close());
         mInstrumentation.runOnMainSync(() ->
                 mCamera =
                         CameraX.bindToLifecycle(mLifecycleOwner, cameraSelector, imageAnalysis));

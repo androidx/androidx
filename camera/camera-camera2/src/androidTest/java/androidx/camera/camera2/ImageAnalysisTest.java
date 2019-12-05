@@ -91,9 +91,10 @@ public final class ImageAnalysisTest {
         }
         mAnalysisResultsSemaphore = new Semaphore(/*permits=*/ 0);
         mAnalyzer =
-                (image, rotationDegrees) -> {
+                (image) -> {
                     synchronized (mAnalysisResultLock) {
-                        mAnalysisResults.add(new ImageProperties(image, rotationDegrees));
+                        mAnalysisResults.add(new ImageProperties(image,
+                                image.getImageInfo().getRotationDegrees()));
                     }
                     mAnalysisResultsSemaphore.release();
                     image.close();
