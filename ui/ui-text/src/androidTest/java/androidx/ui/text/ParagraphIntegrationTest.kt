@@ -1568,7 +1568,7 @@ class ParagraphIntegrationTest {
                 val paragraph = Paragraph(
                     text = text,
                     spanStyles = listOf(),
-                    style = TextStyle(
+                    spanStyle = SpanStyle(
                         fontSize = fontSize,
                         localeList = localeList
                     ),
@@ -2553,7 +2553,7 @@ class ParagraphIntegrationTest {
             // custom 200 regular font has d as the wide glyph
             val spanStyle = SpanStyle(fontFamily = fontFamilyCustom200)
             // a is rendered in paragraphStyle font (custom 100), it will not have wide glyph
-            // d is rendered in defaultTextStyle font (custom 200), and it will be wide glyph
+            // d is rendered in defaultSpanStyle font (custom 200), and it will be wide glyph
             val expectedWidth = fontSizeInPx + fontSizeInPx * 3
 
             val paragraph = simpleParagraph(
@@ -2629,14 +2629,14 @@ class ParagraphIntegrationTest {
     }
 
     @Test
-    fun testDefaultTextStyle_setColor() {
+    fun testDefaultSpanStyle_setColor() {
         withDensity(defaultDensity) {
             val text = "abc"
             // FontSize doesn't matter here, but it should be big enough for bitmap comparison.
             val fontSize = 100.sp
             val fontSizeInPx = fontSize.toPx().value
             val paragraphWidth = fontSizeInPx * text.length
-            val textStyle = TextStyle(color = Color.Red)
+            val spanStyle = SpanStyle(color = Color.Red)
 
             val paragraphWithoutColor = simpleParagraph(
                 text = text,
@@ -2646,7 +2646,7 @@ class ParagraphIntegrationTest {
 
             val paragraphWithColor = simpleParagraph(
                 text = text,
-                textStyle = textStyle,
+                spanStyle = spanStyle,
                 fontSize = fontSize,
                 constraints = ParagraphConstraints(paragraphWidth)
             )
@@ -2657,18 +2657,18 @@ class ParagraphIntegrationTest {
     }
 
     @Test
-    fun testDefaultTextStyle_setLetterSpacing() {
+    fun testDefaultSpanStyle_setLetterSpacing() {
         withDensity(defaultDensity) {
             val text = "abc"
             // FontSize doesn't matter here, but it should be big enough for bitmap comparison.
             val fontSize = 100.sp
             val fontSizeInPx = fontSize.toPx().value
             val letterSpacing = 1f
-            val textStyle = TextStyle(letterSpacing = letterSpacing.em)
+            val spanStyle = SpanStyle(letterSpacing = letterSpacing.em)
 
             val paragraph = simpleParagraph(
                 text = text,
-                textStyle = textStyle,
+                spanStyle = spanStyle,
                 fontSize = fontSize
             )
 
@@ -3019,13 +3019,13 @@ class ParagraphIntegrationTest {
 
         val paragraph = simpleParagraph(
             text = text,
-            textStyle = TextStyle(fontSize = fontSize),
+            spanStyle = SpanStyle(fontSize = fontSize),
             density = Density(density = 1f, fontScale = 1f)
         )
 
         val doubleFontSizeParagraph = simpleParagraph(
             text = text,
-            textStyle = TextStyle(fontSize = fontSize),
+            spanStyle = SpanStyle(fontSize = fontSize),
             density = Density(density = 1f, fontScale = densityMultiplier)
         )
 
@@ -3041,7 +3041,7 @@ class ParagraphIntegrationTest {
             val text = "b "
             val paragraph = simpleParagraph(
                 text = text,
-                textStyle = TextStyle(fontSize = fontSize)
+                spanStyle = SpanStyle(fontSize = fontSize)
             )
 
             val expectedWidth = text.length * fontSize.toPx().value
@@ -3060,7 +3060,7 @@ class ParagraphIntegrationTest {
             val fontSize = 12.sp
             val paragraph = simpleParagraph(
                 text = text,
-                textStyle = TextStyle(fontSize = fontSize)
+                spanStyle = SpanStyle(fontSize = fontSize)
             )
 
             // +1 is for the white space
@@ -3077,7 +3077,7 @@ class ParagraphIntegrationTest {
             val styledFontSize = fontSize * 2
             val paragraph = simpleParagraph(
                 text = text,
-                textStyle = TextStyle(fontSize = fontSize),
+                spanStyle = SpanStyle(fontSize = fontSize),
                 spanStyles = listOf(
                     AnnotatedString.Item(
                         SpanStyle(fontSize = styledFontSize), "a".length, "a bb ".length
@@ -3129,7 +3129,7 @@ class ParagraphIntegrationTest {
 
             val paragraphIntrinsics = ParagraphIntrinsics(
                 text = text,
-                style = TextStyle(
+                spanStyle = SpanStyle(
                     fontSize = fontSize,
                     fontFamily = fontFamilyMeasureFont
                 ),
@@ -3179,7 +3179,7 @@ class ParagraphIntegrationTest {
         spanStyles: List<AnnotatedString.Item<SpanStyle>> = listOf(),
         fontFamily: FontFamily = fontFamilyMeasureFont,
         localeList: LocaleList? = null,
-        textStyle: TextStyle? = null,
+        spanStyle: SpanStyle? = null,
         density: Density? = null,
         textDirectionAlgorithm: TextDirectionAlgorithm? = TextDirectionAlgorithm.ContentOrLtr,
         constraints: ParagraphConstraints = ParagraphConstraints(Float.MAX_VALUE)
@@ -3187,11 +3187,11 @@ class ParagraphIntegrationTest {
         return Paragraph(
             text = text,
             spanStyles = spanStyles,
-            style = TextStyle(
+            spanStyle = SpanStyle(
                 fontFamily = fontFamily,
                 fontSize = fontSize,
                 localeList = localeList
-            ).merge(textStyle),
+            ).merge(spanStyle),
             paragraphStyle = ParagraphStyle(
                 textIndent = textIndent,
                 textAlign = textAlign,

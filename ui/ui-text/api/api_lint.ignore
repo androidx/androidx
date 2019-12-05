@@ -1,30 +1,14 @@
 // Baseline format: 1.0
-AutoBoxing: androidx.ui.text.MultiParagraph#MultiParagraph(androidx.ui.text.AnnotatedString, androidx.ui.text.TextStyle, androidx.ui.text.ParagraphStyle, Integer, Boolean, androidx.ui.text.ParagraphConstraints, androidx.ui.core.Density, androidx.ui.text.font.Font.ResourceLoader) parameter #3:
+AutoBoxing: androidx.ui.text.MultiParagraph#MultiParagraph(androidx.ui.text.AnnotatedString, androidx.ui.text.SpanStyle, androidx.ui.text.ParagraphStyle, Integer, Boolean, androidx.ui.text.ParagraphConstraints, androidx.ui.core.Density, androidx.ui.text.font.Font.ResourceLoader) parameter #3:
     Must avoid boxed primitives (`java.lang.Integer`)
 AutoBoxing: androidx.ui.text.MultiParagraph#MultiParagraph(androidx.ui.text.MultiParagraphIntrinsics, Integer, Boolean, androidx.ui.text.ParagraphConstraints) parameter #1:
     Must avoid boxed primitives (`java.lang.Integer`)
 AutoBoxing: androidx.ui.text.MultiParagraph#getMaxLines():
     Must avoid boxed primitives (`java.lang.Integer`)
-AutoBoxing: androidx.ui.text.ParagraphKt#Paragraph(String, androidx.ui.text.TextStyle, androidx.ui.text.ParagraphStyle, java.util.List<androidx.ui.text.AnnotatedString.Item<androidx.ui.text.SpanStyle>>, Integer, Boolean, androidx.ui.text.ParagraphConstraints, androidx.ui.core.Density, androidx.ui.text.font.Font.ResourceLoader) parameter #4:
+AutoBoxing: androidx.ui.text.ParagraphKt#Paragraph(String, androidx.ui.text.SpanStyle, androidx.ui.text.ParagraphStyle, java.util.List<androidx.ui.text.AnnotatedString.Item<androidx.ui.text.SpanStyle>>, Integer, Boolean, androidx.ui.text.ParagraphConstraints, androidx.ui.core.Density, androidx.ui.text.font.Font.ResourceLoader) parameter #4:
     Must avoid boxed primitives (`java.lang.Integer`)
 AutoBoxing: androidx.ui.text.ParagraphKt#Paragraph(androidx.ui.text.ParagraphIntrinsics, Integer, Boolean, androidx.ui.text.ParagraphConstraints) parameter #1:
     Must avoid boxed primitives (`java.lang.Integer`)
-AutoBoxing: androidx.ui.text.style.TextGeometricTransform#TextGeometricTransform(Float, Float) parameter #0:
-    Must avoid boxed primitives (`java.lang.Float`)
-AutoBoxing: androidx.ui.text.style.TextGeometricTransform#TextGeometricTransform(Float, Float) parameter #1:
-    Must avoid boxed primitives (`java.lang.Float`)
-AutoBoxing: androidx.ui.text.style.TextGeometricTransform#component1():
-    Must avoid boxed primitives (`java.lang.Float`)
-AutoBoxing: androidx.ui.text.style.TextGeometricTransform#component2():
-    Must avoid boxed primitives (`java.lang.Float`)
-AutoBoxing: androidx.ui.text.style.TextGeometricTransform#copy(Float, Float) parameter #0:
-    Must avoid boxed primitives (`java.lang.Float`)
-AutoBoxing: androidx.ui.text.style.TextGeometricTransform#copy(Float, Float) parameter #1:
-    Must avoid boxed primitives (`java.lang.Float`)
-AutoBoxing: androidx.ui.text.style.TextGeometricTransform#getScaleX():
-    Must avoid boxed primitives (`java.lang.Float`)
-AutoBoxing: androidx.ui.text.style.TextGeometricTransform#getSkewX():
-    Must avoid boxed primitives (`java.lang.Float`)
 
 
 KotlinOperator: androidx.ui.text.font.FontFamily#contains(androidx.ui.text.font.Font):

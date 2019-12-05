@@ -1166,7 +1166,7 @@ class MultiParagraphIntegrationTest {
     fun constructor_throwsException_ifTextDirectionAlgorithmIsNotSet() {
         MultiParagraph(
             annotatedString = createAnnotatedString(""),
-            textStyle = TextStyle(),
+            spanStyle = SpanStyle(),
             paragraphStyle = ParagraphStyle(),
             constraints = ParagraphConstraints(Float.MAX_VALUE),
             density = defaultDensity,
@@ -1200,7 +1200,7 @@ class MultiParagraphIntegrationTest {
 
         val paragraph = MultiParagraph(
             annotatedString = text,
-            textStyle = TextStyle(),
+            spanStyle = SpanStyle(),
             paragraphStyle = ParagraphStyle(textDirectionAlgorithm = textDirectionAlgorithm),
             constraints = ParagraphConstraints(Float.MAX_VALUE),
             density = defaultDensity,
@@ -1239,7 +1239,7 @@ class MultiParagraphIntegrationTest {
     ): MultiParagraphIntrinsics {
         return MultiParagraphIntrinsics(
             text,
-            textStyle = TextStyle(
+            spanStyle = SpanStyle(
                 fontFamily = fontFamilyMeasureFont,
                 fontSize = fontSize
             ),
@@ -1260,7 +1260,7 @@ class MultiParagraphIntegrationTest {
     ): MultiParagraph {
         return MultiParagraph(
             annotatedString = createAnnotatedString(text),
-            textStyle = TextStyle(
+            spanStyle = SpanStyle(
                 fontFamily = fontFamilyMeasureFont,
                 fontSize = fontSize
             ),
@@ -1284,7 +1284,7 @@ class MultiParagraphIntegrationTest {
     ): MultiParagraph {
         return MultiParagraph(
             annotatedString = text,
-            textStyle = TextStyle(
+            spanStyle = SpanStyle(
                 fontFamily = fontFamilyMeasureFont,
                 fontSize = fontSize
             ),

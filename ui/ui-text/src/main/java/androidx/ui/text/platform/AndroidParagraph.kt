@@ -40,7 +40,6 @@ import androidx.ui.text.ParagraphConstraints
 import androidx.ui.text.ParagraphStyle
 import androidx.ui.text.SpanStyle
 import androidx.ui.text.TextRange
-import androidx.ui.text.TextStyle
 import androidx.ui.text.style.TextAlign
 import androidx.ui.text.style.TextDirection
 import java.util.Locale as JavaLocale
@@ -57,7 +56,7 @@ internal class AndroidParagraph constructor(
 
     constructor(
         text: String,
-        style: TextStyle,
+        spanStyle: SpanStyle,
         paragraphStyle: ParagraphStyle,
         spanStyles: List<AnnotatedString.Item<SpanStyle>>,
         maxLines: Int,
@@ -68,7 +67,7 @@ internal class AndroidParagraph constructor(
     ) : this(
         paragraphIntrinsics = AndroidParagraphIntrinsics(
             text = text,
-            style = style,
+            spanStyle = spanStyle,
             paragraphStyle = paragraphStyle,
             spanStyles = spanStyles,
             typefaceAdapter = typefaceAdapter,

@@ -52,9 +52,9 @@ private val DefaultFontSize: TextUnit = 14.sp
  *
  * We need to pass non-null font size to underlying paragraph.
  */
-private fun resolveTextStyle(style: TextStyle?) =
+private fun resolveSpanStyle(style: SpanStyle?) =
     if (style == null) {
-        TextStyle(fontSize = DefaultFontSize)
+        SpanStyle(fontSize = DefaultFontSize)
     } else if (style.fontSize.isInherit) {
         style.copy(fontSize = DefaultFontSize)
     } else {
@@ -77,7 +77,7 @@ private fun resolveTextStyle(style: TextStyle?) =
  *
  * @param text the text to paint.
  *
- * @param style The text style specified to render the text. Notice that you can also set text
+ * @param spanStyle The text style specified to render the text. Notice that you can also set text
  * style on the given [AnnotatedString], and the style set on [text] always has higher priority
  * than this setting. But if only one global text style is needed, passing it to [TextDelegate]
  * is always preferred.
@@ -104,7 +104,7 @@ private fun resolveTextStyle(style: TextStyle?) =
 @RestrictTo(RestrictTo.Scope.LIBRARY)
 class TextDelegate(
     val text: AnnotatedString,
-    style: TextStyle? = null,
+    spanStyle: SpanStyle? = null,
     paragraphStyle: ParagraphStyle? = null,
     val maxLines: Int = Int.MAX_VALUE,
     val softWrap: Boolean = true,
@@ -148,7 +148,7 @@ class TextDelegate(
     /**
      * The resolved text style.
      */
-    val textStyle: TextStyle = resolveTextStyle(style)
+    val spanStyle: SpanStyle = resolveSpanStyle(spanStyle)
 
     /**
      * The paragraph style.
@@ -233,7 +233,7 @@ class TextDelegate(
     fun layoutIntrinsics() {
         var intrinsics = paragraphIntrinsics ?: MultiParagraphIntrinsics(
             annotatedString = text,
-            textStyle = textStyle,
+            spanStyle = spanStyle,
             paragraphStyle = paragraphStyle,
             density = density,
             resourceLoader = resourceLoader
@@ -307,7 +307,7 @@ class TextDelegate(
      * the default black background color), so if you are writing an application with a white
      * background, the text will not be visible by default.
      *
-     * To set the text style, specify a [TextStyle] when creating the [TextSpan] that you pass to
+     * To set the text style, specify a [SpanStyle] when creating the [TextSpan] that you pass to
      * the [TextDelegate] constructor or to the [text] property.
      */
     fun paint(canvas: Canvas) = assumeLayout { layoutResult ->
@@ -445,7 +445,7 @@ private fun TextDelegate.createOverflowShader(
     return if (layoutResult.hasVisualOverflow && overflow == TextOverflow.Fade) {
         val paragraph = Paragraph(
             text = "\u2026", // horizontal ellipsis
-            style = textStyle,
+            spanStyle = spanStyle,
             paragraphStyle = paragraphStyle,
             spanStyles = listOf(),
             density = density,

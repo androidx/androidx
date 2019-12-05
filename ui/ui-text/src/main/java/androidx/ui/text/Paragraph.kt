@@ -207,20 +207,20 @@ interface Paragraph {
  * [ParagraphStyle].
  *
  * @param text the text to be laid out
- * @param style the [TextStyle] to be applied to the whole text
+ * @param spanStyle the [SpanStyle] to be applied to the whole text
  * @param paragraphStyle the [ParagraphStyle] to be applied to the whole text
  * @param spanStyles [SpanStyle]s to be applied to parts of text
  * @param maxLines the maximum number of lines that the text can have
  * @param ellipsis whether to ellipsize text, applied only when [maxLines] is set
  * @param constraints how wide the text is allowed to be
  * @param density density of the device
- * @param resourceLoader [Font.ResourceLoader] to be used to load the font given in [TextStyle]s
+ * @param resourceLoader [Font.ResourceLoader] to be used to load the font given in [SpanStyle]s
  *
  * @throws IllegalArgumentException if [ParagraphStyle.textDirectionAlgorithm] is not set
  */
 /* actual */ fun Paragraph(
     text: String,
-    style: TextStyle,
+    spanStyle: SpanStyle,
     paragraphStyle: ParagraphStyle,
     spanStyles: List<AnnotatedString.Item<SpanStyle>>,
     maxLines: Int = DefaultMaxLines,
@@ -231,7 +231,7 @@ interface Paragraph {
 ): Paragraph {
     return AndroidParagraph(
         text = text,
-        style = style,
+        spanStyle = spanStyle,
         paragraphStyle = paragraphStyle,
         spanStyles = spanStyles,
         maxLines = maxLines,

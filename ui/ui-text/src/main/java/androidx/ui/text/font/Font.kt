@@ -23,9 +23,9 @@ package androidx.ui.text.font
  *
  * @param name The name of the font file in font resources. i.e. "myfont.ttf".
  * @param weight The weight of the font. The system uses this to match a font to a font request
- * that is given in a `TextStyle`.
+ * that is given in a [androidx.ui.text.SpanStyle].
  * @param style The style of the font, normal or italic. The system uses this to match a font to a
- * font request that is given in a `TextStyle`.
+ * font request that is given in a [androidx.ui.text.SpanStyle].
  *
  * @see [FontFamily]
  */

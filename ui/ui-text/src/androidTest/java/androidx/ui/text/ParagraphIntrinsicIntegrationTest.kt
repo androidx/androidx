@@ -202,14 +202,14 @@ class ParagraphIntrinsicIntegrationTest {
 
     private fun paragraphIntrinsics(
         text: String = "",
-        style: TextStyle? = null,
+        style: SpanStyle? = null,
         fontSize: TextUnit = 14.sp,
         spanStyles: List<AnnotatedString.Item<SpanStyle>> = listOf()
     ): ParagraphIntrinsics {
         return ParagraphIntrinsics(
             text = text,
             spanStyles = spanStyles,
-            style = TextStyle(
+            spanStyle = SpanStyle(
                 fontFamily = fontFamilyMeasureFont,
                 fontSize = fontSize
             ).merge(style),

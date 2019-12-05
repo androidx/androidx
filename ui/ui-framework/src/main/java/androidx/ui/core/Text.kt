@@ -190,7 +190,7 @@ fun Text(
         ) {
             TextDelegate(
                 text = text,
-                style = mergedStyle,
+                spanStyle = mergedStyle.toSpanStyle(),
                 paragraphStyle = paragraphStyle,
                 softWrap = softWrap,
                 overflow = overflow,
