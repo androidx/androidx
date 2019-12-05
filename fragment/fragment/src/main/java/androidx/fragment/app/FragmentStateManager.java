@@ -242,21 +242,12 @@ class FragmentStateManager {
         }
     }
 
-    void attach(@NonNull FragmentHostCallback<?> host, @NonNull FragmentManager fragmentManager,
-            @Nullable Fragment parentFragment) {
-        mFragment.mHost = host;
-        mFragment.mParentFragment = parentFragment;
-        mFragment.mFragmentManager = fragmentManager;
-        mDispatcher.dispatchOnFragmentPreAttached(
-                mFragment, host.getContext(), false);
+    void attach() {
+        mFragment.mHost = mFragment.mFragmentManager.getHost();
+        mFragment.mParentFragment = mFragment.mFragmentManager.getParent();
+        mDispatcher.dispatchOnFragmentPreAttached(mFragment, false);
         mFragment.performAttach();
-        if (mFragment.mParentFragment == null) {
-            host.onAttachFragment(mFragment);
-        } else {
-            mFragment.mParentFragment.onAttachFragment(mFragment);
-        }
-        mDispatcher.dispatchOnFragmentAttached(
-                mFragment, host.getContext(), false);
+        mDispatcher.dispatchOnFragmentAttached(mFragment, false);
     }
 
     void create() {
@@ -275,7 +266,7 @@ class FragmentStateManager {
         }
     }
 
-    void createView(@NonNull FragmentContainer fragmentContainer) {
+    void createView() {
         if (mFragment.mFromLayout) {
             // This case is handled by ensureInflatedView(), so there's nothing
             // else we need to do here.
@@ -292,6 +283,7 @@ class FragmentStateManager {
                 throw new IllegalArgumentException("Cannot create fragment " + mFragment
                         + " for a container view with no id");
             }
+            FragmentContainer fragmentContainer = mFragment.mFragmentManager.getContainer();
             container = (ViewGroup) fragmentContainer.onFindViewById(mFragment.mContainerId);
             if (container == null && !mFragment.mRestored) {
                 String resName;
@@ -458,14 +450,14 @@ class FragmentStateManager {
         }
     }
 
-    void destroy(@NonNull FragmentHostCallback<?> host,
-            @NonNull FragmentManagerViewModel nonConfig) {
+    void destroy(@NonNull FragmentManagerViewModel nonConfig) {
         if (FragmentManager.isLoggingEnabled(Log.DEBUG)) {
             Log.d(TAG, "movefrom CREATED: " + mFragment);
         }
         boolean beingRemoved = mFragment.mRemoving && !mFragment.isInBackStack();
         boolean shouldDestroy = beingRemoved || nonConfig.shouldDestroy(mFragment);
         if (shouldDestroy) {
+            FragmentHostCallback<?> host = mFragment.mHost;
             boolean shouldClear;
             if (host instanceof ViewModelStoreOwner) {
                 shouldClear = nonConfig.isCleared();
