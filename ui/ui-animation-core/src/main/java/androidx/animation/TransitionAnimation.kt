@@ -33,7 +33,7 @@ import androidx.animation.InterruptionHandling.UNINTERRUPTIBLE
  * Once a [TransitionDefinition] is instantiated, a [TransitionAnimation] can be created via
  * [TransitionDefinition.createAnimation].
  */
-class TransitionAnimation<T> (
+class TransitionAnimation<T>(
     private val def: TransitionDefinition<T>,
     private val clock: AnimationClockObservable,
     initState: T? = null
@@ -51,8 +51,17 @@ class TransitionAnimation<T> (
     private var startTime: Long = UNSET
     private var lastFrameTime: Long = UNSET
     private var pendingState: StateImpl<T>? = null
-    private var currentAnimations: MutableMap<PropKey<Any>, Animation<Any>> = mutableMapOf()
-    private var startVelocityMap: MutableMap<PropKey<Any>, Float> = mutableMapOf()
+
+    // These animation wrappers contains the start/end value and start velocities for each animation
+    // run, to make it convenient to query current values/velocities based on play time. They will
+    // be thrown away after each animation run, as we expect start/end value and start
+    // velocities to be dynamic. The stateless animation that the wrapper wraps around will be
+    // re-used as they are stateless.
+    private var currentAnimWrappers: MutableMap<
+            PropKey<Any, AnimationVector>,
+            AnimationWrapper<Any, AnimationVector>
+            > = mutableMapOf()
+    private var startVelocityMap: MutableMap<PropKey<Any, AnimationVector>, Any> = mutableMapOf()
     private val animationClockObserver = object : AnimationClockObserver {
         override fun onAnimationFrame(frameTimeMillis: Long) {
             doAnimationFrame(frameTimeMillis)
@@ -93,13 +102,12 @@ class TransitionAnimation<T> (
         // TODO: Support different interruption types
         // For now assume continuing with the same value,  and for floats the same velocity
         for ((prop, _) in newState.props) {
-            val startVelocity = startVelocityMap[prop] ?: 0f
-            val currentVelocity = currentAnimations[prop]?.getVelocity(
-                playTime, fromState[prop], toState[prop], startVelocity,
-                prop::interpolate
-            ) ?: 0f
-            startVelocityMap[prop] = currentVelocity
-            currentAnimations[prop] = transitionSpec.getAnimationForProp(prop)
+            val currentVelocity = currentAnimWrappers[prop]?.getVelocity(playTime)
+            currentAnimWrappers[prop] = prop.createAnimationWrapper(
+                transitionSpec.getAnimationForProp(prop), currentState[prop], currentVelocity,
+                newState[prop]
+            )
+
             // TODO: Will need to track a few timelines if we support partially defined list of
             // props in each state.
         }
@@ -112,6 +120,16 @@ class TransitionAnimation<T> (
 
         // Start animation should be called after all the setup has been done
         startAnimation()
+    }
+
+    private fun <T, V : AnimationVector> PropKey<T, V>.createAnimationWrapper(
+        anim: Animation<V>,
+        start: T,
+        startVelocity: V?,
+        end: T
+    ): AnimationWrapper<T, V> {
+        val velocity: V = startVelocity ?: typeConverter.createNewVector()
+        return TargetBasedAnimationWrapper(start, velocity, end, anim, typeConverter)
     }
 
     private fun getPlayTime(): Long {
@@ -145,7 +163,7 @@ class TransitionAnimation<T> (
      *
      * @param propKey Property key (defined in [TransitionDefinition]) for a specific property
      */
-    override operator fun <T> get(propKey: PropKey<T>): T {
+    override operator fun <T, V : AnimationVector> get(propKey: PropKey<T, V>): T {
         return currentState[propKey]
     }
 
@@ -167,24 +185,19 @@ class TransitionAnimation<T> (
         }
 
         val playTime = getPlayTime()
-        for ((prop, animation) in currentAnimations) {
-            val velocity: Float = startVelocityMap[prop] ?: 0f
-            currentState[prop] =
-                animation.getValue(playTime, fromState[prop], toState[prop], velocity,
-                    prop::interpolate)
+        for ((prop, animation) in currentAnimWrappers) {
+            currentState[prop] = animation.getValue(playTime)
         }
 
         // Prune the finished animations
-        currentAnimations.entries.removeAll {
-            val prop = it.key
-            val velocity: Float = startVelocityMap[prop] ?: 0f
-            it.value.isFinished(playTime, fromState[prop], toState[prop], velocity)
+        currentAnimWrappers.entries.removeAll {
+            it.value.isFinished(playTime)
         }
 
         onUpdate?.invoke()
 
         // call end animation when all animations end
-        if (currentAnimations.isEmpty()) {
+        if (currentAnimWrappers.isEmpty()) {
             // All animations have finished. Snap all values to end value
             for (prop in toState.props.keys) {
                 currentState[prop] = toState[prop]
@@ -226,14 +239,13 @@ private class AnimationState<T>(state: StateImpl<T>, name: T) : StateImpl<T>(nam
     init {
         for ((prop, value) in state.props) {
             // Make a copy of the new values
-            val newValue = prop.interpolate(value, value, 0f)
-            props[prop] = newValue
+            props[prop] = value
         }
     }
 
-    override operator fun <T> set(propKey: PropKey<T>, prop: T) {
+    override operator fun <T, V : AnimationVector> set(propKey: PropKey<T, V>, prop: T) {
         @Suppress("UNCHECKED_CAST")
-        propKey as PropKey<Any>
+        propKey as PropKey<Any, AnimationVector>
         props[propKey] = prop as Any
     }
 }

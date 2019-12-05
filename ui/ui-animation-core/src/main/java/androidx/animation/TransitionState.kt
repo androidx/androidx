@@ -18,11 +18,11 @@ package androidx.animation
 
 internal open class StateImpl<T>(val name: T) : MutableTransitionState, TransitionState {
 
-    internal val props: MutableMap<PropKey<Any>, Any> = mutableMapOf()
+    internal val props: MutableMap<PropKey<Any, AnimationVector>, Any> = mutableMapOf()
 
-    override operator fun <T> set(propKey: PropKey<T>, prop: T) {
+    override operator fun <T, V : AnimationVector> set(propKey: PropKey<T, V>, prop: T) {
         @Suppress("UNCHECKED_CAST")
-        propKey as PropKey<Any>
+        propKey as PropKey<Any, AnimationVector>
         if (props[propKey] != null) {
             throw IllegalArgumentException("prop name $propKey already exists")
         }
@@ -31,8 +31,8 @@ internal open class StateImpl<T>(val name: T) : MutableTransitionState, Transiti
     }
 
     @Suppress("UNCHECKED_CAST")
-    override operator fun <T> get(propKey: PropKey<T>): T {
-        propKey as PropKey<Any>
+    override operator fun <T, V : AnimationVector> get(propKey: PropKey<T, V>): T {
+        propKey as PropKey<Any, AnimationVector>
         return props[propKey] as T
     }
 }
@@ -42,7 +42,7 @@ internal open class StateImpl<T>(val name: T) : MutableTransitionState, Transiti
  * [get], providing its property key.
  */
 interface TransitionState {
-    operator fun <T> get(propKey: PropKey<T>): T
+    operator fun <T, V : AnimationVector> get(propKey: PropKey<T, V>): T
 }
 
 /**
@@ -50,35 +50,5 @@ interface TransitionState {
  * [TransitionState]s with corresponding properties and their values.
  */
 interface MutableTransitionState {
-    operator fun <T> set(propKey: PropKey<T>, prop: T)
-}
-
-/**
- * Property key of [T] type.
- */
-interface PropKey<T> {
-    fun interpolate(a: T, b: T, fraction: Float): T
-}
-
-internal fun lerp(start: Float, stop: Float, fraction: Float) =
-    (start * (1 - fraction) + stop * fraction)
-
-internal fun lerp(start: Int, stop: Int, fraction: Float) =
-    (start * (1 - fraction) + stop * fraction).toInt()
-
-/**
- * Built-in property key for [Float] properties.
- */
-class FloatPropKey : PropKey<Float> {
-    override fun interpolate(a: Float, b: Float, fraction: Float) =
-        lerp(a, b, fraction)
-}
-
-// TODO: refactor out the entirely independent bit of the animation engine
-/**
- * Built-in property key for [Int] properties.
- */
-class IntPropKey : PropKey<Int> {
-    override fun interpolate(a: Int, b: Int, fraction: Float) =
-        lerp(a, b, fraction)
+    operator fun <T, V : AnimationVector> set(propKey: PropKey<T, V>, prop: T)
 }

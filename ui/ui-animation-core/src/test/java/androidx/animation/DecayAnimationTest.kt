@@ -47,7 +47,7 @@ class DecayAnimationTest {
                 // Before the animation finishes, absolute velocity is above the threshold
                 assertTrue(Math.abs(velocity) >= 2.0f)
                 assertEquals(value, animWrapper.getValue(playTime), epsilon)
-                assertEquals(velocity, animWrapper.getVelocity(playTime), epsilon)
+                assertEquals(velocity, animWrapper.getVelocity(playTime).value, epsilon)
             } else {
                 // When the animation is finished, expect absolute velocity < threshold
                 assertTrue(Math.abs(velocity) < 2.0f)
@@ -80,7 +80,7 @@ class DecayAnimationTest {
             .getValue(Int.MAX_VALUE.toLong())
 
         val finishVelocity1 = anim1.createWrapper(startValue, startVelocity)
-            .getVelocity(Int.MAX_VALUE.toLong())
+            .getVelocity(Int.MAX_VALUE.toLong()).value
 
         // Verify that the finish velocity is at the threshold
         assertEquals(threshold, finishVelocity1, epsilon)

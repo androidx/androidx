@@ -21,6 +21,7 @@ import androidx.animation.PropKey
 import androidx.animation.TransitionAnimation
 import androidx.animation.TransitionDefinition
 import androidx.animation.TransitionState
+import androidx.animation.AnimationVector
 import androidx.animation.createAnimation
 import androidx.compose.Composable
 import androidx.compose.Model
@@ -87,7 +88,7 @@ private class TransitionModel<T>(
             }
         }
 
-    override fun <T> get(propKey: PropKey<T>): T {
+    override fun <T, V : AnimationVector> get(propKey: PropKey<T, V>): T {
         // we need to access the animationPulse so Compose will record this @Model values usage.
         @Suppress("UNUSED_VARIABLE")
         val pulse = animationPulse

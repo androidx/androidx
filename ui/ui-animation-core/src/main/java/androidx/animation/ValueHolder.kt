@@ -18,27 +18,38 @@ package androidx.animation
 
 /**
  * A value holder contains two fields: A mutable value that is expected to change throughout an
- * animation, and an immutable value interpolator.
+ * animation, and an immutable value converter
  */
-interface ValueHolder<T> {
+interface ValueHolder<T, V : AnimationVector> {
     /**
      * Value of the [ValueHolder]. This value will be updated by subclasses of [BaseAnimatedValue].
      */
     var value: T
+
     /**
-     * Value interpolator that will be used to interpolate two values of type [T].
+     * A two way type converter that converts from value to [AnimationVector1D],
+     * [AnimationVector2D], [AnimationVector3D], or [AnimationVector4D], and vice versa.
      */
-    val interpolator: (start: T, end: T, fraction: Float) -> T
+    val typeConverter: TwoWayConverter<T, V>
 }
 
 /**
- * [ValueHolderImpl] is a data class that defines two fields: value (of type [T]) and a value
- * interpolator.
+ * FloatValueHolder defines a value holder that holds a Float value.
+ */
+interface FloatValueHolder : ValueHolder<Float, AnimationVector1D> {
+    override val typeConverter: TwoWayConverter<Float, AnimationVector1D>
+        get() = FloatToVectorConverter
+}
+
+/**
+ * [ValueHolderImpl] is a data class that defines two fields: value (of type [T]) and a type
+ * converter.
  *
  * @param value This value field gets updated during animation
- * @param interpolator Value interpolator defines how two values of type [T] should be interpolated.
+ * @param typeConverter A two way type converter that converts from value to [AnimationVector1D],
+ *                     [AnimationVector2D], [Vector3D], or [Vector4D], and vice versa.
  */
-data class ValueHolderImpl<T>(
+data class ValueHolderImpl<T, V : AnimationVector>(
     override var value: T,
-    override val interpolator: (T, T, Float) -> T
-) : ValueHolder<T>
+    override val typeConverter: TwoWayConverter<T, V>
+) : ValueHolder<T, V>

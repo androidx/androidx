@@ -17,42 +17,106 @@
 package androidx.ui.animation
 
 import androidx.animation.PropKey
+import androidx.animation.TypeConverter1D
+import androidx.animation.TypeConverter2D
+import androidx.animation.TypeConverter4D
+import androidx.animation.AnimationVector1D
+import androidx.animation.AnimationVector2D
+import androidx.animation.AnimationVector4D
 import androidx.ui.core.Dp
 import androidx.ui.core.Px
 import androidx.ui.core.PxPosition
-import androidx.ui.core.lerp
+import androidx.ui.core.px
+import androidx.ui.engine.geometry.Rect
 import androidx.ui.graphics.Color
-import androidx.ui.graphics.lerp
+import androidx.ui.graphics.colorspace.ColorSpace
+import androidx.ui.graphics.colorspace.ColorSpaces
 
 /**
  * Built-in property key for [Px] properties.
  */
-class PxPropKey : PropKey<Px> {
-    override fun interpolate(a: Px, b: Px, fraction: Float): Px =
-        lerp(a, b, fraction)
+class PxPropKey : PropKey<Px, AnimationVector1D> {
+    override val typeConverter = PxToVectorConverter
 }
 
 /**
  * Built-in property key for [Dp] properties.
  */
-class DpPropKey : PropKey<Dp> {
-    override fun interpolate(a: Dp, b: Dp, fraction: Float): Dp =
-        lerp(a, b, fraction)
+class DpPropKey : PropKey<Dp, AnimationVector1D> {
+    override val typeConverter = DpToVectorConverter
 }
 
 /**
  * Built-in property key for [PxPosition] properties.
  */
-class PxPositionPropKey : PropKey<PxPosition> {
-    override fun interpolate(a: PxPosition, b: PxPosition, fraction: Float): PxPosition =
-        lerp(a, b, fraction)
+class PxPositionPropKey : PropKey<PxPosition, AnimationVector2D> {
+    override val typeConverter = PxPositionToVectorConverter
 }
 
 /**
  * Built-in property key for [Color] properties.
  */
-class ColorPropKey : PropKey<Color> {
-    override fun interpolate(a: Color, b: Color, fraction: Float): Color {
-        return lerp(a, b, fraction)
-    }
+class ColorPropKey(colorSpace: ColorSpace = ColorSpaces.Srgb) : PropKey<Color, AnimationVector4D> {
+    override val typeConverter = ColorToVectorConverter(colorSpace)
 }
+
+/**
+ * A lambda that takes a [ColorSpace] and returns a converter that can both convert a [Color] to
+ * a [AnimationVector4D], and convert a [AnimationVector4D]) back to a [Color] in the given [ColorSpace].
+ */
+val ColorToVectorConverter: (colorSpace: ColorSpace) -> TypeConverter4D<Color> =
+    { colorSpace ->
+        TypeConverter4D(
+            convertToVector = {
+                val linearColor = it.convert(ColorSpaces.LinearExtendedSrgb)
+                AnimationVector4D(linearColor.alpha, linearColor.red, linearColor.green,
+                    linearColor.blue)
+            },
+            convertFromVector = {
+                Color(
+                    alpha = it.v1,
+                    red = it.v2,
+                    green = it.v3,
+                    blue = it.v4,
+                    colorSpace = ColorSpaces.LinearExtendedSrgb
+                ).convert(colorSpace)
+            }
+        )
+    }
+
+/**
+ * A type converter that converts a [Rect] to a [AnimationVector4D], and vice versa.
+ */
+val RectToVectorConverter: TypeConverter4D<Rect> =
+    TypeConverter4D(
+        convertToVector = {
+            AnimationVector4D(it.left, it.top, it.right, it.bottom)
+        },
+        convertFromVector = {
+            Rect(it.v1, it.v2, it.v3, it.v4)
+        }
+    )
+
+/**
+ * A type converter that converts a [PxPosition] to a [AnimationVector2D], and vice versa.
+ */
+val PxPositionToVectorConverter: TypeConverter2D<PxPosition> = TypeConverter2D(
+    convertToVector = { AnimationVector2D(it.x.value, it.y.value) },
+    convertFromVector = { PxPosition(it.v1.px, it.v2.px) }
+)
+
+/**
+ * A type converter that converts a [Dp] to a [AnimationVector1D], and vice versa.
+ */
+val DpToVectorConverter: TypeConverter1D<Dp> = TypeConverter1D(
+    convertToVector = { AnimationVector1D(it.value) },
+    convertFromVector = { Dp(it.value) }
+)
+
+/**
+ * A type converter that converts a [Px] to a [AnimationVector1D], and vice versa.
+ */
+val PxToVectorConverter: TypeConverter1D<Px> = TypeConverter1D(
+    convertToVector = { AnimationVector1D(it.value) },
+    convertFromVector = { Px(it.value) }
+)

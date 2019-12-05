@@ -16,11 +16,17 @@
 
 package androidx.animation
 
-import androidx.animation.Spring.Companion.DampingRatioNoBouncy
-import androidx.animation.Spring.Companion.StiffnessVeryLow
+import androidx.animation.Spring.DampingRatioNoBouncy
+import androidx.animation.Spring.StiffnessMedium
+import androidx.animation.Spring.StiffnessVeryLow
 
+/**
+ * Animation builder for creating an animation that animates a value of type [T].
+ */
 abstract class AnimationBuilder<T> {
-    internal abstract fun build(): Animation<T>
+    internal abstract fun <V : AnimationVector> build(
+        converter: TwoWayConverter<T, V>
+    ): Animation<V>
 }
 
 /**
@@ -47,15 +53,14 @@ const val Infinite: Int = Int.MAX_VALUE
  */
 class KeyframesBuilder<T> : DurationBasedAnimationBuilder<T>() {
 
-    private val keyframes = mutableMapOf<Long, KeyframeEntity>()
-
+    private val keyframes = mutableMapOf<Long, KeyframeEntity<T>>()
     /**
      * Adds a keyframe so that animation value will be [this] at time: [timeStamp]
      *
      * @param timeStamp The time in the during when animation should reach value: [this]
      * @return an [KeyframeEntity] so a custom [Easing] can be added by [with] method.
      */
-    infix fun T.at(timeStamp: Int): KeyframeEntity {
+    infix fun T.at(timeStamp: Int): KeyframeEntity<T> {
         return if (timeStamp >= 0) {
             KeyframeEntity(this).also {
                 keyframes[timeStamp.toLong()] = it
@@ -72,21 +77,27 @@ class KeyframesBuilder<T> : DurationBasedAnimationBuilder<T>() {
      * @sample androidx.animation.samples.KeyframesBuilderWithEasing
      * @param easing [Easing] to be used for the next interval.
      */
-    infix fun KeyframeEntity.with(easing: Easing) {
+    infix fun KeyframeEntity<T>.with(easing: Easing) {
         this.easing = easing
     }
 
-    override fun build(): DurationBasedAnimation<T> =
-        Keyframes(duration.toLong(), delay.toLong(), keyframes.mapValues { it.value.toPair() })
+    override fun <V : AnimationVector> build(
+        converter: TwoWayConverter<T, V>
+    ): DurationBasedAnimation<V> {
+        return Keyframes(duration.toLong(), delay.toLong(), keyframes.mapValues {
+            it.value.toPair(converter.convertToVector)
+        }, converter.arithmetic)
+    }
 
     /**
      * Holder class for building a keyframes animation.
      */
-    inner class KeyframeEntity internal constructor(
+    inner class KeyframeEntity<T> internal constructor(
         internal val value: T,
         internal var easing: Easing = LinearEasing
     ) {
-        internal fun toPair() = value to easing
+        internal fun <V : AnimationVector> toPair(convertToVector: (T) -> V) =
+            convertToVector.invoke(value) to easing
     }
 }
 
@@ -95,7 +106,6 @@ class KeyframesBuilder<T> : DurationBasedAnimationBuilder<T>() {
  * the duration based animations like [TweenBuilder] or [KeyframesBuilder].
  */
 class RepeatableBuilder<T> : AnimationBuilder<T>() {
-
     /**
      * The count of iterations. Can't be less then 1. Use [Infinite] to
      * have an infinity repeating animation.
@@ -114,14 +124,19 @@ class RepeatableBuilder<T> : AnimationBuilder<T>() {
      */
     var animation: DurationBasedAnimationBuilder<T>? = null
 
-    override fun build(): Animation<T> {
+    /**
+     * Creates a repeating animation that runs [animation] for the given [iterations].
+     *
+     * @throws IllegalStateException if the [iterations] or [animation] are undefined
+     */
+    override fun <V : AnimationVector> build(converter: TwoWayConverter<T, V>): Animation<V> {
         val iterationsCount = iterations?.toLong()
             ?: throw IllegalStateException("The iterations count should be provided")
         val animation = animation
             ?: throw IllegalStateException("The animation should be provided")
         return Repeatable(
             iterationsCount,
-            animation.build()
+            animation.build(converter)
         )
     }
 }
@@ -130,7 +145,6 @@ class RepeatableBuilder<T> : AnimationBuilder<T>() {
  * Base class for an [AnimationBuilder] to create animations based on a fixed duration.
  */
 abstract class DurationBasedAnimationBuilder<T> : AnimationBuilder<T>() {
-
     /**
      * Duration of the animation in milliseconds. Defaults to [DefaultDuration]
      */
@@ -153,19 +167,32 @@ abstract class DurationBasedAnimationBuilder<T> : AnimationBuilder<T>() {
             field = value
         }
 
-    abstract override fun build(): DurationBasedAnimation<T>
+    abstract override fun <V : AnimationVector> build(
+        converter: TwoWayConverter<T, V>
+    ): DurationBasedAnimation<V>
 }
 
+/**
+ * TweenBuilder builds a tween animation that animates from start to end value, based on an
+ * [easing] curve within the given [duration].
+ */
 class TweenBuilder<T> : DurationBasedAnimationBuilder<T>() {
-
     /**
      * Easing (a.k.a interpolator) for the Tween animation.
      * Default: [FastOutSlowInEasing]
      */
     var easing: Easing = FastOutSlowInEasing
 
-    override fun build(): DurationBasedAnimation<T> =
-        Tween(duration.toLong(), delay.toLong(), easing)
+    override fun <V : AnimationVector> build(
+        converter: TwoWayConverter<T, V>
+    ): DurationBasedAnimation<V> {
+        val delay = this.delay.toLong()
+        val duration = this.duration.toLong()
+        return DurationBasedWrapper(
+            duration, delay,
+            Tween(duration, delay, easing).buildMultiDimensAnim(converter)
+        )
+    }
 }
 
 /**
@@ -174,19 +201,53 @@ class TweenBuilder<T> : DurationBasedAnimationBuilder<T>() {
  * @param dampingRatio Damping ratio of the spring. Defaults to [DampingRatioNoBouncy]
  * @param stiffness Stiffness of the spring. Defaults to [StiffnessVeryLow]
  */
-open class PhysicsBuilder<T>(
+class PhysicsBuilder<T>(
     var dampingRatio: Float = DampingRatioNoBouncy,
-    var stiffness: Float = StiffnessVeryLow
+    var stiffness: Float = StiffnessMedium
 ) : AnimationBuilder<T>() {
 
-    override fun build(): Animation<T> =
-        SpringAnimation(dampingRatio, stiffness)
+    override fun <V : AnimationVector> build(converter: TwoWayConverter<T, V>): Animation<V> {
+        return SpringAnimation(dampingRatio, stiffness).buildMultiDimensAnim(converter)
+    }
 }
 
 /**
  * Builds Snap animation for immediately switching the animating value to the end value.
  */
-class SnapBuilder<T> : DurationBasedAnimationBuilder<T>() {
+class SnapBuilder<T> : AnimationBuilder<T>() {
+    override fun <V : AnimationVector> build(converter: TwoWayConverter<T, V>): Animation<V> =
+        SnapAnimation()
+}
 
-    override fun build(): DurationBasedAnimation<T> = Snap()
+/**
+ * Convert a 1D animation into a potential multi-dimensional animation by using the same 1D
+ * animation on all dimensions.
+ */
+internal fun <T, V : AnimationVector> FloatAnimation.buildMultiDimensAnim(
+    converter: TwoWayConverter<T, V>
+): Animation<V> {
+    @Suppress("UNCHECKED_CAST")
+    return when (converter) {
+        is TypeConverter1D<T> -> Animation1D(this)
+        is TypeConverter2D<T> -> Animation2D(this, this)
+        is TypeConverter3D<T> -> Animation3D(this, this, this)
+        is TypeConverter4D<T> -> Animation4D(this, this, this, this)
+    } as Animation<V>
+}
+
+/**
+ * Convenient internal class to set a duration on a multi-dimensional animation.
+ */
+private class DurationBasedWrapper<V : AnimationVector>(
+    override val duration: Long,
+    override val delay: Long,
+    private val anim: Animation<V>
+) : DurationBasedAnimation<V> {
+    override fun getValue(playTime: Long, start: V, end: V, startVelocity: V): V {
+        return anim.getValue(playTime, start, end, startVelocity)
+    }
+
+    override fun getVelocity(playTime: Long, start: V, end: V, startVelocity: V): V {
+        return anim.getVelocity(playTime, start, end, startVelocity)
+    }
 }

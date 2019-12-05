@@ -17,13 +17,12 @@
 package androidx.ui.foundation.animation
 
 import androidx.animation.AnimatedFloat
-import androidx.animation.DynamicTargetAnimation
 import androidx.compose.Composable
+import androidx.animation.FloatValueHolder
 import androidx.compose.Model
 import androidx.compose.remember
 import androidx.ui.foundation.ValueHolder
 import androidx.ui.foundation.gestures.Draggable
-import androidx.ui.lerp
 
 /**
  * Value holder that allows to animate value that it holds.
@@ -84,8 +83,7 @@ fun animatedDragValue(initial: Float, minBound: Float, maxBound: Float): Animate
 private class ListeneableValueHolder(
     var current: Float,
     var onValueChanged: (Float) -> Unit
-) : androidx.animation.ValueHolder<Float> {
-    override val interpolator: (start: Float, end: Float, fraction: Float) -> Float = ::lerp
+) : FloatValueHolder {
     override var value: Float
         get() = current
         set(value) {
