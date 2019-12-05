@@ -20,6 +20,7 @@ import androidx.test.ext.junit.runners.AndroidJUnit4
 import androidx.test.filters.MediumTest
 import androidx.test.platform.app.InstrumentationRegistry
 import com.google.common.truth.Truth.assertThat
+import org.junit.Before
 import org.junit.Test
 
 import org.junit.runner.RunWith
@@ -31,13 +32,19 @@ class FragmentStateManagerTest {
 
     private val dispatcher = FragmentLifecycleCallbacksDispatcher(
         mock(FragmentManager::class.java))
+    private lateinit var nonConfig: FragmentManagerViewModel
     private val classLoader get() = InstrumentationRegistry.getInstrumentation()
         .targetContext.classLoader
+
+    @Before
+    fun setup() {
+        nonConfig = FragmentManagerViewModel(true)
+    }
 
     @Test
     fun constructorFragment() {
         val fragment = StrictFragment()
-        val fragmentStateManager = FragmentStateManager(dispatcher, fragment)
+        val fragmentStateManager = FragmentStateManager(dispatcher, nonConfig, fragment)
         assertThat(fragmentStateManager.fragment)
             .isSameInstanceAs(fragment)
     }
@@ -45,9 +52,9 @@ class FragmentStateManagerTest {
     @Test
     fun constructorFragmentFactory() {
         val fragment = StrictFragment()
-        val fragmentState = FragmentStateManager(dispatcher, fragment).saveState()
+        val fragmentState = FragmentStateManager(dispatcher, nonConfig, fragment).saveState()
 
-        val fragmentStateManager = FragmentStateManager(dispatcher,
+        val fragmentStateManager = FragmentStateManager(dispatcher, nonConfig,
             classLoader, FragmentFactory(), fragmentState)
 
         val restoredFragment = fragmentStateManager.fragment
@@ -60,11 +67,11 @@ class FragmentStateManagerTest {
     @Test
     fun constructorRetainedFragment() {
         val fragment = StrictFragment()
-        val fragmentState = FragmentStateManager(dispatcher, fragment).saveState()
+        val fragmentState = FragmentStateManager(dispatcher, nonConfig, fragment).saveState()
         assertThat(fragment.mSavedFragmentState)
             .isNull()
 
-        val fragmentStateManager = FragmentStateManager(dispatcher,
+        val fragmentStateManager = FragmentStateManager(dispatcher, nonConfig,
             fragment, fragmentState)
 
         val restoredFragment = fragmentStateManager.fragment
@@ -77,7 +84,7 @@ class FragmentStateManagerTest {
     @Test
     fun testSetFragmentManagerState() {
         val fragment = StrictFragment()
-        val fragmentStateManager = FragmentStateManager(dispatcher, fragment)
+        val fragmentStateManager = FragmentStateManager(dispatcher, nonConfig, fragment)
         assertThat(fragmentStateManager.computeMaxState())
             .isEqualTo(Fragment.INITIALIZING)
 
@@ -123,7 +130,7 @@ class FragmentStateManagerTest {
     @Test
     fun testInflatedFragmentIsCreated() {
         val fragment = StrictFragment()
-        val fragmentStateManager = FragmentStateManager(dispatcher, fragment)
+        val fragmentStateManager = FragmentStateManager(dispatcher, nonConfig, fragment)
         assertThat(fragmentStateManager.computeMaxState())
             .isEqualTo(Fragment.INITIALIZING)
 
