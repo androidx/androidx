@@ -24,6 +24,7 @@ import androidx.ui.graphics.Color
 import androidx.ui.graphics.Shadow
 import androidx.ui.text.AnnotatedString
 import androidx.ui.text.LocaleList
+import androidx.ui.text.SpanStyle
 import androidx.ui.text.TextStyle
 import androidx.ui.text.font.FontStyle
 import androidx.ui.text.font.FontWeight
@@ -39,24 +40,24 @@ class RandomTextGenerator(
 ) {
     // a set of predefined TextStyle's to add to styled text
     private val nonMetricAffectingTextStyles = arrayOf(
-        TextStyle(color = Color.Blue),
-        TextStyle(background = Color.Cyan),
-        TextStyle(decoration = TextDecoration.Underline),
-        TextStyle(shadow = Shadow(Color.Black, Offset(3f, 3f), 2.px))
+        SpanStyle(color = Color.Blue),
+        SpanStyle(background = Color.Cyan),
+        SpanStyle(decoration = TextDecoration.Underline),
+        SpanStyle(shadow = Shadow(Color.Black, Offset(3f, 3f), 2.px))
     )
 
     private val metricAffectingTextStyles = arrayOf(
-        TextStyle(fontSize = 18.sp),
-        TextStyle(fontSize = 2.em),
-        TextStyle(fontWeight = FontWeight.Bold),
-        TextStyle(fontStyle = FontStyle.Italic),
-        TextStyle(letterSpacing = 0.2.em),
-        TextStyle(baselineShift = BaselineShift.Subscript),
-        TextStyle(textGeometricTransform = TextGeometricTransform(0.5f, 0.5f)),
-        TextStyle(localeList = LocaleList("it"))
+        SpanStyle(fontSize = 18.sp),
+        SpanStyle(fontSize = 2.em),
+        SpanStyle(fontWeight = FontWeight.Bold),
+        SpanStyle(fontStyle = FontStyle.Italic),
+        SpanStyle(letterSpacing = 0.2.em),
+        SpanStyle(baselineShift = BaselineShift.Subscript),
+        SpanStyle(textGeometricTransform = TextGeometricTransform(0.5f, 0.5f)),
+        SpanStyle(localeList = LocaleList("it"))
     )
 
-    private fun getTextStyleList(hasMetricAffectingStyle: Boolean) =
+    private fun getSpanStyleList(hasMetricAffectingStyle: Boolean) =
         nonMetricAffectingTextStyles + if (hasMetricAffectingStyle) {
             metricAffectingTextStyles
         } else {
@@ -102,8 +103,8 @@ class RandomTextGenerator(
         text: String,
         styleCount: Int = text.split(alphabet.space).size,
         hasMetricAffectingStyle: Boolean = true
-    ): List<AnnotatedString.Item<TextStyle>> {
-        val textStyleList = getTextStyleList(hasMetricAffectingStyle)
+    ): List<AnnotatedString.Item<SpanStyle>> {
+        val spanStyleList = getSpanStyleList(hasMetricAffectingStyle)
 
         val words = text.split(alphabet.space)
 
@@ -123,7 +124,7 @@ class RandomTextGenerator(
                 AnnotatedString.Item(
                     start = start,
                     end = end,
-                    item = textStyleList[styleIndex++ % textStyleList.size]
+                    item = spanStyleList[styleIndex++ % spanStyleList.size]
                 )
             }
         }
@@ -143,7 +144,7 @@ class RandomTextGenerator(
         val text = nextParagraph(length, wordLength)
         return AnnotatedString(
             text = text,
-            textStyles = createStyles(text, styleCount, hasMetricAffectingStyle)
+            spanStyles = createStyles(text, styleCount, hasMetricAffectingStyle)
         )
     }
 
@@ -155,8 +156,8 @@ class RandomTextGenerator(
         length: Int,
         wordLength: Int = 9,
         hasMetricAffectingStyle: Boolean = true
-    ): List<Pair<String, TextStyle>> {
-        val textStyleList = getTextStyleList(hasMetricAffectingStyle)
+    ): List<Pair<String, SpanStyle>> {
+        val textStyleList = getSpanStyleList(hasMetricAffectingStyle)
 
         val wordCount = ceil(length.toFloat() / (wordLength + 1)).toInt()
         var styleIndex = 0

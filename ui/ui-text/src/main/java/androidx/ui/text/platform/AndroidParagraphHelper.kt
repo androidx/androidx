@@ -50,6 +50,7 @@ import androidx.ui.graphics.toArgb
 import androidx.ui.text.AnnotatedString
 import androidx.ui.text.Locale
 import androidx.ui.text.LocaleList
+import androidx.ui.text.SpanStyle
 import androidx.ui.text.TextStyle
 import androidx.ui.text.font.FontStyle
 import androidx.ui.text.font.FontSynthesis
@@ -79,7 +80,7 @@ internal fun TextPaint.applyTextStyle(
     }
 
     if (style.hasFontAttributes()) {
-        typeface = createTypeface(style, typefaceAdapter)
+        typeface = createTypeface(style.toSpanStyle(), typefaceAdapter)
     }
 
     style.localeList?.let {
@@ -148,11 +149,11 @@ internal fun createStyledText(
     text: String,
     lineHeight: TextUnit,
     textIndent: TextIndent?,
-    textStyles: List<AnnotatedString.Item<TextStyle>>,
+    spanStyles: List<AnnotatedString.Item<SpanStyle>>,
     density: Density,
     typefaceAdapter: TypefaceAdapter
 ): CharSequence {
-    if (textStyles.isEmpty() && textIndent == null) return text
+    if (spanStyles.isEmpty() && textIndent == null) return text
     val spannableString = SpannableString(text)
 
     when (lineHeight.type) {
@@ -202,7 +203,7 @@ internal fun createStyledText(
         }
     }
 
-    for (textStyle in textStyles) {
+    for (textStyle in spanStyles) {
         val start = textStyle.start
         val end = textStyle.end
         val style = textStyle.item
@@ -363,7 +364,14 @@ private fun TextStyle.hasFontAttributes(): Boolean {
     return fontFamily != null || fontStyle != null || fontWeight != null
 }
 
-private fun createTypeface(style: TextStyle, typefaceAdapter: TypefaceAdapter): Typeface {
+/**
+ * Returns true if this [SpanStyle] contains any font style attributes set.
+ */
+private fun SpanStyle.hasFontAttributes(): Boolean {
+    return fontFamily != null || fontStyle != null || fontWeight != null
+}
+
+private fun createTypeface(style: SpanStyle, typefaceAdapter: TypefaceAdapter): Typeface {
     return typefaceAdapter.create(
         fontFamily = style.fontFamily,
         fontWeight = style.fontWeight ?: FontWeight.Normal,

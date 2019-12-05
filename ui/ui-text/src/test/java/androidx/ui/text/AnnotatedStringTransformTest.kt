@@ -26,12 +26,12 @@ import java.util.Locale
 @RunWith(JUnit4::class)
 class AnnotatedStringTransformTest {
 
-    private val TextStyle1 = TextStyle(fontSize = 8.sp)
-    private val TextStyle2 = TextStyle(fontSize = 16.sp)
-    private val TextStyle3 = TextStyle(fontSize = 24.sp)
+    private val spanStyle1 = SpanStyle(fontSize = 8.sp)
+    private val spanStyle2 = SpanStyle(fontSize = 16.sp)
+    private val spanStyle3 = SpanStyle(fontSize = 24.sp)
 
-    private val ParaStyle1 = ParagraphStyle(lineHeight = 10.sp)
-    private val ParaStyle2 = ParagraphStyle(lineHeight = 20.sp)
+    private val paraStyle1 = ParagraphStyle(lineHeight = 10.sp)
+    private val paraStyle2 = ParagraphStyle(lineHeight = 20.sp)
 
     /**
      * Helper function for creating AnnotatedString.Item with TextRange.
@@ -65,19 +65,19 @@ class AnnotatedStringTransformTest {
     fun `English uppercase`() {
         val input = AnnotatedString("aaa bbb ccc",
             listOf(
-                makeItem(TextStyle1, "(aaa bbb ccc)"),
-                makeItem(TextStyle2, "(aaa )bbb ccc"),
-                makeItem(TextStyle3, "aaa (bbb ccc)")
+                makeItem(spanStyle1, "(aaa bbb ccc)"),
+                makeItem(spanStyle2, "(aaa )bbb ccc"),
+                makeItem(spanStyle3, "aaa (bbb ccc)")
             ), listOf(
-                makeItem(ParaStyle1, "(aaa bbb )ccc"),
-                makeItem(ParaStyle2, "aaa bbb (ccc)")
+                makeItem(paraStyle1, "(aaa bbb )ccc"),
+                makeItem(paraStyle2, "aaa bbb (ccc)")
             )
         )
 
         val uppercase = input.toUpperCase()
 
         assertEquals(input.text.toUpperCase(), uppercase.text)
-        assertEquals(input.textStyles, uppercase.textStyles)
+        assertEquals(input.spanStyles, uppercase.spanStyles)
         assertEquals(input.paragraphStyles, uppercase.paragraphStyles)
     }
 
@@ -85,19 +85,19 @@ class AnnotatedStringTransformTest {
     fun `English lowercase`() {
         val input = AnnotatedString("aaa bbb ccc",
             listOf(
-                makeItem(TextStyle1, "(aaa bbb ccc)"),
-                makeItem(TextStyle2, "(aaa )bbb ccc"),
-                makeItem(TextStyle3, "aaa (bbb ccc)")
+                makeItem(spanStyle1, "(aaa bbb ccc)"),
+                makeItem(spanStyle2, "(aaa )bbb ccc"),
+                makeItem(spanStyle3, "aaa (bbb ccc)")
             ), listOf(
-                makeItem(ParaStyle1, "(aaa bbb )ccc"),
-                makeItem(ParaStyle2, "aaa bbb (ccc)")
+                makeItem(paraStyle1, "(aaa bbb )ccc"),
+                makeItem(paraStyle2, "aaa bbb (ccc)")
             )
         )
 
         val lowercase = input.toLowerCase()
 
         assertEquals(input.text.toLowerCase(), lowercase.text)
-        assertEquals(input.textStyles, lowercase.textStyles)
+        assertEquals(input.spanStyles, lowercase.spanStyles)
         assertEquals(input.paragraphStyles, lowercase.paragraphStyles)
     }
 
@@ -105,19 +105,19 @@ class AnnotatedStringTransformTest {
     fun `English capitalize`() {
         val input = AnnotatedString("aaa bbb ccc",
             listOf(
-                makeItem(TextStyle1, "(aaa bbb ccc)"),
-                makeItem(TextStyle2, "(aaa )bbb ccc"),
-                makeItem(TextStyle3, "aaa (bbb ccc)")
+                makeItem(spanStyle1, "(aaa bbb ccc)"),
+                makeItem(spanStyle2, "(aaa )bbb ccc"),
+                makeItem(spanStyle3, "aaa (bbb ccc)")
             ), listOf(
-                makeItem(ParaStyle1, "(aaa bbb )ccc"),
-                makeItem(ParaStyle2, "aaa bbb (ccc)")
+                makeItem(paraStyle1, "(aaa bbb )ccc"),
+                makeItem(paraStyle2, "aaa bbb (ccc)")
             )
         )
 
         val capitalized = input.capitalize()
 
         assertEquals(input.text.capitalize(), capitalized.text)
-        assertEquals(input.textStyles, capitalized.textStyles)
+        assertEquals(input.spanStyles, capitalized.spanStyles)
         assertEquals(input.paragraphStyles, capitalized.paragraphStyles)
     }
 
@@ -125,19 +125,19 @@ class AnnotatedStringTransformTest {
     fun `English decapitalize`() {
         val input = AnnotatedString("aaa bbb ccc",
             listOf(
-                makeItem(TextStyle1, "(aaa bbb ccc)"),
-                makeItem(TextStyle2, "(aaa )bbb ccc"),
-                makeItem(TextStyle3, "aaa (bbb ccc)")
+                makeItem(spanStyle1, "(aaa bbb ccc)"),
+                makeItem(spanStyle2, "(aaa )bbb ccc"),
+                makeItem(spanStyle3, "aaa (bbb ccc)")
             ), listOf(
-                makeItem(ParaStyle1, "(aaa bbb )ccc"),
-                makeItem(ParaStyle2, "aaa bbb (ccc)")
+                makeItem(paraStyle1, "(aaa bbb )ccc"),
+                makeItem(paraStyle2, "aaa bbb (ccc)")
             )
         )
 
         val decapitalized = input.decapitalize()
 
         assertEquals(input.text.decapitalize(), decapitalized.text)
-        assertEquals(input.textStyles, decapitalized.textStyles)
+        assertEquals(input.spanStyles, decapitalized.spanStyles)
         assertEquals(input.paragraphStyles, decapitalized.paragraphStyles)
     }
 
@@ -145,12 +145,12 @@ class AnnotatedStringTransformTest {
     fun `locale dependent uppercase or lowercase (Turkish uppercase)`() {
         val input = AnnotatedString("hhh iii jjj",
             listOf(
-                makeItem(TextStyle1, "(hhh iii jjj)"),
-                makeItem(TextStyle2, "(hhh )iii jjj"),
-                makeItem(TextStyle3, "hhh (iii jjj)")
+                makeItem(spanStyle1, "(hhh iii jjj)"),
+                makeItem(spanStyle2, "(hhh )iii jjj"),
+                makeItem(spanStyle3, "hhh (iii jjj)")
             ), listOf(
-                makeItem(ParaStyle1, "(hhh iii )jjj"),
-                makeItem(ParaStyle2, "hhh iii (jjj)")
+                makeItem(paraStyle1, "(hhh iii )jjj"),
+                makeItem(paraStyle2, "hhh iii (jjj)")
             )
         )
 
@@ -162,15 +162,15 @@ class AnnotatedStringTransformTest {
 
         assertEquals(
             listOf(
-                makeItem(TextStyle1, "(HHH $upperI$upperI$upperI JJJ)"),
-                makeItem(TextStyle2, "(HHH )$upperI$upperI$upperI JJJ"),
-                makeItem(TextStyle3, "HHH ($upperI$upperI$upperI JJJ)")
+                makeItem(spanStyle1, "(HHH $upperI$upperI$upperI JJJ)"),
+                makeItem(spanStyle2, "(HHH )$upperI$upperI$upperI JJJ"),
+                makeItem(spanStyle3, "HHH ($upperI$upperI$upperI JJJ)")
             ),
-            uppercase.textStyles)
+            uppercase.spanStyles)
         assertEquals(
             listOf(
-                makeItem(ParaStyle1, "(HHH $upperI$upperI$upperI )JJJ"),
-                makeItem(ParaStyle2, "HHH $upperI$upperI$upperI (JJJ)")
+                makeItem(paraStyle1, "(HHH $upperI$upperI$upperI )JJJ"),
+                makeItem(paraStyle2, "HHH $upperI$upperI$upperI (JJJ)")
             ),
             uppercase.paragraphStyles)
     }
@@ -179,12 +179,12 @@ class AnnotatedStringTransformTest {
     fun `not 1-by-1 mapping uppercase or lowercase (Lithuanian lowercase)`() {
         val input = AnnotatedString("HHH ÌÌÌ YYY",
             listOf(
-                makeItem(TextStyle1, "(HHH ÌÌÌ YYY)"),
-                makeItem(TextStyle2, "(HHH )ÌÌÌ YYY"),
-                makeItem(TextStyle3, "HHH (ÌÌÌ YYY)")
+                makeItem(spanStyle1, "(HHH ÌÌÌ YYY)"),
+                makeItem(spanStyle2, "(HHH )ÌÌÌ YYY"),
+                makeItem(spanStyle3, "HHH (ÌÌÌ YYY)")
             ), listOf(
-                makeItem(ParaStyle1, "(HHH ÌÌÌ )YYY"),
-                makeItem(ParaStyle2, "HHH ÌÌÌ (YYY)")
+                makeItem(paraStyle1, "(HHH ÌÌÌ )YYY"),
+                makeItem(paraStyle2, "HHH ÌÌÌ (YYY)")
             )
         )
 
@@ -196,15 +196,15 @@ class AnnotatedStringTransformTest {
         val lowerIDot = "Ì".toLowerCase(Locale.forLanguageTag("lt"))
         assertEquals(
             listOf(
-                makeItem(TextStyle1, "(hhh $lowerIDot$lowerIDot$lowerIDot yyy)"),
-                makeItem(TextStyle2, "(hhh )$lowerIDot$lowerIDot$lowerIDot yyy"),
-                makeItem(TextStyle3, "hhh ($lowerIDot$lowerIDot$lowerIDot yyy)")
+                makeItem(spanStyle1, "(hhh $lowerIDot$lowerIDot$lowerIDot yyy)"),
+                makeItem(spanStyle2, "(hhh )$lowerIDot$lowerIDot$lowerIDot yyy"),
+                makeItem(spanStyle3, "hhh ($lowerIDot$lowerIDot$lowerIDot yyy)")
             ),
-            lowercase.textStyles)
+            lowercase.spanStyles)
         assertEquals(
             listOf(
-                makeItem(ParaStyle1, "(hhh $lowerIDot$lowerIDot$lowerIDot )yyy"),
-                makeItem(ParaStyle2, "hhh $lowerIDot$lowerIDot$lowerIDot (yyy)")
+                makeItem(paraStyle1, "(hhh $lowerIDot$lowerIDot$lowerIDot )yyy"),
+                makeItem(paraStyle2, "hhh $lowerIDot$lowerIDot$lowerIDot (yyy)")
             ),
             lowercase.paragraphStyles)
     }
@@ -213,12 +213,12 @@ class AnnotatedStringTransformTest {
     fun `nothing happens for CJK uppercase or lowercase (Japanese uppercase)`() {
         val input = AnnotatedString("あああ いいい ううう",
             listOf(
-                makeItem(TextStyle1, "(あああ いいい ううう)"),
-                makeItem(TextStyle2, "(あああ )いいい ううう"),
-                makeItem(TextStyle3, "あああ (いいい ううう)")
+                makeItem(spanStyle1, "(あああ いいい ううう)"),
+                makeItem(spanStyle2, "(あああ )いいい ううう"),
+                makeItem(spanStyle3, "あああ (いいい ううう)")
             ), listOf(
-                makeItem(ParaStyle1, "(あああ いいい )ううう"),
-                makeItem(ParaStyle2, "あああ いいい (ううう)")
+                makeItem(paraStyle1, "(あああ いいい )ううう"),
+                makeItem(paraStyle2, "あああ いいい (ううう)")
             )
         )
 
@@ -226,7 +226,7 @@ class AnnotatedStringTransformTest {
 
         // No upper case concept in Japanese, so should be the same
         assertEquals(input.text, uppercase.text)
-        assertEquals(input.textStyles, uppercase.textStyles)
+        assertEquals(input.spanStyles, uppercase.spanStyles)
         assertEquals(input.paragraphStyles, uppercase.paragraphStyles)
     }
 }

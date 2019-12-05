@@ -31,7 +31,7 @@ package androidx.ui.text
  *   non-null, the text will precede the children. The list must not contain any nulls.
  */
 class TextSpan(
-    val style: TextStyle? = null,
+    val style: SpanStyle? = null,
     val text: String? = null,
     val children: MutableList<TextSpan> = mutableListOf()
 ) {

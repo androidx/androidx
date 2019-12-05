@@ -207,7 +207,7 @@ interface Paragraph {
  * @param text the text to be laid out
  * @param style the [TextStyle] to be applied to the whole text
  * @param paragraphStyle the [ParagraphStyle] to be applied to the whole text
- * @param textStyles [TextStyle]s to be applied to parts of text
+ * @param spanStyles [SpanStyle]s to be applied to parts of text
  * @param maxLines the maximum number of lines that the text can have
  * @param ellipsis whether to ellipsize text, applied only when [maxLines] is set
  * @param constraints how wide the text is allowed to be
@@ -220,7 +220,7 @@ interface Paragraph {
     text: String,
     style: TextStyle,
     paragraphStyle: ParagraphStyle,
-    textStyles: List<AnnotatedString.Item<TextStyle>>,
+    spanStyles: List<AnnotatedString.Item<SpanStyle>>,
     maxLines: Int? = null,
     ellipsis: Boolean? = null,
     constraints: ParagraphConstraints,
@@ -231,7 +231,7 @@ interface Paragraph {
         text = text,
         style = style,
         paragraphStyle = paragraphStyle,
-        textStyles = textStyles,
+        spanStyles = spanStyles,
         maxLines = maxLines,
         ellipsis = ellipsis,
         constraints = constraints,

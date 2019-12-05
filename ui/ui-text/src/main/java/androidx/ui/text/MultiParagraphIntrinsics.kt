@@ -23,6 +23,12 @@ import androidx.ui.text.style.TextDirectionAlgorithm
 /**
  * Calculates and provides the intrinsic width and height of text that contains [ParagraphStyle].
  *
+ * @param annotatedString the text to be laid out
+ * @param textStyle the [TextStyle] to be applied to the whole text
+ * @param paragraphStyle the [ParagraphStyle] to be applied to the whole text
+ * @param density density of the device
+ * @param resourceLoader [Font.ResourceLoader] to be used to load the font given in [TextStyle]s
+
  * @see MultiParagraph
  *
  * @throws IllegalArgumentException if [ParagraphStyle.textDirectionAlgorithm] is not set
@@ -60,7 +66,7 @@ class MultiParagraphIntrinsics(
                             paragraphStyleItem.item,
                             paragraphStyle
                         ),
-                        textStyles = annotatedString.textStyles,
+                        spanStyles = annotatedString.spanStyles,
                         style = textStyle,
                         density = density,
                         resourceLoader = resourceLoader

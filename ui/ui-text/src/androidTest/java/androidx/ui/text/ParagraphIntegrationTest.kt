@@ -1567,7 +1567,7 @@ class ParagraphIntegrationTest {
             val bitmaps = locales.map { localeList ->
                 val paragraph = Paragraph(
                     text = text,
-                    textStyles = listOf(),
+                    spanStyles = listOf(),
                     style = TextStyle(
                         fontSize = fontSize,
                         localeList = localeList
@@ -2175,12 +2175,12 @@ class ParagraphIntegrationTest {
             val text = "abcde"
             val fontSize = 20.sp
             val fontSizeInPx = fontSize.toPx().value
-            val textStyle = TextStyle(fontSize = fontSize)
+            val spanStyle = SpanStyle(fontSize = fontSize)
             val paragraphWidth = fontSizeInPx * text.length
 
             val paragraph = simpleParagraph(
                 text = text,
-                textStyles = listOf(AnnotatedString.Item(textStyle, 0, text.length)),
+                spanStyles = listOf(AnnotatedString.Item(spanStyle, 0, text.length)),
                 constraints = ParagraphConstraints(width = paragraphWidth)
             )
 
@@ -2197,14 +2197,14 @@ class ParagraphIntegrationTest {
             val text = "abcde"
             val fontSize = 20.sp
             val fontSizeInPx = fontSize.toPx().value
-            val textStyleFontSize = 30.sp
-            val textStyleFontSizeInPx = textStyleFontSize.toPx().value
-            val textStyle = TextStyle(fontSize = textStyleFontSize)
-            val paragraphWidth = textStyleFontSizeInPx * text.length
+            val spanStyleFontSize = 30.sp
+            val spanStyleFontSizeInPx = spanStyleFontSize.toPx().value
+            val spanStyle = SpanStyle(fontSize = spanStyleFontSize)
+            val paragraphWidth = spanStyleFontSizeInPx * text.length
 
             val paragraph = simpleParagraph(
                 text = text,
-                textStyles = listOf(AnnotatedString.Item(textStyle, 0, "abc".length)),
+                spanStyles = listOf(AnnotatedString.Item(spanStyle, 0, "abc".length)),
                 fontSize = fontSize,
                 constraints = ParagraphConstraints(width = paragraphWidth)
             )
@@ -2212,8 +2212,8 @@ class ParagraphIntegrationTest {
             // Make sure there is only one line, so that we can use getLineRight to test fontSize.
             assertThat(paragraph.lineCount).isEqualTo(1)
             // Notice that in this test font, the width of character equals to fontSize.
-            val expectedLineRight =
-                "abc".length * textStyleFontSizeInPx + "de".length * fontSizeInPx
+            val expectedLineRight = "abc".length * spanStyleFontSizeInPx +
+                    "de".length * fontSizeInPx
             assertThat(paragraph.getLineWidth(0)).isEqualTo(expectedLineRight)
         }
     }
@@ -2224,18 +2224,18 @@ class ParagraphIntegrationTest {
             val text = "abcde"
             val fontSize = 20.sp
             val fontSizeInPx = fontSize.toPx().value
-            val textStyle = TextStyle(fontSize = fontSize)
+            val spanStyle = SpanStyle(fontSize = fontSize)
 
             val fontSizeOverwrite = 30.sp
             val fontSizeOverwriteInPx = fontSizeOverwrite.toPx().value
-            val textStyleOverwrite = TextStyle(fontSize = fontSizeOverwrite)
+            val spanStyleOverwrite = SpanStyle(fontSize = fontSizeOverwrite)
             val paragraphWidth = fontSizeOverwriteInPx * text.length
 
             val paragraph = simpleParagraph(
                 text = text,
-                textStyles = listOf(
-                    AnnotatedString.Item(textStyle, 0, text.length),
-                    AnnotatedString.Item(textStyleOverwrite, 0, "abc".length)
+                spanStyles = listOf(
+                    AnnotatedString.Item(spanStyle, 0, text.length),
+                    AnnotatedString.Item(spanStyleOverwrite, 0, "abc".length)
                 ),
                 constraints = ParagraphConstraints(width = paragraphWidth)
             )
@@ -2255,11 +2255,11 @@ class ParagraphIntegrationTest {
             val fontSize = 20.sp
             val fontSizeInPx = fontSize.toPx().value
             val em = 0.5.em
-            val textStyle = TextStyle(fontSize = em)
+            val spanStyle = SpanStyle(fontSize = em)
 
             val paragraph = simpleParagraph(
                 text = text,
-                textStyles = listOf(AnnotatedString.Item(textStyle, 0, text.length)),
+                spanStyles = listOf(AnnotatedString.Item(spanStyle, 0, text.length)),
                 fontSize = fontSize
             )
 
@@ -2275,16 +2275,16 @@ class ParagraphIntegrationTest {
             val fontSize = 20.sp
             val fontSizeInPx = fontSize.toPx().value
             val em = 0.5f.em
-            val textStyle = TextStyle(fontSize = em)
+            val spanStyle = SpanStyle(fontSize = em)
 
             val emNested = 2f.em
-            val textStyleNested = TextStyle(fontSize = emNested)
+            val spanStyleNested = SpanStyle(fontSize = emNested)
 
             val paragraph = simpleParagraph(
                 text = text,
-                textStyles = listOf(
-                    AnnotatedString.Item(textStyle, 0, text.length),
-                    AnnotatedString.Item(textStyleNested, 0, text.length)
+                spanStyles = listOf(
+                    AnnotatedString.Item(spanStyle, 0, text.length),
+                    AnnotatedString.Item(spanStyleNested, 0, text.length)
                 ),
                 fontSize = fontSize
             )
@@ -2302,14 +2302,14 @@ class ParagraphIntegrationTest {
 
             val fontSize = 30.sp
             val fontSizeInPx = fontSize.toPx().value
-            val fontSizeStyle = TextStyle(fontSize = fontSize)
+            val fontSizeStyle = SpanStyle(fontSize = fontSize)
 
             val em = 0.5f.em
-            val fontSizeScaleStyle = TextStyle(fontSize = em)
+            val fontSizeScaleStyle = SpanStyle(fontSize = em)
 
             val paragraph = simpleParagraph(
                 text = text,
-                textStyles = listOf(
+                spanStyles = listOf(
                     AnnotatedString.Item(fontSizeStyle, 0, text.length),
                     AnnotatedString.Item(fontSizeScaleStyle, 0, text.length)
                 ),
@@ -2329,14 +2329,14 @@ class ParagraphIntegrationTest {
 
             val fontSize = 30.sp
             val fontSizeInPx = fontSize.toPx().value
-            val fontSizeStyle = TextStyle(fontSize = fontSize)
+            val fontSizeStyle = SpanStyle(fontSize = fontSize)
 
             val em = 0.5f.em
-            val fontSizeScaleStyle = TextStyle(fontSize = em)
+            val fontSizeScaleStyle = SpanStyle(fontSize = em)
 
             val paragraph = simpleParagraph(
                 text = text,
-                textStyles = listOf(
+                spanStyles = listOf(
                     AnnotatedString.Item(fontSizeScaleStyle, 0, text.length),
                     AnnotatedString.Item(fontSizeStyle, 0, text.length)
                 ),
@@ -2355,17 +2355,17 @@ class ParagraphIntegrationTest {
 
             val fontSize = 30.sp
             val fontSizeInPx = fontSize.toPx().value
-            val fontSizeStyle = TextStyle(fontSize = fontSize)
+            val fontSizeStyle = SpanStyle(fontSize = fontSize)
 
             val em1 = 0.5f.em
-            val fontSizeScaleStyle1 = TextStyle(fontSize = em1)
+            val fontSizeScaleStyle1 = SpanStyle(fontSize = em1)
 
             val em2 = 2f.em
-            val fontSizeScaleStyle2 = TextStyle(fontSize = em2)
+            val fontSizeScaleStyle2 = SpanStyle(fontSize = em2)
 
             val paragraph = simpleParagraph(
                 text = text,
-                textStyles = listOf(
+                spanStyles = listOf(
                     AnnotatedString.Item(fontSizeScaleStyle1, 0, text.length),
                     AnnotatedString.Item(fontSizeStyle, 0, text.length),
                     AnnotatedString.Item(fontSizeScaleStyle2, 0, text.length)
@@ -2385,12 +2385,12 @@ class ParagraphIntegrationTest {
             val fontSize = 20.sp
             val fontSizeInPx = fontSize.toPx().value
             val letterSpacing = 5.0f
-            val textStyle = TextStyle(letterSpacing = letterSpacing.em)
+            val spanStyle = SpanStyle(letterSpacing = letterSpacing.em)
             val paragraphWidth = fontSizeInPx * (1 + letterSpacing) * text.length
 
             val paragraph = simpleParagraph(
                 text = text,
-                textStyles = listOf(AnnotatedString.Item(textStyle, 0, text.length)),
+                spanStyles = listOf(AnnotatedString.Item(spanStyle, 0, text.length)),
                 fontSize = fontSize,
                 constraints = ParagraphConstraints(width = paragraphWidth)
             )
@@ -2410,12 +2410,12 @@ class ParagraphIntegrationTest {
             val fontSize = 20.sp
             val fontSizeInPx = fontSize.toPx().value
             val letterSpacing = 5.0f
-            val textStyle = TextStyle(letterSpacing = letterSpacing.em)
+            val spanStyle = SpanStyle(letterSpacing = letterSpacing.em)
             val paragraphWidth = fontSizeInPx * (1 + letterSpacing) * text.length
 
             val paragraph = simpleParagraph(
                 text = text,
-                textStyles = listOf(AnnotatedString.Item(textStyle, 0, "abc".length)),
+                spanStyles = listOf(AnnotatedString.Item(spanStyle, 0, "abc".length)),
                 fontSize = fontSize,
                 constraints = ParagraphConstraints(width = paragraphWidth)
             )
@@ -2435,18 +2435,17 @@ class ParagraphIntegrationTest {
             val fontSize = 20.sp
             val fontSizeInPx = fontSize.toPx().value
             val letterSpacing = 5.0f
-            val textStyle = TextStyle(letterSpacing = letterSpacing.em)
+            val spanStyle = SpanStyle(letterSpacing = letterSpacing.em)
 
             val letterSpacingOverwrite = 10.0f
-            val textStyleOverwrite =
-                TextStyle(letterSpacing = letterSpacingOverwrite.em)
+            val spanStyleOverwrite = SpanStyle(letterSpacing = letterSpacingOverwrite.em)
             val paragraphWidth = fontSizeInPx * (1 + letterSpacingOverwrite) * text.length
 
             val paragraph = simpleParagraph(
                 text = text,
-                textStyles = listOf(
-                    AnnotatedString.Item(textStyle, 0, text.length),
-                    AnnotatedString.Item(textStyleOverwrite, 0, "abc".length)
+                spanStyles = listOf(
+                    AnnotatedString.Item(spanStyle, 0, text.length),
+                    AnnotatedString.Item(spanStyleOverwrite, 0, "abc".length)
                 ),
                 fontSize = fontSize,
                 constraints = ParagraphConstraints(width = paragraphWidth)
@@ -2552,15 +2551,15 @@ class ParagraphIntegrationTest {
             val fontSizeInPx = fontSize.toPx().value
             // custom 100 regular font has b as the wide glyph
             // custom 200 regular font has d as the wide glyph
-            val textStyle = TextStyle(fontFamily = fontFamilyCustom200)
+            val spanStyle = SpanStyle(fontFamily = fontFamilyCustom200)
             // a is rendered in paragraphStyle font (custom 100), it will not have wide glyph
             // d is rendered in defaultTextStyle font (custom 200), and it will be wide glyph
             val expectedWidth = fontSizeInPx + fontSizeInPx * 3
 
             val paragraph = simpleParagraph(
                 text = text,
-                textStyles = listOf(
-                    AnnotatedString.Item(textStyle, "a".length, text.length)
+                spanStyles = listOf(
+                    AnnotatedString.Item(spanStyle, "a".length, text.length)
                 ),
                 fontSize = fontSize,
                 fontFamily = fontFamilyCustom100
@@ -2578,12 +2577,12 @@ class ParagraphIntegrationTest {
             val fontSize = 20.sp
             val fontSizeInPx = fontSize.toPx().value
             // This fontFeatureSetting turns off the kerning
-            val textStyle = TextStyle(fontFeatureSettings = "\"kern\" 0")
+            val spanStyle = SpanStyle(fontFeatureSettings = "\"kern\" 0")
 
             val paragraph = simpleParagraph(
                 text = text,
-                textStyles = listOf(
-                    AnnotatedString.Item(textStyle, 0, "aA".length)
+                spanStyles = listOf(
+                    AnnotatedString.Item(spanStyle, 0, "aA".length)
                 ),
                 fontSize = fontSize,
                 fontFamily = fontFamilyKernFont
@@ -2604,18 +2603,18 @@ class ParagraphIntegrationTest {
             val fontSizeInPx = fontSize.toPx().value
             val paragraphWidth = fontSizeInPx * text.length
 
-            val textStyle =
-                TextStyle(
-                    shadow = Shadow(
-                        Color(0xFF00FF00),
-                        Offset(1f, 2f),
-                        3.px
-                    )
+            val spanStyle = SpanStyle(
+                shadow = Shadow(
+                    Color(0xFF00FF00),
+                    Offset(1f, 2f),
+                    3.px
                 )
+            )
+
             val paragraphShadow = simpleParagraph(
                 text = text,
-                textStyles = listOf(
-                    AnnotatedString.Item(textStyle, 0, text.length)
+                spanStyles = listOf(
+                    AnnotatedString.Item(spanStyle, 0, text.length)
                 ),
                 constraints = ParagraphConstraints(width = paragraphWidth)
             )
@@ -3079,9 +3078,9 @@ class ParagraphIntegrationTest {
             val paragraph = simpleParagraph(
                 text = text,
                 textStyle = TextStyle(fontSize = fontSize),
-                textStyles = listOf(
+                spanStyles = listOf(
                     AnnotatedString.Item(
-                        TextStyle(fontSize = styledFontSize), "a".length, "a bb ".length
+                        SpanStyle(fontSize = styledFontSize), "a".length, "a bb ".length
                     )
                 )
             )
@@ -3137,7 +3136,7 @@ class ParagraphIntegrationTest {
                 paragraphStyle = ParagraphStyle(
                     textDirectionAlgorithm = TextDirectionAlgorithm.ContentOrLtr
                 ),
-                textStyles = listOf(),
+                spanStyles = listOf(),
                 density = defaultDensity,
                 resourceLoader = TestFontResourceLoader(context)
             )
@@ -3177,7 +3176,7 @@ class ParagraphIntegrationTest {
         fontSize: TextUnit = TextUnit.Inherit,
         maxLines: Int? = null,
         lineHeight: TextUnit = TextUnit.Inherit,
-        textStyles: List<AnnotatedString.Item<TextStyle>> = listOf(),
+        spanStyles: List<AnnotatedString.Item<SpanStyle>> = listOf(),
         fontFamily: FontFamily = fontFamilyMeasureFont,
         localeList: LocaleList? = null,
         textStyle: TextStyle? = null,
@@ -3187,7 +3186,7 @@ class ParagraphIntegrationTest {
     ): Paragraph {
         return Paragraph(
             text = text,
-            textStyles = textStyles,
+            spanStyles = spanStyles,
             style = TextStyle(
                 fontFamily = fontFamily,
                 fontSize = fontSize,

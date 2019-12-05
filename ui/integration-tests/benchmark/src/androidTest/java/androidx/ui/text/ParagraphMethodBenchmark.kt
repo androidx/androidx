@@ -67,7 +67,7 @@ class ParagraphMethodBenchmark(private val textType: TextType, private val textL
         textLength: Int
     ): ParagraphIntrinsics {
         val text = textGenerator.nextParagraph(textLength)
-        val textStyles = if (textType == TextType.StyledText) {
+        val spanStyles = if (textType == TextType.StyledText) {
             textGenerator.createStyles(text)
         } else {
             listOf()
@@ -80,7 +80,7 @@ class ParagraphMethodBenchmark(private val textType: TextType, private val textL
                 textDirectionAlgorithm = TextDirectionAlgorithm.ContentOrLtr
             ),
             resourceLoader = resourceLoader,
-            textStyles = textStyles
+            spanStyles = spanStyles
         )
     }
 

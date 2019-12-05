@@ -32,6 +32,7 @@ import androidx.ui.input.TextInputService
 import androidx.ui.input.TransformedText
 import androidx.ui.text.AnnotatedString
 import androidx.ui.text.MultiParagraphIntrinsics
+import androidx.ui.text.SpanStyle
 import androidx.ui.text.TextDelegate
 import androidx.ui.text.TextRange
 import androidx.ui.text.TextStyle
@@ -438,7 +439,7 @@ class TextFieldDelegateTest {
 
         val input = TransformedText(
             transformedText = AnnotatedString.Builder().apply {
-                pushStyle(TextStyle(color = Color.Red))
+                pushStyle(SpanStyle(color = Color.Red))
                 append("Hello, World")
             }.toAnnotatedString(),
             offsetMap = identityOffsetMap
@@ -450,9 +451,9 @@ class TextFieldDelegateTest {
         )
 
         assertThat(result.transformedText.text).isEqualTo(input.transformedText.text)
-        assertThat(result.transformedText.textStyles.size).isEqualTo(2)
-        assertThat(result.transformedText.textStyles).contains(
-            AnnotatedString.Item(TextStyle(decoration = TextDecoration.Underline), 3, 6)
+        assertThat(result.transformedText.spanStyles.size).isEqualTo(2)
+        assertThat(result.transformedText.spanStyles).contains(
+            AnnotatedString.Item(SpanStyle(decoration = TextDecoration.Underline), 3, 6)
         )
     }
 

@@ -100,9 +100,9 @@ class ParagraphIntrinsicIntegrationTest {
             val paragraph = paragraphIntrinsics(
                 text = text,
                 fontSize = fontSize,
-                textStyles = listOf(
-                    TextStyleSpan(
-                        item = TextStyle(fontSize = styledFontSize),
+                spanStyles = listOf(
+                    SpanStyleItem(
+                        item = SpanStyle(fontSize = styledFontSize),
                         start = "a ".length,
                         end = "a bb ".length
                     )
@@ -186,9 +186,9 @@ class ParagraphIntrinsicIntegrationTest {
             val paragraph = paragraphIntrinsics(
                 text = text,
                 fontSize = fontSize,
-                textStyles = listOf(
-                    TextStyleSpan(
-                        item = TextStyle(fontSize = styledFontSize),
+                spanStyles = listOf(
+                    SpanStyleItem(
+                        item = SpanStyle(fontSize = styledFontSize),
                         start = "a".length,
                         end = "a bb ".length
                     )
@@ -204,11 +204,11 @@ class ParagraphIntrinsicIntegrationTest {
         text: String = "",
         style: TextStyle? = null,
         fontSize: TextUnit = 14.sp,
-        textStyles: List<AnnotatedString.Item<TextStyle>> = listOf()
+        spanStyles: List<AnnotatedString.Item<SpanStyle>> = listOf()
     ): ParagraphIntrinsics {
         return ParagraphIntrinsics(
             text = text,
-            textStyles = textStyles,
+            spanStyles = spanStyles,
             style = TextStyle(
                 fontFamily = fontFamilyMeasureFont,
                 fontSize = fontSize

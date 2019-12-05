@@ -39,6 +39,7 @@ import androidx.ui.text.AnnotatedString
 import androidx.ui.text.Paragraph
 import androidx.ui.text.ParagraphConstraints
 import androidx.ui.text.ParagraphStyle
+import androidx.ui.text.SpanStyle
 import androidx.ui.text.TextRange
 import androidx.ui.text.TextStyle
 import androidx.ui.text.style.TextAlign
@@ -59,7 +60,7 @@ internal class AndroidParagraph constructor(
         text: String,
         style: TextStyle,
         paragraphStyle: ParagraphStyle,
-        textStyles: List<AnnotatedString.Item<TextStyle>>,
+        spanStyles: List<AnnotatedString.Item<SpanStyle>>,
         maxLines: Int?,
         ellipsis: Boolean?,
         constraints: ParagraphConstraints,
@@ -70,7 +71,7 @@ internal class AndroidParagraph constructor(
             text = text,
             style = style,
             paragraphStyle = paragraphStyle,
-            textStyles = textStyles,
+            spanStyles = spanStyles,
             typefaceAdapter = typefaceAdapter,
             density = density
         ),

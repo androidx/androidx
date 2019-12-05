@@ -34,6 +34,7 @@ import androidx.ui.text.FontTestData.Companion.BASIC_MEASURE_FONT
 import androidx.ui.text.LocaleList
 import androidx.ui.text.ParagraphConstraints
 import androidx.ui.text.ParagraphStyle
+import androidx.ui.text.SpanStyle
 import androidx.ui.text.TestFontResourceLoader
 import androidx.ui.text.TextStyle
 import androidx.ui.text.font.FontFamily
@@ -105,11 +106,11 @@ class AndroidParagraphTest {
     @Test
     fun testAnnotatedString_setColorOnWholeText() {
         val text = "abcde"
-        val textStyle = TextStyle(color = Color(0xFF0000FF))
+        val spanStyle = SpanStyle(color = Color(0xFF0000FF))
 
         val paragraph = simpleParagraph(
             text = text,
-            textStyles = listOf(AnnotatedString.Item(textStyle, 0, text.length)),
+            spanStyles = listOf(AnnotatedString.Item(spanStyle, 0, text.length)),
             constraints = ParagraphConstraints(width = 100.0f)
         )
 
@@ -119,11 +120,11 @@ class AndroidParagraphTest {
     @Test
     fun testAnnotatedString_setColorOnPartOfText() {
         val text = "abcde"
-        val textStyle = TextStyle(color = Color(0xFF0000FF))
+        val spanStyle = SpanStyle(color = Color(0xFF0000FF))
 
         val paragraph = simpleParagraph(
             text = text,
-            textStyles = listOf(AnnotatedString.Item(textStyle, 0, "abc".length)),
+            spanStyles = listOf(AnnotatedString.Item(spanStyle, 0, "abc".length)),
             constraints = ParagraphConstraints(width = 100.0f)
         )
 
@@ -133,14 +134,14 @@ class AndroidParagraphTest {
     @Test
     fun testAnnotatedString_setColorTwice_lastOneOverwrite() {
         val text = "abcde"
-        val textStyle = TextStyle(color = Color(0xFF0000FF))
-        val textStyleOverwrite = TextStyle(color = Color(0xFF00FF00))
+        val spanStyle = SpanStyle(color = Color(0xFF0000FF))
+        val spanStyleOverwrite = SpanStyle(color = Color(0xFF00FF00))
 
         val paragraph = simpleParagraph(
             text = text,
-            textStyles = listOf(
-                AnnotatedString.Item(textStyle, 0, text.length),
-                AnnotatedString.Item(textStyleOverwrite, 0, "abc".length)
+            spanStyles = listOf(
+                AnnotatedString.Item(spanStyle, 0, text.length),
+                AnnotatedString.Item(spanStyleOverwrite, 0, "abc".length)
             ),
             constraints = ParagraphConstraints(width = 100.0f)
         )
@@ -153,11 +154,11 @@ class AndroidParagraphTest {
     @Test
     fun testStyle_setTextDecorationOnWholeText_withLineThrough() {
         val text = "abcde"
-        val textStyle = TextStyle(decoration = TextDecoration.LineThrough)
+        val spanStyle = SpanStyle(decoration = TextDecoration.LineThrough)
 
         val paragraph = simpleParagraph(
             text = text,
-            textStyles = listOf(AnnotatedString.Item(textStyle, 0, text.length)),
+            spanStyles = listOf(AnnotatedString.Item(spanStyle, 0, text.length)),
             constraints = ParagraphConstraints(width = 100.0f)
         )
 
@@ -168,11 +169,11 @@ class AndroidParagraphTest {
     @Test
     fun testStyle_setTextDecorationOnWholeText_withUnderline() {
         val text = "abcde"
-        val textStyle = TextStyle(decoration = TextDecoration.Underline)
+        val spanStyle = SpanStyle(decoration = TextDecoration.Underline)
 
         val paragraph = simpleParagraph(
             text = text,
-            textStyles = listOf(AnnotatedString.Item(textStyle, 0, text.length)),
+            spanStyles = listOf(AnnotatedString.Item(spanStyle, 0, text.length)),
             constraints = ParagraphConstraints(width = 100.0f)
         )
 
@@ -183,11 +184,11 @@ class AndroidParagraphTest {
     @Test
     fun testStyle_setTextDecorationOnPartText_withLineThrough() {
         val text = "abcde"
-        val textStyle = TextStyle(decoration = TextDecoration.LineThrough)
+        val spanStyle = SpanStyle(decoration = TextDecoration.LineThrough)
 
         val paragraph = simpleParagraph(
             text = text,
-            textStyles = listOf(AnnotatedString.Item(textStyle, 0, "abc".length)),
+            spanStyles = listOf(AnnotatedString.Item(spanStyle, 0, "abc".length)),
             constraints = ParagraphConstraints(width = 100.0f)
         )
 
@@ -198,11 +199,11 @@ class AndroidParagraphTest {
     @Test
     fun testStyle_setTextDecorationOnPartText_withUnderline() {
         val text = "abcde"
-        val textStyle = TextStyle(decoration = TextDecoration.Underline)
+        val spanStyle = SpanStyle(decoration = TextDecoration.Underline)
 
         val paragraph = simpleParagraph(
             text = text,
-            textStyles = listOf(AnnotatedString.Item(textStyle, 0, "abc".length)),
+            spanStyles = listOf(AnnotatedString.Item(spanStyle, 0, "abc".length)),
             constraints = ParagraphConstraints(width = 100.0f)
         )
 
@@ -213,7 +214,7 @@ class AndroidParagraphTest {
     @Test
     fun testStyle_setTextDecoration_withLineThroughAndUnderline() {
         val text = "abcde"
-        val textStyle = TextStyle(
+        val spanStyle = SpanStyle(
             decoration = TextDecoration.combine(
                 listOf(TextDecoration.LineThrough, TextDecoration.Underline)
             )
@@ -221,7 +222,7 @@ class AndroidParagraphTest {
 
         val paragraph = simpleParagraph(
             text = text,
-            textStyles = listOf(AnnotatedString.Item(textStyle, 0, "abc".length)),
+            spanStyles = listOf(AnnotatedString.Item(spanStyle, 0, "abc".length)),
             constraints = ParagraphConstraints(width = 100.0f)
         )
 
@@ -236,11 +237,11 @@ class AndroidParagraphTest {
             val text = "abcde"
             val fontSize = 20.sp
             val paragraphWidth = text.length * fontSize.toPx().value
-            val textStyle = TextStyle(fontSize = fontSize)
+            val spanStyle = SpanStyle(fontSize = fontSize)
 
             val paragraph = simpleParagraph(
                 text = text,
-                textStyles = listOf(AnnotatedString.Item(textStyle, 0, text.length)),
+                spanStyles = listOf(AnnotatedString.Item(spanStyle, 0, text.length)),
                 constraints = ParagraphConstraints(width = paragraphWidth)
             )
 
@@ -254,11 +255,11 @@ class AndroidParagraphTest {
             val text = "abcde"
             val fontSize = 20.sp
             val paragraphWidth = text.length * fontSize.toPx().value
-            val textStyle = TextStyle(fontSize = fontSize)
+            val spanStyle = SpanStyle(fontSize = fontSize)
 
             val paragraph = simpleParagraph(
                 text = text,
-                textStyles = listOf(AnnotatedString.Item(textStyle, 0, "abc".length)),
+                spanStyles = listOf(AnnotatedString.Item(spanStyle, 0, "abc".length)),
                 constraints = ParagraphConstraints(width = paragraphWidth)
             )
 
@@ -273,14 +274,14 @@ class AndroidParagraphTest {
             val fontSize = 20.sp
             val fontSizeOverwrite = 30.sp
             val paragraphWidth = text.length * fontSizeOverwrite.toPx().value
-            val textStyle = TextStyle(fontSize = fontSize)
-            val textStyleOverwrite = TextStyle(fontSize = fontSizeOverwrite)
+            val spanStyle = SpanStyle(fontSize = fontSize)
+            val spanStyleOverwrite = SpanStyle(fontSize = fontSizeOverwrite)
 
             val paragraph = simpleParagraph(
                 text = text,
-                textStyles = listOf(
-                    AnnotatedString.Item(textStyle, 0, text.length),
-                    AnnotatedString.Item(textStyleOverwrite, 0, "abc".length)
+                spanStyles = listOf(
+                    AnnotatedString.Item(spanStyle, 0, text.length),
+                    AnnotatedString.Item(spanStyleOverwrite, 0, "abc".length)
                 ),
                 constraints = ParagraphConstraints(width = paragraphWidth)
             )
@@ -296,11 +297,11 @@ class AndroidParagraphTest {
     fun testAnnotatedString_setFontSizeScaleOnWholeText() {
         val text = "abcde"
         val fontSizeScale = 2.0.em
-        val textStyle = TextStyle(fontSize = fontSizeScale)
+        val spanStyle = SpanStyle(fontSize = fontSizeScale)
 
         val paragraph = simpleParagraph(
             text = text,
-            textStyles = listOf(AnnotatedString.Item(textStyle, 0, text.length)),
+            spanStyles = listOf(AnnotatedString.Item(spanStyle, 0, text.length)),
             constraints = ParagraphConstraints(width = 100.0f)
         )
 
@@ -313,11 +314,11 @@ class AndroidParagraphTest {
     fun testAnnotatedString_setFontSizeScaleOnPartText() {
         val text = "abcde"
         val fontSizeScale = 2.0f.em
-        val textStyle = TextStyle(fontSize = fontSizeScale)
+        val spanStyle = SpanStyle(fontSize = fontSizeScale)
 
         val paragraph = simpleParagraph(
             text = text,
-            textStyles = listOf(AnnotatedString.Item(textStyle, 0, "abc".length)),
+            spanStyles = listOf(AnnotatedString.Item(spanStyle, 0, "abc".length)),
             constraints = ParagraphConstraints(width = 100.0f)
         )
 
@@ -330,11 +331,11 @@ class AndroidParagraphTest {
     fun testAnnotatedString_setLetterSpacingOnWholeText() {
         val text = "abcde"
         val letterSpacing = 2.0f
-        val textStyle = TextStyle(letterSpacing = letterSpacing.em)
+        val spanStyle = SpanStyle(letterSpacing = letterSpacing.em)
 
         val paragraph = simpleParagraph(
             text = text,
-            textStyles = listOf(AnnotatedString.Item(textStyle, 0, text.length)),
+            spanStyles = listOf(AnnotatedString.Item(spanStyle, 0, text.length)),
             constraints = ParagraphConstraints(width = 100.0f)
         )
 
@@ -345,11 +346,11 @@ class AndroidParagraphTest {
     @Test
     fun testAnnotatedString_setLetterSpacingOnPartText() {
         val text = "abcde"
-        val textStyle = TextStyle(letterSpacing = 2.em)
+        val spanStyle = SpanStyle(letterSpacing = 2.em)
 
         val paragraph = simpleParagraph(
             text = text,
-            textStyles = listOf(AnnotatedString.Item(textStyle, 0, "abc".length)),
+            spanStyles = listOf(AnnotatedString.Item(spanStyle, 0, "abc".length)),
             constraints = ParagraphConstraints(width = 100.0f)
         )
 
@@ -360,14 +361,14 @@ class AndroidParagraphTest {
     @Test
     fun testAnnotatedString_setLetterSpacingTwice_lastOneOverwrite() {
         val text = "abcde"
-        val textStyle = TextStyle(letterSpacing = 2.em)
-        val textStyleOverwrite = TextStyle(letterSpacing = 3.em)
+        val spanStyle = SpanStyle(letterSpacing = 2.em)
+        val spanStyleOverwrite = SpanStyle(letterSpacing = 3.em)
 
         val paragraph = simpleParagraph(
             text = text,
-            textStyles = listOf(
-                AnnotatedString.Item(textStyle, 0, text.length),
-                AnnotatedString.Item(textStyleOverwrite, 0, "abc".length)
+            spanStyles = listOf(
+                AnnotatedString.Item(spanStyle, 0, text.length),
+                AnnotatedString.Item(spanStyleOverwrite, 0, "abc".length)
             ),
             constraints = ParagraphConstraints(width = 100.0f)
         )
@@ -382,11 +383,11 @@ class AndroidParagraphTest {
     fun testAnnotatedString_setBackgroundOnWholeText() {
         val text = "abcde"
         val color = Color(0xFF0000FF)
-        val textStyle = TextStyle(background = color)
+        val spanStyle = SpanStyle(background = color)
 
         val paragraph = simpleParagraph(
             text = text,
-            textStyles = listOf(AnnotatedString.Item(textStyle, 0, text.length)),
+            spanStyles = listOf(AnnotatedString.Item(spanStyle, 0, text.length)),
             constraints = ParagraphConstraints(width = 100.0f)
         )
 
@@ -401,11 +402,11 @@ class AndroidParagraphTest {
     fun testAnnotatedString_setBackgroundOnPartText() {
         val text = "abcde"
         val color = Color(0xFF0000FF)
-        val textStyle = TextStyle(background = color)
+        val spanStyle = SpanStyle(background = color)
 
         val paragraph = simpleParagraph(
             text = text,
-            textStyles = listOf(AnnotatedString.Item(textStyle, 0, "abc".length)),
+            spanStyles = listOf(AnnotatedString.Item(spanStyle, 0, "abc".length)),
             constraints = ParagraphConstraints(width = 100.0f)
         )
 
@@ -420,15 +421,15 @@ class AndroidParagraphTest {
     fun testAnnotatedString_setBackgroundTwice_lastOneOverwrite() {
         val text = "abcde"
         val color = Color(0xFF0000FF)
-        val textStyle = TextStyle(background = color)
+        val spanStyle = SpanStyle(background = color)
         val colorOverwrite = Color(0xFF00FF00)
-        val textStyleOverwrite = TextStyle(background = colorOverwrite)
+        val spanStyleOverwrite = SpanStyle(background = colorOverwrite)
 
         val paragraph = simpleParagraph(
             text = text,
-            textStyles = listOf(
-                AnnotatedString.Item(textStyle, 0, text.length),
-                AnnotatedString.Item(textStyleOverwrite, 0, "abc".length)
+            spanStyles = listOf(
+                AnnotatedString.Item(spanStyle, 0, text.length),
+                AnnotatedString.Item(spanStyleOverwrite, 0, "abc".length)
             ),
             constraints = ParagraphConstraints(width = 100.0f)
         )
@@ -452,11 +453,11 @@ class AndroidParagraphTest {
     fun testAnnotatedString_setLocaleOnWholeText() {
         val text = "abcde"
         val localeList = LocaleList("en-US")
-        val textStyle = TextStyle(localeList = localeList)
+        val spanStyle = SpanStyle(localeList = localeList)
 
         val paragraph = simpleParagraph(
             text = text,
-            textStyles = listOf(AnnotatedString.Item(textStyle, 0, text.length)),
+            spanStyles = listOf(AnnotatedString.Item(spanStyle, 0, text.length)),
             constraints = ParagraphConstraints(width = 100.0f)
         )
 
@@ -467,11 +468,11 @@ class AndroidParagraphTest {
     fun testAnnotatedString_setLocaleOnPartText() {
         val text = "abcde"
         val localeList = LocaleList("en-US")
-        val textStyle = TextStyle(localeList = localeList)
+        val spanStyle = SpanStyle(localeList = localeList)
 
         val paragraph = simpleParagraph(
             text = text,
-            textStyles = listOf(AnnotatedString.Item(textStyle, 0, "abc".length)),
+            spanStyles = listOf(AnnotatedString.Item(spanStyle, 0, "abc".length)),
             constraints = ParagraphConstraints(width = 100.0f)
         )
 
@@ -481,14 +482,14 @@ class AndroidParagraphTest {
     @Test
     fun testAnnotatedString_setLocaleTwice_lastOneOverwrite() {
         val text = "abcde"
-        val textStyle = TextStyle(localeList = LocaleList("en-US"))
-        val textStyleOverwrite = TextStyle(localeList = LocaleList("ja-JP"))
+        val spanStyle = SpanStyle(localeList = LocaleList("en-US"))
+        val spanStyleOverwrite = SpanStyle(localeList = LocaleList("ja-JP"))
 
         val paragraph = simpleParagraph(
             text = text,
-            textStyles = listOf(
-                AnnotatedString.Item(textStyle, 0, text.length),
-                AnnotatedString.Item(textStyleOverwrite, 0, "abc".length)
+            spanStyles = listOf(
+                AnnotatedString.Item(spanStyle, 0, text.length),
+                AnnotatedString.Item(spanStyleOverwrite, 0, "abc".length)
             ),
             constraints = ParagraphConstraints(width = 100.0f)
         )
@@ -501,11 +502,11 @@ class AndroidParagraphTest {
     @Test
     fun testAnnotatedString_setBaselineShiftOnWholeText() {
         val text = "abcde"
-        val textStyle = TextStyle(baselineShift = BaselineShift.Subscript)
+        val spanStyle = SpanStyle(baselineShift = BaselineShift.Subscript)
 
         val paragraph = simpleParagraph(
             text = text,
-            textStyles = listOf(AnnotatedString.Item(textStyle, 0, text.length)),
+            spanStyles = listOf(AnnotatedString.Item(spanStyle, 0, text.length)),
             constraints = ParagraphConstraints(width = 100.0f) // width is not important
         )
 
@@ -515,11 +516,11 @@ class AndroidParagraphTest {
     @Test
     fun testAnnotatedString_setBaselineShiftOnPartText() {
         val text = "abcde"
-        val textStyle = TextStyle(baselineShift = BaselineShift.Superscript)
+        val spanStyle = SpanStyle(baselineShift = BaselineShift.Superscript)
 
         val paragraph = simpleParagraph(
             text = text,
-            textStyles = listOf(AnnotatedString.Item(textStyle, 0, "abc".length)),
+            spanStyles = listOf(AnnotatedString.Item(spanStyle, 0, "abc".length)),
             constraints = ParagraphConstraints(width = 100.0f) // width is not important
         )
 
@@ -529,15 +530,15 @@ class AndroidParagraphTest {
     @Test
     fun testAnnotatedString_setBaselineShiftTwice_LastOneOnTop() {
         val text = "abcde"
-        val textStyle = TextStyle(baselineShift = BaselineShift.Subscript)
-        val textStyleOverwrite =
-            TextStyle(baselineShift = BaselineShift.Superscript)
+        val spanStyle = SpanStyle(baselineShift = BaselineShift.Subscript)
+        val spanStyleOverwrite =
+            SpanStyle(baselineShift = BaselineShift.Superscript)
 
         val paragraph = simpleParagraph(
             text = text,
-            textStyles = listOf(
-                AnnotatedString.Item(textStyle, 0, text.length),
-                AnnotatedString.Item(textStyleOverwrite, 0, "abc".length)
+            spanStyles = listOf(
+                AnnotatedString.Item(spanStyle, 0, text.length),
+                AnnotatedString.Item(spanStyleOverwrite, 0, "abc".length)
             ),
             constraints = ParagraphConstraints(width = 100.0f) // width is not important
         )
@@ -550,11 +551,11 @@ class AndroidParagraphTest {
     @Test
     fun testAnnotatedString_setTextGeometricTransformWithNull_noSpanSet() {
         val text = "abcde"
-        val textStyle = TextStyle(textGeometricTransform = TextGeometricTransform())
+        val spanStyle = SpanStyle(textGeometricTransform = TextGeometricTransform())
 
         val paragraph = simpleParagraph(
             text = text,
-            textStyles = listOf(AnnotatedString.Item(textStyle, 0, text.length)),
+            spanStyles = listOf(AnnotatedString.Item(spanStyle, 0, text.length)),
             constraints = ParagraphConstraints(width = 100.0f) // width is not important
         )
 
@@ -566,7 +567,7 @@ class AndroidParagraphTest {
     fun testAnnotatedString_setTextGeometricTransformWithScaleX() {
         val text = "abcde"
         val scaleX = 0.5f
-        val textStyle = TextStyle(
+        val spanStyle = SpanStyle(
             textGeometricTransform = TextGeometricTransform(
                 scaleX = scaleX
             )
@@ -574,7 +575,7 @@ class AndroidParagraphTest {
 
         val paragraph = simpleParagraph(
             text = text,
-            textStyles = listOf(AnnotatedString.Item(textStyle, 0, text.length)),
+            spanStyles = listOf(AnnotatedString.Item(spanStyle, 0, text.length)),
             constraints = ParagraphConstraints(width = 100.0f) // width is not important
         )
 
@@ -588,15 +589,11 @@ class AndroidParagraphTest {
     fun testAnnotatedString_setTextGeometricTransformWithSkewX() {
         val text = "aa"
         val skewX = 1f
-        val textStyle =
-            TextStyle(textGeometricTransform = TextGeometricTransform(
-                skewX = skewX
-            )
-            )
+        val spanStyle = SpanStyle(textGeometricTransform = TextGeometricTransform(skewX = skewX))
 
         val paragraph = simpleParagraph(
             text = text,
-            textStyles = listOf(AnnotatedString.Item(textStyle, 0, text.length)),
+            spanStyles = listOf(AnnotatedString.Item(spanStyle, 0, text.length)),
             constraints = ParagraphConstraints(width = 100.0f) // width is not important
         )
 
@@ -630,12 +627,12 @@ class AndroidParagraphTest {
         val color = Color(0xFF00FF00)
         val offset = Offset(1f, 2f)
         val radius = 3.px
-        val textStyle = TextStyle(shadow = Shadow(color, offset, radius))
+        val spanStyle = SpanStyle(shadow = Shadow(color, offset, radius))
 
         val paragraph = simpleParagraph(
             text = text,
-            textStyles = listOf(
-                AnnotatedString.Item(textStyle, start = 0, end = text.length)
+            spanStyles = listOf(
+                AnnotatedString.Item(spanStyle, start = 0, end = text.length)
             ),
             constraints = ParagraphConstraints(width = 100.0f) // width is not important
         )
@@ -655,20 +652,20 @@ class AndroidParagraphTest {
         val color = Color(0xFF00FF00)
         val offset = Offset(1f, 2f)
         val radius = 3.px
-        val textStyle = TextStyle(shadow = Shadow(color, offset, radius))
+        val spanStyle = SpanStyle(shadow = Shadow(color, offset, radius))
 
         val colorOverwrite = Color(0xFF0000FF)
         val offsetOverwrite = Offset(3f, 2f)
         val radiusOverwrite = 1.px
-        val textStyleOverwrite = TextStyle(
+        val spanStyleOverwrite = SpanStyle(
             shadow = Shadow(colorOverwrite, offsetOverwrite, radiusOverwrite)
         )
 
         val paragraph = simpleParagraph(
             text = text,
-            textStyles = listOf(
-                AnnotatedString.Item(textStyle, start = 0, end = text.length),
-                AnnotatedString.Item(textStyleOverwrite, start = 0, end = "abc".length)
+            spanStyles = listOf(
+                AnnotatedString.Item(spanStyle, start = 0, end = text.length),
+                AnnotatedString.Item(spanStyleOverwrite, start = 0, end = "abc".length)
             ),
             constraints = ParagraphConstraints(width = 100.0f) // width is not important
         )
@@ -692,7 +689,7 @@ class AndroidParagraphTest {
     @Test
     fun testAnnotatedString_fontFamily_addsTypefaceSpanWithCorrectTypeface() {
         val text = "abcde"
-        val textStyle = TextStyle(
+        val spanStyle = SpanStyle(
             fontFamily = fontFamily,
             fontStyle = FontStyle.Italic,
             fontWeight = FontWeight.Bold
@@ -707,9 +704,9 @@ class AndroidParagraphTest {
 
         val paragraph = simpleParagraph(
             text = text,
-            textStyles = listOf(
+            spanStyles = listOf(
                 AnnotatedString.Item(
-                    textStyle,
+                    spanStyle,
                     expectedStart,
                     expectedEnd
                 )
@@ -727,7 +724,7 @@ class AndroidParagraphTest {
     @Test
     fun testAnnotatedString_fontFamily_whenFontSynthesizeTurnedOff() {
         val text = "abcde"
-        val textStyle = TextStyle(
+        val spanStyle = SpanStyle(
             fontFamily = fontFamily,
             fontStyle = FontStyle.Italic,
             fontWeight = FontWeight.Bold,
@@ -744,9 +741,9 @@ class AndroidParagraphTest {
 
         val paragraph = simpleParagraph(
             text = text,
-            textStyles = listOf(
+            spanStyles = listOf(
                 AnnotatedString.Item(
-                    textStyle,
+                    spanStyle,
                     expectedStart,
                     expectedEnd
                 )
@@ -765,11 +762,11 @@ class AndroidParagraphTest {
     fun testAnnotatedString_fontFeatureSetting_setSpanOnText() {
         val text = "abc"
         val fontFeatureSettings = "\"kern\" 0"
-        val textStyle = TextStyle(fontFeatureSettings = fontFeatureSettings)
+        val spanStyle = SpanStyle(fontFeatureSettings = fontFeatureSettings)
 
         val paragraph = simpleParagraph(
             text = text,
-            textStyles = listOf(AnnotatedString.Item(textStyle, 0, "abc".length)),
+            spanStyles = listOf(AnnotatedString.Item(spanStyle, 0, "abc".length)),
             constraints = ParagraphConstraints(width = 100.0f) // width is not important
         )
 
@@ -1186,7 +1183,7 @@ class AndroidParagraphTest {
 
     private fun simpleParagraph(
         text: String = "",
-        textStyles: List<AnnotatedString.Item<TextStyle>> = listOf(),
+        spanStyles: List<AnnotatedString.Item<SpanStyle>> = listOf(),
         textIndent: TextIndent? = null,
         textAlign: TextAlign? = null,
         textDirectionAlgorithm: TextDirectionAlgorithm? = TextDirectionAlgorithm.ContentOrLtr,
@@ -1198,7 +1195,7 @@ class AndroidParagraphTest {
     ): AndroidParagraph {
         return AndroidParagraph(
             text = text,
-            textStyles = textStyles,
+            spanStyles = spanStyles,
             typefaceAdapter = typefaceAdapter,
             style = TextStyle().merge(textStyle),
             paragraphStyle = ParagraphStyle(

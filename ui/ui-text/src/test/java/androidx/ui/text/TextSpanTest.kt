@@ -40,10 +40,10 @@ class TextSpanTest {
 
     @Test
     fun `constructor with customized style`() {
-        val textStyle = TextStyle(fontSize = 10.sp, letterSpacing = 1.5.em)
-        val textSpan = TextSpan(style = textStyle)
+        val spanStyle = SpanStyle(fontSize = 10.sp, letterSpacing = 1.5.em)
+        val textSpan = TextSpan(style = spanStyle)
 
-        assertThat(textSpan.style).isEqualTo(textStyle)
+        assertThat(textSpan.style).isEqualTo(spanStyle)
     }
 
     @Test
@@ -157,16 +157,16 @@ class TextSpanTest {
 
     @Test
     fun `toAnnotatedString with includeRootStyle default value`() {
-        val textStyle = TextStyle(fontSize = 10.sp)
+        val spanStyle = SpanStyle(fontSize = 10.sp)
         val text = "Hello"
-        val textSpan = TextSpan(style = textStyle, text = text)
+        val textSpan = TextSpan(style = spanStyle, text = text)
         val annotatedString = textSpan.toAnnotatedString()
 
-        // By default includeRootStyle = true and TextStyle on root node should be converted.
-        assertThat(annotatedString.textStyles.size).isEqualTo(1)
-        assertThat(annotatedString.textStyles[0].item).isEqualTo(textStyle)
-        assertThat(annotatedString.textStyles[0].start).isEqualTo(0)
-        assertThat(annotatedString.textStyles[0].end).isEqualTo(text.length)
+        // By default includeRootStyle = true and SpanStyle on root node should be converted.
+        assertThat(annotatedString.spanStyles.size).isEqualTo(1)
+        assertThat(annotatedString.spanStyles[0].item).isEqualTo(spanStyle)
+        assertThat(annotatedString.spanStyles[0].start).isEqualTo(0)
+        assertThat(annotatedString.spanStyles[0].end).isEqualTo(text.length)
     }
 
     @Test
@@ -181,34 +181,34 @@ class TextSpanTest {
         val annotatedString = textSpan.toAnnotatedString()
 
         assertThat(annotatedString.text).isEqualTo(text1 + text2)
-        assertThat(annotatedString.textStyles.size).isEqualTo(0)
+        assertThat(annotatedString.spanStyles.size).isEqualTo(0)
     }
 
     @Test
-    fun `toAnnotatedString with nested TextSpan with TextStyle`() {
-        val textStyle1 = TextStyle(fontSize = 10.sp)
+    fun `toAnnotatedString with nested TextSpan with SpanStyle`() {
+        val spanStyle1 = SpanStyle(fontSize = 10.sp)
         val text1 = "Hello"
 
-        val textStyle2 = TextStyle(color = Color.Red)
+        val spanStyle2 = SpanStyle(color = Color.Red)
         val text2 = "World"
 
         val textSpan = TextSpan(
-            style = textStyle1,
+            style = spanStyle1,
             text = text1,
-            children = mutableListOf(TextSpan(style = textStyle2, text = text2))
+            children = mutableListOf(TextSpan(style = spanStyle2, text = text2))
         )
         val annotatedString = textSpan.toAnnotatedString()
 
         assertThat(annotatedString.text).isEqualTo(text1 + text2)
-        assertThat(annotatedString.textStyles.size).isEqualTo(2)
+        assertThat(annotatedString.spanStyles.size).isEqualTo(2)
 
-        assertThat(annotatedString.textStyles[0].item).isEqualTo(textStyle1)
-        assertThat(annotatedString.textStyles[0].start).isEqualTo(0)
-        assertThat(annotatedString.textStyles[0].end).isEqualTo((text1 + text2).length)
+        assertThat(annotatedString.spanStyles[0].item).isEqualTo(spanStyle1)
+        assertThat(annotatedString.spanStyles[0].start).isEqualTo(0)
+        assertThat(annotatedString.spanStyles[0].end).isEqualTo((text1 + text2).length)
 
-        assertThat(annotatedString.textStyles[1].item).isEqualTo(textStyle2)
-        assertThat(annotatedString.textStyles[1].start).isEqualTo(text1.length)
-        assertThat(annotatedString.textStyles[1].end).isEqualTo((text1 + text2).length)
+        assertThat(annotatedString.spanStyles[1].item).isEqualTo(spanStyle2)
+        assertThat(annotatedString.spanStyles[1].start).isEqualTo(text1.length)
+        assertThat(annotatedString.spanStyles[1].end).isEqualTo((text1 + text2).length)
     }
 
     @Test
@@ -226,29 +226,29 @@ class TextSpanTest {
           Output
           AnnotatedString(
             text = "Lorem ipsum dolor"
-            textStyles = listOf(Root[0, 17], Leaf1[0, 6], Inner[6, 17], leaf2[6, 12], leaf3[12, 17])
+            spanStyles = listOf(Root[0, 17], Leaf1[0, 6], Inner[6, 17], leaf2[6, 12], leaf3[12, 17])
           )
          */
-        val textStyleRoot = TextStyle(fontSize = 10.sp)
-        val textStyleLeaf1 = TextStyle(color = Color.Blue)
+        val spanStyleRoot = SpanStyle(fontSize = 10.sp)
+        val spanStyleLeaf1 = SpanStyle(color = Color.Blue)
         val text1 = "Lorem "
 
-        val textStyleInner = TextStyle(color = Color.Blue)
-        val textStyleLeaf2 = TextStyle(color = Color.Red)
+        val spanStyleInner = SpanStyle(color = Color.Blue)
+        val spanStyleLeaf2 = SpanStyle(color = Color.Red)
         val text2 = "ipsum "
 
-        val textStyleLeaf3 = TextStyle(color = Color.Blue)
+        val spanStyleLeaf3 = SpanStyle(color = Color.Blue)
         val text3 = "dolor"
 
         val textSpan = TextSpan(
-            style = textStyleRoot,
+            style = spanStyleRoot,
             children = mutableListOf(
-                TextSpan(text = text1, style = textStyleLeaf1),
+                TextSpan(text = text1, style = spanStyleLeaf1),
                 TextSpan(
-                    style = textStyleInner,
+                    style = spanStyleInner,
                     children = mutableListOf(
-                        TextSpan(text = text2, style = textStyleLeaf2),
-                        TextSpan(text = text3, style = textStyleLeaf3)
+                        TextSpan(text = text2, style = spanStyleLeaf2),
+                        TextSpan(text = text3, style = spanStyleLeaf3)
                     )
                 )
             )
@@ -256,29 +256,29 @@ class TextSpanTest {
         val annotatedString = textSpan.toAnnotatedString()
 
         assertThat(annotatedString.text).isEqualTo(text1 + text2 + text3)
-        assertThat(annotatedString.textStyles.size).isEqualTo(5)
+        assertThat(annotatedString.spanStyles.size).isEqualTo(5)
 
-        assertThat(annotatedString.textStyles[0].item).isEqualTo(textStyleRoot)
-        assertThat(annotatedString.textStyles[0].start).isEqualTo(0)
-        assertThat(annotatedString.textStyles[0].end)
+        assertThat(annotatedString.spanStyles[0].item).isEqualTo(spanStyleRoot)
+        assertThat(annotatedString.spanStyles[0].start).isEqualTo(0)
+        assertThat(annotatedString.spanStyles[0].end)
             .isEqualTo((text1 + text2 + text3).length)
 
-        assertThat(annotatedString.textStyles[1].item).isEqualTo(textStyleLeaf1)
-        assertThat(annotatedString.textStyles[1].start).isEqualTo(0)
-        assertThat(annotatedString.textStyles[1].end).isEqualTo(text1.length)
+        assertThat(annotatedString.spanStyles[1].item).isEqualTo(spanStyleLeaf1)
+        assertThat(annotatedString.spanStyles[1].start).isEqualTo(0)
+        assertThat(annotatedString.spanStyles[1].end).isEqualTo(text1.length)
 
-        assertThat(annotatedString.textStyles[2].item).isEqualTo(textStyleInner)
-        assertThat(annotatedString.textStyles[2].start).isEqualTo(text1.length)
-        assertThat(annotatedString.textStyles[2].end)
+        assertThat(annotatedString.spanStyles[2].item).isEqualTo(spanStyleInner)
+        assertThat(annotatedString.spanStyles[2].start).isEqualTo(text1.length)
+        assertThat(annotatedString.spanStyles[2].end)
             .isEqualTo((text1 + text2 + text3).length)
 
-        assertThat(annotatedString.textStyles[3].item).isEqualTo(textStyleLeaf2)
-        assertThat(annotatedString.textStyles[3].start).isEqualTo(text1.length)
-        assertThat(annotatedString.textStyles[3].end).isEqualTo((text1 + text2).length)
+        assertThat(annotatedString.spanStyles[3].item).isEqualTo(spanStyleLeaf2)
+        assertThat(annotatedString.spanStyles[3].start).isEqualTo(text1.length)
+        assertThat(annotatedString.spanStyles[3].end).isEqualTo((text1 + text2).length)
 
-        assertThat(annotatedString.textStyles[4].item).isEqualTo(textStyleLeaf3)
-        assertThat(annotatedString.textStyles[4].start).isEqualTo((text1 + text2).length)
-        assertThat(annotatedString.textStyles[4].end)
+        assertThat(annotatedString.spanStyles[4].item).isEqualTo(spanStyleLeaf3)
+        assertThat(annotatedString.spanStyles[4].start).isEqualTo((text1 + text2).length)
+        assertThat(annotatedString.spanStyles[4].end)
             .isEqualTo((text1 + text2 + text3).length)
     }
 }

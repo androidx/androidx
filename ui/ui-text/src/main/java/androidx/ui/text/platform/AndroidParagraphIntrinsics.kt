@@ -23,13 +23,14 @@ import androidx.ui.core.Density
 import androidx.ui.text.AnnotatedString
 import androidx.ui.text.ParagraphIntrinsics
 import androidx.ui.text.ParagraphStyle
+import androidx.ui.text.SpanStyle
 import androidx.ui.text.TextStyle
 
 internal class AndroidParagraphIntrinsics(
     val text: String,
     val style: TextStyle,
     val paragraphStyle: ParagraphStyle,
-    val textStyles: List<AnnotatedString.Item<TextStyle>>,
+    val spanStyles: List<AnnotatedString.Item<SpanStyle>>,
     val typefaceAdapter: TypefaceAdapter,
     val density: Density
 ) : ParagraphIntrinsics {
@@ -59,13 +60,13 @@ internal class AndroidParagraphIntrinsics(
             text = text,
             lineHeight = paragraphStyle.lineHeight,
             textIndent = paragraphStyle.textIndent,
-            textStyles = listOf(
+            spanStyles = listOf(
                 AnnotatedString.Item(
-                    notAppliedStyle,
+                    notAppliedStyle.toSpanStyle(),
                     0,
                     text.length
                 )
-            ) + textStyles,
+            ) + spanStyles,
             density = density,
             typefaceAdapter = typefaceAdapter
         )
