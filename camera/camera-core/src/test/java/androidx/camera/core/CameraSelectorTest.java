@@ -61,7 +61,8 @@ public class CameraSelectorTest {
     @Before
     public void setUp() throws ExecutionException, InterruptedException {
         Context context = ApplicationProvider.getApplicationContext();
-        CameraDeviceSurfaceManager surfaceManager = new FakeCameraDeviceSurfaceManager();
+        CameraDeviceSurfaceManager.Provider surfaceManagerProvider =
+                ignored -> new FakeCameraDeviceSurfaceManager();
         ExtendableUseCaseConfigFactory defaultConfigFactory = new ExtendableUseCaseConfigFactory();
         defaultConfigFactory.installDefaultProvider(FakeUseCaseConfig.class,
                 new ConfigProvider<FakeUseCaseConfig>() {
@@ -84,7 +85,7 @@ public class CameraSelectorTest {
         CameraXConfig.Builder appConfigBuilder =
                 new CameraXConfig.Builder()
                         .setCameraFactory(cameraFactory)
-                        .setDeviceSurfaceManager(surfaceManager)
+                        .setDeviceSurfaceManagerProvider(surfaceManagerProvider)
                         .setUseCaseConfigFactory(defaultConfigFactory);
         CameraX.initialize(context, appConfigBuilder.build()).get();
         mCameraIds.add(REAR_ID);

@@ -46,13 +46,14 @@ public final class FakeAppConfig {
                 () -> new FakeCamera(null,
                         new FakeCameraInfoInternal(0, CameraSelector.LENS_FACING_FRONT)));
 
-        CameraDeviceSurfaceManager surfaceManager = new FakeCameraDeviceSurfaceManager();
+        CameraDeviceSurfaceManager.Provider surfaceManagerProvider =
+                ignored -> new FakeCameraDeviceSurfaceManager();
         UseCaseConfigFactory defaultConfigFactory = new ExtendableUseCaseConfigFactory();
 
         CameraXConfig.Builder appConfigBuilder =
                 new CameraXConfig.Builder()
                         .setCameraFactory(cameraFactory)
-                        .setDeviceSurfaceManager(surfaceManager)
+                        .setDeviceSurfaceManagerProvider(surfaceManagerProvider)
                         .setUseCaseConfigFactory(defaultConfigFactory);
 
         return appConfigBuilder.build();

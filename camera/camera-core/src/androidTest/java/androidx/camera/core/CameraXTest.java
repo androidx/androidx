@@ -31,7 +31,6 @@ import android.util.Size;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.camera.core.impl.CameraControlInternal;
-import androidx.camera.core.impl.CameraDeviceSurfaceManager;
 import androidx.camera.core.impl.CameraInfoInternal;
 import androidx.camera.core.impl.CameraInternal;
 import androidx.camera.core.impl.utils.executor.CameraXExecutors;
@@ -79,14 +78,12 @@ public final class CameraXTest {
     private FakeLifecycleOwner mLifecycle;
     private CameraXConfig.Builder mConfigBuilder;
     private FakeCameraFactory mFakeCameraFactory;
-    private CameraDeviceSurfaceManager mFakeSurfaceManager;
     private UseCaseConfigFactory mUseCaseConfigFactory;
 
     @Before
     public void setUp() {
         mContext = ApplicationProvider.getApplicationContext();
 
-        mFakeSurfaceManager = new FakeCameraDeviceSurfaceManager();
         ExtendableUseCaseConfigFactory defaultConfigFactory = new ExtendableUseCaseConfigFactory();
         defaultConfigFactory.installDefaultProvider(FakeUseCaseConfig.class,
                 new ConfigProvider<FakeUseCaseConfig>() {
@@ -104,7 +101,8 @@ public final class CameraXTest {
         mConfigBuilder =
                 new CameraXConfig.Builder()
                         .setCameraFactory(mFakeCameraFactory)
-                        .setDeviceSurfaceManager(mFakeSurfaceManager)
+                        .setDeviceSurfaceManagerProvider(ignored ->
+                                new FakeCameraDeviceSurfaceManager())
                         .setUseCaseConfigFactory(mUseCaseConfigFactory);
 
         mLifecycle = new FakeLifecycleOwner();
@@ -304,7 +302,8 @@ public final class CameraXTest {
         CameraXConfig.Builder appConfigBuilder =
                 new CameraXConfig.Builder()
                         .setCameraFactory(mFakeCameraFactory)
-                        .setDeviceSurfaceManager(mFakeSurfaceManager)
+                        .setDeviceSurfaceManagerProvider(ignored ->
+                                new FakeCameraDeviceSurfaceManager())
                         .setUseCaseConfigFactory(mUseCaseConfigFactory);
 
         CameraX.initialize(mContext, appConfigBuilder.build());

@@ -85,7 +85,8 @@ public class DisplayOrientedMeteringPointFactoryTest {
                 () -> new FakeCamera(null,
                         new FakeCameraInfoInternal(270, CameraSelector.LENS_FACING_FRONT)));
 
-        CameraDeviceSurfaceManager surfaceManager = new FakeCameraDeviceSurfaceManager();
+        CameraDeviceSurfaceManager.Provider surfaceManagerProvider =
+                ignored -> new FakeCameraDeviceSurfaceManager();
         ExtendableUseCaseConfigFactory defaultConfigFactory = new ExtendableUseCaseConfigFactory();
         defaultConfigFactory.installDefaultProvider(FakeUseCaseConfig.class,
                 new ConfigProvider<FakeUseCaseConfig>() {
@@ -98,7 +99,7 @@ public class DisplayOrientedMeteringPointFactoryTest {
         CameraXConfig cameraXConfig =
                 new CameraXConfig.Builder()
                         .setCameraFactory(fakeCameraFactory)
-                        .setDeviceSurfaceManager(surfaceManager)
+                        .setDeviceSurfaceManagerProvider(surfaceManagerProvider)
                         .setUseCaseConfigFactory(defaultConfigFactory)
                         .build();
         CameraX.initialize(context, cameraXConfig);

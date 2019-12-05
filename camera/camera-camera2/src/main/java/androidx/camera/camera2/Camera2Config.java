@@ -54,7 +54,8 @@ public final class Camera2Config {
         CameraFactory cameraFactory = new Camera2CameraFactory(context);
 
         // Create the DeviceSurfaceManager for Camera2
-        CameraDeviceSurfaceManager surfaceManager = new Camera2DeviceSurfaceManager(context);
+        CameraDeviceSurfaceManager.Provider surfaceManagerProvider =
+                Camera2DeviceSurfaceManager::new;
 
         // Create default configuration factory
         ExtendableUseCaseConfigFactory configFactory = new ExtendableUseCaseConfigFactory();
@@ -70,7 +71,7 @@ public final class Camera2Config {
         CameraXConfig.Builder appConfigBuilder =
                 new CameraXConfig.Builder()
                         .setCameraFactory(cameraFactory)
-                        .setDeviceSurfaceManager(surfaceManager)
+                        .setDeviceSurfaceManagerProvider(surfaceManagerProvider)
                         .setUseCaseConfigFactory(configFactory);
 
         return appConfigBuilder.build();

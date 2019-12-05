@@ -24,7 +24,6 @@ import android.os.Build;
 
 import androidx.camera.core.impl.CameraDeviceSurfaceManager;
 import androidx.camera.testing.fakes.FakeAppConfig;
-import androidx.camera.testing.fakes.FakeCameraDeviceSurfaceManager;
 import androidx.camera.testing.fakes.FakeCameraFactory;
 import androidx.test.filters.SmallTest;
 
@@ -63,10 +62,11 @@ public class CameraXConfigTest {
     }
 
     @Test
-    public void canGetDeviceSurfaceManager() {
-        CameraDeviceSurfaceManager surfaceManager =
-                mCameraXConfig.getDeviceSurfaceManager(/*valueIfMissing=*/ null);
-        assertThat(surfaceManager).isInstanceOf(FakeCameraDeviceSurfaceManager.class);
+    public void canGetDeviceSurfaceManagerProvider() {
+        CameraDeviceSurfaceManager.Provider surfaceManagerProvider =
+                mCameraXConfig.getDeviceSurfaceManagerProvider(/*valueIfMissing=*/ null);
+        assertThat(surfaceManagerProvider).isInstanceOf(
+                CameraDeviceSurfaceManager.Provider.class);
     }
 
     @Test

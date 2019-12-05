@@ -69,10 +69,11 @@ public final class CameraXConfig implements TargetConfig<CameraX>, Config {
 
     static final Option<CameraFactory> OPTION_CAMERA_FACTORY =
             Option.create("camerax.core.appConfig.cameraFactory", CameraFactory.class);
-    static final Option<CameraDeviceSurfaceManager> OPTION_DEVICE_SURFACE_MANAGER =
+    static final Option<CameraDeviceSurfaceManager.Provider>
+            OPTION_DEVICE_SURFACE_MANAGER_PROVIDER =
             Option.create(
-                    "camerax.core.appConfig.deviceSurfaceManager",
-                    CameraDeviceSurfaceManager.class);
+                    "camerax.core.appConfig.deviceSurfaceManagerProvider",
+                    CameraDeviceSurfaceManager.Provider.class);
     static final Option<UseCaseConfigFactory> OPTION_USECASE_CONFIG_FACTORY =
             Option.create(
                     "camerax.core.appConfig.useCaseConfigFactory",
@@ -108,9 +109,9 @@ public final class CameraXConfig implements TargetConfig<CameraX>, Config {
      */
     @RestrictTo(Scope.LIBRARY_GROUP)
     @Nullable
-    public CameraDeviceSurfaceManager getDeviceSurfaceManager(
-            @Nullable CameraDeviceSurfaceManager valueIfMissing) {
-        return mConfig.retrieveOption(OPTION_DEVICE_SURFACE_MANAGER, valueIfMissing);
+    public CameraDeviceSurfaceManager.Provider getDeviceSurfaceManagerProvider(
+            @Nullable CameraDeviceSurfaceManager.Provider valueIfMissing) {
+        return mConfig.retrieveOption(OPTION_DEVICE_SURFACE_MANAGER_PROVIDER, valueIfMissing);
     }
 
     /**
@@ -285,8 +286,10 @@ public final class CameraXConfig implements TargetConfig<CameraX>, Config {
          */
         @RestrictTo(Scope.LIBRARY_GROUP)
         @NonNull
-        public Builder setDeviceSurfaceManager(@NonNull CameraDeviceSurfaceManager repository) {
-            getMutableConfig().insertOption(OPTION_DEVICE_SURFACE_MANAGER, repository);
+        public Builder setDeviceSurfaceManagerProvider(
+                @NonNull CameraDeviceSurfaceManager.Provider surfaceManagerProvider) {
+            getMutableConfig().insertOption(OPTION_DEVICE_SURFACE_MANAGER_PROVIDER,
+                    surfaceManagerProvider);
             return this;
         }
 

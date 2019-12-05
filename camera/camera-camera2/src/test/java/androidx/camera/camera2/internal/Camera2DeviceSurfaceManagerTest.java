@@ -147,15 +147,6 @@ public final class Camera2DeviceSurfaceManagerTest {
     }
 
     @Test
-    public void checkInitialized() {
-        Camera2DeviceSurfaceManager manager = new Camera2DeviceSurfaceManager(mContext);
-        assertFalse(manager.isInitialized());
-
-        manager.init();
-        assertTrue(manager.isInitialized());
-    }
-
-    @Test
     public void checkLegacySurfaceCombinationSupportedInLegacyDevice() {
         SupportedSurfaceCombination supportedSurfaceCombination =
                 new SupportedSurfaceCombination(
@@ -587,7 +578,7 @@ public final class Camera2DeviceSurfaceManagerTest {
     private CameraXConfig createFakeAppConfig() {
 
         // Create the DeviceSurfaceManager for Camera2
-        CameraDeviceSurfaceManager surfaceManager =
+        CameraDeviceSurfaceManager.Provider surfaceManagerProvider = context ->
                 new Camera2DeviceSurfaceManager(mContext, mMockCamcorderProfileHelper);
 
         // Create default configuration factory
@@ -608,7 +599,7 @@ public final class Camera2DeviceSurfaceManagerTest {
         CameraXConfig.Builder appConfigBuilder =
                 new CameraXConfig.Builder()
                         .setCameraFactory(mCameraFactory)
-                        .setDeviceSurfaceManager(surfaceManager)
+                        .setDeviceSurfaceManagerProvider(surfaceManagerProvider)
                         .setUseCaseConfigFactory(configFactory);
 
         return appConfigBuilder.build();

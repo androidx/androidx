@@ -953,14 +953,15 @@ public final class CameraX {
                                     return;
                                 }
 
-                                mSurfaceManager = cameraXConfig.getDeviceSurfaceManager(null);
-                                if (mSurfaceManager == null) {
+                                CameraDeviceSurfaceManager.Provider surfaceManagerProvider =
+                                        cameraXConfig.getDeviceSurfaceManagerProvider(null);
+                                if (surfaceManagerProvider == null) {
                                     e = new IllegalArgumentException(
                                             "Invalid app configuration provided. Missing "
                                                     + "CameraDeviceSurfaceManager.");
                                     return;
                                 }
-                                mSurfaceManager.init();
+                                mSurfaceManager = surfaceManagerProvider.newInstance(context);
 
                                 mDefaultConfigFactory = cameraXConfig.getUseCaseConfigRepository(
                                         null);
