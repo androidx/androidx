@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<issues format="5" by="lint 3.6.0-beta01" client="gradle" variant="debug" version="3.6.0-beta01">
+<issues format="5" by="lint 3.6.0-beta05" client="gradle" variant="debug" version="3.6.0-beta05">
 
     <issue
         id="UnknownNullness"
@@ -19,7 +19,7 @@
         errorLine2="           ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
         <location
             file="src/main/java/androidx/customview/widget/ExploreByTouchHelper.java"
-            line="157"
+            line="156"
             column="12"/>
     </issue>
 
@@ -30,7 +30,7 @@
         errorLine2="                                                                        ~~~~">
         <location
             file="src/main/java/androidx/customview/widget/ExploreByTouchHelper.java"
-            line="157"
+            line="156"
             column="73"/>
     </issue>
 
@@ -41,7 +41,7 @@
         errorLine2="                                               ~~~~">
         <location
             file="src/main/java/androidx/customview/widget/ExploreByTouchHelper.java"
-            line="662"
+            line="661"
             column="48"/>
     </issue>
 
@@ -52,7 +52,7 @@
         errorLine2="                                                          ~~~~~~~~~~~~~~~~~~">
         <location
             file="src/main/java/androidx/customview/widget/ExploreByTouchHelper.java"
-            line="662"
+            line="661"
             column="59"/>
     </issue>
 
@@ -63,7 +63,7 @@
         errorLine2="                                                  ~~~~">
         <location
             file="src/main/java/androidx/customview/widget/ExploreByTouchHelper.java"
-            line="757"
+            line="756"
             column="51"/>
     </issue>
 
@@ -74,7 +74,7 @@
         errorLine2="                                                             ~~~~~~~~~~~~~~~~~~~~~~~~~~~">
         <location
             file="src/main/java/androidx/customview/widget/ExploreByTouchHelper.java"
-            line="757"
+            line="756"
             column="62"/>
     </issue>
 

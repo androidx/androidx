@@ -1,16 +1,5 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<issues format="5" by="lint 3.6.0-beta01" client="gradle" variant="debug" version="3.6.0-beta01">
-
-    <issue
-        id="KotlinPropertyAccess"
-        message="This method should be called `getState` such that `state` can be accessed as a property from Kotlin; see https://android.github.io/kotlin-guides/interop.html#property-prefixes"
-        errorLine1="    public abstract T getInitialState();"
-        errorLine2="                      ~~~~~~~~~~~~~~~">
-        <location
-            file="src/main/java/androidx/work/impl/constraints/trackers/ConstraintTracker.java"
-            line="124"
-            column="23"/>
-    </issue>
+<issues format="5" by="lint 3.6.0-beta05" client="gradle" variant="debug" version="3.6.0-beta05">
 
     <issue
         id="KotlinPropertyAccess"
@@ -31,28 +20,6 @@
         <location
             file="src/main/java/androidx/work/Constraints.java"
             line="120"
-            column="20"/>
-    </issue>
-
-    <issue
-        id="KotlinPropertyAccess"
-        message="This method should be called `getRequiresCharging` such that `requiresCharging` can be accessed as a property from Kotlin; see https://android.github.io/kotlin-guides/interop.html#property-prefixes"
-        errorLine1="    public boolean requiresCharging() {"
-        errorLine2="                   ~~~~~~~~~~~~~~~~">
-        <location
-            file="src/main/java/androidx/work/Constraints.java"
-            line="120"
-            column="20"/>
-    </issue>
-
-    <issue
-        id="KotlinPropertyAccess"
-        message="This method should be called `getRequiresDeviceIdle` such that `requiresDeviceIdle` can be accessed as a property from Kotlin; see https://android.github.io/kotlin-guides/interop.html#property-prefixes"
-        errorLine1="    public boolean requiresDeviceIdle() {"
-        errorLine2="                   ~~~~~~~~~~~~~~~~~~">
-        <location
-            file="src/main/java/androidx/work/Constraints.java"
-            line="137"
             column="20"/>
     </issue>
 
@@ -80,17 +47,6 @@
 
     <issue
         id="KotlinPropertyAccess"
-        message="This method should be called `getRequiresBatteryNotLow` such that `requiresBatteryNotLow` can be accessed as a property from Kotlin; see https://android.github.io/kotlin-guides/interop.html#property-prefixes"
-        errorLine1="    public boolean requiresBatteryNotLow() {"
-        errorLine2="                   ~~~~~~~~~~~~~~~~~~~~~">
-        <location
-            file="src/main/java/androidx/work/Constraints.java"
-            line="154"
-            column="20"/>
-    </issue>
-
-    <issue
-        id="KotlinPropertyAccess"
         message="This method should be called `getRequiresStorageNotLow` such that `requiresStorageNotLow` can be accessed as a property from Kotlin; see https://android.github.io/kotlin-guides/interop.html#property-prefixes"
         errorLine1="    public boolean requiresStorageNotLow() {"
         errorLine2="                   ~~~~~~~~~~~~~~~~~~~~~">
@@ -98,32 +54,6 @@
             file="src/main/java/androidx/work/Constraints.java"
             line="170"
             column="20"/>
-    </issue>
-
-    <issue
-        id="KotlinPropertyAccess"
-        message="This method should be called `getRequiresStorageNotLow` such that `requiresStorageNotLow` can be accessed as a property from Kotlin; see https://android.github.io/kotlin-guides/interop.html#property-prefixes"
-        errorLine1="    public boolean requiresStorageNotLow() {"
-        errorLine2="                   ~~~~~~~~~~~~~~~~~~~~~">
-        <location
-            file="src/main/java/androidx/work/Constraints.java"
-            line="170"
-            column="20"/>
-    </issue>
-
-    <issue
-        id="KotlinPropertyAccess"
-        message="The getter return type (`LiveData&lt;State>`) and setter parameter type (`State`) getter and setter methods for property `state` should have exactly the same type to allow be accessed as a property from Kotlin; see https://android.github.io/kotlin-guides/interop.html#property-prefixes"
-        errorLine1="    public @NonNull LiveData&lt;State> getState() {"
-        errorLine2="                                    ~~~~~~~~">
-        <location
-            file="src/main/java/androidx/work/impl/OperationImpl.java"
-            line="52"
-            column="37"/>
-        <location
-            file="src/main/java/androidx/work/impl/OperationImpl.java"
-            line="61"
-            column="17"/>
     </issue>
 
     <issue
@@ -157,32 +87,6 @@
     </issue>
 
     <issue
-        id="KotlinPropertyAccess"
-        message="The getter return type (`boolean`) and setter parameter type (`long`) getter and setter methods for property `periodic` should have exactly the same type to allow be accessed as a property from Kotlin; see https://android.github.io/kotlin-guides/interop.html#property-prefixes"
-        errorLine1="    public boolean isPeriodic() {"
-        errorLine2="                   ~~~~~~~~~~">
-        <location
-            file="src/main/java/androidx/work/impl/model/WorkSpec.java"
-            line="178"
-            column="20"/>
-        <location
-            file="src/main/java/androidx/work/impl/model/WorkSpec.java"
-            line="191"
-            column="17"/>
-    </issue>
-
-    <issue
-        id="LambdaLast"
-        message="Functional interface parameters (such as parameter 2, &quot;mappingMethod&quot;, in androidx.work.impl.utils.LiveDataUtils.dedupedMappedLiveDataFor) should be last to improve Kotlin interoperability; see https://kotlinlang.org/docs/reference/java-interop.html#sam-conversions"
-        errorLine1="            @NonNull final TaskExecutor workTaskExecutor) {"
-        errorLine2="            ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
-        <location
-            file="src/main/java/androidx/work/impl/utils/LiveDataUtils.java"
-            line="54"
-            column="13"/>
-    </issue>
-
-    <issue
         id="LambdaLast"
         message="Functional interface parameters (such as parameter 2, &quot;mappingMethod&quot;, in androidx.work.impl.utils.LiveDataUtils.dedupedMappedLiveDataFor) should be last to improve Kotlin interoperability; see https://kotlinlang.org/docs/reference/java-interop.html#sam-conversions"
         errorLine1="            @NonNull final TaskExecutor workTaskExecutor) {"
@@ -208,44 +112,11 @@
         id="UnknownNullness"
         message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
         errorLine1="    public final V get(long timeout, TimeUnit unit)"
-        errorLine2="                 ~">
-        <location
-            file="src/main/java/androidx/work/impl/utils/futures/AbstractFuture.java"
-            line="355"
-            column="18"/>
-    </issue>
-
-    <issue
-        id="UnknownNullness"
-        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
-        errorLine1="    public final V get(long timeout, TimeUnit unit)"
         errorLine2="                                     ~~~~~~~~">
         <location
             file="src/main/java/androidx/work/impl/utils/futures/AbstractFuture.java"
             line="355"
             column="38"/>
-    </issue>
-
-    <issue
-        id="UnknownNullness"
-        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
-        errorLine1="    public final V get(long timeout, TimeUnit unit)"
-        errorLine2="                                     ~~~~~~~~">
-        <location
-            file="src/main/java/androidx/work/impl/utils/futures/AbstractFuture.java"
-            line="355"
-            column="38"/>
-    </issue>
-
-    <issue
-        id="UnknownNullness"
-        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
-        errorLine1="    public final V get() throws InterruptedException, ExecutionException {"
-        errorLine2="                 ~">
-        <location
-            file="src/main/java/androidx/work/impl/utils/futures/AbstractFuture.java"
-            line="469"
-            column="18"/>
     </issue>
 
     <issue
@@ -274,28 +145,6 @@
         id="UnknownNullness"
         message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
         errorLine1="    public final void addListener(Runnable listener, Executor executor) {"
-        errorLine2="                                  ~~~~~~~~">
-        <location
-            file="src/main/java/androidx/work/impl/utils/futures/AbstractFuture.java"
-            line="650"
-            column="35"/>
-    </issue>
-
-    <issue
-        id="UnknownNullness"
-        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
-        errorLine1="    public final void addListener(Runnable listener, Executor executor) {"
-        errorLine2="                                                     ~~~~~~~~">
-        <location
-            file="src/main/java/androidx/work/impl/utils/futures/AbstractFuture.java"
-            line="650"
-            column="54"/>
-    </issue>
-
-    <issue
-        id="UnknownNullness"
-        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
-        errorLine1="    public final void addListener(Runnable listener, Executor executor) {"
         errorLine2="                                                     ~~~~~~~~">
         <location
             file="src/main/java/androidx/work/impl/utils/futures/AbstractFuture.java"
@@ -312,28 +161,6 @@
             file="src/main/java/androidx/work/impl/utils/futures/AbstractFuture.java"
             line="707"
             column="36"/>
-    </issue>
-
-    <issue
-        id="UnknownNullness"
-        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
-        errorLine1="    protected boolean setException(Throwable throwable) {"
-        errorLine2="                                   ~~~~~~~~~">
-        <location
-            file="src/main/java/androidx/work/impl/utils/futures/AbstractFuture.java"
-            line="707"
-            column="36"/>
-    </issue>
-
-    <issue
-        id="UnknownNullness"
-        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
-        errorLine1="    protected boolean setFuture(ListenableFuture&lt;? extends V> future) {"
-        errorLine2="                                ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
-        <location
-            file="src/main/java/androidx/work/impl/utils/futures/AbstractFuture.java"
-            line="743"
-            column="33"/>
     </issue>
 
     <issue
@@ -362,44 +189,11 @@
         id="UnknownNullness"
         message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
         errorLine1="    public BatteryChargingController(Context context, TaskExecutor taskExecutor) {"
-        errorLine2="                                     ~~~~~~~">
-        <location
-            file="src/main/java/androidx/work/impl/constraints/controllers/BatteryChargingController.java"
-            line="30"
-            column="38"/>
-    </issue>
-
-    <issue
-        id="UnknownNullness"
-        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
-        errorLine1="    public BatteryChargingController(Context context, TaskExecutor taskExecutor) {"
         errorLine2="                                                      ~~~~~~~~~~~~">
         <location
             file="src/main/java/androidx/work/impl/constraints/controllers/BatteryChargingController.java"
             line="30"
             column="55"/>
-    </issue>
-
-    <issue
-        id="UnknownNullness"
-        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
-        errorLine1="    public BatteryChargingController(Context context, TaskExecutor taskExecutor) {"
-        errorLine2="                                                      ~~~~~~~~~~~~">
-        <location
-            file="src/main/java/androidx/work/impl/constraints/controllers/BatteryChargingController.java"
-            line="30"
-            column="55"/>
-    </issue>
-
-    <issue
-        id="UnknownNullness"
-        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
-        errorLine1="    public Boolean getInitialState() {"
-        errorLine2="           ~~~~~~~">
-        <location
-            file="src/main/java/androidx/work/impl/constraints/trackers/BatteryChargingTracker.java"
-            line="48"
-            column="12"/>
     </issue>
 
     <issue
@@ -427,44 +221,11 @@
     <issue
         id="UnknownNullness"
         message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
-        errorLine1="    public IntentFilter getIntentFilter() {"
-        errorLine2="           ~~~~~~~~~~~~">
-        <location
-            file="src/main/java/androidx/work/impl/constraints/trackers/BatteryChargingTracker.java"
-            line="61"
-            column="12"/>
-    </issue>
-
-    <issue
-        id="UnknownNullness"
-        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
         errorLine1="    public void onBroadcastReceive(Context context, @NonNull Intent intent) {"
         errorLine2="                                   ~~~~~~~">
         <location
             file="src/main/java/androidx/work/impl/constraints/trackers/BatteryChargingTracker.java"
             line="74"
-            column="36"/>
-    </issue>
-
-    <issue
-        id="UnknownNullness"
-        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
-        errorLine1="    public void onBroadcastReceive(Context context, @NonNull Intent intent) {"
-        errorLine2="                                   ~~~~~~~">
-        <location
-            file="src/main/java/androidx/work/impl/constraints/trackers/BatteryChargingTracker.java"
-            line="74"
-            column="36"/>
-    </issue>
-
-    <issue
-        id="UnknownNullness"
-        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
-        errorLine1="    public BatteryNotLowController(Context context, TaskExecutor taskExecutor) {"
-        errorLine2="                                   ~~~~~~~">
-        <location
-            file="src/main/java/androidx/work/impl/constraints/controllers/BatteryNotLowController.java"
-            line="30"
             column="36"/>
     </issue>
 
@@ -493,44 +254,11 @@
     <issue
         id="UnknownNullness"
         message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
-        errorLine1="    public BatteryNotLowController(Context context, TaskExecutor taskExecutor) {"
-        errorLine2="                                                    ~~~~~~~~~~~~">
-        <location
-            file="src/main/java/androidx/work/impl/constraints/controllers/BatteryNotLowController.java"
-            line="30"
-            column="53"/>
-    </issue>
-
-    <issue
-        id="UnknownNullness"
-        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
         errorLine1="    public Boolean getInitialState() {"
         errorLine2="           ~~~~~~~">
         <location
             file="src/main/java/androidx/work/impl/constraints/trackers/BatteryNotLowTracker.java"
             line="63"
-            column="12"/>
-    </issue>
-
-    <issue
-        id="UnknownNullness"
-        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
-        errorLine1="    public Boolean getInitialState() {"
-        errorLine2="           ~~~~~~~">
-        <location
-            file="src/main/java/androidx/work/impl/constraints/trackers/BatteryNotLowTracker.java"
-            line="63"
-            column="12"/>
-    </issue>
-
-    <issue
-        id="UnknownNullness"
-        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
-        errorLine1="    public IntentFilter getIntentFilter() {"
-        errorLine2="           ~~~~~~~~~~~~">
-        <location
-            file="src/main/java/androidx/work/impl/constraints/trackers/BatteryNotLowTracker.java"
-            line="82"
             column="12"/>
     </issue>
 
@@ -559,45 +287,12 @@
     <issue
         id="UnknownNullness"
         message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
-        errorLine1="    public void onBroadcastReceive(Context context, @NonNull Intent intent) {"
-        errorLine2="                                   ~~~~~~~">
-        <location
-            file="src/main/java/androidx/work/impl/constraints/trackers/BatteryNotLowTracker.java"
-            line="90"
-            column="36"/>
-    </issue>
-
-    <issue
-        id="UnknownNullness"
-        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
         errorLine1="    public abstract void onBroadcastReceive(Context context, @NonNull Intent intent);"
         errorLine2="                                            ~~~~~~~">
         <location
             file="src/main/java/androidx/work/impl/constraints/trackers/BroadcastReceiverConstraintTracker.java"
             line="61"
             column="45"/>
-    </issue>
-
-    <issue
-        id="UnknownNullness"
-        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
-        errorLine1="    public abstract void onBroadcastReceive(Context context, @NonNull Intent intent);"
-        errorLine2="                                            ~~~~~~~">
-        <location
-            file="src/main/java/androidx/work/impl/constraints/trackers/BroadcastReceiverConstraintTracker.java"
-            line="61"
-            column="45"/>
-    </issue>
-
-    <issue
-        id="UnknownNullness"
-        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
-        errorLine1="    public abstract IntentFilter getIntentFilter();"
-        errorLine2="                    ~~~~~~~~~~~~">
-        <location
-            file="src/main/java/androidx/work/impl/constraints/trackers/BroadcastReceiverConstraintTracker.java"
-            line="66"
-            column="21"/>
     </issue>
 
     <issue
@@ -625,44 +320,11 @@
     <issue
         id="UnknownNullness"
         message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
-        errorLine1="    public Operation getOperation() {"
-        errorLine2="           ~~~~~~~~~">
-        <location
-            file="src/main/java/androidx/work/impl/utils/CancelWorkRunnable.java"
-            line="54"
-            column="12"/>
-    </issue>
-
-    <issue
-        id="UnknownNullness"
-        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
         errorLine1="    public static CancelWorkRunnable forId("
         errorLine2="                  ~~~~~~~~~~~~~~~~~~">
         <location
             file="src/main/java/androidx/work/impl/utils/CancelWorkRunnable.java"
             line="113"
-            column="19"/>
-    </issue>
-
-    <issue
-        id="UnknownNullness"
-        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
-        errorLine1="    public static CancelWorkRunnable forId("
-        errorLine2="                  ~~~~~~~~~~~~~~~~~~">
-        <location
-            file="src/main/java/androidx/work/impl/utils/CancelWorkRunnable.java"
-            line="113"
-            column="19"/>
-    </issue>
-
-    <issue
-        id="UnknownNullness"
-        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
-        errorLine1="    public static CancelWorkRunnable forTag("
-        errorLine2="                  ~~~~~~~~~~~~~~~~~~">
-        <location
-            file="src/main/java/androidx/work/impl/utils/CancelWorkRunnable.java"
-            line="140"
             column="19"/>
     </issue>
 
@@ -691,44 +353,11 @@
     <issue
         id="UnknownNullness"
         message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
-        errorLine1="    public static CancelWorkRunnable forName("
-        errorLine2="                  ~~~~~~~~~~~~~~~~~~">
-        <location
-            file="src/main/java/androidx/work/impl/utils/CancelWorkRunnable.java"
-            line="172"
-            column="19"/>
-    </issue>
-
-    <issue
-        id="UnknownNullness"
-        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
         errorLine1="    public static CancelWorkRunnable forAll(@NonNull final WorkManagerImpl workManagerImpl) {"
         errorLine2="                  ~~~~~~~~~~~~~~~~~~">
         <location
             file="src/main/java/androidx/work/impl/utils/CancelWorkRunnable.java"
             line="206"
-            column="19"/>
-    </issue>
-
-    <issue
-        id="UnknownNullness"
-        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
-        errorLine1="    public static CancelWorkRunnable forAll(@NonNull final WorkManagerImpl workManagerImpl) {"
-        errorLine2="                  ~~~~~~~~~~~~~~~~~~">
-        <location
-            file="src/main/java/androidx/work/impl/utils/CancelWorkRunnable.java"
-            line="206"
-            column="19"/>
-    </issue>
-
-    <issue
-        id="UnknownNullness"
-        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
-        errorLine1="    public static Intent newConstraintProxyUpdateIntent("
-        errorLine2="                  ~~~~~~">
-        <location
-            file="src/main/java/androidx/work/impl/background/systemalarm/ConstraintProxyUpdateReceiver.java"
-            line="61"
             column="19"/>
     </issue>
 
@@ -757,45 +386,12 @@
     <issue
         id="UnknownNullness"
         message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
-        errorLine1="            Context context,"
-        errorLine2="            ~~~~~~~">
-        <location
-            file="src/main/java/androidx/work/impl/background/systemalarm/ConstraintProxyUpdateReceiver.java"
-            line="62"
-            column="13"/>
-    </issue>
-
-    <issue
-        id="UnknownNullness"
-        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
         errorLine1="    public void addListener(ConstraintListener&lt;T> listener) {"
         errorLine2="                            ~~~~~~~~~~~~~~~~~~~~~">
         <location
             file="src/main/java/androidx/work/impl/constraints/trackers/ConstraintTracker.java"
             line="63"
             column="29"/>
-    </issue>
-
-    <issue
-        id="UnknownNullness"
-        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
-        errorLine1="    public void addListener(ConstraintListener&lt;T> listener) {"
-        errorLine2="                            ~~~~~~~~~~~~~~~~~~~~~">
-        <location
-            file="src/main/java/androidx/work/impl/constraints/trackers/ConstraintTracker.java"
-            line="63"
-            column="29"/>
-    </issue>
-
-    <issue
-        id="UnknownNullness"
-        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
-        errorLine1="    public void removeListener(ConstraintListener&lt;T> listener) {"
-        errorLine2="                               ~~~~~~~~~~~~~~~~~~~~~">
-        <location
-            file="src/main/java/androidx/work/impl/constraints/trackers/ConstraintTracker.java"
-            line="83"
-            column="32"/>
     </issue>
 
     <issue
@@ -823,45 +419,12 @@
     <issue
         id="UnknownNullness"
         message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
-        errorLine1="    public void setState(T newState) {"
-        errorLine2="                         ~">
-        <location
-            file="src/main/java/androidx/work/impl/constraints/trackers/ConstraintTracker.java"
-            line="97"
-            column="26"/>
-    </issue>
-
-    <issue
-        id="UnknownNullness"
-        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
         errorLine1="    public abstract T getInitialState();"
         errorLine2="                    ~">
         <location
             file="src/main/java/androidx/work/impl/constraints/trackers/ConstraintTracker.java"
             line="124"
             column="21"/>
-    </issue>
-
-    <issue
-        id="UnknownNullness"
-        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
-        errorLine1="    public abstract T getInitialState();"
-        errorLine2="                    ~">
-        <location
-            file="src/main/java/androidx/work/impl/constraints/trackers/ConstraintTracker.java"
-            line="124"
-            column="21"/>
-    </issue>
-
-    <issue
-        id="UnknownNullness"
-        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
-        errorLine1="        public Builder setTriggerContentUpdateDelay(Duration duration) {"
-        errorLine2="                                                    ~~~~~~~~">
-        <location
-            file="src/main/java/androidx/work/Constraints.java"
-            line="407"
-            column="53"/>
     </issue>
 
     <issue
@@ -889,28 +452,6 @@
     <issue
         id="UnknownNullness"
         message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
-        errorLine1="        public Builder setTriggerContentMaxDelay(Duration duration) {"
-        errorLine2="                                                 ~~~~~~~~">
-        <location
-            file="src/main/java/androidx/work/Constraints.java"
-            line="442"
-            column="50"/>
-    </issue>
-
-    <issue
-        id="UnknownNullness"
-        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
-        errorLine1="    void insertDependency(Dependency dependency);"
-        errorLine2="                          ~~~~~~~~~~">
-        <location
-            file="src/main/java/androidx/work/impl/model/DependencyDao.java"
-            line="38"
-            column="27"/>
-    </issue>
-
-    <issue
-        id="UnknownNullness"
-        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
         errorLine1="    void insertDependency(Dependency dependency);"
         errorLine2="                          ~~~~~~~~~~">
         <location
@@ -933,45 +474,12 @@
     <issue
         id="UnknownNullness"
         message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
-        errorLine1="    boolean hasCompletedAllPrerequisites(String id);"
-        errorLine2="                                         ~~~~~~">
-        <location
-            file="src/main/java/androidx/work/impl/model/DependencyDao.java"
-            line="49"
-            column="42"/>
-    </issue>
-
-    <issue
-        id="UnknownNullness"
-        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
         errorLine1="    List&lt;String> getPrerequisites(String id);"
         errorLine2="    ~~~~~~~~~~~~">
         <location
             file="src/main/java/androidx/work/impl/model/DependencyDao.java"
             line="58"
             column="5"/>
-    </issue>
-
-    <issue
-        id="UnknownNullness"
-        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
-        errorLine1="    List&lt;String> getPrerequisites(String id);"
-        errorLine2="    ~~~~~~~~~~~~">
-        <location
-            file="src/main/java/androidx/work/impl/model/DependencyDao.java"
-            line="58"
-            column="5"/>
-    </issue>
-
-    <issue
-        id="UnknownNullness"
-        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
-        errorLine1="    List&lt;String> getPrerequisites(String id);"
-        errorLine2="                                  ~~~~~~">
-        <location
-            file="src/main/java/androidx/work/impl/model/DependencyDao.java"
-            line="58"
-            column="35"/>
     </issue>
 
     <issue
@@ -1000,28 +508,6 @@
         id="UnknownNullness"
         message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
         errorLine1="    List&lt;String> getDependentWorkIds(String id);"
-        errorLine2="    ~~~~~~~~~~~~">
-        <location
-            file="src/main/java/androidx/work/impl/model/DependencyDao.java"
-            line="67"
-            column="5"/>
-    </issue>
-
-    <issue
-        id="UnknownNullness"
-        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
-        errorLine1="    List&lt;String> getDependentWorkIds(String id);"
-        errorLine2="                                     ~~~~~~">
-        <location
-            file="src/main/java/androidx/work/impl/model/DependencyDao.java"
-            line="67"
-            column="38"/>
-    </issue>
-
-    <issue
-        id="UnknownNullness"
-        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
-        errorLine1="    List&lt;String> getDependentWorkIds(String id);"
         errorLine2="                                     ~~~~~~">
         <location
             file="src/main/java/androidx/work/impl/model/DependencyDao.java"
@@ -1038,28 +524,6 @@
             file="src/main/java/androidx/work/impl/model/DependencyDao.java"
             line="76"
             column="27"/>
-    </issue>
-
-    <issue
-        id="UnknownNullness"
-        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
-        errorLine1="    boolean hasDependents(String id);"
-        errorLine2="                          ~~~~~~">
-        <location
-            file="src/main/java/androidx/work/impl/model/DependencyDao.java"
-            line="76"
-            column="27"/>
-    </issue>
-
-    <issue
-        id="UnknownNullness"
-        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
-        errorLine1="    public Operation getOperation() {"
-        errorLine2="           ~~~~~~~~~">
-        <location
-            file="src/main/java/androidx/work/impl/utils/EnqueueRunnable.java"
-            line="104"
-            column="12"/>
     </issue>
 
     <issue
@@ -1088,44 +552,11 @@
         id="UnknownNullness"
         message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
         errorLine1="        public void onReceive(Context context, Intent intent) {"
-        errorLine2="                              ~~~~~~~">
-        <location
-            file="src/main/java/androidx/work/impl/utils/ForceStopRunnable.java"
-            line="220"
-            column="31"/>
-    </issue>
-
-    <issue
-        id="UnknownNullness"
-        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
-        errorLine1="        public void onReceive(Context context, Intent intent) {"
         errorLine2="                                               ~~~~~~">
         <location
             file="src/main/java/androidx/work/impl/utils/ForceStopRunnable.java"
             line="220"
             column="48"/>
-    </issue>
-
-    <issue
-        id="UnknownNullness"
-        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
-        errorLine1="        public void onReceive(Context context, Intent intent) {"
-        errorLine2="                                               ~~~~~~">
-        <location
-            file="src/main/java/androidx/work/impl/utils/ForceStopRunnable.java"
-            line="220"
-            column="48"/>
-    </issue>
-
-    <issue
-        id="UnknownNullness"
-        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
-        errorLine1="    public static InputMerger fromClassName(String className) {"
-        errorLine2="                  ~~~~~~~~~~~">
-        <location
-            file="src/main/java/androidx/work/InputMerger.java"
-            line="60"
-            column="19"/>
     </issue>
 
     <issue
@@ -1153,28 +584,6 @@
     <issue
         id="UnknownNullness"
         message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
-        errorLine1="    public static InputMerger fromClassName(String className) {"
-        errorLine2="                                            ~~~~~~">
-        <location
-            file="src/main/java/androidx/work/InputMerger.java"
-            line="60"
-            column="45"/>
-    </issue>
-
-    <issue
-        id="UnknownNullness"
-        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
-        errorLine1="    public static &lt;In, Out> LiveData&lt;Out> dedupedMappedLiveDataFor("
-        errorLine2="                            ~~~~~~~~~~~~~">
-        <location
-            file="src/main/java/androidx/work/impl/utils/LiveDataUtils.java"
-            line="51"
-            column="29"/>
-    </issue>
-
-    <issue
-        id="UnknownNullness"
-        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
         errorLine1="    public static &lt;In, Out> LiveData&lt;Out> dedupedMappedLiveDataFor("
         errorLine2="                            ~~~~~~~~~~~~~">
         <location
@@ -1197,45 +606,12 @@
     <issue
         id="UnknownNullness"
         message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
-        errorLine1="    public static synchronized void setLogger(Logger logger) {"
-        errorLine2="                                              ~~~~~~">
-        <location
-            file="src/main/java/androidx/work/Logger.java"
-            line="44"
-            column="47"/>
-    </issue>
-
-    <issue
-        id="UnknownNullness"
-        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
         errorLine1="    public static String tagWithPrefix(@NonNull String tag) {"
         errorLine2="                  ~~~~~~">
         <location
             file="src/main/java/androidx/work/Logger.java"
             line="52"
             column="19"/>
-    </issue>
-
-    <issue
-        id="UnknownNullness"
-        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
-        errorLine1="    public static String tagWithPrefix(@NonNull String tag) {"
-        errorLine2="                  ~~~~~~">
-        <location
-            file="src/main/java/androidx/work/Logger.java"
-            line="52"
-            column="19"/>
-    </issue>
-
-    <issue
-        id="UnknownNullness"
-        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
-        errorLine1="    public static synchronized Logger get() {"
-        errorLine2="                               ~~~~~~">
-        <location
-            file="src/main/java/androidx/work/Logger.java"
-            line="68"
-            column="32"/>
     </issue>
 
     <issue
@@ -1264,44 +640,11 @@
         id="UnknownNullness"
         message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
         errorLine1="    public abstract void verbose(String tag, String message, Throwable... throwables);"
-        errorLine2="                                 ~~~~~~">
-        <location
-            file="src/main/java/androidx/work/Logger.java"
-            line="87"
-            column="34"/>
-    </issue>
-
-    <issue
-        id="UnknownNullness"
-        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
-        errorLine1="    public abstract void verbose(String tag, String message, Throwable... throwables);"
         errorLine2="                                             ~~~~~~">
         <location
             file="src/main/java/androidx/work/Logger.java"
             line="87"
             column="46"/>
-    </issue>
-
-    <issue
-        id="UnknownNullness"
-        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
-        errorLine1="    public abstract void verbose(String tag, String message, Throwable... throwables);"
-        errorLine2="                                             ~~~~~~">
-        <location
-            file="src/main/java/androidx/work/Logger.java"
-            line="87"
-            column="46"/>
-    </issue>
-
-    <issue
-        id="UnknownNullness"
-        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
-        errorLine1="    public abstract void verbose(String tag, String message, Throwable... throwables);"
-        errorLine2="                                                             ~~~~~~~~~~~~">
-        <location
-            file="src/main/java/androidx/work/Logger.java"
-            line="87"
-            column="62"/>
     </issue>
 
     <issue
@@ -1330,44 +673,11 @@
         id="UnknownNullness"
         message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
         errorLine1="    public abstract void debug(String tag, String message, Throwable... throwables);"
-        errorLine2="                               ~~~~~~">
-        <location
-            file="src/main/java/androidx/work/Logger.java"
-            line="92"
-            column="32"/>
-    </issue>
-
-    <issue
-        id="UnknownNullness"
-        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
-        errorLine1="    public abstract void debug(String tag, String message, Throwable... throwables);"
         errorLine2="                                           ~~~~~~">
         <location
             file="src/main/java/androidx/work/Logger.java"
             line="92"
             column="44"/>
-    </issue>
-
-    <issue
-        id="UnknownNullness"
-        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
-        errorLine1="    public abstract void debug(String tag, String message, Throwable... throwables);"
-        errorLine2="                                           ~~~~~~">
-        <location
-            file="src/main/java/androidx/work/Logger.java"
-            line="92"
-            column="44"/>
-    </issue>
-
-    <issue
-        id="UnknownNullness"
-        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
-        errorLine1="    public abstract void debug(String tag, String message, Throwable... throwables);"
-        errorLine2="                                                           ~~~~~~~~~~~~">
-        <location
-            file="src/main/java/androidx/work/Logger.java"
-            line="92"
-            column="60"/>
     </issue>
 
     <issue
@@ -1396,44 +706,11 @@
         id="UnknownNullness"
         message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
         errorLine1="    public abstract void info(String tag, String message, Throwable... throwables);"
-        errorLine2="                              ~~~~~~">
-        <location
-            file="src/main/java/androidx/work/Logger.java"
-            line="97"
-            column="31"/>
-    </issue>
-
-    <issue
-        id="UnknownNullness"
-        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
-        errorLine1="    public abstract void info(String tag, String message, Throwable... throwables);"
         errorLine2="                                          ~~~~~~">
         <location
             file="src/main/java/androidx/work/Logger.java"
             line="97"
             column="43"/>
-    </issue>
-
-    <issue
-        id="UnknownNullness"
-        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
-        errorLine1="    public abstract void info(String tag, String message, Throwable... throwables);"
-        errorLine2="                                          ~~~~~~">
-        <location
-            file="src/main/java/androidx/work/Logger.java"
-            line="97"
-            column="43"/>
-    </issue>
-
-    <issue
-        id="UnknownNullness"
-        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
-        errorLine1="    public abstract void info(String tag, String message, Throwable... throwables);"
-        errorLine2="                                                          ~~~~~~~~~~~~">
-        <location
-            file="src/main/java/androidx/work/Logger.java"
-            line="97"
-            column="59"/>
     </issue>
 
     <issue
@@ -1462,44 +739,11 @@
         id="UnknownNullness"
         message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
         errorLine1="    public abstract void warning(String tag, String message, Throwable... throwables);"
-        errorLine2="                                 ~~~~~~">
-        <location
-            file="src/main/java/androidx/work/Logger.java"
-            line="102"
-            column="34"/>
-    </issue>
-
-    <issue
-        id="UnknownNullness"
-        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
-        errorLine1="    public abstract void warning(String tag, String message, Throwable... throwables);"
         errorLine2="                                             ~~~~~~">
         <location
             file="src/main/java/androidx/work/Logger.java"
             line="102"
             column="46"/>
-    </issue>
-
-    <issue
-        id="UnknownNullness"
-        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
-        errorLine1="    public abstract void warning(String tag, String message, Throwable... throwables);"
-        errorLine2="                                             ~~~~~~">
-        <location
-            file="src/main/java/androidx/work/Logger.java"
-            line="102"
-            column="46"/>
-    </issue>
-
-    <issue
-        id="UnknownNullness"
-        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
-        errorLine1="    public abstract void warning(String tag, String message, Throwable... throwables);"
-        errorLine2="                                                             ~~~~~~~~~~~~">
-        <location
-            file="src/main/java/androidx/work/Logger.java"
-            line="102"
-            column="62"/>
     </issue>
 
     <issue
@@ -1528,44 +772,11 @@
         id="UnknownNullness"
         message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
         errorLine1="    public abstract void error(String tag, String message, Throwable... throwables);"
-        errorLine2="                               ~~~~~~">
-        <location
-            file="src/main/java/androidx/work/Logger.java"
-            line="107"
-            column="32"/>
-    </issue>
-
-    <issue
-        id="UnknownNullness"
-        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
-        errorLine1="    public abstract void error(String tag, String message, Throwable... throwables);"
         errorLine2="                                           ~~~~~~">
         <location
             file="src/main/java/androidx/work/Logger.java"
             line="107"
             column="44"/>
-    </issue>
-
-    <issue
-        id="UnknownNullness"
-        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
-        errorLine1="    public abstract void error(String tag, String message, Throwable... throwables);"
-        errorLine2="                                           ~~~~~~">
-        <location
-            file="src/main/java/androidx/work/Logger.java"
-            line="107"
-            column="44"/>
-    </issue>
-
-    <issue
-        id="UnknownNullness"
-        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
-        errorLine1="    public abstract void error(String tag, String message, Throwable... throwables);"
-        errorLine2="                                                           ~~~~~~~~~~~~">
-        <location
-            file="src/main/java/androidx/work/Logger.java"
-            line="107"
-            column="60"/>
     </issue>
 
     <issue
@@ -1594,44 +805,11 @@
         id="UnknownNullness"
         message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
         errorLine1="        public void verbose(String tag, String message, Throwable... throwables) {"
-        errorLine2="                            ~~~~~~">
-        <location
-            file="src/main/java/androidx/work/Logger.java"
-            line="124"
-            column="29"/>
-    </issue>
-
-    <issue
-        id="UnknownNullness"
-        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
-        errorLine1="        public void verbose(String tag, String message, Throwable... throwables) {"
         errorLine2="                                        ~~~~~~">
         <location
             file="src/main/java/androidx/work/Logger.java"
             line="124"
             column="41"/>
-    </issue>
-
-    <issue
-        id="UnknownNullness"
-        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
-        errorLine1="        public void verbose(String tag, String message, Throwable... throwables) {"
-        errorLine2="                                        ~~~~~~">
-        <location
-            file="src/main/java/androidx/work/Logger.java"
-            line="124"
-            column="41"/>
-    </issue>
-
-    <issue
-        id="UnknownNullness"
-        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
-        errorLine1="        public void verbose(String tag, String message, Throwable... throwables) {"
-        errorLine2="                                                        ~~~~~~~~~~~~">
-        <location
-            file="src/main/java/androidx/work/Logger.java"
-            line="124"
-            column="57"/>
     </issue>
 
     <issue
@@ -1660,44 +838,11 @@
         id="UnknownNullness"
         message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
         errorLine1="        public void debug(String tag, String message, Throwable... throwables) {"
-        errorLine2="                          ~~~~~~">
-        <location
-            file="src/main/java/androidx/work/Logger.java"
-            line="135"
-            column="27"/>
-    </issue>
-
-    <issue
-        id="UnknownNullness"
-        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
-        errorLine1="        public void debug(String tag, String message, Throwable... throwables) {"
         errorLine2="                                      ~~~~~~">
         <location
             file="src/main/java/androidx/work/Logger.java"
             line="135"
             column="39"/>
-    </issue>
-
-    <issue
-        id="UnknownNullness"
-        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
-        errorLine1="        public void debug(String tag, String message, Throwable... throwables) {"
-        errorLine2="                                      ~~~~~~">
-        <location
-            file="src/main/java/androidx/work/Logger.java"
-            line="135"
-            column="39"/>
-    </issue>
-
-    <issue
-        id="UnknownNullness"
-        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
-        errorLine1="        public void debug(String tag, String message, Throwable... throwables) {"
-        errorLine2="                                                      ~~~~~~~~~~~~">
-        <location
-            file="src/main/java/androidx/work/Logger.java"
-            line="135"
-            column="55"/>
     </issue>
 
     <issue
@@ -1726,44 +871,11 @@
         id="UnknownNullness"
         message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
         errorLine1="        public void info(String tag, String message, Throwable... throwables) {"
-        errorLine2="                         ~~~~~~">
-        <location
-            file="src/main/java/androidx/work/Logger.java"
-            line="146"
-            column="26"/>
-    </issue>
-
-    <issue
-        id="UnknownNullness"
-        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
-        errorLine1="        public void info(String tag, String message, Throwable... throwables) {"
         errorLine2="                                     ~~~~~~">
         <location
             file="src/main/java/androidx/work/Logger.java"
             line="146"
             column="38"/>
-    </issue>
-
-    <issue
-        id="UnknownNullness"
-        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
-        errorLine1="        public void info(String tag, String message, Throwable... throwables) {"
-        errorLine2="                                     ~~~~~~">
-        <location
-            file="src/main/java/androidx/work/Logger.java"
-            line="146"
-            column="38"/>
-    </issue>
-
-    <issue
-        id="UnknownNullness"
-        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
-        errorLine1="        public void info(String tag, String message, Throwable... throwables) {"
-        errorLine2="                                                     ~~~~~~~~~~~~">
-        <location
-            file="src/main/java/androidx/work/Logger.java"
-            line="146"
-            column="54"/>
     </issue>
 
     <issue
@@ -1792,44 +904,11 @@
         id="UnknownNullness"
         message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
         errorLine1="        public void warning(String tag, String message, Throwable... throwables) {"
-        errorLine2="                            ~~~~~~">
-        <location
-            file="src/main/java/androidx/work/Logger.java"
-            line="157"
-            column="29"/>
-    </issue>
-
-    <issue
-        id="UnknownNullness"
-        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
-        errorLine1="        public void warning(String tag, String message, Throwable... throwables) {"
         errorLine2="                                        ~~~~~~">
         <location
             file="src/main/java/androidx/work/Logger.java"
             line="157"
             column="41"/>
-    </issue>
-
-    <issue
-        id="UnknownNullness"
-        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
-        errorLine1="        public void warning(String tag, String message, Throwable... throwables) {"
-        errorLine2="                                        ~~~~~~">
-        <location
-            file="src/main/java/androidx/work/Logger.java"
-            line="157"
-            column="41"/>
-    </issue>
-
-    <issue
-        id="UnknownNullness"
-        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
-        errorLine1="        public void warning(String tag, String message, Throwable... throwables) {"
-        errorLine2="                                                        ~~~~~~~~~~~~">
-        <location
-            file="src/main/java/androidx/work/Logger.java"
-            line="157"
-            column="57"/>
     </issue>
 
     <issue
@@ -1858,44 +937,11 @@
         id="UnknownNullness"
         message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
         errorLine1="        public void error(String tag, String message, Throwable... throwables) {"
-        errorLine2="                          ~~~~~~">
-        <location
-            file="src/main/java/androidx/work/Logger.java"
-            line="168"
-            column="27"/>
-    </issue>
-
-    <issue
-        id="UnknownNullness"
-        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
-        errorLine1="        public void error(String tag, String message, Throwable... throwables) {"
         errorLine2="                                      ~~~~~~">
         <location
             file="src/main/java/androidx/work/Logger.java"
             line="168"
             column="39"/>
-    </issue>
-
-    <issue
-        id="UnknownNullness"
-        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
-        errorLine1="        public void error(String tag, String message, Throwable... throwables) {"
-        errorLine2="                                      ~~~~~~">
-        <location
-            file="src/main/java/androidx/work/Logger.java"
-            line="168"
-            column="39"/>
-    </issue>
-
-    <issue
-        id="UnknownNullness"
-        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
-        errorLine1="        public void error(String tag, String message, Throwable... throwables) {"
-        errorLine2="                                                      ~~~~~~~~~~~~">
-        <location
-            file="src/main/java/androidx/work/Logger.java"
-            line="168"
-            column="55"/>
     </issue>
 
     <issue
@@ -1924,28 +970,6 @@
         id="UnknownNullness"
         message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
         errorLine1="    public NetworkConnectedController(Context context, TaskExecutor taskExecutor) {"
-        errorLine2="                                      ~~~~~~~">
-        <location
-            file="src/main/java/androidx/work/impl/constraints/controllers/NetworkConnectedController.java"
-            line="40"
-            column="39"/>
-    </issue>
-
-    <issue
-        id="UnknownNullness"
-        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
-        errorLine1="    public NetworkConnectedController(Context context, TaskExecutor taskExecutor) {"
-        errorLine2="                                                       ~~~~~~~~~~~~">
-        <location
-            file="src/main/java/androidx/work/impl/constraints/controllers/NetworkConnectedController.java"
-            line="40"
-            column="56"/>
-    </issue>
-
-    <issue
-        id="UnknownNullness"
-        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
-        errorLine1="    public NetworkConnectedController(Context context, TaskExecutor taskExecutor) {"
         errorLine2="                                                       ~~~~~~~~~~~~">
         <location
             file="src/main/java/androidx/work/impl/constraints/controllers/NetworkConnectedController.java"
@@ -1962,28 +986,6 @@
             file="src/main/java/androidx/work/impl/constraints/controllers/NetworkMeteredController.java"
             line="38"
             column="37"/>
-    </issue>
-
-    <issue
-        id="UnknownNullness"
-        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
-        errorLine1="    public NetworkMeteredController(Context context, TaskExecutor taskExecutor) {"
-        errorLine2="                                    ~~~~~~~">
-        <location
-            file="src/main/java/androidx/work/impl/constraints/controllers/NetworkMeteredController.java"
-            line="38"
-            column="37"/>
-    </issue>
-
-    <issue
-        id="UnknownNullness"
-        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
-        errorLine1="    public NetworkMeteredController(Context context, TaskExecutor taskExecutor) {"
-        errorLine2="                                                     ~~~~~~~~~~~~">
-        <location
-            file="src/main/java/androidx/work/impl/constraints/controllers/NetworkMeteredController.java"
-            line="38"
-            column="54"/>
     </issue>
 
     <issue
@@ -2012,44 +1014,11 @@
         id="UnknownNullness"
         message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
         errorLine1="    public NetworkNotRoamingController(Context context, TaskExecutor taskExecutor) {"
-        errorLine2="                                       ~~~~~~~">
-        <location
-            file="src/main/java/androidx/work/impl/constraints/controllers/NetworkNotRoamingController.java"
-            line="38"
-            column="40"/>
-    </issue>
-
-    <issue
-        id="UnknownNullness"
-        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
-        errorLine1="    public NetworkNotRoamingController(Context context, TaskExecutor taskExecutor) {"
         errorLine2="                                                        ~~~~~~~~~~~~">
         <location
             file="src/main/java/androidx/work/impl/constraints/controllers/NetworkNotRoamingController.java"
             line="38"
             column="57"/>
-    </issue>
-
-    <issue
-        id="UnknownNullness"
-        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
-        errorLine1="    public NetworkNotRoamingController(Context context, TaskExecutor taskExecutor) {"
-        errorLine2="                                                        ~~~~~~~~~~~~">
-        <location
-            file="src/main/java/androidx/work/impl/constraints/controllers/NetworkNotRoamingController.java"
-            line="38"
-            column="57"/>
-    </issue>
-
-    <issue
-        id="UnknownNullness"
-        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
-        errorLine1="    public NetworkState getInitialState() {"
-        errorLine2="           ~~~~~~~~~~~~">
-        <location
-            file="src/main/java/androidx/work/impl/constraints/trackers/NetworkStateTracker.java"
-            line="79"
-            column="12"/>
     </issue>
 
     <issue
@@ -2072,28 +1041,6 @@
             file="src/main/java/androidx/work/impl/utils/PackageManagerHelper.java"
             line="66"
             column="56"/>
-    </issue>
-
-    <issue
-        id="UnknownNullness"
-        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
-        errorLine1="    public static boolean isComponentExplicitlyEnabled(Context context, Class&lt;?> klazz) {"
-        errorLine2="                                                       ~~~~~~~">
-        <location
-            file="src/main/java/androidx/work/impl/utils/PackageManagerHelper.java"
-            line="66"
-            column="56"/>
-    </issue>
-
-    <issue
-        id="UnknownNullness"
-        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
-        errorLine1="    public static boolean isComponentExplicitlyEnabled(Context context, Class&lt;?> klazz) {"
-        errorLine2="                                                                        ~~~~~~~~">
-        <location
-            file="src/main/java/androidx/work/impl/utils/PackageManagerHelper.java"
-            line="66"
-            column="73"/>
     </issue>
 
     <issue
@@ -2122,28 +1069,6 @@
         id="UnknownNullness"
         message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
         errorLine1="    public static boolean isComponentExplicitlyEnabled(Context context, String className) {"
-        errorLine2="                                                       ~~~~~~~">
-        <location
-            file="src/main/java/androidx/work/impl/utils/PackageManagerHelper.java"
-            line="77"
-            column="56"/>
-    </issue>
-
-    <issue
-        id="UnknownNullness"
-        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
-        errorLine1="    public static boolean isComponentExplicitlyEnabled(Context context, String className) {"
-        errorLine2="                                                                        ~~~~~~">
-        <location
-            file="src/main/java/androidx/work/impl/utils/PackageManagerHelper.java"
-            line="77"
-            column="73"/>
-    </issue>
-
-    <issue
-        id="UnknownNullness"
-        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
-        errorLine1="    public static boolean isComponentExplicitlyEnabled(Context context, String className) {"
         errorLine2="                                                                        ~~~~~~">
         <location
             file="src/main/java/androidx/work/impl/utils/PackageManagerHelper.java"
@@ -2160,28 +1085,6 @@
             file="src/main/java/androidx/work/impl/utils/PruneWorkRunnable.java"
             line="39"
             column="30"/>
-    </issue>
-
-    <issue
-        id="UnknownNullness"
-        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
-        errorLine1="    public PruneWorkRunnable(WorkManagerImpl workManagerImpl) {"
-        errorLine2="                             ~~~~~~~~~~~~~~~">
-        <location
-            file="src/main/java/androidx/work/impl/utils/PruneWorkRunnable.java"
-            line="39"
-            column="30"/>
-    </issue>
-
-    <issue
-        id="UnknownNullness"
-        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
-        errorLine1="    public Operation getOperation() {"
-        errorLine2="           ~~~~~~~~~">
-        <location
-            file="src/main/java/androidx/work/impl/utils/PruneWorkRunnable.java"
-            line="47"
-            column="12"/>
     </issue>
 
     <issue
@@ -2210,44 +1113,11 @@
         id="UnknownNullness"
         message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
         errorLine1="    public void onReceive(Context context, Intent intent) {"
-        errorLine2="                          ~~~~~~~">
-        <location
-            file="src/main/java/androidx/work/impl/background/systemalarm/RescheduleReceiver.java"
-            line="35"
-            column="27"/>
-    </issue>
-
-    <issue
-        id="UnknownNullness"
-        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
-        errorLine1="    public void onReceive(Context context, Intent intent) {"
         errorLine2="                                           ~~~~~~">
         <location
             file="src/main/java/androidx/work/impl/background/systemalarm/RescheduleReceiver.java"
             line="35"
             column="44"/>
-    </issue>
-
-    <issue
-        id="UnknownNullness"
-        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
-        errorLine1="    public void onReceive(Context context, Intent intent) {"
-        errorLine2="                                           ~~~~~~">
-        <location
-            file="src/main/java/androidx/work/impl/background/systemalarm/RescheduleReceiver.java"
-            line="35"
-            column="44"/>
-    </issue>
-
-    <issue
-        id="UnknownNullness"
-        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
-        errorLine1="            List&lt;Scheduler> schedulers) {"
-        errorLine2="            ~~~~~~~~~~~~~~~">
-        <location
-            file="src/main/java/androidx/work/impl/Schedulers.java"
-            line="61"
-            column="13"/>
     </issue>
 
     <issue
@@ -2275,28 +1145,6 @@
     <issue
         id="UnknownNullness"
         message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
-        errorLine1="    public static &lt;V> SettableFuture&lt;V> create() {"
-        errorLine2="                      ~~~~~~~~~~~~~~~~~">
-        <location
-            file="src/main/java/androidx/work/impl/utils/futures/SettableFuture.java"
-            line="45"
-            column="23"/>
-    </issue>
-
-    <issue
-        id="UnknownNullness"
-        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
-        errorLine1="    public boolean setException(Throwable throwable) {"
-        errorLine2="                                ~~~~~~~~~">
-        <location
-            file="src/main/java/androidx/work/impl/utils/futures/SettableFuture.java"
-            line="55"
-            column="33"/>
-    </issue>
-
-    <issue
-        id="UnknownNullness"
-        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
         errorLine1="    public boolean setException(Throwable throwable) {"
         errorLine2="                                ~~~~~~~~~">
         <location
@@ -2319,44 +1167,11 @@
     <issue
         id="UnknownNullness"
         message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
-        errorLine1="    public boolean setFuture(ListenableFuture&lt;? extends V> future) {"
-        errorLine2="                             ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
-        <location
-            file="src/main/java/androidx/work/impl/utils/futures/SettableFuture.java"
-            line="60"
-            column="30"/>
-    </issue>
-
-    <issue
-        id="UnknownNullness"
-        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
         errorLine1="            WorkManagerImpl workManagerImpl,"
         errorLine2="            ~~~~~~~~~~~~~~~">
         <location
             file="src/main/java/androidx/work/impl/utils/StartWorkRunnable.java"
             line="36"
-            column="13"/>
-    </issue>
-
-    <issue
-        id="UnknownNullness"
-        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
-        errorLine1="            WorkManagerImpl workManagerImpl,"
-        errorLine2="            ~~~~~~~~~~~~~~~">
-        <location
-            file="src/main/java/androidx/work/impl/utils/StartWorkRunnable.java"
-            line="36"
-            column="13"/>
-    </issue>
-
-    <issue
-        id="UnknownNullness"
-        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
-        errorLine1="            String workSpecId,"
-        errorLine2="            ~~~~~~">
-        <location
-            file="src/main/java/androidx/work/impl/utils/StartWorkRunnable.java"
-            line="37"
             column="13"/>
     </issue>
 
@@ -2385,28 +1200,6 @@
     <issue
         id="UnknownNullness"
         message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
-        errorLine1="            WorkerParameters.RuntimeExtras runtimeExtras) {"
-        errorLine2="            ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
-        <location
-            file="src/main/java/androidx/work/impl/utils/StartWorkRunnable.java"
-            line="38"
-            column="13"/>
-    </issue>
-
-    <issue
-        id="UnknownNullness"
-        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
-        errorLine1="    public ListenableFuture&lt;T> getFuture() {"
-        errorLine2="           ~~~~~~~~~~~~~~~~~~~">
-        <location
-            file="src/main/java/androidx/work/impl/utils/StatusRunnable.java"
-            line="56"
-            column="12"/>
-    </issue>
-
-    <issue
-        id="UnknownNullness"
-        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
         errorLine1="    public ListenableFuture&lt;T> getFuture() {"
         errorLine2="           ~~~~~~~~~~~~~~~~~~~">
         <location
@@ -2423,28 +1216,6 @@
         <location
             file="src/main/java/androidx/work/impl/utils/StatusRunnable.java"
             line="68"
-            column="19"/>
-    </issue>
-
-    <issue
-        id="UnknownNullness"
-        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
-        errorLine1="    public static StatusRunnable&lt;List&lt;WorkInfo>> forStringIds("
-        errorLine2="                  ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
-        <location
-            file="src/main/java/androidx/work/impl/utils/StatusRunnable.java"
-            line="68"
-            column="19"/>
-    </issue>
-
-    <issue
-        id="UnknownNullness"
-        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
-        errorLine1="    public static StatusRunnable&lt;WorkInfo> forUUID("
-        errorLine2="                  ~~~~~~~~~~~~~~~~~~~~~~~~">
-        <location
-            file="src/main/java/androidx/work/impl/utils/StatusRunnable.java"
-            line="92"
             column="19"/>
     </issue>
 
@@ -2473,28 +1244,6 @@
     <issue
         id="UnknownNullness"
         message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
-        errorLine1="    public static StatusRunnable&lt;List&lt;WorkInfo>> forTag("
-        errorLine2="                  ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
-        <location
-            file="src/main/java/androidx/work/impl/utils/StatusRunnable.java"
-            line="116"
-            column="19"/>
-    </issue>
-
-    <issue
-        id="UnknownNullness"
-        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
-        errorLine1="    public static StatusRunnable&lt;List&lt;WorkInfo>> forUniqueWork("
-        errorLine2="                  ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
-        <location
-            file="src/main/java/androidx/work/impl/utils/StatusRunnable.java"
-            line="140"
-            column="19"/>
-    </issue>
-
-    <issue
-        id="UnknownNullness"
-        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
         errorLine1="    public static StatusRunnable&lt;List&lt;WorkInfo>> forUniqueWork("
         errorLine2="                  ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
         <location
@@ -2511,28 +1260,6 @@
         <location
             file="src/main/java/androidx/work/impl/constraints/trackers/StorageNotLowTracker.java"
             line="46"
-            column="12"/>
-    </issue>
-
-    <issue
-        id="UnknownNullness"
-        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
-        errorLine1="    public Boolean getInitialState() {"
-        errorLine2="           ~~~~~~~">
-        <location
-            file="src/main/java/androidx/work/impl/constraints/trackers/StorageNotLowTracker.java"
-            line="46"
-            column="12"/>
-    </issue>
-
-    <issue
-        id="UnknownNullness"
-        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
-        errorLine1="    public IntentFilter getIntentFilter() {"
-        errorLine2="           ~~~~~~~~~~~~">
-        <location
-            file="src/main/java/androidx/work/impl/constraints/trackers/StorageNotLowTracker.java"
-            line="70"
             column="12"/>
     </issue>
 
@@ -2561,28 +1288,6 @@
     <issue
         id="UnknownNullness"
         message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
-        errorLine1="    public void onBroadcastReceive(Context context, @NonNull Intent intent) {"
-        errorLine2="                                   ~~~~~~~">
-        <location
-            file="src/main/java/androidx/work/impl/constraints/trackers/StorageNotLowTracker.java"
-            line="81"
-            column="36"/>
-    </issue>
-
-    <issue
-        id="UnknownNullness"
-        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
-        errorLine1="    public int onStartCommand(Intent intent, int flags, int startId) {"
-        errorLine2="                              ~~~~~~">
-        <location
-            file="src/main/java/androidx/work/impl/background/systemalarm/SystemAlarmService.java"
-            line="57"
-            column="31"/>
-    </issue>
-
-    <issue
-        id="UnknownNullness"
-        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
         errorLine1="    public int onStartCommand(Intent intent, int flags, int startId) {"
         errorLine2="                              ~~~~~~">
         <location
@@ -2599,28 +1304,6 @@
         <location
             file="src/main/java/androidx/work/impl/background/systemjob/SystemJobScheduler.java"
             line="72"
-            column="13"/>
-    </issue>
-
-    <issue
-        id="UnknownNullness"
-        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
-        errorLine1="            Context context,"
-        errorLine2="            ~~~~~~~">
-        <location
-            file="src/main/java/androidx/work/impl/background/systemjob/SystemJobScheduler.java"
-            line="72"
-            column="13"/>
-    </issue>
-
-    <issue
-        id="UnknownNullness"
-        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
-        errorLine1="            WorkManagerImpl workManager,"
-        errorLine2="            ~~~~~~~~~~~~~~~">
-        <location
-            file="src/main/java/androidx/work/impl/background/systemjob/SystemJobScheduler.java"
-            line="73"
             column="13"/>
     </issue>
 
@@ -2649,45 +1332,12 @@
     <issue
         id="UnknownNullness"
         message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
-        errorLine1="            JobScheduler jobScheduler,"
-        errorLine2="            ~~~~~~~~~~~~">
-        <location
-            file="src/main/java/androidx/work/impl/background/systemjob/SystemJobScheduler.java"
-            line="74"
-            column="13"/>
-    </issue>
-
-    <issue
-        id="UnknownNullness"
-        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
         errorLine1="            SystemJobInfoConverter systemJobInfoConverter) {"
         errorLine2="            ~~~~~~~~~~~~~~~~~~~~~~">
         <location
             file="src/main/java/androidx/work/impl/background/systemjob/SystemJobScheduler.java"
             line="75"
             column="13"/>
-    </issue>
-
-    <issue
-        id="UnknownNullness"
-        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
-        errorLine1="            SystemJobInfoConverter systemJobInfoConverter) {"
-        errorLine2="            ~~~~~~~~~~~~~~~~~~~~~~">
-        <location
-            file="src/main/java/androidx/work/impl/background/systemjob/SystemJobScheduler.java"
-            line="75"
-            column="13"/>
-    </issue>
-
-    <issue
-        id="UnknownNullness"
-        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
-        errorLine1="    public void scheduleInternal(WorkSpec workSpec, int jobId) {"
-        errorLine2="                                 ~~~~~~~~">
-        <location
-            file="src/main/java/androidx/work/impl/background/systemjob/SystemJobScheduler.java"
-            line="175"
-            column="34"/>
     </issue>
 
     <issue
@@ -2715,28 +1365,6 @@
     <issue
         id="UnknownNullness"
         message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
-        errorLine1="    void postToMainThread(Runnable runnable);"
-        errorLine2="                          ~~~~~~~~">
-        <location
-            file="src/main/java/androidx/work/impl/utils/taskexecutor/TaskExecutor.java"
-            line="35"
-            column="27"/>
-    </issue>
-
-    <issue
-        id="UnknownNullness"
-        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
-        errorLine1="    Executor getMainThreadExecutor();"
-        errorLine2="    ~~~~~~~~">
-        <location
-            file="src/main/java/androidx/work/impl/utils/taskexecutor/TaskExecutor.java"
-            line="40"
-            column="5"/>
-    </issue>
-
-    <issue
-        id="UnknownNullness"
-        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
         errorLine1="    Executor getMainThreadExecutor();"
         errorLine2="    ~~~~~~~~">
         <location
@@ -2754,28 +1382,6 @@
             file="src/main/java/androidx/work/impl/utils/taskexecutor/TaskExecutor.java"
             line="45"
             column="36"/>
-    </issue>
-
-    <issue
-        id="UnknownNullness"
-        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
-        errorLine1="    void executeOnBackgroundThread(Runnable runnable);"
-        errorLine2="                                   ~~~~~~~~">
-        <location
-            file="src/main/java/androidx/work/impl/utils/taskexecutor/TaskExecutor.java"
-            line="45"
-            column="36"/>
-    </issue>
-
-    <issue
-        id="UnknownNullness"
-        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
-        errorLine1="    SerialExecutor getBackgroundExecutor();"
-        errorLine2="    ~~~~~~~~~~~~~~">
-        <location
-            file="src/main/java/androidx/work/impl/utils/taskexecutor/TaskExecutor.java"
-            line="50"
-            column="5"/>
     </issue>
 
     <issue
@@ -2804,28 +1410,6 @@
         id="UnknownNullness"
         message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
         errorLine1="    public static synchronized Trackers getInstance(Context context, TaskExecutor taskExecutor) {"
-        errorLine2="                                                    ~~~~~~~">
-        <location
-            file="src/main/java/androidx/work/impl/constraints/trackers/Trackers.java"
-            line="41"
-            column="53"/>
-    </issue>
-
-    <issue
-        id="UnknownNullness"
-        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
-        errorLine1="    public static synchronized Trackers getInstance(Context context, TaskExecutor taskExecutor) {"
-        errorLine2="                                                                     ~~~~~~~~~~~~">
-        <location
-            file="src/main/java/androidx/work/impl/constraints/trackers/Trackers.java"
-            line="41"
-            column="70"/>
-    </issue>
-
-    <issue
-        id="UnknownNullness"
-        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
-        errorLine1="    public static synchronized Trackers getInstance(Context context, TaskExecutor taskExecutor) {"
         errorLine2="                                                                     ~~~~~~~~~~~~">
         <location
             file="src/main/java/androidx/work/impl/constraints/trackers/Trackers.java"
@@ -2847,44 +1431,11 @@
     <issue
         id="UnknownNullness"
         message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
-        errorLine1="    public static PowerManager.WakeLock newWakeLock("
-        errorLine2="                  ~~~~~~~~~~~~~~~~~~~~~">
-        <location
-            file="src/main/java/androidx/work/impl/utils/WakeLocks.java"
-            line="53"
-            column="19"/>
-    </issue>
-
-    <issue
-        id="UnknownNullness"
-        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
         errorLine1="    public ExistingWorkPolicy getExistingWorkPolicy() {"
         errorLine2="           ~~~~~~~~~~~~~~~~~~">
         <location
             file="src/main/java/androidx/work/impl/WorkContinuationImpl.java"
             line="76"
-            column="12"/>
-    </issue>
-
-    <issue
-        id="UnknownNullness"
-        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
-        errorLine1="    public ExistingWorkPolicy getExistingWorkPolicy() {"
-        errorLine2="           ~~~~~~~~~~~~~~~~~~">
-        <location
-            file="src/main/java/androidx/work/impl/WorkContinuationImpl.java"
-            line="76"
-            column="12"/>
-    </issue>
-
-    <issue
-        id="UnknownNullness"
-        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
-        errorLine1="    public List&lt;String> getAllIds() {"
-        errorLine2="           ~~~~~~~~~~~~">
-        <location
-            file="src/main/java/androidx/work/impl/WorkContinuationImpl.java"
-            line="90"
             column="12"/>
     </issue>
 
@@ -2913,33 +1464,11 @@
     <issue
         id="UnknownNullness"
         message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
-        errorLine1="    public List&lt;WorkContinuationImpl> getParents() {"
-        errorLine2="           ~~~~~~~~~~~~~~~~~~~~~~~~~~">
-        <location
-            file="src/main/java/androidx/work/impl/WorkContinuationImpl.java"
-            line="105"
-            column="12"/>
-    </issue>
-
-    <issue
-        id="UnknownNullness"
-        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
         errorLine1="    public static Set&lt;String> prerequisitesFor(WorkContinuationImpl continuation) {"
         errorLine2="                  ~~~~~~~~~~~">
         <location
             file="src/main/java/androidx/work/impl/WorkContinuationImpl.java"
-            line="271"
-            column="19"/>
-    </issue>
-
-    <issue
-        id="UnknownNullness"
-        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
-        errorLine1="    public static Set&lt;String> prerequisitesFor(WorkContinuationImpl continuation) {"
-        errorLine2="                  ~~~~~~~~~~~">
-        <location
-            file="src/main/java/androidx/work/impl/WorkContinuationImpl.java"
-            line="271"
+            line="275"
             column="19"/>
     </issue>
 
@@ -2950,30 +1479,8 @@
         errorLine2="                                               ~~~~~~~~~~~~~~~~~~~~">
         <location
             file="src/main/java/androidx/work/impl/WorkContinuationImpl.java"
-            line="271"
+            line="275"
             column="48"/>
-    </issue>
-
-    <issue
-        id="UnknownNullness"
-        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
-        errorLine1="    public static Set&lt;String> prerequisitesFor(WorkContinuationImpl continuation) {"
-        errorLine2="                                               ~~~~~~~~~~~~~~~~~~~~">
-        <location
-            file="src/main/java/androidx/work/impl/WorkContinuationImpl.java"
-            line="271"
-            column="48"/>
-    </issue>
-
-    <issue
-        id="UnknownNullness"
-        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
-        errorLine1="    public void postToMainThread(Runnable r) {"
-        errorLine2="                                 ~~~~~~~~">
-        <location
-            file="src/main/java/androidx/work/impl/utils/taskexecutor/WorkManagerTaskExecutor.java"
-            line="53"
-            column="34"/>
     </issue>
 
     <issue
@@ -3001,45 +1508,12 @@
     <issue
         id="UnknownNullness"
         message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
-        errorLine1="    public Executor getMainThreadExecutor() {"
-        errorLine2="           ~~~~~~~~">
-        <location
-            file="src/main/java/androidx/work/impl/utils/taskexecutor/WorkManagerTaskExecutor.java"
-            line="58"
-            column="12"/>
-    </issue>
-
-    <issue
-        id="UnknownNullness"
-        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
         errorLine1="    public void executeOnBackgroundThread(Runnable r) {"
         errorLine2="                                          ~~~~~~~~">
         <location
             file="src/main/java/androidx/work/impl/utils/taskexecutor/WorkManagerTaskExecutor.java"
             line="63"
             column="43"/>
-    </issue>
-
-    <issue
-        id="UnknownNullness"
-        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
-        errorLine1="    public void executeOnBackgroundThread(Runnable r) {"
-        errorLine2="                                          ~~~~~~~~">
-        <location
-            file="src/main/java/androidx/work/impl/utils/taskexecutor/WorkManagerTaskExecutor.java"
-            line="63"
-            column="43"/>
-    </issue>
-
-    <issue
-        id="UnknownNullness"
-        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
-        errorLine1="    void insert(WorkName workName);"
-        errorLine2="                ~~~~~~~~">
-        <location
-            file="src/main/java/androidx/work/impl/model/WorkNameDao.java"
-            line="39"
-            column="17"/>
     </issue>
 
     <issue
@@ -3068,28 +1542,6 @@
         id="UnknownNullness"
         message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
         errorLine1="    List&lt;String> getWorkSpecIdsWithName(String name);"
-        errorLine2="    ~~~~~~~~~~~~">
-        <location
-            file="src/main/java/androidx/work/impl/model/WorkNameDao.java"
-            line="48"
-            column="5"/>
-    </issue>
-
-    <issue
-        id="UnknownNullness"
-        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
-        errorLine1="    List&lt;String> getWorkSpecIdsWithName(String name);"
-        errorLine2="                                        ~~~~~~">
-        <location
-            file="src/main/java/androidx/work/impl/model/WorkNameDao.java"
-            line="48"
-            column="41"/>
-    </issue>
-
-    <issue
-        id="UnknownNullness"
-        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
-        errorLine1="    List&lt;String> getWorkSpecIdsWithName(String name);"
         errorLine2="                                        ~~~~~~">
         <location
             file="src/main/java/androidx/work/impl/model/WorkNameDao.java"
@@ -3111,44 +1563,11 @@
     <issue
         id="UnknownNullness"
         message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
-        errorLine1="    public String inputMergerClassName;"
-        errorLine2="           ~~~~~~">
-        <location
-            file="src/main/java/androidx/work/impl/model/WorkSpec.java"
-            line="76"
-            column="12"/>
-    </issue>
-
-    <issue
-        id="UnknownNullness"
-        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
         errorLine1="        public String id;"
         errorLine2="               ~~~~~~">
         <location
             file="src/main/java/androidx/work/impl/model/WorkSpec.java"
             line="365"
-            column="16"/>
-    </issue>
-
-    <issue
-        id="UnknownNullness"
-        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
-        errorLine1="        public String id;"
-        errorLine2="               ~~~~~~">
-        <location
-            file="src/main/java/androidx/work/impl/model/WorkSpec.java"
-            line="365"
-            column="16"/>
-    </issue>
-
-    <issue
-        id="UnknownNullness"
-        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
-        errorLine1="        public WorkInfo.State state;"
-        errorLine2="               ~~~~~~~~~~~~~~">
-        <location
-            file="src/main/java/androidx/work/impl/model/WorkSpec.java"
-            line="368"
             column="16"/>
     </issue>
 
@@ -3177,44 +1596,11 @@
     <issue
         id="UnknownNullness"
         message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
-        errorLine1="        public String id;"
-        errorLine2="               ~~~~~~">
-        <location
-            file="src/main/java/androidx/work/impl/model/WorkSpec.java"
-            line="395"
-            column="16"/>
-    </issue>
-
-    <issue
-        id="UnknownNullness"
-        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
         errorLine1="        public WorkInfo.State state;"
         errorLine2="               ~~~~~~~~~~~~~~">
         <location
             file="src/main/java/androidx/work/impl/model/WorkSpec.java"
             line="398"
-            column="16"/>
-    </issue>
-
-    <issue
-        id="UnknownNullness"
-        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
-        errorLine1="        public WorkInfo.State state;"
-        errorLine2="               ~~~~~~~~~~~~~~">
-        <location
-            file="src/main/java/androidx/work/impl/model/WorkSpec.java"
-            line="398"
-            column="16"/>
-    </issue>
-
-    <issue
-        id="UnknownNullness"
-        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
-        errorLine1="        public Data output;"
-        errorLine2="               ~~~~">
-        <location
-            file="src/main/java/androidx/work/impl/model/WorkSpec.java"
-            line="401"
             column="16"/>
     </issue>
 
@@ -3243,28 +1629,6 @@
     <issue
         id="UnknownNullness"
         message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
-        errorLine1="        public List&lt;String> tags;"
-        errorLine2="               ~~~~~~~~~~~~">
-        <location
-            file="src/main/java/androidx/work/impl/model/WorkSpec.java"
-            line="411"
-            column="16"/>
-    </issue>
-
-    <issue
-        id="UnknownNullness"
-        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
-        errorLine1="        public List&lt;Data> progress;"
-        errorLine2="               ~~~~~~~~~~">
-        <location
-            file="src/main/java/androidx/work/impl/model/WorkSpec.java"
-            line="420"
-            column="16"/>
-    </issue>
-
-    <issue
-        id="UnknownNullness"
-        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
         errorLine1="        public List&lt;Data> progress;"
         errorLine2="               ~~~~~~~~~~">
         <location
@@ -3282,28 +1646,6 @@
             file="src/main/java/androidx/work/impl/model/WorkSpecDao.java"
             line="45"
             column="25"/>
-    </issue>
-
-    <issue
-        id="UnknownNullness"
-        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
-        errorLine1="    void insertWorkSpec(WorkSpec workSpec);"
-        errorLine2="                        ~~~~~~~~">
-        <location
-            file="src/main/java/androidx/work/impl/model/WorkSpecDao.java"
-            line="45"
-            column="25"/>
-    </issue>
-
-    <issue
-        id="UnknownNullness"
-        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
-        errorLine1="    void delete(String id);"
-        errorLine2="                ~~~~~~">
-        <location
-            file="src/main/java/androidx/work/impl/model/WorkSpecDao.java"
-            line="53"
-            column="17"/>
     </issue>
 
     <issue
@@ -3332,28 +1674,6 @@
         id="UnknownNullness"
         message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
         errorLine1="    WorkSpec getWorkSpec(String id);"
-        errorLine2="    ~~~~~~~~">
-        <location
-            file="src/main/java/androidx/work/impl/model/WorkSpecDao.java"
-            line="60"
-            column="5"/>
-    </issue>
-
-    <issue
-        id="UnknownNullness"
-        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
-        errorLine1="    WorkSpec getWorkSpec(String id);"
-        errorLine2="                         ~~~~~~">
-        <location
-            file="src/main/java/androidx/work/impl/model/WorkSpecDao.java"
-            line="60"
-            column="26"/>
-    </issue>
-
-    <issue
-        id="UnknownNullness"
-        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
-        errorLine1="    WorkSpec getWorkSpec(String id);"
         errorLine2="                         ~~~~~~">
         <location
             file="src/main/java/androidx/work/impl/model/WorkSpecDao.java"
@@ -3370,28 +1690,6 @@
             file="src/main/java/androidx/work/impl/model/WorkSpecDao.java"
             line="69"
             column="5"/>
-    </issue>
-
-    <issue
-        id="UnknownNullness"
-        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
-        errorLine1="    WorkSpec[] getWorkSpecs(List&lt;String> ids);"
-        errorLine2="    ~~~~~~~~~~">
-        <location
-            file="src/main/java/androidx/work/impl/model/WorkSpecDao.java"
-            line="69"
-            column="5"/>
-    </issue>
-
-    <issue
-        id="UnknownNullness"
-        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
-        errorLine1="    WorkSpec[] getWorkSpecs(List&lt;String> ids);"
-        errorLine2="                            ~~~~~~~~~~~~">
-        <location
-            file="src/main/java/androidx/work/impl/model/WorkSpecDao.java"
-            line="69"
-            column="29"/>
     </issue>
 
     <issue
@@ -3420,44 +1718,11 @@
         id="UnknownNullness"
         message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
         errorLine1="    List&lt;WorkSpec.IdAndState> getWorkSpecIdAndStatesForName(String name);"
-        errorLine2="    ~~~~~~~~~~~~~~~~~~~~~~~~~">
-        <location
-            file="src/main/java/androidx/work/impl/model/WorkSpecDao.java"
-            line="79"
-            column="5"/>
-    </issue>
-
-    <issue
-        id="UnknownNullness"
-        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
-        errorLine1="    List&lt;WorkSpec.IdAndState> getWorkSpecIdAndStatesForName(String name);"
         errorLine2="                                                            ~~~~~~">
         <location
             file="src/main/java/androidx/work/impl/model/WorkSpecDao.java"
             line="79"
             column="61"/>
-    </issue>
-
-    <issue
-        id="UnknownNullness"
-        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
-        errorLine1="    List&lt;WorkSpec.IdAndState> getWorkSpecIdAndStatesForName(String name);"
-        errorLine2="                                                            ~~~~~~">
-        <location
-            file="src/main/java/androidx/work/impl/model/WorkSpecDao.java"
-            line="79"
-            column="61"/>
-    </issue>
-
-    <issue
-        id="UnknownNullness"
-        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
-        errorLine1="    List&lt;String> getAllWorkSpecIds();"
-        errorLine2="    ~~~~~~~~~~~~">
-        <location
-            file="src/main/java/androidx/work/impl/model/WorkSpecDao.java"
-            line="85"
-            column="5"/>
     </issue>
 
     <issue
@@ -3486,44 +1751,11 @@
         id="UnknownNullness"
         message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
         errorLine1="    int setState(WorkInfo.State state, String... ids);"
-        errorLine2="                 ~~~~~~~~~~~~~~">
-        <location
-            file="src/main/java/androidx/work/impl/model/WorkSpecDao.java"
-            line="95"
-            column="18"/>
-    </issue>
-
-    <issue
-        id="UnknownNullness"
-        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
-        errorLine1="    int setState(WorkInfo.State state, String... ids);"
         errorLine2="                                       ~~~~~~~~~">
         <location
             file="src/main/java/androidx/work/impl/model/WorkSpecDao.java"
             line="95"
             column="40"/>
-    </issue>
-
-    <issue
-        id="UnknownNullness"
-        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
-        errorLine1="    int setState(WorkInfo.State state, String... ids);"
-        errorLine2="                                       ~~~~~~~~~">
-        <location
-            file="src/main/java/androidx/work/impl/model/WorkSpecDao.java"
-            line="95"
-            column="40"/>
-    </issue>
-
-    <issue
-        id="UnknownNullness"
-        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
-        errorLine1="    void setOutput(String id, Data output);"
-        errorLine2="                   ~~~~~~">
-        <location
-            file="src/main/java/androidx/work/impl/model/WorkSpecDao.java"
-            line="104"
-            column="20"/>
     </issue>
 
     <issue
@@ -3551,45 +1783,12 @@
     <issue
         id="UnknownNullness"
         message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
-        errorLine1="    void setOutput(String id, Data output);"
-        errorLine2="                              ~~~~">
-        <location
-            file="src/main/java/androidx/work/impl/model/WorkSpecDao.java"
-            line="104"
-            column="31"/>
-    </issue>
-
-    <issue
-        id="UnknownNullness"
-        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
         errorLine1="    void setPeriodStartTime(String id, long periodStartTime);"
         errorLine2="                            ~~~~~~">
         <location
             file="src/main/java/androidx/work/impl/model/WorkSpecDao.java"
             line="113"
             column="29"/>
-    </issue>
-
-    <issue
-        id="UnknownNullness"
-        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
-        errorLine1="    void setPeriodStartTime(String id, long periodStartTime);"
-        errorLine2="                            ~~~~~~">
-        <location
-            file="src/main/java/androidx/work/impl/model/WorkSpecDao.java"
-            line="113"
-            column="29"/>
-    </issue>
-
-    <issue
-        id="UnknownNullness"
-        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
-        errorLine1="    int incrementWorkSpecRunAttemptCount(String id);"
-        errorLine2="                                         ~~~~~~">
-        <location
-            file="src/main/java/androidx/work/impl/model/WorkSpecDao.java"
-            line="122"
-            column="42"/>
     </issue>
 
     <issue
@@ -3617,45 +1816,12 @@
     <issue
         id="UnknownNullness"
         message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
-        errorLine1="    int resetWorkSpecRunAttemptCount(String id);"
-        errorLine2="                                     ~~~~~~">
-        <location
-            file="src/main/java/androidx/work/impl/model/WorkSpecDao.java"
-            line="131"
-            column="38"/>
-    </issue>
-
-    <issue
-        id="UnknownNullness"
-        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
         errorLine1="    WorkInfo.State getState(String id);"
         errorLine2="    ~~~~~~~~~~~~~~">
         <location
             file="src/main/java/androidx/work/impl/model/WorkSpecDao.java"
             line="140"
             column="5"/>
-    </issue>
-
-    <issue
-        id="UnknownNullness"
-        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
-        errorLine1="    WorkInfo.State getState(String id);"
-        errorLine2="    ~~~~~~~~~~~~~~">
-        <location
-            file="src/main/java/androidx/work/impl/model/WorkSpecDao.java"
-            line="140"
-            column="5"/>
-    </issue>
-
-    <issue
-        id="UnknownNullness"
-        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
-        errorLine1="    WorkInfo.State getState(String id);"
-        errorLine2="                            ~~~~~~">
-        <location
-            file="src/main/java/androidx/work/impl/model/WorkSpecDao.java"
-            line="140"
-            column="29"/>
     </issue>
 
     <issue
@@ -3684,28 +1850,6 @@
         id="UnknownNullness"
         message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
         errorLine1="    WorkSpec.WorkInfoPojo getWorkStatusPojoForId(String id);"
-        errorLine2="    ~~~~~~~~~~~~~~~~~~~~~">
-        <location
-            file="src/main/java/androidx/work/impl/model/WorkSpecDao.java"
-            line="150"
-            column="5"/>
-    </issue>
-
-    <issue
-        id="UnknownNullness"
-        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
-        errorLine1="    WorkSpec.WorkInfoPojo getWorkStatusPojoForId(String id);"
-        errorLine2="                                                 ~~~~~~">
-        <location
-            file="src/main/java/androidx/work/impl/model/WorkSpecDao.java"
-            line="150"
-            column="50"/>
-    </issue>
-
-    <issue
-        id="UnknownNullness"
-        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
-        errorLine1="    WorkSpec.WorkInfoPojo getWorkStatusPojoForId(String id);"
         errorLine2="                                                 ~~~~~~">
         <location
             file="src/main/java/androidx/work/impl/model/WorkSpecDao.java"
@@ -3722,28 +1866,6 @@
             file="src/main/java/androidx/work/impl/model/WorkSpecDao.java"
             line="161"
             column="5"/>
-    </issue>
-
-    <issue
-        id="UnknownNullness"
-        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
-        errorLine1="    List&lt;WorkSpec.WorkInfoPojo> getWorkStatusPojoForIds(List&lt;String> ids);"
-        errorLine2="    ~~~~~~~~~~~~~~~~~~~~~~~~~~~">
-        <location
-            file="src/main/java/androidx/work/impl/model/WorkSpecDao.java"
-            line="161"
-            column="5"/>
-    </issue>
-
-    <issue
-        id="UnknownNullness"
-        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
-        errorLine1="    List&lt;WorkSpec.WorkInfoPojo> getWorkStatusPojoForIds(List&lt;String> ids);"
-        errorLine2="                                                        ~~~~~~~~~~~~">
-        <location
-            file="src/main/java/androidx/work/impl/model/WorkSpecDao.java"
-            line="161"
-            column="57"/>
     </issue>
 
     <issue
@@ -3772,28 +1894,6 @@
         id="UnknownNullness"
         message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
         errorLine1="    LiveData&lt;List&lt;WorkSpec.WorkInfoPojo>> getWorkStatusPojoLiveDataForIds(List&lt;String> ids);"
-        errorLine2="    ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
-        <location
-            file="src/main/java/androidx/work/impl/model/WorkSpecDao.java"
-            line="172"
-            column="5"/>
-    </issue>
-
-    <issue
-        id="UnknownNullness"
-        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
-        errorLine1="    LiveData&lt;List&lt;WorkSpec.WorkInfoPojo>> getWorkStatusPojoLiveDataForIds(List&lt;String> ids);"
-        errorLine2="                                                                          ~~~~~~~~~~~~">
-        <location
-            file="src/main/java/androidx/work/impl/model/WorkSpecDao.java"
-            line="172"
-            column="75"/>
-    </issue>
-
-    <issue
-        id="UnknownNullness"
-        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
-        errorLine1="    LiveData&lt;List&lt;WorkSpec.WorkInfoPojo>> getWorkStatusPojoLiveDataForIds(List&lt;String> ids);"
         errorLine2="                                                                          ~~~~~~~~~~~~">
         <location
             file="src/main/java/androidx/work/impl/model/WorkSpecDao.java"
@@ -3810,28 +1910,6 @@
             file="src/main/java/androidx/work/impl/model/WorkSpecDao.java"
             line="183"
             column="5"/>
-    </issue>
-
-    <issue
-        id="UnknownNullness"
-        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
-        errorLine1="    List&lt;WorkSpec.WorkInfoPojo> getWorkStatusPojoForTag(String tag);"
-        errorLine2="    ~~~~~~~~~~~~~~~~~~~~~~~~~~~">
-        <location
-            file="src/main/java/androidx/work/impl/model/WorkSpecDao.java"
-            line="183"
-            column="5"/>
-    </issue>
-
-    <issue
-        id="UnknownNullness"
-        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
-        errorLine1="    List&lt;WorkSpec.WorkInfoPojo> getWorkStatusPojoForTag(String tag);"
-        errorLine2="                                                        ~~~~~~">
-        <location
-            file="src/main/java/androidx/work/impl/model/WorkSpecDao.java"
-            line="183"
-            column="57"/>
     </issue>
 
     <issue
@@ -3860,28 +1938,6 @@
         id="UnknownNullness"
         message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
         errorLine1="    LiveData&lt;List&lt;WorkSpec.WorkInfoPojo>> getWorkStatusPojoLiveDataForTag(String tag);"
-        errorLine2="    ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
-        <location
-            file="src/main/java/androidx/work/impl/model/WorkSpecDao.java"
-            line="195"
-            column="5"/>
-    </issue>
-
-    <issue
-        id="UnknownNullness"
-        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
-        errorLine1="    LiveData&lt;List&lt;WorkSpec.WorkInfoPojo>> getWorkStatusPojoLiveDataForTag(String tag);"
-        errorLine2="                                                                          ~~~~~~">
-        <location
-            file="src/main/java/androidx/work/impl/model/WorkSpecDao.java"
-            line="195"
-            column="75"/>
-    </issue>
-
-    <issue
-        id="UnknownNullness"
-        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
-        errorLine1="    LiveData&lt;List&lt;WorkSpec.WorkInfoPojo>> getWorkStatusPojoLiveDataForTag(String tag);"
         errorLine2="                                                                          ~~~~~~">
         <location
             file="src/main/java/androidx/work/impl/model/WorkSpecDao.java"
@@ -3898,28 +1954,6 @@
             file="src/main/java/androidx/work/impl/model/WorkSpecDao.java"
             line="206"
             column="5"/>
-    </issue>
-
-    <issue
-        id="UnknownNullness"
-        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
-        errorLine1="    List&lt;WorkSpec.WorkInfoPojo> getWorkStatusPojoForName(String name);"
-        errorLine2="    ~~~~~~~~~~~~~~~~~~~~~~~~~~~">
-        <location
-            file="src/main/java/androidx/work/impl/model/WorkSpecDao.java"
-            line="206"
-            column="5"/>
-    </issue>
-
-    <issue
-        id="UnknownNullness"
-        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
-        errorLine1="    List&lt;WorkSpec.WorkInfoPojo> getWorkStatusPojoForName(String name);"
-        errorLine2="                                                         ~~~~~~">
-        <location
-            file="src/main/java/androidx/work/impl/model/WorkSpecDao.java"
-            line="206"
-            column="58"/>
     </issue>
 
     <issue
@@ -3948,44 +1982,11 @@
         id="UnknownNullness"
         message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
         errorLine1="    LiveData&lt;List&lt;WorkSpec.WorkInfoPojo>> getWorkStatusPojoLiveDataForName(String name);"
-        errorLine2="    ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
-        <location
-            file="src/main/java/androidx/work/impl/model/WorkSpecDao.java"
-            line="218"
-            column="5"/>
-    </issue>
-
-    <issue
-        id="UnknownNullness"
-        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
-        errorLine1="    LiveData&lt;List&lt;WorkSpec.WorkInfoPojo>> getWorkStatusPojoLiveDataForName(String name);"
         errorLine2="                                                                           ~~~~~~">
         <location
             file="src/main/java/androidx/work/impl/model/WorkSpecDao.java"
             line="218"
             column="76"/>
-    </issue>
-
-    <issue
-        id="UnknownNullness"
-        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
-        errorLine1="    LiveData&lt;List&lt;WorkSpec.WorkInfoPojo>> getWorkStatusPojoLiveDataForName(String name);"
-        errorLine2="                                                                           ~~~~~~">
-        <location
-            file="src/main/java/androidx/work/impl/model/WorkSpecDao.java"
-            line="218"
-            column="76"/>
-    </issue>
-
-    <issue
-        id="UnknownNullness"
-        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
-        errorLine1="    List&lt;Data> getInputsFromPrerequisites(String id);"
-        errorLine2="    ~~~~~~~~~~">
-        <location
-            file="src/main/java/androidx/work/impl/model/WorkSpecDao.java"
-            line="229"
-            column="5"/>
     </issue>
 
     <issue
@@ -4013,44 +2014,11 @@
     <issue
         id="UnknownNullness"
         message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
-        errorLine1="    List&lt;Data> getInputsFromPrerequisites(String id);"
-        errorLine2="                                          ~~~~~~">
-        <location
-            file="src/main/java/androidx/work/impl/model/WorkSpecDao.java"
-            line="229"
-            column="43"/>
-    </issue>
-
-    <issue
-        id="UnknownNullness"
-        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
         errorLine1="    List&lt;String> getUnfinishedWorkWithTag(@NonNull String tag);"
         errorLine2="    ~~~~~~~~~~~~">
         <location
             file="src/main/java/androidx/work/impl/model/WorkSpecDao.java"
             line="239"
-            column="5"/>
-    </issue>
-
-    <issue
-        id="UnknownNullness"
-        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
-        errorLine1="    List&lt;String> getUnfinishedWorkWithTag(@NonNull String tag);"
-        errorLine2="    ~~~~~~~~~~~~">
-        <location
-            file="src/main/java/androidx/work/impl/model/WorkSpecDao.java"
-            line="239"
-            column="5"/>
-    </issue>
-
-    <issue
-        id="UnknownNullness"
-        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
-        errorLine1="    List&lt;String> getUnfinishedWorkWithName(@NonNull String name);"
-        errorLine2="    ~~~~~~~~~~~~">
-        <location
-            file="src/main/java/androidx/work/impl/model/WorkSpecDao.java"
-            line="249"
             column="5"/>
     </issue>
 
@@ -4079,44 +2047,11 @@
     <issue
         id="UnknownNullness"
         message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
-        errorLine1="    List&lt;String> getAllUnfinishedWork();"
-        errorLine2="    ~~~~~~~~~~~~">
-        <location
-            file="src/main/java/androidx/work/impl/model/WorkSpecDao.java"
-            line="257"
-            column="5"/>
-    </issue>
-
-    <issue
-        id="UnknownNullness"
-        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
         errorLine1="    List&lt;WorkSpec> getEligibleWorkForScheduling(int schedulerLimit);"
         errorLine2="    ~~~~~~~~~~~~~~">
         <location
             file="src/main/java/androidx/work/impl/model/WorkSpecDao.java"
             line="292"
-            column="5"/>
-    </issue>
-
-    <issue
-        id="UnknownNullness"
-        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
-        errorLine1="    List&lt;WorkSpec> getEligibleWorkForScheduling(int schedulerLimit);"
-        errorLine2="    ~~~~~~~~~~~~~~">
-        <location
-            file="src/main/java/androidx/work/impl/model/WorkSpecDao.java"
-            line="292"
-            column="5"/>
-    </issue>
-
-    <issue
-        id="UnknownNullness"
-        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
-        errorLine1="    List&lt;WorkSpec> getScheduledWork();"
-        errorLine2="    ~~~~~~~~~~~~~~">
-        <location
-            file="src/main/java/androidx/work/impl/model/WorkSpecDao.java"
-            line="303"
             column="5"/>
     </issue>
 
@@ -4145,28 +2080,6 @@
     <issue
         id="UnknownNullness"
         message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
-        errorLine1="    List&lt;WorkSpec> getRunningWork();"
-        errorLine2="    ~~~~~~~~~~~~~~">
-        <location
-            file="src/main/java/androidx/work/impl/model/WorkSpecDao.java"
-            line="312"
-            column="5"/>
-    </issue>
-
-    <issue
-        id="UnknownNullness"
-        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
-        errorLine1="    void insert(WorkTag workTag);"
-        errorLine2="                ~~~~~~~">
-        <location
-            file="src/main/java/androidx/work/impl/model/WorkTagDao.java"
-            line="39"
-            column="17"/>
-    </issue>
-
-    <issue
-        id="UnknownNullness"
-        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
         errorLine1="    void insert(WorkTag workTag);"
         errorLine2="                ~~~~~~~">
         <location
@@ -4184,28 +2097,6 @@
             file="src/main/java/androidx/work/impl/model/WorkTagDao.java"
             line="48"
             column="5"/>
-    </issue>
-
-    <issue
-        id="UnknownNullness"
-        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
-        errorLine1="    List&lt;String> getWorkSpecIdsWithTag(String tag);"
-        errorLine2="    ~~~~~~~~~~~~">
-        <location
-            file="src/main/java/androidx/work/impl/model/WorkTagDao.java"
-            line="48"
-            column="5"/>
-    </issue>
-
-    <issue
-        id="UnknownNullness"
-        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
-        errorLine1="    List&lt;String> getWorkSpecIdsWithTag(String tag);"
-        errorLine2="                                       ~~~~~~">
-        <location
-            file="src/main/java/androidx/work/impl/model/WorkTagDao.java"
-            line="48"
-            column="40"/>
     </issue>
 
     <issue
@@ -4234,44 +2125,11 @@
         id="UnknownNullness"
         message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
         errorLine1="    List&lt;String> getTagsForWorkSpecId(String id);"
-        errorLine2="    ~~~~~~~~~~~~">
-        <location
-            file="src/main/java/androidx/work/impl/model/WorkTagDao.java"
-            line="57"
-            column="5"/>
-    </issue>
-
-    <issue
-        id="UnknownNullness"
-        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
-        errorLine1="    List&lt;String> getTagsForWorkSpecId(String id);"
         errorLine2="                                      ~~~~~~">
         <location
             file="src/main/java/androidx/work/impl/model/WorkTagDao.java"
             line="57"
             column="39"/>
-    </issue>
-
-    <issue
-        id="UnknownNullness"
-        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
-        errorLine1="    List&lt;String> getTagsForWorkSpecId(String id);"
-        errorLine2="                                      ~~~~~~">
-        <location
-            file="src/main/java/androidx/work/impl/model/WorkTagDao.java"
-            line="57"
-            column="39"/>
-    </issue>
-
-    <issue
-        id="UnknownNullness"
-        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
-        errorLine1="    public static int stateToInt(WorkInfo.State state) {"
-        errorLine2="                                 ~~~~~~~~~~~~~~">
-        <location
-            file="src/main/java/androidx/work/impl/model/WorkTypeConverters.java"
-            line="88"
-            column="34"/>
     </issue>
 
     <issue
@@ -4299,28 +2157,6 @@
     <issue
         id="UnknownNullness"
         message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
-        errorLine1="    public static WorkInfo.State intToState(int value) {"
-        errorLine2="                  ~~~~~~~~~~~~~~">
-        <location
-            file="src/main/java/androidx/work/impl/model/WorkTypeConverters.java"
-            line="121"
-            column="19"/>
-    </issue>
-
-    <issue
-        id="UnknownNullness"
-        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
-        errorLine1="    public static int backoffPolicyToInt(BackoffPolicy backoffPolicy) {"
-        errorLine2="                                         ~~~~~~~~~~~~~">
-        <location
-            file="src/main/java/androidx/work/impl/model/WorkTypeConverters.java"
-            line="154"
-            column="42"/>
-    </issue>
-
-    <issue
-        id="UnknownNullness"
-        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
         errorLine1="    public static int backoffPolicyToInt(BackoffPolicy backoffPolicy) {"
         errorLine2="                                         ~~~~~~~~~~~~~">
         <location
@@ -4343,45 +2179,12 @@
     <issue
         id="UnknownNullness"
         message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
-        errorLine1="    public static BackoffPolicy intToBackoffPolicy(int value) {"
-        errorLine2="                  ~~~~~~~~~~~~~">
-        <location
-            file="src/main/java/androidx/work/impl/model/WorkTypeConverters.java"
-            line="175"
-            column="19"/>
-    </issue>
-
-    <issue
-        id="UnknownNullness"
-        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
         errorLine1="    public static int networkTypeToInt(NetworkType networkType) {"
         errorLine2="                                       ~~~~~~~~~~~">
         <location
             file="src/main/java/androidx/work/impl/model/WorkTypeConverters.java"
             line="196"
             column="40"/>
-    </issue>
-
-    <issue
-        id="UnknownNullness"
-        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
-        errorLine1="    public static int networkTypeToInt(NetworkType networkType) {"
-        errorLine2="                                       ~~~~~~~~~~~">
-        <location
-            file="src/main/java/androidx/work/impl/model/WorkTypeConverters.java"
-            line="196"
-            column="40"/>
-    </issue>
-
-    <issue
-        id="UnknownNullness"
-        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
-        errorLine1="    public static NetworkType intToNetworkType(int value) {"
-        errorLine2="                  ~~~~~~~~~~~">
-        <location
-            file="src/main/java/androidx/work/impl/model/WorkTypeConverters.java"
-            line="226"
-            column="19"/>
     </issue>
 
     <issue
@@ -4410,44 +2213,11 @@
         id="UnknownNullness"
         message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
         errorLine1="    public static byte[] contentUriTriggersToByteArray(ContentUriTriggers triggers) {"
-        errorLine2="                  ~~~~~~">
-        <location
-            file="src/main/java/androidx/work/impl/model/WorkTypeConverters.java"
-            line="255"
-            column="19"/>
-    </issue>
-
-    <issue
-        id="UnknownNullness"
-        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
-        errorLine1="    public static byte[] contentUriTriggersToByteArray(ContentUriTriggers triggers) {"
         errorLine2="                                                       ~~~~~~~~~~~~~~~~~~">
         <location
             file="src/main/java/androidx/work/impl/model/WorkTypeConverters.java"
             line="255"
             column="56"/>
-    </issue>
-
-    <issue
-        id="UnknownNullness"
-        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
-        errorLine1="    public static byte[] contentUriTriggersToByteArray(ContentUriTriggers triggers) {"
-        errorLine2="                                                       ~~~~~~~~~~~~~~~~~~">
-        <location
-            file="src/main/java/androidx/work/impl/model/WorkTypeConverters.java"
-            line="255"
-            column="56"/>
-    </issue>
-
-    <issue
-        id="UnknownNullness"
-        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
-        errorLine1="    public static ContentUriTriggers byteArrayToContentUriTriggers(byte[] bytes) {"
-        errorLine2="                  ~~~~~~~~~~~~~~~~~~">
-        <location
-            file="src/main/java/androidx/work/impl/model/WorkTypeConverters.java"
-            line="293"
-            column="19"/>
     </issue>
 
     <issue
@@ -4475,44 +2245,11 @@
     <issue
         id="UnknownNullness"
         message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
-        errorLine1="    public static ContentUriTriggers byteArrayToContentUriTriggers(byte[] bytes) {"
-        errorLine2="                                                                   ~~~~~~">
-        <location
-            file="src/main/java/androidx/work/impl/model/WorkTypeConverters.java"
-            line="293"
-            column="68"/>
-    </issue>
-
-    <issue
-        id="UnknownNullness"
-        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
         errorLine1="        public Network network;"
         errorLine2="               ~~~~~~~">
         <location
             file="src/main/java/androidx/work/WorkerParameters.java"
             line="208"
-            column="16"/>
-    </issue>
-
-    <issue
-        id="UnknownNullness"
-        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
-        errorLine1="        public Network network;"
-        errorLine2="               ~~~~~~~">
-        <location
-            file="src/main/java/androidx/work/WorkerParameters.java"
-            line="208"
-            column="16"/>
-    </issue>
-
-    <issue
-        id="UnknownNullness"
-        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
-        errorLine1="        public WorkerWrapper build() {"
-        errorLine2="               ~~~~~~~~~~~~~">
-        <location
-            file="src/main/java/androidx/work/impl/WorkerWrapper.java"
-            line="688"
             column="16"/>
     </issue>
 
