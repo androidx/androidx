@@ -41,6 +41,7 @@ class FragmentStateManager {
     private static final String USER_VISIBLE_HINT_TAG = "android:user_visible_hint";
 
     private final FragmentLifecycleCallbacksDispatcher mDispatcher;
+    private final FragmentManagerViewModel mNonConfig;
     @NonNull
     private final Fragment mFragment;
 
@@ -50,11 +51,14 @@ class FragmentStateManager {
      * Create a FragmentStateManager from a brand new Fragment instance.
      *
      * @param dispatcher Dispatcher for any lifecycle callbacks triggered by this class
+     * @param nonConfig ViewModel controlling the non configuration state
      * @param fragment The Fragment to manage
      */
     FragmentStateManager(@NonNull FragmentLifecycleCallbacksDispatcher dispatcher,
+            @NonNull FragmentManagerViewModel nonConfig,
             @NonNull Fragment fragment) {
         mDispatcher = dispatcher;
+        mNonConfig = nonConfig;
         mFragment = fragment;
     }
 
@@ -63,14 +67,18 @@ class FragmentStateManager {
      * a new Fragment from the {@link FragmentFactory}.
      *
      * @param dispatcher Dispatcher for any lifecycle callbacks triggered by this class
+     * @param nonConfig ViewModel controlling the non configuration state
      * @param classLoader ClassLoader used to instantiate the Fragment
      * @param fragmentFactory FragmentFactory used to instantiate the Fragment
      * @param fs FragmentState used to restore the state correctly
      */
     FragmentStateManager(@NonNull FragmentLifecycleCallbacksDispatcher dispatcher,
-            @NonNull ClassLoader classLoader, @NonNull FragmentFactory fragmentFactory,
+            @NonNull FragmentManagerViewModel nonConfig,
+            @NonNull ClassLoader classLoader,
+            @NonNull FragmentFactory fragmentFactory,
             @NonNull FragmentState fs) {
         mDispatcher = dispatcher;
+        mNonConfig = nonConfig;
         mFragment = fragmentFactory.instantiate(classLoader, fs.mClassName);
         if (fs.mArguments != null) {
             fs.mArguments.setClassLoader(classLoader);
@@ -105,13 +113,16 @@ class FragmentStateManager {
      * FragmentState instance.
      *
      * @param dispatcher Dispatcher for any lifecycle callbacks triggered by this class
+     * @param nonConfig ViewModel controlling the non configuration state
      * @param retainedFragment A retained fragment
      * @param fs FragmentState used to restore the state correctly
      */
     FragmentStateManager(@NonNull FragmentLifecycleCallbacksDispatcher dispatcher,
+            @NonNull FragmentManagerViewModel nonConfig,
             @NonNull Fragment retainedFragment,
             @NonNull FragmentState fs) {
         mDispatcher = dispatcher;
+        mNonConfig = nonConfig;
         mFragment = retainedFragment;
         mFragment.mSavedViewState = null;
         mFragment.mBackStackNesting = 0;
@@ -450,17 +461,17 @@ class FragmentStateManager {
         }
     }
 
-    void destroy(@NonNull FragmentManagerViewModel nonConfig) {
+    void destroy() {
         if (FragmentManager.isLoggingEnabled(Log.DEBUG)) {
             Log.d(TAG, "movefrom CREATED: " + mFragment);
         }
         boolean beingRemoved = mFragment.mRemoving && !mFragment.isInBackStack();
-        boolean shouldDestroy = beingRemoved || nonConfig.shouldDestroy(mFragment);
+        boolean shouldDestroy = beingRemoved || mNonConfig.shouldDestroy(mFragment);
         if (shouldDestroy) {
             FragmentHostCallback<?> host = mFragment.mHost;
             boolean shouldClear;
             if (host instanceof ViewModelStoreOwner) {
-                shouldClear = nonConfig.isCleared();
+                shouldClear = mNonConfig.isCleared();
             } else if (host.getContext() instanceof Activity) {
                 Activity activity = (Activity) host.getContext();
                 shouldClear = !activity.isChangingConfigurations();
@@ -468,7 +479,7 @@ class FragmentStateManager {
                 shouldClear = true;
             }
             if (beingRemoved || shouldClear) {
-                nonConfig.clearNonConfigState(mFragment);
+                mNonConfig.clearNonConfigState(mFragment);
             }
             mFragment.performDestroy();
             mDispatcher.dispatchOnFragmentDestroyed(mFragment, false);
@@ -477,7 +488,7 @@ class FragmentStateManager {
         }
     }
 
-    void detach(@NonNull FragmentManagerViewModel nonConfig) {
+    void detach() {
         if (FragmentManager.isLoggingEnabled(Log.DEBUG)) {
             Log.d(TAG, "movefrom ATTACHED: " + mFragment);
         }
@@ -489,7 +500,7 @@ class FragmentStateManager {
         mFragment.mParentFragment = null;
         mFragment.mFragmentManager = null;
         boolean beingRemoved = mFragment.mRemoving && !mFragment.isInBackStack();
-        if (beingRemoved || nonConfig.shouldDestroy(mFragment)) {
+        if (beingRemoved || mNonConfig.shouldDestroy(mFragment)) {
             if (FragmentManager.isLoggingEnabled(Log.DEBUG)) {
                 Log.d(TAG, "initState called for fragment: " + mFragment);
             }

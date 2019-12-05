@@ -1121,7 +1121,8 @@ public abstract class FragmentManager {
             // in restoreSaveState() we can call moveToState() on retained Fragments
             // just to clean them up without them ever being added to mActive.
             // For these cases, a brand new FragmentStateManager is enough.
-            fragmentStateManager = new FragmentStateManager(mLifecycleCallbacksDispatcher, f);
+            fragmentStateManager = new FragmentStateManager(mLifecycleCallbacksDispatcher,
+                    mNonConfig, f);
             // Only allow this FragmentStateManager to go up to CREATED at the most
             fragmentStateManager.setFragmentManagerState(Fragment.CREATED);
         }
@@ -1277,13 +1278,13 @@ public abstract class FragmentManager {
                             f.setStateAfterAnimating(newState);
                             newState = Fragment.CREATED;
                         } else {
-                            fragmentStateManager.destroy(mNonConfig);
+                            fragmentStateManager.destroy();
                         }
                     }
                     // fall through
                 case Fragment.ATTACHED:
                     if (newState < Fragment.ATTACHED) {
-                        fragmentStateManager.detach(mNonConfig);
+                        fragmentStateManager.detach();
                     }
             }
         }
@@ -1510,8 +1511,8 @@ public abstract class FragmentManager {
             return;
         }
 
-        FragmentStateManager fragmentStateManager =
-                new FragmentStateManager(mLifecycleCallbacksDispatcher, f);
+        FragmentStateManager fragmentStateManager = new FragmentStateManager(
+                mLifecycleCallbacksDispatcher, mNonConfig, f);
         // Restore state any state set via setInitialSavedState()
         fragmentStateManager.restoreState(mHost.getContext().getClassLoader());
         mFragmentStore.makeActive(fragmentStateManager);
@@ -2438,10 +2439,11 @@ public abstract class FragmentManager {
                                 + retainedFragment);
                     }
                     fragmentStateManager = new FragmentStateManager(mLifecycleCallbacksDispatcher,
-                            retainedFragment, fs);
+                            mNonConfig, retainedFragment, fs);
                 } else {
                     fragmentStateManager = new FragmentStateManager(mLifecycleCallbacksDispatcher,
-                            mHost.getContext().getClassLoader(), getFragmentFactory(), fs);
+                            mNonConfig, mHost.getContext().getClassLoader(),
+                            getFragmentFactory(), fs);
                 }
                 Fragment f = fragmentStateManager.getFragment();
                 f.mFragmentManager = this;
