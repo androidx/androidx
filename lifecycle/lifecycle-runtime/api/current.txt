@@ -16,5 +16,10 @@ package androidx.lifecycle {
     method @Deprecated public androidx.lifecycle.LifecycleRegistry getLifecycle();
   }
 
+  public class ViewTreeLifecycleOwner {
+    method public static androidx.lifecycle.LifecycleOwner? get(android.view.View);
+    method public static void set(android.view.View, androidx.lifecycle.LifecycleOwner?);
+  }
+
 }
 
