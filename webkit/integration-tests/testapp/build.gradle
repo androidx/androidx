@@ -36,11 +36,7 @@ dependencies {
     androidTestImplementation(DEXMAKER_MOCKITO, libs.exclude_bytebuddy)
 }
 
-tasks.all { task ->
-    if ("assembleRelease" == task.name) {
-        rootProject.tasks.getByName("buildOnServer").dependsOn(task)
-    }
-}
+rootProject.tasks.getByName("buildOnServer").dependsOn(project.path + ":assembleRelease")
 
 android {
     defaultConfig {
