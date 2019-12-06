@@ -14,30 +14,28 @@
   See the License for the specific language governing permissions and
   limitations under the License.
   -->
-
-<!--Taken from https://googleplex-android.googlesource.com/platform/frameworks/base/+/HEAD/core/res/res/anim/activity_open_exit.xml-->
 <set xmlns:android="http://schemas.android.com/apk/res/android"
     android:shareInterpolator="false">
     <!-- Fade out, over a black surface, which simulates a black scrim -->
     <alpha
         android:fromAlpha="1"
-        android:toAlpha="0.4"
+        android:toAlpha="0.0"
         android:fillEnabled="true"
         android:fillBefore="true"
         android:fillAfter="true"
         android:interpolator="@android:anim/linear_interpolator"
-        android:startOffset="83"
-        android:duration="167"/>
+        android:startOffset="35"
+        android:duration="50"/>
     <scale
         android:fromXScale="1"
-        android:toXScale="1.05"
+        android:toXScale="1.15"
         android:fromYScale="1"
-        android:toYScale="1.05"
+        android:toYScale="1.15"
         android:pivotX="50%"
         android:pivotY="50%"
         android:fillEnabled="true"
         android:fillBefore="true"
         android:fillAfter="true"
         android:interpolator="@anim/fragment_fast_out_extra_slow_in"
-        android:duration="400"/>
+        android:duration="300"/>
 </set>
