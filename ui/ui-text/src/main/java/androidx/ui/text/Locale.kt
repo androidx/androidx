@@ -28,6 +28,7 @@ import androidx.ui.text.platform.platformLocaleDelegate
  * conventions of the user's native country, region, or culture.
  *
  * @see [TextStyle]
+ * @see [SpanStyle]
  */
 @Immutable
 class Locale internal constructor(internal val platformLocale: PlatformLocale) {

@@ -44,7 +44,7 @@ interface ParagraphIntrinsics {
  */
 /* actual */ fun ParagraphIntrinsics(
     text: String,
-    style: TextStyle,
+    spanStyle: SpanStyle,
     paragraphStyle: ParagraphStyle,
     spanStyles: List<AnnotatedString.Item<SpanStyle>>,
     density: Density,
@@ -52,7 +52,7 @@ interface ParagraphIntrinsics {
 ): ParagraphIntrinsics {
     return AndroidParagraphIntrinsics(
         text = text,
-        style = style,
+        spanStyle = spanStyle,
         paragraphStyle = paragraphStyle,
         typefaceAdapter = TypefaceAdapter(
             resourceLoader = resourceLoader

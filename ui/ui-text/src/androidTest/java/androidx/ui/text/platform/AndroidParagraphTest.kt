@@ -36,7 +36,6 @@ import androidx.ui.text.ParagraphConstraints
 import androidx.ui.text.ParagraphStyle
 import androidx.ui.text.SpanStyle
 import androidx.ui.text.TestFontResourceLoader
-import androidx.ui.text.TextStyle
 import androidx.ui.text.font.FontFamily
 import androidx.ui.text.font.FontStyle
 import androidx.ui.text.font.FontSynthesis
@@ -80,7 +79,7 @@ class AndroidParagraphTest {
             for (text in arrayOf("abc\ndef", "\u05D0\u05D1\u05D2\n\u05D3\u05D4\u05D5")) {
                 val paragraphAndroid = simpleParagraph(
                     text = text,
-                    textStyle = TextStyle(
+                    spanStyle = SpanStyle(
                         fontSize = fontSize,
                         fontFamily = fontFamily
                     ),
@@ -799,7 +798,7 @@ class AndroidParagraphTest {
 
         val paragraph = simpleParagraph(
             text = "abc",
-            textStyle = TextStyle(
+            spanStyle = SpanStyle(
                 fontFamily = null,
                 fontWeight = FontWeight.Bold
             ),
@@ -825,7 +824,7 @@ class AndroidParagraphTest {
         val typefaceAdapter = spy(TypefaceAdapter())
         val paragraph = simpleParagraph(
             text = "abc",
-            textStyle = TextStyle(
+            spanStyle = SpanStyle(
                 fontFamily = null,
                 fontStyle = FontStyle.Italic
             ),
@@ -853,7 +852,7 @@ class AndroidParagraphTest {
 
         val paragraph = simpleParagraph(
             text = "abc",
-            textStyle = TextStyle(
+            spanStyle = SpanStyle(
                 fontFamily = fontFamily
             ),
             typefaceAdapter = typefaceAdapter,
@@ -878,7 +877,7 @@ class AndroidParagraphTest {
         val typefaceAdapter = spy(TypefaceAdapter())
         val paragraph = simpleParagraph(
             text = "abc",
-            textStyle = TextStyle(
+            spanStyle = SpanStyle(
                 fontFamily = fontFamily
             ),
             typefaceAdapter = typefaceAdapter,
@@ -904,7 +903,7 @@ class AndroidParagraphTest {
             val paragraphWidth = (text.length - 1) * fontSize.toPx().value
             val paragraph = simpleParagraph(
                 text = text,
-                textStyle = TextStyle(
+                spanStyle = SpanStyle(
                     fontFamily = fontFamily,
                     fontSize = fontSize
                 ),
@@ -929,7 +928,7 @@ class AndroidParagraphTest {
                 text = text,
                 ellipsis = true,
                 maxLines = 1,
-                textStyle = TextStyle(
+                spanStyle = SpanStyle(
                     fontFamily = fontFamily,
                     fontSize = fontSize
                 ),
@@ -951,7 +950,7 @@ class AndroidParagraphTest {
                 text = text,
                 ellipsis = true,
                 maxLines = maxLines,
-                textStyle = TextStyle(
+                spanStyle = SpanStyle(
                     fontFamily = fontFamily,
                     fontSize = fontSize
                 ),
@@ -965,12 +964,12 @@ class AndroidParagraphTest {
     }
 
     @Test
-    fun testTextStyle_fontSize_appliedOnTextPaint() {
+    fun testSpanStyle_fontSize_appliedOnTextPaint() {
         withDensity(defaultDensity) {
             val fontSize = 100.sp
             val paragraph = simpleParagraph(
                 text = "",
-                textStyle = TextStyle(fontSize = fontSize),
+                spanStyle = SpanStyle(fontSize = fontSize),
                 constraints = ParagraphConstraints(width = 0.0f)
             )
 
@@ -979,13 +978,13 @@ class AndroidParagraphTest {
     }
 
     @Test
-    fun testTextStyle_locale_appliedOnTextPaint() {
+    fun testSpanStyle_locale_appliedOnTextPaint() {
         val platformLocale = java.util.Locale.JAPANESE
         val localeList = LocaleList(platformLocale.toLanguageTag())
 
         val paragraph = simpleParagraph(
             text = "",
-            textStyle = TextStyle(localeList = localeList),
+            spanStyle = SpanStyle(localeList = localeList),
             constraints = ParagraphConstraints(width = 0.0f)
         )
 
@@ -994,11 +993,11 @@ class AndroidParagraphTest {
     }
 
     @Test
-    fun testTextStyle_color_appliedOnTextPaint() {
+    fun testSpanStyle_color_appliedOnTextPaint() {
         val color = Color(0x12345678)
         val paragraph = simpleParagraph(
             text = "",
-            textStyle = TextStyle(color = color),
+            spanStyle = SpanStyle(color = color),
             constraints = ParagraphConstraints(width = 0.0f)
         )
 
@@ -1006,11 +1005,11 @@ class AndroidParagraphTest {
     }
 
     @Test
-    fun testTextStyle_letterSpacing_appliedOnTextPaint() {
+    fun testSpanStyle_letterSpacing_appliedOnTextPaint() {
         val letterSpacing = 2
         val paragraph = simpleParagraph(
             text = "",
-            textStyle = TextStyle(letterSpacing = letterSpacing.em),
+            spanStyle = SpanStyle(letterSpacing = letterSpacing.em),
             constraints = ParagraphConstraints(width = 0.0f)
         )
 
@@ -1018,11 +1017,11 @@ class AndroidParagraphTest {
     }
 
     @Test
-    fun testTextStyle_fontFeatureSettings_appliedOnTextPaint() {
+    fun testSpanStyle_fontFeatureSettings_appliedOnTextPaint() {
         val fontFeatureSettings = "\"kern\" 0"
         val paragraph = simpleParagraph(
             text = "",
-            textStyle = TextStyle(fontFeatureSettings = fontFeatureSettings),
+            spanStyle = SpanStyle(fontFeatureSettings = fontFeatureSettings),
             constraints = ParagraphConstraints(width = 0.0f)
         )
 
@@ -1030,11 +1029,11 @@ class AndroidParagraphTest {
     }
 
     @Test
-    fun testTextStyle_scaleX_appliedOnTextPaint() {
+    fun testSpanStyle_scaleX_appliedOnTextPaint() {
         val scaleX = 0.5f
         val paragraph = simpleParagraph(
             text = "",
-            textStyle = TextStyle(
+            spanStyle = SpanStyle(
                 textGeometricTransform = TextGeometricTransform(
                     scaleX = scaleX
                 )
@@ -1046,11 +1045,11 @@ class AndroidParagraphTest {
     }
 
     @Test
-    fun testTextStyle_skewX_appliedOnTextPaint() {
+    fun testSpanStyle_skewX_appliedOnTextPaint() {
         val skewX = 0.5f
         val paragraph = simpleParagraph(
             text = "",
-            textStyle = TextStyle(
+            spanStyle = SpanStyle(
                 textGeometricTransform = TextGeometricTransform(
                     skewX = skewX
                 )
@@ -1062,10 +1061,10 @@ class AndroidParagraphTest {
     }
 
     @Test
-    fun testTextStyle_decoration_underline_appliedOnTextPaint() {
+    fun testSpanStyle_decoration_underline_appliedOnTextPaint() {
         val paragraph = simpleParagraph(
             text = "",
-            textStyle = TextStyle(decoration = TextDecoration.Underline),
+            spanStyle = SpanStyle(decoration = TextDecoration.Underline),
             constraints = ParagraphConstraints(width = 0.0f)
         )
 
@@ -1073,10 +1072,10 @@ class AndroidParagraphTest {
     }
 
     @Test
-    fun testTextStyle_decoration_lineThrough_appliedOnTextPaint() {
+    fun testSpanStyle_decoration_lineThrough_appliedOnTextPaint() {
         val paragraph = simpleParagraph(
             text = "",
-            textStyle = TextStyle(decoration = TextDecoration.LineThrough),
+            spanStyle = SpanStyle(decoration = TextDecoration.LineThrough),
             constraints = ParagraphConstraints(width = 0.0f)
         )
 
@@ -1084,14 +1083,14 @@ class AndroidParagraphTest {
     }
 
     @Test
-    fun testTextStyle_background_appliedAsSpan() {
+    fun testSpanStyle_background_appliedAsSpan() {
         // bgColor is reset in the Android Layout constructor.
         // therefore we cannot apply them on paint, have to use spans.
         val text = "abc"
         val color = Color(0x12345678)
         val paragraph = simpleParagraph(
             text = text,
-            textStyle = TextStyle(background = color),
+            spanStyle = SpanStyle(background = color),
             constraints = ParagraphConstraints(width = 0.0f)
         )
 
@@ -1102,14 +1101,14 @@ class AndroidParagraphTest {
     }
 
     @Test
-    fun testTextStyle_baselineShift_appliedAsSpan() {
+    fun testSpanStyle_baselineShift_appliedAsSpan() {
         // baselineShift is reset in the Android Layout constructor.
         // therefore we cannot apply them on paint, have to use spans.
         val text = "abc"
         val baselineShift = BaselineShift.Subscript
         val paragraph = simpleParagraph(
             text = text,
-            textStyle = TextStyle(baselineShift = baselineShift),
+            spanStyle = SpanStyle(baselineShift = baselineShift),
             constraints = ParagraphConstraints(width = 0.0f)
         )
 
@@ -1137,7 +1136,7 @@ class AndroidParagraphTest {
         val text = "abc"
         val paragraph = simpleParagraph(
             text = text,
-            textStyle = TextStyle(localeList = localeList),
+            spanStyle = SpanStyle(localeList = localeList),
             constraints = ParagraphConstraints(width = Float.MAX_VALUE)
         )
 
@@ -1150,7 +1149,7 @@ class AndroidParagraphTest {
         val text = "abc"
         val paragraph = simpleParagraph(
             text = text,
-            textStyle = TextStyle(localeList = localeList),
+            spanStyle = SpanStyle(localeList = localeList),
             constraints = ParagraphConstraints(width = Float.MAX_VALUE)
         )
 
@@ -1163,7 +1162,7 @@ class AndroidParagraphTest {
         val text = "abc"
         val paragraph = simpleParagraph(
             text = text,
-            textStyle = TextStyle(localeList = localeList),
+            spanStyle = SpanStyle(localeList = localeList),
             constraints = ParagraphConstraints(width = Float.MAX_VALUE)
         )
 
@@ -1190,14 +1189,14 @@ class AndroidParagraphTest {
         ellipsis: Boolean = false,
         maxLines: Int = Int.MAX_VALUE,
         constraints: ParagraphConstraints,
-        textStyle: TextStyle? = null,
+        spanStyle: SpanStyle? = null,
         typefaceAdapter: TypefaceAdapter = TypefaceAdapter()
     ): AndroidParagraph {
         return AndroidParagraph(
             text = text,
             spanStyles = spanStyles,
             typefaceAdapter = typefaceAdapter,
-            style = TextStyle().merge(textStyle),
+            spanStyle = SpanStyle().merge(spanStyle),
             paragraphStyle = ParagraphStyle(
                 textAlign = textAlign,
                 textIndent = textIndent,

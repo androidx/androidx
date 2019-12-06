@@ -24,11 +24,10 @@ import androidx.ui.text.AnnotatedString
 import androidx.ui.text.ParagraphIntrinsics
 import androidx.ui.text.ParagraphStyle
 import androidx.ui.text.SpanStyle
-import androidx.ui.text.TextStyle
 
 internal class AndroidParagraphIntrinsics(
     val text: String,
-    val style: TextStyle,
+    val spanStyle: SpanStyle,
     val paragraphStyle: ParagraphStyle,
     val spanStyles: List<AnnotatedString.Item<SpanStyle>>,
     val typefaceAdapter: TypefaceAdapter,
@@ -54,7 +53,7 @@ internal class AndroidParagraphIntrinsics(
     )
 
     init {
-        val notAppliedStyle = textPaint.applyTextStyle(style, typefaceAdapter, density)
+        val notAppliedStyle = textPaint.applySpanStyle(spanStyle, typefaceAdapter, density)
 
         charSequence = createStyledText(
             text = text,
@@ -62,7 +61,7 @@ internal class AndroidParagraphIntrinsics(
             textIndent = paragraphStyle.textIndent,
             spanStyles = listOf(
                 AnnotatedString.Item(
-                    notAppliedStyle.toSpanStyle(),
+                    notAppliedStyle,
                     0,
                     text.length
                 )
