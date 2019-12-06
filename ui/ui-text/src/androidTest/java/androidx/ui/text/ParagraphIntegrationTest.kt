@@ -2487,7 +2487,7 @@ class ParagraphIntegrationTest {
     }
 
     @Test
-    fun textIndent_onSingleLine() {
+    fun textIndent_inSp_onSingleLine() {
         withDensity(defaultDensity) {
             val text = "abc"
             val fontSize = 20.sp
@@ -2511,64 +2511,109 @@ class ParagraphIntegrationTest {
     }
 
     @Test
-    fun textIndent_onFirstLine() {
+    fun textIndent_inSp_onFirstLine() {
         withDensity(defaultDensity) {
             val text = "abcdef"
-            val fontSize = 20.sp
-            val fontSizeInPx = fontSize.toPx().value
-            val indent = 20.sp
-            val indentInPx = indent.toPx().value
-            val paragraphWidth = "abcd".length * fontSizeInPx
+            val fontSize = 20f
+            val indent = 15f
+            val paragraphWidth = "abcd".length * fontSize
 
             val paragraph = simpleParagraph(
                 text = text,
-                textIndent = TextIndent(firstLine = indent),
-                fontSize = fontSize,
+                textIndent = TextIndent(firstLine = indent.sp),
+                fontSize = fontSize.sp,
                 fontFamily = fontFamilyMeasureFont,
                 constraints = ParagraphConstraints(width = paragraphWidth)
             )
 
             assertThat(paragraph.lineCount).isEqualTo(2)
-
-            // This position should point to the first character of the first line if indent is
-            // applied. Otherwise this position will point to the second character of the second line.
-            val position = PxPosition((indentInPx + 1).px, (fontSizeInPx / 2).px)
-
-            // The offset corresponding to the position should be the first char 'a'.
-            assertThat(paragraph.getOffsetForPosition(position)).isZero()
+            assertThat(paragraph.getHorizontalPosition(0, true)).isEqualTo(indent)
         }
     }
 
     @Test
-    fun textIndent_onRestLine() {
+    fun textIndent_inSp_onRestLine() {
         withDensity(defaultDensity) {
             val text = "abcde"
-            val fontSize = 20.sp
-            val fontSizeInPx = fontSize.toPx().value
-            val indent = 20.sp
-            val indentInPx = indent.toPx().value
-            val paragraphWidth = "abc".length * fontSizeInPx
+            val fontSize = 20f
+            val indent = 20f
+            val paragraphWidth = "abc".length * fontSize
 
             val paragraph = simpleParagraph(
                 text = text,
-                textIndent = TextIndent(
-                    firstLine = 0.sp,
-                    restLine = indent
-                ),
-                fontSize = fontSize,
+                textIndent = TextIndent(restLine = indent.sp),
+                fontSize = fontSize.sp,
                 fontFamily = fontFamilyMeasureFont,
                 constraints = ParagraphConstraints(width = paragraphWidth)
             )
 
-            // This position should point to the first character of the second line if indent is
-            // applied. Otherwise this position will point to the second character of the second line.
-            val position = PxPosition((indentInPx + 1).px, (fontSizeInPx / 2 + fontSizeInPx).px)
-
-            // The offset corresponding to the position should be the 'd' in the second line.
-            assertThat(paragraph.getOffsetForPosition(position)).isEqualTo("abcd".length - 1)
+            // check the position of the first character in second line: "d" should be indented
+            assertThat(paragraph.getHorizontalPosition(3, true)).isEqualTo(indent)
         }
     }
 
+    @Test
+    fun textIndent_inEm_onSingleLine() {
+        withDensity(defaultDensity) {
+            val text = "abc"
+            val fontSize = 20f
+            val indent = 1.5f
+
+            val paragraph = simpleParagraph(
+                text = text,
+                textIndent = TextIndent(firstLine = indent.em),
+                fontSize = fontSize.sp,
+                fontFamily = fontFamilyMeasureFont
+            )
+
+            assertThat(paragraph.getHorizontalPosition(0, true)).isEqualTo(indent * fontSize)
+        }
+    }
+
+    @Test
+    fun textIndent_inEm_onFirstLine() {
+        withDensity(defaultDensity) {
+            val text = "abcdef"
+            val fontSize = 20f
+            val indent = 1.5f
+
+            val paragraphWidth = "abcd".length * fontSize
+
+            val paragraph = simpleParagraph(
+                text = text,
+                textIndent = TextIndent(firstLine = indent.em),
+                fontSize = fontSize.sp,
+                fontFamily = fontFamilyMeasureFont,
+                constraints = ParagraphConstraints(width = paragraphWidth)
+            )
+
+            assertThat(paragraph.lineCount).isEqualTo(2)
+            assertThat(paragraph.getHorizontalPosition(0, true)).isEqualTo(indent * fontSize)
+        }
+    }
+
+    @Test
+    fun textIndent_inEm_onRestLine() {
+        withDensity(defaultDensity) {
+            val text = "abcdef"
+            val fontSize = 20f
+            val indent = 1.5f
+
+            val paragraphWidth = "abcd".length * fontSize
+
+            val paragraph = simpleParagraph(
+                text = text,
+                textIndent = TextIndent(restLine = indent.em),
+                fontSize = fontSize.sp,
+                fontFamily = fontFamilyMeasureFont,
+                constraints = ParagraphConstraints(width = paragraphWidth)
+            )
+
+            assertThat(paragraph.lineCount).isEqualTo(2)
+            // check the position of the first character in second line: "e" should be indented
+            assertThat(paragraph.getHorizontalPosition(4, true)).isEqualTo(indent * fontSize)
+        }
+    }
     @Test
     fun testAnnotatedString_fontFamily_changesMeasurement() {
         withDensity(defaultDensity) {
