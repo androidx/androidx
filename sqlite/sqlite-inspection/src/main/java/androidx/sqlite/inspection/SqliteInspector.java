@@ -118,7 +118,7 @@ final class SqliteInspector extends Inspector {
     }
 
     private void handleGetSchema(GetSchemaCommand command, CommandCallback callback) {
-        final int databaseId = command.getId();
+        final int databaseId = command.getDatabaseId();
         SQLiteDatabase database = mDatabaseRegistry.getDatabase(databaseId);
 
         callback.reply((database != null
@@ -178,7 +178,7 @@ final class SqliteInspector extends Inspector {
 
     private Event createDatabaseOpenedEvent(int id, String name) {
         return Event.newBuilder().setDatabaseOpened(
-                DatabaseOpenedEvent.newBuilder().setId(id).setName(name).build())
+                DatabaseOpenedEvent.newBuilder().setDatabaseId(id).setName(name).build())
                 .build();
     }
 

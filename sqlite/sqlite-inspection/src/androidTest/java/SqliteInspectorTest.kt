@@ -84,7 +84,7 @@ class SqliteInspectorTest {
             alreadyOpenDatabases.let { expected ->
                 val actual = expected.indices.map { receiveEvent().databaseOpened }
                 assertNoQueuedEvents()
-                assertThat(actual.map { it.id }.distinct()).hasSize(expected.size)
+                assertThat(actual.map { it.databaseId }.distinct()).hasSize(expected.size)
                 expected.forEachIndexed { ix, _ ->
                     assertThat(actual[ix].name).isEqualTo(expected[ix].path)
                 }
@@ -163,7 +163,7 @@ class SqliteInspectorTest {
             val schemas =
                 databaseConnections
                     .sortedBy { it.name }
-                    .map { sendCommand(createGetSchemaCommand(it.id)).getSchema }
+                    .map { sendCommand(createGetSchemaCommand(it.databaseId)).getSchema }
 
             alreadyOpenDatabases
                 .sortedBy { it.path }
@@ -289,7 +289,7 @@ class SqliteInspectorTest {
 
         fun createGetSchemaCommand(databaseId: Int): Command {
             return Command.newBuilder().setGetSchema(
-                GetSchemaCommand.newBuilder().setId(databaseId).build()
+                GetSchemaCommand.newBuilder().setDatabaseId(databaseId).build()
             ).build()
         }
     }
