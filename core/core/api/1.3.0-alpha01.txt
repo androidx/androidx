@@ -1137,11 +1137,11 @@ package androidx.core.graphics.drawable {
     method public static androidx.core.graphics.drawable.IconCompat? createFromBundle(android.os.Bundle);
     method @RequiresApi(23) public static androidx.core.graphics.drawable.IconCompat? createFromIcon(android.content.Context, android.graphics.drawable.Icon);
     method public static androidx.core.graphics.drawable.IconCompat! createWithAdaptiveBitmap(android.graphics.Bitmap!);
+    method public static androidx.core.graphics.drawable.IconCompat createWithAdaptiveBitmapContentUri(String);
+    method public static androidx.core.graphics.drawable.IconCompat createWithAdaptiveBitmapContentUri(android.net.Uri);
     method public static androidx.core.graphics.drawable.IconCompat! createWithBitmap(android.graphics.Bitmap!);
     method public static androidx.core.graphics.drawable.IconCompat! createWithContentUri(String!);
     method public static androidx.core.graphics.drawable.IconCompat! createWithContentUri(android.net.Uri!);
-    method public static androidx.core.graphics.drawable.IconCompat createWithContentUriForAdaptiveBitmap(String);
-    method public static androidx.core.graphics.drawable.IconCompat createWithContentUriForAdaptiveBitmap(android.net.Uri);
     method public static androidx.core.graphics.drawable.IconCompat! createWithData(byte[]!, int, int);
     method public static androidx.core.graphics.drawable.IconCompat! createWithResource(android.content.Context!, @DrawableRes int);
     method @IdRes public int getResId();
