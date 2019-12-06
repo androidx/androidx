@@ -22,12 +22,12 @@ import androidx.ui.core.Alignment
 import androidx.ui.core.dp
 import androidx.ui.graphics.Color
 import androidx.ui.layout.Align
-import androidx.ui.layout.Aligned
+import androidx.ui.layout.LayoutAlign
 import androidx.ui.layout.Center
 import androidx.ui.layout.Column
-import androidx.ui.layout.ExpandedHeight
-import androidx.ui.layout.ExpandedWidth
-import androidx.ui.layout.Gravity
+import androidx.ui.layout.LayoutExpandedHeight
+import androidx.ui.layout.LayoutExpandedWidth
+import androidx.ui.layout.LayoutGravity
 import androidx.ui.layout.Row
 
 @Sampled
@@ -49,49 +49,49 @@ fun SimpleCenter() {
 @Sampled
 @Composable
 fun SimpleAlignedModifier() {
-    SizedRectangle(modifier = Aligned.TopCenter, color = Color.Blue, width = 20.dp, height = 20.dp)
+    SizedRectangle(LayoutAlign.TopCenter, color = Color.Blue, width = 20.dp, height = 20.dp)
 }
 
 @Sampled
 @Composable
 fun SimpleVerticallyAlignedModifier() {
-    SizedRectangle(modifier = Aligned.CenterVertically, color = Color.Blue, height = 50.dp)
+    SizedRectangle(LayoutAlign.CenterVertically, color = Color.Blue, height = 50.dp)
 }
 
 @Sampled
 @Composable
 fun SimpleGravityInRow() {
-    Row(ExpandedHeight) {
+    Row(LayoutExpandedHeight) {
         // The child with no gravity modifier is positioned by default so that its top edge is
         // aligned to the top of the vertical axis.
         SizedRectangle(color = Color.Magenta, width = 80.dp, height = 40.dp)
         // Gravity.Top, the child will be positioned so that its top edge is aligned to the top
         // of the vertical axis.
-        SizedRectangle(Gravity.Top, color = Color.Red, width = 80.dp, height = 40.dp)
+        SizedRectangle(LayoutGravity.Top, color = Color.Red, width = 80.dp, height = 40.dp)
         // Gravity.Center, the child will be positioned so that its center is in the middle of
         // the vertical axis.
-        SizedRectangle(Gravity.Center, color = Color.Yellow, width = 80.dp, height = 40.dp)
+        SizedRectangle(LayoutGravity.Center, color = Color.Yellow, width = 80.dp, height = 40.dp)
         // Gravity.Bottom, the child will be positioned so that its bottom edge is aligned to the
         // bottom of the vertical axis.
-        SizedRectangle(Gravity.Bottom, color = Color.Green, width = 80.dp, height = 40.dp)
+        SizedRectangle(LayoutGravity.Bottom, color = Color.Green, width = 80.dp, height = 40.dp)
     }
 }
 
 @Sampled
 @Composable
 fun SimpleGravityInColumn() {
-    Column(ExpandedWidth) {
+    Column(LayoutExpandedWidth) {
         // The child with no gravity modifier is positioned by default so that its start edge
         // aligned with the start edge of the horizontal axis.
         SizedRectangle(color = Color.Magenta, width = 80.dp, height = 40.dp)
         // Gravity.Start, the child will be positioned so that its start edge is aligned with
         // the start edge of the horizontal axis.
-        SizedRectangle(Gravity.Start, color = Color.Red, width = 80.dp, height = 40.dp)
+        SizedRectangle(LayoutGravity.Start, color = Color.Red, width = 80.dp, height = 40.dp)
         // Gravity.Center, the child will be positioned so that its center is in the middle of
         // the horizontal axis.
-        SizedRectangle(Gravity.Center, color = Color.Yellow, width = 80.dp, height = 40.dp)
+        SizedRectangle(LayoutGravity.Center, color = Color.Yellow, width = 80.dp, height = 40.dp)
         // Gravity.End, the child will be positioned so that its end edge aligned to the end of
         // the horizontal axis.
-        SizedRectangle(Gravity.End, color = Color.Green, width = 80.dp, height = 40.dp)
+        SizedRectangle(LayoutGravity.End, color = Color.Green, width = 80.dp, height = 40.dp)
     }
 }

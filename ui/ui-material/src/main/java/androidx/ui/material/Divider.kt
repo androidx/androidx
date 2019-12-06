@@ -23,7 +23,7 @@ import androidx.ui.core.Modifier
 import androidx.ui.core.dp
 import androidx.ui.foundation.ColoredRect
 import androidx.ui.graphics.Color
-import androidx.ui.layout.Spacing
+import androidx.ui.layout.LayoutPadding
 
 /**
  * A divider is a thin line that groups content in lists and layouts
@@ -39,6 +39,6 @@ fun Divider(
     height: Dp = 1.dp,
     indent: Dp = 0.dp
 ) {
-    val indentMod = if (indent.value != 0f) Spacing(left = indent) else Modifier.None
+    val indentMod = if (indent.value != 0f) LayoutPadding(left = indent) else Modifier.None
     ColoredRect(color, modifier wraps indentMod, height = height)
 }

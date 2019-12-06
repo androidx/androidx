@@ -50,7 +50,7 @@ import androidx.ui.graphics.StrokeCap
 import androidx.ui.layout.Container
 import androidx.ui.layout.DpConstraints
 import androidx.ui.layout.Padding
-import androidx.ui.layout.Size
+import androidx.ui.layout.LayoutSize
 import androidx.ui.layout.Spacer
 import androidx.ui.lerp
 import androidx.ui.material.ripple.Ripple
@@ -223,7 +223,7 @@ private fun SliderImpl(position: SliderPosition, color: Color, width: Float, pre
                         color = color,
                         elevation = if (pressed) 6.dp else 1.dp
                     ) {
-                        Spacer(Size(thumbSize, thumbSize))
+                        Spacer(LayoutSize(thumbSize, thumbSize))
                     }
                 }
             }

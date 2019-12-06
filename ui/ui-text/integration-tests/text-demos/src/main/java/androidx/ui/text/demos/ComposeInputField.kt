@@ -24,7 +24,7 @@ import androidx.ui.input.ImeAction
 import androidx.ui.input.KeyboardType
 import androidx.ui.layout.Column
 import androidx.ui.foundation.VerticalScroller
-import androidx.ui.layout.ExpandedHeight
+import androidx.ui.layout.LayoutExpandedHeight
 import androidx.ui.text.TextStyle
 
 val KEYBOARD_TYPES = listOf(
@@ -51,7 +51,7 @@ val IME_ACTIONS = listOf(
 @Composable
 fun InputFieldDemo() {
     VerticalScroller {
-        Column(ExpandedHeight) {
+        Column(LayoutExpandedHeight) {
             TagLine(tag = "simple editing")
             EditLine()
             TagLine(tag = "simple editing2")

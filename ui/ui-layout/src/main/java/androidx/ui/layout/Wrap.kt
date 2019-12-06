@@ -66,7 +66,7 @@ fun Wrap(alignment: Alignment = Alignment.TopLeft, children: @Composable() () ->
  * the target layout is smaller than the incoming min constraints, the modified component will
  * size itself to min incoming constraints and place its content in the center.
  */
-val Wrapped: LayoutModifier = object : LayoutModifier {
+val LayoutWrapped: LayoutModifier = object : LayoutModifier {
     override fun DensityScope.modifyConstraints(constraints: Constraints) = constraints.looseMin()
 
     override fun DensityScope.modifySize(

@@ -20,26 +20,26 @@ import androidx.annotation.Sampled
 import androidx.compose.Composable
 import androidx.ui.core.dp
 import androidx.ui.graphics.Color
-import androidx.ui.layout.Expanded
-import androidx.ui.layout.Gravity
-import androidx.ui.layout.Size
-import androidx.ui.layout.Spacing
+import androidx.ui.layout.LayoutExpanded
+import androidx.ui.layout.LayoutGravity
+import androidx.ui.layout.LayoutPadding
+import androidx.ui.layout.LayoutSize
 import androidx.ui.layout.Stack
 
 @Sampled
 @Composable
 fun SimpleStack() {
     Stack {
-        SizedRectangle(modifier = Expanded, color = Color.Cyan)
+        SizedRectangle(LayoutExpanded, color = Color.Cyan)
         SizedRectangle(
-            modifier = Gravity.Stretch wraps Spacing(top = 20.dp, bottom = 20.dp),
+            LayoutGravity.Stretch wraps LayoutPadding(top = 20.dp, bottom = 20.dp),
             color = Color.Yellow
         )
-        SizedRectangle(modifier = Gravity.Stretch wraps Spacing(40.dp), color = Color.Magenta)
-        SizedRectangle(modifier = Gravity.Center wraps Size(300.dp, 300.dp), color = Color.Green)
-        SizedRectangle(modifier = Gravity.TopLeft wraps Size(150.dp, 150.dp), color = Color.Red)
+        SizedRectangle(LayoutGravity.Stretch wraps LayoutPadding(40.dp), color = Color.Magenta)
+        SizedRectangle(LayoutGravity.Center wraps LayoutSize(300.dp, 300.dp), color = Color.Green)
+        SizedRectangle(LayoutGravity.TopLeft wraps LayoutSize(150.dp, 150.dp), color = Color.Red)
         SizedRectangle(
-            modifier = Gravity.BottomRight wraps Size(150.dp, 150.dp),
+            LayoutGravity.BottomRight wraps LayoutSize(150.dp, 150.dp),
             color = Color.Blue
         )
     }

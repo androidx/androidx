@@ -20,15 +20,15 @@ import androidx.compose.Composable
 import androidx.ui.core.Text
 import androidx.ui.core.dp
 import androidx.ui.layout.Column
-import androidx.ui.layout.Spacing
+import androidx.ui.layout.LayoutPadding
 import androidx.ui.material.samples.SimpleSnackbar
 import androidx.ui.material.samples.SlotsSnackbar
 
 class SnackbarActivity : MaterialDemoActivity() {
     @Composable
     override fun materialContent() {
-        Column(Spacing(left = 12.dp, right = 12.dp)) {
-            val textSpacing = Spacing(top = 12.dp, bottom = 12.dp)
+        Column(LayoutPadding(left = 12.dp, right = 12.dp)) {
+            val textSpacing = LayoutPadding(top = 12.dp, bottom = 12.dp)
             Text("Default Snackbar", modifier = textSpacing)
             SimpleSnackbar()
             Text(

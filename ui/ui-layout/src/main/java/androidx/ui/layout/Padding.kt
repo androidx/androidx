@@ -33,31 +33,57 @@ import androidx.ui.core.coerceIn
  * Layout modifier that applies whitespace spacing on specified sides of the target layout.
  *
  * Example usage:
- * @sample androidx.ui.layout.samples.SpacingModifier
+ * @sample androidx.ui.layout.samples.LayoutPaddingModifier
  */
+@Deprecated(
+    "use LayoutPadding",
+    replaceWith = ReplaceWith(
+        "LayoutPadding(left, top, right, bottom)",
+        "androidx.ui.layout.LayoutPadding"
+    )
+)
 fun Spacing(
     left: Dp = 0.dp,
     top: Dp = 0.dp,
     right: Dp = 0.dp,
     bottom: Dp = 0.dp
-): LayoutModifier = SpacingModifier(left = left, top = top, right = right, bottom = bottom)
+): LayoutModifier = LayoutPadding(left = left, top = top, right = right, bottom = bottom)
 
 /**
  * Layout modifier that applies the same whitespace spacing of [all] dp on each side
  * of the target layout.
  *
  * Example usage:
- * @sample androidx.ui.layout.samples.SpacingAllModifier
+ * @sample androidx.ui.layout.samples.LayoutPaddingAllModifier
  */
+@Deprecated(
+    "use LayoutPadding",
+    replaceWith = ReplaceWith(
+        "LayoutPadding(all)",
+        "androidx.ui.layout.LayoutPadding"
+    )
+)
 fun Spacing(all: Dp = 0.dp): LayoutModifier =
-    SpacingModifier(left = all, top = all, right = all, bottom = all)
+    LayoutPadding(left = all, top = all, right = all, bottom = all)
+
+/**
+ * Layout modifier that applies the same padding of [all] dp on each side of the target layout.
+ *
+ * Example usage:
+ * @sample androidx.ui.layout.samples.LayoutPaddingAllModifier
+ */
+fun LayoutPadding(all: Dp): LayoutPadding = LayoutPadding(
+    left = all,
+    top = all,
+    right = all,
+    bottom = all
+)
 
 /**
  * A [LayoutModifier] that adds [left], [top], [right] and [bottom] padding
  * to the wrapped layout.
- * Used as shared implementation for the [Spacing] overloads.
  */
-private data class SpacingModifier(
+data class LayoutPadding(
     val left: Dp = 0.dp,
     val top: Dp = 0.dp,
     val right: Dp = 0.dp,

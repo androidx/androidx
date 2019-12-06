@@ -30,7 +30,7 @@ import androidx.ui.foundation.ScrollerPosition
 import androidx.ui.foundation.VerticalScroller
 import androidx.ui.graphics.Paint
 import androidx.ui.graphics.PaintingStyle
-import androidx.ui.layout.ExpandedHeight
+import androidx.ui.layout.LayoutExpandedHeight
 import androidx.ui.test.ComposeTestCase
 import androidx.ui.test.ToggleableTestCase
 
@@ -45,7 +45,7 @@ class ScrollerTestCase() : ComposeTestCase, ToggleableTestCase {
         VerticalScroller(
             scrollerPosition = scrollerPosition
         ) {
-            Column(ExpandedHeight) {
+            Column(LayoutExpandedHeight) {
                 for (green in 0..0xFF) {
                     ColorStripe(0xFF, green, 0)
                 }

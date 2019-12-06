@@ -29,7 +29,7 @@ import androidx.ui.core.withTight
  * Example usage:
  * @sample androidx.ui.layout.samples.SimpleExpandedWidthModifier
  */
-val ExpandedWidth: LayoutModifier = object : LayoutModifier {
+val LayoutExpandedWidth: LayoutModifier = object : LayoutModifier {
     override fun DensityScope.modifyConstraints(constraints: Constraints): Constraints {
         return if (constraints.hasBoundedWidth) {
             constraints.withTight(width = constraints.maxWidth)
@@ -45,7 +45,7 @@ val ExpandedWidth: LayoutModifier = object : LayoutModifier {
  * Example usage:
  * @sample androidx.ui.layout.samples.SimpleExpandedHeightModifier
  */
-val ExpandedHeight: LayoutModifier = object : LayoutModifier {
+val LayoutExpandedHeight: LayoutModifier = object : LayoutModifier {
     override fun DensityScope.modifyConstraints(constraints: Constraints): Constraints {
         return if (constraints.hasBoundedHeight) {
             constraints.withTight(height = constraints.maxHeight)
@@ -61,7 +61,7 @@ val ExpandedHeight: LayoutModifier = object : LayoutModifier {
  * Example usage:
  * @sample androidx.ui.layout.samples.SimpleExpandedModifier
  */
-val Expanded: LayoutModifier = object : LayoutModifier {
+val LayoutExpanded: LayoutModifier = object : LayoutModifier {
     override fun DensityScope.modifyConstraints(constraints: Constraints): Constraints {
         return if (constraints.hasBoundedWidth && constraints.hasBoundedHeight) {
             Constraints.tightConstraints(constraints.maxWidth, constraints.maxHeight)

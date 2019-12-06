@@ -30,8 +30,8 @@ import androidx.ui.foundation.HorizontalScroller
 import androidx.ui.layout.Row
 import androidx.ui.foundation.ScrollerPosition
 import androidx.ui.foundation.VerticalScroller
-import androidx.ui.layout.ExpandedWidth
-import androidx.ui.layout.Gravity
+import androidx.ui.layout.LayoutExpandedWidth
+import androidx.ui.layout.LayoutGravity
 import androidx.ui.material.MaterialTheme
 import androidx.ui.material.surface.Surface
 import androidx.ui.test.ComposeTestCase
@@ -68,7 +68,7 @@ class NestedScrollerTestCase : ComposeTestCase, ToggleableTestCase {
     fun SquareRow(useScrollerPosition: Boolean) {
         val playStoreColor = Color(red = 0x00, green = 0x00, blue = 0x80)
         val content = @Composable {
-            Row(ExpandedWidth) {
+            Row(LayoutExpandedWidth) {
                 repeat(6) {
                     WithDensity {
                         FlexColumn {
@@ -88,17 +88,17 @@ class NestedScrollerTestCase : ComposeTestCase, ToggleableTestCase {
                                     text = "Some title",
                                     style = TextStyle(Color.Black, 60.px.toSp())
                                 )
-                                Row(ExpandedWidth) {
+                                Row(LayoutExpandedWidth) {
                                     Text(
                                         "3.5 ★",
                                         style = TextStyle(fontSize = 40.px.toSp()),
-                                        modifier = Gravity.Center
+                                        modifier = LayoutGravity.Center
                                     )
                                     ColoredRect(
                                         width = 40.px.toDp(),
                                         height = 40.px.toDp(),
                                         color = playStoreColor,
-                                        modifier = Gravity.Center
+                                        modifier = LayoutGravity.Center
                                     )
                                 }
                             }

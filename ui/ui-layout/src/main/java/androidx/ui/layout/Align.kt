@@ -93,9 +93,9 @@ fun Center(children: @Composable() () -> Unit) {
 /**
  * Provides scope-dependent alignment options for children layouts where the alignment is handled
  * by the parent layout rather than the child itself. Different layout models allow different
- * [Gravity] options. For example, [Row] provides Top and Bottom, while [Column] provides
+ * [LayoutGravity] options. For example, [Row] provides Top and Bottom, while [Column] provides
  * Start and End.
- * Unlike [Aligned], layout children with [Gravity] are aligned only after the size
+ * Unlike [LayoutAlign], layout children with [LayoutGravity] are aligned only after the size
  * of the parent is known, therefore not affecting the size of the parent in order to achieve
  * their own alignment.
  *
@@ -105,7 +105,7 @@ fun Center(children: @Composable() () -> Unit) {
  *
  * @sample androidx.ui.layout.samples.SimpleGravityInColumn
  */
-object Gravity
+object LayoutGravity
 
 /**
  * Provides alignment options for a target layout where the alignment is handled by the modifier
@@ -118,7 +118,7 @@ object Gravity
  * @sample androidx.ui.layout.samples.SimpleAlignedModifier
  * @sample androidx.ui.layout.samples.SimpleVerticallyAlignedModifier
  */
-object Aligned {
+object LayoutAlign {
     /**
      * A layout modifier that positions the target component inside its parent to the top in
      * vertical direction and wraps the component in horizontal direction.

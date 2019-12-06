@@ -37,7 +37,7 @@ import androidx.ui.core.setContent
 import androidx.ui.input.ImeAction
 import androidx.ui.input.KeyboardType
 import androidx.ui.layout.Column
-import androidx.ui.layout.Height
+import androidx.ui.layout.LayoutHeight
 import androidx.ui.layout.Spacer
 import androidx.ui.material.MaterialTheme
 
@@ -71,7 +71,7 @@ class ExplicitAutofillTypesActivity : Activity() {
                         )
                     }
 
-                    Spacer(Height(40.dp))
+                    Spacer(LayoutHeight(40.dp))
 
                     Text("Email", style = labelStyle)
                     Autofill(

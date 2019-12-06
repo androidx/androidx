@@ -26,7 +26,7 @@ import androidx.ui.graphics.imageFromResource
 import androidx.ui.layout.Arrangement
 import androidx.ui.layout.Column
 import androidx.ui.layout.Container
-import androidx.ui.layout.ExpandedHeight
+import androidx.ui.layout.LayoutExpandedHeight
 import androidx.ui.layout.FlexColumn
 import androidx.ui.material.MaterialTheme
 import androidx.ui.material.RadioGroup
@@ -89,7 +89,7 @@ class AppBarActivity : MaterialDemoActivity() {
                 }
             }
             flexible(1f) {
-                Column(ExpandedHeight, arrangement = Arrangement.SpaceBetween) {
+                Column(LayoutExpandedHeight, arrangement = Arrangement.SpaceBetween) {
                     DemoText("TopAppBar options")
                     RadioGroup {
                         topAppBarOptions.forEach { topAppBar ->

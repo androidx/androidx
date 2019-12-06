@@ -31,7 +31,7 @@ import androidx.ui.core.max
 import androidx.ui.core.min
 import androidx.ui.core.withDensity
 import androidx.ui.layout.Align
-import androidx.ui.layout.AspectRatio
+import androidx.ui.layout.LayoutAspectRatio
 import androidx.ui.layout.ConstrainedBox
 import androidx.ui.layout.Container
 import androidx.ui.layout.DpConstraints
@@ -1309,7 +1309,7 @@ class TableTest : LayoutTest() {
                     for (i in 0 until rows) {
                         tableRow {
                             for (j in 0 until columns) {
-                                Container(AspectRatio(2f)) { }
+                                Container(LayoutAspectRatio(2f)) { }
                             }
                         }
                     }
@@ -1354,7 +1354,7 @@ class TableTest : LayoutTest() {
                     for (i in 0 until rows) {
                         tableRow {
                             for (j in 0 until columns) {
-                                Container(AspectRatio(2f)) { }
+                                Container(LayoutAspectRatio(2f)) { }
                             }
                         }
                     }
@@ -1399,7 +1399,7 @@ class TableTest : LayoutTest() {
                     for (i in 0 until rows) {
                         tableRow {
                             for (j in 0 until columns) {
-                                Container(AspectRatio(2f)) { }
+                                Container(LayoutAspectRatio(2f)) { }
                             }
                         }
                     }
@@ -1444,7 +1444,7 @@ class TableTest : LayoutTest() {
                     for (i in 0 until rows) {
                         tableRow {
                             for (j in 0 until columns) {
-                                Container(AspectRatio(2f)) { }
+                                Container(LayoutAspectRatio(2f)) { }
                             }
                         }
                     }
@@ -1489,7 +1489,7 @@ class TableTest : LayoutTest() {
                     for (i in 0 until rows) {
                         tableRow {
                             for (j in 0 until columns) {
-                                Container(AspectRatio(2f)) { }
+                                Container(LayoutAspectRatio(2f)) { }
                             }
                         }
                     }
@@ -1536,7 +1536,7 @@ class TableTest : LayoutTest() {
                     for (i in 0 until rows) {
                         tableRow {
                             for (j in 0 until columns) {
-                                Container(AspectRatio(2f)) { }
+                                Container(LayoutAspectRatio(2f)) { }
                             }
                         }
                     }
@@ -1581,7 +1581,7 @@ class TableTest : LayoutTest() {
                     for (i in 0 until rows) {
                         tableRow {
                             for (j in 0 until columns) {
-                                Container(AspectRatio(2f)) { }
+                                Container(LayoutAspectRatio(2f)) { }
                             }
                         }
                     }

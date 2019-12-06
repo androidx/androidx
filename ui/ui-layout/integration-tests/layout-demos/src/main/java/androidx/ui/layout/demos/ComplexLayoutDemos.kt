@@ -17,43 +17,43 @@
 package androidx.ui.layout.demos
 
 import android.os.Handler
-import androidx.ui.core.Constraints
-import androidx.ui.core.Draw
-import androidx.ui.core.IntPx
-import androidx.ui.core.IntPxSize
-import androidx.ui.core.Layout
-import androidx.ui.core.WithConstraints
-import androidx.ui.core.constrain
-import androidx.ui.core.dp
-import androidx.ui.core.ipx
-import androidx.ui.core.max
-import androidx.ui.core.toRect
-import androidx.ui.layout.Align
-import androidx.ui.layout.Center
-import androidx.ui.layout.Column
-import androidx.ui.layout.ConstrainedBox
-import androidx.ui.layout.DpConstraints
-import androidx.ui.layout.FlexColumn
-import androidx.ui.layout.FlexRow
-import androidx.ui.layout.Padding
-import androidx.ui.layout.Row
-import androidx.ui.layout.Stack
-import androidx.ui.graphics.Color
-import androidx.ui.graphics.Paint
 import androidx.compose.Composable
 import androidx.compose.Model
 import androidx.compose.effectOf
 import androidx.compose.memo
 import androidx.compose.onCommit
 import androidx.ui.core.Alignment
+import androidx.ui.core.Constraints
+import androidx.ui.core.Draw
 import androidx.ui.core.FirstBaseline
 import androidx.ui.core.HorizontalAlignmentLine
+import androidx.ui.core.IntPx
+import androidx.ui.core.IntPxSize
+import androidx.ui.core.Layout
 import androidx.ui.core.Text
 import androidx.ui.core.VerticalAlignmentLine
+import androidx.ui.core.WithConstraints
+import androidx.ui.core.constrain
+import androidx.ui.core.dp
+import androidx.ui.core.ipx
+import androidx.ui.core.max
 import androidx.ui.core.sp
+import androidx.ui.core.toRect
+import androidx.ui.graphics.Color
+import androidx.ui.graphics.Paint
+import androidx.ui.layout.Align
 import androidx.ui.layout.AlignmentLineOffset
-import androidx.ui.layout.Gravity
-import androidx.ui.layout.Spacing
+import androidx.ui.layout.Center
+import androidx.ui.layout.Column
+import androidx.ui.layout.ConstrainedBox
+import androidx.ui.layout.DpConstraints
+import androidx.ui.layout.FlexColumn
+import androidx.ui.layout.FlexRow
+import androidx.ui.layout.LayoutGravity
+import androidx.ui.layout.LayoutPadding
+import androidx.ui.layout.Padding
+import androidx.ui.layout.Row
+import androidx.ui.layout.Stack
 import androidx.ui.layout.Wrap
 import androidx.ui.layout.samples.DrawRectangle
 import androidx.ui.layout.samples.SizedRectangle
@@ -177,17 +177,17 @@ fun AlignUsage() {
 @Composable
 fun StackUsage() {
     Stack {
-        SizedRectangle(Gravity.Stretch, color = Color(0xFFA52A2A))
-        SizedRectangle(Gravity.Stretch wraps Spacing(40.dp), color = Color(0xFFFFA500))
+        SizedRectangle(LayoutGravity.Stretch, color = Color(0xFFA52A2A))
+        SizedRectangle(LayoutGravity.Stretch wraps LayoutPadding(40.dp), color = Color(0xFFFFA500))
         SizedRectangle(
-            modifier = Gravity.Center,
+            modifier = LayoutGravity.Center,
             color = Color(0xFF0000FF),
             width = 300.dp,
             height = 300.dp
         )
         SizedRectangle(color = Color(0xFF00FF00), width = 150.dp, height = 150.dp)
         SizedRectangle(
-            modifier = Gravity.BottomRight,
+            modifier = LayoutGravity.BottomRight,
             color = Color(0xFFFF0000),
             width = 150.dp,
             height = 150.dp
@@ -376,8 +376,8 @@ fun PositionUsingAlignmentLine() {
 @Composable
 fun RowBaselineAlignment() {
     Row {
-        Text("First text", modifier = Gravity.RelativeToSiblings(FirstBaseline))
-        Column(modifier = Gravity.RelativeToSiblings(FirstBaseline)) {
+        Text("First text", modifier = LayoutGravity.RelativeToSiblings(FirstBaseline))
+        Column(modifier = LayoutGravity.RelativeToSiblings(FirstBaseline)) {
             SizedRectangle(color = Color.Blue, width = 10.dp, height = 50.dp)
             Padding(30.dp) {
                 Text("Second text", style = TextStyle(fontSize = 45.sp))

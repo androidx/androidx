@@ -35,9 +35,9 @@ import androidx.ui.graphics.Color
 import androidx.ui.layout.AlignmentLineOffset
 import androidx.ui.layout.Column
 import androidx.ui.layout.Container
-import androidx.ui.layout.ExpandedWidth
-import androidx.ui.layout.Gravity
-import androidx.ui.layout.Spacing
+import androidx.ui.layout.LayoutExpandedWidth
+import androidx.ui.layout.LayoutGravity
+import androidx.ui.layout.LayoutPadding
 import androidx.ui.material.surface.Surface
 
 /**
@@ -145,7 +145,7 @@ fun Snackbar(
 @Composable
 private fun TextOnlySnackbar(text: @Composable() () -> Unit) {
     Layout(
-        text, modifier = Spacing(left = HorizontalSpacing, right = HorizontalSpacing)
+        text, modifier = LayoutPadding(left = HorizontalSpacing, right = HorizontalSpacing)
     ) { measurables, constraints ->
         require(measurables.size == 1) {
             "text for Snackbar expected to have exactly only one child"
@@ -168,7 +168,7 @@ private fun NewLineButtonSnackbar(
     button: @Composable() () -> Unit
 ) {
     Column(
-        modifier = ExpandedWidth wraps Spacing(
+        modifier = LayoutExpandedWidth wraps LayoutPadding(
             left = HorizontalSpacing,
             right = HorizontalSpacingButtonSide,
             bottom = SeparateButtonExtraY
@@ -176,10 +176,10 @@ private fun NewLineButtonSnackbar(
     ) {
         AlignmentLineOffset(alignmentLine = LastBaseline, after = LongButtonVerticalOffset) {
             AlignmentLineOffset(alignmentLine = FirstBaseline, before = HeightToFirstLine) {
-                Container(modifier = Spacing(right = HorizontalSpacingButtonSide), children = text)
+                Container(LayoutPadding(right = HorizontalSpacingButtonSide), children = text)
             }
         }
-        Container(modifier = Gravity.End, children = button)
+        Container(modifier = LayoutGravity.End, children = button)
     }
 }
 
@@ -190,7 +190,7 @@ private fun OneRowSnackbar(
 ) {
     Layout(
         text, button,
-        modifier = Spacing(left = HorizontalSpacing, right = HorizontalSpacingButtonSide)
+        modifier = LayoutPadding(left = HorizontalSpacing, right = HorizontalSpacingButtonSide)
     ) { measurables, constraints ->
         require(measurables[text].size == 1) {
             "text for Snackbar expected to have exactly only one child"

@@ -38,7 +38,7 @@ import androidx.compose.unaryPlus
 import androidx.ui.layout.Arrangement
 import androidx.ui.layout.Center
 import androidx.ui.layout.Column
-import androidx.ui.layout.ExpandedHeight
+import androidx.ui.layout.LayoutExpandedHeight
 import androidx.ui.material.Button
 import androidx.ui.material.ContainedButtonStyle
 import androidx.ui.material.MaterialTheme
@@ -53,7 +53,7 @@ class ButtonActivity : MaterialDemoActivity() {
     override fun materialContent() {
         val onClick: () -> Unit = { Log.e("ButtonDemo", "onClick") }
         Center {
-            Column(ExpandedHeight, arrangement = Arrangement.SpaceEvenly) {
+            Column(LayoutExpandedHeight, arrangement = Arrangement.SpaceEvenly) {
                 ContainedButtonSample(onClick)
 
                 OutlinedButtonSample(onClick)

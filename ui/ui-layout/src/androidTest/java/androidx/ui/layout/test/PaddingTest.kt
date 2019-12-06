@@ -34,7 +34,7 @@ import androidx.ui.layout.DpConstraints
 import androidx.ui.layout.EdgeInsets
 import androidx.ui.layout.Padding
 import androidx.compose.Composable
-import androidx.ui.layout.AspectRatio
+import androidx.ui.layout.LayoutAspectRatio
 import org.junit.Test
 import org.junit.runner.RunWith
 import org.junit.runners.JUnit4
@@ -267,7 +267,7 @@ class PaddingTest : LayoutTest() {
 
         testIntrinsics(@Composable {
             Padding(padding = padding) {
-                Container(AspectRatio(2f)) { }
+                Container(LayoutAspectRatio(2f)) { }
             }
         }) { minIntrinsicWidth, minIntrinsicHeight, maxIntrinsicWidth, maxIntrinsicHeight ->
             // Padding is applied on both sides of an axis
