@@ -31,9 +31,16 @@ dependencies {
         exclude group: 'androidx.core', module: 'core'
     }
     annotationProcessor(project(":versionedparcelable-annotation"))
+
+
+    testImplementation(ANDROIDX_TEST_CORE)
+    testImplementation(ANDROIDX_TEST_RUNNER)
+    testImplementation(TRUTH)
+    testImplementation(ROBOLECTRIC)
 }
 
 android {
+    testOptions.unitTests.includeAndroidResources = true
     compileOptions {
         sourceCompatibility = JavaVersion.VERSION_1_7
         targetCompatibility = JavaVersion.VERSION_1_7

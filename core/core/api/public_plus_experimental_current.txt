@@ -1674,6 +1674,17 @@ package androidx.core.view {
     method public void onActionProviderVisibilityChanged(boolean);
   }
 
+  public final class DisplayCompat {
+    method public static androidx.core.view.DisplayCompat.ModeCompat![] getSupportedModes(android.content.Context, android.view.Display);
+  }
+
+  public static final class DisplayCompat.ModeCompat {
+    method public int getPhysicalHeight();
+    method public int getPhysicalWidth();
+    method public boolean isNative();
+    method @RequiresApi(android.os.Build.VERSION_CODES.M) public android.view.Display.Mode? toMode();
+  }
+
   public final class DisplayCutoutCompat {
     ctor public DisplayCutoutCompat(android.graphics.Rect!, java.util.List<android.graphics.Rect!>!);
     method public java.util.List<android.graphics.Rect!>! getBoundingRects();
