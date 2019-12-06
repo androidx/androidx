@@ -43,7 +43,6 @@ import androidx.text.style.TypefaceSpan
 import androidx.ui.core.Density
 import androidx.ui.core.TextUnit
 import androidx.ui.core.TextUnitType
-import androidx.ui.core.px
 import androidx.ui.core.sp
 import androidx.ui.core.withDensity
 import androidx.ui.graphics.toArgb
@@ -181,25 +180,19 @@ internal fun createStyledText(
         if (indent.firstLine.isInherit || indent.restLine.isInherit) return@let
         withDensity(density) {
             val firstLine = when (indent.firstLine.type) {
-                TextUnitType.Sp -> indent.firstLine.toPx()
-                TextUnitType.Em -> {
-                    // Support indents with Em unit type: b/144958549
-                    0.px
-                }
-                TextUnitType.Inherit -> { 0.px } // do nothing
+                TextUnitType.Sp -> indent.firstLine.toPx().value
+                TextUnitType.Em -> indent.firstLine.value * contextFontSize
+                TextUnitType.Inherit -> { 0f } // do nothing
             }
             val restLine = when (indent.restLine.type) {
-                TextUnitType.Sp -> indent.restLine.toPx()
-                TextUnitType.Em -> {
-                    // Support indents with Em unit type: b/144958549
-                    0.px
-                }
-                TextUnitType.Inherit -> { 0.px } // do nothing
+                TextUnitType.Sp -> indent.restLine.toPx().value
+                TextUnitType.Em -> indent.restLine.value * contextFontSize
+                TextUnitType.Inherit -> { 0f } // do nothing
             }
             spannableString.setSpan(
                 LeadingMarginSpan.Standard(
-                    firstLine.value.toInt(),
-                    restLine.value.toInt()
+                    ceil(firstLine).toInt(),
+                    ceil(restLine).toInt()
                 ),
                 0,
                 text.length,
