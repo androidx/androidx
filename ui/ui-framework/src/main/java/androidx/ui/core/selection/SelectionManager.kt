@@ -75,7 +75,8 @@ internal class SelectionManager(private val selectionRegistrar: SelectionRegistr
      * @return [Selection] object which is constructed by combining all Composables that are
      * selected.
      */
-    private fun mergeSelections(
+    // This function is internal for testing purposes.
+    internal fun mergeSelections(
         startPosition: PxPosition,
         endPosition: PxPosition,
         longPress: Boolean = false,
