@@ -28,5 +28,10 @@ package androidx.lifecycle {
     method public static suspend <T> Object! whenStateAtLeast(androidx.lifecycle.Lifecycle, androidx.lifecycle.Lifecycle.State minState, kotlin.jvm.functions.Function2<? super kotlinx.coroutines.CoroutineScope,? super kotlin.coroutines.Continuation<? super T>,?> block, kotlin.coroutines.Continuation<? super T> p);
   }
 
+  public final class ViewKt {
+    ctor public ViewKt();
+    method public static androidx.lifecycle.LifecycleOwner? findViewTreeLifecycleOwner(android.view.View);
+  }
+
 }
 
