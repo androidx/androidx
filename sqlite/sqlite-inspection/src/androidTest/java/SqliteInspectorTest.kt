@@ -30,6 +30,9 @@ import androidx.sqlite.inspection.SqliteInspectorProtocol.TrackDatabasesCommand
 import androidx.sqlite.inspection.SqliteInspectorProtocol.TrackDatabasesResponse
 import androidx.sqlite.inspection.SqliteInspectorTest.FakeInspectorEnvironment.RegisterHookEntry.EntryHookEntry
 import androidx.sqlite.inspection.SqliteInspectorTest.FakeInspectorEnvironment.RegisterHookEntry.ExitHookEntry
+import androidx.sqlite.inspection.SqliteInspectorTest.MessageFactory.createTrackDatabasesCommand
+import androidx.sqlite.inspection.SqliteInspectorTest.MessageFactory.createTrackDatabasesResponse
+import androidx.sqlite.inspection.SqliteInspectorTest.MessageFactory.createGetSchemaCommand
 import androidx.test.core.app.ApplicationProvider
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import androidx.test.filters.MediumTest
@@ -40,7 +43,6 @@ import org.junit.Rule
 import org.junit.Test
 import org.junit.rules.TemporaryFolder
 import org.junit.runner.RunWith
-import java.util.Collections.singletonList
 
 @MediumTest
 @RunWith(AndroidJUnit4::class)
@@ -62,160 +64,234 @@ class SqliteInspectorTest {
 
     @Test
     fun test_basic_inject() = runBlocking {
-        val inspectorTester = InspectorTester(SqliteInspectorFactory.SQLITE_INSPECTOR_ID)
-        // no crash means the inspector was successfully injected
-        assertThat(inspectorTester.channel.isEmpty).isTrue()
-        inspectorTester.dispose()
+        TestEnvironment.setUp().run {
+            // no crash means the inspector was successfully injected
+            assertNoQueuedEvents()
+            dispose()
+        }
     }
 
     @Test
     fun test_track_databases() = runBlocking {
-        // prepare test environment
-        val environment = FakeInspectorEnvironment()
-        val inspectorTester =
-            InspectorTester(SqliteInspectorFactory.SQLITE_INSPECTOR_ID, environment)
-        // prepare test environment: registered hooks
-        assertThat(environment.consumeRegisteredHooks()).isEmpty()
-        // prepare test environment: register 'already open' instances
-        val alreadyOpenInstances = listOf(createDatabase("db1"), createDatabase("db2"))
-        environment.registerInstancesToFind(alreadyOpenInstances)
+        val alreadyOpenDatabases = listOf(Database("db1"), Database("db2"))
 
-        // send request and evaluate response
-        inspectorTester.sendCommand(createTrackDatabasesCommand().toByteArray())
-            .let { responseBytes ->
-                assertThat(responseBytes).isNotEmpty()
-                val response = Response.parseFrom(responseBytes)
+        TestEnvironment.setUp(alreadyOpenDatabases).run {
+            sendCommand(createTrackDatabasesCommand()).let { response ->
                 assertThat(response).isEqualTo(createTrackDatabasesResponse())
             }
 
-        // evaluate 'already-open' instances are found
-        alreadyOpenInstances.let { expected ->
-            val actual = expected.indices.map {
-                Event.parseFrom(inspectorTester.channel.receive()).databaseOpened
+            // evaluate 'already-open' instances are found
+            alreadyOpenDatabases.let { expected ->
+                val actual = expected.indices.map { receiveEvent().databaseOpened }
+                assertNoQueuedEvents()
+                assertThat(actual.map { it.databaseId }.distinct()).hasSize(expected.size)
+                expected.forEachIndexed { ix, _ ->
+                    assertThat(actual[ix].name).isEqualTo(expected[ix].path)
+                }
             }
-            assertThat(inspectorTester.channel.isEmpty).isTrue()
-            assertThat(actual.map { it.id }.distinct()).hasSize(expected.size)
-            expected.forEachIndexed { ix, _ ->
-                assertThat(actual[ix].name).isEqualTo(expected[ix].path)
+
+            // evaluate registered hooks
+            val hookEntries = consumeRegisteredHooks()
+            assertThat(hookEntries).hasSize(1)
+            hookEntries.first().let { entry ->
+                // expect one exit hook tracking database open events
+                assertThat(entry).isInstanceOf(ExitHookEntry::class.java)
+                assertThat(entry.originClass.name).isEqualTo(SQLiteDatabase::class.java.name)
+                assertThat(entry.originMethod)
+                    .isEqualTo(SqliteInspector.sOpenDatabaseCommandSignature)
+
+                // verify that executing the registered hook will result in tracking events
+                assertNoQueuedEvents()
+                @Suppress("UNCHECKED_CAST")
+                val exitHook = (entry as ExitHookEntry).exitHook as ExitHook<SQLiteDatabase>
+                val database = Database("db3").createInstance()
+                assertThat(exitHook.onExit(database)).isSameInstanceAs(database)
+                receiveEvent().let { event ->
+                    assertThat(event.databaseOpened.name).isEqualTo(database.path)
+                }
             }
+
+            assertThat(consumeRegisteredHooks()).isEmpty()
+            dispose()
         }
-
-        // evaluate registered hooks
-        val hookEntries = environment.consumeRegisteredHooks()
-        assertThat(hookEntries).hasSize(1)
-        hookEntries.first().let { entry ->
-            // expect one exit hook tracking database open events
-            assertThat(entry).isInstanceOf(ExitHookEntry::class.java)
-            assertThat(entry.originClass.name).isEqualTo(SQLiteDatabase::class.java.name)
-            assertThat(entry.originMethod).isEqualTo(SqliteInspector.sOpenDatabaseCommandSignature)
-
-            // verify that executing the registered hook will result in tracking events
-            assertThat(inspectorTester.channel.isEmpty).isTrue()
-            @Suppress("UNCHECKED_CAST")
-            val exitHook = (entry as ExitHookEntry).exitHook as ExitHook<SQLiteDatabase>
-            val database = createDatabase("db3")
-            assertThat(exitHook.onExit(database)).isSameInstanceAs(database)
-            inspectorTester.channel.receive().let { responseBytes ->
-                assertThat(responseBytes).isNotEmpty()
-                val response = Event.parseFrom(responseBytes)
-                assertThat(response.hasDatabaseOpened()).isTrue()
-                assertThat(response.databaseOpened.name).isEqualTo(database.path)
-            }
-        }
-
-        assertThat(environment.consumeRegisteredHooks()).isEmpty()
-        inspectorTester.dispose()
     }
 
     @Test
-    fun test_get_schema() = runBlocking {
+    fun test_get_schema_complex_tables() {
         // prepare test environment
-        val expectedColumns1 = listOf(
-            "t" to "TEXT",
-            "nu" to "NUMERIC",
-            "i" to "INTEGER",
-            "r" to "REAL",
-            "b" to "BLOB"
-        )
-        val expectedColumns2 = listOf(
-            "id" to "INTEGER",
-            "name" to "TEXT"
-        )
-        val alreadyOpenInstances = singletonList(
-            createDatabase(
-                "db1",
-                "CREATE TABLE t1(${expectedColumns1.foldCommaSeparated()});",
-                "CREATE TABLE t2 (${expectedColumns2.foldCommaSeparated()}, " +
-                        "PRIMARY KEY(${expectedColumns2.map { it.first }.joinToString { it }}));"
+        val database = Database(
+            "db1",
+            Table(
+                "table1",
+                Column("t", "TEXT"),
+                Column("nu", "NUMERIC"),
+                Column("i", "INTEGER"),
+                Column("r", "REAL"),
+                Column("b", "BLOB")
+            ),
+            Table(
+                "table2",
+                Column("id", "INTEGER"),
+                Column("name", "TEXT")
+
             )
         )
-        val environment = FakeInspectorEnvironment()
-        environment.registerInstancesToFind(alreadyOpenInstances)
-        val inspectorTester =
-            InspectorTester(SqliteInspectorFactory.SQLITE_INSPECTOR_ID, environment)
 
-        // get id of the database from track databases event
-        inspectorTester.sendCommand(createTrackDatabasesCommand().toByteArray())
-        val databaseOpenedEvent = Event.parseFrom(inspectorTester.channel.receive()).databaseOpened
-
-        // query schema and validate the response
-        inspectorTester.sendCommand(
-            createGetSchemaCommand(databaseOpenedEvent.id).toByteArray()
-        ).let { response ->
-            val tables =
-                Response.parseFrom(response).getSchema.tablesList.sortedBy { it.name }
-            assertThat(tables).hasSize(2)
-            val table1 = tables[0]
-            val table2 = tables[1]
-            val actualColumns1 = table1.columnsList.sortedBy { it.name }
-            val actualColumns2 = table2.columnsList.sortedBy { it.name }
-
-            assertThat(table1.name).isEqualTo("t1")
-            assertThat(table2.name).isEqualTo("t2")
-
-            assertThat(actualColumns1).hasSize(expectedColumns1.size)
-            assertThat(actualColumns2).hasSize(expectedColumns2.size)
-
-            expectedColumns1.sortedBy { it.first }.forEachIndexed { ix, (name, type) ->
-                assertThat(actualColumns1[ix].name).isEqualTo(name)
-                assertThat(actualColumns1[ix].type).isEqualTo(type)
-            }
-
-            expectedColumns2.sortedBy { it.first }.forEachIndexed { ix, (name, type) ->
-                assertThat(actualColumns2[ix].name).isEqualTo(name)
-                assertThat(actualColumns2[ix].type).isEqualTo(type)
-            }
-        }
-
-        inspectorTester.dispose()
+        test_get_schema(listOf(database))
     }
 
-    private fun List<Pair<String, String>>.foldCommaSeparated(): String =
-        joinToString { (a, b) -> "$a $b" }
-
-    private fun createTrackDatabasesCommand(): Command =
-        Command.newBuilder().setTrackDatabases(TrackDatabasesCommand.getDefaultInstance()).build()
-
-    private fun createTrackDatabasesResponse(): Response =
-        Response.newBuilder().setTrackDatabases(TrackDatabasesResponse.getDefaultInstance()).build()
-
-    private fun createGetSchemaCommand(databaseId: Int): Command {
-        return Command.newBuilder().setGetSchema(
-            GetSchemaCommand.newBuilder().setId(databaseId).build()
-        ).build()
+    @Test
+    fun test_get_schema_multiple_databases() {
+        test_get_schema(
+            listOf(
+                Database("db3", Table("t3", Column("c3", "BLOB"))),
+                Database("db2", Table("t2", Column("c2", "TEXT"))),
+                Database("db1", Table("t1", Column("c1", "TEXT")))
+            )
+        )
     }
 
-    private fun createDatabase(
-        databaseName: String,
-        vararg queries: String
-    ): SQLiteDatabase {
-        val context = ApplicationProvider.getApplicationContext() as android.content.Context
-        val path = tempDirectory.newFile(databaseName).absolutePath
-        val openHelper = object : SQLiteOpenHelper(context, path, null, 1) {
-            override fun onCreate(db: SQLiteDatabase?) = queries.forEach { db!!.execSQL(it) }
-            override fun onUpgrade(db: SQLiteDatabase?, oldVersion: Int, newVersion: Int) = Unit
+    private fun test_get_schema(alreadyOpenDatabases: List<Database>) = runBlocking {
+        assertThat(alreadyOpenDatabases).isNotEmpty()
+
+        // prepare test environment
+        TestEnvironment.setUp(alreadyOpenDatabases).run {
+            sendCommand(createTrackDatabasesCommand())
+            val databaseConnections =
+                alreadyOpenDatabases.indices.map { receiveEvent().databaseOpened }
+
+            val schemas =
+                databaseConnections
+                    .sortedBy { it.name }
+                    .map { sendCommand(createGetSchemaCommand(it.databaseId)).getSchema }
+
+            alreadyOpenDatabases
+                .sortedBy { it.path }
+                .forEach2(schemas) { expectedSchema, actualSchema ->
+                    val expectedTables = expectedSchema.tables.sortedBy { it.name }
+                    val actualTables = actualSchema.tablesList.sortedBy { it.name }
+
+                    expectedTables.forEach2(actualTables) { expectedTable, actualTable ->
+                        assertThat(actualTable.name).isEqualTo(expectedTable.name)
+
+                        val expectedColumns = expectedTable.columns.sortedBy { it.name }
+                        val actualColumns = actualTable.columnsList.sortedBy { it.name }
+
+                        expectedColumns.forEach2(actualColumns) { expectedColumn, actualColumn ->
+                            assertThat(actualColumn.name).isEqualTo(expectedColumn.name)
+                            assertThat(actualColumn.type).isEqualTo(expectedColumn.type)
+                        }
+                }
+            }
+
+            dispose()
         }
-        return openHelper.readableDatabase
+    }
+
+    private class TestEnvironment private constructor(
+        private val inspectorTester: InspectorTester,
+        private val environment: FakeInspectorEnvironment
+    ) {
+        suspend fun sendCommand(command: Command): Response =
+            inspectorTester.sendCommand(command.toByteArray())
+                .let { responseBytes ->
+                    assertThat(responseBytes).isNotEmpty()
+                    Response.parseFrom(responseBytes)
+                }
+
+        suspend fun receiveEvent(): Event =
+            inspectorTester.channel.receive().let { responseBytes ->
+                assertThat(responseBytes).isNotEmpty()
+                Event.parseFrom(responseBytes)
+            }
+
+        fun consumeRegisteredHooks(): List<FakeInspectorEnvironment.RegisterHookEntry> =
+            environment.consumeRegisteredHooks()
+
+        fun dispose() {
+            assertNoQueuedEvents() // remove if doesn't match future test design
+            inspectorTester.dispose()
+        }
+
+        fun assertNoQueuedEvents() {
+            assertThat(inspectorTester.channel.isEmpty).isTrue()
+        }
+
+        /** Iterates over two lists of the same size */
+        fun <A, B> List<A>.forEach2(other: List<B>, action: (A, B) -> Unit) {
+            assertThat(this.size).isEqualTo(other.size)
+            zip(other, action)
+        }
+
+        companion object {
+            suspend fun setUp(alreadyOpenDatabases: List<Database> = emptyList()): TestEnvironment {
+                // prepare test environment
+                val environment = FakeInspectorEnvironment()
+                val inspectorTester =
+                    InspectorTester(SqliteInspectorFactory.SQLITE_INSPECTOR_ID, environment)
+                // prepare test environment: registered hooks
+                assertThat(environment.consumeRegisteredHooks()).isEmpty()
+                // prepare test environment: register 'already open' instances
+                environment.registerInstancesToFind(alreadyOpenDatabases.map {
+                    it.createInstance()
+                })
+                return TestEnvironment(inspectorTester, environment)
+            }
+        }
+    }
+
+    private inner class Database(name: String, val tables: List<Table>) {
+        constructor(name: String, vararg tables: Table) : this(name, tables.toList())
+
+        val path: String = tempDirectory.newFile(name).absolutePath
+
+        fun createInstance(): SQLiteDatabase =
+            createDatabase().also { db -> tables.forEach { t -> db.addTable(t) } }
+
+        private fun createDatabase(): SQLiteDatabase {
+            val context = ApplicationProvider.getApplicationContext() as android.content.Context
+            val openHelper = object : SQLiteOpenHelper(context, path, null, 1) {
+                override fun onCreate(db: SQLiteDatabase?) = Unit
+                override fun onUpgrade(db: SQLiteDatabase?, oldVersion: Int, newVersion: Int) = Unit
+            }
+            return openHelper.readableDatabase
+        }
+
+        private fun SQLiteDatabase.addTable(table: Table) = this.execSQL(table.toCreateString())
+    }
+
+    private data class Table(val name: String, val columns: List<Column>) {
+        constructor(name: String, vararg columns: Column) : this(name, columns.toList())
+
+        init {
+            assertThat(columns).isNotEmpty()
+        }
+
+        fun toCreateString(): String =
+            columns.joinToString(
+                prefix = "CREATE TABLE $name (",
+                postfix = ");"
+            ) { "${it.name} ${it.type}" }
+    }
+
+    private data class Column(val name: String, val type: String)
+
+    private object MessageFactory {
+        fun createTrackDatabasesCommand(): Command =
+            Command.newBuilder().setTrackDatabases(
+                TrackDatabasesCommand.getDefaultInstance()
+            ).build()
+
+        fun createTrackDatabasesResponse(): Response =
+            Response.newBuilder().setTrackDatabases(
+                TrackDatabasesResponse.getDefaultInstance()
+            ).build()
+
+        fun createGetSchemaCommand(databaseId: Int): Command {
+            return Command.newBuilder().setGetSchema(
+                GetSchemaCommand.newBuilder().setDatabaseId(databaseId).build()
+            ).build()
+        }
     }
 
     /**
@@ -274,7 +350,7 @@ class SqliteInspectorTest {
             class EntryHookEntry(
                 originClass: Class<*>,
                 originMethod: String,
-                val entryHook: EntryHook
+                @Suppress("unused") val entryHook: EntryHook
             ) : RegisterHookEntry(originClass, originMethod)
         }
     }
