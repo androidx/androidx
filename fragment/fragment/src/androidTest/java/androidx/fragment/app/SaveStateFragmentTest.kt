@@ -328,6 +328,9 @@ class SaveStateFragmentTest {
         assertWithMessage("Retained Fragment added after saved state should be destroyed")
             .that(retainedOnStartFragment.calledOnDestroy)
             .isTrue()
+        assertWithMessage("Retained Fragment should be removed from non config")
+            .that(fm2.fragmentStore.nonConfig.retainedFragments)
+            .containsExactly(retainedFragment)
 
         fc2.dispatchActivityCreated()
         fc2.noteStateNotSaved()

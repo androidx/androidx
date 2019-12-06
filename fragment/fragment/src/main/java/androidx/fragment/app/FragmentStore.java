@@ -44,6 +44,10 @@ class FragmentStore {
         mNonConfig = nonConfig;
     }
 
+    FragmentManagerViewModel getNonConfig() {
+        return mNonConfig;
+    }
+
     void resetActiveFragments() {
         mActive.clear();
     }
@@ -121,6 +125,10 @@ class FragmentStore {
     void makeInactive(@NonNull FragmentStateManager newlyInactive) {
         Fragment f = newlyInactive.getFragment();
 
+        if (f.mRetainInstance) {
+            mNonConfig.removeRetainedFragment(f);
+        }
+
         // Don't remove yet. That happens in burpActive(). This prevents
         // concurrent modification while iterating over mActive
         FragmentStateManager removedStateManager = mActive.put(f.mWho, null);
@@ -148,10 +156,6 @@ class FragmentStore {
             // Restore the target Fragment so that it can be accessed
             // even after the Fragment is removed.
             f.mTarget = findActiveFragment(f.mTargetWho);
-        }
-
-        if (f.mRetainInstance) {
-            mNonConfig.removeRetainedFragment(f);
         }
     }
 
