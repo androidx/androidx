@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<issues format="5" by="lint 3.6.0-beta01" client="gradle" variant="debug" version="3.6.0-beta01">
+<issues format="5" by="lint 3.6.0-beta05" client="gradle" variant="debug" version="3.6.0-beta05">
 
     <issue
         id="UnknownNullness"
@@ -173,7 +173,7 @@
         errorLine2="                            ~~~~~~~">
         <location
             file="src/main/java/androidx/mediarouter/app/MediaRouteButton.java"
-            line="141"
+            line="143"
             column="29"/>
     </issue>
 
@@ -184,7 +184,7 @@
         errorLine2="                            ~~~~~~~">
         <location
             file="src/main/java/androidx/mediarouter/app/MediaRouteButton.java"
-            line="145"
+            line="147"
             column="29"/>
     </issue>
 
@@ -195,7 +195,7 @@
         errorLine2="                                             ~~~~~~~~~~~~">
         <location
             file="src/main/java/androidx/mediarouter/app/MediaRouteButton.java"
-            line="145"
+            line="147"
             column="46"/>
     </issue>
 
@@ -206,7 +206,7 @@
         errorLine2="                            ~~~~~~~">
         <location
             file="src/main/java/androidx/mediarouter/app/MediaRouteButton.java"
-            line="149"
+            line="151"
             column="29"/>
     </issue>
 
@@ -217,7 +217,7 @@
         errorLine2="                                             ~~~~~~~~~~~~">
         <location
             file="src/main/java/androidx/mediarouter/app/MediaRouteButton.java"
-            line="149"
+            line="151"
             column="46"/>
     </issue>
 
@@ -228,7 +228,7 @@
         errorLine2="                                 ~~~~~~~~~~~~~~~~~~">
         <location
             file="src/main/java/androidx/mediarouter/app/MediaRouteButton.java"
-            line="229"
+            line="231"
             column="34"/>
     </issue>
 
@@ -239,7 +239,7 @@
         errorLine2="              ~~~~~">
         <location
             file="src/main/java/androidx/mediarouter/app/MediaRouteButton.java"
-            line="386"
+            line="390"
             column="15"/>
     </issue>
 
@@ -250,7 +250,7 @@
         errorLine2="                                           ~~~~~~~~">
         <location
             file="src/main/java/androidx/mediarouter/app/MediaRouteButton.java"
-            line="418"
+            line="422"
             column="44"/>
     </issue>
 
@@ -261,7 +261,7 @@
         errorLine2="                                     ~~~~~~~~">
         <location
             file="src/main/java/androidx/mediarouter/app/MediaRouteButton.java"
-            line="443"
+            line="447"
             column="38"/>
     </issue>
 
@@ -272,7 +272,7 @@
         errorLine2="                          ~~~~~~">
         <location
             file="src/main/java/androidx/mediarouter/app/MediaRouteButton.java"
-            line="538"
+            line="542"
             column="27"/>
     </issue>
 
@@ -745,7 +745,7 @@
         errorLine2="           ~~~~~~">
         <location
             file="src/main/java/androidx/mediarouter/media/MediaRouteDescriptor.java"
-            line="374"
+            line="373"
             column="12"/>
     </issue>
 
@@ -756,7 +756,7 @@
         errorLine2="                  ~~~~~~~~~~~~~~~~~~~~">
         <location
             file="src/main/java/androidx/mediarouter/media/MediaRouteDescriptor.java"
-            line="384"
+            line="383"
             column="19"/>
     </issue>
 
@@ -767,7 +767,7 @@
         errorLine2="                                                  ~~~~~~">
         <location
             file="src/main/java/androidx/mediarouter/media/MediaRouteDescriptor.java"
-            line="384"
+            line="383"
             column="51"/>
     </issue>
 
@@ -778,7 +778,7 @@
         errorLine2="                       ~~~~~~">
         <location
             file="src/main/java/androidx/mediarouter/media/MediaRouteDescriptor.java"
-            line="402"
+            line="401"
             column="24"/>
     </issue>
 
@@ -789,7 +789,7 @@
         errorLine2="                                  ~~~~~~">
         <location
             file="src/main/java/androidx/mediarouter/media/MediaRouteDescriptor.java"
-            line="402"
+            line="401"
             column="35"/>
     </issue>
 
@@ -800,7 +800,7 @@
         errorLine2="                       ~~~~~~~~~~~~~~~~~~~~">
         <location
             file="src/main/java/androidx/mediarouter/media/MediaRouteDescriptor.java"
-            line="412"
+            line="411"
             column="24"/>
     </issue>
 
@@ -811,7 +811,7 @@
         errorLine2="               ~~~~~~~">
         <location
             file="src/main/java/androidx/mediarouter/media/MediaRouteDescriptor.java"
-            line="436"
+            line="435"
             column="16"/>
     </issue>
 
@@ -822,7 +822,7 @@
         errorLine2="                             ~~~~~~">
         <location
             file="src/main/java/androidx/mediarouter/media/MediaRouteDescriptor.java"
-            line="436"
+            line="435"
             column="30"/>
     </issue>
 
@@ -833,7 +833,7 @@
         errorLine2="               ~~~~~~~">
         <location
             file="src/main/java/androidx/mediarouter/media/MediaRouteDescriptor.java"
-            line="450"
+            line="449"
             column="16"/>
     </issue>
 
@@ -844,7 +844,7 @@
         errorLine2="                                        ~~~~~~">
         <location
             file="src/main/java/androidx/mediarouter/media/MediaRouteDescriptor.java"
-            line="450"
+            line="449"
             column="41"/>
     </issue>
 
@@ -855,7 +855,7 @@
         errorLine2="               ~~~~~~~">
         <location
             file="src/main/java/androidx/mediarouter/media/MediaRouteDescriptor.java"
-            line="473"
+            line="472"
             column="16"/>
     </issue>
 
@@ -866,7 +866,7 @@
         errorLine2="                                         ~~~~~~~~~~~~~~~~~~">
         <location
             file="src/main/java/androidx/mediarouter/media/MediaRouteDescriptor.java"
-            line="473"
+            line="472"
             column="42"/>
     </issue>
 
@@ -877,7 +877,7 @@
         errorLine2="               ~~~~~~~">
         <location
             file="src/main/java/androidx/mediarouter/media/MediaRouteDescriptor.java"
-            line="495"
+            line="494"
             column="16"/>
     </issue>
 
@@ -888,7 +888,7 @@
         errorLine2="                                           ~~~~~~">
         <location
             file="src/main/java/androidx/mediarouter/media/MediaRouteDescriptor.java"
-            line="495"
+            line="494"
             column="44"/>
     </issue>
 
@@ -899,7 +899,7 @@
         errorLine2="               ~~~~~~~">
         <location
             file="src/main/java/androidx/mediarouter/media/MediaRouteDescriptor.java"
-            line="513"
+            line="512"
             column="16"/>
     </issue>
 
@@ -910,7 +910,7 @@
         errorLine2="                               ~~~~~~">
         <location
             file="src/main/java/androidx/mediarouter/media/MediaRouteDescriptor.java"
-            line="513"
+            line="512"
             column="32"/>
     </issue>
 
@@ -921,7 +921,7 @@
         errorLine2="               ~~~~~~~">
         <location
             file="src/main/java/androidx/mediarouter/media/MediaRouteDescriptor.java"
-            line="525"
+            line="524"
             column="16"/>
     </issue>
 
@@ -932,7 +932,7 @@
         errorLine2="                                      ~~~~~~">
         <location
             file="src/main/java/androidx/mediarouter/media/MediaRouteDescriptor.java"
-            line="525"
+            line="524"
             column="39"/>
     </issue>
 
@@ -943,7 +943,7 @@
         errorLine2="               ~~~~~~~">
         <location
             file="src/main/java/androidx/mediarouter/media/MediaRouteDescriptor.java"
-            line="544"
+            line="543"
             column="16"/>
     </issue>
 
@@ -954,7 +954,7 @@
         errorLine2="                                  ~~~">
         <location
             file="src/main/java/androidx/mediarouter/media/MediaRouteDescriptor.java"
-            line="544"
+            line="543"
             column="35"/>
     </issue>
 
@@ -965,7 +965,7 @@
         errorLine2="               ~~~~~~~">
         <location
             file="src/main/java/androidx/mediarouter/media/MediaRouteDescriptor.java"
-            line="559"
+            line="558"
             column="16"/>
     </issue>
 
@@ -976,7 +976,7 @@
         errorLine2="               ~~~~~~~">
         <location
             file="src/main/java/androidx/mediarouter/media/MediaRouteDescriptor.java"
-            line="568"
+            line="567"
             column="16"/>
     </issue>
 
@@ -987,7 +987,7 @@
         errorLine2="               ~~~~~~~">
         <location
             file="src/main/java/androidx/mediarouter/media/MediaRouteDescriptor.java"
-            line="578"
+            line="577"
             column="16"/>
     </issue>
 
@@ -998,7 +998,7 @@
         errorLine2="               ~~~~~~~">
         <location
             file="src/main/java/androidx/mediarouter/media/MediaRouteDescriptor.java"
-            line="591"
+            line="590"
             column="16"/>
     </issue>
 
@@ -1009,7 +1009,7 @@
         errorLine2="               ~~~~~~~">
         <location
             file="src/main/java/androidx/mediarouter/media/MediaRouteDescriptor.java"
-            line="599"
+            line="598"
             column="16"/>
     </issue>
 
@@ -1020,7 +1020,7 @@
         errorLine2="               ~~~~~~~">
         <location
             file="src/main/java/androidx/mediarouter/media/MediaRouteDescriptor.java"
-            line="608"
+            line="607"
             column="16"/>
     </issue>
 
@@ -1031,7 +1031,7 @@
         errorLine2="                                           ~~~~~~~~~~~~">
         <location
             file="src/main/java/androidx/mediarouter/media/MediaRouteDescriptor.java"
-            line="608"
+            line="607"
             column="44"/>
     </issue>
 
@@ -1042,7 +1042,7 @@
         errorLine2="               ~~~~~~~">
         <location
             file="src/main/java/androidx/mediarouter/media/MediaRouteDescriptor.java"
-            line="616"
+            line="615"
             column="16"/>
     </issue>
 
@@ -1053,7 +1053,7 @@
         errorLine2="                                        ~~~~~~~~~~~~">
         <location
             file="src/main/java/androidx/mediarouter/media/MediaRouteDescriptor.java"
-            line="616"
+            line="615"
             column="41"/>
     </issue>
 
@@ -1064,7 +1064,7 @@
         errorLine2="               ~~~~~~~">
         <location
             file="src/main/java/androidx/mediarouter/media/MediaRouteDescriptor.java"
-            line="633"
+            line="632"
             column="16"/>
     </issue>
 
@@ -1075,7 +1075,7 @@
         errorLine2="                                         ~~~~~~~~~~~~~~~~~~~~~~~~">
         <location
             file="src/main/java/androidx/mediarouter/media/MediaRouteDescriptor.java"
-            line="633"
+            line="632"
             column="42"/>
     </issue>
 
@@ -1086,7 +1086,7 @@
         errorLine2="               ~~~~~~~">
         <location
             file="src/main/java/androidx/mediarouter/media/MediaRouteDescriptor.java"
-            line="653"
+            line="652"
             column="16"/>
     </issue>
 
@@ -1097,7 +1097,7 @@
         errorLine2="               ~~~~~~~">
         <location
             file="src/main/java/androidx/mediarouter/media/MediaRouteDescriptor.java"
-            line="661"
+            line="660"
             column="16"/>
     </issue>
 
@@ -1108,7 +1108,7 @@
         errorLine2="               ~~~~~~~">
         <location
             file="src/main/java/androidx/mediarouter/media/MediaRouteDescriptor.java"
-            line="673"
+            line="672"
             column="16"/>
     </issue>
 
@@ -1119,7 +1119,7 @@
         errorLine2="               ~~~~~~~">
         <location
             file="src/main/java/androidx/mediarouter/media/MediaRouteDescriptor.java"
-            line="681"
+            line="680"
             column="16"/>
     </issue>
 
@@ -1130,7 +1130,7 @@
         errorLine2="               ~~~~~~~">
         <location
             file="src/main/java/androidx/mediarouter/media/MediaRouteDescriptor.java"
-            line="689"
+            line="688"
             column="16"/>
     </issue>
 
@@ -1141,7 +1141,7 @@
         errorLine2="               ~~~~~~~">
         <location
             file="src/main/java/androidx/mediarouter/media/MediaRouteDescriptor.java"
-            line="701"
+            line="700"
             column="16"/>
     </issue>
 
@@ -1152,7 +1152,7 @@
         errorLine2="               ~~~~~~~">
         <location
             file="src/main/java/androidx/mediarouter/media/MediaRouteDescriptor.java"
-            line="709"
+            line="708"
             column="16"/>
     </issue>
 
@@ -1163,7 +1163,7 @@
         errorLine2="               ~~~~~~~">
         <location
             file="src/main/java/androidx/mediarouter/media/MediaRouteDescriptor.java"
-            line="719"
+            line="718"
             column="16"/>
     </issue>
 
@@ -1174,7 +1174,7 @@
         errorLine2="                                 ~~~~~~">
         <location
             file="src/main/java/androidx/mediarouter/media/MediaRouteDescriptor.java"
-            line="719"
+            line="718"
             column="34"/>
     </issue>
 
@@ -1185,7 +1185,7 @@
         errorLine2="               ~~~~~~~">
         <location
             file="src/main/java/androidx/mediarouter/media/MediaRouteDescriptor.java"
-            line="730"
+            line="729"
             column="16"/>
     </issue>
 
@@ -1196,7 +1196,7 @@
         errorLine2="               ~~~~~~~">
         <location
             file="src/main/java/androidx/mediarouter/media/MediaRouteDescriptor.java"
-            line="741"
+            line="740"
             column="16"/>
     </issue>
 
@@ -1207,7 +1207,7 @@
         errorLine2="               ~~~~~~~~~~~~~~~~~~~~">
         <location
             file="src/main/java/androidx/mediarouter/media/MediaRouteDescriptor.java"
-            line="749"
+            line="748"
             column="16"/>
     </issue>
 

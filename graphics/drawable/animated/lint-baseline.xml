@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<issues format="5" by="lint 3.6.0-beta01" client="gradle" variant="debug" version="3.6.0-beta01">
+<issues format="5" by="lint 3.6.0-beta05" client="gradle" variant="debug" version="3.6.0-beta05">
 
     <issue
         id="UnknownNullness"
@@ -338,7 +338,7 @@
         errorLine2="                  ~~~~~~~~~~~~">
         <location
             file="src/main/java/androidx/vectordrawable/graphics/drawable/AnimationUtilsCompat.java"
-            line="64"
+            line="62"
             column="19"/>
     </issue>
 
@@ -349,7 +349,7 @@
         errorLine2="                                                ~~~~~~~">
         <location
             file="src/main/java/androidx/vectordrawable/graphics/drawable/AnimationUtilsCompat.java"
-            line="64"
+            line="62"
             column="49"/>
     </issue>
 
@@ -360,7 +360,7 @@
         errorLine2="                  ~~~~~~~~">
         <location
             file="src/main/java/androidx/vectordrawable/graphics/drawable/AnimatorInflaterCompat.java"
-            line="95"
+            line="93"
             column="19"/>
     </issue>
 
@@ -371,7 +371,7 @@
         errorLine2="                                        ~~~~~~~">
         <location
             file="src/main/java/androidx/vectordrawable/graphics/drawable/AnimatorInflaterCompat.java"
-            line="95"
+            line="93"
             column="41"/>
     </issue>
 
@@ -382,7 +382,7 @@
         errorLine2="                  ~~~~~~~~">
         <location
             file="src/main/java/androidx/vectordrawable/graphics/drawable/AnimatorInflaterCompat.java"
-            line="117"
+            line="115"
             column="19"/>
     </issue>
 
@@ -393,7 +393,7 @@
         errorLine2="                                        ~~~~~~~">
         <location
             file="src/main/java/androidx/vectordrawable/graphics/drawable/AnimatorInflaterCompat.java"
-            line="117"
+            line="115"
             column="41"/>
     </issue>
 
@@ -404,7 +404,7 @@
         errorLine2="                                                         ~~~~~~~~~">
         <location
             file="src/main/java/androidx/vectordrawable/graphics/drawable/AnimatorInflaterCompat.java"
-            line="117"
+            line="115"
             column="58"/>
     </issue>
 
@@ -415,7 +415,7 @@
         errorLine2="                                                                              ~~~~~">
         <location
             file="src/main/java/androidx/vectordrawable/graphics/drawable/AnimatorInflaterCompat.java"
-            line="117"
+            line="115"
             column="79"/>
     </issue>
 
@@ -426,7 +426,7 @@
         errorLine2="                  ~~~~~~~~">
         <location
             file="src/main/java/androidx/vectordrawable/graphics/drawable/AnimatorInflaterCompat.java"
-            line="125"
+            line="123"
             column="19"/>
     </issue>
 
@@ -437,7 +437,7 @@
         errorLine2="                                        ~~~~~~~">
         <location
             file="src/main/java/androidx/vectordrawable/graphics/drawable/AnimatorInflaterCompat.java"
-            line="125"
+            line="123"
             column="41"/>
     </issue>
 
@@ -448,7 +448,7 @@
         errorLine2="                                                         ~~~~~~~~~">
         <location
             file="src/main/java/androidx/vectordrawable/graphics/drawable/AnimatorInflaterCompat.java"
-            line="125"
+            line="123"
             column="58"/>
     </issue>
 
@@ -459,7 +459,7 @@
         errorLine2="                                                                              ~~~~~">
         <location
             file="src/main/java/androidx/vectordrawable/graphics/drawable/AnimatorInflaterCompat.java"
-            line="125"
+            line="123"
             column="79"/>
     </issue>
 
