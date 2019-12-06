@@ -24,6 +24,7 @@
         <activity android:name="androidx.activity.ViewModelActivity"/>
         <activity android:name="androidx.activity.SavedStateActivity"/>
         <activity android:name="androidx.activity.ContentViewActivity"/>
+        <activity android:name="androidx.activity.EmptyContentActivity" />
         <activity android:name="androidx.activity.AutoRestarterActivity"/>
     </application>
 
