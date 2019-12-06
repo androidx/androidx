@@ -16,23 +16,27 @@
 
 package androidx.paging
 
+import androidx.paging.LoadType.END
+import androidx.paging.LoadType.REFRESH
+import androidx.paging.LoadType.START
+
 /**
  * Events in the stream from paging fetch logic to UI.
  *
  * Every event sent to the UI is a PageEvent, and will be processed atomically.
  */
 internal sealed class PageEvent<T : Any> {
-    data class Insert<T : Any>(
+    data class Insert<T : Any> private constructor(
         val loadType: LoadType,
         val pages: List<TransformablePage<T>>,
         val placeholdersStart: Int,
         val placeholdersEnd: Int
     ) : PageEvent<T>() {
         init {
-            require(placeholdersStart >= 0) {
+            require(loadType == END || placeholdersStart >= 0) {
                 "Invalid placeholdersBefore $placeholdersStart"
             }
-            require(placeholdersEnd >= 0) {
+            require(loadType == START || placeholdersEnd >= 0) {
                 "Invalid placeholdersAfter $placeholdersEnd"
             }
         }
@@ -89,6 +93,24 @@ internal sealed class PageEvent<T : Any> {
                 originalIndices = originalIndices
             )
         }
+
+        companion object {
+            fun <T : Any> Refresh(
+                pages: List<TransformablePage<T>>,
+                placeholdersStart: Int,
+                placeholdersEnd: Int
+            ) = Insert(REFRESH, pages, placeholdersStart, placeholdersEnd)
+
+            fun <T : Any> Start(
+                pages: List<TransformablePage<T>>,
+                placeholdersStart: Int
+            ) = Insert(START, pages, placeholdersStart, -1)
+
+            fun <T : Any> End(
+                pages: List<TransformablePage<T>>,
+                placeholdersEnd: Int
+            ) = Insert(END, pages, -1, placeholdersEnd)
+        }
     }
 
     data class Drop<T : Any>(
@@ -97,7 +119,7 @@ internal sealed class PageEvent<T : Any> {
         val placeholdersRemaining: Int
     ) : PageEvent<T>() {
         init {
-            require(loadType != LoadType.REFRESH) { "Drop must be START or END" }
+            require(loadType != REFRESH) { "Drop must be START or END" }
             require(count >= 0) { "Invalid count $count" }
             require(placeholdersRemaining >= 0) {
                 "Invalid placeholdersRemaining $placeholdersRemaining"
