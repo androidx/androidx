@@ -100,8 +100,7 @@ data /*inline*/ class Px(val value: Float) : Comparable<Px> {
     /**
      * Compare [Px] with another [Px].
      */
-    @Suppress("OVERRIDE_BY_INLINE")
-    override inline operator fun compareTo(other: Px) = value.compareTo(other.value)
+    override /* TODO: inline */ operator fun compareTo(other: Px) = value.compareTo(other.value)
 
     /**
      * Compares this [Px] to another [IntPx]
@@ -288,8 +287,7 @@ inline class PxSquared(val value: Float) : Comparable<PxSquared> {
     /**
      * Support comparing PxSquared with comparison operators.
      */
-    @Suppress("OVERRIDE_BY_INLINE")
-    override inline operator fun compareTo(other: PxSquared) =
+    override /* TODO: inline */ operator fun compareTo(other: PxSquared) =
         value.compareTo(other.value)
 
     override fun toString(): String = "$value.px^2"
@@ -351,8 +349,8 @@ inline class PxCubed(val value: Float) : Comparable<PxCubed> {
     /**
      * Support comparing PxCubed with comparison operators.
      */
-    @Suppress("OVERRIDE_BY_INLINE")
-    override inline operator fun compareTo(other: PxCubed) = value.compareTo(other.value)
+    override /* TODO: inline */ operator fun compareTo(other: PxCubed) =
+        value.compareTo(other.value)
 
     override fun toString(): String = "$value.px^3"
 }
@@ -413,8 +411,7 @@ inline class PxInverse(val value: Float) : Comparable<PxInverse> {
     /**
      * Support comparing PxInverse with comparison operators.
      */
-    @Suppress("OVERRIDE_BY_INLINE")
-    override inline operator fun compareTo(other: PxInverse) =
+    override /* TODO: inline */ operator fun compareTo(other: PxInverse) =
         value.compareTo(other.value)
 
     override fun toString(): String = "$value.px^-1"
