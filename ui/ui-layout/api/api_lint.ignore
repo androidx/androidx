@@ -11,8 +11,6 @@ DocumentExceptions: androidx.ui.layout.FlexChildren#flexible(float, kotlin.jvm.f
     Method FlexChildren.flexible appears to be throwing java.lang.IllegalArgumentException; this should be listed in the documentation; see https://android.github.io/kotlin-guides/interop.html#document-exceptions
 
 
-MissingNullability: androidx.ui.layout.constraintlayout.ConstraintLayoutKt#getTag(androidx.ui.core.Measurable):
-    Missing nullability on method `getTag` return
 MissingNullability: androidx.ui.layout.constraintlayout.ConstraintSetBuilderScope#getParentDimension():
     Missing nullability on method `getParentDimension` return
 MissingNullability: androidx.ui.layout.constraintlayout.ConstraintSetBuilderScope#getSpreadDimension():

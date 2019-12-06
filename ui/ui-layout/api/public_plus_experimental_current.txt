@@ -397,8 +397,6 @@ package androidx.ui.layout.constraintlayout {
   public final class ConstraintLayoutKt {
     ctor public ConstraintLayoutKt();
     method public static void ConstraintLayout(androidx.ui.layout.constraintlayout.ConstraintSet constraintSet, kotlin.jvm.functions.Function0<kotlin.Unit> children);
-    method public static androidx.ui.core.LayoutModifier Tag(Object tag);
-    method public static Object! getTag(androidx.ui.core.Measurable);
   }
 
   public final class ConstraintSet {

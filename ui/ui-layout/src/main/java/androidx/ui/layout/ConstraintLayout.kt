@@ -44,6 +44,7 @@ import androidx.ui.core.dp
 import androidx.ui.core.hasBoundedHeight
 import androidx.ui.core.hasBoundedWidth
 import androidx.ui.core.ipx
+import androidx.ui.core.tag
 
 /**
  * Layout that positions its children according to the constraints between them.
@@ -552,17 +553,6 @@ class ConstraintSetBuilderScope internal constructor(internal val state: State) 
             { other -> baselineToBaseline(other) }
     }
 }
-
-/**
- * Creates a tag that can be used to identify a measurable / child.
- * TODO(popam): should not be ConstraintLayout specific
- */
-fun Tag(tag: Any): LayoutModifier = TagModifier(tag)
-
-/**
- * Returns the tag associated to a measurable using the [Tag] modifier.
- */
-val Measurable.tag get() = (parentData as? TagModifier)?.tag
 
 private class Measurer internal constructor() : BasicMeasure.Measurer {
     private val root = ConstraintWidgetContainer(0, 0).also { it.measurer = this }

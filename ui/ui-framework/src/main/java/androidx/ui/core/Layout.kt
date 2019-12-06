@@ -385,6 +385,8 @@ typealias MultiMeasureBlock =
 /**
  * Temporary component that allows composing and indexing measurables of multiple composables.
  * The logic here will be moved back to Layout, which will accept vararg children argument.
+ *
+ * @sample androidx.ui.framework.samples.LayoutVarargsUsage
  */
 // TODO(popam): remove this when the new syntax is available
 // * With the new syntax, the API should support both:

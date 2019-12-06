@@ -42,6 +42,24 @@ package androidx.ui.core {
     method public static void WithConstraints(androidx.ui.core.Modifier modifier = Modifier.None, kotlin.jvm.functions.Function1<? super androidx.ui.core.Constraints,kotlin.Unit> children);
   }
 
+  public final class LayoutTag implements androidx.ui.core.LayoutTagParentData androidx.ui.core.ParentDataModifier {
+    ctor public LayoutTag(Object tag);
+    method public Object component1();
+    method public androidx.ui.core.LayoutTag copy(Object tag);
+    method public Object getTag();
+    method public Object? modifyParentData(androidx.ui.core.DensityScope, Object? parentData);
+  }
+
+  public final class LayoutTagKt {
+    ctor public LayoutTagKt();
+    method public static Object? getTag(androidx.ui.core.Measurable);
+  }
+
+  public interface LayoutTagParentData {
+    method public Object getTag();
+    property public abstract Object tag;
+  }
+
   public final class MultiComposableMeasurables implements kotlin.jvm.internal.markers.KMappedMarker java.util.List<androidx.ui.core.Measurable> {
     method public boolean contains(androidx.ui.core.Measurable element);
     method public boolean containsAll(java.util.Collection<?> elements);
