@@ -20,12 +20,12 @@ import android.text.style.MetricAffectingSpan
 import androidx.annotation.RestrictTo
 
 /**
- * Span used to adjust the letter spacing.
+ * Span used to adjust the letter spacing, in the unit of Em.
  *
  * @hide
  */
 @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
-class LetterSpacingSpan(val letterSpacing: Float) : MetricAffectingSpan() {
+class LetterSpacingSpanEm(val letterSpacing: Float) : MetricAffectingSpan() {
     override fun updateDrawState(textPaint: TextPaint) {
         textPaint.letterSpacing = letterSpacing
     }

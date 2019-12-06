@@ -35,7 +35,7 @@ import androidx.text.LayoutCompat
 import androidx.text.TextLayout
 import androidx.text.style.BaselineShiftSpan
 import androidx.text.style.FontFeatureSpan
-import androidx.text.style.LetterSpacingSpan
+import androidx.text.style.LetterSpacingSpanEm
 import androidx.text.style.LetterSpacingSpanPx
 import androidx.text.style.LineHeightSpan
 import androidx.text.style.ShadowSpan
@@ -321,7 +321,7 @@ internal fun createStyledText(
             }
             TextUnitType.Em -> {
                 deferredSpans.add(
-                    Triple(LetterSpacingSpan(style.letterSpacing.value), start, end)
+                    Triple(LetterSpacingSpanEm(style.letterSpacing.value), start, end)
                 )
             }
             TextUnitType.Inherit -> {}

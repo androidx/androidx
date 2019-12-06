@@ -24,11 +24,11 @@ import org.junit.runners.JUnit4
 
 @RunWith(JUnit4::class)
 @SmallTest
-class LetterSpacingSpanTest {
+class LetterSpacingSpanEmTest {
     @Test
     fun updateDrawState_changePaintLetterSpacing() {
         val letterSpacing = 5.0f
-        val span = LetterSpacingSpan(letterSpacing)
+        val span = LetterSpacingSpanEm(letterSpacing)
         val paint = TextPaint()
         span.updateDrawState(paint)
         Truth.assertThat(paint.letterSpacing).isEqualTo(letterSpacing)
@@ -37,7 +37,7 @@ class LetterSpacingSpanTest {
     @Test
     fun updateMeasureState_changePaintLetterSpacing() {
         val letterSpacing = 5.0f
-        val span = LetterSpacingSpan(letterSpacing)
+        val span = LetterSpacingSpanEm(letterSpacing)
         val paint = TextPaint()
         span.updateMeasureState(paint)
         Truth.assertThat(paint.letterSpacing).isEqualTo(letterSpacing)
