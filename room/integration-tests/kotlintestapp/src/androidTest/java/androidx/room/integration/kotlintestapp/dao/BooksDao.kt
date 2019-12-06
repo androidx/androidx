@@ -22,6 +22,7 @@ import androidx.room.Delete
 import androidx.room.Insert
 import androidx.room.Query
 import androidx.room.RawQuery
+import androidx.room.RoomWarnings
 import androidx.room.Transaction
 import androidx.room.TypeConverters
 import androidx.room.Update
@@ -273,31 +274,39 @@ interface BooksDao {
     @Query("SELECT * FROM book WHERE bookId = :bookId")
     fun getBookMaybe(bookId: String): Maybe<Book>
 
+    @SuppressWarnings(RoomWarnings.CURSOR_MISMATCH)
     @Query("SELECT * FROM book INNER JOIN publisher " +
             "ON book.bookPublisherId = publisher.publisherId ")
     fun getBooksWithPublisher(): List<BookWithPublisher>
 
+    @SuppressWarnings(RoomWarnings.CURSOR_MISMATCH)
     @Query("SELECT * FROM book INNER JOIN publisher " +
             "ON book.bookPublisherId = publisher.publisherId ")
     fun getBooksWithPublisherLiveData(): LiveData<List<BookWithPublisher>>
 
+    @SuppressWarnings(RoomWarnings.CURSOR_MISMATCH)
     @Query("SELECT * FROM book INNER JOIN publisher " +
             "ON book.bookPublisherId = publisher.publisherId ")
     fun getBooksWithPublisherFlowable(): Flowable<List<BookWithPublisher>>
 
+    @SuppressWarnings(RoomWarnings.CURSOR_MISMATCH)
     @Query("SELECT * FROM book INNER JOIN publisher " +
             "ON book.bookPublisherId = publisher.publisherId ")
     fun getBooksWithPublisherListenableFuture(): ListenableFuture<List<BookWithPublisher>>
 
+    @Transaction
     @Query("SELECT * FROM publisher WHERE publisherId = :publisherId")
     fun getPublisherWithBooks(publisherId: String): PublisherWithBooks
 
+    @Transaction
     @Query("SELECT * FROM publisher WHERE publisherId = :publisherId")
     fun getPublisherWithBookSales(publisherId: String): PublisherWithBookSales
 
+    @Transaction
     @Query("SELECT * FROM publisher WHERE publisherId = :publisherId")
     fun getPublisherWithBooksLiveData(publisherId: String): LiveData<PublisherWithBooks>
 
+    @Transaction
     @Query("SELECT * FROM publisher WHERE publisherId = :publisherId")
     fun getPublisherWithBooksFlowable(publisherId: String): Flowable<PublisherWithBooks>
 
@@ -309,6 +318,7 @@ interface BooksDao {
     fun findByLanguages(langs: Set<Lang>): List<Book>
 
     // see: b/78199923 just a compilation test to ensure we can generate proper code.
+    @Transaction
     @Query("SELECT * FROM book WHERE bookId = :bookId")
     fun getWithJavaEntities(bookId: String): BookWithJavaEntity
 
