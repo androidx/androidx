@@ -18,8 +18,8 @@ package androidx.ui.text.font
 /**
  *  Defines whether the font is [Italic] or [Normal].
  *
- *  @see [Font]
- *  @see [FontFamily]
+ *  @see Font
+ *  @see FontFamily
  */
 enum class FontStyle {
 

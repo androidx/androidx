@@ -27,7 +27,7 @@ package androidx.ui.text.font
  * @param style The style of the font, normal or italic. The system uses this to match a font to a
  * font request that is given in a [androidx.ui.text.SpanStyle].
  *
- * @see [FontFamily]
+ * @see FontFamily
  */
 data class Font(
     val name: String,

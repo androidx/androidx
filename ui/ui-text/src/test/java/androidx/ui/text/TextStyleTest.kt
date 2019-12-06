@@ -16,6 +16,7 @@
 
 package androidx.ui.text
 
+import androidx.ui.core.TextUnit
 import androidx.ui.core.em
 import androidx.ui.core.sp
 import androidx.ui.engine.geometry.Offset
@@ -28,8 +29,11 @@ import androidx.ui.text.font.FontSynthesis
 import androidx.ui.text.font.FontWeight
 import androidx.ui.text.font.lerp
 import androidx.ui.text.style.BaselineShift
+import androidx.ui.text.style.TextAlign
 import androidx.ui.text.style.TextDecoration
+import androidx.ui.text.style.TextDirectionAlgorithm
 import androidx.ui.text.style.TextGeometricTransform
+import androidx.ui.text.style.TextIndent
 import androidx.ui.text.style.lerp
 import com.google.common.truth.Truth.assertThat
 import org.junit.Test
@@ -40,408 +44,469 @@ import org.junit.runners.JUnit4
 class TextStyleTest {
     @Test
     fun `constructor with default values`() {
-        val textStyle = TextStyle()
+        val style = TextStyle()
 
-        assertThat(textStyle.color).isNull()
-        assertThat(textStyle.fontSize.isInherit).isTrue()
-        assertThat(textStyle.fontWeight).isNull()
-        assertThat(textStyle.fontStyle).isNull()
-        assertThat(textStyle.letterSpacing.isInherit).isTrue()
-        assertThat(textStyle.localeList).isNull()
-        assertThat(textStyle.background).isNull()
-        assertThat(textStyle.decoration).isNull()
-        assertThat(textStyle.fontFamily).isNull()
+        assertThat(style.color).isNull()
+        assertThat(style.fontSize.isInherit).isTrue()
+        assertThat(style.fontWeight).isNull()
+        assertThat(style.fontStyle).isNull()
+        assertThat(style.letterSpacing.isInherit).isTrue()
+        assertThat(style.localeList).isNull()
+        assertThat(style.background).isNull()
+        assertThat(style.decoration).isNull()
+        assertThat(style.fontFamily).isNull()
     }
 
     @Test
     fun `constructor with customized color`() {
-        val color = Color(0xFF00FF00)
+        val color = Color.Red
 
-        val textStyle = TextStyle(color = color)
+        val style = TextStyle(color = color)
 
-        assertThat(textStyle.color).isEqualTo(color)
+        assertThat(style.color).isEqualTo(color)
     }
 
     @Test
     fun `constructor with customized fontSize`() {
         val fontSize = 18.sp
 
-        val textStyle = TextStyle(fontSize = fontSize)
+        val style = TextStyle(fontSize = fontSize)
 
-        assertThat(textStyle.fontSize).isEqualTo(fontSize)
+        assertThat(style.fontSize).isEqualTo(fontSize)
     }
 
     @Test
     fun `constructor with customized fontWeight`() {
         val fontWeight = FontWeight.W500
 
-        val textStyle = TextStyle(fontWeight = fontWeight)
+        val style = TextStyle(fontWeight = fontWeight)
 
-        assertThat(textStyle.fontWeight).isEqualTo(fontWeight)
+        assertThat(style.fontWeight).isEqualTo(fontWeight)
     }
 
     @Test
     fun `constructor with customized fontStyle`() {
         val fontStyle = FontStyle.Italic
 
-        val textStyle = TextStyle(fontStyle = fontStyle)
+        val style = TextStyle(fontStyle = fontStyle)
 
-        assertThat(textStyle.fontStyle).isEqualTo(fontStyle)
+        assertThat(style.fontStyle).isEqualTo(fontStyle)
     }
 
     @Test
     fun `constructor with customized letterSpacing`() {
         val letterSpacing = 1.em
 
-        val textStyle = TextStyle(letterSpacing = letterSpacing)
+        val style = TextStyle(letterSpacing = letterSpacing)
 
-        assertThat(textStyle.letterSpacing).isEqualTo(letterSpacing)
+        assertThat(style.letterSpacing).isEqualTo(letterSpacing)
     }
 
     @Test
     fun `constructor with customized baselineShift`() {
         val baselineShift = BaselineShift.Superscript
 
-        val textStyle = TextStyle(baselineShift = baselineShift)
+        val style = TextStyle(baselineShift = baselineShift)
 
-        assertThat(textStyle.baselineShift).isEqualTo(baselineShift)
+        assertThat(style.baselineShift).isEqualTo(baselineShift)
     }
 
     @Test
     fun `constructor with customized locale`() {
         val localeList = LocaleList("en-US")
 
-        val textStyle = TextStyle(localeList = localeList)
+        val style = TextStyle(localeList = localeList)
 
-        assertThat(textStyle.localeList).isEqualTo(localeList)
+        assertThat(style.localeList).isEqualTo(localeList)
     }
 
     @Test
     fun `constructor with customized background`() {
-        val color = Color(0xFF00FF00)
+        val color = Color.Red
 
-        val textStyle = TextStyle(background = color)
+        val style = TextStyle(background = color)
 
-        assertThat(textStyle.background).isEqualTo(color)
+        assertThat(style.background).isEqualTo(color)
     }
 
     @Test
     fun `constructor with customized decoration`() {
         val decoration = TextDecoration.Underline
 
-        val textStyle = TextStyle(decoration = decoration)
+        val style = TextStyle(decoration = decoration)
 
-        assertThat(textStyle.decoration).isEqualTo(decoration)
+        assertThat(style.decoration).isEqualTo(decoration)
     }
 
     @Test
     fun `constructor with customized fontFamily`() {
         val fontFamily = FontFamily(genericFamily = "sans-serif")
 
-        val textStyle = TextStyle(fontFamily = fontFamily)
+        val style = TextStyle(fontFamily = fontFamily)
 
-        assertThat(textStyle.fontFamily).isEqualTo(fontFamily)
+        assertThat(style.fontFamily).isEqualTo(fontFamily)
     }
 
     @Test
     fun `merge with empty other should return this`() {
-        val textStyle = TextStyle()
+        val style = TextStyle()
 
-        val newTextStyle = textStyle.merge()
+        val newStyle = style.merge()
 
-        assertThat(newTextStyle).isEqualTo(textStyle)
+        assertThat(newStyle).isEqualTo(style)
     }
 
     @Test
     fun `merge with other's color is null should use this' color`() {
-        val color = Color(0xFF00FF00)
-        val textStyle = TextStyle(color = color)
-        val otherTextStyle = TextStyle()
+        val style = TextStyle(color = Color.Red)
 
-        val newTextStyle = textStyle.merge(otherTextStyle)
+        val newStyle = style.merge(TextStyle(color = null))
 
-        assertThat(newTextStyle.color).isEqualTo(color)
+        assertThat(newStyle.color).isEqualTo(style.color)
     }
 
     @Test
     fun `merge with other's color is set should use other's color`() {
-        val color = Color(0xFF00FF00)
-        val otherColor = Color(0x00FFFF00)
-        val textStyle = TextStyle(color = color)
-        val otherTextStyle = TextStyle(color = otherColor)
+        val style = TextStyle(color = Color.Red)
+        val otherStyle = TextStyle(color = Color.Green)
 
-        val newTextStyle = textStyle.merge(otherTextStyle)
+        val newStyle = style.merge(otherStyle)
 
-        assertThat(newTextStyle.color).isEqualTo(otherColor)
+        assertThat(newStyle.color).isEqualTo(otherStyle.color)
     }
 
     @Test
     fun `merge with other's fontFamily is null should use this' fontFamily`() {
-        val fontFamily = FontFamily(genericFamily = "sans-serif")
-        val textStyle = TextStyle(fontFamily = fontFamily)
-        val otherTextStyle = TextStyle()
+        val style = TextStyle(fontFamily = FontFamily(genericFamily = "sans-serif"))
 
-        val newTextStyle = textStyle.merge(otherTextStyle)
+        val newStyle = style.merge(TextStyle(fontFamily = null))
 
-        assertThat(newTextStyle.fontFamily).isEqualTo(fontFamily)
+        assertThat(newStyle.fontFamily).isEqualTo(style.fontFamily)
     }
 
     @Test
     fun `merge with other's fontFamily is set should use other's fontFamily`() {
-        val fontFamily = FontFamily(genericFamily = "sans-serif")
-        val otherFontFamily = FontFamily(genericFamily = "serif")
-        val textStyle = TextStyle(fontFamily = fontFamily)
-        val otherTextStyle = TextStyle(fontFamily = otherFontFamily)
+        val style = TextStyle(fontFamily = FontFamily(genericFamily = "sans-serif"))
+        val otherStyle = TextStyle(fontFamily = FontFamily(genericFamily = "serif"))
 
-        val newTextStyle = textStyle.merge(otherTextStyle)
+        val newStyle = style.merge(otherStyle)
 
-        assertThat(newTextStyle.fontFamily).isEqualTo(otherFontFamily)
+        assertThat(newStyle.fontFamily).isEqualTo(otherStyle.fontFamily)
     }
 
     @Test
     fun `merge with other's fontSize is null should use this' fontSize`() {
-        val fontSize = 3.5.sp
-        val textStyle = TextStyle(fontSize = fontSize)
-        val otherTextStyle = TextStyle()
+        val style = TextStyle(fontSize = 3.5.sp)
 
-        val newTextStyle = textStyle.merge(otherTextStyle)
+        val newStyle = style.merge(TextStyle(fontSize = TextUnit.Inherit))
 
-        assertThat(newTextStyle.fontSize).isEqualTo(fontSize)
+        assertThat(newStyle.fontSize).isEqualTo(style.fontSize)
     }
 
     @Test
     fun `merge with other's fontSize is set should use other's fontSize`() {
-        val fontSize = 3.5.sp
-        val otherFontSize = 8.7.sp
-        val textStyle = TextStyle(fontSize = fontSize)
-        val otherTextStyle = TextStyle(fontSize = otherFontSize)
+        val style = TextStyle(fontSize = 3.5.sp)
+        val otherStyle = TextStyle(fontSize = 8.7.sp)
 
-        val newTextStyle = textStyle.merge(otherTextStyle)
+        val newStyle = style.merge(otherStyle)
 
-        assertThat(newTextStyle.fontSize).isEqualTo(otherFontSize)
+        assertThat(newStyle.fontSize).isEqualTo(otherStyle.fontSize)
     }
 
     @Test
     fun `merge with other's fontWeight is null should use this' fontWeight`() {
-        val fontWeight = FontWeight.W300
-        val textStyle = TextStyle(fontWeight = fontWeight)
-        val otherTextStyle = TextStyle()
+        val style = TextStyle(fontWeight = FontWeight.W300)
 
-        val newTextStyle = textStyle.merge(otherTextStyle)
+        val newStyle = style.merge(TextStyle(fontWeight = null))
 
-        assertThat(newTextStyle.fontWeight).isEqualTo(fontWeight)
+        assertThat(newStyle.fontWeight).isEqualTo(style.fontWeight)
     }
 
     @Test
     fun `merge with other's fontWeight is set should use other's fontWeight`() {
-        val fontWeight = FontWeight.W300
-        val otherFontWeight = FontWeight.W500
-        val textStyle = TextStyle(fontWeight = fontWeight)
-        val otherTextStyle = TextStyle(fontWeight = otherFontWeight)
+        val style = TextStyle(fontWeight = FontWeight.W300)
+        val otherStyle = TextStyle(fontWeight = FontWeight.W500)
 
-        val newTextStyle = textStyle.merge(otherTextStyle)
+        val newStyle = style.merge(otherStyle)
 
-        assertThat(newTextStyle.fontWeight).isEqualTo(otherFontWeight)
+        assertThat(newStyle.fontWeight).isEqualTo(otherStyle.fontWeight)
     }
 
     @Test
     fun `merge with other's fontStyle is null should use this' fontStyle`() {
-        val fontStyle = FontStyle.Italic
-        val textStyle = TextStyle(fontStyle = fontStyle)
-        val otherTextStyle = TextStyle()
+        val style = TextStyle(fontStyle = FontStyle.Italic)
 
-        val newTextStyle = textStyle.merge(otherTextStyle)
+        val newStyle = style.merge(TextStyle(fontStyle = null))
 
-        assertThat(newTextStyle.fontStyle).isEqualTo(fontStyle)
+        assertThat(newStyle.fontStyle).isEqualTo(style.fontStyle)
     }
 
     @Test
     fun `merge with other's fontStyle is set should use other's fontStyle`() {
-        val fontStyle = FontStyle.Italic
-        val otherFontStyle = FontStyle.Normal
-        val textStyle = TextStyle(fontStyle = fontStyle)
-        val otherTextStyle = TextStyle(fontStyle = otherFontStyle)
+        val style = TextStyle(fontStyle = FontStyle.Italic)
+        val otherStyle = TextStyle(fontStyle = FontStyle.Normal)
 
-        val newTextStyle = textStyle.merge(otherTextStyle)
+        val newStyle = style.merge(otherStyle)
 
-        assertThat(newTextStyle.fontStyle).isEqualTo(otherFontStyle)
+        assertThat(newStyle.fontStyle).isEqualTo(otherStyle.fontStyle)
     }
 
     @Test
     fun `merge with other's fontSynthesis is null should use this' fontSynthesis`() {
-        val fontSynthesis = FontSynthesis.Style
-        val textStyle = TextStyle(fontSynthesis = fontSynthesis)
-        val otherTextStyle = TextStyle()
+        val style = TextStyle(fontSynthesis = FontSynthesis.Style)
 
-        val newTextStyle = textStyle.merge(otherTextStyle)
+        val newStyle = style.merge(TextStyle(fontSynthesis = null))
 
-        assertThat(newTextStyle.fontSynthesis).isEqualTo(fontSynthesis)
+        assertThat(newStyle.fontSynthesis).isEqualTo(style.fontSynthesis)
     }
 
     @Test
     fun `merge with other's fontSynthesis is set should use other's fontSynthesis`() {
-        val fontSynthesis = FontSynthesis.Style
-        val otherFontSynthesis = FontSynthesis.Weight
+        val style = TextStyle(fontSynthesis = FontSynthesis.Style)
+        val otherStyle = TextStyle(fontSynthesis = FontSynthesis.Weight)
 
-        val textStyle = TextStyle(fontSynthesis = fontSynthesis)
-        val otherTextStyle = TextStyle(fontSynthesis = otherFontSynthesis)
+        val newStyle = style.merge(otherStyle)
 
-        val newTextStyle = textStyle.merge(otherTextStyle)
-
-        assertThat(newTextStyle.fontSynthesis).isEqualTo(otherFontSynthesis)
+        assertThat(newStyle.fontSynthesis).isEqualTo(otherStyle.fontSynthesis)
     }
 
     @Test
     fun `merge with other's fontFeature is null should use this' fontSynthesis`() {
-        val fontFeatureSettings = "\"kern\" 0"
-        val textStyle = TextStyle(fontFeatureSettings = fontFeatureSettings)
-        val otherTextStyle = TextStyle()
+        val style = TextStyle(fontFeatureSettings = "\"kern\" 0")
 
-        val newTextStyle = textStyle.merge(otherTextStyle)
+        val newStyle = style.merge(TextStyle(fontFeatureSettings = null))
 
-        assertThat(newTextStyle.fontFeatureSettings).isEqualTo(fontFeatureSettings)
+        assertThat(newStyle.fontFeatureSettings).isEqualTo(style.fontFeatureSettings)
     }
 
     @Test
     fun `merge with other's fontFeature is set should use other's fontSynthesis`() {
-        val fontFeatureSettings = "\"kern\" 0"
-        val otherFontFeatureSettings = "\"kern\" 1"
+        val style = TextStyle(fontFeatureSettings = "\"kern\" 0")
+        val otherStyle = TextStyle(fontFeatureSettings = "\"kern\" 1")
 
-        val textStyle = TextStyle(fontFeatureSettings = fontFeatureSettings)
-        val otherTextStyle =
-            TextStyle(fontFeatureSettings = otherFontFeatureSettings)
+        val newStyle = style.merge(otherStyle)
 
-        val newTextStyle = textStyle.merge(otherTextStyle)
-
-        assertThat(newTextStyle.fontFeatureSettings).isEqualTo(otherFontFeatureSettings)
+        assertThat(newStyle.fontFeatureSettings).isEqualTo(otherStyle.fontFeatureSettings)
     }
 
     @Test
     fun `merge with other's letterSpacing is null should use this' letterSpacing`() {
-        val letterSpacing = 1.2.em
-        val textStyle = TextStyle(letterSpacing = letterSpacing)
-        val otherTextStyle = TextStyle()
+        val style = TextStyle(letterSpacing = 1.2.em)
 
-        val newTextStyle = textStyle.merge(otherTextStyle)
+        val newStyle = style.merge(TextStyle(letterSpacing = TextUnit.Inherit))
 
-        assertThat(newTextStyle.letterSpacing).isEqualTo(letterSpacing)
+        assertThat(newStyle.letterSpacing).isEqualTo(style.letterSpacing)
     }
 
     @Test
     fun `merge with other's letterSpacing is set should use other's letterSpacing`() {
-        val letterSpacing = 1.2.em
-        val otherLetterSpacing = 1.5.em
-        val textStyle = TextStyle(letterSpacing = letterSpacing)
-        val otherTextStyle = TextStyle(letterSpacing = otherLetterSpacing)
+        val style = TextStyle(letterSpacing = 1.2.em)
+        val otherStyle = TextStyle(letterSpacing = 1.5.em)
 
-        val newTextStyle = textStyle.merge(otherTextStyle)
+        val newStyle = style.merge(otherStyle)
 
-        assertThat(newTextStyle.letterSpacing).isEqualTo(otherLetterSpacing)
+        assertThat(newStyle.letterSpacing).isEqualTo(otherStyle.letterSpacing)
     }
 
     @Test
     fun `merge with other's baselineShift is null should use this' baselineShift`() {
-        val baselineShift = BaselineShift.Superscript
-        val textStyle = TextStyle(baselineShift = baselineShift)
-        val otherTextStyle = TextStyle()
+        val style = TextStyle(baselineShift = BaselineShift.Superscript)
 
-        val newTextStyle = textStyle.merge(otherTextStyle)
+        val newStyle = style.merge(TextStyle(baselineShift = null))
 
-        assertThat(newTextStyle.baselineShift).isEqualTo(baselineShift)
+        assertThat(newStyle.baselineShift).isEqualTo(style.baselineShift)
     }
 
     @Test
     fun `merge with other's baselineShift is set should use other's baselineShift`() {
-        val baselineShift = BaselineShift.Superscript
-        val otherBaselineShift = BaselineShift.Subscript
-        val textStyle = TextStyle(baselineShift = baselineShift)
-        val otherTextStyle = TextStyle(baselineShift = otherBaselineShift)
+        val style = TextStyle(baselineShift = BaselineShift.Superscript)
+        val otherStyle = TextStyle(baselineShift = BaselineShift.Subscript)
 
-        val newTextStyle = textStyle.merge(otherTextStyle)
+        val newStyle = style.merge(otherStyle)
 
-        assertThat(newTextStyle.baselineShift).isEqualTo(otherBaselineShift)
+        assertThat(newStyle.baselineShift).isEqualTo(otherStyle.baselineShift)
     }
 
     @Test
     fun `merge with other's background is null should use this' background`() {
-        val color = Color(0xFF00FF00)
-        val textStyle = TextStyle(background = color)
-        val otherTextStyle = TextStyle()
+        val style = TextStyle(background = Color.Red)
 
-        val newTextStyle = textStyle.merge(otherTextStyle)
+        val newStyle = style.merge(TextStyle(background = null))
 
-        assertThat(newTextStyle.background).isEqualTo(color)
+        assertThat(newStyle.background).isEqualTo(style.background)
     }
 
     @Test
     fun `merge with other's background is set should use other's background`() {
-        val color = Color(0xFF00FF00)
-        val otherColor = Color(0xFF0000FF)
-        val textStyle = TextStyle(background = color)
-        val otherTextStyle = TextStyle(background = otherColor)
+        val style = TextStyle(background = Color.Red)
+        val otherStyle = TextStyle(background = Color.Green)
 
-        val newTextStyle = textStyle.merge(otherTextStyle)
+        val newStyle = style.merge(otherStyle)
 
-        assertThat(newTextStyle.background).isEqualTo(otherColor)
+        assertThat(newStyle.background).isEqualTo(otherStyle.background)
     }
 
     @Test
     fun `merge with other's decoration is null should use this' decoration`() {
-        val decoration = TextDecoration.LineThrough
-        val textStyle = TextStyle(decoration = decoration)
-        val otherTextStyle = TextStyle()
+        val style = TextStyle(decoration = TextDecoration.LineThrough)
 
-        val newTextStyle = textStyle.merge(otherTextStyle)
+        val newStyle = style.merge(TextStyle(decoration = null))
 
-        assertThat(newTextStyle.decoration).isEqualTo(decoration)
+        assertThat(newStyle.decoration).isEqualTo(style.decoration)
     }
 
     @Test
     fun `merge with other's decoration is set should use other's decoration`() {
-        val decoration = TextDecoration.LineThrough
-        val otherDecoration = TextDecoration.Underline
-        val textStyle = TextStyle(decoration = decoration)
-        val otherTextStyle = TextStyle(decoration = otherDecoration)
+        val style = TextStyle(decoration = TextDecoration.LineThrough)
+        val otherStyle = TextStyle(decoration = TextDecoration.Underline)
 
-        val newTextStyle = textStyle.merge(otherTextStyle)
+        val newStyle = style.merge(otherStyle)
 
-        assertThat(newTextStyle.decoration).isEqualTo(otherDecoration)
+        assertThat(newStyle.decoration).isEqualTo(otherStyle.decoration)
     }
 
     @Test
     fun `merge with other's locale is null should use this' locale`() {
-        val localeList = LocaleList("en-US")
-        val textStyle = TextStyle(localeList = localeList)
-        val otherTextStyle = TextStyle()
+        val style = TextStyle(localeList = LocaleList("en-US"))
 
-        val newTextStyle = textStyle.merge(otherTextStyle)
+        val newStyle = style.merge(TextStyle(localeList = null))
 
-        assertThat(newTextStyle.localeList).isEqualTo(localeList)
+        assertThat(newStyle.localeList).isEqualTo(style.localeList)
     }
 
     @Test
     fun `merge with other's locale is set should use other's locale`() {
-        val localeList = LocaleList("en-US")
-        val otherlocaleList = LocaleList("ja-JP")
-        val textStyle = TextStyle(localeList = localeList)
-        val otherTextStyle = TextStyle(localeList = otherlocaleList)
+        val style = TextStyle(localeList = LocaleList("en-US"))
+        val otherStyle = TextStyle(localeList = LocaleList("ja-JP"))
 
-        val newTextStyle = textStyle.merge(otherTextStyle)
+        val newStyle = style.merge(otherStyle)
 
-        assertThat(newTextStyle.localeList).isEqualTo(otherlocaleList)
+        assertThat(newStyle.localeList).isEqualTo(otherStyle.localeList)
+    }
+
+    @Test
+    fun `merge textAlign uses other's textAlign`() {
+        val style = TextStyle(textAlign = TextAlign.Justify)
+        val otherStyle = TextStyle(textAlign = TextAlign.Right)
+
+        val newStyle = style.merge(otherStyle)
+
+        assertThat(newStyle.textAlign).isEqualTo(otherStyle.textAlign)
+    }
+
+    @Test
+    fun `merge textAlign other null, return original`() {
+        val style = TextStyle(textAlign = TextAlign.Justify)
+
+        val newStyle = style.merge(TextStyle(textAlign = null))
+
+        assertThat(newStyle.textAlign).isEqualTo(style.textAlign)
+    }
+
+    @Test
+    fun `merge textAlign both null returns null`() {
+        val style = TextStyle(textAlign = null)
+
+        val newStyle = style.merge(TextStyle(textAlign = null))
+
+        assertThat(newStyle.textAlign).isNull()
+    }
+
+    @Test
+    fun `merge textDirectionAlgorithm uses other's textDirectionAlgorithm`() {
+        val style = TextStyle(textDirectionAlgorithm = TextDirectionAlgorithm.ForceRtl)
+        val otherStyle = TextStyle(textDirectionAlgorithm = TextDirectionAlgorithm.ForceLtr)
+
+        val newStyle = style.merge(otherStyle)
+
+        assertThat(newStyle.textDirectionAlgorithm).isEqualTo(otherStyle.textDirectionAlgorithm)
+    }
+
+    @Test
+    fun `merge textDirectionAlgorithm other null, returns original`() {
+        val style = TextStyle(textDirectionAlgorithm = TextDirectionAlgorithm.ForceRtl)
+
+        val newStyle = style.merge(TextStyle(textDirectionAlgorithm = null))
+
+        assertThat(newStyle.textDirectionAlgorithm).isEqualTo(style.textDirectionAlgorithm)
+    }
+
+    @Test
+    fun `merge textDirectionAlgorithm both null returns null`() {
+        val style = TextStyle(textDirectionAlgorithm = null)
+
+        val newStyle = style.merge(TextStyle(textDirectionAlgorithm = null))
+
+        assertThat(newStyle.textDirectionAlgorithm).isNull()
+    }
+
+    @Test
+    fun `merge lineHeight uses other's lineHeight`() {
+        val style = TextStyle(lineHeight = 12.sp)
+        val otherStyle = TextStyle(lineHeight = 20.sp)
+
+        val newStyle = style.merge(otherStyle)
+
+        assertThat(newStyle.lineHeight).isEqualTo(otherStyle.lineHeight)
+    }
+
+    @Test
+    fun `merge lineHeight other Inherit, return original`() {
+        val style = TextStyle(lineHeight = 12.sp)
+
+        val newStyle = style.merge(TextStyle(lineHeight = TextUnit.Inherit))
+
+        assertThat(newStyle.lineHeight).isEqualTo(style.lineHeight)
+    }
+
+    @Test
+    fun `merge lineHeight both inherit returns inherit`() {
+        val style = TextStyle(lineHeight = TextUnit.Inherit)
+
+        val newStyle = style.merge(TextStyle(lineHeight = TextUnit.Inherit))
+
+        assertThat(newStyle.lineHeight).isEqualTo(TextUnit.Inherit)
+    }
+
+    @Test
+    fun `merge textIndent uses other's textIndent`() {
+        val style = TextStyle(textIndent = TextIndent(firstLine = 12.sp))
+        val otherStyle = TextStyle(textIndent = TextIndent(firstLine = 20.sp))
+
+        val newStyle = style.merge(otherStyle)
+
+        assertThat(newStyle.textIndent).isEqualTo(otherStyle.textIndent)
+    }
+
+    @Test
+    fun `merge textIndent other null, return original`() {
+        val style = TextStyle(textIndent = TextIndent(firstLine = 12.sp))
+
+        val newStyle = style.merge(TextStyle(textIndent = null))
+
+        assertThat(newStyle.textIndent).isEqualTo(style.textIndent)
+    }
+
+    @Test
+    fun `merge textIndent both null returns null`() {
+        val style = TextStyle(textIndent = null)
+
+        val newStyle = style.merge(TextStyle(textIndent = null))
+
+        assertThat(newStyle.textIndent).isNull()
     }
 
     @Test
     fun `lerp color with a and b are not Null`() {
-        val color1 = Color(0xFF00FF00)
-        val color2 = Color(0x00FFFF00)
+        val color1 = Color.Red
+        val color2 = Color.Green
         val t = 0.3f
-        val textStyle1 = TextStyle(color = color1)
-        val textStyle2 = TextStyle(color = color2)
+        val style1 = TextStyle(color = color1)
+        val style2 = TextStyle(color = color2)
 
-        val newTextStyle = lerp(start = textStyle1, stop = textStyle2, fraction = t)
+        val newStyle = lerp(start = style1, stop = style2, fraction = t)
 
-        assertThat(newTextStyle.color).isEqualTo(lerp(start = color1, stop = color2, fraction = t))
+        assertThat(newStyle.color).isEqualTo(lerp(start = color1, stop = color2, fraction = t))
     }
 
     @Test
@@ -449,12 +514,12 @@ class TextStyleTest {
         val fontFamily1 = FontFamily(genericFamily = "sans-serif")
         val fontFamily2 = FontFamily(genericFamily = "serif")
         val t = 0.3f
-        val textStyle1 = TextStyle(fontFamily = fontFamily1)
-        val textStyle2 = TextStyle(fontFamily = fontFamily2)
+        val style1 = TextStyle(fontFamily = fontFamily1)
+        val style2 = TextStyle(fontFamily = fontFamily2)
 
-        val newTextStyle = lerp(start = textStyle1, stop = textStyle2, fraction = t)
+        val newStyle = lerp(start = style1, stop = style2, fraction = t)
 
-        assertThat(newTextStyle.fontFamily).isEqualTo(fontFamily1)
+        assertThat(newStyle.fontFamily).isEqualTo(fontFamily1)
     }
 
     @Test
@@ -462,12 +527,12 @@ class TextStyleTest {
         val fontFamily1 = FontFamily(genericFamily = "sans-serif")
         val fontFamily2 = FontFamily(genericFamily = "serif")
         val t = 0.8f
-        val textStyle1 = TextStyle(fontFamily = fontFamily1)
-        val textStyle2 = TextStyle(fontFamily = fontFamily2)
+        val style1 = TextStyle(fontFamily = fontFamily1)
+        val style2 = TextStyle(fontFamily = fontFamily2)
 
-        val newTextStyle = lerp(start = textStyle1, stop = textStyle2, fraction = t)
+        val newStyle = lerp(start = style1, stop = style2, fraction = t)
 
-        assertThat(newTextStyle.fontFamily).isEqualTo(fontFamily2)
+        assertThat(newStyle.fontFamily).isEqualTo(fontFamily2)
     }
 
     @Test
@@ -475,13 +540,13 @@ class TextStyleTest {
         val fontSize1 = 8.sp
         val fontSize2 = 16.sp
         val t = 0.8f
-        val textStyle1 = TextStyle(fontSize = fontSize1)
-        val textStyle2 = TextStyle(fontSize = fontSize2)
+        val style1 = TextStyle(fontSize = fontSize1)
+        val style2 = TextStyle(fontSize = fontSize2)
 
-        val newTextStyle = lerp(start = textStyle1, stop = textStyle2, fraction = t)
+        val newStyle = lerp(start = style1, stop = style2, fraction = t)
 
         // a + (b - a) * t = 8.0f + (16.0f  - 8.0f) * 0.8f = 14.4f
-        assertThat(newTextStyle.fontSize).isEqualTo(14.4.sp)
+        assertThat(newStyle.fontSize).isEqualTo(14.4.sp)
     }
 
     @Test
@@ -489,12 +554,12 @@ class TextStyleTest {
         val fontWeight1 = FontWeight.W200
         val fontWeight2 = FontWeight.W500
         val t = 0.8f
-        val textStyle1 = TextStyle(fontWeight = fontWeight1)
-        val textStyle2 = TextStyle(fontWeight = fontWeight2)
+        val style1 = TextStyle(fontWeight = fontWeight1)
+        val style2 = TextStyle(fontWeight = fontWeight2)
 
-        val newTextStyle = lerp(start = textStyle1, stop = textStyle2, fraction = t)
+        val newStyle = lerp(start = style1, stop = style2, fraction = t)
 
-        assertThat(newTextStyle.fontWeight).isEqualTo(lerp(fontWeight1, fontWeight2, t))
+        assertThat(newStyle.fontWeight).isEqualTo(lerp(fontWeight1, fontWeight2, t))
     }
 
     @Test
@@ -503,12 +568,12 @@ class TextStyleTest {
         val fontStyle2 = FontStyle.Normal
         // attributes other than fontStyle are required for lerp not to throw an exception
         val t = 0.3f
-        val textStyle1 = TextStyle(fontStyle = fontStyle1)
-        val textStyle2 = TextStyle(fontStyle = fontStyle2)
+        val style1 = TextStyle(fontStyle = fontStyle1)
+        val style2 = TextStyle(fontStyle = fontStyle2)
 
-        val newTextStyle = lerp(start = textStyle1, stop = textStyle2, fraction = t)
+        val newStyle = lerp(start = style1, stop = style2, fraction = t)
 
-        assertThat(newTextStyle.fontStyle).isEqualTo(fontStyle1)
+        assertThat(newStyle.fontStyle).isEqualTo(fontStyle1)
     }
 
     @Test
@@ -517,12 +582,12 @@ class TextStyleTest {
         val fontStyle2 = FontStyle.Normal
         // attributes other than fontStyle are required for lerp not to throw an exception
         val t = 0.8f
-        val textStyle1 = TextStyle(fontStyle = fontStyle1)
-        val textStyle2 = TextStyle(fontStyle = fontStyle2)
+        val style1 = TextStyle(fontStyle = fontStyle1)
+        val style2 = TextStyle(fontStyle = fontStyle2)
 
-        val newTextStyle = lerp(start = textStyle1, stop = textStyle2, fraction = t)
+        val newStyle = lerp(start = style1, stop = style2, fraction = t)
 
-        assertThat(newTextStyle.fontStyle).isEqualTo(fontStyle2)
+        assertThat(newStyle.fontStyle).isEqualTo(fontStyle2)
     }
 
     @Test
@@ -532,12 +597,12 @@ class TextStyleTest {
 
         val t = 0.3f
         // attributes other than fontSynthesis are required for lerp not to throw an exception
-        val textStyle1 = TextStyle(fontSynthesis = fontSynthesis1)
-        val textStyle2 = TextStyle(fontSynthesis = fontSynthesis2)
+        val style1 = TextStyle(fontSynthesis = fontSynthesis1)
+        val style2 = TextStyle(fontSynthesis = fontSynthesis2)
 
-        val newTextStyle = lerp(start = textStyle1, stop = textStyle2, fraction = t)
+        val newStyle = lerp(start = style1, stop = style2, fraction = t)
 
-        assertThat(newTextStyle.fontSynthesis).isEqualTo(fontSynthesis1)
+        assertThat(newStyle.fontSynthesis).isEqualTo(fontSynthesis1)
     }
 
     @Test
@@ -547,12 +612,12 @@ class TextStyleTest {
 
         val t = 0.8f
         // attributes other than fontSynthesis are required for lerp not to throw an exception
-        val textStyle1 = TextStyle(fontSynthesis = fontSynthesis1)
-        val textStyle2 = TextStyle(fontSynthesis = fontSynthesis2)
+        val style1 = TextStyle(fontSynthesis = fontSynthesis1)
+        val style2 = TextStyle(fontSynthesis = fontSynthesis2)
 
-        val newTextStyle = lerp(start = textStyle1, stop = textStyle2, fraction = t)
+        val newStyle = lerp(start = style1, stop = style2, fraction = t)
 
-        assertThat(newTextStyle.fontSynthesis).isEqualTo(fontSynthesis2)
+        assertThat(newStyle.fontSynthesis).isEqualTo(fontSynthesis2)
     }
 
     @Test
@@ -562,12 +627,12 @@ class TextStyleTest {
 
         val t = 0.3f
         // attributes other than fontSynthesis are required for lerp not to throw an exception
-        val textStyle1 = TextStyle(fontFeatureSettings = fontFeatureSettings1)
-        val textStyle2 = TextStyle(fontFeatureSettings = fontFeatureSettings2)
+        val style1 = TextStyle(fontFeatureSettings = fontFeatureSettings1)
+        val style2 = TextStyle(fontFeatureSettings = fontFeatureSettings2)
 
-        val newTextStyle = lerp(start = textStyle1, stop = textStyle2, fraction = t)
+        val newStyle = lerp(start = style1, stop = style2, fraction = t)
 
-        assertThat(newTextStyle.fontFeatureSettings).isEqualTo(fontFeatureSettings1)
+        assertThat(newStyle.fontFeatureSettings).isEqualTo(fontFeatureSettings1)
     }
 
     @Test
@@ -577,12 +642,12 @@ class TextStyleTest {
 
         val t = 0.8f
         // attributes other than fontSynthesis are required for lerp not to throw an exception
-        val textStyle1 = TextStyle(fontFeatureSettings = fontFeatureSettings1)
-        val textStyle2 = TextStyle(fontFeatureSettings = fontFeatureSettings2)
+        val style1 = TextStyle(fontFeatureSettings = fontFeatureSettings1)
+        val style2 = TextStyle(fontFeatureSettings = fontFeatureSettings2)
 
-        val newTextStyle = lerp(start = textStyle1, stop = textStyle2, fraction = t)
+        val newStyle = lerp(start = style1, stop = style2, fraction = t)
 
-        assertThat(newTextStyle.fontFeatureSettings).isEqualTo(fontFeatureSettings2)
+        assertThat(newStyle.fontFeatureSettings).isEqualTo(fontFeatureSettings2)
     }
 
     @Test
@@ -590,12 +655,12 @@ class TextStyleTest {
         val baselineShift1 = BaselineShift(1.0f)
         val baselineShift2 = BaselineShift(2.0f)
         val t = 0.3f
-        val textStyle1 = TextStyle(baselineShift = baselineShift1)
-        val textStyle2 = TextStyle(baselineShift = baselineShift2)
+        val style1 = TextStyle(baselineShift = baselineShift1)
+        val style2 = TextStyle(baselineShift = baselineShift2)
 
-        val newTextStyle = lerp(start = textStyle1, stop = textStyle2, fraction = t)
+        val newStyle = lerp(start = style1, stop = style2, fraction = t)
 
-        assertThat(newTextStyle.baselineShift)
+        assertThat(newStyle.baselineShift)
             .isEqualTo(lerp(baselineShift1, baselineShift2, t))
     }
 
@@ -606,12 +671,12 @@ class TextStyleTest {
         val textTransform2 =
             TextGeometricTransform(scaleX = 1.0f, skewX = 0.3f)
         val t = 0.3f
-        val textStyle1 = TextStyle(textGeometricTransform = textTransform1)
-        val textStyle2 = TextStyle(textGeometricTransform = textTransform2)
+        val style1 = TextStyle(textGeometricTransform = textTransform1)
+        val style2 = TextStyle(textGeometricTransform = textTransform2)
 
-        val newTextStyle = lerp(start = textStyle1, stop = textStyle2, fraction = t)
+        val newStyle = lerp(start = style1, stop = style2, fraction = t)
 
-        assertThat(newTextStyle.textGeometricTransform)
+        assertThat(newStyle.textGeometricTransform)
             .isEqualTo(lerp(textTransform1, textTransform2, t))
     }
 
@@ -620,12 +685,12 @@ class TextStyleTest {
         val localeList1 = LocaleList("en-US")
         val localeList2 = LocaleList("ja-JP")
         val t = 0.3f
-        val textStyle1 = TextStyle(localeList = localeList1)
-        val textStyle2 = TextStyle(localeList = localeList2)
+        val style1 = TextStyle(localeList = localeList1)
+        val style2 = TextStyle(localeList = localeList2)
 
-        val newTextStyle = lerp(start = textStyle1, stop = textStyle2, fraction = t)
+        val newStyle = lerp(start = style1, stop = style2, fraction = t)
 
-        assertThat(newTextStyle.localeList).isEqualTo(localeList1)
+        assertThat(newStyle.localeList).isEqualTo(localeList1)
     }
 
     @Test
@@ -633,72 +698,72 @@ class TextStyleTest {
         val localeList1 = LocaleList("en-US")
         val localeList2 = LocaleList("ja-JP")
         val t = 0.8f
-        val textStyle1 = TextStyle(localeList = localeList1)
-        val textStyle2 = TextStyle(localeList = localeList2)
+        val style1 = TextStyle(localeList = localeList1)
+        val style2 = TextStyle(localeList = localeList2)
 
-        val newTextStyle = lerp(start = textStyle1, stop = textStyle2, fraction = t)
+        val newStyle = lerp(start = style1, stop = style2, fraction = t)
 
-        assertThat(newTextStyle.localeList).isEqualTo(localeList2)
+        assertThat(newStyle.localeList).isEqualTo(localeList2)
     }
 
     @Test
     fun `lerp background with a and b are Null and t is smaller than half`() {
-        val textStyle1 = TextStyle(background = null)
-        val textStyle2 = TextStyle(background = null)
+        val style1 = TextStyle(background = null)
+        val style2 = TextStyle(background = null)
 
-        val newTextStyle = lerp(start = textStyle1, stop = textStyle2, fraction = 0.1f)
+        val newStyle = lerp(start = style1, stop = style2, fraction = 0.1f)
 
-        assertThat(newTextStyle.background).isEqualTo(Color.Transparent)
+        assertThat(newStyle.background).isEqualTo(Color.Transparent)
     }
 
     @Test
     fun `lerp background with a is Null and b is not Null`() {
         val t = 0.1f
-        val textStyle1 = TextStyle(background = null)
-        val color2 = Color(0xf)
-        val textStyle2 = TextStyle(background = color2)
+        val style1 = TextStyle(background = null)
+        val color2 = Color.Red
+        val style2 = TextStyle(background = color2)
 
-        val newTextStyle = lerp(start = textStyle1, stop = textStyle2, fraction = t)
+        val newStyle = lerp(start = style1, stop = style2, fraction = t)
 
-        assertThat(newTextStyle.background).isEqualTo(lerp(Color.Transparent, color2, t))
+        assertThat(newStyle.background).isEqualTo(lerp(Color.Transparent, color2, t))
     }
 
     @Test
     fun `lerp background with a is Not Null and b is Null`() {
         val t = 0.1f
-        val color1 = Color(0xf)
-        val textStyle1 = TextStyle(background = color1)
-        val textStyle2 = TextStyle(background = null)
+        val color1 = Color.Red
+        val style1 = TextStyle(background = color1)
+        val style2 = TextStyle(background = null)
 
-        val newTextStyle = lerp(start = textStyle1, stop = textStyle2, fraction = t)
+        val newStyle = lerp(start = style1, stop = style2, fraction = t)
 
-        assertThat(newTextStyle.background).isEqualTo(lerp(color1, Color.Transparent, t))
+        assertThat(newStyle.background).isEqualTo(lerp(color1, Color.Transparent, t))
     }
 
     @Test
     fun `lerp background with a and b are not Null and t is smaller than half`() {
-        val color1 = Color(0x0)
-        val color2 = Color(0xf)
+        val color1 = Color.Red
+        val color2 = Color.Green
         val t = 0.2f
-        val textStyle1 = TextStyle(background = color1)
-        val textStyle2 = TextStyle(background = color2)
+        val style1 = TextStyle(background = color1)
+        val style2 = TextStyle(background = color2)
 
-        val newTextStyle = lerp(start = textStyle1, stop = textStyle2, fraction = t)
+        val newStyle = lerp(start = style1, stop = style2, fraction = t)
 
-        assertThat(newTextStyle.background).isEqualTo(lerp(color1, color2, t))
+        assertThat(newStyle.background).isEqualTo(lerp(color1, color2, t))
     }
 
     @Test
     fun `lerp background with a and b are not Null and t is larger than half`() {
-        val color1 = Color(0x0)
-        val color2 = Color(0xf)
+        val color1 = Color.Red
+        val color2 = Color.Green
         val t = 0.8f
-        val textStyle1 = TextStyle(background = color1)
-        val textStyle2 = TextStyle(background = color2)
+        val style1 = TextStyle(background = color1)
+        val style2 = TextStyle(background = color2)
 
-        val newTextStyle = lerp(start = textStyle1, stop = textStyle2, fraction = t)
+        val newStyle = lerp(start = style1, stop = style2, fraction = t)
 
-        assertThat(newTextStyle.background).isEqualTo(lerp(color1, color2, t))
+        assertThat(newStyle.background).isEqualTo(lerp(color1, color2, t))
     }
 
     @Test
@@ -706,12 +771,12 @@ class TextStyleTest {
         val decoration1 = TextDecoration.LineThrough
         val decoration2 = TextDecoration.Underline
         val t = 0.2f
-        val textStyle1 = TextStyle(decoration = decoration1)
-        val textStyle2 = TextStyle(decoration = decoration2)
+        val style1 = TextStyle(decoration = decoration1)
+        val style2 = TextStyle(decoration = decoration2)
 
-        val newTextStyle = lerp(start = textStyle1, stop = textStyle2, fraction = t)
+        val newStyle = lerp(start = style1, stop = style2, fraction = t)
 
-        assertThat(newTextStyle.decoration).isEqualTo(decoration1)
+        assertThat(newStyle.decoration).isEqualTo(decoration1)
     }
 
     @Test
@@ -719,12 +784,119 @@ class TextStyleTest {
         val decoration1 = TextDecoration.LineThrough
         val decoration2 = TextDecoration.Underline
         val t = 0.8f
-        val textStyle1 = TextStyle(decoration = decoration1)
-        val textStyle2 = TextStyle(decoration = decoration2)
+        val style1 = TextStyle(decoration = decoration1)
+        val style2 = TextStyle(decoration = decoration2)
 
-        val newTextStyle = lerp(start = textStyle1, stop = textStyle2, fraction = t)
+        val newStyle = lerp(start = style1, stop = style2, fraction = t)
 
-        assertThat(newTextStyle.decoration).isEqualTo(decoration2)
+        assertThat(newStyle.decoration).isEqualTo(decoration2)
+    }
+
+    @Test
+    fun `lerp textAlign with a null, b not null and t is smaller than half`() {
+        val style1 = TextStyle(textAlign = null)
+        val style2 = TextStyle(textAlign = TextAlign.Right)
+
+        val newStyle = lerp(start = style1, stop = style2, fraction = 0.4f)
+
+        assertThat(newStyle.textAlign).isNull()
+    }
+
+    @Test
+    fun `lerp textAlign with a and b are not Null and t is smaller than half`() {
+        val style1 = TextStyle(textAlign = TextAlign.Left)
+        val style2 = TextStyle(textAlign = TextAlign.Right)
+
+        val newStyle = lerp(start = style1, stop = style2, fraction = 0.4f)
+
+        assertThat(newStyle.textAlign).isEqualTo(style1.textAlign)
+    }
+
+    @Test
+    fun `lerp textAlign with a and b are not Null and t is larger than half`() {
+        val style1 = TextStyle(textAlign = TextAlign.Left)
+        val style2 = TextStyle(textAlign = TextAlign.Right)
+
+        val newStyle = lerp(start = style1, stop = style2, fraction = 0.6f)
+
+        assertThat(newStyle.textAlign).isEqualTo(style2.textAlign)
+    }
+
+    @Test
+    fun `lerp textDirectionAlgorithm with a null, b not null and t is smaller than half`() {
+        val style1 = TextStyle(textDirectionAlgorithm = null)
+        val style2 = TextStyle(textDirectionAlgorithm = TextDirectionAlgorithm.ForceRtl)
+
+        val newStyle = lerp(start = style1, stop = style2, fraction = 0.4f)
+
+        assertThat(newStyle.textDirectionAlgorithm).isNull()
+    }
+
+    @Test
+    fun `lerp textDirectionAlgorithm with a and b are not Null and t is smaller than half`() {
+        val style1 = TextStyle(textDirectionAlgorithm = TextDirectionAlgorithm.ForceLtr)
+        val style2 = TextStyle(textDirectionAlgorithm = TextDirectionAlgorithm.ForceRtl)
+
+        val newStyle = lerp(start = style1, stop = style2, fraction = 0.4f)
+
+        assertThat(newStyle.textDirectionAlgorithm).isEqualTo(style1.textDirectionAlgorithm)
+    }
+
+    @Test
+    fun `lerp textDirectionAlgorithm with a and b are not Null and t is larger than half`() {
+        val style1 = TextStyle(textDirectionAlgorithm = TextDirectionAlgorithm.ForceLtr)
+        val style2 = TextStyle(textDirectionAlgorithm = TextDirectionAlgorithm.ForceRtl)
+
+        val newStyle = lerp(start = style1, stop = style2, fraction = 0.6f)
+
+        assertThat(newStyle.textDirectionAlgorithm).isEqualTo(style2.textDirectionAlgorithm)
+    }
+
+    @Test
+    fun `lerp textIndent with a null, b not null and t is smaller than half returns null`() {
+        val style1 = TextStyle(textIndent = null)
+        val style2 = TextStyle(textIndent = TextIndent(firstLine = 20.sp))
+        val fraction = 0.4f
+        val newStyle = lerp(start = style1, stop = style2, fraction = fraction)
+
+        assertThat(newStyle.textIndent).isEqualTo(
+            lerp(TextIndent(), style2.textIndent!!, fraction)
+        )
+    }
+
+    @Test
+    fun `lerp textIndent with a and b are not Null`() {
+        val style1 = TextStyle(textIndent = TextIndent(firstLine = 10.sp))
+        val style2 = TextStyle(textIndent = TextIndent(firstLine = 20.sp))
+        val fraction = 0.6f
+        val newStyle = lerp(start = style1, stop = style2, fraction = fraction)
+
+        assertThat(newStyle.textIndent).isEqualTo(
+            lerp(style1.textIndent!!, style2.textIndent!!, fraction)
+        )
+    }
+
+    @Test
+    fun `lerp lineHeight with a and b are not inherit`() {
+        val style1 = TextStyle(lineHeight = 10.sp)
+        val style2 = TextStyle(lineHeight = 20.sp)
+        val fraction = 0.4f
+
+        val newStyle = lerp(start = style1, stop = style2, fraction = fraction)
+
+        assertThat(newStyle.lineHeight).isEqualTo(
+            androidx.ui.core.lerp(style1.lineHeight, style2.lineHeight, fraction)
+        )
+    }
+
+    @Test
+    fun `lerp lineHeight with a and b are inherit`() {
+        val style1 = TextStyle(lineHeight = TextUnit.Inherit)
+        val style2 = TextStyle(lineHeight = TextUnit.Inherit)
+
+        val newStyle = lerp(start = style1, stop = style2, fraction = 0.4f)
+
+        assertThat(newStyle.lineHeight).isEqualTo(TextUnit.Inherit)
     }
 
     @Test
@@ -744,7 +916,7 @@ class TextStyleTest {
         val decoration = TextDecoration.Underline
         val shadow = Shadow(color = Color.Green, offset = Offset(2f, 4f))
 
-        val textStyle = TextStyle(
+        val style = TextStyle(
             color = color,
             fontSize = fontSize,
             fontWeight = fontWeight,
@@ -761,7 +933,7 @@ class TextStyleTest {
             shadow = shadow
         )
 
-        assertThat(textStyle.toSpanStyle()).isEqualTo(
+        assertThat(style.toSpanStyle()).isEqualTo(
             SpanStyle(
                 color = color,
                 fontSize = fontSize,
@@ -779,5 +951,34 @@ class TextStyleTest {
                 shadow = shadow
             )
         )
+    }
+
+    @Test
+    fun `toParagraphStyle return attributes with correct values`() {
+        val textAlign = TextAlign.Justify
+        val textDirectionAlgorithm = TextDirectionAlgorithm.ForceRtl
+        val lineHeight = 100.sp
+        val textIndent = TextIndent(firstLine = 20.sp, restLine = 40.sp)
+
+        val style = TextStyle(
+            textAlign = textAlign,
+            textDirectionAlgorithm = textDirectionAlgorithm,
+            lineHeight = lineHeight,
+            textIndent = textIndent
+        )
+
+        assertThat(style.toParagraphStyle()).isEqualTo(
+            ParagraphStyle(
+                textAlign = textAlign,
+                textDirectionAlgorithm = textDirectionAlgorithm,
+                lineHeight = lineHeight,
+                textIndent = textIndent
+            )
+        )
+    }
+
+    @Test(expected = AssertionError::class)
+    fun `negative lineHeight throws AssertionError`() {
+        TextStyle(lineHeight = (-1).sp)
     }
 }

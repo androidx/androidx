@@ -25,8 +25,11 @@ import androidx.ui.text.font.FontStyle
 import androidx.ui.text.font.FontSynthesis
 import androidx.ui.text.font.FontWeight
 import androidx.ui.text.style.BaselineShift
+import androidx.ui.text.style.TextAlign
 import androidx.ui.text.style.TextDecoration
+import androidx.ui.text.style.TextDirectionAlgorithm
 import androidx.ui.text.style.TextGeometricTransform
+import androidx.ui.text.style.TextIndent
 
 /**
  * Styling configuration for a `Text`.
@@ -51,10 +54,15 @@ import androidx.ui.text.style.TextGeometricTransform
  * @param background The background color for the text.
  * @param decoration The decorations to paint near the text (e.g., an underline).
  * @param shadow The shadow effect applied on the text.
+ * @param textAlign The alignment of the text within the lines of the paragraph.
+ * @param textDirectionAlgorithm The algorithm to be used to resolve the final text and paragraph
+ * direction: Left To Right or Right To Left.
+ * @param textIndent The indentation of the paragraph.
+ * @param lineHeight Line height for the [Paragraph] in [TextUnit] unit, e.g. SP or EM.
  *
- *  @see [AnnotatedString]
- *  @see [SpanStyle]
- *  @see [ParagraphStyle]
+ * @see AnnotatedString
+ * @see SpanStyle
+ * @see ParagraphStyle
  */
 @Immutable
 data class TextStyle(
@@ -71,9 +79,13 @@ data class TextStyle(
     val localeList: LocaleList? = null,
     val background: Color? = null,
     val decoration: TextDecoration? = null,
-    val shadow: Shadow? = null
+    val shadow: Shadow? = null,
+    val textAlign: TextAlign? = null,
+    val textDirectionAlgorithm: TextDirectionAlgorithm? = null,
+    val lineHeight: TextUnit = TextUnit.Inherit,
+    val textIndent: TextIndent? = null
 ) {
-    internal constructor(spanStyle: SpanStyle) : this (
+    internal constructor(spanStyle: SpanStyle, paragraphStyle: ParagraphStyle) : this (
         color = spanStyle.color,
         fontSize = spanStyle.fontSize,
         fontWeight = spanStyle.fontWeight,
@@ -87,8 +99,21 @@ data class TextStyle(
         localeList = spanStyle.localeList,
         background = spanStyle.background,
         decoration = spanStyle.decoration,
-        shadow = spanStyle.shadow
+        shadow = spanStyle.shadow,
+        textAlign = paragraphStyle.textAlign,
+        textDirectionAlgorithm = paragraphStyle.textDirectionAlgorithm,
+        lineHeight = paragraphStyle.lineHeight,
+        textIndent = paragraphStyle.textIndent
     )
+
+    init {
+        if (lineHeight != TextUnit.Inherit) {
+            // Since we are checking if it's negative, no need to convert Sp into Px at this point.
+            assert(lineHeight.value >= 0f) {
+                "lineHeight can't be negative (${lineHeight.value})"
+            }
+        }
+    }
 
     fun toSpanStyle(): SpanStyle = SpanStyle(
         color = color,
@@ -107,6 +132,12 @@ data class TextStyle(
         shadow = shadow
     )
 
+    fun toParagraphStyle(): ParagraphStyle = ParagraphStyle(
+        textAlign = textAlign,
+        textDirectionAlgorithm = textDirectionAlgorithm,
+        lineHeight = lineHeight,
+        textIndent = textIndent
+    )
     /**
      * Returns a new text style that is a combination of this style and the given [other] style.
      *
@@ -118,7 +149,10 @@ data class TextStyle(
      */
     fun merge(other: TextStyle? = null): TextStyle {
         if (other == null) return this
-        return TextStyle(toSpanStyle().merge(other.toSpanStyle()))
+        return TextStyle(
+            spanStyle = toSpanStyle().merge(other.toSpanStyle()),
+            paragraphStyle = toParagraphStyle().merge(other.toParagraphStyle())
+        )
     }
 }
 
@@ -136,5 +170,8 @@ data class TextStyle(
  * 1.0, so negative values and values greater than 1.0 are valid.
  */
 fun lerp(start: TextStyle, stop: TextStyle, fraction: Float): TextStyle {
-    return TextStyle(lerp(start.toSpanStyle(), stop.toSpanStyle(), fraction))
+    return TextStyle(
+        spanStyle = lerp(start.toSpanStyle(), stop.toSpanStyle(), fraction),
+        paragraphStyle = lerp(start.toParagraphStyle(), stop.toParagraphStyle(), fraction)
+    )
 }
