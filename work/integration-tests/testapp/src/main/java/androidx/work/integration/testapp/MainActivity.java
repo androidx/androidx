@@ -67,6 +67,7 @@ public class MainActivity extends AppCompatActivity {
 
     // Synthetic access
     WorkRequest mLastForegroundWorkRequest;
+    int mLastNotificationId = 10;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -364,8 +365,15 @@ public class MainActivity extends AppCompatActivity {
         findViewById(R.id.run_foreground_worker).setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
+                mLastNotificationId += 1;
+
+                Data inputData = new Data.Builder()
+                        .putInt(ForegroundWorker.InputNotificationId, mLastNotificationId)
+                        .build();
+
                 OneTimeWorkRequest request =
                         new OneTimeWorkRequest.Builder(ForegroundWorker.class)
+                                .setInputData(inputData)
                                 .setConstraints(new Constraints.Builder()
                                         .setRequiredNetworkType(NetworkType.CONNECTED).build()
                                 ).build();
@@ -378,8 +386,14 @@ public class MainActivity extends AppCompatActivity {
         findViewById(R.id.cancel_foreground_worker).setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                WorkManager.getInstance(MainActivity.this)
-                        .cancelAllWorkByTag(ForegroundWorker.class.getName());
+                if (mLastForegroundWorkRequest != null) {
+                    WorkManager.getInstance(MainActivity.this)
+                            .cancelWorkById(mLastForegroundWorkRequest.getId());
+                    mLastForegroundWorkRequest = null;
+                } else {
+                    WorkManager.getInstance(MainActivity.this)
+                            .cancelAllWorkByTag(ForegroundWorker.class.getName());
+                }
             }
         });
 
@@ -396,6 +410,7 @@ public class MainActivity extends AppCompatActivity {
 
                             try {
                                 pendingIntent.send(0);
+                                mLastForegroundWorkRequest = null;
                             } catch (PendingIntent.CanceledException exception) {
                                 Log.e(TAG, "Pending intent was cancelled.", exception);
                             }
