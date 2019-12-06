@@ -64,7 +64,7 @@ class DynamicNavGraphTest {
         assertNotNull(progressDestination)
         progressDestination?.let {
             DynamicNavGraph.getOrThrow(progressDestination)
-            // Assert not having thrown an exception
+            // Assume not having thrown an exception
         }
     }
 

@@ -59,9 +59,7 @@ class DynamicActivityNavigator(
         )
     }
 
-    override fun createDestination(): Destination {
-        return Destination(this)
-    }
+    override fun createDestination() = Destination(this)
 
     /**
      * Destination for [DynamicActivityNavigator].

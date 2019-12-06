@@ -3,6 +3,7 @@ package androidx.navigation.dynamicfeatures.fragment {
 
   @androidx.navigation.Navigator.Name("fragment") public final class DynamicFragmentNavigator extends androidx.navigation.fragment.FragmentNavigator {
     ctor public DynamicFragmentNavigator(android.content.Context context, androidx.fragment.app.FragmentManager manager, int containerId, androidx.navigation.dynamicfeatures.DynamicInstallManager installManager);
+    method public androidx.navigation.dynamicfeatures.fragment.DynamicFragmentNavigator.Destination createDestination();
   }
 
   public static final class DynamicFragmentNavigator.Destination extends androidx.navigation.fragment.FragmentNavigator.Destination {
