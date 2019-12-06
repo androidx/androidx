@@ -48,6 +48,10 @@ class DatabaseTest {
                         Index(
                             name = "leIndex",
                             unique = false,
+                            fields = Fields()),
+                        Index(
+                            name = "leIndex2",
+                            unique = true,
                             fields = Fields())
                     ),
                     foreignKeys = emptyList(),
@@ -64,7 +68,8 @@ class DatabaseTest {
 
         val expectedLegacyHash = DigestUtils.md5Hex(
             "CREATE TABLE IF NOT EXISTS `TheTable` ()¯\\_(ツ)_/¯" +
-                    "CREATE INDEX `leIndex` ON `TheTable` ()")
+                    "CREATE  INDEX `leIndex` ON `TheTable` ()¯\\_(ツ)_/¯" +
+                    "CREATE UNIQUE INDEX `leIndex2` ON `TheTable` ()")
         assertEquals(expectedLegacyHash, database.legacyIdentityHash)
     }
 }

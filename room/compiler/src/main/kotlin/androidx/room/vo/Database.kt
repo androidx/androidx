@@ -75,8 +75,14 @@ data class Database(
                     entity.indices.map { index ->
                         // For legacy purposes we need to remove the later added 'IF NOT EXISTS'
                         // part of the create statement, otherwise old valid legacy hashes stop
-                        // being accepted even though the schema has not changed.
-                        index.createQuery(entity.tableName).replaceFirst("IF NOT EXISTS ", "")
+                        // being accepted even though the schema has not changed. b/139306173
+                        if (index.unique) {
+                            "CREATE UNIQUE INDEX"
+                        } else {
+                            // The extra space between 'CREATE' and 'INDEX' is on purpose, this
+                            // is a typo we have to live with.
+                            "CREATE  INDEX"
+                        } + index.createQuery(entity.tableName).substringAfter("IF NOT EXISTS")
                     }
                 }
         val viewDescriptions = views
