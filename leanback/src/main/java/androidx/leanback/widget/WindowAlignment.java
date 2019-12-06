@@ -74,11 +74,8 @@ class WindowAlignment {
 
         private boolean mReversedFlow;
 
-        private String mName; // for debugging
-
         public Axis(String name) {
             reset();
-            mName = name;
         }
 
         public final int getWindowAlignment() {

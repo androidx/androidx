@@ -80,7 +80,6 @@ final class GLImage2SurfaceRenderer {
     private int mPositionHandle;
 
     private int mTextureYHandle;
-    private int mTextureIdY;
 
     private FloatBuffer mVerticesFloatBuffer;
     private ByteBuffer mVerticesByteBuffer;
@@ -186,7 +185,6 @@ final class GLImage2SurfaceRenderer {
 
         int[] textureIds = new int[1];
         GLES20.glGenTextures(1, textureIds, 0);
-        mTextureIdY = textureIds[0];
 
         GLES20.glUniform1i(mTextureYHandle, 0);
 

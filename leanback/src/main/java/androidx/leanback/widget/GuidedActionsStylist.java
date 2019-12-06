@@ -401,7 +401,6 @@ public class GuidedActionsStylist implements FragmentAnimationProvider {
     private VerticalGridView mActionsGridView;
     VerticalGridView mSubActionsGridView;
     private View mSubActionsBackground;
-    private View mBgView;
     private View mContentView;
     private boolean mButtonActions;
 
@@ -447,8 +446,6 @@ public class GuidedActionsStylist implements FragmentAnimationProvider {
         mMainView = (ViewGroup) inflater.inflate(onProvideLayoutId(), container, false);
         mContentView = mMainView.findViewById(mButtonActions ? R.id.guidedactions_content2 :
                 R.id.guidedactions_content);
-        mBgView = mMainView.findViewById(mButtonActions ? R.id.guidedactions_list_background2 :
-                R.id.guidedactions_list_background);
         if (mMainView instanceof VerticalGridView) {
             mActionsGridView = (VerticalGridView) mMainView;
         } else {
@@ -544,7 +541,6 @@ public class GuidedActionsStylist implements FragmentAnimationProvider {
         mSubActionsGridView = null;
         mSubActionsBackground = null;
         mContentView = null;
-        mBgView = null;
         mMainView = null;
     }
 
@@ -734,8 +730,7 @@ public class GuidedActionsStylist implements FragmentAnimationProvider {
                 if (vh.mDescriptionView != null) {
                     vh.mDescriptionView.setInputType(vh.mDescriptionView.getInputType()
                             | InputType.TYPE_TEXT_FLAG_MULTI_LINE);
-                    vh.mDescriptionView.setMaxHeight(getDescriptionMaxHeight(
-                            vh.itemView.getContext(), vh.mTitleView));
+                    vh.mDescriptionView.setMaxHeight(getDescriptionMaxHeight(vh.mTitleView));
                 }
             }
         } else {
@@ -1544,7 +1539,7 @@ public class GuidedActionsStylist implements FragmentAnimationProvider {
      * @return the max height in pixels the description can be such that the
      *         action nicely takes up the entire screen.
      */
-    private int getDescriptionMaxHeight(Context context, TextView title) {
+    private int getDescriptionMaxHeight(TextView title) {
         // The 2 multiplier on the title height calculation is a
         // conservative estimate for font padding which can not be
         // calculated at this stage since the view hasn't been rendered yet.

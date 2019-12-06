@@ -36,8 +36,6 @@ import java.text.DecimalFormat;
  * Simple demo for VectorDrawableCompat.
  */
 public class SimpleStaticVectorDrawable extends AppCompatActivity {
-    private static final String LOG_TAG = "SimpleStaticVectorDrawable";
-
     protected int[] mIcons = {
             R.drawable.vector_drawable_scale0,
             R.drawable.vector_drawable_scale1,

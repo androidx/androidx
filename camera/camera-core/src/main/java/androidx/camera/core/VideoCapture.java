@@ -30,7 +30,6 @@ import android.media.MediaMuxer;
 import android.media.MediaRecorder.AudioSource;
 import android.os.Handler;
 import android.os.HandlerThread;
-import android.os.Looper;
 import android.util.Log;
 import android.util.Size;
 import android.view.Display;
@@ -219,7 +218,6 @@ public class VideoCapture extends UseCase {
     @NonNull
     protected Map<String, Size> onSuggestedResolutionUpdated(
             @NonNull Map<String, Size> suggestedResolutionMap) {
-        VideoCaptureConfig config = (VideoCaptureConfig) getUseCaseConfig();
         if (mCameraSurface != null) {
             mVideoEncoder.stop();
             mVideoEncoder.release();
@@ -901,7 +899,6 @@ public class VideoCapture extends UseCase {
     @RestrictTo(Scope.LIBRARY_GROUP)
     public static final class Defaults
             implements ConfigProvider<VideoCaptureConfig> {
-        private static final Handler DEFAULT_HANDLER = new Handler(Looper.getMainLooper());
         private static final int DEFAULT_VIDEO_FRAME_RATE = 30;
         /** 8Mb/s the recommend rate for 30fps 1080p */
         private static final int DEFAULT_BIT_RATE = 8 * 1024 * 1024;

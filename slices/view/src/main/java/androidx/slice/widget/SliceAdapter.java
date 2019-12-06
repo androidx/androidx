@@ -22,8 +22,6 @@ import static android.app.slice.Slice.SUBTYPE_SOURCE;
 import static android.app.slice.SliceItem.FORMAT_ACTION;
 import static android.app.slice.SliceItem.FORMAT_SLICE;
 
-import static androidx.slice.widget.SliceView.MODE_LARGE;
-
 import android.app.slice.Slice;
 import android.content.Context;
 import android.view.LayoutInflater;
@@ -331,7 +329,6 @@ public class SliceAdapter extends RecyclerView.Adapter<SliceAdapter.SliceViewHol
             mSliceChildView.setSliceActionLoadingListener(SliceAdapter.this);
 
             final boolean isHeader = position == HEADER_INDEX;
-            int mode = mParent != null ? mParent.getMode() : MODE_LARGE;
             mSliceChildView.setLoadingActions(mLoadingActions);
             mSliceChildView.setPolicy(mPolicy);
             mSliceChildView.setTint(mColor);

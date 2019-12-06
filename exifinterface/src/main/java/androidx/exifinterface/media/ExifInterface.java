@@ -2984,15 +2984,19 @@ public class ExifInterface {
     private static final int WEBP_FILE_SIZE_BYTE_LENGTH = 4;
     private static final byte[] WEBP_CHUNK_TYPE_EXIF = new byte[]{(byte) 0x45, (byte) 0x58,
             (byte) 0x49, (byte) 0x46};
+    @SuppressWarnings("unused")
     private static final byte[] WEBP_VP8_SIGNATURE = new byte[]{(byte) 0x9d, (byte) 0x01,
             (byte) 0x2a};
+    @SuppressWarnings("unused")
     private static final byte WEBP_VP8L_SIGNATURE = (byte) 0x2f;
     private static final byte[] WEBP_CHUNK_TYPE_VP8X = "VP8X".getBytes(Charset.defaultCharset());
     private static final byte[] WEBP_CHUNK_TYPE_VP8L = "VP8L".getBytes(Charset.defaultCharset());
     private static final byte[] WEBP_CHUNK_TYPE_VP8 = "VP8 ".getBytes(Charset.defaultCharset());
     private static final byte[] WEBP_CHUNK_TYPE_ANIM = "ANIM".getBytes(Charset.defaultCharset());
     private static final byte[] WEBP_CHUNK_TYPE_ANMF = "ANMF".getBytes(Charset.defaultCharset());
+    @SuppressWarnings("unused")
     private static final byte[] WEBP_CHUNK_TYPE_XMP = "XMP ".getBytes(Charset.defaultCharset());
+    @SuppressWarnings("unused")
     private static final int WEBP_CHUNK_TYPE_VP8X_DEFAULT_LENGTH = 10;
     private static final int WEBP_CHUNK_TYPE_BYTE_LENGTH = 4;
     private static final int WEBP_CHUNK_SIZE_BYTE_LENGTH = 4;
@@ -6395,7 +6399,7 @@ public class ExifInterface {
                 totalInputStream.skipBytes(exifChunkLength);
 
                 // Write new EXIF chunk to output stream
-                int exifSize = writeExifSegment(nonHeaderOutputStream);
+                writeExifSegment(nonHeaderOutputStream);
             } else {
                 // EXIF chunk does not exist in the original file
                 byte[] firstChunkType = new byte[WEBP_CHUNK_TYPE_BYTE_LENGTH];
@@ -6435,6 +6439,7 @@ public class ExifInterface {
 
                         while (true) {
                             byte[] type = new byte[WEBP_CHUNK_TYPE_BYTE_LENGTH];
+                            @SuppressWarnings("unused")
                             int read = inputStream.read(type);
                             if (!Arrays.equals(type, WEBP_CHUNK_TYPE_ANMF)) {
                                 // Either we have reached EOF or the start of a non-ANMF chunk

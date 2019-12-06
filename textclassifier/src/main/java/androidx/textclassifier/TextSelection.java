@@ -296,7 +296,6 @@ public final class TextSelection {
         private static final String EXTRA_START_INDEX = "start";
         private static final String EXTRA_END_INDEX = "end";
         private static final String EXTRA_DEFAULT_LOCALES = "locales";
-        private static final String EXTRA_CALLING_PACKAGE_NAME = "calling_package";
 
         private final CharSequence mText;
         private final int mStartIndex;

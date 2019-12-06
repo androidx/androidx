@@ -221,7 +221,6 @@ public class SliceProviderCompat {
         } else if (method.equals(METHOD_CHECK_PERMISSION)) {
             Uri uri = extras.getParcelable(EXTRA_BIND_URI);
             mProvider.validateIncomingAuthority(uri.getAuthority());
-            String pkg = extras.getString(EXTRA_PKG);
             int pid = extras.getInt(EXTRA_PID);
             int uid = extras.getInt(EXTRA_UID);
             Bundle b = new Bundle();

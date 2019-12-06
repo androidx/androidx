@@ -16,7 +16,6 @@
 
 package com.example.android.support.vectordrawable.app;
 
-import android.content.res.Resources;
 import android.os.Bundle;
 import android.view.View;
 import android.widget.Button;
@@ -36,9 +35,6 @@ import java.text.DecimalFormat;
  */
 public class SimpleAnimatedVectorDrawable extends AppCompatActivity implements
         View.OnClickListener {
-    private static final String LOG_TAG = "TestActivity";
-
-    private static final String LOGCAT = "VectorDrawable1";
     protected int[] mIcons = {
             R.drawable.animation_vector_drawable_grouping_1_path_motion,
             R.drawable.animation_vector_drawable_grouping_1_path_motion_object,
@@ -58,7 +54,6 @@ public class SimpleAnimatedVectorDrawable extends AppCompatActivity implements
         LinearLayout container = new LinearLayout(this);
         scrollView.addView(container);
         container.setOrientation(LinearLayout.VERTICAL);
-        Resources res = this.getResources();
         container.setBackgroundColor(0xFF888888);
         AnimatedVectorDrawableCompat[] d = new AnimatedVectorDrawableCompat[mIcons.length];
         long time = android.os.SystemClock.currentThreadTimeMillis();

@@ -307,7 +307,7 @@ public class RemoteInputView extends LinearLayout implements View.OnClickListene
             mBackground = getBackground();
         }
 
-        private void defocusIfNeeded(boolean animate) {
+        private void defocusIfNeeded() {
             if (mRemoteInputView != null || isTemporarilyDetachedCompat()) {
                 if (isTemporarilyDetachedCompat()) {
                     // We might get reattached but then the other one of HUN / expanded might steal
@@ -336,7 +336,7 @@ public class RemoteInputView extends LinearLayout implements View.OnClickListene
             super.onVisibilityChanged(changedView, visibility);
 
             if (!isShown()) {
-                defocusIfNeeded(false /* animate */);
+                defocusIfNeeded();
             }
         }
 
@@ -344,7 +344,7 @@ public class RemoteInputView extends LinearLayout implements View.OnClickListene
         protected void onFocusChanged(boolean focused, int direction, Rect previouslyFocusedRect) {
             super.onFocusChanged(focused, direction, previouslyFocusedRect);
             if (!focused) {
-                defocusIfNeeded(true /* animate */);
+                defocusIfNeeded();
             }
         }
 
@@ -367,7 +367,7 @@ public class RemoteInputView extends LinearLayout implements View.OnClickListene
         @Override
         public boolean onKeyUp(int keyCode, KeyEvent event) {
             if (keyCode == KeyEvent.KEYCODE_BACK) {
-                defocusIfNeeded(true /* animate */);
+                defocusIfNeeded();
                 return true;
             }
             return super.onKeyUp(keyCode, event);

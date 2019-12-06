@@ -32,8 +32,6 @@ import androidx.textclassifier.TextClassificationManager;
 import androidx.textclassifier.TextClassifier;
 import androidx.textclassifier.TextLinks;
 import androidx.textclassifier.TextLinksParams;
-import androidx.textclassifier.integration.testapp.experimental.widget.FloatingToolbar;
-import androidx.textclassifier.widget.ToolbarController;
 
 import java.util.concurrent.Executor;
 import java.util.concurrent.Executors;
@@ -44,7 +42,6 @@ import java.util.concurrent.Executors;
 @RequiresApi(api = Build.VERSION_CODES.M)
 public class MainActivity extends AppCompatActivity {
     private static final int DEFAULT = 0;
-    private static final int CUSTOM = 1;
 
     private static final Executor sWorkerThreadExecutor = Executors.newSingleThreadExecutor();
     private static final Executor sMainThreadExecutor = new MainThreadExecutor();

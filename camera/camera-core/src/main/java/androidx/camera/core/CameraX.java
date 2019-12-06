@@ -775,7 +775,7 @@ public final class CameraX {
             ListenableFuture<CameraX> instanceFuture = getInstanceLocked();
             if (instanceFuture.isDone()) {
                 try {
-                    CameraX instance = instanceFuture.get();
+                    instanceFuture.get();
                 } catch (InterruptedException e) {
                     // Should not be possible since future is complete.
                     throw new RuntimeException("Unexpected thread interrupt. Should not be "

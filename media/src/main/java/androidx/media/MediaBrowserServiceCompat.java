@@ -835,7 +835,6 @@ public abstract class MediaBrowserServiceCompat extends Service {
         private final Object mDebug;
         private boolean mDetachCalled;
         private boolean mSendResultCalled;
-        private boolean mSendProgressUpdateCalled;
         private boolean mSendErrorCalled;
         private int mFlags;
 
@@ -867,7 +866,6 @@ public abstract class MediaBrowserServiceCompat extends Service {
                         + "sendResult() or sendError() had already been called for: " + mDebug);
             }
             checkExtraFields(extras);
-            mSendProgressUpdateCalled = true;
             onProgressUpdateSent(extras);
         }
 

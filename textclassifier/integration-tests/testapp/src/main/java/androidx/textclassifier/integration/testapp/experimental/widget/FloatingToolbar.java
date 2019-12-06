@@ -249,12 +249,6 @@ public final class FloatingToolbar implements IFloatingToolbar {
         /* View components */
         private final ViewGroup mContentContainer;  // holds all contents.
         private final MainPanel mMainPanel;  // holds menu items that are initially displayed.
-        private final ViewGroup mOverflowPanel;  // holds menu items hidden in the overflow.
-        private final ViewGroup mSlicePanel;  // holds the rich toolbar content.
-
-        /* Panel transitions */
-        private final Rect mStartRect = new Rect();
-        private final Rect mEndRect = new Rect();
 
         /* Item click listeners */
         private SupportMenuItem.OnMenuItemClickListener mOnMenuItemClickListener;
@@ -277,8 +271,6 @@ public final class FloatingToolbar implements IFloatingToolbar {
             mPopupWindow = createPopupWindow(mContext);
             mContentContainer = createContentContainer(
                     mContext, (ViewGroup) mPopupWindow.getContentView());
-            mOverflowPanel = mContentContainer.findViewById(R.id.overflowPanel);
-            mSlicePanel = mContentContainer.findViewById(R.id.slicePanel);
             mMainPanel = new MainPanel(
                     mContentContainer.findViewById(R.id.mainPanel),
                     mContext,
@@ -339,9 +331,8 @@ public final class FloatingToolbar implements IFloatingToolbar {
             popupWindow.setOutsideTouchable(true);
             popupWindow.setWindowLayoutType(WindowManager.LayoutParams.TYPE_APPLICATION_SUB_PANEL);
             popupWindow.setAnimationStyle(0);
-            int color = Color.TRANSPARENT;
-            // Uncomment the next line for a translucent popup. Comment for transparent popup.
-            color = Color.argb(50, 50, 0, 0);
+            // Set the next line to Color.TRANSPARENT for a translucent popup.
+            int color = Color.argb(50, 50, 0, 0);
             popupWindow.setBackgroundDrawable(new ColorDrawable(color));
             return popupWindow;
         }

@@ -3052,7 +3052,6 @@ final class GridLayoutManager extends RecyclerView.LayoutManager {
             }
         }
         int scrollPrimary = 0;
-        int scrollSecondary = 0;
         if (firstView != null) {
             scrollPrimary = getViewMin(firstView) - paddingMin;
         } else if (lastView != null) {
@@ -3066,7 +3065,7 @@ final class GridLayoutManager extends RecyclerView.LayoutManager {
         } else {
             secondaryAlignedView = view;
         }
-        scrollSecondary = getSecondaryScrollDistance(secondaryAlignedView);
+        int scrollSecondary = getSecondaryScrollDistance(secondaryAlignedView);
         if (scrollPrimary != 0 || scrollSecondary != 0) {
             deltas[0] = scrollPrimary;
             deltas[1] = scrollSecondary;
@@ -3452,17 +3451,17 @@ final class GridLayoutManager extends RecyclerView.LayoutManager {
         switch (mFocusScrollStrategy) {
             case BaseGridView.FOCUS_SCROLL_ALIGNED:
             default:
-                return gridOnRequestFocusInDescendantsAligned(recyclerView,
+                return gridOnRequestFocusInDescendantsAligned(
                         direction, previouslyFocusedRect);
             case BaseGridView.FOCUS_SCROLL_PAGE:
             case BaseGridView.FOCUS_SCROLL_ITEM:
-                return gridOnRequestFocusInDescendantsUnaligned(recyclerView,
+                return gridOnRequestFocusInDescendantsUnaligned(
                         direction, previouslyFocusedRect);
         }
     }
 
-    private boolean gridOnRequestFocusInDescendantsAligned(RecyclerView recyclerView,
-            int direction, Rect previouslyFocusedRect) {
+    private boolean gridOnRequestFocusInDescendantsAligned(int direction,
+            Rect previouslyFocusedRect) {
         View view = findViewByPosition(mFocusPosition);
         if (view != null) {
             boolean result = view.requestFocus(direction, previouslyFocusedRect);
@@ -3474,8 +3473,8 @@ final class GridLayoutManager extends RecyclerView.LayoutManager {
         return false;
     }
 
-    private boolean gridOnRequestFocusInDescendantsUnaligned(RecyclerView recyclerView,
-            int direction, Rect previouslyFocusedRect) {
+    private boolean gridOnRequestFocusInDescendantsUnaligned(int direction,
+            Rect previouslyFocusedRect) {
         // focus to view not overlapping padding area to avoid scrolling in gaining focus
         int index;
         int increment;

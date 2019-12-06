@@ -151,14 +151,13 @@ public class SliceContent {
             // Can't make something from nothing
             return null;
         }
-        SliceItem actionItem = null;
         SliceItem iconItem = null;
         SliceItem labelItem = null;
         int imageMode = UNKNOWN_IMAGE;
 
         // Prefer something properly hinted
         String[] hints = new String[]{HINT_TITLE, HINT_SHORTCUT};
-        actionItem =  SliceQuery.find(mSliceItem, FORMAT_ACTION, hints, null);
+        SliceItem actionItem =  SliceQuery.find(mSliceItem, FORMAT_ACTION, hints, null);
         if (actionItem != null) {
             iconItem = SliceQuery.find(actionItem, FORMAT_IMAGE, HINT_TITLE, null);
             labelItem = SliceQuery.find(actionItem, FORMAT_TEXT, (String) null, null);

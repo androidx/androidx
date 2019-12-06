@@ -121,7 +121,6 @@ public class PagedListView extends FrameLayout {
 
     private int mRowsPerPage = -1;
     private RecyclerView.Adapter<? extends RecyclerView.ViewHolder> mAdapter;
-    private AlphaJumpAdapter mAlphaJumpAdapter;
 
     /** Maximum number of pages to show. */
     private int mMaxPages = UNLIMITED_PAGES;
@@ -919,7 +918,6 @@ public class PagedListView extends FrameLayout {
      * @param adapter The alpha jump adapter to set for the list.
      */
     public void setAlphaJumpAdapter(@NonNull AlphaJumpAdapter adapter) {
-        mAlphaJumpAdapter = adapter;
         mScrollBarView.setOnAlphaJumpListener(() -> setAlphaJumpVisible(true));
         mScrollBarView.setShowAlphaJump(true);
     }

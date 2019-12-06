@@ -95,7 +95,6 @@ public final class LiveDataObservable<T> implements Observable<T> {
                     @Override
                     public void run() {
                         Result<T> result = mLiveData.getValue();
-                        Throwable error;
                         if (result == null) {
                             completer.setException(new IllegalStateException(
                                     "Observable has not yet been initialized with a value."));
