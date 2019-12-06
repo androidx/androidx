@@ -1242,7 +1242,9 @@ class FragmentTransition {
             FragmentManager manager = transaction.mManager;
             if (fragment.mState < Fragment.CREATED && manager.mCurState >= Fragment.CREATED
                     && !transaction.mReorderingAllowed) {
-                manager.makeActive(fragment);
+                FragmentStateManager fragmentStateManager =
+                        manager.createOrGetFragmentStateManager(fragment);
+                manager.getFragmentStore().makeActive(fragmentStateManager);
                 manager.moveToState(fragment, Fragment.CREATED);
             }
         }
