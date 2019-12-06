@@ -30,4 +30,14 @@ internal data class ViewportHint(
      * how closs access was.
      */
     val indexInPage: Int
-)
+) : Comparable<ViewportHint> {
+    override operator fun compareTo(other: ViewportHint): Int {
+        if (sourcePageIndex != other.sourcePageIndex) return sourcePageIndex - other.sourcePageIndex
+        return indexInPage - other.indexInPage
+    }
+
+    companion object {
+        val MIN_VALUE = ViewportHint(Int.MIN_VALUE, Int.MIN_VALUE)
+        val MAX_VALUE = ViewportHint(Int.MAX_VALUE, Int.MAX_VALUE)
+    }
+}

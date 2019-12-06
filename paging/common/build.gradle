@@ -41,6 +41,7 @@ dependencies {
     testImplementation project(':internal-testutils-common')
     testImplementation project(':internal-testutils-ktx')
     testImplementation(KOTLIN_TEST)
+    testImplementation(KOTLIN_COROUTINES_TEST)
     testImplementation(TRUTH)
 }
 
