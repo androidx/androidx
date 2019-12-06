@@ -18,7 +18,9 @@ package androidx.ui.core
 
 import android.os.Handler
 import android.os.Looper
+import androidx.annotation.RestrictTo
 import androidx.compose.ObserverMap
+import androidx.compose.TestOnly
 import androidx.compose.ThreadLocal
 import androidx.compose.frames.FrameCommitObserver
 import androidx.compose.frames.FrameReadObserver
@@ -82,6 +84,17 @@ class ModelObserver() {
             handler = Handler()
         }
     }
+
+    /**
+     * Test-only access to the internal commit listener. This is used for benchmarking
+     * the commit notification callback.
+     *
+     * @hide
+     */
+    val frameCommitObserver: FrameCommitObserver
+        @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
+        @TestOnly
+        get() = commitObserver
 
     /**
      * Executes [block], observing model reads during its execution.

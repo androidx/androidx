@@ -86,4 +86,11 @@ class ComposeBenchmarkRule(
     fun measureRepeated(block: BenchmarkRule.Scope.() -> Unit) {
         benchmarkRule.measureRepeated(block)
     }
+
+    /**
+     * Convenience proxy for [ActivityTestRule.runOnUiThread]
+     */
+    fun runOnUiThread(block: () -> Unit) {
+        activityTestRule.runOnUiThread(block)
+    }
 }
