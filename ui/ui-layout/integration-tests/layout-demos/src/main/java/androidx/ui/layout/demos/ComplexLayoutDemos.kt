@@ -178,7 +178,7 @@ fun AlignUsage() {
 fun StackUsage() {
     Stack {
         SizedRectangle(LayoutGravity.Stretch, color = Color(0xFFA52A2A))
-        SizedRectangle(LayoutGravity.Stretch wraps LayoutPadding(40.dp), color = Color(0xFFFFA500))
+        SizedRectangle(LayoutGravity.Stretch + LayoutPadding(40.dp), color = Color(0xFFFFA500))
         SizedRectangle(
             modifier = LayoutGravity.Center,
             color = Color(0xFF0000FF),

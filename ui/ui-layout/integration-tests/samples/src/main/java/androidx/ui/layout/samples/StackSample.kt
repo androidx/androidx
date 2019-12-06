@@ -32,14 +32,14 @@ fun SimpleStack() {
     Stack {
         SizedRectangle(LayoutExpanded, color = Color.Cyan)
         SizedRectangle(
-            LayoutGravity.Stretch wraps LayoutPadding(top = 20.dp, bottom = 20.dp),
+            LayoutGravity.Stretch + LayoutPadding(top = 20.dp, bottom = 20.dp),
             color = Color.Yellow
         )
-        SizedRectangle(LayoutGravity.Stretch wraps LayoutPadding(40.dp), color = Color.Magenta)
-        SizedRectangle(LayoutGravity.Center wraps LayoutSize(300.dp, 300.dp), color = Color.Green)
-        SizedRectangle(LayoutGravity.TopLeft wraps LayoutSize(150.dp, 150.dp), color = Color.Red)
+        SizedRectangle(LayoutGravity.Stretch + LayoutPadding(40.dp), color = Color.Magenta)
+        SizedRectangle(LayoutGravity.Center + LayoutSize(300.dp, 300.dp), color = Color.Green)
+        SizedRectangle(LayoutGravity.TopLeft + LayoutSize(150.dp, 150.dp), color = Color.Red)
         SizedRectangle(
-            LayoutGravity.BottomRight wraps LayoutSize(150.dp, 150.dp),
+            LayoutGravity.BottomRight + LayoutSize(150.dp, 150.dp),
             color = Color.Blue
         )
     }

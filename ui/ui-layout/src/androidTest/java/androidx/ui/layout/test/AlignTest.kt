@@ -105,7 +105,7 @@ class AlignTest : LayoutTest() {
                     position = alignPosition,
                     positionedLatch = positionedLatch
                 )
-                Container(modifier = LayoutAlign.BottomRight wraps LayoutSize(sizeDp, sizeDp)) {
+                Container(modifier = LayoutAlign.BottomRight + LayoutSize(sizeDp, sizeDp)) {
                     SaveLayoutInfo(
                         size = childSize,
                         position = childPosition,
@@ -145,7 +145,7 @@ class AlignTest : LayoutTest() {
                     position = alignPosition,
                     positionedLatch = positionedLatch
                 )
-                Container(LayoutAlign.End wraps LayoutExpandedHeight wraps LayoutWidth(sizeDp)) {
+                Container(LayoutAlign.End + LayoutExpandedHeight + LayoutWidth(sizeDp)) {
                     SaveLayoutInfo(
                         size = childSize,
                         position = childPosition,
@@ -233,7 +233,7 @@ class AlignTest : LayoutTest() {
                             position = alignPosition,
                             positionedLatch = positionedLatch
                         )
-                        Container(LayoutAlign.BottomRight wraps LayoutSize(sizeDp, sizeDp)) {
+                        Container(LayoutAlign.BottomRight + LayoutSize(sizeDp, sizeDp)) {
                             SaveLayoutInfo(
                                 size = childSize,
                                 position = childPosition,
@@ -316,7 +316,7 @@ class AlignTest : LayoutTest() {
     @Test
     fun test2DAlignedModifier_hasCorrectIntrinsicMeasurements() = withDensity(density) {
         testIntrinsics(@Composable {
-            Container(LayoutAlign.TopLeft wraps LayoutAspectRatio(2f)) { }
+            Container(LayoutAlign.TopLeft + LayoutAspectRatio(2f)) { }
         }) { minIntrinsicWidth, minIntrinsicHeight, maxIntrinsicWidth, maxIntrinsicHeight ->
             // Min width.
             assertEquals(0.ipx, minIntrinsicWidth(0.ipx))
@@ -343,7 +343,7 @@ class AlignTest : LayoutTest() {
     @Test
     fun test1DAlignedModifier_hasCorrectIntrinsicMeasurements() = withDensity(density) {
         testIntrinsics(@Composable {
-            Container(LayoutAlign.CenterVertically wraps LayoutAspectRatio(2f)) { }
+            Container(LayoutAlign.CenterVertically + LayoutAspectRatio(2f)) { }
         }) { minIntrinsicWidth, minIntrinsicHeight, maxIntrinsicWidth, maxIntrinsicHeight ->
 
             // Min width.
@@ -469,8 +469,7 @@ class AlignTest : LayoutTest() {
                             position = alignPosition,
                             positionedLatch = positionedLatch
                         )
-                        Container(LayoutAlign.BottomRight wraps
-                                LayoutSize(childSizeDp, childSizeDp)) {
+                        Container(LayoutAlign.BottomRight + LayoutSize(childSizeDp, childSizeDp)) {
                             SaveLayoutInfo(
                                 size = childSize,
                                 position = childPosition,

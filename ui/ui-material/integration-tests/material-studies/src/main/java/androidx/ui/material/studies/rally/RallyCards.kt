@@ -69,7 +69,7 @@ fun RallyAlertCard() {
                 Clickable(onClick = { openDialog.value = true }) {
                     Container {
                         Row(
-                            modifier = LayoutPadding(12.dp) wraps LayoutExpandedWidth,
+                            modifier = LayoutPadding(12.dp) + LayoutExpandedWidth,
                             arrangement = Arrangement.SpaceBetween
                         ) {
                             Text(text = "Alerts", style = (+MaterialTheme.typography()).subtitle2)

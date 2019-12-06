@@ -163,7 +163,7 @@ class WrapTest : LayoutTest() {
                 }) {
                     Layout(
                         children = {
-                            Container(LayoutWrapped wraps LayoutSize(sizeDp, sizeDp)) {
+                            Container(LayoutWrapped + LayoutSize(sizeDp, sizeDp)) {
                                 SaveLayoutInfo(
                                     size = childSize,
                                     position = childPosition,
@@ -263,7 +263,7 @@ class WrapTest : LayoutTest() {
     @Test
     fun testWrappedModifier_hasCorrectIntrinsicMeasurements() = withDensity(density) {
         testIntrinsics(@Composable {
-            Container(modifier = LayoutAspectRatio(2f) wraps LayoutWrapped) { }
+            Container(modifier = LayoutAspectRatio(2f) + LayoutWrapped) { }
         }) { minIntrinsicWidth, minIntrinsicHeight, maxIntrinsicWidth, maxIntrinsicHeight ->
             // Min width.
             assertEquals(25.dp.toIntPx() * 2, minIntrinsicWidth(25.dp.toIntPx()))
