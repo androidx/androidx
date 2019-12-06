@@ -27,7 +27,12 @@ import androidx.navigation.dynamicfeatures.fragment.R
 import com.google.android.play.core.splitinstall.model.SplitInstallErrorCode
 
 /**
- * The default fragment to display during installation progress.
+ * The default [androidx.fragment.app.Fragment] to display during installation progress.
+ *
+ * This `Fragment` provides a default UI and handles split install state changes so you don't
+ * have to deal with this.
+ *
+ * To create a custom progress fragment, extend [AbstractProgressFragment].
  */
 class DefaultProgressFragment :
     AbstractProgressFragment(R.layout.dynamic_feature_install_fragment) {
