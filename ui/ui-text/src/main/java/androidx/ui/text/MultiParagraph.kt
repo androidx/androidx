@@ -48,8 +48,7 @@ class MultiParagraph(
      *  [MultiParagraph] can handle a text what has multiple paragraph styles.
      *
      * @param annotatedString the text to be laid out
-     * @param spanStyle the [SpanStyle] to be applied to the whole text
-     * @param paragraphStyle the [ParagraphStyle] to be applied to the whole text
+     * @param style the [TextStyle] to be applied to the whole text
      * @param maxLines the maximum number of lines that the text can have
      * @param ellipsis whether to ellipsize text, applied only when [maxLines] is set
      * @param constraints how wide the text is allowed to be
@@ -60,8 +59,7 @@ class MultiParagraph(
      */
     constructor(
         annotatedString: AnnotatedString,
-        spanStyle: SpanStyle,
-        paragraphStyle: ParagraphStyle,
+        style: TextStyle,
         maxLines: Int = Int.MAX_VALUE,
         ellipsis: Boolean = false,
         constraints: ParagraphConstraints,
@@ -70,8 +68,7 @@ class MultiParagraph(
     ) : this(
         intrinsics = MultiParagraphIntrinsics(
             annotatedString = annotatedString,
-            spanStyle = spanStyle,
-            paragraphStyle = paragraphStyle,
+            style = style,
             density = density,
             resourceLoader = resourceLoader
         ),

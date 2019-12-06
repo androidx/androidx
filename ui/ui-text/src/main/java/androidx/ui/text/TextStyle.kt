@@ -154,6 +154,20 @@ data class TextStyle(
             paragraphStyle = toParagraphStyle().merge(other.toParagraphStyle())
         )
     }
+
+    fun merge(other: SpanStyle): TextStyle {
+        return TextStyle(
+            spanStyle = toSpanStyle().merge(other),
+            paragraphStyle = toParagraphStyle()
+        )
+    }
+
+    fun merge(other: ParagraphStyle): TextStyle {
+        return TextStyle(
+            spanStyle = toSpanStyle(),
+            paragraphStyle = toParagraphStyle().merge(other)
+        )
+    }
 }
 
 /**

@@ -318,7 +318,7 @@ class MultiParagraphIntegrationTest {
         val text = createAnnotatedString("a", "\u05D0", " ")
         val paragraph = simpleMultiParagraph(
             text = text,
-            paragraphStyle = ParagraphStyle(
+            style = TextStyle(
                 textDirectionAlgorithm = TextDirectionAlgorithm.ContentOrLtr
             )
         )
@@ -333,7 +333,7 @@ class MultiParagraphIntegrationTest {
         val text = createAnnotatedString("a", "\u05D0", " ")
         val paragraph = simpleMultiParagraph(
             text = text,
-            paragraphStyle = ParagraphStyle(
+            style = TextStyle(
                 textDirectionAlgorithm = TextDirectionAlgorithm.ContentOrRtl
             )
         )
@@ -348,7 +348,7 @@ class MultiParagraphIntegrationTest {
         val text = createAnnotatedString("a", "\u05D0", " ")
         val paragraph = simpleMultiParagraph(
             text = text,
-            paragraphStyle = ParagraphStyle(
+            style = TextStyle(
                 textDirectionAlgorithm = TextDirectionAlgorithm.ForceLtr
             )
         )
@@ -364,7 +364,7 @@ class MultiParagraphIntegrationTest {
         val text = createAnnotatedString("a", "\u05D0", " ")
         val paragraph = simpleMultiParagraph(
             text = text,
-            paragraphStyle = ParagraphStyle(
+            style = TextStyle(
                 textDirectionAlgorithm = TextDirectionAlgorithm.ForceRtl
             )
         )
@@ -747,7 +747,7 @@ class MultiParagraphIntegrationTest {
         val paragraph = simpleMultiParagraph(
             text = text,
             width = width,
-            paragraphStyle = ParagraphStyle(textAlign = TextAlign.Left)
+            style = TextStyle(textAlign = TextAlign.Left)
         )
 
         // When text align to left, line left should be 0 for both Ltr and Rtl text.
@@ -767,7 +767,7 @@ class MultiParagraphIntegrationTest {
         val paragraph = simpleMultiParagraph(
             text = text,
             width = width,
-            paragraphStyle = ParagraphStyle(textAlign = TextAlign.Right)
+            style = TextStyle(textAlign = TextAlign.Right)
         )
 
         // When text align to right, line right should be width for both Ltr and Rtl text.
@@ -792,7 +792,7 @@ class MultiParagraphIntegrationTest {
                 text = text,
                 fontSize = fontSize,
                 width = width,
-                paragraphStyle = ParagraphStyle(textAlign = TextAlign.Center)
+                style = TextStyle(textAlign = TextAlign.Center)
             )
 
             val expectedLineLeft = width / 2 - (fontSizeInPx * textLtr.length) / 2
@@ -819,7 +819,7 @@ class MultiParagraphIntegrationTest {
 
         val paragraph = simpleMultiParagraph(
             text = text,
-            paragraphStyle = ParagraphStyle(textAlign = TextAlign.Justify),
+            style = TextStyle(textAlign = TextAlign.Justify),
             width = width
         )
 
@@ -847,7 +847,7 @@ class MultiParagraphIntegrationTest {
             val paragraph = simpleMultiParagraph(
                 text = text,
                 fontSize = fontSize,
-                paragraphStyle = ParagraphStyle(textAlign = TextAlign.Justify),
+                style = TextStyle(textAlign = TextAlign.Justify),
                 width = width
             )
 
@@ -878,7 +878,7 @@ class MultiParagraphIntegrationTest {
 
         val paragraph = simpleMultiParagraph(
             text = text,
-            paragraphStyle = ParagraphStyle(textAlign = TextAlign.Start),
+            style = TextStyle(textAlign = TextAlign.Start),
             width = width
         )
         // When text align to start, Ltr text aligns to left, line left should be 0.
@@ -898,7 +898,7 @@ class MultiParagraphIntegrationTest {
 
         val paragraph = simpleMultiParagraph(
             text = text,
-            paragraphStyle = ParagraphStyle(textAlign = TextAlign.End),
+            style = TextStyle(textAlign = TextAlign.End),
             width = width
         )
         // When text align to start, Ltr text aligns to right, line right should be width.
@@ -954,9 +954,7 @@ class MultiParagraphIntegrationTest {
             val paragraph = simpleMultiParagraph(
                 text = text,
                 fontSize = fontSize,
-                paragraphStyle = ParagraphStyle(
-                    textDirectionAlgorithm = TextDirectionAlgorithm.ContentOrLtr
-                ),
+                style = TextStyle(textDirectionAlgorithm = TextDirectionAlgorithm.ContentOrLtr),
                 width = width
             )
 
@@ -988,9 +986,7 @@ class MultiParagraphIntegrationTest {
             val paragraph = simpleMultiParagraph(
                 text = text,
                 fontSize = fontSize,
-                paragraphStyle = ParagraphStyle(
-                    textDirectionAlgorithm = TextDirectionAlgorithm.ContentOrRtl
-                ),
+                style = TextStyle(textDirectionAlgorithm = TextDirectionAlgorithm.ContentOrRtl),
                 width = width
             )
 
@@ -1022,9 +1018,7 @@ class MultiParagraphIntegrationTest {
             val paragraph = simpleMultiParagraph(
                 text = text,
                 fontSize = fontSize,
-                paragraphStyle = ParagraphStyle(
-                    textDirectionAlgorithm = TextDirectionAlgorithm.ForceLtr
-                ),
+                style = TextStyle(textDirectionAlgorithm = TextDirectionAlgorithm.ForceLtr),
                 width = width
             )
 
@@ -1056,9 +1050,7 @@ class MultiParagraphIntegrationTest {
             val paragraph = simpleMultiParagraph(
                 text = text,
                 fontSize = fontSize,
-                paragraphStyle = ParagraphStyle(
-                    textDirectionAlgorithm = TextDirectionAlgorithm.ForceRtl
-                ),
+                style = TextStyle(textDirectionAlgorithm = TextDirectionAlgorithm.ForceRtl),
                 width = width
             )
 
@@ -1088,7 +1080,7 @@ class MultiParagraphIntegrationTest {
             val paragraph = simpleMultiParagraph(
                 text = text,
                 fontSize = fontSize,
-                paragraphStyle = ParagraphStyle(lineHeight = lineHeight)
+                style = TextStyle(lineHeight = lineHeight)
             )
 
             // Height of first and last line in each paragraph is influenced by includePadding.
@@ -1112,10 +1104,8 @@ class MultiParagraphIntegrationTest {
             val width = 2 * fontSizeInPx
             val paragraph = simpleMultiParagraph(
                 text = text,
+                style = TextStyle(textIndent = TextIndent(firstLine = indent)),
                 fontSize = fontSize,
-                paragraphStyle = ParagraphStyle(
-                    textIndent = TextIndent(firstLine = indent)
-                ),
                 width = width
             )
             // The paragraph should be rendered as:
@@ -1145,9 +1135,7 @@ class MultiParagraphIntegrationTest {
             val paragraph = simpleMultiParagraph(
                 text = text,
                 fontSize = fontSize,
-                paragraphStyle = ParagraphStyle(
-                    textIndent = TextIndent(restLine = indent)
-                ),
+                style = TextStyle(textIndent = TextIndent(restLine = indent)),
                 width = width
             )
             // The paragraph should be rendered as:
@@ -1166,8 +1154,7 @@ class MultiParagraphIntegrationTest {
     fun constructor_throwsException_ifTextDirectionAlgorithmIsNotSet() {
         MultiParagraph(
             annotatedString = createAnnotatedString(""),
-            spanStyle = SpanStyle(),
-            paragraphStyle = ParagraphStyle(),
+            style = TextStyle(),
             constraints = ParagraphConstraints(Float.MAX_VALUE),
             density = defaultDensity,
             resourceLoader = TestFontResourceLoader(context)
@@ -1200,8 +1187,7 @@ class MultiParagraphIntegrationTest {
 
         val paragraph = MultiParagraph(
             annotatedString = text,
-            spanStyle = SpanStyle(),
-            paragraphStyle = ParagraphStyle(textDirectionAlgorithm = textDirectionAlgorithm),
+            style = TextStyle(textDirectionAlgorithm = textDirectionAlgorithm),
             constraints = ParagraphConstraints(Float.MAX_VALUE),
             density = defaultDensity,
             resourceLoader = TestFontResourceLoader(context)
@@ -1239,11 +1225,9 @@ class MultiParagraphIntegrationTest {
     ): MultiParagraphIntrinsics {
         return MultiParagraphIntrinsics(
             text,
-            spanStyle = SpanStyle(
+            style = TextStyle(
                 fontFamily = fontFamilyMeasureFont,
-                fontSize = fontSize
-            ),
-            paragraphStyle = ParagraphStyle(
+                fontSize = fontSize,
                 textDirectionAlgorithm = TextDirectionAlgorithm.ContentOrLtr
             ),
             density = defaultDensity,
@@ -1253,21 +1237,18 @@ class MultiParagraphIntegrationTest {
 
     private fun simpleMultiParagraph(
         text: String,
+        style: TextStyle? = null,
         fontSize: TextUnit = TextUnit.Inherit,
-        paragraphStyle: ParagraphStyle = ParagraphStyle(),
         maxLines: Int = Int.MAX_VALUE,
         width: Float = Float.MAX_VALUE
     ): MultiParagraph {
         return MultiParagraph(
             annotatedString = createAnnotatedString(text),
-            spanStyle = SpanStyle(
+            style = TextStyle(
                 fontFamily = fontFamilyMeasureFont,
-                fontSize = fontSize
-            ),
-            paragraphStyle = paragraphStyle.textDirectionAlgorithm?.let { paragraphStyle }
-                ?: paragraphStyle.copy(
-                    textDirectionAlgorithm = TextDirectionAlgorithm.ContentOrLtr
-                ),
+                fontSize = fontSize,
+                textDirectionAlgorithm = TextDirectionAlgorithm.ContentOrLtr
+            ).merge(style),
             maxLines = maxLines,
             constraints = ParagraphConstraints(width),
             density = defaultDensity,
@@ -1277,21 +1258,18 @@ class MultiParagraphIntegrationTest {
 
     private fun simpleMultiParagraph(
         text: AnnotatedString,
+        style: TextStyle? = null,
         fontSize: TextUnit = TextUnit.Inherit,
-        paragraphStyle: ParagraphStyle = ParagraphStyle(),
         maxLines: Int = Int.MAX_VALUE,
         width: Float = Float.MAX_VALUE
     ): MultiParagraph {
         return MultiParagraph(
             annotatedString = text,
-            spanStyle = SpanStyle(
+            style = TextStyle(
                 fontFamily = fontFamilyMeasureFont,
-                fontSize = fontSize
-            ),
-            paragraphStyle = paragraphStyle.textDirectionAlgorithm?.let { paragraphStyle }
-                ?: paragraphStyle.copy(
-                    textDirectionAlgorithm = TextDirectionAlgorithm.ContentOrLtr
-                ),
+                fontSize = fontSize,
+                textDirectionAlgorithm = TextDirectionAlgorithm.ContentOrLtr
+            ).merge(style),
             maxLines = maxLines,
             constraints = ParagraphConstraints(width),
             density = defaultDensity,

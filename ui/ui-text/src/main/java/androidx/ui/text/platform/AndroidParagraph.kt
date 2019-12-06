@@ -37,9 +37,9 @@ import androidx.ui.graphics.Path
 import androidx.ui.text.AnnotatedString
 import androidx.ui.text.Paragraph
 import androidx.ui.text.ParagraphConstraints
-import androidx.ui.text.ParagraphStyle
 import androidx.ui.text.SpanStyle
 import androidx.ui.text.TextRange
+import androidx.ui.text.TextStyle
 import androidx.ui.text.style.TextAlign
 import androidx.ui.text.style.TextDirection
 import java.util.Locale as JavaLocale
@@ -56,8 +56,7 @@ internal class AndroidParagraph constructor(
 
     constructor(
         text: String,
-        spanStyle: SpanStyle,
-        paragraphStyle: ParagraphStyle,
+        style: TextStyle,
         spanStyles: List<AnnotatedString.Item<SpanStyle>>,
         maxLines: Int,
         ellipsis: Boolean,
@@ -67,8 +66,7 @@ internal class AndroidParagraph constructor(
     ) : this(
         paragraphIntrinsics = AndroidParagraphIntrinsics(
             text = text,
-            spanStyle = spanStyle,
-            paragraphStyle = paragraphStyle,
+            style = style,
             spanStyles = spanStyles,
             typefaceAdapter = typefaceAdapter,
             density = density
@@ -85,11 +83,11 @@ internal class AndroidParagraph constructor(
     init {
         require(maxLines >= 1) { "maxLines should be greater than 0" }
 
-        val paragraphStyle = paragraphIntrinsics.paragraphStyle
+        val style = paragraphIntrinsics.style
 
-        val alignment = toLayoutAlign(paragraphStyle.textAlign)
+        val alignment = toLayoutAlign(style.textAlign)
 
-        val justificationMode = when (paragraphStyle.textAlign) {
+        val justificationMode = when (style.textAlign) {
             TextAlign.Justify -> JUSTIFICATION_MODE_INTER_WORD
             else -> DEFAULT_JUSTIFICATION_MODE
         }

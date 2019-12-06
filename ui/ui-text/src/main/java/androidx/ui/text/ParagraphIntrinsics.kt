@@ -44,16 +44,14 @@ interface ParagraphIntrinsics {
  */
 /* actual */ fun ParagraphIntrinsics(
     text: String,
-    spanStyle: SpanStyle,
-    paragraphStyle: ParagraphStyle,
-    spanStyles: List<AnnotatedString.Item<SpanStyle>>,
+    style: TextStyle,
+    spanStyles: List<AnnotatedString.Item<SpanStyle>> = listOf(),
     density: Density,
     resourceLoader: Font.ResourceLoader
 ): ParagraphIntrinsics {
     return AndroidParagraphIntrinsics(
         text = text,
-        spanStyle = spanStyle,
-        paragraphStyle = paragraphStyle,
+        style = style,
         typefaceAdapter = TypefaceAdapter(
             resourceLoader = resourceLoader
         ),

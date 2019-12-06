@@ -177,8 +177,7 @@ fun Text(
         ) {
             TextDelegate(
                 text = text,
-                spanStyle = mergedStyle.toSpanStyle(),
-                paragraphStyle = mergedStyle.toParagraphStyle(),
+                style = mergedStyle,
                 softWrap = softWrap,
                 overflow = overflow,
                 maxLines = maxLines,
