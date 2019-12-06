@@ -29,8 +29,7 @@ internal fun <T : Any> PagingState.Producer<T>.init(
     placeholdersEnd: Int = 0,
     indexOfInitialPage: Int = 0
 ) = processEvent(
-    PageEvent.Insert(
-        loadType = LoadType.REFRESH,
+    PageEvent.Insert.Refresh(
         pages = listOfTransformablePages(pages, indexOfInitialPage),
         placeholdersStart = placeholdersStart,
         placeholdersEnd = placeholdersEnd
@@ -42,19 +41,31 @@ internal fun <T : Any> PagingState.Producer<T>.insertPage(
     page: List<T>,
     originalPageOffset: Int,
     placeholdersRemaining: Int
-) = processEvent(
-    PageEvent.Insert(
-        loadType = if (isPrepend) LoadType.START else LoadType.END,
-        pages = listOf(
-            TransformablePage(
-                originalPageOffset = originalPageOffset,
-                data = page
-            )
-        ),
-        placeholdersStart = if (isPrepend) placeholdersRemaining else 0,
-        placeholdersEnd = if (isPrepend) 0 else placeholdersRemaining
+) = when (isPrepend) {
+    true -> processEvent(
+        PageEvent.Insert.Start(
+            pages = listOf(
+                TransformablePage(
+                    originalPageOffset = originalPageOffset,
+                    data = page
+                )
+            ),
+            placeholdersStart = placeholdersRemaining
+        )
     )
-)
+    false -> processEvent(
+        PageEvent.Insert.End(
+            pages = listOf(
+                TransformablePage(
+                    originalPageOffset = originalPageOffset,
+                    data = page
+                )
+            ),
+            placeholdersEnd = placeholdersRemaining
+        )
+    )
+}
+
 internal fun <T : Any> PagingState.Producer<T>.dropPages(
     isPrepend: Boolean,
     count: Int,

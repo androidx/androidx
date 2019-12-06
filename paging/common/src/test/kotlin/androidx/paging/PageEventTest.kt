@@ -16,7 +16,6 @@
 
 package androidx.paging
 
-import androidx.paging.LoadType.END
 import androidx.paging.LoadType.REFRESH
 import androidx.paging.LoadType.START
 import org.junit.Test
@@ -37,16 +36,14 @@ class PageEventTest {
     @Test
     fun placeholdersException() {
         assertFailsWith<IllegalArgumentException> {
-            PageEvent.Insert<Char>(
-                loadType = REFRESH,
+            PageEvent.Insert.Refresh<Char>(
                 pages = listOf(),
                 placeholdersStart = 1,
                 placeholdersEnd = -1
             )
         }
         assertFailsWith<IllegalArgumentException> {
-            PageEvent.Insert<Char>(
-                loadType = REFRESH,
+            PageEvent.Insert.Refresh<Char>(
                 pages = listOf(),
                 placeholdersStart = -1,
                 placeholdersEnd = 1
@@ -114,17 +111,13 @@ class PageEventTest {
 
     @Test
     fun insertMap() {
-        val insert = PageEvent.Insert(
-            loadType = END,
+        val insert = PageEvent.Insert.End(
             pages = listOf(TransformablePage(listOf('a', 'b'))),
-            placeholdersStart = 2,
             placeholdersEnd = 4
         )
         assertEquals(
-            PageEvent.Insert(
-                loadType = END,
+            PageEvent.Insert.End(
                 pages = listOf(TransformablePage(listOf("a", "b"))),
-                placeholdersStart = 2,
                 placeholdersEnd = 4
             ),
             insert.map { it.toString() }
@@ -139,26 +132,22 @@ class PageEventTest {
     @Test
     fun insertMapTransformed() {
         assertEquals(
-            PageEvent.Insert(
-                loadType = END,
+            PageEvent.Insert.End(
                 pages = listOf(TransformablePage(
                     originalPageOffset = 0,
                     data = listOf("a", "b"),
                     sourcePageSize = 4,
                     originalIndices = listOf(0, 2)
                 )),
-                placeholdersStart = 2,
                 placeholdersEnd = 4
             ),
-            PageEvent.Insert(
-                loadType = END,
+            PageEvent.Insert.End(
                 pages = listOf(TransformablePage(
                     originalPageOffset = 0,
                     data = listOf('a', 'b'),
                     sourcePageSize = 4,
                     originalIndices = listOf(0, 2)
                 )),
-                placeholdersStart = 2,
                 placeholdersEnd = 4
             ).map { it.toString() }
         )
@@ -166,18 +155,15 @@ class PageEventTest {
 
     @Test
     fun insertFilter() {
-        val insert = PageEvent.Insert(
-            loadType = END,
+        val insert = PageEvent.Insert.End(
             pages = listOf(TransformablePage(listOf('a', 'b', 'c', 'd'))),
-            placeholdersStart = 2,
             placeholdersEnd = 4
         )
 
         // filter out C
         val insertNoC = insert.filter { it != 'c' }
         assertEquals(
-            PageEvent.Insert(
-                loadType = END,
+            PageEvent.Insert.End(
                 pages = listOf(
                     TransformablePage(
                         originalPageOffset = 0,
@@ -186,7 +172,6 @@ class PageEventTest {
                         originalIndices = listOf(0, 1, 3)
                     )
                 ),
-                placeholdersStart = 2,
                 placeholdersEnd = 4
             ),
             insertNoC
@@ -194,8 +179,7 @@ class PageEventTest {
 
         // now filter out A, to validate filtration when lookup present
         assertEquals(
-            PageEvent.Insert(
-                loadType = END,
+            PageEvent.Insert.End(
                 pages = listOf(
                     TransformablePage(
                         originalPageOffset = 0,
@@ -204,7 +188,6 @@ class PageEventTest {
                         originalIndices = listOf(1, 3)
                     )
                 ),
-                placeholdersStart = 2,
                 placeholdersEnd = 4
             ),
             insertNoC.filter { it != 'a' }
@@ -213,10 +196,8 @@ class PageEventTest {
 
     @Test
     fun insertFlatMap() {
-        val insert = PageEvent.Insert(
-            loadType = END,
+        val insert = PageEvent.Insert.End(
             pages = listOf(TransformablePage(listOf('a', 'b'))),
-            placeholdersStart = 2,
             placeholdersEnd = 4
         )
 
@@ -225,8 +206,7 @@ class PageEventTest {
         }
 
         assertEquals(
-            PageEvent.Insert(
-                loadType = END,
+            PageEvent.Insert.End(
                 pages = listOf(
                     TransformablePage(
                         originalPageOffset = 0,
@@ -235,7 +215,6 @@ class PageEventTest {
                         originalIndices = listOf(0, 0, 1, 1)
                     )
                 ),
-                placeholdersStart = 2,
                 placeholdersEnd = 4
             ),
             flatMapped
@@ -246,8 +225,7 @@ class PageEventTest {
         }
 
         assertEquals(
-            PageEvent.Insert(
-                loadType = END,
+            PageEvent.Insert.End(
                 pages = listOf(
                     TransformablePage(
                         originalPageOffset = 0,
@@ -256,7 +234,6 @@ class PageEventTest {
                         originalIndices = listOf(0, 0, 0, 0, 1, 1, 1, 1)
                     )
                 ),
-                placeholdersStart = 2,
                 placeholdersEnd = 4
             ),
             flatMappedAgain
