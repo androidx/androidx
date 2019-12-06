@@ -946,13 +946,15 @@ public final class CameraX {
                             Exception e = null;
                             try {
                                 mContext = context.getApplicationContext();
-                                mCameraFactory = cameraXConfig.getCameraFactory(null);
-                                if (mCameraFactory == null) {
+                                CameraFactory.Provider cameraFactoryProvider =
+                                        cameraXConfig.getCameraFactoryProvider(null);
+                                if (cameraFactoryProvider == null) {
                                     e = new IllegalArgumentException(
                                             "Invalid app configuration provided. Missing "
                                                     + "CameraFactory.");
                                     return;
                                 }
+                                mCameraFactory = cameraFactoryProvider.newInstance(context);
 
                                 CameraDeviceSurfaceManager.Provider surfaceManagerProvider =
                                         cameraXConfig.getDeviceSurfaceManagerProvider(null);

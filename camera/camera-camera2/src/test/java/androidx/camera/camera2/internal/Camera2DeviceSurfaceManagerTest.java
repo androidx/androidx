@@ -602,7 +602,7 @@ public final class Camera2DeviceSurfaceManagerTest {
 
         CameraXConfig.Builder appConfigBuilder =
                 new CameraXConfig.Builder()
-                        .setCameraFactory(mCameraFactory)
+                        .setCameraFactoryProvider(ignored -> mCameraFactory)
                         .setDeviceSurfaceManagerProvider(surfaceManagerProvider)
                         .setUseCaseConfigFactoryProvider(factoryProvider);
 

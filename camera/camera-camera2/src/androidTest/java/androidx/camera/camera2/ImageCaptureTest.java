@@ -70,6 +70,7 @@ import androidx.camera.testing.fakes.FakeCameraControl;
 import androidx.camera.testing.fakes.FakeCaptureStage;
 import androidx.camera.testing.fakes.FakeLifecycleOwner;
 import androidx.camera.testing.fakes.FakeUseCaseConfig;
+import androidx.core.util.Preconditions;
 import androidx.test.core.app.ApplicationProvider;
 import androidx.test.ext.junit.runners.AndroidJUnit4;
 import androidx.test.filters.LargeTest;
@@ -153,13 +154,14 @@ public final class ImageCaptureTest {
     }
 
     @Before
-    public void setUp() {
+    public void setUp() throws ExecutionException, InterruptedException {
         assumeTrue(CameraUtil.deviceHasCamera());
         mListenerExecutor = Executors.newSingleThreadExecutor();
         Context context = ApplicationProvider.getApplicationContext();
         CameraXConfig cameraXConfig = Camera2Config.defaultConfig(context);
-        CameraFactory cameraFactory = cameraXConfig.getCameraFactory(null);
-        CameraX.initialize(context, cameraXConfig);
+        CameraFactory cameraFactory = Preconditions.checkNotNull(
+                cameraXConfig.getCameraFactoryProvider(null)).newInstance(context);
+        CameraX.initialize(context, cameraXConfig).get();
         try {
             mCameraId = cameraFactory.cameraIdForLensFacing(BACK_LENS_FACING);
         } catch (Exception e) {

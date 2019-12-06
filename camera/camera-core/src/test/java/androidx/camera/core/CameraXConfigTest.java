@@ -24,7 +24,6 @@ import android.os.Build;
 
 import androidx.camera.core.impl.CameraDeviceSurfaceManager;
 import androidx.camera.testing.fakes.FakeAppConfig;
-import androidx.camera.testing.fakes.FakeCameraFactory;
 import androidx.test.filters.SmallTest;
 
 import org.junit.Before;
@@ -56,9 +55,10 @@ public class CameraXConfigTest {
     }
 
     @Test
-    public void canGetCameraFactory() {
-        CameraFactory cameraFactory = mCameraXConfig.getCameraFactory(/*valueIfMissing=*/ null);
-        assertThat(cameraFactory).isInstanceOf(FakeCameraFactory.class);
+    public void canGetCameraFactoryProvider() {
+        CameraFactory.Provider cameraFactoryProvider = mCameraXConfig.getCameraFactoryProvider(
+                /*valueIfMissing=*/ null);
+        assertThat(cameraFactoryProvider).isInstanceOf(CameraFactory.Provider.class);
     }
 
     @Test

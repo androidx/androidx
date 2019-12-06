@@ -52,7 +52,7 @@ public final class Camera2Config {
         Preconditions.checkNotNull(c);
 
         // Create the camera factory for creating Camera2 camera objects
-        CameraFactory cameraFactory = new Camera2CameraFactory(c);
+        CameraFactory.Provider cameraFactoryProvider = Camera2CameraFactory::new;
 
         // Create the DeviceSurfaceManager for Camera2
         CameraDeviceSurfaceManager.Provider surfaceManagerProvider =
@@ -77,7 +77,7 @@ public final class Camera2Config {
 
         CameraXConfig.Builder appConfigBuilder =
                 new CameraXConfig.Builder()
-                        .setCameraFactory(cameraFactory)
+                        .setCameraFactoryProvider(cameraFactoryProvider)
                         .setDeviceSurfaceManagerProvider(surfaceManagerProvider)
                         .setUseCaseConfigFactoryProvider(configFactoryProvider);
 

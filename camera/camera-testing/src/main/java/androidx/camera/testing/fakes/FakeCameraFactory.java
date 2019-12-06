@@ -57,9 +57,6 @@ public final class FakeCameraFactory implements CameraFactory {
     @SuppressWarnings("WeakerAccess") /* synthetic accessor */
     final Map<String, Pair<Integer, Callable<CameraInternal>>> mCameraMap = new HashMap<>();
 
-    public FakeCameraFactory() {
-    }
-
     @Override
     @NonNull
     public CameraInternal getCamera(@NonNull String cameraId) {

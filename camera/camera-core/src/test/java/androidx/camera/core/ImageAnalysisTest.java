@@ -89,12 +89,15 @@ public class ImageAnalysisTest {
 
         ShadowImageReader.clear();
 
-        FakeCameraFactory cameraFactory = new FakeCameraFactory();
-        cameraFactory.insertDefaultBackCamera(ShadowCameraX.DEFAULT_CAMERA_ID,
-                () -> new FakeCamera(ShadowCameraX.DEFAULT_CAMERA_ID));
+        CameraFactory.Provider cameraFactoryProvider = ignored -> {
+            FakeCameraFactory cameraFactory = new FakeCameraFactory();
+            cameraFactory.insertDefaultBackCamera(ShadowCameraX.DEFAULT_CAMERA_ID,
+                    () -> new FakeCamera(ShadowCameraX.DEFAULT_CAMERA_ID));
+            return cameraFactory;
+        };
 
         CameraXConfig cameraXConfig = CameraXConfig.Builder.fromConfig(
-                FakeAppConfig.create()).setCameraFactory(cameraFactory).build();
+                FakeAppConfig.create()).setCameraFactoryProvider(cameraFactoryProvider).build();
 
         Context context = ApplicationProvider.getApplicationContext();
         CameraX.initialize(context, cameraXConfig);

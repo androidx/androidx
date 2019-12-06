@@ -101,13 +101,14 @@ public final class PreviewTest {
 
 
     @Before
-    public void setUp() {
+    public void setUp() throws ExecutionException, InterruptedException {
         assumeTrue(CameraUtil.deviceHasCamera());
         Context context = ApplicationProvider.getApplicationContext();
         CameraXConfig cameraXConfig = Camera2Config.defaultConfig(context);
-        CameraX.initialize(context, cameraXConfig);
-        CameraFactory cameraFactory = Preconditions.checkNotNull(cameraXConfig.getCameraFactory(
-                /*valueIfMissing=*/ null));
+        CameraX.initialize(context, cameraXConfig).get();
+        CameraFactory cameraFactory = Preconditions.checkNotNull(
+                cameraXConfig.getCameraFactoryProvider(/*valueIfMissing=*/ null))
+                .newInstance(context);
         try {
             mCameraId = cameraFactory.cameraIdForLensFacing(CameraSelector.LENS_FACING_BACK);
         } catch (Exception e) {

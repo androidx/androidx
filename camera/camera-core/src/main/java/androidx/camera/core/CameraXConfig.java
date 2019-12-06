@@ -67,8 +67,9 @@ public final class CameraXConfig implements TargetConfig<CameraX>, Config {
     // Option Declarations:
     // *********************************************************************************************
 
-    static final Option<CameraFactory> OPTION_CAMERA_FACTORY =
-            Option.create("camerax.core.appConfig.cameraFactory", CameraFactory.class);
+    static final Option<CameraFactory.Provider> OPTION_CAMERA_FACTORY_PROVIDER =
+            Option.create("camerax.core.appConfig.cameraFactoryProvider",
+                    CameraFactory.Provider.class);
     static final Option<CameraDeviceSurfaceManager.Provider>
             OPTION_DEVICE_SURFACE_MANAGER_PROVIDER =
             Option.create(
@@ -98,8 +99,9 @@ public final class CameraXConfig implements TargetConfig<CameraX>, Config {
      */
     @RestrictTo(Scope.LIBRARY_GROUP)
     @Nullable
-    public CameraFactory getCameraFactory(@Nullable CameraFactory valueIfMissing) {
-        return mConfig.retrieveOption(OPTION_CAMERA_FACTORY, valueIfMissing);
+    public CameraFactory.Provider getCameraFactoryProvider(
+            @Nullable CameraFactory.Provider valueIfMissing) {
+        return mConfig.retrieveOption(OPTION_CAMERA_FACTORY_PROVIDER, valueIfMissing);
     }
 
     /**
@@ -271,11 +273,12 @@ public final class CameraXConfig implements TargetConfig<CameraX>, Config {
          * Sets the {@link CameraFactory} implementation for the application.
          *
          * @hide
+         * @param cameraFactory
          */
         @RestrictTo(Scope.LIBRARY_GROUP)
         @NonNull
-        public Builder setCameraFactory(@NonNull CameraFactory cameraFactory) {
-            getMutableConfig().insertOption(OPTION_CAMERA_FACTORY, cameraFactory);
+        public Builder setCameraFactoryProvider(@NonNull CameraFactory.Provider cameraFactory) {
+            getMutableConfig().insertOption(OPTION_CAMERA_FACTORY_PROVIDER, cameraFactory);
             return this;
         }
 
