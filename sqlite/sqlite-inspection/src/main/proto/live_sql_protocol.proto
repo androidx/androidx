@@ -40,7 +40,7 @@ message TrackDatabasesCommand {}
 // Request for the Inspector to return schema information for a given database.
 message GetSchemaCommand {
   // Id uniquely identifying a connection to the database.
-  int32 id = 1;
+  int32 database_id = 1;
 }
 
 // --- Responses ---
@@ -104,7 +104,7 @@ message Event {
 message DatabaseOpenedEvent {
   // Id uniquely identifying a connection to a database. Required to perform
   // requests on the database.
-  int32 id = 1;
+  int32 database_id = 1;
   // Display name of the database: depending on a database type, e.g. in case of
   // a vanilla SQLite database a path to the database. Note: it is not
   // necessarily unique between databases.
