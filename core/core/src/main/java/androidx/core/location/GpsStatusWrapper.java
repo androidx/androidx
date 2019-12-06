@@ -69,7 +69,7 @@ class GpsStatusWrapper extends GnssStatusCompat {
     public int getSatelliteCount() {
         synchronized (mWrapped) {
             if (mCachedSatelliteCount == -1) {
-                for (GpsSatellite ignored : mWrapped.getSatellites()) {
+                for (@SuppressWarnings("unused") GpsSatellite ignored : mWrapped.getSatellites()) {
                     mCachedSatelliteCount++;
                 }
                 mCachedSatelliteCount++;
