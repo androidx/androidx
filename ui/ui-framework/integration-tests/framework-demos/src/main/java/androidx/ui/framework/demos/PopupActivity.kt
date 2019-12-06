@@ -57,7 +57,6 @@ import androidx.ui.layout.ColumnScope
 import androidx.ui.layout.ExpandedHeight
 import androidx.ui.layout.ExpandedWidth
 import androidx.ui.layout.Gravity
-import androidx.ui.text.ParagraphStyle
 import androidx.ui.text.TextStyle
 import androidx.ui.text.style.TextAlign
 
@@ -117,7 +116,7 @@ class PopupActivity : Activity() {
 
                             Text(
                                 text = description,
-                                paragraphStyle = ParagraphStyle(textAlign = TextAlign.Center)
+                                style = TextStyle(textAlign = TextAlign.Center)
                             )
                         }
                     }
@@ -171,7 +170,7 @@ fun ColumnScope.PopupToggle() {
                         Container(width = 70.dp, height = 70.dp) {
                             Text(
                                 text = "This is a popup!",
-                                paragraphStyle = ParagraphStyle(textAlign = TextAlign.Center)
+                                style = TextStyle(textAlign = TextAlign.Center)
                             )
                         }
                     }

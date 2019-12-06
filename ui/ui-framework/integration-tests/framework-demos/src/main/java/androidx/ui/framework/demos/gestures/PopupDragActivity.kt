@@ -36,7 +36,7 @@ import androidx.ui.foundation.shape.corner.CircleShape
 import androidx.ui.graphics.Color
 import androidx.ui.layout.Container
 import androidx.ui.layout.Wrap
-import androidx.ui.text.ParagraphStyle
+import androidx.ui.text.TextStyle
 import androidx.ui.text.style.TextAlign
 
 class PopupDragActivity : Activity() {
@@ -65,7 +65,7 @@ class PopupDragActivity : Activity() {
                         Container(width = 70.dp, height = 70.dp) {
                             Text(
                                 text = "This is a popup!",
-                                paragraphStyle = ParagraphStyle(textAlign = TextAlign.Center)
+                                style = TextStyle(textAlign = TextAlign.Center)
                             )
                         }
                     }

@@ -3,14 +3,6 @@ ArrayReturn: androidx.ui.core.LayoutKt#Layout(kotlin.jvm.functions.Function0<kot
     Method parameter should be Collection<Function0> (or subclass) instead of raw array; was `kotlin.jvm.functions.Function0<kotlin.Unit>[]`
 
 
-AutoBoxing: androidx.ui.core.TextKt#Text(String, androidx.ui.core.Modifier, androidx.ui.text.TextStyle, androidx.ui.text.ParagraphStyle, boolean, androidx.ui.text.style.TextOverflow, Integer) parameter #6:
-    Must avoid boxed primitives (`java.lang.Integer`)
-AutoBoxing: androidx.ui.core.TextKt#Text(androidx.ui.core.Modifier, androidx.ui.text.TextStyle, androidx.ui.text.ParagraphStyle, boolean, androidx.ui.text.style.TextOverflow, Integer, kotlin.jvm.functions.Function1<? super androidx.ui.core.TextSpanScope,kotlin.Unit>) parameter #5:
-    Must avoid boxed primitives (`java.lang.Integer`)
-AutoBoxing: androidx.ui.core.TextKt#Text(androidx.ui.text.AnnotatedString, androidx.ui.core.Modifier, androidx.ui.text.TextStyle, androidx.ui.text.ParagraphStyle, boolean, androidx.ui.text.style.TextOverflow, Integer) parameter #6:
-    Must avoid boxed primitives (`java.lang.Integer`)
-
-
 CallbackName: androidx.ui.core.gesture.DragObserver:
     Class should be named DragCallback
 CallbackName: androidx.ui.core.gesture.LongPressDragObserver:

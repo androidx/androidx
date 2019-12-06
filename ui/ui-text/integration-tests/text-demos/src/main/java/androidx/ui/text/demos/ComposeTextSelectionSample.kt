@@ -36,22 +36,15 @@ import androidx.ui.layout.Column
 import androidx.ui.layout.FlexRow
 import androidx.ui.layout.Padding
 import androidx.ui.text.AnnotatedString
-import androidx.ui.text.ParagraphStyle
 import androidx.ui.text.SpanStyle
 import androidx.ui.text.TextStyle
 import androidx.ui.text.withStyle
 
-val commonStyle = TextStyle(fontSize = 16.sp, color = Color(0xFF9e9e9e))
-val commonParagraph = ParagraphStyle(lineHeight = 22.sp)
-
-val header = TextStyle(fontSize = 22.sp, color = Color(0xFF707070))
-val headerParagraph = ParagraphStyle(lineHeight = 36.sp)
-val header2 = TextStyle(fontSize = 18.sp, color = Color(0xFF707070))
-val header2Paragraph = ParagraphStyle(lineHeight = 30.sp)
-
+val commonStyle = TextStyle(fontSize = 16.sp, color = Color(0xFF9e9e9e), lineHeight = 22.sp)
+val header = TextStyle(fontSize = 22.sp, color = Color(0xFF707070), lineHeight = 36.sp)
+val header2 = TextStyle(fontSize = 18.sp, color = Color(0xFF707070), lineHeight = 30.sp)
 val link = SpanStyle(color = Color(0xFF03a9f4))
 val highlight = SpanStyle(background = Color(0xFFefefef))
-
 val rectColor = Color(0xFFffb74d)
 
 val langContent = arrayOf(
@@ -109,8 +102,7 @@ fun TextSelectionSample() {
 fun Basics() {
     Text(
         text = "Jetpack Compose Basics",
-        style = commonStyle.merge(header),
-        paragraphStyle = headerParagraph
+        style = commonStyle.merge(header)
     )
     FlexRow {
         inflexible {
@@ -123,8 +115,7 @@ fun Basics() {
                 text = "Jetpack Compose is a modern toolkit for building native Android UI." +
                         " Jetpack Compose simplifies and accelerates UI development on Android " +
                         "with less code, powerful tools, and intuitive Kotlin APIs.",
-                style = commonStyle,
-                paragraphStyle = commonParagraph
+                style = commonStyle
             )
         }
     }
@@ -134,8 +125,7 @@ fun Basics() {
 fun AddTextElement() {
     Text(
         text = "Add a text element",
-        style = commonStyle.merge(header2),
-        paragraphStyle = header2Paragraph
+        style = commonStyle.merge(header2)
     )
     FlexRow {
         flexible(1f) {
@@ -152,8 +142,7 @@ fun AddTextElement() {
                                     "defining a content block, and calling the Text() function."
                         )
                     },
-                    style = commonStyle,
-                    paragraphStyle = commonParagraph
+                    style = commonStyle
                 )
             }
         }
@@ -190,20 +179,19 @@ fun AddTextElement() {
 fun MultiParagraph() {
     Text(
         text = "Define a composable function (Multi Paragraph)",
-        style = commonStyle.merge(header2),
-        paragraphStyle = header2Paragraph
+        style = commonStyle.merge(header2)
     )
     Text(
         text = AnnotatedString {
             withStyle(commonStyle.toSpanStyle()) {
-                withStyle(commonParagraph) {
+                withStyle(commonStyle.toParagraphStyle()) {
                     append(
                         "Composable functions can only be called from within the scope of " +
                                 "other composable functions. To make a function composable, add " +
                                 "the @Composable annotation. "
                     )
                 }
-                withStyle(commonParagraph) {
+                withStyle(commonStyle.toParagraphStyle()) {
                     append(
                         "To try this out, define a Greeting() function which is passed a " +
                                 "name, and uses that name to configure the text element."
@@ -225,8 +213,7 @@ fun MultiParagraph() {
 fun MultiLanguage(title: String, content: String) {
     Text(
         text = title,
-        style = commonStyle.merge(header),
-        paragraphStyle = headerParagraph
+        style = commonStyle.merge(header)
     )
     FlexRow {
         inflexible {
@@ -237,8 +224,7 @@ fun MultiLanguage(title: String, content: String) {
         flexible(1f) {
             Text(
                 text = content,
-                style = commonStyle,
-                paragraphStyle = commonParagraph
+                style = commonStyle
             )
         }
     }
