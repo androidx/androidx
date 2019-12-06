@@ -2141,19 +2141,45 @@ class ParagraphIntegrationTest {
     }
 
     @Test
-    fun lineHeight_returnsSameAsGiven() {
+    fun lineHeight_inSp() {
         withDensity(defaultDensity) {
             val text = "abcdefgh"
-            val fontSize = 20.sp
-            val fontSizeInPx = fontSize.toPx().value
+            val fontSize = 20f
             // Make the layout 4 lines
-            val layoutWidth = text.length * fontSizeInPx / 4
-            val lineHeight = 30.sp
+            val layoutWidth = text.length * fontSize / 4
+            val lineHeight = 30f
 
             val paragraph = simpleParagraph(
                 text = text,
-                fontSize = fontSize,
-                lineHeight = lineHeight,
+                fontSize = fontSize.sp,
+                lineHeight = lineHeight.sp,
+                constraints = ParagraphConstraints(width = layoutWidth)
+            )
+
+            assertThat(paragraph.lineCount).isEqualTo(4)
+            // First/last line is influenced by top/bottom padding
+            for (i in 1 until paragraph.lineCount - 1) {
+                val actualHeight = paragraph.getLineHeight(i)
+                // In the sample_font.ttf, the height of the line should be
+                // fontSize + 0.2f * fontSize(line gap)
+                assertWithMessage("line number $i").that(actualHeight).isEqualTo(lineHeight)
+            }
+        }
+    }
+
+    @Test
+    fun lineHeight_InEm() {
+        withDensity(defaultDensity) {
+            val text = "abcdefgh"
+            val fontSize = 20f
+            // Make the layout 4 lines
+            val layoutWidth = text.length * fontSize / 4
+            val lineHeight = 1.5f
+
+            val paragraph = simpleParagraph(
+                text = text,
+                fontSize = fontSize.sp,
+                lineHeight = lineHeight.em,
                 constraints = ParagraphConstraints(width = layoutWidth)
             )
 
@@ -2164,7 +2190,7 @@ class ParagraphIntegrationTest {
                 // In the sample_font.ttf, the height of the line should be
                 // fontSize + 0.2f * fontSize(line gap)
                 assertWithMessage("line number $i")
-                    .that(actualHeight).isEqualTo(lineHeight.toPx().value)
+                    .that(actualHeight).isEqualTo(lineHeight * fontSize)
             }
         }
     }

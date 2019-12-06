@@ -57,6 +57,7 @@ internal class AndroidParagraphIntrinsics(
 
         charSequence = createStyledText(
             text = text,
+            contextFontSize = textPaint.textSize,
             lineHeight = paragraphStyle.lineHeight,
             textIndent = paragraphStyle.textIndent,
             spanStyles = listOf(
