@@ -894,29 +894,11 @@ public abstract class FragmentManager {
     }
 
     void addRetainedFragment(@NonNull Fragment f) {
-        if (isStateSaved()) {
-            if (FragmentManager.isLoggingEnabled(Log.VERBOSE)) {
-                Log.v(TAG, "Ignoring addRetainedFragment as the state is already saved");
-            }
-            return;
-        }
-        boolean added = mNonConfig.addRetainedFragment(f);
-        if (added && FragmentManager.isLoggingEnabled(Log.VERBOSE)) {
-            Log.v(TAG, "Updating retained Fragments: Added " + f);
-        }
+        mNonConfig.addRetainedFragment(f);
     }
 
     void removeRetainedFragment(@NonNull Fragment f) {
-        if (isStateSaved()) {
-            if (isLoggingEnabled(Log.VERBOSE)) {
-                Log.v(TAG, "Ignoring removeRetainedFragment as the state is already saved");
-            }
-            return;
-        }
-        boolean removed = mNonConfig.removeRetainedFragment(f);
-        if (removed && isLoggingEnabled(Log.VERBOSE)) {
-            Log.v(TAG, "Updating retained Fragments: Removed " + f);
-        }
+        mNonConfig.removeRetainedFragment(f);
     }
 
     /**
@@ -2371,6 +2353,7 @@ public abstract class FragmentManager {
         execPendingActions(true);
 
         mStateSaved = true;
+        mNonConfig.setIsStateSaved(true);
 
         // First collect all active fragments.
         ArrayList<FragmentState> active = mFragmentStore.saveActiveFragments();
@@ -2550,11 +2533,14 @@ public abstract class FragmentManager {
         } else {
             mNonConfig = new FragmentManagerViewModel(false);
         }
+        // Ensure that the state is in sync with FragmentManager
+        mNonConfig.setIsStateSaved(isStateSaved());
     }
 
     void noteStateNotSaved() {
         mStateSaved = false;
         mStopped = false;
+        mNonConfig.setIsStateSaved(false);
         for (Fragment fragment : mFragmentStore.getFragments()) {
             if (fragment != null) {
                 fragment.noteStateNotSaved();
@@ -2565,24 +2551,28 @@ public abstract class FragmentManager {
     void dispatchCreate() {
         mStateSaved = false;
         mStopped = false;
+        mNonConfig.setIsStateSaved(false);
         dispatchStateChange(Fragment.CREATED);
     }
 
     void dispatchActivityCreated() {
         mStateSaved = false;
         mStopped = false;
+        mNonConfig.setIsStateSaved(false);
         dispatchStateChange(Fragment.ACTIVITY_CREATED);
     }
 
     void dispatchStart() {
         mStateSaved = false;
         mStopped = false;
+        mNonConfig.setIsStateSaved(false);
         dispatchStateChange(Fragment.STARTED);
     }
 
     void dispatchResume() {
         mStateSaved = false;
         mStopped = false;
+        mNonConfig.setIsStateSaved(false);
         dispatchStateChange(Fragment.RESUMED);
     }
 
@@ -2592,6 +2582,7 @@ public abstract class FragmentManager {
 
     void dispatchStop() {
         mStopped = true;
+        mNonConfig.setIsStateSaved(true);
         dispatchStateChange(Fragment.ACTIVITY_CREATED);
     }
 
