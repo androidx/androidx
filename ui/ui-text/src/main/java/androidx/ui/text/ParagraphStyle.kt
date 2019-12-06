@@ -21,11 +21,12 @@ import androidx.ui.core.TextUnit
 import androidx.ui.text.style.TextAlign
 import androidx.ui.text.style.TextDirectionAlgorithm
 import androidx.ui.text.style.TextIndent
+import androidx.ui.text.style.lerp
 
 /**
- * Paragraph styling configuration for a paragraph. The difference between [TextStyle] and
+ * Paragraph styling configuration for a paragraph. The difference between [SpanStyle] and
  * `ParagraphStyle` is that, `ParagraphStyle` can be applied to a whole [Paragraph] while
- * [TextStyle] can be applied at the character level.
+ * [SpanStyle] can be applied at the character level.
  * Once a portion of the text is marked with a `ParagraphStyle`, that portion will be separated from
  * the remaining as if a line feed character was added.
  *
@@ -38,8 +39,10 @@ import androidx.ui.text.style.TextIndent
  * @param textIndent The indentation of the paragraph.
  * @param lineHeight Line height for the [Paragraph] in [TextUnit] unit, e.g. SP or EM.
  *
- * @see [Paragraph]
- * @see [AnnotatedString]
+ * @see Paragraph
+ * @see AnnotatedString
+ * @see SpanStyle
+ * @see TextStyle
  */
 @Immutable
 data class ParagraphStyle constructor(
@@ -74,7 +77,37 @@ data class ParagraphStyle constructor(
             },
             textIndent = other.textIndent ?: this.textIndent,
             textAlign = other.textAlign ?: this.textAlign,
-            textDirectionAlgorithm = other.textDirectionAlgorithm
+            textDirectionAlgorithm = other.textDirectionAlgorithm ?: this.textDirectionAlgorithm
         )
     }
+}
+
+/**
+ * Interpolate between two [ParagraphStyle]s.
+ *
+ * This will not work well if the styles don't set the same fields.
+ *
+ * The [fraction] argument represents position on the timeline, with 0.0 meaning
+ * that the interpolation has not started, returning [start] (or something
+ * equivalent to [start]), 1.0 meaning that the interpolation has finished,
+ * returning [stop] (or something equivalent to [stop]), and values in between
+ * meaning that the interpolation is at the relevant point on the timeline
+ * between [start] and [stop]. The interpolation can be extrapolated beyond 0.0 and
+ * 1.0, so negative values and values greater than 1.0 are valid.
+ */
+fun lerp(start: ParagraphStyle, stop: ParagraphStyle, fraction: Float): ParagraphStyle {
+    return ParagraphStyle(
+        textAlign = lerpDiscrete(start.textAlign, stop.textAlign, fraction),
+        textDirectionAlgorithm = lerpDiscrete(
+            start.textDirectionAlgorithm,
+            stop.textDirectionAlgorithm,
+            fraction
+        ),
+        lineHeight = lerpTextUnitInheritable(start.lineHeight, stop.lineHeight, fraction),
+        textIndent = lerp(
+            start.textIndent ?: TextIndent(),
+            stop.textIndent ?: TextIndent(),
+            fraction
+        )
+    )
 }

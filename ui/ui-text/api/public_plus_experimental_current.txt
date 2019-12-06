@@ -409,6 +409,11 @@ package androidx.ui.text {
     method public androidx.ui.text.ParagraphStyle merge(androidx.ui.text.ParagraphStyle? other = null);
   }
 
+  public final class ParagraphStyleKt {
+    ctor public ParagraphStyleKt();
+    method public static androidx.ui.text.ParagraphStyle lerp(androidx.ui.text.ParagraphStyle start, androidx.ui.text.ParagraphStyle stop, float fraction);
+  }
+
   public final class SpanStyle {
     ctor public SpanStyle(androidx.ui.graphics.Color? color, androidx.ui.core.TextUnit fontSize, androidx.ui.text.font.FontWeight? fontWeight, androidx.ui.text.font.FontStyle? fontStyle, androidx.ui.text.font.FontSynthesis? fontSynthesis, androidx.ui.text.font.FontFamily? fontFamily, String? fontFeatureSettings, androidx.ui.core.TextUnit letterSpacing, androidx.ui.text.style.BaselineShift? baselineShift, androidx.ui.text.style.TextGeometricTransform? textGeometricTransform, androidx.ui.text.LocaleList? localeList, androidx.ui.graphics.Color? background, androidx.ui.text.style.TextDecoration? decoration, androidx.ui.graphics.Shadow? shadow);
     ctor public SpanStyle();
@@ -504,7 +509,7 @@ package androidx.ui.text {
   }
 
   public final class TextStyle {
-    ctor public TextStyle(androidx.ui.graphics.Color? color, androidx.ui.core.TextUnit fontSize, androidx.ui.text.font.FontWeight? fontWeight, androidx.ui.text.font.FontStyle? fontStyle, androidx.ui.text.font.FontSynthesis? fontSynthesis, androidx.ui.text.font.FontFamily? fontFamily, String? fontFeatureSettings, androidx.ui.core.TextUnit letterSpacing, androidx.ui.text.style.BaselineShift? baselineShift, androidx.ui.text.style.TextGeometricTransform? textGeometricTransform, androidx.ui.text.LocaleList? localeList, androidx.ui.graphics.Color? background, androidx.ui.text.style.TextDecoration? decoration, androidx.ui.graphics.Shadow? shadow);
+    ctor public TextStyle(androidx.ui.graphics.Color? color, androidx.ui.core.TextUnit fontSize, androidx.ui.text.font.FontWeight? fontWeight, androidx.ui.text.font.FontStyle? fontStyle, androidx.ui.text.font.FontSynthesis? fontSynthesis, androidx.ui.text.font.FontFamily? fontFamily, String? fontFeatureSettings, androidx.ui.core.TextUnit letterSpacing, androidx.ui.text.style.BaselineShift? baselineShift, androidx.ui.text.style.TextGeometricTransform? textGeometricTransform, androidx.ui.text.LocaleList? localeList, androidx.ui.graphics.Color? background, androidx.ui.text.style.TextDecoration? decoration, androidx.ui.graphics.Shadow? shadow, androidx.ui.text.style.TextAlign? textAlign, androidx.ui.text.style.TextDirectionAlgorithm? textDirectionAlgorithm, androidx.ui.core.TextUnit lineHeight, androidx.ui.text.style.TextIndent? textIndent);
     ctor public TextStyle();
     method public androidx.ui.graphics.Color? component1();
     method public androidx.ui.text.style.TextGeometricTransform? component10();
@@ -512,6 +517,10 @@ package androidx.ui.text {
     method public androidx.ui.graphics.Color? component12();
     method public androidx.ui.text.style.TextDecoration? component13();
     method public androidx.ui.graphics.Shadow? component14();
+    method public androidx.ui.text.style.TextAlign? component15();
+    method public androidx.ui.text.style.TextDirectionAlgorithm? component16();
+    method public androidx.ui.core.TextUnit component17();
+    method public androidx.ui.text.style.TextIndent? component18();
     method public androidx.ui.core.TextUnit component2();
     method public androidx.ui.text.font.FontWeight? component3();
     method public androidx.ui.text.font.FontStyle? component4();
@@ -520,7 +529,7 @@ package androidx.ui.text {
     method public String? component7();
     method public androidx.ui.core.TextUnit component8();
     method public androidx.ui.text.style.BaselineShift? component9();
-    method public androidx.ui.text.TextStyle copy(androidx.ui.graphics.Color? color, androidx.ui.core.TextUnit fontSize, androidx.ui.text.font.FontWeight? fontWeight, androidx.ui.text.font.FontStyle? fontStyle, androidx.ui.text.font.FontSynthesis? fontSynthesis, androidx.ui.text.font.FontFamily? fontFamily, String? fontFeatureSettings, androidx.ui.core.TextUnit letterSpacing, androidx.ui.text.style.BaselineShift? baselineShift, androidx.ui.text.style.TextGeometricTransform? textGeometricTransform, androidx.ui.text.LocaleList? localeList, androidx.ui.graphics.Color? background, androidx.ui.text.style.TextDecoration? decoration, androidx.ui.graphics.Shadow? shadow);
+    method public androidx.ui.text.TextStyle copy(androidx.ui.graphics.Color? color, androidx.ui.core.TextUnit fontSize, androidx.ui.text.font.FontWeight? fontWeight, androidx.ui.text.font.FontStyle? fontStyle, androidx.ui.text.font.FontSynthesis? fontSynthesis, androidx.ui.text.font.FontFamily? fontFamily, String? fontFeatureSettings, androidx.ui.core.TextUnit letterSpacing, androidx.ui.text.style.BaselineShift? baselineShift, androidx.ui.text.style.TextGeometricTransform? textGeometricTransform, androidx.ui.text.LocaleList? localeList, androidx.ui.graphics.Color? background, androidx.ui.text.style.TextDecoration? decoration, androidx.ui.graphics.Shadow? shadow, androidx.ui.text.style.TextAlign? textAlign, androidx.ui.text.style.TextDirectionAlgorithm? textDirectionAlgorithm, androidx.ui.core.TextUnit lineHeight, androidx.ui.text.style.TextIndent? textIndent);
     method public androidx.ui.graphics.Color? getBackground();
     method public androidx.ui.text.style.BaselineShift? getBaselineShift();
     method public androidx.ui.graphics.Color? getColor();
@@ -532,10 +541,15 @@ package androidx.ui.text {
     method public androidx.ui.text.font.FontSynthesis? getFontSynthesis();
     method public androidx.ui.text.font.FontWeight? getFontWeight();
     method public androidx.ui.core.TextUnit getLetterSpacing();
+    method public androidx.ui.core.TextUnit getLineHeight();
     method public androidx.ui.text.LocaleList? getLocaleList();
     method public androidx.ui.graphics.Shadow? getShadow();
+    method public androidx.ui.text.style.TextAlign? getTextAlign();
+    method public androidx.ui.text.style.TextDirectionAlgorithm? getTextDirectionAlgorithm();
     method public androidx.ui.text.style.TextGeometricTransform? getTextGeometricTransform();
+    method public androidx.ui.text.style.TextIndent? getTextIndent();
     method public androidx.ui.text.TextStyle merge(androidx.ui.text.TextStyle? other = null);
+    method public androidx.ui.text.ParagraphStyle toParagraphStyle();
     method public androidx.ui.text.SpanStyle toSpanStyle();
   }
 

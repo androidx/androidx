@@ -16,19 +16,20 @@
 
 package androidx.ui.text
 
+import androidx.ui.core.TextUnit
 import androidx.ui.core.em
 import androidx.ui.core.sp
-import androidx.ui.text.style.BaselineShift
+import androidx.ui.graphics.Color
+import androidx.ui.graphics.lerp
+import androidx.ui.text.font.FontFamily
 import androidx.ui.text.font.FontStyle
 import androidx.ui.text.font.FontSynthesis
 import androidx.ui.text.font.FontWeight
+import androidx.ui.text.font.lerp
+import androidx.ui.text.style.BaselineShift
 import androidx.ui.text.style.TextDecoration
 import androidx.ui.text.style.TextGeometricTransform
-import androidx.ui.text.font.FontFamily
 import androidx.ui.text.style.lerp
-import androidx.ui.graphics.Color
-import androidx.ui.graphics.lerp
-import androidx.ui.text.font.lerp
 import com.google.common.truth.Truth.assertThat
 import org.junit.Test
 import org.junit.runner.RunWith
@@ -38,406 +39,355 @@ import org.junit.runners.JUnit4
 class SpanStyleTest {
     @Test
     fun `constructor with default values`() {
-        val spanStyle = SpanStyle()
+        val style = SpanStyle()
 
-        assertThat(spanStyle.color).isNull()
-        assertThat(spanStyle.fontSize.isInherit).isTrue()
-        assertThat(spanStyle.fontWeight).isNull()
-        assertThat(spanStyle.fontStyle).isNull()
-        assertThat(spanStyle.letterSpacing.isInherit).isTrue()
-        assertThat(spanStyle.localeList).isNull()
-        assertThat(spanStyle.background).isNull()
-        assertThat(spanStyle.decoration).isNull()
-        assertThat(spanStyle.fontFamily).isNull()
+        assertThat(style.color).isNull()
+        assertThat(style.fontSize.isInherit).isTrue()
+        assertThat(style.fontWeight).isNull()
+        assertThat(style.fontStyle).isNull()
+        assertThat(style.letterSpacing.isInherit).isTrue()
+        assertThat(style.localeList).isNull()
+        assertThat(style.background).isNull()
+        assertThat(style.decoration).isNull()
+        assertThat(style.fontFamily).isNull()
     }
 
     @Test
     fun `constructor with customized color`() {
-        val color = Color(0xFF00FF00)
+        val color = Color.Red
 
-        val spanStyle = SpanStyle(color = color)
+        val style = SpanStyle(color = color)
 
-        assertThat(spanStyle.color).isEqualTo(color)
+        assertThat(style.color).isEqualTo(color)
     }
 
     @Test
     fun `constructor with customized fontSize`() {
         val fontSize = 18.sp
 
-        val spanStyle = SpanStyle(fontSize = fontSize)
+        val style = SpanStyle(fontSize = fontSize)
 
-        assertThat(spanStyle.fontSize).isEqualTo(fontSize)
+        assertThat(style.fontSize).isEqualTo(fontSize)
     }
 
     @Test
     fun `constructor with customized fontWeight`() {
         val fontWeight = FontWeight.W500
 
-        val spanStyle = SpanStyle(fontWeight = fontWeight)
+        val style = SpanStyle(fontWeight = fontWeight)
 
-        assertThat(spanStyle.fontWeight).isEqualTo(fontWeight)
+        assertThat(style.fontWeight).isEqualTo(fontWeight)
     }
 
     @Test
     fun `constructor with customized fontStyle`() {
         val fontStyle = FontStyle.Italic
 
-        val spanStyle = SpanStyle(fontStyle = fontStyle)
+        val style = SpanStyle(fontStyle = fontStyle)
 
-        assertThat(spanStyle.fontStyle).isEqualTo(fontStyle)
+        assertThat(style.fontStyle).isEqualTo(fontStyle)
     }
 
     @Test
     fun `constructor with customized letterSpacing`() {
         val letterSpacing = 1.em
 
-        val spanStyle = SpanStyle(letterSpacing = letterSpacing)
+        val style = SpanStyle(letterSpacing = letterSpacing)
 
-        assertThat(spanStyle.letterSpacing).isEqualTo(letterSpacing)
+        assertThat(style.letterSpacing).isEqualTo(letterSpacing)
     }
 
     @Test
     fun `constructor with customized baselineShift`() {
         val baselineShift = BaselineShift.Superscript
 
-        val spanStyle = SpanStyle(baselineShift = baselineShift)
+        val style = SpanStyle(baselineShift = baselineShift)
 
-        assertThat(spanStyle.baselineShift).isEqualTo(baselineShift)
+        assertThat(style.baselineShift).isEqualTo(baselineShift)
     }
 
     @Test
     fun `constructor with customized locale`() {
         val localeList = LocaleList("en-US")
 
-        val spanStyle = SpanStyle(localeList = localeList)
+        val style = SpanStyle(localeList = localeList)
 
-        assertThat(spanStyle.localeList).isEqualTo(localeList)
+        assertThat(style.localeList).isEqualTo(localeList)
     }
 
     @Test
     fun `constructor with customized background`() {
-        val color = Color(0xFF00FF00)
+        val color = Color.Red
 
-        val spanStyle = SpanStyle(background = color)
+        val style = SpanStyle(background = color)
 
-        assertThat(spanStyle.background).isEqualTo(color)
+        assertThat(style.background).isEqualTo(color)
     }
 
     @Test
     fun `constructor with customized decoration`() {
         val decoration = TextDecoration.Underline
 
-        val spanStyle = SpanStyle(decoration = decoration)
+        val style = SpanStyle(decoration = decoration)
 
-        assertThat(spanStyle.decoration).isEqualTo(decoration)
+        assertThat(style.decoration).isEqualTo(decoration)
     }
 
     @Test
     fun `constructor with customized fontFamily`() {
         val fontFamily = FontFamily(genericFamily = "sans-serif")
 
-        val spanStyle = SpanStyle(fontFamily = fontFamily)
+        val style = SpanStyle(fontFamily = fontFamily)
 
-        assertThat(spanStyle.fontFamily).isEqualTo(fontFamily)
+        assertThat(style.fontFamily).isEqualTo(fontFamily)
     }
 
     @Test
     fun `merge with empty other should return this`() {
-        val spanStyle = SpanStyle()
+        val style = SpanStyle()
 
-        val newSpanStyle = spanStyle.merge()
+        val newSpanStyle = style.merge()
 
-        assertThat(newSpanStyle).isEqualTo(spanStyle)
+        assertThat(newSpanStyle).isEqualTo(style)
     }
 
     @Test
     fun `merge with other's color is null should use this' color`() {
-        val color = Color(0xFF00FF00)
-        val spanStyle = SpanStyle(color = color)
-        val otherSpanStyle = SpanStyle()
+        val style = SpanStyle(color = Color.Red)
 
-        val newSpanStyle = spanStyle.merge(otherSpanStyle)
+        val newSpanStyle = style.merge(SpanStyle(color = null))
 
-        assertThat(newSpanStyle.color).isEqualTo(color)
+        assertThat(newSpanStyle.color).isEqualTo(style.color)
     }
 
     @Test
     fun `merge with other's color is set should use other's color`() {
-        val color = Color(0xFF00FF00)
-        val otherColor = Color(0x00FFFF00)
-        val spanStyle = SpanStyle(color = color)
-        val otherSpanStyle = SpanStyle(color = otherColor)
+        val style = SpanStyle(color = Color.Red)
+        val otherStyle = SpanStyle(color = Color.Green)
 
-        val newSpanStyle = spanStyle.merge(otherSpanStyle)
+        val newSpanStyle = style.merge(otherStyle)
 
-        assertThat(newSpanStyle.color).isEqualTo(otherColor)
+        assertThat(newSpanStyle.color).isEqualTo(otherStyle.color)
     }
 
     @Test
     fun `merge with other's fontFamily is null should use this' fontFamily`() {
-        val fontFamily = FontFamily(genericFamily = "sans-serif")
-        val spanStyle = SpanStyle(fontFamily = fontFamily)
-        val otherSpanStyle = SpanStyle()
+        val style = SpanStyle(fontFamily = FontFamily(genericFamily = "sans-serif"))
 
-        val newSpanStyle = spanStyle.merge(otherSpanStyle)
+        val newSpanStyle = style.merge(SpanStyle(fontFamily = null))
 
-        assertThat(newSpanStyle.fontFamily).isEqualTo(fontFamily)
+        assertThat(newSpanStyle.fontFamily).isEqualTo(style.fontFamily)
     }
 
     @Test
     fun `merge with other's fontFamily is set should use other's fontFamily`() {
-        val fontFamily = FontFamily(genericFamily = "sans-serif")
-        val otherFontFamily = FontFamily(genericFamily = "serif")
-        val spanStyle = SpanStyle(fontFamily = fontFamily)
-        val otherSpanStyle = SpanStyle(fontFamily = otherFontFamily)
+        val style = SpanStyle(fontFamily = FontFamily(genericFamily = "sans-serif"))
+        val otherStyle = SpanStyle(fontFamily = FontFamily(genericFamily = "serif"))
 
-        val newSpanStyle = spanStyle.merge(otherSpanStyle)
+        val newSpanStyle = style.merge(otherStyle)
 
-        assertThat(newSpanStyle.fontFamily).isEqualTo(otherFontFamily)
+        assertThat(newSpanStyle.fontFamily).isEqualTo(otherStyle.fontFamily)
     }
 
     @Test
     fun `merge with other's fontSize is null should use this' fontSize`() {
-        val fontSize = 3.5.sp
-        val spanStyle = SpanStyle(fontSize = fontSize)
-        val otherSpanStyle = SpanStyle()
+        val style = SpanStyle(fontSize = 3.5.sp)
 
-        val newSpanStyle = spanStyle.merge(otherSpanStyle)
+        val newSpanStyle = style.merge(SpanStyle(fontSize = TextUnit.Inherit))
 
-        assertThat(newSpanStyle.fontSize).isEqualTo(fontSize)
+        assertThat(newSpanStyle.fontSize).isEqualTo(style.fontSize)
     }
 
     @Test
     fun `merge with other's fontSize is set should use other's fontSize`() {
-        val fontSize = 3.5.sp
-        val otherFontSize = 8.7.sp
-        val spanStyle = SpanStyle(fontSize = fontSize)
-        val otherSpanStyle = SpanStyle(fontSize = otherFontSize)
+        val style = SpanStyle(fontSize = 3.5.sp)
+        val otherStyle = SpanStyle(fontSize = 8.7.sp)
 
-        val newSpanStyle = spanStyle.merge(otherSpanStyle)
+        val newSpanStyle = style.merge(otherStyle)
 
-        assertThat(newSpanStyle.fontSize).isEqualTo(otherFontSize)
+        assertThat(newSpanStyle.fontSize).isEqualTo(otherStyle.fontSize)
     }
 
     @Test
     fun `merge with other's fontWeight is null should use this' fontWeight`() {
-        val fontWeight = FontWeight.W300
-        val spanStyle = SpanStyle(fontWeight = fontWeight)
-        val otherSpanStyle = SpanStyle()
+        val style = SpanStyle(fontWeight = FontWeight.W300)
 
-        val newSpanStyle = spanStyle.merge(otherSpanStyle)
+        val newSpanStyle = style.merge(SpanStyle(fontWeight = null))
 
-        assertThat(newSpanStyle.fontWeight).isEqualTo(fontWeight)
+        assertThat(newSpanStyle.fontWeight).isEqualTo(style.fontWeight)
     }
 
     @Test
     fun `merge with other's fontWeight is set should use other's fontWeight`() {
-        val fontWeight = FontWeight.W300
-        val otherFontWeight = FontWeight.W500
-        val spanStyle = SpanStyle(fontWeight = fontWeight)
-        val otherSpanStyle = SpanStyle(fontWeight = otherFontWeight)
+        val style = SpanStyle(fontWeight = FontWeight.W300)
+        val otherStyle = SpanStyle(fontWeight = FontWeight.W500)
 
-        val newSpanStyle = spanStyle.merge(otherSpanStyle)
+        val newSpanStyle = style.merge(otherStyle)
 
-        assertThat(newSpanStyle.fontWeight).isEqualTo(otherFontWeight)
+        assertThat(newSpanStyle.fontWeight).isEqualTo(otherStyle.fontWeight)
     }
 
     @Test
     fun `merge with other's fontStyle is null should use this' fontStyle`() {
-        val fontStyle = FontStyle.Italic
-        val spanStyle = SpanStyle(fontStyle = fontStyle)
-        val otherSpanStyle = SpanStyle()
+        val style = SpanStyle(fontStyle = FontStyle.Italic)
 
-        val newSpanStyle = spanStyle.merge(otherSpanStyle)
+        val newSpanStyle = style.merge(SpanStyle(fontStyle = null))
 
-        assertThat(newSpanStyle.fontStyle).isEqualTo(fontStyle)
+        assertThat(newSpanStyle.fontStyle).isEqualTo(style.fontStyle)
     }
 
     @Test
     fun `merge with other's fontStyle is set should use other's fontStyle`() {
-        val fontStyle = FontStyle.Italic
-        val otherFontStyle = FontStyle.Normal
-        val spanStyle = SpanStyle(fontStyle = fontStyle)
-        val otherSpanStyle = SpanStyle(fontStyle = otherFontStyle)
+        val style = SpanStyle(fontStyle = FontStyle.Normal)
+        val otherStyle = SpanStyle(fontStyle = FontStyle.Italic)
 
-        val newSpanStyle = spanStyle.merge(otherSpanStyle)
+        val newSpanStyle = style.merge(otherStyle)
 
-        assertThat(newSpanStyle.fontStyle).isEqualTo(otherFontStyle)
+        assertThat(newSpanStyle.fontStyle).isEqualTo(otherStyle.fontStyle)
     }
 
     @Test
     fun `merge with other's fontSynthesis is null should use this' fontSynthesis`() {
-        val fontSynthesis = FontSynthesis.Style
-        val spanStyle = SpanStyle(fontSynthesis = fontSynthesis)
-        val otherSpanStyle = SpanStyle()
+        val style = SpanStyle(fontSynthesis = FontSynthesis.Style)
 
-        val newSpanStyle = spanStyle.merge(otherSpanStyle)
+        val newSpanStyle = style.merge(SpanStyle(fontSynthesis = null))
 
-        assertThat(newSpanStyle.fontSynthesis).isEqualTo(fontSynthesis)
+        assertThat(newSpanStyle.fontSynthesis).isEqualTo(style.fontSynthesis)
     }
 
     @Test
     fun `merge with other's fontSynthesis is set should use other's fontSynthesis`() {
-        val fontSynthesis = FontSynthesis.Style
-        val otherFontSynthesis = FontSynthesis.Weight
+        val style = SpanStyle(fontSynthesis = FontSynthesis.Style)
+        val otherStyle = SpanStyle(fontSynthesis = FontSynthesis.Weight)
 
-        val spanStyle = SpanStyle(fontSynthesis = fontSynthesis)
-        val otherSpanStyle = SpanStyle(fontSynthesis = otherFontSynthesis)
+        val newSpanStyle = style.merge(otherStyle)
 
-        val newSpanStyle = spanStyle.merge(otherSpanStyle)
-
-        assertThat(newSpanStyle.fontSynthesis).isEqualTo(otherFontSynthesis)
+        assertThat(newSpanStyle.fontSynthesis).isEqualTo(otherStyle.fontSynthesis)
     }
 
     @Test
     fun `merge with other's fontFeature is null should use this' fontSynthesis`() {
-        val fontFeatureSettings = "\"kern\" 0"
-        val spanStyle = SpanStyle(fontFeatureSettings = fontFeatureSettings)
-        val otherSpanStyle = SpanStyle()
+        val style = SpanStyle(fontFeatureSettings = "\"kern\" 0")
 
-        val newSpanStyle = spanStyle.merge(otherSpanStyle)
+        val newSpanStyle = style.merge(SpanStyle(fontFeatureSettings = null))
 
-        assertThat(newSpanStyle.fontFeatureSettings).isEqualTo(fontFeatureSettings)
+        assertThat(newSpanStyle.fontFeatureSettings).isEqualTo(style.fontFeatureSettings)
     }
 
     @Test
     fun `merge with other's fontFeature is set should use other's fontSynthesis`() {
-        val fontFeatureSettings = "\"kern\" 0"
-        val otherFontFeatureSettings = "\"kern\" 1"
+        val style = SpanStyle(fontFeatureSettings = "\"kern\" 0")
+        val otherStyle = SpanStyle(fontFeatureSettings = "\"kern\" 1")
 
-        val spanStyle = SpanStyle(fontFeatureSettings = fontFeatureSettings)
-        val otherSpanStyle =
-            SpanStyle(fontFeatureSettings = otherFontFeatureSettings)
+        val newSpanStyle = style.merge(otherStyle)
 
-        val newSpanStyle = spanStyle.merge(otherSpanStyle)
-
-        assertThat(newSpanStyle.fontFeatureSettings).isEqualTo(otherFontFeatureSettings)
+        assertThat(newSpanStyle.fontFeatureSettings).isEqualTo(otherStyle.fontFeatureSettings)
     }
 
     @Test
     fun `merge with other's letterSpacing is null should use this' letterSpacing`() {
-        val letterSpacing = 1.2.em
-        val spanStyle = SpanStyle(letterSpacing = letterSpacing)
-        val otherSpanStyle = SpanStyle()
+        val style = SpanStyle(letterSpacing = 1.2.em)
 
-        val newSpanStyle = spanStyle.merge(otherSpanStyle)
+        val newSpanStyle = style.merge(SpanStyle(letterSpacing = TextUnit.Inherit))
 
-        assertThat(newSpanStyle.letterSpacing).isEqualTo(letterSpacing)
+        assertThat(newSpanStyle.letterSpacing).isEqualTo(style.letterSpacing)
     }
 
     @Test
     fun `merge with other's letterSpacing is set should use other's letterSpacing`() {
-        val letterSpacing = 1.2.em
-        val otherLetterSpacing = 1.5.em
-        val spanStyle = SpanStyle(letterSpacing = letterSpacing)
-        val otherSpanStyle = SpanStyle(letterSpacing = otherLetterSpacing)
+        val style = SpanStyle(letterSpacing = 1.2.em)
+        val otherStyle = SpanStyle(letterSpacing = 1.5.em)
 
-        val newSpanStyle = spanStyle.merge(otherSpanStyle)
+        val newSpanStyle = style.merge(otherStyle)
 
-        assertThat(newSpanStyle.letterSpacing).isEqualTo(otherLetterSpacing)
+        assertThat(newSpanStyle.letterSpacing).isEqualTo(otherStyle.letterSpacing)
     }
 
     @Test
     fun `merge with other's baselineShift is null should use this' baselineShift`() {
-        val baselineShift = BaselineShift.Superscript
-        val spanStyle = SpanStyle(baselineShift = baselineShift)
-        val otherSpanStyle = SpanStyle()
+        val style = SpanStyle(baselineShift = BaselineShift.Superscript)
 
-        val newSpanStyle = spanStyle.merge(otherSpanStyle)
+        val newSpanStyle = style.merge(SpanStyle(baselineShift = null))
 
-        assertThat(newSpanStyle.baselineShift).isEqualTo(baselineShift)
+        assertThat(newSpanStyle.baselineShift).isEqualTo(style.baselineShift)
     }
 
     @Test
     fun `merge with other's baselineShift is set should use other's baselineShift`() {
-        val baselineShift = BaselineShift.Superscript
-        val otherBaselineShift = BaselineShift.Subscript
-        val spanStyle = SpanStyle(baselineShift = baselineShift)
-        val otherSpanStyle = SpanStyle(baselineShift = otherBaselineShift)
+        val style = SpanStyle(baselineShift = BaselineShift.Superscript)
+        val otherStyle = SpanStyle(baselineShift = BaselineShift.Subscript)
 
-        val newSpanStyle = spanStyle.merge(otherSpanStyle)
+        val newSpanStyle = style.merge(otherStyle)
 
-        assertThat(newSpanStyle.baselineShift).isEqualTo(otherBaselineShift)
+        assertThat(newSpanStyle.baselineShift).isEqualTo(otherStyle.baselineShift)
     }
 
     @Test
     fun `merge with other's background is null should use this' background`() {
-        val color = Color(0xFF00FF00)
-        val spanStyle = SpanStyle(background = color)
-        val otherSpanStyle = SpanStyle()
+        val style = SpanStyle(background = Color.Red)
 
-        val newSpanStyle = spanStyle.merge(otherSpanStyle)
+        val newSpanStyle = style.merge(SpanStyle(background = null))
 
-        assertThat(newSpanStyle.background).isEqualTo(color)
+        assertThat(newSpanStyle.background).isEqualTo(style.background)
     }
 
     @Test
     fun `merge with other's background is set should use other's background`() {
-        val color = Color(0xFF00FF00)
-        val otherColor = Color(0xFF0000FF)
-        val spanStyle = SpanStyle(background = color)
-        val otherSpanStyle = SpanStyle(background = otherColor)
+        val style = SpanStyle(background = Color.Red)
+        val otherStyle = SpanStyle(background = Color.Green)
 
-        val newSpanStyle = spanStyle.merge(otherSpanStyle)
+        val newSpanStyle = style.merge(otherStyle)
 
-        assertThat(newSpanStyle.background).isEqualTo(otherColor)
+        assertThat(newSpanStyle.background).isEqualTo(otherStyle.background)
     }
 
     @Test
     fun `merge with other's decoration is null should use this' decoration`() {
-        val decoration = TextDecoration.LineThrough
-        val spanStyle = SpanStyle(decoration = decoration)
-        val otherSpanStyle = SpanStyle()
+        val style = SpanStyle(decoration = TextDecoration.LineThrough)
 
-        val newSpanStyle = spanStyle.merge(otherSpanStyle)
+        val newSpanStyle = style.merge(SpanStyle(decoration = null))
 
-        assertThat(newSpanStyle.decoration).isEqualTo(decoration)
+        assertThat(newSpanStyle.decoration).isEqualTo(style.decoration)
     }
 
     @Test
     fun `merge with other's decoration is set should use other's decoration`() {
-        val decoration = TextDecoration.LineThrough
-        val otherDecoration = TextDecoration.Underline
-        val spanStyle = SpanStyle(decoration = decoration)
-        val otherSpanStyle = SpanStyle(decoration = otherDecoration)
+        val style = SpanStyle(decoration = TextDecoration.LineThrough)
+        val otherStyle = SpanStyle(decoration = TextDecoration.Underline)
 
-        val newSpanStyle = spanStyle.merge(otherSpanStyle)
+        val newSpanStyle = style.merge(otherStyle)
 
-        assertThat(newSpanStyle.decoration).isEqualTo(otherDecoration)
+        assertThat(newSpanStyle.decoration).isEqualTo(otherStyle.decoration)
     }
 
     @Test
     fun `merge with other's locale is null should use this' locale`() {
-        val localeList = LocaleList("en-US")
-        val spanStyle = SpanStyle(localeList = localeList)
-        val otherSpanStyle = SpanStyle()
+        val style = SpanStyle(localeList = LocaleList("en-US"))
 
-        val newSpanStyle = spanStyle.merge(otherSpanStyle)
+        val newSpanStyle = style.merge(SpanStyle(localeList = null))
 
-        assertThat(newSpanStyle.localeList).isEqualTo(localeList)
+        assertThat(newSpanStyle.localeList).isEqualTo(style.localeList)
     }
 
     @Test
     fun `merge with other's locale is set should use other's locale`() {
-        val localeList = LocaleList("en-US")
-        val otherlocaleList = LocaleList("ja-JP")
-        val spanStyle = SpanStyle(localeList = localeList)
-        val otherSpanStyle = SpanStyle(localeList = otherlocaleList)
+        val style = SpanStyle(localeList = LocaleList("en-US"))
+        val otherStyle = SpanStyle(localeList = LocaleList("ja-JP"))
 
-        val newSpanStyle = spanStyle.merge(otherSpanStyle)
+        val newSpanStyle = style.merge(otherStyle)
 
-        assertThat(newSpanStyle.localeList).isEqualTo(otherlocaleList)
+        assertThat(newSpanStyle.localeList).isEqualTo(otherStyle.localeList)
     }
 
     @Test
     fun `lerp color with a and b are not Null`() {
-        val color1 = Color(0xFF00FF00)
-        val color2 = Color(0x00FFFF00)
+        val color1 = Color.Red
+        val color2 = Color.Green
         val t = 0.3f
-        val spanStyle1 = SpanStyle(color = color1)
-        val spanStyle2 = SpanStyle(color = color2)
+        val style1 = SpanStyle(color = color1)
+        val style2 = SpanStyle(color = color2)
 
-        val newSpanStyle = lerp(start = spanStyle1, stop = spanStyle2, fraction = t)
+        val newSpanStyle = lerp(start = style1, stop = style2, fraction = t)
 
         assertThat(newSpanStyle.color).isEqualTo(lerp(start = color1, stop = color2, fraction = t))
     }
@@ -447,10 +397,10 @@ class SpanStyleTest {
         val fontFamily1 = FontFamily(genericFamily = "sans-serif")
         val fontFamily2 = FontFamily(genericFamily = "serif")
         val t = 0.3f
-        val spanStyle1 = SpanStyle(fontFamily = fontFamily1)
-        val spanStyle2 = SpanStyle(fontFamily = fontFamily2)
+        val style1 = SpanStyle(fontFamily = fontFamily1)
+        val style2 = SpanStyle(fontFamily = fontFamily2)
 
-        val newSpanStyle = lerp(start = spanStyle1, stop = spanStyle2, fraction = t)
+        val newSpanStyle = lerp(start = style1, stop = style2, fraction = t)
 
         assertThat(newSpanStyle.fontFamily).isEqualTo(fontFamily1)
     }
@@ -460,10 +410,10 @@ class SpanStyleTest {
         val fontFamily1 = FontFamily(genericFamily = "sans-serif")
         val fontFamily2 = FontFamily(genericFamily = "serif")
         val t = 0.8f
-        val spanStyle1 = SpanStyle(fontFamily = fontFamily1)
-        val spanStyle2 = SpanStyle(fontFamily = fontFamily2)
+        val style1 = SpanStyle(fontFamily = fontFamily1)
+        val style2 = SpanStyle(fontFamily = fontFamily2)
 
-        val newSpanStyle = lerp(start = spanStyle1, stop = spanStyle2, fraction = t)
+        val newSpanStyle = lerp(start = style1, stop = style2, fraction = t)
 
         assertThat(newSpanStyle.fontFamily).isEqualTo(fontFamily2)
     }
@@ -473,10 +423,10 @@ class SpanStyleTest {
         val fontSize1 = 8.sp
         val fontSize2 = 16.sp
         val t = 0.8f
-        val spanStyle1 = SpanStyle(fontSize = fontSize1)
-        val spanStyle2 = SpanStyle(fontSize = fontSize2)
+        val style1 = SpanStyle(fontSize = fontSize1)
+        val style2 = SpanStyle(fontSize = fontSize2)
 
-        val newSpanStyle = lerp(start = spanStyle1, stop = spanStyle2, fraction = t)
+        val newSpanStyle = lerp(start = style1, stop = style2, fraction = t)
 
         // a + (b - a) * t = 8.0f + (16.0f  - 8.0f) * 0.8f = 14.4f
         assertThat(newSpanStyle.fontSize).isEqualTo(14.4.sp)
@@ -487,10 +437,10 @@ class SpanStyleTest {
         val fontWeight1 = FontWeight.W200
         val fontWeight2 = FontWeight.W500
         val t = 0.8f
-        val spanStyle1 = SpanStyle(fontWeight = fontWeight1)
-        val spanStyle2 = SpanStyle(fontWeight = fontWeight2)
+        val style1 = SpanStyle(fontWeight = fontWeight1)
+        val style2 = SpanStyle(fontWeight = fontWeight2)
 
-        val newSpanStyle = lerp(start = spanStyle1, stop = spanStyle2, fraction = t)
+        val newSpanStyle = lerp(start = style1, stop = style2, fraction = t)
 
         assertThat(newSpanStyle.fontWeight).isEqualTo(lerp(fontWeight1, fontWeight2, t))
     }
@@ -501,10 +451,10 @@ class SpanStyleTest {
         val fontStyle2 = FontStyle.Normal
         // attributes other than fontStyle are required for lerp not to throw an exception
         val t = 0.3f
-        val spanStyle1 = SpanStyle(fontStyle = fontStyle1)
-        val spanStyle2 = SpanStyle(fontStyle = fontStyle2)
+        val style1 = SpanStyle(fontStyle = fontStyle1)
+        val style2 = SpanStyle(fontStyle = fontStyle2)
 
-        val newSpanStyle = lerp(start = spanStyle1, stop = spanStyle2, fraction = t)
+        val newSpanStyle = lerp(start = style1, stop = style2, fraction = t)
 
         assertThat(newSpanStyle.fontStyle).isEqualTo(fontStyle1)
     }
@@ -515,10 +465,10 @@ class SpanStyleTest {
         val fontStyle2 = FontStyle.Normal
         // attributes other than fontStyle are required for lerp not to throw an exception
         val t = 0.8f
-        val spanStyle1 = SpanStyle(fontStyle = fontStyle1)
-        val spanStyle2 = SpanStyle(fontStyle = fontStyle2)
+        val style1 = SpanStyle(fontStyle = fontStyle1)
+        val style2 = SpanStyle(fontStyle = fontStyle2)
 
-        val newSpanStyle = lerp(start = spanStyle1, stop = spanStyle2, fraction = t)
+        val newSpanStyle = lerp(start = style1, stop = style2, fraction = t)
 
         assertThat(newSpanStyle.fontStyle).isEqualTo(fontStyle2)
     }
@@ -530,10 +480,10 @@ class SpanStyleTest {
 
         val t = 0.3f
         // attributes other than fontSynthesis are required for lerp not to throw an exception
-        val spanStyle1 = SpanStyle(fontSynthesis = fontSynthesis1)
-        val spanStyle2 = SpanStyle(fontSynthesis = fontSynthesis2)
+        val style1 = SpanStyle(fontSynthesis = fontSynthesis1)
+        val style2 = SpanStyle(fontSynthesis = fontSynthesis2)
 
-        val newSpanStyle = lerp(start = spanStyle1, stop = spanStyle2, fraction = t)
+        val newSpanStyle = lerp(start = style1, stop = style2, fraction = t)
 
         assertThat(newSpanStyle.fontSynthesis).isEqualTo(fontSynthesis1)
     }
@@ -545,10 +495,10 @@ class SpanStyleTest {
 
         val t = 0.8f
         // attributes other than fontSynthesis are required for lerp not to throw an exception
-        val spanStyle1 = SpanStyle(fontSynthesis = fontSynthesis1)
-        val spanStyle2 = SpanStyle(fontSynthesis = fontSynthesis2)
+        val style1 = SpanStyle(fontSynthesis = fontSynthesis1)
+        val style2 = SpanStyle(fontSynthesis = fontSynthesis2)
 
-        val newSpanStyle = lerp(start = spanStyle1, stop = spanStyle2, fraction = t)
+        val newSpanStyle = lerp(start = style1, stop = style2, fraction = t)
 
         assertThat(newSpanStyle.fontSynthesis).isEqualTo(fontSynthesis2)
     }
@@ -560,10 +510,10 @@ class SpanStyleTest {
 
         val t = 0.3f
         // attributes other than fontSynthesis are required for lerp not to throw an exception
-        val spanStyle1 = SpanStyle(fontFeatureSettings = fontFeatureSettings1)
-        val spanStyle2 = SpanStyle(fontFeatureSettings = fontFeatureSettings2)
+        val style1 = SpanStyle(fontFeatureSettings = fontFeatureSettings1)
+        val style2 = SpanStyle(fontFeatureSettings = fontFeatureSettings2)
 
-        val newSpanStyle = lerp(start = spanStyle1, stop = spanStyle2, fraction = t)
+        val newSpanStyle = lerp(start = style1, stop = style2, fraction = t)
 
         assertThat(newSpanStyle.fontFeatureSettings).isEqualTo(fontFeatureSettings1)
     }
@@ -575,10 +525,10 @@ class SpanStyleTest {
 
         val t = 0.8f
         // attributes other than fontSynthesis are required for lerp not to throw an exception
-        val spanStyle1 = SpanStyle(fontFeatureSettings = fontFeatureSettings1)
-        val spanStyle2 = SpanStyle(fontFeatureSettings = fontFeatureSettings2)
+        val style1 = SpanStyle(fontFeatureSettings = fontFeatureSettings1)
+        val style2 = SpanStyle(fontFeatureSettings = fontFeatureSettings2)
 
-        val newSpanStyle = lerp(start = spanStyle1, stop = spanStyle2, fraction = t)
+        val newSpanStyle = lerp(start = style1, stop = style2, fraction = t)
 
         assertThat(newSpanStyle.fontFeatureSettings).isEqualTo(fontFeatureSettings2)
     }
@@ -588,10 +538,10 @@ class SpanStyleTest {
         val baselineShift1 = BaselineShift(1.0f)
         val baselineShift2 = BaselineShift(2.0f)
         val t = 0.3f
-        val spanStyle1 = SpanStyle(baselineShift = baselineShift1)
-        val spanStyle2 = SpanStyle(baselineShift = baselineShift2)
+        val style1 = SpanStyle(baselineShift = baselineShift1)
+        val style2 = SpanStyle(baselineShift = baselineShift2)
 
-        val newSpanStyle = lerp(start = spanStyle1, stop = spanStyle2, fraction = t)
+        val newSpanStyle = lerp(start = style1, stop = style2, fraction = t)
 
         assertThat(newSpanStyle.baselineShift)
             .isEqualTo(lerp(baselineShift1, baselineShift2, t))
@@ -602,10 +552,10 @@ class SpanStyleTest {
         val textTransform1 = TextGeometricTransform(scaleX = 1.5f, skewX = 0.1f)
         val textTransform2 = TextGeometricTransform(scaleX = 1.0f, skewX = 0.3f)
         val t = 0.3f
-        val spanStyle1 = SpanStyle(textGeometricTransform = textTransform1)
-        val spanStyle2 = SpanStyle(textGeometricTransform = textTransform2)
+        val style1 = SpanStyle(textGeometricTransform = textTransform1)
+        val style2 = SpanStyle(textGeometricTransform = textTransform2)
 
-        val newSpanStyle = lerp(start = spanStyle1, stop = spanStyle2, fraction = t)
+        val newSpanStyle = lerp(start = style1, stop = style2, fraction = t)
 
         assertThat(newSpanStyle.textGeometricTransform)
             .isEqualTo(lerp(textTransform1, textTransform2, t))
@@ -616,10 +566,10 @@ class SpanStyleTest {
         val localeList1 = LocaleList("en-US")
         val localeList2 = LocaleList("ja-JP")
         val t = 0.3f
-        val spanStyle1 = SpanStyle(localeList = localeList1)
-        val spanStyle2 = SpanStyle(localeList = localeList2)
+        val style1 = SpanStyle(localeList = localeList1)
+        val style2 = SpanStyle(localeList = localeList2)
 
-        val newSpanStyle = lerp(start = spanStyle1, stop = spanStyle2, fraction = t)
+        val newSpanStyle = lerp(start = style1, stop = style2, fraction = t)
 
         assertThat(newSpanStyle.localeList).isEqualTo(localeList1)
     }
@@ -629,20 +579,20 @@ class SpanStyleTest {
         val localeList1 = LocaleList("en-US")
         val localeList2 = LocaleList("ja-JP")
         val t = 0.8f
-        val spanStyle1 = SpanStyle(localeList = localeList1)
-        val spanStyle2 = SpanStyle(localeList = localeList2)
+        val style1 = SpanStyle(localeList = localeList1)
+        val style2 = SpanStyle(localeList = localeList2)
 
-        val newSpanStyle = lerp(start = spanStyle1, stop = spanStyle2, fraction = t)
+        val newSpanStyle = lerp(start = style1, stop = style2, fraction = t)
 
         assertThat(newSpanStyle.localeList).isEqualTo(localeList2)
     }
 
     @Test
     fun `lerp background with a and b are Null and t is smaller than half`() {
-        val spanStyle1 = SpanStyle(background = null)
-        val spanStyle2 = SpanStyle(background = null)
+        val style1 = SpanStyle(background = null)
+        val style2 = SpanStyle(background = null)
 
-        val newSpanStyle = lerp(start = spanStyle1, stop = spanStyle2, fraction = 0.1f)
+        val newSpanStyle = lerp(start = style1, stop = style2, fraction = 0.1f)
 
         assertThat(newSpanStyle.background).isEqualTo(Color.Transparent)
     }
@@ -650,11 +600,11 @@ class SpanStyleTest {
     @Test
     fun `lerp background with a is Null and b is not Null`() {
         val t = 0.1f
-        val spanStyle1 = SpanStyle(background = null)
-        val color2 = Color(0xf)
-        val spanStyle2 = SpanStyle(background = color2)
+        val style1 = SpanStyle(background = null)
+        val color2 = Color.Red
+        val style2 = SpanStyle(background = color2)
 
-        val newSpanStyle = lerp(start = spanStyle1, stop = spanStyle2, fraction = t)
+        val newSpanStyle = lerp(start = style1, stop = style2, fraction = t)
 
         assertThat(newSpanStyle.background).isEqualTo(lerp(Color.Transparent, color2, t))
     }
@@ -662,37 +612,37 @@ class SpanStyleTest {
     @Test
     fun `lerp background with a is Not Null and b is Null`() {
         val t = 0.1f
-        val color1 = Color(0xf)
-        val spanStyle1 = SpanStyle(background = color1)
-        val spanStyle2 = SpanStyle(background = null)
+        val color1 = Color.Red
+        val style1 = SpanStyle(background = color1)
+        val style2 = SpanStyle(background = null)
 
-        val newSpanStyle = lerp(start = spanStyle1, stop = spanStyle2, fraction = t)
+        val newSpanStyle = lerp(start = style1, stop = style2, fraction = t)
 
         assertThat(newSpanStyle.background).isEqualTo(lerp(color1, Color.Transparent, t))
     }
 
     @Test
     fun `lerp background with a and b are not Null and t is smaller than half`() {
-        val color1 = Color(0x0)
-        val color2 = Color(0xf)
+        val color1 = Color.Red
+        val color2 = Color.Green
         val t = 0.2f
-        val spanStyle1 = SpanStyle(background = color1)
-        val spanStyle2 = SpanStyle(background = color2)
+        val style1 = SpanStyle(background = color1)
+        val style2 = SpanStyle(background = color2)
 
-        val newSpanStyle = lerp(start = spanStyle1, stop = spanStyle2, fraction = t)
+        val newSpanStyle = lerp(start = style1, stop = style2, fraction = t)
 
         assertThat(newSpanStyle.background).isEqualTo(lerp(color1, color2, t))
     }
 
     @Test
     fun `lerp background with a and b are not Null and t is larger than half`() {
-        val color1 = Color(0x0)
-        val color2 = Color(0xf)
+        val color1 = Color.Red
+        val color2 = Color.Green
         val t = 0.8f
-        val spanStyle1 = SpanStyle(background = color1)
-        val spanStyle2 = SpanStyle(background = color2)
+        val style1 = SpanStyle(background = color1)
+        val style2 = SpanStyle(background = color2)
 
-        val newSpanStyle = lerp(start = spanStyle1, stop = spanStyle2, fraction = t)
+        val newSpanStyle = lerp(start = style1, stop = style2, fraction = t)
 
         assertThat(newSpanStyle.background).isEqualTo(lerp(color1, color2, t))
     }
@@ -702,10 +652,10 @@ class SpanStyleTest {
         val decoration1 = TextDecoration.LineThrough
         val decoration2 = TextDecoration.Underline
         val t = 0.2f
-        val spanStyle1 = SpanStyle(decoration = decoration1)
-        val spanStyle2 = SpanStyle(decoration = decoration2)
+        val style1 = SpanStyle(decoration = decoration1)
+        val style2 = SpanStyle(decoration = decoration2)
 
-        val newSpanStyle = lerp(start = spanStyle1, stop = spanStyle2, fraction = t)
+        val newSpanStyle = lerp(start = style1, stop = style2, fraction = t)
 
         assertThat(newSpanStyle.decoration).isEqualTo(decoration1)
     }
@@ -715,10 +665,10 @@ class SpanStyleTest {
         val decoration1 = TextDecoration.LineThrough
         val decoration2 = TextDecoration.Underline
         val t = 0.8f
-        val spanStyle1 = SpanStyle(decoration = decoration1)
-        val spanStyle2 = SpanStyle(decoration = decoration2)
+        val style1 = SpanStyle(decoration = decoration1)
+        val style2 = SpanStyle(decoration = decoration2)
 
-        val newSpanStyle = lerp(start = spanStyle1, stop = spanStyle2, fraction = t)
+        val newSpanStyle = lerp(start = style1, stop = style2, fraction = t)
 
         assertThat(newSpanStyle.decoration).isEqualTo(decoration2)
     }
