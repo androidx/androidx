@@ -31,10 +31,10 @@ import androidx.ui.core.isFinite
  *
  * @sample androidx.ui.layout.samples.SimpleSizeModifier
  *
- * If the [Size] modifier's target layout is measured with constraints that do not allow the
+ * If the [LayoutSize] modifier's target layout is measured with constraints that do not allow the
  * specified width and/or height, the size will be coerced inside the incoming constraints.
  */
-fun Size(width: Dp, height: Dp): LayoutModifier {
+fun LayoutSize(width: Dp, height: Dp): LayoutModifier {
     require(width.isFinite() && height.isFinite()) {
         "Width and height parameters should be finite."
     }
@@ -44,11 +44,11 @@ fun Size(width: Dp, height: Dp): LayoutModifier {
 /**
  * A layout modifier that sets the minimum width and height of the component.
  *
- * If the [MinSize] modifier's target layout is measured with constraints that do not allow the
- * specified minimum width and/or height, the minimum size will be coerced inside the incoming
+ * If the [LayoutMinSize] modifier's target layout is measured with constraints that do not allow
+ * the specified minimum width and/or height, the minimum size will be coerced inside the incoming
  * constraints.
  */
-fun MinSize(minWidth: Dp, minHeight: Dp): LayoutModifier {
+fun LayoutMinSize(minWidth: Dp, minHeight: Dp): LayoutModifier {
     require(minWidth.isFinite() && minHeight.isFinite()) {
         "MinWidth and minHeight parameters should be finite."
     }
@@ -58,11 +58,11 @@ fun MinSize(minWidth: Dp, minHeight: Dp): LayoutModifier {
 /**
  * A layout modifier that sets the maximum width and height of the component.
  *
- * If the [MaxSize] modifier's target layout is measured with constraints that do not allow the
- * specified maximum width and/or height, the maximum size will be coerced inside the incoming
+ * If the [LayoutMaxSize] modifier's target layout is measured with constraints that do not allow
+ * the specified maximum width and/or height, the maximum size will be coerced inside the incoming
  * constraints.
  */
-fun MaxSize(maxWidth: Dp, maxHeight: Dp): LayoutModifier =
+fun LayoutMaxSize(maxWidth: Dp, maxHeight: Dp): LayoutModifier =
     SizeModifier(DpConstraints(maxWidth = maxWidth, maxHeight = maxHeight))
 
 /**
@@ -70,10 +70,10 @@ fun MaxSize(maxWidth: Dp, maxHeight: Dp): LayoutModifier =
  *
  * @sample androidx.ui.layout.samples.SimpleWidthModifier
  *
- * If the [Width] modifier's target layout is measured with constraints that do not allow the
+ * If the [LayoutWidth] modifier's target layout is measured with constraints that do not allow the
  * specified width, the width will be coerced inside the incoming constraints.
  */
-fun Width(value: Dp): LayoutModifier {
+fun LayoutWidth(value: Dp): LayoutModifier {
     require(value.isFinite()) { "Width value parameter should be finite." }
     return SizeModifier(DpConstraints.tightConstraintsForWidth(value))
 }
@@ -81,10 +81,11 @@ fun Width(value: Dp): LayoutModifier {
 /**
  * A layout modifier that sets the minimum width of the component.
  *
- * If the [MinWidth] modifier's target layout is measured with constraints that do not allow the
- * specified minimum width, the minimum width will be coerced inside the incoming constraints.
+ * If the [LayoutMinWidth] modifier's target layout is measured with constraints that do not
+ * allow the specified minimum width, the minimum width will be coerced inside the incoming
+ * constraints.
  */
-fun MinWidth(value: Dp): LayoutModifier {
+fun LayoutMinWidth(value: Dp): LayoutModifier {
     require(value.isFinite()) { "MinWidth value parameter should be finite." }
     return SizeModifier(DpConstraints(minWidth = value))
 }
@@ -92,20 +93,21 @@ fun MinWidth(value: Dp): LayoutModifier {
 /**
  * A layout modifier that sets the maximum width of the component.
  *
- * If the [MaxWidth] modifier's target layout is measured with constraints that do not allow the
- * specified maximum width, the maximum width will be coerced inside the incoming constraints.
+ * If the [LayoutMaxWidth] modifier's target layout is measured with constraints that do not
+ * allow the specified maximum width, the maximum width will be coerced inside the incoming
+ * constraints.
  */
-fun MaxWidth(value: Dp): LayoutModifier = SizeModifier(DpConstraints(maxWidth = value))
+fun LayoutMaxWidth(value: Dp): LayoutModifier = SizeModifier(DpConstraints(maxWidth = value))
 
 /**
  * A layout modifier that sets the exact height of the component.
  *
  * @sample androidx.ui.layout.samples.SimpleHeightModifier
  *
- * If the [Height] modifier's target layout is measured with constraints that do not allow the
+ * If the [LayoutHeight] modifier's target layout is measured with constraints that do not allow the
  * specified height, the height will be coerced inside the incoming constraints.
  */
-fun Height(value: Dp): LayoutModifier {
+fun LayoutHeight(value: Dp): LayoutModifier {
     require(value.isFinite()) { "Height value parameter should be finite." }
     return SizeModifier(DpConstraints.tightConstraintsForHeight(value))
 }
@@ -113,10 +115,11 @@ fun Height(value: Dp): LayoutModifier {
 /**
  * A layout modifier that sets the minimum height of the component.
  *
- * If the [MinHeight] modifier's target layout is measured with constraints that do not allow the
- * specified minimum height, the minimum height will be coerced inside the incoming constraints.
+ * If the [LayoutMinHeight] modifier's target layout is measured with constraints that do not
+ * allow the specified minimum height, the minimum height will be coerced inside the incoming
+ * constraints.
  */
-fun MinHeight(value: Dp): LayoutModifier {
+fun LayoutMinHeight(value: Dp): LayoutModifier {
     require(value.isFinite()) { "MinHeight value parameter should be finite." }
     return SizeModifier(DpConstraints(minHeight = value))
 }
@@ -124,10 +127,11 @@ fun MinHeight(value: Dp): LayoutModifier {
 /**
  * A layout modifier that sets the maximum height of the component.
  *
- * If the [MaxHeight] modifier's target layout is measured with constraints that do not allow the
- * specified maximum height, the maximum height will be coerced inside the incomingL constraints.
+ * If the [LayoutMaxHeight] modifier's target layout is measured with constraints that do not
+ * allow the specified maximum height, the maximum height will be coerced inside the incoming
+ * constraints.
  */
-fun MaxHeight(value: Dp): LayoutModifier = SizeModifier(DpConstraints(maxHeight = value))
+fun LayoutMaxHeight(value: Dp): LayoutModifier = SizeModifier(DpConstraints(maxHeight = value))
 
 private data class SizeModifier(private val modifierConstraints: DpConstraints) : LayoutModifier {
     override fun DensityScope.modifyConstraints(constraints: Constraints) =

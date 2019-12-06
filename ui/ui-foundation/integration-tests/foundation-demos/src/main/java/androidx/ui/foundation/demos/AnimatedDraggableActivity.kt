@@ -23,7 +23,7 @@ import androidx.ui.core.setContent
 import androidx.ui.foundation.samples.AnchoredDraggableSample
 import androidx.ui.foundation.samples.DraggableSample
 import androidx.ui.layout.Column
-import androidx.ui.layout.Height
+import androidx.ui.layout.LayoutHeight
 import androidx.ui.layout.Spacer
 import androidx.ui.layout.Wrap
 
@@ -35,7 +35,7 @@ class AnimatedDraggableActivity : Activity() {
             Wrap {
                 Column {
                     DraggableSample()
-                    Spacer(Height(100.dp))
+                    Spacer(LayoutHeight(100.dp))
                     AnchoredDraggableSample()
                 }
             }

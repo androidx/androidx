@@ -31,7 +31,7 @@ import androidx.ui.graphics.Color
 import androidx.ui.graphics.SolidColor
 import androidx.ui.layout.Align
 import androidx.ui.layout.Container
-import androidx.ui.layout.Spacing
+import androidx.ui.layout.LayoutPadding
 import androidx.ui.semantics.Semantics
 import androidx.ui.test.assertShape
 import androidx.ui.test.captureToBitmap
@@ -63,7 +63,7 @@ class BackgroundTest {
                     Container(
                         width = 20.px.toDp(),
                         height = 20.px.toDp(),
-                        modifier = Spacing(10.px.toDp()) wraps background(Color.White)
+                        modifier = LayoutPadding(10.px.toDp()) wraps background(Color.White)
                     ) {}
                 }
             }
@@ -89,7 +89,7 @@ class BackgroundTest {
                     Container(
                         width = 20.px.toDp(),
                         height = 20.px.toDp(),
-                        modifier = Spacing(10.px.toDp()) wraps background(
+                        modifier = LayoutPadding(10.px.toDp()) wraps background(
                             SolidColor(
                                 Color.White
                             )

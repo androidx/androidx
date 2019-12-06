@@ -35,7 +35,7 @@ import androidx.ui.core.isFinite
  * A composable that positions its children relative to its edges.
  * The component is useful for drawing children that overlap. The children will always be
  * drawn in the order they are specified in the body of the [Stack].
- * Use [Gravity] options to define how to position a target component inside the [Stack] box.
+ * Use [LayoutGravity] options to define how to position a target component inside the [Stack] box.
  *
  * Example usage:
  *
@@ -102,28 +102,28 @@ class StackScope {
      * size of the [Stack] and are positioned within the stack after its size is calculated to
      * wrap the non-stretch components.
      */
-    val Gravity.Stretch: LayoutModifier get() = StretchGravityModifier
+    val LayoutGravity.Stretch: LayoutModifier get() = StretchGravityModifier
 
     /**
      * A layout modifier that defines that child should be positioned top-left inside the [Stack].
      * If the [Stack] wraps its content (by not being constrained to a min size by its own
      * parent), a child with this gravity option will contribute to the size of the [Stack].
     */
-    val Gravity.TopLeft: LayoutModifier get() = TopLeftGravityModifier
+    val LayoutGravity.TopLeft: LayoutModifier get() = TopLeftGravityModifier
 
     /**
      * A layout modifier that defines that child should be positioned top-center inside the [Stack].
      * If the [Stack] wraps its content (by not being constrained to a min size by its own
      * parent), a child with this gravity option will contribute to the size of the [Stack].
      */
-    val Gravity.TopCenter: LayoutModifier get() = TopCenterGravityModifier
+    val LayoutGravity.TopCenter: LayoutModifier get() = TopCenterGravityModifier
 
     /**
      * A layout modifier that defines that child should be positioned top-right inside the [Stack].
      * If the [Stack] wraps its content (by not being constrained to a min size by its own
      * parent), a child with this gravity option will contribute to the size of the [Stack].
      */
-    val Gravity.TopRight: LayoutModifier get() = TopRightGravityModifier
+    val LayoutGravity.TopRight: LayoutModifier get() = TopRightGravityModifier
 
     /**
      * A layout modifier that defines that child should be positioned center-left inside the
@@ -131,14 +131,14 @@ class StackScope {
      * If the [Stack] wraps its content (by not being constrained to a min size by its own
      * parent), a child with this gravity option will contribute to the size of the [Stack].
      */
-    val Gravity.CenterLeft: LayoutModifier get() = CenterLeftGravityModifier
+    val LayoutGravity.CenterLeft: LayoutModifier get() = CenterLeftGravityModifier
 
     /**
      * A layout modifier that defines that child should be positioned in the center of the [Stack].
      * If the [Stack] wraps its content (by not being constrained to a min size by its own
      * parent), a child with this gravity option will contribute to the size of the [Stack].
      */
-    val Gravity.Center: LayoutModifier get() = CenterGravityModifier
+    val LayoutGravity.Center: LayoutModifier get() = CenterGravityModifier
 
     /**
      * A layout modifier that defines that child should be positioned center-right inside the
@@ -146,7 +146,7 @@ class StackScope {
      * If the [Stack] wraps its content (by not being constrained to a min size by its own
      * parent), a child with this gravity option will contribute to the size of the [Stack].
      */
-    val Gravity.CenterRight: LayoutModifier get() = CenterRightGravityModifier
+    val LayoutGravity.CenterRight: LayoutModifier get() = CenterRightGravityModifier
 
     /**
      * A layout modifier that defines that child should be positioned bottom-left inside the
@@ -154,7 +154,7 @@ class StackScope {
      * If the [Stack] wraps its content (by not being constrained to a min size by its own
      * parent), a child with this gravity option will contribute to the size of the [Stack].
      */
-    val Gravity.BottomLeft: LayoutModifier get() = BottomLeftGravityModifier
+    val LayoutGravity.BottomLeft: LayoutModifier get() = BottomLeftGravityModifier
 
     /**
      * A layout modifier that defines that child should be positioned bottom-center inside the
@@ -162,7 +162,7 @@ class StackScope {
      * If the [Stack] wraps its content (by not being constrained to a min size by its own
      * parent), a child with this gravity option will contribute to the size of the [Stack].
      */
-    val Gravity.BottomCenter: LayoutModifier get() = BottomCenterGravityModifier
+    val LayoutGravity.BottomCenter: LayoutModifier get() = BottomCenterGravityModifier
 
     /**
      * A layout modifier that defines that child should be positioned bottom-right inside the
@@ -170,7 +170,7 @@ class StackScope {
      * If the [Stack] wraps its content (by not being constrained to a min size by its own
      * parent), a child with this gravity option will contribute to the size of the [Stack].
      */
-    val Gravity.BottomRight: LayoutModifier get() = BottomRightGravityModifier
+    val LayoutGravity.BottomRight: LayoutModifier get() = BottomRightGravityModifier
 
     internal companion object {
         val TopLeftGravityModifier: LayoutModifier = StackGravityModifier(Alignment.TopLeft)

@@ -26,14 +26,14 @@ import androidx.ui.foundation.shape.RectangleShape
 import androidx.ui.graphics.Color
 import androidx.ui.layout.Align
 import androidx.ui.layout.Container
-import androidx.ui.layout.Expanded
-import androidx.ui.layout.ExpandedHeight
-import androidx.ui.layout.ExpandedWidth
+import androidx.ui.layout.LayoutExpanded
+import androidx.ui.layout.LayoutExpandedHeight
+import androidx.ui.layout.LayoutExpandedWidth
 
 @Sampled
 @Composable
 fun SimpleExpandedWidthModifier() {
-    Container(modifier = ExpandedWidth) {
+    Container(modifier = LayoutExpandedWidth) {
         DrawShape(RectangleShape, Color.Red)
         ColoredRect(color = Color.Magenta, width = 100.dp, height = 100.dp)
     }
@@ -43,7 +43,7 @@ fun SimpleExpandedWidthModifier() {
 @Composable
 fun SimpleExpandedHeightModifier() {
     Align(alignment = Alignment.TopLeft) {
-        Container(modifier = ExpandedHeight) {
+        Container(modifier = LayoutExpandedHeight) {
             DrawShape(RectangleShape, Color.Red)
             ColoredRect(color = Color.Magenta, width = 100.dp, height = 100.dp)
         }
@@ -54,7 +54,7 @@ fun SimpleExpandedHeightModifier() {
 @Composable
 fun SimpleExpandedModifier() {
     Align(alignment = Alignment.TopLeft) {
-        Container(modifier = Expanded) {
+        Container(modifier = LayoutExpanded) {
             DrawShape(RectangleShape, Color.Red)
             ColoredRect(color = Color.Magenta, width = 100.dp, height = 100.dp)
         }

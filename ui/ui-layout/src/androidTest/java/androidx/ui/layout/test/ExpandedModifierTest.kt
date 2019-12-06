@@ -33,11 +33,11 @@ import androidx.ui.core.toRect
 import androidx.ui.core.withDensity
 import androidx.ui.engine.geometry.Rect
 import androidx.ui.layout.Align
-import androidx.ui.layout.AspectRatio
+import androidx.ui.layout.LayoutAspectRatio
 import androidx.ui.layout.Container
-import androidx.ui.layout.Expanded
-import androidx.ui.layout.ExpandedHeight
-import androidx.ui.layout.ExpandedWidth
+import androidx.ui.layout.LayoutExpanded
+import androidx.ui.layout.LayoutExpandedHeight
+import androidx.ui.layout.LayoutExpandedWidth
 import org.junit.Assert
 import org.junit.Test
 import org.junit.runner.RunWith
@@ -63,23 +63,23 @@ class ExpandedModifierTest : LayoutTest() {
         )
         Assert.assertEquals(
             Rect(0f, 0f, screenWidth, Height.toIntPx().value.toFloat()),
-            getSize(ExpandedWidth).toRect()
+            getSize(LayoutExpandedWidth).toRect()
         )
         Assert.assertEquals(
             Rect(0f, 0f, Width.toIntPx().value.toFloat(), screenHeight),
-            getSize(ExpandedHeight).toRect()
+            getSize(LayoutExpandedHeight).toRect()
         )
         Assert.assertEquals(
             Rect(0f, 0f, screenWidth, screenHeight),
-            getSize(Expanded).toRect()
+            getSize(LayoutExpanded).toRect()
         )
     }
 
     @Test
     fun testExpandedModifier_noChangeIntrinsicMeasurements() = withDensity(density) {
-        verifyIntrinsicMeasurements(ExpandedWidth)
-        verifyIntrinsicMeasurements(ExpandedHeight)
-        verifyIntrinsicMeasurements(Expanded)
+        verifyIntrinsicMeasurements(LayoutExpandedWidth)
+        verifyIntrinsicMeasurements(LayoutExpandedHeight)
+        verifyIntrinsicMeasurements(LayoutExpanded)
     }
 
     private fun getSize(modifier: Modifier = Modifier.None): PxSize {
@@ -112,7 +112,8 @@ class ExpandedModifierTest : LayoutTest() {
     private fun verifyIntrinsicMeasurements(expandedModifier: Modifier) = withDensity(density) {
         // intrinsic measurements do not change with the ExpandedModifier
         testIntrinsics(@Composable {
-            Container(expandedModifier wraps AspectRatio(2f), width = 30.dp, height = 40.dp) { }
+            Container(expandedModifier wraps LayoutAspectRatio(2f),
+                width = 30.dp, height = 40.dp) { }
         }) { minIntrinsicWidth, minIntrinsicHeight, maxIntrinsicWidth, maxIntrinsicHeight ->
             // Width
             assertEquals(40.ipx, minIntrinsicWidth(20.ipx))

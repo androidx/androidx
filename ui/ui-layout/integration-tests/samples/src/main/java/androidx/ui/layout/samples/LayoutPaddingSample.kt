@@ -24,17 +24,17 @@ import androidx.ui.graphics.Color
 import androidx.ui.layout.Align
 import androidx.ui.layout.Container
 import androidx.ui.layout.EdgeInsets
+import androidx.ui.layout.LayoutPadding
 import androidx.ui.layout.Padding
-import androidx.ui.layout.Spacing
 
 @Sampled
 @Composable
-fun SpacingModifier() {
+fun LayoutPaddingModifier() {
     Align(Alignment.TopLeft) {
         Container {
             DrawRectangle(Color.Gray)
             SizedRectangle(
-                modifier = Spacing(
+                modifier = LayoutPadding(
                     left = 20.dp, top = 30.dp, right = 20.dp, bottom = 30.dp
                 ),
                 color = Color.Blue,
@@ -47,12 +47,12 @@ fun SpacingModifier() {
 
 @Sampled
 @Composable
-fun SpacingAllModifier() {
+fun LayoutPaddingAllModifier() {
     Align(Alignment.TopLeft) {
         Container {
             DrawRectangle(Color.Gray)
             SizedRectangle(
-                modifier = Spacing(all = 20.dp),
+                modifier = LayoutPadding(all = 20.dp),
                 color = Color.Blue,
                 width = 50.dp,
                 height = 50.dp

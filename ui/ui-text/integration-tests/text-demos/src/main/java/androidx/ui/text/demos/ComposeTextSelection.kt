@@ -26,8 +26,8 @@ import androidx.ui.core.selection.SelectionContainer
 import androidx.ui.foundation.VerticalScroller
 import androidx.ui.graphics.Color
 import androidx.ui.layout.Column
-import androidx.ui.layout.ExpandedHeight
-import androidx.ui.layout.ExpandedWidth
+import androidx.ui.layout.LayoutExpandedHeight
+import androidx.ui.layout.LayoutExpandedWidth
 import androidx.ui.layout.Row
 import androidx.ui.text.LocaleList
 import androidx.ui.text.SpanStyle
@@ -133,9 +133,9 @@ fun TextDemoSelection2DArrayVertical() {
     SelectionContainer(
         selection = selection.value,
         onSelectionChange = { selection.value = it }) {
-        Column(ExpandedHeight) {
+        Column(LayoutExpandedHeight) {
             for (i in 0..2) {
-                Row(ExpandedWidth) {
+                Row(LayoutExpandedWidth) {
                     for (j in 0..2) {
                         Text {
                             Span(

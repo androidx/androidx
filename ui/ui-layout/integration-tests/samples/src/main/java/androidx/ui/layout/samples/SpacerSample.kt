@@ -22,16 +22,16 @@ import androidx.ui.core.dp
 import androidx.ui.graphics.Color
 import androidx.ui.layout.Row
 import androidx.ui.layout.Spacer
-import androidx.ui.layout.Width
+import androidx.ui.layout.LayoutWidth
 
 @Sampled
 @Composable
 fun SpacerExample() {
     Row {
         SizedRectangle(color = Color.Red, width = 100.dp, height = 100.dp)
-        Spacer(modifier = Width(20.dp))
+        Spacer(modifier = LayoutWidth(20.dp))
         SizedRectangle(color = Color.Magenta, width = 100.dp, height = 100.dp)
-        Spacer(modifier = Flexible(1f))
+        Spacer(modifier = LayoutFlexible(1f))
         SizedRectangle(color = Color.Black, width = 100.dp, height = 100.dp)
     }
 }

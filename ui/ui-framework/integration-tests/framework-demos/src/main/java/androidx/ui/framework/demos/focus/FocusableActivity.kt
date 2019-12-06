@@ -29,7 +29,7 @@ import androidx.ui.focus.Focusable
 import androidx.ui.graphics.Color
 import androidx.ui.layout.Arrangement
 import androidx.ui.layout.Column
-import androidx.ui.layout.ExpandedWidth
+import androidx.ui.layout.LayoutExpandedWidth
 import androidx.ui.layout.Row
 import androidx.ui.layout.RowScope
 import androidx.ui.material.MaterialTheme
@@ -81,5 +81,5 @@ private fun FocusableText(text: String) {
 
 @Composable
 private fun CenteredRow(children: @Composable() RowScope.() -> Unit) {
-    Row(modifier = ExpandedWidth, arrangement = Arrangement.Center, children = children)
+    Row(modifier = LayoutExpandedWidth, arrangement = Arrangement.Center, children = children)
 }

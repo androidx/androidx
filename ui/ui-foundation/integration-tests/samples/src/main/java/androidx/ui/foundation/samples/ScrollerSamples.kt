@@ -36,9 +36,9 @@ import androidx.ui.foundation.shape.RectangleShape
 import androidx.ui.graphics.Color
 import androidx.ui.layout.Column
 import androidx.ui.layout.Container
+import androidx.ui.layout.LayoutPadding
 import androidx.ui.layout.Padding
 import androidx.ui.layout.Row
-import androidx.ui.layout.Spacing
 import androidx.ui.layout.Table
 import androidx.ui.text.TextStyle
 
@@ -89,7 +89,7 @@ fun VerticalScrollerSample() {
     val style = TextStyle(fontSize = 30.sp)
     // Scroller will be clipped to this padding
     VerticalScroller {
-        Column(modifier = Spacing(20.dp)) {
+        Column(modifier = LayoutPadding(20.dp)) {
             phrases.forEach { phrase ->
                 Text(text = phrase, style = style)
             }

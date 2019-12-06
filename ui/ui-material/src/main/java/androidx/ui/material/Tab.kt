@@ -49,15 +49,16 @@ import androidx.ui.foundation.ScrollerPosition
 import androidx.ui.foundation.SimpleImage
 import androidx.ui.foundation.selection.MutuallyExclusiveSetItem
 import androidx.ui.graphics.Color
+import androidx.ui.graphics.Image
 import androidx.ui.layout.Container
 import androidx.ui.layout.FlexRow
+import androidx.ui.layout.LayoutGravity
 import androidx.ui.layout.Padding
 import androidx.ui.layout.Stack
+import androidx.ui.material.TabRow.IndicatorTransition
 import androidx.ui.material.TabRow.TabPosition
 import androidx.ui.material.ripple.Ripple
 import androidx.ui.material.surface.Surface
-import androidx.ui.graphics.Image
-import androidx.ui.layout.Gravity
 import androidx.ui.text.style.TextAlign
 
 /**
@@ -169,11 +170,11 @@ private fun FixedTabRow(
     }
 
     Stack {
-        FlexRow(Gravity.Center) {
+        FlexRow(LayoutGravity.Center) {
             expanded(1f, tabs)
         }
-        divider(Gravity.BottomCenter)
-        Container(Gravity.Stretch) {
+        divider(LayoutGravity.BottomCenter)
+        Container(LayoutGravity.Stretch) {
             indicatorContainer(tabPositions)
         }
     }

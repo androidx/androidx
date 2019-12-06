@@ -45,20 +45,14 @@ import androidx.ui.core.satisfiedBy
  * Example usage:
  * @sample androidx.ui.layout.samples.SimpleAspectRatio
  *
- * @param value A positive non-zero value representing the aspect ratio.
+ * @param aspectRatio A positive non-zero value representing the aspect ratio.
  */
-fun AspectRatio(
-    @FloatRange(from = 0.0, fromInclusive = false) value: Float
-): LayoutModifier = AspectRatioModifier(value)
-
-/**
- * A [LayoutModifier] that applies an aspect ratio to the wrapped UI element's size.
- */
-private data class AspectRatioModifier(val aspectRatio: Float) : LayoutModifier {
+data class LayoutAspectRatio(
+    @FloatRange(from = 0.0, fromInclusive = false)
+    val aspectRatio: Float
+) : LayoutModifier {
     init {
-        require(aspectRatio > 0) {
-            "Received aspect ratio value $aspectRatio is expected to be positive non-zero."
-        }
+        require(aspectRatio > 0) { "aspectRatio $aspectRatio must be > 0" }
     }
 
     override fun DensityScope.modifyConstraints(constraints: Constraints): Constraints {

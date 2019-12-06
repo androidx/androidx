@@ -23,7 +23,7 @@ import androidx.ui.foundation.ColoredRect
 import androidx.ui.foundation.drawBorders
 import androidx.ui.foundation.shape.border.Border
 import androidx.ui.graphics.Color
-import androidx.ui.layout.AspectRatio
+import androidx.ui.layout.LayoutAspectRatio
 import androidx.ui.layout.Padding
 import androidx.ui.layout.Table
 
@@ -47,7 +47,7 @@ fun TableWithBorders() {
                 tableRow {
                     repeat(8) {
                         Padding(2.dp) {
-                            ColoredRect(color = Color.Magenta, modifier = AspectRatio(1f))
+                            ColoredRect(color = Color.Magenta, modifier = LayoutAspectRatio(1f))
                         }
                     }
                 }

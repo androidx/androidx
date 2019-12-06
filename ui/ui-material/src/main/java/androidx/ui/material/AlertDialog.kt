@@ -27,11 +27,11 @@ import androidx.ui.layout.Arrangement
 import androidx.ui.layout.Column
 import androidx.ui.layout.Container
 import androidx.ui.layout.EdgeInsets
-import androidx.ui.layout.ExpandedWidth
-import androidx.ui.layout.Height
+import androidx.ui.layout.LayoutExpandedWidth
+import androidx.ui.layout.LayoutHeight
 import androidx.ui.layout.Spacer
 import androidx.ui.layout.Row
-import androidx.ui.layout.Width
+import androidx.ui.layout.LayoutWidth
 import androidx.ui.material.AlertDialogButtonLayout.SideBySide
 import androidx.ui.material.AlertDialogButtonLayout.Stacked
 import androidx.ui.material.surface.Surface
@@ -129,14 +129,14 @@ fun AlertDialog(
                         } else {
                             // TODO(b/138924683): Temporary until padding for the Text's
                             //  baseline
-                            Spacer(Height(NoTitleExtraHeight))
+                            Spacer(LayoutHeight(NoTitleExtraHeight))
                         }
 
                         Container(alignment = Alignment.CenterLeft, padding = TextPadding) {
                             val textStyle = (+MaterialTheme.typography()).body1
                             CurrentTextStyleProvider(textStyle, text)
                         }
-                        Spacer(Height(TextToButtonsHeight))
+                        Spacer(LayoutHeight(TextToButtonsHeight))
                         buttons()
                     }
                 }
@@ -163,12 +163,12 @@ private fun AlertDialogButtonLayout(
     dismissButton: @Composable() (() -> Unit)?,
     buttonLayout: AlertDialogButtonLayout
 ) {
-    Container(ExpandedWidth, padding = ButtonsPadding, alignment = Alignment.CenterRight) {
+    Container(LayoutExpandedWidth, padding = ButtonsPadding, alignment = Alignment.CenterRight) {
         if (buttonLayout == AlertDialogButtonLayout.SideBySide) {
             Row(arrangement = Arrangement.End) {
                 if (dismissButton != null) {
                     dismissButton()
-                    Spacer(Width(ButtonsWidthSpace))
+                    Spacer(LayoutWidth(ButtonsWidthSpace))
                 }
 
                 confirmButton()
@@ -178,7 +178,7 @@ private fun AlertDialogButtonLayout(
                 confirmButton()
 
                 if (dismissButton != null) {
-                    Spacer(Height(ButtonsHeightSpace))
+                    Spacer(LayoutHeight(ButtonsHeightSpace))
                     dismissButton()
                 }
             }
