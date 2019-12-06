@@ -572,7 +572,8 @@ package androidx.ui.core {
   public interface Modifier {
     method public <R> R! foldIn(R? initial, kotlin.jvm.functions.Function2<? super R,? super androidx.ui.core.Modifier.Element,? extends R> operation);
     method public <R> R! foldOut(R? initial, kotlin.jvm.functions.Function2<? super androidx.ui.core.Modifier.Element,? super R,? extends R> operation);
-    method public default infix androidx.ui.core.Modifier wraps(androidx.ui.core.Modifier other);
+    method public default operator androidx.ui.core.Modifier plus(androidx.ui.core.Modifier other);
+    method @Deprecated public default infix androidx.ui.core.Modifier wraps(androidx.ui.core.Modifier other);
   }
 
   public static interface Modifier.Element extends androidx.ui.core.Modifier {
@@ -583,7 +584,6 @@ package androidx.ui.core {
   public static final class Modifier.None implements androidx.ui.core.Modifier {
     method public <R> R! foldIn(R? initial, kotlin.jvm.functions.Function2<? super R,? super androidx.ui.core.Modifier.Element,? extends R> operation);
     method public <R> R! foldOut(R? initial, kotlin.jvm.functions.Function2<? super androidx.ui.core.Modifier.Element,? super R,? extends R> operation);
-    method public androidx.ui.core.Modifier wraps(androidx.ui.core.Modifier other);
     field public static final androidx.ui.core.Modifier.None! INSTANCE;
   }
 

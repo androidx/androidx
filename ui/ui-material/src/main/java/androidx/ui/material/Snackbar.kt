@@ -168,7 +168,7 @@ private fun NewLineButtonSnackbar(
     button: @Composable() () -> Unit
 ) {
     Column(
-        modifier = LayoutExpandedWidth wraps LayoutPadding(
+        modifier = LayoutExpandedWidth + LayoutPadding(
             left = HorizontalSpacing,
             right = HorizontalSpacingButtonSide,
             bottom = SeparateButtonExtraY

@@ -63,7 +63,7 @@ class BackgroundTest {
                     Container(
                         width = 20.px.toDp(),
                         height = 20.px.toDp(),
-                        modifier = LayoutPadding(10.px.toDp()) wraps background(Color.White)
+                        modifier = LayoutPadding(10.px.toDp()) + background(Color.White)
                     ) {}
                 }
             }
@@ -89,7 +89,7 @@ class BackgroundTest {
                     Container(
                         width = 20.px.toDp(),
                         height = 20.px.toDp(),
-                        modifier = LayoutPadding(10.px.toDp()) wraps background(
+                        modifier = LayoutPadding(10.px.toDp()) + background(
                             SolidColor(
                                 Color.White
                             )
@@ -114,7 +114,7 @@ class BackgroundTest {
                 Container(
                     width = 40.px.toDp(),
                     height = 40.px.toDp(),
-                    modifier = background(Color.Magenta) wraps
+                    modifier = background(Color.Magenta) +
                             background(shape = CircleShape, color = Color.White)
                 ) {}
             }
@@ -133,11 +133,10 @@ class BackgroundTest {
                 Container(
                     width = 40.px.toDp(),
                     height = 40.px.toDp(),
-                    modifier = background(Color.Magenta) wraps
-                            background(
-                                shape = CircleShape,
-                                brush = SolidColor(Color.White)
-                            )
+                    modifier = background(Color.Magenta) + background(
+                        shape = CircleShape,
+                        brush = SolidColor(Color.White)
+                    )
                 ) {}
             }
         }

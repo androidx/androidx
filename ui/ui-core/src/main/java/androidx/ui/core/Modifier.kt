@@ -24,8 +24,8 @@ package androidx.ui.core
  * `object`s, `data class`es or otherwise implement [equals][Any.equals]. A correct implementation
  * of an [Element] must meet this requirement.
  *
- * Modifier elements may be combined using [wraps]. Order is significant; modifier elements wrap
- * the modifiers to their right
+ * Modifier elements may be combined using `+` Order is significant; modifier elements to the left
+ * are applied before modifier elements to the right.
  *
  * Composables that accept a [Modifier] as a parameter to be applied to the whole component
  * represented by the composable function should name the parameter `modifier` and
@@ -37,7 +37,7 @@ package androidx.ui.core
  * default parameter value. For example:
  *
  *     @Composable fun Foo(modifier: Modifier = Modifier.None) {
- *         Column(modifier wraps defaultFooModifier) {
+ *         Column(modifier + defaultFooModifier) {
  *             // ...
  *         }
  *     }
@@ -69,7 +69,7 @@ interface Modifier {
      * and each element from outside in.
      *
      * Elements wrap one another in a chain from left to right; an [Element] that appears to the
-     * left of another in a [wraps] expression or in [operation]'s parameter order affects all
+     * left of another in a `+` expression or in [operation]'s parameter order affects all
      * of the elements that appear after it. [foldIn] may be used to accumulate a value starting
      * from the parent or head of the modifier chain to the final wrapped child.
      */
@@ -80,7 +80,7 @@ interface Modifier {
      * and each element from inside out.
      *
      * Elements wrap one another in a chain from left to right; an [Element] that appears to the
-     * left of another in a [wraps] expression or in [operation]'s parameter order affects all
+     * left of another in a `+` expression or in [operation]'s parameter order affects all
      * of the elements that appear after it. [foldOut] may be used to accumulate a value starting
      * from the child or tail of the modifier chain up to the parent or head of the chain.
      */
@@ -89,7 +89,18 @@ interface Modifier {
     /**
      * Wraps another [Modifier] with this one, returning the new chain.
      */
-    infix fun wraps(other: Modifier): Modifier =
+    @Deprecated(
+        "use + instead",
+        replaceWith = ReplaceWith("this + other")
+    )
+    infix fun wraps(other: Modifier): Modifier = this + other
+
+    /**
+     * Concatenates this modifier with another.
+     *
+     * Returns a [Modifier] representing this modifier followed by [other] in sequence.
+     */
+    operator fun plus(other: Modifier): Modifier =
         if (other === None) this else foldOut(other, ::CombinedModifier)
 
     /**
@@ -99,7 +110,7 @@ interface Modifier {
     object None : Modifier {
         override fun <R> foldIn(initial: R, operation: (R, Element) -> R): R = initial
         override fun <R> foldOut(initial: R, operation: (Element, R) -> R): R = initial
-        override fun wraps(other: Modifier): Modifier = other
+        override operator fun plus(other: Modifier): Modifier = other
         override fun toString() = "Modifier.None"
     }
 

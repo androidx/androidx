@@ -43,7 +43,7 @@ fun SimpleSizeModifier() {
 @Composable
 fun SimpleWidthModifier() {
     Center {
-        Container(modifier = LayoutWidth(100.dp) wraps LayoutAspectRatio(1f)) {
+        Container(modifier = LayoutWidth(100.dp) + LayoutAspectRatio(1f)) {
             DrawShape(shape = RectangleShape, color = Color.Magenta)
         }
     }
@@ -53,7 +53,7 @@ fun SimpleWidthModifier() {
 @Composable
 fun SimpleHeightModifier() {
     Center {
-        Container(modifier = LayoutHeight(100.dp) wraps LayoutAspectRatio(1f)) {
+        Container(modifier = LayoutHeight(100.dp) + LayoutAspectRatio(1f)) {
             DrawShape(shape = RectangleShape, color = Color.Blue)
         }
     }
