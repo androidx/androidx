@@ -146,6 +146,7 @@ internal fun TextPaint.applySpanStyle(
 
 internal fun createStyledText(
     text: String,
+    contextFontSize: Float,
     lineHeight: TextUnit,
     textIndent: TextIndent?,
     spanStyles: List<AnnotatedString.Item<SpanStyle>>,
@@ -165,7 +166,12 @@ internal fun createStyledText(
             )
         }
         TextUnitType.Em -> {
-            // Support line height with EM unit: b/144957855
+            spannableString.setSpan(
+                LineHeightSpan(ceil(lineHeight.value * contextFontSize).toInt()),
+                0,
+                text.length,
+                Spanned.SPAN_EXCLUSIVE_EXCLUSIVE
+            )
         }
         TextUnitType.Inherit -> {} // Do nothing
     }
