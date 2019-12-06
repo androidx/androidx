@@ -58,7 +58,6 @@ import androidx.ui.material.ripple.Ripple
 import androidx.ui.material.surface.Surface
 import androidx.ui.graphics.Image
 import androidx.ui.layout.Gravity
-import androidx.ui.text.ParagraphStyle
 import androidx.ui.text.style.TextAlign
 
 /**
@@ -582,8 +581,7 @@ private fun TabText(text: String, color: Color) {
     Padding(left = HorizontalTextPadding, right = HorizontalTextPadding) {
         Text(
             text = text,
-            style = buttonTextStyle.copy(color = color),
-            paragraphStyle = ParagraphStyle(TextAlign.Center),
+            style = buttonTextStyle.copy(color = color, textAlign = TextAlign.Center),
             maxLines = TextLabelMaxLines
         )
     }
