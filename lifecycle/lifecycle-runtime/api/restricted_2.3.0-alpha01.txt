@@ -27,5 +27,10 @@ package androidx.lifecycle {
     method public void onStop();
   }
 
+  public class ViewTreeLifecycleOwner {
+    method public static androidx.lifecycle.LifecycleOwner? get(android.view.View);
+    method public static void set(android.view.View, androidx.lifecycle.LifecycleOwner?);
+  }
+
 }
 
