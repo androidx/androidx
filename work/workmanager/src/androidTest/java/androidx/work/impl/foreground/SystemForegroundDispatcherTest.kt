@@ -18,10 +18,13 @@ package androidx.work.impl.foreground
 
 import android.app.Notification
 import android.content.Context
+import android.content.pm.ServiceInfo.FOREGROUND_SERVICE_TYPE_CONNECTED_DEVICE
+import android.content.pm.ServiceInfo.FOREGROUND_SERVICE_TYPE_LOCATION
 import android.util.Log
 import androidx.test.core.app.ApplicationProvider
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import androidx.test.filters.MediumTest
+import androidx.test.filters.SdkSuppress
 import androidx.work.Configuration
 import androidx.work.Constraints
 import androidx.work.ForegroundInfo
@@ -131,7 +134,7 @@ class SystemForegroundDispatcherTest {
     }
 
     @Test
-    fun testHandleNotify() {
+    fun testStartForeground() {
         val workSpecId = "workSpecId"
         val notificationId = 1
         val notification = mock(Notification::class.java)
@@ -139,7 +142,139 @@ class SystemForegroundDispatcherTest {
         val intent = createNotifyIntent(context, workSpecId, metadata)
         dispatcher.onStartCommand(intent)
         verify(dispatcherCallback, times(1))
-            .notify(eq(notificationId), eq(0), eq(workSpecId), any<Notification>())
+            .startForeground(eq(notificationId), eq(0), any<Notification>())
+    }
+
+    @Test
+    fun testNotify() {
+        val workSpecId = "workSpecId"
+        val notificationId = 1
+        val notification = mock(Notification::class.java)
+        val metadata = ForegroundInfo(notificationId, notification)
+        val intent = createNotifyIntent(context, workSpecId, metadata)
+        dispatcher.mCurrentForegroundWorkSpecId = "anotherWorkSpecId"
+        dispatcher.onStartCommand(intent)
+        verify(dispatcherCallback, times(1))
+            .notify(eq(notificationId), any<Notification>())
+    }
+
+    @Test
+    fun testPromoteWorkSpecForStartForeground() {
+        val firstWorkSpecId = "first"
+        val firstId = 1
+        val notification = mock(Notification::class.java)
+        val firstInfo = ForegroundInfo(firstId, notification)
+        val firstIntent = createNotifyIntent(context, firstWorkSpecId, firstInfo)
+
+        val secondWorkSpecId = "second"
+        val secondId = 2
+        val secondInfo = ForegroundInfo(secondId, notification)
+        val secondIntent = createNotifyIntent(context, secondWorkSpecId, secondInfo)
+
+        dispatcher.onStartCommand(firstIntent)
+        assertThat(dispatcher.mCurrentForegroundWorkSpecId, `is`(firstWorkSpecId))
+        verify(dispatcherCallback, times(1))
+            .startForeground(eq(firstId), eq(0), any<Notification>())
+
+        dispatcher.onStartCommand(secondIntent)
+        assertThat(dispatcher.mCurrentForegroundWorkSpecId, `is`(firstWorkSpecId))
+        verify(dispatcherCallback, times(1))
+            .notify(eq(secondId), any<Notification>())
+        assertThat(dispatcher.mForegroundInfoById.count(), `is`(2))
+
+        dispatcher.onExecuted(firstWorkSpecId, false)
+        verify(dispatcherCallback, times(1))
+            .startForeground(eq(secondId), eq(0), any<Notification>())
+        verify(dispatcherCallback, times(1))
+            .cancelNotification(secondId)
+        assertThat(dispatcher.mForegroundInfoById.count(), `is`(1))
+
+        dispatcher.onExecuted(secondWorkSpecId, false)
+        verify(dispatcherCallback, times(1))
+            .cancelNotification(secondId)
+        assertThat(dispatcher.mForegroundInfoById.count(), `is`(0))
+    }
+
+    @Test
+    fun promoteWorkSpecForStartForeground2() {
+        val firstWorkSpecId = "first"
+        val firstId = 1
+        val notification = mock(Notification::class.java)
+        val firstInfo = ForegroundInfo(firstId, notification)
+        val firstIntent = createNotifyIntent(context, firstWorkSpecId, firstInfo)
+
+        val secondWorkSpecId = "second"
+        val secondId = 2
+        val secondInfo = ForegroundInfo(secondId, notification)
+        val secondIntent = createNotifyIntent(context, secondWorkSpecId, secondInfo)
+
+        val thirdWorkSpecId = "third"
+        val thirdId = 3
+        val thirdInfo = ForegroundInfo(thirdId, notification)
+        val thirdIntent = createNotifyIntent(context, thirdWorkSpecId, thirdInfo)
+
+        dispatcher.onStartCommand(firstIntent)
+        assertThat(dispatcher.mCurrentForegroundWorkSpecId, `is`(firstWorkSpecId))
+        verify(dispatcherCallback, times(1))
+            .startForeground(eq(firstId), eq(0), any<Notification>())
+
+        dispatcher.onStartCommand(secondIntent)
+        assertThat(dispatcher.mCurrentForegroundWorkSpecId, `is`(firstWorkSpecId))
+        verify(dispatcherCallback, times(1))
+            .notify(eq(secondId), any<Notification>())
+        assertThat(dispatcher.mForegroundInfoById.count(), `is`(2))
+
+        dispatcher.onStartCommand(thirdIntent)
+        assertThat(dispatcher.mCurrentForegroundWorkSpecId, `is`(firstWorkSpecId))
+        verify(dispatcherCallback, times(1))
+            .notify(eq(secondId), any<Notification>())
+        assertThat(dispatcher.mForegroundInfoById.count(), `is`(3))
+
+        dispatcher.onExecuted(firstWorkSpecId, false)
+        verify(dispatcherCallback, times(1))
+            .startForeground(eq(thirdId), eq(0), any<Notification>())
+        verify(dispatcherCallback, times(1))
+            .cancelNotification(thirdId)
+        assertThat(dispatcher.mForegroundInfoById.count(), `is`(2))
+    }
+
+    @Test
+    @SdkSuppress(minSdkVersion = 29)
+    fun testUpdateNotificationWithDifferentForegroundServiceType() {
+        val firstWorkSpecId = "first"
+        val firstId = 1
+        val notification = mock(Notification::class.java)
+        val firstInfo =
+            ForegroundInfo(firstId, notification, FOREGROUND_SERVICE_TYPE_CONNECTED_DEVICE)
+        val firstIntent = createNotifyIntent(context, firstWorkSpecId, firstInfo)
+
+        val secondWorkSpecId = "second"
+        val secondId = 2
+        val secondInfo = ForegroundInfo(secondId, notification, FOREGROUND_SERVICE_TYPE_LOCATION)
+        val secondIntent = createNotifyIntent(context, secondWorkSpecId, secondInfo)
+
+        dispatcher.onStartCommand(firstIntent)
+        verify(dispatcherCallback, times(1))
+            .startForeground(
+                eq(firstId),
+                eq(FOREGROUND_SERVICE_TYPE_CONNECTED_DEVICE),
+                any<Notification>()
+            )
+
+        dispatcher.onStartCommand(secondIntent)
+        assertThat(dispatcher.mCurrentForegroundWorkSpecId, `is`(firstWorkSpecId))
+        verify(dispatcherCallback, times(1))
+            .notify(eq(secondId), any<Notification>())
+
+        val expectedNotificationType =
+            FOREGROUND_SERVICE_TYPE_LOCATION or FOREGROUND_SERVICE_TYPE_CONNECTED_DEVICE
+
+        verify(dispatcherCallback, times(1))
+            .startForeground(
+                eq(firstId),
+                eq(expectedNotificationType),
+                any<Notification>()
+            )
     }
 
     @Test
