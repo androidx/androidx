@@ -23,6 +23,7 @@ import android.hardware.camera2.CameraCharacteristics;
 import android.hardware.camera2.CameraDevice;
 import android.hardware.camera2.CaptureRequest;
 import android.hardware.camera2.TotalCaptureResult;
+import android.os.Build;
 import android.util.Log;
 import android.view.Surface;
 
@@ -962,14 +963,15 @@ final class CaptureSession {
     // TODO(b/141959507): GuardedBy suppressed during upgrade to AGP 3.6.
     @SuppressWarnings({"GuardedBy", "WeakerAccess"}) /* synthetic accessor */
     void closeConfiguredDeferrableSurfaces() {
-        if (!mIsLegacyDevice) {
-            // Do not close for non-LEGACY devices. Reusing {@link DeferrableSurface} is only a
-            // problem for LEGACY devices. See: b/135050586.
-            return;
-        }
-
-        for (DeferrableSurface deferrableSurface : mConfiguredDeferrableSurfaces) {
-            deferrableSurface.close();
+        // Do not close for non-LEGACY devices. Reusing {@link DeferrableSurface} is only a
+        // problem for LEGACY devices. See: b/135050586.
+        // Another problem is the behavior of TextureView below API 23. It releases {@link
+        // SurfaceTexture}. Hence, request to close and recreate {@link DeferrableSurface}.
+        // See: b/145725334.
+        if (mIsLegacyDevice || Build.VERSION.SDK_INT <= Build.VERSION_CODES.M) {
+            for (DeferrableSurface deferrableSurface : mConfiguredDeferrableSurfaces) {
+                deferrableSurface.close();
+            }
         }
     }
 
