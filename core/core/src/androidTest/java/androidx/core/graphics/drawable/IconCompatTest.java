@@ -178,7 +178,7 @@ public class IconCompatTest {
             writeSampleImage(file);
             assertTrue(file.exists());
             final IconCompat compat =
-                    IconCompat.createWithContentUriForAdaptiveBitmap(Uri.fromFile(file));
+                    IconCompat.createWithAdaptiveBitmapContentUri(Uri.fromFile(file));
             verifyIconCompatValidity(compat);
             verifyAdaptiveIconCompat(compat, Color.argb(255, 4, 5, 10));
         } finally {
