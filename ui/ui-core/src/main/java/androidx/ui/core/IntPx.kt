@@ -100,8 +100,7 @@ data /*inline*/ class IntPx(val value: Int) : Comparable<IntPx> {
     /**
      * Support comparing Dimensions with comparison operators.
      */
-    @Suppress("OVERRIDE_BY_INLINE")
-    override inline operator fun compareTo(other: IntPx) = value.compareTo(other.value)
+    override /* TODO: inline */ operator fun compareTo(other: IntPx) = value.compareTo(other.value)
 
     /**
      * Compares this [IntPx] to another [Px]

@@ -101,8 +101,7 @@ data /*inline*/ class Dp(val value: Float) : Comparable<Dp> {
     /**
      * Support comparing Dimensions with comparison operators.
      */
-    @Suppress("OVERRIDE_BY_INLINE")
-    override inline operator fun compareTo(other: Dp) = value.compareTo(other.value)
+    override /* TODO: inline */ operator fun compareTo(other: Dp) = value.compareTo(other.value)
 
     override fun toString() = "$value.dp"
 
@@ -278,8 +277,7 @@ inline class DpSquared(val value: Float) : Comparable<DpSquared> {
     /**
      * Support comparing DpSquared with comparison operators.
      */
-    @Suppress("OVERRIDE_BY_INLINE")
-    override inline operator fun compareTo(other: DpSquared) =
+    override /* TODO: inline */ operator fun compareTo(other: DpSquared) =
         value.compareTo(other.value)
 
     override fun toString(): String = "$value.dp^2"
@@ -342,8 +340,8 @@ inline class DpCubed(val value: Float) : Comparable<DpCubed> {
     /**
      * Support comparing DpCubed with comparison operators.
      */
-    @Suppress("OVERRIDE_BY_INLINE")
-    override inline operator fun compareTo(other: DpCubed) = value.compareTo(other.value)
+    override /* TODO: inline */ operator fun compareTo(other: DpCubed) =
+        value.compareTo(other.value)
 
     override fun toString(): String = "$value.dp^3"
 }
@@ -403,8 +401,7 @@ inline class DpInverse(val value: Float) : Comparable<DpInverse> {
     /**
      * Support comparing DpInverse with comparison operators.
      */
-    @Suppress("OVERRIDE_BY_INLINE")
-    override inline operator fun compareTo(other: DpInverse) =
+    override /* TODO: inline */ operator fun compareTo(other: DpInverse) =
         value.compareTo(other.value)
 
     override fun toString(): String = "$value.dp^-1"

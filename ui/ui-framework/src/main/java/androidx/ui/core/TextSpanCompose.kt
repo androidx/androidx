@@ -86,8 +86,8 @@ class TextSpanComposer internal constructor(
 internal val invocation = Object()
 
 class TextSpanComposition(val composer: TextSpanComposer) {
-    @Suppress("NOTHING_TO_INLINE")
-    inline operator fun <V> Effect<V>.unaryPlus(): V = resolve(this@TextSpanComposition.composer)
+    /* TODO: inline */ operator fun <V> Effect<V>.unaryPlus(): V =
+        resolve(this@TextSpanComposition.composer)
 
     inline fun emit(
         key: Any,
@@ -117,8 +117,7 @@ class TextSpanComposition(val composer: TextSpanComposer) {
         endNode()
     }
 
-    @Suppress("NOTHING_TO_INLINE")
-    inline fun joinKey(left: Any, right: Any?): Any = composer.joinKey(left, right)
+    /* TODO: inline */ fun joinKey(left: Any, right: Any?): Any = composer.joinKey(left, right)
 
     @Suppress("PLUGIN_WARNING")
     inline fun <T> expr(
