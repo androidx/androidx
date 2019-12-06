@@ -17,6 +17,7 @@
 package androidx.camera.integration.extensions;
 
 import android.app.Application;
+import android.util.Log;
 
 import androidx.annotation.NonNull;
 import androidx.camera.camera2.Camera2Config;
@@ -24,10 +25,12 @@ import androidx.camera.core.CameraXConfig;
 
 /** The application. */
 public class ExtensionsApplication extends Application implements CameraXConfig.Provider {
+    private static final String TAG = "ExtensionApplication";
 
     @NonNull
     @Override
     public CameraXConfig getCameraXConfig() {
+        Log.d(TAG, "Providing custom CameraXConfig through Application");
         return Camera2Config.defaultConfig();
     }
 }
