@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<issues format="5" by="lint 3.6.0-beta01" client="gradle" variant="debug" version="3.6.0-beta01">
+<issues format="5" by="lint 3.6.0-beta05" client="gradle" variant="debug" version="3.6.0-beta05">
 
     <issue
         id="KotlinPropertyAccess"
@@ -23,7 +23,7 @@
         errorLine2="                                                              ~~~~~~~~~">
         <location
             file="src/main/java/androidx/appcompat/graphics/drawable/DrawableWrapper.java"
-            line="167"
+            line="169"
             column="63"/>
     </issue>
 
@@ -155,7 +155,7 @@
         errorLine2="                               ~~~~~~~~~~~">
         <location
             file="src/main/java/androidx/appcompat/graphics/drawable/DrawableWrapper.java"
-            line="86"
+            line="87"
             column="32"/>
     </issue>
 
@@ -166,7 +166,7 @@
         errorLine2="                                  ~~~~~">
         <location
             file="src/main/java/androidx/appcompat/graphics/drawable/DrawableWrapper.java"
-            line="96"
+            line="97"
             column="35"/>
     </issue>
 
@@ -177,7 +177,7 @@
         errorLine2="           ~~~~~">
         <location
             file="src/main/java/androidx/appcompat/graphics/drawable/DrawableWrapper.java"
-            line="101"
+            line="102"
             column="12"/>
     </issue>
 
@@ -188,7 +188,7 @@
         errorLine2="           ~~~~~~~~">
         <location
             file="src/main/java/androidx/appcompat/graphics/drawable/DrawableWrapper.java"
-            line="111"
+            line="112"
             column="12"/>
     </issue>
 
@@ -199,7 +199,7 @@
         errorLine2="           ~~~~~~">
         <location
             file="src/main/java/androidx/appcompat/graphics/drawable/DrawableWrapper.java"
-            line="126"
+            line="128"
             column="12"/>
     </issue>
 
@@ -210,7 +210,7 @@
         errorLine2="                              ~~~~">
         <location
             file="src/main/java/androidx/appcompat/graphics/drawable/DrawableWrapper.java"
-            line="151"
+            line="153"
             column="31"/>
     </issue>
 
@@ -221,7 +221,7 @@
         errorLine2="                                   ~~~~~~~~">
         <location
             file="src/main/java/androidx/appcompat/graphics/drawable/DrawableWrapper.java"
-            line="159"
+            line="161"
             column="36"/>
     </issue>
 
@@ -232,7 +232,7 @@
         errorLine2="                                 ~~~~~~~~">
         <location
             file="src/main/java/androidx/appcompat/graphics/drawable/DrawableWrapper.java"
-            line="167"
+            line="169"
             column="34"/>
     </issue>
 
@@ -243,7 +243,7 @@
         errorLine2="                                               ~~~~~~~~">
         <location
             file="src/main/java/androidx/appcompat/graphics/drawable/DrawableWrapper.java"
-            line="167"
+            line="169"
             column="48"/>
     </issue>
 
@@ -254,7 +254,7 @@
         errorLine2="                                   ~~~~~~~~">
         <location
             file="src/main/java/androidx/appcompat/graphics/drawable/DrawableWrapper.java"
-            line="175"
+            line="177"
             column="36"/>
     </issue>
 
@@ -265,7 +265,7 @@
         errorLine2="                                                 ~~~~~~~~">
         <location
             file="src/main/java/androidx/appcompat/graphics/drawable/DrawableWrapper.java"
-            line="175"
+            line="177"
             column="50"/>
     </issue>
 
@@ -276,7 +276,7 @@
         errorLine2="                            ~~~~~~~~~~~~~~">
         <location
             file="src/main/java/androidx/appcompat/graphics/drawable/DrawableWrapper.java"
-            line="200"
+            line="202"
             column="29"/>
     </issue>
 
@@ -287,7 +287,7 @@
         errorLine2="                            ~~~~~~~~~~~~~~~">
         <location
             file="src/main/java/androidx/appcompat/graphics/drawable/DrawableWrapper.java"
-            line="205"
+            line="207"
             column="29"/>
     </issue>
 
@@ -298,7 +298,7 @@
         errorLine2="           ~~~~~~~~">
         <location
             file="src/main/java/androidx/appcompat/graphics/drawable/DrawableWrapper.java"
-            line="219"
+            line="221"
             column="12"/>
     </issue>
 
@@ -309,7 +309,7 @@
         errorLine2="                                   ~~~~~~~~">
         <location
             file="src/main/java/androidx/appcompat/graphics/drawable/DrawableWrapper.java"
-            line="223"
+            line="225"
             column="36"/>
     </issue>
 
@@ -353,7 +353,7 @@
         errorLine2="                               ~~~~~~~~~~~~~~~~~~~~~">
         <location
             file="src/main/java/androidx/appcompat/widget/ResourceManagerInternal.java"
-            line="482"
+            line="467"
             column="32"/>
     </issue>
 
@@ -364,7 +364,7 @@
         errorLine2="                       ~~~~~~~~~~~~~~~">
         <location
             file="src/main/java/androidx/appcompat/widget/ResourceManagerInternal.java"
-            line="483"
+            line="468"
             column="24"/>
     </issue>
 
@@ -441,7 +441,7 @@
         errorLine2="           ~~~~~~~~">
         <location
             file="src/main/java/androidx/appcompat/widget/VectorEnabledTintResources.java"
-            line="65"
+            line="67"
             column="12"/>
     </issue>
 

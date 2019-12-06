@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<issues format="5" by="lint 3.6.0-beta01" client="gradle" variant="debug" version="3.6.0-beta01">
+<issues format="5" by="lint 3.6.0-beta05" client="gradle" variant="debug" version="3.6.0-beta05">
 
     <issue
         id="LambdaLast"
@@ -19,29 +19,29 @@
         errorLine2="                  ~~~~~~~~~~~~~">
         <location
             file="src/main/java/androidx/camera/testing/CameraUtil.java"
-            line="220"
+            line="217"
             column="19"/>
     </issue>
 
     <issue
         id="UnknownNullness"
         message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
-        errorLine1="    public static void openCameraWithUseCase(String cameraId, BaseCamera camera,"
+        errorLine1="    public static void openCameraWithUseCase(String cameraId, CameraInternal cameraInternal,"
         errorLine2="                                             ~~~~~~">
         <location
             file="src/main/java/androidx/camera/testing/CameraUtil.java"
-            line="237"
+            line="234"
             column="46"/>
     </issue>
 
     <issue
         id="UnknownNullness"
         message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
-        errorLine1="    public static void openCameraWithUseCase(String cameraId, BaseCamera camera,"
-        errorLine2="                                                              ~~~~~~~~~~">
+        errorLine1="    public static void openCameraWithUseCase(String cameraId, CameraInternal cameraInternal,"
+        errorLine2="                                                              ~~~~~~~~~~~~~~">
         <location
             file="src/main/java/androidx/camera/testing/CameraUtil.java"
-            line="237"
+            line="234"
             column="63"/>
     </issue>
 
@@ -52,30 +52,30 @@
         errorLine2="            ~~~~~~~~~~">
         <location
             file="src/main/java/androidx/camera/testing/CameraUtil.java"
-            line="238"
+            line="235"
             column="13"/>
     </issue>
 
     <issue
         id="UnknownNullness"
         message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
-        errorLine1="    public static void detachUseCaseFromCamera(BaseCamera camera, UseCase... useCases) {"
-        errorLine2="                                               ~~~~~~~~~~">
+        errorLine1="    public static void detachUseCaseFromCamera(CameraInternal cameraInternal, UseCase... useCases) {"
+        errorLine2="                                               ~~~~~~~~~~~~~~">
         <location
             file="src/main/java/androidx/camera/testing/CameraUtil.java"
-            line="254"
+            line="251"
             column="48"/>
     </issue>
 
     <issue
         id="UnknownNullness"
         message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
-        errorLine1="    public static void detachUseCaseFromCamera(BaseCamera camera, UseCase... useCases) {"
-        errorLine2="                                                                  ~~~~~~~~~~">
+        errorLine1="    public static void detachUseCaseFromCamera(CameraInternal cameraInternal, UseCase... useCases) {"
+        errorLine2="                                                                              ~~~~~~~~~~">
         <location
             file="src/main/java/androidx/camera/testing/CameraUtil.java"
-            line="254"
-            column="67"/>
+            line="251"
+            column="79"/>
     </issue>
 
     <issue
@@ -162,7 +162,7 @@
         errorLine2="                                                    ~~~~~~~~~~~~~~~~~~~">
         <location
             file="src/main/java/androidx/camera/testing/fakes/FakeCameraControl.java"
-            line="78"
+            line="85"
             column="53"/>
     </issue>
 
@@ -349,7 +349,7 @@
         errorLine2="                                  ~~~~~~~~~">
         <location
             file="src/main/java/androidx/camera/testing/fakes/FakeConfig.java"
-            line="52"
+            line="53"
             column="35"/>
     </issue>
 
@@ -360,7 +360,7 @@
         errorLine2="                                          ~~~~~~~~~~~~~~">
         <location
             file="src/main/java/androidx/camera/testing/fakes/FakeConfig.java"
-            line="60"
+            line="61"
             column="43"/>
     </issue>
 
@@ -371,7 +371,7 @@
         errorLine2="                                          ~~~~~~~~~~~~~~">
         <location
             file="src/main/java/androidx/camera/testing/fakes/FakeConfig.java"
-            line="68"
+            line="69"
             column="43"/>
     </issue>
 
@@ -382,7 +382,7 @@
         errorLine2="                            ~~~~~~">
         <location
             file="src/main/java/androidx/camera/testing/fakes/FakeConfig.java"
-            line="75"
+            line="76"
             column="29"/>
     </issue>
 
@@ -393,7 +393,7 @@
         errorLine2="                                           ~~~~~~~~~~~~~">
         <location
             file="src/main/java/androidx/camera/testing/fakes/FakeConfig.java"
-            line="75"
+            line="76"
             column="44"/>
     </issue>
 
@@ -404,7 +404,7 @@
         errorLine2="           ~~~~~~~~~~~~~~">
         <location
             file="src/main/java/androidx/camera/testing/fakes/FakeConfig.java"
-            line="82"
+            line="83"
             column="12"/>
     </issue>
 
@@ -415,19 +415,8 @@
         errorLine2="                       ~~~~~~">
         <location
             file="src/main/java/androidx/camera/testing/fakes/FakeImageInfo.java"
-            line="29"
+            line="30"
             column="24"/>
-    </issue>
-
-    <issue
-        id="UnknownNullness"
-        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
-        errorLine1="    public ImageInfo getImageInfo() {"
-        errorLine2="           ~~~~~~~~~">
-        <location
-            file="src/main/java/androidx/camera/testing/fakes/FakeImageProxy.java"
-            line="106"
-            column="12"/>
     </issue>
 
     <issue
@@ -437,19 +426,8 @@
         errorLine2="                          ~~~~~~~~~~~~">
         <location
             file="src/main/java/androidx/camera/testing/fakes/FakeImageProxy.java"
-            line="128"
+            line="127"
             column="27"/>
-    </issue>
-
-    <issue
-        id="UnknownNullness"
-        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
-        errorLine1="    public void setImageInfo(ImageInfo imageInfo) {"
-        errorLine2="                             ~~~~~~~~~">
-        <location
-            file="src/main/java/androidx/camera/testing/fakes/FakeImageProxy.java"
-            line="132"
-            column="30"/>
     </issue>
 
     <issue
@@ -499,17 +477,6 @@
     <issue
         id="UnknownNullness"
         message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
-        errorLine1="    public Lifecycle getLifecycle() {"
-        errorLine2="           ~~~~~~~~~">
-        <location
-            file="src/main/java/androidx/camera/testing/fakes/FakeLifecycleOwner.java"
-            line="119"
-            column="12"/>
-    </issue>
-
-    <issue
-        id="UnknownNullness"
-        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
         errorLine1="    public FakeUseCase(FakeUseCaseConfig config) {"
         errorLine2="                       ~~~~~~~~~~~~~~~~~">
         <location
@@ -521,23 +488,12 @@
     <issue
         id="UnknownNullness"
         message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
-        errorLine1="    protected UseCaseConfig.Builder&lt;?, ?, ?> getDefaultBuilder(LensFacing lensFacing) {"
+        errorLine1="    protected UseCaseConfig.Builder&lt;?, ?, ?> getDefaultBuilder(@Nullable Integer lensFacing) {"
         errorLine2="              ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
         <location
             file="src/main/java/androidx/camera/testing/fakes/FakeUseCase.java"
             line="50"
             column="15"/>
-    </issue>
-
-    <issue
-        id="UnknownNullness"
-        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
-        errorLine1="    protected UseCaseConfig.Builder&lt;?, ?, ?> getDefaultBuilder(LensFacing lensFacing) {"
-        errorLine2="                                                               ~~~~~~~~~~">
-        <location
-            file="src/main/java/androidx/camera/testing/fakes/FakeUseCase.java"
-            line="50"
-            column="64"/>
     </issue>
 
     <issue

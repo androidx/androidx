@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<issues format="5" by="lint 3.6.0-beta01" client="gradle" variant="debug" version="3.6.0-beta01">
+<issues format="5" by="lint 3.6.0-beta05" client="gradle" variant="debug" version="3.6.0-beta05">
 
     <issue
         id="UnknownNullness"
@@ -734,7 +734,7 @@
         errorLine2="              ~~~~~~~~~~~~~~">
         <location
             file="src/main/java/androidx/slice/widget/RowView.java"
-            line="131"
+            line="132"
             column="15"/>
     </issue>
 
@@ -745,7 +745,7 @@
         errorLine2="                   ~~~~~~~">
         <location
             file="src/main/java/androidx/slice/widget/RowView.java"
-            line="179"
+            line="180"
             column="20"/>
     </issue>
 
@@ -756,7 +756,7 @@
         errorLine2="                         ~~~~~~~~~~">
         <location
             file="src/main/java/androidx/slice/widget/RowView.java"
-            line="201"
+            line="205"
             column="26"/>
     </issue>
 
@@ -767,7 +767,7 @@
         errorLine2="                                ~~~~~~~~~~~~~~~~~">
         <location
             file="src/main/java/androidx/slice/widget/RowView.java"
-            line="295"
+            line="299"
             column="33"/>
     </issue>
 
@@ -778,7 +778,7 @@
         errorLine2="                             ~~~~~~~~~~~~">
         <location
             file="src/main/java/androidx/slice/widget/RowView.java"
-            line="389"
+            line="393"
             column="30"/>
     </issue>
 
@@ -789,7 +789,7 @@
         errorLine2="                          ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
         <location
             file="src/main/java/androidx/slice/widget/RowView.java"
-            line="390"
+            line="394"
             column="27"/>
     </issue>
 
@@ -800,7 +800,7 @@
         errorLine2="                                  ~~~~~~~~~~~~~~">
         <location
             file="src/main/java/androidx/slice/widget/RowView.java"
-            line="906"
+            line="916"
             column="35"/>
     </issue>
 
@@ -811,7 +811,7 @@
         errorLine2="                        ~~~~">
         <location
             file="src/main/java/androidx/slice/widget/RowView.java"
-            line="918"
+            line="928"
             column="25"/>
     </issue>
 
@@ -822,7 +822,7 @@
         errorLine2="                               ~~~~~~~~~~~~~~">
         <location
             file="src/main/java/androidx/slice/widget/RowView.java"
-            line="957"
+            line="967"
             column="32"/>
     </issue>
 
@@ -833,7 +833,7 @@
         errorLine2="                                                      ~~~~">
         <location
             file="src/main/java/androidx/slice/widget/RowView.java"
-            line="957"
+            line="967"
             column="55"/>
     </issue>
 
@@ -844,7 +844,7 @@
         errorLine2="                                  ~~~~~~~~~~~~~~">
         <location
             file="src/main/java/androidx/slice/widget/RowView.java"
-            line="992"
+            line="1002"
             column="35"/>
     </issue>
 
