@@ -1022,7 +1022,8 @@ class LayoutNode : ComponentNode(), Measurable {
             layoutNodeWrapper = modifier.foldOut(innerLayoutNodeWrapper) { mod, toWrap ->
                 when (mod) {
                     is LayoutModifier -> ModifiedLayoutNode(toWrap, mod)
-                    is DrawModifier -> DrawLayoutNodeWrapper(toWrap, mod)
+                    is ParentDataModifier -> ModifiedParentDataNode(toWrap, mod)
+                    is DrawModifier -> ModifiedDrawNode(toWrap, mod)
                     else -> toWrap
                 }
             }
@@ -1056,6 +1057,29 @@ class LayoutNode : ComponentNode(), Measurable {
          * Draws the content of the LayoutNode
          */
         abstract fun draw(canvas: Canvas, density: Density)
+    }
+
+    /**
+     * [LayoutNodeWrapper] with default implementations for methods.
+     */
+    private abstract class DelegatingLayoutNodeWrapper : LayoutNodeWrapper() {
+        abstract val wrapped: LayoutNodeWrapper
+        override fun calculateContentPosition(offset: IntPxPosition) =
+            wrapped.calculateContentPosition(position + offset)
+        override fun layoutSize(innermostSize: IntPxSize) = wrapped.layoutSize(innermostSize)
+        override fun draw(canvas: Canvas, density: Density) = wrapped.draw(canvas, density)
+        override fun get(line: AlignmentLine): IntPx? = wrapped[line]
+        override val size: IntPxSize get() = wrapped.size
+        override fun performPlace(position: IntPxPosition) = wrapped.place(position)
+        override fun measure(constraints: Constraints): Placeable {
+            wrapped.measure(constraints)
+            return this
+        }
+        override fun minIntrinsicWidth(height: IntPx) = wrapped.minIntrinsicWidth(height)
+        override fun maxIntrinsicWidth(height: IntPx) = wrapped.maxIntrinsicWidth(height)
+        override fun minIntrinsicHeight(width: IntPx) = wrapped.minIntrinsicHeight(width)
+        override fun maxIntrinsicHeight(width: IntPx) = wrapped.maxIntrinsicHeight(width)
+        override val parentData: Any? get() = wrapped.parentData
     }
 
     private inner class InnerPlaceable : LayoutNodeWrapper(), DensityScope {
@@ -1121,10 +1145,24 @@ class LayoutNode : ComponentNode(), Measurable {
         }
     }
 
+    private open inner class ModifiedParentDataNode(
+        override val wrapped: LayoutNodeWrapper,
+        val parentDataModifier: ParentDataModifier
+    ) : DelegatingLayoutNodeWrapper() {
+        override val parentData: Any?
+            get() = with(parentDataModifier) {
+                /**
+                 * ParentData provided through the parentData node will override the data provided
+                 * through a modifier
+                 */
+                parentDataNode?.value ?: measureScope.modifyParentData(wrapped.parentData)
+            }
+    }
+
     private inner class ModifiedLayoutNode(
-        val wrapped: LayoutNodeWrapper,
+        override val wrapped: LayoutNodeWrapper,
         val layoutModifier: LayoutModifier
-    ) : LayoutNodeWrapper() {
+    ) : ModifiedParentDataNode(wrapped, layoutModifier) {
 
         /**
          * The [Placeable] returned by measuring [wrapped] in [measure].
@@ -1151,15 +1189,6 @@ class LayoutNode : ComponentNode(), Measurable {
         } finally {
             measuredConstraints = null
         }
-
-        /**
-         * ParentData provided through the parentData node will override the data provided
-         * through a modifier
-         */
-        override val parentData: Any?
-            get() = with(layoutModifier) {
-                parentDataNode?.value ?: measureScope.modifyParentData(wrapped.parentData)
-            }
 
         override fun measure(constraints: Constraints): Placeable = with(layoutModifier) {
             val measureResult = withMeasuredConstraints(constraints) {
@@ -1225,45 +1254,17 @@ class LayoutNode : ComponentNode(), Measurable {
         }
     }
 
-    private class DrawLayoutNodeWrapper(
-        val wrapped: LayoutNodeWrapper,
+    private class ModifiedDrawNode(
+        override val wrapped: LayoutNodeWrapper,
         val drawModifier: DrawModifier
-    ) : LayoutNodeWrapper(), () -> Unit {
+    ) : DelegatingLayoutNodeWrapper(), () -> Unit {
         private var density: Density? = null
         private var canvas: Canvas? = null
-
-        override fun calculateContentPosition(offset: IntPxPosition) {
-            wrapped.calculateContentPosition(position + offset)
-        }
-
-        override fun layoutSize(innermostSize: IntPxSize): IntPxSize =
-            wrapped.layoutSize(innermostSize)
-
-        override fun get(line: AlignmentLine): IntPx? = wrapped.get(line)
-
-        override val size: IntPxSize
-            get() = wrapped.size
 
         override fun performPlace(position: IntPxPosition) {
             this.position = position
             wrapped.place(IntPxPosition.Origin)
         }
-
-        override fun measure(constraints: Constraints): Placeable {
-            wrapped.measure(constraints)
-            return this
-        }
-
-        override val parentData: Any?
-            get() = wrapped.parentData
-
-        override fun minIntrinsicWidth(height: IntPx): IntPx = wrapped.minIntrinsicWidth(height)
-
-        override fun maxIntrinsicWidth(height: IntPx): IntPx = wrapped.maxIntrinsicWidth(height)
-
-        override fun minIntrinsicHeight(width: IntPx): IntPx = wrapped.minIntrinsicHeight(width)
-
-        override fun maxIntrinsicHeight(width: IntPx): IntPx = wrapped.maxIntrinsicHeight(width)
 
         override fun draw(canvas: Canvas, density: Density) {
             val x = position.x.value.toFloat()

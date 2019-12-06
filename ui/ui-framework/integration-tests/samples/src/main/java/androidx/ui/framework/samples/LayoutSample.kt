@@ -20,7 +20,10 @@ import androidx.annotation.Sampled
 import androidx.compose.Composable
 import androidx.ui.core.Constraints
 import androidx.ui.core.Layout
+import androidx.ui.core.LayoutTag
 import androidx.ui.core.ipx
+import androidx.ui.core.tag
+import androidx.ui.layout.Container
 
 @Sampled
 @Composable
@@ -113,6 +116,31 @@ fun LayoutVarargsUsage(header: @Composable() () -> Unit, footer: @Composable() (
         layout(100.ipx, 100.ipx) {
             headerPlaceables.forEach { it.place(0.ipx, 0.ipx) }
             footerPlaceables.forEach { it.place(0.ipx, 0.ipx) }
+        }
+    }
+}
+
+@Sampled
+@Composable
+fun LayoutTagChildrenUsage(header: @Composable() () -> Unit, footer: @Composable() () -> Unit) {
+    Layout({
+        // Here the Containers are only needed to apply the modifiers. You could use the
+        // modifier on header and footer directly if they are composables accepting modifiers.
+        Container(LayoutTag("header"), children = header)
+        Container(LayoutTag("footer"), children = footer)
+    }) { measurables, constraints ->
+        val placeables = measurables.map { measurable ->
+            when (measurable.tag) {
+                // You should use appropriate constraints. Here we measure with dummy constraints.
+                "header" -> measurable.measure(Constraints.tightConstraints(100.ipx, 100.ipx))
+                "footer" -> measurable.measure(constraints)
+                else -> error("Unexpected tag")
+            }
+        }
+        // Size should be derived from children measured sizes on placeables,
+        // but this is simplified for the purposes of the example.
+        layout(100.ipx, 100.ipx) {
+            placeables.forEach { it.place(0.ipx, 0.ipx) }
         }
     }
 }

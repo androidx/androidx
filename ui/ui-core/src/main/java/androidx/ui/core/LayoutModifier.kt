@@ -19,7 +19,7 @@ package androidx.ui.core
 /**
  * A [Modifier.Element] that changes the way a UI component is measured and laid out.
  */
-interface LayoutModifier : Modifier.Element {
+interface LayoutModifier : ParentDataModifier {
     /**
      * Modifies [constraints] for performing measurement of the modified layout element.
      */
@@ -88,9 +88,4 @@ interface LayoutModifier : Modifier.Element {
         line: AlignmentLine,
         value: IntPx?
     ): IntPx? = value
-
-    /**
-     * Provides a parentData given the [parentData] already provided through the modifier's chain.
-     */
-    fun DensityScope.modifyParentData(parentData: Any?): Any? = parentData
 }

@@ -535,14 +535,13 @@ package androidx.ui.core {
     enum_constant public static final androidx.ui.core.LayoutDirection Rtl;
   }
 
-  public interface LayoutModifier extends androidx.ui.core.Modifier.Element {
+  public interface LayoutModifier extends androidx.ui.core.ParentDataModifier {
     method public default androidx.ui.core.IntPx maxIntrinsicHeightOf(androidx.ui.core.DensityScope, androidx.ui.core.Measurable measurable, androidx.ui.core.IntPx width);
     method public default androidx.ui.core.IntPx maxIntrinsicWidthOf(androidx.ui.core.DensityScope, androidx.ui.core.Measurable measurable, androidx.ui.core.IntPx height);
     method public default androidx.ui.core.IntPx minIntrinsicHeightOf(androidx.ui.core.DensityScope, androidx.ui.core.Measurable measurable, androidx.ui.core.IntPx width);
     method public default androidx.ui.core.IntPx minIntrinsicWidthOf(androidx.ui.core.DensityScope, androidx.ui.core.Measurable measurable, androidx.ui.core.IntPx height);
     method public default androidx.ui.core.IntPx? modifyAlignmentLine(androidx.ui.core.DensityScope, androidx.ui.core.AlignmentLine line, androidx.ui.core.IntPx? value);
     method public default androidx.ui.core.Constraints modifyConstraints(androidx.ui.core.DensityScope, androidx.ui.core.Constraints constraints);
-    method public default Object? modifyParentData(androidx.ui.core.DensityScope, Object? parentData);
     method public default androidx.ui.core.IntPxPosition modifyPosition(androidx.ui.core.DensityScope, androidx.ui.core.IntPxSize childSize, androidx.ui.core.IntPxSize containerSize);
     method public default androidx.ui.core.IntPxSize modifySize(androidx.ui.core.DensityScope, androidx.ui.core.Constraints constraints, androidx.ui.core.IntPxSize childSize);
   }
@@ -586,6 +585,10 @@ package androidx.ui.core {
     method public <R> R! foldOut(R? initial, kotlin.jvm.functions.Function2<? super androidx.ui.core.Modifier.Element,? super R,? extends R> operation);
     method public androidx.ui.core.Modifier wraps(androidx.ui.core.Modifier other);
     field public static final androidx.ui.core.Modifier.None! INSTANCE;
+  }
+
+  public interface ParentDataModifier extends androidx.ui.core.Modifier.Element {
+    method public default Object? modifyParentData(androidx.ui.core.DensityScope, Object? parentData);
   }
 
   public abstract class Placeable {
