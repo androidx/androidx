@@ -1450,6 +1450,7 @@ package androidx.ui.graphics {
     method public static androidx.ui.graphics.Color Color(@ColorInt int color);
     method public static androidx.ui.graphics.Color Color(long color);
     method public static androidx.ui.graphics.Color Color(@IntRange(from=0, to=255) int red, @IntRange(from=0, to=255) int green, @IntRange(from=0, to=255) int blue, @IntRange(from=0, to=255) int alpha = 0xFF);
+    method public static androidx.ui.graphics.Color compositeOver(androidx.ui.graphics.Color, androidx.ui.graphics.Color background);
     method public static androidx.ui.graphics.Color lerp(androidx.ui.graphics.Color start, androidx.ui.graphics.Color stop, @FloatRange(from=0.0, to=1.0) float fraction);
     method public static float luminance(androidx.ui.graphics.Color);
     method @ColorInt public static int toArgb(androidx.ui.graphics.Color);

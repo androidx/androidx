@@ -415,6 +415,46 @@ fun lerp(start: Color, stop: Color, @FloatRange(from = 0.0, to = 1.0) fraction: 
 }
 
 /**
+ * Composites [this] color on top of [background] using the Porter-Duff 'source over' mode.
+ *
+ * Both [this] and [background] must not be pre-multiplied, and the resulting color will also
+ * not be pre-multiplied.
+ *
+ * The [ColorSpace] of the result is always the [ColorSpace][Color.colorSpace] of [background].
+ *
+ * @return the [Color] representing [this] composited on top of [background], converted to the
+ * color space of [background].
+ */
+fun Color.compositeOver(background: Color): Color {
+    val fg = this.convert(background.colorSpace)
+
+    val bgA = background.alpha
+    val fgA = fg.alpha
+    val a = fgA + (bgA * (1f - fgA))
+
+    val r = compositeComponent(fg.red, background.red, fgA, bgA, a)
+    val g = compositeComponent(fg.green, background.green, fgA, bgA, a)
+    val b = compositeComponent(fg.blue, background.blue, fgA, bgA, a)
+
+    return Color(r, g, b, a, background.colorSpace)
+}
+
+/**
+ * Composites the given [foreground component][fgC] over the [background component][bgC], with
+ * foreground and background alphas of [fgA] and [bgA] respectively.
+ *
+ * This uses a pre-calculated composite destination alpha of [a] for efficiency.
+ */
+@Suppress("NOTHING_TO_INLINE")
+private inline fun compositeComponent(
+    fgC: Float,
+    bgC: Float,
+    fgA: Float,
+    bgA: Float,
+    a: Float
+) = if (a == 0f) 0f else ((fgC * fgA) + ((bgC * bgA) * (1f - fgA))) / a
+
+/**
  * Returns this color's components as a new array. The last element of the
  * array is always the alpha component.
  *
