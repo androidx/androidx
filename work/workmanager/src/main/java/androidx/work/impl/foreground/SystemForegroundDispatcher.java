@@ -16,10 +16,13 @@
 
 package androidx.work.impl.foreground;
 
+import static android.content.pm.ServiceInfo.FOREGROUND_SERVICE_TYPE_NONE;
+
 import android.app.Notification;
 import android.content.Context;
 import android.content.Intent;
 import android.net.Uri;
+import android.os.Build;
 import android.text.TextUtils;
 
 import androidx.annotation.MainThread;
@@ -173,6 +176,10 @@ public class SystemForegroundDispatcher implements WorkConstraintsCallback, Exec
                 }
             }
         } else if (mCallback != null && removedInfo != null) {
+            // We don't need to worry about the current foreground WorkSpecId because if there
+            // is nothing running, the Processor will call stopForeground() which will eventually
+            // turn into a stopSelf().
+
             // Explicitly remove this notification instance to decrease the reference count.
             mCallback.cancelNotification(removedInfo.getNotificationId());
         }
@@ -256,6 +263,25 @@ public class SystemForegroundDispatcher implements WorkConstraintsCallback, Exec
             } else {
                 // Update notification
                 mCallback.notify(notificationId, notification);
+                // Update the notification in the foreground such that it's the union of
+                // all current foreground service types if necessary.
+                if (notificationType != FOREGROUND_SERVICE_TYPE_NONE
+                        && Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q) {
+                    int foregroundServiceType = FOREGROUND_SERVICE_TYPE_NONE;
+                    for (Map.Entry<String, ForegroundInfo> entry : mForegroundInfoById.entrySet()) {
+                        ForegroundInfo foregroundInfo = entry.getValue();
+                        foregroundServiceType |= foregroundInfo.getForegroundServiceType();
+                    }
+                    ForegroundInfo currentInfo =
+                            mForegroundInfoById.get(mCurrentForegroundWorkSpecId);
+                    if (currentInfo != null) {
+                        mCallback.startForeground(
+                                currentInfo.getNotificationId(),
+                                foregroundServiceType,
+                                currentInfo.getNotification()
+                        );
+                    }
+                }
             }
         }
     }

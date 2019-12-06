@@ -18,10 +18,13 @@ package androidx.work.impl.foreground
 
 import android.app.Notification
 import android.content.Context
+import android.content.pm.ServiceInfo.FOREGROUND_SERVICE_TYPE_CONNECTED_DEVICE
+import android.content.pm.ServiceInfo.FOREGROUND_SERVICE_TYPE_LOCATION
 import android.util.Log
 import androidx.test.core.app.ApplicationProvider
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import androidx.test.filters.MediumTest
+import androidx.test.filters.SdkSuppress
 import androidx.work.Configuration
 import androidx.work.Constraints
 import androidx.work.ForegroundInfo
@@ -233,6 +236,45 @@ class SystemForegroundDispatcherTest {
         verify(dispatcherCallback, times(1))
             .cancelNotification(thirdId)
         assertThat(dispatcher.mForegroundInfoById.count(), `is`(2))
+    }
+
+    @Test
+    @SdkSuppress(minSdkVersion = 29)
+    fun testUpdateNotificationWithDifferentForegroundServiceType() {
+        val firstWorkSpecId = "first"
+        val firstId = 1
+        val notification = mock(Notification::class.java)
+        val firstInfo =
+            ForegroundInfo(firstId, notification, FOREGROUND_SERVICE_TYPE_CONNECTED_DEVICE)
+        val firstIntent = createNotifyIntent(context, firstWorkSpecId, firstInfo)
+
+        val secondWorkSpecId = "second"
+        val secondId = 2
+        val secondInfo = ForegroundInfo(secondId, notification, FOREGROUND_SERVICE_TYPE_LOCATION)
+        val secondIntent = createNotifyIntent(context, secondWorkSpecId, secondInfo)
+
+        dispatcher.onStartCommand(firstIntent)
+        verify(dispatcherCallback, times(1))
+            .startForeground(
+                eq(firstId),
+                eq(FOREGROUND_SERVICE_TYPE_CONNECTED_DEVICE),
+                any<Notification>()
+            )
+
+        dispatcher.onStartCommand(secondIntent)
+        assertThat(dispatcher.mCurrentForegroundWorkSpecId, `is`(firstWorkSpecId))
+        verify(dispatcherCallback, times(1))
+            .notify(eq(secondId), any<Notification>())
+
+        val expectedNotificationType =
+            FOREGROUND_SERVICE_TYPE_LOCATION or FOREGROUND_SERVICE_TYPE_CONNECTED_DEVICE
+
+        verify(dispatcherCallback, times(1))
+            .startForeground(
+                eq(firstId),
+                eq(expectedNotificationType),
+                any<Notification>()
+            )
     }
 
     @Test
