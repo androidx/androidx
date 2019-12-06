@@ -17,7 +17,6 @@
 package com.example.android.leanback;
 
 import android.app.Activity;
-import android.content.Context;
 import android.graphics.drawable.Drawable;
 import android.os.Bundle;
 
@@ -59,7 +58,7 @@ public class DetailsPresenterSelectionActivity extends Activity {
                 .build());
     }
 
-    private static void addCheckedAction(List<GuidedAction> actions, Context context,
+    private static void addCheckedAction(List<GuidedAction> actions,
             long id, String title, String desc, boolean checked) {
         actions.add(new GuidedAction.Builder(null)
                 .title(title)
@@ -107,7 +106,7 @@ public class DetailsPresenterSelectionActivity extends Activity {
                         checked = true;
                     }
                 }
-                addCheckedAction(actions, getActivity(), OPTION_IDS[i], OPTION_NAMES[i],
+                addCheckedAction(actions, OPTION_IDS[i], OPTION_NAMES[i],
                         OPTION_DESCRIPTIONS[i], checked);
             }
         }

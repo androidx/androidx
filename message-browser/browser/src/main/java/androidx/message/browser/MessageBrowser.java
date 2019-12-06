@@ -55,6 +55,7 @@ public class MessageBrowser {
     // The state after BrowserStub.notifyConnected()
     private static final int STATE_CONNECTED = 2;
     // The state after mServiceBinder.disconnect() except by close()
+    @SuppressWarnings("unused")
     private static final int STATE_DISCONNECTING = 3;
     // The state after BrowserStub.notifyDisconnected()
     private static final int STATE_DISCONNECTED = 4;

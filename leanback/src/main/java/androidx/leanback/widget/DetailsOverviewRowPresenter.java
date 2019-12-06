@@ -66,7 +66,6 @@ public class DetailsOverviewRowPresenter extends RowPresenter {
     static final String TAG = "DetailsOverviewRowP";
     static final boolean DEBUG = false;
 
-    private static final int MORE_ACTIONS_FADE_MS = 100;
     private static final long DEFAULT_TIMEOUT = 5000;
 
     class ActionsItemBridgeAdapter extends ItemBridgeAdapter {

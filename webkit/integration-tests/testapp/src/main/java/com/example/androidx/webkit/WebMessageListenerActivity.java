@@ -85,11 +85,9 @@ public class WebMessageListenerActivity extends AppCompatActivity {
     }
 
     private static class ReplyMessageListener implements WebViewCompat.WebMessageListener {
-        private final Context mContext;
         private JsReplyProxy mReplyProxy;
 
-        ReplyMessageListener(Context context, Button button) {
-            mContext = context;
+        ReplyMessageListener(Button button) {
             button.setOnClickListener((View v) -> {
                 if (mReplyProxy == null) return;
                 mReplyProxy.postMessage("ReplyProxy button clicked.");
@@ -106,11 +104,9 @@ public class WebMessageListenerActivity extends AppCompatActivity {
     }
 
     private static class MessagePortMessageListener implements WebViewCompat.WebMessageListener {
-        private final Context mContext;
         private WebMessagePortCompat mPort;
 
-        MessagePortMessageListener(Context context, Button button) {
-            mContext = context;
+        MessagePortMessageListener(Button button) {
             button.setOnClickListener((View v) -> {
                 if (mPort == null) return;
                 mPort.postMessage(new WebMessageCompat("Port button clicked."));
@@ -141,12 +137,10 @@ public class WebMessageListenerActivity extends AppCompatActivity {
     }
 
     private static class MultipleMessagesListener implements WebViewCompat.WebMessageListener {
-        private final Context mContext;
         private final TextView mTextView;
         private int mCounter = 0;
 
-        MultipleMessagesListener(Context context, TextView textView) {
-            mContext = context;
+        MultipleMessagesListener(TextView textView) {
             mTextView = textView;
         }
 
@@ -191,15 +185,15 @@ public class WebMessageListenerActivity extends AppCompatActivity {
         if (WebViewFeature.isFeatureSupported(WebViewFeature.WEB_MESSAGE_LISTENER)) {
             WebViewCompat.addWebMessageListener(webView, "replyObject",
                     Arrays.asList("https://example.com"),
-                    new ReplyMessageListener(this, mReplyProxyButton));
+                    new ReplyMessageListener(mReplyProxyButton));
             WebViewCompat.addWebMessageListener(webView, "replyWithMessagePortObject",
                     Arrays.asList("https://example.com"),
-                    new MessagePortMessageListener(this, mPortButton));
+                    new MessagePortMessageListener(mPortButton));
             WebViewCompat.addWebMessageListener(webView, "toastObject",
                     Arrays.asList("https://example.com"), new ToastMessageListener(this));
             WebViewCompat.addWebMessageListener(webView, "multipleMessagesObject",
                     Arrays.asList("https://example.com"),
-                    new MultipleMessagesListener(this, mTextView));
+                    new MultipleMessagesListener(mTextView));
         }
 
         webView.loadUrl(

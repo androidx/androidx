@@ -144,7 +144,6 @@ public class SearchBar extends RelativeLayout {
     SparseIntArray mSoundMap = new SparseIntArray();
     boolean mRecognizing = false;
     private final Context mContext;
-    private AudioManager mAudioManager;
     private SearchBarPermissionListener mPermissionListener;
 
     public SearchBar(Context context) {
@@ -184,8 +183,6 @@ public class SearchBar extends RelativeLayout {
 
         mTextHintColorSpeechMode = r.getColor(R.color.lb_search_bar_hint_speech_mode);
         mTextHintColor = r.getColor(R.color.lb_search_bar_hint);
-
-        mAudioManager = (AudioManager) context.getSystemService(Context.AUDIO_SERVICE);
     }
 
     @Override

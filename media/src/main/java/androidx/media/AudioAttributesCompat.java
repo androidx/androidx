@@ -181,6 +181,7 @@ public class AudioAttributesCompat implements VersionedParcelable {
         SUPPRESSIBLE_USAGES.put(USAGE_NOTIFICATION_EVENT, SUPPRESSIBLE_NOTIFICATION);
     }
 
+    @SuppressWarnings("unused")
     private static final int[] SDK_USAGES = {
             USAGE_UNKNOWN,
             USAGE_MEDIA,

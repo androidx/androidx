@@ -46,8 +46,6 @@ public class MessageView extends SliceChildView {
     private TextView mDetails;
     private ImageView mIcon;
 
-    private int mRowIndex;
-
     public MessageView(Context context) {
         super(context);
     }
@@ -74,7 +72,6 @@ public class MessageView extends SliceChildView {
             int rowCount, SliceView.OnSliceActionListener observer) {
         SliceItem slice = content.getSliceItem();
         setSliceActionListener(observer);
-        mRowIndex = index;
         SliceItem source = SliceQuery.findSubtype(slice, FORMAT_IMAGE, SUBTYPE_SOURCE);
         if (source != null && source.getIcon() != null) {
             Drawable d = source.getIcon().loadDrawable(getContext());

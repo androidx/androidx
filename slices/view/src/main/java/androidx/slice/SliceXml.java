@@ -286,7 +286,7 @@ class SliceXml {
                         case Icon.TYPE_URI:
                             Uri uri = icon.getUri();
                             if (ContentResolver.SCHEME_FILE.equals(uri.getScheme())) {
-                                serializeFileIcon(serializer, icon, context);
+                                serializeFileIcon(serializer, icon);
                             } else {
                                 serializeIcon(serializer, icon, context, options);
                             }
@@ -348,8 +348,8 @@ class SliceXml {
         }
     }
 
-    private static void serializeFileIcon(XmlSerializer serializer, IconCompat icon,
-            Context context) throws IOException {
+    private static void serializeFileIcon(
+            XmlSerializer serializer, IconCompat icon) throws IOException {
         serializer.attribute(NAMESPACE, ATTR_ICON_TYPE, ICON_TYPE_URI);
         serializer.text(icon.getUri().toString());
     }

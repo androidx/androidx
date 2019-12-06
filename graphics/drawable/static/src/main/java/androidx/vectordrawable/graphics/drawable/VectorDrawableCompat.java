@@ -282,7 +282,6 @@ public class VectorDrawableCompat extends VectorDrawableCommon {
     private static final String SHAPE_CLIP_PATH = "clip-path";
     private static final String SHAPE_GROUP = "group";
     private static final String SHAPE_PATH = "path";
-    private static final String SHAPE_VECTOR = "vector";
 
     private static final int LINECAP_BUTT = 0;
     private static final int LINECAP_ROUND = 1;
@@ -309,9 +308,6 @@ public class VectorDrawableCompat extends VectorDrawableCommon {
     // AnimatedVectorDrawable needs to turn off the cache all the time, otherwise,
     // caching the bitmap by default is allowed.
     private boolean mAllowCaching = true;
-
-    // The Constant state associated with the <code>mDelegateDrawable</code>.
-    private ConstantState mCachedConstantStateDelegate;
 
     // Temp variable, only for saving "new" operation at the draw() time.
     private final float[] mTmpFloats = new float[9];
@@ -645,8 +641,6 @@ public class VectorDrawableCompat extends VectorDrawableCommon {
         if (Build.VERSION.SDK_INT >= 24) {
             final VectorDrawableCompat drawable = new VectorDrawableCompat();
             drawable.mDelegateDrawable = ResourcesCompat.getDrawable(res, resId, theme);
-            drawable.mCachedConstantStateDelegate = new VectorDrawableDelegateState(
-                    drawable.mDelegateDrawable.getConstantState());
             return drawable;
         }
 

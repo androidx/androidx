@@ -113,14 +113,12 @@ public class MessageLibraryService extends Service {
      */
     @RestrictTo(LIBRARY)
     public static final class BrowserInfo {
-        private final int mBrowserVersion;
         private final String mPackageName;
         private final int mPid;
         private final int mUid;
         private final Bundle mConnectionHints;
 
         BrowserInfo(ConnectionRequest request, int pid, int uid) {
-            mBrowserVersion = request.version;
             mPackageName = request.packageName;
             mPid = pid;
             mUid = uid;

@@ -47,7 +47,6 @@ public final class FakeCameraControl implements CameraControlInternal {
     private static final String TAG = "FakeCameraControl";
     private final ControlUpdateCallback mControlUpdateCallback;
     private final SessionConfig.Builder mSessionConfigBuilder = new SessionConfig.Builder();
-    private boolean mIsTorchOn = false;
     @ImageCapture.FlashMode
     private int mFlashMode = FLASH_MODE_OFF;
     private ArrayList<CaptureConfig> mSubmittedCaptureRequests = new ArrayList<>();
@@ -113,7 +112,6 @@ public final class FakeCameraControl implements CameraControlInternal {
     @Override
     @NonNull
     public ListenableFuture<Void> enableTorch(boolean torch) {
-        mIsTorchOn = torch;
         Log.d(TAG, "enableTorch(" + torch + ")");
         return Futures.immediateFuture(null);
     }

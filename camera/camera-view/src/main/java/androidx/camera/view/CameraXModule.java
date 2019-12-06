@@ -76,7 +76,6 @@ import java.util.concurrent.atomic.AtomicBoolean;
 final class CameraXModule {
     public static final String TAG = "CameraXModule";
 
-    private static final int MAX_VIEW_DIMENSION = 2000;
     private static final float UNITY_ZOOM_SCALE = 1f;
     private static final float ZOOM_NOT_SUPPORTED = UNITY_ZOOM_SCALE;
     private static final Rational ASPECT_RATIO_16_9 = new Rational(16, 9);
