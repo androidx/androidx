@@ -993,12 +993,14 @@ public abstract class FragmentManager {
             sb.append("{");
             sb.append(Integer.toHexString(System.identityHashCode(mParent)));
             sb.append("}");
-        } else {
+        } else if (mHost != null) {
             Class<?> cls = mHost.getClass();
             sb.append(cls.getSimpleName());
             sb.append("{");
             sb.append(Integer.toHexString(System.identityHashCode(mHost)));
             sb.append("}");
+        } else {
+            sb.append("null");
         }
         sb.append("}}");
         return sb.toString();
