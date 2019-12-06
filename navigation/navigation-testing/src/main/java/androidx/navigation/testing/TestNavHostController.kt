@@ -14,9 +14,11 @@
  * limitations under the License.
  */
 
-package androidx.navigation
+package androidx.navigation.testing
 
 import android.content.Context
+import androidx.navigation.NavBackStackEntry
+import androidx.navigation.NavHostController
 
 /**
  * Subclass of [NavHostController] that offers additional APIs for testing Navigation.
@@ -26,7 +28,7 @@ class TestNavHostController(context: Context) : NavHostController(context) {
     /**
      * Gets an immutable copy of the [elements][NavBackStackEntry] currently on the back stack.
      */
-    val backStack get(): List<NavBackStackEntry> = mBackStack.toList()
+    val backStack get(): List<NavBackStackEntry> = getBackStack().toList()
 
     init {
         navigatorProvider = TestNavigatorProvider()

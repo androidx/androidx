@@ -16,9 +16,8 @@
 
 package androidx.navigation.testing
 
-import androidx.navigation.testing.test.R
-import androidx.navigation.TestNavHostController
 import androidx.navigation.plusAssign
+import androidx.navigation.testing.test.R
 import androidx.test.core.app.ApplicationProvider
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import androidx.test.filters.SmallTest

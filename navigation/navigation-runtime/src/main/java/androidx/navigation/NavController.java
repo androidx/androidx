@@ -170,6 +170,18 @@ public class NavController {
         mNavigatorProvider.addNavigator(new ActivityNavigator(mContext));
     }
 
+    /**
+     * Retrieve the current back stack.
+     *
+     * @return The current back stack.
+     * @hide
+     */
+    @NonNull
+    @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
+    public Deque<NavBackStackEntry> getBackStack() {
+        return mBackStack;
+    }
+
     @NonNull
     Context getContext() {
         return mContext;

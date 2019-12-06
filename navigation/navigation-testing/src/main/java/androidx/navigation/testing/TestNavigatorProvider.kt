@@ -14,14 +14,19 @@
  * limitations under the License.
  */
 
-package androidx.navigation
+package androidx.navigation.testing
 
 import android.os.Bundle
+import androidx.navigation.NavDestination
+import androidx.navigation.NavGraphNavigator
+import androidx.navigation.NavOptions
+import androidx.navigation.Navigator
+import androidx.navigation.NavigatorProvider
 import java.lang.IllegalStateException
 
 /**
- * A [NavigatorProvider] for testing that only parses [navigation graphs][NavGraph] and
- * [destinations][NavDestination].
+ * A [NavigatorProvider] for testing that only parses
+ * [navigation graphs][androidx.navigation.NavGraph] and [destinations][NavDestination].
  */
 internal class TestNavigatorProvider : NavigatorProvider() {
 
