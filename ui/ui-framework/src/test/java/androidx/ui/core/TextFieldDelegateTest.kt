@@ -35,7 +35,6 @@ import androidx.ui.text.MultiParagraphIntrinsics
 import androidx.ui.text.SpanStyle
 import androidx.ui.text.TextDelegate
 import androidx.ui.text.TextRange
-import androidx.ui.text.TextStyle
 import androidx.ui.text.style.TextDecoration
 import com.google.common.truth.Truth.assertThat
 import com.nhaarman.mockitokotlin2.any
@@ -316,7 +315,7 @@ class TextFieldDelegateTest {
 
         val dummyText = AnnotatedString(text = "Hello, World")
         whenever(mDelegate.text).thenReturn(dummyText)
-        whenever(mDelegate.textStyle).thenReturn(TextStyle())
+        whenever(mDelegate.spanStyle).thenReturn(SpanStyle())
         whenever(mDelegate.density).thenReturn(Density(1.0f))
         whenever(mDelegate.resourceLoader).thenReturn(mock())
         whenever(mDelegate.height).thenReturn(512.ipx)
@@ -468,7 +467,7 @@ class TextFieldDelegateTest {
 
         val dummyText = AnnotatedString(text = "Hello, World")
         whenever(mDelegate.text).thenReturn(dummyText)
-        whenever(mDelegate.textStyle).thenReturn(TextStyle())
+        whenever(mDelegate.spanStyle).thenReturn(SpanStyle())
         whenever(mDelegate.density).thenReturn(Density(1.0f))
         whenever(mDelegate.resourceLoader).thenReturn(mock())
         whenever(mDelegate.height).thenReturn(512.ipx)

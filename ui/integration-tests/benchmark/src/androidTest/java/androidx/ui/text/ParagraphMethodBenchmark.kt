@@ -75,7 +75,7 @@ class ParagraphMethodBenchmark(private val textType: TextType, private val textL
         return ParagraphIntrinsics(
             text = text,
             density = Density(density = 1f),
-            style = TextStyle(fontSize = 12.sp),
+            spanStyle = SpanStyle(fontSize = 12.sp),
             paragraphStyle = ParagraphStyle(
                 textDirectionAlgorithm = TextDirectionAlgorithm.ContentOrLtr
             ),

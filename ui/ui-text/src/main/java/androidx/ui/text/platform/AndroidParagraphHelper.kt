@@ -51,7 +51,6 @@ import androidx.ui.text.AnnotatedString
 import androidx.ui.text.Locale
 import androidx.ui.text.LocaleList
 import androidx.ui.text.SpanStyle
-import androidx.ui.text.TextStyle
 import androidx.ui.text.font.FontStyle
 import androidx.ui.text.font.FontSynthesis
 import androidx.ui.text.font.FontWeight
@@ -63,27 +62,27 @@ import kotlin.math.roundToInt
 import android.os.LocaleList as AndroidLocaleList
 import java.util.Locale as JavaLocale
 
-internal fun TextPaint.applyTextStyle(
-    style: TextStyle,
+internal fun TextPaint.applySpanStyle(
+    spanStyle: SpanStyle,
     typefaceAdapter: TypefaceAdapter,
     density: Density
-): TextStyle {
+): SpanStyle {
 
-    when (style.fontSize.type) {
+    when (spanStyle.fontSize.type) {
         TextUnitType.Sp -> withDensity(density) {
-            textSize = style.fontSize.toPx().value
+            textSize = spanStyle.fontSize.toPx().value
         }
         TextUnitType.Em -> {
-            textSize *= style.fontSize.value
+            textSize *= spanStyle.fontSize.value
         }
         TextUnitType.Inherit -> {} // Do nothing
     }
 
-    if (style.hasFontAttributes()) {
-        typeface = createTypeface(style.toSpanStyle(), typefaceAdapter)
+    if (spanStyle.hasFontAttributes()) {
+        typeface = createTypeface(spanStyle, typefaceAdapter)
     }
 
-    style.localeList?.let {
+    spanStyle.localeList?.let {
         if (Build.VERSION.SDK_INT >= 24) {
             textLocales = it.toAndroidLocaleList()
         } else {
@@ -92,34 +91,34 @@ internal fun TextPaint.applyTextStyle(
         }
     }
 
-    style.color?.let {
+    spanStyle.color?.let {
         color = it.toArgb()
     }
 
-    when (style.letterSpacing.type) {
+    when (spanStyle.letterSpacing.type) {
         TextUnitType.Sp -> withDensity(density) {
             // Platform accept EM as a letter space. Convert Sp to Em
-            letterSpacing = style.letterSpacing.toPx().value / textSize
+            letterSpacing = spanStyle.letterSpacing.toPx().value / textSize
         }
         TextUnitType.Em -> {
-            letterSpacing = style.letterSpacing.value
+            letterSpacing = spanStyle.letterSpacing.value
         }
         TextUnitType.Inherit -> {} // Do nothing
     }
 
-    style.fontFeatureSettings?.let {
+    spanStyle.fontFeatureSettings?.let {
         fontFeatureSettings = it
     }
 
-    style.textGeometricTransform?.let {
+    spanStyle.textGeometricTransform?.let {
         textScaleX *= it.scaleX
     }
 
-    style.textGeometricTransform?.let {
+    spanStyle.textGeometricTransform?.let {
         textSkewX += it.skewX
     }
 
-    style.shadow?.let {
+    spanStyle.shadow?.let {
         setShadowLayer(
             it.blurRadius.value,
             it.offset.dx,
@@ -128,7 +127,7 @@ internal fun TextPaint.applyTextStyle(
         )
     }
 
-    style.decoration?.let {
+    spanStyle.decoration?.let {
         if (it.contains(TextDecoration.Underline)) {
             isUnderlineText = true
         }
@@ -139,9 +138,9 @@ internal fun TextPaint.applyTextStyle(
 
     // baselineShift and bgColor is reset in the Android Layout constructor.
     // therefore we cannot apply them on paint, have to use spans.
-    return TextStyle(
-        background = style.background,
-        baselineShift = style.baselineShift
+    return SpanStyle(
+        background = spanStyle.background,
+        baselineShift = spanStyle.baselineShift
     )
 }
 
@@ -203,10 +202,10 @@ internal fun createStyledText(
         }
     }
 
-    for (textStyle in spanStyles) {
-        val start = textStyle.start
-        val end = textStyle.end
-        val style = textStyle.item
+    for (spanStyle in spanStyles) {
+        val start = spanStyle.start
+        val end = spanStyle.end
+        val style = spanStyle.item
 
         if (start < 0 || start >= text.length || end <= start || end > text.length) continue
 
@@ -355,13 +354,6 @@ internal fun createStyledText(
         }
     }
     return spannableString
-}
-
-/**
- * Returns true if this [TextStyle] contains any font style attributes set.
- */
-private fun TextStyle.hasFontAttributes(): Boolean {
-    return fontFamily != null || fontStyle != null || fontWeight != null
 }
 
 /**

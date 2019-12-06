@@ -24,10 +24,10 @@ import androidx.ui.text.style.TextDirectionAlgorithm
  * Calculates and provides the intrinsic width and height of text that contains [ParagraphStyle].
  *
  * @param annotatedString the text to be laid out
- * @param textStyle the [TextStyle] to be applied to the whole text
+ * @param spanStyle the [SpanStyle] to be applied to the whole text
  * @param paragraphStyle the [ParagraphStyle] to be applied to the whole text
  * @param density density of the device
- * @param resourceLoader [Font.ResourceLoader] to be used to load the font given in [TextStyle]s
+ * @param resourceLoader [Font.ResourceLoader] to be used to load the font given in [SpanStyle]s
 
  * @see MultiParagraph
  *
@@ -36,7 +36,7 @@ import androidx.ui.text.style.TextDirectionAlgorithm
  */
 class MultiParagraphIntrinsics(
     val annotatedString: AnnotatedString,
-    textStyle: TextStyle,
+    spanStyle: SpanStyle,
     paragraphStyle: ParagraphStyle,
     density: Density,
     resourceLoader: Font.ResourceLoader
@@ -67,7 +67,7 @@ class MultiParagraphIntrinsics(
                             paragraphStyle
                         ),
                         spanStyles = annotatedString.spanStyles,
-                        style = textStyle,
+                        spanStyle = spanStyle,
                         density = density,
                         resourceLoader = resourceLoader
                     ),

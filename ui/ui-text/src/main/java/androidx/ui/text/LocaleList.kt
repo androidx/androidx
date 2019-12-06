@@ -22,7 +22,8 @@ import androidx.ui.text.platform.platformLocaleDelegate
 /**
  * Defines a list of [Locale] objects.
  *
- * @see [TextStyle]
+ * @see TextStyle
+ * @see SpanStyle
  */
 @Immutable
 data class LocaleList constructor(val localeList: List<Locale>) : Collection<Locale> {
