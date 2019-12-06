@@ -27,4 +27,8 @@ class TestNavHostController(context: Context) : NavHostController(context) {
      * Gets an immutable copy of the [elements][NavBackStackEntry] currently on the back stack.
      */
     val backStack get(): List<NavBackStackEntry> = mBackStack.toList()
+
+    init {
+        navigatorProvider = TestNavigatorProvider()
+    }
 }

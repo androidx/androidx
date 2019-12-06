@@ -36,14 +36,12 @@ class TestNavHostControllerTest {
 
     @Before
     fun setUp() {
-        navController = TestNavHostController(ApplicationProvider.getApplicationContext()).apply {
-            navigatorProvider += TestNavigator()
-            setGraph(R.navigation.test_graph)
-        }
+        navController = TestNavHostController(ApplicationProvider.getApplicationContext())
     }
 
     @Test
     fun testStartBackStack() {
+        navController.setGraph(R.navigation.test_graph)
         val backStack = navController.backStack
         assertThat(backStack).hasSize(2)
         assertThat(backStack[0].destination.id).isEqualTo(R.id.test_graph)
@@ -52,9 +50,19 @@ class TestNavHostControllerTest {
 
     @Test
     fun testNavigateBackStack() {
+        navController.setGraph(R.navigation.test_graph)
         navController.navigate(R.id.second)
         val backStack = navController.backStack
         assertThat(backStack).hasSize(3)
         assertThat(backStack[2].destination.id).isEqualTo(R.id.second_test)
+    }
+
+    @Test
+    fun testCustomNavigator() {
+        navController.navigatorProvider += TestNavigator()
+        navController.setGraph(R.navigation.test_graph)
+        val backStack = navController.backStack
+        assertThat(backStack).hasSize(2)
+        assertThat(backStack[1].destination).isInstanceOf(TestNavigator.Destination::class.java)
     }
 }

@@ -32,6 +32,7 @@ import androidx.annotation.IdRes;
 import androidx.annotation.NavigationRes;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
+import androidx.annotation.RestrictTo;
 import androidx.core.app.TaskStackBuilder;
 import androidx.lifecycle.Lifecycle;
 import androidx.lifecycle.LifecycleEventObserver;
@@ -95,7 +96,7 @@ public class NavController {
     private LifecycleOwner mLifecycleOwner;
     private NavControllerViewModel mViewModel;
 
-    private final NavigatorProvider mNavigatorProvider = new NavigatorProvider();
+    private NavigatorProvider mNavigatorProvider = new NavigatorProvider();
 
     private final CopyOnWriteArrayList<OnDestinationChangedListener>
             mOnDestinationChangedListeners = new CopyOnWriteArrayList<>();
@@ -187,6 +188,22 @@ public class NavController {
     @NonNull
     public NavigatorProvider getNavigatorProvider() {
         return mNavigatorProvider;
+    }
+
+    /**
+     * Sets the {@link NavigatorProvider navigator provider} to the specified provider. This can
+     * only be called before the graph is set via {@code setGraph()}.
+     *
+     * @param navigatorProvider {@link NavigatorProvider} to set
+     * @throws IllegalStateException If this is called after {@code setGraph()}
+     * @hide
+     */
+    @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
+    public void setNavigatorProvider(@NonNull NavigatorProvider navigatorProvider) {
+        if (!mBackStack.isEmpty()) {
+            throw new IllegalStateException("NavigatorProvider must be set before setGraph call");
+        }
+        mNavigatorProvider = navigatorProvider;
     }
 
     /**
