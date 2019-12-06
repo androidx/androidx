@@ -923,6 +923,10 @@ package androidx.core.app {
 
 package androidx.core.content {
 
+  public final class ContentProviderCompat {
+    method public static android.content.Context requireContext(android.content.ContentProvider);
+  }
+
   public final class ContentResolverCompat {
     method public static android.database.Cursor! query(android.content.ContentResolver!, android.net.Uri!, String![]!, String!, String![]!, String!, androidx.core.os.CancellationSignal!);
   }
