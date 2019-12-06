@@ -20,6 +20,7 @@ import androidx.compose.Composable
 import androidx.compose.Compose
 import androidx.compose.CompositionReference
 import androidx.compose.Context
+import androidx.compose.FrameManager
 import androidx.compose.ambient
 import androidx.compose.compositionReference
 import androidx.compose.memo
@@ -481,6 +482,11 @@ private class WithConstrainsState {
             if (lastConstraints != constraints || forceRecompose) {
                 lastConstraints = constraints
                 root.ignoreModelReads { subcompose() }
+                // if there were models created and read inside this subcomposition
+                // and we are going to modify this models within the same frame
+                // the composables which read this model will not be recomposed.
+                // to make this possible we should switch to the next frame.
+                FrameManager.nextFrame()
             }
 
             // Measure the obtained children and compute our size.
