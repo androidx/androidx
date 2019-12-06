@@ -44,6 +44,14 @@ class FragmentManagerViewModelTest {
     }
 
     @Test
+    fun testAddRetainedFragmentWhileStateIsSaved() {
+        val fragment = mock(Fragment::class.java)
+        viewModel.setIsStateSaved(true)
+        viewModel.addRetainedFragment(fragment)
+        assertThat(viewModel.retainedFragments).isEmpty()
+    }
+
+    @Test
     fun testRemoveRetainedFragment() {
         val fragment = mock(Fragment::class.java)
         viewModel.addRetainedFragment(fragment)
@@ -51,6 +59,17 @@ class FragmentManagerViewModelTest {
 
         viewModel.removeRetainedFragment(fragment)
         assertThat(viewModel.retainedFragments).isEmpty()
+    }
+
+    @Test
+    fun testRemoveRetainedFragmentWhileStateIsSaved() {
+        val fragment = mock(Fragment::class.java)
+        viewModel.addRetainedFragment(fragment)
+        assertThat(viewModel.retainedFragments).containsExactly(fragment)
+
+        viewModel.setIsStateSaved(true)
+        viewModel.removeRetainedFragment(fragment)
+        assertThat(viewModel.retainedFragments).containsExactly(fragment)
     }
 
     @Test
