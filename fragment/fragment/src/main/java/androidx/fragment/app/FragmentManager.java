@@ -1220,11 +1220,25 @@ public abstract class FragmentManager {
                                             f, false);
                                 }
                                 f.mPostponedAlpha = 0;
+                                // Robolectric tests do not post the animation like a real device
+                                // so we should keep up with the container and view in case the
+                                // fragment view is destroyed before we can remove it.
+                                ViewGroup container = f.mContainer;
+                                View view = f.mView;
                                 if (anim != null) {
+                                    f.setStateAfterAnimating(newState);
                                     FragmentAnim.animateRemoveFragment(f, anim,
                                             mFragmentTransitionCallback);
                                 }
-                                f.mContainer.removeView(f.mView);
+                                container.removeView(view);
+                                // If the local container is different from the fragment
+                                // container, that means onAnimationEnd was called, onDestroyView
+                                // was dispatched and the fragment was already moved to state, so
+                                // we should early return here instead of attempting to move to
+                                // state again.
+                                if (container != f.mContainer) {
+                                    return;
+                                }
                             }
                         }
                         // If a fragment has an exit animation (or transition), do not destroy
