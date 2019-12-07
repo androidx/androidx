@@ -38,6 +38,12 @@ class FragmentStore {
     private final ArrayList<Fragment> mAdded = new ArrayList<>();
     private final HashMap<String, FragmentStateManager> mActive = new HashMap<>();
 
+    private FragmentManagerViewModel mNonConfig;
+
+    void setNonConfig(@NonNull FragmentManagerViewModel nonConfig) {
+        mNonConfig = nonConfig;
+    }
+
     void resetActiveFragments() {
         mActive.clear();
     }
@@ -59,7 +65,22 @@ class FragmentStore {
     }
 
     void makeActive(@NonNull FragmentStateManager newlyActive) {
-        mActive.put(newlyActive.getFragment().mWho, newlyActive);
+        Fragment f = newlyActive.getFragment();
+        if (containsActiveFragment(f.mWho)) {
+            return;
+        }
+        mActive.put(f.mWho, newlyActive);
+        if (f.mRetainInstanceChangedWhileDetached) {
+            if (f.mRetainInstance) {
+                mNonConfig.addRetainedFragment(f);
+            } else {
+                mNonConfig.removeRetainedFragment(f);
+            }
+            f.mRetainInstanceChangedWhileDetached = false;
+        }
+        if (FragmentManager.isLoggingEnabled(Log.VERBOSE)) {
+            Log.v(TAG, "Added fragment to active set " + f);
+        }
     }
 
     void addFragment(@NonNull Fragment fragment) {
@@ -99,6 +120,19 @@ class FragmentStore {
 
     void makeInactive(@NonNull FragmentStateManager newlyInactive) {
         Fragment f = newlyInactive.getFragment();
+
+        // Don't remove yet. That happens in burpActive(). This prevents
+        // concurrent modification while iterating over mActive
+        FragmentStateManager removedStateManager = mActive.put(f.mWho, null);
+        if (removedStateManager == null) {
+            // It was already removed, so there's nothing more to do
+            return;
+        }
+
+        if (FragmentManager.isLoggingEnabled(Log.VERBOSE)) {
+            Log.v(TAG, "Removed fragment from active set " + f);
+        }
+
         // Ensure that any Fragment that had this Fragment as its
         // target Fragment retains a reference to the Fragment
         for (FragmentStateManager fragmentStateManager : mActive.values()) {
@@ -110,14 +144,14 @@ class FragmentStore {
                 }
             }
         }
-        // Don't remove yet. That happens in burpActive(). This prevents
-        // concurrent modification while iterating over mActive
-        mActive.put(f.mWho, null);
-
         if (f.mTargetWho != null) {
             // Restore the target Fragment so that it can be accessed
             // even after the Fragment is removed.
             f.mTarget = findActiveFragment(f.mTargetWho);
+        }
+
+        if (f.mRetainInstance) {
+            mNonConfig.removeRetainedFragment(f);
         }
     }
 
@@ -243,7 +277,7 @@ class FragmentStore {
     }
 
     boolean containsActiveFragment(@NonNull String who) {
-        return mActive.containsKey(who);
+        return mActive.get(who) != null;
     }
 
     @Nullable
