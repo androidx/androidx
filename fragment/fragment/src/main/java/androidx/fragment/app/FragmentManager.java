@@ -1240,7 +1240,7 @@ public abstract class FragmentManager {
                     if (newState < Fragment.CREATED) {
                         boolean beingRemoved = f.mRemoving && !f.isInBackStack();
                         if (beingRemoved || mNonConfig.shouldDestroy(f)) {
-                            makeInactive(fragmentStateManager);
+                            mFragmentStore.makeInactive(fragmentStateManager);
                         } else {
                             if (f.mTargetWho != null) {
                                 Fragment target = findActiveFragment(f.mTargetWho);
@@ -1490,46 +1490,33 @@ public abstract class FragmentManager {
         }
     }
 
-    void makeActive(@NonNull Fragment f) {
-        if (mFragmentStore.containsActiveFragment(f.mWho)) {
-            return;
+    /**
+     * For a given Fragment, get any existing FragmentStateManager found in the
+     * {@link FragmentStore} or create a brand new FragmentStateManager if one does
+     * not exist.
+     *
+     * @param f The Fragment to create a FragmentStateManager for
+     * @return A valid FragmentStateManager
+     */
+    @NonNull
+    FragmentStateManager createOrGetFragmentStateManager(@NonNull Fragment f) {
+        FragmentStateManager existing = mFragmentStore.getFragmentStateManager(f.mWho);
+        if (existing != null) {
+            return existing;
         }
-
         FragmentStateManager fragmentStateManager = new FragmentStateManager(
                 mLifecycleCallbacksDispatcher, mNonConfig, f);
         // Restore state any state set via setInitialSavedState()
         fragmentStateManager.restoreState(mHost.getContext().getClassLoader());
-        mFragmentStore.makeActive(fragmentStateManager);
-        if (f.mRetainInstanceChangedWhileDetached) {
-            if (f.mRetainInstance) {
-                addRetainedFragment(f);
-            } else {
-                removeRetainedFragment(f);
-            }
-            f.mRetainInstanceChangedWhileDetached = false;
-        }
         // Catch the FragmentStateManager up to our current state
         fragmentStateManager.setFragmentManagerState(mCurState);
-        if (isLoggingEnabled(Log.VERBOSE)) Log.v(TAG, "Added fragment to active set " + f);
-    }
-
-    private void makeInactive(@NonNull FragmentStateManager fragmentStateManager) {
-        Fragment f = fragmentStateManager.getFragment();
-        if (!mFragmentStore.containsActiveFragment(f.mWho)) {
-            return;
-        }
-
-        if (isLoggingEnabled(Log.VERBOSE)) {
-            Log.v(TAG, "Removed fragment from active set " + f);
-        }
-
-        mFragmentStore.makeInactive(fragmentStateManager);
-        removeRetainedFragment(f);
+        return fragmentStateManager;
     }
 
     void addFragment(@NonNull Fragment fragment) {
         if (isLoggingEnabled(Log.VERBOSE)) Log.v(TAG, "add: " + fragment);
-        makeActive(fragment);
+        FragmentStateManager fragmentStateManager = createOrGetFragmentStateManager(fragment);
+        mFragmentStore.makeActive(fragmentStateManager);
         if (!fragment.mDetached) {
             mFragmentStore.addFragment(fragment);
             fragment.mRemoving = false;
@@ -2506,6 +2493,11 @@ public abstract class FragmentManager {
         return mContainer;
     }
 
+    @NonNull
+    FragmentStore getFragmentStore() {
+        return mFragmentStore;
+    }
+
     void attachController(@NonNull FragmentHostCallback<?> host,
             @NonNull FragmentContainer container, @Nullable final Fragment parent) {
         if (mHost != null) throw new IllegalStateException("Already attached");
@@ -2537,6 +2529,7 @@ public abstract class FragmentManager {
         }
         // Ensure that the state is in sync with FragmentManager
         mNonConfig.setIsStateSaved(isStateSaved());
+        mFragmentStore.setNonConfig(mNonConfig);
     }
 
     void noteStateNotSaved() {

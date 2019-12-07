@@ -60,6 +60,21 @@ class FragmentStoreTest {
             .isEqualTo(1)
     }
 
+    @Suppress("DEPRECATION")
+    @Test
+    fun testMakeActiveRetained() {
+        val nonConfig = FragmentManagerViewModel(true)
+        fragmentStore.setNonConfig(nonConfig)
+        emptyFragment.retainInstance = true
+        fragmentStore.makeActive(emptyStateManager)
+        assertThat(fragmentStore.activeFragments)
+            .containsExactly(emptyFragment)
+        assertThat(fragmentStore.activeFragmentCount)
+            .isEqualTo(1)
+        assertThat(nonConfig.retainedFragments)
+            .containsExactly(emptyFragment)
+    }
+
     @Test
     fun testContainsActiveFragment() {
         fragmentStore.makeActive(emptyStateManager)
@@ -90,6 +105,33 @@ class FragmentStoreTest {
         fragmentStore.makeInactive(emptyStateManager)
         assertThat(fragmentStore.activeFragments)
             .containsExactly(null)
+        assertThat(fragmentStore.containsActiveFragment(emptyFragment.mWho))
+            .isFalse()
+
+        fragmentStore.burpActive()
+        assertThat(fragmentStore.activeFragments)
+            .isEmpty()
+    }
+
+    @Suppress("DEPRECATION")
+    @Test
+    fun testMakeInactiveBurpRetained() {
+        val nonConfig = FragmentManagerViewModel(true)
+        fragmentStore.setNonConfig(nonConfig)
+        emptyFragment.retainInstance = true
+        fragmentStore.makeActive(emptyStateManager)
+        assertThat(fragmentStore.activeFragments)
+            .containsExactly(emptyFragment)
+        assertThat(nonConfig.retainedFragments)
+            .containsExactly(emptyFragment)
+
+        fragmentStore.makeInactive(emptyStateManager)
+        assertThat(fragmentStore.activeFragments)
+            .containsExactly(null)
+        assertThat(fragmentStore.containsActiveFragment(emptyFragment.mWho))
+            .isFalse()
+        assertThat(nonConfig.retainedFragments)
+            .isEmpty()
 
         fragmentStore.burpActive()
         assertThat(fragmentStore.activeFragments)
