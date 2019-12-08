@@ -137,19 +137,6 @@ public class GuidedStepSupportActivity extends FragmentActivity {
     }
 
     private static GuidedAction addEditableAction(List<GuidedAction> actions, long id, String title,
-            String editTitle, String desc) {
-        GuidedAction action;
-        actions.add(action = new GuidedAction.Builder(null)
-                .id(id)
-                .title(title)
-                .editTitle(editTitle)
-                .description(desc)
-                .editable(true)
-                .build());
-        return action;
-    }
-
-    private static GuidedAction addEditableAction(List<GuidedAction> actions, long id, String title,
             String editTitle, int editInputType, String desc, String editDesc) {
         GuidedAction action;
         actions.add(action = new GuidedAction.Builder(null)

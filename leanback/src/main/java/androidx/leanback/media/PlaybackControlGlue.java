@@ -733,38 +733,6 @@ public abstract class PlaybackControlGlue extends PlaybackGlue
         }
     }
 
-    private static String getSpeedString(int speed) {
-        switch (speed) {
-            case PLAYBACK_SPEED_INVALID:
-                return "PLAYBACK_SPEED_INVALID";
-            case PLAYBACK_SPEED_PAUSED:
-                return "PLAYBACK_SPEED_PAUSED";
-            case PLAYBACK_SPEED_NORMAL:
-                return "PLAYBACK_SPEED_NORMAL";
-            case PLAYBACK_SPEED_FAST_L0:
-                return "PLAYBACK_SPEED_FAST_L0";
-            case PLAYBACK_SPEED_FAST_L1:
-                return "PLAYBACK_SPEED_FAST_L1";
-            case PLAYBACK_SPEED_FAST_L2:
-                return "PLAYBACK_SPEED_FAST_L2";
-            case PLAYBACK_SPEED_FAST_L3:
-                return "PLAYBACK_SPEED_FAST_L3";
-            case PLAYBACK_SPEED_FAST_L4:
-                return "PLAYBACK_SPEED_FAST_L4";
-            case -PLAYBACK_SPEED_FAST_L0:
-                return "-PLAYBACK_SPEED_FAST_L0";
-            case -PLAYBACK_SPEED_FAST_L1:
-                return "-PLAYBACK_SPEED_FAST_L1";
-            case -PLAYBACK_SPEED_FAST_L2:
-                return "-PLAYBACK_SPEED_FAST_L2";
-            case -PLAYBACK_SPEED_FAST_L3:
-                return "-PLAYBACK_SPEED_FAST_L3";
-            case -PLAYBACK_SPEED_FAST_L4:
-                return "-PLAYBACK_SPEED_FAST_L4";
-        }
-        return null;
-    }
-
     /**
      * Returns true if there is a valid media item.
      */

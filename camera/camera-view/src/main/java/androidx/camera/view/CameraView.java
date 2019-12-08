@@ -22,7 +22,6 @@ import android.content.Context;
 import android.content.res.TypedArray;
 import android.graphics.Matrix;
 import android.graphics.Paint;
-import android.graphics.Rect;
 import android.graphics.SurfaceTexture;
 import android.hardware.display.DisplayManager;
 import android.hardware.display.DisplayManager.DisplayListener;
@@ -735,10 +734,6 @@ public final class CameraView extends ViewGroup {
         mCameraModule.setFlash(flashMode);
     }
 
-    private int getRelativeCameraOrientation(boolean compensateForMirroring) {
-        return mCameraModule.getRelativeCameraOrientation(compensateForMirroring);
-    }
-
     private long delta() {
         return System.currentTimeMillis() - mDownEventTimestamp;
     }
@@ -808,21 +803,8 @@ public final class CameraView extends ViewGroup {
         return true;
     }
 
-    /** Returns the width * height of the given rect */
-    private int area(Rect rect) {
-        return rect.width() * rect.height();
-    }
-
-    private int rangeLimit(int val, int max, int min) {
-        return Math.min(Math.max(val, min), max);
-    }
-
     float rangeLimit(float val, float max, float min) {
         return Math.min(Math.max(val, min), max);
-    }
-
-    private int distance(int a, int b) {
-        return Math.abs(a - b);
     }
 
     /**

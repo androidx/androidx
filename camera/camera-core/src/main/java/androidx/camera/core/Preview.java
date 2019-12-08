@@ -299,11 +299,6 @@ public class Preview extends UseCase {
         attachToCamera(cameraId, createPipeline(cameraId, config, resolution).build());
     }
 
-    private CameraControlInternal getCurrentCameraControl() {
-        String cameraId = getBoundCameraId();
-        return getCameraControl(cameraId);
-    }
-
     @NonNull
     @Override
     public String toString() {

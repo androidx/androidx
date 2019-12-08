@@ -220,10 +220,6 @@ public class DetailsOverviewRowPresenter extends RowPresenter {
             }
         };
 
-        private int getViewCenter(View view) {
-            return (view.getRight() - view.getLeft()) / 2;
-        }
-
         void checkFirstAndLastPosition(boolean fromScroll) {
             RecyclerView.ViewHolder viewHolder;
 

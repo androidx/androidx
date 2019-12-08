@@ -50,14 +50,6 @@ public class DetailsPresenterSelectionActivity extends Activity {
         GuidedStepFragment.addAsRoot(this, new SetupFragment(), android.R.id.content);
     }
 
-    private static void addAction(List<GuidedAction> actions, long id, String title, String desc) {
-        actions.add(new GuidedAction.Builder(null)
-                .id(id)
-                .title(title)
-                .description(desc)
-                .build());
-    }
-
     private static void addCheckedAction(List<GuidedAction> actions,
             long id, String title, String desc, boolean checked) {
         actions.add(new GuidedAction.Builder(null)
