@@ -131,7 +131,7 @@ final class FragmentManagerViewModel extends ViewModel {
 
     @NonNull
     Collection<Fragment> getRetainedFragments() {
-        return mRetainedFragments.values();
+        return new ArrayList<>(mRetainedFragments.values());
     }
 
     boolean shouldDestroy(@NonNull Fragment fragment) {

@@ -64,7 +64,7 @@ class FragmentStoreTest {
     @Test
     fun testMakeActiveRetained() {
         val nonConfig = FragmentManagerViewModel(true)
-        fragmentStore.setNonConfig(nonConfig)
+        fragmentStore.nonConfig = nonConfig
         emptyFragment.retainInstance = true
         fragmentStore.makeActive(emptyStateManager)
         assertThat(fragmentStore.activeFragments)
@@ -117,7 +117,7 @@ class FragmentStoreTest {
     @Test
     fun testMakeInactiveBurpRetained() {
         val nonConfig = FragmentManagerViewModel(true)
-        fragmentStore.setNonConfig(nonConfig)
+        fragmentStore.nonConfig = nonConfig
         emptyFragment.retainInstance = true
         fragmentStore.makeActive(emptyStateManager)
         assertThat(fragmentStore.activeFragments)
