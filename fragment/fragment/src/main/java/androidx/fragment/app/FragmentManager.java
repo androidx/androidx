@@ -1106,11 +1106,11 @@ public abstract class FragmentManager {
             // just to clean them up without them ever being added to mActive.
             // For these cases, a brand new FragmentStateManager is enough.
             fragmentStateManager = new FragmentStateManager(mLifecycleCallbacksDispatcher,
-                    mNonConfig, f);
+                    mFragmentStore, f);
             // Only allow this FragmentStateManager to go up to CREATED at the most
             fragmentStateManager.setFragmentManagerState(Fragment.CREATED);
         }
-        newState = Math.min(newState, fragmentStateManager.computeMaxState());
+        newState = Math.min(newState, fragmentStateManager.computeExpectedState());
         if (f.mState <= newState) {
             // If we are moving to the same state, we do not need to give up on the animation.
             if (f.mState < newState && !mExitAnimationCancellationSignals.isEmpty()) {
@@ -1505,7 +1505,7 @@ public abstract class FragmentManager {
             return existing;
         }
         FragmentStateManager fragmentStateManager = new FragmentStateManager(
-                mLifecycleCallbacksDispatcher, mNonConfig, f);
+                mLifecycleCallbacksDispatcher, mFragmentStore, f);
         // Restore state any state set via setInitialSavedState()
         fragmentStateManager.restoreState(mHost.getContext().getClassLoader());
         // Catch the FragmentStateManager up to our current state
@@ -2411,10 +2411,10 @@ public abstract class FragmentManager {
                                 + retainedFragment);
                     }
                     fragmentStateManager = new FragmentStateManager(mLifecycleCallbacksDispatcher,
-                            mNonConfig, retainedFragment, fs);
+                            mFragmentStore, retainedFragment, fs);
                 } else {
                     fragmentStateManager = new FragmentStateManager(mLifecycleCallbacksDispatcher,
-                            mNonConfig, mHost.getContext().getClassLoader(),
+                            mFragmentStore, mHost.getContext().getClassLoader(),
                             getFragmentFactory(), fs);
                 }
                 Fragment f = fragmentStateManager.getFragment();
@@ -2443,9 +2443,12 @@ public abstract class FragmentManager {
                 // so move the Fragment up to CREATED, then mark it as being removed, then
                 // destroy it without actually adding the Fragment to the FragmentStore
                 f.mFragmentManager = this;
-                moveToState(f, Fragment.CREATED);
+                FragmentStateManager fragmentStateManager = new FragmentStateManager(
+                        mLifecycleCallbacksDispatcher, mFragmentStore, f);
+                fragmentStateManager.setFragmentManagerState(Fragment.CREATED);
+                fragmentStateManager.moveToExpectedState();
                 f.mRemoving = true;
-                moveToState(f, Fragment.INITIALIZING);
+                fragmentStateManager.moveToExpectedState();
             }
         }
 
