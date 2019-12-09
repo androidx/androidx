@@ -52,14 +52,25 @@ private val DefaultFontSize: TextUnit = 14.sp
  *
  * We need to pass non-null font size to underlying paragraph.
  */
-private fun resolveSpanStyle(style: SpanStyle?) =
-    if (style == null) {
-        SpanStyle(fontSize = DefaultFontSize)
-    } else if (style.fontSize.isInherit) {
-        style.copy(fontSize = DefaultFontSize)
-    } else {
-        style
+private fun resolveTextStyle(style: TextStyle?, layoutDirection: LayoutDirection): TextStyle {
+    val textDirectionAlgorithm = style?.textDirectionAlgorithm
+        ?: resolveTextDirectionAlgorithm(layoutDirection, null)
+
+    val fontSize = style?.fontSize ?: DefaultFontSize
+
+    return when {
+        style == null -> TextStyle(
+            fontSize = fontSize,
+            textDirectionAlgorithm = textDirectionAlgorithm
+        )
+        style.textDirectionAlgorithm != textDirectionAlgorithm ||
+        style.fontSize != fontSize -> style.copy(
+            fontSize = fontSize,
+            textDirectionAlgorithm = textDirectionAlgorithm
+        )
+        else -> style
     }
+}
 
 /**
  * An object that paints text onto a [Canvas].
@@ -77,13 +88,10 @@ private fun resolveSpanStyle(style: SpanStyle?) =
  *
  * @param text the text to paint.
  *
- * @param spanStyle The text style specified to render the text. Notice that you can also set text
+ * @param style The text style specified to render the text. Notice that you can also set text
  * style on the given [AnnotatedString], and the style set on [text] always has higher priority
  * than this setting. But if only one global text style is needed, passing it to [TextDelegate]
  * is always preferred.
- *
- * @param paragraphStyle style configuration that applies only to paragraphs such as text alignment,
- * or text direction.
  *
  * @param maxLines An optional maximum number of lines for the text to span, wrapping if
  * necessary. If the text exceeds the given number of lines, it is truncated such that subsequent
@@ -104,8 +112,7 @@ private fun resolveSpanStyle(style: SpanStyle?) =
 @RestrictTo(RestrictTo.Scope.LIBRARY)
 class TextDelegate(
     val text: AnnotatedString,
-    spanStyle: SpanStyle? = null,
-    paragraphStyle: ParagraphStyle? = null,
+    style: TextStyle? = null,
     val maxLines: Int = Int.MAX_VALUE,
     val softWrap: Boolean = true,
     val overflow: TextOverflow = TextOverflow.Clip,
@@ -145,25 +152,7 @@ class TextDelegate(
         val hasVisualOverflow: Boolean get() = didOverflowWidth || didOverflowHeight
     }
 
-    /**
-     * The resolved text style.
-     */
-    val spanStyle: SpanStyle = resolveSpanStyle(spanStyle)
-
-    /**
-     * The paragraph style.
-     *
-     * If null is passed to constructor, use default paragraph style.
-     */
-    val paragraphStyle: ParagraphStyle = when {
-        paragraphStyle == null -> ParagraphStyle(
-            textDirectionAlgorithm = resolveTextDirectionAlgorithm(layoutDirection, null)
-        )
-        paragraphStyle.textDirectionAlgorithm == null -> paragraphStyle.copy(
-            textDirectionAlgorithm = resolveTextDirectionAlgorithm(layoutDirection, null)
-        )
-        else -> paragraphStyle
-    }
+    val style: TextStyle = resolveTextStyle(style, layoutDirection)
 
     /**
      * The text layout result. null if text layout is not computed.
@@ -233,8 +222,7 @@ class TextDelegate(
     fun layoutIntrinsics() {
         var intrinsics = paragraphIntrinsics ?: MultiParagraphIntrinsics(
             annotatedString = text,
-            spanStyle = spanStyle,
-            paragraphStyle = paragraphStyle,
+            style = style,
             density = density,
             resourceLoader = resourceLoader
         )
@@ -445,9 +433,8 @@ private fun TextDelegate.createOverflowShader(
     return if (layoutResult.hasVisualOverflow && overflow == TextOverflow.Fade) {
         val paragraph = Paragraph(
             text = "\u2026", // horizontal ellipsis
-            spanStyle = spanStyle,
-            paragraphStyle = paragraphStyle,
             spanStyles = listOf(),
+            style = style,
             density = density,
             resourceLoader = resourceLoader,
             constraints = ParagraphConstraints(Float.POSITIVE_INFINITY)

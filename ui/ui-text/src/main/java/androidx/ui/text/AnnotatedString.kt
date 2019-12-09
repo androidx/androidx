@@ -310,9 +310,7 @@ private fun AnnotatedString.getLocalStyles(
     start: Int,
     end: Int
 ): List<SpanStyleItem> {
-    if (start == end) {
-        return listOf()
-    }
+    if (start == end) return listOf()
     // If the given range covers the whole AnnotatedString, return SpanStyles without conversion.
     if (start == 0 && end >= this.text.length) {
         return spanStyles

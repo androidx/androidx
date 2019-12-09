@@ -69,7 +69,7 @@ data class TextDecoration internal constructor(val mask: Int) {
             return "TextDecoration.None"
         }
 
-        var values: MutableList<String> = mutableListOf()
+        val values: MutableList<String> = mutableListOf()
         if (!((mask and Underline.mask) == 0)) {
             values.add("Underline")
         }
@@ -77,7 +77,7 @@ data class TextDecoration internal constructor(val mask: Int) {
             values.add("LineThrough")
         }
         if ((values.size == 1)) {
-            return "TextDecoration.${values.get(0)}"
+            return "TextDecoration.${values[0]}"
         }
         return "TextDecoration.combine([${values.joinToString(separator = ", ")}])"
     }

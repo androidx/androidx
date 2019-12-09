@@ -62,26 +62,26 @@ import android.os.LocaleList as AndroidLocaleList
 import java.util.Locale as JavaLocale
 
 internal fun TextPaint.applySpanStyle(
-    spanStyle: SpanStyle,
+    style: SpanStyle,
     typefaceAdapter: TypefaceAdapter,
     density: Density
 ): SpanStyle {
 
-    when (spanStyle.fontSize.type) {
+    when (style.fontSize.type) {
         TextUnitType.Sp -> withDensity(density) {
-            textSize = spanStyle.fontSize.toPx().value
+            textSize = style.fontSize.toPx().value
         }
         TextUnitType.Em -> {
-            textSize *= spanStyle.fontSize.value
+            textSize *= style.fontSize.value
         }
         TextUnitType.Inherit -> {} // Do nothing
     }
 
-    if (spanStyle.hasFontAttributes()) {
-        typeface = createTypeface(spanStyle, typefaceAdapter)
+    if (style.hasFontAttributes()) {
+        typeface = createTypeface(style, typefaceAdapter)
     }
 
-    spanStyle.localeList?.let {
+    style.localeList?.let {
         if (Build.VERSION.SDK_INT >= 24) {
             textLocales = it.toAndroidLocaleList()
         } else {
@@ -90,34 +90,34 @@ internal fun TextPaint.applySpanStyle(
         }
     }
 
-    spanStyle.color?.let {
+    style.color?.let {
         color = it.toArgb()
     }
 
-    when (spanStyle.letterSpacing.type) {
+    when (style.letterSpacing.type) {
         TextUnitType.Sp -> withDensity(density) {
             // Platform accept EM as a letter space. Convert Sp to Em
-            letterSpacing = spanStyle.letterSpacing.toPx().value / textSize
+            letterSpacing = style.letterSpacing.toPx().value / textSize
         }
         TextUnitType.Em -> {
-            letterSpacing = spanStyle.letterSpacing.value
+            letterSpacing = style.letterSpacing.value
         }
         TextUnitType.Inherit -> {} // Do nothing
     }
 
-    spanStyle.fontFeatureSettings?.let {
+    style.fontFeatureSettings?.let {
         fontFeatureSettings = it
     }
 
-    spanStyle.textGeometricTransform?.let {
+    style.textGeometricTransform?.let {
         textScaleX *= it.scaleX
     }
 
-    spanStyle.textGeometricTransform?.let {
+    style.textGeometricTransform?.let {
         textSkewX += it.skewX
     }
 
-    spanStyle.shadow?.let {
+    style.shadow?.let {
         setShadowLayer(
             it.blurRadius.value,
             it.offset.dx,
@@ -126,7 +126,7 @@ internal fun TextPaint.applySpanStyle(
         )
     }
 
-    spanStyle.decoration?.let {
+    style.decoration?.let {
         if (it.contains(TextDecoration.Underline)) {
             isUnderlineText = true
         }
@@ -138,8 +138,8 @@ internal fun TextPaint.applySpanStyle(
     // baselineShift and bgColor is reset in the Android Layout constructor.
     // therefore we cannot apply them on paint, have to use spans.
     return SpanStyle(
-        background = spanStyle.background,
-        baselineShift = spanStyle.baselineShift
+        background = style.background,
+        baselineShift = style.baselineShift
     )
 }
 

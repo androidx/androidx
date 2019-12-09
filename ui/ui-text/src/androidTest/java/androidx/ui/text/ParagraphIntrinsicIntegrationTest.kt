@@ -202,20 +202,18 @@ class ParagraphIntrinsicIntegrationTest {
 
     private fun paragraphIntrinsics(
         text: String = "",
-        style: SpanStyle? = null,
+        style: TextStyle? = null,
         fontSize: TextUnit = 14.sp,
         spanStyles: List<AnnotatedString.Item<SpanStyle>> = listOf()
     ): ParagraphIntrinsics {
         return ParagraphIntrinsics(
             text = text,
             spanStyles = spanStyles,
-            spanStyle = SpanStyle(
+            style = TextStyle(
                 fontFamily = fontFamilyMeasureFont,
-                fontSize = fontSize
-            ).merge(style),
-            paragraphStyle = ParagraphStyle(
+                fontSize = fontSize,
                 textDirectionAlgorithm = TextDirectionAlgorithm.ContentOrLtr
-            ),
+            ).merge(style),
             density = defaultDensity,
             resourceLoader = TestFontResourceLoader(context)
         )

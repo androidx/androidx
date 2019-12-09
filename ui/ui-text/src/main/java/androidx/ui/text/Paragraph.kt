@@ -207,8 +207,7 @@ interface Paragraph {
  * [ParagraphStyle].
  *
  * @param text the text to be laid out
- * @param spanStyle the [SpanStyle] to be applied to the whole text
- * @param paragraphStyle the [ParagraphStyle] to be applied to the whole text
+ * @param style the [TextStyle] to be applied to the whole text
  * @param spanStyles [SpanStyle]s to be applied to parts of text
  * @param maxLines the maximum number of lines that the text can have
  * @param ellipsis whether to ellipsize text, applied only when [maxLines] is set
@@ -220,9 +219,8 @@ interface Paragraph {
  */
 /* actual */ fun Paragraph(
     text: String,
-    spanStyle: SpanStyle,
-    paragraphStyle: ParagraphStyle,
-    spanStyles: List<AnnotatedString.Item<SpanStyle>>,
+    style: TextStyle,
+    spanStyles: List<AnnotatedString.Item<SpanStyle>> = listOf(),
     maxLines: Int = DefaultMaxLines,
     ellipsis: Boolean = false,
     constraints: ParagraphConstraints,
@@ -231,8 +229,7 @@ interface Paragraph {
 ): Paragraph {
     return AndroidParagraph(
         text = text,
-        spanStyle = spanStyle,
-        paragraphStyle = paragraphStyle,
+        style = style,
         spanStyles = spanStyles,
         maxLines = maxLines,
         ellipsis = ellipsis,
