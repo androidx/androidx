@@ -43,6 +43,7 @@ import androidx.ui.text.matchers.isZero
 import androidx.ui.text.style.TextAlign
 import androidx.ui.text.style.TextDirection
 import androidx.ui.text.style.TextDirectionAlgorithm
+import androidx.ui.text.style.TextGeometricTransform
 import androidx.ui.text.style.TextIndent
 import com.google.common.truth.Truth.assertThat
 import com.google.common.truth.Truth.assertWithMessage
@@ -2461,27 +2462,48 @@ class ParagraphIntegrationTest {
     }
 
     @Test
-    fun testAnnotatedString_setLetterSpacingOnWholeText() {
+    fun testAnnotatedString_setLetterSpacing_inEm_OnWholeText() {
         withDensity(defaultDensity) {
             val text = "abcde"
             val fontSize = 20.sp
             val fontSizeInPx = fontSize.toPx().value
             val letterSpacing = 5.0f
             val spanStyle = SpanStyle(letterSpacing = letterSpacing.em)
-            val paragraphWidth = fontSizeInPx * (1 + letterSpacing) * text.length
 
             val paragraph = simpleParagraph(
                 text = text,
-                spanStyles = listOf(AnnotatedString.Item(spanStyle, 0, text.length)),
                 style = TextStyle(fontSize = fontSize),
-                constraints = ParagraphConstraints(width = paragraphWidth)
+                spanStyles = listOf(AnnotatedString.Item(spanStyle, 0, text.length)),
+                constraints = ParagraphConstraints(width = Float.MAX_VALUE)
             )
 
-            // Make sure there is only one line, so that we can use getLineRight to test fontSize.
             assertThat(paragraph.lineCount).isEqualTo(1)
             // Notice that in this test font, the width of character equals to fontSize.
             assertThat(paragraph.getLineWidth(0))
                 .isEqualTo(fontSizeInPx * text.length * (1 + letterSpacing))
+        }
+    }
+
+    @Test
+    fun testAnnotatedString_setLetterSpacing_inSp_OnWholeText() {
+        withDensity(defaultDensity) {
+            val text = "abcde"
+            val fontSize = 20.sp
+            val fontSizeInPx = fontSize.toPx().value
+            val letterSpacing = 5.0f
+            val spanStyle = SpanStyle(letterSpacing = letterSpacing.sp)
+
+            val paragraph = simpleParagraph(
+                text = text,
+                style = TextStyle(fontSize = fontSize),
+                spanStyles = listOf(AnnotatedString.Item(spanStyle, 0, text.length)),
+                constraints = ParagraphConstraints(width = Float.MAX_VALUE)
+            )
+
+            assertThat(paragraph.lineCount).isEqualTo(1)
+            // Notice that in this test font, the width of character equals to fontSize.
+            assertThat(paragraph.getLineWidth(0))
+                .isEqualTo((fontSizeInPx + letterSpacing) * text.length)
         }
     }
 
@@ -2493,16 +2515,14 @@ class ParagraphIntegrationTest {
             val fontSizeInPx = fontSize.toPx().value
             val letterSpacing = 5.0f
             val spanStyle = SpanStyle(letterSpacing = letterSpacing.em)
-            val paragraphWidth = fontSizeInPx * (1 + letterSpacing) * text.length
 
             val paragraph = simpleParagraph(
                 text = text,
-                spanStyles = listOf(AnnotatedString.Item(spanStyle, 0, "abc".length)),
                 style = TextStyle(fontSize = fontSize),
-                constraints = ParagraphConstraints(width = paragraphWidth)
+                spanStyles = listOf(AnnotatedString.Item(spanStyle, 0, "abc".length)),
+                constraints = ParagraphConstraints(width = Float.MAX_VALUE)
             )
 
-            // Make sure there is only one line, so that we can use getLineRight to test fontSize.
             assertThat(paragraph.lineCount).isEqualTo(1)
             // Notice that in this test font, the width of character equals to fontSize.
             val expectedWidth = ("abc".length * letterSpacing + text.length) * fontSizeInPx
@@ -2521,23 +2541,208 @@ class ParagraphIntegrationTest {
 
             val letterSpacingOverwrite = 10.0f
             val spanStyleOverwrite = SpanStyle(letterSpacing = letterSpacingOverwrite.em)
-            val paragraphWidth = fontSizeInPx * (1 + letterSpacingOverwrite) * text.length
 
             val paragraph = simpleParagraph(
                 text = text,
+                style = TextStyle(fontSize = fontSize),
                 spanStyles = listOf(
                     AnnotatedString.Item(spanStyle, 0, text.length),
                     AnnotatedString.Item(spanStyleOverwrite, 0, "abc".length)
                 ),
-                style = TextStyle(fontSize = fontSize),
-                constraints = ParagraphConstraints(width = paragraphWidth)
+                constraints = ParagraphConstraints(width = Float.MAX_VALUE)
             )
 
-            // Make sure there is only one line, so that we can use getLineRight to test fontSize.
             assertThat(paragraph.lineCount).isEqualTo(1)
             // Notice that in this test font, the width of character equals to fontSize.
             val expectedWidth = "abc".length * (1 + letterSpacingOverwrite) * fontSizeInPx +
                     "de".length * (1 + letterSpacing) * fontSizeInPx
+            assertThat(paragraph.getLineWidth(0)).isEqualTo(expectedWidth)
+        }
+    }
+
+    @Test
+    fun testAnnotatedString_setLetterSpacing_inEm_withFontSize() {
+        withDensity(defaultDensity) {
+            val text = "abcde"
+            val fontSize = 20.sp
+            val fontSizeInPx = fontSize.toPx().value
+
+            val letterSpacing = 2f
+            val letterSpacingStyle = SpanStyle(letterSpacing = letterSpacing.em)
+
+            val fontSizeOverwrite = 30.sp
+            val fontSizeOverwriteInPx = fontSizeOverwrite.toPx().value
+            val fontSizeStyle = SpanStyle(fontSize = fontSizeOverwrite)
+
+            val paragraph = simpleParagraph(
+                text = text,
+                style = TextStyle(fontSize = fontSize),
+                spanStyles = listOf(
+                    AnnotatedString.Item(letterSpacingStyle, 0, text.length),
+                    AnnotatedString.Item(fontSizeStyle, 0, "abc".length)
+                ),
+                constraints = ParagraphConstraints(width = Float.MAX_VALUE)
+            )
+
+            assertThat(paragraph.lineCount).isEqualTo(1)
+            // Notice that in this test font, the width of character equals to fontSize.
+            val expectedWidth = (1 + letterSpacing) *
+                    ("abc".length * fontSizeOverwriteInPx + "de".length * fontSizeInPx)
+            assertThat(paragraph.getLineWidth(0)).isEqualTo(expectedWidth)
+        }
+    }
+
+    @Test
+    fun testAnnotatedString_setLetterSpacing_inEm_withScaleX() {
+        withDensity(defaultDensity) {
+            val text = "abcde"
+            val fontSize = 20.sp
+            val fontSizeInPx = fontSize.toPx().value
+
+            val letterSpacing = 2f
+            val letterSpacingStyle = SpanStyle(letterSpacing = letterSpacing.em)
+
+            val scaleX = 1.5f
+            val scaleXStyle = SpanStyle(textGeometricTransform = TextGeometricTransform(scaleX))
+
+            val paragraph = simpleParagraph(
+                text = text,
+                style = TextStyle(fontSize = fontSize),
+                spanStyles = listOf(
+                    AnnotatedString.Item(letterSpacingStyle, 0, text.length),
+                    AnnotatedString.Item(scaleXStyle, 0, "abc".length)
+                ),
+                constraints = ParagraphConstraints(width = Float.MAX_VALUE)
+            )
+
+            assertThat(paragraph.lineCount).isEqualTo(1)
+            // Notice that in this test font, the width of character equals to fontSize.
+            val expectedWidth = (1 + letterSpacing) *
+                    ("abc".length * fontSizeInPx * scaleX + "de".length * fontSizeInPx)
+            assertThat(paragraph.getLineWidth(0)).isEqualTo(expectedWidth)
+        }
+    }
+
+    @Test
+    fun testAnnotatedString_setLetterSpacing_inSp_withFontSize() {
+        withDensity(defaultDensity) {
+            val text = "abcde"
+            val fontSize = 20.sp
+            val fontSizeInPx = fontSize.toPx().value
+
+            val letterSpacing = 10.sp
+            val letterSpacingInPx = letterSpacing.toPx().value
+            val letterSpacingStyle = SpanStyle(letterSpacing = letterSpacing)
+
+            val fontSizeOverwrite = 30.sp
+            val fontSizeOverwriteInPx = fontSizeOverwrite.toPx().value
+            val fontSizeStyle = SpanStyle(fontSize = fontSizeOverwrite)
+
+            val paragraph = simpleParagraph(
+                text = text,
+                style = TextStyle(fontSize = fontSize),
+                spanStyles = listOf(
+                    AnnotatedString.Item(letterSpacingStyle, 0, text.length),
+                    AnnotatedString.Item(fontSizeStyle, 0, "abc".length)
+                ),
+                constraints = ParagraphConstraints(width = Float.MAX_VALUE)
+            )
+
+            assertThat(paragraph.lineCount).isEqualTo(1)
+            // Notice that in this test font, the width of character equals to fontSize.
+            val expectedWidth = text.length * letterSpacingInPx +
+                    ("abc".length * fontSizeOverwriteInPx + "de".length * fontSizeInPx)
+            assertThat(paragraph.getLineWidth(0)).isEqualTo(expectedWidth)
+        }
+    }
+
+    @Test
+    fun testAnnotatedString_setLetterSpacing_inSp_withScaleX() {
+        withDensity(defaultDensity) {
+            val text = "abcde"
+            val fontSize = 20.sp
+            val fontSizeInPx = fontSize.toPx().value
+
+            val letterSpacing = 10.sp
+            val letterSpacingInPx = letterSpacing.toPx().value
+            val letterSpacingStyle = SpanStyle(letterSpacing = letterSpacing)
+
+            val scaleX = 1.5f
+            val scaleXStyle = SpanStyle(textGeometricTransform = TextGeometricTransform(scaleX))
+
+            val paragraph = simpleParagraph(
+                text = text,
+                style = TextStyle(fontSize = fontSize),
+                spanStyles = listOf(
+                    AnnotatedString.Item(letterSpacingStyle, 0, text.length),
+                    AnnotatedString.Item(scaleXStyle, 0, "abc".length)
+                ),
+                constraints = ParagraphConstraints(width = Float.MAX_VALUE)
+            )
+
+            assertThat(paragraph.lineCount).isEqualTo(1)
+            // Notice that in this test font, the width of character equals to fontSize.
+            val expectedWidth = text.length * letterSpacingInPx +
+                    ("abc".length * fontSizeInPx * scaleX + "de".length * fontSizeInPx)
+            assertThat(paragraph.getLineWidth(0)).isEqualTo(expectedWidth)
+        }
+    }
+
+    @Test
+    fun testAnnotatedString_setLetterSpacing_inSp_after_inEm() {
+        withDensity(defaultDensity) {
+            val text = "abcde"
+            val fontSize = 20f
+
+            val letterSpacingEm = 1f
+            val letterSpacingEmStyle = SpanStyle(letterSpacing = letterSpacingEm.em)
+
+            val letterSpacingSp = 10f
+            val letterSpacingSpStyle = SpanStyle(letterSpacing = letterSpacingSp.sp)
+
+            val paragraph = simpleParagraph(
+                text = text,
+                style = TextStyle(fontSize = fontSize.sp),
+                spanStyles = listOf(
+                    AnnotatedString.Item(letterSpacingEmStyle, 0, text.length),
+                    AnnotatedString.Item(letterSpacingSpStyle, 0, "abc".length)
+                ),
+                constraints = ParagraphConstraints(width = Float.MAX_VALUE)
+            )
+
+            assertThat(paragraph.lineCount).isEqualTo(1)
+            // Notice that in this test font, the width of character equals to fontSize.
+            val expectedWidth = fontSize * text.length + "abc".length * letterSpacingSp +
+                    "de".length * fontSize * letterSpacingEm
+            assertThat(paragraph.getLineWidth(0)).isEqualTo(expectedWidth)
+        }
+    }
+
+    @Test
+    fun testAnnotatedString_setLetterSpacing_inEm_after_inSp() {
+        withDensity(defaultDensity) {
+            val text = "abcde"
+            val fontSize = 20f
+
+            val letterSpacingEm = 1f
+            val letterSpacingEmStyle = SpanStyle(letterSpacing = letterSpacingEm.em)
+
+            val letterSpacingSp = 10f
+            val letterSpacingSpStyle = SpanStyle(letterSpacing = letterSpacingSp.sp)
+
+            val paragraph = simpleParagraph(
+                text = text,
+                style = TextStyle(fontSize = fontSize.sp),
+                spanStyles = listOf(
+                    AnnotatedString.Item(letterSpacingSpStyle, 0, "abc".length),
+                    AnnotatedString.Item(letterSpacingEmStyle, 0, text.length)
+                ),
+                constraints = ParagraphConstraints(width = 500f)
+            )
+
+            assertThat(paragraph.lineCount).isEqualTo(1)
+            // Notice that in this test font, the width of character equals to fontSize.
+            val expectedWidth = fontSize * text.length * (1 + letterSpacingEm)
             assertThat(paragraph.getLineWidth(0)).isEqualTo(expectedWidth)
         }
     }

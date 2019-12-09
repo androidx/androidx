@@ -17,6 +17,7 @@ import androidx.text.TextLayout
 import androidx.text.style.BaselineShiftSpan
 import androidx.text.style.FontFeatureSpan
 import androidx.text.style.LetterSpacingSpan
+import androidx.text.style.LetterSpacingSpanPx
 import androidx.text.style.ShadowSpan
 import androidx.text.style.SkewXSpan
 import androidx.text.style.TypefaceSpan
@@ -1005,7 +1006,7 @@ class AndroidParagraphTest {
     }
 
     @Test
-    fun testSpanStyle_letterSpacing_appliedOnTextPaint() {
+    fun testTextStyle_letterSpacingInEm_appliedOnTextPaint() {
         val letterSpacing = 2
         val paragraph = simpleParagraph(
             text = "",
@@ -1014,6 +1015,22 @@ class AndroidParagraphTest {
         )
 
         assertThat(paragraph.textPaint.letterSpacing).isEqualTo((letterSpacing))
+    }
+
+    @Test
+    fun testTextStyle_letterSpacingInSp_appliedAsSpan() {
+        val letterSpacing = 5f
+        val text = "abc"
+        val paragraph = simpleParagraph(
+            text = text,
+            style = TextStyle(letterSpacing = letterSpacing.sp),
+            constraints = ParagraphConstraints(width = 0.0f)
+        )
+
+        assertThat(paragraph.charSequence)
+            .hasSpan(LetterSpacingSpanPx::class, 0, text.length) {
+                it.letterSpacing == letterSpacing
+            }
     }
 
     @Test
