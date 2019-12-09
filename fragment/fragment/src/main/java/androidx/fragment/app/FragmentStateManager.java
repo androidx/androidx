@@ -225,10 +225,6 @@ class FragmentStateManager {
                 // TODO cancel exit animations
                 switch (nextStep) {
                     case Fragment.ATTACHED:
-                        if (FragmentManager.isLoggingEnabled(Log.DEBUG)) {
-                            Log.d(TAG, "moveto ATTACHED: " + mFragment);
-                        }
-                        // TODO Move target Fragment to CREATED
                         attach();
                         break;
                     case Fragment.CREATED:
@@ -336,6 +332,36 @@ class FragmentStateManager {
     }
 
     void attach() {
+        if (FragmentManager.isLoggingEnabled(Log.DEBUG)) {
+            Log.d(TAG, "moveto ATTACHED: " + mFragment);
+        }
+        // If we have a target fragment, ensure it moves to its expected state first
+        // so that this fragment can rely on it as an initialized dependency.
+        FragmentStateManager targetFragmentStateManager;
+        if (mFragment.mTarget != null) {
+            targetFragmentStateManager = mFragmentStore.getFragmentStateManager(
+                    mFragment.mTarget.mWho);
+            if (targetFragmentStateManager == null) {
+                throw new IllegalStateException("Fragment " + mFragment
+                        + " declared target fragment " + mFragment.mTarget
+                        + " that does not belong to this FragmentManager!");
+            }
+            mFragment.mTargetWho = mFragment.mTarget.mWho;
+            mFragment.mTarget = null;
+        } else if (mFragment.mTargetWho != null) {
+            targetFragmentStateManager = mFragmentStore.getFragmentStateManager(
+                    mFragment.mTargetWho);
+            if (targetFragmentStateManager == null) {
+                throw new IllegalStateException("Fragment " + mFragment
+                        + " declared target fragment " + mFragment.mTargetWho
+                        + " that does not belong to this FragmentManager!");
+            }
+        } else {
+            targetFragmentStateManager = null;
+        }
+        if (targetFragmentStateManager != null) {
+            targetFragmentStateManager.moveToExpectedState();
+        }
         mFragment.mHost = mFragment.mFragmentManager.getHost();
         mFragment.mParentFragment = mFragment.mFragmentManager.getParent();
         mDispatcher.dispatchOnFragmentPreAttached(mFragment, false);

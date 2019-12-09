@@ -1122,34 +1122,6 @@ public abstract class FragmentManager {
             switch (f.mState) {
                 case Fragment.INITIALIZING:
                     if (newState > Fragment.INITIALIZING) {
-                        if (isLoggingEnabled(Log.DEBUG)) Log.d(TAG, "moveto ATTACHED: " + f);
-
-                        // If we have a target fragment, push it along to at least CREATED
-                        // so that this one can rely on it as an initialized dependency.
-                        if (f.mTarget != null) {
-                            if (!f.mTarget.equals(findActiveFragment(f.mTarget.mWho))) {
-                                throw new IllegalStateException("Fragment " + f
-                                        + " declared target fragment " + f.mTarget
-                                        + " that does not belong to this FragmentManager!");
-                            }
-                            if (f.mTarget.mState < Fragment.CREATED) {
-                                moveToState(f.mTarget, Fragment.CREATED);
-                            }
-                            f.mTargetWho = f.mTarget.mWho;
-                            f.mTarget = null;
-                        }
-                        if (f.mTargetWho != null) {
-                            Fragment target = findActiveFragment(f.mTargetWho);
-                            if (target == null) {
-                                throw new IllegalStateException("Fragment " + f
-                                        + " declared target fragment " + f.mTargetWho
-                                        + " that does not belong to this FragmentManager!");
-                            }
-                            if (target.mState < Fragment.CREATED) {
-                                moveToState(target, Fragment.CREATED);
-                            }
-                        }
-
                         fragmentStateManager.attach();
                     }
                     // fall through
