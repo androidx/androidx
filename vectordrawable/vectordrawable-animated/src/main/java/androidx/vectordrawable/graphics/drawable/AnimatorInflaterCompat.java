@@ -38,7 +38,6 @@ import android.graphics.Path;
 import android.graphics.PathMeasure;
 import android.os.Build;
 import android.util.AttributeSet;
-import android.util.Log;
 import android.util.TypedValue;
 import android.util.Xml;
 import android.view.InflateException;
@@ -665,20 +664,6 @@ public class AnimatorInflaterCompat {
             valueType = VALUE_TYPE_FLOAT;
         }
         return valueType;
-    }
-
-    private static void dumpKeyframes(Object[] keyframes, String header) {
-        if (keyframes == null || keyframes.length == 0) {
-            return;
-        }
-        Log.d(TAG, header);
-        int count = keyframes.length;
-        for (int i = 0; i < count; ++i) {
-            Keyframe keyframe = (Keyframe) keyframes[i];
-            Log.d(TAG, "Keyframe " + i + ": fraction "
-                    + (keyframe.getFraction() < 0 ? "null" : keyframe.getFraction()) + ", "
-                    + ", value : " + (keyframe.hasValue() ? keyframe.getValue() : "null"));
-        }
     }
 
     // Load property values holder if there are keyframes defined in it. Otherwise return null.

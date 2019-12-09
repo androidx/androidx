@@ -71,22 +71,6 @@ public final class MasterKeys {
     }
 
     /**
-     * Provides a safe and easy to use KenGenParameterSpec with the settings with a default
-     * key alias.
-     *
-     * Algorithm: AES
-     * Block Mode: GCM
-     * Padding: No Padding
-     * Key Size: 256
-     *
-     * @return The spec for the master key with the default key alias
-     */
-    @NonNull
-    private static KeyGenParameterSpec createAES256GCMKeyGenParameterSpec() {
-        return createAES256GCMKeyGenParameterSpec(MASTER_KEY_ALIAS);
-    }
-
-    /**
      * Creates or gets the master key provided
      *
      * The encryption scheme is required fields to ensure that the type of

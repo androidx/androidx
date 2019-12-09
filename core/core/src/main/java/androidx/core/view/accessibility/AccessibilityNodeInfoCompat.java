@@ -1938,19 +1938,6 @@ public class AccessibilityNodeInfoCompat {
         mInfo.addAction(action);
     }
 
-    private List<CharSequence> extrasCharSequenceList(String key) {
-        if (Build.VERSION.SDK_INT < 19) {
-            return new ArrayList<CharSequence>();
-        }
-        ArrayList<CharSequence> list = mInfo.getExtras()
-                .getCharSequenceArrayList(key);
-        if (list == null) {
-            list = new ArrayList<CharSequence>();
-            mInfo.getExtras().putCharSequenceArrayList(key, list);
-        }
-        return list;
-    }
-
     private List<Integer> extrasIntList(String key) {
         if (Build.VERSION.SDK_INT < 19) {
             return new ArrayList<Integer>();
