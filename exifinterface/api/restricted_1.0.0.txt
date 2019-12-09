@@ -329,6 +329,5 @@ package androidx.exifinterface.media {
     field public static final short Y_CB_CR_POSITIONING_CO_SITED = 2; // 0x2
   }
 
-
 }
 

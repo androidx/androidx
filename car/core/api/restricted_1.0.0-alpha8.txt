@@ -383,7 +383,7 @@ package androidx.car.widget {
   public final class CheckBoxListItem extends androidx.car.widget.CompoundButtonListItem<androidx.car.widget.CheckBoxListItem.ViewHolder> {
     ctor public CheckBoxListItem(android.content.Context);
     method public static androidx.car.widget.CheckBoxListItem.ViewHolder createViewHolder(android.view.View);
-    method @androidx.car.widget.ListItemAdapter.ListItemType public int getViewType();
+    method public int getViewType();
     method public boolean isCompoundButtonPositionEnd();
   }
 
@@ -467,7 +467,7 @@ package androidx.car.widget {
 
   public class ListItemAdapter extends androidx.recyclerview.widget.RecyclerView.Adapter<androidx.car.widget.ListItem.ViewHolder> implements androidx.car.widget.PagedListView.DividerVisibilityManager androidx.car.widget.PagedListView.ItemCap {
     ctor public ListItemAdapter(android.content.Context, androidx.car.widget.ListItemProvider);
-    ctor public ListItemAdapter(android.content.Context, androidx.car.widget.ListItemProvider, @androidx.car.widget.ListItemAdapter.ListBackgroundStyle int);
+    ctor public ListItemAdapter(android.content.Context, androidx.car.widget.ListItemProvider, int);
     method public android.content.Context getContext();
     method public int getItemCount();
     method public boolean getShowDivider(@IntRange(from=0) int);
@@ -489,8 +489,6 @@ package androidx.car.widget {
     field @Deprecated public static final int PANEL = 3; // 0x3
     field @Deprecated public static final int SOLID = 0; // 0x0
   }
-
-
 
   public abstract class ListItemProvider<VH extends androidx.car.widget.ListItem.ViewHolder> {
     ctor public ListItemProvider();
@@ -651,7 +649,7 @@ package androidx.car.widget {
   public final class RadioButtonListItem extends androidx.car.widget.CompoundButtonListItem<androidx.car.widget.RadioButtonListItem.ViewHolder> {
     ctor public RadioButtonListItem(android.content.Context);
     method public static androidx.car.widget.RadioButtonListItem.ViewHolder createViewHolder(android.view.View);
-    method @androidx.car.widget.ListItemAdapter.ListItemType public int getViewType();
+    method public int getViewType();
     method public boolean isCompoundButtonPositionEnd();
   }
 
@@ -727,7 +725,7 @@ package androidx.car.widget {
   public final class SwitchListItem extends androidx.car.widget.CompoundButtonListItem<androidx.car.widget.SwitchListItem.ViewHolder> {
     ctor public SwitchListItem(android.content.Context);
     method public static androidx.car.widget.SwitchListItem.ViewHolder createViewHolder(android.view.View);
-    method @androidx.car.widget.ListItemAdapter.ListItemType public int getViewType();
+    method public int getViewType();
     method public boolean isCompoundButtonPositionEnd();
     method @Deprecated public void setShowSwitchDivider(boolean);
     method @Deprecated public void setSwitchOnCheckedChangeListener(android.widget.CompoundButton.OnCheckedChangeListener?);

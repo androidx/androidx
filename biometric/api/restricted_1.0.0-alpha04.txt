@@ -1,13 +1,23 @@
 // Signature format: 3.0
 package androidx.biometric {
 
-
-
-  public class BiometricPrompt implements androidx.biometric.BiometricConstants {
+  public class BiometricPrompt {
     ctor public BiometricPrompt(androidx.fragment.app.FragmentActivity, java.util.concurrent.Executor, androidx.biometric.BiometricPrompt.AuthenticationCallback);
     method public void authenticate(androidx.biometric.BiometricPrompt.PromptInfo, androidx.biometric.BiometricPrompt.CryptoObject);
     method public void authenticate(androidx.biometric.BiometricPrompt.PromptInfo);
     method public void cancelAuthentication();
+    field public static final int ERROR_CANCELED = 5; // 0x5
+    field public static final int ERROR_HW_NOT_PRESENT = 12; // 0xc
+    field public static final int ERROR_HW_UNAVAILABLE = 1; // 0x1
+    field public static final int ERROR_LOCKOUT = 7; // 0x7
+    field public static final int ERROR_LOCKOUT_PERMANENT = 9; // 0x9
+    field public static final int ERROR_NEGATIVE_BUTTON = 13; // 0xd
+    field public static final int ERROR_NO_BIOMETRICS = 11; // 0xb
+    field public static final int ERROR_NO_SPACE = 4; // 0x4
+    field public static final int ERROR_TIMEOUT = 3; // 0x3
+    field public static final int ERROR_UNABLE_TO_PROCESS = 2; // 0x2
+    field public static final int ERROR_USER_CANCELED = 10; // 0xa
+    field public static final int ERROR_VENDOR = 8; // 0x8
   }
 
   public abstract static class BiometricPrompt.AuthenticationCallback {
@@ -45,8 +55,6 @@ package androidx.biometric {
     method public androidx.biometric.BiometricPrompt.PromptInfo.Builder setSubtitle(CharSequence?);
     method public androidx.biometric.BiometricPrompt.PromptInfo.Builder setTitle(CharSequence);
   }
-
-
 
 }
 

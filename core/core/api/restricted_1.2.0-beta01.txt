@@ -1007,11 +1007,9 @@ package androidx.core.content.pm {
   }
 
   public final class PermissionInfoCompat {
-    method @androidx.core.content.pm.PermissionInfoCompat.Protection public static int getProtection(android.content.pm.PermissionInfo);
-    method @androidx.core.content.pm.PermissionInfoCompat.ProtectionFlags public static int getProtectionFlags(android.content.pm.PermissionInfo);
+    method public static int getProtection(android.content.pm.PermissionInfo);
+    method public static int getProtectionFlags(android.content.pm.PermissionInfo);
   }
-
-
 
   public class ShortcutInfoCompat {
     method public android.content.ComponentName? getActivity();
@@ -1055,7 +1053,6 @@ package androidx.core.content.pm {
     method @AnyThread public abstract T! removeAllShortcuts();
     method @AnyThread public abstract T! removeShortcuts(java.util.List<java.lang.String!>!);
   }
-
 
   public class ShortcutManagerCompat {
     method public static boolean addDynamicShortcuts(android.content.Context, java.util.List<androidx.core.content.pm.ShortcutInfoCompat!>);
@@ -1389,7 +1386,7 @@ package androidx.core.graphics.drawable {
     method @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP_PREFIX) public android.graphics.Bitmap? getBitmap();
     method @IdRes public int getResId();
     method public String getResPackage();
-    method @androidx.core.graphics.drawable.IconCompat.IconType public int getType();
+    method public int getType();
     method public android.net.Uri getUri();
     method public android.graphics.drawable.Drawable! loadDrawable(android.content.Context!);
     method public androidx.core.graphics.drawable.IconCompat! setTint(@ColorInt int);
@@ -1400,7 +1397,6 @@ package androidx.core.graphics.drawable {
     field public static final int TYPE_UNKNOWN = -1; // 0xffffffff
     field @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP_PREFIX) public int mType;
   }
-
 
   public abstract class RoundedBitmapDrawable extends android.graphics.drawable.Drawable {
     method public void draw(android.graphics.Canvas);

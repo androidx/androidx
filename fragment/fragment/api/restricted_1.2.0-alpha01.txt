@@ -192,7 +192,6 @@ package androidx.fragment.app {
     method public abstract boolean onHasView();
   }
 
-
   public class FragmentController {
     method public void attachHost(androidx.fragment.app.Fragment?);
     method public static androidx.fragment.app.FragmentController createController(androidx.fragment.app.FragmentHostCallback<?>);

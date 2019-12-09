@@ -15,11 +15,9 @@ package androidx.fragment.app.testing {
     method public androidx.fragment.app.testing.FragmentScenario<F!> recreate();
   }
 
-
   public static interface FragmentScenario.FragmentAction<F extends androidx.fragment.app.Fragment> {
     method public void perform(F);
   }
-
 
   public final class FragmentScenarioKt {
     ctor public FragmentScenarioKt();
