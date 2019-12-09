@@ -36,6 +36,7 @@ import androidx.text.TextLayout
 import androidx.text.style.BaselineShiftSpan
 import androidx.text.style.FontFeatureSpan
 import androidx.text.style.LetterSpacingSpan
+import androidx.text.style.LetterSpacingSpanPx
 import androidx.text.style.LineHeightSpan
 import androidx.text.style.ShadowSpan
 import androidx.text.style.SkewXSpan
@@ -95,13 +96,8 @@ internal fun TextPaint.applySpanStyle(
     }
 
     when (style.letterSpacing.type) {
-        TextUnitType.Sp -> withDensity(density) {
-            // Platform accept EM as a letter space. Convert Sp to Em
-            letterSpacing = style.letterSpacing.toPx().value / textSize
-        }
-        TextUnitType.Em -> {
-            letterSpacing = style.letterSpacing.value
-        }
+        TextUnitType.Em -> { letterSpacing = style.letterSpacing.value }
+        TextUnitType.Sp -> {} // Sp will be handled by applying a span
         TextUnitType.Inherit -> {} // Do nothing
     }
 
@@ -135,9 +131,15 @@ internal fun TextPaint.applySpanStyle(
         }
     }
 
-    // baselineShift and bgColor is reset in the Android Layout constructor.
+    // letterSpacing with unit Sp needs to be handled by span.
+    // baselineShift and bgColor is reset in the Android Layout constructor,
     // therefore we cannot apply them on paint, have to use spans.
     return SpanStyle(
+        letterSpacing = if (style.letterSpacing.type == TextUnitType.Sp) {
+            style.letterSpacing
+        } else {
+            TextUnit.Inherit
+        },
         background = style.background,
         baselineShift = style.baselineShift
     )
@@ -154,6 +156,10 @@ internal fun createStyledText(
 ): CharSequence {
     if (spanStyles.isEmpty() && textIndent == null) return text
     val spannableString = SpannableString(text)
+    //  Spans collected and applied at last. LetterSpacingSpanPx must be applied all other spans
+    //  that changes fontSize and scaleX. Notice, we can also utilize priority on span flags for
+    //  the purpose. If priority gets complicated, use flags instead.
+    val deferredSpans = mutableListOf<Triple<Any, Int, Int>>()
 
     when (lineHeight.type) {
         TextUnitType.Sp -> withDensity(density) {
@@ -308,15 +314,14 @@ internal fun createStyledText(
         }
 
         when (style.letterSpacing.type) {
-            TextUnitType.Sp -> {
-                // Support LetterSpacing with SP unit: b/144957997
+            TextUnitType.Sp -> withDensity(density) {
+                deferredSpans.add(
+                    Triple(LetterSpacingSpanPx(style.letterSpacing.toPx().value), start, end)
+                )
             }
             TextUnitType.Em -> {
-                spannableString.setSpan(
-                    LetterSpacingSpan(style.letterSpacing.value),
-                    start,
-                    end,
-                    Spanned.SPAN_EXCLUSIVE_EXCLUSIVE
+                deferredSpans.add(
+                    Triple(LetterSpacingSpan(style.letterSpacing.value), start, end)
                 )
             }
             TextUnitType.Inherit -> {}
@@ -351,6 +356,9 @@ internal fun createStyledText(
                 Spanned.SPAN_EXCLUSIVE_EXCLUSIVE
             )
         }
+    }
+    for ((span, start, end) in deferredSpans) {
+        spannableString.setSpan(span, start, end, Spanned.SPAN_EXCLUSIVE_EXCLUSIVE)
     }
     return spannableString
 }
