@@ -30,9 +30,9 @@ import androidx.ui.core.gesture.PointerProperties
 import androidx.ui.core.test.ValueModel
 import androidx.ui.test.android.AndroidComposeTestRule
 import androidx.ui.text.TextStyle
-import androidx.ui.text.font.Font
 import androidx.ui.text.font.FontStyle
 import androidx.ui.text.font.FontWeight
+import androidx.ui.text.font.ResourceFont
 import androidx.ui.text.font.asFontFamily
 import androidx.ui.unit.px
 import androidx.ui.unit.sp
@@ -58,8 +58,8 @@ class SelectionContainerTest {
     private lateinit var view: View
 
     private val textContent = "Text Demo Text Demo"
-    private val fontFamily = Font(
-        name = "sample_font.ttf",
+    private val fontFamily = ResourceFont(
+        resId = androidx.ui.framework.test.R.font.sample_font,
         weight = FontWeight.Normal,
         style = FontStyle.Normal
     ).asFontFamily()

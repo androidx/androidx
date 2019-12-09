@@ -20,8 +20,6 @@ import android.os.Build
 import androidx.test.filters.SdkSuppress
 import androidx.test.filters.SmallTest
 import androidx.test.platform.app.InstrumentationRegistry
-import androidx.ui.text.font.FontStyle
-import androidx.ui.text.font.FontSynthesis
 import androidx.ui.text.FontTestData.Companion.FONT_100_ITALIC
 import androidx.ui.text.FontTestData.Companion.FONT_100_REGULAR
 import androidx.ui.text.FontTestData.Companion.FONT_200_ITALIC
@@ -41,12 +39,15 @@ import androidx.ui.text.FontTestData.Companion.FONT_800_REGULAR
 import androidx.ui.text.FontTestData.Companion.FONT_900_ITALIC
 import androidx.ui.text.FontTestData.Companion.FONT_900_REGULAR
 import androidx.ui.text.TestFontResourceLoader
-import androidx.ui.text.font.FontWeight
-import androidx.ui.text.font.Font
+import androidx.ui.text.font.font
 import androidx.ui.text.font.FontFamily
 import androidx.ui.text.font.FontMatcher
+import androidx.ui.text.font.FontStyle
+import androidx.ui.text.font.FontSynthesis
+import androidx.ui.text.font.FontWeight
 import androidx.ui.text.font.asFontFamily
 import androidx.ui.text.matchers.assertThat
+import androidx.ui.text.test.R
 import com.google.common.truth.Truth.assertThat
 import com.nhaarman.mockitokotlin2.any
 import com.nhaarman.mockitokotlin2.eq
@@ -236,7 +237,7 @@ class TypefaceAdapterTest {
     fun customSingleFont() {
         val defaultTypeface = TypefaceAdapter().create()
 
-        val fontFamily = Font(name = FONT_100_REGULAR.name).asFontFamily()
+        val fontFamily = FONT_100_REGULAR.asFontFamily()
 
         val typeface = TypefaceAdapter().create(fontFamily = fontFamily)
 
@@ -250,7 +251,7 @@ class TypefaceAdapterTest {
     fun customSingleFontBoldItalic() {
         val defaultTypeface = TypefaceAdapter().create()
 
-        val fontFamily = Font(name = FONT_100_REGULAR.name).asFontFamily()
+        val fontFamily = FONT_100_REGULAR.asFontFamily()
 
         val typeface = TypefaceAdapter().create(
             fontFamily = fontFamily,
@@ -390,14 +391,14 @@ class TypefaceAdapterTest {
 
     @Test(expected = IllegalStateException::class)
     fun throwsExceptionIfFontIsNotIncludedInTheApp() {
-        val fontFamily = FontFamily(Font("nonexistent.ttf"))
+        val fontFamily = FontFamily(font(-1))
 
         TypefaceAdapter().create(fontFamily)
     }
 
     @Test(expected = IllegalStateException::class)
     fun throwsExceptionIfFontIsNotReadable() {
-        val fontFamily = FontFamily(Font("invalid_font.ttf"))
+        val fontFamily = FontFamily(font(R.font.invalid_font))
 
         TypefaceAdapter().create(fontFamily)
     }

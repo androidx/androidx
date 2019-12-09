@@ -23,28 +23,25 @@ import org.junit.runners.JUnit4
 @RunWith(JUnit4::class)
 class FontTest {
 
-    @Test(expected = AssertionError::class)
-    fun `cannot be instantiated with empty name`() {
-        Font(name = "")
-    }
+    private val dummyResourceId = 1
 
     @Test
     fun `default values`() {
-        val font = Font(name = "fontName")
+        val font = font(resId = dummyResourceId)
         assertThat(font.weight).isEqualTo(FontWeight.Normal)
         assertThat(font.style).isEqualTo(FontStyle.Normal)
     }
 
     @Test
     fun `two equal font declarations are equal`() {
-        val font = Font(
-            name = "fontName",
+        val font = font(
+            resId = dummyResourceId,
             weight = FontWeight.W900,
             style = FontStyle.Italic
         )
 
-        val otherFont = Font(
-            name = "fontName",
+        val otherFont = font(
+            resId = dummyResourceId,
             weight = FontWeight.W900,
             style = FontStyle.Italic
         )
@@ -54,14 +51,14 @@ class FontTest {
 
     @Test
     fun `two non equal font declarations are not equal`() {
-        val font = Font(
-            name = "fontName",
+        val font = font(
+            resId = dummyResourceId,
             weight = FontWeight.W900,
             style = FontStyle.Italic
         )
 
-        val otherFont = Font(
-            name = "fontName",
+        val otherFont = font(
+            resId = dummyResourceId,
             weight = FontWeight.W800,
             style = FontStyle.Italic
         )
@@ -71,8 +68,8 @@ class FontTest {
 
     @Test
     fun `asFontFamilyList returns a FontFamily`() {
-        val font = Font(
-            name = "fontName1",
+        val font = font(
+            resId = dummyResourceId,
             weight = FontWeight.W900,
             style = FontStyle.Italic
         )

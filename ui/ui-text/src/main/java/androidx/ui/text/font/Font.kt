@@ -17,26 +17,22 @@
 package androidx.ui.text.font
 
 /**
- * Defines a font to be used while rendering text.
+ * The interface of the font resource.
  *
- * @sample androidx.ui.text.samples.CustomFontFamilySample
- *
- * @param name The name of the font file in font resources. i.e. "myfont.ttf".
- * @param weight The weight of the font. The system uses this to match a font to a font request
- * that is given in a [androidx.ui.text.SpanStyle].
- * @param style The style of the font, normal or italic. The system uses this to match a font to a
- * font request that is given in a [androidx.ui.text.SpanStyle].
- *
- * @see FontFamily
+ * @see ResourceFont
  */
-data class Font(
-    val name: String,
-    val weight: FontWeight = FontWeight.Normal,
-    val style: FontStyle = FontStyle.Normal
-) {
-    init {
-        assert(name.isNotEmpty()) { "Font name cannot be empty" }
-    }
+interface Font {
+    /**
+     * The weight of the font. The system uses this to match a font to a font request
+     * that is given in a [androidx.ui.text.SpanStyle].
+     */
+    val weight: FontWeight
+
+    /**
+     * The style of the font, normal or italic. The system uses this to match a font to a
+     * font request that is given in a [androidx.ui.text.SpanStyle].
+     */
+    val style: FontStyle
 
     /**
      * Interface used to load a font resource.
@@ -53,7 +49,43 @@ data class Font(
 }
 
 /**
- * Create a [FontFamily] from this single [Font].
+ * Defines a font to be used while rendering text with resource ID.
+ *
+ * @sample androidx.ui.text.samples.CustomFontFamilySample
+ *
+ * @param resId The resource ID of the font file in font resources. i.e. "R.font.myfont".
+ * @param weight The weight of the font. The system uses this to match a font to a font request
+ * that is given in a [androidx.ui.text.TextStyle].
+ * @param style The style of the font, normal or italic. The system uses this to match a font to a
+ * font request that is given in a [androidx.ui.text.TextStyle].
+ *
+ * @see FontFamily
+ */
+data class ResourceFont(
+    val resId: Int,
+    override val weight: FontWeight = FontWeight.Normal,
+    override val style: FontStyle = FontStyle.Normal
+) : Font
+
+/**
+ * Creates a Font with using resource ID.
+ *
+ * @param resId The resource ID of the font file in font resources. i.e. "R.font.myfont".
+ * @param weight The weight of the font. The system uses this to match a font to a font request
+ * that is given in a [androidx.ui.text.SpanStyle].
+ * @param style The style of the font, normal or italic. The system uses this to match a font to a
+ * font request that is given in a [androidx.ui.text.SpanStyle].
+ *
+ * @see FontFamily
+ */
+fun font(
+    resId: Int,
+    weight: FontWeight = FontWeight.Normal,
+    style: FontStyle = FontStyle.Normal
+): Font = ResourceFont(resId, weight, style)
+
+/**
+ * Create a [FontFamily] from this single [font].
  */
 fun Font.asFontFamily(): FontFamily {
     return FontFamily(this)

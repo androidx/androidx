@@ -21,6 +21,7 @@ import android.graphics.Canvas
 import android.graphics.Typeface
 import androidx.core.content.res.ResourcesCompat
 import androidx.ui.text.font.Font
+import androidx.ui.text.font.ResourceFont
 import androidx.ui.unit.IntPx
 import androidx.ui.unit.ipx
 import kotlin.math.ceil
@@ -38,13 +39,10 @@ fun Paragraph.bitmap(): Bitmap {
 
 class TestFontResourceLoader(val context: Context) : Font.ResourceLoader {
     override fun load(font: Font): Typeface {
-        val resId = context.resources.getIdentifier(
-            font.name.substringBefore("."),
-            "font",
-            context.packageName
-        )
-
-        return ResourcesCompat.getFont(context, resId)!!
+        return when (font) {
+            is ResourceFont -> ResourcesCompat.getFont(context, font.resId)!!
+            else -> throw IllegalArgumentException("Unknown font type: ${font.javaClass.name}")
+        }
     }
 }
 

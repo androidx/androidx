@@ -20,6 +20,7 @@ import android.graphics.Typeface
 import android.os.Build
 import androidx.collection.LruCache
 import androidx.ui.text.font.Font
+import androidx.ui.text.font.font
 import androidx.ui.text.font.FontFamily
 import androidx.ui.text.font.FontMatcher
 import androidx.ui.text.font.FontStyle
@@ -149,7 +150,7 @@ internal open class TypefaceAdapter(
      *
      * @param fontStyle the font style to create the typeface in
      * @param fontWeight the font weight to create the typeface in
-     * @param fontFamily [FontFamily] that contains the list of [Font]s
+     * @param fontFamily [FontFamily] that contains the list of [font]s
      * @param fontSynthesis [FontSynthesis] which attributes of the font family to synthesize
      *        custom fonts for if they are not already present in the font family
      */
