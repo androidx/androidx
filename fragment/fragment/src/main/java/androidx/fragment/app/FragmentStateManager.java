@@ -41,7 +41,7 @@ class FragmentStateManager {
     private static final String USER_VISIBLE_HINT_TAG = "android:user_visible_hint";
 
     private final FragmentLifecycleCallbacksDispatcher mDispatcher;
-    private final FragmentManagerViewModel mNonConfig;
+    private final FragmentStore mFragmentStore;
     @NonNull
     private final Fragment mFragment;
 
@@ -51,14 +51,13 @@ class FragmentStateManager {
      * Create a FragmentStateManager from a brand new Fragment instance.
      *
      * @param dispatcher Dispatcher for any lifecycle callbacks triggered by this class
-     * @param nonConfig ViewModel controlling the non configuration state
+     * @param fragmentStore FragmentStore handling all Fragments
      * @param fragment The Fragment to manage
      */
     FragmentStateManager(@NonNull FragmentLifecycleCallbacksDispatcher dispatcher,
-            @NonNull FragmentManagerViewModel nonConfig,
-            @NonNull Fragment fragment) {
+            @NonNull FragmentStore fragmentStore, @NonNull Fragment fragment) {
         mDispatcher = dispatcher;
-        mNonConfig = nonConfig;
+        mFragmentStore = fragmentStore;
         mFragment = fragment;
     }
 
@@ -67,18 +66,18 @@ class FragmentStateManager {
      * a new Fragment from the {@link FragmentFactory}.
      *
      * @param dispatcher Dispatcher for any lifecycle callbacks triggered by this class
-     * @param nonConfig ViewModel controlling the non configuration state
+     * @param fragmentStore FragmentStore handling all Fragments
      * @param classLoader ClassLoader used to instantiate the Fragment
      * @param fragmentFactory FragmentFactory used to instantiate the Fragment
      * @param fs FragmentState used to restore the state correctly
      */
     FragmentStateManager(@NonNull FragmentLifecycleCallbacksDispatcher dispatcher,
-            @NonNull FragmentManagerViewModel nonConfig,
+            @NonNull FragmentStore fragmentStore,
             @NonNull ClassLoader classLoader,
             @NonNull FragmentFactory fragmentFactory,
             @NonNull FragmentState fs) {
         mDispatcher = dispatcher;
-        mNonConfig = nonConfig;
+        mFragmentStore = fragmentStore;
         mFragment = fragmentFactory.instantiate(classLoader, fs.mClassName);
         if (fs.mArguments != null) {
             fs.mArguments.setClassLoader(classLoader);
@@ -113,16 +112,16 @@ class FragmentStateManager {
      * FragmentState instance.
      *
      * @param dispatcher Dispatcher for any lifecycle callbacks triggered by this class
-     * @param nonConfig ViewModel controlling the non configuration state
+     * @param fragmentStore FragmentStore handling all Fragments
      * @param retainedFragment A retained fragment
      * @param fs FragmentState used to restore the state correctly
      */
     FragmentStateManager(@NonNull FragmentLifecycleCallbacksDispatcher dispatcher,
-            @NonNull FragmentManagerViewModel nonConfig,
+            @NonNull FragmentStore fragmentStore,
             @NonNull Fragment retainedFragment,
             @NonNull FragmentState fs) {
         mDispatcher = dispatcher;
-        mNonConfig = nonConfig;
+        mFragmentStore = fragmentStore;
         mFragment = retainedFragment;
         mFragment.mSavedViewState = null;
         mFragment.mBackStackNesting = 0;
@@ -147,7 +146,7 @@ class FragmentStateManager {
 
     /**
      * Set the state of the FragmentManager. This will be used by
-     * {@link #computeMaxState()} to limit the max state of the Fragment.
+     * {@link #computeExpectedState()} to limit the max state of the Fragment.
      *
      * @param state one of the constants in {@link Fragment}
      */
@@ -156,12 +155,16 @@ class FragmentStateManager {
     }
 
     /**
-     * Compute the maximum state that the Fragment should be in given the internal
+     * Compute the state that the Fragment should be in given the internal
      * state of the Fragment and the signals passed into FragmentStateManager.
      *
-     * @return the maximum state that the Fragment should be in
+     * @return the state that the Fragment should be in
      */
-    int computeMaxState() {
+    int computeExpectedState() {
+        // If the FragmentManager is null, disallow changing the state at all
+        if (mFragment.mFragmentManager == null) {
+            return mFragment.mState;
+        }
         // Assume the Fragment can go as high as the FragmentManager's state
         int maxState = mFragmentManagerState;
 
@@ -212,6 +215,80 @@ class FragmentStateManager {
         return maxState;
     }
 
+    void moveToExpectedState() {
+        int newState;
+        while ((newState = computeExpectedState()) != mFragment.mState) {
+            // TODO call ensureInflatedView()
+            if (newState > mFragment.mState) {
+                // Moving upward
+                int nextStep = mFragment.mState + 1;
+                // TODO cancel exit animations
+                switch (nextStep) {
+                    case Fragment.ATTACHED:
+                        attach();
+                        break;
+                    case Fragment.CREATED:
+                        create();
+                        break;
+                    case Fragment.ACTIVITY_CREATED:
+                        createView();
+                        activityCreated();
+                        restoreViewState();
+                        break;
+                    case Fragment.STARTED:
+                        start();
+                        break;
+                    case Fragment.RESUMED:
+                        resume();
+                        break;
+                }
+            } else {
+                // Moving downward
+                int nextStep = mFragment.mState - 1;
+                switch (nextStep) {
+                    case Fragment.STARTED:
+                        pause();
+                        break;
+                    case Fragment.ACTIVITY_CREATED:
+                        stop();
+                        break;
+                    case Fragment.CREATED:
+                        if (FragmentManager.isLoggingEnabled(Log.DEBUG)) {
+                            Log.d(TAG, "movefrom ACTIVITY_CREATED: " + mFragment);
+                        }
+                        // TODO call saveViewState()
+                        // TODO start exit animations
+                        // TODO destroy the view
+                        break;
+                    case Fragment.ATTACHED:
+                        // TODO move this into destroy()
+                        boolean beingRemoved = mFragment.mRemoving && !mFragment.isInBackStack();
+                        if (beingRemoved
+                                || mFragmentStore.getNonConfig().shouldDestroy(mFragment)) {
+                            mFragmentStore.makeInactive(this);
+                        } else {
+                            if (mFragment.mTargetWho != null) {
+                                Fragment target = mFragmentStore.findActiveFragment(
+                                        mFragment.mTargetWho);
+                                if (target != null && target.mRetainInstance) {
+                                    // Only keep references to other retained Fragments
+                                    // to avoid developers accessing Fragments that
+                                    // are never coming back
+                                    mFragment.mTarget = target;
+                                }
+                            }
+                        }
+                        // TODO wait for animations to complete
+                        destroy();
+                        break;
+                    case Fragment.INITIALIZING:
+                        detach();
+                        break;
+                }
+            }
+        }
+    }
+
     void ensureInflatedView() {
         if (mFragment.mFromLayout && mFragment.mInLayout && !mFragment.mPerformedCreateView) {
             if (FragmentManager.isLoggingEnabled(Log.DEBUG)) {
@@ -255,6 +332,36 @@ class FragmentStateManager {
     }
 
     void attach() {
+        if (FragmentManager.isLoggingEnabled(Log.DEBUG)) {
+            Log.d(TAG, "moveto ATTACHED: " + mFragment);
+        }
+        // If we have a target fragment, ensure it moves to its expected state first
+        // so that this fragment can rely on it as an initialized dependency.
+        FragmentStateManager targetFragmentStateManager;
+        if (mFragment.mTarget != null) {
+            targetFragmentStateManager = mFragmentStore.getFragmentStateManager(
+                    mFragment.mTarget.mWho);
+            if (targetFragmentStateManager == null) {
+                throw new IllegalStateException("Fragment " + mFragment
+                        + " declared target fragment " + mFragment.mTarget
+                        + " that does not belong to this FragmentManager!");
+            }
+            mFragment.mTargetWho = mFragment.mTarget.mWho;
+            mFragment.mTarget = null;
+        } else if (mFragment.mTargetWho != null) {
+            targetFragmentStateManager = mFragmentStore.getFragmentStateManager(
+                    mFragment.mTargetWho);
+            if (targetFragmentStateManager == null) {
+                throw new IllegalStateException("Fragment " + mFragment
+                        + " declared target fragment " + mFragment.mTargetWho
+                        + " that does not belong to this FragmentManager!");
+            }
+        } else {
+            targetFragmentStateManager = null;
+        }
+        if (targetFragmentStateManager != null) {
+            targetFragmentStateManager.moveToExpectedState();
+        }
         mFragment.mHost = mFragment.mFragmentManager.getHost();
         mFragment.mParentFragment = mFragment.mFragmentManager.getParent();
         mDispatcher.dispatchOnFragmentPreAttached(mFragment, false);
@@ -467,12 +574,13 @@ class FragmentStateManager {
             Log.d(TAG, "movefrom CREATED: " + mFragment);
         }
         boolean beingRemoved = mFragment.mRemoving && !mFragment.isInBackStack();
-        boolean shouldDestroy = beingRemoved || mNonConfig.shouldDestroy(mFragment);
+        boolean shouldDestroy = beingRemoved
+                || mFragmentStore.getNonConfig().shouldDestroy(mFragment);
         if (shouldDestroy) {
             FragmentHostCallback<?> host = mFragment.mHost;
             boolean shouldClear;
             if (host instanceof ViewModelStoreOwner) {
-                shouldClear = mNonConfig.isCleared();
+                shouldClear = mFragmentStore.getNonConfig().isCleared();
             } else if (host.getContext() instanceof Activity) {
                 Activity activity = (Activity) host.getContext();
                 shouldClear = !activity.isChangingConfigurations();
@@ -480,7 +588,7 @@ class FragmentStateManager {
                 shouldClear = true;
             }
             if (beingRemoved || shouldClear) {
-                mNonConfig.clearNonConfigState(mFragment);
+                mFragmentStore.getNonConfig().clearNonConfigState(mFragment);
             }
             mFragment.performDestroy();
             mDispatcher.dispatchOnFragmentDestroyed(mFragment, false);
@@ -501,7 +609,7 @@ class FragmentStateManager {
         mFragment.mParentFragment = null;
         mFragment.mFragmentManager = null;
         boolean beingRemoved = mFragment.mRemoving && !mFragment.isInBackStack();
-        if (beingRemoved || mNonConfig.shouldDestroy(mFragment)) {
+        if (beingRemoved || mFragmentStore.getNonConfig().shouldDestroy(mFragment)) {
             if (FragmentManager.isLoggingEnabled(Log.DEBUG)) {
                 Log.d(TAG, "initState called for fragment: " + mFragment);
             }
