@@ -35,6 +35,7 @@ import androidx.ui.core.Modifier
 import androidx.ui.core.Placeable
 import androidx.ui.core.Px
 import androidx.ui.core.Text
+import androidx.ui.core.WithConstraints
 import androidx.ui.core.ambientDensity
 import androidx.ui.core.coerceIn
 import androidx.ui.core.dp
@@ -52,6 +53,7 @@ import androidx.ui.graphics.Color
 import androidx.ui.graphics.Image
 import androidx.ui.layout.Container
 import androidx.ui.layout.FlexRow
+import androidx.ui.layout.LayoutExpandedWidth
 import androidx.ui.layout.LayoutGravity
 import androidx.ui.layout.Padding
 import androidx.ui.layout.Stack
@@ -138,7 +140,8 @@ fun <T> TabRow(
             }
         }
 
-        WithExpandedWidth { width ->
+        WithConstraints { constraints ->
+            val width = constraints.maxWidth
             // TODO: force scrollable for tabs that will be too small if they take up equal space?
             if (scrollable) {
                 ScrollableTabRow(width, selectedIndex, tabs, indicatorContainer)
@@ -169,7 +172,7 @@ private fun FixedTabRow(
         TabRow.Divider(modifier)
     }
 
-    Stack {
+    Stack(LayoutExpandedWidth) {
         FlexRow(LayoutGravity.Center) {
             expanded(1f, tabs)
         }
@@ -197,8 +200,8 @@ private fun ScrollableTabRow(
         ScrollableTabData(selectedIndex, tabPositions, width, edgeOffset)
     }
 
-    scrollableTabData.selectedTab = selectedIndex
     scrollableTabData.tabPositions = tabPositions
+    scrollableTabData.selectedTab = selectedIndex
     scrollableTabData.visibleWidth = width
 
     val indicator = @Composable {
@@ -212,7 +215,10 @@ private fun ScrollableTabRow(
         TabRow.Divider()
     }
 
-    HorizontalScroller(scrollerPosition = scrollableTabData.position) {
+    HorizontalScroller(
+        scrollerPosition = scrollableTabData.position,
+        modifier = LayoutExpandedWidth
+    ) {
         Layout(tabs, indicator, divider) { measurables, constraints ->
             val tabPlaceables = mutableListOf<Pair<Placeable, IntPx>>()
             val minTabWidth = ScrollableTabRowMinimumTabWidth.toIntPx()
@@ -302,27 +308,6 @@ private class ScrollableTabData(
         val centeredTabOffset = tabOffset - (scrollerCenter - tabWidth / 2)
         val totalTabRowWidth = tabPositions.last().right + edgeOffset
         return centeredTabOffset.coerceIn(IntPx.Zero, totalTabRowWidth - visibleWidth).toPx()
-    }
-}
-
-// TODO: cleanup when expanded width layouts are supported natively b/140408477
-/**
- * A layout that is sized according to its [child]'s height, and all the available width.
- */
-@Composable
-private fun WithExpandedWidth(child: @Composable() (width: IntPx) -> Unit) {
-    // TODO: unfortunate 1f lag as we need to first measure total width and then recompose so the
-    // tab row knows the correct width
-    var widthState by +state { IntPx.Zero }
-    Layout({ child(widthState) }) { measurables, constraints ->
-        val width = constraints.maxWidth
-        if (widthState != width) widthState = width
-        val placeable = measurables.first().measure(constraints)
-        val height = placeable.height
-
-        layout(width, height) {
-            placeable.place(IntPx.Zero, IntPx.Zero)
-        }
     }
 }
 
