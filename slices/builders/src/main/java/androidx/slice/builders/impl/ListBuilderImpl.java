@@ -517,12 +517,6 @@ public class ListBuilderImpl extends TemplateBuilderImpl implements ListBuilder 
 
         /**
          */
-        private void setTitleItem(@NonNull SliceAction action) {
-            setTitleItem(action, false /* isLoading */);
-        }
-
-        /**
-         */
         private void setTitleItem(SliceAction action, boolean isLoading) {
             Slice.Builder sb = new Slice.Builder(getBuilder()).addHints(HINT_TITLE);
             if (isLoading) {
@@ -535,12 +529,6 @@ public class ListBuilderImpl extends TemplateBuilderImpl implements ListBuilder 
          */
         private void setPrimaryAction(@NonNull SliceAction action) {
             mPrimaryAction = action;
-        }
-
-        /**
-         */
-        private void setTitle(CharSequence title) {
-            setTitle(title, false /* isLoading */);
         }
 
         /**
@@ -576,12 +564,6 @@ public class ListBuilderImpl extends TemplateBuilderImpl implements ListBuilder 
 
         /**
          */
-        private void addEndItem(IconCompat icon, int imageMode) {
-            addEndItem(icon, imageMode, false /* isLoading */);
-        }
-
-        /**
-         */
         private void addEndItem(IconCompat icon, int imageMode, boolean isLoading) {
             ArrayList<String> hints = new ArrayList<>();
             if (imageMode != ICON_IMAGE) {
@@ -599,12 +581,6 @@ public class ListBuilderImpl extends TemplateBuilderImpl implements ListBuilder 
                 sb.addHints(HINT_PARTIAL);
             }
             mEndItems.add(sb.build());
-        }
-
-        /**
-         */
-        private void addEndItem(@NonNull SliceAction action) {
-            addEndItem(action, false /* isLoading */);
         }
 
         /**

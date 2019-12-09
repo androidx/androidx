@@ -20,7 +20,6 @@ import android.graphics.Rect;
 import android.os.Build;
 import android.text.TextUtils;
 import android.util.AttributeSet;
-import android.util.TypedValue;
 import android.view.KeyEvent;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -461,12 +460,6 @@ public class Picker extends FrameLayout {
             column.setCurrentValue(newValue);
             notifyValueChanged(columnIndex);
         }
-    }
-
-    private float getFloat(int resourceId) {
-        TypedValue buffer = new TypedValue();
-        getContext().getResources().getValue(resourceId, buffer, true);
-        return buffer.getFloat();
     }
 
     static class ViewHolder extends RecyclerView.ViewHolder {

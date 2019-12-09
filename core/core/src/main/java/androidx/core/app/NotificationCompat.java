@@ -5564,10 +5564,6 @@ public class NotificationCompat {
             return compatBuilder.build();
         }
 
-        private void setFlags(int flags) {
-            mFlags = flags;
-        }
-
         /**
          * Builder to construct a {@link BubbleMetadata} object.
          */

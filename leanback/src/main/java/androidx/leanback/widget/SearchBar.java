@@ -809,10 +809,6 @@ public class SearchBar extends RelativeLayout {
         play(R.raw.lb_voice_failure);
     }
 
-    private void playSearchNoInput() {
-        play(R.raw.lb_voice_no_input);
-    }
-
     void playSearchSuccess() {
         play(R.raw.lb_voice_success);
     }

@@ -31,8 +31,6 @@ import static java.lang.Math.min;
 
 import android.content.Context;
 import android.content.res.TypedArray;
-import android.graphics.Canvas;
-import android.graphics.Paint;
 import android.os.Build;
 import android.util.AttributeSet;
 import android.util.Log;
@@ -849,17 +847,6 @@ public class GridLayout extends ViewGroup {
             return new LayoutParams((MarginLayoutParams) lp);
         } else {
             return new LayoutParams(lp);
-        }
-    }
-
-    // Draw grid
-
-    private void drawLine(Canvas graphics, int x1, int y1, int x2, int y2, Paint paint) {
-        if (isLayoutRtlCompat()) {
-            int width = getWidth();
-            graphics.drawLine(width - x1, y1, width - x2, y2, paint);
-        } else {
-            graphics.drawLine(x1, y1, x2, y2, paint);
         }
     }
 
