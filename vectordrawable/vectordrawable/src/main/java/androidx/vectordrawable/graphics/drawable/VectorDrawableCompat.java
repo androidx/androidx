@@ -1,15 +1,17 @@
 /*
  * Copyright (C) 2015 The Android Open Source Project
  *
- * Licensed under the Apache License, Version 2.0 (the "License"); you may not use this file except
- * in compliance with the License. You may obtain a copy of the License at
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
  *
- * http://www.apache.org/licenses/LICENSE-2.0
+ *      http://www.apache.org/licenses/LICENSE-2.0
  *
- * Unless required by applicable law or agreed to in writing, software distributed under the License
- * is distributed on an "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express
- * or implied. See the License for the specific language governing permissions and limitations under
- * the License.
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
  */
 
 package androidx.vectordrawable.graphics.drawable;
@@ -648,8 +650,8 @@ public class VectorDrawableCompat extends VectorDrawableCommon {
             @SuppressLint("ResourceType") final XmlPullParser parser = res.getXml(resId);
             final AttributeSet attrs = Xml.asAttributeSet(parser);
             int type;
-            while ((type = parser.next()) != XmlPullParser.START_TAG &&
-                    type != XmlPullParser.END_DOCUMENT) {
+            while ((type = parser.next()) != XmlPullParser.START_TAG
+                    && type != XmlPullParser.END_DOCUMENT) {
                 // Empty loop
             }
             if (type != XmlPullParser.START_TAG) {
@@ -774,11 +776,11 @@ public class VectorDrawableCompat extends VectorDrawableCommon {
                 pathRenderer.mViewportHeight);
 
         if (pathRenderer.mViewportWidth <= 0) {
-            throw new XmlPullParserException(a.getPositionDescription() +
-                    "<vector> tag requires viewportWidth > 0");
+            throw new XmlPullParserException(a.getPositionDescription()
+                    + "<vector> tag requires viewportWidth > 0");
         } else if (pathRenderer.mViewportHeight <= 0) {
-            throw new XmlPullParserException(a.getPositionDescription() +
-                    "<vector> tag requires viewportHeight > 0");
+            throw new XmlPullParserException(a.getPositionDescription()
+                    + "<vector> tag requires viewportHeight > 0");
         }
 
         pathRenderer.mBaseWidth = a.getDimension(
@@ -786,11 +788,11 @@ public class VectorDrawableCompat extends VectorDrawableCommon {
         pathRenderer.mBaseHeight = a.getDimension(
                 AndroidResources.STYLEABLE_VECTOR_DRAWABLE_HEIGHT, pathRenderer.mBaseHeight);
         if (pathRenderer.mBaseWidth <= 0) {
-            throw new XmlPullParserException(a.getPositionDescription() +
-                    "<vector> tag requires width > 0");
+            throw new XmlPullParserException(a.getPositionDescription()
+                    + "<vector> tag requires width > 0");
         } else if (pathRenderer.mBaseHeight <= 0) {
-            throw new XmlPullParserException(a.getPositionDescription() +
-                    "<vector> tag requires height > 0");
+            throw new XmlPullParserException(a.getPositionDescription()
+                    + "<vector> tag requires height > 0");
         }
 
         // shown up from API 11.
@@ -966,7 +968,7 @@ public class VectorDrawableCompat extends VectorDrawableCommon {
     private static class VectorDrawableDelegateState extends ConstantState {
         private final ConstantState mDelegateState;
 
-        public VectorDrawableDelegateState(ConstantState state) {
+        VectorDrawableDelegateState(ConstantState state) {
             mDelegateState = state;
         }
 
@@ -1024,7 +1026,7 @@ public class VectorDrawableCompat extends VectorDrawableCommon {
         Paint mTempPaint;
 
         // Deep copy for mutate() or implicitly mutate.
-        public VectorDrawableCompatState(VectorDrawableCompatState copy) {
+        VectorDrawableCompatState(VectorDrawableCompatState copy) {
             if (copy != null) {
                 mChangingConfigurations = copy.mChangingConfigurations;
                 mVPathRenderer = new VPathRenderer(copy.mVPathRenderer);
@@ -1112,7 +1114,7 @@ public class VectorDrawableCompat extends VectorDrawableCommon {
             mCacheDirty = false;
         }
 
-        public VectorDrawableCompatState() {
+        VectorDrawableCompatState() {
             mVPathRenderer = new VPathRenderer();
         }
 
@@ -1182,7 +1184,7 @@ public class VectorDrawableCompat extends VectorDrawableCommon {
 
         final ArrayMap<String, Object> mVGTargetsMap = new ArrayMap<String, Object>();
 
-        public VPathRenderer() {
+        VPathRenderer() {
             mRootGroup = new VGroup();
             mPath = new Path();
             mRenderPath = new Path();
@@ -1207,7 +1209,7 @@ public class VectorDrawableCompat extends VectorDrawableCommon {
             return getRootAlpha() / 255.0f;
         }
 
-        public VPathRenderer(VPathRenderer copy) {
+        VPathRenderer(VPathRenderer copy) {
             mRootGroup = new VGroup(copy.mRootGroup, mVGTargetsMap);
             mPath = new Path(copy.mPath);
             mRenderPath = new Path(copy.mRenderPath);
@@ -1457,7 +1459,7 @@ public class VectorDrawableCompat extends VectorDrawableCommon {
         private int[] mThemeAttrs;
         private String mGroupName = null;
 
-        public VGroup(VGroup copy, ArrayMap<String, Object> targetsMap) {
+        VGroup(VGroup copy, ArrayMap<String, Object> targetsMap) {
             mRotate = copy.mRotate;
             mPivotX = copy.mPivotX;
             mPivotY = copy.mPivotY;
@@ -1497,7 +1499,7 @@ public class VectorDrawableCompat extends VectorDrawableCommon {
             }
         }
 
-        public VGroup() {
+        VGroup() {
         }
 
         public String getGroupName() {
@@ -1684,7 +1686,7 @@ public class VectorDrawableCompat extends VectorDrawableCommon {
         int mFillRule = FILL_TYPE_WINDING;
         int mChangingConfigurations;
 
-        public VPath() {
+        VPath() {
             // Empty constructor.
         }
 
@@ -1693,8 +1695,8 @@ public class VectorDrawableCompat extends VectorDrawableCommon {
             for (int i = 0; i < level; i++) {
                 indent += "    ";
             }
-            Log.v(LOGTAG, indent + "current path is :" + mPathName +
-                    " pathData is " + nodesToString(mNodes));
+            Log.v(LOGTAG, indent + "current path is :" + mPathName
+                    + " pathData is " + nodesToString(mNodes));
 
         }
 
@@ -1710,7 +1712,7 @@ public class VectorDrawableCompat extends VectorDrawableCommon {
             return result;
         }
 
-        public VPath(VPath copy) {
+        VPath(VPath copy) {
             mPathName = copy.mPathName;
             mChangingConfigurations = copy.mChangingConfigurations;
             mNodes = PathParser.deepCopyNodes(copy.mNodes);

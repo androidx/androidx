@@ -120,8 +120,8 @@ public class AnimatedVectorDrawableTest {
         AttributeSet attrs = Xml.asAttributeSet(parser);
 
         int type;
-        while ((type = parser.next()) != XmlPullParser.START_TAG &&
-                type != XmlPullParser.END_DOCUMENT) {
+        while ((type = parser.next()) != XmlPullParser.START_TAG
+                && type != XmlPullParser.END_DOCUMENT) {
             // Empty loop
         }
 
