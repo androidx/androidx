@@ -262,10 +262,10 @@ public final class ImageAnalysis extends UseCase {
     /**
      * Sets the target rotation.
      *
-     * <p>This informs the use case so it can adjust the rotation value sent to
-     * {@link Analyzer#analyze(ImageProxy)} which provides rotation information to the
-     * analysis method. The rotation parameter sent to the analyzer will be the rotation, which if
-     * applied to the output image, will make the image match target rotation specified here.
+     * <p>This adjust the {@link ImageInfo#getRotationDegrees()} of the {@link ImageProxy} passed
+     * to {@link Analyzer#analyze(ImageProxy)}. The rotation value of ImageInfo will be the
+     * rotation, which if applied to the output image, will make the image match target rotation
+     * specified here.
      *
      * <p>While rotation can also be set via {@link Builder#setTargetRotation(int)}, using
      * {@link ImageAnalysis#setTargetRotation(int)} allows the target rotation to be set
@@ -801,8 +801,10 @@ public final class ImageAnalysis extends UseCase {
         /**
          * Sets the rotation of the intended target for images from this configuration.
          *
-         * <p>The rotation parameter sent to the analyzer will be the rotation, which if applied to
-         * the output image, will make the image match target rotation specified here.
+         * <p>This adjust the {@link ImageInfo#getRotationDegrees()} of the {@link ImageProxy}
+         * passed to {@link Analyzer#analyze(ImageProxy)}. The rotation value of ImageInfo will
+         * be the rotation, which if applied to the output image, will make the image match
+         * target rotation specified here.
          *
          * <p>This is one of four valid values: {@link Surface#ROTATION_0}, {@link
          * Surface#ROTATION_90}, {@link Surface#ROTATION_180}, {@link Surface#ROTATION_270}.
