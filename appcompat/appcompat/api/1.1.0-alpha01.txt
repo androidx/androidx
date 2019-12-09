@@ -341,7 +341,7 @@ package androidx.appcompat.content.res {
 
 package androidx.appcompat.graphics.drawable {
 
-  public class AnimatedStateListDrawableCompat extends android.graphics.drawable.Drawable implements android.graphics.drawable.Drawable.Callback androidx.core.graphics.drawable.TintAwareDrawable {
+  public class AnimatedStateListDrawableCompat extends android.graphics.drawable.Drawable implements android.graphics.drawable.Drawable.Callback {
     ctor public AnimatedStateListDrawableCompat();
     method public void addState(int[], android.graphics.drawable.Drawable, int);
     method public void addState(int[]!, android.graphics.drawable.Drawable!);
@@ -492,7 +492,7 @@ package androidx.appcompat.widget {
     method public void setTextAppearance(android.content.Context!, int);
   }
 
-  public class AppCompatButton extends android.widget.Button implements androidx.core.widget.AutoSizeableTextView androidx.core.view.TintableBackgroundView {
+  public class AppCompatButton extends android.widget.Button implements androidx.core.view.TintableBackgroundView {
     ctor public AppCompatButton(android.content.Context!);
     ctor public AppCompatButton(android.content.Context!, android.util.AttributeSet!);
     ctor public AppCompatButton(android.content.Context!, android.util.AttributeSet!, int);
@@ -536,34 +536,26 @@ package androidx.appcompat.widget {
     method public void setTextAppearance(android.content.Context!, int);
   }
 
-  public class AppCompatImageButton extends android.widget.ImageButton implements androidx.core.view.TintableBackgroundView androidx.core.widget.TintableImageSourceView {
+  public class AppCompatImageButton extends android.widget.ImageButton implements androidx.core.view.TintableBackgroundView {
     ctor public AppCompatImageButton(android.content.Context!);
     ctor public AppCompatImageButton(android.content.Context!, android.util.AttributeSet!);
     ctor public AppCompatImageButton(android.content.Context!, android.util.AttributeSet!, int);
     method @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP) public android.content.res.ColorStateList? getSupportBackgroundTintList();
     method @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP) public android.graphics.PorterDuff.Mode? getSupportBackgroundTintMode();
-    method @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP) public android.content.res.ColorStateList? getSupportImageTintList();
-    method @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP) public android.graphics.PorterDuff.Mode? getSupportImageTintMode();
     method public void setBackgroundDrawable(android.graphics.drawable.Drawable!);
     method @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP) public void setSupportBackgroundTintList(android.content.res.ColorStateList?);
     method @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP) public void setSupportBackgroundTintMode(android.graphics.PorterDuff.Mode?);
-    method @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP) public void setSupportImageTintList(android.content.res.ColorStateList?);
-    method @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP) public void setSupportImageTintMode(android.graphics.PorterDuff.Mode?);
   }
 
-  public class AppCompatImageView extends android.widget.ImageView implements androidx.core.view.TintableBackgroundView androidx.core.widget.TintableImageSourceView {
+  public class AppCompatImageView extends android.widget.ImageView implements androidx.core.view.TintableBackgroundView {
     ctor public AppCompatImageView(android.content.Context!);
     ctor public AppCompatImageView(android.content.Context!, android.util.AttributeSet!);
     ctor public AppCompatImageView(android.content.Context!, android.util.AttributeSet!, int);
     method @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP) public android.content.res.ColorStateList? getSupportBackgroundTintList();
     method @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP) public android.graphics.PorterDuff.Mode? getSupportBackgroundTintMode();
-    method @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP) public android.content.res.ColorStateList? getSupportImageTintList();
-    method @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP) public android.graphics.PorterDuff.Mode? getSupportImageTintMode();
     method public void setBackgroundDrawable(android.graphics.drawable.Drawable!);
     method @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP) public void setSupportBackgroundTintList(android.content.res.ColorStateList?);
     method @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP) public void setSupportBackgroundTintMode(android.graphics.PorterDuff.Mode?);
-    method @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP) public void setSupportImageTintList(android.content.res.ColorStateList?);
-    method @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP) public void setSupportImageTintMode(android.graphics.PorterDuff.Mode?);
   }
 
   public class AppCompatMultiAutoCompleteTextView extends android.widget.MultiAutoCompleteTextView implements androidx.core.view.TintableBackgroundView {
@@ -614,7 +606,7 @@ package androidx.appcompat.widget {
     method @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP) public void setSupportBackgroundTintMode(android.graphics.PorterDuff.Mode?);
   }
 
-  public class AppCompatTextView extends android.widget.TextView implements androidx.core.widget.AutoSizeableTextView androidx.core.view.TintableBackgroundView {
+  public class AppCompatTextView extends android.widget.TextView implements androidx.core.view.TintableBackgroundView {
     ctor public AppCompatTextView(android.content.Context!);
     ctor public AppCompatTextView(android.content.Context!, android.util.AttributeSet!);
     ctor public AppCompatTextView(android.content.Context!, android.util.AttributeSet!, int);

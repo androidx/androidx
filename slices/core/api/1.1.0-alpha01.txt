@@ -1,7 +1,7 @@
 // Signature format: 3.0
 package androidx.slice {
 
-  @RequiresApi(19) public final class Slice extends androidx.versionedparcelable.CustomVersionedParcelable implements androidx.versionedparcelable.VersionedParcelable {
+  @RequiresApi(19) public final class Slice implements androidx.versionedparcelable.VersionedParcelable {
     method public java.util.List<java.lang.String!>! getHints();
     method public java.util.List<androidx.slice.SliceItem!>! getItems();
     method public android.net.Uri! getUri();
@@ -13,7 +13,7 @@ package androidx.slice {
     method public static androidx.slice.Slice! wrap(android.app.slice.Slice!, android.content.Context!);
   }
 
-  @RequiresApi(19) public final class SliceItem extends androidx.versionedparcelable.CustomVersionedParcelable {
+  @RequiresApi(19) public final class SliceItem implements androidx.versionedparcelable.VersionedParcelable {
     method public static android.text.ParcelableSpan createSensitiveSpan();
     method public void fireAction(android.content.Context?, android.content.Intent?) throws android.app.PendingIntent.CanceledException;
     method public android.app.PendingIntent! getAction();
@@ -27,6 +27,8 @@ package androidx.slice {
     method public String! getSubType();
     method public CharSequence! getText();
     method public boolean hasHint(String!);
+    method public void onPostParceling();
+    method public void onPreParceling(boolean);
   }
 
   @RequiresApi(19) public abstract class SliceManager {
@@ -37,7 +39,7 @@ package androidx.slice {
     method public abstract void revokeSlicePermission(String, android.net.Uri);
   }
 
-  public abstract class SliceProvider extends android.content.ContentProvider implements androidx.core.app.CoreComponentFactory.CompatWrapped {
+  public abstract class SliceProvider extends android.content.ContentProvider {
     ctor public SliceProvider(java.lang.String!...);
     ctor public SliceProvider();
     method public final int bulkInsert(android.net.Uri, android.content.ContentValues![]);
@@ -45,7 +47,6 @@ package androidx.slice {
     method public final int delete(android.net.Uri, String?, String![]?);
     method @RequiresApi(19) public java.util.List<android.net.Uri!> getPinnedSlices();
     method public final String! getType(android.net.Uri!);
-    method @RequiresApi(19) @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY) public Object! getWrapper();
     method public final android.net.Uri? insert(android.net.Uri, android.content.ContentValues?);
     method @RequiresApi(19) public abstract androidx.slice.Slice! onBindSlice(android.net.Uri!);
     method public final boolean onCreate();
@@ -61,10 +62,9 @@ package androidx.slice {
     method public final int update(android.net.Uri, android.content.ContentValues?, String?, String![]?);
   }
 
-  public abstract class SliceProviderWithCallbacks<T extends androidx.slice.SliceProviderWithCallbacks> extends androidx.slice.SliceProvider implements androidx.remotecallback.CallbackBase<T> androidx.remotecallback.CallbackReceiver<T> {
+  public abstract class SliceProviderWithCallbacks<T extends androidx.slice.SliceProviderWithCallbacks> extends androidx.slice.SliceProvider implements androidx.remotecallback.CallbackReceiver<T> {
     ctor public SliceProviderWithCallbacks();
     method public T! createRemoteCallback(android.content.Context!);
-    method @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP_PREFIX) public androidx.remotecallback.RemoteCallback! toRemoteCallback(Class<T!>!, android.content.Context!, String!, android.os.Bundle!, String!);
   }
 
 }

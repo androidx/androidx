@@ -6,6 +6,8 @@ package androidx.navigation.fragment {
     method public androidx.navigation.fragment.FragmentNavigator.Destination createDestination();
     method @Deprecated public androidx.fragment.app.Fragment instantiateFragment(android.content.Context, androidx.fragment.app.FragmentManager, String, android.os.Bundle?);
     method public androidx.navigation.NavDestination? navigate(androidx.navigation.fragment.FragmentNavigator.Destination, android.os.Bundle?, androidx.navigation.NavOptions?, androidx.navigation.Navigator.Extras?);
+    method protected void onBackPressAdded();
+    method protected void onBackPressRemoved();
     method public boolean popBackStack();
   }
 
