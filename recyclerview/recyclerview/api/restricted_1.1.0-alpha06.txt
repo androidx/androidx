@@ -273,7 +273,6 @@ package androidx.recyclerview.widget {
     field public boolean mIgnoreConsumed;
   }
 
-
   public class LinearSmoothScroller extends androidx.recyclerview.widget.RecyclerView.SmoothScroller {
     ctor public LinearSmoothScroller(android.content.Context!);
     method public int calculateDtToFit(int, int, int, int, int);
@@ -811,7 +810,6 @@ package androidx.recyclerview.widget {
     method public void onViewRecycled(androidx.recyclerview.widget.RecyclerView.ViewHolder);
   }
 
-
   public static class RecyclerView.SimpleOnItemTouchListener implements androidx.recyclerview.widget.RecyclerView.OnItemTouchListener {
     ctor public RecyclerView.SimpleOnItemTouchListener();
     method public boolean onInterceptTouchEvent(androidx.recyclerview.widget.RecyclerView, android.view.MotionEvent);
@@ -1037,7 +1035,6 @@ package androidx.recyclerview.widget {
     method public void setFullSpan(boolean);
     field public static final int INVALID_SPAN_ID = -1; // 0xffffffff
   }
-
 
 }
 

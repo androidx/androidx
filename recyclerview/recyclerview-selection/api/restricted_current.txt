@@ -16,7 +16,6 @@ package androidx.recyclerview.selection {
     method public boolean canInitiate(android.view.MotionEvent);
   }
 
-
   public abstract class FocusDelegate<K> {
     ctor public FocusDelegate();
     method public abstract void clearFocus();
@@ -80,7 +79,6 @@ package androidx.recyclerview.selection {
   public static interface OperationMonitor.OnChangeListener {
     method public void onChanged();
   }
-
 
   public class Selection<K> implements java.lang.Iterable<K> {
     method public boolean contains(K?);

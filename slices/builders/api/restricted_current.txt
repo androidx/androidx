@@ -5,7 +5,7 @@ package androidx.slice.builders {
     ctor public GridRowBuilder();
     method public androidx.slice.builders.GridRowBuilder addCell(androidx.slice.builders.GridRowBuilder.CellBuilder);
     method public androidx.slice.builders.GridRowBuilder setContentDescription(CharSequence);
-    method public androidx.slice.builders.GridRowBuilder setLayoutDirection(@androidx.slice.builders.ListBuilder.LayoutDirection int);
+    method public androidx.slice.builders.GridRowBuilder setLayoutDirection(int);
     method public androidx.slice.builders.GridRowBuilder setPrimaryAction(androidx.slice.builders.SliceAction);
     method public androidx.slice.builders.GridRowBuilder setSeeMoreAction(android.app.PendingIntent);
     method public androidx.slice.builders.GridRowBuilder setSeeMoreAction(androidx.remotecallback.RemoteCallback);
@@ -14,8 +14,8 @@ package androidx.slice.builders {
 
   public static class GridRowBuilder.CellBuilder {
     ctor public GridRowBuilder.CellBuilder();
-    method public androidx.slice.builders.GridRowBuilder.CellBuilder addImage(androidx.core.graphics.drawable.IconCompat, @androidx.slice.builders.ListBuilder.ImageMode int);
-    method public androidx.slice.builders.GridRowBuilder.CellBuilder addImage(androidx.core.graphics.drawable.IconCompat?, @androidx.slice.builders.ListBuilder.ImageMode int, boolean);
+    method public androidx.slice.builders.GridRowBuilder.CellBuilder addImage(androidx.core.graphics.drawable.IconCompat, int);
+    method public androidx.slice.builders.GridRowBuilder.CellBuilder addImage(androidx.core.graphics.drawable.IconCompat?, int, boolean);
     method public androidx.slice.builders.GridRowBuilder.CellBuilder addText(CharSequence);
     method public androidx.slice.builders.GridRowBuilder.CellBuilder addText(CharSequence?, boolean);
     method public androidx.slice.builders.GridRowBuilder.CellBuilder addTitleText(CharSequence);
@@ -38,7 +38,7 @@ package androidx.slice.builders {
     method public androidx.slice.builders.ListBuilder setHeader(androidx.slice.builders.ListBuilder.HeaderBuilder);
     method public androidx.slice.builders.ListBuilder setIsError(boolean);
     method public androidx.slice.builders.ListBuilder setKeywords(java.util.Set<java.lang.String!>!);
-    method public androidx.slice.builders.ListBuilder setLayoutDirection(@androidx.slice.builders.ListBuilder.LayoutDirection int);
+    method public androidx.slice.builders.ListBuilder setLayoutDirection(int);
     method public androidx.slice.builders.ListBuilder setSeeMoreAction(android.app.PendingIntent);
     method public androidx.slice.builders.ListBuilder setSeeMoreAction(androidx.remotecallback.RemoteCallback);
     method public androidx.slice.builders.ListBuilder setSeeMoreRow(androidx.slice.builders.ListBuilder.RowBuilder);
@@ -53,7 +53,7 @@ package androidx.slice.builders {
     ctor public ListBuilder.HeaderBuilder();
     ctor @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP_PREFIX) public ListBuilder.HeaderBuilder(android.net.Uri!);
     method public androidx.slice.builders.ListBuilder.HeaderBuilder setContentDescription(CharSequence);
-    method public androidx.slice.builders.ListBuilder.HeaderBuilder setLayoutDirection(@androidx.slice.builders.ListBuilder.LayoutDirection int);
+    method public androidx.slice.builders.ListBuilder.HeaderBuilder setLayoutDirection(int);
     method public androidx.slice.builders.ListBuilder.HeaderBuilder setPrimaryAction(androidx.slice.builders.SliceAction);
     method public androidx.slice.builders.ListBuilder.HeaderBuilder setSubtitle(CharSequence);
     method public androidx.slice.builders.ListBuilder.HeaderBuilder setSubtitle(CharSequence, boolean);
@@ -63,13 +63,12 @@ package androidx.slice.builders {
     method public androidx.slice.builders.ListBuilder.HeaderBuilder setTitle(CharSequence, boolean);
   }
 
-
   public static class ListBuilder.InputRangeBuilder {
     ctor public ListBuilder.InputRangeBuilder();
     method public androidx.slice.builders.ListBuilder.InputRangeBuilder setContentDescription(CharSequence);
     method public androidx.slice.builders.ListBuilder.InputRangeBuilder setInputAction(android.app.PendingIntent);
     method public androidx.slice.builders.ListBuilder.InputRangeBuilder setInputAction(androidx.remotecallback.RemoteCallback);
-    method public androidx.slice.builders.ListBuilder.InputRangeBuilder setLayoutDirection(@androidx.slice.builders.ListBuilder.LayoutDirection int);
+    method public androidx.slice.builders.ListBuilder.InputRangeBuilder setLayoutDirection(int);
     method public androidx.slice.builders.ListBuilder.InputRangeBuilder setMax(int);
     method public androidx.slice.builders.ListBuilder.InputRangeBuilder setMin(int);
     method public androidx.slice.builders.ListBuilder.InputRangeBuilder setPrimaryAction(androidx.slice.builders.SliceAction);
@@ -79,11 +78,10 @@ package androidx.slice.builders {
     method public androidx.slice.builders.ListBuilder.InputRangeBuilder setValue(int);
   }
 
-
   public static class ListBuilder.RangeBuilder {
     ctor public ListBuilder.RangeBuilder();
     method public androidx.slice.builders.ListBuilder.RangeBuilder setContentDescription(CharSequence);
-    method public androidx.slice.builders.ListBuilder.RangeBuilder setLayoutDirection(@androidx.slice.builders.ListBuilder.LayoutDirection int);
+    method public androidx.slice.builders.ListBuilder.RangeBuilder setLayoutDirection(int);
     method public androidx.slice.builders.ListBuilder.RangeBuilder setMax(int);
     method public androidx.slice.builders.ListBuilder.RangeBuilder setPrimaryAction(androidx.slice.builders.SliceAction);
     method public androidx.slice.builders.ListBuilder.RangeBuilder setSubtitle(CharSequence);
@@ -95,20 +93,20 @@ package androidx.slice.builders {
     ctor public ListBuilder.RowBuilder();
     ctor public ListBuilder.RowBuilder(android.net.Uri!);
     method public androidx.slice.builders.ListBuilder.RowBuilder addEndItem(long);
-    method public androidx.slice.builders.ListBuilder.RowBuilder addEndItem(androidx.core.graphics.drawable.IconCompat, @androidx.slice.builders.ListBuilder.ImageMode int);
-    method public androidx.slice.builders.ListBuilder.RowBuilder addEndItem(androidx.core.graphics.drawable.IconCompat?, @androidx.slice.builders.ListBuilder.ImageMode int, boolean);
+    method public androidx.slice.builders.ListBuilder.RowBuilder addEndItem(androidx.core.graphics.drawable.IconCompat, int);
+    method public androidx.slice.builders.ListBuilder.RowBuilder addEndItem(androidx.core.graphics.drawable.IconCompat?, int, boolean);
     method public androidx.slice.builders.ListBuilder.RowBuilder addEndItem(androidx.slice.builders.SliceAction);
     method public androidx.slice.builders.ListBuilder.RowBuilder addEndItem(androidx.slice.builders.SliceAction, boolean);
     method public androidx.slice.builders.ListBuilder.RowBuilder setContentDescription(CharSequence);
-    method public androidx.slice.builders.ListBuilder.RowBuilder setLayoutDirection(@androidx.slice.builders.ListBuilder.LayoutDirection int);
+    method public androidx.slice.builders.ListBuilder.RowBuilder setLayoutDirection(int);
     method public androidx.slice.builders.ListBuilder.RowBuilder setPrimaryAction(androidx.slice.builders.SliceAction);
     method public androidx.slice.builders.ListBuilder.RowBuilder setSubtitle(CharSequence);
     method public androidx.slice.builders.ListBuilder.RowBuilder setSubtitle(CharSequence?, boolean);
     method public androidx.slice.builders.ListBuilder.RowBuilder setTitle(CharSequence);
     method public androidx.slice.builders.ListBuilder.RowBuilder setTitle(CharSequence?, boolean);
     method public androidx.slice.builders.ListBuilder.RowBuilder setTitleItem(long);
-    method public androidx.slice.builders.ListBuilder.RowBuilder! setTitleItem(androidx.core.graphics.drawable.IconCompat, @androidx.slice.builders.ListBuilder.ImageMode int);
-    method public androidx.slice.builders.ListBuilder.RowBuilder setTitleItem(androidx.core.graphics.drawable.IconCompat?, @androidx.slice.builders.ListBuilder.ImageMode int, boolean);
+    method public androidx.slice.builders.ListBuilder.RowBuilder! setTitleItem(androidx.core.graphics.drawable.IconCompat, int);
+    method public androidx.slice.builders.ListBuilder.RowBuilder setTitleItem(androidx.core.graphics.drawable.IconCompat?, int, boolean);
     method public androidx.slice.builders.ListBuilder.RowBuilder setTitleItem(androidx.slice.builders.SliceAction);
     method public androidx.slice.builders.ListBuilder.RowBuilder setTitleItem(androidx.slice.builders.SliceAction, boolean);
   }
@@ -134,7 +132,7 @@ package androidx.slice.builders {
     method public androidx.slice.builders.SelectionBuilder! setContentDescription(CharSequence?);
     method public androidx.slice.builders.SelectionBuilder! setInputAction(android.app.PendingIntent);
     method public androidx.slice.builders.SelectionBuilder! setInputAction(androidx.remotecallback.RemoteCallback);
-    method public androidx.slice.builders.SelectionBuilder! setLayoutDirection(@androidx.slice.builders.ListBuilder.LayoutDirection int);
+    method public androidx.slice.builders.SelectionBuilder! setLayoutDirection(int);
     method public androidx.slice.builders.SelectionBuilder! setPrimaryAction(androidx.slice.builders.SliceAction);
     method public androidx.slice.builders.SelectionBuilder! setSelectedOption(String!);
     method public androidx.slice.builders.SelectionBuilder! setSubtitle(CharSequence?);
@@ -142,13 +140,13 @@ package androidx.slice.builders {
   }
 
   @RequiresApi(19) public class SliceAction implements androidx.slice.core.SliceAction {
-    ctor @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP) public SliceAction(android.app.PendingIntent, androidx.core.graphics.drawable.IconCompat, @androidx.slice.builders.ListBuilder.ImageMode int, CharSequence);
+    ctor @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP) public SliceAction(android.app.PendingIntent, androidx.core.graphics.drawable.IconCompat, int, CharSequence);
     ctor @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP) public SliceAction(android.app.PendingIntent, androidx.core.graphics.drawable.IconCompat, CharSequence, boolean);
     ctor @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP) public SliceAction(android.app.PendingIntent, CharSequence, boolean);
-    method public static androidx.slice.builders.SliceAction! create(android.app.PendingIntent, androidx.core.graphics.drawable.IconCompat, @androidx.slice.builders.ListBuilder.ImageMode int, CharSequence);
-    method public static androidx.slice.builders.SliceAction! create(androidx.remotecallback.RemoteCallback, androidx.core.graphics.drawable.IconCompat, @androidx.slice.builders.ListBuilder.ImageMode int, CharSequence);
-    method public static androidx.slice.builders.SliceAction! createDeeplink(android.app.PendingIntent, androidx.core.graphics.drawable.IconCompat, @androidx.slice.builders.ListBuilder.ImageMode int, CharSequence);
-    method public static androidx.slice.builders.SliceAction! createDeeplink(androidx.remotecallback.RemoteCallback, androidx.core.graphics.drawable.IconCompat, @androidx.slice.builders.ListBuilder.ImageMode int, CharSequence);
+    method public static androidx.slice.builders.SliceAction! create(android.app.PendingIntent, androidx.core.graphics.drawable.IconCompat, int, CharSequence);
+    method public static androidx.slice.builders.SliceAction! create(androidx.remotecallback.RemoteCallback, androidx.core.graphics.drawable.IconCompat, int, CharSequence);
+    method public static androidx.slice.builders.SliceAction! createDeeplink(android.app.PendingIntent, androidx.core.graphics.drawable.IconCompat, int, CharSequence);
+    method public static androidx.slice.builders.SliceAction! createDeeplink(androidx.remotecallback.RemoteCallback, androidx.core.graphics.drawable.IconCompat, int, CharSequence);
     method public static androidx.slice.builders.SliceAction! createToggle(android.app.PendingIntent, CharSequence, boolean);
     method public static androidx.slice.builders.SliceAction! createToggle(androidx.remotecallback.RemoteCallback, CharSequence, boolean);
     method public static androidx.slice.builders.SliceAction! createToggle(android.app.PendingIntent, androidx.core.graphics.drawable.IconCompat, CharSequence, boolean);
@@ -156,7 +154,7 @@ package androidx.slice.builders {
     method public android.app.PendingIntent getAction();
     method public CharSequence? getContentDescription();
     method public androidx.core.graphics.drawable.IconCompat? getIcon();
-    method @androidx.slice.builders.ListBuilder.ImageMode public int getImageMode();
+    method public int getImageMode();
     method public int getPriority();
     method public CharSequence getTitle();
     method public boolean isActivity();
@@ -171,83 +169,6 @@ package androidx.slice.builders {
   @RequiresApi(19) public abstract class TemplateSliceBuilder {
     method public androidx.slice.Slice build();
   }
-
-}
-
-package androidx.slice.builders.impl {
-
-
-  public static final class GridRowBuilderListV1Impl.CellBuilderImpl extends androidx.slice.builders.impl.TemplateBuilderImpl {
-    method public void fillFrom(androidx.slice.builders.GridRowBuilder.CellBuilder!);
-  }
-
-
-
-
-  public static class ListBuilderImpl.HeaderBuilderImpl extends androidx.slice.builders.impl.TemplateBuilderImpl {
-    method public void apply(androidx.slice.Slice.Builder!);
-  }
-
-  public static class ListBuilderImpl.InputRangeBuilderImpl extends androidx.slice.builders.impl.ListBuilderImpl.RangeBuilderImpl {
-  }
-
-  public static class ListBuilderImpl.RangeBuilderImpl extends androidx.slice.builders.impl.TemplateBuilderImpl {
-    method public void apply(androidx.slice.Slice.Builder!);
-    field protected CharSequence! mContentDescr;
-    field protected int mLayoutDir;
-    field protected int mMax;
-    field protected int mMin;
-    field protected androidx.slice.builders.SliceAction! mPrimaryAction;
-    field protected CharSequence! mSubtitle;
-    field protected CharSequence! mTitle;
-    field protected int mValue;
-    field protected boolean mValueSet;
-  }
-
-  public static class ListBuilderImpl.RowBuilderImpl extends androidx.slice.builders.impl.TemplateBuilderImpl {
-    method protected void addEndItem(long);
-    method public void apply(androidx.slice.Slice.Builder!);
-    method protected void setSubtitle(CharSequence!);
-    method protected void setTitleItem(androidx.core.graphics.drawable.IconCompat!, int);
-  }
-
-
-  public static final class MessagingBasicImpl.MessageBuilder extends androidx.slice.builders.impl.TemplateBuilderImpl implements androidx.slice.builders.impl.MessagingBuilder.MessageBuilder {
-    ctor public MessagingBasicImpl.MessageBuilder(androidx.slice.builders.impl.MessagingBasicImpl!);
-    method @RequiresApi(23) public void addSource(android.graphics.drawable.Icon!);
-    method public void addText(CharSequence!);
-    method public void addTimestamp(long);
-    method public void apply(androidx.slice.Slice.Builder!);
-  }
-
-
-  public static interface MessagingBuilder.MessageBuilder {
-    method @RequiresApi(23) public void addSource(android.graphics.drawable.Icon!);
-    method public void addText(CharSequence!);
-    method public void addTimestamp(long);
-  }
-
-
-  public static final class MessagingListV1Impl.MessageBuilder extends androidx.slice.builders.impl.TemplateBuilderImpl implements androidx.slice.builders.impl.MessagingBuilder.MessageBuilder {
-    ctor public MessagingListV1Impl.MessageBuilder(androidx.slice.builders.impl.MessagingListV1Impl!);
-    method @RequiresApi(23) public void addSource(android.graphics.drawable.Icon!);
-    method public void addText(CharSequence!);
-    method public void addTimestamp(long);
-    method public void apply(androidx.slice.Slice.Builder!);
-  }
-
-
-  public static final class MessagingV1Impl.MessageBuilder extends androidx.slice.builders.impl.TemplateBuilderImpl implements androidx.slice.builders.impl.MessagingBuilder.MessageBuilder {
-    ctor public MessagingV1Impl.MessageBuilder(androidx.slice.builders.impl.MessagingV1Impl!);
-    method @RequiresApi(23) public void addSource(android.graphics.drawable.Icon!);
-    method public void addText(CharSequence!);
-    method public void addTimestamp(long);
-    method public void apply(androidx.slice.Slice.Builder!);
-  }
-
-
-
-
 
 }
 

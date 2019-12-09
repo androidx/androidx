@@ -101,7 +101,5 @@ package androidx.coordinatorlayout.widget {
     field public static final android.os.Parcelable.Creator<androidx.coordinatorlayout.widget.CoordinatorLayout.SavedState!>! CREATOR;
   }
 
-
-
 }
 

@@ -253,8 +253,7 @@ package androidx.appcompat.app {
   public abstract class AppCompatDelegate {
     method public abstract void addContentView(android.view.View!, android.view.ViewGroup.LayoutParams!);
     method public abstract boolean applyDayNight();
-    method @Deprecated public void attachBaseContext(android.content.Context!);
-    method @CallSuper public android.content.Context attachBaseContext2(android.content.Context);
+    method public void attachBaseContext(android.content.Context!);
     method public static androidx.appcompat.app.AppCompatDelegate create(android.app.Activity, androidx.appcompat.app.AppCompatCallback?);
     method public static androidx.appcompat.app.AppCompatDelegate create(android.app.Dialog, androidx.appcompat.app.AppCompatCallback?);
     method public static androidx.appcompat.app.AppCompatDelegate create(android.content.Context, android.view.Window, androidx.appcompat.app.AppCompatCallback?);

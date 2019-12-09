@@ -16,7 +16,6 @@ package androidx.recyclerview.selection {
     method public boolean canInitiate(android.view.MotionEvent);
   }
 
-
   public abstract class FocusDelegate<K> {
     ctor public FocusDelegate();
     method public abstract void clearFocus();
