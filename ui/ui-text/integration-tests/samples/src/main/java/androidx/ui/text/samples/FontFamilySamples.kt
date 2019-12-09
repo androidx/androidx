@@ -22,6 +22,7 @@ import androidx.ui.core.Text
 import androidx.ui.text.TextStyle
 import androidx.ui.text.font.font
 import androidx.ui.text.font.FontFamily
+import androidx.ui.text.font.fontFamily
 import androidx.ui.text.font.FontStyle
 import androidx.ui.text.font.FontSynthesis
 import androidx.ui.text.font.FontWeight
@@ -65,7 +66,7 @@ fun FontFamilyCursiveSample() {
 @Sampled
 @Composable
 fun CustomFontFamilySample() {
-    val fontFamily = FontFamily(
+    val fontFamily = fontFamily(
         font(
             resId = R.font.my_font_400_regular,
             weight = FontWeight.W400,
@@ -82,7 +83,7 @@ fun CustomFontFamilySample() {
 @Composable
 fun FontFamilySynthesisSample() {
     // The font family contains a single font, with normal weight
-    val fontFamily = FontFamily(
+    val fontFamily = fontFamily(
         font(resId = R.font.myfont, weight = FontWeight.Normal)
     )
     // Configuring the Text composable to be bold

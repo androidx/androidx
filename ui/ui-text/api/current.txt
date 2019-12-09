@@ -606,19 +606,40 @@ package androidx.ui.text.font {
     method public Object load(androidx.ui.text.font.Font font);
   }
 
-  public final class FontFamily implements kotlin.jvm.internal.markers.KMappedMarker java.util.List<androidx.ui.text.font.Font> {
-    ctor public FontFamily(String genericFamily);
-    ctor public FontFamily(androidx.ui.text.font.Font font);
-    ctor public FontFamily(java.util.List<? extends androidx.ui.text.font.Font> fonts);
-    ctor public FontFamily(androidx.ui.text.font.Font... fonts);
-    method public String? component1();
-    method public java.util.List<androidx.ui.text.font.Font> component2();
+  public abstract sealed class FontFamily {
+    field public static final androidx.ui.text.font.FontFamily.Companion! Companion;
+  }
+
+  public static final class FontFamily.Companion {
+    method public androidx.ui.text.font.GenericFontFamily getCursive();
+    method public androidx.ui.text.font.GenericFontFamily getMonospace();
+    method public androidx.ui.text.font.GenericFontFamily getSansSerif();
+    method public androidx.ui.text.font.GenericFontFamily getSerif();
+    property public final androidx.ui.text.font.GenericFontFamily Cursive;
+    property public final androidx.ui.text.font.GenericFontFamily Monospace;
+    property public final androidx.ui.text.font.GenericFontFamily SansSerif;
+    property public final androidx.ui.text.font.GenericFontFamily Serif;
+  }
+
+  public final class FontFamilyKt {
+    method public static androidx.ui.text.font.FontListFontFamily fontFamily(java.util.List<? extends androidx.ui.text.font.Font> fonts);
+    method public static androidx.ui.text.font.FontListFontFamily fontFamily(androidx.ui.text.font.Font... fonts);
+    method public static androidx.ui.text.font.GenericFontFamily fontFamily(String name);
+  }
+
+  public final class FontKt {
+    method public static androidx.ui.text.font.FontListFontFamily asFontFamily(androidx.ui.text.font.Font);
+    method public static androidx.ui.text.font.Font font(int resId, androidx.ui.text.font.FontWeight weight = FontWeight.Normal, androidx.ui.text.font.FontStyle style = androidx.ui.text.font.FontStyle.Normal);
+  }
+
+  public final class FontListFontFamily extends androidx.ui.text.font.FontFamily implements kotlin.jvm.internal.markers.KMappedMarker java.util.List<androidx.ui.text.font.Font> {
+    ctor public FontListFontFamily(java.util.List<? extends androidx.ui.text.font.Font> fonts);
+    method public java.util.List<androidx.ui.text.font.Font> component1();
     method public boolean contains(androidx.ui.text.font.Font element);
     method public boolean containsAll(java.util.Collection<?> elements);
-    method public androidx.ui.text.font.FontFamily copy(String? genericFamily, java.util.List<? extends androidx.ui.text.font.Font> fonts);
+    method public androidx.ui.text.font.FontListFontFamily copy(java.util.List<? extends androidx.ui.text.font.Font> fonts);
     method public androidx.ui.text.font.Font get(int index);
     method public java.util.List<androidx.ui.text.font.Font> getFonts();
-    method public String? getGenericFamily();
     method public int getSize();
     method public int indexOf(androidx.ui.text.font.Font element);
     method public boolean isEmpty();
@@ -627,23 +648,6 @@ package androidx.ui.text.font {
     method public java.util.ListIterator<androidx.ui.text.font.Font> listIterator();
     method public java.util.ListIterator<androidx.ui.text.font.Font> listIterator(int index);
     method public java.util.List<androidx.ui.text.font.Font> subList(int fromIndex, int toIndex);
-    field public static final androidx.ui.text.font.FontFamily.Companion! Companion;
-  }
-
-  public static final class FontFamily.Companion {
-    method public androidx.ui.text.font.FontFamily getCursive();
-    method public androidx.ui.text.font.FontFamily getMonospace();
-    method public androidx.ui.text.font.FontFamily getSansSerif();
-    method public androidx.ui.text.font.FontFamily getSerif();
-    property public final androidx.ui.text.font.FontFamily Cursive;
-    property public final androidx.ui.text.font.FontFamily Monospace;
-    property public final androidx.ui.text.font.FontFamily SansSerif;
-    property public final androidx.ui.text.font.FontFamily Serif;
-  }
-
-  public final class FontKt {
-    method public static androidx.ui.text.font.FontFamily asFontFamily(androidx.ui.text.font.Font);
-    method public static androidx.ui.text.font.Font font(int resId, androidx.ui.text.font.FontWeight weight = FontWeight.Normal, androidx.ui.text.font.FontStyle style = androidx.ui.text.font.FontStyle.Normal);
   }
 
   public enum FontStyle {
@@ -691,6 +695,13 @@ package androidx.ui.text.font {
 
   public final class FontWeightKt {
     method public static androidx.ui.text.font.FontWeight lerp(androidx.ui.text.font.FontWeight start, androidx.ui.text.font.FontWeight stop, float fraction);
+  }
+
+  public final class GenericFontFamily extends androidx.ui.text.font.FontFamily {
+    ctor public GenericFontFamily(String name);
+    method public String component1();
+    method public androidx.ui.text.font.GenericFontFamily copy(String name);
+    method public String getName();
   }
 
   public final class ResourceFont implements androidx.ui.text.font.Font {

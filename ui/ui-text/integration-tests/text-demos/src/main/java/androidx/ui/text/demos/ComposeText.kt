@@ -30,9 +30,9 @@ import androidx.ui.text.AnnotatedString
 import androidx.ui.text.LocaleList
 import androidx.ui.text.SpanStyle
 import androidx.ui.text.TextStyle
-import androidx.ui.text.font.FontFamily
 import androidx.ui.text.font.FontStyle
 import androidx.ui.text.font.FontWeight
+import androidx.ui.text.font.fontFamily
 import androidx.ui.text.samples.BaselineShiftSample
 import androidx.ui.text.samples.FontFamilyCursiveSample
 import androidx.ui.text.samples.FontFamilyMonospaceSample
@@ -227,7 +227,7 @@ fun TextDemoFontFamily() {
         pushStyle(
             style = SpanStyle(
                 fontSize = fontSize8,
-                fontFamily = FontFamily("sans-serif")
+                fontFamily = fontFamily("sans-serif")
             )
         )
         append("$displayText sans-serif\n")
@@ -236,7 +236,7 @@ fun TextDemoFontFamily() {
         pushStyle(
             style = SpanStyle(
                 fontSize = fontSize8,
-                fontFamily = FontFamily("serif")
+                fontFamily = fontFamily("serif")
             )
         )
         append("$displayText serif\n")
@@ -245,7 +245,7 @@ fun TextDemoFontFamily() {
         pushStyle(
             style = SpanStyle(
                 fontSize = fontSize8,
-                fontFamily = FontFamily("monospace")
+                fontFamily = fontFamily("monospace")
             )
         )
         append("$displayText monospace")
