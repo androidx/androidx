@@ -16,6 +16,7 @@
 
 package androidx.ui.layout.constraintlayout
 
+import android.annotation.SuppressLint
 import androidx.compose.Composable
 import androidx.compose.Immutable
 import androidx.compose.memo
@@ -364,6 +365,8 @@ class ConstraintSetBuilderScope internal constructor(internal val state: State) 
      * Creates a horizontal chain including the referenced layouts.
      */
     fun createHorizontalChain(
+        // Suppress lint here to allow vararg parameter for elements. API likely to change.
+        @SuppressLint("ArrayReturn")
         vararg elements: ConstrainedLayoutReference,
         chainStyle: ChainStyle = ChainStyle.Spread
     ): HorizontalChain {
@@ -378,6 +381,8 @@ class ConstraintSetBuilderScope internal constructor(internal val state: State) 
      * Creates a vertical chain including the referenced layouts.
      */
     fun createVerticalChain(
+        // Suppress lint here to allow vararg parameter for elements. API likely to change.
+        @SuppressLint("ArrayReturn")
         vararg elements: ConstrainedLayoutReference,
         chainStyle: ChainStyle = ChainStyle.Spread
     ): VerticalChain {
@@ -522,11 +527,6 @@ class ConstraintSetBuilderScope internal constructor(internal val state: State) 
         }
         return VerticalAnchor.BarrierAnchor(state, tag, barrier)
     }
-
-    // TODO(popam): support these
-    val WrapDimension = Dimension.WRAP_DIMENSION
-    val SpreadDimension = Dimension.SPREAD_DIMENSION
-    val ParentDimension = Dimension.PARENT_DIMENSION
 
     internal companion object {
         val verticalAnchorFunctions: Array<Array<ConstraintReference.(Any) -> Unit>> = arrayOf(
