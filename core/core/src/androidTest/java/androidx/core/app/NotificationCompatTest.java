@@ -310,6 +310,33 @@ public class NotificationCompatTest extends BaseInstrumentationTestCase<TestActi
 
     @SdkSuppress(minSdkVersion = 17)
     @Test
+    public void testNotificationWearableExtenderAction_noIcon() throws Throwable {
+        NotificationCompat.Action a = new NotificationCompat.Action.Builder(0, "title", null)
+                .build();
+        NotificationCompat.WearableExtender extender = new NotificationCompat.WearableExtender()
+                .addAction(a);
+        Notification notification = newNotificationBuilder().extend(extender).build();
+        NotificationCompat.Action actualAction =
+                new NotificationCompat.WearableExtender(notification).getActions().get(0);
+        assertNull(actualAction.getIconCompat());
+    }
+
+    @SdkSuppress(minSdkVersion = 17)
+    @Test
+    public void testNotificationWearableExtenderAction_drawableIcon() throws Throwable {
+        NotificationCompat.Action a =
+                new NotificationCompat.Action.Builder(android.R.drawable.ic_delete, "title", null)
+                .build();
+        NotificationCompat.WearableExtender extender = new NotificationCompat.WearableExtender()
+                .addAction(a);
+        Notification notification = newNotificationBuilder().extend(extender).build();
+        NotificationCompat.Action actualAction =
+                new NotificationCompat.WearableExtender(notification).getActions().get(0);
+        assertEquals(android.R.drawable.ic_delete, actualAction.getIconCompat().getResId());
+    }
+
+    @SdkSuppress(minSdkVersion = 17)
+    @Test
     public void testNotificationWearableExtenderAction_setAllowGeneratedRepliesTrue()
             throws Throwable {
         NotificationCompat.Action a = newActionBuilder()

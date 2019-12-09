@@ -4283,9 +4283,13 @@ public class NotificationCompat {
                         iconCompat == null ? null : iconCompat.toIcon(), actionCompat.getTitle(),
                         actionCompat.getActionIntent());
             } else {
+                IconCompat icon = actionCompat.getIconCompat();
+                int iconResId = 0;
+                if (icon != null && icon.getType() == IconCompat.TYPE_RESOURCE) {
+                    iconResId = icon.getResId();
+                }
                 actionBuilder = new Notification.Action.Builder(
-                        actionCompat.getIconCompat().getResId(), actionCompat.getTitle(),
-                        actionCompat.getActionIntent());
+                        iconResId, actionCompat.getTitle(), actionCompat.getActionIntent());
             }
             Bundle actionExtras;
             if (actionCompat.getExtras() != null) {
