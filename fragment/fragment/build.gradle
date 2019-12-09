@@ -14,6 +14,18 @@ android {
         sourceCompatibility = JavaVersion.VERSION_1_7
         targetCompatibility = JavaVersion.VERSION_1_7
     }
+
+    testOptions {
+        unitTests {
+            includeAndroidResources = true
+        }
+    }
+    // We need to disable code coverage for robolectric test
+    buildTypes {
+        debug {
+            testCoverageEnabled = false // Breaks Kotlin compiler.
+        }
+    }
 }
 
 dependencies {
@@ -39,6 +51,14 @@ dependencies {
     androidTestImplementation project(':internal-testutils-runtime'), {
         exclude group: 'androidx.fragment', module: 'fragment'
     }
+
+    testImplementation(project(":fragment:fragment"))
+    testImplementation(KOTLIN_STDLIB)
+    testImplementation(ANDROIDX_TEST_EXT_JUNIT)
+    testImplementation(ANDROIDX_TEST_CORE)
+    testImplementation(ANDROIDX_TEST_RULES)
+    testImplementation(TRUTH)
+    testImplementation(ROBOLECTRIC)
 
     lintPublish(project(':fragment:fragment-lint'))
 }
