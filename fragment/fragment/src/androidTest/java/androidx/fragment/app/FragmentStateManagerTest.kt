@@ -32,19 +32,20 @@ class FragmentStateManagerTest {
 
     private val dispatcher = FragmentLifecycleCallbacksDispatcher(
         mock(FragmentManager::class.java))
-    private lateinit var nonConfig: FragmentManagerViewModel
+    private lateinit var fragmentStore: FragmentStore
     private val classLoader get() = InstrumentationRegistry.getInstrumentation()
         .targetContext.classLoader
 
     @Before
     fun setup() {
-        nonConfig = FragmentManagerViewModel(true)
+        fragmentStore = FragmentStore()
+        fragmentStore.nonConfig = FragmentManagerViewModel(true)
     }
 
     @Test
     fun constructorFragment() {
         val fragment = StrictFragment()
-        val fragmentStateManager = FragmentStateManager(dispatcher, nonConfig, fragment)
+        val fragmentStateManager = FragmentStateManager(dispatcher, fragmentStore, fragment)
         assertThat(fragmentStateManager.fragment)
             .isSameInstanceAs(fragment)
     }
@@ -52,9 +53,9 @@ class FragmentStateManagerTest {
     @Test
     fun constructorFragmentFactory() {
         val fragment = StrictFragment()
-        val fragmentState = FragmentStateManager(dispatcher, nonConfig, fragment).saveState()
+        val fragmentState = FragmentStateManager(dispatcher, fragmentStore, fragment).saveState()
 
-        val fragmentStateManager = FragmentStateManager(dispatcher, nonConfig,
+        val fragmentStateManager = FragmentStateManager(dispatcher, fragmentStore,
             classLoader, FragmentFactory(), fragmentState)
 
         val restoredFragment = fragmentStateManager.fragment
@@ -67,11 +68,11 @@ class FragmentStateManagerTest {
     @Test
     fun constructorRetainedFragment() {
         val fragment = StrictFragment()
-        val fragmentState = FragmentStateManager(dispatcher, nonConfig, fragment).saveState()
+        val fragmentState = FragmentStateManager(dispatcher, fragmentStore, fragment).saveState()
         assertThat(fragment.mSavedFragmentState)
             .isNull()
 
-        val fragmentStateManager = FragmentStateManager(dispatcher, nonConfig,
+        val fragmentStateManager = FragmentStateManager(dispatcher, fragmentStore,
             fragment, fragmentState)
 
         val restoredFragment = fragmentStateManager.fragment
@@ -84,54 +85,56 @@ class FragmentStateManagerTest {
     @Test
     fun testSetFragmentManagerState() {
         val fragment = StrictFragment()
-        val fragmentStateManager = FragmentStateManager(dispatcher, nonConfig, fragment)
-        assertThat(fragmentStateManager.computeMaxState())
+        val fragmentStateManager = FragmentStateManager(dispatcher, fragmentStore, fragment)
+        assertThat(fragmentStateManager.computeExpectedState())
             .isEqualTo(Fragment.INITIALIZING)
 
+        fragment.mFragmentManager = mock(FragmentManager::class.java)
         fragmentStateManager.setFragmentManagerState(Fragment.CREATED)
-        assertThat(fragmentStateManager.computeMaxState())
+        assertThat(fragmentStateManager.computeExpectedState())
             .isEqualTo(Fragment.CREATED)
 
         fragmentStateManager.setFragmentManagerState(Fragment.ACTIVITY_CREATED)
         // Ensure that moving the FragmentManager's state isn't enough to move beyond CREATED
-        assertThat(fragmentStateManager.computeMaxState())
+        assertThat(fragmentStateManager.computeExpectedState())
             .isEqualTo(Fragment.CREATED)
         // Add the Fragment so that it is allowed to move beyond CREATED
         fragment.mAdded = true
-        assertThat(fragmentStateManager.computeMaxState())
+        assertThat(fragmentStateManager.computeExpectedState())
             .isEqualTo(Fragment.ACTIVITY_CREATED)
 
         fragmentStateManager.setFragmentManagerState(Fragment.STARTED)
-        assertThat(fragmentStateManager.computeMaxState())
+        assertThat(fragmentStateManager.computeExpectedState())
             .isEqualTo(Fragment.STARTED)
 
         fragmentStateManager.setFragmentManagerState(Fragment.RESUMED)
-        assertThat(fragmentStateManager.computeMaxState())
+        assertThat(fragmentStateManager.computeExpectedState())
             .isEqualTo(Fragment.RESUMED)
 
         // Test downward changes
         fragmentStateManager.setFragmentManagerState(Fragment.STARTED)
-        assertThat(fragmentStateManager.computeMaxState())
+        assertThat(fragmentStateManager.computeExpectedState())
             .isEqualTo(Fragment.STARTED)
 
         fragmentStateManager.setFragmentManagerState(Fragment.ACTIVITY_CREATED)
-        assertThat(fragmentStateManager.computeMaxState())
+        assertThat(fragmentStateManager.computeExpectedState())
             .isEqualTo(Fragment.ACTIVITY_CREATED)
 
         fragmentStateManager.setFragmentManagerState(Fragment.CREATED)
-        assertThat(fragmentStateManager.computeMaxState())
+        assertThat(fragmentStateManager.computeExpectedState())
             .isEqualTo(Fragment.CREATED)
 
         fragmentStateManager.setFragmentManagerState(Fragment.INITIALIZING)
-        assertThat(fragmentStateManager.computeMaxState())
+        assertThat(fragmentStateManager.computeExpectedState())
             .isEqualTo(Fragment.INITIALIZING)
     }
 
     @Test
     fun testInflatedFragmentIsCreated() {
         val fragment = StrictFragment()
-        val fragmentStateManager = FragmentStateManager(dispatcher, nonConfig, fragment)
-        assertThat(fragmentStateManager.computeMaxState())
+        fragment.mFragmentManager = mock(FragmentManager::class.java)
+        val fragmentStateManager = FragmentStateManager(dispatcher, fragmentStore, fragment)
+        assertThat(fragmentStateManager.computeExpectedState())
             .isEqualTo(Fragment.INITIALIZING)
 
         // Now fake that the Fragment has been added using the <fragment> tag
@@ -139,7 +142,7 @@ class FragmentStateManagerTest {
         fragment.mInLayout = true
         // And confirm that FragmentStateManager allows it to move to CREATED
         // despite never calling setFragmentManagerState(Fragment.CREATED)
-        assertThat(fragmentStateManager.computeMaxState())
+        assertThat(fragmentStateManager.computeExpectedState())
             .isEqualTo(Fragment.CREATED)
     }
 }

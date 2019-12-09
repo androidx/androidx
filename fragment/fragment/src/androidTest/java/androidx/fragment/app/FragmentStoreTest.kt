@@ -39,16 +39,15 @@ class FragmentStoreTest {
         mock(FragmentManager::class.java))
 
     private lateinit var fragmentStore: FragmentStore
-    private lateinit var nonConfig: FragmentManagerViewModel
     private lateinit var emptyFragment: Fragment
     private lateinit var emptyStateManager: FragmentStateManager
 
     @Before
     fun setup() {
         fragmentStore = FragmentStore()
-        nonConfig = FragmentManagerViewModel(true)
+        fragmentStore.nonConfig = FragmentManagerViewModel(true)
         emptyFragment = StrictFragment()
-        emptyStateManager = FragmentStateManager(dispatcher, nonConfig, emptyFragment)
+        emptyStateManager = FragmentStateManager(dispatcher, fragmentStore, emptyFragment)
     }
 
     @Test
@@ -254,7 +253,7 @@ class FragmentStoreTest {
 
         val addedFragment: Fragment = StrictFragment()
         addedFragment.mFragmentId = id
-        val addedStateManager = FragmentStateManager(dispatcher, nonConfig, addedFragment)
+        val addedStateManager = FragmentStateManager(dispatcher, fragmentStore, addedFragment)
         fragmentStore.makeActive(addedStateManager)
         fragmentStore.addFragment(addedFragment)
 
@@ -282,7 +281,7 @@ class FragmentStoreTest {
 
         val addedFragment: Fragment = StrictFragment()
         addedFragment.mTag = tag
-        val addedStateManager = FragmentStateManager(dispatcher, nonConfig, addedFragment)
+        val addedStateManager = FragmentStateManager(dispatcher, fragmentStore, addedFragment)
         fragmentStore.makeActive(addedStateManager)
         fragmentStore.addFragment(addedFragment)
 
@@ -323,7 +322,8 @@ class FragmentStoreTest {
             executePendingTransactions(parentFragment.childFragmentManager)
 
             // Now fake that the parent Fragment is actually attached to our FragmentStore
-            val parentStateManager = FragmentStateManager(dispatcher, nonConfig, parentFragment)
+            val parentStateManager = FragmentStateManager(dispatcher, fragmentStore,
+                parentFragment)
             fragmentStore.makeActive(parentStateManager)
             fragmentStore.addFragment(parentFragment)
 
@@ -344,7 +344,7 @@ class FragmentStoreTest {
         val onTopFragment: Fragment = StrictFragment()
         onTopFragment.mView = View(InstrumentationRegistry.getInstrumentation().context)
         onTopFragment.mContainer = container
-        val onTopStateManager = FragmentStateManager(dispatcher, nonConfig, onTopFragment)
+        val onTopStateManager = FragmentStateManager(dispatcher, fragmentStore, onTopFragment)
         fragmentStore.makeActive(onTopStateManager)
         fragmentStore.addFragment(onTopFragment)
 
