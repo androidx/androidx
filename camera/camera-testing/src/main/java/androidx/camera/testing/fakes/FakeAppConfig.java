@@ -20,7 +20,6 @@ import androidx.annotation.NonNull;
 import androidx.camera.core.CameraSelector;
 import androidx.camera.core.CameraXConfig;
 import androidx.camera.core.ExtendableUseCaseConfigFactory;
-import androidx.camera.core.UseCaseConfigFactory;
 import androidx.camera.core.impl.CameraDeviceSurfaceManager;
 
 /**
@@ -48,13 +47,13 @@ public final class FakeAppConfig {
 
         CameraDeviceSurfaceManager.Provider surfaceManagerProvider =
                 ignored -> new FakeCameraDeviceSurfaceManager();
-        UseCaseConfigFactory defaultConfigFactory = new ExtendableUseCaseConfigFactory();
 
         CameraXConfig.Builder appConfigBuilder =
                 new CameraXConfig.Builder()
                         .setCameraFactory(cameraFactory)
                         .setDeviceSurfaceManagerProvider(surfaceManagerProvider)
-                        .setUseCaseConfigFactory(defaultConfigFactory);
+                        .setUseCaseConfigFactoryProvider(ignored ->
+                                new ExtendableUseCaseConfigFactory());
 
         return appConfigBuilder.build();
     }

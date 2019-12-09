@@ -26,15 +26,14 @@ import android.view.Display;
 import android.view.Surface;
 import android.view.WindowManager;
 
-import androidx.annotation.Nullable;
 import androidx.camera.core.CameraSelector;
 import androidx.camera.core.CameraX;
 import androidx.camera.core.CameraXConfig;
-import androidx.camera.core.ConfigProvider;
 import androidx.camera.core.DisplayOrientedMeteringPointFactory;
 import androidx.camera.core.ExtendableUseCaseConfigFactory;
 import androidx.camera.core.MeteringPoint;
 import androidx.camera.core.MeteringPointFactory;
+import androidx.camera.core.UseCaseConfigFactory;
 import androidx.camera.core.impl.CameraDeviceSurfaceManager;
 import androidx.camera.testing.fakes.FakeCamera;
 import androidx.camera.testing.fakes.FakeCameraDeviceSurfaceManager;
@@ -87,20 +86,19 @@ public class DisplayOrientedMeteringPointFactoryTest {
 
         CameraDeviceSurfaceManager.Provider surfaceManagerProvider =
                 ignored -> new FakeCameraDeviceSurfaceManager();
-        ExtendableUseCaseConfigFactory defaultConfigFactory = new ExtendableUseCaseConfigFactory();
-        defaultConfigFactory.installDefaultProvider(FakeUseCaseConfig.class,
-                new ConfigProvider<FakeUseCaseConfig>() {
-                    @Override
-                    public FakeUseCaseConfig getConfig(@Nullable Integer lensFacing) {
-                        return new FakeUseCaseConfig.Builder().getUseCaseConfig();
-                    }
-                });
+        UseCaseConfigFactory.Provider configFactoryProvider = ignored -> {
+            ExtendableUseCaseConfigFactory defaultConfigFactory =
+                    new ExtendableUseCaseConfigFactory();
+            defaultConfigFactory.installDefaultProvider(FakeUseCaseConfig.class,
+                    lensFacing -> new FakeUseCaseConfig.Builder().getUseCaseConfig());
+            return defaultConfigFactory;
+        };
 
         CameraXConfig cameraXConfig =
                 new CameraXConfig.Builder()
                         .setCameraFactory(fakeCameraFactory)
                         .setDeviceSurfaceManagerProvider(surfaceManagerProvider)
-                        .setUseCaseConfigFactory(defaultConfigFactory)
+                        .setUseCaseConfigFactoryProvider(configFactoryProvider)
                         .build();
         CameraX.initialize(context, cameraXConfig);
 

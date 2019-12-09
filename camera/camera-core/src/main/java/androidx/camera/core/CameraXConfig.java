@@ -74,10 +74,10 @@ public final class CameraXConfig implements TargetConfig<CameraX>, Config {
             Option.create(
                     "camerax.core.appConfig.deviceSurfaceManagerProvider",
                     CameraDeviceSurfaceManager.Provider.class);
-    static final Option<UseCaseConfigFactory> OPTION_USECASE_CONFIG_FACTORY =
+    static final Option<UseCaseConfigFactory.Provider> OPTION_USECASE_CONFIG_FACTORY_PROVIDER =
             Option.create(
-                    "camerax.core.appConfig.useCaseConfigFactory",
-                    UseCaseConfigFactory.class);
+                    "camerax.core.appConfig.useCaseConfigFactoryProvider",
+                    UseCaseConfigFactory.Provider.class);
     static final Option<Executor> OPTION_CAMERA_EXECUTOR =
             Option.create(
                     "camerax.core.appConfig.cameraExecutor",
@@ -123,9 +123,9 @@ public final class CameraXConfig implements TargetConfig<CameraX>, Config {
      */
     @RestrictTo(Scope.LIBRARY_GROUP)
     @Nullable
-    public UseCaseConfigFactory getUseCaseConfigRepository(
-            @Nullable UseCaseConfigFactory valueIfMissing) {
-        return mConfig.retrieveOption(OPTION_USECASE_CONFIG_FACTORY, valueIfMissing);
+    public UseCaseConfigFactory.Provider getUseCaseConfigFactoryProvider(
+            @Nullable UseCaseConfigFactory.Provider valueIfMissing) {
+        return mConfig.retrieveOption(OPTION_USECASE_CONFIG_FACTORY_PROVIDER, valueIfMissing);
     }
 
     /**
@@ -303,8 +303,10 @@ public final class CameraXConfig implements TargetConfig<CameraX>, Config {
          */
         @RestrictTo(Scope.LIBRARY_GROUP)
         @NonNull
-        public Builder setUseCaseConfigFactory(@NonNull UseCaseConfigFactory repository) {
-            getMutableConfig().insertOption(OPTION_USECASE_CONFIG_FACTORY, repository);
+        public Builder setUseCaseConfigFactoryProvider(
+                @NonNull UseCaseConfigFactory.Provider configFactoryProvider) {
+            getMutableConfig().insertOption(OPTION_USECASE_CONFIG_FACTORY_PROVIDER,
+                    configFactoryProvider);
             return this;
         }
 
