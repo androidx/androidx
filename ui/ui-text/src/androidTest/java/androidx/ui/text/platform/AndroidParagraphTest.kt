@@ -16,7 +16,7 @@ import androidx.test.platform.app.InstrumentationRegistry
 import androidx.text.TextLayout
 import androidx.text.style.BaselineShiftSpan
 import androidx.text.style.FontFeatureSpan
-import androidx.text.style.LetterSpacingSpan
+import androidx.text.style.LetterSpacingSpanEm
 import androidx.text.style.LetterSpacingSpanPx
 import androidx.text.style.ShadowSpan
 import androidx.text.style.SkewXSpan
@@ -340,7 +340,7 @@ class AndroidParagraphTest {
         )
 
         assertThat(paragraph.charSequence.toString()).isEqualTo(text)
-        assertThat(paragraph.charSequence).hasSpan(LetterSpacingSpan::class, 0, text.length)
+        assertThat(paragraph.charSequence).hasSpan(LetterSpacingSpanEm::class, 0, text.length)
     }
 
     @Test
@@ -355,7 +355,7 @@ class AndroidParagraphTest {
         )
 
         assertThat(paragraph.charSequence.toString()).isEqualTo(text)
-        assertThat(paragraph.charSequence).hasSpan(LetterSpacingSpan::class, 0, "abc".length)
+        assertThat(paragraph.charSequence).hasSpan(LetterSpacingSpanEm::class, 0, "abc".length)
     }
 
     @Test
@@ -374,9 +374,9 @@ class AndroidParagraphTest {
         )
 
         assertThat(paragraph.charSequence.toString()).isEqualTo(text)
-        assertThat(paragraph.charSequence).hasSpan(LetterSpacingSpan::class, 0, text.length)
-        assertThat(paragraph.charSequence).hasSpan(LetterSpacingSpan::class, 0, "abc".length)
-        assertThat(paragraph.charSequence).hasSpanOnTop(LetterSpacingSpan::class, 0, "abc".length)
+        assertThat(paragraph.charSequence).hasSpan(LetterSpacingSpanEm::class, 0, text.length)
+        assertThat(paragraph.charSequence).hasSpan(LetterSpacingSpanEm::class, 0, "abc".length)
+        assertThat(paragraph.charSequence).hasSpanOnTop(LetterSpacingSpanEm::class, 0, "abc".length)
     }
 
     @Test
