@@ -37,7 +37,7 @@ class UseJavaPackageFromKt {
         bar.baz()
     }
 
-    @UseExperimental(markerClass = ExperimentalPackage::class)
+    @UseExperimental(ExperimentalPackage::class)
     fun callPackageUseExperimental() {
         val bar = Bar()
         bar.baz()

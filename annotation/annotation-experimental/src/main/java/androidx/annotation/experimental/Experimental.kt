@@ -14,24 +14,21 @@
  * limitations under the License.
  */
 
-package androidx.annotation.experimental;
+package androidx.annotation.experimental
 
-import static java.lang.annotation.ElementType.ANNOTATION_TYPE;
-import static java.lang.annotation.RetentionPolicy.CLASS;
-
-import java.lang.annotation.Retention;
-import java.lang.annotation.Target;
+import kotlin.annotation.Retention
+import kotlin.annotation.Target
 
 /**
  * Denotes that the annotated element is a marker of an experimental API.
  *
  * Any declaration annotated with this marker is considered part of an unstable API surface and its
- * call sites should accept the experimental aspect of it either by using {@link UseExperimental},
+ * call sites should accept the experimental aspect of it either by using [UseExperimental],
  * or by being annotated with that marker themselves, effectively causing further propagation of
  * that experimental aspect.
  *
  * Example:
- * <pre><code>
+ * <pre>`
  * // Library code
  * &#64;Retention(CLASS)
  * &#64;Target({TYPE, METHOD, CONSTRUCTOR, FIELD, PACKAGE})
@@ -40,38 +37,43 @@ import java.lang.annotation.Target;
  *
  * &#64;ExperimentalDateTime
  * public class DateProvider {
- *     // ...
+ * // ...
  * }
- * </code></pre>
+`</pre> *
  *
- * <pre><code>
+ * <pre>`
  * // Client code
  * int getYear() {
- *     DateProvider provider; // Error: DateProvider is experimental
- *     // ...
+ * DateProvider provider; // Error: DateProvider is experimental
+ * // ...
  * }
  *
  * &#64;ExperimentalDateTime
  * Date getDate() {
- *     DateProvider provider; // OK: the function is marked as experimental
- *     // ...
+ * DateProvider provider; // OK: the function is marked as experimental
+ * // ...
  * }
  *
  * void displayDate() {
- *     System.out.println(getDate()); // Error: getDate() is experimental, acceptance is required
+ * System.out.println(getDate()); // Error: getDate() is experimental, acceptance is required
  * }
- * </code></pre>
+`</pre> *
  *
  */
-@Retention(CLASS)
-@Target({ANNOTATION_TYPE})
-public @interface Experimental {
+@Retention(AnnotationRetention.BINARY)
+@Target(AnnotationTarget.ANNOTATION_CLASS)
+annotation class Experimental(
+    /**
+     * Defines the reporting level for incorrect usages of this experimental API.
+     */
+    val level: Level = Level.ERROR
+) {
     /**
      * Severity of the diagnostic that should be reported on usages of experimental API which did
      * not explicitly accept the experimental aspect of that API either by using
-     * {@link UseExperimental} or by being annotated with the corresponding marker annotation.
+     * [UseExperimental] or by being annotated with the corresponding marker annotation.
      */
-    enum Level {
+    enum class Level {
         /**
          * Specifies that a warning should be reported on incorrect usages of this experimental API.
          */
@@ -80,11 +82,6 @@ public @interface Experimental {
         /**
          * Specifies that an error should be reported on incorrect usages of this experimental API.
          */
-        ERROR,
+        ERROR
     }
-
-    /**
-     * Defines the reporting level for incorrect usages of this experimental API.
-     */
-    Level level() default Level.ERROR;
 }
