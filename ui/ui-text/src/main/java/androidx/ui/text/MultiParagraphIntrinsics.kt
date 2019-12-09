@@ -24,8 +24,7 @@ import androidx.ui.text.style.TextDirectionAlgorithm
  * Calculates and provides the intrinsic width and height of text that contains [ParagraphStyle].
  *
  * @param annotatedString the text to be laid out
- * @param spanStyle the [SpanStyle] to be applied to the whole text
- * @param paragraphStyle the [ParagraphStyle] to be applied to the whole text
+ * @param style the [TextStyle] to be applied to the whole text
  * @param density density of the device
  * @param resourceLoader [Font.ResourceLoader] to be used to load the font given in [SpanStyle]s
 
@@ -36,8 +35,7 @@ import androidx.ui.text.style.TextDirectionAlgorithm
  */
 class MultiParagraphIntrinsics(
     val annotatedString: AnnotatedString,
-    spanStyle: SpanStyle,
-    paragraphStyle: ParagraphStyle,
+    style: TextStyle,
     density: Density,
     resourceLoader: Font.ResourceLoader
 ) : ParagraphIntrinsics {
@@ -53,21 +51,23 @@ class MultiParagraphIntrinsics(
     internal val infoList: List<ParagraphIntrinsicInfo>
 
     init {
-        requireNotNull(paragraphStyle.textDirectionAlgorithm) {
+        requireNotNull(style.textDirectionAlgorithm) {
             "ParagraphStyle.textDirectionAlgorithm should not be null"
         }
 
+        val paragraphStyle = style.toParagraphStyle()
         infoList = annotatedString
             .mapEachParagraphStyle(paragraphStyle) { annotatedString, paragraphStyleItem ->
+                val currentParagraphStyle = resolveTextDirection(
+                    paragraphStyleItem.item,
+                    paragraphStyle
+                )
+
                 ParagraphIntrinsicInfo(
                     intrinsics = ParagraphIntrinsics(
                         text = annotatedString.text,
-                        paragraphStyle = resolveTextDirection(
-                            paragraphStyleItem.item,
-                            paragraphStyle
-                        ),
                         spanStyles = annotatedString.spanStyles,
-                        spanStyle = spanStyle,
+                        style = style.merge(currentParagraphStyle),
                         density = density,
                         resourceLoader = resourceLoader
                     ),
@@ -93,8 +93,10 @@ class MultiParagraphIntrinsics(
      * @param style ParagraphStyle to be checked for [TextDirectionAlgorithm]
      * @param defaultStyle [ParagraphStyle] passed to [MultiParagraphIntrinsics] as the main style
      */
-    private fun resolveTextDirection(style: ParagraphStyle, defaultStyle: ParagraphStyle):
-            ParagraphStyle {
+    private fun resolveTextDirection(
+        style: ParagraphStyle,
+        defaultStyle: ParagraphStyle
+    ): ParagraphStyle {
         return style.textDirectionAlgorithm?.let { style } ?: style.copy(
             textDirectionAlgorithm = defaultStyle.textDirectionAlgorithm
         )

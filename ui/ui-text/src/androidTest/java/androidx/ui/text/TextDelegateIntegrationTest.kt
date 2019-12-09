@@ -59,7 +59,6 @@ class TextDelegateIntegrationTest {
             val annotatedString = AnnotatedString(text, spanStyle)
             val textDelegate = TextDelegate(
                 text = annotatedString,
-                paragraphStyle = ParagraphStyle(),
                 density = density,
                 resourceLoader = resourceLoader,
                 layoutDirection = LayoutDirection.Ltr
@@ -80,7 +79,6 @@ class TextDelegateIntegrationTest {
             val annotatedString = AnnotatedString(text, spanStyle)
             val textDelegate = TextDelegate(
                 text = annotatedString,
-                paragraphStyle = ParagraphStyle(),
                 density = density,
                 resourceLoader = resourceLoader,
                 layoutDirection = LayoutDirection.Ltr
@@ -102,7 +100,6 @@ class TextDelegateIntegrationTest {
             val annotatedString = AnnotatedString(text, spanStyle)
             val textDelegate = TextDelegate(
                 text = annotatedString,
-                paragraphStyle = ParagraphStyle(),
                 density = density,
                 resourceLoader = resourceLoader,
                 layoutDirection = LayoutDirection.Ltr
@@ -124,7 +121,6 @@ class TextDelegateIntegrationTest {
         val annotatedString = AnnotatedString(text, spanStyle)
         val textDelegate = TextDelegate(
             text = annotatedString,
-            paragraphStyle = ParagraphStyle(),
             density = density,
             resourceLoader = resourceLoader,
             layoutDirection = LayoutDirection.Ltr
@@ -144,7 +140,6 @@ class TextDelegateIntegrationTest {
             val annotatedString = AnnotatedString(text, spanStyle)
             val textDelegate = TextDelegate(
                 text = annotatedString,
-                paragraphStyle = ParagraphStyle(),
                 density = density,
                 resourceLoader = resourceLoader,
                 layoutDirection = LayoutDirection.Ltr
@@ -160,7 +155,6 @@ class TextDelegateIntegrationTest {
     fun layout_build_layoutResult() {
         val textDelegate = TextDelegate(
             text = AnnotatedString(text = "Hello"),
-            paragraphStyle = ParagraphStyle(),
             density = density,
             resourceLoader = resourceLoader,
             layoutDirection = LayoutDirection.Ltr
@@ -181,7 +175,6 @@ class TextDelegateIntegrationTest {
 
         val textDelegate = TextDelegate(
             text = annotatedString,
-            paragraphStyle = ParagraphStyle(),
             density = density,
             resourceLoader = resourceLoader,
             layoutDirection = LayoutDirection.Ltr
@@ -207,7 +200,6 @@ class TextDelegateIntegrationTest {
 
             val textDelegate = TextDelegate(
                 text = annotatedString,
-                paragraphStyle = ParagraphStyle(),
                 density = density,
                 resourceLoader = resourceLoader,
                 layoutDirection = LayoutDirection.Ltr
@@ -229,7 +221,6 @@ class TextDelegateIntegrationTest {
         val annotatedString = AnnotatedString(text, spanStyle)
         val textDelegate = TextDelegate(
             text = annotatedString,
-            paragraphStyle = ParagraphStyle(),
             density = density,
             resourceLoader = resourceLoader,
             layoutDirection = LayoutDirection.Ltr
@@ -245,16 +236,12 @@ class TextDelegateIntegrationTest {
 
     @Test
     fun hasOverflowShaderFadeHorizontallyTrue() {
-        var text = ""
-        for (i in 1..15) {
-            text += "Hello World"
-        }
+        val text = "Hello World".repeat(15)
         val spanStyle = SpanStyle(fontSize = 20.sp, fontFamily = fontFamily)
         val annotatedString = AnnotatedString(text, spanStyle)
 
         val textDelegate = TextDelegate(
             text = annotatedString,
-            paragraphStyle = ParagraphStyle(),
             overflow = TextOverflow.Fade,
             softWrap = false,
             maxLines = 1,
@@ -273,15 +260,11 @@ class TextDelegateIntegrationTest {
 
     @Test
     fun hasOverflowShaderFadeVerticallyTrue() {
-        var text = ""
-        for (i in 1..30) {
-            text += "Hello World"
-        }
+        val text = "Hello World".repeat(30)
         val spanStyle = SpanStyle(fontSize = 20.sp, fontFamily = fontFamily)
         val annotatedString = AnnotatedString(text, spanStyle)
         val textDelegate = TextDelegate(
             text = annotatedString,
-            paragraphStyle = ParagraphStyle(),
             overflow = TextOverflow.Fade,
             maxLines = 2,
             density = density,
@@ -308,7 +291,6 @@ class TextDelegateIntegrationTest {
             val annotatedString = AnnotatedString(text, spanStyle)
             val textDelegate = TextDelegate(
                 text = annotatedString,
-                paragraphStyle = ParagraphStyle(),
                 density = density,
                 resourceLoader = resourceLoader,
                 layoutDirection = LayoutDirection.Ltr
@@ -369,7 +351,6 @@ class TextDelegateIntegrationTest {
             val annotatedString = AnnotatedString(text, spanStyle)
             val textDelegate = TextDelegate(
                 text = annotatedString,
-                paragraphStyle = ParagraphStyle(),
                 density = density,
                 resourceLoader = resourceLoader,
                 layoutDirection = LayoutDirection.Ltr
@@ -423,7 +404,6 @@ class TextDelegateIntegrationTest {
             val annotatedString = AnnotatedString(text, spanStyle)
             val textDelegate = TextDelegate(
                 text = annotatedString,
-                paragraphStyle = ParagraphStyle(),
                 density = density,
                 resourceLoader = resourceLoader,
                 layoutDirection = LayoutDirection.Ltr
@@ -487,7 +467,6 @@ class TextDelegateIntegrationTest {
             val selectionColor = Color(0x66AABB33)
             val textDelegate = TextDelegate(
                 text = annotatedString,
-                paragraphStyle = ParagraphStyle(),
                 density = density,
                 resourceLoader = resourceLoader,
                 layoutDirection = LayoutDirection.Ltr

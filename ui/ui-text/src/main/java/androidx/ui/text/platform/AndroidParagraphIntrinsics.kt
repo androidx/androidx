@@ -22,13 +22,12 @@ import androidx.text.LayoutIntrinsics
 import androidx.ui.core.Density
 import androidx.ui.text.AnnotatedString
 import androidx.ui.text.ParagraphIntrinsics
-import androidx.ui.text.ParagraphStyle
 import androidx.ui.text.SpanStyle
+import androidx.ui.text.TextStyle
 
 internal class AndroidParagraphIntrinsics(
     val text: String,
-    val spanStyle: SpanStyle,
-    val paragraphStyle: ParagraphStyle,
+    val style: TextStyle,
     val spanStyles: List<AnnotatedString.Item<SpanStyle>>,
     val typefaceAdapter: TypefaceAdapter,
     val density: Density
@@ -46,20 +45,24 @@ internal class AndroidParagraphIntrinsics(
     override val minIntrinsicWidth: Float
         get() = layoutIntrinsics.minIntrinsicWidth
 
-    internal val textDirectionHeuristic = paragraphStyle.textDirectionAlgorithm?.let {
-        resolveTextDirectionHeuristics(paragraphStyle.textDirectionAlgorithm)
+    internal val textDirectionHeuristic = style.textDirectionAlgorithm?.let {
+        resolveTextDirectionHeuristics(style.textDirectionAlgorithm)
     } ?: throw IllegalArgumentException(
-        "ParagraphStyle.textDirectionAlgorithm should not be null"
+        "TextStyle.textDirectionAlgorithm should not be null"
     )
 
     init {
-        val notAppliedStyle = textPaint.applySpanStyle(spanStyle, typefaceAdapter, density)
+        val notAppliedStyle = textPaint.applySpanStyle(
+            style.toSpanStyle(),
+            typefaceAdapter,
+            density
+        )
 
         charSequence = createStyledText(
             text = text,
             contextFontSize = textPaint.textSize,
-            lineHeight = paragraphStyle.lineHeight,
-            textIndent = paragraphStyle.textIndent,
+            lineHeight = style.lineHeight,
+            textIndent = style.textIndent,
             spanStyles = listOf(
                 AnnotatedString.Item(
                     notAppliedStyle,

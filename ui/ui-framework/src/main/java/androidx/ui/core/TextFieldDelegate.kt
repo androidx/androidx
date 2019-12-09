@@ -35,10 +35,10 @@ import androidx.ui.input.VisualTransformation
 import androidx.ui.text.AnnotatedString
 import androidx.ui.text.Paragraph
 import androidx.ui.text.ParagraphConstraints
-import androidx.ui.text.ParagraphStyle
 import androidx.ui.text.SpanStyle
 import androidx.ui.text.TextDelegate
 import androidx.ui.text.TextRange
+import androidx.ui.text.TextStyle
 import androidx.ui.text.font.Font
 import androidx.ui.text.style.TextDecoration
 import androidx.ui.text.style.TextDirectionAlgorithm
@@ -60,16 +60,15 @@ internal const val DEFAULT_COMPOSITION_COLOR: Int = -5185306
  * Until we have font metrics APIs, use the height of reference text as a workaround.
  */
 private fun computeLineHeightForEmptyText(
-    spanStyle: SpanStyle,
+    style: TextStyle,
     density: Density,
     resourceLoader: Font.ResourceLoader
 ): IntPx {
     return Paragraph(
         text = "H", // No meaning: just a reference character.
-        spanStyle = spanStyle,
-        paragraphStyle = ParagraphStyle(
+        style = TextStyle(
             textDirectionAlgorithm = TextDirectionAlgorithm.ContentOrLtr
-        ),
+        ).merge(style),
         spanStyles = listOf(),
         maxLines = 1,
         ellipsis = false,
@@ -107,7 +106,7 @@ internal class TextFieldDelegate {
             val isEmptyText = textDelegate.text.text.isEmpty()
             val height = if (isEmptyText) {
                 computeLineHeightForEmptyText(
-                    spanStyle = textDelegate.spanStyle,
+                    style = textDelegate.style,
                     density = textDelegate.density,
                     resourceLoader = textDelegate.resourceLoader
                 )
@@ -187,7 +186,7 @@ internal class TextFieldDelegate {
                     offsetMap.originalToTransformed(value.selection.max) - 1)
             } else {
                 val lineHeightForEmptyText = computeLineHeightForEmptyText(
-                    textDelegate.spanStyle,
+                    textDelegate.style,
                     textDelegate.density,
                     textDelegate.resourceLoader
                 )

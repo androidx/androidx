@@ -368,8 +368,7 @@ internal fun BaseTextField(
         val textDelegate = +memo(visualText, mergedStyle, density, resourceLoader) {
             TextDelegate(
                 text = visualText,
-                spanStyle = mergedStyle.toSpanStyle(),
-                paragraphStyle = mergedStyle.toParagraphStyle(),
+                style = mergedStyle,
                 density = density,
                 layoutDirection = layoutDirection,
                 resourceLoader = resourceLoader

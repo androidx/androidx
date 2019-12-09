@@ -80,7 +80,7 @@ class TextDelegateBenchmark(
         return TextDelegate(
             text = text,
             density = Density(density = 1f),
-            spanStyle = SpanStyle(fontSize = 12.sp),
+            style = TextStyle(fontSize = 12.sp),
             layoutDirection = LayoutDirection.Ltr,
             resourceLoader = resourceLoader
         )
@@ -101,7 +101,7 @@ class TextDelegateBenchmark(
                 TextDelegate(
                     text = text,
                     density = Density(density = 1f),
-                    spanStyle = SpanStyle(fontSize = 12.sp),
+                    style = TextStyle(fontSize = 12.sp),
                     layoutDirection = LayoutDirection.Ltr,
                     resourceLoader = resourceLoader
                 )
