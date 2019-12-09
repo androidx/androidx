@@ -33,7 +33,9 @@ class TextSpanParagraphStyleTest {
         val spanStyleParameters = constructorParams(SpanStyle::class)
         val textStyleParameters = constructorParams(TextStyle::class)
 
-        // assert that textStyleParameters contains all of spanStyleParameters
+        // for every SpanStyle parameter, expecting that parameter to be in TextStyle
+        // this guards that if a parameter is added to SpanStyle, it should be added
+        // to TextStyle
         assertThat(textStyleParameters).containsAtLeastElementsIn(spanStyleParameters)
     }
 
@@ -42,8 +44,25 @@ class TextSpanParagraphStyleTest {
         val paragraphStyleParameters = constructorParams(ParagraphStyle::class)
         val textStyleParameters = constructorParams(TextStyle::class)
 
-        // assert that paragraphStyleParameters contains all of spanStyleParameters
+        // for every ParagraphStyle parameter, expecting that parameter to be in TextStyle
+        // this guards that if a parameter is added to ParagraphStyle, it should be added
+        // to TextStyle
         assertThat(textStyleParameters).containsAtLeastElementsIn(paragraphStyleParameters)
+    }
+
+    @Test
+    fun textStyle_covered_by_ParagraphStyle_and_SpanStyle() {
+        val spanStyleParameters = constructorParams(SpanStyle::class)
+        val paragraphStyleParameters = constructorParams(ParagraphStyle::class)
+        val textStyleParameters = constructorParams(TextStyle::class)
+
+        // for every TextStyle parameter, expecting that parameter to be in either ParagraphStyle
+        // or SpanStyle
+        // this guards that if a parameter is added to TextStyle, it should be added
+        // to one of SpanStyle or ParagraphStyle
+        assertThat(spanStyleParameters + paragraphStyleParameters).containsAtLeastElementsIn(
+            textStyleParameters
+        )
     }
 
     private fun <T : Any> constructorParams(clazz: KClass<T>): List<Parameter> {
