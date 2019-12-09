@@ -1,19 +1,5 @@
 // Baseline format: 1.0
-ArrayReturn: androidx.ui.layout.constraintlayout.ConstraintSetBuilderScope#createHorizontalChain(androidx.ui.layout.constraintlayout.ConstraintSetBuilderScope.ConstrainedLayoutReference[], androidx.ui.layout.constraintlayout.ConstraintSetBuilderScope.ChainStyle) parameter #0:
-    Method parameter should be Collection<ConstrainedLayoutReference> (or subclass) instead of raw array; was `androidx.ui.layout.constraintlayout.ConstraintSetBuilderScope.ConstrainedLayoutReference[]`
-ArrayReturn: androidx.ui.layout.constraintlayout.ConstraintSetBuilderScope#createVerticalChain(androidx.ui.layout.constraintlayout.ConstraintSetBuilderScope.ConstrainedLayoutReference[], androidx.ui.layout.constraintlayout.ConstraintSetBuilderScope.ChainStyle) parameter #0:
-    Method parameter should be Collection<ConstrainedLayoutReference> (or subclass) instead of raw array; was `androidx.ui.layout.constraintlayout.ConstraintSetBuilderScope.ConstrainedLayoutReference[]`
-
-
 DocumentExceptions: androidx.ui.layout.FlexChildren#expanded(float, kotlin.jvm.functions.Function0<kotlin.Unit>):
     Method FlexChildren.expanded appears to be throwing java.lang.IllegalArgumentException; this should be listed in the documentation; see https://android.github.io/kotlin-guides/interop.html#document-exceptions
 DocumentExceptions: androidx.ui.layout.FlexChildren#flexible(float, kotlin.jvm.functions.Function0<kotlin.Unit>):
     Method FlexChildren.flexible appears to be throwing java.lang.IllegalArgumentException; this should be listed in the documentation; see https://android.github.io/kotlin-guides/interop.html#document-exceptions
-
-
-MissingNullability: androidx.ui.layout.constraintlayout.ConstraintSetBuilderScope#getParentDimension():
-    Missing nullability on method `getParentDimension` return
-MissingNullability: androidx.ui.layout.constraintlayout.ConstraintSetBuilderScope#getSpreadDimension():
-    Missing nullability on method `getSpreadDimension` return
-MissingNullability: androidx.ui.layout.constraintlayout.ConstraintSetBuilderScope#getWrapDimension():
-    Missing nullability on method `getWrapDimension` return
