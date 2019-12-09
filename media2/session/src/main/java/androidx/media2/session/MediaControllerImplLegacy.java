@@ -106,7 +106,7 @@ class MediaControllerImplLegacy implements MediaController.MediaControllerImpl {
     MediaBrowserCompat mBrowserCompat;
     @GuardedBy("mLock")
     @SuppressWarnings("WeakerAccess") /* synthetic access */
-    boolean mIsReleased;
+    boolean mClosed;
     @GuardedBy("mLock")
     @SuppressWarnings("WeakerAccess") /* synthetic access */
     List<MediaItem> mPlaylist;
@@ -153,7 +153,8 @@ class MediaControllerImplLegacy implements MediaController.MediaControllerImpl {
     @SuppressWarnings("WeakerAccess") /* synthetic access */
     MediaControllerCompat mControllerCompat;
     @GuardedBy("mLock")
-    private ControllerCompatCallback mControllerCompatCallback;
+    @SuppressWarnings("WeakerAccess") /* synthetic access */
+    ControllerCompatCallback mControllerCompatCallback;
     @GuardedBy("mLock")
     @SuppressWarnings("WeakerAccess") /* synthetic access */
     PlaybackStateCompat mPlaybackStateCompat;
@@ -161,10 +162,9 @@ class MediaControllerImplLegacy implements MediaController.MediaControllerImpl {
     @SuppressWarnings("WeakerAccess") /* synthetic access */
     MediaMetadataCompat mMediaMetadataCompat;
 
-    // Assignment should be used with the lock hold, but should be used without a lock to prevent
-    // potential deadlock.
     @GuardedBy("mLock")
-    private volatile boolean mConnected;
+    @SuppressWarnings("WeakerAccess") /* synthetic access */
+    boolean mConnected;
 
     MediaControllerImplLegacy(@NonNull Context context, @NonNull MediaController instance,
             @NonNull SessionToken token) {
@@ -188,10 +188,10 @@ class MediaControllerImplLegacy implements MediaController.MediaControllerImpl {
     @Override
     public void close() {
         if (DEBUG) {
-            Log.d(TAG, "release from " + mToken);
+            Log.d(TAG, "close from " + mToken);
         }
         synchronized (mLock) {
-            if (mIsReleased) {
+            if (mClosed) {
                 // Prevent re-enterance from the ControllerCallback.onDisconnected()
                 return;
             }
@@ -203,7 +203,7 @@ class MediaControllerImplLegacy implements MediaController.MediaControllerImpl {
                 mHandlerThread.quit();
             }
 
-            mIsReleased = true;
+            mClosed = true;
 
             if (mBrowserCompat != null) {
                 mBrowserCompat.disconnect();
@@ -870,7 +870,7 @@ class MediaControllerImplLegacy implements MediaController.MediaControllerImpl {
         final List<CommandButton> customLayout;
 
         synchronized (mLock) {
-            if (mIsReleased || mConnected) {
+            if (mClosed || mConnected) {
                 return;
             }
             mPlaybackStateCompat = mControllerCompat.getPlaybackState();
@@ -930,6 +930,8 @@ class MediaControllerImplLegacy implements MediaController.MediaControllerImpl {
             mControllerCompatCallback = new ControllerCompatCallback();
             mControllerCompat.registerCallback(mControllerCompatCallback, mHandler);
         }
+        // MediaControllerCompat is available to use immediately after it's created.
+        onConnectedNotLocked();
     }
 
     private void connectToService() {
@@ -1038,7 +1040,26 @@ class MediaControllerImplLegacy implements MediaController.MediaControllerImpl {
 
         @Override
         public void onSessionReady() {
-            onConnectedNotLocked();
+            boolean connected;
+            synchronized (mLock) {
+                connected = mConnected;
+            }
+            if (connected) {
+                PlaybackStateCompat state;
+                int shuffleMode;
+                int repeatMode;
+                boolean isCaptioningEnabled;
+                synchronized (mLock) {
+                    state = mControllerCompat.getPlaybackState();
+                    shuffleMode = mControllerCompat.getShuffleMode();
+                    repeatMode = mControllerCompat.getRepeatMode();
+                    isCaptioningEnabled = mControllerCompat.isCaptioningEnabled();
+                }
+                onPlaybackStateChanged(state);
+                onShuffleModeChanged(shuffleMode);
+                onRepeatModeChanged(repeatMode);
+                onCaptioningEnabledChanged(isCaptioningEnabled);
+            }
         }
 
         @Override
@@ -1049,7 +1070,7 @@ class MediaControllerImplLegacy implements MediaController.MediaControllerImpl {
         @Override
         public void onSessionEvent(final String event, final Bundle extras) {
             synchronized (mLock) {
-                if (mIsReleased) {
+                if (mClosed || !mConnected) {
                     return;
                 }
             }
@@ -1072,7 +1093,7 @@ class MediaControllerImplLegacy implements MediaController.MediaControllerImpl {
             final SessionCommandGroup prevAllowedCommands;
             final SessionCommandGroup currentAllowedCommands;
             synchronized (mLock) {
-                if (mIsReleased) {
+                if (mClosed || !mConnected) {
                     return;
                 }
                 prevItem = mCurrentMediaItem;
@@ -1208,7 +1229,7 @@ class MediaControllerImplLegacy implements MediaController.MediaControllerImpl {
             final MediaItem prevItem;
             final MediaItem currentItem;
             synchronized (mLock) {
-                if (mIsReleased) {
+                if (mClosed || !mConnected) {
                     return;
                 }
                 prevItem = mCurrentMediaItem;
@@ -1230,7 +1251,7 @@ class MediaControllerImplLegacy implements MediaController.MediaControllerImpl {
             final List<MediaItem> playlist;
             final MediaMetadata playlistMetadata;
             synchronized (mLock) {
-                if (mIsReleased) {
+                if (mClosed || !mConnected) {
                     return;
                 }
                 mQueue = MediaUtils.removeNullElements(queue);
@@ -1258,7 +1279,7 @@ class MediaControllerImplLegacy implements MediaController.MediaControllerImpl {
         public void onQueueTitleChanged(CharSequence title) {
             final MediaMetadata playlistMetadata;
             synchronized (mLock) {
-                if (mIsReleased) {
+                if (mClosed || !mConnected) {
                     return;
                 }
                 mPlaylistMetadata = MediaUtils.convertToMediaMetadata(title);
@@ -1275,7 +1296,7 @@ class MediaControllerImplLegacy implements MediaController.MediaControllerImpl {
         @Override
         public void onExtrasChanged(final Bundle extras) {
             synchronized (mLock) {
-                if (mIsReleased) {
+                if (mClosed || !mConnected) {
                     return;
                 }
             }
@@ -1291,7 +1312,7 @@ class MediaControllerImplLegacy implements MediaController.MediaControllerImpl {
         @Override
         public void onAudioInfoChanged(final MediaControllerCompat.PlaybackInfo info) {
             synchronized (mLock) {
-                if (mIsReleased) {
+                if (mClosed || !mConnected) {
                     return;
                 }
             }
@@ -1306,7 +1327,7 @@ class MediaControllerImplLegacy implements MediaController.MediaControllerImpl {
         @Override
         public void onCaptioningEnabledChanged(final boolean enabled) {
             synchronized (mLock) {
-                if (mIsReleased) {
+                if (mClosed || !mConnected) {
                     return;
                 }
             }
@@ -1324,7 +1345,7 @@ class MediaControllerImplLegacy implements MediaController.MediaControllerImpl {
         @Override
         public void onRepeatModeChanged(@PlaybackStateCompat.RepeatMode final int repeatMode) {
             synchronized (mLock) {
-                if (mIsReleased) {
+                if (mClosed || !mConnected) {
                     return;
                 }
                 mRepeatMode = repeatMode;
@@ -1340,7 +1361,7 @@ class MediaControllerImplLegacy implements MediaController.MediaControllerImpl {
         @Override
         public void onShuffleModeChanged(@PlaybackStateCompat.ShuffleMode final int shuffleMode) {
             synchronized (mLock) {
-                if (mIsReleased) {
+                if (mClosed || !mConnected) {
                     return;
                 }
                 mShuffleMode = shuffleMode;
