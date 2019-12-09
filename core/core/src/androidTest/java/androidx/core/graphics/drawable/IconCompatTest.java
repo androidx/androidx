@@ -172,15 +172,32 @@ public class IconCompatTest {
     }
 
     @Test
-    public void testCreateWithContentUriForAdaptiveBitmap() throws IOException {
+    public void testFileIconCompatAdaptiveBitmap() throws IOException {
         File file = new File(mContext.getFilesDir(), "testimage.jpg");
+        Bitmap bitmap = Bitmap.createBitmap(200, 200, Bitmap.Config.ARGB_8888);
+        bitmap.eraseColor(Color.GRAY);
         try {
-            writeSampleImage(file);
+            writeSampleImage(bitmap, file);
             assertTrue(file.exists());
             final IconCompat compat =
                     IconCompat.createWithAdaptiveBitmapContentUri(Uri.fromFile(file));
             verifyIconCompatValidity(compat);
-            verifyAdaptiveIconCompat(compat, Color.argb(255, 4, 5, 10));
+        } finally {
+            file.delete();
+        }
+    }
+
+    @Test
+    public void testCreateWithContentUriForAdaptiveBitmap() throws IOException {
+        File file = new File(mContext.getFilesDir(), "testimage.jpg");
+        Bitmap bitmap = Bitmap.createBitmap(200, 200, Bitmap.Config.ARGB_8888);
+        bitmap.eraseColor(Color.GRAY);
+        try {
+            writeSampleImage(bitmap, file);
+            assertTrue(file.exists());
+            final IconCompat compat =
+                    IconCompat.createWithAdaptiveBitmapContentUri(Uri.fromFile(file));
+            verifyAdaptiveIconCompat(compat, Color.GRAY);
         } finally {
             file.delete();
         }
@@ -342,6 +359,13 @@ public class IconCompatTest {
         source.eraseColor(Color.RED);
         Bitmap result = IconCompat.createWithAdaptiveBitmap(source).getBitmap();
         verifyClippedCircle(result, Color.RED, 100);
+    }
+
+    private void writeSampleImage(Bitmap bitmap, File imageFile) throws IOException {
+        try (OutputStream target = new FileOutputStream(imageFile)) {
+            bitmap.compress(Bitmap.CompressFormat.PNG, 0, target);
+            target.flush();
+        }
     }
 
     private void writeSampleImage(File imagefile) throws IOException {
