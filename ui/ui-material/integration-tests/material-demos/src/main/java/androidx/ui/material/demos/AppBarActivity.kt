@@ -26,8 +26,6 @@ import androidx.ui.graphics.imageFromResource
 import androidx.ui.layout.Arrangement
 import androidx.ui.layout.Column
 import androidx.ui.layout.Container
-import androidx.ui.layout.LayoutExpandedHeight
-import androidx.ui.layout.FlexColumn
 import androidx.ui.material.MaterialTheme
 import androidx.ui.material.RadioGroup
 import androidx.ui.material.demos.AppBarActivity.BottomAppBarOption.CenterFab
@@ -76,64 +74,58 @@ class AppBarActivity : MaterialDemoActivity() {
         var selectedTopAppBar by +state { Simple }
         var selectedBottomAppBar by +state { NoFab }
 
-        FlexColumn {
-            inflexible {
-                Container(height = 120.dp, alignment = Alignment.TopCenter) {
-                    when (selectedTopAppBar) {
-                        Simple -> SimpleTopAppBarNavIcon(navigationImage)
-                        Actions -> SimpleTopAppBarNavIconWithActions(
-                            favouriteImage,
-                            navigationImage
+        Column {
+            Container(height = 120.dp, alignment = Alignment.TopCenter) {
+                when (selectedTopAppBar) {
+                    Simple -> SimpleTopAppBarNavIcon(navigationImage)
+                    Actions -> SimpleTopAppBarNavIconWithActions(
+                        favouriteImage,
+                        navigationImage
+                    )
+                }
+            }
+            Column(LayoutFlexible(1f), arrangement = Arrangement.SpaceBetween) {
+                DemoText("TopAppBar options")
+                RadioGroup {
+                    topAppBarOptions.forEach { topAppBar ->
+                        RadioGroupTextItem(
+                            selected = (topAppBar == selectedTopAppBar),
+                            onSelect = { selectedTopAppBar = topAppBar },
+                            text = topAppBar.description
+                        )
+                    }
+                }
+                DemoText("BottomAppBar options")
+                RadioGroup {
+                    bottomAppBarOptions.forEach { bottomAppBar ->
+                        RadioGroupTextItem(
+                            selected = (bottomAppBar == selectedBottomAppBar),
+                            onSelect = { selectedBottomAppBar = bottomAppBar },
+                            text = bottomAppBar.description
                         )
                     }
                 }
             }
-            flexible(1f) {
-                Column(LayoutExpandedHeight, arrangement = Arrangement.SpaceBetween) {
-                    DemoText("TopAppBar options")
-                    RadioGroup {
-                        topAppBarOptions.forEach { topAppBar ->
-                            RadioGroupTextItem(
-                                selected = (topAppBar == selectedTopAppBar),
-                                onSelect = { selectedTopAppBar = topAppBar },
-                                text = topAppBar.description
-                            )
-                        }
-                    }
-                    DemoText("BottomAppBar options")
-                    RadioGroup {
-                        bottomAppBarOptions.forEach { bottomAppBar ->
-                            RadioGroupTextItem(
-                                selected = (bottomAppBar == selectedBottomAppBar),
-                                onSelect = { selectedBottomAppBar = bottomAppBar },
-                                text = bottomAppBar.description
-                            )
-                        }
-                    }
-                }
-            }
-            inflexible {
-                Container(height = 120.dp, alignment = Alignment.BottomCenter) {
-                    when (selectedBottomAppBar) {
-                        NoFab -> SimpleBottomAppBarNoFab(favouriteImage, navigationImage)
-                        CenterFab -> SimpleBottomAppBarCenterFab(
-                            favouriteImage,
-                            navigationImage
-                        )
-                        EndFab -> SimpleBottomAppBarEndFab(favouriteImage)
-                        CutoutFab -> SimpleBottomAppBarCutoutFab(
-                            favouriteImage,
-                            navigationImage
-                        )
-                        ExtendedCutoutFab -> SimpleBottomAppBarExtendedCutoutFab(
-                            favouriteImage,
-                            navigationImage
-                        )
-                        FancyAnimatingCutoutFab -> SimpleBottomAppBarFancyAnimatingCutoutFab(
-                            favouriteImage,
-                            navigationImage
-                        )
-                    }
+            Container(height = 120.dp, alignment = Alignment.BottomCenter) {
+                when (selectedBottomAppBar) {
+                    NoFab -> SimpleBottomAppBarNoFab(favouriteImage, navigationImage)
+                    CenterFab -> SimpleBottomAppBarCenterFab(
+                        favouriteImage,
+                        navigationImage
+                    )
+                    EndFab -> SimpleBottomAppBarEndFab(favouriteImage)
+                    CutoutFab -> SimpleBottomAppBarCutoutFab(
+                        favouriteImage,
+                        navigationImage
+                    )
+                    ExtendedCutoutFab -> SimpleBottomAppBarExtendedCutoutFab(
+                        favouriteImage,
+                        navigationImage
+                    )
+                    FancyAnimatingCutoutFab -> SimpleBottomAppBarFancyAnimatingCutoutFab(
+                        favouriteImage,
+                        navigationImage
+                    )
                 }
             }
         }

@@ -92,9 +92,6 @@ class FlexChildren internal constructor() {
  * entire width assigned by the parent
  * - [flexible] similar to [expanded], but the child can leave unoccupied width.
  *
- * Example usage:
- *
- * @sample androidx.ui.layout.samples.SimpleFlexRow
  *
  * @param mainAxisAlignment The alignment of the layout's children in main axis direction.
  * Default is [MainAxisAlignment.Start].
@@ -103,6 +100,11 @@ class FlexChildren internal constructor() {
  * @param crossAxisSize The size of the layout in the cross axis dimension.
  * Default is [LayoutSize.Wrap].
  */
+@Deprecated(
+    "Use Row layout instead.",
+    ReplaceWith("Row"),
+    DeprecationLevel.WARNING
+)
 @Composable
 fun FlexRow(
     modifier: Modifier = Modifier.None,
@@ -133,10 +135,6 @@ fun FlexRow(
  * to occupy the entire height assigned by the parent
  * - [flexible] similar to [expanded], but the child can leave unoccupied height.
  *
- * Example usage:
- *
- * @sample androidx.ui.layout.samples.SimpleFlexColumn
- *
  * @param mainAxisAlignment The alignment of the layout's children in main axis direction.
  * Default is [MainAxisAlignment.Start].
  * @param crossAxisAlignment The alignment of the layout's children in cross axis direction.
@@ -144,6 +142,11 @@ fun FlexRow(
  * @param crossAxisSize The size of the layout in the cross axis dimension.
  * Default is [LayoutSize.Wrap].
  */
+@Deprecated(
+    "Use Column layout instead.",
+    ReplaceWith("Column"),
+    DeprecationLevel.WARNING
+)
 @Composable
 fun FlexColumn(
     modifier: Modifier = Modifier.None,

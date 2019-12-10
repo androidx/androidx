@@ -27,15 +27,14 @@ import androidx.ui.layout.LayoutAspectRatio
 import androidx.ui.layout.Column
 import androidx.ui.layout.ConstrainedBox
 import androidx.ui.layout.Container
-import androidx.ui.layout.CrossAxisAlignment
 import androidx.ui.layout.DpConstraints
 import androidx.ui.layout.LayoutExpandedHeight
 import androidx.ui.layout.LayoutExpandedWidth
-import androidx.ui.layout.FlexRow
 import androidx.ui.layout.MaxIntrinsicHeight
 import androidx.ui.layout.MaxIntrinsicWidth
 import androidx.ui.layout.MinIntrinsicHeight
 import androidx.ui.layout.MinIntrinsicWidth
+import androidx.ui.layout.Row
 import androidx.ui.layout.Wrap
 
 /**
@@ -76,14 +75,14 @@ fun SameWidthBoxes() {
     }
 }
 
-/*
+/**
  * Builds a layout containing two pieces of text separated by a divider, where the divider
  * is sized according to the height of the longest text.
  *
- * Here [MinIntrinsicHeight] is adding a speculative height measurement pass for the [FlexRow],
+ * Here [MinIntrinsicHeight] is adding a speculative height measurement pass for the [Row],
  * whose minimum intrinsic height will correspond to the height of the largest [Text]. Then
- * [MinIntrinsicHeight] will measure the [FlexRow] with tight height, the same as the premeasured
- * minimum intrinsic height, which due to [CrossAxisAlignment.Stretch] will force the [Text]s and
+ * [MinIntrinsicHeight] will measure the [Row] with tight height, the same as the premeasured
+ * minimum intrinsic height, which due to [LayoutExpandedHeight] will force the [Text]s and
  * the divider to use the same height.
  */
 @Sampled
@@ -91,17 +90,19 @@ fun SameWidthBoxes() {
 fun MatchParentDividerForText() {
     Wrap {
         MinIntrinsicHeight {
-            FlexRow(crossAxisAlignment = CrossAxisAlignment.Stretch) {
-                expanded(flex = 1f) {
-                    Text("This is a really short text")
+            Row {
+                Text(
+                    text = "This is a really short text",
+                    modifier = LayoutFlexible(1f) + LayoutExpandedHeight
+                )
+                Container(width = 1.dp, modifier = LayoutExpandedHeight) {
+                    DrawShape(RectangleShape, Color.Black)
                 }
-                inflexible {
-                    Container(width = 1.dp) { DrawShape(RectangleShape, Color.Black) }
-                }
-                expanded(flex = 1f) {
-                    Text("This is a much much much much much much much much much much" +
-                            " much much much much much much longer text")
-                }
+                Text(
+                    text = "This is a much much much much much much much much much much" +
+                            " much much much much much much longer text",
+                    modifier = LayoutFlexible(1f) + LayoutExpandedHeight
+                )
             }
         }
     }
@@ -113,8 +114,8 @@ fun MatchParentDividerForText() {
  * Here [MaxIntrinsicWidth] is adding a speculative width measurement pass for the [Column],
  * whose maximum intrinsic width will correspond to the preferred width of the largest
  * [ConstrainedBox]. Then [MaxIntrinsicWidth] will measure the [Column] with tight width, the same
- * as the premeasured maximum intrinsic width, which due to [LayoutExpandedWidth] modifiers will force
- * the [ConstrainedBox]s to use the same width.
+ * as the premeasured maximum intrinsic width, which due to [LayoutExpandedWidth] modifiers will
+ * force the [Container]s to use the same width.
  */
 @Sampled
 @Composable
@@ -139,30 +140,31 @@ fun SameWidthTextBoxes() {
     }
 }
 
-/*
- * Builds a layout containing two [AspectRatio]s separated by a divider, where the divider
- * is sized according to the height of the taller [AspectRatio].
+/**
+ * Builds a layout containing two [LayoutAspectRatio]s separated by a divider, where the divider
+ * is sized according to the height of the taller [LayoutAspectRatio].
  *
- * Here [MaxIntrinsicHeight] is adding a speculative height measurement pass for the [FlexRow],
- * whose maximum intrinsic height will correspond to the height of the taller [AspectRatio]. Then
- * [MaxIntrinsicHeight] will measure the [FlexRow] with tight height, the same as the premeasured
- * maximum intrinsic height, which due to [CrossAxisAlignment.Stretch] will force the [AspectRatio]s
- * and the divider to use the same height.
+ * Here [MaxIntrinsicHeight] is adding a speculative height measurement pass for the [Row], whose
+ * maximum intrinsic height will correspond to the height of the taller [LayoutAspectRatio]. Then
+ * [MaxIntrinsicHeight] will measure the [Row] with tight height, the same as the premeasured
+ * maximum intrinsic height, which due to [LayoutExpandedHeight] modifier will force the
+ * [LayoutAspectRatio]s and the divider to use the same height.
  */
 @Sampled
 @Composable
 fun MatchParentDividerForAspectRatio() {
     Wrap {
         MaxIntrinsicHeight {
-            FlexRow(crossAxisAlignment = CrossAxisAlignment.Stretch) {
-                expanded(flex = 1f) {
-                    Container(LayoutAspectRatio(2f)) { DrawShape(RectangleShape, Color.Gray) }
+            Row {
+                val modifier = LayoutExpandedHeight + LayoutFlexible(1f)
+                Container(modifier + LayoutAspectRatio(2f)) {
+                    DrawShape(RectangleShape, Color.Gray)
                 }
-                inflexible {
-                    Container(width = 1.dp) { DrawShape(RectangleShape, Color.Black) }
+                Container(width = 1.dp, modifier = LayoutExpandedHeight) {
+                    DrawShape(RectangleShape, Color.Black)
                 }
-                expanded(flex = 1f) {
-                    Container(LayoutAspectRatio(1f)) { DrawShape(RectangleShape, Color.Blue) }
+                Container(modifier + LayoutAspectRatio(1f)) {
+                    DrawShape(RectangleShape, Color.Blue)
                 }
             }
         }

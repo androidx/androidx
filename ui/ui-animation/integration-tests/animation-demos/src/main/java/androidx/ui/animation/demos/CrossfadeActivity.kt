@@ -33,9 +33,11 @@ import androidx.ui.core.toRect
 import androidx.ui.graphics.Canvas
 import androidx.ui.graphics.Color
 import androidx.ui.graphics.Paint
+import androidx.ui.layout.Column
 import androidx.ui.layout.Container
-import androidx.ui.layout.FlexColumn
-import androidx.ui.layout.FlexRow
+import androidx.ui.layout.LayoutExpanded
+import androidx.ui.layout.LayoutHeight
+import androidx.ui.layout.Row
 import kotlin.random.Random
 
 class CrossfadeActivity : Activity() {
@@ -49,29 +51,23 @@ class CrossfadeActivity : Activity() {
 @Composable
 private fun CrossfadeDemo() {
     var current by +state { tabs[0] }
-    FlexColumn {
-        inflexible {
-            FlexRow {
-                tabs.forEach {
-                    flexible(flex = 1f) {
-                        PressReleasedGestureDetector(onRelease = {
-                            Log.e("Crossfade", "Switch to $it")
-                            current = it
-                        }) {
-                            Container(expanded = true, height = 48.dp) {
-                                DrawTab(tab = it)
-                            }
-                        }
+    Column {
+        Row {
+            tabs.forEach {
+                PressReleasedGestureDetector(onRelease = {
+                    Log.e("Crossfade", "Switch to $it")
+                    current = it
+                }) {
+                    Container(LayoutFlexible(1f) + LayoutHeight(48.dp)) {
+                        DrawTab(tab = it)
                     }
                 }
             }
         }
-        flexible(1f) {
-            Crossfade(current = current) { tab ->
-                tab.lastInt = +memo { Random.nextInt() }
-                Container(expanded = true) {
-                    DrawTab(tab = tab)
-                }
+        Crossfade(current = current) { tab ->
+            tab.lastInt = +memo { Random.nextInt() }
+            Container(LayoutExpanded) {
+                DrawTab(tab = tab)
             }
         }
     }

@@ -38,7 +38,6 @@ import androidx.ui.layout.Column
 import androidx.ui.layout.Container
 import androidx.ui.layout.LayoutExpanded
 import androidx.ui.layout.LayoutExpandedWidth
-import androidx.ui.layout.FlexColumn
 import androidx.ui.layout.LayoutGravity
 import androidx.ui.layout.LayoutHeight
 import androidx.ui.layout.Spacer
@@ -92,16 +91,12 @@ private class ScrollFraction(var fraction: Float = 0f)
 @Composable
 private fun DynamicThemeApp(scrollFraction: ScrollFraction, palette: ColorPalette) {
     MaterialTheme(palette) {
-        Stack(LayoutExpanded) {
-            FlexColumn(LayoutExpanded) {
-                inflexible {
-                    TopBar()
-                }
-                expanded(1f) {
-                    val background = (+MaterialTheme.colors()).background
-                    Surface(color = background) {
-                        ScrollingContent(scrollFraction)
-                    }
+        Stack {
+            Column(LayoutExpanded) {
+                TopBar()
+                val background = (+MaterialTheme.colors()).background
+                Surface(color = background, modifier = LayoutFlexible(1f)) {
+                    ScrollingContent(scrollFraction)
                 }
             }
             Container(LayoutGravity.BottomCenter) {

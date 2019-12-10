@@ -37,11 +37,9 @@ import androidx.ui.foundation.shape.border.Border
 import androidx.ui.foundation.shape.border.DrawBorder
 import androidx.ui.foundation.shape.corner.RoundedCornerShape
 import androidx.ui.graphics.Color
-import androidx.ui.layout.Center
 import androidx.ui.layout.Column
 import androidx.ui.layout.Container
 import androidx.ui.layout.EdgeInsets
-import androidx.ui.layout.FlexColumn
 import androidx.ui.layout.Padding
 import androidx.ui.material.Tab
 import androidx.ui.material.TabRow
@@ -55,20 +53,15 @@ import androidx.ui.material.MaterialTheme
 fun TextTabs() {
     val state = +state { 0 }
     val titles = listOf("TAB 1", "TAB 2", "TAB 3 WITH LOTS OF TEXT")
-    FlexColumn {
-        inflexible {
-            TabRow(items = titles, selectedIndex = state.value) { index, text ->
-                Tab(text = text, selected = state.value == index) { state.value = index }
-            }
+    Column {
+        TabRow(items = titles, selectedIndex = state.value) { index, text ->
+            Tab(text = text, selected = state.value == index) { state.value = index }
         }
-        flexible(flex = 1f) {
-            Center {
-                Text(
-                    text = "Text tab ${state.value + 1} selected",
-                    style = (+MaterialTheme.typography()).body1
-                )
-            }
-        }
+        Text(
+            modifier = LayoutGravity.Center,
+            text = "Text tab ${state.value + 1} selected",
+            style = (+MaterialTheme.typography()).body1
+        )
     }
 }
 
@@ -76,20 +69,15 @@ fun TextTabs() {
 fun IconTabs(image: Image) {
     val state = +state { 0 }
     val icons = listOf(image, image, image)
-    FlexColumn {
-        inflexible {
-            TabRow(items = icons, selectedIndex = state.value) { index, icon ->
-                Tab(icon = icon, selected = state.value == index) { state.value = index }
-            }
+    Column {
+        TabRow(items = icons, selectedIndex = state.value) { index, icon ->
+            Tab(icon = icon, selected = state.value == index) { state.value = index }
         }
-        flexible(flex = 1f) {
-            Center {
-                Text(
-                    text = "Icon tab ${state.value + 1} selected",
-                    style = (+MaterialTheme.typography()).body1
-                )
-            }
-        }
+        Text(
+            modifier = LayoutGravity.Center,
+            text = "Icon tab ${state.value + 1} selected",
+            style = (+MaterialTheme.typography()).body1
+        )
     }
 }
 
@@ -99,23 +87,18 @@ fun TextAndIconTabs(image: Image) {
     val state = +state { 0 }
     val titlesAndIcons =
         listOf("TAB 1" to image, "TAB 2" to image, "TAB 3 WITH LOTS OF TEXT" to image)
-    FlexColumn {
-        inflexible {
-            TabRow(items = titlesAndIcons, selectedIndex = state.value) { index, data ->
-                val (title, icon) = data
-                Tab(text = title, icon = icon, selected = state.value == index) {
-                    state.value = index
-                }
+    Column {
+        TabRow(items = titlesAndIcons, selectedIndex = state.value) { index, data ->
+            val (title, icon) = data
+            Tab(text = title, icon = icon, selected = state.value == index) {
+                state.value = index
             }
         }
-        flexible(flex = 1f) {
-            Center {
-                Text(
-                    text = "Text and icon tab ${state.value + 1} selected",
-                    style = (+MaterialTheme.typography()).body1
-                )
-            }
-        }
+        Text(
+            modifier = LayoutGravity.Center,
+            text = "Text and icon tab ${state.value + 1} selected",
+            style = (+MaterialTheme.typography()).body1
+        )
     }
 }
 
@@ -134,20 +117,15 @@ fun ScrollingTextTabs() {
         "TAB 9 WITH LOTS OF TEXT",
         "TAB 10"
     )
-    FlexColumn {
-        inflexible {
-            TabRow(items = titles, selectedIndex = state.value, scrollable = true) { index, text ->
-                Tab(text = text, selected = state.value == index) { state.value = index }
-            }
+    Column {
+        TabRow(items = titles, selectedIndex = state.value, scrollable = true) { index, text ->
+            Tab(text = text, selected = state.value == index) { state.value = index }
         }
-        flexible(flex = 1f) {
-            Center {
-                Text(
-                    text = "Scrolling text tab ${state.value + 1} selected",
-                    style = (+MaterialTheme.typography()).body1
-                )
-            }
-        }
+        Text(
+            modifier = LayoutGravity.Center,
+            text = "Scrolling text tab ${state.value + 1} selected",
+            style = (+MaterialTheme.typography()).body1
+        )
     }
 }
 
@@ -156,24 +134,19 @@ fun ScrollingTextTabs() {
 fun FancyTabs() {
     val state = +state { 0 }
     val titles = listOf("TAB 1", "TAB 2", "TAB 3")
-    FlexColumn {
-        inflexible {
-            TabRow(items = titles, selectedIndex = state.value) { index, title ->
-                FancyTab(
-                    title = title,
-                    onClick = { state.value = index },
-                    selected = (index == state.value)
-                )
-            }
+    Column {
+        TabRow(items = titles, selectedIndex = state.value) { index, title ->
+            FancyTab(
+                title = title,
+                onClick = { state.value = index },
+                selected = (index == state.value)
+            )
         }
-        flexible(flex = 1f) {
-            Center {
-                Text(
-                    text = "Fancy tab ${state.value + 1} selected",
-                    style = (+MaterialTheme.typography()).body1
-                )
-            }
-        }
+        Text(
+            modifier = LayoutGravity.Center,
+            text = "Fancy tab ${state.value + 1} selected",
+            style = (+MaterialTheme.typography()).body1
+        )
     }
 }
 
@@ -190,24 +163,19 @@ fun FancyIndicatorTabs() {
         }
     }
 
-    FlexColumn {
-        inflexible {
-            TabRow(
-                items = titles,
-                selectedIndex = state.value,
-                indicatorContainer = indicatorContainer
-            ) { index, text ->
-                Tab(text = text, selected = state.value == index) { state.value = index }
-            }
+    Column {
+        TabRow(
+            items = titles,
+            selectedIndex = state.value,
+            indicatorContainer = indicatorContainer
+        ) { index, text ->
+            Tab(text = text, selected = state.value == index) { state.value = index }
         }
-        flexible(flex = 1f) {
-            Center {
-                Text(
-                    text = "Fancy indicator tab ${state.value + 1} selected",
-                    style = (+MaterialTheme.typography()).body1
-                )
-            }
-        }
+        Text(
+            modifier = LayoutGravity.Center,
+            text = "Fancy indicator tab ${state.value + 1} selected",
+            style = (+MaterialTheme.typography()).body1
+        )
     }
 }
 
@@ -221,24 +189,19 @@ fun FancyIndicatorContainerTabs() {
         FancyIndicatorContainer(tabPositions = tabPositions, selectedIndex = state.value)
     }
 
-    FlexColumn {
-        inflexible {
-            TabRow(
-                items = titles,
-                selectedIndex = state.value,
-                indicatorContainer = indicatorContainer
-            ) { index, text ->
-                Tab(text = text, selected = state.value == index) { state.value = index }
-            }
+    Column {
+        TabRow(
+            items = titles,
+            selectedIndex = state.value,
+            indicatorContainer = indicatorContainer
+        ) { index, text ->
+            Tab(text = text, selected = state.value == index) { state.value = index }
         }
-        flexible(flex = 1f) {
-            Center {
-                Text(
-                    text = "Fancy transition tab ${state.value + 1} selected",
-                    style = (+MaterialTheme.typography()).body1
-                )
-            }
-        }
+        Text(
+            modifier = LayoutGravity.Center,
+            text = "Fancy transition tab ${state.value + 1} selected",
+            style = (+MaterialTheme.typography()).body1
+        )
     }
 }
 
@@ -261,25 +224,20 @@ fun ScrollingFancyIndicatorContainerTabs() {
         FancyIndicatorContainer(tabPositions = tabPositions, selectedIndex = state.value)
     }
 
-    FlexColumn {
-        inflexible {
-            TabRow(
-                items = titles,
-                selectedIndex = state.value,
-                indicatorContainer = indicatorContainer,
-                scrollable = true
-            ) { index, text ->
-                Tab(text = text, selected = state.value == index) { state.value = index }
-            }
+    Column {
+        TabRow(
+            items = titles,
+            selectedIndex = state.value,
+            indicatorContainer = indicatorContainer,
+            scrollable = true
+        ) { index, text ->
+            Tab(text = text, selected = state.value == index) { state.value = index }
         }
-        flexible(flex = 1f) {
-            Center {
-                Text(
-                    text = "Scrolling fancy transition tab ${state.value + 1} selected",
-                    style = (+MaterialTheme.typography()).body1
-                )
-            }
-        }
+        Text(
+            modifier = LayoutGravity.Center,
+            text = "Scrolling fancy transition tab ${state.value + 1} selected",
+            style = (+MaterialTheme.typography()).body1
+        )
     }
 }
 
