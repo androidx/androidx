@@ -39,7 +39,7 @@ fun normalize(v: Vector2): Vector2 {
 inline fun reflect(i: Vector2, n: Vector2) = i - 2.0f * dot(n, i) * n
 fun refract(i: Vector2, n: Vector2, eta: Float): Vector2 {
     val d = dot(n, i)
-    val k = 1.0f - eta * eta * (1.0f - sqr(d))
+    val k = 1.0f - eta * eta * (1.0f - (d * d))
     return if (k < 0.0f) Vector2(0.0f) else eta * i - (eta * d + sqrt(k)) * n
 }
 
@@ -55,18 +55,6 @@ inline fun Vector2.coerceIn(min: Vector2, max: Vector2): Vector2 {
         x.coerceIn(min.x, max.x),
         y.coerceIn(min.y, max.y)
     )
-}
-
-inline fun mix(a: Vector2, b: Vector2, x: Float): Vector2 {
-    return Vector2(
-            mix(a.x, b.x, x),
-            mix(a.y, b.y, x))
-}
-
-inline fun mix(a: Vector2, b: Vector2, x: Vector2): Vector2 {
-    return Vector2(
-            mix(a.x, b.x, x.x),
-            mix(a.y, b.y, x.y))
 }
 
 inline fun min(v: Vector2) = min(v.x, v.y)
@@ -100,7 +88,7 @@ fun normalize(v: Vector3): Vector3 {
 inline fun reflect(i: Vector3, n: Vector3) = i - 2.0f * dot(n, i) * n
 fun refract(i: Vector3, n: Vector3, eta: Float): Vector3 {
     val d = dot(n, i)
-    val k = 1.0f - eta * eta * (1.0f - sqr(d))
+    val k = 1.0f - eta * eta * (1.0f - (d * d))
     return if (k < 0.0f) Vector3(0.0f) else eta * i - (eta * d + sqrt(k)) * n
 }
 
@@ -118,20 +106,6 @@ inline fun Vector3.coerceIn(min: Vector3, max: Vector3): Vector3 {
         y.coerceIn(min.y, max.y),
         z.coerceIn(min.z, max.z)
     )
-}
-
-inline fun mix(a: Vector3, b: Vector3, x: Float): Vector3 {
-    return Vector3(
-            mix(a.x, b.x, x),
-            mix(a.y, b.y, x),
-            mix(a.z, b.z, x))
-}
-
-inline fun mix(a: Vector3, b: Vector3, x: Vector3): Vector3 {
-    return Vector3(
-            mix(a.x, b.x, x.x),
-            mix(a.y, b.y, x.y),
-            mix(a.z, b.z, x.z))
 }
 
 inline fun min(v: Vector3) = min(v.x, min(v.y, v.z))
@@ -175,22 +149,6 @@ inline fun Vector4.coerceIn(min: Vector4, max: Vector4): Vector4 {
         z.coerceIn(min.z, max.z),
         w.coerceIn(min.w, max.w)
     )
-}
-
-inline fun mix(a: Vector4, b: Vector4, x: Float): Vector4 {
-    return Vector4(
-            mix(a.x, b.x, x),
-            mix(a.y, b.y, x),
-            mix(a.z, b.z, x),
-            mix(a.w, b.w, x))
-}
-
-inline fun mix(a: Vector4, b: Vector4, x: Vector4): Vector4 {
-    return Vector4(
-            mix(a.x, b.x, x.x),
-            mix(a.y, b.y, x.y),
-            mix(a.z, b.z, x.z),
-            mix(a.w, b.w, x.w))
 }
 
 inline fun min(v: Vector4) = min(v.x, min(v.y, min(v.z, v.w)))
