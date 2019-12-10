@@ -33,6 +33,7 @@ import org.junit.After;
 import org.junit.Assert;
 import org.junit.Assume;
 import org.junit.Before;
+import org.junit.Ignore;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 
@@ -244,6 +245,7 @@ public class WebViewClientCompatTest {
      * this test should be reflected in that test as necessary. See http://go/modifying-webview-cts.
      */
     @Test
+    @Ignore("Temporarily disabled due to b/142930303")
     public void testOnSafeBrowsingHitBackToSafety() throws Throwable {
         WebkitUtils.checkFeature(WebViewFeature.SAFE_BROWSING_HIT);
         WebkitUtils.checkFeature(WebViewFeature.SAFE_BROWSING_ENABLE);
