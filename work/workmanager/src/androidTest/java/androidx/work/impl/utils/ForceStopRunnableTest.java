@@ -30,6 +30,7 @@ import static org.mockito.Mockito.when;
 import android.content.ComponentName;
 import android.content.Context;
 import android.content.Intent;
+import android.database.sqlite.SQLiteCantOpenDatabaseException;
 
 import androidx.test.core.app.ApplicationProvider;
 import androidx.test.ext.junit.runners.AndroidJUnit4;
@@ -140,5 +141,13 @@ public class ForceStopRunnableTest {
                 .deleteAll();
 
         verify(mScheduler, times(1)).schedule(eq(workSpec));
+    }
+
+    @Test(expected = IllegalStateException.class)
+    public void test_rethrowForNonRecoverableSqliteExceptions() {
+        ForceStopRunnable runnable = spy(mRunnable);
+        when(runnable.cleanUp())
+                .thenThrow(new SQLiteCantOpenDatabaseException("Cannot open database."));
+        runnable.run();
     }
 }
