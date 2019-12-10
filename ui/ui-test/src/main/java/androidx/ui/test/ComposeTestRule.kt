@@ -41,6 +41,11 @@ interface ComposeTestRule : TestRule {
 
     /**
      * Sets the given composable as a content of the current screen.
+     *
+     * Use this in your tests to setup the UI content to be tested. This should be called exactly
+     * once per test.
+     *
+     * @throws IllegalStateException if called more than once per test.
      */
     fun setContent(composable: @Composable() () -> Unit)
 
@@ -57,10 +62,20 @@ interface ComposeTestRule : TestRule {
     fun forGivenTestCase(testCase: ComposeTestCase): ComposeTestCaseSetup
 
     /**
-     * Runs action on UI thread with a guarantee that any operations modifying Compose data model
-     * are safe to do in this block.
+     * Runs the given action on the UI thread.
+     *
+     * This method is blocking until the action is complete.
      */
     fun runOnUiThread(action: () -> Unit)
+
+    /**
+     * Executes the given action in the same way as [runOnUiThread] but also makes sure Compose
+     * is idle before executing it. This is great place for doing your assertions on shared
+     * variables.
+     *
+     * This method is blocking until the action is complete.
+     */
+    fun runOnIdleCompose(action: () -> Unit)
 
     /**
      * Takes screenshot of the Activity's window after Compose UI gets idle.
@@ -99,16 +114,5 @@ interface ComposeTestCaseSetup {
  * Factory method to provide implementation of [ComposeTestRule].
  */
 fun createComposeRule(disableTransitions: Boolean = false): ComposeTestRule {
-    return createComposeRule(disableTransitions, throwOnRecomposeTimeout = false)
-}
-
-/**
- * Internal factory method to provide implementation of [ComposeTestRule].
- */
-internal fun createComposeRule(
-    disableTransitions: Boolean = false,
-    throwOnRecomposeTimeout: Boolean = false
-): ComposeTestRule {
-    // TODO(pavlis): Plug-in host side rule here in the future.
-    return AndroidComposeTestRule(disableTransitions, throwOnRecomposeTimeout)
+    return AndroidComposeTestRule(disableTransitions)
 }

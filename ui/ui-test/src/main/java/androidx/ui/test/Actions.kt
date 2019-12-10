@@ -100,5 +100,3 @@ fun SemanticsNodeInteraction.doGesture(
     scope.block()
     return this
 }
-
-fun waitForIdleCompose(): Boolean = semanticsTreeInteractionFactory({ true }).waitForIdleCompose()

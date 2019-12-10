@@ -44,8 +44,6 @@ internal interface SemanticsTreeInteraction {
 
     fun isInScreenBounds(rectangle: Rect): Boolean
 
-    fun waitForIdleCompose(): Boolean
-
     @RequiresApi(Build.VERSION_CODES.O)
     fun captureNodeToBitmap(node: SemanticsTreeNode): Bitmap
 }
@@ -54,15 +52,5 @@ internal var semanticsTreeInteractionFactory: (
     selector: SemanticsConfiguration.() -> Boolean
 ) -> SemanticsTreeInteraction = {
         selector ->
-    AndroidSemanticsTreeInteraction(throwOnRecomposeTimeout, selector)
+    AndroidSemanticsTreeInteraction(selector)
 }
-
-/**
- * This allow internal tests to enable a mode in which [RecomposeTimeOutException] is thrown
- * in case we exceed timeout when waiting for recomposition. The reason why this is not turned
- * on by default is that if developers have animations or any other actions that run infinitely
- * we would always throw exception. The assumption here is that instead of breaking them we
- * just wait for longer timeouts as the tests might still have a value.
- */
-// TODO(pavlis): Turn this on by default for all our Compose tests
-internal var throwOnRecomposeTimeout = false

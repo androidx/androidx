@@ -17,6 +17,7 @@ package androidx.ui.semantics
 
 import androidx.compose.Composable
 import androidx.compose.ambient
+import androidx.compose.memo
 import androidx.compose.unaryPlus
 import androidx.ui.core.DefaultTestTag
 import androidx.ui.core.SemanticsComponentNode
@@ -56,7 +57,12 @@ fun Semantics(
     children: @Composable() () -> Unit
 ) {
     val providedTestTag = +ambient(TestTagAmbient)
-    val semanticsConfiguration = SemanticsConfiguration().also {
+    // Memo ensures that we keep the same semantics node instance for this composable no matter
+    // of changes we get. Thanks to this we can keep track of this composable in tests.
+    val semanticsConfiguration = +memo { SemanticsConfiguration() }
+    semanticsConfiguration.let {
+        @Suppress("DEPRECATION")
+        it.clear()
         properties?.invoke(it)
         // TODO(b/138173101): replace with the real thing
         it.testTag = it.getOrNull(SemanticsProperties.TestTag) ?: providedTestTag
