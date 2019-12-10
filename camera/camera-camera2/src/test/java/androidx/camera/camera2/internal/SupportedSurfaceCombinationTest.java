@@ -83,6 +83,7 @@ import org.robolectric.shadows.ShadowCameraManager;
 
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Collections;
 import java.util.List;
 import java.util.Map;
 import java.util.concurrent.ExecutionException;
@@ -1034,6 +1035,34 @@ public final class SupportedSurfaceCombinationTest {
                 supportedSurfaceCombination.getSuggestedResolutions(null, useCases);
         assertThat(suggestedResolutionMap).containsEntry(preview, mMod16Size);
         assertThat(suggestedResolutionMap).containsEntry(imageCapture, mMod16Size);
+    }
+
+    @Test
+    public void sortNotMatchAspectRatioList() {
+        List<Size> notMatchAspectRatioSizesList = Arrays.asList(mSupportedSizes);
+        Collections.sort(notMatchAspectRatioSizesList,
+                new SupportedSurfaceCombination.CompareSizesByDistanceToTargetRatio(
+                        (float) 1200 / 720));
+
+        // Sizes of aspect ratio 16/9 are closer to 1200/720, therefore, those sizes will be put in
+        // front of the sorted result list. This test also check 960x544 will be treated as 16/9
+        // in the result list.
+        Size[] sortedSizesArray =
+                new Size[]{
+                        new Size(3840, 2160),
+                        new Size(1920, 1080),
+                        new Size(1280, 720),
+                        new Size(1280, 720),
+                        new Size(960, 544),
+                        new Size(800, 450),
+                        new Size(320, 180),
+                        new Size(256, 144),
+                        new Size(4032, 3024),
+                        new Size(640, 480),
+                        new Size(320, 240)
+                };
+
+        assertEquals(Arrays.asList(sortedSizesArray), notMatchAspectRatioSizesList);
     }
 
     private void setupCamera(boolean supportsRaw) {
