@@ -158,9 +158,10 @@ public final class ImageCaptureTest {
         assumeTrue(CameraUtil.deviceHasCamera());
         mListenerExecutor = Executors.newSingleThreadExecutor();
         Context context = ApplicationProvider.getApplicationContext();
-        CameraXConfig cameraXConfig = Camera2Config.defaultConfig(context);
+        CameraXConfig cameraXConfig = Camera2Config.defaultConfig();
         CameraFactory cameraFactory = Preconditions.checkNotNull(
                 cameraXConfig.getCameraFactoryProvider(null)).newInstance(context);
+
         CameraX.initialize(context, cameraXConfig).get();
         try {
             mCameraId = cameraFactory.cameraIdForLensFacing(BACK_LENS_FACING);

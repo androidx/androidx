@@ -104,7 +104,7 @@ public final class PreviewTest {
     public void setUp() throws ExecutionException, InterruptedException {
         assumeTrue(CameraUtil.deviceHasCamera());
         Context context = ApplicationProvider.getApplicationContext();
-        CameraXConfig cameraXConfig = Camera2Config.defaultConfig(context);
+        CameraXConfig cameraXConfig = Camera2Config.defaultConfig();
         CameraX.initialize(context, cameraXConfig).get();
         CameraFactory cameraFactory = Preconditions.checkNotNull(
                 cameraXConfig.getCameraFactoryProvider(/*valueIfMissing=*/ null))

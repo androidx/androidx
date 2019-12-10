@@ -44,7 +44,7 @@ public final class UseCaseSurfaceOccupancyManagerTest {
     @Before
     public void setUp() {
         Context context = ApplicationProvider.getApplicationContext();
-        CameraXConfig cameraXConfig = Camera2Config.defaultConfig(context);
+        CameraXConfig cameraXConfig = Camera2Config.defaultConfig();
         CameraX.initialize(context, cameraXConfig);
     }
 

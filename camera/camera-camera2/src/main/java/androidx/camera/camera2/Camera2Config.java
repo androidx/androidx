@@ -16,8 +16,6 @@
 
 package androidx.camera.camera2;
 
-import android.content.Context;
-
 import androidx.annotation.NonNull;
 import androidx.camera.camera2.internal.Camera2CameraFactory;
 import androidx.camera.camera2.internal.Camera2DeviceSurfaceManager;
@@ -34,7 +32,6 @@ import androidx.camera.core.PreviewConfig;
 import androidx.camera.core.UseCaseConfigFactory;
 import androidx.camera.core.VideoCaptureConfig;
 import androidx.camera.core.impl.CameraDeviceSurfaceManager;
-import androidx.core.util.Preconditions;
 
 /**
  * Convenience class for generating a pre-populated Camera2 {@link CameraXConfig}.
@@ -48,8 +45,7 @@ public final class Camera2Config {
      * Creates a {@link CameraXConfig} containing the default Camera2 implementation for CameraX.
      */
     @NonNull
-    public static CameraXConfig defaultConfig(@NonNull Context c) {
-        Preconditions.checkNotNull(c);
+    public static CameraXConfig defaultConfig() {
 
         // Create the camera factory for creating Camera2 camera objects
         CameraFactory.Provider cameraFactoryProvider = Camera2CameraFactory::new;
