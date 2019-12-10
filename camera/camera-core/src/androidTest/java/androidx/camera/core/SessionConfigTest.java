@@ -25,6 +25,7 @@ import android.hardware.camera2.CameraDevice;
 import android.view.Surface;
 
 import androidx.camera.core.Config.Option;
+import androidx.camera.testing.DeferrableSurfacesUtil;
 import androidx.camera.testing.fakes.FakeMultiValueSet;
 import androidx.test.ext.junit.runners.AndroidJUnit4;
 import androidx.test.filters.MediumTest;
@@ -102,10 +103,9 @@ public class SessionConfigTest {
         builder.addNonRepeatingSurface(mMockSurface1);
         SessionConfig sessionConfig = builder.build();
 
-        List<Surface> surfaces = DeferrableSurfaces.surfaceList(sessionConfig.getSurfaces());
-        List<Surface> repeatingSurfaces =
-                DeferrableSurfaces.surfaceList(
-                        sessionConfig.getRepeatingCaptureConfig().getSurfaces());
+        List<Surface> surfaces = DeferrableSurfacesUtil.surfaceList(sessionConfig.getSurfaces());
+        List<Surface> repeatingSurfaces = DeferrableSurfacesUtil.surfaceList(
+                sessionConfig.getRepeatingCaptureConfig().getSurfaces());
 
         assertThat(surfaces.size()).isAtLeast(repeatingSurfaces.size());
         assertThat(surfaces).containsAtLeastElementsIn(repeatingSurfaces);
@@ -119,7 +119,7 @@ public class SessionConfigTest {
         builder.removeSurface(mMockSurface0);
         SessionConfig sessionConfig = builder.build();
 
-        List<Surface> surfaces = DeferrableSurfaces.surfaceList(sessionConfig.getSurfaces());
+        List<Surface> surfaces = DeferrableSurfacesUtil.surfaceList(sessionConfig.getSurfaces());
         assertThat(surfaces).isEmpty();
     }
 
@@ -131,7 +131,7 @@ public class SessionConfigTest {
         builder.clearSurfaces();
         SessionConfig sessionConfig = builder.build();
 
-        List<Surface> surfaces = DeferrableSurfaces.surfaceList(sessionConfig.getSurfaces());
+        List<Surface> surfaces = DeferrableSurfacesUtil.surfaceList(sessionConfig.getSurfaces());
         assertThat(surfaces.size()).isEqualTo(0);
     }
 
