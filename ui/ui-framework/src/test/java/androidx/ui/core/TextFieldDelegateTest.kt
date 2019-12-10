@@ -34,6 +34,7 @@ import androidx.ui.text.AnnotatedString
 import androidx.ui.text.MultiParagraphIntrinsics
 import androidx.ui.text.SpanStyle
 import androidx.ui.text.TextDelegate
+import androidx.ui.text.TextLayoutResult
 import androidx.ui.text.TextRange
 import androidx.ui.text.TextStyle
 import androidx.ui.text.style.TextDecoration
@@ -64,6 +65,7 @@ class TextFieldDelegateTest {
     private lateinit var textInputService: TextInputService
     private lateinit var layoutCoordinates: LayoutCoordinates
     private lateinit var multiParagraphIntrinsics: MultiParagraphIntrinsics
+    private lateinit var textLayoutResult: TextLayoutResult
 
     /**
      * Test implementation of offset map which doubles the offset in transformed text.
@@ -83,6 +85,7 @@ class TextFieldDelegateTest {
         textInputService = mock()
         layoutCoordinates = mock()
         multiParagraphIntrinsics = mock()
+        textLayoutResult = mock()
     }
 
     @Test
@@ -96,14 +99,19 @@ class TextFieldDelegateTest {
             value = InputState(text = "Hello, World", selection = selection),
             selectionColor = selectionColor,
             hasFocus = true,
-            offsetMap = OffsetMap.identityOffsetMap
+            offsetMap = OffsetMap.identityOffsetMap,
+            textLayoutResult = textLayoutResult
         )
 
         verify(mDelegate, times(1)).paintBackground(
-            eq(selection.min), eq(selection.max), eq(selectionColor), eq(canvas))
-        verify(mDelegate, times(1)).paint(eq(canvas))
+            eq(selection.min),
+            eq(selection.max),
+            eq(selectionColor),
+            eq(canvas),
+            eq(textLayoutResult))
+        verify(mDelegate, times(1)).paint(eq(canvas), eq(textLayoutResult))
 
-        verify(mDelegate, never()).paintCursor(any(), any())
+        verify(mDelegate, never()).paintCursor(any(), any(), eq(textLayoutResult))
     }
 
     @Test
@@ -116,12 +124,13 @@ class TextFieldDelegateTest {
             value = InputState(text = "Hello, World", selection = cursor),
             hasFocus = true,
             offsetMap = OffsetMap.identityOffsetMap,
-            selectionColor = Color.Blue
+            selectionColor = Color.Blue,
+            textLayoutResult = textLayoutResult
         )
 
-        verify(mDelegate, times(1)).paintCursor(eq(cursor.min), eq(canvas))
-        verify(mDelegate, times(1)).paint(eq(canvas))
-        verify(mDelegate, never()).paintBackground(any(), any(), any(), any())
+        verify(mDelegate, times(1)).paintCursor(eq(cursor.min), eq(canvas), eq(textLayoutResult))
+        verify(mDelegate, times(1)).paint(eq(canvas), eq(textLayoutResult))
+        verify(mDelegate, never()).paintBackground(any(), any(), any(), any(), eq(textLayoutResult))
     }
 
     @Test
@@ -134,12 +143,13 @@ class TextFieldDelegateTest {
             value = InputState(text = "Hello, World", selection = cursor),
             hasFocus = false,
             offsetMap = OffsetMap.identityOffsetMap,
-            selectionColor = Color.Blue
+            selectionColor = Color.Blue,
+            textLayoutResult = textLayoutResult
         )
 
-        verify(mDelegate, never()).paintCursor(any(), any())
-        verify(mDelegate, times(1)).paint(eq(canvas))
-        verify(mDelegate, never()).paintBackground(any(), any(), any(), any())
+        verify(mDelegate, never()).paintCursor(any(), any(), eq(textLayoutResult))
+        verify(mDelegate, times(1)).paint(eq(canvas), eq(textLayoutResult))
+        verify(mDelegate, never()).paintBackground(any(), any(), any(), any(), eq(textLayoutResult))
     }
 
     @Test
@@ -166,7 +176,7 @@ class TextFieldDelegateTest {
         val dummyEditorState = InputState(text = "Hello, World", selection = TextRange(1, 1))
         val dummyInputSessionToken = 10 // We are not using this value in this test. Just dummy.
 
-        whenever(mDelegate.getOffsetForPosition(position)).thenReturn(offset)
+        whenever(textLayoutResult.getOffsetForPosition(position)).thenReturn(offset)
 
         val captor = argumentCaptor<List<EditOperation>>()
 
@@ -174,7 +184,7 @@ class TextFieldDelegateTest {
 
         TextFieldDelegate.onRelease(
             position,
-            mDelegate,
+            textLayoutResult,
             processor,
             OffsetMap.identityOffsetMap,
             onValueChange,
@@ -200,10 +210,10 @@ class TextFieldDelegateTest {
         val offset = 10
         val dummyInputSessionToken = 10 // We are not using this value in this test. Just dummy.
 
-        whenever(mDelegate.getOffsetForPosition(position)).thenReturn(offset)
+        whenever(textLayoutResult.getOffsetForPosition(position)).thenReturn(offset)
         TextFieldDelegate.onRelease(
             position,
-            mDelegate,
+            textLayoutResult,
             processor,
             OffsetMap.identityOffsetMap,
             onValueChange,
@@ -252,7 +262,7 @@ class TextFieldDelegateTest {
     @Test
     fun notify_focused_rect() {
         val dummyRect = Rect(0f, 1f, 2f, 3f)
-        whenever(mDelegate.getBoundingBox(any())).thenReturn(dummyRect)
+        whenever(textLayoutResult.getBoundingBox(any())).thenReturn(dummyRect)
         val dummyPoint = PxPosition(5.px, 6.px)
         whenever(layoutCoordinates.localToRoot(any())).thenReturn(dummyPoint)
         val dummyEditorState = InputState(text = "Hello, World", selection = TextRange(1, 1))
@@ -260,6 +270,7 @@ class TextFieldDelegateTest {
         TextFieldDelegate.notifyFocusedRect(
             dummyEditorState,
             mDelegate,
+            textLayoutResult,
             layoutCoordinates,
             textInputService,
             dummyInputSessionToken,
@@ -276,6 +287,7 @@ class TextFieldDelegateTest {
         TextFieldDelegate.notifyFocusedRect(
             dummyEditorState,
             mDelegate,
+            textLayoutResult,
             layoutCoordinates,
             textInputService,
             dummyInputSessionToken,
@@ -288,7 +300,7 @@ class TextFieldDelegateTest {
     @Test
     fun notify_rect_tail() {
         val dummyRect = Rect(0f, 1f, 2f, 3f)
-        whenever(mDelegate.getBoundingBox(any())).thenReturn(dummyRect)
+        whenever(textLayoutResult.getBoundingBox(any())).thenReturn(dummyRect)
         val dummyPoint = PxPosition(5.px, 6.px)
         whenever(layoutCoordinates.localToRoot(any())).thenReturn(dummyPoint)
         val dummyEditorState = InputState(text = "Hello, World", selection = TextRange(12, 12))
@@ -296,6 +308,7 @@ class TextFieldDelegateTest {
         TextFieldDelegate.notifyFocusedRect(
             dummyEditorState,
             mDelegate,
+            textLayoutResult,
             layoutCoordinates,
             textInputService,
             dummyInputSessionToken,
@@ -319,17 +332,13 @@ class TextFieldDelegateTest {
         whenever(mDelegate.style).thenReturn(TextStyle())
         whenever(mDelegate.density).thenReturn(Density(1.0f))
         whenever(mDelegate.resourceLoader).thenReturn(mock())
-        whenever(mDelegate.height).thenReturn(512.ipx)
-        whenever(mDelegate.width).thenReturn(1024.ipx)
+        whenever(mDelegate.layout(any(), eq(null))).thenReturn(textLayoutResult)
+        whenever(textLayoutResult.size).thenReturn(IntPxSize(1024.ipx, 512.ipx))
 
-        val res = TextFieldDelegate.layout(mDelegate, constraints)
-        assertEquals(1024.px.round(), res.first)
-        assertEquals(512.px.round(), res.second)
-
-        val captor = argumentCaptor<Constraints>()
-        verify(mDelegate, times(1)).layout(captor.capture())
-        assertEquals(1024.ipx, captor.firstValue.minWidth)
-        assertEquals(1024.ipx, captor.firstValue.maxWidth)
+        val (width, height, layoutResult) = TextFieldDelegate.layout(mDelegate, constraints)
+        assertEquals(1024.px.round(), width)
+        assertEquals(512.px.round(), height)
+        assertEquals(layoutResult, textLayoutResult)
     }
 
     @Test
@@ -343,7 +352,8 @@ class TextFieldDelegateTest {
             value = InputState(text = "Hello, World", selection = selection),
             selectionColor = selectionColor,
             hasFocus = true,
-            offsetMap = skippingOffsetMap
+            offsetMap = skippingOffsetMap,
+            textLayoutResult = textLayoutResult
         )
 
         val selectionStartInTransformedText = selection.min * 2
@@ -353,7 +363,8 @@ class TextFieldDelegateTest {
             eq(selectionStartInTransformedText),
             eq(selectionEmdInTransformedText),
             eq(selectionColor),
-            eq(canvas))
+            eq(canvas),
+            eq(textLayoutResult))
     }
 
     @Test
@@ -362,19 +373,20 @@ class TextFieldDelegateTest {
         val dummyPoint = PxPosition(5.px, 6.px)
         val dummyEditorState = InputState(text = "Hello, World", selection = TextRange(1, 3))
         val dummyInputSessionToken = 10 // We are not using this value in this test. Just dummy.
-        whenever(mDelegate.getBoundingBox(any())).thenReturn(dummyRect)
+        whenever(textLayoutResult.getBoundingBox(any())).thenReturn(dummyRect)
         whenever(layoutCoordinates.localToRoot(any())).thenReturn(dummyPoint)
 
         TextFieldDelegate.notifyFocusedRect(
             dummyEditorState,
             mDelegate,
+            textLayoutResult,
             layoutCoordinates,
             textInputService,
             dummyInputSessionToken,
             true /* hasFocus */,
             skippingOffsetMap
         )
-        verify(mDelegate).getBoundingBox(6)
+        verify(textLayoutResult).getBoundingBox(6)
         verify(textInputService).notifyFocusedRect(eq(dummyInputSessionToken), any())
     }
 
@@ -385,7 +397,7 @@ class TextFieldDelegateTest {
         val dummyEditorState = InputState(text = "Hello, World", selection = TextRange(1, 1))
         val dummyInputSessionToken = 10 // We are not using this value in this test. Just dummy.
 
-        whenever(mDelegate.getOffsetForPosition(position)).thenReturn(offset)
+        whenever(textLayoutResult.getOffsetForPosition(position)).thenReturn(offset)
 
         val captor = argumentCaptor<List<EditOperation>>()
 
@@ -393,7 +405,7 @@ class TextFieldDelegateTest {
 
         TextFieldDelegate.onRelease(
             position,
-            mDelegate,
+            textLayoutResult,
             processor,
             skippingOffsetMap,
             onValueChange,
@@ -471,8 +483,8 @@ class TextFieldDelegateTest {
         whenever(mDelegate.style).thenReturn(TextStyle())
         whenever(mDelegate.density).thenReturn(Density(1.0f))
         whenever(mDelegate.resourceLoader).thenReturn(mock())
-        whenever(mDelegate.height).thenReturn(512.ipx)
-        whenever(mDelegate.width).thenReturn(123.ipx)
+        whenever(mDelegate.layout(any(), eq(null))).thenReturn(textLayoutResult)
+        whenever(textLayoutResult.size).thenReturn(IntPxSize(123.ipx, 512.ipx))
         whenever(mDelegate.maxIntrinsicWidth).thenReturn(123.ipx)
 
         val res = TextFieldDelegate.layout(mDelegate, constraints)
