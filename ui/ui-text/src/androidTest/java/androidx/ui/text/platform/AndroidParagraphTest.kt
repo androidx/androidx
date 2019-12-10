@@ -154,7 +154,7 @@ class AndroidParagraphTest {
     @Test
     fun testStyle_setTextDecorationOnWholeText_withLineThrough() {
         val text = "abcde"
-        val spanStyle = SpanStyle(decoration = TextDecoration.LineThrough)
+        val spanStyle = SpanStyle(textDecoration = TextDecoration.LineThrough)
 
         val paragraph = simpleParagraph(
             text = text,
@@ -169,7 +169,7 @@ class AndroidParagraphTest {
     @Test
     fun testStyle_setTextDecorationOnWholeText_withUnderline() {
         val text = "abcde"
-        val spanStyle = SpanStyle(decoration = TextDecoration.Underline)
+        val spanStyle = SpanStyle(textDecoration = TextDecoration.Underline)
 
         val paragraph = simpleParagraph(
             text = text,
@@ -184,7 +184,7 @@ class AndroidParagraphTest {
     @Test
     fun testStyle_setTextDecorationOnPartText_withLineThrough() {
         val text = "abcde"
-        val spanStyle = SpanStyle(decoration = TextDecoration.LineThrough)
+        val spanStyle = SpanStyle(textDecoration = TextDecoration.LineThrough)
 
         val paragraph = simpleParagraph(
             text = text,
@@ -199,7 +199,7 @@ class AndroidParagraphTest {
     @Test
     fun testStyle_setTextDecorationOnPartText_withUnderline() {
         val text = "abcde"
-        val spanStyle = SpanStyle(decoration = TextDecoration.Underline)
+        val spanStyle = SpanStyle(textDecoration = TextDecoration.Underline)
 
         val paragraph = simpleParagraph(
             text = text,
@@ -215,7 +215,7 @@ class AndroidParagraphTest {
     fun testStyle_setTextDecoration_withLineThroughAndUnderline() {
         val text = "abcde"
         val spanStyle = SpanStyle(
-            decoration = TextDecoration.combine(
+            textDecoration = TextDecoration.combine(
                 listOf(TextDecoration.LineThrough, TextDecoration.Underline)
             )
         )
@@ -1078,10 +1078,10 @@ class AndroidParagraphTest {
     }
 
     @Test
-    fun testSpanStyle_decoration_underline_appliedOnTextPaint() {
+    fun testSpanStyle_textDecoration_underline_appliedOnTextPaint() {
         val paragraph = simpleParagraph(
             text = "",
-            style = TextStyle(decoration = TextDecoration.Underline),
+            style = TextStyle(textDecoration = TextDecoration.Underline),
             constraints = ParagraphConstraints(width = 0.0f)
         )
 
@@ -1089,10 +1089,10 @@ class AndroidParagraphTest {
     }
 
     @Test
-    fun testSpanStyle_decoration_lineThrough_appliedOnTextPaint() {
+    fun testSpanStyle_textDecoration_lineThrough_appliedOnTextPaint() {
         val paragraph = simpleParagraph(
             text = "",
-            style = TextStyle(decoration = TextDecoration.LineThrough),
+            style = TextStyle(textDecoration = TextDecoration.LineThrough),
             constraints = ParagraphConstraints(width = 0.0f)
         )
 

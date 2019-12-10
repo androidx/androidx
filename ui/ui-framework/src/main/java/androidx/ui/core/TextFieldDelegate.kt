@@ -332,7 +332,7 @@ internal class TextFieldDelegate {
             TransformedText(
                 AnnotatedString.Builder(transformed.transformedText).apply {
                     addStyle(
-                        SpanStyle(decoration = TextDecoration.Underline),
+                        SpanStyle(textDecoration = TextDecoration.Underline),
                         compositionRange.start,
                         compositionRange.end
                     )

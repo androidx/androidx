@@ -52,7 +52,7 @@ import androidx.ui.text.style.TextIndent
  * @param textGeometricTransform The geometric transformation applied the text.
  * @param localeList The locale list used to select region-specific glyphs.
  * @param background The background color for the text.
- * @param decoration The decorations to paint near the text (e.g., an underline).
+ * @param textDecoration The decorations to paint on the text (e.g., an underline).
  * @param shadow The shadow effect applied on the text.
  * @param textAlign The alignment of the text within the lines of the paragraph.
  * @param textDirectionAlgorithm The algorithm to be used to resolve the final text and paragraph
@@ -78,7 +78,7 @@ data class TextStyle(
     val textGeometricTransform: TextGeometricTransform? = null,
     val localeList: LocaleList? = null,
     val background: Color? = null,
-    val decoration: TextDecoration? = null,
+    val textDecoration: TextDecoration? = null,
     val shadow: Shadow? = null,
     val textAlign: TextAlign? = null,
     val textDirectionAlgorithm: TextDirectionAlgorithm? = null,
@@ -98,7 +98,7 @@ data class TextStyle(
         textGeometricTransform = spanStyle.textGeometricTransform,
         localeList = spanStyle.localeList,
         background = spanStyle.background,
-        decoration = spanStyle.decoration,
+        textDecoration = spanStyle.textDecoration,
         shadow = spanStyle.shadow,
         textAlign = paragraphStyle.textAlign,
         textDirectionAlgorithm = paragraphStyle.textDirectionAlgorithm,
@@ -128,7 +128,7 @@ data class TextStyle(
         textGeometricTransform = textGeometricTransform,
         localeList = localeList,
         background = background,
-        decoration = decoration,
+        textDecoration = textDecoration,
         shadow = shadow
     )
 

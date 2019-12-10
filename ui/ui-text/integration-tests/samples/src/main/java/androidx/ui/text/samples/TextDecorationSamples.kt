@@ -27,7 +27,7 @@ import androidx.ui.text.style.TextDecoration
 fun TextDecorationLineThroughSample() {
     Text(
         text = "Demo Text",
-        style = TextStyle(decoration = TextDecoration.LineThrough)
+        style = TextStyle(textDecoration = TextDecoration.LineThrough)
     )
 }
 
@@ -36,7 +36,7 @@ fun TextDecorationLineThroughSample() {
 fun TextDecorationUnderlineSample() {
     Text(
         text = "Demo Text",
-        style = TextStyle(decoration = TextDecoration.Underline)
+        style = TextStyle(textDecoration = TextDecoration.Underline)
     )
 }
 
@@ -46,7 +46,7 @@ fun TextDecorationCombinedSample() {
     Text(
         text = "Demo Text",
         style = TextStyle(
-            decoration = TextDecoration.combine(
+            textDecoration = TextDecoration.combine(
                 listOf(
                     TextDecoration.Underline,
                     TextDecoration.LineThrough

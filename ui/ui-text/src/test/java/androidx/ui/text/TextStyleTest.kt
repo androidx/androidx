@@ -53,7 +53,7 @@ class TextStyleTest {
         assertThat(style.letterSpacing.isInherit).isTrue()
         assertThat(style.localeList).isNull()
         assertThat(style.background).isNull()
-        assertThat(style.decoration).isNull()
+        assertThat(style.textDecoration).isNull()
         assertThat(style.fontFamily).isNull()
     }
 
@@ -130,12 +130,12 @@ class TextStyleTest {
     }
 
     @Test
-    fun `constructor with customized decoration`() {
+    fun `constructor with customized textDecoration`() {
         val decoration = TextDecoration.Underline
 
-        val style = TextStyle(decoration = decoration)
+        val style = TextStyle(textDecoration = decoration)
 
-        assertThat(style.decoration).isEqualTo(decoration)
+        assertThat(style.textDecoration).isEqualTo(decoration)
     }
 
     @Test
@@ -347,22 +347,22 @@ class TextStyleTest {
     }
 
     @Test
-    fun `merge with other's decoration is null should use this' decoration`() {
-        val style = TextStyle(decoration = TextDecoration.LineThrough)
+    fun `merge with other's textDecoration is null should use this' textDecoration`() {
+        val style = TextStyle(textDecoration = TextDecoration.LineThrough)
 
-        val newStyle = style.merge(TextStyle(decoration = null))
+        val newStyle = style.merge(TextStyle(textDecoration = null))
 
-        assertThat(newStyle.decoration).isEqualTo(style.decoration)
+        assertThat(newStyle.textDecoration).isEqualTo(style.textDecoration)
     }
 
     @Test
-    fun `merge with other's decoration is set should use other's decoration`() {
-        val style = TextStyle(decoration = TextDecoration.LineThrough)
-        val otherStyle = TextStyle(decoration = TextDecoration.Underline)
+    fun `merge with other's textDecoration is set should use other's textDecoration`() {
+        val style = TextStyle(textDecoration = TextDecoration.LineThrough)
+        val otherStyle = TextStyle(textDecoration = TextDecoration.Underline)
 
         val newStyle = style.merge(otherStyle)
 
-        assertThat(newStyle.decoration).isEqualTo(otherStyle.decoration)
+        assertThat(newStyle.textDecoration).isEqualTo(otherStyle.textDecoration)
     }
 
     @Test
@@ -767,29 +767,29 @@ class TextStyleTest {
     }
 
     @Test
-    fun `lerp decoration with a and b are not Null and t is smaller than half`() {
+    fun `lerp textDecoration with a and b are not Null and t is smaller than half`() {
         val decoration1 = TextDecoration.LineThrough
         val decoration2 = TextDecoration.Underline
         val t = 0.2f
-        val style1 = TextStyle(decoration = decoration1)
-        val style2 = TextStyle(decoration = decoration2)
+        val style1 = TextStyle(textDecoration = decoration1)
+        val style2 = TextStyle(textDecoration = decoration2)
 
         val newStyle = lerp(start = style1, stop = style2, fraction = t)
 
-        assertThat(newStyle.decoration).isEqualTo(decoration1)
+        assertThat(newStyle.textDecoration).isEqualTo(decoration1)
     }
 
     @Test
-    fun `lerp decoration with a and b are not Null and t is larger than half`() {
+    fun `lerp textDecoration with a and b are not Null and t is larger than half`() {
         val decoration1 = TextDecoration.LineThrough
         val decoration2 = TextDecoration.Underline
         val t = 0.8f
-        val style1 = TextStyle(decoration = decoration1)
-        val style2 = TextStyle(decoration = decoration2)
+        val style1 = TextStyle(textDecoration = decoration1)
+        val style2 = TextStyle(textDecoration = decoration2)
 
         val newStyle = lerp(start = style1, stop = style2, fraction = t)
 
-        assertThat(newStyle.decoration).isEqualTo(decoration2)
+        assertThat(newStyle.textDecoration).isEqualTo(decoration2)
     }
 
     @Test
@@ -929,7 +929,7 @@ class TextStyleTest {
             textGeometricTransform = textGeometricTransform,
             localeList = localeList,
             background = background,
-            decoration = decoration,
+            textDecoration = decoration,
             shadow = shadow
         )
 
@@ -947,7 +947,7 @@ class TextStyleTest {
                 textGeometricTransform = textGeometricTransform,
                 localeList = localeList,
                 background = background,
-                decoration = decoration,
+                textDecoration = decoration,
                 shadow = shadow
             )
         )
