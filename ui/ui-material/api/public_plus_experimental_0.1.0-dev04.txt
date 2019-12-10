@@ -163,6 +163,28 @@ package androidx.ui.material {
     enum_constant public static final androidx.ui.material.DrawerState Opened;
   }
 
+  public interface Emphasis {
+    method public androidx.ui.graphics.Color emphasize(androidx.ui.graphics.Color color);
+  }
+
+  public final class EmphasisKt {
+    ctor public EmphasisKt();
+    method public static void ProvideEmphasis(androidx.ui.material.Emphasis emphasis, kotlin.jvm.functions.Function0<kotlin.Unit> children);
+    method public static androidx.compose.Ambient<androidx.ui.material.EmphasisLevels> getEmphasisAmbient();
+  }
+
+  public final class EmphasisLevels {
+    ctor public EmphasisLevels(androidx.ui.material.Emphasis high, androidx.ui.material.Emphasis medium, androidx.ui.material.Emphasis disabled);
+    ctor public EmphasisLevels();
+    method public androidx.ui.material.Emphasis component1();
+    method public androidx.ui.material.Emphasis component2();
+    method public androidx.ui.material.Emphasis component3();
+    method public androidx.ui.material.EmphasisLevels copy(androidx.ui.material.Emphasis high, androidx.ui.material.Emphasis medium, androidx.ui.material.Emphasis disabled);
+    method public androidx.ui.material.Emphasis getDisabled();
+    method public androidx.ui.material.Emphasis getHigh();
+    method public androidx.ui.material.Emphasis getMedium();
+  }
+
   public final class FloatingActionButtonKt {
     ctor public FloatingActionButtonKt();
     method public static void FloatingActionButton(androidx.ui.core.Modifier modifier = Modifier.None, kotlin.jvm.functions.Function0<kotlin.Unit>? onClick = null, androidx.ui.core.Dp minSize = androidx.ui.material.FloatingActionButtonKt.FabSize, androidx.ui.engine.geometry.Shape shape = CircleShape, androidx.ui.graphics.Color color = (+MaterialTheme.colors()).primary, androidx.ui.core.Dp elevation = 6.dp, kotlin.jvm.functions.Function0<kotlin.Unit> children);
@@ -178,6 +200,7 @@ package androidx.ui.material {
 
   public final class MaterialTheme {
     method public androidx.compose.Effect<androidx.ui.material.ColorPalette> colors();
+    method public androidx.compose.Effect<androidx.ui.material.EmphasisLevels> emphasisLevels();
     method public androidx.compose.Effect<androidx.ui.material.Shapes> shapes();
     method public androidx.compose.Effect<androidx.ui.material.Typography> typography();
     field public static final androidx.ui.material.MaterialTheme! INSTANCE;

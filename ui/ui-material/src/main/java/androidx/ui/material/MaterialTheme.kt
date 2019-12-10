@@ -75,4 +75,9 @@ object MaterialTheme {
      * Retrieves the current [Shapes] at the call site's position in the hierarchy.
      */
     fun shapes() = ambient(ShapeAmbient)
+
+    /**
+     * Retrieves the current [EmphasisLevels] at the call site's position in the hierarchy.
+     */
+    fun emphasisLevels() = ambient(EmphasisAmbient)
 }

@@ -163,7 +163,7 @@
         <activity
             android:name=".MaterialSettingsActivity"
             android:label="Material Theme Settings"
-            android:theme="@style/Theme.AppCompat.Light.DarkActionBar"></activity>
+            android:theme="@style/Theme.AppCompat.Light.DarkActionBar" />
 
         <activity
             android:name=".SideBySideAlertDialogActivity"
@@ -227,6 +227,16 @@
             android:name=".SnackbarActivity"
             android:configChanges="orientation|screenSize"
             android:label="Material/Snackbar">
+            <intent-filter>
+                <action android:name="android.intent.action.MAIN" />
+                <category android:name="androidx.ui.demos.SAMPLE_CODE" />
+            </intent-filter>
+        </activity>
+
+        <activity
+            android:name=".EmphasisActivity"
+            android:configChanges="orientation|screenSize"
+            android:label="Material/Emphasis">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
                 <category android:name="androidx.ui.demos.SAMPLE_CODE" />

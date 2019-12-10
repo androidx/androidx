@@ -25,8 +25,8 @@ import androidx.ui.graphics.Color
 import kotlin.reflect.KProperty
 
 /**
- * Collection of colors in the [Material color specification]
- * [https://material.io/design/color/the-color-system.html#color-theme-creation].
+ * Collection of colors in the
+ * [Material color specification](https://material.io/design/color/the-color-system.html#color-theme-creation)
  *
  * To create a light set of colors, use [lightColorPalette]
  * To create a dark set of colors, use [darkColorPalette]
@@ -98,9 +98,9 @@ interface ColorPalette {
 }
 
 /**
- * Creates a complete color definition for the [Material color specification]
- * [https://material.io/design/color/the-color-system.html#color-theme-creation] using the default
- * light theme values.
+ * Creates a complete color definition for the
+ * [Material color specification](https://material.io/design/color/the-color-system.html#color-theme-creation)
+ * using the default light theme values.
  *
  * @see darkColorPalette
  */
@@ -134,9 +134,9 @@ fun lightColorPalette(
 )
 
 /**
- * Creates a complete color definition for the [Material color specification]
- * [https://material.io/design/color/the-color-system.html#color-theme-creation] using the default
- * dark theme values.
+ * Creates a complete color definition for the
+ * [Material color specification](https://material.io/design/color/the-color-system.html#color-theme-creation)
+ * using the default dark theme values.
  *
  * @see lightColorPalette
  */
