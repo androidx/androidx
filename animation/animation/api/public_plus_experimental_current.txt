@@ -260,7 +260,8 @@ package androidx.animation {
     ctor public PathInterpolator(android.graphics.Path);
     ctor public PathInterpolator(float, float);
     ctor public PathInterpolator(float, float, float, float);
-    ctor public PathInterpolator(android.content.Context, android.util.AttributeSet?);
+    ctor public PathInterpolator(android.content.Context, android.util.AttributeSet?, org.xmlpull.v1.XmlPullParser);
+    ctor public PathInterpolator(android.content.res.Resources, android.content.res.Resources.Theme?, android.util.AttributeSet?, org.xmlpull.v1.XmlPullParser);
     method public float getInterpolation(@FloatRange(from=0, to=1) float);
   }
 

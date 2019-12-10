@@ -127,6 +127,9 @@ public class AnimatorInflater {
      * PathDataEvaluator is used to interpolate between two paths which are
      * represented in the same format but different control points' values.
      * The path is represented as verbs and points for each of the verbs.
+     *
+     * An instance of this class cannot be reused for different paths as its
+     * buffer array is structured to match the first path pattern.
      */
     static class PathDataEvaluator implements TypeEvaluator<PathParser.PathDataNode[]> {
         private PathParser.PathDataNode[] mPathData;
@@ -137,7 +140,8 @@ public class AnimatorInflater {
                 float fraction, @NonNull PathParser.PathDataNode[] startPathData,
                 @NonNull PathParser.PathDataNode[] endPathData) {
             if (mPathData == null) {
-                mPathData = new PathParser.PathDataNode[startPathData.length];
+                // This path buffer has to have the same size and structure as the morphing path.
+                mPathData = PathParser.deepCopyNodes(endPathData);
             }
             if (!PathParser.interpolatePathDataNodes(
                     mPathData, startPathData, endPathData, fraction)) {
@@ -880,6 +884,15 @@ public class AnimatorInflater {
      */
     static Interpolator loadInterpolator(Resources res, Theme theme, int id)
             throws NotFoundException {
+        // Special treatment for the interpolator introduced at API 21.
+        if (id == AndroidResources.FAST_OUT_LINEAR_IN) {
+            return new PathInterpolator(0.4f, 0f, 1f, 1f);
+        } else if (id == AndroidResources.FAST_OUT_SLOW_IN) {
+            return new PathInterpolator(0.4f, 0f, 0.2f, 1f);
+        } else if (id == AndroidResources.LINEAR_OUT_SLOW_IN) {
+            return new PathInterpolator(0f, 0f, 0.2f, 1f);
+        }
+
         XmlResourceParser parser = null;
         try {
             parser = res.getAnimation(id);
@@ -941,7 +954,7 @@ public class AnimatorInflater {
             } else if (name.equals("bounceInterpolator")) {
                 interpolator = new BounceInterpolator();
             } else if (name.equals("pathInterpolator")) {
-                interpolator = new PathInterpolator(res, theme, attrs);
+                interpolator = new PathInterpolator(res, theme, attrs, parser);
             } else {
                 throw new RuntimeException("Unknown interpolator name: " + name);
             }

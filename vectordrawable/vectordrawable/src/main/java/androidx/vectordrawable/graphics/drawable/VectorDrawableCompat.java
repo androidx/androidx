@@ -645,7 +645,14 @@ public class VectorDrawableCompat extends VectorDrawableCommon {
             drawable.mDelegateDrawable = ResourcesCompat.getDrawable(res, resId, theme);
             return drawable;
         }
+        return createWithoutDelegate(res, resId, theme);
+    }
 
+    static VectorDrawableCompat createWithoutDelegate(
+            @NonNull Resources res,
+            @DrawableRes int resId,
+            @Nullable Theme theme
+    ) {
         try {
             @SuppressLint("ResourceType") final XmlPullParser parser = res.getXml(resId);
             final AttributeSet attrs = Xml.asAttributeSet(parser);
