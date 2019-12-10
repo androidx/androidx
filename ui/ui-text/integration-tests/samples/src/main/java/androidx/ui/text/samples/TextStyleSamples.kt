@@ -41,7 +41,7 @@ fun TextStyleSample() {
             fontStyle = FontStyle.Italic,
             letterSpacing = 0.5.em,
             background = Color.LightGray,
-            decoration = TextDecoration.Underline
+            textDecoration = TextDecoration.Underline
         )
     )
 }

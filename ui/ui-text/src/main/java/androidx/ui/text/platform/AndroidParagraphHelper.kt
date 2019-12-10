@@ -122,7 +122,7 @@ internal fun TextPaint.applySpanStyle(
         )
     }
 
-    style.decoration?.let {
+    style.textDecoration?.let {
         if (it.contains(TextDecoration.Underline)) {
             isUnderlineText = true
         }
@@ -234,7 +234,7 @@ internal fun createStyledText(
             )
         }
 
-        style.decoration?.let {
+        style.textDecoration?.let {
             if (it.contains(TextDecoration.Underline)) {
                 spannableString.setSpan(
                     UnderlineSpan(),

@@ -42,7 +42,7 @@ class RandomTextGenerator(
     private val nonMetricAffectingTextStyles = arrayOf(
         SpanStyle(color = Color.Blue),
         SpanStyle(background = Color.Cyan),
-        SpanStyle(decoration = TextDecoration.Underline),
+        SpanStyle(textDecoration = TextDecoration.Underline),
         SpanStyle(shadow = Shadow(Color.Black, Offset(3f, 3f), 2.px))
     )
 

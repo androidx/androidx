@@ -24,14 +24,14 @@ import org.junit.runners.JUnit4
 class TextDecorationTest {
 
     @Test
-    fun `contains with single decoration`() {
+    fun `contains with single textDecoration`() {
         val textDecoration = TextDecoration.None
         assertThat(textDecoration.contains(TextDecoration.None)).isTrue()
         assertThat(textDecoration.contains(TextDecoration.LineThrough)).isFalse()
     }
 
     @Test
-    fun `contains,combines with multiple decorations`() {
+    fun `contains,combines with multiple textDecorations`() {
         val textDecoration =
             TextDecoration.combine(
                 listOf(
@@ -57,7 +57,7 @@ class TextDecorationTest {
     }
 
     @Test
-    fun `toString with single decoration`() {
+    fun `toString with single textDecoration`() {
         assertThat(TextDecoration.None.toString()).isEqualTo("TextDecoration.None")
         assertThat(TextDecoration.Underline.toString()).isEqualTo("TextDecoration.Underline")
         assertThat(TextDecoration.LineThrough.toString()).isEqualTo("TextDecoration.LineThrough")
@@ -75,7 +75,7 @@ class TextDecorationTest {
     }
 
     @Test
-    fun `toString with multiple decorations`() {
+    fun `toString with multiple textDecorations`() {
         assertThat(
             TextDecoration.combine(
                 listOf(
