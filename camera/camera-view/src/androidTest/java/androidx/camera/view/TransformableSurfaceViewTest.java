@@ -19,16 +19,15 @@ package androidx.camera.view;
 import static org.junit.Assert.assertEquals;
 
 import android.app.Activity;
-import android.content.Context;
+import android.app.Instrumentation;
 import android.graphics.Matrix;
+import android.os.Looper;
 
-import androidx.camera.testing.CoreAppTestUtil;
 import androidx.camera.testing.fakes.FakeActivity;
-import androidx.test.annotation.UiThreadTest;
-import androidx.test.core.app.ApplicationProvider;
 import androidx.test.ext.junit.runners.AndroidJUnit4;
 import androidx.test.filters.LargeTest;
 import androidx.test.filters.Suppress;
+import androidx.test.platform.app.InstrumentationRegistry;
 import androidx.test.rule.ActivityTestRule;
 
 import org.junit.Before;
@@ -51,16 +50,14 @@ public class TransformableSurfaceViewTest {
     public ActivityTestRule<FakeActivity> mActivityTestRule =
             new ActivityTestRule<>(FakeActivity.class);
 
-    private Context mContext;
-
     @Before
     public void setUp() {
-        CoreAppTestUtil.assumeCompatibleDevice();
-        mContext = ApplicationProvider.getApplicationContext();
+        if (Looper.myLooper() == null) {
+            Looper.prepare();
+        }
     }
 
     @Test
-    @UiThreadTest
     public void translateTransformation() throws Throwable {
         final int translateX = 50;
         final int translateY = 80;
@@ -71,7 +68,6 @@ public class TransformableSurfaceViewTest {
     }
 
     @Test
-    @UiThreadTest
     public void scaleFromTopLeftTransformation() throws Throwable {
         final int scaleX = 2;
         final int scaleY = 5;
@@ -87,7 +83,6 @@ public class TransformableSurfaceViewTest {
     }
 
     @Test
-    @UiThreadTest
     public void scaleFromCenterTransformation() throws Throwable {
         final int scaleX = 2;
         final int scaleY = 5;
@@ -105,7 +100,6 @@ public class TransformableSurfaceViewTest {
     }
 
     @Test
-    @UiThreadTest
     public void scaleFromTopLeftAndTranslateTransformation() throws Throwable {
         final int scaleX = 2;
         final int scaleY = 5;
@@ -122,7 +116,6 @@ public class TransformableSurfaceViewTest {
     }
 
     @Test
-    @UiThreadTest
     public void scaleFromCenterAndTranslateTransformation() throws Throwable {
         final int scaleX = 2;
         final int scaleY = 5;
@@ -143,7 +136,6 @@ public class TransformableSurfaceViewTest {
     }
 
     @Test(expected = IllegalArgumentException.class)
-    @UiThreadTest
     public void ignoreRotationTransformation() throws Throwable {
         final Matrix matrix = new Matrix();
         matrix.setRotate(-45);
@@ -153,7 +145,10 @@ public class TransformableSurfaceViewTest {
 
     private void transformSurfaceView(final Matrix matrix, final int expectedWidth,
             final int expectedHeight, final int expectedX, final int expectedY) throws Throwable {
-        final TransformableSurfaceView surfaceView = new TransformableSurfaceView(mContext);
+        final Instrumentation instrumentation = InstrumentationRegistry.getInstrumentation();
+
+        final TransformableSurfaceView surfaceView = new TransformableSurfaceView(
+                instrumentation.getTargetContext());
         surfaceView.layout(0, 0, ANY_WIDTH, ANY_HEIGHT);
 
         final Activity activity = mActivityTestRule.getActivity();
@@ -161,7 +156,7 @@ public class TransformableSurfaceViewTest {
 
         surfaceView.setTransform(matrix);
 
-        surfaceView.post(() -> {
+        instrumentation.runOnMainSync(() -> {
             assertEquals(expectedWidth, surfaceView.getWidth());
             assertEquals(expectedHeight, surfaceView.getHeight());
             assertEquals(expectedX, Math.round(surfaceView.getX()));
