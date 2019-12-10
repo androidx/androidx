@@ -25,13 +25,16 @@ import androidx.ui.core.IntPx
 import androidx.ui.core.IntPxSize
 import androidx.ui.core.LastBaseline
 import androidx.ui.core.Layout
+import androidx.ui.core.LayoutTagParentData
 import androidx.ui.core.OnChildPositioned
+import androidx.ui.core.ParentData
 import androidx.ui.core.PxPosition
 import androidx.ui.core.PxSize
 import androidx.ui.core.Text
 import androidx.ui.core.ambientDensity
 import androidx.ui.core.dp
 import androidx.ui.core.sp
+import androidx.ui.core.tag
 import androidx.ui.core.withDensity
 import androidx.ui.engine.geometry.Offset
 import androidx.ui.engine.geometry.Outline
@@ -638,8 +641,22 @@ private fun BaseBottomAppBarWithoutFab(
  */
 @Composable
 private fun BottomAppBarStack(appBar: @Composable() () -> Unit, fab: @Composable() () -> Unit) {
-    Layout(appBar, fab) { measurables, constraints ->
-        val (appBarPlaceable, fabPlaceable) = measurables.map { it.measure(constraints) }
+    Layout({
+        ParentData(
+            object : LayoutTagParentData {
+                override val tag: Any = "appBar"
+            },
+            appBar
+        )
+        ParentData(
+            object : LayoutTagParentData {
+                override val tag: Any = "fab"
+            },
+            fab
+        )
+    }) { measurables, constraints ->
+        val appBarPlaceable = measurables.first { it.tag == "appBar" }.measure(constraints)
+        val fabPlaceable = measurables.first { it.tag == "fab" }.measure(constraints)
 
         val layoutWidth = appBarPlaceable.width
         // Total height is the app bar height + half the fab height

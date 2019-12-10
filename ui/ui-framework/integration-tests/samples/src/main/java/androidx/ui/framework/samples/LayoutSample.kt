@@ -98,30 +98,6 @@ fun LayoutUsage(children: @Composable() () -> Unit) {
 
 @Sampled
 @Composable
-fun LayoutVarargsUsage(header: @Composable() () -> Unit, footer: @Composable() () -> Unit) {
-    Layout(header, footer) { children, constraints ->
-        val headerMeasurables = children[header]
-        val footerMeasurables = children[footer]
-
-        val headerPlaceables = headerMeasurables.map { child ->
-            // You should use appropriate constraints.
-            // This is shortened for the sake of a short example.
-            child.measure(Constraints.tightConstraints(100.ipx, 100.ipx))
-        }
-        val footerPlaceables = footerMeasurables.map { child ->
-            child.measure(constraints)
-        }
-        // Size should be derived from headerMeasurables and footerMeasurables measured
-        // sizes, but this is shortened for the purposes of the example.
-        layout(100.ipx, 100.ipx) {
-            headerPlaceables.forEach { it.place(0.ipx, 0.ipx) }
-            footerPlaceables.forEach { it.place(0.ipx, 0.ipx) }
-        }
-    }
-}
-
-@Sampled
-@Composable
 fun LayoutTagChildrenUsage(header: @Composable() () -> Unit, footer: @Composable() () -> Unit) {
     Layout({
         // Here the Containers are only needed to apply the modifiers. You could use the
