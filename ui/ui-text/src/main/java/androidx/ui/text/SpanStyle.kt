@@ -57,7 +57,7 @@ import androidx.ui.text.style.lerp
  * @param textGeometricTransform The geometric transformation applied the text.
  * @param localeList The locale list used to select region-specific glyphs.
  * @param background The background color for the text.
- * @param decoration The decorations to paint near the text (e.g., an underline).
+ * @param textDecoration The decorations to paint on the text (e.g., an underline).
  * @param shadow The shadow effect applied on the text.
  *
  * @see AnnotatedString
@@ -78,7 +78,7 @@ data class SpanStyle(
     val textGeometricTransform: TextGeometricTransform? = null,
     val localeList: LocaleList? = null,
     val background: Color? = null,
-    val decoration: TextDecoration? = null,
+    val textDecoration: TextDecoration? = null,
     val shadow: Shadow? = null
 ) {
     /**
@@ -110,7 +110,7 @@ data class SpanStyle(
             textGeometricTransform = other.textGeometricTransform ?: this.textGeometricTransform,
             localeList = other.localeList ?: this.localeList,
             background = other.background ?: this.background,
-            decoration = other.decoration ?: this.decoration,
+            textDecoration = other.textDecoration ?: this.textDecoration,
             shadow = other.shadow ?: this.shadow
         )
     }
@@ -193,9 +193,9 @@ fun lerp(start: SpanStyle, stop: SpanStyle, fraction: Float): SpanStyle {
             stop.background ?: Color.Transparent,
             fraction
         ),
-        decoration = lerpDiscrete(
-            start.decoration,
-            stop.decoration,
+        textDecoration = lerpDiscrete(
+            start.textDecoration,
+            stop.textDecoration,
             fraction
         ),
         shadow = lerp(
