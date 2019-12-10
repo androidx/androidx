@@ -42,6 +42,8 @@ import androidx.annotation.GuardedBy;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.camera.camera2.impl.compat.CameraManagerCompat;
+import androidx.camera.camera2.impl.util.SemaphoreReleasingCamera2Callbacks;
+import androidx.camera.camera2.interop.Camera2Interop;
 import androidx.camera.core.CameraCaptureCallback;
 import androidx.camera.core.CameraCaptureResult;
 import androidx.camera.core.CameraControl;
@@ -122,6 +124,7 @@ public final class Camera2CameraImplTest {
     Semaphore mSemaphore;
     OnImageAvailableListener mMockOnImageAvailableListener;
     String mCameraId;
+    SemaphoreReleasingCamera2Callbacks.SessionStateCallback mSessionStateCallback;
 
     private static String getCameraIdForLensFacingUnchecked(
             @CameraSelector.LensFacing int lensFacing) {
@@ -142,6 +145,7 @@ public final class Camera2CameraImplTest {
     public void setup() {
         assumeTrue(CameraUtil.deviceHasCamera());
         mMockOnImageAvailableListener = Mockito.mock(ImageReader.OnImageAvailableListener.class);
+        mSessionStateCallback = new SemaphoreReleasingCamera2Callbacks.SessionStateCallback();
 
         mCameraId = getCameraIdForLensFacingUnchecked(DEFAULT_LENS_FACING);
         mCameraHandlerThread = new HandlerThread("cameraThread");
@@ -783,6 +787,38 @@ public final class Camera2CameraImplTest {
         assertThat(observerCountAfter).isEqualTo(0);
     }
 
+    @Test
+    public void openNewCaptureSessionImmediateBeforePreviousCaptureSessionClosed()
+            throws InterruptedException {
+        mCamera2CameraImpl.open();
+        UseCase useCase1 = createUseCase();
+        mCamera2CameraImpl.addOnlineUseCase(Arrays.asList(useCase1));
+        mCamera2CameraImpl.onUseCaseActive(useCase1);
+
+        // Wait a little bit for the camera to open.
+        mSessionStateCallback.waitForOnConfigured(1);
+
+        // Remove the useCase1 and trigger the CaptureSession#close().
+        mCamera2CameraImpl.removeOnlineUseCase(Arrays.asList(useCase1));
+
+        // Create the secondary use case immediately and open it before the first use case closed.
+        UseCase useCase2 = createUseCase();
+        mCamera2CameraImpl.addOnlineUseCase(Arrays.asList(useCase2));
+        mCamera2CameraImpl.onUseCaseActive(useCase2);
+        // Wait for the secondary capture session is configured.
+        mSessionStateCallback.waitForOnConfigured(1);
+
+        Observable.Observer<CameraInternal.State> mockObserver = mock(Observable.Observer.class);
+        mCamera2CameraImpl.getCameraState().addObserver(CameraXExecutors.directExecutor(),
+                mockObserver);
+        mCamera2CameraImpl.removeOnlineUseCase(Arrays.asList(useCase2));
+        mCamera2CameraImpl.close();
+
+        // Wait for the CLOSED state. If the test fail, the CameraX might in wrong internal state,
+        // and the Camera2CameraImpl#release() might stuck.
+        verify(mockObserver, timeout(4000).times(1)).onNewData(CameraInternal.State.CLOSED);
+    }
+
     // Blocks the camera thread handler.
     private void blockHandler() {
         mCameraHandler.post(new Runnable() {
@@ -805,6 +841,7 @@ public final class Camera2CameraImplTest {
     private UseCase createUseCase() {
         FakeUseCaseConfig.Builder configBuilder =
                 new FakeUseCaseConfig.Builder().setTargetName("UseCase");
+        new Camera2Interop.Extender<>(configBuilder).setSessionStateCallback(mSessionStateCallback);
         CameraSelector selector =
                 new CameraSelector.Builder().requireLensFacing(
                         CameraSelector.LENS_FACING_BACK).build();

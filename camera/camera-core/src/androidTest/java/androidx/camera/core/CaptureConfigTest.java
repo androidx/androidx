@@ -24,6 +24,7 @@ import android.hardware.camera2.CameraDevice;
 import android.view.Surface;
 
 import androidx.camera.core.Config.Option;
+import androidx.camera.testing.DeferrableSurfacesUtil;
 import androidx.test.ext.junit.runners.AndroidJUnit4;
 import androidx.test.filters.LargeTest;
 
@@ -82,7 +83,7 @@ public class CaptureConfigTest {
         builder.removeSurface(mMockSurface0);
         CaptureConfig captureConfig = builder.build();
 
-        List<Surface> surfaces = DeferrableSurfaces.surfaceList(captureConfig.getSurfaces());
+        List<Surface> surfaces = DeferrableSurfacesUtil.surfaceList(captureConfig.getSurfaces());
         assertThat(surfaces).isEmpty();
     }
 
@@ -94,7 +95,7 @@ public class CaptureConfigTest {
         builder.clearSurfaces();
         CaptureConfig captureConfig = builder.build();
 
-        List<Surface> surfaces = DeferrableSurfaces.surfaceList(captureConfig.getSurfaces());
+        List<Surface> surfaces = DeferrableSurfacesUtil.surfaceList(captureConfig.getSurfaces());
         assertThat(surfaces.size()).isEqualTo(0);
     }
 

@@ -30,13 +30,13 @@ import androidx.camera.core.CameraInfoInternal;
 import androidx.camera.core.CameraInternal;
 import androidx.camera.core.CaptureConfig;
 import androidx.camera.core.DeferrableSurface;
-import androidx.camera.core.DeferrableSurfaces;
 import androidx.camera.core.Observable;
 import androidx.camera.core.SessionConfig;
 import androidx.camera.core.UseCase;
 import androidx.camera.core.UseCaseAttachState;
 import androidx.camera.core.impl.LiveDataObservable;
 import androidx.camera.core.impl.utils.futures.Futures;
+import androidx.camera.testing.DeferrableSurfacesUtil;
 import androidx.core.util.Preconditions;
 
 import com.google.common.util.concurrent.ListenableFuture;
@@ -330,7 +330,7 @@ public class FakeCamera implements CameraInternal {
             // Since this is a fake camera, it is likely we will get null surfaces. Don't
             // consider them as failed.
             List<Surface> configuredSurfaces =
-                    DeferrableSurfaces.surfaceList(mConfiguredDeferrableSurfaces,
+                    DeferrableSurfacesUtil.surfaceList(mConfiguredDeferrableSurfaces,
                             /*removeNullSurfaces=*/ false);
             if (configuredSurfaces.isEmpty()) {
                 Log.e(TAG, "Unable to open capture session with no surfaces. ");

@@ -42,6 +42,7 @@ import androidx.camera.core.DeferrableSurface;
 import androidx.camera.core.DeferrableSurfaces;
 import androidx.camera.core.MutableOptionsBundle;
 import androidx.camera.core.SessionConfig;
+import androidx.camera.core.impl.utils.futures.FutureChain;
 import androidx.camera.core.impl.utils.futures.Futures;
 import androidx.concurrent.futures.CallbackToFutureAdapter;
 import androidx.core.util.Preconditions;
@@ -56,7 +57,9 @@ import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
+import java.util.concurrent.CancellationException;
 import java.util.concurrent.Executor;
+import java.util.concurrent.ScheduledExecutorService;
 
 /**
  * A session for capturing images from the camera which is tied to a specific {@link CameraDevice}.
@@ -66,11 +69,16 @@ import java.util.concurrent.Executor;
  */
 final class CaptureSession {
     private static final String TAG = "CaptureSession";
+
+    // TODO: Find a proper timeout threshold.
+    private static final long TIMEOUT_GET_SURFACE_IN_MS = 5000L;
     /** Lock on whether the camera is open or closed. */
     final Object mStateLock = new Object();
     /** Executor for all the callbacks from the {@link CameraCaptureSession}. */
     @CameraExecutor
     private final Executor mExecutor;
+    /** Scheduled Executor to schedule the delayed event. */
+    private final ScheduledExecutorService mScheduleExecutor;
     /** The configuration for the currently issued single capture requests. */
     private final List<CaptureConfig> mCaptureConfigs = new ArrayList<>();
     /** Callback for handling image captures. */
@@ -116,16 +124,26 @@ final class CaptureSession {
     @SuppressWarnings("WeakerAccess") /* synthetic accessor */
     @GuardedBy("mStateLock")
     CallbackToFutureAdapter.Completer<Void> mReleaseCompleter;
+    @SuppressWarnings("WeakerAccess") /* synthetic accessor */
+    @GuardedBy("mStateLock")
+    ListenableFuture<Void> mOpenFuture;
+    @SuppressWarnings("WeakerAccess") /* synthetic accessor */
+    @GuardedBy("mStateLock")
+    CallbackToFutureAdapter.Completer<Void> mOpenCaptureSessionCompleter;
 
     /**
      * Constructor for CaptureSession.
      *
-     * @param executor The executor is responsible for queuing up callbacks from capture requests.
-     * @param isLegacyDevice whether the device is LEGACY.
+     * @param executor                 The executor is responsible for queuing up callbacks from
+     *                                 capture requests.
+     * @param scheduledExecutorService The executor service to schedule delayed event.
+     * @param isLegacyDevice           whether the device is LEGACY.
      */
-    CaptureSession(@NonNull @CameraExecutor Executor executor, boolean isLegacyDevice) {
+    CaptureSession(@NonNull @CameraExecutor Executor executor,
+            @NonNull ScheduledExecutorService scheduledExecutorService, boolean isLegacyDevice) {
         mState = State.INITIALIZED;
         mExecutor = executor;
+        mScheduleExecutor = scheduledExecutorService;
         mIsLegacyDevice = isLegacyDevice;
     }
 
@@ -157,6 +175,7 @@ final class CaptureSession {
                     throw new IllegalStateException(
                             "setSessionConfig() should not be possible in state: " + mState);
                 case INITIALIZED:
+                case GET_SURFACE:
                 case OPENING:
                     mSessionConfig = sessionConfig;
                     break;
@@ -181,118 +200,184 @@ final class CaptureSession {
     }
 
     /**
-     * Opens the capture session synchronously.
+     * Opens the capture session.
      *
      * <p>When the session is opened and the configurations have been set then the capture requests
      * will be issued.
+     *
+     * <p>The cancellation of the returned ListenableFuture will not propagate into the inner
+     * future, that is, the capture session creation process is not cancelable.
      *
      * @param sessionConfig which is used to configure the camera capture session. This contains
      *                      configurations which may or may not be currently active in issuing
      *                      capture requests.
      * @param cameraDevice  the camera with which to generate the capture session
-     * @throws CameraAccessException if the camera is in an invalid start state
+     * @return A {@link ListenableFuture} that will be completed once the
+     * {@link CameraCaptureSession} has been configured.
      */
+    @NonNull
     @SuppressWarnings("GuardedBy") // TODO(b/141959507): Suppressed during upgrade to AGP 3.6.
-    void open(SessionConfig sessionConfig, CameraDevice cameraDevice)
-            throws CameraAccessException, DeferrableSurface.SurfaceClosedException {
+    ListenableFuture<Void> open(SessionConfig sessionConfig, CameraDevice cameraDevice) {
+        synchronized (mStateLock) {
+            switch (mState) {
+                case INITIALIZED:
+                    mState = State.GET_SURFACE;
+                    List<DeferrableSurface> surfaces = sessionConfig.getSurfaces();
+                    mConfiguredDeferrableSurfaces = new ArrayList<>(surfaces);
+                    mOpenFuture = FutureChain.from(
+                            DeferrableSurfaces.surfaceListWithTimeout(
+                                    mConfiguredDeferrableSurfaces,
+                                    false,
+                                    TIMEOUT_GET_SURFACE_IN_MS,
+                                    mExecutor, mScheduleExecutor))
+                            .transformAsync(
+                                    surfaceList -> openCaptureSession(surfaceList, sessionConfig,
+                                            cameraDevice), mExecutor);
+
+                    mOpenFuture.addListener(() -> {
+                        synchronized (mStateLock) {
+                            mOpenFuture = null;
+                        }
+                    }, mExecutor);
+
+                    // The cancellation of the external ListenableFuture cannot actually stop
+                    // the open session since we can't cancel the camera2 flow. The underlying
+                    // Future is used to track the session is configured, we don't want to
+                    // propagate the cancellation event to it. Wrap the Future in a
+                    // NonCancellationPropagatingFuture, so that if the external caller cancels
+                    // the Future it won't affect the underlying Future.
+                    return Futures.nonCancellationPropagating(mOpenFuture);
+                default:
+                    Log.e(TAG, "Open not allowed in state: " + mState);
+            }
+        }
+
+        return Futures.immediateFailedFuture(new IllegalStateException("open() should not allow "
+                + "the state: " + mState));
+    }
+
+    @NonNull
+    @SuppressWarnings("GuardedBy") // TODO(b/141959507): Suppressed during upgrade to AGP 3.6.
+    private ListenableFuture<Void> openCaptureSession(List<Surface> configuredSurfaces,
+            SessionConfig sessionConfig, CameraDevice cameraDevice) {
         synchronized (mStateLock) {
             switch (mState) {
                 case UNINITIALIZED:
-                    throw new IllegalStateException(
-                            "open() should not be possible in state: " + mState);
                 case INITIALIZED:
-                    List<DeferrableSurface> surfaces = sessionConfig.getSurfaces();
+                case OPENED:
+                    return Futures.immediateFailedFuture(new IllegalStateException(
+                            "openCaptureSession() should not be possible in state: " + mState));
+                case GET_SURFACE:
+                    ListenableFuture<Void> openFuture = CallbackToFutureAdapter.getFuture(
+                            completer -> {
+                                Preconditions.checkState(Thread.holdsLock(mStateLock));
+                                // If a Surface in configuredSurfaces is null it means the
+                                // Surface was not retrieved from the ListenableFuture. Only
+                                // handle the first failed Surface since subsequent calls to
+                                // CaptureSession.open() will handle the other failed Surfaces if
+                                // there are any.
+                                if (configuredSurfaces.contains(null)) {
+                                    int i = configuredSurfaces.indexOf(null);
+                                    Log.d(TAG, "Some surfaces were closed.");
+                                    DeferrableSurface deferrableSurface =
+                                            mConfiguredDeferrableSurfaces.get(i);
+                                    mConfiguredDeferrableSurfaces.clear();
+                                    completer.setException(
+                                            new DeferrableSurface.SurfaceClosedException(
+                                                    "Surface closed", deferrableSurface));
+                                    return "openCaptureSession-cancelled[session="
+                                            + CaptureSession.this + "]";
+                                }
 
-                    mConfiguredDeferrableSurfaces = new ArrayList<>(surfaces);
+                                if (configuredSurfaces.isEmpty()) {
+                                    completer.setException(new IllegalArgumentException(
+                                            "Unable to open capture session with no surfaces."));
+                                    return "openCaptureSession-cancelled[session="
+                                            + CaptureSession.this + "]";
+                                }
 
-                    List<Surface> configuredSurfaces =
-                            DeferrableSurfaces.surfaceList(mConfiguredDeferrableSurfaces, false);
+                                // Establishes the mapping of DeferrableSurface to Surface. Capture
+                                // request will use this mapping to get the Surface from
+                                // DeferrableSurface.
+                                mConfiguredSurfaceMap.clear();
+                                for (int i = 0; i < configuredSurfaces.size(); i++) {
+                                    mConfiguredSurfaceMap.put(mConfiguredDeferrableSurfaces.get(i),
+                                            configuredSurfaces.get(i));
+                                }
 
-                    // If a Surface in configuredSurfaces is null it means the Surface was not
-                    // retrieved from the ListenableFuture. Only handle the first failed Surface
-                    // since subsequent calls to CaptureSession.open() will handle the other
-                    // failed Surfaces if there are any.
-                    if (configuredSurfaces.contains(null)) {
-                        int i = configuredSurfaces.indexOf(null);
-                        Log.d(TAG, "Some surfaces were closed.");
-                        DeferrableSurface deferrableSurface = mConfiguredDeferrableSurfaces.get(i);
-                        mConfiguredDeferrableSurfaces.clear();
-                        throw new DeferrableSurface.SurfaceClosedException("Surface closed",
-                                deferrableSurface);
-                    }
+                                // Some DeferrableSurfaces might actually point to the same
+                                // Surface. And we need to pass the unique Surface list to
+                                // createCaptureSession.
+                                List<Surface> uniqueConfiguredSurface = new ArrayList<>(
+                                        new HashSet<>(configuredSurfaces));
 
-                    if (configuredSurfaces.isEmpty()) {
-                        Log.e(TAG, "Unable to open capture session with no surfaces. ");
-                        return;
-                    }
+                                notifySurfaceAttached();
+                                Preconditions.checkState(mOpenCaptureSessionCompleter == null,
+                                        "The openCaptureSessionCompleter can only set once!");
+                                mState = State.OPENING;
+                                Log.d(TAG, "Opening capture session.");
+                                List<CameraCaptureSession.StateCallback> callbacks =
+                                        new ArrayList<>(sessionConfig.getSessionStateCallbacks());
+                                callbacks.add(mCaptureSessionStateCallback);
+                                CameraCaptureSession.StateCallback comboCallback =
+                                        CameraCaptureSessionStateCallbacks.createComboCallback(
+                                                callbacks);
 
-                    // Establishes the mapping of DeferrableSurface to Surface. Capture request will
-                    // use this mapping to get the Surface from DeferrableSurface.
-                    mConfiguredSurfaceMap.clear();
-                    for (int i = 0; i < configuredSurfaces.size(); i++) {
-                        mConfiguredSurfaceMap.put(mConfiguredDeferrableSurfaces.get(i),
-                                configuredSurfaces.get(i));
-                    }
+                                // Start check preset CaptureStage information.
+                                Config options = sessionConfig.getImplementationOptions();
+                                CameraEventCallbacks eventCallbacks = new Camera2ImplConfig(
+                                        options).getCameraEventCallback(
+                                        CameraEventCallbacks.createEmptyCallback());
+                                List<CaptureConfig> presetList =
+                                        eventCallbacks.createComboCallback().onPresetSession();
 
-                    // Some DeferrableSurfaces might actually point to the same Surface. And we need
-                    // to pass the unique Surface list to createCaptureSession.
-                    List<Surface> uniqueConfiguredSurface = new ArrayList<>(
-                            new HashSet<>(configuredSurfaces));
+                                // Generate the CaptureRequest builder from repeating request since
+                                // Android recommend use the same template type as the initial
+                                // capture request. The tag and output targets would be ignored
+                                // by default.
+                                CaptureConfig.Builder captureConfigBuilder =
+                                        CaptureConfig.Builder.from(
+                                                sessionConfig.getRepeatingCaptureConfig());
 
-                    notifySurfaceAttached();
-                    mState = State.OPENING;
-                    Log.d(TAG, "Opening capture session.");
-                    List<CameraCaptureSession.StateCallback> callbacks =
-                            new ArrayList<>(sessionConfig.getSessionStateCallbacks());
-                    callbacks.add(mCaptureSessionStateCallback);
-                    CameraCaptureSession.StateCallback comboCallback =
-                            CameraCaptureSessionStateCallbacks.createComboCallback(callbacks);
+                                for (CaptureConfig config : presetList) {
+                                    captureConfigBuilder.addImplementationOptions(
+                                            config.getImplementationOptions());
+                                }
 
-                    // Start check preset CaptureStage information.
-                    CameraEventCallbacks eventCallbacks = new Camera2ImplConfig(
-                            sessionConfig.getImplementationOptions()).getCameraEventCallback(
-                            CameraEventCallbacks.createEmptyCallback());
-                    List<CaptureConfig> presetList =
-                            eventCallbacks.createComboCallback().onPresetSession();
+                                // TODO(b/141959507): Suppressed during upgrade to AGP 3.6.
+                                @SuppressWarnings("JdkObsolete")
+                                List<OutputConfigurationCompat> outputConfigList =
+                                        new LinkedList<>();
+                                for (Surface surface : uniqueConfiguredSurface) {
+                                    outputConfigList.add(new OutputConfigurationCompat(surface));
+                                }
 
-                    // Generate the CaptureRequest builder from repeating request since Android
-                    // recommend use the same template type as the initial capture request. The
-                    // tag and output targets would be ignored by default.
-                    CaptureConfig.Builder captureConfigBuilder = CaptureConfig.Builder.from(
-                            sessionConfig.getRepeatingCaptureConfig());
+                                SessionConfigurationCompat sessionConfigCompat =
+                                        new SessionConfigurationCompat(
+                                                SessionConfigurationCompat.SESSION_REGULAR,
+                                                outputConfigList,
+                                                getExecutor(),
+                                                comboCallback);
 
-                    for (CaptureConfig config : presetList) {
-                        captureConfigBuilder.addImplementationOptions(
-                                config.getImplementationOptions());
-                    }
+                                CaptureRequest captureRequest =
+                                        Camera2CaptureRequestBuilder.buildWithoutTarget(
+                                                captureConfigBuilder.build(), cameraDevice);
 
-                    // TODO(b/141959507): Suppressed during upgrade to AGP 3.6.
-                    @SuppressWarnings("JdkObsolete")
-                    List<OutputConfigurationCompat> outputConfigList = new LinkedList<>();
-                    for (Surface surface : uniqueConfiguredSurface) {
-                        outputConfigList.add(new OutputConfigurationCompat(surface));
-                    }
+                                if (captureRequest != null) {
+                                    sessionConfigCompat.setSessionParameters(captureRequest);
+                                }
 
-                    SessionConfigurationCompat sessionConfigCompat =
-                            new SessionConfigurationCompat(
-                                    SessionConfigurationCompat.SESSION_REGULAR,
-                                    outputConfigList,
-                                    getExecutor(),
-                                    comboCallback);
+                                mOpenCaptureSessionCompleter = completer;
 
-                    CaptureRequest captureRequest =
-                            Camera2CaptureRequestBuilder.buildWithoutTarget(
-                                    captureConfigBuilder.build(),
-                                    cameraDevice);
+                                CameraDeviceCompat.createCaptureSession(cameraDevice,
+                                        sessionConfigCompat);
 
-                    if (captureRequest != null) {
-                        sessionConfigCompat.setSessionParameters(captureRequest);
-                    }
-
-                    CameraDeviceCompat.createCaptureSession(cameraDevice, sessionConfigCompat);
-                    break;
+                                return "openCaptureSession[session=" + CaptureSession.this + "]";
+                            });
+                    return openFuture;
                 default:
-                    Log.e(TAG, "Open not allowed in state: " + mState);
+                    return Futures.immediateFailedFuture(new CancellationException(
+                            "openCaptureSession() not execute in state: " + mState));
             }
         }
     }
@@ -313,6 +398,11 @@ final class CaptureSession {
                 case UNINITIALIZED:
                     throw new IllegalStateException(
                             "close() should not be possible in state: " + mState);
+                case GET_SURFACE:
+                    if (mOpenFuture != null) {
+                        mOpenFuture.cancel(true);
+                    }
+                    // Fall through
                 case INITIALIZED:
                     mState = State.RELEASED;
                     break;
@@ -383,6 +473,10 @@ final class CaptureSession {
                     // Fall through
                 case OPENING:
                     mState = State.RELEASING;
+                    // Not cancel the openCaptureSessionFuture since the create capture session
+                    // flow cannot interrupt. The release should start after the capture session is
+                    // configured.
+
                     // Fall through
                 case RELEASING:
                     if (mReleaseFuture == null) {
@@ -403,6 +497,11 @@ final class CaptureSession {
                     }
 
                     return mReleaseFuture;
+                case GET_SURFACE:
+                    if (mOpenFuture != null) {
+                        mOpenFuture.cancel(true);
+                    }
+                    // Fall through
                 case INITIALIZED:
                     mState = State.RELEASED;
                     // Fall through
@@ -461,6 +560,7 @@ final class CaptureSession {
                             "issueCaptureRequests() should not be possible in state: "
                                     + mState);
                 case INITIALIZED:
+                case GET_SURFACE:
                 case OPENING:
                     mCaptureConfigs.addAll(captureConfigs);
                     break;
@@ -694,6 +794,11 @@ final class CaptureSession {
          */
         INITIALIZED,
         /**
+         * Transitional state to get the configured surface from the configuration. Once the
+         * surfaces is ready, we can create the {@link CameraCaptureSession}.
+         */
+        GET_SURFACE,
+        /**
          * Transitional state when the {@link CameraCaptureSession} is in the process of being
          * opened.
          */
@@ -735,9 +840,15 @@ final class CaptureSession {
         @Override
         public void onConfigured(@NonNull CameraCaptureSession session) {
             synchronized (mStateLock) {
+                Preconditions.checkNotNull(mOpenCaptureSessionCompleter,
+                        "OpenCaptureSession completer should not null");
+                mOpenCaptureSessionCompleter.set(null);
+                mOpenCaptureSessionCompleter = null;
+
                 switch (mState) {
                     case UNINITIALIZED:
                     case INITIALIZED:
+                    case GET_SURFACE:
                     case OPENED:
                     case RELEASED:
                         throw new IllegalStateException(
@@ -820,9 +931,16 @@ final class CaptureSession {
         @Override
         public void onConfigureFailed(@NonNull CameraCaptureSession session) {
             synchronized (mStateLock) {
+                Preconditions.checkNotNull(mOpenCaptureSessionCompleter,
+                        "OpenCaptureSession completer should not null");
+                mOpenCaptureSessionCompleter.setException(new CancellationException(
+                        "onConfigureFailed"));
+                mOpenCaptureSessionCompleter = null;
+
                 switch (mState) {
                     case UNINITIALIZED:
                     case INITIALIZED:
+                    case GET_SURFACE:
                     case OPENED:
                     case RELEASED:
                         throw new IllegalStateException(
@@ -879,6 +997,7 @@ final class CaptureSession {
     static final class Builder {
         @CameraExecutor
         private Executor mExecutor;
+        private ScheduledExecutorService mScheduledExecutorService;
         private int mSupportedHardwareLevel = -1;
 
         CaptureSession build() {
@@ -887,12 +1006,23 @@ final class CaptureSession {
                         + "with setExecutor()");
             }
 
-            return new CaptureSession(mExecutor, mSupportedHardwareLevel
+            if (mScheduledExecutorService == null) {
+                throw new IllegalStateException(
+                        "Missing ScheduledExecutorService. ScheduledExecutorService must be set "
+                                + "with setScheduledExecutorService()");
+            }
+
+            return new CaptureSession(mExecutor, mScheduledExecutorService, mSupportedHardwareLevel
                     == CameraCharacteristics.INFO_SUPPORTED_HARDWARE_LEVEL_LEGACY);
         }
 
         void setExecutor(@NonNull @CameraExecutor Executor executor) {
             mExecutor = Preconditions.checkNotNull(executor);
+        }
+
+        void setScheduledExecutorService(
+                @NonNull ScheduledExecutorService scheduledExecutorService) {
+            mScheduledExecutorService = Preconditions.checkNotNull(scheduledExecutorService);
         }
 
         void setSupportedHardwareLevel(int supportedHardwareLevel) {

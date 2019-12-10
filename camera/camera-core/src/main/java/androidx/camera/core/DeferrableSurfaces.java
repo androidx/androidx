@@ -19,19 +19,24 @@ package androidx.camera.core;
 import android.view.Surface;
 
 import androidx.annotation.NonNull;
+import androidx.annotation.Nullable;
 import androidx.annotation.RestrictTo;
 import androidx.annotation.RestrictTo.Scope;
+import androidx.camera.core.impl.utils.futures.FutureCallback;
 import androidx.camera.core.impl.utils.futures.Futures;
+import androidx.concurrent.futures.CallbackToFutureAdapter;
 
 import com.google.common.util.concurrent.ListenableFuture;
 
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
-import java.util.HashSet;
 import java.util.List;
-import java.util.Set;
-import java.util.concurrent.ExecutionException;
+import java.util.concurrent.Executor;
+import java.util.concurrent.ScheduledExecutorService;
+import java.util.concurrent.ScheduledFuture;
+import java.util.concurrent.TimeUnit;
+import java.util.concurrent.TimeoutException;
 
 /**
  * Utility functions for manipulating {@link DeferrableSurface}.
@@ -40,76 +45,72 @@ import java.util.concurrent.ExecutionException;
  */
 @RestrictTo(Scope.LIBRARY_GROUP)
 public final class DeferrableSurfaces {
-    private static final String TAG = "DeferrableSurfaces";
 
     private DeferrableSurfaces() {
     }
 
     /**
-     * Returns a {@link Surface} list from a {@link DeferrableSurface} collection.
+     * Returns a {@link ListenableFuture} that get the List<Surface> result form
+     * {@link DeferrableSurface} collection.
      *
-     * <p>Any {@link DeferrableSurface} that can not be obtained will be missing from the list. This
-     * means that the returned list will only be guaranteed to be less than or equal to in size to
-     * the original collection.
+     * @param removeNullSurfaces       If true remove all Surfaces that were not retrieved.
+     * @param timeout                  The task timeout value in milliseconds.
+     * @param executor                 The executor service to run the task.
+     * @param scheduledExecutorService The executor service to schedule the timeout event.
      */
     @NonNull
-    public static List<Surface> surfaceList(
-            @NonNull Collection<DeferrableSurface> deferrableSurfaces) {
-        return surfaceList(deferrableSurfaces, true);
-    }
-
-    /**
-     * Returns a {@link Surface} list from a {@link DeferrableSurface} collection.
-     *
-     * @param removeNullSurfaces If true remove all Surfaces that were not retrieved.
-     */
-    @NonNull
-    public static List<Surface> surfaceList(
+    public static ListenableFuture<List<Surface>> surfaceListWithTimeout(
             @NonNull Collection<DeferrableSurface> deferrableSurfaces,
-            boolean removeNullSurfaces) {
+            boolean removeNullSurfaces, long timeout, @NonNull Executor executor,
+            @NonNull ScheduledExecutorService scheduledExecutorService) {
         List<ListenableFuture<Surface>> listenableFutureSurfaces = new ArrayList<>();
 
         for (DeferrableSurface deferrableSurface : deferrableSurfaces) {
             listenableFutureSurfaces.add(deferrableSurface.getSurface());
         }
 
-        try {
-            // Need to create a new list since the list returned by successfulAsList() is
-            // unmodifiable so it will throw an Exception
-            List<Surface> surfaces =
-                    new ArrayList<>(Futures.successfulAsList(listenableFutureSurfaces).get());
-            if (removeNullSurfaces) {
-                surfaces.removeAll(Collections.singleton(null));
-            }
-            return Collections.unmodifiableList(surfaces);
-        } catch (InterruptedException | ExecutionException e) {
-            return Collections.unmodifiableList(Collections.emptyList());
-        }
-    }
+        return CallbackToFutureAdapter.getFuture(
+                completer -> {
+                    ListenableFuture<List<Surface>> listenableFuture = Futures.successfulAsList(
+                            listenableFutureSurfaces);
 
-    /**
-     * Returns a {@link Surface} set from a {@link DeferrableSurface} collection.
-     *
-     * <p>Any {@link DeferrableSurface} that can not be obtained will be missing from the set. This
-     * means that the returned set will only be guaranteed to be less than or equal to in size to
-     * the original collection.
-     */
-    @NonNull
-    public static Set<Surface> surfaceSet(
-            @NonNull Collection<DeferrableSurface> deferrableSurfaces) {
-        List<ListenableFuture<Surface>> listenableFutureSurfaces = new ArrayList<>();
+                    ScheduledFuture<?> scheduledFuture = scheduledExecutorService.schedule(() -> {
+                        executor.execute(() -> {
+                            if (!listenableFuture.isDone()) {
+                                completer.setException(
+                                        new TimeoutException(
+                                                "Cannot complete surfaceList within " + timeout));
+                                listenableFuture.cancel(true);
+                            }
+                        });
+                    }, timeout, TimeUnit.MILLISECONDS);
 
-        for (DeferrableSurface deferrableSurface : deferrableSurfaces) {
-            listenableFutureSurfaces.add(deferrableSurface.getSurface());
-        }
+                    // Cancel the listenableFuture if the outer task was cancelled, and the
+                    // listenableFuture will cancel the scheduledFuture on its complete callback.
+                    completer.addCancellationListener(() -> listenableFuture.cancel(true),
+                            executor);
 
-        try {
-            HashSet<Surface> surfaces =
-                    new HashSet<>(Futures.successfulAsList(listenableFutureSurfaces).get());
-            surfaces.removeAll(Collections.singleton(null));
-            return Collections.unmodifiableSet(surfaces);
-        } catch (InterruptedException | ExecutionException e) {
-            return Collections.unmodifiableSet(Collections.emptySet());
-        }
+                    Futures.addCallback(listenableFuture,
+                            new FutureCallback<List<Surface>>() {
+                                @Override
+                                public void onSuccess(@Nullable List<Surface> result) {
+                                    List<Surface> surfaces = new ArrayList<>(result);
+                                    if (removeNullSurfaces) {
+                                        surfaces.removeAll(Collections.singleton(null));
+                                    }
+                                    completer.set(surfaces);
+                                    scheduledFuture.cancel(true);
+                                }
+
+                                @Override
+                                public void onFailure(Throwable t) {
+                                    completer.set(
+                                            Collections.unmodifiableList(Collections.emptyList()));
+                                    scheduledFuture.cancel(true);
+                                }
+                            }, executor);
+
+                    return "surfaceList";
+                });
     }
 }

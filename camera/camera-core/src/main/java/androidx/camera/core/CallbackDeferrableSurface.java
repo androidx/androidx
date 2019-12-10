@@ -21,6 +21,7 @@ import android.view.Surface;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
+import androidx.camera.core.impl.utils.futures.FutureCallback;
 import androidx.camera.core.impl.utils.futures.Futures;
 import androidx.concurrent.futures.CallbackToFutureAdapter;
 
@@ -57,6 +58,19 @@ final class CallbackDeferrableSurface extends DeferrableSurface implements Surfa
                             completer));
                     return "GetSurfaceFutureWithExecutor";
                 });
+        Futures.addCallback(mSurfaceFuture, new FutureCallback<Surface>() {
+            @Override
+            public void onSuccess(@Nullable Surface result) {
+                // Nothing to do.
+            }
+
+            @Override
+            public void onFailure(Throwable t) {
+                // Once the mSurfaceFuture fail or canceled, we can notify the user to clean up the
+                // surface.
+                release();
+            }
+        }, mCallbackExecutor);
     }
 
     @Override

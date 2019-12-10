@@ -29,6 +29,7 @@ import android.view.Surface;
 
 import androidx.annotation.NonNull;
 import androidx.camera.core.impl.utils.CameraSelectorUtil;
+import androidx.camera.testing.DeferrableSurfacesUtil;
 import androidx.camera.testing.fakes.FakeAppConfig;
 import androidx.camera.testing.fakes.FakeUseCase;
 import androidx.camera.testing.fakes.FakeUseCaseConfig;
@@ -44,6 +45,7 @@ import org.junit.runner.RunWith;
 import org.mockito.Mockito;
 
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 import java.util.concurrent.ExecutionException;
 
@@ -93,8 +95,8 @@ public class UseCaseAttachStateTest {
 
         SessionConfig.ValidatingBuilder builder = useCaseAttachState.getOnlineBuilder();
         SessionConfig sessionConfig = builder.build();
-        assertThat(DeferrableSurfaces.surfaceList(sessionConfig.getSurfaces()))
-                .containsExactly(fakeUseCase.mSurface);
+        List<Surface> surfaces = DeferrableSurfacesUtil.surfaceList(sessionConfig.getSurfaces());
+        assertThat(surfaces).containsExactly(fakeUseCase.mSurface);
 
         for (CameraDevice.StateCallback callback : sessionConfig.getDeviceStateCallbacks()) {
             callback.onOpened(mMockCameraDevice);
@@ -128,8 +130,8 @@ public class UseCaseAttachStateTest {
 
         SessionConfig.ValidatingBuilder builder = useCaseAttachState.getOnlineBuilder();
         SessionConfig sessionConfig = builder.build();
-        assertThat(DeferrableSurfaces.surfaceList(sessionConfig.getSurfaces()))
-                .containsExactly(fakeUseCase0.mSurface, fakeUseCase1.mSurface);
+        List<Surface> surfaces = DeferrableSurfacesUtil.surfaceList(sessionConfig.getSurfaces());
+        assertThat(surfaces).containsExactly(fakeUseCase0.mSurface, fakeUseCase1.mSurface);
 
         for (CameraDevice.StateCallback callback : sessionConfig.getDeviceStateCallbacks()) {
             callback.onOpened(mMockCameraDevice);
@@ -195,8 +197,8 @@ public class UseCaseAttachStateTest {
 
         SessionConfig.ValidatingBuilder builder = useCaseAttachState.getActiveAndOnlineBuilder();
         SessionConfig sessionConfig = builder.build();
-        assertThat(DeferrableSurfaces.surfaceList(sessionConfig.getSurfaces()))
-                .containsExactly(fakeUseCase.mSurface);
+        List<Surface> surfaces = DeferrableSurfacesUtil.surfaceList(sessionConfig.getSurfaces());
+        assertThat(surfaces).containsExactly(fakeUseCase.mSurface);
 
         for (CameraDevice.StateCallback callback : sessionConfig.getDeviceStateCallbacks()) {
             callback.onOpened(mMockCameraDevice);
