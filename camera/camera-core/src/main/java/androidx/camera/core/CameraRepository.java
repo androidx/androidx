@@ -109,10 +109,12 @@ public final class CameraRepository implements UseCaseGroup.StateChangeCallback 
                 mDeinitFuture = currentFuture;
             }
 
+            // Ensure all of the cameras have been added here before we start releasing so that
+            // if the first camera release finishes inline it won't complete the future prematurely.
+            mReleasingCameras.addAll(mCameras.values());
             for (final CameraInternal cameraInternal : mCameras.values()) {
                 // Release the camera and wait for it to complete. We keep track of which cameras
                 // are still releasing with mReleasingCameras.
-                mReleasingCameras.add(cameraInternal);
                 cameraInternal.release().addListener(() -> {
                     synchronized (mCamerasLock) {
                         // When the camera has completed releasing, we can now remove it from
