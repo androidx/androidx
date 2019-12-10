@@ -20,6 +20,7 @@ import androidx.compose.Ambient
 import androidx.compose.Composable
 import androidx.compose.Model
 import androidx.compose.remember
+import androidx.ui.foundation.contentColor
 import androidx.ui.graphics.Color
 import kotlin.reflect.KProperty
 
@@ -178,6 +179,8 @@ fun darkColorPalette(
  *
  * @return the matching `on` color for [color]. If [color] is not part of the theme's
  * [ColorPalette], then returns `null`.
+ *
+ * @see contentColorFor
  */
 fun ColorPalette.contentColorFor(color: Color): Color? {
     return when (color) {
@@ -191,6 +194,17 @@ fun ColorPalette.contentColorFor(color: Color): Color? {
         else -> null
     }
 }
+
+/**
+ * Tries to match [color] to a color in the current [ColorPalette], and then returns the
+ * corresponding `on` color. If [color] can not be matched to the palette, then this will return
+ * the existing value for [contentColor] at this point in the tree.
+ *
+ * @see ColorPalette.contentColorFor
+ */
+@Composable
+fun contentColorFor(color: Color) =
+    MaterialTheme.colors().contentColorFor(color) ?: contentColor()
 
 /**
  * Default observable backing implementation for [ColorPalette].
