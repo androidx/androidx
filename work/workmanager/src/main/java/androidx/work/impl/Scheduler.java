@@ -46,4 +46,11 @@ public interface Scheduler {
      * @param workSpecId The id of the work to stopWork
      */
     void cancel(@NonNull String workSpecId);
+
+    /**
+     * This is <code>true</code> when a {@link Scheduler} has a fixed number of slots.
+     *
+     * @return <code>true</code> if a {@link Scheduler} has limited scheduling slots.
+     */
+    boolean hasLimitedSchedulingSlots();
 }
