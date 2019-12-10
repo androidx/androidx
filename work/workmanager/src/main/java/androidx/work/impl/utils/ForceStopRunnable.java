@@ -28,6 +28,9 @@ import android.app.PendingIntent;
 import android.content.ComponentName;
 import android.content.Context;
 import android.content.Intent;
+import android.database.sqlite.SQLiteAccessPermException;
+import android.database.sqlite.SQLiteCantOpenDatabaseException;
+import android.database.sqlite.SQLiteDatabaseCorruptException;
 import android.os.Build;
 
 import androidx.annotation.NonNull;
@@ -80,24 +83,37 @@ public class ForceStopRunnable implements Runnable {
         // Clean invalid jobs attributed to WorkManager, and Workers that might have been
         // interrupted because the application crashed (RUNNING state).
         Logger.get().debug(TAG, "Performing cleanup operations.");
-        boolean needsScheduling = cleanUp();
-
-        if (shouldRescheduleWorkers()) {
-            Logger.get().debug(TAG, "Rescheduling Workers.");
-            mWorkManager.rescheduleEligibleWork();
-            // Mark the jobs as migrated.
-            mWorkManager.getPreferenceUtils().setNeedsReschedule(false);
-        } else if (isForceStopped()) {
-            Logger.get().debug(TAG, "Application was force-stopped, rescheduling.");
-            mWorkManager.rescheduleEligibleWork();
-        } else if (needsScheduling) {
-            Logger.get().debug(TAG, "Found unfinished work, scheduling it.");
-            Schedulers.schedule(
-                    mWorkManager.getConfiguration(),
-                    mWorkManager.getWorkDatabase(),
-                    mWorkManager.getSchedulers());
+        try {
+            boolean needsScheduling = cleanUp();
+            if (shouldRescheduleWorkers()) {
+                Logger.get().debug(TAG, "Rescheduling Workers.");
+                mWorkManager.rescheduleEligibleWork();
+                // Mark the jobs as migrated.
+                mWorkManager.getPreferenceUtils().setNeedsReschedule(false);
+            } else if (isForceStopped()) {
+                Logger.get().debug(TAG, "Application was force-stopped, rescheduling.");
+                mWorkManager.rescheduleEligibleWork();
+            } else if (needsScheduling) {
+                Logger.get().debug(TAG, "Found unfinished work, scheduling it.");
+                Schedulers.schedule(
+                        mWorkManager.getConfiguration(),
+                        mWorkManager.getWorkDatabase(),
+                        mWorkManager.getSchedulers());
+            }
+            mWorkManager.onForceStopRunnableCompleted();
+        } catch (SQLiteCantOpenDatabaseException
+                | SQLiteDatabaseCorruptException
+                | SQLiteAccessPermException exception) {
+            // ForceStopRunnable is usually the first thing that accesses a database (or an app's
+            // internal data directory). This means that weird PackageManager bugs are attributed
+            // to ForceStopRunnable, which is unfortunate. This gives the developer a better error
+            // message.
+            String message =
+                    "The file system on the device is in a bad state. WorkManager cannot access "
+                            + "the app's internal data store.";
+            Logger.get().error(TAG, message, exception);
+            throw new IllegalStateException(message, exception);
         }
-        mWorkManager.onForceStopRunnableCompleted();
     }
 
     /**
