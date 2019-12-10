@@ -78,10 +78,10 @@ fun MinIntrinsicWidth(children: @Composable() () -> Unit) {
  * The sample builds a layout containing two pieces of text separated by a divider, where the
  * divider is sized according to the height of the longest text.
  *
- * Here [MinIntrinsicHeight] is adding a speculative height measurement pass for the [FlexRow],
+ * Here [MinIntrinsicHeight] is adding a speculative height measurement pass for the [Row],
  * whose minimum intrinsic height will correspond to the height of the largest [Text]. Then
- * [MinIntrinsicHeight] will measure the [FlexRow] with tight height, the same as the premeasured
- * minimum intrinsic height, which due to [CrossAxisAlignment.Stretch] will force the [Text]s and
+ * [MinIntrinsicHeight] will measure the [Row] with tight height, the same as the premeasured
+ * minimum intrinsic height, which due to [LayoutExpandedHeight] will force the [Text]s and
  * the divider to use the same height.
  */
 @Composable
@@ -125,8 +125,8 @@ fun MinIntrinsicHeight(children: @Composable() () -> Unit) {
  * Here [MaxIntrinsicWidth] is adding a speculative width measurement pass for the [Column],
  * whose maximum intrinsic width will correspond to the preferred width of the largest
  * [ConstrainedBox]. Then [MaxIntrinsicWidth] will measure the [Column] with tight width, the same
- * as the premeasured maximum intrinsic width, which due to [CrossAxisAlignment.Stretch] will force
- * the [ConstrainedBox]s to use the same width.
+ * as the premeasured maximum intrinsic width, which due to [LayoutExpandedWidth] will force
+ * the [Container]s to use the same width.
  * The sample is a layout containing three composables having the same width as the widest one.
  */
 @Composable
@@ -168,10 +168,10 @@ fun MaxIntrinsicWidth(children: @Composable() () -> Unit) {
  * The sample builds a layout containing two [LayoutAspectRatio]s separated by a divider, where the
  * divider is sized according to the height of the taller [LayoutAspectRatio].
  *
- * Here [MaxIntrinsicHeight] is adding a speculative height measurement pass for the [FlexRow],
- * whose maximum intrinsic height will correspond to the height of the taller [LayoutAspectRatio]. Then
- * [MaxIntrinsicHeight] will measure the [FlexRow] with tight height, the same as the premeasured
- * maximum intrinsic height, which due to [CrossAxisAlignment.Stretch] will force the [LayoutAspectRatio]s
+ * Here [MaxIntrinsicHeight] is adding a speculative height measurement pass for the [Row],
+ * whose maximum intrinsic height will correspond to the height of the taller [AspectRatio]. Then
+ * [MaxIntrinsicHeight] will measure the [Row] with tight height, the same as the premeasured
+ * maximum intrinsic height, which due to [LayoutExpandedHeight] will force the [AspectRatio]s
  * and the divider to use the same height.
  */
 @Composable

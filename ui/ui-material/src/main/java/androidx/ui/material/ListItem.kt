@@ -26,6 +26,7 @@ import androidx.ui.core.IntPx
 import androidx.ui.core.IntPxSize
 import androidx.ui.core.LastBaseline
 import androidx.ui.core.Layout
+import androidx.ui.core.Modifier
 import androidx.ui.core.Text
 import androidx.ui.core.dp
 import androidx.ui.core.ipx
@@ -36,11 +37,12 @@ import androidx.ui.graphics.Color
 import androidx.ui.graphics.Image
 import androidx.ui.layout.ConstrainedBox
 import androidx.ui.layout.Container
-import androidx.ui.layout.CrossAxisAlignment
 import androidx.ui.layout.DpConstraints
 import androidx.ui.layout.EdgeInsets
-import androidx.ui.layout.FlexRow
+import androidx.ui.layout.LayoutGravity
+import androidx.ui.layout.LayoutPadding
 import androidx.ui.layout.Padding
+import androidx.ui.layout.Row
 import androidx.ui.material.ripple.Ripple
 import androidx.ui.text.TextStyle
 import androidx.ui.text.style.TextOverflow
@@ -195,35 +197,36 @@ private object OneLine {
     ) {
         val minHeight = if (icon == null) MinHeight else MinHeightWithIcon
         ConstrainedBox(constraints = DpConstraints(minHeight = minHeight)) {
-            FlexRow(crossAxisAlignment = CrossAxisAlignment.Center) {
-                inflexible {
-                    if (icon != null) {
-                        Container(
-                            alignment = Alignment.CenterLeft,
-                            constraints = DpConstraints(
-                                minWidth = IconLeftPadding + IconMinPaddedWidth
-                            ),
-                            padding = EdgeInsets(
-                                // TODO(popam): remove left padding for wide icons
-                                left = IconLeftPadding,
-                                top = IconVerticalPadding,
-                                bottom = IconVerticalPadding
-                            ),
-                            children = icon
-                        )
-                    }
+            Row {
+                if (icon != null) {
+                    Container(
+                        modifier = LayoutGravity.Center,
+                        alignment = Alignment.CenterLeft,
+                        constraints = DpConstraints(
+                            minWidth = IconLeftPadding + IconMinPaddedWidth
+                        ),
+                        padding = EdgeInsets(
+                            // TODO(popam): remove left padding for wide icons
+                            left = IconLeftPadding,
+                            top = IconVerticalPadding,
+                            bottom = IconVerticalPadding
+                        ),
+                        children = icon
+                    )
                 }
-                expanded(flex = 1f) {
-                    Padding(left = ContentLeftPadding, right = ContentRightPadding, children = text)
-                }
-                inflexible {
-                    if (trailing != null) {
-                        Container(
-                            alignment = Alignment.Center,
-                            padding = EdgeInsets(right = TrailingRightPadding),
-                            children = trailing
-                        )
-                    }
+                Container(
+                    modifier = LayoutFlexible(1f) + LayoutGravity.Center +
+                            LayoutPadding(left = ContentLeftPadding, right = ContentRightPadding),
+                    alignment = Alignment.CenterLeft,
+                    children = text
+                )
+                if (trailing != null) {
+                    Container(
+                        modifier = LayoutGravity.Center,
+                        alignment = Alignment.Center,
+                        padding = EdgeInsets(right = TrailingRightPadding),
+                        children = trailing
+                    )
                 }
             }
         }
@@ -260,69 +263,69 @@ private object TwoLine {
     ) {
         val minHeight = if (icon == null) MinHeight else MinHeightWithIcon
         ConstrainedBox(constraints = DpConstraints(minHeight = minHeight)) {
-            FlexRow {
-                inflexible {
-                    if (icon != null) {
-                        Container(
-                            alignment = Alignment.TopLeft,
-                            constraints = DpConstraints(
-                                // TODO(popam): remove minHeight with cross axis alignment per child
-                                minHeight = minHeight,
-                                minWidth = IconLeftPadding + IconMinPaddedWidth
-                            ),
-                            padding = EdgeInsets(
-                                left = IconLeftPadding,
-                                top = IconVerticalPadding,
-                                bottom = IconVerticalPadding
-                            ),
-                            children = icon
-                        )
+            Row {
+                val modifier = LayoutFlexible(1f) + LayoutPadding(
+                    left = ContentLeftPadding,
+                    right = ContentRightPadding
+                )
+
+                if (icon != null) {
+                    Container(
+                        alignment = Alignment.TopLeft,
+                        constraints = DpConstraints(
+                            // TODO(popam): remove minHeight with cross axis alignment per child
+                            minHeight = minHeight,
+                            minWidth = IconLeftPadding + IconMinPaddedWidth
+                        ),
+                        padding = EdgeInsets(
+                            left = IconLeftPadding,
+                            top = IconVerticalPadding,
+                            bottom = IconVerticalPadding
+                        ),
+                        children = icon
+                    )
+                }
+
+                if (overlineText != null) {
+                    BaselinesOffsetColumn(
+                        listOf(OverlineBaselineOffset, OverlineToPrimaryBaselineOffset),
+                        modifier
+                    ) {
+                        overlineText()
+                        text()
+                    }
+                } else {
+                    BaselinesOffsetColumn(
+                        listOf(
+                            if (icon != null) {
+                                PrimaryBaselineOffsetWithIcon
+                            } else {
+                                PrimaryBaselineOffsetNoIcon
+                            },
+                            if (icon != null) {
+                                PrimaryToSecondaryBaselineOffsetWithIcon
+                            } else {
+                                PrimaryToSecondaryBaselineOffsetNoIcon
+                            }
+                        ),
+                        modifier
+                    ) {
+                        text()
+                        secondaryText!!()
                     }
                 }
-                expanded(flex = 1f) {
-                    Padding(left = ContentLeftPadding, right = ContentRightPadding) {
-                        if (overlineText != null) {
-                            BaselinesOffsetColumn(
-                                listOf(OverlineBaselineOffset, OverlineToPrimaryBaselineOffset)
-                            ) {
-                                overlineText()
-                                text()
-                            }
-                        } else {
-                            BaselinesOffsetColumn(
-                                listOf(
-                                    if (icon != null) {
-                                        PrimaryBaselineOffsetWithIcon
-                                    } else {
-                                        PrimaryBaselineOffsetNoIcon
-                                    },
-                                    if (icon != null) {
-                                        PrimaryToSecondaryBaselineOffsetWithIcon
-                                    } else {
-                                        PrimaryToSecondaryBaselineOffsetNoIcon
-                                    }
-                                )
-                            ) {
-                                text()
-                                secondaryText!!()
-                            }
-                        }
-                    }
-                }
-                inflexible {
-                    if (trailing != null) {
-                        Padding(right = TrailingRightPadding) {
-                            // TODO(popam): find way to center and wrap content without minHeight
-                            ConstrainedBox(constraints = DpConstraints(minHeight = minHeight)) {
-                                OffsetToBaselineOrCenter(
-                                    if (icon != null) {
-                                        PrimaryBaselineOffsetWithIcon
-                                    } else {
-                                        PrimaryBaselineOffsetNoIcon
-                                    },
-                                    trailing
-                                )
-                            }
+                if (trailing != null) {
+                    Padding(right = TrailingRightPadding) {
+                        // TODO(popam): find way to center and wrap content without minHeight
+                        ConstrainedBox(constraints = DpConstraints(minHeight = minHeight)) {
+                            OffsetToBaselineOrCenter(
+                                if (icon != null) {
+                                    PrimaryBaselineOffsetWithIcon
+                                } else {
+                                    PrimaryBaselineOffsetNoIcon
+                                },
+                                trailing
+                            )
                         }
                     }
                 }
@@ -357,46 +360,40 @@ private object ThreeLine {
         trailing: @Composable() (() -> Unit)?
     ) {
         ConstrainedBox(constraints = DpConstraints(minHeight = MinHeight)) {
-            FlexRow {
-                inflexible {
-                    if (icon != null) {
-                        Container(
-                            alignment = Alignment.CenterLeft,
-                            constraints = DpConstraints(
-                                minWidth = IconLeftPadding + IconMinPaddedWidth
-                            ),
-                            padding = EdgeInsets(
-                                left = IconLeftPadding,
-                                top = IconThreeLineVerticalPadding,
-                                bottom = IconThreeLineVerticalPadding
-                            ),
-                            children = icon
+            Row {
+                if (icon != null) {
+                    Container(
+                        alignment = Alignment.CenterLeft,
+                        constraints = DpConstraints(
+                            minWidth = IconLeftPadding + IconMinPaddedWidth
+                        ),
+                        padding = EdgeInsets(
+                            left = IconLeftPadding,
+                            top = IconThreeLineVerticalPadding,
+                            bottom = IconThreeLineVerticalPadding
+                        ),
+                        children = icon
+                    )
+                }
+                BaselinesOffsetColumn(
+                    listOf(
+                        ThreeLineBaselineFirstOffset,
+                        ThreeLineBaselineSecondOffset,
+                        ThreeLineBaselineThirdOffset
+                    ),
+                    LayoutFlexible(1f) +
+                            LayoutPadding(left = ContentLeftPadding, right = ContentRightPadding)
+                ) {
+                    if (overlineText != null) overlineText()
+                    text()
+                    secondaryText()
+                }
+                if (trailing != null) {
+                    Padding(top = ThreeLineTrailingTopPadding, right = TrailingRightPadding) {
+                        OffsetToBaselineOrCenter(
+                            ThreeLineBaselineFirstOffset - ThreeLineTrailingTopPadding,
+                            trailing
                         )
-                    }
-                }
-                expanded(flex = 1f) {
-                    Padding(left = ContentLeftPadding, right = ContentRightPadding) {
-                        BaselinesOffsetColumn(
-                            listOf(
-                                ThreeLineBaselineFirstOffset,
-                                ThreeLineBaselineSecondOffset,
-                                ThreeLineBaselineThirdOffset
-                            )
-                        ) {
-                            if (overlineText != null) overlineText()
-                            text()
-                            secondaryText()
-                        }
-                    }
-                }
-                inflexible {
-                    if (trailing != null) {
-                        Padding(top = ThreeLineTrailingTopPadding, right = TrailingRightPadding) {
-                            OffsetToBaselineOrCenter(
-                                ThreeLineBaselineFirstOffset - ThreeLineTrailingTopPadding,
-                                trailing
-                            )
-                        }
                     }
                 }
             }
@@ -411,8 +408,12 @@ private object ThreeLine {
  */
 // TODO(popam): consider making this a layout composable in ui-layout.
 @Composable
-private fun BaselinesOffsetColumn(offsets: List<Dp>, children: @Composable() () -> Unit) {
-    Layout(children) { measurables, constraints ->
+private fun BaselinesOffsetColumn(
+    offsets: List<Dp>,
+    modifier: Modifier = Modifier.None,
+    children: @Composable() () -> Unit
+) {
+    Layout(children, modifier) { measurables, constraints ->
         val childConstraints = constraints.copy(minHeight = 0.ipx, maxHeight = IntPx.Infinity)
         val placeables = measurables.map { it.measure(childConstraints) }
 

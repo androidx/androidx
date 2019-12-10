@@ -20,11 +20,11 @@ import androidx.compose.Composable
 import androidx.compose.State
 import androidx.compose.state
 import androidx.compose.unaryPlus
-import androidx.ui.core.Alignment
+import androidx.ui.core.Modifier
 import androidx.ui.core.Text
-import androidx.ui.layout.Align
 import androidx.ui.layout.Column
-import androidx.ui.layout.FlexRow
+import androidx.ui.layout.LayoutAlign
+import androidx.ui.layout.Row
 import androidx.ui.material.Checkbox
 import androidx.ui.material.MaterialTheme
 import androidx.ui.material.surface.Surface
@@ -47,15 +47,9 @@ class CheckboxesInRowsTestCase(
             Surface {
                 Column {
                     repeat(amountOfCheckboxes) {
-                        FlexRow {
-                            inflexible {
-                                Text(text = "Check Me!")
-                            }
-                            expanded(1f) {
-                                Align(alignment = Alignment.CenterRight) {
-                                    CheckboxWithState()
-                                }
-                            }
+                        Row {
+                            Text(text = "Check Me!")
+                            CheckboxWithState(LayoutFlexible(1f) + LayoutAlign.CenterRight)
                         }
                     }
                 }
@@ -69,12 +63,13 @@ class CheckboxesInRowsTestCase(
     }
 
     @Composable
-    fun CheckboxWithState() {
+    fun CheckboxWithState(modifier: Modifier = Modifier.None) {
         val state = +state { false }
         states.add(state)
         Checkbox(
             checked = state.value,
-            onCheckedChange = { state.value = !state.value }
+            onCheckedChange = { state.value = !state.value },
+            modifier = modifier
         )
     }
 }

@@ -49,14 +49,14 @@ import androidx.ui.layout.ColumnScope
 import androidx.ui.layout.Container
 import androidx.ui.layout.DpConstraints
 import androidx.ui.layout.EdgeInsets
-import androidx.ui.layout.FlexRow
+import androidx.ui.layout.Spacer
+import androidx.ui.layout.Wrap
+import androidx.ui.layout.Arrangement
 import androidx.ui.layout.LayoutExpandedHeight
 import androidx.ui.layout.LayoutExpandedWidth
 import androidx.ui.layout.LayoutGravity
 import androidx.ui.layout.LayoutHeight
-import androidx.ui.layout.MainAxisAlignment
-import androidx.ui.layout.Spacer
-import androidx.ui.layout.Wrap
+import androidx.ui.layout.Row
 import androidx.ui.text.TextStyle
 import androidx.ui.text.style.TextAlign
 
@@ -69,68 +69,63 @@ class PopupActivity : Activity() {
             val totalExamples = 9
 
             Column {
-                FlexRow(
+                Row(
                     LayoutExpandedWidth + LayoutGravity.Center,
-                    mainAxisAlignment = MainAxisAlignment.SpaceBetween
+                    arrangement = Arrangement.SpaceBetween
                 ) {
-                    inflexible {
-                        ClickableTextWithBackground(
-                            text = "Prev",
-                            color = Color.Cyan,
-                            onClick = {
-                                if (exampleIndex.value == 0) {
-                                    exampleIndex.value = totalExamples
-                                }
+                    this@Column.ClickableTextWithBackground(
+                        text = "Prev",
+                        color = Color.Cyan,
+                        onClick = {
+                            if (exampleIndex.value == 0) {
+                                exampleIndex.value = totalExamples
+                            }
 
-                                exampleIndex.value = (exampleIndex.value - 1) % totalExamples
-                            },
-                            padding = EdgeInsets(20.dp)
+                            exampleIndex.value = (exampleIndex.value - 1) % totalExamples
+                        },
+                        padding = EdgeInsets(20.dp)
+                    )
+
+                    Container(
+                        modifier = LayoutFlexible(1f),
+                        alignment = Alignment.Center,
+                        constraints = DpConstraints(maxWidth = 300.dp)
+                    ) {
+                        val description: String = {
+                            when (exampleIndex.value) {
+                                0 -> "Toggle a simple popup"
+                                1 -> "Different content for the popup"
+                                2 -> "Popup's behavior when the parent's size or position " +
+                                        "changes"
+                                3 -> "Aligning the popup below the parent"
+                                4 -> "Aligning the popup inside a parent"
+                                5 -> "Insert an email in the popup and then click outside to " +
+                                        "dismiss"
+                                6 -> "[bug] Undesired visual effect caused by" +
+                                        " having a new size content displayed at the old" +
+                                        " position, until the new one is calculated"
+                                7 -> "The popup is aligning to its parent when the parent is" +
+                                        " inside a Scroller"
+                                8 -> "[bug] The popup is not repositioned " +
+                                        "when the parent is moved by the keyboard"
+                                else -> "Demo description here"
+                            }
+                        }.invoke()
+
+                        Text(
+                            text = description,
+                            style = TextStyle(textAlign = TextAlign.Center)
                         )
                     }
 
-                    expanded(flex = 1f) {
-                        Container(
-                            alignment = Alignment.Center,
-                            constraints = DpConstraints(maxWidth = 300.dp)
-                        ) {
-                            val description: String = {
-                                when (exampleIndex.value) {
-                                    0 -> "Toggle a simple popup"
-                                    1 -> "Different content for the popup"
-                                    2 -> "Popup's behavior when the parent's size or position " +
-                                            "changes"
-                                    3 -> "Aligning the popup below the parent"
-                                    4 -> "Aligning the popup inside a parent"
-                                    5 -> "Insert an email in the popup and then click outside to " +
-                                            "dismiss"
-                                    6 -> "[bug] Undesired visual effect caused by" +
-                                            " having a new size content displayed at the old" +
-                                            " position, until the new one is calculated"
-                                    7 -> "The popup is aligning to its parent when the parent is" +
-                                            " inside a Scroller"
-                                    8 -> "[bug] The popup is not repositioned " +
-                                            "when the parent is moved by the keyboard"
-                                    else -> "Demo description here"
-                                }
-                            }.invoke()
-
-                            Text(
-                                text = description,
-                                style = TextStyle(textAlign = TextAlign.Center)
-                            )
-                        }
-                    }
-
-                    inflexible {
-                        ClickableTextWithBackground(
-                            text = "Next",
-                            color = Color.Cyan,
-                            onClick = {
-                                exampleIndex.value = (exampleIndex.value + 1) % totalExamples
-                            },
-                            padding = EdgeInsets(20.dp)
-                        )
-                    }
+                    this@Column.ClickableTextWithBackground(
+                        text = "Next",
+                        color = Color.Cyan,
+                        onClick = {
+                            exampleIndex.value = (exampleIndex.value + 1) % totalExamples
+                        },
+                        padding = EdgeInsets(20.dp)
+                    )
                 }
 
                 when (exampleIndex.value) {

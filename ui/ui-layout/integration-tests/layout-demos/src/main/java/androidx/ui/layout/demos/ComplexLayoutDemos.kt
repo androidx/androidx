@@ -42,13 +42,11 @@ import androidx.ui.core.toRect
 import androidx.ui.graphics.Color
 import androidx.ui.graphics.Paint
 import androidx.ui.layout.Align
+import androidx.ui.layout.LayoutAlign
 import androidx.ui.layout.AlignmentLineOffset
-import androidx.ui.layout.Center
 import androidx.ui.layout.Column
 import androidx.ui.layout.ConstrainedBox
 import androidx.ui.layout.DpConstraints
-import androidx.ui.layout.FlexColumn
-import androidx.ui.layout.FlexRow
 import androidx.ui.layout.LayoutGravity
 import androidx.ui.layout.LayoutPadding
 import androidx.ui.layout.Padding
@@ -110,60 +108,40 @@ fun RectangleWithIntrinsics(color: Color) {
 }
 
 @Composable
-fun FlexRowUsage() {
-    FlexRow {
-        expanded(flex = 2f) {
-            Center {
-                SizedRectangle(color = Color(0xFF0000FF), width = 40.dp, height = 40.dp)
-            }
-            SizedRectangle(color = Color(0xFF0000FF), height = 40.dp)
-        }
-        inflexible {
-            SizedRectangle(color = Color(0xFFFF0000), width = 40.dp)
-            SizedRectangle(color = Color(0xFF00FF00), width = 50.dp)
-            SizedRectangle(color = Color(0xFF0000FF), width = 60.dp)
-        }
-        expanded(flex = 1f) {
-            SizedRectangle(color = Color(0xFF00FF00))
-        }
-    }
-}
-
-@Composable
-fun FlexColumnUsage() {
-    FlexColumn {
-        expanded(flex = 2f) {
-            Center {
-                SizedRectangle(color = Color(0xFF0000FF), width = 40.dp, height = 40.dp)
-            }
-            SizedRectangle(color = Color(0xFF0000FF), width = 40.dp)
-        }
-        inflexible {
-            SizedRectangle(color = Color(0xFFFF0000), height = 40.dp)
-            SizedRectangle(color = Color(0xFF00FF00), height = 50.dp)
-            SizedRectangle(color = Color(0xFF0000FF), height = 60.dp)
-        }
-        expanded(flex = 1f) {
-            SizedRectangle(color = Color(0xFF00FF00))
-        }
-    }
-}
-
-@Composable
 fun RowUsage() {
     Row {
-        SizedRectangle(color = Color(0xFF0000FF), width = 40.dp, height = 40.dp)
-        SizedRectangle(color = Color(0xFFFF0000), width = 40.dp, height = 80.dp)
-        SizedRectangle(color = Color(0xFF00FF00), width = 80.dp, height = 70.dp)
+        SizedRectangle(
+            modifier = LayoutFlexible(2f) + LayoutAlign.Center,
+            color = Color(0xFF0000FF),
+            width = 40.dp,
+            height = 40.dp
+        )
+        SizedRectangle(
+            modifier = LayoutFlexible(2f),
+            color = Color(0xFF0000FF),
+            height = 40.dp
+        )
+        SizedRectangle(color = Color(0xFFFF0000), width = 40.dp)
+        SizedRectangle(color = Color(0xFF00FF00), width = 50.dp)
+        SizedRectangle(color = Color(0xFF0000FF), width = 60.dp)
+        SizedRectangle(modifier = LayoutFlexible(1f), color = Color(0xFF00FF00))
     }
 }
 
 @Composable
 fun ColumnUsage() {
     Column {
-        SizedRectangle(color = Color(0xFF0000FF), width = 40.dp, height = 40.dp)
-        SizedRectangle(color = Color(0xFFFF0000), width = 40.dp, height = 80.dp)
-        SizedRectangle(color = Color(0xFF00FF00), width = 80.dp, height = 70.dp)
+        SizedRectangle(
+            modifier = LayoutFlexible(2f) + LayoutAlign.Center,
+            color = Color(0xFF0000FF),
+            width = 40.dp,
+            height = 40.dp
+        )
+        SizedRectangle(modifier = LayoutFlexible(2f), color = Color(0xFF0000FF), width = 40.dp)
+        SizedRectangle(color = Color(0xFFFF0000), height = 40.dp)
+        SizedRectangle(color = Color(0xFF00FF00), height = 50.dp)
+        SizedRectangle(color = Color(0xFF0000FF), height = 60.dp)
+        SizedRectangle(modifier = LayoutFlexible(1f), color = Color(0xFF00FF00))
     }
 }
 

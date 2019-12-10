@@ -33,8 +33,8 @@ import androidx.ui.foundation.shape.DrawShape
 import androidx.ui.foundation.shape.RectangleShape
 import androidx.ui.graphics.Color
 import androidx.ui.layout.Column
-import androidx.ui.layout.FlexRow
-import androidx.ui.layout.Padding
+import androidx.ui.layout.LayoutPadding
+import androidx.ui.layout.Row
 import androidx.ui.text.AnnotatedString
 import androidx.ui.text.SpanStyle
 import androidx.ui.text.TextStyle
@@ -82,17 +82,15 @@ fun TextSelectionSample() {
             selection = selection.value,
             onSelectionChange = { selection.value = it }
         ) {
-            Padding(12.dp) {
-                Column {
-                    Basics()
-                    AddTextElement()
-                    langContent.forEach {
-                        MultiLanguage(it[0], it[1])
-                    }
-                    Basics()
-                    MultiParagraph()
-                    AddTextElement()
+            Column(LayoutPadding(12.dp)) {
+                Basics()
+                AddTextElement()
+                langContent.forEach {
+                    MultiLanguage(it[0], it[1])
                 }
+                Basics()
+                MultiParagraph()
+                AddTextElement()
             }
         }
     }
@@ -104,20 +102,20 @@ fun Basics() {
         text = "Jetpack Compose Basics",
         style = commonStyle.merge(header)
     )
-    FlexRow {
-        inflexible {
-            Padding(8.dp) {
-                SizedRectangle(color = rectColor, width = 48.dp, height = 48.dp)
-            }
-        }
-        flexible(1f) {
-            Text(
-                text = "Jetpack Compose is a modern toolkit for building native Android UI." +
-                        " Jetpack Compose simplifies and accelerates UI development on Android " +
-                        "with less code, powerful tools, and intuitive Kotlin APIs.",
-                style = commonStyle
-            )
-        }
+    Row {
+        SizedRectangle(
+            modifier = LayoutPadding(8.dp),
+            color = rectColor,
+            width = 48.dp,
+            height = 48.dp
+        )
+        Text(
+            text = "Jetpack Compose is a modern toolkit for building native Android UI." +
+                    " Jetpack Compose simplifies and accelerates UI development on Android " +
+                    "with less code, powerful tools, and intuitive Kotlin APIs.",
+            modifier = LayoutFlexible(1f),
+            style = commonStyle
+        )
     }
 }
 
@@ -127,30 +125,29 @@ fun AddTextElement() {
         text = "Add a text element",
         style = commonStyle.merge(header2)
     )
-    FlexRow {
-        flexible(1f) {
-            Column {
-                Text(
-                    text = AnnotatedString {
-                        append("To begin, follow the")
-                        withStyle(link) {
-                            append(" Jetpack Compose setup instructions ")
-                        }
-                        append(
-                            ", and create an app using the Empty Compose Activity template. Then " +
-                                    "add a text element to your blank activity. You do this by " +
-                                    "defining a content block, and calling the Text() function."
-                        )
-                    },
-                    style = commonStyle
-                )
-            }
+    Row {
+        Column(modifier = LayoutFlexible(1f)) {
+            Text(
+                text = AnnotatedString {
+                    append("To begin, follow the")
+                    withStyle(link) {
+                        append(" Jetpack Compose setup instructions ")
+                    }
+                    append(
+                        ", and create an app using the Empty Compose Activity template. Then " +
+                                "add a text element to your blank activity. You do this by " +
+                                "defining a content block, and calling the Text() function."
+                    )
+                },
+                style = commonStyle
+            )
         }
-        inflexible {
-            Padding(8.dp) {
-                SizedRectangle(color = rectColor, width = 48.dp, height = 48.dp)
-            }
-        }
+        SizedRectangle(
+            modifier = LayoutPadding(8.dp),
+            color = rectColor,
+            width = 48.dp,
+            height = 48.dp
+        )
     }
     EmptyRect()
     Text(
@@ -215,26 +212,29 @@ fun MultiLanguage(title: String, content: String) {
         text = title,
         style = commonStyle.merge(header)
     )
-    FlexRow {
-        inflexible {
-            Padding(8.dp) {
-                SizedRectangle(color = rectColor, width = 48.dp, height = 48.dp)
-            }
-        }
-        flexible(1f) {
-            Text(
-                text = content,
-                style = commonStyle
-            )
-        }
+    Row {
+        SizedRectangle(
+            modifier = LayoutPadding(8.dp),
+            color = rectColor,
+            width = 48.dp,
+            height = 48.dp
+        )
+        Text(
+            text = content,
+            modifier = LayoutFlexible(1f),
+            style = commonStyle
+        )
     }
 }
 
 @Composable
 fun EmptyRect() {
-    Padding(top = 20.dp, bottom = 20.dp) {
-        SizedRectangle(color = rectColor, width = 200.dp, height = 60.dp)
-    }
+    SizedRectangle(
+        modifier = LayoutPadding(top = 20.dp, bottom = 20.dp),
+        color = rectColor,
+        width = 200.dp,
+        height = 60.dp
+    )
 }
 
 @Composable

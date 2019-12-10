@@ -25,8 +25,8 @@ import androidx.compose.unaryPlus
 import androidx.ui.graphics.Color
 import androidx.ui.layout.Arrangement
 import androidx.ui.layout.LayoutExpandedWidth
-import androidx.ui.layout.FlexColumn
-import androidx.ui.layout.MainAxisAlignment
+import androidx.ui.layout.Column
+import androidx.ui.layout.LayoutGravity
 import androidx.ui.layout.Row
 import androidx.ui.material.CircularProgressIndicator
 import androidx.ui.material.LinearProgressIndicator
@@ -85,26 +85,25 @@ private fun ProgressIndicatorDemo(state: ProgressState = ProgressState()) {
     +onActive { state.start() }
     +onDispose { state.stop() }
 
-    FlexColumn(mainAxisAlignment = MainAxisAlignment.Center) {
-        expanded(flex = 1f) {
-            Row(LayoutExpandedWidth, arrangement = Arrangement.SpaceEvenly) {
-                // Determinate indicators
-                LinearProgressIndicator(progress = state.progress)
-                CircularProgressIndicator(progress = state.progress)
-            }
-            Row(LayoutExpandedWidth, arrangement = Arrangement.SpaceEvenly) {
-                // Fancy colours!
-                LinearProgressIndicator(progress = (state.progress), color = state.generateColor())
-                CircularProgressIndicator(
-                    progress = (state.progress),
-                    color = state.generateColor()
-                )
-            }
-            Row(LayoutExpandedWidth, arrangement = Arrangement.SpaceEvenly) {
-                // Indeterminate indicators
-                LinearProgressIndicator()
-                CircularProgressIndicator()
-            }
+    Column {
+        val modifier = LayoutFlexible(1f) + LayoutGravity.Center + LayoutExpandedWidth
+        Row(modifier = modifier, arrangement = Arrangement.SpaceEvenly) {
+            // Determinate indicators
+            LinearProgressIndicator(progress = state.progress)
+            CircularProgressIndicator(progress = state.progress)
+        }
+        Row(modifier = modifier, arrangement = Arrangement.SpaceEvenly) {
+            // Fancy colours!
+            LinearProgressIndicator(progress = (state.progress), color = state.generateColor())
+            CircularProgressIndicator(
+                progress = (state.progress),
+                color = state.generateColor()
+            )
+        }
+        Row(modifier = modifier, arrangement = Arrangement.SpaceEvenly) {
+            // Indeterminate indicators
+            LinearProgressIndicator()
+            CircularProgressIndicator()
         }
     }
 }
