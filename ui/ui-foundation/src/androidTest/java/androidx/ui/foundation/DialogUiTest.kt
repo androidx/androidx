@@ -27,6 +27,7 @@ import androidx.ui.test.assertDoesNotExist
 import androidx.ui.test.assertIsVisible
 import androidx.ui.test.doClick
 import androidx.ui.test.findByText
+import org.junit.Ignore
 import org.junit.Rule
 import org.junit.Test
 import org.junit.runner.RunWith
@@ -149,6 +150,9 @@ class DialogUiTest {
         assertDoesNotExist { accessibilityLabel == defaultText }
     }
 
+    // TODO(pavlis): Espresso loses focus on the dialog after back press. That makes the
+    // subsequent query to fails.
+    @Ignore
     @Test
     fun dialogTest_isNotDismissed_whenNotSpecified_backButtonPressed() {
         composeTestRule.setContent {

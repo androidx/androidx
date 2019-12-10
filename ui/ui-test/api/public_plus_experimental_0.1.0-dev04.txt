@@ -6,7 +6,6 @@ package androidx.ui.test {
     method public static androidx.ui.test.SemanticsNodeInteraction doClick(androidx.ui.test.SemanticsNodeInteraction);
     method public static androidx.ui.test.SemanticsNodeInteraction doGesture(androidx.ui.test.SemanticsNodeInteraction, kotlin.jvm.functions.Function1<? super androidx.ui.test.GestureScope,kotlin.Unit> block);
     method public static androidx.ui.test.SemanticsNodeInteraction doScrollTo(androidx.ui.test.SemanticsNodeInteraction);
-    method public static boolean waitForIdleCompose();
   }
 
   public final class AssertionsKt {
@@ -109,6 +108,7 @@ package androidx.ui.test {
     method public androidx.ui.test.ComposeTestCaseSetup forGivenTestCase(androidx.ui.test.ComposeTestCase testCase);
     method public androidx.ui.core.Density getDensity();
     method public android.util.DisplayMetrics getDisplayMetrics();
+    method public void runOnIdleCompose(kotlin.jvm.functions.Function0<kotlin.Unit> action);
     method public void runOnUiThread(kotlin.jvm.functions.Function0<kotlin.Unit> action);
     method public void setContent(kotlin.jvm.functions.Function0<kotlin.Unit> composable);
     property public abstract androidx.ui.core.Density density;
@@ -205,7 +205,7 @@ package androidx.ui.test.android {
   }
 
   public final class AndroidComposeTestRule implements androidx.ui.test.ComposeTestRule {
-    ctor public AndroidComposeTestRule(boolean disableTransitions, boolean shouldThrowOnRecomposeTimeout);
+    ctor public AndroidComposeTestRule(boolean disableTransitions);
     ctor public AndroidComposeTestRule();
     method public org.junit.runners.model.Statement apply(org.junit.runners.model.Statement base, org.junit.runner.Description? description);
     method @RequiresApi(android.os.Build.VERSION_CODES.O) public android.graphics.Bitmap captureScreenOnIdle();
@@ -214,6 +214,7 @@ package androidx.ui.test.android {
     method public androidx.test.rule.ActivityTestRule<android.app.Activity> getActivityTestRule();
     method public androidx.ui.core.Density getDensity();
     method public android.util.DisplayMetrics getDisplayMetrics();
+    method public void runOnIdleCompose(kotlin.jvm.functions.Function0<kotlin.Unit> action);
     method public void runOnUiThread(kotlin.jvm.functions.Function0<kotlin.Unit> action);
     method public void setContent(kotlin.jvm.functions.Function0<kotlin.Unit> composable);
     property public final androidx.test.rule.ActivityTestRule<android.app.Activity> activityTestRule;
@@ -224,6 +225,12 @@ package androidx.ui.test.android {
   public final class AndroidComposeTestRule.AndroidComposeStatement extends org.junit.runners.model.Statement {
     ctor public AndroidComposeTestRule.AndroidComposeStatement(org.junit.runners.model.Statement base);
     method public void evaluate();
+  }
+
+  public final class ComposeIdlingResourceKt {
+    ctor public ComposeIdlingResourceKt();
+    method public static void registerComposeWithEspresso();
+    method public static void unregisterComposeFromEspresso();
   }
 
   public final class WindowCaptureKt {

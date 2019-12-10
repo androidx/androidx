@@ -22,19 +22,21 @@ import android.os.Build
 import android.os.Handler
 import android.os.Looper
 import android.util.DisplayMetrics
+import android.view.View
 import android.view.ViewGroup
 import android.view.ViewTreeObserver
 import androidx.annotation.RequiresApi
 import androidx.compose.Composable
+import androidx.compose.Compose
 import androidx.test.rule.ActivityTestRule
 import androidx.ui.animation.transitionsEnabled
+import androidx.ui.core.AndroidComposeView
 import androidx.ui.core.Density
 import androidx.ui.core.setContent
 import androidx.ui.engine.geometry.Rect
 import androidx.ui.test.ComposeTestCase
 import androidx.ui.test.ComposeTestCaseSetup
 import androidx.ui.test.ComposeTestRule
-import androidx.ui.test.throwOnRecomposeTimeout
 import org.junit.runner.Description
 import org.junit.runners.model.Statement
 import java.util.concurrent.CountDownLatch
@@ -44,13 +46,13 @@ import java.util.concurrent.TimeUnit
  * Android specific implementation of [ComposeTestRule].
  */
 class AndroidComposeTestRule(
-    private val disableTransitions: Boolean = false,
-    private val shouldThrowOnRecomposeTimeout: Boolean = false
+    private val disableTransitions: Boolean = false
 ) : ComposeTestRule {
 
     val activityTestRule = ActivityTestRule<Activity>(Activity::class.java)
 
     private val handler: Handler = Handler(Looper.getMainLooper())
+    private var disposeContentHook: (() -> Unit)? = null
 
     override val density: Density get() = Density(activityTestRule.activity)
 
@@ -63,19 +65,30 @@ class AndroidComposeTestRule(
 
     override fun runOnUiThread(action: () -> Unit) {
         // Workaround for lambda bug in IR
-        activityTestRule.activity.runOnUiThread(object : Runnable {
+        activityTestRule.runOnUiThread(object : Runnable {
             override fun run() {
                 action.invoke()
             }
         })
     }
 
+    override fun runOnIdleCompose(action: () -> Unit) {
+        // Method below make sure that compose is idle.
+        SynchronizedTreeCollector.waitForIdle()
+        // Execute the action on ui thread in a blocking way.
+        runOnUiThread(action)
+    }
+
     /**
-     * Use this in your tests to setup the UI content to be tested. This should be called exactly
-     * once per test.
+     * @throws IllegalStateException if called more than once per test.
      */
     @SuppressWarnings("SyntheticAccessor")
     override fun setContent(composable: @Composable() () -> Unit) {
+        if (disposeContentHook != null) {
+            // TODO(pavlis): Throw here once we fix all tests to not set content twice
+            // throw IllegalStateException("Cannot call setContent twice per test!")
+        }
+
         val drawLatch = CountDownLatch(1)
         val listener = object : ViewTreeObserver.OnGlobalLayoutListener {
             override fun onGlobalLayout() {
@@ -91,6 +104,11 @@ class AndroidComposeTestRule(
                 val contentViewGroup =
                     activityTestRule.activity.findViewById<ViewGroup>(android.R.id.content)
                 contentViewGroup.viewTreeObserver.addOnGlobalLayoutListener(listener)
+                val view = findComposeView(activityTestRule.activity)
+                disposeContentHook = {
+                    Compose.disposeComposition((view as AndroidComposeView).root,
+                        activityTestRule.activity, null)
+                }
             }
         }
         activityTestRule.runOnUiThread(runnable)
@@ -121,8 +139,7 @@ class AndroidComposeTestRule(
 
     @RequiresApi(Build.VERSION_CODES.O)
     override fun captureScreenOnIdle(): Bitmap {
-        AndroidSemanticsTreeInteraction(throwOnRecomposeTimeOut = true, selector = { true })
-            .waitForIdleCompose()
+        SynchronizedTreeCollector.waitForIdle()
         val contentView = activityTestRule.activity.findViewById<ViewGroup>(android.R.id.content)
 
         val screenRect = Rect.fromLTWH(
@@ -139,13 +156,41 @@ class AndroidComposeTestRule(
     ) : Statement() {
         override fun evaluate() {
             transitionsEnabled = !disableTransitions
-            throwOnRecomposeTimeout = shouldThrowOnRecomposeTimeout
+            ComposeIdlingResource.registerSelfIntoEspresso()
             try {
                 base.evaluate()
             } finally {
                 transitionsEnabled = true
-                throwOnRecomposeTimeout = false
+                // Dispose the content
+                if (disposeContentHook != null) {
+                    runOnUiThread {
+                        disposeContentHook!!()
+                        disposeContentHook = null
+                    }
+                }
             }
         }
+    }
+
+    // TODO(pavlis): These methods are only needed because we don't have an API to purge all
+    //  compositions from the app. Remove them once we have the option.
+    private fun findComposeView(activity: Activity): AndroidComposeView? {
+        return findComposeView(activity.findViewById(android.R.id.content) as ViewGroup)
+    }
+
+    private fun findComposeView(view: View): AndroidComposeView? {
+        if (view is AndroidComposeView) {
+            return view
+        }
+
+        if (view is ViewGroup) {
+            for (i in 0 until view.childCount) {
+                val composeView = findComposeView(view.getChildAt(i))
+                if (composeView != null) {
+                    return composeView
+                }
+            }
+        }
+        return null
     }
 }

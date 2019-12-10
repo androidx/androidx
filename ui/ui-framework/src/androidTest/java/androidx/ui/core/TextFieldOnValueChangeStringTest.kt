@@ -32,7 +32,6 @@ import androidx.ui.test.createComposeRule
 import androidx.ui.test.doGesture
 import androidx.ui.test.findByTag
 import androidx.ui.test.sendClick
-import androidx.ui.test.waitForIdleCompose
 import com.google.common.truth.Truth.assertThat
 import com.nhaarman.mockitokotlin2.any
 import com.nhaarman.mockitokotlin2.argumentCaptor
@@ -90,29 +89,30 @@ class TextFieldOnValueChangeStringTest {
         }
 
         // Perform click to focus in.
-        val element = findByTag("textField")
-        element.doGesture { sendClick(1f, 1f) }
+        findByTag("textField")
+            .doGesture { sendClick(1f, 1f) }
 
-        // Verify startInput is called and capture the callback.
-        val onEditCommandCaptor = argumentCaptor<(List<EditOperation>) -> Unit>()
-        verify(textInputService, times(1)).startInput(
-            initModel = any(),
-            keyboardType = any(),
-            imeAction = any(),
-            onEditCommand = onEditCommandCaptor.capture(),
-            onImeActionPerformed = any()
-        )
-        assertThat(onEditCommandCaptor.allValues.size).isEqualTo(1)
-        onEditCommandCallback = onEditCommandCaptor.firstValue
-        assertThat(onEditCommandCallback).isNotNull()
+        composeTestRule.runOnUiThread {
+            // Verify startInput is called and capture the callback.
+            val onEditCommandCaptor = argumentCaptor<(List<EditOperation>) -> Unit>()
+            verify(textInputService, times(1)).startInput(
+                initModel = any(),
+                keyboardType = any(),
+                imeAction = any(),
+                onEditCommand = onEditCommandCaptor.capture(),
+                onImeActionPerformed = any()
+            )
+            assertThat(onEditCommandCaptor.allValues.size).isEqualTo(1)
+            onEditCommandCallback = onEditCommandCaptor.firstValue
+            assertThat(onEditCommandCallback).isNotNull()
 
-        clearInvocations(onValueChange)
+            clearInvocations(onValueChange)
+        }
     }
 
     private fun performEditOperation(op: EditOperation) {
         arrayOf(listOf(op)).forEach {
             composeTestRule.runOnUiThread { onEditCommandCallback(it) }
-            waitForIdleCompose()
         }
     }
 
@@ -120,50 +120,45 @@ class TextFieldOnValueChangeStringTest {
     fun commitText_onValueChange_call_once() {
         // Committing text should be reported as value change
         performEditOperation(CommitTextEditOp("ABCDE", 1))
-        composeTestRule.runOnUiThread { verify(onValueChange, times(1)).invoke(eq("ABCDEabcde")) }
-        waitForIdleCompose()
+        composeTestRule.runOnIdleCompose {
+            verify(onValueChange, times(1)).invoke(eq("ABCDEabcde"))
+        }
     }
 
     @Test
     fun setComposingRegion_onValueChange_never_call() {
         // Composition conversion is not counted as a value change in string text field.
         performEditOperation(SetComposingRegionEditOp(0, 5))
-        composeTestRule.runOnUiThread { verify(onValueChange, never()).invoke(any()) }
-        waitForIdleCompose()
+        composeTestRule.runOnIdleCompose { verify(onValueChange, never()).invoke(any()) }
     }
 
     @Test
     fun setCompsingText_onValueChange_call_once() {
         performEditOperation(SetComposingTextEditOp("ABCDE", 1))
-        composeTestRule.runOnUiThread { verify(onValueChange, times(1)).invoke("ABCDEabcde") }
-        waitForIdleCompose()
+        composeTestRule.runOnIdleCompose { verify(onValueChange, times(1)).invoke("ABCDEabcde") }
     }
 
     @Test
     fun setSelection_onValueChange_never_call() {
         // Selection change is not counted as a value change in string text field
         performEditOperation(SetSelectionEditOp(1, 1))
-        composeTestRule.runOnUiThread { verify(onValueChange, never()).invoke(any()) }
-        waitForIdleCompose()
+        composeTestRule.runOnIdleCompose { verify(onValueChange, never()).invoke(any()) }
     }
 
     @Test
     fun finishComposition_onValueChange_never_call() {
         performEditOperation(SetComposingTextEditOp("ABCDE", 1))
-        composeTestRule.runOnUiThread { verify(onValueChange, times(1)).invoke("ABCDEabcde") }
-        waitForIdleCompose()
+        composeTestRule.runOnIdleCompose { verify(onValueChange, times(1)).invoke("ABCDEabcde") }
 
         // Finishing composition change is not counted as a value change in string text field.
         clearInvocations(onValueChange)
         performEditOperation(FinishComposingTextEditOp())
-        composeTestRule.runOnUiThread { verify(onValueChange, never()).invoke(any()) }
-        waitForIdleCompose()
+        composeTestRule.runOnIdleCompose { verify(onValueChange, never()).invoke(any()) }
     }
 
     @Test
     fun deleteSurroundingText_onValueChange_call_once() {
         performEditOperation(DeleteSurroundingTextEditOp(0, 1))
-        composeTestRule.runOnUiThread { verify(onValueChange, times(1)).invoke("bcde") }
-        waitForIdleCompose()
+        composeTestRule.runOnIdleCompose { verify(onValueChange, times(1)).invoke("bcde") }
     }
 }

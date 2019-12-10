@@ -174,21 +174,22 @@ class DrawerTest {
         findByTag("Drawer")
             .doClick()
 
-        Truth.assertThat(drawerClicks).isEqualTo(0)
-        Truth.assertThat(bodyClicks).isEqualTo(1)
+        composeTestRule.runOnIdleCompose {
+            Truth.assertThat(drawerClicks).isEqualTo(0)
+            Truth.assertThat(bodyClicks).isEqualTo(1)
+        }
 
         composeTestRule.runOnUiThread {
             drawerState.state = DrawerState.Opened
         }
-        // TODO: we aren't correctly waiting for recompositions after clicking, so we need to wait
-        // again
-        Thread.sleep(100L)
 
         findByTag("Drawer")
             .doClick()
 
-        Truth.assertThat(drawerClicks).isEqualTo(1)
-        Truth.assertThat(bodyClicks).isEqualTo(1)
+        composeTestRule.runOnIdleCompose {
+            Truth.assertThat(drawerClicks).isEqualTo(1)
+            Truth.assertThat(bodyClicks).isEqualTo(1)
+        }
     }
 
     @Test

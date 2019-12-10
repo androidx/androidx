@@ -16,6 +16,7 @@
 
 package androidx.ui.material
 
+import androidx.compose.state
 import androidx.test.filters.MediumTest
 import androidx.compose.unaryPlus
 import androidx.ui.core.Dp
@@ -34,6 +35,8 @@ import androidx.ui.core.withDensity
 import androidx.ui.layout.Center
 import androidx.ui.layout.Column
 import androidx.ui.layout.Wrap
+import androidx.ui.test.assertHasClickAction
+import androidx.ui.test.assertHasNoClickAction
 import androidx.ui.test.assertSemanticsIsEqualTo
 import androidx.ui.test.createComposeRule
 import androidx.ui.test.createFullSemantics
@@ -41,7 +44,7 @@ import androidx.ui.test.doClick
 import androidx.ui.test.findByTag
 import androidx.ui.test.findByText
 import androidx.ui.text.TextStyle
-import com.google.common.truth.Truth
+import com.google.common.truth.Truth.assertThat
 import org.junit.Assert.assertEquals
 import org.junit.Assert.assertTrue
 import org.junit.Rule
@@ -113,9 +116,45 @@ class ButtonTest {
         findByText(text)
             .doClick()
 
-        Truth
-            .assertThat(counter)
-            .isEqualTo(1)
+        composeTestRule.runOnIdleCompose {
+            assertThat(counter)
+                .isEqualTo(1)
+        }
+    }
+
+    @Test
+    fun buttonTest_canBeDisabled() {
+        val tag = "myButton"
+
+        composeTestRule.setMaterialContent {
+            val enabled = +state { true }
+            val onClick: (() -> Unit)? = if (enabled.value) {
+                { enabled.value = false }
+            } else {
+                null
+            }
+            Center {
+                TestTag(tag = tag) {
+                    Button(onClick = onClick, text = "Hello")
+                }
+            }
+        }
+        findByTag(tag)
+            // Confirm the button starts off enabled, with a click action
+            .assertHasClickAction()
+            .assertSemanticsIsEqualTo(
+                createFullSemantics(
+                    isEnabled = true
+                )
+            )
+            .doClick()
+            // Then confirm it's disabled with no click action after clicking it
+            .assertHasNoClickAction()
+            .assertSemanticsIsEqualTo(
+                createFullSemantics(
+                    isEnabled = false
+                )
+            )
     }
 
     @Test
@@ -144,24 +183,18 @@ class ButtonTest {
         findByTag(button1Tag)
             .doClick()
 
-        Truth
-            .assertThat(button1Counter)
-            .isEqualTo(1)
-
-        Truth
-            .assertThat(button2Counter)
-            .isEqualTo(0)
+        composeTestRule.runOnIdleCompose {
+            assertThat(button1Counter).isEqualTo(1)
+            assertThat(button2Counter).isEqualTo(0)
+        }
 
         findByTag(button2Tag)
             .doClick()
 
-        Truth
-            .assertThat(button1Counter)
-            .isEqualTo(1)
-
-        Truth
-            .assertThat(button2Counter)
-            .isEqualTo(1)
+        composeTestRule.runOnIdleCompose {
+            assertThat(button1Counter).isEqualTo(1)
+            assertThat(button2Counter).isEqualTo(1)
+        }
     }
 
     @Test
@@ -190,7 +223,7 @@ class ButtonTest {
         }
 
         withDensity(composeTestRule.density) {
-            Truth.assertThat(realSize.height.value)
+            assertThat(realSize.height.value)
                 .isGreaterThan(36.dp.toIntPx().value.toFloat())
         }
     }
@@ -201,7 +234,7 @@ class ButtonTest {
             Button(onClick = {}, style = ContainedButtonStyle()) {
                 val style = (+MaterialTheme.typography()).button
                     .copy(color = (+MaterialTheme.colors()).onPrimary)
-                Truth.assertThat(+currentTextStyle()).isEqualTo(style)
+                assertThat(+currentTextStyle()).isEqualTo(style)
             }
         }
     }
@@ -212,7 +245,7 @@ class ButtonTest {
             Button(onClick = {}, style = OutlinedButtonStyle()) {
                 val style = (+MaterialTheme.typography()).button
                     .copy(color = (+MaterialTheme.colors()).primary)
-                Truth.assertThat(+currentTextStyle()).isEqualTo(style)
+                assertThat(+currentTextStyle()).isEqualTo(style)
             }
         }
     }
@@ -223,7 +256,7 @@ class ButtonTest {
             Button(onClick = {}, style = OutlinedButtonStyle()) {
                 val style = (+MaterialTheme.typography()).button
                     .copy(color = (+MaterialTheme.colors()).primary)
-                Truth.assertThat(+currentTextStyle()).isEqualTo(style)
+                assertThat(+currentTextStyle()).isEqualTo(style)
             }
         }
     }

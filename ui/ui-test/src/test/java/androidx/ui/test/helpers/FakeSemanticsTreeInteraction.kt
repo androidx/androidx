@@ -25,7 +25,6 @@ import androidx.ui.test.InputDispatcher
 import androidx.ui.test.SemanticsNodeInteraction
 import androidx.ui.test.SemanticsTreeInteraction
 import androidx.ui.test.SemanticsTreeNodeStub
-import androidx.ui.test.semanticsTreeInteractionFactory
 
 internal class FakeSemanticsTreeInteraction internal constructor(
     private val selector: SemanticsConfiguration.() -> Boolean
@@ -83,10 +82,6 @@ internal class FakeSemanticsTreeInteraction internal constructor(
 
     override fun isInScreenBounds(rectangle: Rect): Boolean {
         TODO("catalintudor: implement")
-    }
-
-    override fun waitForIdleCompose(): Boolean {
-        return semanticsTreeInteractionFactory(selector).waitForIdleCompose()
     }
 
     override fun captureNodeToBitmap(node: SemanticsTreeNode): Bitmap {

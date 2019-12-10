@@ -208,12 +208,16 @@ class IsDisplayedTests {
             }
         }
 
-        Assert.assertTrue(!wasScrollToCalled)
+        composeTestRule.runOnIdleCompose {
+            Assert.assertTrue(!wasScrollToCalled)
+        }
 
         findByTag(tag)
             .doScrollTo()
 
-        Assert.assertTrue(wasScrollToCalled)
+        composeTestRule.runOnIdleCompose {
+            Assert.assertTrue(wasScrollToCalled)
+        }
     }
 
     @Test
@@ -267,15 +271,19 @@ class IsDisplayedTests {
             }
         }
 
-        Assert.assertTrue(currentScrollPositionY == 0.px)
-        Assert.assertTrue(currentScrollPositionX == 0.px)
+        composeTestRule.runOnIdleCompose {
+            Assert.assertTrue(currentScrollPositionY == 0.px)
+            Assert.assertTrue(currentScrollPositionX == 0.px)
+        }
 
         findByTag(tag)
             .doScrollTo() // scroll to third element
 
-        val expected = elementHeight * 2
-        Assert.assertTrue(currentScrollPositionY == expected)
-        Assert.assertTrue(currentScrollPositionX == 0.px)
+        composeTestRule.runOnIdleCompose {
+            val expected = elementHeight * 2
+            Assert.assertTrue(currentScrollPositionY == expected)
+            Assert.assertTrue(currentScrollPositionX == 0.px)
+        }
     }
 }
 
