@@ -47,7 +47,11 @@ android {
     defaultConfig {
         minSdkVersion 21
     }
+
+    // Use Robolectric 4.+
+    testOptions.unitTests.includeAndroidResources = true
 }
+
 androidx {
     name = "Jetpack Camera Testing Library"
     publish = Publish.NONE
