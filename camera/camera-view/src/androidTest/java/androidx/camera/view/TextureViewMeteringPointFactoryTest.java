@@ -49,6 +49,7 @@ import androidx.camera.testing.fakes.FakeLifecycleOwner;
 import androidx.test.core.app.ApplicationProvider;
 import androidx.test.ext.junit.runners.AndroidJUnit4;
 import androidx.test.filters.LargeTest;
+import androidx.test.filters.Suppress;
 import androidx.test.platform.app.InstrumentationRegistry;
 import androidx.test.rule.ActivityTestRule;
 import androidx.test.rule.GrantPermissionRule;
@@ -65,6 +66,7 @@ import java.util.concurrent.ExecutionException;
 import java.util.concurrent.TimeUnit;
 
 @LargeTest
+@Suppress // "Suppress these tests until they can be fixed, see b/143453238"
 @RunWith(AndroidJUnit4.class)
 public class TextureViewMeteringPointFactoryTest {
     public static final float TOLERANCE = 0.000001f;
