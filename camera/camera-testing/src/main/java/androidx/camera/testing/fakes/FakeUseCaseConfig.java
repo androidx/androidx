@@ -219,7 +219,7 @@ public class FakeUseCaseConfig
 
     @Override
     public boolean hasTargetAspectRatio() {
-        return false;
+        return containsOption(OPTION_TARGET_ASPECT_RATIO);
     }
 
     @Override
@@ -291,9 +291,9 @@ public class FakeUseCaseConfig
     // *********************************************************************************************
 
     /** Builder for an empty Config */
-    public static final class Builder
-            implements
-            UseCaseConfig.Builder<FakeUseCase, FakeUseCaseConfig, FakeUseCaseConfig.Builder> {
+    public static final class Builder implements
+            UseCaseConfig.Builder<FakeUseCase, FakeUseCaseConfig, FakeUseCaseConfig.Builder>,
+            ImageOutputConfig.Builder<FakeUseCaseConfig.Builder> {
 
         private final MutableOptionsBundle mOptionsBundle;
 
@@ -393,6 +393,59 @@ public class FakeUseCaseConfig
         @NonNull
         public Builder setUseCaseEventCallback(@NonNull UseCase.EventCallback eventCallback) {
             getMutableConfig().insertOption(OPTION_USE_CASE_EVENT_CALLBACK, eventCallback);
+            return this;
+        }
+
+        @NonNull
+        @Override
+        public Builder setTargetAspectRatioCustom(@NonNull Rational aspectRatio) {
+            getMutableConfig().insertOption(OPTION_TARGET_ASPECT_RATIO_CUSTOM, aspectRatio);
+            getMutableConfig().removeOption(OPTION_TARGET_ASPECT_RATIO);
+            return this;
+        }
+
+        @NonNull
+        @Override
+        public Builder setTargetAspectRatio(int aspectRatio) {
+            getMutableConfig().insertOption(OPTION_TARGET_ASPECT_RATIO, aspectRatio);
+            return this;
+        }
+
+        @NonNull
+        @Override
+        public Builder setTargetRotation(int rotation) {
+            getMutableConfig().insertOption(OPTION_TARGET_ROTATION, rotation);
+            return this;
+        }
+
+        @NonNull
+        @Override
+        public Builder setTargetResolution(@NonNull Size resolution) {
+            getMutableConfig().insertOption(ImageOutputConfig.OPTION_TARGET_RESOLUTION, resolution);
+            getMutableConfig().insertOption(OPTION_TARGET_ASPECT_RATIO_CUSTOM,
+                    new Rational(resolution.getWidth(), resolution.getHeight()));
+            return this;
+        }
+
+        @NonNull
+        @Override
+        public Builder setDefaultResolution(@NonNull Size resolution) {
+            getMutableConfig().insertOption(OPTION_DEFAULT_RESOLUTION, resolution);
+            return this;
+        }
+
+        @NonNull
+        @Override
+        public Builder setMaxResolution(@NonNull Size resolution) {
+            getMutableConfig().insertOption(OPTION_MAX_RESOLUTION, resolution);
+            return this;
+        }
+
+        @NonNull
+        @Override
+        public Builder setSupportedResolutions(
+                @NonNull List<Pair<Integer, Size[]>> resolutionsList) {
+            getMutableConfig().insertOption(OPTION_SUPPORTED_RESOLUTIONS, resolutionsList);
             return this;
         }
     }
