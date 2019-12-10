@@ -28,7 +28,7 @@ dependencies {
     androidTestImplementation(project(":ads-identifier"))
     androidTestImplementation(project(":ads-identifier-provider"))
     androidTestImplementation(project(":ads-identifier-testing"))
-    androidTestImplementation(project(':work:work-runtime'))
+    androidTestImplementation("androidx.work:work-runtime:2.2.0")
     androidTestImplementation(JUNIT)
     androidTestImplementation(TRUTH)
     androidTestImplementation(ANDROIDX_TEST_EXT_JUNIT)
