@@ -163,6 +163,14 @@ data /*inline*/ class TextUnit(val packedValue: Long) {
         value.compareTo(other.value)
     }
 
+    override fun toString(): String {
+        return when (type) {
+            TextUnitType.Inherit -> "Inherit"
+            TextUnitType.Sp -> "$value.sp"
+            TextUnitType.Em -> "$value.em"
+        }
+    }
+
     companion object {
         /**
          * Creates a SP unit [TextUnit].
