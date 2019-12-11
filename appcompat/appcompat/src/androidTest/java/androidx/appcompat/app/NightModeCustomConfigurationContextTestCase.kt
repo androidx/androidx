@@ -16,19 +16,15 @@
 
 package androidx.appcompat.app
 
-import androidx.appcompat.app.AppCompatDelegate.MODE_NIGHT_NO
 import androidx.appcompat.app.AppCompatDelegate.MODE_NIGHT_YES
 import androidx.appcompat.app.NightModeCustomConfigurationActivity.CUSTOM_FONT_SCALE
 import androidx.appcompat.app.NightModeCustomConfigurationActivity.CUSTOM_LOCALE
+import androidx.appcompat.testutils.NightModeActivityTestRule
 import androidx.appcompat.testutils.NightModeUtils.NightSetMode
-import androidx.appcompat.testutils.NightModeUtils.setNightModeAndWait
 import androidx.appcompat.testutils.NightModeUtils.setNightModeAndWaitForRecreate
 import androidx.test.filters.LargeTest
 import androidx.test.filters.SdkSuppress
-import androidx.test.rule.ActivityTestRule
-import org.junit.After
 import org.junit.Assert.assertEquals
-import org.junit.Before
 import org.junit.Rule
 import org.junit.Test
 import org.junit.runner.RunWith
@@ -40,23 +36,7 @@ import org.junit.runners.Parameterized
 class NightModeCustomConfigurationContextTestCase(private val setMode: NightSetMode) {
 
     @get:Rule
-    val activityRule = ActivityTestRule(
-        NightModeCustomConfigurationActivity::class.java,
-        false,
-        false
-    )
-
-    @Before
-    fun setup() {
-        // By default we'll set the night mode to NO, which allows us to make better
-        // assumptions in the test below.
-        activityRule.runOnUiThread {
-            AppCompatDelegate.setDefaultNightMode(MODE_NIGHT_NO)
-        }
-
-        // Launch the test activity
-        activityRule.launchActivity(null)
-    }
+    val activityRule = NightModeActivityTestRule(NightModeCustomConfigurationActivity::class.java)
 
     @Test
     @Suppress("DEPRECATION")
@@ -92,18 +72,6 @@ class NightModeCustomConfigurationContextTestCase(private val setMode: NightSetM
         // Check that the custom configuration properties are maintained
         val config = activityRule.activity.resources.configuration
         assertEquals(CUSTOM_FONT_SCALE, config.fontScale)
-    }
-
-    @After
-    fun cleanup() {
-        activityRule.finishActivity()
-
-        // Reset the default night mode
-        setNightModeAndWait(
-            activityRule,
-            MODE_NIGHT_NO,
-            NightSetMode.DEFAULT
-        )
     }
 
     companion object {

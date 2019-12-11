@@ -49,7 +49,7 @@ public class ActivityCompatRecreateTestCase {
         final TestActivityWithLifecycle firstActivity = mActivityTestRule.getActivity();
 
         // Wait and assert that the Activity is resumed
-        waitUntilState(firstActivity, mActivityTestRule, Lifecycle.State.RESUMED);
+        waitUntilState(firstActivity, Lifecycle.State.RESUMED);
 
         // Now recreate() the activity
         mActivityTestRule.runOnUiThread(new Runnable() {
@@ -59,7 +59,7 @@ public class ActivityCompatRecreateTestCase {
             }
         });
         // Wait until the original activity is destroyed
-        waitUntilState(firstActivity, mActivityTestRule, Lifecycle.State.DESTROYED);
+        waitUntilState(firstActivity, Lifecycle.State.DESTROYED);
 
         // Assert that the recreated Activity is resumed
         final TestActivityWithLifecycle newActivity = mActivityTestRule.getActivity();
@@ -73,7 +73,7 @@ public class ActivityCompatRecreateTestCase {
         final Instrumentation instrumentation = InstrumentationRegistry.getInstrumentation();
 
         // Assert that the activity is resumed currently
-        waitUntilState(firstActivity, mActivityTestRule, Lifecycle.State.RESUMED);
+        waitUntilState(firstActivity, Lifecycle.State.RESUMED);
 
         // Start a new Activity, so that the first Activity goes into the background
         final Intent intent = new Intent(firstActivity, TestActivityWithLifecycle.class);
@@ -82,8 +82,8 @@ public class ActivityCompatRecreateTestCase {
                 (TestActivityWithLifecycle) instrumentation.startActivitySync(intent);
 
         // Now wait until the new activity is resumed, and the original activity is stopped
-        waitUntilState(fgActivity, mActivityTestRule, Lifecycle.State.RESUMED);
-        waitUntilState(firstActivity, mActivityTestRule, Lifecycle.State.CREATED);
+        waitUntilState(fgActivity, Lifecycle.State.RESUMED);
+        waitUntilState(firstActivity, Lifecycle.State.CREATED);
 
         // Now recreate() the stopped activity
         mActivityTestRule.runOnUiThread(new Runnable() {
@@ -95,17 +95,17 @@ public class ActivityCompatRecreateTestCase {
 
         // Wait and assert that the original activity in the background is destroyed
         // (since it is being recreated)
-        waitUntilState(firstActivity, mActivityTestRule, Lifecycle.State.DESTROYED);
+        waitUntilState(firstActivity, Lifecycle.State.DESTROYED);
 
         // Now finish the foreground activity and wait until it is destroyed,
         // allowing the recreated activity to come to the foreground
         fgActivity.finish();
-        waitUntilState(fgActivity, mActivityTestRule, Lifecycle.State.DESTROYED);
+        waitUntilState(fgActivity, Lifecycle.State.DESTROYED);
 
         // Assert that the activity was recreated and is resumed
         final TestActivityWithLifecycle recreatedActivity = mActivityTestRule.getActivity();
         assertNotSame(firstActivity, recreatedActivity);
         // Assert that the recreated Activity is resumed
-        waitUntilState(recreatedActivity, mActivityTestRule, Lifecycle.State.RESUMED);
+        waitUntilState(recreatedActivity, Lifecycle.State.RESUMED);
     }
 }
