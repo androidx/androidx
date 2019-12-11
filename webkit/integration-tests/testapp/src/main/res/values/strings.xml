@@ -72,4 +72,5 @@
     <string name="fullscreen_activity_title">Fullscreen web contents Demo</string>
     <string name="js_java_interaction_activity_title">JavaScript - Java communication</string>
     <string name="web_message_listener_activity_title">WebMessageListener Demo</string>
+    <string name="web_message_listener_malicious_website_activity_title">Malicious Website Demo</string>
 </resources>
