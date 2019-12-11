@@ -12,6 +12,7 @@ if [ -n "$OUT_DIR" ] ; then
     mkdir -p "$OUT_DIR"
     OUT_DIR="$(cd $OUT_DIR && pwd)"
     export GRADLE_USER_HOME="$OUT_DIR/.gradle"
+    export TMPDIR=$OUT_DIR
 else
     SCRIPT_PATH="$(cd $(dirname $0) && pwd)"
     CHECKOUT_ROOT="$(cd $SCRIPT_PATH/../.. && pwd)"
@@ -205,8 +206,11 @@ HOME_SYSTEM_PROPERTY_ARGUMENT=""
 if [ "$GRADLE_USER_HOME" != "" ]; then
     HOME_SYSTEM_PROPERTY_ARGUMENT="-Duser.home=$GRADLE_USER_HOME"
 fi
+if [ "$TMPDIR" != "" ]; then
+  TMPDIR_ARG="-Djava.io.tmpdir=$TMPDIR"
+fi
 
-if "$JAVACMD" "${JVM_OPTS[@]}" -classpath "$CLASSPATH" org.gradle.wrapper.GradleWrapperMain $HOME_SYSTEM_PROPERTY_ARGUMENT "$@"; then
+if "$JAVACMD" "${JVM_OPTS[@]}" $TMPDIR_ARG -classpath "$CLASSPATH" org.gradle.wrapper.GradleWrapperMain $HOME_SYSTEM_PROPERTY_ARGUMENT $TMPDIR_ARG "$@"; then
   exit 0
 else
   # Print AndroidX-specific help message if build fails
