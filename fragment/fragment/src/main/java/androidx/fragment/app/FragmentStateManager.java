@@ -218,7 +218,6 @@ class FragmentStateManager {
     void moveToExpectedState() {
         int newState;
         while ((newState = computeExpectedState()) != mFragment.mState) {
-            // TODO call ensureInflatedView()
             if (newState > mFragment.mState) {
                 // Moving upward
                 int nextStep = mFragment.mState + 1;
@@ -231,6 +230,7 @@ class FragmentStateManager {
                         create();
                         break;
                     case Fragment.ACTIVITY_CREATED:
+                        ensureInflatedView();
                         createView();
                         activityCreated();
                         restoreViewState();
