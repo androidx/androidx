@@ -24,6 +24,7 @@ import android.hardware.camera2.CameraAccessException;
 import android.hardware.camera2.CameraCharacteristics;
 
 import androidx.annotation.NonNull;
+import androidx.annotation.Nullable;
 import androidx.camera.core.CameraInfoUnavailableException;
 import androidx.camera.core.CameraSelector;
 import androidx.camera.core.CameraX;
@@ -31,7 +32,6 @@ import androidx.camera.core.ImageCapture;
 import androidx.camera.core.ImageCaptureConfig;
 import androidx.camera.core.Preview;
 import androidx.camera.core.PreviewConfig;
-import androidx.camera.core.impl.utils.CameraSelectorUtil;
 import androidx.camera.extensions.AutoImageCaptureExtender;
 import androidx.camera.extensions.AutoPreviewExtender;
 import androidx.camera.extensions.BeautyImageCaptureExtender;
@@ -291,11 +291,9 @@ public class ExtensionsTestUtil {
         CameraSelector cameraSelector =
                 new CameraSelector.Builder().requireLensFacing(lensFacing).build();
 
-        String cameraId = CameraX.getCameraWithCameraDeviceConfig(
-                CameraSelectorUtil.toCameraDeviceConfig(cameraSelector));
+        String cameraId = getCameraIdUnchecked(cameraSelector);
         CameraCharacteristics cameraCharacteristics =
-                CameraUtil.getCameraManager().getCameraCharacteristics(
-                        CameraX.getCameraWithLensFacing(lensFacing));
+                CameraUtil.getCameraManager().getCameraCharacteristics(cameraId);
 
         impl.init(cameraId, cameraCharacteristics);
 
@@ -338,11 +336,9 @@ public class ExtensionsTestUtil {
         CameraSelector cameraSelector =
                 new CameraSelector.Builder().requireLensFacing(lensFacing).build();
 
-        String cameraId = CameraX.getCameraWithCameraDeviceConfig(
-                CameraSelectorUtil.toCameraDeviceConfig(cameraSelector));
+        String cameraId = getCameraIdUnchecked(cameraSelector);
         CameraCharacteristics cameraCharacteristics =
-                CameraUtil.getCameraManager().getCameraCharacteristics(
-                        CameraX.getCameraWithLensFacing(lensFacing));
+                CameraUtil.getCameraManager().getCameraCharacteristics(cameraId);
 
         impl.init(cameraId, cameraCharacteristics);
 
@@ -417,5 +413,15 @@ public class ExtensionsTestUtil {
         assertNotNull(extender);
 
         return extender;
+    }
+
+    @Nullable
+    private static String getCameraIdUnchecked(@NonNull CameraSelector cameraSelector) {
+        try {
+            return CameraX.getCameraWithCameraSelector(cameraSelector);
+        } catch (IllegalArgumentException e) {
+            // Returns null if there's no camera id can be found.
+            return null;
+        }
     }
 }

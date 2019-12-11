@@ -16,6 +16,7 @@
 
 package androidx.camera.core;
 
+import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.annotation.RestrictTo;
 import androidx.annotation.RestrictTo.Scope;
@@ -29,7 +30,6 @@ import androidx.annotation.RestrictTo.Scope;
  */
 @RestrictTo(Scope.LIBRARY_GROUP)
 public interface CameraInfoInternal extends CameraInfo {
-
     /**
      * Returns the LensFacing of this camera.
      *
@@ -40,4 +40,12 @@ public interface CameraInfoInternal extends CameraInfo {
     // can be used to represent non-BACK or FRONT facing lenses.
     @Nullable
     Integer getLensFacing();
+
+    /**
+     * Returns the camera id of this camera.
+     *
+     * @return the camera id
+     */
+    @NonNull
+    String getCameraId();
 }

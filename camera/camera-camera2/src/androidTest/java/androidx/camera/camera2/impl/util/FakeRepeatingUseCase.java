@@ -33,7 +33,6 @@ import androidx.camera.core.CameraX;
 import androidx.camera.core.ImmediateSurface;
 import androidx.camera.core.SessionConfig;
 import androidx.camera.core.UseCaseConfig;
-import androidx.camera.core.impl.utils.CameraSelectorUtil;
 import androidx.camera.testing.fakes.FakeUseCase;
 import androidx.camera.testing.fakes.FakeUseCaseConfig;
 
@@ -70,16 +69,9 @@ public class FakeRepeatingUseCase extends FakeUseCase {
 
         SessionConfig.Builder builder = SessionConfig.Builder.createFrom(configWithDefaults);
         builder.addSurface(new ImmediateSurface(mImageReader.getSurface()));
-        try {
-            String cameraId =
-                    CameraX.getCameraWithCameraDeviceConfig(
-                            CameraSelectorUtil.toCameraDeviceConfig(cameraSelector));
-            attachToCamera(cameraId, builder.build());
-        } catch (Exception e) {
-            throw new IllegalArgumentException(
-                    "Unable to get camera id for the camera device config.", e);
-        }
 
+        String cameraId = CameraX.getCameraWithCameraSelector(cameraSelector);
+        attachToCamera(cameraId, builder.build());
         notifyActive();
     }
 

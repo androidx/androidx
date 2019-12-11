@@ -465,7 +465,7 @@ public class ImageCapture extends UseCase {
         // ready, directly updating the flash mode into camera control. If the camera control has
         // been not ready yet, just saving the flash mode and updating into camera control when
         // camera control ready callback is called.
-        if (getBoundDeviceConfig() != null) {
+        if (getBoundCamera() != null) {
             getCurrentCameraControl().setFlashMode(flashMode);
         }
     }

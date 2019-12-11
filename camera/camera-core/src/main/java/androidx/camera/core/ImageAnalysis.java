@@ -305,15 +305,14 @@ public final class ImageAnalysis extends UseCase {
             // Old
             // configuration lens facing should match new configuration.
             try {
-                String cameraId = CameraX.getCameraWithCameraDeviceConfig(oldConfig);
-                tryUpdateRelativeRotation(cameraId);
-            } catch (CameraInfoUnavailableException e) {
+                tryUpdateRelativeRotation(getBoundCameraId());
+            } catch (Exception e) {
                 // Likely don't yet have permissions. This is expected if this method is called
                 // before
                 // this use case becomes active. That's OK though since we've updated the use case
                 // configuration. We'll try to update relative rotation again in
                 // onSuggestedResolutionUpdated().
-                Log.w(TAG, "Unable to get camera id for the camera device config.");
+                Log.w(TAG, "Unable to get camera id for the use case.");
             }
         }
     }

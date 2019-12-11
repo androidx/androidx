@@ -21,7 +21,6 @@ import android.util.Size;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
-import androidx.camera.core.CameraDeviceConfig;
 import androidx.camera.core.CameraDeviceSurfaceManager;
 import androidx.camera.core.ImageOutputConfig;
 import androidx.camera.core.SurfaceConfig;
@@ -111,13 +110,13 @@ public final class FakeCameraDeviceSurfaceManager implements CameraDeviceSurface
     }
 
     @Override
-    public boolean requiresCorrectedAspectRatio(@NonNull CameraDeviceConfig deviceConfig) {
+    public boolean requiresCorrectedAspectRatio(@NonNull String cameraId) {
         return false;
     }
 
     @Nullable
     @Override
-    public Rational getCorrectedAspectRatio(@NonNull CameraDeviceConfig deviceConfig,
+    public Rational getCorrectedAspectRatio(@NonNull String cameraId,
             @ImageOutputConfig.RotationValue int rotation) {
         return null;
     }

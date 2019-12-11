@@ -29,22 +29,48 @@ import java.util.Set;
  */
 @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
 public interface CameraFactory {
+    /**
+     * Gets the camera with the associated id.
+     *
+     * @param cameraId the camera id to get camera with
+     * @return the camera object with given camera id
+     * @throws CameraInfoUnavailableException if unable to access cameras, perhaps due
+     *                                        to insufficient permissions.
+     * @throws IllegalArgumentException       if the given camera id is not on the available
+     *                                        camera id list.
+     */
+    @NonNull
+    CameraInternal getCamera(@NonNull String cameraId) throws CameraInfoUnavailableException;
 
-    /** Gets the camera with the associated id. */
-    CameraInternal getCamera(String cameraId);
-
-    /** Gets ids for all the available cameras. */
+    /**
+     * Gets the ids of all available cameras.
+     *
+     * @return the list of available cameras
+     * @throws CameraInfoUnavailableException if unable to access cameras, perhaps due
+     *                                        to insufficient permissions.
+     */
+    @NonNull
     Set<String> getAvailableCameraIds() throws CameraInfoUnavailableException;
 
     /**
-     * Gets the id of the camera with the specified lens facing. Returns null if there's no
-     * camera with specified lens facing.
+     * Gets the first id of the camera with the given lens facing. Returns null if there's no
+     * camera with given lens facing.
+     *
+     * @param lensFacing the lens facing to query camera id with
+     * @return the first id of the camera with the given lens facing
+     * @throws CameraInfoUnavailableException if unable to access cameras, perhaps due
+     *                                        to insufficient permissions.
      */
     @Nullable
     String cameraIdForLensFacing(@CameraSelector.LensFacing int lensFacing)
             throws CameraInfoUnavailableException;
 
-    /** Gets a {@link LensFacingCameraIdFilter} with specified lens facing. */
+    /**
+     * Gets a {@link LensFacingCameraIdFilter} with given lens facing.
+     *
+     * @param lensFacing the lens facing to create camera id filter with
+     * @return the camera id filter that filters cameras with given lens facing
+     */
     @NonNull
     LensFacingCameraIdFilter getLensFacingCameraIdFilter(@CameraSelector.LensFacing int lensFacing);
 }

@@ -28,7 +28,6 @@ import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.annotation.RestrictTo;
 import androidx.annotation.RestrictTo.Scope;
-import androidx.camera.core.impl.utils.CameraSelectorUtil;
 import androidx.camera.core.impl.utils.Threads;
 import androidx.camera.core.impl.utils.executor.CameraXExecutors;
 import androidx.camera.core.impl.utils.futures.FutureCallback;
@@ -263,22 +262,15 @@ public final class CameraX {
             }
         }
 
-        CameraDeviceConfig deviceConfig =
-                CameraSelectorUtil.toCameraDeviceConfig(selectorBuilder.build());
-        String newCameraId = null;
-        try {
-            newCameraId = getCameraWithCameraDeviceConfig(deviceConfig);
-        } catch (CameraInfoUnavailableException e) {
-            throw new IllegalArgumentException(
-                    "Unable to find a camera for the given camera selector.", e);
-        }
+        String newCameraId = CameraX.getCameraWithCameraSelector(selectorBuilder.build());
 
         // Try to get the camera before bind to the use case, and throw the IllegalArgumentException
         // if the camera not found.
-        Camera camera = cameraX.getCameraRepository().getCamera(newCameraId);
+        CameraInternal camera = cameraX.getCameraRepository().getCamera(newCameraId);
 
         for (UseCase useCase : useCases) {
-            useCase.onBind(deviceConfig);
+            // Sets bound camera to use case.
+            useCase.onBind(camera);
         }
 
         calculateSuggestedResolutions(lifecycleOwner, newCameraId, useCases);
@@ -427,7 +419,7 @@ public final class CameraX {
      * <p>This only gives the first (primary) camera found with the specified facing.
      *
      * @param lensFacing the lens facing of the camera
-     * @return the cameraId if camera exists or {@code null} if no camera with specified facing
+     * @return the camera id if camera exists or {@code null} if no camera with specified facing
      * exists
      * @throws CameraInfoUnavailableException if unable to access cameras, perhaps due to
      *                                        insufficient permissions.
@@ -442,45 +434,28 @@ public final class CameraX {
     }
 
     /**
-     * Returns the camera id for a camera defined by the CameraDeviceConfig.
+     * Returns the camera id for a camera defined by the given {@link CameraSelector}.
      *
-     * <p>This will first selects the cameras with lens facing specified in the config. Then
-     * filter those with camera id filters if there's any.
-     *
-     * @param config the config of the camera device
-     * @return the cameraId if camera exists or {@code null} if no camera found with the config
-     * @throws CameraInfoUnavailableException if unable to access cameras, perhaps due to
-     *                                        insufficient permissions.
-     * @throws IllegalArgumentException       if there's no lens facing set in the config.
+     * @param cameraSelector the camera selector
+     * @return the camera id if camera exists or {@code null} if no camera can be resolved with
+     * the camera selector
      * @hide
      */
     @RestrictTo(Scope.LIBRARY_GROUP)
     @Nullable
-    public static String getCameraWithCameraDeviceConfig(@NonNull CameraDeviceConfig config)
-            throws CameraInfoUnavailableException {
+    public static String getCameraWithCameraSelector(@NonNull CameraSelector cameraSelector) {
         checkInitialized();
 
-        Set<String> availableCameraIds = getCameraFactory().getAvailableCameraIds();
-        Integer lensFacing = config.getLensFacing(null);
-        if (lensFacing != null) {
-            // Filters camera ids with lens facing.
-            availableCameraIds = CameraX.getCameraFactory().getLensFacingCameraIdFilter(
-                    lensFacing).filter(availableCameraIds);
-        } else {
-            throw new IllegalArgumentException("Lens facing isn't set in the config.");
-        }
-
-        CameraIdFilter cameraIdFilter = config.getCameraIdFilter(null);
-        if (cameraIdFilter != null) {
-            // Filters camera ids with other filters.
-            availableCameraIds = cameraIdFilter.filter(availableCameraIds);
-        }
-
-        if (!availableCameraIds.isEmpty()) {
-            return availableCameraIds.iterator().next();
-        } else {
+        Set<String> availableCameraIds;
+        String resultCameraId = null;
+        try {
+            availableCameraIds = getCameraFactory().getAvailableCameraIds();
+            resultCameraId = cameraSelector.select(availableCameraIds);
+        } catch (CameraInfoUnavailableException e) {
             return null;
         }
+
+        return resultCameraId;
     }
 
     /**
@@ -523,7 +498,7 @@ public final class CameraX {
      * @hide
      */
     @RestrictTo(Scope.LIBRARY_GROUP)
-    @Nullable
+    @NonNull
     public static CameraInfoInternal getCameraInfo(String cameraId) {
         CameraX cameraX = checkInitialized();
 

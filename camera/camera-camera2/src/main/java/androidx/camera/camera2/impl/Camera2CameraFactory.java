@@ -70,7 +70,12 @@ public final class Camera2CameraFactory implements CameraFactory {
 
     @Override
     @NonNull
-    public CameraInternal getCamera(@NonNull String cameraId) {
+    public CameraInternal getCamera(@NonNull String cameraId)
+            throws CameraInfoUnavailableException {
+        if (!getAvailableCameraIds().contains(cameraId)) {
+            throw new IllegalArgumentException(
+                    "The given camera id is not on the available camera id list.");
+        }
         Camera2CameraImpl camera2CameraImpl = new Camera2CameraImpl(mCameraManager, cameraId,
                 mAvailabilityRegistry.getAvailableCameraCount(), sHandler);
         mAvailabilityRegistry.registerCamera(camera2CameraImpl);

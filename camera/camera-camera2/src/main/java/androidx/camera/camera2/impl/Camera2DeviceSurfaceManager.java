@@ -28,9 +28,7 @@ import androidx.annotation.Nullable;
 import androidx.annotation.RestrictTo;
 import androidx.annotation.RestrictTo.Scope;
 import androidx.annotation.VisibleForTesting;
-import androidx.camera.core.CameraDeviceConfig;
 import androidx.camera.core.CameraDeviceSurfaceManager;
-import androidx.camera.core.CameraX;
 import androidx.camera.core.ImageOutputConfig;
 import androidx.camera.core.SurfaceConfig;
 import androidx.camera.core.UseCase;
@@ -198,9 +196,9 @@ public final class Camera2DeviceSurfaceManager implements CameraDeviceSurfaceMan
 
         if (originalUseCases != null) {
             for (UseCase useCase : originalUseCases) {
-                CameraDeviceConfig deviceConfig =
-                        Preconditions.checkNotNull(useCase.getBoundDeviceConfig());
-                String useCaseCameraId = getCameraIdFromConfig(deviceConfig);
+                String useCaseCameraId =
+                        Preconditions.checkNotNull(
+                                useCase.getBoundCamera()).getCameraInfoInternal().getCameraId();
                 Size resolution = useCase.getAttachedSurfaceResolution(useCaseCameraId);
 
                 surfaceConfigs.add(
@@ -282,15 +280,16 @@ public final class Camera2DeviceSurfaceManager implements CameraDeviceSurfaceMan
     /**
      * Checks whether the use case requires a corrected aspect ratio due to device constraints.
      *
-     * @param useCaseConfig to check aspect ratio
+     * @param cameraId the camera Id
      * @return the check result that whether aspect ratio need to be corrected
-     * @throws IllegalStateException if not initialized
+     * @throws IllegalStateException    if not initialized
+     * @throws IllegalArgumentException if supported surface information for given camera id
+     *                                  can't be found.
      */
     @Override
-    public boolean requiresCorrectedAspectRatio(@NonNull CameraDeviceConfig useCaseConfig) {
+    public boolean requiresCorrectedAspectRatio(@NonNull String cameraId) {
         checkInitialized();
 
-        String cameraId = getCameraIdFromConfig(useCaseConfig);
         SupportedSurfaceCombination supportedSurfaceCombination =
                 mCameraSupportedSurfaceCombinationMap.get(cameraId);
 
@@ -302,21 +301,22 @@ public final class Camera2DeviceSurfaceManager implements CameraDeviceSurfaceMan
     }
 
     /**
-     * Returns the corrected aspect ratio for the given use case configuration or {@code null} if
+     * Returns the corrected aspect ratio for the camera id or {@code null} if
      * no correction is needed.
      *
-     * @param deviceConfig to identify device which may require correction
-     * @param rotation     desired rotation of output aspect ratio relative to natural orientation
+     * @param cameraId the camera Id of the device that requires correction
+     * @param rotation desired rotation of output aspect ratio relative to natural orientation
      * @return the corrected aspect ratio for the use case
-     * @throws IllegalStateException if not initialized
+     * @throws IllegalStateException    if not initialized
+     * @throws IllegalArgumentException if supported surface information for given camera id
+     *                                  can't be found.
      */
     @Nullable
     @Override
-    public Rational getCorrectedAspectRatio(@NonNull CameraDeviceConfig deviceConfig,
+    public Rational getCorrectedAspectRatio(@NonNull String cameraId,
             @ImageOutputConfig.RotationValue int rotation) {
         checkInitialized();
 
-        String cameraId = getCameraIdFromConfig(deviceConfig);
         SupportedSurfaceCombination supportedSurfaceCombination =
                 mCameraSupportedSurfaceCombinationMap.get(cameraId);
 
@@ -325,22 +325,6 @@ public final class Camera2DeviceSurfaceManager implements CameraDeviceSurfaceMan
                     "Fail to find supported surface info - CameraId:" + cameraId);
         }
         return supportedSurfaceCombination.getCorrectedAspectRatio(rotation);
-    }
-
-    private String getCameraIdFromConfig(@NonNull CameraDeviceConfig config) {
-        String cameraId;
-        try {
-            Integer lensFacing = config.getLensFacing(null);
-            // Adds default lensFacing if the user doesn't specify the lens facing.
-            if (lensFacing == null) {
-                lensFacing = CameraX.getDefaultLensFacing();
-            }
-            cameraId = CameraX.getCameraWithLensFacing(lensFacing);
-        } catch (Exception e) {
-            throw new IllegalArgumentException(
-                    "Unable to get camera ID from camera device config.", e);
-        }
-        return cameraId;
     }
 
     private void checkInitialized() {
