@@ -105,11 +105,13 @@ class PackageIdentityUtils {
         @Override
         public boolean packageMatchesToken(String name, PackageManager pm, TokenContents token)
                 throws PackageManager.NameNotFoundException, IOException {
+            // Exit early if we can avoid the PackageManager call.
+            if (!token.getPackageName().equals(name)) return false;
+
             List<byte[]> fingerprints = getFingerprintsForPackage(name, pm);
             if (fingerprints == null) return false;
 
             if (fingerprints.size() == 1) {
-                if (!token.getPackageName().equals(name)) return false;
                 return pm.hasSigningCertificate(name, token.getFingerprint(0),
                         PackageManager.CERT_INPUT_SHA256);
             } else {
@@ -141,6 +143,9 @@ class PackageIdentityUtils {
         @Override
         public boolean packageMatchesToken(String name, PackageManager pm, TokenContents token)
                 throws IOException, PackageManager.NameNotFoundException {
+            // Exit early if we can avoid the PackageManager call.
+            if (!name.equals(token.getPackageName())) return false;
+
             // On Android pre-28 we just check that the Tokens are equal - this takes into account
             // the package name and all of the fingerprints.
             List<byte[]> fingerprints = getFingerprintsForPackage(name, pm);
