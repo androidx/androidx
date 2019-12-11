@@ -40,7 +40,6 @@ import android.widget.ImageButton;
 import android.widget.TextView;
 import android.widget.Toast;
 
-import androidx.annotation.GuardedBy;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.annotation.VisibleForTesting;
@@ -76,7 +75,6 @@ import java.text.Format;
 import java.text.SimpleDateFormat;
 import java.util.Calendar;
 import java.util.List;
-import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.concurrent.atomic.AtomicLong;
 
 /**
@@ -125,6 +123,14 @@ public class CameraXActivity extends AppCompatActivity
     // Synthetic Accessor
     @SuppressWarnings("WeakerAccess")
     TextureView mTextureView;
+    @SuppressWarnings("WeakerAccess")
+    SurfaceTexture mSurfaceTexture;
+    @SuppressWarnings("WeakerAccess")
+    private Size mResolution;
+    @SuppressWarnings("WeakerAccess")
+    ListenableFuture<Void> mSurfaceReleaseFuture;
+    @SuppressWarnings("WeakerAccess")
+    CallbackToFutureAdapter.Completer<Surface> mSurfaceCompleter;
 
     // Espresso testing variables
     @VisibleForTesting
@@ -187,14 +193,23 @@ public class CameraXActivity extends AppCompatActivity
         Log.d(TAG, "enablePreview");
 
         mPreview.setPreviewSurfaceProvider(
-                (resolution, surfaceReleaseFuture) -> CallbackToFutureAdapter.getFuture(
-                        completer -> {
-                            ((PreviewSurfaceTextureListener) mTextureView
-                                    .getSurfaceTextureListener())
-                                    .setSurfaceFutureCompleter(completer,
-                                            resolution, surfaceReleaseFuture);
-                            return "PreviewSurfaceCreation";
-                        }));
+                (resolution, surfaceReleaseFuture) -> {
+                    mResolution = resolution;
+                    mSurfaceReleaseFuture = surfaceReleaseFuture;
+
+                    return CallbackToFutureAdapter.getFuture(
+                            completer -> {
+                                completer.addCancellationListener(() -> {
+                                    Preconditions.checkState(mSurfaceCompleter == completer);
+                                    mSurfaceCompleter = null;
+                                    mSurfaceReleaseFuture = null;
+                                }, ContextCompat.getMainExecutor(mTextureView.getContext()));
+                                mSurfaceCompleter = completer;
+                                tryToProvidePreviewSurface();
+                                return "provide preview surface";
+                            });
+                });
+
 
         for (int i = 0; i < FRAMES_UNTIL_VIEW_IS_READY; i++) {
             mViewIdlingResource.increment();
@@ -682,7 +697,50 @@ public class CameraXActivity extends AppCompatActivity
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_camera_xmain);
         mTextureView = findViewById(R.id.textureView);
-        mTextureView.setSurfaceTextureListener(new PreviewSurfaceTextureListener());
+        mTextureView.setSurfaceTextureListener(new TextureView.SurfaceTextureListener() {
+            @Override
+            public void onSurfaceTextureAvailable(final SurfaceTexture surfaceTexture,
+                    final int width, final int height) {
+                mSurfaceTexture = surfaceTexture;
+                tryToProvidePreviewSurface();
+            }
+
+            @Override
+            public void onSurfaceTextureSizeChanged(final SurfaceTexture surfaceTexture,
+                    final int width, final int height) {
+            }
+
+            /**
+             * If a surface has been provided to the camera (meaning
+             * {@link CameraXActivity#mSurfaceCompleter} is null), but the camera
+             * is still using it (meaning {@link CameraXActivity#mSurfaceReleaseFuture} is
+             * not null), a listener must be added to
+             * {@link CameraXActivity#mSurfaceReleaseFuture} to ensure the surface
+             * is properly released after the camera is done using it.
+             *
+             * @param surfaceTexture The {@link SurfaceTexture} about to be destroyed.
+             * @return false if the camera is not done with the surface, true otherwise.
+             */
+            @Override
+            public boolean onSurfaceTextureDestroyed(final SurfaceTexture surfaceTexture) {
+                mSurfaceTexture = null;
+                if (mSurfaceCompleter == null && mSurfaceReleaseFuture != null) {
+                    mSurfaceReleaseFuture.addListener(surfaceTexture::release,
+                            ContextCompat.getMainExecutor(mTextureView.getContext()));
+                    return false;
+                } else {
+                    return true;
+                }
+            }
+
+            @Override
+            public void onSurfaceTextureUpdated(final SurfaceTexture surfaceTexture) {
+                // Wait until surface texture receives enough updates. This is for testing.
+                if (!mViewIdlingResource.isIdleNow()) {
+                    mViewIdlingResource.decrement();
+                }
+            }
+        });
 
         StrictMode.VmPolicy policy =
                 new StrictMode.VmPolicy.Builder().detectAll().penaltyLog().build();
@@ -724,6 +782,37 @@ public class CameraXActivity extends AppCompatActivity
                         throw new RuntimeException("Initialization failed.", t);
                     }
                 }, ContextCompat.getMainExecutor(this));
+    }
+
+    @SuppressWarnings("WeakerAccess")
+    void tryToProvidePreviewSurface() {
+        /*
+          Should only continue if:
+          - The preview size has been specified.
+          - The textureView's surfaceTexture is available (after TextureView
+          .SurfaceTextureListener#onSurfaceTextureAvailable is invoked)
+          - The surfaceCompleter has been set (after CallbackToFutureAdapter
+          .Resolver#attachCompleter is invoked).
+         */
+        if (mResolution == null || mSurfaceTexture == null || mSurfaceCompleter == null) {
+            return;
+        }
+
+        mSurfaceTexture.setDefaultBufferSize(mResolution.getWidth(), mResolution.getHeight());
+
+        final Surface surface = new Surface(mSurfaceTexture);
+        final ListenableFuture<Void> surfaceReleaseFuture = mSurfaceReleaseFuture;
+        mSurfaceReleaseFuture.addListener(() -> {
+            surface.release();
+            if (mSurfaceReleaseFuture == surfaceReleaseFuture) {
+                mSurfaceReleaseFuture = null;
+            }
+        }, ContextCompat.getMainExecutor(mTextureView.getContext()));
+
+        mSurfaceCompleter.set(surface);
+        mSurfaceCompleter = null;
+
+        transformPreview(mResolution);
     }
 
     void setupCamera() {
@@ -896,113 +985,5 @@ public class CameraXActivity extends AppCompatActivity
     @Nullable
     CameraControl getCameraControl() {
         return mCamera != null ? mCamera.getCameraControl() : null;
-    }
-
-    /**
-     * Manages the life cycle of the {@link TextureView} {@link SurfaceTexture} for {@link Preview}
-     * use cases.
-     *
-     * This class is responsible for resolving two race conditions: the creation
-     * and the destroy of the {@link Surface}/{@link SurfaceTexture} pair.
-     */
-    final class PreviewSurfaceTextureListener implements
-            TextureView.SurfaceTextureListener {
-
-        @GuardedBy("this")
-        CallbackToFutureAdapter.Completer<Surface> mSurfaceCompleter;
-        @GuardedBy("this")
-        Size mResolution;
-        @GuardedBy("this")
-        SurfaceTexture mSurfaceTexture;
-        @GuardedBy("this")
-        ListenableFuture<Void> mSurfaceSafeToReleaseFuture;
-
-        // Whether the handle is still being used by the consumer(TextureView).
-        AtomicBoolean mIsSurfaceTextureUsedByTextureView = new AtomicBoolean(true);
-        // Whether the handle is still being used by the producer(CameraX).
-        AtomicBoolean mIsSurfaceTextureUsedByPreview = new AtomicBoolean(false);
-
-        /**
-         * Resolves the race condition in {@link SurfaceTexture} creation.
-         */
-        private synchronized void tryToSetSurface() {
-            if (mResolution != null && mSurfaceTexture != null && mSurfaceCompleter != null) {
-                Log.d(TAG, "SurfaceTexture set " + hashCode());
-                // Only set Surface when both the consumer and the producer are ready.
-                mSurfaceTexture.setDefaultBufferSize(mResolution.getWidth(),
-                        mResolution.getHeight());
-                final Surface surface = new Surface(mSurfaceTexture);
-                mSurfaceCompleter.set(surface);
-                mIsSurfaceTextureUsedByPreview.set(true);
-
-                mSurfaceSafeToReleaseFuture.addListener(() -> {
-                    Log.d(TAG, "Preview is ready to release Surface." + hashCode());
-                    surface.release();
-                    mIsSurfaceTextureUsedByPreview.set(false);
-                    tryToReleaseSurfaceTexture();
-                }, ContextCompat.getMainExecutor(CameraXActivity.this));
-            }
-        }
-
-        /**
-         * Resolves the race condition in {@link SurfaceTexture} releasing.
-         */
-        private synchronized void tryToReleaseSurfaceTexture() {
-            if (!mIsSurfaceTextureUsedByTextureView.get()
-                    && !mIsSurfaceTextureUsedByPreview.get()
-                    && mSurfaceTexture != null) {
-                Log.d(TAG, "SurfaceTexture released " + hashCode());
-                // Only release when both the consumer and the producer are done.
-                mSurfaceTexture.release();
-                mSurfaceTexture = null;
-            }
-        }
-
-        synchronized void setSurfaceFutureCompleter(
-                CallbackToFutureAdapter.Completer<Surface> surfaceCompleter,
-                Size resolution,
-                ListenableFuture<Void> surfaceSafeToReleaseFuture) {
-            Log.d(TAG, "SurfaceCompleter set. " + hashCode());
-            mSurfaceCompleter = surfaceCompleter;
-            mResolution = resolution;
-            mSurfaceSafeToReleaseFuture = surfaceSafeToReleaseFuture;
-            transformPreview(resolution);
-            tryToSetSurface();
-        }
-
-        @Override
-        public synchronized void onSurfaceTextureAvailable(SurfaceTexture surfaceTexture, int width,
-                int height) {
-            Log.d(TAG, "TextureView is ready to set SurfaceTexture. " + hashCode());
-            mSurfaceTexture = surfaceTexture;
-            mIsSurfaceTextureUsedByTextureView.set(true);
-            tryToSetSurface();
-        }
-
-        @Override
-        public void onSurfaceTextureSizeChanged(SurfaceTexture surfaceTexture, int width,
-                int height) {
-            Log.d(TAG, "onSurfaceTextureSizeChanged " + width + "x" + height);
-            // No-op.
-        }
-
-        @Override
-        public synchronized boolean onSurfaceTextureDestroyed(SurfaceTexture surfaceTexture) {
-            Log.d(TAG, "TextureView is ready to release SurfaceTexture. " + hashCode());
-            mIsSurfaceTextureUsedByTextureView.set(false);
-            ContextCompat.getMainExecutor(CameraXActivity.this).execute(
-                    this::tryToReleaseSurfaceTexture);
-            // Never auto release. Premature releasing causes CaptureSession to misbehave on LEGACY
-            // devices. Wait for CameraX's signal to release it.
-            return false;
-        }
-
-        @Override
-        public void onSurfaceTextureUpdated(SurfaceTexture surface) {
-            // Wait until surface texture receives enough updates. This is for testing.
-            if (!mViewIdlingResource.isIdleNow()) {
-                mViewIdlingResource.decrement();
-            }
-        }
     }
 }
