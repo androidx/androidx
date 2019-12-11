@@ -39,7 +39,6 @@ import androidx.ui.autofill.performAutofill
 import androidx.ui.autofill.populateViewStructure
 import androidx.ui.autofill.registerCallback
 import androidx.ui.autofill.unregisterCallback
-import androidx.ui.core.NodeStagesModelObserver.Stage
 import androidx.ui.core.pointerinput.PointerInputEventProcessor
 import androidx.ui.core.pointerinput.toPointerInputEvent
 import androidx.ui.core.text.AndroidFontResourceLoader
@@ -49,8 +48,8 @@ import androidx.ui.engine.geometry.Rect
 import androidx.ui.engine.geometry.Shape
 import androidx.ui.graphics.Canvas
 import androidx.ui.graphics.Path
-import androidx.ui.input.TextInputServiceAndroid
 import androidx.ui.input.TextInputService
+import androidx.ui.input.TextInputServiceAndroid
 import androidx.ui.text.font.Font
 import java.util.TreeSet
 import kotlin.math.roundToInt
@@ -141,19 +140,28 @@ class AndroidComposeView constructor(context: Context) :
     private val debugMode = 0 != context.applicationInfo.flags and
             ApplicationInfo.FLAG_DEBUGGABLE
 
-    private val modelObserver = NodeStagesModelObserver(debugMode) { stage, affectedNode ->
-        when (stage) {
-            Stage.Draw -> (affectedNode as DrawNode).invalidate()
-            Stage.Measure -> onRequestMeasure(affectedNode as LayoutNode)
-            Stage.Layout -> requestRelayout(affectedNode as LayoutNode)
+    private val modelObserver = ModelObserver()
+
+    private val onCommitAffectingMeasure: (LayoutNode) -> Unit = { layoutNode ->
+        onRequestMeasure(layoutNode)
+    }
+
+    private val onCommitAffectingLayout: (LayoutNode) -> Unit = { layoutNode ->
+        requestRelayout(layoutNode)
+    }
+
+    private val onCommitAffectingRepaintBoundary: (RepaintBoundaryNode) -> Unit =
+        { repaintBoundary ->
+            val repaintBoundaryContainer = repaintBoundary.container
+            repaintBoundaryContainer.dirty = true
         }
+
+    private val onCommitAffectingRootDraw: (Unit) -> Unit = { _ ->
+        invalidate()
     }
 
-    internal fun isObservingModels() = modelObserver.isObserving
-
-    override fun enableModelReadObserving(enabled: Boolean) {
-        modelObserver.modelReadEnabled = enabled
-    }
+    override fun pauseModelReadObserveration(block: () -> Unit) =
+        modelObserver.pauseObservingReads(block)
 
     init {
         setWillNotDraw(false)
@@ -321,7 +329,7 @@ class AndroidComposeView constructor(context: Context) :
                 relayoutNodes -= node
             }
         }
-        modelObserver.onNodeDetached(node)
+        modelObserver.clear(node)
     }
 
     /**
@@ -334,37 +342,35 @@ class AndroidComposeView constructor(context: Context) :
                     duringMeasureLayout = true
                     measureIteration++
                     var topNode = relayoutNodes.first()
-                    modelObserver.observeReads {
-                        while (relayoutNodes.isNotEmpty()) {
-                            relayoutNodes.forEach { layoutNode ->
-                                if (layoutNode.needsRemeasure) {
-                                    val parent = layoutNode.parentLayoutNode
-                                    if (parent != null) {
-                                        // This should call measure and layout on the child
-                                        parent.needsRelayout = true
-                                        parent.placeChildren()
-                                    } else {
-                                        layoutNode.measure(layoutNode.constraints)
-                                        layoutNode.placeChildren()
-                                    }
-                                } else if (layoutNode.needsRelayout) {
+                    while (relayoutNodes.isNotEmpty()) {
+                        relayoutNodes.forEach { layoutNode ->
+                            if (layoutNode.needsRemeasure) {
+                                val parent = layoutNode.parentLayoutNode
+                                if (parent != null) {
+                                    // This should call measure and layout on the child
+                                    parent.needsRelayout = true
+                                    parent.placeChildren()
+                                } else {
+                                    layoutNode.measure(layoutNode.constraints)
                                     layoutNode.placeChildren()
                                 }
+                            } else if (layoutNode.needsRelayout) {
+                                layoutNode.placeChildren()
                             }
-                            relayoutNodes.clear()
-                            if (relayoutNodesDuringMeasureLayout.isNotEmpty()) {
-                                relayoutNodesDuringMeasureLayout.forEach {
-                                    // some of the nodes can be already measured/positioned.
-                                    // for example the direct children of WithConstraints.
-                                    if (it.needsRemeasure || it.needsRemeasure) {
-                                        relayoutNodes += it
-                                        if (it.depth > topNode.depth) {
-                                            topNode = it
-                                        }
+                        }
+                        relayoutNodes.clear()
+                        if (relayoutNodesDuringMeasureLayout.isNotEmpty()) {
+                            relayoutNodesDuringMeasureLayout.forEach {
+                                // some of the nodes can be already measured/positioned.
+                                // for example the direct children of WithConstraints.
+                                if (it.needsRemeasure || it.needsRemeasure) {
+                                    relayoutNodes += it
+                                    if (it.depth > topNode.depth) {
+                                        topNode = it
                                     }
                                 }
-                                relayoutNodesDuringMeasureLayout.clear()
                             }
+                            relayoutNodesDuringMeasureLayout.clear()
                         }
                     }
                     topNode.dispatchOnPositionedCallbacks()
@@ -395,27 +401,21 @@ class AndroidComposeView constructor(context: Context) :
             this.constraints = constraints
 
             measureIteration++
-            modelObserver.observeReads {
-                root.measure(constraints)
-            }
+            root.measure(constraints)
             setMeasuredDimension(root.width.value, root.height.value)
         }
     }
 
-    override fun onEndLayout(layoutNode: LayoutNode) {
-        modelObserver.afterStage(Stage.Layout, layoutNode)
+    override fun observeDrawModelReads(node: RepaintBoundaryNode, block: () -> Unit) {
+        modelObserver.observeReads(node, onCommitAffectingRepaintBoundary, block)
     }
 
-    override fun onEndMeasure(layoutNode: LayoutNode) {
-        modelObserver.afterStage(Stage.Measure, layoutNode)
+    override fun observeLayoutModelReads(node: LayoutNode, block: () -> Unit) {
+        modelObserver.observeReads(node, onCommitAffectingLayout, block)
     }
 
-    override fun onStartLayout(layoutNode: LayoutNode) {
-        modelObserver.beforeStage(Stage.Layout, layoutNode)
-    }
-
-    override fun onStartMeasure(layoutNode: LayoutNode) {
-        modelObserver.beforeStage(Stage.Measure, layoutNode)
+    override fun observeMeasureModelReads(node: LayoutNode, block: () -> Unit) {
+        modelObserver.observeReads(node, onCommitAffectingMeasure, block)
     }
 
     override fun onLayout(changed: Boolean, l: Int, t: Int, r: Int, b: Int) {
@@ -434,32 +434,29 @@ class AndroidComposeView constructor(context: Context) :
         trace("AndroidOwner:callDraw") {
             when (node) {
                 is DrawNode -> {
-                    modelObserver.stage(Stage.Draw, node) {
-                        val onPaintWithChildren = node.onPaintWithChildren
-                        if (onPaintWithChildren != null) {
-                            val ownerData = node.ownerData
-                            val receiver: DrawReceiverImpl
-                            if (ownerData == null) {
-                                receiver =
-                                    DrawReceiverImpl(node, canvas, parentSize, density)
-                                node.ownerData = receiver
-                            } else {
-                                receiver = ownerData as DrawReceiverImpl
-                                receiver.childDrawn = false
-                                receiver.canvas = canvas
-                                receiver.parentSize = parentSize
-                                receiver.density = density
-                            }
-                            onPaintWithChildren(receiver, canvas, parentSize)
-                            if (!receiver.childDrawn) {
-                                receiver.drawChildren()
-                            }
+                    val onPaintWithChildren = node.onPaintWithChildren
+                    if (onPaintWithChildren != null) {
+                        val ownerData = node.ownerData
+                        val receiver: DrawReceiverImpl
+                        if (ownerData == null) {
+                            receiver = DrawReceiverImpl(node, canvas, parentSize, density)
+                            node.ownerData = receiver
                         } else {
-                            val onPaint = node.onPaint!!
-                            this.onPaint(canvas, parentSize)
+                            receiver = ownerData as DrawReceiverImpl
+                            receiver.childDrawn = false
+                            receiver.canvas = canvas
+                            receiver.parentSize = parentSize
+                            receiver.density = density
                         }
-                        node.needsPaint = false
+                        onPaintWithChildren(receiver, canvas, parentSize)
+                        if (!receiver.childDrawn) {
+                            receiver.drawChildren()
+                        }
+                    } else {
+                        val onPaint = node.onPaint!!
+                        this.onPaint(canvas, parentSize)
                     }
+                    node.needsPaint = false
                 }
                 is RepaintBoundaryNode -> {
                     val container = node.container
@@ -500,37 +497,33 @@ class AndroidComposeView constructor(context: Context) :
 
     override fun dispatchDraw(canvas: android.graphics.Canvas) {
         measureAndLayout()
-        watchDraw(canvas, root)
+        val uiCanvas = Canvas(canvas)
+        val parentSize = root.contentSize.toPxSize()
+        modelObserver.observeReads(Unit, onCommitAffectingRootDraw) {
+            root.visitChildren { callDraw(uiCanvas, it, parentSize) }
+        }
+        if (dirtyRepaintBoundaryNodes.isNotEmpty()) {
+            dirtyRepaintBoundaryNodes.forEach { node ->
+                node.container.updateDisplayList()
+            }
+            dirtyRepaintBoundaryNodes.clear()
+        }
     }
 
     /**
      * This call converts the framework Canvas to an androidx [Canvas] and paints node's
      * children.
      */
-    internal fun callChildDraw(canvas: android.graphics.Canvas, node: ComponentNode) {
-        val layoutNode = node as? LayoutNode ?: node.parentLayoutNode!!
+    internal fun callChildDraw(
+        canvas: android.graphics.Canvas,
+        repaintBoundaryNode: RepaintBoundaryNode
+    ) {
+        val layoutNode = repaintBoundaryNode.parentLayoutNode!!
         val parentSize = layoutNode.contentSize.toPxSize()
         val uiCanvas = Canvas(canvas)
-        node.visitChildren { child ->
-            callDraw(uiCanvas, child, parentSize)
-        }
-    }
-
-    /**
-     * Called to draw the root or a repaint boundary node and observe all model reads during
-     * the draw calls. Note that this takes a framework Canvas, so it is called only from
-     * [AndroidComposeView] or [RepaintBoundaryView].
-     */
-    internal fun watchDraw(canvas: android.graphics.Canvas, node: ComponentNode) {
-        trace("AndroidOwner:draw") {
-            modelObserver.observeReads {
-                callChildDraw(canvas, node)
-                if (dirtyRepaintBoundaryNodes.isNotEmpty()) {
-                    dirtyRepaintBoundaryNodes.forEach { node ->
-                        node.container.updateDisplayList()
-                    }
-                    dirtyRepaintBoundaryNodes.clear()
-                }
+        observeDrawModelReads(repaintBoundaryNode) {
+            repaintBoundaryNode.visitChildren { child ->
+                callDraw(uiCanvas, child, parentSize)
             }
         }
     }
@@ -852,14 +845,7 @@ private class RepaintBoundaryView(
             canvas.save()
             canvas.clipPath(clipPath)
         }
-        if (!ownerView.isObservingModels()) {
-            // Only this repaint boundary was invalidated and nothing higher in the view hierarchy.
-            // We must observe changes
-            ownerView.watchDraw(canvas, repaintBoundaryNode)
-        } else {
-            // We don't have to observe changes
-            ownerView.callChildDraw(canvas, repaintBoundaryNode)
-        }
+        ownerView.callChildDraw(canvas, repaintBoundaryNode)
         if (clipPath != null) {
             canvas.restore()
         }

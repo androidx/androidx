@@ -61,7 +61,7 @@ dependencies {
     }
 
     androidTestImplementation project(":ui:ui-test")
-
+    androidTestImplementation project(":ui:ui-platform:integration-tests:samples")
 }
 
 androidx {

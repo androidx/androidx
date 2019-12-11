@@ -79,26 +79,6 @@ interface Owner {
     fun onDetach(node: ComponentNode)
 
     /**
-     * Called when measure starts.
-     */
-    fun onStartMeasure(layoutNode: LayoutNode)
-
-    /**
-     * Called when measure ends.
-     */
-    fun onEndMeasure(layoutNode: LayoutNode)
-
-    /**
-     * Called when layout (placement) starts.
-     */
-    fun onStartLayout(layoutNode: LayoutNode)
-
-    /**
-     * Called when layout (placement) ends.
-     */
-    fun onEndLayout(layoutNode: LayoutNode)
-
-    /**
      * Returns the most global position of the owner that Compose can access (such as the device
      * screen).
      */
@@ -112,12 +92,27 @@ interface Owner {
     fun onRepaintBoundaryParamsChange(repaintBoundaryNode: RepaintBoundaryNode)
 
     /**
-     * Observing the model reads can be temporary disabled.
+     * Observing the model reads are temporary disabled during the [block] execution.
      * For example if we are currently within the measure stage and we want some code block to
      * be skipped from the observing we disable if before calling the block, execute block and
      * then enable it again.
      */
-    fun enableModelReadObserving(enabled: Boolean)
+    fun pauseModelReadObserveration(block: () -> Unit)
+
+    /**
+     * Observe model reads during layout of [node], executed in [block].
+     */
+    fun observeLayoutModelReads(node: LayoutNode, block: () -> Unit)
+
+    /**
+     * Observe model reads during measure of [node], executed in [block].
+     */
+    fun observeMeasureModelReads(node: LayoutNode, block: () -> Unit)
+
+    /**
+     * Observe model reads during draw of [node], executed in [block].
+     */
+    fun observeDrawModelReads(node: RepaintBoundaryNode, block: () -> Unit)
 
     /**
      * Causes the [node] to draw into [canvas].
@@ -1322,15 +1317,11 @@ class LayoutNode : ComponentNode(), Measurable {
         layoutChildren.forEach { child ->
             child.affectsParentSize = false
         }
-        owner.onStartMeasure(this)
-        try {
-            this.constraints = constraints
-
+        this.constraints = constraints
+        owner.observeMeasureModelReads(this) {
             layoutNodeWrapper.measure(constraints)
-        } finally {
-            owner.onEndMeasure(this)
-            isMeasuring = false
         }
+        isMeasuring = false
         needsRemeasure = false
         needsRelayout = true
         return layoutNodeWrapper
@@ -1359,22 +1350,23 @@ class LayoutNode : ComponentNode(), Measurable {
     fun placeChildren() {
         if (needsRelayout) {
             val owner = requireOwner()
-            owner.onStartLayout(this)
-            layoutChildren.forEach { child ->
-                child.isPlaced = false
-                if (alignmentLinesRequired && child.dirtyAlignmentLines) child.needsRelayout = true
-                if (!child.alignmentLinesRequired) {
-                    child.alignmentLinesQueryOwner = alignmentLinesQueryOwner
+            owner.observeLayoutModelReads(this) {
+                layoutChildren.forEach { child ->
+                    child.isPlaced = false
+                    if (alignmentLinesRequired && child.dirtyAlignmentLines) child.needsRelayout =
+                        true
+                    if (!child.alignmentLinesRequired) {
+                        child.alignmentLinesQueryOwner = alignmentLinesQueryOwner
+                    }
+                    child.alignmentLinesQueriedSinceLastLayout = false
                 }
-                child.alignmentLinesQueriedSinceLastLayout = false
+                positionedDuringMeasurePass = parentLayoutNode?.isMeasuring ?: false ||
+                        parentLayoutNode?.positionedDuringMeasurePass ?: false
+                lastLayoutResult.placeChildren(Placeable.PlacementScope)
+                layoutChildren.forEach { child ->
+                    child.alignmentLinesRead = child.alignmentLinesQueriedSinceLastLayout
+                }
             }
-            positionedDuringMeasurePass = parentLayoutNode?.isMeasuring ?: false ||
-                    parentLayoutNode?.positionedDuringMeasurePass ?: false
-            lastLayoutResult.placeChildren(Placeable.PlacementScope)
-            layoutChildren.forEach { child ->
-                child.alignmentLinesRead = child.alignmentLinesQueriedSinceLastLayout
-            }
-            owner.onEndLayout(this)
             needsRelayout = false
 
             if (alignmentLinesRequired && dirtyAlignmentLines) {
@@ -1445,11 +1437,8 @@ class LayoutNode : ComponentNode(), Measurable {
      * Execute your code within the [block] if you want some code to not be observed for the
      * model reads even if you are currently inside some observed scope like measuring.
      */
-    inline fun ignoreModelReads(crossinline block: () -> Unit) {
-        val owner = requireOwner()
-        owner.enableModelReadObserving(false)
-        block()
-        owner.enableModelReadObserving(true)
+    fun ignoreModelReads(block: () -> Unit) {
+        requireOwner().pauseModelReadObserveration(block)
     }
 
     internal fun dispatchOnPositionedCallbacks() {
