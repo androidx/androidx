@@ -30,6 +30,7 @@ import androidx.camera.core.impl.utils.futures.FutureCallback;
 import androidx.camera.core.impl.utils.futures.Futures;
 import androidx.concurrent.futures.CallbackToFutureAdapter;
 import androidx.test.ext.junit.runners.AndroidJUnit4;
+import androidx.test.filters.MediumTest;
 import androidx.test.filters.SmallTest;
 
 import com.google.common.util.concurrent.ListenableFuture;
@@ -63,6 +64,7 @@ public class DeferrableSurfacesTest {
     }
 
     @Test
+    @MediumTest
     public void getSurfaceTimeoutTest() {
         DeferrableSurface fakeDeferrableSurface = new DeferrableSurface() {
             @Override
