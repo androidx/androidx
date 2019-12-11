@@ -10,7 +10,6 @@ package androidx.slice.builders {
   }
 
   public final class GridRowBuilderKt {
-    ctor public GridRowBuilderKt();
     method public static inline androidx.slice.builders.GridRowBuilder cell(androidx.slice.builders.GridRowBuilderDsl, kotlin.jvm.functions.Function1<? super androidx.slice.builders.CellBuilderDsl,kotlin.Unit> buildCell);
     method public static inline androidx.slice.builders.GridRowBuilder seeMoreCell(androidx.slice.builders.GridRowBuilderDsl, kotlin.jvm.functions.Function1<? super androidx.slice.builders.CellBuilderDsl,kotlin.Unit> buildCell);
   }
@@ -28,7 +27,6 @@ package androidx.slice.builders {
   }
 
   public final class ListBuilderKt {
-    ctor public ListBuilderKt();
     method public static inline androidx.slice.builders.ListBuilder gridRow(androidx.slice.builders.ListBuilderDsl, kotlin.jvm.functions.Function1<? super androidx.slice.builders.GridRowBuilderDsl,kotlin.Unit> buildGrid);
     method public static inline androidx.slice.builders.ListBuilder header(androidx.slice.builders.ListBuilderDsl, kotlin.jvm.functions.Function1<? super androidx.slice.builders.HeaderBuilderDsl,kotlin.Unit> buildHeader);
     method public static inline androidx.slice.builders.ListBuilder inputRange(androidx.slice.builders.ListBuilderDsl, kotlin.jvm.functions.Function1<? super androidx.slice.builders.InputRangeBuilderDsl,kotlin.Unit> buildInputRange);

@@ -2,12 +2,10 @@
 package androidx.navigation.fragment {
 
   public final class FragmentKt {
-    ctor public FragmentKt();
     method public static androidx.navigation.NavController findNavController(androidx.fragment.app.Fragment);
   }
 
   public final class FragmentNavArgsLazyKt {
-    ctor public FragmentNavArgsLazyKt();
     method @MainThread public static inline <reified Args extends androidx.navigation.NavArgs> androidx.navigation.NavArgsLazy<Args> navArgs(androidx.fragment.app.Fragment);
   }
 
@@ -17,13 +15,11 @@ package androidx.navigation.fragment {
   }
 
   public final class FragmentNavigatorDestinationBuilderKt {
-    ctor public FragmentNavigatorDestinationBuilderKt();
     method public static inline <reified F extends androidx.fragment.app.Fragment> void fragment(androidx.navigation.NavGraphBuilder, @IdRes int id);
     method public static inline <reified F extends androidx.fragment.app.Fragment> void fragment(androidx.navigation.NavGraphBuilder, @IdRes int id, kotlin.jvm.functions.Function1<? super androidx.navigation.fragment.FragmentNavigatorDestinationBuilder,kotlin.Unit> builder);
   }
 
   public final class FragmentNavigatorExtrasKt {
-    ctor public FragmentNavigatorExtrasKt();
     method public static androidx.navigation.fragment.FragmentNavigator.Extras FragmentNavigatorExtras(kotlin.Pair<? extends android.view.View,java.lang.String>... sharedElements);
   }
 

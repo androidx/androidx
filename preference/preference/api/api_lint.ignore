@@ -609,8 +609,6 @@ MissingNullability: androidx.preference.PreferenceManager#getPreferenceCompariso
     Missing nullability on method `getPreferenceComparisonCallback` return
 MissingNullability: androidx.preference.PreferenceManager#getPreferenceScreen():
     Missing nullability on method `getPreferenceScreen` return
-MissingNullability: androidx.preference.PreferenceManager#getSharedPreferences():
-    Missing nullability on method `getSharedPreferences` return
 MissingNullability: androidx.preference.PreferenceManager#getSharedPreferencesName():
     Missing nullability on method `getSharedPreferencesName` return
 MissingNullability: androidx.preference.PreferenceManager#setDefaultValues(android.content.Context, String, int, int, boolean) parameter #0:

@@ -2115,6 +2115,10 @@ PairedRegistration: androidx.core.view.OneShotPreDrawListener#removeListener():
     Found removeListener but not addListener in androidx.core.view.OneShotPreDrawListener
 
 
+PublicTypedef: androidx.core.app.NotificationCompat.Action.SemanticAction:
+    Don't expose @IntDef: SemanticAction must be hidden.
+
+
 ServiceName: androidx.core.app.NotificationCompat#CATEGORY_SERVICE:
     Inconsistent service value; expected `CATEGORY`, was `service`
 

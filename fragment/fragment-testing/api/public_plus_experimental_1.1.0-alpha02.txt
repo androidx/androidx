@@ -18,7 +18,6 @@ package androidx.fragment.app.testing {
   }
 
   public final class FragmentScenarioKt {
-    ctor public FragmentScenarioKt();
     method public static inline <reified F extends androidx.fragment.app.Fragment> androidx.fragment.app.testing.FragmentScenario<F> launchFragment(android.os.Bundle? fragmentArgs = null, androidx.fragment.app.FragmentFactory? factory = null);
     method public static inline <reified F extends androidx.fragment.app.Fragment> androidx.fragment.app.testing.FragmentScenario<F> launchFragment(android.os.Bundle? fragmentArgs = null, kotlin.jvm.functions.Function1<? super android.os.Bundle,? extends F> instantiate);
     method public static inline <reified F extends androidx.fragment.app.Fragment> androidx.fragment.app.testing.FragmentScenario<F> launchFragmentInContainer(android.os.Bundle? fragmentArgs = null, androidx.fragment.app.FragmentFactory? factory = null);

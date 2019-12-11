@@ -2,7 +2,6 @@
 package androidx.benchmark {
 
   public final class ArgumentsKt {
-    ctor public ArgumentsKt();
   }
 
   public final class BenchmarkState {
@@ -32,7 +31,6 @@ package androidx.benchmark {
   }
 
   public final class TraceCompatKt {
-    ctor public TraceCompatKt();
     method @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP) public static void beginTraceSection(String sectionName);
     method @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP) public static void endTraceSection();
   }

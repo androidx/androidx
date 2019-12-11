@@ -16,7 +16,6 @@ package androidx.benchmark.junit4 {
   }
 
   public final class BenchmarkRuleKt {
-    ctor public BenchmarkRuleKt();
     method public static inline void measureRepeated(androidx.benchmark.junit4.BenchmarkRule, kotlin.jvm.functions.Function1<? super androidx.benchmark.junit4.BenchmarkRule.Scope,kotlin.Unit> block);
   }
 

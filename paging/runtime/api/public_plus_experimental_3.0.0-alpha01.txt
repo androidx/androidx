@@ -24,7 +24,6 @@ package androidx.paging {
   }
 
   public final class AsyncPagedListDifferKt {
-    ctor public AsyncPagedListDifferKt();
   }
 
   public final class LivePagedListBuilder<Key, Value> {
@@ -40,7 +39,6 @@ package androidx.paging {
   }
 
   public final class LivePagedListKt {
-    ctor public LivePagedListKt();
     method @Deprecated public static <Key, Value> androidx.lifecycle.LiveData<androidx.paging.PagedList<Value>> toLiveData(androidx.paging.DataSource.Factory<Key,Value>, androidx.paging.PagedList.Config config, Key? initialLoadKey = null, androidx.paging.PagedList.BoundaryCallback<Value>? boundaryCallback = null, java.util.concurrent.Executor fetchExecutor = ArchTaskExecutor.getIOThreadExecutor());
     method @Deprecated public static <Key, Value> androidx.lifecycle.LiveData<androidx.paging.PagedList<Value>> toLiveData(androidx.paging.DataSource.Factory<Key,Value>, int pageSize, Key? initialLoadKey = null, androidx.paging.PagedList.BoundaryCallback<Value>? boundaryCallback = null, java.util.concurrent.Executor fetchExecutor = ArchTaskExecutor.getIOThreadExecutor());
     method public static <Key, Value> androidx.lifecycle.LiveData<androidx.paging.PagedList<Value>> toLiveData(kotlin.jvm.functions.Function0<? extends androidx.paging.PagedSource<Key,Value>>, androidx.paging.PagedList.Config config, Key? initialLoadKey = null, androidx.paging.PagedList.BoundaryCallback<Value>? boundaryCallback = null, kotlinx.coroutines.CoroutineScope coroutineScope = GlobalScope, kotlinx.coroutines.CoroutineDispatcher fetchDispatcher = Dispatchers.IO);
@@ -48,7 +46,6 @@ package androidx.paging {
   }
 
   public final class NullPaddedListDiffHelperKt {
-    ctor public NullPaddedListDiffHelperKt();
   }
 
   public abstract class PagedListAdapter<T, VH extends androidx.recyclerview.widget.RecyclerView.ViewHolder> extends androidx.recyclerview.widget.RecyclerView.Adapter<VH> {

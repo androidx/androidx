@@ -137,3 +137,15 @@ MissingNullability: androidx.recommendation.app.RecommendationExtender#setRunnin
     Missing nullability on method `setRunningTime` return
 MissingNullability: androidx.recommendation.app.RecommendationExtender#setStatus(int):
     Missing nullability on method `setStatus` return
+
+
+PublicTypedef: androidx.recommendation.app.ContentRecommendation.ContentMaturity:
+    Don't expose @StringDef: ContentMaturity must be hidden.
+PublicTypedef: androidx.recommendation.app.ContentRecommendation.ContentPricing:
+    Don't expose @StringDef: ContentPricing must be hidden.
+PublicTypedef: androidx.recommendation.app.ContentRecommendation.ContentStatus:
+    Don't expose @IntDef: ContentStatus must be hidden.
+PublicTypedef: androidx.recommendation.app.ContentRecommendation.ContentType:
+    Don't expose @StringDef: ContentType must be hidden.
+PublicTypedef: androidx.recommendation.app.ContentRecommendation.IntentType:
+    Don't expose @IntDef: IntentType must be hidden.

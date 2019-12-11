@@ -79,3 +79,7 @@ MutableBareField: androidx.slice.widget.EventInfo#sliceMode:
     Bare field sliceMode must be marked final, or moved behind accessors if mutable
 MutableBareField: androidx.slice.widget.EventInfo#state:
     Bare field state must be marked final, or moved behind accessors if mutable
+
+
+PublicTypedef: androidx.slice.widget.SliceLiveData.OnErrorListener.ErrorType:
+    Don't expose @IntDef: ErrorType must be hidden.

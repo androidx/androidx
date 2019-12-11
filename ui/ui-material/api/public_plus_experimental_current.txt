@@ -7,13 +7,11 @@ package androidx.ui.material {
   }
 
   public final class AlertDialogKt {
-    ctor public AlertDialogKt();
     method public static void AlertDialog(kotlin.jvm.functions.Function0<kotlin.Unit> onCloseRequest, kotlin.jvm.functions.Function0<kotlin.Unit>? title = null, kotlin.jvm.functions.Function0<kotlin.Unit> text, kotlin.jvm.functions.Function0<kotlin.Unit> confirmButton, kotlin.jvm.functions.Function0<kotlin.Unit>? dismissButton = null, androidx.ui.material.AlertDialogButtonLayout buttonLayout = androidx.ui.material.AlertDialogButtonLayout.SideBySide);
     method public static void AlertDialog(kotlin.jvm.functions.Function0<kotlin.Unit> onCloseRequest, kotlin.jvm.functions.Function0<kotlin.Unit>? title = null, kotlin.jvm.functions.Function0<kotlin.Unit> text, kotlin.jvm.functions.Function0<kotlin.Unit> buttons);
   }
 
   public final class AppBarKt {
-    ctor public AppBarKt();
     method public static void AppBarIcon(androidx.ui.graphics.Image icon, kotlin.jvm.functions.Function0<kotlin.Unit> onClick);
     method public static <T> void BottomAppBar(androidx.ui.graphics.Color color = (+MaterialTheme.colors()).primary, kotlin.jvm.functions.Function0<kotlin.Unit>? navigationIcon = null, androidx.ui.material.BottomAppBar.FabConfiguration? fabConfiguration = null, java.util.List<? extends T> actionData = emptyList(), kotlin.jvm.functions.Function1<? super T,kotlin.Unit> action = {});
     method public static void TopAppBar(kotlin.jvm.functions.Function0<kotlin.Unit> title, androidx.ui.graphics.Color color = (+MaterialTheme.colors()).primary, kotlin.jvm.functions.Function0<kotlin.Unit>? navigationIcon = null);
@@ -35,7 +33,6 @@ package androidx.ui.material {
   }
 
   public final class ButtonKt {
-    ctor public ButtonKt();
     method public static void Button(androidx.ui.core.Modifier modifier = Modifier.None, kotlin.jvm.functions.Function0<kotlin.Unit>? onClick = null, androidx.ui.material.ButtonStyle style = ContainedButtonStyle(), kotlin.jvm.functions.Function0<kotlin.Unit> children);
     method public static void Button(String text, androidx.ui.core.Modifier modifier = Modifier.None, kotlin.jvm.functions.Function0<kotlin.Unit>? onClick = null, androidx.ui.material.ButtonStyle style = ContainedButtonStyle());
     method public static androidx.ui.material.ButtonStyle ContainedButtonStyle(androidx.ui.graphics.Color color = (+MaterialTheme.colors()).primary, androidx.ui.engine.geometry.Shape shape = button, androidx.ui.core.Dp elevation = 2.dp, androidx.ui.graphics.Color? rippleColor = null);
@@ -63,13 +60,11 @@ package androidx.ui.material {
   }
 
   public final class CheckboxKt {
-    ctor public CheckboxKt();
     method public static void Checkbox(boolean checked, kotlin.jvm.functions.Function1<? super java.lang.Boolean,kotlin.Unit>? onCheckedChange, androidx.ui.core.Modifier modifier = Modifier.None, androidx.ui.graphics.Color color = (+MaterialTheme.colors()).secondary);
     method public static void TriStateCheckbox(androidx.ui.foundation.selection.ToggleableState value, kotlin.jvm.functions.Function0<kotlin.Unit>? onClick, androidx.ui.core.Modifier modifier = Modifier.None, androidx.ui.graphics.Color color = (+MaterialTheme.colors()).secondary);
   }
 
   public final class ColorKt {
-    ctor public ColorKt();
     method public static androidx.ui.graphics.Color? contentColorFor(androidx.ui.material.ColorPalette, androidx.ui.graphics.Color color);
     method public static androidx.ui.material.ColorPalette darkColorPalette(androidx.ui.graphics.Color primary = Color(4290479868), androidx.ui.graphics.Color primaryVariant = Color(4281794739), androidx.ui.graphics.Color secondary = Color(4278442694), androidx.ui.graphics.Color background = Color(4279374354), androidx.ui.graphics.Color surface = Color(4279374354), androidx.ui.graphics.Color error = Color(4291782265), androidx.ui.graphics.Color onPrimary = Color.Black, androidx.ui.graphics.Color onSecondary = Color.Black, androidx.ui.graphics.Color onBackground = Color.White, androidx.ui.graphics.Color onSurface = Color.White, androidx.ui.graphics.Color onError = Color.Black);
     method public static androidx.ui.material.ColorPalette lightColorPalette(androidx.ui.graphics.Color primary = Color(4284612846), androidx.ui.graphics.Color primaryVariant = Color(4281794739), androidx.ui.graphics.Color secondary = Color(4278442694), androidx.ui.graphics.Color secondaryVariant = Color(4278290310), androidx.ui.graphics.Color background = Color.White, androidx.ui.graphics.Color surface = Color.White, androidx.ui.graphics.Color error = Color(4289724448), androidx.ui.graphics.Color onPrimary = Color.White, androidx.ui.graphics.Color onSecondary = Color.Black, androidx.ui.graphics.Color onBackground = Color.Black, androidx.ui.graphics.Color onSurface = Color.Black, androidx.ui.graphics.Color onError = Color.White);
@@ -112,7 +107,6 @@ package androidx.ui.material {
   }
 
   public final class DataTableKt {
-    ctor public DataTableKt();
     method public static void DataTable(int columns, kotlin.jvm.functions.Function1<? super java.lang.Integer,java.lang.Boolean> numeric = { false }, androidx.ui.core.Dp dataRowHeight = androidx.ui.material.DataTableKt.DataRowHeight, androidx.ui.core.Dp headerRowHeight = androidx.ui.material.DataTableKt.HeaderRowHeight, androidx.ui.layout.EdgeInsets cellSpacing = androidx.ui.material.DataTableKt.CellSpacing, androidx.ui.foundation.shape.border.Border border = Border(BorderColor, BorderWidth), androidx.ui.graphics.Color selectedColor = (+MaterialTheme.colors()).primary.copy(0.08), androidx.ui.material.DataTablePagination? pagination = null, androidx.ui.material.DataTableSorting? sorting = null, kotlin.jvm.functions.Function1<? super androidx.ui.material.DataTableChildren,kotlin.Unit> block);
     method public static androidx.ui.material.DataTablePagination DefaultDataTablePagination(int initialPage = 0, int initialRowsPerPage, java.util.List<java.lang.Integer> availableRowsPerPage);
     method public static androidx.ui.material.DataTableSorting DefaultDataTableSorting(Integer? initialColumn = null, boolean initialAscending = true, java.util.Set<java.lang.Integer> sortableColumns, kotlin.jvm.functions.Function2<? super java.lang.Integer,? super java.lang.Boolean,kotlin.Unit> onSortRequest);
@@ -147,12 +141,10 @@ package androidx.ui.material {
   }
 
   public final class DividerKt {
-    ctor public DividerKt();
     method public static void Divider(androidx.ui.core.Modifier modifier = Modifier.None, androidx.ui.graphics.Color color = (+MaterialTheme.colors()).surface, androidx.ui.core.Dp height = 1.dp, androidx.ui.core.Dp indent = 0.dp);
   }
 
   public final class DrawerKt {
-    ctor public DrawerKt();
     method public static void BottomDrawerLayout(androidx.ui.material.DrawerState drawerState, kotlin.jvm.functions.Function1<? super androidx.ui.material.DrawerState,kotlin.Unit> onStateChange, boolean gesturesEnabled = true, kotlin.jvm.functions.Function0<kotlin.Unit> drawerContent, kotlin.jvm.functions.Function0<kotlin.Unit> bodyContent);
     method public static void ModalDrawerLayout(androidx.ui.material.DrawerState drawerState, kotlin.jvm.functions.Function1<? super androidx.ui.material.DrawerState,kotlin.Unit> onStateChange, boolean gesturesEnabled = true, kotlin.jvm.functions.Function0<kotlin.Unit> drawerContent, kotlin.jvm.functions.Function0<kotlin.Unit> bodyContent);
     method public static void StaticDrawer(kotlin.jvm.functions.Function0<kotlin.Unit> drawerContent);
@@ -168,7 +160,6 @@ package androidx.ui.material {
   }
 
   public final class EmphasisKt {
-    ctor public EmphasisKt();
     method public static void ProvideEmphasis(androidx.ui.material.Emphasis emphasis, kotlin.jvm.functions.Function0<kotlin.Unit> children);
     method public static androidx.compose.Ambient<androidx.ui.material.EmphasisLevels> getEmphasisAmbient();
   }
@@ -186,14 +177,12 @@ package androidx.ui.material {
   }
 
   public final class FloatingActionButtonKt {
-    ctor public FloatingActionButtonKt();
     method public static void FloatingActionButton(androidx.ui.core.Modifier modifier = Modifier.None, kotlin.jvm.functions.Function0<kotlin.Unit>? onClick = null, androidx.ui.core.Dp minSize = androidx.ui.material.FloatingActionButtonKt.FabSize, androidx.ui.engine.geometry.Shape shape = CircleShape, androidx.ui.graphics.Color color = (+MaterialTheme.colors()).primary, androidx.ui.core.Dp elevation = 6.dp, kotlin.jvm.functions.Function0<kotlin.Unit> children);
     method public static void FloatingActionButton(androidx.ui.graphics.Image icon, androidx.ui.core.Modifier modifier = Modifier.None, kotlin.jvm.functions.Function0<kotlin.Unit>? onClick = null, androidx.ui.engine.geometry.Shape shape = CircleShape, androidx.ui.graphics.Color color = (+MaterialTheme.colors()).primary, androidx.ui.core.Dp elevation = 6.dp);
     method public static void FloatingActionButton(String text, androidx.ui.core.Modifier modifier = Modifier.None, androidx.ui.graphics.Image? icon = null, androidx.ui.text.TextStyle? textStyle = null, kotlin.jvm.functions.Function0<kotlin.Unit>? onClick = null, androidx.ui.graphics.Color color = (+MaterialTheme.colors()).primary, androidx.ui.core.Dp elevation = 6.dp);
   }
 
   public final class ListItemKt {
-    ctor public ListItemKt();
     method public static void ListItem(String text, androidx.ui.graphics.Image? icon = null, String? secondaryText = null, boolean singleLineSecondaryText = true, String? overlineText = null, String? metaText = null, kotlin.jvm.functions.Function0<kotlin.Unit>? onClick = null);
     method public static void ListItem(kotlin.jvm.functions.Function0<kotlin.Unit> text, kotlin.jvm.functions.Function0<kotlin.Unit>? icon = null, kotlin.jvm.functions.Function0<kotlin.Unit>? secondaryText = null, boolean singleLineSecondaryText = true, kotlin.jvm.functions.Function0<kotlin.Unit>? overlineText = null, kotlin.jvm.functions.Function0<kotlin.Unit>? trailing = null, kotlin.jvm.functions.Function0<kotlin.Unit>? onClick = null);
   }
@@ -207,12 +196,10 @@ package androidx.ui.material {
   }
 
   public final class MaterialThemeKt {
-    ctor public MaterialThemeKt();
     method public static void MaterialTheme(androidx.ui.material.ColorPalette colors = lightColorPalette(), androidx.ui.material.Typography typography = androidx.ui.material.Typography(), kotlin.jvm.functions.Function0<kotlin.Unit> children);
   }
 
   public final class ProgressIndicatorKt {
-    ctor public ProgressIndicatorKt();
     method public static void CircularProgressIndicator(@FloatRange(from=0.0, to=1.0) float progress, androidx.ui.graphics.Color color = (+MaterialTheme.colors()).primary);
     method public static void CircularProgressIndicator(androidx.ui.graphics.Color color = (+MaterialTheme.colors()).primary);
     method public static void LinearProgressIndicator(@FloatRange(from=0.0, to=1.0) float progress, androidx.ui.graphics.Color color = (+MaterialTheme.colors()).primary);
@@ -220,7 +207,6 @@ package androidx.ui.material {
   }
 
   public final class RadioButtonKt {
-    ctor public RadioButtonKt();
     method public static void RadioButton(boolean selected, kotlin.jvm.functions.Function0<kotlin.Unit>? onSelect, androidx.ui.graphics.Color color = (+MaterialTheme.colors()).secondary);
     method public static void RadioGroup(kotlin.jvm.functions.Function1<? super androidx.ui.material.RadioGroupScope,kotlin.Unit> children);
     method public static void RadioGroup(java.util.List<java.lang.String> options, String? selectedOption, kotlin.jvm.functions.Function1<? super java.lang.String,kotlin.Unit> onSelectedChange, androidx.ui.graphics.Color radioColor = (+MaterialTheme.colors()).secondary, androidx.ui.text.TextStyle? textStyle = null);
@@ -232,7 +218,6 @@ package androidx.ui.material {
   }
 
   public final class ShapeKt {
-    ctor public ShapeKt();
   }
 
   public final class Shapes {
@@ -246,7 +231,6 @@ package androidx.ui.material {
   }
 
   public final class SliderKt {
-    ctor public SliderKt();
     method public static void Slider(androidx.ui.material.SliderPosition position, kotlin.jvm.functions.Function1<? super java.lang.Float,kotlin.Unit> onValueChange = { position.value = it }, androidx.ui.core.Modifier modifier = Modifier.None, kotlin.jvm.functions.Function0<kotlin.Unit> onValueChangeEnd = {}, androidx.ui.graphics.Color color = (+MaterialTheme.colors()).primary);
   }
 
@@ -260,18 +244,15 @@ package androidx.ui.material {
   }
 
   public final class SnackbarKt {
-    ctor public SnackbarKt();
     method public static void Snackbar(String text, String? actionText = null, kotlin.jvm.functions.Function0<kotlin.Unit>? onActionClick = null, androidx.ui.core.Modifier modifier = Modifier.None, boolean actionOnNewLine = false);
     method public static void Snackbar(kotlin.jvm.functions.Function0<kotlin.Unit> text, kotlin.jvm.functions.Function0<kotlin.Unit>? action = null, androidx.ui.core.Modifier modifier = Modifier.None, boolean actionOnNewLine = false);
   }
 
   public final class SwitchKt {
-    ctor public SwitchKt();
     method public static void Switch(boolean checked, kotlin.jvm.functions.Function1<? super java.lang.Boolean,kotlin.Unit>? onCheckedChange, androidx.ui.graphics.Color color = (+MaterialTheme.colors()).secondaryVariant);
   }
 
   public final class TabKt {
-    ctor public TabKt();
     method public static void Tab(String? text = null, androidx.ui.graphics.Image? icon = null, boolean selected, kotlin.jvm.functions.Function0<kotlin.Unit> onSelected);
     method public static <T> void TabRow(java.util.List<? extends T> items, int selectedIndex, boolean scrollable = false, kotlin.jvm.functions.Function1<? super java.util.List<androidx.ui.material.TabRow.TabPosition>,kotlin.Unit> indicatorContainer = { tabPositions -> TabRow.IndicatorContainer(tabPositions, selectedIndex, { 
     TabRow.Indicator()
@@ -295,7 +276,6 @@ package androidx.ui.material {
   }
 
   public final class TextKt {
-    ctor public TextKt();
     method public static androidx.ui.text.TextStyle withOpacity(androidx.ui.text.TextStyle, @FloatRange(from=0.0, to=1.0) float opacity);
   }
 
@@ -332,7 +312,6 @@ package androidx.ui.material {
   }
 
   public final class TypographyKt {
-    ctor public TypographyKt();
   }
 
 }
@@ -340,7 +319,6 @@ package androidx.ui.material {
 package androidx.ui.material.internal {
 
   public final class StateDraggableKt {
-    ctor public StateDraggableKt();
   }
 
 }
@@ -353,7 +331,6 @@ package androidx.ui.material.ripple {
   }
 
   public final class DefaultRippleEffectKt {
-    ctor public DefaultRippleEffectKt();
   }
 
   public interface RippleEffect {
@@ -367,7 +344,6 @@ package androidx.ui.material.ripple {
   }
 
   public final class RippleKt {
-    ctor public RippleKt();
     method public static void Ripple(boolean bounded, androidx.ui.core.Dp? radius = null, androidx.ui.graphics.Color? color = null, boolean enabled = true, kotlin.jvm.functions.Function0<kotlin.Unit> children);
   }
 
@@ -383,7 +359,6 @@ package androidx.ui.material.ripple {
   }
 
   public final class RippleThemeKt {
-    ctor public RippleThemeKt();
     method public static androidx.compose.Ambient<androidx.ui.material.ripple.RippleTheme> getCurrentRippleTheme();
   }
 
@@ -392,7 +367,6 @@ package androidx.ui.material.ripple {
 package androidx.ui.material.surface {
 
   public final class CardKt {
-    ctor public CardKt();
     method public static void Card(androidx.ui.core.Modifier modifier = Modifier.None, androidx.ui.engine.geometry.Shape shape = card, androidx.ui.graphics.Color color = (+MaterialTheme.colors()).surface, androidx.ui.graphics.Color contentColor = elvis {
     @null var var1e11522: androidx.ui.graphics.Color = (+MaterialTheme.colors()).contentColorFor(color)
     if (var1e11522 != null) var1e11522 else contentColor()
@@ -400,7 +374,6 @@ package androidx.ui.material.surface {
   }
 
   public final class SurfaceKt {
-    ctor public SurfaceKt();
     method public static void Surface(androidx.ui.core.Modifier modifier = Modifier.None, androidx.ui.engine.geometry.Shape shape = RectangleShape, androidx.ui.graphics.Color color = (+MaterialTheme.colors()).surface, androidx.ui.graphics.Color contentColor = elvis {
     @null var varcd50b103: androidx.ui.graphics.Color = (+MaterialTheme.colors()).contentColorFor(color)
     if (varcd50b103 != null) varcd50b103 else contentColor()
