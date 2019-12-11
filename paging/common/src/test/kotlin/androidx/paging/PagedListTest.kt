@@ -20,7 +20,6 @@ import androidx.paging.ContiguousPagedListTest.Companion.EXCEPTION
 import androidx.paging.LoadType.REFRESH
 import androidx.paging.PagedList.Builder
 import androidx.paging.PagedList.LoadStateManager
-import androidx.paging.futures.DirectDispatcher
 import androidx.testutils.TestExecutor
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.runBlocking

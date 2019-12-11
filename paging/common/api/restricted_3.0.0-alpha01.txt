@@ -356,11 +356,3 @@ package androidx.paging {
 
 }
 
-package androidx.paging.futures {
-
-  public final class DirectExecutorKt {
-    ctor public DirectExecutorKt();
-  }
-
-}
-

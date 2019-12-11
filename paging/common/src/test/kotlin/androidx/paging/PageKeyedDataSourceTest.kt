@@ -16,7 +16,6 @@
 
 package androidx.paging
 
-import androidx.paging.futures.DirectDispatcher
 import androidx.testutils.TestDispatcher
 import kotlinx.coroutines.CoroutineScope
 import org.junit.Assert.assertEquals

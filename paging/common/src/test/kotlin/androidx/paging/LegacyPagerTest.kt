@@ -19,7 +19,6 @@ package androidx.paging
 import androidx.paging.PagedList.Config
 import androidx.paging.PagedSource.LoadResult
 import androidx.paging.PagedSource.LoadResult.Page
-import androidx.paging.futures.DirectDispatcher
 import androidx.testutils.TestDispatcher
 import kotlinx.coroutines.GlobalScope
 import kotlinx.coroutines.runBlocking
