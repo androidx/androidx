@@ -34,8 +34,6 @@ import androidx.camera.core.CameraInfoUnavailableException;
 import androidx.camera.core.CameraSelector;
 import androidx.camera.core.CameraX;
 import androidx.camera.core.Preview;
-import androidx.camera.core.PreviewConfig;
-import androidx.camera.core.impl.utils.CameraSelectorUtil;
 import androidx.camera.testing.CameraUtil;
 import androidx.camera.testing.R;
 import androidx.camera.testing.SurfaceTextureProvider;
@@ -119,16 +117,7 @@ public class CameraXTestActivity extends AppCompatActivity {
             return;
         }
 
-        try {
-            mCameraId =
-                    CameraX.getCameraWithCameraDeviceConfig(
-                            CameraSelectorUtil.toCameraDeviceConfig(cameraSelector));
-        } catch (CameraInfoUnavailableException e) {
-            final PreviewConfig config = (PreviewConfig) mPreview.getUseCaseConfig();
-            throw new IllegalArgumentException(
-                    "Unable to get camera id for the camera device config "
-                            + config.getLensFacing(), e);
-        }
+        mCameraId = CameraX.getCameraWithCameraSelector(cameraSelector);
 
         textureView.setSurfaceTextureListener(
                 new TextureView.SurfaceTextureListener() {

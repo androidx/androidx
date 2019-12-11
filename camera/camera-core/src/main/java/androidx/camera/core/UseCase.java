@@ -74,10 +74,9 @@ public abstract class UseCase {
 
     private UseCaseConfig<?> mUseCaseConfig;
 
-    // TODO(b/142840814): Remove when we are attached to a camera.
-    private final Object mBoundConfigLock = new Object();
-    @GuardedBy("mBoundConfigLock")
-    private CameraDeviceConfig mBoundDeviceConfig;
+    private final Object mBoundCameraLock = new Object();
+    @GuardedBy("mBoundCameraLock")
+    private CameraInternal mBoundCamera;
 
     /**
      * Except for ImageFormat.JPEG or ImageFormat.YUV, other image formats like SurfaceTexture or
@@ -137,15 +136,15 @@ public abstract class UseCase {
      */
     @RestrictTo(Scope.LIBRARY_GROUP)
     protected final void updateUseCaseConfig(@NonNull UseCaseConfig<?> useCaseConfig) {
-        updateUseCaseConfig(useCaseConfig, getBoundDeviceConfig());
+        updateUseCaseConfig(useCaseConfig, getBoundCamera());
     }
 
     private void updateUseCaseConfig(@NonNull UseCaseConfig<?> useCaseConfig,
-            @Nullable CameraDeviceConfig boundDeviceConfig) {
+            @Nullable CameraInternal boundCamera) {
         // Attempt to retrieve builder containing defaults for this use case's config
         Integer lensFacing = null;
-        if (boundDeviceConfig != null) {
-            lensFacing = boundDeviceConfig.getLensFacing(null);
+        if (boundCamera != null) {
+            lensFacing = boundCamera.getCameraInfoInternal().getLensFacing();
         }
         UseCaseConfig.Builder<?, ?, ?> defaultBuilder = getDefaultBuilder(lensFacing);
 
@@ -348,24 +347,6 @@ public abstract class UseCase {
     }
 
     /**
-     * Gets the camera id defined by the provided camera device config.
-     *
-     * @param deviceConfig the device config
-     * @return the camera id returned by resolving the device config
-     * @hide
-     */
-    @RestrictTo(Scope.LIBRARY_GROUP)
-    @NonNull
-    protected static String getCameraIdUnchecked(@NonNull CameraDeviceConfig deviceConfig) {
-        try {
-            return CameraX.getCameraWithCameraDeviceConfig(deviceConfig);
-        } catch (CameraInfoUnavailableException e) {
-            throw new IllegalArgumentException(
-                    "Unable to get camera id for the camera selector.", e);
-        }
-    }
-
-    /**
      * Returns the camera ID for the currently bound camera, or throws an exception if no camera is
      * bound.
      *
@@ -374,9 +355,8 @@ public abstract class UseCase {
     @RestrictTo(Scope.LIBRARY_GROUP)
     @NonNull
     protected String getBoundCameraId() {
-        CameraDeviceConfig deviceConfig = Preconditions.checkNotNull(getBoundDeviceConfig(), "No "
-                + "camera bound to use case: " + this);
-        return getCameraIdUnchecked(deviceConfig);
+        return Preconditions.checkNotNull(getBoundCamera(),
+                "No camera bound to use case: " + this).getCameraInfoInternal().getCameraId();
     }
 
     /**
@@ -386,13 +366,7 @@ public abstract class UseCase {
      */
     @RestrictTo(Scope.LIBRARY_GROUP)
     protected boolean isCurrentlyBoundCamera(@NonNull String cameraId) {
-        String boundCameraId = null;
-        CameraDeviceConfig deviceConfig = getBoundDeviceConfig();
-        if (deviceConfig != null) {
-            boundCameraId = getCameraIdUnchecked(deviceConfig);
-        }
-
-        return Objects.equals(cameraId, boundCameraId);
+        return Objects.equals(cameraId, getBoundCameraId());
     }
 
     /**
@@ -408,8 +382,8 @@ public abstract class UseCase {
             eventCallback.onUnbind();
         }
 
-        synchronized (mBoundConfigLock) {
-            mBoundDeviceConfig = null;
+        synchronized (mBoundCameraLock) {
+            mBoundCamera = null;
         }
 
         mStateChangeCallbacks.clear();
@@ -434,16 +408,15 @@ public abstract class UseCase {
     }
 
     /**
-     * Returns the currently bound {@link CameraDeviceConfig} or {@code null} if none is bound.
-     * TODO(b/142840814): Only rely on attached Camera rather than config.
+     * Returns the currently bound {@link Camera} or {@code null} if none is bound.
      *
      * @hide
      */
     @RestrictTo(Scope.LIBRARY_GROUP)
     @Nullable
-    public CameraDeviceConfig getBoundDeviceConfig() {
-        synchronized (mBoundConfigLock) {
-            return mBoundDeviceConfig;
+    public CameraInternal getBoundCamera() {
+        synchronized (mBoundCameraLock) {
+            return mBoundCamera;
         }
     }
 
@@ -515,14 +488,14 @@ public abstract class UseCase {
      * @hide
      */
     @RestrictTo(Scope.LIBRARY_GROUP)
-    protected void onBind(@NonNull CameraDeviceConfig deviceConfig) {
-        synchronized (mBoundConfigLock) {
-            mBoundDeviceConfig = deviceConfig;
+    protected void onBind(@NonNull CameraInternal camera) {
+        synchronized (mBoundCameraLock) {
+            mBoundCamera = camera;
         }
-        updateUseCaseConfig(mUseCaseConfig, deviceConfig);
+        updateUseCaseConfig(mUseCaseConfig, camera);
         EventCallback eventCallback = mUseCaseConfig.getUseCaseEventCallback(null);
         if (eventCallback != null) {
-            eventCallback.onBind(getCameraIdUnchecked(deviceConfig));
+            eventCallback.onBind(camera.getCameraInfoInternal().getCameraId());
         }
     }
 

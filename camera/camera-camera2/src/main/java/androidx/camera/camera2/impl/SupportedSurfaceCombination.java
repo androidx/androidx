@@ -34,8 +34,6 @@ import android.view.WindowManager;
 
 import androidx.annotation.Nullable;
 import androidx.camera.core.AspectRatio;
-import androidx.camera.core.CameraDeviceConfig;
-import androidx.camera.core.CameraInfoUnavailableException;
 import androidx.camera.core.CameraX;
 import androidx.camera.core.ImageFormatConstants;
 import androidx.camera.core.ImageOutputConfig;
@@ -210,16 +208,9 @@ final class SupportedSurfaceCombination {
             // Attach SurfaceConfig of original use cases since it will impact the new use cases
             if (originalUseCases != null) {
                 for (UseCase useCase : originalUseCases) {
-                    CameraDeviceConfig deviceConfig =
-                            Preconditions.checkNotNull(useCase.getBoundDeviceConfig());
-                    String useCaseCameraId;
-                    try {
-                        useCaseCameraId = CameraX.getCameraWithCameraDeviceConfig(deviceConfig);
-                    } catch (CameraInfoUnavailableException e) {
-                        throw new IllegalArgumentException(
-                                "Unable to get camera id for the camera device config.", e);
-                    }
-                    Size resolution = useCase.getAttachedSurfaceResolution(useCaseCameraId);
+                    Size resolution =
+                            useCase.getAttachedSurfaceResolution(
+                                    useCase.getBoundCamera().getCameraInfoInternal().getCameraId());
 
                     surfaceConfigList.add(
                             transformSurfaceConfig(useCase.getImageFormat(), resolution));

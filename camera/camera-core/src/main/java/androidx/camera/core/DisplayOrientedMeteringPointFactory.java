@@ -25,7 +25,6 @@ import android.view.WindowManager;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.annotation.RestrictTo;
-import androidx.camera.core.impl.utils.CameraSelectorUtil;
 
 /**
  * A {@link MeteringPointFactory} that can convert a {@link View} (x, y) into a
@@ -117,9 +116,7 @@ public final class DisplayOrientedMeteringPointFactory extends MeteringPointFact
         mCameraSelector = cameraSelector;
         mDisplay = display;
         try {
-            String cameraId =
-                    CameraX.getCameraWithCameraDeviceConfig(
-                            CameraSelectorUtil.toCameraDeviceConfig(mCameraSelector));
+            String cameraId = CameraX.getCameraWithCameraSelector(mCameraSelector);
             mCameraInfo = CameraX.getCameraInfo(cameraId);
         } catch (Exception e) {
             throw new IllegalArgumentException(

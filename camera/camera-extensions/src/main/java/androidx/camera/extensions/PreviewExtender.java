@@ -112,7 +112,7 @@ public abstract class PreviewExtender {
         }
 
         CameraSelector selectorWithFilters = selectorBuilder.build();
-        String cameraId = CameraUtil.getCameraId(selectorWithFilters);
+        String cameraId = CameraUtil.getCameraIdUnchecked(selectorWithFilters);
         if (cameraId == null) {
             // If there's no available camera id for the extender to function, just return here
             // and it will be no-ops.

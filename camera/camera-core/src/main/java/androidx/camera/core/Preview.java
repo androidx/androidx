@@ -336,13 +336,14 @@ public class Preview extends UseCase {
         PreviewConfig previewConfig = (PreviewConfig) super.applyDefaults(userConfig,
                 defaultConfigBuilder);
 
-        CameraDeviceConfig deviceConfig = getBoundDeviceConfig();
+        CameraInternal boundCamera = getBoundCamera();
         // Checks the device constraints and get the corrected aspect ratio.
-        if (deviceConfig != null && CameraX.getSurfaceManager().requiresCorrectedAspectRatio(
-                deviceConfig)) {
+        if (boundCamera != null && CameraX.getSurfaceManager().requiresCorrectedAspectRatio(
+                boundCamera.getCameraInfoInternal().getCameraId())) {
             ImageOutputConfig imageConfig = previewConfig;
             Rational resultRatio =
-                    CameraX.getSurfaceManager().getCorrectedAspectRatio(deviceConfig,
+                    CameraX.getSurfaceManager().getCorrectedAspectRatio(
+                            boundCamera.getCameraInfoInternal().getCameraId(),
                             imageConfig.getTargetRotation(Surface.ROTATION_0));
             if (resultRatio != null) {
                 Builder configBuilder = Builder.fromConfig(previewConfig);

@@ -70,11 +70,12 @@ public class FakeCamera implements CameraInternal {
     private List<DeferrableSurface> mConfiguredDeferrableSurfaces = Collections.emptyList();
 
     public FakeCamera() {
-        this(DEFAULT_CAMERA_ID, /*cameraControl=*/null, new FakeCameraInfoInternal());
+        this(DEFAULT_CAMERA_ID, /*cameraControl=*/null,
+                new FakeCameraInfoInternal(DEFAULT_CAMERA_ID));
     }
 
     public FakeCamera(@NonNull String cameraId) {
-        this(cameraId, /*cameraControl=*/null, new FakeCameraInfoInternal());
+        this(cameraId, /*cameraControl=*/null, new FakeCameraInfoInternal(cameraId));
     }
 
     public FakeCamera(@Nullable CameraControlInternal cameraControl,
