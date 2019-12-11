@@ -759,6 +759,16 @@ public class PropertyValuesHolder implements Cloneable {
                 } catch (NoSuchMethodException e) {
                     // Swallow the error and keep trying other variants
                 }
+                try {
+                    returnVal = targetClass.getDeclaredMethod(methodName, args);
+                    returnVal.setAccessible(true);
+                    if (mConverter == null) {
+                        // change the value type to suit
+                        mValueType = typeVariant;
+                    }
+                } catch (NoSuchMethodException e) {
+                    // Swallow the error and keep trying other variants
+                }
             }
             // If we got here, then no appropriate function was found
         }
