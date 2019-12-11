@@ -45,9 +45,7 @@ class TextBenchmarkTestRule(alphabet: Alphabet = Alphabet.Latin) : TestRule {
     }
 
     fun <T> generator(block: (generator: RandomTextGenerator) -> T): T {
-        return textGeneratorTestRule.generator { textGenerator ->
-            block(textGenerator)
-        }
+        return textGeneratorTestRule.generator(block)
     }
 }
 
