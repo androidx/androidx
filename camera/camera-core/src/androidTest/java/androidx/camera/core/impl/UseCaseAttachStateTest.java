@@ -355,8 +355,7 @@ public class UseCaseAttachStateTest {
             super(config);
             String selectedCameraId = CameraX.getCameraWithCameraSelector(selector);
             onBind(new FakeCamera(selectedCameraId, null,
-                    new FakeCameraInfoInternal(selectedCameraId, 0,
-                            selector.getLensFacing())));
+                    new FakeCameraInfoInternal(selectedCameraId, 0, selector.getLensFacing())));
             Map<String, Size> suggestedResolutionMap = new HashMap<>();
             suggestedResolutionMap.put(cameraId, new Size(640, 480));
             updateSuggestedResolution(suggestedResolutionMap);

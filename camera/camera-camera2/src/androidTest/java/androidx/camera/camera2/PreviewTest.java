@@ -118,12 +118,10 @@ public final class PreviewTest {
         }
 
         // init CameraX before creating Preview to get preview size with CameraX's context
-        mDefaultBuilder = Preview.Builder.fromConfig(
-                Preview.DEFAULT_CONFIG.getConfig(CameraSelector.LENS_FACING_BACK));
+        mDefaultBuilder = Preview.Builder.fromConfig(Preview.DEFAULT_CONFIG.getConfig(null));
         mSurfaceFutureSemaphore = new Semaphore(/*permits=*/ 0);
         mSaveToReleaseSemaphore = new Semaphore(/*permits=*/ 0);
-        mCameraSelector = new CameraSelector.Builder().requireLensFacing(
-                CameraSelector.LENS_FACING_BACK).build();
+        mCameraSelector = CameraSelector.DEFAULT_BACK_CAMERA;
         mLifecycleOwner = new FakeLifecycleOwner();
     }
 

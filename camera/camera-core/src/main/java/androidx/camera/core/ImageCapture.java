@@ -432,9 +432,9 @@ public class ImageCapture extends UseCase {
     @Override
     @Nullable
     @RestrictTo(Scope.LIBRARY_GROUP)
-    protected UseCaseConfig.Builder<?, ?, ?> getDefaultBuilder(@Nullable Integer lensFacing) {
-        ImageCaptureConfig defaults = CameraX.getDefaultUseCaseConfig(
-                ImageCaptureConfig.class, lensFacing);
+    protected UseCaseConfig.Builder<?, ?, ?> getDefaultBuilder(@Nullable CameraInfo cameraInfo) {
+        ImageCaptureConfig defaults = CameraX.getDefaultUseCaseConfig(ImageCaptureConfig.class,
+                cameraInfo);
         if (defaults != null) {
             return Builder.fromConfig(defaults);
         }
@@ -1330,7 +1330,7 @@ public class ImageCapture extends UseCase {
 
         @NonNull
         @Override
-        public ImageCaptureConfig getConfig(@Nullable Integer lensFacing) {
+        public ImageCaptureConfig getConfig(@Nullable CameraInfo cameraInfo) {
             return DEFAULT_CONFIG;
         }
     }

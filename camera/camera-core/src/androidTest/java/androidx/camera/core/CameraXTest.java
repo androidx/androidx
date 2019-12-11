@@ -90,7 +90,7 @@ public final class CameraXTest {
 
         ExtendableUseCaseConfigFactory defaultConfigFactory = new ExtendableUseCaseConfigFactory();
         defaultConfigFactory.installDefaultProvider(FakeUseCaseConfig.class,
-                lensFacing -> new FakeUseCaseConfig.Builder().getUseCaseConfig());
+                cameraInfo -> new FakeUseCaseConfig.Builder().getUseCaseConfig());
         mUseCaseConfigFactory = defaultConfigFactory;
         mFakeCameraFactory = new FakeCameraFactory();
         mCameraInternal = new FakeCamera(mock(CameraControlInternal.class),
@@ -328,6 +328,7 @@ public final class CameraXTest {
         assertFalse(hasException);
     }
 
+    @Test
     @UiThreadTest
     public void bindUseCases_successReturnCamera() {
         initCameraX();
@@ -341,22 +342,32 @@ public final class CameraXTest {
     @UiThreadTest
     public void bindUseCases_withNotExistedLensFacingCamera() {
         initCameraX();
-        CameraSelector frontSelector = new CameraSelector.Builder().requireLensFacing(
-                CameraSelector.LENS_FACING_FRONT).build();
         FakeUseCaseConfig config0 = new FakeUseCaseConfig.Builder().getUseCaseConfig();
         FakeUseCase fakeUseCase = new FakeUseCase(config0);
 
         // The front camera is not defined, we should get the IllegalArgumentException when it
         // tries to get the camera.
-        CameraX.bindToLifecycle(mLifecycle, frontSelector, fakeUseCase);
+        CameraX.bindToLifecycle(mLifecycle, CameraSelector.DEFAULT_FRONT_CAMERA, fakeUseCase);
+    }
+
+    @Test
+    @UiThreadTest
+    public void bindUseCases_canUpdateUseCase() {
+        initCameraX();
+        FakeUseCaseConfig config0 = new FakeUseCaseConfig.Builder().getUseCaseConfig();
+        FakeUseCase fakeUseCase = new FakeUseCase(config0);
+
+        Camera camera = CameraX.bindToLifecycle(mLifecycle, CameraSelector.DEFAULT_BACK_CAMERA,
+                fakeUseCase);
+
+        assertThat(fakeUseCase.getBoundCamera()).isEqualTo(camera);
     }
 
     @Test
     public void requestingDefaultConfiguration_returnsDefaultConfiguration() {
         initCameraX();
         // Requesting a default configuration will throw if CameraX is not initialized.
-        FakeUseCaseConfig config = CameraX.getDefaultUseCaseConfig(
-                FakeUseCaseConfig.class, CAMERA_LENS_FACING);
+        FakeUseCaseConfig config = CameraX.getDefaultUseCaseConfig(FakeUseCaseConfig.class, null);
         assertThat(config).isNotNull();
         assertThat(config.getTargetClass(null)).isEqualTo(FakeUseCase.class);
     }

@@ -25,11 +25,13 @@ import android.util.Size;
 import android.view.Surface;
 
 import androidx.annotation.NonNull;
+import androidx.annotation.Nullable;
 import androidx.annotation.experimental.UseExperimental;
 import androidx.camera.camera2.internal.util.SemaphoreReleasingCamera2Callbacks.DeviceStateCallback;
 import androidx.camera.camera2.internal.util.SemaphoreReleasingCamera2Callbacks.SessionStateCallback;
 import androidx.camera.camera2.interop.Camera2Interop;
 import androidx.camera.camera2.interop.ExperimentalCamera2Interop;
+import androidx.camera.core.CameraInfo;
 import androidx.camera.core.CameraSelector;
 import androidx.camera.core.impl.CameraFactory;
 import androidx.camera.core.impl.CameraRepository;
@@ -187,7 +189,8 @@ public final class Camera2ImplCameraRepositoryTest {
 
         // we need to set Camera2OptionUnpacker to the Config to enable the camera2 callback hookup.
         @Override
-        protected UseCaseConfig.Builder<?, ?, ?> getDefaultBuilder(Integer lensFacing) {
+        protected UseCaseConfig.Builder<?, ?, ?> getDefaultBuilder(
+                @Nullable CameraInfo cameraInfo) {
             return new FakeUseCaseConfig.Builder()
                     .setSessionOptionUnpacker(new Camera2SessionOptionUnpacker());
         }

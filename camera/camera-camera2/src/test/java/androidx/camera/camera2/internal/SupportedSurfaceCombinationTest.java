@@ -49,8 +49,6 @@ import androidx.camera.core.ImageCapture;
 import androidx.camera.core.Preview;
 import androidx.camera.core.UseCase;
 import androidx.camera.core.VideoCapture;
-import androidx.camera.core.impl.ImageAnalysisConfig;
-import androidx.camera.core.impl.ImageCaptureConfig;
 import androidx.camera.core.impl.ImageFormatConstants;
 import androidx.camera.core.impl.PreviewConfig;
 import androidx.camera.core.impl.SurfaceCombination;
@@ -483,10 +481,7 @@ public final class SupportedSurfaceCombinationTest {
 
         // Ensure we are bound to a camera to ensure aspect ratio correction is applied.
         FakeLifecycleOwner fakeLifecycle = new FakeLifecycleOwner();
-        CameraSelector cameraSelector =
-                new CameraSelector.Builder().requireLensFacing(
-                        CameraSelector.LENS_FACING_FRONT).build();
-        CameraX.bindToLifecycle(fakeLifecycle, cameraSelector, preview);
+        CameraX.bindToLifecycle(fakeLifecycle, CameraSelector.DEFAULT_FRONT_CAMERA, preview);
 
         PreviewConfig config = (PreviewConfig) preview.getUseCaseConfig();
         Rational previewAspectRatio = config.getTargetAspectRatioCustom();
@@ -530,6 +525,10 @@ public final class SupportedSurfaceCombinationTest {
         ImageCapture imageCapture = new ImageCapture.Builder().build();
         ImageAnalysis imageAnalysis = new ImageAnalysis.Builder().build();
 
+        FakeLifecycleOwner fakeLifecycle = new FakeLifecycleOwner();
+        CameraX.bindToLifecycle(fakeLifecycle, CameraSelector.DEFAULT_BACK_CAMERA, preview,
+                imageCapture, imageAnalysis);
+
         List<UseCase> useCases = new ArrayList<>();
         useCases.add(preview);
         useCases.add(imageCapture);
@@ -554,34 +553,6 @@ public final class SupportedSurfaceCombinationTest {
 
         // Checks the default resolution.
         assertTrue(imageAnalysisSize.equals(mAnalysisSize));
-    }
-
-    @Test
-    public void checkDefaultLensFacingForMixedUseCase() {
-        setupCamera(/* supportsRaw= */ false);
-
-        Preview preview = new Preview.Builder().build();
-        ImageCapture imageCapture = new ImageCapture.Builder().build();
-        ImageAnalysis imageAnalysis = new ImageAnalysis.Builder().build();
-        VideoCapture videoCapture = new VideoCaptureConfig.Builder().build();
-
-        PreviewConfig previewConfig = (PreviewConfig) preview.getUseCaseConfig();
-        ImageCaptureConfig imageCaptureConfig =
-                (ImageCaptureConfig) imageCapture.getUseCaseConfig();
-        ImageAnalysisConfig imageAnalysisConfig =
-                (ImageAnalysisConfig) imageAnalysis.getUseCaseConfig();
-        VideoCaptureConfig videoCaptureConfig =
-                (VideoCaptureConfig) videoCapture.getUseCaseConfig();
-
-        Integer previewLensFacing = previewConfig.getLensFacing(null);
-        Integer imageCaptureLensFacing = imageCaptureConfig.getLensFacing(null);
-        Integer imageAnalysisLensFacing = imageAnalysisConfig.getLensFacing(null);
-        Integer videoCaptureLensFacing = videoCaptureConfig.getLensFacing(null);
-
-        assertThat(previewLensFacing).isNotNull();
-        assertThat(imageCaptureLensFacing).isNotNull();
-        assertThat(imageAnalysisLensFacing).isNotNull();
-        assertThat(videoCaptureLensFacing).isNotNull();
     }
 
     @Test

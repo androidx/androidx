@@ -139,12 +139,12 @@ public class ShadowCameraX {
     }
 
     /**
-     * Shadow of {@link CameraX#getDefaultUseCaseConfig(Class, Integer)}.
+     * Shadow of {@link CameraX#getDefaultUseCaseConfig(Class, CameraInfo)}.
      */
     @SuppressWarnings("unchecked")
     @Implementation
-    public static <C extends UseCaseConfig<?>> C getDefaultUseCaseConfig(
-            Class<C> configType, @Nullable Integer lensFacing) {
+    public static <C extends UseCaseConfig<?>> C getDefaultUseCaseConfig(Class<C> configType,
+            @Nullable CameraInfo cameraInfo) {
         return (C) DEFAULT_IMAGE_ANALYSIS_CONFIG;
     }
 

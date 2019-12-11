@@ -58,14 +58,11 @@ public final class Camera2Config {
         UseCaseConfigFactory.Provider configFactoryProvider = context -> {
             ExtendableUseCaseConfigFactory factory = new ExtendableUseCaseConfigFactory();
             factory.installDefaultProvider(
-                    ImageAnalysisConfig.class,
-                    new ImageAnalysisConfigProvider(context));
+                    ImageAnalysisConfig.class, new ImageAnalysisConfigProvider(context));
             factory.installDefaultProvider(
-                    ImageCaptureConfig.class,
-                    new ImageCaptureConfigProvider(context));
+                    ImageCaptureConfig.class, new ImageCaptureConfigProvider(context));
             factory.installDefaultProvider(
-                    VideoCaptureConfig.class,
-                    new VideoCaptureConfigProvider(context));
+                    VideoCaptureConfig.class, new VideoCaptureConfigProvider(context));
             factory.installDefaultProvider(
                     PreviewConfig.class, new PreviewConfigProvider(context));
             return factory;

@@ -477,28 +477,6 @@
     <issue
         id="UnknownNullness"
         message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
-        errorLine1="    public FakeUseCase(FakeUseCaseConfig config) {"
-        errorLine2="                       ~~~~~~~~~~~~~~~~~">
-        <location
-            file="src/main/java/androidx/camera/testing/fakes/FakeUseCase.java"
-            line="38"
-            column="24"/>
-    </issue>
-
-    <issue
-        id="UnknownNullness"
-        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
-        errorLine1="    protected UseCaseConfig.Builder&lt;?, ?, ?> getDefaultBuilder(@Nullable Integer lensFacing) {"
-        errorLine2="              ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
-        <location
-            file="src/main/java/androidx/camera/testing/fakes/FakeUseCase.java"
-            line="50"
-            column="15"/>
-    </issue>
-
-    <issue
-        id="UnknownNullness"
-        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
         errorLine1="    public static void waitForLooperToIdle(Handler handler) throws InterruptedException {"
         errorLine2="                                           ~~~~~~~">
         <location
