@@ -68,6 +68,7 @@ includeProject(":ui:ui-material:integration-tests:samples", "ui-material/integra
 includeProject(":ui:ui-material:integration-tests:ui-material-demos", "ui-material/integration-tests/material-demos")
 includeProject(":ui:ui-material:integration-tests:ui-material-studies", "ui-material/integration-tests/material-studies")
 includeProject(":ui:ui-platform", "ui-platform")
+includeProject(":ui:ui-platform:integration-tests:samples", "ui-platform/integration-tests/samples")
 includeProject(":ui:ui-test", "ui-test")
 includeProject(":ui:ui-text", "ui-text")
 includeProject(":ui:ui-text:integration-tests:ui-text-demos", "ui-text/integration-tests/text-demos")

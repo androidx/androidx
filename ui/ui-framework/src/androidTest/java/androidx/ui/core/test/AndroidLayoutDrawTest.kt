@@ -50,7 +50,6 @@ import androidx.ui.core.Measurable
 import androidx.ui.core.Modifier
 import androidx.ui.core.OnPositioned
 import androidx.ui.core.ParentData
-import androidx.ui.core.PxSize
 import androidx.ui.core.Ref
 import androidx.ui.core.RepaintBoundary
 import androidx.ui.core.VerticalAlignmentLine
@@ -58,7 +57,6 @@ import androidx.ui.core.coerceAtLeast
 import androidx.ui.core.coerceIn
 import androidx.ui.core.draw
 import androidx.ui.core.drawWithContent
-import androidx.ui.core.DrawModifier
 import androidx.ui.core.globalPosition
 import androidx.ui.core.ipx
 import androidx.ui.core.max
@@ -68,11 +66,7 @@ import androidx.ui.core.px
 import androidx.ui.core.setContent
 import androidx.ui.core.toPx
 import androidx.ui.core.toRect
-import androidx.ui.engine.geometry.Outline
-import androidx.ui.engine.geometry.RRect
 import androidx.ui.engine.geometry.Rect
-import androidx.ui.engine.geometry.Shape
-import androidx.ui.engine.geometry.drawOutline
 import androidx.ui.framework.test.TestActivity
 import androidx.ui.graphics.Color
 import androidx.ui.graphics.Paint
@@ -1740,9 +1734,6 @@ class AndroidLayoutDrawTest {
         activityTestRule.runOnUiThreadIR {
             activity.setContentInFrameLayout {
                 FixedSize(30.ipx, background(outerColor)) {
-                    Draw { canvas, parentSize ->
-                        canvas.drawRect(parentSize.toRect(), Paint().apply { color = outerColor })
-                    }
                     FixedSize(10.ipx, PaddingModifier(10.ipx) + background(
                         innerColor
                     )
@@ -1754,8 +1745,55 @@ class AndroidLayoutDrawTest {
                 }
             }
         }
-        Thread.sleep(3000)
         validateSquareColors(outerColor = outerColor, innerColor = innerColor, size = 10)
+    }
+
+    @SdkSuppress(minSdkVersion = Build.VERSION_CODES.O)
+    @Test
+    fun drawModifier_modelChangesOnRoot() {
+        val model = SquareModel(innerColor = Color.White, outerColor = Color.Green)
+        activityTestRule.runOnUiThreadIR {
+            activity.setContentInFrameLayout {
+                FixedSize(30.ipx, background(model, false)) {
+                    FixedSize(10.ipx, PaddingModifier(10.ipx) + background(model, true)) {
+                        Draw { _, _ ->
+                            drawLatch.countDown()
+                        }
+                    }
+                }
+            }
+        }
+        validateSquareColors(outerColor = Color.Green, innerColor = Color.White, size = 10)
+        drawLatch = CountDownLatch(1)
+        activityTestRule.runOnUiThreadIR {
+            model.innerColor = Color.Yellow
+        }
+        validateSquareColors(outerColor = Color.Green, innerColor = Color.Yellow, size = 10)
+    }
+
+    @SdkSuppress(minSdkVersion = Build.VERSION_CODES.O)
+    @Test
+    fun drawModifier_modelChangesOnRepaintBoundary() {
+        val model = SquareModel(innerColor = Color.White, outerColor = Color.Green)
+        activityTestRule.runOnUiThreadIR {
+            activity.setContentInFrameLayout {
+                FixedSize(30.ipx, background(Color.Green)) {
+                    RepaintBoundary {
+                        FixedSize(10.ipx, PaddingModifier(10.ipx) + background(model, true)) {
+                            Draw { _, _ ->
+                                drawLatch.countDown()
+                            }
+                        }
+                    }
+                }
+            }
+        }
+        validateSquareColors(outerColor = Color.Green, innerColor = Color.White, size = 10)
+        drawLatch = CountDownLatch(1)
+        activityTestRule.runOnUiThreadIR {
+            model.innerColor = Color.Yellow
+        }
+        validateSquareColors(outerColor = Color.Green, innerColor = Color.Yellow, size = 10)
     }
 
     @SdkSuppress(minSdkVersion = Build.VERSION_CODES.O)
@@ -1859,31 +1897,6 @@ class AndroidLayoutDrawTest {
             }
         }
         validateSquareColors(outerColor = outerColor, innerColor = innerColor, size = 10)
-    }
-
-    @SdkSuppress(minSdkVersion = Build.VERSION_CODES.O)
-    @Test
-    fun drawModifier_withShape() {
-        val outerColor = Color.Blue
-        val innerColor = Color.White
-        activityTestRule.runOnUiThreadIR {
-            activity.setContentInFrameLayout {
-                FixedSize(30.ipx, background(outerColor)) {
-                    FixedSize(
-                        size = 10.ipx,
-                        modifier = PaddingModifier(10.ipx) + background(
-                            shape = CircleShape,
-                            color = innerColor
-                        )
-                    ) {
-                        Draw { _, _ ->
-                            drawLatch.countDown()
-                        }
-                    }
-                }
-            }
-        }
-        validateCircleColors(outerColor = outerColor, innerColor = innerColor, size = 10)
     }
 
     private fun composeSquares(model: SquareModel) {
@@ -2488,25 +2501,14 @@ fun Activity.setContentInFrameLayout(children: @Composable() () -> Unit) {
     frameLayout.setContent(children)
 }
 
-val CircleShape = object : Shape {
-    override fun createOutline(size: PxSize, density: Density): Outline {
-        return Outline.Rounded(
-            RRect(
-                rect = size.toRect(),
-                radiusX = size.width.value / 2f,
-                radiusY = size.height.value / 2f
-            )
-        )
-    }
-}
-
 fun background(color: Color) = draw { canvas, size ->
     val paint = Paint().apply { this.color = color }
     canvas.drawRect(size.toRect(), paint)
 }
 
-fun background(shape: Shape, color: Color): DrawModifier = draw { canvas, size ->
-    val paint = Paint().apply { this.color = color }
-    val outline = shape.createOutline(size, density)
-    canvas.drawOutline(outline, paint)
+fun background(model: SquareModel, isInner: Boolean) = draw { canvas, size ->
+    val paint = Paint().apply {
+        this.color = if (isInner) model.innerColor else model.outerColor
+    }
+    canvas.drawRect(size.toRect(), paint)
 }
