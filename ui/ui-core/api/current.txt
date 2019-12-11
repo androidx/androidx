@@ -1515,12 +1515,6 @@ package androidx.ui.graphics {
     property public abstract int width;
   }
 
-  public enum ImageByteFormat {
-    enum_constant public static final androidx.ui.graphics.ImageByteFormat png;
-    enum_constant public static final androidx.ui.graphics.ImageByteFormat rawRgba;
-    enum_constant public static final androidx.ui.graphics.ImageByteFormat rawUnmodified;
-  }
-
   public enum ImageConfig {
     enum_constant public static final androidx.ui.graphics.ImageConfig Alpha8;
     enum_constant public static final androidx.ui.graphics.ImageConfig Argb8888;
@@ -1531,13 +1525,6 @@ package androidx.ui.graphics {
 
   public final class ImageKt {
     ctor public ImageKt();
-  }
-
-  public enum ImageRepeat {
-    enum_constant public static final androidx.ui.graphics.ImageRepeat noRepeat;
-    enum_constant public static final androidx.ui.graphics.ImageRepeat repeat;
-    enum_constant public static final androidx.ui.graphics.ImageRepeat repeatX;
-    enum_constant public static final androidx.ui.graphics.ImageRepeat repeatY;
   }
 
   public final class LinearGradient extends androidx.ui.graphics.ShaderBrush {
@@ -2161,43 +2148,6 @@ package androidx.ui.util {
 
 package androidx.ui.vectormath64 {
 
-  public final class Matrix2 {
-    ctor public Matrix2(androidx.ui.vectormath64.Vector2 x, androidx.ui.vectormath64.Vector2 y);
-    ctor public Matrix2();
-    ctor public Matrix2(androidx.ui.vectormath64.Matrix2 m);
-    method public androidx.ui.vectormath64.Vector2 component1();
-    method public androidx.ui.vectormath64.Vector2 component2();
-    method public androidx.ui.vectormath64.Matrix2 copy(androidx.ui.vectormath64.Vector2 x, androidx.ui.vectormath64.Vector2 y);
-    method public operator androidx.ui.vectormath64.Matrix2 dec();
-    method public operator androidx.ui.vectormath64.Matrix2 div(float v);
-    method public operator androidx.ui.vectormath64.Vector2 get(int column);
-    method public operator float get(int column, int row);
-    method public operator androidx.ui.vectormath64.Vector2 get(androidx.ui.vectormath64.MatrixColumn column);
-    method public operator float get(androidx.ui.vectormath64.MatrixColumn column, int row);
-    method public inline java.util.List<java.lang.Float> getM2storage();
-    method public androidx.ui.vectormath64.Vector2 getX();
-    method public androidx.ui.vectormath64.Vector2 getY();
-    method public operator androidx.ui.vectormath64.Matrix2 inc();
-    method public operator androidx.ui.vectormath64.Matrix2 minus(float v);
-    method public operator androidx.ui.vectormath64.Matrix2 plus(float v);
-    method public operator void set(int column, androidx.ui.vectormath64.Vector2 v);
-    method public operator void set(int column, int row, float v);
-    method public void setX(androidx.ui.vectormath64.Vector2 p);
-    method public void setY(androidx.ui.vectormath64.Vector2 p);
-    method public operator androidx.ui.vectormath64.Matrix2 times(float v);
-    method public operator androidx.ui.vectormath64.Matrix2 times(androidx.ui.vectormath64.Matrix2 m);
-    method public operator androidx.ui.vectormath64.Vector2 times(androidx.ui.vectormath64.Vector2 v);
-    method public float[] toFloatArray();
-    method public operator androidx.ui.vectormath64.Matrix2 unaryMinus();
-    property public final inline java.util.List<java.lang.Float> m2storage;
-    field public static final androidx.ui.vectormath64.Matrix2.Companion! Companion;
-  }
-
-  public static final class Matrix2.Companion {
-    method public androidx.ui.vectormath64.Matrix2 identity();
-    method public androidx.ui.vectormath64.Matrix2 of(float... a);
-  }
-
   public final class Matrix3 {
     ctor public Matrix3(androidx.ui.vectormath64.Vector3 x, androidx.ui.vectormath64.Vector3 y, androidx.ui.vectormath64.Vector3 z);
     ctor public Matrix3();
@@ -2360,7 +2310,6 @@ package androidx.ui.vectormath64 {
     method public static androidx.ui.vectormath64.Matrix4 scale(androidx.ui.vectormath64.Matrix4 m);
     method public static androidx.ui.vectormath64.Matrix4 translation(androidx.ui.vectormath64.Vector3 t);
     method public static androidx.ui.vectormath64.Matrix4 translation(androidx.ui.vectormath64.Matrix4 m);
-    method public static androidx.ui.vectormath64.Matrix2 transpose(androidx.ui.vectormath64.Matrix2 m);
     method public static androidx.ui.vectormath64.Matrix3 transpose(androidx.ui.vectormath64.Matrix3 m);
     method public static androidx.ui.vectormath64.Matrix4 transpose(androidx.ui.vectormath64.Matrix4 m);
   }
@@ -2368,10 +2317,7 @@ package androidx.ui.vectormath64 {
   public final class ScalarKt {
     ctor public ScalarKt();
     method public static inline float degrees(float v);
-    method public static inline float fract(float v);
-    method public static inline float mix(float a, float b, float x);
     method public static inline float radians(float v);
-    method public static inline float sqr(float v);
     field public static final float FOUR_PI = 12.566371f;
     field public static final float HALF_PI = 1.5707964f;
     field public static final float INV_FOUR_PI = 0.07957747f;
@@ -2688,12 +2634,6 @@ package androidx.ui.vectormath64 {
     method public static inline operator androidx.ui.vectormath64.Vector2 minus(float, androidx.ui.vectormath64.Vector2 v);
     method public static inline operator androidx.ui.vectormath64.Vector3 minus(float, androidx.ui.vectormath64.Vector3 v);
     method public static inline operator androidx.ui.vectormath64.Vector4 minus(float, androidx.ui.vectormath64.Vector4 v);
-    method public static inline androidx.ui.vectormath64.Vector2 mix(androidx.ui.vectormath64.Vector2 a, androidx.ui.vectormath64.Vector2 b, float x);
-    method public static inline androidx.ui.vectormath64.Vector2 mix(androidx.ui.vectormath64.Vector2 a, androidx.ui.vectormath64.Vector2 b, androidx.ui.vectormath64.Vector2 x);
-    method public static inline androidx.ui.vectormath64.Vector3 mix(androidx.ui.vectormath64.Vector3 a, androidx.ui.vectormath64.Vector3 b, float x);
-    method public static inline androidx.ui.vectormath64.Vector3 mix(androidx.ui.vectormath64.Vector3 a, androidx.ui.vectormath64.Vector3 b, androidx.ui.vectormath64.Vector3 x);
-    method public static inline androidx.ui.vectormath64.Vector4 mix(androidx.ui.vectormath64.Vector4 a, androidx.ui.vectormath64.Vector4 b, float x);
-    method public static inline androidx.ui.vectormath64.Vector4 mix(androidx.ui.vectormath64.Vector4 a, androidx.ui.vectormath64.Vector4 b, androidx.ui.vectormath64.Vector4 x);
     method public static androidx.ui.vectormath64.Vector2 normalize(androidx.ui.vectormath64.Vector2 v);
     method public static androidx.ui.vectormath64.Vector3 normalize(androidx.ui.vectormath64.Vector3 v);
     method public static androidx.ui.vectormath64.Vector4 normalize(androidx.ui.vectormath64.Vector4 v);

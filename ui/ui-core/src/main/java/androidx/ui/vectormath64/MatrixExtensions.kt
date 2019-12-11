@@ -19,11 +19,6 @@ import kotlin.math.cos
 import kotlin.math.sin
 import kotlin.math.tan
 
-fun transpose(m: Matrix2) = Matrix2(
-        Vector2(m.x.x, m.y.x),
-        Vector2(m.x.y, m.y.y)
-)
-
 fun transpose(m: Matrix3) = Matrix3(
         Vector3(m.x.x, m.y.x, m.z.x),
         Vector3(m.x.y, m.y.y, m.z.y),

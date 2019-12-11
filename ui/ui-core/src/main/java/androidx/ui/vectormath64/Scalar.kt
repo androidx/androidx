@@ -25,12 +25,6 @@ const val INV_PI = 1.0f / PI
 const val INV_TWO_PI = INV_PI * 0.5f
 const val INV_FOUR_PI = INV_PI * 0.25f
 
-inline fun mix(a: Float, b: Float, x: Float) = a * (1.0f - x) + b * x
-
 inline fun degrees(v: Float) = v * (180.0f * INV_PI)
 
 inline fun radians(v: Float) = v * (PI / 180.0f)
-
-inline fun fract(v: Float) = v % 1
-
-inline fun sqr(v: Float) = v * v
