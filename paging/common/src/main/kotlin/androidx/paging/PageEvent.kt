@@ -19,6 +19,8 @@ package androidx.paging
 import androidx.paging.LoadType.END
 import androidx.paging.LoadType.REFRESH
 import androidx.paging.LoadType.START
+import kotlinx.coroutines.flow.Flow
+import kotlinx.coroutines.flow.map
 
 /**
  * Events in the stream from paging fetch logic to UI.
@@ -41,25 +43,29 @@ internal sealed class PageEvent<T : Any> {
             }
         }
 
-        private inline fun <R : Any> mapInternal(
+        private inline fun <R : Any> mapPages(
             predicate: (TransformablePage<T>) -> TransformablePage<R>
+        ) = transformPages { it.map(predicate) }
+
+        internal inline fun <R : Any> transformPages(
+            predicate: (List<TransformablePage<T>>) -> List<TransformablePage<R>>
         ): PageEvent<R> = Insert(
             loadType = loadType,
-            pages = pages.map(predicate),
+            pages = predicate(pages),
             placeholdersStart = placeholdersStart,
             placeholdersEnd = placeholdersEnd
         )
 
-        override fun <R : Any> map(predicate: (T) -> R): PageEvent<R> = mapInternal {
+        override fun <R : Any> map(predicate: (T) -> R): PageEvent<R> = mapPages {
             TransformablePage(
                 originalPageOffset = it.originalPageOffset,
                 data = it.data.map(predicate),
-                sourcePageSize = it.sourcePageSize,
+                originalPageSize = it.originalPageSize,
                 originalIndices = it.originalIndices
             )
         }
 
-        override fun <R : Any> flatMap(transform: (T) -> Iterable<R>): PageEvent<R> = mapInternal {
+        override fun <R : Any> flatMap(transform: (T) -> Iterable<R>): PageEvent<R> = mapPages {
             val data = mutableListOf<R>()
             val originalIndices = mutableListOf<Int>()
             it.data.forEachIndexed { index, t ->
@@ -72,12 +78,12 @@ internal sealed class PageEvent<T : Any> {
             TransformablePage(
                 originalPageOffset = it.originalPageOffset,
                 data = data,
-                sourcePageSize = it.sourcePageSize,
+                originalPageSize = it.originalPageSize,
                 originalIndices = originalIndices
             )
         }
 
-        override fun filter(predicate: (T) -> Boolean): PageEvent<T> = mapInternal {
+        override fun filter(predicate: (T) -> Boolean): PageEvent<T> = mapPages {
             val data = mutableListOf<T>()
             val originalIndices = mutableListOf<Int>()
             it.data.forEachIndexed { index, t ->
@@ -89,9 +95,24 @@ internal sealed class PageEvent<T : Any> {
             TransformablePage(
                 originalPageOffset = it.originalPageOffset,
                 data = data,
-                sourcePageSize = it.sourcePageSize,
+                originalPageSize = it.originalPageSize,
                 originalIndices = originalIndices
             )
+        }
+
+        override fun filterOutEmptyPages(
+            currentPages: MutableList<TransformablePage<T>>
+        ): PageEvent<T> {
+            // insert pre-filtered pages into list, so drop
+            // can account for pages we've filtered out here
+            applyToList(currentPages)
+
+            return if (pages.any { it.data.isEmpty() }) {
+                transformPages { pages -> pages.filter { it.data.isNotEmpty() } }
+            } else {
+                // no empty pages, can safely reuse this page
+                this
+            }
         }
 
         companion object {
@@ -118,11 +139,52 @@ internal sealed class PageEvent<T : Any> {
         val count: Int,
         val placeholdersRemaining: Int
     ) : PageEvent<T>() {
+
         init {
             require(loadType != REFRESH) { "Drop must be START or END" }
             require(count >= 0) { "Invalid count $count" }
             require(placeholdersRemaining >= 0) {
                 "Invalid placeholdersRemaining $placeholdersRemaining"
+            }
+        }
+
+        /**
+         * Alter the drop event to skip dropping any empty pages, since they won't have been
+         * sent downstream.
+         */
+        override fun filterOutEmptyPages(
+            currentPages: MutableList<TransformablePage<T>>
+        ): PageEvent<T> {
+            // decrease count by number of empty pages that would have been dropped, since these
+            // haven't been sent downstream
+            var newCount = count
+            if (loadType == START) {
+                repeat(count) { i ->
+                    if (currentPages[i].data.isEmpty()) {
+                        newCount--
+                    }
+                }
+            } else {
+                repeat(count) { i ->
+                    if (currentPages[currentPages.size - i].data.isEmpty()) {
+                        newCount--
+                    }
+                }
+            }
+
+            // apply drop to currentPages after newCount is computed, so it represents loaded
+            // pages before this tranform is applied
+            applyToList(currentPages)
+
+            return if (newCount == count) {
+                // no empty pages encountered
+                this
+            } else {
+                Drop(
+                    loadType,
+                    newCount,
+                    placeholdersRemaining
+                )
             }
         }
     }
@@ -139,4 +201,69 @@ internal sealed class PageEvent<T : Any> {
     open fun <R : Any> flatMap(transform: (T) -> Iterable<R>): PageEvent<R> = this as PageEvent<R>
 
     open fun filter(predicate: (T) -> Boolean): PageEvent<T> = this
+
+    open fun filterOutEmptyPages(
+        currentPages: MutableList<TransformablePage<T>>
+    ): PageEvent<T> = this
+}
+
+/**
+ * TODO: optimize this per usecase, to avoid holding onto the whole page in memory
+ */
+internal fun <T : Any> PageEvent.Insert<T>.applyToList(
+    currentPages: MutableList<TransformablePage<T>>
+) {
+    when (loadType) {
+        REFRESH -> {
+            check(currentPages.isEmpty())
+            currentPages.addAll(pages)
+        }
+        START -> {
+            currentPages.addAll(0, pages)
+        }
+        END -> {
+            currentPages.addAll(currentPages.size, pages)
+        }
+    }
+}
+
+/**
+ * TODO: optimize this per usecase, to avoid holding onto the whole page in memory
+ */
+internal fun <T : Any> PageEvent.Drop<T>.applyToList(
+    currentPages: MutableList<TransformablePage<T>>
+) {
+    if (loadType == START) {
+        repeat(count) { currentPages.removeAt(0) }
+    } else {
+        repeat(count) { currentPages.removeAt(currentPages.lastIndex) }
+    }
+}
+
+/**
+ * Transforms the Flow to an output-equivalent Flow, which does not have empty pages.
+ *
+ * This can be used before accessing adjacent pages, to ensure adjacent pages have context in
+ * them.
+ */
+internal fun <T : Any> Flow<PageEvent<T>>.removeEmptyPages(): Flow<PageEvent<T>> {
+    val pages = mutableListOf<TransformablePage<T>>()
+
+    // TODO: consider dropping, or not even creating noop (empty) events entirely
+    return map { it.filterOutEmptyPages(pages) }
+}
+
+/**
+ * Transforms the Flow to include optional separators in between each pair of items in the output
+ * stream.
+ *
+ * TODO: support separator at beginning / end - requires tracking of loading state
+ *  (to know when an Insert.Start event is terminal)
+ */
+internal fun <R : Any, T : R> Flow<PageEvent<T>>.insertSeparators(
+    predicate: (T?, T?) -> R?
+): Flow<PageEvent<R>> {
+    val pages = mutableListOf<TransformablePage<T>>()
+    return removeEmptyPages()
+        .map { event -> event.insertSeparators(pages, predicate) }
 }

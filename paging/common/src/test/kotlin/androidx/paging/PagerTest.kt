@@ -56,7 +56,7 @@ class PagerTest {
         TransformablePage(
             originalPageOffset = pageOffset,
             data = items.slice(range),
-            sourcePageSize = range.count(),
+            originalPageSize = range.count(),
             originalIndices = null
         )
     )

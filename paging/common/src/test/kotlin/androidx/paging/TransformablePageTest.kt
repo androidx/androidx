@@ -21,6 +21,21 @@ import org.junit.runner.RunWith
 import org.junit.runners.JUnit4
 import kotlin.test.assertEquals
 
+@Suppress("TestFunctionName")
+internal fun <T : Any> TransformablePage(data: List<T>) = TransformablePage(
+    data = data,
+    originalPageOffset = 0
+)
+
+internal fun <T : Any> List<List<T>>.toTransformablePages(
+    indexOfInitialPage: Int = 0
+) = mapIndexed { index, list ->
+    TransformablePage(
+        data = list,
+        originalPageOffset = index - indexOfInitialPage
+    )
+}.toMutableList()
+
 @Suppress("SameParameterValue")
 @RunWith(JUnit4::class)
 class TransformablePageTest {
@@ -47,7 +62,7 @@ class TransformablePageTest {
         val page = TransformablePage(
             data = listOf('a', 'b'),
             originalPageOffset = -4,
-            sourcePageSize = 30,
+            originalPageSize = 30,
             originalIndices = listOf(10, 20)
         )
         // negative - index pass-through
