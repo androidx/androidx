@@ -56,7 +56,11 @@ private fun resolveTextStyle(style: TextStyle?, layoutDirection: LayoutDirection
     val textDirectionAlgorithm = style?.textDirectionAlgorithm
         ?: resolveTextDirectionAlgorithm(layoutDirection, null)
 
-    val fontSize = style?.fontSize ?: DefaultFontSize
+    val fontSize = when (style?.fontSize) {
+        null -> DefaultFontSize
+        TextUnit.Inherit -> DefaultFontSize
+        else -> style.fontSize
+    }
 
     return when {
         style == null -> TextStyle(
