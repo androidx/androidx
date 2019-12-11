@@ -92,7 +92,7 @@ data class Selection(
             selection = selection.copy(end = other.end)
         }
 
-        selection = selection.copy(handlesCrossed = this.handlesCrossed || other.handlesCrossed)
+        selection = selection.copy(handlesCrossed = other.handlesCrossed)
 
         return selection
     }
