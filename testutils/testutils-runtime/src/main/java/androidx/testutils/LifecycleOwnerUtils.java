@@ -46,26 +46,19 @@ public class LifecycleOwnerUtils {
     };
 
     /**
-     * Waits until the the Activity current held the ActivityTestRule has the specified
-     * {@link androidx.lifecycle.Lifecycle.State}. If the owner has not hit that state within a
-     * suitable time period, it asserts that the current state equals the given state.
-     */
-    public static <T extends Activity & LifecycleOwner> void waitUntilState(
-            final @NonNull ActivityTestRule<T> activityRule,
-            final @NonNull Lifecycle.State state) throws Throwable {
-        waitUntilState(activityRule.getActivity(), activityRule, state);
-    }
-
-    /**
      * Waits until the given {@link LifecycleOwner} has the specified
      * {@link androidx.lifecycle.Lifecycle.State}. If the owner has not hit that state within a
      * suitable time period, it asserts that the current state equals the given state.
      */
     public static void waitUntilState(final @NonNull LifecycleOwner owner,
-            final @NonNull ActivityTestRule<?> activityRule,
             final @NonNull Lifecycle.State state) throws Throwable {
+        final Lifecycle.State currentState = owner.getLifecycle().getCurrentState();
+        if (currentState == state) {
+            return;
+        }
+
         final CountDownLatch latch = new CountDownLatch(1);
-        activityRule.runOnUiThread(new Runnable() {
+        InstrumentationRegistry.getInstrumentation().runOnMainSync(new Runnable() {
             @Override
             public void run() {
                 final Lifecycle.State currentState = owner.getLifecycle().getCurrentState();
@@ -78,14 +71,14 @@ public class LifecycleOwnerUtils {
                     public void onStateChanged(@NonNull LifecycleOwner provider,
                             @NonNull Lifecycle.Event event) {
                         if (provider.getLifecycle().getCurrentState() == state) {
-                            latch.countDown();
                             provider.getLifecycle().removeObserver(this);
+                            latch.countDown();
                         }
                     }
                 });
             }
         });
-        final boolean latchResult = latch.await(30, TimeUnit.SECONDS);
+        final boolean latchResult = latch.await(15, TimeUnit.SECONDS);
 
         assertThat("Expected " + state + " never happened to " + owner
                         + ". Current state:" + owner.getLifecycle().getCurrentState(),
@@ -93,19 +86,29 @@ public class LifecycleOwnerUtils {
                 is(true));
 
         // wait for another loop to ensure all observers are called
-        activityRule.runOnUiThread(DO_NOTHING);
+        InstrumentationRegistry.getInstrumentation().runOnMainSync(DO_NOTHING);
     }
 
     /**
      * Waits until the given the current {@link Activity} has been recreated, and
      * the new instance is resumed.
      */
-    @SuppressWarnings("unchecked")
     @NonNull
     public static <T extends Activity & LifecycleOwner> T waitForRecreation(
             @NonNull final ActivityTestRule<T> activityRule
     ) throws Throwable {
-        return waitForRecreation(activityRule.getActivity(), activityRule, null);
+        return waitForRecreation(activityRule.getActivity());
+    }
+
+    /**
+     * Waits until the given the given {@link Activity} has been recreated, and
+     * the new instance is resumed.
+     */
+    @NonNull
+    public static <T extends Activity & LifecycleOwner> T waitForRecreation(
+            @NonNull final T activity
+    ) throws Throwable {
+        return waitForRecreation(activity, null);
     }
 
     /**
@@ -116,39 +119,42 @@ public class LifecycleOwnerUtils {
     @NonNull
     public static <T extends Activity & LifecycleOwner> T waitForRecreation(
             @NonNull final T activity,
-            @NonNull final ActivityTestRule<?> activityRule,
             @Nullable final Runnable actionOnUiThread
     ) throws Throwable {
-        Instrumentation.ActivityMonitor monitor = new Instrumentation.ActivityMonitor(
-                activity.getClass().getCanonicalName(), null, false);
+        final Instrumentation.ActivityMonitor monitor = new Instrumentation.ActivityMonitor(
+                activity.getClass().getName(), null, false);
         Instrumentation instrumentation = InstrumentationRegistry.getInstrumentation();
         instrumentation.addMonitor(monitor);
 
         if (actionOnUiThread != null) {
-            activityRule.runOnUiThread(actionOnUiThread);
+            instrumentation.runOnMainSync(actionOnUiThread);
         }
 
         T result;
 
         // this guarantee that we will reinstall monitor between notifications about onDestroy
         // and onCreate
-        //noinspection SynchronizationOnLocalVariableOrMethodParameter
-        synchronized (monitor) {
-            do {
-                // The documentation says "Block until an Activity is created
-                // that matches this monitor." This statement is true, but there are some other
-                // true statements like: "Block until an Activity is destroyed" or
-                // "Block until an Activity is resumed"...
-                // this call will release synchronization monitor's monitor
-                result = (T) monitor.waitForActivityWithTimeout(TIMEOUT_MS);
-                if (result == null) {
-                    throw new RuntimeException("Timeout. Activity was not recreated.");
-                }
-            } while (result == activity);
+        // noinspection SynchronizationOnLocalVariableOrMethodParameter
+        try {
+            synchronized (monitor) {
+                do {
+                    // The documentation says "Block until an Activity is created
+                    // that matches this monitor." This statement is true, but there are some other
+                    // true statements like: "Block until an Activity is destroyed" or
+                    // "Block until an Activity is resumed"...
+                    // this call will release synchronization monitor's monitor
+                    result = (T) monitor.waitForActivityWithTimeout(TIMEOUT_MS);
+                    if (result == null) {
+                        throw new RuntimeException("Timeout. Activity was not recreated.");
+                    }
+                } while (result == activity);
+            }
+        } finally {
+            instrumentation.removeMonitor(monitor);
         }
 
         // Finally wait for the recreated Activity to be resumed
-        waitUntilState(result, activityRule, Lifecycle.State.RESUMED);
+        waitUntilState(result, Lifecycle.State.RESUMED);
 
         return result;
     }
