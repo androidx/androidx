@@ -93,6 +93,7 @@ class FragmentLayoutInflaterFactory implements LayoutInflater.Factory2 {
                     + Integer.toHexString(id) + " fname=" + fname
                     + " existing=" + fragment);
         }
+        FragmentStateManager fragmentStateManager;
         if (fragment == null) {
             fragment = mFragmentManager.getFragmentFactory().instantiate(
                     context.getClassLoader(), fname);
@@ -105,8 +106,8 @@ class FragmentLayoutInflaterFactory implements LayoutInflater.Factory2 {
             fragment.mHost = mFragmentManager.getHost();
             fragment.onInflate(mFragmentManager.getHost().getContext(), attrs,
                     fragment.mSavedFragmentState);
+            fragmentStateManager = mFragmentManager.createOrGetFragmentStateManager(fragment);
             mFragmentManager.addFragment(fragment);
-            mFragmentManager.moveToState(fragment);
 
         } else if (fragment.mInLayout) {
             // A fragment already exists and it is not one we restored from
@@ -124,17 +125,14 @@ class FragmentLayoutInflaterFactory implements LayoutInflater.Factory2 {
             // Give the Fragment the attributes to initialize itself.
             fragment.onInflate(mFragmentManager.getHost().getContext(), attrs,
                     fragment.mSavedFragmentState);
+            fragmentStateManager = mFragmentManager.createOrGetFragmentStateManager(fragment);
         }
 
-        // If we haven't finished entering the CREATED state ourselves yet,
-        // push the inflated child fragment along. This will ensureInflatedFragmentView
-        // at the right phase of the lifecycle so that we will have mView populated
-        // for compliant fragments below.
-        if (mFragmentManager.mCurState < Fragment.CREATED && fragment.mFromLayout) {
-            mFragmentManager.moveToState(fragment, Fragment.CREATED);
-        } else {
-            mFragmentManager.moveToState(fragment);
-        }
+        // The <fragment> tag is the one case where we:
+        // 1) Move the Fragment to CREATED even if the FragmentManager isn't yet CREATED
+        fragmentStateManager.moveToExpectedState();
+        // 2) Create the Fragment's view despite not always moving to ACTIVITY_CREATED
+        fragmentStateManager.ensureInflatedView();
 
         if (fragment.mView == null) {
             throw new IllegalStateException("Fragment " + fname
