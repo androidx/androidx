@@ -108,5 +108,8 @@
         <activity
             android:name=".WebMessageListenerActivity"
             android:exported="true" />
+        <activity
+            android:name=".WebMessageListenerMaliciousWebsiteActivity"
+            android:exported="true" />
     </application>
 </manifest>
