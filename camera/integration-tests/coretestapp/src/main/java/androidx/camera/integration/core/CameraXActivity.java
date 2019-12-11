@@ -174,6 +174,17 @@ public class CameraXActivity extends AppCompatActivity
     }
 
     /**
+     * Retrieve idling resource that waits for capture to complete (save or error).
+     * */
+    @VisibleForTesting
+    public void resetViewIdlingResource() {
+        mPreviewFrameCount.set(0);
+        // Make the view idling resource non-idle, until required framecount achieved.
+        mViewIdlingResource.increment();
+    }
+
+
+    /**
      * Creates a view finder use case.
      *
      * <p>This use case observes a {@link SurfaceTexture}. The texture is connected to a {@link
@@ -229,11 +240,7 @@ public class CameraXActivity extends AppCompatActivity
                             });
                 });
 
-
-        mPreviewFrameCount.set(0);
-
-        // Make the view idling resource non-idle, until required framecount achieved.
-        mViewIdlingResource.increment();
+        resetViewIdlingResource();
 
         if (bindToLifecycleSafely(mPreview, R.id.PreviewToggle) == null) {
             mPreview = null;
@@ -761,9 +768,10 @@ public class CameraXActivity extends AppCompatActivity
             public void onSurfaceTextureUpdated(final SurfaceTexture surfaceTexture) {
                 // Wait until surface texture receives enough updates. This is for testing.
                 if (mPreviewFrameCount.getAndIncrement() >= FRAMES_UNTIL_VIEW_IS_READY) {
-                    Log.d(TAG, FRAMES_UNTIL_VIEW_IS_READY + " or more counted on preview.");
                     try {
                         if (!mViewIdlingResource.isIdleNow()) {
+                            Log.d(TAG, FRAMES_UNTIL_VIEW_IS_READY + " or more counted on preview."
+                                    + " Make IdlingResource idle.");
                             mViewIdlingResource.decrement();
                         }
                     } catch (IllegalStateException e) {
