@@ -174,13 +174,6 @@ public class AdvertisingIdClientTest {
     }
 
     @Test
-    public void normalizeId() {
-        String id = AdvertisingIdClient.normalizeId("abc");
-
-        assertThat(id).isEqualTo("90015098-3cd2-3fb0-9696-3f7d28e17f72"); // UUID version 3 of "abc"
-    }
-
-    @Test
     public void isAdvertisingIdProviderAvailable() {
         assertThat(AdvertisingIdClient.isAdvertisingIdProviderAvailable(mContext)).isTrue();
     }
