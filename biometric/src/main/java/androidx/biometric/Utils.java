@@ -61,4 +61,14 @@ class Utils {
             activity.finish();
         }
     }
+
+    /**
+     * Determines if we are in the process of having the user confirm their PIN/pattern/password.
+     *
+     * @return true if the user is confirming their device credential, or false otherwise.
+     */
+    static boolean isConfirmingDeviceCredential() {
+        DeviceCredentialHandlerBridge bridge = DeviceCredentialHandlerBridge.getInstanceIfNotNull();
+        return bridge != null && bridge.isConfirmingDeviceCredential();
+    }
 }
