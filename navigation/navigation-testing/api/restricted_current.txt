@@ -1,0 +1,11 @@
+// Signature format: 3.0
+package androidx.navigation.testing {
+
+  public final class TestNavHostController extends androidx.navigation.NavHostController {
+    ctor public TestNavHostController(android.content.Context context);
+    method public java.util.List<androidx.navigation.NavBackStackEntry> getBackStack();
+    property public final java.util.List<androidx.navigation.NavBackStackEntry> backStack;
+  }
+
+}
+
