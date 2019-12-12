@@ -17,7 +17,6 @@
 package androidx.paging
 
 import androidx.annotation.RestrictTo
-import androidx.paging.futures.DirectDispatcher
 import kotlinx.coroutines.CoroutineScope
 
 /**

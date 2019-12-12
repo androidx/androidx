@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package androidx.paging.futures
+package androidx.paging
 
 import kotlinx.coroutines.CoroutineDispatcher
 import kotlin.coroutines.CoroutineContext
