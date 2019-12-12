@@ -16,6 +16,7 @@
 
 package androidx.ui.core
 
+import android.annotation.SuppressLint
 import androidx.compose.Applier
 import androidx.compose.ApplyAdapter
 import androidx.compose.Component
@@ -179,8 +180,11 @@ private class Root : Component() {
     lateinit var compositionContext: CompositionContext
     lateinit var composable: @Composable() TextSpanScope.() -> Unit
     @Suppress("PLUGIN_ERROR")
+    @SuppressLint("UnnecessaryLambdaCreation")
     override fun compose() {
-        scope.composable()
+        with(scope) {
+            composable()
+        }
     }
 }
 
