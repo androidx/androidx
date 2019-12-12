@@ -30,6 +30,7 @@ message Command {
   oneof OneOf {
     TrackDatabasesCommand track_databases = 1;
     GetSchemaCommand get_schema = 2;
+    QueryCommand query = 3;
   }
 }
 
@@ -43,6 +44,15 @@ message GetSchemaCommand {
   int32 database_id = 1;
 }
 
+// Request for the Inspector to execute a query and return its results.
+// TODO: add support for parameterised queries
+message QueryCommand {
+  // Id uniquely identifying a connection to the database.
+  int32 database_id = 1;
+  // Query to execute.
+  string query = 2;
+}
+
 // --- Responses ---
 
 // Generic Response object grouping all Inspector Response types to Command
@@ -52,6 +62,7 @@ message Response {
   oneof OneOf {
     TrackDatabasesResponse track_databases = 1;
     GetSchemaResponse get_schema = 2;
+    QueryResponse query = 3;
     ErrorOccurredResponse error_occurred = 400;
   }
 }
@@ -64,20 +75,43 @@ message GetSchemaResponse {
   repeated Table tables = 1;
 }
 
-// Schema information for a table
+// Schema information for a table.
 message Table {
   string name = 1;
   repeated Column columns = 2;
 }
 
-// Schema information for a table column
+// Schema information for a table column.
 message Column {
   string name = 1;
-  // Column type affinity
+  // Column type affinity.
   string type = 2;
 }
 
-// General Error message
+// Object expected as a response to QueryCommand.
+message QueryResponse {
+  repeated Row rows = 1;
+}
+
+// Query result row.
+message Row {
+  repeated CellValue values = 1;
+}
+
+// Query result cell.
+message CellValue {
+  // Resulting cell value depending on type affinity rules.
+  oneof value {
+    float float_value = 1;
+    int32 int_value = 2;
+    string string_value = 3;
+    bytes blob_value = 4;
+  }
+  // Name of the column containing the cell
+  string column_name = 5;
+}
+
+// General Error message.
 // TODO: decide on a more fine-grained approach
 // TODO: decide if to unify ErrorOccurredResponse and ErrorOccurredEvent
 message ErrorOccurredResponse {
@@ -111,7 +145,7 @@ message DatabaseOpenedEvent {
   string name = 2;
 }
 
-// General Error message
+// General Error message.
 // TODO: decide on a more fine-grained approach
 // TODO: decide if to unify ErrorOccurredResponse and ErrorOccurredEvent
 message ErrorOccurredEvent {

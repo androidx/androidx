@@ -22,10 +22,13 @@ import androidx.inspection.InspectorEnvironment
 import androidx.inspection.InspectorEnvironment.EntryHook
 import androidx.inspection.InspectorEnvironment.ExitHook
 import androidx.inspection.testing.InspectorTester
+import androidx.sqlite.inspection.SqliteInspectorProtocol.CellValue
+import androidx.sqlite.inspection.SqliteInspectorProtocol.CellValue.ValueCase
 import androidx.sqlite.inspection.SqliteInspectorProtocol.Command
 import androidx.sqlite.inspection.SqliteInspectorProtocol.Event
 import androidx.sqlite.inspection.SqliteInspectorProtocol.GetSchemaCommand
 import androidx.sqlite.inspection.SqliteInspectorProtocol.Response
+import androidx.sqlite.inspection.SqliteInspectorProtocol.Row
 import androidx.sqlite.inspection.SqliteInspectorProtocol.TrackDatabasesCommand
 import androidx.sqlite.inspection.SqliteInspectorProtocol.TrackDatabasesResponse
 import androidx.sqlite.inspection.SqliteInspectorTest.FakeInspectorEnvironment.RegisterHookEntry.EntryHookEntry
@@ -33,6 +36,7 @@ import androidx.sqlite.inspection.SqliteInspectorTest.FakeInspectorEnvironment.R
 import androidx.sqlite.inspection.SqliteInspectorTest.MessageFactory.createTrackDatabasesCommand
 import androidx.sqlite.inspection.SqliteInspectorTest.MessageFactory.createTrackDatabasesResponse
 import androidx.sqlite.inspection.SqliteInspectorTest.MessageFactory.createGetSchemaCommand
+import androidx.sqlite.inspection.SqliteInspectorTest.MessageFactory.createQueryTableCommand
 import androidx.test.core.app.ApplicationProvider
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import androidx.test.filters.MediumTest
@@ -104,7 +108,7 @@ class SqliteInspectorTest {
                 assertNoQueuedEvents()
                 @Suppress("UNCHECKED_CAST")
                 val exitHook = (entry as ExitHookEntry).exitHook as ExitHook<SQLiteDatabase>
-                val database = Database("db3").createInstance()
+                val database = Database("db3").instance
                 assertThat(exitHook.onExit(database)).isSameInstanceAs(database)
                 receiveEvent().let { event ->
                     assertThat(event.databaseOpened.name).isEqualTo(database.path)
@@ -118,26 +122,27 @@ class SqliteInspectorTest {
 
     @Test
     fun test_get_schema_complex_tables() {
-        // prepare test environment
-        val database = Database(
-            "db1",
-            Table(
-                "table1",
-                Column("t", "TEXT"),
-                Column("nu", "NUMERIC"),
-                Column("i", "INTEGER"),
-                Column("r", "REAL"),
-                Column("b", "BLOB")
-            ),
-            Table(
-                "table2",
-                Column("id", "INTEGER"),
-                Column("name", "TEXT")
+        test_get_schema(
+            listOf(
+                Database(
+                    "db1",
+                    Table(
+                        "table1",
+                        Column("t", "TEXT"),
+                        Column("nu", "NUMERIC"),
+                        Column("i", "INTEGER"),
+                        Column("r", "REAL"),
+                        Column("b", "BLOB")
+                    ),
+                    Table(
+                        "table2",
+                        Column("id", "INTEGER"),
+                        Column("name", "TEXT")
 
+                    )
+                )
             )
         )
-
-        test_get_schema(listOf(database))
     }
 
     @Test
@@ -188,6 +193,85 @@ class SqliteInspectorTest {
         }
     }
 
+    @Test
+    fun test_query() = runBlocking {
+        // TODO: add tests for invalid queries
+        // TODO: add tests spanning multiple tables (e.g. union of two queries)
+        // TODO: split into smaller tests / test class
+
+        // given
+        val table1 = Table(
+            "table1",
+            Column("t", "TEXT"),
+            Column("nu", "NUMERIC"),
+            Column("i", "INTEGER"),
+            Column("r", "REAL"),
+            Column("b", "BLOB")
+        )
+
+        val table2 = Table(
+            "table2",
+            Column("id", "INTEGER"),
+            Column("name", "TEXT")
+        )
+
+        val database = Database("db1", table1, table2)
+
+        TestEnvironment.setUp(
+            alreadyOpenDatabases = listOf(
+                Database("ignored_1"),
+                database,
+                Database("ignored_2")
+            )
+        ).run {
+            database.insertValues(table1, *repeat5("'500.0'"))
+            database.insertValues(table1, *repeat5("500.0"))
+            database.insertValues(table1, *repeat5("500"))
+            database.insertValues(table1, *repeat5("x'0500'"))
+            database.insertValues(table1, *repeat5("NULL"))
+
+            database.insertValues(table2, "1", "'A'")
+            database.insertValues(table2, "2", "'B'")
+            database.insertValues(table2, "3", "'C'")
+            database.insertValues(table2, "4", "'D'")
+
+            sendCommand(createTrackDatabasesCommand())
+            val databaseId = findDatabaseId(database.path)
+
+            val query = "select * from ${table1.name}"
+
+            val expectedValues = listOf(
+                listOf("500.0", 500, 500, 500.0f, "500.0"), // text|integer|integer|float|text
+                listOf("500.0", 500, 500, 500.0f, 500.0f), // text|integer|integer|float|float
+                listOf("500", 500, 500, 500.0f, 500), // text|integer|integer|float|integer
+                listOf(*repeat5(arrayOf<Any?>(5.toByte(), 0.toByte()))), // blob|blob|blob|blob|blob
+                listOf(*repeat5<Any?>(null)) // null|null|null|null|null
+            )
+
+            val expectedTypes = listOf(
+                listOf("text", "integer", "integer", "float", "text"),
+                listOf("text", "integer", "integer", "float", "float"),
+                listOf("text", "integer", "integer", "float", "integer"),
+                listOf("blob", "blob", "blob", "blob", "blob"),
+                listOf("null", "null", "null", "null", "null")
+            )
+
+            // when
+            sendCommand(createQueryTableCommand(databaseId, query)).let { response ->
+                // then
+                response.query.rowsList.let { actualRows: List<Row> ->
+                    actualRows.forEachIndexed { rowIx, row ->
+                        row.valuesList.forEachIndexed { colIx, cell ->
+                            assertThat(cell.value).isEqualTo(expectedValues[rowIx][colIx])
+                            assertThat(cell.type).isEqualTo(expectedTypes[rowIx][colIx])
+                            assertThat(cell.columnName).isEqualTo(table1.columns[colIx].name)
+                        }
+                    }
+                }
+            }
+        }
+    }
+
     private class TestEnvironment private constructor(
         private val inspectorTester: InspectorTester,
         private val environment: FakeInspectorEnvironment
@@ -204,6 +288,16 @@ class SqliteInspectorTest {
                 assertThat(responseBytes).isNotEmpty()
                 Event.parseFrom(responseBytes)
             }
+
+        /** Assumes an event with the relevant database will be fired. */
+        suspend fun findDatabaseId(databaseName: String): Int {
+            while (true) {
+                val event = receiveEvent().databaseOpened
+                if (event.name == databaseName) {
+                    return event.databaseId
+                }
+            }
+        }
 
         fun consumeRegisteredHooks(): List<FakeInspectorEnvironment.RegisterHookEntry> =
             environment.consumeRegisteredHooks()
@@ -223,6 +317,23 @@ class SqliteInspectorTest {
             zip(other, action)
         }
 
+        inline fun <reified T> repeatN(value: T, n: Int): Array<T> =
+            (0 until n).map { value }.toTypedArray()
+
+        inline fun <reified T> repeat5(v: T) = repeatN(v, 5)
+
+        val (CellValue).value: Any? get() = valueType.first
+        val (CellValue).type: String get() = valueType.second
+        val (CellValue).valueType: Pair<Any?, String>
+            get() = when (valueCase) {
+                ValueCase.STRING_VALUE -> stringValue to "text"
+                ValueCase.INT_VALUE -> intValue to "integer"
+                ValueCase.FLOAT_VALUE -> floatValue to "float"
+                ValueCase.BLOB_VALUE -> blobValue.toByteArray().toTypedArray() to "blob"
+                ValueCase.VALUE_NOT_SET -> null to "null"
+                else -> throw IllegalArgumentException()
+            }
+
         companion object {
             suspend fun setUp(alreadyOpenDatabases: List<Database> = emptyList()): TestEnvironment {
                 // prepare test environment
@@ -233,7 +344,7 @@ class SqliteInspectorTest {
                 assertThat(environment.consumeRegisteredHooks()).isEmpty()
                 // prepare test environment: register 'already open' instances
                 environment.registerInstancesToFind(alreadyOpenDatabases.map {
-                    it.createInstance()
+                    it.instance
                 })
                 return TestEnvironment(inspectorTester, environment)
             }
@@ -245,8 +356,15 @@ class SqliteInspectorTest {
 
         val path: String = tempDirectory.newFile(name).absolutePath
 
-        fun createInstance(): SQLiteDatabase =
+        val instance: SQLiteDatabase by lazy {
             createDatabase().also { db -> tables.forEach { t -> db.addTable(t) } }
+        }
+
+        fun insertValues(table: Table, vararg values: String) {
+            assertThat(values).isNotEmpty()
+            assertThat(values).hasLength(table.columns.size)
+            instance.insertValues(table.name, values.toList())
+        }
 
         private fun createDatabase(): SQLiteDatabase {
             val context = ApplicationProvider.getApplicationContext() as android.content.Context
@@ -257,7 +375,14 @@ class SqliteInspectorTest {
             return openHelper.readableDatabase
         }
 
-        private fun SQLiteDatabase.addTable(table: Table) = this.execSQL(table.toCreateString())
+        private fun SQLiteDatabase.addTable(table: Table) = execSQL(table.toCreateString())
+
+        private fun SQLiteDatabase.insertValues(tableName: String, values: List<String>) {
+            execSQL(values.joinToString(
+                prefix = "INSERT INTO $tableName VALUES(",
+                postfix = ");"
+            ) { it })
+        }
     }
 
     private data class Table(val name: String, val columns: List<Column>) {
@@ -287,11 +412,21 @@ class SqliteInspectorTest {
                 TrackDatabasesResponse.getDefaultInstance()
             ).build()
 
-        fun createGetSchemaCommand(databaseId: Int): Command {
-            return Command.newBuilder().setGetSchema(
+        fun createGetSchemaCommand(databaseId: Int): Command =
+            Command.newBuilder().setGetSchema(
                 GetSchemaCommand.newBuilder().setDatabaseId(databaseId).build()
             ).build()
-        }
+
+        fun createQueryTableCommand(
+            databaseId: Int,
+            query: String
+        ): Command =
+            Command.newBuilder().setQuery(
+                SqliteInspectorProtocol.QueryCommand.newBuilder()
+                    .setDatabaseId(databaseId)
+                    .setQuery(query)
+                    .build()
+            ).build()
     }
 
     /**
