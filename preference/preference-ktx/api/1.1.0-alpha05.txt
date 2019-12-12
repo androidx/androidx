@@ -2,7 +2,6 @@
 package androidx.preference {
 
   public final class PreferenceGroupKt {
-    ctor public PreferenceGroupKt();
     method public static operator boolean contains(androidx.preference.PreferenceGroup, androidx.preference.Preference preference);
     method public static inline void forEach(androidx.preference.PreferenceGroup, kotlin.jvm.functions.Function1<? super androidx.preference.Preference,kotlin.Unit> action);
     method public static inline void forEachIndexed(androidx.preference.PreferenceGroup, kotlin.jvm.functions.Function2<? super java.lang.Integer,? super androidx.preference.Preference,kotlin.Unit> action);

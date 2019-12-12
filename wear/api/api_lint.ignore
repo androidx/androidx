@@ -281,6 +281,10 @@ MissingNullability: androidx.wear.widget.drawer.WearableNavigationDrawerView.Wea
     Missing nullability on method `getItemText` return
 
 
+PublicTypedef: androidx.wear.widget.ConfirmationOverlay.OverlayType:
+    Don't expose @IntDef: OverlayType must be hidden.
+
+
 RegistrationName: androidx.wear.widget.SwipeDismissFrameLayout#addCallback(androidx.wear.widget.SwipeDismissFrameLayout.Callback):
     Callback methods should be named register/unregister; was addCallback
 RegistrationName: androidx.wear.widget.SwipeDismissFrameLayout#removeCallback(androidx.wear.widget.SwipeDismissFrameLayout.Callback):

@@ -166,7 +166,6 @@ package androidx.ui.input {
   }
 
   public final class TextInputServiceKt {
-    ctor public TextInputServiceKt();
     field public static final int INVALID_SESSION = -1; // 0xffffffff
     field public static final int NO_SESSION = 0; // 0x0
   }
@@ -231,7 +230,6 @@ package androidx.ui.text {
   }
 
   public final class AnnotatedStringKt {
-    ctor public AnnotatedStringKt();
     method public static androidx.ui.text.AnnotatedString AnnotatedString(String text, androidx.ui.text.SpanStyle spanStyle, androidx.ui.text.ParagraphStyle? paragraphStyle = null);
     method public static androidx.ui.text.AnnotatedString AnnotatedString(String text, androidx.ui.text.ParagraphStyle paragraphStyle);
     method public static inline androidx.ui.text.AnnotatedString AnnotatedString(kotlin.jvm.functions.Function1<? super androidx.ui.text.AnnotatedString.Builder,kotlin.Unit> builder);
@@ -332,7 +330,6 @@ package androidx.ui.text {
   }
 
   public final class MultiParagraphKt {
-    ctor public MultiParagraphKt();
   }
 
   public interface Paragraph {
@@ -384,12 +381,10 @@ package androidx.ui.text {
   }
 
   public final class ParagraphIntrinsicsKt {
-    ctor public ParagraphIntrinsicsKt();
     method public static androidx.ui.text.ParagraphIntrinsics ParagraphIntrinsics(String text, androidx.ui.text.TextStyle style, java.util.List<androidx.ui.text.AnnotatedString.Item<androidx.ui.text.SpanStyle>> spanStyles = listOf(), androidx.ui.core.Density density, androidx.ui.text.font.Font.ResourceLoader resourceLoader);
   }
 
   public final class ParagraphKt {
-    ctor public ParagraphKt();
     method public static androidx.ui.text.Paragraph Paragraph(String text, androidx.ui.text.TextStyle style, java.util.List<androidx.ui.text.AnnotatedString.Item<androidx.ui.text.SpanStyle>> spanStyles = listOf(), int maxLines = 2147483647, boolean ellipsis = false, androidx.ui.text.ParagraphConstraints constraints, androidx.ui.core.Density density, androidx.ui.text.font.Font.ResourceLoader resourceLoader);
     method public static androidx.ui.text.Paragraph Paragraph(androidx.ui.text.ParagraphIntrinsics paragraphIntrinsics, int maxLines = 2147483647, boolean ellipsis = false, androidx.ui.text.ParagraphConstraints constraints);
   }
@@ -410,7 +405,6 @@ package androidx.ui.text {
   }
 
   public final class ParagraphStyleKt {
-    ctor public ParagraphStyleKt();
     method public static androidx.ui.text.ParagraphStyle lerp(androidx.ui.text.ParagraphStyle start, androidx.ui.text.ParagraphStyle stop, float fraction);
   }
 
@@ -450,12 +444,10 @@ package androidx.ui.text {
   }
 
   public final class SpanStyleKt {
-    ctor public SpanStyleKt();
     method public static androidx.ui.text.SpanStyle lerp(androidx.ui.text.SpanStyle start, androidx.ui.text.SpanStyle stop, float fraction);
   }
 
   public final class StringKt {
-    ctor public StringKt();
     method public static String capitalize(String, androidx.ui.text.Locale locale);
     method public static String capitalize(String, androidx.ui.text.LocaleList localeList);
     method public static String decapitalize(String, androidx.ui.text.Locale locale);
@@ -467,7 +459,6 @@ package androidx.ui.text {
   }
 
   public final class TextDelegateKt {
-    ctor public TextDelegateKt();
   }
 
   public final class TextRange {
@@ -491,7 +482,6 @@ package androidx.ui.text {
   }
 
   public final class TextRangeKt {
-    ctor public TextRangeKt();
     method public static String substring(CharSequence, androidx.ui.text.TextRange range);
   }
 
@@ -504,7 +494,6 @@ package androidx.ui.text {
   }
 
   public final class TextSpanKt {
-    ctor public TextSpanKt();
     method public static androidx.ui.text.AnnotatedString toAnnotatedString(androidx.ui.text.TextSpan);
   }
 
@@ -556,7 +545,6 @@ package androidx.ui.text {
   }
 
   public final class TextStyleKt {
-    ctor public TextStyleKt();
     method public static androidx.ui.text.TextStyle lerp(androidx.ui.text.TextStyle start, androidx.ui.text.TextStyle stop, float fraction);
   }
 
@@ -615,7 +603,6 @@ package androidx.ui.text.font {
   }
 
   public final class FontKt {
-    ctor public FontKt();
     method public static androidx.ui.text.font.FontFamily asFontFamily(androidx.ui.text.font.Font);
   }
 
@@ -663,7 +650,6 @@ package androidx.ui.text.font {
   }
 
   public final class FontWeightKt {
-    ctor public FontWeightKt();
     method public static androidx.ui.text.font.FontWeight lerp(androidx.ui.text.font.FontWeight start, androidx.ui.text.font.FontWeight stop, float fraction);
   }
 
@@ -672,15 +658,12 @@ package androidx.ui.text.font {
 package androidx.ui.text.platform {
 
   public final class AndroidParagraphHelperKt {
-    ctor public AndroidParagraphHelperKt();
   }
 
   public final class AndroidParagraphKt {
-    ctor public AndroidParagraphKt();
   }
 
   public final class PlatformLocaleKt {
-    ctor public PlatformLocaleKt();
   }
 
 }
@@ -703,7 +686,6 @@ package androidx.ui.text.style {
   }
 
   public final class BaselineShiftKt {
-    ctor public BaselineShiftKt();
     method public static androidx.ui.text.style.BaselineShift lerp(androidx.ui.text.style.BaselineShift start, androidx.ui.text.style.BaselineShift stop, float fraction);
   }
 
@@ -761,7 +743,6 @@ package androidx.ui.text.style {
   }
 
   public final class TextGeometricTransformKt {
-    ctor public TextGeometricTransformKt();
     method public static androidx.ui.text.style.TextGeometricTransform lerp(androidx.ui.text.style.TextGeometricTransform start, androidx.ui.text.style.TextGeometricTransform stop, float fraction);
   }
 
@@ -776,7 +757,6 @@ package androidx.ui.text.style {
   }
 
   public final class TextIndentKt {
-    ctor public TextIndentKt();
     method public static androidx.ui.text.style.TextIndent lerp(androidx.ui.text.style.TextIndent start, androidx.ui.text.style.TextIndent stop, float fraction);
   }
 

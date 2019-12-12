@@ -77,5 +77,11 @@ ListenerLast: androidx.browser.customtabs.CustomTabsClient#newSession(androidx.b
     Listeners should always be at end of argument list (method `newSession`)
 
 
+PublicTypedef: androidx.browser.customtabs.CustomTabsService.Relation:
+    Don't expose @IntDef: Relation must be hidden.
+PublicTypedef: androidx.browser.customtabs.CustomTabsService.Result:
+    Don't expose @IntDef: Result must be hidden.
+
+
 StreamFiles: androidx.browser.customtabs.TrustedWebUtils#transferSplashImage(android.content.Context, java.io.File, String, String, androidx.browser.customtabs.CustomTabsSession):
     Methods accepting `File` should also accept `FileDescriptor` or streams: method androidx.browser.customtabs.TrustedWebUtils.transferSplashImage(android.content.Context,java.io.File,String,String,androidx.browser.customtabs.CustomTabsSession)

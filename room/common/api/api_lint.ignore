@@ -15,3 +15,13 @@ ArrayReturn: androidx.room.RawQuery#observedEntities():
     Method should return Collection<Class> (or subclass) instead of raw array; was `java.lang.Class<?>[]`
 ArrayReturn: androidx.room.TypeConverters#value():
     Method should return Collection<Class> (or subclass) instead of raw array; was `java.lang.Class<?>[]`
+
+
+PublicTypedef: androidx.room.ColumnInfo.Collate:
+    Don't expose @IntDef: Collate must be hidden.
+PublicTypedef: androidx.room.ColumnInfo.SQLiteTypeAffinity:
+    Don't expose @IntDef: SQLiteTypeAffinity must be hidden.
+PublicTypedef: androidx.room.ForeignKey.Action:
+    Don't expose @IntDef: Action must be hidden.
+PublicTypedef: androidx.room.OnConflictStrategy:
+    Don't expose @IntDef: OnConflictStrategy must be hidden.

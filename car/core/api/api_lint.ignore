@@ -255,3 +255,11 @@ MissingNullability: androidx.car.widget.TextListItem.ViewHolder#ViewHolder(andro
     Missing nullability on parameter `itemView` in method `ViewHolder`
 MissingNullability: androidx.car.widget.TextListItem.ViewHolder#onUxRestrictionsChanged(androidx.car.uxrestrictions.CarUxRestrictions) parameter #0:
     Missing nullability on parameter `restrictionsInfo` in method `onUxRestrictionsChanged`
+
+
+PublicTypedef: androidx.car.widget.PagedListView.Gutter:
+    Don't expose @IntDef: Gutter must be hidden.
+PublicTypedef: androidx.car.widget.PagedScrollBarView.Visibility:
+    Don't expose @IntDef: Visibility must be hidden.
+PublicTypedef: androidx.car.widget.SubheaderListItem.TextStartMarginType:
+    Don't expose @IntDef: TextStartMarginType must be hidden.
