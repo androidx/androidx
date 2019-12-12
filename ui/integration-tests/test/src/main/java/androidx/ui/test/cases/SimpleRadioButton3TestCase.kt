@@ -17,8 +17,7 @@
 package androidx.ui.test.cases
 
 import androidx.compose.Composable
-import androidx.compose.memo
-import androidx.compose.unaryPlus
+import androidx.compose.remember
 import androidx.ui.core.Draw
 import androidx.ui.core.PxSize
 import androidx.ui.core.dp
@@ -35,8 +34,8 @@ class SimpleRadioButton3TestCase : BaseSimpleRadioButtonTestCase() {
     override fun emitContent() {
         Container(width = 48.dp, height = 48.dp) {
             val innerSize = getInnerSize()
-            val borderPaint = +memo { Paint().apply { style = PaintingStyle.stroke } }
-            val fillPaint = +memo { Paint() }
+            val borderPaint = remember { Paint().apply { style = PaintingStyle.stroke } }
+            val fillPaint = remember { Paint() }
             Draw { canvas: Canvas, parentSize: PxSize ->
                 val center = Offset(parentSize.width.value / 2f, parentSize.height.value / 2f)
                 canvas.drawCircle(center, parentSize.minDimension.value, borderPaint)

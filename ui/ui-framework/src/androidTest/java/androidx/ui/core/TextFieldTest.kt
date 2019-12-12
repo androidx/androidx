@@ -18,7 +18,6 @@ package androidx.ui.core
 
 import androidx.compose.Composable
 import androidx.compose.state
-import androidx.compose.unaryPlus
 import androidx.test.filters.SmallTest
 import androidx.ui.core.input.FocusManager
 import androidx.ui.input.CommitTextEditOp
@@ -53,7 +52,7 @@ class TextFieldTest {
         val focusManager = mock<FocusManager>()
         val inputService = mock<TextInputService>()
         composeTestRule.setContent {
-            val state = +state { "" }
+            val state = state { "" }
             FocusManagerAmbient.Provider(value = focusManager) {
                 TextInputServiceAmbient.Provider(value = inputService) {
                     TestTag(tag = "textField") {
@@ -76,7 +75,7 @@ class TextFieldTest {
 
     @Composable
     private fun TextFieldApp() {
-        val state = +state { "" }
+        val state = state { "" }
         TextField(
             value = state.value,
             onValueChange = {
@@ -154,7 +153,7 @@ class TextFieldTest {
 
     @Composable
     private fun OnlyDigitsApp() {
-        val state = +state { "" }
+        val state = state { "" }
         TextField(
             value = state.value,
             onValueChange = {

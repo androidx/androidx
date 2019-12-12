@@ -18,8 +18,7 @@ package androidx.ui.framework.samples
 
 import androidx.annotation.Sampled
 import androidx.compose.Composable
-import androidx.compose.memo
-import androidx.compose.unaryPlus
+import androidx.compose.remember
 import androidx.ui.core.Draw
 import androidx.ui.core.toRect
 import androidx.ui.graphics.Color
@@ -28,7 +27,7 @@ import androidx.ui.graphics.Paint
 @Sampled
 @Composable
 fun DrawSample() {
-    val paint = +memo { Paint() }
+    val paint = remember { Paint() }
     Draw { canvas, parentSize ->
         paint.color = Color.Black
         canvas.drawRect(parentSize.toRect(), paint)

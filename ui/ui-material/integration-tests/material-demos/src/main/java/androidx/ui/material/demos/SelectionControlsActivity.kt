@@ -17,7 +17,6 @@
 package androidx.ui.material.demos
 
 import androidx.compose.Composable
-import androidx.compose.unaryPlus
 import androidx.ui.core.Text
 import androidx.ui.core.dp
 import androidx.ui.layout.Column
@@ -34,7 +33,7 @@ class SelectionControlsActivity : MaterialDemoActivity() {
 
     @Composable
     override fun materialContent() {
-        val headerStyle = (+MaterialTheme.typography()).h6
+        val headerStyle = MaterialTheme.typography().h6
         val padding = EdgeInsets(10.dp)
 
         Padding(padding = padding) {

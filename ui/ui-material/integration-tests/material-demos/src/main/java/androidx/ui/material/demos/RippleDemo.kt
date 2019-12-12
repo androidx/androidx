@@ -17,7 +17,6 @@
 package androidx.ui.material.demos
 
 import androidx.compose.Composable
-import androidx.compose.unaryPlus
 import androidx.ui.core.ComposeView
 import androidx.ui.core.Text
 import androidx.ui.core.dp
@@ -46,7 +45,7 @@ fun RippleDemo() {
                                 Container(width = 100.dp, height = 50.dp) {
                                     Text(
                                         text = "inner",
-                                        style = (+MaterialTheme.typography()).body1
+                                        style = MaterialTheme.typography().body1
                                     )
                                 }
                             }

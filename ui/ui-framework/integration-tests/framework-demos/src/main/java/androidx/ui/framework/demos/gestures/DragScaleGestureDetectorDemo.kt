@@ -23,7 +23,6 @@ import android.app.Activity
 import android.os.Bundle
 import androidx.compose.Composable
 import androidx.compose.state
-import androidx.compose.unaryPlus
 import androidx.ui.core.PxPosition
 import androidx.ui.core.gesture.DragObserver
 import androidx.ui.core.px
@@ -42,11 +41,11 @@ class DragAndScaleGestureDetectorDemo : Activity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContent {
-            val width = +state { 200.dp }
-            val height = +state { 200.dp }
-            val xOffset = +state { 0.px }
-            val yOffset = +state { 0.px }
-            val dragInScale = +state { false }
+            val width = state { 200.dp }
+            val height = state { 200.dp }
+            val xOffset = state { 0.px }
+            val yOffset = state { 0.px }
+            val dragInScale = state { false }
 
             val scaleObserver = object : ScaleObserver {
                 override fun onScale(scaleFactor: Float) {

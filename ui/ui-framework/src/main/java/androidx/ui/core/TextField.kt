@@ -17,10 +17,9 @@ package androidx.ui.core
 
 import androidx.compose.Composable
 import androidx.compose.ambient
-import androidx.compose.memo
+import androidx.compose.remember
 import androidx.compose.onDispose
 import androidx.compose.state
-import androidx.compose.unaryPlus
 import androidx.ui.core.gesture.DragObserver
 import androidx.ui.core.gesture.PressGestureDetector
 import androidx.ui.core.gesture.TouchSlopDragGestureDetector
@@ -101,7 +100,7 @@ fun TextField(
     onImeActionPerformed: (ImeAction) -> Unit = {},
     visualTransformation: VisualTransformation? = null
 ) {
-    val fullModel = +state { InputState() }
+    val fullModel = state { InputState() }
     if (fullModel.value.text != value) {
         val newSelection = TextRange(
             fullModel.value.selection.start.coerceIn(0, value.length),
@@ -209,7 +208,7 @@ fun TextField(
     onImeActionPerformed: (ImeAction) -> Unit = {},
     visualTransformation: VisualTransformation? = null
 ) {
-    val fullModel = +state { InputState() }
+    val fullModel = state { InputState() }
     if (fullModel.value.text != value.text || fullModel.value.selection != value.selection) {
         val newSelection = TextRange(
             value.selection.start.coerceIn(0, value.text.length),
@@ -344,28 +343,28 @@ internal fun BaseTextField(
     // and IME may think it is updated. To fix this inconsistent state, enforce recompose by
     // incrementing generation counter when we callback to the developer and reset the state with
     // the latest state.
-    val generation = +state { 0 }
+    val generation = state { 0 }
     val Wrapper: @Composable() (Int, @Composable() () -> Unit) -> Unit = { _, child -> child() }
     val onValueChangeWrapper: (InputState) -> Unit = { onValueChange(it); generation.value++ }
 
     Wrapper(generation.value) {
         // Ambients
-        val style = +ambient(CurrentTextStyleAmbient)
-        val textInputService = +ambient(TextInputServiceAmbient)
-        val density = +ambient(DensityAmbient)
-        val resourceLoader = +ambient(FontLoaderAmbient)
-        val layoutDirection = +ambient(LayoutDirectionAmbient)
+        val style = ambient(CurrentTextStyleAmbient)
+        val textInputService = ambient(TextInputServiceAmbient)
+        val density = ambient(DensityAmbient)
+        val resourceLoader = ambient(FontLoaderAmbient)
+        val layoutDirection = ambient(LayoutDirectionAmbient)
 
         // Memos
-        val processor = +memo { EditProcessor() }
+        val processor = remember { EditProcessor() }
         val mergedStyle = style.merge(textStyle)
-        val (visualText, offsetMap) = +memo(value, visualTransformation) {
+        val (visualText, offsetMap) = remember(value, visualTransformation) {
             val transformed = TextFieldDelegate.applyVisualFilter(value, visualTransformation)
             value.composition?.let {
                 TextFieldDelegate.applyCompositionDecoration(it, transformed)
             } ?: transformed
         }
-        val textDelegate = +memo(visualText, mergedStyle, density, resourceLoader) {
+        val textDelegate = remember(visualText, mergedStyle, density, resourceLoader) {
             TextDelegate(
                 text = visualText,
                 style = mergedStyle,
@@ -376,9 +375,9 @@ internal fun BaseTextField(
         }
 
         // States
-        val hasFocus = +state { false }
-        val coords = +state<LayoutCoordinates?> { null }
-        val inputSession = +state { NO_SESSION }
+        val hasFocus = state { false }
+        val coords = state<LayoutCoordinates?> { null }
+        val inputSession = state { NO_SESSION }
 
         processor.onNewState(value, textInputService, inputSession.value)
         TextInputEventObserver(
@@ -480,10 +479,10 @@ private fun TextInputEventObserver(
     focusIdentifier: String?,
     children: @Composable() () -> Unit
 ) {
-    val focused = +state { false }
-    val focusManager = +ambient(FocusManagerAmbient)
+    val focused = state { false }
+    val focusManager = ambient(FocusManagerAmbient)
 
-    val focusNode = +memo {
+    val focusNode = remember {
         val node = object : FocusManager.FocusNode {
             override fun onFocus() {
                 onFocus()
@@ -502,7 +501,7 @@ private fun TextInputEventObserver(
         node
     }
 
-    +onDispose {
+    onDispose {
         if (focusIdentifier != null)
             focusManager.unregisterFocusNode(focusIdentifier)
     }
@@ -576,7 +575,7 @@ private fun DragPositionGestureDetector(
     onRelease: (PxPosition) -> Unit,
     children: @Composable() () -> Unit
 ) {
-    val tracker = +state { DragEventTracker() }
+    val tracker = state { DragEventTracker() }
     PressGestureDetector(
         onPress = {
             tracker.value.init(it)

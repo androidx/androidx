@@ -22,7 +22,6 @@ import androidx.compose.Recompose
 import androidx.compose.onActive
 import androidx.compose.onCommit
 import androidx.compose.setViewContent
-import androidx.compose.unaryPlus
 import androidx.ui.core.ComposeView
 import org.junit.Assert.assertEquals
 import org.junit.Assert.assertTrue
@@ -57,15 +56,15 @@ class WrapperTest {
 
         runOnUiThread {
             activity.setViewContent {
-                +onCommit { rootCount++ }
+                onCommit { rootCount++ }
                 ComposeView {
-                    +onCommit { composeWrapperCount++ }
+                    onCommit { composeWrapperCount++ }
                     Recompose { recompose ->
-                        +onCommit {
+                        onCommit {
                             innerCount++
                             commitLatch.countDown()
                         }
-                        +onActive { recompose() }
+                        onActive { recompose() }
                     }
                 }
             }

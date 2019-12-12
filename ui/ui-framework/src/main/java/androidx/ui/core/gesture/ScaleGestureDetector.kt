@@ -17,8 +17,7 @@
 package androidx.ui.core.gesture
 
 import androidx.compose.Composable
-import androidx.compose.memo
-import androidx.compose.unaryPlus
+import androidx.compose.remember
 
 /**
  * Observes various events sent by [ScaleGestureDetector].  Implement and pass into
@@ -95,7 +94,7 @@ fun ScaleGestureDetector(
     scaleObserver: ScaleObserver,
     children: @Composable() () -> Unit
 ) {
-    val glue = +memo { TouchSlopScaleGestureDetectorGlue() }
+    val glue = remember { TouchSlopScaleGestureDetectorGlue() }
     glue.scaleObserver = scaleObserver
 
     RawScaleGestureDetector(glue.rawScaleObserver, glue::scaleEnabled) {

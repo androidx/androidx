@@ -19,7 +19,6 @@ package androidx.ui.material.samples
 import androidx.animation.TweenBuilder
 import androidx.annotation.Sampled
 import androidx.compose.Composable
-import androidx.compose.unaryPlus
 import androidx.ui.animation.animatedFloat
 import androidx.ui.core.Text
 import androidx.ui.foundation.shape.corner.CircleShape
@@ -105,7 +104,7 @@ fun SimpleBottomAppBarCenterFab(getMyActionImage: () -> Image, getMyNavigationIm
         navigationIcon = navigationIcon,
         fabConfiguration = FabConfiguration {
             FloatingActionButton(
-                color = (+MaterialTheme.colors()).secondary,
+                color = MaterialTheme.colors().secondary,
                 icon = someActionImage,
                 onClick = { /** doSomething() */ })
         },
@@ -124,7 +123,7 @@ fun SimpleBottomAppBarEndFab(getMyActionImage: () -> Image) {
     BottomAppBar(
         fabConfiguration = FabConfiguration(fabPosition = BottomAppBar.FabPosition.End) {
             FloatingActionButton(
-                color = (+MaterialTheme.colors()).secondary,
+                color = MaterialTheme.colors().secondary,
                 icon = someActionImage,
                 onClick = { /** doSomething() */ })
         },
@@ -152,7 +151,7 @@ fun SimpleBottomAppBarCutoutFab(
         navigationIcon = navigationIcon,
         fabConfiguration = FabConfiguration(cutoutShape = CircleShape) {
             FloatingActionButton(
-                color = (+MaterialTheme.colors()).secondary,
+                color = MaterialTheme.colors().secondary,
                 icon = someActionImage,
                 onClick = { /** doSomething() */ })
         },
@@ -180,7 +179,7 @@ fun SimpleBottomAppBarExtendedCutoutFab(
         navigationIcon = navigationIcon,
         fabConfiguration = FabConfiguration(cutoutShape = CircleShape) {
             FloatingActionButton(
-                color = (+MaterialTheme.colors()).secondary,
+                color = MaterialTheme.colors().secondary,
                 text = "Extended FAB",
                 textStyle = TextStyle(color = Color.White),
                 onClick = { /** doSomething() */ })
@@ -210,7 +209,7 @@ fun SimpleBottomAppBarFancyAnimatingCutoutFab(
     val roundEdgePercent = 45f
 
     // Start with sharp edges
-    val animatedProgress = +animatedFloat(sharpEdgePercent)
+    val animatedProgress = animatedFloat(sharpEdgePercent)
 
     val progress = animatedProgress.value.roundToInt()
 
@@ -235,7 +234,7 @@ fun SimpleBottomAppBarFancyAnimatingCutoutFab(
         navigationIcon = navigationIcon,
         fabConfiguration = FabConfiguration(cutoutShape = fabShape) {
             FloatingActionButton(
-                color = (+MaterialTheme.colors()).secondary,
+                color = MaterialTheme.colors().secondary,
                 icon = someActionImage,
                 onClick = switchShape,
                 shape = fabShape

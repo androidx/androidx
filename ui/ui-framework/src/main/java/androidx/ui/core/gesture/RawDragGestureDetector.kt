@@ -17,8 +17,7 @@
 package androidx.ui.core.gesture
 
 import androidx.compose.Composable
-import androidx.compose.memo
-import androidx.compose.unaryPlus
+import androidx.compose.remember
 import androidx.ui.core.PointerEventPass
 import androidx.ui.core.PointerInputChange
 import androidx.ui.core.PxPosition
@@ -114,7 +113,7 @@ fun RawDragGestureDetector(
     canStartDragging: (() -> Boolean)? = null,
     children: @Composable() () -> Unit
 ) {
-    val recognizer = +memo {
+    val recognizer = remember {
         RawDragGestureRecognizer()
     }
 

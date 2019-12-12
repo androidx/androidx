@@ -16,7 +16,6 @@
 
 package androidx.ui.material
 
-import androidx.compose.unaryPlus
 import androidx.test.filters.MediumTest
 import androidx.ui.core.currentTextStyle
 import androidx.ui.foundation.contentColor
@@ -54,7 +53,7 @@ class EmphasisTest(private val colors: ColorPalette, private val debugParameterN
         composeTestRule.setContent {
             MaterialTheme(colors) {
                 Surface {
-                    val onSurface = (+MaterialTheme.colors()).onSurface
+                    val onSurface = MaterialTheme.colors().onSurface
                     assertEquals(
                         onSurface,
                         contentColor()
@@ -62,7 +61,7 @@ class EmphasisTest(private val colors: ColorPalette, private val debugParameterN
 
                     assertEquals(
                         onSurface,
-                        (+currentTextStyle()).color
+                        currentTextStyle().color
                     )
                 }
             }
@@ -74,8 +73,8 @@ class EmphasisTest(private val colors: ColorPalette, private val debugParameterN
         composeTestRule.setContent {
             MaterialTheme(colors) {
                 Surface {
-                    ProvideEmphasis((+MaterialTheme.emphasisLevels()).high) {
-                        val onSurface = (+MaterialTheme.colors()).onSurface
+                    ProvideEmphasis(MaterialTheme.emphasisLevels().high) {
+                        val onSurface = MaterialTheme.colors().onSurface
                         val modifiedOnSurface = onSurface.copy(alpha = HighEmphasisAlpha)
                         assertEquals(
                             modifiedOnSurface,
@@ -84,7 +83,7 @@ class EmphasisTest(private val colors: ColorPalette, private val debugParameterN
 
                         assertEquals(
                             modifiedOnSurface,
-                            (+currentTextStyle()).color
+                            currentTextStyle().color
                         )
                     }
                 }
@@ -97,8 +96,8 @@ class EmphasisTest(private val colors: ColorPalette, private val debugParameterN
         composeTestRule.setContent {
             MaterialTheme(colors) {
                 Surface {
-                    ProvideEmphasis((+MaterialTheme.emphasisLevels()).medium) {
-                        val onSurface = (+MaterialTheme.colors()).onSurface
+                    ProvideEmphasis(MaterialTheme.emphasisLevels().medium) {
+                        val onSurface = MaterialTheme.colors().onSurface
                         val modifiedOnSurface = onSurface.copy(alpha = MediumEmphasisAlpha)
                         assertEquals(
                             modifiedOnSurface,
@@ -107,7 +106,7 @@ class EmphasisTest(private val colors: ColorPalette, private val debugParameterN
 
                         assertEquals(
                             modifiedOnSurface,
-                            (+currentTextStyle()).color
+                            currentTextStyle().color
                         )
                     }
                 }
@@ -120,8 +119,8 @@ class EmphasisTest(private val colors: ColorPalette, private val debugParameterN
         composeTestRule.setContent {
             MaterialTheme(colors) {
                 Surface {
-                    ProvideEmphasis((+MaterialTheme.emphasisLevels()).disabled) {
-                        val onSurface = (+MaterialTheme.colors()).onSurface
+                    ProvideEmphasis(MaterialTheme.emphasisLevels().disabled) {
+                        val onSurface = MaterialTheme.colors().onSurface
                         val modifiedOnSurface = onSurface.copy(alpha = DisabledEmphasisAlpha)
                         assertEquals(
                             modifiedOnSurface,
@@ -130,7 +129,7 @@ class EmphasisTest(private val colors: ColorPalette, private val debugParameterN
 
                         assertEquals(
                             modifiedOnSurface,
-                            (+currentTextStyle()).color
+                            currentTextStyle().color
                         )
                     }
                 }

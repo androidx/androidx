@@ -17,10 +17,9 @@
 package androidx.ui.res
 
 import android.os.Build
-import androidx.annotation.CheckResult
 import androidx.annotation.ColorRes
+import androidx.compose.Composable
 import androidx.compose.ambient
-import androidx.compose.effectOf
 import androidx.ui.core.ContextAmbient
 import androidx.ui.graphics.Color
 
@@ -30,10 +29,10 @@ import androidx.ui.graphics.Color
  * @param id the resource identifier
  * @return the color associated with the resource
  */
-@CheckResult(suggest = "+")
-fun colorResource(@ColorRes id: Int) = effectOf<Color> {
-    val context = +ambient(ContextAmbient)
-    if (Build.VERSION.SDK_INT >= 23) {
+@Composable
+fun colorResource(@ColorRes id: Int): Color {
+    val context = ambient(ContextAmbient)
+    return if (Build.VERSION.SDK_INT >= 23) {
         Color(context.resources.getColor(id, context.theme))
     } else {
         @Suppress("DEPRECATION")

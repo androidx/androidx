@@ -19,7 +19,6 @@ package androidx.ui.framework.demos.gestures
 import android.app.Activity
 import android.os.Bundle
 import androidx.compose.state
-import androidx.compose.unaryPlus
 import androidx.ui.core.PxPosition
 import androidx.ui.core.gesture.DragObserver
 import androidx.ui.core.px
@@ -40,9 +39,9 @@ class TouchSlopDragGestureDetectorDemo : Activity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContent {
-            val xOffset = +state { 0.px }
-            val yOffset = +state { 0.px }
-            val canStartVertically = +state { true }
+            val xOffset = state { 0.px }
+            val yOffset = state { 0.px }
+            val canStartVertically = state { true }
 
             val dragObserver =
                 if (canStartVertically.value) {

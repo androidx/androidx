@@ -22,7 +22,6 @@ import androidx.animation.FloatPropKey
 import androidx.animation.transitionDefinition
 import androidx.compose.Composable
 import androidx.compose.state
-import androidx.compose.unaryPlus
 import androidx.ui.animation.ColorPropKey
 import androidx.ui.animation.Transition
 import androidx.ui.core.Layout
@@ -72,7 +71,7 @@ private val definition = transitionDefinition {
 
 @Composable
 fun TransitionExample() {
-    val toState = +state { ComponentState.Released }
+    val toState = state { ComponentState.Released }
     PressGestureDetector(
         onPress = { toState.value = ComponentState.Pressed },
         onRelease = { toState.value = ComponentState.Released },

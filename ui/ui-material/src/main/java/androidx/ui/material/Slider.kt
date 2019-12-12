@@ -21,9 +21,8 @@ import androidx.animation.TargetAnimation
 import androidx.animation.TweenBuilder
 import androidx.annotation.IntRange
 import androidx.compose.Composable
-import androidx.compose.memo
+import androidx.compose.remember
 import androidx.compose.state
-import androidx.compose.unaryPlus
 import androidx.ui.core.Alignment
 import androidx.ui.core.Draw
 import androidx.ui.core.Modifier
@@ -148,7 +147,7 @@ fun Slider(
     onValueChange: (Float) -> Unit = { position.value = it },
     modifier: Modifier = Modifier.None,
     onValueChangeEnd: () -> Unit = {},
-    color: Color = (+MaterialTheme.colors()).primary
+    color: Color = MaterialTheme.colors().primary
 ) {
     Container(modifier = modifier) {
         WithConstraints { constraints ->
@@ -175,7 +174,7 @@ fun Slider(
                     onValueChangeEnd()
                 }
             }
-            val pressed = +state { false }
+            val pressed = state { false }
             PressGestureDetector(
                 onPress = { pos ->
                     onValueChange(pos.x.value.toSliderPosition())
@@ -203,7 +202,7 @@ fun Slider(
 
 @Composable
 private fun SliderImpl(position: SliderPosition, color: Color, width: Float, pressed: Boolean) {
-    val widthDp = withDensity(+ambientDensity()) {
+    val widthDp = withDensity(ambientDensity()) {
         width.px.toDp()
     }
     Semantics(container = true, properties = { accessibilityValue = "${position.value}" }) {
@@ -236,9 +235,9 @@ private fun DrawTrack(
     color: Color,
     position: SliderPosition
 ) {
-    val activeTickColor = (+MaterialTheme.colors()).onPrimary.copy(alpha = TickColorAlpha)
+    val activeTickColor = MaterialTheme.colors().onPrimary.copy(alpha = TickColorAlpha)
     val inactiveTickColor = color.copy(alpha = TickColorAlpha)
-    val paint = +memo {
+    val paint = remember {
         Paint().apply {
             this.isAntiAlias = true
             this.strokeCap = StrokeCap.round

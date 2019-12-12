@@ -1,6 +1,4 @@
 // Baseline format: 1.0
-DocumentExceptions: androidx.ui.test.ActionsKt#doClick(androidx.ui.test.SemanticsNodeInteraction):
-    Method ActionsKt.doClick appears to be throwing java.lang.AssertionError; this should be listed in the documentation; see https://android.github.io/kotlin-guides/interop.html#document-exceptions
 DocumentExceptions: androidx.ui.test.AssertionsKt#assertCountEquals(java.util.List<androidx.ui.test.SemanticsNodeInteraction>, int):
     Method AssertionsKt.assertCountEquals appears to be throwing java.lang.AssertionError; this should be listed in the documentation; see https://android.github.io/kotlin-guides/interop.html#document-exceptions
 DocumentExceptions: androidx.ui.test.AssertionsKt#assertNoLongerExists(androidx.ui.test.SemanticsNodeInteraction):

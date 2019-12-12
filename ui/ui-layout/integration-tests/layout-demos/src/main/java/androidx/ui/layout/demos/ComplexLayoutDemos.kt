@@ -19,8 +19,6 @@ package androidx.ui.layout.demos
 import android.os.Handler
 import androidx.compose.Composable
 import androidx.compose.Model
-import androidx.compose.effectOf
-import androidx.compose.memo
 import androidx.compose.onCommit
 import androidx.ui.core.Alignment
 import androidx.ui.core.Constraints
@@ -52,6 +50,7 @@ import androidx.ui.layout.LayoutPadding
 import androidx.ui.layout.Padding
 import androidx.ui.layout.Row
 import androidx.ui.layout.Stack
+import androidx.compose.remember
 import androidx.ui.layout.Wrap
 import androidx.ui.layout.samples.DrawRectangle
 import androidx.ui.layout.samples.SizedRectangle
@@ -379,9 +378,10 @@ fun ComplexLayoutDemos() {
     }
 }
 
-fun runDelayed(vararg millis: Int, block: () -> Unit) = effectOf<Unit> {
-    val handler = +memo { Handler() }
-    +onCommit {
+@Composable
+fun runDelayed(vararg millis: Int, block: () -> Unit) {
+    val handler = remember { Handler() }
+    onCommit {
         val runnable = object : Runnable {
             override fun run() {
                 block()

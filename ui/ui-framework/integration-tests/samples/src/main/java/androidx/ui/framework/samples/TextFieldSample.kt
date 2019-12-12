@@ -20,7 +20,6 @@ import androidx.annotation.Sampled
 import androidx.compose.Composable
 import androidx.compose.composer
 import androidx.compose.state
-import androidx.compose.unaryPlus
 import androidx.ui.core.EditorModel
 import androidx.ui.core.PasswordTextField
 import androidx.ui.core.TextField
@@ -29,7 +28,7 @@ import androidx.ui.text.TextRange
 @Sampled
 @Composable
 fun StringTextFieldSample() {
-    val state = +state { "" }
+    val state = state { "" }
     TextField(
         value = state.value,
         onValueChange = { state.value = it }
@@ -39,7 +38,7 @@ fun StringTextFieldSample() {
 @Sampled
 @Composable
 fun EditorModelTextFieldSample() {
-    val state = +state { EditorModel() }
+    val state = state { EditorModel() }
     TextField(
         value = state.value,
         onValueChange = { state.value = it }
@@ -49,8 +48,8 @@ fun EditorModelTextFieldSample() {
 @Sampled
 @Composable
 fun CompositionEditorModelTextFieldSample() {
-    val model = +state { EditorModel() }
-    val composition = +state<TextRange?> { null }
+    val model = state { EditorModel() }
+    val composition = state<TextRange?> { null }
     TextField(
         model = model.value,
         compositionRange = composition.value,
@@ -64,7 +63,7 @@ fun CompositionEditorModelTextFieldSample() {
 @Sampled
 @Composable
 fun PasswordTextFieldSample() {
-    val state = +state { "" }
+    val state = state { "" }
     PasswordTextField(
         value = state.value,
         onValueChange = { state.value = it }

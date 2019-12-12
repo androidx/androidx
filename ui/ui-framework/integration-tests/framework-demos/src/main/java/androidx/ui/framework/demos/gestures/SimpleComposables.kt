@@ -17,8 +17,7 @@
 package androidx.ui.framework.demos.gestures
 
 import androidx.compose.Composable
-import androidx.compose.memo
-import androidx.compose.unaryPlus
+import androidx.compose.remember
 import androidx.ui.core.Constraints
 import androidx.ui.core.Dp
 import androidx.ui.core.Layout
@@ -180,7 +179,7 @@ internal fun DrawBox(
     height: Dp,
     color: Color
 ) {
-    val paint = +memo { Paint() }
+    val paint = remember { Paint() }
     Draw { canvas, parentSize ->
         paint.color = color
         val centerX = parentSize.width.value / 2 + xOffset.value

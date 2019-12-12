@@ -17,7 +17,6 @@
 package androidx.ui.test.cases
 
 import androidx.compose.Composable
-import androidx.compose.unaryPlus
 import androidx.ui.core.TestTag
 import androidx.ui.core.dp
 import androidx.ui.core.px
@@ -68,7 +67,7 @@ sealed class VectorAssetTestCase : ComposeTestCase {
 class XmlVectorTestCase : VectorAssetTestCase() {
     // TODO: should switch to async loading here, and force that to be run synchronously
     @Composable
-    override fun getVectorAsset() = +vectorResource(R.drawable.ic_baseline_menu_24)
+    override fun getVectorAsset() = vectorResource(R.drawable.ic_baseline_menu_24)
 
     override val testTag = "Xml"
 }

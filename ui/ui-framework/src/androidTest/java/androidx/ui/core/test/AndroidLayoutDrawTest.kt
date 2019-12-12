@@ -29,7 +29,6 @@ import androidx.compose.Composable
 import androidx.compose.Compose
 import androidx.compose.Model
 import androidx.compose.state
-import androidx.compose.unaryPlus
 import androidx.test.filters.SdkSuppress
 import androidx.test.filters.SmallTest
 import androidx.test.rule.ActivityTestRule
@@ -2285,7 +2284,7 @@ fun Scroller(
     offset: OffsetModel,
     child: @Composable() () -> Unit
 ) {
-    val maxPosition = +state { IntPx.Infinity }
+    val maxPosition = state { IntPx.Infinity }
     ScrollerLayout(
         maxPosition = maxPosition.value,
         onMaxPositionChanged = {

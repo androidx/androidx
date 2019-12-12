@@ -19,7 +19,6 @@ package androidx.ui.framework.demos.gestures
 import android.app.Activity
 import android.os.Bundle
 import androidx.compose.state
-import androidx.compose.unaryPlus
 import androidx.ui.core.px
 import androidx.ui.core.setContent
 import androidx.ui.core.PxPosition
@@ -33,7 +32,7 @@ class PressIndicatorGestureDetectorDemo : Activity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContent {
-            val pressed = +state { false }
+            val pressed = state { false }
 
             val onStart: (PxPosition) -> Unit = {
                 pressed.value = true

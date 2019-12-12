@@ -17,7 +17,6 @@
 package androidx.ui.res
 
 import android.util.LruCache
-import androidx.compose.unaryPlus
 import androidx.test.filters.SmallTest
 import androidx.test.platform.app.InstrumentationRegistry
 import androidx.ui.core.ContextAmbient
@@ -73,7 +72,7 @@ class ResourcesTest {
                 uiThreadWork?.invoke()
 
                 ContextAmbient.Provider(value = context) {
-                    val res = +loadResourceInternal(
+                    val res = loadResourceInternal(
                         id = R.drawable.loaded_image,
                         pendingResource = pendingImage,
                         failedResource = failedImage,
@@ -126,7 +125,7 @@ class ResourcesTest {
                 uiThreadWork?.invoke()
 
                 ContextAmbient.Provider(value = context) {
-                    val res = +loadResourceInternal(
+                    val res = loadResourceInternal(
                         id = R.drawable.loaded_image,
                         pendingResource = pendingImage,
                         failedResource = failedImage,

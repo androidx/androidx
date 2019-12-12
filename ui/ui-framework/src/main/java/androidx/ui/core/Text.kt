@@ -19,12 +19,10 @@ import androidx.compose.Ambient
 import androidx.compose.ambient
 import androidx.compose.Composable
 import androidx.compose.compositionReference
-import androidx.compose.effectOf
-import androidx.compose.memo
 import androidx.compose.onCommit
 import androidx.compose.onDispose
+import androidx.compose.remember
 import androidx.compose.state
-import androidx.compose.unaryPlus
 import androidx.ui.core.selection.Selectable
 import androidx.ui.core.selection.SelectionRegistrar
 import androidx.ui.core.selection.SelectionRegistrarAmbient
@@ -73,10 +71,10 @@ fun Text(
     maxLines: Int = DefaultMaxLines,
     child: @Composable TextSpanScope.() -> Unit
 ) {
-    val rootTextSpan = +memo { TextSpan() }
-    val ref = +compositionReference()
+    val rootTextSpan = remember { TextSpan() }
+    val ref = compositionReference()
     compose(rootTextSpan, ref, child)
-    +onDispose { disposeComposition(rootTextSpan, ref) }
+    onDispose { disposeComposition(rootTextSpan, ref) }
 
     Text(
         text = rootTextSpan.toAnnotatedString(),
@@ -148,17 +146,17 @@ fun Text(
     require(maxLines > 0) { "maxLines should be greater than 0" }
     // States
     // The selection range for this Composable, used by selection
-    val selectionRange = +state<TextRange?> { null }
+    val selectionRange = state<TextRange?> { null }
     // The last layout coordinates recorded for this Composable, used by selection
-    val layoutCoordinates = +state<LayoutCoordinates?> { null }
+    val layoutCoordinates = state<LayoutCoordinates?> { null }
 
     // Ambients
     // selection registrar, if no SelectionContainer is added ambient value will be null
-    val selectionRegistrar: SelectionRegistrar? = +ambient(SelectionRegistrarAmbient)
-    val density = +ambientDensity()
-    val resourceLoader = +ambient(FontLoaderAmbient)
-    val layoutDirection = +ambient(LayoutDirectionAmbient)
-    val themeStyle = +ambient(CurrentTextStyleAmbient)
+    val selectionRegistrar: SelectionRegistrar? = ambient(SelectionRegistrarAmbient)
+    val density = ambientDensity()
+    val resourceLoader = ambient(FontLoaderAmbient)
+    val layoutDirection = ambient(LayoutDirectionAmbient)
+    val themeStyle = ambient(CurrentTextStyleAmbient)
 
     val mergedStyle = themeStyle.merge(style)
 
@@ -167,7 +165,7 @@ fun Text(
             accessibilityLabel = text.text
         }
     ) {
-        val textDelegate = +memo(
+        val textDelegate = remember(
             text,
             mergedStyle,
             softWrap,
@@ -235,7 +233,7 @@ fun Text(
             ) {}
         }
 
-        +onCommit(
+        onCommit(
             text,
             mergedStyle,
             softWrap,
@@ -282,7 +280,7 @@ internal val CurrentTextStyleAmbient = Ambient.of { TextStyle() }
  */
 @Composable
 fun CurrentTextStyleProvider(value: TextStyle, children: @Composable() () -> Unit) {
-    val style = +ambient(CurrentTextStyleAmbient)
+    val style = ambient(CurrentTextStyleAmbient)
     val mergedStyle = style.merge(value)
     CurrentTextStyleAmbient.Provider(value = mergedStyle, children = children)
 }
@@ -292,5 +290,5 @@ fun CurrentTextStyleProvider(value: TextStyle, children: @Composable() () -> Uni
  * components included in this component's children will be styled with this style unless
  * styled explicitly.
  */
-fun currentTextStyle() =
-    effectOf<TextStyle> { +ambient(CurrentTextStyleAmbient) }
+@Composable
+fun currentTextStyle(): TextStyle = ambient(CurrentTextStyleAmbient)

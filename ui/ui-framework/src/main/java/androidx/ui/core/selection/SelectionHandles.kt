@@ -17,10 +17,9 @@
 package androidx.ui.core.selection
 
 import androidx.compose.Composable
-import androidx.compose.memo
-import androidx.compose.unaryPlus
 import androidx.ui.core.Constraints
 import androidx.ui.core.Dp
+import androidx.compose.remember
 import androidx.ui.core.Draw
 import androidx.ui.core.Layout
 import androidx.ui.core.dp
@@ -38,7 +37,7 @@ private val HANDLE_COLOR = Color(0xFF2B28F5.toInt())
 
 @Composable
 private fun SelectionHandle(left: Boolean) {
-    val paint = +memo { Paint().also { it.isAntiAlias = true } }
+    val paint = remember { Paint().also { it.isAntiAlias = true } }
     paint.color = HANDLE_COLOR
     FixedDimension(width = HANDLE_WIDTH, height = HANDLE_HEIGHT) {
         Draw { canvas, _ ->

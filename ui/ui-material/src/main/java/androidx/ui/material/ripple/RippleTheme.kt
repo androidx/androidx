@@ -17,8 +17,7 @@
 package androidx.ui.material.ripple
 
 import androidx.compose.Ambient
-import androidx.compose.Effect
-import androidx.compose.effectOf
+import androidx.compose.Composable
 import androidx.ui.foundation.contentColor
 import androidx.ui.graphics.Color
 import androidx.ui.material.MaterialTheme
@@ -39,12 +38,12 @@ data class RippleTheme(
      * The effect that will be used to calculate the [Ripple] color when it is not explicitly
      * set in a [Ripple].
      */
-    val defaultColor: Effect<Color>,
+    val defaultColor: @Composable() () -> Color,
     /**
      * The effect that will be used to calculate the opacity applied to the [Ripple] color.
      * For example, it can be different in dark and light modes.
      */
-    val opacity: Effect<Float>
+    val opacity: @Composable() () -> Float
 )
 
 val CurrentRippleTheme = Ambient.of { DefaultRippleTheme }
@@ -52,9 +51,9 @@ val CurrentRippleTheme = Ambient.of { DefaultRippleTheme }
 @Suppress("PLUGIN_WARNING")
 private val DefaultRippleTheme = RippleTheme(
     factory = DefaultRippleEffectFactory,
-    defaultColor = effectOf { contentColor() },
-    opacity = effectOf {
-        if ((+MaterialTheme.colors()).isLight) LightRippleOpacity else DarkRippleOpacity
+    defaultColor = { contentColor() },
+    opacity = {
+        if (MaterialTheme.colors().isLight) LightRippleOpacity else DarkRippleOpacity
     }
 )
 

@@ -18,7 +18,6 @@ package androidx.ui.text.demos
 
 import androidx.compose.Composable
 import androidx.compose.state
-import androidx.compose.unaryPlus
 import androidx.ui.core.TextField
 import androidx.ui.input.ImeAction
 import androidx.ui.input.KeyboardType
@@ -75,7 +74,7 @@ fun EditLine(
     keyboardType: KeyboardType = KeyboardType.Text,
     imeAction: ImeAction = ImeAction.Unspecified
 ) {
-    val state = +state { "" }
+    val state = state { "" }
     TextField(
         value = state.value,
         keyboardType = keyboardType,

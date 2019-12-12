@@ -16,8 +16,7 @@
 package androidx.ui.core
 
 import androidx.compose.Composable
-import androidx.compose.memo
-import androidx.compose.unaryPlus
+import androidx.compose.remember
 import androidx.ui.core.input.FocusManager
 import androidx.ui.input.ImeAction
 import androidx.ui.input.KeyboardType
@@ -72,7 +71,7 @@ fun PasswordTextField(
     focusIdentifier: String? = null,
     onImeActionPerformed: (ImeAction) -> Unit = {}
 ) {
-    val passwordTransformation = +memo(mask) { PasswordVisualTransformation(mask) }
+    val passwordTransformation = remember(mask) { PasswordVisualTransformation(mask) }
     TextField(
         value = value,
         onValueChange = onValueChange,

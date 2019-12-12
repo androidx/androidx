@@ -17,7 +17,6 @@
 package androidx.ui.material.studies.rally
 
 import androidx.compose.Composable
-import androidx.compose.unaryPlus
 import androidx.ui.core.em
 import androidx.ui.core.sp
 import androidx.ui.graphics.Color
@@ -96,7 +95,7 @@ fun RallyDialogThemeOverlay(children: @Composable() () -> Unit) {
         surface = Color(0xFF1E1E1E),
         onSurface = Color.White
     )
-    val currentTypography = +MaterialTheme.typography()
+    val currentTypography = MaterialTheme.typography()
     val dialogTypography = currentTypography.copy(
         body1 = currentTypography.body1.copy(
             fontFamily = FontFamily("RobotoCondensed"),

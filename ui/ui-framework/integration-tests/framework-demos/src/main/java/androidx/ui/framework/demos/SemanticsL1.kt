@@ -28,7 +28,6 @@ import androidx.ui.material.Button
 import androidx.ui.material.MaterialTheme
 import androidx.compose.Composable
 import androidx.compose.state
-import androidx.compose.unaryPlus
 import androidx.ui.layout.Arrangement
 import androidx.ui.layout.LayoutExpandedHeight
 import androidx.ui.layout.LayoutExpandedWidth
@@ -193,7 +192,7 @@ private fun InvokeActionsByType(actions: Set<SemanticAction<out Any?>> = setOf()
     val primary = actions.firstOrNull { it.types.contains(AccessibilityAction.Primary) }
     val secondary =
         actions.firstOrNull { it.types.contains(AccessibilityAction.Secondary) }
-    Text(text = "Accessibility Actions By Type", style = (+MaterialTheme.typography()).h6)
+    Text(text = "Accessibility Actions By Type", style = MaterialTheme.typography().h6)
     Row(LayoutExpandedWidth, arrangement = Arrangement.SpaceEvenly) {
         Button(
             text = "Primary",
@@ -211,7 +210,7 @@ private fun InvokeActionsByType(actions: Set<SemanticAction<out Any?>> = setOf()
 private fun InvokeActionsByPhrase(actions: Set<SemanticAction<out Any?>> = setOf()) {
     Text(
         text = "Accessibility Actions By Phrase",
-        style = (+MaterialTheme.typography()).h6)
+        style = MaterialTheme.typography().h6)
     Row(LayoutExpandedWidth, arrangement = Arrangement.SpaceEvenly) {
         actions.forEach {
             Button(
@@ -228,7 +227,7 @@ private fun InvokeActionsByPhrase(actions: Set<SemanticAction<out Any?>> = setOf
 private fun InvokeActionsByAssistantAction(actions: Set<SemanticAction<out Any?>> = setOf()) {
     val positive = actions.firstOrNull { it.types.contains(PolarityAction.Positive) }
     val negative = actions.firstOrNull { it.types.contains(PolarityAction.Negative) }
-    Text(text = "Assistant Actions", style = (+MaterialTheme.typography()).h6)
+    Text(text = "Assistant Actions", style = MaterialTheme.typography().h6)
     Row(LayoutExpandedWidth, arrangement = Arrangement.SpaceEvenly) {
         Button(
             text = "Negative",
@@ -252,7 +251,7 @@ private fun InvokeActionsByParameters(actions: Set<SemanticAction<out Any?>> = s
     @Suppress("UNCHECKED_CAST")
     val unitAction =
         actions.firstOrNull { it.defaultParam is Unit } as SemanticAction<Unit>?
-    Text(text = "Actions using Parameters", style = (+MaterialTheme.typography()).h6)
+    Text(text = "Actions using Parameters", style = MaterialTheme.typography().h6)
     Row(LayoutExpandedWidth, arrangement = Arrangement.SpaceEvenly) {
         Button(
             text = "IntAction",
@@ -275,7 +274,7 @@ private enum class CollapseMode { Visible, Collapsed }
 @Composable
 private fun Collapsable(children: @Composable() () -> Unit) {
 
-    val collapsedState = +state { CollapseMode.Collapsed }
+    val collapsedState = state { CollapseMode.Collapsed }
 
     Row(LayoutExpandedWidth, arrangement = Arrangement.SpaceEvenly) {
         Button(text = "Show/Hide Actions", onClick = {

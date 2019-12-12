@@ -22,12 +22,9 @@ import androidx.animation.Infinite
 import androidx.animation.IntPropKey
 import androidx.animation.LinearEasing
 import androidx.animation.transitionDefinition
-import androidx.annotation.CheckResult
 import androidx.annotation.FloatRange
 import androidx.compose.Composable
-import androidx.compose.effectOf
-import androidx.compose.memo
-import androidx.compose.unaryPlus
+import androidx.compose.remember
 import androidx.ui.animation.Transition
 import androidx.ui.core.Draw
 import androidx.ui.core.PxSize
@@ -59,13 +56,13 @@ import kotlin.math.max
 @Composable
 fun LinearProgressIndicator(
     @FloatRange(from = 0.0, to = 1.0) progress: Float,
-    color: Color = (+MaterialTheme.colors()).primary
+    color: Color = MaterialTheme.colors().primary
 ) {
     DeterminateProgressIndicator(progress = progress) {
         Wrap {
             Container(width = LinearIndicatorWidth, height = StrokeWidth) {
-                val paint = +paint(color, StrokeCap.butt)
-                val backgroundPaint = +paint(
+                val paint = paint(color, StrokeCap.butt)
+                val backgroundPaint = paint(
                     color.copy(alpha = BackgroundOpacity),
                     StrokeCap.butt
                 )
@@ -85,11 +82,11 @@ fun LinearProgressIndicator(
  * @param color The color of the progress indicator.
  */
 @Composable
-fun LinearProgressIndicator(color: Color = (+MaterialTheme.colors()).primary) {
+fun LinearProgressIndicator(color: Color = MaterialTheme.colors().primary) {
     Wrap {
         Container(width = LinearIndicatorWidth, height = StrokeWidth) {
-            val paint = +paint(color, StrokeCap.butt)
-            val backgroundPaint = +paint(
+            val paint = paint(color, StrokeCap.butt)
+            val backgroundPaint = paint(
                 color.copy(alpha = BackgroundOpacity),
                 StrokeCap.butt
             )
@@ -162,11 +159,11 @@ private fun drawLinearIndicatorBackground(
 @Composable
 fun CircularProgressIndicator(
     @FloatRange(from = 0.0, to = 1.0) progress: Float,
-    color: Color = (+MaterialTheme.colors()).primary
+    color: Color = MaterialTheme.colors().primary
 ) {
     DeterminateProgressIndicator(progress = progress) {
         CircularIndicatorContainer {
-            val paint = +paint(color, StrokeCap.butt)
+            val paint = paint(color, StrokeCap.butt)
             Draw { canvas, parentSize ->
                 // Start at 12 O'clock
                 val startAngle = 270f
@@ -190,9 +187,9 @@ fun CircularProgressIndicator(
  * @param color The color of the progress indicator.
  */
 @Composable
-fun CircularProgressIndicator(color: Color = (+MaterialTheme.colors()).primary) {
+fun CircularProgressIndicator(color: Color = MaterialTheme.colors().primary) {
     CircularIndicatorContainer {
-        val paint = +paint(color, StrokeCap.square)
+        val paint = paint(color, StrokeCap.square)
         Transition(definition = CircularIndeterminateTransition, initState = 0, toState = 1) {
                 state ->
             val currentRotation = state[IterationProp]
@@ -473,10 +470,11 @@ private val CircularIndeterminateTransition = transitionDefinition {
     }
 }
 
-@CheckResult(suggest = "+")
-private fun paint(color: Color, strokeCap: StrokeCap) = effectOf<Paint> {
-    val basePaint = withDensity(+ambientDensity()) {
-        +memo {
+@Composable
+private fun paint(color: Color, strokeCap: StrokeCap): Paint {
+    val density = ambientDensity()
+    val basePaint = remember {
+        withDensity(density) {
             Paint().apply {
                 isAntiAlias = true
                 style = PaintingStyle.stroke
@@ -486,5 +484,5 @@ private fun paint(color: Color, strokeCap: StrokeCap) = effectOf<Paint> {
     }
     basePaint.color = color
     basePaint.strokeCap = strokeCap
-    basePaint
+    return basePaint
 }

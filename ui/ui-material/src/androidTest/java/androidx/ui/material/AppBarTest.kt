@@ -22,7 +22,6 @@ import androidx.ui.core.dp
 import androidx.ui.core.withDensity
 import androidx.ui.layout.Container
 import com.google.common.truth.Truth
-import androidx.compose.unaryPlus
 import androidx.ui.core.LastBaseline
 import androidx.ui.core.LayoutCoordinates
 import androidx.ui.core.OnChildPositioned
@@ -242,8 +241,8 @@ class AppBarTest {
                 TopAppBar(
                     title = {
                         Text("App Bar Title")
-                        textStyle = +currentTextStyle()
-                        h6Style = (+MaterialTheme.typography()).h6
+                        textStyle = currentTextStyle()
+                        h6Style = MaterialTheme.typography().h6
                     }
                 )
             }

@@ -17,8 +17,7 @@
 package androidx.ui.foundation
 
 import androidx.compose.Composable
-import androidx.compose.memo
-import androidx.compose.unaryPlus
+import androidx.compose.remember
 import androidx.ui.core.Draw
 import androidx.ui.core.WithDensity
 import androidx.ui.engine.geometry.Rect
@@ -56,7 +55,7 @@ fun SimpleImage(
 // TODO(Andrey, Matvei, Nader): Support other scale types b/141741141
 @Composable
 fun DrawImage(image: Image, tint: Color? = null) {
-    val paint = +memo { Paint().apply {
+    val paint = remember { Paint().apply {
         filterQuality = FilterQuality.low // we only support low currently
     } }
     paint.colorFilter = tint?.let { ColorFilter(it, BlendMode.srcIn) }

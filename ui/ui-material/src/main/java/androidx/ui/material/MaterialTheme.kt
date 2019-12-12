@@ -62,6 +62,7 @@ object MaterialTheme {
      *
      * @sample androidx.ui.material.samples.ThemeColorSample
      */
+    @Composable
     fun colors() = ambient(ColorAmbient)
 
     /**
@@ -69,15 +70,18 @@ object MaterialTheme {
      *
      * @sample androidx.ui.material.samples.ThemeTextStyleSample
      */
+    @Composable
     fun typography() = ambient(TypographyAmbient)
 
     /**
      * Retrieves the current [Shapes] at the call site's position in the hierarchy.
      */
+    @Composable
     fun shapes() = ambient(ShapeAmbient)
 
     /**
      * Retrieves the current [EmphasisLevels] at the call site's position in the hierarchy.
      */
+    @Composable
     fun emphasisLevels() = ambient(EmphasisAmbient)
 }

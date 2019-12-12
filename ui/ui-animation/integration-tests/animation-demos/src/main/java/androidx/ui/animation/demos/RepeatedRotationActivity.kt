@@ -35,7 +35,6 @@ import androidx.ui.graphics.Paint
 import androidx.ui.text.TextStyle
 import androidx.compose.Composable
 import androidx.compose.state
-import androidx.compose.unaryPlus
 import androidx.ui.core.setContent
 import androidx.ui.core.sp
 import androidx.ui.layout.Arrangement
@@ -51,7 +50,7 @@ class RepeatedRotationActivity : Activity() {
 @Composable
 fun RepeatedRotation() {
     Center {
-        val state = +state { RotationStates.Original }
+        val state = state { RotationStates.Original }
         Column(arrangement = Arrangement.SpaceEvenly) {
             val textStyle = TextStyle(fontSize = 18.sp)
             PressReleasedGestureDetector(onRelease = {

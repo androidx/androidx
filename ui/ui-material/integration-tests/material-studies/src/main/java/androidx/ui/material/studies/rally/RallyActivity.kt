@@ -20,7 +20,6 @@ import android.app.Activity
 import android.os.Bundle
 import androidx.compose.Composable
 import androidx.compose.state
-import androidx.compose.unaryPlus
 import androidx.ui.core.dp
 import androidx.ui.core.setContent
 import androidx.ui.foundation.VerticalScroller
@@ -48,7 +47,7 @@ class RallyActivity : Activity() {
     fun RallyApp() {
         RallyTheme {
             val allScreens = RallyScreenState.values().toList()
-            var currentScreen by +state { RallyScreenState.Overview }
+            var currentScreen by state { RallyScreenState.Overview }
             Scaffold(appBar = {
                 TabRow(allScreens, selectedIndex = currentScreen.ordinal) { i, screen ->
                     Tab(text = screen.name, selected = currentScreen.ordinal == i) {

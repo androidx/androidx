@@ -19,7 +19,6 @@ package androidx.ui.test
 import androidx.compose.Model
 import androidx.compose.onPreCommit
 import androidx.compose.state
-import androidx.compose.unaryPlus
 import androidx.test.filters.SmallTest
 import androidx.ui.core.Text
 import androidx.ui.layout.Container
@@ -59,7 +58,7 @@ class AndroidComposeTestCaseRunnerTest {
     // @Test //- TODO: Does not work, performs only 1 frame until stable
     fun foreverRecomposing_viaState_shouldFail() {
         composeTestRule.forGivenContent {
-            val state = +state { 0 }
+            val state = state { 0 }
             Text("Hello ${state.value}")
             state.value++
         }.performTestWithEventsControl {
@@ -73,7 +72,7 @@ class AndroidComposeTestCaseRunnerTest {
     // @Test //- TODO: Does not work, performs only 1 frame until stable
     fun foreverRecomposing_viaStatePreCommit_shouldFail() {
         composeTestRule.forGivenContent {
-            val state = +state { 0 }
+            val state = state { 0 }
             Text("Hello ${state.value}")
             onPreCommit {
                 state.value++
@@ -109,7 +108,7 @@ class AndroidComposeTestCaseRunnerTest {
     @Test
     fun recomposeOnce() {
         composeTestRule.forGivenContent {
-            val state = +state { 0 }
+            val state = state { 0 }
             if (state.value < 1) {
                 state.value++
             }
@@ -122,7 +121,7 @@ class AndroidComposeTestCaseRunnerTest {
     // @Test //- TODO: Does not work, performs only 1 frame until stable
     fun recomposeTwice() {
         composeTestRule.forGivenContent {
-            val state = +state { 0 }
+            val state = state { 0 }
             if (state.value < 2) {
                 state.value++
             }

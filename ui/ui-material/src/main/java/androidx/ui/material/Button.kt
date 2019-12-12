@@ -19,7 +19,6 @@ package androidx.ui.material
 
 import androidx.compose.Composable
 import androidx.compose.Immutable
-import androidx.compose.unaryPlus
 import androidx.ui.core.CurrentTextStyleProvider
 import androidx.ui.core.Dp
 import androidx.ui.core.Modifier
@@ -85,8 +84,8 @@ data class ButtonStyle(
  * If null is provided the color will be calculated by [RippleTheme.defaultColor].
  */
 fun ContainedButtonStyle(
-    color: Color = (+MaterialTheme.colors()).primary,
-    shape: Shape = (+MaterialTheme.shapes()).button,
+    color: Color = MaterialTheme.colors().primary,
+    shape: Shape = MaterialTheme.shapes().button,
     elevation: Dp = 2.dp,
     rippleColor: Color? = null
 ) = ButtonStyle(
@@ -120,13 +119,13 @@ fun ContainedButtonStyle(
  */
 fun OutlinedButtonStyle(
     border: Border = Border(
-        (+MaterialTheme.colors()).onSurface.copy(alpha = OutlinedStrokeOpacity),
+        MaterialTheme.colors().onSurface.copy(alpha = OutlinedStrokeOpacity),
         1.dp
     ),
-    color: Color = (+MaterialTheme.colors()).surface,
-    shape: Shape = (+MaterialTheme.shapes()).button,
+    color: Color = MaterialTheme.colors().surface,
+    shape: Shape = MaterialTheme.shapes().button,
     elevation: Dp = 0.dp,
-    contentColor: Color? = (+MaterialTheme.colors()).primary
+    contentColor: Color? = MaterialTheme.colors().primary
 ) = ButtonStyle(
     color = color,
     shape = shape,
@@ -152,8 +151,8 @@ fun OutlinedButtonStyle(
  * @param contentColor The color used by text and Ripple.
  */
 fun TextButtonStyle(
-    shape: Shape = (+MaterialTheme.shapes()).button,
-    contentColor: Color? = (+MaterialTheme.colors()).primary
+    shape: Shape = MaterialTheme.shapes().button,
+    contentColor: Color? = MaterialTheme.colors().primary
 ) = ButtonStyle(
     color = Color.Transparent,
     shape = shape,
@@ -196,7 +195,7 @@ fun Button(
             Clickable(onClick = onClick) {
                 Container(constraints = ButtonConstraints, padding = style.paddings) {
                     CurrentTextStyleProvider(
-                        value = (+MaterialTheme.typography()).button.merge(style.textStyle),
+                        value = MaterialTheme.typography().button.merge(style.textStyle),
                         children = children
                     )
                 }

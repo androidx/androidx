@@ -19,8 +19,8 @@ package androidx.ui.test.cases
 import androidx.compose.Composable
 import androidx.compose.State
 import androidx.compose.state
-import androidx.compose.unaryPlus
 import androidx.ui.core.Modifier
+import androidx.ui.core.Alignment
 import androidx.ui.core.Text
 import androidx.ui.layout.Column
 import androidx.ui.layout.LayoutAlign
@@ -64,7 +64,7 @@ class CheckboxesInRowsTestCase(
 
     @Composable
     fun CheckboxWithState(modifier: Modifier = Modifier.None) {
-        val state = +state { false }
+        val state = state { false }
         states.add(state)
         Checkbox(
             checked = state.value,

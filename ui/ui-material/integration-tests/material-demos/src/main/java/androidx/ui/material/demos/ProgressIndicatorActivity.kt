@@ -21,7 +21,6 @@ import androidx.compose.Composable
 import androidx.compose.Model
 import androidx.compose.onActive
 import androidx.compose.onDispose
-import androidx.compose.unaryPlus
 import androidx.ui.graphics.Color
 import androidx.ui.layout.Arrangement
 import androidx.ui.layout.LayoutExpandedWidth
@@ -82,8 +81,8 @@ private class ProgressState {
 @Composable
 private fun ProgressIndicatorDemo(state: ProgressState = ProgressState()) {
 
-    +onActive { state.start() }
-    +onDispose { state.stop() }
+    onActive { state.start() }
+    onDispose { state.stop() }
 
     Column {
         val modifier = LayoutFlexible(1f) + LayoutGravity.Center + LayoutExpandedWidth

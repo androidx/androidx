@@ -18,8 +18,7 @@ package androidx.ui.material
 
 import androidx.animation.transitionDefinition
 import androidx.compose.Composable
-import androidx.compose.memo
-import androidx.compose.unaryPlus
+import androidx.compose.remember
 import androidx.ui.animation.ColorPropKey
 import androidx.ui.animation.DpPropKey
 import androidx.ui.animation.Transition
@@ -62,7 +61,7 @@ import androidx.ui.text.TextStyle
  */
 @Composable
 fun RadioGroup(children: @Composable RadioGroupScope.() -> Unit) {
-    val scope = +memo { RadioGroupScope() }
+    val scope = remember { RadioGroupScope() }
     scope.children()
 }
 
@@ -91,7 +90,7 @@ fun RadioGroup(
     options: List<String>,
     selectedOption: String?,
     onSelectedChange: (String) -> Unit,
-    radioColor: Color = (+MaterialTheme.colors()).secondary,
+    radioColor: Color = MaterialTheme.colors().secondary,
     textStyle: TextStyle? = null
 ) {
     RadioGroup {
@@ -155,7 +154,7 @@ class RadioGroupScope internal constructor() {
         selected: Boolean,
         onSelect: () -> Unit,
         text: String,
-        radioColor: Color = (+MaterialTheme.colors()).secondary,
+        radioColor: Color = MaterialTheme.colors().secondary,
         textStyle: TextStyle? = null
     ) {
         RadioGroupItem(selected = selected, onSelect = onSelect) {
@@ -165,7 +164,7 @@ class RadioGroupScope internal constructor() {
                     Padding(left = DefaultRadioLabelOffset) {
                         Text(
                             text = text,
-                            style = (+MaterialTheme.typography()).body1.merge(textStyle)
+                            style = MaterialTheme.typography().body1.merge(textStyle)
                         )
                     }
                 }
@@ -192,7 +191,7 @@ class RadioGroupScope internal constructor() {
 fun RadioButton(
     selected: Boolean,
     onSelect: (() -> Unit)?,
-    color: Color = (+MaterialTheme.colors()).secondary
+    color: Color = MaterialTheme.colors().secondary
 ) {
     Wrap {
         Ripple(bounded = false) {
@@ -202,8 +201,8 @@ fun RadioButton(
                 Padding(padding = RadioButtonPadding) {
                     Container(width = RadioButtonSize, height = RadioButtonSize) {
                         val unselectedColor =
-                            (+MaterialTheme.colors()).onSurface.copy(alpha = UnselectedOpacity)
-                        val definition = +memo(color, unselectedColor) {
+                            MaterialTheme.colors().onSurface.copy(alpha = UnselectedOpacity)
+                        val definition = remember(color, unselectedColor) {
                             generateTransitionDefinition(color, unselectedColor)
                         }
                         Transition(definition = definition, toState = selected) { state ->

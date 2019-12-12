@@ -19,7 +19,6 @@ package androidx.ui.test.cases
 import androidx.compose.Composable
 import androidx.compose.State
 import androidx.compose.state
-import androidx.compose.unaryPlus
 import androidx.ui.foundation.ColoredRect
 import androidx.ui.core.dp
 import androidx.ui.graphics.Color
@@ -65,7 +64,7 @@ class RectsInColumnTestCase(
 
     @Composable
     fun ColoredRectWithModel() {
-        val state = +state { Color.Black }
+        val state = state { Color.Black }
         states.add(state)
         ColoredRect(color = state.value, width = 100.dp, height = 50.dp)
     }

@@ -19,9 +19,8 @@ package androidx.ui.material.ripple
 import androidx.compose.Composable
 import androidx.compose.Recompose
 import androidx.compose.ambient
-import androidx.compose.memo
+import androidx.compose.remember
 import androidx.compose.onDispose
-import androidx.compose.unaryPlus
 import androidx.ui.animation.transitionsEnabled
 import androidx.ui.core.Density
 import androidx.ui.core.Dp
@@ -59,9 +58,9 @@ fun Ripple(
     enabled: Boolean = true,
     children: @Composable() () -> Unit
 ) {
-    val density = +ambientDensity()
-    val state = +memo { RippleState() }
-    val theme = +ambient(CurrentRippleTheme)
+    val density = ambientDensity()
+    val state = remember { RippleState() }
+    val theme = ambient(CurrentRippleTheme)
 
     OnChildPositioned(onPositioned = { state.coordinates = it }) {
         PressIndicatorGestureDetector(
@@ -78,7 +77,7 @@ fun Ripple(
 
     Recompose { recompose ->
         state.recompose = recompose
-        val finalColor = (color ?: +theme.defaultColor).copy(alpha = +theme.opacity)
+        val finalColor = (color ?: theme.defaultColor()).copy(alpha = theme.opacity())
         Draw { canvas, _ ->
             if (state.effects.isNotEmpty()) {
                 val position = state.coordinates!!.position
@@ -89,7 +88,7 @@ fun Ripple(
         }
     }
 
-    +onDispose {
+    onDispose {
         state.effects.forEach { it.dispose() }
         state.effects.clear()
         state.currentEffect = null

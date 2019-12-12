@@ -23,8 +23,7 @@ import androidx.ui.core.changedToDown
 import androidx.ui.core.changedToUp
 import androidx.ui.core.consumeDownChange
 import androidx.compose.Composable
-import androidx.compose.memo
-import androidx.compose.unaryPlus
+import androidx.compose.remember
 import androidx.ui.core.IntPxSize
 import androidx.ui.core.PointerInputWrapper
 import androidx.ui.core.gesture.util.anyPointersInBounds
@@ -56,7 +55,7 @@ fun PressReleasedGestureDetector(
     enabled: Boolean = true,
     children: @Composable() () -> Unit
 ) {
-    val recognizer = +memo { PressReleaseGestureRecognizer() }
+    val recognizer = remember { PressReleaseGestureRecognizer() }
     recognizer.onRelease = onRelease
     recognizer.consumeDownOnStart = consumeDownOnStart
     recognizer.setEnabled(enabled)

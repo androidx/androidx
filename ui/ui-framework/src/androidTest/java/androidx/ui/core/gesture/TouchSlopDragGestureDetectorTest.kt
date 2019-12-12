@@ -37,7 +37,6 @@ import com.nhaarman.mockitokotlin2.spy
 import com.nhaarman.mockitokotlin2.times
 import androidx.test.filters.LargeTest
 import androidx.ui.core.Layout
-import androidx.compose.unaryPlus
 import androidx.ui.core.IntPx
 import androidx.ui.core.Px
 import androidx.ui.core.ambientDensity
@@ -64,7 +63,7 @@ class TouchSlopDragGestureDetectorTest {
         val setupLatch = CountDownLatch(2)
         activityTestRule.runOnUiThreadIR {
             activity.setContent {
-                touchSlop = withDensity(+ambientDensity()) { TouchSlop.toIntPx() }
+                touchSlop = withDensity(ambientDensity()) { TouchSlop.toIntPx() }
                 TouchSlopDragGestureDetector(dragObserver) {
                     Layout(
                         measureBlock = { _, _ ->

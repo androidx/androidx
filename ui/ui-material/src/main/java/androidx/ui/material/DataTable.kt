@@ -18,7 +18,6 @@ package androidx.ui.material
 
 import androidx.compose.Composable
 import androidx.compose.state
-import androidx.compose.unaryPlus
 import androidx.ui.core.Alignment
 import androidx.ui.core.Constraints
 import androidx.ui.core.CurrentTextStyleProvider
@@ -95,8 +94,8 @@ fun DefaultDataTablePagination(
     initialRowsPerPage: Int,
     availableRowsPerPage: List<Int>
 ): DataTablePagination {
-    val page = +state { initialPage }
-    val rowsPerPage = +state { initialRowsPerPage }
+    val page = state { initialPage }
+    val rowsPerPage = state { initialRowsPerPage }
     return DataTablePagination(
         page = page.value,
         rowsPerPage = rowsPerPage.value,
@@ -149,8 +148,8 @@ fun DefaultDataTableSorting(
     sortableColumns: Set<Int>,
     onSortRequest: (column: Int, ascending: Boolean) -> Unit
 ): DataTableSorting {
-    val column = +state { initialColumn }
-    val ascending = +state { initialAscending }
+    val column = state { initialColumn }
+    val ascending = state { initialAscending }
     return DataTableSorting(
         column = column.value,
         ascending = ascending.value,
@@ -318,7 +317,7 @@ fun DataTable(
     headerRowHeight: Dp = HeaderRowHeight,
     cellSpacing: EdgeInsets = CellSpacing,
     border: Border = Border(color = BorderColor, width = BorderWidth),
-    selectedColor: Color = (+MaterialTheme.colors()).primary.copy(alpha = 0.08f),
+    selectedColor: Color = MaterialTheme.colors().primary.copy(alpha = 0.08f),
     pagination: DataTablePagination? = null,
     sorting: DataTableSorting? = null,
     block: DataTableChildren.() -> Unit

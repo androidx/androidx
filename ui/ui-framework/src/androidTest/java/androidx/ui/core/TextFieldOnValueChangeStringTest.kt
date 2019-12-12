@@ -17,7 +17,6 @@
 package androidx.ui.core
 
 import androidx.compose.state
-import androidx.compose.unaryPlus
 import androidx.test.filters.SmallTest
 import androidx.ui.core.input.FocusManager
 import androidx.ui.input.CommitTextEditOp
@@ -75,7 +74,7 @@ class TextFieldOnValueChangeStringTest {
             FocusManagerAmbient.Provider(value = focusManager) {
                 TextInputServiceAmbient.Provider(value = textInputService) {
                     TestTag(tag = "textField") {
-                        val state = +state { "abcde" }
+                        val state = state { "abcde" }
                         TextField(
                             value = state.value,
                             onValueChange = {

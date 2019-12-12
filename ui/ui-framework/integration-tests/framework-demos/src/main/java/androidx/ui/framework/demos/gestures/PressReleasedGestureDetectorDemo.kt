@@ -19,7 +19,6 @@ package androidx.ui.framework.demos.gestures
 import android.app.Activity
 import android.os.Bundle
 import androidx.compose.state
-import androidx.compose.unaryPlus
 import androidx.ui.core.px
 import androidx.ui.core.setContent
 import androidx.ui.core.dp
@@ -32,7 +31,7 @@ class PressReleasedGestureDetectorDemo : Activity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContent {
-            val color = +state { Colors.random() }
+            val color = state { Colors.random() }
 
             val onRelease = {
                 color.value = color.value.anotherRandomColor()

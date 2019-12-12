@@ -19,14 +19,13 @@ package androidx.ui.res
 import android.content.res.Resources
 import android.util.LruCache
 import android.util.TypedValue
-import androidx.annotation.CheckResult
 import androidx.annotation.GuardedBy
+import androidx.compose.Composable
 import androidx.compose.Handler
 import androidx.compose.LooperWrapper
 import androidx.compose.Model
 import androidx.compose.ambient
-import androidx.compose.effectOf
-import androidx.compose.memo
+import androidx.compose.remember
 import androidx.ui.core.ContextAmbient
 import java.util.concurrent.Executor
 import java.util.concurrent.Executors
@@ -109,14 +108,14 @@ class FailedResource<T>(resource: T?, val throwable: Throwable?) : Resource<T>(r
  * A common resource loading method.
  */
 // TODO(nona): Accept CoroutineScope for customizing fetching coroutine.
-@CheckResult(suggest = "+")
+@Composable
 internal fun <T> loadResource(
     id: Int,
     pendingResource: T? = null,
     failedResource: T? = null,
     loader: (Int) -> T
-) = effectOf<DeferredResource<T>> {
-    +loadResourceInternal(
+): DeferredResource<T> {
+    return loadResourceInternal(
         id,
         pendingResource,
         failedResource,
@@ -132,7 +131,7 @@ internal fun <T> loadResource(
  * This function is exposed only for testing purpose. Do not use this directly.
  */
 @Suppress("UNCHECKED_CAST")
-@CheckResult(suggest = "+")
+@Composable
 internal fun <T> loadResourceInternal(
     id: Int,
     pendingResource: T? = null,
@@ -143,14 +142,14 @@ internal fun <T> loadResourceInternal(
     requestCache: MutableMap<String, MutableList<DeferredResource<*>>>,
     resourceCache: LruCache<String, Any>,
     loader: (Int) -> T
-) = effectOf<DeferredResource<T>> body@{
-    val context = +ambient(ContextAmbient)
-    val value = +memo { TypedValue() }
+): DeferredResource<T> {
+    val context = ambient(ContextAmbient)
+    val value = remember { TypedValue() }
     context.resources.getValue(id, value, true)
     // We use the file path as a key of the request cache.
     // TODO(nona): Add density to the key?
     val key = value.string?.toString()
-    val deferred = +memo(key, pendingResource, failedResource) {
+    val deferred = remember(key, pendingResource, failedResource) {
         DeferredResource(
             state = LoadingState.PENDING,
             pendingResource = pendingResource,
@@ -161,17 +160,17 @@ internal fun <T> loadResourceInternal(
     // First, if the deferred is not pending, the loading is completed or failed. Do nothing and
     // return the memorized result.
     if (deferred.state != LoadingState.PENDING) {
-        return@body deferred
+        return deferred
     }
 
     if (key == null) {
-        return@body deferred.apply { failed(Resources.NotFoundException("path not found")) }
+        return deferred.apply { failed(Resources.NotFoundException("path not found")) }
     }
 
     synchronized(cacheLock) {
 
         // Check if we already know the loadedresource, return with marking load completed.
-        resourceCache.get(key)?.let { return@body deferred.apply { loadCompleted(it as T) } }
+        resourceCache.get(key)?.let { return deferred.apply { loadCompleted(it as T) } }
 
         requestCache.getOrPut(key, { mutableListOf() }).let {
             it.add(deferred)
@@ -200,6 +199,6 @@ internal fun <T> loadResourceInternal(
                 }
             }
         }
-        return@body deferred
+        return deferred
     }
 }

@@ -17,7 +17,6 @@
 package androidx.ui.material.surface
 
 import androidx.compose.Composable
-import androidx.compose.unaryPlus
 import androidx.ui.core.Clip
 import androidx.ui.core.CurrentTextStyleProvider
 import androidx.ui.core.Dp
@@ -83,8 +82,8 @@ import androidx.ui.text.TextStyle
 fun Surface(
     modifier: Modifier = Modifier.None,
     shape: Shape = RectangleShape,
-    color: Color = (+MaterialTheme.colors()).surface,
-    contentColor: Color = (+MaterialTheme.colors()).contentColorFor(color) ?: contentColor(),
+    color: Color = MaterialTheme.colors().surface,
+    contentColor: Color = MaterialTheme.colors().contentColorFor(color) ?: contentColor(),
     border: Border? = null,
     elevation: Dp = 0.dp,
     children: @Composable() () -> Unit

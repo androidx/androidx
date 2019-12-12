@@ -23,7 +23,7 @@ package androidx.ui.foundation {
   }
 
   public final class DarkThemeKt {
-    method public static androidx.compose.Effect<java.lang.Boolean> isSystemInDarkTheme();
+    method public static boolean isSystemInDarkTheme();
   }
 
   public final class DeterminateProgressIndicatorKt {
@@ -53,10 +53,10 @@ package androidx.ui.foundation {
   }
 
   public final class ScrollerKt {
-    method public static void HorizontalScroller(androidx.ui.foundation.ScrollerPosition scrollerPosition = +memo({ 
+    method public static void HorizontalScroller(androidx.ui.foundation.ScrollerPosition scrollerPosition = remember({ 
     <init>()
 }), androidx.ui.core.Modifier modifier = Modifier.None, boolean isScrollable = true, kotlin.jvm.functions.Function0<kotlin.Unit> child);
-    method public static void VerticalScroller(androidx.ui.foundation.ScrollerPosition scrollerPosition = +memo({ 
+    method public static void VerticalScroller(androidx.ui.foundation.ScrollerPosition scrollerPosition = remember({ 
     <init>()
 }), androidx.ui.core.Modifier modifier = Modifier.None, boolean isScrollable = true, kotlin.jvm.functions.Function0<kotlin.Unit> child);
   }
@@ -115,7 +115,7 @@ package androidx.ui.foundation.animation {
   }
 
   public final class AnimatedValueHolderKt {
-    method @CheckResult(suggest="+") public static androidx.compose.Effect<androidx.ui.foundation.animation.AnimatedValueHolder> animatedDragValue(float initial, float minBound, float maxBound);
+    method public static androidx.ui.foundation.animation.AnimatedValueHolder animatedDragValue(float initial, float minBound, float maxBound);
   }
 
   public final class FlingConfig {

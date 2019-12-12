@@ -18,8 +18,7 @@ package androidx.ui.framework.samples
 
 import androidx.annotation.Sampled
 import androidx.compose.Composable
-import androidx.compose.memo
-import androidx.compose.unaryPlus
+import androidx.compose.remember
 import androidx.ui.core.Draw
 import androidx.ui.core.Text
 import androidx.ui.core.dp
@@ -35,7 +34,7 @@ fun DrawWithChildrenSample() {
     val children = @Composable {
         Text("Hello World")
     }
-    val paint = +memo { Paint() }
+    val paint = remember { Paint() }
     Draw(children) { canvas, parentSize ->
         // Draw the highlight behind the text
         paint.color = Color.Yellow

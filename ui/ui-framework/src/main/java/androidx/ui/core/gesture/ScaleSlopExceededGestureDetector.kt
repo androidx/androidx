@@ -17,8 +17,7 @@
 package androidx.ui.core.gesture
 
 import androidx.compose.Composable
-import androidx.compose.memo
-import androidx.compose.unaryPlus
+import androidx.compose.remember
 import androidx.ui.core.PointerEventPass
 import androidx.ui.core.PointerInputChange
 import androidx.ui.core.PointerInputWrapper
@@ -53,8 +52,8 @@ fun ScaleSlopExceededGestureDetector(
     onScaleSlopExceeded: () -> Unit,
     children: @Composable() () -> Unit
 ) {
-    val scaleSlop = withDensity(+ambientDensity()) { ScaleSlop.toPx() }
-    val recognizer = +memo { ScaleSlopExceededGestureRecognizer(scaleSlop) }
+    val scaleSlop = withDensity(ambientDensity()) { ScaleSlop.toPx() }
+    val recognizer = remember { ScaleSlopExceededGestureRecognizer(scaleSlop) }
     // TODO(b/129784010): Consider also allowing onStart, onScale, and onEnd to be set individually.
     recognizer.onScaleSlopExceeded = onScaleSlopExceeded
 

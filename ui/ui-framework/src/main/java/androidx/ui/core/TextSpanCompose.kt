@@ -25,7 +25,6 @@ import androidx.compose.Composer
 import androidx.compose.ComposerUpdater
 import androidx.compose.CompositionContext
 import androidx.compose.CompositionReference
-import androidx.compose.Effect
 import androidx.compose.Recomposer
 import androidx.compose.SlotTable
 import androidx.compose.ViewValidator
@@ -87,8 +86,6 @@ class TextSpanComposer internal constructor(
 internal val invocation = Object()
 
 class TextSpanComposition(val composer: TextSpanComposer) {
-    /* TODO: inline */ operator fun <V> Effect<V>.unaryPlus(): V =
-        resolve(this@TextSpanComposition.composer)
 
     inline fun emit(
         key: Any,

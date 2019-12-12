@@ -19,7 +19,6 @@ package androidx.ui.framework.demos.gestures
 import android.app.Activity
 import android.os.Bundle
 import androidx.compose.state
-import androidx.compose.unaryPlus
 import androidx.ui.core.PxPosition
 import androidx.ui.core.px
 import androidx.ui.core.setContent
@@ -33,7 +32,7 @@ class LongPressGestureDetectorDemo : Activity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContent {
-            val color = +state { Colors.random() }
+            val color = state { Colors.random() }
 
             val onLongPress = { _: PxPosition ->
                 color.value = color.value.anotherRandomColor()

@@ -16,7 +16,6 @@
 
 package androidx.ui.res
 
-import androidx.compose.unaryPlus
 import androidx.test.filters.SmallTest
 import androidx.test.platform.app.InstrumentationRegistry
 import androidx.ui.core.ContextAmbient
@@ -44,7 +43,7 @@ class PrimitiveResourcesTest {
 
         composeTestRule.setContent {
             ContextAmbient.Provider(value = context) {
-                assertThat(+integerResource(R.integer.integer_value)).isEqualTo(123)
+                assertThat(integerResource(R.integer.integer_value)).isEqualTo(123)
             }
         }
     }
@@ -55,7 +54,7 @@ class PrimitiveResourcesTest {
 
         composeTestRule.setContent {
             ContextAmbient.Provider(value = context) {
-                assertThat(+integerArrayResource(R.array.integer_array))
+                assertThat(integerArrayResource(R.array.integer_array))
                     .isEqualTo(intArrayOf(234, 345))
             }
         }
@@ -67,7 +66,7 @@ class PrimitiveResourcesTest {
 
         composeTestRule.setContent {
             ContextAmbient.Provider(value = context) {
-                assertThat(+booleanResource(R.bool.boolean_value)).isTrue()
+                assertThat(booleanResource(R.bool.boolean_value)).isTrue()
             }
         }
     }
@@ -79,7 +78,7 @@ class PrimitiveResourcesTest {
         composeTestRule.setContent {
             ContextAmbient.Provider(value = context) {
                 withDensity(Density(context.resources.displayMetrics.density)) {
-                    assertThat(+dimensionResource(R.dimen.dimension_value)).isEqualTo(32.dp)
+                    assertThat(dimensionResource(R.dimen.dimension_value)).isEqualTo(32.dp)
                 }
             }
         }

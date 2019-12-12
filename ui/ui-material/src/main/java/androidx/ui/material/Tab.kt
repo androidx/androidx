@@ -20,9 +20,8 @@ import androidx.animation.FastOutSlowInEasing
 import androidx.animation.LinearEasing
 import androidx.animation.transitionDefinition
 import androidx.compose.Composable
-import androidx.compose.memo
+import androidx.compose.remember
 import androidx.compose.state
-import androidx.compose.unaryPlus
 import androidx.ui.animation.ColorPropKey
 import androidx.ui.animation.PxPropKey
 import androidx.ui.animation.Transition
@@ -133,7 +132,7 @@ fun <T> TabRow(
     },
     tab: @Composable() (Int, T) -> Unit
 ) {
-    Surface(color = (+MaterialTheme.colors()).primary) {
+    Surface(color = MaterialTheme.colors().primary) {
         WithConstraints { constraints ->
             val width = constraints.maxWidth
             // TODO: force scrollable for tabs that will be too small if they take up equal space?
@@ -167,7 +166,7 @@ private fun FixedTabRow(
 ) {
     val tabWidth = width / tabCount
 
-    val tabPositions = +memo(tabCount, tabWidth) {
+    val tabPositions = remember(tabCount, tabWidth) {
         (0 until tabCount).map { index ->
             val left = (tabWidth * index)
             TabPosition(left, tabWidth)
@@ -196,13 +195,13 @@ private fun ScrollableTabRow(
     tabs: @Composable() () -> Unit,
     indicatorContainer: @Composable() (tabPositions: List<TabPosition>) -> Unit
 ) {
-    val edgeOffset = withDensity(+ambientDensity()) { ScrollableTabRowEdgeOffset.toIntPx() }
+    val edgeOffset = withDensity(ambientDensity()) { ScrollableTabRowEdgeOffset.toIntPx() }
 
     // TODO: unfortunate 1f lag as we need to first calculate tab positions before drawing the
     // indicator container
-    var tabPositions by +state { listOf<TabPosition>() }
+    var tabPositions by state { listOf<TabPosition>() }
 
-    val scrollableTabData = +memo {
+    val scrollableTabData = remember {
         ScrollableTabData(selectedIndex, tabPositions, width, edgeOffset)
     }
 
@@ -342,13 +341,13 @@ object TabRow {
     ) {
         // TODO: should we animate the width of the indicator as it moves between tabs of different
         // sizes inside a scrollable tab row?
-        val currentTabWidth = withDensity(+ambientDensity()) {
+        val currentTabWidth = withDensity(ambientDensity()) {
             tabPositions[selectedIndex].width.toDp()
         }
 
         Container(expanded = true, alignment = Alignment.BottomLeft) {
             IndicatorTransition(tabPositions, selectedIndex) { indicatorOffset ->
-                Padding(left = withDensity(+ambientDensity()) { indicatorOffset.toDp() }) {
+                Padding(left = withDensity(ambientDensity()) { indicatorOffset.toDp() }) {
                     Container(width = currentTabWidth, children = indicator)
                 }
             }
@@ -362,7 +361,7 @@ object TabRow {
      */
     @Composable
     fun Indicator() {
-        ColoredRect(color = (+MaterialTheme.colors()).onPrimary, height = IndicatorHeight)
+        ColoredRect(color = MaterialTheme.colors().onPrimary, height = IndicatorHeight)
     }
 
     /**
@@ -374,7 +373,7 @@ object TabRow {
         selectedIndex: Int,
         children: @Composable() (indicatorOffset: Px) -> Unit
     ) {
-        val transitionDefinition = +memo(tabPositions) {
+        val transitionDefinition = remember(tabPositions) {
             transitionDefinition {
                 // TODO: currently the first state set is the 'default' state, so we want to define the
                 // state that is initially selected first, so we don't have any initial animations.
@@ -408,7 +407,7 @@ object TabRow {
 
     @Composable
     internal fun Divider(modifier: Modifier = Modifier.None) {
-        val onPrimary = (+MaterialTheme.colors()).primary
+        val onPrimary = MaterialTheme.colors().primary
         Divider(color = (onPrimary.copy(alpha = DividerOpacity)), modifier = modifier)
     }
 }
@@ -427,7 +426,7 @@ object TabRow {
  */
 @Composable
 fun Tab(text: String? = null, icon: Image? = null, selected: Boolean, onSelected: () -> Unit) {
-    val tint = (+MaterialTheme.colors()).onPrimary
+    val tint = MaterialTheme.colors().onPrimary
     when {
         text != null && icon != null -> CombinedTab(text, icon, selected, onSelected, tint)
         text != null -> TextTab(text, selected, onSelected, tint)
@@ -536,7 +535,7 @@ private fun TabTransition(
     selected: Boolean,
     children: @Composable() (color: Color) -> Unit
 ) {
-    val transitionDefinition = +memo(color) {
+    val transitionDefinition = remember(color) {
         transitionDefinition {
             state(true) {
                 this[TabTintColor] = color
@@ -569,7 +568,7 @@ private fun TabTransition(
 
 @Composable
 private fun TabText(text: String, color: Color) {
-    val buttonTextStyle = (+MaterialTheme.typography()).button
+    val buttonTextStyle = MaterialTheme.typography().button
     Padding(left = HorizontalTextPadding, right = HorizontalTextPadding) {
         Text(
             text = text,
