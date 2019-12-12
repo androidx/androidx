@@ -145,6 +145,14 @@ class AppCompatDelegateImpl extends AppCompatDelegate
      */
     private static final boolean sAlwaysOverrideConfiguration = true;
 
+    /**
+     * Flag whether we can use createConfigurationContext() from attachBaseContext(). The API is
+     * only available on API 17+. Unfortunately the way we use the API also breaks Robolectric
+     * tests, so we skip usage there too.
+     */
+    private static final boolean sCanUseConfigurationContext =
+            Build.VERSION.SDK_INT >= 17 && !"robolectric".equals(Build.FINGERPRINT);
+
     private static boolean sInstalledExceptionHandler;
 
     static final String EXCEPTION_HANDLER_MESSAGE_SUFFIX= ". If the resource you are"
@@ -333,27 +341,28 @@ class AppCompatDelegateImpl extends AppCompatDelegate
     @Override
     @CallSuper
     public Context attachBaseContext2(@NonNull final Context baseContext) {
-        final Configuration appConfig =
-                baseContext.getApplicationContext().getResources().getConfiguration();
-        final Configuration baseConfig = baseContext.getResources().getConfiguration();
-        final Configuration configOverlay;
-        if (!appConfig.equals(baseConfig)) {
-            configOverlay = generateConfigDelta(appConfig, baseConfig);
-            if (DEBUG) {
-                Log.d(TAG,
-                        "Application config (" + appConfig + ") does not match base config ("
-                                + baseConfig + "), using overlay: " + configOverlay);
-            }
-        } else {
-            configOverlay = null;
-            if (DEBUG) {
-                Log.d(TAG, "Application config matches base context config, skipping overlay");
-            }
-        }
-
         mBaseContextAttached = true;
 
-        if (Build.VERSION.SDK_INT >= 17) {
+        if (sCanUseConfigurationContext) {
+            final Configuration appConfig = baseContext.getApplicationContext()
+                    .getResources().getConfiguration();
+            final Configuration baseConfig = baseContext.getResources().getConfiguration();
+            final Configuration configOverlay;
+            if (!appConfig.equals(baseConfig)) {
+                configOverlay = generateConfigDelta(appConfig, baseConfig);
+                if (DEBUG) {
+                    Log.d(TAG,
+                            "Application config (" + appConfig + ") does not match base config ("
+                                    + baseConfig + "), using overlay: " + configOverlay);
+                }
+            } else {
+                configOverlay = null;
+                if (DEBUG) {
+                    Log.d(TAG, "Application config matches base context config,"
+                            + " skipping overlay");
+                }
+            }
+
             @ApplyableNightMode final int modeToApply = mapNightMode(baseContext,
                     calculateNightMode());
             final Configuration config = createOverrideConfigurationForDayNight(
@@ -2338,13 +2347,12 @@ class AppCompatDelegateImpl extends AppCompatDelegate
                 && allowRecreation
                 && !activityHandlingUiMode
                 && mBaseContextAttached
-                && (Build.VERSION.SDK_INT >= 17 || mCreated)
+                && (sCanUseConfigurationContext || mCreated)
                 && mHost instanceof Activity) {
-            // If we're an attached Activity, we can recreate to apply
-            // The SDK_INT check above is because createConfigurationContext(), called from
-            // attachBaseContext(), only exists on API 17+, so we don't want to get into an loop
-            // of infinite recreations.
-            // On < API 17 we need to use updateConfiguration() before we're 'created' (below)
+            // If we're an attached Activity, we can recreate to apply if we can use the
+            // attachBaseContext() + createConfigurationContext() code path.
+            // If we can't use createConfigurationContext(), we need to use updateConfiguration()
+            // before we're 'created' (below)
             if (DEBUG) {
                 Log.d(TAG, "updateForNightMode. Recreating Activity");
             }
