@@ -46,10 +46,11 @@ public class AudioAttributesImplApi21 implements AudioAttributesImpl {
     @ParcelField(2)
     public int mLegacyStreamType = INVALID_STREAM_TYPE;
 
-    /**
-     * Used for VersionedParcelable
-     */
-    AudioAttributesImplApi21() {
+    /** @hide */
+    // It should be public to allow Parcelizers which never be de/jetified can access the
+    // constructor.
+    @RestrictTo(LIBRARY)
+    public AudioAttributesImplApi21() {
     }
 
     AudioAttributesImplApi21(AudioAttributes audioAttributes) {

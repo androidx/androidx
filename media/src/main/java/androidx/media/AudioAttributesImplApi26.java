@@ -32,10 +32,11 @@ import androidx.versionedparcelable.VersionedParcelize;
 public class AudioAttributesImplApi26 extends AudioAttributesImplApi21 {
     private static final String TAG = "AudioAttributesCompat26";
 
-    /**
-     * Used for VersionedParcelable
-     */
-    AudioAttributesImplApi26() {
+    /** @hide */
+    // It should be public to allow Parcelizers which never be de/jetified can access the
+    // constructor.
+    @RestrictTo(LIBRARY)
+    public AudioAttributesImplApi26() {
     }
 
     AudioAttributesImplApi26(AudioAttributes audioAttributes) {

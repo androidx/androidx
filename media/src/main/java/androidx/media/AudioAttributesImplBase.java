@@ -76,10 +76,11 @@ public class AudioAttributesImplBase implements AudioAttributesImpl {
     @ParcelField(4)
     public int mLegacyStream = INVALID_STREAM_TYPE;
 
-    /**
-     * Used for VersionedParcelable
-     */
-    AudioAttributesImplBase() { }
+    /** @hide */
+    // It should be public to allow Parcelizers which never be de/jetified can access the
+    // constructor.
+    @RestrictTo(LIBRARY)
+    public AudioAttributesImplBase() { }
 
     AudioAttributesImplBase(int contentType, int flags, int usage, int legacyStream) {
         mContentType = contentType;
