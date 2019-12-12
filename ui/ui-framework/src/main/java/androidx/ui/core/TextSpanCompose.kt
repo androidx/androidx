@@ -180,9 +180,7 @@ private class Root : Component() {
     lateinit var composable: @Composable() TextSpanScope.() -> Unit
     @Suppress("PLUGIN_ERROR")
     override fun compose() {
-        with(scope) {
-            composable()
-        }
+        scope.composable()
     }
 }
 
