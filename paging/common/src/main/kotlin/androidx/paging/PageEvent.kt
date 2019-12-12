@@ -44,22 +44,22 @@ internal sealed class PageEvent<T : Any> {
         }
 
         private inline fun <R : Any> mapPages(
-            predicate: (TransformablePage<T>) -> TransformablePage<R>
-        ) = transformPages { it.map(predicate) }
+            transform: (TransformablePage<T>) -> TransformablePage<R>
+        ) = transformPages { it.map(transform) }
 
         internal inline fun <R : Any> transformPages(
-            predicate: (List<TransformablePage<T>>) -> List<TransformablePage<R>>
+            transform: (List<TransformablePage<T>>) -> List<TransformablePage<R>>
         ): PageEvent<R> = Insert(
             loadType = loadType,
-            pages = predicate(pages),
+            pages = transform(pages),
             placeholdersStart = placeholdersStart,
             placeholdersEnd = placeholdersEnd
         )
 
-        override fun <R : Any> map(predicate: (T) -> R): PageEvent<R> = mapPages {
+        override fun <R : Any> map(transform: (T) -> R): PageEvent<R> = mapPages {
             TransformablePage(
                 originalPageOffset = it.originalPageOffset,
-                data = it.data.map(predicate),
+                data = it.data.map(transform),
                 originalPageSize = it.originalPageSize,
                 originalIndices = it.originalIndices
             )
@@ -195,7 +195,7 @@ internal sealed class PageEvent<T : Any> {
     ) : PageEvent<T>()
 
     @Suppress("UNCHECKED_CAST")
-    open fun <R : Any> map(predicate: (T) -> R): PageEvent<R> = this as PageEvent<R>
+    open fun <R : Any> map(transform: (T) -> R): PageEvent<R> = this as PageEvent<R>
 
     @Suppress("UNCHECKED_CAST")
     open fun <R : Any> flatMap(transform: (T) -> Iterable<R>): PageEvent<R> = this as PageEvent<R>
@@ -261,9 +261,9 @@ internal fun <T : Any> Flow<PageEvent<T>>.removeEmptyPages(): Flow<PageEvent<T>>
  *  (to know when an Insert.Start event is terminal)
  */
 internal fun <R : Any, T : R> Flow<PageEvent<T>>.insertSeparators(
-    predicate: (T?, T?) -> R?
+    transform: (T?, T?) -> R?
 ): Flow<PageEvent<R>> {
     val pages = mutableListOf<TransformablePage<T>>()
     return removeEmptyPages()
-        .map { event -> event.insertSeparators(pages, predicate) }
+        .map { event -> event.insertSeparators(pages, transform) }
 }
