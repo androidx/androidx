@@ -84,7 +84,7 @@ public class FingerprintHelperFragment extends Fragment {
                         final CharSequence errString) {
                     mHandler.obtainMessage(FingerprintDialogFragment.MSG_DISMISS_DIALOG_ERROR)
                             .sendToTarget();
-                    if (!isConfirmingDeviceCredential()) {
+                    if (!Utils.isConfirmingDeviceCredential()) {
                         mExecutor.execute(
                                 new Runnable() {
                                     @Override
@@ -281,7 +281,7 @@ public class FingerprintHelperFragment extends Fragment {
             getFragmentManager().beginTransaction().detach(this).commitAllowingStateLoss();
         }
 
-        if (!isConfirmingDeviceCredential()) {
+        if (!Utils.isConfirmingDeviceCredential()) {
             Utils.maybeFinishHandler(activity);
         }
     }
@@ -310,7 +310,7 @@ public class FingerprintHelperFragment extends Fragment {
      * @param error The error code that will be sent to the client.
      */
     private void sendErrorToClient(final int error) {
-        if (!isConfirmingDeviceCredential()) {
+        if (!Utils.isConfirmingDeviceCredential()) {
             mClientAuthenticationCallback.onAuthenticationError(error,
                     getErrorString(mContext, error));
         }
@@ -369,10 +369,5 @@ public class FingerprintHelperFragment extends Fragment {
         } else {
             return null;
         }
-    }
-
-    private static boolean isConfirmingDeviceCredential() {
-        DeviceCredentialHandlerBridge bridge = DeviceCredentialHandlerBridge.getInstanceIfNotNull();
-        return bridge != null && bridge.isConfirmingDeviceCredential();
     }
 }
