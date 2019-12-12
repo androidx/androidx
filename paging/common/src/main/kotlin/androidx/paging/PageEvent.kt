@@ -261,9 +261,9 @@ internal fun <T : Any> Flow<PageEvent<T>>.removeEmptyPages(): Flow<PageEvent<T>>
  *  (to know when an Insert.Start event is terminal)
  */
 internal fun <R : Any, T : R> Flow<PageEvent<T>>.insertSeparators(
-    transform: (T?, T?) -> R?
+    generator: (T?, T?) -> R?
 ): Flow<PageEvent<R>> {
     val pages = mutableListOf<TransformablePage<T>>()
     return removeEmptyPages()
-        .map { event -> event.insertSeparators(pages, transform) }
+        .map { event -> event.insertSeparators(pages, generator) }
 }
