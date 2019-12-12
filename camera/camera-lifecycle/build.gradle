@@ -41,7 +41,7 @@ dependencies {
     }
     androidTestImplementation(KOTLIN_STDLIB)
     androidTestImplementation(KOTLIN_COROUTINES_ANDROID)
-    androidTestImplementation(KOTLIN_COROUTINES_GUAVA)
+    androidTestImplementation(project(":concurrent:concurrent-futures-ktx"))
     androidTestImplementation(project(":internal-testutils-truth"))
 }
 
