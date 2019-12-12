@@ -47,7 +47,7 @@ dependencies {
 androidx {
     name = "Android Navigation Testing"
     publish = Publish.NONE
-    mavenVersion = LibraryVersions.NAVIGATION_TESTING
+    mavenVersion = LibraryVersions.NAVIGATION
     mavenGroup = LibraryGroups.NAVIGATION
     inceptionYear = "2017"
     description = "Android Navigation-Testing"
