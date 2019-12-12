@@ -18,6 +18,7 @@ package androidx.ui.layout
 
 import androidx.annotation.FloatRange
 import androidx.compose.Composable
+import androidx.compose.state
 import androidx.ui.core.Alignment
 import androidx.ui.core.Constraints
 import androidx.ui.core.Density
@@ -30,7 +31,6 @@ import androidx.ui.core.IntrinsicMeasureBlock
 import androidx.ui.core.Layout
 import androidx.ui.core.ParentData
 import androidx.ui.core.Placeable
-import androidx.ui.core.WithConstraints
 import androidx.ui.core.constrain
 import androidx.ui.core.isFinite
 import androidx.ui.core.max
@@ -481,30 +481,29 @@ fun Table(
     columnWidth: (columnIndex: Int) -> TableColumnWidth = { TableColumnWidth.Flex(1f) },
     children: TableChildren.() -> Unit
 ) {
-    var verticalOffsets: Array<IntPx>? = null
-    var horizontalOffsets: Array<IntPx>? = null
+    var verticalOffsets by state { emptyArray<IntPx>() }
+    var horizontalOffsets by state { emptyArray<IntPx>() }
 
     val tableChildren: @Composable() () -> Unit = with(TableChildren()) {
         apply(children)
         val composable = @Composable {
-            if (tableDecorationsUnderlay.isNotEmpty()) {
-                WithConstraints {
-                    val scope = TableDecorationChildren(
-                        verticalOffsets = verticalOffsets!!.toList(),
-                        horizontalOffsets = horizontalOffsets!!.toList()
-                    )
-                    tableDecorationsUnderlay.forEach { scope.it() }
-                }
+            val needDecorations = tableDecorationsUnderlay.isNotEmpty() ||
+                    tableDecorationsOverlay.isNotEmpty()
+            val hasOffsets = verticalOffsets.isNotEmpty() && horizontalOffsets.isNotEmpty()
+            val decorationsScope = if (needDecorations && hasOffsets) {
+                TableDecorationChildren(
+                    verticalOffsets = verticalOffsets.toList(),
+                    horizontalOffsets = horizontalOffsets.toList()
+                )
+            } else {
+                null
+            }
+            if (decorationsScope != null) {
+                tableDecorationsUnderlay.forEach { decorationsScope.it() }
             }
             tableChildren.forEach { it() }
-            if (tableDecorationsOverlay.isNotEmpty()) {
-                WithConstraints {
-                    val scope = TableDecorationChildren(
-                        verticalOffsets = verticalOffsets!!.toList(),
-                        horizontalOffsets = horizontalOffsets!!.toList()
-                    )
-                    tableDecorationsOverlay.forEach { scope.it() }
-                }
+            if (decorationsScope != null) {
+                tableDecorationsOverlay.forEach { decorationsScope.it() }
             }
         }
         composable
@@ -582,17 +581,18 @@ fun Table(
         for (column in 0 until columns) {
             columnOffsets[column + 1] = columnOffsets[column] + columnWidths[column]
         }
-        verticalOffsets = rowOffsets
-        horizontalOffsets = columnOffsets
+        if (!verticalOffsets.contentEquals(rowOffsets)) {
+            verticalOffsets = rowOffsets
+        }
+        if (!horizontalOffsets.contentEquals(columnOffsets)) {
+            horizontalOffsets = columnOffsets
+        }
 
         // TODO(calintat): Do something when these do not satisfy constraints.
         val tableSize =
             constraints.constrain(IntPxSize(columnOffsets[columns], rowOffsets[rows]))
 
         layout(tableSize.width, tableSize.height) {
-            measurables.first().takeIf { it.rowIndex == null }
-                ?.measure(Constraints.tightConstraints(tableSize.width, tableSize.height))
-                ?.place(IntPx.Zero, IntPx.Zero)
             for (row in 0 until rows) {
                 for (column in 0 until columns) {
                     placeables[row][column]?.let {
@@ -609,10 +609,10 @@ fun Table(
                     }
                 }
             }
-            if (measurables.size > 1) {
-                measurables.last().takeIf { it.rowIndex == null }
-                    ?.measure(Constraints.tightConstraints(tableSize.width, tableSize.height))
-                    ?.place(IntPx.Zero, IntPx.Zero)
+            val decorationConstraints =
+                Constraints.tightConstraints(tableSize.width, tableSize.height)
+            measurables.filter { it.rowIndex == null }.forEach {
+                it.measure(decorationConstraints).place(IntPx.Zero, IntPx.Zero)
             }
         }
     }
