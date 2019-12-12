@@ -49,25 +49,24 @@ import kotlinx.coroutines.sync.withLock
  * of [Pager] and its corresponding [PagerState] should be launched within a scope that is
  * cancelled when [PagedSource.invalidate] is called.
  */
+@FlowPreview
+@ExperimentalCoroutinesApi
 internal class Pager<Key : Any, Value : Any>(
     internal val initialKey: Key?,
     private val pagedSource: PagedSource<Key, Value>,
     private val config: PagedList.Config
 ) {
-    @UseExperimental(ExperimentalCoroutinesApi::class)
     private val hintChannel = BroadcastChannel<ViewportHint>(Channel.BUFFERED)
     private var lastHint: ViewportHint? = null
 
     private val stateLock = Mutex()
-    private val state = PagerState<Key, Value>(config.maxSize)
+    private val state = PagerState<Key, Value>(config.pageSize, config.maxSize)
 
-    @UseExperimental(ExperimentalCoroutinesApi::class)
     fun addHint(hint: ViewportHint) {
         lastHint = hint
         hintChannel.offer(hint)
     }
 
-    @UseExperimental(ExperimentalCoroutinesApi::class, FlowPreview::class)
     fun create(): Flow<PageEvent<Value>> = channelFlow {
         launch { state.consumeAsFlow().collect { send(it) } }
         state.doInitialLoad()
@@ -120,7 +119,7 @@ internal class Pager<Key : Any, Value : Any>(
         return lastHint?.let { hint ->
             stateLock.withLock {
                 with(state) {
-                    hint.withCoercedHint { indexInPage, pageIndex, _, _ ->
+                    hint.withCoercedHint { indexInPage, pageIndex, _ ->
                         state.refreshInfo(indexInPage, pageIndex)
                     }
                 }
@@ -162,12 +161,13 @@ internal class Pager<Key : Any, Value : Any>(
 
         var loadKey: Key? = stateLock.withLock {
             with(state) {
-                generationalHint.hint.withCoercedHint { indexInPage, pageIndex, _, _ ->
+                generationalHint.hint.withCoercedHint { indexInPage, pageIndex, hintOffset ->
                     nextLoadKeyOrNull(
                         loadType,
                         generationalHint.generationId,
                         indexInPage,
-                        pageIndex
+                        pageIndex,
+                        hintOffset
                     )?.also {
                         updateLoadState(loadType, Loading)
                     }
@@ -202,12 +202,13 @@ internal class Pager<Key : Any, Value : Any>(
                 }
 
                 loadKey = with(state) {
-                    generationalHint.hint.withCoercedHint { indexInPage, pageIndex, _, _ ->
+                    generationalHint.hint.withCoercedHint { indexInPage, pageIndex, hintOffset ->
                         nextLoadKeyOrNull(
                             loadType,
                             generationalHint.generationId,
                             indexInPage,
-                            pageIndex
+                            pageIndex,
+                            hintOffset
                         )
                     }
                 }
@@ -224,10 +225,21 @@ internal class Pager<Key : Any, Value : Any>(
         loadType: LoadType,
         generationId: Int,
         indexInPage: Int,
-        pageIndex: Int
+        pageIndex: Int,
+        hintOffset: Int
     ): Key? = when (loadType) {
-        START -> nextPrependKey(generationId, pageIndex, indexInPage, config.prefetchDistance)
-        END -> nextAppendKey(generationId, pageIndex, indexInPage, config.prefetchDistance)
+        START -> nextPrependKey(
+            generationId,
+            pageIndex,
+            indexInPage,
+            config.prefetchDistance + hintOffset
+        )
+        END -> nextAppendKey(
+            generationId,
+            pageIndex,
+            indexInPage,
+            config.prefetchDistance + hintOffset
+        )
         REFRESH -> throw IllegalArgumentException("Just use initialKey directly")
     }
 }

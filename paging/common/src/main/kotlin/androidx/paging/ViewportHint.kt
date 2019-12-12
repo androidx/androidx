@@ -27,7 +27,10 @@ internal data class ViewportHint(
 
     /**
      * Index either inside, or (in the case of placeholders) outside of page bounds, reflecting
-     * how closs access was.
+     * how close access was.
+     *
+     * Note: It is valid for this field to be a negative number, indicating access of an element
+     * before the page referenced by [sourcePageIndex].
      */
     val indexInPage: Int
 ) : Comparable<ViewportHint> {
@@ -37,7 +40,7 @@ internal data class ViewportHint(
     }
 
     companion object {
-        val MIN_VALUE = ViewportHint(Int.MIN_VALUE, Int.MIN_VALUE)
+        val MIN_VALUE = ViewportHint(Int.MIN_VALUE, 0)
         val MAX_VALUE = ViewportHint(Int.MAX_VALUE, Int.MAX_VALUE)
     }
 }
