@@ -249,8 +249,10 @@ package androidx.ui.core {
     ctor public ModelObserver();
     method public void clear(Object target);
     method public void enableModelUpdatesObserving(boolean enabled);
+    method @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP) public kotlin.jvm.functions.Function1<java.util.Set<?>,kotlin.Unit> getFrameCommitObserver();
     method public <T> void observeReads(T target, kotlin.jvm.functions.Function1<? super T,kotlin.Unit> onCommit, kotlin.jvm.functions.Function0<kotlin.Unit> block);
     method public void pauseObservingReads(kotlin.jvm.functions.Function0<kotlin.Unit> block);
+    property @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP) public final kotlin.jvm.functions.Function1<java.util.Set<?>,kotlin.Unit> frameCommitObserver;
   }
 
   public interface Owner {
