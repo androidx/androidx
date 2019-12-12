@@ -21,6 +21,8 @@ import static android.os.Build.VERSION.SDK_INT;
 import android.graphics.Rect;
 import android.view.DisplayCutout;
 
+import androidx.annotation.RequiresApi;
+
 import java.util.List;
 
 
@@ -128,5 +130,10 @@ public final class DisplayCutoutCompat {
 
     static DisplayCutoutCompat wrap(Object displayCutout) {
         return displayCutout == null ? null : new DisplayCutoutCompat(displayCutout);
+    }
+
+    @RequiresApi(api = 28)
+    DisplayCutout unwrap() {
+        return (DisplayCutout) mDisplayCutout;
     }
 }
