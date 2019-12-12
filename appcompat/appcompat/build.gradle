@@ -32,6 +32,9 @@ dependencies {
         exclude group: 'androidx.appcompat', module: 'appcompat'
         exclude group: 'androidx.core', module: 'core'
     }
+
+    // Uncomment once we want to start publishing the lint rules.
+    // lintPublish project(":appcompat:appcompat-lint")
 }
 
 android {
