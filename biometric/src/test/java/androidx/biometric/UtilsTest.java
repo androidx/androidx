@@ -25,6 +25,7 @@ import static org.mockito.Mockito.when;
 import androidx.fragment.app.FragmentActivity;
 import androidx.test.filters.LargeTest;
 
+import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -45,6 +46,17 @@ public class UtilsTest {
     @Before
     public void setUp() {
         MockitoAnnotations.initMocks(this);
+    }
+
+    @After
+    public void tearDown() {
+        // Ensure the bridge is fully reset after running each test.
+        final DeviceCredentialHandlerBridge bridge =
+                DeviceCredentialHandlerBridge.getInstanceIfNotNull();
+        if (bridge != null) {
+            bridge.stopIgnoringReset();
+            bridge.reset();
+        }
     }
 
     @Test
@@ -89,5 +101,26 @@ public class UtilsTest {
         when(mFragmentActivity.isFinishing()).thenReturn(false);
         Utils.maybeFinishHandler(mFragmentActivity);
         verify(mFragmentActivity, never()).finish();
+    }
+
+    @Test
+    public void testIsConfirmingDeviceCredential_ReturnsFalse_WhenBridgeIsNull() {
+        assertThat(Utils.isConfirmingDeviceCredential()).isFalse();
+    }
+
+    @Test
+    public void testIsConfirmingDeviceCredential_ReturnsFalse_WhenBridgeValueIsFalse() {
+        DeviceCredentialHandlerBridge bridge =
+                DeviceCredentialHandlerBridge.getInstance();
+        bridge.setConfirmingDeviceCredential(false);
+        assertThat(Utils.isConfirmingDeviceCredential()).isFalse();
+    }
+
+    @Test
+    public void testIsConfirmingDeviceCredential_ReturnsTrue_WhenBridgeValueIsTrue() {
+        DeviceCredentialHandlerBridge bridge =
+                DeviceCredentialHandlerBridge.getInstance();
+        bridge.setConfirmingDeviceCredential(true);
+        assertThat(Utils.isConfirmingDeviceCredential()).isTrue();
     }
 }

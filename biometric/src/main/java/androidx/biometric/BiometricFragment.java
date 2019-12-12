@@ -96,20 +96,22 @@ public class BiometricFragment extends Fragment {
                 @Override
                 public void onAuthenticationError(final int errorCode,
                                                   final CharSequence errString) {
-                    mClientExecutor.execute(new Runnable() {
-                        @Override
-                        public void run() {
-                            CharSequence error = errString;
-                            if (error == null) {
-                                error = mContext.getString(R.string.default_error_msg) + " "
-                                        + errorCode;
+                    if (!Utils.isConfirmingDeviceCredential()) {
+                        mClientExecutor.execute(new Runnable() {
+                            @Override
+                            public void run() {
+                                CharSequence error = errString;
+                                if (error == null) {
+                                    error = mContext.getString(R.string.default_error_msg) + " "
+                                            + errorCode;
+                                }
+                                mClientAuthenticationCallback
+                                        .onAuthenticationError(Utils.isUnknownError(errorCode)
+                                                ? BiometricPrompt.ERROR_VENDOR : errorCode, error);
                             }
-                            mClientAuthenticationCallback
-                                    .onAuthenticationError(Utils.isUnknownError(errorCode)
-                                            ? BiometricPrompt.ERROR_VENDOR : errorCode, error);
-                        }
-                    });
-                    cleanup();
+                        });
+                        cleanup();
+                    }
                 }
 
                 @Override
