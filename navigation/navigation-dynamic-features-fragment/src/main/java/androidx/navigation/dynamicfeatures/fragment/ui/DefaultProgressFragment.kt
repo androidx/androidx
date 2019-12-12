@@ -19,12 +19,15 @@ package androidx.navigation.dynamicfeatures.fragment.ui
 import android.content.ComponentName
 import android.content.pm.PackageManager
 import android.os.Bundle
+import android.util.Log
 import android.view.View
+import android.widget.Button
 import android.widget.ImageView
 import android.widget.ProgressBar
 import android.widget.TextView
 import androidx.annotation.StringRes
 import androidx.navigation.dynamicfeatures.fragment.R
+import androidx.navigation.fragment.findNavController
 import com.google.android.play.core.splitinstall.model.SplitInstallErrorCode
 
 /**
@@ -40,11 +43,13 @@ class DefaultProgressFragment :
 
     internal companion object {
         private const val PROGRESS_MAX = 100
+        private const val TAG = "DefaultProgressFragment"
     }
 
     private lateinit var title: TextView
     private lateinit var moduleName: TextView
     private lateinit var progressBar: ProgressBar
+    private lateinit var action: Button
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         with(view) {
@@ -52,6 +57,7 @@ class DefaultProgressFragment :
             moduleName = findViewById(R.id.module_name)
             progressBar = findViewById<ProgressBar>(R.id.installation_progress)
             setActivityIcon(findViewById(R.id.progress_icon))
+            action = findViewById(R.id.progress_action)
         }
     }
 
@@ -80,14 +86,33 @@ class DefaultProgressFragment :
 
     override fun onCancelled() {
         displayErrorState(R.string.installation_cancelled)
+        displayAction(R.string.retry) { navigate() }
     }
 
     override fun onFailed(@SplitInstallErrorCode errorCode: Int) {
+        Log.w(TAG, "Installation failed with error $errorCode")
         displayErrorState(R.string.installation_failed)
+        displayAction(R.string.ok) { findNavController().popBackStack() }
     }
 
+    /**
+     * Display an error state message.
+     */
     private fun displayErrorState(@StringRes text: Int) {
         title.setText(text)
         progressBar.visibility = View.INVISIBLE
+    }
+
+    /**
+     * Display the action button and assign `onClick` behavior.
+     */
+    private fun displayAction(@StringRes text: Int, onClick: () -> Unit) {
+        with(action) {
+            setText(text)
+            setOnClickListener {
+                onClick()
+            }
+            visibility = View.VISIBLE
+        }
     }
 }

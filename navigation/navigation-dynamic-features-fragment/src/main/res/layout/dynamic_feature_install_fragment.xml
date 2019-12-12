@@ -54,4 +54,12 @@
         android:indeterminate="true"
         style="?android:attr/progressBarStyleHorizontal" />
 
+    <Button
+        android:id="@+id/progress_action"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_margin="8dp"
+        android:visibility="gone"
+        android:text="@android:string/ok" />
+
 </LinearLayout>
