@@ -21,6 +21,7 @@ import androidx.navigation.plusAssign
 import androidx.navigation.testing.test.R
 import androidx.test.core.app.ApplicationProvider
 import androidx.test.ext.junit.runners.AndroidJUnit4
+import androidx.test.ext.truth.os.BundleSubject.assertThat
 import androidx.test.filters.SmallTest
 import androidx.testutils.TestNavigator
 import com.google.common.truth.Truth.assertThat
@@ -86,8 +87,8 @@ class TestNavHostControllerTest {
         navController.setCurrentDestination(R.id.third_test, args)
         assertThat(navController.currentDestination?.id).isEqualTo(R.id.third_test)
         val actualArgs = navController.backStack.last().arguments
-        assertThat(actualArgs?.size()).isEqualTo(2)
-        assertThat(actualArgs?.containsKey("arg")).isTrue()
-        assertThat(actualArgs?.get("arg")).isEqualTo("test")
+        assertThat(actualArgs).hasSize(2)
+        assertThat(actualArgs).containsKey("arg")
+        assertThat(actualArgs).string("arg").isEqualTo("test")
     }
 }

@@ -40,6 +40,7 @@ dependencies {
     androidTestImplementation(project(":internal-testutils-navigation"))
     androidTestImplementation(ANDROIDX_TEST_CORE)
     androidTestImplementation(ANDROIDX_TEST_EXT_JUNIT)
+    androidTestImplementation(ANDROIDX_TEST_EXT_TRUTH)
     androidTestImplementation(ANDROIDX_TEST_RUNNER)
     androidTestImplementation(TRUTH)
 }
