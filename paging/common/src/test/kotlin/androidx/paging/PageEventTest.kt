@@ -25,6 +25,33 @@ import kotlin.test.assertEquals
 import kotlin.test.assertFailsWith
 import kotlin.test.assertSame
 
+internal fun <T : Any> adjacentInsertEvent(
+    isPrepend: Boolean,
+    page: List<T>,
+    originalPageOffset: Int,
+    placeholdersRemaining: Int
+) = if (isPrepend) {
+    PageEvent.Insert.Start(
+        pages = listOf(
+            TransformablePage(
+                originalPageOffset = originalPageOffset,
+                data = page
+            )
+        ),
+        placeholdersStart = placeholdersRemaining
+    )
+} else {
+    PageEvent.Insert.End(
+        pages = listOf(
+            TransformablePage(
+                originalPageOffset = originalPageOffset,
+                data = page
+            )
+        ),
+        placeholdersEnd = placeholdersRemaining
+    )
+}
+
 @RunWith(JUnit4::class)
 class PageEventTest {
     @Test
