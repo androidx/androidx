@@ -16,6 +16,7 @@
 
 package androidx.navigation.testing
 
+import android.os.Bundle
 import androidx.navigation.plusAssign
 import androidx.navigation.testing.test.R
 import androidx.test.core.app.ApplicationProvider
@@ -63,5 +64,30 @@ class TestNavHostControllerTest {
         val backStack = navController.backStack
         assertThat(backStack).hasSize(2)
         assertThat(backStack[1].destination).isInstanceOf(TestNavigator.Destination::class.java)
+    }
+
+    @Test
+    fun testSetDestinationId() {
+        navController.setGraph(R.navigation.test_graph)
+        navController.setCurrentDestination(R.id.third_test)
+        assertThat(navController.currentDestination?.id).isEqualTo(R.id.third_test)
+        val backStack = navController.backStack
+        assertThat(backStack).hasSize(3)
+        assertThat(backStack[1].destination.id).isEqualTo(R.id.start_test)
+        assertThat(backStack[2].destination.id).isEqualTo(R.id.third_test)
+    }
+
+    @Test
+    fun testSetDestinationWithArgs() {
+        navController.setGraph(R.navigation.test_graph)
+        val args = Bundle().apply {
+            putString("arg", "test")
+        }
+        navController.setCurrentDestination(R.id.third_test, args)
+        assertThat(navController.currentDestination?.id).isEqualTo(R.id.third_test)
+        val actualArgs = navController.backStack.last().arguments
+        assertThat(actualArgs?.size()).isEqualTo(2)
+        assertThat(actualArgs?.containsKey("arg")).isTrue()
+        assertThat(actualArgs?.get("arg")).isEqualTo("test")
     }
 }
