@@ -28,7 +28,7 @@ import androidx.paging.PageEvent.StateUpdate
  * Separators between pages are handled outside of the page, see [PageEvent.insertSeparators].
  */
 private fun <R : Any, T : R> TransformablePage<T>.insertSeparators(
-    transform: (T?, T?) -> R?
+    generator: (T?, T?) -> R?
 ): TransformablePage<R> {
     if (data.isEmpty()) {
         @Suppress("UNCHECKED_CAST")
@@ -43,7 +43,7 @@ private fun <R : Any, T : R> TransformablePage<T>.insertSeparators(
     outputIndices.add(originalIndices?.first() ?: 0)
     for (i in 1 until data.size) {
         val item = data[i]
-        val separator = transform(data[i - 1], item)
+        val separator = generator(data[i - 1], item)
         if (separator != null) {
             outputList.add(separator)
             outputIndices.add(i)
@@ -95,7 +95,7 @@ internal fun <R : Any, T : R> List<TransformablePage<T>>.insertSeparators(
     loadType: LoadType,
     itemAtStart: T?,
     itemAtEnd: T?,
-    transform: (T?, T?) -> R?
+    generator: (T?, T?) -> R?
 ): List<TransformablePage<R>> {
     if (isEmpty()) {
         return emptyList()
@@ -107,18 +107,18 @@ internal fun <R : Any, T : R> List<TransformablePage<T>>.insertSeparators(
     forEachIndexed { index, page ->
         // If page is being appended, or if we're in between pages, insert separator page
         if (index != 0 || loadType == END) {
-            val separator = transform(itemBefore, page.data.first())
+            val separator = generator(itemBefore, page.data.first())
             outList.add(separatorPage(page, separator, originalIndex = 0))
         }
 
-        outList.add(page.insertSeparators(transform))
+        outList.add(page.insertSeparators(generator))
 
         itemBefore = page.data.last()
     }
 
     if (loadType == START) {
         val lastPage = last()
-        val separator = transform(lastPage.data.last(), itemAtEnd)
+        val separator = generator(lastPage.data.last(), itemAtEnd)
         outList.add(
             separatorPage(lastPage, separator, originalIndex = lastPage.originalPageSize - 1)
         )
@@ -135,7 +135,7 @@ internal fun <R : Any, T : R> List<TransformablePage<T>>.insertSeparators(
 @Suppress("UNCHECKED_CAST")
 internal fun <R : Any, T : R> PageEvent<T>.insertSeparators(
     currentPages: MutableList<TransformablePage<T>>,
-    transform: (T?, T?) -> R?
+    generator: (T?, T?) -> R?
 ): PageEvent<R> = when (this) {
     is Insert<T> -> {
         val newEvent = transformPages {
@@ -143,7 +143,7 @@ internal fun <R : Any, T : R> PageEvent<T>.insertSeparators(
                 loadType = loadType,
                 itemAtStart = if (loadType == END) currentPages.last().data.last() else null,
                 itemAtEnd = if (loadType == START) currentPages.first().data.first() else null,
-                transform = transform
+                generator = generator
             )
         }
 
