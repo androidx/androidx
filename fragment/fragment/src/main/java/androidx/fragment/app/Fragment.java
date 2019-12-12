@@ -2660,9 +2660,6 @@ public class Fragment implements ComponentCallbacks, OnCreateContextMenuListener
             writer.print(prefix);
             writer.print("mAnimatingAway=");
             writer.println(getAnimatingAway());
-            writer.print(prefix);
-            writer.print("mStateAfterAnimating=");
-            writer.println(getStateAfterAnimating());
         }
         if (getContext() != null) {
             LoaderManager.getInstance(this).dump(prefix, fd, writer, args);
@@ -3077,17 +3074,6 @@ public class Fragment implements ComponentCallbacks, OnCreateContextMenuListener
         return mAnimationInfo.mAnimator;
     }
 
-    int getStateAfterAnimating() {
-        if (mAnimationInfo == null) {
-            return 0;
-        }
-        return mAnimationInfo.mStateAfterAnimating;
-    }
-
-    void setStateAfterAnimating(int state) {
-        ensureAnimationInfo().mStateAfterAnimating = state;
-    }
-
     boolean isPostponed() {
         if (mAnimationInfo == null) {
             return false;
@@ -3129,10 +3115,6 @@ public class Fragment implements ComponentCallbacks, OnCreateContextMenuListener
         // Non-null if the fragment's view hierarchy is currently animating away with an
         // animator instead of an animation.
         Animator mAnimator;
-
-        // If mAnimatingAway != null, this is the state we should move to once the
-        // animation is done.
-        int mStateAfterAnimating;
 
         // If app has requested a specific animation, this is the one to use.
         int mNextAnim;

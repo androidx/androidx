@@ -727,7 +727,7 @@ public abstract class FragmentManager {
             // support hide/show
             if (f.mState < Fragment.STARTED) {
                 destroyFragmentView(f);
-                moveToState(f, f.getStateAfterAnimating());
+                moveToState(f);
             }
         }
     }
@@ -1198,7 +1198,6 @@ public abstract class FragmentManager {
                                 ViewGroup container = f.mContainer;
                                 View view = f.mView;
                                 if (anim != null) {
-                                    f.setStateAfterAnimating(newState);
                                     FragmentAnim.animateRemoveFragment(f, anim,
                                             mFragmentTransitionCallback);
                                 }
@@ -1217,8 +1216,6 @@ public abstract class FragmentManager {
                         // its view immediately and set the state after animating
                         if (mExitAnimationCancellationSignals.get(f) == null) {
                             destroyFragmentView(f);
-                        } else {
-                            f.setStateAfterAnimating(newState);
                         }
                     }
                     // fall through
@@ -1239,13 +1236,7 @@ public abstract class FragmentManager {
                             }
                         }
                         if (mExitAnimationCancellationSignals.get(f) != null) {
-                            // We are waiting for the fragment's view to finish
-                            // animating away.  Just make a note of the state
-                            // the fragment now should move to once the animation
-                            // is done.
-                            // Shared elements require that we wait on multiple Fragments, so if
-                            // any of them are animating we will continue to wait.
-                            f.setStateAfterAnimating(newState);
+                            // We are waiting for the fragment's view to finish animating away.
                             newState = Fragment.CREATED;
                         } else {
                             fragmentStateManager.destroy();
@@ -2195,7 +2186,7 @@ public abstract class FragmentManager {
         if (!mExitAnimationCancellationSignals.isEmpty()) {
             for (Fragment fragment: mExitAnimationCancellationSignals.keySet()) {
                 cancelExitAnimation(fragment);
-                moveToState(fragment, fragment.getStateAfterAnimating());
+                moveToState(fragment);
             }
         }
     }
