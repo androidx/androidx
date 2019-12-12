@@ -17,6 +17,8 @@
 package androidx.ui.test.android
 
 import android.app.Activity
+import android.content.Context
+import android.content.ContextWrapper
 import android.graphics.Bitmap
 import android.os.Build
 import android.os.Handler
@@ -129,13 +131,24 @@ internal class AndroidSemanticsTreeInteraction internal constructor(
             throw AssertionError("The required node is no longer in the tree!")
         }
 
-        if (collectedInfo.context !is Activity) {
-            // TODO(pavlis): Espresso might have the windows already somewhere internally ...
-            throw AssertionError("The context assigned to your composable holder view cannot be " +
-                    "cast to Activity. So this function can't access its window to capture the " +
-                    "bitmap.")
+        // Recursively search for the Activity context through (possible) ContextWrappers
+        fun Context.findActivity(): Activity {
+            return when (this) {
+                is Activity -> this
+                is ContextWrapper -> this.baseContext.findActivity()
+                else -> {
+                    // TODO(pavlis): Espresso might have the windows already somewhere
+                    //  internally ...
+                    throw AssertionError(
+                        "The context ($this) assigned to your composable holder view cannot " +
+                                "be cast to Activity. So this function can't access its window " +
+                                "to capture the bitmap. ${collectedInfo.context}"
+                    )
+                }
+            }
         }
-        val window = collectedInfo.context.window
+
+        val window = collectedInfo.context.findActivity().window
 
         // TODO(pavlis): Consider doing assertIsDisplayed here. Will need to move things around.
 
