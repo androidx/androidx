@@ -22,6 +22,7 @@
     android:layout_height="match_parent">
 
     <TextView
+        android:id="@+id/progress_title"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:layout_gravity="center_vertical"
@@ -49,6 +50,8 @@
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:layout_margin="8dp"
+        android:max="100"
+        android:indeterminate="true"
         style="?android:attr/progressBarStyleHorizontal" />
 
 </LinearLayout>
