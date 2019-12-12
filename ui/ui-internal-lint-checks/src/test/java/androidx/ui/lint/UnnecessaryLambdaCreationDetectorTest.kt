@@ -163,7 +163,7 @@ src/test/test.kt:12: Error: Creating an unnecessary lambda to emit a captured la
     }
 
     @Test
-    fun ignoresParameterInvocations() {
+    fun ignoresDifferentFunctionalTypes_parameters() {
         check("""
             package test 
 
@@ -174,21 +174,70 @@ src/test/test.kt:12: Error: Creating an unnecessary lambda to emit a captured la
 
             @Composable
             fun Test() {
-                ComposableFunctionWithParams { ignoredChild ->
+                ComposableFunctionWithParams { child ->
                     lambda()
                 }
             }
 
+            val parameterizedLambda: (@Composable() () -> Unit) -> Unit = { it() }
+            val differentlyParameterizedLambda: (Int) -> Unit = { }
+
             @Composable
             fun Test() {
-                ComposableFunctionWithParams { invokedChild -> 
-                    invokedChild()
+                ComposableFunctionWithParams { child -> 
+                    parameterizedLambda(child)
+                }
+            } 
+
+            @Composable
+            fun Test() {
+                ComposableFunctionWithParams { child -> 
+                    differentlyParameterizedLambda(5)
                 }
             }
         """).expect("""
-src/test/test.kt:11: Error: Creating an unnecessary lambda to emit a captured lambda [UnnecessaryLambdaCreation]
-        lambda()
-        ~~~~~~
+src/test/test.kt:21: Error: Creating an unnecessary lambda to emit a captured lambda [UnnecessaryLambdaCreation]
+        parameterizedLambda(child)
+        ~~~~~~~~~~~~~~~~~~~
+1 errors, 0 warnings
+        """)
+    }
+
+    @Test
+    fun ignoresDifferentFunctionalTypes_receiverScopes() {
+        check("""
+            package test
+
+            class SomeScope
+            class OtherScope
+
+            @Composable
+            fun ScopedComposableFunction(children: @Composable() SomeScope.() -> Unit) {
+                children()
+            }
+
+            @Composable
+            fun Test() {
+                val unscopedLambda: () -> Unit = {}
+                val scopedLambda: SomeScope.() -> Unit = {}
+                val differentlyScopedLambda: OtherScope.() -> Unit = {}
+
+                ScopedComposableFunction {
+                    unscopedLambda()
+                }
+
+                ScopedComposableFunction {
+                    scopedLambda()
+                }
+
+                ScopedComposableFunction {
+                    differentlyScopedLambda()
+                }
+            }
+        """).expect("""
+src/test/SomeScope.kt:22: Error: Creating an unnecessary lambda to emit a captured lambda [UnnecessaryLambdaCreation]
+        scopedLambda()
+        ~~~~~~~~~~~~
 1 errors, 0 warnings
         """)
     }

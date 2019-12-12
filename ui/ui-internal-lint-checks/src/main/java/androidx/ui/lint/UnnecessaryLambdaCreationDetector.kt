@@ -92,10 +92,24 @@ class UnnecessaryLambdaCreationDetector : Detector(), SourceCodeScanner {
             val parentExpression = node.uastParent!!.sourcePsi as? KtCallExpression ?: return
 
             // If the expression has no receiver, it is not a lambda invocation
-            val receiverType = expression.receiverType as? PsiClassReferenceType ?: return
+            val functionType = expression.receiverType as? PsiClassReferenceType ?: return
 
-            // Ignore function types with multiple parameters such as Function1, Function2 etc.
-            if (receiverType.reference.referenceName != function0SimpleName) return
+            // Find the functional type of the parent argument, for example () -> Unit (Function0)
+            val argumentType = node.getExpressionType() as? PsiClassReferenceType ?: return
+
+            // Return if the receiver of the lambda argument and the lambda itself don't match. This
+            // happens if the functional types are different, for example a lambda with 0 parameters
+            // (Function0) and a lambda with 1 parameter (Function1). Similarly for two lambdas
+            // with 0 parameters, but one that has a receiver scope (SomeScope.() -> Unit).
+            if (functionType != argumentType) return
+
+            // Unfortunately if the types come from a separate module, we don't have access to
+            // the type information in the function / argument, so instead we just get an error
+            // type. If both compare equally, and they are reporting an error type, we cannot do
+            // anything about this so just skip warning. This will only happen if there _are_
+            // types, i.e a scoped / parameterized function type, so it's rare enough that it
+            // shouldn't matter that much in practice.
+            if (functionType.reference.canonicalText.contains(NonExistentClass)) return
 
             if (parentExpression.isComponentNodeInvocation()) return
 
@@ -115,7 +129,7 @@ class UnnecessaryLambdaCreationDetector : Detector(), SourceCodeScanner {
         private fun KtCallExpression.isComponentNodeInvocation() =
             referenceExpression()!!.text.endsWith("Node")
 
-        private val function0SimpleName = Function0::class.simpleName!!
+        private const val NonExistentClass = "error.NonExistentClass"
 
         private const val explanation =
             "Creating this extra lambda instead of just passing the already captured lambda means" +
