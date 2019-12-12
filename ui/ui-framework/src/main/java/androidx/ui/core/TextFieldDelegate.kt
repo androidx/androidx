@@ -19,6 +19,7 @@ package androidx.ui.core
 import androidx.ui.geometry.Rect
 import androidx.ui.graphics.Canvas
 import androidx.ui.graphics.Color
+import androidx.ui.graphics.Paint
 import androidx.ui.input.EditOperation
 import androidx.ui.input.EditProcessor
 import androidx.ui.input.FinishComposingTextEditOp
@@ -38,6 +39,7 @@ import androidx.ui.text.ParagraphConstraints
 import androidx.ui.text.SpanStyle
 import androidx.ui.text.TextDelegate
 import androidx.ui.text.TextLayoutResult
+import androidx.ui.text.TextPainter
 import androidx.ui.text.TextRange
 import androidx.ui.text.TextStyle
 import androidx.ui.text.font.Font
@@ -137,7 +139,6 @@ internal class TextFieldDelegate {
          * @param canvas The target canvas.
          * @param value The editor state
          * @param offsetMap The offset map
-         * @param textDelegate The text painter
          * @param hasFocus true if this composable is focused, otherwise false
          * @param selectionColor The selection color
          */
@@ -146,28 +147,25 @@ internal class TextFieldDelegate {
             canvas: Canvas,
             value: InputState,
             offsetMap: OffsetMap,
-            textDelegate: TextDelegate,
             textLayoutResult: TextLayoutResult,
             hasFocus: Boolean,
             selectionColor: Color
         ) {
             if (value.selection.collapsed) {
                 if (hasFocus) {
-                    textDelegate.paintCursor(
-                        offsetMap.originalToTransformed(value.selection.min),
-                        canvas,
-                        textLayoutResult)
+                    val cursorRect = textLayoutResult.getCursorRect(
+                        offsetMap.originalToTransformed(value.selection.min))
+                    canvas.drawRect(cursorRect, Paint().apply { this.color = Color.Black })
                 }
             } else {
-                textDelegate.paintBackground(
-                    offsetMap.originalToTransformed(value.selection.min),
-                    offsetMap.originalToTransformed(value.selection.max),
-                    selectionColor,
-                    canvas,
-                    textLayoutResult
-                )
+                val start = offsetMap.originalToTransformed(value.selection.min)
+                val end = offsetMap.originalToTransformed(value.selection.max)
+                if (start != end) {
+                    val selectionPath = textLayoutResult.getPathForRange(start, end)
+                    canvas.drawPath(selectionPath, Paint().apply { this.color = selectionColor })
+                }
             }
-            textDelegate.paint(canvas, textLayoutResult)
+            TextPainter.paint(canvas, textLayoutResult)
         }
 
         /**

@@ -464,7 +464,6 @@ internal fun BaseTextField(
                                 canvas,
                                 value,
                                 offsetMap,
-                                textDelegate,
                                 layoutResult,
                                 hasFocus.value,
                                 DefaultSelectionColor

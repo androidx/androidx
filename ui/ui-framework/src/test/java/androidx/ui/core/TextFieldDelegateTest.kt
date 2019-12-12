@@ -96,70 +96,6 @@ class TextFieldDelegateTest {
     }
 
     @Test
-    fun draw_selection_test() {
-        val selection = TextRange(0, 1)
-        val selectionColor = Color.Blue
-
-        TextFieldDelegate.draw(
-            canvas = canvas,
-            textDelegate = mDelegate,
-            value = InputState(text = "Hello, World", selection = selection),
-            selectionColor = selectionColor,
-            hasFocus = true,
-            offsetMap = OffsetMap.identityOffsetMap,
-            textLayoutResult = textLayoutResult
-        )
-
-        verify(mDelegate, times(1)).paintBackground(
-            eq(selection.min),
-            eq(selection.max),
-            eq(selectionColor),
-            eq(canvas),
-            eq(textLayoutResult))
-        verify(mDelegate, times(1)).paint(eq(canvas), eq(textLayoutResult))
-
-        verify(mDelegate, never()).paintCursor(any(), any(), eq(textLayoutResult))
-    }
-
-    @Test
-    fun draw_cursor_test() {
-        val cursor = TextRange(1, 1)
-
-        TextFieldDelegate.draw(
-            canvas = canvas,
-            textDelegate = mDelegate,
-            value = InputState(text = "Hello, World", selection = cursor),
-            hasFocus = true,
-            offsetMap = OffsetMap.identityOffsetMap,
-            selectionColor = Color.Blue,
-            textLayoutResult = textLayoutResult
-        )
-
-        verify(mDelegate, times(1)).paintCursor(eq(cursor.min), eq(canvas), eq(textLayoutResult))
-        verify(mDelegate, times(1)).paint(eq(canvas), eq(textLayoutResult))
-        verify(mDelegate, never()).paintBackground(any(), any(), any(), any(), eq(textLayoutResult))
-    }
-
-    @Test
-    fun dont_draw_cursor_test() {
-        val cursor = TextRange(1, 1)
-
-        TextFieldDelegate.draw(
-            canvas = canvas,
-            textDelegate = mDelegate,
-            value = InputState(text = "Hello, World", selection = cursor),
-            hasFocus = false,
-            offsetMap = OffsetMap.identityOffsetMap,
-            selectionColor = Color.Blue,
-            textLayoutResult = textLayoutResult
-        )
-
-        verify(mDelegate, never()).paintCursor(any(), any(), eq(textLayoutResult))
-        verify(mDelegate, times(1)).paint(eq(canvas), eq(textLayoutResult))
-        verify(mDelegate, never()).paintBackground(any(), any(), any(), any(), eq(textLayoutResult))
-    }
-
-    @Test
     fun test_on_edit_command() {
         val ops = listOf(CommitTextEditOp("Hello, World", 1))
         val dummyEditorState = InputState(text = "Hello, World", selection = TextRange(1, 1))
@@ -346,32 +282,6 @@ class TextFieldDelegateTest {
         assertEquals(1024.px.round(), width)
         assertEquals(512.px.round(), height)
         assertEquals(layoutResult, textLayoutResult)
-    }
-
-    @Test
-    fun check_draw_uses_offset_map() {
-        val selection = TextRange(1, 3)
-        val selectionColor = Color.Blue
-
-        TextFieldDelegate.draw(
-            canvas = canvas,
-            textDelegate = mDelegate,
-            value = InputState(text = "Hello, World", selection = selection),
-            selectionColor = selectionColor,
-            hasFocus = true,
-            offsetMap = skippingOffsetMap,
-            textLayoutResult = textLayoutResult
-        )
-
-        val selectionStartInTransformedText = selection.min * 2
-        val selectionEmdInTransformedText = selection.max * 2
-
-        verify(mDelegate, times(1)).paintBackground(
-            eq(selectionStartInTransformedText),
-            eq(selectionEmdInTransformedText),
-            eq(selectionColor),
-            eq(canvas),
-            eq(textLayoutResult))
     }
 
     @Test

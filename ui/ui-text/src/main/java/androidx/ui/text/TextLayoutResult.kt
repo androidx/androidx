@@ -19,6 +19,7 @@ package androidx.ui.text
 import androidx.ui.core.Constraints
 import androidx.ui.core.LayoutDirection
 import androidx.ui.geometry.Rect
+import androidx.ui.graphics.Path
 import androidx.ui.text.font.Font
 import androidx.ui.text.style.TextDirection
 import androidx.ui.text.style.TextOverflow
@@ -211,4 +212,21 @@ data class TextLayoutResult internal constructor(
      * <http://www.unicode.org/reports/tr29/#Word_Boundaries>.
      */
     fun getWordBoundary(offset: Int): TextRange = multiParagraph.getWordBoundary(offset)
+
+    /**
+     * Returns the rectangle of the cursor area
+     *
+     * @param offset An character offset of the cursor
+     * @return a rectangle of cursor region
+     */
+    fun getCursorRect(offset: Int): Rect = multiParagraph.getCursorRect(offset)
+
+    /**
+     * Returns path that enclose the given text range.
+     *
+     * @param start an inclusive start character offset
+     * @param end an exclusive end character offset
+     * @return a drawing path
+     */
+    fun getPathForRange(start: Int, end: Int): Path = multiParagraph.getPathForRange(start, end)
 }
