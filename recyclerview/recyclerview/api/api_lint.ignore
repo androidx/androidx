@@ -827,3 +827,9 @@ MutableBareField: androidx.recyclerview.widget.RecyclerView.LayoutManager.Proper
     Bare field spanCount must be marked final, or moved behind accessors if mutable
 MutableBareField: androidx.recyclerview.widget.RecyclerView.LayoutManager.Properties#stackFromEnd:
     Bare field stackFromEnd must be marked final, or moved behind accessors if mutable
+
+
+PublicTypedef: androidx.recyclerview.widget.RecyclerView.EdgeEffectFactory.EdgeDirection:
+    Don't expose @IntDef: EdgeDirection must be hidden.
+PublicTypedef: androidx.recyclerview.widget.RecyclerView.ItemAnimator.AdapterChanges:
+    Don't expose @IntDef: AdapterChanges must be hidden.

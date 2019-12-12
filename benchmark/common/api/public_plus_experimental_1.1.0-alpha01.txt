@@ -2,7 +2,6 @@
 package androidx.benchmark {
 
   public final class ArgumentsKt {
-    ctor public ArgumentsKt();
   }
 
   public final class BenchmarkState {
@@ -21,7 +20,6 @@ package androidx.benchmark {
   }
 
   public final class TraceCompatKt {
-    ctor public TraceCompatKt();
   }
 
 }

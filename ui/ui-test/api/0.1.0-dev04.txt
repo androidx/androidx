@@ -2,14 +2,12 @@
 package androidx.ui.test {
 
   public final class ActionsKt {
-    ctor public ActionsKt();
     method public static androidx.ui.test.SemanticsNodeInteraction doClick(androidx.ui.test.SemanticsNodeInteraction);
     method public static androidx.ui.test.SemanticsNodeInteraction doGesture(androidx.ui.test.SemanticsNodeInteraction, kotlin.jvm.functions.Function1<? super androidx.ui.test.GestureScope,kotlin.Unit> block);
     method public static androidx.ui.test.SemanticsNodeInteraction doScrollTo(androidx.ui.test.SemanticsNodeInteraction);
   }
 
   public final class AssertionsKt {
-    ctor public AssertionsKt();
     method public static java.util.List<androidx.ui.test.SemanticsNodeInteraction> assertCountEquals(java.util.List<androidx.ui.test.SemanticsNodeInteraction>, int count);
     method public static void assertDoesNotExist(kotlin.jvm.functions.Function1<? super androidx.ui.core.semantics.SemanticsConfiguration,java.lang.Boolean> selector);
     method public static androidx.ui.test.SemanticsNodeInteraction assertHasClickAction(androidx.ui.test.SemanticsNodeInteraction);
@@ -31,7 +29,6 @@ package androidx.ui.test {
   }
 
   public final class BitmapHelpersKt {
-    ctor public BitmapHelpersKt();
     method public static void assertPixelColor(android.graphics.Bitmap, androidx.ui.graphics.Color expected, int x, int y, kotlin.jvm.functions.Function1<? super androidx.ui.graphics.Color,java.lang.String> error = { color -> "Pixel(" + x + ", " + y + ") expected to be " + expected + ", but was " + color });
     method public static void assertPixels(android.graphics.Bitmap, androidx.ui.core.IntPxSize? expectedSize = null, kotlin.jvm.functions.Function1<? super androidx.ui.core.IntPxPosition,androidx.ui.graphics.Color> expectedColorProvider);
     method public static void assertShape(android.graphics.Bitmap, androidx.ui.graphics.Color backgroundColor, int sizeX = width, int sizeY = height, androidx.ui.engine.geometry.Shape shape, androidx.ui.graphics.Color shapeColor, int shapeSizeX = sizeX, int shapeSizeY = sizeY, int centerX = width / 2, int centerY = height / 2);
@@ -62,7 +59,6 @@ package androidx.ui.test {
   }
 
   public final class ComposeBenchmarkScopeKt {
-    ctor public ComposeBenchmarkScopeKt();
     method public static <T> void setupContent(androidx.ui.test.ComposeBenchmarkScope<T>);
   }
 
@@ -83,7 +79,6 @@ package androidx.ui.test {
   }
 
   public final class ComposeExecutionControlKt {
-    ctor public ComposeExecutionControlKt();
     method public static void assertHasPendingChanges(androidx.ui.test.ComposeExecutionControl);
     method public static void assertLastRecomposeHadChanges(androidx.ui.test.ComposeExecutionControl);
     method public static void assertLastRecomposeHadNoChanges(androidx.ui.test.ComposeExecutionControl);
@@ -116,7 +111,6 @@ package androidx.ui.test {
   }
 
   public final class ComposeTestRuleKt {
-    ctor public ComposeTestRuleKt();
     method public static androidx.ui.test.ComposeTestRule createComposeRule(boolean disableTransitions = false);
   }
 
@@ -131,7 +125,6 @@ package androidx.ui.test {
   }
 
   public final class FiltersKt {
-    ctor public FiltersKt();
     method public static boolean getHasClickAction(androidx.ui.core.semantics.SemanticsConfiguration);
     method public static boolean getHasScrollAction(androidx.ui.core.semantics.SemanticsConfiguration);
     method public static boolean hasSubstring(androidx.ui.core.semantics.SemanticsConfiguration, String substring, boolean ignoreCase = false);
@@ -141,7 +134,6 @@ package androidx.ui.test {
   }
 
   public final class FindersKt {
-    ctor public FindersKt();
     method public static androidx.ui.test.SemanticsNodeInteraction find(kotlin.jvm.functions.Function1<? super androidx.ui.core.semantics.SemanticsConfiguration,java.lang.Boolean> selector);
     method public static java.util.List<androidx.ui.test.SemanticsNodeInteraction> findAll(kotlin.jvm.functions.Function1<? super androidx.ui.core.semantics.SemanticsConfiguration,java.lang.Boolean> selector);
     method public static java.util.List<androidx.ui.test.SemanticsNodeInteraction> findAllByTag(String testTag);
@@ -154,7 +146,6 @@ package androidx.ui.test {
   }
 
   public final class GestureScopeKt {
-    ctor public GestureScopeKt();
     method public static void sendClick(androidx.ui.test.GestureScope, float x, float y);
     method public static void sendClick(androidx.ui.test.GestureScope);
     method public static void sendSwipe(androidx.ui.test.GestureScope, float x0, float y0, float x1, float y1, androidx.ui.core.Duration duration = 200.milliseconds);
@@ -165,14 +156,12 @@ package androidx.ui.test {
   }
 
   public final class GoldenSemanticsKt {
-    ctor public GoldenSemanticsKt();
     method public static void assertEquals(androidx.ui.core.semantics.SemanticsConfiguration, androidx.ui.core.semantics.SemanticsConfiguration expected);
     method public static androidx.ui.core.semantics.SemanticsConfiguration copyWith(androidx.ui.core.semantics.SemanticsConfiguration, kotlin.jvm.functions.Function1<? super androidx.ui.core.semantics.SemanticsConfiguration,kotlin.Unit> diff);
     method public static androidx.ui.core.semantics.SemanticsConfiguration createFullSemantics(Boolean? isEnabled = null, String? value = null, androidx.ui.foundation.selection.ToggleableState? toggleableState = null, Boolean? inMutuallyExclusiveGroup = null, Boolean? isSelected = null);
   }
 
   public final class OutputKt {
-    ctor public OutputKt();
     method public static void dumpSemantics(androidx.ui.test.SemanticsNodeInteraction, kotlin.jvm.functions.Function1<? super java.lang.String,kotlin.Unit> consumer);
   }
 
@@ -180,11 +169,9 @@ package androidx.ui.test {
   }
 
   public final class SemanticsTreeInteractionKt {
-    ctor public SemanticsTreeInteractionKt();
   }
 
   public final class SizesTestingKt {
-    ctor public SizesTestingKt();
     method public static androidx.ui.layout.DpConstraints getBigTestConstraints();
     method public static androidx.ui.test.CollectedSizes setContentAndCollectSizes(androidx.ui.test.ComposeTestRule, androidx.ui.layout.DpConstraints parentConstraints = BigTestConstraints, kotlin.jvm.functions.Function0<kotlin.Unit> children);
     method public static androidx.ui.core.PxSize setContentAndGetPixelSize(androidx.ui.test.ComposeTestRule, androidx.ui.layout.DpConstraints parentConstraints = BigTestConstraints, kotlin.jvm.functions.Function1<? super kotlin.jvm.functions.Function0<kotlin.Unit>,kotlin.Unit> performSetContent = { setContent(it) }, kotlin.jvm.functions.Function0<kotlin.Unit> children);
@@ -195,7 +182,6 @@ package androidx.ui.test {
 package androidx.ui.test.android {
 
   public final class AndroidComposeTestCaseRunnerKt {
-    ctor public AndroidComposeTestCaseRunnerKt();
     method public static <T extends androidx.ui.test.ComposeTestCase> androidx.ui.test.ComposeBenchmarkScope<T> createAndroidComposeBenchmarkRunner(kotlin.jvm.functions.Function0<? extends T> testCaseFactory, android.app.Activity activity);
   }
 
@@ -228,13 +214,11 @@ package androidx.ui.test.android {
   }
 
   public final class ComposeIdlingResourceKt {
-    ctor public ComposeIdlingResourceKt();
     method public static void registerComposeWithEspresso();
     method public static void unregisterComposeFromEspresso();
   }
 
   public final class WindowCaptureKt {
-    ctor public WindowCaptureKt();
   }
 
 }
@@ -242,7 +226,6 @@ package androidx.ui.test.android {
 package androidx.ui.test.android.fake {
 
   public final class FakeViewStructureKt {
-    ctor public FakeViewStructureKt();
   }
 
 }

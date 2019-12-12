@@ -13,3 +13,7 @@ MissingNullability: androidx.contentpager.content.ContentPager#ContentPager(andr
     Missing nullability on parameter `resolver` in method `ContentPager`
 MissingNullability: androidx.contentpager.content.ContentPager#ContentPager(android.content.ContentResolver, androidx.contentpager.content.ContentPager.QueryRunner) parameter #1:
     Missing nullability on parameter `queryRunner` in method `ContentPager`
+
+
+PublicTypedef: androidx.contentpager.content.ContentPager.CursorDisposition:
+    Don't expose @IntDef: CursorDisposition must be hidden.

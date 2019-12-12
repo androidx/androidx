@@ -2,7 +2,6 @@
 package androidx.concurrent.futures {
 
   public final class ListenableFutureKt {
-    ctor public ListenableFutureKt();
     method public static suspend <T> Object! await(com.google.common.util.concurrent.ListenableFuture<T>, kotlin.coroutines.Continuation<? super T> p);
   }
 
