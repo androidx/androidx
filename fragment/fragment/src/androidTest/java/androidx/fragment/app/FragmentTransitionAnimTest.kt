@@ -93,6 +93,7 @@ class FragmentTransitionAnimTest(private val reorderingAllowed: Boolean) {
                 .commit()
             executePendingTransactions()
 
+            assertThat(fragment.startAnimationLatch.await(TIMEOUT, TimeUnit.MILLISECONDS)).isTrue()
             fragment.waitForTransition()
             assertThat(fragment.exitAnimationLatch.await(TIMEOUT, TimeUnit.MILLISECONDS)).isTrue()
             assertThat(onBackStackChangedTimes).isEqualTo(2)
@@ -143,6 +144,7 @@ class FragmentTransitionAnimTest(private val reorderingAllowed: Boolean) {
                 .commit()
             executePendingTransactions()
 
+            assertThat(fragment.startAnimationLatch.await(TIMEOUT, TimeUnit.MILLISECONDS)).isTrue()
             fragment.waitForTransition()
             assertThat(fragment.exitAnimationLatch.await(TIMEOUT, TimeUnit.MILLISECONDS)).isTrue()
             assertThat(onBackStackChangedTimes).isEqualTo(2)
@@ -250,8 +252,8 @@ class FragmentTransitionAnimTest(private val reorderingAllowed: Boolean) {
     }
 
     class TransitionAnimationFragment : TransitionFragment(R.layout.scene1) {
-        // TODO: make this late init once b/146016569 is addressed
-        var exitAnimationLatch = CountDownLatch(0)
+        val startAnimationLatch = CountDownLatch(1)
+        val exitAnimationLatch = CountDownLatch(1)
 
         override fun onCreateAnimation(transit: Int, enter: Boolean, nextAnim: Int): Animation? {
             if (nextAnim == 0) {
@@ -261,7 +263,7 @@ class FragmentTransitionAnimTest(private val reorderingAllowed: Boolean) {
             return AnimationUtils.loadAnimation(activity, nextAnim).apply {
                 setAnimationListener(object : Animation.AnimationListener {
                     override fun onAnimationStart(animation: Animation) {
-                        exitAnimationLatch = CountDownLatch(1)
+                        startAnimationLatch.countDown()
                     }
 
                     override fun onAnimationEnd(animation: Animation) {
