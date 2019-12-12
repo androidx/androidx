@@ -1235,17 +1235,16 @@ class FragmentTransition {
                 containerTransition.firstOut = null;
             }
 
-            /*
-             * Ensure that fragments that are entering are at least at the CREATED state
-             * so that they may load Transitions using TransitionInflater.
-             */
-            FragmentManager manager = transaction.mManager;
-            if (fragment.mState < Fragment.CREATED && manager.mCurState >= Fragment.CREATED
-                    && !transaction.mReorderingAllowed) {
+            if (!transaction.mReorderingAllowed) {
+                // When reordering isn't allowed, we may be starting Transitions before
+                // the Fragment operation is actually executed so we move any new Fragments
+                // to created here first so that they have a Context, etc. when they
+                // are asked to load their Transitions
+                FragmentManager manager = transaction.mManager;
                 FragmentStateManager fragmentStateManager =
                         manager.createOrGetFragmentStateManager(fragment);
                 manager.getFragmentStore().makeActive(fragmentStateManager);
-                manager.moveToState(fragment, Fragment.CREATED);
+                manager.moveToState(fragment);
             }
         }
         if (setFirstOut && (containerTransition == null || containerTransition.firstOut == null)) {
