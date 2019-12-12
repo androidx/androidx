@@ -21,6 +21,7 @@ import androidx.ui.core.dp
 import androidx.ui.core.min
 import androidx.ui.core.offset
 import androidx.compose.Composable
+import androidx.compose.Immutable
 import androidx.ui.core.Constraints
 import androidx.ui.core.DensityScope
 import androidx.ui.core.IntPxPosition
@@ -116,6 +117,7 @@ data class LayoutPadding(
  * Describes a set of offsets from each of the four sides of a box. For example,
  * it is used to describe padding for the [Padding] composable.
  */
+@Immutable
 data class EdgeInsets(
     val left: Dp = 0.dp,
     val top: Dp = 0.dp,
