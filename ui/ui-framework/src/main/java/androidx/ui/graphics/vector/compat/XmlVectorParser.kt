@@ -20,17 +20,14 @@ import android.content.res.Resources
 import android.util.AttributeSet
 import androidx.core.content.res.ComplexColorCompat
 import androidx.core.content.res.TypedArrayUtils
-import androidx.ui.core.Px
-import androidx.ui.graphics.vector.VectorAssetBuilder
+import androidx.ui.core.dp
 import androidx.ui.graphics.Brush
 import androidx.ui.graphics.Color
+import androidx.ui.graphics.Shader
 import androidx.ui.graphics.ShaderBrush
 import androidx.ui.graphics.SolidColor
-
-import androidx.ui.graphics.Shader
 import androidx.ui.graphics.StrokeCap
 import androidx.ui.graphics.StrokeJoin
-import androidx.ui.graphics.vector.addPathNodes
 import androidx.ui.graphics.vector.DefaultPivotX
 import androidx.ui.graphics.vector.DefaultPivotY
 import androidx.ui.graphics.vector.DefaultRotation
@@ -40,6 +37,8 @@ import androidx.ui.graphics.vector.DefaultTranslationX
 import androidx.ui.graphics.vector.DefaultTranslationY
 import androidx.ui.graphics.vector.EmptyPath
 import androidx.ui.graphics.vector.PathNode
+import androidx.ui.graphics.vector.VectorAssetBuilder
+import androidx.ui.graphics.vector.addPathNodes
 import org.xmlpull.v1.XmlPullParser
 import org.xmlpull.v1.XmlPullParserException
 
@@ -156,13 +155,11 @@ internal fun XmlPullParser.createVectorImageBuilder(
 
     if (viewportWidth <= 0) {
         throw XmlPullParserException(
-            vectorAttrs.getPositionDescription() +
-                    "<VectorGraphic> tag requires viewportWidth > 0"
+            vectorAttrs.positionDescription + "<VectorGraphic> tag requires viewportWidth > 0"
         )
     } else if (viewportHeight <= 0) {
         throw XmlPullParserException(
-            vectorAttrs.getPositionDescription() +
-                    "<VectorGraphic> tag requires viewportHeight > 0"
+            vectorAttrs.positionDescription + "<VectorGraphic> tag requires viewportHeight > 0"
         )
     }
 
@@ -173,11 +170,14 @@ internal fun XmlPullParser.createVectorImageBuilder(
         AndroidVectorResources.STYLEABLE_VECTOR_DRAWABLE_HEIGHT, 0.0f
     )
 
+    val defaultWidthDp = (defaultWidth / res.displayMetrics.density).dp
+    val defaultHeightDp = (defaultHeight / res.displayMetrics.density).dp
+
     vectorAttrs.recycle()
 
     return VectorAssetBuilder(
-        defaultWidth = Px(defaultWidth),
-        defaultHeight = Px(defaultHeight),
+        defaultWidth = defaultWidthDp,
+        defaultHeight = defaultHeightDp,
         viewportWidth = viewportWidth,
         viewportHeight = viewportHeight
     )
