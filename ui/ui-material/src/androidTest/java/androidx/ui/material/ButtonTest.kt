@@ -16,6 +16,7 @@
 
 package androidx.ui.material
 
+import androidx.compose.Composable
 import androidx.compose.state
 import androidx.test.filters.MediumTest
 import androidx.ui.core.Dp
@@ -281,14 +282,14 @@ class ButtonTest {
         }
     }
 
-    private fun assertLeftPaddingIs(padding: Dp, style: () -> ButtonStyle) {
+    private fun assertLeftPaddingIs(padding: Dp, style: @Composable() () -> ButtonStyle) {
         var parentCoordinates: LayoutCoordinates? = null
         var childCoordinates: LayoutCoordinates? = null
         val parentLatch = CountDownLatch(1)
         val childLatch = CountDownLatch(1)
         composeTestRule.setMaterialContent {
             Wrap {
-                Button(onClick = {}, style = style.invoke()) {
+                Button(onClick = {}, style = style()) {
                     OnPositioned {
                         parentCoordinates = it
                         parentLatch.countDown()
