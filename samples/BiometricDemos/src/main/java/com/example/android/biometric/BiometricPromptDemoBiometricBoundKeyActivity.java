@@ -46,6 +46,7 @@ import javax.crypto.Cipher;
 import javax.crypto.IllegalBlockSizeException;
 import javax.crypto.NoSuchPaddingException;
 import javax.crypto.SecretKey;
+import javax.crypto.spec.IvParameterSpec;
 
 /**
  * Demo activity that shows how BiometricPrompt can be used with biometric bound secret keys.
@@ -62,6 +63,11 @@ public class BiometricPromptDemoBiometricBoundKeyActivity extends FragmentActivi
     private final Executor mExecutor = mHandler::post;
     private BiometricPrompt mBiometricPrompt;
     private TextView mLogTextView;
+    private Cipher mEncryptingCipher;
+    private View mEncryptButton;
+    private byte[] mEncryptedBytes;
+    // If true decrypt, if false encrypt.
+    private boolean mShouldDecrypt;
 
     private void log(String s) {
         Log.d(TAG, s);
@@ -95,11 +101,17 @@ public class BiometricPromptDemoBiometricBoundKeyActivity extends FragmentActivi
                     log("onAuthenticationSucceeded, cryptoObject: " + cryptoObject);
                     if (cryptoObject != null) {
                         try {
-                            byte[] encrypted =
-                                    cryptoObject.getCipher().doFinal(
-                                            PAYLOAD.getBytes(Charset.defaultCharset()));
-                            log("Test payload: " + PAYLOAD);
-                            log("Encrypted payload: " + Arrays.toString(encrypted));
+                            if (mShouldDecrypt) {
+                                log("Decrypted payload: " + new String(
+                                        cryptoObject.getCipher().doFinal(mEncryptedBytes)));
+                            } else {
+                                // Save the cipher to use for decryption.
+                                mEncryptingCipher = cryptoObject.getCipher();
+                                mEncryptedBytes = mEncryptingCipher.doFinal(
+                                        PAYLOAD.getBytes(Charset.defaultCharset()));
+                                log("Test payload: " + PAYLOAD);
+                                log("Encrypted payload: " + Arrays.toString(mEncryptedBytes));
+                            }
                         } catch (BadPaddingException | IllegalBlockSizeException e) {
                             log("Failed to encrypt", e);
                         }
@@ -124,14 +136,17 @@ public class BiometricPromptDemoBiometricBoundKeyActivity extends FragmentActivi
         }
     };
 
-    private View.OnClickListener mUnlockAndUseKeyListener = view -> {
+    private Cipher getCryptoCipher() {
         Cipher cipher = null;
         try {
             cipher = BiometricPromptDemoSecretKeyHelper.getCipher();
         } catch (NoSuchPaddingException | NoSuchAlgorithmException e) {
             log("Failed to get cipher", e);
         }
+        return cipher;
+    }
 
+    private SecretKey getSecretKey() {
         SecretKey secretKey = null;
         try {
             secretKey = BiometricPromptDemoSecretKeyHelper.getSecretKey(KEY_NAME);
@@ -139,18 +154,64 @@ public class BiometricPromptDemoBiometricBoundKeyActivity extends FragmentActivi
                 | UnrecoverableKeyException e) {
             log("Failed to get secret key", e);
         }
+        return secretKey;
+    }
 
-        if (cipher != null && secretKey != null) {
-            try {
-                cipher.init(Cipher.ENCRYPT_MODE, secretKey);
-                mBiometricPrompt.authenticate(mPromptInfo,
-                        new BiometricPrompt.CryptoObject(cipher));
-                log("Started authentication with a crypto object");
-            } catch (InvalidKeyException e) {
-                log("Failed to init cipher", e);
-            }
+    private void authenticateWithCrypto(Cipher cipher) {
+        mBiometricPrompt.authenticate(mPromptInfo, new BiometricPrompt.CryptoObject(cipher));
+    }
+
+    private void authenticateWithEncryption() {
+        Cipher cipher = getCryptoCipher();
+        SecretKey secretKey = getSecretKey();
+        if (cipher == null || secretKey == null) {
+            return;
         }
-    };
+        try {
+            cipher.init(Cipher.ENCRYPT_MODE, secretKey);
+            mBiometricPrompt.authenticate(mPromptInfo,
+                    new BiometricPrompt.CryptoObject(cipher));
+            log("Started authentication with a crypto object");
+            authenticateWithCrypto(cipher);
+            mShouldDecrypt = false;
+        } catch (InvalidKeyException e) {
+            log("Failed to init cipher", e);
+        }
+    }
+
+    private void authenticateWithDecryption() {
+        Cipher cipher = getCryptoCipher();
+        SecretKey secretKey = getSecretKey();
+        if (cipher == null || secretKey == null) {
+            return;
+        }
+        if (mEncryptingCipher == null) {
+            log("User must first encrypt a message");
+            flashEncryptButton();
+            return;
+        }
+
+        try {
+            cipher.init(Cipher.DECRYPT_MODE, secretKey,
+                    new IvParameterSpec(mEncryptingCipher.getIV()));
+            mBiometricPrompt.authenticate(mPromptInfo,
+                    new BiometricPrompt.CryptoObject(cipher));
+            log("Started authentication with a crypto object");
+            authenticateWithCrypto(cipher);
+            mShouldDecrypt = true;
+        } catch (InvalidKeyException | InvalidAlgorithmParameterException e) {
+            log("Failed to init cipher", e);
+        }
+    }
+
+    private void flashEncryptButton() {
+        mEncryptButton.animate().alpha(0).setDuration(1000).withEndAction(new Runnable() {
+            @Override
+            public void run() {
+                mEncryptButton.animate().alpha(1).setDuration(1000);
+            }
+        });
+    }
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -168,12 +229,16 @@ public class BiometricPromptDemoBiometricBoundKeyActivity extends FragmentActivi
         }
 
         findViewById(R.id.button_generate_key).setOnClickListener(mGenerateKeyListener);
-        findViewById(R.id.button_unlock_and_use_key).setOnClickListener(mUnlockAndUseKeyListener);
+        mEncryptButton = findViewById(R.id.button_unlock_and_use_key);
+        mEncryptButton.setOnClickListener(v -> authenticateWithEncryption());
         findViewById(R.id.button_clear_log).setOnClickListener(v -> mLogTextView.setText(""));
+        findViewById(R.id.button_decrypt).setOnClickListener(v -> authenticateWithDecryption());
     }
 
     @Override
     protected void onPause() {
+        mEncryptingCipher = null;
+        mShouldDecrypt = false;
         mBiometricPrompt.cancelAuthentication();
         super.onPause();
     }
