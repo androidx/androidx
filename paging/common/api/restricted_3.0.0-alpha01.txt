@@ -103,14 +103,14 @@ package androidx.paging {
 
   @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP) public interface NullPaddedList<T> {
     method public T! getFromStorage(int localIndex);
-    method public int getLeadingNullCount();
+    method public int getPlaceholdersEnd();
+    method public int getPlaceholdersStart();
     method public int getSize();
     method public int getStorageCount();
-    method public int getTrailingNullCount();
-    property public abstract int leadingNullCount;
+    property public abstract int placeholdersEnd;
+    property public abstract int placeholdersStart;
     property public abstract int size;
     property public abstract int storageCount;
-    property public abstract int trailingNullCount;
   }
 
   public final class PageEventKt {

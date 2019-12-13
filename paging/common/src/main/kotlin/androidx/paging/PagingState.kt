@@ -20,8 +20,8 @@ package androidx.paging
  * Fully resolved, immutable snapshot of Paging state: placeholders, items, and LoadStates.
  */
 internal data class PagingState<T : Any>(
-    override val leadingNullCount: Int,
-    override val trailingNullCount: Int,
+    override val placeholdersStart: Int,
+    override val placeholdersEnd: Int,
     private val pages: List<TransformablePage<T>>,
     override val storageCount: Int = pages.fullCount(),
     val loadStateRefresh: LoadState,
@@ -31,12 +31,12 @@ internal data class PagingState<T : Any>(
 ) : NullPaddedList<T> {
     override fun toString() =
         """
-            $leadingNullCount nulls, $pages, $trailingNullCount nulls
+            $placeholdersStart nulls, $pages, $placeholdersEnd nulls
             r=$loadStateRefresh, s=$loadStateStart, e=$loadStateEnd
             rec=$hintReceiver
         """.trimIndent()
 
-    override val size: Int = leadingNullCount + storageCount + trailingNullCount
+    override val size: Int = placeholdersStart + storageCount + placeholdersEnd
 
     override fun getFromStorage(localIndex: Int): T {
         var pageIndex = 0
@@ -64,7 +64,7 @@ internal data class PagingState<T : Any>(
             throw IndexOutOfBoundsException("Index: $index, Size: $size")
         }
 
-        val localIndex = index - leadingNullCount
+        val localIndex = index - placeholdersStart
         if (localIndex < 0 || localIndex >= storageCount) {
             return null
         }
@@ -150,8 +150,8 @@ internal data class PagingState<T : Any>(
         }
 
         private fun snapshot() = PagingState(
-            leadingNullCount = leadingNullCount,
-            trailingNullCount = trailingNullCount,
+            placeholdersStart = leadingNullCount,
+            placeholdersEnd = trailingNullCount,
             pages = pages,
             storageCount = storageCount,
             loadStateRefresh = stateRefresh,
@@ -167,8 +167,8 @@ internal data class PagingState<T : Any>(
         internal val noopHintReceiver: (ViewportHint) -> Unit = {}
 
         internal val initialImpl = PagingState<Any>(
-            leadingNullCount = 0,
-            trailingNullCount = 0,
+            placeholdersStart = 0,
+            placeholdersEnd = 0,
             pages = listOf(),
             storageCount = 0,
             loadStateRefresh = LoadState.Loading,

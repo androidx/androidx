@@ -32,13 +32,13 @@ import org.mockito.Mockito.verifyZeroInteractions
 @RunWith(JUnit4::class)
 class NullPaddedListDiffHelperTest {
     class Storage(
-        override val leadingNullCount: Int,
+        override val placeholdersStart: Int,
         private val data: List<String>,
-        override val trailingNullCount: Int
+        override val placeholdersEnd: Int
     ) : NullPaddedList<String> {
         override fun getFromStorage(localIndex: Int): String = data[localIndex]
         override val size: Int
-            get() = leadingNullCount + data.size + trailingNullCount
+            get() = placeholdersStart + data.size + placeholdersEnd
         override val storageCount: Int
             get() = data.size
     }
