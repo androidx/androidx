@@ -83,7 +83,7 @@ fun Surface(
     modifier: Modifier = Modifier.None,
     shape: Shape = RectangleShape,
     color: Color = MaterialTheme.colors().surface,
-    contentColor: Color = MaterialTheme.colors().contentColorFor(color) ?: contentColor(),
+    contentColor: Color = contentColorFor(color),
     border: Border? = null,
     elevation: Dp = 0.dp,
     children: @Composable() () -> Unit
