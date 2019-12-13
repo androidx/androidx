@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="utf-8"?>
-<!-- Copyright (C) 2017 The Android Open Source Project
+<!-- Copyright (C) 2019 The Android Open Source Project
 
      Licensed under the Apache License, Version 2.0 (the "License");
      you may not use this file except in compliance with the License.
@@ -27,27 +27,16 @@
       xmlns:android="http://schemas.android.com/apk/res/android"
       android:layout_height="match_parent"
       android:layout_width="match_parent"
-      android:background="#FFFFFFFF">
-      <TextView
-          android:id="@+id/selector"
-          android:textSize="20sp"
-          android:gravity="center"
-          android:layout_height="match_parent"
-          android:layout_width="40dp"
-          android:textColor="@color/selection_demo_item_selector"
-          android:pointerIcon="hand"
-          android:text="✕">
-      </TextView>
+      android:background="@drawable/selection_demo_item_background">
       <TextView
           android:id="@+id/label"
-          android:textSize="20sp"
+          android:textSize="30sp"
           android:textStyle="bold"
           android:gravity="center_vertical"
           android:paddingStart="10dp"
           android:paddingEnd="10dp"
           android:layout_height="match_parent"
-          android:layout_width="wrap_content"
-          android:background="@drawable/selection_demo_item">
+          android:layout_width="match_parent">
       </TextView>
   </LinearLayout>
 </LinearLayout>
