@@ -32,10 +32,9 @@ import androidx.compose.TestOnly
 import androidx.compose.ambient
 import androidx.compose.disposeComposition
 import androidx.compose.escapeCompose
-import androidx.compose.memo
+import androidx.compose.remember
 import androidx.compose.onCommit
 import androidx.compose.onDispose
-import androidx.compose.unaryPlus
 
 /**
  * Opens a popup with the given content.
@@ -58,7 +57,7 @@ fun Popup(
     children: @Composable() () -> Unit
 ) {
     // Memoize the object, but change the value of the properties if a recomposition happens
-    val popupPositionProperties = +memo {
+    val popupPositionProperties = remember {
         PopupPositionProperties(
             offset = offset
         )
@@ -94,7 +93,7 @@ fun DropdownPopup(
     children: @Composable() () -> Unit
 ) {
     // Memoize the object, but change the value of the properties if a recomposition happens
-    val popupPositionProperties = +memo {
+    val popupPositionProperties = remember {
         PopupPositionProperties(
             offset = offset
         )
@@ -116,12 +115,12 @@ private fun Popup(
     calculatePopupPosition: ((PopupPositionProperties) -> IntPxPosition),
     children: @Composable() () -> Unit
 ) {
-    val context = +ambient(ContextAmbient)
+    val context = ambient(ContextAmbient)
     // TODO(b/139866476): Decide if we want to expose the AndroidComposeView
-    val composeView = +ambient(AndroidComposeViewAmbient)
-    val providedTestTag = +ambient(TestTagAmbient)
+    val composeView = ambient(AndroidComposeViewAmbient)
+    val providedTestTag = ambient(TestTagAmbient)
 
-    val popupLayout = +memo(popupProperties) {
+    val popupLayout = remember(popupProperties) {
         escapeCompose { PopupLayout(
             context = context,
             composeView = composeView,
@@ -146,7 +145,7 @@ private fun Popup(
         popupLayout.updatePosition()
     }
 
-    +onCommit {
+    onCommit {
         popupLayout.setContent {
             OnChildPositioned({
                 // Get the size of the content
@@ -158,7 +157,7 @@ private fun Popup(
         }
     }
 
-    +onDispose {
+    onDispose {
         popupLayout.disposeComposition()
         // Remove the window
         popupLayout.dismiss()

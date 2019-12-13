@@ -19,9 +19,8 @@ package androidx.ui.material.samples
 import androidx.animation.transitionDefinition
 import androidx.annotation.Sampled
 import androidx.compose.Composable
-import androidx.compose.memo
+import androidx.compose.remember
 import androidx.compose.state
-import androidx.compose.unaryPlus
 import androidx.ui.animation.ColorPropKey
 import androidx.ui.animation.PxPropKey
 import androidx.ui.animation.Transition
@@ -51,7 +50,7 @@ import androidx.ui.material.MaterialTheme
 @Sampled
 @Composable
 fun TextTabs() {
-    val state = +state { 0 }
+    val state = state { 0 }
     val titles = listOf("TAB 1", "TAB 2", "TAB 3 WITH LOTS OF TEXT")
     Column {
         TabRow(items = titles, selectedIndex = state.value) { index, text ->
@@ -60,14 +59,14 @@ fun TextTabs() {
         Text(
             modifier = LayoutGravity.Center,
             text = "Text tab ${state.value + 1} selected",
-            style = (+MaterialTheme.typography()).body1
+            style = MaterialTheme.typography().body1
         )
     }
 }
 
 @Composable
 fun IconTabs(image: Image) {
-    val state = +state { 0 }
+    val state = state { 0 }
     val icons = listOf(image, image, image)
     Column {
         TabRow(items = icons, selectedIndex = state.value) { index, icon ->
@@ -76,7 +75,7 @@ fun IconTabs(image: Image) {
         Text(
             modifier = LayoutGravity.Center,
             text = "Icon tab ${state.value + 1} selected",
-            style = (+MaterialTheme.typography()).body1
+            style = MaterialTheme.typography().body1
         )
     }
 }
@@ -84,7 +83,7 @@ fun IconTabs(image: Image) {
 // TODO: r8 bug preventing us from destructuring data inline
 @Composable
 fun TextAndIconTabs(image: Image) {
-    val state = +state { 0 }
+    val state = state { 0 }
     val titlesAndIcons =
         listOf("TAB 1" to image, "TAB 2" to image, "TAB 3 WITH LOTS OF TEXT" to image)
     Column {
@@ -97,14 +96,14 @@ fun TextAndIconTabs(image: Image) {
         Text(
             modifier = LayoutGravity.Center,
             text = "Text and icon tab ${state.value + 1} selected",
-            style = (+MaterialTheme.typography()).body1
+            style = MaterialTheme.typography().body1
         )
     }
 }
 
 @Composable
 fun ScrollingTextTabs() {
-    val state = +state { 0 }
+    val state = state { 0 }
     val titles = listOf(
         "TAB 1",
         "TAB 2",
@@ -124,7 +123,7 @@ fun ScrollingTextTabs() {
         Text(
             modifier = LayoutGravity.Center,
             text = "Scrolling text tab ${state.value + 1} selected",
-            style = (+MaterialTheme.typography()).body1
+            style = MaterialTheme.typography().body1
         )
     }
 }
@@ -132,7 +131,7 @@ fun ScrollingTextTabs() {
 @Sampled
 @Composable
 fun FancyTabs() {
-    val state = +state { 0 }
+    val state = state { 0 }
     val titles = listOf("TAB 1", "TAB 2", "TAB 3")
     Column {
         TabRow(items = titles, selectedIndex = state.value) { index, title ->
@@ -145,7 +144,7 @@ fun FancyTabs() {
         Text(
             modifier = LayoutGravity.Center,
             text = "Fancy tab ${state.value + 1} selected",
-            style = (+MaterialTheme.typography()).body1
+            style = MaterialTheme.typography().body1
         )
     }
 }
@@ -153,7 +152,7 @@ fun FancyTabs() {
 @Sampled
 @Composable
 fun FancyIndicatorTabs() {
-    val state = +state { 0 }
+    val state = state { 0 }
     val titles = listOf("TAB 1", "TAB 2", "TAB 3")
 
     // Reuse the default transition, and provide our custom indicator as its child
@@ -174,7 +173,7 @@ fun FancyIndicatorTabs() {
         Text(
             modifier = LayoutGravity.Center,
             text = "Fancy indicator tab ${state.value + 1} selected",
-            style = (+MaterialTheme.typography()).body1
+            style = MaterialTheme.typography().body1
         )
     }
 }
@@ -182,7 +181,7 @@ fun FancyIndicatorTabs() {
 @Sampled
 @Composable
 fun FancyIndicatorContainerTabs() {
-    val state = +state { 0 }
+    val state = state { 0 }
     val titles = listOf("TAB 1", "TAB 2", "TAB 3")
 
     val indicatorContainer = @Composable { tabPositions: List<TabRow.TabPosition> ->
@@ -200,14 +199,14 @@ fun FancyIndicatorContainerTabs() {
         Text(
             modifier = LayoutGravity.Center,
             text = "Fancy transition tab ${state.value + 1} selected",
-            style = (+MaterialTheme.typography()).body1
+            style = MaterialTheme.typography().body1
         )
     }
 }
 
 @Composable
 fun ScrollingFancyIndicatorContainerTabs() {
-    val state = +state { 0 }
+    val state = state { 0 }
     val titles = listOf(
         "TAB 1",
         "TAB 2",
@@ -236,7 +235,7 @@ fun ScrollingFancyIndicatorContainerTabs() {
         Text(
             modifier = LayoutGravity.Center,
             text = "Scrolling fancy transition tab ${state.value + 1} selected",
-            style = (+MaterialTheme.typography()).body1
+            style = MaterialTheme.typography().body1
         )
     }
 }
@@ -254,7 +253,7 @@ fun FancyTab(title: String, onClick: () -> Unit, selected: Boolean) {
                 Padding(5.dp) {
                     Text(
                         text = title,
-                        style = (+MaterialTheme.typography()).body1,
+                        style = MaterialTheme.typography().body1,
                         modifier = LayoutGravity.Center
                     )
                 }
@@ -278,13 +277,13 @@ fun FancyIndicator(color: Color) {
 @Sampled
 @Composable
 fun FancyIndicatorContainer(tabPositions: List<TabRow.TabPosition>, selectedIndex: Int) {
-    val indicatorStart = +memo { PxPropKey() }
-    val indicatorEnd = +memo { PxPropKey() }
-    val indicatorColor = +memo { ColorPropKey() }
+    val indicatorStart = remember { PxPropKey() }
+    val indicatorEnd = remember { PxPropKey() }
+    val indicatorColor = remember { ColorPropKey() }
 
     val colors = listOf(Color.Yellow, Color.Red, Color.Green)
     val transitionDefinition =
-        +memo(tabPositions) {
+        remember(tabPositions) {
             transitionDefinition {
                 tabPositions.forEachIndexed { index, position ->
                     state(index) {
@@ -321,8 +320,8 @@ fun FancyIndicatorContainer(tabPositions: List<TabRow.TabPosition>, selectedInde
     // Padding to set the 'offset'
     Container(expanded = true, alignment = Alignment.BottomLeft) {
         Transition(transitionDefinition, selectedIndex) { state ->
-            val offset = withDensity(+ambientDensity()) { state[indicatorStart].toDp() }
-            val width = withDensity(+ambientDensity()) {
+            val offset = withDensity(ambientDensity()) { state[indicatorStart].toDp() }
+            val width = withDensity(ambientDensity()) {
                 (state[indicatorEnd] - state[indicatorStart]).toDp()
             }
             Padding(left = offset) {

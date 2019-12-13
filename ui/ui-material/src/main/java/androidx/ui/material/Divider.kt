@@ -17,7 +17,6 @@
 package androidx.ui.material
 
 import androidx.compose.Composable
-import androidx.compose.unaryPlus
 import androidx.ui.core.Dp
 import androidx.ui.core.Modifier
 import androidx.ui.core.dp
@@ -35,7 +34,7 @@ import androidx.ui.layout.LayoutPadding
 @Composable
 fun Divider(
     modifier: Modifier = Modifier.None,
-    color: Color = (+MaterialTheme.colors()).surface,
+    color: Color = MaterialTheme.colors().surface,
     height: Dp = 1.dp,
     indent: Dp = 0.dp
 ) {

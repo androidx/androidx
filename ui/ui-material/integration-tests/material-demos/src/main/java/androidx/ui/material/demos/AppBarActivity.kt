@@ -18,7 +18,6 @@ package androidx.ui.material.demos
 
 import androidx.compose.Composable
 import androidx.compose.state
-import androidx.compose.unaryPlus
 import androidx.ui.core.Alignment
 import androidx.ui.core.Text
 import androidx.ui.core.dp
@@ -71,8 +70,8 @@ class AppBarActivity : MaterialDemoActivity() {
 
     @Composable
     override fun materialContent() {
-        var selectedTopAppBar by +state { Simple }
-        var selectedBottomAppBar by +state { NoFab }
+        var selectedTopAppBar by state { Simple }
+        var selectedBottomAppBar by state { NoFab }
 
         Column {
             Container(height = 120.dp, alignment = Alignment.TopCenter) {
@@ -133,6 +132,6 @@ class AppBarActivity : MaterialDemoActivity() {
 
     @Composable
     private fun DemoText(text: String) {
-        Text(text, style = (+MaterialTheme.typography()).h6)
+        Text(text, style = MaterialTheme.typography().h6)
     }
 }

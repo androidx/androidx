@@ -24,8 +24,7 @@ import androidx.ui.core.changedToDown
 import androidx.ui.core.consumeDownChange
 import androidx.ui.engine.geometry.Offset
 import androidx.compose.Composable
-import androidx.compose.memo
-import androidx.compose.unaryPlus
+import androidx.compose.remember
 import androidx.ui.core.IntPxSize
 import androidx.ui.core.PointerInputWrapper
 import androidx.ui.core.changedToUpIgnoreConsumed
@@ -56,7 +55,7 @@ fun PressIndicatorGestureDetector(
     enabled: Boolean = true,
     children: @Composable() () -> Unit
 ) {
-    val recognizer = +memo { PressIndicatorGestureRecognizer() }
+    val recognizer = remember { PressIndicatorGestureRecognizer() }
     recognizer.onStart = onStart
     recognizer.onStop = onStop
     recognizer.onCancel = onCancel

@@ -17,7 +17,6 @@
 package androidx.ui.material
 
 import androidx.compose.Composable
-import androidx.compose.unaryPlus
 import androidx.ui.core.Alignment
 import androidx.ui.core.CurrentTextStyleProvider
 import androidx.ui.core.Dp
@@ -164,7 +163,7 @@ fun ListItem(
     }
 
     if (onClick != null) {
-        val rippleColor = (+MaterialTheme.colors()).onSurface.copy(alpha = RippleOpacity)
+        val rippleColor = MaterialTheme.colors().onSurface.copy(alpha = RippleOpacity)
         Ripple(bounded = true, color = rippleColor) {
             Clickable(onClick = onClick, children = item)
         }
@@ -481,8 +480,8 @@ private fun applyTextStyle(
 ): @Composable() (() -> Unit)? {
     if (children == null) return null
     return {
-        val colors = +MaterialTheme.colors()
-        val typography = +MaterialTheme.typography()
+        val colors = MaterialTheme.colors()
+        val typography = MaterialTheme.typography()
         val textColor = textStyle.color(colors).copy(alpha = textStyle.opacity)
         val appliedTextStyle = textStyle.style(typography).copy(color = textColor)
         CurrentTextStyleProvider(appliedTextStyle, children)

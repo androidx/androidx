@@ -17,8 +17,7 @@
 package androidx.ui.foundation.shape.border
 
 import androidx.compose.Composable
-import androidx.compose.memo
-import androidx.compose.unaryPlus
+import androidx.compose.remember
 import androidx.ui.core.Dp
 import androidx.ui.core.Draw
 import androidx.ui.core.PxSize
@@ -38,7 +37,7 @@ import androidx.ui.graphics.PathOperation
  */
 @Composable
 fun DrawBorder(shape: Shape, border: Border) {
-    with(+memo { DrawBorderCachesHolder() }) {
+    with(remember { DrawBorderCachesHolder() }) {
         lastShape = shape
         lastBorderWidth = border.width
         Draw { canvas, parentSize ->

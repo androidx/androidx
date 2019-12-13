@@ -127,7 +127,7 @@ package androidx.ui.core {
     method public static void Text(androidx.ui.core.Modifier modifier = Modifier.None, androidx.ui.text.TextStyle? style = null, boolean softWrap = true, androidx.ui.text.style.TextOverflow overflow = androidx.ui.core.TextKt.DefaultOverflow, int maxLines = 2147483647, kotlin.jvm.functions.Function1<? super androidx.ui.core.TextSpanScope,kotlin.Unit> child);
     method public static void Text(String text, androidx.ui.core.Modifier modifier = Modifier.None, androidx.ui.text.TextStyle? style = null, boolean softWrap = true, androidx.ui.text.style.TextOverflow overflow = androidx.ui.core.TextKt.DefaultOverflow, int maxLines = 2147483647);
     method public static void Text(androidx.ui.text.AnnotatedString text, androidx.ui.core.Modifier modifier = Modifier.None, androidx.ui.text.TextStyle? style = null, boolean softWrap = true, androidx.ui.text.style.TextOverflow overflow = androidx.ui.core.TextKt.DefaultOverflow, int maxLines = 2147483647);
-    method public static androidx.compose.Effect<androidx.ui.text.TextStyle> currentTextStyle();
+    method public static androidx.ui.text.TextStyle currentTextStyle();
     method public static androidx.ui.core.HorizontalAlignmentLine getFirstBaseline();
     method public static androidx.ui.core.HorizontalAlignmentLine getLastBaseline();
   }
@@ -151,7 +151,6 @@ package androidx.ui.core {
     method public inline <T> T! expr(Object key, kotlin.jvm.functions.Function0<? extends T> block);
     method public androidx.ui.core.TextSpanComposer getComposer();
     method public Object joinKey(Object left, Object? right);
-    method public operator <V> V! unaryPlus(androidx.compose.Effect<V>);
   }
 
   public final class TextSpanScope {
@@ -161,7 +160,7 @@ package androidx.ui.core {
   public final class WrapperKt {
     method public static void ComposeView(kotlin.jvm.functions.Function0<kotlin.Unit> children);
     method public static void WithDensity(kotlin.jvm.functions.Function1<? super androidx.ui.core.DensityScope,kotlin.Unit> block);
-    method @CheckResult(suggest="+") public static androidx.compose.Effect<androidx.ui.core.Density> ambientDensity();
+    method public static androidx.ui.core.Density ambientDensity();
     method public static androidx.compose.Ambient<androidx.ui.core.AndroidComposeView> getAndroidComposeViewAmbient();
     method public static androidx.compose.Ambient<androidx.animation.AnimationClockObservable> getAnimationClockAmbient();
     method public static androidx.compose.Ambient<androidx.ui.autofill.Autofill> getAutofillAmbient();
@@ -377,7 +376,7 @@ package androidx.ui.focus {
   }
 
   public final class FocusableKt {
-    method public static void Focusable(androidx.ui.focus.FocusOperator focusOperator = +memo({ 
+    method public static void Focusable(androidx.ui.focus.FocusOperator focusOperator = remember({ 
     <init>()
 }), kotlin.jvm.functions.Function1<? super androidx.ui.focus.FocusOperator,kotlin.Unit> children);
   }
@@ -467,7 +466,7 @@ package androidx.ui.graphics.vector.compat {
 package androidx.ui.res {
 
   public final class ColorResourcesKt {
-    method @CheckResult(suggest="+") public static androidx.compose.Effect<androidx.ui.graphics.Color> colorResource(@ColorRes int id);
+    method public static androidx.ui.graphics.Color colorResource(@ColorRes int id);
   }
 
   public final class DeferredResource<T> {
@@ -481,8 +480,8 @@ package androidx.ui.res {
   }
 
   public final class ImageResourcesKt {
-    method @CheckResult(suggest="+") public static androidx.compose.Effect<androidx.ui.graphics.Image> imageResource(@DrawableRes int id);
-    method @CheckResult(suggest="+") public static androidx.compose.Effect<androidx.ui.res.DeferredResource<androidx.ui.graphics.Image>> loadImageResource(int id, androidx.ui.graphics.Image? pendingImage = null, androidx.ui.graphics.Image? failedImage = null);
+    method public static androidx.ui.graphics.Image imageResource(@DrawableRes int id);
+    method public static androidx.ui.res.DeferredResource<androidx.ui.graphics.Image> loadImageResource(int id, androidx.ui.graphics.Image? pendingImage = null, androidx.ui.graphics.Image? failedImage = null);
   }
 
   public final class LoadedResource<T> extends androidx.ui.res.Resource<T> {
@@ -494,10 +493,10 @@ package androidx.ui.res {
   }
 
   public final class PrimitiveResourcesKt {
-    method @CheckResult(suggest="+") public static androidx.compose.Effect<java.lang.Boolean> booleanResource(@BoolRes int id);
-    method @CheckResult(suggest="+") public static androidx.compose.Effect<androidx.ui.core.Dp> dimensionResource(@DimenRes int id);
-    method @CheckResult(suggest="+") public static androidx.compose.Effect<int[]> integerArrayResource(@ArrayRes int id);
-    method @CheckResult(suggest="+") public static androidx.compose.Effect<java.lang.Integer> integerResource(@IntegerRes int id);
+    method public static boolean booleanResource(@BoolRes int id);
+    method public static androidx.ui.core.Dp dimensionResource(@DimenRes int id);
+    method public static int[] integerArrayResource(@ArrayRes int id);
+    method public static int integerResource(@IntegerRes int id);
   }
 
   public abstract sealed class Resource<T> {
@@ -508,14 +507,14 @@ package androidx.ui.res {
   }
 
   public final class StringResourcesKt {
-    method @CheckResult(suggest="+") public static androidx.compose.Effect<java.lang.String[]> stringArrayResource(@ArrayRes int id);
-    method @CheckResult(suggest="+") public static androidx.compose.Effect<java.lang.String> stringResource(@StringRes int id);
-    method @CheckResult(suggest="+") public static androidx.compose.Effect<java.lang.String> stringResource(@StringRes int id, java.lang.Object... formatArgs);
+    method public static String![] stringArrayResource(@ArrayRes int id);
+    method public static String stringResource(@StringRes int id);
+    method public static String stringResource(@StringRes int id, java.lang.Object... formatArgs);
   }
 
   public final class VectorResourcesKt {
-    method @CheckResult(suggest="+") public static androidx.compose.Effect<androidx.ui.res.DeferredResource<androidx.ui.graphics.vector.VectorAsset>> loadVectorResource(int id, androidx.ui.graphics.vector.VectorAsset? pendingResource = null, androidx.ui.graphics.vector.VectorAsset? failedResource = null);
-    method @CheckResult(suggest="+") public static androidx.compose.Effect<androidx.ui.graphics.vector.VectorAsset> vectorResource(@DrawableRes int id);
+    method public static androidx.ui.res.DeferredResource<androidx.ui.graphics.vector.VectorAsset> loadVectorResource(int id, androidx.ui.graphics.vector.VectorAsset? pendingResource = null, androidx.ui.graphics.vector.VectorAsset? failedResource = null);
+    method public static androidx.ui.graphics.vector.VectorAsset vectorResource(@DrawableRes int id);
   }
 
 }

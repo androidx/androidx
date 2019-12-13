@@ -20,8 +20,7 @@ import androidx.animation.AnimationEndReason
 import androidx.animation.ExponentialDecay
 import androidx.compose.Composable
 import androidx.compose.Model
-import androidx.compose.memo
-import androidx.compose.unaryPlus
+import androidx.compose.remember
 import androidx.ui.core.Alignment
 import androidx.ui.core.Clip
 import androidx.ui.core.Constraints
@@ -140,7 +139,7 @@ class ScrollerPosition(initial: Float = 0f) {
  */
 @Composable
 fun VerticalScroller(
-    scrollerPosition: ScrollerPosition = +memo { ScrollerPosition() },
+    scrollerPosition: ScrollerPosition = remember { ScrollerPosition() },
     modifier: Modifier = Modifier.None,
     isScrollable: Boolean = true,
     child: @Composable() () -> Unit
@@ -170,7 +169,7 @@ fun VerticalScroller(
  */
 @Composable
 fun HorizontalScroller(
-    scrollerPosition: ScrollerPosition = +memo { ScrollerPosition() },
+    scrollerPosition: ScrollerPosition = remember { ScrollerPosition() },
     modifier: Modifier = Modifier.None,
     isScrollable: Boolean = true,
     child: @Composable() () -> Unit

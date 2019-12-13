@@ -18,7 +18,6 @@ package androidx.ui.material
 
 import androidx.animation.TweenBuilder
 import androidx.compose.Composable
-import androidx.compose.unaryPlus
 import androidx.ui.core.DensityScope
 import androidx.ui.core.Draw
 import androidx.ui.core.PxSize
@@ -55,7 +54,7 @@ import androidx.ui.material.ripple.Ripple
 fun Switch(
     checked: Boolean,
     onCheckedChange: ((Boolean) -> Unit)?,
-    color: Color = (+MaterialTheme.colors()).secondaryVariant
+    color: Color = MaterialTheme.colors().secondaryVariant
 ) {
     Wrap {
         Ripple(bounded = false) {
@@ -71,7 +70,7 @@ fun Switch(
 @Composable
 private fun SwitchImpl(checked: Boolean, onCheckedChange: ((Boolean) -> Unit)?, color: Color) {
     val minBound = 0f
-    val maxBound = withDensity(+ambientDensity()) { ThumbPathLength.toPx().value }
+    val maxBound = withDensity(ambientDensity()) { ThumbPathLength.toPx().value }
     StateDraggable(
         state = checked,
         onStateChange = onCheckedChange ?: {},
@@ -93,11 +92,11 @@ private fun SwitchImpl(checked: Boolean, onCheckedChange: ((Boolean) -> Unit)?, 
 
 @Composable
 private fun DrawSwitch(checked: Boolean, checkedThumbColor: Color, thumbValue: ValueHolder<Float>) {
-    val thumbColor = if (checked) checkedThumbColor else (+MaterialTheme.colors()).surface
+    val thumbColor = if (checked) checkedThumbColor else MaterialTheme.colors().surface
     val trackColor = if (checked) {
         checkedThumbColor.copy(alpha = CheckedTrackOpacity)
     } else {
-        (+MaterialTheme.colors()).onSurface.copy(alpha = UncheckedTrackOpacity)
+        MaterialTheme.colors().onSurface.copy(alpha = UncheckedTrackOpacity)
     }
     Draw { canvas, parentSize ->
         drawTrack(canvas, parentSize, trackColor)

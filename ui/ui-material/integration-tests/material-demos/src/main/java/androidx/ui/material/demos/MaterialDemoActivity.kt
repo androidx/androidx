@@ -26,7 +26,6 @@ import androidx.appcompat.app.AppCompatActivity
 import androidx.compose.Composable
 import androidx.compose.FrameManager
 import androidx.compose.Model
-import androidx.compose.unaryPlus
 import androidx.preference.EditTextPreference
 import androidx.preference.PreferenceCategory
 import androidx.preference.PreferenceFragmentCompat
@@ -48,7 +47,7 @@ class CurrentColorPalette {
     var lightColors: ColorPalette = lightColorPalette()
     var darkColors: ColorPalette = darkColorPalette()
 
-    val colors get() = if (+isSystemInDarkTheme()) darkColors else lightColors
+    val colors get() = if (isSystemInDarkTheme()) darkColors else lightColors
 }
 
 /**
@@ -66,7 +65,7 @@ abstract class MaterialDemoActivity : Activity() {
         currentColors.getColorsFromSharedPreferences()
         setContent {
             MaterialTheme(currentColors.colors) {
-                Surface(color = (+MaterialTheme.colors()).background) {
+                Surface(color = MaterialTheme.colors().background) {
                     materialContent()
                 }
             }

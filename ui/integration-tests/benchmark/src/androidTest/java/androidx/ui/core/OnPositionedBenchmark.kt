@@ -19,7 +19,6 @@ package androidx.ui.core
 import androidx.compose.Composable
 import androidx.compose.State
 import androidx.compose.state
-import androidx.compose.unaryPlus
 import androidx.test.filters.LargeTest
 import androidx.ui.benchmark.ComposeBenchmarkRule
 import androidx.ui.benchmark.toggleStateBenchmarkLayout
@@ -54,7 +53,7 @@ private class DeepHierarchyOnPositionedTestCase :
 
     @Composable
     override fun emitContent() {
-        val size = +state { 200.dp }
+        val size = state { 200.dp }
         this.state = size
         Center {
             Container(width = size.value, height = size.value) {

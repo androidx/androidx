@@ -19,7 +19,6 @@ package androidx.ui.foundation
 import androidx.compose.Ambient
 import androidx.compose.Composable
 import androidx.compose.ambient
-import androidx.compose.unaryPlus
 import androidx.ui.core.CurrentTextStyleProvider
 import androidx.ui.graphics.Color
 import androidx.ui.text.TextStyle
@@ -35,7 +34,7 @@ import androidx.ui.text.TextStyle
  * unspecified.
  */
 @Composable
-fun contentColor() = +ambient(ContentColorAmbient)
+fun contentColor() = ambient(ContentColorAmbient)
 
 /**
  * Sets [color] as the preferred content color for [children].

@@ -19,8 +19,7 @@ package androidx.ui.material
 import androidx.compose.Ambient
 import androidx.compose.Composable
 import androidx.compose.Model
-import androidx.compose.memo
-import androidx.compose.unaryPlus
+import androidx.compose.remember
 import androidx.ui.graphics.Color
 import kotlin.reflect.KProperty
 
@@ -301,7 +300,7 @@ private fun ObservableColorPalette.updateColorsFrom(other: ColorPalette): Observ
 internal fun ProvideColorPalette(colorPalette: ColorPalette, children: @Composable() () -> Unit) {
     val palette = when (colorPalette) {
         is ObservableColorPalette -> {
-            (+memo { ObservableColorPalette(colorPalette) }).updateColorsFrom(colorPalette)
+            (remember { ObservableColorPalette(colorPalette) }).updateColorsFrom(colorPalette)
         }
         else -> colorPalette
     }

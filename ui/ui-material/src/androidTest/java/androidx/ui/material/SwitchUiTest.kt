@@ -17,7 +17,6 @@
 package androidx.ui.material
 
 import androidx.compose.state
-import androidx.compose.unaryPlus
 import androidx.test.filters.MediumTest
 import androidx.ui.core.TestTag
 import androidx.ui.core.dp
@@ -79,7 +78,7 @@ class SwitchUiTest {
     @Test
     fun switch_toggle() {
         composeTestRule.setMaterialContent {
-            val (checked, onChecked) = +state { false }
+            val (checked, onChecked) = state { false }
             TestTag(tag = defaultSwitchTag) {
                 Switch(checked, onChecked)
             }
@@ -94,7 +93,7 @@ class SwitchUiTest {
     fun switch_toggleTwice() {
 
         composeTestRule.setMaterialContent {
-            val (checked, onChecked) = +state { false }
+            val (checked, onChecked) = state { false }
             TestTag(tag = defaultSwitchTag) {
                 Switch(checked, onChecked)
             }
@@ -110,7 +109,7 @@ class SwitchUiTest {
     @Test
     fun switch_uncheckableWithNoLambda() {
         composeTestRule.setMaterialContent {
-            val (checked, _) = +state { false }
+            val (checked, _) = state { false }
             TestTag(tag = defaultSwitchTag) {
                 Switch(checked = checked, onCheckedChange = null)
             }

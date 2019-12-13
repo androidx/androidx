@@ -18,7 +18,6 @@ package androidx.ui.text.demos
 
 import androidx.compose.Composable
 import androidx.compose.state
-import androidx.compose.unaryPlus
 import androidx.ui.core.TextField
 import androidx.ui.core.sp
 import androidx.ui.layout.Column
@@ -41,7 +40,7 @@ fun InputFieldTrickyUseCase() {
 
 @Composable
 private fun RejectNonDigits() {
-    val state = +state { "" }
+    val state = state { "" }
     TextField(
         value = state.value,
         textStyle = TextStyle(fontSize = 32.sp),
@@ -56,7 +55,7 @@ private fun RejectNonDigits() {
 
 @Composable
 private fun RejectComposition() {
-    val state = +state { "" }
+    val state = state { "" }
     TextField(
         value = state.value,
         textStyle = TextStyle(fontSize = 32.sp),

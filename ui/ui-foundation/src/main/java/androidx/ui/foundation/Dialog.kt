@@ -24,11 +24,9 @@ import android.widget.FrameLayout
 import androidx.compose.Composable
 import androidx.compose.ambient
 import androidx.compose.disposeComposition
-import androidx.compose.memo
+import androidx.compose.remember
 import androidx.compose.onActive
 import androidx.compose.onCommit
-import androidx.compose.onDispose
-import androidx.compose.unaryPlus
 import androidx.ui.core.ContextAmbient
 import androidx.ui.core.setContent
 
@@ -48,11 +46,11 @@ import androidx.ui.core.setContent
  */
 @Composable
 fun Dialog(onCloseRequest: () -> Unit, children: @Composable() () -> Unit) {
-    val context = +ambient(ContextAmbient)
+    val context = ambient(ContextAmbient)
 
-    val dialog = +memo { DialogWrapper(context, onCloseRequest) }
+    val dialog = remember { DialogWrapper(context, onCloseRequest) }
 
-    +onActive {
+    onActive {
         dialog.show()
 
         onDispose {
@@ -61,7 +59,7 @@ fun Dialog(onCloseRequest: () -> Unit, children: @Composable() () -> Unit) {
         }
     }
 
-    +onCommit {
+    onCommit {
         dialog.setContent(children)
     }
 }

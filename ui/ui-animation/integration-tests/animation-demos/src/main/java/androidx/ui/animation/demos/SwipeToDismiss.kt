@@ -25,9 +25,8 @@ import androidx.animation.PhysicsBuilder
 import androidx.animation.TargetAnimation
 import androidx.animation.fling
 import androidx.compose.Composable
-import androidx.compose.memo
+import androidx.compose.remember
 import androidx.compose.state
-import androidx.compose.unaryPlus
 import androidx.ui.animation.animatedFloat
 import androidx.ui.core.Draw
 import androidx.ui.core.IntPx
@@ -69,10 +68,10 @@ class SwipeToDismiss : Activity() {
 
     @Composable
     fun SwipeToDismiss() {
-        val itemBottom = +animatedFloat(height)
-        val index = +state { 0 }
-        val itemWidth = +state { 0f }
-        val isFlinging = +state { false }
+        val itemBottom = animatedFloat(height)
+        val index = state { 0 }
+        val itemWidth = state { 0f }
+        val isFlinging = state { false }
         RawDragGestureDetector(dragObserver = object : DragObserver {
             override fun onStart(downPosition: PxPosition) {
                 itemBottom.setBounds(0f, height)
@@ -148,7 +147,7 @@ class SwipeToDismiss : Activity() {
 
     @Composable
     fun drawLeftItems(horizontalOffset: Float, width: Float, height: Float, index: Int) {
-        var paint = +memo { Paint() }
+        var paint = remember { Paint() }
         Draw { canvas, parentSize ->
             paint.color = colors[index % colors.size]
             val centerX = parentSize.width.value / 2
@@ -171,7 +170,7 @@ class SwipeToDismiss : Activity() {
 
     @Composable
     fun drawDismissingItem(bottom: Float, width: Float, height: Float, index: Int, alpha: Float) {
-        var paint = +memo { Paint() }
+        var paint = remember { Paint() }
         Draw { canvas, parentSize ->
             paint.color = colors[index % colors.size]
             paint.alpha = alpha

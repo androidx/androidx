@@ -34,7 +34,6 @@ package androidx.ui.material.demos
 
 import android.util.Log
 import androidx.compose.Composable
-import androidx.compose.unaryPlus
 import androidx.ui.layout.Arrangement
 import androidx.ui.layout.Center
 import androidx.ui.layout.Column
@@ -63,7 +62,7 @@ class ButtonActivity : MaterialDemoActivity() {
                 Button(
                     text = "SECONDARY COLOR",
                     onClick = onClick,
-                    style = ContainedButtonStyle((+MaterialTheme.colors()).secondary))
+                    style = ContainedButtonStyle(MaterialTheme.colors().secondary))
 
                 ButtonWithTextSample(onClick)
 

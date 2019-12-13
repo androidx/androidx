@@ -18,7 +18,6 @@ package androidx.ui.material.studies
 
 import androidx.ui.material.surface.Surface
 import androidx.compose.Composable
-import androidx.compose.unaryPlus
 import androidx.ui.layout.Column
 import androidx.ui.material.MaterialTheme
 
@@ -32,7 +31,7 @@ import androidx.ui.material.MaterialTheme
 fun Scaffold(appBar: @Composable() () -> Unit, children: @Composable() () -> Unit) {
     Column {
         appBar()
-        Surface(modifier = LayoutFlexible(1f), color = (+MaterialTheme.colors()).surface) {
+        Surface(modifier = LayoutFlexible(1f), color = MaterialTheme.colors().surface) {
             children()
         }
     }

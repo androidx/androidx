@@ -17,7 +17,6 @@
 package androidx.ui.material.demos
 
 import androidx.compose.Composable
-import androidx.compose.unaryPlus
 import androidx.ui.core.Text
 import androidx.ui.core.dp
 import androidx.ui.foundation.ColoredRect
@@ -76,7 +75,7 @@ class DividersSpacersActivity : MaterialDemoActivity() {
     @Composable
     fun Item(text: String, color: Color? = null) {
         val avatarSize = ItemSize - ItemPadding * 2
-        val textStyle = (+MaterialTheme.typography()).body1
+        val textStyle = MaterialTheme.typography().body1
         Container(height = ItemSize, padding = EdgeInsets(ItemPadding)) {
             Row {
                 if (color != null) {

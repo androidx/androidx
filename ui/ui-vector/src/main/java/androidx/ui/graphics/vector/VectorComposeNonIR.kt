@@ -24,7 +24,6 @@ import androidx.compose.Composer
 import androidx.compose.ComposerUpdater
 import androidx.compose.CompositionContext
 import androidx.compose.CompositionReference
-import androidx.compose.Effect
 import androidx.compose.Recomposer
 import androidx.compose.SlotTable
 import androidx.compose.ViewValidator
@@ -127,9 +126,6 @@ internal class VectorApplyAdapter : ApplyAdapter<VNode> {
 typealias VectorUpdater<T> = ComposerUpdater<VNode, T>
 
 class VectorComposition(val composer: VectorComposer) {
-    @Suppress("NOTHING_TO_INLINE")
-    inline operator fun <V> Effect<V>.unaryPlus(): V = resolve(this@VectorComposition.composer)
-
     inline fun <T : VNode> emit(
         key: Any,
         /*crossinline*/

@@ -19,11 +19,9 @@ package androidx.ui.animation
 import androidx.animation.AnimationEndReason
 import androidx.animation.TweenBuilder
 import androidx.compose.Composable
-import androidx.compose.Key
-import androidx.compose.effectOf
-import androidx.compose.memo
+import androidx.compose.key
 import androidx.compose.onCommit
-import androidx.compose.unaryPlus
+import androidx.compose.remember
 import androidx.ui.core.Opacity
 import androidx.ui.layout.Stack
 
@@ -38,7 +36,7 @@ import androidx.ui.layout.Stack
  */
 @Composable
 fun <T> Crossfade(current: T, children: @Composable() (T) -> Unit) {
-    val state = +memo { CrossfadeState<T>() }
+    val state = remember { CrossfadeState<T>() }
     if (current != state.current) {
         state.current = current
         val keys = state.items.map { it.first }.toMutableList()
@@ -49,7 +47,7 @@ fun <T> Crossfade(current: T, children: @Composable() (T) -> Unit) {
         keys.forEach { key ->
             state.items.add(key to @Composable() { children ->
                 Opacity(
-                    opacity = +animatedOpacity(
+                    opacity = animatedOpacity(
                         visible = (key == current),
                         onAnimationFinish = {
                             if (key == state.current) {
@@ -63,10 +61,10 @@ fun <T> Crossfade(current: T, children: @Composable() (T) -> Unit) {
         }
     }
     Stack {
-        state.items.forEach { (key, opacity) ->
-            Key(key = key) {
+        state.items.forEach { (item, opacity) ->
+            key(item) {
                 opacity {
-                    children(key)
+                    children(item)
                 }
             }
         }
@@ -78,12 +76,13 @@ private class CrossfadeState<T> {
     val items = mutableListOf<Pair<T, @Composable() (@Composable() () -> Unit) -> Unit>>()
 }
 
+@Composable
 private fun animatedOpacity(
     visible: Boolean,
     onAnimationFinish: () -> Unit = {}
-) = effectOf<Float> {
-    val animatedFloat = +animatedFloat(if (!visible) 1f else 0f)
-    +onCommit(visible) {
+): Float {
+    val animatedFloat = animatedFloat(if (!visible) 1f else 0f)
+    onCommit(visible) {
         animatedFloat.animateTo(
             if (visible) 1f else 0f,
             anim = TweenBuilder<Float>().apply { duration = 300 },
@@ -93,5 +92,5 @@ private fun animatedOpacity(
                 }
             })
     }
-    animatedFloat.value
+    return animatedFloat.value
 }

@@ -20,7 +20,6 @@ import android.app.Activity
 import android.os.Bundle
 import androidx.compose.Composable
 import androidx.compose.state
-import androidx.compose.unaryPlus
 import androidx.ui.core.Direction
 import androidx.ui.core.Dp
 import androidx.ui.core.IntPx
@@ -80,8 +79,8 @@ class NestedScrollingDemo : Activity() {
  */
 @Composable
 private fun Draggable(children: @Composable() () -> Unit) {
-    val offset = +state { 0.px }
-    val maxOffset = +state { 0.px }
+    val offset = state { 0.px }
+    val maxOffset = state { 0.px }
 
     val dragObserver = object : DragObserver {
         override fun onDrag(dragDistance: PxPosition): PxPosition {
@@ -142,8 +141,8 @@ private fun Pressable(
     val pressedColor = PressedColor
     val defaultColor = DefaultBackgroundColor
 
-    val color = +state { defaultColor }
-    val showPressed = +state { false }
+    val color = state { defaultColor }
+    val showPressed = state { false }
 
     val onPress: (PxPosition) -> Unit = {
         showPressed.value = true

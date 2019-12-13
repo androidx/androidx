@@ -19,7 +19,6 @@ package androidx.ui.framework.demos.gestures
 import android.app.Activity
 import android.os.Bundle
 import androidx.compose.state
-import androidx.compose.unaryPlus
 import androidx.ui.core.gesture.ScaleObserver
 import androidx.ui.core.px
 import androidx.ui.graphics.Color
@@ -34,8 +33,8 @@ class ScaleGestureDetectorDemo : Activity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContent {
-            val width = +state { 96.dp }
-            val height = +state { 96.dp }
+            val width = state { 96.dp }
+            val height = state { 96.dp }
 
             val scaleObserver = object : ScaleObserver {
                 override fun onScale(scaleFactor: Float) {

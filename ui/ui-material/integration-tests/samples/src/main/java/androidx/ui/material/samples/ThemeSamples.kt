@@ -18,7 +18,6 @@ package androidx.ui.material.samples
 
 import androidx.annotation.Sampled
 import androidx.compose.Composable
-import androidx.compose.unaryPlus
 import androidx.ui.core.Text
 import androidx.ui.core.sp
 import androidx.ui.foundation.ColoredRect
@@ -45,7 +44,7 @@ fun MaterialThemeSample() {
         primary = Color(0xFF66ffc7)
     )
 
-    val colors = if (+isSystemInDarkTheme()) darkColors else lightColors
+    val colors = if (isSystemInDarkTheme()) darkColors else lightColors
 
     val typography = Typography(
         h1 = TextStyle(fontFamily = FontFamily("RobotoCondensed"),
@@ -57,7 +56,7 @@ fun MaterialThemeSample() {
     )
 
     MaterialTheme(colors = colors, typography = typography) {
-        val currentTheme = if ((+MaterialTheme.colors()).isLight) "light" else "dark"
+        val currentTheme = if (MaterialTheme.colors().isLight) "light" else "dark"
         FloatingActionButton(
             "FAB with text style and color from $currentTheme theme",
             onClick = {}
@@ -68,13 +67,13 @@ fun MaterialThemeSample() {
 @Sampled
 @Composable
 fun ThemeColorSample() {
-    val colors = +MaterialTheme.colors()
+    val colors = MaterialTheme.colors()
     ColoredRect(color = colors.primary, modifier = LayoutAspectRatio(1f))
 }
 
 @Sampled
 @Composable
 fun ThemeTextStyleSample() {
-    val typography = +MaterialTheme.typography()
+    val typography = MaterialTheme.typography()
     Text(text = "H4 styled text", style = typography.h4)
 }

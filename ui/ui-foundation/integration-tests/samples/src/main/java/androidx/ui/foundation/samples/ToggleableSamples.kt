@@ -19,7 +19,6 @@ package androidx.ui.foundation.samples
 import androidx.annotation.Sampled
 import androidx.compose.Composable
 import androidx.compose.state
-import androidx.compose.unaryPlus
 import androidx.ui.core.Text
 import androidx.ui.foundation.selection.Toggleable
 import androidx.ui.foundation.selection.ToggleableState
@@ -28,7 +27,7 @@ import androidx.ui.foundation.selection.TriStateToggleable
 @Sampled
 @Composable
 fun ToggleableSample() {
-    var checked by +state { false }
+    var checked by state { false }
     Toggleable(value = checked, onValueChange = { checked = it }) {
         // content that you want to make toggleable
         Text(text = checked.toString())
@@ -38,7 +37,7 @@ fun ToggleableSample() {
 @Sampled
 @Composable
 fun TriStateToggleableSample() {
-    var checked by +state { ToggleableState.Indeterminate }
+    var checked by state { ToggleableState.Indeterminate }
     TriStateToggleable(
         value = checked,
         onToggle = {

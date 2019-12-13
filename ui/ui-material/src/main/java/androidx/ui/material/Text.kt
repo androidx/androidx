@@ -17,7 +17,7 @@
 package androidx.ui.material
 
 import androidx.annotation.FloatRange
-import androidx.compose.unaryPlus
+import androidx.compose.Composable
 import androidx.ui.core.currentTextStyle
 import androidx.ui.graphics.Color
 import androidx.ui.text.TextStyle
@@ -32,7 +32,8 @@ import androidx.ui.text.TextStyle
  *
  * @param opacity the text color opacity to apply for this [TextStyle].
  */
+@Composable
 fun TextStyle.withOpacity(@FloatRange(from = 0.0, to = 1.0) opacity: Float): TextStyle {
-    val color = color ?: (+currentTextStyle()).color ?: Color.Black
+    val color = color ?: currentTextStyle().color ?: Color.Black
     return copy(color = color.copy(alpha = opacity))
 }

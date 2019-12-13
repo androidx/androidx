@@ -17,7 +17,6 @@
 package androidx.ui.foundation
 
 import androidx.compose.state
-import androidx.compose.unaryPlus
 import androidx.test.filters.MediumTest
 import androidx.ui.core.Text
 import androidx.ui.foundation.selection.MutuallyExclusiveSetItem
@@ -64,7 +63,7 @@ class MutuallyExclusiveSetItemTest {
     @Test
     fun mutuallyExclusiveItem_defaultClicks() {
         composeTestRule.setContent {
-            val (selected, onSelected) = +state { false }
+            val (selected, onSelected) = state { false }
             MutuallyExclusiveSetItem(selected, onClick = { onSelected(!selected) }) {
                 Text("Text in item")
             }
@@ -81,7 +80,7 @@ class MutuallyExclusiveSetItemTest {
     @Test
     fun mutuallyExclusiveItem_noClicksNoChanges() {
         composeTestRule.setContent {
-            val (selected, _) = +state { false }
+            val (selected, _) = state { false }
             MutuallyExclusiveSetItem(selected, onClick = {}) {
                 Text("Text in item")
             }

@@ -19,7 +19,6 @@ package androidx.ui.framework.demos.gestures
 import android.app.Activity
 import android.os.Bundle
 import androidx.compose.state
-import androidx.compose.unaryPlus
 import androidx.ui.core.px
 import androidx.ui.core.setContent
 import androidx.ui.graphics.Color
@@ -38,9 +37,9 @@ class TouchSlopExceededGestureDetectorDemo : Activity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContent {
-            val xOffset = +state { 0.px }
-            val yOffset = +state { 0.px }
-            val orientationVertical = +state { true }
+            val xOffset = state { 0.px }
+            val yOffset = state { 0.px }
+            val orientationVertical = state { true }
 
             // This would be more efficient if onTouchSlopExceeded were memoized because it's
             // value doesn't need to change for each new composition.  Like this, every time

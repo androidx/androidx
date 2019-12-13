@@ -16,7 +16,6 @@
 package androidx.ui.material
 
 import androidx.compose.state
-import androidx.compose.unaryPlus
 import androidx.test.filters.MediumTest
 import androidx.ui.core.TestTag
 import androidx.ui.core.dp
@@ -86,7 +85,7 @@ class CheckboxUiTest {
     @Test
     fun checkBoxTest_toggle() {
         composeTestRule.setMaterialContent {
-            val (checked, onCheckedChange) = +state { false }
+            val (checked, onCheckedChange) = state { false }
             TestTag(tag = defaultTag) {
                 Checkbox(checked, onCheckedChange)
             }
@@ -101,7 +100,7 @@ class CheckboxUiTest {
     @Test
     fun checkBoxTest_toggle_twice() {
         composeTestRule.setMaterialContent {
-            val (checked, onCheckedChange) = +state { false }
+            val (checked, onCheckedChange) = state { false }
             TestTag(tag = defaultTag) {
                 Checkbox(checked, onCheckedChange)
             }
@@ -119,7 +118,7 @@ class CheckboxUiTest {
     fun checkBoxTest_untoggleable_whenNoLambda() {
 
         composeTestRule.setMaterialContent {
-            val (checked, _) = +state { false }
+            val (checked, _) = state { false }
             TestTag(tag = defaultTag) {
                 Checkbox(checked, null)
             }

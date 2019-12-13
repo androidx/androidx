@@ -19,7 +19,6 @@ package androidx.ui.material.demos
 import androidx.compose.Composable
 import androidx.ui.core.Text
 import androidx.ui.graphics.Color
-import androidx.compose.unaryPlus
 import androidx.ui.material.MaterialTheme
 
 open class TextActivity : MaterialDemoActivity() {
@@ -29,6 +28,6 @@ open class TextActivity : MaterialDemoActivity() {
         val textColor = Color(0xFFFF0000)
         Text(
             text = "Hello",
-            style = (+MaterialTheme.typography()).h1.copy(color = textColor))
+            style = MaterialTheme.typography().h1.copy(color = textColor))
     }
 }

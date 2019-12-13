@@ -21,8 +21,7 @@ import android.os.Bundle
 import androidx.animation.FastOutSlowInEasing
 import androidx.compose.Composable
 import androidx.compose.Model
-import androidx.compose.memo
-import androidx.compose.unaryPlus
+import androidx.compose.remember
 import androidx.ui.core.Text
 import androidx.ui.core.dp
 import androidx.ui.core.setContent
@@ -94,7 +93,7 @@ private fun DynamicThemeApp(scrollFraction: ScrollFraction, palette: ColorPalett
         Stack {
             Column(LayoutExpanded) {
                 TopBar()
-                val background = (+MaterialTheme.colors()).background
+                val background = MaterialTheme.colors().background
                 Surface(color = background, modifier = LayoutFlexible(1f)) {
                     ScrollingContent(scrollFraction)
                 }
@@ -113,12 +112,12 @@ private fun TopBar() {
 
 @Composable
 private fun BottomBar(scrollFraction: ScrollFraction) {
-    val secondary = (+MaterialTheme.colors()).secondary
+    val secondary = MaterialTheme.colors().secondary
     val fabText = emojiForScrollFraction(scrollFraction.fraction)
     BottomAppBar<Any>(fabConfiguration = FabConfiguration(fab = {
         FloatingActionButton(
             text = fabText,
-            textStyle = (+MaterialTheme.typography()).h5,
+            textStyle = MaterialTheme.typography().h5,
             color = secondary,
             onClick = {}
         )
@@ -127,9 +126,9 @@ private fun BottomBar(scrollFraction: ScrollFraction) {
 
 @Composable
 private fun ScrollingContent(scrollFraction: ScrollFraction) {
-    val scrollerPosition = +memo { ScrollerPosition() }
+    val scrollerPosition = remember { ScrollerPosition() }
     val fraction = round((scrollerPosition.value / scrollerPosition.maxPosition) * 100) / 100
-    +memo(fraction) { scrollFraction.fraction = fraction }
+    remember(fraction) { scrollFraction.fraction = fraction }
     VerticalScroller(scrollerPosition) {
         Cards()
     }

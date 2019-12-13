@@ -18,8 +18,7 @@ package androidx.ui.material
 
 import androidx.animation.PhysicsBuilder
 import androidx.compose.Composable
-import androidx.compose.memo
-import androidx.compose.unaryPlus
+import androidx.compose.remember
 import androidx.ui.core.Draw
 import androidx.ui.core.IntPx
 import androidx.ui.core.Layout
@@ -117,7 +116,7 @@ fun ModalDrawerLayout(
             if (!pxConstraints.hasBoundedWidth) {
                 throw IllegalStateException("Drawer shouldn't have infinite width")
             }
-            val constraints = withDensity(+ambientDensity()) {
+            val constraints = withDensity(ambientDensity()) {
                 DpConstraints(pxConstraints)
             }
             val minValue = -pxConstraints.maxWidth.value.toFloat()
@@ -184,7 +183,7 @@ fun BottomDrawerLayout(
             if (!pxConstraints.hasBoundedHeight) {
                 throw IllegalStateException("Drawer shouldn't have infinite height")
             }
-            val constraints = withDensity(+ambientDensity()) {
+            val constraints = withDensity(ambientDensity()) {
                 DpConstraints(pxConstraints)
             }
             val minValue = 0f
@@ -268,8 +267,8 @@ private fun Scrim(
     // TODO: use enabled = false here when it will be available
     val scrimContent = @Composable {
         Container(expanded = true) {
-            val paint = +memo { Paint().apply { style = PaintingStyle.fill } }
-            val color = (+MaterialTheme.colors()).onSurface
+            val paint = remember { Paint().apply { style = PaintingStyle.fill } }
+            val color = MaterialTheme.colors().onSurface
             Draw { canvas, parentSize ->
                 val scrimAlpha = fraction() * ScrimDefaultOpacity
                 paint.color = color.copy(alpha = scrimAlpha)

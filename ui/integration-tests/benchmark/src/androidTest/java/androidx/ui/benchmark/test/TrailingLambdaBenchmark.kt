@@ -20,7 +20,6 @@ import androidx.compose.Composable
 import androidx.compose.State
 import androidx.test.filters.LargeTest
 import androidx.compose.state
-import androidx.compose.unaryPlus
 import androidx.ui.benchmark.ComposeBenchmarkRule
 import androidx.ui.benchmark.benchmarkFirstCompose
 import androidx.ui.benchmark.toggleStateBenchmarkRecompose
@@ -68,7 +67,7 @@ private sealed class TrailingLambdaTestCase() : ComposeTestCase,
 
     @Composable
     override fun emitContent() {
-        val number = +state { 5 }
+        val number = state { 5 }
         numberState = number
 
         val content = @Composable {

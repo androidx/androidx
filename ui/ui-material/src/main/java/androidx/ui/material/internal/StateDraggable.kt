@@ -19,10 +19,9 @@ package androidx.ui.material.internal
 import androidx.animation.AnimationBuilder
 import androidx.animation.AnimationEndReason
 import androidx.compose.Composable
-import androidx.compose.memo
+import androidx.compose.remember
 import androidx.compose.onCommit
 import androidx.compose.state
-import androidx.compose.unaryPlus
 import androidx.ui.foundation.ValueHolder
 import androidx.ui.foundation.animation.AnchorsFlingConfig
 import androidx.ui.foundation.animation.animatedDragValue
@@ -69,9 +68,9 @@ internal fun <T> StateDraggable(
     maxValue: Float = Float.MAX_VALUE,
     children: @Composable() (ValueHolder<Float>) -> Unit
 ) {
-    val forceAnimationCheck = +state { true }
+    val forceAnimationCheck = state { true }
 
-    val anchors = +memo(anchorsToState) { anchorsToState.map { it.first } }
+    val anchors = remember(anchorsToState) { anchorsToState.map { it.first } }
     val currentValue = anchorsToState.firstOrNull { it.second == state }!!.first
     val flingConfig =
         AnchorsFlingConfig(anchors, animationBuilder, onAnimationEnd = { reason, finalValue, _ ->
@@ -83,11 +82,11 @@ internal fun <T> StateDraggable(
                 }
             }
         })
-    val position = +animatedDragValue(currentValue, minValue, maxValue)
+    val position = animatedDragValue(currentValue, minValue, maxValue)
 
-    // This state is to force this component to be recomposed and trigger +onCommit below
+    // This state is to force this component to be recomposed and trigger onCommit below
     // This is needed to stay in sync with drag state that caller side holds
-    +onCommit(currentValue, forceAnimationCheck.value) {
+    onCommit(currentValue, forceAnimationCheck.value) {
         position.animatedFloat.animateTo(currentValue, animationBuilder)
     }
     Draggable(

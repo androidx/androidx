@@ -21,7 +21,6 @@ import android.content.res.Configuration
 import android.view.ViewGroup
 import androidx.animation.AnimationClockObservable
 import androidx.animation.DefaultAnimationClock
-import androidx.annotation.CheckResult
 import androidx.ui.core.input.FocusManager
 import androidx.ui.input.TextInputService
 import androidx.compose.Ambient
@@ -33,11 +32,9 @@ import androidx.compose.CompositionReference
 import androidx.compose.Observe
 import androidx.compose.ambient
 import androidx.compose.compositionReference
-import androidx.compose.effectOf
-import androidx.compose.memo
+import androidx.compose.remember
 import androidx.compose.onPreCommit
 import androidx.compose.state
-import androidx.compose.unaryPlus
 import androidx.ui.autofill.Autofill
 import androidx.ui.autofill.AutofillTree
 import androidx.ui.core.selection.SelectionContainer
@@ -53,7 +50,7 @@ import kotlin.coroutines.CoroutineContext
  */
 @Composable
 fun ComposeView(children: @Composable() () -> Unit) {
-    val rootRef = +memo { Ref<AndroidComposeView>() }
+    val rootRef = remember { Ref<AndroidComposeView>() }
 
     AndroidComposeView(ref = rootRef) {
         var reference: CompositionReference? = null
@@ -72,9 +69,9 @@ fun ComposeView(children: @Composable() () -> Unit) {
         // `cc.recomposeSync()` which will only recompose the invalidations in the child context,
         // which means it *will not* call `children()` again if it doesn't have to.
         Observe {
-            reference = +compositionReference()
+            reference = compositionReference()
             cc?.recomposeSync()
-            +onPreCommit(true) {
+            onPreCommit(true) {
                 onDispose {
                     rootRef.value?.let {
                         val layoutRootNode = it.root
@@ -163,8 +160,8 @@ private fun WrapWithAmbients(
 ) {
     // TODO(nona): Tie the focus manger lifecycle to Window, otherwise FocusManager won't work
     //             with nested AndroidComposeView case
-    val focusManager = +memo { FocusManager() }
-    val configuration = +state { context.applicationContext.resources.configuration }
+    val focusManager = remember { FocusManager() }
+    val configuration = state { context.applicationContext.resources.configuration }
 
     // We don't use the attached View's layout direction here since that layout direction may not
     // be resolved since the composables may be composed without attaching to the RootViewImpl.
@@ -177,7 +174,7 @@ private fun WrapWithAmbients(
         // Fallback to LTR for unexpected return value.
         else -> LayoutDirection.Ltr
     }
-    +memo {
+    remember {
         composeView.configurationChangeObserver = {
             // onConfigurationChange is the correct hook to update configuration, however it is
             // possible that the configuration object itself may come from a wrapped
@@ -188,7 +185,7 @@ private fun WrapWithAmbients(
         }
     }
 
-    val defaultAnimationClock = +memo { DefaultAnimationClock() }
+    val defaultAnimationClock = remember { DefaultAnimationClock() }
 
     // Fold all the nested function in order to provide the desired ambient properties
     // Having a lot of methods nested one inside the other will cause a Compile error. The name of
@@ -272,9 +269,8 @@ val FontLoaderAmbient = Ambient.of<Font.ResourceLoader>()
  *
  * Note: this is an experiment with the ways to achieve a read-only public [Ambient]s.
  */
-@CheckResult(suggest = "+")
-fun ambientDensity() =
-    effectOf<Density> { +ambient(DensityAmbient) }
+@Composable
+fun ambientDensity() = ambient(DensityAmbient)
 
 /**
  * A component to be able to convert dimensions between each other.
@@ -289,5 +285,5 @@ fun ambientDensity() =
  */
 @Composable
 fun WithDensity(block: @Composable DensityScope.() -> Unit) {
-    DensityScope(+ambientDensity()).block()
+    DensityScope(ambientDensity()).block()
 }

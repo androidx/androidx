@@ -20,7 +20,6 @@ import android.app.Activity
 import android.os.Bundle
 import androidx.compose.Composable
 import androidx.compose.state
-import androidx.compose.unaryPlus
 import androidx.ui.core.dp
 import androidx.ui.core.px
 import androidx.ui.graphics.Color
@@ -65,7 +64,7 @@ fun Scalable(
     children: @Composable() () -> Unit
 ) {
 
-    val currentPercent = +state { 1f }
+    val currentPercent = state { 1f }
 
     val outerScaleObserver = object : RawScaleObserver {
         override fun onScale(scaleFactor: Float): Float {

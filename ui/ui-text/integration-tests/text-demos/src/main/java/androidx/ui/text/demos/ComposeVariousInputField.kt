@@ -18,7 +18,6 @@ package androidx.ui.text.demos
 
 import androidx.compose.Composable
 import androidx.compose.state
-import androidx.compose.unaryPlus
 import androidx.ui.core.Layout
 import androidx.ui.input.OffsetMap
 import androidx.ui.input.PasswordVisualTransformation
@@ -245,7 +244,7 @@ fun VariousEditLine(
     onValueChange: (String, String) -> String = { _, new -> new },
     visualTransformation: VisualTransformation
 ) {
-    val state = +state { "" }
+    val state = state { "" }
     TextField(
         value = state.value,
         keyboardType = keyboardType,
@@ -258,7 +257,7 @@ fun VariousEditLine(
 
 @Composable
 fun HintEditText(hintText: @Composable() () -> Unit) {
-    val state = +state { "" }
+    val state = state { "" }
 
     val inputField = @Composable {
         TextField(

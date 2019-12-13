@@ -17,8 +17,7 @@
 package androidx.ui.core.gesture
 
 import androidx.compose.Composable
-import androidx.compose.memo
-import androidx.compose.unaryPlus
+import androidx.compose.remember
 import androidx.ui.core.IntPxSize
 import androidx.ui.core.PointerEventPass
 import androidx.ui.core.PointerInputChange
@@ -111,7 +110,7 @@ fun RawScaleGestureDetector(
     canStartScaling: (() -> Boolean)? = null,
     children: @Composable() () -> Unit
 ) {
-    val recognizer = +memo { RawScaleGestureRecognizer() }
+    val recognizer = remember { RawScaleGestureRecognizer() }
     // TODO(b/129784010): Consider also allowing onStart, onScale, and onEnd to be set individually.
     recognizer.scaleObserver = scaleObserver
     recognizer.canStartScaling = canStartScaling

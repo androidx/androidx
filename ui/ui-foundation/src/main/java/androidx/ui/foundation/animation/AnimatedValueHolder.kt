@@ -18,10 +18,9 @@ package androidx.ui.foundation.animation
 
 import androidx.animation.AnimatedFloat
 import androidx.animation.DynamicTargetAnimation
-import androidx.annotation.CheckResult
+import androidx.compose.Composable
 import androidx.compose.Model
-import androidx.compose.effectOf
-import androidx.compose.memo
+import androidx.compose.remember
 import androidx.ui.foundation.ValueHolder
 import androidx.ui.foundation.gestures.Draggable
 import androidx.ui.lerp
@@ -75,13 +74,12 @@ class AnimatedValueHolder(initial: Float) : ValueHolder<Float> {
  * @param minBound minimal bound for the value inside the holder
  * @param maxBound maximal bound for the value inside the holder
  */
-@CheckResult(suggest = "+")
-fun animatedDragValue(initial: Float, minBound: Float, maxBound: Float) =
-    effectOf<AnimatedValueHolder> {
-        val vh = +memo { AnimatedValueHolder(initial) }
-        vh.setBounds(minBound, maxBound)
-        vh
-    }
+@Composable
+fun animatedDragValue(initial: Float, minBound: Float, maxBound: Float): AnimatedValueHolder {
+    val vh = remember { AnimatedValueHolder(initial) }
+    vh.setBounds(minBound, maxBound)
+    return vh
+}
 
 private class ListeneableValueHolder(
     var current: Float,

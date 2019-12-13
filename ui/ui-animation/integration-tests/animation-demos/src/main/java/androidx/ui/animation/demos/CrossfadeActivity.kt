@@ -20,9 +20,8 @@ import android.app.Activity
 import android.os.Bundle
 import android.util.Log
 import androidx.compose.Composable
-import androidx.compose.memo
+import androidx.compose.remember
 import androidx.compose.state
-import androidx.compose.unaryPlus
 import androidx.ui.animation.Crossfade
 import androidx.ui.core.Draw
 import androidx.ui.core.PxSize
@@ -50,7 +49,7 @@ class CrossfadeActivity : Activity() {
 
 @Composable
 private fun CrossfadeDemo() {
-    var current by +state { tabs[0] }
+    var current by state { tabs[0] }
     Column {
         Row {
             tabs.forEach {
@@ -65,7 +64,7 @@ private fun CrossfadeDemo() {
             }
         }
         Crossfade(current = current) { tab ->
-            tab.lastInt = +memo { Random.nextInt() }
+            tab.lastInt = remember { Random.nextInt() }
             Container(LayoutExpanded) {
                 DrawTab(tab = tab)
             }

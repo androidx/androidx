@@ -37,7 +37,6 @@ import androidx.ui.androidview.adapters.setOnTextChanged
 import androidx.compose.Composable
 import androidx.compose.Model
 import androidx.compose.state
-import androidx.compose.unaryPlus
 import androidx.compose.setViewContent
 
 @Model
@@ -78,7 +77,7 @@ fun renderViews(webParams: WebParams = WebParams(), webContext: WebContext) {
         Log.d("WebCompAct", "renderViews")
     }
 
-    val displayedUrl = +state { "https://www.google.com" }
+    val displayedUrl = state { "https://www.google.com" }
 
     fun updateDisplayedUrl(newValue: String?) {
         if (!newValue.isNullOrBlank() && newValue != displayedUrl.value) {

@@ -17,8 +17,7 @@
 package androidx.ui.core.gesture
 
 import androidx.compose.Composable
-import androidx.compose.memo
-import androidx.compose.unaryPlus
+import androidx.compose.remember
 import androidx.ui.core.Direction
 import androidx.ui.core.PxPosition
 
@@ -48,7 +47,7 @@ fun TouchSlopDragGestureDetector(
     canDrag: ((Direction) -> Boolean)? = null,
     children: @Composable() () -> Unit
 ) {
-    val glue = +memo { TouchSlopDragGestureDetectorGlue() }
+    val glue = remember { TouchSlopDragGestureDetectorGlue() }
     glue.touchSlopDragObserver = dragObserver
 
     RawDragGestureDetector(glue.rawDragObserver, glue::dragEnabled) {

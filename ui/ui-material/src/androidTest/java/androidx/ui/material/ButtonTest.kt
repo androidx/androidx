@@ -18,7 +18,6 @@ package androidx.ui.material
 
 import androidx.compose.state
 import androidx.test.filters.MediumTest
-import androidx.compose.unaryPlus
 import androidx.ui.core.Dp
 import androidx.ui.core.LayoutCoordinates
 import androidx.ui.core.OnChildPositioned
@@ -127,7 +126,7 @@ class ButtonTest {
         val tag = "myButton"
 
         composeTestRule.setMaterialContent {
-            val enabled = +state { true }
+            val enabled = state { true }
             val onClick: (() -> Unit)? = if (enabled.value) {
                 { enabled.value = false }
             } else {
@@ -232,9 +231,9 @@ class ButtonTest {
     fun buttonTest_ContainedButtonPropagateDefaultTextStyle() {
         composeTestRule.setMaterialContent {
             Button(onClick = {}, style = ContainedButtonStyle()) {
-                val style = (+MaterialTheme.typography()).button
-                    .copy(color = (+MaterialTheme.colors()).onPrimary)
-                assertThat(+currentTextStyle()).isEqualTo(style)
+                val style = MaterialTheme.typography().button
+                    .copy(color = MaterialTheme.colors().onPrimary)
+                assertThat(currentTextStyle()).isEqualTo(style)
             }
         }
     }
@@ -243,9 +242,9 @@ class ButtonTest {
     fun buttonTest_OutlinedButtonPropagateDefaultTextStyle() {
         composeTestRule.setMaterialContent {
             Button(onClick = {}, style = OutlinedButtonStyle()) {
-                val style = (+MaterialTheme.typography()).button
-                    .copy(color = (+MaterialTheme.colors()).primary)
-                assertThat(+currentTextStyle()).isEqualTo(style)
+                val style = MaterialTheme.typography().button
+                    .copy(color = MaterialTheme.colors().primary)
+                assertThat(currentTextStyle()).isEqualTo(style)
             }
         }
     }
@@ -254,9 +253,9 @@ class ButtonTest {
     fun buttonTest_TextButtonPropagateDefaultTextStyle() {
         composeTestRule.setMaterialContent {
             Button(onClick = {}, style = OutlinedButtonStyle()) {
-                val style = (+MaterialTheme.typography()).button
-                    .copy(color = (+MaterialTheme.colors()).primary)
-                assertThat(+currentTextStyle()).isEqualTo(style)
+                val style = MaterialTheme.typography().button
+                    .copy(color = MaterialTheme.colors().primary)
+                assertThat(currentTextStyle()).isEqualTo(style)
             }
         }
     }

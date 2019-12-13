@@ -41,8 +41,7 @@ fun Density(context: Context): Density =
  *
  * @sample androidx.ui.core.samples.WithDensitySample
  */
-// can't make this inline as tests are failing with "DensityKt.$jacocoInit()' is inaccessible"
-/*inline*/ fun <R> withDensity(density: Density, block: DensityScope.() -> R) =
+inline fun <R> withDensity(density: Density, block: DensityScope.() -> R) =
     DensityScope(density).block()
 
 /**

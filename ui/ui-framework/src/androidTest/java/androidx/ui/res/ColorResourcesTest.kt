@@ -16,7 +16,6 @@
 
 package androidx.ui.res
 
-import androidx.compose.unaryPlus
 import androidx.test.filters.SmallTest
 import androidx.test.platform.app.InstrumentationRegistry
 import androidx.ui.core.ContextAmbient
@@ -42,7 +41,7 @@ class ColorResourcesTest {
 
         composeTestRule.setContent {
             ContextAmbient.Provider(value = context) {
-                assertThat(+colorResource(R.color.color_resource))
+                assertThat(colorResource(R.color.color_resource))
                     .isEqualTo(Color(0x12345678))
             }
         }

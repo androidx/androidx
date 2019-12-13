@@ -18,7 +18,6 @@ package androidx.ui.material.studies.rally
 
 import androidx.compose.Composable
 import androidx.compose.state
-import androidx.compose.unaryPlus
 import androidx.ui.core.Text
 import androidx.ui.core.dp
 import androidx.ui.foundation.Clickable
@@ -49,7 +48,7 @@ import java.util.Locale
  */
 @Composable
 fun RallyAlertCard() {
-    val openDialog = +state { false }
+    val openDialog = state { false }
     val alertMessage = "Heads up, you've used up 90% of your Shopping budget for this month."
 
     if (openDialog.value) {
@@ -70,7 +69,7 @@ fun RallyAlertCard() {
                             modifier = LayoutPadding(12.dp) + LayoutExpandedWidth,
                             arrangement = Arrangement.SpaceBetween
                         ) {
-                            Text(text = "Alerts", style = (+MaterialTheme.typography()).subtitle2)
+                            Text(text = "Alerts", style = MaterialTheme.typography().subtitle2)
                             Button(text = "See All", onClick = { }, style = TextButtonStyle())
                         }
                     }
@@ -78,7 +77,7 @@ fun RallyAlertCard() {
             }
             Divider(
                 LayoutPadding(left = 12.dp, right = 12.dp),
-                color = (+MaterialTheme.colors()).background,
+                color = MaterialTheme.colors().background,
                 height = 2.dp
             )
             Ripple(bounded = true) {
@@ -86,7 +85,7 @@ fun RallyAlertCard() {
                     Container {
                         Row(LayoutPadding(12.dp)) {
                             Text(
-                                style = (+MaterialTheme.typography()).body1,
+                                style = MaterialTheme.typography().body1,
                                 modifier = LayoutFlexible(1f),
                                 text = alertMessage
                             )
@@ -110,8 +109,8 @@ fun RallyAccountsOverviewCard() {
     Card {
         Column {
             Column(modifier = LayoutPadding(12.dp)) {
-                Text(text = "Accounts", style = (+MaterialTheme.typography()).body1)
-                Text(text = "$12,132.49", style = (+MaterialTheme.typography()).h3)
+                Text(text = "Accounts", style = MaterialTheme.typography().body1)
+                Text(text = "$12,132.49", style = MaterialTheme.typography().h3)
             }
             Divider(color = rallyGreen, height = 1.dp)
             Column(modifier = LayoutPadding(12.dp)) {
@@ -159,12 +158,12 @@ fun RallyAccountsCard() {
                         Column(modifier = LayoutGravity.Center) {
                             Text(
                                 text = "Total",
-                                style = (+MaterialTheme.typography()).body1,
+                                style = MaterialTheme.typography().body1,
                                 modifier = LayoutGravity.Center
                             )
                             Text(
                                 text = "$12,132.49",
-                                style = (+MaterialTheme.typography()).h3,
+                                style = MaterialTheme.typography().h3,
                                 modifier = LayoutGravity.Center
                             )
                         }
@@ -214,11 +213,11 @@ fun RallyAccountRow(name: String, number: String, amount: String, color: Color) 
         AccountIndicator(color = color)
         Spacer(LayoutWidth(8.dp))
         Column {
-            Text(text = name, style = (+MaterialTheme.typography()).body1)
-            Text(text = "•••••$number", style = (+MaterialTheme.typography()).subtitle1)
+            Text(text = name, style = MaterialTheme.typography().body1)
+            Text(text = "•••••$number", style = MaterialTheme.typography().subtitle1)
         }
         Spacer(LayoutFlexible(1f))
-        Text(text = "$ $amount", style = (+MaterialTheme.typography()).h6)
+        Text(text = "$ $amount", style = MaterialTheme.typography().h6)
     }
 }
 
@@ -238,8 +237,8 @@ fun RallyBillsOverviewCard() {
     Card {
         Column {
             Column(modifier = LayoutPadding(12.dp)) {
-                Text(text = "Bills", style = (+MaterialTheme.typography()).subtitle2)
-                Text(text = "$1,810.00", style = (+MaterialTheme.typography()).h3)
+                Text(text = "Bills", style = MaterialTheme.typography().subtitle2)
+                Text(text = "$1,810.00", style = MaterialTheme.typography().h3)
             }
             Divider(color = rallyGreen, height = 1.dp)
             // TODO: change to proper bill items
@@ -289,12 +288,12 @@ fun RallyBillsCard() {
                 Column(modifier = LayoutGravity.Center) {
                     Text(
                         text = "Due",
-                        style = (+MaterialTheme.typography()).body1,
+                        style = MaterialTheme.typography().body1,
                         modifier = LayoutGravity.Center
                     )
                     Text(
                         text = "$1,810.00",
-                        style = (+MaterialTheme.typography()).h3,
+                        style = MaterialTheme.typography().h3,
                         modifier = LayoutGravity.Center
                     )
                 }
@@ -337,4 +336,4 @@ fun RallyBillsCard() {
 }
 
 @Composable
-fun RallyDivider() = Divider(color = (+MaterialTheme.colors()).background, height = 2.dp)
+fun RallyDivider() = Divider(color = MaterialTheme.colors().background, height = 2.dp)

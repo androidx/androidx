@@ -17,7 +17,6 @@
 package androidx.ui.material
 
 import androidx.compose.Composable
-import androidx.compose.unaryPlus
 import androidx.ui.core.Alignment
 import androidx.ui.core.CurrentTextStyleProvider
 import androidx.ui.core.dp
@@ -111,8 +110,8 @@ fun AlertDialog(
     buttons: @Composable() () -> Unit
 ) {
     // TODO: Find a cleaner way to pass the properties of the MaterialTheme
-    val currentColors = +MaterialTheme.colors()
-    val currentTypography = +MaterialTheme.typography()
+    val currentColors = MaterialTheme.colors()
+    val currentTypography = MaterialTheme.typography()
     Dialog(onCloseRequest = onCloseRequest) {
         MaterialTheme(colors = currentColors, typography = currentTypography) {
             Surface(shape = AlertDialogShape) {
@@ -123,7 +122,7 @@ fun AlertDialog(
                                 alignment = Alignment.CenterLeft,
                                 padding = TitlePadding
                             ) {
-                                val textStyle = (+MaterialTheme.typography()).h6
+                                val textStyle = MaterialTheme.typography().h6
                                 CurrentTextStyleProvider(textStyle, title)
                             }
                         } else {
@@ -133,7 +132,7 @@ fun AlertDialog(
                         }
 
                         Container(alignment = Alignment.CenterLeft, padding = TextPadding) {
-                            val textStyle = (+MaterialTheme.typography()).body1
+                            val textStyle = MaterialTheme.typography().body1
                             CurrentTextStyleProvider(textStyle, text)
                         }
                         Spacer(LayoutHeight(TextToButtonsHeight))

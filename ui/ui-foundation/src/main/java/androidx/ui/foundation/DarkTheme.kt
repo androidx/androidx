@@ -25,9 +25,8 @@ import android.os.Build
 import android.os.PowerManager
 import androidx.annotation.RequiresApi
 import androidx.compose.ambient
-import androidx.compose.effectOf
-import androidx.compose.memo
 import androidx.compose.onActive
+import androidx.compose.remember
 import androidx.compose.state
 import androidx.ui.core.ConfigurationAmbient
 import androidx.ui.core.ContextAmbient
@@ -55,11 +54,11 @@ import androidx.ui.core.ContextAmbient
  *
  * @return `true` if the system is considered to be in 'dark theme'.
  */
-fun isSystemInDarkTheme() = effectOf<Boolean> {
-    if (Build.VERSION.SDK_INT >= 29) {
-        +isSystemSetToDarkTheme()
+fun isSystemInDarkTheme(): Boolean {
+    return if (Build.VERSION.SDK_INT >= 29) {
+        isSystemSetToDarkTheme()
     } else {
-        +isInPowerSaveMode()
+        isInPowerSaveMode()
     }
 }
 
@@ -69,13 +68,13 @@ fun isSystemInDarkTheme() = effectOf<Boolean> {
  *
  * @return `true` if the device is in power save mode
  */
-private fun isInPowerSaveMode() = effectOf<Boolean> {
-    val context = +ambient(ContextAmbient)
+private fun isInPowerSaveMode(): Boolean {
+    val context = ambient(ContextAmbient)
     val powerManager = context.getSystemService(Context.POWER_SERVICE) as PowerManager
 
-    val isPowerSaveMode = +state { powerManager.isPowerSaveMode }
+    val isPowerSaveMode = state { powerManager.isPowerSaveMode }
 
-    val broadcastReceiver = +memo {
+    val broadcastReceiver = remember {
         object : BroadcastReceiver() {
             override fun onReceive(context: Context?, intent: Intent?) {
                 isPowerSaveMode.value = powerManager.isPowerSaveMode
@@ -83,11 +82,11 @@ private fun isInPowerSaveMode() = effectOf<Boolean> {
         }
     }
 
-    val intentFilter = +memo {
+    val intentFilter = remember {
         IntentFilter(PowerManager.ACTION_POWER_SAVE_MODE_CHANGED)
     }
 
-    +onActive {
+    onActive {
         try {
             context.registerReceiver(broadcastReceiver, intentFilter)
         } catch (e: Exception) {
@@ -102,7 +101,7 @@ private fun isInPowerSaveMode() = effectOf<Boolean> {
         }
     }
 
-    isPowerSaveMode.value
+    return isPowerSaveMode.value
 }
 
 /**
@@ -113,7 +112,8 @@ private fun isInPowerSaveMode() = effectOf<Boolean> {
  * @return `true` if the system-wide dark theme toggle is enabled
  */
 @RequiresApi(29)
-private fun isSystemSetToDarkTheme() = effectOf<Boolean> {
-    val configuration = +ambient(ConfigurationAmbient)
-    (configuration.uiMode and Configuration.UI_MODE_NIGHT_MASK) == Configuration.UI_MODE_NIGHT_YES
+private fun isSystemSetToDarkTheme(): Boolean {
+    val configuration = ambient(ConfigurationAmbient)
+    return (configuration.uiMode and Configuration.UI_MODE_NIGHT_MASK) == Configuration
+        .UI_MODE_NIGHT_YES
 }

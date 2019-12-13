@@ -17,7 +17,6 @@
 package androidx.ui.test
 
 import androidx.compose.state
-import androidx.compose.unaryPlus
 import androidx.test.filters.MediumTest
 import androidx.ui.core.semantics.getOrNull
 import androidx.ui.foundation.selection.ToggleableState
@@ -63,8 +62,8 @@ class FindAllTest {
     @Test
     fun findAllTest_twoComponents_toggleBoth() {
         composeTestRule.setContent {
-            val (checked1, onCheckedChange1) = +state { false }
-            val (checked2, onCheckedChange2) = +state { false }
+            val (checked1, onCheckedChange1) = state { false }
+            val (checked2, onCheckedChange2) = state { false }
             MaterialTheme {
                 Surface {
                     Column {
@@ -113,8 +112,8 @@ class FindAllTest {
         composeTestRule.setContent {
             MaterialTheme {
                 Surface {
-                    val (checked1, onCheckedChange1) = +state { false }
-                    val (checked2, onCheckedChange2) = +state { false }
+                    val (checked1, onCheckedChange1) = state { false }
+                    val (checked2, onCheckedChange2) = state { false }
 
                     Column {
                         Checkbox(
@@ -144,7 +143,7 @@ class FindAllTest {
         composeTestRule.setContent {
             MaterialTheme {
                 Surface {
-                    val (checked, onCheckedChange) = +state { false }
+                    val (checked, onCheckedChange) = state { false }
 
                     Column {
                         Checkbox(
@@ -187,7 +186,7 @@ class FindAllTest {
         composeTestRule.setContent {
             MaterialTheme {
                 Surface {
-                    val (checked, onCheckedChange) = +state { false }
+                    val (checked, onCheckedChange) = state { false }
 
                     Column {
                         Checkbox(

@@ -18,8 +18,7 @@ package androidx.ui.focus
 
 import androidx.compose.Composable
 import androidx.compose.Recompose
-import androidx.compose.memo
-import androidx.compose.unaryPlus
+import androidx.compose.remember
 import androidx.ui.core.FocusNode
 import androidx.ui.core.OnChildPositioned
 import androidx.ui.core.Ref
@@ -46,7 +45,7 @@ private val focusNotCreated = "Focus node could not be created."
  */
 @Composable
 fun Focusable(
-    focusOperator: FocusOperator = +memo { FocusOperator() },
+    focusOperator: FocusOperator = remember { FocusOperator() },
     children: @Composable() (FocusOperator) -> Unit
 ) {
     // TODO (b/144897112): Remove manual recomposition.

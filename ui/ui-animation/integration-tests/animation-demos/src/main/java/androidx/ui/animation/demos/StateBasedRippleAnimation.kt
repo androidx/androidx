@@ -32,9 +32,8 @@ import androidx.ui.engine.geometry.Offset
 import androidx.ui.graphics.Color
 import androidx.ui.graphics.Paint
 import androidx.compose.Composable
-import androidx.compose.memo
+import androidx.compose.remember
 import androidx.compose.state
-import androidx.compose.unaryPlus
 import androidx.ui.core.ambientDensity
 import androidx.ui.core.dp
 import androidx.ui.core.setContent
@@ -58,9 +57,9 @@ fun StateBasedRippleDemo() {
 
 @Composable
 fun RippleRect() {
-    val radius = withDensity(+ambientDensity()) { TargetRadius.toPx() }
-    val toState = +state { ButtonStatus.Initial }
-    val rippleTransDef = +memo { createTransDef(radius.value) }
+    val radius = withDensity(ambientDensity()) { TargetRadius.toPx() }
+    val toState = state { ButtonStatus.Initial }
+    val rippleTransDef = remember { createTransDef(radius.value) }
     val onPress: (PxPosition) -> Unit = { position ->
         down.x = position.x.value
         down.y = position.y.value

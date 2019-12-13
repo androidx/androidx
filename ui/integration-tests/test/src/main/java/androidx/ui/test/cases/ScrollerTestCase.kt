@@ -17,8 +17,7 @@
 package androidx.ui.test.cases
 
 import androidx.compose.Composable
-import androidx.compose.memo
-import androidx.compose.unaryPlus
+import androidx.compose.remember
 import androidx.ui.core.Draw
 import androidx.ui.core.dp
 import androidx.ui.core.px
@@ -74,7 +73,7 @@ class ScrollerTestCase() : ComposeTestCase, ToggleableTestCase {
 
     @Composable
     fun ColorStripe(red: Int, green: Int, blue: Int) {
-        val paint = +memo { Paint() }
+        val paint = remember { Paint() }
         Container(height = 5.dp, width = 45.dp) {
             Draw { canvas, parentSize ->
                 paint.color = Color(red = red, green = green, blue = blue)
