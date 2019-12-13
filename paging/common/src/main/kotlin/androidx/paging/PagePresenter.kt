@@ -30,12 +30,15 @@ import androidx.paging.PagedList.Callback
  *  TODO:
  *   - state observation APIs
  */
-internal class PagePresenter<T : Any> {
+internal class PagePresenter<T : Any> : NullPaddedList<T> {
     private val pages: MutableList<TransformablePage<T>>
-    private var storageCount: Int
+    override var storageCount: Int
+        private set
 
-    private var placeholdersStart: Int
-    private var placeholdersEnd: Int
+    override var placeholdersStart: Int
+        private set
+    override var placeholdersEnd: Int
+        private set
 
     constructor(insertEvent: PageEvent.Insert<T>) {
         pages = insertEvent.pages.toMutableList()
@@ -66,12 +69,14 @@ internal class PagePresenter<T : Any> {
         if (localIndex < 0 || localIndex >= storageCount) {
             return null
         }
+        return getFromStorage(localIndex)
+    }
 
+    override fun getFromStorage(localIndex: Int): T {
         var pageIndex = 0
-        var indexInPage: Int
+        var indexInPage = localIndex
 
         // Since we don't know if page sizes are regular, we walk to correct page.
-        indexInPage = localIndex
         val localPageCount = pages.size
         while (pageIndex < localPageCount) {
             val pageSize = pages[pageIndex].data.size
@@ -101,7 +106,7 @@ internal class PagePresenter<T : Any> {
         return pages[pageIndex].getLoadHint(indexInPage)
     }
 
-    val size: Int
+    override val size: Int
         get() = placeholdersStart + storageCount + placeholdersEnd
 
     val loadedCount: Int
