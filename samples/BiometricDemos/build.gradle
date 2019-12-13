@@ -5,7 +5,7 @@ plugins {
 
 dependencies {
     implementation(project(":appcompat:appcompat"))
-    implementation(project(":biometric"))
+    implementation(project(":biometric:biometric"))
 }
 
 android {
