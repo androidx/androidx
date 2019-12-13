@@ -58,6 +58,7 @@ import androidx.ui.core.draw
 import androidx.ui.core.drawWithContent
 import androidx.ui.core.globalPosition
 import androidx.ui.core.ipx
+import androidx.ui.core.looseMin
 import androidx.ui.core.max
 import androidx.ui.core.min
 import androidx.ui.core.offset
@@ -1896,6 +1897,54 @@ class AndroidLayoutDrawTest {
             }
         }
         validateSquareColors(outerColor = outerColor, innerColor = innerColor, size = 10)
+    }
+
+    @SdkSuppress(minSdkVersion = Build.VERSION_CODES.O)
+    @Test
+    fun layoutModifier_redrawsCorrectlyWhenOnlyNonModifiedSizeChanges() {
+        val blue = Color(0xFF000080)
+        val green = Color(0xFF00FF00)
+        val model = OffsetModel(10.ipx)
+
+        activityTestRule.runOnUiThreadIR {
+            activity.setContentInFrameLayout {
+                FixedSize(30.ipx) {
+                    Draw { canvas, parentSize ->
+                        canvas.drawRect(parentSize.toRect(), Paint().apply { color = green })
+                    }
+                    FixedSize(model.offset, modifier = AlignTopLeft) {
+                        RepaintBoundary {
+                            Draw { canvas, parentSize ->
+                                drawLatch.countDown()
+                                canvas.drawRect(parentSize.toRect(), Paint().apply { color = blue })
+                            }
+                        }
+                    }
+                }
+            }
+        }
+        validateSquareColors(outerColor = green, innerColor = blue, size = 10, offset = -10)
+
+        drawLatch = CountDownLatch(1)
+        activityTestRule.runOnUiThreadIR {
+            model.offset = 20.ipx
+        }
+        validateSquareColors(
+            outerColor = green,
+            innerColor = blue,
+            size = 20,
+            offset = -5,
+            totalSize = 30
+        )
+    }
+
+    private val AlignTopLeft = object : LayoutModifier {
+        override fun DensityScope.modifyConstraints(constraints: Constraints) =
+            constraints.looseMin()
+        override fun DensityScope.modifySize(
+            constraints: Constraints,
+            childSize: IntPxSize
+        ) = IntPxSize(constraints.maxWidth, constraints.maxHeight)
     }
 
     private fun composeSquares(model: SquareModel) {
