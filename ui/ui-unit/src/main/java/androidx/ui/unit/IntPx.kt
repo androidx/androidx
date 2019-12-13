@@ -236,6 +236,12 @@ fun lerp(start: IntPx, stop: IntPx, fraction: Float): IntPx {
 inline fun Px.round(): IntPx =
     if (value.isInfinite()) Infinity else IntPx(value.roundToInt())
 
+/**
+ * Rounds up a [Px] to the smallest integer value that is not less than the original value.
+ */
+inline fun Px.ceil(): IntPx =
+    if (value.isInfinite()) Infinity else IntPx(kotlin.math.ceil(value).toInt())
+
 inline fun IntPx.toPx(): Px = value.px
 
 // -=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=

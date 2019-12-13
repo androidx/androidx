@@ -33,10 +33,9 @@ import androidx.ui.unit.Density
 import androidx.ui.unit.IntPx
 import androidx.ui.unit.IntPxSize
 import androidx.ui.unit.TextUnit
-import androidx.ui.unit.ipx
+import androidx.ui.unit.ceil
+import androidx.ui.unit.px
 import androidx.ui.unit.sp
-import kotlin.math.ceil
-import kotlin.math.roundToInt
 
 /** The default font size if none is specified. */
 private val DefaultFontSize: TextUnit = 14.sp
@@ -134,14 +133,14 @@ class TextDelegate(
      *
      * Valid only after [layout] has been called.
      */
-    val minIntrinsicWidth: IntPx get() = assumeIntrinsics { it.minIntrinsicWidth.toIntPx() }
+    val minIntrinsicWidth: IntPx get() = assumeIntrinsics { it.minIntrinsicWidth.px.ceil() }
 
     /**
      * The width at which increasing the width of the text no longer decreases the height.
      *
      * Valid only after [layout] has been called.
      */
-    val maxIntrinsicWidth: IntPx get() = assumeIntrinsics { it.maxIntrinsicWidth.toIntPx() }
+    val maxIntrinsicWidth: IntPx get() = assumeIntrinsics { it.maxIntrinsicWidth.px.ceil() }
 
     init {
         assert(maxLines > 0)
@@ -203,7 +202,7 @@ class TextDelegate(
                 copy(
                     layoutInput = layoutInput.copy(constraints = constraints),
                     size = constraints.constrain(
-                        IntPxSize(multiParagraph.width.toIntPx(), multiParagraph.height.toIntPx())
+                        IntPxSize(multiParagraph.width.px.ceil(), multiParagraph.height.px.ceil())
                     )
                 )
             }
@@ -212,7 +211,7 @@ class TextDelegate(
         val multiParagraph = layoutText(minWidth.value.toFloat(), maxWidth.value.toFloat())
 
         val size = constraints.constrain(
-            IntPxSize(multiParagraph.width.toIntPx(), multiParagraph.height.toIntPx())
+            IntPxSize(multiParagraph.width.px.ceil(), multiParagraph.height.px.ceil())
         )
 
         return TextLayoutResult(
@@ -314,5 +313,3 @@ internal fun resolveTextDirectionAlgorithm(
             LayoutDirection.Rtl -> TextDirectionAlgorithm.ContentOrRtl
         }
 }
-
-private fun Float.toIntPx(): IntPx = ceil(this).roundToInt().ipx
