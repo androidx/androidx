@@ -35,10 +35,10 @@ internal class PagedStorage<T : Any> : AbstractList<T>, LegacyPager.KeyProvider<
     internal val lastLoadedItem: T
         get() = pages.last().data.last()
 
-    override var leadingNullCount: Int = 0
+    override var placeholdersStart: Int = 0
         private set
 
-    override var trailingNullCount: Int = 0
+    override var placeholdersEnd: Int = 0
         private set
 
     var positionOffset: Int = 0
@@ -57,13 +57,13 @@ internal class PagedStorage<T : Any> : AbstractList<T>, LegacyPager.KeyProvider<
      */
     private var lastLoadAroundLocalIndex: Int = 0
     var lastLoadAroundIndex: Int
-        get() = leadingNullCount + lastLoadAroundLocalIndex
+        get() = placeholdersStart + lastLoadAroundLocalIndex
         set(value) {
-            lastLoadAroundLocalIndex = (value - leadingNullCount).coerceIn(0, storageCount)
+            lastLoadAroundLocalIndex = (value - placeholdersStart).coerceIn(0, storageCount)
         }
 
     val middleOfLoadedRange: Int
-        get() = leadingNullCount + storageCount / 2
+        get() = placeholdersStart + storageCount / 2
 
     constructor()
 
@@ -73,8 +73,8 @@ internal class PagedStorage<T : Any> : AbstractList<T>, LegacyPager.KeyProvider<
 
     private constructor(other: PagedStorage<T>) {
         pages.addAll(other.pages)
-        leadingNullCount = other.leadingNullCount
-        trailingNullCount = other.trailingNullCount
+        placeholdersStart = other.placeholdersStart
+        placeholdersEnd = other.placeholdersEnd
         positionOffset = other.positionOffset
         counted = other.counted
         storageCount = other.storageCount
@@ -90,10 +90,10 @@ internal class PagedStorage<T : Any> : AbstractList<T>, LegacyPager.KeyProvider<
         positionOffset: Int,
         counted: Boolean
     ) {
-        leadingNullCount = leadingNulls
+        placeholdersStart = leadingNulls
         pages.clear()
         pages.add(page)
-        trailingNullCount = trailingNulls
+        placeholdersEnd = trailingNulls
 
         this.positionOffset = positionOffset
         storageCount = page.data.size
@@ -121,14 +121,14 @@ internal class PagedStorage<T : Any> : AbstractList<T>, LegacyPager.KeyProvider<
     // ------------- Adjacent Provider interface ------------------
 
     override val prevKey: Any?
-        get() = if (!counted || leadingNullCount + positionOffset > 0) {
+        get() = if (!counted || placeholdersStart + positionOffset > 0) {
             pages.first().prevKey
         } else {
             null
         }
 
     override val nextKey: Any?
-        get() = if (!counted || trailingNullCount > 0) {
+        get() = if (!counted || placeholdersEnd > 0) {
             pages.last().nextKey
         } else {
             null
@@ -181,7 +181,7 @@ internal class PagedStorage<T : Any> : AbstractList<T>, LegacyPager.KeyProvider<
 
     override fun get(index: Int): T? {
         // is it definitely outside 'pages'?
-        val localIndex = index - leadingNullCount
+        val localIndex = index - placeholdersStart
 
         return when {
             index < 0 || index >= size ->
@@ -204,7 +204,7 @@ internal class PagedStorage<T : Any> : AbstractList<T>, LegacyPager.KeyProvider<
     }
 
     override val size
-        get() = leadingNullCount + storageCount + trailingNullCount
+        get() = placeholdersStart + storageCount + placeholdersEnd
 
     // ---------------- Trimming API -------------------
     // Trimming is always done at the beginning or end of the list, as content is loaded.
@@ -252,13 +252,13 @@ internal class PagedStorage<T : Any> : AbstractList<T>, LegacyPager.KeyProvider<
         if (totalRemoved > 0) {
             if (insertNulls) {
                 // replace removed items with nulls
-                val previousLeadingNulls = leadingNullCount
-                leadingNullCount += totalRemoved
+                val previousLeadingNulls = placeholdersStart
+                placeholdersStart += totalRemoved
                 callback.onPagesSwappedToPlaceholder(previousLeadingNulls, totalRemoved)
             } else {
                 // simply remove, and handle offset
                 positionOffset += totalRemoved
-                callback.onPagesRemoved(leadingNullCount, totalRemoved)
+                callback.onPagesRemoved(placeholdersStart, totalRemoved)
             }
         }
         return totalRemoved > 0
@@ -280,10 +280,10 @@ internal class PagedStorage<T : Any> : AbstractList<T>, LegacyPager.KeyProvider<
         lastLoadAroundLocalIndex = lastLoadAroundLocalIndex.coerceAtMost(storageCount - 1)
 
         if (totalRemoved > 0) {
-            val newEndPosition = leadingNullCount + storageCount
+            val newEndPosition = placeholdersStart + storageCount
             if (insertNulls) {
                 // replace removed items with nulls
-                trailingNullCount += totalRemoved
+                placeholdersEnd += totalRemoved
                 callback.onPagesSwappedToPlaceholder(newEndPosition, totalRemoved)
             } else {
                 // items were just removed, signal
@@ -305,14 +305,14 @@ internal class PagedStorage<T : Any> : AbstractList<T>, LegacyPager.KeyProvider<
         pages.add(0, page)
         storageCount += count
 
-        val changedCount = minOf(leadingNullCount, count)
+        val changedCount = minOf(placeholdersStart, count)
         val addedCount = count - changedCount
 
         if (changedCount != 0) {
-            leadingNullCount -= changedCount
+            placeholdersStart -= changedCount
         }
         positionOffset -= addedCount
-        callback?.onPagePrepended(leadingNullCount, changedCount, addedCount)
+        callback?.onPagePrepended(placeholdersStart, changedCount, addedCount)
     }
 
     internal fun appendPage(page: Page<*, T>, callback: Callback? = null) {
@@ -325,20 +325,20 @@ internal class PagedStorage<T : Any> : AbstractList<T>, LegacyPager.KeyProvider<
         pages.add(page)
         storageCount += count
 
-        val changedCount = minOf(trailingNullCount, count)
+        val changedCount = minOf(placeholdersEnd, count)
         val addedCount = count - changedCount
 
         if (changedCount != 0) {
-            trailingNullCount -= changedCount
+            placeholdersEnd -= changedCount
         }
 
         callback?.onPageAppended(
-            leadingNullCount + storageCount - count,
+            placeholdersStart + storageCount - count,
             changedCount, addedCount
         )
     }
 
     override fun toString(): String =
-        "leading $leadingNullCount, storage $storageCount, trailing $trailingNullCount " +
+        "leading $placeholdersStart, storage $storageCount, trailing $placeholdersEnd " +
                 pages.joinToString(" ")
 }

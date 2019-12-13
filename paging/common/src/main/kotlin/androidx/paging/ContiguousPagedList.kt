@@ -334,11 +334,11 @@ open class ContiguousPagedList<K : Any, V : Any>(
     @MainThread
     override fun loadAroundInternal(index: Int) {
         val prependItems =
-            getPrependItemsRequested(config.prefetchDistance, index, storage.leadingNullCount)
+            getPrependItemsRequested(config.prefetchDistance, index, storage.placeholdersStart)
         val appendItems = getAppendItemsRequested(
             config.prefetchDistance,
             index,
-            storage.leadingNullCount + storage.storageCount
+            storage.placeholdersStart + storage.storageCount
         )
 
         prependItemsRequested = maxOf(prependItems, prependItemsRequested)
@@ -374,7 +374,7 @@ open class ContiguousPagedList<K : Any, V : Any>(
         // If we're not presenting placeholders at initialization time, we won't add them when
         // we drop a page. Note that we don't use config.enablePlaceholders, since the
         // PagedSource may have opted not to load any.
-        replacePagesWithNulls = storage.leadingNullCount > 0 || storage.trailingNullCount > 0
+        replacePagesWithNulls = storage.placeholdersStart > 0 || storage.placeholdersEnd > 0
     }
 
     @MainThread

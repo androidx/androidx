@@ -67,8 +67,8 @@ internal fun <T : Any> PagingState(
     end: LoadState,
     hintReceiver: (ViewportHint) -> Unit
 ) = PagingState(
-    leadingNullCount = placeholdersStart,
-    trailingNullCount = placeholdersEnd,
+    placeholdersStart = placeholdersStart,
+    placeholdersEnd = placeholdersEnd,
     pages = pages.toTransformablePages(indexOfInitialPage),
     loadStateRefresh = refresh,
     loadStateStart = start,
