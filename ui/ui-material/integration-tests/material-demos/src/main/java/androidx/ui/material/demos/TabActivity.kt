@@ -60,7 +60,7 @@ class TabActivity : MaterialDemoActivity() {
             }
             Button(
                 modifier = LayoutGravity.Center,
-                style = ContainedButtonStyle(color = Color.Cyan),
+                style = ContainedButtonStyle(backgroundColor = Color.Cyan),
                 text = buttonText,
                 onClick = {
                     showingSimple.value = !showingSimple.value
