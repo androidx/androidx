@@ -156,6 +156,16 @@ package androidx.paging {
     method public <R> androidx.paging.PagedData<R> map(kotlin.jvm.functions.Function1<? super T,? extends R> transform);
   }
 
+  @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP) public abstract class PagedDataDiffer<T> {
+    ctor public PagedDataDiffer(kotlinx.coroutines.CoroutineDispatcher mainDispatcher, kotlinx.coroutines.CoroutineDispatcher workerDispatcher);
+    ctor public PagedDataDiffer();
+    method public final void connect(kotlinx.coroutines.flow.Flow<androidx.paging.PagedData<T>> flow, kotlinx.coroutines.CoroutineScope scope, androidx.paging.PagedList.Callback callback);
+    method public final operator T? get(int index);
+    method public final int getSize();
+    method public abstract suspend Object! performDiff(androidx.paging.NullPaddedList<T> previous, androidx.paging.NullPaddedList<T> p, kotlin.coroutines.Continuation<? super kotlin.Unit> p1);
+    property public final int size;
+  }
+
   public final class PagedDataFlowBuilder<Key, Value> {
     ctor public PagedDataFlowBuilder(kotlin.jvm.functions.Function0<? extends androidx.paging.PagedSource<Key,Value>> pagedSourceFactory, androidx.paging.PagedList.Config config);
     method public kotlinx.coroutines.flow.Flow<androidx.paging.PagedData<Value>> build();

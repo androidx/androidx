@@ -296,7 +296,7 @@ internal class PagerState<Key : Any, Value : Any>(private val maxSize: Int) {
         // Coerce indexInPage, which may have a value outside the bounds of the page size
         // referenced by sourcePageIndex.
         var indexInPage = indexInPage
-        while (indexInPage !in pages[pageIndex].data.indices) {
+        while (indexInPage !in pages[pageIndex].data.indices && pageIndex < pages.lastIndex) {
             pageIndex++
             indexInPage -= pages[pageIndex].data.size
         }

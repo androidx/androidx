@@ -25,36 +25,21 @@ import androidx.paging.PagedList.Callback
  * Provides the following data operations:
  *  - Insert Page
  *  - Drop Pages
- *  - Snapshot
  *
  *  TODO:
  *   - state observation APIs
  */
-internal class PagePresenter<T : Any> : NullPaddedList<T> {
-    private val pages: MutableList<TransformablePage<T>>
-    override var storageCount: Int
+internal class PagePresenter<T : Any>(
+    insertEvent: PageEvent.Insert<T>
+) : NullPaddedList<T> {
+    private val pages: MutableList<TransformablePage<T>> = insertEvent.pages.toMutableList()
+    override var storageCount: Int = insertEvent.pages.fullCount()
         private set
 
-    override var placeholdersStart: Int
+    override var placeholdersStart: Int = insertEvent.placeholdersStart
         private set
-    override var placeholdersEnd: Int
+    override var placeholdersEnd: Int = insertEvent.placeholdersEnd
         private set
-
-    constructor(insertEvent: PageEvent.Insert<T>) {
-        pages = insertEvent.pages.toMutableList()
-        storageCount = insertEvent.pages.fullCount()
-        placeholdersStart = insertEvent.placeholdersStart
-        placeholdersEnd = insertEvent.placeholdersEnd
-    }
-
-    private constructor(other: PagePresenter<T>) {
-        pages = other.pages.toMutableList()
-        storageCount = other.storageCount
-        placeholdersStart = other.placeholdersStart
-        placeholdersEnd = other.placeholdersEnd
-    }
-
-    fun copy(): PagePresenter<T> = PagePresenter(this)
 
     private fun checkIndex(index: Int) {
         if (index < 0 || index >= size) {
@@ -118,7 +103,7 @@ internal class PagePresenter<T : Any> : NullPaddedList<T> {
         when (pageEvent) {
             is PageEvent.Insert -> insertPage(pageEvent, callback)
             is PageEvent.Drop -> dropPages(pageEvent, callback)
-            is PageEvent.StateUpdate -> TODO()
+            is PageEvent.StateUpdate -> { /* TODO! */ }
         }
     }
 
@@ -245,5 +230,11 @@ internal class PagePresenter<T : Any> : NullPaddedList<T> {
                 callback.onRemoved(size, -placeholderInsertedCount)
             }
         }
+    }
+
+    companion object {
+        fun <T : Any> initial(): PagePresenter<T> = PagePresenter(
+            PageEvent.Insert.Refresh(listOf(), 0, 0)
+        )
     }
 }

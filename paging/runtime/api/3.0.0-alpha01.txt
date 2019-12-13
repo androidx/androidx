@@ -1,6 +1,14 @@
 // Signature format: 3.0
 package androidx.paging {
 
+  public class AsyncPagedDataDiffer<T> {
+    ctor public AsyncPagedDataDiffer(kotlinx.coroutines.CoroutineDispatcher mainDispatcher, kotlinx.coroutines.CoroutineDispatcher workerDispatcher, androidx.recyclerview.widget.DiffUtil.ItemCallback<T> diffCallback, androidx.recyclerview.widget.ListUpdateCallback updateCallback);
+    method public final void connect(kotlinx.coroutines.flow.Flow<androidx.paging.PagedData<T>> flow, kotlinx.coroutines.CoroutineScope scope);
+    method public T? getItem(int index);
+    method public int getItemCount();
+    property public int itemCount;
+  }
+
   public class AsyncPagedListDiffer<T> {
     ctor public AsyncPagedListDiffer(androidx.recyclerview.widget.RecyclerView.Adapter<?> adapter, androidx.recyclerview.widget.DiffUtil.ItemCallback<T> diffCallback);
     ctor public AsyncPagedListDiffer(androidx.recyclerview.widget.ListUpdateCallback listUpdateCallback, androidx.recyclerview.widget.AsyncDifferConfig<T> config);
@@ -46,6 +54,14 @@ package androidx.paging {
   }
 
   public final class NullPaddedListDiffHelperKt {
+  }
+
+  public abstract class PagedDataAdapter<T, VH extends androidx.recyclerview.widget.RecyclerView.ViewHolder> extends androidx.recyclerview.widget.RecyclerView.Adapter<VH> {
+    ctor public PagedDataAdapter(androidx.recyclerview.widget.DiffUtil.ItemCallback<T> diffCallback, kotlinx.coroutines.CoroutineDispatcher mainDispatcher);
+    method public final void connect(kotlinx.coroutines.flow.Flow<androidx.paging.PagedData<T>> flow, kotlinx.coroutines.CoroutineScope scope);
+    method protected T? getItem(int position);
+    method public int getItemCount();
+    method public void onLoadStateChanged(androidx.paging.LoadType type, androidx.paging.LoadState state);
   }
 
   public abstract class PagedListAdapter<T, VH extends androidx.recyclerview.widget.RecyclerView.ViewHolder> extends androidx.recyclerview.widget.RecyclerView.Adapter<VH> {
