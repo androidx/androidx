@@ -31,6 +31,7 @@ import androidx.ui.graphics.Color
 import androidx.ui.semantics.Semantics
 import androidx.ui.semantics.accessibilityLabel
 import androidx.ui.text.AnnotatedString
+import androidx.ui.text.TextLayoutResult
 import androidx.ui.text.TextDelegate
 import androidx.ui.text.TextRange
 import androidx.ui.text.TextSpan
@@ -184,18 +185,21 @@ fun Text(
                 resourceLoader = resourceLoader
             )
         }
+        val layoutResultState = state<TextLayoutResult?> { null }
 
         val children = @Composable {
             // Get the layout coordinates of the text composable. This is for hit test of
             // cross-composable selection.
             OnPositioned(onPositioned = { layoutCoordinates.value = it })
             Draw { canvas, _ ->
-                selectionRange.value?.let {
-                    textDelegate.paintBackground(
-                        it.min, it.max, DefaultSelectionColor, canvas
-                    )
+                layoutResultState.value?.let { layoutResult ->
+                    selectionRange.value?.let {
+                        textDelegate.paintBackground(
+                            it.min, it.max, DefaultSelectionColor, canvas, layoutResult
+                        )
+                    }
+                    textDelegate.paint(canvas, layoutResult)
                 }
-                textDelegate.paint(canvas)
             }
         }
         Layout(
@@ -207,28 +211,31 @@ fun Text(
             },
             minIntrinsicHeightMeasureBlock = { _, width ->
                 // given the width constraint, determine the min height
-                textDelegate.layout(Constraints(0.ipx, width, 0.ipx, IntPx.Infinity))
-                textDelegate.height
+                textDelegate.layout(Constraints(0.ipx, width, 0.ipx, IntPx.Infinity)).size.height
             },
             maxIntrinsicWidthMeasureBlock = { _, _ ->
                 textDelegate.layoutIntrinsics()
                 textDelegate.maxIntrinsicWidth
             },
             maxIntrinsicHeightMeasureBlock = { _, width ->
-                textDelegate.layout(Constraints(0.ipx, width, 0.ipx, IntPx.Infinity))
-                textDelegate.height
+                textDelegate.layout(Constraints(0.ipx, width, 0.ipx, IntPx.Infinity)).size.height
             }
         ) { _, constraints ->
-            textDelegate.layout(constraints)
+
+            val layoutResult = textDelegate.layout(constraints, layoutResultState.value)
+            if (layoutResultState.value != layoutResult) {
+                layoutResultState.value = layoutResult
+            }
+
             layout(
-                textDelegate.width,
-                textDelegate.height,
+                layoutResult.size.width,
+                layoutResult.size.height,
                 // Provide values for the alignment lines defined by text - the first
                 // and last baselines of the text. These can be used by parent layouts
                 // to position this text or align this and other texts by baseline.
                 mapOf(
-                    FirstBaseline to textDelegate.firstBaseline,
-                    LastBaseline to textDelegate.lastBaseline
+                    FirstBaseline to layoutResult.firstBaseline,
+                    LastBaseline to layoutResult.lastBaseline
                 )
             ) {}
         }
@@ -243,13 +250,15 @@ fun Text(
         ) {
             // if no SelectionContainer is added as parent selectionRegistrar will be null
             val id: Selectable? = selectionRegistrar?.let {
-                selectionRegistrar.subscribe(
-                    TextSelectionDelegate(
-                        selectionRange = selectionRange,
-                        layoutCoordinates = layoutCoordinates,
-                        textDelegate = textDelegate
+                layoutResultState.value?.let { layoutResult ->
+                    selectionRegistrar.subscribe(
+                        TextSelectionDelegate(
+                            selectionRange = selectionRange,
+                            layoutCoordinates = layoutCoordinates,
+                            textLayoutResult = layoutResult
+                        )
                     )
-                )
+                }
             }
 
             onDispose {

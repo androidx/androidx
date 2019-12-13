@@ -18,7 +18,6 @@ package androidx.ui.text
 
 import androidx.ui.core.Density
 import androidx.ui.core.LayoutDirection
-import androidx.ui.graphics.Canvas
 import androidx.ui.text.font.Font
 import androidx.ui.text.style.TextDirectionAlgorithm
 import androidx.ui.text.style.TextOverflow
@@ -109,40 +108,6 @@ class TextDelegateTest() {
             layoutDirection = LayoutDirection.Ltr)
 
         textDelegate.maxIntrinsicWidth
-    }
-
-    @Test(expected = AssertionError::class)
-    fun `width without layout assertion should fail`() {
-        val textDelegate = TextDelegate(
-            text = AnnotatedString(text = ""),
-            density = density,
-            resourceLoader = resourceLoader,
-            layoutDirection = LayoutDirection.Ltr)
-
-        textDelegate.width
-    }
-
-    @Test(expected = AssertionError::class)
-    fun `height without layout assertion should fail`() {
-        val textDelegate = TextDelegate(
-            text = AnnotatedString(text = ""),
-            density = density,
-            resourceLoader = resourceLoader,
-            layoutDirection = LayoutDirection.Ltr)
-
-        textDelegate.height
-    }
-
-    @Test(expected = AssertionError::class)
-    fun `paint without layout assertion should fail`() {
-        val textDelegate = TextDelegate(
-            text = AnnotatedString(text = ""),
-            density = density,
-            resourceLoader = resourceLoader,
-            layoutDirection = LayoutDirection.Ltr)
-        val canvas = mock<Canvas>()
-
-        textDelegate.paint(canvas)
     }
 
     @Test

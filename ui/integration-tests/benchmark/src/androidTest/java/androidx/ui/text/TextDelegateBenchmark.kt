@@ -161,14 +161,15 @@ class TextDelegateBenchmark(
                 (it.maxIntrinsicWidth.value / 4f).toIntPx()
             }
             benchmarkRule.measureRepeated {
-                val (textDelegate, canvas) = runWithTimingDisabled {
+                val (textDelegate, canvas, layoutResult) = runWithTimingDisabled {
                     textDelegate(textGenerator).let {
-                        it.layout(Constraints(maxWidth = maxWidth))
-                        val canvas = Canvas(Image(it.width.value, it.height.value))
-                        Pair(it, canvas)
+                        val layoutResult = it.layout(Constraints(maxWidth = maxWidth))
+                        val canvas = Canvas(
+                            Image(layoutResult.size.width.value, layoutResult.size.height.value))
+                        Triple(it, canvas, layoutResult)
                     }
                 }
-                textDelegate.paint(canvas)
+                textDelegate.paint(canvas, layoutResult)
             }
         }
     }
@@ -184,13 +185,13 @@ class TextDelegateBenchmark(
                 (it.maxIntrinsicWidth.value / 4f).toIntPx()
             }
             val textDelegate = textDelegate(textGenerator)
-            textDelegate.layout(Constraints(maxWidth = maxWidth))
+            val layoutResult = textDelegate.layout(Constraints(maxWidth = maxWidth))
             val canvas = Canvas(
-                Image(textDelegate.width.value, textDelegate.height.value)
+                Image(layoutResult.size.width.value, layoutResult.size.height.value)
             )
 
             benchmarkRule.measureRepeated {
-                textDelegate.paint(canvas)
+                textDelegate.paint(canvas, layoutResult)
             }
         }
     }

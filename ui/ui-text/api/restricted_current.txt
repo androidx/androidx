@@ -461,6 +461,61 @@ package androidx.ui.text {
   public final class TextDelegateKt {
   }
 
+  public final class TextLayoutHelperKt {
+  }
+
+  public final class TextLayoutInput {
+    ctor public TextLayoutInput(androidx.ui.text.AnnotatedString text, androidx.ui.text.TextStyle style, int maxLines, boolean softWrap, androidx.ui.text.style.TextOverflow overflow, androidx.ui.core.Density density, androidx.ui.core.LayoutDirection layoutDirection, androidx.ui.text.font.Font.ResourceLoader resourceLoader, androidx.ui.core.Constraints constraints);
+    method public androidx.ui.text.AnnotatedString component1();
+    method public androidx.ui.text.TextStyle component2();
+    method public int component3();
+    method public boolean component4();
+    method public androidx.ui.text.style.TextOverflow component5();
+    method public androidx.ui.core.Density component6();
+    method public androidx.ui.core.LayoutDirection component7();
+    method public androidx.ui.text.font.Font.ResourceLoader component8();
+    method public androidx.ui.core.Constraints component9();
+    method public androidx.ui.text.TextLayoutInput copy(androidx.ui.text.AnnotatedString text, androidx.ui.text.TextStyle style, int maxLines, boolean softWrap, androidx.ui.text.style.TextOverflow overflow, androidx.ui.core.Density density, androidx.ui.core.LayoutDirection layoutDirection, androidx.ui.text.font.Font.ResourceLoader resourceLoader, androidx.ui.core.Constraints constraints);
+    method public androidx.ui.core.Constraints getConstraints();
+    method public androidx.ui.core.Density getDensity();
+    method public androidx.ui.core.LayoutDirection getLayoutDirection();
+    method public int getMaxLines();
+    method public androidx.ui.text.style.TextOverflow getOverflow();
+    method public androidx.ui.text.font.Font.ResourceLoader getResourceLoader();
+    method public boolean getSoftWrap();
+    method public androidx.ui.text.TextStyle getStyle();
+    method public androidx.ui.text.AnnotatedString getText();
+  }
+
+  public final class TextLayoutResult {
+    method public androidx.ui.text.TextLayoutInput component1();
+    method public androidx.ui.core.IntPxSize component3();
+    method public androidx.ui.text.TextLayoutResult copy(androidx.ui.text.TextLayoutInput layoutInput, androidx.ui.text.MultiParagraph multiParagraph, androidx.ui.core.IntPxSize size);
+    method public androidx.ui.text.style.TextDirection getBidiRunDirection(int offset);
+    method public androidx.ui.engine.geometry.Rect getBoundingBox(int offset);
+    method public boolean getDidOverflowHeight();
+    method public boolean getDidOverflowWidth();
+    method public androidx.ui.core.IntPx getFirstBaseline();
+    method public boolean getHasVisualOverflow();
+    method public androidx.ui.core.Px getHorizontalPosition(int offset, boolean usePrimaryDirection);
+    method public androidx.ui.core.IntPx getLastBaseline();
+    method public androidx.ui.text.TextLayoutInput getLayoutInput();
+    method public androidx.ui.core.Px getLineBottom(int lineIndex);
+    method public int getLineForOffset(int offset);
+    method public int getOffsetForPosition(androidx.ui.core.PxPosition position);
+    method public androidx.ui.text.style.TextDirection getParagraphDirection(int offset);
+    method public androidx.ui.core.IntPxSize getSize();
+    method public androidx.ui.text.TextRange getWordBoundary(int offset);
+    property public final boolean didOverflowHeight;
+    property public final boolean didOverflowWidth;
+    property public final androidx.ui.core.IntPx firstBaseline;
+    property public final boolean hasVisualOverflow;
+    property public final androidx.ui.core.IntPx lastBaseline;
+  }
+
+  public final class TextLayoutResultKt {
+  }
+
   public final class TextRange {
     ctor public TextRange(int start, int end);
     method public int component1();

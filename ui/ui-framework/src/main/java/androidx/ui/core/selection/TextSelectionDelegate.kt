@@ -21,18 +21,17 @@ import androidx.ui.core.LayoutCoordinates
 import androidx.ui.core.Px
 import androidx.ui.core.PxBounds
 import androidx.ui.core.PxPosition
-import androidx.ui.core.px
 import androidx.ui.core.toPx
 import androidx.ui.core.toRect
 import androidx.ui.engine.geometry.Offset
-import androidx.ui.text.TextDelegate
+import androidx.ui.text.TextLayoutResult
 import androidx.ui.text.TextRange
 import kotlin.math.max
 
 internal class TextSelectionDelegate(
     private val selectionRange: State<TextRange?>,
     private val layoutCoordinates: State<LayoutCoordinates?>,
-    private val textDelegate: TextDelegate
+    private val textLayoutResult: TextLayoutResult
 ) : Selectable {
 
     override fun getSelection(
@@ -50,7 +49,7 @@ internal class TextSelectionDelegate(
         val endPx = endPosition - relativePosition
 
         val selection = getTextSelectionInfo(
-            textDelegate = textDelegate,
+            textLayoutResult = textLayoutResult,
             selectionCoordinates = Pair(startPx, endPx),
             layoutCoordinates = layoutCoordinates,
             wordSelectIfCollapsed = longPress
@@ -69,7 +68,7 @@ internal class TextSelectionDelegate(
 /**
  * Return information about the current selection in the Text.
  *
- * @param textDelegate The [TextDelegate] object from Text composable.
+ * @param textLayoutResult a result of the text layout.
  * @param selectionCoordinates The positions of the start and end of the selection in Text
  * composable coordinate system.
  * @param layoutCoordinates The [LayoutCoordinates] of the composable.
@@ -81,7 +80,7 @@ internal class TextSelectionDelegate(
  * @return [Selection] of the current composable, or null if the composable is not selected.
  */
 internal fun getTextSelectionInfo(
-    textDelegate: TextDelegate,
+    textLayoutResult: TextLayoutResult,
     selectionCoordinates: Pair<PxPosition, PxPosition>,
     layoutCoordinates: LayoutCoordinates,
     wordSelectIfCollapsed: Boolean
@@ -89,9 +88,14 @@ internal fun getTextSelectionInfo(
     val startPosition = selectionCoordinates.first
     val endPosition = selectionCoordinates.second
 
-    val bounds = PxBounds(Px.Zero, Px.Zero, textDelegate.width.toPx(), textDelegate.height.toPx())
+    val bounds = PxBounds(
+        Px.Zero,
+        Px.Zero,
+        textLayoutResult.size.width.toPx(),
+        textLayoutResult.size.height.toPx()
+    )
 
-    val lastOffset = textDelegate.text.text.length
+    val lastOffset = textLayoutResult.layoutInput.text.text.length
 
     val containsWholeSelectionStart =
         bounds.toRect().contains(Offset(startPosition.x.value, startPosition.y.value))
@@ -101,14 +105,14 @@ internal fun getTextSelectionInfo(
 
     var rawStartOffset =
         if (containsWholeSelectionStart)
-            textDelegate.getOffsetForPosition(startPosition).coerceIn(0, lastOffset)
+            textLayoutResult.getOffsetForPosition(startPosition).coerceIn(0, lastOffset)
         else
         // If the composable is selected, the start offset cannot be -1 for this composable. If the
         // final start offset is still -1, it means this composable is not selected.
             -1
     var rawEndOffset =
         if (containsWholeSelectionEnd)
-            textDelegate.getOffsetForPosition(endPosition).coerceIn(0, lastOffset)
+            textLayoutResult.getOffsetForPosition(endPosition).coerceIn(0, lastOffset)
         else
         // If the composable is selected, the end offset cannot be -1 for this composable. If the
         // final end offset is still -1, it means this composable is not selected.
@@ -123,7 +127,7 @@ internal fun getTextSelectionInfo(
                 rawStartOffset = rawStartOffset,
                 rawEndOffset = rawEndOffset,
                 wordSelectIfCollapsed = wordSelectIfCollapsed,
-                textDelegate = textDelegate
+                textLayoutResult = textLayoutResult
             )
         } else {
             processCrossComposable(
@@ -143,23 +147,23 @@ internal fun getTextSelectionInfo(
     return Selection(
         start = Selection.AnchorInfo(
             coordinates = getSelectionHandleCoordinates(
-                textDelegate = textDelegate,
+                textLayoutResult = textLayoutResult,
                 offset = startOffset,
                 isStart = true,
                 areHandlesCrossed = handlesCrossed
             ),
-            direction = textDelegate.getBidiRunDirection(startOffset),
+            direction = textLayoutResult.getBidiRunDirection(startOffset),
             offset = startOffset,
             layoutCoordinates = if (containsWholeSelectionStart) layoutCoordinates else null
         ),
         end = Selection.AnchorInfo(
             coordinates = getSelectionHandleCoordinates(
-                textDelegate = textDelegate,
+                textLayoutResult = textLayoutResult,
                 offset = endOffset,
                 isStart = false,
                 areHandlesCrossed = handlesCrossed
             ),
-            direction = textDelegate.getBidiRunDirection(max(endOffset - 1, 0)),
+            direction = textLayoutResult.getBidiRunDirection(max(endOffset - 1, 0)),
             offset = endOffset,
             layoutCoordinates = if (containsWholeSelectionEnd) layoutCoordinates else null
         ),
@@ -178,7 +182,7 @@ internal fun getTextSelectionInfo(
  * different location. If the selection anchors point the same location and this is true, the
  * result selection will be adjusted to word boundary. Otherwise, the selection will be adjusted
  * to keep single character selected.
- * @param textDelegate the [TextDelegate] object from Text composable.
+ * @param textLayoutResult a result of the text layout.
  *
  * @return the final startOffset, endOffset of the selection, and if the start and end are
  * crossed each other.
@@ -187,7 +191,7 @@ private fun processAsSingleComposable(
     rawStartOffset: Int,
     rawEndOffset: Int,
     wordSelectIfCollapsed: Boolean,
-    textDelegate: TextDelegate
+    textLayoutResult: TextLayoutResult
 ): Triple<Int, Int, Boolean> {
     var startOffset = rawStartOffset
     var endOffset = rawEndOffset
@@ -195,7 +199,7 @@ private fun processAsSingleComposable(
         if (wordSelectIfCollapsed) {
             // If the start and end offset are at the same character, and it's the initial
             // selection, then select a word.
-            val wordBoundary = textDelegate.getWordBoundary(startOffset)
+            val wordBoundary = textLayoutResult.getWordBoundary(startOffset)
             startOffset = wordBoundary.start
             endOffset = wordBoundary.end
         } else {
@@ -273,7 +277,7 @@ private fun processCrossComposable(
  * This method returns the graphical position where the selection handle should be based on the
  * offset and other information.
  *
- * @param textDelegate TextDelegate instance
+ * @param textLayoutResult a result of the text layout.
  * @param offset character offset to be calculated
  * @param isStart true if called for selection start handle
  * @param areHandlesCrossed true if the selection handles are crossed
@@ -281,23 +285,23 @@ private fun processCrossComposable(
  * @return the graphical position where the selection handle should be.
  */
 private fun getSelectionHandleCoordinates(
-    textDelegate: TextDelegate,
+    textLayoutResult: TextLayoutResult,
     offset: Int,
     isStart: Boolean,
     areHandlesCrossed: Boolean
 ): PxPosition {
-    val line = textDelegate.getLineForOffset(offset)
+    val line = textLayoutResult.getLineForOffset(offset)
     val offsetToCheck =
         if (isStart && !areHandlesCrossed || !isStart && areHandlesCrossed) offset
         else max(offset - 1, 0)
-    val bidiRunDirection = textDelegate.getBidiRunDirection(offsetToCheck)
-    val paragraphDirection = textDelegate.getParagraphDirection(offset)
+    val bidiRunDirection = textLayoutResult.getBidiRunDirection(offsetToCheck)
+    val paragraphDirection = textLayoutResult.getParagraphDirection(offset)
 
-    val x = textDelegate.getHorizontalPosition(
+    val x = textLayoutResult.getHorizontalPosition(
         offset = offset,
         usePrimaryDirection = bidiRunDirection == paragraphDirection
     )
-    val y = textDelegate.getLineBottom(line)
+    val y = textLayoutResult.getLineBottom(line)
 
-    return PxPosition(x.px, y.px)
+    return PxPosition(x, y)
 }
