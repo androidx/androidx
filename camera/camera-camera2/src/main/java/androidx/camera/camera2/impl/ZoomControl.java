@@ -187,16 +187,17 @@ final class ZoomControl {
     /**
      * Sets current zoom by ratio.
      *
-     * <p>It modifies both current zoom ratio and linear zoom percentage so if apps are observing
+     * <p>It modifies both current zoomRatio and linearZoom so if apps are observing
      * zoomRatio or linearZoom, they will get the update as well. If the ratio is
      * smaller than {@link CameraInfo#getMinZoomRatio()} or larger than
-     * {@link CameraInfo#getMaxZoomRatio()}, it won't modify current zoom ratio. It is
+     * {@link CameraInfo#getMaxZoomRatio()}, the returned {@link ListenableFuture} will fail with
+     * {@link IllegalArgumentException} and it won't modify current zoom ratio. It is the
      * applications' duty to clamp the ratio.
      *
      * @return a {@link ListenableFuture} which is finished when current repeating request
-     *     result contains the requested zoom ratio. It fails with
-     *     {@link OperationCanceledException} if there is newer value being set or camera is closed.
-     *     If ratio is out of range, it fails with {@link IllegalArgumentException}.
+     * result contains the requested zoom ratio. It fails with
+     * {@link OperationCanceledException} if there is newer value being set or camera is closed. If
+     * the ratio is out of range, it fails with {@link IllegalArgumentException}.
      */
     @NonNull
     ListenableFuture<Void> setZoomRatio(float ratio) {
@@ -276,19 +277,22 @@ final class ZoomControl {
     }
 
     /**
-     * Sets current zoom by a float percentage ranging from 0f to 1.0f. LinearZoom 0f represents the
-     * minimum zoom while linearZoom 1.0f represents the maximum zoom. The advantage of
-     * linearZoom is that it ensures FOV varies linearly with the percentage value.
+     * Sets current zoom by a linear zoom value ranging from 0f to 1.0f. LinearZoom 0f represents
+     * the minimum zoom while linearZoom 1.0f represents the maximum zoom. The advantage of
+     * linearZoom is that it ensures the field of view (FOV) varies linearly with the linearZoom
+     * value, for use with slider UI elements (while {@link #setZoomRatio(float)} works well
+     * for pinch-zoom gestures).
      *
-     * <p>It modifies both current zoom ratio and linear zoom so if apps are observing
-     * zoomRatio or linearZoom, they will get the update as well. If the percentage is not in
-     * the range [0..1], it won't modify current linearZoom  and zoom ratio. It is
-     * applications' duty to clamp the linearZoom within [0..1].
+     * <p>It modifies both current zoomRatio and linearZoom so if apps are observing
+     * zoomRatio or linearZoom, they will get the update as well. If the linearZoom is not in
+     * the range [0..1], the returned {@link ListenableFuture} will fail with
+     * {@link IllegalArgumentException} and it won't modify current linearZoom and zoomRatio. It is
+     * application's duty to clamp the linearZoom within [0..1].
      *
      * @return a {@link ListenableFuture} which is finished when current repeating request
-     *     result contains the requested linearZoom. It fails with
-     *     {@link OperationCanceledException} if there is newer value being set or camera is closed.
-     *     If value is not in [0..1], it fails with {@link IllegalArgumentException}.
+     * result contains the requested linearZoom. It fails with
+     * {@link OperationCanceledException} if there is newer value being set or camera is closed.
+     * If linearZoom is not in range [0..1], it fails with {@link IllegalArgumentException}.
      */
     @NonNull
     ListenableFuture<Void> setLinearZoom(@FloatRange(from = 0f, to = 1f) float linearZoom) {
