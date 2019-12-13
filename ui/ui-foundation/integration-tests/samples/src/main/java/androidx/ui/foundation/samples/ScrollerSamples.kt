@@ -18,7 +18,7 @@ package androidx.ui.foundation.samples
 
 import androidx.annotation.Sampled
 import androidx.compose.Composable
-import androidx.compose.State
+import androidx.compose.MutableState
 import androidx.compose.remember
 import androidx.compose.state
 import androidx.ui.core.Alignment
@@ -139,7 +139,7 @@ private fun Square(index: Int) {
 }
 
 @Composable
-private fun ScrollControl(position: ScrollerPosition, scrollable: State<Boolean>) {
+private fun ScrollControl(position: ScrollerPosition, scrollable: MutableState<Boolean>) {
     Padding(top = 20.dp) {
         Table(3, alignment = { Alignment.Center }) {
             tableRow {

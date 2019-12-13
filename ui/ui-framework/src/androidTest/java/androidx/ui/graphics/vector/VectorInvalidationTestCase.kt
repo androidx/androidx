@@ -17,7 +17,7 @@
 package androidx.ui.graphics.vector
 
 import androidx.compose.Composable
-import androidx.compose.State
+import androidx.compose.MutableState
 import androidx.compose.state
 import androidx.ui.core.Draw
 import androidx.ui.core.WithDensity
@@ -32,7 +32,7 @@ import java.util.concurrent.CountDownLatch
 class VectorInvalidationTestCase(var latch: CountDownLatch) {
 
     // Lazily initialize state as it needs to be constructed in the composition
-    private var vectorState: State<Int>? = null
+    private var vectorState: MutableState<Int>? = null
 
     /**
      * Queries the size of the underlying vector image to draw

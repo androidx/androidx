@@ -17,7 +17,7 @@
 package androidx.ui.core
 
 import androidx.compose.Composable
-import androidx.compose.State
+import androidx.compose.MutableState
 import androidx.compose.state
 import androidx.test.filters.LargeTest
 import androidx.ui.benchmark.ComposeBenchmarkRule
@@ -49,7 +49,7 @@ class OnPositionedBenchmark {
 private class DeepHierarchyOnPositionedTestCase :
     ComposeTestCase, ToggleableTestCase {
 
-    private lateinit var state: State<Dp>
+    private lateinit var state: MutableState<Dp>
 
     @Composable
     override fun emitContent() {

@@ -17,6 +17,7 @@
 package androidx.ui.core
 
 import androidx.compose.Composable
+import androidx.compose.MutableState
 import androidx.compose.State
 import androidx.compose.state
 import androidx.test.filters.LargeTest
@@ -59,7 +60,7 @@ class WithConstraintsBenchmark {
 
 private class NoWithConstraintsTestCase : ComposeTestCase, ToggleableTestCase {
 
-    private lateinit var state: State<Dp>
+    private lateinit var state: MutableState<Dp>
 
     @Composable
     override fun emitContent() {
@@ -77,7 +78,7 @@ private class NoWithConstraintsTestCase : ComposeTestCase, ToggleableTestCase {
 
 private class WithConstraintsTestCase : ComposeTestCase, ToggleableTestCase {
 
-    private lateinit var state: State<Dp>
+    private lateinit var state: MutableState<Dp>
 
     @Composable
     override fun emitContent() {
@@ -97,7 +98,7 @@ private class WithConstraintsTestCase : ComposeTestCase, ToggleableTestCase {
 
 private class ChangingConstraintsTestCase : ComposeTestCase, ToggleableTestCase {
 
-    private lateinit var state: State<IntPx>
+    private lateinit var state: MutableState<IntPx>
 
     @Composable
     override fun emitContent() {

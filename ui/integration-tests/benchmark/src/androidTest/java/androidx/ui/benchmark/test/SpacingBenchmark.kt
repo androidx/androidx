@@ -17,7 +17,7 @@
 package androidx.ui.benchmark.test
 
 import androidx.compose.Composable
-import androidx.compose.State
+import androidx.compose.MutableState
 import androidx.compose.state
 import androidx.test.filters.LargeTest
 import androidx.ui.benchmark.ComposeBenchmarkRule
@@ -156,7 +156,7 @@ class PaddingBenchmark {
 private sealed class PaddingTestCase : ComposeTestCase,
     ToggleableTestCase {
 
-    var paddingState: State<Dp>? = null
+    var paddingState: MutableState<Dp>? = null
 
     override fun toggleState() {
         with(paddingState!!) {
