@@ -17,7 +17,6 @@
 package androidx.ui.foundation
 
 import androidx.compose.Model
-import androidx.compose.State
 import androidx.test.filters.MediumTest
 import androidx.ui.core.TestTag
 import androidx.ui.core.dp
