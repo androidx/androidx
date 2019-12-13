@@ -28,16 +28,17 @@ import androidx.ui.core.dp
 import androidx.ui.core.ipx
 import androidx.ui.engine.geometry.Shape
 import androidx.ui.foundation.ProvideContentColor
-import androidx.ui.foundation.contentColor
 import androidx.ui.foundation.shape.DrawShape
 import androidx.ui.foundation.shape.RectangleShape
 import androidx.ui.foundation.shape.border.Border
 import androidx.ui.foundation.shape.border.DrawBorder
 import androidx.ui.graphics.Color
+import androidx.ui.graphics.compositeOver
 import androidx.ui.material.ColorPalette
 import androidx.ui.material.MaterialTheme
 import androidx.ui.material.contentColorFor
 import androidx.ui.text.TextStyle
+import kotlin.math.ln
 
 /**
  * The [Surface] is responsible for:
@@ -92,7 +93,8 @@ fun Surface(
         if (elevation > 0.dp) {
             DrawShadow(shape = shape, elevation = elevation)
         }
-        DrawShape(shape = shape, color = color)
+        val backgroundColor = getBackgroundColorForElevation(color, elevation)
+        DrawShape(shape = shape, color = backgroundColor)
         Clip(shape = shape) {
             ProvideContentColor(contentColor, children)
         }
@@ -123,4 +125,37 @@ private fun SurfaceLayout(modifier: Modifier = Modifier.None, children: @Composa
             }
         }
     }
+}
+
+/**
+ * If in a light theme, returns [color]. If in dark theme, applies an elevation overlay if [color]
+ * is equal to ColorPalette.surface, else returns [color]
+ */
+@Composable
+private fun getBackgroundColorForElevation(color: Color, elevation: Dp): Color {
+    val colors = MaterialTheme.colors()
+    return if (elevation > 0.dp && color == colors.surface && !colors.isLight) {
+        color.withElevation(elevation)
+    } else {
+        color
+    }
+}
+
+/**
+ * Applies a [Color.White] overlay to this color based on the [elevation]. This increases visibility
+ * of elevation for surfaces in a dark theme.
+ */
+private fun Color.withElevation(elevation: Dp): Color {
+    val foreground = calculateForeground(elevation)
+    return foreground.compositeOver(this)
+}
+
+// TODO: b/145802792 - clarify this algorithm
+/**
+ * @return the alpha-modified [Color.White] to overlay on top of the surface color to produce
+ * the resultant color.
+ */
+private fun calculateForeground(elevation: Dp): Color {
+    val alpha = ((4.5f * ln(elevation.value + 1)) + 2f) / 100f
+    return Color.White.copy(alpha = alpha)
 }
