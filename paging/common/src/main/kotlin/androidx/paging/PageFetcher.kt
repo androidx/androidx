@@ -18,11 +18,11 @@ package androidx.paging
 
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.FlowPreview
-import kotlinx.coroutines.channels.Channel
-import kotlinx.coroutines.flow.Flow
-import kotlinx.coroutines.flow.consumeAsFlow
+import kotlinx.coroutines.channels.ConflatedBroadcastChannel
+import kotlinx.coroutines.flow.asFlow
 import kotlinx.coroutines.flow.filterNotNull
 import kotlinx.coroutines.flow.mapLatest
+import kotlinx.coroutines.flow.onStart
 import kotlinx.coroutines.flow.scan
 
 @ExperimentalCoroutinesApi
@@ -34,28 +34,28 @@ internal class PageFetcher<Key : Any, Value : Any>(
 ) {
     // NOTE: This channel is conflated, which means it has a buffer size of 1, and will always
     // broadcast the latest value received.
-    private var refreshChannel = Channel<Unit>(Channel.CONFLATED)
+    private var refreshChannel = ConflatedBroadcastChannel<Unit>()
 
     // The object built by paging builder can maintain the scope so that on rotation we don't stop
     // the paging.
-    fun createFlow(): Flow<PagedData<Value>> {
-        refreshChannel.offer(Unit)
-        return refreshChannel.consumeAsFlow()
-            .scan(null) { previousGeneration: Pager<Key, Value>?, _ ->
-                // TODO: Call pagedSource.invalidate on previous pagedSource
-                val pagedSource = pagedSourceFactory()
-                val initialKey = when (previousGeneration) {
-                    null -> initialKey
-                    else -> when (val info = previousGeneration.refreshKeyInfo()) {
-                        null -> previousGeneration.initialKey
-                        else -> pagedSource.getRefreshKeyFromPage(info.indexInPage, info.page)
-                    }
+    val flow = refreshChannel
+        .asFlow()
+        .onStart {
+            emit(Unit)
+        }.scan(null) { previousGeneration: Pager<Key, Value>?, _ ->
+            // TODO: Call pagedSource.invalidate on previous pagedSource
+            val pagedSource = pagedSourceFactory()
+            val initialKey = when (previousGeneration) {
+                null -> initialKey
+                else -> when (val info = previousGeneration.refreshKeyInfo()) {
+                    null -> previousGeneration.initialKey
+                    else -> pagedSource.getRefreshKeyFromPage(info.indexInPage, info.page)
                 }
-                Pager(initialKey, pagedSource, config)
             }
-            .filterNotNull()
-            .mapLatest { generation -> PagedData(generation.create(), generation::addHint) }
-    }
+            Pager(initialKey, pagedSource, config)
+        }
+        .filterNotNull()
+        .mapLatest { generation -> PagedData(generation.create(), generation::addHint) }
 
     fun refresh() {
         refreshChannel.offer(Unit)
