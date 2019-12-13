@@ -32,6 +32,7 @@ import androidx.ui.core.withDensity
 import androidx.ui.text.AnnotatedString
 import androidx.ui.text.SpanStyle
 import androidx.ui.text.TextDelegate
+import androidx.ui.text.TextLayoutResult
 import androidx.ui.text.font.Font
 import androidx.ui.text.font.FontStyle
 import androidx.ui.text.font.FontWeight
@@ -64,7 +65,7 @@ class TextSelectionDelegateTest {
             val fontSize = 20.sp
             val fontSizeInPx = fontSize.toPx().value
 
-            val textDelegate = simpleTextDelegate(
+            val textLayoutResult = simpleTextLayout(
                 text = text,
                 fontSize = fontSize,
                 density = defaultDensity
@@ -75,7 +76,7 @@ class TextSelectionDelegateTest {
 
             // Act.
             val textSelectionInfo = getTextSelectionInfo(
-                textDelegate = textDelegate,
+                textLayoutResult = textLayoutResult,
                 selectionCoordinates = Pair(start, end),
                 layoutCoordinates = mock(),
                 wordSelectIfCollapsed = true
@@ -113,7 +114,7 @@ class TextSelectionDelegateTest {
             val fontSize = 20.sp
             val fontSizeInPx = fontSize.toPx().value
 
-            val textDelegate = simpleTextDelegate(
+            val textLayoutResult = simpleTextLayout(
                 text = text,
                 fontSize = fontSize,
                 density = defaultDensity
@@ -124,7 +125,7 @@ class TextSelectionDelegateTest {
 
             // Act.
             val textSelectionInfo = getTextSelectionInfo(
-                textDelegate = textDelegate,
+                textLayoutResult = textLayoutResult,
                 selectionCoordinates = Pair(start, end),
                 layoutCoordinates = mock(),
                 wordSelectIfCollapsed = true
@@ -162,7 +163,7 @@ class TextSelectionDelegateTest {
             val fontSize = 20.sp
             val fontSizeInPx = fontSize.toPx().value
 
-            val textDelegate = simpleTextDelegate(
+            val textLayoutResult = simpleTextLayout(
                 text = text,
                 fontSize = fontSize,
                 density = defaultDensity
@@ -176,7 +177,7 @@ class TextSelectionDelegateTest {
 
             // Act.
             val textSelectionInfo = getTextSelectionInfo(
-                textDelegate = textDelegate,
+                textLayoutResult = textLayoutResult,
                 selectionCoordinates = Pair(start, end),
                 layoutCoordinates = mock(),
                 wordSelectIfCollapsed = false
@@ -214,7 +215,7 @@ class TextSelectionDelegateTest {
             val fontSize = 20.sp
             val fontSizeInPx = fontSize.toPx().value
 
-            val textDelegate = simpleTextDelegate(
+            val textLayoutResult = simpleTextLayout(
                 text = text,
                 fontSize = fontSize,
                 density = defaultDensity
@@ -234,7 +235,7 @@ class TextSelectionDelegateTest {
 
             // Act.
             val textSelectionInfo = getTextSelectionInfo(
-                textDelegate = textDelegate,
+                textLayoutResult = textLayoutResult,
                 selectionCoordinates = Pair(start, end),
                 layoutCoordinates = mock(),
                 wordSelectIfCollapsed = false
@@ -277,7 +278,7 @@ class TextSelectionDelegateTest {
             val fontSize = 20.sp
             val fontSizeInPx = fontSize.toPx().value
 
-            val textDelegate = simpleTextDelegate(
+            val textLayoutResult = simpleTextLayout(
                 text = text,
                 fontSize = fontSize,
                 density = defaultDensity
@@ -297,7 +298,7 @@ class TextSelectionDelegateTest {
 
             // Act.
             val textSelectionInfo = getTextSelectionInfo(
-                textDelegate = textDelegate,
+                textLayoutResult = textLayoutResult,
                 selectionCoordinates = Pair(start, end),
                 layoutCoordinates = mock(),
                 wordSelectIfCollapsed = false
@@ -337,7 +338,7 @@ class TextSelectionDelegateTest {
             val text = "hello world\n"
             val fontSize = 20.sp
             val fontSizeInPx = fontSize.toPx().value
-            val textDelegate = simpleTextDelegate(
+            val textLayoutResult = simpleTextLayout(
                 text = text,
                 fontSize = fontSize,
                 density = defaultDensity
@@ -350,7 +351,7 @@ class TextSelectionDelegateTest {
             // Act.
             val textSelectionInfo = getTextSelectionInfo(
                 selectionCoordinates = Pair(start, end),
-                textDelegate = textDelegate,
+                textLayoutResult = textLayoutResult,
                 layoutCoordinates = mock(),
                 wordSelectIfCollapsed = false
             )
@@ -386,7 +387,7 @@ class TextSelectionDelegateTest {
             val text = "\u05D0\u05D1\u05D2 \u05D3\u05D4\u05D5\n"
             val fontSize = 20.sp
             val fontSizeInPx = fontSize.toPx().value
-            val textDelegate = simpleTextDelegate(
+            val textLayoutResult = simpleTextLayout(
                 text = text,
                 fontSize = fontSize,
                 density = defaultDensity
@@ -406,7 +407,7 @@ class TextSelectionDelegateTest {
             // Act.
             val textSelectionInfo = getTextSelectionInfo(
                 selectionCoordinates = Pair(start, end),
-                textDelegate = textDelegate,
+                textLayoutResult = textLayoutResult,
                 layoutCoordinates = mock(),
                 wordSelectIfCollapsed = false
             )
@@ -444,7 +445,7 @@ class TextSelectionDelegateTest {
             val text = textLtr + textRtl
             val fontSize = 20.sp
             val fontSizeInPx = fontSize.toPx().value
-            val textDelegate = simpleTextDelegate(
+            val textLayoutResult = simpleTextLayout(
                 text = text,
                 fontSize = fontSize,
                 density = defaultDensity
@@ -464,7 +465,7 @@ class TextSelectionDelegateTest {
             // Act.
             val textSelectionInfo = getTextSelectionInfo(
                 selectionCoordinates = Pair(start, end),
-                textDelegate = textDelegate,
+                textLayoutResult = textLayoutResult,
                 layoutCoordinates = mock(),
                 wordSelectIfCollapsed = false
             )
@@ -503,7 +504,7 @@ class TextSelectionDelegateTest {
             val text = "hello world\n"
             val fontSize = 20.sp
             val fontSizeInPx = fontSize.toPx().value
-            val textDelegate = simpleTextDelegate(
+            val textLayoutResult = simpleTextLayout(
                 text = text,
                 fontSize = fontSize,
                 density = defaultDensity
@@ -516,7 +517,7 @@ class TextSelectionDelegateTest {
             // Act.
             val textSelectionInfo = getTextSelectionInfo(
                 selectionCoordinates = Pair(start, end),
-                textDelegate = textDelegate,
+                textLayoutResult = textLayoutResult,
                 layoutCoordinates = mock(),
                 wordSelectIfCollapsed = false
             )
@@ -551,7 +552,7 @@ class TextSelectionDelegateTest {
             val text = "\u05D0\u05D1\u05D2 \u05D3\u05D4\u05D5\n"
             val fontSize = 20.sp
             val fontSizeInPx = fontSize.toPx().value
-            val textDelegate = simpleTextDelegate(
+            val textLayoutResult = simpleTextLayout(
                 text = text,
                 fontSize = fontSize,
                 density = defaultDensity
@@ -570,7 +571,7 @@ class TextSelectionDelegateTest {
             // Act.
             val textSelectionInfo = getTextSelectionInfo(
                 selectionCoordinates = Pair(start, end),
-                textDelegate = textDelegate,
+                textLayoutResult = textLayoutResult,
                 layoutCoordinates = mock(),
                 wordSelectIfCollapsed = false
             )
@@ -608,7 +609,7 @@ class TextSelectionDelegateTest {
             val text = "hello world\n"
             val fontSize = 20.sp
             val fontSizeInPx = fontSize.toPx().value
-            val textDelegate = simpleTextDelegate(
+            val textLayoutResult = simpleTextLayout(
                 text = text,
                 fontSize = fontSize,
                 density = defaultDensity
@@ -621,7 +622,7 @@ class TextSelectionDelegateTest {
             // Act.
             val textSelectionInfo = getTextSelectionInfo(
                 selectionCoordinates = Pair(start, end),
-                textDelegate = textDelegate,
+                textLayoutResult = textLayoutResult,
                 layoutCoordinates = mock(),
                 wordSelectIfCollapsed = false
             )
@@ -656,7 +657,7 @@ class TextSelectionDelegateTest {
             val text = "hello world"
             val fontSize = 20.sp
             val fontSizeInPx = fontSize.toPx().value
-            val textDelegate = simpleTextDelegate(
+            val textLayoutResult = simpleTextLayout(
                 text = text,
                 fontSize = fontSize,
                 density = defaultDensity
@@ -670,7 +671,7 @@ class TextSelectionDelegateTest {
             // Act.
             val textSelectionInfo = getTextSelectionInfo(
                 selectionCoordinates = Pair(start, end),
-                textDelegate = textDelegate,
+                textLayoutResult = textLayoutResult,
                 layoutCoordinates = mock(),
                 wordSelectIfCollapsed = false
             )
@@ -705,7 +706,7 @@ class TextSelectionDelegateTest {
             val text = "hello world"
             val fontSize = 20.sp
             val fontSizeInPx = fontSize.toPx().value
-            val textDelegate = simpleTextDelegate(
+            val textLayoutResult = simpleTextLayout(
                 text = text,
                 fontSize = fontSize,
                 density = defaultDensity
@@ -719,7 +720,7 @@ class TextSelectionDelegateTest {
             // Act.
             val textSelectionInfo = getTextSelectionInfo(
                 selectionCoordinates = Pair(start, end),
-                textDelegate = textDelegate,
+                textLayoutResult = textLayoutResult,
                 layoutCoordinates = mock(),
                 wordSelectIfCollapsed = false
             )
@@ -755,7 +756,7 @@ class TextSelectionDelegateTest {
             val text = "hello world"
             val fontSize = 20.sp
             val fontSizeInPx = fontSize.toPx().value
-            val textDelegate = simpleTextDelegate(
+            val textLayoutResult = simpleTextLayout(
                 text = text,
                 fontSize = fontSize,
                 density = defaultDensity
@@ -769,7 +770,7 @@ class TextSelectionDelegateTest {
             // Act.
             val textSelectionInfo = getTextSelectionInfo(
                 selectionCoordinates = Pair(start, end),
-                textDelegate = textDelegate,
+                textLayoutResult = textLayoutResult,
                 layoutCoordinates = mock(),
                 wordSelectIfCollapsed = false
             )
@@ -804,7 +805,7 @@ class TextSelectionDelegateTest {
         withDensity(defaultDensity) {
             val text = "hello world\n"
             val fontSize = 20.sp
-            val textDelegate = simpleTextDelegate(
+            val textLayoutResult = simpleTextLayout(
                 text = text,
                 fontSize = fontSize,
                 density = defaultDensity
@@ -814,7 +815,7 @@ class TextSelectionDelegateTest {
             // Act.
             val textSelectionInfo = getTextSelectionInfo(
                 selectionCoordinates = Pair(start, end),
-                textDelegate = textDelegate,
+                textLayoutResult = textLayoutResult,
                 layoutCoordinates = mock(),
                 wordSelectIfCollapsed = true
             )
@@ -822,23 +823,19 @@ class TextSelectionDelegateTest {
         }
     }
 
-    private fun simpleTextDelegate(
+    private fun simpleTextLayout(
         text: String = "",
         fontSize: TextUnit = TextUnit.Inherit,
         density: Density
-    ): TextDelegate {
+    ): TextLayoutResult {
         val spanStyle = SpanStyle(fontSize = fontSize, fontFamily = fontFamily)
         val annotatedString = AnnotatedString(text, spanStyle)
-        val textDelegate = TextDelegate(
+        return TextDelegate(
             text = annotatedString,
             density = density,
             layoutDirection = LayoutDirection.Ltr,
             resourceLoader = resourceLoader
-        )
-
-        textDelegate.layout(Constraints())
-
-        return textDelegate
+        ).layout(Constraints())
     }
 }
 

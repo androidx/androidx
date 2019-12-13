@@ -32,6 +32,7 @@ import androidx.ui.input.NO_SESSION
 import androidx.ui.input.VisualTransformation
 import androidx.ui.semantics.Semantics
 import androidx.ui.semantics.onClick
+import androidx.ui.text.TextLayoutResult
 import androidx.ui.text.TextDelegate
 import androidx.ui.text.TextRange
 import androidx.ui.text.TextStyle
@@ -378,6 +379,7 @@ internal fun BaseTextField(
         val hasFocus = state { false }
         val coords = state<LayoutCoordinates?> { null }
         val inputSession = state { NO_SESSION }
+        val layoutResult = state<TextLayoutResult?> { null }
 
         processor.onNewState(value, textInputService, inputSession.value)
         TextInputEventObserver(
@@ -395,15 +397,18 @@ internal fun BaseTextField(
                     onImeActionPerformed)
                 coords.value?.let { coords ->
                     textInputService?.let { textInputService ->
-                        TextFieldDelegate.notifyFocusedRect(
-                            value,
-                            textDelegate,
-                            coords,
-                            textInputService,
-                            inputSession.value,
-                            hasFocus.value,
-                            offsetMap
-                        )
+                        layoutResult.value?.let { layoutResult ->
+                            TextFieldDelegate.notifyFocusedRect(
+                                value,
+                                textDelegate,
+                                layoutResult,
+                                coords,
+                                textInputService,
+                                inputSession.value,
+                                hasFocus.value,
+                                offsetMap
+                            )
+                        }
                     }
                 }
                 onFocus()
@@ -418,15 +423,18 @@ internal fun BaseTextField(
                 onBlur()
             },
             onRelease = {
-                TextFieldDelegate.onRelease(
-                    it,
-                    textDelegate,
-                    processor,
-                    offsetMap,
-                    onValueChangeWrapper,
-                    textInputService,
-                    inputSession.value,
-                    hasFocus.value)
+                layoutResult.value?.let { layoutResult ->
+                    TextFieldDelegate.onRelease(
+                        it,
+                        layoutResult,
+                        processor,
+                        offsetMap,
+                        onValueChangeWrapper,
+                        textInputService,
+                        inputSession.value,
+                        hasFocus.value
+                    )
+                }
             }
         ) {
             Layout(
@@ -435,32 +443,42 @@ internal fun BaseTextField(
                     OnPositioned {
                         if (textInputService != null) {
                             coords.value = it
-                            TextFieldDelegate.notifyFocusedRect(
-                                value,
-                                textDelegate,
-                                it,
-                                textInputService,
-                                inputSession.value,
-                                hasFocus.value,
-                                offsetMap
-                            )
+                            layoutResult.value?.let { layoutResult ->
+                                TextFieldDelegate.notifyFocusedRect(
+                                    value,
+                                    textDelegate,
+                                    layoutResult,
+                                    it,
+                                    textInputService,
+                                    inputSession.value,
+                                    hasFocus.value,
+                                    offsetMap
+                                )
+                            }
                         }
                     }
                     Draw { canvas, _ ->
-                        TextFieldDelegate.draw(
-                            canvas,
-                            value,
-                            offsetMap,
-                            textDelegate,
-                            hasFocus.value,
-                            DefaultSelectionColor
-                        )
+                        layoutResult.value?.let { layoutResult ->
+                            TextFieldDelegate.draw(
+                                canvas,
+                                value,
+                                offsetMap,
+                                textDelegate,
+                                layoutResult,
+                                hasFocus.value,
+                                DefaultSelectionColor
+                            )
+                        }
                     }
                 },
                 measureBlock = { _, constraints ->
-                    TextFieldDelegate.layout(textDelegate, constraints).let {
-                        layout(it.first, it.second) {}
-                    }
+                    TextFieldDelegate.layout(textDelegate, constraints, layoutResult.value)
+                        .let { (width, height, result) ->
+                            if (result != layoutResult.value) {
+                                layoutResult.value = result
+                            }
+                            layout(width, height) {}
+                        }
                 }
             )
         }

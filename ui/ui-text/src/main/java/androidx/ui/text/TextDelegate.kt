@@ -23,7 +23,6 @@ import androidx.ui.core.Density
 import androidx.ui.core.IntPx
 import androidx.ui.core.IntPxSize
 import androidx.ui.core.LayoutDirection
-import androidx.ui.core.PxPosition
 import androidx.ui.core.TextUnit
 import androidx.ui.core.constrain
 import androidx.ui.core.ipx
@@ -38,7 +37,6 @@ import androidx.ui.graphics.Paint
 import androidx.ui.graphics.Shader
 import androidx.ui.text.font.Font
 import androidx.ui.text.style.TextAlign
-import androidx.ui.text.style.TextDirection
 import androidx.ui.text.style.TextDirectionAlgorithm
 import androidx.ui.text.style.TextOverflow
 import kotlin.math.ceil
@@ -124,53 +122,13 @@ class TextDelegate(
     val layoutDirection: LayoutDirection,
     val resourceLoader: Font.ResourceLoader
 ) {
-    /**
-     * The data class which holds text layout result.
-     */
-    @VisibleForTesting
-    internal data class LayoutResult(
-        /**
-         * The multi paragraph object.
-         *
-         * The text layout is already computed.
-         */
-        val multiParagraph: MultiParagraph,
-
-        /**
-         * The amount of space required to paint this text in IntPx.
-         */
-        val size: IntPxSize,
-
-        /**
-         * The minimum width provided while calculating this result.
-         */
-        val minWidth: IntPx,
-
-        /**
-         * The maximum width provided while calculating this result.
-         */
-        val maxWidth: IntPx
-    ) {
-        private val didOverflowHeight: Boolean get() = multiParagraph.didExceedMaxLines
-        val didOverflowWidth: Boolean get() = size.width.value < multiParagraph.width
-        val hasVisualOverflow: Boolean get() = didOverflowWidth || didOverflowHeight
-    }
 
     val style: TextStyle = resolveTextStyle(style, layoutDirection)
-
-    /**
-     * The text layout result. null if text layout is not computed.
-     */
-    @VisibleForTesting
-    internal var layoutResult: LayoutResult? = null
 
     private var overflowShader: Shader? = null
 
     @VisibleForTesting
     internal var paragraphIntrinsics: MultiParagraphIntrinsics? = null
-
-    private inline fun <T> assumeLayout(block: (LayoutResult) -> T) =
-        block(layoutResult ?: throw AssertionError("layout must be called first"))
 
     private inline fun <T> assumeIntrinsics(block: (MultiParagraphIntrinsics) -> T) =
         block(paragraphIntrinsics
@@ -190,34 +148,6 @@ class TextDelegate(
      * Valid only after [layout] has been called.
      */
     val maxIntrinsicWidth: IntPx get() = assumeIntrinsics { it.maxIntrinsicWidth.toIntPx() }
-
-    /**
-     * The horizontal space required to paint this text.
-     *
-     * Valid only after [layout] has been called.
-     */
-    val width: IntPx get() = assumeLayout { it.size.width }
-
-    /**
-     * The vertical space required to paint this text.
-     *
-     * Valid only after [layout] has been called.
-     */
-    val height: IntPx get() = assumeLayout { it.size.height }
-
-    /**
-     * The vertical space from the top of text box to the baseline of the first line.
-     *
-     * Valid only after [layout] has been called.
-     */
-    val firstBaseline: IntPx get() = assumeLayout { it.multiParagraph.firstBaseline.toIntPx() }
-
-    /**
-     * The vertical space from the top of text box to the baseline of the last line.
-     *
-     * Valid only after [layout] has been called.
-     */
-    val lastBaseline: IntPx get() = assumeLayout { it.multiParagraph.lastBaseline.toIntPx() }
 
     init {
         assert(maxLines > 0)
@@ -267,15 +197,15 @@ class TextDelegate(
         }
     }
 
-    fun layout(constraints: Constraints) {
+    fun layout(constraints: Constraints, prevResult: TextLayoutResult? = null): TextLayoutResult {
         val minWidth = constraints.minWidth
         val widthMatters = softWrap || overflow == TextOverflow.Ellipsis
         val maxWidth = if (widthMatters) constraints.maxWidth else IntPx.Infinity
 
-        // If the layout result is the same one we computed before, just return the previous
-        // result.
-        layoutResult?.let {
-            if (it.minWidth == minWidth && it.maxWidth == maxWidth) return@layout
+        if (prevResult != null && prevResult.canReuse(
+                text, style, maxLines, softWrap, overflow, density, layoutDirection,
+                resourceLoader, constraints)) {
+            return prevResult
         }
 
         val multiParagraph = layoutText(minWidth.value.toFloat(), maxWidth.value.toFloat())
@@ -284,9 +214,24 @@ class TextDelegate(
             IntPxSize(multiParagraph.width.toIntPx(), multiParagraph.height.toIntPx())
         )
 
-        layoutResult = LayoutResult(multiParagraph, size, minWidth, maxWidth).also {
+        val result = TextLayoutResult(
+            TextLayoutInput(
+                text,
+                style,
+                maxLines,
+                softWrap,
+                overflow,
+                density,
+                layoutDirection,
+                resourceLoader,
+                constraints
+            ),
+            multiParagraph,
+            size
+        ).also {
             overflowShader = createOverflowShader(it)
         }
+        return result
     }
 
     /**
@@ -302,11 +247,11 @@ class TextDelegate(
      * To set the text style, specify a [SpanStyle] when creating the [TextSpan] that you pass to
      * the [TextDelegate] constructor or to the [text] property.
      */
-    fun paint(canvas: Canvas) = assumeLayout { layoutResult ->
-        val width = layoutResult.size.width.value.toFloat()
-        val height = layoutResult.size.height.value.toFloat()
+    fun paint(canvas: Canvas, textLayoutResult: TextLayoutResult) {
+        val width = textLayoutResult.size.width.value.toFloat()
+        val height = textLayoutResult.size.height.value.toFloat()
 
-        if (layoutResult.hasVisualOverflow) {
+        if (textLayoutResult.hasVisualOverflow) {
             val bounds = Rect.fromLTWH(0f, 0f, width, height)
             if (overflowShader != null) {
                 // This layer limits what the shader below blends with to be just the text
@@ -318,9 +263,9 @@ class TextDelegate(
             canvas.clipRect(bounds)
         }
 
-        layoutResult.multiParagraph.paint(canvas)
+        textLayoutResult.multiParagraph.paint(canvas)
 
-        if (layoutResult.hasVisualOverflow) {
+        if (textLayoutResult.hasVisualOverflow) {
             if (overflowShader != null) {
                 val bounds = Rect.fromLTWH(0f, 0f, width, height)
                 val paint = Paint()
@@ -346,10 +291,11 @@ class TextDelegate(
         start: Int,
         end: Int,
         color: Color,
-        canvas: Canvas
-    ) = assumeLayout { layoutResult ->
+        canvas: Canvas,
+        textLayoutResult: TextLayoutResult
+    ) {
         if (start == end) return
-        val selectionPath = layoutResult.multiParagraph.getPathForRange(start, end)
+        val selectionPath = textLayoutResult.multiParagraph.getPathForRange(start, end)
         canvas.drawPath(selectionPath, Paint().apply { this.color = color })
     }
 
@@ -359,82 +305,14 @@ class TextDelegate(
      * @param offset the cursor offset in the text.
      * @param canvas the target canvas.
      */
-    fun paintCursor(offset: Int, canvas: Canvas) = assumeLayout { layoutResult ->
-        val cursorRect = layoutResult.multiParagraph.getCursorRect(offset)
+    fun paintCursor(offset: Int, canvas: Canvas, textLayoutResult: TextLayoutResult) {
+        val cursorRect = textLayoutResult.multiParagraph.getCursorRect(offset)
         canvas.drawRect(cursorRect, Paint().apply { this.color = Color.Black })
-    }
-
-    /**
-     * Returns the bottom y coordinate of the given line.
-     */
-    fun getLineBottom(lineIndex: Int): Float = assumeLayout { layoutResult ->
-        layoutResult.multiParagraph.getLineBottom(lineIndex)
-    }
-
-    /**
-     * Returns the line number on which the specified text offset appears.
-     * If you ask for a position before 0, you get 0; if you ask for a position
-     * beyond the end of the text, you get the last line.
-     */
-    fun getLineForOffset(offset: Int): Int = assumeLayout { layoutResult ->
-        layoutResult.multiParagraph.getLineForOffset(offset)
-    }
-
-    /**
-     * Get the horizontal position for the specified text [offset].
-     * @see MultiParagraph.getHorizontalPosition
-     */
-    fun getHorizontalPosition(offset: Int, usePrimaryDirection: Boolean): Float =
-        assumeLayout { layoutResult ->
-            layoutResult.multiParagraph.getHorizontalPosition(offset, usePrimaryDirection)
-        }
-
-    /**
-     * Get the text direction of the paragraph containing the given offset.
-     */
-    fun getParagraphDirection(offset: Int): TextDirection = assumeLayout { layoutResult ->
-        layoutResult.multiParagraph.getParagraphDirection(offset)
-    }
-
-    /**
-     * Get the text direction of the character at the given offset.
-     */
-    fun getBidiRunDirection(offset: Int): TextDirection = assumeLayout { layoutResult ->
-        layoutResult.multiParagraph.getBidiRunDirection(offset)
-    }
-
-    /** Returns the character offset closest to the given graphical position. */
-    fun getOffsetForPosition(position: PxPosition): Int = assumeLayout { layoutResult ->
-        layoutResult.multiParagraph.getOffsetForPosition(position)
-    }
-
-    /**
-     * Returns the bounding box as Rect of the character for given character offset. Rect includes
-     * the top, bottom, left and right of a character.
-     *
-     * Valid only after [layout] has been called.
-     */
-    fun getBoundingBox(offset: Int): Rect = assumeLayout { layoutResult ->
-        layoutResult.multiParagraph.getBoundingBox(offset)
-    }
-
-    /**
-     * Returns the text range of the word at the given character offset. Characters not part of a
-     * word, such as spaces, symbols, and punctuation, have word breaks on both sides. In such
-     * cases, this method will return a text range that contains the given character offset.
-     *
-     * Word boundaries are defined more precisely in Unicode Standard Annex #29
-     * <http://www.unicode.org/reports/tr29/#Word_Boundaries>.
-     */
-    fun getWordBoundary(offset: Int): TextRange = assumeLayout { layoutResult ->
-        layoutResult.multiParagraph.getWordBoundary(offset)
     }
 }
 
-private fun TextDelegate.createOverflowShader(
-    layoutResult: TextDelegate.LayoutResult
-): Shader? {
-    return if (layoutResult.hasVisualOverflow && overflow == TextOverflow.Fade) {
+private fun TextDelegate.createOverflowShader(textLayoutResult: TextLayoutResult): Shader? {
+    return if (textLayoutResult.hasVisualOverflow && overflow == TextOverflow.Fade) {
         val paragraph = Paragraph(
             text = "\u2026", // horizontal ellipsis
             spanStyles = listOf(),
@@ -446,9 +324,9 @@ private fun TextDelegate.createOverflowShader(
 
         val fadeWidth = paragraph.maxIntrinsicWidth
         val fadeHeight = paragraph.height
-        val width = layoutResult.size.width.value.toFloat()
+        val width = textLayoutResult.size.width.value.toFloat()
 
-        if (layoutResult.didOverflowWidth) {
+        if (textLayoutResult.didOverflowWidth) {
             // FIXME: Should only fade the last line, i.e., should use last line's direction.
             // (b/139496055)
             val (fadeStart, fadeEnd) = if (layoutDirection == LayoutDirection.Rtl) {
@@ -462,7 +340,7 @@ private fun TextDelegate.createOverflowShader(
                 listOf(Color(0xFFFFFFFF), Color(0x00FFFFFF))
             )
         } else {
-            val fadeEnd = layoutResult.size.height.value.toFloat()
+            val fadeEnd = textLayoutResult.size.height.value.toFloat()
             val fadeStart = fadeEnd - fadeHeight
             LinearGradientShader(
                 Offset(0.0f, fadeStart),

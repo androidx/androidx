@@ -37,6 +37,7 @@ import androidx.ui.text.Paragraph
 import androidx.ui.text.ParagraphConstraints
 import androidx.ui.text.SpanStyle
 import androidx.ui.text.TextDelegate
+import androidx.ui.text.TextLayoutResult
 import androidx.ui.text.TextRange
 import androidx.ui.text.TextStyle
 import androidx.ui.text.font.Font
@@ -90,17 +91,24 @@ internal class TextFieldDelegate {
          * @return the bounding box size(width and height) of the layout result
          */
         @JvmStatic
-        fun layout(textDelegate: TextDelegate, constraints: Constraints): Pair<IntPx, IntPx> {
-
-            if (constraints.maxWidth.isFinite()) {
-                textDelegate.layout(Constraints.tightConstraintsForWidth(constraints.maxWidth))
+        fun layout(
+            textDelegate: TextDelegate,
+            constraints: Constraints,
+            prevResultText: TextLayoutResult? = null
+        ): Triple<IntPx, IntPx, TextLayoutResult> {
+            val layoutResult = if (constraints.maxWidth.isFinite()) {
+                textDelegate.layout(
+                    Constraints.tightConstraintsForWidth(constraints.maxWidth),
+                    prevResultText
+                )
             } else {
                 // TextField want to fill the required width but if infinite width is passed,
                 // falling back to wrap-content behavior since it may be in the horizontal scroller.
                 textDelegate.layoutIntrinsics()
-                textDelegate.layout(Constraints.tightConstraintsForWidth(
-                    textDelegate.maxIntrinsicWidth
-                ))
+                textDelegate.layout(
+                    Constraints.tightConstraintsForWidth(textDelegate.maxIntrinsicWidth),
+                    prevResultText
+                )
             }
 
             val isEmptyText = textDelegate.text.text.isEmpty()
@@ -111,10 +119,10 @@ internal class TextFieldDelegate {
                     resourceLoader = textDelegate.resourceLoader
                 )
             } else {
-                textDelegate.height
+                layoutResult.size.height
             }
-            val width = textDelegate.width
-            return Pair(width, height)
+            val width = layoutResult.size.width
+            return Triple(width, height, layoutResult)
         }
 
         /**
@@ -133,23 +141,27 @@ internal class TextFieldDelegate {
             value: InputState,
             offsetMap: OffsetMap,
             textDelegate: TextDelegate,
+            textLayoutResult: TextLayoutResult,
             hasFocus: Boolean,
             selectionColor: Color
         ) {
             if (value.selection.collapsed) {
                 if (hasFocus) {
                     textDelegate.paintCursor(
-                        offsetMap.originalToTransformed(value.selection.min), canvas)
+                        offsetMap.originalToTransformed(value.selection.min),
+                        canvas,
+                        textLayoutResult)
                 }
             } else {
                 textDelegate.paintBackground(
                     offsetMap.originalToTransformed(value.selection.min),
                     offsetMap.originalToTransformed(value.selection.max),
                     selectionColor,
-                    canvas
+                    canvas,
+                    textLayoutResult
                 )
             }
-            textDelegate.paint(canvas)
+            textDelegate.paint(canvas, textLayoutResult)
         }
 
         /**
@@ -169,6 +181,7 @@ internal class TextFieldDelegate {
         fun notifyFocusedRect(
             value: InputState,
             textDelegate: TextDelegate,
+            textLayoutResult: TextLayoutResult,
             layoutCoordinates: LayoutCoordinates,
             textInputService: TextInputService,
             token: InputSessionToken,
@@ -180,9 +193,10 @@ internal class TextFieldDelegate {
             }
 
             val bbox = if (value.selection.max < value.text.length) {
-                textDelegate.getBoundingBox(offsetMap.originalToTransformed(value.selection.max))
+                textLayoutResult.getBoundingBox(
+                    offsetMap.originalToTransformed(value.selection.max))
             } else if (value.selection.max != 0) {
-                textDelegate.getBoundingBox(
+                textLayoutResult.getBoundingBox(
                     offsetMap.originalToTransformed(value.selection.max) - 1)
             } else {
                 val lineHeightForEmptyText = computeLineHeightForEmptyText(
@@ -225,7 +239,7 @@ internal class TextFieldDelegate {
          * Called when onRelease event is fired.
          *
          * @param position The event position in composable coordinate.
-         * @param textDelegate The text painter
+         * @param textLayoutResult The text layout result
          * @param editProcessor The edit processor
          * @param offsetMap The offset map
          * @param onValueChange The callback called when the new editor state arrives.
@@ -236,7 +250,7 @@ internal class TextFieldDelegate {
         @JvmStatic
         fun onRelease(
             position: PxPosition,
-            textDelegate: TextDelegate,
+            textLayoutResult: TextLayoutResult,
             editProcessor: EditProcessor,
             offsetMap: OffsetMap,
             onValueChange: (InputState) -> Unit,
@@ -247,7 +261,7 @@ internal class TextFieldDelegate {
             textInputService?.showSoftwareKeyboard(token)
             if (hasFocus) {
                 val offset = offsetMap.transformedToOriginal(
-                    textDelegate.getOffsetForPosition(position))
+                    textLayoutResult.getOffsetForPosition(position))
                 onEditCommand(
                     listOf(SetSelectionEditOp(offset, offset)),
                     editProcessor,
