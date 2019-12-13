@@ -20,8 +20,7 @@ import androidx.animation.FloatPropKey
 import androidx.animation.TransitionSpec
 import androidx.animation.transitionDefinition
 import androidx.compose.Composable
-import androidx.compose.memo
-import androidx.compose.unaryPlus
+import androidx.compose.remember
 import androidx.ui.animation.ColorPropKey
 import androidx.ui.animation.Transition
 import androidx.ui.core.Draw
@@ -61,7 +60,7 @@ fun Checkbox(
     checked: Boolean,
     onCheckedChange: ((Boolean) -> Unit)?,
     modifier: Modifier = Modifier.None,
-    color: Color = (+MaterialTheme.colors()).secondary
+    color: Color = MaterialTheme.colors().secondary
 ) {
     TriStateCheckbox(
         value = ToggleableState(checked),
@@ -94,7 +93,7 @@ fun TriStateCheckbox(
     value: ToggleableState,
     onClick: (() -> Unit)?,
     modifier: Modifier = Modifier.None,
-    color: Color = (+MaterialTheme.colors()).secondary
+    color: Color = MaterialTheme.colors().secondary
 ) {
     Container(modifier) {
         Ripple(bounded = false) {
@@ -111,8 +110,8 @@ fun TriStateCheckbox(
 
 @Composable
 private fun DrawCheckbox(value: ToggleableState, activeColor: Color) {
-    val unselectedColor = (+MaterialTheme.colors()).onSurface.copy(alpha = UncheckedBoxOpacity)
-    val definition = +memo(activeColor, unselectedColor) {
+    val unselectedColor = MaterialTheme.colors().onSurface.copy(alpha = UncheckedBoxOpacity)
+    val definition = remember(activeColor, unselectedColor) {
         generateTransitionDefinition(activeColor, unselectedColor)
     }
     Transition(definition = definition, toState = value) { state ->

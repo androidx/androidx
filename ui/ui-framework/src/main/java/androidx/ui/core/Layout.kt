@@ -23,8 +23,7 @@ import androidx.compose.Context
 import androidx.compose.FrameManager
 import androidx.compose.ambient
 import androidx.compose.compositionReference
-import androidx.compose.memo
-import androidx.compose.unaryPlus
+import androidx.compose.remember
 
 /**
  * [Layout] is the main core component for layout. It can be used to measure and position
@@ -136,7 +135,7 @@ import androidx.compose.unaryPlus
     measureBlock: MeasureBlock
 ) {
 
-    val measureBlocks = +memo(measureBlock) { MeasuringIntrinsicsMeasureBlocks(measureBlock) }
+    val measureBlocks = remember(measureBlock) { MeasuringIntrinsicsMeasureBlocks(measureBlock) }
     Layout(children, measureBlocks, modifier)
 }
 
@@ -445,10 +444,10 @@ fun WithConstraints(
     modifier: Modifier = Modifier.None,
     children: @Composable() (Constraints) -> Unit
 ) {
-    val state = +memo { WithConstrainsState() }
+    val state = remember { WithConstrainsState() }
     state.children = children
-    state.context = +ambient(ContextAmbient)
-    state.compositionRef = +compositionReference()
+    state.context = ambient(ContextAmbient)
+    state.compositionRef = compositionReference()
     // if this code was executed subcomposition must be triggered as well
     state.forceRecompose = true
 

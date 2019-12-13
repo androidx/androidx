@@ -17,8 +17,7 @@
 package androidx.ui.foundation.shape
 
 import androidx.compose.Composable
-import androidx.compose.memo
-import androidx.compose.unaryPlus
+import androidx.compose.remember
 import androidx.ui.core.Draw
 import androidx.ui.core.PxSize
 import androidx.ui.engine.geometry.Outline
@@ -37,7 +36,7 @@ import androidx.ui.graphics.Paint
  */
 @Composable
 fun DrawShape(shape: Shape, color: Color) {
-    DrawShape(shape = shape, brush = +memo(color) { SolidColor(color) })
+    DrawShape(shape = shape, brush = remember(color) { SolidColor(color) })
 }
 
 /**
@@ -48,7 +47,7 @@ fun DrawShape(shape: Shape, color: Color) {
  */
 @Composable
 fun DrawShape(shape: Shape, brush: Brush) {
-    with(+memo { DrawShapeCacheHolder() }) {
+    with(remember { DrawShapeCacheHolder() }) {
         lastShape = shape
         Draw { canvas, parentSize ->
             brush.applyTo(paint)

@@ -18,9 +18,8 @@ package androidx.ui.framework.demos.gestures
 
 import android.app.Activity
 import android.os.Bundle
-import androidx.compose.memo
+import androidx.compose.remember
 import androidx.compose.state
-import androidx.compose.unaryPlus
 import androidx.ui.core.Alignment
 import androidx.ui.core.Popup
 import androidx.ui.core.PxPosition
@@ -45,11 +44,11 @@ class PopupDragActivity : Activity() {
 
         setContent {
 
-            val offset = +state {
+            val offset = state {
                 PxPosition.Origin
             }
 
-            val observer = +memo {
+            val observer = remember {
                 object : DragObserver {
                     override fun onDrag(dragDistance: PxPosition): PxPosition {
                         offset.value += dragDistance

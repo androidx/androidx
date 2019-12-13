@@ -19,11 +19,10 @@ package androidx.ui.res
 import android.annotation.SuppressLint
 import android.content.res.Resources
 import android.util.Xml
-import androidx.annotation.CheckResult
 import androidx.annotation.DrawableRes
+import androidx.compose.Composable
 import androidx.compose.ambient
-import androidx.compose.effectOf
-import androidx.compose.memo
+import androidx.compose.remember
 import androidx.compose.trace
 import androidx.ui.core.ContextAmbient
 import androidx.ui.graphics.vector.VectorAsset
@@ -41,12 +40,12 @@ import org.xmlpull.v1.XmlPullParserException
  *
  * Note: This API is transient and will be likely removed for encouraging async resource loading.
  */
-@CheckResult(suggest = "+")
-fun vectorResource(@DrawableRes id: Int) = effectOf<VectorAsset> {
-    val context = +ambient(ContextAmbient)
+@Composable
+fun vectorResource(@DrawableRes id: Int): VectorAsset {
+    val context = ambient(ContextAmbient)
     val res = context.resources
     val theme = context.theme
-    +memo(id) {
+    return remember(id) {
         loadVectorResource(theme, res, id)
     }
 }
@@ -63,17 +62,17 @@ fun vectorResource(@DrawableRes id: Int) = effectOf<VectorAsset> {
  * @param failedResource an optional resource to be used if resource loading failed.
  * @return the deferred vector drawable resource.
  */
-@CheckResult(suggest = "+")
+@Composable
 fun loadVectorResource(
     id: Int,
     pendingResource: VectorAsset? = null,
     failedResource: VectorAsset? = null
-) = effectOf<DeferredResource<VectorAsset>> {
-    val context = +ambient(ContextAmbient)
+): DeferredResource<VectorAsset> {
+    val context = ambient(ContextAmbient)
     val res = context.resources
     val theme = context.theme
 
-    +loadResource(id, pendingResource, failedResource) {
+    return loadResource(id, pendingResource, failedResource) {
         trace("Vector Resource Loading") {
             loadVectorResource(theme, res, id)
         }

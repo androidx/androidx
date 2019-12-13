@@ -17,7 +17,6 @@
 package androidx.ui.material.surface
 
 import androidx.compose.Composable
-import androidx.compose.unaryPlus
 import androidx.ui.core.Dp
 import androidx.ui.core.Modifier
 import androidx.ui.core.dp
@@ -45,9 +44,9 @@ import androidx.ui.material.contentColorFor
 @Composable
 fun Card(
     modifier: Modifier = Modifier.None,
-    shape: Shape = (+MaterialTheme.shapes()).card,
-    color: Color = (+MaterialTheme.colors()).surface,
-    contentColor: Color = (+MaterialTheme.colors()).contentColorFor(color) ?: contentColor(),
+    shape: Shape = MaterialTheme.shapes().card,
+    color: Color = MaterialTheme.colors().surface,
+    contentColor: Color = MaterialTheme.colors().contentColorFor(color) ?: contentColor(),
     border: Border? = null,
     elevation: Dp = 1.dp,
     children: @Composable() () -> Unit

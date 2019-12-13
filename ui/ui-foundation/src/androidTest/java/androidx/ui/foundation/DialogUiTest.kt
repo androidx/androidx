@@ -18,7 +18,6 @@ package androidx.ui.foundation
 import androidx.test.filters.MediumTest
 import androidx.ui.test.createComposeRule
 import androidx.compose.state
-import androidx.compose.unaryPlus
 import androidx.test.platform.app.InstrumentationRegistry.getInstrumentation
 import androidx.test.uiautomator.UiDevice
 import androidx.ui.core.Text
@@ -44,7 +43,7 @@ class DialogUiTest {
     @Test
     fun dialogTest_isShowingContent() {
         composeTestRule.setContent {
-            val showDialog = +state { true }
+            val showDialog = state { true }
 
             if (showDialog.value) {
                 Dialog(onCloseRequest = {}) {
@@ -62,8 +61,8 @@ class DialogUiTest {
         val textAfterClick = "textAfterClick"
 
         composeTestRule.setContent {
-            val showDialog = +state { true }
-            val text = +state { textBeforeClick }
+            val showDialog = state { true }
+            val text = state { textBeforeClick }
 
             if (showDialog.value) {
                 Dialog(onCloseRequest = {
@@ -88,7 +87,7 @@ class DialogUiTest {
     @Test
     fun dialogTest_isDismissed_whenSpecified() {
         composeTestRule.setContent {
-            val showDialog = +state { true }
+            val showDialog = state { true }
 
             if (showDialog.value) {
                 Dialog(onCloseRequest = { showDialog.value = false }) {
@@ -110,7 +109,7 @@ class DialogUiTest {
     @Test
     fun dialogTest_isNotDismissed_whenNotSpecified() {
         composeTestRule.setContent {
-            val showDialog = +state { true }
+            val showDialog = state { true }
 
             if (showDialog.value) {
                 Dialog(onCloseRequest = {}) {
@@ -133,7 +132,7 @@ class DialogUiTest {
     @Test
     fun dialogTest_isDismissed_whenSpecified_backButtonPressed() {
         composeTestRule.setContent {
-            val showDialog = +state { true }
+            val showDialog = state { true }
 
             if (showDialog.value) {
                 Dialog(onCloseRequest = { showDialog.value = false }) {
@@ -156,7 +155,7 @@ class DialogUiTest {
     @Test
     fun dialogTest_isNotDismissed_whenNotSpecified_backButtonPressed() {
         composeTestRule.setContent {
-            val showDialog = +state { true }
+            val showDialog = state { true }
 
             if (showDialog.value) {
                 Dialog(onCloseRequest = {}) {

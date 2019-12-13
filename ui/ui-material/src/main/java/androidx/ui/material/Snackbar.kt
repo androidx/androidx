@@ -17,7 +17,6 @@
 package androidx.ui.material
 
 import androidx.compose.Composable
-import androidx.compose.unaryPlus
 import androidx.ui.core.CurrentTextStyleProvider
 import androidx.ui.core.FirstBaseline
 import androidx.ui.core.IntPx
@@ -76,7 +75,7 @@ fun Snackbar(
                     onClick = onActionClick,
                     style = TextButtonStyle(
                         // TODO: remove this when primary light variant is figured out
-                        contentColor = makePrimaryVariantLight((+MaterialTheme.colors()).primary)
+                        contentColor = makePrimaryVariantLight(MaterialTheme.colors().primary)
                     )
                 )
             }
@@ -120,14 +119,14 @@ fun Snackbar(
     modifier: Modifier = Modifier.None,
     actionOnNewLine: Boolean = false
 ) {
-    val colors = +MaterialTheme.colors()
+    val colors = MaterialTheme.colors()
     Surface(
         modifier = modifier,
         shape = SnackbarShape,
         elevation = SnackbarElevation,
         color = colors.surface
     ) {
-        val textStyle = (+MaterialTheme.typography()).body2.copy(color = colors.surface)
+        val textStyle = MaterialTheme.typography().body2.copy(color = colors.surface)
         DrawShape(
             shape = SnackbarShape,
             color = colors.onSurface.copy(alpha = SnackbarOverlayAlpha)

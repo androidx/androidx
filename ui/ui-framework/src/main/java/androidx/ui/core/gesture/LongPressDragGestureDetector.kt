@@ -17,8 +17,7 @@
 package androidx.ui.core.gesture
 
 import androidx.compose.Composable
-import androidx.compose.memo
-import androidx.compose.unaryPlus
+import androidx.compose.remember
 import androidx.ui.core.PxPosition
 import androidx.ui.core.IntPxSize
 import androidx.ui.core.PointerEventPass
@@ -107,7 +106,7 @@ fun LongPressDragGestureDetector(
     longPressDragObserver: LongPressDragObserver,
     children: @Composable() () -> Unit
 ) {
-    val glue = +memo { LongPressDragGestureDetectorGlue() }
+    val glue = remember { LongPressDragGestureDetectorGlue() }
     glue.longPressDragObserver = longPressDragObserver
 
     RawDragGestureDetector(glue.dragObserver, glue::dragEnabled) {

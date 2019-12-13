@@ -20,7 +20,6 @@ import androidx.compose.Composable
 import androidx.compose.Immutable
 import androidx.compose.State
 import androidx.compose.state
-import androidx.compose.unaryPlus
 import androidx.ui.graphics.Color
 import androidx.ui.material.ColorPalette
 import androidx.ui.material.MaterialTheme
@@ -40,7 +39,7 @@ sealed class ColorPaletteTestCase : ComposeTestCase, ToggleableTestCase {
 
     @Composable
     override fun emitContent() {
-        val primary = +state { Color.Red }
+        val primary = state { Color.Red }
         primaryState = primary
 
         val palette = createPalette(primary.value)
@@ -109,7 +108,7 @@ private fun App(
 
 @Composable
 private fun CheapPrimaryColorConsumer(compositionTracker: CompositionTracker) {
-    val primary = (+MaterialTheme.colors()).primary
+    val primary = MaterialTheme.colors().primary
     // Consume color variable to avoid any optimizations
     println("Color $primary")
     compositionTracker.compositions++
@@ -117,7 +116,7 @@ private fun CheapPrimaryColorConsumer(compositionTracker: CompositionTracker) {
 
 @Composable
 private fun ExpensiveSecondaryColorConsumer(compositionTracker: CompositionTracker) {
-    val secondary = (+MaterialTheme.colors()).secondary
+    val secondary = MaterialTheme.colors().secondary
     // simulate some (relatively) expensive work
     Thread.sleep(1)
     // Consume color variable to avoid any optimizations

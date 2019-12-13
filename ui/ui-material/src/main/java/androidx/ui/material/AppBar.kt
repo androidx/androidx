@@ -17,7 +17,6 @@ package androidx.ui.material
 
 import androidx.compose.Composable
 import androidx.compose.state
-import androidx.compose.unaryPlus
 import androidx.ui.core.Alignment
 import androidx.ui.core.CurrentTextStyleProvider
 import androidx.ui.core.Density
@@ -82,7 +81,7 @@ import kotlin.math.sqrt
 @Composable
 fun TopAppBar(
     title: @Composable() () -> Unit,
-    color: Color = (+MaterialTheme.colors()).primary,
+    color: Color = MaterialTheme.colors().primary,
     navigationIcon: @Composable() (() -> Unit)? = null
 ) {
     BaseTopAppBar(
@@ -90,7 +89,7 @@ fun TopAppBar(
         startContent = navigationIcon,
         title = {
             // Text color comes from the underlying Surface
-            CurrentTextStyleProvider(value = (+MaterialTheme.typography()).h6, children = title)
+            CurrentTextStyleProvider(value = MaterialTheme.typography().h6, children = title)
         },
         endContent = null
     )
@@ -123,7 +122,7 @@ fun TopAppBar(
 fun <T> TopAppBar(
     title: @Composable() () -> Unit,
     actionData: List<T>,
-    color: Color = (+MaterialTheme.colors()).primary,
+    color: Color = MaterialTheme.colors().primary,
     navigationIcon: @Composable() (() -> Unit)? = null,
     action: @Composable() (T) -> Unit
     // TODO: support overflow menu here with the remainder of the list
@@ -133,7 +132,7 @@ fun <T> TopAppBar(
         startContent = navigationIcon,
         title = {
             // Text color comes from the underlying Surface
-            CurrentTextStyleProvider(value = (+MaterialTheme.typography()).h6, children = title)
+            CurrentTextStyleProvider(value = MaterialTheme.typography().h6, children = title)
         },
         endContent = getActions(actionData, MaxIconsInTopAppBar, action)
     )
@@ -141,7 +140,7 @@ fun <T> TopAppBar(
 
 @Composable
 private fun BaseTopAppBar(
-    color: Color = (+MaterialTheme.colors()).primary,
+    color: Color = MaterialTheme.colors().primary,
     startContent: @Composable() (() -> Unit)?,
     title: @Composable() () -> Unit,
     endContent: @Composable() (() -> Unit)?
@@ -161,7 +160,7 @@ private fun BaseTopAppBar(
             Container(LayoutFlexible(1f) + LayoutAlign.BottomLeft) {
                 AlignmentLineOffset(
                     alignmentLine = LastBaseline,
-                    after = withDensity(+ambientDensity()) { AppBarTitleBaselineOffset.toDp() }
+                    after = withDensity(ambientDensity()) { AppBarTitleBaselineOffset.toDp() }
                 ) {
                     // TODO: AlignmentLineOffset requires a child, so in case title() is
                     // empty we just add an empty wrap here - should be fixed when we move to
@@ -268,7 +267,7 @@ object BottomAppBar {
  */
 @Composable
 fun <T> BottomAppBar(
-    color: Color = (+MaterialTheme.colors()).primary,
+    color: Color = MaterialTheme.colors().primary,
     navigationIcon: @Composable() (() -> Unit)? = null,
     fabConfiguration: FabConfiguration? = null,
     actionData: List<T> = emptyList(),
@@ -292,7 +291,7 @@ fun <T> BottomAppBar(
     // TODO: this causes an unfortunate frame lag as we need to position the fab before we can
     // know where to draw the cutout - when we have a better way of doing this synchronously we
     // should fix this.
-    val bottomAppBarCutoutShape = +state<BottomAppBarCutoutShape?> { null }
+    val bottomAppBarCutoutShape = state<BottomAppBarCutoutShape?> { null }
 
     val fab = if (fabConfiguration.cutoutShape == null) {
         fabConfiguration.fab
@@ -592,7 +591,7 @@ internal fun calculateRoundedEdgeIntercept(
 
 @Composable
 private fun BaseBottomAppBar(
-    color: Color = (+MaterialTheme.colors()).primary,
+    color: Color = MaterialTheme.colors().primary,
     startContent: @Composable() (() -> Unit)?,
     fabContainer: @Composable() (() -> Unit)?,
     shape: Shape = RectangleShape,

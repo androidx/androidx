@@ -19,14 +19,13 @@ package androidx.ui.foundation.samples
 import androidx.annotation.Sampled
 import androidx.compose.Composable
 import androidx.compose.state
-import androidx.compose.unaryPlus
 import androidx.ui.core.Text
 import androidx.ui.foundation.Clickable
 
 @Sampled
 @Composable
 fun ClickableSample() {
-    val count = +state { 0 }
+    val count = state { 0 }
     Clickable(onClick = { count.value += 1 }) {
         // content that you want to make clickable
         Text(text = count.toString())

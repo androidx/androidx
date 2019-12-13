@@ -16,9 +16,7 @@
 package androidx.ui.material
 
 import androidx.compose.Composable
-import androidx.compose.Effect
 import androidx.compose.Model
-import androidx.compose.effectOf
 import androidx.test.filters.MediumTest
 import androidx.ui.core.Density
 import androidx.ui.core.Dp
@@ -192,8 +190,8 @@ class RippleEffectTest {
         val opacity = 0.2f
         composeTestRule.setMaterialContent {
             RippleCallback(
-                defaultColor = effectOf { color },
-                opacityCallback = effectOf { opacity },
+                defaultColor = { color },
+                opacityCallback = { opacity },
                 onRippleDrawn = { actualColor ->
                     assertEquals(color.copy(alpha = opacity), actualColor)
                     drawLatch.countDown()
@@ -219,7 +217,7 @@ class RippleEffectTest {
         val opacity = 0.2f
         composeTestRule.setMaterialContent {
             RippleCallback(
-                opacityCallback = effectOf { opacity },
+                opacityCallback = { opacity },
                 onRippleDrawn = { actualColor ->
                     assertEquals(color.copy(alpha = opacity), actualColor)
                     drawLatch.countDown()
@@ -275,8 +273,8 @@ class RippleEffectTest {
         onRippleDrawn: (Color) -> Unit = {},
         onDispose: () -> Unit = {},
         onEffectCreated: () -> Unit = {},
-        defaultColor: Effect<Color> = effectOf { Color(0) },
-        opacityCallback: Effect<Float> = effectOf { 1f },
+        defaultColor: @Composable() () -> Color = { Color(0) },
+        opacityCallback: @Composable() () -> Float = { 1f },
         children: @Composable() () -> Unit
     ) {
         val theme = RippleTheme(

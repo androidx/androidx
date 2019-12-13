@@ -19,7 +19,6 @@ package androidx.ui.material.samples
 import androidx.annotation.Sampled
 import androidx.compose.Composable
 import androidx.compose.state
-import androidx.compose.unaryPlus
 import androidx.ui.core.Text
 import androidx.ui.core.dp
 import androidx.ui.foundation.ColoredRect
@@ -55,7 +54,7 @@ fun StaticDrawerSample() {
 @Sampled
 @Composable
 fun ModalDrawerSample() {
-    val (state, onStateChange) = +state { DrawerState.Closed }
+    val (state, onStateChange) = state { DrawerState.Closed }
     val appContentText =
         if (state == DrawerState.Closed) ">>> Pull to open >>>" else "<<< Swipe to close <<<"
     ModalDrawerLayout(
@@ -69,7 +68,7 @@ fun ModalDrawerSample() {
 @Sampled
 @Composable
 fun BottomDrawerSample() {
-    val (state, onStateChange) = +state { DrawerState.Closed }
+    val (state, onStateChange) = state { DrawerState.Closed }
     val appContentText =
         if (state == DrawerState.Closed) "▲▲▲ Pull to open ▲▲▲" else "▼▼▼ Drag down to close ▼▼▼"
     BottomDrawerLayout(

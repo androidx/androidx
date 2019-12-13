@@ -17,7 +17,6 @@
 package androidx.ui.material.studies.rally
 
 import androidx.compose.Composable
-import androidx.compose.unaryPlus
 import androidx.ui.core.Text
 import androidx.ui.core.dp
 import androidx.ui.foundation.shape.RectangleShape
@@ -46,7 +45,7 @@ fun RallyAlertDialog(
                 Column {
                     Divider(
                         LayoutPadding(left = 12.dp, right = 12.dp),
-                        color = (+MaterialTheme.colors()).onSurface.copy(alpha = 0.2f)
+                        color = MaterialTheme.colors().onSurface.copy(alpha = 0.2f)
                     )
                     Button(
                         text = buttonText,

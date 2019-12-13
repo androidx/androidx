@@ -24,8 +24,7 @@ import androidx.animation.ManualAnimationClock
 import androidx.animation.PhysicsBuilder
 import androidx.animation.transitionDefinition
 import androidx.compose.Composable
-import androidx.compose.memo
-import androidx.compose.unaryPlus
+import androidx.compose.remember
 import androidx.ui.animation.Transition
 import androidx.ui.animation.animatedFloat
 import androidx.ui.core.AnimationClockAmbient
@@ -52,7 +51,7 @@ class AnimatableSeekBar : Activity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContent {
-            val clock = +memo { ManualAnimationClock(0L) }
+            val clock = remember { ManualAnimationClock(0L) }
             AnimationClockAmbient.Provider(clock) {
                 Column {
                     Padding(40.dp) {
@@ -65,7 +64,7 @@ class AnimatableSeekBar : Activity() {
 
                     Transition(definition = transDef, toState = "end") { state ->
                         Container(width = 600.dp, height = 400.dp) {
-                            val paint = +memo { Paint() }
+                            val paint = remember { Paint() }
                             Draw { canvas, parentSize ->
                                 val rect = Rect(0f, 0f, parentSize.width.value * 0.2f,
                                         parentSize.width.value * 0.2f)
@@ -100,7 +99,7 @@ class AnimatableSeekBar : Activity() {
 
     @Composable
     fun MovingTargetExample(clock: ManualAnimationClock) {
-        val animValue = +animatedFloat(0f)
+        val animValue = animatedFloat(0f)
             RawDragGestureDetector(dragObserver = object : DragObserver {
                 override fun onDrag(dragDistance: PxPosition): PxPosition {
                     animValue.snapTo(animValue.targetValue + dragDistance.x.value)
@@ -122,7 +121,7 @@ class AnimatableSeekBar : Activity() {
 
     @Composable
     fun DrawSeekBar(x: Float, clock: ManualAnimationClock) {
-        val paint = +memo { Paint() }
+        val paint = remember { Paint() }
         Draw { canvas, parentSize ->
             val centerY = parentSize.height.value / 2
             val xConstraint = x.coerceIn(0f, parentSize.width.value)

@@ -19,7 +19,6 @@ package androidx.ui.framework.demos.gestures
 import android.app.Activity
 import android.os.Bundle
 import androidx.compose.state
-import androidx.compose.unaryPlus
 import androidx.ui.core.PxPosition
 import androidx.ui.core.gesture.DragObserver
 import androidx.ui.core.px
@@ -34,8 +33,8 @@ class RawDragGestureDetectorDemo : Activity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContent {
-            val xOffset = +state { 0.px }
-            val yOffset = +state { 0.px }
+            val xOffset = state { 0.px }
+            val yOffset = state { 0.px }
 
             val dragObserver = object : DragObserver {
                 override fun onDrag(dragDistance: PxPosition): PxPosition {

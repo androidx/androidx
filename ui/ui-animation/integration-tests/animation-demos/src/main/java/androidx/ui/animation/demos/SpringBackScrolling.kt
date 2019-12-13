@@ -23,9 +23,8 @@ import androidx.animation.DEBUG
 import androidx.animation.PhysicsBuilder
 import androidx.animation.fling
 import androidx.compose.Composable
-import androidx.compose.memo
+import androidx.compose.remember
 import androidx.compose.state
-import androidx.compose.unaryPlus
 import androidx.ui.animation.animatedFloat
 import androidx.ui.core.Draw
 import androidx.ui.core.IntPx
@@ -63,9 +62,9 @@ class SpringBackScrolling : Activity() {
             Padding(40.dp) {
                 Text("<== Scroll horizontally ==>", style = TextStyle(fontSize = 20.sp))
             }
-            val animScroll = +animatedFloat(0f)
-            val itemWidth = +state { 0f }
-            var isFlinging = +state { false }
+            val animScroll = animatedFloat(0f)
+            val itemWidth = state { 0f }
+            var isFlinging = state { false }
             RawDragGestureDetector(dragObserver = object : DragObserver {
                 override fun onDrag(dragDistance: PxPosition): PxPosition {
                     animScroll.snapTo(animScroll.targetValue + dragDistance.x.value)
@@ -79,7 +78,7 @@ class SpringBackScrolling : Activity() {
                 }
             }) {
                 val children = @Composable {
-                    var paint = +memo { Paint() }
+                    var paint = remember { Paint() }
                     Draw { canvas, parentSize ->
 
                         itemWidth.value = parentSize.width.value / 2f

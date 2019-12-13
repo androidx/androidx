@@ -117,7 +117,6 @@ package androidx.ui.graphics.vector {
     method public inline <T> T! expr(Object key, kotlin.jvm.functions.Function0<? extends T> block);
     method public androidx.ui.graphics.vector.VectorComposer getComposer();
     method public inline Object joinKey(Object left, Object? right);
-    method public inline operator <V> V! unaryPlus(androidx.compose.Effect<V>);
   }
 
   public final class VectorKt {

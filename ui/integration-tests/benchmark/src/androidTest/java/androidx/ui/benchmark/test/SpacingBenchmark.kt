@@ -19,7 +19,6 @@ package androidx.ui.benchmark.test
 import androidx.compose.Composable
 import androidx.compose.State
 import androidx.compose.state
-import androidx.compose.unaryPlus
 import androidx.test.filters.LargeTest
 import androidx.ui.benchmark.ComposeBenchmarkRule
 import androidx.ui.benchmark.benchmarkDrawPerf
@@ -167,7 +166,7 @@ private sealed class PaddingTestCase : ComposeTestCase,
 
     @Composable
     override fun emitContent() {
-        val padding = +state { 5.dp }
+        val padding = state { 5.dp }
         paddingState = padding
 
         Container(expanded = true) {

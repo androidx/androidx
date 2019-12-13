@@ -17,8 +17,7 @@
 package androidx.ui.core.gesture
 
 import androidx.compose.Composable
-import androidx.compose.memo
-import androidx.compose.unaryPlus
+import androidx.compose.remember
 import androidx.ui.core.Direction
 import androidx.ui.core.PointerEventPass
 import androidx.ui.core.PointerInputChange
@@ -49,8 +48,8 @@ fun TouchSlopExceededGestureDetector(
     canDrag: ((Direction) -> Boolean)? = null,
     children: @Composable() () -> Unit
 ) {
-    val touchSlop = withDensity(+ambientDensity()) { TouchSlop.toIntPx() }
-    val recognizer = +memo { TouchSlopExceededGestureRecognizer(touchSlop) }
+    val touchSlop = withDensity(ambientDensity()) { TouchSlop.toIntPx() }
+    val recognizer = remember { TouchSlopExceededGestureRecognizer(touchSlop) }
 
     recognizer.canDrag = canDrag
     recognizer.onTouchSlopExceeded = onTouchSlopExceeded

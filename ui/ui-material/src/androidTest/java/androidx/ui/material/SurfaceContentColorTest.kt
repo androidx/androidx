@@ -16,7 +16,6 @@
 
 package androidx.ui.material
 
-import androidx.compose.unaryPlus
 import androidx.test.filters.MediumTest
 import androidx.ui.core.currentTextStyle
 import androidx.ui.graphics.Color
@@ -40,15 +39,15 @@ class SurfaceContentColorTest {
     fun surfaceSetsCorrectContentColors_primary() {
         composeTestRule.setContent {
             MaterialTheme {
-                Surface(color = (+MaterialTheme.colors()).primary) {
+                Surface(color = MaterialTheme.colors().primary) {
                     assertEquals(
-                        (+MaterialTheme.colors()).onPrimary,
+                        MaterialTheme.colors().onPrimary,
                         contentColor()
                     )
 
                     assertEquals(
-                        (+MaterialTheme.colors()).onPrimary,
-                        (+currentTextStyle()).color
+                        MaterialTheme.colors().onPrimary,
+                        currentTextStyle().color
                     )
                 }
             }
@@ -59,15 +58,15 @@ class SurfaceContentColorTest {
     fun surfaceSetsCorrectContentColors_secondary() {
         composeTestRule.setContent {
             MaterialTheme {
-                Surface(color = (+MaterialTheme.colors()).secondary) {
+                Surface(color = MaterialTheme.colors().secondary) {
                     assertEquals(
-                        (+MaterialTheme.colors()).onSecondary,
+                        MaterialTheme.colors().onSecondary,
                         contentColor()
                     )
 
                     assertEquals(
-                        (+MaterialTheme.colors()).onSecondary,
-                        (+currentTextStyle()).color
+                        MaterialTheme.colors().onSecondary,
+                        currentTextStyle().color
                     )
                 }
             }
@@ -78,15 +77,15 @@ class SurfaceContentColorTest {
     fun surfaceSetsCorrectContentColors_background() {
         composeTestRule.setContent {
             MaterialTheme {
-                Surface(color = (+MaterialTheme.colors()).background) {
+                Surface(color = MaterialTheme.colors().background) {
                     assertEquals(
-                        (+MaterialTheme.colors()).onBackground,
+                        MaterialTheme.colors().onBackground,
                         contentColor()
                     )
 
                     assertEquals(
-                        (+MaterialTheme.colors()).onBackground,
-                        (+currentTextStyle()).color
+                        MaterialTheme.colors().onBackground,
+                        currentTextStyle().color
                     )
                 }
             }
@@ -97,15 +96,15 @@ class SurfaceContentColorTest {
     fun surfaceSetsCorrectContentColors_surface() {
         composeTestRule.setContent {
             MaterialTheme {
-                Surface(color = (+MaterialTheme.colors()).surface) {
+                Surface(color = MaterialTheme.colors().surface) {
                     assertEquals(
-                        (+MaterialTheme.colors()).onSurface,
+                        MaterialTheme.colors().onSurface,
                         contentColor()
                     )
 
                     assertEquals(
-                        (+MaterialTheme.colors()).onSurface,
-                        (+currentTextStyle()).color
+                        MaterialTheme.colors().onSurface,
+                        currentTextStyle().color
                     )
                 }
             }
@@ -125,7 +124,7 @@ class SurfaceContentColorTest {
 
                     assertEquals(
                         Color.Black,
-                        (+currentTextStyle()).color
+                        currentTextStyle().color
                     )
                 }
             }
@@ -142,13 +141,13 @@ class SurfaceContentColorTest {
                     // of the theme
                     Surface(color = Color.Yellow) {
                         assertEquals(
-                            (+MaterialTheme.colors()).onSurface,
+                            MaterialTheme.colors().onSurface,
                             contentColor()
                         )
 
                         assertEquals(
-                            (+MaterialTheme.colors()).onSurface,
-                            (+currentTextStyle()).color
+                            MaterialTheme.colors().onSurface,
+                            currentTextStyle().color
                         )
                     }
                 }

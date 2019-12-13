@@ -21,8 +21,7 @@ import androidx.animation.FloatPropKey
 import androidx.animation.LinearOutSlowInEasing
 import androidx.animation.transitionDefinition
 import androidx.compose.Composable
-import androidx.compose.memo
-import androidx.compose.unaryPlus
+import androidx.compose.remember
 import androidx.ui.animation.Transition
 import androidx.ui.core.Draw
 import androidx.ui.core.dp
@@ -64,7 +63,7 @@ private val CircularTransition = transitionDefinition {
 @Composable
 fun DrawAnimatedCircle(proportions: List<Float>, colors: List<Color>) {
     val strokeWidthDp = 5.dp
-    val paint = +memo { Paint() }
+    val paint = remember { Paint() }
     Transition(definition = CircularTransition, initState = 0, toState = 1) { state ->
             Draw { canvas, parentSize ->
                 val strokeWidth = strokeWidthDp.toPx().value

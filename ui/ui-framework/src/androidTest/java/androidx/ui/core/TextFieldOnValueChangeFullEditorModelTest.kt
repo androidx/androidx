@@ -17,7 +17,6 @@
 package androidx.ui.core
 
 import androidx.compose.state
-import androidx.compose.unaryPlus
 import androidx.test.filters.SmallTest
 import androidx.ui.core.input.FocusManager
 import androidx.ui.input.CommitTextEditOp
@@ -75,8 +74,8 @@ class TextFieldOnValueChangeFullEditorModelTest {
             FocusManagerAmbient.Provider(value = focusManager) {
                 TextInputServiceAmbient.Provider(value = textInputService) {
                     TestTag(tag = "textField") {
-                        val model = +state { EditorModel("abcde", TextRange(0, 0)) }
-                        val composition = +state<TextRange?> { null }
+                        val model = state { EditorModel("abcde", TextRange(0, 0)) }
+                        val composition = state<TextRange?> { null }
                         TextField(
                             model = model.value,
                             compositionRange = composition.value,

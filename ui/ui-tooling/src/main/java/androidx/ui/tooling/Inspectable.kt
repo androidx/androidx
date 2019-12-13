@@ -20,7 +20,6 @@ import androidx.compose.Composable
 import androidx.compose.SlotTable
 import androidx.compose.ambient
 import androidx.compose.composer
-import androidx.compose.unaryPlus
 import java.util.Collections
 import java.util.WeakHashMap
 
@@ -43,7 +42,7 @@ val tables = Collections.newSetFromMap(WeakHashMap<SlotTable, Boolean>())
  */
 @Composable
 fun InInspectionModeOnly(children: @Composable() () -> Unit) {
-    if (+ambient(InspectionMode)) {
+    if (ambient(InspectionMode)) {
         children()
     }
 }

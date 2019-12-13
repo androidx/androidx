@@ -17,6 +17,10 @@ AutoBoxing: androidx.animation.RepeatableBuilder#setIterations(Integer) paramete
     Must avoid boxed primitives (`java.lang.Integer`)
 
 
+CallbackName: androidx.animation.AnimationClockObserver:
+    Class should be named AnimationClockCallback
+
+
 DocumentExceptions: androidx.animation.DurationBasedAnimationBuilder#setDelay(int):
     Method DurationBasedAnimationBuilder.setDelay appears to be throwing java.lang.IllegalStateException; this should be listed in the documentation; see https://android.github.io/kotlin-guides/interop.html#document-exceptions
 DocumentExceptions: androidx.animation.DurationBasedAnimationBuilder#setDuration(int):
@@ -57,5 +61,3 @@ MissingNullability: androidx.animation.FloatPropKey#interpolate(float, float, fl
     Missing nullability on method `interpolate` return
 MissingNullability: androidx.animation.IntPropKey#interpolate(int, int, float):
     Missing nullability on method `interpolate` return
-MissingNullability: androidx.animation.Spring#Companion:
-    Missing nullability on field `Companion` in class `class androidx.animation.Spring`

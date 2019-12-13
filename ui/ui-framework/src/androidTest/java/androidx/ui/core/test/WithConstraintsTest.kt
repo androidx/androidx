@@ -20,9 +20,8 @@ import android.graphics.Bitmap
 import android.os.Build
 import androidx.annotation.RequiresApi
 import androidx.compose.Composable
-import androidx.compose.memo
+import androidx.compose.remember
 import androidx.compose.state
-import androidx.compose.unaryPlus
 import androidx.test.filters.SdkSuppress
 import androidx.test.filters.SmallTest
 import androidx.test.rule.ActivityTestRule
@@ -406,7 +405,7 @@ class WithConstraintsTest {
                             // this replicates the popular pattern we currently use
                             // where we save some data calculated in the measuring block
                             // and then use it in the next composition frame
-                            var model by +state { false }
+                            var model by state { false }
                             Layout({
                                 if (model) {
                                     latch.countDown()
@@ -463,7 +462,7 @@ private fun NeedsOtherMeasurementComposable(foo: IntPx) {
 
 @Composable
 fun Container(width: IntPx, height: IntPx, children: @Composable() () -> Unit) {
-    Layout(children = children, measureBlock = +memo<MeasureBlock>(width, height) {
+    Layout(children = children, measureBlock = remember<MeasureBlock>(width, height) {
         { measurables, _ ->
             val constraint = Constraints(maxWidth = width, maxHeight = height)
             layout(width, height) {

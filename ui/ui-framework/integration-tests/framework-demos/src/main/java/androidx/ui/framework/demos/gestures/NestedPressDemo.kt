@@ -20,9 +20,8 @@ import android.app.Activity
 import android.os.Bundle
 import androidx.compose.Composable
 import androidx.compose.state
-import androidx.compose.unaryPlus
 import androidx.ui.core.px
-import androidx.compose.memo
+import androidx.compose.remember
 import androidx.ui.core.Dp
 import androidx.ui.core.PxPosition
 import androidx.ui.core.dp
@@ -69,8 +68,8 @@ fun PressableContainer(
     val defaultColor = DefaultBackgroundColor
     val pressedColor = PressedColor
 
-    val currentColor = +memo { Single(defaultColor) }
-    val pressed = +state { false }
+    val currentColor = remember { Single(defaultColor) }
+    val pressed = state { false }
 
     val onStart: (Any) -> Unit = {
         pressed.value = true

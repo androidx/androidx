@@ -18,7 +18,6 @@ package androidx.ui.text.demos
 
 import androidx.compose.Composable
 import androidx.compose.state
-import androidx.compose.unaryPlus
 import androidx.ui.core.Span
 import androidx.ui.core.Text
 import androidx.ui.core.selection.Selection
@@ -51,7 +50,7 @@ fun TextSelectionDemo() {
 
 @Composable
 fun TextDemoSelection() {
-    val selection = +state<Selection?> { null }
+    val selection = state<Selection?> { null }
     val arabicSentence =
         "\nكلمة شين في قاموس المعاني الفوري مجال البحث مصطلحات المعجم الوسيط ،اللغة"
     SelectionContainer(
@@ -94,7 +93,7 @@ fun TextDemoSelection() {
 
 @Composable
 fun TextDemoSelectionWithStringInput() {
-    val selection = +state<Selection?> { null }
+    val selection = state<Selection?> { null }
     SelectionContainer(
         selection = selection.value,
         onSelectionChange = { selection.value = it }) {
@@ -129,7 +128,7 @@ fun TextDemoSelection2DArrayVertical() {
         Color(0xFFFF0000)
     )
 
-    val selection = +state<Selection?> { null }
+    val selection = state<Selection?> { null }
     SelectionContainer(
         selection = selection.value,
         onSelectionChange = { selection.value = it }) {

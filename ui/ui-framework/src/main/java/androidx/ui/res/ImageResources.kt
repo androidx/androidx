@@ -17,11 +17,10 @@
 package androidx.ui.res
 
 import android.util.TypedValue
-import androidx.annotation.CheckResult
 import androidx.annotation.DrawableRes
+import androidx.compose.Composable
 import androidx.compose.ambient
-import androidx.compose.effectOf
-import androidx.compose.memo
+import androidx.compose.remember
 import androidx.compose.trace
 import androidx.ui.core.ContextAmbient
 import androidx.ui.graphics.Image
@@ -35,15 +34,15 @@ import androidx.ui.graphics.imageFromResource
  * @param id the resource identifier
  * @return the decoded image data associated with the resource
  */
-@CheckResult(suggest = "+")
-fun imageResource(@DrawableRes id: Int) = effectOf<Image> {
-    val context = +ambient(ContextAmbient)
-    val value = +memo { TypedValue() }
+@Composable
+fun imageResource(@DrawableRes id: Int): Image {
+    val context = ambient(ContextAmbient)
+    val value = remember { TypedValue() }
     context.resources.getValue(id, value, true)
     // We use the file path as a key of the request cache.
     // TODO(nona): Add density to the key?
     val key = value.string?.toString()
-    +memo(key) { imageFromResource(context.resources, id) }
+    return remember(key) { imageFromResource(context.resources, id) }
 }
 
 /**
@@ -58,15 +57,15 @@ fun imageResource(@DrawableRes id: Int) = effectOf<Image> {
  * @param failedImage an optional image to be used if image loading failed.
  * @return the deferred image resource.
  */
-@CheckResult(suggest = "+")
+@Composable
 fun loadImageResource(
     id: Int,
     pendingImage: Image? = null,
     failedImage: Image? = null
-) = effectOf<DeferredResource<Image>> {
-    val context = +ambient(ContextAmbient)
+): DeferredResource<Image> {
+    val context = ambient(ContextAmbient)
     val res = context.resources
-    +loadResource(id, pendingImage, failedImage) {
+    return loadResource(id, pendingImage, failedImage) {
         trace("Image Resource Loading") {
             imageFromResource(res, id)
         }

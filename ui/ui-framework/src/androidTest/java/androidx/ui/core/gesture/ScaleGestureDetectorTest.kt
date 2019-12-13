@@ -33,7 +33,6 @@ import java.util.concurrent.TimeUnit
 import com.nhaarman.mockitokotlin2.spy
 import androidx.test.filters.LargeTest
 import androidx.ui.core.Layout
-import androidx.compose.unaryPlus
 import androidx.ui.core.IntPx
 import androidx.ui.core.ambientDensity
 import androidx.ui.core.withDensity
@@ -60,7 +59,7 @@ class ScaleGestureDetectorTest {
         val setupLatch = CountDownLatch(2)
         activityTestRule.runOnUiThreadIR {
             activity.setContent {
-                touchSlop = withDensity(+ambientDensity()) { TouchSlop.toIntPx() }
+                touchSlop = withDensity(ambientDensity()) { TouchSlop.toIntPx() }
                 ScaleGestureDetector(scaleObserver) {
                     Layout(
                         measureBlock = { _, _ ->

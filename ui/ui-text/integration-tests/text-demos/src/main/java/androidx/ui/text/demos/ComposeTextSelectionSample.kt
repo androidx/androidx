@@ -18,7 +18,6 @@ package androidx.ui.text.demos
 
 import androidx.compose.Composable
 import androidx.compose.state
-import androidx.compose.unaryPlus
 import androidx.ui.core.Dp
 import androidx.ui.core.Layout
 import androidx.ui.core.Modifier
@@ -76,7 +75,7 @@ val langContent = arrayOf(
 
 @Composable
 fun TextSelectionSample() {
-    val selection = +state<Selection?> { null }
+    val selection = state<Selection?> { null }
     VerticalScroller {
         SelectionContainer(
             selection = selection.value,

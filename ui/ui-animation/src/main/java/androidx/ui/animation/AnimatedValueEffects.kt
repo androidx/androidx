@@ -21,8 +21,8 @@ import androidx.animation.AnimatedValue
 import androidx.compose.Model
 import androidx.animation.ValueHolder
 import androidx.annotation.CheckResult
-import androidx.compose.Effect
-import androidx.compose.memo
+import androidx.compose.Composable
+import androidx.compose.remember
 import androidx.ui.graphics.Color
 import androidx.ui.graphics.lerp
 import androidx.ui.lerp
@@ -35,9 +35,9 @@ import androidx.ui.lerp
  * @param initVal Initial value to set [AnimatedValue] to.
  * @param interpolator A value interpolator for interpolating two values of type [T]
  */
-@CheckResult(suggest = "+")
-fun <T> animatedValue(initVal: T, interpolator: (T, T, Float) -> T): Effect<AnimatedValue<T>> =
-    memo { AnimatedValue(AnimValueHolder(initVal, interpolator)) }
+@Composable
+fun <T> animatedValue(initVal: T, interpolator: (T, T, Float) -> T): AnimatedValue<T> =
+    remember { AnimatedValue(AnimValueHolder(initVal, interpolator)) }
 
 /**
  * The animatedValue effect creates an [AnimatedFloat] and positionally memoizes it. When the
@@ -46,9 +46,9 @@ fun <T> animatedValue(initVal: T, interpolator: (T, T, Float) -> T): Effect<Anim
  *
  * @param initVal Initial value to set [AnimatedFloat] to.
  */
-@CheckResult(suggest = "+")
-fun animatedFloat(initVal: Float): Effect<AnimatedFloat> =
-    memo { AnimatedFloat(AnimValueHolder(initVal, ::lerp)) }
+@Composable
+fun animatedFloat(initVal: Float): AnimatedFloat =
+    remember { AnimatedFloat(AnimValueHolder(initVal, ::lerp)) }
 
 /**
  * The animatedValue effect creates an [AnimatedValue] of [Color] and positionally memoizes it. When
@@ -57,9 +57,9 @@ fun animatedFloat(initVal: Float): Effect<AnimatedFloat> =
  *
  * @param initVal Initial value to set [AnimatedValue] to.
  */
-@CheckResult(suggest = "+")
-fun animatedColor(initVal: Color): Effect<AnimatedValue<Color>> =
-    memo { AnimatedValue(AnimValueHolder(initVal, ::lerp)) }
+@Composable
+fun animatedColor(initVal: Color): AnimatedValue<Color> =
+    remember { AnimatedValue(AnimValueHolder(initVal, ::lerp)) }
 
 @Model
 private class AnimValueHolder<T>(

@@ -17,7 +17,6 @@ package androidx.ui.material
 
 import androidx.compose.Composable
 import androidx.compose.state
-import androidx.compose.unaryPlus
 import androidx.test.filters.LargeTest
 import androidx.ui.core.Alignment
 import androidx.ui.core.LayoutCoordinates
@@ -112,7 +111,7 @@ class TabTest {
         composeTestRule
             .setMaterialContent {
                 // TODO: Go back to delegate syntax when b/141741358 is fixed
-                val (state, setState) = +state { 0 }
+                val (state, setState) = state { 0 }
                 val titles = listOf("TAB 1", "TAB 2")
 
                 val indicatorContainer = @Composable { tabPositions: List<TabRow.TabPosition> ->
@@ -183,7 +182,7 @@ class TabTest {
         composeTestRule
             .setMaterialContent {
                 // TODO: Go back to delegate syntax when b/141741358 is fixed
-                val (state, setState) = +state { 0 }
+                val (state, setState) = state { 0 }
                 val titles = listOf("TAB 1", "TAB 2")
 
                 val indicatorContainer = @Composable { tabPositions: List<TabRow.TabPosition> ->

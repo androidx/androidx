@@ -17,7 +17,6 @@
 package androidx.ui.material
 
 import androidx.compose.Composable
-import androidx.compose.unaryPlus
 import androidx.ui.core.CurrentTextStyleProvider
 import androidx.ui.core.Dp
 import androidx.ui.core.Modifier
@@ -64,7 +63,7 @@ fun FloatingActionButton(
     onClick: (() -> Unit)? = null,
     minSize: Dp = FabSize,
     shape: Shape = CircleShape,
-    color: Color = (+MaterialTheme.colors()).primary,
+    color: Color = MaterialTheme.colors().primary,
     elevation: Dp = 6.dp,
     children: @Composable() () -> Unit
 ) {
@@ -72,7 +71,7 @@ fun FloatingActionButton(
         Ripple(bounded = true, enabled = onClick != null) {
             Clickable(onClick) {
                 Container(constraints = DpConstraints(minWidth = minSize, minHeight = minSize)) {
-                    CurrentTextStyleProvider((+MaterialTheme.typography()).button, children)
+                    CurrentTextStyleProvider(MaterialTheme.typography().button, children)
                 }
             }
         }
@@ -102,7 +101,7 @@ fun FloatingActionButton(
     modifier: Modifier = Modifier.None,
     onClick: (() -> Unit)? = null,
     shape: Shape = CircleShape,
-    color: Color = (+MaterialTheme.colors()).primary,
+    color: Color = MaterialTheme.colors().primary,
     elevation: Dp = 6.dp
 ) {
     FloatingActionButton(
@@ -140,7 +139,7 @@ fun FloatingActionButton(
     icon: Image? = null,
     textStyle: TextStyle? = null,
     onClick: (() -> Unit)? = null,
-    color: Color = (+MaterialTheme.colors()).primary,
+    color: Color = MaterialTheme.colors().primary,
     elevation: Dp = 6.dp
 ) {
     FloatingActionButton(

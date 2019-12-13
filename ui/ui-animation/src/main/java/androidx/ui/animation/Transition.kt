@@ -25,8 +25,7 @@ import androidx.animation.createAnimation
 import androidx.compose.Composable
 import androidx.compose.Model
 import androidx.compose.ambient
-import androidx.compose.memo
-import androidx.compose.unaryPlus
+import androidx.compose.remember
 import androidx.ui.core.AnimationClockAmbient
 
 /**
@@ -49,19 +48,19 @@ import androidx.ui.core.AnimationClockAmbient
 fun <T> Transition(
     definition: TransitionDefinition<T>,
     toState: T,
-    clock: AnimationClockObservable = +ambient(AnimationClockAmbient),
+    clock: AnimationClockObservable = ambient(AnimationClockAmbient),
     initState: T = toState,
     onStateChangeFinished: ((T) -> Unit)? = null,
     children: @Composable() (state: TransitionState) -> Unit
 ) {
     if (transitionsEnabled) {
         // TODO: This null is workaround for b/132148894
-        val model = +memo(definition, null) { TransitionModel(definition, initState, clock) }
+        val model = remember(definition, null) { TransitionModel(definition, initState, clock) }
         model.anim.onStateChangeFinished = onStateChangeFinished
         model.anim.toState(toState)
         children(model)
     } else {
-        val state = +memo(definition, toState) { definition.getStateFor(toState) }
+        val state = remember(definition, toState) { definition.getStateFor(toState) }
         children(state)
     }
 }

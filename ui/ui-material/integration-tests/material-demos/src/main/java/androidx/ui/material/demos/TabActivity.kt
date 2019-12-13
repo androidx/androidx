@@ -18,7 +18,6 @@ package androidx.ui.material.demos
 
 import androidx.compose.Composable
 import androidx.compose.state
-import androidx.compose.unaryPlus
 import androidx.ui.core.dp
 import androidx.ui.graphics.Color
 import androidx.ui.material.Button
@@ -45,7 +44,7 @@ class TabActivity : MaterialDemoActivity() {
     override fun materialContent() {
         val favouriteImage = imageFromResource(resources, R.drawable.ic_favorite)
         Column(modifier = LayoutExpandedHeight, arrangement = Arrangement.SpaceBetween) {
-            val showingSimple = +state { true }
+            val showingSimple = state { true }
             val buttonText = "Show ${if (showingSimple.value) "custom" else "simple"} tabs"
 
             if (showingSimple.value) {

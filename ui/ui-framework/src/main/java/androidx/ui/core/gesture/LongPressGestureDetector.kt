@@ -22,8 +22,7 @@ import androidx.ui.core.anyPositionChangeConsumed
 import androidx.ui.core.changedToDown
 import androidx.compose.Composable
 import androidx.compose.ambient
-import androidx.compose.memo
-import androidx.compose.unaryPlus
+import androidx.compose.remember
 import androidx.ui.core.PxPosition
 import androidx.ui.core.changedToUp
 import androidx.ui.core.changedToUpIgnoreConsumed
@@ -51,9 +50,9 @@ fun LongPressGestureDetector(
     onLongPress: (PxPosition) -> Unit,
     children: @Composable() () -> Unit
 ) {
-    val coroutineContext = +ambient(CoroutineContextAmbient)
+    val coroutineContext = ambient(CoroutineContextAmbient)
     val recognizer =
-        +memo { LongPressGestureRecognizer(coroutineContext) }
+        remember { LongPressGestureRecognizer(coroutineContext) }
     recognizer.onLongPress = onLongPress
 
     PointerInputWrapper(pointerInputHandler = recognizer.pointerInputHandler, children = children)

@@ -17,8 +17,7 @@
 package androidx.ui.test.cases
 
 import androidx.compose.Composable
-import androidx.compose.memo
-import androidx.compose.unaryPlus
+import androidx.compose.remember
 import androidx.ui.core.Text
 import androidx.ui.core.WithDensity
 import androidx.ui.core.px
@@ -72,7 +71,7 @@ class NestedScrollerTestCase : ComposeTestCase, ToggleableTestCase {
                 repeat(6) {
                     WithDensity {
                         Column(LayoutExpandedHeight) {
-                            val color = +memo {
+                            val color = remember {
                                 val red = Random.nextInt(256)
                                 val green = Random.nextInt(256)
                                 val blue = Random.nextInt(256)

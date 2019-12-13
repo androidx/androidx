@@ -24,9 +24,8 @@ import androidx.animation.PhysicsBuilder
 import androidx.animation.TargetAnimation
 import androidx.animation.fling
 import androidx.compose.Composable
-import androidx.compose.memo
+import androidx.compose.remember
 import androidx.compose.state
-import androidx.compose.unaryPlus
 import androidx.ui.animation.animatedFloat
 import androidx.ui.core.Draw
 import androidx.ui.core.IntPx
@@ -62,8 +61,8 @@ class FancyScrolling : Activity() {
             Padding(40.dp) {
                 Text("<== Scroll horizontally ==>", style = TextStyle(fontSize = 20.sp))
             }
-            val animScroll = +animatedFloat(0f)
-            val itemWidth = +state { 0f }
+            val animScroll = animatedFloat(0f)
+            val itemWidth = state { 0f }
             RawDragGestureDetector(dragObserver = object : DragObserver {
                 override fun onDrag(dragDistance: PxPosition): PxPosition {
                     // Snap to new drag position
@@ -87,7 +86,7 @@ class FancyScrolling : Activity() {
                 }
             }) {
                 val children = @Composable {
-                    var paint = +memo { Paint() }
+                    var paint = remember { Paint() }
                     Draw { canvas, parentSize ->
                         val width = parentSize.width.value / 2f
                         val scroll = animScroll.value + width / 2

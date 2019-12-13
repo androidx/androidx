@@ -20,7 +20,6 @@ import android.app.Activity
 import android.os.Bundle
 import androidx.compose.Composable
 import androidx.compose.state
-import androidx.compose.unaryPlus
 import androidx.ui.core.Alignment
 import androidx.ui.core.Dp
 import androidx.ui.core.Draw
@@ -65,7 +64,7 @@ class PopupActivity : Activity() {
         super.onCreate(savedInstanceState)
 
         setContent {
-            val exampleIndex = +state { 0 }
+            val exampleIndex = state { 0 }
             val totalExamples = 9
 
             Column {
@@ -153,7 +152,7 @@ class PopupActivity : Activity() {
 
 @Composable
 fun ColumnScope.PopupToggle() {
-    val showPopup = +state { true }
+    val showPopup = state { true }
     val containerSize = 100.dp
 
     Column(LayoutGravity.Center) {
@@ -188,9 +187,9 @@ fun ColumnScope.PopupWithChangingContent() {
     Column(LayoutGravity.Center) {
             val heightSize = 120.dp
             val widthSize = 160.dp
-            val popupContentState = +state { 0 }
+            val popupContentState = state { 0 }
             val totalContentExamples = 2
-            val popupCounter = +state { 0 }
+            val popupCounter = state { 0 }
 
             ColoredContainer(
                 height = heightSize,
@@ -231,10 +230,10 @@ fun ColumnScope.PopupWithChangingContent() {
 fun ColumnScope.PopupWithChangingParent() {
     val containerWidth = 400.dp
     val containerHeight = 200.dp
-    val parentAlignment = +state { Alignment.TopLeft }
-    val parentWidth = +state { 80.dp }
-    val parentHeight = +state { 60.dp }
-    val parentSizeChanged = +state { false }
+    val parentAlignment = state { Alignment.TopLeft }
+    val parentWidth = state { 80.dp }
+    val parentHeight = state { 60.dp }
+    val parentSizeChanged = state { false }
 
     Column(LayoutGravity.Center) {
         Container(
@@ -289,7 +288,7 @@ fun ColumnScope.PopupDropdownAlignment() {
     Column(LayoutGravity.Center) {
             val heightSize = 120.dp
             val widthSize = 160.dp
-            val dropDownAlignment = +state { DropDownAlignment.Left }
+            val dropDownAlignment = state { DropDownAlignment.Left }
 
             ClickableTextWithBackground(
                 text = "Change alignment",
@@ -328,8 +327,8 @@ fun ColumnScope.PopupAlignmentDemo() {
     Container(LayoutGravity.Center) {
         val heightSize = 200.dp
         val widthSize = 400.dp
-        val counter = +state { 0 }
-        val popupAlignment = +state { Alignment.TopLeft }
+        val counter = state { 0 }
+        val popupAlignment = state { Alignment.TopLeft }
 
         Column {
             ColoredContainer(
@@ -374,11 +373,11 @@ fun ColumnScope.PopupWithEditText() {
             val widthSize = 190.dp
             val heightSize = 120.dp
             val editLineSize = 150.dp
-            val showEmail = +state {
+            val showEmail = state {
                 "Enter your email in the white rectangle and click outside"
             }
-            val email = +state { "email" }
-            val showPopup = +state { true }
+            val email = state { "email" }
+            val showPopup = state { true }
 
             Text(text = showEmail.value)
 
@@ -417,10 +416,10 @@ fun ColumnScope.PopupWithEditText() {
 @Composable
 fun ColumnScope.PopupWithChangingSize() {
     Column(LayoutGravity.Center) {
-            val showPopup = +state { true }
+            val showPopup = state { true }
             val heightSize = 120.dp
             val widthSize = 160.dp
-            val rectangleState = +state { 0 }
+            val rectangleState = state { 0 }
 
             Spacer(LayoutHeight(15.dp))
             ColoredContainer(
@@ -566,7 +565,7 @@ fun EditLine(
     initialText: String = "",
     color: Color = Color.White
 ) {
-    val state = +state { initialText }
+    val state = state { initialText }
     Wrap {
         val paint = Paint()
         paint.color = color

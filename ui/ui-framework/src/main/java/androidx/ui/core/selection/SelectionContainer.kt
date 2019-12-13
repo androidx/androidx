@@ -17,9 +17,8 @@
 package androidx.ui.core.selection
 
 import androidx.compose.Composable
-import androidx.compose.memo
 import androidx.compose.state
-import androidx.compose.unaryPlus
+import androidx.compose.remember
 import androidx.ui.core.Alignment
 import androidx.ui.core.Constraints
 import androidx.ui.core.Dp
@@ -49,7 +48,7 @@ import kotlin.math.roundToInt
  */
 @Composable
 internal fun SelectionContainer(children: @Composable() () -> Unit) {
-    val selection = +state<Selection?> { null }
+    val selection = state<Selection?> { null }
     SelectionContainer(
         selection = selection.value,
         onSelectionChange = { selection.value = it },
@@ -71,8 +70,8 @@ fun SelectionContainer(
     onSelectionChange: (Selection?) -> Unit,
     children: @Composable() () -> Unit
 ) {
-    val registrarImpl = +memo { SelectionRegistrarImpl() }
-    val manager = +memo { SelectionManager(registrarImpl) }
+    val registrarImpl = remember { SelectionRegistrarImpl() }
+    val manager = remember { SelectionManager(registrarImpl) }
     manager.onSelectionChange = onSelectionChange
     manager.selection = selection
 

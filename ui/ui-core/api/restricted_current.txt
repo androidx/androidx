@@ -164,7 +164,7 @@ package androidx.ui.core {
   public final class DensityKt {
     method public static androidx.ui.core.Density Density(android.content.Context context);
     method public static androidx.ui.core.DensityScope DensityScope(androidx.ui.core.Density density);
-    method public static <R> R! withDensity(androidx.ui.core.Density density, kotlin.jvm.functions.Function1<? super androidx.ui.core.DensityScope,? extends R> block);
+    method public static inline <R> R! withDensity(androidx.ui.core.Density density, kotlin.jvm.functions.Function1<? super androidx.ui.core.DensityScope,? extends R> block);
   }
 
   public interface DensityScope {

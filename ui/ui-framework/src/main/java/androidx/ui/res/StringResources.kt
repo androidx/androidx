@@ -17,10 +17,9 @@
 package androidx.ui.res
 
 import androidx.annotation.ArrayRes
-import androidx.annotation.CheckResult
 import androidx.annotation.StringRes
+import androidx.compose.Composable
 import androidx.compose.ambient
-import androidx.compose.effectOf
 import androidx.ui.core.ContextAmbient
 
 /**
@@ -29,10 +28,10 @@ import androidx.ui.core.ContextAmbient
  * @param id the resource identifier
  * @return the string data associated with the resource
  */
-@CheckResult(suggest = "+")
-fun stringResource(@StringRes id: Int) = effectOf<String> {
-    val context = +ambient(ContextAmbient)
-    context.resources.getString(id)
+@Composable
+fun stringResource(@StringRes id: Int): String {
+    val context = ambient(ContextAmbient)
+    return context.resources.getString(id)
 }
 
 /**
@@ -42,10 +41,10 @@ fun stringResource(@StringRes id: Int) = effectOf<String> {
  * @param formatArgs the format arguments
  * @return the string data associated with the resource
  */
-@CheckResult(suggest = "+")
-fun stringResource(@StringRes id: Int, vararg formatArgs: Any) = effectOf<String> {
-    val context = +ambient(ContextAmbient)
-    context.resources.getString(id, *formatArgs)
+@Composable
+fun stringResource(@StringRes id: Int, vararg formatArgs: Any): String {
+    val context = ambient(ContextAmbient)
+    return context.resources.getString(id, *formatArgs)
 }
 
 /**
@@ -54,8 +53,8 @@ fun stringResource(@StringRes id: Int, vararg formatArgs: Any) = effectOf<String
  * @param id the resource identifier
  * @return the string data associated with the resource
  */
-@CheckResult(suggest = "+")
-fun stringArrayResource(@ArrayRes id: Int) = effectOf<Array<String>> {
-    val context = +ambient(ContextAmbient)
-    context.resources.getStringArray(id)
+@Composable
+fun stringArrayResource(@ArrayRes id: Int): Array<String> {
+    val context = ambient(ContextAmbient)
+    return context.resources.getStringArray(id)
 }

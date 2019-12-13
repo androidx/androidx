@@ -19,8 +19,7 @@ package androidx.ui.layout.constraintlayout
 import android.annotation.SuppressLint
 import androidx.compose.Composable
 import androidx.compose.Immutable
-import androidx.compose.memo
-import androidx.compose.unaryPlus
+import androidx.compose.remember
 import androidx.constraintlayout.solver.state.ConstraintReference
 import androidx.constraintlayout.solver.state.Dimension
 import androidx.constraintlayout.solver.state.State
@@ -52,7 +51,7 @@ import androidx.ui.core.tag
  */
 @Composable
 fun ConstraintLayout(constraintSet: ConstraintSet, children: @Composable() () -> Unit) {
-    val measurer = +memo { Measurer() }
+    val measurer = remember { Measurer() }
     Layout(children) { measurables, constraints ->
         val layoutSize = measurer.performMeasure(
             constraints,

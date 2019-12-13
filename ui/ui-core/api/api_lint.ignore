@@ -5,6 +5,8 @@ AcronymName: androidx.ui.core.Dp#times-KkBJKWw(float):
     Acronyms should not be capitalized in method names: was `times-KkBJKWw`, should this be `times-KkBjkWw`?
 AcronymName: androidx.ui.core.DpCubed#div-KkBJKWw(float, float):
     Acronyms should not be capitalized in method names: was `div-KkBJKWw`, should this be `div-KkBjkWw`?
+AcronymName: androidx.ui.core.DpInverse#compareTo-ASDJgtI(float):
+    Acronyms should not be capitalized in method names: was `compareTo-ASDJgtI`, should this be `compareTo-AsdJgtI`?
 AcronymName: androidx.ui.core.DpInverse#compareTo-ASDJgtI(float, float):
     Acronyms should not be capitalized in method names: was `compareTo-ASDJgtI`, should this be `compareTo-AsdJgtI`?
 AcronymName: androidx.ui.core.DpInverse#minus-ASDJgtI(float, float):
@@ -23,6 +25,8 @@ AcronymName: androidx.ui.core.DpKt#times-doH9uME(float, long):
     Acronyms should not be capitalized in method names: was `times-doH9uME`, should this be `times-doH9uMe`?
 AcronymName: androidx.ui.core.DpKt#times-nKWVx08(double, long):
     Acronyms should not be capitalized in method names: was `times-nKWVx08`, should this be `times-nKwVx08`?
+AcronymName: androidx.ui.core.DpSquared#compareTo-KkBJKWw(float):
+    Acronyms should not be capitalized in method names: was `compareTo-KkBJKWw`, should this be `compareTo-KkBjkWw`?
 AcronymName: androidx.ui.core.DpSquared#compareTo-KkBJKWw(float, float):
     Acronyms should not be capitalized in method names: was `compareTo-KkBJKWw`, should this be `compareTo-KkBjkWw`?
 AcronymName: androidx.ui.core.DpSquared#div-KkBJKWw(float, float):
@@ -41,6 +45,8 @@ AcronymName: androidx.ui.core.Px#times-kVJEwbQ(float):
     Acronyms should not be capitalized in method names: was `times-kVJEwbQ`, should this be `times-kVjEwbQ`?
 AcronymName: androidx.ui.core.PxCubed#div-kVJEwbQ(float, float):
     Acronyms should not be capitalized in method names: was `div-kVJEwbQ`, should this be `div-kVjEwbQ`?
+AcronymName: androidx.ui.core.PxInverse#compareTo-MXEAIGs(float):
+    Acronyms should not be capitalized in method names: was `compareTo-MXEAIGs`, should this be `compareTo-MxeaiGs`?
 AcronymName: androidx.ui.core.PxInverse#compareTo-MXEAIGs(float, float):
     Acronyms should not be capitalized in method names: was `compareTo-MXEAIGs`, should this be `compareTo-MxeaiGs`?
 AcronymName: androidx.ui.core.PxInverse#minus-MXEAIGs(float, float):
@@ -49,6 +55,8 @@ AcronymName: androidx.ui.core.PxInverse#plus-MXEAIGs(float, float):
     Acronyms should not be capitalized in method names: was `plus-MXEAIGs`, should this be `plus-MxeaiGs`?
 AcronymName: androidx.ui.core.PxInverse#times-kVJEwbQ(float, float):
     Acronyms should not be capitalized in method names: was `times-kVJEwbQ`, should this be `times-kVjEwbQ`?
+AcronymName: androidx.ui.core.PxSquared#compareTo-kVJEwbQ(float):
+    Acronyms should not be capitalized in method names: was `compareTo-kVJEwbQ`, should this be `compareTo-kVjEwbQ`?
 AcronymName: androidx.ui.core.PxSquared#compareTo-kVJEwbQ(float, float):
     Acronyms should not be capitalized in method names: was `compareTo-kVJEwbQ`, should this be `compareTo-kVjEwbQ`?
 AcronymName: androidx.ui.core.PxSquared#div-kVJEwbQ(float, float):
@@ -85,10 +93,6 @@ AutoBoxing: androidx.ui.vectormath64.Matrix4Kt#getAsScale(androidx.ui.vectormath
     Must avoid boxed primitives (`java.lang.Float`)
 
 
-DocumentExceptions: androidx.ui.vectormath64.Matrix2#get(androidx.ui.vectormath64.MatrixColumn):
-    Method Matrix2.get appears to be throwing java.lang.IllegalArgumentException; this should be listed in the documentation; see https://android.github.io/kotlin-guides/interop.html#document-exceptions
-DocumentExceptions: androidx.ui.vectormath64.Matrix2#get(int):
-    Method Matrix2.get appears to be throwing java.lang.IllegalArgumentException; this should be listed in the documentation; see https://android.github.io/kotlin-guides/interop.html#document-exceptions
 DocumentExceptions: androidx.ui.vectormath64.Matrix3#get(androidx.ui.vectormath64.MatrixColumn):
     Method Matrix3.get appears to be throwing java.lang.IllegalArgumentException; this should be listed in the documentation; see https://android.github.io/kotlin-guides/interop.html#document-exceptions
 DocumentExceptions: androidx.ui.vectormath64.Matrix3#get(int):

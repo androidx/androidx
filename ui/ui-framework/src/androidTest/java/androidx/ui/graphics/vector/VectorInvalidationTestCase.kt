@@ -19,7 +19,6 @@ package androidx.ui.graphics.vector
 import androidx.compose.Composable
 import androidx.compose.State
 import androidx.compose.state
-import androidx.compose.unaryPlus
 import androidx.ui.core.Draw
 import androidx.ui.core.WithDensity
 import androidx.ui.core.test.AtLeastSize
@@ -43,10 +42,10 @@ class VectorInvalidationTestCase(var latch: CountDownLatch) {
 
     @Composable
     fun createTestVector() {
-        val state = +state { R.drawable.ic_triangle2 }
+        val state = state { R.drawable.ic_triangle2 }
         vectorState = state
 
-        val vectorAsset = +loadVectorResource(state.value)
+        val vectorAsset = loadVectorResource(state.value)
         WithDensity {
             vectorAsset.resource.resource?.let {
                 val width = it.defaultWidth.toDp()

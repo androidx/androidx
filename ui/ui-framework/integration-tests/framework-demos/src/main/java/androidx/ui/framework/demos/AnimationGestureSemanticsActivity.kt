@@ -22,7 +22,6 @@ import androidx.animation.FloatPropKey
 import androidx.animation.transitionDefinition
 import androidx.compose.Composable
 import androidx.compose.state
-import androidx.compose.unaryPlus
 import androidx.ui.animation.ColorPropKey
 import androidx.ui.animation.Transition
 import androidx.ui.core.Layout
@@ -79,7 +78,7 @@ class AnimationGestureSemanticsActivity : Activity() {
     @Suppress("Unused")
     @Composable
     fun WithoutSemanticActions() {
-        val animationEndState = +state { ComponentState.Released }
+        val animationEndState = state { ComponentState.Released }
         PressGestureDetector(
             onPress = { animationEndState.value = ComponentState.Pressed },
             onRelease = { animationEndState.value = ComponentState.Released }) {
@@ -93,7 +92,7 @@ class AnimationGestureSemanticsActivity : Activity() {
     @Suppress("Unused")
     @Composable
     fun Level1Api() {
-        val animationEndState = +state { ComponentState.Released }
+        val animationEndState = state { ComponentState.Released }
 
         val pressedAction = SemanticAction<PxPosition>(
             phrase = "Pressed",
@@ -126,7 +125,7 @@ class AnimationGestureSemanticsActivity : Activity() {
     @Suppress("Unused")
     @Composable
     fun Level2Api() {
-        val animationEndState = +state { ComponentState.Released }
+        val animationEndState = state { ComponentState.Released }
 
         SemanticAction(
             phrase = "Shrink",
@@ -160,7 +159,7 @@ class AnimationGestureSemanticsActivity : Activity() {
     @Suppress("Unused")
     @Composable
     fun Level3Api() {
-        val animationEndState = +state { ComponentState.Released }
+        val animationEndState = state { ComponentState.Released }
         ClickInteraction(
             click = {
                 action = {
@@ -180,7 +179,7 @@ class AnimationGestureSemanticsActivity : Activity() {
     @Suppress("Unused")
     @Composable
     fun Level3ApiExtras() {
-        val animationEndState = +state { ComponentState.Released }
+        val animationEndState = state { ComponentState.Released }
         ClickInteraction(
             click = {
                 phrase = "Toggle"

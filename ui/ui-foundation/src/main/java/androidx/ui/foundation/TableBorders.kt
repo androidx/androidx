@@ -16,8 +16,7 @@
 
 package androidx.ui.foundation
 
-import androidx.compose.memo
-import androidx.compose.unaryPlus
+import androidx.compose.remember
 import androidx.ui.core.Dp
 import androidx.ui.core.Draw
 import androidx.ui.engine.geometry.Offset
@@ -41,7 +40,7 @@ fun TableChildren.drawBorders(
     block: DrawBordersReceiver.() -> Unit
 ) {
     tableDecoration(overlay = true) {
-        val paint = +memo { Paint() }
+        val paint = remember { Paint() }
         Draw { canvas, _ ->
             val borders = DrawBordersReceiver(
                 rowCount = verticalOffsets.size - 1,

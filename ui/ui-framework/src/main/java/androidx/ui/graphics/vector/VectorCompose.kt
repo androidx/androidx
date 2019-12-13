@@ -18,9 +18,8 @@ package androidx.ui.graphics.vector
 
 import androidx.compose.Composable
 import androidx.compose.compositionReference
-import androidx.compose.memo
+import androidx.compose.remember
 import androidx.compose.onPreCommit
-import androidx.compose.unaryPlus
 import androidx.ui.core.Alignment
 import androidx.ui.core.Dp
 import androidx.ui.core.Draw
@@ -74,8 +73,8 @@ fun DrawVector(
     name: String = "",
     children: @Composable() VectorScope.(viewportWidth: Float, viewportHeight: Float) -> Unit
 ) {
-    val widthPx = withDensity(+ambientDensity()) { defaultWidth.toPx() }
-    val heightPx = withDensity(+ambientDensity()) { defaultHeight.toPx() }
+    val widthPx = withDensity(ambientDensity()) { defaultWidth.toPx() }
+    val heightPx = withDensity(ambientDensity()) { defaultHeight.toPx() }
 
     val vpWidth = if (viewportWidth == unset) widthPx.value else viewportWidth
     val vpHeight = if (viewportHeight == unset) heightPx.value else viewportHeight
@@ -122,7 +121,7 @@ fun DrawVector(
     children: @Composable() VectorScope.(viewportWidth: Float, viewportHeight: Float) -> Unit
 ) {
     val vector =
-        +memo(name, viewportWidth, viewportHeight) {
+        remember(name, viewportWidth, viewportHeight) {
             VectorComponent(
                 name,
                 viewportWidth,
@@ -132,9 +131,9 @@ fun DrawVector(
             )
         }
 
-    val ref = +compositionReference()
+    val ref = compositionReference()
     composeVector(vector, ref, children)
-    +onPreCommit(vector) {
+    onPreCommit(vector) {
         onDispose {
             disposeVector(vector, ref)
         }

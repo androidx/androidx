@@ -19,7 +19,6 @@ package androidx.ui.foundation.samples
 import androidx.annotation.Sampled
 import androidx.compose.Composable
 import androidx.compose.state
-import androidx.compose.unaryPlus
 import androidx.ui.core.dp
 import androidx.ui.foundation.Dialog
 import androidx.ui.foundation.shape.DrawShape
@@ -30,7 +29,7 @@ import androidx.ui.layout.Container
 @Sampled
 @Composable
 fun DialogSample() {
-    val openDialog = +state { true }
+    val openDialog = state { true }
     val dialogWidth = 200.dp
     val dialogHeight = 50.dp
 
