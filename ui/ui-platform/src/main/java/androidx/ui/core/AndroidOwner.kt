@@ -326,7 +326,11 @@ class AndroidComposeView constructor(context: Context) :
                 dirtyRepaintBoundaryNodes -= node
             }
             is LayoutNode -> {
-                relayoutNodes -= node
+                if (!duringMeasureLayout) {
+                    // We can't change the contents of relayoutNodes during measure/layout, but
+                    // layout will clear its contents, as well as ignore any detached nodes
+                    relayoutNodes -= node
+                }
             }
         }
         modelObserver.clear(node)
@@ -344,18 +348,20 @@ class AndroidComposeView constructor(context: Context) :
                     var topNode = relayoutNodes.first()
                     while (relayoutNodes.isNotEmpty()) {
                         relayoutNodes.forEach { layoutNode ->
-                            if (layoutNode.needsRemeasure) {
-                                val parent = layoutNode.parentLayoutNode
-                                if (parent != null) {
-                                    // This should call measure and layout on the child
-                                    parent.needsRelayout = true
-                                    parent.placeChildren()
-                                } else {
-                                    layoutNode.measure(layoutNode.constraints)
+                            if (layoutNode.isAttached()) {
+                                if (layoutNode.needsRemeasure) {
+                                    val parent = layoutNode.parentLayoutNode
+                                    if (parent != null) {
+                                        // This should call measure and layout on the child
+                                        parent.needsRelayout = true
+                                        parent.placeChildren()
+                                    } else {
+                                        layoutNode.measure(layoutNode.constraints)
+                                        layoutNode.placeChildren()
+                                    }
+                                } else if (layoutNode.needsRelayout) {
                                     layoutNode.placeChildren()
                                 }
-                            } else if (layoutNode.needsRelayout) {
-                                layoutNode.placeChildren()
                             }
                         }
                         relayoutNodes.clear()
