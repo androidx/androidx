@@ -16,25 +16,73 @@
 
 package androidx.ui.core.selection
 
+import androidx.ui.core.LayoutCoordinates
+import androidx.ui.unit.PxPosition
+
 internal class SelectionRegistrarImpl : SelectionRegistrar {
+    /**
+     * A flag to check if the [Selectable]s have already been sorted.
+     */
+    internal var sorted: Boolean = false
+
     /**
      * This is essentially the list of registered components that want
      * to handle text selection that are below the SelectionContainer.
      */
-    private val _selectables = mutableSetOf<Selectable>()
+    private val _selectables = mutableListOf<Selectable>()
 
     /**
-     * Getter for handlers that returns an immutable Set.
+     * Getter for handlers that returns an List.
      */
-    internal val selectables: Set<Selectable>
+    internal val selectables: List<Selectable>
         get() = _selectables
 
     override fun subscribe(selectable: Selectable): Selectable {
         _selectables.add(selectable)
+        sorted = false
         return selectable
     }
 
     override fun unsubscribe(selectable: Selectable) {
         _selectables.remove(selectable)
+    }
+
+    /**
+     * Sort the list of registered [Selectable]s in [SelectionRegistrar]. Currently the order of
+     * selectables is geometric-based.
+     */
+    fun sort(containerLayoutCoordinates: LayoutCoordinates): List<Selectable> {
+        if (!sorted) {
+            // Sort selectables by y-coordinate first, and then x-coordinate, to match English
+            // hand-writing habit.
+            _selectables.sortWith(Comparator { a: Selectable, b: Selectable ->
+                val layoutCoordinatesA = a.getLayoutCoordinates()
+                val layoutCoordinatesB = b.getLayoutCoordinates()
+
+                val positionA =
+                    if (layoutCoordinatesA != null) containerLayoutCoordinates.childToLocal(
+                        layoutCoordinatesA,
+                        PxPosition.Origin
+                    )
+                    else PxPosition.Origin
+                val positionB =
+                    if (layoutCoordinatesB != null) containerLayoutCoordinates.childToLocal(
+                        layoutCoordinatesB,
+                        PxPosition.Origin
+                    )
+                    else PxPosition.Origin
+
+                if (positionA.y == positionB.y) compareValues(positionA.x, positionB.x)
+                else compareValues(positionA.y, positionB.y)
+            })
+            sorted = true
+        }
+        return selectables
+    }
+
+    override fun onPositionChange() {
+        // Set the variable sorted to be false, when the global position of a registered
+        // selectable changes.
+        sorted = false
     }
 }

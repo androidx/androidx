@@ -90,22 +90,22 @@ internal class SelectionManager(private val selectionRegistrar: SelectionRegistr
         previousSelection: Selection? = null,
         isStartHandle: Boolean = true
     ): Selection? {
-        val handlers = selectionRegistrar.selectables
 
-        val newSelection = handlers.fold(null) { mergedSelection: Selection?,
-                                          handler: Selectable ->
-            merge(
-                mergedSelection,
-                handler.getSelection(
-                    startPosition = startPosition,
-                    endPosition = endPosition,
-                    containerLayoutCoordinates = containerLayoutCoordinates,
-                    longPress = longPress,
-                    previousSelection = previousSelection,
-                    isStartHandle = isStartHandle
+        val newSelection = selectionRegistrar.sort(containerLayoutCoordinates)
+            .fold(null) { mergedSelection: Selection?,
+                          handler: Selectable ->
+                merge(
+                    mergedSelection,
+                    handler.getSelection(
+                        startPosition = startPosition,
+                        endPosition = endPosition,
+                        containerLayoutCoordinates = containerLayoutCoordinates,
+                        longPress = longPress,
+                        previousSelection = previousSelection,
+                        isStartHandle = isStartHandle
+                    )
                 )
-            )
-        }
+            }
         if (previousSelection != newSelection) hapticFeedBack?.performHapticFeedback(
             HapticFeedbackType.TextHandleMove
         )
