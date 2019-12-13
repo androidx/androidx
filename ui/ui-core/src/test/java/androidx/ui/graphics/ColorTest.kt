@@ -133,4 +133,50 @@ class ColorTest {
                     "expecting ${expectedARGB.toArgb().toHexString()}", expectedARGB, colorARGB)
         }
     }
+
+    @Test
+    fun compositeColorsSameColorSpace() {
+        val background = Color(0x7f7f0000)
+        val foreground = Color(0x7f007f00)
+        val result = foreground.compositeOver(background)
+
+        assertEquals(0.16f, result.red, 0.01f)
+        assertEquals(0.33f, result.green, 0.01f)
+        assertEquals(0.00f, result.blue, 0.01f)
+        assertEquals(0.75f, result.alpha, 0.01f)
+    }
+
+    @Test
+    fun compositeColorsDifferentColorSpace() {
+        val background = Color(0.5f, 0.0f, 0.0f, 0.5f, ColorSpaces.DisplayP3)
+        val foreground = Color(0x7f007f00)
+        val result = foreground.compositeOver(background)
+
+        assertEquals(ColorSpaces.DisplayP3, result.colorSpace)
+        assertEquals(0.31f, result.red, 0.01f)
+        assertEquals(0.33f, result.green, 0.01f)
+        assertEquals(0.09f, result.blue, 0.01f)
+        assertEquals(0.75f, result.alpha, 0.01f)
+    }
+
+    @Test
+    fun compositeColorsLowAlpha() {
+        val background = Color(1.0f, 0.0f, 0.0f, 0.01f)
+        val foreground = Color(0.0f, 1.0f, 0.0f, 0.01f)
+        val result = foreground.compositeOver(background)
+
+        assertEquals(0.50f, result.red, 0.01f)
+        assertEquals(0.50f, result.green, 0.01f)
+        assertEquals(0.00f, result.blue, 0.01f)
+        assertEquals(0.01f, result.alpha, 0.02f)
+    }
+
+    @Test
+    fun compositeColorsZeroAlpha() {
+        val background = Color(0x007f0000)
+        val foreground = Color(0x00007f00)
+        val result = foreground.compositeOver(background)
+
+        assertEquals(Color(0f, 0f, 0f, 0f), result)
+    }
 }
