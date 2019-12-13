@@ -26,6 +26,7 @@ import android.widget.Button;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
+import androidx.camera.core.CameraInfoUnavailableException;
 import androidx.camera.core.CameraSelector;
 import androidx.camera.core.Preview;
 import androidx.camera.lifecycle.ProcessCameraProvider;
@@ -46,6 +47,7 @@ public class PreviewViewFragment extends Fragment {
     @SuppressWarnings("WeakerAccess") /* synthetic accessor */
             PreviewView mPreviewView;
     private ListenableFuture<ProcessCameraProvider> mCameraProviderFuture;
+    private int mCurrentLensFacing = CameraSelector.LENS_FACING_BACK;
 
     @Override
     public void onAttach(@NonNull Context context) {
@@ -60,14 +62,16 @@ public class PreviewViewFragment extends Fragment {
 
         ViewGroup previewViewContainer = view.findViewById(R.id.container);
 
-        Button toggleButton = view.findViewById(R.id.toggle_visibility);
+        final Button toggleVisibilityButton = view.findViewById(R.id.toggle_visibility);
+        final Button toggleCameraButton = view.findViewById(R.id.toggle_camera);
 
         Futures.addCallback(mCameraProviderFuture, new FutureCallback<ProcessCameraProvider>() {
             @Override
             public void onSuccess(
                     @Nullable ProcessCameraProvider cameraProvider) {
                 Preconditions.checkNotNull(cameraProvider);
-                toggleButton.setOnClickListener(
+                toggleVisibilityButton.setEnabled(true);
+                toggleVisibilityButton.setOnClickListener(
                         view1 -> {
                             // Toggle the existence of the PreviewView.
                             if (previewViewContainer.getChildCount() == 0) {
@@ -78,6 +82,23 @@ public class PreviewViewFragment extends Fragment {
                                 previewViewContainer.removeView(mPreviewView);
                             }
                         });
+
+                try {
+                    if (cameraProvider.hasCamera(CameraSelector.DEFAULT_BACK_CAMERA)) {
+                        mCurrentLensFacing = CameraSelector.LENS_FACING_BACK;
+                        if (cameraProvider.hasCamera(CameraSelector.DEFAULT_FRONT_CAMERA)) {
+                            toggleCameraButton.setEnabled(true);
+                        }
+                    } else if (cameraProvider.hasCamera(CameraSelector.DEFAULT_FRONT_CAMERA)) {
+                        mCurrentLensFacing = CameraSelector.LENS_FACING_FRONT;
+                    } else { // no cameras at all
+                        return;
+                    }
+
+                    toggleCameraButton.setOnClickListener(v -> switchCamera(cameraProvider));
+                } catch (CameraInfoUnavailableException e) {
+                    toggleCameraButton.setEnabled(false);
+                }
 
                 bindPreview(cameraProvider);
             }
@@ -105,8 +126,7 @@ public class PreviewViewFragment extends Fragment {
         preview.setPreviewSurfaceProvider(mPreviewView.getPreviewSurfaceProvider());
 
         CameraSelector cameraSelector =
-                new CameraSelector.Builder().requireLensFacing(
-                        CameraSelector.LENS_FACING_BACK).build();
+                new CameraSelector.Builder().requireLensFacing(mCurrentLensFacing).build();
         cameraProvider.bindToLifecycle(PreviewViewFragment.this, cameraSelector, preview);
     }
 
@@ -117,5 +137,16 @@ public class PreviewViewFragment extends Fragment {
             @Nullable ViewGroup container,
             @Nullable Bundle savedInstanceState) {
         return inflater.inflate(R.layout.fragment_preview_view, container, false);
+    }
+
+    private void switchCamera(@NonNull final ProcessCameraProvider cameraProvider) {
+        cameraProvider.unbindAll();
+
+        if (mCurrentLensFacing == CameraSelector.LENS_FACING_BACK) {
+            mCurrentLensFacing = CameraSelector.LENS_FACING_FRONT;
+        } else {
+            mCurrentLensFacing = CameraSelector.LENS_FACING_BACK;
+        }
+        bindPreview(cameraProvider);
     }
 }

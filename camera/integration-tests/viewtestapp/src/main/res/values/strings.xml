@@ -20,6 +20,7 @@ limitations under the License.
     <string name="preview">Preview</string>
     <string name="btn_capture">Capture</string>
     <string name="btn_remove_or_add">Remove/Add</string>
+    <string name="btn_switch">Switch</string>
     <string name="btn_confirm">Confirm</string>
     <string name="btn_cancel">Cancel</string>
     <string name="camera_view">Camera View</string>

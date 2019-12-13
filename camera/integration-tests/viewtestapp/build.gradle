@@ -60,5 +60,16 @@ dependencies {
 
     // Android Support Library
     implementation("androidx.appcompat:appcompat:1.1.0")
+
+    // Testing framework
+    androidTestImplementation(ANDROIDX_TEST_EXT_JUNIT)
+    androidTestImplementation(ANDROIDX_TEST_CORE)
+    androidTestImplementation(ANDROIDX_TEST_RUNNER)
+    androidTestImplementation(ANDROIDX_TEST_RULES)
+    androidTestImplementation(ANDROIDX_TEST_UIAUTOMATOR)
+    androidTestImplementation(ESPRESSO_CORE)
+    androidTestImplementation(project(":camera:camera-testing"))
+    androidTestImplementation(TRUTH)
+
 }
 
