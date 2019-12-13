@@ -16,6 +16,7 @@
 
 package androidx.paging
 
+import com.google.common.truth.Truth.assertThat
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.FlowPreview
@@ -76,6 +77,21 @@ class PageFetcherTest {
         assertTrue { fetcherState.pageEventLists[1].isNotEmpty() }
         fetcherState.job.cancel()
     }
+
+    @Test
+    fun collectTwice() = testScope.runBlockingTest {
+        val pageFetcher = PageFetcher(pagedSourceFactory, 50, config)
+        val fetcherState = collectFetcherState(pageFetcher)
+        val fetcherState2 = collectFetcherState(pageFetcher)
+        advanceUntilIdle()
+        fetcherState.job.cancel()
+        fetcherState2.job.cancel()
+        advanceUntilIdle()
+        assertThat(fetcherState.pagedDataList.size).isEqualTo(1)
+        assertThat(fetcherState2.pagedDataList.size).isEqualTo(1)
+        assertThat(fetcherState.pageEventLists.first()).isNotEmpty()
+        assertThat(fetcherState2.pageEventLists.first()).isNotEmpty()
+    }
 }
 
 internal class FetcherState<T : Any>(
@@ -91,7 +107,7 @@ internal fun CoroutineScope.collectFetcherState(fetcher: PageFetcher<Int, Int>):
     val pageEventLists: ArrayList<ArrayList<PageEvent<Int>>> = ArrayList()
 
     val job = launch {
-        fetcher.createFlow().collectIndexed { index, pagedData ->
+        fetcher.flow.collectIndexed { index, pagedData ->
             pagedDataList.add(index, pagedData)
             pageEventLists.add(index, ArrayList())
             launch { pagedData.flow.toList(pageEventLists[index]) }
