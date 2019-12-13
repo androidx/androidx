@@ -136,7 +136,8 @@ internal class SelectionManager(private val selectionRegistrar: SelectionRegistr
             val newSelection = mergeSelections(
                 startPosition = dragBeginPosition,
                 endPosition = dragBeginPosition + dragTotalDistance,
-                longPress = true
+                longPress = true,
+                selection = selection
             )
 
             if (newSelection != selection) onSelectionChange(newSelection)
