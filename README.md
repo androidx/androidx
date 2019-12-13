@@ -9,6 +9,9 @@ Our official AARs and JARs binaries are distributed through [Google Maven](https
 You can learn more about using it from [Android Jetpack landing page](https://developer.android.com/jetpack).
 
 # Contribution Guide
+## Code Review Etiquette
+When contributing to Jetpack, follow the [code review etiquette](code-review.md).
+
 ## Accepted Types of Contributions
 * Bug fixes - needs a corresponding bug report in the [Android Issue Tracker](https://issuetracker.google.com/issues/new?component=192731&template=842428)
 * Each bug fix is expected to come with tests
