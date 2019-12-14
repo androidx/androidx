@@ -25,6 +25,7 @@
     <string name="button_biometric_bound_demo">Biometric prompt with biometric bound secret keys</string>
     <string name="button_credential_bound_demo">Biometric prompt with credential bound secret
         keys</string>
+    <string name="button_decrypt">Decrypt</string>
 
     <!-- BiometricPromptDemoActivityHost -->
     <string name="label_host_type_activity">Currently hosted in a FragmentActivity</string>
