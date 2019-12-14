@@ -27,7 +27,10 @@ import android.view.WindowManager;
 import android.widget.FrameLayout;
 
 import androidx.annotation.NonNull;
+import androidx.annotation.Nullable;
 import androidx.camera.core.Preview;
+import androidx.camera.core.impl.utils.futures.FutureCallback;
+import androidx.camera.core.impl.utils.futures.Futures;
 import androidx.concurrent.futures.CallbackToFutureAdapter;
 import androidx.core.content.ContextCompat;
 import androidx.core.util.Preconditions;
@@ -83,8 +86,18 @@ public class TextureViewImplementation implements PreviewView.Implementation {
             public boolean onSurfaceTextureDestroyed(final SurfaceTexture surfaceTexture) {
                 mSurfaceTexture = null;
                 if (mSurfaceCompleter == null && mSurfaceReleaseFuture != null) {
-                    mSurfaceReleaseFuture.addListener(surfaceTexture::release,
-                            ContextCompat.getMainExecutor(mTextureView.getContext()));
+                    Futures.addCallback(mSurfaceReleaseFuture, new FutureCallback<Void>() {
+                        @Override
+                        public void onSuccess(@Nullable Void result) {
+                            surfaceTexture.release();
+                        }
+
+                        @Override
+                        public void onFailure(Throwable t) {
+                            throw new IllegalStateException("SurfaceReleaseFuture should never "
+                                    + "fail. Did it get completed by GC?", t);
+                        }
+                    }, ContextCompat.getMainExecutor(mTextureView.getContext()));
                     return false;
                 } else {
                     return true;

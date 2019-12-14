@@ -37,6 +37,7 @@ import androidx.test.platform.app.InstrumentationRegistry;
 
 import com.google.common.util.concurrent.ListenableFuture;
 
+import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -55,6 +56,7 @@ public class TextureViewImplementationTest {
     private TextureViewImplementation mImplementation;
     private SurfaceTexture mSurfaceTexture;
     private TextureView.SurfaceTextureListener mSurfaceTextureListener;
+    private ListenableFuture<Void> mSafeToReleaseFuture;
     private CallbackToFutureAdapter.Completer<Void> mCompleter;
 
     @Before
@@ -66,10 +68,18 @@ public class TextureViewImplementationTest {
         mSurfaceTextureListener = mImplementation.mTextureView.getSurfaceTextureListener();
     }
 
+    @After
+    public void tearDown() {
+        if (mSafeToReleaseFuture != null) {
+            mCompleter.set(null);
+            mSafeToReleaseFuture = null;
+        }
+    }
+
     @Test(expected = TimeoutException.class)
     public void doNotProvideSurface_ifSurfaceTextureNotAvailableYet() throws Exception {
         mImplementation.getPreviewSurfaceProvider()
-                .provideSurface(ANY_SIZE, anyFuture())
+                .provideSurface(ANY_SIZE, getSafeToReleaseFuture())
                 .get(0, TimeUnit.SECONDS);
     }
 
@@ -77,7 +87,7 @@ public class TextureViewImplementationTest {
     public void provideSurface_ifSurfaceTextureAvailable() throws Exception {
         mSurfaceTextureListener.onSurfaceTextureAvailable(mSurfaceTexture, ANY_WIDTH, ANY_HEIGHT);
         final Surface surface = mImplementation.getPreviewSurfaceProvider()
-                .provideSurface(ANY_SIZE, anyFuture())
+                .provideSurface(ANY_SIZE, getSafeToReleaseFuture())
                 .get();
 
         assertNotNull(surface);
@@ -91,7 +101,7 @@ public class TextureViewImplementationTest {
                 ANY_HEIGHT);
 
         mImplementation.getPreviewSurfaceProvider()
-                .provideSurface(ANY_SIZE, anyFuture())
+                .provideSurface(ANY_SIZE, getSafeToReleaseFuture())
                 .get();
 
         assertNotNull(mImplementation.mSurfaceReleaseFuture);
@@ -105,7 +115,7 @@ public class TextureViewImplementationTest {
         mSurfaceTextureListener.onSurfaceTextureAvailable(mSurfaceTexture, ANY_WIDTH,
                 ANY_HEIGHT);
 
-        final ListenableFuture<Void> surfaceReleaseFuture = anyFuture();
+        final ListenableFuture<Void> surfaceReleaseFuture = getSafeToReleaseFuture();
         mImplementation.getPreviewSurfaceProvider()
                 .provideSurface(ANY_SIZE, surfaceReleaseFuture)
                 .get();
@@ -127,7 +137,7 @@ public class TextureViewImplementationTest {
         mSurfaceTextureListener.onSurfaceTextureAvailable(mSurfaceTexture, ANY_WIDTH,
                 ANY_HEIGHT);
 
-        final ListenableFuture<Void> surfaceReleaseFuture = anyFuture();
+        final ListenableFuture<Void> surfaceReleaseFuture = getSafeToReleaseFuture();
         mImplementation.getPreviewSurfaceProvider()
                 .provideSurface(ANY_SIZE, surfaceReleaseFuture)
                 .get();
@@ -149,7 +159,7 @@ public class TextureViewImplementationTest {
         mSurfaceTextureListener.onSurfaceTextureAvailable(mSurfaceTexture, ANY_WIDTH,
                 ANY_HEIGHT);
 
-        final ListenableFuture<Void> surfaceReleaseFuture = anyFuture();
+        final ListenableFuture<Void> surfaceReleaseFuture = getSafeToReleaseFuture();
         mImplementation.getPreviewSurfaceProvider()
                 .provideSurface(ANY_SIZE, surfaceReleaseFuture)
                 .get();
@@ -169,7 +179,7 @@ public class TextureViewImplementationTest {
     public void nullSurfaceCompleterAndSurfaceReleaseFuture_whenSurfaceProviderCancelled()
             throws Exception {
         mImplementation.getPreviewSurfaceProvider()
-                .provideSurface(ANY_SIZE, anyFuture())
+                .provideSurface(ANY_SIZE, getSafeToReleaseFuture())
                 .cancel(true);
 
         // Wait enough time for mCompleter's cancellation listener to be called
@@ -187,10 +197,14 @@ public class TextureViewImplementationTest {
         assertNull(mImplementation.mSurfaceTexture);
     }
 
-    private ListenableFuture<Void> anyFuture() {
-        return CallbackToFutureAdapter.getFuture(completer -> {
-            mCompleter = completer;
-            return "future";
-        });
+    private ListenableFuture<Void> getSafeToReleaseFuture() {
+        if (mSafeToReleaseFuture == null) {
+            mSafeToReleaseFuture = CallbackToFutureAdapter.getFuture(completer -> {
+                mCompleter = completer;
+                return "future";
+            });
+        }
+
+        return mSafeToReleaseFuture;
     }
 }
