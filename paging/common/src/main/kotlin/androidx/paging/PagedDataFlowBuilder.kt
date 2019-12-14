@@ -45,10 +45,6 @@ internal class PagedDataFlowBuilder<Key : Any, Value : Any> {
         check(isIntitialKeySet) { "You must call setInitialKey before build" }
         checkNotNull(config) { "You must call setConfig before build" }
 
-        return PageFetcher(
-            pagedSourceFactory = pagedSourceFactory!!,
-            initialKey = initialKey,
-            config = config!!
-        ).createFlow()
+        return PageFetcher(pagedSourceFactory!!, initialKey, config!!).flow
     }
 }
