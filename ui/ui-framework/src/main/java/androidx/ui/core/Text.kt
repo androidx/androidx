@@ -16,8 +16,8 @@
 package androidx.ui.core
 
 import androidx.compose.Ambient
-import androidx.compose.ambient
 import androidx.compose.Composable
+import androidx.compose.ambient
 import androidx.compose.compositionReference
 import androidx.compose.onCommit
 import androidx.compose.onDispose
@@ -31,8 +31,8 @@ import androidx.ui.graphics.Color
 import androidx.ui.semantics.Semantics
 import androidx.ui.semantics.accessibilityLabel
 import androidx.ui.text.AnnotatedString
-import androidx.ui.text.TextLayoutResult
 import androidx.ui.text.TextDelegate
+import androidx.ui.text.TextLayoutResult
 import androidx.ui.text.TextRange
 import androidx.ui.text.TextSpan
 import androidx.ui.text.TextStyle
@@ -250,15 +250,13 @@ fun Text(
         ) {
             // if no SelectionContainer is added as parent selectionRegistrar will be null
             val id: Selectable? = selectionRegistrar?.let {
-                layoutResultState.value?.let { layoutResult ->
-                    selectionRegistrar.subscribe(
-                        TextSelectionDelegate(
-                            selectionRange = selectionRange,
-                            layoutCoordinates = layoutCoordinates,
-                            textLayoutResult = layoutResult
-                        )
+                selectionRegistrar.subscribe(
+                    TextSelectionDelegate(
+                        selectionRange = selectionRange,
+                        layoutCoordinates = layoutCoordinates,
+                        textLayoutResult = layoutResultState
                     )
-                }
+                )
             }
 
             onDispose {

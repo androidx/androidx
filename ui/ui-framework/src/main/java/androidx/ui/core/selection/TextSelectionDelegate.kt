@@ -31,7 +31,7 @@ import kotlin.math.max
 internal class TextSelectionDelegate(
     private val selectionRange: MutableState<TextRange?>,
     private val layoutCoordinates: MutableState<LayoutCoordinates?>,
-    private val textLayoutResult: TextLayoutResult
+    private val textLayoutResult: MutableState<TextLayoutResult?>
 ) : Selectable {
 
     override fun getSelection(
@@ -41,6 +41,7 @@ internal class TextSelectionDelegate(
         longPress: Boolean
     ): Selection? {
         val layoutCoordinates = layoutCoordinates.value!!
+        val textLayoutResult = textLayoutResult.value ?: return null
 
         val relativePosition = containerLayoutCoordinates.childToLocal(
             layoutCoordinates, PxPosition.Origin
