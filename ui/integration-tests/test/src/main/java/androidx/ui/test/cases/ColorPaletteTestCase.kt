@@ -18,7 +18,7 @@ package androidx.ui.test.cases
 
 import androidx.compose.Composable
 import androidx.compose.Immutable
-import androidx.compose.State
+import androidx.compose.MutableState
 import androidx.compose.state
 import androidx.ui.graphics.Color
 import androidx.ui.material.ColorPalette
@@ -32,7 +32,7 @@ import androidx.ui.test.ToggleableTestCase
  * from a [ColorPalette] provided through [MaterialTheme].
  */
 sealed class ColorPaletteTestCase : ComposeTestCase, ToggleableTestCase {
-    private var primaryState: State<Color>? = null
+    private var primaryState: MutableState<Color>? = null
 
     private val primaryTracker = CompositionTracker()
     private val secondaryTracker = CompositionTracker()

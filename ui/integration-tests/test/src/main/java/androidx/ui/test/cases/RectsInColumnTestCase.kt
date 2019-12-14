@@ -17,7 +17,7 @@
 package androidx.ui.test.cases
 
 import androidx.compose.Composable
-import androidx.compose.State
+import androidx.compose.MutableState
 import androidx.compose.state
 import androidx.ui.foundation.ColoredRect
 import androidx.ui.core.dp
@@ -38,7 +38,7 @@ class RectsInColumnTestCase(
     private val amountOfRectangles: Int
 ) : ComposeTestCase, ToggleableTestCase {
 
-    private val states = mutableListOf<State<Color>>()
+    private val states = mutableListOf<MutableState<Color>>()
 
     @Composable
     override fun emitContent() {

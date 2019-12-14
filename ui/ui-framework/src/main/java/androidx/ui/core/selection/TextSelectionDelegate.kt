@@ -16,7 +16,7 @@
 
 package androidx.ui.core.selection
 
-import androidx.compose.State
+import androidx.compose.MutableState
 import androidx.ui.core.LayoutCoordinates
 import androidx.ui.core.Px
 import androidx.ui.core.PxBounds
@@ -29,8 +29,8 @@ import androidx.ui.text.TextRange
 import kotlin.math.max
 
 internal class TextSelectionDelegate(
-    private val selectionRange: State<TextRange?>,
-    private val layoutCoordinates: State<LayoutCoordinates?>,
+    private val selectionRange: MutableState<TextRange?>,
+    private val layoutCoordinates: MutableState<LayoutCoordinates?>,
     private val textLayoutResult: TextLayoutResult
 ) : Selectable {
 

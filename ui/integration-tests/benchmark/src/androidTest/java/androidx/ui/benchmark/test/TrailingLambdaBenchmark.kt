@@ -17,7 +17,7 @@
 package androidx.ui.benchmark.test
 
 import androidx.compose.Composable
-import androidx.compose.State
+import androidx.compose.MutableState
 import androidx.test.filters.LargeTest
 import androidx.compose.state
 import androidx.ui.benchmark.ComposeBenchmarkRule
@@ -63,7 +63,7 @@ class TrailingLambdaBenchmark {
 private sealed class TrailingLambdaTestCase() : ComposeTestCase,
     ToggleableTestCase {
 
-    var numberState: State<Int>? = null
+    var numberState: MutableState<Int>? = null
 
     @Composable
     override fun emitContent() {

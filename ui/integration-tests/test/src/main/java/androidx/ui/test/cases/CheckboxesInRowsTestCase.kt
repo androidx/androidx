@@ -17,10 +17,9 @@
 package androidx.ui.test.cases
 
 import androidx.compose.Composable
-import androidx.compose.State
+import androidx.compose.MutableState
 import androidx.compose.state
 import androidx.ui.core.Modifier
-import androidx.ui.core.Alignment
 import androidx.ui.core.Text
 import androidx.ui.layout.Column
 import androidx.ui.layout.LayoutAlign
@@ -39,7 +38,7 @@ class CheckboxesInRowsTestCase(
     private val amountOfCheckboxes: Int
 ) : ComposeTestCase, ToggleableTestCase {
 
-    private val states = mutableListOf<State<Boolean>>()
+    private val states = mutableListOf<MutableState<Boolean>>()
 
     @Composable
     override fun emitContent() {
