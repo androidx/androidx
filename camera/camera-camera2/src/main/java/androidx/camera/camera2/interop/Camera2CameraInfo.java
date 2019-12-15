@@ -17,7 +17,7 @@
 package androidx.camera.camera2.interop;
 
 import androidx.annotation.NonNull;
-import androidx.camera.camera2.impl.Camera2CameraInfoImpl;
+import androidx.camera.camera2.internal.Camera2CameraInfoImpl;
 import androidx.camera.core.CameraInfo;
 import androidx.core.util.Preconditions;
 

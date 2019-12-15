@@ -27,8 +27,8 @@ import android.os.HandlerThread;
 import android.util.Size;
 
 import androidx.annotation.NonNull;
-import androidx.camera.camera2.impl.Camera2CameraFactory;
-import androidx.camera.camera2.impl.Camera2DeviceSurfaceManager;
+import androidx.camera.camera2.internal.Camera2CameraFactory;
+import androidx.camera.camera2.internal.Camera2DeviceSurfaceManager;
 import androidx.camera.core.CameraDeviceSurfaceManager;
 import androidx.camera.core.CameraFactory;
 import androidx.camera.core.CameraInfoUnavailableException;

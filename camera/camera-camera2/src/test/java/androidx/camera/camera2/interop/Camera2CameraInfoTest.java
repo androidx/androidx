@@ -24,7 +24,7 @@ import static org.mockito.Mockito.when;
 import android.os.Build;
 
 import androidx.annotation.experimental.UseExperimental;
-import androidx.camera.camera2.impl.Camera2CameraInfoImpl;
+import androidx.camera.camera2.internal.Camera2CameraInfoImpl;
 import androidx.camera.core.CameraInfo;
 import androidx.test.filters.SmallTest;
 
