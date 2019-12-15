@@ -39,11 +39,11 @@ import androidx.camera.integration.antelope.PrefHelper
 import androidx.camera.integration.antelope.TestConfig
 import androidx.camera.integration.antelope.TestType
 import androidx.camera.lifecycle.ProcessCameraProvider
+import androidx.concurrent.futures.await
 import androidx.lifecycle.LifecycleOwner
 import com.google.common.util.concurrent.Futures
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.GlobalScope
-import kotlinx.coroutines.guava.await
 import kotlinx.coroutines.launch
 
 /**
