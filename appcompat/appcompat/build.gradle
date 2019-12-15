@@ -26,12 +26,17 @@ dependencies {
     androidTestImplementation(ANDROIDX_TEST_RULES)
     androidTestImplementation(TRUTH)
     androidTestImplementation(ESPRESSO_CORE, libs.exclude_for_espresso)
-    androidTestImplementation(MOCKITO_CORE, libs.exclude_bytebuddy) // DexMaker has it"s own MockMaker
-    androidTestImplementation(DEXMAKER_MOCKITO, libs.exclude_bytebuddy) // DexMaker has it"s own MockMaker
+    androidTestImplementation(MOCKITO_CORE, libs.exclude_bytebuddy) // DexMaker has it's own MockMaker
+    androidTestImplementation(DEXMAKER_MOCKITO, libs.exclude_bytebuddy) // DexMaker has it's own MockMaker
     androidTestImplementation project(':internal-testutils-appcompat'), {
         exclude group: 'androidx.appcompat', module: 'appcompat'
         exclude group: 'androidx.core', module: 'core'
     }
+
+    testImplementation(KOTLIN_STDLIB)
+    testImplementation(ANDROIDX_TEST_CORE)
+    testImplementation(JUNIT)
+    testImplementation(ROBOLECTRIC)
 
     // Uncomment once we want to start publishing the lint rules.
     // lintPublish project(":appcompat:appcompat-lint")
@@ -58,6 +63,10 @@ android {
 
     testOptions {
         animationsDisabled = true
+
+        unitTests {
+            includeAndroidResources = true
+        }
     }
 
     buildTypes.all {
