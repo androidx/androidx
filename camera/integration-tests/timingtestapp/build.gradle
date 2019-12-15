@@ -57,6 +57,7 @@ dependencies {
     implementation(project(":camera:camera-lifecycle"))
 
     // Android support library
+    implementation(project(":concurrent:concurrent-futures-ktx"))
     implementation(project(":fragment:fragment"))
     implementation("androidx.appcompat:appcompat:1.1.0")
     implementation("androidx.collection:collection:1.0.0")
@@ -66,7 +67,6 @@ dependencies {
     implementation(CONSTRAINT_LAYOUT, { transitive = true })
     implementation(KOTLIN_STDLIB)
     implementation(KOTLIN_COROUTINES_ANDROID)
-    implementation(KOTLIN_COROUTINES_GUAVA)
 
     // Testing framework
     androidTestImplementation(ANDROIDX_TEST_EXT_JUNIT)

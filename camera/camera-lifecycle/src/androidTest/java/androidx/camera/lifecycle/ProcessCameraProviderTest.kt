@@ -17,11 +17,11 @@
 package androidx.camera.lifecycle
 
 import androidx.camera.testing.fakes.FakeAppConfig
+import androidx.concurrent.futures.await
 import androidx.test.core.app.ApplicationProvider
 import androidx.test.filters.SmallTest
 import androidx.testutils.assertThrows
 import com.google.common.truth.Truth.assertThat
-import kotlinx.coroutines.guava.await
 import kotlinx.coroutines.runBlocking
 import org.junit.Test
 
