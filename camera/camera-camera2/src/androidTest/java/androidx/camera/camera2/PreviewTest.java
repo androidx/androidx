@@ -30,7 +30,6 @@ import android.graphics.SurfaceTexture;
 import android.util.Size;
 
 import androidx.annotation.NonNull;
-import androidx.camera.core.CameraControlInternal;
 import androidx.camera.core.CameraFactory;
 import androidx.camera.core.CameraSelector;
 import androidx.camera.core.CameraX;
@@ -38,6 +37,7 @@ import androidx.camera.core.CameraXConfig;
 import androidx.camera.core.CaptureConfig;
 import androidx.camera.core.Preview;
 import androidx.camera.core.SessionConfig;
+import androidx.camera.core.impl.CameraControlInternal;
 import androidx.camera.core.impl.utils.executor.CameraXExecutors;
 import androidx.camera.testing.CameraUtil;
 import androidx.camera.testing.SurfaceTextureProvider;

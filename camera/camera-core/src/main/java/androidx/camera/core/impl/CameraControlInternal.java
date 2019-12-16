@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2019 The Android Open Source Project
+ * Copyright 2019 The Android Open Source Project
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package androidx.camera.core;
+package androidx.camera.core.impl;
 
 import static androidx.camera.core.ImageCapture.FLASH_MODE_OFF;
 
@@ -22,9 +22,12 @@ import android.graphics.Rect;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
-import androidx.annotation.RestrictTo;
-import androidx.annotation.RestrictTo.Scope;
+import androidx.camera.core.CameraControl;
+import androidx.camera.core.CaptureConfig;
+import androidx.camera.core.FocusMeteringAction;
+import androidx.camera.core.FocusMeteringResult;
 import androidx.camera.core.ImageCapture.FlashMode;
+import androidx.camera.core.SessionConfig;
 import androidx.camera.core.impl.utils.futures.Futures;
 
 import com.google.common.util.concurrent.ListenableFuture;
@@ -37,10 +40,7 @@ import java.util.List;
  * <p>CameraControlInternal is used for global camera operations like zoom, focus, flash and
  * triggering
  * AF/AE.
- *
- * @hide
  */
-@RestrictTo(Scope.LIBRARY_GROUP)
 public interface CameraControlInternal extends CameraControl {
     /**
      * Set the desired crop region of the sensor to read out for all capture requests.

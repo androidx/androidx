@@ -26,6 +26,7 @@ import androidx.annotation.RestrictTo;
 import androidx.annotation.RestrictTo.Scope;
 import androidx.camera.core.Config.Option;
 import androidx.camera.core.UseCaseConfig.Builder;
+import androidx.camera.core.impl.CameraControlInternal;
 import androidx.core.util.Preconditions;
 
 import java.util.HashMap;

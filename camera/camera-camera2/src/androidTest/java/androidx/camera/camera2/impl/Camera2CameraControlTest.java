@@ -52,7 +52,6 @@ import android.os.HandlerThread;
 
 import androidx.annotation.NonNull;
 import androidx.camera.core.CameraControl;
-import androidx.camera.core.CameraControlInternal;
 import androidx.camera.core.CameraInfoUnavailableException;
 import androidx.camera.core.CameraSelector;
 import androidx.camera.core.CaptureConfig;
@@ -60,6 +59,7 @@ import androidx.camera.core.FocusMeteringAction;
 import androidx.camera.core.ImageCapture;
 import androidx.camera.core.SessionConfig;
 import androidx.camera.core.SurfaceOrientedMeteringPointFactory;
+import androidx.camera.core.impl.CameraControlInternal;
 import androidx.camera.core.impl.utils.executor.CameraXExecutors;
 import androidx.camera.testing.CameraUtil;
 import androidx.camera.testing.HandlerUtil;
