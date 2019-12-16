@@ -24,7 +24,6 @@ import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.annotation.RestrictTo;
 import androidx.annotation.RestrictTo.Scope;
-import androidx.camera.core.Observable;
 import androidx.camera.core.impl.utils.executor.CameraXExecutors;
 import androidx.concurrent.futures.CallbackToFutureAdapter;
 import androidx.core.util.Preconditions;
@@ -49,7 +48,7 @@ import java.util.concurrent.atomic.AtomicBoolean;
  * used.
  *
  * @param <T> The data type used for
- *            {@link androidx.camera.core.Observable.Observer#onNewData(Object)}.
+ *            {@link Observable.Observer#onNewData(Object)}.
  * @hide
  */
 @RestrictTo(Scope.LIBRARY_GROUP)
@@ -158,7 +157,7 @@ public final class LiveDataObservable<T> implements Observable<T> {
      * A Result can contain either a value or an error, but not both.
      *
      * @param <T> The data type used for
-     *            {@link androidx.camera.core.Observable.Observer#onNewData(Object)}.
+     *            {@link Observable.Observer#onNewData(Object)}.
      */
     public static final class Result<T> {
         @Nullable

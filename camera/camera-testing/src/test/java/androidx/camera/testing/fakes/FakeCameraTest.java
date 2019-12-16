@@ -23,8 +23,8 @@ import android.os.Build;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
-import androidx.camera.core.CameraInternal;
-import androidx.camera.core.Observable;
+import androidx.camera.core.impl.CameraInternal;
+import androidx.camera.core.impl.Observable;
 import androidx.camera.core.impl.utils.executor.CameraXExecutors;
 import androidx.test.filters.SmallTest;
 

@@ -21,6 +21,7 @@ import android.util.Log;
 import androidx.annotation.GuardedBy;
 import androidx.annotation.RestrictTo;
 import androidx.annotation.RestrictTo.Scope;
+import androidx.camera.core.impl.CameraInternal;
 
 import java.util.ArrayList;
 import java.util.Collection;

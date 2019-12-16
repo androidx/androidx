@@ -22,9 +22,9 @@ import androidx.annotation.GuardedBy;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.annotation.WorkerThread;
-import androidx.camera.core.CameraInternal;
-import androidx.camera.core.Observable;
+import androidx.camera.core.impl.CameraInternal;
 import androidx.camera.core.impl.LiveDataObservable;
+import androidx.camera.core.impl.Observable;
 import androidx.core.util.Preconditions;
 
 import java.util.HashMap;
