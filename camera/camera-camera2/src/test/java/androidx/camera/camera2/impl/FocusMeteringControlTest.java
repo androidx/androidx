@@ -41,13 +41,13 @@ import android.util.Rational;
 import android.util.Size;
 
 import androidx.camera.camera2.impl.Camera2CameraControl.CaptureResultListener;
-import androidx.camera.core.CameraControlInternal;
 import androidx.camera.core.FocusMeteringAction;
 import androidx.camera.core.FocusMeteringResult;
 import androidx.camera.core.ImageAnalysis;
 import androidx.camera.core.MeteringPoint;
 import androidx.camera.core.MeteringPointFactory;
 import androidx.camera.core.SurfaceOrientedMeteringPointFactory;
+import androidx.camera.core.impl.CameraControlInternal;
 import androidx.camera.core.impl.utils.executor.CameraXExecutors;
 import androidx.test.core.app.ApplicationProvider;
 import androidx.test.filters.SmallTest;
