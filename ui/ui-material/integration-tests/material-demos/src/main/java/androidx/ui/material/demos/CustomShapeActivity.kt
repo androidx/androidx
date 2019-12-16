@@ -44,7 +44,7 @@ class CustomShapeActivity : MaterialDemoActivity() {
                 onClick = {},
                 style = OutlinedButtonStyle(
                     shape = TriangleShape,
-                    color = Color.Cyan,
+                    backgroundColor = Color.Cyan,
                     border = Border(Color.DarkGray, 1.dp)
                 )
             ) {

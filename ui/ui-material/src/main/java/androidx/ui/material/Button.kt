@@ -32,9 +32,7 @@ import androidx.ui.layout.Container
 import androidx.ui.layout.DpConstraints
 import androidx.ui.layout.EdgeInsets
 import androidx.ui.material.ripple.Ripple
-import androidx.ui.material.ripple.RippleTheme
 import androidx.ui.material.surface.Surface
-import androidx.ui.text.TextStyle
 
 /**
  * Styling configuration for a [Button].
@@ -43,25 +41,22 @@ import androidx.ui.text.TextStyle
  * emphasis buttons, [OutlinedButtonStyle], intended for medium emphasis buttons, and
  * [TextButtonStyle], intended for low emphasis buttons.
  *
- * @param color The background color. Use [Color.Transparent] to have no color
+ * @param backgroundColor The background color. Use [Color.Transparent] to have no color
+ * @param contentColor The preferred content color. Will be used by text and iconography
  * @param shape Defines the button's shape as well as its shadow
  * @param border Optional border to draw on top of the shape
  * @param elevation The z-coordinate at which to place this button. This controls the size
  *  of the shadow below the button
  * @param paddings The spacing values to apply internally between the container and the content
- * @param textStyle The text style to apply as a default for any children [Text] components
- * @param rippleColor The Ripple color is usually the same color used by the text or iconography in
- * the component. If null is provided the color will be calculated by [RippleTheme.defaultColor].
  */
 @Immutable
 data class ButtonStyle(
-    val color: Color,
+    val backgroundColor: Color,
+    val contentColor: Color,
     val shape: Shape,
     val border: Border? = null,
     val elevation: Dp = 0.dp,
-    val paddings: EdgeInsets = ButtonPaddings,
-    val textStyle: TextStyle? = null,
-    val rippleColor: Color? = null
+    val paddings: EdgeInsets = ButtonPaddings
 )
 
 /**
@@ -76,23 +71,22 @@ data class ButtonStyle(
  * @see OutlinedButtonStyle
  * @see TextButtonStyle
  *
- * @param color The background color
+ * @param backgroundColor The background color
+ * @param contentColor The preferred content color. Will be used by text and iconography
  * @param shape Defines the button's shape as well as its shadow
  * @param elevation The z-coordinate at which to place this button. This controls the size
  *  of the shadow below the button
- * @param rippleColor The Ripple color is usually the same color used by the text and iconography.
- * If null is provided the color will be calculated by [RippleTheme.defaultColor].
  */
 fun ContainedButtonStyle(
-    color: Color = MaterialTheme.colors().primary,
+    backgroundColor: Color = MaterialTheme.colors().primary,
+    contentColor: Color = contentColorFor(backgroundColor),
     shape: Shape = MaterialTheme.shapes().button,
-    elevation: Dp = 2.dp,
-    rippleColor: Color? = null
+    elevation: Dp = 2.dp
 ) = ButtonStyle(
-    color = color,
+    backgroundColor = backgroundColor,
     shape = shape,
     elevation = elevation,
-    rippleColor = rippleColor
+    contentColor = contentColor
 )
 
 /**
@@ -111,28 +105,27 @@ fun ContainedButtonStyle(
  * @see TextButtonStyle
  *
  * @param border Border to draw on top of the button.
- * @param color The background color. Provide [Color.Transparent] to have no color.
+ * @param backgroundColor The background color. Provide [Color.Transparent] to have no color.
+ * @param contentColor The preferred content color. Will be used by text and iconography.
  * @param shape Defines the Button's shape.
  * @param elevation The z-coordinate at which to place this button. This controls the size
  *  of the shadow below the button.
- * @param contentColor The color used by text and Ripple.
  */
 fun OutlinedButtonStyle(
     border: Border = Border(
         MaterialTheme.colors().onSurface.copy(alpha = OutlinedStrokeOpacity),
         1.dp
     ),
-    color: Color = MaterialTheme.colors().surface,
+    backgroundColor: Color = MaterialTheme.colors().surface,
+    contentColor: Color = MaterialTheme.colors().primary,
     shape: Shape = MaterialTheme.shapes().button,
-    elevation: Dp = 0.dp,
-    contentColor: Color? = MaterialTheme.colors().primary
+    elevation: Dp = 0.dp
 ) = ButtonStyle(
-    color = color,
+    backgroundColor = backgroundColor,
     shape = shape,
     border = border,
     elevation = elevation,
-    textStyle = TextStyle(color = contentColor),
-    rippleColor = contentColor
+    contentColor = contentColor
 )
 
 /**
@@ -148,17 +141,16 @@ fun OutlinedButtonStyle(
  * @see OutlinedButtonStyle
  *
  * @param shape Defines the Button's shape.
- * @param contentColor The color used by text and Ripple.
+ * @param contentColor The preferred content color. Will be used by text and iconography.
  */
 fun TextButtonStyle(
     shape: Shape = MaterialTheme.shapes().button,
-    contentColor: Color? = MaterialTheme.colors().primary
+    contentColor: Color = MaterialTheme.colors().primary
 ) = ButtonStyle(
-    color = Color.Transparent,
+    backgroundColor = Color.Transparent,
     shape = shape,
     paddings = TextButtonPaddings,
-    textStyle = TextStyle(color = contentColor),
-    rippleColor = contentColor
+    contentColor = contentColor
 )
 
 /**
@@ -186,16 +178,17 @@ fun Button(
 ) {
     Surface(
         shape = style.shape,
-        color = style.color,
+        color = style.backgroundColor,
+        contentColor = style.contentColor,
         border = style.border,
         elevation = style.elevation,
         modifier = modifier
     ) {
-        Ripple(bounded = true, color = style.rippleColor, enabled = onClick != null) {
+        Ripple(bounded = true, enabled = onClick != null) {
             Clickable(onClick = onClick) {
                 Container(constraints = ButtonConstraints, padding = style.paddings) {
                     CurrentTextStyleProvider(
-                        value = MaterialTheme.typography().button.merge(style.textStyle),
+                        value = MaterialTheme.typography().button,
                         children = children
                     )
                 }
