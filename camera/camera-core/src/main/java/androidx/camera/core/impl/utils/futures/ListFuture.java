@@ -22,7 +22,6 @@ import static androidx.core.util.Preconditions.checkState;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
-import androidx.annotation.RestrictTo;
 import androidx.camera.core.impl.utils.executor.CameraXExecutors;
 import androidx.concurrent.futures.CallbackToFutureAdapter;
 import androidx.core.util.Preconditions;
@@ -49,10 +48,7 @@ import java.util.concurrent.atomic.AtomicInteger;
  * The idea is to create a (null-filled) List and register a listener with
  * each component future to fill out the value in the List when that future
  * completes.
- *
- * @hide
  */
-@RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
 class ListFuture<V> implements ListenableFuture<List<V>> {
     @Nullable
     List<? extends ListenableFuture<? extends V>> mFutures;

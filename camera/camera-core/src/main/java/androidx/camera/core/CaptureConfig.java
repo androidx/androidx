@@ -24,6 +24,7 @@ import android.view.Surface;
 import androidx.annotation.NonNull;
 import androidx.annotation.RestrictTo;
 import androidx.annotation.RestrictTo.Scope;
+import androidx.camera.core.impl.MultiValueSet;
 
 import java.util.ArrayList;
 import java.util.Collection;

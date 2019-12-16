@@ -23,7 +23,9 @@ import static org.mockito.Mockito.mock;
 import android.hardware.camera2.CameraDevice;
 import android.view.Surface;
 
+import androidx.annotation.NonNull;
 import androidx.camera.core.Config.Option;
+import androidx.camera.core.impl.MultiValueSet;
 import androidx.camera.testing.DeferrableSurfacesUtil;
 import androidx.test.ext.junit.runners.AndroidJUnit4;
 import androidx.test.filters.LargeTest;
@@ -217,6 +219,7 @@ public class CaptureConfigTest {
      * A fake {@link MultiValueSet}.
      */
     static class FakeMultiValueSet extends MultiValueSet<Object> {
+        @NonNull
         @Override
         public MultiValueSet clone() {
             FakeMultiValueSet multiValueSet = new FakeMultiValueSet();
