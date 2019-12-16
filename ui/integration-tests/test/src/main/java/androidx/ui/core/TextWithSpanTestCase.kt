@@ -18,9 +18,8 @@ package androidx.ui.core
 
 import androidx.compose.Composable
 import androidx.ui.graphics.Color
-import androidx.ui.layout.ConstrainedBox
-import androidx.ui.layout.DpConstraints
-import androidx.ui.layout.Wrap
+import androidx.ui.layout.LayoutWidth
+import androidx.ui.layout.LayoutWrapped
 import androidx.ui.test.ComposeTestCase
 import androidx.ui.test.RandomTextGenerator
 import androidx.ui.text.TextStyle
@@ -44,13 +43,12 @@ class TextWithSpanTestCase(
 
     @Composable
     override fun emitContent() {
-        Wrap {
-            ConstrainedBox(constraints = DpConstraints.tightConstraintsForWidth(160.dp)) {
-                Text(style = TextStyle(color = Color.Black, fontSize = 8.sp)) {
-                    textPieces.forEach { (text, style) ->
-                        Span(text = text, style = style)
-                    }
-                }
+        Text(
+            style = TextStyle(color = Color.Black, fontSize = 8.sp),
+            modifier = LayoutWrapped + LayoutWidth(160.dp)
+        ) {
+            textPieces.forEach { (text, style) ->
+                Span(text = text, style = style)
             }
         }
     }

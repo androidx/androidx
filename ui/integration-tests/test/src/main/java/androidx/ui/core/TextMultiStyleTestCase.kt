@@ -18,9 +18,8 @@ package androidx.ui.core
 
 import androidx.compose.Composable
 import androidx.ui.graphics.Color
-import androidx.ui.layout.ConstrainedBox
-import androidx.ui.layout.DpConstraints
-import androidx.ui.layout.Wrap
+import androidx.ui.layout.LayoutWidth
+import androidx.ui.layout.LayoutWrapped
 import androidx.ui.test.ComposeTestCase
 import androidx.ui.test.RandomTextGenerator
 import androidx.ui.text.AnnotatedString
@@ -48,10 +47,9 @@ class TextMultiStyleTestCase(
 
     @Composable
     override fun emitContent() {
-        Wrap {
-            ConstrainedBox(constraints = DpConstraints.tightConstraintsForWidth(160.dp)) {
-                Text(text = text, style = TextStyle(color = Color.Black, fontSize = 8.sp))
-            }
-        }
+        Text(
+            text = text, style = TextStyle(color = Color.Black, fontSize = 8.sp),
+            modifier = LayoutWrapped + LayoutWidth(160.dp)
+        )
     }
 }

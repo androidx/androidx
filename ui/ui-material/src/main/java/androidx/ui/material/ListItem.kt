@@ -34,11 +34,11 @@ import androidx.ui.foundation.Clickable
 import androidx.ui.foundation.SimpleImage
 import androidx.ui.graphics.Color
 import androidx.ui.graphics.Image
-import androidx.ui.layout.ConstrainedBox
 import androidx.ui.layout.Container
 import androidx.ui.layout.DpConstraints
 import androidx.ui.layout.EdgeInsets
 import androidx.ui.layout.LayoutGravity
+import androidx.ui.layout.LayoutMinHeight
 import androidx.ui.layout.LayoutPadding
 import androidx.ui.layout.Padding
 import androidx.ui.layout.Row
@@ -195,38 +195,36 @@ private object OneLine {
         trailing: @Composable() (() -> Unit)?
     ) {
         val minHeight = if (icon == null) MinHeight else MinHeightWithIcon
-        ConstrainedBox(constraints = DpConstraints(minHeight = minHeight)) {
-            Row {
-                if (icon != null) {
-                    Container(
-                        modifier = LayoutGravity.Center,
-                        alignment = Alignment.CenterLeft,
-                        constraints = DpConstraints(
-                            minWidth = IconLeftPadding + IconMinPaddedWidth
-                        ),
-                        padding = EdgeInsets(
-                            // TODO(popam): remove left padding for wide icons
-                            left = IconLeftPadding,
-                            top = IconVerticalPadding,
-                            bottom = IconVerticalPadding
-                        ),
-                        children = icon
-                    )
-                }
+        Row(LayoutMinHeight(minHeight)) {
+            if (icon != null) {
                 Container(
-                    modifier = LayoutFlexible(1f) + LayoutGravity.Center +
-                            LayoutPadding(left = ContentLeftPadding, right = ContentRightPadding),
+                    modifier = LayoutGravity.Center,
                     alignment = Alignment.CenterLeft,
-                    children = text
+                    constraints = DpConstraints(
+                        minWidth = IconLeftPadding + IconMinPaddedWidth
+                    ),
+                    padding = EdgeInsets(
+                        // TODO(popam): remove left padding for wide icons
+                        left = IconLeftPadding,
+                        top = IconVerticalPadding,
+                        bottom = IconVerticalPadding
+                    ),
+                    children = icon
                 )
-                if (trailing != null) {
-                    Container(
-                        modifier = LayoutGravity.Center,
-                        alignment = Alignment.Center,
-                        padding = EdgeInsets(right = TrailingRightPadding),
-                        children = trailing
-                    )
-                }
+            }
+            Container(
+                modifier = LayoutFlexible(1f) + LayoutGravity.Center +
+                        LayoutPadding(left = ContentLeftPadding, right = ContentRightPadding),
+                alignment = Alignment.CenterLeft,
+                children = text
+            )
+            if (trailing != null) {
+                Container(
+                    modifier = LayoutGravity.Center,
+                    alignment = Alignment.Center,
+                    padding = EdgeInsets(right = TrailingRightPadding),
+                    children = trailing
+                )
             }
         }
     }
@@ -261,72 +259,70 @@ private object TwoLine {
         trailing: @Composable() (() -> Unit)?
     ) {
         val minHeight = if (icon == null) MinHeight else MinHeightWithIcon
-        ConstrainedBox(constraints = DpConstraints(minHeight = minHeight)) {
-            Row {
-                val modifier = LayoutFlexible(1f) + LayoutPadding(
-                    left = ContentLeftPadding,
-                    right = ContentRightPadding
+        Row(LayoutMinHeight(minHeight)) {
+            val modifier = LayoutFlexible(1f) + LayoutPadding(
+                left = ContentLeftPadding,
+                right = ContentRightPadding
+            )
+
+            if (icon != null) {
+                Container(
+                    alignment = Alignment.TopLeft,
+                    constraints = DpConstraints(
+                        // TODO(popam): remove minHeight with cross axis alignment per child
+                        minHeight = minHeight,
+                        minWidth = IconLeftPadding + IconMinPaddedWidth
+                    ),
+                    padding = EdgeInsets(
+                        left = IconLeftPadding,
+                        top = IconVerticalPadding,
+                        bottom = IconVerticalPadding
+                    ),
+                    children = icon
                 )
+            }
 
-                if (icon != null) {
-                    Container(
-                        alignment = Alignment.TopLeft,
-                        constraints = DpConstraints(
-                            // TODO(popam): remove minHeight with cross axis alignment per child
-                            minHeight = minHeight,
-                            minWidth = IconLeftPadding + IconMinPaddedWidth
-                        ),
-                        padding = EdgeInsets(
-                            left = IconLeftPadding,
-                            top = IconVerticalPadding,
-                            bottom = IconVerticalPadding
-                        ),
-                        children = icon
-                    )
+            if (overlineText != null) {
+                BaselinesOffsetColumn(
+                    listOf(OverlineBaselineOffset, OverlineToPrimaryBaselineOffset),
+                    modifier
+                ) {
+                    overlineText()
+                    text()
                 }
-
-                if (overlineText != null) {
-                    BaselinesOffsetColumn(
-                        listOf(OverlineBaselineOffset, OverlineToPrimaryBaselineOffset),
-                        modifier
-                    ) {
-                        overlineText()
-                        text()
-                    }
-                } else {
-                    BaselinesOffsetColumn(
-                        listOf(
-                            if (icon != null) {
-                                PrimaryBaselineOffsetWithIcon
-                            } else {
-                                PrimaryBaselineOffsetNoIcon
-                            },
-                            if (icon != null) {
-                                PrimaryToSecondaryBaselineOffsetWithIcon
-                            } else {
-                                PrimaryToSecondaryBaselineOffsetNoIcon
-                            }
-                        ),
-                        modifier
-                    ) {
-                        text()
-                        secondaryText!!()
-                    }
-                }
-                if (trailing != null) {
-                    Padding(right = TrailingRightPadding) {
-                        // TODO(popam): find way to center and wrap content without minHeight
-                        ConstrainedBox(constraints = DpConstraints(minHeight = minHeight)) {
-                            OffsetToBaselineOrCenter(
-                                if (icon != null) {
-                                    PrimaryBaselineOffsetWithIcon
-                                } else {
-                                    PrimaryBaselineOffsetNoIcon
-                                },
-                                trailing
-                            )
+            } else {
+                BaselinesOffsetColumn(
+                    listOf(
+                        if (icon != null) {
+                            PrimaryBaselineOffsetWithIcon
+                        } else {
+                            PrimaryBaselineOffsetNoIcon
+                        },
+                        if (icon != null) {
+                            PrimaryToSecondaryBaselineOffsetWithIcon
+                        } else {
+                            PrimaryToSecondaryBaselineOffsetNoIcon
                         }
+                    ),
+                    modifier
+                ) {
+                    text()
+                    secondaryText!!()
+                }
+            }
+            if (trailing != null) {
+                OffsetToBaselineOrCenter(
+                    if (icon != null) {
+                        PrimaryBaselineOffsetWithIcon
+                    } else {
+                        PrimaryBaselineOffsetNoIcon
                     }
+                ) {
+                    Container(
+                        // TODO(popam): find way to center and wrap content without minHeight
+                        LayoutMinHeight(minHeight) + LayoutPadding(right = TrailingRightPadding),
+                        children = trailing
+                    )
                 }
             }
         }
@@ -358,42 +354,40 @@ private object ThreeLine {
         overlineText: @Composable() (() -> Unit)?,
         trailing: @Composable() (() -> Unit)?
     ) {
-        ConstrainedBox(constraints = DpConstraints(minHeight = MinHeight)) {
-            Row {
-                if (icon != null) {
-                    Container(
-                        alignment = Alignment.CenterLeft,
-                        constraints = DpConstraints(
-                            minWidth = IconLeftPadding + IconMinPaddedWidth
-                        ),
-                        padding = EdgeInsets(
-                            left = IconLeftPadding,
-                            top = IconThreeLineVerticalPadding,
-                            bottom = IconThreeLineVerticalPadding
-                        ),
-                        children = icon
-                    )
-                }
-                BaselinesOffsetColumn(
-                    listOf(
-                        ThreeLineBaselineFirstOffset,
-                        ThreeLineBaselineSecondOffset,
-                        ThreeLineBaselineThirdOffset
+        Row(LayoutMinHeight(MinHeight)) {
+            if (icon != null) {
+                Container(
+                    alignment = Alignment.CenterLeft,
+                    constraints = DpConstraints(
+                        minWidth = IconLeftPadding + IconMinPaddedWidth
                     ),
-                    LayoutFlexible(1f) +
-                            LayoutPadding(left = ContentLeftPadding, right = ContentRightPadding)
-                ) {
-                    if (overlineText != null) overlineText()
-                    text()
-                    secondaryText()
-                }
-                if (trailing != null) {
-                    Padding(top = ThreeLineTrailingTopPadding, right = TrailingRightPadding) {
-                        OffsetToBaselineOrCenter(
-                            ThreeLineBaselineFirstOffset - ThreeLineTrailingTopPadding,
-                            trailing
-                        )
-                    }
+                    padding = EdgeInsets(
+                        left = IconLeftPadding,
+                        top = IconThreeLineVerticalPadding,
+                        bottom = IconThreeLineVerticalPadding
+                    ),
+                    children = icon
+                )
+            }
+            BaselinesOffsetColumn(
+                listOf(
+                    ThreeLineBaselineFirstOffset,
+                    ThreeLineBaselineSecondOffset,
+                    ThreeLineBaselineThirdOffset
+                ),
+                LayoutFlexible(1f) +
+                        LayoutPadding(left = ContentLeftPadding, right = ContentRightPadding)
+            ) {
+                if (overlineText != null) overlineText()
+                text()
+                secondaryText()
+            }
+            if (trailing != null) {
+                Padding(top = ThreeLineTrailingTopPadding, right = TrailingRightPadding) {
+                    OffsetToBaselineOrCenter(
+                        ThreeLineBaselineFirstOffset - ThreeLineTrailingTopPadding,
+                        trailing
+                    )
                 }
             }
         }

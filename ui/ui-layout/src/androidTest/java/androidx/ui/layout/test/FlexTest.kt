@@ -28,7 +28,6 @@ import androidx.ui.core.px
 import androidx.ui.core.round
 import androidx.ui.core.toPx
 import androidx.ui.core.withDensity
-import androidx.ui.layout.ConstrainedBox
 import androidx.ui.layout.DpConstraints
 import androidx.compose.Composable
 import androidx.ui.core.Alignment
