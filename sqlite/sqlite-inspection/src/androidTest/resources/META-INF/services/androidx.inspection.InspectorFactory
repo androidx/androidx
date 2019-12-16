@@ -1,2 +1,0 @@
-# TODO: remove in favour of main/resources/META-INF/services/androidx.inspection.InspectorFactory
-androidx.sqlite.inspection.SqliteInspectorFactory
