@@ -18,6 +18,7 @@ package androidx.camera.core;
 
 import androidx.annotation.RestrictTo;
 import androidx.annotation.RestrictTo.Scope;
+import androidx.camera.core.impl.CaptureStage;
 
 /**
  * A processing step that updates the necessary {@link CaptureStage} based on the current

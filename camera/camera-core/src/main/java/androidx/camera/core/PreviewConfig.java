@@ -28,6 +28,7 @@ import androidx.annotation.RestrictTo.Scope;
 import androidx.camera.core.impl.CameraDeviceConfig;
 import androidx.camera.core.impl.CameraIdFilter;
 import androidx.camera.core.impl.CaptureConfig;
+import androidx.camera.core.impl.CaptureProcessor;
 
 import java.util.List;
 import java.util.Set;

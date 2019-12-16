@@ -16,8 +16,10 @@
 
 package androidx.camera.core;
 
+import androidx.annotation.Nullable;
 import androidx.annotation.RestrictTo;
 import androidx.annotation.RestrictTo.Scope;
+import androidx.camera.core.impl.CaptureStage;
 
 import java.util.List;
 
@@ -28,9 +30,9 @@ import java.util.List;
  */
 @RestrictTo(Scope.LIBRARY_GROUP)
 public interface CaptureBundle {
-
     /**
      * Returns a list of {@link CaptureStage} in order of how they are to be issued.
      */
+    @Nullable
     List<CaptureStage> getCaptureStages();
 }

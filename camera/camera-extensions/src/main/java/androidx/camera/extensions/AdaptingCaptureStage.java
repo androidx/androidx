@@ -20,8 +20,8 @@ import android.hardware.camera2.CaptureRequest;
 import android.util.Pair;
 
 import androidx.camera.camera2.impl.Camera2ImplConfig;
-import androidx.camera.core.CaptureStage;
 import androidx.camera.core.impl.CaptureConfig;
+import androidx.camera.core.impl.CaptureStage;
 import androidx.camera.extensions.impl.CaptureStageImpl;
 
 /** A {@link CaptureStage} that calls a vendor provided implementation. */

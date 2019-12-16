@@ -14,18 +14,11 @@
  * limitations under the License.
  */
 
-package androidx.camera.core;
-
-import androidx.annotation.RestrictTo;
-import androidx.annotation.RestrictTo.Scope;
-import androidx.camera.core.impl.CaptureConfig;
+package androidx.camera.core.impl;
 
 /**
  * A {@link CaptureConfig} with an identifier.
- *
- * @hide
  */
-@RestrictTo(Scope.LIBRARY_GROUP)
 public interface CaptureStage {
 
     /** Returns the identifier for the capture. */
@@ -42,7 +35,7 @@ public interface CaptureStage {
     final class DefaultCaptureStage implements CaptureStage {
         private final CaptureConfig mCaptureConfig;
 
-        DefaultCaptureStage() {
+        public DefaultCaptureStage() {
             CaptureConfig.Builder builder = new CaptureConfig.Builder();
             mCaptureConfig = builder.build();
         }
