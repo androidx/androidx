@@ -14,10 +14,9 @@
  * limitations under the License.
  */
 
-package androidx.camera.core;
+package androidx.camera.core.impl;
 
 import androidx.annotation.NonNull;
-import androidx.annotation.RestrictTo;
 
 import java.util.ArrayList;
 import java.util.Collections;
@@ -29,10 +28,7 @@ import java.util.Set;
  * A value set implementation that store multiple values in type C.
  *
  * @param <C> The type of the parameter.
- *
- * @hide
  */
-@RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
 public abstract class MultiValueSet<C> {
 
     private Set<C> mSet = new HashSet<>();
@@ -43,7 +39,7 @@ public abstract class MultiValueSet<C> {
      *
      * @param  value collection containing elements to be added to this value.
      */
-    public void addAll(List<C> value) {
+    public void addAll(@NonNull List<C> value) {
         mSet.addAll(value);
     }
 
@@ -60,5 +56,5 @@ public abstract class MultiValueSet<C> {
      * @return the cloned instance.
      */
     @Override
-    public abstract MultiValueSet<C> clone();
+    public abstract @NonNull MultiValueSet<C> clone();
 }
