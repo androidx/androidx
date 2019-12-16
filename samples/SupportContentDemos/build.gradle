@@ -29,7 +29,7 @@ dependencies {
     implementation(project(":appcompat:appcompat"))
     implementation(project(":contentpager:contentpager"))
     implementation(project(":cardview:cardview"))
-    implementation(project(":coordinatorlayout"))
+    implementation(project(":coordinatorlayout:coordinatorlayout"))
     implementation(project(":core:core"))
 }
 
