@@ -29,7 +29,6 @@ import androidx.ui.core.Layout
 import androidx.ui.core.Modifier
 import androidx.ui.core.Px
 import androidx.ui.core.RepaintBoundary
-import androidx.ui.core.gesture.PressGestureDetector
 import androidx.ui.core.ipx
 import androidx.ui.core.min
 import androidx.ui.core.px
@@ -67,6 +66,14 @@ class ScrollerPosition(initial: Float = 0f) {
     val value: Px
         get() = -holder.value.px
 
+    // TODO(b/145693559) This will likely be rendered obsolete when AnimatedFloat exposes a +state
+    //  "isAnimating" or "isRunning" property.
+    /**
+     * whether this [ScrollerPosition] is currently animating
+     */
+    var isAnimating: Boolean = false
+        private set
+
     /**
      * Fling configuration that specifies fling logic when scrolling ends with velocity.
      *
@@ -89,7 +96,11 @@ class ScrollerPosition(initial: Float = 0f) {
         value: Px,
         onEnd: (endReason: AnimationEndReason, finishValue: Float) -> Unit = { _, _ -> }
     ) {
-        holder.animatedFloat.animateTo(-value.value, onEnd)
+        isAnimating = true
+        holder.animatedFloat.animateTo(-value.value) { endReason, finishValue ->
+            isAnimating = false
+            onEnd(endReason, finishValue)
+        }
     }
 
     /**
@@ -121,8 +132,38 @@ class ScrollerPosition(initial: Float = 0f) {
     fun scrollBy(value: Px) {
         scrollTo(this.value + value)
     }
+
+    /**
+     * Starts a fling animation with the specified starting velocity and the previously set
+     * [flingConfig]
+     *
+     * @param startVelocity Starting velocity of the fling animation
+     */
+    fun fling(startVelocity: Float) {
+
+        // TODO(b/146054789): It would be more efficient to create and cache this object whenever
+        //  the `flingConfig` property is set, but doing so currently causes a
+        //  `java.lang.IllegalStateException: Not in a frame` exception, which is a bug
+        //  and is tracked by b/146054789.
+        val flingConfig = FlingConfig(
+            flingConfig.decayAnimation,
+            { endReason, endValue, remainingVelocity ->
+                isAnimating = false
+                flingConfig.onAnimationEnd?.invoke(endReason, endValue, remainingVelocity)
+            },
+            flingConfig.adjustTarget
+        )
+
+        isAnimating = true
+        holder.fling(
+            flingConfig,
+            startVelocity
+        )
+    }
 }
 
+// TODO(malkov): Test behavior during animation more extensively (including pressing on the scroller
+//  during an animation when b/144878730 is fixed.
 /**
  * A container that composes all of its contents and lays it out, fitting the width of the child.
  * If the child's height is less than the [Constraints.maxHeight], the child's height is used,
@@ -198,29 +239,31 @@ private fun Scroller(
             })
         }
     }) {
-        PressGestureDetector(onPress = { scrollerPosition.scrollTo(scrollerPosition.value) }) {
-            Draggable(
-                dragValue = scrollerPosition.holder,
-                onDragValueChangeRequested = {
-                    scrollerPosition.holder.animatedFloat.snapTo(it)
+        Draggable(
+            dragValue = scrollerPosition.holder,
+            onDragStarted = {
+                scrollerPosition.scrollTo(scrollerPosition.value)
+            },
+            onDragValueChangeRequested = {
+                scrollerPosition.holder.animatedFloat.snapTo(it)
+            },
+            onDragStopped = {
+                scrollerPosition.fling(it)
+            },
+            dragDirection = direction,
+            isValueAnimating = scrollerPosition.isAnimating,
+            enabled = isScrollable
+        ) {
+            ScrollerLayout(
+                scrollerPosition = scrollerPosition,
+                onMaxPositionChanged = {
+                    scrollerPosition.holder.setBounds(-it.value, 0f)
+                    scrollerPosition.maxPosition = it
                 },
-                onDragStopped = {
-                    scrollerPosition.holder.fling(scrollerPosition.flingConfig, it)
-                },
-                dragDirection = direction,
-                enabled = isScrollable
-            ) {
-                ScrollerLayout(
-                    scrollerPosition = scrollerPosition,
-                    onMaxPositionChanged = {
-                        scrollerPosition.holder.setBounds(-it.value, 0f)
-                        scrollerPosition.maxPosition = it
-                    },
-                    modifier = modifier,
-                    isVertical = isVertical,
-                    child = child
-                )
-            }
+                modifier = modifier,
+                isVertical = isVertical,
+                child = child
+            )
         }
     }
 }

@@ -64,15 +64,18 @@ package androidx.ui.foundation {
   public final class ScrollerPosition {
     ctor public ScrollerPosition(float initial);
     ctor public ScrollerPosition();
+    method public void fling(float startVelocity);
     method public androidx.ui.foundation.animation.FlingConfig getFlingConfig();
     method public androidx.ui.core.Px getMaxPosition();
     method public androidx.ui.core.Px getValue();
+    method public boolean isAnimating();
     method public void scrollBy(androidx.ui.core.Px value);
     method public void scrollTo(androidx.ui.core.Px value);
     method public void setFlingConfig(androidx.ui.foundation.animation.FlingConfig p);
     method public void smoothScrollBy(androidx.ui.core.Px value, kotlin.jvm.functions.Function2<? super androidx.animation.AnimationEndReason,? super java.lang.Float,kotlin.Unit> onEnd = { _, _ ->  });
     method public void smoothScrollTo(androidx.ui.core.Px value, kotlin.jvm.functions.Function2<? super androidx.animation.AnimationEndReason,? super java.lang.Float,kotlin.Unit> onEnd = { _, _ ->  });
     property public final androidx.ui.foundation.animation.FlingConfig flingConfig;
+    property public final boolean isAnimating;
     property public final androidx.ui.core.Px maxPosition;
     property public final androidx.ui.core.Px value;
   }
@@ -159,7 +162,7 @@ package androidx.ui.foundation.gestures {
   }
 
   public final class DraggableKt {
-    method public static void Draggable(androidx.ui.foundation.gestures.DragDirection dragDirection, androidx.ui.foundation.ValueHolder<java.lang.Float> dragValue, kotlin.jvm.functions.Function1<? super java.lang.Float,kotlin.Unit> onDragValueChangeRequested, kotlin.jvm.functions.Function1<? super androidx.ui.core.PxPosition,kotlin.Unit> onDragStarted = {}, kotlin.jvm.functions.Function1<? super java.lang.Float,kotlin.Unit> onDragStopped = {}, boolean enabled = true, kotlin.jvm.functions.Function0<kotlin.Unit> children);
+    method public static void Draggable(androidx.ui.foundation.gestures.DragDirection dragDirection, androidx.ui.foundation.ValueHolder<java.lang.Float> dragValue, kotlin.jvm.functions.Function1<? super java.lang.Float,kotlin.Unit> onDragValueChangeRequested, kotlin.jvm.functions.Function1<? super androidx.ui.core.PxPosition,kotlin.Unit> onDragStarted = {}, kotlin.jvm.functions.Function1<? super java.lang.Float,kotlin.Unit> onDragStopped = {}, boolean enabled = true, boolean isValueAnimating = false, kotlin.jvm.functions.Function0<kotlin.Unit> children);
   }
 
   public final class FloatDragValueController implements androidx.ui.foundation.gestures.DragValueController {
