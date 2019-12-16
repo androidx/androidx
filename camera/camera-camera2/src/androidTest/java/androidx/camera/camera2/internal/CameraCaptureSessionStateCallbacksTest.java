@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2019 The Android Open Source Project
+ * Copyright 2019 The Android Open Source Project
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package androidx.camera.core;
+package androidx.camera.camera2.internal;
 
 import static com.google.common.truth.Truth.assertThat;
 
@@ -26,13 +26,12 @@ import android.hardware.camera2.CameraCaptureSession;
 import android.os.Build;
 import android.view.Surface;
 
-import androidx.camera.core.CameraCaptureSessionStateCallbacks.NoOpSessionStateCallback;
+import androidx.camera.camera2.internal.CameraCaptureSessionStateCallbacks.NoOpSessionStateCallback;
 import androidx.test.ext.junit.runners.AndroidJUnit4;
 import androidx.test.filters.MediumTest;
 
 import org.junit.Test;
 import org.junit.runner.RunWith;
-import org.mockito.Mockito;
 
 @MediumTest
 @RunWith(AndroidJUnit4.class)
@@ -41,13 +40,13 @@ public final class CameraCaptureSessionStateCallbacksTest {
     @Test
     public void comboCallbackInvokesConstituentCallbacks() {
         CameraCaptureSession.StateCallback callback0 =
-                Mockito.mock(CameraCaptureSession.StateCallback.class);
+                mock(CameraCaptureSession.StateCallback.class);
         CameraCaptureSession.StateCallback callback1 =
-                Mockito.mock(CameraCaptureSession.StateCallback.class);
+                mock(CameraCaptureSession.StateCallback.class);
         CameraCaptureSession.StateCallback comboCallback =
                 CameraCaptureSessionStateCallbacks.createComboCallback(callback0, callback1);
-        CameraCaptureSession session = Mockito.mock(CameraCaptureSession.class);
-        Surface surface = Mockito.mock(Surface.class);
+        CameraCaptureSession session = mock(CameraCaptureSession.class);
+        Surface surface = mock(Surface.class);
 
         comboCallback.onConfigured(session);
         verify(callback0, times(1)).onConfigured(session);

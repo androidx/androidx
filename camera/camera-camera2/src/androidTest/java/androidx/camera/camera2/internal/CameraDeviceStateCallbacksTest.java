@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2019 The Android Open Source Project
+ * Copyright 2019 The Android Open Source Project
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package androidx.camera.core;
+package androidx.camera.camera2.internal;
 
 import static com.google.common.truth.Truth.assertThat;
 
@@ -24,7 +24,6 @@ import static org.mockito.Mockito.verify;
 
 import android.hardware.camera2.CameraDevice;
 
-import androidx.camera.core.CameraDeviceStateCallbacks.NoOpDeviceStateCallback;
 import androidx.test.ext.junit.runners.AndroidJUnit4;
 import androidx.test.filters.MediumTest;
 
@@ -76,6 +75,6 @@ public final class CameraDeviceStateCallbacksTest {
     public void comboCallbackOnEmpty_returnsNoOp() {
         CameraDevice.StateCallback callback = CameraDeviceStateCallbacks.createComboCallback();
 
-        assertThat(callback).isInstanceOf(NoOpDeviceStateCallback.class);
+        assertThat(callback).isInstanceOf(CameraDeviceStateCallbacks.NoOpDeviceStateCallback.class);
     }
 }

@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2019 The Android Open Source Project
+ * Copyright 2019 The Android Open Source Project
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -14,15 +14,14 @@
  * limitations under the License.
  */
 
-package androidx.camera.core;
+package androidx.camera.camera2.internal;
 
 import android.hardware.camera2.CameraCaptureSession;
 import android.os.Build;
 import android.view.Surface;
 
+import androidx.annotation.NonNull;
 import androidx.annotation.RequiresApi;
-import androidx.annotation.RestrictTo;
-import androidx.annotation.RestrictTo.Scope;
 
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -30,10 +29,7 @@ import java.util.List;
 
 /**
  * Different implementations of {@link CameraCaptureSession.StateCallback}.
- *
- * @hide
  */
-@RestrictTo(Scope.LIBRARY_GROUP)
 public final class CameraCaptureSessionStateCallbacks {
     private CameraCaptureSessionStateCallbacks() {
     }
@@ -41,6 +37,7 @@ public final class CameraCaptureSessionStateCallbacks {
     /**
      * Returns a session state callback which does nothing.
      **/
+    @NonNull
     public static CameraCaptureSession.StateCallback createNoOpCallback() {
         return new NoOpSessionStateCallback();
     }
@@ -48,8 +45,9 @@ public final class CameraCaptureSessionStateCallbacks {
     /**
      * Returns a session state callback which calls a list of other callbacks.
      */
+    @NonNull
     public static CameraCaptureSession.StateCallback createComboCallback(
-            List<CameraCaptureSession.StateCallback> callbacks) {
+            @NonNull List<CameraCaptureSession.StateCallback> callbacks) {
         if (callbacks.isEmpty()) {
             return createNoOpCallback();
         } else if (callbacks.size() == 1) {
@@ -61,38 +59,40 @@ public final class CameraCaptureSessionStateCallbacks {
     /**
      * Returns a session state callback which calls a list of other callbacks.
      */
+    @NonNull
     public static CameraCaptureSession.StateCallback createComboCallback(
-            CameraCaptureSession.StateCallback... callbacks) {
+            @NonNull CameraCaptureSession.StateCallback... callbacks) {
         return createComboCallback(Arrays.asList(callbacks));
     }
 
     static final class NoOpSessionStateCallback extends CameraCaptureSession.StateCallback {
         @Override
-        public void onConfigured(CameraCaptureSession session) {
+        public void onConfigured(@NonNull CameraCaptureSession session) {
         }
 
         @Override
-        public void onActive(CameraCaptureSession session) {
+        public void onActive(@NonNull CameraCaptureSession session) {
         }
 
         @Override
-        public void onClosed(CameraCaptureSession session) {
+        public void onClosed(@NonNull CameraCaptureSession session) {
         }
 
         @Override
-        public void onReady(CameraCaptureSession session) {
+        public void onReady(@NonNull CameraCaptureSession session) {
         }
 
         @Override
-        public void onCaptureQueueEmpty(CameraCaptureSession session) {
+        public void onCaptureQueueEmpty(@NonNull CameraCaptureSession session) {
         }
 
         @Override
-        public void onSurfacePrepared(CameraCaptureSession session, Surface surface) {
+        public void onSurfacePrepared(@NonNull CameraCaptureSession session,
+                @NonNull Surface surface) {
         }
 
         @Override
-        public void onConfigureFailed(CameraCaptureSession session) {
+        public void onConfigureFailed(@NonNull CameraCaptureSession session) {
         }
     }
 
@@ -100,7 +100,7 @@ public final class CameraCaptureSessionStateCallbacks {
             extends CameraCaptureSession.StateCallback {
         private final List<CameraCaptureSession.StateCallback> mCallbacks = new ArrayList<>();
 
-        ComboSessionStateCallback(List<CameraCaptureSession.StateCallback> callbacks) {
+        ComboSessionStateCallback(@NonNull List<CameraCaptureSession.StateCallback> callbacks) {
             for (CameraCaptureSession.StateCallback callback : callbacks) {
                 // A no-op callback doesn't do anything, so avoid adding it to the final list.
                 if (!(callback instanceof NoOpSessionStateCallback)) {
@@ -110,28 +110,28 @@ public final class CameraCaptureSessionStateCallbacks {
         }
 
         @Override
-        public void onConfigured(CameraCaptureSession session) {
+        public void onConfigured(@NonNull CameraCaptureSession session) {
             for (CameraCaptureSession.StateCallback callback : mCallbacks) {
                 callback.onConfigured(session);
             }
         }
 
         @Override
-        public void onActive(CameraCaptureSession session) {
+        public void onActive(@NonNull CameraCaptureSession session) {
             for (CameraCaptureSession.StateCallback callback : mCallbacks) {
                 callback.onActive(session);
             }
         }
 
         @Override
-        public void onClosed(CameraCaptureSession session) {
+        public void onClosed(@NonNull CameraCaptureSession session) {
             for (CameraCaptureSession.StateCallback callback : mCallbacks) {
                 callback.onClosed(session);
             }
         }
 
         @Override
-        public void onReady(CameraCaptureSession session) {
+        public void onReady(@NonNull CameraCaptureSession session) {
             for (CameraCaptureSession.StateCallback callback : mCallbacks) {
                 callback.onReady(session);
             }
@@ -139,7 +139,7 @@ public final class CameraCaptureSessionStateCallbacks {
 
         @RequiresApi(api = Build.VERSION_CODES.O)
         @Override
-        public void onCaptureQueueEmpty(CameraCaptureSession session) {
+        public void onCaptureQueueEmpty(@NonNull CameraCaptureSession session) {
             for (CameraCaptureSession.StateCallback callback : mCallbacks) {
                 callback.onCaptureQueueEmpty(session);
             }
@@ -147,14 +147,15 @@ public final class CameraCaptureSessionStateCallbacks {
 
         @RequiresApi(api = Build.VERSION_CODES.M)
         @Override
-        public void onSurfacePrepared(CameraCaptureSession session, Surface surface) {
+        public void onSurfacePrepared(@NonNull CameraCaptureSession session,
+                @NonNull Surface surface) {
             for (CameraCaptureSession.StateCallback callback : mCallbacks) {
                 callback.onSurfacePrepared(session, surface);
             }
         }
 
         @Override
-        public void onConfigureFailed(CameraCaptureSession session) {
+        public void onConfigureFailed(@NonNull CameraCaptureSession session) {
             for (CameraCaptureSession.StateCallback callback : mCallbacks) {
                 callback.onConfigureFailed(session);
             }
