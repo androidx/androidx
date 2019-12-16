@@ -16,35 +16,24 @@
 
 package androidx.paging
 
-import kotlinx.coroutines.ExperimentalCoroutinesApi
-import kotlinx.coroutines.FlowPreview
 import kotlinx.coroutines.flow.Flow
 
-internal class PagedDataFlowBuilder<Key : Any, Value : Any> {
-    private var pagedSourceFactory: PagedSourceFactory<Key, Value>? = null
+/**
+ * Builder for primary Paging reactive stream: `Flow<PagedData<T>>`.
+ *
+ * Creates a stream of PagedData objects, each of which represents a single paged generation.
+ * They can be transformed to alter data as it loads, and presented in a `RecyclerView`.
+ */
+class PagedDataFlowBuilder<Key : Any, Value : Any>(
+    private val pagedSourceFactory: PagedSourceFactory<Key, Value>,
+    private val config: PagedList.Config
+) {
     private var initialKey: Key? = null
-    private var config: PagedList.Config? = null
-
-    private var isIntitialKeySet = false
-
-    fun setPagedSourceFactory(pagedSourceFactory: PagedSourceFactory<Key, Value>) = apply {
-        this.pagedSourceFactory = pagedSourceFactory
-    }
 
     fun setInitialKey(initialKey: Key?) = apply {
-        isIntitialKeySet = true
         this.initialKey = initialKey
     }
 
-    fun setConfig(config: PagedList.Config) = apply { this.config = config }
-
-    @FlowPreview
-    @ExperimentalCoroutinesApi
-    fun build(): Flow<PagedData<Value>> {
-        checkNotNull(pagedSourceFactory) { "You must call setPagedsourceFactory before build" }
-        check(isIntitialKeySet) { "You must call setInitialKey before build" }
-        checkNotNull(config) { "You must call setConfig before build" }
-
-        return PageFetcher(pagedSourceFactory!!, initialKey, config!!).flow
-    }
+    fun build(): Flow<PagedData<Value>> =
+        PageFetcher(pagedSourceFactory, initialKey, config).flow
 }
