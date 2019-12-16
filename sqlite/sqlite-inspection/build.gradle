@@ -35,7 +35,7 @@ plugins {
 apply(plugin: "com.google.protobuf")
 
 dependencies {
-    implementation("androidx.annotation:annotation:1.1.0")
+    api("androidx.annotation:annotation:1.1.0")
     implementation(project(":inspection:inspection"))
     implementation 'com.google.protobuf:protobuf-javalite:3.10.0'
 

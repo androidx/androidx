@@ -35,7 +35,7 @@ dependencies {
     implementation(KOTLIN_STDLIB)
 
     implementation "androidx.activity:activity:1.0.0-alpha01"
-    implementation "androidx.annotation:annotation:1.1.0"
+    api "androidx.annotation:annotation:1.1.0"
 
     implementation project(":compose:compose-runtime")
     implementation project(":ui:ui-android-view-non-ir")

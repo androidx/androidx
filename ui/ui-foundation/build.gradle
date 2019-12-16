@@ -33,7 +33,7 @@ dependencies {
 
     implementation(KOTLIN_STDLIB)
 
-    implementation "androidx.annotation:annotation:1.1.0"
+    api "androidx.annotation:annotation:1.1.0"
 
     api project(":compose:compose-runtime")
     api project(":ui:ui-core")

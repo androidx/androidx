@@ -22,7 +22,7 @@ plugins {
 }
 
 dependencies {
-    implementation("androidx.annotation:annotation:1.1.0")
+    api("androidx.annotation:annotation:1.1.0")
     implementation("androidx.core:core:1.1.0")
     implementation(project(":animation:animation"))
     implementation(project(":animation:animation-testing"))

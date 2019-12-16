@@ -37,7 +37,7 @@ dependencies {
     api(project(":lifecycle:lifecycle-runtime"))
     api(KOTLIN_STDLIB)
     api(KOTLIN_COROUTINES_ANDROID)
-    implementation("androidx.annotation:annotation:1.0.0")
+    api("androidx.annotation:annotation:1.0.0")
 
     testImplementation(JUNIT)
     testImplementation(TRUTH)
