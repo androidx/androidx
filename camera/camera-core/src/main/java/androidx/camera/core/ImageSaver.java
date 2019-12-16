@@ -20,6 +20,7 @@ import android.location.Location;
 
 import androidx.annotation.Nullable;
 import androidx.camera.core.ImageUtil.CodecFailedException;
+import androidx.camera.core.impl.utils.Exif;
 
 import java.io.File;
 import java.io.FileOutputStream;

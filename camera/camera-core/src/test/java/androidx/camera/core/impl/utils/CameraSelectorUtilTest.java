@@ -27,11 +27,11 @@ import static org.mockito.Mockito.when;
 import android.content.Context;
 import android.os.Build;
 
-import androidx.camera.core.CameraDeviceConfig;
-import androidx.camera.core.CameraIdFilter;
 import androidx.camera.core.CameraSelector;
 import androidx.camera.core.CameraX;
 import androidx.camera.core.CameraXConfig;
+import androidx.camera.core.impl.CameraDeviceConfig;
+import androidx.camera.core.impl.CameraIdFilter;
 import androidx.camera.testing.fakes.FakeAppConfig;
 import androidx.test.core.app.ApplicationProvider;
 import androidx.test.filters.SmallTest;

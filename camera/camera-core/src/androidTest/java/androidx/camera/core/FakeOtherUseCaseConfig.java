@@ -19,6 +19,8 @@ package androidx.camera.core;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.annotation.RestrictTo;
+import androidx.camera.core.impl.CameraDeviceConfig;
+import androidx.camera.core.impl.CameraIdFilter;
 
 import java.util.Set;
 import java.util.UUID;
