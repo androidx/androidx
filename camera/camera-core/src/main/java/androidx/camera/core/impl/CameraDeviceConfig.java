@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2019 The Android Open Source Project
+ * Copyright 2019 The Android Open Source Project
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -14,22 +14,18 @@
  * limitations under the License.
  */
 
-package androidx.camera.core;
+package androidx.camera.core.impl;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
-import androidx.annotation.RestrictTo;
-import androidx.annotation.RestrictTo.Scope;
+import androidx.camera.core.CameraSelector;
 import androidx.camera.core.Config.Option;
 
 /**
  * Configuration containing options for configuring a Camera device.
  *
  * <p>This includes options for camera device intrinsics, such as the lens facing direction.
- *
- * @hide
  */
-@RestrictTo(Scope.LIBRARY_GROUP)
 public interface CameraDeviceConfig {
 
     // Option Declarations:
@@ -37,19 +33,13 @@ public interface CameraDeviceConfig {
 
     /**
      * Option: camerax.core.camera.lensFacing
-     *
-     * @hide
      */
-    @RestrictTo(Scope.LIBRARY_GROUP)
     Option<Integer> OPTION_LENS_FACING =
             Option.create("camerax.core.camera.lensFacing", int.class);
 
     /**
      * Option: camerax.core.camera.cameraIdFilter
-     *
-     * @hide
      */
-    @RestrictTo(Scope.LIBRARY_GROUP)
     Option<CameraIdFilter> OPTION_CAMERA_ID_FILTER =
             Option.create("camerax.core.camera.cameraIdFilter", CameraIdFilter.class);
 
@@ -61,9 +51,7 @@ public interface CameraDeviceConfig {
      * @param valueIfMissing The value to return if this configuration option has not been set.
      * @return The stored value or <code>valueIfMissing</code> if the value does not exist in this
      * configuration.
-     * @hide
      */
-    @RestrictTo(Scope.LIBRARY_GROUP)
     @Nullable
     Integer getLensFacing(@Nullable Integer valueIfMissing);
 
@@ -72,9 +60,7 @@ public interface CameraDeviceConfig {
      *
      * @return The stored value, if it exists in this configuration.
      * @throws IllegalArgumentException if the option does not exist in this configuration.
-     * @hide
      */
-    @RestrictTo(Scope.LIBRARY_GROUP)
     @CameraSelector.LensFacing
     int getLensFacing();
 
@@ -84,9 +70,7 @@ public interface CameraDeviceConfig {
      * @param valueIfMissing The value to return if this configuration option has not been set.
      * @return The stored value or <code>valueIfMissing</code> if the value does not exist in this
      * configuration.
-     * @hide
      */
-    @RestrictTo(Scope.LIBRARY_GROUP)
     @Nullable
     CameraIdFilter getCameraIdFilter(@Nullable CameraIdFilter valueIfMissing);
 
@@ -95,9 +79,7 @@ public interface CameraDeviceConfig {
      *
      * @return The stored value, if it exists in this configuration.
      * @throws IllegalArgumentException if the option does not exist in this configuration.
-     * @hide
      */
-    @RestrictTo(Scope.LIBRARY_GROUP)
     @NonNull
     CameraIdFilter getCameraIdFilter();
 
@@ -105,9 +87,7 @@ public interface CameraDeviceConfig {
      * Builder for a {@link CameraDeviceConfig}.
      *
      * @param <B> The top level builder type for which this builder is composed with.
-     * @hide
      */
-    @RestrictTo(Scope.LIBRARY_GROUP)
     interface Builder<B> {
 
         /**
@@ -118,10 +98,8 @@ public interface CameraDeviceConfig {
          *
          * @param lensFacing The direction of the camera's lens.
          * @return the current Builder.
-         * @hide
          */
         @NonNull
-        @RestrictTo(Scope.LIBRARY_GROUP)
         B setLensFacing(@CameraSelector.LensFacing int lensFacing);
 
         /**
@@ -129,10 +107,8 @@ public interface CameraDeviceConfig {
          *
          * @param cameraIdFilter The {@link CameraIdFilter}.
          * @return the current Builder.
-         * @hide
          */
         @NonNull
-        @RestrictTo(Scope.LIBRARY_GROUP)
         B setCameraIdFilter(@NonNull CameraIdFilter cameraIdFilter);
     }
 }

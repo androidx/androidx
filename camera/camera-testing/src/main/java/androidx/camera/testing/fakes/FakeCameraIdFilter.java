@@ -18,7 +18,7 @@ package androidx.camera.testing.fakes;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.RestrictTo;
-import androidx.camera.core.CameraIdFilter;
+import androidx.camera.core.impl.CameraIdFilter;
 
 import java.util.Set;
 
