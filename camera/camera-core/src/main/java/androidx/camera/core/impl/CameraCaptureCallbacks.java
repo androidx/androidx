@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2019 The Android Open Source Project
+ * Copyright 2019 The Android Open Source Project
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -14,11 +14,9 @@
  * limitations under the License.
  */
 
-package androidx.camera.core;
+package androidx.camera.core.impl;
 
 import androidx.annotation.NonNull;
-import androidx.annotation.RestrictTo;
-import androidx.annotation.RestrictTo.Scope;
 
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -26,21 +24,21 @@ import java.util.List;
 
 /**
  * Different implementations of {@link CameraCaptureCallback}.
- *
- * @hide
  */
-@RestrictTo(Scope.LIBRARY_GROUP)
 public final class CameraCaptureCallbacks {
     private CameraCaptureCallbacks() {
     }
 
     /** Returns a camera capture callback which does nothing. */
+    @NonNull
     public static CameraCaptureCallback createNoOpCallback() {
         return new NoOpCameraCaptureCallback();
     }
 
     /** Returns a camera capture callback which calls a list of other callbacks. */
-    static CameraCaptureCallback createComboCallback(List<CameraCaptureCallback> callbacks) {
+    @NonNull
+    static CameraCaptureCallback createComboCallback(
+            @NonNull List<CameraCaptureCallback> callbacks) {
         if (callbacks.isEmpty()) {
             return createNoOpCallback();
         } else if (callbacks.size() == 1) {
@@ -50,7 +48,9 @@ public final class CameraCaptureCallbacks {
     }
 
     /** Returns a camera capture callback which calls a list of other callbacks. */
-    public static CameraCaptureCallback createComboCallback(CameraCaptureCallback... callbacks) {
+    @NonNull
+    public static CameraCaptureCallback createComboCallback(
+            @NonNull CameraCaptureCallback... callbacks) {
         return createComboCallback(Arrays.asList(callbacks));
     }
 
@@ -71,7 +71,7 @@ public final class CameraCaptureCallbacks {
     public static final class ComboCameraCaptureCallback extends CameraCaptureCallback {
         private final List<CameraCaptureCallback> mCallbacks = new ArrayList<>();
 
-        ComboCameraCaptureCallback(List<CameraCaptureCallback> callbacks) {
+        ComboCameraCaptureCallback(@NonNull List<CameraCaptureCallback> callbacks) {
             for (CameraCaptureCallback callback : callbacks) {
                 // A no-op callback doesn't do anything, so avoid adding it to the final list.
                 if (!(callback instanceof NoOpCameraCaptureCallback)) {

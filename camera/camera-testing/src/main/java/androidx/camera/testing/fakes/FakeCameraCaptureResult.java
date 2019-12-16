@@ -20,8 +20,8 @@ import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.annotation.RestrictTo;
 import androidx.annotation.RestrictTo.Scope;
-import androidx.camera.core.CameraCaptureMetaData;
-import androidx.camera.core.CameraCaptureResult;
+import androidx.camera.core.impl.CameraCaptureMetaData;
+import androidx.camera.core.impl.CameraCaptureResult;
 
 /**
  * A fake implementation of {@link CameraCaptureResult} where the values are settable.
@@ -96,7 +96,6 @@ public final class FakeCameraCaptureResult implements CameraCaptureResult {
         return mFlashState;
     }
 
-    @NonNull
     @Override
     public long getTimestamp() {
         return mTimestamp;
@@ -137,27 +136,27 @@ public final class FakeCameraCaptureResult implements CameraCaptureResult {
             return fakeCameraCaptureResult;
         }
 
-        /** Set the {@link androidx.camera.core.CameraCaptureMetaData.AfMode} **/
+        /** Set the {@link CameraCaptureMetaData.AfMode} **/
         public void setAfMode(@Nullable CameraCaptureMetaData.AfMode mode) {
             mAfMode = mode;
         }
 
-        /** Set the {@link androidx.camera.core.CameraCaptureMetaData.AfState} **/
+        /** Set the {@link CameraCaptureMetaData.AfState} **/
         public void setAfState(@Nullable CameraCaptureMetaData.AfState state) {
             mAfState = state;
         }
 
-        /** Set the {@link androidx.camera.core.CameraCaptureMetaData.AeState} **/
+        /** Set the {@link CameraCaptureMetaData.AeState} **/
         public void setAeState(@Nullable CameraCaptureMetaData.AeState state) {
             mAeState = state;
         }
 
-        /** Set the {@link androidx.camera.core.CameraCaptureMetaData.AwbState} **/
+        /** Set the {@link CameraCaptureMetaData.AwbState} **/
         public void setAwbState(@Nullable CameraCaptureMetaData.AwbState state) {
             mAwbState = state;
         }
 
-        /** Set the {@link androidx.camera.core.CameraCaptureMetaData.FlashState} **/
+        /** Set the {@link CameraCaptureMetaData.FlashState} **/
         public void setFlashState(@Nullable CameraCaptureMetaData.FlashState state) {
             mFlashState = state;
         }

@@ -28,6 +28,7 @@ import android.util.Size;
 import android.view.Surface;
 
 import androidx.annotation.NonNull;
+import androidx.camera.core.impl.CameraCaptureCallback;
 import androidx.camera.core.impl.UseCaseAttachState;
 import androidx.camera.testing.DeferrableSurfacesUtil;
 import androidx.camera.testing.fakes.FakeAppConfig;

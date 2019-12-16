@@ -17,6 +17,7 @@
 package androidx.camera.core;
 
 import androidx.annotation.Nullable;
+import androidx.camera.core.impl.CameraCaptureResult;
 
 /** An ImageInfo that is created by a {@link CameraCaptureResult}. */
 final class CameraCaptureResultImageInfo implements ImageInfo {

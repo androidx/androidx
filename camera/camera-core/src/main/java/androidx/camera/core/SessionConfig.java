@@ -27,6 +27,7 @@ import androidx.annotation.NonNull;
 import androidx.annotation.RestrictTo;
 import androidx.annotation.RestrictTo.Scope;
 import androidx.camera.core.Config.Option;
+import androidx.camera.core.impl.CameraCaptureCallback;
 import androidx.camera.core.impl.MultiValueSet;
 
 import java.util.ArrayList;

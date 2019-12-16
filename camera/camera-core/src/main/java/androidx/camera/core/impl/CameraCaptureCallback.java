@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2019 The Android Open Source Project
+ * Copyright 2019 The Android Open Source Project
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -14,19 +14,15 @@
  * limitations under the License.
  */
 
-package androidx.camera.core;
+package androidx.camera.core.impl;
 
 import androidx.annotation.NonNull;
-import androidx.annotation.RestrictTo;
-import androidx.annotation.RestrictTo.Scope;
 
 /**
  * A callback object for tracking the progress of a capture request submitted to the camera device.
  * Once one of the methods is called, other methods won't be called again on the same instance.
  *
- * @hide
  */
-@RestrictTo(Scope.LIBRARY_GROUP)
 public abstract class CameraCaptureCallback {
 
     /**

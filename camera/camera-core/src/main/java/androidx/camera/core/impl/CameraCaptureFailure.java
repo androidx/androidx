@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2019 The Android Open Source Project
+ * Copyright 2019 The Android Open Source Project
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -14,24 +14,19 @@
  * limitations under the License.
  */
 
-package androidx.camera.core;
+package androidx.camera.core.impl;
 
-import androidx.annotation.RestrictTo;
-import androidx.annotation.RestrictTo.Scope;
+import androidx.annotation.NonNull;
 
 /**
  * A report of failed capture for a single image capture.
  *
- * @hide
  */
-@RestrictTo(Scope.LIBRARY_GROUP)
 public final class CameraCaptureFailure {
 
     private final Reason mReason;
 
-    /** @hide */
-    @RestrictTo(Scope.LIBRARY_GROUP)
-    public CameraCaptureFailure(Reason reason) {
+    public CameraCaptureFailure(@NonNull Reason reason) {
         mReason = reason;
     }
 
@@ -41,6 +36,7 @@ public final class CameraCaptureFailure {
      * @return int The reason code.
      * @see CameraCaptureFailure.Reason#ERROR
      */
+    @NonNull
     public Reason getReason() {
         return mReason;
     }
