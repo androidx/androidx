@@ -101,7 +101,6 @@ public final class ImageReaderProxysTest {
         Context context = ApplicationProvider.getApplicationContext();
         sCameraFactory = new Camera2CameraFactory(context);
         sCameraDeviceSurfaceManager = new Camera2DeviceSurfaceManager(context);
-        sCameraDeviceSurfaceManager.init();
     }
 
     @Before

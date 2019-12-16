@@ -24,7 +24,6 @@ import android.view.WindowManager;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
-import androidx.camera.core.CameraFactory;
 import androidx.camera.core.CameraX;
 import androidx.camera.core.CaptureConfig;
 import androidx.camera.core.ConfigProvider;
@@ -40,17 +39,14 @@ public final class ImageCaptureConfigProvider implements ConfigProvider<ImageCap
     private static final Rational DEFAULT_ASPECT_RATIO_4_3 = new Rational(4, 3);
     private static final Rational DEFAULT_ASPECT_RATIO_3_4 = new Rational(3, 4);
 
-    private final CameraFactory mCameraFactory;
     private final WindowManager mWindowManager;
 
-    public ImageCaptureConfigProvider(@NonNull CameraFactory cameraFactory,
-            @NonNull Context context) {
-        mCameraFactory = cameraFactory;
+    public ImageCaptureConfigProvider(@NonNull Context context) {
         mWindowManager = (WindowManager) context.getSystemService(Context.WINDOW_SERVICE);
     }
 
-    @NonNull
     @Override
+    @NonNull
     public ImageCaptureConfig getConfig(@Nullable Integer lensFacing) {
         ImageCapture.Builder builder = ImageCapture.Builder.fromConfig(
                 ImageCapture.DEFAULT_CONFIG.getConfig(lensFacing));
@@ -70,10 +66,12 @@ public final class ImageCaptureConfigProvider implements ConfigProvider<ImageCap
         builder.setCaptureOptionUnpacker(ImageCaptureOptionUnpacker.INSTANCE);
 
         try {
+            // TODO (b/144888472): Should not be using Camera ID here. Replace with
+            //  Camera/CameraInfo.
             // Add default lensFacing if we can
-            Integer checkedLensFacing =
+            int checkedLensFacing =
                     (lensFacing != null) ? lensFacing : CameraX.getDefaultLensFacing();
-            String defaultId = mCameraFactory.cameraIdForLensFacing(checkedLensFacing);
+            String defaultId = CameraX.getCameraWithLensFacing(checkedLensFacing);
             if (defaultId != null) {
                 builder.setLensFacing(checkedLensFacing);
             }

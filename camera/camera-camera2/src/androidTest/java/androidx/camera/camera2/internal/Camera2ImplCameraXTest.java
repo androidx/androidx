@@ -123,7 +123,7 @@ public final class Camera2ImplCameraXTest {
     public void setUp() {
         assumeTrue(CameraUtil.deviceHasCamera());
         Context context = ApplicationProvider.getApplicationContext();
-        CameraX.initialize(context, Camera2Config.defaultConfig(context));
+        CameraX.initialize(context, Camera2Config.defaultConfig());
         mLifecycle = new FakeLifecycleOwner();
 
         mDeviceStateCallback = mock(CameraDevice.StateCallback.class);

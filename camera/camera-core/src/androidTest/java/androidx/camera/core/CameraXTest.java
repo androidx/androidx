@@ -29,9 +29,7 @@ import android.content.Context;
 import android.util.Size;
 
 import androidx.annotation.NonNull;
-import androidx.annotation.Nullable;
 import androidx.camera.core.impl.CameraControlInternal;
-import androidx.camera.core.impl.CameraDeviceSurfaceManager;
 import androidx.camera.core.impl.CameraInfoInternal;
 import androidx.camera.core.impl.CameraInternal;
 import androidx.camera.core.impl.utils.executor.CameraXExecutors;
@@ -42,6 +40,7 @@ import androidx.camera.testing.fakes.FakeCameraInfoInternal;
 import androidx.camera.testing.fakes.FakeLifecycleOwner;
 import androidx.camera.testing.fakes.FakeUseCase;
 import androidx.camera.testing.fakes.FakeUseCaseConfig;
+import androidx.core.util.Preconditions;
 import androidx.test.annotation.UiThreadTest;
 import androidx.test.core.app.ApplicationProvider;
 import androidx.test.ext.junit.runners.AndroidJUnit4;
@@ -79,22 +78,15 @@ public final class CameraXTest {
     private FakeLifecycleOwner mLifecycle;
     private CameraXConfig.Builder mConfigBuilder;
     private FakeCameraFactory mFakeCameraFactory;
-    private CameraDeviceSurfaceManager mFakeSurfaceManager;
     private UseCaseConfigFactory mUseCaseConfigFactory;
 
     @Before
     public void setUp() {
         mContext = ApplicationProvider.getApplicationContext();
 
-        mFakeSurfaceManager = new FakeCameraDeviceSurfaceManager();
         ExtendableUseCaseConfigFactory defaultConfigFactory = new ExtendableUseCaseConfigFactory();
         defaultConfigFactory.installDefaultProvider(FakeUseCaseConfig.class,
-                new ConfigProvider<FakeUseCaseConfig>() {
-                    @Override
-                    public FakeUseCaseConfig getConfig(@Nullable Integer lensFacing) {
-                        return new FakeUseCaseConfig.Builder().getUseCaseConfig();
-                    }
-                });
+                lensFacing -> new FakeUseCaseConfig.Builder().getUseCaseConfig());
         mUseCaseConfigFactory = defaultConfigFactory;
         mFakeCameraFactory = new FakeCameraFactory();
         mCameraInternal = new FakeCamera(mock(CameraControlInternal.class),
@@ -103,9 +95,10 @@ public final class CameraXTest {
         mFakeCameraFactory.setDefaultCameraIdForLensFacing(CAMERA_LENS_FACING, CAMERA_ID);
         mConfigBuilder =
                 new CameraXConfig.Builder()
-                        .setCameraFactory(mFakeCameraFactory)
-                        .setDeviceSurfaceManager(mFakeSurfaceManager)
-                        .setUseCaseConfigFactory(mUseCaseConfigFactory);
+                        .setCameraFactoryProvider(ignored -> mFakeCameraFactory)
+                        .setDeviceSurfaceManagerProvider(ignored ->
+                                new FakeCameraDeviceSurfaceManager())
+                        .setUseCaseConfigFactoryProvider(ignored -> mUseCaseConfigFactory);
 
         mLifecycle = new FakeLifecycleOwner();
 
@@ -201,17 +194,19 @@ public final class CameraXTest {
 
     @Test
     public void init_withDifferentCameraXConfig() {
-        FakeCameraFactory cameraFactory0 = new FakeCameraFactory();
-        FakeCameraFactory cameraFactory1 = new FakeCameraFactory();
+        CameraFactory cameraFactory0 = new FakeCameraFactory();
+        CameraFactory.Provider cameraFactoryProvider0 = ignored -> cameraFactory0;
+        CameraFactory cameraFactory1 = new FakeCameraFactory();
+        CameraFactory.Provider cameraFactoryProvider1 = ignored -> cameraFactory1;
 
-        mConfigBuilder.setCameraFactory(cameraFactory0);
+        mConfigBuilder.setCameraFactoryProvider(cameraFactoryProvider0);
         CameraX.initialize(mContext, mConfigBuilder.build());
 
         assertThat(CameraX.getCameraFactory()).isEqualTo(cameraFactory0);
 
         CameraX.shutdown();
 
-        mConfigBuilder.setCameraFactory(cameraFactory1);
+        mConfigBuilder.setCameraFactoryProvider(cameraFactoryProvider1);
         CameraX.initialize(mContext, mConfigBuilder.build());
 
         assertThat(CameraX.getCameraFactory()).isEqualTo(cameraFactory1);
@@ -303,9 +298,10 @@ public final class CameraXTest {
                 () -> cameraInternalFront);
         CameraXConfig.Builder appConfigBuilder =
                 new CameraXConfig.Builder()
-                        .setCameraFactory(mFakeCameraFactory)
-                        .setDeviceSurfaceManager(mFakeSurfaceManager)
-                        .setUseCaseConfigFactory(mUseCaseConfigFactory);
+                        .setCameraFactoryProvider(ignored -> mFakeCameraFactory)
+                        .setDeviceSurfaceManagerProvider(ignored ->
+                                new FakeCameraDeviceSurfaceManager())
+                        .setUseCaseConfigFactoryProvider(ignored -> mUseCaseConfigFactory);
 
         CameraX.initialize(mContext, appConfigBuilder.build());
 
@@ -452,7 +448,7 @@ public final class CameraXTest {
         CameraX.bindToLifecycle(mLifecycle, CAMERA_SELECTOR, fakeUseCase, fakeOtherUseCase);
         mLifecycle.startAndResume();
 
-        Collection<UseCase> useCases = CameraX.getActiveUseCases();
+        Collection<UseCase> useCases = Preconditions.checkNotNull(CameraX.getActiveUseCases());
 
         assertThat(useCases.contains(fakeUseCase)).isTrue();
         assertThat(useCases.contains(fakeOtherUseCase)).isTrue();
@@ -489,7 +485,7 @@ public final class CameraXTest {
     /** FakeUseCase that will call attachToCamera */
     public static class AttachCameraFakeCase extends FakeUseCase {
 
-        public AttachCameraFakeCase(FakeUseCaseConfig config) {
+        AttachCameraFakeCase(FakeUseCaseConfig config) {
             super(config);
         }
 

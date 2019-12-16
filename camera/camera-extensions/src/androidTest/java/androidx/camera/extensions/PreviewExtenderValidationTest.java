@@ -53,7 +53,7 @@ public class PreviewExtenderValidationTest {
     public void setUp() throws InterruptedException, ExecutionException, TimeoutException {
         assumeTrue(CameraUtil.deviceHasCamera());
         Context context = ApplicationProvider.getApplicationContext();
-        CameraX.initialize(context, Camera2Config.defaultConfig(context));
+        CameraX.initialize(context, Camera2Config.defaultConfig());
 
         assumeTrue(ExtensionsTestUtil.initExtensions());
     }

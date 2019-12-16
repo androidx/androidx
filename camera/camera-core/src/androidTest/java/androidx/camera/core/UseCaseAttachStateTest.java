@@ -22,6 +22,7 @@ import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 
+import android.content.Context;
 import android.hardware.camera2.CameraCaptureSession;
 import android.hardware.camera2.CameraDevice;
 import android.util.Size;
@@ -36,6 +37,7 @@ import androidx.camera.testing.fakes.FakeCamera;
 import androidx.camera.testing.fakes.FakeCameraInfoInternal;
 import androidx.camera.testing.fakes.FakeUseCase;
 import androidx.camera.testing.fakes.FakeUseCaseConfig;
+import androidx.core.util.Preconditions;
 import androidx.test.core.app.ApplicationProvider;
 import androidx.test.ext.junit.runners.AndroidJUnit4;
 import androidx.test.filters.LargeTest;
@@ -61,9 +63,13 @@ public class UseCaseAttachStateTest {
     private String mCameraId;
 
     @Before
-    public void setUp() {
+    public void setUp() throws ExecutionException, InterruptedException {
         CameraXConfig cameraXConfig = FakeAppConfig.create();
-        CameraFactory cameraFactory = cameraXConfig.getCameraFactory(/*valueIfMissing=*/ null);
+        Context context = ApplicationProvider.getApplicationContext();
+        CameraFactory cameraFactory = Preconditions.checkNotNull(
+                cameraXConfig.getCameraFactoryProvider(/*valueIfMissing=*/ null))
+                .newInstance(context);
+        CameraX.initialize(context, cameraXConfig).get();
         try {
             mCameraId = cameraFactory.cameraIdForLensFacing(CameraSelector.LENS_FACING_BACK);
         } catch (Exception e) {
@@ -71,7 +77,6 @@ public class UseCaseAttachStateTest {
                     "Unable to attach to camera with LensFacing " + CameraSelector.LENS_FACING_BACK,
                     e);
         }
-        CameraX.initialize(ApplicationProvider.getApplicationContext(), cameraXConfig);
     }
 
     @After

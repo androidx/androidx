@@ -22,7 +22,6 @@ import static org.mockito.Mockito.mock;
 import android.content.Context;
 import android.os.Build;
 
-import androidx.annotation.Nullable;
 import androidx.camera.core.impl.CameraControlInternal;
 import androidx.camera.core.impl.CameraDeviceSurfaceManager;
 import androidx.camera.core.impl.CameraIdFilter;
@@ -61,15 +60,15 @@ public class CameraSelectorTest {
     @Before
     public void setUp() throws ExecutionException, InterruptedException {
         Context context = ApplicationProvider.getApplicationContext();
-        CameraDeviceSurfaceManager surfaceManager = new FakeCameraDeviceSurfaceManager();
-        ExtendableUseCaseConfigFactory defaultConfigFactory = new ExtendableUseCaseConfigFactory();
-        defaultConfigFactory.installDefaultProvider(FakeUseCaseConfig.class,
-                new ConfigProvider<FakeUseCaseConfig>() {
-                    @Override
-                    public FakeUseCaseConfig getConfig(@Nullable Integer lensFacing) {
-                        return new FakeUseCaseConfig.Builder().getUseCaseConfig();
-                    }
-                });
+        CameraDeviceSurfaceManager.Provider surfaceManagerProvider =
+                ignored -> new FakeCameraDeviceSurfaceManager();
+        UseCaseConfigFactory.Provider configFactoryProvider = ignored -> {
+            ExtendableUseCaseConfigFactory defaultConfigFactory =
+                    new ExtendableUseCaseConfigFactory();
+            defaultConfigFactory.installDefaultProvider(FakeUseCaseConfig.class,
+                    lensFacing -> new FakeUseCaseConfig.Builder().getUseCaseConfig());
+            return defaultConfigFactory;
+        };
         FakeCameraFactory cameraFactory = new FakeCameraFactory();
         mRearCamera = new FakeCamera(mock(CameraControlInternal.class),
                 new FakeCameraInfoInternal(0,
@@ -83,9 +82,9 @@ public class CameraSelectorTest {
         cameraFactory.setDefaultCameraIdForLensFacing(CameraSelector.LENS_FACING_FRONT, FRONT_ID);
         CameraXConfig.Builder appConfigBuilder =
                 new CameraXConfig.Builder()
-                        .setCameraFactory(cameraFactory)
-                        .setDeviceSurfaceManager(surfaceManager)
-                        .setUseCaseConfigFactory(defaultConfigFactory);
+                        .setCameraFactoryProvider(ignored -> cameraFactory)
+                        .setDeviceSurfaceManagerProvider(surfaceManagerProvider)
+                        .setUseCaseConfigFactoryProvider(configFactoryProvider);
         CameraX.initialize(context, appConfigBuilder.build()).get();
         mCameraIds.add(REAR_ID);
         mCameraIds.add(FRONT_ID);

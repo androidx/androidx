@@ -16,6 +16,7 @@
 
 package androidx.camera.core;
 
+import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.annotation.RestrictTo;
 import androidx.annotation.RestrictTo.Scope;
@@ -34,13 +35,13 @@ public final class ExtendableUseCaseConfigFactory implements UseCaseConfigFactor
 
     /** Inserts or overrides the {@link ConfigProvider} for the given config type. */
     public <C extends Config> void installDefaultProvider(
-            Class<C> configType, ConfigProvider<C> defaultProvider) {
+            @NonNull Class<C> configType, @NonNull ConfigProvider<C> defaultProvider) {
         mDefaultProviders.put(configType, defaultProvider);
     }
 
     @Nullable
     @Override
-    public <C extends UseCaseConfig<?>> C getConfig(Class<C> configType,
+    public <C extends UseCaseConfig<?>> C getConfig(@NonNull Class<C> configType,
             @Nullable Integer lensFacing) {
         @SuppressWarnings("unchecked") // Providers only could have been inserted with
                 // installDefaultProvider(), so the class should return the correct type.

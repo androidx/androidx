@@ -79,7 +79,7 @@ public final class ProcessCameraProvider implements LifecycleCameraProvider {
      * public class MyApplication extends Application implements CameraXConfig.Provider {
      *     {@literal @}Override
      *     public CameraXConfig getCameraXConfig() {
-     *         return Camera2Config.defaultConfig(Application.this);
+     *         return Camera2Config.defaultConfig();
      *     }
      *
      *     . . .

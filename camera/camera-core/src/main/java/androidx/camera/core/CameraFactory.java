@@ -16,6 +16,8 @@
 
 package androidx.camera.core;
 
+import android.content.Context;
+
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.annotation.RestrictTo;
@@ -31,6 +33,15 @@ import java.util.Set;
  */
 @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
 public interface CameraFactory {
+
+    /**
+     * Interface for deferring creation of a CameraFactory.
+     */
+    interface Provider {
+        /** Creates a new, initialized instance of a CameraFactory. */
+        @NonNull CameraFactory newInstance(@NonNull Context context);
+    }
+
     /**
      * Gets the camera with the associated id.
      *

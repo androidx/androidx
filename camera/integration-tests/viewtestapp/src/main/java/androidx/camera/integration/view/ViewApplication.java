@@ -27,6 +27,6 @@ public class ViewApplication extends Application implements CameraXConfig.Provid
     @NonNull
     @Override
     public CameraXConfig getCameraXConfig() {
-        return Camera2Config.defaultConfig(this);
+        return Camera2Config.defaultConfig();
     }
 }

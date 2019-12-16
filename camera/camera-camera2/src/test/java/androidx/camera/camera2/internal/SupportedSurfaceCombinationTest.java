@@ -1112,8 +1112,8 @@ public final class SupportedSurfaceCombinationTest {
 
     private void initCameraX() {
         CameraXConfig cameraXConfig = CameraXConfig.Builder.fromConfig(
-                Camera2Config.defaultConfig(mContext))
-                .setCameraFactory(mCameraFactory)
+                Camera2Config.defaultConfig())
+                .setCameraFactoryProvider(ignored -> mCameraFactory)
                 .build();
         CameraX.initialize(mContext, cameraXConfig);
     }

@@ -16,6 +16,7 @@
 
 package androidx.camera.core.impl;
 
+import android.content.Context;
 import android.util.Rational;
 import android.util.Size;
 
@@ -32,17 +33,15 @@ import java.util.Map;
  * all camera devices
  */
 public interface CameraDeviceSurfaceManager {
-    /**
-     * Prepare necessary resources for the surface manager.
-     */
-    void init();
 
     /**
-     * Check whether the surface manager is initialized.
-     *
-     * @return true if initialized
+     * Interface for deferring creation of a CameraDeviceSurfaceManager.
      */
-    boolean isInitialized();
+    interface Provider {
+        /** Creates a new, initialized instance of a CameraDeviceSurfaceManager. */
+        @NonNull
+        CameraDeviceSurfaceManager newInstance(@NonNull Context context);
+    }
 
     /**
      * Check whether the input surface configuration list is under the capability of any combination

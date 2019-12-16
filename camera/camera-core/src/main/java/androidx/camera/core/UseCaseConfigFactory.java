@@ -16,6 +16,9 @@
 
 package androidx.camera.core;
 
+import android.content.Context;
+
+import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.annotation.RestrictTo;
 import androidx.annotation.RestrictTo.Scope;
@@ -29,11 +32,22 @@ import androidx.annotation.RestrictTo.Scope;
 public interface UseCaseConfigFactory {
 
     /**
+     * Interface for deferring creation of a UseCaseConfigFactory.
+     */
+    interface Provider {
+        /** Creates a new, initialized instance of a UseCaseConfigFactory. */
+        @NonNull
+        UseCaseConfigFactory newInstance(@NonNull Context context);
+    }
+
+    /**
      * Returns the configuration for the given type, or <code>null</code> if the configuration
      * cannot be produced.
      *
-     * @param lensFacing The {@link LensFacing} that the configuration will target to.
+     * @param lensFacing The {@link CameraSelector.LensFacing} that the configuration will target
+     *                  to.
      */
     @Nullable
-    <C extends UseCaseConfig<?>> C getConfig(Class<C> configType, @Nullable Integer lensFacing);
+    <C extends UseCaseConfig<?>> C getConfig(@NonNull Class<C> configType,
+            @Nullable Integer lensFacing);
 }

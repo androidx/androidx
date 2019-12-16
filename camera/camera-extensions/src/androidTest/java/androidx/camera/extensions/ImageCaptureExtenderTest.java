@@ -87,7 +87,7 @@ public class ImageCaptureExtenderTest {
         mLifecycleOwner = new FakeLifecycleOwner();
 
         Context context = ApplicationProvider.getApplicationContext();
-        CameraX.initialize(context, Camera2Config.defaultConfig(context));
+        CameraX.initialize(context, Camera2Config.defaultConfig());
 
         assumeTrue(ExtensionsTestUtil.initExtensions());
     }
