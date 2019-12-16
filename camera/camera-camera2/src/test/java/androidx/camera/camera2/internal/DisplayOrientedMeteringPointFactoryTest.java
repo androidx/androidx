@@ -27,7 +27,6 @@ import android.view.Surface;
 import android.view.WindowManager;
 
 import androidx.annotation.Nullable;
-import androidx.camera.core.CameraDeviceSurfaceManager;
 import androidx.camera.core.CameraSelector;
 import androidx.camera.core.CameraX;
 import androidx.camera.core.CameraXConfig;
@@ -36,6 +35,7 @@ import androidx.camera.core.DisplayOrientedMeteringPointFactory;
 import androidx.camera.core.ExtendableUseCaseConfigFactory;
 import androidx.camera.core.MeteringPoint;
 import androidx.camera.core.MeteringPointFactory;
+import androidx.camera.core.impl.CameraDeviceSurfaceManager;
 import androidx.camera.testing.fakes.FakeCamera;
 import androidx.camera.testing.fakes.FakeCameraDeviceSurfaceManager;
 import androidx.camera.testing.fakes.FakeCameraFactory;

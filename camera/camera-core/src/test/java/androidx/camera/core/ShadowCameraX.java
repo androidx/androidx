@@ -19,6 +19,7 @@ package androidx.camera.core;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.camera.core.impl.CameraDeviceConfig;
+import androidx.camera.core.impl.CameraDeviceSurfaceManager;
 import androidx.camera.testing.fakes.FakeCameraDeviceSurfaceManager;
 import androidx.lifecycle.LiveData;
 import androidx.lifecycle.MutableLiveData;
