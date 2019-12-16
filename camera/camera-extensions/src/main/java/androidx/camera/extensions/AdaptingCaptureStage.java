@@ -19,7 +19,7 @@ package androidx.camera.extensions;
 import android.hardware.camera2.CaptureRequest;
 import android.util.Pair;
 
-import androidx.camera.camera2.impl.Camera2ImplConfig;
+import androidx.camera.camera2.internal.Camera2ImplConfig;
 import androidx.camera.core.CaptureConfig;
 import androidx.camera.core.CaptureStage;
 import androidx.camera.extensions.impl.CaptureStageImpl;
