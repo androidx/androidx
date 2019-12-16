@@ -46,14 +46,14 @@ import android.view.Surface;
 
 import androidx.annotation.NonNull;
 import androidx.camera.camera2.internal.CaptureSession.State;
-import androidx.camera.core.CameraCaptureCallback;
-import androidx.camera.core.CameraCaptureCallbacks;
-import androidx.camera.core.CameraCaptureResult;
 import androidx.camera.core.CaptureConfig;
 import androidx.camera.core.DeferrableSurface;
 import androidx.camera.core.ImmediateSurface;
 import androidx.camera.core.MutableOptionsBundle;
 import androidx.camera.core.SessionConfig;
+import androidx.camera.core.impl.CameraCaptureCallback;
+import androidx.camera.core.impl.CameraCaptureCallbacks;
+import androidx.camera.core.impl.CameraCaptureResult;
 import androidx.camera.core.impl.utils.executor.CameraXExecutors;
 import androidx.camera.core.impl.utils.futures.FutureCallback;
 import androidx.camera.core.impl.utils.futures.Futures;

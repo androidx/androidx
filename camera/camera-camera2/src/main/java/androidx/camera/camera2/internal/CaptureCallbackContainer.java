@@ -19,7 +19,7 @@ package androidx.camera.camera2.internal;
 import android.hardware.camera2.CameraCaptureSession.CaptureCallback;
 
 import androidx.annotation.NonNull;
-import androidx.camera.core.CameraCaptureCallback;
+import androidx.camera.core.impl.CameraCaptureCallback;
 
 /**
  * A {@link CameraCaptureCallback} which contains an {@link CaptureCallback} and doesn't handle the

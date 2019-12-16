@@ -18,8 +18,8 @@ package androidx.camera.camera2.internal;
 
 import android.hardware.camera2.CameraCaptureSession.CaptureCallback;
 
-import androidx.camera.core.CameraCaptureCallback;
-import androidx.camera.core.CameraCaptureCallbacks.ComboCameraCaptureCallback;
+import androidx.camera.core.impl.CameraCaptureCallback;
+import androidx.camera.core.impl.CameraCaptureCallbacks.ComboCameraCaptureCallback;
 
 import java.util.ArrayList;
 import java.util.List;

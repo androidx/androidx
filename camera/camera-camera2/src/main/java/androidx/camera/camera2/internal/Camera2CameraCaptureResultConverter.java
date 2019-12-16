@@ -19,7 +19,7 @@ import android.hardware.camera2.CaptureResult;
 
 import androidx.annotation.RestrictTo;
 import androidx.annotation.RestrictTo.Scope;
-import androidx.camera.core.CameraCaptureResult;
+import androidx.camera.core.impl.CameraCaptureResult;
 
 /**
 * An utility class to convert {@link CameraCaptureResult} to camera2 {@link CaptureResult}.

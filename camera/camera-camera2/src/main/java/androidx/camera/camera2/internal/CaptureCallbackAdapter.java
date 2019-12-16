@@ -22,8 +22,8 @@ import android.hardware.camera2.CaptureRequest;
 import android.hardware.camera2.TotalCaptureResult;
 
 import androidx.annotation.NonNull;
-import androidx.camera.core.CameraCaptureCallback;
-import androidx.camera.core.CameraCaptureFailure;
+import androidx.camera.core.impl.CameraCaptureCallback;
+import androidx.camera.core.impl.CameraCaptureFailure;
 
 /**
  * An adapter that passes {@link CameraCaptureSession.CaptureCallback} to {@link

@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2019 The Android Open Source Project
+ * Copyright 2019 The Android Open Source Project
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -14,23 +14,20 @@
  * limitations under the License.
  */
 
-package androidx.camera.core;
+package androidx.camera.core.impl;
 
 import androidx.annotation.NonNull;
-import androidx.annotation.RestrictTo;
-import androidx.annotation.RestrictTo.Scope;
-import androidx.camera.core.CameraCaptureMetaData.AeState;
-import androidx.camera.core.CameraCaptureMetaData.AfMode;
-import androidx.camera.core.CameraCaptureMetaData.AfState;
-import androidx.camera.core.CameraCaptureMetaData.AwbState;
-import androidx.camera.core.CameraCaptureMetaData.FlashState;
+import androidx.annotation.Nullable;
+import androidx.camera.core.impl.CameraCaptureMetaData.AeState;
+import androidx.camera.core.impl.CameraCaptureMetaData.AfMode;
+import androidx.camera.core.impl.CameraCaptureMetaData.AfState;
+import androidx.camera.core.impl.CameraCaptureMetaData.AwbState;
+import androidx.camera.core.impl.CameraCaptureMetaData.FlashState;
 
 /**
  * The result of a single image capture.
  *
- * @hide
  */
-@RestrictTo(Scope.LIBRARY_GROUP)
 public interface CameraCaptureResult {
 
     /** Returns the current auto focus mode of operation. */
@@ -61,11 +58,13 @@ public interface CameraCaptureResult {
     long getTimestamp();
 
     /** Returns the tag associated with the capture request. */
+    @Nullable
     Object getTag();
 
     /** An implementation of CameraCaptureResult which always return default results. */
     final class EmptyCameraCaptureResult implements CameraCaptureResult {
 
+        @NonNull
         public static CameraCaptureResult create() {
             return new EmptyCameraCaptureResult();
         }
@@ -106,6 +105,7 @@ public interface CameraCaptureResult {
         }
 
         @Override
+        @Nullable
         public Object getTag() {
             return null;
         }

@@ -22,11 +22,11 @@ import static org.mockito.Mockito.when;
 
 import android.hardware.camera2.CaptureResult;
 
-import androidx.camera.core.CameraCaptureMetaData.AeState;
-import androidx.camera.core.CameraCaptureMetaData.AfMode;
-import androidx.camera.core.CameraCaptureMetaData.AfState;
-import androidx.camera.core.CameraCaptureMetaData.AwbState;
-import androidx.camera.core.CameraCaptureMetaData.FlashState;
+import androidx.camera.core.impl.CameraCaptureMetaData.AeState;
+import androidx.camera.core.impl.CameraCaptureMetaData.AfMode;
+import androidx.camera.core.impl.CameraCaptureMetaData.AfState;
+import androidx.camera.core.impl.CameraCaptureMetaData.AwbState;
+import androidx.camera.core.impl.CameraCaptureMetaData.FlashState;
 import androidx.test.ext.junit.runners.AndroidJUnit4;
 import androidx.test.filters.SmallTest;
 
