@@ -81,6 +81,7 @@ import androidx.camera.core.impl.utils.executor.CameraXExecutors;
 import androidx.camera.core.impl.utils.futures.FutureCallback;
 import androidx.camera.core.impl.utils.futures.FutureChain;
 import androidx.camera.core.impl.utils.futures.Futures;
+import androidx.camera.core.internal.TargetConfig;
 import androidx.concurrent.futures.CallbackToFutureAdapter;
 
 import com.google.common.util.concurrent.ListenableFuture;
