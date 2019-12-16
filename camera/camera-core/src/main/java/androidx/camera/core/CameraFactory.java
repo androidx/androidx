@@ -19,6 +19,7 @@ package androidx.camera.core;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.annotation.RestrictTo;
+import androidx.camera.core.impl.CameraInternal;
 import androidx.camera.core.impl.LensFacingCameraIdFilter;
 
 import java.util.Set;

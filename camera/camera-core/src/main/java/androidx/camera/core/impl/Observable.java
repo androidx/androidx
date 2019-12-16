@@ -14,13 +14,12 @@
  * limitations under the License.
  */
 
-package androidx.camera.core;
+package androidx.camera.core.impl;
 
 import android.annotation.SuppressLint;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
-import androidx.annotation.RestrictTo;
 
 import com.google.common.util.concurrent.ListenableFuture;
 
@@ -30,9 +29,7 @@ import java.util.concurrent.Executor;
  * An observable stream which contains data or errors.
  *
  * @param <T> The type of the data in the stream.
- * @hide
  */
-@RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
 public interface Observable<T> {
 
     /**

@@ -56,6 +56,7 @@ import androidx.camera.core.impl.CameraIdFilter;
 import androidx.camera.core.impl.CameraInfoInternal;
 import androidx.camera.core.impl.utils.Threads;
 import androidx.camera.core.impl.utils.executor.CameraXExecutors;
+import androidx.camera.core.internal.TargetConfig;
 
 import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;

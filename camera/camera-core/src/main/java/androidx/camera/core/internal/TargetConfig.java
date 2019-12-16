@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2019 The Android Open Source Project
+ * Copyright 2019 The Android Open Source Project
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -14,21 +14,17 @@
  * limitations under the License.
  */
 
-package androidx.camera.core;
+package androidx.camera.core.internal;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
-import androidx.annotation.RestrictTo;
-import androidx.annotation.RestrictTo.Scope;
 import androidx.camera.core.Config.Option;
 
 /**
  * Configuration containing options used to identify the target class and object being configured.
  *
  * @param <T> The type of the object being configured.
- * @hide
  */
-@RestrictTo(Scope.LIBRARY_GROUP)
 public interface TargetConfig<T> {
 
     // Option Declarations:
@@ -36,17 +32,11 @@ public interface TargetConfig<T> {
 
     /**
      * Option: camerax.core.target.name
-     *
-     * @hide
      */
-    @RestrictTo(Scope.LIBRARY_GROUP)
     Option<String> OPTION_TARGET_NAME = Option.create("camerax.core.target.name", String.class);
     /**
      * Option: camerax.core.target.class
-     *
-     * @hide
      */
-    @RestrictTo(Scope.LIBRARY_GROUP)
     Option<Class<?>> OPTION_TARGET_CLASS =
             Option.create("camerax.core.target.class", Class.class);
 
@@ -104,9 +94,7 @@ public interface TargetConfig<T> {
      *
      * @param <T> The type of the object being configured.
      * @param <B> The top level builder type for which this builder is composed with.
-     * @hide
      */
-    @RestrictTo(Scope.LIBRARY_GROUP)
     interface Builder<T, B> {
 
         /**
@@ -118,9 +106,7 @@ public interface TargetConfig<T> {
          * @param targetClass A class object corresponding to the class of the object being
          *                    configured.
          * @return the current Builder.
-         * @hide
          */
-        @RestrictTo(Scope.LIBRARY_GROUP)
         @NonNull
         B setTargetClass(@NonNull Class<T> targetClass);
 

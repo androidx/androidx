@@ -16,7 +16,6 @@
 
 package androidx.camera.core.impl
 
-import androidx.camera.core.Observable
 import androidx.camera.core.impl.utils.executor.CameraXExecutors
 import androidx.concurrent.futures.await
 import androidx.test.filters.SmallTest
