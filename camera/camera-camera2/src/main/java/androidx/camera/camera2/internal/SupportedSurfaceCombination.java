@@ -37,13 +37,13 @@ import androidx.camera.core.AspectRatio;
 import androidx.camera.core.CameraX;
 import androidx.camera.core.ImageFormatConstants;
 import androidx.camera.core.ImageOutputConfig;
-import androidx.camera.core.SurfaceCombination;
-import androidx.camera.core.SurfaceConfig;
-import androidx.camera.core.SurfaceConfig.ConfigSize;
-import androidx.camera.core.SurfaceConfig.ConfigType;
-import androidx.camera.core.SurfaceSizeDefinition;
 import androidx.camera.core.UseCase;
 import androidx.camera.core.UseCaseConfig;
+import androidx.camera.core.impl.SurfaceCombination;
+import androidx.camera.core.impl.SurfaceConfig;
+import androidx.camera.core.impl.SurfaceConfig.ConfigSize;
+import androidx.camera.core.impl.SurfaceConfig.ConfigType;
+import androidx.camera.core.impl.SurfaceSizeDefinition;
 import androidx.core.util.Preconditions;
 
 import java.util.ArrayList;
