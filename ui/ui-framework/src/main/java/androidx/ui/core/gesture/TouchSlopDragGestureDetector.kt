@@ -19,58 +19,87 @@ package androidx.ui.core.gesture
 import androidx.compose.Composable
 import androidx.compose.remember
 import androidx.ui.core.Direction
+import androidx.ui.core.PointerEventPass
 import androidx.ui.core.PxPosition
 
-// TODO(shepshapard): Convert to functional component with effects once effects are ready.
+// TODO(b/146133703): Likely rename to PanGestureDetector as per b/146133703
 /**
  * This gesture detector detects dragging in any direction.
  *
- * Dragging begins when the touch slop distance (currently defined by [TouchSlop]) is
- * surpassed in a supported direction (see [DragObserver.onDrag]).  When dragging begins,
- * [DragObserver.onStart] is called, followed immediately by a call to [DragObserver.onDrag].
- * [DragObserver.onDrag] is then continuously called whenever pointers have moved.
- * [DragObserver.onStop] is called when the dragging ends due to all of the pointers no longer
- * interacting with the DragGestureDetector (for example, the last finger has been lifted off
- * of the DragGestureDetector).
+ * Dragging normally begins when the touch slop distance (currently defined by [TouchSlop]) is
+ * surpassed in a supported direction (see [DragObserver.onDrag]).  When dragging begins in this
+ * manner, [DragObserver.onStart] is called, followed immediately by a call to
+ * [DragObserver.onDrag]. [DragObserver.onDrag] is then continuously called whenever pointers
+ * have moved. [DragObserver.onStop] is called when the dragging ends due to all of the pointers
+ * no longer interacting with the DragGestureDetector (for example, the last finger has been lifted
+ * off of the DragGestureDetector).
+ *
+ * If [startDragImmediately] is set to true, dragging will begin as soon as soon as a pointer comes
+ * in contact with it, effectively ignoring touch slop and blocking any descendants from reacting
+ * the "down" change.  When dragging begins in this manner, [DragObserver.onStart] is called
+ * immediately and is followed by [DragObserver.onDrag] when some drag distance has occurred.
  *
  * When multiple pointers are touching the detector, the drag distance is taken as the average of
  * all of the pointers.
  *
+ * @param dragObserver The callback interface to report all events related to dragging.
  * @param canDrag Set to limit the directions under which touch slop can be exceeded. Return true
  * if you want a drag to be started due to the touch slop being surpassed in the given [Direction].
  * If [canDrag] is not provided, touch slop will be able to be exceeded in all directions.
- * @param dragObserver The callback interface to report all events related to dragging.
+ * @param startDragImmediately Set to true to have dragging begin immediately when a pointer is
+ * "down", preventing children from responding to the "down" change.  Generally, this parameter
+ * should be set to true when the child of the GestureDetector is animating, such that when a finger
+ * touches it, dragging is immediately started so the animation stops and dragging can occur.
  */
 @Composable
 fun TouchSlopDragGestureDetector(
     dragObserver: DragObserver,
     canDrag: ((Direction) -> Boolean)? = null,
+    startDragImmediately: Boolean = false,
     children: @Composable() () -> Unit
 ) {
     val glue = remember { TouchSlopDragGestureDetectorGlue() }
     glue.touchSlopDragObserver = dragObserver
 
-    RawDragGestureDetector(glue.rawDragObserver, glue::dragEnabled) {
-        TouchSlopExceededGestureDetector(glue::enableDrag, canDrag, children)
+    RawDragGestureDetector(glue.rawDragObserver, glue::enabledOrStarted) {
+        TouchSlopExceededGestureDetector(glue::enableDrag, canDrag) {
+            RawPressStartGestureDetector(
+                glue::startDrag,
+                startDragImmediately,
+                PointerEventPass.InitialDown,
+                children
+            )
+        }
     }
 }
 
 /**
- * Glues together the logic of RawDragGestureDetector and TouchSlopExceededGestureDetector.
+ * Glues together the logic of RawDragGestureDetector, TouchSlopExceededGestureDetector, and
+ * InterruptFlingGestureDetector.
  */
 private class TouchSlopDragGestureDetectorGlue {
 
     lateinit var touchSlopDragObserver: DragObserver
-    var dragEnabled = false
+    var started = false
+    var enabled = false
+    val enabledOrStarted
+        get() = started || enabled
 
     fun enableDrag() {
-        dragEnabled = true
+        enabled = true
+    }
+
+    fun startDrag(downPosition: PxPosition) {
+        started = true
+        touchSlopDragObserver.onStart(downPosition)
     }
 
     val rawDragObserver: DragObserver =
         object : DragObserver {
             override fun onStart(downPosition: PxPosition) {
-                touchSlopDragObserver.onStart(downPosition)
+                if (!started) {
+                    touchSlopDragObserver.onStart(downPosition)
+                }
             }
 
             override fun onDrag(dragDistance: PxPosition): PxPosition {
@@ -79,7 +108,8 @@ private class TouchSlopDragGestureDetectorGlue {
 
             override fun onStop(velocity: PxPosition) {
                 touchSlopDragObserver.onStop(velocity)
-                dragEnabled = false
+                started = false
+                enabled = false
             }
         }
 }

@@ -22,8 +22,10 @@ import androidx.compose.MutableState
 import androidx.compose.remember
 import androidx.compose.state
 import androidx.ui.core.Alignment
+import androidx.ui.core.PxPosition
 import androidx.ui.core.Text
 import androidx.ui.core.dp
+import androidx.ui.core.gesture.PressIndicatorGestureDetector
 import androidx.ui.core.px
 import androidx.ui.core.sp
 import androidx.ui.foundation.Clickable
@@ -90,7 +92,7 @@ fun VerticalScrollerSample() {
     VerticalScroller {
         Column(modifier = LayoutPadding(20.dp)) {
             phrases.forEach { phrase ->
-                Text(text = phrase, style = style)
+                Text(phrase, style)
             }
         }
     }
@@ -180,6 +182,30 @@ private fun SquareButton(text: String, color: Color = Color.LightGray, onClick: 
                 DrawShape(RectangleShape, color)
                 Text(text, style = TextStyle(fontSize = 20.sp))
             }
+        }
+    }
+}
+
+@Composable
+private fun Text(text: String, textStyle: TextStyle) {
+
+    val pressedColor = Color.LightGray
+    val releasedColor = Color.Transparent
+
+    val color = state { releasedColor }
+
+    val onPress: (PxPosition) -> Unit = { _ ->
+        color.value = pressedColor
+    }
+
+    val onRelease: () -> Unit = {
+        color.value = releasedColor
+    }
+
+    PressIndicatorGestureDetector(onStart = onPress, onStop = onRelease, onCancel = onRelease) {
+        Container {
+            DrawShape(RectangleShape, color.value)
+            Text(text, style = textStyle)
         }
     }
 }

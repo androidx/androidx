@@ -24,6 +24,7 @@ import androidx.ui.core.px
 import androidx.ui.foundation.ValueHolder
 import androidx.ui.foundation.animation.AnimatedValueHolder
 
+// TODO(b/145766300): Consider folding "isAnimating" into dragValue.
 /**
  * Component that provides high-level drag functionality reflected in one value
  *
@@ -49,6 +50,10 @@ import androidx.ui.foundation.animation.AnimatedValueHolder
  * has been passed, with starting position provided
  * @param onDragStopped callback that will be invoked when drag stops, with velocity provided
  * @param enabled whether or not drag is enabled
+ * @param isValueAnimating Set to true when dragValue is being animated. Setting to true will
+ * inform this Draggable that it should start dragging and prevent other gesture detectors from
+ * reacting to "down" events (in order to block composed press-based gestures).  This is intended to
+ * allow end users to "catch" an animating widget by pressing on it.
  */
 @Composable
 fun Draggable(
@@ -58,6 +63,7 @@ fun Draggable(
     onDragStarted: (startedPosition: PxPosition) -> Unit = {},
     onDragStopped: (velocity: Float) -> Unit = {},
     enabled: Boolean = true,
+    isValueAnimating: Boolean = false,
     children: @Composable() () -> Unit
 ) {
     TouchSlopDragGestureDetector(
@@ -91,6 +97,7 @@ fun Draggable(
                     dragValue.value
                 )
         },
+        startDragImmediately = isValueAnimating,
         children = children
     )
 }
