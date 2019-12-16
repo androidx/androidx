@@ -86,6 +86,7 @@ import androidx.work.worker.UsedWorker;
 
 import com.google.common.util.concurrent.ListenableFuture;
 
+import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -127,6 +128,11 @@ public class WorkerWrapperTest extends DatabaseTest {
         mMockForegroundProcessor = mock(ForegroundProcessor.class);
         mMockProgressUpdater = mock(ProgressUpdater.class);
         mMockForegroundUpdater = mock(ForegroundUpdater.class);
+    }
+
+    @After
+    public void tearDown() {
+        mDatabase.close();
     }
 
     @Test
