@@ -20,11 +20,11 @@ import android.view.Surface;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
-import androidx.camera.core.CameraInfoInternal;
 import androidx.camera.core.CameraOrientationUtil;
 import androidx.camera.core.CameraSelector;
 import androidx.camera.core.ImageOutputConfig.RotationValue;
 import androidx.camera.core.TorchState;
+import androidx.camera.core.impl.CameraInfoInternal;
 import androidx.lifecycle.LiveData;
 import androidx.lifecycle.MutableLiveData;
 
