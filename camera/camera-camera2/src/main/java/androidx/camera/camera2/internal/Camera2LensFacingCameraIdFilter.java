@@ -25,7 +25,7 @@ import android.util.Log;
 import androidx.annotation.NonNull;
 import androidx.annotation.RestrictTo;
 import androidx.camera.core.CameraSelector;
-import androidx.camera.core.LensFacingCameraIdFilter;
+import androidx.camera.core.impl.LensFacingCameraIdFilter;
 
 import java.util.LinkedHashSet;
 import java.util.Set;

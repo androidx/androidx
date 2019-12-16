@@ -14,19 +14,15 @@
  * limitations under the License.
  */
 
-package androidx.camera.core;
+package androidx.camera.core.impl;
 
 import androidx.annotation.NonNull;
-import androidx.annotation.RestrictTo;
 
 import java.util.Set;
 
 /**
  * A filter that selects a certain type of camera ids from a camera id set.
- *
- * @hide
  */
-@RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
 public interface CameraIdFilter {
     /**
      * Returns a set of camera ids with the same type.

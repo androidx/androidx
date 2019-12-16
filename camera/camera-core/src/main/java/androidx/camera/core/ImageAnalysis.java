@@ -16,8 +16,6 @@
 
 package androidx.camera.core;
 
-import static androidx.camera.core.CameraDeviceConfig.OPTION_CAMERA_ID_FILTER;
-import static androidx.camera.core.CameraDeviceConfig.OPTION_LENS_FACING;
 import static androidx.camera.core.ImageAnalysisConfig.OPTION_BACKPRESSURE_STRATEGY;
 import static androidx.camera.core.ImageAnalysisConfig.OPTION_IMAGE_QUEUE_DEPTH;
 import static androidx.camera.core.ImageOutputConfig.OPTION_MAX_RESOLUTION;
@@ -35,6 +33,8 @@ import static androidx.camera.core.UseCaseConfig.OPTION_SURFACE_OCCUPANCY_PRIORI
 import static androidx.camera.core.UseCaseConfig.OPTION_TARGET_CLASS;
 import static androidx.camera.core.UseCaseConfig.OPTION_TARGET_NAME;
 import static androidx.camera.core.UseCaseConfig.OPTION_USE_CASE_EVENT_CALLBACK;
+import static androidx.camera.core.impl.CameraDeviceConfig.OPTION_CAMERA_ID_FILTER;
+import static androidx.camera.core.impl.CameraDeviceConfig.OPTION_LENS_FACING;
 
 import android.media.ImageReader;
 import android.util.Log;
@@ -51,6 +51,8 @@ import androidx.annotation.Nullable;
 import androidx.annotation.RestrictTo;
 import androidx.annotation.RestrictTo.Scope;
 import androidx.camera.core.ImageOutputConfig.RotationValue;
+import androidx.camera.core.impl.CameraDeviceConfig;
+import androidx.camera.core.impl.CameraIdFilter;
 import androidx.camera.core.impl.utils.Threads;
 import androidx.camera.core.impl.utils.executor.CameraXExecutors;
 

@@ -20,6 +20,8 @@ import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.annotation.RestrictTo;
 import androidx.annotation.RestrictTo.Scope;
+import androidx.camera.core.impl.CameraIdFilter;
+import androidx.camera.core.impl.LensFacingCameraIdFilter;
 
 import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;

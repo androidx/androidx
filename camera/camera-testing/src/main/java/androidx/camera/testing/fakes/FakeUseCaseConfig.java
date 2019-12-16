@@ -22,8 +22,6 @@ import android.util.Size;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
-import androidx.camera.core.CameraDeviceConfig;
-import androidx.camera.core.CameraIdFilter;
 import androidx.camera.core.CameraSelector;
 import androidx.camera.core.CaptureConfig;
 import androidx.camera.core.Config;
@@ -34,6 +32,8 @@ import androidx.camera.core.OptionsBundle;
 import androidx.camera.core.SessionConfig;
 import androidx.camera.core.UseCase;
 import androidx.camera.core.UseCaseConfig;
+import androidx.camera.core.impl.CameraDeviceConfig;
+import androidx.camera.core.impl.CameraIdFilter;
 
 import java.util.List;
 import java.util.Set;

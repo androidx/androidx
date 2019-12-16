@@ -18,7 +18,7 @@ package androidx.camera.extensions;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
-import androidx.camera.core.CameraIdFilter;
+import androidx.camera.core.impl.CameraIdFilter;
 import androidx.camera.extensions.impl.ImageCaptureExtenderImpl;
 import androidx.camera.extensions.impl.PreviewExtenderImpl;
 

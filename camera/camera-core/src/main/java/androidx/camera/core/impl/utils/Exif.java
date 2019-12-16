@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2019 The Android Open Source Project
+ * Copyright 2019 The Android Open Source Project
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -14,14 +14,13 @@
  * limitations under the License.
  */
 
-package androidx.camera.core;
+package androidx.camera.core.impl.utils;
 
 import android.location.Location;
 import android.util.Log;
 
+import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
-import androidx.annotation.RestrictTo;
-import androidx.annotation.RestrictTo.Scope;
 import androidx.exifinterface.media.ExifInterface;
 
 import java.io.File;
@@ -36,10 +35,7 @@ import java.util.Locale;
  * Utility class for modifying metadata on JPEG files.
  *
  * <p>Call {@link #save()} to persist changes to disc.
- *
- * @hide
  */
-@RestrictTo(Scope.LIBRARY_GROUP)
 public final class Exif {
 
     /** Timestamp value indicating a timestamp value that is either not set or not valid */
@@ -87,7 +83,8 @@ public final class Exif {
      *
      * @param file the file to read exif data from
      */
-    public static Exif createFromFile(File file) throws IOException {
+    @NonNull
+    public static Exif createFromFile(@NonNull File file) throws IOException {
         return createFromFileString(file.toString());
     }
 
@@ -96,7 +93,8 @@ public final class Exif {
      *
      * @param filePath the path to the file to read exif data from
      */
-    public static Exif createFromFileString(String filePath) throws IOException {
+    @NonNull
+    public static Exif createFromFileString(@NonNull String filePath) throws IOException {
         return new Exif(new ExifInterface(filePath));
     }
 
@@ -104,7 +102,8 @@ public final class Exif {
      * Returns an Exif from the exif data contain in the input stream.
      * @param is the input stream to read exif data from
      */
-    public static Exif createFromInputStream(InputStream is) throws IOException {
+    @NonNull
+    public static Exif createFromInputStream(@NonNull InputStream is) throws IOException {
         return new Exif(new ExifInterface(is));
     }
 
@@ -567,7 +566,7 @@ public final class Exif {
     }
 
     /** Attaches the given location to the file. */
-    public void attachLocation(Location location) {
+    public void attachLocation(@NonNull Location location) {
         mExifInterface.setGpsInfo(location);
     }
 

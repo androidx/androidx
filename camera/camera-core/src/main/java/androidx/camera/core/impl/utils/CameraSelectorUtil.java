@@ -16,29 +16,24 @@
 
 package androidx.camera.core.impl.utils;
 
-import static androidx.camera.core.CameraDeviceConfig.OPTION_CAMERA_ID_FILTER;
-import static androidx.camera.core.CameraDeviceConfig.OPTION_LENS_FACING;
+import static androidx.camera.core.impl.CameraDeviceConfig.OPTION_CAMERA_ID_FILTER;
+import static androidx.camera.core.impl.CameraDeviceConfig.OPTION_LENS_FACING;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
-import androidx.annotation.RestrictTo;
-import androidx.annotation.RestrictTo.Scope;
-import androidx.camera.core.CameraDeviceConfig;
-import androidx.camera.core.CameraIdFilter;
-import androidx.camera.core.CameraIdFilterSet;
 import androidx.camera.core.CameraSelector;
 import androidx.camera.core.Config;
 import androidx.camera.core.MutableOptionsBundle;
 import androidx.camera.core.OptionsBundle;
+import androidx.camera.core.impl.CameraDeviceConfig;
+import androidx.camera.core.impl.CameraIdFilter;
+import androidx.camera.core.internal.CameraIdFilterSet;
 
 import java.util.Set;
 
 /**
  * Utility helper methods for CameraSelector.
- *
- * @hide
  */
-@RestrictTo(Scope.LIBRARY_GROUP)
 public final class CameraSelectorUtil {
 
     /**
@@ -117,9 +112,7 @@ public final class CameraSelectorUtil {
          * @return The stored value or <code>ValueIfMissing</code> if the value does not exist in
          * this
          * configuration.
-         * @hide
          */
-        @RestrictTo(Scope.LIBRARY_GROUP)
         @Override
         @Nullable
         public CameraIdFilter getCameraIdFilter(@Nullable CameraIdFilter valueIfMissing) {
@@ -131,9 +124,7 @@ public final class CameraSelectorUtil {
          *
          * @return The stored value, if it exists in the configuration.
          * @throws IllegalArgumentException if the option does not exist in this configuration.
-         * @hide
          */
-        @RestrictTo(Scope.LIBRARY_GROUP)
         @Override
         @NonNull
         public CameraIdFilter getCameraIdFilter() {

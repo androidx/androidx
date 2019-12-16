@@ -14,12 +14,13 @@
  * limitations under the License.
  */
 
-package androidx.camera.core;
+package androidx.camera.core.internal;
 
 import static com.google.common.truth.Truth.assertThat;
 
 import android.os.Build;
 
+import androidx.camera.core.impl.CameraIdFilter;
 import androidx.camera.testing.fakes.FakeCameraIdFilter;
 import androidx.test.filters.SmallTest;
 

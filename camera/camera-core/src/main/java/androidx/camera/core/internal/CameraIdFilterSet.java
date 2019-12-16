@@ -14,10 +14,10 @@
  * limitations under the License.
  */
 
-package androidx.camera.core;
+package androidx.camera.core.internal;
 
 import androidx.annotation.NonNull;
-import androidx.annotation.RestrictTo;
+import androidx.camera.core.impl.CameraIdFilter;
 
 import java.util.HashSet;
 import java.util.Set;
@@ -25,10 +25,7 @@ import java.util.Set;
 /**
  * A {@link CameraIdFilter} which holds multiple {@link CameraIdFilter} and filters camera ids
  * with all of them.
- *
- * @hide
  */
-@RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
 public final class CameraIdFilterSet implements CameraIdFilter {
     private Set<CameraIdFilter> mCameraIdFilterSet = new HashSet<>();
 
@@ -42,13 +39,13 @@ public final class CameraIdFilterSet implements CameraIdFilter {
         return cameraIds;
     }
 
-    /** Gets a set of {@link androidx.camera.core.CameraIdFilter}. */
+    /** Gets a set of {@link CameraIdFilter}. */
     @NonNull
     public Set<CameraIdFilter> getCameraIdFilters() {
         return mCameraIdFilterSet;
     }
 
-    /** Adds a {@link androidx.camera.core.CameraIdFilter} to the set. */
+    /** Adds a {@link CameraIdFilter} to the set. */
     public void addCameraIdFilter(@NonNull CameraIdFilter cameraIdFilter) {
         if (cameraIdFilter instanceof CameraIdFilterSet) {
             // If the additional CameraIdFilter is a CameraIdFilterSet, add all of the single

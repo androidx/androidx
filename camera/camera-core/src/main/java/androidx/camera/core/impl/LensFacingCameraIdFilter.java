@@ -14,19 +14,17 @@
  * limitations under the License.
  */
 
-package androidx.camera.core;
+package androidx.camera.core.impl;
 
 import androidx.annotation.NonNull;
-import androidx.annotation.RestrictTo;
+import androidx.camera.core.CameraSelector;
+import androidx.camera.core.CameraX;
 
 import java.util.Set;
 
 /**
  * A filter selects camera id with specified lens facing from a camera id set.
- *
- * @hide
  */
-@RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
 public class LensFacingCameraIdFilter implements CameraIdFilter {
     @CameraSelector.LensFacing
     private int mLensFacing;

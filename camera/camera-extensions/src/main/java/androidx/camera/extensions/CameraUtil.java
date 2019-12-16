@@ -27,7 +27,7 @@ import androidx.annotation.Nullable;
 import androidx.camera.core.CameraInfoUnavailableException;
 import androidx.camera.core.CameraSelector;
 import androidx.camera.core.CameraX;
-import androidx.camera.core.LensFacingCameraIdFilter;
+import androidx.camera.core.impl.LensFacingCameraIdFilter;
 
 import java.util.Set;
 
