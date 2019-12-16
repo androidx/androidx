@@ -249,7 +249,7 @@ final class CameraXModule {
             // the listenableFuture.
             mResolutionUpdateCompleter.set(resolution);
             // Create SurfaceTexture and Surface.
-            SurfaceTexture surfaceTexture = new SurfaceTexture(0);
+            SurfaceTexture surfaceTexture = new FixedSizeSurfaceTexture(0, resolution);
             surfaceTexture.setDefaultBufferSize(resolution.getWidth(),
                     resolution.getHeight());
             surfaceTexture.detachFromGLContext();
