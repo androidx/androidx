@@ -30,6 +30,8 @@ import android.view.Surface;
 import androidx.annotation.GuardedBy;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
+import androidx.camera.camera2.impl.Camera2ImplConfig;
+import androidx.camera.camera2.impl.CameraEventCallbacks;
 import androidx.camera.camera2.internal.annotation.CameraExecutor;
 import androidx.camera.camera2.internal.compat.CameraCaptureSessionCompat;
 import androidx.camera.camera2.internal.compat.CameraDeviceCompat;

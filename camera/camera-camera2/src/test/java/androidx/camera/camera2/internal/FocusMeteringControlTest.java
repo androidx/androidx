@@ -40,6 +40,7 @@ import android.os.Build;
 import android.util.Rational;
 import android.util.Size;
 
+import androidx.camera.camera2.impl.Camera2ImplConfig;
 import androidx.camera.camera2.internal.Camera2CameraControl.CaptureResultListener;
 import androidx.camera.core.FocusMeteringAction;
 import androidx.camera.core.FocusMeteringResult;

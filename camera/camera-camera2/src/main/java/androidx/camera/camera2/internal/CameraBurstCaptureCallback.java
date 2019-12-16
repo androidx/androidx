@@ -26,8 +26,6 @@ import android.view.Surface;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.RequiresApi;
-import androidx.annotation.RestrictTo;
-import androidx.annotation.RestrictTo.Scope;
 
 import java.util.ArrayList;
 import java.util.Collections;
@@ -37,11 +35,8 @@ import java.util.Map;
 
 /**
  * A callback object for tracking the progress of a capture request submitted to the camera device.
- *
- * @hide
  */
-@RestrictTo(Scope.LIBRARY_GROUP)
-public class CameraBurstCaptureCallback extends CameraCaptureSession.CaptureCallback {
+class CameraBurstCaptureCallback extends CameraCaptureSession.CaptureCallback {
 
     final Map<CaptureRequest, List<CameraCaptureSession.CaptureCallback>> mCallbackMap;
 

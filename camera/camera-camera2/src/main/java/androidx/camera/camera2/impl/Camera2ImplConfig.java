@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package androidx.camera.camera2.internal;
+package androidx.camera.camera2.impl;
 
 import android.hardware.camera2.CameraCaptureSession;
 import android.hardware.camera2.CameraDevice;
@@ -35,10 +35,7 @@ import java.util.Set;
 
 /**
  * Internal shared implementation details for camera 2 interop.
- *
- * @hide
  */
-@RestrictTo(Scope.LIBRARY_GROUP)
 public final class Camera2ImplConfig implements Config {
 
     /** @hide */
@@ -105,9 +102,7 @@ public final class Camera2ImplConfig implements Config {
      * @param <ValueT>       The type of the value.
      * @return The stored value or <code>valueIfMissing</code> if the value does not exist in this
      * configuration.
-     * @hide
      */
-    @RestrictTo(Scope.LIBRARY_GROUP)
     @Nullable
     public <ValueT> ValueT getCaptureRequestOption(
             @NonNull CaptureRequest.Key<ValueT> key, @Nullable ValueT valueIfMissing) {
@@ -149,9 +144,7 @@ public final class Camera2ImplConfig implements Config {
      * @param valueIfMissing The value to return if this configuration option has not been set.
      * @return The stored value or <code>valueIfMissing</code> if the value does not exist in this
      * configuration.
-     * @hide
      */
-    @RestrictTo(Scope.LIBRARY_GROUP)
     public int getCaptureRequestTemplate(int valueIfMissing) {
         return mConfig.retrieveOption(TEMPLATE_TYPE_OPTION, valueIfMissing);
     }
@@ -162,9 +155,7 @@ public final class Camera2ImplConfig implements Config {
      * @param valueIfMissing The value to return if this configuration option has not been set.
      * @return The stored value or <code>valueIfMissing</code> if the value does not exist in this
      * configuration.
-     * @hide
      */
-    @RestrictTo(Scope.LIBRARY_GROUP)
     @Nullable
     public CameraDevice.StateCallback getDeviceStateCallback(
             @Nullable CameraDevice.StateCallback valueIfMissing) {
@@ -178,9 +169,7 @@ public final class Camera2ImplConfig implements Config {
      * @param valueIfMissing The value to return if this configuration option has not been set.
      * @return The stored value or <code>valueIfMissing</code> if the value does not exist in this
      * configuration.
-     * @hide
      */
-    @RestrictTo(Scope.LIBRARY_GROUP)
     @Nullable
     public CameraCaptureSession.StateCallback getSessionStateCallback(
             @Nullable CameraCaptureSession.StateCallback valueIfMissing) {
@@ -193,9 +182,7 @@ public final class Camera2ImplConfig implements Config {
      * @param valueIfMissing The value to return if this configuration option has not been set.
      * @return The stored value or <code>valueIfMissing</code> if the value does not exist in this
      * configuration.
-     * @hide
      */
-    @RestrictTo(Scope.LIBRARY_GROUP)
     @Nullable
     public CameraCaptureSession.CaptureCallback getSessionCaptureCallback(
             @Nullable CameraCaptureSession.CaptureCallback valueIfMissing) {
@@ -208,9 +195,7 @@ public final class Camera2ImplConfig implements Config {
      * @param valueIfMissing The value to return if this configuration option has not been set.
      * @return The stored value or <code>valueIfMissing</code> if the value does not exist in this
      * configuration.
-     * @hide
      */
-    @RestrictTo(Scope.LIBRARY_GROUP)
     @Nullable
     public CameraEventCallbacks getCameraEventCallback(
             @Nullable CameraEventCallbacks valueIfMissing) {
@@ -222,23 +207,17 @@ public final class Camera2ImplConfig implements Config {
 
     // Implementations of Config default methods
 
-    /** @hide */
-    @RestrictTo(Scope.LIBRARY_GROUP)
     @Override
     public boolean containsOption(@NonNull Option<?> id) {
         return mConfig.containsOption(id);
     }
 
-    /** @hide */
-    @RestrictTo(Scope.LIBRARY_GROUP)
     @Override
     @Nullable
     public <ValueT> ValueT retrieveOption(@NonNull Option<ValueT> id) {
         return mConfig.retrieveOption(id);
     }
 
-    /** @hide */
-    @RestrictTo(Scope.LIBRARY_GROUP)
     @Override
     @Nullable
     public <ValueT> ValueT retrieveOption(@NonNull Option<ValueT> id,
@@ -246,15 +225,11 @@ public final class Camera2ImplConfig implements Config {
         return mConfig.retrieveOption(id, valueIfMissing);
     }
 
-    /** @hide */
-    @RestrictTo(Scope.LIBRARY_GROUP)
     @Override
     public void findOptions(@NonNull String idStem, @NonNull OptionMatcher matcher) {
         mConfig.findOptions(idStem, matcher);
     }
 
-    /** @hide */
-    @RestrictTo(Scope.LIBRARY_GROUP)
     @Override
     @NonNull
     public Set<Option<?>> listOptions() {
@@ -272,10 +247,7 @@ public final class Camera2ImplConfig implements Config {
      * {@link androidx.camera.camera2.interop.Camera2Interop.Extender} to add Camera2 options on
      * existing other {@link
      * ExtendableBuilder}.
-     *
-     * @hide
      */
-    @RestrictTo(Scope.LIBRARY_GROUP)
     public static final class Builder implements ExtendableBuilder<Camera2ImplConfig> {
 
         private final MutableOptionsBundle mMutableOptionsBundle = MutableOptionsBundle.create();
@@ -324,9 +296,7 @@ public final class Camera2ImplConfig implements Config {
      * Extends a {@link ExtendableBuilder} to add Camera2 implementation options.
      *
      * @param <T> the type being built by the extendable builder.
-     * @hide
      */
-    @RestrictTo(Scope.LIBRARY_GROUP)
     public static final class Extender<T> {
 
         ExtendableBuilder<T> mBaseBuilder;
@@ -346,9 +316,7 @@ public final class Camera2ImplConfig implements Config {
          *
          * @param cameraEventCallbacks The CameraEventCallbacks.
          * @return The current Extender.
-         * @hide
          */
-        @RestrictTo(Scope.LIBRARY_GROUP)
         @NonNull
         public Extender<T> setCameraEventCallback(
                 @NonNull CameraEventCallbacks cameraEventCallbacks) {

@@ -14,11 +14,10 @@
  * limitations under the License.
  */
 
-package androidx.camera.camera2.internal;
+package androidx.camera.camera2.impl;
 
 
 import androidx.annotation.NonNull;
-import androidx.annotation.RestrictTo;
 import androidx.camera.core.CaptureConfig;
 import androidx.camera.core.impl.MultiValueSet;
 
@@ -29,13 +28,10 @@ import java.util.List;
 
 /**
  * Different implementations of {@link CameraEventCallback}.
- *
- * @hide
  */
-@RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
 public final class CameraEventCallbacks extends MultiValueSet<CameraEventCallback> {
 
-    public CameraEventCallbacks(CameraEventCallback ... callbacks) {
+    public CameraEventCallbacks(@NonNull CameraEventCallback... callbacks) {
         addAll(Arrays.asList(callbacks));
     }
 
@@ -78,6 +74,7 @@ public final class CameraEventCallbacks extends MultiValueSet<CameraEventCallbac
          *
          * @return List<CaptureConfig> The request information to customize the session.
          */
+        @NonNull
         public List<CaptureConfig> onPresetSession() {
             // TODO(b/141959507): Suppressed during upgrade to AGP 3.6.
             @SuppressWarnings("JdkObsolete")
@@ -97,6 +94,7 @@ public final class CameraEventCallbacks extends MultiValueSet<CameraEventCallbac
          *
          * @return List<CaptureConfig> The request information to customize the session.
          */
+        @NonNull
         @SuppressWarnings("JdkObsolete") // TODO(b/141959507): Suppressed during upgrade to AGP 3.6.
         public List<CaptureConfig> onEnableSession() {
             List<CaptureConfig> ret = new LinkedList<>();
@@ -115,6 +113,7 @@ public final class CameraEventCallbacks extends MultiValueSet<CameraEventCallbac
          *
          * @return List<CaptureConfig> The request information to customize the session.
          */
+        @NonNull
         @SuppressWarnings("JdkObsolete") // TODO(b/141959507): Suppressed during upgrade to AGP 3.6.
         public List<CaptureConfig> onRepeating() {
             List<CaptureConfig> ret = new LinkedList<>();
@@ -133,6 +132,7 @@ public final class CameraEventCallbacks extends MultiValueSet<CameraEventCallbac
          *
          * @return List<CaptureConfig> The request information to customize the session.
          */
+        @NonNull
         @SuppressWarnings("JdkObsolete") // TODO(b/141959507): Suppressed during upgrade to AGP 3.6.
         public List<CaptureConfig> onDisableSession() {
             List<CaptureConfig> ret = new LinkedList<>();

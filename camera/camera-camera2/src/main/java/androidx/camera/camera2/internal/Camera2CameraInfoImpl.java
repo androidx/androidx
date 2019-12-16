@@ -22,8 +22,6 @@ import android.view.Surface;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
-import androidx.annotation.RestrictTo;
-import androidx.annotation.RestrictTo.Scope;
 import androidx.camera.core.CameraOrientationUtil;
 import androidx.camera.core.CameraSelector;
 import androidx.camera.core.ImageOutputConfig.RotationValue;
@@ -34,10 +32,7 @@ import androidx.lifecycle.LiveData;
 /**
  * Implementation of the {@link CameraInfoInternal} interface that exposes parameters through
  * camera2.
- *
- * @hide
  */
-@RestrictTo(Scope.LIBRARY)
 public final class Camera2CameraInfoImpl implements CameraInfoInternal {
 
     private static final String TAG = "Camera2CameraInfo";
@@ -57,8 +52,6 @@ public final class Camera2CameraInfoImpl implements CameraInfoInternal {
         logDeviceInfo();
     }
 
-    /** @hide */
-    @RestrictTo(Scope.LIBRARY)
     @NonNull
     @Override
     public String getCameraId() {

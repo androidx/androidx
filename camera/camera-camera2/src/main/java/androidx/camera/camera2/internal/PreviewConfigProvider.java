@@ -22,9 +22,8 @@ import android.util.Log;
 import android.util.Rational;
 import android.view.WindowManager;
 
+import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
-import androidx.annotation.RestrictTo;
-import androidx.annotation.RestrictTo.Scope;
 import androidx.camera.core.CameraFactory;
 import androidx.camera.core.CameraX;
 import androidx.camera.core.CaptureConfig;
@@ -35,10 +34,7 @@ import androidx.camera.core.SessionConfig;
 
 /**
  * Provides defaults for {@link PreviewConfig} in the Camera2 implementation.
- *
- * @hide
  */
-@RestrictTo(Scope.LIBRARY)
 public final class PreviewConfigProvider implements ConfigProvider<PreviewConfig> {
     private static final String TAG = "PreviewConfigProvider";
     private static final Rational DEFAULT_ASPECT_RATIO_4_3 = new Rational(4, 3);
@@ -47,11 +43,12 @@ public final class PreviewConfigProvider implements ConfigProvider<PreviewConfig
     private final CameraFactory mCameraFactory;
     private final WindowManager mWindowManager;
 
-    public PreviewConfigProvider(CameraFactory cameraFactory, Context context) {
+    public PreviewConfigProvider(@NonNull CameraFactory cameraFactory, @NonNull Context context) {
         mCameraFactory = cameraFactory;
         mWindowManager = (WindowManager) context.getSystemService(Context.WINDOW_SERVICE);
     }
 
+    @NonNull
     @Override
     public PreviewConfig getConfig(@Nullable Integer lensFacing) {
         Preview.Builder builder = Preview.Builder.fromConfig(

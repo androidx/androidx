@@ -40,9 +40,9 @@ import android.util.Size;
 
 import androidx.annotation.NonNull;
 import androidx.camera.camera2.Camera2Config;
-import androidx.camera.camera2.internal.Camera2ImplConfig;
-import androidx.camera.camera2.internal.CameraEventCallback;
-import androidx.camera.camera2.internal.CameraEventCallbacks;
+import androidx.camera.camera2.impl.Camera2ImplConfig;
+import androidx.camera.camera2.impl.CameraEventCallback;
+import androidx.camera.camera2.impl.CameraEventCallbacks;
 import androidx.camera.core.CameraSelector;
 import androidx.camera.core.CameraX;
 import androidx.camera.core.CameraXConfig;

@@ -25,8 +25,6 @@ import android.util.Size;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
-import androidx.annotation.RestrictTo;
-import androidx.annotation.RestrictTo.Scope;
 import androidx.annotation.VisibleForTesting;
 import androidx.camera.core.ImageOutputConfig;
 import androidx.camera.core.UseCase;
@@ -49,10 +47,7 @@ import java.util.Map;
  * of surface configuration type and size pairs can be supported for different hardware level camera
  * devices. This structure is used to store the guaranteed supported stream capabilities related
  * info.
- *
- * @hide
  */
-@RestrictTo(Scope.LIBRARY)
 public final class Camera2DeviceSurfaceManager implements CameraDeviceSurfaceManager {
     private static final String TAG = "Camera2DeviceSurfaceManager";
     private static final Size MAXIMUM_PREVIEW_SIZE = new Size(1920, 1080);

@@ -28,6 +28,7 @@ import android.util.Rational;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.annotation.WorkerThread;
+import androidx.camera.camera2.impl.Camera2ImplConfig;
 import androidx.camera.camera2.internal.annotation.CameraExecutor;
 import androidx.camera.core.CameraControl;
 import androidx.camera.core.CaptureConfig;
