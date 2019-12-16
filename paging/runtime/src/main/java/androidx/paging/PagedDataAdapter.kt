@@ -29,10 +29,14 @@ abstract class PagedDataAdapter<T : Any, VH : RecyclerView.ViewHolder>(
     mainDispatcher: CoroutineDispatcher = Dispatchers.Main
 ) : RecyclerView.Adapter<VH>() {
     private val differ = AsyncPagedDataDiffer(
+        mainDispatcher = mainDispatcher,
         diffCallback = diffCallback,
-        updateCallback = AdapterListUpdateCallback(this),
-        mainDispatcher = mainDispatcher
-    )
+        updateCallback = AdapterListUpdateCallback(this)
+    ).also {
+        it.addLoadStateListener { loadType, loadState ->
+            onLoadStateChanged(loadType, loadState)
+        }
+    }
 
     fun connect(flow: Flow<PagedData<T>>, scope: CoroutineScope) {
         differ.connect(flow, scope)
@@ -57,5 +61,29 @@ abstract class PagedDataAdapter<T : Any, VH : RecyclerView.ViewHolder>(
      * @param state [LoadState] Idle, Loading, Done, or Error.
      */
     open fun onLoadStateChanged(type: LoadType, state: LoadState) {
+    }
+
+    /**
+     * Add a [LoadStateListener] to observe the loading state of the current [PagedList].
+     *
+     * As new PagedLists are submitted and displayed, the callback will be notified to reflect
+     * current REFRESH, START, and END states.
+     *
+     * @param callback [LoadStateListener] to receive updates.
+     *
+     * @see removeLoadStateListener
+     */
+    open fun addLoadStateListener(callback: (LoadType, LoadState) -> Unit) {
+        differ.addLoadStateListener(callback)
+    }
+
+    /**
+     * Remove a previously registered [LoadStateListener].
+     *
+     * @param callback Previously registered callback.
+     * @see addLoadStateListener
+     */
+    open fun removeLoadStateListener(callback: (LoadType, LoadState) -> Unit) {
+        differ.removeLoadStateListener(callback)
     }
 }

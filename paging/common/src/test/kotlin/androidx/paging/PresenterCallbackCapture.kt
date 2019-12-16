@@ -16,13 +16,14 @@
 
 package androidx.paging
 
-sealed class CallbackEvent
-data class ChangeEvent(val position: Int, val count: Int) : CallbackEvent()
-data class InsertEvent(val position: Int, val count: Int) : CallbackEvent()
-data class RemoveEvent(val position: Int, val count: Int) : CallbackEvent()
+sealed class PresenterEvent
+data class ChangeEvent(val position: Int, val count: Int) : PresenterEvent()
+data class InsertEvent(val position: Int, val count: Int) : PresenterEvent()
+data class RemoveEvent(val position: Int, val count: Int) : PresenterEvent()
+data class StateEvent(val loadType: LoadType, val loadState: LoadState) : PresenterEvent()
 
-class CallbackCapture : PagedList.Callback() {
-    private val list = mutableListOf<CallbackEvent>()
+class PresenterCallbackCapture : PresenterCallback {
+    private val list = mutableListOf<PresenterEvent>()
     fun getAllAndClear() = list.getAllAndClear()
 
     override fun onChanged(position: Int, count: Int) {
@@ -31,7 +32,7 @@ class CallbackCapture : PagedList.Callback() {
         }
     }
 
-    override fun onInserted(position: Int, count: Int) {
+    override fun onInserted(position: Int, count: Int, loadStates: Map<LoadType, LoadState>?) {
         if (count != 0) {
             list.add(InsertEvent(position, count))
         }
@@ -41,6 +42,10 @@ class CallbackCapture : PagedList.Callback() {
         if (count != 0) {
             list.add(RemoveEvent(position, count))
         }
+    }
+
+    override fun onStateUpdate(loadType: LoadType, loadState: LoadState) {
+        list.add(StateEvent(loadType, loadState))
     }
 }
 
