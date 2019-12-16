@@ -39,7 +39,7 @@ dependencies {
 
     implementation(ANDROIDX_TEST_RULES)
     implementation(ANDROIDX_TEST_RUNNER)
-    implementation("androidx.annotation:annotation:1.0.0")
+    api("androidx.annotation:annotation:1.0.0")
 
     androidTestImplementation(ANDROIDX_TEST_EXT_JUNIT)
 }
