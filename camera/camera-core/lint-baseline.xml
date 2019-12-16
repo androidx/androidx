@@ -8,7 +8,7 @@
         errorLine2="            ~~~~~~~~~~~~~~~">
         <location
             file="src/main/java/androidx/camera/core/CaptureConfig.java"
-            line="193"
+            line="194"
             column="13"/>
     </issue>
 
@@ -19,7 +19,7 @@
         errorLine2="                ~~~~~~~~~~~~~~~~~~~~~">
         <location
             file="src/main/java/androidx/camera/core/CaptureConfig.java"
-            line="280"
+            line="281"
             column="17"/>
     </issue>
 
@@ -41,7 +41,7 @@
         errorLine2="    ~~~~~~~~~~~~~~~~~~~">
         <location
             file="src/main/java/androidx/camera/core/impl/utils/futures/AsyncFunction.java"
-            line="51"
+            line="48"
             column="5"/>
     </issue>
 
@@ -272,7 +272,7 @@
         errorLine2="                           ~~~~~~">
         <location
             file="src/main/java/androidx/camera/core/impl/CameraDeviceSurfaceManager.java"
-            line="58"
+            line="55"
             column="28"/>
     </issue>
 
@@ -283,7 +283,7 @@
         errorLine2="                                            ~~~~~~~~~~~~~~~~~~~">
         <location
             file="src/main/java/androidx/camera/core/impl/CameraDeviceSurfaceManager.java"
-            line="58"
+            line="55"
             column="45"/>
     </issue>
 
@@ -294,7 +294,7 @@
         errorLine2="    ~~~~~~~~~~~~~">
         <location
             file="src/main/java/androidx/camera/core/impl/CameraDeviceSurfaceManager.java"
-            line="68"
+            line="65"
             column="5"/>
     </issue>
 
@@ -305,7 +305,7 @@
         errorLine2="                                         ~~~~~~">
         <location
             file="src/main/java/androidx/camera/core/impl/CameraDeviceSurfaceManager.java"
-            line="68"
+            line="65"
             column="42"/>
     </issue>
 
@@ -316,7 +316,7 @@
         errorLine2="                                                                           ~~~~">
         <location
             file="src/main/java/androidx/camera/core/impl/CameraDeviceSurfaceManager.java"
-            line="68"
+            line="65"
             column="76"/>
     </issue>
 
@@ -327,7 +327,7 @@
         errorLine2="                          ~~~~~~">
         <location
             file="src/main/java/androidx/camera/core/impl/CameraDeviceSurfaceManager.java"
-            line="78"
+            line="75"
             column="27"/>
     </issue>
 
@@ -338,7 +338,7 @@
         errorLine2="    ~~~~~~~~~~~~~~~~~~">
         <location
             file="src/main/java/androidx/camera/core/impl/CameraDeviceSurfaceManager.java"
-            line="88"
+            line="85"
             column="5"/>
     </issue>
 
@@ -349,7 +349,7 @@
         errorLine2="            ~~~~~~">
         <location
             file="src/main/java/androidx/camera/core/impl/CameraDeviceSurfaceManager.java"
-            line="89"
+            line="86"
             column="13"/>
     </issue>
 
@@ -360,7 +360,7 @@
         errorLine2="                             ~~~~~~~~~~~~~">
         <location
             file="src/main/java/androidx/camera/core/impl/CameraDeviceSurfaceManager.java"
-            line="89"
+            line="86"
             column="30"/>
     </issue>
 
@@ -371,7 +371,7 @@
         errorLine2="                                                             ~~~~~~~~~~~~~">
         <location
             file="src/main/java/androidx/camera/core/impl/CameraDeviceSurfaceManager.java"
-            line="89"
+            line="86"
             column="62"/>
     </issue>
 
@@ -382,40 +382,7 @@
         errorLine2="    ~~~~">
         <location
             file="src/main/java/androidx/camera/core/impl/CameraDeviceSurfaceManager.java"
-            line="96"
-            column="5"/>
-    </issue>
-
-    <issue
-        id="UnknownNullness"
-        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
-        errorLine1="    CameraInternal getCamera(String cameraId);"
-        errorLine2="    ~~~~~~~~~~~~~~">
-        <location
-            file="src/main/java/androidx/camera/core/CameraFactory.java"
-            line="34"
-            column="5"/>
-    </issue>
-
-    <issue
-        id="UnknownNullness"
-        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
-        errorLine1="    CameraInternal getCamera(String cameraId);"
-        errorLine2="                             ~~~~~~">
-        <location
-            file="src/main/java/androidx/camera/core/CameraFactory.java"
-            line="34"
-            column="30"/>
-    </issue>
-
-    <issue
-        id="UnknownNullness"
-        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
-        errorLine1="    Set&lt;String> getAvailableCameraIds() throws CameraInfoUnavailableException;"
-        errorLine2="    ~~~~~~~~~~~">
-        <location
-            file="src/main/java/androidx/camera/core/CameraFactory.java"
-            line="37"
+            line="93"
             column="5"/>
     </issue>
 
@@ -470,7 +437,7 @@
         errorLine2="           ~~~~~~~~~~~~~~">
         <location
             file="src/main/java/androidx/camera/core/CameraRepository.java"
-            line="152"
+            line="154"
             column="12"/>
     </issue>
 
@@ -481,7 +448,7 @@
         errorLine2="                                    ~~~~~~">
         <location
             file="src/main/java/androidx/camera/core/CameraRepository.java"
-            line="152"
+            line="154"
             column="37"/>
     </issue>
 
@@ -492,7 +459,7 @@
         errorLine2="                              ~~~~~~~~~~~~">
         <location
             file="src/main/java/androidx/camera/core/CameraRepository.java"
-            line="181"
+            line="183"
             column="31"/>
     </issue>
 
@@ -503,7 +470,7 @@
         errorLine2="                                ~~~~~~~~~~~~">
         <location
             file="src/main/java/androidx/camera/core/CameraRepository.java"
-            line="203"
+            line="205"
             column="33"/>
     </issue>
 
@@ -514,7 +481,7 @@
         errorLine2="                                                   ~~~~~~">
         <location
             file="src/main/java/androidx/camera/core/CameraX.java"
-            line="527"
+            line="505"
             column="52"/>
     </issue>
 
@@ -525,7 +492,7 @@
         errorLine2="                                                                         ~~~~~~~~">
         <location
             file="src/main/java/androidx/camera/core/CameraX.java"
-            line="561"
+            line="539"
             column="74"/>
     </issue>
 
@@ -547,7 +514,7 @@
         errorLine2="                  ~~~~~~~~~~~~~">
         <location
             file="src/main/java/androidx/camera/core/CaptureConfig.java"
-            line="95"
+            line="96"
             column="19"/>
     </issue>
 
@@ -558,7 +525,7 @@
         errorLine2="           ~~~~~~~~~~~~~~~~~~~~~~~">
         <location
             file="src/main/java/androidx/camera/core/CaptureConfig.java"
-            line="100"
+            line="101"
             column="12"/>
     </issue>
 
@@ -569,7 +536,7 @@
         errorLine2="           ~~~~~~">
         <location
             file="src/main/java/androidx/camera/core/CaptureConfig.java"
-            line="104"
+            line="105"
             column="12"/>
     </issue>
 
@@ -580,7 +547,7 @@
         errorLine2="           ~~~~~~~~~~~~~~~~~~~~~~~~~~~">
         <location
             file="src/main/java/androidx/camera/core/CaptureConfig.java"
-            line="117"
+            line="118"
             column="12"/>
     </issue>
 
@@ -591,7 +558,7 @@
         errorLine2="           ~~~~~~">
         <location
             file="src/main/java/androidx/camera/core/CaptureConfig.java"
-            line="121"
+            line="122"
             column="12"/>
     </issue>
 
@@ -602,7 +569,7 @@
         errorLine2="                    ~~~~~~~~~~~~~~~~">
         <location
             file="src/main/java/androidx/camera/core/CaptureConfig.java"
-            line="139"
+            line="140"
             column="21"/>
     </issue>
 
@@ -613,7 +580,7 @@
         errorLine2="                                             ~~~~~~~~~~~~~~~~~~~~~">
         <location
             file="src/main/java/androidx/camera/core/CaptureConfig.java"
-            line="139"
+            line="140"
             column="46"/>
     </issue>
 
@@ -624,7 +591,7 @@
         errorLine2="                      ~~~~~~~">
         <location
             file="src/main/java/androidx/camera/core/CaptureConfig.java"
-            line="173"
+            line="174"
             column="23"/>
     </issue>
 
@@ -635,7 +602,7 @@
         errorLine2="                                         ~~~~~~~~~~~~~~~~">
         <location
             file="src/main/java/androidx/camera/core/CaptureConfig.java"
-            line="173"
+            line="174"
             column="42"/>
     </issue>
 
@@ -646,7 +613,7 @@
         errorLine2="                      ~~~~~~~">
         <location
             file="src/main/java/androidx/camera/core/CaptureConfig.java"
-            line="189"
+            line="190"
             column="23"/>
     </issue>
 
@@ -657,7 +624,7 @@
         errorLine2="                                   ~~~~~~~~~~~~~">
         <location
             file="src/main/java/androidx/camera/core/CaptureConfig.java"
-            line="189"
+            line="190"
             column="36"/>
     </issue>
 
@@ -668,7 +635,7 @@
         errorLine2="                                             ~~~~~~~~~~~~~~~~~~~~~">
         <location
             file="src/main/java/androidx/camera/core/CaptureConfig.java"
-            line="212"
+            line="213"
             column="46"/>
     </issue>
 
@@ -679,7 +646,7 @@
         errorLine2="                ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
         <location
             file="src/main/java/androidx/camera/core/CaptureConfig.java"
-            line="225"
+            line="226"
             column="17"/>
     </issue>
 
@@ -690,7 +657,7 @@
         errorLine2="                               ~~~~~~~~~~~~~~~~~">
         <location
             file="src/main/java/androidx/camera/core/CaptureConfig.java"
-            line="232"
+            line="233"
             column="32"/>
     </issue>
 
@@ -701,7 +668,7 @@
         errorLine2="                                  ~~~~~~~~~~~~~~~~~">
         <location
             file="src/main/java/androidx/camera/core/CaptureConfig.java"
-            line="237"
+            line="238"
             column="35"/>
     </issue>
 
@@ -712,7 +679,7 @@
         errorLine2="                                             ~~~~~~">
         <location
             file="src/main/java/androidx/camera/core/CaptureConfig.java"
-            line="252"
+            line="253"
             column="46"/>
     </issue>
 
@@ -723,7 +690,7 @@
         errorLine2="                                             ~~~~~~">
         <location
             file="src/main/java/androidx/camera/core/CaptureConfig.java"
-            line="258"
+            line="259"
             column="46"/>
     </issue>
 
@@ -734,7 +701,7 @@
         errorLine2="               ~~~~~~">
         <location
             file="src/main/java/androidx/camera/core/CaptureConfig.java"
-            line="276"
+            line="277"
             column="16"/>
     </issue>
 
@@ -745,7 +712,7 @@
         errorLine2="                           ~~~~~~">
         <location
             file="src/main/java/androidx/camera/core/CaptureConfig.java"
-            line="288"
+            line="289"
             column="28"/>
     </issue>
 
@@ -756,7 +723,7 @@
         errorLine2="               ~~~~~~~~~~~~~">
         <location
             file="src/main/java/androidx/camera/core/CaptureConfig.java"
-            line="296"
+            line="297"
             column="16"/>
     </issue>
 
@@ -1108,7 +1075,7 @@
         errorLine2="                   ~~~~~~~~~">
         <location
             file="src/main/java/androidx/camera/core/impl/utils/futures/FutureCallback.java"
-            line="52"
+            line="49"
             column="20"/>
     </issue>
 
@@ -1119,7 +1086,7 @@
         errorLine2="               ~~~~~~~~~~~~~~~~~~">
         <location
             file="src/main/java/androidx/camera/core/ImageCapture.java"
-            line="1307"
+            line="1310"
             column="16"/>
     </issue>
 
@@ -1174,7 +1141,7 @@
         errorLine2="                          ~~~~">
         <location
             file="src/main/java/androidx/camera/core/ImageSaver.java"
-            line="155"
+            line="156"
             column="27"/>
     </issue>
 
@@ -1185,7 +1152,7 @@
         errorLine2="                     ~~~~~~~~~">
         <location
             file="src/main/java/androidx/camera/core/ImageSaver.java"
-            line="157"
+            line="158"
             column="22"/>
     </issue>
 
@@ -1196,7 +1163,7 @@
         errorLine2="                                          ~~~~~~">
         <location
             file="src/main/java/androidx/camera/core/ImageSaver.java"
-            line="157"
+            line="158"
             column="43"/>
     </issue>
 
@@ -1220,28 +1187,6 @@
             file="src/main/java/androidx/camera/core/impl/utils/MainThreadAsyncHandler.java"
             line="39"
             column="19"/>
-    </issue>
-
-    <issue
-        id="UnknownNullness"
-        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
-        errorLine1="    public void addAll(List&lt;C> value) {"
-        errorLine2="                       ~~~~~~~">
-        <location
-            file="src/main/java/androidx/camera/core/MultiValueSet.java"
-            line="46"
-            column="24"/>
-    </issue>
-
-    <issue
-        id="UnknownNullness"
-        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
-        errorLine1="    public abstract MultiValueSet&lt;C> clone();"
-        errorLine2="                    ~~~~~~~~~~~~~~~~">
-        <location
-            file="src/main/java/androidx/camera/core/MultiValueSet.java"
-            line="63"
-            column="21"/>
     </issue>
 
     <issue
@@ -1471,7 +1416,7 @@
         errorLine2="               ~~~~~~~~~~~~~">
         <location
             file="src/main/java/androidx/camera/core/Preview.java"
-            line="516"
+            line="514"
             column="16"/>
     </issue>
 
@@ -1482,7 +1427,7 @@
         errorLine2="                           ~~~~~~">
         <location
             file="src/main/java/androidx/camera/core/SessionConfig.java"
-            line="256"
+            line="257"
             column="28"/>
     </issue>
 
@@ -1493,7 +1438,7 @@
         errorLine2="                                             ~~~~~~">
         <location
             file="src/main/java/androidx/camera/core/SessionConfig.java"
-            line="398"
+            line="399"
             column="46"/>
     </issue>
 
@@ -1504,7 +1449,7 @@
         errorLine2="                  ~~~~~~~~~~~~~">
         <location
             file="src/main/java/androidx/camera/core/impl/SurfaceConfig.java"
-            line="49"
+            line="43"
             column="19"/>
     </issue>
 
@@ -1515,7 +1460,7 @@
         errorLine2="                                       ~~~~~~~~~~">
         <location
             file="src/main/java/androidx/camera/core/impl/SurfaceConfig.java"
-            line="49"
+            line="43"
             column="40"/>
     </issue>
 
@@ -1526,7 +1471,7 @@
         errorLine2="                                                        ~~~~~~~~~~">
         <location
             file="src/main/java/androidx/camera/core/impl/SurfaceConfig.java"
-            line="49"
+            line="43"
             column="57"/>
     </issue>
 
@@ -1537,7 +1482,7 @@
         errorLine2="                    ~~~~~~~~~~">
         <location
             file="src/main/java/androidx/camera/core/impl/SurfaceConfig.java"
-            line="54"
+            line="48"
             column="21"/>
     </issue>
 
@@ -1548,7 +1493,7 @@
         errorLine2="                    ~~~~~~~~~~">
         <location
             file="src/main/java/androidx/camera/core/impl/SurfaceConfig.java"
-            line="57"
+            line="51"
             column="21"/>
     </issue>
 
@@ -1559,7 +1504,7 @@
         errorLine2="                                     ~~~~~~~~~~~~~">
         <location
             file="src/main/java/androidx/camera/core/impl/SurfaceConfig.java"
-            line="66"
+            line="60"
             column="38"/>
     </issue>
 
@@ -1570,7 +1515,7 @@
         errorLine2="                  ~~~~~~~~~~~~~~~~~~~~~">
         <location
             file="src/main/java/androidx/camera/core/impl/SurfaceSizeDefinition.java"
-            line="54"
+            line="48"
             column="19"/>
     </issue>
 
@@ -1581,7 +1526,7 @@
         errorLine2="            ~~~~">
         <location
             file="src/main/java/androidx/camera/core/impl/SurfaceSizeDefinition.java"
-            line="55"
+            line="49"
             column="13"/>
     </issue>
 
@@ -1592,7 +1537,7 @@
         errorLine2="            ~~~~">
         <location
             file="src/main/java/androidx/camera/core/impl/SurfaceSizeDefinition.java"
-            line="56"
+            line="50"
             column="13"/>
     </issue>
 
@@ -1603,7 +1548,7 @@
         errorLine2="            ~~~~">
         <location
             file="src/main/java/androidx/camera/core/impl/SurfaceSizeDefinition.java"
-            line="57"
+            line="51"
             column="13"/>
     </issue>
 
@@ -1614,7 +1559,7 @@
         errorLine2="                    ~~~~">
         <location
             file="src/main/java/androidx/camera/core/impl/SurfaceSizeDefinition.java"
-            line="62"
+            line="56"
             column="21"/>
     </issue>
 
@@ -1625,7 +1570,7 @@
         errorLine2="                    ~~~~">
         <location
             file="src/main/java/androidx/camera/core/impl/SurfaceSizeDefinition.java"
-            line="65"
+            line="59"
             column="21"/>
     </issue>
 
@@ -1636,7 +1581,7 @@
         errorLine2="                    ~~~~">
         <location
             file="src/main/java/androidx/camera/core/impl/SurfaceSizeDefinition.java"
-            line="68"
+            line="62"
             column="21"/>
     </issue>
 
@@ -1724,7 +1669,7 @@
         errorLine2="           ~~~~~~~~~~~~~~~~">
         <location
             file="src/main/java/androidx/camera/core/UseCase.java"
-            line="432"
+            line="407"
             column="12"/>
     </issue>
 
@@ -1735,7 +1680,7 @@
         errorLine2="           ~~~~">
         <location
             file="src/main/java/androidx/camera/core/UseCase.java"
-            line="458"
+            line="432"
             column="12"/>
     </issue>
 
@@ -1746,7 +1691,7 @@
         errorLine2="                                             ~~~~~~">
         <location
             file="src/main/java/androidx/camera/core/UseCase.java"
-            line="458"
+            line="432"
             column="46"/>
     </issue>
 
@@ -1757,7 +1702,7 @@
         errorLine2="                                          ~~~~~~~~~~~~~~~~~">
         <location
             file="src/main/java/androidx/camera/core/UseCase.java"
-            line="471"
+            line="445"
             column="43"/>
     </issue>
 
@@ -1768,7 +1713,7 @@
         errorLine2="                                        ~~~~~~">
         <location
             file="src/main/java/androidx/camera/core/UseCase.java"
-            line="508"
+            line="482"
             column="41"/>
     </issue>
 
@@ -1779,7 +1724,7 @@
         errorLine2="              ~~~~~~~~~~~~~~~~~~~~~">
         <location
             file="src/main/java/androidx/camera/core/UseCase.java"
-            line="553"
+            line="527"
             column="15"/>
     </issue>
 
@@ -1790,10 +1735,10 @@
         errorLine2="                                                     ~~~~~~">
         <location
             file="src/main/java/androidx/camera/core/UseCase.java"
-            line="553"
+            line="527"
             column="54"/>
     </issue>
-    
+
     <issue
         id="UnknownNullness"
         message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
@@ -1834,7 +1779,7 @@
         errorLine2="                        ~~~~~~~~~~~~~~~~~~">
         <location
             file="src/main/java/androidx/camera/core/VideoCapture.java"
-            line="167"
+            line="166"
             column="25"/>
     </issue>
 
@@ -1845,7 +1790,7 @@
         errorLine2="               ~~~~~~~~~~~~~~~~~~">
         <location
             file="src/main/java/androidx/camera/core/VideoCapture.java"
-            line="945"
+            line="942"
             column="16"/>
     </issue>
 

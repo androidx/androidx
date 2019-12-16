@@ -20,7 +20,7 @@ package androidx.camera.camera2.internal;
 import androidx.annotation.NonNull;
 import androidx.annotation.RestrictTo;
 import androidx.camera.core.CaptureConfig;
-import androidx.camera.core.MultiValueSet;
+import androidx.camera.core.impl.MultiValueSet;
 
 import java.util.ArrayList;
 import java.util.Arrays;
