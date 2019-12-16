@@ -25,6 +25,7 @@ import android.view.WindowManager;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.annotation.RestrictTo;
+import androidx.camera.core.impl.CameraInfoInternal;
 
 /**
  * A {@link MeteringPointFactory} that can convert a {@link View} (x, y) into a

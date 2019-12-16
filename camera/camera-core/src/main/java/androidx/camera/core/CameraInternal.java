@@ -20,6 +20,7 @@ import androidx.annotation.NonNull;
 import androidx.annotation.RestrictTo;
 import androidx.annotation.RestrictTo.Scope;
 import androidx.camera.core.impl.CameraControlInternal;
+import androidx.camera.core.impl.CameraInfoInternal;
 
 import com.google.common.util.concurrent.ListenableFuture;
 
