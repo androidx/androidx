@@ -24,6 +24,7 @@ import android.util.Size;
 import androidx.annotation.NonNull;
 import androidx.annotation.RestrictTo;
 import androidx.annotation.RestrictTo.Scope;
+import androidx.camera.core.impl.CameraDeviceSurfaceManager;
 
 import java.util.ArrayList;
 import java.util.HashSet;
