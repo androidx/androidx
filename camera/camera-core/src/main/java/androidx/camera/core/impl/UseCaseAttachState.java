@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2019 The Android Open Source Project
+ * Copyright 2019 The Android Open Source Project
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -14,12 +14,13 @@
  * limitations under the License.
  */
 
-package androidx.camera.core;
+package androidx.camera.core.impl;
 
 import android.util.Log;
 
-import androidx.annotation.RestrictTo;
-import androidx.annotation.RestrictTo.Scope;
+import androidx.annotation.NonNull;
+import androidx.camera.core.SessionConfig;
+import androidx.camera.core.UseCase;
 
 import java.util.ArrayList;
 import java.util.Collection;
@@ -37,9 +38,8 @@ import java.util.Map.Entry;
  * camera capture, but not currently capturing. Active means the use case is either currently
  * issuing a capture request or one has already been issued.
  *
- * @hide
  */
-@RestrictTo(Scope.LIBRARY_GROUP)
+
 public final class UseCaseAttachState {
     private static final String TAG = "UseCaseAttachState";
     /** The name of the camera the use cases are attached to. */
@@ -48,7 +48,7 @@ public final class UseCaseAttachState {
     private final Map<UseCase, UseCaseAttachInfo> mAttachedUseCasesToInfoMap = new HashMap<>();
 
     /** Constructs an instance of the attach state which corresponds to the named camera. */
-    public UseCaseAttachState(String cameraId) {
+    public UseCaseAttachState(@NonNull String cameraId) {
         mCameraId = cameraId;
     }
 
@@ -57,7 +57,7 @@ public final class UseCaseAttachState {
      *
      * <p>Adds the use case to the collection if not already in it.
      */
-    public void setUseCaseActive(UseCase useCase) {
+    public void setUseCaseActive(@NonNull UseCase useCase) {
         UseCaseAttachInfo useCaseAttachInfo = getOrCreateUseCaseAttachInfo(useCase);
         useCaseAttachInfo.setActive(true);
     }
@@ -67,7 +67,7 @@ public final class UseCaseAttachState {
      *
      * <p>Removes the use case from the collection if also offline.
      */
-    public void setUseCaseInactive(UseCase useCase) {
+    public void setUseCaseInactive(@NonNull UseCase useCase) {
         if (!mAttachedUseCasesToInfoMap.containsKey(useCase)) {
             return;
         }
@@ -84,7 +84,7 @@ public final class UseCaseAttachState {
      *
      * <p>Adds the use case to the collection if not already in it.
      */
-    public void setUseCaseOnline(UseCase useCase) {
+    public void setUseCaseOnline(@NonNull UseCase useCase) {
         UseCaseAttachInfo useCaseAttachInfo = getOrCreateUseCaseAttachInfo(useCase);
         useCaseAttachInfo.setOnline(true);
     }
@@ -94,7 +94,7 @@ public final class UseCaseAttachState {
      *
      * <p>Removes the use case from the collection if also inactive.
      */
-    public void setUseCaseOffline(UseCase useCase) {
+    public void setUseCaseOffline(@NonNull UseCase useCase) {
         if (!mAttachedUseCasesToInfoMap.containsKey(useCase)) {
             return;
         }
@@ -106,7 +106,7 @@ public final class UseCaseAttachState {
     }
 
     /** Returns if the use case is online or not. */
-    public boolean isUseCaseOnline(UseCase useCase) {
+    public boolean isUseCaseOnline(@NonNull UseCase useCase) {
         if (!mAttachedUseCasesToInfoMap.containsKey(useCase)) {
             return false;
         }
@@ -115,6 +115,7 @@ public final class UseCaseAttachState {
         return useCaseAttachInfo.getOnline();
     }
 
+    @NonNull
     public Collection<UseCase> getOnlineUseCases() {
         return Collections.unmodifiableCollection(
                 getUseCases(new AttachStateFilter() {
@@ -125,6 +126,7 @@ public final class UseCaseAttachState {
                 }));
     }
 
+    @NonNull
     public Collection<UseCase> getActiveAndOnlineUseCases() {
         return Collections.unmodifiableCollection(
                 getUseCases(
@@ -142,7 +144,7 @@ public final class UseCaseAttachState {
      *
      * <p>If the use case is not already in the collection, nothing is done.
      */
-    public void updateUseCase(UseCase useCase) {
+    public void updateUseCase(@NonNull UseCase useCase) {
         if (!mAttachedUseCasesToInfoMap.containsKey(useCase)) {
             return;
         }
@@ -159,6 +161,7 @@ public final class UseCaseAttachState {
     }
 
     /** Returns a session configuration builder for use cases which are both active and online. */
+    @NonNull
     public SessionConfig.ValidatingBuilder getActiveAndOnlineBuilder() {
         SessionConfig.ValidatingBuilder validatingBuilder = new SessionConfig.ValidatingBuilder();
 
@@ -177,6 +180,7 @@ public final class UseCaseAttachState {
     }
 
     /** Returns a session configuration builder for use cases which are online. */
+    @NonNull
     public SessionConfig.ValidatingBuilder getOnlineBuilder() {
         SessionConfig.ValidatingBuilder validatingBuilder = new SessionConfig.ValidatingBuilder();
         List<String> list = new ArrayList<>();
@@ -195,7 +199,8 @@ public final class UseCaseAttachState {
 
 
     /** Returns current attached SessionConfig of given UseCase */
-    public SessionConfig getUseCaseSessionConfig(UseCase useCase) {
+    @NonNull
+    public SessionConfig getUseCaseSessionConfig(@NonNull UseCase useCase) {
         if (!mAttachedUseCasesToInfoMap.containsKey(useCase)) {
             return SessionConfig.defaultEmptySessionConfig();
         }
