@@ -84,9 +84,8 @@ class AndroidComposeTestRule(
      */
     @SuppressWarnings("SyntheticAccessor")
     override fun setContent(composable: @Composable() () -> Unit) {
-        if (disposeContentHook != null) {
-            // TODO(pavlis): Throw here once we fix all tests to not set content twice
-            // throw IllegalStateException("Cannot call setContent twice per test!")
+        check(disposeContentHook == null) {
+            "Cannot call setContent twice per test!"
         }
 
         val drawLatch = CountDownLatch(1)
