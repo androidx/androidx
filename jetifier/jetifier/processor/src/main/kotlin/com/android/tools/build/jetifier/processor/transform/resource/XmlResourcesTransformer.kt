@@ -59,6 +59,8 @@ class XmlResourcesTransformer internal constructor(private val context: Transfor
      * Matches xml tags in form of:
      * 1. '<(/)prefix(SOMETHING)'.
      * 2. <view ... class="prefix(SOMETHING)" ...>
+     * 3. >SOMETHING<
+     * 4. {@link SOMETHING#method()}
      *
      * Note that this can also rewrite commented blocks of XML. But on a library level we don't care
      * much about comments.
@@ -66,7 +68,8 @@ class XmlResourcesTransformer internal constructor(private val context: Transfor
     private val patterns = listOf(
         Pattern.compile("</?([a-zA-Z0-9.]+)"), // </{candidate} or <{candidate}
         Pattern.compile("[a-zA-Z0-9:]+=\"([^\"]+)\""), // any="{candidate}"
-        Pattern.compile(">\\s*([a-zA-Z0-9.\$_]+)<") // >{candidate}<
+        Pattern.compile(">\\s*([a-zA-Z0-9.\$_]+)<"), // >{candidate}<
+        Pattern.compile("\\{@link\\s*([a-zA-Z0-9.\$_]+)(#[^}]*)?}") // @{link {candidate}#*}
     )
 
     override fun canTransform(file: ArchiveFile) = file.isXmlFile() && !file.isPomFile()

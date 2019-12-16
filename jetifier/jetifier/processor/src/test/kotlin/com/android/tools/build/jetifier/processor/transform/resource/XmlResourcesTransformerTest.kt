@@ -221,6 +221,90 @@ class XmlResourcesTransformerTest {
         )
     }
 
+    @Test fun link_withoutSuffix_shouldRewrite() {
+        testRewrite(
+            givenXml =
+                "<!-- Comment {@link android.support.Test} -->\n" +
+                "<attr name=\"someAttribute\">",
+            expectedXml =
+                "<!-- Comment {@link androidx.Test} -->\n" +
+                "<attr name=\"someAttribute\">",
+            prefixes = setOf("android/support/"),
+            typesMap = mapOf(
+                "android/support/Test"
+                    to "androidx/Test"
+            )
+        )
+    }
+
+    @Test fun link_withInnerClass_shouldRewrite() {
+        testRewrite(
+            givenXml =
+                "<!-- Comment {@link android.support.Test\$R#get(Context, int)} -->\n" +
+                "<attr name=\"someAttribute\">",
+            expectedXml =
+                "<!-- Comment {@link androidx.Test\$R#get(Context, int)} -->\n" +
+                "<attr name=\"someAttribute\">",
+            prefixes = setOf("android/support/"),
+            typesMap = mapOf(
+                "android/support/Test"
+                    to "androidx/Test"
+            )
+        )
+    }
+
+    @Test fun link_shouldRewrite() {
+        testRewrite(
+            givenXml =
+                "<!-- Comment {@link android.support.Test#get(Context, int)} -->\n" +
+                "<attr name=\"someAttribute\">",
+            expectedXml =
+                "<!-- Comment {@link androidx.Test#get(Context, int)} -->\n" +
+                "<attr name=\"someAttribute\">",
+            prefixes = setOf("android/support/"),
+            typesMap = mapOf(
+                "android/support/Test"
+                    to "androidx/Test"
+            )
+        )
+    }
+
+    @Test fun link_lineBreak_shouldRewrite() {
+        testRewrite(
+            givenXml =
+                "<!-- Comment {@link \n" +
+                "android.support.Test#get(Context, int)} -->\n" +
+                "<attr name=\"someAttribute\">",
+            expectedXml =
+                "<!-- Comment {@link \n" +
+                "androidx.Test#get(Context, int)} -->\n" +
+                "<attr name=\"someAttribute\">",
+            prefixes = setOf("android/support/"),
+            typesMap = mapOf(
+                "android/support/Test"
+                    to "androidx/Test"
+            )
+        )
+    }
+
+    @Test fun link_lineBreak2_shouldRewrite() {
+        testRewrite(
+            givenXml =
+                "<!-- Comment {@link android.support.Test#get(Context, int)" +
+                "} -->\n" +
+                "<attr name=\"someAttribute\">",
+            expectedXml =
+                "<!-- Comment {@link androidx.Test#get(Context, int)" +
+                "} -->\n" +
+                "<attr name=\"someAttribute\">",
+            prefixes = setOf("android/support/"),
+            typesMap = mapOf(
+                "android/support/Test"
+                    to "androidx/Test"
+            )
+        )
+    }
+
     @Test fun manifestFile_packageRewrite() {
         testRewrite(
             givenXml =
