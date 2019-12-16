@@ -23,8 +23,6 @@ import android.os.HandlerThread;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
-import androidx.annotation.RestrictTo;
-import androidx.annotation.RestrictTo.Scope;
 import androidx.camera.camera2.internal.compat.CameraManagerCompat;
 import androidx.camera.core.CameraFactory;
 import androidx.camera.core.CameraInfoUnavailableException;
@@ -41,10 +39,7 @@ import java.util.Set;
 
 /**
  * The factory class that creates {@link Camera2CameraImpl} instances.
- *
- * @hide
  */
-@RestrictTo(Scope.LIBRARY)
 public final class Camera2CameraFactory implements CameraFactory {
     private static final String TAG = "Camera2CameraFactory";
 

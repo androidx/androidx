@@ -14,13 +14,14 @@
  * limitations under the License.
  */
 
-package androidx.camera.camera2.internal;
+package androidx.camera.camera2.impl;
 
 import static com.google.common.truth.Truth.assertThat;
 
 import android.hardware.camera2.CaptureResult;
 import android.os.Build;
 
+import androidx.camera.camera2.internal.Camera2CameraCaptureResult;
 import androidx.camera.core.impl.CameraCaptureResult;
 import androidx.test.filters.SmallTest;
 

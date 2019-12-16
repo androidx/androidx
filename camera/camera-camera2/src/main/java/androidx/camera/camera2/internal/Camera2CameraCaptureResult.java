@@ -29,7 +29,7 @@ import androidx.camera.core.impl.CameraCaptureMetaData.FlashState;
 import androidx.camera.core.impl.CameraCaptureResult;
 
 /** The camera2 implementation for the capture result of a single image capture. */
-final class Camera2CameraCaptureResult implements CameraCaptureResult {
+public class Camera2CameraCaptureResult implements CameraCaptureResult {
     private static final String TAG = "C2CameraCaptureResult";
 
     private final Object mTag;
@@ -37,7 +37,7 @@ final class Camera2CameraCaptureResult implements CameraCaptureResult {
     /** The actual camera2 {@link CaptureResult}. */
     private final CaptureResult mCaptureResult;
 
-    Camera2CameraCaptureResult(@Nullable Object tag, CaptureResult captureResult) {
+    public Camera2CameraCaptureResult(@Nullable Object tag, @NonNull CaptureResult captureResult) {
         mTag = tag;
         mCaptureResult = captureResult;
     }
@@ -196,12 +196,14 @@ final class Camera2CameraCaptureResult implements CameraCaptureResult {
         return timestamp;
     }
 
+    @Nullable
     @Override
     public Object getTag() {
         return mTag;
     }
 
-    CaptureResult getCaptureResult() {
+    @NonNull
+    public CaptureResult getCaptureResult() {
         return mCaptureResult;
     }
 }

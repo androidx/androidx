@@ -16,10 +16,10 @@
 
 package androidx.camera.camera2.interop;
 
-import static androidx.camera.camera2.internal.Camera2ImplConfig.DEVICE_STATE_CALLBACK_OPTION;
-import static androidx.camera.camera2.internal.Camera2ImplConfig.SESSION_CAPTURE_CALLBACK_OPTION;
-import static androidx.camera.camera2.internal.Camera2ImplConfig.SESSION_STATE_CALLBACK_OPTION;
-import static androidx.camera.camera2.internal.Camera2ImplConfig.TEMPLATE_TYPE_OPTION;
+import static androidx.camera.camera2.impl.Camera2ImplConfig.DEVICE_STATE_CALLBACK_OPTION;
+import static androidx.camera.camera2.impl.Camera2ImplConfig.SESSION_CAPTURE_CALLBACK_OPTION;
+import static androidx.camera.camera2.impl.Camera2ImplConfig.SESSION_STATE_CALLBACK_OPTION;
+import static androidx.camera.camera2.impl.Camera2ImplConfig.TEMPLATE_TYPE_OPTION;
 
 import android.hardware.camera2.CameraCaptureSession;
 import android.hardware.camera2.CameraDevice;
@@ -29,7 +29,7 @@ import android.hardware.camera2.CaptureResult;
 import androidx.annotation.NonNull;
 import androidx.annotation.RestrictTo;
 import androidx.annotation.RestrictTo.Scope;
-import androidx.camera.camera2.internal.Camera2ImplConfig;
+import androidx.camera.camera2.impl.Camera2ImplConfig;
 import androidx.camera.core.Config;
 import androidx.camera.core.ExtendableBuilder;
 

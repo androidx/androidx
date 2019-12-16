@@ -37,6 +37,7 @@ import android.os.HandlerThread;
 
 import androidx.annotation.NonNull;
 import androidx.camera.camera2.Camera2Config;
+import androidx.camera.camera2.impl.Camera2ImplConfig;
 import androidx.camera.core.CameraInfoUnavailableException;
 import androidx.camera.core.CameraSelector;
 import androidx.camera.core.CameraX;

@@ -23,7 +23,6 @@ import android.hardware.camera2.CameraMetadata;
 import android.util.Log;
 
 import androidx.annotation.NonNull;
-import androidx.annotation.RestrictTo;
 import androidx.camera.core.CameraSelector;
 import androidx.camera.core.impl.LensFacingCameraIdFilter;
 
@@ -32,11 +31,8 @@ import java.util.Set;
 
 /**
  * Filter camera id by lens facing.
- *
- * @hide
  */
-@RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
-public final class Camera2LensFacingCameraIdFilter extends LensFacingCameraIdFilter {
+final class Camera2LensFacingCameraIdFilter extends LensFacingCameraIdFilter {
     private static final String TAG = "Camera2LensFacingCIF";
     private CameraManager mCameraManager;
 

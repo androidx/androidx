@@ -26,8 +26,6 @@ import android.view.Surface;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.RequiresApi;
-import androidx.annotation.RestrictTo;
-import androidx.annotation.RestrictTo.Scope;
 
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -35,10 +33,7 @@ import java.util.List;
 
 /**
  * Different implementations of {@link CameraCaptureSession.CaptureCallback}.
- *
- * @hide
  */
-@RestrictTo(Scope.LIBRARY_GROUP)
 public final class Camera2CaptureCallbacks {
     private Camera2CaptureCallbacks() {
     }

@@ -45,6 +45,9 @@ import android.os.HandlerThread;
 import android.view.Surface;
 
 import androidx.annotation.NonNull;
+import androidx.camera.camera2.impl.Camera2ImplConfig;
+import androidx.camera.camera2.impl.CameraEventCallback;
+import androidx.camera.camera2.impl.CameraEventCallbacks;
 import androidx.camera.camera2.internal.CaptureSession.State;
 import androidx.camera.core.CaptureConfig;
 import androidx.camera.core.DeferrableSurface;

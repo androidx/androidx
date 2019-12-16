@@ -22,9 +22,8 @@ import android.util.Log;
 import android.util.Rational;
 import android.view.WindowManager;
 
+import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
-import androidx.annotation.RestrictTo;
-import androidx.annotation.RestrictTo.Scope;
 import androidx.camera.core.CameraFactory;
 import androidx.camera.core.CameraX;
 import androidx.camera.core.CaptureConfig;
@@ -35,10 +34,7 @@ import androidx.camera.core.VideoCaptureConfig;
 
 /**
  * Provides defaults for {@link VideoCaptureConfig} in the Camera2 implementation.
- *
- * @hide
  */
-@RestrictTo(Scope.LIBRARY)
 public final class VideoCaptureConfigProvider implements ConfigProvider<VideoCaptureConfig> {
     private static final String TAG = "VideoCaptureProvider";
     private static final Rational DEFAULT_ASPECT_RATIO_16_9 = new Rational(16, 9);
@@ -47,11 +43,13 @@ public final class VideoCaptureConfigProvider implements ConfigProvider<VideoCap
     private final CameraFactory mCameraFactory;
     private final WindowManager mWindowManager;
 
-    public VideoCaptureConfigProvider(CameraFactory cameraFactory, Context context) {
+    public VideoCaptureConfigProvider(@NonNull CameraFactory cameraFactory,
+            @NonNull Context context) {
         mCameraFactory = cameraFactory;
         mWindowManager = (WindowManager) context.getSystemService(Context.WINDOW_SERVICE);
     }
 
+    @NonNull
     @Override
     public VideoCaptureConfig getConfig(@Nullable Integer lensFacing) {
         VideoCaptureConfig.Builder builder =

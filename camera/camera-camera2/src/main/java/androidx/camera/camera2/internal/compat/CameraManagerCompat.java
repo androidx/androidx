@@ -43,7 +43,8 @@ public final class CameraManagerCompat {
 
 
     /** Get a {@link CameraManagerCompat} instance for a provided context. */
-    public static CameraManagerCompat from(Context context) {
+    @NonNull
+    public static CameraManagerCompat from(@NonNull Context context) {
         if (Build.VERSION.SDK_INT >= 28) {
             return new CameraManagerCompat(new CameraManagerCompatApi28Impl(context));
         }

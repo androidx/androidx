@@ -25,7 +25,7 @@ import android.hardware.camera2.CaptureResult;
 import android.hardware.camera2.TotalCaptureResult;
 import android.os.Build;
 
-import androidx.camera.camera2.internal.Camera2CameraCaptureResultConverter;
+import androidx.camera.camera2.impl.Camera2CameraCaptureResultConverter;
 import androidx.camera.core.CameraCaptureResults;
 import androidx.camera.core.ImageInfo;
 import androidx.camera.core.impl.CameraCaptureResult;
