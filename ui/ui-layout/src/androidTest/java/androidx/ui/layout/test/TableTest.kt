@@ -1223,14 +1223,16 @@ class TableTest : LayoutTest() {
         val decorationPosition = Array(decorations) { Ref<PxPosition>() }
         val childSize = Array(rows) { Array(columns) { Ref<PxSize>() } }
         val childPosition = Array(rows) { Array(columns) { Ref<PxPosition>() } }
-        val positionedLatch = CountDownLatch(rows * columns + decorations + 1)
+        val tableLatch = CountDownLatch(1)
+        val decorationsLatch = CountDownLatch(decorations)
+        val itemsLatch = CountDownLatch(rows * columns)
 
         show {
             Align(Alignment.TopLeft) {
                 ConstrainedBox(constraints = DpConstraints(maxWidth = tableWidthDp)) {
                     OnChildPositioned(onPositioned = { coordinates ->
                         tableSize.value = coordinates.size
-                        positionedLatch.countDown()
+                        tableLatch.countDown()
                     }) {
                         Table(columns = columns) {
                             for (i in 0 until decorations) {
@@ -1239,7 +1241,7 @@ class TableTest : LayoutTest() {
                                         SaveLayoutInfo(
                                             size = decorationSize[i],
                                             position = decorationPosition[i],
-                                            positionedLatch = positionedLatch
+                                            positionedLatch = decorationsLatch
                                         )
                                     }
                                 }
@@ -1251,7 +1253,7 @@ class TableTest : LayoutTest() {
                                             SaveLayoutInfo(
                                                 size = childSize[i][j],
                                                 position = childPosition[i][j],
-                                                positionedLatch = positionedLatch
+                                                positionedLatch = itemsLatch
                                             )
                                         }
                                     }
@@ -1263,7 +1265,9 @@ class TableTest : LayoutTest() {
             }
         }
 
-        positionedLatch.await(1, TimeUnit.SECONDS)
+        tableLatch.await(1, TimeUnit.SECONDS)
+        decorationsLatch.await(1, TimeUnit.SECONDS)
+        itemsLatch.await(1, TimeUnit.SECONDS)
 
         assertEquals(
             PxSize(tableWidth, size * rows),
