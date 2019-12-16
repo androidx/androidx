@@ -30,8 +30,9 @@ import androidx.annotation.RestrictTo.Scope;
 import androidx.annotation.VisibleForTesting;
 import androidx.camera.core.CameraDeviceSurfaceManager;
 import androidx.camera.core.ImageOutputConfig;
-import androidx.camera.core.SurfaceConfig;
 import androidx.camera.core.UseCase;
+import androidx.camera.core.impl.SurfaceConfig;
+import androidx.camera.core.impl.SurfaceSizeDefinition;
 import androidx.core.util.Preconditions;
 
 import java.util.ArrayList;
@@ -251,7 +252,7 @@ public final class Camera2DeviceSurfaceManager implements CameraDeviceSurfaceMan
     /**
      * Retrieves the preview size, choosing the smaller of the display size and 1080P.
      *
-     * @return preview size from {@link androidx.camera.core.SurfaceSizeDefinition}
+     * @return preview size from {@link SurfaceSizeDefinition}
      * @throws IllegalStateException if not initialized
      */
     @NonNull

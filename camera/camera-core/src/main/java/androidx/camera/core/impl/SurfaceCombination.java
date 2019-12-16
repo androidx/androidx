@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2019 The Android Open Source Project
+ * Copyright 2019 The Android Open Source Project
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -14,10 +14,9 @@
  * limitations under the License.
  */
 
-package androidx.camera.core;
+package androidx.camera.core.impl;
 
-import androidx.annotation.RestrictTo;
-import androidx.annotation.RestrictTo.Scope;
+import androidx.annotation.NonNull;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -29,10 +28,7 @@ import java.util.List;
  * guaranteed stream combinations for different hardware level devices. It defines what combination
  * of surface configuration type and size pairs can be supported for different hardware level camera
  * devices. This structure is used to store a list of surface configuration as a combination.
- *
- * @hide
  */
-@RestrictTo(Scope.LIBRARY_GROUP)
 public final class SurfaceCombination {
 
     private final List<SurfaceConfig> mSurfaceConfigList = new ArrayList<>();
@@ -65,23 +61,16 @@ public final class SurfaceCombination {
     }
 
     /** Adds a {@link SurfaceConfig} to the combination. */
-    public boolean addSurfaceConfig(SurfaceConfig surfaceConfig) {
-        if (surfaceConfig == null) {
-            return false;
-        }
-
+    public boolean addSurfaceConfig(@NonNull SurfaceConfig surfaceConfig) {
         return mSurfaceConfigList.add(surfaceConfig);
     }
 
     /** Removes a {@link SurfaceConfig} from the combination. */
-    public boolean removeSurfaceConfig(SurfaceConfig surfaceConfig) {
-        if (surfaceConfig == null) {
-            return false;
-        }
-
+    public boolean removeSurfaceConfig(@NonNull SurfaceConfig surfaceConfig) {
         return mSurfaceConfigList.remove(surfaceConfig);
     }
 
+    @NonNull
     public List<SurfaceConfig> getSurfaceConfigList() {
         return mSurfaceConfigList;
     }
@@ -93,10 +82,10 @@ public final class SurfaceCombination {
      * @param configList the surface configuration list to be compared
      * @return the check result that whether it could be supported
      */
-    public boolean isSupported(List<SurfaceConfig> configList) {
+    public boolean isSupported(@NonNull List<SurfaceConfig> configList) {
         boolean isSupported = false;
 
-        if (configList == null || configList.isEmpty()) {
+        if (configList.isEmpty()) {
             return true;
         }
 
