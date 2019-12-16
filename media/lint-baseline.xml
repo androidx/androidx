@@ -8,7 +8,7 @@
         errorLine2="                                                              ~~~~~~~~~~~~~~~~~~~~~~~~">
         <location
             file="src/main/java/androidx/media/AudioFocusRequestCompat.java"
-            line="311"
+            line="310"
             column="63"/>
     </issue>
 
@@ -19,7 +19,7 @@
         errorLine2="           ~~~~~~~~~~~~~~~~~~~">
         <location
             file="src/main/java/androidx/media/AudioAttributesCompat.java"
-            line="241"
+            line="242"
             column="12"/>
     </issue>
 
@@ -30,7 +30,7 @@
         errorLine2="                       ~~~~~~~~~~~~~~~~~~~~~">
         <location
             file="src/main/java/androidx/media/AudioAttributesCompat.java"
-            line="387"
+            line="388"
             column="24"/>
     </issue>
 
@@ -41,7 +41,7 @@
         errorLine2="               ~~~~~~~~~~~~~~~~~~~~~">
         <location
             file="src/main/java/androidx/media/AudioAttributesCompat.java"
-            line="405"
+            line="406"
             column="16"/>
     </issue>
 
@@ -52,7 +52,7 @@
         errorLine2="               ~~~~~~~">
         <location
             file="src/main/java/androidx/media/AudioAttributesCompat.java"
-            line="431"
+            line="432"
             column="16"/>
     </issue>
 
@@ -63,7 +63,7 @@
         errorLine2="               ~~~~~~~">
         <location
             file="src/main/java/androidx/media/AudioAttributesCompat.java"
-            line="448"
+            line="449"
             column="16"/>
     </issue>
 
@@ -74,7 +74,7 @@
         errorLine2="               ~~~~~~~">
         <location
             file="src/main/java/androidx/media/AudioAttributesCompat.java"
-            line="462"
+            line="463"
             column="16"/>
     </issue>
 
@@ -85,63 +85,8 @@
         errorLine2="               ~~~~~~~">
         <location
             file="src/main/java/androidx/media/AudioAttributesCompat.java"
-            line="474"
+            line="475"
             column="16"/>
-    </issue>
-
-    <issue
-        id="UnknownNullness"
-        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
-        errorLine1="        AudioAttributesImpl build();"
-        errorLine2="        ~~~~~~~~~~~~~~~~~~~">
-        <location
-            file="src/main/java/androidx/media/AudioAttributesImpl.java"
-            line="32"
-            column="9"/>
-    </issue>
-
-    <issue
-        id="UnknownNullness"
-        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
-        errorLine1="        Builder setUsage(@AudioAttributesCompat.AttributeUsage int usage);"
-        errorLine2="        ~~~~~~~">
-        <location
-            file="src/main/java/androidx/media/AudioAttributesImpl.java"
-            line="33"
-            column="9"/>
-    </issue>
-
-    <issue
-        id="UnknownNullness"
-        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
-        errorLine1="        Builder setContentType(@AudioAttributesCompat.AttributeContentType int contentType);"
-        errorLine2="        ~~~~~~~">
-        <location
-            file="src/main/java/androidx/media/AudioAttributesImpl.java"
-            line="34"
-            column="9"/>
-    </issue>
-
-    <issue
-        id="UnknownNullness"
-        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
-        errorLine1="        Builder setFlags(int flags);"
-        errorLine2="        ~~~~~~~">
-        <location
-            file="src/main/java/androidx/media/AudioAttributesImpl.java"
-            line="35"
-            column="9"/>
-    </issue>
-
-    <issue
-        id="UnknownNullness"
-        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
-        errorLine1="        Builder setLegacyStreamType(int streamType);"
-        errorLine2="        ~~~~~~~">
-        <location
-            file="src/main/java/androidx/media/AudioAttributesImpl.java"
-            line="36"
-            column="9"/>
     </issue>
 
     <issue
@@ -151,29 +96,7 @@
         errorLine2="           ~~~~~~~~~~~~~~~">
         <location
             file="src/main/java/androidx/media/AudioAttributesImplApi21.java"
-            line="41"
-            column="12"/>
-    </issue>
-
-    <issue
-        id="UnknownNullness"
-        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
-        errorLine1="    public Object getAudioAttributes() {"
-        errorLine2="           ~~~~~~">
-        <location
-            file="src/main/java/androidx/media/AudioAttributesImplApi21.java"
-            line="65"
-            column="12"/>
-    </issue>
-
-    <issue
-        id="UnknownNullness"
-        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
-        errorLine1="    public Object getAudioAttributes() {"
-        errorLine2="           ~~~~~~">
-        <location
-            file="src/main/java/androidx/media/AudioAttributesImplBase.java"
-            line="92"
+            line="43"
             column="12"/>
     </issue>
 
@@ -184,7 +107,7 @@
         errorLine2="               ~~~~~~~~~~~~~~~~~~~~~~~">
         <location
             file="src/main/java/androidx/media/AudioFocusRequestCompat.java"
-            line="371"
+            line="370"
             column="16"/>
     </issue>
 
@@ -492,7 +415,7 @@
         errorLine2="                               ~">
         <location
             file="src/main/java/androidx/media/MediaBrowserServiceCompat.java"
-            line="849"
+            line="848"
             column="32"/>
     </issue>
 
@@ -503,7 +426,7 @@
         errorLine2="                                       ~~~~~~">
         <location
             file="src/main/java/androidx/media/MediaBrowserServiceCompat.java"
-            line="864"
+            line="863"
             column="40"/>
     </issue>
 
@@ -514,7 +437,7 @@
         errorLine2="                              ~~~~~~">
         <location
             file="src/main/java/androidx/media/MediaBrowserServiceCompat.java"
-            line="880"
+            line="878"
             column="31"/>
     </issue>
 
@@ -525,7 +448,7 @@
         errorLine2="                                    ~~~~~~~">
         <location
             file="src/main/java/androidx/media/MediaBrowserServiceCompat.java"
-            line="1306"
+            line="1304"
             column="37"/>
     </issue>
 
@@ -536,7 +459,7 @@
         errorLine2="           ~~~~~~~">
         <location
             file="src/main/java/androidx/media/MediaBrowserServiceCompat.java"
-            line="1328"
+            line="1326"
             column="12"/>
     </issue>
 
@@ -547,7 +470,7 @@
         errorLine2="                          ~~~~~~">
         <location
             file="src/main/java/androidx/media/MediaBrowserServiceCompat.java"
-            line="1328"
+            line="1326"
             column="27"/>
     </issue>
 
@@ -558,7 +481,7 @@
         errorLine2="                     ~~~~~~~~~~~~~~">
         <location
             file="src/main/java/androidx/media/MediaBrowserServiceCompat.java"
-            line="1333"
+            line="1331"
             column="22"/>
     </issue>
 
@@ -569,7 +492,7 @@
         errorLine2="                                        ~~~~~~~~~~~">
         <location
             file="src/main/java/androidx/media/MediaBrowserServiceCompat.java"
-            line="1333"
+            line="1331"
             column="41"/>
     </issue>
 
@@ -580,7 +503,7 @@
         errorLine2="                                                            ~~~~~~~~">
         <location
             file="src/main/java/androidx/media/MediaBrowserServiceCompat.java"
-            line="1333"
+            line="1331"
             column="61"/>
     </issue>
 
@@ -591,7 +514,7 @@
         errorLine2="                            ~~~~~~">
         <location
             file="src/main/java/androidx/media/MediaBrowserServiceCompat.java"
-            line="1424"
+            line="1422"
             column="29"/>
     </issue>
 
@@ -602,7 +525,7 @@
         errorLine2="                                       ~~~~~~">
         <location
             file="src/main/java/androidx/media/MediaBrowserServiceCompat.java"
-            line="1424"
+            line="1422"
             column="40"/>
     </issue>
 
@@ -613,7 +536,7 @@
         errorLine2="                              ~~~~~~">
         <location
             file="src/main/java/androidx/media/MediaBrowserServiceCompat.java"
-            line="1434"
+            line="1432"
             column="31"/>
     </issue>
 
@@ -624,7 +547,7 @@
         errorLine2="                           ~~~~~~">
         <location
             file="src/main/java/androidx/media/MediaBrowserServiceCompat.java"
-            line="1455"
+            line="1453"
             column="28"/>
     </issue>
 
@@ -635,7 +558,7 @@
         errorLine2="                                                ~~~~~~">
         <location
             file="src/main/java/androidx/media/MediaBrowserServiceCompat.java"
-            line="1481"
+            line="1479"
             column="49"/>
     </issue>
 
@@ -646,7 +569,7 @@
         errorLine2="                                                       ~~~~~~">
         <location
             file="src/main/java/androidx/media/MediaBrowserServiceCompat.java"
-            line="1506"
+            line="1504"
             column="56"/>
     </issue>
 
@@ -657,7 +580,7 @@
         errorLine2="                                ~~~~~~~~~~~~~~~~~~~~~~~~">
         <location
             file="src/main/java/androidx/media/MediaBrowserServiceCompat.java"
-            line="1519"
+            line="1517"
             column="33"/>
     </issue>
 
@@ -668,7 +591,7 @@
         errorLine2="                 ~~~~~~">
         <location
             file="src/main/java/androidx/media/MediaBrowserServiceCompat.java"
-            line="1554"
+            line="1552"
             column="18"/>
     </issue>
 
@@ -679,7 +602,7 @@
         errorLine2="               ~~~~~~">
         <location
             file="src/main/java/androidx/media/MediaBrowserServiceCompat.java"
-            line="1962"
+            line="1960"
             column="16"/>
     </issue>
 
@@ -690,7 +613,7 @@
         errorLine2="               ~~~~~~">
         <location
             file="src/main/java/androidx/media/MediaBrowserServiceCompat.java"
-            line="1969"
+            line="1967"
             column="16"/>
     </issue>
 
