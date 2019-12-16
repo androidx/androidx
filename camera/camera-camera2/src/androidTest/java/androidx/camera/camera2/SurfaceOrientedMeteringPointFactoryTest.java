@@ -54,7 +54,7 @@ public final class SurfaceOrientedMeteringPointFactoryTest {
     @Before
     public void setUp() {
         Context context = ApplicationProvider.getApplicationContext();
-        CameraXConfig config = Camera2Config.defaultConfig(context);
+        CameraXConfig config = Camera2Config.defaultConfig();
 
         CameraX.initialize(context, config);
         mLifecycle = new FakeLifecycleOwner();

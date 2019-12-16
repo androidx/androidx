@@ -89,7 +89,7 @@ public final class ZoomControlDeviceTest {
 
         // Init CameraX
         Context context = ApplicationProvider.getApplicationContext();
-        CameraXConfig config = Camera2Config.defaultConfig(context);
+        CameraXConfig config = Camera2Config.defaultConfig();
         CameraX.initialize(context, config);
 
         String cameraId = CameraX.getCameraWithLensFacing(CameraSelector.LENS_FACING_BACK);

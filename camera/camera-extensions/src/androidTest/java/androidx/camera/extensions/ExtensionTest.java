@@ -106,7 +106,7 @@ public class ExtensionTest {
         assumeTrue(CameraUtil.deviceHasCamera());
 
         Context context = ApplicationProvider.getApplicationContext();
-        CameraXConfig cameraXConfig = Camera2Config.defaultConfig(context);
+        CameraXConfig cameraXConfig = Camera2Config.defaultConfig();
         CameraX.initialize(context, cameraXConfig);
 
         assumeTrue(CameraUtil.hasCameraWithLensFacing(mLensFacing));

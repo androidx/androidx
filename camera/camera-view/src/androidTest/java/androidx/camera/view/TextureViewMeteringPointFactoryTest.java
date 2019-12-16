@@ -107,7 +107,7 @@ public class TextureViewMeteringPointFactoryTest {
         CoreAppTestUtil.assumeCompatibleDevice();
 
         mContext = ApplicationProvider.getApplicationContext();
-        CameraXConfig config = Camera2Config.defaultConfig(mContext);
+        CameraXConfig config = Camera2Config.defaultConfig();
         CameraX.initialize(mContext, config);
         mLifecycle = new FakeLifecycleOwner();
         mLatchForFrameReady = new CountDownLatch(1);

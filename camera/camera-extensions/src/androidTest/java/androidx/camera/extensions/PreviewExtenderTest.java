@@ -110,7 +110,7 @@ public class PreviewExtenderTest {
         assumeTrue(CameraUtil.hasCameraWithLensFacing(CameraSelector.LENS_FACING_BACK));
 
         Context context = ApplicationProvider.getApplicationContext();
-        CameraX.initialize(context, Camera2Config.defaultConfig(context));
+        CameraX.initialize(context, Camera2Config.defaultConfig());
 
         mFakeLifecycle = new FakeLifecycleOwner();
         mFakeLifecycle.startAndResume();

@@ -17,10 +17,10 @@
 package androidx.camera.testing.fakes;
 
 import androidx.annotation.NonNull;
+import androidx.camera.core.CameraFactory;
 import androidx.camera.core.CameraSelector;
 import androidx.camera.core.CameraXConfig;
 import androidx.camera.core.ExtendableUseCaseConfigFactory;
-import androidx.camera.core.UseCaseConfigFactory;
 import androidx.camera.core.impl.CameraDeviceSurfaceManager;
 
 /**
@@ -38,22 +38,26 @@ public final class FakeAppConfig {
     /** Generates a fake {@link CameraXConfig}. */
     @NonNull
     public static CameraXConfig create() {
-        FakeCameraFactory cameraFactory = new FakeCameraFactory();
-        cameraFactory.insertCamera(CameraSelector.LENS_FACING_BACK, CAMERA_ID_0,
-                () -> new FakeCamera(null,
-                        new FakeCameraInfoInternal(0, CameraSelector.LENS_FACING_BACK)));
-        cameraFactory.insertCamera(CameraSelector.LENS_FACING_FRONT, CAMERA_ID_1,
-                () -> new FakeCamera(null,
-                        new FakeCameraInfoInternal(0, CameraSelector.LENS_FACING_FRONT)));
+        CameraFactory.Provider cameraFactoryProvider = ignored -> {
+            FakeCameraFactory cameraFactory = new FakeCameraFactory();
+            cameraFactory.insertCamera(CameraSelector.LENS_FACING_BACK, CAMERA_ID_0,
+                    () -> new FakeCamera(null,
+                            new FakeCameraInfoInternal(0, CameraSelector.LENS_FACING_BACK)));
+            cameraFactory.insertCamera(CameraSelector.LENS_FACING_FRONT, CAMERA_ID_1,
+                    () -> new FakeCamera(null,
+                            new FakeCameraInfoInternal(0, CameraSelector.LENS_FACING_FRONT)));
+            return cameraFactory;
+        };
 
-        CameraDeviceSurfaceManager surfaceManager = new FakeCameraDeviceSurfaceManager();
-        UseCaseConfigFactory defaultConfigFactory = new ExtendableUseCaseConfigFactory();
+        CameraDeviceSurfaceManager.Provider surfaceManagerProvider =
+                ignored -> new FakeCameraDeviceSurfaceManager();
 
         CameraXConfig.Builder appConfigBuilder =
                 new CameraXConfig.Builder()
-                        .setCameraFactory(cameraFactory)
-                        .setDeviceSurfaceManager(surfaceManager)
-                        .setUseCaseConfigFactory(defaultConfigFactory);
+                        .setCameraFactoryProvider(cameraFactoryProvider)
+                        .setDeviceSurfaceManagerProvider(surfaceManagerProvider)
+                        .setUseCaseConfigFactoryProvider(ignored ->
+                                new ExtendableUseCaseConfigFactory());
 
         return appConfigBuilder.build();
     }

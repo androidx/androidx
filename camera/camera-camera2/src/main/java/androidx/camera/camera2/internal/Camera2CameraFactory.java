@@ -41,26 +41,24 @@ import java.util.Set;
  * The factory class that creates {@link Camera2CameraImpl} instances.
  */
 public final class Camera2CameraFactory implements CameraFactory {
-    private static final String TAG = "Camera2CameraFactory";
-
     private static final int DEFAULT_ALLOWED_CONCURRENT_OPEN_CAMERAS = 1;
 
     private static final HandlerThread sHandlerThread = new HandlerThread(CameraXThreads.TAG);
     private static final Handler sHandler;
     private final CameraAvailabilityRegistry mAvailabilityRegistry;
+    private final CameraManagerCompat mCameraManager;
 
     static {
         sHandlerThread.start();
         sHandler = new Handler(sHandlerThread.getLooper());
     }
 
-    private final CameraManagerCompat mCameraManager;
-
+    /** Creates a Camera2 implementation of CameraFactory */
     public Camera2CameraFactory(@NonNull Context context) {
-        mCameraManager = CameraManagerCompat.from(context);
         mAvailabilityRegistry = new CameraAvailabilityRegistry(
                 DEFAULT_ALLOWED_CONCURRENT_OPEN_CAMERAS,
                 CameraXExecutors.newHandlerExecutor(sHandler));
+        mCameraManager = CameraManagerCompat.from(context);
     }
 
     @Override
@@ -80,7 +78,7 @@ public final class Camera2CameraFactory implements CameraFactory {
     @Override
     @NonNull
     public Set<String> getAvailableCameraIds() throws CameraInfoUnavailableException {
-        List<String> camerasList = null;
+        List<String> camerasList;
         try {
             camerasList = Arrays.asList(mCameraManager.unwrap().getCameraIdList());
         } catch (CameraAccessException e) {

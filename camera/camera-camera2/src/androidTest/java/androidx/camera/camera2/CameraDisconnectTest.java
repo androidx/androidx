@@ -73,7 +73,7 @@ public class CameraDisconnectTest {
         CoreAppTestUtil.assumeCompatibleDevice();
 
         Context context = ApplicationProvider.getApplicationContext();
-        CameraX.initialize(context, Camera2Config.defaultConfig(context));
+        CameraX.initialize(context, Camera2Config.defaultConfig());
 
         // In case the lock screen on top, the action to dismiss it.
         UiDevice.getInstance(mInstrumentation).pressKeyCode(DISMISS_LOCK_SCREEN_CODE);

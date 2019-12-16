@@ -531,7 +531,8 @@ public final class CameraX {
      * the user-provided configuration used to create a use case.
      *
      * @param configType the configuration type
-     * @param lensFacing The {@link LensFacing} that the default configuration will target to.
+     * @param lensFacing The {@link CameraSelector.LensFacing} that the default configuration
+     *                   will target to.
      * @return the default configuration for the given configuration type
      * @throws IllegalStateException if Camerax has not yet been initialized.
      * @hide
@@ -945,31 +946,36 @@ public final class CameraX {
                             Exception e = null;
                             try {
                                 mContext = context.getApplicationContext();
-                                mCameraFactory = cameraXConfig.getCameraFactory(null);
-                                if (mCameraFactory == null) {
+                                CameraFactory.Provider cameraFactoryProvider =
+                                        cameraXConfig.getCameraFactoryProvider(null);
+                                if (cameraFactoryProvider == null) {
                                     e = new IllegalArgumentException(
                                             "Invalid app configuration provided. Missing "
                                                     + "CameraFactory.");
                                     return;
                                 }
+                                mCameraFactory = cameraFactoryProvider.newInstance(context);
 
-                                mSurfaceManager = cameraXConfig.getDeviceSurfaceManager(null);
-                                if (mSurfaceManager == null) {
+                                CameraDeviceSurfaceManager.Provider surfaceManagerProvider =
+                                        cameraXConfig.getDeviceSurfaceManagerProvider(null);
+                                if (surfaceManagerProvider == null) {
                                     e = new IllegalArgumentException(
                                             "Invalid app configuration provided. Missing "
                                                     + "CameraDeviceSurfaceManager.");
                                     return;
                                 }
-                                mSurfaceManager.init();
+                                mSurfaceManager = surfaceManagerProvider.newInstance(context);
 
-                                mDefaultConfigFactory = cameraXConfig.getUseCaseConfigRepository(
+                                UseCaseConfigFactory.Provider configFactoryProvider =
+                                        cameraXConfig.getUseCaseConfigFactoryProvider(
                                         null);
-                                if (mDefaultConfigFactory == null) {
+                                if (configFactoryProvider == null) {
                                     e = new IllegalArgumentException(
                                             "Invalid app configuration provided. Missing "
                                                     + "UseCaseConfigFactory.");
                                     return;
                                 }
+                                mDefaultConfigFactory = configFactoryProvider.newInstance(context);
 
                                 if (mCameraExecutor instanceof CameraExecutor) {
                                     CameraExecutor executor = (CameraExecutor) mCameraExecutor;
