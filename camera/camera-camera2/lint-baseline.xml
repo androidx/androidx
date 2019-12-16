@@ -7,7 +7,7 @@
         errorLine1="    public static CaptureResult getCaptureResult(CameraCaptureResult cameraCaptureResult) {"
         errorLine2="                  ~~~~~~~~~~~~~">
         <location
-            file="src/main/java/androidx/camera/camera2/impl/Camera2CameraCaptureResultConverter.java"
+            file="src/main/java/androidx/camera/camera2/internal/Camera2CameraCaptureResultConverter.java"
             line="36"
             column="19"/>
     </issue>
@@ -18,7 +18,7 @@
         errorLine1="    public static CaptureResult getCaptureResult(CameraCaptureResult cameraCaptureResult) {"
         errorLine2="                                                 ~~~~~~~~~~~~~~~~~~~">
         <location
-            file="src/main/java/androidx/camera/camera2/impl/Camera2CameraCaptureResultConverter.java"
+            file="src/main/java/androidx/camera/camera2/internal/Camera2CameraCaptureResultConverter.java"
             line="36"
             column="50"/>
     </issue>
@@ -29,7 +29,7 @@
         errorLine1="    public CaptureConfig onPresetSession() {"
         errorLine2="           ~~~~~~~~~~~~~">
         <location
-            file="src/main/java/androidx/camera/camera2/impl/CameraEventCallback.java"
+            file="src/main/java/androidx/camera/camera2/internal/CameraEventCallback.java"
             line="40"
             column="12"/>
     </issue>
@@ -40,7 +40,7 @@
         errorLine1="    public CaptureConfig onEnableSession() {"
         errorLine2="           ~~~~~~~~~~~~~">
         <location
-            file="src/main/java/androidx/camera/camera2/impl/CameraEventCallback.java"
+            file="src/main/java/androidx/camera/camera2/internal/CameraEventCallback.java"
             line="52"
             column="12"/>
     </issue>
@@ -51,7 +51,7 @@
         errorLine1="    public CaptureConfig onRepeating() {"
         errorLine2="           ~~~~~~~~~~~~~">
         <location
-            file="src/main/java/androidx/camera/camera2/impl/CameraEventCallback.java"
+            file="src/main/java/androidx/camera/camera2/internal/CameraEventCallback.java"
             line="63"
             column="12"/>
     </issue>
@@ -62,7 +62,7 @@
         errorLine1="    public CaptureConfig onDisableSession() {"
         errorLine2="           ~~~~~~~~~~~~~">
         <location
-            file="src/main/java/androidx/camera/camera2/impl/CameraEventCallback.java"
+            file="src/main/java/androidx/camera/camera2/internal/CameraEventCallback.java"
             line="75"
             column="12"/>
     </issue>
@@ -73,7 +73,7 @@
         errorLine1="    public CameraEventCallbacks(CameraEventCallback ... callbacks) {"
         errorLine2="                                ~~~~~~~~~~~~~~~~~~~~~~~">
         <location
-            file="src/main/java/androidx/camera/camera2/impl/CameraEventCallbacks.java"
+            file="src/main/java/androidx/camera/camera2/internal/CameraEventCallbacks.java"
             line="38"
             column="33"/>
     </issue>
@@ -84,7 +84,7 @@
         errorLine1="        public List&lt;CaptureConfig> onPresetSession() {"
         errorLine2="               ~~~~~~~~~~~~~~~~~~~">
         <location
-            file="src/main/java/androidx/camera/camera2/impl/CameraEventCallbacks.java"
+            file="src/main/java/androidx/camera/camera2/internal/CameraEventCallbacks.java"
             line="81"
             column="16"/>
     </issue>
@@ -95,7 +95,7 @@
         errorLine1="        public List&lt;CaptureConfig> onEnableSession() {"
         errorLine2="               ~~~~~~~~~~~~~~~~~~~">
         <location
-            file="src/main/java/androidx/camera/camera2/impl/CameraEventCallbacks.java"
+            file="src/main/java/androidx/camera/camera2/internal/CameraEventCallbacks.java"
             line="101"
             column="16"/>
     </issue>
@@ -106,7 +106,7 @@
         errorLine1="        public List&lt;CaptureConfig> onRepeating() {"
         errorLine2="               ~~~~~~~~~~~~~~~~~~~">
         <location
-            file="src/main/java/androidx/camera/camera2/impl/CameraEventCallbacks.java"
+            file="src/main/java/androidx/camera/camera2/internal/CameraEventCallbacks.java"
             line="119"
             column="16"/>
     </issue>
@@ -117,7 +117,7 @@
         errorLine1="        public List&lt;CaptureConfig> onDisableSession() {"
         errorLine2="               ~~~~~~~~~~~~~~~~~~~">
         <location
-            file="src/main/java/androidx/camera/camera2/impl/CameraEventCallbacks.java"
+            file="src/main/java/androidx/camera/camera2/internal/CameraEventCallbacks.java"
             line="137"
             column="16"/>
     </issue>
@@ -128,7 +128,7 @@
         errorLine1="    public static CameraManagerCompat from(Context context) {"
         errorLine2="                  ~~~~~~~~~~~~~~~~~~~">
         <location
-            file="src/main/java/androidx/camera/camera2/impl/compat/CameraManagerCompat.java"
+            file="src/main/java/androidx/camera/camera2/internal/compat/CameraManagerCompat.java"
             line="46"
             column="19"/>
     </issue>
@@ -139,7 +139,7 @@
         errorLine1="    public static CameraManagerCompat from(Context context) {"
         errorLine2="                                           ~~~~~~~">
         <location
-            file="src/main/java/androidx/camera/camera2/impl/compat/CameraManagerCompat.java"
+            file="src/main/java/androidx/camera/camera2/internal/compat/CameraManagerCompat.java"
             line="46"
             column="44"/>
     </issue>
@@ -150,7 +150,7 @@
         errorLine1="    public ImageAnalysisConfigProvider(CameraFactory cameraFactory, Context context) {"
         errorLine2="                                       ~~~~~~~~~~~~~">
         <location
-            file="src/main/java/androidx/camera/camera2/impl/ImageAnalysisConfigProvider.java"
+            file="src/main/java/androidx/camera/camera2/internal/ImageAnalysisConfigProvider.java"
             line="50"
             column="40"/>
     </issue>
@@ -161,7 +161,7 @@
         errorLine1="    public ImageAnalysisConfigProvider(CameraFactory cameraFactory, Context context) {"
         errorLine2="                                                                    ~~~~~~~">
         <location
-            file="src/main/java/androidx/camera/camera2/impl/ImageAnalysisConfigProvider.java"
+            file="src/main/java/androidx/camera/camera2/internal/ImageAnalysisConfigProvider.java"
             line="50"
             column="69"/>
     </issue>
@@ -172,7 +172,7 @@
         errorLine1="    public ImageAnalysisConfig getConfig(@Nullable Integer lensFacing) {"
         errorLine2="           ~~~~~~~~~~~~~~~~~~~">
         <location
-            file="src/main/java/androidx/camera/camera2/impl/ImageAnalysisConfigProvider.java"
+            file="src/main/java/androidx/camera/camera2/internal/ImageAnalysisConfigProvider.java"
             line="56"
             column="12"/>
     </issue>
@@ -183,7 +183,7 @@
         errorLine1="    public ImageCaptureConfigProvider(CameraFactory cameraFactory, Context context) {"
         errorLine2="                                      ~~~~~~~~~~~~~">
         <location
-            file="src/main/java/androidx/camera/camera2/impl/ImageCaptureConfigProvider.java"
+            file="src/main/java/androidx/camera/camera2/internal/ImageCaptureConfigProvider.java"
             line="50"
             column="39"/>
     </issue>
@@ -194,7 +194,7 @@
         errorLine1="    public ImageCaptureConfigProvider(CameraFactory cameraFactory, Context context) {"
         errorLine2="                                                                   ~~~~~~~">
         <location
-            file="src/main/java/androidx/camera/camera2/impl/ImageCaptureConfigProvider.java"
+            file="src/main/java/androidx/camera/camera2/internal/ImageCaptureConfigProvider.java"
             line="50"
             column="68"/>
     </issue>
@@ -205,7 +205,7 @@
         errorLine1="    public ImageCaptureConfig getConfig(@Nullable Integer lensFacing) {"
         errorLine2="           ~~~~~~~~~~~~~~~~~~">
         <location
-            file="src/main/java/androidx/camera/camera2/impl/ImageCaptureConfigProvider.java"
+            file="src/main/java/androidx/camera/camera2/internal/ImageCaptureConfigProvider.java"
             line="56"
             column="12"/>
     </issue>
@@ -216,7 +216,7 @@
         errorLine1="    public PreviewConfigProvider(CameraFactory cameraFactory, Context context) {"
         errorLine2="                                 ~~~~~~~~~~~~~">
         <location
-            file="src/main/java/androidx/camera/camera2/impl/PreviewConfigProvider.java"
+            file="src/main/java/androidx/camera/camera2/internal/PreviewConfigProvider.java"
             line="50"
             column="34"/>
     </issue>
@@ -227,7 +227,7 @@
         errorLine1="    public PreviewConfigProvider(CameraFactory cameraFactory, Context context) {"
         errorLine2="                                                              ~~~~~~~">
         <location
-            file="src/main/java/androidx/camera/camera2/impl/PreviewConfigProvider.java"
+            file="src/main/java/androidx/camera/camera2/internal/PreviewConfigProvider.java"
             line="50"
             column="63"/>
     </issue>
@@ -238,7 +238,7 @@
         errorLine1="    public PreviewConfig getConfig(@Nullable Integer lensFacing) {"
         errorLine2="           ~~~~~~~~~~~~~">
         <location
-            file="src/main/java/androidx/camera/camera2/impl/PreviewConfigProvider.java"
+            file="src/main/java/androidx/camera/camera2/internal/PreviewConfigProvider.java"
             line="56"
             column="12"/>
     </issue>
@@ -249,7 +249,7 @@
         errorLine1="    public static List&lt;OutputConfiguration> transformFromCompat("
         errorLine2="                  ~~~~~~~~~~~~~~~~~~~~~~~~~">
         <location
-            file="src/main/java/androidx/camera/camera2/impl/compat/params/SessionConfigurationCompat.java"
+            file="src/main/java/androidx/camera/camera2/internal/compat/params/SessionConfigurationCompat.java"
             line="137"
             column="19"/>
     </issue>
@@ -260,7 +260,7 @@
         errorLine1="    public List&lt;OutputConfigurationCompat> getOutputConfigurations() {"
         errorLine2="           ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
         <location
-            file="src/main/java/androidx/camera/camera2/impl/compat/params/SessionConfigurationCompat.java"
+            file="src/main/java/androidx/camera/camera2/internal/compat/params/SessionConfigurationCompat.java"
             line="162"
             column="12"/>
     </issue>
@@ -271,7 +271,7 @@
         errorLine1="    public CameraCaptureSession.StateCallback getStateCallback() {"
         errorLine2="           ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
         <location
-            file="src/main/java/androidx/camera/camera2/impl/compat/params/SessionConfigurationCompat.java"
+            file="src/main/java/androidx/camera/camera2/internal/compat/params/SessionConfigurationCompat.java"
             line="171"
             column="12"/>
     </issue>
@@ -282,7 +282,7 @@
         errorLine1="    public Executor getExecutor() {"
         errorLine2="           ~~~~~~~~">
         <location
-            file="src/main/java/androidx/camera/camera2/impl/compat/params/SessionConfigurationCompat.java"
+            file="src/main/java/androidx/camera/camera2/internal/compat/params/SessionConfigurationCompat.java"
             line="180"
             column="12"/>
     </issue>
@@ -293,7 +293,7 @@
         errorLine1="    public InputConfigurationCompat getInputConfiguration() {"
         errorLine2="           ~~~~~~~~~~~~~~~~~~~~~~~~">
         <location
-            file="src/main/java/androidx/camera/camera2/impl/compat/params/SessionConfigurationCompat.java"
+            file="src/main/java/androidx/camera/camera2/internal/compat/params/SessionConfigurationCompat.java"
             line="189"
             column="12"/>
     </issue>
@@ -304,7 +304,7 @@
         errorLine1="    public CaptureRequest getSessionParameters() {"
         errorLine2="           ~~~~~~~~~~~~~~">
         <location
-            file="src/main/java/androidx/camera/camera2/impl/compat/params/SessionConfigurationCompat.java"
+            file="src/main/java/androidx/camera/camera2/internal/compat/params/SessionConfigurationCompat.java"
             line="211"
             column="12"/>
     </issue>
@@ -315,7 +315,7 @@
         errorLine1="    public void setSessionParameters(CaptureRequest params) {"
         errorLine2="                                     ~~~~~~~~~~~~~~">
         <location
-            file="src/main/java/androidx/camera/camera2/impl/compat/params/SessionConfigurationCompat.java"
+            file="src/main/java/androidx/camera/camera2/internal/compat/params/SessionConfigurationCompat.java"
             line="233"
             column="38"/>
     </issue>
@@ -326,7 +326,7 @@
         errorLine1="    public VideoCaptureConfigProvider(CameraFactory cameraFactory, Context context) {"
         errorLine2="                                      ~~~~~~~~~~~~~">
         <location
-            file="src/main/java/androidx/camera/camera2/impl/VideoCaptureConfigProvider.java"
+            file="src/main/java/androidx/camera/camera2/internal/VideoCaptureConfigProvider.java"
             line="50"
             column="39"/>
     </issue>
@@ -337,7 +337,7 @@
         errorLine1="    public VideoCaptureConfigProvider(CameraFactory cameraFactory, Context context) {"
         errorLine2="                                                                   ~~~~~~~">
         <location
-            file="src/main/java/androidx/camera/camera2/impl/VideoCaptureConfigProvider.java"
+            file="src/main/java/androidx/camera/camera2/internal/VideoCaptureConfigProvider.java"
             line="50"
             column="68"/>
     </issue>
@@ -348,7 +348,7 @@
         errorLine1="    public VideoCaptureConfig getConfig(@Nullable Integer lensFacing) {"
         errorLine2="           ~~~~~~~~~~~~~~~~~~">
         <location
-            file="src/main/java/androidx/camera/camera2/impl/VideoCaptureConfigProvider.java"
+            file="src/main/java/androidx/camera/camera2/internal/VideoCaptureConfigProvider.java"
             line="56"
             column="12"/>
     </issue>

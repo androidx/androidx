@@ -19,12 +19,12 @@ package androidx.camera.camera2;
 import android.content.Context;
 
 import androidx.annotation.NonNull;
-import androidx.camera.camera2.impl.Camera2CameraFactory;
-import androidx.camera.camera2.impl.Camera2DeviceSurfaceManager;
-import androidx.camera.camera2.impl.ImageAnalysisConfigProvider;
-import androidx.camera.camera2.impl.ImageCaptureConfigProvider;
-import androidx.camera.camera2.impl.PreviewConfigProvider;
-import androidx.camera.camera2.impl.VideoCaptureConfigProvider;
+import androidx.camera.camera2.internal.Camera2CameraFactory;
+import androidx.camera.camera2.internal.Camera2DeviceSurfaceManager;
+import androidx.camera.camera2.internal.ImageAnalysisConfigProvider;
+import androidx.camera.camera2.internal.ImageCaptureConfigProvider;
+import androidx.camera.camera2.internal.PreviewConfigProvider;
+import androidx.camera.camera2.internal.VideoCaptureConfigProvider;
 import androidx.camera.core.CameraDeviceSurfaceManager;
 import androidx.camera.core.CameraFactory;
 import androidx.camera.core.CameraXConfig;

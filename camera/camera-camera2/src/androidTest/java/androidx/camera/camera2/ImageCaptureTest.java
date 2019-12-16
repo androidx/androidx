@@ -45,7 +45,7 @@ import android.view.Surface;
 
 import androidx.annotation.Nullable;
 import androidx.annotation.experimental.UseExperimental;
-import androidx.camera.camera2.impl.util.FakeRepeatingUseCase;
+import androidx.camera.camera2.internal.util.FakeRepeatingUseCase;
 import androidx.camera.camera2.interop.Camera2Interop;
 import androidx.camera.camera2.interop.ExperimentalCamera2Interop;
 import androidx.camera.core.CameraFactory;
