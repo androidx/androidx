@@ -19,6 +19,7 @@ package androidx.camera.core;
 import android.util.Log;
 
 import androidx.annotation.GuardedBy;
+import androidx.annotation.NonNull;
 import androidx.annotation.RestrictTo;
 import androidx.annotation.RestrictTo.Scope;
 import androidx.camera.core.impl.CameraInternal;
@@ -141,7 +142,9 @@ public final class UseCaseGroup {
         }
     }
 
-    Map<String, Set<UseCase>> getCameraIdToUseCaseMap() {
+    /** Returns the map of all the use cases to its attached camera id. */
+    @NonNull
+    public Map<String, Set<UseCase>> getCameraIdToUseCaseMap() {
         Map<String, Set<UseCase>> cameraIdToUseCases = new HashMap<>();
         synchronized (mUseCasesLock) {
             for (UseCase useCase : mUseCases) {
@@ -163,7 +166,7 @@ public final class UseCaseGroup {
     }
 
     /** Listener called when a {@link UseCaseGroup} transitions between active/inactive states. */
-    interface StateChangeCallback {
+    public interface StateChangeCallback {
         /**
          * Called when a {@link UseCaseGroup} becomes active.
          *
@@ -171,7 +174,7 @@ public final class UseCaseGroup {
          * online. This means that the {@link CameraInternal} should transition to a state as
          * close as possible to producing, but prior to actually producing data for the use case.
          */
-        void onGroupActive(UseCaseGroup useCaseGroup);
+        void onGroupActive(@NonNull UseCaseGroup useCaseGroup);
 
         /**
          * Called when a {@link UseCaseGroup} becomes inactive.
@@ -179,6 +182,6 @@ public final class UseCaseGroup {
          * <p>When a UseCaseGroup is active then all the contained {@link UseCase} become
          * offline.
          */
-        void onGroupInactive(UseCaseGroup useCaseGroup);
+        void onGroupInactive(@NonNull UseCaseGroup useCaseGroup);
     }
 }

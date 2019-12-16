@@ -18,6 +18,7 @@ package androidx.camera.core;
 
 import androidx.annotation.GuardedBy;
 import androidx.annotation.NonNull;
+import androidx.camera.core.impl.CameraFactory;
 import androidx.core.util.Preconditions;
 
 import java.util.Locale;

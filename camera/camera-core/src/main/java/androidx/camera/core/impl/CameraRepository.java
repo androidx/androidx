@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2019 The Android Open Source Project
+ * Copyright 2019 The Android Open Source Project
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package androidx.camera.core;
+package androidx.camera.core.impl;
 
 import android.content.Context;
 import android.util.Log;
@@ -23,7 +23,8 @@ import androidx.annotation.GuardedBy;
 import androidx.annotation.NonNull;
 import androidx.annotation.RestrictTo;
 import androidx.annotation.RestrictTo.Scope;
-import androidx.camera.core.impl.CameraInternal;
+import androidx.camera.core.UseCase;
+import androidx.camera.core.UseCaseGroup;
 import androidx.camera.core.impl.utils.executor.CameraXExecutors;
 import androidx.camera.core.impl.utils.futures.Futures;
 import androidx.concurrent.futures.CallbackToFutureAdapter;
@@ -38,10 +39,7 @@ import java.util.Set;
 
 /**
  * A collection of {@link CameraInternal} instances.
- *
- * @hide
  */
-@RestrictTo(Scope.LIBRARY_GROUP)
 public final class CameraRepository implements UseCaseGroup.StateChangeCallback {
     private static final String TAG = "CameraRepository";
 
@@ -64,7 +62,7 @@ public final class CameraRepository implements UseCaseGroup.StateChangeCallback 
      * @hide
      */
     @RestrictTo(Scope.LIBRARY_GROUP)
-    public void init(CameraFactory cameraFactory) {
+    public void init(@NonNull CameraFactory cameraFactory) {
         synchronized (mCamerasLock) {
             try {
                 Set<String> camerasList = cameraFactory.getAvailableCameraIds();
@@ -152,7 +150,8 @@ public final class CameraRepository implements UseCaseGroup.StateChangeCallback 
      * @hide
      */
     @RestrictTo(Scope.LIBRARY_GROUP)
-    public CameraInternal getCamera(String cameraId) {
+    @NonNull
+    public CameraInternal getCamera(@NonNull String cameraId) {
         synchronized (mCamerasLock) {
             CameraInternal cameraInternal = mCameras.get(cameraId);
 
@@ -169,6 +168,7 @@ public final class CameraRepository implements UseCaseGroup.StateChangeCallback 
      *
      * @return set of all camera ids
      */
+    @NonNull
     Set<String> getCameraIds() {
         synchronized (mCamerasLock) {
             return new HashSet<>(mCameras.keySet());
@@ -181,7 +181,7 @@ public final class CameraRepository implements UseCaseGroup.StateChangeCallback 
      * <p>This will start streaming data to the uses cases which are also online.
      */
     @Override
-    public void onGroupActive(UseCaseGroup useCaseGroup) {
+    public void onGroupActive(@NonNull UseCaseGroup useCaseGroup) {
         synchronized (mCamerasLock) {
             Map<String, Set<UseCase>> cameraIdToUseCaseMap = useCaseGroup.getCameraIdToUseCaseMap();
             for (Map.Entry<String, Set<UseCase>> cameraUseCaseEntry :
@@ -203,7 +203,7 @@ public final class CameraRepository implements UseCaseGroup.StateChangeCallback 
      * use cases.
      */
     @Override
-    public void onGroupInactive(UseCaseGroup useCaseGroup) {
+    public void onGroupInactive(@NonNull UseCaseGroup useCaseGroup) {
         synchronized (mCamerasLock) {
             Map<String, Set<UseCase>> cameraIdToUseCaseMap = useCaseGroup.getCameraIdToUseCaseMap();
             for (Map.Entry<String, Set<UseCase>> cameraUseCaseEntry :

@@ -23,6 +23,7 @@ import static org.mockito.Mockito.mock;
 import android.os.Build;
 
 import androidx.camera.core.impl.CameraDeviceSurfaceManager;
+import androidx.camera.core.impl.CameraFactory;
 import androidx.camera.testing.fakes.FakeAppConfig;
 import androidx.test.filters.SmallTest;
 
