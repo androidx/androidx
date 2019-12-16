@@ -24,6 +24,7 @@ import android.view.Surface;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
+import androidx.camera.camera2.impl.Camera2ImplConfig;
 import androidx.camera.core.CaptureConfig;
 import androidx.camera.core.Config;
 import androidx.camera.core.DeferrableSurface;
@@ -35,7 +36,7 @@ import java.util.Map;
 /**
  * This class is used to build a camera2 {@link CaptureRequest} from a {@link CaptureConfig}
  */
-public class Camera2CaptureRequestBuilder {
+class Camera2CaptureRequestBuilder {
     private Camera2CaptureRequestBuilder() {
     }
 

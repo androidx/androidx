@@ -25,11 +25,11 @@ import android.hardware.camera2.CaptureRequest;
 import android.util.Range;
 
 import androidx.annotation.experimental.UseExperimental;
+import androidx.camera.camera2.impl.Camera2ImplConfig;
+import androidx.camera.camera2.impl.CameraEventCallbacks;
 import androidx.camera.camera2.internal.Camera2CaptureCallbacks;
-import androidx.camera.camera2.internal.Camera2ImplConfig;
 import androidx.camera.camera2.internal.CameraCaptureSessionStateCallbacks;
 import androidx.camera.camera2.internal.CameraDeviceStateCallbacks;
-import androidx.camera.camera2.internal.CameraEventCallbacks;
 import androidx.camera.core.Config;
 import androidx.camera.testing.fakes.FakeConfig;
 import androidx.test.ext.junit.runners.AndroidJUnit4;

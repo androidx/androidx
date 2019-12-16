@@ -23,7 +23,7 @@ import android.util.Log;
 import android.util.Size;
 import android.view.Surface;
 
-import androidx.camera.camera2.internal.Camera2CameraCaptureResultConverter;
+import androidx.camera.camera2.impl.Camera2CameraCaptureResultConverter;
 import androidx.camera.core.CameraCaptureResults;
 import androidx.camera.core.CaptureProcessor;
 import androidx.camera.core.ExperimentalGetImage;

@@ -31,9 +31,9 @@ import android.util.Rational;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
-import androidx.annotation.RestrictTo;
 import androidx.annotation.VisibleForTesting;
 import androidx.annotation.WorkerThread;
+import androidx.camera.camera2.impl.Camera2ImplConfig;
 import androidx.camera.camera2.internal.annotation.CameraExecutor;
 import androidx.camera.core.CaptureConfig;
 import androidx.camera.core.Config;
@@ -56,11 +56,8 @@ import java.util.concurrent.ScheduledExecutorService;
 
 /**
  * A Camera2 implementation for CameraControlInternal interface
- *
- * @hide
  */
-@RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
-public final class Camera2CameraControl implements CameraControlInternal {
+final class Camera2CameraControl implements CameraControlInternal {
     @VisibleForTesting
     final CameraControlSessionCallback mSessionCallback;
     @SuppressWarnings("WeakerAccess") /* synthetic accessor */
