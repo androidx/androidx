@@ -35,13 +35,13 @@ import androidx.annotation.RestrictTo;
 import androidx.annotation.VisibleForTesting;
 import androidx.annotation.WorkerThread;
 import androidx.camera.camera2.impl.annotation.CameraExecutor;
-import androidx.camera.core.CameraControlInternal;
 import androidx.camera.core.CaptureConfig;
 import androidx.camera.core.Config;
 import androidx.camera.core.FocusMeteringAction;
 import androidx.camera.core.FocusMeteringResult;
 import androidx.camera.core.ImageCapture;
 import androidx.camera.core.SessionConfig;
+import androidx.camera.core.impl.CameraControlInternal;
 import androidx.camera.core.impl.utils.futures.Futures;
 import androidx.core.util.Preconditions;
 

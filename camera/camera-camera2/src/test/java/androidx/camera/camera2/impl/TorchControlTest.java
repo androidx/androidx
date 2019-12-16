@@ -34,8 +34,8 @@ import android.hardware.camera2.TotalCaptureResult;
 import android.os.Build;
 
 import androidx.camera.core.CameraControl;
-import androidx.camera.core.CameraControlInternal;
 import androidx.camera.core.TorchState;
+import androidx.camera.core.impl.CameraControlInternal;
 import androidx.lifecycle.Lifecycle;
 import androidx.lifecycle.LifecycleOwner;
 import androidx.lifecycle.LifecycleRegistry;
