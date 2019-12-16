@@ -28,9 +28,9 @@ import android.hardware.camera2.CameraManager;
 import android.os.Build;
 import android.view.Surface;
 
-import androidx.camera.core.CameraInfoInternal;
 import androidx.camera.core.CameraSelector;
 import androidx.camera.core.TorchState;
+import androidx.camera.core.impl.CameraInfoInternal;
 import androidx.lifecycle.MutableLiveData;
 import androidx.test.core.app.ApplicationProvider;
 import androidx.test.filters.SmallTest;
