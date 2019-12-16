@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2019 The Android Open Source Project
+ * Copyright 2019 The Android Open Source Project
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -14,13 +14,11 @@
  * limitations under the License.
  */
 
-package androidx.camera.core;
+package androidx.camera.camera2.internal;
 
 import android.hardware.camera2.CameraDevice;
 
 import androidx.annotation.NonNull;
-import androidx.annotation.RestrictTo;
-import androidx.annotation.RestrictTo.Scope;
 
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -28,10 +26,7 @@ import java.util.List;
 
 /**
  * Different implementations of {@link CameraDevice.StateCallback}.
- *
- * @hide
  */
-@RestrictTo(Scope.LIBRARY_GROUP)
 public final class CameraDeviceStateCallbacks {
     private CameraDeviceStateCallbacks() {
     }
@@ -39,6 +34,7 @@ public final class CameraDeviceStateCallbacks {
     /**
      * Returns a device state callback which does nothing.
      */
+    @NonNull
     public static CameraDevice.StateCallback createNoOpCallback() {
         return new NoOpDeviceStateCallback();
     }
@@ -46,8 +42,9 @@ public final class CameraDeviceStateCallbacks {
     /**
      * Returns a device state callback which calls a list of other callbacks.
      */
+    @NonNull
     public static CameraDevice.StateCallback createComboCallback(
-            List<CameraDevice.StateCallback> callbacks) {
+            @NonNull List<CameraDevice.StateCallback> callbacks) {
         if (callbacks.isEmpty()) {
             return createNoOpCallback();
         } else if (callbacks.size() == 1) {
@@ -59,8 +56,9 @@ public final class CameraDeviceStateCallbacks {
     /**
      * Returns a device state callback which calls a list of other callbacks.
      */
+    @NonNull
     public static CameraDevice.StateCallback createComboCallback(
-            CameraDevice.StateCallback... callbacks) {
+            @NonNull CameraDevice.StateCallback... callbacks) {
         return createComboCallback(Arrays.asList(callbacks));
     }
 
@@ -85,7 +83,7 @@ public final class CameraDeviceStateCallbacks {
     private static final class ComboDeviceStateCallback extends CameraDevice.StateCallback {
         private final List<CameraDevice.StateCallback> mCallbacks = new ArrayList<>();
 
-        ComboDeviceStateCallback(List<CameraDevice.StateCallback> callbacks) {
+        ComboDeviceStateCallback(@NonNull List<CameraDevice.StateCallback> callbacks) {
             for (CameraDevice.StateCallback callback : callbacks) {
                 // A no-op callback doesn't do anything, so avoid adding it to the final list.
                 if (!(callback instanceof NoOpDeviceStateCallback)) {
