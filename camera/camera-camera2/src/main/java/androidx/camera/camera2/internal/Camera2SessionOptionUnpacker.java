@@ -19,8 +19,6 @@ package androidx.camera.camera2.internal;
 import android.hardware.camera2.CaptureRequest;
 
 import androidx.annotation.NonNull;
-import androidx.camera.core.CameraCaptureSessionStateCallbacks;
-import androidx.camera.core.CameraDeviceStateCallbacks;
 import androidx.camera.core.Config;
 import androidx.camera.core.Config.Option;
 import androidx.camera.core.MutableOptionsBundle;

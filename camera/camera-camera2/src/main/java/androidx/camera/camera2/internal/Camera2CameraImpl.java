@@ -37,7 +37,6 @@ import androidx.annotation.WorkerThread;
 import androidx.camera.camera2.internal.annotation.CameraExecutor;
 import androidx.camera.camera2.internal.compat.CameraManagerCompat;
 import androidx.camera.core.CameraControl;
-import androidx.camera.core.CameraDeviceStateCallbacks;
 import androidx.camera.core.CameraInfo;
 import androidx.camera.core.CameraInfoInternal;
 import androidx.camera.core.CameraInternal;

@@ -35,7 +35,6 @@ import androidx.camera.camera2.internal.compat.CameraCaptureSessionCompat;
 import androidx.camera.camera2.internal.compat.CameraDeviceCompat;
 import androidx.camera.camera2.internal.compat.params.OutputConfigurationCompat;
 import androidx.camera.camera2.internal.compat.params.SessionConfigurationCompat;
-import androidx.camera.core.CameraCaptureSessionStateCallbacks;
 import androidx.camera.core.CaptureConfig;
 import androidx.camera.core.Config;
 import androidx.camera.core.DeferrableSurface;
