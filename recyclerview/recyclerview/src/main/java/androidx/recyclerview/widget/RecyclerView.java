@@ -366,7 +366,7 @@ public class RecyclerView extends ViewGroup implements ScrollingView,
 
     final Recycler mRecycler = new Recycler();
 
-    private SavedState mPendingSavedState;
+    SavedState mPendingSavedState;
 
     /**
      * Handles adapter updates
@@ -1394,9 +1394,14 @@ public class RecyclerView extends ViewGroup implements ScrollingView,
 
         mPendingSavedState = (SavedState) state;
         super.onRestoreInstanceState(mPendingSavedState.getSuperState());
-        if (mLayout != null && mPendingSavedState.mLayoutState != null) {
-            mLayout.onRestoreInstanceState(mPendingSavedState.mLayoutState);
-        }
+        // Historically, some app developers have used onRestoreInstanceState(State) in ways it
+        // was never intended. For example, some devs have used it to manually set a state they
+        // updated themselves such that passing the state here would cause a LayoutManager to
+        // receive it and update its internal state accordingly, even if state was already
+        // previously restored. Therefore, it is necessary to always call requestLayout to retain
+        // the functionality even if it otherwise seems like a strange thing to do.
+        // ¯\_(ツ)_/¯
+        requestLayout();
     }
 
     /**
@@ -4124,13 +4129,17 @@ public class RecyclerView extends ViewGroup implements ScrollingView,
         mAdapterHelper.consumeUpdatesInOnePass();
         mState.mItemCount = mAdapter.getItemCount();
         mState.mDeletedInvisibleItemCountSincePreviousLayout = 0;
-
+        if (mPendingSavedState != null && mAdapter.canRestoreState()) {
+            if (mPendingSavedState.mLayoutState != null) {
+                mLayout.onRestoreInstanceState(mPendingSavedState.mLayoutState);
+            }
+            mPendingSavedState = null;
+        }
         // Step 2: Run layout
         mState.mInPreLayout = false;
         mLayout.onLayoutChildren(mRecycler, mState);
 
         mState.mStructureChanged = false;
-        mPendingSavedState = null;
 
         // onLayoutChildren may have caused client code to disable item animations; re-check
         mState.mRunSimpleAnimations = mState.mRunSimpleAnimations && mItemAnimator != null;
@@ -5578,6 +5587,20 @@ public class RecyclerView extends ViewGroup implements ScrollingView,
                 requestLayout();
             }
         }
+
+        @Override
+        public void onStateRestorationStrategyChanged() {
+            if (mPendingSavedState == null) {
+                return;
+            }
+            // If there is a pending saved state and the new mode requires us to restore it,
+            // we'll request a layout which will call the adapter to see if it can restore state
+            // and trigger state restoration
+            Adapter<?> adapter = mAdapter;
+            if (adapter != null && adapter.canRestoreState()) {
+                requestLayout();
+            }
+        }
     }
 
     /**
@@ -6980,6 +7003,7 @@ public class RecyclerView extends ViewGroup implements ScrollingView,
     public abstract static class Adapter<VH extends ViewHolder> {
         private final AdapterDataObservable mObservable = new AdapterDataObservable();
         private boolean mHasStableIds = false;
+        private StateRestorationStrategy mStateRestorationStrategy = StateRestorationStrategy.ALLOW;
 
         /**
          * Called when RecyclerView needs a new {@link ViewHolder} of the given type to represent
@@ -7526,6 +7550,91 @@ public class RecyclerView extends ViewGroup implements ScrollingView,
          */
         public final void notifyItemRangeRemoved(int positionStart, int itemCount) {
             mObservable.notifyItemRangeRemoved(positionStart, itemCount);
+        }
+
+        /**
+         * Sets the state restoration strategy for the Adapter.
+         *
+         * By default, it is set to {@link StateRestorationStrategy#ALLOW} which means RecyclerView
+         * expects any set Adapter to be immediately capable of restoring the RecyclerView's saved
+         * scroll position.
+         * <p>
+         * This behaviour might be undesired if the Adapter's data is loaded asynchronously, and
+         * thus unavailable during initial layout (e.g. after Activity rotation). To avoid losing
+         * scroll position, you can change this to be either
+         * {@link StateRestorationStrategy#PREVENT_WHEN_EMPTY} or
+         * {@link StateRestorationStrategy#PREVENT}.
+         * Note that the former means your RecyclerView will restore state as soon as Adapter has
+         * 1 or more items while the latter requires you to call
+         * {@link #setStateRestorationStrategy(StateRestorationStrategy)} with either
+         * {@link StateRestorationStrategy#ALLOW} or
+         * {@link StateRestorationStrategy#PREVENT_WHEN_EMPTY} again when the Adapter is
+         * ready to restore its state.
+         * <p>
+         * RecyclerView will still layout even when State restoration is disabled. The behavior of
+         * how State is restored is up to the {@link LayoutManager}. All default LayoutManagers
+         * will override current state with restored state when state restoration happens (unless
+         * an explicit call to {@link LayoutManager#scrollToPosition(int)} is made).
+         * <p>
+         * Calling this method after state is restored will not have any effect other than changing
+         * the return value of {@link #getStateRestorationStrategy()}.
+         *
+         * @param strategy The saved state restoration strategy for this Adapter.
+         * @see #getStateRestorationStrategy()
+         */
+        public void setStateRestorationStrategy(@NonNull StateRestorationStrategy strategy) {
+            mStateRestorationStrategy = strategy;
+            mObservable.notifyStateRestorationStrategyChanged();
+        }
+
+        /**
+         * Returns when this Adapter wants to restore the state.
+         *
+         * @return The current {@link StateRestorationStrategy} for this Adapter. Defaults to
+         * {@link StateRestorationStrategy#ALLOW}.
+         * @see #setStateRestorationStrategy(StateRestorationStrategy)
+         */
+        @NonNull
+        public final StateRestorationStrategy getStateRestorationStrategy() {
+            return mStateRestorationStrategy;
+        }
+
+        /**
+         * Called by the RecyclerView to decide whether the SavedState should be given to the
+         * LayoutManager or not.
+         *
+         * @return {@code true} if the Adapter is ready to restore its state, {@code false}
+         * otherwise.
+         */
+        boolean canRestoreState() {
+            switch (mStateRestorationStrategy) {
+                case PREVENT: return false;
+                case PREVENT_WHEN_EMPTY: return getItemCount() > 0;
+                default: return true;
+            }
+        }
+
+        /**
+         * Defines how this Adapter wants to restore its state after a view reconstruction (e.g.
+         * configuration change).
+         */
+        public enum StateRestorationStrategy {
+            /**
+             * Adapter is ready to restore State immediately, RecyclerView will provide the state
+             * to the LayoutManager in the next layout pass.
+             */
+            ALLOW,
+            /**
+             * Adapter is ready to restore State when it has more than 0 items. RecyclerView will
+             * provide the state to the LayoutManager as soon as the Adapter has 1 or more items.
+             */
+            PREVENT_WHEN_EMPTY,
+            /**
+             * RecyclerView will not restore the state for the Adapter until a call to
+             * {@link #setStateRestorationStrategy(StateRestorationStrategy)} is made with either
+             * {@link #ALLOW} or {@link #PREVENT_WHEN_EMPTY}.
+             */
+            PREVENT
         }
     }
 
@@ -10021,7 +10130,8 @@ public class RecyclerView extends ViewGroup implements ScrollingView,
          * @param oldAdapter The previous adapter instance. Will be null if there was previously no
          *                   adapter.
          * @param newAdapter The new adapter instance. Might be null if
-         *                   {@link #setAdapter(RecyclerView.Adapter)} is called with {@code null}.
+         *                   {@link RecyclerView#setAdapter(RecyclerView.Adapter)} is called with
+         *                   {@code null}.
          */
         public void onAdapterChanged(@Nullable Adapter oldAdapter, @Nullable Adapter newAdapter) {
         }
@@ -10293,7 +10403,16 @@ public class RecyclerView extends ViewGroup implements ScrollingView,
             return null;
         }
 
-
+        /**
+         * Called when the RecyclerView is ready to restore the state based on a previous
+         * RecyclerView.
+         *
+         * Notice that this might happen after an actual layout, based on how Adapter prefers to
+         * restore State. See {@link Adapter#getStateRestorationStrategy()} for more information.
+         *
+         * @param state The parcelable that was returned by the previous LayoutManager's
+         *              {@link #onSaveInstanceState()} method.
+         */
         public void onRestoreInstanceState(Parcelable state) {
 
         }
@@ -11728,6 +11847,18 @@ public class RecyclerView extends ViewGroup implements ScrollingView,
         public void onItemRangeMoved(int fromPosition, int toPosition, int itemCount) {
             // do nothing
         }
+
+        /**
+         * Called when the {@link Adapter.StateRestorationStrategy} of the {@link Adapter} changed.
+         * When this method is called, the Adapter might be ready to restore its state if it has
+         * not already been restored.
+         *
+         * @see Adapter#getStateRestorationStrategy()
+         * @see Adapter#setStateRestorationStrategy(Adapter.StateRestorationStrategy)
+         */
+        public void onStateRestorationStrategyChanged() {
+            // do nothing
+        }
     }
 
     /**
@@ -12235,6 +12366,12 @@ public class RecyclerView extends ViewGroup implements ScrollingView,
             // to avoid such problems, just march thru the list in the reverse order.
             for (int i = mObservers.size() - 1; i >= 0; i--) {
                 mObservers.get(i).onChanged();
+            }
+        }
+
+        public void notifyStateRestorationStrategyChanged() {
+            for (int i = mObservers.size() - 1; i >= 0; i--) {
+                mObservers.get(i).onStateRestorationStrategyChanged();
             }
         }
 

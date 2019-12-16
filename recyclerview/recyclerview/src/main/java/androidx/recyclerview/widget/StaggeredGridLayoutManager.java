@@ -604,6 +604,15 @@ public class StaggeredGridLayoutManager extends RecyclerView.LayoutManager imple
         onLayoutChildren(recycler, state, true);
     }
 
+    @Override
+    public void onAdapterChanged(@Nullable RecyclerView.Adapter oldAdapter,
+            @Nullable RecyclerView.Adapter newAdapter) {
+        // RV will remove all views so we should clear all spans and assignments of views into spans
+        mLazySpanLookup.clear();
+        for (int i = 0; i < mSpanCount; i++) {
+            mSpans[i].clear();
+        }
+    }
 
     private void onLayoutChildren(RecyclerView.Recycler recycler, RecyclerView.State state,
             boolean shouldCheckForGaps) {
@@ -1220,6 +1229,10 @@ public class StaggeredGridLayoutManager extends RecyclerView.LayoutManager imple
     public void onRestoreInstanceState(Parcelable state) {
         if (state instanceof SavedState) {
             mPendingSavedState = (SavedState) state;
+            if (mPendingScrollPosition != RecyclerView.NO_POSITION) {
+                mPendingSavedState.invalidateAnchorPositionInfo();
+                mPendingSavedState.invalidateSpanInfo();
+            }
             requestLayout();
         } else if (DEBUG) {
             Log.d(TAG, "invalid saved state class");

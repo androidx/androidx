@@ -472,6 +472,7 @@ package androidx.recyclerview.widget {
     method public abstract int getItemCount();
     method public long getItemId(int);
     method public int getItemViewType(int);
+    method public final androidx.recyclerview.widget.RecyclerView.Adapter.StateRestorationStrategy getStateRestorationStrategy();
     method public final boolean hasObservers();
     method public final boolean hasStableIds();
     method public final void notifyDataSetChanged();
@@ -495,7 +496,14 @@ package androidx.recyclerview.widget {
     method public void onViewRecycled(VH);
     method public void registerAdapterDataObserver(androidx.recyclerview.widget.RecyclerView.AdapterDataObserver);
     method public void setHasStableIds(boolean);
+    method public void setStateRestorationStrategy(androidx.recyclerview.widget.RecyclerView.Adapter.StateRestorationStrategy);
     method public void unregisterAdapterDataObserver(androidx.recyclerview.widget.RecyclerView.AdapterDataObserver);
+  }
+
+  public enum RecyclerView.Adapter.StateRestorationStrategy {
+    enum_constant public static final androidx.recyclerview.widget.RecyclerView.Adapter.StateRestorationStrategy ALLOW;
+    enum_constant public static final androidx.recyclerview.widget.RecyclerView.Adapter.StateRestorationStrategy PREVENT;
+    enum_constant public static final androidx.recyclerview.widget.RecyclerView.Adapter.StateRestorationStrategy PREVENT_WHEN_EMPTY;
   }
 
   public abstract static class RecyclerView.AdapterDataObserver {
@@ -506,6 +514,7 @@ package androidx.recyclerview.widget {
     method public void onItemRangeInserted(int, int);
     method public void onItemRangeMoved(int, int, int);
     method public void onItemRangeRemoved(int, int);
+    method public void onStateRestorationStrategyChanged();
   }
 
   public static interface RecyclerView.ChildDrawingOrderCallback {
