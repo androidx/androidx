@@ -1577,54 +1577,10 @@
     <issue
         id="UnknownNullness"
         message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
-        errorLine1="    public boolean addSurfaceConfig(SurfaceConfig surfaceConfig) {"
-        errorLine2="                                    ~~~~~~~~~~~~~">
-        <location
-            file="src/main/java/androidx/camera/core/SurfaceCombination.java"
-            line="68"
-            column="37"/>
-    </issue>
-
-    <issue
-        id="UnknownNullness"
-        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
-        errorLine1="    public boolean removeSurfaceConfig(SurfaceConfig surfaceConfig) {"
-        errorLine2="                                       ~~~~~~~~~~~~~">
-        <location
-            file="src/main/java/androidx/camera/core/SurfaceCombination.java"
-            line="77"
-            column="40"/>
-    </issue>
-
-    <issue
-        id="UnknownNullness"
-        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
-        errorLine1="    public List&lt;SurfaceConfig> getSurfaceConfigList() {"
-        errorLine2="           ~~~~~~~~~~~~~~~~~~~">
-        <location
-            file="src/main/java/androidx/camera/core/SurfaceCombination.java"
-            line="85"
-            column="12"/>
-    </issue>
-
-    <issue
-        id="UnknownNullness"
-        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
-        errorLine1="    public boolean isSupported(List&lt;SurfaceConfig> configList) {"
-        errorLine2="                               ~~~~~~~~~~~~~~~~~~~">
-        <location
-            file="src/main/java/androidx/camera/core/SurfaceCombination.java"
-            line="96"
-            column="32"/>
-    </issue>
-
-    <issue
-        id="UnknownNullness"
-        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
         errorLine1="    public static SurfaceConfig create(ConfigType type, ConfigSize size) {"
         errorLine2="                  ~~~~~~~~~~~~~">
         <location
-            file="src/main/java/androidx/camera/core/SurfaceConfig.java"
+            file="src/main/java/androidx/camera/core/impl/SurfaceConfig.java"
             line="49"
             column="19"/>
     </issue>
@@ -1635,7 +1591,7 @@
         errorLine1="    public static SurfaceConfig create(ConfigType type, ConfigSize size) {"
         errorLine2="                                       ~~~~~~~~~~">
         <location
-            file="src/main/java/androidx/camera/core/SurfaceConfig.java"
+            file="src/main/java/androidx/camera/core/impl/SurfaceConfig.java"
             line="49"
             column="40"/>
     </issue>
@@ -1646,7 +1602,7 @@
         errorLine1="    public static SurfaceConfig create(ConfigType type, ConfigSize size) {"
         errorLine2="                                                        ~~~~~~~~~~">
         <location
-            file="src/main/java/androidx/camera/core/SurfaceConfig.java"
+            file="src/main/java/androidx/camera/core/impl/SurfaceConfig.java"
             line="49"
             column="57"/>
     </issue>
@@ -1657,7 +1613,7 @@
         errorLine1="    public abstract ConfigType getConfigType();"
         errorLine2="                    ~~~~~~~~~~">
         <location
-            file="src/main/java/androidx/camera/core/SurfaceConfig.java"
+            file="src/main/java/androidx/camera/core/impl/SurfaceConfig.java"
             line="54"
             column="21"/>
     </issue>
@@ -1668,7 +1624,7 @@
         errorLine1="    public abstract ConfigSize getConfigSize();"
         errorLine2="                    ~~~~~~~~~~">
         <location
-            file="src/main/java/androidx/camera/core/SurfaceConfig.java"
+            file="src/main/java/androidx/camera/core/impl/SurfaceConfig.java"
             line="57"
             column="21"/>
     </issue>
@@ -1679,7 +1635,7 @@
         errorLine1="    public final boolean isSupported(SurfaceConfig surfaceConfig) {"
         errorLine2="                                     ~~~~~~~~~~~~~">
         <location
-            file="src/main/java/androidx/camera/core/SurfaceConfig.java"
+            file="src/main/java/androidx/camera/core/impl/SurfaceConfig.java"
             line="66"
             column="38"/>
     </issue>
@@ -1690,7 +1646,7 @@
         errorLine1="    public static SurfaceSizeDefinition create("
         errorLine2="                  ~~~~~~~~~~~~~~~~~~~~~">
         <location
-            file="src/main/java/androidx/camera/core/SurfaceSizeDefinition.java"
+            file="src/main/java/androidx/camera/core/impl/SurfaceSizeDefinition.java"
             line="54"
             column="19"/>
     </issue>
@@ -1701,7 +1657,7 @@
         errorLine1="            Size analysisSize,"
         errorLine2="            ~~~~">
         <location
-            file="src/main/java/androidx/camera/core/SurfaceSizeDefinition.java"
+            file="src/main/java/androidx/camera/core/impl/SurfaceSizeDefinition.java"
             line="55"
             column="13"/>
     </issue>
@@ -1712,7 +1668,7 @@
         errorLine1="            Size previewSize,"
         errorLine2="            ~~~~">
         <location
-            file="src/main/java/androidx/camera/core/SurfaceSizeDefinition.java"
+            file="src/main/java/androidx/camera/core/impl/SurfaceSizeDefinition.java"
             line="56"
             column="13"/>
     </issue>
@@ -1723,7 +1679,7 @@
         errorLine1="            Size recordSize) {"
         errorLine2="            ~~~~">
         <location
-            file="src/main/java/androidx/camera/core/SurfaceSizeDefinition.java"
+            file="src/main/java/androidx/camera/core/impl/SurfaceSizeDefinition.java"
             line="57"
             column="13"/>
     </issue>
@@ -1734,7 +1690,7 @@
         errorLine1="    public abstract Size getAnalysisSize();"
         errorLine2="                    ~~~~">
         <location
-            file="src/main/java/androidx/camera/core/SurfaceSizeDefinition.java"
+            file="src/main/java/androidx/camera/core/impl/SurfaceSizeDefinition.java"
             line="62"
             column="21"/>
     </issue>
@@ -1745,7 +1701,7 @@
         errorLine1="    public abstract Size getPreviewSize();"
         errorLine2="                    ~~~~">
         <location
-            file="src/main/java/androidx/camera/core/SurfaceSizeDefinition.java"
+            file="src/main/java/androidx/camera/core/impl/SurfaceSizeDefinition.java"
             line="65"
             column="21"/>
     </issue>
@@ -1756,7 +1712,7 @@
         errorLine1="    public abstract Size getRecordSize();"
         errorLine2="                    ~~~~">
         <location
-            file="src/main/java/androidx/camera/core/SurfaceSizeDefinition.java"
+            file="src/main/java/androidx/camera/core/impl/SurfaceSizeDefinition.java"
             line="68"
             column="21"/>
     </issue>
