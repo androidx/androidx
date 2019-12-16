@@ -41,6 +41,8 @@ import static androidx.media.AudioAttributesCompat.USAGE_VIRTUAL_SOURCE;
 import static androidx.media.AudioAttributesCompat.USAGE_VOICE_COMMUNICATION;
 import static androidx.media.AudioAttributesCompat.USAGE_VOICE_COMMUNICATION_SIGNALLING;
 
+import androidx.annotation.NonNull;
+import androidx.annotation.Nullable;
 import androidx.annotation.RestrictTo;
 import androidx.media.AudioAttributesCompat.AudioManagerHidden;
 import androidx.versionedparcelable.ParcelField;
@@ -90,6 +92,7 @@ public class AudioAttributesImplBase implements AudioAttributesImpl {
     }
 
     @Override
+    @Nullable
     public Object getAudioAttributes() {
         return null;
     }
@@ -155,6 +158,7 @@ public class AudioAttributesImplBase implements AudioAttributesImpl {
     }
 
     @Override
+    @NonNull
     public String toString() {
         final StringBuilder sb = new StringBuilder("AudioAttributesCompat:");
         if (mLegacyStream != INVALID_STREAM_TYPE) {
@@ -187,11 +191,13 @@ public class AudioAttributesImplBase implements AudioAttributesImpl {
         }
 
         @Override
+        @NonNull
         public AudioAttributesImpl build() {
             return new AudioAttributesImplBase(mContentType, mFlags, mUsage, mLegacyStream);
         }
 
         @Override
+        @NonNull
         public Builder setUsage(@AudioAttributesCompat.AttributeUsage int usage) {
             switch (usage) {
                 case USAGE_UNKNOWN:
@@ -223,6 +229,7 @@ public class AudioAttributesImplBase implements AudioAttributesImpl {
         }
 
         @Override
+        @NonNull
         public Builder setContentType(@AudioAttributesCompat.AttributeContentType int contentType) {
             switch (contentType) {
                 case CONTENT_TYPE_UNKNOWN:
@@ -239,6 +246,7 @@ public class AudioAttributesImplBase implements AudioAttributesImpl {
         }
 
         @Override
+        @NonNull
         public Builder setFlags(int flags) {
             flags &= AudioAttributesCompat.FLAG_ALL;
             mFlags |= flags;
@@ -246,6 +254,7 @@ public class AudioAttributesImplBase implements AudioAttributesImpl {
         }
 
         @Override
+        @NonNull
         public Builder setLegacyStreamType(int streamType) {
             if (streamType == AudioManagerHidden.STREAM_ACCESSIBILITY) {
                 throw new IllegalArgumentException(

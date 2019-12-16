@@ -21,6 +21,7 @@ import static androidx.media.AudioAttributesCompat.INVALID_STREAM_TYPE;
 
 import android.media.AudioAttributes;
 
+import androidx.annotation.NonNull;
 import androidx.annotation.RequiresApi;
 import androidx.annotation.RestrictTo;
 import androidx.versionedparcelable.VersionedParcelize;
@@ -58,11 +59,13 @@ public class AudioAttributesImplApi26 extends AudioAttributesImplApi21 {
         }
 
         @Override
+        @NonNull
         public AudioAttributesImpl build() {
             return new AudioAttributesImplApi26(mFwkBuilder.build());
         }
 
         @Override
+        @NonNull
         public Builder setUsage(int usage) {
             mFwkBuilder.setUsage(usage);
             return this;

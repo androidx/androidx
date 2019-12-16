@@ -22,6 +22,8 @@ import static androidx.media.AudioAttributesCompat.INVALID_STREAM_TYPE;
 import android.annotation.SuppressLint;
 import android.media.AudioAttributes;
 
+import androidx.annotation.NonNull;
+import androidx.annotation.Nullable;
 import androidx.annotation.RequiresApi;
 import androidx.annotation.RestrictTo;
 import androidx.versionedparcelable.ParcelField;
@@ -63,6 +65,7 @@ public class AudioAttributesImplApi21 implements AudioAttributesImpl {
     }
 
     @Override
+    @Nullable
     public Object getAudioAttributes() {
         return mAudioAttributes;
     }
@@ -117,6 +120,7 @@ public class AudioAttributesImplApi21 implements AudioAttributesImpl {
     }
 
     @Override
+    @NonNull
     public String toString() {
         return "AudioAttributesCompat: audioattributes=" + mAudioAttributes;
     }
@@ -133,11 +137,13 @@ public class AudioAttributesImplApi21 implements AudioAttributesImpl {
         }
 
         @Override
+        @NonNull
         public AudioAttributesImpl build() {
             return new AudioAttributesImplApi21(mFwkBuilder.build());
         }
 
         @Override
+        @NonNull
         public Builder setUsage(int usage) {
             if (usage == AudioAttributes.USAGE_ASSISTANT) {
                 // TODO: shouldn't we keep the origin usage?
@@ -148,18 +154,21 @@ public class AudioAttributesImplApi21 implements AudioAttributesImpl {
         }
 
         @Override
+        @NonNull
         public Builder setContentType(int contentType) {
             mFwkBuilder.setContentType(contentType);
             return this;
         }
 
         @Override
+        @NonNull
         public Builder setFlags(int flags) {
             mFwkBuilder.setFlags(flags);
             return this;
         }
 
         @Override
+        @NonNull
         public Builder setLegacyStreamType(int streamType) {
             mFwkBuilder.setLegacyStreamType(streamType);
             return this;
