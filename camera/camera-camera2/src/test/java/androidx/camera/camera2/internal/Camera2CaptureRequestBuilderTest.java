@@ -25,7 +25,7 @@ import android.os.Build;
 import android.view.Surface;
 
 import androidx.camera.core.CaptureConfig;
-import androidx.camera.core.DeferrableSurface;
+import androidx.camera.core.impl.DeferrableSurface;
 import androidx.test.filters.SmallTest;
 
 import org.junit.Test;

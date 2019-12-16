@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2019 The Android Open Source Project
+ * Copyright 2019 The Android Open Source Project
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package androidx.camera.core;
+package androidx.camera.core.impl;
 
 import android.util.Log;
 import android.view.Surface;
@@ -38,9 +38,7 @@ import java.util.concurrent.atomic.AtomicInteger;
  * <p>A {@link OnSurfaceDetachedListener} can also be set to be notified of surface detach event. It
  * can be used to safely close the surface.
  *
- * @hide
  */
-@RestrictTo(Scope.LIBRARY_GROUP)
 public abstract class DeferrableSurface {
     /**
      * The exception that is returned by the ListenableFuture of {@link #getSurface()} if the
@@ -119,7 +117,8 @@ public abstract class DeferrableSurface {
      * Returns a {@link Surface} that is wrapped in a {@link ListenableFuture} when the
      * DeferrableSurface has not yet been closed.
      */
-    abstract ListenableFuture<Surface> provideSurface();
+    @NonNull
+    protected abstract ListenableFuture<Surface> provideSurface();
 
     /** Notifies this surface is attached */
     public void notifySurfaceAttached() {

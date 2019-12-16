@@ -21,8 +21,8 @@ import android.os.Looper;
 import android.view.Surface;
 
 import androidx.annotation.NonNull;
-import androidx.camera.core.DeferrableSurface;
-import androidx.camera.core.DeferrableSurfaces;
+import androidx.camera.core.impl.DeferrableSurface;
+import androidx.camera.core.impl.DeferrableSurfaces;
 import androidx.camera.core.impl.utils.executor.CameraXExecutors;
 import androidx.core.os.HandlerCompat;
 
