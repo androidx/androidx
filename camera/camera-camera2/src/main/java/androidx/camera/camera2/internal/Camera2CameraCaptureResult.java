@@ -21,12 +21,12 @@ import android.util.Log;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
-import androidx.camera.core.CameraCaptureMetaData.AeState;
-import androidx.camera.core.CameraCaptureMetaData.AfMode;
-import androidx.camera.core.CameraCaptureMetaData.AfState;
-import androidx.camera.core.CameraCaptureMetaData.AwbState;
-import androidx.camera.core.CameraCaptureMetaData.FlashState;
-import androidx.camera.core.CameraCaptureResult;
+import androidx.camera.core.impl.CameraCaptureMetaData.AeState;
+import androidx.camera.core.impl.CameraCaptureMetaData.AfMode;
+import androidx.camera.core.impl.CameraCaptureMetaData.AfState;
+import androidx.camera.core.impl.CameraCaptureMetaData.AwbState;
+import androidx.camera.core.impl.CameraCaptureMetaData.FlashState;
+import androidx.camera.core.impl.CameraCaptureResult;
 
 /** The camera2 implementation for the capture result of a single image capture. */
 final class Camera2CameraCaptureResult implements CameraCaptureResult {

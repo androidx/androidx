@@ -27,9 +27,9 @@ import android.hardware.camera2.CaptureRequest;
 import android.hardware.camera2.TotalCaptureResult;
 import android.os.Build;
 
-import androidx.camera.core.CameraCaptureCallback;
-import androidx.camera.core.CameraCaptureFailure;
-import androidx.camera.core.CameraCaptureResult;
+import androidx.camera.core.impl.CameraCaptureCallback;
+import androidx.camera.core.impl.CameraCaptureFailure;
+import androidx.camera.core.impl.CameraCaptureResult;
 import androidx.test.filters.SmallTest;
 
 import org.junit.Before;

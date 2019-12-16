@@ -25,6 +25,7 @@ import android.hardware.camera2.CameraDevice;
 import android.view.Surface;
 
 import androidx.camera.core.Config.Option;
+import androidx.camera.core.impl.CameraCaptureCallback;
 import androidx.camera.testing.DeferrableSurfacesUtil;
 import androidx.camera.testing.fakes.FakeMultiValueSet;
 import androidx.test.ext.junit.runners.AndroidJUnit4;
