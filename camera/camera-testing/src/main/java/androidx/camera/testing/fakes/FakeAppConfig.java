@@ -17,11 +17,11 @@
 package androidx.camera.testing.fakes;
 
 import androidx.annotation.NonNull;
-import androidx.camera.core.CameraDeviceSurfaceManager;
 import androidx.camera.core.CameraSelector;
 import androidx.camera.core.CameraXConfig;
 import androidx.camera.core.ExtendableUseCaseConfigFactory;
 import androidx.camera.core.UseCaseConfigFactory;
+import androidx.camera.core.impl.CameraDeviceSurfaceManager;
 
 /**
  * Convenience class for generating a fake {@link CameraXConfig}.

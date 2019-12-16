@@ -25,7 +25,6 @@ import androidx.camera.camera2.internal.ImageAnalysisConfigProvider;
 import androidx.camera.camera2.internal.ImageCaptureConfigProvider;
 import androidx.camera.camera2.internal.PreviewConfigProvider;
 import androidx.camera.camera2.internal.VideoCaptureConfigProvider;
-import androidx.camera.core.CameraDeviceSurfaceManager;
 import androidx.camera.core.CameraFactory;
 import androidx.camera.core.CameraXConfig;
 import androidx.camera.core.ExtendableUseCaseConfigFactory;
@@ -33,6 +32,7 @@ import androidx.camera.core.ImageAnalysisConfig;
 import androidx.camera.core.ImageCaptureConfig;
 import androidx.camera.core.PreviewConfig;
 import androidx.camera.core.VideoCaptureConfig;
+import androidx.camera.core.impl.CameraDeviceSurfaceManager;
 import androidx.core.util.Preconditions;
 
 /**

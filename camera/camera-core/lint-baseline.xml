@@ -271,7 +271,7 @@
         errorLine1="    boolean checkSupported(String cameraId, List&lt;SurfaceConfig> surfaceConfigList);"
         errorLine2="                           ~~~~~~">
         <location
-            file="src/main/java/androidx/camera/core/CameraDeviceSurfaceManager.java"
+            file="src/main/java/androidx/camera/core/impl/CameraDeviceSurfaceManager.java"
             line="58"
             column="28"/>
     </issue>
@@ -282,7 +282,7 @@
         errorLine1="    boolean checkSupported(String cameraId, List&lt;SurfaceConfig> surfaceConfigList);"
         errorLine2="                                            ~~~~~~~~~~~~~~~~~~~">
         <location
-            file="src/main/java/androidx/camera/core/CameraDeviceSurfaceManager.java"
+            file="src/main/java/androidx/camera/core/impl/CameraDeviceSurfaceManager.java"
             line="58"
             column="45"/>
     </issue>
@@ -293,7 +293,7 @@
         errorLine1="    SurfaceConfig transformSurfaceConfig(String cameraId, int imageFormat, Size size);"
         errorLine2="    ~~~~~~~~~~~~~">
         <location
-            file="src/main/java/androidx/camera/core/CameraDeviceSurfaceManager.java"
+            file="src/main/java/androidx/camera/core/impl/CameraDeviceSurfaceManager.java"
             line="68"
             column="5"/>
     </issue>
@@ -304,7 +304,7 @@
         errorLine1="    SurfaceConfig transformSurfaceConfig(String cameraId, int imageFormat, Size size);"
         errorLine2="                                         ~~~~~~">
         <location
-            file="src/main/java/androidx/camera/core/CameraDeviceSurfaceManager.java"
+            file="src/main/java/androidx/camera/core/impl/CameraDeviceSurfaceManager.java"
             line="68"
             column="42"/>
     </issue>
@@ -315,7 +315,7 @@
         errorLine1="    SurfaceConfig transformSurfaceConfig(String cameraId, int imageFormat, Size size);"
         errorLine2="                                                                           ~~~~">
         <location
-            file="src/main/java/androidx/camera/core/CameraDeviceSurfaceManager.java"
+            file="src/main/java/androidx/camera/core/impl/CameraDeviceSurfaceManager.java"
             line="68"
             column="76"/>
     </issue>
@@ -326,7 +326,7 @@
         errorLine1="    Size getMaxOutputSize(String cameraId, int imageFormat);"
         errorLine2="                          ~~~~~~">
         <location
-            file="src/main/java/androidx/camera/core/CameraDeviceSurfaceManager.java"
+            file="src/main/java/androidx/camera/core/impl/CameraDeviceSurfaceManager.java"
             line="78"
             column="27"/>
     </issue>
@@ -337,7 +337,7 @@
         errorLine1="    Map&lt;UseCase, Size> getSuggestedResolutions("
         errorLine2="    ~~~~~~~~~~~~~~~~~~">
         <location
-            file="src/main/java/androidx/camera/core/CameraDeviceSurfaceManager.java"
+            file="src/main/java/androidx/camera/core/impl/CameraDeviceSurfaceManager.java"
             line="88"
             column="5"/>
     </issue>
@@ -348,7 +348,7 @@
         errorLine1="            String cameraId, List&lt;UseCase> originalUseCases, List&lt;UseCase> newUseCases);"
         errorLine2="            ~~~~~~">
         <location
-            file="src/main/java/androidx/camera/core/CameraDeviceSurfaceManager.java"
+            file="src/main/java/androidx/camera/core/impl/CameraDeviceSurfaceManager.java"
             line="89"
             column="13"/>
     </issue>
@@ -359,7 +359,7 @@
         errorLine1="            String cameraId, List&lt;UseCase> originalUseCases, List&lt;UseCase> newUseCases);"
         errorLine2="                             ~~~~~~~~~~~~~">
         <location
-            file="src/main/java/androidx/camera/core/CameraDeviceSurfaceManager.java"
+            file="src/main/java/androidx/camera/core/impl/CameraDeviceSurfaceManager.java"
             line="89"
             column="30"/>
     </issue>
@@ -370,7 +370,7 @@
         errorLine1="            String cameraId, List&lt;UseCase> originalUseCases, List&lt;UseCase> newUseCases);"
         errorLine2="                                                             ~~~~~~~~~~~~~">
         <location
-            file="src/main/java/androidx/camera/core/CameraDeviceSurfaceManager.java"
+            file="src/main/java/androidx/camera/core/impl/CameraDeviceSurfaceManager.java"
             line="89"
             column="62"/>
     </issue>
@@ -381,7 +381,7 @@
         errorLine1="    Size getPreviewSize();"
         errorLine2="    ~~~~">
         <location
-            file="src/main/java/androidx/camera/core/CameraDeviceSurfaceManager.java"
+            file="src/main/java/androidx/camera/core/impl/CameraDeviceSurfaceManager.java"
             line="96"
             column="5"/>
     </issue>

@@ -21,9 +21,9 @@ import android.util.Size;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
-import androidx.camera.core.CameraDeviceSurfaceManager;
 import androidx.camera.core.ImageOutputConfig;
 import androidx.camera.core.UseCase;
+import androidx.camera.core.impl.CameraDeviceSurfaceManager;
 import androidx.camera.core.impl.SurfaceConfig;
 
 import java.util.HashMap;

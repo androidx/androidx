@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2019 The Android Open Source Project
+ * Copyright 2019 The Android Open Source Project
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -14,16 +14,15 @@
  * limitations under the License.
  */
 
-package androidx.camera.core;
+package androidx.camera.core.impl;
 
 import android.util.Rational;
 import android.util.Size;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
-import androidx.annotation.RestrictTo;
-import androidx.annotation.RestrictTo.Scope;
-import androidx.camera.core.impl.SurfaceConfig;
+import androidx.camera.core.ImageOutputConfig;
+import androidx.camera.core.UseCase;
 
 import java.util.List;
 import java.util.Map;
@@ -31,10 +30,7 @@ import java.util.Map;
 /**
  * Camera device manager to provide the guaranteed supported stream capabilities related info for
  * all camera devices
- *
- * @hide
  */
-@RestrictTo(Scope.LIBRARY_GROUP)
 public interface CameraDeviceSurfaceManager {
     /**
      * Prepare necessary resources for the surface manager.
