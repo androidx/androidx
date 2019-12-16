@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2019 The Android Open Source Project
+ * Copyright 2019 The Android Open Source Project
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -14,12 +14,13 @@
  * limitations under the License.
  */
 
-package androidx.camera.core;
+package androidx.camera.core.impl;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
-import androidx.annotation.RestrictTo;
-import androidx.annotation.RestrictTo.Scope;
+import androidx.camera.core.Config;
+import androidx.camera.core.ConfigProvider;
+import androidx.camera.core.UseCaseConfig;
 
 import java.util.HashMap;
 import java.util.Map;
@@ -27,9 +28,8 @@ import java.util.Map;
 /**
  * A {@link UseCaseConfigFactory} that uses {@link ConfigProvider}s to provide configurations.
  *
- * @hide
  */
-@RestrictTo(Scope.LIBRARY_GROUP)
+
 public final class ExtendableUseCaseConfigFactory implements UseCaseConfigFactory {
     private final Map<Class<?>, ConfigProvider<?>> mDefaultProviders = new HashMap<>();
 

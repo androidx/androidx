@@ -818,39 +818,6 @@
     <issue
         id="UnknownNullness"
         message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
-        errorLine1="            Class&lt;C> configType, ConfigProvider&lt;C> defaultProvider) {"
-        errorLine2="            ~~~~~~~~">
-        <location
-            file="src/main/java/androidx/camera/core/ExtendableUseCaseConfigFactory.java"
-            line="37"
-            column="13"/>
-    </issue>
-
-    <issue
-        id="UnknownNullness"
-        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
-        errorLine1="            Class&lt;C> configType, ConfigProvider&lt;C> defaultProvider) {"
-        errorLine2="                                 ~~~~~~~~~~~~~~~~~">
-        <location
-            file="src/main/java/androidx/camera/core/ExtendableUseCaseConfigFactory.java"
-            line="37"
-            column="34"/>
-    </issue>
-
-    <issue
-        id="UnknownNullness"
-        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
-        errorLine1="    public &lt;C extends UseCaseConfig&lt;?>> C getConfig(Class&lt;C> configType,"
-        errorLine2="                                                    ~~~~~~~~">
-        <location
-            file="src/main/java/androidx/camera/core/ExtendableUseCaseConfigFactory.java"
-            line="43"
-            column="53"/>
-    </issue>
-
-    <issue
-        id="UnknownNullness"
-        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
         errorLine1="    void onFailure(Throwable t);"
         errorLine2="                   ~~~~~~~~~">
         <location
@@ -1518,18 +1485,7 @@
             line="527"
             column="54"/>
     </issue>
-
-    <issue
-        id="UnknownNullness"
-        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
-        errorLine1="    &lt;C extends UseCaseConfig&lt;?>> C getConfig(Class&lt;C> configType, @Nullable Integer lensFacing);"
-        errorLine2="                                             ~~~~~~~~">
-        <location
-            file="src/main/java/androidx/camera/core/UseCaseConfigFactory.java"
-            line="38"
-            column="46"/>
-    </issue>
-
+    
     <issue
         id="UnknownNullness"
         message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
