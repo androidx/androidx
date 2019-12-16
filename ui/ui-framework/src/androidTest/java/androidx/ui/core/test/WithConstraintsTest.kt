@@ -423,6 +423,61 @@ class WithConstraintsTest {
         assertTrue(latch.await(1, TimeUnit.SECONDS))
     }
 
+    @SdkSuppress(minSdkVersion = Build.VERSION_CODES.O)
+    @Test
+    fun removeLayoutNodeFromWithConstraintsDuringOnMeasure() {
+        val model = ValueModel(100.ipx)
+        drawLatch = CountDownLatch(2)
+
+        rule.runOnUiThreadIR {
+            activity.setContentInFrameLayout {
+                Container(100.ipx, 100.ipx) {
+                    Draw { canvas, parentSize ->
+                        canvas.drawRect(parentSize.toRect(),
+                            Paint().apply { color = Color.Red })
+                        drawLatch.countDown()
+                    }
+                    // this component changes the constraints which triggers subcomposition
+                    // within onMeasure block
+                    ChangingConstraintsLayout(model) {
+                        WithConstraints { constraints ->
+                            if (constraints.maxWidth == 100.ipx) {
+                                // we will stop emmitting this layouts after constraints change
+                                // Additional Container is needed so the Layout will be
+                                // marked as not affecting parent size which means the Layout
+                                // will be added into relayoutNodes List separately
+                                Container(100.ipx, 100.ipx) {
+                                    Layout({
+                                        Draw { canvas, parentSize ->
+                                            canvas.drawRect(parentSize.toRect(),
+                                                Paint().apply { color = Color.Yellow })
+                                            drawLatch.countDown()
+                                        }
+                                    }) { _, _ ->
+                                        layout(model.value, model.value) {}
+                                    }
+                                }
+                            }
+                        }
+                        Container(100.ipx, 100.ipx) {}
+                    }
+                }
+            }
+        }
+        takeScreenShot(100).apply {
+            assertRect(color = Color.Yellow)
+        }
+
+        drawLatch = CountDownLatch(1)
+        rule.runOnUiThread {
+            model.value = 50.ipx
+        }
+
+        takeScreenShot(100).apply {
+            assertRect(color = Color.Red)
+        }
+    }
+
     private fun takeScreenShot(size: Int): Bitmap {
         assertTrue(drawLatch.await(1, TimeUnit.SECONDS))
         val bitmap = rule.waitAndScreenShot()
