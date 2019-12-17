@@ -26,6 +26,7 @@ import androidx.annotation.VisibleForTesting;
 import androidx.inspection.Connection;
 import androidx.inspection.Inspector;
 import androidx.inspection.InspectorEnvironment;
+import androidx.sqlite.inspection.SqliteInspectorProtocol.CellValue;
 import androidx.sqlite.inspection.SqliteInspectorProtocol.Column;
 import androidx.sqlite.inspection.SqliteInspectorProtocol.Command;
 import androidx.sqlite.inspection.SqliteInspectorProtocol.DatabaseOpenedEvent;
@@ -34,10 +35,14 @@ import androidx.sqlite.inspection.SqliteInspectorProtocol.ErrorOccurredResponse;
 import androidx.sqlite.inspection.SqliteInspectorProtocol.Event;
 import androidx.sqlite.inspection.SqliteInspectorProtocol.GetSchemaCommand;
 import androidx.sqlite.inspection.SqliteInspectorProtocol.GetSchemaResponse;
+import androidx.sqlite.inspection.SqliteInspectorProtocol.QueryCommand;
+import androidx.sqlite.inspection.SqliteInspectorProtocol.QueryResponse;
 import androidx.sqlite.inspection.SqliteInspectorProtocol.Response;
+import androidx.sqlite.inspection.SqliteInspectorProtocol.Row;
 import androidx.sqlite.inspection.SqliteInspectorProtocol.Table;
 import androidx.sqlite.inspection.SqliteInspectorProtocol.TrackDatabasesResponse;
 
+import com.google.protobuf.ByteString;
 import com.google.protobuf.InvalidProtocolBufferException;
 
 import java.io.PrintWriter;
@@ -88,6 +93,8 @@ final class SqliteInspector extends Inspector {
                 handleTrackDatabases(callback);
             } else if (command.hasGetSchema()) {
                 handleGetSchema(command.getGetSchema(), callback);
+            } else if (command.hasQuery()) {
+                handleQuery(command.getQuery(), callback);
             } else {
                 // TODO: handle unrecognised command
             }
@@ -120,24 +127,91 @@ final class SqliteInspector extends Inspector {
     private void handleGetSchema(GetSchemaCommand command, CommandCallback callback) {
         final int databaseId = command.getDatabaseId();
         SQLiteDatabase database = mDatabaseRegistry.getDatabase(databaseId);
+        if (database == null) {
+            replyNoDatabaseWithId(callback, databaseId);
+            return;
+        }
 
-        callback.reply((database != null
-                        ? querySchema(database)
-                        : createErrorOccurredResponse("No database with id=" + databaseId, null)
-                ).toByteArray()
-        );
+        callback.reply(querySchema(database).toByteArray());
+    }
+
+    private void handleQuery(QueryCommand command, CommandCallback callback) {
+        final int databaseId = command.getDatabaseId();
+        SQLiteDatabase database = mDatabaseRegistry.getDatabase(databaseId);
+        if (database == null) {
+            replyNoDatabaseWithId(callback, databaseId);
+            return;
+        }
+
+        Cursor cursor = database.rawQuery(command.getQuery(), null);
+        try {
+            callback.reply(Response.newBuilder()
+                    .setQuery(QueryResponse.newBuilder().addAllRows(convert(cursor)).build())
+                    .build()
+                    .toByteArray()
+            );
+        } finally {
+            cursor.close();
+        }
+    }
+
+    private static List<Row> convert(Cursor cursor) {
+        List<Row> result = new ArrayList<>();
+        int columnCount = cursor.getColumnCount();
+        while (cursor.moveToNext()) {
+            Row.Builder rowBuilder = Row.newBuilder();
+            for (int i = 0; i < columnCount; i++) {
+                CellValue value = readValue(cursor, i);
+                rowBuilder.addValues(value);
+            }
+            result.add(rowBuilder.build());
+        }
+        return result;
+    }
+
+    private static CellValue readValue(Cursor cursor, int index) {
+        CellValue.Builder builder = CellValue.newBuilder();
+
+        builder.setColumnName(cursor.getColumnName(index));
+        switch (cursor.getType(index)) {
+            case Cursor.FIELD_TYPE_NULL:
+                // no field to set
+                break;
+            case Cursor.FIELD_TYPE_BLOB:
+                builder.setBlobValue(ByteString.copyFrom(cursor.getBlob(index)));
+                break;
+            case Cursor.FIELD_TYPE_STRING:
+                builder.setStringValue(cursor.getString(index));
+                break;
+            case Cursor.FIELD_TYPE_INTEGER:
+                builder.setIntValue(cursor.getInt(index));
+                break;
+            case Cursor.FIELD_TYPE_FLOAT:
+                builder.setFloatValue(cursor.getFloat(index));
+                break;
+        }
+
+        return builder.build();
+    }
+
+    private void replyNoDatabaseWithId(CommandCallback callback, int databaseId) {
+        callback.reply(createErrorOccurredResponse("No database with id=" + databaseId,
+                null).toByteArray());
     }
 
     private @NonNull Response querySchema(SQLiteDatabase database) {
-        Cursor cursor = database.rawQuery(sQueryTableNames, null);
         List<String> tableNames = new ArrayList<>();
-        while (cursor.moveToNext()) {
-            String table = cursor.getString(0);
-            if (!sHiddenTables.contains(table)) {
-                tableNames.add(table);
+        Cursor cursor = database.rawQuery(sQueryTableNames, null);
+        try {
+            while (cursor.moveToNext()) {
+                String table = cursor.getString(0);
+                if (!sHiddenTables.contains(table)) {
+                    tableNames.add(table);
+                }
             }
+        } finally {
+            cursor.close();
         }
-        cursor.close();
 
         GetSchemaResponse.Builder schemaBuilder = GetSchemaResponse.newBuilder();
         for (String table : tableNames) {
@@ -145,18 +219,21 @@ final class SqliteInspector extends Inspector {
             tableBuilder.setName(table);
             String query = String.format(sQueryTableInfo, table);
             Cursor tableInfo = database.rawQuery(query, null);
-            int nameIndex = tableInfo.getColumnIndex("name");
-            int typeIndex = tableInfo.getColumnIndex("type");
-            while (tableInfo.moveToNext()) {
-                Column column =
-                        Column.newBuilder()
-                                .setName(tableInfo.getString(nameIndex))
-                                .setType(tableInfo.getString(typeIndex))
-                                .build();
-                tableBuilder.addColumns(column);
+            try {
+                int nameIndex = tableInfo.getColumnIndex("name");
+                int typeIndex = tableInfo.getColumnIndex("type");
+                while (tableInfo.moveToNext()) {
+                    Column column =
+                            Column.newBuilder()
+                                    .setName(tableInfo.getString(nameIndex))
+                                    .setType(tableInfo.getString(typeIndex))
+                                    .build();
+                    tableBuilder.addColumns(column);
+                }
+                schemaBuilder.addTables(tableBuilder.build());
+            } finally {
+                tableInfo.close();
             }
-            schemaBuilder.addTables(tableBuilder.build());
-            tableInfo.close();
         }
         return Response.newBuilder().setGetSchema(schemaBuilder.build()).build();
     }
