@@ -14,17 +14,19 @@
  * limitations under the License.
  */
 
-package androidx.camera.core;
+package androidx.camera.core.internal;
 
+import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
+import androidx.camera.core.ImageInfo;
 import androidx.camera.core.impl.CameraCaptureResult;
 
 /** An ImageInfo that is created by a {@link CameraCaptureResult}. */
-final class CameraCaptureResultImageInfo implements ImageInfo {
+public final class CameraCaptureResultImageInfo implements ImageInfo {
     private final CameraCaptureResult mCameraCaptureResult;
 
     /** Create an {@link ImageInfo} using data from {@link CameraCaptureResult}. */
-    CameraCaptureResultImageInfo(CameraCaptureResult cameraCaptureResult) {
+    public CameraCaptureResultImageInfo(@NonNull CameraCaptureResult cameraCaptureResult) {
         mCameraCaptureResult = cameraCaptureResult;
     }
 
@@ -44,7 +46,8 @@ final class CameraCaptureResultImageInfo implements ImageInfo {
         return 0;
     }
 
-    CameraCaptureResult getCameraCaptureResult() {
+    @NonNull
+    public CameraCaptureResult getCameraCaptureResult() {
         return mCameraCaptureResult;
     }
 }
