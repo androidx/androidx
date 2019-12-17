@@ -157,3 +157,7 @@ MissingNullability: androidx.sqlite.db.SupportSQLiteQueryBuilder#selection(Strin
     Missing nullability on parameter `bindArgs` in method `selection`
 MissingNullability: androidx.sqlite.db.SupportSQLiteStatement#simpleQueryForString():
     Missing nullability on method `simpleQueryForString` return
+
+
+TopLevelBuilder: androidx.sqlite.db.SupportSQLiteQueryBuilder:
+    Builder should be defined as inner class: androidx.sqlite.db.SupportSQLiteQueryBuilder

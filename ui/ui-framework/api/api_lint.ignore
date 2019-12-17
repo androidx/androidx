@@ -19,3 +19,7 @@ DocumentExceptions: androidx.ui.core.MultiComposableMeasurables#get(kotlin.jvm.f
 
 KotlinOperator: androidx.ui.core.MultiComposableMeasurables#contains(androidx.ui.core.Measurable):
     Note that adding the `operator` keyword would allow calling this method using operator syntax
+
+
+TopLevelBuilder: androidx.ui.graphics.vector.VectorAssetBuilder:
+    Builder should be defined as inner class: androidx.ui.graphics.vector.VectorAssetBuilder
