@@ -22,6 +22,9 @@ import androidx.annotation.RestrictTo;
 import androidx.camera.core.impl.CameraDeviceConfig;
 import androidx.camera.core.impl.CameraIdFilter;
 import androidx.camera.core.impl.CaptureConfig;
+import androidx.camera.core.impl.MutableConfig;
+import androidx.camera.core.impl.MutableOptionsBundle;
+import androidx.camera.core.impl.OptionsBundle;
 
 import java.util.Set;
 import java.util.UUID;

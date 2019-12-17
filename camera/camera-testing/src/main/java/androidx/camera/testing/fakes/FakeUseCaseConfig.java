@@ -25,15 +25,15 @@ import androidx.annotation.Nullable;
 import androidx.camera.core.CameraSelector;
 import androidx.camera.core.Config;
 import androidx.camera.core.ImageOutputConfig;
-import androidx.camera.core.MutableConfig;
-import androidx.camera.core.MutableOptionsBundle;
-import androidx.camera.core.OptionsBundle;
 import androidx.camera.core.SessionConfig;
 import androidx.camera.core.UseCase;
 import androidx.camera.core.UseCaseConfig;
 import androidx.camera.core.impl.CameraDeviceConfig;
 import androidx.camera.core.impl.CameraIdFilter;
 import androidx.camera.core.impl.CaptureConfig;
+import androidx.camera.core.impl.MutableConfig;
+import androidx.camera.core.impl.MutableOptionsBundle;
+import androidx.camera.core.impl.OptionsBundle;
 
 import java.util.List;
 import java.util.Set;

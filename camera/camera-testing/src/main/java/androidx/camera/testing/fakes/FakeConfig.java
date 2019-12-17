@@ -22,9 +22,9 @@ import androidx.annotation.RestrictTo;
 import androidx.annotation.RestrictTo.Scope;
 import androidx.camera.core.Config;
 import androidx.camera.core.ExtendableBuilder;
-import androidx.camera.core.MutableConfig;
-import androidx.camera.core.MutableOptionsBundle;
-import androidx.camera.core.OptionsBundle;
+import androidx.camera.core.impl.MutableConfig;
+import androidx.camera.core.impl.MutableOptionsBundle;
+import androidx.camera.core.impl.OptionsBundle;
 
 import java.util.Set;
 

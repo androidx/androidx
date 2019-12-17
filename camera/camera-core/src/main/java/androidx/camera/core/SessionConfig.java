@@ -31,6 +31,7 @@ import androidx.camera.core.impl.CameraCaptureCallback;
 import androidx.camera.core.impl.CaptureConfig;
 import androidx.camera.core.impl.DeferrableSurface;
 import androidx.camera.core.impl.MultiValueSet;
+import androidx.camera.core.impl.MutableOptionsBundle;
 
 import java.util.ArrayList;
 import java.util.Collection;

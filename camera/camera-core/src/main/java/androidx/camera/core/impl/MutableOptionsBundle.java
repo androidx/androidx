@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2019 The Android Open Source Project
+ * Copyright 2019 The Android Open Source Project
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -14,21 +14,18 @@
  * limitations under the License.
  */
 
-package androidx.camera.core;
+package androidx.camera.core.impl;
 
+import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
-import androidx.annotation.RestrictTo;
-import androidx.annotation.RestrictTo.Scope;
+import androidx.camera.core.Config;
 
 import java.util.Comparator;
 import java.util.TreeMap;
 
 /**
  * A MutableOptionsBundle is an {@link OptionsBundle} which allows for insertion/removal.
- *
- * @hide
  */
-@RestrictTo(Scope.LIBRARY_GROUP)
 public final class MutableOptionsBundle extends OptionsBundle implements MutableConfig {
 
     private static final Comparator<Option<?>> ID_COMPARE =
@@ -48,6 +45,7 @@ public final class MutableOptionsBundle extends OptionsBundle implements Mutable
      *
      * @return an empty MutableOptionsBundle containing no options.
      */
+    @NonNull
     public static MutableOptionsBundle create() {
         return new MutableOptionsBundle(new TreeMap<>(ID_COMPARE));
     }
@@ -58,7 +56,8 @@ public final class MutableOptionsBundle extends OptionsBundle implements Mutable
      * @param otherConfig configuration options to insert.
      * @return a MutableOptionsBundle prepopulated with configuration options.
      */
-    public static MutableOptionsBundle from(Config otherConfig) {
+    @NonNull
+    public static MutableOptionsBundle from(@NonNull Config otherConfig) {
         TreeMap<Option<?>, Object> persistentOptions = new TreeMap<>(ID_COMPARE);
         for (Option<?> opt : otherConfig.listOptions()) {
             persistentOptions.put(opt, otherConfig.retrieveOption(opt));
@@ -69,7 +68,7 @@ public final class MutableOptionsBundle extends OptionsBundle implements Mutable
 
     @Nullable
     @Override
-    public <ValueT> ValueT removeOption(Option<ValueT> opt) {
+    public <ValueT> ValueT removeOption(@NonNull Option<ValueT> opt) {
         @SuppressWarnings("unchecked") // Options should have only been inserted via insertOption()
                 ValueT value = (ValueT) mOptions.remove(opt);
 
@@ -77,7 +76,7 @@ public final class MutableOptionsBundle extends OptionsBundle implements Mutable
     }
 
     @Override
-    public <ValueT> void insertOption(Option<ValueT> opt, ValueT value) {
+    public <ValueT> void insertOption(@NonNull Option<ValueT> opt, @Nullable ValueT value) {
         mOptions.put(opt, value);
     }
 }

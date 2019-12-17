@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2019 The Android Open Source Project
+ * Copyright 2019 The Android Open Source Project
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -14,12 +14,13 @@
  * limitations under the License.
  */
 
-package androidx.camera.core;
+package androidx.camera.core.impl;
 
 import static com.google.common.truth.Truth.assertThat;
 
 import android.os.Build;
 
+import androidx.camera.core.Config;
 import androidx.camera.core.Config.Option;
 import androidx.test.filters.SmallTest;
 
