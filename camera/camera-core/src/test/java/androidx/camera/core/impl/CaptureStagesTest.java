@@ -36,7 +36,7 @@ public class CaptureStagesTest {
     @Test
     public void defaultCaptureStageHasNoOptions() {
         CaptureStage captureStage = new CaptureStage.DefaultCaptureStage();
-        androidx.camera.core.Config options =
+        androidx.camera.core.impl.Config options =
                 captureStage.getCaptureConfig().getImplementationOptions();
 
         assertThat(options.listOptions().size()).isEqualTo(0);

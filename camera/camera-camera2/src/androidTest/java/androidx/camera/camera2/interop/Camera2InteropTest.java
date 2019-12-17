@@ -24,13 +24,14 @@ import android.hardware.camera2.CameraMetadata;
 import android.hardware.camera2.CaptureRequest;
 import android.util.Range;
 
+import androidx.annotation.NonNull;
 import androidx.annotation.experimental.UseExperimental;
 import androidx.camera.camera2.impl.Camera2ImplConfig;
 import androidx.camera.camera2.impl.CameraEventCallbacks;
 import androidx.camera.camera2.internal.Camera2CaptureCallbacks;
 import androidx.camera.camera2.internal.CameraCaptureSessionStateCallbacks;
 import androidx.camera.camera2.internal.CameraDeviceStateCallbacks;
-import androidx.camera.core.Config;
+import androidx.camera.core.impl.Config;
 import androidx.camera.testing.fakes.FakeConfig;
 import androidx.test.ext.junit.runners.AndroidJUnit4;
 import androidx.test.filters.SmallTest;
@@ -168,7 +169,7 @@ public final class Camera2InteropTest {
                 "camera2.captureRequest.option",
                 new Config.OptionMatcher() {
                     @Override
-                    public boolean onOptionMatched(Config.Option<?> option) {
+                    public boolean onOptionMatched(@NonNull Config.Option<?> option) {
                         // The token should be the capture request key
                         assertThat(option.getToken())
                                 .isAnyOf(

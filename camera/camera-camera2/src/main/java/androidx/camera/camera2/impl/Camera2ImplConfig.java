@@ -24,8 +24,8 @@ import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.annotation.RestrictTo;
 import androidx.annotation.RestrictTo.Scope;
-import androidx.camera.core.Config;
 import androidx.camera.core.ExtendableBuilder;
+import androidx.camera.core.impl.Config;
 import androidx.camera.core.impl.MutableConfig;
 import androidx.camera.core.impl.MutableOptionsBundle;
 import androidx.camera.core.impl.OptionsBundle;
@@ -127,7 +127,7 @@ public final class Camera2ImplConfig implements Config {
                 Camera2ImplConfig.CAPTURE_REQUEST_ID_STEM,
                 new OptionMatcher() {
                     @Override
-                    public boolean onOptionMatched(Option<?> option) {
+                    public boolean onOptionMatched(@NonNull Option<?> option) {
                         optionSet.add(option);
                         return true;
                     }

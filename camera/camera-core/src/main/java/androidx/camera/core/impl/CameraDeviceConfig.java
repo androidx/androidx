@@ -19,7 +19,7 @@ package androidx.camera.core.impl;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.camera.core.CameraSelector;
-import androidx.camera.core.Config.Option;
+import androidx.camera.core.impl.Config.Option;
 
 /**
  * Configuration containing options for configuring a Camera device.

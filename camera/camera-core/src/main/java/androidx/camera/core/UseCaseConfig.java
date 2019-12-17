@@ -21,6 +21,7 @@ import androidx.annotation.Nullable;
 import androidx.annotation.RestrictTo;
 import androidx.annotation.RestrictTo.Scope;
 import androidx.camera.core.impl.CaptureConfig;
+import androidx.camera.core.impl.Config;
 import androidx.camera.core.internal.TargetConfig;
 
 /**

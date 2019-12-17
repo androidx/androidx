@@ -23,7 +23,6 @@ import android.view.Surface;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
-import androidx.camera.core.Config;
 import androidx.camera.core.UseCaseConfig;
 
 import java.util.ArrayList;

@@ -43,6 +43,7 @@ import androidx.annotation.RestrictTo;
 import androidx.annotation.RestrictTo.Scope;
 import androidx.camera.core.ImageOutputConfig.RotationValue;
 import androidx.camera.core.impl.CameraInfoInternal;
+import androidx.camera.core.impl.ConfigProvider;
 import androidx.camera.core.impl.DeferrableSurface;
 import androidx.camera.core.impl.utils.executor.CameraXExecutors;
 
@@ -940,6 +941,7 @@ public class VideoCapture extends UseCase {
             DEFAULT_CONFIG = builder.getUseCaseConfig();
         }
 
+        @NonNull
         @Override
         public VideoCaptureConfig getConfig(@Nullable Integer lensFacing) {
             return DEFAULT_CONFIG;

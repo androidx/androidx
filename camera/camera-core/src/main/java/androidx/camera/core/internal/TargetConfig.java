@@ -18,7 +18,7 @@ package androidx.camera.core.internal;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
-import androidx.camera.core.Config.Option;
+import androidx.camera.core.impl.Config.Option;
 
 /**
  * Configuration containing options used to identify the target class and object being configured.

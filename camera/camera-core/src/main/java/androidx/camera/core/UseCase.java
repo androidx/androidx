@@ -24,10 +24,10 @@ import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.annotation.RestrictTo;
 import androidx.annotation.RestrictTo.Scope;
-import androidx.camera.core.Config.Option;
 import androidx.camera.core.UseCaseConfig.Builder;
 import androidx.camera.core.impl.CameraControlInternal;
 import androidx.camera.core.impl.CameraInternal;
+import androidx.camera.core.impl.Config.Option;
 import androidx.core.util.Preconditions;
 
 import java.util.HashMap;

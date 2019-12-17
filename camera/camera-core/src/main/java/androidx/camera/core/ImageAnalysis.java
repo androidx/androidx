@@ -55,6 +55,7 @@ import androidx.camera.core.impl.CameraDeviceConfig;
 import androidx.camera.core.impl.CameraIdFilter;
 import androidx.camera.core.impl.CameraInfoInternal;
 import androidx.camera.core.impl.CaptureConfig;
+import androidx.camera.core.impl.ConfigProvider;
 import androidx.camera.core.impl.DeferrableSurface;
 import androidx.camera.core.impl.MutableConfig;
 import androidx.camera.core.impl.MutableOptionsBundle;

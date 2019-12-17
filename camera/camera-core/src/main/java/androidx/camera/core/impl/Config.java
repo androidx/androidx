@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2019 The Android Open Source Project
+ * Copyright 2019 The Android Open Source Project
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -14,11 +14,10 @@
  * limitations under the License.
  */
 
-package androidx.camera.core;
+package androidx.camera.core.impl;
 
+import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
-import androidx.annotation.RestrictTo;
-import androidx.annotation.RestrictTo.Scope;
 
 import com.google.auto.value.AutoValue;
 
@@ -30,9 +29,7 @@ import java.util.Set;
  * <p>Configuration object hold pairs of Options/Values and offer methods for querying whether
  * Options are contained in the configuration along with methods for retrieving the associated
  * values for options.
- * @hide
  */
-@RestrictTo(Scope.LIBRARY_GROUP)
 public interface Config {
 
     /**
@@ -41,10 +38,8 @@ public interface Config {
      * @param id The {@link Option} to search for in this configuration.
      * @return <code>true</code> if this configuration contains the supplied option; <code>false
      * </code> otherwise.
-     * @hide
      */
-    @RestrictTo(Scope.LIBRARY_GROUP)
-    boolean containsOption(Option<?> id);
+    boolean containsOption(@NonNull Option<?> id);
 
     /**
      * Retrieves the value for the specified option if it exists in the configuration.
@@ -55,10 +50,9 @@ public interface Config {
      * @param <ValueT> The type for the value associated with the supplied {@link Option}.
      * @return The value stored in this configuration, or <code>null</code> if it does not exist.
      * @throws IllegalArgumentException if the given option does not exist in this configuration.
-     * @hide
      */
-    @RestrictTo(Scope.LIBRARY_GROUP)
-    <ValueT> ValueT retrieveOption(Option<ValueT> id);
+    @Nullable
+    <ValueT> ValueT retrieveOption(@NonNull Option<ValueT> id);
 
     /**
      * Retrieves the value for the specified option if it exists in the configuration.
@@ -70,11 +64,9 @@ public interface Config {
      *                       this configuration.
      * @param <ValueT>       The type for the value associated with the supplied {@link Option}.
      * @return The value stored in this configuration, or <code>null</code> if it does not exist.
-     * @hide
      */
-    @RestrictTo(Scope.LIBRARY_GROUP)
     @Nullable
-    <ValueT> ValueT retrieveOption(Option<ValueT> id, @Nullable ValueT valueIfMissing);
+    <ValueT> ValueT retrieveOption(@NonNull Option<ValueT> id, @Nullable ValueT valueIfMissing);
 
     /**
      * Search the configuration for {@link Option}s whose id match the supplied search string.
@@ -90,26 +82,20 @@ public interface Config {
      *                       this configuration. Subsequent results will continue to be sent as
      *                       long as {@link
      *                       OptionMatcher#onOptionMatched(Option)} returns <code>true</code>.
-     * @hide
      */
-    @RestrictTo(Scope.LIBRARY_GROUP)
-    void findOptions(String idSearchString, OptionMatcher matcher);
+    void findOptions(@NonNull String idSearchString, @NonNull OptionMatcher matcher);
 
     /**
      * Lists all options contained within this configuration.
      *
      * @return A {@link Set} of {@link Option}s contained within this configuration.
-     * @hide
      */
-    @RestrictTo(Scope.LIBRARY_GROUP)
+    @NonNull
     Set<Option<?>> listOptions();
 
     /**
      * A callback for retrieving results of a {@link Config.Option} search.
-     *
-     * @hide
      */
-    @RestrictTo(Scope.LIBRARY_GROUP)
     interface OptionMatcher {
         /**
          * Receives results from {@link Config#findOptions(String, OptionMatcher)}.
@@ -120,7 +106,7 @@ public interface Config {
          * @param option The matched option.
          * @return <code>false</code> if no further results are needed; <code>true</code> otherwise.
          */
-        boolean onOptionMatched(Option<?> option);
+        boolean onOptionMatched(@NonNull Option<?> option);
     }
 
     /**
@@ -132,9 +118,7 @@ public interface Config {
      * Config}.
      *
      * @param <T> The type of the value for this option.
-     * @hide
      */
-    @RestrictTo(Scope.LIBRARY_GROUP)
     @AutoValue
     abstract class Option<T> {
 
@@ -153,7 +137,8 @@ public interface Config {
          * @return An {@link Option} object which can be used to store/retrieve values from a {@link
          * Config}.
          */
-        public static <T> Option<T> create(String id, Class<?> valueClass) {
+        @NonNull
+        public static <T> Option<T> create(@NonNull String id, @NonNull Class<?> valueClass) {
             return Option.create(id, valueClass, /*token=*/ null);
         }
 
@@ -173,7 +158,9 @@ public interface Config {
          * Config}.
          */
         @SuppressWarnings("unchecked")
-        public static <T> Option<T> create(String id, Class<?> valueClass, @Nullable Object token) {
+        @NonNull
+        public static <T> Option<T> create(@NonNull String id, @NonNull Class<?> valueClass,
+                @Nullable Object token) {
             return new AutoValue_Config_Option<>(id, (Class<T>) valueClass, token);
         }
 
@@ -186,6 +173,7 @@ public interface Config {
          *
          * @return The identifier.
          */
+        @NonNull
         public abstract String getId();
 
         /**
@@ -193,6 +181,7 @@ public interface Config {
          *
          * @return The class object for the value's type.
          */
+        @NonNull
         public abstract Class<T> getValueClass();
 
         /**
