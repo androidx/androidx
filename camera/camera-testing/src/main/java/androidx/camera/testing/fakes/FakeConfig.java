@@ -20,8 +20,8 @@ import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.annotation.RestrictTo;
 import androidx.annotation.RestrictTo.Scope;
-import androidx.camera.core.Config;
 import androidx.camera.core.ExtendableBuilder;
+import androidx.camera.core.impl.Config;
 import androidx.camera.core.impl.MutableConfig;
 import androidx.camera.core.impl.MutableOptionsBundle;
 import androidx.camera.core.impl.OptionsBundle;
@@ -50,7 +50,7 @@ public final class FakeConfig implements Config {
     /** @hide */
     @RestrictTo(Scope.LIBRARY_GROUP)
     @Override
-    public boolean containsOption(Option<?> id) {
+    public boolean containsOption(@NonNull Option<?> id) {
         return mConfig.containsOption(id);
     }
 
@@ -58,7 +58,7 @@ public final class FakeConfig implements Config {
     @RestrictTo(Scope.LIBRARY_GROUP)
     @Override
     @Nullable
-    public <ValueT> ValueT retrieveOption(Option<ValueT> id) {
+    public <ValueT> ValueT retrieveOption(@NonNull Option<ValueT> id) {
         return mConfig.retrieveOption(id);
     }
 
@@ -66,18 +66,20 @@ public final class FakeConfig implements Config {
     @RestrictTo(Scope.LIBRARY_GROUP)
     @Override
     @Nullable
-    public <ValueT> ValueT retrieveOption(Option<ValueT> id, @Nullable ValueT valueIfMissing) {
+    public <ValueT> ValueT retrieveOption(@NonNull Option<ValueT> id,
+            @Nullable ValueT valueIfMissing) {
         return mConfig.retrieveOption(id, valueIfMissing);
     }
 
     /** @hide */
     @RestrictTo(Scope.LIBRARY_GROUP)
     @Override
-    public void findOptions(String idStem, OptionMatcher matcher) {
+    public void findOptions(@NonNull String idStem, @NonNull OptionMatcher matcher) {
         mConfig.findOptions(idStem, matcher);
     }
 
     /** @hide */
+    @NonNull
     @RestrictTo(Scope.LIBRARY_GROUP)
     @Override
     public Set<Option<?>> listOptions() {

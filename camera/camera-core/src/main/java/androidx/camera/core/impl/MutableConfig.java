@@ -18,7 +18,6 @@ package androidx.camera.core.impl;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
-import androidx.camera.core.Config;
 
 /**
  * MutableConfig is a {@link Config} that can be modified.

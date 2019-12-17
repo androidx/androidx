@@ -30,8 +30,8 @@ import androidx.annotation.NonNull;
 import androidx.annotation.RestrictTo;
 import androidx.annotation.RestrictTo.Scope;
 import androidx.camera.camera2.impl.Camera2ImplConfig;
-import androidx.camera.core.Config;
 import androidx.camera.core.ExtendableBuilder;
+import androidx.camera.core.impl.Config;
 
 /** Utilities related to interoperability with the {@link android.hardware.camera2} APIs. */
 @ExperimentalCamera2Interop

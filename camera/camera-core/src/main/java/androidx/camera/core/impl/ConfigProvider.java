@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2019 The Android Open Source Project
+ * Copyright 2019 The Android Open Source Project
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -14,19 +14,16 @@
  * limitations under the License.
  */
 
-package androidx.camera.core;
+package androidx.camera.core.impl;
 
+import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
-import androidx.annotation.RestrictTo;
-import androidx.annotation.RestrictTo.Scope;
 
 /**
  * A class which provides a {@link Config} object.
  *
  * @param <C> the {@link Config} type provided
- * @hide
  */
-@RestrictTo(Scope.LIBRARY_GROUP)
 public interface ConfigProvider<C extends Config> {
 
     /**
@@ -34,5 +31,6 @@ public interface ConfigProvider<C extends Config> {
      *
      * @param lensFacing The {@link LensFacing} that the configuration provider will target to.
      */
+    @NonNull
     C getConfig(@Nullable Integer lensFacing);
 }
