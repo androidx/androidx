@@ -164,6 +164,12 @@ public class WebMessageListenerActivity extends AppCompatActivity {
         setTitle(R.string.web_message_listener_activity_title);
         WebkitHelpers.appendWebViewVersionToTitle(this);
 
+        if (!WebViewFeature.isFeatureSupported(WebViewFeature.WEB_MESSAGE_LISTENER)) {
+            WebkitHelpers.showMessageInActivity(
+                    WebMessageListenerActivity.this, R.string.webkit_api_not_available);
+            return;
+        }
+
         // Use WebViewAssetLoader to load html page from app's assets.
         WebViewAssetLoader assetLoader =
                 new WebViewAssetLoader.Builder()
@@ -182,19 +188,14 @@ public class WebMessageListenerActivity extends AppCompatActivity {
         webView.getSettings().setJavaScriptEnabled(true);
 
         // Add WebMessageListeners.
-        if (WebViewFeature.isFeatureSupported(WebViewFeature.WEB_MESSAGE_LISTENER)) {
-            WebViewCompat.addWebMessageListener(webView, "replyObject",
-                    Arrays.asList("https://example.com"),
-                    new ReplyMessageListener(mReplyProxyButton));
-            WebViewCompat.addWebMessageListener(webView, "replyWithMessagePortObject",
-                    Arrays.asList("https://example.com"),
-                    new MessagePortMessageListener(mPortButton));
-            WebViewCompat.addWebMessageListener(webView, "toastObject",
-                    Arrays.asList("https://example.com"), new ToastMessageListener(this));
-            WebViewCompat.addWebMessageListener(webView, "multipleMessagesObject",
-                    Arrays.asList("https://example.com"),
-                    new MultipleMessagesListener(mTextView));
-        }
+        WebViewCompat.addWebMessageListener(webView, "replyObject",
+                Arrays.asList("https://example.com"), new ReplyMessageListener(mReplyProxyButton));
+        WebViewCompat.addWebMessageListener(webView, "replyWithMessagePortObject",
+                Arrays.asList("https://example.com"), new MessagePortMessageListener(mPortButton));
+        WebViewCompat.addWebMessageListener(webView, "toastObject",
+                Arrays.asList("https://example.com"), new ToastMessageListener(this));
+        WebViewCompat.addWebMessageListener(webView, "multipleMessagesObject",
+                Arrays.asList("https://example.com"), new MultipleMessagesListener(mTextView));
 
         webView.loadUrl(
                 Uri.withAppendedPath(mExampleUri, "www/web_message_listener.html").toString());
