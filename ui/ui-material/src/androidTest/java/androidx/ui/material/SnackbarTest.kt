@@ -25,6 +25,7 @@ import androidx.ui.core.OnChildPositioned
 import androidx.ui.core.PxPosition
 import androidx.ui.core.Text
 import androidx.ui.core.dp
+import androidx.ui.core.globalPosition
 import androidx.ui.core.round
 import androidx.ui.core.withDensity
 import androidx.ui.layout.DpConstraints
@@ -153,7 +154,8 @@ class SnackbarTest {
                 Truth.assertThat(textAlignmentLines.get(FirstBaseline)).isNotEqualTo(IntPx.Zero)
                 Truth.assertThat(buttonAlignmentLines.get(FirstBaseline)).isNotEqualTo(IntPx.Zero)
                 Truth.assertThat(
-                    localTextCoords.position.y.round() + textAlignmentLines.getValue(FirstBaseline)
+                    localTextCoords.globalPosition.y.round() +
+                            textAlignmentLines.getValue(FirstBaseline)
                 ).isEqualTo(30.dp.toIntPx())
                 Truth.assertThat(
                     buttonTextPos.y.round() + buttonAlignmentLines.getValue(FirstBaseline)
@@ -240,7 +242,8 @@ class SnackbarTest {
                 Truth.assertThat(textAlignmentLines.get(FirstBaseline))
                     .isNotEqualTo(textAlignmentLines.get(LastBaseline))
                 Truth.assertThat(
-                    localTextCoords.position.y.round() + textAlignmentLines.getValue(FirstBaseline)
+                    localTextCoords.globalPosition.y.round() +
+                            textAlignmentLines.getValue(FirstBaseline)
                 ).isEqualTo(30.dp.toIntPx())
 
                 Truth.assertThat(buttonCenter).isEqualTo(localSnackCoords.size.height / 2)

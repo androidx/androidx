@@ -19,6 +19,7 @@ package androidx.ui.text.demos
 import androidx.compose.Composable
 import androidx.compose.state
 import androidx.ui.core.Layout
+import androidx.ui.core.LayoutTag
 import androidx.ui.input.OffsetMap
 import androidx.ui.input.PasswordVisualTransformation
 import androidx.ui.core.Text
@@ -26,11 +27,13 @@ import androidx.ui.core.TextField
 import androidx.ui.input.TransformedText
 import androidx.ui.input.VisualTransformation
 import androidx.ui.core.ipx
+import androidx.ui.core.tag
 import androidx.ui.graphics.Color
 import androidx.ui.input.ImeAction
 import androidx.ui.input.KeyboardType
 import androidx.ui.layout.Column
 import androidx.ui.foundation.VerticalScroller
+import androidx.ui.layout.Container
 import androidx.ui.text.AnnotatedString
 import androidx.ui.text.LocaleList
 import androidx.ui.text.TextStyle
@@ -261,6 +264,7 @@ fun HintEditText(hintText: @Composable() () -> Unit) {
 
     val inputField = @Composable {
         TextField(
+            modifier = LayoutTag("inputField"),
             value = state.value,
             onValueChange = { state.value = it },
             textStyle = TextStyle(fontSize = fontSize8)
@@ -270,11 +274,15 @@ fun HintEditText(hintText: @Composable() () -> Unit) {
     if (state.value.isNotEmpty()) {
         inputField()
     } else {
-        Layout(inputField, hintText) { measurable, constraints ->
-            val inputfieldPlacable = measurable[inputField].first().measure(constraints)
-            val hintTextPlacable = measurable[hintText].first().measure(constraints)
-            layout(inputfieldPlacable.width, inputfieldPlacable.height) {
-                inputfieldPlacable.place(0.ipx, 0.ipx)
+        Layout({
+            inputField()
+            Container(LayoutTag("hintText"), children = hintText)
+        }) { measurable, constraints ->
+            val inputFieldPlacable =
+                measurable.first { it.tag == "inputField" }.measure(constraints)
+            val hintTextPlacable = measurable.first { it.tag == "hintText" }.measure(constraints)
+            layout(inputFieldPlacable.width, inputFieldPlacable.height) {
+                inputFieldPlacable.place(0.ipx, 0.ipx)
                 hintTextPlacable.place(0.ipx, 0.ipx)
             }
         }

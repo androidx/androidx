@@ -358,8 +358,6 @@ class MultiComposableMeasurables internal constructor(private val layoutNode: La
     /**
      * When multiple [Composable] children are passed into `Layout`, the [Measurable]s
      * for each [Composable] can be retrieved using this method.
-     *
-     * @sample androidx.ui.framework.samples.LayoutVarargsUsage
      */
     operator fun get(children: @Composable() () -> Unit): List<Measurable> {
         if (isEmpty()) return emptyList()
@@ -384,22 +382,8 @@ typealias MultiMeasureBlock =
 /**
  * Temporary component that allows composing and indexing measurables of multiple composables.
  * The logic here will be moved back to Layout, which will accept vararg children argument.
- *
- * @sample androidx.ui.framework.samples.LayoutVarargsUsage
  */
-// TODO(popam): remove this when the new syntax is available
-// * With the new syntax, the API should support both:
-// * Layout(children) { measurables, constraints ->
-// *     val placeables = measurables.map { it.measure(...) }
-// *     ...
-// * }
-// * and
-// * Layout(header, cardContent, footer) { measurables, constraints ->
-// *     val headerPlaceables = measurables[header].map { it.measure(...) }
-// *     val cardContentPlaceables = measurables[cardContent].map { ... }
-// *     val footerPlaceables = measurables[footer].map { ... }
-// *     ...
-// * }
+@Deprecated("Please use the LayoutTagParentData API instead.")
 @Composable
 fun Layout(
     vararg childrenArray: @Composable() () -> Unit,
