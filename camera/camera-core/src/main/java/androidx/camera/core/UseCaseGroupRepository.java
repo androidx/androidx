@@ -18,6 +18,7 @@ package androidx.camera.core;
 
 import androidx.annotation.GuardedBy;
 import androidx.annotation.VisibleForTesting;
+import androidx.camera.core.impl.UseCaseGroup;
 import androidx.lifecycle.Lifecycle;
 import androidx.lifecycle.Lifecycle.State;
 import androidx.lifecycle.LifecycleObserver;
