@@ -24,7 +24,7 @@ import androidx.annotation.NonNull;
  * methods of this listener can simply subclass this adapter class instead of implementing the
  * interface directly.
  */
-public abstract class AnimatorListenerAdapter extends Animator.AnimatorListener implements
+public abstract class AnimatorListenerAdapter implements Animator.AnimatorListener,
         Animator.AnimatorPauseListener {
 
     /**
