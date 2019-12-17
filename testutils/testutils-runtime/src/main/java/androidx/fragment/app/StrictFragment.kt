@@ -17,6 +17,7 @@
 package androidx.fragment.app
 
 import android.content.Context
+import android.os.Build
 import android.os.Bundle
 import androidx.annotation.LayoutRes
 
@@ -47,6 +48,12 @@ open class StrictFragment(@LayoutRes contentLayoutId: Int = 0) : Fragment(conten
     fun checkGetActivity() {
         checkNotNull(activity) {
             "getActivity() returned null at unexpected time"
+        }
+    }
+
+    fun checkActivityNotDestroyed() {
+        if (Build.VERSION.SDK_INT >= 17) {
+            check(!requireActivity().isDestroyed)
         }
     }
 
@@ -84,6 +91,7 @@ open class StrictFragment(@LayoutRes contentLayoutId: Int = 0) : Fragment(conten
 
     override fun onAttach(context: Context) {
         super.onAttach(context)
+        checkActivityNotDestroyed()
         calledOnAttach = true
         checkState("onAttach", State.DETACHED)
         currentState = State.ATTACHED
@@ -97,6 +105,7 @@ open class StrictFragment(@LayoutRes contentLayoutId: Int = 0) : Fragment(conten
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
+        checkActivityNotDestroyed()
         if (calledOnCreate && !calledOnDestroy) {
             throw IllegalStateException("onCreate called more than once with no onDestroy")
         }
@@ -109,6 +118,7 @@ open class StrictFragment(@LayoutRes contentLayoutId: Int = 0) : Fragment(conten
 
     override fun onActivityCreated(savedInstanceState: Bundle?) {
         super.onActivityCreated(savedInstanceState)
+        checkActivityNotDestroyed()
         calledOnActivityCreated = true
         checkState("onActivityCreated", State.ATTACHED, State.CREATED)
         val fromState = currentState
@@ -118,6 +128,7 @@ open class StrictFragment(@LayoutRes contentLayoutId: Int = 0) : Fragment(conten
 
     override fun onStart() {
         super.onStart()
+        checkActivityNotDestroyed()
         calledOnStart = true
         checkState("onStart", State.CREATED, State.ACTIVITY_CREATED)
         currentState = State.STARTED
@@ -126,6 +137,7 @@ open class StrictFragment(@LayoutRes contentLayoutId: Int = 0) : Fragment(conten
 
     override fun onResume() {
         super.onResume()
+        checkActivityNotDestroyed()
         calledOnResume = true
         checkState("onResume", State.STARTED)
         currentState = State.RESUMED
