@@ -21,6 +21,7 @@ import android.view.Surface;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
+import androidx.camera.core.impl.DeferrableSurface;
 import androidx.camera.core.impl.utils.futures.FutureCallback;
 import androidx.camera.core.impl.utils.futures.Futures;
 import androidx.concurrent.futures.CallbackToFutureAdapter;
@@ -74,7 +75,8 @@ final class CallbackDeferrableSurface extends DeferrableSurface implements Surfa
     }
 
     @Override
-    ListenableFuture<Surface> provideSurface() {
+    @NonNull
+    protected ListenableFuture<Surface> provideSurface() {
         return mSurfaceFuture;
     }
 
