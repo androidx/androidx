@@ -29,6 +29,7 @@ import androidx.annotation.Nullable;
 import androidx.appcompat.R;
 import androidx.appcompat.content.res.AppCompatResources;
 import androidx.core.graphics.drawable.DrawableCompat;
+import androidx.core.view.ViewCompat;
 import androidx.core.widget.CompoundButtonCompat;
 
 class AppCompatCompoundButtonHelper {
@@ -50,11 +51,8 @@ class AppCompatCompoundButtonHelper {
         TintTypedArray a =
                 TintTypedArray.obtainStyledAttributes(mView.getContext(), attrs,
                         R.styleable.CompoundButton, defStyleAttr, 0);
-        if (Build.VERSION.SDK_INT >= 29) {
-            mView.saveAttributeDataForStyleable(mView.getContext(),
-                    R.styleable.CompoundButton, attrs, a.getWrappedTypeArray(), defStyleAttr, 0);
-
-        }
+        ViewCompat.saveAttributeDataForStyleable(mView, mView.getContext(),
+                R.styleable.CompoundButton, attrs, a.getWrappedTypeArray(), defStyleAttr, 0);
         try {
             boolean buttonDrawableLoaded = false;
             if (a.hasValue(R.styleable.CompoundButton_buttonCompat)) {

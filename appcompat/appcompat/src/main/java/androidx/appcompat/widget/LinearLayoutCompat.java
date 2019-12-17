@@ -23,7 +23,6 @@ import android.content.Context;
 import android.content.res.TypedArray;
 import android.graphics.Canvas;
 import android.graphics.drawable.Drawable;
-import android.os.Build;
 import android.util.AttributeSet;
 import android.view.Gravity;
 import android.view.View;
@@ -162,11 +161,9 @@ public class LinearLayoutCompat extends ViewGroup {
 
         final TintTypedArray a = TintTypedArray.obtainStyledAttributes(context, attrs,
                 R.styleable.LinearLayoutCompat, defStyleAttr, 0);
-        if (Build.VERSION.SDK_INT >= 29) {
-            saveAttributeDataForStyleable(
-                    context, R.styleable.LinearLayoutCompat, attrs,
-                    a.getWrappedTypeArray(), defStyleAttr, 0);
-        }
+        ViewCompat.saveAttributeDataForStyleable(this,
+                context, R.styleable.LinearLayoutCompat, attrs,
+                a.getWrappedTypeArray(), defStyleAttr, 0);
 
         int index = a.getInt(R.styleable.LinearLayoutCompat_android_orientation, -1);
         if (index >= 0) {

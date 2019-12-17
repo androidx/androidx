@@ -17,7 +17,7 @@ android {
 
 dependencies {
     api("androidx.annotation:annotation:1.1.0")
-    implementation("androidx.core:core:1.1.0")
+    implementation(project(":core:core"))
     api("androidx.customview:customview:1.0.0")
 
     androidTestImplementation(ANDROIDX_TEST_EXT_JUNIT)

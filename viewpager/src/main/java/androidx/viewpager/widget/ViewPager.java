@@ -429,6 +429,7 @@ public class ViewPager extends ViewGroup {
                 new androidx.core.view.OnApplyWindowInsetsListener() {
                     private final Rect mTempRect = new Rect();
 
+                    @SuppressWarnings("deprecation") // b/146364839
                     @Override
                     public WindowInsetsCompat onApplyWindowInsets(final View v,
                             final WindowInsetsCompat originalInsets) {
