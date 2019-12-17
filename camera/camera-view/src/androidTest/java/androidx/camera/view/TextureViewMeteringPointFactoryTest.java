@@ -49,7 +49,6 @@ import androidx.camera.testing.fakes.FakeLifecycleOwner;
 import androidx.test.core.app.ApplicationProvider;
 import androidx.test.ext.junit.runners.AndroidJUnit4;
 import androidx.test.filters.LargeTest;
-import androidx.test.filters.Suppress;
 import androidx.test.platform.app.InstrumentationRegistry;
 import androidx.test.rule.ActivityTestRule;
 import androidx.test.rule.GrantPermissionRule;
@@ -66,7 +65,6 @@ import java.util.concurrent.ExecutionException;
 import java.util.concurrent.TimeUnit;
 
 @LargeTest
-@Suppress // "Suppress these tests until they can be fixed, see b/143453238"
 @RunWith(AndroidJUnit4.class)
 public class TextureViewMeteringPointFactoryTest {
     public static final float TOLERANCE = 0.000001f;
@@ -92,7 +90,7 @@ public class TextureViewMeteringPointFactoryTest {
         });
     }
 
-    private static final int WAIT_FRAMECOUNT = 1;
+    private static final int WAIT_FRAMECOUNT = 3;
     private final Instrumentation mInstrumentation = InstrumentationRegistry.getInstrumentation();
     private FakeLifecycleOwner mLifecycle;
     private CountDownLatch mLatchForFrameReady;
@@ -213,20 +211,6 @@ public class TextureViewMeteringPointFactoryTest {
                             viewGroup.removeView(mTextureView);
                             viewGroup.addView(mTextureView);
                             mTextureView.setSurfaceTexture(surfaceTexture);
-
-                            surfaceTexture.setOnFrameAvailableListener(
-                                    new SurfaceTexture.OnFrameAvailableListener() {
-                                        int mFrameCount = 0;
-
-                                        @Override
-                                        public void onFrameAvailable(
-                                                SurfaceTexture surfaceTexture) {
-                                            mFrameCount++;
-                                            if (mFrameCount == WAIT_FRAMECOUNT) {
-                                                mLatchForFrameReady.countDown();
-                                            }
-                                        }
-                                    });
                         }
 
                         @Override
@@ -235,6 +219,33 @@ public class TextureViewMeteringPointFactoryTest {
                         }
                     }));
 
+            mTextureView.setSurfaceTextureListener(new TextureView.SurfaceTextureListener() {
+                int mFrameCount = 0;
+                @Override
+                public void onSurfaceTextureAvailable(SurfaceTexture surface, int width,
+                        int height) {
+
+                }
+
+                @Override
+                public void onSurfaceTextureSizeChanged(SurfaceTexture surface, int width,
+                        int height) {
+
+                }
+
+                @Override
+                public boolean onSurfaceTextureDestroyed(SurfaceTexture surface) {
+                    return true;
+                }
+
+                @Override
+                public void onSurfaceTextureUpdated(SurfaceTexture surface) {
+                    mFrameCount++;
+                    if (mFrameCount == WAIT_FRAMECOUNT) {
+                        mLatchForFrameReady.countDown();
+                    }
+                }
+            });
             CameraSelector cameraSelector =
                     new CameraSelector.Builder().requireLensFacing(lensFacing).build();
 
