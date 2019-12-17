@@ -28,8 +28,13 @@ import androidx.ui.core.toRect
 import androidx.ui.graphics.Color
 import androidx.ui.graphics.Paint
 import androidx.compose.Composable
+import androidx.ui.core.LayoutTag
+import androidx.ui.core.LayoutTagParentData
+import androidx.ui.core.ParentData
+import androidx.ui.core.tag
 import androidx.ui.graphics.Brush
 import androidx.ui.graphics.SolidColor
+import androidx.ui.layout.Container
 
 @Composable
 fun ColoredRect(brush: Brush, width: Dp? = null, height: Dp? = null) {
@@ -63,18 +68,27 @@ fun HeaderFooterLayout(
     footer: @Composable() () -> Unit,
     content: @Composable() () -> Unit
 ) {
-    Layout(header, content, footer) { measurables, constraints ->
-        val headerPlaceable = measurables[header].first().measure(
+    Layout({
+        Container(LayoutTag("header"), children = header)
+        Container(LayoutTag("footer"), children = footer)
+        ParentData(
+            object : LayoutTagParentData {
+                override val tag: Any get() = "content"
+            },
+            children = content
+        )
+    }) { measurables, constraints ->
+        val headerPlaceable = measurables.first { it.tag == "header" }.measure(
             Constraints.tightConstraints(constraints.maxWidth, 100.ipx)
         )
         val footerPadding = 50.ipx
-        val footerPlaceable = measurables[footer].first().measure(
+        val footerPlaceable = measurables.first { it.tag == "footer" }.measure(
             Constraints.tightConstraints(constraints.maxWidth - footerPadding * 2, 100.ipx)
         )
         val itemHeight =
             (constraints.maxHeight - headerPlaceable.height - footerPlaceable.height) /
-                    measurables[content].size
-        val contentPlaceables = measurables[content].map { measurable ->
+                    measurables.filter { it.tag == "content" }.size
+        val contentPlaceables = measurables.filter { it.tag == "content" }.map { measurable ->
             measurable.measure(Constraints.tightConstraints(constraints.maxWidth, itemHeight))
         }
 

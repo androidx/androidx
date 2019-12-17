@@ -30,7 +30,10 @@ import androidx.ui.core.FirstBaseline
 import androidx.ui.core.IntPx
 import androidx.ui.core.LastBaseline
 import androidx.ui.core.Layout
+import androidx.ui.core.LayoutTag
+import androidx.ui.core.LayoutTagParentData
 import androidx.ui.core.Modifier
+import androidx.ui.core.ParentData
 import androidx.ui.core.Placeable
 import androidx.ui.core.Px
 import androidx.ui.core.Text
@@ -39,6 +42,7 @@ import androidx.ui.core.ambientDensity
 import androidx.ui.core.dp
 import androidx.ui.core.max
 import androidx.ui.core.sp
+import androidx.ui.core.tag
 import androidx.ui.core.toPx
 import androidx.ui.core.withDensity
 import androidx.ui.core.withTight
@@ -224,7 +228,21 @@ private fun ScrollableTabRow(
         scrollerPosition = scrollableTabData.position,
         modifier = LayoutExpandedWidth
     ) {
-        Layout(tabs, indicator, divider) { measurables, constraints ->
+        val TabTag = "tab"
+        val IndicatorTag = "indicator"
+        val DividerTag = "divider"
+        Layout(
+            {
+                ParentData(
+                    object : LayoutTagParentData {
+                        override val tag = TabTag
+                    },
+                    children = tabs
+                )
+                Container(LayoutTag(IndicatorTag), children = indicator)
+                Container(LayoutTag(DividerTag), children = divider)
+            }
+        ) { measurables, constraints ->
             val tabPlaceables = mutableListOf<Pair<Placeable, IntPx>>()
             val minTabWidth = ScrollableTabRowMinimumTabWidth.toIntPx()
 
@@ -234,7 +252,9 @@ private fun ScrollableTabRow(
 
             val newTabPositions = mutableListOf<TabPosition>()
 
-            val layoutWidth = measurables[tabs].fold(edgeOffset) { sum, measurable ->
+            val layoutWidth = measurables
+                .filter { it.tag == TabTag }
+                .fold(edgeOffset) { sum, measurable ->
                 val placeable = measurable.measure(tabConstraints)
 
                 if (placeable.height > layoutHeight) {
@@ -260,13 +280,13 @@ private fun ScrollableTabRow(
 
                 // The divider is measured with its own height, and width equal to the total width
                 // of the tab row, and then placed on top of the tabs.
-                measurables[divider].firstOrNull()
+                measurables.firstOrNull { it.tag == DividerTag }
                     ?.measure(constraints.withTight(width = layoutWidth))
                     ?.run { place(IntPx.Zero, layoutHeight - height) }
 
                 // The indicator container is measured to fill the entire space occupied by the tab
                 // row, and then placed on top of the divider.
-                measurables[indicator].firstOrNull()
+                measurables.firstOrNull { it.tag == IndicatorTag }
                     ?.measure(constraints.withTight(width = layoutWidth, height = layoutHeight))
                     ?.place(IntPx.Zero, IntPx.Zero)
             }
@@ -588,10 +608,13 @@ private fun TabTextBaselineLayout(
     icon: @Composable() (() -> Unit) = {},
     text: @Composable() () -> Unit
 ) {
-    Layout(text, icon) { measurables, constraints ->
-        require(measurables[text].isNotEmpty()) { "No text found" }
-
-        val textPlaceable = measurables[text].first().measure(
+    Layout(
+        {
+            Container(LayoutTag("text"), children = text)
+            Container(LayoutTag("icon"), children = icon)
+        }
+    ) { measurables, constraints ->
+        val textPlaceable = measurables.first { it.tag == "text" }.measure(
             // Measure with loose constraints for height as we don't want the text to take up more
             // space than it needs
             constraints.copy(minHeight = IntPx.Zero)
@@ -602,7 +625,7 @@ private fun TabTextBaselineLayout(
         val lastBaseline =
             requireNotNull(textPlaceable[LastBaseline]) { "No text baselines found" }
 
-        val iconPlaceable = measurables[icon].firstOrNull()?.measure(constraints)
+        val iconPlaceable = measurables.firstOrNull { it.tag == "icon" }?.measure(constraints)
 
         // Total offset from the bottom of this layout to the last text baseline
         val baselineOffset = if (firstBaseline == lastBaseline) {

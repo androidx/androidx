@@ -45,6 +45,7 @@ import androidx.ui.core.IntPxPosition
 import androidx.ui.core.IntPxSize
 import androidx.ui.core.Layout
 import androidx.ui.core.LayoutModifier
+import androidx.ui.core.LayoutTag
 import androidx.ui.core.Measurable
 import androidx.ui.core.Modifier
 import androidx.ui.core.OnPositioned
@@ -64,6 +65,7 @@ import androidx.ui.core.min
 import androidx.ui.core.offset
 import androidx.ui.core.px
 import androidx.ui.core.setContent
+import androidx.ui.core.tag
 import androidx.ui.core.toPx
 import androidx.ui.core.toRect
 import androidx.ui.engine.geometry.Rect
@@ -401,29 +403,31 @@ class AndroidLayoutDrawTest {
                     Layout(measureBlock = { _, constraints ->
                         assertEquals(childConstraints[0], constraints)
                         layout(0.ipx, 0.ipx) {}
-                    }, children = {})
+                    }, children = {}, modifier = LayoutTag("header"))
                 }
                 val footer = @Composable {
                     Layout(measureBlock = { _, constraints ->
                         assertEquals(childConstraints[1], constraints)
                         layout(0.ipx, 0.ipx) {}
-                    }, children = {})
+                    }, children = {}, modifier = LayoutTag("footer"))
                     Layout(measureBlock = { _, constraints ->
                         assertEquals(childConstraints[2], constraints)
                         layout(0.ipx, 0.ipx) {}
-                    }, children = {})
+                    }, children = {}, modifier = LayoutTag("footer"))
                 }
 
-                Layout(header, footer) { measurables, _ ->
+                Layout({ header(); footer() }) { measurables, _ ->
                     assertEquals(childrenCount, measurables.size)
                     measurables.forEachIndexed { index, measurable ->
                         measurable.measure(childConstraints[index])
                     }
-                    assertEquals(headerChildrenCount, measurables[header].size)
-                    assertSame(measurables[0], measurables[header][0])
-                    assertEquals(footerChildrenCount, measurables[footer].size)
-                    assertSame(measurables[1], measurables[footer][0])
-                    assertSame(measurables[2], measurables[footer][1])
+                    val measurablesHeader = measurables.filter { it.tag == "header" }
+                    val measurablesFooter = measurables.filter { it.tag == "footer" }
+                    assertEquals(headerChildrenCount, measurablesHeader.size)
+                    assertSame(measurables[0], measurablesHeader[0])
+                    assertEquals(footerChildrenCount, measurablesFooter.size)
+                    assertSame(measurables[1], measurablesFooter[0])
+                    assertSame(measurables[2], measurablesFooter[1])
                     layout(0.ipx, 0.ipx) {}
                 }
             }
@@ -445,7 +449,7 @@ class AndroidLayoutDrawTest {
                     }
                 }
 
-                Layout(header, footer) { measurables, _ ->
+                Layout({ header(); footer() }) { measurables, _ ->
                     assertEquals(0, measurables[0].parentData)
                     assertEquals(1, measurables[1].parentData)
                     layout(0.ipx, 0.ipx) { }

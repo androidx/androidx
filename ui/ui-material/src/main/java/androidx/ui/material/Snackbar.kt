@@ -22,12 +22,15 @@ import androidx.ui.core.FirstBaseline
 import androidx.ui.core.IntPx
 import androidx.ui.core.LastBaseline
 import androidx.ui.core.Layout
+import androidx.ui.core.LayoutTagParentData
 import androidx.ui.core.Modifier
+import androidx.ui.core.ParentData
 import androidx.ui.core.Text
 import androidx.ui.core.coerceAtLeast
 import androidx.ui.core.dp
 import androidx.ui.core.ipx
 import androidx.ui.core.max
+import androidx.ui.core.tag
 import androidx.ui.foundation.shape.DrawShape
 import androidx.ui.foundation.shape.corner.RoundedCornerShape
 import androidx.ui.graphics.Color
@@ -188,21 +191,29 @@ private fun OneRowSnackbar(
     button: @Composable() () -> Unit
 ) {
     Layout(
-        text, button,
+        {
+            ParentData(
+                object : LayoutTagParentData {
+                    override val tag: Any = "text"
+                },
+                text
+            )
+            ParentData(
+                object : LayoutTagParentData {
+                    override val tag: Any = "button"
+                },
+                button
+            )
+        },
         modifier = LayoutPadding(left = HorizontalSpacing, right = HorizontalSpacingButtonSide)
     ) { measurables, constraints ->
-        require(measurables[text].size == 1) {
-            "text for Snackbar expected to have exactly only one child"
-        }
-        require(measurables[button].size == 1) {
-            "button for Snackbar expected to have exactly only one child"
-        }
-        val buttonPlaceable = measurables[button].first().measure(constraints)
+        val buttonPlaceable = measurables.first { it.tag == "button" }.measure(constraints)
         val textMaxWidth =
             (constraints.maxWidth - buttonPlaceable.width - TextEndExtraSpacing.toIntPx())
                 .coerceAtLeast(constraints.minWidth)
-        val textPlaceable = measurables[text].first()
-            .measure(constraints.copy(minHeight = IntPx.Zero, maxWidth = textMaxWidth))
+        val textPlaceable = measurables.first { it.tag == "text" }.measure(
+            constraints.copy(minHeight = IntPx.Zero, maxWidth = textMaxWidth)
+        )
 
         val firstTextBaseline =
             requireNotNull(textPlaceable[FirstBaseline]) { "No baselines for text" }
