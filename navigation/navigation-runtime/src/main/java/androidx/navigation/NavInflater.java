@@ -29,6 +29,7 @@ import android.util.Xml;
 
 import androidx.annotation.NavigationRes;
 import androidx.annotation.NonNull;
+import androidx.navigation.common.R;
 
 import org.xmlpull.v1.XmlPullParser;
 import org.xmlpull.v1.XmlPullParserException;
@@ -124,8 +125,10 @@ public final class NavInflater {
             } else if (TAG_ACTION.equals(name)) {
                 inflateAction(res, dest, attrs, parser, graphResId);
             } else if (TAG_INCLUDE.equals(name) && dest instanceof NavGraph) {
-                final TypedArray a = res.obtainAttributes(attrs, R.styleable.NavInclude);
-                final int id = a.getResourceId(R.styleable.NavInclude_graph, 0);
+                final TypedArray a = res.obtainAttributes(
+                        attrs, androidx.navigation.R.styleable.NavInclude);
+                final int id = a.getResourceId(
+                        androidx.navigation.R.styleable.NavInclude_graph, 0);
                 ((NavGraph) dest).addDestination(inflate(id));
                 a.recycle();
             } else if (dest instanceof NavGraph) {

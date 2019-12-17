@@ -22,7 +22,6 @@ import android.view.ViewGroup
 import android.widget.CheckBox
 import android.widget.LinearLayout
 import android.widget.TextView
-import androidx.ui.test.R
 import androidx.ui.test.benchmark.android.AndroidTestCase
 import androidx.ui.test.cases.CheckboxesInRowsTestCase
 
@@ -42,7 +41,6 @@ class AndroidCheckboxesInLinearLayoutTestCase(
             ViewGroup.LayoutParams.MATCH_PARENT,
             ViewGroup.LayoutParams.WRAP_CONTENT
         )
-        column.id = R.id.normal
         repeat(amountOfCheckboxes) {
             val row = LinearLayout(activity)
             row.orientation = LinearLayout.HORIZONTAL
