@@ -14,20 +14,16 @@
  * limitations under the License.
  */
 
-package androidx.camera.core;
+package androidx.camera.core.impl;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
-import androidx.annotation.RestrictTo;
-import androidx.annotation.RestrictTo.Scope;
-import androidx.camera.core.impl.CameraCaptureResult;
+import androidx.camera.core.ImageInfo;
+import androidx.camera.core.internal.CameraCaptureResultImageInfo;
 
 /**
  * Utility functionality for {@link CameraCaptureResult}.
- *
- * @hide
  */
-@RestrictTo(Scope.LIBRARY_GROUP)
 public final class CameraCaptureResults {
     /**
      * Retrieves the underlying {@link CameraCaptureResult} from the {@link ImageInfo} if the
