@@ -1,0 +1,201 @@
+/*
+ * Copyright 2019 The Android Open Source Project
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *      http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+
+package androidx.animation
+
+/**
+ * FloatAnimation interface to avoid boxing/unboxing on floats.
+ */
+internal interface FloatAnimation {
+    fun isFinished(
+        playTime: Long,
+        start: Float,
+        end: Float,
+        startVelocity: Float
+    ): Boolean
+
+    fun getValue(
+        playTime: Long,
+        start: Float,
+        end: Float,
+        startVelocity: Float
+    ): Float
+
+    fun getVelocity(
+        playTime: Long,
+        start: Float,
+        end: Float,
+        startVelocity: Float
+    ): Float
+}
+
+/**
+ * Physics class contains a number of recommended configurations for physics animations.
+ */
+// TODO: Consider making all animations public, and fold this companion object into SpringAnimation
+object Spring {
+    /**
+     * Stiffness constant for extremely stiff spring
+     */
+    const val StiffnessHigh = 10_000f
+    /**
+     * Stiffness constant for medium stiff spring. This is the default stiffness for spring
+     * force.
+     */
+    const val StiffnessMedium = 1500f
+    /**
+     * Stiffness constant for a spring with low stiffness.
+     */
+    const val StiffnessLow = 200f
+    /**
+     * Stiffness constant for a spring with very low stiffness.
+     */
+    const val StiffnessVeryLow = 50f
+
+    /**
+     * Damping ratio for a very bouncy spring. Note for under-damped springs
+     * (i.e. damping ratio < 1), the lower the damping ratio, the more bouncy the spring.
+     */
+    const val DampingRatioHighBouncy = 0.2f
+    /**
+     * Damping ratio for a medium bouncy spring. This is also the default damping ratio for
+     * spring force. Note for under-damped springs (i.e. damping ratio < 1), the lower the
+     * damping ratio, the more bouncy the spring.
+     */
+    const val DampingRatioMediumBouncy = 0.5f
+    /**
+     * Damping ratio for a spring with low bounciness. Note for under-damped springs
+     * (i.e. damping ratio < 1), the lower the damping ratio, the higher the bounciness.
+     */
+    const val DampingRatioLowBouncy = 0.75f
+    /**
+     * Damping ratio for a spring with no bounciness. This damping ratio will create a
+     * critically damped spring that returns to equilibrium within the shortest amount of time
+     * without oscillating.
+     */
+    const val DampingRatioNoBouncy = 1f
+}
+
+/**
+ * [SpringAnimation] animation is in its core a spring animation. It is the default animation that
+ * the animation system uses to animate from [TransitionState] to [TransitionState] when no
+ * animations are specified. Its configuration can be tuned via adjusting the spring parameters,
+ * namely damping ratio and stiffness.
+ */
+internal class SpringAnimation(
+    /**
+     * Damping ratio of the spring. Defaults to [Spring.DampingRatioNoBouncy]
+     */
+    dampingRatio: Float = Spring.DampingRatioNoBouncy,
+    /**
+     * Stiffness of the spring. Defaults to [Spring.StiffnessVeryLow]
+     */
+    stiffness: Float = Spring.StiffnessMedium
+) : FloatAnimation {
+
+    private val spring = SpringSimulation(1f).also {
+        it.dampingRatio = dampingRatio
+        it.stiffness = stiffness
+    }
+
+    override fun isFinished(
+        playTime: Long,
+        start: Float,
+        end: Float,
+        startVelocity: Float
+    ): Boolean {
+        spring.finalPosition = end
+        return spring.isAtEquilibrium(start, startVelocity, playTime)
+    }
+
+    override fun getValue(
+        playTime: Long,
+        start: Float,
+        end: Float,
+        startVelocity: Float
+    ): Float {
+        spring.finalPosition = end
+        val (value, _) = spring.updateValues(start, startVelocity, playTime)
+        return value
+    }
+
+    override fun getVelocity(
+        playTime: Long,
+        start: Float,
+        end: Float,
+        startVelocity: Float
+    ): Float {
+        spring.finalPosition = end
+        val (_, velocity) = spring.updateValues(start, startVelocity, playTime)
+        return velocity
+    }
+}
+
+/**
+ * [Tween] is responsible for animating from one value to another using a provided [easing].
+ * The duration (in milliseconds) for such an animation can be adjusted via [duration]. The
+ * animation can be delayed via [delay].
+ */
+internal class Tween(
+    val duration: Long,
+    val delay: Long,
+    private val easing: Easing
+) : FloatAnimation {
+    override fun isFinished(
+        playTime: Long,
+        start: Float,
+        end: Float,
+        startVelocity: Float
+    ): Boolean = playTime >= delay + duration
+
+    override fun getValue(
+        playTime: Long,
+        start: Float,
+        end: Float,
+        startVelocity: Float
+    ): Float {
+        val clampedPlayTime = clampPlayTime(playTime)
+        val rawFraction = if (duration == 0L) 1f else clampedPlayTime / duration.toFloat()
+        val fraction = easing(rawFraction.coerceIn(0f, 1f))
+        return lerp(start, end, fraction)
+    }
+
+    private fun clampPlayTime(playTime: Long): Long {
+        return (playTime - delay).coerceIn(0, duration)
+    }
+
+    /**
+     * Calculate velocity by difference between the current value and the value 1 ms ago. This is a
+     * preliminary way of calculating velocity used by easing curve based animations, and keyframe
+     * animations. Physics-based animations give a much more accurate velocity.
+     */
+    override fun getVelocity(
+        playTime: Long,
+        start: Float,
+        end: Float,
+        startVelocity: Float
+    ): Float {
+        val clampedPlayTime = clampPlayTime(playTime)
+        if (clampedPlayTime < 0) {
+            return 0f
+        } else if (clampedPlayTime == 0L) {
+            return startVelocity
+        }
+        val startNum = getValue(clampedPlayTime - 1, start, end, startVelocity)
+        val endNum = getValue(clampedPlayTime, start, end, startVelocity)
+        return (endNum - startNum) * 1000f
+    }
+}

@@ -62,7 +62,8 @@ class AnimatableSeekBar : Activity() {
                         MovingTargetExample(clock)
                     }
 
-                    Transition(definition = transDef, toState = "end") { state ->
+                    Transition(definition = transDef, initState = "start", toState = "end") {
+                            state ->
                         Container(width = 600.dp, height = 400.dp) {
                             val paint = remember { Paint() }
                             Draw { canvas, parentSize ->

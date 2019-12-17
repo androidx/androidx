@@ -22,7 +22,7 @@ import androidx.animation.DecayAnimation
 import androidx.animation.ExponentialDecay
 import androidx.animation.PhysicsBuilder
 import androidx.animation.AnimationEndReason
-import androidx.animation.OnFlingEnd
+import androidx.animation.OnAnimationEnd
 import androidx.animation.TargetAnimation
 import androidx.animation.fling
 import kotlin.math.abs
@@ -50,7 +50,7 @@ import kotlin.math.abs
  */
 data class FlingConfig(
     val decayAnimation: DecayAnimation = ExponentialDecay(),
-    val onAnimationEnd: OnFlingEnd? = null,
+    val onAnimationEnd: OnAnimationEnd? = null,
     val adjustTarget: (Float) -> TargetAnimation? = { null }
 )
 
@@ -87,7 +87,7 @@ fun AnimatedFloat.fling(config: FlingConfig, startVelocity: Float) {
 fun AnchorsFlingConfig(
     anchors: List<Float>,
     animationBuilder: AnimationBuilder<Float> = PhysicsBuilder(),
-    onAnimationEnd: OnFlingEnd? = null,
+    onAnimationEnd: OnAnimationEnd? = null,
     decayAnimation: DecayAnimation = ExponentialDecay()
 ): FlingConfig {
     val adjustTarget: (Float) -> TargetAnimation? = { target ->

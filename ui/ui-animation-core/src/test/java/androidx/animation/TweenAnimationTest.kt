@@ -28,8 +28,8 @@ class TweenAnimationTest {
     fun delayCorrectness() {
         val testDelay = 100L
         val testDuration = 200
-        val start = 0f
-        val end = 1000f
+        val start = AnimationVector1D(0f)
+        val end = AnimationVector1D(1000f)
 
         val animation = TweenBuilder<Float>().run {
             delay = 100
@@ -39,7 +39,7 @@ class TweenAnimationTest {
         }
 
         fun atPlaytime(playTime: Long) =
-            animation.getValue(playTime, start, end, 0f, ::lerp)
+            animation.getValue(playTime, start, end, AnimationVector1D(0f)).value
 
         assertThat(atPlaytime(0L)).isZero()
         assertThat(atPlaytime(testDelay / 2)).isZero()

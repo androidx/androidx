@@ -23,7 +23,7 @@ import kotlin.experimental.ExperimentalTypeInference
  *
  * Each property involved in the states that the transition is from and to can have an animation
  * associated with it. When such an animation is defined, the animation system will be using it
- * instead of the default [SpringAnimation] animation to createAnimation the value change for that property.
+ * instead of the default [SpringAnimation] animation to animate the value change for that property.
  *
  * @sample androidx.animation.samples.TransitionSpecWith3Properties
  **/
@@ -50,12 +50,14 @@ class TransitionSpec<S> internal constructor(private val fromToPairs: Array<out 
     /**
      * The default animation to use when it wasn't explicitly provided for a property
      */
-    internal var defaultAnimation: () -> Animation<Any> = { SpringAnimation() }
+    internal var defaultAnimation: DefaultTransitionAnimation = SpringTransition()
 
-    private val propAnimation: MutableMap<PropKey<*>, Animation<*>> = mutableMapOf()
-    internal fun <T> getAnimationForProp(prop: PropKey<T>): Animation<T> {
+    private val propAnimation: MutableMap<PropKey<*, *>, Animation<*>> = mutableMapOf()
+
+    internal fun <T, V : AnimationVector> getAnimationForProp(prop: PropKey<T, V>): Animation<V> {
         @Suppress("UNCHECKED_CAST")
-        return (propAnimation.getOrPut(prop, defaultAnimation)) as Animation<T>
+        return (propAnimation.getOrPut(prop,
+            { defaultAnimation.createDefault(prop.typeConverter) })) as Animation<V>
     }
 
     internal fun defines(from: S?, to: S?) =
@@ -66,8 +68,8 @@ class TransitionSpec<S> internal constructor(private val fromToPairs: Array<out 
      *
      * @param builder: [AnimationBuilder] for animating [this] property value changes
      */
-    infix fun <T> PropKey<T>.using(builder: AnimationBuilder<T>) {
-        propAnimation[this] = builder.build()
+    infix fun <T, V : AnimationVector> PropKey<T, V>.using(builder: AnimationBuilder<T>) {
+        propAnimation[this] = builder.build(typeConverter)
     }
 
     /**
@@ -91,7 +93,7 @@ class TransitionSpec<S> internal constructor(private val fromToPairs: Array<out 
      *
      * @param init Initialization function for the [Keyframes] animation
      */
-    fun <T> keyframes(init: KeyframesBuilder<T>.() -> Unit): DurationBasedAnimationBuilder<T> =
+    fun <T> keyframes(init: KeyframesBuilder<T>.() -> Unit): KeyframesBuilder<T> =
         KeyframesBuilder<T>().apply(init)
 
     /**
@@ -108,6 +110,26 @@ class TransitionSpec<S> internal constructor(private val fromToPairs: Array<out 
     fun <T> snap(): AnimationBuilder<T> = SnapBuilder()
 }
 
+internal interface DefaultTransitionAnimation {
+    fun <T, V : AnimationVector> createDefault(typeConverter: TwoWayConverter<T, V>): Animation<V>
+}
+
+internal class SnapTransition : DefaultTransitionAnimation {
+    override fun <T, V : AnimationVector> createDefault(
+        typeConverter: TwoWayConverter<T, V>
+    ): Animation<V> {
+        return SnapBuilder<T>().build(typeConverter)
+    }
+}
+
+internal class SpringTransition : DefaultTransitionAnimation {
+    override fun <T, V : AnimationVector> createDefault(
+        typeConverter: TwoWayConverter<T, V>
+    ): Animation<V> {
+        return PhysicsBuilder<T>().build(typeConverter)
+    }
+}
+
 /**
  * Static definitions of states and transitions.
  */
@@ -118,8 +140,9 @@ class TransitionDefinition<T> {
 
     // TODO: Consider also having the initial defined at call site for cases where many components
     // share the same transition def
-    // TODO: (Optimization) Type param in TransitionSpec requires this defaultTransitionSpec to be re-created at least
-    // for each state type T. Consider dropping this T beyond initial sanity check.
+    // TODO: (Optimization) Type param in TransitionSpec requires this defaultTransitionSpec to be
+    // re-created at least for each state type T. Consider dropping this T beyond initial sanity
+    // check.
     private val defaultTransitionSpec = TransitionSpec<T>(arrayOf(null to null))
 
     /**
@@ -186,7 +209,7 @@ class TransitionDefinition<T> {
     fun snapTransition(vararg fromToPairs: Pair<T?, T?>, nextState: T? = null) =
         transition(*fromToPairs) {
             this.nextState = nextState
-            defaultAnimation = { Snap() }
+            defaultAnimation = SnapTransition()
         }
 
     internal fun getSpec(fromState: T, toState: T): TransitionSpec<T> {

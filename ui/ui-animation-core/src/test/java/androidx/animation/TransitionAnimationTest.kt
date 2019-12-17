@@ -28,17 +28,17 @@ class TransitionAnimationTest {
         val clock = ManualAnimationClock(0)
         val anim = TransitionAnimation(def1, clock)
         anim.toState(AnimState.B)
-        val physicsAnim = SpringAnimation<Float>()
+        val physicsAnim = SpringAnimation()
         var playTime = 0L
         do {
             // Increment the time stamp until the animation finishes
             clock.clockTimeMillis = playTime
             assertEquals(anim[prop1],
-                physicsAnim.getValue(playTime, 0f, 1f, 0f, ::lerp),
+                physicsAnim.getValue(playTime, 0f, 1f, 0f),
                 epsilon)
 
             assertEquals(anim[prop2],
-                physicsAnim.getValue(playTime, 100f, -100f, 0f, ::lerp),
+                physicsAnim.getValue(playTime, 100f, -100f, 0f),
                 epsilon)
             playTime += 20L
         } while (anim.isRunning)

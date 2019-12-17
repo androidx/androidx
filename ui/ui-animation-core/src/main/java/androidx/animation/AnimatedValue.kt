@@ -22,44 +22,67 @@ import androidx.animation.AnimationEndReason.BoundReached
 import androidx.animation.AnimationEndReason.Interrupted
 import androidx.animation.AnimationEndReason.TargetReached
 
+typealias AnimatedValue1D<T> = AnimatedValue<T, AnimationVector1D>
+typealias AnimatedValue2D<T> = AnimatedValue<T, AnimationVector2D>
+typealias AnimatedValue3D<T> = AnimatedValue<T, AnimationVector3D>
+typealias AnimatedValue4D<T> = AnimatedValue<T, AnimationVector4D>
+
 /**
  * This is the base class for [AnimatedValue]. It contains all the functionality of AnimatedValue.
  * It is intended to be used as a base class for the other classes (such as [AnimatedFloat] to build
  * on top of.
  *
+ * Animations in this class allow and anticipate the animation target to change frequently. When
+ * the target changes as the animation is in-flight, the animation is expected to make a continuous
+ * transition to the new target.
+ *
  * @param valueHolder A value holder whose value gets updated by [BaseAnimatedValue] on every
  *                    animation frame.
  */
-sealed class BaseAnimatedValue<T>(private val valueHolder: ValueHolder<T>) :
-    DynamicTargetAnimation<T> {
+sealed class BaseAnimatedValue<T, V : AnimationVector>(private val valueHolder: ValueHolder<T, V>) {
 
     /**
      * Creates a [BaseAnimatedValue] instance that starts at the given value, and uses the given
      * value interpolator
      *
      * @param initVal Initial value of the [BaseAnimatedValue]
-     * @param valueInterpolator The value interpolator used to interpolate two values of type [T]
      */
     constructor(
         initVal: T,
-        valueInterpolator: (T, T, Float) -> T
-    ) : this(ValueHolderImpl<T>(initVal, valueInterpolator))
+        typeConverter: TwoWayConverter<T, V>
+    ) : this(ValueHolderImpl(initVal, typeConverter))
 
-    override var value: T
-        internal set(newVal: T) {
+    /**
+     * Current value of the animation.
+     */
+    var value: T
+        internal set(newVal) {
             valueHolder.value = newVal
         }
         get() = valueHolder.value
 
-    override var isRunning: Boolean = false
+    /**
+     * Indicates whether the animation is running.
+     */
+    var isRunning: Boolean = false
         internal set
 
-    override var targetValue: T = valueHolder.value
+    /**
+     * The target of the current animation. This target will not be the same as the value of the
+     * animation, until the animation finishes un-interrupted.
+     */
+    var targetValue: T = valueHolder.value
         internal set
 
-    internal var internalVelocity: Float = 0f
+    /**
+     * Velocity of the animation. The velocity will be of [AnimationVector1D], [AnimationVector2D],
+     * [AnimationVector3D], or [AnimationVector4D] type.
+     */
+    internal var velocityVector: V = valueHolder.typeConverter.createNewVector()
+
+    internal val typeConverter: TwoWayConverter<T, V> = valueHolder.typeConverter
     internal var onEnd: ((AnimationEndReason, T) -> Unit)? = null
-    private lateinit var anim: AnimationWrapper<T>
+    private lateinit var anim: AnimationWrapper<T, V>
     private var startTime: Long = Unset
     // last frame time only gets updated during the animation pulse. It will be reset at the
     // end of the animation.
@@ -73,15 +96,47 @@ sealed class BaseAnimatedValue<T>(private val valueHolder: ValueHolder<T>) :
     }
 
     // TODO: Need a test for animateTo(...) being called with the same target value
-    override fun animateTo(targetValue: T) {
+    /**
+     * Sets the target value, which effectively starts an animation to change the value from [value]
+     * to the target value. If there is already an animation in flight, this method will interrupt
+     * the ongoing animation, and start a new animation from the current value to the new target
+     * value.
+     *
+     * @param targetValue The new value to animate to
+     */
+    fun animateTo(targetValue: T) {
         toValueInternal(targetValue, null, PhysicsBuilder())
     }
 
-    override fun animateTo(targetValue: T, onEnd: (AnimationEndReason, T) -> Unit) {
+    // TODO: merge the 4 animateTo() methods into one with default values when issue around
+    //  erroneous code gen on default value of generic type is fixed:
+    //  https://youtrack.jetbrains.com/issue/KT-28228
+
+    /**
+     * Sets the target value, which effectively starts an animation to change the value from [value]
+     * to the target value. If there is already an animation in flight, this method will interrupt
+     * the ongoing animation, invoke [onEnd] that is associated with that animation, and start
+     * a new animation from the current value to the new target value.
+     *
+     * @param targetValue The new value to animate to
+     * @param onEnd A callback that will be invoked when the animation finished by any reason.
+     */
+    fun animateTo(targetValue: T, onEnd: (AnimationEndReason, T) -> Unit) {
         toValueInternal(targetValue, onEnd, PhysicsBuilder())
     }
 
-    override fun animateTo(
+    /**
+     * Sets the target value, which effectively starts an animation to change the value from [value]
+     * to the target value. If there is already an animation in flight, this method will interrupt
+     * the ongoing animation, invoke [onEnd] that is associated with that animation, and start
+     * a new animation from the current value to the new target value.
+     *
+     * @param targetValue The new value to animate to
+     * @param anim The animation that will be used to animate from the current value to the new
+     *             target value
+     * @param onEnd A callback that will be invoked when the animation finished by any reason.
+     */
+    fun animateTo(
         targetValue: T,
         anim: AnimationBuilder<T>,
         onEnd: (AnimationEndReason, T) -> Unit
@@ -89,7 +144,17 @@ sealed class BaseAnimatedValue<T>(private val valueHolder: ValueHolder<T>) :
         toValueInternal(targetValue, onEnd, anim)
     }
 
-    override fun animateTo(targetValue: T, anim: AnimationBuilder<T>) {
+    /**
+     * Sets the target value, which effectively starts an animation to change the value from [value]
+     * to the target value. If there is already an animation in flight, this method will interrupt
+     * the ongoing animation, invoke [onEnd] that is associated with that animation, and start
+     * a new animation from the current value to the new target value.
+     *
+     * @param targetValue The new value to animate to
+     * @param anim The animation that will be used to animate from the current value to the new
+     *             target value
+     */
+    fun animateTo(targetValue: T, anim: AnimationBuilder<T>) {
         toValueInternal(targetValue, null, anim)
     }
 
@@ -104,27 +169,36 @@ sealed class BaseAnimatedValue<T>(private val valueHolder: ValueHolder<T>) :
 
         this.targetValue = targetValue
         val animationWrapper = TargetBasedAnimationWrapper(
-            value, internalVelocity, targetValue,
-            valueHolder.interpolator, anim.build()
+            value, velocityVector, targetValue, anim.build(typeConverter), typeConverter
         )
 
         if (DEBUG) {
             Log.w(
                 "AnimValue", "To value called: start value: $value," +
-                        "end value: $targetValue, velocity: $internalVelocity"
+                        "end value: $targetValue, velocity: $velocityVector"
             )
         }
         this.onEnd = onEnd
         startAnimation(animationWrapper)
     }
 
-    override fun snapTo(targetValue: T) {
+    /**
+     * Sets the current value to the target value immediately, without any animation.
+     *
+     * @param targetValue The new target value to set [value] to.
+     */
+    open fun snapTo(targetValue: T) {
         stop()
         value = targetValue
         this.targetValue = targetValue
     }
 
-    override fun stop() {
+    /**
+     * Stops any on-going animation. No op if no animation is running. Note that this method does
+     * not skip the animation value to its target value. Rather the animation will be stopped in its
+     * track.
+     */
+    fun stop() {
         if (isRunning) {
             endAnimation(Interrupted)
         }
@@ -147,14 +221,14 @@ sealed class BaseAnimatedValue<T>(private val valueHolder: ValueHolder<T>) :
 
         lastFrameTime = time
         value = anim.getValue(playtime)
-        internalVelocity = anim.getVelocity(playtime)
+        velocityVector = anim.getVelocity(playtime)
         val animationFinished = anim.isFinished(playtime)
         if (!animationFinished) {
             Choreographer.getInstance().postFrameCallback(frameCallback)
             if (DEBUG) {
                 Log.w(
                     "AnimValue",
-                    "value = $value, playtime = $playtime, velocity: $internalVelocity"
+                    "value = $value, playtime = $playtime, velocity: $velocityVector"
                 )
             }
         } else {
@@ -165,7 +239,7 @@ sealed class BaseAnimatedValue<T>(private val valueHolder: ValueHolder<T>) :
         }
     }
 
-    internal fun startAnimation(anim: AnimationWrapper<T>) {
+    internal fun startAnimation(anim: AnimationWrapper<T, V>) {
         this.anim = anim
         // Quick sanity check before officially starting
         if (anim.isFinished(0)) {
@@ -198,7 +272,7 @@ sealed class BaseAnimatedValue<T>(private val valueHolder: ValueHolder<T>) :
         notifyEnded(endReason, value)
         // reset velocity after notifyFinish as we might need to return it in onFinished callback
         // depending on whether or not velocity was involved in the animation
-        internalVelocity = 0f
+        velocityVector.reset()
     }
 }
 
@@ -211,7 +285,12 @@ sealed class BaseAnimatedValue<T>(private val valueHolder: ValueHolder<T>) :
  *
  * @param valueHolder A value holder whose value field will be updated during animations
  */
-class AnimatedValue<T>(valueHolder: ValueHolder<T>) : BaseAnimatedValue<T>(valueHolder)
+class AnimatedValue<T, V : AnimationVector>(
+    valueHolder: ValueHolder<T, V>
+) : BaseAnimatedValue<T, V>(valueHolder) {
+    val velocity: V
+        get() = velocityVector
+}
 
 /**
  * This class inherits most of the functionality from BaseAnimatedValue. In addition, it tracks
@@ -222,16 +301,14 @@ class AnimatedValue<T>(valueHolder: ValueHolder<T>) : BaseAnimatedValue<T>(value
  * @param valueHolder A value holder of Float type whose value field will be updated during
  *                    animations
  */
-class AnimatedFloat(valueHolder: ValueHolder<Float>) : BaseAnimatedValue<Float>(valueHolder) {
-
-    /**
-     * Velocity of the current animation.
-     */
-    var velocity: Float = 0f
-        get() = internalVelocity
+class AnimatedFloat(
+    valueHolder: FloatValueHolder
+) : BaseAnimatedValue<Float, AnimationVector1D>(valueHolder) {
 
     private var min: Float = Float.NEGATIVE_INFINITY
     private var max: Float = Float.POSITIVE_INFINITY
+    val velocity: Float
+        get() = velocityVector.value
 
     /**
      * Sets up the bounds that the animation should be constrained to. Note that when the animation
@@ -269,7 +346,8 @@ class AnimatedFloat(valueHolder: ValueHolder<Float>) : BaseAnimatedValue<Float>(
  * Unlike [AnimatedValue.animateTo] onEnd, this lambda includes 3rd param remainingVelocity,
  * that represents velocity that wasn't consumed after fling finishes.
  */
-typealias OnFlingEnd =
+// TODO: Consolidate onAnimationEnd and onEnd
+typealias OnAnimationEnd =
             (endReason: AnimationEndReason, endValue: Float, remainingVelocity: Float) -> Unit
 
 /**
@@ -285,17 +363,17 @@ typealias OnFlingEnd =
 fun AnimatedFloat.fling(
     startVelocity: Float,
     decay: DecayAnimation = ExponentialDecay(),
-    onEnd: OnFlingEnd? = null
+    onEnd: OnAnimationEnd? = null
 ) {
     if (isRunning) {
         notifyEnded(Interrupted, value)
     }
 
     this.onEnd = { endReason, endValue ->
-        onEnd?.invoke(endReason, endValue, internalVelocity)
+        onEnd?.invoke(endReason, endValue, velocity)
     }
 
-    // start from current value with the given internalVelocity
+    // start from current value with the given velocity
     targetValue = decay.getTarget(value, startVelocity)
     val animWrapper = DecayAnimationWrapper(value, startVelocity, decay)
     startAnimation(animWrapper)
@@ -320,17 +398,17 @@ fun AnimatedFloat.fling(
     startVelocity: Float,
     decay: DecayAnimation = ExponentialDecay(),
     adjustTarget: (Float) -> TargetAnimation?,
-    onEnd: OnFlingEnd? = null
+    onEnd: OnAnimationEnd? = null
 ) {
     if (isRunning) {
         notifyEnded(Interrupted, value)
     }
 
     this.onEnd = { endReason, endValue ->
-        onEnd?.invoke(endReason, endValue, internalVelocity)
+        onEnd?.invoke(endReason, endValue, velocity)
     }
 
-    // start from current value with the given internalVelocity
+    // start from current value with the given velocity
     if (DEBUG) {
         Log.w("AnimFloat", "Calculating target. Value: $value, velocity: $startVelocity")
     }
@@ -347,8 +425,13 @@ fun AnimatedFloat.fling(
         startAnimation(animWrapper)
     } else {
         targetValue = targetAnimation.target
-        val animWrapper = targetAnimation.animation
-            .createWrapper(value, startVelocity, targetAnimation.target, ::lerp)
+        val animWrapper = TargetBasedAnimationWrapper(
+            value,
+            AnimationVector1D(startVelocity),
+            targetAnimation.target,
+            targetAnimation.animation.build(typeConverter),
+            typeConverter
+        )
         startAnimation(animWrapper)
     }
 }

@@ -21,6 +21,7 @@ import androidx.animation.FloatPropKey
 import androidx.animation.InterruptionHandling
 import androidx.animation.LinearEasing
 import androidx.animation.TransitionAnimation
+import androidx.animation.TweenBuilder
 import androidx.animation.createAnimation
 import androidx.animation.transitionDefinition
 import androidx.ui.animation.PxPositionPropKey
@@ -231,13 +232,13 @@ private object RippleTransition {
             interruptionHandling = InterruptionHandling.UNINTERRUPTIBLE
         }
         transition(State.Revealed to State.Finished) {
-            fun <T> toFinished() = tween<T> {
+            fun <T> TweenBuilder<T>.toFinished() {
                 duration = FadeOutDuration.inMilliseconds().toInt()
                 easing = LinearEasing
             }
-            Alpha using toFinished()
-            Radius using toFinished()
-            Center using toFinished()
+            Alpha using tween { toFinished() }
+            Radius using tween { toFinished() }
+            Center using tween { toFinished() }
         }
     }
 }

@@ -17,66 +17,6 @@
 package androidx.animation
 
 /**
- * Dynamic target animation allows and anticipates the animation target to change frequently. When
- * the target changes as the animation is in-flight, the animation is expected to make a continuous
- * transition to the new target.
- */
-interface DynamicTargetAnimation<T> {
-    /**
-     * Current value of the animation.
-     */
-    val value: T
-    /**
-     * Indicates whether the animation is running.
-     */
-    val isRunning: Boolean
-    /**
-     * The target of the current animation. This target will not be the same as the value of the
-     * animation, until the animation finishes un-interrupted.
-     */
-    val targetValue: T
-
-    // TODO: use lambda with default values to combine the following 4 methods when b/134103877
-    //  is fixed
-    fun animateTo(targetValue: T)
-    fun animateTo(
-        targetValue: T,
-        onEnd: (endReason: AnimationEndReason, endValue: T) -> Unit
-    )
-    fun animateTo(targetValue: T, anim: AnimationBuilder<T> = PhysicsBuilder())
-    /**
-     * Sets the target value, which effectively starts an animation to change the value from [value]
-     * to the target value. If there is already an animation in flight, this method will interrupt
-     * the ongoing animation, invoke [onEnd] that is associated with that animation, and start
-     * a new animation from the current value to the new target value.
-     *
-     * @param targetValue The new value to animate to
-     * @param anim The animation that will be used to animate from the current value to the new
-     *             target value
-     * @param onEnd A callback that will be invoked when the animation finished by any reason.
-     */
-    fun animateTo(
-        targetValue: T,
-        anim: AnimationBuilder<T> = PhysicsBuilder(),
-        onEnd: (endReason: AnimationEndReason, endValue: T) -> Unit
-    )
-
-    /**
-     * Sets the current value to the target value immediately, without any animation.
-     *
-     * @param targetValue The new target value to set [value] to.
-     */
-    fun snapTo(targetValue: T)
-
-    /**
-     * Stops any on-going animation. No op if no animation is running. Note that this method does
-     * not skip the animation value to its target value. Rather the animation will be stopped in its
-     * track.
-     */
-    fun stop()
-}
-
-/**
  * TargetAnimation class defines how to animate to a given target position.
  *
  * @param target Target position for the animation to animate to
@@ -93,7 +33,7 @@ data class TargetAnimation(
  */
 enum class AnimationEndReason {
     /**
-     * Animation has successfully reached the [DynamicTargetAnimation.targetValue] value
+     * Animation has successfully reached the [BaseAnimatedValue.targetValue] value
      * and come to stop
      */
     TargetReached,
