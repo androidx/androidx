@@ -33,7 +33,6 @@ import androidx.ui.core.toPx
 import androidx.ui.core.withDensity
 import androidx.ui.layout.AlignmentLineOffset
 import androidx.ui.layout.CenterAlignmentLine
-import androidx.ui.layout.ConstrainedBox
 import androidx.ui.layout.DpConstraints
 import androidx.ui.layout.Wrap
 import org.junit.Assert

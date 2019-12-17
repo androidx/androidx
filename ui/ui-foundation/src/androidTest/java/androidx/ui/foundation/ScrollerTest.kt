@@ -49,9 +49,8 @@ import androidx.ui.graphics.PaintingStyle
 import androidx.ui.graphics.toArgb
 import androidx.ui.layout.Align
 import androidx.ui.layout.Column
-import androidx.ui.layout.ConstrainedBox
 import androidx.ui.layout.Container
-import androidx.ui.layout.DpConstraints
+import androidx.ui.layout.LayoutSize
 import androidx.ui.layout.Row
 import androidx.ui.semantics.Semantics
 import androidx.ui.test.GestureScope
@@ -312,31 +311,31 @@ class ScrollerTest {
     ) {
         // We assume that the height of the device is more than 45 px
         withDensity(composeTestRule.density) {
-            val constraints = DpConstraints.tightConstraints(width.toDp(), height.toDp())
             composeTestRule.runOnUiThread {
                 activity.setContent {
                     Align(alignment = Alignment.TopLeft) {
-                        ConstrainedBox(constraints = constraints) {
-                            VerticalScroller(scrollerPosition = scrollerPosition) {
-                                Column {
-                                    colors.forEach { color ->
-                                        Container(
-                                            height = rowHeight.toDp(),
-                                            width = width.toDp()
-                                        ) {
-                                            Draw { canvas, parentSize ->
-                                                val paint = Paint()
-                                                paint.color = color
-                                                paint.style = PaintingStyle.fill
-                                                canvas.drawRect(parentSize.toRect(), paint)
-                                            }
+                        VerticalScroller(
+                            scrollerPosition = scrollerPosition,
+                            modifier = LayoutSize(width.toDp(), height.toDp())
+                        ) {
+                            Column {
+                                colors.forEach { color ->
+                                    Container(
+                                        height = rowHeight.toDp(),
+                                        width = width.toDp()
+                                    ) {
+                                        Draw { canvas, parentSize ->
+                                            val paint = Paint()
+                                            paint.color = color
+                                            paint.style = PaintingStyle.fill
+                                            canvas.drawRect(parentSize.toRect(), paint)
                                         }
                                     }
                                 }
                             }
-                            Draw { _, _ ->
-                                drawLatch.countDown()
-                            }
+                        }
+                        Draw { _, _ ->
+                            drawLatch.countDown()
                         }
                     }
                 }
@@ -352,31 +351,31 @@ class ScrollerTest {
     ) {
         // We assume that the height of the device is more than 45 px
         withDensity(composeTestRule.density) {
-            val constraints = DpConstraints.tightConstraints(width.toDp(), height.toDp())
             composeTestRule.runOnUiThread {
                 activity.setContent {
                     Align(alignment = Alignment.TopLeft) {
-                        ConstrainedBox(constraints = constraints) {
-                            HorizontalScroller(scrollerPosition = scrollerPosition) {
-                                Row {
-                                    colors.forEach { color ->
-                                        Container(
-                                            width = columnWidth.toDp(),
-                                            height = height.toDp()
-                                        ) {
-                                            Draw { canvas, parentSize ->
-                                                val paint = Paint()
-                                                paint.color = color
-                                                paint.style = PaintingStyle.fill
-                                                canvas.drawRect(parentSize.toRect(), paint)
-                                            }
+                        HorizontalScroller(
+                            scrollerPosition = scrollerPosition,
+                            modifier = LayoutSize(width.toDp(), height.toDp())
+                        ) {
+                            Row {
+                                colors.forEach { color ->
+                                    Container(
+                                        width = columnWidth.toDp(),
+                                        height = height.toDp()
+                                    ) {
+                                        Draw { canvas, parentSize ->
+                                            val paint = Paint()
+                                            paint.color = color
+                                            paint.style = PaintingStyle.fill
+                                            canvas.drawRect(parentSize.toRect(), paint)
                                         }
                                     }
                                 }
                             }
-                            Draw { _, _ ->
-                                drawLatch.countDown()
-                            }
+                        }
+                        Draw { _, _ ->
+                            drawLatch.countDown()
                         }
                     }
                 }

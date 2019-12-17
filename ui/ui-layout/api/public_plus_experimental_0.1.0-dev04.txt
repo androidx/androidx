@@ -45,10 +45,6 @@ package androidx.ui.layout {
     property public final androidx.ui.core.LayoutModifier Start;
   }
 
-  public final class ConstrainedBoxKt {
-    method public static void ConstrainedBox(androidx.ui.layout.DpConstraints constraints, androidx.ui.core.Modifier modifier = Modifier.None, kotlin.jvm.functions.Function0<kotlin.Unit> children);
-  }
-
   public final class ContainerKt {
     method public static void Container(androidx.ui.core.Modifier modifier = Modifier.None, androidx.ui.layout.EdgeInsets padding = androidx.ui.layout.EdgeInsets(0.dp), androidx.ui.core.Alignment alignment = Alignment.Center, boolean expanded = false, androidx.ui.layout.DpConstraints constraints = androidx.ui.layout.DpConstraints(), androidx.ui.core.Dp? width = null, androidx.ui.core.Dp? height = null, kotlin.jvm.functions.Function0<kotlin.Unit> children);
   }

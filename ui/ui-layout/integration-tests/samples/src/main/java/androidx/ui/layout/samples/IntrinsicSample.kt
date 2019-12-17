@@ -25,11 +25,10 @@ import androidx.ui.foundation.shape.RectangleShape
 import androidx.ui.graphics.Color
 import androidx.ui.layout.LayoutAspectRatio
 import androidx.ui.layout.Column
-import androidx.ui.layout.ConstrainedBox
 import androidx.ui.layout.Container
-import androidx.ui.layout.DpConstraints
 import androidx.ui.layout.LayoutExpandedHeight
 import androidx.ui.layout.LayoutExpandedWidth
+import androidx.ui.layout.LayoutSize
 import androidx.ui.layout.MaxIntrinsicHeight
 import androidx.ui.layout.MaxIntrinsicWidth
 import androidx.ui.layout.MinIntrinsicHeight
@@ -38,13 +37,13 @@ import androidx.ui.layout.Row
 import androidx.ui.layout.Wrap
 
 /**
- * Builds a layout containing three [ConstrainedBox] having the same width as the widest one.
+ * Builds a layout containing three [Container] having the same width as the widest one.
  *
  * Here [MinIntrinsicWidth] is adding a speculative width measurement pass for the [Column],
  * whose minimum intrinsic width will correspond to the preferred width of the largest
- * [ConstrainedBox]. Then [MinIntrinsicWidth] will measure the [Column] with tight width, the same
+ * [Container]. Then [MinIntrinsicWidth] will measure the [Column] with tight width, the same
  * as the premeasured minimum intrinsic width, which due to [LayoutExpandedWidth] will force
- * the [ConstrainedBox]s to use the same width.
+ * the [Container]'s to use the same width.
  */
 @Sampled
 @Composable
@@ -52,22 +51,13 @@ fun SameWidthBoxes() {
     Wrap {
         MinIntrinsicWidth {
             Column(LayoutExpandedHeight) {
-                ConstrainedBox(
-                    constraints = DpConstraints.tightConstraints(width = 20.dp, height = 10.dp),
-                    modifier = LayoutExpandedWidth
-                ) {
+                Container(modifier = LayoutExpandedWidth + LayoutSize(20.dp, 10.dp)) {
                     DrawShape(RectangleShape, Color.Gray)
                 }
-                ConstrainedBox(
-                    constraints = DpConstraints.tightConstraints(width = 30.dp, height = 10.dp),
-                    modifier = LayoutExpandedWidth
-                ) {
+                Container(modifier = LayoutExpandedWidth + LayoutSize(30.dp, 10.dp)) {
                     DrawShape(RectangleShape, Color.Blue)
                 }
-                ConstrainedBox(
-                    constraints = DpConstraints.tightConstraints(width = 10.dp, height = 10.dp),
-                    modifier = LayoutExpandedWidth
-                ) {
+                Container(modifier = LayoutExpandedWidth + LayoutSize(10.dp, 10.dp)) {
                     DrawShape(RectangleShape, Color.Magenta)
                 }
             }
@@ -113,7 +103,7 @@ fun MatchParentDividerForText() {
  *
  * Here [MaxIntrinsicWidth] is adding a speculative width measurement pass for the [Column],
  * whose maximum intrinsic width will correspond to the preferred width of the largest
- * [ConstrainedBox]. Then [MaxIntrinsicWidth] will measure the [Column] with tight width, the same
+ * [Container]. Then [MaxIntrinsicWidth] will measure the [Column] with tight width, the same
  * as the premeasured maximum intrinsic width, which due to [LayoutExpandedWidth] modifiers will
  * force the [Container]s to use the same width.
  */

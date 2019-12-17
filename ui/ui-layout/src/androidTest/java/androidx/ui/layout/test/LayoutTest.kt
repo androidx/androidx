@@ -34,11 +34,15 @@ import androidx.ui.core.AlignmentLine
 import androidx.ui.core.Constraints
 import androidx.ui.core.IntPx
 import androidx.ui.core.Layout
+import androidx.ui.core.Modifier
 import androidx.ui.core.coerceIn
+import androidx.ui.core.enforce
 import androidx.ui.core.ipx
 import androidx.ui.core.round
 import androidx.ui.core.setContent
 import androidx.ui.core.toPx
+import androidx.ui.layout.Constraints
+import androidx.ui.layout.DpConstraints
 import org.junit.Assert.assertEquals
 import org.junit.Assert.assertNotNull
 import org.junit.Assert.assertTrue
@@ -185,6 +189,44 @@ open class LayoutTest {
             val placeables = measurables.map { it.measure(Constraints()) }
             layout(0.ipx, 0.ipx) {
                 placeables.forEach { it.place(0.ipx, 0.ipx) }
+            }
+        }
+    }
+
+    @Composable
+    internal fun ConstrainedBox(
+        constraints: DpConstraints,
+        modifier: Modifier = Modifier.None,
+        children: @Composable() () -> Unit
+    ) {
+        Layout(
+            children,
+            modifier = modifier,
+            minIntrinsicWidthMeasureBlock = { measurables, h ->
+                val width = measurables.firstOrNull()?.minIntrinsicWidth(h) ?: 0.ipx
+                width.coerceIn(constraints.minWidth.toIntPx(), constraints.maxWidth.toIntPx())
+            },
+            minIntrinsicHeightMeasureBlock = { measurables, w ->
+                val height = measurables.firstOrNull()?.minIntrinsicHeight(w) ?: 0.ipx
+                height.coerceIn(constraints.minHeight.toIntPx(), constraints.maxHeight.toIntPx())
+            },
+            maxIntrinsicWidthMeasureBlock = { measurables, h ->
+                val width = measurables.firstOrNull()?.maxIntrinsicWidth(h) ?: 0.ipx
+                width.coerceIn(constraints.minWidth.toIntPx(), constraints.maxWidth.toIntPx())
+            },
+            maxIntrinsicHeightMeasureBlock = { measurables, w ->
+                val height = measurables.firstOrNull()?.maxIntrinsicHeight(w) ?: 0.ipx
+                height.coerceIn(constraints.minHeight.toIntPx(), constraints.maxHeight.toIntPx())
+            }
+        ) { measurables, incomingConstraints ->
+            val measurable = measurables.firstOrNull()
+            val childConstraints = Constraints(constraints).enforce(incomingConstraints)
+            val placeable = measurable?.measure(childConstraints)
+
+            val layoutWidth = placeable?.width ?: childConstraints.minWidth
+            val layoutHeight = placeable?.height ?: childConstraints.minHeight
+            layout(layoutWidth, layoutHeight) {
+                placeable?.place(IntPx.Zero, IntPx.Zero)
             }
         }
     }
