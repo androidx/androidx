@@ -708,28 +708,6 @@
     <issue
         id="UnknownNullness"
         message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
-        errorLine1="        public void setTag(Object tag) {"
-        errorLine2="                           ~~~~~~">
-        <location
-            file="src/main/java/androidx/camera/core/SessionConfig.java"
-            line="257"
-            column="28"/>
-    </issue>
-
-    <issue
-        id="UnknownNullness"
-        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
-        errorLine1="        public void setImplementationOptions(Config config) {"
-        errorLine2="                                             ~~~~~~">
-        <location
-            file="src/main/java/androidx/camera/core/SessionConfig.java"
-            line="399"
-            column="46"/>
-    </issue>
-
-    <issue
-        id="UnknownNullness"
-        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
         errorLine1="    public static SurfaceConfig create(ConfigType type, ConfigSize size) {"
         errorLine2="                  ~~~~~~~~~~~~~">
         <location

@@ -28,7 +28,7 @@ import android.util.Size;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
-import androidx.camera.core.ImageOutputConfig.RotationValue;
+import androidx.camera.core.impl.ImageOutputConfig.RotationValue;
 
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;

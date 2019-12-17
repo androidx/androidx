@@ -19,7 +19,7 @@ package androidx.camera.core.impl.utils;
 import android.util.Log;
 import android.view.Surface;
 
-import androidx.camera.core.ImageOutputConfig.RotationValue;
+import androidx.camera.core.impl.ImageOutputConfig.RotationValue;
 
 /**
  * Contains utility methods related to camera orientation.

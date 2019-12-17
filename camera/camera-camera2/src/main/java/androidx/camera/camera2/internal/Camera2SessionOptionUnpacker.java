@@ -21,12 +21,12 @@ import android.hardware.camera2.CaptureRequest;
 import androidx.annotation.NonNull;
 import androidx.camera.camera2.impl.Camera2ImplConfig;
 import androidx.camera.camera2.impl.CameraEventCallbacks;
-import androidx.camera.core.SessionConfig;
-import androidx.camera.core.UseCaseConfig;
 import androidx.camera.core.impl.Config;
 import androidx.camera.core.impl.Config.Option;
 import androidx.camera.core.impl.MutableOptionsBundle;
 import androidx.camera.core.impl.OptionsBundle;
+import androidx.camera.core.impl.SessionConfig;
+import androidx.camera.core.impl.UseCaseConfig;
 
 /**
  * A {@link SessionConfig.OptionUnpacker} implementation for unpacking Camera2 options into a

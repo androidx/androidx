@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2019 The Android Open Source Project
+ * Copyright 2019 The Android Open Source Project
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package androidx.camera.core;
+package androidx.camera.core.impl;
 
 import android.hardware.camera2.CameraCaptureSession;
 import android.hardware.camera2.CameraDevice;
@@ -24,15 +24,7 @@ import android.util.Log;
 import android.view.Surface;
 
 import androidx.annotation.NonNull;
-import androidx.annotation.RestrictTo;
-import androidx.annotation.RestrictTo.Scope;
-import androidx.camera.core.impl.CameraCaptureCallback;
-import androidx.camera.core.impl.CaptureConfig;
-import androidx.camera.core.impl.Config;
 import androidx.camera.core.impl.Config.Option;
-import androidx.camera.core.impl.DeferrableSurface;
-import androidx.camera.core.impl.MultiValueSet;
-import androidx.camera.core.impl.MutableOptionsBundle;
 
 import java.util.ArrayList;
 import java.util.Collection;
@@ -48,10 +40,7 @@ import java.util.Set;
  * <p>The SessionConfig contains all the {@link android.hardware.camera2} parameters that are
  * required to initialize a {@link android.hardware.camera2.CameraCaptureSession} and issue a {@link
  * CaptureRequest}.
- *
- * @hide
  */
-@RestrictTo(Scope.LIBRARY_GROUP)
 public final class SessionConfig {
 
     /** The set of {@link Surface} that data from the camera will be put into. */
@@ -167,10 +156,7 @@ public final class SessionConfig {
 
     /**
      * Callback for errors that occur when accessing the session config.
-     *
-     * @hide
      */
-    @RestrictTo(Scope.LIBRARY_GROUP)
     public interface ErrorListener {
         /**
          * Called when an error has occurred.
@@ -186,10 +172,7 @@ public final class SessionConfig {
      *
      * <p>TODO(b/120949879): This will likely be removed once SessionConfig is refactored to
      * remove camera2 dependencies.
-     *
-     * @hide
      */
-    @RestrictTo(Scope.LIBRARY_GROUP)
     public interface OptionUnpacker {
 
         /**
@@ -203,10 +186,7 @@ public final class SessionConfig {
 
     /**
      * Base builder for easy modification/rebuilding of a {@link SessionConfig}.
-     *
-     * @hide
      */
-    @RestrictTo(Scope.LIBRARY_GROUP)
     static class BaseBuilder {
         final Set<DeferrableSurface> mSurfaces = new HashSet<>();
         final CaptureConfig.Builder mCaptureConfigBuilder = new CaptureConfig.Builder();
@@ -218,10 +198,7 @@ public final class SessionConfig {
 
     /**
      * Builder for easy modification/rebuilding of a {@link SessionConfig}.
-     *
-     * @hide
      */
-    @RestrictTo(Scope.LIBRARY_GROUP)
     public static class Builder extends BaseBuilder {
         /**
          * Creates a {@link Builder} from a {@link UseCaseConfig}.
@@ -259,7 +236,7 @@ public final class SessionConfig {
         /**
          * Set the tag of the SessionConfig. For tracking the source.
          */
-        public void setTag(Object tag) {
+        public void setTag(@NonNull Object tag) {
             mCaptureConfigBuilder.setTag(tag);
         }
 
@@ -401,7 +378,7 @@ public final class SessionConfig {
         }
 
         /** Set the {@link Config} for options that are implementation specific. */
-        public void setImplementationOptions(Config config) {
+        public void setImplementationOptions(@NonNull Config config) {
             mCaptureConfigBuilder.setImplementationOptions(config);
         }
 
@@ -429,10 +406,7 @@ public final class SessionConfig {
     /**
      * Builder for combining multiple instances of {@link SessionConfig}. This will check if all
      * the parameters for the {@link SessionConfig} are compatible with each other
-     *
-     * @hide
      */
-    @RestrictTo(Scope.LIBRARY_GROUP)
     public static final class ValidatingBuilder extends BaseBuilder {
         private static final String TAG = "ValidatingBuilder";
         private final List<CameraDevice.StateCallback> mDeviceStateCallbacks = new ArrayList<>();

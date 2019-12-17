@@ -24,8 +24,8 @@ import android.os.Build;
 import androidx.camera.camera2.impl.Camera2ImplConfig;
 import androidx.camera.core.DeviceProperties;
 import androidx.camera.core.ImageCapture;
-import androidx.camera.core.ImageCaptureConfig;
 import androidx.camera.core.impl.CaptureConfig;
+import androidx.camera.core.impl.ImageCaptureConfig;
 import androidx.test.filters.SmallTest;
 
 import org.junit.Before;

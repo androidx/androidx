@@ -38,10 +38,10 @@ import androidx.camera.camera2.internal.annotation.CameraExecutor;
 import androidx.camera.core.FocusMeteringAction;
 import androidx.camera.core.FocusMeteringResult;
 import androidx.camera.core.ImageCapture;
-import androidx.camera.core.SessionConfig;
 import androidx.camera.core.impl.CameraControlInternal;
 import androidx.camera.core.impl.CaptureConfig;
 import androidx.camera.core.impl.Config;
+import androidx.camera.core.impl.SessionConfig;
 import androidx.core.util.Preconditions;
 
 import com.google.common.util.concurrent.ListenableFuture;
@@ -91,7 +91,7 @@ final class Camera2CameraControl implements CameraControlInternal {
      * @param executor              Camera executor for synchronizing and offloading all commands.
      * @param controlUpdateCallback Listener which will be notified of control changes.
      */
-    public Camera2CameraControl(@NonNull CameraCharacteristics cameraCharacteristics,
+    Camera2CameraControl(@NonNull CameraCharacteristics cameraCharacteristics,
             @NonNull ScheduledExecutorService scheduler,
             @NonNull @CameraExecutor Executor executor,
             @NonNull ControlUpdateCallback controlUpdateCallback) {

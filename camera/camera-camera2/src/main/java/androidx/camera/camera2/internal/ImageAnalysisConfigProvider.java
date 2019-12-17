@@ -26,10 +26,10 @@ import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.camera.core.CameraX;
 import androidx.camera.core.ImageAnalysis;
-import androidx.camera.core.ImageAnalysisConfig;
-import androidx.camera.core.SessionConfig;
 import androidx.camera.core.impl.CaptureConfig;
 import androidx.camera.core.impl.ConfigProvider;
+import androidx.camera.core.impl.ImageAnalysisConfig;
+import androidx.camera.core.impl.SessionConfig;
 
 /**
  * Provides defaults for {@link ImageAnalysisConfig} in the Camera2 implementation.

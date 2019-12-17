@@ -33,7 +33,7 @@ import androidx.camera.core.UseCase;
 import androidx.camera.core.UseCase.StateChangeCallback;
 import androidx.camera.core.VideoCapture;
 import androidx.camera.core.VideoCapture.OnVideoSavedCallback;
-import androidx.camera.core.VideoCaptureConfig;
+import androidx.camera.core.impl.VideoCaptureConfig;
 import androidx.camera.core.impl.utils.executor.CameraXExecutors;
 import androidx.camera.testing.CameraUtil;
 import androidx.camera.testing.fakes.FakeLifecycleOwner;

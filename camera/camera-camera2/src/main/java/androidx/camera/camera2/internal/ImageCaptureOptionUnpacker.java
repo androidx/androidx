@@ -25,9 +25,9 @@ import androidx.camera.camera2.impl.Camera2ImplConfig;
 import androidx.camera.core.DeviceProperties;
 import androidx.camera.core.ImageCapture;
 import androidx.camera.core.ImageCapture.CaptureMode;
-import androidx.camera.core.ImageCaptureConfig;
-import androidx.camera.core.UseCaseConfig;
 import androidx.camera.core.impl.CaptureConfig;
+import androidx.camera.core.impl.ImageCaptureConfig;
+import androidx.camera.core.impl.UseCaseConfig;
 
 /**
  * A {@link Camera2CaptureOptionUnpacker} extender for unpacking ImageCapture options into

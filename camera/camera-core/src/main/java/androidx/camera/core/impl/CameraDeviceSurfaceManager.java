@@ -22,7 +22,6 @@ import android.util.Size;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
-import androidx.camera.core.ImageOutputConfig;
 import androidx.camera.core.UseCase;
 
 import java.util.List;

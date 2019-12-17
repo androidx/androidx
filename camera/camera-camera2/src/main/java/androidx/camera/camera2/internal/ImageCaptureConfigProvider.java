@@ -26,10 +26,10 @@ import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.camera.core.CameraX;
 import androidx.camera.core.ImageCapture;
-import androidx.camera.core.ImageCaptureConfig;
-import androidx.camera.core.SessionConfig;
 import androidx.camera.core.impl.CaptureConfig;
 import androidx.camera.core.impl.ConfigProvider;
+import androidx.camera.core.impl.ImageCaptureConfig;
+import androidx.camera.core.impl.SessionConfig;
 
 /**
  * Provides defaults for {@link ImageCaptureConfig} in the Camera2 implementation.
