@@ -18,12 +18,13 @@ package androidx.camera.camera2.internal;
 
 import android.hardware.camera2.CaptureRequest;
 
+import androidx.annotation.NonNull;
 import androidx.camera.camera2.impl.Camera2ImplConfig;
-import androidx.camera.core.CaptureConfig;
 import androidx.camera.core.Config;
 import androidx.camera.core.Config.Option;
 import androidx.camera.core.OptionsBundle;
 import androidx.camera.core.UseCaseConfig;
+import androidx.camera.core.impl.CaptureConfig;
 
 /**
  * A {@link CaptureConfig.OptionUnpacker} implementation for unpacking Camera2 options into
@@ -34,7 +35,8 @@ class Camera2CaptureOptionUnpacker implements CaptureConfig.OptionUnpacker {
     static final Camera2CaptureOptionUnpacker INSTANCE = new Camera2CaptureOptionUnpacker();
 
     @Override
-    public void unpack(UseCaseConfig<?> config, final CaptureConfig.Builder builder) {
+    public void unpack(@NonNull UseCaseConfig<?> config,
+            @NonNull final CaptureConfig.Builder builder) {
         CaptureConfig defaultCaptureConfig =
                 config.getDefaultCaptureConfig(/*valueIfMissing=*/ null);
 
