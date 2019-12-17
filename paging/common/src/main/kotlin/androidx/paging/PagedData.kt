@@ -16,9 +16,7 @@
 
 package androidx.paging
 
-import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.flow.Flow
-import kotlinx.coroutines.flow.flatMapLatest
 import kotlinx.coroutines.flow.map
 
 /**
@@ -90,12 +88,4 @@ class PagedData<T : Any> internal constructor(
         flow = flow.insertSeparators(generator),
         hintReceiver = hintReceiver
     )
-
-    @ExperimentalCoroutinesApi
-    internal fun <T : Any> Flow<PagedData<T>>.toPagingState(): Flow<PagingState<T>> {
-        return flatMapLatest {
-            val producer = PagingState.Producer<T>(it.hintReceiver)
-            it.flow.map { pageEvent -> producer.processEvent(pageEvent) }
-        }
-    }
 }

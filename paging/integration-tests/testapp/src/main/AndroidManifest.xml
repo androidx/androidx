@@ -29,6 +29,14 @@
             </intent-filter>
         </activity>
         <activity
+            android:name=".v3.V3Activity"
+            android:label="V3">
+            <intent-filter>
+                <action android:name="android.intent.action.MAIN" />
+                <category android:name="android.intent.category.LAUNCHER" />
+            </intent-filter>
+        </activity>
+        <activity
                 android:name=".room.RoomPagedListActivity"
                 android:label="Room Live PagedList"
                 android:theme="@style/Theme.AppCompat">
