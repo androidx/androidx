@@ -30,6 +30,7 @@ import android.view.ViewGroup;
 import androidx.test.filters.MediumTest;
 import androidx.transition.test.R;
 
+import org.junit.Ignore;
 import org.junit.Test;
 
 @MediumTest
@@ -49,6 +50,7 @@ public class PrevTransitionStoppedTest extends BaseTransitionTest {
         };
     }
 
+    @Ignore
     @Test
     public void testPrevTransitionStopped() throws Throwable {
         final Scene[] scenes = new Scene[2];
