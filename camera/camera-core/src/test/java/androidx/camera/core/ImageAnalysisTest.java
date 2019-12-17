@@ -27,6 +27,7 @@ import android.os.Build;
 import android.os.Handler;
 import android.os.HandlerThread;
 
+import androidx.camera.core.impl.CameraFactory;
 import androidx.camera.core.impl.utils.executor.CameraXExecutors;
 import androidx.camera.testing.fakes.FakeAppConfig;
 import androidx.camera.testing.fakes.FakeCamera;

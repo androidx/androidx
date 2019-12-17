@@ -30,13 +30,13 @@ import androidx.camera.camera2.internal.util.SemaphoreReleasingCamera2Callbacks.
 import androidx.camera.camera2.internal.util.SemaphoreReleasingCamera2Callbacks.SessionStateCallback;
 import androidx.camera.camera2.interop.Camera2Interop;
 import androidx.camera.camera2.interop.ExperimentalCamera2Interop;
-import androidx.camera.core.CameraFactory;
-import androidx.camera.core.CameraRepository;
 import androidx.camera.core.CameraSelector;
 import androidx.camera.core.ImmediateSurface;
 import androidx.camera.core.SessionConfig;
 import androidx.camera.core.UseCaseConfig;
 import androidx.camera.core.UseCaseGroup;
+import androidx.camera.core.impl.CameraFactory;
+import androidx.camera.core.impl.CameraRepository;
 import androidx.camera.testing.CameraUtil;
 import androidx.camera.testing.fakes.FakeUseCase;
 import androidx.camera.testing.fakes.FakeUseCaseConfig;
@@ -56,7 +56,7 @@ import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.TimeUnit;
 
 /**
- * Contains tests for {@link androidx.camera.core.CameraRepository} which require an actual
+ * Contains tests for {@link CameraRepository} which require an actual
  * implementation to run.
  */
 @LargeTest
