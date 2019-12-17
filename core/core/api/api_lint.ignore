@@ -2131,6 +2131,10 @@ StreamFiles: androidx.core.util.AtomicFile#AtomicFile(java.io.File):
     Methods accepting `File` should also accept `FileDescriptor` or streams: constructor androidx.core.util.AtomicFile(java.io.File)
 
 
+TopLevelBuilder: androidx.core.app.TaskStackBuilder:
+    Builder should be defined as inner class: androidx.core.app.TaskStackBuilder
+
+
 VisiblySynchronized: androidx.core.os.CancellationSignal#cancel():
     Internal locks must not be exposed (synchronizing on this or class is still externally observable): method androidx.core.os.CancellationSignal.cancel()
 VisiblySynchronized: androidx.core.os.CancellationSignal#getCancellationSignalObject():

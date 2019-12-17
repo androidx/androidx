@@ -39,3 +39,17 @@ SetterReturnsThis: androidx.navigation.NavOptionsBuilder#setPopUpTo(int):
     Methods must return the builder object (return type androidx.navigation.NavOptionsBuilder instead of void): method androidx.navigation.NavOptionsBuilder.setPopUpTo(int)
 SetterReturnsThis: androidx.navigation.PopUpToBuilder#setInclusive(boolean):
     Methods must return the builder object (return type androidx.navigation.PopUpToBuilder instead of void): method androidx.navigation.PopUpToBuilder.setInclusive(boolean)
+
+
+TopLevelBuilder: androidx.navigation.AnimBuilder:
+    Builder should be defined as inner class: androidx.navigation.AnimBuilder
+TopLevelBuilder: androidx.navigation.NavActionBuilder:
+    Builder should be defined as inner class: androidx.navigation.NavActionBuilder
+TopLevelBuilder: androidx.navigation.NavArgumentBuilder:
+    Builder should be defined as inner class: androidx.navigation.NavArgumentBuilder
+TopLevelBuilder: androidx.navigation.NavDestinationBuilder:
+    Builder should be defined as inner class: androidx.navigation.NavDestinationBuilder
+TopLevelBuilder: androidx.navigation.NavOptionsBuilder:
+    Builder should be defined as inner class: androidx.navigation.NavOptionsBuilder
+TopLevelBuilder: androidx.navigation.PopUpToBuilder:
+    Builder should be defined as inner class: androidx.navigation.PopUpToBuilder

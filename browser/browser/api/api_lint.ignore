@@ -85,3 +85,7 @@ PublicTypedef: androidx.browser.customtabs.CustomTabsService.Result:
 
 StreamFiles: androidx.browser.customtabs.TrustedWebUtils#transferSplashImage(android.content.Context, java.io.File, String, String, androidx.browser.customtabs.CustomTabsSession):
     Methods accepting `File` should also accept `FileDescriptor` or streams: method androidx.browser.customtabs.TrustedWebUtils.transferSplashImage(android.content.Context,java.io.File,String,String,androidx.browser.customtabs.CustomTabsSession)
+
+
+TopLevelBuilder: androidx.browser.trusted.TrustedWebActivityIntentBuilder:
+    Builder should be defined as inner class: androidx.browser.trusted.TrustedWebActivityIntentBuilder

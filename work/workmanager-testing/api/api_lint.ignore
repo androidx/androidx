@@ -19,3 +19,7 @@ SetterReturnsThis: androidx.work.testing.TestListenableWorkerBuilder#setTriggere
     Methods must return the builder object (return type androidx.work.testing.TestListenableWorkerBuilder<W> instead of androidx.work.testing.TestListenableWorkerBuilder): method androidx.work.testing.TestListenableWorkerBuilder.setTriggeredContentUris(java.util.List<android.net.Uri>)
 SetterReturnsThis: androidx.work.testing.TestListenableWorkerBuilder#setWorkerFactory(androidx.work.WorkerFactory):
     Methods must return the builder object (return type androidx.work.testing.TestListenableWorkerBuilder<W> instead of androidx.work.testing.TestListenableWorkerBuilder): method androidx.work.testing.TestListenableWorkerBuilder.setWorkerFactory(androidx.work.WorkerFactory)
+
+
+TopLevelBuilder: androidx.work.testing.TestListenableWorkerBuilder:
+    Builder should be defined as inner class: androidx.work.testing.TestListenableWorkerBuilder
