@@ -45,7 +45,6 @@ class FragmentFinishEarlyTest {
         val activity = activityRule.launchActivity(null)
 
         assertThat(activity.onDestroyLatch.await(1000, TimeUnit.MILLISECONDS)).isTrue()
-        assertThat(activity.fragment.activityDestroyed).isFalse()
     }
 }
 
@@ -54,7 +53,7 @@ class FragmentFinishEarlyTest {
  */
 class FragmentFinishEarlyTestActivity : FragmentActivity() {
     val onDestroyLatch = CountDownLatch(1)
-    val fragment = AssertNotDestroyed()
+    val fragment = StrictFragment()
 
     public override fun onCreate(icicle: Bundle?) {
         super.onCreate(icicle)
@@ -67,13 +66,5 @@ class FragmentFinishEarlyTestActivity : FragmentActivity() {
     override fun onDestroy() {
         super.onDestroy()
         onDestroyLatch.countDown()
-    }
-
-    class AssertNotDestroyed : Fragment() {
-        var activityDestroyed: Boolean = false
-        override fun onActivityCreated(savedInstanceState: Bundle?) {
-            super.onActivityCreated(savedInstanceState)
-            activityDestroyed = requireActivity().isDestroyed
-        }
     }
 }
