@@ -21,6 +21,7 @@ import static com.google.common.truth.Truth.assertThat;
 import android.os.Build;
 
 import androidx.annotation.Nullable;
+import androidx.camera.core.impl.ExtendableUseCaseConfigFactory;
 import androidx.camera.testing.fakes.FakeUseCase;
 import androidx.camera.testing.fakes.FakeUseCaseConfig;
 import androidx.test.filters.SmallTest;

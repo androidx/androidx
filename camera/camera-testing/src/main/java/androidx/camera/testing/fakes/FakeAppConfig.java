@@ -20,8 +20,8 @@ import androidx.annotation.NonNull;
 import androidx.camera.core.CameraFactory;
 import androidx.camera.core.CameraSelector;
 import androidx.camera.core.CameraXConfig;
-import androidx.camera.core.ExtendableUseCaseConfigFactory;
 import androidx.camera.core.impl.CameraDeviceSurfaceManager;
+import androidx.camera.core.impl.ExtendableUseCaseConfigFactory;
 
 /**
  * Convenience class for generating a fake {@link CameraXConfig}.
