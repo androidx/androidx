@@ -44,6 +44,7 @@ import androidx.annotation.RestrictTo.Scope;
 import androidx.camera.core.ImageOutputConfig.RotationValue;
 import androidx.camera.core.impl.CameraInfoInternal;
 import androidx.camera.core.impl.DeferrableSurface;
+import androidx.camera.core.impl.ImmediateSurface;
 import androidx.camera.core.impl.utils.executor.CameraXExecutors;
 
 import java.io.File;

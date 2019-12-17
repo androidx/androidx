@@ -27,6 +27,7 @@ import android.view.Surface;
 import androidx.camera.core.Config.Option;
 import androidx.camera.core.impl.CameraCaptureCallback;
 import androidx.camera.core.impl.DeferrableSurface;
+import androidx.camera.core.impl.ImmediateSurface;
 import androidx.camera.core.impl.MutableOptionsBundle;
 import androidx.camera.testing.DeferrableSurfacesUtil;
 import androidx.camera.testing.fakes.FakeMultiValueSet;
