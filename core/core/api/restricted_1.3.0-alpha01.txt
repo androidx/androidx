@@ -1549,7 +1549,7 @@ package androidx.core.location {
     method @FloatRange(from=0, to=360) public abstract float getAzimuthDegrees(@IntRange(from=0) int);
     method @FloatRange(from=0) public abstract float getCarrierFrequencyHz(@IntRange(from=0) int);
     method @FloatRange(from=0, to=63) public abstract float getCn0DbHz(@IntRange(from=0) int);
-    method public abstract int getConstellationType(@IntRange(from=0) int);
+    method @androidx.core.location.GnssStatusCompat.ConstellationType public abstract int getConstellationType(@IntRange(from=0) int);
     method @FloatRange(from=0xffffffa6, to=90) public abstract float getElevationDegrees(@IntRange(from=0) int);
     method @IntRange(from=0) public abstract int getSatelliteCount();
     method @IntRange(from=1, to=200) public abstract int getSvid(@IntRange(from=0) int);
@@ -1576,6 +1576,7 @@ package androidx.core.location {
     method public void onStarted();
     method public void onStopped();
   }
+
 
   public final class LocationManagerCompat {
     method public static boolean isLocationEnabled(android.location.LocationManager);
