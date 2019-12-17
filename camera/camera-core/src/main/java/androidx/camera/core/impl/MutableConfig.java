@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2019 The Android Open Source Project
+ * Copyright 2019 The Android Open Source Project
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -14,19 +14,17 @@
  * limitations under the License.
  */
 
-package androidx.camera.core;
+package androidx.camera.core.impl;
 
+import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
-import androidx.annotation.RestrictTo;
-import androidx.annotation.RestrictTo.Scope;
+import androidx.camera.core.Config;
 
 /**
  * MutableConfig is a {@link Config} that can be modified.
  *
  * <p>MutableConfig is the interface used to create immutable Config objects.
- * @hide
  */
-@RestrictTo(Scope.LIBRARY_GROUP)
 public interface MutableConfig extends Config {
 
     /**
@@ -38,7 +36,7 @@ public interface MutableConfig extends Config {
      * @param value    The value to insert for this option.
      * @param <ValueT> The type of the value being inserted.
      */
-    <ValueT> void insertOption(Option<ValueT> opt, ValueT value);
+    <ValueT> void insertOption(@NonNull Option<ValueT> opt, @Nullable ValueT value);
 
     /**
      * Removes an option from the configuration if it exists.
@@ -49,5 +47,5 @@ public interface MutableConfig extends Config {
      * option did not exist in this configuration.
      */
     @Nullable
-    <ValueT> ValueT removeOption(Option<ValueT> opt);
+    <ValueT> ValueT removeOption(@NonNull Option<ValueT> opt);
 }

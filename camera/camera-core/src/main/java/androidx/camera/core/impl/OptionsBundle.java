@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2019 The Android Open Source Project
+ * Copyright 2019 The Android Open Source Project
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -14,12 +14,11 @@
  * limitations under the License.
  */
 
-package androidx.camera.core;
+package androidx.camera.core.impl;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
-import androidx.annotation.RestrictTo;
-import androidx.annotation.RestrictTo.Scope;
+import androidx.camera.core.Config;
 
 import java.util.Collections;
 import java.util.Comparator;
@@ -32,10 +31,7 @@ import java.util.TreeMap;
  *
  * <p>OptionsBundle is a collection of {@link Config.Option}s and their values which can be
  * queried based on exact {@link Config.Option} objects or based on Option ids.
- *
- * @hide
  */
-@RestrictTo(Scope.LIBRARY_GROUP)
 public class OptionsBundle implements Config {
 
     private static final OptionsBundle EMPTY_BUNDLE =

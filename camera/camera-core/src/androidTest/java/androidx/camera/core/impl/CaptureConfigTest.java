@@ -26,7 +26,6 @@ import android.view.Surface;
 import androidx.annotation.NonNull;
 import androidx.camera.core.Config;
 import androidx.camera.core.Config.Option;
-import androidx.camera.core.MutableOptionsBundle;
 import androidx.camera.core.SessionConfig;
 import androidx.camera.testing.DeferrableSurfacesUtil;
 import androidx.test.ext.junit.runners.AndroidJUnit4;

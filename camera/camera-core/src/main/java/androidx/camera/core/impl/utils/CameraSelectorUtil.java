@@ -23,10 +23,10 @@ import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.camera.core.CameraSelector;
 import androidx.camera.core.Config;
-import androidx.camera.core.MutableOptionsBundle;
-import androidx.camera.core.OptionsBundle;
 import androidx.camera.core.impl.CameraDeviceConfig;
 import androidx.camera.core.impl.CameraIdFilter;
+import androidx.camera.core.impl.MutableOptionsBundle;
+import androidx.camera.core.impl.OptionsBundle;
 import androidx.camera.core.internal.CameraIdFilterSet;
 
 import java.util.Set;

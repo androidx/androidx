@@ -32,6 +32,7 @@ import androidx.camera.core.impl.CameraIdFilter;
 import androidx.camera.core.impl.CaptureConfig;
 import androidx.camera.core.impl.CaptureProcessor;
 import androidx.camera.core.impl.CaptureStage;
+import androidx.camera.core.impl.OptionsBundle;
 
 import java.io.File;
 import java.util.List;
