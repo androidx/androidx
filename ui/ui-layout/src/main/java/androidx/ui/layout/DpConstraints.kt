@@ -16,6 +16,7 @@
 
 package androidx.ui.layout
 
+import androidx.compose.Immutable
 import androidx.ui.core.Constraints
 import androidx.ui.core.DensityScope
 import androidx.ui.core.Dp
@@ -29,6 +30,7 @@ import androidx.ui.core.isFinite
  * They are used in the APIs of certain layout models such as [Container],
  * and will be translated to [Constraints] before being used by the core measuring and layout steps.
  */
+@Immutable
 data class DpConstraints(
     val minWidth: Dp = 0.dp,
     val maxWidth: Dp = Dp.Infinity,

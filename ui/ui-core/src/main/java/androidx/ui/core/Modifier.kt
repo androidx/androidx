@@ -16,6 +16,8 @@
 
 package androidx.ui.core
 
+import androidx.compose.Stable
+
 /**
  * An immutable chain of [modifier elements][Modifier.Element] for use with Composables.
  * A Composable that has a `Modifier` can be considered decorated or wrapped by that `Modifier`.
@@ -62,6 +64,7 @@ package androidx.ui.core
  *         }
  *     }
  */
+@Stable
 interface Modifier {
 
     /**
