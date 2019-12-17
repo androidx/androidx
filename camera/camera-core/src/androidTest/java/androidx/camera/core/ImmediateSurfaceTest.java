@@ -23,6 +23,7 @@ import static org.mockito.Mockito.verify;
 
 import android.view.Surface;
 
+import androidx.camera.core.impl.DeferrableSurface;
 import androidx.camera.core.impl.utils.executor.CameraXExecutors;
 import androidx.camera.core.impl.utils.futures.FutureCallback;
 import androidx.camera.core.impl.utils.futures.Futures;
