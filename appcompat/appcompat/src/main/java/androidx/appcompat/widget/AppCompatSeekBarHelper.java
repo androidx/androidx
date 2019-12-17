@@ -20,7 +20,6 @@ import android.content.res.ColorStateList;
 import android.graphics.Canvas;
 import android.graphics.PorterDuff;
 import android.graphics.drawable.Drawable;
-import android.os.Build;
 import android.util.AttributeSet;
 import android.widget.SeekBar;
 
@@ -50,11 +49,9 @@ class AppCompatSeekBarHelper extends AppCompatProgressBarHelper {
 
         TintTypedArray a = TintTypedArray.obtainStyledAttributes(mView.getContext(), attrs,
                 R.styleable.AppCompatSeekBar, defStyleAttr, 0);
-        if (Build.VERSION.SDK_INT >= 29) {
-            mView.saveAttributeDataForStyleable(mView.getContext(),
-                    R.styleable.AppCompatSeekBar, attrs, a.getWrappedTypeArray(),
-                    defStyleAttr, 0);
-        }
+        ViewCompat.saveAttributeDataForStyleable(mView, mView.getContext(),
+                R.styleable.AppCompatSeekBar, attrs, a.getWrappedTypeArray(),
+                defStyleAttr, 0);
         final Drawable drawable = a.getDrawableIfKnown(R.styleable.AppCompatSeekBar_android_thumb);
         if (drawable != null) {
             mView.setThumb(drawable);

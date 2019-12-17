@@ -48,6 +48,9 @@ android {
     aaptOptions {
         noCompress 'ttf'
     }
+    buildTypes.all {
+        consumerProguardFiles 'proguard-rules.pro'
+    }
 }
 
 androidx {

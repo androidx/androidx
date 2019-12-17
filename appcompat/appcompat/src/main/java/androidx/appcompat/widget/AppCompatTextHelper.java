@@ -38,6 +38,7 @@ import androidx.annotation.Nullable;
 import androidx.annotation.RestrictTo;
 import androidx.appcompat.R;
 import androidx.core.content.res.ResourcesCompat;
+import androidx.core.view.ViewCompat;
 import androidx.core.widget.TextViewCompat;
 
 import java.lang.ref.WeakReference;
@@ -84,11 +85,9 @@ class AppCompatTextHelper {
         // First read the TextAppearance style id
         TintTypedArray a = TintTypedArray.obtainStyledAttributes(context, attrs,
                 R.styleable.AppCompatTextHelper, defStyleAttr, 0);
-        if (Build.VERSION.SDK_INT >= 29) {
-            mView.saveAttributeDataForStyleable(mView.getContext(),
-                    R.styleable.AppCompatTextHelper, attrs, a.getWrappedTypeArray(),
-                    defStyleAttr, 0);
-        }
+        ViewCompat.saveAttributeDataForStyleable(mView, mView.getContext(),
+                R.styleable.AppCompatTextHelper, attrs, a.getWrappedTypeArray(),
+                defStyleAttr, 0);
 
         final int ap = a.getResourceId(R.styleable.AppCompatTextHelper_android_textAppearance, -1);
         // Now read the compound drawable and grab any tints

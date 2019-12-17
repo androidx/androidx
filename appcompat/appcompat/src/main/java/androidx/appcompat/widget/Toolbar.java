@@ -238,11 +238,8 @@ public class Toolbar extends ViewGroup {
         // Need to use getContext() here so that we use the themed context
         final TintTypedArray a = TintTypedArray.obtainStyledAttributes(getContext(), attrs,
                 R.styleable.Toolbar, defStyleAttr, 0);
-        if (Build.VERSION.SDK_INT >= 29) {
-            saveAttributeDataForStyleable(
-                    context, R.styleable.Toolbar, attrs,
+        ViewCompat.saveAttributeDataForStyleable(this, context, R.styleable.Toolbar, attrs,
                     a.getWrappedTypeArray(), defStyleAttr, 0);
-        }
 
         mTitleTextAppearance = a.getResourceId(R.styleable.Toolbar_titleTextAppearance, 0);
         mSubtitleTextAppearance = a.getResourceId(R.styleable.Toolbar_subtitleTextAppearance, 0);

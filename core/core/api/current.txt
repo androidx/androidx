@@ -2186,6 +2186,7 @@ package androidx.core.view {
     method public static <T extends android.view.View> T requireViewById(android.view.View, @IdRes int);
     method @Deprecated public static int resolveSizeAndState(int, int, int);
     method public static boolean restoreDefaultFocus(android.view.View);
+    method public static void saveAttributeDataForStyleable(android.view.View, android.content.Context, int[], android.util.AttributeSet?, android.content.res.TypedArray, int, int);
     method public static void setAccessibilityDelegate(android.view.View, androidx.core.view.AccessibilityDelegateCompat!);
     method @UiThread public static void setAccessibilityHeading(android.view.View!, boolean);
     method public static void setAccessibilityLiveRegion(android.view.View, int);
