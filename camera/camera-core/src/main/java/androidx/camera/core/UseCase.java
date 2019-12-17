@@ -378,7 +378,7 @@ public abstract class UseCase {
      */
     @RestrictTo(Scope.LIBRARY_GROUP)
     @CallSuper
-    protected void clear() {
+    public void clear() {
         EventCallback eventCallback = mUseCaseConfig.getUseCaseEventCallback(null);
         if (eventCallback != null) {
             eventCallback.onUnbind();
