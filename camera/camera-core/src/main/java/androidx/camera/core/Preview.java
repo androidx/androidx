@@ -67,6 +67,7 @@ import androidx.camera.core.impl.CaptureProcessor;
 import androidx.camera.core.impl.CaptureStage;
 import androidx.camera.core.impl.utils.Threads;
 import androidx.camera.core.impl.utils.executor.CameraXExecutors;
+import androidx.camera.core.internal.CameraCaptureResultImageInfo;
 import androidx.camera.core.internal.TargetConfig;
 import androidx.core.util.Preconditions;
 
@@ -738,7 +739,6 @@ public class Preview extends UseCase {
          * priority.
          *
          * @param aspectRatio The desired Preview {@link AspectRatio}
-         *
          * @return The current Builder.
          */
         @NonNull

@@ -14,17 +14,20 @@
  * limitations under the License.
  */
 
-package androidx.camera.core;
+package androidx.camera.core.impl;
 
 import static com.google.common.truth.Truth.assertThat;
 
 import android.os.Build;
 
-import androidx.camera.testing.fakes.FakeCameraCaptureResult;
+import androidx.camera.core.ImageInfo;
+import androidx.camera.core.internal.CameraCaptureResultImageInfo;
+import androidx.camera.testing.fakes.FakeImageInfo;
 import androidx.test.filters.SmallTest;
 
 import org.junit.Test;
 import org.junit.runner.RunWith;
+import org.mockito.Mockito;
 import org.robolectric.RobolectricTestRunner;
 import org.robolectric.annotation.Config;
 import org.robolectric.annotation.internal.DoNotInstrument;
@@ -33,14 +36,26 @@ import org.robolectric.annotation.internal.DoNotInstrument;
 @RunWith(RobolectricTestRunner.class)
 @DoNotInstrument
 @Config(minSdk = Build.VERSION_CODES.LOLLIPOP)
-public class CameraCaptureResultImageInfoTest {
-    @Test
-    public void creationSuccess() {
-        long timestamp = 10L;
-        FakeCameraCaptureResult cameraCaptureResult = new FakeCameraCaptureResult();
-        cameraCaptureResult.setTimestamp(timestamp);
-        ImageInfo imageInfo = new CameraCaptureResultImageInfo(cameraCaptureResult);
+public class CameraCaptureResultsTest {
+    private CameraCaptureResult mCameraCaptureResult = Mockito.mock(CameraCaptureResult.class);
 
-        assertThat(imageInfo.getTimestamp()).isEqualTo(timestamp);
+    @Test
+    public void canRetrieveCameraCaptureResult() {
+        ImageInfo imageInfo = new CameraCaptureResultImageInfo(mCameraCaptureResult);
+
+        CameraCaptureResult cameraCaptureResult = CameraCaptureResults.retrieveCameraCaptureResult(
+                imageInfo);
+
+        assertThat(cameraCaptureResult).isSameInstanceAs(mCameraCaptureResult);
+    }
+
+    @Test
+    public void retrieveNullIfNotCameraCaptureResultImageInfo() {
+        ImageInfo imageInfo = new FakeImageInfo();
+
+        CameraCaptureResult cameraCaptureResult = CameraCaptureResults.retrieveCameraCaptureResult(
+                imageInfo);
+
+        assertThat(cameraCaptureResult).isNull();
     }
 }

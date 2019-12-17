@@ -28,6 +28,7 @@ import androidx.annotation.Nullable;
 import androidx.camera.core.impl.CameraCaptureCallback;
 import androidx.camera.core.impl.CameraCaptureResult;
 import androidx.camera.core.impl.utils.executor.CameraXExecutors;
+import androidx.camera.core.internal.CameraCaptureResultImageInfo;
 import androidx.core.util.Preconditions;
 
 import java.util.ArrayList;
@@ -277,7 +278,7 @@ class MetadataImageReader implements ImageReaderProxy, ForwardingImageProxy.OnIm
                     if (mExecutor != null) {
                         mExecutor.execute(
                                 new Runnable() {
-                                     // TODO(b/141958189): Suppressed during upgrade to AGP 3.6.
+                                    // TODO(b/141958189): Suppressed during upgrade to AGP 3.6.
                                     @SuppressWarnings("GuardedBy")
                                     @Override
                                     public void run() {
