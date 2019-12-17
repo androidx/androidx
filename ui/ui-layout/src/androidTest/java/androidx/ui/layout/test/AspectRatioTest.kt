@@ -37,7 +37,6 @@ import androidx.ui.core.Constraints
 import androidx.ui.core.IntPx
 import androidx.ui.core.toPx
 import androidx.ui.layout.AspectRatio
-import androidx.ui.layout.ConstrainedBox
 import androidx.ui.layout.DpConstraints
 import org.junit.Assert.assertEquals
 import org.junit.Assert.assertNotNull

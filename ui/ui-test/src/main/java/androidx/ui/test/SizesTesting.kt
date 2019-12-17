@@ -26,9 +26,10 @@ import androidx.ui.core.PxSize
 import androidx.ui.core.dp
 import androidx.ui.core.round
 import androidx.ui.core.withDensity
-import androidx.ui.layout.ConstrainedBox
 import androidx.ui.layout.DpConstraints
-import androidx.ui.layout.Wrap
+import androidx.ui.layout.LayoutMaxSize
+import androidx.ui.layout.LayoutWrapped
+import androidx.ui.layout.Stack
 import kotlin.math.abs
 
 /**
@@ -52,12 +53,12 @@ fun ComposeTestRule.setContentAndGetPixelSize(
 ): PxSize {
     var realSize: PxSize? = null
     performSetContent {
-        Wrap {
-            ConstrainedBox(constraints = parentConstraints) {
-                OnChildPositioned(onPositioned = { coordinates ->
-                    realSize = coordinates.size
-                }, children = children)
-            }
+        Stack(LayoutWrapped +
+                LayoutMaxSize(parentConstraints.maxWidth, parentConstraints.maxHeight)) {
+            OnChildPositioned(
+                onPositioned = { coordinates -> realSize = coordinates.size },
+                children = children
+            )
         }
     }
     return realSize!!

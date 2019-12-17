@@ -32,7 +32,6 @@ import androidx.ui.core.round
 import androidx.ui.core.toPx
 import androidx.ui.core.withDensity
 import androidx.ui.layout.Align
-import androidx.ui.layout.ConstrainedBox
 import androidx.ui.layout.Container
 import androidx.ui.layout.DpConstraints
 import androidx.ui.layout.EdgeInsets

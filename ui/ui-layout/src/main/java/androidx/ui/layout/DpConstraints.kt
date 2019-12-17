@@ -26,7 +26,7 @@ import androidx.ui.core.isFinite
 
 /**
  * Similar to [Constraints], but with constraint values expressed in [Dp].
- * They are used in the APIs of certain layout models such as [Container] or [ConstrainedBox],
+ * They are used in the APIs of certain layout models such as [Container],
  * and will be translated to [Constraints] before being used by the core measuring and layout steps.
  */
 data class DpConstraints(

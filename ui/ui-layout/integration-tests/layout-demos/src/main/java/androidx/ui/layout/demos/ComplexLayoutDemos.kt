@@ -43,8 +43,6 @@ import androidx.ui.layout.Align
 import androidx.ui.layout.LayoutAlign
 import androidx.ui.layout.AlignmentLineOffset
 import androidx.ui.layout.Column
-import androidx.ui.layout.ConstrainedBox
-import androidx.ui.layout.DpConstraints
 import androidx.ui.layout.LayoutGravity
 import androidx.ui.layout.LayoutPadding
 import androidx.ui.layout.Padding
@@ -169,15 +167,6 @@ fun StackUsage() {
             width = 150.dp,
             height = 150.dp
         )
-    }
-}
-
-@Composable
-fun ConstrainedBoxUsage() {
-    Align(alignment = Alignment.Center) {
-        ConstrainedBox(constraints = DpConstraints.tightConstraints(50.dp, 50.dp)) {
-            SizedRectangle(color = Color(0xFFFF0000))
-        }
     }
 }
 
