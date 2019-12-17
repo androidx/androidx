@@ -19,6 +19,8 @@ package androidx.camera.core;
 import android.graphics.ImageFormat;
 import android.media.ImageReader;
 
+import androidx.camera.core.impl.DeviceProperties;
+
 import com.google.auto.value.AutoValue;
 
 /** Recommends formats for a combination of {@link ImageReader} instances. */

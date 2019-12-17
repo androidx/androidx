@@ -19,17 +19,11 @@ package androidx.camera.core;
 import android.graphics.SurfaceTexture;
 import android.view.Surface;
 
-import androidx.annotation.RestrictTo;
-import androidx.annotation.RestrictTo.Scope;
-
 /**
  * A class that holds a {@link SurfaceTexture}.
  *
  * TODO(b/117519540): maybe merge it into DeferrableSurface.
- *
- * @hide
  */
-@RestrictTo(Scope.LIBRARY_GROUP)
 interface SurfaceHolder {
 
     /**

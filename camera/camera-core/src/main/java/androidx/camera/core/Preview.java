@@ -66,6 +66,7 @@ import androidx.camera.core.impl.CaptureConfig;
 import androidx.camera.core.impl.CaptureProcessor;
 import androidx.camera.core.impl.CaptureStage;
 import androidx.camera.core.impl.ConfigProvider;
+import androidx.camera.core.impl.ImageInfoProcessor;
 import androidx.camera.core.impl.ImageOutputConfig;
 import androidx.camera.core.impl.MutableConfig;
 import androidx.camera.core.impl.MutableOptionsBundle;
