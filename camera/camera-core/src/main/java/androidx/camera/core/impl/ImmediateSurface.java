@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2019 The Android Open Source Project
+ * Copyright 2019 The Android Open Source Project
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -14,14 +14,11 @@
  * limitations under the License.
  */
 
-package androidx.camera.core;
+package androidx.camera.core.impl;
 
 import android.view.Surface;
 
 import androidx.annotation.NonNull;
-import androidx.annotation.RestrictTo;
-import androidx.annotation.RestrictTo.Scope;
-import androidx.camera.core.impl.DeferrableSurface;
 import androidx.camera.core.impl.utils.futures.Futures;
 
 import com.google.common.util.concurrent.ListenableFuture;
@@ -29,9 +26,7 @@ import com.google.common.util.concurrent.ListenableFuture;
 /**
  * A {@link DeferrableSurface} which always returns immediately.
  *
- * @hide
  */
-@RestrictTo(Scope.LIBRARY_GROUP)
 public final class ImmediateSurface extends DeferrableSurface {
     private final Surface mSurface;
 
