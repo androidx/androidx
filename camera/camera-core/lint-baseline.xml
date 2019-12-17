@@ -268,21 +268,10 @@
     <issue
         id="UnknownNullness"
         message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
-        errorLine1="    List&lt;CaptureStage> getCaptureStages();"
-        errorLine2="    ~~~~~~~~~~~~~~~~~~">
-        <location
-            file="src/main/java/androidx/camera/core/CaptureBundle.java"
-            line="35"
-            column="5"/>
-    </issue>
-
-    <issue
-        id="UnknownNullness"
-        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
         errorLine1="    void onOutputSurface(Surface surface, int imageFormat);"
         errorLine2="                         ~~~~~~~">
         <location
-            file="src/main/java/androidx/camera/core/CaptureProcessor.java"
+            file="src/main/java/androidx/camera/core/impl/CaptureProcessor.java"
             line="39"
             column="26"/>
     </issue>
@@ -293,7 +282,7 @@
         errorLine1="    void process(ImageProxyBundle bundle);"
         errorLine2="                 ~~~~~~~~~~~~~~~~">
         <location
-            file="src/main/java/androidx/camera/core/CaptureProcessor.java"
+            file="src/main/java/androidx/camera/core/impl/CaptureProcessor.java"
             line="51"
             column="18"/>
     </issue>
@@ -304,7 +293,7 @@
         errorLine1="    void onResolutionUpdate(Size size);"
         errorLine2="                            ~~~~">
         <location
-            file="src/main/java/androidx/camera/core/CaptureProcessor.java"
+            file="src/main/java/androidx/camera/core/impl/CaptureProcessor.java"
             line="58"
             column="29"/>
     </issue>
@@ -315,7 +304,7 @@
         errorLine1="    CaptureConfig getCaptureConfig();"
         errorLine2="    ~~~~~~~~~~~~~">
         <location
-            file="src/main/java/androidx/camera/core/CaptureStage.java"
+            file="src/main/java/androidx/camera/core/impl/CaptureStage.java"
             line="36"
             column="5"/>
     </issue>
@@ -326,7 +315,7 @@
         errorLine1="        public CaptureConfig getCaptureConfig() {"
         errorLine2="               ~~~~~~~~~~~~~">
         <location
-            file="src/main/java/androidx/camera/core/CaptureStage.java"
+            file="src/main/java/androidx/camera/core/impl/CaptureStage.java"
             line="55"
             column="16"/>
     </issue>
@@ -681,17 +670,6 @@
             file="src/main/java/androidx/camera/core/ImageSaver.java"
             line="158"
             column="43"/>
-    </issue>
-
-    <issue
-        id="UnknownNullness"
-        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
-        errorLine1="        public FailureType getFailureType() {"
-        errorLine2="               ~~~~~~~~~~~">
-        <location
-            file="src/main/java/androidx/camera/core/ImageUtil.java"
-            line="291"
-            column="16"/>
     </issue>
 
     <issue

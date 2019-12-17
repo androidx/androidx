@@ -16,8 +16,10 @@
 
 package androidx.camera.core;
 
+import androidx.annotation.NonNull;
 import androidx.annotation.RestrictTo;
 import androidx.annotation.RestrictTo.Scope;
+import androidx.camera.core.impl.CaptureStage;
 
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -37,7 +39,8 @@ final class CaptureBundles {
     }
 
     /** Returns a {@link CaptureBundle} which contains a list of {@link CaptureStage}. */
-    static CaptureBundle createCaptureBundle(CaptureStage ... captureStages) {
+    @NonNull
+    static CaptureBundle createCaptureBundle(CaptureStage... captureStages) {
         return new CaptureBundleImpl(Arrays.asList(captureStages));
     }
 
