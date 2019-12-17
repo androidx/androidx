@@ -20,7 +20,6 @@ import android.util.Size;
 import android.view.Surface;
 
 import androidx.camera.core.ImageProxy;
-import androidx.camera.core.ImageProxyBundle;
 
 /**
  * A processing step of the image capture pipeline.
