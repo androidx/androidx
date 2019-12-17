@@ -18,6 +18,7 @@ package androidx.camera.core;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.RestrictTo;
+import androidx.camera.core.impl.MutableConfig;
 
 /**
  * Extendable builders are used to add externally defined options that can be passed to the

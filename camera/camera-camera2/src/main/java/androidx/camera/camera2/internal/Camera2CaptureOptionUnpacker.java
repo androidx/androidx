@@ -22,9 +22,9 @@ import androidx.annotation.NonNull;
 import androidx.camera.camera2.impl.Camera2ImplConfig;
 import androidx.camera.core.Config;
 import androidx.camera.core.Config.Option;
-import androidx.camera.core.OptionsBundle;
 import androidx.camera.core.UseCaseConfig;
 import androidx.camera.core.impl.CaptureConfig;
+import androidx.camera.core.impl.OptionsBundle;
 
 /**
  * A {@link CaptureConfig.OptionUnpacker} implementation for unpacking Camera2 options into
