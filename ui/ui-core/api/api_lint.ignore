@@ -141,3 +141,7 @@ MissingBuildMethod: androidx.ui.graphics.vector.PathBuilder:
 
 MissingNullability: androidx.ui.core.PxKt#getMinDimension(androidx.ui.core.PxSize):
     Missing nullability on method `getMinDimension` return
+
+
+TopLevelBuilder: androidx.ui.graphics.vector.PathBuilder:
+    Builder should be defined as inner class: androidx.ui.graphics.vector.PathBuilder

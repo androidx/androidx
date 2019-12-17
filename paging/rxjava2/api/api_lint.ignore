@@ -1,3 +1,7 @@
 // Baseline format: 1.0
 MissingBuildMethod: androidx.paging.RxPagedListBuilder:
     androidx.paging.RxPagedListBuilder does not declare a `build()` method, but builder classes are expected to
+
+
+TopLevelBuilder: androidx.paging.RxPagedListBuilder:
+    Builder should be defined as inner class: androidx.paging.RxPagedListBuilder

@@ -85,3 +85,11 @@ MissingNullability: androidx.slice.builders.SliceAction#createToggle(androidx.re
     Missing nullability on method `createToggle` return
 MissingNullability: androidx.slice.builders.SliceAction#createToggle(androidx.remotecallback.RemoteCallback, androidx.core.graphics.drawable.IconCompat, CharSequence, boolean):
     Missing nullability on method `createToggle` return
+
+
+TopLevelBuilder: androidx.slice.builders.GridRowBuilder:
+    Builder should be defined as inner class: androidx.slice.builders.GridRowBuilder
+TopLevelBuilder: androidx.slice.builders.SelectionBuilder:
+    Builder should be defined as inner class: androidx.slice.builders.SelectionBuilder
+TopLevelBuilder: androidx.slice.builders.TemplateSliceBuilder:
+    Builder should be defined as inner class: androidx.slice.builders.TemplateSliceBuilder
