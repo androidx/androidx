@@ -26,6 +26,8 @@ import androidx.camera.core.impl.CameraControlInternal;
 import androidx.camera.core.impl.CameraDeviceSurfaceManager;
 import androidx.camera.core.impl.CameraIdFilter;
 import androidx.camera.core.impl.CameraInternal;
+import androidx.camera.core.impl.ExtendableUseCaseConfigFactory;
+import androidx.camera.core.impl.UseCaseConfigFactory;
 import androidx.camera.testing.fakes.FakeCamera;
 import androidx.camera.testing.fakes.FakeCameraDeviceSurfaceManager;
 import androidx.camera.testing.fakes.FakeCameraFactory;
