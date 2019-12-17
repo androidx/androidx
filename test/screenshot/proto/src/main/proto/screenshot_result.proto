@@ -34,9 +34,35 @@ message ScreenshotResult {
 
   Status result = 1;
 
-  string image_location_test = 2;
-  string image_location_golden = 3; //actual location if image exists, expected location if missing
-  string image_location_diff = 4;
+  /**
+   * Name of the screenshot artifact taken during the test.
+   */
+  string current_screenshot_file_name = 2;
+
+  /**
+   * Name of the expected/golden image that `current_screenshot_file_name` was compared to, can be
+   * empty if no expected/golden exists
+   */
+  string expected_image_file_name = 3;
+
+  /**
+   * Name of the image containing the diff between `current_screenshot_file_name` and
+   * `expected_image_file_name`, can be empty if no golden was generated yet
+   */
+  string diff_image_file_name = 4;
+
+  /**
+   * Path to the root of the repository that contains the golden images
+   */
+  string repo_root_path = 6;
+
+  /**
+   * Path (relative to `repo_root_path`) used for storing the golden images, this is the image that
+   * should be retrieved, compared to `current_screenshot_file_name` and output as
+   * `expected_image_file_name`, this is also the image that will be updated when the golden needs
+   * to be updated
+   */
+  string location_of_golden_in_repo = 7;
 
   ComparisonStatistics comparison_statistics = 5;
 }
