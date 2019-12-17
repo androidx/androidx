@@ -49,24 +49,25 @@ import kotlinx.coroutines.sync.withLock
  * of [Pager] and its corresponding [PagerState] should be launched within a scope that is
  * cancelled when [PagedSource.invalidate] is called.
  */
-@ExperimentalCoroutinesApi
-@FlowPreview
 internal class Pager<Key : Any, Value : Any>(
     internal val initialKey: Key?,
     private val pagedSource: PagedSource<Key, Value>,
     private val config: PagedList.Config
 ) {
+    @UseExperimental(ExperimentalCoroutinesApi::class)
     private val hintChannel = BroadcastChannel<ViewportHint>(Channel.BUFFERED)
     private var lastHint: ViewportHint? = null
 
     private val stateLock = Mutex()
     private val state = PagerState<Key, Value>(config.maxSize)
 
+    @UseExperimental(ExperimentalCoroutinesApi::class)
     fun addHint(hint: ViewportHint) {
         lastHint = hint
         hintChannel.offer(hint)
     }
 
+    @UseExperimental(ExperimentalCoroutinesApi::class, FlowPreview::class)
     fun create(): Flow<PageEvent<Value>> = channelFlow {
         launch { state.consumeAsFlow().collect { send(it) } }
         state.doInitialLoad()

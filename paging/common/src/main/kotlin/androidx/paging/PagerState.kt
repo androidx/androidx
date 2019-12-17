@@ -23,7 +23,6 @@ import androidx.paging.PageEvent.Insert
 import androidx.paging.PagedList.Config.Companion.MAX_SIZE_UNBOUNDED
 import androidx.paging.PagedSource.LoadResult.Page
 import androidx.paging.PagedSource.LoadResult.Page.Companion.COUNT_UNDEFINED
-import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.FlowPreview
 import kotlinx.coroutines.channels.Channel
 import kotlinx.coroutines.flow.Flow
@@ -32,8 +31,6 @@ import kotlinx.coroutines.flow.consumeAsFlow
 /**
  * Internal state of [Pager] whose updates can be consumed as a [Flow]<[PageEvent]<[Value]>>.
  */
-@FlowPreview
-@ExperimentalCoroutinesApi
 internal class PagerState<Key : Any, Value : Any>(private val maxSize: Int) {
     // TODO: Consider moving the page event channel into Pager
     private val pageEventCh = Channel<PageEvent<Value>>()
@@ -53,16 +50,19 @@ internal class PagerState<Key : Any, Value : Any>(private val maxSize: Int) {
         END to LoadState.Idle
     )
 
+    @UseExperimental(FlowPreview::class)
     fun consumePrependGenerationIdAsFlow(): Flow<Int> {
         prependLoadIdCh.offer(prependLoadId)
         return prependLoadIdCh.consumeAsFlow()
     }
 
+    @UseExperimental(FlowPreview::class)
     fun consumeAppendGenerationIdAsFlow(): Flow<Int> {
         appendLoadIdCh.offer(appendLoadId)
         return appendLoadIdCh.consumeAsFlow()
     }
 
+    @UseExperimental(FlowPreview::class)
     fun consumeAsFlow() = pageEventCh.consumeAsFlow()
 
     suspend fun updateLoadState(loadType: LoadType, loadState: LoadState) {

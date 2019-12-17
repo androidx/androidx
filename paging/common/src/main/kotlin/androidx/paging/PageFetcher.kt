@@ -25,8 +25,7 @@ import kotlinx.coroutines.flow.mapLatest
 import kotlinx.coroutines.flow.onStart
 import kotlinx.coroutines.flow.scan
 
-@ExperimentalCoroutinesApi
-@FlowPreview
+@UseExperimental(ExperimentalCoroutinesApi::class)
 internal class PageFetcher<Key : Any, Value : Any>(
     private val pagedSourceFactory: PagedSourceFactory<Key, Value>,
     private val initialKey: Key?,
@@ -38,6 +37,7 @@ internal class PageFetcher<Key : Any, Value : Any>(
 
     // The object built by paging builder can maintain the scope so that on rotation we don't stop
     // the paging.
+    @UseExperimental(FlowPreview::class)
     val flow = refreshChannel
         .asFlow()
         .onStart {
