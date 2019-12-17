@@ -30,6 +30,7 @@ import android.util.Size;
 
 import androidx.annotation.NonNull;
 import androidx.camera.core.impl.CameraControlInternal;
+import androidx.camera.core.impl.CameraFactory;
 import androidx.camera.core.impl.CameraInfoInternal;
 import androidx.camera.core.impl.CameraInternal;
 import androidx.camera.core.impl.ExtendableUseCaseConfigFactory;
