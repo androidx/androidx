@@ -24,8 +24,8 @@ import android.os.Build;
 import android.util.Size;
 import android.view.Surface;
 
-import androidx.camera.core.ImageProxyBundle;
-import androidx.camera.core.SingleImageProxyBundle;
+import androidx.camera.core.impl.ImageProxyBundle;
+import androidx.camera.core.impl.SingleImageProxyBundle;
 import androidx.camera.extensions.impl.PreviewImageProcessorImpl;
 import androidx.camera.testing.fakes.FakeImageInfo;
 import androidx.camera.testing.fakes.FakeImageProxy;

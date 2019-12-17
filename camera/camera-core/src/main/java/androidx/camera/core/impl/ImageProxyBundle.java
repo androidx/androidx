@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2019 The Android Open Source Project
+ * Copyright 2019 The Android Open Source Project
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -14,10 +14,10 @@
  * limitations under the License.
  */
 
-package androidx.camera.core;
+package androidx.camera.core.impl;
 
 import androidx.annotation.NonNull;
-import androidx.annotation.RestrictTo;
+import androidx.camera.core.ImageProxy;
 
 import com.google.common.util.concurrent.ListenableFuture;
 
@@ -25,9 +25,7 @@ import java.util.List;
 
 /**
  * A set of {@link ImageProxy} which are mapped an identifier.
- * @hide
  */
-@RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
 public interface ImageProxyBundle {
     /**
      * Get a {@link ListenableFuture} for a {@link ImageProxy}.

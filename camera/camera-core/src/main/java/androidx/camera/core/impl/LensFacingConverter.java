@@ -14,18 +14,15 @@
  * limitations under the License.
  */
 
-package androidx.camera.core;
+package androidx.camera.core.impl;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
-import androidx.annotation.RestrictTo;
+import androidx.camera.core.CameraSelector;
 
 /**
  * Helper class that defines certain enum-like methods for {@link CameraSelector.LensFacing}
- *
- * @hide
  */
-@RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
 public class LensFacingConverter {
 
     private LensFacingConverter() {

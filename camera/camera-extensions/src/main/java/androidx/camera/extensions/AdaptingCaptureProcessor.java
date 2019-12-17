@@ -28,9 +28,9 @@ import androidx.camera.core.CameraCaptureResults;
 import androidx.camera.core.ExperimentalGetImage;
 import androidx.camera.core.ImageInfo;
 import androidx.camera.core.ImageProxy;
-import androidx.camera.core.ImageProxyBundle;
 import androidx.camera.core.impl.CameraCaptureResult;
 import androidx.camera.core.impl.CaptureProcessor;
+import androidx.camera.core.impl.ImageProxyBundle;
 import androidx.camera.extensions.impl.CaptureProcessorImpl;
 
 import com.google.common.util.concurrent.ListenableFuture;
