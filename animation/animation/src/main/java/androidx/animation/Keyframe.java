@@ -84,7 +84,7 @@ public abstract class Keyframe<T> implements Cloneable {
      * this keyframe.
      */
     @NonNull
-    public static IntKeyframe ofInt(@FloatRange(from = 0, to = 1) float fraction, int value) {
+    public static Keyframe<Integer> ofInt(@FloatRange(from = 0, to = 1) float fraction, int value) {
         return new IntKeyframe(fraction, value);
     }
 
@@ -101,7 +101,7 @@ public abstract class Keyframe<T> implements Cloneable {
      * of time elapsed of the overall animation duration.
      */
     @NonNull
-    public static IntKeyframe ofInt(@FloatRange(from = 0, to = 1) float fraction) {
+    public static Keyframe<Integer> ofInt(@FloatRange(from = 0, to = 1) float fraction) {
         return new IntKeyframe(fraction);
     }
 
@@ -118,7 +118,8 @@ public abstract class Keyframe<T> implements Cloneable {
      * this keyframe.
      */
     @NonNull
-    public static FloatKeyframe ofFloat(@FloatRange(from = 0, to = 1) float fraction, float value) {
+    public static Keyframe<Float> ofFloat(@FloatRange(from = 0, to = 1) float fraction,
+            float value) {
         return new FloatKeyframe(fraction, value);
     }
 
@@ -135,7 +136,7 @@ public abstract class Keyframe<T> implements Cloneable {
      * of time elapsed of the overall animation duration.
      */
     @NonNull
-    public static FloatKeyframe ofFloat(@FloatRange(from = 0, to = 1) float fraction) {
+    public static Keyframe<Float> ofFloat(@FloatRange(from = 0, to = 1) float fraction) {
         return new FloatKeyframe(fraction);
     }
 
@@ -152,7 +153,7 @@ public abstract class Keyframe<T> implements Cloneable {
      * this keyframe.
      */
     @NonNull
-    public static <T> ObjectKeyframe<T> ofObject(@FloatRange(from = 0, to = 1) float fraction,
+    public static <T> Keyframe<T> ofObject(@FloatRange(from = 0, to = 1) float fraction,
                 @Nullable T value) {
         return new ObjectKeyframe<T>(fraction, value);
     }
@@ -170,7 +171,7 @@ public abstract class Keyframe<T> implements Cloneable {
      * of time elapsed of the overall animation duration.
      */
     @NonNull
-    public static <T> ObjectKeyframe<T> ofObject(@FloatRange(from = 0, to = 1) float fraction) {
+    public static <T> Keyframe<T> ofObject(@FloatRange(from = 0, to = 1) float fraction) {
         return new ObjectKeyframe<>(fraction, null);
     }
 
@@ -264,13 +265,13 @@ public abstract class Keyframe<T> implements Cloneable {
      * @return The type of the value stored in the Keyframe.
      */
     @NonNull
-    public Class getType() {
+    public Class<?> getType() {
         return mValueType;
     }
 
     @NonNull
     @Override
-    public abstract Keyframe clone();
+    public abstract Keyframe<T> clone();
 
     /**
      * This internal subclass is used for all types which are not int or float.
