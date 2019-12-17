@@ -43,6 +43,7 @@ import android.location.Location;
 import android.util.Size;
 import android.view.Surface;
 
+import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.annotation.experimental.UseExperimental;
 import androidx.camera.camera2.internal.util.FakeRepeatingUseCase;
@@ -634,17 +635,14 @@ public final class ImageCaptureTest {
     }
 
     @Test
-    public void onStateOffline_abortAllCaptureRequests() {
+    public void onStateOffline_abortAllCaptureRequests() throws InterruptedException {
         ImageCapture imageCapture = new ImageCapture.Builder().build();
         mInstrumentation.runOnMainSync(() -> {
             CameraX.bindToLifecycle(mLifecycleOwner, BACK_SELECTOR, imageCapture);
             mLifecycleOwner.startAndResume();
         });
 
-        FakeCameraControl fakeCameraControl = new FakeCameraControl(mock(
-                CameraControlInternal.ControlUpdateCallback.class));
-        imageCapture.attachCameraControl(mCameraId, fakeCameraControl);
-        OnImageCapturedCallback callback = createMockOnImageCapturedCallback(null);
+        CountingCallback callback = new CountingCallback(3, 500);
 
         imageCapture.takePicture(mListenerExecutor, callback);
         imageCapture.takePicture(mListenerExecutor, callback);
@@ -652,14 +650,11 @@ public final class ImageCaptureTest {
 
         mInstrumentation.runOnMainSync(() -> imageCapture.onStateOffline(mCameraId));
 
-        ArgumentCaptor<Integer> errorCaptor = ArgumentCaptor.forClass(Integer.class);
-        verify(callback, timeout(500).times(3)).onError(errorCaptor.capture(),
-                any(String.class),
-                any(Throwable.class));
-        assertThat(errorCaptor.getAllValues()).containsExactly(
-                ImageCapture.ERROR_CAMERA_CLOSED,
-                ImageCapture.ERROR_CAMERA_CLOSED,
-                ImageCapture.ERROR_CAMERA_CLOSED);
+        assertThat(callback.getNumOnCaptureSuccess() + callback.getNumOnError()).isEqualTo(3);
+
+        for (Integer imageCaptureError : callback.getImageCaptureErrors()) {
+            assertThat(imageCaptureError).isEqualTo(ImageCapture.ERROR_CAMERA_CLOSED);
+        }
     }
 
     @Test
@@ -699,5 +694,49 @@ public final class ImageCaptureTest {
                 }).when(callback).onCaptureSuccess(any(ImageProxy.class));
 
         return callback;
+    }
+
+    private static class CountingCallback extends OnImageCapturedCallback {
+        CountDownLatch mCountDownLatch;
+        long mTimeout;
+        private int mNumOnCaptureSuccess = 0;
+        private int mNumOnErrorSuccess = 0;
+
+        List<Integer> mImageCaptureErrors = new ArrayList<>();
+
+        CountingCallback(int numTakePictures, long timeout) {
+            mTimeout = timeout;
+            mCountDownLatch = new CountDownLatch(numTakePictures);
+        }
+
+        int getNumOnCaptureSuccess() throws InterruptedException {
+            mCountDownLatch.await(mTimeout, TimeUnit.MILLISECONDS);
+            return mNumOnCaptureSuccess;
+        }
+
+        int getNumOnError() throws InterruptedException {
+            mCountDownLatch.await(mTimeout, TimeUnit.MILLISECONDS);
+            return mNumOnErrorSuccess;
+        }
+
+        List<Integer> getImageCaptureErrors() throws InterruptedException {
+            mCountDownLatch.await(mTimeout, TimeUnit.MILLISECONDS);
+            return mImageCaptureErrors;
+        }
+
+        @Override
+        public void onCaptureSuccess(@NonNull ImageProxy image) {
+            mNumOnCaptureSuccess++;
+            mCountDownLatch.countDown();
+        }
+
+        @Override
+        public void onError(@ImageCapture.ImageCaptureError int imageCaptureError,
+                @NonNull String message,
+                @Nullable Throwable cause) {
+            mNumOnErrorSuccess++;
+            mImageCaptureErrors.add(imageCaptureError);
+            mCountDownLatch.countDown();
+        }
     }
 }
