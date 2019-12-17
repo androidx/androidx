@@ -77,6 +77,8 @@ import androidx.camera.core.impl.CameraDeviceConfig;
 import androidx.camera.core.impl.CameraIdFilter;
 import androidx.camera.core.impl.CameraInfoInternal;
 import androidx.camera.core.impl.CaptureConfig;
+import androidx.camera.core.impl.CaptureProcessor;
+import androidx.camera.core.impl.CaptureStage;
 import androidx.camera.core.impl.DeferrableSurface;
 import androidx.camera.core.impl.utils.Threads;
 import androidx.camera.core.impl.utils.executor.CameraXExecutors;

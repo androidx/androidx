@@ -21,10 +21,10 @@ import android.hardware.camera2.TotalCaptureResult;
 
 import androidx.camera.camera2.impl.Camera2CameraCaptureResultConverter;
 import androidx.camera.core.CameraCaptureResults;
-import androidx.camera.core.CaptureStage;
 import androidx.camera.core.ImageInfo;
 import androidx.camera.core.ImageInfoProcessor;
 import androidx.camera.core.impl.CameraCaptureResult;
+import androidx.camera.core.impl.CaptureStage;
 import androidx.camera.extensions.impl.CaptureStageImpl;
 import androidx.camera.extensions.impl.PreviewExtenderImpl;
 import androidx.camera.extensions.impl.RequestUpdateProcessorImpl;

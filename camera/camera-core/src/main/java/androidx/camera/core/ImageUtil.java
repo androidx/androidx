@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2019 The Android Open Source Project
+ * Copyright 2019 The Android Open Source Project
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -26,9 +26,8 @@ import android.util.Log;
 import android.util.Rational;
 import android.util.Size;
 
+import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
-import androidx.annotation.RestrictTo;
-import androidx.annotation.RestrictTo.Scope;
 import androidx.camera.core.ImageOutputConfig.RotationValue;
 
 import java.io.ByteArrayOutputStream;
@@ -37,10 +36,7 @@ import java.nio.ByteBuffer;
 
 /**
  * Utility class for image related operations.
- *
- * @hide
  */
-@RestrictTo(Scope.LIBRARY_GROUP)
 final class ImageUtil {
     private static final String TAG = "ImageUtil";
 
@@ -48,7 +44,9 @@ final class ImageUtil {
     }
 
     /** {@link android.media.Image} to JPEG byte array. */
-    public static byte[] imageToJpegByteArray(ImageProxy image) throws CodecFailedException {
+    @Nullable
+    public static byte[] imageToJpegByteArray(@NonNull ImageProxy image)
+            throws CodecFailedException {
         byte[] data = null;
         if (image.getFormat() == ImageFormat.JPEG) {
             data = jpegImageToJpegByteArray(image);
@@ -61,7 +59,9 @@ final class ImageUtil {
     }
 
     /** Crops byte array with given {@link android.graphics.Rect}. */
-    public static byte[] cropByteArray(byte[] data, Rect cropRect) throws CodecFailedException {
+    @NonNull
+    public static byte[] cropByteArray(@NonNull byte[] data, @Nullable Rect cropRect)
+            throws CodecFailedException {
         if (cropRect == null) {
             return data;
         }
@@ -97,12 +97,13 @@ final class ImageUtil {
     }
 
     /** True if the given aspect ratio is meaningful. */
-    public static boolean isAspectRatioValid(Rational aspectRatio) {
+    public static boolean isAspectRatioValid(@Nullable Rational aspectRatio) {
         return aspectRatio != null && aspectRatio.floatValue() > 0 && !aspectRatio.isNaN();
     }
 
     /** True if the given aspect ratio is meaningful and has effect on the given size. */
-    public static boolean isAspectRatioValid(Size sourceSize, Rational aspectRatio) {
+    public static boolean isAspectRatioValid(@NonNull Size sourceSize,
+            @Nullable Rational aspectRatio) {
         return aspectRatio != null
                 && aspectRatio.floatValue() > 0
                 && isCropAspectRatioHasEffect(sourceSize, aspectRatio)
@@ -113,7 +114,9 @@ final class ImageUtil {
      * Calculates crop rect with the specified aspect ratio on the given size. Assuming the rect is
      * at the center of the source.
      */
-    public static Rect computeCropRectFromAspectRatio(Size sourceSize, Rational aspectRatio) {
+    @Nullable
+    public static Rect computeCropRectFromAspectRatio(@NonNull Size sourceSize,
+            @NonNull Rational aspectRatio) {
         if (!isAspectRatioValid(aspectRatio)) {
             Log.w(TAG, "Invalid view ratio.");
             return null;
@@ -146,8 +149,9 @@ final class ImageUtil {
      * @param rational Rational to be rotated.
      * @param rotation Rotation value being applied.
      */
+    @NonNull
     public static Rational rotate(
-            Rational rational, @RotationValue int rotation) {
+            @NonNull Rational rational, @RotationValue int rotation) {
         if (rotation == 90 || rotation == 270) {
             return inverseRational(rational);
         }
@@ -288,6 +292,7 @@ final class ImageUtil {
             mFailureType = failureType;
         }
 
+        @NonNull
         public FailureType getFailureType() {
             return mFailureType;
         }

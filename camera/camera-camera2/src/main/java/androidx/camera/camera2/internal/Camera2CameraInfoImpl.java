@@ -22,10 +22,10 @@ import android.view.Surface;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
-import androidx.camera.core.CameraOrientationUtil;
 import androidx.camera.core.CameraSelector;
 import androidx.camera.core.ImageOutputConfig.RotationValue;
 import androidx.camera.core.impl.CameraInfoInternal;
+import androidx.camera.core.impl.utils.CameraOrientationUtil;
 import androidx.core.util.Preconditions;
 import androidx.lifecycle.LiveData;
 
