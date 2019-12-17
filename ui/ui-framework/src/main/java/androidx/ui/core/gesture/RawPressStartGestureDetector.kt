@@ -80,14 +80,6 @@ internal class RawPressStartGestureRecognizer {
             var internalChanges = changes
 
             if (pass == executionPass) {
-
-                println("testtest, pressStartGestureDetector, internalChanges.size: " +
-                        "${internalChanges.size}")
-                println("testtest, pressStartGestureDetector, internalChanges, down: " +
-                        "${internalChanges.first().changedToDown()}")
-                println("testtest, pressStartGestureDetector, internalChanges, up: " +
-                        "${internalChanges.first().changedToUp()}")
-
                 if (enabled && internalChanges.all { it.changedToDown() }) {
                     // If we have not yet started and all of the changes changed to down, we are
                     // starting.
@@ -112,7 +104,6 @@ internal class RawPressStartGestureRecognizer {
     }
 
     fun setEnabled(enabled: Boolean) {
-        println("testtest, setEnabled: $enabled")
         this.enabled = enabled
         // Whenever we are disabled, we can just go ahead and become inactive (which is the state we
         // should be in if we are to pretend that we aren't in the hierarchy.

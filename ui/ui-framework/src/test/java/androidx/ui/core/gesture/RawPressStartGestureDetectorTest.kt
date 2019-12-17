@@ -57,7 +57,7 @@ class RawPressStartGestureDetectorTest {
 
     @Test
     fun pointerInputHandler_downConsumed_onPressStartNotCalled() {
-        recognizer.pointerInputHandler.invokeOverAllPasses(listOf(down().consumeDownChange()))
+        recognizer.pointerInputHandler.invokeOverAllPasses(down().consumeDownChange())
         verify(recognizer.onPressStart, never()).invoke(any())
     }
 
@@ -67,14 +67,14 @@ class RawPressStartGestureDetectorTest {
         recognizer.pointerInputHandler.invokeOverAllPasses(pointer1)
         pointer1 = pointer1.moveBy(10.milliseconds)
         val pointer2 = down(duration = 10.milliseconds)
-        recognizer.pointerInputHandler.invokeOverAllPasses(listOf(pointer1, pointer2))
+        recognizer.pointerInputHandler.invokeOverAllPasses(pointer1, pointer2)
         verify(recognizer.onPressStart, never()).invoke(any())
     }
 
     @Test
     fun pointerInputHandler_disabledDown_onPressStartNotCalled() {
         recognizer.setEnabled(false)
-        recognizer.pointerInputHandler.invokeOverAllPasses(listOf(down()))
+        recognizer.pointerInputHandler.invokeOverAllPasses(down())
         verify(recognizer.onPressStart, never()).invoke(any())
     }
 
@@ -87,7 +87,7 @@ class RawPressStartGestureDetectorTest {
         recognizer.setEnabled(true)
         pointer1 = pointer1.moveBy(10.milliseconds)
         val pointer2 = down(duration = 10.milliseconds)
-        recognizer.pointerInputHandler.invokeOverAllPasses(listOf(pointer1, pointer2))
+        recognizer.pointerInputHandler.invokeOverAllPasses(pointer1, pointer2)
         verify(recognizer.onPressStart, never()).invoke(any())
     }
 
@@ -95,17 +95,17 @@ class RawPressStartGestureDetectorTest {
 
     @Test
     fun pointerInputHandler_down_onPressStartCalledOnce() {
-        recognizer.pointerInputHandler.invokeOverAllPasses(listOf(down()))
+        recognizer.pointerInputHandler.invokeOverAllPasses(down())
         verify(recognizer.onPressStart).invoke(any())
     }
 
     @Test
     fun pointerInputHandler_downDown_onPressStartCalledOnce() {
         var pointer0 = down(0)
-        recognizer.pointerInputHandler.invokeOverAllPasses(listOf(pointer0))
+        recognizer.pointerInputHandler.invokeOverAllPasses(pointer0)
         pointer0 = pointer0.moveTo(1.milliseconds)
         val pointer1 = down(1, 1.milliseconds)
-        recognizer.pointerInputHandler.invokeOverAllPasses(listOf(pointer0, pointer1))
+        recognizer.pointerInputHandler.invokeOverAllPasses(pointer0, pointer1)
 
         verify(recognizer.onPressStart).invoke(any())
     }
@@ -114,13 +114,13 @@ class RawPressStartGestureDetectorTest {
     fun pointerInputHandler_2Down1Up1Down_onPressStartCalledOnce() {
         var pointer0 = down(0)
         var pointer1 = down(1)
-        recognizer.pointerInputHandler.invokeOverAllPasses(listOf(pointer0, pointer1))
+        recognizer.pointerInputHandler.invokeOverAllPasses(pointer0, pointer1)
         pointer0 = pointer0.up(100.milliseconds)
         pointer1 = pointer1.moveTo(100.milliseconds)
-        recognizer.pointerInputHandler.invokeOverAllPasses(listOf(pointer0, pointer1))
+        recognizer.pointerInputHandler.invokeOverAllPasses(pointer0, pointer1)
         pointer0 = down(0, duration = 200.milliseconds)
         pointer1 = pointer1.moveTo(200.milliseconds)
-        recognizer.pointerInputHandler.invokeOverAllPasses(listOf(pointer0, pointer1))
+        recognizer.pointerInputHandler.invokeOverAllPasses(pointer0, pointer1)
 
         verify(recognizer.onPressStart).invoke(any())
     }
@@ -143,7 +143,7 @@ class RawPressStartGestureDetectorTest {
 
     @Test
     fun pointerInputHandler_down_downPositionIsCorrect() {
-        recognizer.pointerInputHandler.invokeOverAllPasses(listOf(down(x = 13f, y = 17f)))
+        recognizer.pointerInputHandler.invokeOverAllPasses(down(x = 13f, y = 17f))
         verify(recognizer.onPressStart).invoke(PxPosition(13.px, 17f.px))
     }
 
@@ -153,7 +153,7 @@ class RawPressStartGestureDetectorTest {
     fun pointerInputHandler_disabledDown_noDownChangeConsumed() {
         recognizer.setEnabled(false)
         var pointer = down()
-        pointer = recognizer.pointerInputHandler.invokeOverPasses(listOf(pointer)).first()
+        pointer = recognizer.pointerInputHandler.invokeOverAllPasses(pointer)
         assertThat(pointer.consumed.downChange, `is`(false))
     }
 
@@ -182,9 +182,9 @@ class RawPressStartGestureDetectorTest {
         recognizer.setExecutionPass(PointerEventPass.InitialDown)
 
         val pointer = recognizer.pointerInputHandler.invokeOverPasses(
-            listOf(down()),
+            down(),
             PointerEventPass.InitialDown
-        ).first()
+        )
 
         verify(recognizer.onPressStart).invoke(any())
         assertThat(pointer.consumed.downChange, `is`(true))
@@ -195,17 +195,17 @@ class RawPressStartGestureDetectorTest {
         recognizer.setExecutionPass(PointerEventPass.PreUp)
 
         var pointer = recognizer.pointerInputHandler.invokeOverPasses(
-            listOf(down()),
+            down(),
             PointerEventPass.InitialDown
-        ).first()
+        )
 
         verify(recognizer.onPressStart, never()).invoke(any())
         assertThat(pointer.consumed.downChange, `is`(false))
 
         pointer = recognizer.pointerInputHandler.invokeOverPasses(
-            listOf(down()),
+            down(),
             PointerEventPass.PreUp
-        ).first()
+        )
 
         verify(recognizer.onPressStart).invoke(any())
         assertThat(pointer.consumed.downChange, `is`(true))
@@ -216,18 +216,18 @@ class RawPressStartGestureDetectorTest {
         recognizer.setExecutionPass(PointerEventPass.PreDown)
 
         var pointer = recognizer.pointerInputHandler.invokeOverPasses(
-            listOf(down()),
+            down(),
             PointerEventPass.InitialDown,
             PointerEventPass.PreUp
-        ).first()
+        )
 
         verify(recognizer.onPressStart, never()).invoke(any())
         assertThat(pointer.consumed.downChange, `is`(false))
 
         pointer = recognizer.pointerInputHandler.invokeOverPasses(
-            listOf(down()),
+            down(),
             PointerEventPass.PreDown
-        ).first()
+        )
 
         verify(recognizer.onPressStart).invoke(any())
         assertThat(pointer.consumed.downChange, `is`(true))
@@ -238,19 +238,19 @@ class RawPressStartGestureDetectorTest {
         recognizer.setExecutionPass(PointerEventPass.PostUp)
 
         var pointer = recognizer.pointerInputHandler.invokeOverPasses(
-            listOf(down()),
+            down(),
             PointerEventPass.InitialDown,
             PointerEventPass.PreUp,
             PointerEventPass.PreDown
-        ).first()
+        )
 
         verify(recognizer.onPressStart, never()).invoke(any())
         assertThat(pointer.consumed.downChange, `is`(false))
 
         pointer = recognizer.pointerInputHandler.invokeOverPasses(
-            listOf(down()),
+            down(),
             PointerEventPass.PostUp
-        ).first()
+        )
 
         verify(recognizer.onPressStart).invoke(any())
         assertThat(pointer.consumed.downChange, `is`(true))
@@ -261,22 +261,42 @@ class RawPressStartGestureDetectorTest {
         recognizer.setExecutionPass(PointerEventPass.PostDown)
 
         var pointer = recognizer.pointerInputHandler.invokeOverPasses(
-            listOf(down()),
+            down(),
             PointerEventPass.InitialDown,
             PointerEventPass.PreUp,
             PointerEventPass.PreDown,
             PointerEventPass.PostUp
-        ).first()
+        )
 
         verify(recognizer.onPressStart, never()).invoke(any())
         assertThat(pointer.consumed.downChange, `is`(false))
 
         pointer = recognizer.pointerInputHandler.invokeOverPasses(
-            listOf(down()),
+            down(),
             PointerEventPass.PostDown
-        ).first()
+        )
 
         verify(recognizer.onPressStart).invoke(any())
         assertThat(pointer.consumed.downChange, `is`(true))
+    }
+
+    // Verification of correct cancellation behavior.
+
+    // The purpose of this test is hard to understand, but it proves that the cancel event sets the
+    // state of the gesture detector to inactive such that when a new stream of events starts,
+    // and the 1st down is already consumed, the gesture detector won't consume the 2nd down.
+    @Test
+    fun cancelHandler_downCancelDownConsumedDown_thirdDownNotConsumed() {
+        recognizer.pointerInputHandler
+            .invokeOverAllPasses(down(id = 0, duration = 0.milliseconds))
+        recognizer.cancelHandler()
+        var pointer1 = down(id = 1, duration = 10.milliseconds).consumeDownChange()
+        recognizer.pointerInputHandler.invokeOverAllPasses(pointer1)
+        pointer1 = pointer1.moveTo(20.milliseconds, 0f, 0f)
+        val pointer2 = down(id = 2, duration = 20.milliseconds)
+        val results = recognizer.pointerInputHandler.invokeOverAllPasses(pointer1, pointer2)
+
+        assertThat(results[0].consumed.downChange, `is`(false))
+        assertThat(results[1].consumed.downChange, `is`(false))
     }
 }

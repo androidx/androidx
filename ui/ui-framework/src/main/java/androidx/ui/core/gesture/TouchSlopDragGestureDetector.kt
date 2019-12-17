@@ -30,9 +30,12 @@ import androidx.ui.core.PxPosition
  * surpassed in a supported direction (see [DragObserver.onDrag]).  When dragging begins in this
  * manner, [DragObserver.onStart] is called, followed immediately by a call to
  * [DragObserver.onDrag]. [DragObserver.onDrag] is then continuously called whenever pointers
- * have moved. [DragObserver.onStop] is called when the dragging ends due to all of the pointers
- * no longer interacting with the DragGestureDetector (for example, the last finger has been lifted
- * off of the DragGestureDetector).
+ * have moved. The gesture ends with either a call to [DragObserver.onStop] or
+ * [DragObserver.onCancel], only after [DragObserver.onStart] is called. [DragObserver.onStop] is
+ * called when the dragging ends due to all of the pointers no longer interacting with the
+ * DragGestureDetector (for example, the last pointer has been lifted off of the
+ * DragGestureDetector). [DragObserver.onCancel] is called when the dragging ends due to a system
+ * cancellation event.
  *
  * If [startDragImmediately] is set to true, dragging will begin as soon as soon as a pointer comes
  * in contact with it, effectively ignoring touch slop and blocking any descendants from reacting
@@ -61,6 +64,9 @@ fun TouchSlopDragGestureDetector(
     val glue = remember { TouchSlopDragGestureDetectorGlue() }
     glue.touchSlopDragObserver = dragObserver
 
+    // TODO(b/146427920): There is a gap here where RawPressStartGestureDetector can cause a call to
+    //  DragObserver.onStart but if the pointer doesn't move and releases, (or if cancel is called)
+    //  The appropriate callbacks to DragObserver will not be called.
     RawDragGestureDetector(glue.rawDragObserver, glue::enabledOrStarted) {
         TouchSlopExceededGestureDetector(glue::enableDrag, canDrag) {
             RawPressStartGestureDetector(
@@ -107,9 +113,15 @@ private class TouchSlopDragGestureDetectorGlue {
             }
 
             override fun onStop(velocity: PxPosition) {
-                touchSlopDragObserver.onStop(velocity)
                 started = false
                 enabled = false
+                touchSlopDragObserver.onStop(velocity)
+            }
+
+            override fun onCancel() {
+                started = false
+                enabled = false
+                touchSlopDragObserver.onCancel()
             }
         }
 }

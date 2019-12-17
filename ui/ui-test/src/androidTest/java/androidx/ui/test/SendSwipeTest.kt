@@ -60,7 +60,10 @@ class SendSwipeTest {
         Align(alignment = alignment) {
             TestTag(tag) {
                 Semantics {
-                    PointerInputWrapper(pointerInputHandler = recorder::onPointerInput) {
+                    PointerInputWrapper(
+                        pointerInputHandler = recorder::onPointerInput,
+                        cancelHandler = {}
+                    ) {
                         Container(width = 100.dp, height = 100.dp) {
                             DrawShape(RectangleShape, Color.Yellow)
                         }

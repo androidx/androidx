@@ -18,12 +18,12 @@ package androidx.ui.core.gesture
 
 import androidx.compose.Composable
 import androidx.compose.remember
-import androidx.ui.core.PxPosition
 import androidx.ui.core.IntPxSize
 import androidx.ui.core.PointerEventPass
 import androidx.ui.core.PointerInputChange
 import androidx.ui.core.PointerInputHandler
 import androidx.ui.core.PointerInputWrapper
+import androidx.ui.core.PxPosition
 import androidx.ui.core.changedToUpIgnoreConsumed
 
 interface LongPressDragObserver {
@@ -64,12 +64,13 @@ interface LongPressDragObserver {
      *
      * When overridden, return the amount of the [dragDistance] that has been consumed.
      *
-     * Called after [onDragStart] and for every subsequent pointer movement, as long as the movement was enough to
-     * constitute a drag (the average movement on the x or y axis is not equal to 0).  This may be called
-     * synchronously, immediately afterward [onDragStart], as a result of the same pointer input event.
+     * Called after [onDragStart] and for every subsequent pointer movement, as long as the movement
+     * was enough to constitute a drag (the average movement on the x or y axis is not equal to
+     * 0).  This may be called synchronously, immediately afterward [onDragStart], as a result of
+     * the same pointer input event.
      *
-     * Note: This will be called multiple times for a single pointer input event and the values provided in each call
-     * should be considered unique.
+     * Note: This will be called multiple times for a single pointer input event and the values
+     * provided in each call should be considered unique.
      *
      * @param dragDistance The distance that has been dragged.  Reflects the average drag distance
      * of all pointers.
@@ -79,21 +80,35 @@ interface LongPressDragObserver {
     /**
      * Override to be notified when a drag has stopped.
      *
-     * This is called once all pointers have stopped interacting with this DragGestureDetector and [onLongPress] was
-     * previously called.
+     * This is called once all pointers have stopped interacting with this DragGestureDetector and
+     * [onLongPress] was previously called.
      */
     fun onStop(velocity: PxPosition) {}
+
+    /**
+     * Override to be notified when the drag has been cancelled.
+     *
+     * This is called if [onLongPress] has ben called and then a cancellation event has occurs
+     * (for example, due to the gesture detector being removed from the tree) before [onStop] is
+     * called.
+     */
+    fun onCancel() {}
 }
 
 /**
- * This gesture detector detects dragging in any direction, but only after a long press has first occurred.
+ * This gesture detector detects dragging in any direction, but only after a long press has first
+ * occurred.
  *
  * Dragging begins once a long press has occurred and then dragging occurs.  When long press occurs,
- * [LongPressDragObserver.onLongPress] is called. Once dragging has occurred, [LongPressDragObserver.onDragStart]
- * will be called. [LongPressDragObserver.onDrag] is then continuously called whenever pointer movement results
- * in a drag have moved. [LongPressDragObserver.onStop] is called when the dragging ends due to all of
- * the pointers no longer interacting with the LongPressDragGestureDetector (for example, the last
- * finger has been lifted off of the LongPressDragGestureDetector).
+ * [LongPressDragObserver.onLongPress] is called. Once dragging has occurred,
+ * [LongPressDragObserver.onDragStart] will be called. [LongPressDragObserver.onDrag] is then
+ * continuously called whenever pointer movement results in a drag. The gesture will end
+ * with either a call to [LongPressDragObserver.onStop] or [LongPressDragObserver.onCancel]. Either
+ * will be called after [LongPressDragObserver.onLongPress] is called.
+ * [LongPressDragObserver.onStop] is called when the the gesture ends due to all of the pointers
+ * no longer interacting with the LongPressDragGestureDetector (for example, the last finger has
+ * been lifted off of the LongPressDragGestureDetector). [LongPressDragObserver.onCancel] is
+ * called in response to a system cancellation event.
  *
  * When multiple pointers are touching the detector, the drag distance is taken as the average of
  * all of the pointers.
@@ -110,7 +125,7 @@ fun LongPressDragGestureDetector(
     glue.longPressDragObserver = longPressDragObserver
 
     RawDragGestureDetector(glue.dragObserver, glue::dragEnabled) {
-        PointerInputWrapper(glue.pointerInputHandler) {
+        PointerInputWrapper(glue.pointerInputHandler, glue.cancelHandler) {
             LongPressGestureDetector(glue.onLongPress, children)
         }
     }
@@ -143,8 +158,16 @@ private class LongPressDragGestureDetectorGlue {
                 dragStarted = false
                 longPressDragObserver.onStop(velocity)
             }
+
+            override fun onCancel() {
+                dragEnabled = false
+                dragStarted = false
+                longPressDragObserver.onCancel()
+            }
         }
 
+    // This handler ensures that onStop will be called after long press happened, but before
+    // dragging actually has begun.
     val pointerInputHandler =
         { changes: List<PointerInputChange>, pass: PointerEventPass, _: IntPxSize ->
             if (pass == PointerEventPass.PostUp &&
@@ -157,6 +180,15 @@ private class LongPressDragGestureDetectorGlue {
             }
             changes
         }
+
+    // This handler ensures that onCancel is called if onLongPress was previously called but
+    // dragging has not yet started.
+    val cancelHandler = {
+        if (dragEnabled && !dragStarted) {
+            dragEnabled = false
+            longPressDragObserver.onCancel()
+        }
+    }
 
     val onLongPress = { pxPosition: PxPosition ->
         dragEnabled = true

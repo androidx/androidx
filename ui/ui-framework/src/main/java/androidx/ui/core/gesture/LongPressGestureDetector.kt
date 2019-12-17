@@ -55,7 +55,11 @@ fun LongPressGestureDetector(
         remember { LongPressGestureRecognizer(coroutineContext) }
     recognizer.onLongPress = onLongPress
 
-    PointerInputWrapper(pointerInputHandler = recognizer.pointerInputHandler, children = children)
+    PointerInputWrapper(
+        pointerInputHandler = recognizer.pointerInputHandler,
+        cancelHandler = recognizer.cancelHandler,
+        children = children
+    )
 }
 
 internal class LongPressGestureRecognizer(
@@ -101,16 +105,16 @@ internal class LongPressGestureRecognizer(
                     state = State.Primed
                 } else if (state != State.Idle && changes.all { it.changedToUpIgnoreConsumed() }) {
                     // If we have started and all of the changes changed to up, we are stopping.
-                    reset()
+                    cancelHandler()
                 } else if (!changesToReturn.anyPointersInBounds(bounds)) {
                     // If none of the pointers are in bounds of our bounds, we should reset and wait
                     // till all pointers are changing to down to "prime" again.
-                    reset()
+                    cancelHandler()
                 }
 
                 if (state == State.Primed) {
-                    // If we are primed, for all down pointers, keep track of their current positions, and for all
-                    // other pointers, remove their tracked information.
+                    // If we are primed, for all down pointers, keep track of their current
+                    // positions, and for all other pointers, remove their tracked information.
                     changes.forEach {
                         if (it.current.down) {
                             pointerPositions[it.id] = it.current.position!!
@@ -128,13 +132,13 @@ internal class LongPressGestureRecognizer(
                 // If we are primed, reset so we don't fire.
                 // If we are fired, reset to idle so we don't block up events that still fire after
                 // dragging (like flinging).
-                reset()
+                cancelHandler()
             }
 
             changesToReturn
         }
 
-    private fun reset() {
+    val cancelHandler = {
         job?.cancel()
         state = State.Idle
     }

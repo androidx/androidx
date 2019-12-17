@@ -581,7 +581,7 @@ class RawScaleGestureDetectorTest {
     @Test
     fun pointerInputHandler_1down_downNotConsumed() {
         val result = recognizer.pointerInputHandler.invokeOverAllPasses(down())
-        assertThat(result.first().consumed.downChange).isFalse()
+        assertThat(result.consumed.downChange).isFalse()
     }
 
     @Test
@@ -650,13 +650,16 @@ class RawScaleGestureDetectorTest {
         scaleObserver.resultingScaleChange = 2f
         var result = recognizer.pointerInputHandler.invokeOverPasses(
             listOf(change1, change2),
-            PointerEventPass.InitialDown,
-            PointerEventPass.PreUp,
-            PointerEventPass.PreDown,
-            PointerEventPass.PostUp
+            listOf(
+                PointerEventPass.InitialDown,
+                PointerEventPass.PreUp,
+                PointerEventPass.PreDown,
+                PointerEventPass.PostUp
+            )
         )
         scaleObserver.resultingScaleChange = 1f
-        result = recognizer.pointerInputHandler.invokeOverPasses(result, PointerEventPass.PostDown)
+        result = recognizer.pointerInputHandler
+            .invokeOverPasses(result, listOf(PointerEventPass.PostDown))
 
         // Assert
 
@@ -681,13 +684,16 @@ class RawScaleGestureDetectorTest {
         scaleObserver.resultingScaleChange = 2f
         var result = recognizer.pointerInputHandler.invokeOverPasses(
             listOf(change1, change2),
-            PointerEventPass.InitialDown,
-            PointerEventPass.PreUp,
-            PointerEventPass.PreDown,
-            PointerEventPass.PostUp
+            listOf(
+                PointerEventPass.InitialDown,
+                PointerEventPass.PreUp,
+                PointerEventPass.PreDown,
+                PointerEventPass.PostUp
+            )
         )
         scaleObserver.resultingScaleChange = 1f
-        result = recognizer.pointerInputHandler.invokeOverPasses(result, PointerEventPass.PostDown)
+        result = recognizer.pointerInputHandler
+            .invokeOverPasses(result, listOf(PointerEventPass.PostDown))
 
         // Assert
 
@@ -730,13 +736,16 @@ class RawScaleGestureDetectorTest {
         scaleObserver.resultingScaleChange = .75f
         var result = recognizer.pointerInputHandler.invokeOverPasses(
             listOf(change1, change2),
-            PointerEventPass.InitialDown,
-            PointerEventPass.PreUp,
-            PointerEventPass.PreDown,
-            PointerEventPass.PostUp
+            listOf(
+                PointerEventPass.InitialDown,
+                PointerEventPass.PreUp,
+                PointerEventPass.PreDown,
+                PointerEventPass.PostUp
+            )
         )
         scaleObserver.resultingScaleChange = 1f
-        result = recognizer.pointerInputHandler.invokeOverPasses(result, PointerEventPass.PostDown)
+        result = recognizer.pointerInputHandler
+            .invokeOverPasses(result, listOf(PointerEventPass.PostDown))
 
         // Assert
 
@@ -761,13 +770,16 @@ class RawScaleGestureDetectorTest {
         scaleObserver.resultingScaleChange = .75f
         var result = recognizer.pointerInputHandler.invokeOverPasses(
             listOf(change1, change2),
-            PointerEventPass.InitialDown,
-            PointerEventPass.PreUp,
-            PointerEventPass.PreDown,
-            PointerEventPass.PostUp
+            listOf(
+                PointerEventPass.InitialDown,
+                PointerEventPass.PreUp,
+                PointerEventPass.PreDown,
+                PointerEventPass.PostUp
+            )
         )
         scaleObserver.resultingScaleChange = 1f
-        result = recognizer.pointerInputHandler.invokeOverPasses(result, PointerEventPass.PostDown)
+        result = recognizer.pointerInputHandler
+            .invokeOverPasses(result, listOf(PointerEventPass.PostDown))
 
         // Assert
 
@@ -808,13 +820,18 @@ class RawScaleGestureDetectorTest {
         scaleObserver.resultingScaleChange = 2f
         var result = recognizer.pointerInputHandler.invokeOverPasses(
             listOf(change1, change2),
-            PointerEventPass.InitialDown,
-            PointerEventPass.PreUp,
-            PointerEventPass.PreDown,
-            PointerEventPass.PostUp
+            listOf(
+                PointerEventPass.InitialDown,
+                PointerEventPass.PreUp,
+                PointerEventPass.PreDown,
+                PointerEventPass.PostUp
+            )
         )
         scaleObserver.resultingScaleChange = 1f
-        result = recognizer.pointerInputHandler.invokeOverPasses(result, PointerEventPass.PostDown)
+        result = recognizer.pointerInputHandler
+            .invokeOverPasses(
+                result, listOf(PointerEventPass.PostDown)
+            )
 
         // Assert
 
@@ -839,13 +856,16 @@ class RawScaleGestureDetectorTest {
         scaleObserver.resultingScaleChange = 2f
         var result = recognizer.pointerInputHandler.invokeOverPasses(
             listOf(change1, change2),
-            PointerEventPass.InitialDown,
-            PointerEventPass.PreUp,
-            PointerEventPass.PreDown,
-            PointerEventPass.PostUp
+            listOf(
+                PointerEventPass.InitialDown,
+                PointerEventPass.PreUp,
+                PointerEventPass.PreDown,
+                PointerEventPass.PostUp
+            )
         )
         scaleObserver.resultingScaleChange = 1f
-        result = recognizer.pointerInputHandler.invokeOverPasses(result, PointerEventPass.PostDown)
+        result = recognizer.pointerInputHandler
+            .invokeOverPasses(result, listOf(PointerEventPass.PostDown))
 
         // Assert
 
@@ -870,13 +890,16 @@ class RawScaleGestureDetectorTest {
         scaleObserver.resultingScaleChange = .75f
         var result = recognizer.pointerInputHandler.invokeOverPasses(
             listOf(change1, change2),
-            PointerEventPass.InitialDown,
-            PointerEventPass.PreUp,
-            PointerEventPass.PreDown,
-            PointerEventPass.PostUp
+            listOf(
+                PointerEventPass.InitialDown,
+                PointerEventPass.PreUp,
+                PointerEventPass.PreDown,
+                PointerEventPass.PostUp
+            )
         )
         scaleObserver.resultingScaleChange = 1f
-        result = recognizer.pointerInputHandler.invokeOverPasses(result, PointerEventPass.PostDown)
+        result = recognizer.pointerInputHandler
+            .invokeOverPasses(result, listOf(PointerEventPass.PostDown))
 
         // Assert
 
@@ -901,13 +924,16 @@ class RawScaleGestureDetectorTest {
         scaleObserver.resultingScaleChange = .75f
         var result = recognizer.pointerInputHandler.invokeOverPasses(
             listOf(change1, change2),
-            PointerEventPass.InitialDown,
-            PointerEventPass.PreUp,
-            PointerEventPass.PreDown,
-            PointerEventPass.PostUp
+            listOf(
+                PointerEventPass.InitialDown,
+                PointerEventPass.PreUp,
+                PointerEventPass.PreDown,
+                PointerEventPass.PostUp
+            )
         )
         scaleObserver.resultingScaleChange = 1f
-        result = recognizer.pointerInputHandler.invokeOverPasses(result, PointerEventPass.PostDown)
+        result = recognizer.pointerInputHandler
+            .invokeOverPasses(result, listOf(PointerEventPass.PostDown))
 
         // Assert
 
@@ -932,13 +958,16 @@ class RawScaleGestureDetectorTest {
         scaleObserver.resultingScaleChange = 2f
         var result = recognizer.pointerInputHandler.invokeOverPasses(
             listOf(change1, change2),
-            PointerEventPass.InitialDown,
-            PointerEventPass.PreUp,
-            PointerEventPass.PreDown,
-            PointerEventPass.PostUp
+            listOf(
+                PointerEventPass.InitialDown,
+                PointerEventPass.PreUp,
+                PointerEventPass.PreDown,
+                PointerEventPass.PostUp
+            )
         )
         scaleObserver.resultingScaleChange = 1f
-        result = recognizer.pointerInputHandler.invokeOverPasses(result, PointerEventPass.PostDown)
+        result = recognizer.pointerInputHandler
+            .invokeOverPasses(result, listOf(PointerEventPass.PostDown))
 
         // Assert
 
@@ -963,13 +992,16 @@ class RawScaleGestureDetectorTest {
         scaleObserver.resultingScaleChange = .75f
         var result = recognizer.pointerInputHandler.invokeOverPasses(
             listOf(change1, change2),
-            PointerEventPass.InitialDown,
-            PointerEventPass.PreUp,
-            PointerEventPass.PreDown,
-            PointerEventPass.PostUp
+            listOf(
+                PointerEventPass.InitialDown,
+                PointerEventPass.PreUp,
+                PointerEventPass.PreDown,
+                PointerEventPass.PostUp
+            )
         )
         scaleObserver.resultingScaleChange = 1f
-        result = recognizer.pointerInputHandler.invokeOverPasses(result, PointerEventPass.PostDown)
+        result = recognizer.pointerInputHandler
+            .invokeOverPasses(result, listOf(PointerEventPass.PostDown))
 
         // Assert
 
@@ -1043,6 +1075,48 @@ class RawScaleGestureDetectorTest {
         assertThat(result.count { it.consumed.downChange }).isEqualTo(2)
     }
 
+    // Tests that verify when onCancel should not be called.
+
+    @Test
+    fun cancelHandler_downCancel_onCancelNotCalled() {
+        val down = down()
+        recognizer.pointerInputHandler.invokeOverAllPasses(down)
+        scaleStartBlocked = false
+        recognizer.cancelHandler()
+
+        assertThat(log.filter { it.methodName == "onCancel" }).isEmpty()
+    }
+
+    @Test
+    fun cancelHandler_blockedDownMoveCancel_onCancelNotCalled() {
+        var pointer1 = down(0, x = 1f, y = 1f)
+        var pointer2 = down(0, x = 2f, y = 2f)
+        recognizer.pointerInputHandler.invokeOverAllPasses(pointer1, pointer2)
+        scaleStartBlocked = true
+        pointer1 = pointer1.moveBy(10.milliseconds, dx = 1f, dy = 0f)
+        pointer2 = pointer2.moveBy(10.milliseconds, dx = 0f, dy = 0f)
+        recognizer.pointerInputHandler.invokeOverAllPasses(pointer1, pointer2)
+        recognizer.cancelHandler()
+
+        assertThat(log.filter { it.methodName == "onCancel" }).isEmpty()
+    }
+
+    // Tests that verify when onCancel should be called.
+
+    @Test
+    fun cancelHandler_downMoveCancel_onCancelCalledOnce() {
+        var pointer1 = down(0, x = 1f, y = 1f)
+        var pointer2 = down(0, x = 2f, y = 2f)
+        recognizer.pointerInputHandler.invokeOverAllPasses(pointer1, pointer2)
+        scaleStartBlocked = false
+        pointer1 = pointer1.moveBy(10.milliseconds, dx = 1f, dy = 0f)
+        pointer2 = pointer2.moveBy(10.milliseconds, dx = 0f, dy = 0f)
+        recognizer.pointerInputHandler.invokeOverAllPasses(pointer1, pointer2)
+        recognizer.cancelHandler()
+
+        assertThat(log.count { it.methodName == "onCancel" }).isEqualTo(1)
+    }
+
     data class LogItem(
         val methodName: String,
         val percentageChanged: Float? = null
@@ -1066,6 +1140,11 @@ class RawScaleGestureDetectorTest {
         override fun onStop() {
             log.add(LogItem("onStop"))
             super.onStop()
+        }
+
+        override fun onCancel() {
+            log.add(LogItem("onCancel"))
+            super.onCancel()
         }
     }
 }

@@ -123,8 +123,8 @@ class RawDragGestureDetectorTest {
 
         // Arrange
 
-        val pointers = arrayListOf(down(0), down(1), down(2))
-        recognizer.pointerInputHandler.invokeOverAllPasses(pointers)
+        val pointers = arrayOf(down(0), down(1), down(2))
+        recognizer.pointerInputHandler.invokeOverAllPasses(*pointers)
         dragStartBlocked = false
 
         // Act
@@ -148,7 +148,7 @@ class RawDragGestureDetectorTest {
                 0f,
                 2f
             )
-        recognizer.pointerInputHandler.invokeOverAllPasses(pointers)
+        recognizer.pointerInputHandler.invokeOverAllPasses(*pointers)
 
         // Assert
         assertThat(log.filter { it.methodName == "onStart" }).isEmpty()
@@ -433,7 +433,7 @@ class RawDragGestureDetectorTest {
     @Test
     fun pointerInputHandler_down_downNotConsumed() {
         val result = recognizer.pointerInputHandler.invokeOverAllPasses(down())
-        assertThat(result.first().consumed.downChange).isFalse()
+        assertThat(result.consumed.downChange).isFalse()
     }
 
     @Test
@@ -448,7 +448,7 @@ class RawDragGestureDetectorTest {
         )
         dragObserver.dragConsume = PxPosition(7.ipx, (-11).ipx)
         var result = recognizer.pointerInputHandler.invokeOverPasses(
-            listOf(change),
+            change,
             PointerEventPass.InitialDown,
             PointerEventPass.PreUp,
             PointerEventPass.PreDown,
@@ -463,7 +463,7 @@ class RawDragGestureDetectorTest {
             PointerEventPass.PostUp
         )
 
-        assertThat(result.first().anyPositionChangeConsumed()).isFalse()
+        assertThat(result.anyPositionChangeConsumed()).isFalse()
     }
 
     @Test
@@ -481,7 +481,7 @@ class RawDragGestureDetectorTest {
         )
         val result = recognizer.pointerInputHandler.invokeOverAllPasses(change)
 
-        assertThat(result.first().anyPositionChangeConsumed()).isFalse()
+        assertThat(result.anyPositionChangeConsumed()).isFalse()
     }
 
     @Test
@@ -499,7 +499,7 @@ class RawDragGestureDetectorTest {
         )
         val result = recognizer.pointerInputHandler.invokeOverAllPasses(change)
 
-        assertThat(result.first().anyPositionChangeConsumed()).isFalse()
+        assertThat(result.anyPositionChangeConsumed()).isFalse()
     }
 
     @Test
@@ -515,7 +515,7 @@ class RawDragGestureDetectorTest {
         )
         dragObserver.dragConsume = PxPosition(7.ipx, (-11).ipx)
         var result = recognizer.pointerInputHandler.invokeOverPasses(
-            listOf(change),
+            change,
             PointerEventPass.InitialDown,
             PointerEventPass.PreUp,
             PointerEventPass.PreDown,
@@ -527,8 +527,8 @@ class RawDragGestureDetectorTest {
             PointerEventPass.PostDown
         )
 
-        assertThat(result.first().consumed.positionChange.x.value).isEqualTo(7f)
-        assertThat(result.first().consumed.positionChange.y.value).isEqualTo(-11f)
+        assertThat(result.consumed.positionChange.x.value).isEqualTo(7f)
+        assertThat(result.consumed.positionChange.y.value).isEqualTo(-11f)
     }
 
     @Test
@@ -546,7 +546,7 @@ class RawDragGestureDetectorTest {
         change = change.up(20.milliseconds)
         val result = recognizer.pointerInputHandler.invokeOverAllPasses(change)
 
-        assertThat(result.first().consumed.downChange).isTrue()
+        assertThat(result.consumed.downChange).isTrue()
     }
 
     @Test
@@ -583,6 +583,107 @@ class RawDragGestureDetectorTest {
             .isEqualTo(PxPosition(3.px, 4.px))
     }
 
+    // Tests that verify when onCancel should not be called.
+
+    @Test
+    fun cancelHandler_downCancel_onCancelNotCalled() {
+        val down = down()
+        recognizer.pointerInputHandler.invokeOverAllPasses(down)
+        dragStartBlocked = false
+        recognizer.cancelHandler()
+
+        assertThat(log.filter { it.methodName == "onCancel" }).isEmpty()
+    }
+
+    @Test
+    fun cancelHandler_blockedDownMoveCancel_onCancelNotCalled() {
+        val down = down()
+        recognizer.pointerInputHandler.invokeOverAllPasses(down)
+        dragStartBlocked = true
+        val move = down.moveBy(1.milliseconds, 1f, 0f)
+        recognizer.pointerInputHandler.invokeOverAllPasses(move)
+        recognizer.cancelHandler()
+
+        assertThat(log.filter { it.methodName == "onCancel" }).isEmpty()
+    }
+
+    // Tests that verify when onCancel should be called.
+
+    @Test
+    fun cancelHandler_downMoveCancel_onCancelCalledOnce() {
+        val down = down()
+        recognizer.pointerInputHandler.invokeOverAllPasses(down)
+        dragStartBlocked = false
+        val move = down.moveBy(1.milliseconds, 1f, 0f)
+        recognizer.pointerInputHandler.invokeOverAllPasses(move)
+        recognizer.cancelHandler()
+
+        assertThat(log.filter { it.methodName == "onCancel" }).hasSize(1)
+    }
+
+    // Tests that cancel behavior is correct.
+
+    @Test
+    fun cancelHandler_downCancelDownMove_startPositionIsSecondDown() {
+        val down1 = down(x = 3f, y = 5f)
+        recognizer.pointerInputHandler.invokeOverAllPasses(down1)
+        dragStartBlocked = false
+        recognizer.cancelHandler()
+
+        val down2 = down(x = 7f, y = 11f)
+        recognizer.pointerInputHandler.invokeOverAllPasses(down2)
+
+        val move = down2.moveBy(Duration(milliseconds = 10), 1f, 0f)
+        recognizer.pointerInputHandler.invokeOverAllPasses(move)
+
+        assertThat(log.first { it.methodName == "onStart" }.pxPosition)
+            .isEqualTo(PxPosition(7.px, 11.px))
+    }
+
+    @Test
+    fun cancelHandler_downMoveCancelDownMoveUp_flingIgnoresMoveBeforeCancel() {
+
+        // Act.
+
+        // Down, move, cancel.
+        var change = down(id = 0, duration = 0.milliseconds)
+        recognizer.pointerInputHandler.invokeOverAllPasses(change)
+        dragStartBlocked = false
+        repeat(11) {
+            change = change.moveBy(
+                10.milliseconds,
+                -1f,
+                -1f
+            )
+            recognizer.pointerInputHandler.invokeOverAllPasses(change)
+        }
+        recognizer.cancelHandler()
+
+        // Down, Move, Up
+        change = down(id = 1, duration = 200.milliseconds)
+        recognizer.pointerInputHandler.invokeOverAllPasses(change)
+        dragStartBlocked = false
+        repeat(11) {
+            change = change.moveBy(
+                10.milliseconds,
+                1f,
+                1f
+            )
+            recognizer.pointerInputHandler.invokeOverAllPasses(change)
+        }
+        change = change.up(310.milliseconds)
+        recognizer.pointerInputHandler.invokeOverAllPasses(change)
+
+        // Assert.
+
+        // Fling velocity should only take account of the second Down, Move, Up.
+        val loggedStops = log.filter { it.methodName == "onStop" }
+        assertThat(loggedStops).hasSize(1)
+        val velocity = loggedStops[0].pxPosition!!
+        assertThat(velocity.x.value).isWithin(.01f).of(100f)
+        assertThat(velocity.y.value).isWithin(.01f).of(100f)
+    }
+
     data class LogItem(
         val methodName: String,
         val pxPosition: PxPosition? = null
@@ -600,17 +701,17 @@ class RawDragGestureDetectorTest {
 
         override fun onDrag(dragDistance: PxPosition): PxPosition {
             log.add(LogItem("onDrag", pxPosition = dragDistance))
-            val internalDragConsume = dragConsume
-            if (internalDragConsume == null) {
-                return super.onDrag(dragDistance)
-            } else {
-                return internalDragConsume
-            }
+            return dragConsume ?: super.onDrag(dragDistance)
         }
 
         override fun onStop(velocity: PxPosition) {
             log.add(LogItem("onStop", pxPosition = velocity))
             super.onStop(velocity)
+        }
+
+        override fun onCancel() {
+            log.add(LogItem("onCancel", pxPosition = null))
+            super.onCancel()
         }
     }
 }
