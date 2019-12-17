@@ -18,6 +18,7 @@ package androidx.ui.layout
 
 import androidx.annotation.FloatRange
 import androidx.compose.Composable
+import androidx.compose.Immutable
 import androidx.ui.core.Alignment
 import androidx.ui.core.AlignmentLine
 import androidx.ui.core.Constraints
@@ -435,6 +436,7 @@ enum class MainAxisAlignment(internal val arrangement: Arrangement) {
  * @constructor Creates an arrangement using the [arrangeBlock]. Use it to provide your own
  * arrangement of the layout's children.
  */
+@Immutable
 class Arrangement(
     internal val arrangeBlock: (totalSize: IntPx, elementSize: List<IntPx>) -> List<IntPx>
 ) {
