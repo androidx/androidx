@@ -16,6 +16,7 @@
 
 package androidx.ui.test.cases
 
+import androidx.compose.Composable
 import androidx.compose.MutableState
 import androidx.compose.state
 import androidx.ui.core.Dp
@@ -27,6 +28,7 @@ abstract class BaseSimpleRadioButtonTestCase : ComposeTestCase, ToggleableTestCa
 
     private var state: MutableState<Dp>? = null
 
+    @Composable
     fun getInnerSize(): MutableState<Dp> {
         val innerSize = state { 10.dp }
         state = innerSize
