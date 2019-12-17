@@ -18,7 +18,7 @@ package androidx.camera.camera2.impl;
 
 
 import androidx.annotation.NonNull;
-import androidx.camera.core.CaptureConfig;
+import androidx.camera.core.impl.CaptureConfig;
 import androidx.camera.core.impl.MultiValueSet;
 
 import java.util.ArrayList;

@@ -20,13 +20,14 @@ import android.annotation.SuppressLint;
 import android.hardware.camera2.CaptureRequest;
 import android.os.Build;
 
+import androidx.annotation.NonNull;
 import androidx.camera.camera2.impl.Camera2ImplConfig;
-import androidx.camera.core.CaptureConfig;
 import androidx.camera.core.DeviceProperties;
 import androidx.camera.core.ImageCapture;
 import androidx.camera.core.ImageCapture.CaptureMode;
 import androidx.camera.core.ImageCaptureConfig;
 import androidx.camera.core.UseCaseConfig;
+import androidx.camera.core.impl.CaptureConfig;
 
 /**
  * A {@link Camera2CaptureOptionUnpacker} extender for unpacking ImageCapture options into
@@ -39,7 +40,8 @@ final class ImageCaptureOptionUnpacker extends Camera2CaptureOptionUnpacker {
     private DeviceProperties mDeviceProperties = DeviceProperties.create();
 
     @Override
-    public void unpack(UseCaseConfig<?> config, final CaptureConfig.Builder builder) {
+    public void unpack(@NonNull UseCaseConfig<?> config,
+            @NonNull final CaptureConfig.Builder builder) {
         super.unpack(config, builder);
 
         if (!(config instanceof ImageCaptureConfig)) {
