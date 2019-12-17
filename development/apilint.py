@@ -43,6 +43,9 @@ Did you forget to re-run ./gradlew updateApi?
 
 
 def main(args=None):
+  if not ('ENABLE_UPDATEAPI_WARNING' in os.environ):
+    sys.exit(0)
+
   parser = argparse.ArgumentParser()
   parser.add_argument('--file', '-f', nargs='*')
   parser.set_defaults(format=False)
