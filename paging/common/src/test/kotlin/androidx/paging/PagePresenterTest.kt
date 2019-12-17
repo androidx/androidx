@@ -22,7 +22,6 @@ import org.junit.runner.RunWith
 import org.junit.runners.JUnit4
 import kotlin.test.assertEquals
 import kotlin.test.assertFailsWith
-import kotlin.test.assertNotEquals
 import kotlin.test.fail
 
 @Suppress("TestFunctionName")
@@ -80,29 +79,6 @@ internal fun <T : Any> PagePresenter<T>.asList() = List(size) { get(it) }
 @Suppress("SameParameterValue")
 @RunWith(JUnit4::class)
 class PagePresenterTest {
-    @Test
-    fun copy() {
-        val original = PagePresenter(
-            pages = mutableListOf(listOf('a', 'b', 'c')),
-            leadingNullCount = 2,
-            trailingNullCount = 2,
-            indexOfInitialPage = 0
-        )
-        val copy = original.copy()
-        val expected = original.asList()
-        assertEquals(expected, copy.asList())
-
-        original.insertPage(
-            isPrepend = false,
-            page = listOf('d', 'e'),
-            placeholdersRemaining = 0,
-            callback = CallbackCapture() // ignored
-        )
-
-        assertEquals(expected, copy.asList())
-        assertNotEquals(expected, original.asList())
-    }
-
     private fun verifyAppend(
         initialItems: Int,
         initialNulls: Int,
