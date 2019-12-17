@@ -38,6 +38,7 @@ open class StrictViewFragment(
         savedInstanceState: Bundle?
     ): View? {
         checkGetActivity()
+        checkActivityNotDestroyed()
         checkState("onCreateView", State.CREATED)
         assertWithMessage("Fragment should not have a view when calling onCreateView")
             .that(mView).isNull()
@@ -48,6 +49,7 @@ open class StrictViewFragment(
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         checkGetActivity()
+        checkActivityNotDestroyed()
         checkState("onViewCreated", State.CREATED)
         onViewCreatedCalled = true
     }
