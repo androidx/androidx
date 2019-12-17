@@ -63,8 +63,9 @@ class TableRecompositionTest(private val numberOfCells: Int) {
                 }
             }
         }.performTestWithEventsControl {
-            doFrame()
-            assertNoPendingChanges()
+            // We expect more than 1 frame because Table decorations are relying on measureWithSize
+            // which we don't have on the first frame.
+            doFramesUntilNoChangesPending(2)
         }
     }
 }
