@@ -138,6 +138,12 @@ package androidx.paging {
     method public <R> androidx.paging.PagedData<R> map(kotlin.jvm.functions.Function1<? super T,? extends R> transform);
   }
 
+  public final class PagedDataFlowBuilder<Key, Value> {
+    ctor public PagedDataFlowBuilder(kotlin.jvm.functions.Function0<? extends androidx.paging.PagedSource<Key,Value>> pagedSourceFactory, androidx.paging.PagedList.Config config);
+    method public kotlinx.coroutines.flow.Flow<androidx.paging.PagedData<Value>> build();
+    method public androidx.paging.PagedDataFlowBuilder<Key,Value> setInitialKey(Key? initialKey);
+  }
+
   public abstract class PagedList<T> extends java.util.AbstractList<T> {
     method @Deprecated public final void addWeakCallback(java.util.List<? extends T>? previousSnapshot, androidx.paging.PagedList.Callback callback);
     method public final void addWeakCallback(androidx.paging.PagedList.Callback callback);
