@@ -66,35 +66,37 @@ class KeyframeSet<T> implements Keyframes<T> {
         return mKeyframes;
     }
 
-    static KeyframeSet ofInt(int... values) {
+    static KeyframeSet<Integer> ofInt(int... values) {
         int numKeyframes = values.length;
         IntKeyframe[] keyframes = new IntKeyframe[Math.max(numKeyframes, 2)];
         if (numKeyframes == 1) {
-            keyframes[0] = Keyframe.ofInt(0f);
-            keyframes[1] = Keyframe.ofInt(1f, values[0]);
+            keyframes[0] = (IntKeyframe) Keyframe.ofInt(0f);
+            keyframes[1] = (IntKeyframe) Keyframe.ofInt(1f, values[0]);
         } else {
-            keyframes[0] = Keyframe.ofInt(0f, values[0]);
+            keyframes[0] = (IntKeyframe) Keyframe.ofInt(0f, values[0]);
             for (int i = 1; i < numKeyframes; ++i) {
-                keyframes[i] = Keyframe.ofInt((float) i / (numKeyframes - 1), values[i]);
+                keyframes[i] =
+                        (IntKeyframe) Keyframe.ofInt((float) i / (numKeyframes - 1), values[i]);
             }
         }
         return new IntKeyframeSet(keyframes);
     }
 
-    static KeyframeSet ofFloat(float... values) {
+    static KeyframeSet<Float> ofFloat(float... values) {
         boolean badValue = false;
         int numKeyframes = values.length;
         FloatKeyframe[] keyframes = new FloatKeyframe[Math.max(numKeyframes, 2)];
         if (numKeyframes == 1) {
-            keyframes[0] = Keyframe.ofFloat(0f);
-            keyframes[1] = Keyframe.ofFloat(1f, values[0]);
+            keyframes[0] = (FloatKeyframe) Keyframe.ofFloat(0f);
+            keyframes[1] = (FloatKeyframe) Keyframe.ofFloat(1f, values[0]);
             if (Float.isNaN(values[0])) {
                 badValue = true;
             }
         } else {
-            keyframes[0] = Keyframe.ofFloat(0f, values[0]);
+            keyframes[0] = (FloatKeyframe) Keyframe.ofFloat(0f, values[0]);
             for (int i = 1; i < numKeyframes; ++i) {
-                keyframes[i] = Keyframe.ofFloat((float) i / (numKeyframes - 1), values[i]);
+                keyframes[i] = (FloatKeyframe)
+                        Keyframe.ofFloat((float) i / (numKeyframes - 1), values[i]);
                 if (Float.isNaN(values[i])) {
                     badValue = true;
                 }
@@ -106,8 +108,9 @@ class KeyframeSet<T> implements Keyframes<T> {
         return new FloatKeyframeSet(keyframes);
     }
 
+    @SuppressWarnings("unchecked")
     @SafeVarargs
-    public static <T> KeyframeSet ofKeyframe(Keyframe<T>... keyframes) {
+    public static <T> KeyframeSet<T> ofKeyframe(Keyframe<T>... keyframes) {
         // if all keyframes of same primitive type, create the appropriate KeyframeSet
         int numKeyframes = keyframes.length;
         boolean hasFloat = false;
@@ -127,21 +130,22 @@ class KeyframeSet<T> implements Keyframes<T> {
             for (int i = 0; i < numKeyframes; ++i) {
                 floatKeyframes[i] = (FloatKeyframe) keyframes[i];
             }
-            return new FloatKeyframeSet(floatKeyframes);
+            return (KeyframeSet<T>) new FloatKeyframeSet(floatKeyframes);
         } else if (hasInt && !hasFloat && !hasOther) {
             IntKeyframe[] intKeyframes = new IntKeyframe[numKeyframes];
             for (int i = 0; i < numKeyframes; ++i) {
                 intKeyframes[i] = (IntKeyframe) keyframes[i];
             }
-            return new IntKeyframeSet(intKeyframes);
+            return (KeyframeSet<T>) new IntKeyframeSet(intKeyframes);
         } else {
             return new KeyframeSet<>(keyframes);
         }
     }
 
-    public static KeyframeSet ofObject(Object... values) {
+    @SafeVarargs
+    public static <T> KeyframeSet<T> ofObject(T... values) {
         int numKeyframes = values.length;
-        ArrayList<Keyframe<Object>> keyframes = new ArrayList<>(Math.max(numKeyframes, 2));
+        ArrayList<Keyframe<T>> keyframes = new ArrayList<>(Math.max(numKeyframes, 2));
         if (numKeyframes == 1) {
             keyframes.add(Keyframe.ofObject(0f));
             keyframes.add(Keyframe.ofObject(1f, values[0]));
@@ -151,7 +155,7 @@ class KeyframeSet<T> implements Keyframes<T> {
                 keyframes.add(Keyframe.ofObject((float) i / (numKeyframes - 1), values[i]));
             }
         }
-        return new KeyframeSet<>(keyframes);
+        return new KeyframeSet<T>(keyframes);
     }
 
     public static PathKeyframes ofPath(Path path) {
@@ -182,7 +186,7 @@ class KeyframeSet<T> implements Keyframes<T> {
 
     @NonNull
     @Override
-    public KeyframeSet clone() {
+    public KeyframeSet<T> clone() {
         List<Keyframe<T>> keyframes = mKeyframes;
         int numKeyframes = mKeyframes.size();
         final ArrayList<Keyframe<T>> newKeyframes = new ArrayList<>(numKeyframes);
