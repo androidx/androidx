@@ -77,6 +77,7 @@ data class ButtonStyle(
  * @param elevation The z-coordinate at which to place this button. This controls the size
  *  of the shadow below the button
  */
+@Composable
 fun ContainedButtonStyle(
     backgroundColor: Color = MaterialTheme.colors().primary,
     contentColor: Color = contentColorFor(backgroundColor),
@@ -111,6 +112,7 @@ fun ContainedButtonStyle(
  * @param elevation The z-coordinate at which to place this button. This controls the size
  *  of the shadow below the button.
  */
+@Composable
 fun OutlinedButtonStyle(
     border: Border = Border(
         MaterialTheme.colors().onSurface.copy(alpha = OutlinedStrokeOpacity),
@@ -143,6 +145,7 @@ fun OutlinedButtonStyle(
  * @param shape Defines the Button's shape.
  * @param contentColor The preferred content color. Will be used by text and iconography.
  */
+@Composable
 fun TextButtonStyle(
     shape: Shape = MaterialTheme.shapes().button,
     contentColor: Color = MaterialTheme.colors().primary

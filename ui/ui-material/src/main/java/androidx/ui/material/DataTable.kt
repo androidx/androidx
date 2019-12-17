@@ -89,6 +89,7 @@ data class DataTablePagination(
  *
  * @sample androidx.ui.material.samples.DataTableWithPagination
  */
+@Composable
 fun DefaultDataTablePagination(
     initialPage: Int = 0,
     initialRowsPerPage: Int,
@@ -142,6 +143,7 @@ data class DataTableSorting(
  *
  * @sample androidx.ui.material.samples.DataTableWithSorting
  */
+@Composable
 fun DefaultDataTableSorting(
     initialColumn: Int? = null,
     initialAscending: Boolean = true,
