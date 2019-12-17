@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2019 The Android Open Source Project
+ * Copyright 2019 The Android Open Source Project
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -14,15 +14,13 @@
  * limitations under the License.
  */
 
-package androidx.camera.core;
+package androidx.camera.core.impl;
 
 import android.util.Log;
 
 import androidx.annotation.GuardedBy;
 import androidx.annotation.NonNull;
-import androidx.annotation.RestrictTo;
-import androidx.annotation.RestrictTo.Scope;
-import androidx.camera.core.impl.CameraInternal;
+import androidx.camera.core.UseCase;
 
 import java.util.ArrayList;
 import java.util.Collection;
@@ -39,9 +37,8 @@ import java.util.Set;
  * <p>The group of {@link UseCase} instances have synchronized interactions with the {@link
  * CameraInternal}.
  *
- * @hide
  */
-@RestrictTo(Scope.LIBRARY_GROUP)
+
 public final class UseCaseGroup {
     private static final String TAG = "UseCaseGroup";
 
@@ -66,7 +63,7 @@ public final class UseCaseGroup {
     private volatile boolean mIsActive = false;
 
     /** Starts all the use cases so that they are brought into an online state. */
-    void start() {
+    public void start() {
         synchronized (mListenerLock) {
             if (mStateChangeCallback != null) {
                 mStateChangeCallback.onGroupActive(this);
@@ -76,7 +73,7 @@ public final class UseCaseGroup {
     }
 
     /** Stops all the use cases so that they are brought into an offline state. */
-    void stop() {
+    public void stop() {
         synchronized (mListenerLock) {
             if (mStateChangeCallback != null) {
                 mStateChangeCallback.onGroupInactive(this);
@@ -85,7 +82,8 @@ public final class UseCaseGroup {
         }
     }
 
-    void setListener(StateChangeCallback stateChangeCallback) {
+    /** Sets the Group StateChangeCallback listener */
+    public void setListener(@NonNull StateChangeCallback stateChangeCallback) {
         synchronized (mListenerLock) {
             this.mStateChangeCallback = stateChangeCallback;
         }
@@ -96,14 +94,14 @@ public final class UseCaseGroup {
      *
      * @return true if the use case is added, or false if the use case already exists in the group.
      */
-    public boolean addUseCase(UseCase useCase) {
+    public boolean addUseCase(@NonNull UseCase useCase) {
         synchronized (mUseCasesLock) {
             return mUseCases.add(useCase);
         }
     }
 
     /** Returns true if the {@link UseCase} is contained in the group. */
-    boolean contains(UseCase useCase) {
+    public boolean contains(@NonNull UseCase useCase) {
         synchronized (mUseCasesLock) {
             return mUseCases.contains(useCase);
         }
@@ -115,7 +113,7 @@ public final class UseCaseGroup {
      * @return Returns true if the use case is removed. Otherwise returns false (if the use case did
      * not exist in the group).
      */
-    boolean removeUseCase(UseCase useCase) {
+    public boolean removeUseCase(@NonNull UseCase useCase) {
         synchronized (mUseCasesLock) {
             return mUseCases.remove(useCase);
         }
@@ -136,7 +134,8 @@ public final class UseCaseGroup {
     }
 
     /** Returns the collection of all the use cases currently contained by the UseCaseGroup. */
-    Collection<UseCase> getUseCases() {
+    @NonNull
+    public Collection<UseCase> getUseCases() {
         synchronized (mUseCasesLock) {
             return Collections.unmodifiableCollection(mUseCases);
         }
@@ -161,7 +160,7 @@ public final class UseCaseGroup {
         return Collections.unmodifiableMap(cameraIdToUseCases);
     }
 
-    boolean isActive() {
+    public boolean isActive() {
         return mIsActive;
     }
 
