@@ -57,9 +57,9 @@ import androidx.camera.core.ImageCapture;
 import androidx.camera.core.ImageCapture.OnImageCapturedCallback;
 import androidx.camera.core.ImageCapture.OnImageSavedCallback;
 import androidx.camera.core.ImageProxy;
-import androidx.camera.core.LensFacingConverter;
 import androidx.camera.core.MeteringPoint;
 import androidx.camera.core.VideoCapture.OnVideoSavedCallback;
+import androidx.camera.core.impl.LensFacingConverter;
 import androidx.lifecycle.LifecycleOwner;
 
 import java.io.File;

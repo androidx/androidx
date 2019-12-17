@@ -21,10 +21,10 @@ import androidx.annotation.Nullable;
 import androidx.annotation.RestrictTo;
 import androidx.annotation.RestrictTo.Scope;
 import androidx.camera.core.CameraSelector;
-import androidx.camera.core.LensFacingConverter;
 import androidx.camera.core.impl.CameraFactory;
 import androidx.camera.core.impl.CameraInternal;
 import androidx.camera.core.impl.LensFacingCameraIdFilter;
+import androidx.camera.core.impl.LensFacingConverter;
 import androidx.core.util.Pair;
 import androidx.core.util.Preconditions;
 

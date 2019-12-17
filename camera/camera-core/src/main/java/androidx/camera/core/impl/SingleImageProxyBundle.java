@@ -14,10 +14,11 @@
  * limitations under the License.
  */
 
-package androidx.camera.core;
+package androidx.camera.core.impl;
 
 import androidx.annotation.NonNull;
-import androidx.annotation.RestrictTo;
+import androidx.camera.core.ImageInfo;
+import androidx.camera.core.ImageProxy;
 import androidx.camera.core.impl.utils.futures.Futures;
 
 import com.google.common.util.concurrent.ListenableFuture;
@@ -27,10 +28,7 @@ import java.util.List;
 
 /**
  * An {@link ImageProxyBundle} that contains a single {@link ImageProxy}.
- *
- * @hide
  */
-@RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
 public final class SingleImageProxyBundle implements ImageProxyBundle {
     private final int mCaptureId;
     private final ImageProxy mImageProxy;
@@ -72,7 +70,7 @@ public final class SingleImageProxyBundle implements ImageProxyBundle {
     }
 
     /** Close the {@link ImageProxy} that has been wrapped by the bundle. */
-    void close() {
+    public void close() {
         mImageProxy.close();
     }
 
