@@ -31,10 +31,10 @@ import androidx.annotation.WorkerThread;
 import androidx.camera.camera2.impl.Camera2ImplConfig;
 import androidx.camera.camera2.internal.annotation.CameraExecutor;
 import androidx.camera.core.CameraControl;
-import androidx.camera.core.CaptureConfig;
 import androidx.camera.core.FocusMeteringAction;
 import androidx.camera.core.FocusMeteringResult;
 import androidx.camera.core.MeteringPoint;
+import androidx.camera.core.impl.CaptureConfig;
 import androidx.concurrent.futures.CallbackToFutureAdapter;
 import androidx.concurrent.futures.CallbackToFutureAdapter.Completer;
 

@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2019 The Android Open Source Project
+ * Copyright 2019 The Android Open Source Project
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package androidx.camera.core;
+package androidx.camera.core.impl;
 
 import android.hardware.camera2.CameraCaptureSession;
 import android.hardware.camera2.CameraDevice;
@@ -22,12 +22,12 @@ import android.hardware.camera2.CaptureRequest;
 import android.view.Surface;
 
 import androidx.annotation.NonNull;
-import androidx.annotation.RestrictTo;
-import androidx.annotation.RestrictTo.Scope;
-import androidx.camera.core.impl.CameraCaptureCallback;
-import androidx.camera.core.impl.CameraInternal;
-import androidx.camera.core.impl.DeferrableSurface;
-import androidx.camera.core.impl.MultiValueSet;
+import androidx.annotation.Nullable;
+import androidx.camera.core.Config;
+import androidx.camera.core.MutableConfig;
+import androidx.camera.core.MutableOptionsBundle;
+import androidx.camera.core.OptionsBundle;
+import androidx.camera.core.UseCaseConfig;
 
 import java.util.ArrayList;
 import java.util.Collection;
@@ -41,10 +41,7 @@ import java.util.Set;
  *
  * <p>The CaptureConfig contains all the {@link android.hardware.camera2} parameters that are
  * required to issue a {@link CaptureRequest}.
- *
- * @hide
  */
-@RestrictTo(Scope.LIBRARY_GROUP)
 public final class CaptureConfig {
 
     /** The set of {@link Surface} that data from the camera will be put into. */
@@ -96,15 +93,18 @@ public final class CaptureConfig {
     }
 
     /** Returns an instance of a capture configuration with minimal configurations. */
+    @NonNull
     public static CaptureConfig defaultEmptyCaptureConfig() {
         return new CaptureConfig.Builder().build();
     }
 
     /** Get all the surfaces that the request will write data to. */
+    @NonNull
     public List<DeferrableSurface> getSurfaces() {
         return Collections.unmodifiableList(mSurfaces);
     }
 
+    @NonNull
     public Config getImplementationOptions() {
         return mImplementationOptions;
     }
@@ -118,20 +118,19 @@ public final class CaptureConfig {
     }
 
     /** Obtains all registered {@link CameraCaptureCallback} callbacks. */
+    @NonNull
     public List<CameraCaptureCallback> getCameraCaptureCallbacks() {
         return mCameraCaptureCallbacks;
     }
 
+    @Nullable
     public Object getTag() {
         return mTag;
     }
 
     /**
      * Interface for unpacking a configuration into a CaptureConfig.Builder
-     *
-     * @hide
      */
-    @RestrictTo(Scope.LIBRARY_GROUP)
     public interface OptionUnpacker {
 
         /**
@@ -140,15 +139,12 @@ public final class CaptureConfig {
          * @param config  the set of options to apply
          * @param builder the builder on which to apply the options
          */
-        void unpack(UseCaseConfig<?> config, CaptureConfig.Builder builder);
+        void unpack(@NonNull UseCaseConfig<?> config, @NonNull CaptureConfig.Builder builder);
     }
 
     /**
      * Builder for easy modification/rebuilding of a {@link CaptureConfig}.
-     *
-     * @hide
      */
-    @RestrictTo(Scope.LIBRARY_GROUP)
     public static final class Builder {
         private final Set<DeferrableSurface> mSurfaces = new HashSet<>();
         private MutableConfig mImplementationOptions = MutableOptionsBundle.create();
@@ -174,7 +170,8 @@ public final class CaptureConfig {
          *
          * <p>Populates the builder with all the properties defined in the base configuration.
          */
-        public static Builder createFrom(UseCaseConfig<?> config) {
+        @NonNull
+        public static Builder createFrom(@NonNull UseCaseConfig<?> config) {
             OptionUnpacker unpacker = config.getCaptureOptionUnpacker(null);
             if (unpacker == null) {
                 throw new IllegalStateException(
@@ -190,11 +187,12 @@ public final class CaptureConfig {
         }
 
         /** Create a {@link Builder} from a {@link CaptureConfig} */
-        public static Builder from(CaptureConfig base) {
+        @NonNull
+        public static Builder from(@NonNull CaptureConfig base) {
             return new Builder(base);
         }
 
-        int getTemplateType() {
+        public int getTemplateType() {
             return mTemplateType;
         }
 
@@ -213,7 +211,7 @@ public final class CaptureConfig {
          *
          * @throws IllegalArgumentException if the callback already exists in the configuration.
          */
-        public void addCameraCaptureCallback(CameraCaptureCallback cameraCaptureCallback) {
+        public void addCameraCaptureCallback(@NonNull CameraCaptureCallback cameraCaptureCallback) {
             if (mCameraCaptureCallbacks.contains(cameraCaptureCallback)) {
                 throw new IllegalArgumentException("duplicate camera capture callback");
             }
@@ -226,19 +224,19 @@ public final class CaptureConfig {
          * @throws IllegalArgumentException if any callback already exists in the configuration.
          */
         public void addAllCameraCaptureCallbacks(
-                Collection<CameraCaptureCallback> cameraCaptureCallbacks) {
+                @NonNull Collection<CameraCaptureCallback> cameraCaptureCallbacks) {
             for (CameraCaptureCallback c : cameraCaptureCallbacks) {
                 addCameraCaptureCallback(c);
             }
         }
 
         /** Add a surface that the request will write data to. */
-        public void addSurface(DeferrableSurface surface) {
+        public void addSurface(@NonNull DeferrableSurface surface) {
             mSurfaces.add(surface);
         }
 
         /** Remove a surface that the request will write data to. */
-        public void removeSurface(DeferrableSurface surface) {
+        public void removeSurface(@NonNull DeferrableSurface surface) {
             mSurfaces.remove(surface);
         }
 
@@ -253,13 +251,13 @@ public final class CaptureConfig {
             return mSurfaces;
         }
 
-        public void setImplementationOptions(Config config) {
+        public void setImplementationOptions(@NonNull Config config) {
             mImplementationOptions = MutableOptionsBundle.from(config);
         }
 
         /** Add a set of implementation specific options to the request. */
         @SuppressWarnings("unchecked")
-        public void addImplementationOptions(Config config) {
+        public void addImplementationOptions(@NonNull Config config) {
             for (Config.Option<?> option : config.listOptions()) {
                 @SuppressWarnings("unchecked") // Options/values are being copied directly
                         Config.Option<Object> objectOpt = (Config.Option<Object>) option;
@@ -277,6 +275,7 @@ public final class CaptureConfig {
             }
         }
 
+        @NonNull
         public Config getImplementationOptions() {
             return mImplementationOptions;
         }
@@ -289,7 +288,7 @@ public final class CaptureConfig {
             mUseRepeatingSurface = useRepeatingSurface;
         }
 
-        public void setTag(Object tag) {
+        public void setTag(@NonNull Object tag) {
             mTag = tag;
         }
 
@@ -297,6 +296,7 @@ public final class CaptureConfig {
          * Builds an instance of a CaptureConfig that has all the combined parameters of the
          * CaptureConfig that have been added to the Builder.
          */
+        @NonNull
         public CaptureConfig build() {
             return new CaptureConfig(
                     new ArrayList<>(mSurfaces),
