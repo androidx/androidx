@@ -17,7 +17,7 @@ dependencies {
     implementation(project(":recyclerview:recyclerview"))
     implementation project(":recyclerview:recyclerview-selection")
     implementation(project(":core:core"))
-    implementation project(':drawerlayout')
+    implementation project(':drawerlayout:drawerlayout')
     api(KOTLIN_STDLIB)
 }
 
