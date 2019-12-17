@@ -45,5 +45,5 @@ androidx {
     mavenVersion = LibraryVersions.APPCOMPAT
     mavenGroup = LibraryGroups.APPCOMPAT
     inceptionYear = "2019"
-    description = "Appcompat Lint Checks"
+    description = "AppCompat Lint Checks"
 }
