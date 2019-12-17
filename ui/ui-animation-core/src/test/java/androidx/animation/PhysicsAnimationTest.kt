@@ -33,7 +33,7 @@ class PhysicsAnimationTest {
         val end = 500f
         val playTime = 150L
 
-        val velocity = animation.getVelocity(playTime, start, end, 0f, ::lerp)
+        val velocity = animation.getVelocity(playTime, start, end, 0f)
         val (_, expectedVelocity) = builder.toSpring(end).updateValues(start, 0f, playTime)
         assertThat(velocity).isEqualTo(expectedVelocity)
     }
@@ -41,13 +41,13 @@ class PhysicsAnimationTest {
     @Test
     fun velocityCalculationForInts() {
         val builder = PhysicsBuilder<Int>()
-        val animation = builder.build()
+        val animation = builder.build(IntToVectorConverter)
 
         val start = 200
         val end = 500
         val playTime = 150L
 
-        val velocity = animation.getVelocity(playTime, start, end, 0f, IntPropKey()::interpolate)
+        val velocity = animation.getVelocity(playTime, start, end, 0f)
 
         val (_, expectedVelocity) = builder.toSpring(end)
             .updateValues(start.toFloat(), 0f, playTime)
@@ -63,9 +63,9 @@ class PhysicsAnimationTest {
         val start1 = 200f
         val end1 = 500f
         val interruptionTime = 150L
-        val interruptionValue = animation.getValue(interruptionTime, start1, end1, 0f, ::lerp)
+        val interruptionValue = animation.getValue(interruptionTime, start1, end1, 0f)
 
-        val interruptionVelocity = animation.getVelocity(interruptionTime, start1, end1, 0f, ::lerp)
+        val interruptionVelocity = animation.getVelocity(interruptionTime, start1, end1, 0f)
 
         // second animation will go from interruptionValue to interruptionValue with
         // applying the velocity from the first interrupted animation.
@@ -75,8 +75,8 @@ class PhysicsAnimationTest {
 
         // let's verify values after 15 ms of the second animation
         val playTime = 15L
-        val resultValue = animation.getValue(playTime, start2, end2, startVelocity2, ::lerp)
-        val resultVelocity = animation.getVelocity(playTime, start2, end2, startVelocity2, ::lerp)
+        val resultValue = animation.getValue(playTime, start2, end2, startVelocity2)
+        val resultVelocity = animation.getVelocity(playTime, start2, end2, startVelocity2)
 
         val (expectedValue, expectedVelocity) = builder.toSpring(end2).updateValues(
             start2,
@@ -86,28 +86,6 @@ class PhysicsAnimationTest {
 
         assertThat(resultValue).isEqualTo(expectedValue)
         assertThat(resultVelocity).isEqualTo(expectedVelocity)
-    }
-
-    @Test
-    fun customInterpolatorForFloats() {
-        val customPropKey = object : PropKey<Float> {
-            override fun interpolate(a: Float, b: Float, fraction: Float): Float {
-                return lerp(a, b, fraction * fraction) // Accelerate interpolation
-            }
-        }
-        val builder = PhysicsBuilder<Float>()
-        val animation = builder.build()
-
-        val start = 200f
-        val end = 500f
-        val playTime = 150L
-
-        val value = animation.getValue(playTime, start, end, 0f, customPropKey::interpolate)
-
-        val (fraction, _) = builder.toSpring(1f)
-            .updateValues(0f, 0f, playTime)
-        val expectedValue = customPropKey.interpolate(start, end, fraction)
-        assertThat(value).isWithin(0.001f).of(expectedValue)
     }
 
     private fun PhysicsBuilder<out Number>.toSpring(endValue: Number) =

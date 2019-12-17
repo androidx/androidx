@@ -18,14 +18,15 @@ package androidx.ui.animation
 
 import androidx.animation.AnimatedFloat
 import androidx.animation.AnimatedValue
+import androidx.animation.FloatValueHolder
+import androidx.animation.TwoWayConverter
 import androidx.compose.Model
 import androidx.animation.ValueHolder
-import androidx.annotation.CheckResult
+import androidx.animation.AnimationVector
+import androidx.animation.AnimationVector4D
 import androidx.compose.Composable
 import androidx.compose.remember
 import androidx.ui.graphics.Color
-import androidx.ui.graphics.lerp
-import androidx.ui.lerp
 
 /**
  * The animatedValue effect creates an [AnimatedValue] and positionally memoizes it. When the
@@ -33,11 +34,14 @@ import androidx.ui.lerp
  * automatically recomposed.
  *
  * @param initVal Initial value to set [AnimatedValue] to.
- * @param interpolator A value interpolator for interpolating two values of type [T]
+ * @param converter A value type converter for transforming any type T to an animatable type (i.e.
+ *                  Floats, Vector2D, Vector3D, etc)
  */
 @Composable
-fun <T> animatedValue(initVal: T, interpolator: (T, T, Float) -> T): AnimatedValue<T> =
-    remember { AnimatedValue(AnimValueHolder(initVal, interpolator)) }
+fun <T, V : AnimationVector> animatedValue(
+    initVal: T,
+    converter: TwoWayConverter<T, V>
+): AnimatedValue<T, V> = remember { AnimatedValue(AnimValueHolder(initVal, converter)) }
 
 /**
  * The animatedValue effect creates an [AnimatedFloat] and positionally memoizes it. When the
@@ -48,7 +52,7 @@ fun <T> animatedValue(initVal: T, interpolator: (T, T, Float) -> T): AnimatedVal
  */
 @Composable
 fun animatedFloat(initVal: Float): AnimatedFloat =
-    remember { AnimatedFloat(AnimValueHolder(initVal, ::lerp)) }
+    remember { AnimatedFloat(FloatAnimValueHolder(initVal)) }
 
 /**
  * The animatedValue effect creates an [AnimatedValue] of [Color] and positionally memoizes it. When
@@ -58,11 +62,23 @@ fun animatedFloat(initVal: Float): AnimatedFloat =
  * @param initVal Initial value to set [AnimatedValue] to.
  */
 @Composable
-fun animatedColor(initVal: Color): AnimatedValue<Color> =
-    remember { AnimatedValue(AnimValueHolder(initVal, ::lerp)) }
+fun animatedColor(initVal: Color): AnimatedValue<Color, AnimationVector4D> =
+    remember { AnimatedValue(ColorAnimValueHolder(initVal)) }
 
 @Model
-private class AnimValueHolder<T>(
+private class FloatAnimValueHolder(
+    override var value: Float
+) : FloatValueHolder
+
+@Model
+private class ColorAnimValueHolder(
+    override var value: Color
+) : ValueHolder<Color, AnimationVector4D> {
+    override val typeConverter = ColorToVectorConverter(value.colorSpace)
+}
+
+@Model
+private class AnimValueHolder<T, V : AnimationVector>(
     override var value: T,
-    override val interpolator: (T, T, Float) -> T
-) : ValueHolder<T>
+    override val typeConverter: TwoWayConverter<T, V>
+) : ValueHolder<T, V>

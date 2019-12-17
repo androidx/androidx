@@ -16,8 +16,40 @@
 
 package androidx.animation
 
-internal fun Animation<Float>.at(time: Int): Float =
-    getValue(time.toLong(), 0f, 1f, 0f, ::lerp)
+internal fun Animation<AnimationVector1D>.at(time: Int): Float =
+    getValue(
+        time.toLong(),
+        AnimationVector1D(0f),
+        AnimationVector1D(1f),
+        AnimationVector1D(0f)
+    ).value
 
-internal fun Animation<Float>.isFinished(time: Int): Boolean =
-    isFinished(time.toLong(), 0f, 1f, 0f)
+internal fun Animation<AnimationVector1D>.isFinished(time: Int): Boolean =
+    isFinished(time.toLong(), AnimationVector1D(0f), AnimationVector1D(1f), AnimationVector1D(0f))
+
+// Convenient method to build a Float animation.
+internal fun AnimationBuilder<Float>.build() = this.build(FloatToVectorConverter)
+
+internal fun Animation<AnimationVector1D>.getValue(
+    playTime: Long,
+    start: Number,
+    end: Number,
+    startVelocity: Number
+) = getValue(
+    playTime,
+    AnimationVector1D(start.toFloat()),
+    AnimationVector1D(end.toFloat()),
+    AnimationVector1D(startVelocity.toFloat())
+).value
+
+internal fun Animation<AnimationVector1D>.getVelocity(
+    playTime: Long,
+    start: Number,
+    end: Number,
+    startVelocity: Number
+) = getVelocity(
+    playTime,
+    AnimationVector1D(start.toFloat()),
+    AnimationVector1D(end.toFloat()),
+    AnimationVector1D(startVelocity.toFloat())
+).value

@@ -153,8 +153,9 @@ internal class DecayAnimationWrapper(
     private val startValue: Float,
     private val startVelocity: Float = 0f,
     private val anim: DecayAnimation
-) : AnimationWrapper<Float> {
+) : AnimationWrapper<Float, AnimationVector1D> {
     private val target: Float = anim.getTarget(startValue, startVelocity)
+    private val velocityVector: AnimationVector1D = AnimationVector1D(0f)
 
     override fun getValue(playTime: Long): Float {
         if (!isFinished(playTime)) {
@@ -163,12 +164,13 @@ internal class DecayAnimationWrapper(
             return target
         }
     }
-    override fun getVelocity(playTime: Long): Float {
+    override fun getVelocity(playTime: Long): AnimationVector1D {
         if (!isFinished(playTime)) {
-            return anim.getVelocity(playTime, startValue, startVelocity)
+            velocityVector.value = anim.getVelocity(playTime, startValue, startVelocity)
         } else {
-            return anim.absVelocityThreshold * sign(startVelocity)
+            velocityVector.value = anim.absVelocityThreshold * sign(startVelocity)
         }
+        return velocityVector
     }
     override fun isFinished(playTime: Long): Boolean =
         anim.isFinished(playTime, startValue, startVelocity)
@@ -177,6 +179,6 @@ internal class DecayAnimationWrapper(
 internal fun DecayAnimation.createWrapper(
     startValue: Float,
     startVelocity: Float = 0f
-): AnimationWrapper<Float> {
+): AnimationWrapper<Float, AnimationVector1D> {
     return DecayAnimationWrapper(startValue, startVelocity, this)
 }
