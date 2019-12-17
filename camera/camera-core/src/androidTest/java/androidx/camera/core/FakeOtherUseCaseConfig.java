@@ -22,6 +22,7 @@ import androidx.annotation.RestrictTo;
 import androidx.camera.core.impl.CameraDeviceConfig;
 import androidx.camera.core.impl.CameraIdFilter;
 import androidx.camera.core.impl.CaptureConfig;
+import androidx.camera.core.impl.Config;
 import androidx.camera.core.impl.MutableConfig;
 import androidx.camera.core.impl.MutableOptionsBundle;
 import androidx.camera.core.impl.OptionsBundle;
@@ -64,7 +65,8 @@ public class FakeOtherUseCaseConfig
     @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
     @Override
     @Nullable
-    public <ValueT> ValueT retrieveOption(Option<ValueT> id, @Nullable ValueT valueIfMissing) {
+    public <ValueT> ValueT retrieveOption(@NonNull Option<ValueT> id,
+            @Nullable ValueT valueIfMissing) {
         return mConfig.retrieveOption(id, valueIfMissing);
     }
 

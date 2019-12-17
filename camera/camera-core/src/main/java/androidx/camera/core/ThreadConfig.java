@@ -20,7 +20,7 @@ import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.annotation.RestrictTo;
 import androidx.annotation.RestrictTo.Scope;
-import androidx.camera.core.Config.Option;
+import androidx.camera.core.impl.Config.Option;
 
 import java.util.concurrent.Executor;
 

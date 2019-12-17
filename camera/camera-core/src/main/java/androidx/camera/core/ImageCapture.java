@@ -79,6 +79,7 @@ import androidx.camera.core.impl.CameraInfoInternal;
 import androidx.camera.core.impl.CaptureConfig;
 import androidx.camera.core.impl.CaptureProcessor;
 import androidx.camera.core.impl.CaptureStage;
+import androidx.camera.core.impl.ConfigProvider;
 import androidx.camera.core.impl.DeferrableSurface;
 import androidx.camera.core.impl.ImmediateSurface;
 import androidx.camera.core.impl.MutableConfig;
@@ -1319,6 +1320,7 @@ public class ImageCapture extends UseCase {
             DEFAULT_CONFIG = builder.getUseCaseConfig();
         }
 
+        @NonNull
         @Override
         public ImageCaptureConfig getConfig(@Nullable Integer lensFacing) {
             return DEFAULT_CONFIG;

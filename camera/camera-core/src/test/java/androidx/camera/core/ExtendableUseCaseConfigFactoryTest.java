@@ -20,7 +20,9 @@ import static com.google.common.truth.Truth.assertThat;
 
 import android.os.Build;
 
+import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
+import androidx.camera.core.impl.ConfigProvider;
 import androidx.camera.core.impl.ExtendableUseCaseConfigFactory;
 import androidx.camera.testing.fakes.FakeUseCase;
 import androidx.camera.testing.fakes.FakeUseCaseConfig;
@@ -57,6 +59,7 @@ public class ExtendableUseCaseConfigFactoryTest {
 
     private static class FakeUseCaseConfigProvider implements ConfigProvider<FakeUseCaseConfig> {
 
+        @NonNull
         @Override
         public FakeUseCaseConfig getConfig(@Nullable Integer lensFacing) {
             return new FakeUseCaseConfig.Builder().getUseCaseConfig();

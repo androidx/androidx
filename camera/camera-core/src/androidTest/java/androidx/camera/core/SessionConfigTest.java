@@ -24,8 +24,9 @@ import android.hardware.camera2.CameraCaptureSession;
 import android.hardware.camera2.CameraDevice;
 import android.view.Surface;
 
-import androidx.camera.core.Config.Option;
 import androidx.camera.core.impl.CameraCaptureCallback;
+import androidx.camera.core.impl.Config;
+import androidx.camera.core.impl.Config.Option;
 import androidx.camera.core.impl.DeferrableSurface;
 import androidx.camera.core.impl.ImmediateSurface;
 import androidx.camera.core.impl.MutableOptionsBundle;

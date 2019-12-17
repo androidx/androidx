@@ -20,8 +20,8 @@ import static com.google.common.truth.Truth.assertThat;
 
 import android.os.Build;
 
-import androidx.camera.core.Config;
-import androidx.camera.core.Config.Option;
+import androidx.annotation.NonNull;
+import androidx.camera.core.impl.Config.Option;
 import androidx.test.filters.SmallTest;
 
 import org.junit.Before;
@@ -136,7 +136,7 @@ public class OptionsBundleTest {
                 "option.1",
                 new Config.OptionMatcher() {
                     @Override
-                    public boolean onOptionMatched(Option<?> option) {
+                    public boolean onOptionMatched(@NonNull Option<?> option) {
                         assertThat(option).isAnyOf(OPTION_1, OPTION_1_A);
                         return true;
                     }
@@ -150,7 +150,7 @@ public class OptionsBundleTest {
                 "option",
                 new Config.OptionMatcher() {
                     @Override
-                    public boolean onOptionMatched(Option<?> option) {
+                    public boolean onOptionMatched(@NonNull Option<?> option) {
                         count.getAndIncrement();
                         return false;
                     }
@@ -166,7 +166,7 @@ public class OptionsBundleTest {
                 "invalid_find_string",
                 new Config.OptionMatcher() {
                     @Override
-                    public boolean onOptionMatched(Option<?> option) {
+                    public boolean onOptionMatched(@NonNull Option<?> option) {
                         count.getAndIncrement();
                         return false;
                     }
@@ -182,7 +182,7 @@ public class OptionsBundleTest {
                 "option.2",
                 new Config.OptionMatcher() {
                     @Override
-                    public boolean onOptionMatched(Option<?> option) {
+                    public boolean onOptionMatched(@NonNull Option<?> option) {
                         value.set(mAllOpts.retrieveOption(option));
                         return true;
                     }

@@ -24,9 +24,8 @@ import android.hardware.camera2.CameraDevice;
 import android.view.Surface;
 
 import androidx.annotation.NonNull;
-import androidx.camera.core.Config;
-import androidx.camera.core.Config.Option;
 import androidx.camera.core.SessionConfig;
+import androidx.camera.core.impl.Config.Option;
 import androidx.camera.testing.DeferrableSurfacesUtil;
 import androidx.test.ext.junit.runners.AndroidJUnit4;
 import androidx.test.filters.LargeTest;

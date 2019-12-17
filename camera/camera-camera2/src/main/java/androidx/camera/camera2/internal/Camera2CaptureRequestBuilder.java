@@ -25,8 +25,8 @@ import android.view.Surface;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.camera.camera2.impl.Camera2ImplConfig;
-import androidx.camera.core.Config;
 import androidx.camera.core.impl.CaptureConfig;
+import androidx.camera.core.impl.Config;
 import androidx.camera.core.impl.DeferrableSurface;
 
 import java.util.ArrayList;

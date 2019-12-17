@@ -65,6 +65,7 @@ import androidx.camera.core.impl.CameraInternal;
 import androidx.camera.core.impl.CaptureConfig;
 import androidx.camera.core.impl.CaptureProcessor;
 import androidx.camera.core.impl.CaptureStage;
+import androidx.camera.core.impl.ConfigProvider;
 import androidx.camera.core.impl.MutableConfig;
 import androidx.camera.core.impl.MutableOptionsBundle;
 import androidx.camera.core.impl.OptionsBundle;
@@ -520,6 +521,7 @@ public class Preview extends UseCase {
             DEFAULT_CONFIG = builder.getUseCaseConfig();
         }
 
+        @NonNull
         @Override
         public PreviewConfig getConfig(@Nullable Integer lensFacing) {
             return DEFAULT_CONFIG;
