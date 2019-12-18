@@ -33,10 +33,12 @@ public interface TargetConfig<T> {
     /**
      * Option: camerax.core.target.name
      */
+    @NonNull
     Option<String> OPTION_TARGET_NAME = Option.create("camerax.core.target.name", String.class);
     /**
      * Option: camerax.core.target.class
      */
+    @NonNull
     Option<Class<?>> OPTION_TARGET_CLASS =
             Option.create("camerax.core.target.class", Class.class);
 
