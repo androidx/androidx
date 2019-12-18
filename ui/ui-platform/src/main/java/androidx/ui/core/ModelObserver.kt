@@ -42,37 +42,37 @@ import androidx.compose.frames.temporaryReadObserver
  */
 class ModelObserver() {
     private val commitObserver: FrameCommitObserver = { committed ->
-        val calls = mutableMapOf<OnCommitCaller<*>, List<Any>>()
-        synchronized(observerMaps) {
-            observerMaps.entries.forEach { (onCommit, map) ->
-                val list = map.get(committed)
-                if (list.isNotEmpty()) {
-                    calls.put(onCommitCalls[onCommit]!!, list)
+        // This array is in the same order as commitMaps
+        val targetsArray: Array<List<Any>>
+        var hasValues = false
+        synchronized(commitMaps) {
+            targetsArray = Array(commitMaps.size) { index ->
+                val commitMap = commitMaps[index]
+                val map = commitMap.map
+                val targets = map.get(committed)
+                if (targets.isNotEmpty()) {
+                    hasValues = true
                 }
+                targets
             }
         }
-
-        if (calls.isNotEmpty()) {
+        if (hasValues) {
             if (Looper.myLooper() === handler.looper) {
-                callOnCommit(calls)
+                callOnCommit(targetsArray)
             } else {
-                handler.post { callOnCommit(calls) }
+                handler.post { callOnCommit(targetsArray) }
             }
         }
     }
 
-    // map from onCommit to ObserverMap (key = model, value = target)
-    private val observerMaps = mutableMapOf<Any, ObserverMap<Any, Any>>()
+    // list of CommitMaps
+    private val commitMaps = mutableListOf<CommitMap<*>>()
 
     // method to call when unsubscribing from the commit observer
     private var commitUnsubscribe: (() -> Unit)? = null
 
     // The FrameReadObserver currently being used to observe
     private val currentReadObserver = ThreadLocal<FrameReadObserver>()
-
-    // A trick to be able to call the onCommit() without knowing the target type,
-    // this is a map from the onCommit to a class designed to call that method.
-    private val onCommitCalls = mutableMapOf<Any, OnCommitCaller<*>>()
 
     // The handler on the thread that this ModelObserver was created on.
     private val handler: Handler
@@ -116,13 +116,12 @@ class ModelObserver() {
      */
     fun <T : Any> observeReads(target: T, onCommit: (T) -> Unit, block: () -> Unit) {
         val map: ObserverMap<Any, Any>
-        synchronized(observerMaps) {
-            map = observerMaps.getOrPut(onCommit) { ObserverMap() }
-            onCommitCalls.getOrPut(onCommit) { OnCommitCaller(onCommit) }
+        synchronized(commitMaps) {
+            map = ensureMap(onCommit)
             // clear all current observations for the target
             map.removeValue(target)
         }
-        observeWithObserver(ReadObserver(observerMaps, target, map), block)
+        observeWithObserver(ReadObserver(commitMaps, target, map), block)
     }
 
     /**
@@ -145,9 +144,9 @@ class ModelObserver() {
      * `onCommit` methods passed in [observeReads].
      */
     fun clear(target: Any) {
-        synchronized(observerMaps) {
-            observerMaps.values.forEach { map ->
-                map.removeValue(target)
+        synchronized(commitMaps) {
+            commitMaps.forEach { commitMap ->
+                commitMap.map.removeValue(target)
             }
         }
     }
@@ -167,10 +166,31 @@ class ModelObserver() {
         }
     }
 
-    private fun callOnCommit(calls: Map<OnCommitCaller<*>, List<Any>>) {
-        calls.entries.forEach { (caller, targets) ->
-            caller.callOnCommit(targets)
+    /**
+     * Calls the `onCommit` callback for the given targets.
+     */
+    private fun callOnCommit(targetsArray: Array<List<Any>>) {
+        for (i in 0..targetsArray.lastIndex) {
+            val targets = targetsArray[i]
+            if (targets.isNotEmpty()) {
+                val commitCaller = synchronized(commitMaps) { commitMaps[i] }
+                commitCaller.callOnCommit(targets)
+            }
         }
+    }
+
+    /**
+     * Returns the [ObserverMap] within [commitMaps] associated with [onCommit] or a newly-
+     * inserted one if it doesn't exist.
+     */
+    private fun <T : Any> ensureMap(onCommit: (T) -> Unit): ObserverMap<Any, Any> {
+        val index = commitMaps.indexOfFirst { it.onCommit === onCommit }
+        if (index == -1) {
+            val commitMap = CommitMap(onCommit)
+            commitMaps.add(commitMap)
+            return commitMap.map
+        }
+        return commitMaps[index].map
     }
 
     /**
@@ -201,8 +221,17 @@ class ModelObserver() {
      * unchecked casts with kotlin.
      */
     @Suppress("UNCHECKED_CAST")
-    private class OnCommitCaller<T>(val onCommit: (T) -> Unit) {
-        fun callOnCommit(targets: Iterable<Any>) {
+    private class CommitMap<T : Any>(val onCommit: (T) -> Unit) {
+        /**
+         * ObserverMap (key = model, value = target). These are the models that have been
+         * read during the target's [ModelObserver.observeReads].
+         */
+        val map = ObserverMap<Any, Any>()
+
+        /**
+         * Calls the `onCommit` callback for targets affected by the given committed values.
+         */
+        fun callOnCommit(targets: List<Any>) {
             targets.forEach { target ->
                 onCommit(target as T)
             }
