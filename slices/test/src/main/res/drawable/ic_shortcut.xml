@@ -20,7 +20,7 @@
     android:width="48.0dp">
     <path
         android:fillColor="#e2e2e2"
-        android:pathData="M24.0,24.0m-19.0,0.0a19.0,19.0 0.0,1.0 1.0,38.0 0.0a19.0,19.0 0.0,1.0 1.0,-38.0 0.0"/>
+        android:pathData="M24.0,24.0m-19.0,0.0a19.0,19.0 0.0,1 1,38.0 0.0a19.0,19.0 0.0,1 1,-38.0 0.0"/>
     <group
         android:scaleX=".7"
         android:scaleY=".7"
