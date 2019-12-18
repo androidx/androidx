@@ -25,11 +25,11 @@ import android.view.WindowManager;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.camera.core.CameraX;
-import androidx.camera.core.SessionConfig;
 import androidx.camera.core.VideoCapture;
-import androidx.camera.core.VideoCaptureConfig;
 import androidx.camera.core.impl.CaptureConfig;
 import androidx.camera.core.impl.ConfigProvider;
+import androidx.camera.core.impl.SessionConfig;
+import androidx.camera.core.impl.VideoCaptureConfig;
 
 /**
  * Provides defaults for {@link VideoCaptureConfig} in the Camera2 implementation.

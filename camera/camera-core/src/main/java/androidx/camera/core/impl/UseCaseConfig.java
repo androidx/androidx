@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2019 The Android Open Source Project
+ * Copyright 2019 The Android Open Source Project
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -14,23 +14,20 @@
  * limitations under the License.
  */
 
-package androidx.camera.core;
+package androidx.camera.core.impl;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
-import androidx.annotation.RestrictTo;
-import androidx.annotation.RestrictTo.Scope;
-import androidx.camera.core.impl.CaptureConfig;
-import androidx.camera.core.impl.Config;
+import androidx.camera.core.ExtendableBuilder;
+import androidx.camera.core.UseCase;
 import androidx.camera.core.internal.TargetConfig;
+import androidx.camera.core.internal.UseCaseEventConfig;
 
 /**
  * Configuration containing options for use cases.
  *
  * @param <T> The use case being configured.
- * @hide
  */
-@RestrictTo(Scope.LIBRARY_GROUP)
 public interface UseCaseConfig<T extends UseCase> extends TargetConfig<T>, Config,
         UseCaseEventConfig {
     // Option Declarations:
@@ -38,18 +35,12 @@ public interface UseCaseConfig<T extends UseCase> extends TargetConfig<T>, Confi
 
     /**
      * Option: camerax.core.useCase.defaultSessionConfig
-     *
-     * @hide
      */
-    @RestrictTo(Scope.LIBRARY_GROUP)
     Option<SessionConfig> OPTION_DEFAULT_SESSION_CONFIG =
             Option.create("camerax.core.useCase.defaultSessionConfig", SessionConfig.class);
     /**
      * Option: camerax.core.useCase.defaultCaptureConfig
-     *
-     * @hide
      */
-    @RestrictTo(Scope.LIBRARY_GROUP)
     Option<CaptureConfig> OPTION_DEFAULT_CAPTURE_CONFIG =
             Option.create("camerax.core.useCase.defaultCaptureConfig", CaptureConfig.class);
     /**
@@ -57,10 +48,7 @@ public interface UseCaseConfig<T extends UseCase> extends TargetConfig<T>, Confi
      *
      * <p>TODO(b/120949879): This may be removed when SessionConfig removes all camera2
      * dependencies.
-     *
-     * @hide
      */
-    @RestrictTo(Scope.LIBRARY_GROUP)
     Option<SessionConfig.OptionUnpacker> OPTION_SESSION_CONFIG_UNPACKER =
             Option.create("camerax.core.useCase.sessionConfigUnpacker",
                     SessionConfig.OptionUnpacker.class);
@@ -69,19 +57,13 @@ public interface UseCaseConfig<T extends UseCase> extends TargetConfig<T>, Confi
      *
      * <p>TODO(b/120949879): This may be removed when CaptureConfig removes all camera2
      * dependencies.
-     *
-     * @hide
      */
-    @RestrictTo(Scope.LIBRARY_GROUP)
     Option<CaptureConfig.OptionUnpacker> OPTION_CAPTURE_CONFIG_UNPACKER =
             Option.create("camerax.core.useCase.captureConfigUnpacker",
                     CaptureConfig.OptionUnpacker.class);
     /**
      * Option: camerax.core.useCase.surfaceOccypyPriority
-     *
-     * @hide
      */
-    @RestrictTo(Scope.LIBRARY_GROUP)
     Option<Integer> OPTION_SURFACE_OCCUPANCY_PRIORITY =
             Option.create("camerax.core.useCase.surfaceOccupancyPriority", int.class);
 
@@ -96,9 +78,7 @@ public interface UseCaseConfig<T extends UseCase> extends TargetConfig<T>, Confi
      * @param valueIfMissing The value to return if this configuration option has not been set.
      * @return The stored value or <code>valueIfMissing</code> if the value does not exist in this
      * configuration.
-     * @hide
      */
-    @RestrictTo(Scope.LIBRARY_GROUP)
     @Nullable
     SessionConfig getDefaultSessionConfig(@Nullable SessionConfig valueIfMissing);
 
@@ -110,9 +90,7 @@ public interface UseCaseConfig<T extends UseCase> extends TargetConfig<T>, Confi
      *
      * @return The stored value, if it exists in this configuration.
      * @throws IllegalArgumentException if the option does not exist in this configuration.
-     * @hide
      */
-    @RestrictTo(Scope.LIBRARY_GROUP)
     @NonNull
     SessionConfig getDefaultSessionConfig();
 
@@ -125,9 +103,7 @@ public interface UseCaseConfig<T extends UseCase> extends TargetConfig<T>, Confi
      * @param valueIfMissing The value to return if this configuration option has not been set.
      * @return The stored value or <code>valueIfMissing</code> if the value does not exist in this
      * configuration.
-     * @hide
      */
-    @RestrictTo(Scope.LIBRARY_GROUP)
     @Nullable
     CaptureConfig getDefaultCaptureConfig(@Nullable CaptureConfig valueIfMissing);
 
@@ -139,9 +115,7 @@ public interface UseCaseConfig<T extends UseCase> extends TargetConfig<T>, Confi
      *
      * @return The stored value, if it exists in this configuration.
      * @throws IllegalArgumentException if the option does not exist in this configuration.
-     * @hide
      */
-    @RestrictTo(Scope.LIBRARY_GROUP)
     @NonNull
     CaptureConfig getDefaultCaptureConfig();
 
@@ -156,9 +130,7 @@ public interface UseCaseConfig<T extends UseCase> extends TargetConfig<T>, Confi
      * @param valueIfMissing The value to return if this configuration option has not been set.
      * @return The stored value or <code>valueIfMissing</code> if the value does not exist in this
      * configuration.
-     * @hide
      */
-    @RestrictTo(Scope.LIBRARY_GROUP)
     @Nullable
     SessionConfig.OptionUnpacker getSessionOptionUnpacker(
             @Nullable SessionConfig.OptionUnpacker valueIfMissing);
@@ -173,9 +145,7 @@ public interface UseCaseConfig<T extends UseCase> extends TargetConfig<T>, Confi
      *
      * @return The stored value, if it exists in this configuration.
      * @throws IllegalArgumentException if the option does not exist in this configuration.
-     * @hide
      */
-    @RestrictTo(Scope.LIBRARY_GROUP)
     @NonNull
     SessionConfig.OptionUnpacker getSessionOptionUnpacker();
 
@@ -190,9 +160,7 @@ public interface UseCaseConfig<T extends UseCase> extends TargetConfig<T>, Confi
      * @param valueIfMissing The value to return if this configuration option has not been set.
      * @return The stored value or <code>valueIfMissing</code> if the value does not exist in this
      * configuration.
-     * @hide
      */
-    @RestrictTo(Scope.LIBRARY_GROUP)
     @Nullable
     CaptureConfig.OptionUnpacker getCaptureOptionUnpacker(
             @Nullable CaptureConfig.OptionUnpacker valueIfMissing);
@@ -207,9 +175,7 @@ public interface UseCaseConfig<T extends UseCase> extends TargetConfig<T>, Confi
      *
      * @return The stored value, if it exists in this configuration.
      * @throws IllegalArgumentException if the option does not exist in this configuration.
-     * @hide
      */
-    @RestrictTo(Scope.LIBRARY_GROUP)
     @NonNull
     CaptureConfig.OptionUnpacker getCaptureOptionUnpacker();
 
@@ -220,9 +186,7 @@ public interface UseCaseConfig<T extends UseCase> extends TargetConfig<T>, Confi
      * @param valueIfMissing The value to return if this configuration option has not been set.
      * @return The stored value or <code>valueIfMissing</code> if the value does not exist in this
      * configuration.
-     * @hide
      */
-    @RestrictTo(Scope.LIBRARY_GROUP)
     int getSurfaceOccupancyPriority(int valueIfMissing);
 
     /**
@@ -231,9 +195,7 @@ public interface UseCaseConfig<T extends UseCase> extends TargetConfig<T>, Confi
      *
      * @return The stored value, if it exists in this configuration.
      * @throws IllegalArgumentException if the option does not exist in this configuration.
-     * @hide
      */
-    @RestrictTo(Scope.LIBRARY_GROUP)
     int getSurfaceOccupancyPriority();
 
     /**
@@ -243,9 +205,7 @@ public interface UseCaseConfig<T extends UseCase> extends TargetConfig<T>, Confi
      * @param <C> The top level configuration which will be generated by
      *            {@link #getUseCaseConfig()}.
      * @param <B> The top level builder type for which this builder is composed with.
-     * @hide
      */
-    @RestrictTo(Scope.LIBRARY_GROUP)
     interface Builder<T extends UseCase, C extends UseCaseConfig<T>, B> extends
             TargetConfig.Builder<T, B>, ExtendableBuilder<T>, UseCaseEventConfig.Builder<B> {
 
@@ -254,9 +214,7 @@ public interface UseCaseConfig<T extends UseCase> extends TargetConfig<T>, Confi
          *
          * @param sessionConfig The default session configuration to use for this use case.
          * @return the current Builder.
-         * @hide
          */
-        @RestrictTo(Scope.LIBRARY_GROUP)
         @NonNull
         B setDefaultSessionConfig(@NonNull SessionConfig sessionConfig);
 
@@ -265,9 +223,7 @@ public interface UseCaseConfig<T extends UseCase> extends TargetConfig<T>, Confi
          *
          * @param captureConfig The default capture configuration to use for this use case.
          * @return the current Builder.
-         * @hide
          */
-        @RestrictTo(Scope.LIBRARY_GROUP)
         @NonNull
         B setDefaultCaptureConfig(@NonNull CaptureConfig captureConfig);
 
@@ -279,9 +235,7 @@ public interface UseCaseConfig<T extends UseCase> extends TargetConfig<T>, Confi
          *
          * @param optionUnpacker The option unpacker for to use for this use case.
          * @return the current Builder.
-         * @hide
          */
-        @RestrictTo(Scope.LIBRARY_GROUP)
         @NonNull
         B setSessionOptionUnpacker(@NonNull SessionConfig.OptionUnpacker optionUnpacker);
 
@@ -293,9 +247,7 @@ public interface UseCaseConfig<T extends UseCase> extends TargetConfig<T>, Confi
          *
          * @param optionUnpacker The option unpacker for to use for this use case.
          * @return the current Builder.
-         * @hide
          */
-        @RestrictTo(Scope.LIBRARY_GROUP)
         @NonNull
         B setCaptureOptionUnpacker(@NonNull CaptureConfig.OptionUnpacker optionUnpacker);
 
@@ -310,9 +262,7 @@ public interface UseCaseConfig<T extends UseCase> extends TargetConfig<T>, Confi
          * @param priority The priority to occupancy the available stream resource. Higher value
          *                 will have higher priority.
          * @return The current Builder.
-         * @hide
          */
-        @RestrictTo(Scope.LIBRARY_GROUP)
         @NonNull
         B setSurfaceOccupancyPriority(int priority);
 
@@ -320,9 +270,7 @@ public interface UseCaseConfig<T extends UseCase> extends TargetConfig<T>, Confi
          * Retrieves the configuration used by this builder.
          *
          * @return the configuration used by this builder.
-         * @hide
          */
-        @RestrictTo(Scope.LIBRARY_GROUP)
         @NonNull
         C getUseCaseConfig();
     }

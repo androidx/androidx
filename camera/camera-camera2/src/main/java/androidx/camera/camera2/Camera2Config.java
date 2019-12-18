@@ -24,14 +24,14 @@ import androidx.camera.camera2.internal.ImageCaptureConfigProvider;
 import androidx.camera.camera2.internal.PreviewConfigProvider;
 import androidx.camera.camera2.internal.VideoCaptureConfigProvider;
 import androidx.camera.core.CameraXConfig;
-import androidx.camera.core.ImageAnalysisConfig;
-import androidx.camera.core.ImageCaptureConfig;
-import androidx.camera.core.PreviewConfig;
-import androidx.camera.core.VideoCaptureConfig;
 import androidx.camera.core.impl.CameraDeviceSurfaceManager;
 import androidx.camera.core.impl.CameraFactory;
 import androidx.camera.core.impl.ExtendableUseCaseConfigFactory;
+import androidx.camera.core.impl.ImageAnalysisConfig;
+import androidx.camera.core.impl.ImageCaptureConfig;
+import androidx.camera.core.impl.PreviewConfig;
 import androidx.camera.core.impl.UseCaseConfigFactory;
+import androidx.camera.core.impl.VideoCaptureConfig;
 
 /**
  * Convenience class for generating a pre-populated Camera2 {@link CameraXConfig}.

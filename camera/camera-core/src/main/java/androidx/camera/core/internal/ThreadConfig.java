@@ -14,75 +14,64 @@
  * limitations under the License.
  */
 
-package androidx.camera.core;
+package androidx.camera.core.internal;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
-import androidx.annotation.RestrictTo;
-import androidx.annotation.RestrictTo.Scope;
 import androidx.camera.core.impl.Config.Option;
 
 import java.util.concurrent.Executor;
 
 /**
- * Configuration containing IO related options.
- *
- * @hide
+ * Configuration containing options pertaining to threads used by the configured object.
  */
-@RestrictTo(Scope.LIBRARY_GROUP)
-interface IoConfig {
+public interface ThreadConfig {
 
     // Option Declarations:
     // *********************************************************************************************
 
     /**
-     * Option: camerax.core.io.ioExecutor
-     *
-     * @hide
+     * Option: camerax.core.thread.backgroundExecutor
      */
-    @RestrictTo(Scope.LIBRARY_GROUP)
-    Option<Executor> OPTION_IO_EXECUTOR =
-            Option.create("camerax.core.io.ioExecutor", Executor.class);
+    Option<Executor> OPTION_BACKGROUND_EXECUTOR =
+            Option.create("camerax.core.thread.backgroundExecutor", Executor.class);
 
     // *********************************************************************************************
 
     /**
-     * Returns the executor that will be used for IO tasks.
+     * Returns the executor that will be used for background tasks.
      *
      * @param valueIfMissing The value to return if this configuration option has not been set.
      * @return The stored value or <code>valueIfMissing</code> if the value does not exist in this
      * configuration.
      */
     @Nullable
-    Executor getIoExecutor(@Nullable Executor valueIfMissing);
+    Executor getBackgroundExecutor(@Nullable Executor valueIfMissing);
 
 
     /**
-     * Returns the executor that will be used for IO tasks.
+     * Returns the executor that will be used for background tasks.
      *
      * @return The stored value, if it exists in this configuration.
      * @throws IllegalArgumentException if the option does not exist in this configuration.
      */
     @NonNull
-    Executor getIoExecutor();
+    Executor getBackgroundExecutor();
 
     /**
-     * Builder for a {@link IoConfig}.
+     * Builder for a {@link ThreadConfig}.
      *
      * @param <B> The top level builder type for which this builder is composed with.
-     * @hide
      */
-
-    @RestrictTo(Scope.LIBRARY_GROUP)
     interface Builder<B> {
 
         /**
-         * Sets the default executor that will be used for IO tasks.
+         * Sets the default executor that will be used for background tasks.
          *
-         * @param executor The executor which will be used for IO tasks.
+         * @param executor The executor which will be used for background tasks.
          * @return the current Builder.
          */
         @NonNull
-        B setIoExecutor(@NonNull Executor executor);
+        B setBackgroundExecutor(@NonNull Executor executor);
     }
 }
