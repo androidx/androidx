@@ -163,7 +163,7 @@ includeProject(":lifecycle:lifecycle-viewmodel-ktx", "lifecycle/lifecycle-viewmo
 includeProject(":lifecycle:lifecycle-viewmodel-savedstate","lifecycle/lifecycle-viewmodel-savedstate")
 includeProject(":loader:loader", "loader/loader")
 includeProject(":loader:loader-ktx", "loader/loader-ktx")
-includeProject(":localbroadcastmanager", "localbroadcastmanager")
+includeProject(":localbroadcastmanager:localbroadcastmanager", "localbroadcastmanager/localbroadcastmanager")
 includeProject(":media", "media")
 includeProject(":media2:media2-common", "media2/common")
 includeProject(":media2:media2-player", "media2/player")
