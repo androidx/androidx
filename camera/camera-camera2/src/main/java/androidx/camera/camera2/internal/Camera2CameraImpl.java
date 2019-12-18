@@ -22,6 +22,7 @@ import android.hardware.camera2.CameraAccessException;
 import android.hardware.camera2.CameraCharacteristics;
 import android.hardware.camera2.CameraDevice;
 import android.hardware.camera2.CameraManager;
+import android.hardware.camera2.CaptureRequest;
 import android.os.Build;
 import android.os.Handler;
 import android.os.Looper;
@@ -1267,6 +1268,10 @@ final class Camera2CameraImpl implements CameraInternal {
         public void onOpened(CameraDevice cameraDevice) {
             Log.d(TAG, "CameraDevice.onOpened(): " + cameraDevice.getId());
             mCameraDevice = cameraDevice;
+
+            // CameraControl needs CaptureRequest.Builder to get default capture request options.
+            updateDefaultRequestBuilderToCameraControl(cameraDevice);
+
             mCameraDeviceError = ERROR_NONE;
             switch (mState) {
                 case CLOSING:
@@ -1393,6 +1398,18 @@ final class Camera2CameraImpl implements CameraInternal {
                             + "in an error state.");
             setState(InternalState.REOPENING);
             closeCamera(/*abortInFlightCaptures=*/false);
+        }
+    }
+
+    @SuppressWarnings("WeakerAccess") /* synthetic accessor */
+    void updateDefaultRequestBuilderToCameraControl(@NonNull CameraDevice cameraDevice) {
+        try {
+            int templateType = mCameraControlInternal.getDefaultTemplate();
+            CaptureRequest.Builder builder =
+                    cameraDevice.createCaptureRequest(templateType);
+            mCameraControlInternal.setDefaultRequestBuilder(builder);
+        } catch (CameraAccessException e) {
+            Log.e(TAG, "fail to create capture request.", e);
         }
     }
 

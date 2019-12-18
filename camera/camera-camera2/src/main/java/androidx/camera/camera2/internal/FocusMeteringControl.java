@@ -84,10 +84,26 @@ class FocusMeteringControl {
     private ScheduledFuture<?> mAutoCancelHandle;
     @SuppressWarnings("WeakerAccess") /* synthetic accessor */
     long mFocusTimeoutCounter = 0;
+    @SuppressWarnings("WeakerAccess") /* synthetic accessor */
+    boolean mIsAutoFocusCompleted = false;
+    @SuppressWarnings("WeakerAccess") /* synthetic accessor */
+    boolean mIsFocusSuccessful = false;
+
     private Camera2CameraControl.CaptureResultListener mSessionListenerForFocus = null;
+    private Camera2CameraControl.CaptureResultListener mSessionListenerForCancel = null;
     private MeteringRectangle[] mAfRects = new MeteringRectangle[]{};
     private MeteringRectangle[] mAeRects = new MeteringRectangle[]{};
     private MeteringRectangle[] mAwbRects = new MeteringRectangle[]{};
+
+    @SuppressWarnings("WeakerAccess") /* synthetic accessor */
+    MeteringRectangle[] mDefaultAfRects = new MeteringRectangle[]{};
+    @SuppressWarnings("WeakerAccess") /* synthetic accessor */
+    MeteringRectangle[] mDefaultAeRects = new MeteringRectangle[]{};
+    @SuppressWarnings("WeakerAccess") /* synthetic accessor */
+    MeteringRectangle[] mDefaultAwbRects = new MeteringRectangle[]{};
+
+    CallbackToFutureAdapter.Completer<FocusMeteringResult> mRunningActionCompleter = null;
+    CallbackToFutureAdapter.Completer<Void> mRunningCancelCompleter = null;
     //**************************************************************************************//
 
 
@@ -106,6 +122,17 @@ class FocusMeteringControl {
         mCameraControl = cameraControl;
         mExecutor = executor;
         mScheduler = scheduler;
+    }
+
+    /**
+     * Sets a {@link CaptureRequest.Builder} to get the default capture request 3A regions in
+     * order to complete the ListenableFuture in {@link #startFocusAndMetering} and
+     * {@link #cancelFocusAndMetering}.
+     */
+    void setDefaultRequestBuilder(@NonNull CaptureRequest.Builder builder) {
+        mDefaultAfRects = builder.get(CaptureRequest.CONTROL_AF_REGIONS);
+        mDefaultAeRects = builder.get(CaptureRequest.CONTROL_AE_REGIONS);
+        mDefaultAwbRects = builder.get(CaptureRequest.CONTROL_AWB_REGIONS);
     }
 
     /**
@@ -241,10 +268,44 @@ class FocusMeteringControl {
             return;
         }
 
-        if (mCurrentFocusMeteringAction != null) {
-            cancelFocusAndMetering();
+        int supportedAfCount = Math.min(action.getMeteringPointsAf().size(),
+                mCameraControl.getMaxAfRegionCount());
+        int supportedAeCount = Math.min(action.getMeteringPointsAe().size(),
+                mCameraControl.getMaxAeRegionCount());
+        int supportedAwbCount = Math.min(action.getMeteringPointsAwb().size(),
+                mCameraControl.getMaxAwbRegionCount());
+        int totatlSupportedCount = supportedAfCount + supportedAeCount + supportedAwbCount;
+        if (totatlSupportedCount <= 0) {
+            completer.setException(
+                    new IllegalArgumentException("None of the specified AF/AE/AWB MeteringPoints "
+                            + "is supported on this camera."));
+            return;
         }
+
+        List<MeteringPoint> meteringPointListAF = new ArrayList<>();
+        List<MeteringPoint> meteringPointListAE = new ArrayList<>();
+        List<MeteringPoint> meteringPointListAWB = new ArrayList<>();
+        if (supportedAfCount > 0) {
+            meteringPointListAF.addAll(action.getMeteringPointsAf().subList(0, supportedAfCount));
+        }
+        if (supportedAeCount > 0) {
+            meteringPointListAE.addAll(action.getMeteringPointsAe().subList(0, supportedAeCount));
+        }
+        if (supportedAwbCount > 0) {
+            meteringPointListAWB.addAll(action.getMeteringPointsAwb().subList(0,
+                    supportedAwbCount));
+        }
+
+        failActionFuture("Cancelled by another startFocusAndMetering()");
+        failCancelFuture("Cancelled by another startFocusAndMetering()");
+
+        if (mCurrentFocusMeteringAction != null) {
+            cancelFocusAndMeteringWithoutAsyncResult();
+        }
+
+        disableAutoCancel();
         mCurrentFocusMeteringAction = action;
+        mRunningActionCompleter = completer;
 
         Rect cropSensorRegion = mCameraControl.getCropSensorRegion();
         Rational cropRegionAspectRatio = new Rational(cropSensorRegion.width(),
@@ -258,7 +319,7 @@ class FocusMeteringControl {
         List<MeteringRectangle> meteringRectanglesListAE = new ArrayList<>();
         List<MeteringRectangle> meteringRectanglesListAWB = new ArrayList<>();
 
-        for (MeteringPoint meteringPoint : action.getMeteringPointsAf()) {
+        for (MeteringPoint meteringPoint : meteringPointListAF) {
             PointF adjustedPoint = getFovAdjustedPoint(meteringPoint, cropRegionAspectRatio,
                     defaultAspectRatio);
             MeteringRectangle meteringRectangle = getMeteringRect(meteringPoint, adjustedPoint,
@@ -266,7 +327,7 @@ class FocusMeteringControl {
             meteringRectanglesListAF.add(meteringRectangle);
         }
 
-        for (MeteringPoint meteringPoint : action.getMeteringPointsAe()) {
+        for (MeteringPoint meteringPoint : meteringPointListAE) {
             PointF adjustedPoint = getFovAdjustedPoint(meteringPoint, cropRegionAspectRatio,
                     defaultAspectRatio);
             MeteringRectangle meteringRectangle = getMeteringRect(meteringPoint, adjustedPoint,
@@ -274,7 +335,7 @@ class FocusMeteringControl {
             meteringRectanglesListAE.add(meteringRectangle);
         }
 
-        for (MeteringPoint meteringPoint : action.getMeteringPointsAwb()) {
+        for (MeteringPoint meteringPoint : meteringPointListAWB) {
             PointF adjustedPoint = getFovAdjustedPoint(meteringPoint, cropRegionAspectRatio,
                     defaultAspectRatio);
             MeteringRectangle meteringRectangle = getMeteringRect(meteringPoint, adjustedPoint,
@@ -282,7 +343,7 @@ class FocusMeteringControl {
             meteringRectanglesListAWB.add(meteringRectangle);
         }
 
-        executeMeteringAction(completer,
+        executeMeteringAction(
                 meteringRectanglesListAF.toArray(new MeteringRectangle[0]),
                 meteringRectanglesListAE.toArray(new MeteringRectangle[0]),
                 meteringRectanglesListAWB.toArray(new MeteringRectangle[0]),
@@ -360,77 +421,162 @@ class FocusMeteringControl {
         }
     }
 
+    private static int getRegionCount(@Nullable MeteringRectangle[] regions) {
+        if (regions == null) {
+            return 0;
+        }
+        return regions.length;
+    }
+
+    private static boolean hasEqualRegions(@Nullable MeteringRectangle[] regions1,
+            @Nullable MeteringRectangle[] regions2) {
+        if (getRegionCount(regions1) == 0 && getRegionCount(regions2) == 0) {
+            return true;
+        }
+
+        if (getRegionCount(regions1) != getRegionCount(regions2)) {
+            return false;
+        }
+
+        if (regions1 != null && regions2 != null) {
+            for (int i = 0; i < regions1.length; i++) {
+                if (!regions1[i].equals(regions2[i])) {
+                    return false;
+                }
+            }
+        }
+        return true;
+    }
+
+    private boolean isAfModeSupported() {
+        return mCameraControl.getSupportedAfMode(CaptureRequest.CONTROL_AF_MODE_AUTO)
+                == CaptureRequest.CONTROL_AF_MODE_AUTO;
+    }
+
+    @WorkerThread
+    private void completeActionFuture(boolean isFocusSuccessful) {
+        if (mRunningActionCompleter != null) {
+            mRunningActionCompleter.set(FocusMeteringResult.create(isFocusSuccessful));
+            mRunningActionCompleter = null;
+        }
+    }
+
+    @WorkerThread
+    private void failActionFuture(String message) {
+        mCameraControl.removeCaptureResultListener(mSessionListenerForFocus);
+        if (mRunningActionCompleter != null) {
+            mRunningActionCompleter.setException(new CameraControl.OperationCanceledException(
+                    message));
+            mRunningActionCompleter = null;
+        }
+    }
+
+    @WorkerThread
+    private void failCancelFuture(String message) {
+        mCameraControl.removeCaptureResultListener(mSessionListenerForCancel);
+        if (mRunningCancelCompleter != null) {
+            mRunningCancelCompleter.setException(
+                    new CameraControl.OperationCanceledException(message));
+            mRunningCancelCompleter = null;
+        }
+    }
+
+    @WorkerThread
+    private void completeCancelFuture() {
+        if (mRunningCancelCompleter != null) {
+            mRunningCancelCompleter.set(null);
+            mRunningCancelCompleter = null;
+        }
+    }
+
     @WorkerThread
     private void executeMeteringAction(
-            @NonNull Completer<FocusMeteringResult> completer,
-            @Nullable MeteringRectangle[] afRects,
-            @Nullable MeteringRectangle[] aeRects,
-            @Nullable MeteringRectangle[] awbRects,
+            @NonNull MeteringRectangle[] afRects,
+            @NonNull MeteringRectangle[] aeRects,
+            @NonNull MeteringRectangle[] awbRects,
             FocusMeteringAction focusMeteringAction) {
         mCameraControl.removeCaptureResultListener(mSessionListenerForFocus);
 
         disableAutoCancel();
 
-        if (afRects == null) {
-            mAfRects = new MeteringRectangle[]{};
-        } else {
-            mAfRects = afRects;
-        }
-
-        if (aeRects == null) {
-            mAeRects = new MeteringRectangle[]{};
-        } else {
-            mAeRects = aeRects;
-        }
-
-        if (awbRects == null) {
-            mAwbRects = new MeteringRectangle[]{};
-        } else {
-            mAwbRects = awbRects;
-        }
+        mAfRects = afRects;
+        mAeRects = aeRects;
+        mAwbRects = awbRects;
 
         // Trigger AF scan if any AF points are added.
         if (shouldTriggerAF()) {
-            mCurrentAfState = CaptureResult.CONTROL_AF_STATE_INACTIVE;
-            // Will be called on mExecutor since mSessionCallback was created with mExecutor
-            mSessionListenerForFocus =
-                    result -> {
-                        Integer afState = result.get(CaptureResult.CONTROL_AF_STATE);
-                        if (afState == null) {
-                            return false;
-                        }
-
-                        if (mCurrentAfState == CaptureResult.CONTROL_AF_STATE_ACTIVE_SCAN) {
-                            if (afState == CaptureResult.CONTROL_AF_STATE_FOCUSED_LOCKED) {
-                                completer.set(FocusMeteringResult.create(true));
-                                return true; // finished
-                            } else if (afState
-                                    == CaptureResult.CONTROL_AF_STATE_NOT_FOCUSED_LOCKED) {
-                                completer.set(FocusMeteringResult.create(false));
-                                return true; // finished
-                            }
-                        }
-                        if (!mCurrentAfState.equals(afState)) {
-                            mCurrentAfState = afState;
-                        }
-                        return false; // continue checking
-                    };
-
-            mCameraControl.addCaptureResultListener(mSessionListenerForFocus);
-
             mIsInAfAutoMode = true;
+            mIsAutoFocusCompleted = false;
+            mIsFocusSuccessful = false;
             mCameraControl.updateSessionConfig();
             triggerAf();
         } else {
-            completer.set(FocusMeteringResult.create(false));
+            mIsInAfAutoMode = false;
+            mIsAutoFocusCompleted = true; // Don't need to wait for auto-focus
+            mIsFocusSuccessful = false;  // False because AF is not triggered.
             mCameraControl.updateSessionConfig();
         }
+
+        mCurrentAfState = CaptureResult.CONTROL_AF_STATE_INACTIVE;
+        final boolean isAfModeSupported = isAfModeSupported();
+
+        // Will be called on mExecutor since mSessionCallback was created with mExecutor
+        mSessionListenerForFocus =
+                result -> {
+                    Integer afState = result.get(CaptureResult.CONTROL_AF_STATE);
+                    if (shouldTriggerAF()) {
+                        if (mCurrentAfState == CaptureResult.CONTROL_AF_STATE_ACTIVE_SCAN) {
+                            if (afState == CaptureResult.CONTROL_AF_STATE_FOCUSED_LOCKED) {
+                                mIsFocusSuccessful = true;
+                                mIsAutoFocusCompleted = true;
+                            } else if (afState
+                                    == CaptureResult.CONTROL_AF_STATE_NOT_FOCUSED_LOCKED) {
+                                mIsFocusSuccessful = false;
+                                mIsAutoFocusCompleted = true;
+                            }
+                        } else if (!isAfModeSupported) {
+                            // set isFocusSuccessful to true when camera does not support AF_AUTO.
+                            mIsFocusSuccessful = true;
+                            mIsAutoFocusCompleted = true;
+                        }
+                    }
+
+                    // Check 3A regions
+                    if (mIsAutoFocusCompleted && result.getRequest() != null) {
+                        MeteringRectangle[] toMatchAfRegions =
+                                (afRects.length != 0 ? afRects : mDefaultAfRects);
+                        MeteringRectangle[] toMatchAeRegions =
+                                (aeRects.length != 0 ? aeRects : mDefaultAeRects);
+                        MeteringRectangle[] toMatchAwbRegions =
+                                (awbRects.length != 0 ? awbRects : mDefaultAwbRects);
+
+                        CaptureRequest request = result.getRequest();
+                        if (hasEqualRegions(request.get(CaptureRequest.CONTROL_AF_REGIONS),
+                                toMatchAfRegions)
+                                && hasEqualRegions(
+                                request.get(CaptureRequest.CONTROL_AE_REGIONS), toMatchAeRegions)
+                                && hasEqualRegions(
+                                request.get(CaptureRequest.CONTROL_AWB_REGIONS),
+                                toMatchAwbRegions)) {
+
+                            completeActionFuture(mIsFocusSuccessful);
+                            return true; // remove this listener
+                        }
+                    }
+
+                    if (!mCurrentAfState.equals(afState)) {
+                        mCurrentAfState = afState;
+                    }
+                    return false; // continue checking
+                };
+
+        mCameraControl.addCaptureResultListener(mSessionListenerForFocus);
 
         if (focusMeteringAction.isAutoCancelEnabled()) {
             final long timeoutId = ++mFocusTimeoutCounter;
             final Runnable autoCancelRunnable = () -> mExecutor.execute(() -> {
                 if (timeoutId == mFocusTimeoutCounter) {
-                    cancelFocusAndMetering();
+                    cancelFocusAndMeteringWithoutAsyncResult();
                 }
             });
 
@@ -445,11 +591,55 @@ class FocusMeteringControl {
         return mAfRects.length > 0;
     }
 
-    @WorkerThread
-    void cancelFocusAndMetering() {
-        mCameraControl.removeCaptureResultListener(mSessionListenerForFocus);
+    ListenableFuture<Void> cancelFocusAndMetering() {
+        return CallbackToFutureAdapter.getFuture(
+                completer -> {
+                    mExecutor.execute(() -> cancelFocusAndMeteringInternal(completer));
+                    return "cancelFocusAndMetering";
+                });
+    }
 
+    @WorkerThread
+    void cancelFocusAndMeteringWithoutAsyncResult() {
+        cancelFocusAndMeteringInternal(null);
+    }
+
+    @WorkerThread
+    void cancelFocusAndMeteringInternal(
+            @Nullable CallbackToFutureAdapter.Completer<Void> completer) {
+        failCancelFuture("Cancelled by another cancelFocusAndMetering()");
+        failActionFuture("Cancelled by cancelFocusAndMetering()");
+        mRunningCancelCompleter = completer;
         disableAutoCancel();
+
+        if (mRunningCancelCompleter != null) {
+            int targetAfMode =
+                    mCameraControl.getSupportedAfMode(
+                            CaptureResult.CONTROL_AF_MODE_CONTINUOUS_PICTURE);
+            mSessionListenerForCancel =
+                    captureResult -> {
+                        Integer afMode = captureResult.get(CaptureResult.CONTROL_AF_MODE);
+                        CaptureRequest request = captureResult.getRequest();
+
+                        MeteringRectangle[] afRegions = request.get(
+                                CaptureRequest.CONTROL_AF_REGIONS);
+                        MeteringRectangle[] aeRegions = request.get(
+                                CaptureRequest.CONTROL_AE_REGIONS);
+                        MeteringRectangle[] awbRegions =
+                                request.get(CaptureRequest.CONTROL_AWB_REGIONS);
+
+                        if (afMode == targetAfMode
+                                && hasEqualRegions(afRegions, mDefaultAfRects)
+                                && hasEqualRegions(aeRegions, mDefaultAeRects)
+                                && hasEqualRegions(awbRegions, mDefaultAwbRects)) {
+                            completeCancelFuture();
+                            return true; // remove this listener
+                        }
+                        return false;
+                    };
+
+            mCameraControl.addCaptureResultListener(mSessionListenerForCancel);
+        }
 
         if (shouldTriggerAF()) {
             cancelAfAeTrigger(true, false);
