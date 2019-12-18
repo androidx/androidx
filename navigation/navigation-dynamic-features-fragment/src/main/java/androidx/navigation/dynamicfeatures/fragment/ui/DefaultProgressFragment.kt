@@ -19,11 +19,15 @@ package androidx.navigation.dynamicfeatures.fragment.ui
 import android.content.ComponentName
 import android.content.pm.PackageManager
 import android.os.Bundle
+import android.util.Log
 import android.view.View
+import android.widget.Button
 import android.widget.ImageView
 import android.widget.ProgressBar
 import android.widget.TextView
+import androidx.annotation.StringRes
 import androidx.navigation.dynamicfeatures.fragment.R
+import androidx.navigation.fragment.findNavController
 import com.google.android.play.core.splitinstall.model.SplitInstallErrorCode
 
 /**
@@ -39,44 +43,76 @@ class DefaultProgressFragment :
 
     internal companion object {
         private const val PROGRESS_MAX = 100
+        private const val TAG = "DefaultProgressFragment"
     }
 
+    private lateinit var title: TextView
     private lateinit var moduleName: TextView
     private lateinit var progressBar: ProgressBar
+    private lateinit var action: Button
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
-        moduleName = view.findViewById(R.id.module_name)
-        progressBar = view.findViewById(R.id.installation_progress)
-        progressBar.isIndeterminate = true
-        progressBar.max = PROGRESS_MAX
-
-        val activityIcon = view.findViewById<ImageView>(R.id.progress_icon)
-        val icon = try {
-            requireActivity().packageManager.getActivityIcon(
-                ComponentName(requireContext(), requireActivity().javaClass))
-        } catch (e: PackageManager.NameNotFoundException) {
-            requireActivity().packageManager.defaultActivityIcon
+        with(view) {
+            title = findViewById(R.id.progress_title)
+            moduleName = findViewById(R.id.module_name)
+            progressBar = findViewById<ProgressBar>(R.id.installation_progress)
+            setActivityIcon(findViewById(R.id.progress_icon))
+            action = findViewById(R.id.progress_action)
         }
-        activityIcon.setImageDrawable(icon)
+    }
+
+    private fun setActivityIcon(activityIcon: ImageView) {
+        with(requireContext().packageManager) {
+            val icon = try {
+                getActivityIcon(ComponentName(requireContext(), requireActivity().javaClass))
+            } catch (e: PackageManager.NameNotFoundException) {
+                defaultActivityIcon
+            }
+            activityIcon.setImageDrawable(icon)
+        }
     }
 
     override fun onProgress(status: Int, bytesDownloaded: Long, bytesTotal: Long) {
-        progressBar.visibility = View.VISIBLE
-        if (bytesTotal > 0) {
-            progressBar.isIndeterminate = false
-            progressBar.progress = (PROGRESS_MAX * bytesDownloaded / bytesTotal).toInt()
-        } else {
-            progressBar.isIndeterminate = true
+        with(progressBar) {
+            visibility = View.VISIBLE
+            if (bytesTotal == 0L) {
+                isIndeterminate = true
+            } else {
+                progress = (PROGRESS_MAX * bytesDownloaded / bytesTotal).toInt()
+                isIndeterminate = false
+            }
         }
     }
 
     override fun onCancelled() {
-        progressBar.visibility = View.INVISIBLE
-        moduleName.setText(R.string.installation_cancelled)
+        displayErrorState(R.string.installation_cancelled)
+        displayAction(R.string.retry) { navigate() }
     }
 
     override fun onFailed(@SplitInstallErrorCode errorCode: Int) {
+        Log.w(TAG, "Installation failed with error $errorCode")
+        displayErrorState(R.string.installation_failed)
+        displayAction(R.string.ok) { findNavController().popBackStack() }
+    }
+
+    /**
+     * Display an error state message.
+     */
+    private fun displayErrorState(@StringRes text: Int) {
+        title.setText(text)
         progressBar.visibility = View.INVISIBLE
-        moduleName.setText(R.string.installation_failed)
+    }
+
+    /**
+     * Display the action button and assign `onClick` behavior.
+     */
+    private fun displayAction(@StringRes text: Int, onClick: () -> Unit) {
+        with(action) {
+            setText(text)
+            setOnClickListener {
+                onClick()
+            }
+            visibility = View.VISIBLE
+        }
     }
 }
