@@ -1040,6 +1040,28 @@ public class AppCompatTextViewTest
     }
 
     @Test
+    public void testCompoundDrawableRelativeTint() {
+        // Given an ACTV with a white drawableStartCompat set and a #f0f drawableTint
+        final AppCompatTextView textView = mActivity.findViewById(
+                R.id.text_view_compound_drawable_relative_tint);
+        final int tint = 0xffff00ff;
+        // Then the drawable should be tinted
+        final Drawable drawable = TextViewCompat.getCompoundDrawablesRelative(textView)[0];
+        TestUtils.assertAllPixelsOfColor(
+                "Tint not applied to AppCompatTextView compound drawable",
+                drawable,
+                drawable.getIntrinsicWidth(),
+                drawable.getIntrinsicHeight(),
+                true,
+                tint,
+                0,
+                true);
+        // Then the TextViewCompat getter should return the tint
+        assertEquals(ColorStateList.valueOf(tint),
+                TextViewCompat.getCompoundDrawableTintList(textView));
+    }
+
+    @Test
     public void testCompoundDrawablesTintList() {
         // Given an ACTV with a white drawableLeftCompat and a ColorStateList drawableTint set
         final AppCompatTextView textView = mActivity.findViewById(
