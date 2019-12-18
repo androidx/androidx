@@ -117,16 +117,8 @@ class TextSpanComposition(val composer: TextSpanComposer) {
 
     /* TODO: inline */ fun joinKey(left: Any, right: Any?): Any = composer.joinKey(left, right)
 
-    @Suppress("PLUGIN_WARNING")
-    inline fun <T> expr(
-        key: Any,
-        block: () -> T
-    ): T = with(composer) {
-        startGroup(key)
-        val result = block()
-        endGroup()
-        result
-    }
+    fun startExpr(key: Any) = composer.startGroup(key)
+    fun endExpr() = composer.endGroup()
 
     inline fun call(
         key: Any,

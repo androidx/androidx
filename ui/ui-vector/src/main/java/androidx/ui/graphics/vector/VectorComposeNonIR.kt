@@ -210,14 +210,6 @@ class VectorComposition(val composer: VectorComposer) {
         endGroup()
     }
 
-    @Suppress("PLUGIN_WARNING")
-    inline fun <T> expr(
-        key: Any,
-        block: () -> T
-    ): T = with(composer) {
-        startGroup(key)
-        val result = block()
-        endGroup()
-        result
-    }
+    fun startExpr(key: Any) = composer.startGroup(key)
+    fun endExpr() = composer.endGroup()
 }
