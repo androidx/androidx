@@ -20,6 +20,7 @@ import static com.google.common.truth.Truth.assertThat;
 
 import android.os.Build;
 
+import androidx.camera.core.impl.CaptureBundle;
 import androidx.test.filters.SmallTest;
 
 import org.junit.Test;

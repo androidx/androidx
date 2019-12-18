@@ -14,21 +14,15 @@
  * limitations under the License.
  */
 
-package androidx.camera.core;
+package androidx.camera.core.impl;
 
 import androidx.annotation.Nullable;
-import androidx.annotation.RestrictTo;
-import androidx.annotation.RestrictTo.Scope;
-import androidx.camera.core.impl.CaptureStage;
 
 import java.util.List;
 
 /**
  * A interface to return an ordered collection of {@link CaptureStage}.
- *
- * @hide
  */
-@RestrictTo(Scope.LIBRARY_GROUP)
 public interface CaptureBundle {
     /**
      * Returns a list of {@link CaptureStage} in order of how they are to be issued.

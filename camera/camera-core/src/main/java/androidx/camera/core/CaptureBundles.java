@@ -17,8 +17,7 @@
 package androidx.camera.core;
 
 import androidx.annotation.NonNull;
-import androidx.annotation.RestrictTo;
-import androidx.annotation.RestrictTo.Scope;
+import androidx.camera.core.impl.CaptureBundle;
 import androidx.camera.core.impl.CaptureStage;
 
 import java.util.ArrayList;
@@ -28,35 +27,30 @@ import java.util.List;
 
 /**
  * Different implementations of {@link CaptureBundle}.
- *
- * @hide
  */
-@RestrictTo(Scope.LIBRARY_GROUP)
 final class CaptureBundles {
     /** Creates a {@link CaptureBundle} which contain a single default {@link CaptureStage}. */
+    @NonNull
     static CaptureBundle singleDefaultCaptureBundle() {
         return createCaptureBundle(new CaptureStage.DefaultCaptureStage());
     }
 
     /** Returns a {@link CaptureBundle} which contains a list of {@link CaptureStage}. */
     @NonNull
-    static CaptureBundle createCaptureBundle(CaptureStage... captureStages) {
+    static CaptureBundle createCaptureBundle(@NonNull CaptureStage... captureStages) {
         return new CaptureBundleImpl(Arrays.asList(captureStages));
     }
 
     /** Returns a {@link CaptureBundle} which contains a list of {@link CaptureStage}. */
-    static CaptureBundle createCaptureBundle(List<CaptureStage> captureStageList) {
+    @NonNull
+    static CaptureBundle createCaptureBundle(@NonNull List<CaptureStage> captureStageList) {
         return new CaptureBundleImpl(captureStageList);
     }
 
     /**
      * An ordered collection of {@link CaptureStage}.
-     *
-     * @hide
      */
-    @RestrictTo(Scope.LIBRARY_GROUP)
     static final class CaptureBundleImpl implements CaptureBundle {
-
         final List<CaptureStage> mCaptureStageList;
 
         CaptureBundleImpl(List<CaptureStage> captureStageList) {
