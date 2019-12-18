@@ -17,6 +17,7 @@
 package androidx.camera.camera2.internal;
 
 import android.hardware.camera2.CameraCharacteristics;
+import android.hardware.camera2.CameraMetadata;
 import android.util.Log;
 import android.view.Surface;
 
@@ -177,5 +178,23 @@ public final class Camera2CameraInfoImpl implements CameraInfoInternal {
     @Override
     public LiveData<Float> getLinearZoom() {
         return mZoomControl.getLinearZoom();
+    }
+
+    /**
+     * {@inheritDoc}
+     *
+     * <p>When the CameraX configuration is {@link androidx.camera.camera2.Camera2Config}, the
+     * return value depends on whether the device is legacy
+     * ({@link CameraCharacteristics#INFO_SUPPORTED_HARDWARE_LEVEL} {@code ==
+     * }{@link CameraMetadata#INFO_SUPPORTED_HARDWARE_LEVEL_LEGACY}).
+     *
+     * @return {@link #IMPLEMENTATION_TYPE_CAMERA2_LEGACY} if the device is legacy, otherwise
+     * {@link #IMPLEMENTATION_TYPE_CAMERA2}.
+     */
+    @Override
+    public int getImplementationType() {
+        final int hardwareLevel = getSupportedHardwareLevel();
+        return hardwareLevel == CameraCharacteristics.INFO_SUPPORTED_HARDWARE_LEVEL_LEGACY
+                ? IMPLEMENTATION_TYPE_CAMERA2_LEGACY : IMPLEMENTATION_TYPE_CAMERA2;
     }
 }

@@ -29,7 +29,8 @@ public interface CameraInfoInternal extends CameraInfo {
     /**
      * Returns the LensFacing of this camera.
      *
-     * @return One of {@link LensFacing#FRONT}, {@link LensFacing#BACK}, or <code>null</code> if the
+     * @return One of {@link androidx.camera.core.CameraSelector#LENS_FACING_FRONT},
+     * {@link androidx.camera.core.CameraSelector#LENS_FACING_BACK}, or <code>null</code> if the
      * LensFacing does not fall into one of these two categories.
      */
     // TODO(b/122975195): Remove @Nullable and null return type once we have a LensFacing type which

@@ -18,11 +18,17 @@ package androidx.camera.core;
 
 import android.view.Surface;
 
+import androidx.annotation.IntDef;
 import androidx.annotation.NonNull;
+import androidx.annotation.RestrictTo;
+import androidx.annotation.RestrictTo.Scope;
 import androidx.camera.core.impl.ImageOutputConfig;
 import androidx.lifecycle.LifecycleOwner;
 import androidx.lifecycle.LiveData;
 import androidx.lifecycle.Observer;
+
+import java.lang.annotation.Retention;
+import java.lang.annotation.RetentionPolicy;
 
 /**
  * An interface for retrieving camera information.
@@ -32,13 +38,52 @@ import androidx.lifecycle.Observer;
 public interface CameraInfo {
 
     /**
+     * An unknown camera implementation type.
+     *
+     * @hide
+     */
+    @RestrictTo(Scope.LIBRARY_GROUP)
+    int IMPLEMENTATION_TYPE_UNKNOWN = 0;
+
+    /**
+     * A Camera2 API implementation type where the camera support level is
+     * {@link android.hardware.camera2.CameraMetadata#INFO_SUPPORTED_HARDWARE_LEVEL_LEGACY LEGACY}.
+     *
+     * @hide
+     */
+    @RestrictTo(Scope.LIBRARY_GROUP)
+    int IMPLEMENTATION_TYPE_CAMERA2_LEGACY = 1;
+
+    /**
+     * A Camera2 API implementation type where the camera support level is
+     * {@link android.hardware.camera2.CameraMetadata#INFO_SUPPORTED_HARDWARE_LEVEL_LIMITED
+     * LIMITED},
+     * {@link android.hardware.camera2.CameraMetadata#INFO_SUPPORTED_HARDWARE_LEVEL_FULL FULL},
+     * {@link android.hardware.camera2.CameraMetadata#INFO_SUPPORTED_HARDWARE_LEVEL_3 LEVEL_3} or
+     * {@link android.hardware.camera2.CameraMetadata#INFO_SUPPORTED_HARDWARE_LEVEL_EXTERNAL
+     * EXTRERNAL}
+     *
+     * @hide
+     */
+    @RestrictTo(Scope.LIBRARY_GROUP)
+    int IMPLEMENTATION_TYPE_CAMERA2 = 2;
+
+    /**
+     * A fake camera implementation type.
+     *
+     * @hide
+     */
+    @RestrictTo(Scope.LIBRARY_GROUP)
+    int IMPLEMENTATION_TYPE_FAKE = 3;
+
+    /**
      * Returns the sensor rotation in degrees, relative to the device's "natural" (default)
      * orientation.
      *
      * @return The sensor rotation in degrees, relative to device's "natural" (default) orientation.
      * @see
      * <a href="https://developer.android.com/guide/topics/sensors/sensors_overview#sensors-coords">
-     *     Sensor Coordinate System</a>
+     * Sensor Coordinate System</a>
      */
     int getSensorRotationDegrees();
 
@@ -129,4 +174,25 @@ public interface CameraInfo {
      */
     @NonNull
     LiveData<Float> getLinearZoom();
+
+    /**
+     * Returns the implementation type of the camera, this depends on the {@link CameraXConfig}
+     * used in the initialization of CameraX.
+     *
+     * @return The implementation type of the camera, which can be one of the following:
+     * {@link #IMPLEMENTATION_TYPE_UNKNOWN}, {@link #IMPLEMENTATION_TYPE_CAMERA2_LEGACY},
+     * {@link #IMPLEMENTATION_TYPE_CAMERA2}, {@link #IMPLEMENTATION_TYPE_FAKE}.
+     * @hide
+     */
+    @RestrictTo(Scope.LIBRARY_GROUP)
+    @ImplementationType
+    int getImplementationType();
+
+    /** @hide */
+    @IntDef(open = true, value = {IMPLEMENTATION_TYPE_UNKNOWN, IMPLEMENTATION_TYPE_CAMERA2_LEGACY,
+            IMPLEMENTATION_TYPE_CAMERA2, IMPLEMENTATION_TYPE_FAKE})
+    @Retention(RetentionPolicy.SOURCE)
+    @RestrictTo(Scope.LIBRARY_GROUP)
+    @interface ImplementationType {
+    }
 }
