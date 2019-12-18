@@ -4,5 +4,5 @@ plugins {
 }
 
 dependencies {
-    implementation(project(":dynamicanimation"))
+    implementation(project(":dynamicanimation:dynamicanimation"))
 }
