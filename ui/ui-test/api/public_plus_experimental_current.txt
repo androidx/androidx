@@ -153,6 +153,7 @@ package androidx.ui.test {
     method public static void sendSwipeLeft(androidx.ui.test.GestureScope);
     method public static void sendSwipeRight(androidx.ui.test.GestureScope);
     method public static void sendSwipeUp(androidx.ui.test.GestureScope);
+    method public static void sendSwipeWithVelocity(androidx.ui.test.GestureScope, float x0, float y0, float x1, float y1, @FloatRange(from=0.0) float endVelocity, androidx.ui.core.Duration duration = 200.milliseconds);
   }
 
   public final class GoldenSemanticsKt {
