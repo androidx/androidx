@@ -23,7 +23,7 @@ import android.view.Surface;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.camera.core.ImageProxy;
-import androidx.camera.core.ImageReaderProxy;
+import androidx.camera.core.impl.ImageReaderProxy;
 import androidx.camera.core.impl.utils.executor.CameraXExecutors;
 
 import com.google.common.util.concurrent.ListenableFuture;
@@ -124,8 +124,8 @@ public class FakeImageReaderProxy implements ImageReaderProxy {
         return mMaxImages;
     }
 
+    @NonNull
     @Override
-    @Nullable
     public Surface getSurface() {
         return mSurface;
     }

@@ -31,11 +31,11 @@ import androidx.camera.camera2.internal.Camera2CameraFactory;
 import androidx.camera.camera2.internal.Camera2DeviceSurfaceManager;
 import androidx.camera.core.CameraInfoUnavailableException;
 import androidx.camera.core.ImageProxy;
-import androidx.camera.core.ImageReaderProxy;
 import androidx.camera.core.ImageReaderProxys;
 import androidx.camera.core.impl.CameraDeviceSurfaceManager;
 import androidx.camera.core.impl.CameraFactory;
 import androidx.camera.core.impl.CameraInternal;
+import androidx.camera.core.impl.ImageReaderProxy;
 import androidx.camera.core.impl.ImmediateSurface;
 import androidx.camera.core.impl.SessionConfig;
 import androidx.camera.core.impl.utils.executor.CameraXExecutors;
@@ -86,7 +86,7 @@ public final class ImageReaderProxysTest {
             final Semaphore semaphore) {
         return new ImageReaderProxy.OnImageAvailableListener() {
             @Override
-            public void onImageAvailable(ImageReaderProxy reader) {
+            public void onImageAvailable(@NonNull ImageReaderProxy reader) {
                 ImageProxy image = reader.acquireLatestImage();
                 if (image != null) {
                     semaphore.release();

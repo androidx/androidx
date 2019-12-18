@@ -30,6 +30,8 @@ import android.os.Handler;
 import android.os.HandlerThread;
 import android.view.Surface;
 
+import androidx.annotation.NonNull;
+import androidx.camera.core.impl.ImageReaderProxy;
 import androidx.test.ext.junit.runners.AndroidJUnit4;
 import androidx.test.filters.LargeTest;
 
@@ -77,7 +79,7 @@ public final class ForwardingImageReaderListenerTest {
             createSemaphoreReleasingClosingListener(final Semaphore semaphore) {
         return new ImageReaderProxy.OnImageAvailableListener() {
             @Override
-            public void onImageAvailable(ImageReaderProxy imageReaderProxy) {
+            public void onImageAvailable(@NonNull ImageReaderProxy imageReaderProxy) {
                 imageReaderProxy.acquireNextImage().close();
                 semaphore.release();
             }

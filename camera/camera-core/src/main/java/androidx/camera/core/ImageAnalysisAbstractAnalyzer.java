@@ -18,6 +18,7 @@ package androidx.camera.core;
 
 import androidx.annotation.GuardedBy;
 import androidx.annotation.Nullable;
+import androidx.camera.core.impl.ImageReaderProxy;
 import androidx.camera.core.impl.utils.futures.Futures;
 import androidx.concurrent.futures.CallbackToFutureAdapter;
 import androidx.core.os.OperationCanceledException;

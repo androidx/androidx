@@ -22,6 +22,8 @@ import android.os.Handler;
 import android.os.HandlerThread;
 import android.os.Looper;
 
+import androidx.annotation.NonNull;
+import androidx.camera.core.impl.ImageReaderProxy;
 import androidx.camera.testing.HandlerUtil;
 import androidx.camera.testing.fakes.FakeCameraCaptureResult;
 import androidx.camera.testing.fakes.FakeImageReaderProxy;
@@ -78,7 +80,7 @@ public final class MetadataImageReaderTest {
         ImageReaderProxy.OnImageAvailableListener outputListener =
                 new ImageReaderProxy.OnImageAvailableListener() {
                     @Override
-                    public void onImageAvailable(ImageReaderProxy imageReader) {
+                    public void onImageAvailable(@NonNull ImageReaderProxy imageReader) {
                         // Checks if the output Image has ImageInfo with same timestamp.
                         ImageProxy resultImage = imageReader.acquireNextImage();
                         firstReceivedImageProxy.set(resultImage);
@@ -97,7 +99,7 @@ public final class MetadataImageReaderTest {
         outputListener =
                 new ImageReaderProxy.OnImageAvailableListener() {
                     @Override
-                    public void onImageAvailable(ImageReaderProxy imageReader) {
+                    public void onImageAvailable(@NonNull ImageReaderProxy imageReader) {
                         // Checks if the MetadataImageReader can output the other matched
                         // ImageProxy.
                         ImageProxy resultImage = imageReader.acquireNextImage();
@@ -127,7 +129,7 @@ public final class MetadataImageReaderTest {
         ImageReaderProxy.OnImageAvailableListener outputListener =
                 new ImageReaderProxy.OnImageAvailableListener() {
                     @Override
-                    public void onImageAvailable(ImageReaderProxy imageReader) {
+                    public void onImageAvailable(@NonNull ImageReaderProxy imageReader) {
                         // Checks if the output contains the first matched ImageProxy.
                         ImageProxy resultImage = imageReader.acquireNextImage();
                         assertThat(resultImage.getImageInfo().getTimestamp()).isEqualTo(
@@ -143,7 +145,7 @@ public final class MetadataImageReaderTest {
         outputListener =
                 new ImageReaderProxy.OnImageAvailableListener() {
                     @Override
-                    public void onImageAvailable(ImageReaderProxy imageReader) {
+                    public void onImageAvailable(@NonNull ImageReaderProxy imageReader) {
                         // Checks if the MetadataImageReader can output the other ImageProxy.
                         ImageProxy resultImage = imageReader.acquireNextImage();
                         assertThat(resultImage.getImageInfo().getTimestamp()).isEqualTo(
@@ -168,7 +170,7 @@ public final class MetadataImageReaderTest {
         ImageReaderProxy.OnImageAvailableListener outputListener =
                 new ImageReaderProxy.OnImageAvailableListener() {
                     @Override
-                    public void onImageAvailable(ImageReaderProxy imageReader) {
+                    public void onImageAvailable(@NonNull ImageReaderProxy imageReader) {
                         // If the Metadata still get a match, fail the test case.
                         receivedImage.set(true);
                         mSemaphore.release();
@@ -198,7 +200,7 @@ public final class MetadataImageReaderTest {
         ImageReaderProxy.OnImageAvailableListener outputListener =
                 new ImageReaderProxy.OnImageAvailableListener() {
                     @Override
-                    public void onImageAvailable(ImageReaderProxy imageReader) {
+                    public void onImageAvailable(@NonNull ImageReaderProxy imageReader) {
                         // The First ImageProxy is output without closing.
                         ImageProxy resultImage = imageReader.acquireNextImage();
                         receivedImage.set(resultImage);
@@ -217,7 +219,7 @@ public final class MetadataImageReaderTest {
         outputListener =
                 new ImageReaderProxy.OnImageAvailableListener() {
                     @Override
-                    public void onImageAvailable(ImageReaderProxy imageReader) {
+                    public void onImageAvailable(@NonNull ImageReaderProxy imageReader) {
                         // The second ImageProxy should be dropped, otherwise fail the test case.
                         hasReceivedSecondImage.set(true);
                         mSemaphore.release();
@@ -242,13 +244,12 @@ public final class MetadataImageReaderTest {
         mMetadataImageReader.setOnImageAvailableListener(
                 new ImageReaderProxy.OnImageAvailableListener() {
                     @Override
-                    public void onImageAvailable(ImageReaderProxy imageReader) {
+                    public void onImageAvailable(@NonNull ImageReaderProxy imageReader) {
                         // No image should be available since there should be no matches found
                         imageReceived.set(true);
                     }
                 },
-                mBackgroundHandler
-        );
+                mBackgroundHandler);
 
         // Trigger ImageInfo and ImageProxy to be pushed into the MetadataImageReader, which should
         // discard older data without matches so it does not get blocked.

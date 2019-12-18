@@ -17,6 +17,8 @@
 package androidx.camera.core;
 
 import androidx.annotation.GuardedBy;
+import androidx.annotation.NonNull;
+import androidx.camera.core.impl.ImageReaderProxy;
 
 import java.util.ArrayList;
 import java.util.Collections;
@@ -42,7 +44,7 @@ final class ForwardingImageReaderListener implements ImageReaderProxy.OnImageAva
     }
 
     @Override
-    public synchronized void onImageAvailable(ImageReaderProxy imageReaderProxy) {
+    public synchronized void onImageAvailable(@NonNull ImageReaderProxy imageReaderProxy) {
         ImageProxy imageProxy = imageReaderProxy.acquireNextImage();
         if (imageProxy == null) {
             return;

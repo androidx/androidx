@@ -34,6 +34,7 @@ import androidx.camera.core.impl.CameraCaptureCallback;
 import androidx.camera.core.impl.CaptureProcessor;
 import androidx.camera.core.impl.CaptureStage;
 import androidx.camera.core.impl.DeferrableSurface;
+import androidx.camera.core.impl.ImageReaderProxy;
 import androidx.camera.core.impl.SingleImageProxyBundle;
 import androidx.camera.core.impl.utils.futures.FutureCallback;
 import androidx.camera.core.impl.utils.futures.Futures;
@@ -58,7 +59,7 @@ final class ProcessingSurface extends DeferrableSurface implements SurfaceHolder
                 // TODO(b/141958189): Suppressed during upgrade to AGP 3.6.
                 @SuppressWarnings("GuardedBy")
                 @Override
-                public void onImageAvailable(ImageReaderProxy reader) {
+                public void onImageAvailable(@NonNull ImageReaderProxy reader) {
                     imageIncoming(reader);
                 }
             };
@@ -229,7 +230,7 @@ final class ProcessingSurface extends DeferrableSurface implements SurfaceHolder
             mInputImageReader.setOnImageAvailableListener(
                     new ImageReaderProxy.OnImageAvailableListener() {
                         @Override
-                        public void onImageAvailable(ImageReaderProxy imageReaderProxy) {
+                        public void onImageAvailable(@NonNull ImageReaderProxy imageReaderProxy) {
                             try (ImageProxy image = imageReaderProxy.acquireLatestImage()) {
                                 // Do nothing with image since simply emptying the queue
                             } catch (IllegalStateException e) {
