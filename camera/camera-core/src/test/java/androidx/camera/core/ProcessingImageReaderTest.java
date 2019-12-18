@@ -27,6 +27,7 @@ import android.os.Looper;
 import android.util.Size;
 import android.view.Surface;
 
+import androidx.camera.core.impl.CaptureBundle;
 import androidx.camera.core.impl.CaptureProcessor;
 import androidx.camera.core.impl.CaptureStage;
 import androidx.camera.core.impl.ImageProxyBundle;
