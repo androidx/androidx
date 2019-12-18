@@ -105,6 +105,7 @@ import androidx.appcompat.widget.ViewUtils;
 import androidx.collection.SimpleArrayMap;
 import androidx.core.app.ActivityCompat;
 import androidx.core.app.NavUtils;
+import androidx.core.content.res.ResourcesCompat;
 import androidx.core.util.ObjectsCompat;
 import androidx.core.view.KeyEventDispatcher;
 import androidx.core.view.LayoutInflaterCompat;
@@ -377,9 +378,32 @@ class AppCompatDelegateImpl extends AppCompatDelegate
                     Log.d(TAG, String.format("Applying night mode using "
                             + "createConfigurationContext(). Config: %s", config.toString()));
                 }
-                // If the target night mode is different to the new night mode, return a
-                // configuration context with the new config.
-                return super.attachBaseContext2(baseContext.createConfigurationContext(config));
+
+                // Wrap the base context to ensure any method overrides or themes are left intact.
+                // Since ThemeOverlay.AppCompat theme is empty, we'll get the base context's theme.
+                ContextThemeWrapper wrappedContext = new ContextThemeWrapper(baseContext,
+                        R.style.ThemeOverlay_AppCompat);
+                wrappedContext.applyOverrideConfiguration(config);
+
+                // Check whether the base context has an explicit theme or is able to obtain one
+                // from its outer context. If it throws an NPE, we don't need to worry about
+                // rebasing under the new configuration.
+                boolean needsThemeRebase;
+                try {
+                    needsThemeRebase = baseContext.getTheme() != null;
+                } catch (NullPointerException e) {
+                    needsThemeRebase = false;
+                }
+
+                if (needsThemeRebase) {
+                    // Attempt to rebase the old theme within the new configuration. This will only
+                    // work on SDK 21 and up, but it's unlikely that we're keeping the base theme
+                    // anyway so maybe nobody will notice. Note that calling getTheme() will clone
+                    // the base context's theme into the wrapped context's theme.
+                    ResourcesCompat.ThemeCompat.rebase(wrappedContext.getTheme());
+                }
+
+                return super.attachBaseContext2(wrappedContext);
             }
         }
 
