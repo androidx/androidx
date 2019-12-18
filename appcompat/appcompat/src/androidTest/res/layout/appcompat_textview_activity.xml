@@ -399,6 +399,13 @@
             app:drawableTint="#f0f"/>
 
         <androidx.appcompat.widget.AppCompatTextView
+            android:id="@+id/text_view_compound_drawable_relative_tint"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            app:drawableStartCompat="@drawable/white_square"
+            app:drawableTint="#f0f"/>
+
+        <androidx.appcompat.widget.AppCompatTextView
             android:id="@+id/text_view_compound_drawable_tint_list"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
