@@ -28,6 +28,7 @@ import android.hardware.camera2.CameraManager;
 import android.os.Build;
 import android.view.Surface;
 
+import androidx.camera.core.CameraInfo;
 import androidx.camera.core.CameraSelector;
 import androidx.camera.core.TorchState;
 import androidx.camera.core.impl.CameraInfoInternal;
@@ -52,6 +53,8 @@ import org.robolectric.shadows.ShadowCameraManager;
 public class Camera2CameraInfoImplTest {
 
     private static final String CAMERA0_ID = "0";
+    private static final int CAMERA0_SUPPORTED_HARDWARE_LEVEL =
+            CameraCharacteristics.INFO_SUPPORTED_HARDWARE_LEVEL_LEGACY;
     private static final int CAMERA0_SENSOR_ORIENTATION = 90;
     @CameraSelector.LensFacing
     private static final int CAMERA0_LENS_FACING_ENUM = CameraSelector.LENS_FACING_BACK;
@@ -59,12 +62,11 @@ public class Camera2CameraInfoImplTest {
     private static final boolean CAMERA0_FLASH_INFO_BOOLEAN = true;
 
     private static final String CAMERA1_ID = "1";
+    private static final int CAMERA1_SUPPORTED_HARDWARE_LEVEL =
+            CameraCharacteristics.INFO_SUPPORTED_HARDWARE_LEVEL_3;
     private static final int CAMERA1_SENSOR_ORIENTATION = 0;
     private static final int CAMERA1_LENS_FACING_INT = CameraCharacteristics.LENS_FACING_FRONT;
     private static final boolean CAMERA1_FLASH_INFO_BOOLEAN = false;
-
-    private static final int FAKE_SUPPORTED_HARDWARE_LEVEL =
-            CameraCharacteristics.INFO_SUPPORTED_HARDWARE_LEVEL_3;
 
     private CameraManager mCameraManager;
     private CameraCharacteristics mCameraCharacteristics0;
@@ -108,7 +110,7 @@ public class Camera2CameraInfoImplTest {
     public void cameraInfo_canCalculateCorrectRelativeRotation_forBackCamera() {
         CameraInfoInternal cameraInfoInternal =
                 new Camera2CameraInfoImpl(CAMERA0_ID, mCameraCharacteristics0,
-                mMockZoomControl, mMockTorchControl);
+                        mMockZoomControl, mMockTorchControl);
 
         // Note: these numbers depend on the camera being a back-facing camera.
         assertThat(cameraInfoInternal.getSensorRotationDegrees(Surface.ROTATION_0))
@@ -209,6 +211,21 @@ public class Camera2CameraInfoImplTest {
         assertThat(cameraInfo.getMinZoomRatio().getValue()).isEqualTo(1.0f);
     }
 
+    @Test
+    public void cameraInfo_getImplementationType_legacy() {
+        final CameraInfoInternal cameraInfo = new Camera2CameraInfoImpl(CAMERA0_ID,
+                mCameraCharacteristics0, mMockZoomControl, mMockTorchControl);
+        assertThat(cameraInfo.getImplementationType()).isEqualTo(
+                CameraInfo.IMPLEMENTATION_TYPE_CAMERA2_LEGACY);
+    }
+
+    @Test
+    public void cameraInfo_getImplementationType_noneLegacy() {
+        final CameraInfoInternal cameraInfo = new Camera2CameraInfoImpl(CAMERA1_ID,
+                mCameraCharacteristics1, mMockZoomControl, mMockTorchControl);
+        assertThat(cameraInfo.getImplementationType()).isEqualTo(
+                CameraInfo.IMPLEMENTATION_TYPE_CAMERA2);
+    }
 
     private void initCameras() {
         // **** Camera 0 characteristics ****//
@@ -218,7 +235,7 @@ public class Camera2CameraInfoImplTest {
         ShadowCameraCharacteristics shadowCharacteristics0 = Shadow.extract(characteristics0);
 
         shadowCharacteristics0.set(CameraCharacteristics.INFO_SUPPORTED_HARDWARE_LEVEL,
-                FAKE_SUPPORTED_HARDWARE_LEVEL);
+                CAMERA0_SUPPORTED_HARDWARE_LEVEL);
 
         // Add a lens facing to the camera
         shadowCharacteristics0.set(CameraCharacteristics.LENS_FACING, CAMERA0_LENS_FACING_INT);
@@ -245,7 +262,7 @@ public class Camera2CameraInfoImplTest {
         ShadowCameraCharacteristics shadowCharacteristics1 = Shadow.extract(characteristics1);
 
         shadowCharacteristics1.set(CameraCharacteristics.INFO_SUPPORTED_HARDWARE_LEVEL,
-                FAKE_SUPPORTED_HARDWARE_LEVEL);
+                CAMERA1_SUPPORTED_HARDWARE_LEVEL);
 
         // Add a lens facing to the camera
         shadowCharacteristics1.set(CameraCharacteristics.LENS_FACING, CAMERA1_LENS_FACING_INT);

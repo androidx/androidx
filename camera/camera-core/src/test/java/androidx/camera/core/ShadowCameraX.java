@@ -111,6 +111,11 @@ public class ShadowCameraX {
         public LiveData<Float> getLinearZoom() {
             return mLinearZoom;
         }
+
+        @Override
+        public int getImplementationType() {
+            return IMPLEMENTATION_TYPE_UNKNOWN;
+        }
     };
 
     private static final CameraDeviceSurfaceManager DEFAULT_DEVICE_SURFACE_MANAGER =
