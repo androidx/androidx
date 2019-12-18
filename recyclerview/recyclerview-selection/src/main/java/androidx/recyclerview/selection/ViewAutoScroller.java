@@ -22,6 +22,7 @@ import static androidx.recyclerview.selection.Shared.DEBUG;
 import static androidx.recyclerview.selection.Shared.VERBOSE;
 
 import android.graphics.Point;
+import android.graphics.Rect;
 import android.util.Log;
 
 import androidx.annotation.NonNull;
@@ -243,31 +244,33 @@ final class ViewAutoScroller extends AutoScroller {
      */
     private static final class RuntimeHost extends ScrollHost {
 
-        private final RecyclerView mRecyclerView;
+        private final RecyclerView mView;
 
-        RuntimeHost(@NonNull RecyclerView recyclerView) {
-            mRecyclerView = recyclerView;
+        RuntimeHost(@NonNull RecyclerView view) {
+            mView = view;
         }
 
         @Override
         void runAtNextFrame(@NonNull Runnable r) {
-            ViewCompat.postOnAnimation(mRecyclerView, r);
+            ViewCompat.postOnAnimation(mView, r);
         }
 
         @Override
         void removeCallback(@NonNull Runnable r) {
-            mRecyclerView.removeCallbacks(r);
+            mView.removeCallbacks(r);
         }
 
         @Override
         void scrollBy(int dy) {
             if (VERBOSE) Log.v(TAG, "Scrolling view by: " + dy);
-            mRecyclerView.scrollBy(0, dy);
+            mView.scrollBy(0, dy);
         }
 
         @Override
         int getViewHeight() {
-            return mRecyclerView.getHeight();
+            Rect r = new Rect();
+            mView.getGlobalVisibleRect(r);
+            return r.height();
         }
     }
 }
