@@ -16,6 +16,8 @@
 
 package androidx.ui.test.android
 
+import android.os.Handler
+import android.os.Looper
 import androidx.compose.Recomposer
 import androidx.test.espresso.IdlingRegistry
 import androidx.test.espresso.IdlingResource
@@ -55,11 +57,12 @@ internal object ComposeIdlingResource : IdlingResource {
 
     private var isRegistered = false
 
+    private val handler = Handler(Looper.getMainLooper())
+
     override fun isIdleNow(): Boolean {
         val isIdle = !Recomposer.hasPendingChanges()
-        if (isIdle && callback != null) {
-            // We need to call this otherwise Espresso would yell at us.
-            callback!!.onTransitionToIdle()
+        if (!isIdle) {
+            scheduleIdleCheck()
         }
         return isIdle
     }
@@ -92,5 +95,19 @@ internal object ComposeIdlingResource : IdlingResource {
         }
         IdlingRegistry.getInstance().unregister(ComposeIdlingResource)
         isRegistered = false
+    }
+
+    private fun scheduleIdleCheck() {
+        handler.post(object : Runnable {
+            override fun run() {
+                if (Recomposer.hasPendingChanges()) {
+                    scheduleIdleCheck()
+                    return
+                }
+                if (callback != null) {
+                    callback!!.onTransitionToIdle()
+                }
+            }
+        })
     }
 }
