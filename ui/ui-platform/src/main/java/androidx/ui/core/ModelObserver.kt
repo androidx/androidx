@@ -16,16 +16,13 @@
 
 package androidx.ui.core
 
-import android.os.Handler
-import android.os.Looper
 import androidx.annotation.RestrictTo
 import androidx.compose.ObserverMap
 import androidx.compose.TestOnly
-import androidx.compose.ThreadLocal
 import androidx.compose.frames.FrameCommitObserver
 import androidx.compose.frames.FrameReadObserver
+import androidx.compose.frames.observeAllReads
 import androidx.compose.frames.registerCommitObserver
-import androidx.compose.frames.temporaryReadObserver
 
 /**
  * Allows for easy model read observation. To begin observe a change, you must pass a
@@ -35,12 +32,16 @@ import androidx.compose.frames.temporaryReadObserver
  *
  * When a `@Model` class change has been committed, the `onCommit` listener will be called
  * with the `targetObject` as the argument. There are no order guarantees for
- * `onCommit` listener calls.
+ * `onCommit` listener calls. Commit callbacks are made on the thread that model changes
+ * are committed, so the [commitExecutor] allows the developer to control the thread on which the
+ * `onCommit`calls are made. An example use would be to have the executor shift to the
+ * the UI thread for the `onCommit` callbacks to be made.
  *
- * All `onCommit` calls will be made on the thread that the ModelObserver was created on, if
- * it is a Looper thread or on the main thread if not.
+ * A different ModelObserver should be used with each thread that [observeReads] is called on.
+ *
+ * @param commitExecutor The executor on which all `onCommit` calls will be made.
  */
-class ModelObserver() {
+class ModelObserver(private val commitExecutor: (command: () -> Unit) -> Unit) {
     private val commitObserver: FrameCommitObserver = { committed ->
         // This array is in the same order as commitMaps
         val targetsArray: Array<List<Any>>
@@ -57,33 +58,56 @@ class ModelObserver() {
             }
         }
         if (hasValues) {
-            if (Looper.myLooper() === handler.looper) {
+            commitExecutor {
                 callOnCommit(targetsArray)
-            } else {
-                handler.post { callOnCommit(targetsArray) }
             }
         }
     }
 
-    // list of CommitMaps
-    private val commitMaps = mutableListOf<CommitMap<*>>()
-
-    // method to call when unsubscribing from the commit observer
-    private var commitUnsubscribe: (() -> Unit)? = null
-
-    // The FrameReadObserver currently being used to observe
-    private val currentReadObserver = ThreadLocal<FrameReadObserver>()
-
-    // The handler on the thread that this ModelObserver was created on.
-    private val handler: Handler
-
-    init {
-        if (Looper.myLooper() == null) {
-            handler = Handler(Looper.getMainLooper())
-        } else {
-            handler = Handler()
+    /**
+     * The [FrameReadObserver] used by this [ModelObserver] during [observeReads].
+     */
+    private val readObserver: FrameReadObserver = { model ->
+        if (!isPaused) {
+            synchronized(commitMaps) {
+                currentMap!!.add(model, currentTarget!!)
+            }
         }
     }
+
+    /**
+     * List of all [CommitMap]s. When [observeReads] is called, there will be
+     * a [CommitMap] associated with its `onCommit` callback in this list. The list
+     * only grows.
+     */
+    private val commitMaps = mutableListOf<CommitMap<*>>()
+
+    /**
+     * Method to call when unsubscribing from the commit observer.
+     */
+    private var commitUnsubscribe: (() -> Unit)? = null
+
+    /**
+     * `true` when an [observeReads] is in progress and [readObserver] is active and
+     * `false` when [readObserver] is no longer observing changes.
+     */
+    private var isObserving = false
+
+    /**
+     * `true` when [pauseObservingReads] is called and read observations should no
+     * longer be considered invalidations for the `onCommit` callback.
+     */
+    private var isPaused = false
+
+    /**
+     * The [ObserverMap] that should be added to when a model is read during [observeReads].
+     */
+    private var currentMap: ObserverMap<Any, Any>? = null
+
+    /**
+     * The target associated with the active [observeReads] call.
+     */
+    private var currentTarget: Any? = null
 
     /**
      * Test-only access to the internal commit listener. This is used for benchmarking
@@ -110,18 +134,30 @@ class ModelObserver() {
      * not be cleared.
      *
      * The [onCommit] will be called when a model that was accessed during [block] has been
-     * committed, and it will be run on  the thread that the [ModelObserver] was created on.
-     * If the ModelObserver was created on a non-[Looper] thread, [onCommit] will be called on
-     * the [main thread][Looper.getMainLooper] instead.
+     * committed, and it will be called with [commitExecutor].
      */
     fun <T : Any> observeReads(target: T, onCommit: (T) -> Unit, block: () -> Unit) {
+        val oldMap = currentMap
+        val oldTarget = currentTarget
+        val oldPaused = isPaused
         val map: ObserverMap<Any, Any>
         synchronized(commitMaps) {
             map = ensureMap(onCommit)
-            // clear all current observations for the target
             map.removeValue(target)
         }
-        observeWithObserver(ReadObserver(commitMaps, target, map), block)
+        currentMap = map
+        currentTarget = target
+        isPaused = false
+        if (!isObserving) {
+            isObserving = true
+            observeAllReads(readObserver, block)
+            isObserving = false
+        } else {
+            block()
+        }
+        currentMap = oldMap
+        currentTarget = oldTarget
+        isPaused = oldPaused
     }
 
     /**
@@ -129,14 +165,10 @@ class ModelObserver() {
      * by calling [observeReads] inside [block].
      */
     fun pauseObservingReads(block: () -> Unit) {
-        observeWithObserver(PausedReadObserver, block)
-    }
-
-    private fun observeWithObserver(newObserver: FrameReadObserver, block: () -> Unit) {
-        val oldObserver = currentReadObserver.get()
-        currentReadObserver.set(newObserver)
-        temporaryReadObserver(newObserver, oldObserver, block)
-        currentReadObserver.set(oldObserver)
+        val oldPaused = isPaused
+        isPaused = true
+        block()
+        isPaused = oldPaused
     }
 
     /**
@@ -191,29 +223,6 @@ class ModelObserver() {
             return commitMap.map
         }
         return commitMaps[index].map
-    }
-
-    /**
-     * A [FrameReadObserver] that adds the read value to the observer map. This is used when
-     * [observeReads] is called.
-     */
-    private class ReadObserver<T : Any>(
-        val lock: Any,
-        val target: T,
-        val map: ObserverMap<Any, T>
-    ) : FrameReadObserver {
-        override fun invoke(readValue: Any) {
-            synchronized(lock) {
-                map.add(readValue, target)
-            }
-        }
-    }
-
-    internal companion object {
-        /**
-         * The [FrameReadObserver] used [pauseObservingReads] is called.
-         */
-        private val PausedReadObserver: FrameReadObserver = { _ -> }
     }
 
     /**

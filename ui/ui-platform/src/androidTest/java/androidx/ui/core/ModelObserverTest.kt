@@ -45,7 +45,7 @@ class ModelObserverTest {
         val countDownLatch = CountDownLatch(1)
 
         val model = State(0)
-        val modelObserver = ModelObserver()
+        val modelObserver = ModelObserver { it() }
         modelObserver.enableModelUpdatesObserving(true)
 
         open() // open the frame
@@ -95,7 +95,7 @@ class ModelObserverTest {
             assertEquals(1, layoutLatch.count)
             layoutLatch.countDown()
         }
-        val modelObserver = ModelObserver()
+        val modelObserver = ModelObserver { it() }
 
         modelObserver.enableModelUpdatesObserving(true)
 
@@ -156,7 +156,7 @@ class ModelObserverTest {
                 }
             }
         }
-        val modelObserver = ModelObserver()
+        val modelObserver = ModelObserver { it() }
 
         modelObserver.enableModelUpdatesObserving(true)
 
@@ -193,7 +193,7 @@ class ModelObserverTest {
             assertEquals(1, countDownLatch.count)
             countDownLatch.countDown()
         }
-        val modelObserver = ModelObserver()
+        val modelObserver = ModelObserver { it() }
 
         modelObserver.enableModelUpdatesObserving(true)
 
@@ -212,6 +212,89 @@ class ModelObserverTest {
 
         modelObserver.enableModelUpdatesObserving(false)
         assertTrue(countDownLatch.await(1, TimeUnit.SECONDS))
+    }
+
+    @Test
+    fun pauseStopsObserving() {
+        val node = LayoutNode()
+        var commits = 0
+
+        runSimpleTest { modelObserver, model ->
+            modelObserver.observeReads(node, { _ -> commits++ }) {
+                modelObserver.pauseObservingReads {
+                    model.value
+                }
+            }
+        }
+
+        assertEquals(0, commits)
+    }
+
+    @Test
+    fun nestedPauseStopsObserving() {
+        val node = LayoutNode()
+        var commits = 0
+
+        runSimpleTest { modelObserver, model ->
+            modelObserver.observeReads(node, { _ -> commits++ }) {
+                modelObserver.pauseObservingReads {
+                    modelObserver.pauseObservingReads {
+                        model.value
+                    }
+                    model.value
+                }
+            }
+        }
+
+        assertEquals(0, commits)
+    }
+
+    @Test
+    fun simpleObserving() {
+        val node = LayoutNode()
+        var commits = 0
+
+        runSimpleTest { modelObserver, model ->
+            modelObserver.observeReads(node, { _ -> commits++ }) {
+                model.value
+            }
+        }
+
+        assertEquals(1, commits)
+    }
+
+    @Test
+    fun observeWithinPause() {
+        val node = LayoutNode()
+        var commits = 0
+        var commits2 = 0
+
+        runSimpleTest { modelObserver, model ->
+            modelObserver.observeReads(node, { _ -> commits++ }) {
+                modelObserver.pauseObservingReads {
+                    modelObserver.observeReads(node, { _ -> commits2++ }) {
+                        model.value
+                    }
+                }
+            }
+        }
+        assertEquals(0, commits)
+        assertEquals(1, commits2)
+    }
+
+    private fun runSimpleTest(block: (modelObserver: ModelObserver, model: State<Int>) -> Unit) {
+        val modelObserver = ModelObserver { it() }
+        val model = State(0)
+
+        modelObserver.enableModelUpdatesObserving(true)
+        try {
+            open() // open the frame
+            block(modelObserver, model)
+            model.value++
+            commit() // close the frame
+        } finally {
+            modelObserver.enableModelUpdatesObserving(false)
+        }
     }
 }
 
