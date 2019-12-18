@@ -38,7 +38,7 @@ android {
 
 dependencies {
     api(KOTLIN_STDLIB)
-    api(project(":dynamicanimation"))
+    api(project(":dynamicanimation:dynamicanimation"))
 
     androidTestImplementation(ANDROIDX_TEST_EXT_JUNIT)
     androidTestImplementation(ANDROIDX_TEST_CORE)
