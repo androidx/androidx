@@ -320,9 +320,12 @@ final class Camera2CameraImpl implements CameraInternal {
             @Override
             @WorkerThread
             public void onSuccess(@Nullable Void result) {
-                mConfiguringForClose.remove(dummySession);
                 resetCaptureSession(false);
                 closeStaleCaptureSessions(dummySession);
+
+                // Config complete and remove the dummySession from the mConfiguringForClose map
+                // after resetCaptureSession and before release the dummySession.
+                mConfiguringForClose.remove(dummySession);
 
                 // Don't need to abort captures since there are none submitted for this session.
                 ListenableFuture<Void> releaseFuture = releaseSession(
