@@ -35,7 +35,6 @@ import androidx.ui.test.createComposeRule
 import androidx.ui.test.doClick
 import androidx.ui.test.findByText
 import com.google.common.truth.Truth
-import org.junit.Ignore
 import org.junit.Rule
 import org.junit.Test
 import org.junit.runner.RunWith
@@ -103,7 +102,6 @@ class SnackbarTest {
     }
 
     @Test
-    @Ignore // b/146432509
     fun snackbar_shortTextAndButton_alignment() {
         var snackCoords: LayoutCoordinates? = null
         var textCoords: LayoutCoordinates? = null
@@ -199,7 +197,6 @@ class SnackbarTest {
     }
 
     @Test
-    @Ignore // b/146432509
     fun snackbar_longTextAndButton_alignment() {
         var snackCoords: LayoutCoordinates? = null
         var textCoords: LayoutCoordinates? = null
