@@ -102,6 +102,7 @@ public class CameraXActivity extends AppCompatActivity
     private boolean mPermissionsGranted = false;
     private CallbackToFutureAdapter.Completer<Boolean> mPermissionsCompleter;
     private final AtomicLong mImageAnalysisFrameCount = new AtomicLong(0);
+    private final AtomicLong mPreviewFrameCount = new AtomicLong(0);
     private final MutableLiveData<String> mImageAnalysisResult = new MutableLiveData<>();
     private VideoFileSaver mVideoFileSaver;
     /** The camera to use */
@@ -132,16 +133,34 @@ public class CameraXActivity extends AppCompatActivity
     @SuppressWarnings("WeakerAccess")
     CallbackToFutureAdapter.Completer<Surface> mSurfaceCompleter;
 
+
     // Espresso testing variables
-    @VisibleForTesting
-    CountingIdlingResource mViewIdlingResource = new CountingIdlingResource("view");
+    private final CountingIdlingResource mViewIdlingResource = new CountingIdlingResource("view");
     private static final int FRAMES_UNTIL_VIEW_IS_READY = 5;
-    @VisibleForTesting
-    CountingIdlingResource mAnalysisIdlingResource =
+    private final CountingIdlingResource mAnalysisIdlingResource =
             new CountingIdlingResource("analysis");
-    @VisibleForTesting
-    final CountingIdlingResource mImageSavedIdlingResource =
+    private final CountingIdlingResource mImageSavedIdlingResource =
             new CountingIdlingResource("imagesaved");
+
+    /**
+     * Retrieve idling resource that waits for image received by analyzer).
+     * @return idline resource for image capture
+     */
+    @VisibleForTesting
+    @NonNull
+    public IdlingResource getAnalysisIdlingResource() {
+        return mAnalysisIdlingResource;
+    }
+
+    /**
+     * Retrieve idling resource that waits view to get texture update.
+     * @return idline resource for image capture
+     */
+    @VisibleForTesting
+    @NonNull
+    public IdlingResource getViewIdlingResource() {
+        return mViewIdlingResource;
+    }
 
     /**
      * Retrieve idling resource that waits for capture to complete (save or error).
@@ -211,9 +230,10 @@ public class CameraXActivity extends AppCompatActivity
                 });
 
 
-        for (int i = 0; i < FRAMES_UNTIL_VIEW_IS_READY; i++) {
-            mViewIdlingResource.increment();
-        }
+        mPreviewFrameCount.set(0);
+
+        // Make the view idling resource non-idle, until required framecount achieved.
+        mViewIdlingResource.increment();
 
         if (bindToLifecycleSafely(mPreview, R.id.PreviewToggle) == null) {
             mPreview = null;
@@ -365,6 +385,8 @@ public class CameraXActivity extends AppCompatActivity
                 .setTargetName("ImageAnalysis")
                 .build();
         TextView textView = this.findViewById(R.id.textView);
+
+        // Make the analysis idling resource non-idle, until a frame received.
         mAnalysisIdlingResource.increment();
 
         if (bindToLifecycleSafely(mImageAnalysis, R.id.AnalysisToggle) == null) {
@@ -380,11 +402,13 @@ public class CameraXActivity extends AppCompatActivity
                     // postValue() instead.
                     mImageAnalysisResult.setValue(
                             Long.toString(image.getImageInfo().getTimestamp()));
-
-                    if (!mAnalysisIdlingResource.isIdleNow()) {
-                        mAnalysisIdlingResource.decrement();
+                    try {
+                        if (!mAnalysisIdlingResource.isIdleNow()) {
+                            mAnalysisIdlingResource.decrement();
+                        }
+                    } catch (IllegalStateException e) {
+                        Log.e(TAG, "Unexpected counter decrement");
                     }
-
                     image.close();
                 }
         );
@@ -736,8 +760,15 @@ public class CameraXActivity extends AppCompatActivity
             @Override
             public void onSurfaceTextureUpdated(final SurfaceTexture surfaceTexture) {
                 // Wait until surface texture receives enough updates. This is for testing.
-                if (!mViewIdlingResource.isIdleNow()) {
-                    mViewIdlingResource.decrement();
+                if (mPreviewFrameCount.getAndIncrement() >= FRAMES_UNTIL_VIEW_IS_READY) {
+                    Log.d(TAG, FRAMES_UNTIL_VIEW_IS_READY + " or more counted on preview.");
+                    try {
+                        if (!mViewIdlingResource.isIdleNow()) {
+                            mViewIdlingResource.decrement();
+                        }
+                    } catch (IllegalStateException e) {
+                        Log.e(TAG, "Unexpected decrement. Continuing");
+                    }
                 }
             }
         });
