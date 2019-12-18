@@ -10,7 +10,7 @@ plugins {
 }
 
 dependencies {
-    api(project(":media"))
+    api(project(":media:media"))
     api(project(":media2:media2-common"))
     api(GUAVA_LISTENABLE_FUTURE)
     implementation("androidx.concurrent:concurrent-futures:1.0.0")

@@ -11,6 +11,6 @@ dependencies {
     implementation(project(":swiperefreshlayout"))
     implementation(project(":legacy-support-core-utils"))
     implementation(project(":fragment:fragment"))
-    implementation(project(":media"))
+    implementation(project(":media:media"))
     implementation(project(":lifecycle:lifecycle-extensions"))
 }

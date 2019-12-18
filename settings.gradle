@@ -164,7 +164,7 @@ includeProject(":lint-demos:lint-demo-appcompat", "lint-demos/lint-demo-appcompa
 includeProject(":loader:loader", "loader/loader")
 includeProject(":loader:loader-ktx", "loader/loader-ktx")
 includeProject(":localbroadcastmanager:localbroadcastmanager", "localbroadcastmanager/localbroadcastmanager")
-includeProject(":media", "media")
+includeProject(":media:media", "media/media")
 includeProject(":media2:media2-common", "media2/common")
 includeProject(":media2:media2-player", "media2/player")
 includeProject(":media2:media2-session", "media2/session")
