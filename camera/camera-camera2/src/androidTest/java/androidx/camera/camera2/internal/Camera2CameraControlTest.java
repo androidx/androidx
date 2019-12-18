@@ -138,6 +138,18 @@ public final class Camera2CameraControlTest {
         }
     }
 
+    private int getMaxAfRegionCount() {
+        return mCameraCharacteristics.get(CameraCharacteristics.CONTROL_MAX_REGIONS_AF);
+    }
+
+    private int getMaxAeRegionCount() {
+        return mCameraCharacteristics.get(CameraCharacteristics.CONTROL_MAX_REGIONS_AE);
+    }
+
+    private int getMaxAwbRegionCount() {
+        return mCameraCharacteristics.get(CameraCharacteristics.CONTROL_MAX_REGIONS_AWB);
+    }
+
     @Test
     public void setCropRegion_cropRectSetAndRepeatingRequestUpdated() throws InterruptedException {
         Rect rect = new Rect(0, 0, 10, 10);
@@ -380,6 +392,14 @@ public final class Camera2CameraControlTest {
         }
     }
 
+    private <T> void assertArraySize(T[] array, int expectedSize) {
+        if (expectedSize == 0) {
+            assertTrue(array == null || array.length == 0);
+        } else {
+            assertThat(array).hasLength(expectedSize);
+        }
+    }
+
     @Test
     public void startFocusAndMetering_3ARegionsUpdatedInSessionAndSessionOptions()
             throws InterruptedException {
@@ -399,28 +419,24 @@ public final class Camera2CameraControlTest {
 
         // Here we verify only 3A region count is correct.  Values correctness are left to
         // FocusMeteringControlTest.
-        assertThat(
-                repeatingConfig.getCaptureRequestOption(
-                        CaptureRequest.CONTROL_AF_REGIONS, null)).hasLength(1);
-        assertThat(
-                repeatingConfig.getCaptureRequestOption(
-                        CaptureRequest.CONTROL_AE_REGIONS, null)).hasLength(1);
-        assertThat(
-                repeatingConfig.getCaptureRequestOption(
-                        CaptureRequest.CONTROL_AWB_REGIONS, null)).hasLength(1);
-
+        int expectedAfCount = Math.min(getMaxAfRegionCount(), 1);
+        int expectedAeCount = Math.min(getMaxAeRegionCount(), 1);
+        int expectedAwbCount = Math.min(getMaxAwbRegionCount(), 1);
+        assertArraySize(repeatingConfig.getCaptureRequestOption(
+                CaptureRequest.CONTROL_AF_REGIONS, null), expectedAfCount);
+        assertArraySize(repeatingConfig.getCaptureRequestOption(
+                CaptureRequest.CONTROL_AE_REGIONS, null), expectedAeCount);
+        assertArraySize(repeatingConfig.getCaptureRequestOption(
+                CaptureRequest.CONTROL_AWB_REGIONS, null), expectedAwbCount);
 
         Camera2ImplConfig singleConfig = new Camera2ImplConfig(
                 mCamera2CameraControl.getSessionOptions());
-        assertThat(
-                singleConfig.getCaptureRequestOption(
-                        CaptureRequest.CONTROL_AF_REGIONS, null)).hasLength(1);
-        assertThat(
-                singleConfig.getCaptureRequestOption(
-                        CaptureRequest.CONTROL_AE_REGIONS, null)).hasLength(1);
-        assertThat(
-                singleConfig.getCaptureRequestOption(
-                        CaptureRequest.CONTROL_AWB_REGIONS, null)).hasLength(1);
+        assertArraySize(singleConfig.getCaptureRequestOption(
+                CaptureRequest.CONTROL_AF_REGIONS, null), expectedAfCount);
+        assertArraySize(singleConfig.getCaptureRequestOption(
+                CaptureRequest.CONTROL_AE_REGIONS, null), expectedAeCount);
+        assertArraySize(singleConfig.getCaptureRequestOption(
+                CaptureRequest.CONTROL_AWB_REGIONS, null), expectedAwbCount);
     }
 
     @Test
