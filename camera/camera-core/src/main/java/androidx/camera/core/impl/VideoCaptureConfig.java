@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package androidx.camera.core;
+package androidx.camera.core.impl;
 
 import android.util.Pair;
 import android.util.Rational;
@@ -24,15 +24,12 @@ import android.view.Surface;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
-import androidx.annotation.RestrictTo;
-import androidx.annotation.RestrictTo.Scope;
-import androidx.camera.core.impl.CameraDeviceConfig;
-import androidx.camera.core.impl.CameraIdFilter;
-import androidx.camera.core.impl.CaptureConfig;
-import androidx.camera.core.impl.MutableConfig;
-import androidx.camera.core.impl.MutableOptionsBundle;
-import androidx.camera.core.impl.OptionsBundle;
+import androidx.camera.core.AspectRatio;
+import androidx.camera.core.CameraSelector;
+import androidx.camera.core.UseCase;
+import androidx.camera.core.VideoCapture;
 import androidx.camera.core.internal.TargetConfig;
+import androidx.camera.core.internal.ThreadConfig;
 
 import java.util.List;
 import java.util.Set;
@@ -42,9 +39,8 @@ import java.util.concurrent.Executor;
 /**
  * Config for a video capture use case.
  *
- * @hide In the earlier stage, the VideoCapture is deprioritized.
+ * <p>In the earlier stage, the VideoCapture is deprioritized.
  */
-@RestrictTo(Scope.LIBRARY_GROUP)
 public final class VideoCaptureConfig
         implements UseCaseConfig<VideoCapture>,
         ImageOutputConfig,
@@ -148,9 +144,7 @@ public final class VideoCaptureConfig
      * @param valueIfMissing The value to return if this configuration option has not been set.
      * @return The stored value or <code>valueIfMissing</code> if the value does not exist in this
      * configuration.
-     * @hide
      */
-    @RestrictTo(Scope.LIBRARY_GROUP)
     public int getAudioBitRate(int valueIfMissing) {
         return retrieveOption(OPTION_AUDIO_BIT_RATE, valueIfMissing);
     }
@@ -160,9 +154,7 @@ public final class VideoCaptureConfig
      *
      * @return The stored value, if it exists in this configuration.
      * @throws IllegalArgumentException if the option does not exist in this configuration.
-     * @hide
      */
-    @RestrictTo(Scope.LIBRARY_GROUP)
     public int getAudioBitRate() {
         return retrieveOption(OPTION_AUDIO_BIT_RATE);
     }
@@ -173,9 +165,7 @@ public final class VideoCaptureConfig
      * @param valueIfMissing The value to return if this configuration option has not been set.
      * @return The stored value or <code>valueIfMissing</code> if the value does not exist in this
      * configuration.
-     * @hide
      */
-    @RestrictTo(Scope.LIBRARY_GROUP)
     public int getAudioSampleRate(int valueIfMissing) {
         return retrieveOption(OPTION_AUDIO_SAMPLE_RATE, valueIfMissing);
     }
@@ -185,9 +175,7 @@ public final class VideoCaptureConfig
      *
      * @return The stored value, if it exists in this configuration.
      * @throws IllegalArgumentException if the option does not exist in this configuration.
-     * @hide
      */
-    @RestrictTo(Scope.LIBRARY_GROUP)
     public int getAudioSampleRate() {
         return retrieveOption(OPTION_AUDIO_SAMPLE_RATE);
     }
@@ -198,9 +186,7 @@ public final class VideoCaptureConfig
      * @param valueIfMissing The value to return if this configuration option has not been set.
      * @return The stored value or <code>valueIfMissing</code> if the value does not exist in this
      * configuration.
-     * @hide
      */
-    @RestrictTo(Scope.LIBRARY_GROUP)
     public int getAudioChannelCount(int valueIfMissing) {
         return retrieveOption(OPTION_AUDIO_CHANNEL_COUNT, valueIfMissing);
     }
@@ -210,9 +196,7 @@ public final class VideoCaptureConfig
      *
      * @return The stored value, if it exists in this configuration.
      * @throws IllegalArgumentException if the option does not exist in this configuration.
-     * @hide
      */
-    @RestrictTo(Scope.LIBRARY_GROUP)
     public int getAudioChannelCount() {
         return retrieveOption(OPTION_AUDIO_CHANNEL_COUNT);
     }
@@ -223,9 +207,7 @@ public final class VideoCaptureConfig
      * @param valueIfMissing The value to return if this configuration option has not been set.
      * @return The stored value or <code>valueIfMissing</code> if the value does not exist in this
      * configuration.
-     * @hide
      */
-    @RestrictTo(Scope.LIBRARY_GROUP)
     public int getAudioRecordSource(int valueIfMissing) {
         return retrieveOption(OPTION_AUDIO_RECORD_SOURCE, valueIfMissing);
     }
@@ -235,9 +217,7 @@ public final class VideoCaptureConfig
      *
      * @return The stored value, if it exists in this configuration.
      * @throws IllegalArgumentException if the option does not exist in this configuration.
-     * @hide
      */
-    @RestrictTo(Scope.LIBRARY_GROUP)
     public int getAudioRecordSource() {
         return retrieveOption(OPTION_AUDIO_RECORD_SOURCE);
     }
@@ -248,9 +228,7 @@ public final class VideoCaptureConfig
      * @param valueIfMissing The value to return if this configuration option has not been set.
      * @return The stored value or <code>valueIfMissing</code> if the value does not exist in this
      * configuration.
-     * @hide
      */
-    @RestrictTo(Scope.LIBRARY_GROUP)
     public int getAudioMinBufferSize(int valueIfMissing) {
         return retrieveOption(OPTION_AUDIO_MIN_BUFFER_SIZE, valueIfMissing);
     }
@@ -260,9 +238,7 @@ public final class VideoCaptureConfig
      *
      * @return The stored value, if it exists in this configuration.
      * @throws IllegalArgumentException if the option does not exist in this configuration.
-     * @hide
      */
-    @RestrictTo(Scope.LIBRARY_GROUP)
     public int getAudioMinBufferSize() {
         return retrieveOption(OPTION_AUDIO_MIN_BUFFER_SIZE);
     }
@@ -272,23 +248,17 @@ public final class VideoCaptureConfig
 
     // Implementations of Config default methods
 
-    /** @hide */
-    @RestrictTo(Scope.LIBRARY_GROUP)
     @Override
     public boolean containsOption(@NonNull Option<?> id) {
         return mConfig.containsOption(id);
     }
 
-    /** @hide */
-    @RestrictTo(Scope.LIBRARY_GROUP)
     @Override
     @Nullable
     public <ValueT> ValueT retrieveOption(@NonNull Option<ValueT> id) {
         return mConfig.retrieveOption(id);
     }
 
-    /** @hide */
-    @RestrictTo(Scope.LIBRARY_GROUP)
     @Override
     @Nullable
     public <ValueT> ValueT retrieveOption(@NonNull Option<ValueT> id,
@@ -296,15 +266,11 @@ public final class VideoCaptureConfig
         return mConfig.retrieveOption(id, valueIfMissing);
     }
 
-    /** @hide */
-    @RestrictTo(Scope.LIBRARY_GROUP)
     @Override
     public void findOptions(@NonNull String idStem, @NonNull OptionMatcher matcher) {
         mConfig.findOptions(idStem, matcher);
     }
 
-    /** @hide */
-    @RestrictTo(Scope.LIBRARY_GROUP)
     @Override
     @NonNull
     public Set<Option<?>> listOptions() {
@@ -313,8 +279,6 @@ public final class VideoCaptureConfig
 
     // Implementations of TargetConfig default methods
 
-    /** @hide */
-    @RestrictTo(Scope.LIBRARY_GROUP)
     @Override
     @Nullable
     public Class<VideoCapture> getTargetClass(
@@ -327,8 +291,6 @@ public final class VideoCaptureConfig
         return storedClass;
     }
 
-    /** @hide */
-    @RestrictTo(Scope.LIBRARY_GROUP)
     @Override
     @NonNull
     public Class<VideoCapture> getTargetClass() {
@@ -378,9 +340,7 @@ public final class VideoCaptureConfig
      * @param valueIfMissing The value to return if this configuration option has not been set.
      * @return The stored value or <code>valueIfMissing</code> if the value does not exist in this
      * configuration.
-     * @hide
      */
-    @RestrictTo(Scope.LIBRARY_GROUP)
     @Override
     @Nullable
     public Integer getLensFacing(@Nullable Integer valueIfMissing) {
@@ -392,9 +352,7 @@ public final class VideoCaptureConfig
      *
      * @return The stored value, if it exists in this configuration.
      * @throws IllegalArgumentException if the option does not exist in this configuration.
-     * @hide
      */
-    @RestrictTo(Scope.LIBRARY_GROUP)
     @Override
     @CameraSelector.LensFacing
     public int getLensFacing() {
@@ -407,9 +365,7 @@ public final class VideoCaptureConfig
      * @param valueIfMissing The value to return if this configuration option has not been set.
      * @return The stored value or <code>ValueIfMissing</code> if the value does not exist in this
      * configuration.
-     * @hide
      */
-    @RestrictTo(Scope.LIBRARY_GROUP)
     @Override
     @Nullable
     public CameraIdFilter getCameraIdFilter(@Nullable CameraIdFilter valueIfMissing) {
@@ -421,9 +377,7 @@ public final class VideoCaptureConfig
      *
      * @return The stored value, if it exists in the configuration.
      * @throws IllegalArgumentException if the option does not exist in this configuration.
-     * @hide
      */
-    @RestrictTo(Scope.LIBRARY_GROUP)
     @Override
     @NonNull
     public CameraIdFilter getCameraIdFilter() {
@@ -442,9 +396,7 @@ public final class VideoCaptureConfig
      * @param valueIfMissing The value to return if this configuration option has not been set.
      * @return The stored value or <code>valueIfMissing</code> if the value does not exist in this
      * configuration.
-     * @hide
      */
-    @RestrictTo(Scope.LIBRARY_GROUP)
     @Override
     @Nullable
     public Rational getTargetAspectRatioCustom(@Nullable Rational valueIfMissing) {
@@ -460,10 +412,8 @@ public final class VideoCaptureConfig
      *
      * @return The stored value, if it exists in this configuration.
      * @throws IllegalArgumentException if the option does not exist in this configuration.
-     * @hide
      */
     @NonNull
-    @RestrictTo(Scope.LIBRARY_GROUP)
     @Override
     public Rational getTargetAspectRatioCustom() {
         return retrieveOption(OPTION_TARGET_ASPECT_RATIO_CUSTOM);
@@ -519,16 +469,12 @@ public final class VideoCaptureConfig
         return retrieveOption(OPTION_TARGET_ROTATION);
     }
 
-    /** @hide */
-    @RestrictTo(Scope.LIBRARY_GROUP)
     @Override
     @Nullable
     public Size getTargetResolution(@Nullable Size valueIfMissing) {
         return retrieveOption(ImageOutputConfig.OPTION_TARGET_RESOLUTION, valueIfMissing);
     }
 
-    /** @hide */
-    @RestrictTo(Scope.LIBRARY_GROUP)
     @Override
     @NonNull
     public Size getTargetResolution() {
@@ -541,10 +487,8 @@ public final class VideoCaptureConfig
      * @param valueIfMissing The value to return if this configuration option has not been set.
      * @return The stored value or <code>valueIfMissing</code> if the value does not exist in this
      * configuration.
-     * @hide
      */
     @Nullable
-    @RestrictTo(Scope.LIBRARY_GROUP)
     @Override
     public Size getDefaultResolution(@Nullable Size valueIfMissing) {
         return retrieveOption(ImageOutputConfig.OPTION_DEFAULT_RESOLUTION, valueIfMissing);
@@ -555,33 +499,25 @@ public final class VideoCaptureConfig
      *
      * @return The stored value, if it exists in this configuration.
      * @throws IllegalArgumentException if the option does not exist in this configuration.
-     * @hide
      */
     @NonNull
-    @RestrictTo(Scope.LIBRARY_GROUP)
     @Override
     public Size getDefaultResolution() {
         return retrieveOption(ImageOutputConfig.OPTION_DEFAULT_RESOLUTION);
     }
 
-    /** @hide */
-    @RestrictTo(Scope.LIBRARY_GROUP)
     @Override
     @Nullable
     public Size getMaxResolution(@Nullable Size valueIfMissing) {
         return retrieveOption(OPTION_MAX_RESOLUTION, valueIfMissing);
     }
 
-    /** @hide */
-    @RestrictTo(Scope.LIBRARY_GROUP)
     @Override
     @NonNull
     public Size getMaxResolution() {
         return retrieveOption(OPTION_MAX_RESOLUTION);
     }
 
-    /** @hide */
-    @RestrictTo(Scope.LIBRARY_GROUP)
     @Override
     @Nullable
     public List<Pair<Integer, Size[]>> getSupportedResolutions(
@@ -589,8 +525,6 @@ public final class VideoCaptureConfig
         return retrieveOption(OPTION_SUPPORTED_RESOLUTIONS, valueIfMissing);
     }
 
-    /** @hide */
-    @RestrictTo(Scope.LIBRARY_GROUP)
     @Override
     @NonNull
     public List<Pair<Integer, Size[]>> getSupportedResolutions() {
@@ -626,24 +560,18 @@ public final class VideoCaptureConfig
 
     // Implementations of UseCaseConfig default methods
 
-    /** @hide */
-    @RestrictTo(Scope.LIBRARY_GROUP)
     @Override
     @Nullable
     public SessionConfig getDefaultSessionConfig(@Nullable SessionConfig valueIfMissing) {
         return retrieveOption(OPTION_DEFAULT_SESSION_CONFIG, valueIfMissing);
     }
 
-    /** @hide */
-    @RestrictTo(Scope.LIBRARY_GROUP)
     @Override
     @NonNull
     public SessionConfig getDefaultSessionConfig() {
         return retrieveOption(OPTION_DEFAULT_SESSION_CONFIG);
     }
 
-    /** @hide */
-    @RestrictTo(Scope.LIBRARY_GROUP)
     @Override
     @Nullable
     public SessionConfig.OptionUnpacker getSessionOptionUnpacker(
@@ -651,32 +579,24 @@ public final class VideoCaptureConfig
         return retrieveOption(OPTION_SESSION_CONFIG_UNPACKER, valueIfMissing);
     }
 
-    /** @hide */
-    @RestrictTo(Scope.LIBRARY_GROUP)
     @Override
     @NonNull
     public SessionConfig.OptionUnpacker getSessionOptionUnpacker() {
         return retrieveOption(OPTION_SESSION_CONFIG_UNPACKER);
     }
 
-    /** @hide */
-    @RestrictTo(Scope.LIBRARY_GROUP)
     @Override
     @Nullable
     public CaptureConfig getDefaultCaptureConfig(@Nullable CaptureConfig valueIfMissing) {
         return retrieveOption(OPTION_DEFAULT_CAPTURE_CONFIG, valueIfMissing);
     }
 
-    /** @hide */
-    @RestrictTo(Scope.LIBRARY_GROUP)
     @Override
     @NonNull
     public CaptureConfig getDefaultCaptureConfig() {
         return retrieveOption(OPTION_DEFAULT_CAPTURE_CONFIG);
     }
 
-    /** @hide */
-    @RestrictTo(Scope.LIBRARY_GROUP)
     @Override
     @Nullable
     public CaptureConfig.OptionUnpacker getCaptureOptionUnpacker(
@@ -684,30 +604,22 @@ public final class VideoCaptureConfig
         return retrieveOption(OPTION_CAPTURE_CONFIG_UNPACKER, valueIfMissing);
     }
 
-    /** @hide */
-    @RestrictTo(Scope.LIBRARY_GROUP)
     @Override
     @NonNull
     public CaptureConfig.OptionUnpacker getCaptureOptionUnpacker() {
         return retrieveOption(OPTION_CAPTURE_CONFIG_UNPACKER);
     }
 
-    /** @hide */
     @Override
-    @RestrictTo(Scope.LIBRARY_GROUP)
     public int getSurfaceOccupancyPriority(int valueIfMissing) {
         return retrieveOption(OPTION_SURFACE_OCCUPANCY_PRIORITY, valueIfMissing);
     }
 
-    /** @hide */
     @Override
-    @RestrictTo(Scope.LIBRARY_GROUP)
     public int getSurfaceOccupancyPriority() {
         return retrieveOption(OPTION_SURFACE_OCCUPANCY_PRIORITY);
     }
 
-    /** @hide */
-    @RestrictTo(Scope.LIBRARY_GROUP)
     @Override
     @Nullable
     public UseCase.EventCallback getUseCaseEventCallback(
@@ -715,8 +627,6 @@ public final class VideoCaptureConfig
         return retrieveOption(OPTION_USE_CASE_EVENT_CALLBACK, valueIfMissing);
     }
 
-    /** @hide */
-    @RestrictTo(Scope.LIBRARY_GROUP)
     @Override
     @NonNull
     public UseCase.EventCallback getUseCaseEventCallback() {
@@ -770,10 +680,7 @@ public final class VideoCaptureConfig
 
         /**
          * {@inheritDoc}
-         *
-         * @hide
          */
-        @RestrictTo(Scope.LIBRARY_GROUP)
         @Override
         @NonNull
         public MutableConfig getMutableConfig() {
@@ -846,9 +753,7 @@ public final class VideoCaptureConfig
          *
          * @param bitRate The requested bit rate in bits/s.
          * @return The current Builder.
-         * @hide
          */
-        @RestrictTo(Scope.LIBRARY_GROUP)
         @NonNull
         public Builder setAudioBitRate(int bitRate) {
             getMutableConfig().insertOption(OPTION_AUDIO_BIT_RATE, bitRate);
@@ -860,9 +765,7 @@ public final class VideoCaptureConfig
          *
          * @param sampleRate The requested sample rate in bits/s.
          * @return The current Builder.
-         * @hide
          */
-        @RestrictTo(Scope.LIBRARY_GROUP)
         @NonNull
         public Builder setAudioSampleRate(int sampleRate) {
             getMutableConfig().insertOption(OPTION_AUDIO_SAMPLE_RATE, sampleRate);
@@ -874,9 +777,7 @@ public final class VideoCaptureConfig
          *
          * @param channelCount The requested number of audio channels.
          * @return The current Builder.
-         * @hide
          */
-        @RestrictTo(Scope.LIBRARY_GROUP)
         @NonNull
         public Builder setAudioChannelCount(int channelCount) {
             getMutableConfig().insertOption(OPTION_AUDIO_CHANNEL_COUNT, channelCount);
@@ -888,9 +789,7 @@ public final class VideoCaptureConfig
          *
          * @param source The audio source. Currently only AudioSource.MIC is supported.
          * @return The current Builder.
-         * @hide
          */
-        @RestrictTo(Scope.LIBRARY_GROUP)
         @NonNull
         public Builder setAudioRecordSource(int source) {
             getMutableConfig().insertOption(OPTION_AUDIO_RECORD_SOURCE, source);
@@ -902,9 +801,7 @@ public final class VideoCaptureConfig
          *
          * @param minBufferSize The requested audio minimum buffer size, in bytes.
          * @return The current Builder.
-         * @hide
          */
-        @RestrictTo(Scope.LIBRARY_GROUP)
         @NonNull
         public Builder setAudioMinBufferSize(int minBufferSize) {
             getMutableConfig().insertOption(OPTION_AUDIO_MIN_BUFFER_SIZE, minBufferSize);
@@ -913,8 +810,6 @@ public final class VideoCaptureConfig
 
         // Implementations of TargetConfig.Builder default methods
 
-        /** @hide */
-        @RestrictTo(Scope.LIBRARY_GROUP)
         @Override
         @NonNull
         public Builder setTargetClass(@NonNull Class<VideoCapture> targetClass) {
@@ -959,9 +854,7 @@ public final class VideoCaptureConfig
          *
          * @param lensFacing The direction of the camera's lens.
          * @return the current Builder.
-         * @hide
          */
-        @RestrictTo(Scope.LIBRARY_GROUP)
         @Override
         @NonNull
         public Builder setLensFacing(@CameraSelector.LensFacing int lensFacing) {
@@ -977,9 +870,7 @@ public final class VideoCaptureConfig
          *
          * @param cameraIdFilter The {@link CameraIdFilter}.
          * @return the current Builder.
-         * @hide
          */
-        @RestrictTo(Scope.LIBRARY_GROUP)
         @Override
         @NonNull
         public Builder setCameraIdFilter(@NonNull CameraIdFilter cameraIdFilter) {
@@ -1010,10 +901,8 @@ public final class VideoCaptureConfig
          * @param aspectRatio A {@link Rational} representing the ratio of the target's width and
          *                    height.
          * @return The current Builder.
-         * @hide
          */
         @NonNull
-        @RestrictTo(Scope.LIBRARY_GROUP)
         @Override
         public Builder setTargetAspectRatioCustom(@NonNull Rational aspectRatio) {
             getMutableConfig().insertOption(OPTION_TARGET_ASPECT_RATIO_CUSTOM, aspectRatio);
@@ -1082,10 +971,8 @@ public final class VideoCaptureConfig
          *
          * @param resolution The target resolution to choose from supported output sizes list.
          * @return The current Builder.
-         * @hide
          */
         @NonNull
-        @RestrictTo(Scope.LIBRARY_GROUP)
         @Override
         public Builder setTargetResolution(@NonNull Size resolution) {
             getMutableConfig().insertOption(OPTION_TARGET_RESOLUTION, resolution);
@@ -1101,27 +988,21 @@ public final class VideoCaptureConfig
          *
          * @param resolution The default resolution to choose from supported output sizes list.
          * @return The current Builder.
-         * @hide
          */
         @NonNull
-        @RestrictTo(Scope.LIBRARY_GROUP)
         @Override
         public Builder setDefaultResolution(@NonNull Size resolution) {
             getMutableConfig().insertOption(OPTION_DEFAULT_RESOLUTION, resolution);
             return null;
         }
 
-        /** @hide */
         @NonNull
-        @RestrictTo(Scope.LIBRARY_GROUP)
         @Override
         public Builder setMaxResolution(@NonNull Size resolution) {
             getMutableConfig().insertOption(OPTION_MAX_RESOLUTION, resolution);
             return this;
         }
 
-        /** @hide */
-        @RestrictTo(Scope.LIBRARY_GROUP)
         @Override
         @NonNull
         public Builder setSupportedResolutions(@NonNull List<Pair<Integer, Size[]>> resolutions) {
@@ -1149,8 +1030,6 @@ public final class VideoCaptureConfig
 
         // Implementations of UseCaseConfig.Builder default methods
 
-        /** @hide */
-        @RestrictTo(Scope.LIBRARY_GROUP)
         @Override
         @NonNull
         public Builder setDefaultSessionConfig(@NonNull SessionConfig sessionConfig) {
@@ -1158,8 +1037,6 @@ public final class VideoCaptureConfig
             return this;
         }
 
-        /** @hide */
-        @RestrictTo(Scope.LIBRARY_GROUP)
         @Override
         @NonNull
         public Builder setDefaultCaptureConfig(@NonNull CaptureConfig captureConfig) {
@@ -1167,8 +1044,6 @@ public final class VideoCaptureConfig
             return this;
         }
 
-        /** @hide */
-        @RestrictTo(Scope.LIBRARY_GROUP)
         @Override
         @NonNull
         public Builder setSessionOptionUnpacker(
@@ -1177,8 +1052,6 @@ public final class VideoCaptureConfig
             return this;
         }
 
-        /** @hide */
-        @RestrictTo(Scope.LIBRARY_GROUP)
         @Override
         @NonNull
         public Builder setCaptureOptionUnpacker(
@@ -1187,8 +1060,6 @@ public final class VideoCaptureConfig
             return this;
         }
 
-        /** @hide */
-        @RestrictTo(Scope.LIBRARY_GROUP)
         @Override
         @NonNull
         public Builder setSurfaceOccupancyPriority(int priority) {
@@ -1196,8 +1067,6 @@ public final class VideoCaptureConfig
             return this;
         }
 
-        /** @hide */
-        @RestrictTo(Scope.LIBRARY_GROUP)
         @Override
         @NonNull
         public Builder setUseCaseEventCallback(

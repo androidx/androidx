@@ -31,11 +31,11 @@ import androidx.camera.camera2.internal.util.SemaphoreReleasingCamera2Callbacks.
 import androidx.camera.camera2.interop.Camera2Interop;
 import androidx.camera.camera2.interop.ExperimentalCamera2Interop;
 import androidx.camera.core.CameraSelector;
-import androidx.camera.core.SessionConfig;
-import androidx.camera.core.UseCaseConfig;
 import androidx.camera.core.impl.CameraFactory;
 import androidx.camera.core.impl.CameraRepository;
 import androidx.camera.core.impl.ImmediateSurface;
+import androidx.camera.core.impl.SessionConfig;
+import androidx.camera.core.impl.UseCaseConfig;
 import androidx.camera.core.impl.UseCaseGroup;
 import androidx.camera.testing.CameraUtil;
 import androidx.camera.testing.fakes.FakeUseCase;

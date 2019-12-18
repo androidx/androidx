@@ -19,7 +19,6 @@ package androidx.camera.core.impl;
 import android.util.Log;
 
 import androidx.annotation.NonNull;
-import androidx.camera.core.SessionConfig;
 import androidx.camera.core.UseCase;
 
 import java.util.ArrayList;

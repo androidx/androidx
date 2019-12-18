@@ -33,8 +33,8 @@ import androidx.camera.camera2.impl.CameraEventCallbacks;
 import androidx.camera.camera2.interop.Camera2Interop;
 import androidx.camera.camera2.interop.ExperimentalCamera2Interop;
 import androidx.camera.core.ImageCapture;
-import androidx.camera.core.SessionConfig;
 import androidx.camera.core.impl.CameraCaptureCallback;
+import androidx.camera.core.impl.SessionConfig;
 import androidx.test.filters.SmallTest;
 
 import org.junit.Before;

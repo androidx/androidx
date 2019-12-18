@@ -14,8 +14,9 @@
  * limitations under the License.
  */
 
-package androidx.camera.core;
+package androidx.camera.core.impl;
 
+import android.graphics.ImageFormat;
 import android.util.Pair;
 import android.util.Rational;
 import android.util.Size;
@@ -23,45 +24,173 @@ import android.view.Surface;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
-import androidx.annotation.RestrictTo;
-import androidx.annotation.RestrictTo.Scope;
-import androidx.camera.core.impl.CameraDeviceConfig;
-import androidx.camera.core.impl.CameraIdFilter;
-import androidx.camera.core.impl.CaptureConfig;
-import androidx.camera.core.impl.CaptureProcessor;
-import androidx.camera.core.impl.OptionsBundle;
+import androidx.camera.core.AspectRatio;
+import androidx.camera.core.CameraSelector;
+import androidx.camera.core.ImageCapture;
+import androidx.camera.core.ImageCapture.CaptureMode;
+import androidx.camera.core.UseCase;
+import androidx.camera.core.internal.IoConfig;
 
+import java.io.File;
 import java.util.List;
 import java.util.Set;
 import java.util.concurrent.Executor;
 
 /**
- * Configuration for a {@link Preview} use case.
- *
- * @hide
+ * Configuration for an image capture use case.
  */
-@RestrictTo(Scope.LIBRARY_GROUP)
-public final class PreviewConfig
-        implements UseCaseConfig<Preview>,
+public final class ImageCaptureConfig
+        implements UseCaseConfig<ImageCapture>,
         ImageOutputConfig,
-        CameraDeviceConfig, // TODO(b/142840814): Use case configs shouldn't know about camera
-        ThreadConfig {
+        CameraDeviceConfig, // TODO(b/142840814): Remove in favor of CameraSelector
+        IoConfig {
 
-    // Options declarations
+    // Option Declarations:
+    // *********************************************************************************************
 
-    /**
-     * @hide
-     */
-    @RestrictTo(Scope.LIBRARY_GROUP)
-    static final Option<ImageInfoProcessor> IMAGE_INFO_PROCESSOR = Option.create(
-            "camerax.core.preview.imageInfoProcessor", ImageInfoProcessor.class);
-    static final Option<CaptureProcessor> OPTION_PREVIEW_CAPTURE_PROCESSOR =
-            Option.create("camerax.core.preview.captureProcessor", CaptureProcessor.class);
+    public static final Option<Integer> OPTION_IMAGE_CAPTURE_MODE =
+            Option.create(
+                    "camerax.core.imageCapture.captureMode", int.class);
+    public static final Option<Integer> OPTION_FLASH_MODE =
+            Option.create("camerax.core.imageCapture.flashMode", int.class);
+    public static final Option<CaptureBundle> OPTION_CAPTURE_BUNDLE =
+            Option.create("camerax.core.imageCapture.captureBundle", CaptureBundle.class);
+    public static final Option<CaptureProcessor> OPTION_CAPTURE_PROCESSOR =
+            Option.create("camerax.core.imageCapture.captureProcessor", CaptureProcessor.class);
+    public static final Option<Integer> OPTION_BUFFER_FORMAT =
+            Option.create("camerax.core.imageCapture.bufferFormat", Integer.class);
+    public static final Option<Integer> OPTION_MAX_CAPTURE_STAGES =
+            Option.create("camerax.core.imageCapture.maxCaptureStages", Integer.class);
+
+    // *********************************************************************************************
+
     private final OptionsBundle mConfig;
 
     /** Creates a new configuration instance. */
-    PreviewConfig(OptionsBundle config) {
+    public ImageCaptureConfig(@NonNull OptionsBundle config) {
         mConfig = config;
+    }
+
+    /**
+     * Returns whether a {@link CaptureMode} option has been set in this configuration.
+     *
+     * @return true if a {@link CaptureMode} option has been set in this configuration, false
+     * otherwise.
+     */
+    public boolean hasCaptureMode() {
+        return containsOption(OPTION_IMAGE_CAPTURE_MODE);
+    }
+
+    /**
+     * Returns the {@link CaptureMode}.
+     *
+     * @return The stored value, if it exists in this configuration.
+     * @throws IllegalArgumentException if the option does not exist in this configuration.
+     */
+    @CaptureMode
+    public int getCaptureMode() {
+        return retrieveOption(OPTION_IMAGE_CAPTURE_MODE);
+    }
+
+    /**
+     * Returns the {@link ImageCapture.FlashMode}.
+     *
+     * @return The stored value, if it exists in this configuration.
+     * @throws IllegalArgumentException if the option does not exist in this configuration.
+     */
+    @ImageCapture.FlashMode
+    public int getFlashMode() {
+        return retrieveOption(OPTION_FLASH_MODE);
+    }
+
+    /**
+     * Returns the {@link CaptureBundle}.
+     *
+     * @param valueIfMissing The value to return if this configuration option has not been set.
+     * @return The stored value or <code>valueIfMissing</code> if the value does not exist in this
+     * configuration.
+     */
+    @Nullable
+    public CaptureBundle getCaptureBundle(@Nullable CaptureBundle valueIfMissing) {
+        return retrieveOption(OPTION_CAPTURE_BUNDLE, valueIfMissing);
+    }
+
+    /**
+     * Returns the {@link CaptureBundle}.
+     *
+     * @return The stored value, if it exists in this configuration.
+     * @throws IllegalArgumentException if the option does not exist in this configuration.
+     */
+    @NonNull
+    public CaptureBundle getCaptureBundle() {
+        return retrieveOption(OPTION_CAPTURE_BUNDLE);
+    }
+
+    /**
+     * Returns the {@link CaptureProcessor}.
+     *
+     * @param valueIfMissing The value to return if this configuration option has not been set.
+     * @return The stored value or <code>valueIfMissing</code> if the value does not exist in this
+     * configuration.
+     */
+    @Nullable
+    public CaptureProcessor getCaptureProcessor(@Nullable CaptureProcessor valueIfMissing) {
+        return retrieveOption(OPTION_CAPTURE_PROCESSOR, valueIfMissing);
+    }
+
+    /**
+     * Returns the {@link CaptureProcessor}.
+     *
+     * @return The stored value, if it exists in this configuration.
+     * @throws IllegalArgumentException if the option does not exist in this configuration.
+     */
+    @NonNull
+    public CaptureProcessor getCaptureProcessor() {
+        return retrieveOption(OPTION_CAPTURE_PROCESSOR);
+    }
+
+    /**
+     * Returns the {@link ImageFormat} of the capture in memory.
+     *
+     * @param valueIfMissing The value to return if this configuration option has not been set.
+     * @return The stored value or <code>ValueIfMissing</code> if the value does not exist in this
+     * configuration.
+     */
+    @Nullable
+    public Integer getBufferFormat(@Nullable Integer valueIfMissing) {
+        return retrieveOption(OPTION_BUFFER_FORMAT, valueIfMissing);
+    }
+
+    /**
+     * Returns the {@link ImageFormat} of the capture in memory.
+     *
+     * @return The stored value, if it exists in the configuration.
+     * @throws IllegalArgumentException if the option does not exist in this configuration.
+     */
+    @NonNull
+    public Integer getBufferFormat() {
+        return retrieveOption(OPTION_BUFFER_FORMAT);
+    }
+
+    /**
+     * Returns the max number of {@link CaptureStage}.
+     *
+     * @param valueIfMissing The value to return if this configuration option has not been set.
+     * @return The stored value or <code>valueIfMissing</code> if the value does not exist in
+     * this configuration.
+     */
+    public int getMaxCaptureStages(int valueIfMissing) {
+        return retrieveOption(OPTION_MAX_CAPTURE_STAGES, valueIfMissing);
+    }
+
+    /**
+     * Returns the max number of {@link CaptureStage}.
+     *
+     * @return The stored value, if it exists in this configuration.
+     * @throws IllegalArgumentException if the option does not exist in this configuration.
+     */
+    public int getMaxCaptureStages() {
+        return retrieveOption(OPTION_MAX_CAPTURE_STAGES);
     }
 
     // Start of the default implementation of Config
@@ -69,23 +198,17 @@ public final class PreviewConfig
 
     // Implementations of Config default methods
 
-    /** @hide */
-    @RestrictTo(Scope.LIBRARY_GROUP)
     @Override
     public boolean containsOption(@NonNull Option<?> id) {
         return mConfig.containsOption(id);
     }
 
-    /** @hide */
-    @RestrictTo(Scope.LIBRARY_GROUP)
     @Override
     @Nullable
     public <ValueT> ValueT retrieveOption(@NonNull Option<ValueT> id) {
         return mConfig.retrieveOption(id);
     }
 
-    /** @hide */
-    @RestrictTo(Scope.LIBRARY_GROUP)
     @Override
     @Nullable
     public <ValueT> ValueT retrieveOption(@NonNull Option<ValueT> id,
@@ -93,15 +216,11 @@ public final class PreviewConfig
         return mConfig.retrieveOption(id, valueIfMissing);
     }
 
-    /** @hide */
-    @RestrictTo(Scope.LIBRARY_GROUP)
     @Override
     public void findOptions(@NonNull String idStem, @NonNull OptionMatcher matcher) {
         mConfig.findOptions(idStem, matcher);
     }
 
-    /** @hide */
-    @RestrictTo(Scope.LIBRARY_GROUP)
     @Override
     @NonNull
     public Set<Option<?>> listOptions() {
@@ -110,28 +229,24 @@ public final class PreviewConfig
 
     // Implementations of TargetConfig default methods
 
-    /** @hide */
-    @RestrictTo(Scope.LIBRARY_GROUP)
     @Override
     @Nullable
-    public Class<Preview> getTargetClass(
-            @Nullable Class<Preview> valueIfMissing) {
+    public Class<ImageCapture> getTargetClass(
+            @Nullable Class<ImageCapture> valueIfMissing) {
         @SuppressWarnings("unchecked") // Value should only be added via Builder#setTargetClass()
-                Class<Preview> storedClass =
-                (Class<Preview>) retrieveOption(
+                Class<ImageCapture> storedClass =
+                (Class<ImageCapture>) retrieveOption(
                         OPTION_TARGET_CLASS,
                         valueIfMissing);
         return storedClass;
     }
 
-    /** @hide */
-    @RestrictTo(Scope.LIBRARY_GROUP)
     @Override
     @NonNull
-    public Class<Preview> getTargetClass() {
+    public Class<ImageCapture> getTargetClass() {
         @SuppressWarnings("unchecked") // Value should only be added via Builder#setTargetClass()
-                Class<Preview> storedClass =
-                (Class<Preview>) retrieveOption(
+                Class<ImageCapture> storedClass =
+                (Class<ImageCapture>) retrieveOption(
                         OPTION_TARGET_CLASS);
         return storedClass;
     }
@@ -175,9 +290,7 @@ public final class PreviewConfig
      * @param valueIfMissing The value to return if this configuration option has not been set.
      * @return The stored value or <code>valueIfMissing</code> if the value does not exist in this
      * configuration.
-     * @hide
      */
-    @RestrictTo(Scope.LIBRARY_GROUP)
     @Override
     @Nullable
     public Integer getLensFacing(@Nullable Integer valueIfMissing) {
@@ -189,9 +302,7 @@ public final class PreviewConfig
      *
      * @return The stored value, if it exists in this configuration.
      * @throws IllegalArgumentException if the option does not exist in this configuration.
-     * @hide
      */
-    @RestrictTo(Scope.LIBRARY_GROUP)
     @Override
     @CameraSelector.LensFacing
     public int getLensFacing() {
@@ -204,9 +315,7 @@ public final class PreviewConfig
      * @param valueIfMissing The value to return if this configuration option has not been set.
      * @return The stored value or <code>ValueIfMissing</code> if the value does not exist in this
      * configuration.
-     * @hide
      */
-    @RestrictTo(Scope.LIBRARY_GROUP)
     @Override
     @Nullable
     public CameraIdFilter getCameraIdFilter(@Nullable CameraIdFilter valueIfMissing) {
@@ -218,9 +327,7 @@ public final class PreviewConfig
      *
      * @return The stored value, if it exists in the configuration.
      * @throws IllegalArgumentException if the option does not exist in this configuration.
-     * @hide
      */
-    @RestrictTo(Scope.LIBRARY_GROUP)
     @Override
     @NonNull
     public CameraIdFilter getCameraIdFilter() {
@@ -239,9 +346,7 @@ public final class PreviewConfig
      * @param valueIfMissing The value to return if this configuration option has not been set.
      * @return The stored value or <code>valueIfMissing</code> if the value does not exist in this
      * configuration.
-     * @hide
      */
-    @RestrictTo(Scope.LIBRARY_GROUP)
     @Override
     @Nullable
     public Rational getTargetAspectRatioCustom(@Nullable Rational valueIfMissing) {
@@ -257,9 +362,7 @@ public final class PreviewConfig
      *
      * @return The stored value, if it exists in this configuration.
      * @throws IllegalArgumentException if the option does not exist in this configuration.
-     * @hide
      */
-    @RestrictTo(Scope.LIBRARY_GROUP)
     @NonNull
     @Override
     public Rational getTargetAspectRatioCustom() {
@@ -293,9 +396,7 @@ public final class PreviewConfig
      * @param valueIfMissing The value to return if this configuration option has not been set.
      * @return The stored value or <code>valueIfMissing</code> if the value does not exist in this
      * configuration.
-     * @hide Preview always set the rotation to device's nature orientation.
      */
-    @RestrictTo(Scope.LIBRARY_GROUP)
     @Override
     @RotationValue
     public int getTargetRotation(int valueIfMissing) {
@@ -311,9 +412,7 @@ public final class PreviewConfig
      *
      * @return The stored value, if it exists in this configuration.
      * @throws IllegalArgumentException if the option does not exist in this configuration.
-     * @hide Preview always set the rotation to device's nature orientation.
      */
-    @RestrictTo(Scope.LIBRARY_GROUP)
     @Override
     @RotationValue
     public int getTargetRotation() {
@@ -351,13 +450,11 @@ public final class PreviewConfig
      * @param valueIfMissing The value to return if this configuration option has not been set.
      * @return The stored value or <code>valueIfMissing</code> if the value does not exist in this
      * configuration.
-     * @hide
      */
     @Nullable
-    @RestrictTo(Scope.LIBRARY_GROUP)
     @Override
     public Size getDefaultResolution(@Nullable Size valueIfMissing) {
-        return retrieveOption(ImageOutputConfig.OPTION_DEFAULT_RESOLUTION, valueIfMissing);
+        return retrieveOption(OPTION_DEFAULT_RESOLUTION, valueIfMissing);
     }
 
     /**
@@ -365,33 +462,25 @@ public final class PreviewConfig
      *
      * @return The stored value, if it exists in this configuration.
      * @throws IllegalArgumentException if the option does not exist in this configuration.
-     * @hide
      */
     @NonNull
-    @RestrictTo(Scope.LIBRARY_GROUP)
     @Override
     public Size getDefaultResolution() {
-        return retrieveOption(ImageOutputConfig.OPTION_DEFAULT_RESOLUTION);
+        return retrieveOption(OPTION_DEFAULT_RESOLUTION);
     }
 
-    /** @hide */
-    @RestrictTo(Scope.LIBRARY_GROUP)
     @Override
     @Nullable
     public Size getMaxResolution(@Nullable Size valueIfMissing) {
         return retrieveOption(OPTION_MAX_RESOLUTION, valueIfMissing);
     }
 
-    /** @hide */
-    @RestrictTo(Scope.LIBRARY_GROUP)
     @Override
     @NonNull
     public Size getMaxResolution() {
         return retrieveOption(OPTION_MAX_RESOLUTION);
     }
 
-    /** @hide */
-    @RestrictTo(Scope.LIBRARY_GROUP)
     @Override
     @Nullable
     public List<Pair<Integer, Size[]>> getSupportedResolutions(
@@ -399,63 +488,77 @@ public final class PreviewConfig
         return retrieveOption(OPTION_SUPPORTED_RESOLUTIONS, valueIfMissing);
     }
 
-    /** @hide */
-    @RestrictTo(Scope.LIBRARY_GROUP)
     @Override
     @NonNull
     public List<Pair<Integer, Size[]>> getSupportedResolutions() {
         return retrieveOption(OPTION_SUPPORTED_RESOLUTIONS);
     }
 
-    // Implementations of ThreadConfig default methods
+    // Implementations of IO default methods
 
     /**
-     * Returns the executor that will be used for background tasks.
+     * Returns the executor that will be used for IO tasks.
+     *
+     * <p> This executor will be used for any IO tasks specifically for ImageCapture, such as
+     * {@link ImageCapture#takePicture(File, Executor, ImageCapture.OnImageSavedCallback)}
+     * and {@link ImageCapture#takePicture(File, ImageCapture.Metadata, Executor,
+     * ImageCapture.OnImageSavedCallback)}. If no executor is set, then a default Executor
+     * specifically for IO will be used instead.
      *
      * @param valueIfMissing The value to return if this configuration option has not been set.
      * @return The stored value or <code>valueIfMissing</code> if the value does not exist in this
      * configuration.
-     * @hide Background executor not used in {@link Preview}.
      */
-    @RestrictTo(Scope.LIBRARY_GROUP)
-    @Override
     @Nullable
-    public Executor getBackgroundExecutor(@Nullable Executor valueIfMissing) {
-        return retrieveOption(OPTION_BACKGROUND_EXECUTOR, valueIfMissing);
+    @Override
+    public Executor getIoExecutor(@Nullable Executor valueIfMissing) {
+        return retrieveOption(OPTION_IO_EXECUTOR, valueIfMissing);
     }
 
     /**
-     * Returns the executor that will be used for background tasks.
+     * Returns the executor that will be used for IO tasks.
+     *
+     * <p> This executor will be used for any IO tasks specifically for ImageCapture, such as
+     * {@link ImageCapture#takePicture(File, Executor, ImageCapture.OnImageSavedCallback)}
+     * and {@link ImageCapture#takePicture(File, ImageCapture.Metadata, Executor,
+     * ImageCapture.OnImageSavedCallback)}. If no executor is set, then a default Executor
+     * specifically for IO will be used instead.
      *
      * @return The stored value, if it exists in this configuration.
      * @throws IllegalArgumentException if the option does not exist in this configuration.
      */
-    @Override
     @NonNull
-    public Executor getBackgroundExecutor() {
-        return retrieveOption(OPTION_BACKGROUND_EXECUTOR);
+    @Override
+    public Executor getIoExecutor() {
+        return retrieveOption(OPTION_IO_EXECUTOR);
     }
 
     // Implementations of UseCaseConfig default methods
 
-    /** @hide */
-    @RestrictTo(Scope.LIBRARY_GROUP)
     @Override
     @Nullable
     public SessionConfig getDefaultSessionConfig(@Nullable SessionConfig valueIfMissing) {
         return retrieveOption(OPTION_DEFAULT_SESSION_CONFIG, valueIfMissing);
     }
 
-    /** @hide */
-    @RestrictTo(Scope.LIBRARY_GROUP)
     @Override
     @NonNull
     public SessionConfig getDefaultSessionConfig() {
         return retrieveOption(OPTION_DEFAULT_SESSION_CONFIG);
     }
 
-    /** @hide */
-    @RestrictTo(Scope.LIBRARY_GROUP)
+    @Override
+    @Nullable
+    public CaptureConfig getDefaultCaptureConfig(@Nullable CaptureConfig valueIfMissing) {
+        return retrieveOption(OPTION_DEFAULT_CAPTURE_CONFIG, valueIfMissing);
+    }
+
+    @Override
+    @NonNull
+    public CaptureConfig getDefaultCaptureConfig() {
+        return retrieveOption(OPTION_DEFAULT_CAPTURE_CONFIG);
+    }
+
     @Override
     @Nullable
     public SessionConfig.OptionUnpacker getSessionOptionUnpacker(
@@ -463,32 +566,12 @@ public final class PreviewConfig
         return retrieveOption(OPTION_SESSION_CONFIG_UNPACKER, valueIfMissing);
     }
 
-    /** @hide */
-    @RestrictTo(Scope.LIBRARY_GROUP)
     @Override
     @NonNull
     public SessionConfig.OptionUnpacker getSessionOptionUnpacker() {
         return retrieveOption(OPTION_SESSION_CONFIG_UNPACKER);
     }
 
-    /** @hide */
-    @RestrictTo(Scope.LIBRARY_GROUP)
-    @Override
-    @Nullable
-    public CaptureConfig getDefaultCaptureConfig(@Nullable CaptureConfig valueIfMissing) {
-        return retrieveOption(OPTION_DEFAULT_CAPTURE_CONFIG, valueIfMissing);
-    }
-
-    /** @hide */
-    @RestrictTo(Scope.LIBRARY_GROUP)
-    @Override
-    @NonNull
-    public CaptureConfig getDefaultCaptureConfig() {
-        return retrieveOption(OPTION_DEFAULT_CAPTURE_CONFIG);
-    }
-
-    /** @hide */
-    @RestrictTo(Scope.LIBRARY_GROUP)
     @Override
     @Nullable
     public CaptureConfig.OptionUnpacker getCaptureOptionUnpacker(
@@ -496,30 +579,22 @@ public final class PreviewConfig
         return retrieveOption(OPTION_CAPTURE_CONFIG_UNPACKER, valueIfMissing);
     }
 
-    /** @hide */
-    @RestrictTo(Scope.LIBRARY_GROUP)
     @Override
     @NonNull
     public CaptureConfig.OptionUnpacker getCaptureOptionUnpacker() {
         return retrieveOption(OPTION_CAPTURE_CONFIG_UNPACKER);
     }
 
-    /** @hide */
-    @RestrictTo(Scope.LIBRARY_GROUP)
     @Override
     public int getSurfaceOccupancyPriority(int valueIfMissing) {
         return retrieveOption(OPTION_SURFACE_OCCUPANCY_PRIORITY, valueIfMissing);
     }
 
-    /** @hide */
-    @RestrictTo(Scope.LIBRARY_GROUP)
     @Override
     public int getSurfaceOccupancyPriority() {
         return retrieveOption(OPTION_SURFACE_OCCUPANCY_PRIORITY);
     }
 
-    /** @hide */
-    @RestrictTo(Scope.LIBRARY_GROUP)
     @Override
     @Nullable
     public UseCase.EventCallback getUseCaseEventCallback(
@@ -527,53 +602,10 @@ public final class PreviewConfig
         return retrieveOption(OPTION_USE_CASE_EVENT_CALLBACK, valueIfMissing);
     }
 
-    /** @hide */
-    @RestrictTo(Scope.LIBRARY_GROUP)
     @Override
     @NonNull
     public UseCase.EventCallback getUseCaseEventCallback() {
         return retrieveOption(OPTION_USE_CASE_EVENT_CALLBACK);
-    }
-
-    /** @hide */
-    @RestrictTo(Scope.LIBRARY_GROUP)
-    @Nullable
-    ImageInfoProcessor getImageInfoProcessor(@Nullable ImageInfoProcessor valueIfMissing) {
-        return retrieveOption(IMAGE_INFO_PROCESSOR, valueIfMissing);
-    }
-
-    /** @hide */
-    @RestrictTo(Scope.LIBRARY_GROUP)
-    @NonNull
-    ImageInfoProcessor getImageInfoProcessor() {
-        return retrieveOption(IMAGE_INFO_PROCESSOR);
-    }
-
-    /**
-     * Returns the {@link CaptureProcessor}.
-     *
-     * @param valueIfMissing The value to return if this configuration option has not been set.
-     * @return The stored value or <code>valueIfMissing</code> if the value does not exist in this
-     * configuration.
-     * @hide
-     */
-    @RestrictTo(Scope.LIBRARY_GROUP)
-    @Nullable
-    public CaptureProcessor getCaptureProcessor(@Nullable CaptureProcessor valueIfMissing) {
-        return retrieveOption(OPTION_PREVIEW_CAPTURE_PROCESSOR, valueIfMissing);
-    }
-
-    /**
-     * Returns the {@link CaptureProcessor}.
-     *
-     * @return The stored value, if it exists in this configuration.
-     * @throws IllegalArgumentException if the option does not exist in this configuration.
-     * @hide
-     */
-    @RestrictTo(Scope.LIBRARY_GROUP)
-    @NonNull
-    public CaptureProcessor getCaptureProcessor() {
-        return retrieveOption(OPTION_PREVIEW_CAPTURE_PROCESSOR);
     }
 
     // End of the default implementation of Config

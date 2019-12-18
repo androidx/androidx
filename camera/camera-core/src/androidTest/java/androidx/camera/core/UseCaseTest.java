@@ -26,6 +26,7 @@ import static org.mockito.Mockito.verify;
 import android.util.Size;
 
 import androidx.annotation.NonNull;
+import androidx.camera.core.impl.SessionConfig;
 import androidx.camera.testing.fakes.FakeUseCase;
 import androidx.camera.testing.fakes.FakeUseCaseConfig;
 import androidx.test.ext.junit.runners.AndroidJUnit4;

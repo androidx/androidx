@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2019 The Android Open Source Project
+ * Copyright 2019 The Android Open Source Project
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package androidx.camera.core;
+package androidx.camera.core.impl;
 
 import android.graphics.ImageFormat;
 import android.util.Pair;
@@ -25,8 +25,7 @@ import android.view.Surface;
 import androidx.annotation.IntDef;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
-import androidx.annotation.RestrictTo;
-import androidx.annotation.RestrictTo.Scope;
+import androidx.camera.core.AspectRatio;
 import androidx.camera.core.impl.Config.Option;
 
 import java.lang.annotation.Retention;
@@ -35,17 +34,11 @@ import java.util.List;
 
 /**
  * Configuration containing options for configuring the output image data of a pipeline.
- *
- * @hide
  */
-@RestrictTo(Scope.LIBRARY_GROUP)
 public interface ImageOutputConfig {
     /**
      * Invalid integer rotation.
-     *
-     * @hide
      */
-    @RestrictTo(Scope.LIBRARY_GROUP)
     int INVALID_ROTATION = -1;
 
     // Option Declarations:
@@ -53,60 +46,39 @@ public interface ImageOutputConfig {
 
     /**
      * Option: camerax.core.imageOutput.targetAspectRatioCustom
-     *
-     * @hide
      */
-    @RestrictTo(Scope.LIBRARY_GROUP)
     Option<Rational> OPTION_TARGET_ASPECT_RATIO_CUSTOM =
             Option.create("camerax.core.imageOutput.targetAspectRatioCustom", Rational.class);
 
     /**
      * Option: camerax.core.imageOutput.targetAspectRatio
-     *
-     * @hide
      */
-    @RestrictTo(Scope.LIBRARY_GROUP)
     Option<Integer> OPTION_TARGET_ASPECT_RATIO =
             Option.create("camerax.core.imageOutput.targetAspectRatio", AspectRatio.class);
 
     /**
      * Option: camerax.core.imageOutput.targetRotation
-     *
-     * @hide
      */
-    @RestrictTo(Scope.LIBRARY_GROUP)
     Option<Integer> OPTION_TARGET_ROTATION =
             Option.create("camerax.core.imageOutput.targetRotation", int.class);
     /**
      * Option: camerax.core.imageOutput.targetResolution
-     *
-     * @hide
      */
-    @RestrictTo(Scope.LIBRARY_GROUP)
     Option<Size> OPTION_TARGET_RESOLUTION =
             Option.create("camerax.core.imageOutput.targetResolution", Size.class);
     /**
      * Option: camerax.core.imageOutput.defaultResolution
-     *
-     * @hide
      */
-    @RestrictTo(Scope.LIBRARY_GROUP)
     Option<Size> OPTION_DEFAULT_RESOLUTION =
             Option.create("camerax.core.imageOutput.defaultResolution", Size.class);
     /**
      * Option: camerax.core.imageOutput.maxResolution
-     *
-     * @hide
      */
-    @RestrictTo(Scope.LIBRARY_GROUP)
     Option<Size> OPTION_MAX_RESOLUTION =
             Option.create("camerax.core.imageOutput.maxResolution", Size.class);
     /**
      * Option: camerax.core.imageOutput.supportedResolutions
-     *
-     * @hide
      */
-    @RestrictTo(Scope.LIBRARY_GROUP)
     Option<List<Pair<Integer, Size[]>>> OPTION_SUPPORTED_RESOLUTIONS =
             Option.create("camerax.core.imageOutput.supportedResolutions", List.class);
 
@@ -122,10 +94,8 @@ public interface ImageOutputConfig {
      * @param valueIfMissing The value to return if this configuration option has not been set.
      * @return The stored value or <code>valueIfMissing</code> if the value does not exist in this
      * configuration.
-     * @hide
      */
     @Nullable
-    @RestrictTo(Scope.LIBRARY_GROUP)
     Rational getTargetAspectRatioCustom(@Nullable Rational valueIfMissing);
 
     /**
@@ -137,10 +107,8 @@ public interface ImageOutputConfig {
      *
      * @return The stored value, if it exists in this configuration.
      * @throws IllegalArgumentException if the option does not exist in this configuration.
-     * @hide
      */
     @NonNull
-    @RestrictTo(Scope.LIBRARY_GROUP)
     Rational getTargetAspectRatioCustom();
 
     /**
@@ -193,9 +161,7 @@ public interface ImageOutputConfig {
      * @param valueIfMissing The value to return if this configuration option has not been set.
      * @return The stored value or <code>valueIfMissing</code> if the value does not exist in this
      * configuration.
-     * @hide
      */
-    @RestrictTo(Scope.LIBRARY_GROUP)
     @Nullable
     Size getTargetResolution(@Nullable Size valueIfMissing);
 
@@ -204,9 +170,7 @@ public interface ImageOutputConfig {
      *
      * @return The stored value, if it exists in this configuration.
      * @throws IllegalArgumentException if the option does not exist in this configuration.
-     * @hide
      */
-    @RestrictTo(Scope.LIBRARY_GROUP)
     @NonNull
     Size getTargetResolution();
 
@@ -216,9 +180,7 @@ public interface ImageOutputConfig {
      * @param valueIfMissing The value to return if this configuration option has not been set.
      * @return The stored value or <code>valueIfMissing</code> if the value does not exist in this
      * configuration.
-     * @hide
      */
-    @RestrictTo(Scope.LIBRARY_GROUP)
     @Nullable
     Size getDefaultResolution(@Nullable Size valueIfMissing);
 
@@ -227,9 +189,7 @@ public interface ImageOutputConfig {
      *
      * @return The stored value, if it exists in this configuration.
      * @throws IllegalArgumentException if the option does not exist in this configuration.
-     * @hide
      */
-    @RestrictTo(Scope.LIBRARY_GROUP)
     @NonNull
     Size getDefaultResolution();
 
@@ -240,9 +200,7 @@ public interface ImageOutputConfig {
      * @param valueIfMissing The value to return if this configuration option has not been set.
      * @return The stored value or <code>valueIfMissing</code> if the value does not exist in this
      * configuration.
-     * @hide
      */
-    @RestrictTo(Scope.LIBRARY_GROUP)
     @Nullable
     Size getMaxResolution(@Nullable Size valueIfMissing);
 
@@ -252,9 +210,7 @@ public interface ImageOutputConfig {
      *
      * @return The stored value, if it exists in this configuration.
      * @throws IllegalArgumentException if the option does not exist in this configuration.
-     * @hide
      */
-    @RestrictTo(Scope.LIBRARY_GROUP)
     @NonNull
     Size getMaxResolution();
 
@@ -268,9 +224,7 @@ public interface ImageOutputConfig {
      * @param valueIfMissing The value to return if this configuration option has not been set.
      * @return The stored value or <code>valueIfMissing</code> if the value does not exist in this
      * configuration.
-     * @hide
      */
-    @RestrictTo(Scope.LIBRARY_GROUP)
     @Nullable
     List<Pair<Integer, Size[]>> getSupportedResolutions(
             @Nullable List<Pair<Integer, Size[]>> valueIfMissing);
@@ -284,9 +238,7 @@ public interface ImageOutputConfig {
      *
      * @return The stored value, if it exists in this configuration.
      * @throws IllegalArgumentException if the option does not exist in this configuration.
-     * @hide
      */
-    @RestrictTo(Scope.LIBRARY_GROUP)
     @NonNull
     List<Pair<Integer, Size[]>> getSupportedResolutions();
 
@@ -294,9 +246,7 @@ public interface ImageOutputConfig {
      * Builder for a {@link ImageOutputConfig}.
      *
      * @param <B> The top level builder type for which this builder is composed with.
-     * @hide
      */
-    @RestrictTo(Scope.LIBRARY_GROUP)
     interface Builder<B> {
 
         /**
@@ -314,9 +264,7 @@ public interface ImageOutputConfig {
          * @param aspectRatio A {@link Rational} representing the ratio of the target's width and
          *                    height.
          * @return The current Builder.
-         * @hide
          */
-        @RestrictTo(Scope.LIBRARY_GROUP)
         @NonNull
         B setTargetAspectRatioCustom(@NonNull Rational aspectRatio);
 
@@ -357,9 +305,7 @@ public interface ImageOutputConfig {
          *
          * @param resolution The target resolution to choose from supported output sizes list.
          * @return The current Builder.
-         * @hide
          */
-        @RestrictTo(Scope.LIBRARY_GROUP)
         @NonNull
         B setTargetResolution(@NonNull Size resolution);
 
@@ -368,9 +314,7 @@ public interface ImageOutputConfig {
          *
          * @param resolution The default resolution to choose from supported output sizes list.
          * @return The current Builder.
-         * @hide
          */
-        @RestrictTo(Scope.LIBRARY_GROUP)
         @NonNull
         B setDefaultResolution(@NonNull Size resolution);
 
@@ -380,9 +324,7 @@ public interface ImageOutputConfig {
          * @param resolution The max resolution limitation to choose from supported output sizes
          *                   list.
          * @return The current Builder.
-         * @hide
          */
-        @RestrictTo(Scope.LIBRARY_GROUP)
         @NonNull
         B setMaxResolution(@NonNull Size resolution);
 
@@ -395,20 +337,15 @@ public interface ImageOutputConfig {
          *
          * @param resolutionsList The resolutions can be supported for image formats.
          * @return The current Builder.
-         * @hide
          */
-        @RestrictTo(Scope.LIBRARY_GROUP)
         @NonNull
         B setSupportedResolutions(@NonNull List<Pair<Integer, Size[]>> resolutionsList);
     }
 
     /**
      * Valid integer rotation values.
-     *
-     * @hide
      */
     @IntDef({Surface.ROTATION_0, Surface.ROTATION_90, Surface.ROTATION_180, Surface.ROTATION_270})
-    @RestrictTo(Scope.LIBRARY_GROUP)
     @Retention(RetentionPolicy.SOURCE)
     @interface RotationValue {
     }
