@@ -27,8 +27,6 @@ import androidx.compose.remember
 import androidx.compose.state
 import androidx.ui.animation.animatedFloat
 import androidx.ui.core.Draw
-import androidx.ui.core.IntPx
-import androidx.ui.core.Layout
 import androidx.ui.core.PxPosition
 import androidx.ui.core.PxSize
 import androidx.ui.core.Text
@@ -43,6 +41,7 @@ import androidx.ui.layout.Column
 import androidx.ui.layout.Padding
 import androidx.ui.graphics.Canvas
 import androidx.ui.graphics.Paint
+import androidx.ui.layout.Container
 import androidx.ui.layout.LayoutExpandedHeight
 import androidx.ui.text.TextStyle
 import kotlin.math.roundToInt
@@ -77,7 +76,7 @@ class SpringBackScrolling : Activity() {
                     })
                 }
             }) {
-                val children = @Composable {
+                Container(expanded = true, height = 400.dp) {
                     var paint = remember { Paint() }
                     Draw { canvas, parentSize ->
 
@@ -110,9 +109,6 @@ class SpringBackScrolling : Activity() {
                         }
                         drawRects(canvas, parentSize, paint, animScroll.value)
                     }
-                }
-                Layout(children) { _, constraints ->
-                    layout(constraints.maxWidth, IntPx(1200)) {}
                 }
             }
         }

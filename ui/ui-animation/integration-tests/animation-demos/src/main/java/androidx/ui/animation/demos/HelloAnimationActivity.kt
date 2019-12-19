@@ -27,13 +27,13 @@ import androidx.compose.Composable
 import androidx.compose.Recompose
 import androidx.ui.animation.Transition
 import androidx.ui.animation.ColorPropKey
-import androidx.ui.core.Layout
 import androidx.ui.core.Draw
 import androidx.ui.core.setContent
 import androidx.ui.core.toRect
 import androidx.ui.engine.geometry.Rect
 import androidx.ui.graphics.Color
 import androidx.ui.graphics.Paint
+import androidx.ui.layout.Container
 
 class HelloAnimationActivity : Activity() {
 
@@ -45,8 +45,8 @@ class HelloAnimationActivity : Activity() {
 
 @Composable
 fun HelloAnimation() {
-    Layout(children = { ColorRect() }) { _, constraints ->
-        layout(constraints.maxWidth, constraints.maxHeight) {}
+    Container(expanded = true) {
+        ColorRect()
     }
 }
 
