@@ -473,7 +473,6 @@ public abstract class FragmentStateAdapter extends
     /**
      * Default implementation works for collections that don't add, move, remove items.
      * <p>
-     * TODO(b/122670460): add lint rule
      * When overriding, also override {@link #containsItem(long)}.
      * <p>
      * If the item is not a part of the collection, return {@link RecyclerView#NO_ID}.
@@ -481,6 +480,7 @@ public abstract class FragmentStateAdapter extends
      * @param position Adapter position
      * @return stable item id {@link RecyclerView.Adapter#hasStableIds()}
      */
+    // TODO(b/122670460): add lint rule
     @Override
     public long getItemId(int position) {
         return position;
@@ -489,9 +489,9 @@ public abstract class FragmentStateAdapter extends
     /**
      * Default implementation works for collections that don't add, move, remove items.
      * <p>
-     * TODO(b/122670460): add lint rule
      * When overriding, also override {@link #getItemId(int)}
      */
+    // TODO(b/122670460): add lint rule
     public boolean containsItem(long itemId) {
         return itemId >= 0 && itemId < getItemCount();
     }

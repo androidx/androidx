@@ -582,8 +582,6 @@ public final class ViewPager2 extends ViewGroup {
      * the current item and the specified item. Silently ignored if the adapter is not set or
      * empty. Clamps item to the bounds of the adapter.
      *
-     * TODO(b/123069219): verify first layout behavior
-     *
      * @param item Item index to select
      */
     public void setCurrentItem(int item) {
