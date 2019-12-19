@@ -19,10 +19,15 @@ else
     export OUT_DIR="$CHECKOUT_ROOT/out"
 fi
 
+XMX_ARG="-Dorg.gradle.jvmargs=-Xmx8g"
 if [ -n "$DIST_DIR" ]; then
     mkdir -p "$DIST_DIR"
     DIST_DIR="$(cd $DIST_DIR && pwd)"
     export LINT_PRINT_STACKTRACE=true
+
+    #Set the initial heap size to match the max heap size,
+    #by replacing a string like "-Xmx1g" with one like "-Xms1g -Xmx1g"
+    XMX_ARG="$(echo $XMX_ARG | sed 's/-Xmx\([^ ]*\)/-Xms\1 -Xmx\1/')"
 
     # We don't set a default DIST_DIR in an else clause here because Studio doesn't use gradlew
     # and doesn't set DIST_DIR and we want gradlew and Studio to match
@@ -210,7 +215,7 @@ if [ "$TMPDIR" != "" ]; then
   TMPDIR_ARG="-Djava.io.tmpdir=$TMPDIR"
 fi
 
-if "$JAVACMD" "${JVM_OPTS[@]}" $TMPDIR_ARG -classpath "$CLASSPATH" org.gradle.wrapper.GradleWrapperMain $HOME_SYSTEM_PROPERTY_ARGUMENT $TMPDIR_ARG "$@"; then
+if "$JAVACMD" "${JVM_OPTS[@]}" $TMPDIR_ARG -classpath "$CLASSPATH" org.gradle.wrapper.GradleWrapperMain $HOME_SYSTEM_PROPERTY_ARGUMENT $TMPDIR_ARG "$XMX_ARG" "$@"; then
   exit 0
 else
   # Print AndroidX-specific help message if build fails
