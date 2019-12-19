@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2019 The Android Open Source Project
+ * Copyright 2019 The Android Open Source Project
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package androidx.camera.core;
+package androidx.camera.core.impl;
 
 import android.media.ImageReader;
 import android.os.Handler;
@@ -24,6 +24,7 @@ import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.annotation.RestrictTo;
 import androidx.annotation.RestrictTo.Scope;
+import androidx.camera.core.ImageProxy;
 
 import java.util.concurrent.Executor;
 
@@ -33,9 +34,8 @@ import java.util.concurrent.Executor;
  * <p>Whereas an {@link ImageReader} provides {@link android.media.Image} instances, an {@link
  * ImageReaderProxy} provides {@link ImageProxy} instances.
  *
- * @hide
  */
-@RestrictTo(Scope.LIBRARY_GROUP)
+
 public interface ImageReaderProxy {
     /**
      * Acquires the latest image in the queue.
@@ -93,6 +93,7 @@ public interface ImageReaderProxy {
      *
      * <p>@see {@link ImageReader#getSurface()}.
      */
+    @NonNull
     Surface getSurface();
 
     /**
@@ -126,6 +127,6 @@ public interface ImageReaderProxy {
          *
          * <p>@see {@link ImageReader.OnImageAvailableListener#onImageAvailable(ImageReader)}.
          */
-        void onImageAvailable(ImageReaderProxy imageReader);
+        void onImageAvailable(@NonNull ImageReaderProxy imageReader);
     }
 }

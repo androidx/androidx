@@ -31,6 +31,7 @@ import androidx.camera.core.impl.CaptureBundle;
 import androidx.camera.core.impl.CaptureProcessor;
 import androidx.camera.core.impl.CaptureStage;
 import androidx.camera.core.impl.ImageProxyBundle;
+import androidx.camera.core.impl.ImageReaderProxy;
 import androidx.camera.testing.fakes.FakeCaptureStage;
 import androidx.camera.testing.fakes.FakeImageReaderProxy;
 import androidx.test.filters.SmallTest;

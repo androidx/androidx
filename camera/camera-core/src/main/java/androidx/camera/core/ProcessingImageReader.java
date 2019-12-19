@@ -29,6 +29,7 @@ import androidx.camera.core.impl.CameraCaptureCallback;
 import androidx.camera.core.impl.CaptureBundle;
 import androidx.camera.core.impl.CaptureProcessor;
 import androidx.camera.core.impl.CaptureStage;
+import androidx.camera.core.impl.ImageReaderProxy;
 import androidx.camera.core.impl.utils.executor.CameraXExecutors;
 import androidx.camera.core.impl.utils.futures.FutureCallback;
 import androidx.camera.core.impl.utils.futures.Futures;
@@ -42,7 +43,7 @@ import java.util.concurrent.Executor;
 /**
  * An {@link ImageReaderProxy} which takes one or more {@link android.media.Image}, processes it,
  * then output the final result {@link ImageProxy} to
- * {@link androidx.camera.core.ImageReaderProxy.OnImageAvailableListener}.
+ * {@link ImageReaderProxy.OnImageAvailableListener}.
  *
  * <p>ProcessingImageReader takes {@link CaptureBundle} as the expected set of
  * {@link CaptureStage}. Once all the ImageProxy from the captures are ready. It invokes
@@ -57,7 +58,7 @@ class ProcessingImageReader implements ImageReaderProxy {
     private ImageReaderProxy.OnImageAvailableListener mTransformedListener =
             new ImageReaderProxy.OnImageAvailableListener() {
                 @Override
-                public void onImageAvailable(ImageReaderProxy reader) {
+                public void onImageAvailable(@NonNull ImageReaderProxy reader) {
                     imageIncoming(reader);
                 }
             };
@@ -68,7 +69,7 @@ class ProcessingImageReader implements ImageReaderProxy {
                 // TODO(b/141958189): Suppressed during upgrade to AGP 3.6.
                 @SuppressWarnings("GuardedBy")
                 @Override
-                public void onImageAvailable(ImageReaderProxy reader) {
+                public void onImageAvailable(@NonNull ImageReaderProxy reader) {
                     // Callback the output OnImageAvailableListener.
                     if (mExecutor != null) {
                         mExecutor.execute(
@@ -245,6 +246,7 @@ class ProcessingImageReader implements ImageReaderProxy {
         }
     }
 
+    @NonNull
     @Override
     public Surface getSurface() {
         synchronized (mLock) {

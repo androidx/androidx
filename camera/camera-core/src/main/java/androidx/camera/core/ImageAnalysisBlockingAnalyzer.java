@@ -16,6 +16,8 @@
 
 package androidx.camera.core;
 
+import androidx.annotation.NonNull;
+import androidx.camera.core.impl.ImageReaderProxy;
 import androidx.camera.core.impl.utils.executor.CameraXExecutors;
 import androidx.camera.core.impl.utils.futures.FutureCallback;
 import androidx.camera.core.impl.utils.futures.Futures;
@@ -30,7 +32,7 @@ import com.google.common.util.concurrent.ListenableFuture;
 final class ImageAnalysisBlockingAnalyzer extends ImageAnalysisAbstractAnalyzer {
 
     @Override
-    public void onImageAvailable(ImageReaderProxy imageReaderProxy) {
+    public void onImageAvailable(@NonNull ImageReaderProxy imageReaderProxy) {
         ImageProxy image = imageReaderProxy.acquireNextImage();
         if (image == null) {
             return;
