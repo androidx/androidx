@@ -205,7 +205,7 @@ public class ObjectAnimatorTest {
         int endColor = 0xFF8080FF;
 
         Integer[] values = {new Integer(startColor), new Integer(endColor)};
-        ArgbEvaluator evaluator = new ArgbEvaluator();
+        ArgbEvaluator evaluator = ArgbEvaluator.getInstance();
         final ObjectAnimator colorAnimator = ObjectAnimator.ofObject(object, property,
                 evaluator, values);
 
@@ -271,7 +271,7 @@ public class ObjectAnimatorTest {
         animator.setInterpolator(null);
         animator.start();
 
-        ArgbEvaluator evaluator = new ArgbEvaluator();
+        ArgbEvaluator evaluator = ArgbEvaluator.getInstance();
         for (int i = 0; i <= 200; i++) {
 
             int interpolatedColor = (int) evaluator.evaluate(i / 200f, start, end);
@@ -313,7 +313,7 @@ public class ObjectAnimatorTest {
         int startColor = Color.RED;
         int endColor = Color.BLUE;
         Object[] values = {new Integer(startColor), new Integer(endColor)};
-        ArgbEvaluator evaluator = new ArgbEvaluator();
+        ArgbEvaluator evaluator = ArgbEvaluator.getInstance();
         ObjectAnimator colorAnimator = ObjectAnimator.ofObject(object, propertyName,
                 evaluator, values);
         String actualPropertyName = colorAnimator.getPropertyName();
@@ -361,7 +361,7 @@ public class ObjectAnimatorTest {
         int startColor = Color.RED;
         int endColor = Color.BLUE;
         Object[] values = {new Integer(startColor), new Integer(endColor)};
-        ArgbEvaluator evaluator = new ArgbEvaluator();
+        ArgbEvaluator evaluator = ArgbEvaluator.getInstance();
         ObjectAnimator colorAnimator = ObjectAnimator.ofObject(object, propertyName,
                 evaluator, values);
         Object target = colorAnimator.getTarget();

@@ -23,6 +23,7 @@ import android.content.res.TypedArray;
 import android.util.AttributeSet;
 
 import androidx.annotation.FloatRange;
+import androidx.annotation.NonNull;
 
 /**
  * An interpolator where the rate of change starts out slowly and
@@ -50,7 +51,7 @@ public class AccelerateInterpolator implements Interpolator {
         mDoubleFactor = 2 * mFactor;
     }
 
-    public AccelerateInterpolator(Context context, AttributeSet attrs) {
+    public AccelerateInterpolator(@NonNull Context context, @NonNull AttributeSet attrs) {
         this(context.getResources(), context.getTheme(), attrs);
     }
 

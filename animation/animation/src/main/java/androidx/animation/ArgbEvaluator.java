@@ -29,12 +29,14 @@ public final class ArgbEvaluator implements TypeEvaluator<Integer> {
      * Returns an instance of <code>ArgbEvaluator</code> that may be used in
      * {@link ValueAnimator#setEvaluator(TypeEvaluator)}. The same instance may
      * be used in multiple <code>Animator</code>s because it holds no state.
-     * @return An instance of <code>ArgbEvalutor</code>.
-     *
+     * @return An instance of <code>ArgbEvaluator</code>.
      */
     @NonNull
     public static ArgbEvaluator getInstance() {
         return sInstance;
+    }
+
+    private ArgbEvaluator() {
     }
 
     /**
