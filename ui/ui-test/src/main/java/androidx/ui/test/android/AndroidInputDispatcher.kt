@@ -24,6 +24,7 @@ import android.view.MotionEvent.ACTION_DOWN
 import android.view.MotionEvent.ACTION_MOVE
 import android.view.MotionEvent.ACTION_UP
 import androidx.ui.core.Duration
+import androidx.ui.core.PxPosition
 import androidx.ui.core.inMilliseconds
 import androidx.ui.core.milliseconds
 import androidx.ui.lerp
@@ -57,15 +58,14 @@ internal class AndroidInputDispatcher(
 
     private val handler = Handler(Looper.getMainLooper())
 
-    override fun sendClick(x: Float, y: Float) {
+    override fun sendClick(position: PxPosition) {
         val downTime = SystemClock.uptimeMillis()
-        treeProviders.sendMotionEvent(downTime, downTime, ACTION_DOWN, x, y)
-        treeProviders.sendMotionEvent(downTime, downTime + eventPeriod, ACTION_UP, x, y)
+        treeProviders.sendMotionEvent(downTime, downTime, ACTION_DOWN, position)
+        treeProviders.sendMotionEvent(downTime, downTime + eventPeriod, ACTION_UP, position)
     }
 
     override fun sendSwipe(
-        fx: (Long) -> Float,
-        fy: (Long) -> Float,
+        curve: (Long) -> PxPosition,
         duration: Duration,
         keyTimes: List<Long>
     ) {
@@ -89,7 +89,7 @@ internal class AndroidInputDispatcher(
         val upTime = downTime + duration.inMilliseconds()
 
         // Send down event
-        treeProviders.sendMotionEvent(downTime, downTime, ACTION_DOWN, fx(startTime), fy(startTime))
+        treeProviders.sendMotionEvent(downTime, downTime, ACTION_DOWN, curve(startTime))
 
         // Send move events between each consecutive pair in [t0, ..keyTimes, tN]
         var currTime = startTime
@@ -101,32 +101,29 @@ internal class AndroidInputDispatcher(
             }
             // send events between t and next keyTime
             val tNext = if (key < keyTimes.size) keyTimes[key] else endTime
-            sendPartialSwipe(downTime, fx, fy, currTime, tNext)
+            sendPartialSwipe(downTime, curve, currTime, tNext)
             currTime = tNext
         }
 
         // And end with up event
-        treeProviders.sendMotionEvent(downTime, upTime, ACTION_UP, fx(endTime), fy(endTime))
+        treeProviders.sendMotionEvent(downTime, upTime, ACTION_UP, curve(endTime))
     }
 
     /**
-     * Sends move events between `(fx([t0]), fy(t0))` and `(fx([tN]), fy(tN))` during the time
-     * window `(downTime + t0, downTime + tN]`, using [fx] and [fy] to sample the x and y
-     * coordinate of each event. The number of events sent (#numEvents) is such that the time
-     * between each event is as close to [eventPeriod] as possible, but at least 1. The first
-     * event is sent at time `downTime + (tN - t0) / #numEvents`, the last event is sent at time
-     * tN.
+     * Sends move events between `f([t0])` and `f([tN])` during the time window `(downTime + t0,
+     * downTime + tN]`, using [f] to sample the coordinate of each event. The number of events
+     * sent (#numEvents) is such that the time between each event is as close to [eventPeriod] as
+     * possible, but at least 1. The first event is sent at time `downTime + (tN - t0) /
+     * #numEvents`, the last event is sent at time tN.
      *
      * @param downTime The event time of the down event that started this gesture
-     * @param fx The function that defines the x coordinate of the gesture over time
-     * @param fy The function that defines the y coordinate of the gesture over time
+     * @param f The function that defines the coordinate of the gesture over time
      * @param t0 The start time of this segment of the swipe, in milliseconds relative to downTime
      * @param tN The end time of this segment of the swipe, in milliseconds relative to downTime
      */
     private fun sendPartialSwipe(
         downTime: Long,
-        fx: (Long) -> Float,
-        fy: (Long) -> Float,
+        f: (Long) -> PxPosition,
         t0: Long,
         tN: Long
     ) {
@@ -138,7 +135,7 @@ internal class AndroidInputDispatcher(
         while (step++ < steps) {
             val progress = step / steps.toFloat()
             val t = lerp(t0, tN, progress)
-            treeProviders.sendMotionEvent(downTime, downTime + t, ACTION_MOVE, fx(t), fy(t))
+            treeProviders.sendMotionEvent(downTime, downTime + t, ACTION_MOVE, f(t))
         }
     }
 
@@ -149,8 +146,7 @@ internal class AndroidInputDispatcher(
         downTime: Long,
         eventTime: Long,
         action: Int,
-        x: Float,
-        y: Float
+        position: PxPosition
     ) {
         if (dispatchInRealTime) {
             val currTime = SystemClock.uptimeMillis()
@@ -158,7 +154,9 @@ internal class AndroidInputDispatcher(
                 SystemClock.sleep(eventTime - currTime)
             }
         }
-        sendAndRecycleEvent(MotionEvent.obtain(downTime, eventTime, action, x, y, 0))
+        sendAndRecycleEvent(
+            MotionEvent.obtain(downTime, eventTime, action, position.x.value, position.y.value, 0)
+        )
     }
 
     /**
