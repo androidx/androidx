@@ -74,6 +74,8 @@ private fun GestureScope.toGlobalPosition(position: PxPosition): PxPosition {
  * is in the component's local coordinate system.
  *
  * Throws [AssertionError] when the component doesn't have a bounding rectangle set
+ *
+ * @param position The position where to click, in the component's local coordinate system
  */
 fun GestureScope.sendClick(position: PxPosition) {
     semanticsTreeInteraction.sendInput {
@@ -99,6 +101,10 @@ fun GestureScope.sendClick() {
  * is 200 milliseconds.
  *
  * Throws [AssertionError] when the component doesn't have a bounding rectangle set
+ *
+ * @param start The start position of the gesture, in the component's local coordinate system
+ * @param end The end position of the gesture, in the component's local coordinate system
+ * @param duration The duration of the gesture
  */
 fun GestureScope.sendSwipe(
     start: PxPosition,
@@ -123,6 +129,12 @@ fun GestureScope.sendSwipe(
  * velocity at the end of the gesture, but generally it is within 0.1% of the desired velocity.
  *
  * Throws [AssertionError] when the component doesn't have a bounding rectangle set
+ *
+ * @param start The start position of the gesture, in the component's local coordinate system
+ * @param end The end position of the gesture, in the component's local coordinate system
+ * @param endVelocity The velocity of the gesture at the moment it ends. Must be positive.
+ * @param duration The duration of the gesture. Must be long enough that at least 3 input events
+ * are generated, which happens with a duration of 25ms or more.
  */
 fun GestureScope.sendSwipeWithVelocity(
     start: PxPosition,
