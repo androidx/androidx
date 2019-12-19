@@ -203,7 +203,8 @@ public final class TextClassificationTest {
                         .setText(TEXT)
                         .setEntityType(TextClassifier.TYPE_ADDRESS, ADDRESS_SCORE)
                         .setEntityType(TextClassifier.TYPE_PHONE, PHONE_SCORE)
-                        .setIcon(mContext.getDrawable(R.drawable.abc_ic_star_black_16dp))
+                        .setIcon(mContext.getDrawable(
+                                androidx.appcompat.R.drawable.abc_ic_star_black_16dp))
                         .setLabel(PRIMARY_LABEL)
                         .setIntent(PRIMARY_INTENT)
                         .build();

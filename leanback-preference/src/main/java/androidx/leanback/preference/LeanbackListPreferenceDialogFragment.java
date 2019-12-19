@@ -151,7 +151,8 @@ public class LeanbackListPreferenceDialogFragment extends LeanbackPreferenceDial
     public @Nullable View onCreateView(LayoutInflater inflater, ViewGroup container,
             Bundle savedInstanceState) {
         final TypedValue tv = new TypedValue();
-        getActivity().getTheme().resolveAttribute(R.attr.preferenceTheme, tv, true);
+        getActivity().getTheme().resolveAttribute(
+                androidx.preference.R.attr.preferenceTheme, tv, true);
         int theme = tv.resourceId;
         if (theme == 0) {
             // Fallback to default theme.

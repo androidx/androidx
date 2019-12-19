@@ -131,7 +131,7 @@ public class SliceActionView extends FrameLayout implements View.OnClickListener
                 if (uncheckedThumbColor == 0) {
                     // We aren't in an appcompat theme, pull the default light switch color.
                     uncheckedThumbColor = ContextCompat.getColor(getContext(),
-                            R.color.switch_thumb_normal_material_light);
+                            androidx.appcompat.R.color.switch_thumb_normal_material_light);
                 }
 
                 ColorStateList thumbTintList = new ColorStateList(

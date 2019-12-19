@@ -80,7 +80,8 @@ public class PreferenceCategory extends PreferenceGroup {
             // PreferenceFragmentCompat with an AppCompat theme, and to set the category title
             // accordingly.
             final TypedValue value = new TypedValue();
-            if (!getContext().getTheme().resolveAttribute(R.attr.colorAccent, value, true)) {
+            if (!getContext().getTheme().resolveAttribute(
+                    androidx.appcompat.R.attr.colorAccent, value, true)) {
                 // Return if the attribute could not be resolved
                 return;
             }
