@@ -23,17 +23,24 @@ import androidx.paging.PageEvent.Insert
 import androidx.paging.PagedList.Config.Companion.MAX_SIZE_UNBOUNDED
 import androidx.paging.PagedSource.LoadResult.Page
 import androidx.paging.PagedSource.LoadResult.Page.Companion.COUNT_UNDEFINED
+import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.FlowPreview
 import kotlinx.coroutines.channels.Channel
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.consumeAsFlow
+import kotlin.math.absoluteValue
 
 /**
  * Internal state of [Pager] whose updates can be consumed as a [Flow]<[PageEvent]<[Value]>>.
  */
-internal class PagerState<Key : Any, Value : Any>(private val maxSize: Int) {
+@FlowPreview
+@ExperimentalCoroutinesApi
+internal class PagerState<Key : Any, Value : Any>(
+    private val pageSize: Int,
+    private val maxSize: Int
+) {
     // TODO: Consider moving the page event channel into Pager
-    private val pageEventCh = Channel<PageEvent<Value>>()
+    private val pageEventCh = Channel<PageEvent<Value>>(Channel.BUFFERED)
     private val pages = mutableListOf<Page<Key, Value>>()
     private var initialPageIndex = 0
     private var placeholdersStart = COUNT_UNDEFINED
@@ -260,48 +267,47 @@ internal class PagerState<Key : Any, Value : Any>(private val maxSize: Int) {
      * pageIndex. If the page specified by [ViewportHint.sourcePageIndex] cannot fulfill the
      * specified indexInPage, pageIndex will be incremented to a valid value and indexInPage will
      * be decremented.
-     * * pageIndex - See the description for indexInPage, this is index of page in [pages]
-     * coerced from [ViewportHint.sourcePageIndex]
-     * * itemsStart - Remaining placeholders before the items currently loaded in [pages]]
-     * * itemsEnd - Remaining placeholders after the items currently loaded in [pages]]
+     * * pageIndex - See the description for indexInPage, index in [pages] coerced from
+     * [ViewportHint.sourcePageIndex]
+     *
+     * Note: If an invalid / out-of-date sourcePageIndex is passed, it will be coerced to the
+     * closest pageIndex within the range of [pages]
+     *
+     * TODO: Handle pages.isEmpty (lastIndex returns -1)
      */
     internal suspend fun <T> ViewportHint.withCoercedHint(
-        block: suspend (indexInPage: Int, pageIndex: Int, itemsStart: Int, itemsEnd: Int) -> T
+        block: suspend (indexInPage: Int, pageIndex: Int, hintOffset: Int) -> T
     ): T {
-        var itemsStart = 0
-        var itemsEnd = 0
-
-        var pageIndex = sourcePageIndex + initialPageIndex
-
-        // We walk the list every time here as itemsStart and itemsEnd are dependent on
-        // ViewportHint.indexInPage and ViewportHint.sourcePageIndex, which need to be coerced to
-        // valid values within the current state.
-        pages.forEachIndexed { index, page ->
-            when {
-                index < pageIndex -> itemsStart += page.data.size
-                index == pageIndex -> {
-                    itemsStart += indexInPage
-                    itemsEnd += page.data.size - indexInPage
-                }
-                else -> itemsEnd += page.data.size
-            }
-        }
-
-        // If hint refers to a page that has been dropped, return immediately since it's
-        // impossible to adjust pageIndex and indexInPage based on what has been loaded.
-        if (pageIndex == -1) {
-            return block(indexInPage, pageIndex, itemsStart, itemsEnd)
-        }
-
-        // Coerce indexInPage, which may have a value outside the bounds of the page size
-        // referenced by sourcePageIndex.
         var indexInPage = indexInPage
-        while (indexInPage !in pages[pageIndex].data.indices && pageIndex < pages.lastIndex) {
-            pageIndex++
-            indexInPage -= pages[pageIndex].data.size
+        var pageIndex = sourcePageIndex + initialPageIndex
+        var hintOffset = 0
+
+        // Coerce pageIndex to >= 0, snap indexInPage to 0 if pageIndex is coerced.
+        if (pageIndex < 0) {
+            hintOffset = (pageIndex.absoluteValue - 1) * pageSize
+
+            pageIndex = 0
+            indexInPage = 0
         }
 
-        return block(indexInPage, pageIndex, itemsStart, itemsEnd)
+        // Reduce indexInPage by incrementing pageIndex while indexInPage is outside the bounds of
+        // the page referenced by pageIndex.
+        while (pageIndex < pages.lastIndex && indexInPage > pages[pageIndex].data.lastIndex) {
+            indexInPage -= pages[pageIndex].data.size
+            pageIndex++
+        }
+
+        // Coerce pageIndex to <= pages.lastIndex, snap indexInPage to last index if pageIndex is
+        // coerced.
+        if (pageIndex > pages.lastIndex) {
+            val itemsInSkippedPages = (pageIndex - pages.lastIndex - 1) * pageSize
+            hintOffset = itemsInSkippedPages + indexInPage + 1
+
+            pageIndex = pages.lastIndex
+            indexInPage = pages.lastOrNull()?.data?.lastIndex ?: 0
+        }
+
+        return block(indexInPage, pageIndex, hintOffset)
     }
 }
 
