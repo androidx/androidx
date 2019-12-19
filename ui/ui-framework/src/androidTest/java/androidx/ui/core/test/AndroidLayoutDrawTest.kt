@@ -50,6 +50,7 @@ import androidx.ui.core.Measurable
 import androidx.ui.core.Modifier
 import androidx.ui.core.OnPositioned
 import androidx.ui.core.ParentData
+import androidx.ui.core.ParentDataModifier
 import androidx.ui.core.Ref
 import androidx.ui.core.RepaintBoundary
 import androidx.ui.core.VerticalAlignmentLine
@@ -1730,6 +1731,37 @@ class AndroidLayoutDrawTest {
         assertEquals(0.px, wrap2Position)
     }
 
+    @Test
+    fun modifiers_validateCorrectSizes() {
+        val layoutModifier = object : LayoutModifier {}
+        val parentDataModifier = object : ParentDataModifier {}
+        val size = 50.ipx
+
+        val latch = CountDownLatch(2)
+        val childSizes = arrayOfNulls<IntPxSize>(2)
+        activityTestRule.runOnUiThreadIR {
+            activity.setContentInFrameLayout {
+                Layout(
+                    children = {
+                        FixedSize(size, layoutModifier)
+                        FixedSize(size, parentDataModifier)
+                    },
+                    measureBlock = { measurables, constraints ->
+                        measurables.forEachIndexed { i, child ->
+                            val placeable = child.measure(constraints)
+                            childSizes[i] = placeable.size
+                            latch.countDown()
+                        }
+                        layout(0.ipx, 0.ipx) { }
+                    }
+                )
+            }
+        }
+        assertTrue(latch.await(1, TimeUnit.SECONDS))
+        assertEquals(IntPxSize(size, size), childSizes[0])
+        assertEquals(IntPxSize(size, size), childSizes[1])
+    }
+
     @SdkSuppress(minSdkVersion = Build.VERSION_CODES.O)
     @Test
     fun drawModifier_drawPositioning() {
@@ -2207,7 +2239,7 @@ fun AtLeastSize(
 fun FixedSize(
     size: IntPx,
     modifier: Modifier = Modifier.None,
-    children: @Composable() () -> Unit
+    children: @Composable() () -> Unit = {}
 ) {
     Layout(children = children, modifier = modifier) { measurables, _ ->
         val newConstraints = Constraints.tightConstraints(size, size)
