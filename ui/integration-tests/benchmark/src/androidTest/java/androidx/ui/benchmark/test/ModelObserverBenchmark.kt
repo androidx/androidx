@@ -16,6 +16,8 @@
 
 package androidx.ui.benchmark.test
 
+import android.os.Handler
+import android.os.Looper
 import androidx.compose.FrameManager
 import androidx.compose.Model
 import androidx.compose.frames.commit
@@ -66,9 +68,16 @@ class ModelObserverBenchmark(
 
     @Before
     fun setup() {
-        modelObserver = ModelObserver()
         random = Random(0)
         rule.runOnUiThread {
+            val handler = Handler(Looper.getMainLooper())
+            modelObserver = ModelObserver { command ->
+                if (Looper.myLooper() !== handler.looper) {
+                    handler.post(command)
+                } else {
+                    command()
+                }
+            }
             FrameManager.ensureStarted()
         }
         if (!inFrame) {
@@ -90,8 +99,22 @@ class ModelObserverBenchmark(
     fun modelObservation() {
         rule.runOnUiThread {
             rule.measureRepeated {
+                random = Random(0)
                 val node = nodes[random.nextInt(numberOfNodes)]
                 observeForNode(node)
+            }
+        }
+    }
+
+    @Test
+    fun nestedModelObservation() {
+        rule.runOnUiThread {
+            modelObserver.observeReads(nodes[0], doNothing) {
+                rule.measureRepeated {
+                    random = Random(0)
+                    val node = nodes[random.nextInt(numberOfNodes)]
+                    observeForNode(node)
+                }
             }
         }
     }
@@ -100,6 +123,7 @@ class ModelObserverBenchmark(
     fun modelClear() {
         rule.runOnUiThread {
             rule.measureRepeated {
+                random = Random(0)
                 val node = nodes[random.nextInt(numberOfNodes)]
                 modelObserver.clear(node)
                 runWithTimingDisabled {
