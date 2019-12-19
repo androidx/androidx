@@ -27,6 +27,7 @@ import androidx.annotation.RestrictTo.Scope;
 import androidx.camera.core.impl.CameraControlInternal;
 import androidx.camera.core.impl.CameraInternal;
 import androidx.camera.core.impl.Config.Option;
+import androidx.camera.core.impl.ImageFormatConstants;
 import androidx.camera.core.impl.SessionConfig;
 import androidx.camera.core.impl.UseCaseConfig;
 import androidx.camera.core.impl.UseCaseConfig.Builder;

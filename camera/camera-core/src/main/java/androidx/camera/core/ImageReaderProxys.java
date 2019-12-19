@@ -25,6 +25,7 @@ import androidx.annotation.NonNull;
 import androidx.annotation.RestrictTo;
 import androidx.annotation.RestrictTo.Scope;
 import androidx.camera.core.impl.CameraDeviceSurfaceManager;
+import androidx.camera.core.impl.DeviceProperties;
 
 import java.util.ArrayList;
 import java.util.HashSet;

@@ -51,7 +51,6 @@ import androidx.annotation.RestrictTo.Scope;
 import androidx.annotation.UiThread;
 import androidx.camera.core.Camera;
 import androidx.camera.core.CameraSelector;
-import androidx.camera.core.FlashModeHelper;
 import androidx.camera.core.FocusMeteringAction;
 import androidx.camera.core.ImageCapture;
 import androidx.camera.core.ImageCapture.OnImageCapturedCallback;
@@ -269,7 +268,7 @@ public final class CameraView extends ViewGroup {
         state.putInt(EXTRA_SCALE_TYPE, getScaleType().getId());
         state.putFloat(EXTRA_ZOOM_RATIO, getZoomRatio());
         state.putBoolean(EXTRA_PINCH_TO_ZOOM_ENABLED, isPinchToZoomEnabled());
-        state.putString(EXTRA_FLASH, FlashModeHelper.nameOf(getFlash()));
+        state.putString(EXTRA_FLASH, FlashModeConverter.nameOf(getFlash()));
         state.putLong(EXTRA_MAX_VIDEO_DURATION, getMaxVideoDuration());
         state.putLong(EXTRA_MAX_VIDEO_SIZE, getMaxVideoSize());
         if (getCameraLensFacing() != null) {
@@ -291,7 +290,7 @@ public final class CameraView extends ViewGroup {
             setScaleType(ScaleType.fromId(state.getInt(EXTRA_SCALE_TYPE)));
             setZoomRatio(state.getFloat(EXTRA_ZOOM_RATIO));
             setPinchToZoomEnabled(state.getBoolean(EXTRA_PINCH_TO_ZOOM_ENABLED));
-            setFlash(FlashModeHelper.valueOf(state.getString(EXTRA_FLASH)));
+            setFlash(FlashModeConverter.valueOf(state.getString(EXTRA_FLASH)));
             setMaxVideoDuration(state.getLong(EXTRA_MAX_VIDEO_DURATION));
             setMaxVideoSize(state.getLong(EXTRA_MAX_VIDEO_SIZE));
             String lensFacingString = state.getString(EXTRA_CAMERA_DIRECTION);
