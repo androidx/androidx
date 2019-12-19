@@ -355,7 +355,7 @@ public class WebViewOnUiThread {
      * potentially capturing a previously generated frame.
      */
     public Bitmap captureBitmap() {
-        getSettings().setOffscreenPreRaster(true);
+        WebSettingsCompat.setOffscreenPreRaster(getSettings(), true);
         waitForDOMReadyToRender();
         return WebkitUtils.onMainThreadSync(() -> {
             Bitmap bitmap = Bitmap.createBitmap(mWebView.getWidth(), mWebView.getHeight(),
