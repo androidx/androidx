@@ -408,7 +408,7 @@ public final class Camera2CameraControlTest {
 
         SurfaceOrientedMeteringPointFactory factory = new SurfaceOrientedMeteringPointFactory(1.0f,
                 1.0f);
-        FocusMeteringAction action = FocusMeteringAction.Builder.from(factory.createPoint(0, 0))
+        FocusMeteringAction action = new FocusMeteringAction.Builder(factory.createPoint(0, 0))
                 .build();
         mCamera2CameraControl.startFocusAndMetering(action);
 
@@ -448,7 +448,7 @@ public final class Camera2CameraControlTest {
 
         SurfaceOrientedMeteringPointFactory factory = new SurfaceOrientedMeteringPointFactory(1.0f,
                 1.0f);
-        FocusMeteringAction action = FocusMeteringAction.Builder.from(factory.createPoint(0, 0))
+        FocusMeteringAction action = new FocusMeteringAction.Builder(factory.createPoint(0, 0))
                 .build();
         mCamera2CameraControl.startFocusAndMetering(action);
         HandlerUtil.waitForLooperToIdle(mHandler);
@@ -474,7 +474,7 @@ public final class Camera2CameraControlTest {
 
         SurfaceOrientedMeteringPointFactory factory = new SurfaceOrientedMeteringPointFactory(1.0f,
                 1.0f);
-        FocusMeteringAction action = FocusMeteringAction.Builder.from(factory.createPoint(0, 0),
+        FocusMeteringAction action = new FocusMeteringAction.Builder(factory.createPoint(0, 0),
                 FocusMeteringAction.FLAG_AE | FocusMeteringAction.FLAG_AWB)
                 .build();
         mCamera2CameraControl.startFocusAndMetering(action);
@@ -492,7 +492,7 @@ public final class Camera2CameraControlTest {
 
         SurfaceOrientedMeteringPointFactory factory = new SurfaceOrientedMeteringPointFactory(1.0f,
                 1.0f);
-        FocusMeteringAction action = FocusMeteringAction.Builder.from(factory.createPoint(0, 0))
+        FocusMeteringAction action = new FocusMeteringAction.Builder(factory.createPoint(0, 0))
                 .build();
         mCamera2CameraControl.startFocusAndMetering(action);
         HandlerUtil.waitForLooperToIdle(mHandler);
@@ -538,7 +538,7 @@ public final class Camera2CameraControlTest {
 
         SurfaceOrientedMeteringPointFactory factory = new SurfaceOrientedMeteringPointFactory(1.0f,
                 1.0f);
-        FocusMeteringAction action = FocusMeteringAction.Builder.from(factory.createPoint(0, 0))
+        FocusMeteringAction action = new FocusMeteringAction.Builder(factory.createPoint(0, 0))
                 .build();
         mCamera2CameraControl.startFocusAndMetering(action);
         HandlerUtil.waitForLooperToIdle(mHandler);
@@ -574,7 +574,7 @@ public final class Camera2CameraControlTest {
     public void cancelFocusAndMetering_AFNotInvolved_notCancelAF() throws InterruptedException {
         SurfaceOrientedMeteringPointFactory factory = new SurfaceOrientedMeteringPointFactory(1.0f,
                 1.0f);
-        FocusMeteringAction action = FocusMeteringAction.Builder.from(factory.createPoint(0, 0),
+        FocusMeteringAction action = new FocusMeteringAction.Builder(factory.createPoint(0, 0),
                 FocusMeteringAction.FLAG_AE)
                 .build();
         mCamera2CameraControl.startFocusAndMetering(action);
@@ -592,7 +592,7 @@ public final class Camera2CameraControlTest {
     public void startFocus_afModeIsSetToAuto() throws InterruptedException {
         SurfaceOrientedMeteringPointFactory factory = new SurfaceOrientedMeteringPointFactory(1.0f,
                 1.0f);
-        FocusMeteringAction action = FocusMeteringAction.Builder.from(factory.createPoint(0, 0))
+        FocusMeteringAction action = new FocusMeteringAction.Builder(factory.createPoint(0, 0))
                 .build();
         mCamera2CameraControl.startFocusAndMetering(action);
         HandlerUtil.waitForLooperToIdle(mHandler);

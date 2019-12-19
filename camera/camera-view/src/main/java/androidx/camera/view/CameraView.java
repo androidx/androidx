@@ -799,7 +799,7 @@ public final class CameraView extends ViewGroup {
         if (camera != null) {
             ListenableFuture<FocusMeteringResult> future =
                     camera.getCameraControl().startFocusAndMetering(
-                            FocusMeteringAction.Builder.from(afPoint,
+                            new FocusMeteringAction.Builder(afPoint,
                                     FocusMeteringAction.FLAG_AF).addPoint(aePoint,
                                     FocusMeteringAction.FLAG_AE).build());
             Futures.addCallback(future, new FutureCallback<FocusMeteringResult>() {
