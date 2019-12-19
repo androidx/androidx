@@ -36,9 +36,11 @@ import androidx.core.view.ViewCompat;
 import androidx.test.ext.junit.runners.AndroidJUnit4;
 import androidx.test.filters.LargeTest;
 import androidx.test.filters.SdkSuppress;
+import androidx.testutils.AnimationDurationScaleRule;
 
 import org.hamcrest.CoreMatchers;
 import org.hamcrest.MatcherAssert;
+import org.junit.Rule;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 
@@ -60,6 +62,10 @@ public class RecyclerViewAnimationsTest extends BaseRecyclerViewAnimationsTest {
 
     final List<TestViewHolder> recycledVHs = new ArrayList<>();
 
+    @Rule
+    public final AnimationDurationScaleRule mEnableAnimations =
+            AnimationDurationScaleRule.createForAllTests(1f);
+
     @Test
     public void keepFocusAfterChangeAnimation() throws Throwable {
         setupBasic(10, 0, 5, new TestAdapter(10) {
@@ -70,7 +76,7 @@ public class RecyclerViewAnimationsTest extends BaseRecyclerViewAnimationsTest {
                 holder.itemView.setFocusableInTouchMode(true);
             }
         });
-        ((SimpleItemAnimator)(mRecyclerView.getItemAnimator())).setSupportsChangeAnimations(true);
+        ((SimpleItemAnimator) (mRecyclerView.getItemAnimator())).setSupportsChangeAnimations(true);
 
         final RecyclerView.ViewHolder oldVh = mRecyclerView.findViewHolderForAdapterPosition(3);
         assertNotNull("test sanity", oldVh);
@@ -122,7 +128,7 @@ public class RecyclerViewAnimationsTest extends BaseRecyclerViewAnimationsTest {
         LoggingItemAnimator animator = new LoggingItemAnimator() {
             @Override
             public boolean canReuseUpdatedViewHolder(@NonNull RecyclerView.ViewHolder viewHolder,
-                                                     @NonNull List<Object> payloads) {
+                    @NonNull List<Object> payloads) {
                 return reUse;
             }
         };
@@ -136,7 +142,7 @@ public class RecyclerViewAnimationsTest extends BaseRecyclerViewAnimationsTest {
                 mLayoutManager.mOnLayoutCallbacks = new OnLayoutCallbacks() {
                     @Override
                     void doLayout(RecyclerView.Recycler recycler, AnimationLayoutManager lm,
-                                  RecyclerView.State state) {
+                            RecyclerView.State state) {
                         if (state.isPreLayout()) {
                             super.doLayout(recycler, lm, state);
                         } else {
@@ -210,7 +216,8 @@ public class RecyclerViewAnimationsTest extends BaseRecyclerViewAnimationsTest {
         // TODO don't use this after moving this class to Junit 4
         try {
             removeRecyclerView();
-        } catch (Throwable t){}
+        } catch (Throwable t) {
+        }
     }
 
 
