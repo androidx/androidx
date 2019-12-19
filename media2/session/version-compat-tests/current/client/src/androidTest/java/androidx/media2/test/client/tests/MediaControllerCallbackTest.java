@@ -425,6 +425,27 @@ public class MediaControllerCallbackTest extends MediaSessionTestBase {
     }
 
     @Test
+    public void testOnPlaylistChanged_nullList() throws InterruptedException {
+        prepareLooper();
+        final CountDownLatch latch = new CountDownLatch(1);
+        final MediaController.ControllerCallback callback =
+                new MediaController.ControllerCallback() {
+                    @Override
+                    public void onPlaylistChanged(@NonNull MediaController controller,
+                            List<MediaItem> playlist, MediaMetadata metadata) {
+                        assertNull(playlist);
+                        latch.countDown();
+                    }
+                };
+        MediaController controller = createController(mRemoteSession2.getToken(), true, null,
+                callback);
+
+        mRemoteSession2.getMockPlayer().setPlaylist(null);
+        mRemoteSession2.getMockPlayer().notifyPlaylistChanged();
+        assertTrue(latch.await(TIMEOUT_MS, TimeUnit.MILLISECONDS));
+    }
+
+    @Test
     @LargeTest
     public void testOnPlaylistChanged_longList() throws InterruptedException {
         prepareLooper();
