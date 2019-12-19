@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package androidx.camera.core;
+package androidx.camera.view;
 
 import static androidx.camera.core.ImageCapture.FLASH_MODE_AUTO;
 import static androidx.camera.core.ImageCapture.FLASH_MODE_OFF;
@@ -22,18 +22,14 @@ import static androidx.camera.core.ImageCapture.FLASH_MODE_ON;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
-import androidx.annotation.RestrictTo;
 import androidx.camera.core.ImageCapture.FlashMode;
 
 /**
  * Helper class that defines certain enum-like methods for {@link FlashMode}
- *
- * @hide
  */
-@RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
-public class FlashModeHelper {
+final class FlashModeConverter {
 
-    private FlashModeHelper() {
+    private FlashModeConverter() {
     }
 
     /**

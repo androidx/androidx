@@ -14,25 +14,23 @@
  * limitations under the License.
  */
 
-package androidx.camera.core;
+package androidx.camera.core.impl;
 
-import androidx.annotation.RestrictTo;
-import androidx.annotation.RestrictTo.Scope;
-import androidx.camera.core.impl.CaptureStage;
+import androidx.annotation.NonNull;
+import androidx.annotation.Nullable;
+import androidx.camera.core.ImageInfo;
 
 /**
  * A processing step that updates the necessary {@link CaptureStage} based on the current
  * {@link ImageInfo}.
- *
- * @hide
  */
-@RestrictTo(Scope.LIBRARY_GROUP)
 public interface ImageInfoProcessor {
     /**
      * Returns the {@link CaptureStage} which should be issued for the processing.
      *
      * <p> This will be updated whenever {@link #process(ImageInfo)} is called and returns true.
      */
+    @Nullable
     CaptureStage getCaptureStage();
 
     /**
@@ -43,5 +41,5 @@ public interface ImageInfoProcessor {
      * the stream which produced the processed {@link ImageInfo} should be updated to use the new
      * CaptureStage.
      */
-    boolean process(ImageInfo imageInfo);
+    boolean process(@NonNull ImageInfo imageInfo);
 }
