@@ -236,7 +236,7 @@ includeProject(":serialization:serialization-annotation", "serialization/seriali
 includeProject(":serialization:serialization-compiler", "serialization/serialization-compiler")
 includeProject(":serialization:serialization-lint", "serialization/serialization-lint")
 includeProject(":serialization:serialization-schema", "serialization/serialization-schema")
-includeProject(":sharetarget", "sharetarget")
+includeProject(":sharetarget:sharetarget", "sharetarget/sharetarget")
 includeProject(":sharetarget:integration-tests:testapp", "sharetarget/integration-tests/testapp")
 includeProject(":slice-core", "slices/core")
 includeProject(":slice-view", "slices/view")
