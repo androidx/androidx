@@ -1033,7 +1033,8 @@ class MediaControllerImplBase implements MediaControllerImpl {
             mCurrentMediaItemIndex = currentMediaItemIndex;
             mPreviousMediaItemIndex = previousMediaItemIndex;
             mNextMediaItemIndex = nextMediaItemIndex;
-            if (currentMediaItemIndex >= 0 && currentMediaItemIndex < playlist.size()) {
+            if (currentMediaItemIndex >= 0 && playlist != null
+                    && currentMediaItemIndex < playlist.size()) {
                 mCurrentMediaItem = playlist.get(currentMediaItemIndex);
             }
         }
