@@ -241,7 +241,7 @@ package androidx.ui.core {
   }
 
   public final class ModelObserver {
-    ctor public ModelObserver();
+    ctor public ModelObserver(kotlin.jvm.functions.Function1<? super kotlin.jvm.functions.Function0<kotlin.Unit>,kotlin.Unit> commitExecutor);
     method public void clear(Object target);
     method public void enableModelUpdatesObserving(boolean enabled);
     method public <T> void observeReads(T target, kotlin.jvm.functions.Function1<? super T,kotlin.Unit> onCommit, kotlin.jvm.functions.Function0<kotlin.Unit> block);

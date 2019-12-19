@@ -21,6 +21,7 @@ import android.content.pm.ApplicationInfo
 import android.content.res.Configuration
 import android.graphics.RenderNode
 import android.os.Build
+import android.os.Looper
 import android.util.SparseArray
 import android.view.MotionEvent
 import android.view.View
@@ -140,7 +141,13 @@ class AndroidComposeView constructor(context: Context) :
     private val debugMode = 0 != context.applicationInfo.flags and
             ApplicationInfo.FLAG_DEBUGGABLE
 
-    private val modelObserver = ModelObserver()
+    private val modelObserver = ModelObserver { command ->
+        if (handler.looper === Looper.myLooper()) {
+            command()
+        } else {
+            handler.post(command)
+        }
+    }
 
     private val onCommitAffectingMeasure: (LayoutNode) -> Unit = { layoutNode ->
         onRequestMeasure(layoutNode)

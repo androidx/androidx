@@ -19,7 +19,7 @@ package androidx.ui.core.samples
 import androidx.annotation.Sampled
 import androidx.ui.core.ModelObserver
 
-private val modelObserver = ModelObserver()
+private val modelObserver = ModelObserver { it() }
 
 private val onCommitListener: (MyTargetType) -> Unit = { target ->
     // do something when commit has happened on something we read while observing on target
