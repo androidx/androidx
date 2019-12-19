@@ -106,6 +106,7 @@ public class WebSettingsCompatForceDarkTest {
     @Test
     public void testForceDark_rendersDark() throws Throwable {
         WebkitUtils.checkFeature(WebViewFeature.FORCE_DARK);
+        WebkitUtils.checkFeature(WebViewFeature.OFF_SCREEN_PRERASTER);
         setWebViewSize(64, 64);
 
         // Loading about:blank into a force-dark-on webview should result in a dark background
@@ -138,6 +139,7 @@ public class WebSettingsCompatForceDarkTest {
     public void testForceDark_userAgentDarkeningOnly() {
         WebkitUtils.checkFeature(WebViewFeature.FORCE_DARK);
         WebkitUtils.checkFeature(WebViewFeature.FORCE_DARK_STRATEGY);
+        WebkitUtils.checkFeature(WebViewFeature.OFF_SCREEN_PRERASTER);
         setWebViewSize(64, 64);
 
         // Loading empty page with or without dark theme support into a force-dark-on webview with
@@ -164,6 +166,7 @@ public class WebSettingsCompatForceDarkTest {
     public void testForceDark_webThemeDarkeningOnly() {
         WebkitUtils.checkFeature(WebViewFeature.FORCE_DARK);
         WebkitUtils.checkFeature(WebViewFeature.FORCE_DARK_STRATEGY);
+        WebkitUtils.checkFeature(WebViewFeature.OFF_SCREEN_PRERASTER);
         setWebViewSize(64, 64);
 
         WebSettingsCompat.setForceDark(
@@ -192,6 +195,7 @@ public class WebSettingsCompatForceDarkTest {
     public void testForceDark_preferWebThemeOverUADarkening() {
         WebkitUtils.checkFeature(WebViewFeature.FORCE_DARK);
         WebkitUtils.checkFeature(WebViewFeature.FORCE_DARK_STRATEGY);
+        WebkitUtils.checkFeature(WebViewFeature.OFF_SCREEN_PRERASTER);
         setWebViewSize(64, 64);
 
         WebSettingsCompat.setForceDark(
@@ -220,6 +224,8 @@ public class WebSettingsCompatForceDarkTest {
         });
     }
 
+    // Requires {@link WebViewFeature.OFF_SCREEN_PRERASTER} for {@link
+    // WebViewOnUiThread#captureBitmap}.
     private int getWebPageColor() {
         Map<Integer, Integer> histogram;
         Integer[] colourValues;
@@ -235,7 +241,8 @@ public class WebSettingsCompatForceDarkTest {
             Bitmap bitmap, int x, int y, int width, int height) {
         Map<Integer, Integer> histogram = new HashMap<>();
         for (int pixel : getBitmapPixels(bitmap, x, y, width, height)) {
-            histogram.put(pixel, histogram.getOrDefault(pixel, 0) + 1);
+            Integer count = histogram.get(pixel);
+            histogram.put(pixel, count == null ? 1 : count + 1);
         }
         return histogram;
     }
