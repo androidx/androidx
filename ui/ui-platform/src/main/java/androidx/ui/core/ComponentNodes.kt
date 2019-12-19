@@ -1170,6 +1170,13 @@ class LayoutNode : ComponentNode(), Measurable {
                  */
                 parentDataNode?.value ?: measureScope.modifyParentData(wrapped.parentData)
             }
+
+        override var size: IntPxSize
+            get() = if (super.size == Unmeasured) wrapped.size else super.size
+
+            set(value) {
+                super.size = value
+            }
     }
 
     private inner class ModifiedLayoutNode(
