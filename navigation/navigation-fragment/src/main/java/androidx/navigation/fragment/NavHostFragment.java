@@ -348,8 +348,10 @@ public class NavHostFragment extends Fragment implements NavHost {
             @Nullable Bundle savedInstanceState) {
         super.onInflate(context, attrs, savedInstanceState);
 
-        final TypedArray navHost = context.obtainStyledAttributes(attrs, R.styleable.NavHost);
-        final int graphId = navHost.getResourceId(R.styleable.NavHost_navGraph, 0);
+        final TypedArray navHost = context.obtainStyledAttributes(attrs,
+                androidx.navigation.R.styleable.NavHost);
+        final int graphId = navHost.getResourceId(
+                androidx.navigation.R.styleable.NavHost_navGraph, 0);
         if (graphId != 0) {
             mGraphId = graphId;
         }

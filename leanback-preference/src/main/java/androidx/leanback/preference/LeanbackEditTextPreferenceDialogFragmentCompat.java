@@ -115,7 +115,8 @@ public class LeanbackEditTextPreferenceDialogFragmentCompat extends
     public View onCreateView(@NonNull LayoutInflater inflater, ViewGroup container,
             Bundle savedInstanceState) {
         TypedValue tv = new TypedValue();
-        getActivity().getTheme().resolveAttribute(R.attr.preferenceTheme, tv, true);
+        getActivity().getTheme().resolveAttribute(
+                androidx.preference.R.attr.preferenceTheme, tv, true);
         int theme = tv.resourceId;
         if (theme == 0) {
             // Fallback to default theme.

@@ -1779,7 +1779,8 @@ final class FloatingToolbar implements IFloatingToolbar {
      * Returns a re-themed context with controlled look and feel for views.
      */
     private static Context applyDefaultTheme(Context originalContext) {
-        TypedArray a = originalContext.obtainStyledAttributes(new int[]{R.attr.isLightTheme});
+        TypedArray a = originalContext.obtainStyledAttributes(
+                new int[]{androidx.appcompat.R.attr.isLightTheme});
         boolean isLightTheme = a.getBoolean(0, true);
         int themeId = isLightTheme
                 ? R.style.Theme_TextClassifier_FloatingToolbar_Light

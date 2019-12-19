@@ -46,7 +46,8 @@ public abstract class BaseLeanbackPreferenceFragmentCompat extends PreferenceFra
     public Context getContext() {
         if (mThemedContext == null && getActivity() != null) {
             final TypedValue tv = new TypedValue();
-            getActivity().getTheme().resolveAttribute(R.attr.preferenceTheme, tv, true);
+            getActivity().getTheme().resolveAttribute(
+                    androidx.preference.R.attr.preferenceTheme, tv, true);
             int theme = tv.resourceId;
             if (theme == 0) {
                 // Fallback to default theme.
