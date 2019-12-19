@@ -191,8 +191,9 @@ public final class Camera2CameraInfoImpl implements CameraInfoInternal {
      * @return {@link #IMPLEMENTATION_TYPE_CAMERA2_LEGACY} if the device is legacy, otherwise
      * {@link #IMPLEMENTATION_TYPE_CAMERA2}.
      */
+    @NonNull
     @Override
-    public int getImplementationType() {
+    public String getImplementationType() {
         final int hardwareLevel = getSupportedHardwareLevel();
         return hardwareLevel == CameraCharacteristics.INFO_SUPPORTED_HARDWARE_LEVEL_LEGACY
                 ? IMPLEMENTATION_TYPE_CAMERA2_LEGACY : IMPLEMENTATION_TYPE_CAMERA2;

@@ -18,10 +18,10 @@ package androidx.camera.core;
 
 import android.view.Surface;
 
-import androidx.annotation.IntDef;
 import androidx.annotation.NonNull;
 import androidx.annotation.RestrictTo;
 import androidx.annotation.RestrictTo.Scope;
+import androidx.annotation.StringDef;
 import androidx.camera.core.impl.ImageOutputConfig;
 import androidx.lifecycle.LifecycleOwner;
 import androidx.lifecycle.LiveData;
@@ -43,16 +43,8 @@ public interface CameraInfo {
      * @hide
      */
     @RestrictTo(Scope.LIBRARY_GROUP)
-    int IMPLEMENTATION_TYPE_UNKNOWN = 0;
-
-    /**
-     * A Camera2 API implementation type where the camera support level is
-     * {@link android.hardware.camera2.CameraMetadata#INFO_SUPPORTED_HARDWARE_LEVEL_LEGACY LEGACY}.
-     *
-     * @hide
-     */
-    @RestrictTo(Scope.LIBRARY_GROUP)
-    int IMPLEMENTATION_TYPE_CAMERA2_LEGACY = 1;
+    @NonNull
+    String IMPLEMENTATION_TYPE_UNKNOWN = "<unknown>";
 
     /**
      * A Camera2 API implementation type where the camera support level is
@@ -66,7 +58,18 @@ public interface CameraInfo {
      * @hide
      */
     @RestrictTo(Scope.LIBRARY_GROUP)
-    int IMPLEMENTATION_TYPE_CAMERA2 = 2;
+    @NonNull
+    String IMPLEMENTATION_TYPE_CAMERA2 = "androidx.camera.camera2";
+
+    /**
+     * A Camera2 API implementation type where the camera support level is
+     * {@link android.hardware.camera2.CameraMetadata#INFO_SUPPORTED_HARDWARE_LEVEL_LEGACY LEGACY}.
+     *
+     * @hide
+     */
+    @RestrictTo(Scope.LIBRARY_GROUP)
+    @NonNull
+    String IMPLEMENTATION_TYPE_CAMERA2_LEGACY = IMPLEMENTATION_TYPE_CAMERA2 + ".legacy";
 
     /**
      * A fake camera implementation type.
@@ -74,7 +77,8 @@ public interface CameraInfo {
      * @hide
      */
     @RestrictTo(Scope.LIBRARY_GROUP)
-    int IMPLEMENTATION_TYPE_FAKE = 3;
+    @NonNull
+    String IMPLEMENTATION_TYPE_FAKE = "androidx.camera.fake";
 
     /**
      * Returns the sensor rotation in degrees, relative to the device's "natural" (default)
@@ -184,13 +188,15 @@ public interface CameraInfo {
      * {@link #IMPLEMENTATION_TYPE_CAMERA2}, {@link #IMPLEMENTATION_TYPE_FAKE}.
      * @hide
      */
+    @NonNull
     @RestrictTo(Scope.LIBRARY_GROUP)
     @ImplementationType
-    int getImplementationType();
+    String getImplementationType();
 
     /** @hide */
-    @IntDef(open = true, value = {IMPLEMENTATION_TYPE_UNKNOWN, IMPLEMENTATION_TYPE_CAMERA2_LEGACY,
-            IMPLEMENTATION_TYPE_CAMERA2, IMPLEMENTATION_TYPE_FAKE})
+    @StringDef(open = true, value = {IMPLEMENTATION_TYPE_UNKNOWN,
+            IMPLEMENTATION_TYPE_CAMERA2_LEGACY, IMPLEMENTATION_TYPE_CAMERA2,
+            IMPLEMENTATION_TYPE_FAKE})
     @Retention(RetentionPolicy.SOURCE)
     @RestrictTo(Scope.LIBRARY_GROUP)
     @interface ImplementationType {
