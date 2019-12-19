@@ -26,6 +26,7 @@ import static org.mockito.Mockito.when;
 
 import android.os.Build;
 
+import androidx.camera.core.impl.ImageReaderProxy;
 import androidx.camera.core.impl.utils.executor.CameraXExecutors;
 import androidx.test.filters.SmallTest;
 

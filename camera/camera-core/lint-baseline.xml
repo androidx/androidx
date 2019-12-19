@@ -14,11 +14,11 @@
 
     <issue
         id="LambdaLast"
-        message="Functional interface parameters (such as parameter 1, &quot;listener&quot;, in androidx.camera.core.ImageReaderProxy.setOnImageAvailableListener) should be last to improve Kotlin interoperability; see https://kotlinlang.org/docs/reference/java-interop.html#sam-conversions"
+        message="Functional interface parameters (such as parameter 1, &quot;listener&quot;, in androidx.camera.core.impl.ImageReaderProxy.setOnImageAvailableListener) should be last to improve Kotlin interoperability; see https://kotlinlang.org/docs/reference/java-interop.html#sam-conversions"
         errorLine1="            @Nullable Handler handler);"
         errorLine2="            ~~~~~~~~~~~~~~~~~~~~~~~~~">
         <location
-            file="src/main/java/androidx/camera/core/ImageReaderProxy.java"
+            file="src/main/java/androidx/camera/core/impl/ImageReaderProxy.java"
             line="105"
             column="13"/>
     </issue>
@@ -319,29 +319,7 @@
             line="1310"
             column="16"/>
     </issue>
-
-    <issue
-        id="UnknownNullness"
-        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
-        errorLine1="    Surface getSurface();"
-        errorLine2="    ~~~~~~~">
-        <location
-            file="src/main/java/androidx/camera/core/ImageReaderProxy.java"
-            line="96"
-            column="5"/>
-    </issue>
-
-    <issue
-        id="UnknownNullness"
-        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
-        errorLine1="        void onImageAvailable(ImageReaderProxy imageReader);"
-        errorLine2="                              ~~~~~~~~~~~~~~~~">
-        <location
-            file="src/main/java/androidx/camera/core/ImageReaderProxy.java"
-            line="129"
-            column="31"/>
-    </issue>
-
+    
     <issue
         id="UnknownNullness"
         message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"

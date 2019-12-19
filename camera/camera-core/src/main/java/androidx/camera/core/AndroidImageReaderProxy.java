@@ -24,6 +24,7 @@ import android.view.Surface;
 import androidx.annotation.GuardedBy;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
+import androidx.camera.core.impl.ImageReaderProxy;
 import androidx.camera.core.impl.utils.MainThreadAsyncHandler;
 import androidx.camera.core.impl.utils.executor.CameraXExecutors;
 
@@ -94,6 +95,7 @@ final class AndroidImageReaderProxy implements ImageReaderProxy {
         return mImageReader.getMaxImages();
     }
 
+    @NonNull
     @Override
     public synchronized Surface getSurface() {
         return mImageReader.getSurface();

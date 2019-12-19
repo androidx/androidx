@@ -22,6 +22,7 @@ import android.view.Surface;
 import androidx.annotation.GuardedBy;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
+import androidx.camera.core.impl.ImageReaderProxy;
 import androidx.camera.core.impl.utils.executor.CameraXExecutors;
 
 import java.util.ArrayList;
@@ -212,6 +213,7 @@ final class QueuedImageReaderProxy
         return mMaxImages;
     }
 
+    @NonNull
     @Override
     public synchronized Surface getSurface() {
         throwExceptionIfClosed();

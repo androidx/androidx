@@ -29,6 +29,7 @@ import android.media.ImageReader;
 import android.os.Handler;
 import android.view.Surface;
 
+import androidx.camera.core.impl.ImageReaderProxy;
 import androidx.camera.core.impl.utils.executor.CameraXExecutors;
 import androidx.test.ext.junit.runners.AndroidJUnit4;
 import androidx.test.filters.MediumTest;

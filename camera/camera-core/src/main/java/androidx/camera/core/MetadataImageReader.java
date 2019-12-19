@@ -27,6 +27,7 @@ import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.camera.core.impl.CameraCaptureCallback;
 import androidx.camera.core.impl.CameraCaptureResult;
+import androidx.camera.core.impl.ImageReaderProxy;
 import androidx.camera.core.impl.utils.executor.CameraXExecutors;
 import androidx.camera.core.internal.CameraCaptureResultImageInfo;
 import androidx.core.util.Preconditions;
@@ -42,7 +43,7 @@ import java.util.concurrent.Executor;
  * <p>MetadataImageReader holds an ImageReaderProxy and listens to
  * {@link CameraCaptureCallback}. Then compose them into an {@link ImageProxy} with same
  * timestamp and output it to
- * {@link androidx.camera.core.ImageReaderProxy.OnImageAvailableListener}. User who acquires the
+ * {@link ImageReaderProxy.OnImageAvailableListener}. User who acquires the
  * ImageProxy is responsible for closing it after use. A limited number of ImageProxy may be
  * acquired at one time as defined by <code>maxImages</code> in the constructor. Any ImageProxy
  * produced after that will be dropped unless one of the ImageProxy currently acquired is closed.
@@ -64,7 +65,7 @@ class MetadataImageReader implements ImageReaderProxy, ForwardingImageProxy.OnIm
     private ImageReaderProxy.OnImageAvailableListener mTransformedListener =
             new ImageReaderProxy.OnImageAvailableListener() {
                 @Override
-                public void onImageAvailable(ImageReaderProxy reader) {
+                public void onImageAvailable(@NonNull ImageReaderProxy reader) {
                     imageIncoming(reader);
                 }
             };
@@ -238,6 +239,7 @@ class MetadataImageReader implements ImageReaderProxy, ForwardingImageProxy.OnIm
         }
     }
 
+    @NonNull
     @Override
     public Surface getSurface() {
         synchronized (mLock) {

@@ -84,6 +84,7 @@ import androidx.camera.core.impl.DeferrableSurface;
 import androidx.camera.core.impl.ImageCaptureConfig;
 import androidx.camera.core.impl.ImageOutputConfig;
 import androidx.camera.core.impl.ImageOutputConfig.RotationValue;
+import androidx.camera.core.impl.ImageReaderProxy;
 import androidx.camera.core.impl.ImmediateSurface;
 import androidx.camera.core.impl.MutableConfig;
 import androidx.camera.core.impl.MutableOptionsBundle;
@@ -346,7 +347,7 @@ public class ImageCapture extends UseCase {
         mImageReader.setOnImageAvailableListener(
                 new ImageReaderProxy.OnImageAvailableListener() {
                     @Override
-                    public void onImageAvailable(ImageReaderProxy imageReader) {
+                    public void onImageAvailable(@NonNull ImageReaderProxy imageReader) {
                         ImageProxy image = null;
                         try {
                             image = imageReader.acquireLatestImage();
