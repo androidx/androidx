@@ -524,7 +524,7 @@ package androidx.ui.core {
     enum_constant public static final androidx.ui.core.LayoutDirection Rtl;
   }
 
-  public interface LayoutModifier extends androidx.ui.core.ParentDataModifier {
+  public interface LayoutModifier extends androidx.ui.core.Modifier.Element {
     method public default androidx.ui.core.IntPx maxIntrinsicHeightOf(androidx.ui.core.DensityScope, androidx.ui.core.Measurable measurable, androidx.ui.core.IntPx width);
     method public default androidx.ui.core.IntPx maxIntrinsicWidthOf(androidx.ui.core.DensityScope, androidx.ui.core.Measurable measurable, androidx.ui.core.IntPx height);
     method public default androidx.ui.core.IntPx minIntrinsicHeightOf(androidx.ui.core.DensityScope, androidx.ui.core.Measurable measurable, androidx.ui.core.IntPx width);

@@ -38,6 +38,7 @@ import androidx.ui.core.IntPxSize
 import androidx.ui.core.Layout
 import androidx.ui.core.LayoutModifier
 import androidx.ui.core.Measurable
+import androidx.ui.core.ParentDataModifier
 import androidx.ui.core.Placeable
 import androidx.ui.core.Placeable.PlacementScope.place
 import androidx.ui.core.dp
@@ -656,7 +657,7 @@ private class Measurer internal constructor() : BasicMeasure.Measurer {
         get() = verticalBehavior == ConstraintWidget.DimensionBehaviour.WRAP_CONTENT
 }
 
-private data class TagModifier(val tag: Any) : LayoutModifier {
+private data class TagModifier(val tag: Any) : LayoutModifier, ParentDataModifier {
     override fun DensityScope.modifyConstraints(constraints: Constraints) = constraints
     override fun DensityScope.modifySize(constraints: Constraints, childSize: IntPxSize) = childSize
     override fun DensityScope.minIntrinsicWidthOf(measurable: Measurable, height: IntPx) =

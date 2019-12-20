@@ -1015,12 +1015,17 @@ class LayoutNode : ComponentNode(), Measurable {
             // Rebuild layoutNodeWrapper
             val oldPlaceable = layoutNodeWrapper
             layoutNodeWrapper = modifier.foldOut(innerLayoutNodeWrapper) { mod, toWrap ->
-                when (mod) {
-                    is LayoutModifier -> ModifiedLayoutNode(toWrap, mod)
-                    is ParentDataModifier -> ModifiedParentDataNode(toWrap, mod)
-                    is DrawModifier -> ModifiedDrawNode(toWrap, mod)
-                    else -> toWrap
+                var wrapper = toWrap
+                if (mod is DrawModifier) {
+                    wrapper = ModifiedDrawNode(wrapper, mod)
                 }
+                if (mod is LayoutModifier) {
+                    wrapper = ModifiedLayoutNode(wrapper, mod)
+                }
+                if (mod is ParentDataModifier) {
+                    wrapper = ModifiedParentDataNode(wrapper, mod)
+                }
+                wrapper
             }
             // Optimize the case where the layout itself is not modified. A common reason for
             // this is if no wrapping actually occurs above because no LayoutModifiers are
@@ -1182,7 +1187,7 @@ class LayoutNode : ComponentNode(), Measurable {
     private inner class ModifiedLayoutNode(
         override val wrapped: LayoutNodeWrapper,
         val layoutModifier: LayoutModifier
-    ) : ModifiedParentDataNode(wrapped, layoutModifier) {
+    ) : DelegatingLayoutNodeWrapper() {
 
         /**
          * The [Placeable] returned by measuring [wrapped] in [measure].
