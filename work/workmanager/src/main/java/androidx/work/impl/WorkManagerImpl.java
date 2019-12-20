@@ -693,6 +693,11 @@ public class WorkManagerImpl extends WorkManager {
         mPreferenceUtils = new PreferenceUtils(workDatabase);
         mForceStopRunnableCompleted = false;
 
+        // Check for direct boot mode
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.N && context.isDeviceProtectedStorage()) {
+            throw new IllegalStateException("Cannot initialize WorkManager in direct boot mode");
+        }
+
         // Checks for app force stops.
         mWorkTaskExecutor.executeOnBackgroundThread(new ForceStopRunnable(context, this));
     }
