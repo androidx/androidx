@@ -39,12 +39,8 @@ import org.junit.runner.RunWith
 import org.junit.runners.Parameterized
 import kotlin.math.max
 
-private const val x0 = 5f
-private const val x1 = 23f
-private const val y0 = 7f
-private const val y1 = 29f
-private val start = PxPosition(x0.px, y0.px)
-private val end = PxPosition(x1.px, y1.px)
+private val start = PxPosition(5f.px, 7f.px)
+private val end = PxPosition(23f.px, 29f.px)
 
 /**
  * Tests if the [AndroidInputDispatcher.sendSwipe] gesture works when specifying the gesture as a
@@ -107,7 +103,7 @@ class AndroidInputDispatcherSendSwipeLineTest(private val config: TestConfig) {
             last().verify(end, MotionEvent.ACTION_UP, durationMs)
 
             // Check coordinates and timestamps of move events
-            moveEvents.isMonotonousBetween(x0, y0, x1, y1)
+            moveEvents.isMonotonousBetween(start, end)
             moveEvents.splitsDurationEquallyInto(0L, durationMs, eventPeriod)
         }
     }

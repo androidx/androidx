@@ -21,6 +21,7 @@ import androidx.ui.core.IntPxSize
 import androidx.ui.core.PointerEventPass
 import androidx.ui.core.PointerInputChange
 import androidx.ui.core.PointerInputData
+import androidx.ui.core.PxPosition
 import androidx.ui.core.gesture.util.VelocityTracker
 import androidx.ui.test.util.PointerInputRecorder.DataPoint
 import com.google.common.truth.Truth.assertThat
@@ -29,7 +30,7 @@ class PointerInputRecorder {
 
     data class DataPoint(val id: Int, val data: PointerInputData) {
         val timestamp get() = data.uptime!!
-        val position get() = data.position
+        val position get() = data.position!!
         val x get() = data.position!!.x
         val y get() = data.position!!.y
         val down get() = data.down
@@ -81,7 +82,7 @@ fun PointerInputRecorder.assertOnlyLastEventIsUp() {
 /**
  * Checks that the coordinates are progressing in a monotonous direction
  */
-fun List<DataPoint>.isMonotonousBetween(x0: Float, y0: Float, x1: Float, y1: Float) {
-    map { it.x.value }.isMonotonousBetween(x0, x1, 1e-3f)
-    map { it.y.value }.isMonotonousBetween(y0, y1, 1e-3f)
+fun List<DataPoint>.isMonotonousBetween(start: PxPosition, end: PxPosition) {
+    map { it.x.value }.isMonotonousBetween(start.x.value, end.x.value, 1e-3f)
+    map { it.y.value }.isMonotonousBetween(start.y.value, end.y.value, 1e-3f)
 }

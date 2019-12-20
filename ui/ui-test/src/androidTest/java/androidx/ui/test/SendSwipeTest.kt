@@ -127,40 +127,40 @@ private fun PointerInputRecorder.assertSwipeIsUp() {
     // Must have at least two events to have a direction
     assertThat(events.size).isAtLeast(2)
     // Last event must be above first event
-    assertThat(events.last().position!!.y).isLessThan(events.first().position!!.y)
+    assertThat(events.last().position.y).isLessThan(events.first().position.y)
     // All events in between only move up
-    events.map { it.position!!.x.value }.assertSame(tolerance = 0.001f)
-    events.map { it.position!!.y }.assertDecreasing()
+    events.map { it.position.x.value }.assertSame(tolerance = 0.001f)
+    events.map { it.position.y }.assertDecreasing()
 }
 
 private fun PointerInputRecorder.assertSwipeIsDown() {
     // Must have at least two events to have a direction
     assertThat(events.size).isAtLeast(2)
     // Last event must be below first event
-    assertThat(events.last().position!!.y).isGreaterThan(events.first().position!!.y)
+    assertThat(events.last().position.y).isGreaterThan(events.first().position.y)
     // All events in between only move down
-    events.map { it.position!!.x.value }.assertSame(tolerance = 0.001f)
-    events.map { it.position!!.y }.assertIncreasing()
+    events.map { it.position.x.value }.assertSame(tolerance = 0.001f)
+    events.map { it.position.y }.assertIncreasing()
 }
 
 private fun PointerInputRecorder.assertSwipeIsLeft() {
     // Must have at least two events to have a direction
     assertThat(events.size).isAtLeast(2)
     // Last event must be to the left of first event
-    assertThat(events.last().position!!.x).isLessThan(events.first().position!!.x)
+    assertThat(events.last().position.x).isLessThan(events.first().position.x)
     // All events in between only move to the left
-    events.map { it.position!!.x }.assertDecreasing()
-    events.map { it.position!!.y.value }.assertSame(tolerance = 0.001f)
+    events.map { it.position.x }.assertDecreasing()
+    events.map { it.position.y.value }.assertSame(tolerance = 0.001f)
 }
 
 private fun PointerInputRecorder.assertSwipeIsRight() {
     // Must have at least two events to have a direction
     assertThat(events.size).isAtLeast(2)
     // Last event must be to the right of first event
-    assertThat(events.last().position!!.x).isGreaterThan(events.first().position!!.x)
+    assertThat(events.last().position.x).isGreaterThan(events.first().position.x)
     // All events in between only move to the right
-    events.map { it.position!!.x }.assertIncreasing()
-    events.map { it.position!!.y.value }.assertSame(tolerance = 0.001f)
+    events.map { it.position.x }.assertIncreasing()
+    events.map { it.position.y.value }.assertSame(tolerance = 0.001f)
 }
 
 private fun List<Float>.assertSame(tolerance: Float = 0f) {
