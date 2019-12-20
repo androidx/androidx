@@ -91,7 +91,6 @@ import org.junit.runners.JUnit4
 import java.lang.Math.abs
 import java.util.concurrent.CountDownLatch
 import java.util.concurrent.TimeUnit
-import kotlin.math.sqrt
 
 /**
  * Corresponds to ContainingViewTest, but tests single composition measure, layout and draw.
@@ -1994,6 +1993,37 @@ class AndroidLayoutDrawTest {
         validateSquareColors(outerColor = Color.Blue, innerColor = Color.White, size = 10)
     }
 
+    // Tests that show layout bounds draws outlines around content and modifiers
+    @SdkSuppress(minSdkVersion = Build.VERSION_CODES.O)
+    @Test
+    fun showLayoutBounds_content() {
+        activityTestRule.runOnUiThreadIR {
+            activity.setContentInFrameLayout {
+                FixedSize(size = 30.ipx, modifier = background(Color.White)) {
+                    FixedSize(
+                        size = 10.ipx,
+                        modifier = PaddingModifier(5.ipx) + PaddingModifier(5.ipx)) {
+                        Draw { _, _ ->
+                            drawLatch.countDown()
+                        }
+                    }
+                }
+            }
+            val content = activity.findViewById<ViewGroup>(android.R.id.content)
+            val frameLayout = content.getChildAt(0) as ViewGroup
+            val androidComposeView = frameLayout.getChildAt(0) as AndroidComposeView
+            androidComposeView.showLayoutBounds = true
+        }
+        activityTestRule.waitAndScreenShot().apply {
+            assertRect(Color.White, size = 8)
+            assertRect(Color.Red, size = 10, holeSize = 8)
+            assertRect(Color.White, size = 18, holeSize = 10)
+            assertRect(Color.Blue, size = 20, holeSize = 18)
+            assertRect(Color.White, size = 28, holeSize = 20)
+            assertRect(Color.Red, size = 30, holeSize = 28)
+        }
+    }
+
     private val AlignTopLeft = object : LayoutModifier {
         override fun DensityScope.modifyConstraints(constraints: Constraints) =
             constraints.looseMin()
@@ -2123,39 +2153,6 @@ class AndroidLayoutDrawTest {
                 assertColorsEqual(expected, pixel) {
                     "Pixel within drawn rect[$x, $y] is $expected, but was $pixel"
                 }
-            }
-        }
-    }
-
-    private fun validateCircleColors(
-        outerColor: Color,
-        innerColor: Color,
-        size: Int
-    ) {
-        assertTrue(drawLatch.await(1, TimeUnit.SECONDS))
-        val bitmap = activityTestRule.waitAndScreenShot()
-        val totalSize = size * 3
-        assertEquals(totalSize, bitmap.width)
-        assertEquals(totalSize, bitmap.height)
-        val center = size * 1.5f
-        for (x in 0 until totalSize) {
-            for (y in 0 until totalSize) {
-                val pixel = Color(bitmap.getPixel(x, y))
-
-                val xDist = x - center
-                val yDist = y - center
-                val distance = sqrt(xDist * xDist + yDist * yDist)
-                if (distance > (size / 2f) + 1) {
-                    assertColorsEqual(outerColor, pixel) {
-                        "Background at [$x, $y] should be $outerColor, but was $pixel"
-                    }
-                } else if (distance < (size / 2f) - 1) {
-                    assertColorsEqual(innerColor, pixel) {
-                        "Circle at [$x, $y] should be $innerColor, but was $pixel"
-                    }
-                }
-                // everything else is on the border and is going to be some combination
-                // of innerColor and outerColor. We'll just ignore them.
             }
         }
     }
