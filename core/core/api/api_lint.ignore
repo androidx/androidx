@@ -1679,20 +1679,6 @@ MissingNullability: androidx.core.view.ViewPropertyAnimatorListenerAdapter#onAni
     Missing nullability on parameter `view` in method `onAnimationStart`
 MissingNullability: androidx.core.view.ViewPropertyAnimatorUpdateListener#onAnimationUpdate(android.view.View) parameter #0:
     Missing nullability on parameter `view` in method `onAnimationUpdate`
-MissingNullability: androidx.core.view.WindowInsetsCompat#WindowInsetsCompat(androidx.core.view.WindowInsetsCompat) parameter #0:
-    Missing nullability on parameter `src` in method `WindowInsetsCompat`
-MissingNullability: androidx.core.view.WindowInsetsCompat#consumeDisplayCutout():
-    Missing nullability on method `consumeDisplayCutout` return
-MissingNullability: androidx.core.view.WindowInsetsCompat#consumeStableInsets():
-    Missing nullability on method `consumeStableInsets` return
-MissingNullability: androidx.core.view.WindowInsetsCompat#consumeSystemWindowInsets():
-    Missing nullability on method `consumeSystemWindowInsets` return
-MissingNullability: androidx.core.view.WindowInsetsCompat#replaceSystemWindowInsets(android.graphics.Rect):
-    Missing nullability on method `replaceSystemWindowInsets` return
-MissingNullability: androidx.core.view.WindowInsetsCompat#replaceSystemWindowInsets(android.graphics.Rect) parameter #0:
-    Missing nullability on parameter `systemWindowInsets` in method `replaceSystemWindowInsets`
-MissingNullability: androidx.core.view.WindowInsetsCompat#replaceSystemWindowInsets(int, int, int, int):
-    Missing nullability on method `replaceSystemWindowInsets` return
 MissingNullability: androidx.core.view.accessibility.AccessibilityEventCompat#appendRecord(android.view.accessibility.AccessibilityEvent, androidx.core.view.accessibility.AccessibilityRecordCompat) parameter #0:
     Missing nullability on parameter `event` in method `appendRecord`
 MissingNullability: androidx.core.view.accessibility.AccessibilityEventCompat#appendRecord(android.view.accessibility.AccessibilityEvent, androidx.core.view.accessibility.AccessibilityRecordCompat) parameter #1:
