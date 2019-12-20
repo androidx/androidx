@@ -23,15 +23,18 @@ import java.io.PrintWriter
 import java.io.StringWriter
 import kotlin.math.sign
 
+/**
+ * Checks if the subject is within [tolerance] of [f]. Shorthand for
+ * `isWithin([tolerance]).of([f])`.
+ */
 fun FloatSubject.isAlmostEqualTo(f: Float, tolerance: Float) {
-    isWithin(f * tolerance).of(f)
+    isWithin(tolerance).of(f)
 }
 
 /**
  * Checks that the values are progressing in a strictly monotonous direction between [a] and [b].
  * If [a] and [b] are equal, all values in the list should be that value too. The edges [a] and
- * [b] allow a [tolerance] per pixel (e.g., [a] = 10 and [tolerance] = .01 allows 9.9 and higher).
- * The default [tolerance] is `1e-6f` per pixel.
+ * [b] allow a [tolerance] for floating point imprecision, which is by default `1e-6f`.
  */
 fun List<Float>.isMonotonousBetween(a: Float, b: Float, tolerance: Float = 1e-6f) {
     val expectedSign = sign(b - a)
@@ -46,17 +49,16 @@ fun List<Float>.isMonotonousBetween(a: Float, b: Float, tolerance: Float = 1e-6f
 }
 
 /**
- * Checks that the float value is between [a] and [b], allowing a [tolerance] on either side that
- * is relative to that value. I.e., on side [a], the float value can be `[a] * [tolerance]` off.
+ * Checks that the float value is between [a] and [b], allowing a [tolerance] on either side.
  * The order of [a] and [b] doesn't matter, the float value must be _between_ them.
  */
 fun FloatSubject.isAlmostBetween(a: Float, b: Float, tolerance: Float) {
     if (a < b) {
-        isAtLeast(a * (1 - tolerance))
-        isAtMost(b * (1 + tolerance))
+        isAtLeast(a - tolerance)
+        isAtMost(b + tolerance)
     } else {
-        isAtLeast(b * (1 - tolerance))
-        isAtMost(a * (1 + tolerance))
+        isAtLeast(b - tolerance)
+        isAtMost(a + tolerance)
     }
 }
 

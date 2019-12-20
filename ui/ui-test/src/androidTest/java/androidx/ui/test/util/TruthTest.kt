@@ -51,19 +51,21 @@ class ListFloatIsMonotonousBetweenTest(private val config: TestConfig) {
                 TestConfig(listOf(1f), 1f, 1f, 0f, true),
                 // Is [1.1] between 1 and 1 with no tolerance? No
                 TestConfig(listOf(1.1f), 1f, 1f, 0f, false),
-                // Is [1.01] between 1 and 1 with 1% tolerance? Yes
+                // Is [1.01] between 1 and 1 with 0.01 tolerance? Yes
                 TestConfig(listOf(1.01f), 1f, 1f, 0.01f, true),
-                // Is [1.02] between 1 and 1 with 1% tolerance? No
+                // Is [10.05] between 10 and 10 with 0.01 tolerance? No
+                TestConfig(listOf(10.05f), 10f, 10f, 0.01f, false),
+                // Is [1.02] between 1 and 1 with 0.01 tolerance? No
                 TestConfig(listOf(1.02f), 1f, 1f, 0.01f, false),
-                // Is [1.01] between 1 and 1 with 0.999% tolerance? No
+                // Is [1.01] between 1 and 1 with 0.00999 tolerance? No
                 TestConfig(listOf(1.1f), 1f, 1f, 0.00999f, false),
                 // Is [1, 1, 1] between 1 and 1 with no tolerance? Yes
                 TestConfig(listOf(1f, 1f, 1f), 1f, 1f, 0f, true),
                 // Is [1, 1, 1.01] between 1 and 1 with no tolerance? No
                 TestConfig(listOf(1f, 1f, 1.01f), 1f, 1f, 0f, false),
-                // Is [2, 2, 2] between 1 and 1 with 1% tolerance? No
+                // Is [2, 2, 2] between 1 and 1 with 0.01 tolerance? No
                 TestConfig(listOf(2f, 2f, 2f), 1f, 1f, 0.01f, false),
-                // Is [1, 2, 3] between 2 and 2 with 1% tolerance? No
+                // Is [1, 2, 3] between 2 and 2 with 0.01 tolerance? No
                 TestConfig(listOf(1f, 2f, 3f), 1f, 1f, 0.01f, false),
                 // Is [1, 2, 3] between 1 and 3 with no tolerance? Yes
                 TestConfig(listOf(1f, 2f, 3f), 1f, 3f, 0f, true),
@@ -73,7 +75,7 @@ class ListFloatIsMonotonousBetweenTest(private val config: TestConfig) {
                 TestConfig(listOf(1f, 2f, 3f), 3f, 1f, 0f, false),
                 // Is [1, 2, 3] between 0 and 2 with no tolerance? No
                 TestConfig(listOf(1f, 2f, 3f), 0f, 2f, 0f, false),
-                // Is [1, 2, 3] between 1.01 and 4 with 1% tolerance? Yes
+                // Is [1, 2, 3] between 1.01 and 4 with 0.01 tolerance? Yes
                 TestConfig(listOf(1f, 2f, 3f), 1.01f, 4f, 0.01f, true),
                 // Is [3, 2, 1] between 3 and 1 with no tolerance? Yes
                 TestConfig(listOf(3f, 2f, 1f), 3f, 1f, 0f, true),
