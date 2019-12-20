@@ -29,7 +29,9 @@ plugins {
 dependencies {
     api(project(":serialization:serialization-annotation"))
     implementation(KOTLIN_STDLIB)
+
     testImplementation(JUNIT)
+    testImplementation(TRUTH)
 }
 
 androidx {

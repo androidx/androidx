@@ -16,6 +16,8 @@
 
 package androidx.serialization.schema
 
+import kotlin.math.min
+
 /**
  * The qualified name of a declared, wrapper, or well-known type.
  *
@@ -41,7 +43,7 @@ package androidx.serialization.schema
 class TypeName(
     packageName: String? = null,
     val names: List<String>
-) {
+) : Comparable<TypeName> {
     init {
         require(names.isNotEmpty()) { "names must contain at least one name" }
         require(names.none { it.isEmpty() }) {
@@ -87,5 +89,16 @@ class TypeName(
             is TypeName -> this.packageName == other.packageName && this.names == other.names
             else -> false
         }
+    }
+
+    override fun compareTo(other: TypeName): Int {
+        compareValues(this.packageName, other.packageName).let { if (it != 0) return it }
+        if (this.names === other.names) return 0
+
+        for (i in 0 until min(this.names.size, other.names.size)) {
+            this.names[i].compareTo(other.names[i]).let { if (it != 0) return it }
+        }
+
+        return (this.names.size - other.names.size).coerceIn(-1, 1)
     }
 }
