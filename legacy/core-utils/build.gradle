@@ -12,7 +12,7 @@ dependencies {
     api("androidx.core:core:1.1.0")
     api(project(":documentfile:documentfile"))
     api(project(":loader:loader"))
-    api(project(":localbroadcastmanager"))
+    api(project(":localbroadcastmanager:localbroadcastmanager"))
     api(project(":print:print"))
 }
 
