@@ -13,7 +13,7 @@ dependencies {
     api(project(":documentfile:documentfile"))
     api(project(":loader:loader"))
     api(project(":localbroadcastmanager"))
-    api(project(":print"))
+    api(project(":print:print"))
 }
 
 androidx {
