@@ -27,10 +27,7 @@ class TypeConverterTest {
     fun testFloatToVectorConverter() {
         verifyFloatConverter(FloatToVectorConverter)
         verifyFloatConverter(FloatPropKey().typeConverter)
-        val holder = object : FloatValueHolder {
-            override var value: Float = 0.0f
-        }
-        verifyFloatConverter(holder.typeConverter)
+        verifyFloatConverter(AnimatedFloat(5f).typeConverter)
     }
 
     @Test
@@ -40,6 +37,19 @@ class TypeConverterTest {
 
         assertEquals(30f, IntPropKey().typeConverter.convertToVector(30).value)
         assertEquals(22, IntPropKey().typeConverter.convertFromVector(AnimationVector1D(22f)))
+    }
+
+    @Test
+    fun testAnimatedVectorConverter() {
+        verifyV2VConverter(AnimationVector1D(100f))
+        verifyV2VConverter(AnimationVector2D(40f, 50f))
+        verifyV2VConverter(AnimationVector3D(300f, -20f, 1f))
+        verifyV2VConverter(AnimationVector4D(100f, -20f, 3000f, 4f))
+    }
+
+    private fun <V : AnimationVector> verifyV2VConverter(value: V) {
+        val converter = AnimatedVectorValue(value).typeConverter
+        assertEquals(converter.convertFromVector(value), converter.convertToVector(value))
     }
 
     private fun verifyFloatConverter(converter: TwoWayConverter<Float, AnimationVector1D>) {

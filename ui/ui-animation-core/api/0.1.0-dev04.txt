@@ -2,7 +2,8 @@
 package androidx.animation {
 
   public final class AnimatedFloat extends androidx.animation.BaseAnimatedValue<java.lang.Float,androidx.animation.AnimationVector1D> {
-    ctor public AnimatedFloat(androidx.animation.FloatValueHolder valueHolder);
+    ctor public AnimatedFloat(androidx.animation.ValueHolder<java.lang.Float> valueHolder);
+    ctor public AnimatedFloat(float initVal);
     method public void doAnimationFrame$lintWithKotlin(long time);
     method public float getVelocity();
     method public void setBounds(float min = Float.NEGATIVE_INFINITY, float max = Float.POSITIVE_INFINITY);
@@ -11,7 +12,7 @@ package androidx.animation {
   }
 
   public final class AnimatedValue<T, V extends androidx.animation.AnimationVector> extends androidx.animation.BaseAnimatedValue<T,V> {
-    ctor public AnimatedValue(androidx.animation.ValueHolder<T,V> valueHolder);
+    ctor public AnimatedValue(androidx.animation.ValueHolder<T> valueHolder, androidx.animation.TwoWayConverter<T,V> typeConverter);
     method public V getVelocity();
     property public final V velocity;
   }
@@ -19,6 +20,11 @@ package androidx.animation {
   public final class AnimatedValueKt {
     method public static void fling(androidx.animation.AnimatedFloat, float startVelocity, androidx.animation.DecayAnimation decay = androidx.animation.ExponentialDecay(), kotlin.jvm.functions.Function3<? super androidx.animation.AnimationEndReason,? super java.lang.Float,? super java.lang.Float,kotlin.Unit>? onEnd = null);
     method public static void fling(androidx.animation.AnimatedFloat, float startVelocity, androidx.animation.DecayAnimation decay = androidx.animation.ExponentialDecay(), kotlin.jvm.functions.Function1<? super java.lang.Float,androidx.animation.TargetAnimation> adjustTarget, kotlin.jvm.functions.Function3<? super androidx.animation.AnimationEndReason,? super java.lang.Float,? super java.lang.Float,kotlin.Unit>? onEnd = null);
+  }
+
+  public final class AnimatedVectorValue<V extends androidx.animation.AnimationVector> extends androidx.animation.BaseAnimatedValue<V,V> {
+    ctor public AnimatedVectorValue(androidx.animation.ValueHolder<V> valueHolder);
+    ctor public AnimatedVectorValue(V initVal);
   }
 
   public abstract class AnimationBuilder<T> {
@@ -86,6 +92,9 @@ package androidx.animation {
     property public final float v2;
     property public final float v3;
     property public final float v4;
+  }
+
+  public final class AnimationVectorsKt {
   }
 
   public abstract sealed class BaseAnimatedValue<T, V extends androidx.animation.AnimationVector> {
@@ -163,11 +172,6 @@ package androidx.animation {
     ctor public FloatPropKey();
     method public androidx.animation.TwoWayConverter<java.lang.Float,androidx.animation.AnimationVector1D> getTypeConverter();
     property public androidx.animation.TwoWayConverter<java.lang.Float,androidx.animation.AnimationVector1D> typeConverter;
-  }
-
-  public interface FloatValueHolder extends androidx.animation.ValueHolder<java.lang.Float,androidx.animation.AnimationVector1D> {
-    method public default androidx.animation.TwoWayConverter<java.lang.Float,androidx.animation.AnimationVector1D> getTypeConverter();
-    property public default androidx.animation.TwoWayConverter<java.lang.Float,androidx.animation.AnimationVector1D> typeConverter;
   }
 
   public final class IntPropKey implements androidx.animation.PropKey<java.lang.Integer,androidx.animation.AnimationVector1D> {
@@ -363,22 +367,14 @@ package androidx.animation {
     property public androidx.animation.Arithmetic<androidx.animation.AnimationVector4D> arithmetic;
   }
 
-  public interface ValueHolder<T, V extends androidx.animation.AnimationVector> {
-    method public androidx.animation.TwoWayConverter<T,V> getTypeConverter();
+  public interface ValueHolder<T> {
     method public T! getValue();
     method public void setValue(T! p);
-    property public abstract androidx.animation.TwoWayConverter<T,V> typeConverter;
     property public abstract T! value;
   }
 
-  public final class ValueHolderImpl<T, V extends androidx.animation.AnimationVector> implements androidx.animation.ValueHolder<T,V> {
-    ctor public ValueHolderImpl(T! value, androidx.animation.TwoWayConverter<T,V> typeConverter);
-    method public T! component1();
-    method public androidx.animation.TwoWayConverter<T,V> component2();
-    method public androidx.animation.ValueHolderImpl<T,V> copy(T! value, androidx.animation.TwoWayConverter<T,V> typeConverter);
-    method public androidx.animation.TwoWayConverter<T,V> getTypeConverter();
-    method public T! getValue();
-    method public void setValue(T? p);
+  public final class ValueHolderKt {
+    method public static <T> androidx.animation.ValueHolder<T> ValueHolder(T? initValue);
   }
 
   public final class VectorAnimationKt {

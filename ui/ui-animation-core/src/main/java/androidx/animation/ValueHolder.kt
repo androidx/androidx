@@ -20,36 +20,19 @@ package androidx.animation
  * A value holder contains two fields: A mutable value that is expected to change throughout an
  * animation, and an immutable value converter
  */
-interface ValueHolder<T, V : AnimationVector> {
+interface ValueHolder<T> {
     /**
      * Value of the [ValueHolder]. This value will be updated by subclasses of [BaseAnimatedValue].
      */
     var value: T
-
-    /**
-     * A two way type converter that converts from value to [AnimationVector1D],
-     * [AnimationVector2D], [AnimationVector3D], or [AnimationVector4D], and vice versa.
-     */
-    val typeConverter: TwoWayConverter<T, V>
 }
 
 /**
- * FloatValueHolder defines a value holder that holds a Float value.
- */
-interface FloatValueHolder : ValueHolder<Float, AnimationVector1D> {
-    override val typeConverter: TwoWayConverter<Float, AnimationVector1D>
-        get() = FloatToVectorConverter
-}
-
-/**
- * [ValueHolderImpl] is a data class that defines two fields: value (of type [T]) and a type
- * converter.
+ * Creates a [ValueHolder] (of type [T]) with the initial value being [initValue].
  *
- * @param value This value field gets updated during animation
- * @param typeConverter A two way type converter that converts from value to [AnimationVector1D],
- *                     [AnimationVector2D], [Vector3D], or [Vector4D], and vice versa.
+ * @param initValue The initial value of the value holder to be created.
  */
-data class ValueHolderImpl<T, V : AnimationVector>(
-    override var value: T,
-    override val typeConverter: TwoWayConverter<T, V>
-) : ValueHolder<T, V>
+fun <T> ValueHolder(initValue: T): ValueHolder<T> =
+    object : ValueHolder<T> {
+        override var value: T = initValue
+    }
