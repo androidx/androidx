@@ -16,8 +16,7 @@
 
 package androidx.serialization.schema
 
-import org.junit.Assert.assertFalse
-import org.junit.Assert.assertTrue
+import com.google.common.truth.Truth.assertThat
 import org.junit.Test
 
 /**
@@ -27,17 +26,17 @@ class ReservedTest {
     @Test
     fun testContainsIds() {
         val reserved = Reserved(ids = setOf(1, 2))
-        assertTrue(1 in reserved)
-        assertTrue(2 in reserved)
-        assertFalse(3 in reserved)
+        assertThat(1 in reserved).isTrue()
+        assertThat(2 in reserved).isTrue()
+        assertThat(3 in reserved).isFalse()
     }
 
     @Test
     fun testContainsNames() {
         val reserved = Reserved(names = setOf("foo", "bar"))
-        assertTrue("foo" in reserved)
-        assertTrue("bar" in reserved)
-        assertFalse("quux" in reserved)
+        assertThat("foo" in reserved).isTrue()
+        assertThat("bar" in reserved).isTrue()
+        assertThat("quux" in reserved).isFalse()
     }
 
     @Test
@@ -45,15 +44,15 @@ class ReservedTest {
         val reserved = Reserved(idRanges = setOf(1..10, 21..40))
 
         for (i in 1..10) {
-            assertTrue(i in reserved)
+            assertThat(i in reserved).isTrue()
         }
 
         for (i in 11..20) {
-            assertFalse(i in reserved)
+            assertThat(i in reserved).isFalse()
         }
 
         for (i in 21..40) {
-            assertTrue(i in reserved)
+            assertThat(i in reserved).isTrue()
         }
     }
 }

@@ -16,11 +16,7 @@
 
 package androidx.serialization.schema
 
-import org.junit.Assert.assertEquals
-import org.junit.Assert.assertFalse
-import org.junit.Assert.assertNotEquals
-import org.junit.Assert.assertNull
-import org.junit.Assert.assertTrue
+import com.google.common.truth.Truth.assertThat
 import org.junit.Test
 
 /**
@@ -39,64 +35,98 @@ class TypeNameTest {
 
     @Test
     fun testDefaultNullPackage() {
-        assertNull(TypeName(names = listOf("Foo")).packageName)
+        assertThat(TypeName(names = listOf("Foo")).packageName).isNull()
     }
 
     @Test
     fun testEmptyPackageName() {
-        assertNull(TypeName("", "Foo").packageName)
+        assertThat(TypeName("", "Foo").packageName).isNull()
     }
 
     @Test
     fun testCanonicalNameSingle() {
-        assertEquals("com.example.Foo", TypeName("com.example", "Foo").canonicalName)
+        assertThat(TypeName("com.example", "Foo").canonicalName)
+            .isEqualTo("com.example.Foo")
     }
 
     @Test
     fun testCanonicalNameNested() {
-        assertEquals("com.example.Foo.Bar", TypeName("com.example", "Foo", "Bar").canonicalName)
+        assertThat(TypeName("com.example", "Foo", "Bar").canonicalName)
+            .isEqualTo("com.example.Foo.Bar")
     }
 
     @Test
     fun testCanonicalNameNullPackage() {
-        assertEquals("Foo", TypeName(null, "Foo").canonicalName)
+        assertThat(TypeName(null, "Foo").canonicalName).isEqualTo("Foo")
     }
 
     @Test
     fun testSimpleNameSingle() {
-        assertEquals("Foo", TypeName("com.example", "Foo").simpleName)
+        assertThat(TypeName("com.example", "Foo").simpleName).isEqualTo("Foo")
     }
 
     @Test
     fun testSimpleNameNested() {
-        assertEquals("Bar", TypeName("com.example", "Foo", "Bar").simpleName)
+        assertThat(TypeName("com.example", "Foo", "Bar").simpleName).isEqualTo("Bar")
     }
 
     @Test
     fun testToString() {
         val name = TypeName("com.example", "Foo", "Bar")
-        assertEquals(name.canonicalName, name.toString())
+        assertThat(name.toString()).isSameInstanceAs(name.canonicalName)
     }
 
     @Test
     fun testHashCode() {
-        val a = TypeName("com.example", "Foo")
-        val b = TypeName("com.example", "Foo")
-        val c = TypeName("com.example", "Bar")
+        assertThat(TypeName("com.example", "Foo").hashCode())
+            .isEqualTo(TypeName("com.example", "Foo").hashCode())
 
-        assertEquals(a.hashCode(), b.hashCode())
-        assertNotEquals(a.hashCode(), c.hashCode())
+        assertThat(TypeName("com.example", "Bar").hashCode())
+            .isNotEqualTo(TypeName("com.example", "Foo").hashCode())
+
+        assertThat(TypeName("com.example.foo", "Quux").hashCode())
+            .isNotEqualTo(TypeName("com.example.bar", "Quux").hashCode())
     }
 
     @Test
     fun testEquals() {
-        val a = TypeName("com.example", "Foo")
-        val b = TypeName("com.example", "Foo")
-        val c = TypeName("com.example", "Bar")
+        assertThat(TypeName("com.example", "Foo", "Bar"))
+            .isEqualTo(TypeName("com.example", "Foo", "Bar"))
 
-        assertTrue(a == b)
-        assertTrue(b == a)
-        assertFalse(a == c)
-        assertFalse(c == a)
+        assertThat(TypeName("com.example", "Foo", "Bar"))
+            .isNotEqualTo(TypeName("com.example", "Foo", "Quux"))
+
+        assertThat(TypeName("com.example.foo", "Quux"))
+            .isNotEqualTo(TypeName("com.example.bar", "Quux"))
+    }
+
+    @Test
+    fun testCompareToByPackages() {
+        assertThat(TypeName(null, "Foo"))
+            .isEquivalentAccordingToCompareTo(TypeName(null, "Foo"))
+
+        assertThat(TypeName("com.example", "Foo"))
+            .isGreaterThan(TypeName(null, "Foo"))
+
+        assertThat(TypeName("com.example", "Foo"))
+            .isEquivalentAccordingToCompareTo(TypeName("com.example", "Foo"))
+
+        assertThat(TypeName("com.example.foo", "Foo"))
+            .isGreaterThan(TypeName("com.example.bar", "Foo"))
+
+        assertThat(TypeName("com.example", "Foo"))
+            .isLessThan(TypeName("com.example.foo", "Foo"))
+    }
+
+    @Test
+    fun testCompareToByNames() {
+        assertThat(TypeName(null, "Foo"))
+            .isEquivalentAccordingToCompareTo(TypeName(null, "Foo"))
+
+        assertThat(TypeName(null, "Foo"))
+            .isGreaterThan(TypeName(null, "Bar"))
+
+        assertThat(TypeName(null, "Foo", "Bar"))
+            .isGreaterThan(TypeName(null, "Foo"))
     }
 }
