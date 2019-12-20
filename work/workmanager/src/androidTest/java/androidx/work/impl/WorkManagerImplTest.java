@@ -41,13 +41,17 @@ import static org.hamcrest.Matchers.greaterThan;
 import static org.hamcrest.Matchers.greaterThanOrEqualTo;
 import static org.hamcrest.Matchers.isIn;
 import static org.hamcrest.Matchers.isOneOf;
+import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.atLeastOnce;
 import static org.mockito.Mockito.clearInvocations;
+import static org.mockito.Mockito.doNothing;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.reset;
+import static org.mockito.Mockito.spy;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.when;
 
 import android.content.ComponentName;
 import android.content.Context;
@@ -84,6 +88,7 @@ import androidx.work.TestLifecycleOwner;
 import androidx.work.WorkContinuation;
 import androidx.work.WorkInfo;
 import androidx.work.WorkRequest;
+import androidx.work.impl.background.greedy.GreedyScheduler;
 import androidx.work.impl.background.systemalarm.RescheduleReceiver;
 import androidx.work.impl.model.Dependency;
 import androidx.work.impl.model.DependencyDao;
@@ -124,6 +129,7 @@ public class WorkManagerImplTest {
     private Context mContext;
     private Configuration mConfiguration;
     private WorkDatabase mDatabase;
+    private Scheduler mScheduler;
     private WorkManagerImpl mWorkManagerImpl;
 
     @Rule
@@ -153,7 +159,14 @@ public class WorkManagerImplTest {
                 .setMinimumLoggingLevel(Log.DEBUG)
                 .build();
         mWorkManagerImpl =
-                new WorkManagerImpl(mContext, mConfiguration, new InstantWorkTaskExecutor());
+                spy(new WorkManagerImpl(mContext, mConfiguration, new InstantWorkTaskExecutor()));
+        mScheduler =
+                spy(new GreedyScheduler(
+                        mContext,
+                        mWorkManagerImpl.getWorkTaskExecutor(),
+                        mWorkManagerImpl));
+        // Return GreedyScheduler alone, because real jobs gets scheduled which slow down tests.
+        when(mWorkManagerImpl.getSchedulers()).thenReturn(Collections.singletonList(mScheduler));
         WorkManagerImpl.setDelegate(mWorkManagerImpl);
         mDatabase = mWorkManagerImpl.getWorkDatabase();
     }
@@ -497,7 +510,9 @@ public class WorkManagerImplTest {
                 TimeUnit.MILLISECONDS)
                 .build();
         assertThat(periodicWork.getWorkSpec().periodStartTime, is(0L));
-
+        // Disable the greedy scheduler in this test. This is because sometimes the Worker
+        // finishes instantly after enqueue(), and the periodStartTime gets updated.
+        doNothing().when(mScheduler).schedule(any(WorkSpec.class));
         mWorkManagerImpl.enqueue(Collections.singletonList(periodicWork))
                 .getResult()
                 .get();
@@ -1561,11 +1576,15 @@ public class WorkManagerImplTest {
             }
         };
         mWorkManagerImpl =
-                new WorkManagerImpl(mContext, mConfiguration, new InstantWorkTaskExecutor());
+                spy(new WorkManagerImpl(mContext, mConfiguration, new InstantWorkTaskExecutor()));
+        Scheduler scheduler =
+                new GreedyScheduler(
+                        mContext,
+                        mWorkManagerImpl.getWorkTaskExecutor(),
+                        mWorkManagerImpl);
+        // Return GreedyScheduler alone, because real jobs gets scheduled which slow down tests.
+        when(mWorkManagerImpl.getSchedulers()).thenReturn(Collections.singletonList(scheduler));
         WorkManagerImpl.setDelegate(mWorkManagerImpl);
-        // Call getSchedulers() so WM calls createBestAvailableBackgroundScheduler()
-        // which in turn initializes the right System(*)Service.
-        mWorkManagerImpl.getSchedulers();
         mDatabase = mWorkManagerImpl.getWorkDatabase();
         // Initialization of WM enables SystemJobService which needs to be discounted.
         reset(packageManager);
@@ -1640,8 +1659,8 @@ public class WorkManagerImplTest {
 
         OneTimeWorkRequest work = new OneTimeWorkRequest.Builder(TestWorker.class)
                 .setConstraints(new Constraints.Builder()
-                .setRequiresBatteryNotLow(true)
-                .build())
+                        .setRequiresBatteryNotLow(true)
+                        .build())
                 .build();
         mWorkManagerImpl.beginWith(work).enqueue().getResult().get();
 

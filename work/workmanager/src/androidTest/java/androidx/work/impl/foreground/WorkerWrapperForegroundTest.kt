@@ -132,14 +132,8 @@ class WorkerWrapperForegroundTest {
 
         wrapper.run()
         val future = wrapper.future as SettableFuture<Boolean>
-        while (taskExecutor.backgroundExecutor.hasPendingTasks()) {
-            // Wait until all pending operations in the internal task executor are complete
-        }
         assertThat(future.isDone, `is`(false))
         wrapper.interrupt()
-        while (taskExecutor.backgroundExecutor.hasPendingTasks()) {
-            // Wait until all pending operations in the internal task executor are complete
-        }
         assertThat(future.isDone, `is`(true))
     }
 

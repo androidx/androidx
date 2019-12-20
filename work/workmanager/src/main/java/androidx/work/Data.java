@@ -343,6 +343,7 @@ public final class Data {
      *                               {@link #MAX_DATA_BYTES}
      */
     @NonNull
+    @SuppressWarnings("AmbiguousMethodReference")
     public byte[] toByteArray() {
         return Data.toByteArray(this);
     }
