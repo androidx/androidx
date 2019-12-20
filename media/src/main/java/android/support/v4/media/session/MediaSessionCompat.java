@@ -1894,8 +1894,12 @@ public class MediaSessionCompat {
      */
     @SuppressLint("BanParcelableUsage")
     public static final class Token implements Parcelable {
+        private final Object mLock = new Object();
         private final Object mInner;
+
+        @GuardedBy("mLock")
         private IMediaSession mExtraBinder;
+        @GuardedBy("mLock")
         private VersionedParcelable mSession2Token;
 
         Token(Object inner) {
@@ -2011,7 +2015,9 @@ public class MediaSessionCompat {
          */
         @RestrictTo(LIBRARY)
         public IMediaSession getExtraBinder() {
-            return mExtraBinder;
+            synchronized (mLock) {
+                return mExtraBinder;
+            }
         }
 
         /**
@@ -2019,7 +2025,9 @@ public class MediaSessionCompat {
          */
         @RestrictTo(LIBRARY)
         public void setExtraBinder(IMediaSession extraBinder) {
-            mExtraBinder = extraBinder;
+            synchronized (mLock) {
+                mExtraBinder = extraBinder;
+            }
         }
 
         /**
@@ -2027,7 +2035,9 @@ public class MediaSessionCompat {
          */
         @RestrictTo(LIBRARY_GROUP_PREFIX) // accessed by media2-session
         public VersionedParcelable getSession2Token() {
-            return mSession2Token;
+            synchronized (mLock) {
+                return mSession2Token;
+            }
         }
 
         /**
@@ -2035,7 +2045,9 @@ public class MediaSessionCompat {
          */
         @RestrictTo(LIBRARY_GROUP_PREFIX) // accessed by media2-session
         public void setSession2Token(VersionedParcelable session2Token) {
-            mSession2Token = session2Token;
+            synchronized (mLock) {
+                mSession2Token = session2Token;
+            }
         }
 
         /**
@@ -2045,11 +2057,13 @@ public class MediaSessionCompat {
         public Bundle toBundle() {
             Bundle bundle = new Bundle();
             bundle.putParcelable(KEY_TOKEN, this);
-            if (mExtraBinder != null) {
-                BundleCompat.putBinder(bundle, KEY_EXTRA_BINDER, mExtraBinder.asBinder());
-            }
-            if (mSession2Token != null) {
-                ParcelUtils.putVersionedParcelable(bundle, KEY_SESSION2_TOKEN, mSession2Token);
+            synchronized (mLock) {
+                if (mExtraBinder != null) {
+                    BundleCompat.putBinder(bundle, KEY_EXTRA_BINDER, mExtraBinder.asBinder());
+                }
+                if (mSession2Token != null) {
+                    ParcelUtils.putVersionedParcelable(bundle, KEY_SESSION2_TOKEN, mSession2Token);
+                }
             }
             return bundle;
         }
