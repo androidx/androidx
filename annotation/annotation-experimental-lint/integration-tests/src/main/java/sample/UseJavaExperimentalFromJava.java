@@ -18,7 +18,7 @@ package sample;
 
 import androidx.annotation.experimental.UseExperimental;
 
-@SuppressWarnings("unused")
+@SuppressWarnings({"unused", "WeakerAccess"})
 class UseJavaExperimentalFromJava {
     /**
      * Unsafe call into an experimental class.
@@ -42,5 +42,40 @@ class UseJavaExperimentalFromJava {
 
     void displayDate() {
         System.out.println("" + getDateUnsafe());
+    }
+
+    // Tests involving multiple experimental markers.
+
+    /**
+     * Unsafe call into an experimental class.
+     */
+    @ExperimentalDateTime
+    int getDateExperimentalLocationUnsafe() {
+        DateProvider dateProvider = new DateProvider();
+        LocationProvider locationProvider = new LocationProvider();
+        return dateProvider.getDate() + locationProvider.getLocation();
+    }
+
+    @ExperimentalDateTime
+    @ExperimentalLocation
+    int getDateAndLocationExperimental() {
+        DateProvider dateProvider = new DateProvider();
+        LocationProvider locationProvider = new LocationProvider();
+        return dateProvider.getDate() + locationProvider.getLocation();
+    }
+
+    @UseExperimental(markerClass = ExperimentalDateTime.class)
+    @ExperimentalLocation
+    int getDateUseExperimentalLocationExperimental() {
+        DateProvider dateProvider = new DateProvider();
+        LocationProvider locationProvider = new LocationProvider();
+        return dateProvider.getDate() + locationProvider.getLocation();
+    }
+
+    @UseExperimental(markerClass = { ExperimentalDateTime.class, ExperimentalLocation.class })
+    int getDateAndLocationUseExperimental() {
+        DateProvider dateProvider = new DateProvider();
+        LocationProvider locationProvider = new LocationProvider();
+        return dateProvider.getDate() + locationProvider.getLocation();
     }
 }

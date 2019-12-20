@@ -1,0 +1,3 @@
+// Baseline format: 1.0
+ArrayReturn: androidx.annotation.experimental.UseExperimental#markerClass():
+    Method should return Collection<> (or subclass) instead of raw array; was `error.NonExistentClass[]`

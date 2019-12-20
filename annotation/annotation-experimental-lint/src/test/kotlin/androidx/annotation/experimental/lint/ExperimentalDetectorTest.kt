@@ -32,8 +32,8 @@ class ExperimentalDetectorTest {
     private fun check(vararg testFiles: TestFile): TestLintResult {
         return lint()
             .files(
-                EXPERIMENTAL_JAVA,
-                USE_EXPERIMENTAL_JAVA,
+                ANDROIDX_EXPERIMENTAL_KT,
+                ANDROIDX_USE_EXPERIMENTAL_KT,
                 *testFiles
             )
             .issues(*ExperimentalDetector.ISSUES.toTypedArray())
@@ -45,6 +45,8 @@ class ExperimentalDetectorTest {
         val input = arrayOf(
             javaSample("sample.DateProvider"),
             javaSample("sample.ExperimentalDateTime"),
+            javaSample("sample.ExperimentalLocation"),
+            javaSample("sample.LocationProvider"),
             javaSample("sample.UseJavaExperimentalFromJava")
         )
 
@@ -58,7 +60,15 @@ src/sample/UseJavaExperimentalFromJava.java:28: Error: This declaration is exper
 '@sample.ExperimentalDateTime' or '@UseExperimental(markerClass = sample.ExperimentalDateTime.class)' [UnsafeExperimentalUsageError]
         return dateProvider.getDate();
                             ~~~~~~~
-2 errors, 0 warnings
+src/sample/UseJavaExperimentalFromJava.java:55: Error: This declaration is experimental and its usage should be marked with
+'@sample.ExperimentalLocation' or '@UseExperimental(markerClass = sample.ExperimentalLocation.class)' [UnsafeExperimentalUsageError]
+        LocationProvider locationProvider = new LocationProvider();
+                                            ~~~~~~~~~~~~~~~~~~~~~~
+src/sample/UseJavaExperimentalFromJava.java:56: Error: This declaration is experimental and its usage should be marked with
+'@sample.ExperimentalLocation' or '@UseExperimental(markerClass = sample.ExperimentalLocation.class)' [UnsafeExperimentalUsageError]
+        return dateProvider.getDate() + locationProvider.getLocation();
+                                                         ~~~~~~~~~~~
+4 errors, 0 warnings
     """.trimIndent()
         /* ktlint-enable max-line-length */
 
@@ -70,6 +80,8 @@ src/sample/UseJavaExperimentalFromJava.java:28: Error: This declaration is exper
         val input = arrayOf(
             javaSample("sample.DateProvider"),
             javaSample("sample.ExperimentalDateTime"),
+            javaSample("sample.ExperimentalLocation"),
+            javaSample("sample.LocationProvider"),
             ktSample("sample.UseJavaExperimentalFromKt")
         )
 
@@ -83,7 +95,15 @@ src/sample/UseJavaExperimentalFromKt.kt:28: Error: This declaration is experimen
 '@sample.ExperimentalDateTime' or '@UseExperimental(markerClass = sample.ExperimentalDateTime.class)' [UnsafeExperimentalUsageError]
         return dateProvider.date
                             ~~~~
-2 errors, 0 warnings
+src/sample/UseJavaExperimentalFromKt.kt:55: Error: This declaration is experimental and its usage should be marked with
+'@sample.ExperimentalLocation' or '@UseExperimental(markerClass = sample.ExperimentalLocation.class)' [UnsafeExperimentalUsageError]
+        val locationProvider = LocationProvider()
+                               ~~~~~~~~~~~~~~~~
+src/sample/UseJavaExperimentalFromKt.kt:56: Error: This declaration is experimental and its usage should be marked with
+'@sample.ExperimentalLocation' or '@UseExperimental(markerClass = sample.ExperimentalLocation.class)' [UnsafeExperimentalUsageError]
+        return dateProvider.date + locationProvider.location
+                                                    ~~~~~~~~
+4 errors, 0 warnings
         """.trimIndent()
         /* ktlint-enable max-line-length */
 
@@ -96,6 +116,8 @@ src/sample/UseJavaExperimentalFromKt.kt:28: Error: This declaration is experimen
             EXPERIMENTAL_KT,
             ktSample("sample.DateProviderKt"),
             ktSample("sample.ExperimentalDateTimeKt"),
+            ktSample("sample.ExperimentalLocationKt"),
+            ktSample("sample.LocationProviderKt"),
             javaSample("sample.UseKtExperimentalFromJava")
         )
 
@@ -109,7 +131,15 @@ src/sample/UseKtExperimentalFromJava.java:28: Error: This declaration is experim
 '@sample.ExperimentalDateTimeKt' or '@UseExperimental(markerClass = sample.ExperimentalDateTimeKt.class)' [UnsafeExperimentalUsageError]
         return dateProvider.getDate();
                             ~~~~~~~
-2 errors, 0 warnings
+src/sample/UseKtExperimentalFromJava.java:55: Error: This declaration is experimental and its usage should be marked with
+'@sample.ExperimentalLocationKt' or '@UseExperimental(markerClass = sample.ExperimentalLocationKt.class)' [UnsafeExperimentalUsageError]
+        LocationProviderKt locationProvider = new LocationProviderKt();
+                                              ~~~~~~~~~~~~~~~~~~~~~~~~
+src/sample/UseKtExperimentalFromJava.java:56: Error: This declaration is experimental and its usage should be marked with
+'@sample.ExperimentalLocationKt' or '@UseExperimental(markerClass = sample.ExperimentalLocationKt.class)' [UnsafeExperimentalUsageError]
+        return dateProvider.getDate() + locationProvider.getLocation();
+                                                         ~~~~~~~~~~~
+4 errors, 0 warnings
         """.trimIndent()
         /* ktlint-enable max-line-length */
 
@@ -193,56 +223,58 @@ src/sample/UseJavaPackageFromKt.kt:54: Error: This declaration is experimental a
     /* ktlint-disable max-line-length */
     companion object {
         /**
-         * [TestFile] containing Experimental.java from the experimental annotation library.
+         * [TestFile] containing Experimental.kt from the experimental annotation library.
          *
          * This is a workaround for IntelliJ failing to recognize source files if they are also
          * included as resources.
          */
-        val EXPERIMENTAL_JAVA: TestFile = java("""
+        val ANDROIDX_EXPERIMENTAL_KT: TestFile = kotlin("""
             package androidx.annotation.experimental;
 
-            import static java.lang.annotation.ElementType.ANNOTATION_TYPE;
-            import static java.lang.annotation.RetentionPolicy.CLASS;
+            import kotlin.annotation.Retention
+            import kotlin.annotation.Target
 
-            import java.lang.annotation.Retention;
-            import java.lang.annotation.Target;
-
-            @Retention(CLASS)
-            @Target({ANNOTATION_TYPE})
-            public @interface Experimental {
-                enum Level {
+            @Retention(AnnotationRetention.BINARY)
+            @Target(AnnotationTarget.ANNOTATION_CLASS)
+            annotation class Experimental(
+                val level: Level = Level.ERROR
+            ) {
+                enum class Level {
                     WARNING,
-                    ERROR,
+                    ERROR
                 }
-
-                Level level() default Level.ERROR;
             }
         """.trimIndent())
 
         /**
-         * [TestFile] containing UseExperimental.java from the experimental annotation library.
+         * [TestFile] containing UseExperimental.kt from the experimental annotation library.
          *
          * This is a workaround for IntelliJ failing to recognize source files if they are also
          * included as resources.
          */
-        val USE_EXPERIMENTAL_JAVA: TestFile = java("""
+        val ANDROIDX_USE_EXPERIMENTAL_KT: TestFile = kotlin("""
             package androidx.annotation.experimental;
 
-            import static java.lang.annotation.ElementType.CONSTRUCTOR;
-            import static java.lang.annotation.ElementType.FIELD;
-            import static java.lang.annotation.ElementType.METHOD;
-            import static java.lang.annotation.ElementType.PACKAGE;
-            import static java.lang.annotation.ElementType.TYPE;
-            import static java.lang.annotation.RetentionPolicy.CLASS;
+            import kotlin.annotation.Retention
+            import kotlin.annotation.Target
+            import kotlin.reflect.KClass
 
-            import java.lang.annotation.Retention;
-            import java.lang.annotation.Target;
-
-            @Retention(CLASS)
-            @Target({TYPE, METHOD, CONSTRUCTOR, FIELD, PACKAGE})
-            public @interface UseExperimental {
-                Class<?> markerClass();
-            }
+            @Retention(AnnotationRetention.BINARY)
+            @Target(
+                AnnotationTarget.CLASS,
+                AnnotationTarget.PROPERTY,
+                AnnotationTarget.LOCAL_VARIABLE,
+                AnnotationTarget.VALUE_PARAMETER,
+                AnnotationTarget.CONSTRUCTOR,
+                AnnotationTarget.FUNCTION,
+                AnnotationTarget.PROPERTY_GETTER,
+                AnnotationTarget.PROPERTY_SETTER,
+                AnnotationTarget.FILE,
+                AnnotationTarget.TYPEALIAS
+            )
+            annotation class UseExperimental(
+                vararg val markerClass: KClass<out Annotation>
+            )
         """.trimIndent())
 
         /**

@@ -33,14 +33,15 @@ import com.intellij.psi.PsiField
 import com.intellij.psi.PsiMethod
 import org.jetbrains.uast.UAnnotated
 import org.jetbrains.uast.UAnnotation
+import org.jetbrains.uast.UCallExpression
 import org.jetbrains.uast.UClass
 import org.jetbrains.uast.UClassLiteralExpression
 import org.jetbrains.uast.UElement
-import org.jetbrains.uast.UNamedExpression
+import org.jetbrains.uast.UExpression
 import org.jetbrains.uast.UReferenceExpression
 import org.jetbrains.uast.getParentOfType
 
-@Suppress("SyntheticAccessor")
+@Suppress("SyntheticAccessor", "UnstableApiUsage")
 class ExperimentalDetector : Detector(), SourceCodeScanner {
     override fun applicableAnnotations(): List<String>? = listOf(
         JAVA_EXPERIMENTAL_ANNOTATION,
@@ -63,13 +64,13 @@ class ExperimentalDetector : Detector(), SourceCodeScanner {
         when (qualifiedName) {
             JAVA_EXPERIMENTAL_ANNOTATION -> {
                 checkExperimentalUsage(context, annotation, usage,
-                    JAVA_USE_EXPERIMENTAL_ANNOTATION
+                    JAVA_USE_EXPERIMENTAL_ANNOTATION, checkMarkerClasses = true
                 )
             }
             KOTLIN_EXPERIMENTAL_ANNOTATION -> {
                 if (!isKotlin(usage.sourcePsi)) {
                     checkExperimentalUsage(context, annotation, usage,
-                        KOTLIN_USE_EXPERIMENTAL_ANNOTATION
+                        KOTLIN_USE_EXPERIMENTAL_ANNOTATION, checkMarkerClasses = false
                     )
                 }
             }
@@ -84,15 +85,18 @@ class ExperimentalDetector : Detector(), SourceCodeScanner {
      * @param annotation the experimental annotation detected on the referenced element
      * @param usage the element whose usage should be checked
      * @param useAnnotationName fully-qualified class name for experimental opt-in annotation
+     * @param checkMarkerClasses whether to check the markerClasses attribute on UseExperimental
      */
     private fun checkExperimentalUsage(
         context: JavaContext,
         annotation: UAnnotation,
         usage: UElement,
-        useAnnotationName: String
+        useAnnotationName: String,
+        checkMarkerClasses: Boolean
     ) {
         val useAnnotation = (annotation.uastParent as? UClass)?.qualifiedName ?: return
-        if (!hasOrUsesAnnotation(context, usage, useAnnotation, useAnnotationName)) {
+        if (!hasOrUsesAnnotation(context, usage, useAnnotation, useAnnotationName,
+                checkMarkerClasses)) {
             val level = extractAttribute(annotation, "level")
             if (level != null) {
                 report(context, usage, """
@@ -121,7 +125,8 @@ class ExperimentalDetector : Detector(), SourceCodeScanner {
         context: JavaContext,
         usage: UElement,
         annotationName: String,
-        useAnnotationName: String
+        useAnnotationName: String,
+        checkMarkerClasses: Boolean
     ): Boolean {
         var element: UAnnotated? = if (usage is UAnnotated) {
             usage
@@ -131,12 +136,37 @@ class ExperimentalDetector : Detector(), SourceCodeScanner {
 
         while (element != null) {
             val annotations = context.evaluator.getAllAnnotations(element, false)
+
             val matchName = annotations.any { it.qualifiedName == annotationName }
-            val matchUse = annotations
-                .filter { annotation -> annotation.qualifiedName == useAnnotationName }
-                .mapNotNull { annotation -> annotation.attributeValues.getOrNull(0) }
-                .any { attrValue -> attrValue.getFullyQualifiedName(context) == annotationName }
-            if (matchName || matchUse) return true
+            if (matchName) {
+                return true
+            }
+
+            val matchUse = annotations.any { annotation ->
+                if (annotation.qualifiedName == useAnnotationName) {
+                    // Kotlin uses the same attribute for single- and multiple-marker usages.
+                    if (annotation.hasMatchingAttributeValueClass(
+                            context, "markerClass", annotationName
+                        )
+                    ) {
+                        return true
+                    }
+
+                    // Java uses a separate attribute for multiple-marker usages.
+                    if (checkMarkerClasses && annotation.hasMatchingAttributeValueClass(
+                            context, "markerClasses", annotationName
+                        )
+                    ) {
+                        return true
+                    }
+                }
+
+                return false
+            }
+            if (matchUse) {
+                return true
+            }
+
             element = element.getParentOfType(UAnnotated::class.java)
         }
         return false
@@ -211,11 +241,27 @@ class ExperimentalDetector : Detector(), SourceCodeScanner {
     }
 }
 
+private fun UAnnotation.hasMatchingAttributeValueClass(
+    context: JavaContext,
+    attributeName: String,
+    className: String
+): Boolean {
+    val attributeValue = findAttributeValue(attributeName)
+    if (attributeValue.getFullyQualifiedName(context) == className) {
+        return true
+    }
+    if (attributeValue is UCallExpression) {
+        return attributeValue.valueArguments.any { attrValue ->
+            attrValue.getFullyQualifiedName(context) == className
+        }
+    }
+    return false
+}
+
 /**
  * Returns the fully-qualified class name for a given attribute value, if any.
  */
-private fun UNamedExpression?.getFullyQualifiedName(context: JavaContext): String? {
-    val exp = this?.expression
-    val type = if (exp is UClassLiteralExpression) exp.type else exp?.evaluate()
+private fun UExpression?.getFullyQualifiedName(context: JavaContext): String? {
+    val type = if (this is UClassLiteralExpression) this.type else this?.evaluate()
     return (type as? PsiClassType)?.let { context.evaluator.getQualifiedName(it) }
 }
