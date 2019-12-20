@@ -28,8 +28,6 @@ import androidx.compose.remember
 import androidx.compose.state
 import androidx.ui.animation.animatedFloat
 import androidx.ui.core.Draw
-import androidx.ui.core.IntPx
-import androidx.ui.core.Layout
 import androidx.ui.core.PxPosition
 import androidx.ui.core.Text
 import androidx.ui.core.dp
@@ -43,6 +41,7 @@ import androidx.ui.layout.Column
 import androidx.ui.layout.Padding
 import androidx.ui.graphics.Canvas
 import androidx.ui.graphics.Paint
+import androidx.ui.layout.Container
 import androidx.ui.text.TextStyle
 import kotlin.math.roundToInt
 
@@ -85,8 +84,9 @@ class FancyScrolling : Activity() {
                     })
                 }
             }) {
-                val children = @Composable {
-                    var paint = remember { Paint() }
+
+                var paint = remember { Paint() }
+                Container(expanded = true, height = 400.dp) {
                     Draw { canvas, parentSize ->
                         val width = parentSize.width.value / 2f
                         val scroll = animScroll.value + width / 2
@@ -97,9 +97,6 @@ class FancyScrolling : Activity() {
                         }
                         drawItems(canvas, scroll, width, parentSize.height.value, paint)
                     }
-                }
-                Layout(children) { _, constraints ->
-                    layout(constraints.maxWidth, IntPx(1200)) {}
                 }
             }
         }

@@ -56,7 +56,7 @@ class SwipeToDismiss : Activity() {
                 SwipeToDismiss()
 
                 Padding(40.dp) {
-                    Text("Swipe up to dismiss", style = TextStyle(fontSize = 80.sp))
+                    Text("Swipe up to dismiss", style = TextStyle(fontSize = 30.sp))
                 }
             }
         }
