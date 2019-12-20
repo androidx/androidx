@@ -307,7 +307,7 @@ class CachingTest {
         onEach: (suspend () -> Unit)? = null
     ): List<Item> {
         val pageData = this.first()
-        val hintReceiver = pageData.hintReceiver
+        val receiver = pageData.receiver
         var loadedPageCnt = 0
         return pageData.flow.filterIsInstance<PageEvent.Insert<Item>>().take(pageCnt)
             .onEach {
@@ -316,7 +316,7 @@ class CachingTest {
             .map {
                 loadedPageCnt += it.pages.size
                 if (loadedPageCnt < pageCnt) {
-                    hintReceiver(
+                    receiver.addHint(
                         ViewportHint(
                             sourcePageIndex = loadedPageCnt - 1,
                             indexInPage = it.pages.last().data.size - 1

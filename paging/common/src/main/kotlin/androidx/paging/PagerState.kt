@@ -31,13 +31,13 @@ import kotlinx.coroutines.FlowPreview
 import kotlinx.coroutines.channels.Channel
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.consumeAsFlow
+import kotlinx.coroutines.flow.onStart
 import kotlin.math.absoluteValue
 
 /**
  * Internal state of [Pager] whose updates can be consumed as a [Flow]<[PageEvent]<[Value]>>.
  */
-@FlowPreview
-@ExperimentalCoroutinesApi
+@UseExperimental(ExperimentalCoroutinesApi::class, FlowPreview::class)
 internal class PagerState<Key : Any, Value : Any>(
     private val pageSize: Int,
     private val maxSize: Int
@@ -55,22 +55,22 @@ internal class PagerState<Key : Any, Value : Any>(
     private val prependLoadIdCh = Channel<Int>(Channel.CONFLATED)
     private val appendLoadIdCh = Channel<Int>(Channel.CONFLATED)
 
+    internal var failedHintStart: ViewportHint? = null
+    internal var failedHintEnd: ViewportHint? = null
     internal val loadStates = mutableMapOf<LoadType, LoadState>(
         REFRESH to Idle,
         START to Idle,
         END to Idle
     )
 
-    @UseExperimental(FlowPreview::class)
     fun consumePrependGenerationIdAsFlow(): Flow<Int> {
-        prependLoadIdCh.offer(prependLoadId)
         return prependLoadIdCh.consumeAsFlow()
+            .onStart { prependLoadIdCh.offer(prependLoadId) }
     }
 
-    @UseExperimental(FlowPreview::class)
     fun consumeAppendGenerationIdAsFlow(): Flow<Int> {
-        appendLoadIdCh.offer(appendLoadId)
         return appendLoadIdCh.consumeAsFlow()
+            .onStart { appendLoadIdCh.offer(appendLoadId) }
     }
 
     /**
@@ -122,6 +122,9 @@ internal class PagerState<Key : Any, Value : Any>(
                 } else {
                     page.itemsBefore
                 }
+
+                // Clear error on successful insert
+                failedHintStart = null
             }
             END -> {
                 check(pages.isNotEmpty()) { "should've received an init before append" }
@@ -135,6 +138,9 @@ internal class PagerState<Key : Any, Value : Any>(
                 } else {
                     page.itemsAfter
                 }
+
+                // Clear error on successful insert
+                failedHintEnd = null
             }
         }
 
@@ -276,6 +282,12 @@ internal class PagerState<Key : Any, Value : Any>(
         }
 
         return block(indexInPage, pageIndex, hintOffset)
+    }
+
+    fun failedHintForLoadType(loadType: LoadType): ViewportHint? = when (loadType) {
+        REFRESH -> null
+        START -> failedHintStart
+        END -> failedHintEnd
     }
 }
 

@@ -31,13 +31,13 @@ import kotlinx.coroutines.FlowPreview
 import kotlinx.coroutines.channels.BroadcastChannel
 import kotlinx.coroutines.channels.Channel
 import kotlinx.coroutines.channels.Channel.Factory.BUFFERED
+import kotlinx.coroutines.channels.Channel.Factory.CONFLATED
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.asFlow
 import kotlinx.coroutines.flow.channelFlow
 import kotlinx.coroutines.flow.collect
 import kotlinx.coroutines.flow.conflate
 import kotlinx.coroutines.flow.consumeAsFlow
-import kotlinx.coroutines.flow.distinctUntilChanged
 import kotlinx.coroutines.flow.emitAll
 import kotlinx.coroutines.flow.filter
 import kotlinx.coroutines.flow.map
@@ -61,6 +61,7 @@ internal class Pager<Key : Any, Value : Any>(
     internal val pagedSource: PagedSource<Key, Value>,
     private val config: PagedList.Config
 ) {
+    private val retryChannel = Channel<Unit>(CONFLATED)
     private val hintChannel = BroadcastChannel<ViewportHint>(BUFFERED)
     private var lastHint: ViewportHint? = null
 
@@ -68,11 +69,17 @@ internal class Pager<Key : Any, Value : Any>(
     private val stateLock = Mutex()
     private val state = PagerState<Key, Value>(config.pageSize, config.maxSize)
 
+    private val created = AtomicBoolean(false)
+
     fun addHint(hint: ViewportHint) {
         lastHint = hint
         hintChannel.offer(hint)
     }
-    private val created = AtomicBoolean(false)
+
+    fun retry() {
+        retryChannel.offer(Unit)
+    }
+
     fun create(): Flow<PageEvent<Value>> = channelFlow {
         check(created.compareAndSet(false, true)) {
             "cannot collect twice from pager"
@@ -89,8 +96,11 @@ internal class Pager<Key : Any, Value : Any>(
                         // Skip this generationId of loads if there is no more to load in this
                         // direction. In the case of the terminal page getting dropped, a new
                         // generationId will be sent after load state is updated to Idle.
-                        if (state.loadStates[START] == Done) return@transformLatest
-                        else state.updateLoadState(START, Idle)
+                        if (state.loadStates[START] == Done) {
+                            return@transformLatest
+                        } else if (state.failedHintForLoadType(START) == null) {
+                            state.updateLoadState(START, Idle)
+                        }
                     }
 
                     val generationalHints = hintChannel.asFlow()
@@ -102,7 +112,6 @@ internal class Pager<Key : Any, Value : Any>(
                     if (acc.hint < it.hint) acc else it
                 }
                 .filter { it != GenerationalViewportHint(0, ViewportHint.MAX_VALUE) }
-                .distinctUntilChanged()
                 .conflate()
                 .collect { generationalHint -> state.doLoad(START, generationalHint) }
         }
@@ -116,8 +125,11 @@ internal class Pager<Key : Any, Value : Any>(
                         // Skip this generationId of loads if there is no more to load in this
                         // direction. In the case of the terminal page getting dropped, a new
                         // generationId will be sent after load state is updated to Idle.
-                        if (state.loadStates[END] == Done) return@transformLatest
-                        else state.updateLoadState(END, Idle)
+                        if (state.loadStates[END] == Done) {
+                            return@transformLatest
+                        } else if (state.failedHintForLoadType(END) == null) {
+                            state.updateLoadState(END, Idle)
+                        }
                     }
 
                     val generationalHints = hintChannel.asFlow()
@@ -129,13 +141,30 @@ internal class Pager<Key : Any, Value : Any>(
                     if (acc.hint > it.hint) acc else it
                 }
                 .filter { it != GenerationalViewportHint(0, ViewportHint.MIN_VALUE) }
-                .distinctUntilChanged()
                 .conflate()
                 .collect { generationalHint -> state.doLoad(END, generationalHint) }
         }
 
+        val retryJob = launch {
+            retryChannel.consumeAsFlow()
+                .collect {
+                    stateLock.withLock {
+                        state.failedHintForLoadType(START)?.let {
+                            // Reset load state to allow loads in this direction.
+                            state.updateLoadState(START, Idle)
+                            hintChannel.offer(it)
+                        }
+                        state.failedHintForLoadType(END)?.let {
+                            // Reset load state to allow loads in this direction.
+                            state.updateLoadState(END, Idle)
+                            hintChannel.offer(it)
+                        }
+                    }
+                }
+        }
+
         // TODO: Test if we can remove this!
-        joinAll(prependJob, appendJob)
+        joinAll(prependJob, appendJob, retryJob)
     }
 
     suspend fun refreshKeyInfo(): RefreshInfo<Key, Value>? {
@@ -238,7 +267,9 @@ internal class Pager<Key : Any, Value : Any>(
                     lastInsertedPage = result
                 }
                 is LoadResult.Error -> {
-                    stateLock.withLock { updateLoadState(loadType, Error(result.throwable)) }
+                    stateLock.withLock {
+                        updateLoadState(loadType, Error(result.throwable), generationalHint.hint)
+                    }
                     return
                 }
             }
@@ -269,7 +300,10 @@ internal class Pager<Key : Any, Value : Any>(
         }
 
         stateLock.withLock {
-            updateLoadState(loadType, if (updateLoadStateToDone) Done else Idle)
+            // Only update load state with success if we didn't error out.
+            if (state.failedHintForLoadType(loadType) == null) {
+                updateLoadState(loadType, if (updateLoadStateToDone) Done else Idle)
+            }
 
             // Send the last page event from previous successful insert, now that LoadState has
             // been updated.
@@ -282,12 +316,18 @@ internal class Pager<Key : Any, Value : Any>(
 
     private suspend fun PagerState<Key, Value>.updateLoadState(
         loadType: LoadType,
-        loadState: LoadState
+        loadState: LoadState,
+        hint: ViewportHint? = null
     ) {
-        // De-dupe state updates if state hasn't changed.
         if (loadStates[loadType] != loadState) {
             loadStates[loadType] = loadState
             pageEventCh.send(PageEvent.StateUpdate(loadType, loadState))
+        }
+
+        // Save the hint for retry on incoming retry signal, typically sent from user interaction.
+        if (loadState is Error) {
+            if (loadType == START) failedHintStart = hint
+            else if (loadType == END) failedHintEnd = hint
         }
     }
 
@@ -327,6 +367,7 @@ internal class Pager<Key : Any, Value : Any>(
         prefetchDistance: Int
     ): Key? {
         if (loadId != prependLoadId) return null
+        if (loadStates[START] is Error) return null
 
         val itemsBeforePage = (0 until pageIndex).sumBy { pages[it].data.size }
         val shouldLoad = itemsBeforePage + indexInPage < prefetchDistance
@@ -344,6 +385,7 @@ internal class Pager<Key : Any, Value : Any>(
         prefetchDistance: Int
     ): Key? {
         if (loadId != appendLoadId) return null
+        if (loadStates[END] is Error) return null
 
         val itemsIncludingPage = (pageIndex until pages.size).sumBy { pages[it].data.size }
         val shouldLoad = indexInPage + 1 + prefetchDistance > itemsIncludingPage

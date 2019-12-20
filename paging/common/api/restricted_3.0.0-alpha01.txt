@@ -167,6 +167,7 @@ package androidx.paging {
     method public final operator T? get(int index);
     method public final int getSize();
     method public abstract suspend Object! performDiff(androidx.paging.NullPaddedList<T> previous, androidx.paging.NullPaddedList<T> p, kotlin.coroutines.Continuation<? super kotlin.Unit> p1);
+    method public final void retry();
     property public final int size;
   }
 

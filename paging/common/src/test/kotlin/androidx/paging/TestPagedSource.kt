@@ -26,6 +26,8 @@ import kotlinx.coroutines.delay
  * with APIs from [kotlinx.coroutines.test.DelayController].
  */
 class TestPagedSource(counted: Boolean = true) : PagedSource<Int, Int>() {
+    var errorNextLoad = false
+
     init {
         if (!counted) {
             throw NotImplementedError(
@@ -45,6 +47,11 @@ class TestPagedSource(counted: Boolean = true) : PagedSource<Int, Int>() {
         // execution of events.
         delay(1000)
 
+        if (errorNextLoad) {
+            errorNextLoad = false
+            return LoadResult.Error(LOAD_ERROR)
+        }
+
         return LoadResult.Page(
             items.subList(start, end),
             if (start > 0) start - 1 else null,
@@ -60,5 +67,6 @@ class TestPagedSource(counted: Boolean = true) : PagedSource<Int, Int>() {
 
     companion object {
         val items = List(100) { it }
+        val LOAD_ERROR = Exception("Exception from TestPagedSource.errorNextLoad")
     }
 }

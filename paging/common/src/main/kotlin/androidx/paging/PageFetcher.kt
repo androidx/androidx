@@ -59,9 +59,20 @@ internal class PageFetcher<Key : Any, Value : Any>(
             Pager(initialKey, pagedSource, config)
         }
         .filterNotNull()
-        .mapLatest { generation -> PagedData(generation.create(), generation::addHint) }
+        .mapLatest { generation ->
+            PagedData(flow = generation.create(), receiver = PagerUiReceiver(generation))
+        }
 
     fun refresh() {
         refreshChannel.offer(Unit)
     }
+}
+
+@UseExperimental(ExperimentalCoroutinesApi::class, FlowPreview::class)
+internal class PagerUiReceiver<Key : Any, Value : Any> constructor(
+    private val pager: Pager<Key, Value>
+) : UiReceiver {
+    override fun addHint(hint: ViewportHint) = pager.addHint(hint)
+
+    override fun retry() = pager.retry()
 }

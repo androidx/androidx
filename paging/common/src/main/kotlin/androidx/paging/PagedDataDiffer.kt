@@ -37,7 +37,7 @@ abstract class PagedDataDiffer<T : Any>(
 ) {
     private var job: Job? = null
     private var presenter: PagePresenter<T> = PagePresenter.initial()
-    private var hintReceiver: ((ViewportHint) -> Unit)? = null
+    private var receiver: UiReceiver? = null
 
     abstract suspend fun performDiff(previous: NullPaddedList<T>, new: NullPaddedList<T>)
 
@@ -45,29 +45,33 @@ abstract class PagedDataDiffer<T : Any>(
     fun connect(flow: Flow<PagedData<T>>, scope: CoroutineScope, callback: PagedList.Callback) {
         job?.cancel()
         job = scope.launch(workerDispatcher) {
-            flow.flatMapLatest { pagedData ->
-                pagedData.flow.map { event ->
-                    Pair(pagedData, event)
+            flow
+                .flatMapLatest { pagedData ->
+                    pagedData.flow.map { event -> Pair(pagedData, event) }
                 }
-            }.collect { pair ->
-                withContext(mainDispatcher) {
-                    val event = pair.second
-                    if (event is PageEvent.Insert && event.loadType == LoadType.REFRESH) {
-                        val newPresenter = PagePresenter(event)
-                        performDiff(previous = presenter, new = newPresenter)
-                        presenter = newPresenter
-                        hintReceiver = pair.first.hintReceiver
-                    } else {
-                        presenter.processEvent(event, callback)
+                .collect { pair ->
+                    withContext(mainDispatcher) {
+                        val event = pair.second
+                        if (event is PageEvent.Insert && event.loadType == LoadType.REFRESH) {
+                            val newPresenter = PagePresenter(event)
+                            performDiff(previous = presenter, new = newPresenter)
+                            presenter = newPresenter
+                            receiver = pair.first.receiver
+                        } else {
+                            presenter.processEvent(event, callback)
+                        }
                     }
                 }
-            }
         }
     }
 
     operator fun get(index: Int): T? {
-        hintReceiver?.invoke(presenter.loadAround(index))
+        receiver?.addHint(presenter.loadAround(index))
         return presenter.get(index)
+    }
+
+    fun retry() {
+        receiver?.retry()
     }
 
     val size: Int
