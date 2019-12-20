@@ -59,7 +59,6 @@ public class MediaSessionManagerTest extends MediaTestBase {
 
     @Test
     public void testGetSessionServiceTokens() {
-        prepareLooper();
         boolean hasMockBrowserServiceCompat = false;
         boolean hasMockSessionService2 = false;
         boolean hasMockLibraryService2 = false;

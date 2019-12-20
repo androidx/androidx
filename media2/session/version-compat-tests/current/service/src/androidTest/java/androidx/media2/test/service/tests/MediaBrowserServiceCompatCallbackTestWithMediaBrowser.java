@@ -72,7 +72,6 @@ public class MediaBrowserServiceCompatCallbackTestWithMediaBrowser extends Media
 
     @Test
     public void testOnGetRootCalledByGetLibraryRoot() throws InterruptedException {
-        prepareLooper();
         final String testMediaId = "testOnGetRootCalledByGetLibraryRoot";
         final Bundle testExtras = new Bundle();
         testExtras.putString(testMediaId, testMediaId);
@@ -102,7 +101,6 @@ public class MediaBrowserServiceCompatCallbackTestWithMediaBrowser extends Media
 
     @Test
     public void testOnLoadItemCalledByGetItem() throws InterruptedException {
-        prepareLooper();
         final String testMediaId = "test_media_item";
         final MediaItem testItem = createMediaItem(testMediaId);
         final CountDownLatch latch = new CountDownLatch(1);
@@ -122,7 +120,6 @@ public class MediaBrowserServiceCompatCallbackTestWithMediaBrowser extends Media
 
     @Test
     public void testOnLoadChildrenWithoutOptionsCalledByGetChildren() throws InterruptedException {
-        prepareLooper();
         final String testParentId = "test_media_parent";
         final int testPage = 2;
         final int testPageSize = 4;
@@ -144,7 +141,6 @@ public class MediaBrowserServiceCompatCallbackTestWithMediaBrowser extends Media
 
     @Test
     public void testOnLoadChildrenWithOptionsCalledByGetChildren() throws InterruptedException {
-        prepareLooper();
         final String testParentId = "test_media_parent";
         final int testPage = 2;
         final int testPageSize = 4;
@@ -174,7 +170,6 @@ public class MediaBrowserServiceCompatCallbackTestWithMediaBrowser extends Media
 
     @Test
     public void testOnLoadChildrenCalledBySubscribe() throws InterruptedException {
-        prepareLooper();
         final String testParentId = "testOnLoadChildrenCalledBySubscribe";
         final LibraryParams testParams = MediaTestUtils.createLibraryParams();
         final CountDownLatch subscribeLatch = new CountDownLatch(1);
@@ -195,7 +190,6 @@ public class MediaBrowserServiceCompatCallbackTestWithMediaBrowser extends Media
 
     @Test
     public void testOnSearchCalledBySearch() throws InterruptedException {
-        prepareLooper();
         final String testQuery = "search_query";
         final int testPage = 2;
         final int testPageSize = 4;
@@ -221,7 +215,6 @@ public class MediaBrowserServiceCompatCallbackTestWithMediaBrowser extends Media
 
     @Test
     public void testOnSearchCalledByGetSearchResult() throws InterruptedException {
-        prepareLooper();
         final String testQuery = "search_query";
         final int testPage = 2;
         final int testPageSize = 4;

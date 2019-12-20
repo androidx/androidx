@@ -107,7 +107,6 @@ public class MediaBrowserTest extends MediaControllerTest {
      */
     @Test
     public void testTestBrowserCallback() {
-        prepareLooper();
         Method[] methods = TestBrowserCallback.class.getMethods();
         assertNotNull(methods);
         for (int i = 0; i < methods.length; i++) {
@@ -124,7 +123,6 @@ public class MediaBrowserTest extends MediaControllerTest {
 
     @Test
     public void testGetLibraryRoot() throws Exception {
-        prepareLooper();
         final LibraryParams params = createLibraryParams();
 
         MockMediaLibraryService.setAssertLibraryParams(params);
@@ -137,7 +135,6 @@ public class MediaBrowserTest extends MediaControllerTest {
 
     @Test
     public void testGetItem() throws Exception {
-        prepareLooper();
         final String mediaId = MockMediaLibraryService.MEDIA_ID_GET_ITEM;
 
         LibraryResult result = createBrowser().getItem(mediaId)
@@ -148,7 +145,6 @@ public class MediaBrowserTest extends MediaControllerTest {
 
     @Test
     public void testGetItemNullResult() throws Exception {
-        prepareLooper();
         final String mediaId = "random_media_id";
 
         LibraryResult result = createBrowser().getItem(mediaId)
@@ -159,7 +155,6 @@ public class MediaBrowserTest extends MediaControllerTest {
 
     @Test
     public void testGetChildren() throws Exception {
-        prepareLooper();
         final String parentId = MockMediaLibraryService.PARENT_ID;
         final int page = 4;
         final int pageSize = 10;
@@ -176,7 +171,6 @@ public class MediaBrowserTest extends MediaControllerTest {
 
     @Test
     public void testGetChildrenEmptyResult() throws Exception {
-        prepareLooper();
         final String parentId = MockMediaLibraryService.PARENT_ID_NO_CHILDREN;
 
         LibraryResult result = createBrowser().getChildren(parentId, 1, 1, null)
@@ -187,7 +181,6 @@ public class MediaBrowserTest extends MediaControllerTest {
 
     @Test
     public void testGetChildrenNullResult() throws Exception {
-        prepareLooper();
         final String parentId = MockMediaLibraryService.PARENT_ID_ERROR;
 
         LibraryResult result = createBrowser().getChildren(parentId, 1, 1, null)
@@ -198,7 +191,6 @@ public class MediaBrowserTest extends MediaControllerTest {
 
     @Test
     public void testSearch() throws Exception {
-        prepareLooper();
         final String query = MockMediaLibraryService.SEARCH_QUERY;
         final int page = 4;
         final int pageSize = 10;
@@ -236,7 +228,6 @@ public class MediaBrowserTest extends MediaControllerTest {
     @Test
     @LargeTest
     public void testSearchTakesTime() throws Exception {
-        prepareLooper();
         final String query = MockMediaLibraryService.SEARCH_QUERY_TAKES_TIME;
         final LibraryParams params = createLibraryParams();
 
@@ -263,7 +254,6 @@ public class MediaBrowserTest extends MediaControllerTest {
 
     @Test
     public void testSearchEmptyResult() throws Exception {
-        prepareLooper();
         final String query = MockMediaLibraryService.SEARCH_QUERY_EMPTY_RESULT;
         final LibraryParams params = createLibraryParams();
 
@@ -288,7 +278,6 @@ public class MediaBrowserTest extends MediaControllerTest {
 
     @Test
     public void testSubscribe() throws Exception {
-        prepareLooper();
         final String testParentId = "testSubscribeId";
         final LibraryParams params = createLibraryParams();
 
@@ -315,7 +304,6 @@ public class MediaBrowserTest extends MediaControllerTest {
 
     @Test
     public void testUnsubscribe() throws Exception {
-        prepareLooper();
         final String testParentId = "testUnsubscribeId";
         final MediaLibrarySessionCallback callback = new MediaLibrarySessionCallback() {
             @Override
@@ -339,7 +327,6 @@ public class MediaBrowserTest extends MediaControllerTest {
     public void testBrowserCallback_onChildrenChangedIsNotCalledWhenNotSubscribed()
             throws Exception {
         // This test uses MediaLibrarySession.notifyChildrenChanged().
-        prepareLooper();
         final String subscribedMediaId = "subscribedMediaId";
         final String anotherMediaId = "anotherMediaId";
         final int testChildrenCount = 101;
@@ -393,7 +380,6 @@ public class MediaBrowserTest extends MediaControllerTest {
     @Test
     public void testBrowserCallback_onChildrenChangedIsCalledWhenSubscribed() throws Exception {
         // This test uses MediaLibrarySession.notifyChildrenChanged().
-        prepareLooper();
         final String expectedParentId = "expectedParentId";
         final int testChildrenCount = 101;
         final LibraryParams testParams = createLibraryParams();
@@ -446,7 +432,6 @@ public class MediaBrowserTest extends MediaControllerTest {
     public void testBrowserCallback_onChildrenChangedIsNotCalledWhenNotSubscribed2()
             throws Exception {
         // This test uses MediaLibrarySession.notifyChildrenChanged(ControllerInfo).
-        prepareLooper();
         final String subscribedMediaId = "subscribedMediaId";
         final String anotherMediaId = "anotherMediaId";
         final int testChildrenCount = 101;
@@ -501,7 +486,6 @@ public class MediaBrowserTest extends MediaControllerTest {
     @Test
     public void testBrowserCallback_onChildrenChangedIsCalledWhenSubscribed2() throws Exception {
         // This test uses MediaLibrarySession.notifyChildrenChanged(ControllerInfo).
-        prepareLooper();
         final String expectedParentId = "expectedParentId";
         final int testChildrenCount = 101;
         final LibraryParams testParams = createLibraryParams();

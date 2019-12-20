@@ -164,7 +164,6 @@ public class MediaSession_PermissionTest extends MediaSessionTestBase {
 
     @Test
     public void testPlay() throws InterruptedException {
-        prepareLooper();
         testOnCommandRequest(COMMAND_CODE_PLAYER_PLAY, new PermissionTestTask() {
             @Override
             public void run(RemoteMediaController controller) {
@@ -175,7 +174,6 @@ public class MediaSession_PermissionTest extends MediaSessionTestBase {
 
     @Test
     public void testPause() throws InterruptedException {
-        prepareLooper();
         testOnCommandRequest(COMMAND_CODE_PLAYER_PAUSE, new PermissionTestTask() {
             @Override
             public void run(RemoteMediaController controller) {
@@ -186,7 +184,6 @@ public class MediaSession_PermissionTest extends MediaSessionTestBase {
 
     @Test
     public void testSeekTo() throws InterruptedException {
-        prepareLooper();
         final long position = 10;
         testOnCommandRequest(COMMAND_CODE_PLAYER_SEEK_TO, new PermissionTestTask() {
             @Override
@@ -198,7 +195,6 @@ public class MediaSession_PermissionTest extends MediaSessionTestBase {
 
     @Test
     public void testSkipToNext() throws InterruptedException {
-        prepareLooper();
         testOnCommandRequest(COMMAND_CODE_PLAYER_SKIP_TO_NEXT_PLAYLIST_ITEM,
                 new PermissionTestTask() {
                     @Override
@@ -210,7 +206,6 @@ public class MediaSession_PermissionTest extends MediaSessionTestBase {
 
     @Test
     public void testSkipToPrevious() throws InterruptedException {
-        prepareLooper();
         testOnCommandRequest(COMMAND_CODE_PLAYER_SKIP_TO_PREVIOUS_PLAYLIST_ITEM,
                 new PermissionTestTask() {
                     @Override
@@ -222,7 +217,6 @@ public class MediaSession_PermissionTest extends MediaSessionTestBase {
 
     @Test
     public void testSkipToPlaylistItem() throws InterruptedException {
-        prepareLooper();
         testOnCommandRequest(
                 COMMAND_CODE_PLAYER_SKIP_TO_PLAYLIST_ITEM,
                 new PermissionTestTask() {
@@ -235,7 +229,6 @@ public class MediaSession_PermissionTest extends MediaSessionTestBase {
 
     @Test
     public void testSetPlaylist() throws InterruptedException {
-        prepareLooper();
         final List<String> list = MediaTestUtils.createMediaIds(2);
         testOnCommandRequest(COMMAND_CODE_PLAYER_SET_PLAYLIST, new PermissionTestTask() {
             @Override
@@ -247,7 +240,6 @@ public class MediaSession_PermissionTest extends MediaSessionTestBase {
 
     @Test
     public void testSetMediaItem() throws InterruptedException {
-        prepareLooper();
         final String testMediaId = "testSetMediaItem";
         testOnCommandRequest(COMMAND_CODE_PLAYER_SET_MEDIA_ITEM, new PermissionTestTask() {
             @Override
@@ -259,7 +251,6 @@ public class MediaSession_PermissionTest extends MediaSessionTestBase {
 
     @Test
     public void testUpdatePlaylistMetadata() throws InterruptedException {
-        prepareLooper();
         testOnCommandRequest(COMMAND_CODE_PLAYER_UPDATE_LIST_METADATA,
                 new PermissionTestTask() {
                     @Override
@@ -271,7 +262,6 @@ public class MediaSession_PermissionTest extends MediaSessionTestBase {
 
     @Test
     public void testAddPlaylistItem() throws InterruptedException {
-        prepareLooper();
         final String testMediaId = "testAddPlaylistItem";
         testOnCommandRequest(COMMAND_CODE_PLAYER_ADD_PLAYLIST_ITEM, new PermissionTestTask() {
             @Override
@@ -283,7 +273,6 @@ public class MediaSession_PermissionTest extends MediaSessionTestBase {
 
     @Test
     public void testRemovePlaylistItem() throws InterruptedException {
-        prepareLooper();
         final MediaItem testItem = MediaTestUtils.createMediaItemWithMetadata();
         testOnCommandRequest(COMMAND_CODE_PLAYER_REMOVE_PLAYLIST_ITEM,
                 new PermissionTestTask() {
@@ -296,7 +285,6 @@ public class MediaSession_PermissionTest extends MediaSessionTestBase {
 
     @Test
     public void testReplacePlaylistItem() throws InterruptedException {
-        prepareLooper();
         final String testMediaId = "testReplacePlaylistItem";
         testOnCommandRequest(COMMAND_CODE_PLAYER_REPLACE_PLAYLIST_ITEM,
                 new PermissionTestTask() {
@@ -309,7 +297,6 @@ public class MediaSession_PermissionTest extends MediaSessionTestBase {
 
     @Test
     public void testSetVolume() throws InterruptedException {
-        prepareLooper();
         testOnCommandRequest(COMMAND_CODE_VOLUME_SET_VOLUME, new PermissionTestTask() {
             @Override
             public void run(RemoteMediaController controller) {
@@ -320,7 +307,6 @@ public class MediaSession_PermissionTest extends MediaSessionTestBase {
 
     @Test
     public void testAdjustVolume() throws InterruptedException {
-        prepareLooper();
         testOnCommandRequest(COMMAND_CODE_VOLUME_ADJUST_VOLUME, new PermissionTestTask() {
             @Override
             public void run(RemoteMediaController controller) {
@@ -331,7 +317,6 @@ public class MediaSession_PermissionTest extends MediaSessionTestBase {
 
     @Test
     public void testFastForward() throws InterruptedException {
-        prepareLooper();
         createSessionWithAllowedActions(
                 createCommandGroupWith(COMMAND_CODE_SESSION_FAST_FORWARD));
         createRemoteController(mSession.getToken()).fastForward();
@@ -348,7 +333,6 @@ public class MediaSession_PermissionTest extends MediaSessionTestBase {
 
     @Test
     public void testRewind() throws InterruptedException {
-        prepareLooper();
         createSessionWithAllowedActions(
                 createCommandGroupWith(COMMAND_CODE_SESSION_REWIND));
         createRemoteController(mSession.getToken()).rewind();
@@ -365,7 +349,6 @@ public class MediaSession_PermissionTest extends MediaSessionTestBase {
 
     @Test
     public void testSkipForward() throws InterruptedException {
-        prepareLooper();
         createSessionWithAllowedActions(
                 createCommandGroupWith(COMMAND_CODE_SESSION_SKIP_FORWARD));
         createRemoteController(mSession.getToken()).skipForward();
@@ -382,7 +365,6 @@ public class MediaSession_PermissionTest extends MediaSessionTestBase {
 
     @Test
     public void testSkipBackward() throws InterruptedException {
-        prepareLooper();
         createSessionWithAllowedActions(
                 createCommandGroupWith(COMMAND_CODE_SESSION_SKIP_BACKWARD));
         createRemoteController(mSession.getToken()).skipBackward();
@@ -399,7 +381,6 @@ public class MediaSession_PermissionTest extends MediaSessionTestBase {
 
     @Test
     public void testPlayFromMediaId() throws InterruptedException {
-        prepareLooper();
         final String mediaId = "testPlayFromMediaId";
         createSessionWithAllowedActions(
                 createCommandGroupWith(COMMAND_CODE_SESSION_PLAY_FROM_MEDIA_ID));
@@ -419,7 +400,6 @@ public class MediaSession_PermissionTest extends MediaSessionTestBase {
 
     @Test
     public void testPlayFromUri() throws InterruptedException {
-        prepareLooper();
         final Uri uri = Uri.parse("play://from.uri");
         createSessionWithAllowedActions(
                 createCommandGroupWith(COMMAND_CODE_SESSION_PLAY_FROM_URI));
@@ -439,7 +419,6 @@ public class MediaSession_PermissionTest extends MediaSessionTestBase {
 
     @Test
     public void testPlayFromSearch() throws InterruptedException {
-        prepareLooper();
         final String query = "testPlayFromSearch";
         createSessionWithAllowedActions(
                 createCommandGroupWith(COMMAND_CODE_SESSION_PLAY_FROM_SEARCH));
@@ -459,7 +438,6 @@ public class MediaSession_PermissionTest extends MediaSessionTestBase {
 
     @Test
     public void testPrepareFromMediaId() throws InterruptedException {
-        prepareLooper();
         final String mediaId = "testPrepareFromMediaId";
         createSessionWithAllowedActions(
                 createCommandGroupWith(COMMAND_CODE_SESSION_PREPARE_FROM_MEDIA_ID));
@@ -479,7 +457,6 @@ public class MediaSession_PermissionTest extends MediaSessionTestBase {
 
     @Test
     public void testPrepareFromUri() throws InterruptedException {
-        prepareLooper();
         final Uri uri = Uri.parse("prepare://from.uri");
         createSessionWithAllowedActions(
                 createCommandGroupWith(COMMAND_CODE_SESSION_PREPARE_FROM_URI));
@@ -499,7 +476,6 @@ public class MediaSession_PermissionTest extends MediaSessionTestBase {
 
     @Test
     public void testPrepareFromSearch() throws InterruptedException {
-        prepareLooper();
         final String query = "testPrepareFromSearch";
         createSessionWithAllowedActions(
                 createCommandGroupWith(COMMAND_CODE_SESSION_PREPARE_FROM_SEARCH));
@@ -519,7 +495,6 @@ public class MediaSession_PermissionTest extends MediaSessionTestBase {
 
     @Test
     public void testSetRating() throws InterruptedException {
-        prepareLooper();
         final String mediaId = "testSetRating";
         final Rating rating = new StarRating(5, 3.5f);
         createSessionWithAllowedActions(
@@ -540,7 +515,6 @@ public class MediaSession_PermissionTest extends MediaSessionTestBase {
 
     @Test
     public void testChangingPermissionWithSetAllowedCommands() throws InterruptedException {
-        prepareLooper();
         final String query = "testChangingPermissionWithSetAllowedCommands";
         createSessionWithAllowedActions(
                 createCommandGroupWith(COMMAND_CODE_SESSION_PREPARE_FROM_SEARCH));

@@ -106,7 +106,6 @@ public class SessionPlayerTest extends MediaSessionTestBase {
 
     @Test
     public void testPlayBySession() throws Exception {
-        prepareLooper();
         mSession.getPlayer().play();
         assertTrue(mPlayer.mPlayCalled);
     }
@@ -124,7 +123,6 @@ public class SessionPlayerTest extends MediaSessionTestBase {
 
     @Test
     public void testPauseBySession() throws Exception {
-        prepareLooper();
         mSession.getPlayer().pause();
         assertTrue(mPlayer.mPauseCalled);
     }
@@ -142,7 +140,6 @@ public class SessionPlayerTest extends MediaSessionTestBase {
 
     @Test
     public void testPrepareBySession() throws Exception {
-        prepareLooper();
         mSession.getPlayer().prepare();
         assertTrue(mPlayer.mPrepareCalled);
     }
@@ -160,7 +157,6 @@ public class SessionPlayerTest extends MediaSessionTestBase {
 
     @Test
     public void testSeekToBySession() throws Exception {
-        prepareLooper();
         final long pos = 1004L;
         mSession.getPlayer().seekTo(pos);
         assertTrue(mPlayer.mSeekToCalled);
@@ -182,7 +178,6 @@ public class SessionPlayerTest extends MediaSessionTestBase {
 
     @Test
     public void testSetPlaybackSpeedBySession() throws Exception {
-        prepareLooper();
         final float speed = 1.5f;
         mSession.getPlayer().setPlaybackSpeed(speed);
         assertTrue(mPlayer.mSetPlaybackSpeedCalled);
@@ -199,7 +194,6 @@ public class SessionPlayerTest extends MediaSessionTestBase {
 
     @Test
     public void testSetPlaylistBySession() {
-        prepareLooper();
         final List<MediaItem> list = MediaTestUtils.createPlaylist(2);
         mSession.getPlayer().setPlaylist(list, null);
         assertTrue(mPlayer.mSetPlaylistCalled);
@@ -244,7 +238,6 @@ public class SessionPlayerTest extends MediaSessionTestBase {
 
     @Test
     public void testUpdatePlaylistMetadataBySession() {
-        prepareLooper();
         final MediaMetadata testMetadata = MediaTestUtils.createMetadata();
         mSession.getPlayer().updatePlaylistMetadata(testMetadata);
         assertTrue(mPlayer.mUpdatePlaylistMetadataCalled);
@@ -264,7 +257,6 @@ public class SessionPlayerTest extends MediaSessionTestBase {
 
     @Test
     public void testAddPlaylistItemBySession() {
-        prepareLooper();
         final int testIndex = 12;
         final MediaItem testMediaItem = MediaTestUtils.createMediaItemWithMetadata();
         mSession.getPlayer().addPlaylistItem(testIndex, testMediaItem);
@@ -289,7 +281,6 @@ public class SessionPlayerTest extends MediaSessionTestBase {
 
     @Test
     public void testRemovePlaylistItemBySession() {
-        prepareLooper();
         final List<MediaItem> list = MediaTestUtils.createPlaylist(2);
         mSession.getPlayer().setPlaylist(list, null);
         mSession.getPlayer().removePlaylistItem(0);
@@ -310,7 +301,6 @@ public class SessionPlayerTest extends MediaSessionTestBase {
 
     @Test
     public void testReplacePlaylistItemBySession() throws InterruptedException {
-        prepareLooper();
         final int testIndex = 12;
         final MediaItem testMediaItem = MediaTestUtils.createMediaItemWithMetadata();
         mSession.getPlayer().replacePlaylistItem(testIndex, testMediaItem);
@@ -334,7 +324,6 @@ public class SessionPlayerTest extends MediaSessionTestBase {
 
     @Test
     public void testMovePlaylistItemsBySession() throws InterruptedException {
-        prepareLooper();
         final int fromIdx = 3;
         final int toIdx = 20;
         final MediaItem testMediaItem = MediaTestUtils.createMediaItemWithMetadata();
@@ -363,7 +352,6 @@ public class SessionPlayerTest extends MediaSessionTestBase {
 
     @Test
     public void testSkipToPreviousItemBySession() {
-        prepareLooper();
         mSession.getPlayer().skipToPreviousPlaylistItem();
         assertTrue(mPlayer.mSkipToPreviousItemCalled);
     }
@@ -377,7 +365,6 @@ public class SessionPlayerTest extends MediaSessionTestBase {
 
     @Test
     public void testSkipToNextItemBySession() throws Exception {
-        prepareLooper();
         mSession.getPlayer().skipToNextPlaylistItem();
         assertTrue(mPlayer.mSkipToNextItemCalled);
     }
@@ -391,7 +378,6 @@ public class SessionPlayerTest extends MediaSessionTestBase {
 
     @Test
     public void testSkipToPlaylistItemBySession() throws Exception {
-        prepareLooper();
         final List<MediaItem> list = MediaTestUtils.createPlaylist(2);
         int targetIndex = 0;
         mSession.getPlayer().setPlaylist(list, null);
@@ -414,7 +400,6 @@ public class SessionPlayerTest extends MediaSessionTestBase {
 
     @Test
     public void testSetShuffleModeBySession() {
-        prepareLooper();
         final int testShuffleMode = SessionPlayer.SHUFFLE_MODE_GROUP;
         mSession.getPlayer().setShuffleMode(testShuffleMode);
         assertTrue(mPlayer.mSetShuffleModeCalled);
@@ -433,7 +418,6 @@ public class SessionPlayerTest extends MediaSessionTestBase {
 
     @Test
     public void testSetRepeatModeBySession() {
-        prepareLooper();
         final int testRepeatMode = SessionPlayer.REPEAT_MODE_GROUP;
         mSession.getPlayer().setRepeatMode(testRepeatMode);
         assertTrue(mPlayer.mSetRepeatModeCalled);

@@ -99,8 +99,6 @@ public class MediaController_SurfaceTest extends MediaSessionTestBase {
 
     @Test
     public void testSetSurface() throws Exception {
-        prepareLooper();
-
         // Set
         final Surface testSurface = mActivity.getSurfaceHolder().getSurface();
         SessionResult result = mController.setSurface(testSurface)

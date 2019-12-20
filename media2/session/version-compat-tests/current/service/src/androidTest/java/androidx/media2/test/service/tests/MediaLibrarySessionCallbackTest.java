@@ -71,7 +71,6 @@ public class MediaLibrarySessionCallbackTest extends MediaSessionTestBase {
 
     @Test
     public void testOnSubscribe() throws InterruptedException {
-        prepareLooper();
         final String testParentId = "testSubscribeId";
         final LibraryParams testParams = MediaTestUtils.createLibraryParams();
 
@@ -104,7 +103,6 @@ public class MediaLibrarySessionCallbackTest extends MediaSessionTestBase {
 
     @Test
     public void testOnUnsubscribe() throws InterruptedException {
-        prepareLooper();
         final String testParentId = "testUnsubscribeId";
 
         final CountDownLatch latch = new CountDownLatch(1);
