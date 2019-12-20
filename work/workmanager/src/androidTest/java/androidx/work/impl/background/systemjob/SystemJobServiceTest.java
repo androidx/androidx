@@ -132,6 +132,7 @@ public class SystemJobServiceTest extends WorkManagerTest {
         }
 
         mSystemJobServiceSpy.onDestroy();
+        mDatabase.close();
         WorkManagerImpl.setDelegate(null);
         ArchTaskExecutor.getInstance().setDelegate(null);
     }

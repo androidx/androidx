@@ -45,6 +45,8 @@ import org.junit.runner.RunWith;
 import org.mockito.ArgumentMatchers;
 
 import java.util.Collections;
+import java.util.HashSet;
+import java.util.Set;
 import java.util.concurrent.TimeUnit;
 
 
@@ -58,6 +60,7 @@ public class GreedySchedulerTest extends WorkManagerTest {
     private Processor mMockProcessor;
     private WorkConstraintsTracker mMockWorkConstraintsTracker;
     private GreedyScheduler mGreedyScheduler;
+    private DelayedWorkTracker mDelayedWorkTracker;
 
     @Before
     public void setUp() {
@@ -72,6 +75,8 @@ public class GreedySchedulerTest extends WorkManagerTest {
                 mContext,
                 mWorkManagerImpl,
                 mMockWorkConstraintsTracker);
+        mDelayedWorkTracker = mock(DelayedWorkTracker.class);
+        mGreedyScheduler.setDelayedWorkTracker(mDelayedWorkTracker);
     }
 
     @Test
@@ -85,32 +90,36 @@ public class GreedySchedulerTest extends WorkManagerTest {
 
     @Test
     @SmallTest
-    public void testGreedyScheduler_ignoresPeriodicWork() {
+    public void testGreedyScheduler_startsPeriodicWorkRequests() {
         PeriodicWorkRequest periodicWork =
                 new PeriodicWorkRequest.Builder(TestWorker.class, 0L, TimeUnit.MILLISECONDS)
                         .build();
         mGreedyScheduler.schedule(getWorkSpec(periodicWork));
-        verify(mMockWorkConstraintsTracker, never()).replace(ArgumentMatchers.<WorkSpec>anyList());
+        // PeriodicWorkRequests are special because their periodStartTime is set to 0.
+        // So the first invocation will always result in startWork(). Subsequent runs will
+        // use `delayedStartWork()`.
+        verify(mWorkManagerImpl).startWork(periodicWork.getStringId());
     }
 
     @Test
     @SmallTest
-    public void testGreedyScheduler_ignoresInitialDelayWork() {
+    public void testGreedyScheduler_startsDelayedWork() {
         OneTimeWorkRequest work = new OneTimeWorkRequest.Builder(TestWorker.class)
                 .setInitialDelay(1000L, TimeUnit.MILLISECONDS)
                 .build();
         mGreedyScheduler.schedule(getWorkSpec(work));
-        verify(mMockWorkConstraintsTracker, never()).replace(ArgumentMatchers.<WorkSpec>anyList());
+        verify(mDelayedWorkTracker).schedule(work.getWorkSpec());
     }
 
     @Test
     @SmallTest
-    public void testGreedyScheduler_ignoresBackedOffWork() {
+    public void testGreedyScheduler_startsBackedOffWork() {
         OneTimeWorkRequest work = new OneTimeWorkRequest.Builder(TestWorker.class)
+                .setPeriodStartTime(System.currentTimeMillis(), TimeUnit.MILLISECONDS)
                 .setInitialRunAttemptCount(5)
                 .build();
         mGreedyScheduler.schedule(getWorkSpec(work));
-        verify(mMockWorkConstraintsTracker, never()).replace(ArgumentMatchers.<WorkSpec>anyList());
+        verify(mDelayedWorkTracker).schedule(work.getWorkSpec());
     }
 
     @Test
@@ -144,16 +153,19 @@ public class GreedySchedulerTest extends WorkManagerTest {
     @Test
     @SmallTest
     public void testGreedyScheduler_constraintsAreAddedAndRemovedForTracking() {
-        OneTimeWorkRequest work = new OneTimeWorkRequest.Builder(TestWorker.class)
+        final OneTimeWorkRequest work = new OneTimeWorkRequest.Builder(TestWorker.class)
                 .setConstraints(new Constraints.Builder().setRequiresCharging(true).build())
                 .build();
-        WorkSpec workSpec = getWorkSpec(work);
+        final WorkSpec workSpec = getWorkSpec(work);
+        Set<WorkSpec> expected = new HashSet<WorkSpec>();
+        expected.add(workSpec);
+
         mGreedyScheduler.schedule(workSpec);
-        verify(mMockWorkConstraintsTracker).replace(Collections.singletonList(workSpec));
+        verify(mMockWorkConstraintsTracker).replace(expected);
         reset(mMockWorkConstraintsTracker);
 
         mGreedyScheduler.onExecuted(workSpec.id, false);
-        verify(mMockWorkConstraintsTracker).replace(Collections.<WorkSpec>emptyList());
+        verify(mMockWorkConstraintsTracker).replace(Collections.<WorkSpec>emptySet());
     }
 
     @Test

@@ -19,6 +19,8 @@ package androidx.work.impl.model;
 import static androidx.room.OnConflictStrategy.IGNORE;
 import static androidx.work.impl.model.WorkTypeConverters.StateIds.COMPLETED_STATES;
 
+import android.annotation.SuppressLint;
+
 import androidx.annotation.NonNull;
 import androidx.lifecycle.LiveData;
 import androidx.room.Dao;
@@ -34,8 +36,8 @@ import java.util.List;
  * The Data Access Object for {@link WorkSpec}s.
  */
 @Dao
+@SuppressLint("UnknownNullness")
 public interface WorkSpecDao {
-
     /**
      * Attempts to insert a {@link WorkSpec} into the database.
      *
@@ -290,6 +292,17 @@ public interface WorkSpecDao {
                 + ")"
     )
     List<WorkSpec> getEligibleWorkForScheduling(int schedulerLimit);
+
+    /**
+     * @return The List of {@link WorkSpec}s that can be scheduled irrespective of scheduling
+     * limits.
+     */
+    @Query("SELECT * FROM workspec WHERE "
+            + "state=" + WorkTypeConverters.StateIds.ENQUEUED
+            // Order by period start time so we execute scheduled WorkSpecs in FIFO order
+            + " ORDER BY period_start_time"
+    )
+    List<WorkSpec> getAllEligibleWorkSpecsForScheduling();
 
     /**
      * @return The List of {@link WorkSpec}s that are unfinished and scheduled.

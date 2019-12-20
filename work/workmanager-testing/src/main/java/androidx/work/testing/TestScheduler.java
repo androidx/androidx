@@ -57,6 +57,11 @@ class TestScheduler implements Scheduler, ExecutionListener {
     }
 
     @Override
+    public boolean hasLimitedSchedulingSlots() {
+        return true;
+    }
+
+    @Override
     public void schedule(@NonNull WorkSpec... workSpecs) {
         if (workSpecs == null || workSpecs.length <= 0) {
             return;

@@ -218,6 +218,11 @@ public class SystemJobScheduler implements Scheduler {
         }
     }
 
+    @Override
+    public boolean hasLimitedSchedulingSlots() {
+        return true;
+    }
+
     private static void cancelJobById(@NonNull JobScheduler jobScheduler, int id) {
         try {
             jobScheduler.cancel(id);
