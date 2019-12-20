@@ -518,7 +518,7 @@ public abstract class Animator implements Cloneable {
      * Notifications indicate animation related events, such as the end or the
      * repetition of the animation.</p>
      */
-    public abstract static class AnimatorListener {
+    public interface AnimatorListener {
 
         /**
          * <p>Notifies the start of the animation as well as the animation's overall play direction.
@@ -530,7 +530,7 @@ public abstract class Animator implements Cloneable {
          * @param animation The started animation.
          * @param isReverse Whether the animation is playing in reverse.
          */
-        public void onAnimationStart(@NonNull Animator animation, boolean isReverse) {
+        default void onAnimationStart(@NonNull Animator animation, boolean isReverse) {
             onAnimationStart(animation);
         }
 
@@ -546,7 +546,7 @@ public abstract class Animator implements Cloneable {
          * @param animation The animation which reached its end.
          * @param isReverse Whether the animation is playing in reverse.
          */
-        public void onAnimationEnd(@NonNull Animator animation, boolean isReverse) {
+        default void onAnimationEnd(@NonNull Animator animation, boolean isReverse) {
             onAnimationEnd(animation);
         }
 
@@ -555,8 +555,7 @@ public abstract class Animator implements Cloneable {
          *
          * @param animation The started animation.
          */
-        // TODO: Consider removing this
-        public abstract void onAnimationStart(@NonNull Animator animation);
+        void onAnimationStart(@NonNull Animator animation);
 
         /**
          * <p>Notifies the end of the animation. This callback is not invoked
@@ -564,8 +563,7 @@ public abstract class Animator implements Cloneable {
          *
          * @param animation The animation which reached its end.
          */
-        // TODO: Consider removing this
-        public abstract void onAnimationEnd(@NonNull Animator animation);
+        void onAnimationEnd(@NonNull Animator animation);
 
         /**
          * <p>Notifies the cancellation of the animation. This callback is not invoked
@@ -573,14 +571,14 @@ public abstract class Animator implements Cloneable {
          *
          * @param animation The animation which was canceled.
          */
-        public abstract void onAnimationCancel(@NonNull Animator animation);
+        void onAnimationCancel(@NonNull Animator animation);
 
         /**
          * <p>Notifies the repetition of the animation.</p>
          *
          * @param animation The animation which was repeated
          */
-        public abstract void onAnimationRepeat(@NonNull Animator animation);
+        void onAnimationRepeat(@NonNull Animator animation);
     }
 
     /**
