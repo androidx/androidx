@@ -35,7 +35,7 @@ plugins {
 
 dependencies {
     api(KOTLIN_STDLIB)
-    implementation(project(":viewpager2"))
+    implementation(project(":viewpager2:viewpager2"))
     implementation("androidx.activity:activity-ktx:1.0.0")
     implementation("com.google.android.material:material:1.1.0-alpha08") {
         exclude group: 'androidx.viewpager2', module: 'viewpager2'
