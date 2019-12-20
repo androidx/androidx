@@ -192,6 +192,9 @@ public abstract class WorkManager {
      * {@code NullPointerException} in {@link #getInstance(Context)}.
      * </ul></p>
      * <p>
+     * This method throws an {@link IllegalStateException} when attempting to initialize in
+     * direct boot mode.
+     * <p>
      * This method throws an exception if it is called multiple times.
      *
      * @param context A {@link Context} object for configuration purposes. Internally, this class
