@@ -14,19 +14,21 @@
  * limitations under the License.
  */
 
-package androidx.ui.test
+package androidx.ui.test.util
 
 import androidx.ui.core.IntPxSize
 import androidx.ui.core.PointerEventPass
 import androidx.ui.core.PointerInputChange
 import androidx.ui.core.PointerInputData
-import com.google.common.truth.Truth
+import com.google.common.truth.Truth.assertThat
 
 class PointerInputRecorder {
 
     data class DataPoint(val id: Int, val data: PointerInputData) {
-        val timestamp get() = data.uptime
+        val timestamp get() = data.uptime!!
         val position get() = data.position
+        val x get() = data.position!!.x
+        val y get() = data.position!!.y
         val down get() = data.down
     }
 
@@ -45,11 +47,18 @@ class PointerInputRecorder {
         }
         return changes
     }
+}
 
-    fun assertTimestampsAreIncreasing() {
-        events.reduce { prev, curr ->
-            Truth.assertThat(curr.timestamp).isAtLeast(prev.timestamp)
-            curr
-        }
+fun PointerInputRecorder.assertTimestampsAreIncreasing() {
+    check(events.isNotEmpty()) { "No events recorded" }
+    events.reduce { prev, curr ->
+        assertThat(curr.timestamp).isAtLeast(prev.timestamp)
+        curr
     }
+}
+
+fun PointerInputRecorder.assertOnlyLastEventIsUp() {
+    check(events.isNotEmpty()) { "No events recorded" }
+    assertThat(events.last().down).isFalse()
+    assertThat(events.count { !it.down }).isEqualTo(1)
 }
