@@ -23,7 +23,7 @@ plugins {
 
 dependencies {
     api(project(":annotation:annotation"))
-    api(project(":versionedparcelable"))
+    api(project(":versionedparcelable:versionedparcelable"))
     implementation(JUNIT)
 }
 

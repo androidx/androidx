@@ -30,7 +30,7 @@ dependencies {
     androidTestImplementation project(':internal-testutils-runtime'), {
         exclude group: 'androidx.core', module: 'core'
     }
-    annotationProcessor(project(":versionedparcelable-annotation"))
+    annotationProcessor(project(":versionedparcelable:versionedparcelable-annotation"))
 
 
     testImplementation(ANDROIDX_TEST_CORE)
