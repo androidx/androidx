@@ -57,10 +57,10 @@ class SendSwipeTest {
 
     @Composable
     fun Ui(alignment: Alignment) {
-        PointerInputWrapper(pointerInputHandler = recorder::onPointerInput) {
-            Align(alignment = alignment) {
-                TestTag(tag) {
-                    Semantics {
+        Align(alignment = alignment) {
+            TestTag(tag) {
+                Semantics {
+                    PointerInputWrapper(pointerInputHandler = recorder::onPointerInput) {
                         Container(width = 100.dp, height = 100.dp) {
                             DrawShape(RectangleShape, Color.Yellow)
                         }
