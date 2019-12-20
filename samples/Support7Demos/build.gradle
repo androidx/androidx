@@ -11,7 +11,7 @@ dependencies {
     implementation(project(":appcompat:appcompat"))
     implementation(project(":cardview:cardview"))
     implementation(project(":core:core"))
-    implementation(project(":gridlayout"))
+    implementation(project(":gridlayout:gridlayout"))
     implementation(project(":mediarouter"))
     implementation(project(":palette:palette"))
     implementation(project(":recyclerview:recyclerview"))
