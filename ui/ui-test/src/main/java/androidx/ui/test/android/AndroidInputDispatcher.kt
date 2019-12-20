@@ -20,65 +20,139 @@ import android.os.Handler
 import android.os.Looper
 import android.os.SystemClock
 import android.view.MotionEvent
+import android.view.MotionEvent.ACTION_DOWN
+import android.view.MotionEvent.ACTION_MOVE
+import android.view.MotionEvent.ACTION_UP
 import androidx.ui.core.Duration
-import androidx.ui.core.SemanticsTreeProvider
 import androidx.ui.core.inMilliseconds
 import androidx.ui.core.milliseconds
 import androidx.ui.lerp
 import androidx.ui.test.InputDispatcher
+import org.junit.runner.Description
+import org.junit.runners.model.Statement
 import java.util.concurrent.CountDownLatch
-import kotlin.math.min
+import java.util.concurrent.TimeUnit
+import kotlin.math.max
 import kotlin.math.roundToInt
 
 internal class AndroidInputDispatcher(
     private val treeProviders: CollectedProviders
 ) : InputDispatcher {
-    /**
-     * The minimum time between two successive injected MotionEvents. Ideally, the value should
-     * reflect a realistic pointer input sample rate, but that depends on too many factors. Instead,
-     * the value is chosen comfortably below the targeted frame rate (60 fps, equating to a 16ms
-     * period).
-     */
-    private val eventPeriod = 10.milliseconds.inMilliseconds()
+    companion object {
+        /**
+         * Whether or not events with an eventTime in the future should be dispatched at that
+         * exact eventTime. If `true`, will sleep until the eventTime, if `false`, will send the
+         * event immediately without blocking.
+         */
+        private var dispatchInRealTime: Boolean = true
+
+        /**
+         * The minimum time between two successive injected MotionEvents, 10 milliseconds.
+         * Ideally, the value should reflect a realistic pointer input sample rate, but that
+         * depends on too many factors. Instead, the value is chosen comfortably below the
+         * targeted frame rate (60 fps, equating to a 16ms period).
+         */
+        private var eventPeriod = 10.milliseconds.inMilliseconds()
+    }
 
     private val handler = Handler(Looper.getMainLooper())
 
     override fun sendClick(x: Float, y: Float) {
         val downTime = SystemClock.uptimeMillis()
-        treeProviders.sendMotionEvent(downTime, downTime, MotionEvent.ACTION_DOWN, x, y)
-        treeProviders.sendMotionEvent(downTime, downTime + eventPeriod, MotionEvent.ACTION_UP, x, y)
+        treeProviders.sendMotionEvent(downTime, downTime, ACTION_DOWN, x, y)
+        treeProviders.sendMotionEvent(downTime, downTime + eventPeriod, ACTION_UP, x, y)
     }
 
-    override fun sendSwipe(x0: Float, y0: Float, x1: Float, y1: Float, duration: Duration) {
-        var step = 0
-        val steps = min(1, (duration.inMilliseconds() / eventPeriod.toFloat()).roundToInt())
+    override fun sendSwipe(
+        fx: (Long) -> Float,
+        fy: (Long) -> Float,
+        duration: Duration,
+        keyTimes: List<Long>
+    ) {
+        val startTime = 0L
+        val endTime = duration.inMilliseconds()
+
+        // Validate input
+        require(duration >= 1.milliseconds) {
+            "duration must be at least 1 millisecond, not $duration"
+        }
+        val validRange = startTime..endTime
+        require(keyTimes.all { it in validRange }) {
+            "keyTimes contains timestamps out of range [$startTime..$endTime]: $keyTimes"
+        }
+        require(keyTimes.asSequence().zipWithNext { a, b -> a <= b }.all { it }) {
+            "keyTimes must be sorted: $keyTimes"
+        }
+
+        // Determine time window for the events
         val downTime = SystemClock.uptimeMillis()
         val upTime = downTime + duration.inMilliseconds()
 
-        treeProviders.sendMotionEvent(downTime, downTime, MotionEvent.ACTION_DOWN, x0, y0)
-        while (step++ < steps) {
-            val progress = step / steps.toFloat()
-            val t = lerp(downTime, upTime, progress)
-            val x = lerp(x0, x1, progress)
-            val y = lerp(y0, y1, progress)
-            treeProviders.sendMotionEvent(downTime, t, MotionEvent.ACTION_MOVE, x, y)
+        // Send down event
+        treeProviders.sendMotionEvent(downTime, downTime, ACTION_DOWN, fx(startTime), fy(startTime))
+
+        // Send move events between each consecutive pair in [t0, ..keyTimes, tN]
+        var currTime = startTime
+        var key = 0
+        while (currTime < endTime) {
+            // advance key
+            while (key < keyTimes.size && keyTimes[key] <= currTime) {
+                key++
+            }
+            // send events between t and next keyTime
+            val tNext = if (key < keyTimes.size) keyTimes[key] else endTime
+            sendPartialSwipe(downTime, fx, fy, currTime, tNext)
+            currTime = tNext
         }
-        treeProviders.sendMotionEvent(downTime, upTime, MotionEvent.ACTION_UP, x1, y1)
+
+        // And end with up event
+        treeProviders.sendMotionEvent(downTime, upTime, ACTION_UP, fx(endTime), fy(endTime))
     }
 
     /**
-     * Sends an event with the given parameters. Method blocks depending on [waitUntilEventTime].
-     * @param waitUntilEventTime If `true`, blocks until [eventTime]
+     * Sends move events between `(fx([t0]), fy(t0))` and `(fx([tN]), fy(tN))` during the time
+     * window `(downTime + t0, downTime + tN]`, using [fx] and [fy] to sample the x and y
+     * coordinate of each event. The number of events sent (#numEvents) is such that the time
+     * between each event is as close to [eventPeriod] as possible, but at least 1. The first
+     * event is sent at time `downTime + (tN - t0) / #numEvents`, the last event is sent at time
+     * tN.
+     *
+     * @param downTime The event time of the down event that started this gesture
+     * @param fx The function that defines the x coordinate of the gesture over time
+     * @param fy The function that defines the y coordinate of the gesture over time
+     * @param t0 The start time of this segment of the swipe, in milliseconds relative to downTime
+     * @param tN The end time of this segment of the swipe, in milliseconds relative to downTime
+     */
+    private fun sendPartialSwipe(
+        downTime: Long,
+        fx: (Long) -> Float,
+        fy: (Long) -> Float,
+        t0: Long,
+        tN: Long
+    ) {
+        var step = 0
+        // How many steps will we take between t0 and tN? At least 1, and a number that will
+        // bring as as close to eventPeriod as possible
+        val steps = max(1, ((tN - t0) / eventPeriod.toFloat()).roundToInt())
+
+        while (step++ < steps) {
+            val progress = step / steps.toFloat()
+            val t = lerp(t0, tN, progress)
+            treeProviders.sendMotionEvent(downTime, downTime + t, ACTION_MOVE, fx(t), fy(t))
+        }
+    }
+
+    /**
+     * Sends an event with the given parameters. Method blocks if [dispatchInRealTime] is `true`.
      */
     private fun CollectedProviders.sendMotionEvent(
         downTime: Long,
         eventTime: Long,
         action: Int,
         x: Float,
-        y: Float,
-        waitUntilEventTime: Boolean = true
+        y: Float
     ) {
-        if (waitUntilEventTime) {
+        if (dispatchInRealTime) {
             val currTime = SystemClock.uptimeMillis()
             if (currTime < eventTime) {
                 SystemClock.sleep(eventTime - currTime)
@@ -88,7 +162,7 @@ internal class AndroidInputDispatcher(
     }
 
     /**
-     * Sends the [event] to the [SemanticsTreeProvider] and [recycles][MotionEvent.recycle] it
+     * Sends the [event] to the [CollectedProviders] and [recycles][MotionEvent.recycle] it
      * regardless of the result. This method blocks until the event is sent.
      */
     private fun CollectedProviders.sendAndRecycleEvent(event: MotionEvent) {
@@ -101,6 +175,52 @@ internal class AndroidInputDispatcher(
                 latch.countDown()
             }
         }
-        latch.await()
+        check(latch.await(5, TimeUnit.SECONDS)) {
+            "Event $event was not dispatched in 5 seconds"
+        }
+    }
+
+    /**
+     * A test rule that modifies [AndroidInputDispatcher]s behavior. Can be used to disable
+     * dispatching of MotionEvents in real time (skips the sleep before injection of an event) or
+     * to change the time between consecutive injected events.
+     *
+     * @param disableDispatchInRealTime If set, controls whether or not events with an eventTime
+     * in the future will be dispatched as soon as possible or at that exact eventTime. If
+     * `false` or not set, will sleep until the eventTime, if `true`, will send the event
+     * immediately without blocking. See also [dispatchInRealTime].
+     * @param eventPeriodOverride If set, specifies a different period in milliseconds between
+     * two consecutive injected motion events of the same gesture. If not set, the event period
+     * of 10 milliseconds is unchanged. See also [eventPeriod].
+     */
+    internal class TestRule(
+        private val disableDispatchInRealTime: Boolean = false,
+        private val eventPeriodOverride: Long? = null
+    ) : org.junit.rules.TestRule {
+
+        override fun apply(base: Statement, description: Description?): Statement {
+            return ModifyingStatement(base)
+        }
+
+        inner class ModifyingStatement(private val base: Statement) : Statement() {
+            override fun evaluate() {
+                if (disableDispatchInRealTime) {
+                    dispatchInRealTime = false
+                }
+                if (eventPeriodOverride != null) {
+                    eventPeriod = eventPeriodOverride
+                }
+                try {
+                    base.evaluate()
+                } finally {
+                    if (disableDispatchInRealTime) {
+                        dispatchInRealTime = true
+                    }
+                    if (eventPeriodOverride != null) {
+                        eventPeriod = 10L
+                    }
+                }
+            }
+        }
     }
 }

@@ -28,6 +28,9 @@ import androidx.ui.graphics.Color
 import androidx.ui.layout.Align
 import androidx.ui.layout.Container
 import androidx.ui.semantics.Semantics
+import androidx.ui.test.util.PointerInputRecorder
+import androidx.ui.test.util.assertOnlyLastEventIsUp
+import androidx.ui.test.util.assertTimestampsAreIncreasing
 import com.google.common.collect.Ordering
 import com.google.common.truth.Truth.assertThat
 import org.junit.Before
@@ -71,10 +74,12 @@ class SendSwipeTest {
     fun swipeUp() {
         composeTestRule.setContent { Ui(Alignment.TopLeft) }
         findByTag(tag).doGesture { sendSwipeUp() }
-        recorder.run {
-            assertTimestampsAreIncreasing()
-            assertOnlyLastEventIsUp()
-            assertSwipeIsUp()
+        composeTestRule.runOnUiThread {
+            recorder.run {
+                assertTimestampsAreIncreasing()
+                assertOnlyLastEventIsUp()
+                assertSwipeIsUp()
+            }
         }
     }
 
@@ -82,10 +87,12 @@ class SendSwipeTest {
     fun swipeDown() {
         composeTestRule.setContent { Ui(Alignment.TopRight) }
         findByTag(tag).doGesture { sendSwipeDown() }
-        recorder.run {
-            assertTimestampsAreIncreasing()
-            assertOnlyLastEventIsUp()
-            assertSwipeIsDown()
+        composeTestRule.runOnUiThread {
+            recorder.run {
+                assertTimestampsAreIncreasing()
+                assertOnlyLastEventIsUp()
+                assertSwipeIsDown()
+            }
         }
     }
 
@@ -93,10 +100,12 @@ class SendSwipeTest {
     fun swipeLeft() {
         composeTestRule.setContent { Ui(Alignment.BottomRight) }
         findByTag(tag).doGesture { sendSwipeLeft() }
-        recorder.run {
-            assertTimestampsAreIncreasing()
-            assertOnlyLastEventIsUp()
-            assertSwipeIsLeft()
+        composeTestRule.runOnUiThread {
+            recorder.run {
+                assertTimestampsAreIncreasing()
+                assertOnlyLastEventIsUp()
+                assertSwipeIsLeft()
+            }
         }
     }
 
@@ -104,17 +113,14 @@ class SendSwipeTest {
     fun swipeRight() {
         composeTestRule.setContent { Ui(Alignment.BottomLeft) }
         findByTag(tag).doGesture { sendSwipeRight() }
-        recorder.run {
-            assertTimestampsAreIncreasing()
-            assertOnlyLastEventIsUp()
-            assertSwipeIsRight()
+        composeTestRule.runOnUiThread {
+            recorder.run {
+                assertTimestampsAreIncreasing()
+                assertOnlyLastEventIsUp()
+                assertSwipeIsRight()
+            }
         }
     }
-}
-
-private fun PointerInputRecorder.assertOnlyLastEventIsUp() {
-    assertThat(events.last().down).isFalse()
-    assertThat(events.filter { !it.down }.size).isEqualTo(1)
 }
 
 private fun PointerInputRecorder.assertSwipeIsUp() {
