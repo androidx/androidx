@@ -34,7 +34,7 @@ class UseJavaExperimentalFromKt {
         return dateProvider.date
     }
 
-    @UseExperimental(markerClass = ExperimentalDateTime::class)
+    @UseExperimental(ExperimentalDateTime::class)
     fun getDateUseExperimental(): Int {
         val dateProvider = DateProvider()
         return dateProvider.date
@@ -42,5 +42,40 @@ class UseJavaExperimentalFromKt {
 
     fun displayDate() {
         println("" + getDateUnsafe())
+    }
+
+    // Tests involving multiple experimental markers.
+
+    /**
+     * Unsafe call into an experimental class.
+     */
+    @ExperimentalDateTime
+    fun getDateExperimentalLocationUnsafe(): Int {
+        val dateProvider = DateProvider()
+        val locationProvider = LocationProvider()
+        return dateProvider.date + locationProvider.location
+    }
+
+    @ExperimentalDateTime
+    @ExperimentalLocation
+    fun getDateAndLocationExperimental(): Int {
+        val dateProvider = DateProvider()
+        val locationProvider = LocationProvider()
+        return dateProvider.date + locationProvider.location
+    }
+
+    @UseExperimental(ExperimentalDateTime::class)
+    @ExperimentalLocation
+    fun getDateUseExperimentalLocationExperimental(): Int {
+        val dateProvider = DateProvider()
+        val locationProvider = LocationProvider()
+        return dateProvider.date + locationProvider.location
+    }
+
+    @UseExperimental(ExperimentalDateTime::class, ExperimentalLocation::class)
+    fun getDateAndLocationUseExperimental(): Int {
+        val dateProvider = DateProvider()
+        val locationProvider = LocationProvider()
+        return dateProvider.date + locationProvider.location
     }
 }

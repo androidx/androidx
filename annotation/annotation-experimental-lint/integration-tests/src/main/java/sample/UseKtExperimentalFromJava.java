@@ -18,7 +18,7 @@ package sample;
 
 import kotlin.UseExperimental;
 
-@SuppressWarnings("unused")
+@SuppressWarnings({"unused", "WeakerAccess"})
 class UseKtExperimentalFromJava {
     /**
      * Unsafe call into an experimental class.
@@ -42,5 +42,40 @@ class UseKtExperimentalFromJava {
 
     void displayDate() {
         System.out.println("" + getDateUnsafe());
+    }
+
+    // Tests involving multiple experimental markers.
+
+    /**
+     * Unsafe call into an experimental class.
+     */
+    @ExperimentalDateTimeKt
+    int getDateExperimentalLocationUnsafe() {
+        DateProviderKt dateProvider = new DateProviderKt();
+        LocationProviderKt locationProvider = new LocationProviderKt();
+        return dateProvider.getDate() + locationProvider.getLocation();
+    }
+
+    @ExperimentalDateTimeKt
+    @ExperimentalLocationKt
+    int getDateAndLocationExperimental() {
+        DateProviderKt dateProvider = new DateProviderKt();
+        LocationProviderKt locationProvider = new LocationProviderKt();
+        return dateProvider.getDate() + locationProvider.getLocation();
+    }
+
+    @UseExperimental(markerClass = ExperimentalDateTimeKt.class)
+    @ExperimentalLocationKt
+    int getDateUseExperimentalLocationExperimental() {
+        DateProviderKt dateProvider = new DateProviderKt();
+        LocationProviderKt locationProvider = new LocationProviderKt();
+        return dateProvider.getDate() + locationProvider.getLocation();
+    }
+
+    @UseExperimental(markerClass = { ExperimentalDateTimeKt.class, ExperimentalLocationKt.class })
+    int getDateAndLocationUseExperimental() {
+        DateProviderKt dateProvider = new DateProviderKt();
+        LocationProviderKt locationProvider = new LocationProviderKt();
+        return dateProvider.getDate() + locationProvider.getLocation();
     }
 }
