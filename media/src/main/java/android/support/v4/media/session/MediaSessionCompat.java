@@ -566,7 +566,9 @@ public class MediaSessionCompat {
                 mImpl = new MediaSessionImplApi21(sessionFwk, session2Token, sessionInfo);
             }
             // Set default callback to respond to controllers' extra binder requests.
-            setCallback(new Callback() {});
+            Handler handler = new Handler(Looper.myLooper() != null
+                    ? Looper.myLooper() : Looper.getMainLooper());
+            setCallback(new Callback() {}, handler);
             mImpl.setMediaButtonReceiver(mbrIntent);
         } else if (android.os.Build.VERSION.SDK_INT >= 19) {
             mImpl = new MediaSessionImplApi19(context, tag, mbrComponent, mbrIntent, sessionInfo);
