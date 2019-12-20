@@ -263,7 +263,7 @@ includeProject(":vectordrawable:vectordrawable-animated", "vectordrawable/vector
 includeProject(":viewpager", "viewpager")
 includeProject(":viewpager2", "viewpager2")
 includeProject(":viewpager2:integration-tests:testapp", "viewpager2/integration-tests/testapp")
-includeProject(":wear", "wear")
+includeProject(":wear:wear", "wear/wear")
 includeProject(":webkit", "webkit")
 includeProject(":webkit:integration-tests:testapp", "webkit/integration-tests/testapp")
 includeProject(":work:work-runtime", "work/workmanager")
