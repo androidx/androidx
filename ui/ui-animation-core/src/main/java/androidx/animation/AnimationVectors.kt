@@ -18,7 +18,7 @@ package androidx.animation
 
 /**
  * [AnimationVector] class that is the base class of [AnimationVector1D], [AnimationVector2D],
- * [AnimationVector3D] and [AnimationVector3D]. In order to animate any arbitrary type, it is
+ * [AnimationVector3D] and [AnimationVector4D]. In order to animate any arbitrary type, it is
  * required to provide a [TwoWayConverter] that defines how to convert that arbitrary type T to an
  * [AnimationVector], and vice versa. Depending on how many dimensions this type T has, it may need
  * to be converted to any of the subclasses of [AnimationVector]. For example, a position based
@@ -28,6 +28,23 @@ package androidx.animation
 sealed class AnimationVector {
     internal abstract fun reset()
 }
+
+internal fun <T : AnimationVector> T.createPassThroughConverter(): TwoWayConverter<T, T> {
+    val converter = when (this) {
+        is AnimationVector1D -> passThroughConverter1D
+        is AnimationVector2D -> passThroughConverter2D
+        is AnimationVector3D -> passThroughConverter3D
+        is AnimationVector4D -> passThroughConverter4D
+        else -> throw UnsupportedOperationException()
+    }
+    @Suppress("UNCHECKED_CAST")
+    return converter as TwoWayConverter<T, T>
+}
+
+private val passThroughConverter1D = TypeConverter1D({ it }, { it })
+private val passThroughConverter2D = TypeConverter2D({ it }, { it })
+private val passThroughConverter3D = TypeConverter3D({ it }, { it })
+private val passThroughConverter4D = TypeConverter4D({ it }, { it })
 
 /**
  * This class defines a 1D vector. It contains only one Float value that is initialized in the

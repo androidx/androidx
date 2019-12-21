@@ -18,7 +18,6 @@ package androidx.ui.foundation.animation
 
 import androidx.animation.AnimatedFloat
 import androidx.compose.Composable
-import androidx.animation.FloatValueHolder
 import androidx.compose.Model
 import androidx.compose.remember
 import androidx.ui.foundation.ValueHolder
@@ -83,7 +82,7 @@ fun animatedDragValue(initial: Float, minBound: Float, maxBound: Float): Animate
 private class ListeneableValueHolder(
     var current: Float,
     var onValueChanged: (Float) -> Unit
-) : FloatValueHolder {
+) : androidx.animation.ValueHolder<Float> {
     override var value: Float
         get() = current
         set(value) {

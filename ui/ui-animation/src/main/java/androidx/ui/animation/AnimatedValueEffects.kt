@@ -18,7 +18,6 @@ package androidx.ui.animation
 
 import androidx.animation.AnimatedFloat
 import androidx.animation.AnimatedValue
-import androidx.animation.FloatValueHolder
 import androidx.animation.TwoWayConverter
 import androidx.compose.Model
 import androidx.animation.ValueHolder
@@ -41,7 +40,7 @@ import androidx.ui.graphics.Color
 fun <T, V : AnimationVector> animatedValue(
     initVal: T,
     converter: TwoWayConverter<T, V>
-): AnimatedValue<T, V> = remember { AnimatedValue(AnimValueHolder(initVal, converter)) }
+): AnimatedValue<T, V> = remember { AnimatedValue(AnimValueHolder(initVal), converter) }
 
 /**
  * The animatedValue effect creates an [AnimatedFloat] and positionally memoizes it. When the
@@ -52,7 +51,7 @@ fun <T, V : AnimationVector> animatedValue(
  */
 @Composable
 fun animatedFloat(initVal: Float): AnimatedFloat =
-    remember { AnimatedFloat(FloatAnimValueHolder(initVal)) }
+    remember { AnimatedFloat(AnimValueHolder(initVal)) }
 
 /**
  * The animatedValue effect creates an [AnimatedValue] of [Color] and positionally memoizes it. When
@@ -63,22 +62,9 @@ fun animatedFloat(initVal: Float): AnimatedFloat =
  */
 @Composable
 fun animatedColor(initVal: Color): AnimatedValue<Color, AnimationVector4D> =
-    remember { AnimatedValue(ColorAnimValueHolder(initVal)) }
+    remember { AnimatedValue(AnimValueHolder(initVal), ColorToVectorConverter(initVal.colorSpace)) }
 
 @Model
-private class FloatAnimValueHolder(
-    override var value: Float
-) : FloatValueHolder
-
-@Model
-private class ColorAnimValueHolder(
-    override var value: Color
-) : ValueHolder<Color, AnimationVector4D> {
-    override val typeConverter = ColorToVectorConverter(value.colorSpace)
-}
-
-@Model
-private class AnimValueHolder<T, V : AnimationVector>(
-    override var value: T,
-    override val typeConverter: TwoWayConverter<T, V>
-) : ValueHolder<T, V>
+private class AnimValueHolder<T> (
+    override var value: T
+) : ValueHolder<T>
