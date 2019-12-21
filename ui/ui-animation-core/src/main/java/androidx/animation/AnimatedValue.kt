@@ -22,11 +22,6 @@ import androidx.animation.AnimationEndReason.BoundReached
 import androidx.animation.AnimationEndReason.Interrupted
 import androidx.animation.AnimationEndReason.TargetReached
 
-typealias AnimatedValue1D<T> = AnimatedValue<T, AnimationVector1D>
-typealias AnimatedValue2D<T> = AnimatedValue<T, AnimationVector2D>
-typealias AnimatedValue3D<T> = AnimatedValue<T, AnimationVector3D>
-typealias AnimatedValue4D<T> = AnimatedValue<T, AnimationVector4D>
-
 /**
  * This is the base class for [AnimatedValue]. It contains all the functionality of AnimatedValue.
  * It is intended to be used as a base class for the other classes (such as [AnimatedFloat] to build
@@ -38,8 +33,14 @@ typealias AnimatedValue4D<T> = AnimatedValue<T, AnimationVector4D>
  *
  * @param valueHolder A value holder whose value gets updated by [BaseAnimatedValue] on every
  *                    animation frame.
+ * @param typeConverter A two way type converter that converts from value to [AnimationVector1D],
+ *                      [AnimationVector2D], [AnimationVector3D], or [AnimationVector4D], and vice
+ *                      versa.
  */
-sealed class BaseAnimatedValue<T, V : AnimationVector>(private val valueHolder: ValueHolder<T, V>) {
+sealed class BaseAnimatedValue<T, V : AnimationVector>(
+    private val valueHolder: ValueHolder<T>,
+    typeConverter: TwoWayConverter<T, V>
+) {
 
     /**
      * Creates a [BaseAnimatedValue] instance that starts at the given value, and uses the given
@@ -50,7 +51,7 @@ sealed class BaseAnimatedValue<T, V : AnimationVector>(private val valueHolder: 
     constructor(
         initVal: T,
         typeConverter: TwoWayConverter<T, V>
-    ) : this(ValueHolderImpl(initVal, typeConverter))
+    ) : this(ValueHolder(initVal), typeConverter)
 
     /**
      * Current value of the animation.
@@ -78,9 +79,9 @@ sealed class BaseAnimatedValue<T, V : AnimationVector>(private val valueHolder: 
      * Velocity of the animation. The velocity will be of [AnimationVector1D], [AnimationVector2D],
      * [AnimationVector3D], or [AnimationVector4D] type.
      */
-    internal var velocityVector: V = valueHolder.typeConverter.createNewVector()
+    internal var velocityVector: V = typeConverter.createNewVector()
 
-    internal val typeConverter: TwoWayConverter<T, V> = valueHolder.typeConverter
+    internal val typeConverter: TwoWayConverter<T, V> = typeConverter
     internal var onEnd: ((AnimationEndReason, T) -> Unit)? = null
     private lateinit var anim: AnimationWrapper<T, V>
     private var startTime: Long = Unset
@@ -286,10 +287,18 @@ sealed class BaseAnimatedValue<T, V : AnimationVector>(private val valueHolder: 
  * @param valueHolder A value holder whose value field will be updated during animations
  */
 class AnimatedValue<T, V : AnimationVector>(
-    valueHolder: ValueHolder<T, V>
-) : BaseAnimatedValue<T, V>(valueHolder) {
+    valueHolder: ValueHolder<T>,
+    typeConverter: TwoWayConverter<T, V>
+) : BaseAnimatedValue<T, V>(valueHolder, typeConverter) {
     val velocity: V
         get() = velocityVector
+}
+
+// TODO class description
+class AnimatedVectorValue<V : AnimationVector>(
+    valueHolder: ValueHolder<V>
+) : BaseAnimatedValue<V, V>(valueHolder, valueHolder.value.createPassThroughConverter()) {
+    constructor(initVal: V) : this(ValueHolder(initVal))
 }
 
 /**
@@ -302,8 +311,9 @@ class AnimatedValue<T, V : AnimationVector>(
  *                    animations
  */
 class AnimatedFloat(
-    valueHolder: FloatValueHolder
-) : BaseAnimatedValue<Float, AnimationVector1D>(valueHolder) {
+    valueHolder: ValueHolder<Float>
+) : BaseAnimatedValue<Float, AnimationVector1D>(valueHolder, FloatToVectorConverter) {
+    constructor(initVal: Float) : this(ValueHolder(initVal))
 
     private var min: Float = Float.NEGATIVE_INFINITY
     private var max: Float = Float.POSITIVE_INFINITY
