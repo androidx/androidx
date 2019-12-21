@@ -1,6 +1,12 @@
 // Signature format: 3.0
 package androidx.paging {
 
+  public final class RxPagedDataFlowBuilder<Key, Value> {
+    ctor public RxPagedDataFlowBuilder(kotlin.jvm.functions.Function0<? extends androidx.paging.PagedSource<Key,Value>> pagedSourceFactory, androidx.paging.PagedList.Config config);
+    method public io.reactivex.Observable<androidx.paging.PagedData<Value>> build();
+    method public androidx.paging.RxPagedDataFlowBuilder<Key,Value> setInitialKey(Key? initialKey);
+  }
+
   public final class RxPagedListBuilder<Key, Value> {
     ctor public RxPagedListBuilder(kotlin.jvm.functions.Function0<? extends androidx.paging.PagedSource<Key,Value>> pagedSourceFactory, androidx.paging.PagedList.Config config);
     ctor public RxPagedListBuilder(kotlin.jvm.functions.Function0<? extends androidx.paging.PagedSource<Key,Value>> pagedSourceFactory, int pageSize);
