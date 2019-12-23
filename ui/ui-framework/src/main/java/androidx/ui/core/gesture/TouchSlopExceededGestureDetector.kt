@@ -54,7 +54,11 @@ fun TouchSlopExceededGestureDetector(
     recognizer.canDrag = canDrag
     recognizer.onTouchSlopExceeded = onTouchSlopExceeded
 
-    PointerInputWrapper(pointerInputHandler = recognizer.pointerInputHandler, children = children)
+    PointerInputWrapper(
+        pointerInputHandler = recognizer.pointerInputHandler,
+        cancelHandler = recognizer.cancelHandler,
+        children = children
+    )
 }
 
 // TODO(shepshapard): Shouldn't touchSlop be Px and not IntPx? What if the density bucket of the
@@ -176,6 +180,11 @@ internal class TouchSlopExceededGestureRecognizer(private val touchSlop: IntPx) 
             }
             changes
         }
+
+    val cancelHandler = {
+        pointerTrackers.clear()
+        passedSlop = false
+    }
 
     internal data class PointerTrackingData(
         var dxUnderSlop: Float = 0f,

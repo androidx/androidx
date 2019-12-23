@@ -18,11 +18,17 @@ package androidx.ui.core.gesture
 import android.view.MotionEvent
 import android.view.View
 import android.view.ViewGroup
+import androidx.test.filters.LargeTest
 import androidx.test.rule.ActivityTestRule
+import androidx.ui.core.Layout
+import androidx.ui.core.PxPosition
 import androidx.ui.core.ipx
 import androidx.ui.core.setContent
 import androidx.ui.framework.test.TestActivity
 import com.nhaarman.mockitokotlin2.any
+import com.nhaarman.mockitokotlin2.inOrder
+import com.nhaarman.mockitokotlin2.spy
+import com.nhaarman.mockitokotlin2.times
 import com.nhaarman.mockitokotlin2.verify
 import com.nhaarman.mockitokotlin2.verifyNoMoreInteractions
 import org.junit.Assert.assertTrue
@@ -33,12 +39,10 @@ import org.junit.runner.RunWith
 import org.junit.runners.JUnit4
 import java.util.concurrent.CountDownLatch
 import java.util.concurrent.TimeUnit
-import androidx.ui.core.PxPosition
-import com.nhaarman.mockitokotlin2.reset
-import com.nhaarman.mockitokotlin2.spy
-import com.nhaarman.mockitokotlin2.times
-import androidx.test.filters.LargeTest
-import androidx.ui.core.Layout
+
+// TODO(shepshapard): Figure out how to test composite gesture detectors better.  There should be
+//  more tests, but hopefully they can also be easier to write then what is currently available.
+//  Should possibly wait till we have host side testing that does not require the Android runtime.
 
 @LargeTest
 @RunWith(JUnit4::class)
@@ -78,8 +82,6 @@ class LongPressDragGestureDetectorTest {
         assertTrue(setupLatch.await(1000, TimeUnit.SECONDS))
     }
 
-    // Tests that verify conditions under which nothing will be called.
-
     @Test
     fun ui_downMoveUpBeforeLongPressTimeout_noCallbacksCalled() {
 
@@ -116,10 +118,44 @@ class LongPressDragGestureDetectorTest {
         verifyNoMoreInteractions(longPressDragObserver)
     }
 
-    // Tests that verify conditions under which onLongPress will only be called.
+    @Test
+    fun ui_downMoveCancelBeforeLongPressTimeout_noCallbacksCalled() {
+
+        val down = MotionEvent(
+            0,
+            MotionEvent.ACTION_DOWN,
+            1,
+            0,
+            arrayOf(PointerProperties(0)),
+            arrayOf(PointerCoords(50f, 50f))
+        )
+        val move = MotionEvent(
+            0,
+            MotionEvent.ACTION_MOVE,
+            1,
+            0,
+            arrayOf(PointerProperties(0)),
+            arrayOf(PointerCoords(51f, 50f))
+        )
+        val cancel = MotionEvent(
+            0,
+            MotionEvent.ACTION_CANCEL,
+            1,
+            0,
+            arrayOf(PointerProperties(0)),
+            arrayOf(PointerCoords(51f, 50f))
+        )
+        activityTestRule.runOnUiThreadIR {
+            view.dispatchTouchEvent(down)
+            view.dispatchTouchEvent(move)
+            view.dispatchTouchEvent(cancel)
+        }
+
+        verifyNoMoreInteractions(longPressDragObserver)
+    }
 
     @Test
-    fun ui_downWaitForLongPress_onLongPressCalled() {
+    fun ui_downWaitForLongPress_onlyOnLongPressCalled() {
 
         val down = MotionEvent(
             0,
@@ -137,49 +173,9 @@ class LongPressDragGestureDetectorTest {
         verifyNoMoreInteractions(longPressDragObserver)
     }
 
-    // Tests that verify conditions under which onDragStart and onDrag will be called.
-
     @Test
-    fun ui_downWaitForLongPressMove_onDragStartAndOnDragCalled() {
+    fun ui_downWaitForLongPressMove_callbacksCorrect() {
 
-        // Arrange.
-        val down = MotionEvent(
-            0,
-            MotionEvent.ACTION_DOWN,
-            1,
-            0,
-            arrayOf(PointerProperties(0)),
-            arrayOf(PointerCoords(50f, 50f))
-        )
-        waitForLongPress {
-            view.dispatchTouchEvent(down)
-        }
-        reset(longPressDragObserver)
-
-        // Act.
-        val move = MotionEvent(
-            0,
-            MotionEvent.ACTION_MOVE,
-            1,
-            0,
-            arrayOf(PointerProperties(0)),
-            arrayOf(PointerCoords(51f, 50f))
-        )
-        view.dispatchTouchEvent(move)
-
-        // Assert.
-        verify(longPressDragObserver).onDragStart()
-        // Twice because DragGestureDetector dispatches onDrag during 2 passes.
-        verify(longPressDragObserver, times(2)).onDrag(any())
-        verifyNoMoreInteractions(longPressDragObserver)
-    }
-
-    // Tests that verify conditions under which onStop will be called.
-
-    @Test
-    fun ui_downWaitForLongPressMoveUp_onDragStopCalled() {
-
-        // Arrange.
         val down = MotionEvent(
             0,
             MotionEvent.ACTION_DOWN,
@@ -200,28 +196,19 @@ class LongPressDragGestureDetectorTest {
             arrayOf(PointerCoords(51f, 50f))
         )
         view.dispatchTouchEvent(move)
-        reset(longPressDragObserver)
 
-        // Act.
-        val up = MotionEvent(
-            0,
-            MotionEvent.ACTION_UP,
-            1,
-            0,
-            arrayOf(PointerProperties(0)),
-            arrayOf(PointerCoords(51f, 50f))
-        )
-        view.dispatchTouchEvent(up)
-
-        // Assert.
-        verify(longPressDragObserver).onStop(any())
+        inOrder(longPressDragObserver) {
+            verify(longPressDragObserver).onLongPress(any())
+            verify(longPressDragObserver).onDragStart()
+            // Twice because DragGestureDetector dispatches onDrag during 2 passes.
+            verify(longPressDragObserver, times(2)).onDrag(any())
+        }
         verifyNoMoreInteractions(longPressDragObserver)
     }
 
     @Test
-    fun ui_downWaitForLongPressUp_onDragStopCalled() {
+    fun ui_downWaitForLongPressUp_callbacksCorrect() {
 
-        // Arrange.
         val down = MotionEvent(
             0,
             MotionEvent.ACTION_DOWN,
@@ -233,9 +220,6 @@ class LongPressDragGestureDetectorTest {
         waitForLongPress {
             view.dispatchTouchEvent(down)
         }
-        reset(longPressDragObserver)
-
-        // Act.
         val up = MotionEvent(
             0,
             MotionEvent.ACTION_UP,
@@ -247,7 +231,127 @@ class LongPressDragGestureDetectorTest {
         view.dispatchTouchEvent(up)
 
         // Assert.
-        verify(longPressDragObserver).onStop(any())
+        inOrder(longPressDragObserver) {
+            verify(longPressDragObserver).onLongPress(any())
+            verify(longPressDragObserver).onStop(any())
+        }
+        verifyNoMoreInteractions(longPressDragObserver)
+    }
+
+    @Test
+    fun ui_downWaitForLongPressMoveUp_callbacksCorrect() {
+
+        val down = MotionEvent(
+            0,
+            MotionEvent.ACTION_DOWN,
+            1,
+            0,
+            arrayOf(PointerProperties(0)),
+            arrayOf(PointerCoords(50f, 50f))
+        )
+        waitForLongPress {
+            view.dispatchTouchEvent(down)
+        }
+        val move = MotionEvent(
+            0,
+            MotionEvent.ACTION_MOVE,
+            1,
+            0,
+            arrayOf(PointerProperties(0)),
+            arrayOf(PointerCoords(51f, 50f))
+        )
+        view.dispatchTouchEvent(move)
+        val up = MotionEvent(
+            0,
+            MotionEvent.ACTION_UP,
+            1,
+            0,
+            arrayOf(PointerProperties(0)),
+            arrayOf(PointerCoords(51f, 50f))
+        )
+        view.dispatchTouchEvent(up)
+
+        inOrder(longPressDragObserver) {
+            verify(longPressDragObserver).onLongPress(any())
+            verify(longPressDragObserver).onDragStart()
+            // Twice because DragGestureDetector dispatches onDrag during 2 passes.
+            verify(longPressDragObserver, times(2)).onDrag(any())
+            verify(longPressDragObserver).onStop(any())
+        }
+        verifyNoMoreInteractions(longPressDragObserver)
+    }
+
+    @Test
+    fun ui_downWaitForLongPressCancel_callbacksCorrect() {
+
+        val down = MotionEvent(
+            0,
+            MotionEvent.ACTION_DOWN,
+            1,
+            0,
+            arrayOf(PointerProperties(0)),
+            arrayOf(PointerCoords(50f, 50f))
+        )
+        waitForLongPress {
+            view.dispatchTouchEvent(down)
+        }
+        val cancel = MotionEvent(
+            0,
+            MotionEvent.ACTION_CANCEL,
+            1,
+            0,
+            arrayOf(PointerProperties(0)),
+            arrayOf(PointerCoords(50f, 50f))
+        )
+        view.dispatchTouchEvent(cancel)
+
+        inOrder(longPressDragObserver) {
+            verify(longPressDragObserver).onLongPress(any())
+            verify(longPressDragObserver).onCancel()
+        }
+        verifyNoMoreInteractions(longPressDragObserver)
+    }
+
+    @Test
+    fun ui_downWaitForLongPressMoveCancel_callbacksCorrect() {
+
+        val down = MotionEvent(
+            0,
+            MotionEvent.ACTION_DOWN,
+            1,
+            0,
+            arrayOf(PointerProperties(0)),
+            arrayOf(PointerCoords(50f, 50f))
+        )
+        waitForLongPress {
+            view.dispatchTouchEvent(down)
+        }
+        val move = MotionEvent(
+            0,
+            MotionEvent.ACTION_MOVE,
+            1,
+            0,
+            arrayOf(PointerProperties(0)),
+            arrayOf(PointerCoords(51f, 50f))
+        )
+        view.dispatchTouchEvent(move)
+        val cancel = MotionEvent(
+            0,
+            MotionEvent.ACTION_CANCEL,
+            1,
+            0,
+            arrayOf(PointerProperties(0)),
+            arrayOf(PointerCoords(51f, 50f))
+        )
+        view.dispatchTouchEvent(cancel)
+
+        inOrder(longPressDragObserver) {
+            verify(longPressDragObserver).onLongPress(any())
+            verify(longPressDragObserver).onDragStart()
+            // Twice because DragGestureDetector dispatches onDrag during 2 passes.
+            verify(longPressDragObserver, times(2)).onDrag(any())
+            verify(longPressDragObserver).onCancel()
+        }
         verifyNoMoreInteractions(longPressDragObserver)
     }
 
@@ -264,11 +368,11 @@ open class MyLongPressDragObserver(val onLongPress: () -> Unit) : LongPressDragO
         onLongPress()
     }
 
-    override fun onDragStart() { }
+    override fun onDragStart() {}
 
     override fun onDrag(dragDistance: PxPosition): PxPosition {
         return super.onDrag(dragDistance)
     }
 
-    override fun onStop(velocity: PxPosition) { }
+    override fun onStop(velocity: PxPosition) {}
 }

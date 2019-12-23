@@ -74,6 +74,15 @@ interface DragObserver {
      * Only called if the last call between [onStart] and [onStop] was [onStart].
      */
     fun onStop(velocity: PxPosition) {}
+
+    /**
+     * Override to be notified when the drag has been cancelled.
+     *
+     * This is called if [onStart] has ben called and then a cancellation event has occurs
+     * (for example, due to the gesture detector being removed from the tree) before [onStop] is
+     * called.
+     */
+    fun onCancel() {}
 }
 
 // TODO(shepshapard): Convert to functional component with effects once effects are ready.
@@ -93,9 +102,12 @@ interface DragObserver {
  * Dragging begins when the a single pointer has moved and either [canStartDragging] is null or
  * returns true.  When dragging begins, [DragObserver.onStart] is called.  [DragObserver.onDrag] is
  * then continuously called whenever the average movement of all pointers has movement along the x
- * or y axis.  [DragObserver.onStop] is called when the dragging ends due to all of the pointers no
- * longer interacting with the DragGestureDetector (for example, the last pointer has been lifted
- * off of the DragGestureDetector).
+ * or y axis.  The gesture ends with either a call to [DragObserver.onStop] or
+ * [DragObserver.onCancel], only after [DragObserver.onStart] is called. [DragObserver.onStop] is
+ * called when the dragging ends due to all of the pointers no longer interacting with the
+ * DragGestureDetector (for example, the last pointer has been lifted off of the
+ * DragGestureDetector). [DragObserver.onCancel] is called when the dragging ends due to a system
+ * cancellation event.
  *
  * When multiple pointers are touching the detector, the drag distance is taken as the average of
  * all of the pointers.
@@ -120,7 +132,11 @@ fun RawDragGestureDetector(
     recognizer.dragObserver = dragObserver
     recognizer.canStartDragging = canStartDragging
 
-    PointerInputWrapper(pointerInputHandler = recognizer.pointerInputHandler, children = children)
+    PointerInputWrapper(
+        pointerInputHandler = recognizer.pointerInputHandler,
+        cancelHandler = recognizer.cancelHandler,
+        children = children
+    )
 }
 
 internal class RawDragGestureRecognizer {
@@ -288,6 +304,15 @@ internal class RawDragGestureRecognizer {
 
             changesToReturn
         }
+
+    val cancelHandler = {
+        downPositions.clear()
+        velocityTrackers.clear()
+        if (started) {
+            started = false
+            dragObserver.onCancel()
+        }
+    }
 }
 
 private fun Iterable<PxPosition>.averagePosition(): PxPosition {

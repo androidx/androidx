@@ -60,7 +60,11 @@ fun PressReleasedGestureDetector(
     recognizer.consumeDownOnStart = consumeDownOnStart
     recognizer.setEnabled(enabled)
 
-    PointerInputWrapper(pointerInputHandler = recognizer.pointerInputHandler, children = children)
+    PointerInputWrapper(
+        pointerInputHandler = recognizer.pointerInputHandler,
+        cancelHandler = recognizer.cancelHandler,
+        children = children
+    )
 }
 
 internal class PressReleaseGestureRecognizer {
@@ -108,7 +112,7 @@ internal class PressReleaseGestureRecognizer {
                 } else if (!internalChanges.anyPointersInBounds(bounds)) {
                     // If none of the pointers are in bounds of our bounds, we should reset and wait
                     // till all pointers are changing to down.
-                    active = false
+                    cancelHandler()
                 }
 
                 if (active && consumeDownOnStart) {
@@ -122,9 +126,13 @@ internal class PressReleaseGestureRecognizer {
             ) {
                 // On the final pass, if we have started and any of the changes had consumed
                 // position changes, we cancel.
-                active = false
+                cancelHandler()
             }
 
             internalChanges
         }
+
+    val cancelHandler = {
+        active = false
+    }
 }

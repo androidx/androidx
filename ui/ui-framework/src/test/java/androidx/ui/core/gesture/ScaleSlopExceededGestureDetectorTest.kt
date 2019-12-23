@@ -655,6 +655,100 @@ class ScaleSlopExceededGestureDetectorTest {
         assertThat(onScaleSlopExceededCount).isEqualTo(1)
     }
 
+    // Tests that verify correct cancelling behavior.
+
+    @Test
+    fun cancelHandler_scaleHalfCancelScaleOtherHalf_onScaleSlopExceededNotCalled() {
+
+        // Arrange
+
+        var pointer1 = down(0, 0.milliseconds, 0f, 0f)
+        var pointer2 = down(1, 0L.milliseconds, 1f, 0f)
+        mRecognizer.pointerInputHandler.invokeOverAllPasses(pointer1, pointer2)
+
+        pointer1 = pointer1.moveTo(
+            10.milliseconds,
+            0f,
+            0f
+        )
+        pointer2 = pointer2.moveTo(
+            10.milliseconds,
+            6f,
+            0f
+        )
+        mRecognizer.pointerInputHandler.invokeOverAllPasses(pointer1, pointer2)
+
+        // Act
+
+        mRecognizer.cancelHandler()
+
+        pointer1 = down(0, 0.milliseconds, 0f, 0f)
+        pointer2 = down(1, 0L.milliseconds, 1f, 0f)
+        mRecognizer.pointerInputHandler.invokeOverAllPasses(pointer1, pointer2)
+
+        pointer1 = pointer1.moveTo(
+            10.milliseconds,
+            0f,
+            0f
+        )
+        pointer2 = pointer2.moveTo(
+            10.milliseconds,
+            6.01f,
+            0f
+        )
+        mRecognizer.pointerInputHandler.invokeOverAllPasses(pointer1, pointer2)
+
+        // Assert
+
+        assertThat(onScaleSlopExceededCount).isEqualTo(0)
+    }
+
+    @Test
+    fun cancelHandler_scalePastCancelScalePast_onScaleSlopExceededCalledTwice() {
+
+        // Arrange
+
+        var pointer1 = down(0, 0.milliseconds, 0f, 0f)
+        var pointer2 = down(1, 0L.milliseconds, 1f, 0f)
+        mRecognizer.pointerInputHandler.invokeOverAllPasses(pointer1, pointer2)
+
+        pointer1 = pointer1.moveTo(
+            10.milliseconds,
+            0f,
+            0f
+        )
+        pointer2 = pointer2.moveTo(
+            10.milliseconds,
+            11.01f,
+            0f
+        )
+        mRecognizer.pointerInputHandler.invokeOverAllPasses(pointer1, pointer2)
+
+        // Act
+
+        mRecognizer.cancelHandler()
+
+        pointer1 = down(0, 0.milliseconds, 0f, 0f)
+        pointer2 = down(1, 0L.milliseconds, 1f, 0f)
+        mRecognizer.pointerInputHandler.invokeOverAllPasses(pointer1, pointer2)
+
+        pointer1 = pointer1.moveTo(
+            10.milliseconds,
+            0f,
+            0f
+        )
+        pointer2 = pointer2.moveTo(
+            10.milliseconds,
+            11.01f,
+            0f
+        )
+        mRecognizer.pointerInputHandler.invokeOverAllPasses(pointer1, pointer2)
+
+        // Assert
+
+        assertThat(onScaleSlopExceededCount).isEqualTo(2)
+    }
+
     private fun onPointerInputChanges_2Pointers(
         x1s: Float,
         y1s: Float,
