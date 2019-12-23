@@ -130,7 +130,6 @@ public class MediaSessionCompatCallbackTestWithMediaController extends MediaSess
 
     @Test
     public void testPlay() throws Exception {
-        prepareLooper();
         RemoteMediaController controller = createControllerAndWaitConnection();
         mSessionCallback.reset(1);
 
@@ -141,7 +140,6 @@ public class MediaSessionCompatCallbackTestWithMediaController extends MediaSess
 
     @Test
     public void testPause() throws Exception {
-        prepareLooper();
         RemoteMediaController controller = createControllerAndWaitConnection();
         mSessionCallback.reset(1);
 
@@ -152,7 +150,6 @@ public class MediaSessionCompatCallbackTestWithMediaController extends MediaSess
 
     @Test
     public void testPrepare() throws Exception {
-        prepareLooper();
         RemoteMediaController controller = createControllerAndWaitConnection();
         mSessionCallback.reset(1);
 
@@ -163,7 +160,6 @@ public class MediaSessionCompatCallbackTestWithMediaController extends MediaSess
 
     @Test
     public void testSeekTo() throws Exception {
-        prepareLooper();
         RemoteMediaController controller = createControllerAndWaitConnection();
         mSessionCallback.reset(1);
 
@@ -176,7 +172,6 @@ public class MediaSessionCompatCallbackTestWithMediaController extends MediaSess
 
     @Test
     public void testSetPlaybackSpeed() throws Exception {
-        prepareLooper();
         RemoteMediaController controller = createControllerAndWaitConnection();
         mSessionCallback.reset(1);
 
@@ -189,7 +184,6 @@ public class MediaSessionCompatCallbackTestWithMediaController extends MediaSess
 
     @Test
     public void testAddPlaylistItem() throws Exception {
-        prepareLooper();
         final List<MediaItem> testList = MediaTestUtils.createPlaylist(2);
         final List<QueueItem> testQueue = MediaUtils.convertToQueueItemList(testList);
         final String testMediaId = "testAddPlaylistItem";
@@ -210,7 +204,6 @@ public class MediaSessionCompatCallbackTestWithMediaController extends MediaSess
 
     @Test
     public void testRemovePlaylistItem() throws Exception {
-        prepareLooper();
         final List<MediaItem> testList = MediaTestUtils.createPlaylist(2);
         final List<QueueItem> testQueue = MediaUtils.convertToQueueItemList(testList);
 
@@ -230,7 +223,6 @@ public class MediaSessionCompatCallbackTestWithMediaController extends MediaSess
 
     @Test
     public void testReplacePlaylistItem() throws Exception {
-        prepareLooper();
         final int testReplaceIndex = 1;
         // replace = remove + add
         final List<MediaItem> testList = MediaTestUtils.createPlaylist(2);
@@ -257,7 +249,6 @@ public class MediaSessionCompatCallbackTestWithMediaController extends MediaSess
 
     @Test
     public void testSkipToPreviousItem() throws Exception {
-        prepareLooper();
         RemoteMediaController controller = createControllerAndWaitConnection();
         mSessionCallback.reset(1);
 
@@ -268,7 +259,6 @@ public class MediaSessionCompatCallbackTestWithMediaController extends MediaSess
 
     @Test
     public void testSkipToNextItem() throws Exception {
-        prepareLooper();
         RemoteMediaController controller = createControllerAndWaitConnection();
         mSessionCallback.reset(1);
 
@@ -279,8 +269,6 @@ public class MediaSessionCompatCallbackTestWithMediaController extends MediaSess
 
     @Test
     public void testSkipToPlaylistItem() throws Exception {
-        prepareLooper();
-
         final int testSkipToIndex = 1;
         final List<MediaItem> testList = MediaTestUtils.createPlaylist(2);
         final List<QueueItem> testQueue = MediaUtils.convertToQueueItemList(testList);
@@ -298,7 +286,6 @@ public class MediaSessionCompatCallbackTestWithMediaController extends MediaSess
 
     @Test
     public void testSetShuffleMode() throws Exception {
-        prepareLooper();
         final int testShuffleMode = SessionPlayer.SHUFFLE_MODE_GROUP;
 
         mSession.setShuffleMode(PlaybackStateCompat.SHUFFLE_MODE_NONE);
@@ -313,7 +300,6 @@ public class MediaSessionCompatCallbackTestWithMediaController extends MediaSess
 
     @Test
     public void testSetRepeatMode() throws Exception {
-        prepareLooper();
         final int testRepeatMode = SessionPlayer.REPEAT_MODE_ALL;
 
         mSession.setRepeatMode(PlaybackStateCompat.REPEAT_MODE_NONE);
@@ -328,7 +314,6 @@ public class MediaSessionCompatCallbackTestWithMediaController extends MediaSess
 
     @Test
     public void testSetVolumeTo() throws Exception {
-        prepareLooper();
         final int maxVolume = 100;
         final int currentVolume = 23;
         final int volumeControlType = VolumeProviderCompat.VOLUME_CONTROL_ABSOLUTE;
@@ -346,7 +331,6 @@ public class MediaSessionCompatCallbackTestWithMediaController extends MediaSess
 
     @Test
     public void testAdjustVolume() throws Exception {
-        prepareLooper();
         final int maxVolume = 100;
         final int currentVolume = 23;
         final int volumeControlType = VolumeProviderCompat.VOLUME_CONTROL_ABSOLUTE;
@@ -364,7 +348,6 @@ public class MediaSessionCompatCallbackTestWithMediaController extends MediaSess
 
     @Test
     public void testSetVolumeWithLocalVolume() throws Exception {
-        prepareLooper();
         if (Build.VERSION.SDK_INT >= 21 && mAudioManager.isVolumeFixed()) {
             // This test is not eligible for this device.
             return;
@@ -402,7 +385,6 @@ public class MediaSessionCompatCallbackTestWithMediaController extends MediaSess
 
     @Test
     public void testAdjustVolumeWithLocalVolume() throws Exception {
-        prepareLooper();
         if (Build.VERSION.SDK_INT >= 21 && mAudioManager.isVolumeFixed()) {
             // This test is not eligible for this device.
             return;
@@ -442,7 +424,6 @@ public class MediaSessionCompatCallbackTestWithMediaController extends MediaSess
 
     @Test
     public void testSendCustomCommand() throws Exception {
-        prepareLooper();
         final String command = "test_custom_command";
         final Bundle testArgs = new Bundle();
         testArgs.putString("args", "test_args");
@@ -459,7 +440,6 @@ public class MediaSessionCompatCallbackTestWithMediaController extends MediaSess
 
     @Test
     public void testFastForward() throws Exception {
-        prepareLooper();
         RemoteMediaController controller = createControllerAndWaitConnection();
         mSessionCallback.reset(1);
 
@@ -470,7 +450,6 @@ public class MediaSessionCompatCallbackTestWithMediaController extends MediaSess
 
     @Test
     public void testRewind() throws Exception {
-        prepareLooper();
         RemoteMediaController controller = createControllerAndWaitConnection();
         mSessionCallback.reset(1);
 
@@ -481,7 +460,6 @@ public class MediaSessionCompatCallbackTestWithMediaController extends MediaSess
 
     @Test
     public void testPlayFromSearch() throws Exception {
-        prepareLooper();
         final String request = "random query";
         final Bundle bundle = new Bundle();
         bundle.putString("key", "value");
@@ -497,7 +475,6 @@ public class MediaSessionCompatCallbackTestWithMediaController extends MediaSess
 
     @Test
     public void testPlayFromUri() throws Exception {
-        prepareLooper();
         final Uri request = Uri.parse("foo://boo");
         final Bundle bundle = new Bundle();
         bundle.putString("key", "value");
@@ -513,7 +490,6 @@ public class MediaSessionCompatCallbackTestWithMediaController extends MediaSess
 
     @Test
     public void testPlayFromMediaId() throws Exception {
-        prepareLooper();
         final String request = "media_id";
         final Bundle bundle = new Bundle();
         bundle.putString("key", "value");
@@ -529,7 +505,6 @@ public class MediaSessionCompatCallbackTestWithMediaController extends MediaSess
 
     @Test
     public void testPrepareFromSearch() throws Exception {
-        prepareLooper();
         final String request = "random query";
         final Bundle bundle = new Bundle();
         bundle.putString("key", "value");
@@ -545,7 +520,6 @@ public class MediaSessionCompatCallbackTestWithMediaController extends MediaSess
 
     @Test
     public void testPrepareFromUri() throws Exception {
-        prepareLooper();
         final Uri request = Uri.parse("foo://boo");
         final Bundle bundle = new Bundle();
         bundle.putString("key", "value");
@@ -561,7 +535,6 @@ public class MediaSessionCompatCallbackTestWithMediaController extends MediaSess
 
     @Test
     public void testPrepareFromMediaId() throws Exception {
-        prepareLooper();
         final String request = "media_id";
         final Bundle bundle = new Bundle();
         bundle.putString("key", "value");
@@ -577,7 +550,6 @@ public class MediaSessionCompatCallbackTestWithMediaController extends MediaSess
 
     @Test
     public void testSetRating() throws Exception {
-        prepareLooper();
         final float ratingValue = 3.5f;
         final Rating rating2 = new StarRating(5, ratingValue);
         final String mediaId = "media_id";

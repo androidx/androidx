@@ -38,9 +38,6 @@ import java.util.concurrent.atomic.AtomicReference;
 
 /**
  * Base class for session test.
- * <p>
- * For all subclasses, all individual tests should begin with the {@link #prepareLooper()}. See
- * {@link #prepareLooper} for details.
  */
 abstract class MediaSessionTestBase extends MediaTestBase {
     static final int TIMEOUT_MS = 1000;
@@ -63,7 +60,6 @@ abstract class MediaSessionTestBase extends MediaTestBase {
             if (sHandler != null) {
                 return;
             }
-            prepareLooper();
             HandlerThread handlerThread = new HandlerThread("MediaSessionTestBase");
             handlerThread.start();
             sHandler = new SyncHandler(handlerThread.getLooper());

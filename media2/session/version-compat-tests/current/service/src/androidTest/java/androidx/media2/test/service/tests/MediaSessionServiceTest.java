@@ -111,7 +111,6 @@ public class MediaSessionServiceTest extends MediaSessionTestBase {
      */
     @Test
     public void testOnGetSession_returnsSession() throws InterruptedException {
-        prepareLooper();
         final List<ControllerInfo> controllerInfoList = new ArrayList<>();
         final CountDownLatch latch = new CountDownLatch(1);
 
@@ -156,7 +155,6 @@ public class MediaSessionServiceTest extends MediaSessionTestBase {
      */
     @Test
     public void testOnGetSession_returnsDifferentSessions() {
-        prepareLooper();
         final List<SessionToken> tokens = new ArrayList<>();
         TestServiceRegistry.getInstance().setOnGetSessionHandler(
                 new TestServiceRegistry.OnGetSessionHandler() {
@@ -212,7 +210,6 @@ public class MediaSessionServiceTest extends MediaSessionTestBase {
 
     @Test
     public void testAllControllersDisconnected_oneSession() throws InterruptedException {
-        prepareLooper();
         final CountDownLatch latch = new CountDownLatch(1);
         TestServiceRegistry.getInstance().setSessionServiceCallback(
                 new TestServiceRegistry.SessionServiceCallback() {
@@ -237,7 +234,6 @@ public class MediaSessionServiceTest extends MediaSessionTestBase {
 
     @Test
     public void testAllControllersDisconnected_multipleSessions() throws InterruptedException {
-        prepareLooper();
         TestServiceRegistry.getInstance().setOnGetSessionHandler(
                 new TestServiceRegistry.OnGetSessionHandler() {
                     @Override
@@ -273,7 +269,6 @@ public class MediaSessionServiceTest extends MediaSessionTestBase {
 
     @Test
     public void testGetSessions() throws InterruptedException {
-        prepareLooper();
         RemoteMediaController controller = createRemoteController(mToken, true, null);
         MediaSessionService service = TestServiceRegistry.getInstance().getServiceInstance();
         try (MediaSession session = createMediaSession("testGetSessions")) {
@@ -290,7 +285,6 @@ public class MediaSessionServiceTest extends MediaSessionTestBase {
 
     @Test
     public void testAddSessions_removedWhenClose() throws InterruptedException {
-        prepareLooper();
         RemoteMediaController controller = createRemoteController(mToken, true, null);
         MediaSessionService service = TestServiceRegistry.getInstance().getServiceInstance();
         try (MediaSession session = createMediaSession("testAddSessions_removedWhenClose")) {

@@ -86,7 +86,6 @@ public class MediaController_SurfaceTest extends MediaSessionTestBase {
 
     @Test
     public void testSetSurface() throws Exception {
-        prepareLooper();
         MediaController controller = createController(mRemoteSession.getToken());
 
         // Set

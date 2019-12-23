@@ -96,7 +96,6 @@ public class MediaPlayer_AudioFocusTest extends MediaPlayerTestBase {
             if (sHandler != null) {
                 return;
             }
-            prepareLooper();
             HandlerThread handlerThread = new HandlerThread("MediaPlayer_AudioFocusTest");
             handlerThread.start();
             sHandler = new TestUtils.SyncHandler(handlerThread.getLooper());
@@ -242,8 +241,6 @@ public class MediaPlayer_AudioFocusTest extends MediaPlayerTestBase {
 
     @Test
     public void testNoisyIntent_pausePlaybackForMedia() throws Exception {
-        prepareLooper();
-
         testPausedAfterAction(createAudioAttributes(CONTENT_TYPE_MUSIC, USAGE_MEDIA),
                 new PlayerRunnable() {
                     @Override
@@ -256,8 +253,6 @@ public class MediaPlayer_AudioFocusTest extends MediaPlayerTestBase {
 
     @Test
     public void testNoisyIntent_lowerVolumeForGame() throws Exception {
-        prepareLooper();
-
         testDuckedAfterAction(createAudioAttributes(CONTENT_TYPE_MUSIC, USAGE_GAME),
                 new PlayerRunnable() {
                     @Override
@@ -303,8 +298,6 @@ public class MediaPlayer_AudioFocusTest extends MediaPlayerTestBase {
      */
     @Test
     public void testAudioFocus_requestFocusWhenPlay() throws Exception {
-        prepareLooper();
-
         // Request an audio focus in advance.
         requestAudioFocus(AUDIOFOCUS_GAIN);
 
@@ -319,8 +312,6 @@ public class MediaPlayer_AudioFocusTest extends MediaPlayerTestBase {
 
     @Test
     public void testAudioFocus_requestFocusWhenUnknown() throws Exception {
-        prepareLooper();
-
         // Request an audio focus in advance.
         requestAudioFocus(AUDIOFOCUS_GAIN);
 
@@ -335,8 +326,6 @@ public class MediaPlayer_AudioFocusTest extends MediaPlayerTestBase {
 
     @Test
     public void testAudioFocus_requestFocusTransient() throws Exception {
-        prepareLooper();
-
         // Request an audio focus in advance.
         requestAudioFocus(AUDIOFOCUS_GAIN);
 
@@ -350,8 +339,6 @@ public class MediaPlayer_AudioFocusTest extends MediaPlayerTestBase {
 
     @Test
     public void testAudioFocus_requestFocusTransientMayDuck() throws Exception {
-        prepareLooper();
-
         // Request an audio focus in advance.
         requestAudioFocus(AUDIOFOCUS_GAIN);
 
@@ -367,8 +354,6 @@ public class MediaPlayer_AudioFocusTest extends MediaPlayerTestBase {
 
     @Test
     public void testAudioFocus_pauseForFocusLoss() throws Exception {
-        prepareLooper();
-
         testPausedAfterAction(createAudioAttributes(CONTENT_TYPE_MUSIC, USAGE_MEDIA),
                 new PlayerRunnable() {
                     @Override
@@ -382,8 +367,6 @@ public class MediaPlayer_AudioFocusTest extends MediaPlayerTestBase {
 
     @Test
     public void testAudioFocus_pauseForDuckableFocusLoss() throws Exception {
-        prepareLooper();
-
         testPausedAfterAction(createAudioAttributes(CONTENT_TYPE_SPEECH, USAGE_MEDIA),
                 new PlayerRunnable() {
                     @Override
@@ -400,8 +383,6 @@ public class MediaPlayer_AudioFocusTest extends MediaPlayerTestBase {
             // On API 26, framework automatically ducks so we cannot test it.
             return;
         }
-
-        prepareLooper();
 
         testDuckedAfterAction(createAudioAttributes(CONTENT_TYPE_MUSIC, USAGE_MEDIA),
                 new PlayerRunnable() {

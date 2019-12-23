@@ -87,7 +87,6 @@ public class MediaBrowserCompatTestWithMediaLibraryService extends
 
     @Test
     public void testGetRoot() throws InterruptedException {
-        prepareLooper();
         // The MockMediaLibraryService gives MediaBrowserConstants.ROOT_ID as root ID, and
         // MediaBrowserConstants.ROOT_EXTRAS as extras.
         sHandler.postAndSync(new Runnable() {
@@ -107,7 +106,6 @@ public class MediaBrowserCompatTestWithMediaLibraryService extends
 
     @Test
     public void testGetItem() throws InterruptedException {
-        prepareLooper();
         final String mediaId = MEDIA_ID_GET_ITEM;
 
         connectAndWait();
@@ -125,7 +123,6 @@ public class MediaBrowserCompatTestWithMediaLibraryService extends
 
     @Test
     public void testGetItem_nullResult() throws InterruptedException {
-        prepareLooper();
         final String mediaId = "random_media_id";
 
         connectAndWait();
@@ -147,7 +144,6 @@ public class MediaBrowserCompatTestWithMediaLibraryService extends
 
     @Test
     public void testGetChildren() throws InterruptedException {
-        prepareLooper();
         final String testParentId = PARENT_ID;
 
         connectAndWait();
@@ -178,7 +174,6 @@ public class MediaBrowserCompatTestWithMediaLibraryService extends
 
     @Test
     public void testGetChildren_withLongList() throws InterruptedException {
-        prepareLooper();
         final String testParentId = PARENT_ID_LONG_LIST;
 
         connectAndWait();
@@ -209,7 +204,6 @@ public class MediaBrowserCompatTestWithMediaLibraryService extends
 
     @Test
     public void testGetChildren_withPagination() throws InterruptedException {
-        prepareLooper();
         final String testParentId = PARENT_ID;
         final int page = 4;
         final int pageSize = 10;
@@ -253,7 +247,6 @@ public class MediaBrowserCompatTestWithMediaLibraryService extends
 
     @Test
     public void testGetChildren_emptyResult() throws InterruptedException {
-        prepareLooper();
         final String testParentId = PARENT_ID_NO_CHILDREN;
 
         connectAndWait();
@@ -272,7 +265,6 @@ public class MediaBrowserCompatTestWithMediaLibraryService extends
 
     @Test
     public void testGetChildren_nullResult() throws InterruptedException {
-        prepareLooper();
         final String testParentId = PARENT_ID_ERROR;
 
         connectAndWait();
@@ -295,7 +287,6 @@ public class MediaBrowserCompatTestWithMediaLibraryService extends
 
     @Test
     public void testSearch() throws InterruptedException {
-        prepareLooper();
         final String testQuery = SEARCH_QUERY;
         final int page = 4;
         final int pageSize = 10;
@@ -335,7 +326,6 @@ public class MediaBrowserCompatTestWithMediaLibraryService extends
 
     @Test
     public void testSearch_withLongList() throws InterruptedException {
-        prepareLooper();
         final String testQuery = SEARCH_QUERY_LONG_LIST;
         final int page = 0;
         final int pageSize = Integer.MAX_VALUE;
@@ -366,7 +356,6 @@ public class MediaBrowserCompatTestWithMediaLibraryService extends
 
     @Test
     public void testSearch_emptyResult() throws InterruptedException {
-        prepareLooper();
         final String testQuery = SEARCH_QUERY_EMPTY_RESULT;
         final Bundle testExtras = new Bundle();
         testExtras.putString(testQuery, testQuery);
@@ -389,7 +378,6 @@ public class MediaBrowserCompatTestWithMediaLibraryService extends
 
     @Test
     public void testSearch_error() throws InterruptedException {
-        prepareLooper();
         final String testQuery = SEARCH_QUERY_ERROR;
         final Bundle testExtras = new Bundle();
         testExtras.putString(testQuery, testQuery);
@@ -416,7 +404,6 @@ public class MediaBrowserCompatTestWithMediaLibraryService extends
     @Ignore("TODO: Move this test to MediaLibrarySessionLegacyCallbackTest.")
     @Test
     public void testSubscribe() throws InterruptedException {
-//        prepareLooper();
 //        final String testParentId = "testSubscribeId";
 //        final List<MediaItem> testList = TestUtils.createMediaItems(3);
 //
@@ -462,7 +449,6 @@ public class MediaBrowserCompatTestWithMediaLibraryService extends
     @Ignore("TODO: Move this test to MediaLibrarySessionLegacyCallbackTest.")
     @Test
     public void testSubscribe_withExtras() throws InterruptedException {
-//        prepareLooper();
 //        final String testParentId = "testSubscribe_withExtras";
 //        final Bundle testExtras = new Bundle();
 //        testExtras.putString(testParentId, testParentId);
@@ -514,7 +500,6 @@ public class MediaBrowserCompatTestWithMediaLibraryService extends
     @Ignore("TODO: Move this test to MediaLibrarySessionLegacyCallbackTest.")
     @Test
     public void testSubscribe_withPagination() throws InterruptedException {
-//        prepareLooper();
 //        final String testParentId = "testSubscribe_pagination_ID";
 //        final List<MediaItem> testList = TestUtils.createMediaItems(3);
 //        final int testPage = 2;
@@ -581,7 +566,6 @@ public class MediaBrowserCompatTestWithMediaLibraryService extends
     @Ignore("TODO: Move this test to MediaLibrarySessionLegacyCallbackTest.")
     @Test
     public void testSubscribeAndUnsubscribe() throws InterruptedException {
-//        prepareLooper();
 //        final String testParentId = "testUnsubscribe";
 //        final Bundle testExtras = new Bundle();
 //        testExtras.putString(testParentId, testParentId);
@@ -622,7 +606,6 @@ public class MediaBrowserCompatTestWithMediaLibraryService extends
     @Ignore("TODO: Split this test to here and MediaLibrarySessionLegacyCallbackTest.")
     @Test
     public void testNotifyChildrenChanged() throws InterruptedException {
-//        prepareLooper();
 //        final String testSubscribedParentId = "testNotifyChildrenChanged";
 //        final String testUnsubscribedParentId = "testNotifyChildrenChanged22";
 //        final Bundle testExtras = new Bundle();
@@ -676,7 +659,6 @@ public class MediaBrowserCompatTestWithMediaLibraryService extends
     // TODO: Add test for onCustomCommand() in MediaLibrarySessionLegacyCallbackTest.
     @Test
     public void testCustomAction() throws InterruptedException {
-        prepareLooper();
         final Bundle testArgs = new Bundle();
         testArgs.putString("args_key", "args_value");
 
@@ -697,7 +679,6 @@ public class MediaBrowserCompatTestWithMediaLibraryService extends
     // TODO: Add test for onCustomCommand() in MediaLibrarySessionLegacyCallbackTest.
     @Test
     public void testCustomAction_rejected() throws InterruptedException {
-        prepareLooper();
         // This action will not be allowed by the library session.
         final String testAction = "random_custom_action";
 

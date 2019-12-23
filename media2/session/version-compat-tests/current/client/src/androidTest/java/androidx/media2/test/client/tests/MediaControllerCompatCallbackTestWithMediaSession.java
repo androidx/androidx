@@ -84,7 +84,6 @@ public class MediaControllerCompatCallbackTestWithMediaSession extends MediaSess
 
     @Test
     public void testRepeatModeChange() throws Exception {
-        prepareLooper();
         final int testRepeatMode = SessionPlayer.REPEAT_MODE_GROUP;
 
         final MediaControllerCallback controllerCallback = new MediaControllerCallback();
@@ -100,7 +99,6 @@ public class MediaControllerCompatCallbackTestWithMediaSession extends MediaSess
 
     @Test
     public void testShuffleModeChange() throws Exception {
-        prepareLooper();
         final int testShuffleMode = SessionPlayer.SHUFFLE_MODE_GROUP;
 
         final MediaControllerCallback controllerCallback = new MediaControllerCallback();
@@ -116,7 +114,6 @@ public class MediaControllerCompatCallbackTestWithMediaSession extends MediaSess
 
     @Test
     public void testClose() throws Exception {
-        prepareLooper();
         final MediaControllerCallback controllerCallback = new MediaControllerCallback();
         controllerCallback.reset(1);
         mControllerCompat.registerCallback(controllerCallback, sHandler);
@@ -128,7 +125,6 @@ public class MediaControllerCompatCallbackTestWithMediaSession extends MediaSess
 
     @Test
     public void testUpdatePlayer() throws Exception {
-        prepareLooper();
         final int testState = SessionPlayer.PLAYER_STATE_PLAYING;
         final int testBufferingPosition = 1500;
         final float testSpeed = 1.5f;
@@ -178,7 +174,6 @@ public class MediaControllerCompatCallbackTestWithMediaSession extends MediaSess
 
     @Test
     public void testUpdatePlayer_playbackTypeChangedToRemote() throws Exception {
-        prepareLooper();
         final int controlType = VolumeProviderCompat.VOLUME_CONTROL_ABSOLUTE;
         final int maxVolume = 25;
         final int currentVolume = 10;
@@ -212,7 +207,6 @@ public class MediaControllerCompatCallbackTestWithMediaSession extends MediaSess
 
     @Test
     public void testUpdatePlayer_playbackTypeChangedToLocal() throws Exception {
-        prepareLooper();
         Bundle prevPlayerConfig = RemoteMediaSession.createMockPlayerConnectorConfig(
                 VolumeProviderCompat.VOLUME_CONTROL_ABSOLUTE, 10 /* maxVolume */,
                 1 /* currentVolume */, null /* audioAttrs */);
@@ -293,7 +287,6 @@ public class MediaControllerCompatCallbackTestWithMediaSession extends MediaSess
 
     @Test
     public void testUpdatePlayer_playbackTypeNotChanged_remote() throws Exception {
-        prepareLooper();
         Bundle prevPlayerConfig = RemoteMediaSession.createMockPlayerConnectorConfig(
                 VolumeProviderCompat.VOLUME_CONTROL_ABSOLUTE, 10 /* maxVolume */,
                 1 /* currentVolume */, null /* audioAttrs */);
@@ -340,7 +333,6 @@ public class MediaControllerCompatCallbackTestWithMediaSession extends MediaSess
 
     @Test
     public void testPlayerStateChange() throws Exception {
-        prepareLooper();
         final int targetState = SessionPlayer.PLAYER_STATE_PLAYING;
 
         final MediaControllerCallback controllerCallback = new MediaControllerCallback();
@@ -357,7 +349,6 @@ public class MediaControllerCompatCallbackTestWithMediaSession extends MediaSess
 
     @Test
     public void testPlaybackSpeedChange() throws Exception {
-        prepareLooper();
         final float speed = 1.5f;
 
         final MediaControllerCallback controllerCallback = new MediaControllerCallback();
@@ -373,7 +364,6 @@ public class MediaControllerCompatCallbackTestWithMediaSession extends MediaSess
 
     @Test
     public void testBufferingStateChange() throws Exception {
-        prepareLooper();
         final List<MediaItem> testPlaylist = MediaTestUtils.createFileMediaItems(3);
         final int testItemIndex = 0;
         final int testBufferingState = SessionPlayer.BUFFERING_STATE_BUFFERING_AND_PLAYABLE;
@@ -394,7 +384,6 @@ public class MediaControllerCompatCallbackTestWithMediaSession extends MediaSess
 
     @Test
     public void testSeekComplete() throws Exception {
-        prepareLooper();
         final long testSeekPosition = 1300;
 
         final MediaControllerCallback controllerCallback = new MediaControllerCallback();
@@ -411,8 +400,6 @@ public class MediaControllerCompatCallbackTestWithMediaSession extends MediaSess
 
     @Test
     public void testCurrentMediaItemChange() throws Exception {
-        prepareLooper();
-
         String displayTitle = "displayTitle";
         MediaMetadata metadata = new MediaMetadata.Builder()
                 .putText(MediaMetadata.METADATA_KEY_DISPLAY_TITLE, displayTitle).build();
@@ -440,7 +427,6 @@ public class MediaControllerCompatCallbackTestWithMediaSession extends MediaSess
 
     @Test
     public void testPlaylistAndPlaylistMetadataChange() throws Exception {
-        prepareLooper();
         final List<MediaItem> playlist = MediaTestUtils.createFileMediaItems(5);
         final String playlistTitle = "playlistTitle";
         MediaMetadata playlistMetadata = new MediaMetadata.Builder()
@@ -469,7 +455,6 @@ public class MediaControllerCompatCallbackTestWithMediaSession extends MediaSess
 
     @Test
     public void testPlaylistAndPlaylistMetadataChange_longList() throws Exception {
-        prepareLooper();
         final String playlistTitle = "playlistTitle";
         MediaMetadata playlistMetadata = new MediaMetadata.Builder()
                 .putText(MediaMetadata.METADATA_KEY_DISPLAY_TITLE, playlistTitle).build();
@@ -506,7 +491,6 @@ public class MediaControllerCompatCallbackTestWithMediaSession extends MediaSess
 
     @Test
     public void testPlaylistMetadataChange() throws Exception {
-        prepareLooper();
         final String playlistTitle = "playlistTitle";
         MediaMetadata playlistMetadata = new MediaMetadata.Builder()
                 .putText(MediaMetadata.METADATA_KEY_DISPLAY_TITLE, playlistTitle).build();

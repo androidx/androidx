@@ -20,6 +20,7 @@ import static org.junit.Assert.assertTrue;
 
 import android.media.session.PlaybackState;
 import android.os.Build;
+import android.os.Looper;
 import android.support.v4.media.session.MediaSessionCompat;
 
 import androidx.annotation.NonNull;
@@ -50,6 +51,9 @@ public class MediaController_FrameworkMediaSessionTest extends MediaSessionTestB
     @Override
     public void setUp() throws Exception {
         super.setUp();
+        if (Looper.myLooper() == null) {
+            Looper.prepare();
+        }
         mFwkSession = new android.media.session.MediaSession(mContext, TAG);
         mFwkSession.setActive(true);
         mFwkSession.setFlags(android.media.session.MediaSession.FLAG_HANDLES_MEDIA_BUTTONS

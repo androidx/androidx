@@ -83,7 +83,6 @@ public class MediaSessionServiceNotificationTest extends MediaSessionTestBase {
     @Test
     @Ignore("Comment out this line and manually run the test.")
     public void testNotification() throws InterruptedException {
-        prepareLooper();
         final CountDownLatch latch = new CountDownLatch(1);
         final MediaLibrarySessionCallback sessionCallback = new MediaLibrarySessionCallback() {
             @Override

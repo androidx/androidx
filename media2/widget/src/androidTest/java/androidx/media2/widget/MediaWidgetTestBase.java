@@ -126,8 +126,6 @@ public class MediaWidgetTestBase extends MediaTestBase {
     @SuppressWarnings("FutureReturnValueIgnored")
     PlayerWrapper createPlayerWrapperOfController(@NonNull PlayerWrapper.PlayerCallback callback,
             @Nullable MediaItem item, @Nullable List<MediaItem> playlist) {
-        prepareLooper();
-
         SessionPlayer player = new MediaPlayer(mContext);
         MediaSession session = new MediaSession.Builder(mContext, player)
                 .setId(UUID.randomUUID().toString())
