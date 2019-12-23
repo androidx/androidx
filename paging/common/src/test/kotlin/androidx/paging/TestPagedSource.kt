@@ -28,8 +28,10 @@ import kotlinx.coroutines.delay
 class TestPagedSource(counted: Boolean = true) : PagedSource<Int, Int>() {
     init {
         if (!counted) {
-            throw NotImplementedError("TODO: Implement this for uncounted case, and add " +
-                    "appropriate test cases to PageFetcher, Pager, and PagerState.")
+            throw NotImplementedError(
+                "TODO: Implement this for uncounted case, and add " +
+                        "appropriate test cases to PageFetcher, Pager, and PagerState."
+            )
         }
     }
 
@@ -45,8 +47,8 @@ class TestPagedSource(counted: Boolean = true) : PagedSource<Int, Int>() {
 
         return LoadResult.Page(
             items.subList(start, end),
-            start - 1,
-            end,
+            if (start > 0) start - 1 else null,
+            if (end < items.size) end else null,
             start,
             items.size - end
         )

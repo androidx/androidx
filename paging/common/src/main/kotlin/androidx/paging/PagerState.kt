@@ -16,10 +16,13 @@
 
 package androidx.paging
 
+import androidx.paging.LoadState.Idle
 import androidx.paging.LoadType.END
 import androidx.paging.LoadType.REFRESH
 import androidx.paging.LoadType.START
-import androidx.paging.PageEvent.Insert
+import androidx.paging.PageEvent.Insert.Companion.End
+import androidx.paging.PageEvent.Insert.Companion.Refresh
+import androidx.paging.PageEvent.Insert.Companion.Start
 import androidx.paging.PagedList.Config.Companion.MAX_SIZE_UNBOUNDED
 import androidx.paging.PagedSource.LoadResult.Page
 import androidx.paging.PagedSource.LoadResult.Page.Companion.COUNT_UNDEFINED
@@ -39,22 +42,23 @@ internal class PagerState<Key : Any, Value : Any>(
     private val pageSize: Int,
     private val maxSize: Int
 ) {
-    // TODO: Consider moving the page event channel into Pager
-    private val pageEventCh = Channel<PageEvent<Value>>(Channel.BUFFERED)
-    private val pages = mutableListOf<Page<Key, Value>>()
+    private val _pages = mutableListOf<Page<Key, Value>>()
+    internal val pages: List<Page<Key, Value>> = _pages
     private var initialPageIndex = 0
     private var placeholdersStart = COUNT_UNDEFINED
     private var placeholdersEnd = COUNT_UNDEFINED
 
-    private var prependLoadId = 0
-    private var appendLoadId = 0
+    internal var prependLoadId = 0
+        private set
+    internal var appendLoadId = 0
+        private set
     private val prependLoadIdCh = Channel<Int>(Channel.CONFLATED)
     private val appendLoadIdCh = Channel<Int>(Channel.CONFLATED)
 
-    private val loadStates = mutableMapOf<LoadType, LoadState>(
-        REFRESH to LoadState.Idle,
-        START to LoadState.Idle,
-        END to LoadState.Idle
+    internal val loadStates = mutableMapOf<LoadType, LoadState>(
+        REFRESH to Idle,
+        START to Idle,
+        END to Idle
     )
 
     @UseExperimental(FlowPreview::class)
@@ -69,26 +73,38 @@ internal class PagerState<Key : Any, Value : Any>(
         return appendLoadIdCh.consumeAsFlow()
     }
 
-    @UseExperimental(FlowPreview::class)
-    fun consumeAsFlow() = pageEventCh.consumeAsFlow()
-
-    suspend fun updateLoadState(loadType: LoadType, loadState: LoadState) {
-        if (loadStates[loadType] != loadState) {
-            loadStates[loadType] = loadState
-            pageEventCh.send(PageEvent.StateUpdate(loadType, loadState))
+    /**
+     * Convert a loaded [Page] into a [PageEvent] for [Pager.pageEventCh].
+     *
+     * Note: This method should be called after state updated by [insert]
+     *
+     * TODO: Move this into Pager, which owns pageEventCh, since this logic is sensitive to its
+     * implementation.
+     */
+    internal fun Page<Key, Value>.toPageEvent(loadType: LoadType): PageEvent<Value> {
+        val sourcePageIndex = when (loadType) {
+            REFRESH -> 0
+            START -> 0 - initialPageIndex
+            END -> pages.size - initialPageIndex - 1
+        }
+        val pages = listOf(TransformablePage(sourcePageIndex, data, data.size, null))
+        return when (loadType) {
+            REFRESH -> Refresh(pages, placeholdersStart, placeholdersEnd, loadStates.toMap())
+            START -> Start(pages, placeholdersStart, loadStates.toMap())
+            END -> End(pages, placeholdersEnd, loadStates.toMap())
         }
     }
 
     /**
      * @return true if insert was applied, false otherwise.
      */
-    suspend fun insert(loadId: Int, loadType: LoadType, page: Page<Key, Value>): Boolean {
+    fun insert(loadId: Int, loadType: LoadType, page: Page<Key, Value>): Boolean {
         when (loadType) {
             REFRESH -> {
                 check(pages.isEmpty()) { "cannot receive multiple init calls" }
                 check(loadId == 0) { "init loadId must be the initial value, 0" }
 
-                pages.add(page)
+                _pages.add(page)
                 initialPageIndex = 0
                 placeholdersEnd = if (page.itemsAfter != COUNT_UNDEFINED) page.itemsAfter else 0
                 placeholdersStart = if (page.itemsBefore != COUNT_UNDEFINED) page.itemsBefore else 0
@@ -99,7 +115,7 @@ internal class PagerState<Key : Any, Value : Any>(
                 // Skip this insert if it is the result of a cancelled job due to page drop
                 if (loadId != prependLoadId) return false
 
-                pages.add(0, page)
+                _pages.add(0, page)
                 initialPageIndex++
                 placeholdersStart = if (page.itemsBefore == COUNT_UNDEFINED) {
                     (placeholdersStart - page.data.size).coerceAtLeast(0)
@@ -113,7 +129,7 @@ internal class PagerState<Key : Any, Value : Any>(
                 // Skip this insert if it is the result of a cancelled job due to page drop
                 if (loadId != appendLoadId) return false
 
-                pages.add(page)
+                _pages.add(page)
                 placeholdersEnd = if (page.itemsAfter == COUNT_UNDEFINED) {
                     (placeholdersEnd - page.data.size).coerceAtLeast(0)
                 } else {
@@ -122,29 +138,16 @@ internal class PagerState<Key : Any, Value : Any>(
             }
         }
 
-        val sourcePageIndex = when (loadType) {
-            REFRESH -> 0
-            START -> 0 - initialPageIndex
-            END -> pages.size - initialPageIndex - 1
-        }
-        val pages = listOf(TransformablePage(sourcePageIndex, page.data, page.data.size, null))
-        val pageEvent: PageEvent<Value> = when (loadType) {
-            REFRESH -> Insert.Refresh(pages, placeholdersStart, placeholdersEnd)
-            START -> Insert.Start(pages, placeholdersStart)
-            END -> Insert.End(pages, placeholdersEnd)
-        }
-        pageEventCh.send(pageEvent)
-
         return true
     }
 
-    suspend fun drop(loadType: LoadType, pageCount: Int, placeholdersRemaining: Int) {
+    fun drop(loadType: LoadType, pageCount: Int, placeholdersRemaining: Int) {
         check(pages.size >= pageCount) {
             "invalid drop count. have ${pages.size} but wanted to drop $pageCount"
         }
         when (loadType) {
             START -> {
-                repeat(pageCount) { pages.removeAt(0) }
+                repeat(pageCount) { _pages.removeAt(0) }
                 initialPageIndex -= pageCount
                 this.placeholdersStart = placeholdersRemaining
 
@@ -152,7 +155,7 @@ internal class PagerState<Key : Any, Value : Any>(
                 prependLoadIdCh.offer(prependLoadId)
             }
             END -> {
-                repeat(pageCount) { pages.removeAt(pages.size - 1) }
+                repeat(pageCount) { _pages.removeAt(pages.size - 1) }
                 this.placeholdersEnd = placeholdersRemaining
 
                 appendLoadId++
@@ -160,7 +163,6 @@ internal class PagerState<Key : Any, Value : Any>(
             }
             else -> throw IllegalArgumentException("cannot drop $loadType")
         }
-        pageEventCh.send(PageEvent.Drop(loadType, pageCount, placeholdersRemaining))
     }
 
     fun dropInfo(loadType: LoadType): DropInfo? {
@@ -200,40 +202,6 @@ internal class PagerState<Key : Any, Value : Any>(
         }
 
         return null
-    }
-
-    /**
-     * The key to use to load next page to prepend or null if we should stop loading in this
-     * direction for the provided prefetchDistance and loadId.
-     */
-    internal fun nextPrependKey(
-        loadId: Int,
-        pageIndex: Int,
-        indexInPage: Int,
-        prefetchDistance: Int
-    ): Key? {
-        if (loadId != prependLoadId) return null
-
-        val itemsBeforePage = (0 until pageIndex).sumBy { pages[it].data.size }
-        val shouldLoad = itemsBeforePage + indexInPage < prefetchDistance
-        return if (shouldLoad) pages.first().prevKey else null
-    }
-
-    /**
-     * The key to use to load next page to append or null if we should stop loading in this
-     * direction for the provided prefetchDistance and loadId.
-     */
-    internal fun nextAppendKey(
-        loadId: Int,
-        pageIndex: Int,
-        indexInPage: Int,
-        prefetchDistance: Int
-    ): Key? {
-        if (loadId != appendLoadId) return null
-
-        val itemsIncludingPage = (pageIndex until pages.size).sumBy { pages[it].data.size }
-        val shouldLoad = indexInPage + 1 + prefetchDistance > itemsIncludingPage
-        return if (shouldLoad) pages.last().nextKey else null
     }
 
     /**
