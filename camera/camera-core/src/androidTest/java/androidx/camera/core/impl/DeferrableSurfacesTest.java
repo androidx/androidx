@@ -41,6 +41,7 @@ import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.ArgumentCaptor;
 
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 import java.util.concurrent.Executors;
@@ -52,6 +53,7 @@ import java.util.concurrent.TimeoutException;
 public class DeferrableSurfacesTest {
 
     private ScheduledExecutorService mScheduledExecutorService;
+    private List<CallbackToFutureAdapter.Completer<Surface>> mCompleterList = new ArrayList<>();
 
     @Before
     public void setup() {
@@ -60,6 +62,10 @@ public class DeferrableSurfacesTest {
 
     @After
     public void tearDown() {
+        for (CallbackToFutureAdapter.Completer<Surface> completer : mCompleterList) {
+            completer.setCancelled();
+        }
+        mCompleterList.clear();
         mScheduledExecutorService.shutdown();
     }
 
@@ -93,9 +99,11 @@ public class DeferrableSurfacesTest {
      * Return a {@link ListenableFuture} which will never complete.
      */
     @NonNull
-    private static <V> ListenableFuture<V> getFakeProcessingListenableFuture() {
+    private ListenableFuture<Surface> getFakeProcessingListenableFuture() {
         return CallbackToFutureAdapter.getFuture(completer -> {
-            // Not set the completer to keep the ListenableFuture unfinished.
+            // Only keep the completer instance to avoid the garbage collection and not set the
+            // completer to keep the ListenableFuture unfinished.
+            mCompleterList.add(completer);
             return "FakeProcessingListenableFuture";
         });
     }
