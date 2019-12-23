@@ -80,6 +80,15 @@ interface RawScaleObserver {
      * Only called after [onStart] and one or more calls to [onScale]
      */
     fun onStop() {}
+
+    /**
+     * Override to be notified when the scale has been cancelled.
+     *
+     * This is called if [onStart] has ben called and then a cancellation event has occurs
+     * (for example, due to the gesture detector being removed from the tree) before [onStop] is
+     * called.
+     */
+    fun onCancel() {}
 }
 
 /**
@@ -98,7 +107,10 @@ interface RawScaleObserver {
  * [canStartScaling] is null or returns true.  When scaling begins, [RawScaleObserver.onStart] is
  * called followed immediately by a call to [RawScaleObserver.onScale].
  * [RawScaleObserver.onScale] is then continuously called whenever the movement of all pointers
- * denotes scaling. [RawScaleObserver.onStop] is called when no pointers remain.
+ * denotes scaling. The gesture stops with either a call to [RawScaleObserver.onStop] or
+ * [RawScaleObserver.onCancel], either of which will only be called if [RawScaleObserver.onStart]
+ * was previously called. [RawScaleObserver.onStop] is called when no pointers remain.
+ * [RawScaleObserver.onCancel] is called due to a system cancellation event.
  *
  * @param scaleObserver The callback interface to report all events related to scaling.
  * @param canStartScaling If set, before scaling is started ([RawScaleObserver.onStart] is called),
@@ -115,7 +127,11 @@ fun RawScaleGestureDetector(
     recognizer.scaleObserver = scaleObserver
     recognizer.canStartScaling = canStartScaling
 
-    PointerInputWrapper(pointerInputHandler = recognizer.pointerInputHandler, children = children)
+    PointerInputWrapper(
+        pointerInputHandler = recognizer.pointerInputHandler,
+        cancelHandler = recognizer.cancelHandler,
+        children = children
+    )
 }
 
 internal class RawScaleGestureRecognizer {
@@ -213,4 +229,11 @@ internal class RawScaleGestureRecognizer {
 
             changesToReturn
         }
+
+    val cancelHandler = {
+        if (active) {
+            scaleObserver.onCancel()
+            active = false
+        }
+    }
 }

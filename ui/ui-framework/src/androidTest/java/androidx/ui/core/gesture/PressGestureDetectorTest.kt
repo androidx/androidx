@@ -166,6 +166,36 @@ class PressGestureDetectorTest {
         verify(onRelease, never()).invoke()
     }
 
+    // Verify when onCancel should be called.
+
+    @Test
+    fun ui_downCancel_onCancelCalled() {
+        compose()
+
+        val down = MotionEvent(
+            0,
+            MotionEvent.ACTION_DOWN,
+            1,
+            0,
+            arrayOf(PointerProperties(0)),
+            arrayOf(PointerCoords(50f, 50f))
+        )
+        val cancel = MotionEvent(
+            10,
+            MotionEvent.ACTION_CANCEL,
+            1,
+            0,
+            arrayOf(PointerProperties(0)),
+            arrayOf(PointerCoords(50f, 50f))
+        )
+        activityTestRule.runOnUiThreadIR {
+            view.dispatchTouchEvent(down)
+            view.dispatchTouchEvent(cancel)
+        }
+
+        verify(onCancel).invoke()
+    }
+
     private fun compose(enabled: Boolean? = null) {
         val setupLatch = CountDownLatch(2)
         activityTestRule.runOnUiThreadIR {

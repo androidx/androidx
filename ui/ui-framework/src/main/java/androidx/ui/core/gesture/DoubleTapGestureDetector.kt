@@ -16,19 +16,18 @@
 
 package androidx.ui.core.gesture
 
-import androidx.ui.core.PointerEventPass
-import androidx.ui.core.PointerInputChange
-import androidx.ui.core.changedToDown
 import androidx.compose.Composable
 import androidx.compose.ambient
 import androidx.compose.remember
-import androidx.ui.core.changedToUp
 import androidx.ui.core.CoroutineContextAmbient
 import androidx.ui.core.IntPxSize
+import androidx.ui.core.PointerEventPass
+import androidx.ui.core.PointerInputChange
 import androidx.ui.core.PointerInputWrapper
 import androidx.ui.core.PxPosition
 import androidx.ui.core.anyPositionChangeConsumed
-import androidx.ui.core.changedToUpIgnoreConsumed
+import androidx.ui.core.changedToDown
+import androidx.ui.core.changedToUp
 import androidx.ui.core.consumeDownChange
 import androidx.ui.core.gesture.util.anyPointersInBounds
 import androidx.ui.temputils.delay
@@ -40,7 +39,8 @@ import kotlin.coroutines.CoroutineContext
 // TODO(b/138754591): The behavior of this gesture detector needs to be finalized.
 // TODO(b/139020678): Probably has shared functionality with other press based detectors.
 /**
- * Responds to pointers going up, down within a small duration, and then up again.
+ * Responds to pointers going down and up (tap) and then down and up again (another tap)
+ * with minimal gap of time between the first up and the second down.
  *
  * Note: This is a temporary implementation to unblock dependents.  Once the underlying API that
  * allows double tap to temporarily block tap from firing is complete, this gesture detector will
@@ -55,11 +55,14 @@ fun DoubleTapGestureDetector(
     children: @Composable() () -> Unit
 ) {
     val coroutineContext = ambient(CoroutineContextAmbient)
-    val recognizer =
-        remember { DoubleTapGestureRecognizer(coroutineContext) }
+    val recognizer = remember { DoubleTapGestureRecognizer(coroutineContext) }
     recognizer.onDoubleTap = onDoubleTap
 
-    PointerInputWrapper(pointerInputHandler = recognizer.pointerInputHandler, children = children)
+    PointerInputWrapper(
+        pointerInputHandler = recognizer.pointerInputHandler,
+        cancelHandler = recognizer.cancelHandler,
+        children = children
+    )
 }
 
 internal class DoubleTapGestureRecognizer(
@@ -68,7 +71,7 @@ internal class DoubleTapGestureRecognizer(
     lateinit var onDoubleTap: (PxPosition) -> Unit
 
     private enum class State {
-        Idle, Down, Up, SecondDown, Cancelled
+        Idle, Down, Up, SecondDown
     }
 
     var doubleTapTimeout = DoubleTapTimeout
@@ -95,24 +98,26 @@ internal class DoubleTapGestureRecognizer(
                     changesToReturn = changesToReturn.map { it.consumeDownChange() }
                     state = State.Idle
                     onDoubleTap.invoke(changes[0].previous.position!!)
-                } else if (state == State.Cancelled &&
-                    changesToReturn.all { it.changedToUpIgnoreConsumed() }
-                ) {
-                    state = State.Idle
                 } else if ((state == State.Down || state == State.SecondDown) &&
-                    !changesToReturn.anyPointersInBounds(bounds)) {
+                    !changesToReturn.anyPointersInBounds(bounds)
+                ) {
                     // If we are in one of the down states, and none of pointers are in our bounds,
                     // then we should cancel and wait till we can be Idle again.
-                    state = State.Cancelled
+                    state = State.Idle
                 }
             }
 
             if (pass == PointerEventPass.PostDown &&
                 changesToReturn.any { it.anyPositionChangeConsumed() }
             ) {
-                state = State.Cancelled
+                state = State.Idle
             }
 
             changesToReturn
         }
+
+    var cancelHandler = {
+        job?.cancel()
+        state = State.Idle
+    }
 }

@@ -57,7 +57,11 @@ fun ScaleSlopExceededGestureDetector(
     // TODO(b/129784010): Consider also allowing onStart, onScale, and onEnd to be set individually.
     recognizer.onScaleSlopExceeded = onScaleSlopExceeded
 
-    PointerInputWrapper(pointerInputHandler = recognizer.pointerInputHandler, children = children)
+    PointerInputWrapper(
+        pointerInputHandler = recognizer.pointerInputHandler,
+        cancelHandler = recognizer.cancelHandler,
+        children = children
+    )
 }
 
 /**
@@ -107,4 +111,9 @@ internal class ScaleSlopExceededGestureRecognizer(private val scaleSlop: Px) {
 
             changes
         }
+
+    val cancelHandler = {
+        passedSlop = false
+        scaleDiffTotal = 0f
+    }
 }

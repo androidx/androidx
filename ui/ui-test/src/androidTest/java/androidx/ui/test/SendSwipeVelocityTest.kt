@@ -152,7 +152,10 @@ class SendSwipeVelocityTest(private val config: TestConfig) {
         Align(alignment = Alignment.TopLeft) {
             TestTag(tag) {
                 Semantics {
-                    PointerInputWrapper(pointerInputHandler = recorder::onPointerInput) {
+                    PointerInputWrapper(
+                        pointerInputHandler = recorder::onPointerInput,
+                        cancelHandler = {}
+                    ) {
                         WithDensity {
                             Container(width = 500.px.toDp(), height = 500.px.toDp()) {
                                 Draw { canvas, size ->

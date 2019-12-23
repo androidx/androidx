@@ -93,7 +93,7 @@ class TouchSlopDragGestureDetectorTest {
     }
 
     @Test
-    fun ui_pointerMovementBeyondTouchSlop_callbacksCalled() {
+    fun ui_pointerDownMovementBeyondTouchSlopUp_correctCallbacksInOrder() {
         setup(false)
 
         val touchSlopFloat = touchSlop.value.toFloat()
@@ -136,6 +136,53 @@ class TouchSlopDragGestureDetectorTest {
             verify(dragObserver, times(2))
                 .onDrag(PxPosition(Px(touchSlopFloat + 1), 0.px))
             verify().onStop(any())
+        }
+    }
+
+    @Test
+    fun ui_pointerDownMovementBeyondTouchSlopCancel_correctCallbacksInOrder() {
+        setup(false)
+
+        val touchSlopFloat = touchSlop.value.toFloat()
+
+        val down = MotionEvent(
+            0,
+            MotionEvent.ACTION_DOWN,
+            1,
+            0,
+            arrayOf(PointerProperties(0)),
+            arrayOf(PointerCoords(50f, 50f))
+        )
+        val move = MotionEvent(
+            20,
+            MotionEvent.ACTION_MOVE,
+            1,
+            0,
+            arrayOf(PointerProperties(0)),
+            arrayOf(PointerCoords(50f + touchSlopFloat + 1, 50f))
+        )
+        val cancel = MotionEvent(
+            30,
+            MotionEvent.ACTION_CANCEL,
+            1,
+            0,
+            arrayOf(PointerProperties(0)),
+            arrayOf(PointerCoords(50f + touchSlopFloat, 50f))
+        )
+
+        activityTestRule.runOnUiThreadIR {
+            view.dispatchTouchEvent(down)
+            view.dispatchTouchEvent(move)
+            view.dispatchTouchEvent(cancel)
+        }
+
+        dragObserver.inOrder {
+            verify().onStart(PxPosition(50.ipx, 50.ipx))
+            // Twice because RawDragGestureDetector calls the callback on both postUp and postDown
+            // and nothing consumes the drag distance.
+            verify(dragObserver, times(2))
+                .onDrag(PxPosition(Px(touchSlopFloat + 1), 0.px))
+            verify().onCancel()
         }
     }
 

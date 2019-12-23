@@ -83,7 +83,7 @@ package androidx.ui.core {
   }
 
   public final class PointerInputWrapperKt {
-    method public static inline void PointerInputWrapper(kotlin.jvm.functions.Function3<? super java.util.List<androidx.ui.core.PointerInputChange>,? super androidx.ui.core.PointerEventPass,? super androidx.ui.core.IntPxSize,? extends java.util.List<androidx.ui.core.PointerInputChange>> pointerInputHandler = { event, _, _ -> event }, kotlin.jvm.functions.Function0<kotlin.Unit> cancelHandler = {}, kotlin.jvm.functions.Function0<kotlin.Unit> children);
+    method public static inline void PointerInputWrapper(kotlin.jvm.functions.Function3<? super java.util.List<androidx.ui.core.PointerInputChange>,? super androidx.ui.core.PointerEventPass,? super androidx.ui.core.IntPxSize,? extends java.util.List<androidx.ui.core.PointerInputChange>> pointerInputHandler, kotlin.jvm.functions.Function0<kotlin.Unit> cancelHandler, kotlin.jvm.functions.Function0<kotlin.Unit> children);
   }
 
   public final class PopupKt {
@@ -207,6 +207,7 @@ package androidx.ui.core.gesture {
   }
 
   public interface DragObserver {
+    method public default void onCancel();
     method public default androidx.ui.core.PxPosition onDrag(androidx.ui.core.PxPosition dragDistance);
     method public default void onStart(androidx.ui.core.PxPosition downPosition);
     method public default void onStop(androidx.ui.core.PxPosition velocity);
@@ -217,6 +218,7 @@ package androidx.ui.core.gesture {
   }
 
   public interface LongPressDragObserver {
+    method public default void onCancel();
     method public default androidx.ui.core.PxPosition onDrag(androidx.ui.core.PxPosition dragDistance);
     method public default void onDragStart();
     method public default void onLongPress(androidx.ui.core.PxPosition pxPosition);
@@ -251,6 +253,7 @@ package androidx.ui.core.gesture {
   }
 
   public interface RawScaleObserver {
+    method public default void onCancel();
     method public default float onScale(float scaleFactor);
     method public default void onStart();
     method public default void onStop();
@@ -261,6 +264,7 @@ package androidx.ui.core.gesture {
   }
 
   public interface ScaleObserver {
+    method public default void onCancel();
     method public void onScale(float scaleFactor);
     method public default void onStart();
     method public default void onStop();

@@ -68,6 +68,15 @@ interface ScaleObserver {
      * @see onScale
      */
     fun onStop() {}
+
+    /**
+     * Override to be notified when the scale has been cancelled.
+     *
+     * This is called if [onStart] has ben called and then a cancellation event has occurs
+     * (for example, due to the gesture detector being removed from the tree) before [onStop] is
+     * called.
+     */
+    fun onCancel() {}
 }
 
 /**
@@ -78,10 +87,12 @@ interface ScaleObserver {
  *
  * Scaling begins when the average distance between a set of pointers changes and at least 1 pointer
  * moves beyond the touch slop distance (currently defined by [TouchSlop]).  When scaling begins,
- * [RawScaleObserver.onStart] is called followed immediately by a call to
- * [RawScaleObserver.onScale].  [RawScaleObserver.onScale] is then continuously called whenever the
- * movement of pointers denotes scaling. [RawScaleObserver.onStop] is called when no pointers
- * remain.
+ * [ScaleObserver.onStart] is called followed immediately by a call to [ScaleObserver.onScale].
+ * [ScaleObserver.onScale] is then continuously called whenever the movement of pointers denotes
+ * scaling. The gesture stops with either a call to [RawScaleObserver.onStop] or
+ * [RawScaleObserver.onCancel], either of which will only be called if [RawScaleObserver.onStart]
+ * was previously called. [RawScaleObserver.onStop] is called when no pointers remain.
+ * [RawScaleObserver.onCancel] is called due to a system cancellation event.
  *
  * This gesture detector is similar to [RawScaleGestureDetector] except that it is made for more
  * standard use cases where touch slop should likely be respected and no "nested scaling" is
@@ -126,8 +137,13 @@ private class TouchSlopScaleGestureDetectorGlue {
             }
 
             override fun onStop() {
-                scaleObserver.onStop()
                 scaleEnabled = false
+                scaleObserver.onStop()
+            }
+
+            override fun onCancel() {
+                scaleEnabled = false
+                scaleObserver.onCancel()
             }
         }
 }

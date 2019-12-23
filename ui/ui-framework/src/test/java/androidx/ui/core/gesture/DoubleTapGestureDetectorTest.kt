@@ -31,6 +31,7 @@ import com.google.common.truth.Truth.assertThat
 import com.nhaarman.mockitokotlin2.any
 import com.nhaarman.mockitokotlin2.mock
 import com.nhaarman.mockitokotlin2.never
+import com.nhaarman.mockitokotlin2.times
 import com.nhaarman.mockitokotlin2.verify
 import org.junit.Before
 import org.junit.Test
@@ -63,7 +64,7 @@ class DoubleTapGestureDetectorTest {
 
     @Test
     fun pointerInputHandler_down_onDoubleTapNotCalled() {
-        mRecognizer.pointerInputHandler.invokeOverAllPasses(listOf(down()))
+        mRecognizer.pointerInputHandler.invokeOverAllPasses(down())
         verify(onDoubleTap, never()).invoke(any())
     }
 
@@ -480,6 +481,27 @@ class DoubleTapGestureDetectorTest {
         verify(onDoubleTap).invoke(any())
     }
 
+    // This test verifies that the 2nd down causes the double tap time out timer to stop such that
+    // the second wait doesn't cause the gesture detector to reset to an idle state.
+    @Test
+    fun pointerInputHandler_downUpWaitHalfDownWaitHalfUp_onDoubleTapCalled() {
+        val down1 = down(duration = 0.milliseconds)
+        val up1 = down1.up(duration = 1.milliseconds)
+        val wait1 = 50L
+        val down2 = down(duration = 51.milliseconds)
+        val wait2 = 50L
+        val up2 = down2.up(duration = 101.milliseconds)
+
+        mRecognizer.pointerInputHandler.invokeOverAllPasses(down1)
+        mRecognizer.pointerInputHandler.invokeOverAllPasses(up1)
+        testContext.advanceTimeBy(wait1, TimeUnit.MILLISECONDS)
+        mRecognizer.pointerInputHandler.invokeOverAllPasses(down2)
+        testContext.advanceTimeBy(wait2, TimeUnit.MILLISECONDS)
+        mRecognizer.pointerInputHandler.invokeOverAllPasses(up2)
+
+        verify(onDoubleTap).invoke(any())
+    }
+
     // Tests that verify correctness of PxPosition value passed to onDoubleTap
 
     @Test
@@ -539,13 +561,13 @@ class DoubleTapGestureDetectorTest {
         verify(onDoubleTap).invoke(PxPosition((7).px, (11).px))
     }
 
-    // Tests that verify that consumption behavior
+    // Tests that verify correct consumption behavior
 
     @Test
     fun pointerInputHandler_down_downNotConsumed() {
         val down = down()
         val result = mRecognizer.pointerInputHandler.invokeOverAllPasses(down)
-        assertThat(result[0].consumed.downChange).isFalse()
+        assertThat(result.consumed.downChange).isFalse()
     }
 
     @Test
@@ -554,7 +576,7 @@ class DoubleTapGestureDetectorTest {
         val up = down.up(1.milliseconds)
         mRecognizer.pointerInputHandler.invokeOverAllPasses(down)
         val result = mRecognizer.pointerInputHandler.invokeOverAllPasses(up)
-        assertThat(result[0].consumed.downChange).isFalse()
+        assertThat(result.consumed.downChange).isFalse()
     }
 
     @Test
@@ -568,7 +590,7 @@ class DoubleTapGestureDetectorTest {
         testContext.advanceTimeBy(99, TimeUnit.MILLISECONDS)
         val result = mRecognizer.pointerInputHandler.invokeOverAllPasses(down2)
 
-        assertThat(result[0].consumed.downChange).isFalse()
+        assertThat(result.consumed.downChange).isFalse()
     }
 
     @Test
@@ -584,7 +606,7 @@ class DoubleTapGestureDetectorTest {
         mRecognizer.pointerInputHandler.invokeOverAllPasses(down2)
         val result = mRecognizer.pointerInputHandler.invokeOverAllPasses(up2)
 
-        assertThat(result[0].consumed.downChange).isFalse()
+        assertThat(result.consumed.downChange).isFalse()
     }
 
     @Test
@@ -600,6 +622,178 @@ class DoubleTapGestureDetectorTest {
         mRecognizer.pointerInputHandler.invokeOverAllPasses(down2)
         val result = mRecognizer.pointerInputHandler.invokeOverAllPasses(up2)
 
-        assertThat(result[0].consumed.downChange).isTrue()
+        assertThat(result.consumed.downChange).isTrue()
+    }
+
+    // Tests that verify correct cancellation behavior
+
+    @Test
+    fun cancelHandler_downUpCancelWaitDownUp_onDoubleTapNotCalled() {
+        val down1 = down(duration = 100.milliseconds)
+        val up1 = down1.up(duration = 101.milliseconds)
+        val down2 = down(duration = 200.milliseconds)
+        val up2 = down2.up(duration = 201.milliseconds)
+
+        mRecognizer.pointerInputHandler.invokeOverAllPasses(down1)
+        mRecognizer.pointerInputHandler.invokeOverAllPasses(up1)
+        mRecognizer.cancelHandler()
+        testContext.advanceTimeBy(99, TimeUnit.MILLISECONDS)
+        mRecognizer.pointerInputHandler.invokeOverAllPasses(down2)
+        mRecognizer.pointerInputHandler.invokeOverAllPasses(up2)
+
+        verify(onDoubleTap, never()).invoke(any())
+    }
+
+    @Test
+    fun cancelHandler_downUpWaitCancelDownUp_onDoubleTapNotCalled() {
+        val down1 = down(duration = 100.milliseconds)
+        val up1 = down1.up(duration = 101.milliseconds)
+        val down2 = down(duration = 200.milliseconds)
+        val up2 = down2.up(duration = 201.milliseconds)
+
+        mRecognizer.pointerInputHandler.invokeOverAllPasses(down1)
+        mRecognizer.pointerInputHandler.invokeOverAllPasses(up1)
+        testContext.advanceTimeBy(99, TimeUnit.MILLISECONDS)
+        mRecognizer.cancelHandler()
+        mRecognizer.pointerInputHandler.invokeOverAllPasses(down2)
+        mRecognizer.pointerInputHandler.invokeOverAllPasses(up2)
+
+        verify(onDoubleTap, never()).invoke(any())
+    }
+
+    @Test
+    fun cancelHandler_cancelDownUpDownUp_onDoubleTapCalledOnce() {
+        val down1 = down(duration = 100.milliseconds)
+        val up1 = down1.up(duration = 101.milliseconds)
+        val down2 = down(duration = 200.milliseconds)
+        val up2 = down2.up(duration = 201.milliseconds)
+
+        mRecognizer.cancelHandler()
+        mRecognizer.pointerInputHandler.invokeOverAllPasses(down1)
+        mRecognizer.pointerInputHandler.invokeOverAllPasses(up1)
+        testContext.advanceTimeBy(99, TimeUnit.MILLISECONDS)
+        mRecognizer.pointerInputHandler.invokeOverAllPasses(down2)
+        mRecognizer.pointerInputHandler.invokeOverAllPasses(up2)
+
+        verify(onDoubleTap).invoke(any())
+    }
+
+    @Test
+    fun cancelHandler_downCancelDownUpDownUp_onDoubleTapCalledOnce() {
+        val down0 = down(duration = 99.milliseconds)
+        val down1 = down(duration = 100.milliseconds)
+        val up1 = down1.up(duration = 101.milliseconds)
+        val down2 = down(duration = 200.milliseconds)
+        val up2 = down2.up(duration = 201.milliseconds)
+
+        mRecognizer.pointerInputHandler.invokeOverAllPasses(down0)
+        mRecognizer.cancelHandler()
+        mRecognizer.pointerInputHandler.invokeOverAllPasses(down1)
+        mRecognizer.pointerInputHandler.invokeOverAllPasses(up1)
+        testContext.advanceTimeBy(99, TimeUnit.MILLISECONDS)
+        mRecognizer.pointerInputHandler.invokeOverAllPasses(down2)
+        mRecognizer.pointerInputHandler.invokeOverAllPasses(up2)
+
+        verify(onDoubleTap).invoke(any())
+    }
+
+    @Test
+    fun cancelHandler_downUpCancelDownUpDownUp_onDoubleTapCalledOnce() {
+        val down0 = down(duration = 98.milliseconds)
+        val up0 = down0.up(duration = 99.milliseconds)
+        val down1 = down(duration = 100.milliseconds)
+        val up1 = down1.up(duration = 101.milliseconds)
+        val down2 = down(duration = 200.milliseconds)
+        val up2 = down2.up(duration = 201.milliseconds)
+
+        mRecognizer.pointerInputHandler.invokeOverAllPasses(down0)
+        mRecognizer.pointerInputHandler.invokeOverAllPasses(up0)
+        mRecognizer.cancelHandler()
+        mRecognizer.pointerInputHandler.invokeOverAllPasses(down1)
+        mRecognizer.pointerInputHandler.invokeOverAllPasses(up1)
+        testContext.advanceTimeBy(99, TimeUnit.MILLISECONDS)
+        mRecognizer.pointerInputHandler.invokeOverAllPasses(down2)
+        mRecognizer.pointerInputHandler.invokeOverAllPasses(up2)
+
+        verify(onDoubleTap).invoke(any())
+    }
+
+    @Test
+    fun cancelHandler_downUpDownCancelDownUpDownUp_onDoubleTapCalledOnce() {
+        val down0 = down(duration = 97.milliseconds)
+        val up0 = down0.up(duration = 98.milliseconds)
+        val down1 = down(duration = 99.milliseconds)
+        val down2 = down(duration = 100.milliseconds)
+        val up2 = down2.up(duration = 101.milliseconds)
+        val down3 = down(duration = 200.milliseconds)
+        val up3 = down3.up(duration = 201.milliseconds)
+
+        mRecognizer.pointerInputHandler.invokeOverAllPasses(down0)
+        mRecognizer.pointerInputHandler.invokeOverAllPasses(up0)
+        mRecognizer.pointerInputHandler.invokeOverAllPasses(down1)
+        mRecognizer.cancelHandler()
+        mRecognizer.pointerInputHandler.invokeOverAllPasses(down2)
+        mRecognizer.pointerInputHandler.invokeOverAllPasses(up2)
+        testContext.advanceTimeBy(99, TimeUnit.MILLISECONDS)
+        mRecognizer.pointerInputHandler.invokeOverAllPasses(down3)
+        mRecognizer.pointerInputHandler.invokeOverAllPasses(up3)
+
+        verify(onDoubleTap).invoke(any())
+    }
+
+    @Test
+    fun cancelHandler_downUpDownUpCancelDownUpDownUp_onDoubleTapCalledTwice() {
+        val down0 = down(duration = 0.milliseconds)
+        val up0 = down0.up(duration = 1.milliseconds)
+        val down1 = down(duration = 100.milliseconds)
+        val up1 = down1.up(duration = 101.milliseconds)
+
+        val down2 = down(duration = 200.milliseconds)
+        val up2 = down2.up(duration = 201.milliseconds)
+        val down3 = down(duration = 300.milliseconds)
+        val up3 = down3.up(duration = 301.milliseconds)
+
+        mRecognizer.pointerInputHandler.invokeOverAllPasses(down0)
+        mRecognizer.pointerInputHandler.invokeOverAllPasses(up0)
+        testContext.advanceTimeBy(99, TimeUnit.MILLISECONDS)
+        mRecognizer.pointerInputHandler.invokeOverAllPasses(down1)
+        mRecognizer.pointerInputHandler.invokeOverAllPasses(up1)
+        mRecognizer.cancelHandler()
+        mRecognizer.pointerInputHandler.invokeOverAllPasses(down2)
+        mRecognizer.pointerInputHandler.invokeOverAllPasses(up2)
+        testContext.advanceTimeBy(99, TimeUnit.MILLISECONDS)
+        mRecognizer.pointerInputHandler.invokeOverAllPasses(down3)
+        mRecognizer.pointerInputHandler.invokeOverAllPasses(up3)
+
+        verify(onDoubleTap, times(2)).invoke(any())
+    }
+
+    // This test verifies that the cancel event causes the double tap timer to be reset.  If it does
+    // not cause it to be reset, then when delay1 is dispatched, the DoubleTapGestureDetector will
+    // be forced back into the IDLE state, preventing the double tap that follows cancel from
+    // firing.
+    @Test
+    fun cancelHandler_downUpWaitCancelDownWaitUpDownUp_onDoubleTapCalledOnce() {
+        val down0 = down(duration = 0.milliseconds)
+        val up0 = down0.up(duration = 1.milliseconds)
+        val delay0 = 50L
+        // Cancel happens here
+        val down1 = down(duration = 51.milliseconds)
+        val delay1 = 50L
+        val up1 = down1.up(duration = 101.milliseconds)
+        val down2 = down(duration = 102.milliseconds)
+        val up2 = down2.up(duration = 103.milliseconds)
+
+        mRecognizer.pointerInputHandler.invokeOverAllPasses(down0)
+        mRecognizer.pointerInputHandler.invokeOverAllPasses(up0)
+        testContext.advanceTimeBy(delay0, TimeUnit.MILLISECONDS)
+        mRecognizer.cancelHandler()
+        mRecognizer.pointerInputHandler.invokeOverAllPasses(down1)
+        testContext.advanceTimeBy(delay1, TimeUnit.MILLISECONDS)
+        mRecognizer.pointerInputHandler.invokeOverAllPasses(up1)
+        mRecognizer.pointerInputHandler.invokeOverAllPasses(down2)
+        mRecognizer.pointerInputHandler.invokeOverAllPasses(up2)
+
+        verify(onDoubleTap).invoke(any())
     }
 }
