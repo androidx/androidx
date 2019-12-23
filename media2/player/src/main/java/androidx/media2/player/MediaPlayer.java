@@ -2208,6 +2208,11 @@ public final class MediaPlayer extends SessionPlayer {
     @NonNull
     public ListenableFuture<PlayerResult> setAuxEffectSendLevel(
             @FloatRange(from = 0, to = 1) final float level) {
+        if (level < 0 || level > 1) {
+            // Returns ListenableFuture instead of throwing exception, not to newly throw an
+            // exception in existing code.
+            return createFutureForResultCode(RESULT_ERROR_BAD_VALUE);
+        }
         synchronized (mStateLock) {
             if (mClosed) {
                 return createFutureForClosed();
