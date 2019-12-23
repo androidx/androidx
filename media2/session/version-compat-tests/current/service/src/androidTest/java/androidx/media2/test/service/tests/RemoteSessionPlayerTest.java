@@ -87,7 +87,6 @@ public class RemoteSessionPlayerTest extends MediaSessionTestBase {
 
     @Test
     public void testSetVolumeToByController() throws Exception {
-        prepareLooper();
         final int maxVolume = 100;
         final int currentVolume = 23;
         final int volumeControlType = RemoteSessionPlayer.VOLUME_CONTROL_ABSOLUTE;
@@ -106,7 +105,6 @@ public class RemoteSessionPlayerTest extends MediaSessionTestBase {
 
     @Test
     public void testAdjustVolumeByController() throws Exception {
-        prepareLooper();
         final int maxVolume = 100;
         final int currentVolume = 23;
         final int volumeControlType = RemoteSessionPlayer.VOLUME_CONTROL_ABSOLUTE;

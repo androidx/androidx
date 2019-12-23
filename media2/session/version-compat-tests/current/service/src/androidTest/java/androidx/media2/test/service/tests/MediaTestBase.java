@@ -29,21 +29,6 @@ import org.junit.BeforeClass;
  * Base class for all media tests.
  */
 abstract class MediaTestBase {
-    /**
-     * All tests methods should start with this.
-     * <p>
-     * MediaControllerCompat, which is wrapped by the MediaSession, can be only created by the
-     * thread whose Looper is prepared. However, when the presubmit test runs on the server,
-     * test runs with the {@link org.junit.internal.runners.statements.FailOnTimeout} which creates
-     * dedicated thread for running test methods while methods annotated with @After or @Before
-     * runs on the normal test different thread. This ensures that the current Looper is prepared.
-     */
-    public static void prepareLooper() {
-        if (Looper.myLooper() == null) {
-            Looper.prepare();
-        }
-    }
-
     @BeforeClass
     public static void setupMainLooper() {
         InstrumentationRegistry.getInstrumentation().runOnMainSync(new Runnable() {
