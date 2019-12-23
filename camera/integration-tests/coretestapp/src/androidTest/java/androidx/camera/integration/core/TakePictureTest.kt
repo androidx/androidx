@@ -17,10 +17,10 @@
 package androidx.camera.integration.core
 
 import android.content.Context
-import android.content.Intent
 import androidx.camera.core.ImageCapture
 import androidx.camera.testing.CameraUtil
 import androidx.camera.testing.CoreAppTestUtil
+import androidx.camera.testing.CoreAppTestUtil.clearDeviceUI
 import androidx.test.core.app.ApplicationProvider
 import androidx.test.espresso.Espresso.onView
 import androidx.test.espresso.IdlingRegistry
@@ -65,15 +65,11 @@ class TakePictureTest {
         assumeTrue(CameraUtil.deviceHasCamera())
         CoreAppTestUtil.assumeCompatibleDevice()
 
-        // In case the lock screen on top, the action to dismiss it.
-        mDevice.pressKeyCode(DISMISS_LOCK_SCREEN_CODE)
-        mDevice.pressHome()
+        // Clear the device UI before start each test.
+        clearDeviceUI(InstrumentationRegistry.getInstrumentation())
 
         // Launch Activity
         mActivityRule.launchActivity(mIntent)
-
-        // Close system dialogs first to avoid interrupt.
-        mActivityRule.activity.sendBroadcast(Intent(Intent.ACTION_CLOSE_SYSTEM_DIALOGS))
 
         // Register idlingResource so Espresso will synchronize with it.
         IdlingRegistry.getInstance().register(mActivityRule.activity.imageSavedIdlingResource)
@@ -112,6 +108,5 @@ class TakePictureTest {
 
     companion object {
         const val BASIC_SAMPLE_PACKAGE = "androidx.camera.integration.core"
-        const val DISMISS_LOCK_SCREEN_CODE = 82
     }
 }
