@@ -18,161 +18,61 @@ package androidx.message.browser;
 
 import static androidx.annotation.RestrictTo.Scope.LIBRARY;
 
+import android.annotation.SuppressLint;
 import android.os.Bundle;
-import android.text.TextUtils;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.annotation.RestrictTo;
 import androidx.core.graphics.drawable.IconCompat;
+import androidx.versionedparcelable.ParcelUtils;
 
 /**
- * A class with user information for messages.
+ * A class for a contact information from {@link MessageLibraryService}.
  * @hide
  */
 @RestrictTo(LIBRARY)
 public class ContactInfo {
-    private final String mId;
-    private final String mDisplayName;
-    private final IconCompat mDisplayIcon;
-    private final String mEmail;
-    private final Bundle mExtras;
+    private static final String KEY_ID = "androidx.message.browser.ContactInfo.ID";
+    private static final String KEY_DISPLAY_NAME =
+            "androidx.message.browser.ContactInfo.DISPLAY_NAME";
+    private static final String KEY_DISPLAY_ICON =
+            "androidx.message.browser.ContactInfo.DISPLAY_ICON";
+    private static final String KEY_EMAIL = "androidx.message.browser.ContactInfo.EMAIL";
+    private static final String KEY_EXTRAS = "androidx.message.browser.ContactInfo.EXTRAS";
 
-    ContactInfo(@NonNull String id, @Nullable String displayName,
-            @Nullable IconCompat displayIcon, @Nullable String email, @Nullable Bundle extras) {
-        mId = id;
-        mDisplayName = displayName;
-        mDisplayIcon = displayIcon;
-        mEmail = email;
-        mExtras = extras;
-    }
-
-    /**
-     * Gets the ID of the user
-     *
-     * @return the ID of the user
-     */
     @NonNull
-    public String getid() {
-        return mId;
-    }
-
-    /**
-     * Gets the display name of the user
-     *
-     * @return the display name of the user
-     */
+    public String id;
     @Nullable
-    public String getDisplayName() {
-        return mDisplayName;
-    }
-
-    /**
-     * Sets the display icon of the user
-     *
-     * @return the icon of the user
-     */
+    public String displayName;
     @Nullable
-    public IconCompat getDisplayIcon() {
-        return mDisplayIcon;
-    }
-
-    /**
-     * Gets the email of the user
-     *
-     * @return the email address of the user
-     */
+    public IconCompat displayIcon;
     @Nullable
-    public String getEmail() {
-        return mEmail;
-    }
-
-    /**
-     * Gets the extra bundle for this user info
-     *
-     * @return the extra bundle for this user info
-     */
+    public String email;
     @Nullable
-    public Bundle getExtras() {
-        return mExtras;
+    public Bundle extras;
+
+    // TODO: Find a way to remove @SuppressLint
+    @SuppressLint("RestrictedApi")
+    static ContactInfo fromBundle(Bundle bundle) {
+        ContactInfo contact = new ContactInfo();
+        contact.id = bundle.getString(KEY_ID);
+        contact.displayName = bundle.getString(KEY_DISPLAY_NAME);
+        contact.displayIcon = ParcelUtils.fromParcelable(bundle.getParcelable(KEY_DISPLAY_ICON));
+        contact.email = bundle.getString(KEY_EMAIL);
+        contact.extras = bundle.getBundle(KEY_EXTRAS);
+        return contact;
     }
 
-    /**
-     * Builder for {@link ContactInfo}.
-     * @hide
-     */
-    @RestrictTo(LIBRARY)
-    public static class Builder {
-        private String mId;
-        private String mDisplayName;
-        private IconCompat mDisplayIcon;
-        private String mEmail;
-        private Bundle mExtras;
-
-        /**
-         * Create a builder for {@link ContactInfo}.
-         *
-         * @param id The unique id of the user
-         */
-        public Builder(@NonNull String id) {
-            if (TextUtils.isEmpty(id)) {
-                throw new IllegalArgumentException("messageUserId shouldn't be null or empty");
-            }
-            mId = id;
-        }
-
-        /**
-         * Sets the display name of the user
-         *
-         * @param displayName The display name of the user. set {@code null} for reset.
-         */
-        @NonNull
-        public Builder setDisplayName(@Nullable String displayName) {
-            mDisplayName = displayName;
-            return this;
-        }
-
-        /**
-         * Sets the display icon of the user
-         *
-         * @param displayIcon The icon of the user. set {@code null} for reset.
-         */
-        @NonNull
-        public Builder setDisplayIcon(@Nullable IconCompat displayIcon) {
-            mDisplayIcon = displayIcon;
-            return this;
-        }
-
-        /**
-         * Sets the email of the user
-         *
-         * @param email The email address of the user. set {@code null} for reset.
-         */
-        @NonNull
-        public Builder setEmail(@Nullable String email) {
-            mEmail = email;
-            return this;
-        }
-
-        /**
-         * Sets the extra bundle for this user info
-         *
-         * @param extras The extra bundle for this user info. set {@code null} for reset.
-         */
-        @NonNull
-        public Builder setExtras(@Nullable Bundle extras) {
-            mExtras = extras;
-            return this;
-        }
-
-        /**
-         * Builds a {@link ContactInfo}.
-         *
-         * @return a new MessageUserInfo
-         */
-        @NonNull
-        public ContactInfo build() {
-            return new ContactInfo(mId, mDisplayName, mDisplayIcon, mEmail, mExtras);
-        }
+    // TODO: Find a way to remove @SuppressLint
+    @SuppressLint("RestrictedApi")
+    Bundle toBundle() {
+        Bundle bundle = new Bundle();
+        bundle.putString(KEY_ID, id);
+        bundle.putString(KEY_DISPLAY_NAME, displayName);
+        bundle.putParcelable(KEY_DISPLAY_ICON, ParcelUtils.toParcelable(displayIcon));
+        bundle.putString(KEY_EMAIL, email);
+        bundle.putBundle(KEY_EXTRAS, bundle);
+        return bundle;
     }
 }
