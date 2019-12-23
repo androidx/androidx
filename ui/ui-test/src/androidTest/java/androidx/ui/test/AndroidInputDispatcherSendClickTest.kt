@@ -18,9 +18,12 @@ package androidx.ui.test
 
 import android.view.MotionEvent
 import androidx.test.filters.SmallTest
+import androidx.ui.core.PxPosition
+import androidx.ui.core.px
 import androidx.ui.test.android.AndroidInputDispatcher
 import androidx.ui.test.util.MotionEventRecorder
 import androidx.ui.test.util.assertHasValidEventTimes
+import androidx.ui.test.util.verify
 import com.google.common.truth.Truth.assertThat
 import org.junit.After
 import org.junit.Before
@@ -35,7 +38,7 @@ import org.junit.runners.Parameterized
  */
 @SmallTest
 @RunWith(Parameterized::class)
-class AndroidInputDispatcherSendClickTest(private val config: TestConfig) {
+class AndroidInputDispatcherSendClickTest(config: TestConfig) {
     data class TestConfig(
         val x: Float,
         val y: Float
@@ -59,8 +62,7 @@ class AndroidInputDispatcherSendClickTest(private val config: TestConfig) {
     )
 
     private val eventPeriod = 10L
-    private val x get() = config.x
-    private val y get() = config.y
+    private val position = PxPosition(config.x.px, config.y.px)
 
     private lateinit var recorder: MotionEventRecorder
     private lateinit var subject: AndroidInputDispatcher
@@ -78,17 +80,12 @@ class AndroidInputDispatcherSendClickTest(private val config: TestConfig) {
 
     @Test
     fun testClick() {
-        subject.sendClick(x, y)
+        subject.sendClick(position)
         recorder.assertHasValidEventTimes()
         recorder.events.apply {
             assertThat(size).isEqualTo(2)
-            assertThat(first().action).isEqualTo(MotionEvent.ACTION_DOWN)
-            assertThat(last().action).isEqualTo(MotionEvent.ACTION_UP)
-            assertThat(first().x).isEqualTo(x)
-            assertThat(first().y).isEqualTo(y)
-            assertThat(last().x).isEqualTo(x)
-            assertThat(last().y).isEqualTo(y)
-            assertThat(last().eventTime - first().eventTime).isEqualTo(eventPeriod)
+            first().verify(position, MotionEvent.ACTION_DOWN, 0)
+            last().verify(position, MotionEvent.ACTION_UP, eventPeriod)
         }
     }
 }

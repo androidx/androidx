@@ -146,14 +146,14 @@ package androidx.ui.test {
   }
 
   public final class GestureScopeKt {
-    method public static void sendClick(androidx.ui.test.GestureScope, float x, float y);
+    method public static void sendClick(androidx.ui.test.GestureScope, androidx.ui.core.PxPosition position);
     method public static void sendClick(androidx.ui.test.GestureScope);
-    method public static void sendSwipe(androidx.ui.test.GestureScope, float x0, float y0, float x1, float y1, androidx.ui.core.Duration duration = 200.milliseconds);
+    method public static void sendSwipe(androidx.ui.test.GestureScope, androidx.ui.core.PxPosition start, androidx.ui.core.PxPosition end, androidx.ui.core.Duration duration = 200.milliseconds);
     method public static void sendSwipeDown(androidx.ui.test.GestureScope);
     method public static void sendSwipeLeft(androidx.ui.test.GestureScope);
     method public static void sendSwipeRight(androidx.ui.test.GestureScope);
     method public static void sendSwipeUp(androidx.ui.test.GestureScope);
-    method public static void sendSwipeWithVelocity(androidx.ui.test.GestureScope, float x0, float y0, float x1, float y1, @FloatRange(from=0.0) float endVelocity, androidx.ui.core.Duration duration = 200.milliseconds);
+    method public static void sendSwipeWithVelocity(androidx.ui.test.GestureScope, androidx.ui.core.PxPosition start, androidx.ui.core.PxPosition end, @FloatRange(from=0.0) float endVelocity, androidx.ui.core.Duration duration = 200.milliseconds);
   }
 
   public final class GoldenSemanticsKt {

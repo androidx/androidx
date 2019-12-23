@@ -18,6 +18,7 @@ package androidx.ui.test.util
 
 import android.content.ContextWrapper
 import android.view.MotionEvent
+import androidx.ui.core.PxPosition
 import androidx.ui.core.SemanticsTreeNode
 import androidx.ui.core.SemanticsTreeProvider
 import androidx.ui.test.android.CollectedProviders
@@ -65,8 +66,15 @@ internal fun MotionEventRecorder.assertHasValidEventTimes() {
 }
 
 internal fun MotionEvent.verify(
-    fx: (Long) -> Float,
-    fy: (Long) -> Float,
+    curve: (Long) -> PxPosition,
+    expectedAction: Int,
+    expectedRelativeTime: Long
+) {
+    verify(curve(expectedRelativeTime), expectedAction, expectedRelativeTime)
+}
+
+internal fun MotionEvent.verify(
+    expectedPosition: PxPosition,
     expectedAction: Int,
     expectedRelativeTime: Long
 ) {
@@ -74,8 +82,8 @@ internal fun MotionEvent.verify(
     assertThat(relativeTime).isEqualTo(expectedRelativeTime)
     // x and y can just be taken from the function. We're not testing the function, we're
     // testing if the MotionEvent sampled the function at the correct point
-    assertThat(x).isEqualTo(fx(expectedRelativeTime))
-    assertThat(y).isEqualTo(fy(expectedRelativeTime))
+    assertThat(x).isEqualTo(expectedPosition.x.value)
+    assertThat(y).isEqualTo(expectedPosition.y.value)
 }
 
 /**

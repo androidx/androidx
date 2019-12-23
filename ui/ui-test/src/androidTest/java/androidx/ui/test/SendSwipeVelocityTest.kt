@@ -23,6 +23,7 @@ import androidx.ui.core.Alignment
 import androidx.ui.core.Draw
 import androidx.ui.core.Duration
 import androidx.ui.core.PointerInputWrapper
+import androidx.ui.core.PxPosition
 import androidx.ui.core.TestTag
 import androidx.ui.core.WithDensity
 import androidx.ui.core.getDistance
@@ -110,6 +111,8 @@ class SendSwipeVelocityTest(private val config: TestConfig) {
     private val y0 get() = config.direction.y0(bounds)
     private val x1 get() = config.direction.x1(bounds)
     private val y1 get() = config.direction.y1(bounds)
+    private val start get() = PxPosition(x0.px, y0.px)
+    private val end get() = PxPosition(x1.px, y1.px)
     private val duration get() = config.duration
     private val velocity get() = config.velocity
     private val eventPeriod get() = config.eventPeriod
@@ -167,7 +170,7 @@ class SendSwipeVelocityTest(private val config: TestConfig) {
     @Test
     fun swipeWithVelocity() {
         composeTestRule.setContent { Ui() }
-        findByTag(tag).doGesture { sendSwipeWithVelocity(x0, y0, x1, y1, velocity, duration) }
+        findByTag(tag).doGesture { sendSwipeWithVelocity(start, end, velocity, duration) }
         composeTestRule.runOnUiThread {
             recorder.run {
                 val durationMs = duration.inMilliseconds()

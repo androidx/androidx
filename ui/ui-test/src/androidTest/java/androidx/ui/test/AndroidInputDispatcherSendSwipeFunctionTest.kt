@@ -21,8 +21,10 @@ import android.view.MotionEvent.ACTION_MOVE
 import android.view.MotionEvent.ACTION_UP
 import androidx.test.filters.SmallTest
 import androidx.ui.core.Duration
+import androidx.ui.core.PxPosition
 import androidx.ui.core.inMilliseconds
 import androidx.ui.core.milliseconds
+import androidx.ui.core.px
 import androidx.ui.test.android.AndroidInputDispatcher
 import androidx.ui.test.util.MotionEventRecorder
 import androidx.ui.test.util.assertHasValidEventTimes
@@ -41,7 +43,12 @@ import org.junit.rules.TestRule
 import org.junit.runner.RunWith
 import org.junit.runners.Parameterized
 
-private val f = { t: Long -> t.toFloat() }
+private val curve = { t: Long ->
+    PxPosition(
+        t.toFloat().px,
+        (-t).toFloat().px
+    )
+}
 
 /**
  * Tests if the [AndroidInputDispatcher.sendSwipe] gesture works when specifying the gesture as a
@@ -118,7 +125,7 @@ class SwipeWithDurationTest(private val config: TestConfig) {
     @Test
     fun swipeWithDuration() {
         // Given a swipe with a given duration
-        subject.sendSwipe(fx = f, fy = f, duration = config.duration)
+        subject.sendSwipe(curve = curve, duration = config.duration)
 
         // then
         val expectedNumberOfMoveEvents = config.expectedTimestamps.size
@@ -129,11 +136,11 @@ class SwipeWithDurationTest(private val config: TestConfig) {
 
             val durationMs = config.duration.inMilliseconds()
             // First is down, last is up
-            first().verify(f, f, ACTION_DOWN, expectedRelativeTime = 0)
-            last().verify(f, f, ACTION_UP, expectedRelativeTime = durationMs)
+            first().verify(curve, ACTION_DOWN, expectedRelativeTime = 0)
+            last().verify(curve, ACTION_UP, expectedRelativeTime = durationMs)
             // In between are all move events with the expected timestamps
             drop(1).zip(config.expectedTimestamps).forEach { (event, expectedTimestamp) ->
-                event.verify(f, f, ACTION_MOVE, expectedRelativeTime = expectedTimestamp)
+                event.verify(curve, ACTION_MOVE, expectedRelativeTime = expectedTimestamp)
             }
         }
     }
@@ -208,7 +215,7 @@ class SwipeWithKeyTimesTest(private val config: TestConfig) {
     @Test
     fun swipeWithKeyTimes() {
         // Given a swipe with a given duration and set of keyTimes
-        subject.sendSwipe(fx = f, fy = f, duration = config.duration, keyTimes = config.keyTimes)
+        subject.sendSwipe(curve = curve, duration = config.duration, keyTimes = config.keyTimes)
 
         // then
         val expectedNumberOfMoveEvents = config.expectedTimestamps.size
@@ -219,11 +226,11 @@ class SwipeWithKeyTimesTest(private val config: TestConfig) {
 
             val durationMs = config.duration.inMilliseconds()
             // First is down, last is up
-            first().verify(f, f, ACTION_DOWN, expectedRelativeTime = 0)
-            last().verify(f, f, ACTION_UP, expectedRelativeTime = durationMs)
+            first().verify(curve, ACTION_DOWN, expectedRelativeTime = 0)
+            last().verify(curve, ACTION_UP, expectedRelativeTime = durationMs)
             // In between are all move events with the expected timestamps
             drop(1).zip(config.expectedTimestamps).forEach { (event, expectedTimestamp) ->
-                event.verify(f, f, ACTION_MOVE, expectedRelativeTime = expectedTimestamp)
+                event.verify(curve, ACTION_MOVE, expectedRelativeTime = expectedTimestamp)
             }
         }
     }
@@ -307,27 +314,25 @@ class SendSwipeWithKeyTimesAndEventPeriodTest(private val config: TestConfig) {
     @Test
     fun swipeWithKeyTimesAndEventPeriod() {
         // Given a specific eventPeriod and a swipe with a given duration and set of keyTimes
-        subject.sendSwipe(fx = f, fy = f, duration = duration, keyTimes = keyTimes)
+        subject.sendSwipe(curve = curve, duration = duration, keyTimes = keyTimes)
 
         // then
         recorder.assertHasValidEventTimes()
         recorder.events.apply {
             // down + up + #keyTimes
             assertThat(size).isAtLeast(2 + keyTimes.size)
-            assertThat(first().action).isEqualTo(ACTION_DOWN)
-            assertThat(last().action).isEqualTo(ACTION_UP)
+
+            // Check down and up events
+            val durationMs = duration.inMilliseconds()
+            first().verify(curve, ACTION_DOWN, 0)
+            last().verify(curve, ACTION_UP, durationMs)
 
             // Check that coordinates are the function's value at the respective timestamps
             forEach {
-                assertThat(it.x).isEqualTo(f(it.relativeTime))
-                assertThat(it.y).isEqualTo(f(it.relativeTime))
+                assertThat(it.x).isEqualTo(curve(it.relativeTime).x.value)
+                assertThat(it.y).isEqualTo(curve(it.relativeTime).y.value)
             }
 
-            // Check timestamps
-
-            val durationMs = duration.inMilliseconds()
-            // Elapsed time between first and last event equals the given duration
-            assertThat(last().eventTime - first().eventTime).isEqualTo(durationMs)
             // The given keyTimes must occur as event timestamps
             // Ordering is already required on the keyTimes parameter in setUp()
             assertThat(relativeEventTimes).containsAtLeastElementsIn(keyTimes.distinct())

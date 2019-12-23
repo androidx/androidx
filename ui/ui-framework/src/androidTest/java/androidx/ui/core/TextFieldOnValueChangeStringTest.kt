@@ -89,7 +89,7 @@ class TextFieldOnValueChangeStringTest {
 
         // Perform click to focus in.
         findByTag("textField")
-            .doGesture { sendClick(1f, 1f) }
+            .doGesture { sendClick(PxPosition(1.px, 1.px)) }
 
         composeTestRule.runOnUiThread {
             // Verify startInput is called and capture the callback.
