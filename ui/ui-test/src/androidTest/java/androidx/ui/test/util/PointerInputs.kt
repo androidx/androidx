@@ -16,10 +16,13 @@
 
 package androidx.ui.test.util
 
+import androidx.ui.core.Duration
 import androidx.ui.core.IntPxSize
 import androidx.ui.core.PointerEventPass
 import androidx.ui.core.PointerInputChange
 import androidx.ui.core.PointerInputData
+import androidx.ui.core.gesture.util.VelocityTracker
+import androidx.ui.test.util.PointerInputRecorder.DataPoint
 import com.google.common.truth.Truth.assertThat
 
 class PointerInputRecorder {
@@ -35,6 +38,9 @@ class PointerInputRecorder {
     private val _events = mutableListOf<DataPoint>()
     val events get() = _events as List<DataPoint>
 
+    private val velocityTracker = VelocityTracker()
+    val recordedVelocity get() = velocityTracker.calculateVelocity()
+
     fun onPointerInput(
         changes: List<PointerInputChange>,
         pass: PointerEventPass,
@@ -43,11 +49,20 @@ class PointerInputRecorder {
         if (pass == PointerEventPass.InitialDown) {
             changes.forEach {
                 _events.add(DataPoint(it.id, it.current))
+                velocityTracker.addPosition(it.current.uptime!!, it.current.position!!)
             }
         }
         return changes
     }
 }
+
+val PointerInputRecorder.downEvents get() = events.filter { it.down }
+
+val PointerInputRecorder.recordedDuration: Duration
+    get() {
+        check(events.isNotEmpty()) { "No events recorded" }
+        return events.last().timestamp - events.first().timestamp
+    }
 
 fun PointerInputRecorder.assertTimestampsAreIncreasing() {
     check(events.isNotEmpty()) { "No events recorded" }
@@ -61,4 +76,12 @@ fun PointerInputRecorder.assertOnlyLastEventIsUp() {
     check(events.isNotEmpty()) { "No events recorded" }
     assertThat(events.last().down).isFalse()
     assertThat(events.count { !it.down }).isEqualTo(1)
+}
+
+/**
+ * Checks that the coordinates are progressing in a monotonous direction
+ */
+fun List<DataPoint>.isMonotonousBetween(x0: Float, y0: Float, x1: Float, y1: Float) {
+    map { it.x.value }.isMonotonousBetween(x0, x1, 1e-3f)
+    map { it.y.value }.isMonotonousBetween(y0, y1, 1e-3f)
 }
