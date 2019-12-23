@@ -18,9 +18,13 @@ package androidx.ui.test
 
 import androidx.annotation.FloatRange
 import androidx.ui.core.Duration
+import androidx.ui.core.Px
+import androidx.ui.core.PxPosition
 import androidx.ui.core.SemanticsTreeNode
 import androidx.ui.core.inMilliseconds
 import androidx.ui.core.milliseconds
+import androidx.ui.core.px
+import androidx.ui.engine.geometry.Rect
 import androidx.ui.lerp
 import kotlin.math.atan2
 import kotlin.math.cos
@@ -54,20 +58,28 @@ class GestureScope internal constructor(
  */
 private const val edgeFuzzFactor = 0.083f
 
+private fun GestureScope.getGlobalBounds(): Rect {
+    return requireNotNull(semanticsTreeNode.globalRect) {
+        "Semantic Node has no child layout to resolve coordinates on"
+    }
+}
+
+private fun GestureScope.toGlobalPosition(position: PxPosition): PxPosition {
+    val bounds = getGlobalBounds()
+    return position + PxPosition(bounds.left.px, bounds.top.px)
+}
+
 /**
- * Performs a click gesture on the given coordinate on the associated component. The coordinate
- * ([x], [y]) is in the component's local coordinate system.
+ * Performs a click gesture on the given [position] on the associated component. The [position]
+ * is in the component's local coordinate system.
  *
  * Throws [AssertionError] when the component doesn't have a bounding rectangle set
+ *
+ * @param position The position where to click, in the component's local coordinate system
  */
-fun GestureScope.sendClick(x: Float, y: Float) {
-    val globalRect = semanticsTreeNode.globalRect
-        ?: throw AssertionError("Semantic Node has no child layout to perform click on!")
-    val xOffset = globalRect.left
-    val yOffset = globalRect.top
-
+fun GestureScope.sendClick(position: PxPosition) {
     semanticsTreeInteraction.sendInput {
-        it.sendClick(x + xOffset, y + yOffset)
+        it.sendClick(toGlobalPosition(position))
     }
 }
 
@@ -78,48 +90,38 @@ fun GestureScope.sendClick(x: Float, y: Float) {
  * Throws [AssertionError] when the component doesn't have a bounding rectangle set
  */
 fun GestureScope.sendClick() {
-    val globalRect = semanticsTreeNode.globalRect
-        ?: throw AssertionError("Semantic Node has no child layout to perform click on!")
-    val x = globalRect.width / 2
-    val y = globalRect.height / 2
-
-    sendClick(x, y)
+    val bounds = getGlobalBounds()
+    sendClick(PxPosition(Px(bounds.width / 2), Px(bounds.height / 2)))
 }
 
 /**
- * Performs the swipe gesture on the associated component. The MotionEvents are linearly
- * interpolated between ([x0], [y0]) and ([x1], [y1]). The coordinates are in the component's local
- * coordinate system, i.e. (0, 0) is the top left corner of the component. The default duration is
- * 200 milliseconds.
+ * Performs the swipe gesture on the associated component. The motion events are linearly
+ * interpolated between [start] and [end]. The coordinates are in the component's local
+ * coordinate system, i.e. (0, 0) is the top left corner of the component. The default duration
+ * is 200 milliseconds.
  *
  * Throws [AssertionError] when the component doesn't have a bounding rectangle set
+ *
+ * @param start The start position of the gesture, in the component's local coordinate system
+ * @param end The end position of the gesture, in the component's local coordinate system
+ * @param duration The duration of the gesture
  */
 fun GestureScope.sendSwipe(
-    x0: Float,
-    y0: Float,
-    x1: Float,
-    y1: Float,
+    start: PxPosition,
+    end: PxPosition,
     duration: Duration = 200.milliseconds
 ) {
-    val globalRect = semanticsTreeNode.globalRect
-        ?: throw AssertionError("Semantic Node has no child layout to perform swipe on!")
-    val xOffset = globalRect.left
-    val yOffset = globalRect.top
-
-    val x0Global = x0 + xOffset
-    val x1Global = x1 + xOffset
-    val y0Global = y0 + yOffset
-    val y1Global = y1 + yOffset
-
+    val globalStart = toGlobalPosition(start)
+    val globalEnd = toGlobalPosition(end)
     semanticsTreeInteraction.sendInput {
-        it.sendSwipe(x0Global, y0Global, x1Global, y1Global, duration)
+        it.sendSwipe(globalStart, globalEnd, duration)
     }
 }
 
 /**
  * Performs the swipe gesture on the associated component, such that the velocity when the
  * gesture is finished is roughly equal to [endVelocity]. The MotionEvents are linearly
- * interpolated between ([x0], [y0]) and ([x1], [y1]). The coordinates are in the component's
+ * interpolated between [start] and [end]. The coordinates are in the component's
  * local coordinate system, i.e. (0, 0) is the top left corner of the component. The default
  * duration is 200 milliseconds.
  *
@@ -127,12 +129,16 @@ fun GestureScope.sendSwipe(
  * velocity at the end of the gesture, but generally it is within 0.1% of the desired velocity.
  *
  * Throws [AssertionError] when the component doesn't have a bounding rectangle set
+ *
+ * @param start The start position of the gesture, in the component's local coordinate system
+ * @param end The end position of the gesture, in the component's local coordinate system
+ * @param endVelocity The velocity of the gesture at the moment it ends. Must be positive.
+ * @param duration The duration of the gesture. Must be long enough that at least 3 input events
+ * are generated, which happens with a duration of 25ms or more.
  */
 fun GestureScope.sendSwipeWithVelocity(
-    x0: Float,
-    y0: Float,
-    x1: Float,
-    y1: Float,
+    start: PxPosition,
+    end: PxPosition,
     @FloatRange(from = 0.0) endVelocity: Float,
     duration: Duration = 200.milliseconds
 ) {
@@ -144,18 +150,12 @@ fun GestureScope.sendSwipeWithVelocity(
     require(duration >= 25.milliseconds) {
         "Duration must be at least 25ms because velocity requires at least 3 input events"
     }
-    val globalRect = semanticsTreeNode.globalRect
-        ?: throw AssertionError("Semantic Node has no child layout to perform swipe on!")
-    val xOffset = globalRect.left
-    val yOffset = globalRect.top
-
-    val x0Global = x0 + xOffset
-    val x1Global = x1 + xOffset
-    val y0Global = y0 + yOffset
-    val y1Global = y1 + yOffset
+    val globalStart = toGlobalPosition(start)
+    val globalEnd = toGlobalPosition(end)
 
     // Decompose v into it's x and y components
-    val theta = atan2(y1 - y0, x1 - x0)
+    val delta = end - start
+    val theta = atan2(delta.y.value, delta.x.value)
     // VelocityTracker internally calculates px/s, not px/ms
     val vx = cos(theta) * endVelocity / 1000
     val vy = sin(theta) * endVelocity / 1000
@@ -171,11 +171,11 @@ fun GestureScope.sendSwipeWithVelocity(
     // (-age, x) and (-age, y) for vx and vy respectively, which is accounted for in
     // f(Long, Long, Float, Float, Float).
     val durationMs = duration.inMilliseconds()
-    val fx = createFunctionForVelocity(durationMs, x0Global, x1Global, vx)
-    val fy = createFunctionForVelocity(durationMs, y0Global, y1Global, vy)
+    val fx = createFunctionForVelocity(durationMs, globalStart.x.value, globalEnd.x.value, vx)
+    val fy = createFunctionForVelocity(durationMs, globalStart.y.value, globalEnd.y.value, vy)
 
     semanticsTreeInteraction.sendInput {
-        it.sendSwipe(fx, fy, duration)
+        it.sendSwipe({ t -> PxPosition(fx(t).px, fy(t).px) }, duration)
     }
 }
 
@@ -186,13 +186,13 @@ fun GestureScope.sendSwipeWithVelocity(
  * Throws [AssertionError] when the component doesn't have a bounding rectangle set
  */
 fun GestureScope.sendSwipeUp() {
-    val globalRect = semanticsTreeNode.globalRect
-        ?: throw AssertionError("Semantic Node has no child layout to perform swipe on!")
-    val x = globalRect.width / 2
-    val y0 = globalRect.height * (1 - edgeFuzzFactor)
+    val bounds = getGlobalBounds()
+    val x = bounds.width / 2
+    val y0 = bounds.height * (1 - edgeFuzzFactor)
     val y1 = 0f
-
-    sendSwipe(x, y0, x, y1, 200.milliseconds)
+    val start = PxPosition(x.px, y0.px)
+    val end = PxPosition(x.px, y1.px)
+    sendSwipe(start, end, 200.milliseconds)
 }
 
 /**
@@ -202,13 +202,13 @@ fun GestureScope.sendSwipeUp() {
  * Throws [AssertionError] when the component doesn't have a bounding rectangle set
  */
 fun GestureScope.sendSwipeDown() {
-    val globalRect = semanticsTreeNode.globalRect
-        ?: throw AssertionError("Semantic Node has no child layout to perform swipe on!")
-    val x = globalRect.width / 2
-    val y0 = globalRect.height * edgeFuzzFactor
-    val y1 = globalRect.height
-
-    sendSwipe(x, y0, x, y1, 200.milliseconds)
+    val bounds = getGlobalBounds()
+    val x = bounds.width / 2
+    val y0 = bounds.height * edgeFuzzFactor
+    val y1 = bounds.height
+    val start = PxPosition(x.px, y0.px)
+    val end = PxPosition(x.px, y1.px)
+    sendSwipe(start, end, 200.milliseconds)
 }
 
 /**
@@ -218,13 +218,13 @@ fun GestureScope.sendSwipeDown() {
  * Throws [AssertionError] when the component doesn't have a bounding rectangle set
  */
 fun GestureScope.sendSwipeLeft() {
-    val globalRect = semanticsTreeNode.globalRect
-        ?: throw AssertionError("Semantic Node has no child layout to perform swipe on!")
-    val x0 = globalRect.width * (1 - edgeFuzzFactor)
+    val bounds = getGlobalBounds()
+    val x0 = bounds.width * (1 - edgeFuzzFactor)
     val x1 = 0f
-    val y = globalRect.height / 2
-
-    sendSwipe(x0, y, x1, y, 200.milliseconds)
+    val y = bounds.height / 2
+    val start = PxPosition(x0.px, y.px)
+    val end = PxPosition(x1.px, y.px)
+    sendSwipe(start, end, 200.milliseconds)
 }
 
 /**
@@ -234,45 +234,45 @@ fun GestureScope.sendSwipeLeft() {
  * Throws [AssertionError] when the component doesn't have a bounding rectangle set
  */
 fun GestureScope.sendSwipeRight() {
-    val globalRect = semanticsTreeNode.globalRect
-        ?: throw AssertionError("Semantic Node has no child layout to perform swipe on!")
-    val x0 = globalRect.width * edgeFuzzFactor
-    val x1 = globalRect.width
-    val y = globalRect.height / 2
-
-    sendSwipe(x0, y, x1, y, 200.milliseconds)
+    val bounds = getGlobalBounds()
+    val x0 = bounds.width * edgeFuzzFactor
+    val x1 = bounds.width
+    val y = bounds.height / 2
+    val start = PxPosition(x0.px, y.px)
+    val end = PxPosition(x1.px, y.px)
+    sendSwipe(start, end, 200.milliseconds)
 }
 
 /**
- * Generate a function of the form `f(t) = a*(t-T)^2 + b*(t-T) + c` that satisfies `f(0) = [from]`,
- * `f([duration]) = [to]`, `T = [duration]` and `b = [velocity]`.
+ * Generate a function of the form `f(t) = a*(t-T)^2 + b*(t-T) + c` that satisfies
+ * `f(0) = [start]`, `f([duration]) = [end]`, `T = [duration]` and `b = [velocity]`.
  *
- * Filling in `f([duration]) = [to]`, `T = [duration]` and `b = [velocity]` gives:
- * * `a * (duration - duration)^2 + velocity * (duration - duration) + c = to`
- * * `c = to`
+ * Filling in `f([duration]) = [end]`, `T = [duration]` and `b = [velocity]` gives:
+ * * `a * (duration - duration)^2 + velocity * (duration - duration) + c = end`
+ * * `c = end`
  *
- * Filling in `f(0) = [from]`, `T = [duration]` and `b = [velocity]` gives:
- * * `a * (0 - duration)^2 + velocity * (0 - duration) + c = from`
- * * `a * duration^2 - velocity * duration + to = from`
- * * `a * duration^2 = from - to + velocity * duration`
- * * `a = (from - to + velocity * duration) / duration^2`
+ * Filling in `f(0) = [start]`, `T = [duration]` and `b = [velocity]` gives:
+ * * `a * (0 - duration)^2 + velocity * (0 - duration) + c = start`
+ * * `a * duration^2 - velocity * duration + to = start`
+ * * `a * duration^2 = start - to + velocity * duration`
+ * * `a = (start - to + velocity * duration) / duration^2`
  *
  * @param duration The duration of the fling
- * @param from The start x or y coordinate
- * @param to The end x or y coordinate
- * @param velocity The desired velocity in the x or y direction at the [to] coordinate
+ * @param start The start x or y position
+ * @param end The end x or y position
+ * @param velocity The desired velocity in the x or y direction at the [end] position
  */
 private fun createFunctionForVelocity(
     duration: Long,
-    from: Float,
-    to: Float,
+    start: Float,
+    end: Float,
     velocity: Float
 ): (Long) -> Float {
-    val a = (from - to + velocity * duration) / (duration * duration)
+    val a = (start - end + velocity * duration) / (duration * duration)
     val function = { t: Long ->
         val tMinusDuration = t - duration
         // `f(t) = a*(t-T)^2 + b*(t-T) + c`
-        a * tMinusDuration * tMinusDuration + velocity * tMinusDuration + to
+        a * tMinusDuration * tMinusDuration + velocity * tMinusDuration + end
     }
 
     // High velocities often result in curves that start off in the wrong direction, like a bow
@@ -281,7 +281,7 @@ private fun createFunctionForVelocity(
     // 100 ms of the gesture. Anything before that doesn't need to follow the curve.
 
     // Does the function go in the correct direction at the start?
-    if (sign(function(1) - from) == sign(to - from)) {
+    if (sign(function(1) - start) == sign(end - start)) {
         return function
     } else {
         // If not, lerp between 0 and `duration - 100` in an attempt to prevent the function from
@@ -290,14 +290,14 @@ private fun createFunctionForVelocity(
         // between from and to, log a warning if this is not the case.
         val cutOffTime = duration - 100
         val cutOffValue = function(cutOffTime)
-        require(sign(cutOffValue - from) == sign(to - from)) {
-            "Creating a gesture between $from and $to with a duration of $duration and a " +
-                    "resulting velocity of $velocity results in a movement that goes outside of " +
-                    "the range [$from..$to]"
+        require(sign(cutOffValue - start) == sign(end - start)) {
+            "Creating a gesture between $start and $end with a duration of $duration and a " +
+                    "resulting velocity of $velocity results in a movement that goes outside " +
+                    "of the range [$start..$end]"
         }
         return { t ->
             if (t < cutOffTime) {
-                lerp(from, cutOffValue, t / cutOffTime.toFloat())
+                lerp(start, cutOffValue, t / cutOffTime.toFloat())
             } else {
                 function(t)
             }
