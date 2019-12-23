@@ -56,7 +56,7 @@ import java.util.concurrent.TimeoutException;
 /**
  * A high level view for media playback that can be integrated with either a {@link SessionPlayer}
  * or a {@link MediaController}. Developers can easily implement a video rendering application
- * using this class. By default, {@link MediaControlView} is attached so the playback
+ * using this class. By default, a {@link MediaControlView} is attached so the playback
  * control buttons are displayed on top of VideoView.
  * <p>
  * Contents:
@@ -81,7 +81,7 @@ import java.util.concurrent.TimeoutException;
  * </ul>
  *
  * <h3 id="UseWithMCV">Using VideoView with MediaControlView</h3>
- * {@link VideoView} is integrated with {@link MediaControlView} and a MediaControlView
+ * {@link VideoView} is working with {@link MediaControlView} and a MediaControlView
  * instance is attached to VideoView by default.
  * <p>
  * If you want to attach a custom {@link MediaControlView}, assign the custom media
@@ -94,7 +94,7 @@ import java.util.concurrent.TimeoutException;
  * VideoView can render videos on a TextureView or SurfaceView. The
  * default is SurfaceView which can be changed by using the {@link #setViewType(int)} method or
  * by setting the {@link androidx.media2.widget.R.attr#viewType} attribute in the layout file.
- * <p> Using SurfaceView is recommended in most cases for saving battery life.
+ * <p> SurfaceView is recommended in most cases for saving battery life.
  * TextureView might be preferred for supporting various UIs such as animation and translucency.
  *
  * <h3 id="LegacyVideoView">Comparison with android.widget.VideoView</h3>

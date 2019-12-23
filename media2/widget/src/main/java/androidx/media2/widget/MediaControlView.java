@@ -83,46 +83,50 @@ import java.util.Locale;
  * a {@link MediaController} attached to the {@link MediaSession} and set it to this view
  * by calling {@link #setMediaController}.
  * <p>
- * The easiest way to use a MediaControlView is by creating a {@link VideoView}, which will
- * internally create a MediaControlView instance and handle all the commands from buttons inside
+ * The easiest way to use a MediaControlView is by creating a {@link VideoView}, which
+ * internally creates a MediaControlView instance and handles all the commands from buttons inside
  * MediaControlView. It is also possible to create a MediaControlView programmatically and add it
  * to a custom video view. For more information, refer to {@link VideoView}.
  * <p>
- * By default, the buttons inside MediaControlView will not be visible unless the corresponding
- * {@link SessionCommand} is marked as allowed. For more details, refer to {@link MediaSession}.
+ * By default, each button in the MediaControlView is visible only when its corresponding
+ * {@link SessionCommand} is included in the active {@link SessionCommandGroup}.
+ * For more details, refer to {@link MediaSession#setAllowedCommands}.
  * <p>
  * <h3>UI transitions</h3>
- * Currently, MediaControlView animates UI transitions between three different modes: full,
- * progress-bar only, and none.
+ * The UI of an app can be in one of three modes:
  * <ul>
- *     <li><b>Full</b> mode is where all the views are visible
- *     <li><b>Progress-bar only</b> mode is where only the progress bar is visible and the title,
- *     transport controls and other icons are hidden
- *     <li><b>None</b> mode is where all views are gone.
+ *     <li>In <b>full</b> mode all the views, such as progress bar, title, transport controls,
+ *     and other icons are visible.
+ *     <li>In <b>progress-bar only</b> mode the progress bar is the only visible element.
+ *     The title, transport controls, and other icons are hidden.
+ *     <li>In <b>None</b> mode all the views are hidden.
  * </ul>
- * The default interval between each mode is 2000ms, but it can be customized by using
+ * When the  UI mode changes, MediaControlView animates the transition. The animation does not
+ * start immediately, there is a default delay interval of 2000ms before the animation begins. You
+ * can change this interval by calling
  * {@link VideoView#setMediaControlView(MediaControlView, long)}.
  * <p>
- * Transitions occur based on the following logic:
+ * User actions can change the scheduled transition during the delay interval according to
+ * the following logic:
  * <ol>
  *   <li> In Full mode
  *   <ul>
- *       <li>If a touch/trackball event is received, will transition to None mode.
- *       <li>If a touch/trackball event is not received, will transition to Progress-bar only mode
- *       after the interval.
+ *       <li>If a touch/trackball event is received during the interval, the UI changes to None
+ *       mode.
+ *       <li>If no touch/trackball event is received during the interval, the UI changes to
+ *       progress-bar only mode.
  *   </ul>
  *   <li> In Progress-bar only mode
  *   <ul>
- *     <li>If a touch/trackball event is received, will transition to Full mode.
- *     <li>If a touch/trackball event is not received, will transition to None mode after the
- *        interval.
+ *     <li>If a touch/trackball event is received, the UI changes to Full mode.
+ *     <li>If no touch/trackball event is received, the UI changes to None mode.
  *   </ul>
- *   <li> In None mode, if a touch/trackball event is received, will transition to Full mode.
+ *   <li> In None mode, if a touch/trackball event is received, the UI changes to Full mode.
  * </ol>
- * While animating, all touch/trackball event will be ignored.
+ * All touch/trackballs events are ignored while the system is animating the change between modes.
  * <p>
  * <h3>Customization</h3>
- * In addition, the following customizations are supported:
+ * The following customizations are supported:
  * <ul>
  *   <li>Set focus to the play/pause button by calling {@link #requestPlayButtonFocus()}.
  *   <li>Set full screen behavior by calling {@link #setOnFullScreenListener(OnFullScreenListener)}.
@@ -132,8 +136,8 @@ import java.util.Locale;
  * <h3>Displaying metadata</h3>
  * MediaControlView supports displaying metadata by calling
  * {@link MediaItem#setMetadata(MediaMetadata)}.
- * Metadata display is different for two different media types: music (sound only, with no video)
- * and non-music (having video).
+ * Metadata display is different for two different media types: video (with or without sound)
+ * and audio(sound only, no video)
  * <p>
  * The following table shows the metadata displayed on VideoView and the default
  * values assigned if the keys are not set:
@@ -147,7 +151,7 @@ import java.util.Locale;
  *     <td>{@link androidx.media2.widget.R.drawable#media2_widget_ic_default_album_image}</td></tr>
  *     </table>
  * <p>
- * For non-music, only {@link MediaMetadata#METADATA_KEY_TITLE} metadata is supported.
+ * For video media, {@link MediaMetadata#METADATA_KEY_TITLE} metadata is supported.
  * If the value is not set, the following default value will be shown:
  * {@link androidx.media2.widget.R.string#mcv2_non_music_title_unknown_text}
  */
