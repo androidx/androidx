@@ -16,6 +16,7 @@
 
 package androidx.camera.integration.core;
 
+import static androidx.camera.testing.CoreAppTestUtil.clearDeviceUI;
 import static androidx.test.espresso.Espresso.onView;
 import static androidx.test.espresso.action.ViewActions.click;
 import static androidx.test.espresso.assertion.ViewAssertions.matches;
@@ -51,7 +52,6 @@ import org.junit.runner.RunWith;
 @LargeTest
 public final class BasicUITest {
     private static final String BASIC_SAMPLE_PACKAGE = "androidx.camera.integration.core";
-    private static final int DISMISS_LOCK_SCREEN_CODE = 82;
 
     private final UiDevice mDevice =
             UiDevice.getInstance(InstrumentationRegistry.getInstrumentation());
@@ -78,15 +78,11 @@ public final class BasicUITest {
         assumeTrue(CameraUtil.deviceHasCamera());
         CoreAppTestUtil.assumeCompatibleDevice();
 
-        // In case the lock screen on top, the action to dismiss it.
-        mDevice.pressKeyCode(DISMISS_LOCK_SCREEN_CODE);
-        mDevice.pressHome();
+        // Clear the device UI before start each test.
+        clearDeviceUI(InstrumentationRegistry.getInstrumentation());
 
         // Launch Activity
         mActivityRule.launchActivity(mIntent);
-
-        // Close system dialogs first to avoid interrupt.
-        mActivityRule.getActivity().sendBroadcast(new Intent(Intent.ACTION_CLOSE_SYSTEM_DIALOGS));
     }
 
     @After

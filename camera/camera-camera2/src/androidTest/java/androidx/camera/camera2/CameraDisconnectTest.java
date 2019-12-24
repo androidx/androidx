@@ -17,6 +17,8 @@
 package androidx.camera.camera2;
 
 
+import static androidx.camera.testing.CoreAppTestUtil.clearDeviceUI;
+
 import static org.junit.Assume.assumeNotNull;
 import static org.junit.Assume.assumeTrue;
 
@@ -38,7 +40,6 @@ import androidx.test.filters.LargeTest;
 import androidx.test.platform.app.InstrumentationRegistry;
 import androidx.test.rule.ActivityTestRule;
 import androidx.test.rule.GrantPermissionRule;
-import androidx.test.uiautomator.UiDevice;
 
 import org.junit.After;
 import org.junit.Before;
@@ -51,8 +52,6 @@ import java.util.concurrent.ExecutionException;
 @RunWith(AndroidJUnit4.class)
 @LargeTest
 public class CameraDisconnectTest {
-
-    private static final int DISMISS_LOCK_SCREEN_CODE = 82;
 
     @Rule
     public GrantPermissionRule mCameraPermissionRule =
@@ -75,12 +74,8 @@ public class CameraDisconnectTest {
         Context context = ApplicationProvider.getApplicationContext();
         CameraX.initialize(context, Camera2Config.defaultConfig());
 
-        // In case the lock screen on top, the action to dismiss it.
-        UiDevice.getInstance(mInstrumentation).pressKeyCode(DISMISS_LOCK_SCREEN_CODE);
-
-        // Close system dialogs first to avoid interrupt.
-        ApplicationProvider.getApplicationContext().sendBroadcast(
-                new Intent(Intent.ACTION_CLOSE_SYSTEM_DIALOGS));
+        // Clear the device UI before start each test.
+        clearDeviceUI(InstrumentationRegistry.getInstrumentation());
 
         mCameraXTestActivityRule.launchActivity(new Intent());
         mCameraXTestActivity = mCameraXTestActivityRule.getActivity();
