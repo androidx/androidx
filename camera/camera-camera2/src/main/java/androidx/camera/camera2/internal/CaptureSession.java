@@ -568,7 +568,7 @@ final class CaptureSession {
                     break;
                 case OPENED:
                     mCaptureConfigs.addAll(captureConfigs);
-                    issueBurstCaptureRequest();
+                    issuePendingCaptureRequest();
                     break;
                 case CLOSED:
                 case RELEASING:
@@ -646,15 +646,27 @@ final class CaptureSession {
     }
 
     /** Issues mCaptureConfigs to {@link CameraCaptureSession}. */
-    void issueBurstCaptureRequest() {
+    void issuePendingCaptureRequest() {
         if (mCaptureConfigs.isEmpty()) {
+            return;
+        }
+        try {
+            issueBurstCaptureRequest(mCaptureConfigs);
+        } finally {
+            mCaptureConfigs.clear();
+        }
+    }
+
+    /** Issues input CaptureConfig list to {@link CameraCaptureSession}. */
+    void issueBurstCaptureRequest(List<CaptureConfig> captureConfigs) {
+        if (captureConfigs.isEmpty()) {
             return;
         }
         try {
             CameraBurstCaptureCallback callbackAggregator = new CameraBurstCaptureCallback();
             List<CaptureRequest> captureRequests = new ArrayList<>();
             Log.d(TAG, "Issuing capture request.");
-            for (CaptureConfig captureConfig : mCaptureConfigs) {
+            for (CaptureConfig captureConfig : captureConfigs) {
                 if (captureConfig.getSurfaces().isEmpty()) {
                     Log.d(TAG, "Skipping issuing empty capture request.");
                     continue;
@@ -722,8 +734,6 @@ final class CaptureSession {
         } catch (CameraAccessException e) {
             Log.e(TAG, "Unable to access camera: " + e.getMessage());
             Thread.dumpStack();
-        } finally {
-            mCaptureConfigs.clear();
         }
     }
 
@@ -868,13 +878,13 @@ final class CaptureSession {
                             List<CaptureConfig> list =
                                     eventCallbacks.createComboCallback().onEnableSession();
                             if (!list.isEmpty()) {
-                                issueCaptureRequests(setupConfiguredSurface(list));
+                                issueBurstCaptureRequest(setupConfiguredSurface(list));
                             }
                         }
 
                         Log.d(TAG, "Attempting to send capture request onConfigured");
                         issueRepeatingCaptureRequests();
-                        issueBurstCaptureRequest();
+                        issuePendingCaptureRequest();
                         break;
                     case CLOSED:
                         mCameraCaptureSession = session;
