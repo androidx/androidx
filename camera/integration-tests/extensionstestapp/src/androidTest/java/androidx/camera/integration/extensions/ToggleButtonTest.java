@@ -16,6 +16,7 @@
 
 package androidx.camera.integration.extensions;
 
+import static androidx.camera.testing.CoreAppTestUtil.clearDeviceUI;
 import static androidx.test.espresso.Espresso.onView;
 import static androidx.test.espresso.action.ViewActions.click;
 import static androidx.test.espresso.matcher.ViewMatchers.withId;
@@ -37,7 +38,6 @@ import androidx.test.filters.LargeTest;
 import androidx.test.platform.app.InstrumentationRegistry;
 import androidx.test.rule.ActivityTestRule;
 import androidx.test.rule.GrantPermissionRule;
-import androidx.test.uiautomator.UiDevice;
 
 import org.junit.After;
 import org.junit.Before;
@@ -52,7 +52,6 @@ import org.junit.runner.RunWith;
 @LargeTest
 public final class ToggleButtonTest {
 
-    private static final int DISMISS_LOCK_SCREEN_CODE = 82;
     private static final String BASIC_SAMPLE_PACKAGE = "androidx.camera.integration.extensions";
 
     @Rule
@@ -79,13 +78,8 @@ public final class ToggleButtonTest {
     public void setUp() {
         assumeTrue(CameraUtil.deviceHasCamera());
 
-        // In case the lock screen on top, the action to dismiss it.
-        UiDevice.getInstance(InstrumentationRegistry.getInstrumentation()).pressKeyCode(
-                DISMISS_LOCK_SCREEN_CODE);
-
-        // Close system dialogs first to avoid interrupt.
-        ApplicationProvider.getApplicationContext().sendBroadcast(
-                new Intent(Intent.ACTION_CLOSE_SYSTEM_DIALOGS));
+        // Clear the device UI before start each test.
+        clearDeviceUI(InstrumentationRegistry.getInstrumentation());
 
         Intent intent = ApplicationProvider.getApplicationContext().getPackageManager()
                 .getLaunchIntentForPackage(BASIC_SAMPLE_PACKAGE);

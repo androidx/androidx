@@ -16,6 +16,7 @@
 
 package androidx.camera.integration.core;
 
+import static androidx.camera.testing.CoreAppTestUtil.clearDeviceUI;
 import static androidx.test.espresso.Espresso.onView;
 import static androidx.test.espresso.action.ViewActions.click;
 import static androidx.test.espresso.assertion.ViewAssertions.matches;
@@ -98,6 +99,9 @@ public final class ToggleButtonUITest {
     public void setUp() {
         assumeTrue(CameraUtil.deviceHasCamera());
         CoreAppTestUtil.assumeCompatibleDevice();
+
+        // Clear the device UI before start each test.
+        clearDeviceUI(InstrumentationRegistry.getInstrumentation());
 
         // Launch Activity
         mActivityRule.launchActivity(mIntent);
