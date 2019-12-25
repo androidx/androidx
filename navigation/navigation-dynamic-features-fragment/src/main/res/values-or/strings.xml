@@ -21,4 +21,6 @@
     <string name="installation_cancelled" msgid="475402237100444685">"ଇନ୍‍ଷ୍ଟଲେସନ୍ ବାତିଲ୍ କରାଯାଇଛି।"</string>
     <string name="installing_module" msgid="5968445461040787716">"ମଡ୍ୟୁଲ୍ ଇନ୍‍ଷ୍ଟଲ୍ କରାଯାଉଛି:"</string>
     <string name="progress" msgid="8366783942222789124">"ପ୍ରଗତି:"</string>
+    <string name="retry" msgid="1065327189183624288">"ପୁଣି ଚେଷ୍ଟା କରନ୍ତୁ"</string>
+    <string name="ok" msgid="4702104660890557116">"ଠିକ୍ ଅଛି"</string>
 </resources>

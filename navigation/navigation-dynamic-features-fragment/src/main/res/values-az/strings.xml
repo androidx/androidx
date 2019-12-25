@@ -21,4 +21,6 @@
     <string name="installation_cancelled" msgid="475402237100444685">"Quraşdırma ləğv edildi."</string>
     <string name="installing_module" msgid="5968445461040787716">"Modul quraşdırılır:"</string>
     <string name="progress" msgid="8366783942222789124">"Gedişat:"</string>
+    <string name="retry" msgid="1065327189183624288">"Təkrar sınayın"</string>
+    <string name="ok" msgid="4702104660890557116">"Oldu"</string>
 </resources>

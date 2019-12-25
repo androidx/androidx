@@ -21,4 +21,6 @@
     <string name="installation_cancelled" msgid="475402237100444685">"已取消安裝。"</string>
     <string name="installing_module" msgid="5968445461040787716">"正在安裝模組："</string>
     <string name="progress" msgid="8366783942222789124">"進度："</string>
+    <string name="retry" msgid="1065327189183624288">"重試"</string>
+    <string name="ok" msgid="4702104660890557116">"確定"</string>
 </resources>
