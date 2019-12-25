@@ -21,4 +21,6 @@
     <string name="installation_cancelled" msgid="475402237100444685">"Instalacja została anulowana."</string>
     <string name="installing_module" msgid="5968445461040787716">"Instaluję moduł:"</string>
     <string name="progress" msgid="8366783942222789124">"Postęp:"</string>
+    <string name="retry" msgid="1065327189183624288">"Ponów"</string>
+    <string name="ok" msgid="4702104660890557116">"OK"</string>
 </resources>

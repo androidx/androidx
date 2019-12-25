@@ -21,4 +21,6 @@
     <string name="installation_cancelled" msgid="475402237100444685">"ਸਥਾਪਨਾ ਨੂੰ ਰੱਦ ਕੀਤਾ ਗਿਆ।"</string>
     <string name="installing_module" msgid="5968445461040787716">"ਮਾਡਿਊਲ ਸਥਾਪਤ ਕੀਤਾ ਜਾ ਰਿਹਾ ਹੈ:"</string>
     <string name="progress" msgid="8366783942222789124">"ਪ੍ਰਗਤੀ:"</string>
+    <string name="retry" msgid="1065327189183624288">"ਮੁੜ-ਕੋਸ਼ਿਸ਼ ਕਰੋ"</string>
+    <string name="ok" msgid="4702104660890557116">"ਠੀਕ"</string>
 </resources>

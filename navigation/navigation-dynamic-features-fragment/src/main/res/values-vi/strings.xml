@@ -21,4 +21,6 @@
     <string name="installation_cancelled" msgid="475402237100444685">"Đã hủy cài đặt."</string>
     <string name="installing_module" msgid="5968445461040787716">"Đang cài đặt mô-đun:"</string>
     <string name="progress" msgid="8366783942222789124">"Tiến trình:"</string>
+    <string name="retry" msgid="1065327189183624288">"Thử lại"</string>
+    <string name="ok" msgid="4702104660890557116">"OK"</string>
 </resources>

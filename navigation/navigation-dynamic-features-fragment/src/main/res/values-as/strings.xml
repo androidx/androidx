@@ -21,4 +21,6 @@
     <string name="installation_cancelled" msgid="475402237100444685">"ইনষ্টল কৰাটো বাতিল কৰা হৈছে।"</string>
     <string name="installing_module" msgid="5968445461040787716">"ইনষ্টল কৰাৰ মডিউল:"</string>
     <string name="progress" msgid="8366783942222789124">"অগ্ৰগতি:"</string>
+    <string name="retry" msgid="1065327189183624288">"পুনৰ চেষ্টা কৰক"</string>
+    <string name="ok" msgid="4702104660890557116">"ঠিক আছে"</string>
 </resources>
