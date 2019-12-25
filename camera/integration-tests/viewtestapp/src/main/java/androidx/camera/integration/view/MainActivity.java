@@ -24,11 +24,16 @@ import android.util.Log;
 import android.view.Menu;
 import android.view.MenuInflater;
 import android.view.MenuItem;
+import android.view.ViewTreeObserver;
 import android.widget.Toast;
 
 import androidx.annotation.NonNull;
+import androidx.annotation.VisibleForTesting;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.core.content.ContextCompat;
+
+import java.util.concurrent.CountDownLatch;
+import java.util.concurrent.TimeUnit;
 
 /** The main activity. */
 public class MainActivity extends AppCompatActivity {
@@ -42,22 +47,71 @@ public class MainActivity extends AppCompatActivity {
     private static final int REQUEST_CODE_PERMISSIONS = 10;
 
     private boolean mCheckedPermissions = false;
+    private boolean mUsePreviewView = false;
+    private static final int PREVIEW_UPDATE_COUNT = 6;
+    private CountDownLatch mPreviewUpdatingLatch = new CountDownLatch(PREVIEW_UPDATE_COUNT);
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+
+        if (getIntent().getAction()
+                .equals("androidx.camera.integration.view.action.PREVIEWVIEWAPP")) {
+            mUsePreviewView = true;
+        }
+
         setContentView(R.layout.activity_main);
         if (null == savedInstanceState) {
             if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
                 if (allPermissionsGranted()) {
-                    startCameraView();
+                    startCamera();
                 } else if (!mCheckedPermissions) {
                     requestPermissions(REQUIRED_PERMISSIONS, REQUEST_CODE_PERMISSIONS);
                     mCheckedPermissions = true;
                 }
             } else {
-                startCameraView();
+                startCamera();
             }
+        }
+    }
+
+    // Here we use OnPreDrawListener in ViewTreeObserver to detect if view is being updating.
+    // If yes, preview should be working to update the view. We could use more precise approach
+    // like TextureView.SurfaceTextureListener#onSurfaceTextureUpdated but it will require to add
+    // API in PreviewView which is not a good idea. And we use OnPreDrawListener instead of
+    // OnDrawListener because OnDrawListener is not invoked on some low API level devices.
+    private ViewTreeObserver.OnPreDrawListener mOnPreDrawListener = () -> {
+        mPreviewUpdatingLatch.countDown();
+        return true;
+    };
+
+
+    @Override
+    protected void onResume() {
+        super.onResume();
+        getWindow().getDecorView().getViewTreeObserver().addOnPreDrawListener(mOnPreDrawListener);
+
+    }
+
+    @Override
+    protected void onPause() {
+        super.onPause();
+        getWindow().getDecorView().getViewTreeObserver().removeOnPreDrawListener(
+                mOnPreDrawListener);
+    }
+
+    /**
+     * Waiting for preview update at least PREVIEW_UPDATE_COUNT times.  Returns true if preview
+     * updated successfully, otherwise return false after timeout.
+     */
+    @VisibleForTesting
+    public boolean waitForPreviewUpdating(long timeOutInMs) {
+        mPreviewUpdatingLatch = new CountDownLatch(PREVIEW_UPDATE_COUNT);
+
+        try {
+            return mPreviewUpdatingLatch.await(timeOutInMs, TimeUnit.MILLISECONDS);
+        } catch (InterruptedException e) {
+            return false;
         }
     }
 
@@ -66,7 +120,7 @@ public class MainActivity extends AppCompatActivity {
             int requestCode, @NonNull String[] permissions, @NonNull int[] grantResults) {
         if (requestCode == REQUEST_CODE_PERMISSIONS) {
             if (allPermissionsGranted()) {
-                startCameraView();
+                startCamera();
             } else {
                 report("Permissions not granted by the user.");
             }
@@ -84,9 +138,11 @@ public class MainActivity extends AppCompatActivity {
     public boolean onOptionsItemSelected(@NonNull MenuItem item) {
         switch (item.getItemId()) {
             case R.id.camera_view:
+                mUsePreviewView = false;
                 startCameraView();
                 return true;
             case R.id.preview_view:
+                mUsePreviewView = true;
                 startPreviewView();
                 return true;
             default:
@@ -102,6 +158,14 @@ public class MainActivity extends AppCompatActivity {
             }
         }
         return true;
+    }
+
+    private void startCamera() {
+        if (mUsePreviewView) {
+            startPreviewView();
+        } else {
+            startCameraView();
+        }
     }
 
     private void startCameraView() {
