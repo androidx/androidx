@@ -21,4 +21,6 @@
     <string name="installation_cancelled" msgid="475402237100444685">"ইনস্টলেশন বাতিল হয়েছে।"</string>
     <string name="installing_module" msgid="5968445461040787716">"মডিউল ইনস্টল করা হচ্ছে:"</string>
     <string name="progress" msgid="8366783942222789124">"প্রগ্রেস:"</string>
+    <string name="retry" msgid="1065327189183624288">"আবার করে দেখুন"</string>
+    <string name="ok" msgid="4702104660890557116">"ঠিক আছে"</string>
 </resources>

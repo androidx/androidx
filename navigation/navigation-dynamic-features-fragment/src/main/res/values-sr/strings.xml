@@ -21,4 +21,6 @@
     <string name="installation_cancelled" msgid="475402237100444685">"Инсталација је отказана."</string>
     <string name="installing_module" msgid="5968445461040787716">"Модул инсталирања:"</string>
     <string name="progress" msgid="8366783942222789124">"Напредак:"</string>
+    <string name="retry" msgid="1065327189183624288">"Пробај поново"</string>
+    <string name="ok" msgid="4702104660890557116">"Потврди"</string>
 </resources>

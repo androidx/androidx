@@ -21,4 +21,6 @@
     <string name="installation_cancelled" msgid="475402237100444685">"ინსტალაცია გაუქმდა."</string>
     <string name="installing_module" msgid="5968445461040787716">"ინსტალირდება მოდული:"</string>
     <string name="progress" msgid="8366783942222789124">"პროგრესი:"</string>
+    <string name="retry" msgid="1065327189183624288">"ხელახლა ცდა"</string>
+    <string name="ok" msgid="4702104660890557116">"კარგი"</string>
 </resources>

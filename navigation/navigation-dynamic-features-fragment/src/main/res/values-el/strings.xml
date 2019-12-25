@@ -21,4 +21,6 @@
     <string name="installation_cancelled" msgid="475402237100444685">"Η εγκατάσταση ακυρώθηκε."</string>
     <string name="installing_module" msgid="5968445461040787716">"Εγκατάσταση λειτουργικής μονάδας:"</string>
     <string name="progress" msgid="8366783942222789124">"Πρόοδος"</string>
+    <string name="retry" msgid="1065327189183624288">"Επανάληψη"</string>
+    <string name="ok" msgid="4702104660890557116">"ΟΚ"</string>
 </resources>

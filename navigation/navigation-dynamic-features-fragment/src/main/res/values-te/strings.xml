@@ -21,4 +21,6 @@
     <string name="installation_cancelled" msgid="475402237100444685">"ఇన్‌స్టాలేషన్ రద్దయింది."</string>
     <string name="installing_module" msgid="5968445461040787716">"మాడ్యూల్‌ను ఇన్‌స్టాల్ చేస్తోంది:"</string>
     <string name="progress" msgid="8366783942222789124">"ప్రోగ్రెస్:"</string>
+    <string name="retry" msgid="1065327189183624288">"మళ్లీ ప్రయత్నించు"</string>
+    <string name="ok" msgid="4702104660890557116">"సరే"</string>
 </resources>

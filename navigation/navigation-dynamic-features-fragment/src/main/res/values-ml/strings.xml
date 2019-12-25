@@ -21,4 +21,6 @@
     <string name="installation_cancelled" msgid="475402237100444685">"ഇൻസ്റ്റാൾ ചെയ്യൽ റദ്ദാക്കി."</string>
     <string name="installing_module" msgid="5968445461040787716">"മൊഡ്യൂൾ ഇൻസ്റ്റാൾ ചെയ്യുന്നു:"</string>
     <string name="progress" msgid="8366783942222789124">"പുരോഗതി:"</string>
+    <string name="retry" msgid="1065327189183624288">"വീണ്ടും ശ്രമിക്കുക"</string>
+    <string name="ok" msgid="4702104660890557116">"ശരി"</string>
 </resources>
