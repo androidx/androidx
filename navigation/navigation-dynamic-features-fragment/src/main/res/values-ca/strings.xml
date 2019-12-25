@@ -21,4 +21,6 @@
     <string name="installation_cancelled" msgid="475402237100444685">"S\'ha cancel·lat la instal·lació."</string>
     <string name="installing_module" msgid="5968445461040787716">"S\'està instal·lant el mòdul:"</string>
     <string name="progress" msgid="8366783942222789124">"Progrés:"</string>
+    <string name="retry" msgid="1065327189183624288">"Torna-ho a provar"</string>
+    <string name="ok" msgid="4702104660890557116">"D\'acord"</string>
 </resources>

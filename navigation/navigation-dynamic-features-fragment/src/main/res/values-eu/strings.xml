@@ -21,4 +21,8 @@
     <string name="installation_cancelled" msgid="475402237100444685">"Bertan behera utzi da instalazioa."</string>
     <string name="installing_module" msgid="5968445461040787716">"Modulua instalatzen:"</string>
     <string name="progress" msgid="8366783942222789124">"Garapena:"</string>
+    <!-- no translation found for retry (1065327189183624288) -->
+    <skip />
+    <!-- no translation found for ok (4702104660890557116) -->
+    <skip />
 </resources>
