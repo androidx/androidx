@@ -16,7 +16,9 @@
 
 package androidx.camera.integration.core;
 
+import static androidx.camera.testing.CoreAppTestUtil.clearDeviceUI;
 import static androidx.test.espresso.Espresso.onView;
+import static androidx.test.espresso.action.ViewActions.click;
 import static androidx.test.espresso.assertion.ViewAssertions.matches;
 import static androidx.test.espresso.matcher.ViewMatchers.isDisplayed;
 import static androidx.test.espresso.matcher.ViewMatchers.withId;
@@ -27,23 +29,24 @@ import static org.junit.Assume.assumeTrue;
 
 import android.content.Context;
 import android.content.Intent;
+import android.content.pm.ActivityInfo;
 
-import androidx.camera.integration.core.idlingresource.ElapsedTimeIdlingResource;
+import androidx.camera.core.CameraSelector;
 import androidx.camera.testing.CameraUtil;
 import androidx.camera.testing.CoreAppTestUtil;
 import androidx.test.core.app.ApplicationProvider;
-import androidx.test.espresso.Espresso;
 import androidx.test.espresso.IdlingRegistry;
-import androidx.test.espresso.IdlingResource;
 import androidx.test.ext.junit.runners.AndroidJUnit4;
 import androidx.test.filters.LargeTest;
 import androidx.test.platform.app.InstrumentationRegistry;
+import androidx.test.rule.ActivityTestRule;
 import androidx.test.rule.GrantPermissionRule;
 import androidx.test.uiautomator.By;
 import androidx.test.uiautomator.UiDevice;
 import androidx.test.uiautomator.Until;
 
 import org.junit.After;
+import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
@@ -54,9 +57,7 @@ import org.junit.runner.RunWith;
 @LargeTest
 public final class ExistingActivityLifecycleTest {
     private static final String BASIC_SAMPLE_PACKAGE = "androidx.camera.integration.core";
-    private static final int LAUNCH_TIMEOUT_MS = 5000;
-    private static final int IDLE_TIMEOUT_MS = 1000;
-
+    private static final int LAUNCH_TIMEOUT_MS = 3000;
 
     private final UiDevice mDevice =
             UiDevice.getInstance(InstrumentationRegistry.getInstrumentation());
@@ -75,71 +76,138 @@ public final class ExistingActivityLifecycleTest {
     public GrantPermissionRule mAudioPermissionRule =
             GrantPermissionRule.grant(android.Manifest.permission.RECORD_AUDIO);
 
+    @Rule
+    public ActivityTestRule<CameraXActivity> mActivityRule =
+            new ActivityTestRule<>(CameraXActivity.class, true, false);
+
     @Before
     public void setup() {
         assumeTrue(CameraUtil.deviceHasCamera());
         CoreAppTestUtil.assumeCompatibleDevice();
-
         assertThat(mLauncherPackageName, notNullValue());
-        returnHomeScreen();
+
+        // Clear the device UI before start each test.
+        clearDeviceUI(InstrumentationRegistry.getInstrumentation());
+
+        // First time to launch the CameraXActivity.
+        mActivityRule.launchActivity(mIntent);
     }
 
     @After
     public void tearDown() {
-        returnHomeScreen();
+        // When test failed, really unregister the idling resource and don't impact next test.
+        IdlingRegistry.getInstance().unregister(
+                mActivityRule.getActivity().getViewIdlingResource());
+
+        mActivityRule.finishActivity();
+        pressHomeButton();
     }
 
-    // Starts the activity, returns to the home screen to pause the activity, starts the activity
-    // again. This simulates lifecycle changes caused by a user pressing the HOME button.
+    // Check if Preview screen is updated or not, after DestroyRecreate lifecycle(press
+    // BACK button and launch again).
     @Test
-    public void startCoreTestTwiceToSimulatePauseResume() {
-        mContext.startActivity(mIntent);
-        waitUntilTextureViewIsReady();
-
-        returnHomeScreen();
-
-        mContext.startActivity(mIntent);
-        waitUntilTextureViewIsReady();
-
-        waitForIdlingRegistryAndPressBackButton();
-    }
-
-    // Starts the activity, returns to the home screen to pause the activity, starts the activity
-    // with a flag which clears any previous instance of the activity. This simulates lifecycle
-    // changes caused by a user pressing the BACK button.
-    @Test
-    public void startCoreTestTwiceClearingPreviousInstance() {
-        mContext.startActivity(mIntent);
-        waitUntilTextureViewIsReady();
-
-        returnHomeScreen();
-
-        // Clears out any previous instances.
-        mIntent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TASK);
-        mContext.startActivity(mIntent);
-        waitUntilTextureViewIsReady();
-
-        waitForIdlingRegistryAndPressBackButton();
-    }
-
-    private void waitUntilTextureViewIsReady() {
-        mDevice.wait(Until.hasObject(By.pkg(BASIC_SAMPLE_PACKAGE).depth(0)), LAUNCH_TIMEOUT_MS);
+    public void checkPreviewUpdatedAfterDestroyRecreate() {
+        // Check the activity launched and Preview display well.
+        IdlingRegistry.getInstance().register(mActivityRule.getActivity().getViewIdlingResource());
         onView(withId(R.id.textureView)).check(matches(isDisplayed()));
+        IdlingRegistry.getInstance().unregister(
+                mActivityRule.getActivity().getViewIdlingResource());
+
+        pressBackButton();
+
+        mIntent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
+        mActivityRule.launchActivity(mIntent);
+
+        // It create new activity and recheck the Preview UI.
+        IdlingRegistry.getInstance().register(mActivityRule.getActivity().getViewIdlingResource());
+        onView(withId(R.id.textureView)).check(matches(isDisplayed()));
+        IdlingRegistry.getInstance().unregister(
+                mActivityRule.getActivity().getViewIdlingResource());
     }
 
-    private void returnHomeScreen() {
+    // Check if Preview screen is updated or not, after StopResume lifecycle(press
+    // HOME button and launch again).
+    @Test
+    public void checkPreviewUpdatedAfterStopResume() {
+        IdlingRegistry.getInstance().register(mActivityRule.getActivity().getViewIdlingResource());
+        // Check the activity launched and Preview display well.
+        onView(withId(R.id.textureView)).check(matches(isDisplayed()));
+
+        mIntent.setFlags(Intent.FLAG_ACTIVITY_REORDER_TO_FRONT);
+
+        pressHomeButton();
+        // Check there is the preview frame update on texture view after activity resume.
+        mActivityRule.getActivity().resetViewIdlingResource();
+        mActivityRule.getActivity().startActivity(mIntent);
+        onView(withId(R.id.textureView)).check(matches(isDisplayed()));
+
+        pressHomeButton();
+        // 2nd check the preview frame update on texture view after activity resume.
+        mActivityRule.getActivity().resetViewIdlingResource();
+        mActivityRule.getActivity().startActivity(mIntent);
+        onView(withId(R.id.textureView)).check(matches(isDisplayed()));
+
+        IdlingRegistry.getInstance().unregister(
+                mActivityRule.getActivity().getViewIdlingResource());
+    }
+
+    // Check if Preview screen is updated or not, after toggle camera, and StopResume lifecycle.
+    @Test
+    public void checkPreviewUpdatedAfterToggleCameraAndStopResume() {
+        // check have front camera
+        assumeTrue(CameraUtil.hasCameraWithLensFacing(CameraSelector.LENS_FACING_FRONT));
+        IdlingRegistry.getInstance().register(mActivityRule.getActivity().getViewIdlingResource());
+
+        // Switch camera
+        onView(withId(R.id.direction_toggle)).perform(click());
+        Assert.assertNotNull(mActivityRule.getActivity().getPreview());
+        // check the Preview display well after switching camera
+        onView(withId(R.id.textureView)).check(matches(isDisplayed()));
+
+        mIntent.setFlags(Intent.FLAG_ACTIVITY_REORDER_TO_FRONT);
+
+        pressHomeButton();
+        // Check there is the preview frame update on texture view after activity resume.
+        mActivityRule.getActivity().resetViewIdlingResource();
+        mActivityRule.getActivity().startActivity(mIntent);
+        onView(withId(R.id.textureView)).check(matches(isDisplayed()));
+
+        IdlingRegistry.getInstance().unregister(
+                mActivityRule.getActivity().getViewIdlingResource());
+    }
+
+    // Check if Preview screen is updated or not, after rotate device, and StopResume lifecycle.
+    @Test
+    public void checkPreviewUpdatedAfterRotateDeviceAndStopResume() {
+        // Rotate to Landscape and the activity will be recreated.
+        mActivityRule.getActivity().setRequestedOrientation(
+                ActivityInfo.SCREEN_ORIENTATION_LANDSCAPE);
+        // Check the activity recreated and show up.
+        onView(withId(R.id.textureView)).check(matches(isDisplayed()));
+
+        mIntent.setFlags(Intent.FLAG_ACTIVITY_REORDER_TO_FRONT);
+
+        pressHomeButton();
+        // Check there is the preview frame update on texture view after activity resume.
+        mActivityRule.getActivity().resetViewIdlingResource();
+        IdlingRegistry.getInstance().register(mActivityRule.getActivity().getViewIdlingResource());
+
+        mActivityRule.getActivity().startActivity(mIntent);
+        onView(withId(R.id.textureView)).check(matches(isDisplayed()));
+
+        IdlingRegistry.getInstance().unregister(
+                mActivityRule.getActivity().getViewIdlingResource());
+    }
+
+    private void pressHomeButton() {
         mDevice.pressHome();
         mDevice.wait(Until.hasObject(By.pkg(mLauncherPackageName).depth(0)), LAUNCH_TIMEOUT_MS);
     }
 
-    private void waitForIdlingRegistryAndPressBackButton() {
-        IdlingResource idlingResource = new ElapsedTimeIdlingResource(IDLE_TIMEOUT_MS);
-        IdlingRegistry.getInstance().register(idlingResource);
-        Espresso.onIdle();
-        IdlingRegistry.getInstance().unregister(idlingResource);
-
-        // Finishs the activity finally.
+    private void pressBackButton() {
         mDevice.pressBack();
+        mDevice.wait(Until.hasObject(By.pkg(mLauncherPackageName).depth(0)), LAUNCH_TIMEOUT_MS);
     }
+
 
 }

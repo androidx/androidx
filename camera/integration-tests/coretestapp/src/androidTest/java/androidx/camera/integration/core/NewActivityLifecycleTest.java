@@ -16,6 +16,7 @@
 
 package androidx.camera.integration.core;
 
+import static androidx.camera.testing.CoreAppTestUtil.clearDeviceUI;
 import static androidx.test.espresso.Espresso.onView;
 import static androidx.test.espresso.assertion.ViewAssertions.matches;
 import static androidx.test.espresso.matcher.ViewMatchers.isDisplayed;
@@ -28,16 +29,14 @@ import static org.junit.Assume.assumeTrue;
 import android.content.Context;
 import android.content.Intent;
 
-import androidx.camera.integration.core.idlingresource.ElapsedTimeIdlingResource;
 import androidx.camera.testing.CameraUtil;
 import androidx.camera.testing.CoreAppTestUtil;
 import androidx.test.core.app.ApplicationProvider;
-import androidx.test.espresso.Espresso;
 import androidx.test.espresso.IdlingRegistry;
-import androidx.test.espresso.IdlingResource;
 import androidx.test.ext.junit.runners.AndroidJUnit4;
 import androidx.test.filters.LargeTest;
 import androidx.test.platform.app.InstrumentationRegistry;
+import androidx.test.rule.ActivityTestRule;
 import androidx.test.rule.GrantPermissionRule;
 import androidx.test.uiautomator.By;
 import androidx.test.uiautomator.UiDevice;
@@ -65,6 +64,14 @@ public final class NewActivityLifecycleTest {
             .getLaunchIntentForPackage(BASIC_SAMPLE_PACKAGE);
 
     @Rule
+    public ActivityTestRule<CameraXActivity> mActivityRule =
+            new ActivityTestRule<>(CameraXActivity.class, true, false);
+
+    @Rule
+    public ActivityTestRule<CameraXActivity> mNewActivityRule =
+            new ActivityTestRule<>(CameraXActivity.class, true, false);
+
+    @Rule
     public GrantPermissionRule mCameraPermissionRule =
             GrantPermissionRule.grant(android.Manifest.permission.CAMERA);
     @Rule
@@ -78,50 +85,54 @@ public final class NewActivityLifecycleTest {
     public void setup() {
         assumeTrue(CameraUtil.deviceHasCamera());
         CoreAppTestUtil.assumeCompatibleDevice();
-
         assertThat(mLauncherPackageName, notNullValue());
-        returnHomeScreen();
+
+        // Clear the device UI before start each test.
+        clearDeviceUI(InstrumentationRegistry.getInstrumentation());
+
+        mActivityRule.launchActivity(mIntent);
     }
 
     @After
     public void tearDown() {
-        returnHomeScreen();
+        mNewActivityRule.finishActivity();
+
+        mActivityRule.finishActivity();
+        pressHomeButton();
     }
 
     @Test
-    public void startCoreTestTwiceAlwaysWithNewInstance() {
-        mContext.startActivity(mIntent);
-        waitUntilTextureViewIsReady();
+    public void checkPreviewUpdatedWithNewInstance() {
 
-        returnHomeScreen();
+        // check the 1st activity Preview
+        IdlingRegistry.getInstance().register(mActivityRule.getActivity().getViewIdlingResource());
+        onView(withId(R.id.textureView)).check(matches(isDisplayed()));
+        IdlingRegistry.getInstance().unregister(
+                mActivityRule.getActivity().getViewIdlingResource());
 
+        pressHomeButton();
+
+        // Make the 1st Activity stoped and create new Activity.
         Intent newIntent = new Intent(Intent.ACTION_MAIN);
         newIntent.setClass(mContext, CameraXActivity.class);
         newIntent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
-        mContext.startActivity(newIntent);
-        waitUntilTextureViewIsReady();
+        mNewActivityRule.launchActivity(newIntent);
 
-        waitForIdlingRegistryAndPressBackButton();
-    }
-
-    private void waitUntilTextureViewIsReady() {
-        mDevice.wait(Until.hasObject(By.pkg(BASIC_SAMPLE_PACKAGE).depth(0)), LAUNCH_TIMEOUT_MS);
+        // check the New activity Preview
+        IdlingRegistry.getInstance().register(
+                mNewActivityRule.getActivity().getViewIdlingResource());
         onView(withId(R.id.textureView)).check(matches(isDisplayed()));
+        IdlingRegistry.getInstance().unregister(
+                mNewActivityRule.getActivity().getViewIdlingResource());
+
     }
 
-    private void returnHomeScreen() {
+    private void pressHomeButton() {
         mDevice.pressHome();
         mDevice.wait(Until.hasObject(By.pkg(mLauncherPackageName).depth(0)), LAUNCH_TIMEOUT_MS);
     }
 
-    private void waitForIdlingRegistryAndPressBackButton() {
-        IdlingResource idlingResource = new ElapsedTimeIdlingResource(IDLE_TIMEOUT_MS);
-        IdlingRegistry.getInstance().register(idlingResource);
-        Espresso.onIdle();
-        IdlingRegistry.getInstance().unregister(idlingResource);
-
-        // Finish the activity finally.
-        mDevice.pressBack();
-    }
-
 }
+
+
+
