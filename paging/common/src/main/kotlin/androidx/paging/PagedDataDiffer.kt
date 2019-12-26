@@ -54,7 +54,7 @@ abstract class PagedDataDiffer<T : Any>(
                     val event = pair.second
                     if (event is PageEvent.Insert && event.loadType == LoadType.REFRESH) {
                         val newPresenter = PagePresenter(event)
-                        performDiff(previous = newPresenter, new = presenter)
+                        performDiff(previous = presenter, new = newPresenter)
                         presenter = newPresenter
                         hintReceiver = pair.first.hintReceiver
                     } else {
