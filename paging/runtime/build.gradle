@@ -34,9 +34,9 @@ dependencies {
     api(project(":paging:paging-common-ktx"))
 
     api("androidx.arch.core:core-runtime:2.1.0")
-    api("androidx.lifecycle:lifecycle-runtime:2.0.0")
-    api(project(":lifecycle:lifecycle-livedata"))
-    api("androidx.recyclerview:recyclerview:1.0.0")
+    api("androidx.lifecycle:lifecycle-runtime:2.1.0")
+    api("androidx.lifecycle:lifecycle-livedata:2.1.0")
+    api("androidx.recyclerview:recyclerview:1.1.0")
     api(KOTLIN_STDLIB)
     api(KOTLIN_COROUTINES_ANDROID)
 
