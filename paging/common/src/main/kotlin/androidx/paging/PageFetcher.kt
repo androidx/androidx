@@ -40,9 +40,8 @@ internal class PageFetcher<Key : Any, Value : Any>(
     @UseExperimental(FlowPreview::class)
     val flow = refreshChannel
         .asFlow()
-        .onStart {
-            emit(Unit)
-        }.scan(null) { previousGeneration: Pager<Key, Value>?, _ ->
+        .onStart { emit(Unit) }
+        .scan(null) { previousGeneration: Pager<Key, Value>?, _ ->
             // TODO: Call pagedSource.invalidate on previous pagedSource
             val pagedSource = pagedSourceFactory()
             val initialKey = when (previousGeneration) {
@@ -52,6 +51,11 @@ internal class PageFetcher<Key : Any, Value : Any>(
                     else -> pagedSource.getRefreshKeyFromPage(info.indexInPage, info.page)
                 }
             }
+
+            // Hook up refresh signals from DataSource / PagedSource.
+            pagedSource.registerInvalidatedCallback(::refresh)
+            previousGeneration?.pagedSource?.unregisterInvalidatedCallback(::refresh)
+
             Pager(initialKey, pagedSource, config)
         }
         .filterNotNull()
