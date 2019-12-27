@@ -60,7 +60,7 @@ internal class PageFetcher<Key : Any, Value : Any>(
         }
         .filterNotNull()
         .mapLatest { generation ->
-            PagedData(flow = generation.create(), receiver = PagerUiReceiver(generation))
+            PagedData(generation.pageEventFlow, PagerUiReceiver(generation))
         }
 
     fun refresh() {

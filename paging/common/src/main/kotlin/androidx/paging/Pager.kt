@@ -64,25 +64,16 @@ internal class Pager<Key : Any, Value : Any>(
     private val hintChannel = BroadcastChannel<ViewportHint>(BUFFERED)
     private var lastHint: ViewportHint? = null
 
+    private val pageEventChCollected = AtomicBoolean(false)
     private val pageEventCh = Channel<PageEvent<Value>>(BUFFERED)
     private val stateLock = Mutex()
     private val state = PagerState<Key, Value>(config.pageSize, config.maxSize)
 
-    private val created = AtomicBoolean(false)
-
-    fun addHint(hint: ViewportHint) {
-        lastHint = hint
-        hintChannel.offer(hint)
-    }
-
-    fun retry() {
-        retryChannel.offer(Unit)
-    }
-
-    fun create(): Flow<PageEvent<Value>> = channelFlow {
-        check(created.compareAndSet(false, true)) {
+    val pageEventFlow: Flow<PageEvent<Value>> = channelFlow {
+        check(pageEventChCollected.compareAndSet(false, true)) {
             "cannot collect twice from pager"
         }
+
         launch { pageEventCh.consumeAsFlow().collect { send(it) } }
         state.doInitialLoad()
 
@@ -122,6 +113,15 @@ internal class Pager<Key : Any, Value : Any>(
                     }
                 }
         }
+    }
+
+    fun addHint(hint: ViewportHint) {
+        lastHint = hint
+        hintChannel.offer(hint)
+    }
+
+    fun retry() {
+        retryChannel.offer(Unit)
     }
 
     suspend fun refreshKeyInfo(): RefreshInfo<Key, Value>? {
