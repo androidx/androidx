@@ -32,7 +32,8 @@ internal sealed class PageEvent<T : Any> {
         val loadType: LoadType,
         val pages: List<TransformablePage<T>>,
         val placeholdersStart: Int,
-        val placeholdersEnd: Int
+        val placeholdersEnd: Int,
+        val loadStates: Map<LoadType, LoadState>
     ) : PageEvent<T>() {
         init {
             require(loadType == END || placeholdersStart >= 0) {
@@ -53,7 +54,8 @@ internal sealed class PageEvent<T : Any> {
             loadType = loadType,
             pages = transform(pages),
             placeholdersStart = placeholdersStart,
-            placeholdersEnd = placeholdersEnd
+            placeholdersEnd = placeholdersEnd,
+            loadStates = loadStates
         )
 
         override fun <R : Any> map(transform: (T) -> R): PageEvent<R> = mapPages {
@@ -119,18 +121,21 @@ internal sealed class PageEvent<T : Any> {
             fun <T : Any> Refresh(
                 pages: List<TransformablePage<T>>,
                 placeholdersStart: Int,
-                placeholdersEnd: Int
-            ) = Insert(REFRESH, pages, placeholdersStart, placeholdersEnd)
+                placeholdersEnd: Int,
+                loadStates: Map<LoadType, LoadState>
+            ) = Insert(REFRESH, pages, placeholdersStart, placeholdersEnd, loadStates)
 
             fun <T : Any> Start(
                 pages: List<TransformablePage<T>>,
-                placeholdersStart: Int
-            ) = Insert(START, pages, placeholdersStart, -1)
+                placeholdersStart: Int,
+                loadStates: Map<LoadType, LoadState>
+            ) = Insert(START, pages, placeholdersStart, -1, loadStates)
 
             fun <T : Any> End(
                 pages: List<TransformablePage<T>>,
-                placeholdersEnd: Int
-            ) = Insert(END, pages, -1, placeholdersEnd)
+                placeholdersEnd: Int,
+                loadStates: Map<LoadType, LoadState>
+            ) = Insert(END, pages, -1, placeholdersEnd, loadStates)
         }
     }
 
