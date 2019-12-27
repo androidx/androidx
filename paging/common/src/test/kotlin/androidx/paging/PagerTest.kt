@@ -666,4 +666,62 @@ class PagerTest {
             job.cancel()
         }
     }
+
+    @Test
+    fun retryRefresh() = testScope.runBlockingTest {
+        pauseDispatcher {
+            val pageSource = pagedSourceFactory()
+            val pager = Pager(50, pageSource, config)
+
+            val pageEvents = ArrayList<PageEvent<Int>>()
+            val job = launch { pager.create().collect { pageEvents.add(it) } }
+
+            val expected = listOf<PageEvent<Int>>(
+                StateUpdate(REFRESH, Loading),
+                StateUpdate(REFRESH, Error(LOAD_ERROR)),
+                StateUpdate(REFRESH, Idle),
+                StateUpdate(REFRESH, Loading),
+                StateUpdate(REFRESH, Done),
+                createRefresh(50..51)
+            )
+
+            pageSource.errorNextLoad = true
+            advanceUntilIdle()
+            pager.retry()
+            advanceUntilIdle()
+
+            assertEvents(expected, pageEvents)
+            job.cancel()
+        }
+    }
+
+    @Test
+    fun retryRefreshWithSkippedHints() = testScope.runBlockingTest {
+        pauseDispatcher {
+            val pageSource = pagedSourceFactory()
+            val pager = Pager(50, pageSource, config)
+
+            val pageEvents = ArrayList<PageEvent<Int>>()
+            val job = launch { pager.create().collect { pageEvents.add(it) } }
+
+            val expected = listOf<PageEvent<Int>>(
+                StateUpdate(REFRESH, Loading),
+                StateUpdate(REFRESH, Error(LOAD_ERROR)),
+                StateUpdate(REFRESH, Idle),
+                StateUpdate(REFRESH, Loading),
+                StateUpdate(REFRESH, Done),
+                createRefresh(50..51)
+            )
+
+            pageSource.errorNextLoad = true
+            advanceUntilIdle()
+            pager.addHint(ViewportHint(0, 0))
+            advanceUntilIdle()
+            pager.retry()
+            advanceUntilIdle()
+
+            assertEvents(expected, pageEvents)
+            job.cancel()
+        }
+    }
 }

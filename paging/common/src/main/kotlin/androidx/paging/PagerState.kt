@@ -55,8 +55,7 @@ internal class PagerState<Key : Any, Value : Any>(
     private val prependLoadIdCh = Channel<Int>(Channel.CONFLATED)
     private val appendLoadIdCh = Channel<Int>(Channel.CONFLATED)
 
-    internal var failedHintStart: ViewportHint? = null
-    internal var failedHintEnd: ViewportHint? = null
+    internal val failedHintsByLoadType = mutableMapOf<LoadType, ViewportHint>()
     internal val loadStates = mutableMapOf<LoadType, LoadState>(
         REFRESH to Idle,
         START to Idle,
@@ -124,7 +123,7 @@ internal class PagerState<Key : Any, Value : Any>(
                 }
 
                 // Clear error on successful insert
-                failedHintStart = null
+                failedHintsByLoadType.remove(START)
             }
             END -> {
                 check(pages.isNotEmpty()) { "should've received an init before append" }
@@ -140,7 +139,7 @@ internal class PagerState<Key : Any, Value : Any>(
                 }
 
                 // Clear error on successful insert
-                failedHintEnd = null
+                failedHintsByLoadType.remove(END)
             }
         }
 
@@ -282,12 +281,6 @@ internal class PagerState<Key : Any, Value : Any>(
         }
 
         return block(indexInPage, pageIndex, hintOffset)
-    }
-
-    fun failedHintForLoadType(loadType: LoadType): ViewportHint? = when (loadType) {
-        REFRESH -> null
-        START -> failedHintStart
-        END -> failedHintEnd
     }
 }
 

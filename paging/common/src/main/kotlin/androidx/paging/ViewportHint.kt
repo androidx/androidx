@@ -42,5 +42,6 @@ internal data class ViewportHint(
     companion object {
         val MIN_VALUE = ViewportHint(Int.MIN_VALUE, 0)
         val MAX_VALUE = ViewportHint(Int.MAX_VALUE, Int.MAX_VALUE)
+        val DUMMY_VALUE = MAX_VALUE
     }
 }
