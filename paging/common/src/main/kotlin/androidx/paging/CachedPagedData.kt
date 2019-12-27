@@ -57,7 +57,7 @@ private class MulticastedPagedData<T : Any>(
     @ExperimentalCoroutinesApi
     fun asPagedData() = PagedData(
         flow = multicasted.flow,
-        hintReceiver = parent.hintReceiver
+        receiver = parent.receiver
     )
 
     @FlowPreview

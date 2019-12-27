@@ -26,24 +26,24 @@ import androidx.paging.LoadType.START
 import androidx.paging.PageEvent.Drop
 import androidx.paging.PagedSource.LoadParams
 import androidx.paging.PagedSource.LoadResult
+import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.FlowPreview
 import kotlinx.coroutines.channels.BroadcastChannel
 import kotlinx.coroutines.channels.Channel
 import kotlinx.coroutines.channels.Channel.Factory.BUFFERED
+import kotlinx.coroutines.channels.Channel.Factory.CONFLATED
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.asFlow
 import kotlinx.coroutines.flow.channelFlow
 import kotlinx.coroutines.flow.collect
 import kotlinx.coroutines.flow.conflate
 import kotlinx.coroutines.flow.consumeAsFlow
-import kotlinx.coroutines.flow.distinctUntilChanged
 import kotlinx.coroutines.flow.emitAll
 import kotlinx.coroutines.flow.filter
 import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.flow.scan
 import kotlinx.coroutines.flow.transformLatest
-import kotlinx.coroutines.joinAll
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.sync.Mutex
 import kotlinx.coroutines.sync.withLock
@@ -54,13 +54,13 @@ import java.util.concurrent.atomic.AtomicBoolean
  * of [Pager] and its corresponding [PagerState] should be launched within a scope that is
  * cancelled when [PagedSource.invalidate] is called.
  */
-@FlowPreview
-@ExperimentalCoroutinesApi
+@UseExperimental(ExperimentalCoroutinesApi::class, FlowPreview::class)
 internal class Pager<Key : Any, Value : Any>(
     internal val initialKey: Key?,
     internal val pagedSource: PagedSource<Key, Value>,
     private val config: PagedList.Config
 ) {
+    private val retryChannel = Channel<Unit>(CONFLATED)
     private val hintChannel = BroadcastChannel<ViewportHint>(BUFFERED)
     private var lastHint: ViewportHint? = null
 
@@ -68,11 +68,17 @@ internal class Pager<Key : Any, Value : Any>(
     private val stateLock = Mutex()
     private val state = PagerState<Key, Value>(config.pageSize, config.maxSize)
 
+    private val created = AtomicBoolean(false)
+
     fun addHint(hint: ViewportHint) {
         lastHint = hint
         hintChannel.offer(hint)
     }
-    private val created = AtomicBoolean(false)
+
+    fun retry() {
+        retryChannel.offer(Unit)
+    }
+
     fun create(): Flow<PageEvent<Value>> = channelFlow {
         check(created.compareAndSet(false, true)) {
             "cannot collect twice from pager"
@@ -80,62 +86,42 @@ internal class Pager<Key : Any, Value : Any>(
         launch { pageEventCh.consumeAsFlow().collect { send(it) } }
         state.doInitialLoad()
 
-        val prependJob = launch {
-            state.consumePrependGenerationIdAsFlow()
-                .transformLatest<Int, GenerationalViewportHint> { generationId ->
-                    // Reset state to Idle and setup a new flow for consuming incoming load hints.
-                    // Subsequent generationIds are normally triggered by cancellation.
-                    stateLock.withLock {
-                        // Skip this generationId of loads if there is no more to load in this
-                        // direction. In the case of the terminal page getting dropped, a new
-                        // generationId will be sent after load state is updated to Idle.
-                        if (state.loadStates[START] == Done) return@transformLatest
-                        else state.updateLoadState(START, Idle)
-                    }
-
-                    val generationalHints = hintChannel.asFlow()
-                        .conflate()
-                        .map { hint -> GenerationalViewportHint(generationId, hint) }
-                    emitAll(generationalHints)
-                }
-                .scan(GenerationalViewportHint(0, ViewportHint.MAX_VALUE)) { acc, it ->
-                    if (acc.hint < it.hint) acc else it
-                }
-                .filter { it != GenerationalViewportHint(0, ViewportHint.MAX_VALUE) }
-                .distinctUntilChanged()
-                .conflate()
-                .collect { generationalHint -> state.doLoad(START, generationalHint) }
+        if (stateLock.withLock { state.failedHintsByLoadType[REFRESH] } == null) {
+            startConsumingHints()
         }
 
-        val appendJob = launch {
-            state.consumeAppendGenerationIdAsFlow()
-                .transformLatest<Int, GenerationalViewportHint> { generationId ->
-                    // Reset state to Idle and setup a new flow for consuming incoming load hints.
-                    // Subsequent generationIds are normally triggered by cancellation.
-                    stateLock.withLock {
-                        // Skip this generationId of loads if there is no more to load in this
-                        // direction. In the case of the terminal page getting dropped, a new
-                        // generationId will be sent after load state is updated to Idle.
-                        if (state.loadStates[END] == Done) return@transformLatest
-                        else state.updateLoadState(END, Idle)
+        launch {
+            retryChannel.consumeAsFlow()
+                .collect {
+                    // Handle refresh failure. Re-attempt doInitialLoad if the last attempt failed,
+                    val refreshFailure = stateLock.withLock { state.failedHintsByLoadType[REFRESH] }
+                    refreshFailure?.let {
+                        stateLock.withLock { state.updateLoadState(REFRESH, Idle) }
+                        state.doInitialLoad()
+
+                        val newRefreshFailure = stateLock.withLock {
+                            state.failedHintsByLoadType[REFRESH]
+                        }
+                        if (newRefreshFailure == null) {
+                            startConsumingHints()
+                        }
                     }
 
-                    val generationalHints = hintChannel.asFlow()
-                        .conflate()
-                        .map { hint -> GenerationalViewportHint(generationId, hint) }
-                    emitAll(generationalHints)
+                    // Handle prepend / append failures.
+                    stateLock.withLock {
+                        state.failedHintsByLoadType[START]?.let {
+                            // Reset load state to allow loads in this direction.
+                            state.updateLoadState(START, Idle)
+                            hintChannel.offer(it)
+                        }
+                        state.failedHintsByLoadType[END]?.let {
+                            // Reset load state to allow loads in this direction.
+                            state.updateLoadState(END, Idle)
+                            hintChannel.offer(it)
+                        }
+                    }
                 }
-                .scan(GenerationalViewportHint(0, ViewportHint.MIN_VALUE)) { acc, it ->
-                    if (acc.hint > it.hint) acc else it
-                }
-                .filter { it != GenerationalViewportHint(0, ViewportHint.MIN_VALUE) }
-                .distinctUntilChanged()
-                .conflate()
-                .collect { generationalHint -> state.doLoad(END, generationalHint) }
         }
-
-        // TODO: Test if we can remove this!
-        joinAll(prependJob, appendJob)
     }
 
     suspend fun refreshKeyInfo(): RefreshInfo<Key, Value>? {
@@ -147,6 +133,66 @@ internal class Pager<Key : Any, Value : Any>(
                     }
                 }
             }
+        }
+    }
+
+    private fun CoroutineScope.startConsumingHints() {
+        launch {
+            state.consumePrependGenerationIdAsFlow()
+                .transformLatest<Int, GenerationalViewportHint> { generationId ->
+                    // Reset state to Idle and setup a new flow for consuming incoming load hints.
+                    // Subsequent generationIds are normally triggered by cancellation.
+                    stateLock.withLock {
+                        // Skip this generationId of loads if there is no more to load in this
+                        // direction. In the case of the terminal page getting dropped, a new
+                        // generationId will be sent after load state is updated to Idle.
+                        if (state.loadStates[START] == Done) {
+                            return@transformLatest
+                        } else if (state.failedHintsByLoadType[START] == null) {
+                            state.updateLoadState(START, Idle)
+                        }
+                    }
+
+                    val generationalHints = hintChannel.asFlow()
+                        .conflate()
+                        .map { hint -> GenerationalViewportHint(generationId, hint) }
+                    emitAll(generationalHints)
+                }
+                .scan(GenerationalViewportHint.PREPEND_INITIAL_VALUE) { acc, it ->
+                    if (acc.hint < it.hint) acc else it
+                }
+                .filter { it != GenerationalViewportHint.PREPEND_INITIAL_VALUE }
+                .conflate()
+                .collect { generationalHint -> state.doLoad(START, generationalHint) }
+        }
+
+        launch {
+            state.consumeAppendGenerationIdAsFlow()
+                .transformLatest<Int, GenerationalViewportHint> { generationId ->
+                    // Reset state to Idle and setup a new flow for consuming incoming load hints.
+                    // Subsequent generationIds are normally triggered by cancellation.
+                    stateLock.withLock {
+                        // Skip this generationId of loads if there is no more to load in this
+                        // direction. In the case of the terminal page getting dropped, a new
+                        // generationId will be sent after load state is updated to Idle.
+                        if (state.loadStates[END] == Done) {
+                            return@transformLatest
+                        } else if (state.failedHintsByLoadType[END] == null) {
+                            state.updateLoadState(END, Idle)
+                        }
+                    }
+
+                    val generationalHints = hintChannel.asFlow()
+                        .conflate()
+                        .map { hint -> GenerationalViewportHint(generationId, hint) }
+                    emitAll(generationalHints)
+                }
+                .scan(GenerationalViewportHint.APPEND_INITIAL_VALUE) { acc, it ->
+                    if (acc.hint > it.hint) acc else it
+                }
+                .filter { it != GenerationalViewportHint.APPEND_INITIAL_VALUE }
+                .conflate()
+                .collect { generationalHint -> state.doLoad(END, generationalHint) }
         }
     }
 
@@ -179,7 +225,9 @@ internal class Pager<Key : Any, Value : Any>(
                     // page dropping.
                     if (insertApplied) pageEventCh.send(result.toPageEvent(REFRESH))
                 }
-                is LoadResult.Error -> updateLoadState(REFRESH, Error(result.throwable))
+                is LoadResult.Error -> updateLoadState(
+                    REFRESH, Error(result.throwable), ViewportHint.DUMMY_VALUE
+                )
             }
         }
     }
@@ -238,7 +286,9 @@ internal class Pager<Key : Any, Value : Any>(
                     lastInsertedPage = result
                 }
                 is LoadResult.Error -> {
-                    stateLock.withLock { updateLoadState(loadType, Error(result.throwable)) }
+                    stateLock.withLock {
+                        updateLoadState(loadType, Error(result.throwable), generationalHint.hint)
+                    }
                     return
                 }
             }
@@ -269,7 +319,10 @@ internal class Pager<Key : Any, Value : Any>(
         }
 
         stateLock.withLock {
-            updateLoadState(loadType, if (updateLoadStateToDone) Done else Idle)
+            // Only update load state with success if we didn't error out.
+            if (state.failedHintsByLoadType[loadType] == null) {
+                updateLoadState(loadType, if (updateLoadStateToDone) Done else Idle)
+            }
 
             // Send the last page event from previous successful insert, now that LoadState has
             // been updated.
@@ -282,12 +335,17 @@ internal class Pager<Key : Any, Value : Any>(
 
     private suspend fun PagerState<Key, Value>.updateLoadState(
         loadType: LoadType,
-        loadState: LoadState
+        loadState: LoadState,
+        hint: ViewportHint? = null
     ) {
-        // De-dupe state updates if state hasn't changed.
         if (loadStates[loadType] != loadState) {
             loadStates[loadType] = loadState
             pageEventCh.send(PageEvent.StateUpdate(loadType, loadState))
+        }
+
+        // Save the hint for retry on incoming retry signal, typically sent from user interaction.
+        if (loadState is Error && hint != null) {
+            failedHintsByLoadType[loadType] = hint
         }
     }
 
@@ -327,6 +385,7 @@ internal class Pager<Key : Any, Value : Any>(
         prefetchDistance: Int
     ): Key? {
         if (loadId != prependLoadId) return null
+        if (loadStates[START] is Error) return null
 
         val itemsBeforePage = (0 until pageIndex).sumBy { pages[it].data.size }
         val shouldLoad = itemsBeforePage + indexInPage < prefetchDistance
@@ -344,6 +403,7 @@ internal class Pager<Key : Any, Value : Any>(
         prefetchDistance: Int
     ): Key? {
         if (loadId != appendLoadId) return null
+        if (loadStates[END] is Error) return null
 
         val itemsIncludingPage = (pageIndex until pages.size).sumBy { pages[it].data.size }
         val shouldLoad = indexInPage + 1 + prefetchDistance > itemsIncludingPage
@@ -355,4 +415,9 @@ internal class Pager<Key : Any, Value : Any>(
  * Generation of cancel token not [Pager]. [generationId] is used to differentiate between loads
  * from jobs that have been cancelled, but continued to run to completion.
  */
-private data class GenerationalViewportHint(val generationId: Int, val hint: ViewportHint)
+private data class GenerationalViewportHint(val generationId: Int, val hint: ViewportHint) {
+    companion object {
+        val PREPEND_INITIAL_VALUE = GenerationalViewportHint(0, ViewportHint.MAX_VALUE)
+        val APPEND_INITIAL_VALUE = GenerationalViewportHint(0, ViewportHint.MIN_VALUE)
+    }
+}

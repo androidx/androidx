@@ -66,6 +66,10 @@ open class AsyncPagedDataDiffer<T : Any>(
         differBase.connect(flow, scope, callback)
     }
 
+    fun retry() {
+        differBase.retry()
+    }
+
     /**
      * Get the item from the current PagedList at the specified index.
      *

@@ -6,6 +6,7 @@ package androidx.paging {
     method public final void connect(kotlinx.coroutines.flow.Flow<androidx.paging.PagedData<T>> flow, kotlinx.coroutines.CoroutineScope scope);
     method public T? getItem(int index);
     method public int getItemCount();
+    method public final void retry();
     property public int itemCount;
   }
 
@@ -62,6 +63,7 @@ package androidx.paging {
     method protected T? getItem(int position);
     method public int getItemCount();
     method public void onLoadStateChanged(androidx.paging.LoadType type, androidx.paging.LoadState state);
+    method public final void retry();
   }
 
   public abstract class PagedListAdapter<T, VH extends androidx.recyclerview.widget.RecyclerView.ViewHolder> extends androidx.recyclerview.widget.RecyclerView.Adapter<VH> {

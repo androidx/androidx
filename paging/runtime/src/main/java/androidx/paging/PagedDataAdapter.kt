@@ -38,6 +38,10 @@ abstract class PagedDataAdapter<T : Any, VH : RecyclerView.ViewHolder>(
         differ.connect(flow, scope)
     }
 
+    fun retry() {
+        differ.retry()
+    }
+
     protected open fun getItem(position: Int) = differ.getItem(position)
 
     override fun getItemCount() = differ.itemCount
