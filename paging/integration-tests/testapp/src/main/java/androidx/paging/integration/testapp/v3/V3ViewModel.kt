@@ -18,14 +18,18 @@ package androidx.paging.integration.testapp.v3
 
 import android.graphics.Color
 import androidx.lifecycle.ViewModel
+import androidx.lifecycle.viewModelScope
 import androidx.paging.Config
-import androidx.paging.PagedData
 import androidx.paging.PagedDataFlowBuilder
-import kotlinx.coroutines.flow.Flow
+import androidx.paging.cachedIn
+import kotlinx.coroutines.ExperimentalCoroutinesApi
+import kotlinx.coroutines.FlowPreview
 import kotlinx.coroutines.flow.map
 
+@ExperimentalCoroutinesApi
 class V3ViewModel : ViewModel() {
-    fun flow(): Flow<PagedData<Item>> =
+    @FlowPreview
+    val flow =
         PagedDataFlowBuilder(ItemPagedSource.Factory, Config(pageSize = 10))
             .build()
             .map {
@@ -49,6 +53,5 @@ class V3ViewModel : ViewModel() {
                         )
                     } else null
                 }
-            }
-    // TODO: buffer!
+            }.cachedIn(viewModelScope)
 }

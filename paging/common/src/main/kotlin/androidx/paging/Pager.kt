@@ -47,6 +47,7 @@ import kotlinx.coroutines.joinAll
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.sync.Mutex
 import kotlinx.coroutines.sync.withLock
+import java.util.concurrent.atomic.AtomicBoolean
 
 /**
  * Holds a generation of pageable data, a snapshot of data loaded by [PagedSource]. An instance
@@ -71,8 +72,11 @@ internal class Pager<Key : Any, Value : Any>(
         lastHint = hint
         hintChannel.offer(hint)
     }
-
+    private val created = AtomicBoolean(false)
     fun create(): Flow<PageEvent<Value>> = channelFlow {
+        check(created.compareAndSet(false, true)) {
+            "cannot collect twice from pager"
+        }
         launch { pageEventCh.consumeAsFlow().collect { send(it) } }
         state.doInitialLoad()
 
