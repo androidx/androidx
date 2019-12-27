@@ -31,6 +31,7 @@ import org.junit.Test
 import org.junit.runner.RunWith
 import org.junit.runners.JUnit4
 import kotlin.test.assertEquals
+import kotlin.test.assertNotEquals
 import kotlin.test.assertTrue
 
 @FlowPreview
@@ -75,6 +76,31 @@ class PageFetcherTest {
 
         assertEquals(2, fetcherState.pagedDataList.size)
         assertTrue { fetcherState.pageEventLists[1].isNotEmpty() }
+        fetcherState.job.cancel()
+    }
+
+    @Test
+    fun refreshFromPagedSource() = testScope.runBlockingTest {
+        var pagedSource: PagedSource<Int, Int>? = null
+        val pagedSourceFactory = {
+            TestPagedSource().also { pagedSource = it }
+        }
+        val pageFetcher = PageFetcher(pagedSourceFactory, 50, config)
+        val fetcherState = collectFetcherState(pageFetcher)
+
+        advanceUntilIdle()
+
+        assertEquals(1, fetcherState.pagedDataList.size)
+        assertTrue { fetcherState.pageEventLists[0].isNotEmpty() }
+
+        val oldPagedSource = pagedSource
+        oldPagedSource?.invalidate()
+        advanceUntilIdle()
+
+        assertEquals(2, fetcherState.pagedDataList.size)
+        assertTrue { fetcherState.pageEventLists[1].isNotEmpty() }
+        assertNotEquals(oldPagedSource, pagedSource)
+        assertTrue { oldPagedSource!!.invalid }
         fetcherState.job.cancel()
     }
 
