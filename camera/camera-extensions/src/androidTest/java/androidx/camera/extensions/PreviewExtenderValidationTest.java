@@ -31,7 +31,7 @@ import androidx.camera.extensions.util.ExtensionsTestUtil;
 import androidx.camera.testing.CameraUtil;
 import androidx.test.core.app.ApplicationProvider;
 import androidx.test.ext.junit.runners.AndroidJUnit4;
-import androidx.test.filters.SmallTest;
+import androidx.test.filters.LargeTest;
 import androidx.test.rule.GrantPermissionRule;
 
 import org.junit.After;
@@ -64,7 +64,7 @@ public class PreviewExtenderValidationTest {
     }
 
     @Test
-    @SmallTest
+    @LargeTest
     public void getSupportedResolutionsImplementationTest()
             throws CameraInfoUnavailableException, CameraAccessException {
         // getSupportedResolutions supported since version 1.1
