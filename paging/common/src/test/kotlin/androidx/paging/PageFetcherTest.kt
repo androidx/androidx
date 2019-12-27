@@ -105,6 +105,32 @@ class PageFetcherTest {
     }
 
     @Test
+    fun refreshCallsInvalidate() = testScope.runBlockingTest {
+        var pagedSource: PagedSource<Int, Int>? = null
+        val pagedSourceFactory = {
+            TestPagedSource().also { pagedSource = it }
+        }
+        val pageFetcher = PageFetcher(pagedSourceFactory, 50, config)
+        val fetcherState = collectFetcherState(pageFetcher)
+
+        var didCallInvalidate = false
+        pagedSource?.registerInvalidatedCallback { didCallInvalidate = true }
+
+        advanceUntilIdle()
+
+        assertEquals(1, fetcherState.pagedDataList.size)
+        assertTrue { fetcherState.pageEventLists[0].isNotEmpty() }
+
+        pageFetcher.refresh()
+        advanceUntilIdle()
+
+        assertEquals(2, fetcherState.pagedDataList.size)
+        assertTrue { fetcherState.pageEventLists[1].isNotEmpty() }
+        assertTrue { didCallInvalidate }
+        fetcherState.job.cancel()
+    }
+
+    @Test
     fun collectTwice() = testScope.runBlockingTest {
         val pageFetcher = PageFetcher(pagedSourceFactory, 50, config)
         val fetcherState = collectFetcherState(pageFetcher)
