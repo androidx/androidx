@@ -27,12 +27,12 @@ import kotlinx.coroutines.flow.map
  */
 class PagedData<T : Any> internal constructor(
     internal val flow: Flow<PageEvent<T>>,
-    internal val hintReceiver: (ViewportHint) -> Unit
+    internal val receiver: UiReceiver
 ) {
     private inline fun <R : Any> transform(crossinline transform: (PageEvent<T>) -> PageEvent<R>) =
         PagedData(
             flow = flow.map { transform(it) },
-            hintReceiver = hintReceiver
+            receiver = receiver
         )
 
     /**
@@ -86,6 +86,11 @@ class PagedData<T : Any> internal constructor(
         generator: (T?, T?) -> R?
     ) = PagedData(
         flow = flow.insertSeparators(generator),
-        hintReceiver = hintReceiver
+        receiver = receiver
     )
+}
+
+internal interface UiReceiver {
+    fun addHint(hint: ViewportHint)
+    fun retry()
 }
