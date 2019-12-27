@@ -189,6 +189,8 @@ public class CameraControlDeviceTest {
 
     @Test
     public void startFocusMeteringMorePointThanSupported_futureCompletes() {
+        assumeTrue(isSupportAeRegion(mCameraSelector) || isSupportAwbRegion(mCameraSelector));
+
         SurfaceOrientedMeteringPointFactory factory = new SurfaceOrientedMeteringPointFactory(1, 1);
         // Most devices don't support 4 AF/AE/AWB regions. but it should still complete.
         MeteringPoint point1 = factory.createPoint(0, 0);
