@@ -403,6 +403,9 @@ public final class Camera2CameraControlTest {
     @Test
     public void startFocusAndMetering_3ARegionsUpdatedInSessionAndSessionOptions()
             throws InterruptedException {
+        assumeTrue(getMaxAfRegionCount() > 0 || getMaxAeRegionCount() > 0
+                || getMaxAwbRegionCount() > 0);
+
         SurfaceOrientedMeteringPointFactory factory = new SurfaceOrientedMeteringPointFactory(1.0f,
                 1.0f);
         FocusMeteringAction action = FocusMeteringAction.Builder.from(factory.createPoint(0, 0))
@@ -441,6 +444,8 @@ public final class Camera2CameraControlTest {
 
     @Test
     public void startFocusAndMetering_AfIsTriggeredProperly() throws InterruptedException {
+        assumeTrue(getMaxAfRegionCount() > 0);
+
         SurfaceOrientedMeteringPointFactory factory = new SurfaceOrientedMeteringPointFactory(1.0f,
                 1.0f);
         FocusMeteringAction action = FocusMeteringAction.Builder.from(factory.createPoint(0, 0))
@@ -465,6 +470,8 @@ public final class Camera2CameraControlTest {
 
     @Test
     public void startFocusAndMetering_AFNotInvolved_AfIsNotTriggered() throws InterruptedException {
+        assumeTrue(getMaxAeRegionCount() > 0 || getMaxAwbRegionCount() > 0);
+
         SurfaceOrientedMeteringPointFactory factory = new SurfaceOrientedMeteringPointFactory(1.0f,
                 1.0f);
         FocusMeteringAction action = FocusMeteringAction.Builder.from(factory.createPoint(0, 0),
@@ -480,6 +487,9 @@ public final class Camera2CameraControlTest {
 
     @Test
     public void cancelFocusAndMetering_3ARegionsReset() throws InterruptedException {
+        assumeTrue(getMaxAfRegionCount() > 0 || getMaxAeRegionCount() > 0
+                || getMaxAwbRegionCount() > 0);
+
         SurfaceOrientedMeteringPointFactory factory = new SurfaceOrientedMeteringPointFactory(1.0f,
                 1.0f);
         FocusMeteringAction action = FocusMeteringAction.Builder.from(factory.createPoint(0, 0))
@@ -523,6 +533,9 @@ public final class Camera2CameraControlTest {
 
     @Test
     public void cancelFocusAndMetering_cancelAfProperly() throws InterruptedException {
+        assumeTrue(getMaxAfRegionCount() > 0 || getMaxAeRegionCount() > 0
+                || getMaxAwbRegionCount() > 0);
+
         SurfaceOrientedMeteringPointFactory factory = new SurfaceOrientedMeteringPointFactory(1.0f,
                 1.0f);
         FocusMeteringAction action = FocusMeteringAction.Builder.from(factory.createPoint(0, 0))
