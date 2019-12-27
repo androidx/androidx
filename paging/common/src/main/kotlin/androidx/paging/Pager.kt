@@ -16,23 +16,27 @@
 
 package androidx.paging
 
+import androidx.paging.LoadState.Done
 import androidx.paging.LoadState.Error
 import androidx.paging.LoadState.Idle
 import androidx.paging.LoadState.Loading
 import androidx.paging.LoadType.END
 import androidx.paging.LoadType.REFRESH
 import androidx.paging.LoadType.START
+import androidx.paging.PageEvent.Drop
 import androidx.paging.PagedSource.LoadParams
 import androidx.paging.PagedSource.LoadResult
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.FlowPreview
 import kotlinx.coroutines.channels.BroadcastChannel
 import kotlinx.coroutines.channels.Channel
+import kotlinx.coroutines.channels.Channel.Factory.BUFFERED
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.asFlow
 import kotlinx.coroutines.flow.channelFlow
 import kotlinx.coroutines.flow.collect
 import kotlinx.coroutines.flow.conflate
+import kotlinx.coroutines.flow.consumeAsFlow
 import kotlinx.coroutines.flow.distinctUntilChanged
 import kotlinx.coroutines.flow.emitAll
 import kotlinx.coroutines.flow.filter
@@ -56,9 +60,10 @@ internal class Pager<Key : Any, Value : Any>(
     private val pagedSource: PagedSource<Key, Value>,
     private val config: PagedList.Config
 ) {
-    private val hintChannel = BroadcastChannel<ViewportHint>(Channel.BUFFERED)
+    private val hintChannel = BroadcastChannel<ViewportHint>(BUFFERED)
     private var lastHint: ViewportHint? = null
 
+    private val pageEventCh = Channel<PageEvent<Value>>(BUFFERED)
     private val stateLock = Mutex()
     private val state = PagerState<Key, Value>(config.pageSize, config.maxSize)
 
@@ -68,7 +73,7 @@ internal class Pager<Key : Any, Value : Any>(
     }
 
     fun create(): Flow<PageEvent<Value>> = channelFlow {
-        launch { state.consumeAsFlow().collect { send(it) } }
+        launch { pageEventCh.consumeAsFlow().collect { send(it) } }
         state.doInitialLoad()
 
         val prependJob = launch {
@@ -76,7 +81,14 @@ internal class Pager<Key : Any, Value : Any>(
                 .transformLatest<Int, GenerationalViewportHint> { generationId ->
                     // Reset state to Idle and setup a new flow for consuming incoming load hints.
                     // Subsequent generationIds are normally triggered by cancellation.
-                    stateLock.withLock { state.updateLoadState(START, Idle) }
+                    stateLock.withLock {
+                        // Skip this generationId of loads if there is no more to load in this
+                        // direction. In the case of the terminal page getting dropped, a new
+                        // generationId will be sent after load state is updated to Idle.
+                        if (state.loadStates[START] == Done) return@transformLatest
+                        else state.updateLoadState(START, Idle)
+                    }
+
                     val generationalHints = hintChannel.asFlow()
                         .conflate()
                         .map { hint -> GenerationalViewportHint(generationId, hint) }
@@ -96,7 +108,14 @@ internal class Pager<Key : Any, Value : Any>(
                 .transformLatest<Int, GenerationalViewportHint> { generationId ->
                     // Reset state to Idle and setup a new flow for consuming incoming load hints.
                     // Subsequent generationIds are normally triggered by cancellation.
-                    stateLock.withLock { state.updateLoadState(END, Idle) }
+                    stateLock.withLock {
+                        // Skip this generationId of loads if there is no more to load in this
+                        // direction. In the case of the terminal page getting dropped, a new
+                        // generationId will be sent after load state is updated to Idle.
+                        if (state.loadStates[END] == Done) return@transformLatest
+                        else state.updateLoadState(END, Idle)
+                    }
+
                     val generationalHints = hintChannel.asFlow()
                         .conflate()
                         .map { hint -> GenerationalViewportHint(generationId, hint) }
@@ -144,8 +163,17 @@ internal class Pager<Key : Any, Value : Any>(
         stateLock.withLock {
             when (result) {
                 is LoadResult.Page<Key, Value> -> {
-                    insert(0, REFRESH, result)
-                    updateLoadState(REFRESH, Idle)
+                    val insertApplied = insert(0, REFRESH, result)
+
+                    updateLoadState(REFRESH, Done)
+                    if (result.prevKey == null) updateLoadState(START, Done)
+                    if (result.nextKey == null) updateLoadState(END, Done)
+
+                    // Send insert event after load state updates, so that Done / Idle is
+                    // correctly reflected in the insert event. Note that we only send the event
+                    // if the insert was successfully applied in the case of cancellation due to
+                    // page dropping.
+                    if (insertApplied) pageEventCh.send(result.toPageEvent(REFRESH))
                 }
                 is LoadResult.Error -> updateLoadState(REFRESH, Error(result.throwable))
             }
@@ -175,7 +203,20 @@ internal class Pager<Key : Any, Value : Any>(
             }
         }
 
+        // Keeping track of the previous Insert event separately allows for LoadState merging.
+        var lastInsertedPage: LoadResult.Page<Key, Value>? = null
+        // Keep track of whether the LoadState should be updated to Idle or Done when this load
+        // loop terminates due to fulfilling prefetchDistance.
+        var updateLoadStateToDone = false
         loop@ while (loadKey != null) {
+            // Send all pageEvents except the last one for this loop, since the last
+            // insert event can only be sent after LoadState has been updated.
+            lastInsertedPage?.let { previousResult ->
+                val pageEvent = stateLock.withLock { previousResult.toPageEvent(loadType) }
+                pageEventCh.send(pageEvent)
+            }
+            lastInsertedPage = null // Reset lastInsertedPage in case of error or cancellation.
+
             when (val result: LoadResult<Key, Value> = pagedSource.load(loadType, loadKey)) {
                 is LoadResult.Page<Key, Value> -> {
                     val insertApplied = stateLock.withLock {
@@ -184,6 +225,13 @@ internal class Pager<Key : Any, Value : Any>(
 
                     // Break if insert was skipped due to cancellation
                     if (!insertApplied) break@loop
+
+                    // Send Done instead of Idle if no more data to load in current direction.
+                    if (loadType == START && result.prevKey == null) updateLoadStateToDone = true
+                    else if (loadType == END && result.nextKey == null) updateLoadStateToDone = true
+
+                    // Set the Page to be sent to pageEventCh.
+                    lastInsertedPage = result
                 }
                 is LoadResult.Error -> {
                     stateLock.withLock { updateLoadState(loadType, Error(result.throwable)) }
@@ -198,10 +246,12 @@ internal class Pager<Key : Any, Value : Any>(
                 }
 
                 state.dropInfo(dropType)?.let { info ->
+                    state.updateLoadState(dropType, Idle)
                     state.drop(dropType, info.pageCount, info.placeholdersRemaining)
+                    pageEventCh.send(Drop(dropType, info.pageCount, info.placeholdersRemaining))
                 }
 
-                loadKey = with(state) {
+                loadKey =
                     generationalHint.hint.withCoercedHint { indexInPage, pageIndex, hintOffset ->
                         nextLoadKeyOrNull(
                             loadType,
@@ -211,11 +261,30 @@ internal class Pager<Key : Any, Value : Any>(
                             hintOffset
                         )
                     }
-                }
             }
         }
 
-        stateLock.withLock { updateLoadState(loadType, Idle) }
+        stateLock.withLock {
+            updateLoadState(loadType, if (updateLoadStateToDone) Done else Idle)
+
+            // Send the last page event from previous successful insert, now that LoadState has
+            // been updated.
+            lastInsertedPage?.let { previousResult ->
+                val pageEvent = previousResult.toPageEvent(loadType)
+                pageEventCh.send(pageEvent)
+            }
+        }
+    }
+
+    private suspend fun PagerState<Key, Value>.updateLoadState(
+        loadType: LoadType,
+        loadState: LoadState
+    ) {
+        // De-dupe state updates if state hasn't changed.
+        if (loadStates[loadType] != loadState) {
+            loadStates[loadType] = loadState
+            pageEventCh.send(PageEvent.StateUpdate(loadType, loadState))
+        }
     }
 
     /**
@@ -241,6 +310,40 @@ internal class Pager<Key : Any, Value : Any>(
             config.prefetchDistance + hintOffset
         )
         REFRESH -> throw IllegalArgumentException("Just use initialKey directly")
+    }
+
+    /**
+     * The key to use to load next page to prepend or null if we should stop loading in this
+     * direction for the provided prefetchDistance and loadId.
+     */
+    private fun PagerState<Key, Value>.nextPrependKey(
+        loadId: Int,
+        pageIndex: Int,
+        indexInPage: Int,
+        prefetchDistance: Int
+    ): Key? {
+        if (loadId != prependLoadId) return null
+
+        val itemsBeforePage = (0 until pageIndex).sumBy { pages[it].data.size }
+        val shouldLoad = itemsBeforePage + indexInPage < prefetchDistance
+        return if (shouldLoad) pages.first().prevKey else null
+    }
+
+    /**
+     * The key to use to load next page to append or null if we should stop loading in this
+     * direction for the provided prefetchDistance and loadId.
+     */
+    private fun PagerState<Key, Value>.nextAppendKey(
+        loadId: Int,
+        pageIndex: Int,
+        indexInPage: Int,
+        prefetchDistance: Int
+    ): Key? {
+        if (loadId != appendLoadId) return null
+
+        val itemsIncludingPage = (pageIndex until pages.size).sumBy { pages[it].data.size }
+        val shouldLoad = indexInPage + 1 + prefetchDistance > itemsIncludingPage
+        return if (shouldLoad) pages.last().nextKey else null
     }
 }
 

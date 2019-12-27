@@ -16,6 +16,10 @@
 
 package androidx.paging
 
+import androidx.paging.LoadState.Idle
+import androidx.paging.LoadType.END
+import androidx.paging.LoadType.REFRESH
+import androidx.paging.LoadType.START
 import androidx.paging.PageEvent.Drop
 import org.junit.Test
 import org.junit.runner.RunWith
@@ -46,7 +50,7 @@ class SeparatorsTest {
                 .map { listOf(it) }
                 .toTransformablePages()
         val outDrop = Drop<Char>(
-            loadType = LoadType.END,
+            loadType = END,
             count = 2,
             placeholdersRemaining = 4
         ).insertSeparators(
@@ -56,7 +60,7 @@ class SeparatorsTest {
         // drop count always simply doubles, because each N pages, after separators, become 2N - 1
         assertEvent(
             Drop(
-                loadType = LoadType.END,
+                loadType = END,
                 count = 4,
                 placeholdersRemaining = 4
             ),
@@ -73,7 +77,8 @@ class SeparatorsTest {
                 listOf("c1", "c2")
             ).toTransformablePages(),
             placeholdersStart = 0,
-            placeholdersEnd = 1
+            placeholdersEnd = 1,
+            loadStates = mapOf(REFRESH to Idle, START to Idle, END to Idle)
         ).insertSeparators(
             currentPages = initialState
         ) { before, after ->
@@ -105,7 +110,8 @@ class SeparatorsTest {
                     )
                 ),
                 placeholdersStart = 0,
-                placeholdersEnd = 1
+                placeholdersEnd = 1,
+                loadStates = mapOf(REFRESH to Idle, START to Idle, END to Idle)
             ),
             outInsert
         )
@@ -122,7 +128,8 @@ class SeparatorsTest {
                 listOf("c1", "d1"),
                 listOf("d2", "d3")
             ).toTransformablePages(-1),
-            placeholdersEnd = 1
+            placeholdersEnd = 1,
+            loadStates = mapOf(REFRESH to Idle, START to Idle, END to Idle)
         ).insertSeparators(
             currentPages = initialState
         ) { before, after ->
@@ -159,7 +166,8 @@ class SeparatorsTest {
                         originalIndices = listOf(0, 1)
                     )
                 ),
-                placeholdersEnd = 1
+                placeholdersEnd = 1,
+                loadStates = mapOf(REFRESH to Idle, START to Idle, END to Idle)
             ),
             outInsert
         )
@@ -176,7 +184,8 @@ class SeparatorsTest {
                 listOf("a1", "b1"),
                 listOf("b2", "b3")
             ).toTransformablePages(2),
-            placeholdersStart = 1
+            placeholdersStart = 1,
+            loadStates = mapOf(REFRESH to Idle, START to Idle, END to Idle)
         ).insertSeparators(
             currentPages = initialState
         ) { before, after ->
@@ -213,7 +222,8 @@ class SeparatorsTest {
                         originalIndices = listOf(1) // note: using last index of 2nd page in
                     )
                 ),
-                placeholdersStart = 1
+                placeholdersStart = 1,
+                loadStates = mapOf(REFRESH to Idle, START to Idle, END to Idle)
             ),
             outInsert
         )

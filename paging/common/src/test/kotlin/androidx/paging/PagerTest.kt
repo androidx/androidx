@@ -16,13 +16,16 @@
 
 package androidx.paging
 
+import androidx.paging.LoadState.Done
 import androidx.paging.LoadState.Idle
 import androidx.paging.LoadState.Loading
 import androidx.paging.LoadType.END
 import androidx.paging.LoadType.REFRESH
 import androidx.paging.LoadType.START
 import androidx.paging.PageEvent.Drop
-import androidx.paging.PageEvent.Insert
+import androidx.paging.PageEvent.Insert.Companion.End
+import androidx.paging.PageEvent.Insert.Companion.Refresh
+import androidx.paging.PageEvent.Insert.Companion.Start
 import androidx.paging.PageEvent.StateUpdate
 import androidx.paging.TestPagedSource.Companion.items
 import kotlinx.coroutines.ExperimentalCoroutinesApi
@@ -61,21 +64,176 @@ class PagerTest {
         )
     )
 
-    private fun createRefresh(range: IntRange) = Insert.Refresh(
+    private fun createRefresh(
+        range: IntRange,
+        startState: LoadState = Idle,
+        endState: LoadState = Idle
+    ) = Refresh(
         pages = pages(0, range),
         placeholdersStart = range.first.coerceAtLeast(0),
-        placeholdersEnd = (items.size - range.last - 1).coerceAtLeast(0)
+        placeholdersEnd = (items.size - range.last - 1).coerceAtLeast(0),
+        loadStates = mapOf(REFRESH to Done, START to startState, END to endState)
     )
 
-    private fun createPrepend(pageOffset: Int, range: IntRange) = Insert.Start(
+    private fun createPrepend(
+        pageOffset: Int,
+        range: IntRange,
+        startState: LoadState = Idle,
+        endState: LoadState = Idle
+    ) = Start(
         pages = pages(pageOffset, range),
-        placeholdersStart = range.first.coerceAtLeast(0)
+        placeholdersStart = range.first.coerceAtLeast(0),
+        loadStates = mapOf(REFRESH to Done, START to startState, END to endState)
     )
 
-    private fun createAppend(pageOffset: Int, range: IntRange) = Insert.End(
+    private fun createAppend(
+        pageOffset: Int,
+        range: IntRange,
+        startState: LoadState = Idle,
+        endState: LoadState = Idle
+    ) = End(
         pages = pages(pageOffset, range),
-        placeholdersEnd = (items.size - range.last - 1).coerceAtLeast(0)
+        placeholdersEnd = (items.size - range.last - 1).coerceAtLeast(0),
+        loadStates = mapOf(REFRESH to Done, START to startState, END to endState)
     )
+
+    @Test
+    fun loadStates_prependDone() = testScope.runBlockingTest {
+        val pageFetcher = PageFetcher(pagedSourceFactory, 1, config)
+        val fetcherState = collectFetcherState(pageFetcher)
+
+        advanceUntilIdle()
+        fetcherState.pagedDataList[0].hintReceiver(ViewportHint(0, 0))
+        advanceUntilIdle()
+
+        val expected: List<PageEvent<Int>> = listOf(
+            StateUpdate(REFRESH, Loading),
+            StateUpdate(REFRESH, Done),
+            createRefresh(1..2),
+            StateUpdate(START, Loading),
+            StateUpdate(START, Done),
+            createPrepend(pageOffset = -1, range = 0..0, startState = Done)
+        )
+
+        assertEvents(expected, fetcherState.pageEventLists[0])
+        fetcherState.job.cancel()
+    }
+
+    @Test
+    fun loadStates_prependDoneThenDrop() = testScope.runBlockingTest {
+        val pageFetcher = PageFetcher(pagedSourceFactory, 1, config)
+        val fetcherState = collectFetcherState(pageFetcher)
+
+        advanceUntilIdle()
+        fetcherState.pagedDataList[0].hintReceiver(ViewportHint(0, 0))
+        advanceUntilIdle()
+        fetcherState.pagedDataList[0].hintReceiver(ViewportHint(0, 1))
+        advanceUntilIdle()
+
+        val expected: List<PageEvent<Int>> = listOf(
+            StateUpdate(REFRESH, Loading),
+            StateUpdate(REFRESH, Done),
+            createRefresh(1..2),
+            StateUpdate(START, Loading),
+            StateUpdate(START, Done),
+            createPrepend(pageOffset = -1, range = 0..0, startState = Done),
+            StateUpdate(END, Loading),
+            StateUpdate(START, Idle),
+            Drop(START, 1, 1),
+            StateUpdate(END, Idle),
+            createAppend(pageOffset = 1, range = 3..3, startState = Idle, endState = Idle)
+        )
+
+        assertEvents(expected, fetcherState.pageEventLists[0])
+        fetcherState.job.cancel()
+    }
+
+    @Test
+    fun loadStates_appendDone() = testScope.runBlockingTest {
+        val pageFetcher = PageFetcher(pagedSourceFactory, 97, config)
+        val fetcherState = collectFetcherState(pageFetcher)
+
+        advanceUntilIdle()
+        fetcherState.pagedDataList[0].hintReceiver(ViewportHint(0, 1))
+        advanceUntilIdle()
+
+        val expected: List<PageEvent<Int>> = listOf(
+            StateUpdate(REFRESH, Loading),
+            StateUpdate(REFRESH, Done),
+            createRefresh(range = 97..98),
+            StateUpdate(END, Loading),
+            StateUpdate(END, Done),
+            createAppend(pageOffset = 1, range = 99..99, endState = Done)
+        )
+
+        assertEvents(expected, fetcherState.pageEventLists[0])
+        fetcherState.job.cancel()
+    }
+
+    @Test
+    fun loadStates_appendDoneThenDrop() = testScope.runBlockingTest {
+        val pageFetcher = PageFetcher(pagedSourceFactory, 97, config)
+        val fetcherState = collectFetcherState(pageFetcher)
+
+        advanceUntilIdle()
+        fetcherState.pagedDataList[0].hintReceiver(ViewportHint(0, 1))
+        advanceUntilIdle()
+        fetcherState.pagedDataList[0].hintReceiver(ViewportHint(0, 0))
+        advanceUntilIdle()
+
+        val expected: List<PageEvent<Int>> = listOf(
+            StateUpdate(REFRESH, Loading),
+            StateUpdate(REFRESH, Done),
+            createRefresh(range = 97..98),
+            StateUpdate(END, Loading),
+            StateUpdate(END, Done),
+            createAppend(pageOffset = 1, range = 99..99, startState = Idle, endState = Done),
+            StateUpdate(START, Loading),
+            StateUpdate(END, Idle),
+            Drop(END, 1, 1),
+            StateUpdate(START, Idle),
+            createPrepend(pageOffset = -1, range = 96..96, startState = Idle, endState = Idle)
+        )
+
+        assertEvents(expected, fetcherState.pageEventLists[0])
+        fetcherState.job.cancel()
+    }
+
+    @Test
+    fun loadStates_refreshStart() = testScope.runBlockingTest {
+        val pageFetcher = PageFetcher(pagedSourceFactory, 0, config)
+        val fetcherState = collectFetcherState(pageFetcher)
+
+        advanceUntilIdle()
+
+        val expected: List<PageEvent<Int>> = listOf(
+            StateUpdate(REFRESH, Loading),
+            StateUpdate(REFRESH, Done),
+            StateUpdate(START, Done),
+            createRefresh(range = 0..1, startState = Done, endState = Idle)
+        )
+
+        assertEvents(expected, fetcherState.pageEventLists[0])
+        fetcherState.job.cancel()
+    }
+
+    @Test
+    fun loadStates_refreshEnd() = testScope.runBlockingTest {
+        val pageFetcher = PageFetcher(pagedSourceFactory, 98, config)
+        val fetcherState = collectFetcherState(pageFetcher)
+
+        advanceUntilIdle()
+
+        val expected: List<PageEvent<Int>> = listOf(
+            StateUpdate(REFRESH, Loading),
+            StateUpdate(REFRESH, Done),
+            StateUpdate(END, Done),
+            createRefresh(range = 98..99, startState = Idle, endState = Done)
+        )
+
+        assertEvents(expected, fetcherState.pageEventLists[0])
+        fetcherState.job.cancel()
+    }
 
     @Test
     fun initialize() = testScope.runBlockingTest {
@@ -86,8 +244,8 @@ class PagerTest {
 
         val expected: List<PageEvent<Int>> = listOf(
             StateUpdate(REFRESH, Loading),
-            createRefresh(50..51),
-            StateUpdate(REFRESH, Idle)
+            StateUpdate(REFRESH, Done),
+            createRefresh(range = 50..51)
         )
 
         assertEvents(expected, fetcherState.pageEventLists[0])
@@ -105,11 +263,11 @@ class PagerTest {
 
         val expected: List<PageEvent<Int>> = listOf(
             StateUpdate(REFRESH, Loading),
-            createRefresh(50..51),
-            StateUpdate(REFRESH, Idle),
+            StateUpdate(REFRESH, Done),
+            createRefresh(range = 50..51),
             StateUpdate(START, Loading),
-            createPrepend(-1, 49..49),
-            StateUpdate(START, Idle)
+            StateUpdate(START, Idle),
+            createPrepend(pageOffset = -1, range = 49..49)
         )
 
         assertEvents(expected, fetcherState.pageEventLists[0])
@@ -134,12 +292,12 @@ class PagerTest {
 
         val expected: List<PageEvent<Int>> = listOf(
             StateUpdate(REFRESH, Loading),
+            StateUpdate(REFRESH, Done),
             createRefresh(50..52),
-            StateUpdate(REFRESH, Idle),
             StateUpdate(START, Loading),
-            createPrepend(-1, 49..49),
-            createPrepend(-2, 48..48),
-            StateUpdate(START, Idle)
+            createPrepend(pageOffset = -1, range = 49..49, startState = Loading),
+            StateUpdate(START, Idle),
+            createPrepend(-2, 48..48)
         )
 
         assertEvents(expected, fetcherState.pageEventLists[0])
@@ -157,11 +315,11 @@ class PagerTest {
 
         val expected: List<PageEvent<Int>> = listOf(
             StateUpdate(REFRESH, Loading),
+            StateUpdate(REFRESH, Done),
             createRefresh(50..51),
-            StateUpdate(REFRESH, Idle),
             StateUpdate(END, Loading),
-            createAppend(1, 52..52),
-            StateUpdate(END, Idle)
+            StateUpdate(END, Idle),
+            createAppend(1, 52..52)
         )
 
         assertEvents(expected, fetcherState.pageEventLists[0])
@@ -186,12 +344,12 @@ class PagerTest {
 
         val expected: List<PageEvent<Int>> = listOf(
             StateUpdate(REFRESH, Loading),
+            StateUpdate(REFRESH, Done),
             createRefresh(50..52),
-            StateUpdate(REFRESH, Idle),
             StateUpdate(END, Loading),
-            createAppend(1, 53..53),
-            createAppend(2, 54..54),
-            StateUpdate(END, Idle)
+            createAppend(1, 53..53, startState = Idle, endState = Loading),
+            StateUpdate(END, Idle),
+            createAppend(2, 54..54)
         )
 
         assertEvents(expected, fetcherState.pageEventLists[0])
@@ -211,15 +369,15 @@ class PagerTest {
 
         val expected: List<PageEvent<Int>> = listOf(
             StateUpdate(REFRESH, Loading),
-            createRefresh(50..51),
-            StateUpdate(REFRESH, Idle),
+            StateUpdate(REFRESH, Done),
+            createRefresh(range = 50..51),
             StateUpdate(END, Loading),
-            createAppend(1, 52..52),
             StateUpdate(END, Idle),
+            createAppend(pageOffset = 1, range = 52..52),
             StateUpdate(END, Loading),
-            createAppend(2, 53..53),
             Drop(START, 1, 52),
-            StateUpdate(END, Idle)
+            StateUpdate(END, Idle),
+            createAppend(pageOffset = 2, range = 53..53)
         )
 
         assertEvents(expected, fetcherState.pageEventLists[0])
@@ -242,17 +400,17 @@ class PagerTest {
 
             val expected: List<PageEvent<Int>> = listOf(
                 StateUpdate(REFRESH, Loading),
-                createRefresh(50..51),
-                StateUpdate(REFRESH, Idle),
+                StateUpdate(REFRESH, Done),
+                createRefresh(range = 50..51),
                 StateUpdate(END, Loading),
-                createAppend(1, 52..52),
                 StateUpdate(END, Idle),
+                createAppend(pageOffset = 1, range = 52..52),
                 StateUpdate(END, Loading),
                 StateUpdate(START, Loading),
-                createAppend(2, 53..53),
+                StateUpdate(START, Idle),
                 Drop(START, 1, 52),
                 StateUpdate(END, Idle),
-                StateUpdate(START, Idle)
+                createAppend(pageOffset = 2, range = 53..53, startState = Idle, endState = Idle)
             )
 
             assertEvents(expected, fetcherState.pageEventLists[0])
@@ -280,16 +438,20 @@ class PagerTest {
 
             val expected: List<PageEvent<Int>> = listOf(
                 StateUpdate(REFRESH, Loading),
-                createRefresh(50..50),
-                StateUpdate(REFRESH, Idle),
+                StateUpdate(REFRESH, Done),
+                createRefresh(range = 50..50),
                 StateUpdate(START, Loading),
                 StateUpdate(END, Loading),
-                createPrepend(-1, 49..49),
-                createAppend(1, 51..51),
-                createPrepend(-2, 48..48),
+                createPrepend(
+                    pageOffset = -1, range = 49..49, startState = Loading, endState = Loading
+                ),
+                createAppend(
+                    pageOffset = 1, range = 51..51, startState = Loading, endState = Loading
+                ),
+                StateUpdate(END, Idle),
                 Drop(END, 1, 49),
                 StateUpdate(START, Idle),
-                StateUpdate(END, Idle)
+                createPrepend(pageOffset = -2, range = 48..48, startState = Idle, endState = Idle)
             )
 
             assertEvents(expected, fetcherState.pageEventLists[0])
@@ -307,13 +469,13 @@ class PagerTest {
         val expected: List<List<PageEvent<Int>>> = listOf(
             listOf(
                 StateUpdate(REFRESH, Loading),
-                createRefresh(50..51),
-                StateUpdate(REFRESH, Idle)
+                StateUpdate(REFRESH, Done),
+                createRefresh(50..51)
             ),
             listOf(
                 StateUpdate(REFRESH, Loading),
-                createRefresh(50..51),
-                StateUpdate(REFRESH, Idle)
+                StateUpdate(REFRESH, Done),
+                createRefresh(50..51)
             )
         )
 
@@ -338,16 +500,16 @@ class PagerTest {
         val expected: List<List<PageEvent<Int>>> = listOf(
             listOf(
                 StateUpdate(REFRESH, Loading),
+                StateUpdate(REFRESH, Done),
                 createRefresh(50..51),
-                StateUpdate(REFRESH, Idle),
                 StateUpdate(END, Loading),
-                createAppend(1, 52..52),
-                StateUpdate(END, Idle)
+                StateUpdate(END, Idle),
+                createAppend(1, 52..52)
             ),
             listOf(
                 StateUpdate(REFRESH, Loading),
-                createRefresh(51..52),
-                StateUpdate(REFRESH, Idle)
+                StateUpdate(REFRESH, Done),
+                createRefresh(51..52)
             )
         )
 

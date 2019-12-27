@@ -16,6 +16,11 @@
 
 package androidx.paging
 
+import androidx.paging.LoadState.Idle
+import androidx.paging.LoadType.END
+import androidx.paging.LoadType.REFRESH
+import androidx.paging.LoadType.START
+import androidx.paging.PageEvent.Insert.Companion.Refresh
 import androidx.paging.PagedList.Callback
 
 /**
@@ -103,7 +108,8 @@ internal class PagePresenter<T : Any>(
         when (pageEvent) {
             is PageEvent.Insert -> insertPage(pageEvent, callback)
             is PageEvent.Drop -> dropPages(pageEvent, callback)
-            is PageEvent.StateUpdate -> { /* TODO! */ }
+            is PageEvent.StateUpdate -> { /* TODO! */
+            }
         }
     }
 
@@ -129,8 +135,8 @@ internal class PagePresenter<T : Any>(
         val count = insert.pages.fullCount()
         val oldSize = size
         when (insert.loadType) {
-            LoadType.REFRESH -> throw IllegalArgumentException()
-            LoadType.START -> {
+            REFRESH -> throw IllegalArgumentException()
+            START -> {
                 val placeholdersChangedCount = minOf(placeholdersStart, count)
                 val placeholdersChangedPos = placeholdersStart - placeholdersChangedCount
 
@@ -152,7 +158,7 @@ internal class PagePresenter<T : Any>(
                     callback.onRemoved(0, -placeholderInsertedCount)
                 }
             }
-            LoadType.END -> {
+            END -> {
                 val placeholdersChangedCount = minOf(placeholdersEnd, count)
                 val placeholdersChangedPos = placeholdersStart + storageCount
 
@@ -179,7 +185,7 @@ internal class PagePresenter<T : Any>(
 
     private fun dropPages(drop: PageEvent.Drop<T>, callback: Callback) {
         val oldSize = size
-        if (drop.loadType == LoadType.START) {
+        if (drop.loadType == START) {
             val removeCount = pages.take(drop.count).fullCount()
 
             val placeholdersChangedCount = minOf(drop.placeholdersRemaining, removeCount)
@@ -234,7 +240,7 @@ internal class PagePresenter<T : Any>(
 
     companion object {
         fun <T : Any> initial(): PagePresenter<T> = PagePresenter(
-            PageEvent.Insert.Refresh(listOf(), 0, 0)
+            Refresh(listOf(), 0, 0, mapOf(REFRESH to Idle, START to Idle, END to Idle))
         )
     }
 }

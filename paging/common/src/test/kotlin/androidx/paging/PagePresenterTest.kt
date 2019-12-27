@@ -16,6 +16,10 @@
 
 package androidx.paging
 
+import androidx.paging.LoadState.Idle
+import androidx.paging.LoadType.END
+import androidx.paging.LoadType.REFRESH
+import androidx.paging.LoadType.START
 import androidx.paging.PagedSource.LoadResult.Page.Companion.COUNT_UNDEFINED
 import org.junit.Test
 import org.junit.runner.RunWith
@@ -37,11 +41,12 @@ internal fun <T : Any> PagePresenter(
                 originalPageOffset = index - indexOfInitialPage,
                 data = list,
                 originalPageSize = list.size,
-                originalIndices = null)
+                originalIndices = null
+            )
         },
-
         placeholdersStart = leadingNullCount,
-        placeholdersEnd = trailingNullCount
+        placeholdersEnd = trailingNullCount,
+        loadStates = mapOf(REFRESH to Idle, START to Idle, END to Idle)
     )
 )
 
@@ -67,7 +72,7 @@ internal fun <T : Any> PagePresenter<T>.dropPages(
     callback: PagedList.Callback
 ) = processEvent(
     PageEvent.Drop(
-        loadType = if (isPrepend) LoadType.START else LoadType.END,
+        loadType = if (isPrepend) START else END,
         count = pagesToDrop,
         placeholdersRemaining = placeholdersRemaining
     ),
