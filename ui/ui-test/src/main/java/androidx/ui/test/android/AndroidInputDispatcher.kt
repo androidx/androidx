@@ -56,7 +56,7 @@ internal class AndroidInputDispatcher(
         private var eventPeriod = 10.milliseconds.inMilliseconds()
 
         /**
-         * Indicates that the [nextDownTime] is not set
+         * Indicates that [nextDownTime] is not set
          */
         private const val DownTimeNotSet = -1L
     }
@@ -65,8 +65,8 @@ internal class AndroidInputDispatcher(
     private var nextDownTime = DownTimeNotSet
 
     /**
-     * Generates the downTime of the current gesture, given its [duration]. In order to
-     * facilitate chaining of gestures, always use this method to determine the downTime of the
+     * Generates the downTime of the next gesture. The gesture's [duration] is necessary to
+     * facilitate chaining of gestures. Always use this method to determine the downTime of the
      * [ACTION_DOWN] event of a gesture.
      */
     private fun generateDownTime(duration: Duration): Long {

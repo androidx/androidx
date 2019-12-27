@@ -146,6 +146,8 @@ package androidx.ui.test {
   public final class GestureScopeKt {
     method public static void sendClick(androidx.ui.test.GestureScope, androidx.ui.unit.PxPosition position);
     method public static void sendClick(androidx.ui.test.GestureScope);
+    method public static void sendDoubleClick(androidx.ui.test.GestureScope, androidx.ui.unit.PxPosition position);
+    method public static void sendDoubleClick(androidx.ui.test.GestureScope);
     method public static void sendLongClick(androidx.ui.test.GestureScope, androidx.ui.unit.PxPosition position);
     method public static void sendLongClick(androidx.ui.test.GestureScope);
     method public static void sendSwipe(androidx.ui.test.GestureScope, androidx.ui.unit.PxPosition start, androidx.ui.unit.PxPosition end, androidx.ui.unit.Duration duration = 200.milliseconds);
