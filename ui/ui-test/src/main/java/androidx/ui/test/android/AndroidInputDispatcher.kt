@@ -54,12 +54,41 @@ internal class AndroidInputDispatcher(
          * targeted frame rate (60 fps, equating to a 16ms period).
          */
         private var eventPeriod = 10.milliseconds.inMilliseconds()
+
+        /**
+         * Indicates that the [nextDownTime] is not set
+         */
+        private const val DownTimeNotSet = -1L
     }
 
     private val handler = Handler(Looper.getMainLooper())
+    private var nextDownTime = DownTimeNotSet
+
+    /**
+     * Generates the downTime of the current gesture, given its [duration]. In order to
+     * facilitate chaining of gestures, always use this method to determine the downTime of the
+     * [ACTION_DOWN] event of a gesture.
+     */
+    private fun generateDownTime(duration: Duration): Long {
+        val downTime = if (nextDownTime == DownTimeNotSet) {
+            SystemClock.uptimeMillis()
+        } else {
+            nextDownTime
+        }
+        nextDownTime = downTime + duration.inMilliseconds()
+        return downTime
+    }
+
+    override fun delay(duration: Duration) {
+        require(duration >= Duration.Zero) {
+            "duration of a delay can only be positive, not $duration"
+        }
+        generateDownTime(duration)
+        sleepUntil(nextDownTime)
+    }
 
     override fun sendClick(position: PxPosition) {
-        val downTime = SystemClock.uptimeMillis()
+        val downTime = generateDownTime(eventPeriod.milliseconds)
         treeProviders.sendMotionEvent(downTime, downTime, ACTION_DOWN, position)
         treeProviders.sendMotionEvent(downTime, downTime + eventPeriod, ACTION_UP, position)
     }
@@ -85,7 +114,7 @@ internal class AndroidInputDispatcher(
         }
 
         // Determine time window for the events
-        val downTime = SystemClock.uptimeMillis()
+        val downTime = generateDownTime(duration)
         val upTime = downTime + duration.inMilliseconds()
 
         // Send down event
@@ -148,15 +177,19 @@ internal class AndroidInputDispatcher(
         action: Int,
         position: PxPosition
     ) {
-        if (dispatchInRealTime) {
-            val currTime = SystemClock.uptimeMillis()
-            if (currTime < eventTime) {
-                SystemClock.sleep(eventTime - currTime)
-            }
-        }
+        sleepUntil(eventTime)
         sendAndRecycleEvent(
             MotionEvent.obtain(downTime, eventTime, action, position.x.value, position.y.value, 0)
         )
+    }
+
+    private fun sleepUntil(time: Long) {
+        if (dispatchInRealTime) {
+            val currTime = SystemClock.uptimeMillis()
+            if (currTime < time) {
+                SystemClock.sleep(time - currTime)
+            }
+        }
     }
 
     /**
@@ -188,8 +221,8 @@ internal class AndroidInputDispatcher(
      * `false` or not set, will sleep until the eventTime, if `true`, will send the event
      * immediately without blocking. See also [dispatchInRealTime].
      * @param eventPeriodOverride If set, specifies a different period in milliseconds between
-     * two consecutive injected motion events of the same gesture. If not set, the event period
-     * of 10 milliseconds is unchanged. See also [eventPeriod].
+     * two consecutive injected motion events injected by this [AndroidInputDispatcher]. If not
+     * set, the event period of 10 milliseconds is unchanged. See also [eventPeriod].
      */
     internal class TestRule(
         private val disableDispatchInRealTime: Boolean = false,

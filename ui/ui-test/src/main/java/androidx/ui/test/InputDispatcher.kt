@@ -63,6 +63,14 @@ internal interface InputDispatcher {
         keyTimes: List<Long> = emptyList()
     )
 
-    // TODO(b/145593518): how to solve reproducible chaining of gestures?
+    /**
+     * Blocks for the given [duration] in order to delay the next gesture. Guarantees that the
+     * first event time of the next gesture will be exactly [duration] later then if that gesture
+     * would be injected without this delay.
+     *
+     * @param duration The duration of the delay. Must be positive
+     */
+    fun delay(duration: Duration)
+
     // TODO(b/145593752): how to solve multi-touch?
 }
