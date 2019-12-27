@@ -58,7 +58,7 @@ import java.util.concurrent.atomic.AtomicBoolean
 @ExperimentalCoroutinesApi
 internal class Pager<Key : Any, Value : Any>(
     internal val initialKey: Key?,
-    private val pagedSource: PagedSource<Key, Value>,
+    internal val pagedSource: PagedSource<Key, Value>,
     private val config: PagedList.Config
 ) {
     private val hintChannel = BroadcastChannel<ViewportHint>(BUFFERED)
