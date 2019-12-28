@@ -1,5 +1,5 @@
 /*
- * Copyright 2019 The Android Open Source Project
+ * Copyright (C) 2013 The Android Open Source Project
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -14,15 +14,18 @@
  * limitations under the License.
  */
 
-package androidx.appcompat
+package com.example.android.appcompat;
 
-import androidx.appcompat.res.ColorStateListAlphaDetector
-import com.android.tools.lint.client.api.IssueRegistry
-import com.android.tools.lint.detector.api.CURRENT_API
+import android.os.Bundle;
 
-class AppCompatIssueRegistry : IssueRegistry() {
-    override val api = CURRENT_API
-    override val issues get() = listOf(
-        ColorStateListAlphaDetector.NOT_USING_ANDROID_ALPHA
-    )
+import androidx.appcompat.app.AppCompatActivity;
+
+/**
+ * Dummy activity for the AppCompat Lint demo
+ */
+public class AppCompatLintDemo extends AppCompatActivity {
+    @Override
+    public void onCreate(Bundle savedInstanceState) {
+        super.onCreate(savedInstanceState);
+    }
 }
