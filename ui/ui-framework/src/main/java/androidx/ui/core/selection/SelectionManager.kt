@@ -181,19 +181,21 @@ internal class SelectionManager(private val selectionRegistrar: SelectionRegistr
                 // is used to convert the position of the beginning of the drag gesture from the
                 // composable coordinates to selection container coordinates.
                 val beginLayoutCoordinates = if (isStartHandle) {
-                    selection.start.layoutCoordinates!!
+                    selection.start.selectable.getLayoutCoordinates()!!
                 } else {
-                    selection.end.layoutCoordinates!!
+                    selection.end.selectable.getLayoutCoordinates()!!
                 }
 
                 // The position of the character where the drag gesture should begin. This is in
                 // the composable coordinates.
                 val beginCoordinates = getAdjustedCoordinates(
-                    if (isStartHandle) {
-                        selection.start.coordinates
-                    } else {
-                        selection.end.coordinates
-                    }
+                    if (isStartHandle)
+                        selection.start.selectable.getHandlePosition(
+                            selection = selection, isStartHandle = true
+                        ) else
+                        selection.end.selectable.getHandlePosition(
+                            selection = selection, isStartHandle = false
+                        )
                 )
 
                 // Convert the position where drag gesture begins from composable coordinates to
@@ -216,15 +218,25 @@ internal class SelectionManager(private val selectionRegistrar: SelectionRegistr
                     dragBeginPosition + dragTotalDistance
                 } else {
                     containerLayoutCoordinates.childToLocal(
-                        selection.start.layoutCoordinates!!,
-                        getAdjustedCoordinates(selection.start.coordinates)
+                        selection.start.selectable.getLayoutCoordinates()!!,
+                        getAdjustedCoordinates(
+                            selection.start.selectable.getHandlePosition(
+                                selection = selection,
+                                isStartHandle = true
+                            )
+                        )
                     )
                 }
 
                 val currentEnd = if (isStartHandle) {
                     containerLayoutCoordinates.childToLocal(
-                        selection.end.layoutCoordinates!!,
-                        getAdjustedCoordinates(selection.end.coordinates)
+                        selection.end.selectable.getLayoutCoordinates()!!,
+                        getAdjustedCoordinates(
+                            selection.end.selectable.getHandlePosition(
+                                selection = selection,
+                                isStartHandle = false
+                            )
+                        )
                     )
                 } else {
                     dragBeginPosition + dragTotalDistance

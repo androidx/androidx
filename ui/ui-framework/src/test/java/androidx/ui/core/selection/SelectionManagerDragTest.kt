@@ -43,36 +43,32 @@ class SelectionManagerDragTest {
     private val containerLayoutCoordinates = mock<LayoutCoordinates>()
     private val childToLocal_result = PxPosition(300.px, 400.px)
 
+    private val startSelectable = mock<Selectable>()
+    private val endSelectable = mock<Selectable>()
     private val startLayoutCoordinates = mock<LayoutCoordinates>()
     private val endLayoutCoordinates = mock<LayoutCoordinates>()
-    private val startCoordinates = PxPosition(3.px, 30.px)
-    private val endCoordinates = PxPosition(3.px, 600.px)
     private val fakeInitialSelection: Selection = Selection(
         start = Selection.AnchorInfo(
-            coordinates = startCoordinates,
             direction = TextDirection.Ltr,
             offset = 0,
-            layoutCoordinates = startLayoutCoordinates
+            selectable = startSelectable
         ),
         end = Selection.AnchorInfo(
-            coordinates = endCoordinates,
             direction = TextDirection.Ltr,
             offset = 5,
-            layoutCoordinates = endLayoutCoordinates
+            selectable = endSelectable
         )
     )
     private val fakeResultSelection: Selection = Selection(
         start = Selection.AnchorInfo(
-            coordinates = endCoordinates,
             direction = TextDirection.Ltr,
             offset = 5,
-            layoutCoordinates = endLayoutCoordinates
+            selectable = endSelectable
         ),
         end = Selection.AnchorInfo(
-            coordinates = startCoordinates,
             direction = TextDirection.Ltr,
             offset = 0,
-            layoutCoordinates = startLayoutCoordinates
+            selectable = startSelectable
         )
     )
     private var selection: Selection? = fakeInitialSelection
@@ -101,6 +97,12 @@ class SelectionManagerDragTest {
             )
         ).thenReturn(fakeResultSelection)
 
+        whenever(startSelectable.getLayoutCoordinates()).thenReturn(startLayoutCoordinates)
+        whenever(endSelectable.getLayoutCoordinates()).thenReturn(endLayoutCoordinates)
+
+        whenever(startSelectable.getHandlePosition(any(), any())).thenReturn(PxPosition.Origin)
+        whenever(endSelectable.getHandlePosition(any(), any())).thenReturn(PxPosition.Origin)
+
         selectionManager.containerLayoutCoordinates = containerLayoutCoordinates
         selectionManager.onSelectionChange = spyLambda
         selectionManager.selection = selection
@@ -114,7 +116,7 @@ class SelectionManagerDragTest {
         verify(containerLayoutCoordinates, times(1))
             .childToLocal(
                 child = startLayoutCoordinates,
-                childLocal = getAdjustedCoordinates(startCoordinates)
+                childLocal = getAdjustedCoordinates(PxPosition.Origin)
             )
         verify_draggingHandle(expectedDraggingHandleValue = true)
         verify(spyLambda, times(0)).invoke(fakeResultSelection)
@@ -127,7 +129,7 @@ class SelectionManagerDragTest {
         verify(containerLayoutCoordinates, times(1))
             .childToLocal(
                 child = endLayoutCoordinates,
-                childLocal = getAdjustedCoordinates(endCoordinates)
+                childLocal = getAdjustedCoordinates(PxPosition.Origin)
             )
         verify_draggingHandle(expectedDraggingHandleValue = true)
         verify(spyLambda, times(0)).invoke(fakeResultSelection)
@@ -144,7 +146,7 @@ class SelectionManagerDragTest {
         verify(containerLayoutCoordinates, times(1))
             .childToLocal(
                 child = endLayoutCoordinates,
-                childLocal = getAdjustedCoordinates(endCoordinates)
+                childLocal = getAdjustedCoordinates(PxPosition.Origin)
             )
         verify(selectable, times(1))
             .getSelection(
@@ -171,7 +173,7 @@ class SelectionManagerDragTest {
         verify(containerLayoutCoordinates, times(1))
             .childToLocal(
                 child = startLayoutCoordinates,
-                childLocal = getAdjustedCoordinates(startCoordinates)
+                childLocal = getAdjustedCoordinates(PxPosition.Origin)
             )
         verify(selectable, times(1))
             .getSelection(

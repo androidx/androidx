@@ -17,10 +17,8 @@
 package androidx.ui.core.selection
 
 import androidx.compose.Immutable
-import androidx.ui.core.LayoutCoordinates
 import androidx.ui.text.TextRange
 import androidx.ui.text.style.TextDirection
-import androidx.ui.unit.PxPosition
 
 /**
  * Information about the current Selection.
@@ -53,16 +51,6 @@ data class Selection(
     @Immutable
     data class AnchorInfo(
         /**
-         * The coordinates of the graphical position for selection character offset.
-         *
-         * This graphical position is the point at the left bottom corner for LTR
-         * character, or right bottom corner for RTL character.
-         *
-         * This coordinates is in child composable coordinates system.
-         */
-        val coordinates: PxPosition,
-
-        /**
          * Text direction of the character in selection edge.
          */
         val direction: TextDirection,
@@ -72,11 +60,11 @@ data class Selection(
          * composable.
          */
         val offset: Int,
+
         /**
-         * The layout coordinates of the child which contains the whole selection. If the child
-         * does not contain the end of the selection, this should be null.
+         * The [Selectable] which contains this [Selection] Anchor.
          */
-        val layoutCoordinates: LayoutCoordinates?
+        val selectable: Selectable
     )
 
     fun merge(other: Selection?): Selection {
