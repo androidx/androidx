@@ -96,7 +96,7 @@ internal class Pager<Key : Any, Value : Any>(
                     // Handle refresh failure. Re-attempt doInitialLoad if the last attempt failed,
                     val refreshFailure = stateLock.withLock { state.failedHintsByLoadType[REFRESH] }
                     refreshFailure?.let {
-                        stateLock.withLock { state.updateLoadState(REFRESH, Idle) }
+                        stateLock.withLock { state.failedHintsByLoadType.remove(REFRESH) }
                         state.doInitialLoad()
 
                         val newRefreshFailure = stateLock.withLock {
@@ -111,12 +111,12 @@ internal class Pager<Key : Any, Value : Any>(
                     stateLock.withLock {
                         state.failedHintsByLoadType[START]?.let {
                             // Reset load state to allow loads in this direction.
-                            state.updateLoadState(START, Idle)
+                            state.failedHintsByLoadType.remove(START)
                             hintChannel.offer(it)
                         }
                         state.failedHintsByLoadType[END]?.let {
                             // Reset load state to allow loads in this direction.
-                            state.updateLoadState(END, Idle)
+                            state.failedHintsByLoadType.remove(END)
                             hintChannel.offer(it)
                         }
                     }
@@ -338,6 +338,10 @@ internal class Pager<Key : Any, Value : Any>(
         loadState: LoadState,
         hint: ViewportHint? = null
     ) {
+        require(loadState is Error || hint == null) {
+            "Failed hint supplied for a loadState other than Error, which will be ignored."
+        }
+
         if (loadStates[loadType] != loadState) {
             loadStates[loadType] = loadState
             pageEventCh.send(PageEvent.StateUpdate(loadType, loadState))
@@ -385,7 +389,7 @@ internal class Pager<Key : Any, Value : Any>(
         prefetchDistance: Int
     ): Key? {
         if (loadId != prependLoadId) return null
-        if (loadStates[START] is Error) return null
+        if (failedHintsByLoadType[START] != null) return null
 
         val itemsBeforePage = (0 until pageIndex).sumBy { pages[it].data.size }
         val shouldLoad = itemsBeforePage + indexInPage < prefetchDistance
@@ -403,7 +407,7 @@ internal class Pager<Key : Any, Value : Any>(
         prefetchDistance: Int
     ): Key? {
         if (loadId != appendLoadId) return null
-        if (loadStates[END] is Error) return null
+        if (failedHintsByLoadType[END] != null) return null
 
         val itemsIncludingPage = (pageIndex until pages.size).sumBy { pages[it].data.size }
         val shouldLoad = indexInPage + 1 + prefetchDistance > itemsIncludingPage
