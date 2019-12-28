@@ -532,7 +532,7 @@ class PagerTest {
             val pager = Pager(50, pageSource, config)
 
             val pageEvents = ArrayList<PageEvent<Int>>()
-            val job = launch { pager.create().collect { pageEvents.add(it) } }
+            val job = launch { pager.pageEventFlow.collect { pageEvents.add(it) } }
 
             val expected = listOf<PageEvent<Int>>(
                 StateUpdate(REFRESH, Loading),
@@ -565,7 +565,7 @@ class PagerTest {
             val pager = Pager(50, pageSource, config)
 
             val pageEvents = ArrayList<PageEvent<Int>>()
-            val job = launch { pager.create().collect { pageEvents.add(it) } }
+            val job = launch { pager.pageEventFlow.collect { pageEvents.add(it) } }
 
             val expected = listOf<PageEvent<Int>>(
                 StateUpdate(REFRESH, Loading),
@@ -594,7 +594,7 @@ class PagerTest {
             val pager = Pager(50, pageSource, config)
 
             val pageEvents = ArrayList<PageEvent<Int>>()
-            val job = launch { pager.create().collect { pageEvents.add(it) } }
+            val job = launch { pager.pageEventFlow.collect { pageEvents.add(it) } }
 
             val expected = listOf<PageEvent<Int>>(
                 StateUpdate(REFRESH, Loading),
@@ -629,7 +629,7 @@ class PagerTest {
             val pager = Pager(50, pageSource, config)
 
             val pageEvents = ArrayList<PageEvent<Int>>()
-            val job = launch { pager.create().collect { pageEvents.add(it) } }
+            val job = launch { pager.pageEventFlow.collect { pageEvents.add(it) } }
 
             val expected = listOf<PageEvent<Int>>(
                 StateUpdate(REFRESH, Loading),
@@ -674,7 +674,7 @@ class PagerTest {
             val pager = Pager(50, pageSource, config)
 
             val pageEvents = ArrayList<PageEvent<Int>>()
-            val job = launch { pager.create().collect { pageEvents.add(it) } }
+            val job = launch { pager.pageEventFlow.collect { pageEvents.add(it) } }
 
             val expected = listOf<PageEvent<Int>>(
                 StateUpdate(REFRESH, Loading),
@@ -702,7 +702,7 @@ class PagerTest {
             val pager = Pager(50, pageSource, config)
 
             val pageEvents = ArrayList<PageEvent<Int>>()
-            val job = launch { pager.create().collect { pageEvents.add(it) } }
+            val job = launch { pager.pageEventFlow.collect { pageEvents.add(it) } }
 
             val expected = listOf<PageEvent<Int>>(
                 StateUpdate(REFRESH, Loading),
