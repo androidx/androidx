@@ -16,23 +16,25 @@
 
 package androidx.paging
 
+import androidx.annotation.RestrictTo
 import androidx.paging.LoadState.Idle
 import androidx.paging.LoadType.END
 import androidx.paging.LoadType.REFRESH
 import androidx.paging.LoadType.START
 import androidx.paging.PageEvent.Insert.Companion.Refresh
-import androidx.paging.PagedList.Callback
+
+/** @hide */
+@RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
+interface PresenterCallback {
+    fun onChanged(position: Int, count: Int)
+    fun onInserted(position: Int, count: Int, loadStates: Map<LoadType, LoadState>?)
+    fun onRemoved(position: Int, count: Int)
+    fun onStateUpdate(loadType: LoadType, loadState: LoadState)
+}
 
 /**
- * Presents post-transform paging data as a list, with PagedList.Callback list update notifications
- * when modification events occur.
- *
- * Provides the following data operations:
- *  - Insert Page
- *  - Drop Pages
- *
- *  TODO:
- *   - state observation APIs
+ * Presents post-transform paging data as a list, with list update notifications when
+ * PageEvents are dispatched.
  */
 internal class PagePresenter<T : Any>(
     insertEvent: PageEvent.Insert<T>
@@ -104,11 +106,12 @@ internal class PagePresenter<T : Any>(
 
     private fun List<TransformablePage<T>>.fullCount() = sumBy { it.data.size }
 
-    fun processEvent(pageEvent: PageEvent<T>, callback: Callback) {
+    fun processEvent(pageEvent: PageEvent<T>, callback: PresenterCallback) {
         when (pageEvent) {
             is PageEvent.Insert -> insertPage(pageEvent, callback)
             is PageEvent.Drop -> dropPages(pageEvent, callback)
-            is PageEvent.StateUpdate -> { /* TODO! */
+            is PageEvent.StateUpdate -> {
+                callback.onStateUpdate(pageEvent.loadType, pageEvent.loadState)
             }
         }
     }
@@ -131,7 +134,7 @@ internal class PagePresenter<T : Any>(
      *     counting or filtering are the most common. In either case, we adjust placeholders at
      *     the far end of the list, so that they don't trigger animations near the user.
      */
-    private fun insertPage(insert: PageEvent.Insert<T>, callback: Callback) {
+    private fun insertPage(insert: PageEvent.Insert<T>, callback: PresenterCallback) {
         val count = insert.pages.fullCount()
         val oldSize = size
         when (insert.loadType) {
@@ -150,10 +153,10 @@ internal class PagePresenter<T : Any>(
 
                 // ... then trigger callbacks, so callbacks won't see inconsistent state
                 callback.onChanged(placeholdersChangedPos, placeholdersChangedCount)
-                callback.onInserted(itemsInsertedPos, itemsInsertedCount)
+                callback.onInserted(itemsInsertedPos, itemsInsertedCount, insert.loadStates)
                 val placeholderInsertedCount = size - oldSize - itemsInsertedCount
                 if (placeholderInsertedCount > 0) {
-                    callback.onInserted(0, placeholderInsertedCount)
+                    callback.onInserted(0, placeholderInsertedCount, insert.loadStates)
                 } else if (placeholderInsertedCount < 0) {
                     callback.onRemoved(0, -placeholderInsertedCount)
                 }
@@ -172,10 +175,14 @@ internal class PagePresenter<T : Any>(
 
                 // ... then trigger callbacks, so callbacks won't see inconsistent state
                 callback.onChanged(placeholdersChangedPos, placeholdersChangedCount)
-                callback.onInserted(itemsInsertedPos, itemsInsertedCount)
+                callback.onInserted(itemsInsertedPos, itemsInsertedCount, insert.loadStates)
                 val placeholderInsertedCount = size - oldSize - itemsInsertedCount
                 if (placeholderInsertedCount > 0) {
-                    callback.onInserted(size - placeholderInsertedCount, placeholderInsertedCount)
+                    callback.onInserted(
+                        position = size - placeholderInsertedCount,
+                        count = placeholderInsertedCount,
+                        loadStates = insert.loadStates
+                    )
                 } else if (placeholderInsertedCount < 0) {
                     callback.onRemoved(size, -placeholderInsertedCount)
                 }
@@ -183,7 +190,7 @@ internal class PagePresenter<T : Any>(
         }
     }
 
-    private fun dropPages(drop: PageEvent.Drop<T>, callback: Callback) {
+    private fun dropPages(drop: PageEvent.Drop<T>, callback: PresenterCallback) {
         val oldSize = size
         if (drop.loadType == START) {
             val removeCount = pages.take(drop.count).fullCount()
@@ -206,7 +213,7 @@ internal class PagePresenter<T : Any>(
             callback.onRemoved(itemsRemovedPos, itemsRemovedCount)
             val placeholderInsertedCount = size - oldSize + itemsRemovedCount
             if (placeholderInsertedCount > 0) {
-                callback.onInserted(0, placeholderInsertedCount)
+                callback.onInserted(0, placeholderInsertedCount, null)
             } else if (placeholderInsertedCount < 0) {
                 callback.onRemoved(0, -placeholderInsertedCount)
             }
@@ -231,7 +238,7 @@ internal class PagePresenter<T : Any>(
             callback.onRemoved(itemsRemovedPos, itemsRemovedCount)
             val placeholderInsertedCount = size - oldSize + itemsRemovedCount
             if (placeholderInsertedCount > 0) {
-                callback.onInserted(size, placeholderInsertedCount)
+                callback.onInserted(size, placeholderInsertedCount, null)
             } else if (placeholderInsertedCount < 0) {
                 callback.onRemoved(size, -placeholderInsertedCount)
             }

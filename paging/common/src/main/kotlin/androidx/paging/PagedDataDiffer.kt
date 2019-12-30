@@ -42,7 +42,7 @@ abstract class PagedDataDiffer<T : Any>(
     abstract suspend fun performDiff(previous: NullPaddedList<T>, new: NullPaddedList<T>)
 
     @UseExperimental(ExperimentalCoroutinesApi::class)
-    fun connect(flow: Flow<PagedData<T>>, scope: CoroutineScope, callback: PagedList.Callback) {
+    fun connect(flow: Flow<PagedData<T>>, scope: CoroutineScope, callback: PresenterCallback) {
         job?.cancel()
         job = scope.launch(workerDispatcher) {
             flow
