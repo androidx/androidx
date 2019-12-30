@@ -321,30 +321,35 @@ final class Camera2CameraImpl implements CameraInternal {
             @Override
             @WorkerThread
             public void onSuccess(@Nullable Void result) {
-                resetCaptureSession(false);
                 closeStaleCaptureSessions(dummySession);
 
-                // Config complete and remove the dummySession from the mConfiguringForClose map
-                // after resetCaptureSession and before release the dummySession.
-                mConfiguringForClose.remove(dummySession);
-
-                // Don't need to abort captures since there are none submitted for this session.
-                ListenableFuture<Void> releaseFuture = releaseSession(
-                        dummySession, /*abortInFlightCaptures=*/false);
-
-                // Add a listener to clear the dummy surfaces
-                releaseFuture.addListener(closeAndCleanupRunner, CameraXExecutors.directExecutor());
+                // Release the dummy Session and continue closing camera when in correct state.
+                releaseDummySession(dummySession, closeAndCleanupRunner);
             }
 
             @Override
             public void onFailure(Throwable t) {
                 Log.d(TAG, "Unable to configure camera " + mCameraInfoInternal.getCameraId()
                         + " due to " + t.getMessage());
-                mConfiguringForClose.remove(dummySession);
-                resetCaptureSession(false);
-                closeAndCleanupRunner.run();
+
+                // Release the dummy Session and continue closing camera when in correct state.
+                releaseDummySession(dummySession, closeAndCleanupRunner);
             }
         }, mExecutor);
+    }
+
+    @SuppressWarnings("WeakerAccess") /* synthetic accessor */
+    void releaseDummySession(CaptureSession dummySession, Runnable closeAndCleanupRunner) {
+        // Config complete and remove the dummySession from the mConfiguringForClose map
+        // after resetCaptureSession and before release the dummySession.
+        mConfiguringForClose.remove(dummySession);
+
+        // Don't need to abort captures since there are none submitted for this session.
+        ListenableFuture<Void> releaseFuture = releaseSession(
+                dummySession, /*abortInFlightCaptures=*/false);
+
+        // Add a listener to clear the dummy surfaces
+        releaseFuture.addListener(closeAndCleanupRunner, CameraXExecutors.directExecutor());
     }
 
     @SuppressWarnings("WeakerAccess") /* synthetic accessor */
