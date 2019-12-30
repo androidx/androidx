@@ -54,7 +54,7 @@ internal fun <T : Any> PagePresenter<T>.insertPage(
     isPrepend: Boolean,
     page: List<T>,
     placeholdersRemaining: Int,
-    callback: PagedList.Callback
+    callback: PresenterCallback
 ) = processEvent(
     adjacentInsertEvent(
         isPrepend = isPrepend,
@@ -69,7 +69,7 @@ internal fun <T : Any> PagePresenter<T>.dropPages(
     isPrepend: Boolean,
     pagesToDrop: Int,
     placeholdersRemaining: Int,
-    callback: PagedList.Callback
+    callback: PresenterCallback
 ) = processEvent(
     PageEvent.Drop(
         loadType = if (isPrepend) START else END,
@@ -89,7 +89,7 @@ class PagePresenterTest {
         initialNulls: Int,
         newItems: Int,
         newNulls: Int = COUNT_UNDEFINED,
-        events: List<CallbackEvent>
+        events: List<PresenterEvent>
     ) {
         val data = PagePresenter(
             pages = mutableListOf(List(initialItems) { 'a' + it }),
@@ -98,7 +98,7 @@ class PagePresenterTest {
             indexOfInitialPage = 0
         )
 
-        val callback = CallbackCapture()
+        val callback = PresenterCallbackCapture()
         val page: List<Char> = List(newItems) { 'a' + it + initialItems }
         data.insertPage(
             isPrepend = false,
@@ -126,7 +126,7 @@ class PagePresenterTest {
         initialNulls: Int,
         newItems: Int,
         newNulls: Int,
-        events: List<CallbackEvent>
+        events: List<PresenterEvent>
     ) {
         val data = PagePresenter(
             pages = mutableListOf(List(initialItems) { 'z' + it - initialItems - 1 }),
@@ -136,7 +136,7 @@ class PagePresenterTest {
         )
 
         val endItemCount = newItems + initialItems
-        val callback = CallbackCapture()
+        val callback = PresenterCallbackCapture()
         data.insertPage(
             isPrepend = true,
             page = List(newItems) { 'z' + it - endItemCount - 1 },
@@ -163,8 +163,8 @@ class PagePresenterTest {
         initialNulls: Int,
         newItems: Int,
         newNulls: Int,
-        prependEvents: List<CallbackEvent>,
-        appendEvents: List<CallbackEvent>
+        prependEvents: List<PresenterEvent>,
+        appendEvents: List<PresenterEvent>
     ) {
         verifyPrepend(initialItems, initialNulls, newItems, newNulls, prependEvents)
         verifyAppend(initialItems, initialNulls, newItems, newNulls, appendEvents)
@@ -292,7 +292,7 @@ class PagePresenterTest {
         initialNulls: Int = 0,
         newNulls: Int,
         pagesToDrop: Int,
-        events: List<CallbackEvent>
+        events: List<PresenterEvent>
     ) {
         if (initialPages.size < 2) {
             fail("require at least 2 pages")
@@ -307,7 +307,7 @@ class PagePresenterTest {
 
         assertEquals(initialPages.flatten() + List<Char?>(initialNulls) { null }, data.asList())
 
-        val callback = CallbackCapture()
+        val callback = PresenterCallbackCapture()
         data.dropPages(false, pagesToDrop, newNulls, callback)
 
         assertEquals(events, callback.getAllAndClear())
@@ -322,7 +322,7 @@ class PagePresenterTest {
         initialNulls: Int = 0,
         newNulls: Int,
         pagesToDrop: Int,
-        events: List<CallbackEvent>
+        events: List<PresenterEvent>
     ) {
         if (initialPages.size < 2) {
             fail("require at least 2 pages")
@@ -340,7 +340,7 @@ class PagePresenterTest {
             data.asList()
         )
 
-        val callback = CallbackCapture()
+        val callback = PresenterCallbackCapture()
         data.dropPages(true, pagesToDrop, newNulls, callback)
 
         assertEquals(events, callback.getAllAndClear())
@@ -355,8 +355,8 @@ class PagePresenterTest {
         initialNulls: Int = 0,
         newNulls: Int,
         pagesToDrop: Int,
-        startEvents: List<CallbackEvent>,
-        endEvents: List<CallbackEvent>
+        startEvents: List<PresenterEvent>,
+        endEvents: List<PresenterEvent>
     ) {
         verifyDropStart(initialPages, initialNulls, newNulls, pagesToDrop, startEvents)
         verifyDropEnd(initialPages, initialNulls, newNulls, pagesToDrop, endEvents)

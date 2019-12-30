@@ -16,6 +16,9 @@
 
 package androidx.paging
 
+import androidx.paging.LoadType.END
+import androidx.paging.LoadType.REFRESH
+import androidx.paging.LoadType.START
 import androidx.recyclerview.widget.DiffUtil
 import androidx.recyclerview.widget.ListUpdateCallback
 import kotlinx.coroutines.CoroutineDispatcher
@@ -23,6 +26,7 @@ import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.withContext
+import java.util.concurrent.CopyOnWriteArrayList
 
 open class AsyncPagedDataDiffer<T : Any>(
     private val mainDispatcher: CoroutineDispatcher = Dispatchers.Main,
@@ -30,16 +34,45 @@ open class AsyncPagedDataDiffer<T : Any>(
     private val diffCallback: DiffUtil.ItemCallback<T>,
     private val updateCallback: ListUpdateCallback
 ) {
-    internal val callback = object : PagedList.Callback() {
-        override fun onInserted(position: Int, count: Int) =
+    internal val callback = object : PresenterCallback {
+        override fun onInserted(position: Int, count: Int, loadStates: Map<LoadType, LoadState>?) {
             updateCallback.onInserted(position, count)
+            loadStates?.entries?.forEach { onStateUpdate(it.key, it.value) }
+        }
 
         override fun onRemoved(position: Int, count: Int) =
             updateCallback.onRemoved(position, count)
 
         override fun onChanged(position: Int, count: Int) {
-            // NOTE: pass a null payload to convey null -> item
+            // NOTE: pass a null payload to convey null -> item, or item -> null
             updateCallback.onChanged(position, count, null)
+        }
+
+        override fun onStateUpdate(loadType: LoadType, loadState: LoadState) {
+            when (loadType) {
+                REFRESH -> {
+                    if (loadState != loadStates[REFRESH]) {
+                        loadStates[REFRESH] = loadState
+                        dispatchLoadState(REFRESH, loadState)
+                    }
+                }
+                START -> {
+                    if (loadState != loadStates[START]) {
+                        loadStates[START] = loadState
+                        dispatchLoadState(START, loadState)
+                    }
+                }
+                END -> {
+                    if (loadState != loadStates[END]) {
+                        loadStates[END] = loadState
+                        dispatchLoadState(END, loadState)
+                    }
+                }
+            }
+        }
+
+        private fun dispatchLoadState(type: LoadType, state: LoadState) {
+            loadStateListeners.forEach { it(type, state) }
         }
     }
 
@@ -48,7 +81,7 @@ open class AsyncPagedDataDiffer<T : Any>(
             withContext(mainDispatcher) {
                 when {
                     previous.size == 0 -> // fast path for no items -> some items
-                        callback.onInserted(0, new.size)
+                        callback.onInserted(0, new.size, null)
                     new.size == 0 -> // fast path for some items -> no items
                         callback.onRemoved(0, previous.size)
                     else -> { // full diff
@@ -88,4 +121,44 @@ open class AsyncPagedDataDiffer<T : Any>(
      */
     open val itemCount: Int
         get() = differBase.size
+
+    internal val loadStateListeners: MutableList<(LoadType, LoadState) -> Unit> =
+        CopyOnWriteArrayList()
+
+    internal val loadStates = mutableMapOf<LoadType, LoadState>(
+        REFRESH to LoadState.Idle,
+        START to LoadState.Idle,
+        END to LoadState.Idle
+    )
+
+    /**
+     * Add a listener to observe the loading state.
+     *
+     * As new PagedLists are submitted and displayed, the listener will be notified to reflect
+     * current REFRESH, START, and END states.
+     *
+     * @param listener [LoadStateListener] to receive updates.
+     *
+     * @see removeLoadStateListener
+     */
+    open fun addLoadStateListener(listener: (LoadType, LoadState) -> Unit) {
+        // Note: Important to add the listener first before sending off events, in case the
+        // callback triggers removal, which could lead to a leak if the listener is added
+        // afterwards.
+        loadStateListeners.add(listener)
+        if (loadStateListeners.contains(listener)) listener(REFRESH, loadStates[REFRESH]!!)
+        if (loadStateListeners.contains(listener)) listener(START, loadStates[START]!!)
+        if (loadStateListeners.contains(listener)) listener(END, loadStates[END]!!)
+    }
+
+    /**
+     * Remove a previously registered load state listener.
+     *
+     * @param listener Previously registered listener.
+     *
+     * @see addLoadStateListener
+     */
+    open fun removeLoadStateListener(listener: (LoadType, LoadState) -> Unit) {
+        loadStateListeners.remove(listener)
+    }
 }

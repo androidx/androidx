@@ -163,7 +163,7 @@ package androidx.paging {
   @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP) public abstract class PagedDataDiffer<T> {
     ctor public PagedDataDiffer(kotlinx.coroutines.CoroutineDispatcher mainDispatcher, kotlinx.coroutines.CoroutineDispatcher workerDispatcher);
     ctor public PagedDataDiffer();
-    method public final void connect(kotlinx.coroutines.flow.Flow<androidx.paging.PagedData<T>> flow, kotlinx.coroutines.CoroutineScope scope, androidx.paging.PagedList.Callback callback);
+    method public final void connect(kotlinx.coroutines.flow.Flow<androidx.paging.PagedData<T>> flow, kotlinx.coroutines.CoroutineScope scope, androidx.paging.PresenterCallback callback);
     method public final operator T? get(int index);
     method public final int getSize();
     method public abstract suspend Object! performDiff(androidx.paging.NullPaddedList<T> previous, androidx.paging.NullPaddedList<T> p, kotlin.coroutines.Continuation<? super kotlin.Unit> p1);
@@ -379,6 +379,13 @@ package androidx.paging {
     ctor public PositionalDataSource.LoadRangeParams(int startPosition, int loadSize);
     field public final int loadSize;
     field public final int startPosition;
+  }
+
+  @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP) public interface PresenterCallback {
+    method public void onChanged(int position, int count);
+    method public void onInserted(int position, int count, java.util.Map<androidx.paging.LoadType,? extends androidx.paging.LoadState>? loadStates);
+    method public void onRemoved(int position, int count);
+    method public void onStateUpdate(androidx.paging.LoadType loadType, androidx.paging.LoadState loadState);
   }
 
   public final class SeparatorsKt {
