@@ -39,6 +39,7 @@ import kotlinx.coroutines.flow.channelFlow
 import kotlinx.coroutines.flow.collect
 import kotlinx.coroutines.flow.conflate
 import kotlinx.coroutines.flow.consumeAsFlow
+import kotlinx.coroutines.flow.drop
 import kotlinx.coroutines.flow.emitAll
 import kotlinx.coroutines.flow.filter
 import kotlinx.coroutines.flow.map
@@ -61,7 +62,7 @@ internal class Pager<Key : Any, Value : Any>(
     private val config: PagedList.Config
 ) {
     private val retryChannel = Channel<Unit>(CONFLATED)
-    private val hintChannel = BroadcastChannel<ViewportHint>(BUFFERED)
+    private val hintChannel = BroadcastChannel<ViewportHint>(CONFLATED)
     private var lastHint: ViewportHint? = null
 
     private val pageEventChCollected = AtomicBoolean(false)
@@ -154,7 +155,8 @@ internal class Pager<Key : Any, Value : Any>(
                     }
 
                     val generationalHints = hintChannel.asFlow()
-                        .conflate()
+                        // Prevent infinite loop when competing prepend / append cancel each other
+                        .drop(if (generationId == 0) 0 else 1)
                         .map { hint -> GenerationalViewportHint(generationId, hint) }
                     emitAll(generationalHints)
                 }
@@ -183,7 +185,8 @@ internal class Pager<Key : Any, Value : Any>(
                     }
 
                     val generationalHints = hintChannel.asFlow()
-                        .conflate()
+                        // Prevent infinite loop when competing prepend / append cancel each other
+                        .drop(if (generationId == 0) 0 else 1)
                         .map { hint -> GenerationalViewportHint(generationId, hint) }
                     emitAll(generationalHints)
                 }

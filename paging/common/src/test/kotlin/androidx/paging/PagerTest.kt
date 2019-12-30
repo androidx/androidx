@@ -257,6 +257,27 @@ class PagerTest {
     }
 
     @Test
+    fun initialize_bufferedHint() = testScope.runBlockingTest {
+        val pageFetcher = PageFetcher(pagedSourceFactory, 50, config)
+        val fetcherState = collectFetcherState(pageFetcher)
+
+        fetcherState.pagedDataList[0].receiver.addHint(ViewportHint(0, 0))
+        advanceUntilIdle()
+
+        val expected: List<PageEvent<Int>> = listOf(
+            StateUpdate(REFRESH, Loading),
+            StateUpdate(REFRESH, Done),
+            createRefresh(range = 50..51),
+            StateUpdate(START, Loading),
+            StateUpdate(START, Idle),
+            createPrepend(pageOffset = -1, range = 49..49)
+        )
+
+        assertEvents(expected, fetcherState.pageEventLists[0])
+        fetcherState.job.cancel()
+    }
+
+    @Test
     fun prepend() = testScope.runBlockingTest {
         val pageFetcher = PageFetcher(pagedSourceFactory, 50, config)
         val fetcherState = collectFetcherState(pageFetcher)
@@ -691,7 +712,7 @@ class PagerTest {
     }
 
     @Test
-    fun retryRefreshWithSkippedHints() = testScope.runBlockingTest {
+    fun retryRefreshWithBufferedHint() = testScope.runBlockingTest {
         pauseDispatcher {
             val pageSource = pagedSourceFactory()
             val pager = Pager(50, pageSource, config)
@@ -704,7 +725,10 @@ class PagerTest {
                 StateUpdate(REFRESH, Error(LOAD_ERROR)),
                 StateUpdate(REFRESH, Loading),
                 StateUpdate(REFRESH, Done),
-                createRefresh(50..51)
+                createRefresh(50..51),
+                StateUpdate(START, Loading),
+                StateUpdate(START, Idle),
+                createPrepend(pageOffset = -1, range = 49..49)
             )
 
             pageSource.errorNextLoad = true
