@@ -445,7 +445,7 @@ final class SupportedSurfaceCombination {
         return sensorRotationDegrees == 90 || sensorRotationDegrees == 270;
     }
 
-    private boolean hasMatchingAspectRatio(Size resolution, Rational aspectRatio) {
+    static boolean hasMatchingAspectRatio(Size resolution, Rational aspectRatio) {
         boolean isMatch;
         if (aspectRatio == null) {
             isMatch = false;
@@ -458,7 +458,7 @@ final class SupportedSurfaceCombination {
         return isMatch;
     }
 
-    private boolean isPossibleMod16FromAspectRatio(Size resolution, Rational aspectRatio) {
+    private static boolean isPossibleMod16FromAspectRatio(Size resolution, Rational aspectRatio) {
         int width = resolution.getWidth();
         int height = resolution.getHeight();
         Rational invAspectRatio = new Rational(aspectRatio.getDenominator(),
@@ -479,7 +479,8 @@ final class SupportedSurfaceCombination {
         return size.getWidth() * size.getHeight();
     }
 
-    private boolean ratioIntersectsMod16Segment(int height, int mod16Width, Rational aspectRatio) {
+    private static boolean ratioIntersectsMod16Segment(int height, int mod16Width,
+            Rational aspectRatio) {
         Preconditions.checkArgument(mod16Width % 16 == 0);
         double aspectRatioWidth =
                 height * aspectRatio.getNumerator() / (double) aspectRatio.getDenominator();
@@ -1143,6 +1144,10 @@ final class SupportedSurfaceCombination {
 
         @Override
         public int compare(Size lhs, Size rhs) {
+            // Checks whether they are equal first since mod16 cases need to be considered.
+            if (hasMatchingAspectRatio(lhs, new Rational(rhs.getWidth(), rhs.getHeight()))) {
+                return 0;
+            }
 
             final Float lhsRatio = lhs.getWidth() * 1.0f / lhs.getHeight();
             final Float rhsRatio = rhs.getWidth() * 1.0f / rhs.getHeight();
