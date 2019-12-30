@@ -119,6 +119,7 @@ public class ShortcutInfoCompatSaverImpl extends ShortcutInfoCompatSaver<Listena
                 new LinkedBlockingQueue<Runnable>() /* Not used */);
     }
 
+    @SuppressWarnings("FutureReturnValueIgnored")
     @AnyThread
     ShortcutInfoCompatSaverImpl(Context context, ExecutorService cacheUpdateService,
             ExecutorService diskIoService) {
@@ -147,6 +148,7 @@ public class ShortcutInfoCompatSaverImpl extends ShortcutInfoCompatSaver<Listena
         });
     }
 
+    @SuppressWarnings("FutureReturnValueIgnored")
     @AnyThread
     @Override
     public ListenableFuture<Void> removeShortcuts(List<String> shortcutIds) {
@@ -168,6 +170,7 @@ public class ShortcutInfoCompatSaverImpl extends ShortcutInfoCompatSaver<Listena
         return result;
     }
 
+    @SuppressWarnings("FutureReturnValueIgnored")
     @AnyThread
     @Override
     public ListenableFuture<Void> removeAllShortcuts() {
@@ -259,6 +262,7 @@ public class ShortcutInfoCompatSaverImpl extends ShortcutInfoCompatSaver<Listena
         }
     }
 
+    @SuppressWarnings("FutureReturnValueIgnored")
     @AnyThread
     @Override
     public ListenableFuture<Void> addShortcuts(List<ShortcutInfoCompat> shortcuts) {
@@ -322,6 +326,7 @@ public class ShortcutInfoCompatSaverImpl extends ShortcutInfoCompatSaver<Listena
         });
     }
 
+    @SuppressWarnings("FutureReturnValueIgnored")
     private ListenableFuture<Void> submitDiskOperation(final Runnable runnable) {
         final ResolvableFuture<Void> result = ResolvableFuture.create();
         mDiskIoService.submit(new Runnable() {

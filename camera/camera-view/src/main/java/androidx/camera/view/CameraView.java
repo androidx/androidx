@@ -52,6 +52,7 @@ import androidx.annotation.UiThread;
 import androidx.camera.core.Camera;
 import androidx.camera.core.CameraSelector;
 import androidx.camera.core.FocusMeteringAction;
+import androidx.camera.core.FocusMeteringResult;
 import androidx.camera.core.ImageCapture;
 import androidx.camera.core.ImageCapture.OnImageCapturedCallback;
 import androidx.camera.core.ImageCapture.OnImageSavedCallback;
@@ -59,7 +60,12 @@ import androidx.camera.core.ImageProxy;
 import androidx.camera.core.MeteringPoint;
 import androidx.camera.core.VideoCapture.OnVideoSavedCallback;
 import androidx.camera.core.impl.LensFacingConverter;
+import androidx.camera.core.impl.utils.executor.CameraXExecutors;
+import androidx.camera.core.impl.utils.futures.FutureCallback;
+import androidx.camera.core.impl.utils.futures.Futures;
 import androidx.lifecycle.LifecycleOwner;
+
+import com.google.common.util.concurrent.ListenableFuture;
 
 import java.io.File;
 import java.util.concurrent.Executor;
@@ -791,10 +797,23 @@ public final class CameraView extends ViewGroup {
 
         Camera camera = mCameraModule.getCamera();
         if (camera != null) {
-            camera.getCameraControl().startFocusAndMetering(
-                    FocusMeteringAction.Builder.from(afPoint, FocusMeteringAction.FLAG_AF)
-                            .addPoint(aePoint, FocusMeteringAction.FLAG_AE)
-                            .build());
+            ListenableFuture<FocusMeteringResult> future =
+                    camera.getCameraControl().startFocusAndMetering(
+                            FocusMeteringAction.Builder.from(afPoint,
+                                    FocusMeteringAction.FLAG_AF).addPoint(aePoint,
+                                    FocusMeteringAction.FLAG_AE).build());
+            Futures.addCallback(future, new FutureCallback<FocusMeteringResult>() {
+                @Override
+                public void onSuccess(@Nullable FocusMeteringResult result) {
+                }
+
+                @Override
+                public void onFailure(Throwable t) {
+                    // Throw the unexpected error.
+                    throw new RuntimeException(t);
+                }
+            }, CameraXExecutors.directExecutor());
+
         } else {
             Log.d(TAG, "cannot access camera");
         }

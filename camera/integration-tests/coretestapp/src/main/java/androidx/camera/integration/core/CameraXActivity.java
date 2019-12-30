@@ -55,6 +55,7 @@ import androidx.camera.core.TorchState;
 import androidx.camera.core.UseCase;
 import androidx.camera.core.VideoCapture;
 import androidx.camera.core.impl.VideoCaptureConfig;
+import androidx.camera.core.impl.utils.executor.CameraXExecutors;
 import androidx.camera.lifecycle.ProcessCameraProvider;
 import androidx.concurrent.futures.CallbackToFutureAdapter;
 import androidx.core.app.ActivityCompat;
@@ -626,7 +627,18 @@ public class CameraXActivity extends AppCompatActivity
                 CameraControl cameraControl = getCameraControl();
                 if (cameraControl != null) {
                     Log.d(TAG, "Set camera torch: " + toggledState);
-                    cameraControl.enableTorch(toggledState);
+                    ListenableFuture<Void> future = cameraControl.enableTorch(toggledState);
+                    Futures.addCallback(future, new FutureCallback<Void>() {
+                        @Override
+                        public void onSuccess(@Nullable Void result) {
+                        }
+
+                        @Override
+                        public void onFailure(@NonNull Throwable t) {
+                            // Throw the unexpected error.
+                            throw new RuntimeException(t);
+                        }
+                    }, CameraXExecutors.directExecutor());
                 }
             });
         } else {

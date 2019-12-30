@@ -472,7 +472,19 @@ final class CameraXModule {
 
     public void setZoomRatio(float zoomRatio) {
         if (mCamera != null) {
-            mCamera.getCameraControl().setZoomRatio(zoomRatio);
+            ListenableFuture<Void> future = mCamera.getCameraControl().setZoomRatio(
+                    zoomRatio);
+            Futures.addCallback(future, new FutureCallback<Void>() {
+                @Override
+                public void onSuccess(@Nullable Void result) {
+                }
+
+                @Override
+                public void onFailure(Throwable t) {
+                    // Throw the unexpected error.
+                    throw new RuntimeException(t);
+                }
+            }, CameraXExecutors.directExecutor());
         } else {
             Log.e(TAG, "Failed to set zoom ratio");
         }
@@ -624,7 +636,18 @@ final class CameraXModule {
         if (mCamera == null) {
             return;
         }
-        mCamera.getCameraControl().enableTorch(torch);
+        ListenableFuture<Void> future = mCamera.getCameraControl().enableTorch(torch);
+        Futures.addCallback(future, new FutureCallback<Void>() {
+            @Override
+            public void onSuccess(@Nullable Void result) {
+            }
+
+            @Override
+            public void onFailure(Throwable t) {
+                // Throw the unexpected error.
+                throw new RuntimeException(t);
+            }
+        }, CameraXExecutors.directExecutor());
     }
 
     public boolean isTorchOn() {
