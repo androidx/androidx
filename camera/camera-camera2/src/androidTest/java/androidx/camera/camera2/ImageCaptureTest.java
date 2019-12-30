@@ -203,7 +203,7 @@ public final class ImageCaptureTest {
         OnImageCapturedCallback callback = createMockOnImageCapturedCallback(imageProperties);
         useCase.takePicture(mListenerExecutor, callback);
         // Wait for the signal that the image has been captured.
-        verify(callback, timeout(1000)).onCaptureSuccess(any(ImageProxy.class));
+        verify(callback, timeout(3000)).onCaptureSuccess(any(ImageProxy.class));
 
         Size sizeEnvelope = imageProperties.get().size;
         // Some devices may not be able to fit the requested resolution within the image
@@ -240,7 +240,7 @@ public final class ImageCaptureTest {
         }
 
         // Wait for the signal that the image has been captured.
-        verify(callback, timeout(5000).times(numImages)).onCaptureSuccess(any(ImageProxy.class));
+        verify(callback, timeout(10000).times(numImages)).onCaptureSuccess(any(ImageProxy.class));
     }
 
     @Test
@@ -279,7 +279,7 @@ public final class ImageCaptureTest {
         useCase.takePicture(saveLocation, mListenerExecutor, callback);
 
         // Wait for the signal that the image has been saved.
-        verify(callback, timeout(2000)).onImageSaved(eq(saveLocation));
+        verify(callback, timeout(3000)).onImageSaved(eq(saveLocation));
     }
 
     @Test
@@ -299,7 +299,7 @@ public final class ImageCaptureTest {
         useCase.takePicture(saveLocation, mListenerExecutor, callback);
 
         // Wait for the signal that the image has been saved.
-        verify(callback, timeout(2000)).onImageSaved(eq(saveLocation));
+        verify(callback, timeout(3000)).onImageSaved(eq(saveLocation));
 
         // Retrieve the sensor orientation
         int rotationDegrees = CameraX.getCameraInfo(mCameraId).getSensorRotationDegrees();
@@ -330,7 +330,7 @@ public final class ImageCaptureTest {
         useCase.takePicture(saveLocation, metadata, mListenerExecutor, callback);
 
         // Wait for the signal that the image has been saved.
-        verify(callback, timeout(2000)).onImageSaved(eq(saveLocation));
+        verify(callback, timeout(3000)).onImageSaved(eq(saveLocation));
 
         // Retrieve the exif from the image
         Exif exif = Exif.createFromFile(saveLocation);
@@ -358,7 +358,7 @@ public final class ImageCaptureTest {
         useCase.takePicture(saveLocation, metadata, mListenerExecutor, callback);
 
         // Wait for the signal that the image has been saved.
-        verify(callback, timeout(2000)).onImageSaved(eq(saveLocation));
+        verify(callback, timeout(3000)).onImageSaved(eq(saveLocation));
 
         // Retrieve the exif from the image
         Exif exif = Exif.createFromFile(saveLocation);
@@ -383,7 +383,7 @@ public final class ImageCaptureTest {
         useCase.takePicture(saveLocation, metadata, mListenerExecutor, callback);
 
         // Wait for the signal that the image has been saved.
-        verify(callback, timeout(2000)).onImageSaved(eq(saveLocation));
+        verify(callback, timeout(3000)).onImageSaved(eq(saveLocation));
 
         // Retrieve the exif from the image
         Exif exif = Exif.createFromFile(saveLocation);
@@ -409,7 +409,7 @@ public final class ImageCaptureTest {
         }
 
         // Wait for the signal that the image has been saved.
-        verify(callback, timeout(5000).times(numImages)).onImageSaved(any(File.class));
+        verify(callback, timeout(10000).times(numImages)).onImageSaved(any(File.class));
     }
 
     @Test
@@ -427,7 +427,7 @@ public final class ImageCaptureTest {
         useCase.takePicture(saveLocation, mListenerExecutor, callback);
 
         // Wait for the signal that the image has been saved.
-        verify(callback, timeout(2000))
+        verify(callback, timeout(3000))
                 .onError(eq(ImageCapture.ERROR_FILE_IO), anyString(), any(Throwable.class));
     }
 
@@ -448,7 +448,7 @@ public final class ImageCaptureTest {
         OnImageCapturedCallback callback = createMockOnImageCapturedCallback(null);
         useCase.takePicture(mListenerExecutor, callback);
         // Wait for the signal that the image has been captured.
-        verify(callback, timeout(1000)).onCaptureSuccess(any(ImageProxy.class));
+        verify(callback, timeout(3000)).onCaptureSuccess(any(ImageProxy.class));
 
         // Note: preview callbacks also fire on interop listener.
         ArgumentMatcher<CaptureRequest> matcher = new ArgumentMatcher<CaptureRequest>() {
@@ -491,7 +491,7 @@ public final class ImageCaptureTest {
         OnImageCapturedCallback callback = createMockOnImageCapturedCallback(imageProperties);
         useCase.takePicture(mListenerExecutor, callback);
         // Wait for the signal that the image has been captured.
-        verify(callback, timeout(1000)).onCaptureSuccess(any(ImageProxy.class));
+        verify(callback, timeout(3000)).onCaptureSuccess(any(ImageProxy.class));
 
         assertThat(imageProperties.get().format).isEqualTo(ImageFormat.RAW10);
     }
