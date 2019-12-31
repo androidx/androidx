@@ -206,7 +206,12 @@ final class GLImage2SurfaceRenderer {
             return;
         }
 
-        mWindowSurface = EGL14.eglCreateWindowSurface(mEGLDisplay, mEGLConfigs[0], surface, null,
+        int[] surfaceAttribs = {
+                EGL14.EGL_NONE
+        };
+
+        mWindowSurface = EGL14.eglCreateWindowSurface(mEGLDisplay, mEGLConfigs[0], surface,
+                surfaceAttribs,
                 0);
 
         if (mWindowSurface == EGL_NO_SURFACE) {
