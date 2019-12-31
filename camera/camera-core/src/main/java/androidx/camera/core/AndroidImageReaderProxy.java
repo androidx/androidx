@@ -53,7 +53,20 @@ final class AndroidImageReaderProxy implements ImageReaderProxy {
     @Override
     @Nullable
     public synchronized ImageProxy acquireLatestImage() {
-        Image image = mImageReader.acquireLatestImage();
+        Image image;
+        try {
+            image = mImageReader.acquireLatestImage();
+        } catch (RuntimeException e) {
+            /* In API level 23 or below,  it will throw "java.lang.RuntimeException:
+               ImageReaderContext is not initialized" when ImageReader is closed. To make the
+               behavior consistent as newer API levels,  we make it return null Image instead.*/
+            if (isImageReaderContextNotInitializedException(e)) {
+                image = null;
+            } else {
+                throw e;  // only catch RuntimeException:ImageReaderContext is not initialized
+            }
+        }
+
         if (image == null) {
             return null;
         }
@@ -63,11 +76,28 @@ final class AndroidImageReaderProxy implements ImageReaderProxy {
     @Override
     @Nullable
     public synchronized ImageProxy acquireNextImage() {
-        Image image = mImageReader.acquireNextImage();
+        Image image;
+        try {
+            image = mImageReader.acquireNextImage();
+        } catch (RuntimeException e) {
+            /* In API level 23 or below,  it will throw "java.lang.RuntimeException:
+               ImageReaderContext is not initialized" when ImageReader is closed. To make the
+               behavior consistent as newer API levels,  we make it return null Image instead.*/
+            if (isImageReaderContextNotInitializedException(e)) {
+                image = null;
+            } else {
+                throw e;  // only catch RuntimeException:ImageReaderContext is not initialized
+            }
+        }
+
         if (image == null) {
             return null;
         }
         return new AndroidImageProxy(image);
+    }
+
+    private boolean isImageReaderContextNotInitializedException(RuntimeException e) {
+        return  "ImageReaderContext is not initialized".equals(e.getMessage());
     }
 
     @Override
