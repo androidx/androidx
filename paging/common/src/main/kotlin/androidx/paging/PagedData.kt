@@ -88,6 +88,36 @@ class PagedData<T : Any> internal constructor(
         flow = flow.insertSeparators(generator),
         receiver = receiver
     )
+
+    /**
+     * Returns a PagedData containing each original element, with the passed header [item] added to
+     * the start of the list.
+     *
+     * The header [item] is added to a loaded page which marks the end of the data stream in the
+     * prepend direction by returning null in [PagedSource.LoadResult.Page.prevKey]. It will be
+     * removed if the first page in the list is dropped, which can happen in the case of loaded
+     * pages exceeding [PagedList.Config.maxSize].
+     *
+     * Note: This operation is not idempotent, calling it multiple times will continually add
+     * more headers to the start of the list, which can be useful if multiple header items are
+     * required.
+     */
+    fun addHeader(item: T) = PagedData(flow.addHeader(item), receiver)
+
+    /**
+     * Returns a PagedData containing each original element, with the passed footer [item] added to
+     * the end of the list.
+     *
+     * The footer [item] is added to a loaded page which marks the end of the data stream in the
+     * append direction, either by returning null in [PagedSource.LoadResult.Page.nextKey]. It
+     * will be removed if the first page in the list is dropped, which can happen in the case of
+     * loaded* pages exceeding [PagedList.Config.maxSize].
+     *
+     * Note: This operation is not idempotent, calling it multiple times will continually add
+     * more footer to the end of the list, which can be useful if multiple footer items are
+     * required.
+     */
+    fun addFooter(item: T) = PagedData(flow.addFooter(item), receiver)
 }
 
 internal interface UiReceiver {

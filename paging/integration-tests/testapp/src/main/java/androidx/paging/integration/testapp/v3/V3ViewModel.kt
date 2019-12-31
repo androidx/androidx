@@ -30,8 +30,9 @@ import kotlinx.coroutines.flow.map
 class V3ViewModel : ViewModel() {
     @FlowPreview
     val flow = PagedDataFlow(PagingConfig(10), ItemPagedSource.Factory)
-            .map {
-                it.insertSeparators { before: Item?, after: Item? ->
+        .map { pagedData ->
+            pagedData
+                .insertSeparators { before: Item?, after: Item? ->
                     if (after == null || (after.id / 3) == (before?.id ?: 0) / 3) {
                         // no separator, because at bottom or not needed yet
                         null
@@ -42,7 +43,8 @@ class V3ViewModel : ViewModel() {
                             bgColor = Color.DKGRAY
                         )
                     }
-                }.insertSeparators { before: Item?, _: Item? ->
+                }
+                .insertSeparators { before: Item?, _: Item? ->
                     if (before != null && before.id == -1) {
                         Item(
                             id = -2,
@@ -51,5 +53,8 @@ class V3ViewModel : ViewModel() {
                         )
                     } else null
                 }
-            }.cachedIn(viewModelScope)
+                .addHeader(Item(Int.MIN_VALUE, "HEADER", Color.MAGENTA))
+                .addFooter(Item(Int.MAX_VALUE, "FOOTER", Color.MAGENTA))
+        }
+        .cachedIn(viewModelScope)
 }
