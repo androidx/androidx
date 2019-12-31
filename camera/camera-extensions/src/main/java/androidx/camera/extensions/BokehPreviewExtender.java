@@ -65,6 +65,7 @@ public class BokehPreviewExtender extends PreviewExtender {
 
     /** Bokeh extender that calls into the vendor provided implementation. */
     private static class VendorBokehPreviewExtender extends BokehPreviewExtender {
+        @SuppressWarnings("HidingField")
         private final BokehPreviewExtenderImpl mImpl;
 
         VendorBokehPreviewExtender(Preview.Builder builder) {

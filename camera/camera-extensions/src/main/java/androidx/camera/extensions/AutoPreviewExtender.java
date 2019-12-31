@@ -65,6 +65,7 @@ public class AutoPreviewExtender extends PreviewExtender {
 
     /** Auto extender that calls into the vendor provided implementation. */
     static class VendorAutoPreviewExtender extends AutoPreviewExtender {
+        @SuppressWarnings("HidingField")
         private final AutoPreviewExtenderImpl mImpl;
 
         VendorAutoPreviewExtender(Preview.Builder builder) {
