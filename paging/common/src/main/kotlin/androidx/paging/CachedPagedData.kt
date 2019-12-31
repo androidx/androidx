@@ -30,39 +30,33 @@ import kotlinx.coroutines.flow.onCompletion
 import kotlinx.coroutines.flow.onStart
 import kotlinx.coroutines.flow.scan
 
+@UseExperimental(ExperimentalCoroutinesApi::class)
 private class MulticastedPagedData<T : Any>(
     val scope: CoroutineScope,
     val parent: PagedData<T>,
     // used in tests
     val tracker: ActiveFlowTracker? = null
 ) {
-    // TODO: instead of relying on paging cache, use something like FlowList that can consalidate
-    //  multiple pages into 1 and also avoid caching dropped pages.
-    @ExperimentalCoroutinesApi
     @FlowPreview
-    private val multicasted = Multicaster(
-        scope = scope,
-        bufferSize = 100_000,
-        piggybackingDownstream = false,
-        source = parent.flow.onStart {
+    private val accumulated = CachedPageEventFlow(
+        src = parent.flow.onStart {
             tracker?.onStart(PAGE_EVENT_FLOW)
         }.onCompletion {
             tracker?.onComplete(PAGE_EVENT_FLOW)
         },
-        onEach = {},
-        keepUpstreamAlive = true
+        scope = scope
     )
 
     @FlowPreview
     @ExperimentalCoroutinesApi
     fun asPagedData() = PagedData(
-        flow = multicasted.flow,
+        flow = accumulated.downstreamFlow,
         receiver = parent.receiver
     )
 
     @FlowPreview
     @ExperimentalCoroutinesApi
-    suspend fun close() = multicasted.close()
+    suspend fun close() = accumulated.close()
 }
 
 /**

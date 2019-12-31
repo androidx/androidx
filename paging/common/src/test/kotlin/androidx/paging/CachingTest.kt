@@ -29,12 +29,12 @@ import kotlinx.coroutines.SupervisorJob
 import kotlinx.coroutines.cancelAndJoin
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.Flow
+import kotlinx.coroutines.flow.catch
 import kotlinx.coroutines.flow.collect
 import kotlinx.coroutines.flow.filterIsInstance
 import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.flow.onEach
-import kotlinx.coroutines.flow.take
 import kotlinx.coroutines.flow.toList
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.runBlocking
@@ -62,8 +62,8 @@ class CachingTest {
     @Test
     fun noSharing() = testScope.runBlockingTest {
         val pageFlow = buildPageFlow()
-        val firstCollect = pageFlow.collectItems(2)
-        val secondCollect = pageFlow.collectItems(3)
+        val firstCollect = pageFlow.collectItemsUntilSize(6)
+        val secondCollect = pageFlow.collectItemsUntilSize(9)
         assertThat(firstCollect).isEqualTo(
             buildItems(
                 version = 0,
@@ -86,8 +86,8 @@ class CachingTest {
     @Test
     fun cached() = testScope.runBlockingTest {
         val pageFlow = buildPageFlow().cachedIn(testScope, tracker)
-        val firstCollect = pageFlow.collectItems(2)
-        val secondCollect = pageFlow.collectItems(3)
+        val firstCollect = pageFlow.collectItemsUntilSize(6)
+        val secondCollect = pageFlow.collectItemsUntilSize(9)
         assertThat(firstCollect).isEqualTo(
             buildItems(
                 version = 0,
@@ -116,8 +116,8 @@ class CachingTest {
                 it.copy(metadata = mappingIndex.toString())
             }
         }.cachedIn(testScope, tracker)
-        val firstCollect = pageFlow.collectItems(2)
-        val secondCollect = pageFlow.collectItems(3)
+        val firstCollect = pageFlow.collectItemsUntilSize(6)
+        val secondCollect = pageFlow.collectItemsUntilSize(9)
         assertThat(firstCollect).isEqualTo(
             buildItems(
                 version = 0,
@@ -150,8 +150,8 @@ class CachingTest {
                 it.copy(metadata = mappingIndex.toString())
             }
         }
-        val firstCollect = pageFlow.collectItems(2)
-        val secondCollect = pageFlow.collectItems(3)
+        val firstCollect = pageFlow.collectItemsUntilSize(6)
+        val secondCollect = pageFlow.collectItemsUntilSize(9)
         assertThat(firstCollect).isEqualTo(
             buildItems(
                 version = 0,
@@ -190,8 +190,8 @@ class CachingTest {
                     it.copy(metadata = "${it.metadata}_$mappingIndex")
                 }
             }
-            val firstCollect = pageFlow.collectItems(2)
-            val secondCollect = pageFlow.collectItems(3)
+            val firstCollect = pageFlow.collectItemsUntilSize(6)
+            val secondCollect = pageFlow.collectItemsUntilSize(9)
             assertThat(firstCollect).isEqualTo(
                 buildItems(
                     version = 0,
@@ -223,7 +223,7 @@ class CachingTest {
         assertThat(tracker.pageEventFlowCount()).isEqualTo(0)
         assertThat(tracker.pageDataFlowCount()).isEqualTo(0)
         val items = runBlocking {
-            pageFlow.collectItems(3) {
+            pageFlow.collectItemsUntilSize(9) {
                 // see https://b/146676984
                 delay(10)
             }
@@ -267,7 +267,7 @@ class CachingTest {
         )
         // another collector is causing more items to be loaded, they should be reflected in the
         // passive one
-        assertThat(flow.collectItems(3)).isEqualTo(firstList)
+        assertThat(flow.collectItemsUntilSize(9)).isEqualTo(firstList)
         assertThat(passive.items()).isEqualTo(firstList)
         val passive2 = ItemCollector(flow)
         passive2.collectIn(testScope)
@@ -284,7 +284,7 @@ class CachingTest {
         )
         // another collector is causing more items to be loaded, they should be reflected in the
         // passive one
-        assertThat(flow.collectItems(4)).isEqualTo(secondList)
+        assertThat(flow.collectItemsUntilSize(12)).isEqualTo(secondList)
         assertThat(passive.items()).isEqualTo(secondList)
         assertThat(passive2.items()).isEqualTo(secondList)
     }
@@ -302,32 +302,36 @@ class CachingTest {
         ).build()
     }
 
-    private suspend fun Flow<PagedData<Item>>.collectItems(
-        pageCnt: Int,
+    private suspend fun Flow<PagedData<Item>>.collectItemsUntilSize(
+        expectedSize: Int,
         onEach: (suspend () -> Unit)? = null
     ): List<Item> {
         val pageData = this.first()
+        val items = mutableListOf<Item>()
         val receiver = pageData.receiver
-        var loadedPageCnt = 0
-        return pageData.flow.filterIsInstance<PageEvent.Insert<Item>>().take(pageCnt)
+        var loadedPageCount = 0
+        pageData.flow.filterIsInstance<PageEvent.Insert<Item>>()
             .onEach {
                 onEach?.invoke()
             }
-            .map {
-                loadedPageCnt += it.pages.size
-                if (loadedPageCnt < pageCnt) {
+            .onEach {
+                items.addAll(it.pages.flatMap {
+                    it.data
+                })
+                loadedPageCount += it.pages.size
+                if (items.size < expectedSize) {
                     receiver.addHint(
                         ViewportHint(
-                            sourcePageIndex = loadedPageCnt - 1,
+                            sourcePageIndex = loadedPageCount - 1,
                             indexInPage = it.pages.last().data.size - 1
                         )
                     )
+                } else {
+                    throw AbortCollectionException()
                 }
-
-                it.pages.flatMap {
-                    it.data
-                }
-            }.toList().flatten()
+            }.catch {
+            }.toList()
+        return items
     }
 
     /**
@@ -461,14 +465,15 @@ class CachingTest {
         )
 
         override suspend fun onStart(flowType: FlowType) {
-            counters[flowType]!!.incrementAndGet()
+            (counters[flowType] ?: error("invalid type $flowType")).incrementAndGet()
         }
 
         override suspend fun onComplete(flowType: FlowType) {
-            counters[flowType]!!.decrementAndGet()
+            (counters[flowType] ?: error("invalid type $flowType")).decrementAndGet()
         }
 
-        fun pageDataFlowCount() = counters[PAGED_DATA_FLOW]!!.get()
-        fun pageEventFlowCount() = counters[PAGE_EVENT_FLOW]!!.get()
+        fun pageDataFlowCount() = (counters[PAGED_DATA_FLOW] ?: error("unexpected")).get()
+        fun pageEventFlowCount() = (counters[PAGE_EVENT_FLOW] ?: error("unexpected")).get()
     }
+    private class AbortCollectionException : Throwable()
 }
