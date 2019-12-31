@@ -73,6 +73,7 @@ final class TorchControl {
                 cameraCharacteristics.get(CameraCharacteristics.FLASH_INFO_AVAILABLE);
         mHasFlashUnit = hasFlashUnit != null && hasFlashUnit.booleanValue();
         mTorchState = new MutableLiveData<>(TorchState.OFF);
+        mCamera2CameraControl.addCaptureResultListener(mCaptureResultListener);
     }
 
     /**
@@ -87,12 +88,6 @@ final class TorchControl {
             }
 
             mIsActive = isActive;
-
-            if (isActive) {
-                mCamera2CameraControl.addCaptureResultListener(mCaptureResultListener);
-            } else {
-                mCamera2CameraControl.removeCaptureResultListener(mCaptureResultListener);
-            }
 
             boolean shouldResetDefault = false;
             CallbackToFutureAdapter.Completer<Void> completerToCancel = null;
