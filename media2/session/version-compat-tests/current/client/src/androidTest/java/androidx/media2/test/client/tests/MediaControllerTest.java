@@ -432,29 +432,30 @@ public class MediaControllerTest extends MediaSessionTestBase {
         ControllerCallback testCallback1 = new ControllerCallback() {};
         ControllerCallback testCallback2 = new ControllerCallback() {};
 
-        List<Pair<ControllerCallback, Executor>> callbacks = controller.getExtraCallbacks();
+        List<Pair<ControllerCallback, Executor>> callbacks =
+                controller.getExtraControllerCallbacks();
         assertNotNull(callbacks);
         assertEquals(0, callbacks.size());
 
         controller.registerExtraCallback(sHandlerExecutor, testCallback1);
-        callbacks = controller.getExtraCallbacks();
+        callbacks = controller.getExtraControllerCallbacks();
         assertNotNull(callbacks);
         assertEquals(1, callbacks.size());
         assertNotNull(callbacks.get(0));
         assertSame(testCallback1, callbacks.get(0).first);
 
         controller.registerExtraCallback(sHandlerExecutor, testCallback1);
-        callbacks = controller.getExtraCallbacks();
+        callbacks = controller.getExtraControllerCallbacks();
         assertNotNull(callbacks);
         assertEquals(1, callbacks.size());
 
         controller.unregisterExtraCallback(testCallback2);
-        callbacks = controller.getExtraCallbacks();
+        callbacks = controller.getExtraControllerCallbacks();
         assertNotNull(callbacks);
         assertEquals(1, callbacks.size());
 
         controller.registerExtraCallback(sHandlerExecutor, testCallback2);
-        callbacks = controller.getExtraCallbacks();
+        callbacks = controller.getExtraControllerCallbacks();
         assertNotNull(callbacks);
         assertEquals(2, callbacks.size());
         assertNotNull(callbacks.get(0));
@@ -463,7 +464,7 @@ public class MediaControllerTest extends MediaSessionTestBase {
         assertSame(testCallback2, callbacks.get(1).first);
 
         controller.unregisterExtraCallback(testCallback1);
-        callbacks = controller.getExtraCallbacks();
+        callbacks = controller.getExtraControllerCallbacks();
         assertNotNull(callbacks);
         assertEquals(1, callbacks.size());
         assertNotNull(callbacks.get(0));
@@ -497,7 +498,7 @@ public class MediaControllerTest extends MediaSessionTestBase {
                 false /* waitForConnect */, null, primaryCallback);
         controller.registerExtraCallback(sHandlerExecutor, extraCallback1);
         controller.registerExtraCallback(sHandlerExecutor, extraCallback2);
-        controller.notifyControllerCallback(new ControllerCallbackRunnable() {
+        controller.notifyAllControllerCallbacks(new ControllerCallbackRunnable() {
             @Override
             public void run(@NonNull ControllerCallback callback) {
                 callback.onPlaybackCompleted(controller);

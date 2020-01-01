@@ -168,11 +168,12 @@ public class MediaController implements AutoCloseable {
     @GuardedBy("mLock")
     boolean mClosed;
 
-    final ControllerCallback mCallback;
-    final Executor mCallbackExecutor;
+    final ControllerCallback mPrimaryCallback;
+    final Executor mPrimaryCallbackExecutor;
 
     @GuardedBy("mLock")
-    private final List<Pair<ControllerCallback, Executor>> mExtraCallbacks = new ArrayList<>();
+    private final List<Pair<ControllerCallback, Executor>> mExtraControllerCallbacks =
+            new ArrayList<>();
 
     // For testing.
     Long mTimeDiff;
@@ -194,8 +195,8 @@ public class MediaController implements AutoCloseable {
         if (token == null) {
             throw new NullPointerException("token shouldn't be null");
         }
-        mCallback = callback;
-        mCallbackExecutor = executor;
+        mPrimaryCallback = callback;
+        mPrimaryCallbackExecutor = executor;
         synchronized (mLock) {
             mImpl = createImpl(context, token, connectionHints);
         }
@@ -218,8 +219,8 @@ public class MediaController implements AutoCloseable {
         if (token == null) {
             throw new NullPointerException("token shouldn't be null");
         }
-        mCallback = callback;
-        mCallbackExecutor = executor;
+        mPrimaryCallback = callback;
+        mPrimaryCallbackExecutor = executor;
         SessionToken.createSessionToken(context, token, executor,
                 new SessionToken.OnSessionTokenCreatedListener() {
                     @Override
@@ -229,7 +230,7 @@ public class MediaController implements AutoCloseable {
                             if (!mClosed) {
                                 mImpl = createImpl(context, token2, connectionHints);
                             } else {
-                                notifyControllerCallback(new ControllerCallbackRunnable() {
+                                notifyAllControllerCallbacks(new ControllerCallbackRunnable() {
                                     @Override
                                     public void run(@NonNull ControllerCallback callback) {
                                         callback.onDisconnected(MediaController.this);
@@ -1310,14 +1311,14 @@ public class MediaController implements AutoCloseable {
         }
         boolean found = false;
         synchronized (mLock) {
-            for (Pair<ControllerCallback, Executor> pair : mExtraCallbacks) {
+            for (Pair<ControllerCallback, Executor> pair : mExtraControllerCallbacks) {
                 if (pair.first == callback) {
                     found = true;
                     break;
                 }
             }
             if (!found) {
-                mExtraCallbacks.add(new Pair<>(callback, executor));
+                mExtraControllerCallbacks.add(new Pair<>(callback, executor));
             }
         }
         if (found) {
@@ -1342,10 +1343,10 @@ public class MediaController implements AutoCloseable {
         }
         boolean found = false;
         synchronized (mLock) {
-            for (int i = mExtraCallbacks.size() - 1; i >= 0; i--) {
-                if (mExtraCallbacks.get(i).first == callback) {
+            for (int i = mExtraControllerCallbacks.size() - 1; i >= 0; i--) {
+                if (mExtraControllerCallbacks.get(i).first == callback) {
                     found = true;
-                    mExtraCallbacks.remove(i);
+                    mExtraControllerCallbacks.remove(i);
                     break;
                 }
             }
@@ -1358,10 +1359,10 @@ public class MediaController implements AutoCloseable {
     /** @hide */
     @RestrictTo(LIBRARY)
     @NonNull
-    public List<Pair<ControllerCallback, Executor>> getExtraCallbacks() {
+    public List<Pair<ControllerCallback, Executor>> getExtraControllerCallbacks() {
         List<Pair<ControllerCallback, Executor>> extraCallbacks;
         synchronized (mLock) {
-            extraCallbacks = new ArrayList<>(mExtraCallbacks);
+            extraCallbacks = new ArrayList<>(mExtraControllerCallbacks);
         }
         return extraCallbacks;
     }
@@ -1385,29 +1386,35 @@ public class MediaController implements AutoCloseable {
                 SessionResult.RESULT_ERROR_SESSION_DISCONNECTED);
     }
 
-    /** @hide */
-    @RestrictTo(LIBRARY)
-    public void notifyControllerCallback(final ControllerCallbackRunnable callbackRunnable) {
-        if (mCallback != null && mCallbackExecutor != null) {
-            mCallbackExecutor.execute(new Runnable() {
+    void notifyPrimaryControllerCallback(
+            @NonNull final ControllerCallbackRunnable callbackRunnable) {
+        if (mPrimaryCallback != null && mPrimaryCallbackExecutor != null) {
+            mPrimaryCallbackExecutor.execute(new Runnable() {
                 @Override
                 public void run() {
-                    callbackRunnable.run(mCallback);
+                    callbackRunnable.run(mPrimaryCallback);
                 }
             });
         }
+    }
 
-        for (Pair<ControllerCallback, Executor> pair : getExtraCallbacks()) {
+    /** @hide */
+    @RestrictTo(LIBRARY)
+    public void notifyAllControllerCallbacks(
+            @NonNull final ControllerCallbackRunnable callbackRunnable) {
+        notifyPrimaryControllerCallback(callbackRunnable);
+
+        for (Pair<ControllerCallback, Executor> pair : getExtraControllerCallbacks()) {
             final ControllerCallback callback = pair.first;
             final Executor executor = pair.second;
             if (callback == null) {
-                Log.e(TAG, "notifyControllerCallback: mExtraCallbacks contains a null "
-                        + "ControllerCallback! Ignoring...");
+                Log.e(TAG, "notifyAllControllerCallbacks: mExtraControllerCallbacks contains a "
+                        + "null ControllerCallback! Ignoring.");
                 continue;
             }
             if (executor == null) {
-                Log.e(TAG, "notifyControllerCallback: mExtraCallbacks contains a null "
-                        + "Executor! Ignoring...");
+                Log.e(TAG, "notifyAllControllerCallbacks: mExtraControllerCallbacks contains a "
+                        + "null Executor! Ignoring.");
                 continue;
             }
             executor.execute(new Runnable() {
