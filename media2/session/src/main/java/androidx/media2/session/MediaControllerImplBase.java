@@ -236,7 +236,7 @@ class MediaControllerImplBase implements MediaControllerImpl {
             }
         }
         mSequencedFutureManager.close();
-        mInstance.notifyControllerCallback(new ControllerCallbackRunnable() {
+        mInstance.notifyAllControllerCallbacks(new ControllerCallbackRunnable() {
             @Override
             public void run(@NonNull ControllerCallback callback) {
                 callback.onDisconnected(mInstance);
@@ -961,7 +961,7 @@ class MediaControllerImplBase implements MediaControllerImpl {
                 mPlaylist.set(currentMediaItemIndex, item);
             }
         }
-        mInstance.notifyControllerCallback(new ControllerCallbackRunnable() {
+        mInstance.notifyAllControllerCallbacks(new ControllerCallbackRunnable() {
             @Override
             public void run(@NonNull ControllerCallback callback) {
                 if (!mInstance.isConnected()) {
@@ -978,7 +978,7 @@ class MediaControllerImplBase implements MediaControllerImpl {
             mPositionMs = positionMs;
             mPlayerState = state;
         }
-        mInstance.notifyControllerCallback(new ControllerCallbackRunnable() {
+        mInstance.notifyAllControllerCallbacks(new ControllerCallbackRunnable() {
             @Override
             public void run(@NonNull ControllerCallback callback) {
                 if (!mInstance.isConnected()) {
@@ -995,7 +995,7 @@ class MediaControllerImplBase implements MediaControllerImpl {
             mPositionMs = positionMs;
             mPlaybackSpeed = speed;
         }
-        mInstance.notifyControllerCallback(new ControllerCallbackRunnable() {
+        mInstance.notifyAllControllerCallbacks(new ControllerCallbackRunnable() {
             @Override
             public void run(@NonNull ControllerCallback callback) {
                 if (!mInstance.isConnected()) {
@@ -1014,7 +1014,7 @@ class MediaControllerImplBase implements MediaControllerImpl {
             mPositionEventTimeMs = eventTimeMs;
             mPositionMs = positionMs;
         }
-        mInstance.notifyControllerCallback(new ControllerCallbackRunnable() {
+        mInstance.notifyAllControllerCallbacks(new ControllerCallbackRunnable() {
             @Override
             public void run(@NonNull ControllerCallback callback) {
                 if (!mInstance.isConnected()) {
@@ -1038,7 +1038,7 @@ class MediaControllerImplBase implements MediaControllerImpl {
                 mCurrentMediaItem = playlist.get(currentMediaItemIndex);
             }
         }
-        mInstance.notifyControllerCallback(new ControllerCallbackRunnable() {
+        mInstance.notifyAllControllerCallbacks(new ControllerCallbackRunnable() {
             @Override
             public void run(@NonNull ControllerCallback callback) {
                 if (!mInstance.isConnected()) {
@@ -1053,7 +1053,7 @@ class MediaControllerImplBase implements MediaControllerImpl {
         synchronized (mLock) {
             mPlaylistMetadata = metadata;
         }
-        mInstance.notifyControllerCallback(new ControllerCallbackRunnable() {
+        mInstance.notifyAllControllerCallbacks(new ControllerCallbackRunnable() {
             @Override
             public void run(@NonNull ControllerCallback callback) {
                 if (!mInstance.isConnected()) {
@@ -1068,7 +1068,7 @@ class MediaControllerImplBase implements MediaControllerImpl {
         synchronized (mLock) {
             mPlaybackInfo = info;
         }
-        mInstance.notifyControllerCallback(new ControllerCallbackRunnable() {
+        mInstance.notifyAllControllerCallbacks(new ControllerCallbackRunnable() {
             @Override
             public void run(@NonNull ControllerCallback callback) {
                 if (!mInstance.isConnected()) {
@@ -1087,7 +1087,7 @@ class MediaControllerImplBase implements MediaControllerImpl {
             mPreviousMediaItemIndex = previousMediaItemIndex;
             mNextMediaItemIndex = nextMediaItemIndex;
         }
-        mInstance.notifyControllerCallback(new ControllerCallbackRunnable() {
+        mInstance.notifyAllControllerCallbacks(new ControllerCallbackRunnable() {
             @Override
             public void run(@NonNull ControllerCallback callback) {
                 if (!mInstance.isConnected()) {
@@ -1106,7 +1106,7 @@ class MediaControllerImplBase implements MediaControllerImpl {
             mPreviousMediaItemIndex = previousMediaItemIndex;
             mNextMediaItemIndex = nextMediaItemIndex;
         }
-        mInstance.notifyControllerCallback(new ControllerCallbackRunnable() {
+        mInstance.notifyAllControllerCallbacks(new ControllerCallbackRunnable() {
             @Override
             public void run(@NonNull ControllerCallback callback) {
                 if (!mInstance.isConnected()) {
@@ -1118,7 +1118,7 @@ class MediaControllerImplBase implements MediaControllerImpl {
     }
 
     void notifyPlaybackCompleted() {
-        mInstance.notifyControllerCallback(new ControllerCallbackRunnable() {
+        mInstance.notifyAllControllerCallbacks(new ControllerCallbackRunnable() {
             @Override
             public void run(@NonNull ControllerCallback callback) {
                 if (!mInstance.isConnected()) {
@@ -1135,7 +1135,7 @@ class MediaControllerImplBase implements MediaControllerImpl {
             mPositionMs = positionMs;
         }
 
-        mInstance.notifyControllerCallback(new ControllerCallbackRunnable() {
+        mInstance.notifyAllControllerCallbacks(new ControllerCallbackRunnable() {
             @Override
             public void run(@NonNull ControllerCallback callback) {
                 if (!mInstance.isConnected()) {
@@ -1152,7 +1152,7 @@ class MediaControllerImplBase implements MediaControllerImpl {
             mVideoSize = videoSize;
             currentItem = mCurrentMediaItem;
         }
-        mInstance.notifyControllerCallback(new ControllerCallbackRunnable() {
+        mInstance.notifyAllControllerCallbacks(new ControllerCallbackRunnable() {
             @Override
             public void run(@NonNull ControllerCallback callback) {
                 if (!mInstance.isConnected()) {
@@ -1179,7 +1179,7 @@ class MediaControllerImplBase implements MediaControllerImpl {
             mSelectedTracks.put(TrackInfo.MEDIA_TRACK_TYPE_METADATA, selectedMetadataTrack);
         }
 
-        mInstance.notifyControllerCallback(new ControllerCallbackRunnable() {
+        mInstance.notifyAllControllerCallbacks(new ControllerCallbackRunnable() {
             @Override
             public void run(@NonNull ControllerCallback callback) {
                 if (!mInstance.isConnected()) {
@@ -1194,7 +1194,7 @@ class MediaControllerImplBase implements MediaControllerImpl {
         synchronized (mLock) {
             mSelectedTracks.put(trackInfo.getTrackType(), trackInfo);
         }
-        mInstance.notifyControllerCallback(new ControllerCallbackRunnable() {
+        mInstance.notifyAllControllerCallbacks(new ControllerCallbackRunnable() {
             @Override
             public void run(@NonNull ControllerCallback callback) {
                 if (!mInstance.isConnected()) {
@@ -1209,7 +1209,7 @@ class MediaControllerImplBase implements MediaControllerImpl {
         synchronized (mLock) {
             mSelectedTracks.remove(trackInfo.getTrackType());
         }
-        mInstance.notifyControllerCallback(new ControllerCallbackRunnable() {
+        mInstance.notifyAllControllerCallbacks(new ControllerCallbackRunnable() {
             @Override
             public void run(@NonNull ControllerCallback callback) {
                 if (!mInstance.isConnected()) {
@@ -1221,7 +1221,7 @@ class MediaControllerImplBase implements MediaControllerImpl {
     }
 
     void notifySubtitleData(final MediaItem item, final TrackInfo track, final SubtitleData data) {
-        mInstance.notifyControllerCallback(new ControllerCallbackRunnable() {
+        mInstance.notifyAllControllerCallbacks(new ControllerCallbackRunnable() {
             @Override
             public void run(@NonNull ControllerCallback callback) {
                 if (!mInstance.isConnected()) {
@@ -1316,7 +1316,7 @@ class MediaControllerImplBase implements MediaControllerImpl {
                         mToken.getUid(), TYPE_SESSION, mToken.getPackageName(), sessionBinder,
                         tokenExtras, sessionVersion));
             }
-            mInstance.notifyControllerCallback(new ControllerCallbackRunnable() {
+            mInstance.notifyAllControllerCallbacks(new ControllerCallbackRunnable() {
                 @Override
                 public void run(@NonNull ControllerCallback callback) {
                     callback.onConnected(mInstance, allowedCommands);
@@ -1352,7 +1352,7 @@ class MediaControllerImplBase implements MediaControllerImpl {
         if (DEBUG) {
             Log.d(TAG, "onCustomCommand cmd=" + command.getCustomAction());
         }
-        mInstance.notifyControllerCallback(new ControllerCallbackRunnable() {
+        mInstance.notifyPrimaryControllerCallback(new ControllerCallbackRunnable() {
             @Override
             public void run(@NonNull ControllerCallback callback) {
                 SessionResult result = callback.onCustomCommand(mInstance, command, args);
@@ -1373,7 +1373,7 @@ class MediaControllerImplBase implements MediaControllerImpl {
         synchronized (mLock) {
             mAllowedCommands = commands;
         }
-        mInstance.notifyControllerCallback(new ControllerCallbackRunnable() {
+        mInstance.notifyAllControllerCallbacks(new ControllerCallbackRunnable() {
             @Override
             public void run(@NonNull ControllerCallback callback) {
                 callback.onAllowedCommandsChanged(mInstance, commands);
@@ -1382,7 +1382,7 @@ class MediaControllerImplBase implements MediaControllerImpl {
     }
 
     void onSetCustomLayout(final int seq, final List<MediaSession.CommandButton> layout) {
-        mInstance.notifyControllerCallback(new ControllerCallbackRunnable() {
+        mInstance.notifyPrimaryControllerCallback(new ControllerCallbackRunnable() {
             @Override
             public void run(@NonNull ControllerCallback callback) {
                 int resultCode = callback.onSetCustomLayout(mInstance, layout);

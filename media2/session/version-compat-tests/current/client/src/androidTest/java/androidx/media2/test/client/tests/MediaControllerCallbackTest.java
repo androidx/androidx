@@ -797,8 +797,9 @@ public class MediaControllerCallbackTest extends MediaSessionTestBase {
         final SessionCommand testCommand = new SessionCommand(testCommandAction, null);
         final Bundle testArgs = TestUtils.createTestBundle();
 
-        final CountDownLatch latch = new CountDownLatch(2);
-        final MediaController.ControllerCallback callback =
+        final CountDownLatch primaryLatch = new CountDownLatch(2);
+        final CountDownLatch extraLatch = new CountDownLatch(1);
+        final MediaController.ControllerCallback primaryCallback =
                 new MediaController.ControllerCallback() {
             @NonNull
             @Override
@@ -806,19 +807,33 @@ public class MediaControllerCallbackTest extends MediaSessionTestBase {
                     @NonNull SessionCommand command, Bundle args) {
                 assertEquals(testCommand, command);
                 assertTrue(TestUtils.equals(testArgs, args));
-                latch.countDown();
+                primaryLatch.countDown();
+                return new SessionResult(RESULT_SUCCESS, null);
+            }
+        };
+        final MediaController.ControllerCallback extraCallback =
+                new MediaController.ControllerCallback() {
+            @NonNull
+            @Override
+            public SessionResult onCustomCommand(@NonNull MediaController controller,
+                    @NonNull SessionCommand command, Bundle args) {
+                extraLatch.countDown();
                 return new SessionResult(RESULT_SUCCESS, null);
             }
         };
         MediaController controller = createController(mRemoteSession2.getToken(), true, null,
-                callback);
+                primaryCallback);
+        controller.registerExtraCallback(sHandlerExecutor, extraCallback);
 
         // TODO(jaewan): Test with multiple controllers
         mRemoteSession2.broadcastCustomCommand(testCommand, testArgs);
 
         // TODO(jaewan): Test receivers as well.
         mRemoteSession2.sendCustomCommand(TEST_CONTROLLER_INFO, testCommand, testArgs);
-        assertTrue(latch.await(TIMEOUT_MS, TimeUnit.MILLISECONDS));
+        assertTrue(primaryLatch.await(TIMEOUT_MS, TimeUnit.MILLISECONDS));
+
+        assertFalse("Extra ControllerCallback shouldn't be called",
+                extraLatch.await(300, TimeUnit.MILLISECONDS));
     }
 
     @Test
@@ -831,8 +846,9 @@ public class MediaControllerCallbackTest extends MediaSessionTestBase {
                 .build();
         buttons.add(button);
 
-        final CountDownLatch latch = new CountDownLatch(1);
-        final MediaController.ControllerCallback callback =
+        final CountDownLatch primaryLatch = new CountDownLatch(1);
+        final CountDownLatch extraLatch = new CountDownLatch(1);
+        final MediaController.ControllerCallback primaryCallback =
                 new MediaController.ControllerCallback() {
             @Override
             public int onSetCustomLayout(@NonNull MediaController controller,
@@ -842,14 +858,28 @@ public class MediaControllerCallbackTest extends MediaSessionTestBase {
                     assertEquals(layout.get(i).getCommand(), buttons.get(i).getCommand());
                     assertEquals(layout.get(i).getDisplayName(), buttons.get(i).getDisplayName());
                 }
-                latch.countDown();
+                primaryLatch.countDown();
+                return RESULT_SUCCESS;
+            }
+        };
+        final MediaController.ControllerCallback extraCallback =
+                new MediaController.ControllerCallback() {
+            @Override
+            public int onSetCustomLayout(@NonNull MediaController controller,
+                    @NonNull List<MediaSession.CommandButton> layout) {
+                extraLatch.countDown();
                 return RESULT_SUCCESS;
             }
         };
         MediaController controller = createController(mRemoteSession2.getToken(), true, null,
-                callback);
+                primaryCallback);
+        controller.registerExtraCallback(sHandlerExecutor, extraCallback);
+
         mRemoteSession2.setCustomLayout(TEST_CONTROLLER_INFO, buttons);
-        assertTrue(latch.await(TIMEOUT_MS, TimeUnit.MILLISECONDS));
+        assertTrue(primaryLatch.await(TIMEOUT_MS, TimeUnit.MILLISECONDS));
+
+        assertFalse("Extra ControllerCallback shouldn't be called",
+                extraLatch.await(300, TimeUnit.MILLISECONDS));
     }
 
     @Test
