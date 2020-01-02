@@ -322,6 +322,7 @@ package androidx.browser.trusted {
     method @BinderThread public boolean onAreNotificationsEnabled(String);
     method @MainThread public final android.os.IBinder? onBind(android.content.Intent?);
     method @BinderThread public void onCancelNotification(String, int);
+    method @BinderThread public android.os.Bundle? onExtraCommand(String, android.os.Bundle?);
     method @BinderThread public android.os.Bundle onGetSmallIconBitmap();
     method @BinderThread public int onGetSmallIconId();
     method @BinderThread public boolean onNotifyNotificationWithChannel(String, int, android.app.Notification, String);
@@ -335,6 +336,7 @@ package androidx.browser.trusted {
   public final class TrustedWebActivityServiceConnection {
     method public boolean areNotificationsEnabled(String) throws android.os.RemoteException;
     method public void cancel(String, int) throws android.os.RemoteException;
+    method public android.os.Bundle? extraCommand(String, android.os.Bundle?) throws android.os.RemoteException;
     method public android.content.ComponentName getComponentName();
     method public android.graphics.Bitmap? getSmallIconBitmap() throws android.os.RemoteException;
     method public int getSmallIconId() throws android.os.RemoteException;
