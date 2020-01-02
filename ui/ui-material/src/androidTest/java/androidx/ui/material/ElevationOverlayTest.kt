@@ -16,7 +16,9 @@
 
 package androidx.ui.material
 
+import android.os.Build
 import androidx.test.filters.LargeTest
+import androidx.test.filters.SdkSuppress
 import androidx.ui.core.Dp
 import androidx.ui.core.IntPxSize
 import androidx.ui.core.TestTag
@@ -37,6 +39,7 @@ import org.junit.runner.RunWith
 import org.junit.runners.Parameterized
 
 @LargeTest
+@SdkSuppress(minSdkVersion = Build.VERSION_CODES.O)
 @RunWith(Parameterized::class)
 class ElevationOverlayTest(private val elevation: Dp, private val expectedOverlayColor: Color) {
 
