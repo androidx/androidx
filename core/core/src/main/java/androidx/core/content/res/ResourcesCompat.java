@@ -41,6 +41,7 @@ import androidx.annotation.DrawableRes;
 import androidx.annotation.FontRes;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
+import androidx.annotation.RequiresApi;
 import androidx.annotation.RestrictTo;
 import androidx.core.content.res.FontResourcesParserCompat.FamilyResourceEntry;
 import androidx.core.graphics.TypefaceCompat;
@@ -51,6 +52,8 @@ import androidx.core.util.Preconditions;
 import org.xmlpull.v1.XmlPullParserException;
 
 import java.io.IOException;
+import java.lang.reflect.InvocationTargetException;
+import java.lang.reflect.Method;
 
 /**
  * Helper for accessing features in {@link android.content.res.Resources}.
@@ -447,4 +450,71 @@ public final class ResourcesCompat {
     }
 
     private ResourcesCompat() {}
+
+    /**
+     * Provides backward-compatible implementations for new {@link Theme} APIs.
+     */
+    public static final class ThemeCompat {
+        private ThemeCompat() { }
+        /**
+         * Rebases the theme against the parent Resource object's current configuration by
+         * re-applying the styles passed to {@link Theme#applyStyle(int, boolean)}.
+         * <p>
+         * Compatibility behavior:
+         * <ul>
+         * <li>API 29 and above, this method matches platform behavior.
+         * <li>API 21 through 28, this method attempts to match platform behavior by calling into
+         *     hidden platform APIs, but is not guaranteed to succeed.
+         * <li>API 20 and earlier, this method does nothing.
+         * </ul>
+         *
+         * @param theme the theme to rebase
+         */
+        public static void rebase(@NonNull Theme theme) {
+            if (SDK_INT >= 29) {
+                ImplApi29.rebase(theme);
+            } else if (SDK_INT >= 21) {
+                ImplApi21.rebase(theme);
+            }
+        }
+
+        @RequiresApi(29)
+        static class ImplApi29 {
+            private ImplApi29() { }
+            static void rebase(@NonNull Theme theme) {
+                theme.rebase();
+            }
+        }
+
+        @RequiresApi(21)
+        static class ImplApi21 {
+            private ImplApi21() { }
+            private static final Object sRebaseMethodLock = new Object();
+
+            private static Method sRebaseMethod;
+            private static boolean sRebaseMethodFetched;
+
+            static void rebase(@NonNull Theme theme) {
+                synchronized (sRebaseMethodLock) {
+                    if (!sRebaseMethodFetched) {
+                        try {
+                            sRebaseMethod = Theme.class.getDeclaredMethod("rebase");
+                            sRebaseMethod.setAccessible(true);
+                        } catch (NoSuchMethodException e) {
+                            Log.i(TAG, "Failed to retrieve rebase() method", e);
+                        }
+                        sRebaseMethodFetched = true;
+                    }
+                    if (sRebaseMethod != null) {
+                        try {
+                            sRebaseMethod.invoke(theme);
+                        } catch (IllegalAccessException | InvocationTargetException e) {
+                            Log.i(TAG, "Failed to invoke rebase() method via reflection", e);
+                            sRebaseMethod = null;
+                        }
+                    }
+                }
+            }
+        }
+    }
 }

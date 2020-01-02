@@ -72,6 +72,10 @@ android {
     buildTypes.all {
         consumerProguardFiles("proguard-rules.pro")
     }
+
+    useLibrary 'android.test.runner'
+    useLibrary 'android.test.base'
+    useLibrary 'android.test.mock'
 }
 
 androidx {
