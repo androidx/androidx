@@ -17,6 +17,7 @@
 package androidx.work.impl;
 
 import static androidx.work.ExistingWorkPolicy.APPEND;
+import static androidx.work.ExistingWorkPolicy.APPEND_OR_REPLACE;
 import static androidx.work.ExistingWorkPolicy.KEEP;
 import static androidx.work.ExistingWorkPolicy.REPLACE;
 import static androidx.work.NetworkType.METERED;
@@ -904,6 +905,110 @@ public class WorkManagerImplTest {
                 containsInAnyOrder(originalWork3.getStringId(), originalWork4.getStringId()));
         assertThat(dependencyDao.getPrerequisites(appendWork2.getStringId()),
                 containsInAnyOrder(appendWork1.getStringId()));
+    }
+
+    @Test
+    @MediumTest
+    public void testBeginUniqueWork_insertsWithAppendOrReplaceWithFailedPreRequisites()
+            throws ExecutionException, InterruptedException {
+
+        when(mWorkManagerImpl.getSchedulers()).thenReturn(Collections.<Scheduler>emptyList());
+        final String uniqueName = "myname";
+        OneTimeWorkRequest preRequisiteRequest = new OneTimeWorkRequest.Builder(TestWorker.class)
+                .setInitialState(FAILED)
+                .build();
+
+        mWorkManagerImpl.beginUniqueWork(uniqueName, APPEND_OR_REPLACE, preRequisiteRequest)
+                .enqueue()
+                .getResult()
+                .get();
+
+        OneTimeWorkRequest appendRequest = new OneTimeWorkRequest.Builder(TestWorker.class)
+                .build();
+
+        mWorkManagerImpl.beginUniqueWork(uniqueName, APPEND_OR_REPLACE, appendRequest)
+                .enqueue()
+                .getResult()
+                .get();
+
+        WorkSpecDao workSpecDao = mDatabase.workSpecDao();
+        DependencyDao dependencyDao = mDatabase.dependencyDao();
+
+        WorkSpec deleted = workSpecDao.getWorkSpec(preRequisiteRequest.getStringId());
+        assertThat(deleted, is(nullValue()));
+        WorkSpec appended = workSpecDao.getWorkSpec(appendRequest.getStringId());
+        List<String> preRequisites = dependencyDao.getPrerequisites(appendRequest.getStringId());
+        assertThat(appended.state, is(ENQUEUED));
+        assertThat(preRequisites.size(), is(0));
+    }
+
+    @Test
+    @MediumTest
+    public void testBeginUniqueWork_insertsWithAppendOrReplaceWithCancelledPreRequisites()
+            throws ExecutionException, InterruptedException {
+
+        when(mWorkManagerImpl.getSchedulers()).thenReturn(Collections.<Scheduler>emptyList());
+        final String uniqueName = "myname";
+        OneTimeWorkRequest preRequisiteRequest = new OneTimeWorkRequest.Builder(TestWorker.class)
+                .setInitialState(CANCELLED)
+                .build();
+
+        mWorkManagerImpl.beginUniqueWork(uniqueName, APPEND_OR_REPLACE, preRequisiteRequest)
+                .enqueue()
+                .getResult()
+                .get();
+
+        OneTimeWorkRequest appendRequest = new OneTimeWorkRequest.Builder(TestWorker.class)
+                .build();
+
+        mWorkManagerImpl.beginUniqueWork(uniqueName, APPEND_OR_REPLACE, appendRequest)
+                .enqueue()
+                .getResult()
+                .get();
+
+        WorkSpecDao workSpecDao = mDatabase.workSpecDao();
+        DependencyDao dependencyDao = mDatabase.dependencyDao();
+
+        WorkSpec deleted = workSpecDao.getWorkSpec(preRequisiteRequest.getStringId());
+        assertThat(deleted, is(nullValue()));
+        WorkSpec appended = workSpecDao.getWorkSpec(appendRequest.getStringId());
+        List<String> preRequisites = dependencyDao.getPrerequisites(appendRequest.getStringId());
+        assertThat(appended.state, is(ENQUEUED));
+        assertThat(preRequisites.size(), is(0));
+    }
+
+    @Test
+    @MediumTest
+    public void testBeginUniqueWork_appendsWork_whenUsingAppendOrReplace()
+            throws ExecutionException, InterruptedException {
+
+        when(mWorkManagerImpl.getSchedulers()).thenReturn(Collections.<Scheduler>emptyList());
+        final String uniqueName = "myname";
+        OneTimeWorkRequest preRequisiteRequest = new OneTimeWorkRequest.Builder(TestWorker.class)
+                .build();
+
+        mWorkManagerImpl.beginUniqueWork(uniqueName, APPEND_OR_REPLACE, preRequisiteRequest)
+                .enqueue()
+                .getResult()
+                .get();
+
+        OneTimeWorkRequest appendRequest = new OneTimeWorkRequest.Builder(TestWorker.class)
+                .build();
+
+        mWorkManagerImpl.beginUniqueWork(uniqueName, APPEND_OR_REPLACE, appendRequest)
+                .enqueue()
+                .getResult()
+                .get();
+
+        WorkSpecDao workSpecDao = mDatabase.workSpecDao();
+        DependencyDao dependencyDao = mDatabase.dependencyDao();
+
+        WorkSpec preRequisite = workSpecDao.getWorkSpec(preRequisiteRequest.getStringId());
+        WorkSpec appended = workSpecDao.getWorkSpec(appendRequest.getStringId());
+        List<String> preRequisites = dependencyDao.getPrerequisites(appendRequest.getStringId());
+        assertThat(appended.state, is(BLOCKED));
+        assertThat(preRequisites.size(), is(1));
+        assertThat(preRequisites, containsInAnyOrder(preRequisite.id));
     }
 
     @Test

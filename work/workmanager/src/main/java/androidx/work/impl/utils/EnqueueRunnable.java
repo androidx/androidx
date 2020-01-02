@@ -17,6 +17,7 @@
 package androidx.work.impl.utils;
 
 import static androidx.work.ExistingWorkPolicy.APPEND;
+import static androidx.work.ExistingWorkPolicy.APPEND_OR_REPLACE;
 import static androidx.work.ExistingWorkPolicy.KEEP;
 import static androidx.work.WorkInfo.State.BLOCKED;
 import static androidx.work.WorkInfo.State.CANCELLED;
@@ -56,6 +57,7 @@ import androidx.work.impl.model.WorkTag;
 import androidx.work.impl.workers.ConstraintTrackingWorker;
 
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 import java.util.Set;
 
@@ -224,7 +226,7 @@ public class EnqueueRunnable implements Runnable {
 
             if (!existingWorkSpecIdAndStates.isEmpty()) {
                 // If appending, these are the new prerequisites.
-                if (existingWorkPolicy == APPEND) {
+                if (existingWorkPolicy == APPEND || existingWorkPolicy == APPEND_OR_REPLACE) {
                     DependencyDao dependencyDao = workDatabase.dependencyDao();
                     List<String> newPrerequisiteIds = new ArrayList<>();
                     for (WorkSpec.IdAndState idAndState : existingWorkSpecIdAndStates) {
@@ -236,6 +238,21 @@ public class EnqueueRunnable implements Runnable {
                                 hasCancelledPrerequisites = true;
                             }
                             newPrerequisiteIds.add(idAndState.id);
+                        }
+                    }
+                    if (existingWorkPolicy == APPEND_OR_REPLACE) {
+                        if (hasCancelledPrerequisites || hasFailedPrerequisites) {
+                            // Delete all WorkSpecs with this name
+                            WorkSpecDao workSpecDao = workDatabase.workSpecDao();
+                            List<WorkSpec.IdAndState> idAndStates =
+                                    workSpecDao.getWorkSpecIdAndStatesForName(name);
+                            for (WorkSpec.IdAndState idAndState : idAndStates) {
+                                workSpecDao.delete(idAndState.id);
+                            }
+                            // Treat this as a new chain of work.
+                            newPrerequisiteIds = Collections.emptyList();
+                            hasCancelledPrerequisites = false;
+                            hasFailedPrerequisites = false;
                         }
                     }
                     prerequisiteIds = newPrerequisiteIds.toArray(prerequisiteIds);
