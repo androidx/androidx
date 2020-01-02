@@ -146,7 +146,7 @@ open class AsyncPagedDataDiffer<T : Any>(
         // callback triggers removal, which could lead to a leak if the listener is added
         // afterwards.
         loadStateListeners.add(listener)
-        if (loadStateListeners.contains(listener)) listener(REFRESH, loadStates[REFRESH]!!)
+        listener(REFRESH, loadStates[REFRESH]!!)
         if (loadStateListeners.contains(listener)) listener(START, loadStates[START]!!)
         if (loadStateListeners.contains(listener)) listener(END, loadStates[END]!!)
     }
