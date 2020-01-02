@@ -37,7 +37,7 @@ import java.util.concurrent.Executor
  * @see toLiveData
  */
 class LivePagedListBuilder<Key : Any, Value : Any> {
-    private val pagedSourceFactory: PagedSourceFactory<Key, Value>
+    private val pagedSourceFactory: () -> PagedSource<Key, Value>
     private val config: PagedList.Config
     private var coroutineScope: CoroutineScope = GlobalScope
     private var initialLoadKey: Key? = null
@@ -89,7 +89,7 @@ class LivePagedListBuilder<Key : Any, Value : Any> {
      * `LiveData<PagedList>` to observers.
      * @param config Paging configuration.
      */
-    constructor(pagedSourceFactory: PagedSourceFactory<Key, Value>, config: PagedList.Config) {
+    constructor(pagedSourceFactory: () -> PagedSource<Key, Value>, config: PagedList.Config) {
         this.pagedSourceFactory = pagedSourceFactory
         this.config = config
     }
@@ -114,7 +114,7 @@ class LivePagedListBuilder<Key : Any, Value : Any> {
      * `LiveData<PagedList>` to observers.
      * @param pageSize Size of pages to load.
      */
-    constructor(pagedSourceFactory: PagedSourceFactory<Key, Value>, pageSize: Int) : this(
+    constructor(pagedSourceFactory: () -> PagedSource<Key, Value>, pageSize: Int) : this(
         pagedSourceFactory,
         PagedList.Config.Builder().setPageSize(pageSize).build()
     )

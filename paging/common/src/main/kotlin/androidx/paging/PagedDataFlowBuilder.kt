@@ -25,7 +25,7 @@ import kotlinx.coroutines.flow.Flow
  * They can be transformed to alter data as it loads, and presented in a `RecyclerView`.
  */
 class PagedDataFlowBuilder<Key : Any, Value : Any>(
-    private val pagedSourceFactory: PagedSourceFactory<Key, Value>,
+    private val pagedSourceFactory: () -> PagedSource<Key, Value>,
     private val config: PagedList.Config
 ) {
     private var initialKey: Key? = null

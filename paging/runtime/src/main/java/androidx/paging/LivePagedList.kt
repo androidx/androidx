@@ -35,7 +35,7 @@ internal class LivePagedList<Key : Any, Value : Any>(
     initialKey: Key?,
     private val config: PagedList.Config,
     private val boundaryCallback: PagedList.BoundaryCallback<Value>?,
-    private val pagedSourceFactory: PagedSourceFactory<Key, Value>,
+    private val pagedSourceFactory: () -> PagedSource<Key, Value>,
     private val notifyDispatcher: CoroutineDispatcher,
     private val fetchDispatcher: CoroutineDispatcher
 ) : LiveData<PagedList<Value>>() {
@@ -167,7 +167,7 @@ fun <Key : Any, Value : Any> DataSource.Factory<Key, Value>.toLiveData(
 }
 
 /**
- * Constructs a `LiveData<PagedList>`, from this [PagedSourceFactory], convenience for
+ * Constructs a `LiveData<PagedList>`, from this PagedSource factory, convenience for
  * [LivePagedListBuilder].
  *
  * No work (such as loading) is done immediately, the creation of the first [PagedList] is deferred
@@ -185,7 +185,7 @@ fun <Key : Any, Value : Any> DataSource.Factory<Key, Value>.toLiveData(
  *
  * @see LivePagedListBuilder
  */
-fun <Key : Any, Value : Any> PagedSourceFactory<Key, Value>.toLiveData(
+fun <Key : Any, Value : Any> (() -> PagedSource<Key, Value>).toLiveData(
     config: PagedList.Config,
     initialLoadKey: Key? = null,
     boundaryCallback: PagedList.BoundaryCallback<Value>? = null,
@@ -204,7 +204,7 @@ fun <Key : Any, Value : Any> PagedSourceFactory<Key, Value>.toLiveData(
 }
 
 /**
- * Constructs a `LiveData<PagedList>`, from this [PagedSourceFactory], convenience for
+ * Constructs a `LiveData<PagedList>`, from this PagedSource factory, convenience for
  * [LivePagedListBuilder].
  *
  * No work (such as loading) is done immediately, the creation of the first [PagedList] is deferred
@@ -222,7 +222,7 @@ fun <Key : Any, Value : Any> PagedSourceFactory<Key, Value>.toLiveData(
  *
  * @see LivePagedListBuilder
  */
-fun <Key : Any, Value : Any> PagedSourceFactory<Key, Value>.toLiveData(
+fun <Key : Any, Value : Any> (() -> PagedSource<Key, Value>).toLiveData(
     pageSize: Int,
     initialLoadKey: Key? = null,
     boundaryCallback: PagedList.BoundaryCallback<Value>? = null,

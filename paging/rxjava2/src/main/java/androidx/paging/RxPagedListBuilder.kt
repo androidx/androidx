@@ -52,7 +52,7 @@ import kotlinx.coroutines.withContext
  * @param config Paging configuration.
  */
 class RxPagedListBuilder<Key : Any, Value : Any>(
-    private val pagedSourceFactory: PagedSourceFactory<Key, Value>,
+    private val pagedSourceFactory: () -> PagedSource<Key, Value>,
     private val config: PagedList.Config
 ) {
     private var initialLoadKey: Key? = null
@@ -73,10 +73,10 @@ class RxPagedListBuilder<Key : Any, Value : Any>(
      * )
      * ```
      *
-     * @param pagedSourceFactory [PagedSourceFactory] providing [PagedSource] generations.
+     * @param pagedSourceFactory [PagedSource] factory providing [PagedSource] generations.
      * @param pageSize Size of pages to load.
      */
-    constructor(pagedSourceFactory: PagedSourceFactory<Key, Value>, pageSize: Int) : this(
+    constructor(pagedSourceFactory: () -> PagedSource<Key, Value>, pageSize: Int) : this(
         pagedSourceFactory,
         PagedList.Config.Builder().setPageSize(pageSize).build()
     )
@@ -231,7 +231,7 @@ class RxPagedListBuilder<Key : Any, Value : Any>(
         initialLoadKey: Key?,
         private val config: PagedList.Config,
         private val boundaryCallback: PagedList.BoundaryCallback<Value>?,
-        private val pagedSourceFactory: PagedSourceFactory<Key, Value>,
+        private val pagedSourceFactory: () -> PagedSource<Key, Value>,
         private val notifyDispatcher: CoroutineDispatcher,
         private val fetchDispatcher: CoroutineDispatcher
     ) : ObservableOnSubscribe<PagedList<Value>>, Cancellable {

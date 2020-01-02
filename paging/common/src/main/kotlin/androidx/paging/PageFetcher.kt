@@ -27,7 +27,7 @@ import kotlinx.coroutines.flow.scan
 
 @UseExperimental(ExperimentalCoroutinesApi::class)
 internal class PageFetcher<Key : Any, Value : Any>(
-    private val pagedSourceFactory: PagedSourceFactory<Key, Value>,
+    private val pagedSourceFactory: () -> PagedSource<Key, Value>,
     private val initialKey: Key?,
     private val config: PagedList.Config
 ) {
