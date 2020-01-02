@@ -30,9 +30,11 @@ import androidx.annotation.RestrictTo;
 import androidx.annotation.RestrictTo.Scope;
 import androidx.camera.core.CameraSelector;
 import androidx.camera.core.CameraX;
+import androidx.camera.core.impl.DeferrableSurface;
 import androidx.camera.core.impl.ImmediateSurface;
 import androidx.camera.core.impl.SessionConfig;
 import androidx.camera.core.impl.UseCaseConfig;
+import androidx.camera.core.impl.utils.executor.CameraXExecutors;
 import androidx.camera.testing.fakes.FakeUseCase;
 import androidx.camera.testing.fakes.FakeUseCaseConfig;
 
@@ -49,6 +51,8 @@ public class FakeRepeatingUseCase extends FakeUseCase {
     /** The repeating surface. */
     private final ImageReader mImageReader =
             ImageReader.newInstance(640, 480, ImageFormat.YUV_420_888, 2);
+
+    private DeferrableSurface mDeferrableSurface;
 
     public FakeRepeatingUseCase(@NonNull FakeUseCaseConfig configuration,
             @NonNull CameraSelector cameraSelector) {
@@ -68,7 +72,8 @@ public class FakeRepeatingUseCase extends FakeUseCase {
                 new Handler(Looper.getMainLooper()));
 
         SessionConfig.Builder builder = SessionConfig.Builder.createFrom(configWithDefaults);
-        builder.addSurface(new ImmediateSurface(mImageReader.getSurface()));
+        mDeferrableSurface = new ImmediateSurface(mImageReader.getSurface());
+        builder.addSurface(mDeferrableSurface);
 
         String cameraId = CameraX.getCameraWithCameraSelector(cameraSelector);
         attachToCamera(cameraId, builder.build());
@@ -92,7 +97,17 @@ public class FakeRepeatingUseCase extends FakeUseCase {
     @Override
     public void clear() {
         super.clear();
-        mImageReader.close();
+        if (mDeferrableSurface != null) {
+            mDeferrableSurface.setOnSurfaceDetachedListener(
+                    CameraXExecutors.mainThreadExecutor(),
+                    new DeferrableSurface.OnSurfaceDetachedListener() {
+                        @Override
+                        public void onSurfaceDetached() {
+                            mImageReader.close();
+                        }
+                    });
+        }
+        mDeferrableSurface = null;
     }
 
     @Override
