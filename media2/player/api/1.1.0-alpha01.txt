@@ -8,7 +8,7 @@ package androidx.media2.player {
     method public androidx.media.AudioAttributesCompat? getAudioAttributes();
     method public int getAudioSessionId();
     method public long getBufferedPosition();
-    method @androidx.media2.common.SessionPlayer.BuffState public int getBufferingState();
+    method public int getBufferingState();
     method public androidx.media2.common.MediaItem? getCurrentMediaItem();
     method public int getCurrentMediaItemIndex();
     method public long getCurrentPosition();
@@ -17,7 +17,7 @@ package androidx.media2.player {
     method public int getNextMediaItemIndex();
     method public androidx.media2.player.PlaybackParams getPlaybackParams();
     method @FloatRange(from=0.0f, to=java.lang.Float.MAX_VALUE, fromInclusive=false) public float getPlaybackSpeed();
-    method @androidx.media2.common.SessionPlayer.PlayerState public int getPlayerState();
+    method public int getPlayerState();
     method public float getPlayerVolume();
     method public java.util.List<androidx.media2.common.MediaItem!>? getPlaylist();
     method public androidx.media2.common.MediaMetadata? getPlaylistMetadata();
@@ -82,7 +82,7 @@ package androidx.media2.player {
     method @Deprecated public void onVideoSizeChanged(androidx.media2.player.MediaPlayer, androidx.media2.common.MediaItem, androidx.media2.player.VideoSize);
   }
 
-  public static final class MediaPlayer.TrackInfo extends androidx.media2.common.SessionPlayer.TrackInfo {
+  public static final class MediaPlayer.TrackInfo extends androidx.media2.common.SessionPlayer.TrackInfo implements androidx.versionedparcelable.VersionedParcelable {
   }
 
   public final class MediaTimestamp {
