@@ -16,15 +16,19 @@
 
 package androidx.camera.core;
 
+import android.graphics.ImageFormat;
 import android.location.Location;
 
 import androidx.annotation.Nullable;
 import androidx.camera.core.ImageUtil.CodecFailedException;
 import androidx.camera.core.impl.utils.Exif;
 
+import java.io.ByteArrayInputStream;
 import java.io.File;
 import java.io.FileOutputStream;
 import java.io.IOException;
+import java.io.InputStream;
+import java.nio.ByteBuffer;
 import java.util.concurrent.Executor;
 
 final class ImageSaver implements Runnable {
@@ -80,16 +84,35 @@ final class ImageSaver implements Runnable {
 
             Exif exif = Exif.createFromFile(mFile);
             exif.attachTimestamp();
-            exif.rotate(mOrientation);
+
+            // Use exif for orientation (contains rotation only) from the original image if JPEG,
+            // because imageToJpegByteArray removes EXIF in certain conditions. See b/124280392
+            if (mImage.getFormat() == ImageFormat.JPEG) {
+                ByteBuffer buffer = mImage.getPlanes()[0].getBuffer();
+                // Rewind to make sure it is at the beginning of the buffer
+                buffer.rewind();
+
+                byte[] data = new byte[buffer.capacity()];
+                buffer.get(data);
+                InputStream inputStream = new ByteArrayInputStream(data);
+                Exif originalExif = Exif.createFromInputStream(inputStream);
+
+                exif.setOrientation(originalExif.getOrientation());
+            } else {
+                exif.rotate(mOrientation);
+            }
+
             if (mIsReversedHorizontal) {
                 exif.flipHorizontally();
             }
             if (mIsReversedVertical) {
                 exif.flipVertically();
             }
+
             if (mLocation != null) {
                 exif.attachLocation(mLocation);
             }
+
             exif.save();
         } catch (IOException e) {
             saveError = SaveError.FILE_IO_FAILED;

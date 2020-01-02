@@ -285,6 +285,9 @@ public final class ImageCaptureTest {
 
     @Test
     public void canSaveFile_withRotation() throws IOException {
+        // TODO(b/147448711) Add back in once cuttlefish has correct user cropping functionality.
+        Assume.assumeFalse("Cuttlefish does not correctly handle crops. Unable to test.",
+                android.os.Build.MODEL.contains("Cuttlefish"));
         ImageCapture useCase = new ImageCapture.Builder().setTargetRotation(
                 Surface.ROTATION_0).build();
         mInstrumentation.runOnMainSync(
@@ -295,19 +298,47 @@ public final class ImageCaptureTest {
 
         File saveLocation = File.createTempFile("test", ".jpg");
         saveLocation.deleteOnExit();
-        Metadata metadata = new Metadata();
         OnImageSavedCallback callback = mock(OnImageSavedCallback.class);
         useCase.takePicture(saveLocation, mListenerExecutor, callback);
 
         // Wait for the signal that the image has been saved.
         verify(callback, timeout(3000)).onImageSaved(eq(saveLocation));
 
-        // Retrieve the sensor orientation
-        int rotationDegrees = CameraX.getCameraInfo(mCameraId).getSensorRotationDegrees();
-
         // Retrieve the exif from the image
         Exif exif = Exif.createFromFile(saveLocation);
-        assertThat(exif.getRotation()).isEqualTo(rotationDegrees);
+
+        File saveLocationRotated90 = File.createTempFile("testRotated90", ".jpg");
+        saveLocationRotated90.deleteOnExit();
+        OnImageSavedCallback callbackRotated90 = mock(OnImageSavedCallback.class);
+        useCase.setTargetRotation(Surface.ROTATION_90);
+        useCase.takePicture(saveLocationRotated90, mListenerExecutor, callbackRotated90);
+
+        // Wait for the signal that the image has been saved.
+        verify(callbackRotated90, timeout(3000)).onImageSaved(eq(saveLocationRotated90));
+
+        // Retrieve the exif from the image
+        Exif exifRotated90 = Exif.createFromFile(saveLocationRotated90);
+
+        // Compare aspect ratio with a threshold due to floating point rounding. Can't do direct
+        // comparison of height and width, because the rotated capture is scaled to fit within
+        // the sensor region
+        double aspectRatioThreshold = 0.01;
+
+        // If rotation is equal then buffers were rotated by HAL so the aspect ratio should be
+        // the same. Otherwise the aspect ratio should be rotated by 90 degrees.
+        if (exif.getRotation() == exifRotated90.getRotation()) {
+            double aspectRatio = (double) exif.getWidth() / exif.getHeight();
+            double aspectRatioRotated90 =
+                    (double) exifRotated90.getWidth() / exifRotated90.getHeight();
+            assertThat(Math.abs(aspectRatio - aspectRatioRotated90)).isLessThan(
+                    aspectRatioThreshold);
+        } else {
+            double aspectRatio = (double) exif.getHeight() / exif.getWidth();
+            double aspectRatioRotated90 =
+                    (double) exifRotated90.getWidth() / exifRotated90.getHeight();
+            assertThat(Math.abs(aspectRatio - aspectRatioRotated90)).isLessThan(
+                    aspectRatioThreshold);
+        }
     }
 
     @Test
