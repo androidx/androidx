@@ -1154,6 +1154,10 @@ package androidx.core.content.res {
     method public abstract void onFontRetrieved(android.graphics.Typeface);
   }
 
+  public static final class ResourcesCompat.ThemeCompat {
+    method public static void rebase(android.content.res.Resources.Theme);
+  }
+
   @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP_PREFIX) public class TypedArrayUtils {
     method public static int getAttr(android.content.Context, int, int);
     method public static boolean getBoolean(android.content.res.TypedArray, @StyleableRes int, @StyleableRes int, boolean);

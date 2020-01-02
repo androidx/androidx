@@ -989,6 +989,10 @@ package androidx.core.content.res {
     method public abstract void onFontRetrieved(android.graphics.Typeface);
   }
 
+  public static final class ResourcesCompat.ThemeCompat {
+    method public static void rebase(android.content.res.Resources.Theme);
+  }
+
 }
 
 package androidx.core.database {
