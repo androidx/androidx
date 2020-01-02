@@ -34,7 +34,6 @@ import android.view.Surface;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.annotation.RestrictTo;
-import androidx.annotation.WorkerThread;
 import androidx.camera.camera2.internal.annotation.CameraExecutor;
 import androidx.camera.camera2.internal.compat.CameraManagerCompat;
 import androidx.camera.core.CameraControl;
@@ -72,6 +71,7 @@ import java.util.Set;
 import java.util.concurrent.CancellationException;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.Executor;
+import java.util.concurrent.RejectedExecutionException;
 import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.TimeoutException;
 import java.util.concurrent.atomic.AtomicInteger;
@@ -100,9 +100,7 @@ final class Camera2CameraImpl implements CameraInternal {
     /** Handle to the camera service. */
     private final CameraManagerCompat mCameraManager;
 
-    /** The handler for camera callbacks and use case state management calls. */
-    @SuppressWarnings("WeakerAccess") /* synthetic accessor */
-    final Handler mHandler;
+    /** The executor for camera callbacks and use case state management calls. */
     @CameraExecutor
     private final Executor mExecutor;
 
@@ -142,7 +140,7 @@ final class Camera2CameraImpl implements CameraInternal {
     // Used to debug number of requests to release camera
     @SuppressWarnings("WeakerAccess") /* synthetic accessor */
     final AtomicInteger mReleaseRequestCount = new AtomicInteger(0);
-    // Should only be accessed on handler thread
+    // Should only be accessed on code executed by mExecutor
     @SuppressWarnings("WeakerAccess") /* synthetic accessor */
     ListenableFuture<Void> mUserReleaseFuture;
     @SuppressWarnings("WeakerAccess") /* synthetic accessor */
@@ -173,8 +171,7 @@ final class Camera2CameraImpl implements CameraInternal {
             @NonNull Observable<Integer> availableCamerasObservable, Handler handler) {
         mCameraManager = cameraManager;
         mAvailableCamerasObservable = availableCamerasObservable;
-        mHandler = handler;
-        ScheduledExecutorService executorScheduler = CameraXExecutors.newHandlerExecutor(mHandler);
+        ScheduledExecutorService executorScheduler = CameraXExecutors.newHandlerExecutor(handler);
         mExecutor = executorScheduler;
         mUseCaseAttachState = new UseCaseAttachState(cameraId);
         mObservableState.postValue(State.CLOSED);
@@ -183,7 +180,7 @@ final class Camera2CameraImpl implements CameraInternal {
             CameraCharacteristics cameraCharacteristics =
                     mCameraManager.unwrap().getCameraCharacteristics(cameraId);
             mCameraControlInternal = new Camera2CameraControl(cameraCharacteristics,
-                    executorScheduler, executorScheduler, new ControlUpdateListenerInternal());
+                    executorScheduler, mExecutor, new ControlUpdateListenerInternal());
             mCameraInfoInternal = new Camera2CameraInfoImpl(
                     cameraId,
                     cameraCharacteristics,
@@ -214,10 +211,10 @@ final class Camera2CameraImpl implements CameraInternal {
      */
     @Override
     public void open() {
-        mHandler.post(this::openInternal);
+        mExecutor.execute(this::openInternal);
     }
 
-    @ExecutedBy("mHandler")
+    @ExecutedBy("mExecutor")
     private void openInternal() {
         switch (mState) {
             case INITIALIZED:
@@ -251,10 +248,10 @@ final class Camera2CameraImpl implements CameraInternal {
      */
     @Override
     public void close() {
-        mHandler.post(this::closeInternal);
+        mExecutor.execute(this::closeInternal);
     }
 
-    @ExecutedBy("mHandler")
+    @ExecutedBy("mExecutor")
     private void closeInternal() {
         Log.d(TAG, "Closing camera: " + mCameraInfoInternal.getCameraId());
         switch (mState) {
@@ -279,7 +276,7 @@ final class Camera2CameraImpl implements CameraInternal {
 
     // Configure the camera with a dummy capture session in order to clear the
     // previous session. This should be released immediately after being configured.
-    @WorkerThread
+    @ExecutedBy("mExecutor")
     private void configAndClose(boolean abortInFlightCaptures) {
 
         final CaptureSession dummySession = mCaptureSessionBuilder.build();
@@ -339,7 +336,7 @@ final class Camera2CameraImpl implements CameraInternal {
     }
 
     @SuppressWarnings("WeakerAccess") /* synthetic accessor */
-    @WorkerThread
+    @ExecutedBy("mExecutor")
     boolean isSessionCloseComplete() {
         return mReleasedCaptureSessions.isEmpty() && mConfiguringForClose.isEmpty();
     }
@@ -347,7 +344,7 @@ final class Camera2CameraImpl implements CameraInternal {
     // This will notify futures of completion.
     // Should only be called once the camera device is actually closed.
     @SuppressWarnings("WeakerAccess") /* synthetic accessor */
-    @WorkerThread
+    @ExecutedBy("mExecutor")
     void finishClose() {
         Preconditions.checkState(mState == InternalState.RELEASING
                 || mState == InternalState.CLOSING);
@@ -372,7 +369,7 @@ final class Camera2CameraImpl implements CameraInternal {
     }
 
     @SuppressWarnings("WeakerAccess") /* synthetic accessor */
-    @WorkerThread
+    @ExecutedBy("mExecutor")
     void closeCamera(boolean abortInFlightCaptures) {
         Preconditions.checkState(mState == InternalState.CLOSING
                         || mState == InternalState.RELEASING
@@ -414,16 +411,15 @@ final class Camera2CameraImpl implements CameraInternal {
     public ListenableFuture<Void> release() {
         return CallbackToFutureAdapter.getFuture(
                 completer -> {
-                    mHandler.post(
+                    mExecutor.execute(
                             () -> Futures.propagate(releaseInternal(), completer));
                     return "Release[request=" + mReleaseRequestCount.getAndIncrement() + "]";
                 });
     }
 
-    @ExecutedBy("mHandler")
+    @ExecutedBy("mExecutor")
     private ListenableFuture<Void> releaseInternal() {
         ListenableFuture<Void> future = getOrCreateUserReleaseFuture();
-
         switch (mState) {
             case INITIALIZED:
             case PENDING_OPEN:
@@ -450,7 +446,7 @@ final class Camera2CameraImpl implements CameraInternal {
         return future;
     }
 
-    @ExecutedBy("mHandler")
+    @ExecutedBy("mExecutor")
     private ListenableFuture<Void> getOrCreateUserReleaseFuture() {
         if (mUserReleaseFuture == null) {
             if (mState != InternalState.RELEASED) {
@@ -472,7 +468,7 @@ final class Camera2CameraImpl implements CameraInternal {
     }
 
     @SuppressWarnings("WeakerAccess") /* synthetic accessor */
-    @WorkerThread
+    @ExecutedBy("mExecutor")
     ListenableFuture<Void> releaseSession(@NonNull final CaptureSession captureSession,
             boolean abortInFlightCaptures) {
         captureSession.close();
@@ -484,7 +480,7 @@ final class Camera2CameraImpl implements CameraInternal {
         // Add a callback to clear the future and notify if the camera and all capture sessions
         // are released
         Futures.addCallback(releaseFuture, new FutureCallback<Void>() {
-            @WorkerThread
+            @ExecutedBy("mExecutor")
             @Override
             public void onSuccess(@Nullable Void result) {
                 mReleasedCaptureSessions.remove(captureSession);
@@ -507,12 +503,13 @@ final class Camera2CameraImpl implements CameraInternal {
                 }
             }
 
+            @ExecutedBy("mExecutor")
             @Override
             public void onFailure(Throwable t) {
                 // Don't reset the internal release future as we want to keep track of the error
                 // TODO: The camera should be put into an error state at this point
             }
-            // Should always be called on the same handler thread, so directExecutor is OK here.
+            // Should always be called on the same executor thread, so directExecutor is OK here.
         }, CameraXExecutors.directExecutor());
 
         return releaseFuture;
@@ -532,7 +529,7 @@ final class Camera2CameraImpl implements CameraInternal {
     @Override
     public void onUseCaseActive(@NonNull UseCase useCase) {
         Preconditions.checkNotNull(useCase);
-        mHandler.post(() -> {
+        mExecutor.execute(() -> {
             Log.d(TAG, "Use case " + useCase + " ACTIVE for camera "
                     + mCameraInfoInternal.getCameraId());
 
@@ -547,7 +544,7 @@ final class Camera2CameraImpl implements CameraInternal {
     @Override
     public void onUseCaseInactive(@NonNull UseCase useCase) {
         Preconditions.checkNotNull(useCase);
-        mHandler.post(() -> {
+        mExecutor.execute(() -> {
             Log.d(TAG, "Use case " + useCase + " INACTIVE for camera "
                     + mCameraInfoInternal.getCameraId());
             mUseCaseAttachState.setUseCaseInactive(useCase);
@@ -559,7 +556,7 @@ final class Camera2CameraImpl implements CameraInternal {
     @Override
     public void onUseCaseUpdated(@NonNull UseCase useCase) {
         Preconditions.checkNotNull(useCase);
-        mHandler.post(() -> {
+        mExecutor.execute(() -> {
             Log.d(TAG, "Use case " + useCase + " UPDATED for camera "
                     + mCameraInfoInternal.getCameraId());
             mUseCaseAttachState.updateUseCase(useCase);
@@ -570,7 +567,7 @@ final class Camera2CameraImpl implements CameraInternal {
     @Override
     public void onUseCaseReset(@NonNull UseCase useCase) {
         Preconditions.checkNotNull(useCase);
-        mHandler.post(() -> {
+        mExecutor.execute(() -> {
             Log.d(TAG, "Use case " + useCase + " RESET for camera "
                     + mCameraInfoInternal.getCameraId());
             mUseCaseAttachState.updateUseCase(useCase);
@@ -592,10 +589,12 @@ final class Camera2CameraImpl implements CameraInternal {
     boolean isUseCaseOnline(@NonNull UseCase useCase) {
         try {
             return CallbackToFutureAdapter.<Boolean>getFuture(completer -> {
-                if (!mHandler.post(
-                        () -> completer.set(mUseCaseAttachState.isUseCaseOnline(useCase)))) {
+                try {
+                    mExecutor.execute(
+                            () -> completer.set(mUseCaseAttachState.isUseCaseOnline(useCase)));
+                } catch (RejectedExecutionException e) {
                     completer.setException(new RuntimeException("Unable to check if use case is "
-                            + "online. Camera handler shut down."));
+                            + "online. Camera executor shut down."));
                 }
                 return "isUseCaseOnline";
             }).get();
@@ -612,12 +611,12 @@ final class Camera2CameraImpl implements CameraInternal {
     public void addOnlineUseCase(@NonNull Collection<UseCase> useCases) {
         if (!useCases.isEmpty()) {
             mCameraControlInternal.setActive(true);
-            mHandler.post(() -> tryAddOnlineUseCases(useCases));
+            mExecutor.execute(() -> tryAddOnlineUseCases(useCases));
         }
     }
 
     // Attempts to make use cases online if they are not already online.
-    @ExecutedBy("mHandler")
+    @ExecutedBy("mExecutor")
     private void tryAddOnlineUseCases(@NonNull Collection<UseCase> toAdd) {
         // Figure out which use cases are not already online and add them.
         List<UseCase> useCasesChangedToOnline = new ArrayList<>();
@@ -667,7 +666,7 @@ final class Camera2CameraImpl implements CameraInternal {
         });
     }
 
-    @ExecutedBy("mHandler")
+    @ExecutedBy("mExecutor")
     private void updateCameraControlPreviewAspectRatio(Collection<UseCase> useCases) {
         for (UseCase useCase : useCases) {
             if (useCase instanceof Preview) {
@@ -680,7 +679,7 @@ final class Camera2CameraImpl implements CameraInternal {
         }
     }
 
-    @ExecutedBy("mHandler")
+    @ExecutedBy("mExecutor")
     private void clearCameraControlPreviewAspectRatio(Collection<UseCase> removedUseCases) {
         for (UseCase useCase : removedUseCases) {
             if (useCase instanceof Preview) {
@@ -697,12 +696,12 @@ final class Camera2CameraImpl implements CameraInternal {
     @Override
     public void removeOnlineUseCase(@NonNull Collection<UseCase> useCases) {
         if (!useCases.isEmpty()) {
-            mHandler.post(() -> tryRemoveOnlineUseCases(useCases));
+            mExecutor.execute(() -> tryRemoveOnlineUseCases(useCases));
         }
     }
 
     // Attempts to make use cases offline if they are online.
-    @ExecutedBy("mHandler")
+    @ExecutedBy("mExecutor")
     private void tryRemoveOnlineUseCases(@NonNull Collection<UseCase> toRemove) {
         List<UseCase> useCasesChangedToOffline = new ArrayList<>();
         for (UseCase useCase : toRemove) {
@@ -727,7 +726,7 @@ final class Camera2CameraImpl implements CameraInternal {
         if (allUseCasesOffline) {
             mCameraControlInternal.setActive(false);
             resetCaptureSession(/*abortInFlightCaptures=*/false);
-            close();
+            closeInternal();
         } else {
             updateCaptureSessionConfig();
             resetCaptureSession(/*abortInFlightCaptures=*/false);
@@ -749,7 +748,7 @@ final class Camera2CameraImpl implements CameraInternal {
     // TODO(b/124268878): Handle SecurityException and require permission in manifest.
     @SuppressLint("MissingPermission")
     @SuppressWarnings("WeakerAccess") /* synthetic accessor */
-    @WorkerThread
+    @ExecutedBy("mExecutor")
     void openCameraDevice() {
         // Check that we have an available camera to open here before attempting
         // to open the camera again.
@@ -777,9 +776,7 @@ final class Camera2CameraImpl implements CameraInternal {
 
     /** Updates the capture request configuration for the current capture session. */
     @SuppressWarnings("WeakerAccess") /* synthetic accessor */
-    @ExecutedBy("mHandler")
-    // TODO(b/115747543): mExecutor currently wraps mHandler, so this
-    // handles mExecutor and mHandler. Replace with mExecutor once mHandler is removed.
+    @ExecutedBy("mExecutor")
     void updateCaptureSessionConfig() {
         ValidatingBuilder validatingBuilder = mUseCaseAttachState.getActiveAndOnlineBuilder();
 
@@ -799,7 +796,7 @@ final class Camera2CameraImpl implements CameraInternal {
      * <p>The previously opened session will be safely disposed of before the new session opened.
      */
     @SuppressWarnings("WeakerAccess") /* synthetic accessor */
-    @WorkerThread
+    @ExecutedBy("mExecutor")
     void openCaptureSession() {
         Preconditions.checkState(mState == InternalState.OPENED);
 
@@ -849,6 +846,7 @@ final class Camera2CameraImpl implements CameraInternal {
     }
 
     @SuppressWarnings("WeakerAccess") /* synthetic accessor */
+    @ExecutedBy("mExecutor")
     void closeStaleCaptureSessions(CaptureSession captureSession) {
         // Once the new CameraCaptureSession is created, the under closing
         // CameraCaptureSession can be treated as closed (more detail in b/144817309).
@@ -909,7 +907,7 @@ final class Camera2CameraImpl implements CameraInternal {
      */
     @SuppressWarnings({"WeakerAccess", /* synthetic accessor */
             "FutureReturnValueIgnored"})
-    @WorkerThread
+    @ExecutedBy("mExecutor")
     void resetCaptureSession(boolean abortInFlightCaptures) {
         Preconditions.checkState(mCaptureSession != null);
         Log.d(TAG, "Resetting Capture Session");
@@ -924,7 +922,7 @@ final class Camera2CameraImpl implements CameraInternal {
         releaseSession(oldCaptureSession, /*abortInFlightCaptures=*/abortInFlightCaptures);
     }
 
-    @WorkerThread
+    @ExecutedBy("mExecutor")
     private CameraDevice.StateCallback createDeviceStateCallback() {
         SessionConfig config = mUseCaseAttachState.getOnlineBuilder().build();
 
@@ -1095,7 +1093,7 @@ final class Camera2CameraImpl implements CameraInternal {
     }
 
     @SuppressWarnings("WeakerAccess") /* synthetic accessor */
-    @WorkerThread
+    @ExecutedBy("mExecutor")
     void setState(InternalState state) {
         Log.d(TAG, "Transitioning camera internal state: " + mState + " --> " + state);
         mState = state;
@@ -1356,7 +1354,6 @@ final class Camera2CameraImpl implements CameraInternal {
 
             mCameraAvailable = false;
         }
-
 
         @Override
         @ExecutedBy("mExecutor")
