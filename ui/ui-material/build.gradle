@@ -37,11 +37,12 @@ dependencies {
 
     api project(":compose:compose-runtime")
     api project(":ui:ui-core")
+    api project(":ui:ui-foundation")
+    api project(":ui:ui-text")
+
     implementation project(":ui:ui-framework")
     implementation project(":ui:ui-layout")
-    api project(":ui:ui-text")
     implementation project(":ui:ui-animation")
-    implementation project(":ui:ui-foundation")
     implementation project(":ui:ui-vector")
 
     testImplementation(ANDROIDX_TEST_RULES)
