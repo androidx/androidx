@@ -170,8 +170,8 @@ public final class ProcessingSurfaceTest {
         // Act: Send one frame to processingSurface.
         triggerImage(processingSurface, 1);
 
-        // Assert: verify that the frame has been received or time-out after 1 second.
-        assertThat(frameReceivedSemaphore.tryAcquire(1, TimeUnit.SECONDS)).isTrue();
+        // Assert: verify that the frame has been received or time-out after 3 second.
+        assertThat(frameReceivedSemaphore.tryAcquire(3, TimeUnit.SECONDS)).isTrue();
     }
 
     private ProcessingSurface createProcessingSurface(
