@@ -363,6 +363,8 @@ MissingNullability: androidx.appcompat.app.AppCompatActivity#attachBaseContext(a
     Missing nullability on parameter `newBase` in method `attachBaseContext`
 MissingNullability: androidx.appcompat.app.AppCompatActivity#dispatchKeyEvent(android.view.KeyEvent) parameter #0:
     Missing nullability on parameter `event` in method `dispatchKeyEvent`
+MissingNullability: androidx.appcompat.app.AppCompatActivity#dispatchKeyShortcutEvent(android.view.KeyEvent) parameter #0:
+    Missing nullability on parameter `event` in method `dispatchKeyShortcutEvent`
 MissingNullability: androidx.appcompat.app.AppCompatActivity#getResources():
     Missing nullability on method `getResources` return
 MissingNullability: androidx.appcompat.app.AppCompatActivity#onKeyDown(int, android.view.KeyEvent) parameter #1:
