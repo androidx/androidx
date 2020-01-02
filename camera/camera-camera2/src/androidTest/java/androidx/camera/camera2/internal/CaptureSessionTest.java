@@ -375,7 +375,7 @@ public final class CaptureSessionTest {
     }
 
     @Test
-    public void issueCaptureRequestAcrossCaptureSessions() throws InterruptedException  {
+    public void issueCaptureRequestAcrossCaptureSessions() throws InterruptedException {
         CaptureSession captureSession0 = createCaptureSession(mTestParameters0);
         captureSession0.setSessionConfig(mTestParameters0.mSessionConfig);
 
@@ -495,8 +495,9 @@ public final class CaptureSessionTest {
         CameraCaptureResult result1 = captureResultCaptor.getValue();
         assertThat(result1).isInstanceOf(Camera2CameraCaptureResult.class);
         CaptureResult captureResult1 = ((Camera2CameraCaptureResult) result1).getCaptureResult();
-        assertThat(captureResult1.getRequest().get(CaptureRequest.CONTROL_SCENE_MODE)).isEqualTo(
-                CaptureRequest.CONTROL_SCENE_MODE_CANDLELIGHT);
+        assertThat(
+                captureResult1.getRequest().get(CaptureRequest.CONTROL_CAPTURE_INTENT)).isEqualTo(
+                CaptureRequest.CONTROL_CAPTURE_INTENT_PREVIEW);
         // The onDisableSession should not been invoked.
         verify(mTestParameters0.mTestCameraEventCallback.mDisableCallback,
                 never()).onCaptureCompleted(any(CameraCaptureResult.class));
@@ -514,8 +515,9 @@ public final class CaptureSessionTest {
         CameraCaptureResult result2 = captureResultCaptor.getValue();
         assertThat(result2).isInstanceOf(Camera2CameraCaptureResult.class);
         CaptureResult captureResult2 = ((Camera2CameraCaptureResult) result2).getCaptureResult();
-        assertThat(captureResult2.getRequest().get(CaptureRequest.CONTROL_SCENE_MODE)).isEqualTo(
-                CaptureRequest.CONTROL_SCENE_MODE_NIGHT);
+        assertThat(
+                captureResult2.getRequest().get(CaptureRequest.CONTROL_CAPTURE_INTENT)).isEqualTo(
+                CaptureRequest.CONTROL_CAPTURE_INTENT_ZERO_SHUTTER_LAG);
         // The onEnableSession should not been invoked in close().
         verify(mTestParameters0.mTestCameraEventCallback.mEnableCallback,
                 never()).onCaptureCompleted(any(CameraCaptureResult.class));
@@ -654,26 +656,26 @@ public final class CaptureSessionTest {
 
         @Override
         public CaptureConfig onPresetSession() {
-            return getCaptureConfig(CaptureRequest.CONTROL_SCENE_MODE,
-                    CaptureRequest.CONTROL_SCENE_MODE_ACTION, null);
+            return getCaptureConfig(CaptureRequest.CONTROL_CAPTURE_INTENT,
+                    CaptureRequest.CONTROL_CAPTURE_INTENT_VIDEO_RECORD, null);
         }
 
         @Override
         public CaptureConfig onEnableSession() {
-            return getCaptureConfig(CaptureRequest.CONTROL_SCENE_MODE,
-                    CaptureRequest.CONTROL_SCENE_MODE_CANDLELIGHT, mEnableCallback);
+            return getCaptureConfig(CaptureRequest.CONTROL_CAPTURE_INTENT,
+                    CaptureRequest.CONTROL_CAPTURE_INTENT_PREVIEW, mEnableCallback);
         }
 
         @Override
         public CaptureConfig onRepeating() {
-            return getCaptureConfig(CaptureRequest.CONTROL_SCENE_MODE,
-                    CaptureRequest.CONTROL_SCENE_MODE_BEACH, null);
+            return getCaptureConfig(CaptureRequest.CONTROL_CAPTURE_INTENT,
+                    CaptureRequest.CONTROL_CAPTURE_INTENT_PREVIEW, null);
         }
 
         @Override
         public CaptureConfig onDisableSession() {
-            return getCaptureConfig(CaptureRequest.CONTROL_SCENE_MODE,
-                    CaptureRequest.CONTROL_SCENE_MODE_NIGHT, mDisableCallback);
+            return getCaptureConfig(CaptureRequest.CONTROL_CAPTURE_INTENT,
+                    CaptureRequest.CONTROL_CAPTURE_INTENT_ZERO_SHUTTER_LAG, mDisableCallback);
         }
     }
 
