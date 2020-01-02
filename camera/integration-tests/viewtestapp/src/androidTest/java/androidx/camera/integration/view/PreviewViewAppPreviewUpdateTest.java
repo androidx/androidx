@@ -54,6 +54,12 @@ public final class PreviewViewAppPreviewUpdateTest {
     @Rule
     public GrantPermissionRule mCameraPermissionRule =
             GrantPermissionRule.grant(android.Manifest.permission.CAMERA);
+    @Rule
+    public GrantPermissionRule mStoragePermissionRule =
+            GrantPermissionRule.grant(android.Manifest.permission.WRITE_EXTERNAL_STORAGE);
+    @Rule
+    public GrantPermissionRule mAudioPermissionRule =
+            GrantPermissionRule.grant(android.Manifest.permission.RECORD_AUDIO);
 
     @Rule
     public ActivityTestRule<MainActivity> mActivityRule =
