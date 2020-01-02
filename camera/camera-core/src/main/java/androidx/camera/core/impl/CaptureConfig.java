@@ -38,6 +38,16 @@ import java.util.Set;
  * required to issue a {@link CaptureRequest}.
  */
 public final class CaptureConfig {
+    /**
+     * Request that the implementation rotate the image.
+     *
+     * <p> Currently only applicable for {@link androidx.camera.core.ImageProxy} which are of
+     * JPEG format.
+     *
+     * Option: camerax.core.rotation
+     */
+    public static final Config.Option<Integer> OPTION_ROTATION =
+            Config.Option.create("camerax.core.captureConfig.rotation", int.class);
 
     /** The set of {@link Surface} that data from the camera will be put into. */
     final List<DeferrableSurface> mSurfaces;
@@ -268,6 +278,12 @@ public final class CaptureConfig {
                     mImplementationOptions.insertOption(objectOpt, newValue);
                 }
             }
+        }
+
+        /** Add a single implementation option to the request. */
+        public <T> void addImplementationOption(@NonNull Config.Option<T> option,
+                @NonNull T value) {
+            mImplementationOptions.insertOption(option, value);
         }
 
         @NonNull

@@ -795,7 +795,7 @@ public class ImageCapture extends UseCase {
         final TakePictureState state = new TakePictureState();
 
         FutureChain.from(preTakePicture(state))
-                .transformAsync(v -> issueTakePicture(), mExecutor)
+                .transformAsync(v -> issueTakePicture(imageCaptureRequest), mExecutor)
                 .addCallback(
                         new FutureCallback<Void>() {
                             @Override
@@ -1171,7 +1171,7 @@ public class ImageCapture extends UseCase {
      * such as 3A could affect the result of the captures. After the future is complete, then it
      * is safe to reset or modify the 3A state.
      */
-    ListenableFuture<Void> issueTakePicture() {
+    ListenableFuture<Void> issueTakePicture(@NonNull ImageCaptureRequest imageCaptureRequest) {
         final List<ListenableFuture<Void>> futureList = new ArrayList<>();
         final List<CaptureConfig> captureConfigs = new ArrayList<>();
 
@@ -1203,12 +1203,19 @@ public class ImageCapture extends UseCase {
         for (final CaptureStage captureStage : captureBundle.getCaptureStages()) {
             final CaptureConfig.Builder builder = new CaptureConfig.Builder();
             builder.setTemplateType(mCaptureConfig.getTemplateType());
+
+            // Add the default implementation options of ImageCapture
             builder.addImplementationOptions(mCaptureConfig.getImplementationOptions());
             builder.addAllCameraCaptureCallbacks(
                     mSessionConfigBuilder.getSingleCameraCaptureCallbacks());
 
             builder.addSurface(mDeferrableSurface);
 
+            // Add the dynamic implementation options of ImageCapture
+            builder.addImplementationOption(CaptureConfig.OPTION_ROTATION,
+                    imageCaptureRequest.mRotationDegrees);
+
+            // Add the implementation options required by the CaptureStage
             builder.addImplementationOptions(
                     captureStage.getCaptureConfig().getImplementationOptions());
             builder.setTag(captureStage.getCaptureConfig().getTag());
@@ -1657,14 +1664,14 @@ public class ImageCapture extends UseCase {
         }
     }
 
-    private final class ImageCaptureRequest {
+    private static final class ImageCaptureRequest {
         @RotationValue
-        int mRotationDegrees;
-        Rational mTargetRatio;
+        final int mRotationDegrees;
+        private final Rational mTargetRatio;
         @NonNull
-        Executor mListenerExecutor;
+        private final Executor mListenerExecutor;
         @NonNull
-        OnImageCapturedCallback mCallback;
+        private final OnImageCapturedCallback mCallback;
 
         AtomicBoolean mDispatched = new AtomicBoolean(false);
 
