@@ -1026,6 +1026,7 @@ final class Camera2CameraImpl implements CameraInternal {
      * explicitly released before calling this method so the camera can track the state of
      * closing that session.
      */
+    @SuppressWarnings("FutureReturnValueIgnored")
     @WorkerThread
     void resetCaptureSession(boolean abortInFlightCaptures) {
         Preconditions.checkState(mCaptureSession != null);

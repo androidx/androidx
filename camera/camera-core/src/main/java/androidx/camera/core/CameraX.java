@@ -601,6 +601,7 @@ public final class CameraX {
                         completer.set(null);
                     }
 
+                    @SuppressWarnings("FutureReturnValueIgnored")
                     @Override
                     public void onFailure(Throwable t) {
                         Log.w(TAG, "CameraX initialize() failed", t);
@@ -753,6 +754,7 @@ public final class CameraX {
      *
      * @hide
      */
+    @SuppressWarnings("FutureReturnValueIgnored")
     @RestrictTo(Scope.LIBRARY_GROUP)
     @NonNull
     public static ListenableFuture<CameraX> getOrCreateInstance(@NonNull Context context) {
