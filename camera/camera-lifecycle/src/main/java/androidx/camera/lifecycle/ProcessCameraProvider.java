@@ -21,6 +21,7 @@ import android.content.Context;
 import android.os.Handler;
 
 import androidx.annotation.NonNull;
+import androidx.annotation.Nullable;
 import androidx.annotation.RestrictTo;
 import androidx.annotation.RestrictTo.Scope;
 import androidx.camera.core.Camera;
@@ -33,6 +34,7 @@ import androidx.camera.core.ImageCapture;
 import androidx.camera.core.Preview;
 import androidx.camera.core.UseCase;
 import androidx.camera.core.impl.utils.executor.CameraXExecutors;
+import androidx.camera.core.impl.utils.futures.FutureCallback;
 import androidx.camera.core.impl.utils.futures.Futures;
 import androidx.core.util.Preconditions;
 import androidx.lifecycle.Lifecycle;
@@ -122,7 +124,18 @@ public final class ProcessCameraProvider implements LifecycleCameraProvider {
     @RestrictTo(Scope.TESTS)
     public static void initializeInstance(@NonNull Context context,
             @NonNull CameraXConfig cameraXConfig) {
-        CameraX.initialize(context, cameraXConfig);
+        ListenableFuture<Void> future = CameraX.initialize(context, cameraXConfig);
+        Futures.addCallback(future, new FutureCallback<Void>() {
+            @Override
+            public void onSuccess(@Nullable Void result) {
+            }
+
+            @Override
+            public void onFailure(Throwable t) {
+                // Throw the unexpected error.
+                throw new RuntimeException(t);
+            }
+        }, CameraXExecutors.directExecutor());
     }
 
     /**
