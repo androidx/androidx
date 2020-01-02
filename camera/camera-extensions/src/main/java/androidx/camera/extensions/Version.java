@@ -83,7 +83,7 @@ abstract class Version implements Comparable<Version> {
 
     @NonNull
     @Override
-    public String toString() {
+    public final String toString() {
         StringBuilder sb = new StringBuilder(getMajor() + "." + getMinor() + "." + getPatch());
         if (!TextUtils.isEmpty(getDescription())) {
             sb.append("-" + getDescription());
@@ -124,7 +124,7 @@ abstract class Version implements Comparable<Version> {
     }
 
     @Override
-    public boolean equals(Object obj) {
+    public final boolean equals(Object obj) {
         if (!(obj instanceof Version)) {
             return false;
         }
@@ -138,7 +138,7 @@ abstract class Version implements Comparable<Version> {
     }
 
     @Override
-    public int hashCode() {
+    public final int hashCode() {
         // The hash code ignores the description.
         return Objects.hash(getMajor(), getMinor(), getPatch());
     }
