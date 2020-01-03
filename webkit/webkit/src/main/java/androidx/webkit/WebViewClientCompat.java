@@ -62,7 +62,8 @@ public class WebViewClientCompat extends WebViewClient implements WebViewClientB
             WebViewClient.SAFE_BROWSING_THREAT_UNKNOWN,
             WebViewClient.SAFE_BROWSING_THREAT_MALWARE,
             WebViewClient.SAFE_BROWSING_THREAT_PHISHING,
-            WebViewClient.SAFE_BROWSING_THREAT_UNWANTED_SOFTWARE
+            WebViewClient.SAFE_BROWSING_THREAT_UNWANTED_SOFTWARE,
+            WebViewClient.SAFE_BROWSING_THREAT_BILLING,
     })
     @Retention(RetentionPolicy.SOURCE)
     public @interface SafeBrowsingThreat {}
