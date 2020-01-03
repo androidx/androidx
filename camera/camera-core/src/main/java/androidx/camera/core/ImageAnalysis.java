@@ -192,14 +192,11 @@ public final class ImageAnalysis extends UseCase {
                         ? config.getImageQueueDepth() : NON_BLOCKING_IMAGE_DEPTH;
 
         mImageReader =
-                ImageReaderProxys.createCompatibleReader(
-                        CameraX.getSurfaceManager(),
-                        cameraId,
+                ImageReaderProxys.createIsolatedReader(
                         resolution.getWidth(),
                         resolution.getHeight(),
                         getImageFormat(),
-                        imageQueueDepth,
-                        backgroundExecutor);
+                        imageQueueDepth);
 
         tryUpdateRelativeRotation(cameraId);
 
