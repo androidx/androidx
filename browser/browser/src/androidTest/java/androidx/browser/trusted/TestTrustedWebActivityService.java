@@ -17,6 +17,7 @@
 package androidx.browser.trusted;
 
 import android.app.Notification;
+import android.os.Bundle;
 import android.os.Parcelable;
 
 import androidx.annotation.NonNull;
@@ -26,6 +27,11 @@ import java.util.concurrent.atomic.AtomicReference;
 
 public class TestTrustedWebActivityService extends TrustedWebActivityService {
     public static final int SMALL_ICON_ID = 666;
+
+    public static final String DOUBLE_NUMBER_COMMAND = "DoubleNumber";
+    public static final String DOUBLE_NUMBER_ARG = "number";
+    public static final String DOUBLE_NUMBER_RESULT = "result";
+
     private static final TokenStore sTokenStore = new InMemoryTokenStore();
 
     @Override
@@ -53,6 +59,19 @@ public class TestTrustedWebActivityService extends TrustedWebActivityService {
     @Override
     public TokenStore getTokenStore() {
         return sTokenStore;
+    }
+
+    @Nullable
+    @Override
+    public Bundle onExtraCommand(@NonNull String commandName, @Nullable Bundle args) {
+        if (!commandName.equals(DOUBLE_NUMBER_COMMAND)) return null;
+        if (args == null) return null;
+
+        int number = args.getInt(DOUBLE_NUMBER_ARG, 0);
+
+        Bundle result = new Bundle();
+        result.putInt(DOUBLE_NUMBER_RESULT, number * 2);
+        return result;
     }
 
     public static void setVerifiedProvider(@Nullable Token provider) {

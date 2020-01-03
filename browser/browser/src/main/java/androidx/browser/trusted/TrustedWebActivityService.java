@@ -174,6 +174,14 @@ public abstract class TrustedWebActivityService extends Service {
             return TrustedWebActivityService.this.onGetSmallIconBitmap();
         }
 
+        @SuppressWarnings("NullAway")  // TODO: b/142938599
+        @Override
+        public Bundle extraCommand(String commandName, Bundle args) {
+            checkCaller();
+
+            return TrustedWebActivityService.this.onExtraCommand(commandName, args);
+        }
+
         private void checkCaller() {
             if (mVerifiedUid == -1) {
                 String[] packages = getPackageManager().getPackagesForUid(getCallingUid());
@@ -362,6 +370,24 @@ public abstract class TrustedWebActivityService extends Service {
     @BinderThread
     @NonNull
     public abstract TokenStore getTokenStore();
+
+    /**
+     * Contains a free form command from the browser. The client and browser will need to agree on
+     * an additional API to use in advanced. This call can be used for testing or experimental
+     * purposes.
+     *
+     * A return value of {@code null} will be used to signify that the client does not know how to
+     * handle the request.
+     *
+     * @param commandName Name of the command to execute.
+     * @param args        Arguments to the command.
+     * @return The result {@link Bundle}, or {@code null}.
+     */
+    @BinderThread
+    @Nullable
+    public Bundle onExtraCommand(@NonNull String commandName, @Nullable Bundle args) {
+        return null;
+    }
 
     private static String channelNameToId(String name) {
         return name.toLowerCase(Locale.ROOT).replace(' ', '_') + "_channel_id";
