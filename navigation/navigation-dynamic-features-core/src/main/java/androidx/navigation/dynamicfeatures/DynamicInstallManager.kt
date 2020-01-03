@@ -27,6 +27,7 @@ import androidx.navigation.dynamicfeatures.DynamicGraphNavigator.DynamicNavGraph
 import androidx.navigation.get
 import com.google.android.play.core.splitcompat.SplitCompat
 import com.google.android.play.core.splitinstall.SplitInstallException
+import com.google.android.play.core.splitinstall.SplitInstallHelper
 import com.google.android.play.core.splitinstall.SplitInstallManager
 import com.google.android.play.core.splitinstall.SplitInstallRequest
 import com.google.android.play.core.splitinstall.SplitInstallSessionState
@@ -37,7 +38,7 @@ import com.google.android.play.core.splitinstall.model.SplitInstallSessionStatus
 /**
  * Install manager for dynamic features.
  *
- * Enables installation of dynamic features.
+ * Enables installation of dynamic features for both installed and instant apps.
  */
 open class DynamicInstallManager(
     private val context: Context,
@@ -172,6 +173,8 @@ open class DynamicInstallManager(
             if (splitInstallSessionState.sessionId() == installMonitor.sessionId) {
                 if (splitInstallSessionState.status() == SplitInstallSessionStatus.INSTALLED) {
                     SplitCompat.install(context)
+                    // Enable immediate usage of dynamic feature modules in an instant app context.
+                    SplitInstallHelper.updateAppInfo(context)
                 }
                 status.value = splitInstallSessionState
                 if (splitInstallSessionState.hasTerminalStatus()) {
