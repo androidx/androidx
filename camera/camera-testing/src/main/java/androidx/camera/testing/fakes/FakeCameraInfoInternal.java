@@ -130,8 +130,9 @@ public final class FakeCameraInfoInternal implements CameraInfoInternal {
         return mZoomPercentage;
     }
 
+    @NonNull
     @Override
-    public int getImplementationType() {
+    public String getImplementationType() {
         return IMPLEMENTATION_TYPE_FAKE;
     }
 }
