@@ -16,12 +16,14 @@
 
 package androidx.browser.trusted;
 
+import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.fail;
 
 import android.content.ComponentName;
 import android.content.Context;
 import android.content.Intent;
 import android.content.ServiceConnection;
+import android.os.Bundle;
 import android.os.IBinder;
 import android.os.RemoteException;
 import android.support.customtabs.trusted.ITrustedWebActivityService;
@@ -93,6 +95,18 @@ public class TrustedWebActivityServiceTest {
         // This only works because we're in the same process as the service, otherwise this would
         // have to be called in the Service's process.
         mService.getSmallIconId();
+    }
+
+    @Test
+    public void testExtraCommand() throws RemoteException {
+        Bundle args = new Bundle();
+        args.putInt(TestTrustedWebActivityService.DOUBLE_NUMBER_ARG, 3);
+
+        Bundle result =
+                mService.extraCommand(TestTrustedWebActivityService.DOUBLE_NUMBER_COMMAND, args);
+
+        assertEquals(
+                result.getInt(TestTrustedWebActivityService.DOUBLE_NUMBER_RESULT, 0), 6);
     }
 
     @Test(expected = SecurityException.class)

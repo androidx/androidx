@@ -160,6 +160,25 @@ public final class TrustedWebActivityServiceConnection {
         return mComponentName;
     }
 
+    /**
+     * Passes a free-form command to the client to take action on.
+     * {@link TrustedWebActivityService#onExtraCommand} will be called.
+     * The client may not know how to deal with the command, in which case {@code null} may be
+     * returned.
+     *
+     * @param commandName Name of the command to execute.
+     * @param args Arguments to the command.
+     * @return The result {@link Bundle}, or {@code null} if the command could not be executed.
+     * @throws RemoteException If the Service dies while responding to the request.
+     * @throws SecurityException If verification with the TrustedWebActivityService fails.
+     */
+    @SuppressWarnings("NullAway")  // TODO: b/142938599
+    @Nullable
+    public Bundle extraCommand(@NonNull String commandName, @Nullable Bundle args)
+            throws RemoteException {
+        return mService.extraCommand(commandName, args);
+    }
+
     static class NotifyNotificationArgs {
         public final String platformTag;
         public final int platformId;
