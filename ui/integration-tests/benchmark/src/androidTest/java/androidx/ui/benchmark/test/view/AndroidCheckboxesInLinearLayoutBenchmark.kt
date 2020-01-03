@@ -24,7 +24,7 @@ import androidx.ui.benchmark.benchmarkFirstLayout
 import androidx.ui.benchmark.benchmarkFirstMeasure
 import androidx.ui.benchmark.benchmarkFirstSetContent
 import androidx.ui.benchmark.benchmarkLayoutPerf
-import androidx.ui.test.cases.view.AndroidCheckboxesInLinearLayoutTestCase
+import androidx.ui.integration.test.view.AndroidCheckboxesInLinearLayoutTestCase
 import org.junit.Rule
 import org.junit.Test
 import org.junit.runner.RunWith

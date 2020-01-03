@@ -24,8 +24,9 @@ import androidx.ui.benchmark.benchmarkFirstDraw
 import androidx.ui.benchmark.benchmarkFirstLayout
 import androidx.ui.benchmark.benchmarkFirstMeasure
 import androidx.ui.benchmark.benchmarkLayoutPerf
-import androidx.ui.test.TextBenchmarkTestRule
-import androidx.ui.test.cartesian
+import androidx.ui.integration.test.core.text.TextWithSpanTestCase
+import androidx.ui.integration.test.TextBenchmarkTestRule
+import androidx.ui.integration.test.cartesian
 import org.junit.Rule
 import org.junit.Test
 import org.junit.runner.RunWith

@@ -27,7 +27,7 @@ import androidx.ui.benchmark.benchmarkLayoutPerf
 import androidx.ui.benchmark.toggleStateBenchmarkDraw
 import androidx.ui.benchmark.toggleStateBenchmarkLayout
 import androidx.ui.benchmark.toggleStateBenchmarkMeasure
-import androidx.ui.test.cases.ScrollerTestCase
+import androidx.ui.integration.test.foundation.ScrollerTestCase
 import org.junit.Rule
 import org.junit.Test
 import org.junit.runner.RunWith

@@ -28,9 +28,9 @@ import androidx.ui.benchmark.toggleStateBenchmarkDraw
 import androidx.ui.benchmark.toggleStateBenchmarkLayout
 import androidx.ui.benchmark.toggleStateBenchmarkMeasure
 import androidx.ui.benchmark.toggleStateBenchmarkRecompose
-import androidx.ui.test.cases.SimpleRadioButton1TestCase
-import androidx.ui.test.cases.SimpleRadioButton2TestCase
-import androidx.ui.test.cases.SimpleRadioButton3TestCase
+import androidx.ui.integration.test.core.SimpleRadioButton1TestCase
+import androidx.ui.integration.test.core.SimpleRadioButton2TestCase
+import androidx.ui.integration.test.core.SimpleRadioButton3TestCase
 import org.junit.Rule
 import org.junit.Test
 import org.junit.runner.RunWith

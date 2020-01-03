@@ -19,8 +19,8 @@ package androidx.ui.input
 import androidx.benchmark.junit4.BenchmarkRule
 import androidx.benchmark.junit4.measureRepeated
 import androidx.test.filters.LargeTest
-import androidx.ui.test.RandomTextGenerator
-import androidx.ui.test.cartesian
+import androidx.ui.integration.test.RandomTextGenerator
+import androidx.ui.integration.test.cartesian
 import androidx.ui.text.TextRange
 import org.junit.Rule
 import org.junit.Test
