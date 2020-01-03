@@ -59,7 +59,7 @@ class TextSelectionDelegateTest {
     private val resourceLoader = TestFontResourceLoader(context)
 
     @Test
-    fun getTextSelectionInfo_tap_select_word_ltr() {
+    fun getTextSelectionInfo_long_press_select_word_ltr() {
         withDensity(defaultDensity) {
             val text = "hello world\n"
             val fontSize = 20.sp
@@ -79,7 +79,7 @@ class TextSelectionDelegateTest {
                 textLayoutResult = textLayoutResult,
                 selectionCoordinates = Pair(start, end),
                 layoutCoordinates = mock(),
-                wordSelectIfCollapsed = true
+                wordBasedSelection = true
             )
 
             // Assert.
@@ -108,7 +108,7 @@ class TextSelectionDelegateTest {
     }
 
     @Test
-    fun getTextSelectionInfo_tap_select_word_rtl() {
+    fun getTextSelectionInfo_long_press_select_word_rtl() {
         withDensity(defaultDensity) {
             val text = "\u05D0\u05D1\u05D2 \u05D3\u05D4\u05D5\n"
             val fontSize = 20.sp
@@ -128,7 +128,7 @@ class TextSelectionDelegateTest {
                 textLayoutResult = textLayoutResult,
                 selectionCoordinates = Pair(start, end),
                 layoutCoordinates = mock(),
-                wordSelectIfCollapsed = true
+                wordBasedSelection = true
             )
 
             // Assert.
@@ -157,6 +157,110 @@ class TextSelectionDelegateTest {
     }
 
     @Test
+    fun getTextSelectionInfo_long_press_drag_handle_not_cross_select_word() {
+        withDensity(defaultDensity) {
+            val text = "hello world"
+            val fontSize = 20.sp
+            val fontSizeInPx = fontSize.toPx().value
+
+            val textLayoutResult = simpleTextLayout(
+                text = text,
+                fontSize = fontSize,
+                density = defaultDensity
+            )
+
+            val rawStartOffset = text.indexOf('e')
+            val rawEndOffset = text.indexOf('r')
+            val start = PxPosition((fontSizeInPx * rawStartOffset).px, (fontSizeInPx / 2).px)
+            val end = PxPosition((fontSizeInPx * rawEndOffset).px, (fontSizeInPx / 2).px)
+
+            // Act.
+            val textSelectionInfo = getTextSelectionInfo(
+                textLayoutResult = textLayoutResult,
+                selectionCoordinates = Pair(start, end),
+                layoutCoordinates = mock(),
+                wordBasedSelection = true
+            )
+
+            // Assert.
+            assertThat(textSelectionInfo).isNotNull()
+
+            assertThat(textSelectionInfo?.start).isNotNull()
+            textSelectionInfo?.start?.let {
+                assertThat(it.coordinates).isEqualTo(
+                    PxPosition(0.px, fontSizeInPx.px)
+                )
+                assertThat(it.direction).isEqualTo(TextDirection.Ltr)
+                assertThat(it.layoutCoordinates).isNotNull()
+                assertThat(it.offset).isEqualTo(0)
+            }
+
+            assertThat(textSelectionInfo?.end).isNotNull()
+            textSelectionInfo?.end?.let {
+                assertThat(it.coordinates).isEqualTo(
+                    PxPosition((text.length * fontSizeInPx).px, fontSizeInPx.px)
+                )
+                assertThat(it.direction).isEqualTo(TextDirection.Ltr)
+                assertThat(it.layoutCoordinates).isNotNull()
+                assertThat(it.offset).isEqualTo(text.length)
+            }
+            assertThat(textSelectionInfo?.handlesCrossed).isFalse()
+        }
+    }
+
+    @Test
+    fun getTextSelectionInfo_long_press_drag_handle_cross_select_word() {
+        withDensity(defaultDensity) {
+            val text = "hello world"
+            val fontSize = 20.sp
+            val fontSizeInPx = fontSize.toPx().value
+
+            val textLayoutResult = simpleTextLayout(
+                text = text,
+                fontSize = fontSize,
+                density = defaultDensity
+            )
+
+            val rawStartOffset = text.indexOf('r')
+            val rawEndOffset = text.indexOf('e')
+            val start = PxPosition((fontSizeInPx * rawStartOffset).px, (fontSizeInPx / 2).px)
+            val end = PxPosition((fontSizeInPx * rawEndOffset).px, (fontSizeInPx / 2).px)
+
+            // Act.
+            val textSelectionInfo = getTextSelectionInfo(
+                textLayoutResult = textLayoutResult,
+                selectionCoordinates = Pair(start, end),
+                layoutCoordinates = mock(),
+                wordBasedSelection = true
+            )
+
+            // Assert.
+            assertThat(textSelectionInfo).isNotNull()
+
+            assertThat(textSelectionInfo?.start).isNotNull()
+            textSelectionInfo?.start?.let {
+                assertThat(it.coordinates).isEqualTo(
+                    PxPosition((text.length * fontSizeInPx).px, fontSizeInPx.px)
+                )
+                assertThat(it.direction).isEqualTo(TextDirection.Ltr)
+                assertThat(it.layoutCoordinates).isNotNull()
+                assertThat(it.offset).isEqualTo(text.length)
+            }
+
+            assertThat(textSelectionInfo?.end).isNotNull()
+            textSelectionInfo?.end?.let {
+                assertThat(it.coordinates).isEqualTo(
+                    PxPosition(0.px, fontSizeInPx.px)
+                )
+                assertThat(it.direction).isEqualTo(TextDirection.Ltr)
+                assertThat(it.layoutCoordinates).isNotNull()
+                assertThat(it.offset).isEqualTo(0)
+            }
+            assertThat(textSelectionInfo?.handlesCrossed).isTrue()
+        }
+    }
+
+    @Test
     fun getTextSelectionInfo_drag_select_range_ltr() {
         withDensity(defaultDensity) {
             val text = "hello world\n"
@@ -180,7 +284,7 @@ class TextSelectionDelegateTest {
                 textLayoutResult = textLayoutResult,
                 selectionCoordinates = Pair(start, end),
                 layoutCoordinates = mock(),
-                wordSelectIfCollapsed = false
+                wordBasedSelection = false
             )
 
             // Assert.
@@ -238,7 +342,7 @@ class TextSelectionDelegateTest {
                 textLayoutResult = textLayoutResult,
                 selectionCoordinates = Pair(start, end),
                 layoutCoordinates = mock(),
-                wordSelectIfCollapsed = false
+                wordBasedSelection = false
             )
 
             // Assert.
@@ -301,7 +405,7 @@ class TextSelectionDelegateTest {
                 textLayoutResult = textLayoutResult,
                 selectionCoordinates = Pair(start, end),
                 layoutCoordinates = mock(),
-                wordSelectIfCollapsed = false
+                wordBasedSelection = false
             )
 
             // Assert.
@@ -353,7 +457,7 @@ class TextSelectionDelegateTest {
                 selectionCoordinates = Pair(start, end),
                 textLayoutResult = textLayoutResult,
                 layoutCoordinates = mock(),
-                wordSelectIfCollapsed = false
+                wordBasedSelection = false
             )
             // Assert.
             assertThat(textSelectionInfo).isNotNull()
@@ -409,7 +513,7 @@ class TextSelectionDelegateTest {
                 selectionCoordinates = Pair(start, end),
                 textLayoutResult = textLayoutResult,
                 layoutCoordinates = mock(),
-                wordSelectIfCollapsed = false
+                wordBasedSelection = false
             )
             // Assert.
             assertThat(textSelectionInfo).isNotNull()
@@ -467,7 +571,7 @@ class TextSelectionDelegateTest {
                 selectionCoordinates = Pair(start, end),
                 textLayoutResult = textLayoutResult,
                 layoutCoordinates = mock(),
-                wordSelectIfCollapsed = false
+                wordBasedSelection = false
             )
             // Assert.
             assertThat(textSelectionInfo).isNotNull()
@@ -519,7 +623,7 @@ class TextSelectionDelegateTest {
                 selectionCoordinates = Pair(start, end),
                 textLayoutResult = textLayoutResult,
                 layoutCoordinates = mock(),
-                wordSelectIfCollapsed = false
+                wordBasedSelection = false
             )
             // Assert.
             assertThat(textSelectionInfo).isNotNull()
@@ -573,7 +677,7 @@ class TextSelectionDelegateTest {
                 selectionCoordinates = Pair(start, end),
                 textLayoutResult = textLayoutResult,
                 layoutCoordinates = mock(),
-                wordSelectIfCollapsed = false
+                wordBasedSelection = false
             )
             // Assert.
             assertThat(textSelectionInfo).isNotNull()
@@ -624,7 +728,7 @@ class TextSelectionDelegateTest {
                 selectionCoordinates = Pair(start, end),
                 textLayoutResult = textLayoutResult,
                 layoutCoordinates = mock(),
-                wordSelectIfCollapsed = false
+                wordBasedSelection = false
             )
             // Assert.
             assertThat(textSelectionInfo).isNotNull()
@@ -673,7 +777,7 @@ class TextSelectionDelegateTest {
                 selectionCoordinates = Pair(start, end),
                 textLayoutResult = textLayoutResult,
                 layoutCoordinates = mock(),
-                wordSelectIfCollapsed = false
+                wordBasedSelection = false
             )
             // Assert.
             assertThat(textSelectionInfo).isNotNull()
@@ -722,7 +826,7 @@ class TextSelectionDelegateTest {
                 selectionCoordinates = Pair(start, end),
                 textLayoutResult = textLayoutResult,
                 layoutCoordinates = mock(),
-                wordSelectIfCollapsed = false
+                wordBasedSelection = false
             )
             // Assert.
             assertThat(textSelectionInfo).isNotNull()
@@ -772,7 +876,7 @@ class TextSelectionDelegateTest {
                 selectionCoordinates = Pair(start, end),
                 textLayoutResult = textLayoutResult,
                 layoutCoordinates = mock(),
-                wordSelectIfCollapsed = false
+                wordBasedSelection = false
             )
             // Assert.
             assertThat(textSelectionInfo).isNotNull()
@@ -817,7 +921,7 @@ class TextSelectionDelegateTest {
                 selectionCoordinates = Pair(start, end),
                 textLayoutResult = textLayoutResult,
                 layoutCoordinates = mock(),
-                wordSelectIfCollapsed = true
+                wordBasedSelection = true
             )
             assertThat(textSelectionInfo).isNull()
         }
