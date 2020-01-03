@@ -90,7 +90,8 @@ public final class CustomTabsSession {
      * additional URLs may be ignored.
      * All previous calls to this method will be deprioritized.
      *
-     * @param url                Most likely URL.
+     * @param url                Most likely URL, may be {@code null} if {@code otherLikelyBundles}
+     *                           is provided.
      * @param extras             Reserved for future use.
      * @param otherLikelyBundles Other likely destinations, sorted in decreasing
      *                           likelihood order. Inside each Bundle, the client should provide a
@@ -99,7 +100,7 @@ public final class CustomTabsSession {
      * @return                   true for success.
      */
     @SuppressWarnings("NullAway")  // TODO: b/142938599
-    public boolean mayLaunchUrl(@NonNull Uri url, @Nullable Bundle extras,
+    public boolean mayLaunchUrl(@Nullable Uri url, @Nullable Bundle extras,
             @Nullable List<Bundle> otherLikelyBundles) {
         extras = createBundleWithId(extras);
         try {
