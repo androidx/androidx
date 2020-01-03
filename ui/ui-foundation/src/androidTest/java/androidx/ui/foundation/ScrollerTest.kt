@@ -15,6 +15,7 @@
  */
 package androidx.ui.foundation
 
+import android.app.Activity
 import android.graphics.Bitmap
 import android.os.Handler
 import android.os.Looper
@@ -58,7 +59,6 @@ import androidx.ui.test.SemanticsNodeInteraction
 import androidx.ui.test.android.AndroidComposeTestRule
 import androidx.ui.test.assertIsDisplayed
 import androidx.ui.test.assertIsNotDisplayed
-import androidx.ui.test.createComposeRule
 import androidx.ui.test.doGesture
 import androidx.ui.test.doScrollTo
 import androidx.ui.test.findByTag
@@ -83,12 +83,12 @@ import java.util.concurrent.TimeUnit
 class ScrollerTest {
 
     @get:Rule
-    val composeTestRule = createComposeRule()
+    val composeTestRule = AndroidComposeTestRule<Activity>()
 
     // TODO(malkov/pavlis) : some tests here require activity access as we need
     // to take screen's bitmap, abstract it better
     private val activity
-        get() = (composeTestRule as AndroidComposeTestRule).activityTestRule.activity
+        get() = composeTestRule.activityTestRule.activity
 
     private val defaultCrossAxisSize = 45.ipx
     private val defaultMainAxisSize = 40.ipx
