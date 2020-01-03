@@ -65,6 +65,7 @@ public class NightPreviewExtender extends PreviewExtender {
 
     /** Night extender that calls into the vendor provided implementation. */
     static class VendorNightPreviewExtender extends NightPreviewExtender {
+        @SuppressWarnings("HidingField")
         private final NightPreviewExtenderImpl mImpl;
 
         VendorNightPreviewExtender(Preview.Builder builder) {

@@ -65,6 +65,7 @@ public class BeautyPreviewExtender extends PreviewExtender {
 
     /** Beauty extender that calls into the vendor provided implementation. */
     static class VendorBeautyPreviewExtender extends BeautyPreviewExtender {
+        @SuppressWarnings("HidingField")
         private final BeautyPreviewExtenderImpl mImpl;
 
         VendorBeautyPreviewExtender(Preview.Builder builder) {
