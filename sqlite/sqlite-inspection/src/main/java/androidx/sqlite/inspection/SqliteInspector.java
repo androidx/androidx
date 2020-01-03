@@ -22,7 +22,6 @@ import android.database.sqlite.SQLiteDatabase;
 import androidx.annotation.GuardedBy;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
-import androidx.annotation.VisibleForTesting;
 import androidx.inspection.Connection;
 import androidx.inspection.Inspector;
 import androidx.inspection.InspectorEnvironment;
@@ -60,8 +59,7 @@ import java.util.Set;
  */
 final class SqliteInspector extends Inspector {
     // TODO: identify all SQLiteDatabase openDatabase methods
-    @SuppressWarnings("WeakerAccess")
-    @VisibleForTesting static final String sOpenDatabaseCommandSignature = "openDatabase"
+    private static final String sOpenDatabaseCommandSignature = "openDatabase"
             + "("
             + "Ljava/io/File;"
             + "Landroid/database/sqlite/SQLiteDatabase$OpenParams;"
