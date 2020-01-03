@@ -143,8 +143,8 @@ package androidx.paging {
   }
 
   public final class PagedDataFlowBuilder<Key, Value> {
-    ctor public PagedDataFlowBuilder(kotlin.jvm.functions.Function0<? extends androidx.paging.PagedSource<Key,Value>> pagedSourceFactory, androidx.paging.PagedList.Config config);
-    ctor @Deprecated public PagedDataFlowBuilder(androidx.paging.DataSource.Factory<Key,Value> dataSourceFactory, androidx.paging.PagedList.Config config);
+    ctor public PagedDataFlowBuilder(kotlin.jvm.functions.Function0<? extends androidx.paging.PagedSource<Key,Value>> pagedSourceFactory, androidx.paging.PagingConfig config);
+    ctor @Deprecated public PagedDataFlowBuilder(androidx.paging.DataSource.Factory<Key,Value> dataSourceFactory, androidx.paging.PagingConfig config);
     method public kotlinx.coroutines.flow.Flow<androidx.paging.PagedData<Value>> build();
     method public androidx.paging.PagedDataFlowBuilder<Key,Value> setInitialKey(Key? initialKey);
   }
@@ -290,6 +290,29 @@ package androidx.paging {
   }
 
   public final class PagedSourceKt {
+  }
+
+  public final class PagingConfig {
+    ctor public PagingConfig(int pageSize, int prefetchDistance, boolean enablePlaceholders, int initialLoadSize, int maxSize);
+    field public static final androidx.paging.PagingConfig.Companion! Companion;
+    field public static final int MAX_SIZE_UNBOUNDED = 2147483647; // 0x7fffffff
+    field public final boolean enablePlaceholders;
+    field public final int initialLoadSize;
+    field public final int maxSize;
+    field public final int pageSize;
+    field public final int prefetchDistance;
+  }
+
+  public static final class PagingConfig.Builder {
+    ctor public PagingConfig.Builder(int pageSize);
+    method public androidx.paging.PagingConfig build();
+    method public androidx.paging.PagingConfig.Builder setEnablePlaceholders(boolean enablePlaceholders);
+    method public androidx.paging.PagingConfig.Builder setInitialLoadSizeHint(@IntRange(from=1) int initialLoadSizeHint);
+    method public androidx.paging.PagingConfig.Builder setMaxSize(@IntRange(from=2) int maxSize);
+    method public androidx.paging.PagingConfig.Builder setPrefetchDistance(@IntRange(from=0) int prefetchDistance);
+  }
+
+  public static final class PagingConfig.Companion {
   }
 
   public abstract class PositionalDataSource<T> extends androidx.paging.DataSource<java.lang.Integer,T> {

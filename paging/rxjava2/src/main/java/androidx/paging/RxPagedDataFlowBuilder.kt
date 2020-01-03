@@ -30,7 +30,7 @@ import kotlinx.coroutines.rx2.asObservable
  */
 class RxPagedDataFlowBuilder<Key : Any, Value : Any>(
     pagedSourceFactory: () -> PagedSource<Key, Value>,
-    config: PagedList.Config
+    config: PagingConfig
 ) {
     private val baseBuilder = PagedDataFlowBuilder(pagedSourceFactory, config)
 
