@@ -112,8 +112,9 @@ public class ShadowCameraX {
             return mLinearZoom;
         }
 
+        @NonNull
         @Override
-        public int getImplementationType() {
+        public String getImplementationType() {
             return IMPLEMENTATION_TYPE_UNKNOWN;
         }
     };
