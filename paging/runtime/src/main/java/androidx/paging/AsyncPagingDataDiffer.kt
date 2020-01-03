@@ -22,9 +22,7 @@ import androidx.paging.LoadType.START
 import androidx.recyclerview.widget.DiffUtil
 import androidx.recyclerview.widget.ListUpdateCallback
 import kotlinx.coroutines.CoroutineDispatcher
-import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.withContext
 import java.util.concurrent.CopyOnWriteArrayList
 
@@ -99,8 +97,8 @@ open class AsyncPagingDataDiffer<T : Any>(
         }
     }
 
-    fun connect(flow: Flow<PagingData<T>>, scope: CoroutineScope) {
-        differBase.connect(flow, scope, callback)
+    suspend fun collectFrom(pagingData: PagingData<T>) {
+        differBase.collectFrom(pagingData, callback)
     }
 
     fun retry() {

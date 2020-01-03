@@ -20,9 +20,7 @@ import androidx.recyclerview.widget.AdapterListUpdateCallback
 import androidx.recyclerview.widget.DiffUtil
 import androidx.recyclerview.widget.RecyclerView
 import kotlinx.coroutines.CoroutineDispatcher
-import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.flow.Flow
 
 abstract class PagingDataAdapter<T : Any, VH : RecyclerView.ViewHolder>(
     diffCallback: DiffUtil.ItemCallback<T>,
@@ -34,8 +32,8 @@ abstract class PagingDataAdapter<T : Any, VH : RecyclerView.ViewHolder>(
         updateCallback = AdapterListUpdateCallback(this)
     )
 
-    fun connect(flow: Flow<PagingData<T>>, scope: CoroutineScope) {
-        differ.connect(flow, scope)
+    suspend fun collectFrom(pagingData: PagingData<T>) {
+        differ.collectFrom(pagingData)
     }
 
     fun retry() {

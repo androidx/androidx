@@ -18,16 +18,12 @@ package androidx.paging
 
 import androidx.annotation.RestrictTo
 import kotlinx.coroutines.CoroutineDispatcher
-import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.ExperimentalCoroutinesApi
-import kotlinx.coroutines.Job
-import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.collect
-import kotlinx.coroutines.flow.flatMapLatest
 import kotlinx.coroutines.flow.map
-import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
+import java.util.concurrent.atomic.AtomicBoolean
 
 /** @hide */
 @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
@@ -35,7 +31,7 @@ abstract class PagingDataDiffer<T : Any>(
     private val mainDispatcher: CoroutineDispatcher = Dispatchers.Main,
     private val workerDispatcher: CoroutineDispatcher = Dispatchers.Default
 ) {
-    private var job: Job? = null
+    private val collecting = AtomicBoolean(false)
     private var presenter: PagePresenter<T> = PagePresenter.initial()
     private var receiver: UiReceiver? = null
 
@@ -46,13 +42,14 @@ abstract class PagingDataDiffer<T : Any>(
     )
 
     @UseExperimental(ExperimentalCoroutinesApi::class)
-    fun connect(flow: Flow<PagingData<T>>, scope: CoroutineScope, callback: PresenterCallback) {
-        job?.cancel()
-        job = scope.launch(workerDispatcher) {
-            flow
-                .flatMapLatest { pagingData ->
-                    pagingData.flow.map { event -> Pair(pagingData, event) }
-                }
+    suspend fun collectFrom(pagingData: PagingData<T>, callback: PresenterCallback) {
+        check(collecting.compareAndSet(false, true)) {
+            "Collecting from multiple PagingData concurrently is an illegal operation."
+        }
+
+        try {
+            pagingData.flow
+                .map { event -> Pair(pagingData, event) }
                 .collect { pair ->
                     withContext(mainDispatcher) {
                         val event = pair.second
@@ -70,6 +67,8 @@ abstract class PagingDataDiffer<T : Any>(
                         }
                     }
                 }
+        } finally {
+            collecting.set(false)
         }
     }
 
