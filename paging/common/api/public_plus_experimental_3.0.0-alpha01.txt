@@ -144,6 +144,7 @@ package androidx.paging {
 
   public final class PagedDataFlowBuilder<Key, Value> {
     ctor public PagedDataFlowBuilder(kotlin.jvm.functions.Function0<? extends androidx.paging.PagedSource<Key,Value>> pagedSourceFactory, androidx.paging.PagedList.Config config);
+    ctor @Deprecated public PagedDataFlowBuilder(androidx.paging.DataSource.Factory<Key,Value> dataSourceFactory, androidx.paging.PagedList.Config config);
     method public kotlinx.coroutines.flow.Flow<androidx.paging.PagedData<Value>> build();
     method public androidx.paging.PagedDataFlowBuilder<Key,Value> setInitialKey(Key? initialKey);
   }
