@@ -234,7 +234,7 @@ internal constructor(internal val type: KeyType) {
          * @hide
          */
         @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
-        fun asPagedSourceFactory(): PagedSourceFactory<Key, Value> = {
+        fun asPagedSourceFactory(): () -> PagedSource<Key, Value> = {
             LegacyPagedSource(create())
         }
     }
