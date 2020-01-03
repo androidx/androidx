@@ -55,7 +55,7 @@ public class MainActivity extends AppCompatActivity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
 
-        if (getIntent().getAction()
+        if (getIntent().getAction() != null && getIntent().getAction()
                 .equals("androidx.camera.integration.view.action.PREVIEWVIEWAPP")) {
             mUsePreviewView = true;
         }
