@@ -16,6 +16,7 @@
 
 package androidx.camera.camera2.internal;
 
+import static org.junit.Assert.assertTrue;
 import static org.junit.Assume.assumeTrue;
 
 import android.Manifest;
@@ -155,7 +156,7 @@ public final class Camera2ImplCameraRepositoryTest {
         mCameraRepository.onGroupActive(mUseCaseGroup);
 
         // Wait for the CameraCaptureSession.onConfigured callback.
-        mUseCase.mSessionStateCallback.waitForOnConfigured(1);
+        assertTrue(mUseCase.mSessionStateCallback.waitForOnConfigured(1));
 
         // Camera doesn't currently call CaptureSession.release(), because it is recommended that
         // we don't explicitly call CameraCaptureSession.close(). Rather, we rely on another

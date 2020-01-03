@@ -28,9 +28,11 @@ import androidx.annotation.RestrictTo;
 import androidx.annotation.RestrictTo.Scope;
 
 import java.util.concurrent.Semaphore;
+import java.util.concurrent.TimeUnit;
 
 /**
  * Camera2 callbacks which release specific semaphores on each event.
+ *
  * @hide
  */
 @RestrictTo(Scope.LIBRARY)
@@ -41,6 +43,7 @@ public final class SemaphoreReleasingCamera2Callbacks {
 
     /**
      * A device state callback which releases a different semaphore for each method.
+     *
      * @hide
      */
     @RestrictTo(Scope.LIBRARY)
@@ -91,10 +94,12 @@ public final class SemaphoreReleasingCamera2Callbacks {
 
     /**
      * A session state callback which releases a different semaphore for each method.
+     *
      * @hide
      */
     @RestrictTo(Scope.LIBRARY)
     public static final class SessionStateCallback extends CameraCaptureSession.StateCallback {
+        private static final int WAIT_TIMEOUT = 10000;
         private static final String TAG = SessionStateCallback.class.getSimpleName();
 
         private final Semaphore mOnConfiguredSemaphore = new Semaphore(0);
@@ -140,37 +145,41 @@ public final class SemaphoreReleasingCamera2Callbacks {
             mOnConfigureFailedSemaphore.release();
         }
 
-        public void waitForOnConfigured(int count) throws InterruptedException {
-            mOnConfiguredSemaphore.acquire(count);
+        public boolean waitForOnConfigured(int count) throws InterruptedException {
+            return mOnConfiguredSemaphore.tryAcquire(count, WAIT_TIMEOUT, TimeUnit.MILLISECONDS);
         }
 
-        public void waitForOnActive(int count) throws InterruptedException {
-            mOnActiveSemaphore.acquire(count);
+        public boolean waitForOnActive(int count) throws InterruptedException {
+            return mOnActiveSemaphore.tryAcquire(count, WAIT_TIMEOUT, TimeUnit.MILLISECONDS);
         }
 
-        public void waitForOnClosed(int count) throws InterruptedException {
-            mOnClosedSemaphore.acquire(count);
+        public boolean waitForOnClosed(int count) throws InterruptedException {
+            return mOnClosedSemaphore.tryAcquire(count, WAIT_TIMEOUT, TimeUnit.MILLISECONDS);
         }
 
-        public void waitForOnReady(int count) throws InterruptedException {
-            mOnReadySemaphore.acquire(count);
+        public boolean waitForOnReady(int count) throws InterruptedException {
+            return mOnReadySemaphore.tryAcquire(count, WAIT_TIMEOUT, TimeUnit.MILLISECONDS);
         }
 
-        public void waitForOnCaptureQueueEmpty(int count) throws InterruptedException {
-            mOnCaptureQueueEmptySemaphore.acquire(count);
+        public boolean waitForOnCaptureQueueEmpty(int count) throws InterruptedException {
+            return mOnCaptureQueueEmptySemaphore.tryAcquire(count, WAIT_TIMEOUT,
+                    TimeUnit.MILLISECONDS);
         }
 
-        public void waitForOnSurfacePrepared(int count) throws InterruptedException {
-            mOnSurfacePreparedSemaphore.acquire(count);
+        public boolean waitForOnSurfacePrepared(int count) throws InterruptedException {
+            return mOnSurfacePreparedSemaphore.tryAcquire(count, WAIT_TIMEOUT,
+                    TimeUnit.MILLISECONDS);
         }
 
-        public void waitForOnConfigureFailed(int count) throws InterruptedException {
-            mOnConfigureFailedSemaphore.acquire(count);
+        public boolean waitForOnConfigureFailed(int count) throws InterruptedException {
+            return mOnConfigureFailedSemaphore.tryAcquire(count, WAIT_TIMEOUT,
+                    TimeUnit.MILLISECONDS);
         }
     }
 
     /**
      * A session capture callback which releases a different semaphore for each method.
+     *
      * @hide
      */
     @RestrictTo(Scope.LIBRARY)

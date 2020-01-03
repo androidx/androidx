@@ -18,6 +18,9 @@ package androidx.camera.camera2.internal;
 
 import static com.google.common.truth.Truth.assertThat;
 
+import static junit.framework.TestCase.assertTrue;
+import static junit.framework.TestCase.fail;
+
 import static org.junit.Assume.assumeTrue;
 import static org.mockito.Matchers.any;
 import static org.mockito.Mockito.inOrder;
@@ -168,7 +171,7 @@ public final class CaptureSessionTest {
                 mCameraDeviceHolder.get()), mockFutureCallback,
                 CameraXExecutors.mainThreadExecutor());
 
-        mTestParameters0.waitForData();
+        assertTrue(mTestParameters0.waitForData());
 
         assertThat(captureSession.getState()).isEqualTo(State.OPENED);
 
@@ -191,7 +194,7 @@ public final class CaptureSessionTest {
 
         captureSession.open(mTestParameters0.mSessionConfig, mCameraDeviceHolder.get());
 
-        mTestParameters0.waitForData();
+        assertTrue(mTestParameters0.waitForData());
 
         assertThat(captureSession.getState()).isEqualTo(State.OPENED);
 
@@ -277,21 +280,38 @@ public final class CaptureSessionTest {
                 .onClosed(any(CameraCaptureSession.class));
     }
 
+    // Wait for future completion. The test fails if it timeouts.
+    private <T> void assertFutureCompletes(Future<T> future, long timeout, TimeUnit timeUnit)
+            throws InterruptedException, ExecutionException {
+        try {
+            future.get(timeout, timeUnit);
+            assertTrue(true);
+        } catch (TimeoutException e) {
+            fail("Future cannot complete in time");
+        }
+    }
+
     @Test
     public void openSecondSession() throws InterruptedException, ExecutionException {
         CaptureSession captureSession0 = createCaptureSession(mTestParameters0);
         captureSession0.setSessionConfig(mTestParameters0.mSessionConfig);
 
         // First session is opened
-        captureSession0.open(mTestParameters0.mSessionConfig, mCameraDeviceHolder.get()).get();
+        Future<Void> openFuture0 = captureSession0.open(mTestParameters0.mSessionConfig,
+                mCameraDeviceHolder.get());
+        assertFutureCompletes(openFuture0, 5, TimeUnit.SECONDS);
+
         captureSession0.close();
 
         // Open second session, which should cause first one to be released
         CaptureSession captureSession1 = createCaptureSession(mTestParameters1);
         captureSession1.setSessionConfig(mTestParameters1.mSessionConfig);
-        captureSession1.open(mTestParameters1.mSessionConfig, mCameraDeviceHolder.get());
+        Future<Void> openFuture1 = captureSession1.open(mTestParameters1.mSessionConfig,
+                mCameraDeviceHolder.get());
+        assertFutureCompletes(openFuture1, 5, TimeUnit.SECONDS);
 
-        mTestParameters1.waitForData();
+
+        assertTrue(mTestParameters1.waitForData());
 
         assertThat(captureSession1.getState()).isEqualTo(State.OPENED);
         assertThat(captureSession0.getState()).isEqualTo(State.RELEASED);
@@ -318,14 +338,14 @@ public final class CaptureSessionTest {
         captureSession.setSessionConfig(mTestParameters0.mSessionConfig);
         captureSession.open(mTestParameters0.mSessionConfig, mCameraDeviceHolder.get());
 
-        mTestParameters0.waitForData();
+        assertTrue(mTestParameters0.waitForData());
 
         assertThat(captureSession.getState()).isEqualTo(State.OPENED);
 
         captureSession.issueCaptureRequests(
                 Collections.singletonList(mTestParameters0.mCaptureConfig));
 
-        mTestParameters0.waitForCameraCaptureCallback();
+        assertTrue(mTestParameters0.waitForCameraCaptureCallback());
 
         // CameraCaptureCallback.onCaptureCompleted() should be called to signal a capture attempt.
         verify(mTestParameters0.mCameraCaptureCallback, timeout(3000).times(1))
@@ -339,14 +359,14 @@ public final class CaptureSessionTest {
         captureSession.setSessionConfig(mTestParameters0.mSessionConfig);
         captureSession.open(mTestParameters0.mSessionConfig, mCameraDeviceHolder.get());
 
-        mTestParameters0.waitForData();
+        assertTrue(mTestParameters0.waitForData());
 
         assertThat(captureSession.getState()).isEqualTo(State.OPENED);
 
         captureSession.issueCaptureRequests(
                 Collections.singletonList(mTestParameters0.mCaptureConfig));
 
-        mTestParameters0.waitForCameraCaptureCallback();
+        assertTrue(mTestParameters0.waitForCameraCaptureCallback());
 
         ArgumentCaptor<CameraCaptureResult> captureResultCaptor = ArgumentCaptor.forClass(
                 CameraCaptureResult.class);
@@ -391,7 +411,7 @@ public final class CaptureSessionTest {
         }
         captureSession1.open(mTestParameters0.mSessionConfig, mCameraDeviceHolder.get());
 
-        mTestParameters0.waitForCameraCaptureCallback();
+        assertTrue(mTestParameters0.waitForCameraCaptureCallback());
 
         // CameraCaptureCallback.onCaptureCompleted() should be called to signal a capture attempt.
         verify(mTestParameters0.mCameraCaptureCallback, timeout(3000).times(1))
@@ -408,7 +428,7 @@ public final class CaptureSessionTest {
                 Collections.singletonList(mTestParameters0.mCaptureConfig));
         captureSession.open(mTestParameters0.mSessionConfig, mCameraDeviceHolder.get());
 
-        mTestParameters0.waitForCameraCaptureCallback();
+        assertTrue(mTestParameters0.waitForCameraCaptureCallback());
 
         // CameraCaptureCallback.onCaptureCompleted() should be called to signal a capture attempt.
         verify(mTestParameters0.mCameraCaptureCallback, timeout(3000).times(1))
@@ -434,7 +454,7 @@ public final class CaptureSessionTest {
 
         captureSession.open(mTestParameters0.mSessionConfig, mCameraDeviceHolder.get());
 
-        mTestParameters0.waitForData();
+        assertTrue(mTestParameters0.waitForData());
 
         DeferrableSurface.OnSurfaceDetachedListener listener =
                 Mockito.mock(DeferrableSurface.OnSurfaceDetachedListener.class);
@@ -450,7 +470,7 @@ public final class CaptureSessionTest {
                 /*abortInFlightCaptures=*/false);
 
         // Wait for release
-        releaseFuture.get();
+        assertFutureCompletes(releaseFuture, 5, TimeUnit.SECONDS);
 
         Mockito.verify(listener, times(1)).onSurfaceDetached();
     }
@@ -531,7 +551,9 @@ public final class CaptureSessionTest {
 
         captureSession.setSessionConfig(mTestParameters0.mSessionConfig);
 
-        captureSession.open(mTestParameters0.mSessionConfig, mCameraDeviceHolder.get()).get();
+        Future<Void> openFuture = captureSession.open(mTestParameters0.mSessionConfig,
+                mCameraDeviceHolder.get());
+        assertFutureCompletes(openFuture, 5, TimeUnit.SECONDS);
 
         captureSession.close();
 
@@ -571,7 +593,8 @@ public final class CaptureSessionTest {
         captureSession.setSessionConfig(mTestParameters0.mSessionConfig);
 
         captureSession.open(mTestParameters0.mSessionConfig, mCameraDeviceHolder.get());
-        captureSession.release(false).get();
+        Future<Void> releaseFuture = captureSession.release(false);
+        assertFutureCompletes(releaseFuture, 5 , TimeUnit.SECONDS);
 
         // The captureSession state should change to RELEASED state
         assertThat(captureSession.getState()).isEqualTo(State.RELEASED);
@@ -853,12 +876,13 @@ public final class CaptureSessionTest {
          *
          * @throws InterruptedException if data is not produced after a set amount of time
          */
-        void waitForData() throws InterruptedException {
-            mDataLatch.await(TIME_TO_WAIT_FOR_DATA_SECONDS, TimeUnit.SECONDS);
+        boolean waitForData() throws InterruptedException {
+            return mDataLatch.await(TIME_TO_WAIT_FOR_DATA_SECONDS, TimeUnit.SECONDS);
         }
 
-        void waitForCameraCaptureCallback() throws InterruptedException {
-            mCameraCaptureCallbackLatch.await(TIME_TO_WAIT_FOR_DATA_SECONDS, TimeUnit.SECONDS);
+        boolean waitForCameraCaptureCallback() throws InterruptedException {
+            return mCameraCaptureCallbackLatch.await(TIME_TO_WAIT_FOR_DATA_SECONDS,
+                    TimeUnit.SECONDS);
         }
 
         /** Clean up resources. */
