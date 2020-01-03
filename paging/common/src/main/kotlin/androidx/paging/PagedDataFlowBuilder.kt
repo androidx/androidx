@@ -28,6 +28,12 @@ class PagedDataFlowBuilder<Key : Any, Value : Any>(
     private val pagedSourceFactory: PagedSourceFactory<Key, Value>,
     private val config: PagedList.Config
 ) {
+    @Deprecated("DataSource is deprecated and has been replaced by PagedSource")
+    constructor(
+        dataSourceFactory: DataSource.Factory<Key, Value>,
+        config: PagedList.Config
+    ) : this(dataSourceFactory.asPagedSourceFactory(), config)
+
     private var initialKey: Key? = null
 
     fun setInitialKey(initialKey: Key?) = apply {
