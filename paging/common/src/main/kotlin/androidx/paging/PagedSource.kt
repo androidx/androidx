@@ -22,17 +22,6 @@ import java.util.concurrent.CopyOnWriteArrayList
 import java.util.concurrent.atomic.AtomicBoolean
 
 /**
- * Factory for [PagedSource]s.
- *
- * Data-loading systems of an application or library can implement provide this type to allow
- * `LiveData<PagedList>`s to be created.
- *
- * @param Key Key identifying items in PagedSource.
- * @param Value Type of items in the list loaded by the PagedSources.
- */
-typealias PagedSourceFactory<Key, Value> = () -> PagedSource<Key, Value>
-
-/**
  * @hide
  */
 @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)

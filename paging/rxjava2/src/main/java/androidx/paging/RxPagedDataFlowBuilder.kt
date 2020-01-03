@@ -29,8 +29,8 @@ import kotlinx.coroutines.rx2.asObservable
  * @see PagedDataFlowBuilder
  */
 class RxPagedDataFlowBuilder<Key : Any, Value : Any>(
-    private val pagedSourceFactory: PagedSourceFactory<Key, Value>,
-    private val config: PagedList.Config
+    pagedSourceFactory: () -> PagedSource<Key, Value>,
+    config: PagedList.Config
 ) {
     private val baseBuilder = PagedDataFlowBuilder(pagedSourceFactory, config)
 
