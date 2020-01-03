@@ -159,25 +159,24 @@ final class Camera2CameraImpl implements CameraInternal {
     /**
      * Constructor for a camera.
      *
-     * @param cameraManager              the camera service used to retrieve a camera
-     * @param cameraId                   the name of the camera as defined by the camera service
-     * @param cameraStateRegistry        An registry used to track the state of multiple cameras.
-     *                                   Used as a fence to ensure the number of simultaneously
-     *                                   opened cameras is limited.
-     * @param handler                    the handler for the thread on which all camera
-     *                                   operations run
+     * @param cameraManager       the camera service used to retrieve a camera
+     * @param cameraId            the name of the camera as defined by the camera service
+     * @param cameraStateRegistry An registry used to track the state of multiple cameras.
+     *                            Used as a fence to ensure the number of simultaneously
+     *                            opened cameras is limited.
+     * @param executor            the executor for on which all camera operations run
      * @throws IllegalStateException if the {@link CameraCharacteristics} is unavailable. This
      *                               could occur if the camera was disconnected.
      */
     Camera2CameraImpl(CameraManagerCompat cameraManager, String cameraId,
             @NonNull CameraStateRegistry cameraStateRegistry,
-            @NonNull Handler handler,
+            @NonNull Executor executor,
             @NonNull Handler schedulerHandler) {
         mCameraManager = cameraManager;
         mCameraStateRegistry = cameraStateRegistry;
         ScheduledExecutorService executorScheduler =
                 CameraXExecutors.newHandlerExecutor(schedulerHandler);
-        mExecutor = CameraXExecutors.newHandlerExecutor(handler);
+        mExecutor = CameraXExecutors.newSequentialExecutor(executor);
         mUseCaseAttachState = new UseCaseAttachState(cameraId);
         mObservableState.postValue(State.CLOSED);
 

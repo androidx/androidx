@@ -20,6 +20,8 @@ import android.app.Application;
 import android.content.Context;
 import android.content.res.Resources;
 import android.os.Handler;
+import android.os.HandlerThread;
+import android.os.Process;
 import android.util.Log;
 import android.util.Size;
 
@@ -35,6 +37,7 @@ import androidx.camera.core.impl.CameraFilter;
 import androidx.camera.core.impl.CameraInfoInternal;
 import androidx.camera.core.impl.CameraInternal;
 import androidx.camera.core.impl.CameraRepository;
+import androidx.camera.core.impl.CameraThreadConfig;
 import androidx.camera.core.impl.SurfaceConfig;
 import androidx.camera.core.impl.UseCaseConfig;
 import androidx.camera.core.impl.UseCaseConfigFactory;
@@ -46,6 +49,7 @@ import androidx.camera.core.impl.utils.futures.FutureChain;
 import androidx.camera.core.impl.utils.futures.Futures;
 import androidx.camera.core.internal.UseCaseOccupancy;
 import androidx.concurrent.futures.CallbackToFutureAdapter;
+import androidx.core.os.HandlerCompat;
 import androidx.core.util.Preconditions;
 import androidx.lifecycle.Lifecycle;
 import androidx.lifecycle.LifecycleOwner;
@@ -170,19 +174,30 @@ public final class CameraX {
     private final Object mInitializeLock = new Object();
     private final UseCaseGroupRepository mUseCaseGroupRepository = new UseCaseGroupRepository();
     private final Executor mCameraExecutor;
+    private final Handler mSchedulerHandler;
+    @Nullable
+    private final HandlerThread mSchedulerThread;
     private CameraFactory mCameraFactory;
     private CameraDeviceSurfaceManager mSurfaceManager;
     private UseCaseConfigFactory mDefaultConfigFactory;
-    private Context mContext;
+    private Application mContext;
     @GuardedBy("mInitializeLock")
     private InternalInitState mInitState = InternalInitState.UNINITIALIZED;
     @GuardedBy("mInitializeLock")
     private ListenableFuture<Void> mShutdownInternalFuture = Futures.immediateFuture(null);
 
     /** Prevents construction. */
-    CameraX(@NonNull Executor executor) {
-        Preconditions.checkNotNull(executor);
-        mCameraExecutor = executor;
+    CameraX(@Nullable Executor executor, @Nullable Handler schedulerHandler) {
+        mCameraExecutor = executor == null ? new CameraExecutor() : executor;
+        if (schedulerHandler == null) {
+            mSchedulerThread = new HandlerThread(CameraXThreads.TAG + "scheduler",
+                    Process.THREAD_PRIORITY_BACKGROUND);
+            mSchedulerThread.start();
+            mSchedulerHandler = HandlerCompat.createAsync(mSchedulerThread.getLooper());
+        } else {
+            mSchedulerThread = null;
+            mSchedulerHandler = schedulerHandler;
+        }
     }
 
     /**
@@ -461,7 +476,6 @@ public final class CameraX {
      * @param cameraSelector the camera selector
      * @return the camera id if camera exists or {@code null} if no camera can be resolved with
      * the camera selector
-     *
      * @hide
      */
     @RestrictTo(Scope.LIBRARY_GROUP)
@@ -514,7 +528,7 @@ public final class CameraX {
      */
     @RestrictTo(Scope.LIBRARY_GROUP)
     @NonNull
-    public static CameraInfoInternal getCameraInfo(String cameraId) {
+    public static CameraInfoInternal getCameraInfo(@NonNull String cameraId) {
         CameraX cameraX = checkInitialized();
 
         return cameraX.getCameraRepository().getCamera(cameraId).getCameraInfoInternal();
@@ -549,7 +563,8 @@ public final class CameraX {
      */
     @RestrictTo(Scope.LIBRARY_GROUP)
     @Nullable
-    public static <C extends UseCaseConfig<?>> C getDefaultUseCaseConfig(Class<C> configType,
+    public static <C extends UseCaseConfig<?>> C getDefaultUseCaseConfig(
+            @NonNull Class<C> configType,
             @Nullable CameraInfo cameraInfo) {
         CameraX cameraX = checkInitialized();
 
@@ -583,13 +598,8 @@ public final class CameraX {
         Preconditions.checkState(!sTargetInitialized, "Must call CameraX.shutdown() first.");
         sTargetInitialized = true;
 
-        Executor executor = cameraXConfig.getCameraExecutor(null);
-        // Set a default camera executor if not set.
-        if (executor == null) {
-            executor = new CameraExecutor();
-        }
-
-        CameraX cameraX = new CameraX(executor);
+        CameraX cameraX = new CameraX(cameraXConfig.getCameraExecutor(null),
+                cameraXConfig.getSchedulerHandler(null));
         sInstance = cameraX;
 
         sInitializeFuture = CallbackToFutureAdapter.getFuture(completer -> {
@@ -649,7 +659,7 @@ public final class CameraX {
         }
         sTargetInitialized = false;
 
-        CameraX cameraX = sInstance;
+        CameraX cameraX = Preconditions.checkNotNull(sInstance);
         sInstance = null;
 
         // Do not use FutureChain to chain the initFuture, because FutureChain.transformAsync()
@@ -856,15 +866,10 @@ public final class CameraX {
         ListenableFuture<CameraX> future = getInstance();
         try {
             return future.get(WAIT_INITIALIZED_TIMEOUT, TimeUnit.SECONDS);
-        } catch (ExecutionException e) {
-            throw new IllegalStateException(e);
-        } catch (TimeoutException e) {
-            throw new IllegalStateException(e);
-        } catch (InterruptedException e) {
-            // Throw exception when get interrupted because the initialization could not be
-            // finished yet.
+        } catch (ExecutionException | InterruptedException | TimeoutException e) {
             throw new IllegalStateException(e);
         }
+
     }
 
     private static Map<UseCase, Size> calculateSuggestedResolutions(
@@ -928,18 +933,20 @@ public final class CameraX {
         return mDefaultConfigFactory;
     }
 
-    private ListenableFuture<Void> initInternal(Context context, CameraXConfig cameraXConfig) {
+    private ListenableFuture<Void> initInternal(@NonNull Context context,
+            @NonNull CameraXConfig cameraXConfig) {
         synchronized (mInitializeLock) {
             Preconditions.checkState(mInitState == InternalInitState.UNINITIALIZED,
                     "CameraX.initInternal() should only be called once per instance");
             mInitState = InternalInitState.INITIALIZING;
 
+            final Executor cameraExecutor = mCameraExecutor;
             return CallbackToFutureAdapter.getFuture(
                     completer -> {
-                        mCameraExecutor.execute(() -> {
+                        cameraExecutor.execute(() -> {
                             Exception e = null;
                             try {
-                                mContext = context.getApplicationContext();
+                                mContext = (Application) context.getApplicationContext();
                                 CameraFactory.Provider cameraFactoryProvider =
                                         cameraXConfig.getCameraFactoryProvider(null);
                                 if (cameraFactoryProvider == null) {
@@ -948,7 +955,13 @@ public final class CameraX {
                                                     + "CameraFactory.");
                                     return;
                                 }
-                                mCameraFactory = cameraFactoryProvider.newInstance(context);
+
+                                CameraThreadConfig cameraThreadConfig =
+                                        CameraThreadConfig.create(mCameraExecutor,
+                                                mSchedulerHandler);
+
+                                mCameraFactory = cameraFactoryProvider.newInstance(context,
+                                        cameraThreadConfig);
 
                                 CameraDeviceSurfaceManager.Provider surfaceManagerProvider =
                                         cameraXConfig.getDeviceSurfaceManagerProvider(null);
@@ -970,8 +983,8 @@ public final class CameraX {
                                 }
                                 mDefaultConfigFactory = configFactoryProvider.newInstance(context);
 
-                                if (mCameraExecutor instanceof CameraExecutor) {
-                                    CameraExecutor executor = (CameraExecutor) mCameraExecutor;
+                                if (cameraExecutor instanceof CameraExecutor) {
+                                    CameraExecutor executor = (CameraExecutor) cameraExecutor;
                                     executor.init(mCameraFactory);
                                 }
 
@@ -1013,11 +1026,17 @@ public final class CameraX {
 
                                 // Deinit camera executor at last to avoid RejectExecutionException.
                                 future.addListener(() -> {
-                                    if (mCameraExecutor instanceof CameraExecutor) {
-                                        CameraExecutor executor = (CameraExecutor) mCameraExecutor;
-                                        executor.deinit();
+                                    if (mSchedulerThread != null) {
+                                        // Ensure we shutdown the camera executor before
+                                        // exiting the scheduler thread
+                                        if (mCameraExecutor instanceof CameraExecutor) {
+                                            CameraExecutor executor =
+                                                    (CameraExecutor) mCameraExecutor;
+                                            executor.deinit();
+                                        }
+                                        mSchedulerThread.quit();
+                                        completer.set(null);
                                     }
-                                    completer.set(null);
                                 }, mCameraExecutor);
                                 return "CameraX shutdownInternal";
                             }
@@ -1039,12 +1058,7 @@ public final class CameraX {
 
     private UseCaseGroupLifecycleController getOrCreateUseCaseGroup(LifecycleOwner lifecycleOwner) {
         return mUseCaseGroupRepository.getOrCreateUseCaseGroup(
-                lifecycleOwner, new UseCaseGroupRepository.UseCaseGroupSetup() {
-                    @Override
-                    public void setup(UseCaseGroup useCaseGroup) {
-                        useCaseGroup.setListener(mCameraRepository);
-                    }
-                });
+                lifecycleOwner, useCaseGroup -> useCaseGroup.setListener(mCameraRepository));
     }
 
     private CameraRepository getCameraRepository() {

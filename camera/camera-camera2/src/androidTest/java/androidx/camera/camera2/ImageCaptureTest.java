@@ -53,9 +53,11 @@ import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.annotation.experimental.UseExperimental;
 import androidx.camera.camera2.internal.util.FakeRepeatingUseCase;
+import androidx.camera.camera2.interop.Camera2CameraInfo;
 import androidx.camera.camera2.interop.Camera2Interop;
 import androidx.camera.camera2.interop.ExperimentalCamera2Interop;
 import androidx.camera.core.AspectRatio;
+import androidx.camera.core.Camera;
 import androidx.camera.core.CameraInfoUnavailableException;
 import androidx.camera.core.CameraSelector;
 import androidx.camera.core.CameraX;
@@ -66,7 +68,6 @@ import androidx.camera.core.ImageCapture.OnImageCapturedCallback;
 import androidx.camera.core.ImageCapture.OnImageSavedCallback;
 import androidx.camera.core.ImageCaptureException;
 import androidx.camera.core.ImageProxy;
-import androidx.camera.core.impl.CameraFactory;
 import androidx.camera.core.impl.CaptureBundle;
 import androidx.camera.core.impl.CaptureConfig;
 import androidx.camera.core.impl.CaptureProcessor;
@@ -80,7 +81,6 @@ import androidx.camera.testing.fakes.FakeLifecycleOwner;
 import androidx.camera.testing.fakes.FakeUseCaseConfig;
 import androidx.concurrent.futures.ResolvableFuture;
 import androidx.core.content.ContextCompat;
-import androidx.core.util.Preconditions;
 import androidx.test.core.app.ApplicationProvider;
 import androidx.test.ext.junit.runners.AndroidJUnit4;
 import androidx.test.filters.LargeTest;
@@ -165,30 +165,28 @@ public final class ImageCaptureTest {
     }
 
     @Before
+    @UseExperimental(markerClass = ExperimentalCamera2Interop.class)
     public void setUp() throws ExecutionException, InterruptedException {
         assumeTrue(CameraUtil.deviceHasCamera());
 
         createDefaultPictureFolderIfNotExist();
         Context context = ApplicationProvider.getApplicationContext();
         CameraXConfig cameraXConfig = Camera2Config.defaultConfig();
-        CameraFactory cameraFactory = Preconditions.checkNotNull(
-                cameraXConfig.getCameraFactoryProvider(null)).newInstance(context);
 
         CameraX.initialize(context, cameraXConfig).get();
-        try {
-            mCameraId = cameraFactory.cameraIdForLensFacing(BACK_LENS_FACING);
-        } catch (Exception e) {
-            throw new IllegalArgumentException(
-                    "Unable to attach to camera with LensFacing " + BACK_LENS_FACING, e);
-        }
         mDefaultBuilder = new ImageCapture.Builder();
 
         mFakeUseCaseConfig = new FakeUseCaseConfig.Builder().getUseCaseConfig();
         mRepeatingUseCase = new FakeRepeatingUseCase(mFakeUseCaseConfig);
         mLifecycleOwner = new FakeLifecycleOwner();
-
         mMainExecutor = ContextCompat.getMainExecutor(context);
         mContentResolver = ApplicationProvider.getApplicationContext().getContentResolver();
+
+        // Get the camera ID
+        mInstrumentation.runOnMainSync(() -> {
+            Camera camera = CameraX.bindToLifecycle(mLifecycleOwner, BACK_SELECTOR);
+            mCameraId = Camera2CameraInfo.extractCameraId(camera.getCameraInfo());
+        });
     }
 
     @After

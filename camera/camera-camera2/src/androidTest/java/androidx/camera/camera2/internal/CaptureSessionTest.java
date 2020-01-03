@@ -64,6 +64,7 @@ import androidx.camera.core.impl.utils.executor.CameraXExecutors;
 import androidx.camera.core.impl.utils.futures.FutureCallback;
 import androidx.camera.core.impl.utils.futures.Futures;
 import androidx.camera.testing.CameraUtil;
+import androidx.core.os.HandlerCompat;
 import androidx.test.ext.junit.runners.AndroidJUnit4;
 import androidx.test.filters.LargeTest;
 import androidx.test.rule.GrantPermissionRule;
@@ -822,7 +823,7 @@ public final class CaptureSessionTest {
         CaptureSessionTestParameters(String name) {
             mHandlerThread = new HandlerThread(name);
             mHandlerThread.start();
-            mHandler = new Handler(mHandlerThread.getLooper());
+            mHandler = HandlerCompat.createAsync(mHandlerThread.getLooper());
 
             mExecutor = CameraXExecutors.newHandlerExecutor(mHandler);
             mScheduledExecutor = CameraXExecutors.newHandlerExecutor(mHandler);

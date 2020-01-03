@@ -49,8 +49,6 @@ import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.Mockito;
-import org.mockito.invocation.InvocationOnMock;
-import org.mockito.stubbing.Answer;
 import org.robolectric.ParameterizedRobolectricTestRunner;
 import org.robolectric.annotation.internal.DoNotInstrument;
 
@@ -114,7 +112,7 @@ public class PreviewViewMeteringPointFactoryTest {
 
         CameraXConfig cameraXConfig =
                 new CameraXConfig.Builder()
-                        .setCameraFactoryProvider(ignored -> fakeCameraFactory)
+                        .setCameraFactoryProvider((ignored0, ignored1) -> fakeCameraFactory)
                         .setDeviceSurfaceManagerProvider(surfaceManagerProvider)
                         .setUseCaseConfigFactoryProvider(configFactoryProvider)
                         .build();
@@ -472,14 +470,11 @@ public class PreviewViewMeteringPointFactoryTest {
 
     private void mockDisplay(int rotation, int displayWidth, int displayHeight) {
         when(mDisplay.getRotation()).thenReturn(rotation);
-        doAnswer(new Answer() {
-            @Override
-            public Void answer(InvocationOnMock invocation) throws Throwable {
-                Point point = invocation.getArgument(0);
-                point.x = displayWidth;
-                point.y = displayHeight;
-                return null;
-            }
+        doAnswer(invocation -> {
+            Point point = invocation.getArgument(0);
+            point.x = displayWidth;
+            point.y = displayHeight;
+            return null;
         }).when(mDisplay).getRealSize(any(Point.class));
     }
 

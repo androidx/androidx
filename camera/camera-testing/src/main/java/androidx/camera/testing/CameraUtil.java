@@ -274,16 +274,7 @@ public final class CameraUtil {
      * @throws IllegalStateException if the CAMERA permission is not currently granted.
      */
     public static boolean hasCameraWithLensFacing(@CameraSelector.LensFacing int lensFacing) {
-        @SupportedLensFacingInt
-        int lensFacingInteger = getLensFacingIntFromEnum(lensFacing);
-        for (String cameraId : getCameraIdListOrThrow()) {
-            CameraCharacteristics characteristics = getCameraCharacteristicsOrThrow(cameraId);
-            Integer cameraLensFacing = characteristics.get(CameraCharacteristics.LENS_FACING);
-            if (cameraLensFacing != null && cameraLensFacing.intValue() == lensFacingInteger) {
-                return true;
-            }
-        }
-        return false;
+        return getCameraCharacteristics(lensFacing) != null;
     }
 
     /**
@@ -308,6 +299,27 @@ public final class CameraUtil {
             }
         }
         return false;
+    }
+
+    /**
+     * Gets the {@link CameraCharacteristics} by specified lens facing if possible.
+     *
+     * @return the camera characteristics for the given lens facing or {@code null} if it can't
+     * be retrieved.
+     */
+    @Nullable
+    public static CameraCharacteristics getCameraCharacteristics(
+            @CameraSelector.LensFacing int lensFacing) {
+        @SupportedLensFacingInt
+        int lensFacingInteger = getLensFacingIntFromEnum(lensFacing);
+        for (String cameraId : getCameraIdListOrThrow()) {
+            CameraCharacteristics characteristics = getCameraCharacteristicsOrThrow(cameraId);
+            Integer cameraLensFacing = characteristics.get(CameraCharacteristics.LENS_FACING);
+            if (cameraLensFacing != null && cameraLensFacing.intValue() == lensFacingInteger) {
+                return characteristics;
+            }
+        }
+        return null;
     }
 
     /**

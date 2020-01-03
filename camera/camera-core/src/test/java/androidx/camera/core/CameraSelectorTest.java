@@ -88,7 +88,7 @@ public class CameraSelectorTest {
         cameraFactory.setDefaultCameraIdForLensFacing(CameraSelector.LENS_FACING_FRONT, FRONT_ID);
         CameraXConfig.Builder appConfigBuilder =
                 new CameraXConfig.Builder()
-                        .setCameraFactoryProvider(ignored -> cameraFactory)
+                        .setCameraFactoryProvider((ignored1, ignored2) -> cameraFactory)
                         .setDeviceSurfaceManagerProvider(surfaceManagerProvider)
                         .setUseCaseConfigFactoryProvider(configFactoryProvider);
         CameraX.initialize(context, appConfigBuilder.build()).get();
