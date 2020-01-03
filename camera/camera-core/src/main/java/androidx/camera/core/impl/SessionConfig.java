@@ -409,7 +409,9 @@ public final class SessionConfig {
      */
     public static final class ValidatingBuilder extends BaseBuilder {
         private static final String TAG = "ValidatingBuilder";
+        @SuppressWarnings("HidingField")
         private final List<CameraDevice.StateCallback> mDeviceStateCallbacks = new ArrayList<>();
+        @SuppressWarnings("HidingField")
         private final List<CameraCaptureSession.StateCallback> mSessionStateCallbacks =
                 new ArrayList<>();
         private final List<CameraCaptureCallback> mSingleCameraCaptureCallbacks =
