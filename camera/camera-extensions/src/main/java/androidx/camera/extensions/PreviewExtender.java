@@ -56,7 +56,7 @@ public abstract class PreviewExtender {
             "camerax.extensions.previewExtender.mode", EffectMode.class);
 
     private Preview.Builder mBuilder;
-    PreviewExtenderImpl mImpl;
+    private PreviewExtenderImpl mImpl;
     private EffectMode mEffectMode;
 
     void init(Preview.Builder builder, PreviewExtenderImpl implementation,

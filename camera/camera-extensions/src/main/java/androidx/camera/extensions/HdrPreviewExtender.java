@@ -65,7 +65,6 @@ public class HdrPreviewExtender extends PreviewExtender {
 
     /** HDR extender that calls into the vendor provided implementation. */
     static class VendorHdrPreviewExtender extends HdrPreviewExtender {
-        @SuppressWarnings("HidingField")
         private final HdrPreviewExtenderImpl mImpl;
 
         VendorHdrPreviewExtender(Preview.Builder builder) {
