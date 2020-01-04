@@ -36,6 +36,8 @@ import androidx.room.Room;
 import androidx.room.RoomDatabase;
 import androidx.room.TypeConverters;
 import androidx.sqlite.db.SupportSQLiteDatabase;
+import androidx.sqlite.db.SupportSQLiteOpenHelper;
+import androidx.sqlite.db.framework.FrameworkSQLiteOpenHelperFactory;
 import androidx.work.Data;
 import androidx.work.impl.model.Dependency;
 import androidx.work.impl.model.DependencyDao;
@@ -100,7 +102,7 @@ public abstract class WorkDatabase extends RoomDatabase {
      */
     @NonNull
     public static WorkDatabase create(
-            @NonNull Context context,
+            @NonNull final Context context,
             @NonNull Executor queryExecutor,
             boolean useTestDatabase) {
         RoomDatabase.Builder<WorkDatabase> builder;
@@ -108,8 +110,23 @@ public abstract class WorkDatabase extends RoomDatabase {
             builder = Room.inMemoryDatabaseBuilder(context, WorkDatabase.class)
                     .allowMainThreadQueries();
         } else {
-            String path = WorkDatabasePathHelper.getDatabasePath(context).getPath();
-            builder = Room.databaseBuilder(context, WorkDatabase.class, path);
+            String name = WorkDatabasePathHelper.getWorkDatabaseName();
+            builder = Room.databaseBuilder(context, WorkDatabase.class, name);
+            builder.openHelperFactory(new SupportSQLiteOpenHelper.Factory() {
+                @NonNull
+                @Override
+                public SupportSQLiteOpenHelper create(
+                        @NonNull SupportSQLiteOpenHelper.Configuration configuration) {
+                    SupportSQLiteOpenHelper.Configuration.Builder configBuilder =
+                            SupportSQLiteOpenHelper.Configuration.builder(context);
+                    configBuilder.name(configuration.name)
+                            .callback(configuration.callback)
+                            .noBackupDirectory(true);
+                    FrameworkSQLiteOpenHelperFactory factory =
+                            new FrameworkSQLiteOpenHelperFactory();
+                    return factory.create(configBuilder.build());
+                }
+            });
         }
 
         return builder.setQueryExecutor(queryExecutor)
