@@ -24,7 +24,7 @@ import androidx.ui.test.ComposeBenchmarkScope
 import androidx.ui.test.ComposeTestCase
 import androidx.ui.test.DisableTransitions
 import androidx.ui.test.android.createAndroidComposeBenchmarkRunner
-import androidx.ui.test.benchmark.android.AndroidTestCase
+import androidx.ui.benchmark.android.AndroidTestCase
 import org.junit.rules.TestRule
 import org.junit.runner.Description
 import org.junit.runners.model.Statement

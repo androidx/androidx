@@ -18,9 +18,9 @@ package androidx.ui.benchmark
 
 import android.view.View
 import androidx.ui.test.ComposeTestCase
-import androidx.ui.test.ToggleableTestCase
+import androidx.ui.integration.test.ToggleableTestCase
 import androidx.ui.test.assertNoPendingChanges
-import androidx.ui.test.benchmark.android.AndroidTestCase
+import androidx.ui.benchmark.android.AndroidTestCase
 import androidx.ui.test.doFramesUntilNoChangesPending
 import androidx.ui.test.recomposeAssertHadChanges
 import androidx.ui.test.setupContent

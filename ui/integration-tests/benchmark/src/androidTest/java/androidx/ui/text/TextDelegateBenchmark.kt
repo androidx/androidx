@@ -27,9 +27,9 @@ import androidx.ui.core.ipx
 import androidx.ui.core.sp
 import androidx.ui.graphics.Canvas
 import androidx.ui.graphics.Image
-import androidx.ui.test.RandomTextGenerator
-import androidx.ui.test.TextBenchmarkTestRule
-import androidx.ui.test.cartesian
+import androidx.ui.integration.test.RandomTextGenerator
+import androidx.ui.integration.test.TextBenchmarkTestRule
+import androidx.ui.integration.test.cartesian
 import androidx.ui.text.font.Font
 import org.junit.Rule
 import org.junit.Test

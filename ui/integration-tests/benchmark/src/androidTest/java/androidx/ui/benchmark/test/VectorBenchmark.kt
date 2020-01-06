@@ -22,8 +22,8 @@ import androidx.ui.benchmark.benchmarkFirstCompose
 import androidx.ui.benchmark.benchmarkFirstDraw
 import androidx.ui.benchmark.benchmarkFirstLayout
 import androidx.ui.benchmark.benchmarkFirstMeasure
-import androidx.ui.test.cases.ProgrammaticVectorTestCase
-import androidx.ui.test.cases.XmlVectorTestCase
+import androidx.ui.integration.test.framework.ProgrammaticVectorTestCase
+import androidx.ui.integration.test.framework.XmlVectorTestCase
 import org.junit.Rule
 import org.junit.Test
 import org.junit.runner.RunWith

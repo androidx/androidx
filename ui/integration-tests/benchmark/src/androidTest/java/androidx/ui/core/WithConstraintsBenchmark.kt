@@ -29,7 +29,7 @@ import androidx.ui.layout.Container
 import androidx.ui.layout.LayoutSize
 import androidx.ui.layout.Spacer
 import androidx.ui.test.ComposeTestCase
-import androidx.ui.test.ToggleableTestCase
+import androidx.ui.integration.test.ToggleableTestCase
 import org.junit.Rule
 import org.junit.Test
 import org.junit.runner.RunWith
