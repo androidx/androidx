@@ -227,6 +227,22 @@ public class FakeOtherUseCaseConfig
     @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
     @Override
     @Nullable
+    public CameraSelector getCameraSelector(@Nullable CameraSelector valueIfMissing) {
+        return retrieveOption(OPTION_CAMERA_SELECTOR, valueIfMissing);
+    }
+
+    /** @hide */
+    @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
+    @Override
+    @NonNull
+    public CameraSelector getCameraSelector() {
+        return retrieveOption(OPTION_CAMERA_SELECTOR);
+    }
+
+    /** @hide */
+    @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
+    @Override
+    @Nullable
     public UseCase.EventCallback getUseCaseEventCallback(
             @Nullable UseCase.EventCallback valueIfMissing) {
         return retrieveOption(OPTION_USE_CASE_EVENT_CALLBACK, valueIfMissing);
@@ -361,6 +377,15 @@ public class FakeOtherUseCaseConfig
         @NonNull
         public Builder setSurfaceOccupancyPriority(int priority) {
             getMutableConfig().insertOption(OPTION_SURFACE_OCCUPANCY_PRIORITY, priority);
+            return this;
+        }
+
+        /** @hide */
+        @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
+        @Override
+        @NonNull
+        public Builder setCameraSelector(@NonNull CameraSelector cameraSelector) {
+            getMutableConfig().insertOption(OPTION_CAMERA_SELECTOR, cameraSelector);
             return this;
         }
 

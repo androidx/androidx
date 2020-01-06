@@ -138,7 +138,7 @@ public final class CameraSelector {
         }
 
         private Builder(@NonNull LinkedHashSet<CameraIdFilter> cameraFilterSet) {
-            mCameraFilterSet = cameraFilterSet;
+            mCameraFilterSet = new LinkedHashSet<>(cameraFilterSet);
         }
 
         /**

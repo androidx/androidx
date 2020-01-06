@@ -209,6 +209,18 @@ public class FakeUseCaseConfig
 
     @Override
     @Nullable
+    public CameraSelector getCameraSelector(@Nullable CameraSelector valueIfMissing) {
+        return retrieveOption(OPTION_CAMERA_SELECTOR, valueIfMissing);
+    }
+
+    @Override
+    @NonNull
+    public CameraSelector getCameraSelector() {
+        return retrieveOption(OPTION_CAMERA_SELECTOR);
+    }
+
+    @Override
+    @Nullable
     public UseCase.EventCallback getUseCaseEventCallback(
             @Nullable UseCase.EventCallback valueIfMissing) {
         return retrieveOption(OPTION_USE_CASE_EVENT_CALLBACK, valueIfMissing);
@@ -413,6 +425,13 @@ public class FakeUseCaseConfig
         @NonNull
         public Builder setSurfaceOccupancyPriority(int priority) {
             getMutableConfig().insertOption(OPTION_SURFACE_OCCUPANCY_PRIORITY, priority);
+            return this;
+        }
+
+        @Override
+        @NonNull
+        public Builder setCameraSelector(@NonNull CameraSelector cameraSelector) {
+            getMutableConfig().insertOption(OPTION_CAMERA_SELECTOR, cameraSelector);
             return this;
         }
 

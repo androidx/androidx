@@ -21,7 +21,9 @@ import static androidx.camera.testing.SurfaceTextureProvider.createSurfaceTextur
 import static com.google.common.truth.Truth.assertThat;
 
 import static org.junit.Assume.assumeTrue;
+import static org.mockito.AdditionalMatchers.not;
 import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.ignoreStubs;
 import static org.mockito.Mockito.inOrder;
 import static org.mockito.Mockito.mock;
@@ -61,6 +63,7 @@ import androidx.camera.testing.fakes.FakeLifecycleOwner;
 import androidx.test.core.app.ApplicationProvider;
 import androidx.test.ext.junit.runners.AndroidJUnit4;
 import androidx.test.filters.MediumTest;
+import androidx.test.filters.SmallTest;
 import androidx.test.platform.app.InstrumentationRegistry;
 import androidx.test.rule.GrantPermissionRule;
 
@@ -80,7 +83,7 @@ import java.util.concurrent.TimeoutException;
 
 @RunWith(AndroidJUnit4.class)
 public class PreviewExtenderTest {
-
+    private static final String EXTENSION_AVAILABLE_CAMERA_ID = "0";
     private final Instrumentation mInstrumentation = InstrumentationRegistry.getInstrumentation();
     private FakeLifecycleOwner mFakeLifecycle;
 
@@ -341,6 +344,29 @@ public class PreviewExtenderTest {
             assertThat(
                     Arrays.asList(resultPair.second).equals(Arrays.asList(targetSizes))).isTrue();
         }
+    }
+
+    @Test
+    @SmallTest
+    public void canAddCameraIdFilterToConfigBuilder() {
+        PreviewExtenderImpl mockPreviewExtenderImpl = mock(PreviewExtenderImpl.class);
+        when(mockPreviewExtenderImpl.getProcessorType()).thenReturn(
+                PreviewExtenderImpl.ProcessorType.PROCESSOR_TYPE_IMAGE_PROCESSOR);
+        when(mockPreviewExtenderImpl.isExtensionAvailable(eq(EXTENSION_AVAILABLE_CAMERA_ID),
+                any())).thenReturn(true);
+        when(mockPreviewExtenderImpl.isExtensionAvailable(
+                not(eq(EXTENSION_AVAILABLE_CAMERA_ID)),
+                any())).thenReturn(false);
+        Preview.Builder previewBuilder = new Preview.Builder();
+
+        FakePreviewExtender fakePreviewExtender = new FakePreviewExtender(previewBuilder,
+                mockPreviewExtenderImpl);
+        fakePreviewExtender.enableExtension(CameraSelector.DEFAULT_BACK_CAMERA);
+
+        CameraSelector cameraSelector = previewBuilder.getUseCaseConfig().getCameraSelector(null);
+        assertThat(cameraSelector).isNotNull();
+        assertThat(CameraX.getCameraWithCameraSelector(cameraSelector)).isEqualTo(
+                EXTENSION_AVAILABLE_CAMERA_ID);
     }
 
     private List<Pair<Integer, Size[]>> generatePreviewSupportedResolutions(

@@ -24,6 +24,8 @@ import android.view.Surface;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
+import androidx.annotation.RestrictTo;
+import androidx.annotation.RestrictTo.Scope;
 import androidx.camera.core.AspectRatio;
 import androidx.camera.core.CameraSelector;
 import androidx.camera.core.UseCase;
@@ -620,6 +622,22 @@ public final class VideoCaptureConfig
         return retrieveOption(OPTION_SURFACE_OCCUPANCY_PRIORITY);
     }
 
+    /** @hide */
+    @RestrictTo(Scope.LIBRARY)
+    @Override
+    @Nullable
+    public CameraSelector getCameraSelector(@Nullable CameraSelector valueIfMissing) {
+        return retrieveOption(OPTION_CAMERA_SELECTOR, valueIfMissing);
+    }
+
+    /** @hide */
+    @RestrictTo(Scope.LIBRARY)
+    @Override
+    @NonNull
+    public CameraSelector getCameraSelector() {
+        return retrieveOption(OPTION_CAMERA_SELECTOR);
+    }
+
     @Override
     @Nullable
     public UseCase.EventCallback getUseCaseEventCallback(
@@ -1064,6 +1082,15 @@ public final class VideoCaptureConfig
         @NonNull
         public Builder setSurfaceOccupancyPriority(int priority) {
             getMutableConfig().insertOption(OPTION_SURFACE_OCCUPANCY_PRIORITY, priority);
+            return this;
+        }
+
+        /** @hide */
+        @RestrictTo(Scope.LIBRARY)
+        @Override
+        @NonNull
+        public Builder setCameraSelector(@NonNull CameraSelector cameraSelector) {
+            getMutableConfig().insertOption(OPTION_CAMERA_SELECTOR, cameraSelector);
             return this;
         }
 

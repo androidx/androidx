@@ -39,6 +39,7 @@ import static androidx.camera.core.impl.ImageCaptureConfig.OPTION_TARGET_NAME;
 import static androidx.camera.core.impl.ImageCaptureConfig.OPTION_TARGET_RESOLUTION;
 import static androidx.camera.core.impl.ImageCaptureConfig.OPTION_TARGET_ROTATION;
 import static androidx.camera.core.impl.ImageCaptureConfig.OPTION_USE_CASE_EVENT_CALLBACK;
+import static androidx.camera.core.impl.UseCaseConfig.OPTION_CAMERA_SELECTOR;
 
 import android.annotation.SuppressLint;
 import android.graphics.ImageFormat;
@@ -2105,6 +2106,15 @@ public class ImageCapture extends UseCase {
         public Builder setCaptureOptionUnpacker(
                 @NonNull CaptureConfig.OptionUnpacker optionUnpacker) {
             getMutableConfig().insertOption(OPTION_CAPTURE_CONFIG_UNPACKER, optionUnpacker);
+            return this;
+        }
+
+        /** @hide */
+        @RestrictTo(Scope.LIBRARY_GROUP)
+        @Override
+        @NonNull
+        public Builder setCameraSelector(@NonNull CameraSelector cameraSelector) {
+            getMutableConfig().insertOption(OPTION_CAMERA_SELECTOR, cameraSelector);
             return this;
         }
 
