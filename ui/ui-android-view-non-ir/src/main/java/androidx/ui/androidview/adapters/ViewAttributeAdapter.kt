@@ -18,9 +18,8 @@
 
 package androidx.ui.androidview.adapters
 
-import android.annotation.SuppressLint
-import androidx.annotation.DimenRes
 import android.view.View
+import androidx.annotation.DimenRes
 import androidx.ui.androidview.annotations.ConflictsWith
 
 // NOTE: these attributes are added to every view/component so that we can have a "key" attribute
@@ -146,7 +145,6 @@ fun View.setScrollX(scrollX: Dimension) = setScrollX(scrollX.toIntPixels(metrics
 fun View.setScrollY(scrollY: Dimension) = setScrollY(scrollY.toIntPixels(metrics))
 fun View.setTop(top: Dimension) = setTop(top.toIntPixels(metrics))
 
-@SuppressLint("UnnecessaryLambdaCreation")
 // TODO: Necessary because the IR doesn't support SAM conversion yet
 fun View.setOnClick(lambda: () -> Unit) { this.setOnClickListener { lambda() } }
 
