@@ -23,6 +23,22 @@ import androidx.annotation.NonNull;
  */
 public final class FloatEvaluator implements TypeEvaluator<Float> {
 
+    private static final FloatEvaluator sInstance = new FloatEvaluator();
+
+    /**
+     * Returns an instance of <code>FloatEvaluator</code> that may be used in
+     * {@link ValueAnimator#setEvaluator(TypeEvaluator)}. The same instance may
+     * be used in multiple <code>Animator</code>s because it holds no state.
+     * @return An instance of <code>FloatEvaluator</code>.
+     */
+    @NonNull
+    public static FloatEvaluator getInstance() {
+        return sInstance;
+    }
+
+    private FloatEvaluator() {
+    }
+
     /**
      * This function returns the result of linearly interpolating the start and end values, with
      * <code>fraction</code> representing the proportion between the start and end values. The

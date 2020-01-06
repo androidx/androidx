@@ -831,7 +831,8 @@ public class ValueAnimator extends Animator implements AnimationHandler.Animatio
      * @return animatedValue The value most recently calculated for the named property
      * by this <code>ValueAnimator</code>.
      */
-    public Object getAnimatedValue(String propertyName) {
+    @Nullable
+    public Object getAnimatedValue(@NonNull String propertyName) {
         PropertyValuesHolder valuesHolder = mValuesMap.get(propertyName);
         if (valuesHolder != null) {
             return valuesHolder.getAnimatedValue();

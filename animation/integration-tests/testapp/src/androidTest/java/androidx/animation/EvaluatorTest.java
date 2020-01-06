@@ -42,7 +42,7 @@ public class EvaluatorTest {
         float start = 0.0f;
         float end = 1.0f;
         float fraction = 0.5f;
-        FloatEvaluator floatEvaluator = new FloatEvaluator();
+        FloatEvaluator floatEvaluator = FloatEvaluator.getInstance();
 
         float result = floatEvaluator.evaluate(0, start, end);
         assertEquals(start, result, EPSILON);
@@ -99,7 +99,7 @@ public class EvaluatorTest {
         int gEnd = Color.green(end);
         int bEnd = Color.blue(end);
 
-        final ArgbEvaluator evaluator = new ArgbEvaluator();
+        final ArgbEvaluator evaluator = ArgbEvaluator.getInstance();
 
         int result = (Integer) evaluator.evaluate(0, Start, end);
         int aResult = Color.alpha(result);
@@ -145,7 +145,7 @@ public class EvaluatorTest {
         final int start = 0;
         final int end = 100;
         final float fraction = 0.5f;
-        final IntEvaluator intEvaluator = new IntEvaluator();
+        final IntEvaluator intEvaluator = IntEvaluator.getInstance();
 
         int result = intEvaluator.evaluate(0, start, end);
         assertEquals(start, result);
