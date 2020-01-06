@@ -113,13 +113,14 @@ public abstract class UseCase {
      * the pre-populated builder. If <code>null</code> is returned, then the user-supplied
      * configuration will be used directly.
      *
-     * @param lensFacing The lensFacing that the default builder will target to.
+     * @param cameraInfo The {@link CameraInfo} of the camera that the default builder will
+     *                   target to, null if it doesn't target to any camera.
      * @return A builder pre-populated with use case default options.
      * @hide
      */
     @RestrictTo(Scope.LIBRARY_GROUP)
     @Nullable
-    protected UseCaseConfig.Builder<?, ?, ?> getDefaultBuilder(@Nullable Integer lensFacing) {
+    protected UseCaseConfig.Builder<?, ?, ?> getDefaultBuilder(@Nullable CameraInfo cameraInfo) {
         return null;
     }
 
@@ -141,17 +142,10 @@ public abstract class UseCase {
      */
     @RestrictTo(Scope.LIBRARY_GROUP)
     protected final void updateUseCaseConfig(@NonNull UseCaseConfig<?> useCaseConfig) {
-        updateUseCaseConfig(useCaseConfig, getBoundCamera());
-    }
-
-    private void updateUseCaseConfig(@NonNull UseCaseConfig<?> useCaseConfig,
-            @Nullable CameraInternal boundCamera) {
         // Attempt to retrieve builder containing defaults for this use case's config
-        Integer lensFacing = null;
-        if (boundCamera != null) {
-            lensFacing = boundCamera.getCameraInfoInternal().getLensFacing();
-        }
-        UseCaseConfig.Builder<?, ?, ?> defaultBuilder = getDefaultBuilder(lensFacing);
+        UseCaseConfig.Builder<?, ?, ?> defaultBuilder =
+                getDefaultBuilder(
+                        getBoundCamera() == null ? null : getBoundCamera().getCameraInfo());
 
         // Combine with default configuration.
         mUseCaseConfig = applyDefaults(useCaseConfig, defaultBuilder);
@@ -497,7 +491,7 @@ public abstract class UseCase {
         synchronized (mBoundCameraLock) {
             mBoundCamera = camera;
         }
-        updateUseCaseConfig(mUseCaseConfig, camera);
+        updateUseCaseConfig(mUseCaseConfig);
         EventCallback eventCallback = mUseCaseConfig.getUseCaseEventCallback(null);
         if (eventCallback != null) {
             eventCallback.onBind(camera.getCameraInfoInternal().getCameraId());

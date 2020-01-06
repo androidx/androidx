@@ -22,6 +22,7 @@ import android.os.Build;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
+import androidx.camera.core.CameraInfo;
 import androidx.camera.testing.fakes.FakeUseCase;
 import androidx.camera.testing.fakes.FakeUseCaseConfig;
 import androidx.test.filters.SmallTest;
@@ -59,7 +60,7 @@ public class ExtendableUseCaseConfigFactoryTest {
 
         @NonNull
         @Override
-        public FakeUseCaseConfig getConfig(@Nullable Integer lensFacing) {
+        public FakeUseCaseConfig getConfig(@Nullable CameraInfo cameraInfo) {
             return new FakeUseCaseConfig.Builder().getUseCaseConfig();
         }
     }

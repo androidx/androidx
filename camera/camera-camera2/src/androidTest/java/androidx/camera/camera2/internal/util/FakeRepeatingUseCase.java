@@ -28,6 +28,7 @@ import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.annotation.RestrictTo;
 import androidx.annotation.RestrictTo.Scope;
+import androidx.camera.core.CameraInfo;
 import androidx.camera.core.CameraSelector;
 import androidx.camera.core.CameraX;
 import androidx.camera.core.impl.DeferrableSurface;
@@ -81,7 +82,7 @@ public class FakeRepeatingUseCase extends FakeUseCase {
     }
 
     @Override
-    protected UseCaseConfig.Builder<?, ?, ?> getDefaultBuilder(@Nullable Integer lensFacing) {
+    protected UseCaseConfig.Builder<?, ?, ?> getDefaultBuilder(@Nullable CameraInfo cameraInfo) {
         return new FakeUseCaseConfig.Builder()
                 .setSessionOptionUnpacker(
                         new SessionConfig.OptionUnpacker() {

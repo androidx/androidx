@@ -20,6 +20,7 @@ import android.util.Size;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
+import androidx.camera.core.CameraInfo;
 import androidx.camera.core.UseCase;
 import androidx.camera.core.impl.SessionConfig;
 import androidx.camera.core.impl.UseCaseConfig;
@@ -35,7 +36,7 @@ public class FakeUseCase extends UseCase {
     /**
      * Creates a new instance of a {@link FakeUseCase} with a given configuration.
      */
-    public FakeUseCase(FakeUseCaseConfig config) {
+    public FakeUseCase(@NonNull FakeUseCaseConfig config) {
         super(config);
     }
 
@@ -47,7 +48,8 @@ public class FakeUseCase extends UseCase {
     }
 
     @Override
-    protected UseCaseConfig.Builder<?, ?, ?> getDefaultBuilder(@Nullable Integer lensFacing) {
+    @Nullable
+    protected UseCaseConfig.Builder<?, ?, ?> getDefaultBuilder(@Nullable CameraInfo cameraInfo) {
         return new FakeUseCaseConfig.Builder()
                 .setSessionOptionUnpacker(new SessionConfig.OptionUnpacker() {
                     @Override

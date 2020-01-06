@@ -19,6 +19,7 @@ package androidx.camera.core;
 import static com.google.common.truth.Truth.assertThat;
 
 import static org.mockito.Matchers.any;
+import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
@@ -35,7 +36,6 @@ import androidx.test.filters.SmallTest;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
-import org.mockito.Mockito;
 
 import java.util.Map;
 import java.util.Set;
@@ -47,7 +47,7 @@ public class UseCaseTest {
 
     @Before
     public void setup() {
-        mMockUseCaseCallback = Mockito.mock(UseCase.StateChangeCallback.class);
+        mMockUseCaseCallback = mock(UseCase.StateChangeCallback.class);
     }
 
     @Test
@@ -155,8 +155,7 @@ public class UseCaseTest {
         String originalRetrievedName = testUseCase.getUseCaseConfig().getTargetName();
 
         // NOTE: Updating the use case name is probably a very bad idea in most cases. However,
-        // we'll do
-        // it here for the sake of this test.
+        // we'll do it here for the sake of this test.
         String newName = "UseCase-New";
         configBuilder.setTargetName(newName);
         testUseCase.updateUseCaseConfig(configBuilder.getUseCaseConfig());

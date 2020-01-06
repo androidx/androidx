@@ -90,7 +90,7 @@ public class DisplayOrientedMeteringPointFactoryTest {
             ExtendableUseCaseConfigFactory defaultConfigFactory =
                     new ExtendableUseCaseConfigFactory();
             defaultConfigFactory.installDefaultProvider(FakeUseCaseConfig.class,
-                    lensFacing -> new FakeUseCaseConfig.Builder().getUseCaseConfig());
+                    cameraInfo -> new FakeUseCaseConfig.Builder().getUseCaseConfig());
             return defaultConfigFactory;
         };
 

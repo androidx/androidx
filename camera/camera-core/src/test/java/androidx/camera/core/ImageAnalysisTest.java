@@ -232,11 +232,9 @@ public class ImageAnalysisTest {
         );
 
         FakeLifecycleOwner lifecycleOwner = new FakeLifecycleOwner();
-        CameraSelector cameraSelector =
-                new CameraSelector.Builder().requireLensFacing(
-                        CameraSelector.LENS_FACING_BACK).build();
         InstrumentationRegistry.getInstrumentation().runOnMainSync(() -> {
-            CameraX.bindToLifecycle(lifecycleOwner, cameraSelector, mImageAnalysis);
+            CameraX.bindToLifecycle(lifecycleOwner, CameraSelector.DEFAULT_BACK_CAMERA,
+                    mImageAnalysis);
             lifecycleOwner.startAndResume();
         });
     }

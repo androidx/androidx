@@ -17,7 +17,6 @@
 package androidx.camera.core;
 
 import static androidx.camera.core.impl.ImageCaptureConfig.OPTION_BUFFER_FORMAT;
-import static androidx.camera.core.impl.ImageCaptureConfig.OPTION_CAMERA_ID_FILTER;
 import static androidx.camera.core.impl.ImageCaptureConfig.OPTION_CAPTURE_BUNDLE;
 import static androidx.camera.core.impl.ImageCaptureConfig.OPTION_CAPTURE_CONFIG_UNPACKER;
 import static androidx.camera.core.impl.ImageCaptureConfig.OPTION_CAPTURE_PROCESSOR;
@@ -26,7 +25,6 @@ import static androidx.camera.core.impl.ImageCaptureConfig.OPTION_DEFAULT_SESSIO
 import static androidx.camera.core.impl.ImageCaptureConfig.OPTION_FLASH_MODE;
 import static androidx.camera.core.impl.ImageCaptureConfig.OPTION_IMAGE_CAPTURE_MODE;
 import static androidx.camera.core.impl.ImageCaptureConfig.OPTION_IO_EXECUTOR;
-import static androidx.camera.core.impl.ImageCaptureConfig.OPTION_LENS_FACING;
 import static androidx.camera.core.impl.ImageCaptureConfig.OPTION_MAX_CAPTURE_STAGES;
 import static androidx.camera.core.impl.ImageCaptureConfig.OPTION_MAX_RESOLUTION;
 import static androidx.camera.core.impl.ImageCaptureConfig.OPTION_SESSION_CONFIG_UNPACKER;
@@ -73,8 +71,6 @@ import androidx.camera.core.impl.CameraCaptureMetaData.AwbState;
 import androidx.camera.core.impl.CameraCaptureResult;
 import androidx.camera.core.impl.CameraCaptureResult.EmptyCameraCaptureResult;
 import androidx.camera.core.impl.CameraControlInternal;
-import androidx.camera.core.impl.CameraDeviceConfig;
-import androidx.camera.core.impl.CameraIdFilter;
 import androidx.camera.core.impl.CameraInfoInternal;
 import androidx.camera.core.impl.CaptureBundle;
 import androidx.camera.core.impl.CaptureConfig;
@@ -432,9 +428,9 @@ public class ImageCapture extends UseCase {
     @Override
     @Nullable
     @RestrictTo(Scope.LIBRARY_GROUP)
-    protected UseCaseConfig.Builder<?, ?, ?> getDefaultBuilder(@Nullable Integer lensFacing) {
-        ImageCaptureConfig defaults = CameraX.getDefaultUseCaseConfig(
-                ImageCaptureConfig.class, lensFacing);
+    protected UseCaseConfig.Builder<?, ?, ?> getDefaultBuilder(@Nullable CameraInfo cameraInfo) {
+        ImageCaptureConfig defaults = CameraX.getDefaultUseCaseConfig(ImageCaptureConfig.class,
+                cameraInfo);
         if (defaults != null) {
             return Builder.fromConfig(defaults);
         }
@@ -485,7 +481,7 @@ public class ImageCapture extends UseCase {
     public void setFlashMode(@FlashMode int flashMode) {
         this.mFlashMode = flashMode;
         // The camera control will be ready after the use case is attached. The {@link
-        // CameraDeviceConfig} containing camera id info is also generated at meanwhile. Developers
+        // CameraSelector} containing camera id info is also generated at meanwhile. Developers
         // may update flash mode before the use case is bound. If the camera control has been
         // ready, directly updating the flash mode into camera control. If the camera control has
         // been not ready yet, just saving the flash mode and updating into camera control when
@@ -1330,7 +1326,7 @@ public class ImageCapture extends UseCase {
 
         @NonNull
         @Override
-        public ImageCaptureConfig getConfig(@Nullable Integer lensFacing) {
+        public ImageCaptureConfig getConfig(@Nullable CameraInfo cameraInfo) {
             return DEFAULT_CONFIG;
         }
     }
@@ -1615,7 +1611,6 @@ public class ImageCapture extends UseCase {
     public static final class Builder implements
             UseCaseConfig.Builder<ImageCapture, ImageCaptureConfig, Builder>,
             ImageOutputConfig.Builder<Builder>,
-            CameraDeviceConfig.Builder<Builder>,
             IoConfig.Builder<Builder> {
 
         private final MutableOptionsBundle mMutableConfig;
@@ -1843,44 +1838,6 @@ public class ImageCapture extends UseCase {
         @NonNull
         public Builder setTargetName(@NonNull String targetName) {
             getMutableConfig().insertOption(OPTION_TARGET_NAME, targetName);
-            return this;
-        }
-
-        // Implementations of CameraDeviceConfig.Builder default methods
-
-        /**
-         * Sets the primary camera to be configured based on the direction the lens is facing.
-         *
-         * <p>If multiple cameras exist with equivalent lens facing direction, the first ("primary")
-         * camera for that direction will be chosen.
-         *
-         * @param lensFacing The direction of the camera's lens.
-         * @return the current Builder.
-         * @hide
-         */
-        @RestrictTo(Scope.LIBRARY_GROUP)
-        @Override
-        @NonNull
-        public Builder setLensFacing(@CameraSelector.LensFacing int lensFacing) {
-            getMutableConfig().insertOption(OPTION_LENS_FACING, lensFacing);
-            return this;
-        }
-
-        /**
-         * Sets a {@link CameraIdFilter} that filter out the unavailable camera id.
-         *
-         * <p>The camera id filter will be used to filter those cameras with lens facing
-         * specified in the config.
-         *
-         * @param cameraIdFilter The {@link CameraIdFilter}.
-         * @return the current Builder.
-         * @hide
-         */
-        @RestrictTo(Scope.LIBRARY_GROUP)
-        @Override
-        @NonNull
-        public Builder setCameraIdFilter(@NonNull CameraIdFilter cameraIdFilter) {
-            getMutableConfig().insertOption(OPTION_CAMERA_ID_FILTER, cameraIdFilter);
             return this;
         }
 
