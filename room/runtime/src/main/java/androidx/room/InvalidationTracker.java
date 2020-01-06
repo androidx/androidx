@@ -361,8 +361,8 @@ public class InvalidationTracker {
         public void run() {
             final Lock closeLock = mDatabase.getCloseLock();
             Set<Integer> invalidatedTableIds = null;
+            closeLock.lock();
             try {
-                closeLock.lock();
 
                 if (!ensureInitialization()) {
                     return;
