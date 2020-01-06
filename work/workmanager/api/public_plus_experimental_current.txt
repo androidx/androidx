@@ -120,6 +120,7 @@ package androidx.work {
 
   public enum ExistingWorkPolicy {
     enum_constant public static final androidx.work.ExistingWorkPolicy APPEND;
+    enum_constant public static final androidx.work.ExistingWorkPolicy APPEND_OR_REPLACE;
     enum_constant public static final androidx.work.ExistingWorkPolicy KEEP;
     enum_constant public static final androidx.work.ExistingWorkPolicy REPLACE;
   }
