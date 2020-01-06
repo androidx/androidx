@@ -16,9 +16,9 @@
 
 <menu xmlns:android="http://schemas.android.com/apk/res/android">
    <item
-       android:id="@+id/option_menu_add_column"
-       android:title="Add column" />
+       android:id="@+id/option_menu_enable_listener"
+       android:title="Enable OnItemTouchListener" />
    <item
-       android:id="@+id/option_menu_remove_column"
-       android:title="Remove column" />
+       android:id="@+id/option_menu_disable_listener"
+       android:title="Disable OnItemTouchListener" />
 </menu>

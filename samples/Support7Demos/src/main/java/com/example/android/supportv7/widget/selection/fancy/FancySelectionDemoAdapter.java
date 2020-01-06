@@ -23,8 +23,9 @@ import android.net.Uri;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
-import android.widget.LinearLayout;
 
+import androidx.annotation.NonNull;
+import androidx.annotation.Nullable;
 import androidx.recyclerview.selection.ItemKeyProvider;
 import androidx.recyclerview.selection.SelectionTracker;
 import androidx.recyclerview.widget.RecyclerView;
@@ -32,29 +33,34 @@ import androidx.recyclerview.widget.RecyclerView;
 import com.example.android.supportv7.Cheeses;
 import com.example.android.supportv7.R;
 
+import java.util.HashMap;
+import java.util.Map;
+
 final class FancySelectionDemoAdapter extends RecyclerView.Adapter<FancyHolder> {
 
-    private final ContentUriKeyProvider mKeyProvider;
+    public static final int TYPE_HEADER = 1;
+    public static final int TYPE_ITEM = 2;
+
+    private final KeyProvider mKeyProvider;
     private final Context mContext;
 
-    // This should be replaced at "bind" time with a real test that
-    // asks SelectionTracker.
-    private SelectionTest mSelTest;
+    // This default implementation must be replaced
+    // with a real implementation in #bindSelectionHelper.
+    private SelectionTest mSelTest = new SelectionTest() {
+        @Override
+        public boolean isSelected(Uri id) {
+            throw new IllegalStateException(
+                    "Adapter must be initialized with SelectionTracker");
+        }
+    };
 
     FancySelectionDemoAdapter(Context context) {
         mContext = context;
-        mKeyProvider = new ContentUriKeyProvider("cheeses", Cheeses.sCheeseStrings);
-        mSelTest = new SelectionTest() {
-            @Override
-            public boolean isSelected(Uri id) {
-                throw new IllegalStateException(
-                        "Adapter must be initialized with SelectionTracker");
-            }
-        };
+        mKeyProvider = new KeyProvider("cheeses", Cheeses.sCheeseStrings);
 
         // In the fancy edition of selection support we supply access to stable
         // ids using content URI. Since we can map between position and selection key
-        // at will we get fancy dependent functionality like band selection and range support.
+        // at-will we get band selection and range support.
         setHasStableIds(false);
     }
 
@@ -63,12 +69,12 @@ final class FancySelectionDemoAdapter extends RecyclerView.Adapter<FancyHolder> 
     }
 
     // Glue together SelectionTracker and the adapter.
-    public void bindSelectionHelper(final SelectionTracker<Uri> selectionTracker) {
-        checkArgument(selectionTracker != null);
+    public void bindSelectionHelper(final SelectionTracker<Uri> tracker) {
+        checkArgument(tracker != null);
         mSelTest = new SelectionTest() {
             @Override
             public boolean isSelected(Uri id) {
-                return selectionTracker.isSelected(id);
+                return tracker.isSelected(id);
             }
         };
     }
@@ -83,7 +89,7 @@ final class FancySelectionDemoAdapter extends RecyclerView.Adapter<FancyHolder> 
 
     @Override
     public int getItemCount() {
-        return Cheeses.sCheeseStrings.length;
+        return mKeyProvider.getCount();
     }
 
     @Override
@@ -92,15 +98,40 @@ final class FancySelectionDemoAdapter extends RecyclerView.Adapter<FancyHolder> 
     }
 
     @Override
-    public void onBindViewHolder(FancyHolder holder, int position) {
-        Uri uri = mKeyProvider.getKey(position);
-        holder.update(uri, uri.getLastPathSegment(), mSelTest.isSelected(uri));
+    public void onBindViewHolder(@NonNull FancyHolder holder, int position) {
+        if (holder instanceof FancyHeaderHolder) {
+            Uri uri = mKeyProvider.getKey(position);
+            ((FancyHeaderHolder) holder).update(uri.getPathSegments().get(0));
+        } else if (holder instanceof FancyItemHolder) {
+            Uri uri = mKeyProvider.getKey(position);
+            ((FancyItemHolder) holder).update(uri, uri.getPathSegments().get(1),
+                    mSelTest.isSelected(uri));
+        }
     }
 
     @Override
-    public FancyHolder onCreateViewHolder(ViewGroup parent, int viewType) {
-        LinearLayout layout = inflateLayout(mContext, parent, R.layout.selection_demo_list_item);
-        return new FancyHolder(layout);
+    public int getItemViewType(int position) {
+        Uri key = mKeyProvider.getKey(position);
+        if (key.getPathSegments().size() == 1) {
+            return TYPE_HEADER;
+        } else if (key.getPathSegments().size() == 2) {
+            return TYPE_ITEM;
+        }
+
+        throw new RuntimeException("Unknown view type a position " + position);
+    }
+
+    @Override
+    public FancyHolder onCreateViewHolder(@NonNull ViewGroup parent, int viewType) {
+        switch (viewType) {
+            case TYPE_HEADER:
+                return new FancyHeaderHolder(
+                        inflateLayout(mContext, parent, R.layout.selection_demo_list_header));
+            case TYPE_ITEM:
+                return new FancyItemHolder(
+                        inflateLayout(mContext, parent, R.layout.selection_demo_list_item));
+        }
+        throw new RuntimeException("Unsupported view type" + viewType);
     }
 
     @SuppressWarnings("TypeParameterUnusedInFormals")  // Convenience to avoid clumsy cast.
@@ -112,5 +143,63 @@ final class FancySelectionDemoAdapter extends RecyclerView.Adapter<FancyHolder> 
 
     private interface SelectionTest {
         boolean isSelected(Uri id);
+    }
+
+    private static final class KeyProvider extends ItemKeyProvider<Uri> {
+
+        private final Uri[] mUris;
+        private final Map<Uri, Integer> mPositions;
+
+        KeyProvider(String authority, String[] values) {
+            // Advise the world we can supply ids/position for entire copus
+            // at any time.
+            super(SCOPE_MAPPED);
+
+            // For the convenience of this demo, we simply trust, based on
+            // past understanding that Cheeses has at least one element
+            // starting with each letter of the English alphabet :)
+            mUris = new Uri[Cheeses.sCheeseStrings.length + 26];
+            mPositions = new HashMap<>();
+
+            char section = '-';  // anything value other than 'a' will do the trick here.
+            int headerOffset = 0;
+
+            for (int i = 0; i < Cheeses.sCheeseStrings.length; i++) {
+                char leadingChar = Cheeses.sCheeseStrings[i].toLowerCase().charAt(0);
+                // When we find a new leading character insert an artificial
+                // cheese header
+                if (leadingChar != section) {
+                    section = leadingChar;
+                    mUris[i + headerOffset] = new Uri.Builder()
+                            .scheme("content")
+                            .encodedAuthority(authority)
+                            .appendPath(Character.toString(section))
+                            .build();
+                    mPositions.put(mUris[i + headerOffset], i + headerOffset);
+                    headerOffset++;
+                }
+                mUris[i + headerOffset] = new Uri.Builder()
+                        .scheme("content")
+                        .encodedAuthority(authority)
+                        .appendPath(Character.toString(section))
+                        .appendPath(Cheeses.sCheeseStrings[i])
+                        .build();
+                mPositions.put(mUris[i + headerOffset], i + headerOffset);
+            }
+        }
+
+        @Override
+        public @Nullable Uri getKey(int position) {
+            return mUris[position];
+        }
+
+        @Override
+        public int getPosition(@NonNull Uri key) {
+            return mPositions.get(key);
+        }
+
+        int getCount() {
+            return mUris.length;
+        }
     }
 }
