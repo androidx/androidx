@@ -45,7 +45,7 @@ class TransientStateFragmentTest : BaseTest() {
     fun test_swipeBetweenPages() {
         setUpTest(orientation).apply {
             val expectedValues = stringSequence(totalPages)
-            val adapter = adapterProvider(expectedValues)
+            val adapter = adapterProvider.provider(expectedValues)
 
             val fragmentManager = activity.supportFragmentManager
 

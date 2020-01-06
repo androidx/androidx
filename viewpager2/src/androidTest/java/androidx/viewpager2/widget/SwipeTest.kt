@@ -40,7 +40,7 @@ class SwipeTest(private val testConfig: TestConfig) : BaseTest() {
         testConfig.apply {
             setUpTest(orientation).apply {
                 val expectedValues = stringSequence(totalPages).toMutableList()
-                val adapter = adapterProvider(expectedValues.toList()) // immutable defensive copy
+                val adapter = adapterProvider.provider(expectedValues.toList()) // defensive copy
                 setAdapterSync(adapter)
                 assertBasicState(0)
 

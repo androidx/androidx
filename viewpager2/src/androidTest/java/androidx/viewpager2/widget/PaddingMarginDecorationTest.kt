@@ -133,12 +133,12 @@ class PaddingMarginDecorationTest(private val config: TestConfig) : BaseTest() {
     }
 
     private val adapterProvider: AdapterProviderForItems get() {
-        return if (config.itemMarginPx > 0) {
-            { items -> { MarginViewAdapter(config.itemMarginPx, items) } }
-        } else {
-            { items -> { ViewAdapter(items) } }
+            return AdapterProviderForItems("adapterProvider", if (config.itemMarginPx > 0) {
+                { items -> { MarginViewAdapter(config.itemMarginPx, items) } }
+            } else {
+                { items -> { ViewAdapter(items) } }
+            })
         }
-    }
 
     class MarginViewAdapter(private val margin: Int, items: List<String>) : ViewAdapter(items) {
         override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): RecyclerView.ViewHolder {
@@ -186,7 +186,7 @@ class PaddingMarginDecorationTest(private val config: TestConfig) : BaseTest() {
 
     @Test
     fun test_pageSize() {
-        test.setAdapterSync(adapterProvider(stringSequence(1)))
+        test.setAdapterSync(adapterProvider.provider(stringSequence(1)))
 
         val f = if (viewPager.isHorizontal) fLeft + fRight else fTop + fBottom
 
@@ -232,7 +232,7 @@ class PaddingMarginDecorationTest(private val config: TestConfig) : BaseTest() {
      */
     @Test
     fun test_swipeBetweenPages() {
-        test.setAdapterSync(adapterProvider(stringSequence(2)))
+        test.setAdapterSync(adapterProvider.provider(stringSequence(2)))
         listOf(1, 0).forEach { targetPage ->
             // given
             val initialPage = viewPager.currentItem
@@ -292,7 +292,7 @@ class PaddingMarginDecorationTest(private val config: TestConfig) : BaseTest() {
         val totalPages = 2
         val edgePages = setOf(0, totalPages - 1)
 
-        test.setAdapterSync(adapterProvider(stringSequence(totalPages)))
+        test.setAdapterSync(adapterProvider.provider(stringSequence(totalPages)))
         listOf(0, 1, 1).forEach { targetPage ->
             // given
             val initialPage = viewPager.currentItem

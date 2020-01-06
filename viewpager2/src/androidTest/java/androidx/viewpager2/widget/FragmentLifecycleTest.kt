@@ -57,7 +57,7 @@ class FragmentLifecycleTest : BaseTest() {
     fun test_swipeBetweenPages() {
         setUpTest(orientation).apply {
             val expectedValues = stringSequence(totalPages).toMutableList()
-            val adapter = adapterProvider(expectedValues.toList()) // immutable defensive copy
+            val adapter = adapterProvider.provider(expectedValues.toList()) // defensive copy
             setAdapterSync(adapter)
 
             var ix = 0
@@ -86,7 +86,7 @@ class FragmentLifecycleTest : BaseTest() {
     fun test_setCurrentItem() {
         setUpTest(orientation).apply {
             val expectedValues = stringSequence(totalPages).toMutableList()
-            val adapter = adapterProvider(expectedValues.toList()) // immutable defensive copy
+            val adapter = adapterProvider.provider(expectedValues.toList()) // defensive copy
             setAdapterSync(adapter)
 
             performAssertions(expectedValues, 0)
@@ -114,7 +114,7 @@ class FragmentLifecycleTest : BaseTest() {
     fun test_dataSetChange() {
         setUpTest(orientation).apply {
             val items = stringSequence(totalPages).toMutableList()
-            setAdapterSync(adapterProvider(items))
+            setAdapterSync(adapterProvider.provider(items))
             val adapter = viewPager.adapter!!
 
             performAssertions(items, 0)
