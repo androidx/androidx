@@ -18,6 +18,8 @@ package androidx.camera.camera2.internal;
 
 import static com.google.common.truth.Truth.assertThat;
 
+import static junit.framework.TestCase.assertTrue;
+
 import static org.junit.Assume.assumeTrue;
 import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Matchers.any;
@@ -798,7 +800,7 @@ public final class Camera2CameraImplTest {
         mCamera2CameraImpl.onUseCaseActive(useCase1);
 
         // Wait a little bit for the camera to open.
-        mSessionStateCallback.waitForOnConfigured(1);
+        assertTrue(mSessionStateCallback.waitForOnConfigured(1));
 
         // Remove the useCase1 and trigger the CaptureSession#close().
         mCamera2CameraImpl.removeOnlineUseCase(Arrays.asList(useCase1));
@@ -808,7 +810,7 @@ public final class Camera2CameraImplTest {
         mCamera2CameraImpl.addOnlineUseCase(Arrays.asList(useCase2));
         mCamera2CameraImpl.onUseCaseActive(useCase2);
         // Wait for the secondary capture session is configured.
-        mSessionStateCallback.waitForOnConfigured(1);
+        assertTrue(mSessionStateCallback.waitForOnConfigured(1));
 
         Observable.Observer<CameraInternal.State> mockObserver = mock(Observable.Observer.class);
         mCamera2CameraImpl.getCameraState().addObserver(CameraXExecutors.directExecutor(),

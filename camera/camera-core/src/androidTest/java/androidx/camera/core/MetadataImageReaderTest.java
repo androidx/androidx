@@ -30,6 +30,7 @@ import androidx.camera.testing.fakes.FakeImageReaderProxy;
 import androidx.test.ext.junit.runners.AndroidJUnit4;
 import androidx.test.filters.MediumTest;
 
+import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -67,6 +68,21 @@ public final class MetadataImageReaderTest {
         createMetadataImageReaderWithCapacity(8);
         mCameraCaptureResult0.setTimestamp(TIMESTAMP_0);
         mCameraCaptureResult1.setTimestamp(TIMESTAMP_1);
+    }
+
+    @After
+    public void tearDown() {
+        if (mImageReader != null) {
+            mImageReader.close();
+        }
+
+        if (mMetadataImageReader != null) {
+            mMetadataImageReader.close();
+        }
+
+        if (mBackgroundThread != null) {
+            mBackgroundThread.quitSafely();
+        }
     }
 
     @Test
