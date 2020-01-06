@@ -34,6 +34,8 @@
 
         <activity android:name="androidx.core.widget.TextViewTestActivity"/>
 
+        <activity android:name="androidx.core.widget.RichContentReceiverTestActivity"/>
+
         <activity android:name="androidx.core.widget.TestContentViewActivity"/>
 
         <activity android:name="androidx.core.view.VpaActivity"/>
