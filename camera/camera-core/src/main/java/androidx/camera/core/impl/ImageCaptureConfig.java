@@ -597,6 +597,18 @@ public final class ImageCaptureConfig
 
     @Override
     @Nullable
+    public CameraSelector getCameraSelector(@Nullable CameraSelector valueIfMissing) {
+        return retrieveOption(OPTION_CAMERA_SELECTOR, valueIfMissing);
+    }
+
+    @Override
+    @NonNull
+    public CameraSelector getCameraSelector() {
+        return retrieveOption(OPTION_CAMERA_SELECTOR);
+    }
+
+    @Override
+    @Nullable
     public UseCase.EventCallback getUseCaseEventCallback(
             @Nullable UseCase.EventCallback valueIfMissing) {
         return retrieveOption(OPTION_USE_CASE_EVENT_CALLBACK, valueIfMissing);

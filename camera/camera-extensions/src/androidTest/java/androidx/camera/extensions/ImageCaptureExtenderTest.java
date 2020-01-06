@@ -19,7 +19,9 @@ package androidx.camera.extensions;
 import static com.google.common.truth.Truth.assertThat;
 
 import static org.junit.Assume.assumeTrue;
+import static org.mockito.AdditionalMatchers.not;
 import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.atLeastOnce;
 import static org.mockito.Mockito.inOrder;
 import static org.mockito.Mockito.mock;
@@ -55,6 +57,7 @@ import androidx.camera.testing.fakes.FakeLifecycleOwner;
 import androidx.test.core.app.ApplicationProvider;
 import androidx.test.ext.junit.runners.AndroidJUnit4;
 import androidx.test.filters.MediumTest;
+import androidx.test.filters.SmallTest;
 import androidx.test.platform.app.InstrumentationRegistry;
 import androidx.test.rule.GrantPermissionRule;
 
@@ -73,6 +76,7 @@ import java.util.concurrent.TimeoutException;
 
 @RunWith(AndroidJUnit4.class)
 public class ImageCaptureExtenderTest {
+    private static final String EXTENSION_AVAILABLE_CAMERA_ID = "0";
 
     @Rule
     public GrantPermissionRule mRuntimePermissionRule = GrantPermissionRule.grant(
@@ -261,6 +265,29 @@ public class ImageCaptureExtenderTest {
             assertThat(
                     Arrays.asList(resultPair.second).equals(Arrays.asList(targetSizes))).isTrue();
         }
+    }
+
+    @Test
+    @SmallTest
+    public void canAddCameraIdFilterToConfigBuilder() {
+        ImageCaptureExtenderImpl mockImageCaptureExtenderImpl = mock(
+                ImageCaptureExtenderImpl.class);
+        when(mockImageCaptureExtenderImpl.isExtensionAvailable(eq(EXTENSION_AVAILABLE_CAMERA_ID),
+                any())).thenReturn(true);
+        when(mockImageCaptureExtenderImpl.isExtensionAvailable(
+                not(eq(EXTENSION_AVAILABLE_CAMERA_ID)),
+                any())).thenReturn(false);
+        ImageCapture.Builder imageCaptureBuilder = new ImageCapture.Builder();
+
+        ImageCaptureExtender fakeImageCaptureExtender = new FakeImageCaptureExtender(
+                imageCaptureBuilder, mockImageCaptureExtenderImpl);
+        fakeImageCaptureExtender.enableExtension(CameraSelector.DEFAULT_BACK_CAMERA);
+
+        CameraSelector cameraSelector =
+                imageCaptureBuilder.getUseCaseConfig().getCameraSelector(null);
+        assertThat(cameraSelector).isNotNull();
+        assertThat(CameraX.getCameraWithCameraSelector(cameraSelector)).isEqualTo(
+                EXTENSION_AVAILABLE_CAMERA_ID);
     }
 
     private List<Pair<Integer, Size[]>> generateImageCaptureSupportedResolutions(
