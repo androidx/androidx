@@ -241,8 +241,8 @@ public abstract class RoomDatabase {
     public void close() {
         if (isOpen()) {
             final Lock closeLock = mCloseLock.writeLock();
+            closeLock.lock();
             try {
-                closeLock.lock();
                 mInvalidationTracker.stopMultiInstanceInvalidation();
                 mOpenHelper.close();
             } finally {
