@@ -138,7 +138,7 @@ class SetItemWhileScrollInProgressTest(private val config: TestConfig) : BaseTes
         config.apply {
             // given
             setUpTest(orientation).apply {
-                setAdapterSync(viewAdapterProvider(stringSequence(totalPages)))
+                setAdapterSync(viewAdapterProvider.provider(stringSequence(totalPages)))
                 val callback = viewPager.addNewRecordingCallback()
                 var currentPage = viewPager.currentItem
 

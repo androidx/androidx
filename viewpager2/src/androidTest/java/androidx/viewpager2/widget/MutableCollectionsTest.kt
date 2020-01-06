@@ -49,7 +49,7 @@ class MutableCollectionsTest(private val testConfig: TestConfig) : BaseTest() {
     fun test() {
         testConfig.apply {
             setUpTest(orientation).apply {
-                setAdapterSync(adapterProvider(items))
+                setAdapterSync(adapterProvider.provider(items))
 
                 verifyViewPagerContent(items) // sanity check
 

@@ -61,21 +61,22 @@ class DisableUserInputTest(private val config: TestConfig) : BaseTest() {
     private lateinit var test: Context
     private lateinit var adapterProvider: AdapterProvider
 
-    private val touchConsumingViewAdapter: AdapterProviderForItems = { items ->
-        {
-            object : ViewAdapter(items) {
-                override fun onBindViewHolder(holder: RecyclerView.ViewHolder, position: Int) {
-                    super.onBindViewHolder(holder, position)
-                    (holder.itemView as TouchConsumingTextView).consumeTouches =
+    private val touchConsumingViewAdapter =
+        AdapterProviderForItems("touchConsumingViewAdapter") { items ->
+            {
+                object : ViewAdapter(items) {
+                    override fun onBindViewHolder(holder: RecyclerView.ViewHolder, position: Int) {
+                        super.onBindViewHolder(holder, position)
+                        (holder.itemView as TouchConsumingTextView).consumeTouches =
                             config.childViewConsumesTouches
+                    }
                 }
             }
         }
-    }
 
     override fun setUp() {
         super.setUp()
-        adapterProvider = touchConsumingViewAdapter(stringSequence(pageCount))
+        adapterProvider = touchConsumingViewAdapter.provider(stringSequence(pageCount))
         test = setUpTest(config.orientation).also {
             it.viewPager.isUserInputEnabled = false
             it.setAdapterSync(adapterProvider)

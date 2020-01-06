@@ -125,7 +125,7 @@ class PageTransformerTest(private val config: TestConfig) : BaseTest() {
     fun test() {
         // given
         val test = setUpTest(config.orientation)
-        test.setAdapterSync(viewAdapterProvider(stringSequence(100)))
+        test.setAdapterSync(viewAdapterProvider.provider(stringSequence(100)))
 
         // when
         config.pageList.forEach { targetPage ->
