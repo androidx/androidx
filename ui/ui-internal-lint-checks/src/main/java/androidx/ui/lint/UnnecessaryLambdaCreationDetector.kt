@@ -87,9 +87,18 @@ class UnnecessaryLambdaCreationDetector : Detector(), SourceCodeScanner {
                 else -> null
             } ?: return
 
+            // This is the parent function call that contains the lambda expression.
+            // I.e in Foo { bar() } this will be the call to `Foo`.
             // We want to make sure this lambda is being invoked in the context of a function call,
-            // and not as a property assignment.
-            val parentExpression = node.uastParent!!.sourcePsi as? KtCallExpression ?: return
+            // and not as a property assignment - so we cast to KotlinUFunctionCallExpression to
+            // filter out such cases.
+            val parentExpression = (node.uastParent as? KotlinUFunctionCallExpression) ?: return
+
+            // If we can't resolve the parent call, then the parent function is defined in a
+            // separate module, so we don't have the right metadata - and hence the argumentType
+            // below will be Function0 even if in the actual source it has a scope. Return early to
+            // avoid false positives.
+            parentExpression.resolve() ?: return
 
             // If the expression has no receiver, it is not a lambda invocation
             val functionType = expression.receiverType as? PsiClassReferenceType ?: return
@@ -111,7 +120,11 @@ class UnnecessaryLambdaCreationDetector : Detector(), SourceCodeScanner {
             // shouldn't matter that much in practice.
             if (functionType.reference.canonicalText.contains(NonExistentClass)) return
 
-            if (parentExpression.isComponentNodeInvocation()) return
+            // Component nodes are classes that are invoked as if they are a function call, but
+            // they aren't actually a function call and so they cannot be inlined. Unfortunately
+            // since this is done in a compiler plugin, when running lint we don't have a way to
+            // understand this better, so we just check to see if the name looks like it is a node.
+            if (parentExpression.isComponentNodeInvocation) return
 
             val lambdaName = expression.methodIdentifier!!.name
             if (node.valueParameters.any { it.name == lambdaName }) return
@@ -126,8 +139,9 @@ class UnnecessaryLambdaCreationDetector : Detector(), SourceCodeScanner {
     }
 
     companion object {
-        private fun KtCallExpression.isComponentNodeInvocation() =
-            referenceExpression()!!.text.endsWith("Node")
+        private val KotlinUFunctionCallExpression.isComponentNodeInvocation
+            get() = (sourcePsi as? KtCallExpression)?.referenceExpression()?.text
+                ?.endsWith("Node") == true
 
         private const val NonExistentClass = "error.NonExistentClass"
 
