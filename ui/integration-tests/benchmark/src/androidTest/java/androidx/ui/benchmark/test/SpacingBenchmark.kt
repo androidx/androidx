@@ -37,7 +37,7 @@ import androidx.ui.layout.Container
 import androidx.ui.layout.LayoutPadding
 import androidx.ui.layout.Padding
 import androidx.ui.test.ComposeTestCase
-import androidx.ui.test.ToggleableTestCase
+import androidx.ui.integration.test.ToggleableTestCase
 import org.junit.Rule
 import org.junit.Test
 import org.junit.runner.RunWith

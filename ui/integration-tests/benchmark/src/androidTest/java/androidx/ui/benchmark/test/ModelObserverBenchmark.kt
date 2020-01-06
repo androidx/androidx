@@ -26,7 +26,7 @@ import androidx.compose.frames.open
 import androidx.test.filters.LargeTest
 import androidx.ui.benchmark.ComposeBenchmarkRule
 import androidx.ui.core.ModelObserver
-import androidx.ui.test.cases.RectsInColumnSharedModelTestCase
+import androidx.ui.integration.test.foundation.RectsInColumnSharedModelTestCase
 import org.junit.After
 import org.junit.Before
 import org.junit.Rule

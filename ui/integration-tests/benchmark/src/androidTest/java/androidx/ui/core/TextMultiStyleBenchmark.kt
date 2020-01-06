@@ -24,8 +24,9 @@ import androidx.ui.benchmark.benchmarkFirstDraw
 import androidx.ui.benchmark.benchmarkFirstLayout
 import androidx.ui.benchmark.benchmarkFirstMeasure
 import androidx.ui.benchmark.benchmarkLayoutPerf
-import androidx.ui.test.TextBenchmarkTestRule
-import androidx.ui.test.cartesian
+import androidx.ui.integration.test.core.text.TextMultiStyleTestCase
+import androidx.ui.integration.test.TextBenchmarkTestRule
+import androidx.ui.integration.test.cartesian
 import org.junit.Rule
 import org.junit.Test
 import org.junit.runner.RunWith
@@ -51,9 +52,9 @@ class TextMultiStyleBenchmark(
         @JvmStatic
         @Parameterized.Parameters(name = "length={0} styleCount={1}")
         fun initParameters() = cartesian(
-                arrayOf(32, 512),
-                arrayOf(0, 32)
-            )
+            arrayOf(32, 512),
+            arrayOf(0, 32)
+        )
     }
 
     /**

@@ -21,8 +21,8 @@ import androidx.ui.benchmark.ComposeBenchmarkRule
 import androidx.ui.benchmark.toggleStateBenchmarkRecompose
 import androidx.ui.material.ColorPalette
 import androidx.ui.test.assertNoPendingChanges
-import androidx.ui.test.cases.ImmutableColorPaletteTestCase
-import androidx.ui.test.cases.ObservableColorPaletteTestCase
+import androidx.ui.integration.test.material.ImmutableColorPaletteTestCase
+import androidx.ui.integration.test.material.ObservableColorPaletteTestCase
 import androidx.ui.test.doFramesUntilNoChangesPending
 import androidx.ui.test.recomposeAssertHadChanges
 import org.junit.Rule

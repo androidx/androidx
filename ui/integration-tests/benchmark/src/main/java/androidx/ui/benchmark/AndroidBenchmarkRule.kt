@@ -21,8 +21,8 @@ import androidx.benchmark.junit4.BenchmarkRule
 import androidx.benchmark.junit4.measureRepeated
 import androidx.test.rule.ActivityTestRule
 import androidx.ui.test.ComposeTestCase
-import androidx.ui.test.benchmark.android.AndroidTestCase
-import androidx.ui.test.benchmark.android.AndroidTestCaseRunner
+import androidx.ui.benchmark.android.AndroidTestCase
+import androidx.ui.benchmark.android.AndroidTestCaseRunner
 import org.junit.rules.TestRule
 import org.junit.runner.Description
 import org.junit.runners.model.Statement

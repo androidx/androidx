@@ -23,10 +23,10 @@ import androidx.ui.core.Density
 import androidx.ui.core.PxPosition
 import androidx.ui.core.px
 import androidx.ui.core.sp
-import androidx.ui.test.RandomTextGenerator
-import androidx.ui.test.TextBenchmarkTestRule
-import androidx.ui.test.TextType
-import androidx.ui.test.cartesian
+import androidx.ui.integration.test.RandomTextGenerator
+import androidx.ui.integration.test.TextBenchmarkTestRule
+import androidx.ui.integration.test.TextType
+import androidx.ui.integration.test.cartesian
 import androidx.ui.text.font.Font
 import androidx.ui.text.style.TextDirectionAlgorithm
 import org.junit.Rule

@@ -28,7 +28,7 @@ import androidx.ui.benchmark.toggleStateBenchmarkDraw
 import androidx.ui.benchmark.toggleStateBenchmarkLayout
 import androidx.ui.benchmark.toggleStateBenchmarkMeasure
 import androidx.ui.benchmark.toggleStateBenchmarkRecompose
-import androidx.ui.test.cases.RectsInColumnSharedModelTestCase
+import androidx.ui.integration.test.foundation.RectsInColumnSharedModelTestCase
 import org.junit.Rule
 import org.junit.Test
 import org.junit.runner.RunWith

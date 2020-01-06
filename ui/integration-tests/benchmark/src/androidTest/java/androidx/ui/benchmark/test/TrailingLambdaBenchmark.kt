@@ -27,7 +27,7 @@ import androidx.ui.core.dp
 import androidx.ui.layout.Column
 import androidx.ui.layout.Container
 import androidx.ui.test.ComposeTestCase
-import androidx.ui.test.ToggleableTestCase
+import androidx.ui.integration.test.ToggleableTestCase
 import org.junit.Rule
 import org.junit.Test
 import org.junit.runner.RunWith

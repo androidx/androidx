@@ -25,7 +25,7 @@ import androidx.ui.benchmark.toggleStateBenchmarkLayout
 import androidx.ui.layout.Center
 import androidx.ui.layout.Container
 import androidx.ui.test.ComposeTestCase
-import androidx.ui.test.ToggleableTestCase
+import androidx.ui.integration.test.ToggleableTestCase
 import org.junit.Rule
 import org.junit.Test
 import org.junit.runner.RunWith

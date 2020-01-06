@@ -33,7 +33,7 @@ import androidx.ui.layout.Column
 import androidx.ui.material.MaterialTheme
 import androidx.ui.material.RadioGroup
 import androidx.ui.test.ComposeTestCase
-import androidx.ui.test.ToggleableTestCase
+import androidx.ui.integration.test.ToggleableTestCase
 import org.junit.Rule
 import org.junit.Test
 import org.junit.runner.RunWith
