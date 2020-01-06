@@ -35,9 +35,8 @@ open class AsyncPagedDataDiffer<T : Any>(
     private val updateCallback: ListUpdateCallback
 ) {
     internal val callback = object : PresenterCallback {
-        override fun onInserted(position: Int, count: Int, loadStates: Map<LoadType, LoadState>?) {
+        override fun onInserted(position: Int, count: Int) {
             updateCallback.onInserted(position, count)
-            loadStates?.entries?.forEach { onStateUpdate(it.key, it.value) }
         }
 
         override fun onRemoved(position: Int, count: Int) =
@@ -81,7 +80,7 @@ open class AsyncPagedDataDiffer<T : Any>(
             withContext(mainDispatcher) {
                 when {
                     previous.size == 0 -> // fast path for no items -> some items
-                        callback.onInserted(0, new.size, null)
+                        callback.onInserted(0, new.size)
                     new.size == 0 -> // fast path for some items -> no items
                         callback.onRemoved(0, previous.size)
                     else -> { // full diff
