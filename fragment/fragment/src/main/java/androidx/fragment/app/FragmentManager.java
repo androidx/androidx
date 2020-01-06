@@ -1603,6 +1603,10 @@ public abstract class FragmentManager {
      * searches through fragments that are currently added to the manager's
      * activity; if no such fragment is found, then all fragments currently
      * on the back stack are searched.
+     * <p>
+     * If provided a {@code null} tag, this method returns null.
+     *
+     * @param tag the tag used to search for the fragment
      * @return The fragment if found or null otherwise.
      */
     @Nullable
