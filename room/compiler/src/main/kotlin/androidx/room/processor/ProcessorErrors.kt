@@ -43,8 +43,8 @@ object ProcessorErrors {
     val MISSING_RAWQUERY_ANNOTATION = "RawQuery methods must be annotated with" +
             " ${RawQuery::class.java}"
     val INVALID_ON_CONFLICT_VALUE = "On conflict value must be one of @OnConflictStrategy values."
-    val TRANSACTION_REFERENCE_DOCS = "https://developer.android.com/reference/android/arch/" +
-            "persistence/room/Transaction.html"
+    val TRANSACTION_REFERENCE_DOCS = "https://developer.android.com/reference/androidx/" +
+            "room/Transaction.html"
 
     val ABSTRACT_METHOD_IN_DAO_MISSING_ANY_ANNOTATION = "Abstract method in DAO must be annotated" +
             " with ${Query::class.java} AND ${Insert::class.java}"
