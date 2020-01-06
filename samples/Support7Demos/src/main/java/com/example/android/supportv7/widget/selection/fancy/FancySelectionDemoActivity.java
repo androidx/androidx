@@ -58,6 +58,7 @@ public class FancySelectionDemoActivity extends AppCompatActivity {
 
     private GridLayoutManager mLayout;
     private int mColumnCount = 1;  // This will get updated when layout changes.
+    private boolean mIterceptListenerEnabled = false;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -65,6 +66,32 @@ public class FancySelectionDemoActivity extends AppCompatActivity {
 
         setContentView(R.layout.selection_demo_layout);
         mRecView = (RecyclerView) findViewById(R.id.list);
+
+        // If you want to provided special handling of clicks on items
+        // in RecyclerView (respond to a play button, or show a menu
+        // when a three-dot menu is clicked) you can't just add an OnClickListener
+        // to the View.  This is because Selection lib installs an
+        // OnItemTouchListener w/ RecyclerView, and that listener eats
+        // up many of the touch/mouse events RecyclerView sends its way.
+        // To work around this install your own OnItemTouchListener *before*
+        // you build your SelectionTracker instance. That'll give your listener
+        // a chance to intercept events before Selection lib gobbles them up.
+        mRecView.addOnItemTouchListener(new RecyclerView.OnItemTouchListener() {
+            @Override
+            public boolean onInterceptTouchEvent(@NonNull RecyclerView rv, @NonNull MotionEvent e) {
+                return mIterceptListenerEnabled
+                        && FancyHeaderHolder.isHeader(rv.findChildViewUnder(e.getX(), e.getY()));
+            }
+
+            @Override
+            public void onTouchEvent(@NonNull RecyclerView rv, @NonNull MotionEvent e) {
+                toast(FancySelectionDemoActivity.this, "Clicked on a header!");
+            }
+
+            @Override
+            public void onRequestDisallowInterceptTouchEvent(boolean disallowIntercept) {
+            }
+        });
 
         mLayout = new GridLayoutManager(this, mColumnCount);
         mRecView.setLayoutManager(mLayout);
@@ -137,26 +164,18 @@ public class FancySelectionDemoActivity extends AppCompatActivity {
     @CallSuper
     public boolean onPrepareOptionsMenu(Menu menu) {
         super.onPrepareOptionsMenu(menu);
-        menu.findItem(R.id.option_menu_add_column).setEnabled(mColumnCount <= 3);
-        menu.findItem(R.id.option_menu_remove_column).setEnabled(mColumnCount > 1);
+        menu.findItem(R.id.option_menu_enable_listener)
+                .setEnabled(!mIterceptListenerEnabled);
+        menu.findItem(R.id.option_menu_disable_listener)
+                .setEnabled(mIterceptListenerEnabled);
         return true;
     }
 
     @Override
     public boolean onOptionsItemSelected(MenuItem item) {
-        switch (item.getItemId()) {
-            case R.id.option_menu_add_column:
-                // TODO: Add columns
-                mLayout.setSpanCount(++mColumnCount);
-                return true;
-            case R.id.option_menu_remove_column:
-                mLayout.setSpanCount(--mColumnCount);
-                return true;
-            default:
-                return super.onOptionsItemSelected(item);
-        }
+        mIterceptListenerEnabled = !mIterceptListenerEnabled;
+        return true;
     }
-
 
     @Override
     public void onCreateContextMenu(ContextMenu menu, View v,
