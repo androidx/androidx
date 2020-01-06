@@ -16,6 +16,8 @@
 
 package androidx.animation;
 
+import android.annotation.SuppressLint;
+
 import androidx.annotation.NonNull;
 
 /**
@@ -53,10 +55,14 @@ public class IntEvaluator implements TypeEvaluator<Integer> {
      * @return A linear interpolation between the start and end values, given the
      *         <code>fraction</code> parameter.
      */
+    @SuppressLint("AutoBoxing") /* Generics */
     @Override
     @NonNull
-    public Integer evaluate(float fraction, @NonNull Integer startValue,
-            @NonNull Integer endValue) {
+    public Integer evaluate(
+            float fraction,
+            @SuppressLint("AutoBoxing") @NonNull Integer startValue,
+            @SuppressLint("AutoBoxing") @NonNull Integer endValue
+    ) {
         int startInt = startValue;
         return (int) (startInt + fraction * (endValue - startInt));
     }

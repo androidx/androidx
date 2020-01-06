@@ -16,6 +16,7 @@
 
 package androidx.animation;
 
+import android.annotation.SuppressLint;
 import android.os.Looper;
 import android.util.AndroidRuntimeException;
 import android.util.Log;
@@ -509,6 +510,7 @@ public class ValueAnimator extends Animator implements AnimationHandler.Animatio
      * @return PropertyValuesHolder[] An array of PropertyValuesHolder objects which hold the
      * values, per property, that define the animation.
      */
+    @SuppressLint("ArrayReturn") /* Platform API */
     @NonNull
     public PropertyValuesHolder[] getValues() {
         return mValues;
@@ -1460,6 +1462,7 @@ public class ValueAnimator extends Animator implements AnimationHandler.Animatio
         }
     }
 
+    @SuppressLint("NoClone") /* Platform API */
     @Override
     @NonNull
     public ValueAnimator clone() {

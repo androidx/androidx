@@ -18,7 +18,6 @@ package androidx.animation;
 import android.graphics.PointF;
 
 import androidx.annotation.NonNull;
-import androidx.annotation.Nullable;
 
 /**
  * This evaluator can be used to perform type interpolation between <code>PointF</code> values.
@@ -50,7 +49,7 @@ public class PointFEvaluator implements TypeEvaluator<PointF> {
      *
      * @param reuse A PointF to be modified and returned by evaluate.
      */
-    public PointFEvaluator(@Nullable PointF reuse) {
+    public PointFEvaluator(@NonNull PointF reuse) {
         mPoint = reuse;
     }
 

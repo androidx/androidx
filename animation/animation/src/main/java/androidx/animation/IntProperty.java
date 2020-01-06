@@ -15,6 +15,7 @@
  */
 package androidx.animation;
 
+import android.annotation.SuppressLint;
 import android.util.Property;
 
 import androidx.annotation.NonNull;
@@ -60,7 +61,10 @@ public abstract class IntProperty<T> extends Property<T, Integer> {
     public abstract void setValue(@NonNull T object, int value);
 
     @Override
-    public final void set(@NonNull T object, @NonNull Integer value) {
+    public final void set(
+            @NonNull T object,
+            @SuppressLint("AutoBoxing") /* Generics */ @NonNull Integer value
+    ) {
         setValue(object, value);
     }
 }

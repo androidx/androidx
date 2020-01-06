@@ -18,7 +18,6 @@ package androidx.animation;
 import android.graphics.Rect;
 
 import androidx.annotation.NonNull;
-import androidx.annotation.Nullable;
 
 /**
  * This evaluator can be used to perform type interpolation between <code>Rect</code> values.
@@ -50,7 +49,7 @@ public class RectEvaluator implements TypeEvaluator<Rect> {
      *
      * @param reuseRect A Rect to be modified and returned by evaluate.
      */
-    public RectEvaluator(@Nullable Rect reuseRect) {
+    public RectEvaluator(@NonNull Rect reuseRect) {
         mRect = reuseRect;
     }
 

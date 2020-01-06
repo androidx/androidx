@@ -16,6 +16,7 @@
 
 package androidx.animation;
 
+import android.annotation.SuppressLint;
 import android.os.Looper;
 import android.util.AndroidRuntimeException;
 import android.util.Log;
@@ -264,6 +265,7 @@ public final class AnimatorSet extends Animator implements AnimationHandler.Anim
      *
      * @return ArrayList<Animator> The list of child animations of this AnimatorSet.
      */
+    @SuppressLint("ConcreteCollection") /* Platform API */
     @NonNull
     public ArrayList<Animator> getChildAnimations() {
         ArrayList<Animator> childList = new ArrayList<Animator>();
@@ -1245,6 +1247,7 @@ public final class AnimatorSet extends Animator implements AnimationHandler.Anim
         handler.removeCallback(this);
     }
 
+    @SuppressLint("NoClone") /* Platform API */
     @NonNull
     @Override
     public AnimatorSet clone() {
@@ -1907,6 +1910,7 @@ public final class AnimatorSet extends Animator implements AnimationHandler.Anim
      * that can boil down to a simple, one-way relationship of animations starting with, before, and
      * after other, different, animations.</p>
      */
+    @SuppressLint("MissingBuildMethod") /* Platform API */
     public class Builder {
 
         /**
