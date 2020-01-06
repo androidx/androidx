@@ -472,16 +472,16 @@ open class AsyncPagedListDiffer<T : Any> {
     }
 
     /**
-     * Add a [LoadStateListener] to observe the loading state of the current [PagedList].
+     * Add a [LoadState] listener to observe the loading state of the current [PagedList].
      *
      * As new PagedLists are submitted and displayed, the listener will be notified to reflect
-     * current REFRESH, START, and END states.
+     * current [LoadType.REFRESH], [LoadType.START], and [LoadType.END] states.
      *
-     * @param listener [LoadStateListener] to receive updates.
+     * @param listener [LoadState] listener to receive updates.
      *
      * @see removeLoadStateListener
      */
-    open fun addLoadStateListener(listener: LoadStateListener) {
+    open fun addLoadStateListener(listener: (type: LoadType, state: LoadState) -> Unit) {
         val pagedList = this.pagedList
         if (pagedList != null) {
             pagedList.addWeakLoadStateListener(listener)
@@ -492,14 +492,14 @@ open class AsyncPagedListDiffer<T : Any> {
     }
 
     /**
-     * Remove a previously registered [LoadStateListener].
+     * Remove a previously registered [LoadState] listener.
      *
      * @param listener Previously registered listener.
      *
      * @see currentList
      * @see addPagedListListener
      */
-    open fun removeLoadStateListener(listener: LoadStateListener) {
+    open fun removeLoadStateListener(listener: (type: LoadType, state: LoadState) -> Unit) {
         loadStateListeners.remove(listener)
         pagedList?.removeWeakLoadStateListener(listener)
     }

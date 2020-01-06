@@ -32,11 +32,7 @@ abstract class PagedDataAdapter<T : Any, VH : RecyclerView.ViewHolder>(
         mainDispatcher = mainDispatcher,
         diffCallback = diffCallback,
         updateCallback = AdapterListUpdateCallback(this)
-    ).also {
-        it.addLoadStateListener { loadType, loadState ->
-            onLoadStateChanged(loadType, loadState)
-        }
-    }
+    )
 
     fun connect(flow: Flow<PagedData<T>>, scope: CoroutineScope) {
         differ.connect(flow, scope)
@@ -51,39 +47,26 @@ abstract class PagedDataAdapter<T : Any, VH : RecyclerView.ViewHolder>(
     override fun getItemCount() = differ.itemCount
 
     /**
-     * Called when the [LoadState] for a particular type of load (START, END, REFRESH) has
-     * changed.
+     * Add a [LoadState] listener to observe the loading state of the current [PagedData].
      *
-     * REFRESH events can be used to drive a `SwipeRefreshLayout`, or START/END events
-     * can be used to drive loading spinner items in the Adapter.
+     * As new PagedData generations are submitted and displayed, the listener will be notified to
+     * reflect current [LoadType.REFRESH], [LoadType.START], and [LoadType.END] states.
      *
-     * @param type [LoadType] Can be START, END, or REFRESH
-     * @param state [LoadState] Idle, Loading, Done, or Error.
-     */
-    open fun onLoadStateChanged(type: LoadType, state: LoadState) {
-    }
-
-    /**
-     * Add a [LoadStateListener] to observe the loading state of the current [PagedList].
-     *
-     * As new PagedLists are submitted and displayed, the callback will be notified to reflect
-     * current REFRESH, START, and END states.
-     *
-     * @param callback [LoadStateListener] to receive updates.
+     * @param listener [LoadState] listener to receive updates.
      *
      * @see removeLoadStateListener
      */
-    open fun addLoadStateListener(callback: (LoadType, LoadState) -> Unit) {
-        differ.addLoadStateListener(callback)
+    open fun addLoadStateListener(listener: (LoadType, LoadState) -> Unit) {
+        differ.addLoadStateListener(listener)
     }
 
     /**
-     * Remove a previously registered [LoadStateListener].
+     * Remove a previously registered [LoadState] listener.
      *
-     * @param callback Previously registered callback.
+     * @param listener Previously registered listener.
      * @see addLoadStateListener
      */
-    open fun removeLoadStateListener(callback: (LoadType, LoadState) -> Unit) {
-        differ.removeLoadStateListener(callback)
+    open fun removeLoadStateListener(listener: (LoadType, LoadState) -> Unit) {
+        differ.removeLoadStateListener(listener)
     }
 }

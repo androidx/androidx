@@ -111,8 +111,6 @@ abstract class PagedListAdapter<T : Any, VH : RecyclerView.ViewHolder> : Recycle
         this@PagedListAdapter.onCurrentListChanged(currentList)
         this@PagedListAdapter.onCurrentListChanged(previousList, currentList)
     }
-    private val loadStateListener
-        get() = this::onLoadStateChanged
 
     /**
      * Returns the [PagedList] currently being displayed by the [PagedListAdapter].
@@ -140,13 +138,11 @@ abstract class PagedListAdapter<T : Any, VH : RecyclerView.ViewHolder> : Recycle
     protected constructor(diffCallback: DiffUtil.ItemCallback<T>) {
         differ = AsyncPagedListDiffer(this, diffCallback)
         differ.addPagedListListener(listener)
-        differ.addLoadStateListener(loadStateListener)
     }
 
     protected constructor(config: AsyncDifferConfig<T>) {
         differ = AsyncPagedListDiffer(AdapterListUpdateCallback(this), config)
         differ.addPagedListListener(listener)
-        differ.addLoadStateListener(loadStateListener)
     }
 
     /**
@@ -224,39 +220,26 @@ abstract class PagedListAdapter<T : Any, VH : RecyclerView.ViewHolder> : Recycle
     }
 
     /**
-     * Called when the [LoadState] for a particular type of load (START, END, REFRESH) has
-     * changed.
+     * Add a [LoadState] listener to observe the loading state of the current [PagedList].
      *
-     * REFRESH events can be used to drive a `SwipeRefreshLayout`, or START/END events
-     * can be used to drive loading spinner items in the Adapter.
+     * As new PagedLists are submitted and displayed, the listener will be notified to reflect
+     * current [LoadType.REFRESH], [LoadType.START], and [LoadType.END] states.
      *
-     * @param type [LoadType] Can be START, END, or REFRESH
-     * @param state [LoadState] Idle, Loading, Done, or Error.
-     */
-    open fun onLoadStateChanged(type: LoadType, state: LoadState) {
-    }
-
-    /**
-     * Add a [LoadStateListener] to observe the loading state of the current [PagedList].
-     *
-     * As new PagedLists are submitted and displayed, the callback will be notified to reflect
-     * current REFRESH, START, and END states.
-     *
-     * @param callback [LoadStateListener] to receive updates.
+     * @param listener [LoadStateListener] to receive updates.
      *
      * @see removeLoadStateListener
      */
-    open fun addLoadStateListener(callback: LoadStateListener) {
-        differ.addLoadStateListener(callback)
+    open fun addLoadStateListener(listener: (type: LoadType, state: LoadState) -> Unit) {
+        differ.addLoadStateListener(listener)
     }
 
     /**
-     * Remove a previously registered [LoadStateListener].
+     * Remove a previously registered [LoadState] listener.
      *
-     * @param callback Previously registered callback.
+     * @param listener Previously registered listener.
      * @see addLoadStateListener
      */
-    open fun removeLoadStateListener(callback: LoadStateListener) {
-        differ.removeLoadStateListener(callback)
+    open fun removeLoadStateListener(listener: (type: LoadType, state: LoadState) -> Unit) {
+        differ.removeLoadStateListener(listener)
     }
 }
