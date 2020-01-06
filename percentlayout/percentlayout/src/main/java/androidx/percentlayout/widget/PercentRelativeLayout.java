@@ -125,6 +125,7 @@ import android.widget.RelativeLayout;
  *         app:layout_constraintBottom_toBottomOf="@+id/bottom_guideline" /&gt
  *
  * &lt;/androidx.constraintlayout.widget.ConstraintLayout&gt
+ * </pre>
  */
 @SuppressWarnings("deprecation")
 @Deprecated
