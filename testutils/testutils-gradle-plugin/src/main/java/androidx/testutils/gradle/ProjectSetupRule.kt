@@ -1,0 +1,137 @@
+/*
+ * Copyright 2020 The Android Open Source Project
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *      http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+
+package androidx.testutils.gradle
+
+import org.junit.rules.ExternalResource
+import org.junit.rules.TemporaryFolder
+import org.junit.runner.Description
+import org.junit.runners.model.Statement
+import java.io.File
+import java.lang.IllegalStateException
+import java.util.Properties
+
+/**
+ * Test rule that helps to setup android project in tests that run gradle.
+ *
+ * It should be used along side with SdkResourceGenerator in your build.gradle file
+ */
+class ProjectSetupRule : ExternalResource() {
+    val testProjectDir = TemporaryFolder()
+
+    lateinit var props: ProjectProps
+
+    val rootDir: File
+        get() = testProjectDir.root
+
+    val buildFile: File
+        get() = File(rootDir, "build.gradle")
+
+    val gradlePropertiesFile: File
+        get() = File(rootDir, "gradle.properties")
+
+    private val repositories: String
+        get() = """
+            repositories {
+                maven { url "${props.prebuiltsRoot}/androidx/external" }
+                maven { url "${props.prebuiltsRoot}/androidx/internal" }
+            }
+        """.trimIndent()
+
+    val androidProject: String
+        get() = """
+            android {
+                compileSdkVersion ${props.compileSdkVersion}
+                buildToolsVersion "${props.buildToolsVersion}"
+
+                defaultConfig {
+                    minSdkVersion ${props.minSdkVersion}
+                }
+            }
+        """.trimIndent()
+
+    private val defaultBuildGradle: String
+        get() = "\n$repositories\n\n$androidProject\n\n"
+
+    fun writeDefaultBuildGradle(prefix: String, suffix: String) {
+        buildFile.writeText(prefix)
+        buildFile.appendText(defaultBuildGradle)
+        buildFile.appendText(suffix)
+
+        println(buildFile.readText())
+    }
+
+    override fun apply(base: Statement, description: Description): Statement {
+        return testProjectDir.apply(super.apply(base, description), description)
+    }
+
+    override fun before() {
+        props = ProjectProps.load()
+        buildFile.createNewFile()
+        copyLocalProperties()
+        writeGradleProperties()
+    }
+
+    private fun copyLocalProperties() {
+        val localProperties = File(props.rootProjectPath, "local.properties")
+        if (localProperties.exists()) {
+            localProperties.copyTo(File(rootDir, "local.properties"), overwrite = true)
+        } else {
+            throw IllegalStateException("local.properties doesn't exist at: $localProperties")
+        }
+    }
+
+    private fun writeGradleProperties() {
+        gradlePropertiesFile.writer().use {
+            val props = Properties()
+            props.setProperty("android.useAndroidX", "true")
+            props.store(it, null)
+        }
+    }
+}
+
+data class ProjectProps(
+    val prebuiltsRoot: String,
+    val compileSdkVersion: String,
+    val buildToolsVersion: String,
+    val minSdkVersion: String,
+    val debugKeystore: String,
+    var navigationCommon: String,
+    val kotlinStblib: String,
+    val rootProjectPath: String,
+    val localSupportRepo: String,
+    val agpDependency: String
+) {
+    companion object {
+        fun load(): ProjectProps {
+            val stream = ProjectSetupRule::class.java.classLoader.getResourceAsStream("sdk.prop")
+            val properties = Properties()
+            properties.load(stream)
+            return ProjectProps(
+                prebuiltsRoot = properties.getProperty("prebuiltsRoot"),
+                compileSdkVersion = properties.getProperty("compileSdkVersion"),
+                buildToolsVersion = properties.getProperty("buildToolsVersion"),
+                minSdkVersion = properties.getProperty("minSdkVersion"),
+                debugKeystore = properties.getProperty("debugKeystore"),
+                navigationCommon = properties.getProperty("navigationCommon"),
+                kotlinStblib = properties.getProperty("kotlinStdlib"),
+                rootProjectPath = properties.getProperty("rootProjectPath"),
+                localSupportRepo = properties.getProperty("localSupportRepo"),
+                agpDependency = properties.getProperty("agpDependency")
+            )
+        }
+    }
+}
