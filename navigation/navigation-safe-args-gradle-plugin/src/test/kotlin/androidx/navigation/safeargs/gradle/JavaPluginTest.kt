@@ -27,49 +27,32 @@ class JavaPluginTest : BasePluginTest() {
     @Test
     fun runGenerateTask() {
         testData("app-project").copyRecursively(projectRoot())
-        buildFile.writeText("""
-            plugins {
-                id('com.android.application')
-                id('androidx.navigation.safeargs')
-            }
-
-            repositories {
-                maven { url "$prebuiltsRoot/androidx/external" }
-                maven { url "$prebuiltsRoot/androidx/internal" }
-            }
-
-            android {
-                compileSdkVersion $compileSdkVersion
-                buildToolsVersion "$buildToolsVersion"
-                flavorDimensions "mode"
-                productFlavors {
-                    foo {
-                        dimension "mode"
-                        applicationIdSuffix ".foo"
-                    }
-                    notfoo {
-                        dimension "mode"
-                    }
-
+        projectSetup.writeDefaultBuildGradle(
+            prefix = """
+                plugins {
+                    id('com.android.application')
+                    id('androidx.navigation.safeargs')
                 }
-
-                defaultConfig {
-                    minSdkVersion $minSdkVersion
-                }
-
-                signingConfigs {
-                    debug {
-                        storeFile file("$debugKeystore")
+            """.trimIndent(),
+            suffix = """
+                android {
+                    flavorDimensions "mode"
+                    productFlavors {
+                        foo {
+                            dimension "mode"
+                            applicationIdSuffix ".foo"
+                        }
+                        notfoo {
+                            dimension "mode"
+                        }
                     }
                 }
-            }
 
-            dependencies {
-                implementation "$navigationCommon"
-            }
-        """.trimIndent()
+                dependencies {
+                    implementation "${projectSetup.props.navigationCommon}"
+                }
+            """.trimIndent()
         )
-
         runGradle("assembleNotfooDebug", "assembleFooDebug")
             .assertSuccessfulTask("assembleNotfooDebug")
             .assertSuccessfulTask("assembleFooDebug")

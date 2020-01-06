@@ -38,6 +38,7 @@ dependencies {
     implementation(KOTLIN_STDLIB)
 
     testImplementation gradleTestKit()
+    testImplementation(project(":internal-testutils-gradle-plugin"))
     testImplementation(ANDROIDX_TEST_RUNNER)
     testImplementation(JUNIT)
     testImplementation(KOTLIN_TEST)
