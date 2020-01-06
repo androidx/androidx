@@ -22,6 +22,23 @@ import androidx.annotation.NonNull;
  * This evaluator can be used to perform type interpolation between <code>int</code> values.
  */
 public class IntEvaluator implements TypeEvaluator<Integer> {
+
+    private static final IntEvaluator sInstance = new IntEvaluator();
+
+    /**
+     * Returns an instance of <code>IntEvaluator</code> that may be used in
+     * {@link ValueAnimator#setEvaluator(TypeEvaluator)}. The same instance may
+     * be used in multiple <code>Animator</code>s because it holds no state.
+     * @return An instance of <code>IntEvaluator</code>.
+     */
+    @NonNull
+    public static IntEvaluator getInstance() {
+        return sInstance;
+    }
+
+    private IntEvaluator() {
+    }
+
     /**
      * This function returns the result of linearly interpolating the start and end values, with
      * <code>fraction</code> representing the proportion between the start and end values. The

@@ -74,11 +74,6 @@ public class PropertyValuesHolder implements Cloneable {
      */
     Keyframes mKeyframes = null;
 
-
-    // type evaluators for the primitive types handled by this implementation
-    private static final TypeEvaluator sIntEvaluator = new IntEvaluator();
-    private static final TypeEvaluator sFloatEvaluator = new FloatEvaluator();
-
     // We try several different types when searching for appropriate setter/getter functions.
     // The caller may have supplied values in a type that does not match the setter/getter
     // functions (such as the integers 0 and 1 to represent floating point values for alpha).
@@ -1023,8 +1018,8 @@ public class PropertyValuesHolder implements Cloneable {
         if (mEvaluator == null) {
             // We already handle int and float automatically, but not their Object
             // equivalents
-            mEvaluator = (mValueType == Integer.class) ? sIntEvaluator :
-                    (mValueType == Float.class) ? sFloatEvaluator :
+            mEvaluator = (mValueType == Integer.class) ? IntEvaluator.getInstance() :
+                    (mValueType == Float.class) ? FloatEvaluator.getInstance() :
                     null;
         }
         if (mEvaluator != null) {
