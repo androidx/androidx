@@ -37,7 +37,7 @@ class ChangeDataSetWhileScrollingTest : BaseTest() {
     fun test_regression01() {
         setUpTest(orientation).apply {
             val items = listOf("49", "51").toMutableList()
-            setAdapterSync(adapterProvider(items))
+            setAdapterSync(adapterProvider.provider(items))
             assertBasicState(0, items[0])
 
             viewPager.post {

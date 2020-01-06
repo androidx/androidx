@@ -66,7 +66,7 @@ class AccessibilityTest(private val config: TestConfig) : BaseTest() {
     @SdkSuppress(minSdkVersion = 16)
     fun test_onPerformPageAction() {
         setUpTest(config.orientation).apply {
-            setAdapterSync(viewAdapterProvider(stringSequence(6)))
+            setAdapterSync(viewAdapterProvider.provider(stringSequence(6)))
 
             val initialPage = viewPager.currentItem
             assertBasicState(initialPage)
@@ -93,7 +93,7 @@ class AccessibilityTest(private val config: TestConfig) : BaseTest() {
     @Test
     fun test_collectionInfo() {
         setUpTest(config.orientation).apply {
-            setAdapterSync(viewAdapterProvider(stringSequence(6)))
+            setAdapterSync(viewAdapterProvider.provider(stringSequence(6)))
 
             val initialPage = viewPager.currentItem
             assertBasicState(initialPage)
@@ -124,7 +124,7 @@ class AccessibilityTest(private val config: TestConfig) : BaseTest() {
     @Test
     fun test_onOrientationChange() {
         setUpTest(config.orientation).apply {
-            setAdapterSync(viewAdapterProvider(stringSequence(2)))
+            setAdapterSync(viewAdapterProvider.provider(stringSequence(2)))
 
             val initialPage = viewPager.currentItem
             assertBasicState(initialPage)

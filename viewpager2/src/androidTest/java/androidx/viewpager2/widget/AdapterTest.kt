@@ -49,7 +49,7 @@ class AdapterTest : BaseTest() {
     @Test
     fun test_setAdapter() {
         val recorder = test.viewPager.addNewRecordingCallback()
-        test.setAdapterSync(viewAdapterProvider(stringSequence(pageCount)))
+        test.setAdapterSync(viewAdapterProvider.provider(stringSequence(pageCount)))
         test.assertBasicState(0)
         test.viewPager.setCurrentItemSync(1, false, 2, SECONDS)
         test.assertBasicState(1)
@@ -195,7 +195,7 @@ class AdapterTest : BaseTest() {
 
     private fun setUpAdapterSync(pageCount: Int, initialPage: Int? = null) {
         dataSet = stringSequence(pageCount).toMutableList()
-        test.setAdapterSync(viewAdapterProvider(dataSet))
+        test.setAdapterSync(viewAdapterProvider.provider(dataSet))
 
         if (initialPage != null) {
             test.viewPager.setCurrentItemSync(initialPage, false, 2, SECONDS)

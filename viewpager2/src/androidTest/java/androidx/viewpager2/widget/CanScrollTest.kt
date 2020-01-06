@@ -39,19 +39,19 @@ class CanScrollTest : BaseTest() {
         // given
         setUpTest(ORIENTATION_HORIZONTAL).apply {
             // when no pages
-            setAdapterSync(viewAdapterProvider(stringSequence(0)))
+            setAdapterSync(viewAdapterProvider.provider(stringSequence(0)))
 
             // then can't scroll
             assertScrollNone()
 
             // when 1 page
-            setAdapterSync(viewAdapterProvider(stringSequence(1)))
+            setAdapterSync(viewAdapterProvider.provider(stringSequence(1)))
 
             // then can't scroll
             assertScrollNone()
 
             // when 2 pages
-            setAdapterSync(viewAdapterProvider(stringSequence(2)))
+            setAdapterSync(viewAdapterProvider.provider(stringSequence(2)))
 
             // then can scroll right
             assertScrollRight()
@@ -84,19 +84,19 @@ class CanScrollTest : BaseTest() {
         localeUtil.setLocale(LocaleTestUtils.RTL_LANGUAGE)
         setUpTest(ORIENTATION_HORIZONTAL).apply {
             // when no pages
-            setAdapterSync(viewAdapterProvider(stringSequence(0)))
+            setAdapterSync(viewAdapterProvider.provider(stringSequence(0)))
 
             // then can't scroll
             assertScrollNone()
 
             // when 1 page
-            setAdapterSync(viewAdapterProvider(stringSequence(1)))
+            setAdapterSync(viewAdapterProvider.provider(stringSequence(1)))
 
             // then can't scroll
             assertScrollNone()
 
             // when 2 pages
-            setAdapterSync(viewAdapterProvider(stringSequence(2)))
+            setAdapterSync(viewAdapterProvider.provider(stringSequence(2)))
 
             // then can scroll left
             assertScrollLeft()
@@ -126,19 +126,19 @@ class CanScrollTest : BaseTest() {
         // given
         setUpTest(ORIENTATION_VERTICAL).apply {
             // when no pages
-            setAdapterSync(viewAdapterProvider(stringSequence(0)))
+            setAdapterSync(viewAdapterProvider.provider(stringSequence(0)))
 
             // then can't scroll
             assertScrollNone()
 
             // when 1 page
-            setAdapterSync(viewAdapterProvider(stringSequence(1)))
+            setAdapterSync(viewAdapterProvider.provider(stringSequence(1)))
 
             // then can't scroll
             assertScrollNone()
 
             // when 2 pages
-            setAdapterSync(viewAdapterProvider(stringSequence(2)))
+            setAdapterSync(viewAdapterProvider.provider(stringSequence(2)))
 
             // then can scroll down
             assertScrollDown()

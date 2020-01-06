@@ -73,7 +73,7 @@ class DragWhileSmoothScrollTest(private val config: TestConfig) : BaseTest() {
         assertThat(config.distanceToTargetWhenStartDrag, greaterThan(0f))
         val pageCount = max(config.startPage, config.targetPage) + 1
         test = setUpTest(config.orientation)
-        test.setAdapterSync(viewAdapterProvider(stringSequence(pageCount)))
+        test.setAdapterSync(viewAdapterProvider.provider(stringSequence(pageCount)))
         test.viewPager.setCurrentItemSync(config.startPage, false, 2, SECONDS)
 
         var recorder = test.viewPager.addNewRecordingCallback()

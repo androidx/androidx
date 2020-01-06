@@ -82,7 +82,7 @@ class OffscreenPageLimitTest(private val config: TestConfig) : BaseTest() {
             test.viewPager.offscreenPageLimit = config.offscreenPageLimit
         }
         val recorder = test.viewPager.addNewRecordingCallback()
-        test.setAdapterSync(config.adapterProvider(stringSequence(pageCount)))
+        test.setAdapterSync(config.adapterProvider.provider(stringSequence(pageCount)))
         // Do not perform self check (which checks number of shown + cached fragments) in
         // this test, as that check is not valid in the presence of offscreen page limit
         test.assertBasicState(firstPage, performSelfCheck = false)

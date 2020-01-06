@@ -599,9 +599,14 @@ open class BaseTest {
 
 typealias AdapterProvider = (TestActivity) -> RecyclerView.Adapter<out RecyclerView.ViewHolder>
 
-typealias AdapterProviderForItems = (items: List<String>) -> AdapterProvider
+data class AdapterProviderForItems(
+    val name: String,
+    val provider: (items: List<String>) -> AdapterProvider
+) {
+    override fun toString(): String = name
+}
 
-val fragmentAdapterProvider: AdapterProviderForItems = { items ->
+val fragmentAdapterProvider = AdapterProviderForItems("fragmentAdapterProvider") { items ->
     { activity: TestActivity ->
         FragmentAdapter(
             activity.supportFragmentManager,
@@ -616,35 +621,38 @@ val fragmentAdapterProvider: AdapterProviderForItems = { items ->
  * [FragmentStateAdapter.getItemId] and [FragmentStateAdapter.containsItem].
  * Not suitable for testing [RecyclerView.Adapter.notifyDataSetChanged].
  */
-val fragmentAdapterProviderCustomIds: AdapterProviderForItems = { items ->
-    { activity ->
-        fragmentAdapterProvider(items)(activity).also {
-            // more than position can represent, so a good test if ids are used consistently
-            val offset = 3L * Int.MAX_VALUE
-            val adapter = it as FragmentAdapter
-            adapter.positionToItemId = { position -> position + offset }
-            adapter.itemIdToContains = { itemId ->
-                val position = itemId - offset
-                position in (0 until adapter.itemCount)
+val fragmentAdapterProviderCustomIds =
+    AdapterProviderForItems("fragmentAdapterProviderCustomIds") { items ->
+        { activity ->
+            fragmentAdapterProvider.provider(items)(activity).also {
+                // more than position can represent, so a good test if ids are used consistently
+                val offset = 3L * Int.MAX_VALUE
+                val adapter = it as FragmentAdapter
+                adapter.positionToItemId = { position -> position + offset }
+                adapter.itemIdToContains = { itemId ->
+                    val position = itemId - offset
+                    position in (0 until adapter.itemCount)
+                }
             }
         }
     }
-}
 
 /**
  * Same as [fragmentAdapterProvider] but with a custom implementation of
  * [FragmentStateAdapter.getItemId] and [FragmentStateAdapter.containsItem].
  * Suitable for testing [RecyclerView.Adapter.notifyDataSetChanged].
  */
-val fragmentAdapterProviderValueId: AdapterProviderForItems = { items ->
-    { activity ->
-        fragmentAdapterProvider(items)(activity).also {
-            val adapter = it as FragmentAdapter
-            adapter.positionToItemId = { position -> items[position].getId() }
-            adapter.itemIdToContains = { itemId -> items.any { item -> item.getId() == itemId } }
+val fragmentAdapterProviderValueId =
+    AdapterProviderForItems("fragmentAdapterProviderValueId") { items ->
+        { activity ->
+            fragmentAdapterProvider.provider(items)(activity).also {
+                val adapter = it as FragmentAdapter
+                adapter.positionToItemId = { position -> items[position].getId() }
+                adapter.itemIdToContains =
+                    { itemId -> items.any { item -> item.getId() == itemId } }
+            }
         }
     }
-}
 
 /** Extracts the sole number from a [String] and converts it to a [Long] */
 private fun (String).getId(): Long {
@@ -660,9 +668,9 @@ private fun (String).getId(): Long {
  * [RecyclerView.Adapter.getItemId].
  * Suitable for testing [RecyclerView.Adapter.notifyDataSetChanged].mu
  */
-val viewAdapterProviderValueId: AdapterProviderForItems = { items ->
+val viewAdapterProviderValueId = AdapterProviderForItems("viewAdapterProviderValueId") { items ->
     { activity ->
-        viewAdapterProvider(items)(activity).also {
+        viewAdapterProvider.provider(items)(activity).also {
             val adapter = it as ViewAdapter
             adapter.positionToItemId = { position -> items[position].getId() }
             adapter.setHasStableIds(true)
@@ -670,7 +678,8 @@ val viewAdapterProviderValueId: AdapterProviderForItems = { items ->
     }
 }
 
-val viewAdapterProvider: AdapterProviderForItems = { items -> { ViewAdapter(items) } }
+val viewAdapterProvider =
+    AdapterProviderForItems("viewAdapterProvider") { items -> { ViewAdapter(items) } }
 
 fun stringSequence(pageCount: Int) = (0 until pageCount).map { it.toString() }
 

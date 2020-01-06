@@ -102,7 +102,7 @@ class AdapterDataSetChangeWhileSmoothScrollTest(private val config: TestConfig) 
         test = setUpTest(config.orientation)
         activityTestRule.runOnUiThread { test.viewPager.offscreenPageLimit = 1 }
         dataSet = stringSequence(pageCount).toMutableList()
-        test.setAdapterSync(config.adapterProvider(dataSet))
+        test.setAdapterSync(config.adapterProvider.provider(dataSet))
     }
 
     @Test

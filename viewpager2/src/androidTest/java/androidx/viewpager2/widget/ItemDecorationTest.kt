@@ -61,7 +61,7 @@ class ItemDecorationTest : BaseTest() {
     ) {
         // given
         setUpTest(orientation).run {
-            setAdapterSync(adapterProvider(stringSequence(3)))
+            setAdapterSync(adapterProvider.provider(stringSequence(3)))
 
             // sanity checks
             assertBasicState(0)

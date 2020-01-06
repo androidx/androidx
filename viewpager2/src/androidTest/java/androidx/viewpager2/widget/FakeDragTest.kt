@@ -101,7 +101,7 @@ class FakeDragTest(private val config: TestConfig) : BaseTest() {
             localeUtil.resetLocale()
             localeUtil.setLocale(LocaleTestUtils.RTL_LANGUAGE)
         }
-        adapterProvider = viewAdapterProvider(stringSequence(pageCount))
+        adapterProvider = viewAdapterProvider.provider(stringSequence(pageCount))
         test = setUpTest(config.orientation).also {
             fakeDragger = PageSwiperFakeDrag(it.viewPager) { it.viewPager.pageSize }
             it.viewPager.isUserInputEnabled = config.enableUserInput

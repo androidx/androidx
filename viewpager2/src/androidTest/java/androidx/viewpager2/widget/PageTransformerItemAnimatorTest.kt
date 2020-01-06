@@ -42,7 +42,7 @@ class PageTransformerItemAnimatorTest : BaseTest() {
     @Test
     fun test() {
         setUpTest(ORIENTATION_HORIZONTAL).apply {
-            setAdapterSync(viewAdapterProviderValueId(stringSequence(5)))
+            setAdapterSync(viewAdapterProviderValueId.provider(stringSequence(5)))
             assertBasicState(0)
 
             val rv = viewPager.getChildAt(0) as RecyclerView
