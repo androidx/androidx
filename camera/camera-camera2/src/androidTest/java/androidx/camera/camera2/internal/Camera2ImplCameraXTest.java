@@ -18,6 +18,7 @@ package androidx.camera.camera2.internal;
 
 import static com.google.common.truth.Truth.assertThat;
 
+import static org.junit.Assert.assertTrue;
 import static org.junit.Assume.assumeTrue;
 import static org.mockito.Matchers.any;
 import static org.mockito.Mockito.mock;
@@ -310,7 +311,7 @@ public final class Camera2ImplCameraXTest {
                 }
             });
             // Wait for the capture session is configured.
-            sessionStateCallback.waitForOnConfigured(1);
+            assertTrue(sessionStateCallback.waitForOnConfigured(1));
         }
 
         mInstrumentation.runOnMainSync(new Runnable() {
