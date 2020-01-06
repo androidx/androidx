@@ -20,10 +20,10 @@ import android.content.Context;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
+import androidx.camera.core.CameraInfo;
 
 /**
  * A Repository for generating use case configurations.
- *
  */
 public interface UseCaseConfigFactory {
 
@@ -40,10 +40,10 @@ public interface UseCaseConfigFactory {
      * Returns the configuration for the given type, or <code>null</code> if the configuration
      * cannot be produced.
      *
-     * @param lensFacing The {@link CameraSelector.LensFacing} that the configuration will target
-     *                  to.
+     * @param cameraInfo The {@link CameraInfo} of the camera that the configuration will target
+     *                   to, null if it doesn't target to any camera.
      */
     @Nullable
     <C extends UseCaseConfig<?>> C getConfig(@NonNull Class<C> configType,
-            @Nullable Integer lensFacing);
+            @Nullable CameraInfo cameraInfo);
 }

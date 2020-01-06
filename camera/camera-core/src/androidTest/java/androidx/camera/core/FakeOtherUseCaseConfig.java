@@ -19,8 +19,6 @@ package androidx.camera.core;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.annotation.RestrictTo;
-import androidx.camera.core.impl.CameraDeviceConfig;
-import androidx.camera.core.impl.CameraIdFilter;
 import androidx.camera.core.impl.CaptureConfig;
 import androidx.camera.core.impl.Config;
 import androidx.camera.core.impl.MutableConfig;
@@ -34,8 +32,7 @@ import java.util.UUID;
 
 /** A fake configuration for {@link FakeOtherUseCase}. */
 public class FakeOtherUseCaseConfig
-        implements UseCaseConfig<FakeOtherUseCase>,
-        CameraDeviceConfig { // TODO(b/142840814): Remove device config in favor of CameraSelector
+        implements UseCaseConfig<FakeOtherUseCase> {
 
     private final Config mConfig;
 
@@ -119,32 +116,6 @@ public class FakeOtherUseCaseConfig
     @NonNull
     public String getTargetName() {
         return retrieveOption(OPTION_TARGET_NAME);
-    }
-
-    // Implementations of CameraDeviceConfig default methods
-
-    @Override
-    @Nullable
-    public Integer getLensFacing(@CameraSelector.LensFacing Integer valueIfMissing) {
-        return retrieveOption(OPTION_LENS_FACING, valueIfMissing);
-    }
-
-    @Override
-    @CameraSelector.LensFacing
-    public int getLensFacing() {
-        return retrieveOption(OPTION_LENS_FACING);
-    }
-
-    @Override
-    @Nullable
-    public CameraIdFilter getCameraIdFilter(@Nullable CameraIdFilter valueIfMissing) {
-        return retrieveOption(OPTION_CAMERA_ID_FILTER, valueIfMissing);
-    }
-
-    @Override
-    @NonNull
-    public CameraIdFilter getCameraIdFilter() {
-        return retrieveOption(OPTION_CAMERA_ID_FILTER);
     }
 
     /** @hide */
@@ -262,8 +233,7 @@ public class FakeOtherUseCaseConfig
     /** Builder for an empty Config */
     public static final class Builder implements
             UseCaseConfig.Builder<FakeOtherUseCase, FakeOtherUseCaseConfig,
-                    FakeOtherUseCaseConfig.Builder>,
-            CameraDeviceConfig.Builder<FakeOtherUseCaseConfig.Builder> {
+                    FakeOtherUseCaseConfig.Builder> {
 
         private final MutableOptionsBundle mOptionsBundle;
 
@@ -312,22 +282,6 @@ public class FakeOtherUseCaseConfig
         @NonNull
         public Builder setTargetName(@NonNull String targetName) {
             getMutableConfig().insertOption(OPTION_TARGET_NAME, targetName);
-            return this;
-        }
-
-        // Implementations of CameraDeviceConfig.Builder default methods
-
-        @Override
-        @NonNull
-        public Builder setLensFacing(@CameraSelector.LensFacing int lensFacing) {
-            getMutableConfig().insertOption(OPTION_LENS_FACING, lensFacing);
-            return this;
-        }
-
-        @Override
-        @NonNull
-        public Builder setCameraIdFilter(@NonNull CameraIdFilter cameraIdFilter) {
-            getMutableConfig().insertOption(OPTION_CAMERA_ID_FILTER, cameraIdFilter);
             return this;
         }
 

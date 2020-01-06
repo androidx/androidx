@@ -46,7 +46,6 @@ import java.util.concurrent.Executor;
 public final class VideoCaptureConfig
         implements UseCaseConfig<VideoCapture>,
         ImageOutputConfig,
-        CameraDeviceConfig, // TODO(b/142840814): Remove in favor of CameraSelector
         ThreadConfig {
 
     // Option Declarations:
@@ -334,58 +333,6 @@ public final class VideoCaptureConfig
         return retrieveOption(OPTION_TARGET_NAME);
     }
 
-    // Implementations of CameraDeviceConfig default methods
-
-    /**
-     * Returns the lens-facing direction of the camera being configured.
-     *
-     * @param valueIfMissing The value to return if this configuration option has not been set.
-     * @return The stored value or <code>valueIfMissing</code> if the value does not exist in this
-     * configuration.
-     */
-    @Override
-    @Nullable
-    public Integer getLensFacing(@Nullable Integer valueIfMissing) {
-        return retrieveOption(OPTION_LENS_FACING, valueIfMissing);
-    }
-
-    /**
-     * Retrieves the lens facing direction for the primary camera to be configured.
-     *
-     * @return The stored value, if it exists in this configuration.
-     * @throws IllegalArgumentException if the option does not exist in this configuration.
-     */
-    @Override
-    @CameraSelector.LensFacing
-    public int getLensFacing() {
-        return retrieveOption(OPTION_LENS_FACING);
-    }
-
-    /**
-     * Returns the set of {@link CameraIdFilter} that filter out unavailable camera id.
-     *
-     * @param valueIfMissing The value to return if this configuration option has not been set.
-     * @return The stored value or <code>ValueIfMissing</code> if the value does not exist in this
-     * configuration.
-     */
-    @Override
-    @Nullable
-    public CameraIdFilter getCameraIdFilter(@Nullable CameraIdFilter valueIfMissing) {
-        return retrieveOption(OPTION_CAMERA_ID_FILTER, valueIfMissing);
-    }
-
-    /**
-     * Returns the set of {@link CameraIdFilter} that filter out unavailable camera id.
-     *
-     * @return The stored value, if it exists in the configuration.
-     * @throws IllegalArgumentException if the option does not exist in this configuration.
-     */
-    @Override
-    @NonNull
-    public CameraIdFilter getCameraIdFilter() {
-        return retrieveOption(OPTION_CAMERA_ID_FILTER);
-    }
-
     // Implementations of ImageOutputConfig default methods
 
     /**
@@ -659,7 +606,6 @@ public final class VideoCaptureConfig
             implements
             UseCaseConfig.Builder<VideoCapture, VideoCaptureConfig, Builder>,
             ImageOutputConfig.Builder<Builder>,
-            CameraDeviceConfig.Builder<Builder>,
             ThreadConfig.Builder<Builder> {
 
         private final MutableOptionsBundle mMutableConfig;
@@ -859,40 +805,6 @@ public final class VideoCaptureConfig
         @NonNull
         public Builder setTargetName(@NonNull String targetName) {
             getMutableConfig().insertOption(OPTION_TARGET_NAME, targetName);
-            return this;
-        }
-
-        // Implementations of CameraDeviceConfig.Builder default methods
-
-        /**
-         * Sets the primary camera to be configured based on the direction the lens is facing.
-         *
-         * <p>If multiple cameras exist with equivalent lens facing direction, the first ("primary")
-         * camera for that direction will be chosen.
-         *
-         * @param lensFacing The direction of the camera's lens.
-         * @return the current Builder.
-         */
-        @Override
-        @NonNull
-        public Builder setLensFacing(@CameraSelector.LensFacing int lensFacing) {
-            getMutableConfig().insertOption(OPTION_LENS_FACING, lensFacing);
-            return this;
-        }
-
-        /**
-         * Sets a {@link CameraIdFilter} that filter out the unavailable camera id.
-         *
-         * <p>The camera id filter will be used to filter those cameras with lens facing
-         * specified in the config.
-         *
-         * @param cameraIdFilter The {@link CameraIdFilter}.
-         * @return the current Builder.
-         */
-        @Override
-        @NonNull
-        public Builder setCameraIdFilter(@NonNull CameraIdFilter cameraIdFilter) {
-            getMutableConfig().insertOption(OPTION_CAMERA_ID_FILTER, cameraIdFilter);
             return this;
         }
 

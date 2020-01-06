@@ -16,15 +16,16 @@
 
 package androidx.camera.camera2.internal;
 
+import static androidx.camera.core.impl.ImageOutputConfig.DEFAULT_ASPECT_RATIO_LANDSCAPE;
+import static androidx.camera.core.impl.ImageOutputConfig.DEFAULT_ASPECT_RATIO_PORTRAIT;
+
 import android.content.Context;
 import android.hardware.camera2.CameraDevice;
-import android.util.Log;
-import android.util.Rational;
 import android.view.WindowManager;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
-import androidx.camera.core.CameraX;
+import androidx.camera.core.CameraInfo;
 import androidx.camera.core.ImageAnalysis;
 import androidx.camera.core.impl.CaptureConfig;
 import androidx.camera.core.impl.ConfigProvider;
@@ -36,8 +37,6 @@ import androidx.camera.core.impl.SessionConfig;
  */
 public final class ImageAnalysisConfigProvider implements ConfigProvider<ImageAnalysisConfig> {
     private static final String TAG = "ImageAnalysisProvider";
-    private static final Rational DEFAULT_ASPECT_RATIO_4_3 = new Rational(4, 3);
-    private static final Rational DEFAULT_ASPECT_RATIO_3_4 = new Rational(3, 4);
 
     private final WindowManager mWindowManager;
 
@@ -47,9 +46,9 @@ public final class ImageAnalysisConfigProvider implements ConfigProvider<ImageAn
 
     @Override
     @NonNull
-    public ImageAnalysisConfig getConfig(@Nullable Integer lensFacing) {
+    public ImageAnalysisConfig getConfig(@Nullable CameraInfo cameraInfo) {
         ImageAnalysis.Builder builder = ImageAnalysis.Builder.fromConfig(
-                ImageAnalysis.DEFAULT_CONFIG.getConfig(lensFacing));
+                ImageAnalysis.DEFAULT_CONFIG.getConfig(cameraInfo));
 
         // SessionConfig containing all intrinsic properties needed for ImageAnalysis
         SessionConfig.Builder sessionBuilder = new SessionConfig.Builder();
@@ -65,26 +64,15 @@ public final class ImageAnalysisConfigProvider implements ConfigProvider<ImageAn
         builder.setDefaultCaptureConfig(captureBuilder.build());
         builder.setCaptureOptionUnpacker(Camera2CaptureOptionUnpacker.INSTANCE);
 
-        try {
-            // TODO (b/144888472): Should not be using Camera ID here. Replace with
-            //  Camera/CameraInfo.
-            // Add default lensFacing if we can
-            int checkedLensFacing =
-                    (lensFacing != null) ? lensFacing : CameraX.getDefaultLensFacing();
-            String defaultId = CameraX.getCameraWithLensFacing(checkedLensFacing);
-            if (defaultId != null) {
-                builder.setLensFacing(checkedLensFacing);
-            }
+        int targetRotation = mWindowManager.getDefaultDisplay().getRotation();
+        builder.setTargetRotation(targetRotation);
 
-            int targetRotation = mWindowManager.getDefaultDisplay().getRotation();
-            int rotationDegrees = CameraX.getCameraInfo(defaultId).getSensorRotationDegrees(
-                    targetRotation);
+        // Add options that requires camera info to UseCaseConfig
+        if (cameraInfo != null) {
+            int rotationDegrees = cameraInfo.getSensorRotationDegrees(targetRotation);
             boolean isRotateNeeded = (rotationDegrees == 90 || rotationDegrees == 270);
-            builder.setTargetRotation(targetRotation);
-            builder.setTargetAspectRatioCustom(
-                    isRotateNeeded ? DEFAULT_ASPECT_RATIO_3_4 : DEFAULT_ASPECT_RATIO_4_3);
-        } catch (Exception e) {
-            Log.w(TAG, "Unable to determine default lens facing for ImageAnalysis.", e);
+            builder.setTargetAspectRatioCustom(isRotateNeeded ? DEFAULT_ASPECT_RATIO_PORTRAIT
+                    : DEFAULT_ASPECT_RATIO_LANDSCAPE);
         }
 
         return builder.getUseCaseConfig();

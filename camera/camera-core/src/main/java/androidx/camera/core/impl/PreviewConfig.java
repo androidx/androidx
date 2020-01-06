@@ -39,7 +39,6 @@ import java.util.concurrent.Executor;
 public final class PreviewConfig
         implements UseCaseConfig<Preview>,
         ImageOutputConfig,
-        CameraDeviceConfig, // TODO(b/142840814): Use case configs shouldn't know about camera
         ThreadConfig {
 
     // Options declarations
@@ -142,58 +141,6 @@ public final class PreviewConfig
     @NonNull
     public String getTargetName() {
         return retrieveOption(OPTION_TARGET_NAME);
-    }
-
-    // Implementations of CameraDeviceConfig default methods
-
-    /**
-     * Returns the lens-facing direction of the camera being configured.
-     *
-     * @param valueIfMissing The value to return if this configuration option has not been set.
-     * @return The stored value or <code>valueIfMissing</code> if the value does not exist in this
-     * configuration.
-     */
-    @Override
-    @Nullable
-    public Integer getLensFacing(@Nullable Integer valueIfMissing) {
-        return retrieveOption(OPTION_LENS_FACING, valueIfMissing);
-    }
-
-    /**
-     * Retrieves the lens facing direction for the primary camera to be configured.
-     *
-     * @return The stored value, if it exists in this configuration.
-     * @throws IllegalArgumentException if the option does not exist in this configuration.
-     */
-    @Override
-    @CameraSelector.LensFacing
-    public int getLensFacing() {
-        return retrieveOption(OPTION_LENS_FACING);
-    }
-
-    /**
-     * Returns the set of {@link CameraIdFilter} that filter out unavailable camera id.
-     *
-     * @param valueIfMissing The value to return if this configuration option has not been set.
-     * @return The stored value or <code>ValueIfMissing</code> if the value does not exist in this
-     * configuration.
-     */
-    @Override
-    @Nullable
-    public CameraIdFilter getCameraIdFilter(@Nullable CameraIdFilter valueIfMissing) {
-        return retrieveOption(OPTION_CAMERA_ID_FILTER, valueIfMissing);
-    }
-
-    /**
-     * Returns the set of {@link CameraIdFilter} that filter out unavailable camera id.
-     *
-     * @return The stored value, if it exists in the configuration.
-     * @throws IllegalArgumentException if the option does not exist in this configuration.
-     */
-    @Override
-    @NonNull
-    public CameraIdFilter getCameraIdFilter() {
-        return retrieveOption(OPTION_CAMERA_ID_FILTER);
     }
 
     // Implementations of ImageOutputConfig default methods

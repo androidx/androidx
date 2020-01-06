@@ -37,6 +37,12 @@ import java.util.List;
  */
 public interface ImageOutputConfig {
     /**
+     * Default aspect ratio for portrait and landscape
+     */
+    Rational DEFAULT_ASPECT_RATIO_LANDSCAPE = new Rational(4, 3);
+    Rational DEFAULT_ASPECT_RATIO_PORTRAIT = new Rational(3, 4);
+
+    /**
      * Invalid integer rotation.
      */
     int INVALID_ROTATION = -1;

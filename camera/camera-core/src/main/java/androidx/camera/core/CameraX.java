@@ -258,11 +258,9 @@ public final class CameraX {
             }
         }
 
-        // TODO(b/142840814): Camera should be selected here and bound to the use case.
-        //  Should not need to use CameraDeviceConfig anymore.
         CameraSelector.Builder selectorBuilder =
                 CameraSelector.Builder.fromSelector(cameraSelector);
-        // Copy existing filters from use cases into the new selector
+        // Append the camera filter required internally if there's any.
         for (UseCase useCase : useCases) {
             CameraSelector selector = useCase.getUseCaseConfig().getCameraSelector(null);
             if (selector != null) {
@@ -536,19 +534,19 @@ public final class CameraX {
      * the user-provided configuration used to create a use case.
      *
      * @param configType the configuration type
-     * @param lensFacing The {@link CameraSelector.LensFacing} that the default configuration
-     *                   will target to.
+     * @param cameraInfo The {@link CameraInfo} of the camera that the default configuration
+     *                   will target to, null if it doesn't target to any camera.
      * @return the default configuration for the given configuration type
-     * @throws IllegalStateException if Camerax has not yet been initialized.
+     * @throws IllegalStateException if CameraX has not yet been initialized.
      * @hide
      */
     @RestrictTo(Scope.LIBRARY_GROUP)
     @Nullable
     public static <C extends UseCaseConfig<?>> C getDefaultUseCaseConfig(Class<C> configType,
-            @Nullable Integer lensFacing) {
+            @Nullable CameraInfo cameraInfo) {
         CameraX cameraX = checkInitialized();
 
-        return cameraX.getDefaultConfigFactory().getConfig(configType, lensFacing);
+        return cameraX.getDefaultConfigFactory().getConfig(configType, cameraInfo);
     }
 
     /**
