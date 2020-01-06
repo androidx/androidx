@@ -62,9 +62,16 @@ class DatabaseVerifier private constructor(
          */
         private val SQLITE_NATIVE_LIB_EXTENSIONS = arrayOf(".so", ".jnilib", ".dll")
 
-        private val sqliteNativeLibDir: File
+        private lateinit var sqliteNativeLibDir: File
 
         init {
+            copyNativeLibs()
+        }
+
+        /**
+         * Copies native libraries into a tmp folder to be loaded.
+         */
+        private fun copyNativeLibs() {
             // see: https://github.com/xerial/sqlite-jdbc/issues/97
             val tmpDir = System.getProperty("java.io.tmpdir")
             checkNotNull(tmpDir) {
@@ -106,7 +113,14 @@ class DatabaseVerifier private constructor(
                         nativeLibs.forEach {
                             it.setExecutable(true)
                             context.logger.d("reloading the sqlite native file: $it")
-                            System.load(it.absoluteFile.absolutePath)
+                            try {
+                                System.load(it.absoluteFile.absolutePath)
+                            } catch (unsatisfied: UnsatisfiedLinkError) {
+                                // https://issuetracker.google.com/issues/146061836
+                                // workaround for b/146061836 where we just copy it again as
+                                // another file.
+                                copyNativeLibs()
+                            }
                         }
                     } else {
                         context.logger.w(Warning.CANNOT_CREATE_VERIFICATION_DATABASE, element,
