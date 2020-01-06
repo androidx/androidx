@@ -35,6 +35,7 @@ dependencies {
     api(gradleApi())
     implementation(GSON)
     testImplementation(gradleTestKit())
+    testImplementation(project(":internal-testutils-gradle-plugin"))
     testImplementation(JUNIT)
 }
 

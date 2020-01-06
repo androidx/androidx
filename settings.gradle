@@ -322,6 +322,7 @@ includeProject(":internal-testutils-espresso", "testutils/testutils-espresso")
 includeProject(":internal-testutils-truth", "testutils/testutils-truth")
 includeProject(":internal-testutils-ktx", "testutils/testutils-ktx")
 includeProject(":internal-testutils-navigation", "testutils/testutils-navigation")
+includeProject(":internal-testutils-gradle-plugin", "testutils/testutils-gradle-plugin")
 
 /////////////////////////////
 //

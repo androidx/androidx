@@ -16,17 +16,14 @@
 
 package androidx.navigation.safeargs.gradle
 
+import androidx.testutils.gradle.ProjectSetupRule
 import org.gradle.testkit.runner.BuildResult
 import org.gradle.testkit.runner.GradleRunner
 import org.gradle.testkit.runner.TaskOutcome
 import org.hamcrest.CoreMatchers
-import org.hamcrest.MatcherAssert
 import org.hamcrest.MatcherAssert.assertThat
-import org.junit.Before
 import org.junit.Rule
-import org.junit.rules.TemporaryFolder
 import java.io.File
-import java.util.Properties
 
 internal const val MAIN_DIR = "androidx/navigation/testapp"
 
@@ -46,20 +43,10 @@ internal const val NAV_RESOURCES = "src/main/res/navigation"
 internal const val SEC = 1000L
 
 abstract class BasePluginTest {
-    @Suppress("MemberVisibilityCanBePrivate")
     @get:Rule
-    val testProjectDir = TemporaryFolder()
+    val projectSetup = ProjectSetupRule()
 
-    internal var buildFile: File = File("")
-    internal var prebuiltsRoot = ""
-    internal var compileSdkVersion = ""
-    internal var buildToolsVersion = ""
-    internal var minSdkVersion = ""
-    internal var debugKeystore = ""
-    internal var navigationCommon = ""
-    internal var kotlinStblib = ""
-
-    internal fun projectRoot(): File = testProjectDir.root
+    internal fun projectRoot(): File = projectSetup.rootDir
 
     internal fun assertGenerated(name: String, prefix: String? = null): File {
         return prefix?.let { assertExists(name, true, it) } ?: assertExists(name, true)
@@ -74,7 +61,7 @@ abstract class BasePluginTest {
             projectRoot(),
             "${prefix}build/$GENERATED_PATH/$name"
         )
-        MatcherAssert.assertThat(
+        assertThat(
             generatedFile.exists(),
             CoreMatchers.`is`(ex)
         )
@@ -90,92 +77,40 @@ abstract class BasePluginTest {
     internal fun runGradle(vararg args: String) = gradleBuilder(*args).build()
     internal fun runAndFailGradle(vararg args: String) = gradleBuilder(*args).buildAndFail()
 
-    @Before
-    fun setup() {
-        projectRoot().mkdirs()
-        buildFile = File(projectRoot(), "build.gradle")
-        buildFile.createNewFile()
-        // copy local.properties
-        val appToolkitProperties = File("../../local.properties")
-        if (appToolkitProperties.exists()) {
-            appToolkitProperties.copyTo(
-                File(projectRoot(), "local.properties"),
-                overwrite = true
-            )
-        } else {
-            File("../../local.properties").copyTo(
-                File(projectRoot(), "local.properties"), overwrite = true
-            )
-        }
-        val stream = BasePluginTest::class.java.classLoader.getResourceAsStream("sdk.prop")
-        val properties = Properties()
-        properties.load(stream)
-        prebuiltsRoot = properties.getProperty("prebuiltsRoot")
-        compileSdkVersion = properties.getProperty("compileSdkVersion")
-        buildToolsVersion = properties.getProperty("buildToolsVersion")
-        minSdkVersion = properties.getProperty("minSdkVersion")
-        debugKeystore = properties.getProperty("debugKeystore")
-        navigationCommon = properties.getProperty("navigationCommon")
-        kotlinStblib = properties.getProperty("kotlinStdlib")
-
-        val propertiesFile = File(projectRoot(), "gradle.properties")
-        propertiesFile.writer().use {
-            val props = Properties()
-            props.setProperty("android.useAndroidX", "true")
-            props.store(it, null)
-        }
-    }
-
     internal fun setupSimpleBuildGradle() {
         testData("app-project").copyRecursively(projectRoot())
-        buildFile.writeText("""
-            plugins {
-                id('com.android.application')
-                id('androidx.navigation.safeargs')
-            }
-
-            repositories {
-                maven { url "$prebuiltsRoot/androidx/external" }
-                maven { url "$prebuiltsRoot/androidx/internal" }
-            }
-
-            android {
-                compileSdkVersion $compileSdkVersion
-                buildToolsVersion "$buildToolsVersion"
-
-                defaultConfig {
-                    minSdkVersion $minSdkVersion
+        projectSetup.writeDefaultBuildGradle(
+            prefix = """
+                plugins {
+                    id('com.android.application')
+                    id('androidx.navigation.safeargs')
                 }
-
-                signingConfigs {
-                    debug {
-                        storeFile file("$debugKeystore")
-                    }
+            """.trimIndent(),
+            suffix = """
+                dependencies {
+                    implementation "${projectSetup.props.navigationCommon}"
                 }
-            }
-
-            dependencies {
-                implementation "$navigationCommon"
-            }
-        """.trimIndent()
+            """.trimIndent()
         )
     }
 
     internal fun setupMultiModuleBuildGradle() {
         testData("multimodule-project").copyRecursively(projectRoot())
-        buildFile.writeText("""
+        val props = projectSetup.props
+        projectSetup.buildFile.writeText(
+            """
             buildscript {
-                ext.compileSdk = $compileSdkVersion
-                ext.buildTools = "$buildToolsVersion"
-                ext.minSdk = $minSdkVersion
-                ext.debugKeystoreFile = "$debugKeystore"
-                ext.navigationCommonDep = "$navigationCommon"
+                ext.compileSdk = ${props.compileSdkVersion}
+                ext.buildTools = "${props.buildToolsVersion}"
+                ext.minSdk = ${props.minSdkVersion}
+                ext.debugKeystoreFile = "${props.debugKeystore}"
+                ext.navigationCommonDep = "${props.navigationCommon}"
             }
 
             allprojects {
                 repositories {
-                    maven { url "$prebuiltsRoot/androidx/external" }
-                    maven { url "$prebuiltsRoot/androidx/internal" }
+                    maven { url "${props.prebuiltsRoot}/androidx/external" }
+                    maven { url "${props.prebuiltsRoot}/androidx/internal" }
                 }
             }
         """.trimIndent()
@@ -184,38 +119,20 @@ abstract class BasePluginTest {
 
     internal fun setupSimpleKotlinBuildGradle() {
         testData("app-project-kotlin").copyRecursively(projectRoot())
-        buildFile.writeText("""
-            plugins {
-                id('com.android.application')
-                id('kotlin-android')
-                id('androidx.navigation.safeargs.kotlin')
-            }
-
-            repositories {
-                maven { url "$prebuiltsRoot/androidx/external" }
-                maven { url "$prebuiltsRoot/androidx/internal" }
-            }
-
-            android {
-                compileSdkVersion $compileSdkVersion
-                buildToolsVersion "$buildToolsVersion"
-
-                defaultConfig {
-                    minSdkVersion $minSdkVersion
+        projectSetup.writeDefaultBuildGradle(
+            prefix = """
+                plugins {
+                    id('com.android.application')
+                    id('kotlin-android')
+                    id('androidx.navigation.safeargs.kotlin')
                 }
-
-                signingConfigs {
-                    debug {
-                        storeFile file("$debugKeystore")
-                    }
+            """.trimIndent(),
+            suffix = """
+                dependencies {
+                    implementation "${projectSetup.props.kotlinStblib}"
+                    implementation "${projectSetup.props.navigationCommon}"
                 }
-            }
-
-            dependencies {
-                implementation "$kotlinStblib"
-                implementation "$navigationCommon"
-            }
-        """.trimIndent()
+            """.trimIndent()
         )
     }
 }

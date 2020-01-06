@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2019 The Android Open Source Project
+ * Copyright 2020 The Android Open Source Project
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -14,8 +14,6 @@
  * limitations under the License.
  */
 
-import androidx.build.SdkResourceGenerator
-
 import static androidx.build.dependencies.DependenciesKt.*
 
 plugins {
@@ -25,18 +23,11 @@ plugins {
 
 dependencies {
     implementation(KOTLIN_STDLIB)
-
-    testImplementation(project(":internal-testutils-gradle-plugin"))
-    testImplementation(JUNIT)
-    testImplementation(TRUTH)
-    testImplementation gradleTestKit()
+    implementation(ANDROIDX_TEST_EXT_JUNIT)
+    implementation(ANDROIDX_TEST_CORE)
+    implementation(ANDROIDX_TEST_RULES)
 }
 
-SdkResourceGenerator.generateForHostTest(project)
-
-tasks.findByPath("test").dependsOn(
-        tasks.findByPath(":room:room-common:publish"),
-        tasks.findByPath(":room:room-runtime:publish"),
-        tasks.findByPath(":room:room-migration:publish"),
-        tasks.findByPath(":room:room-compiler:publish"),
-)
+androidx {
+    toolingProject = true
+}
