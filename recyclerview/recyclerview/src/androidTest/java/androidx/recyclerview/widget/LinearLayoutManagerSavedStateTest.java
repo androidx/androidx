@@ -270,8 +270,8 @@ public class LinearLayoutManagerSavedStateTest extends BaseLinearLayoutManagerTe
 
     // TODO(b/142682722): This test is currently causing process crashes on CuttleFish API 29
     //  devices that are currently assumed to not be an issue with RecyclerView or this test.
-    //  Therefore we are temporarily supressing the test on all sdk versions 29 and above until
-    //  the issue is resovled so that RecyclerView CLs are not blocked.
+    //  Therefore we are temporarily suppressing the test on all sdk versions 29 and above until
+    //  the issue is resolved so that RecyclerView CLs are not blocked.
     @Test
     @SdkSuppress(maxSdkVersion = 28)
     public void savedStateTest()
