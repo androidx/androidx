@@ -16,6 +16,7 @@
 
 package androidx.ui.test
 
+import android.app.Activity
 import android.graphics.Bitmap
 import android.os.Build
 import android.util.DisplayMetrics
@@ -112,7 +113,14 @@ interface ComposeTestCaseSetup {
 
 /**
  * Factory method to provide implementation of [ComposeTestRule].
+ *
+ * This method is useful for tests in compose libraries where no custom Activity is usually
+ * needed. For app tests or launching custom activities, see [AndroidComposeTestRule].
+ *
+ * For Android this will use the default Activity (android.app.Activity). You need to add a
+ * reference to this activity into the manifest file of the corresponding tests (usually in
+ * androidTest/AndroidManifest.xml).
  */
 fun createComposeRule(disableTransitions: Boolean = false): ComposeTestRule {
-    return AndroidComposeTestRule(disableTransitions)
+    return AndroidComposeTestRule(Activity::class.java, disableTransitions)
 }

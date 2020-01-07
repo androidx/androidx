@@ -43,13 +43,34 @@ import java.util.concurrent.CountDownLatch
 import java.util.concurrent.TimeUnit
 
 /**
+ * Factory method to provide implementation of [AndroidComposeTestRule].
+ *
+ * This method is useful for tests that require a custom Activity. This is usually the case for
+ * app tests. Make sure that you add the provided activity into your app's manifest file (usually
+ * in main/AndroidManifest.xml).
+ *
+ * If you don't care about specific activity and just want to test composables in general, see
+ * [AndroidComposeTestRule].
+ */
+inline fun <reified T : Activity> AndroidComposeTestRule(
+    disableTransitions: Boolean = false
+): AndroidComposeTestRule<T> {
+    // TODO(b/138993381): By launching custom activities we are losing control over what content is
+    // already there. This is issue in case the user already set some compose content and decides
+    // to set it again via our API. In such case we won't be able to dispose the old composition.
+    // Other option would be to provide a smaller interface that does not expose these methods.
+    return AndroidComposeTestRule(T::class.java, disableTransitions)
+}
+
+/**
  * Android specific implementation of [ComposeTestRule].
  */
-class AndroidComposeTestRule(
+class AndroidComposeTestRule<T : Activity>(
+    activityClass: Class<T>,
     private val disableTransitions: Boolean = false
 ) : ComposeTestRule {
 
-    val activityTestRule = ActivityTestRule<Activity>(Activity::class.java)
+    val activityTestRule = ActivityTestRule<T>(activityClass)
 
     private val handler: Handler = Handler(Looper.getMainLooper())
     private var disposeContentHook: (() -> Unit)? = null
