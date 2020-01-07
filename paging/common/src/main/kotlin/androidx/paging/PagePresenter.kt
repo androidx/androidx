@@ -62,6 +62,11 @@ internal class PagePresenter<T : Any>(
         }
     }
 
+    override fun toString(): String {
+        val items = List(storageCount) { getFromStorage(it) }.joinToString()
+        return "[($placeholdersStart placeholders), $items, ($placeholdersEnd placeholders)]"
+    }
+
     fun get(index: Int): T? {
         checkIndex(index)
 

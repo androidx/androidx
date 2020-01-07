@@ -31,6 +31,7 @@ internal class PageFetcher<Key : Any, Value : Any>(
     private val initialKey: Key?,
     private val config: PagingConfig
 ) {
+
     // NOTE: This channel is conflated, which means it has a buffer size of 1, and will always
     // broadcast the latest value received.
     private var refreshChannel = ConflatedBroadcastChannel<Unit>()
