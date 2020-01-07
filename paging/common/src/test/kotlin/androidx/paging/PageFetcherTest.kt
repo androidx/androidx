@@ -168,29 +168,3 @@ internal fun CoroutineScope.collectFetcherState(fetcher: PageFetcher<Int, Int>):
 
     return FetcherState(pagedDataList, pageEventLists, job)
 }
-
-internal fun assertEvents(expected: List<PageEvent<Int>>, actual: List<PageEvent<Int>>) {
-    try {
-        assertEquals(expected, actual)
-    } catch (e: Throwable) {
-        val msg = e.localizedMessage
-            .replace("),", "),\n")
-            .replace("<[", "<[\n ")
-            .replace("actual", "\nactual")
-            .lines()
-            .toMutableList()
-
-        if (expected.count() != actual.count()) throw AssertionError(msg.joinToString("\n"))
-
-        var index = 0
-        for (i in 0 until expected.count()) {
-            if (expected[i] != actual[i]) {
-                index = i
-                break
-            }
-        }
-        msg[index + 1] = msg[index + 1].prependIndent(" >")
-        msg[msg.count() / 2 + index + 1] = msg[msg.count() / 2 + index + 1].prependIndent(" >")
-        throw AssertionError(msg.joinToString("\n"))
-    }
-}
