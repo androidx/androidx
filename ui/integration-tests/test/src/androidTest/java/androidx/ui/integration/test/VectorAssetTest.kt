@@ -16,7 +16,9 @@
 
 package androidx.ui.integration.test
 
+import android.os.Build
 import androidx.test.filters.LargeTest
+import androidx.test.filters.SdkSuppress
 import androidx.ui.layout.Column
 import androidx.ui.test.captureToBitmap
 import androidx.ui.integration.test.framework.ProgrammaticVectorTestCase
@@ -35,6 +37,7 @@ import org.junit.runners.JUnit4
  * output when ran. This ensures correctness for the corresponding benchmarks.
  */
 @LargeTest
+@SdkSuppress(minSdkVersion = Build.VERSION_CODES.O)
 @RunWith(JUnit4::class)
 class VectorAssetTest {
     @get:Rule
