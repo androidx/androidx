@@ -19,6 +19,7 @@ package androidx.ui.test
 import android.graphics.Bitmap
 import android.os.Build
 import androidx.annotation.RequiresApi
+import androidx.ui.foundation.shape.RectangleShape
 import androidx.ui.geometry.Offset
 import androidx.ui.graphics.Color
 import androidx.ui.graphics.Path
@@ -27,9 +28,11 @@ import androidx.ui.graphics.addOutline
 import androidx.ui.unit.Density
 import androidx.ui.unit.IntPxPosition
 import androidx.ui.unit.IntPxSize
+import androidx.ui.unit.Px
 import androidx.ui.unit.PxSize
 import androidx.ui.unit.ipx
 import androidx.ui.unit.px
+import androidx.ui.unit.round
 import org.junit.Assert.assertEquals
 import org.junit.Assert.assertTrue
 
@@ -60,8 +63,10 @@ fun Bitmap.assertPixels(
 ) {
     if (expectedSize != null) {
         if (width != expectedSize.width.value || height != expectedSize.height.value) {
-            throw AssertionError("Bitmap size is wrong! Expected '$expectedSize' but got " +
-                    "'$width x $height'")
+            throw AssertionError(
+                "Bitmap size is wrong! Expected '$expectedSize' but got " +
+                        "'$width x $height'"
+            )
         }
     }
 
@@ -74,8 +79,10 @@ fun Bitmap.assertPixels(
             val color = Color(pixels[width * y + x])
             val expectedClr = expectedColorProvider(pxPos)
             if (expectedClr != null && expectedClr != color) {
-                throw AssertionError("Comparison failed for $pxPos: expected $expectedClr $ " +
-                        "but received $color")
+                throw AssertionError(
+                    "Comparison failed for $pxPos: expected $expectedClr $ " +
+                            "but received $color"
+                )
             }
         }
     }
@@ -106,31 +113,67 @@ fun Bitmap.assertPixelColor(
  *
  * The border area of 1 pixel from the shape outline is left untested as it is likely anti-aliased.
  */
+// TODO (mount, malkov) : to investigate why it flakes when shape is not rect
 fun Bitmap.assertShape(
-    backgroundColor: Color,
-    sizeX: Int = width,
-    sizeY: Int = height,
+    density: Density,
     shape: Shape,
     shapeColor: Color,
-    shapeSizeX: Int = sizeX,
-    shapeSizeY: Int = sizeY,
-    centerX: Int = width / 2,
-    centerY: Int = height / 2
+    backgroundColor: Color,
+    backgroundShape: Shape = RectangleShape,
+    sizeX: Px = width.toFloat().px,
+    sizeY: Px = height.toFloat().px,
+    shapeSizeX: Px = sizeX,
+    shapeSizeY: Px = sizeY,
+    centerX: Px = width.px / 2f,
+    centerY: Px = height.px / 2f,
+    shapeOverlapPixelCount: Px = 1.px
 ) {
+    val width = width.px
+    val height = height.px
     assertTrue(centerX + sizeX / 2 <= width)
-    assertTrue(centerX - sizeX / 2 >= 0)
+    assertTrue(centerX - sizeX / 2 >= 0.px)
     assertTrue(centerY + sizeY / 2 <= height)
-    assertTrue(centerY - sizeY / 2 >= 0)
-    val outline = shape.createOutline(PxSize(shapeSizeX.px, shapeSizeY.px), Density(1f))
+    assertTrue(centerY - sizeY / 2 >= 0.px)
+    val outline = shape.createOutline(PxSize(shapeSizeX, shapeSizeY), density)
     val path = Path()
     path.addOutline(outline)
-    val shapeOffset = Offset(centerX.toFloat() - shapeSizeX.toFloat() / 2f,
-        centerY.toFloat() - shapeSizeY.toFloat() / 2f)
+    val shapeOffset = Offset(
+        (centerX - shapeSizeX / 2f).value,
+        (centerY - shapeSizeY / 2f).value
+    )
+    val backgroundPath = Path()
+    backgroundPath.addOutline(backgroundShape.createOutline(PxSize(sizeX, sizeY), density))
     for (x in centerX - sizeX / 2 until centerX + sizeX / 2) {
         for (y in centerY - sizeY / 2 until centerY + sizeY / 2) {
-            val offset = Offset(x.toFloat(), y.toFloat()) - shapeOffset
-            val isInside = path.contains(pixelFartherFromCenter(offset, shapeSizeX, shapeSizeY))
-            val isOutside = !path.contains(pixelCloserToCenter(offset, shapeSizeX, shapeSizeY))
+            val point = Offset(x.toFloat(), y.toFloat())
+            if (!backgroundPath.contains(
+                    pixelFartherFromCenter(
+                        point,
+                        sizeX,
+                        sizeY,
+                        shapeOverlapPixelCount
+                    )
+                )
+            ) {
+                continue
+            }
+            val offset = point - shapeOffset
+            val isInside = path.contains(
+                pixelFartherFromCenter(
+                    offset,
+                    shapeSizeX,
+                    shapeSizeY,
+                    shapeOverlapPixelCount
+                )
+            )
+            val isOutside = !path.contains(
+                pixelCloserToCenter(
+                    offset,
+                    shapeSizeX,
+                    shapeSizeY,
+                    shapeOverlapPixelCount
+                )
+            )
             if (isInside) {
                 assertPixelColor(shapeColor, x, y)
             } else if (isOutside) {
@@ -140,33 +183,44 @@ fun Bitmap.assertShape(
     }
 }
 
-private fun pixelCloserToCenter(offset: Offset, shapeSizeX: Int, shapeSizeY: Int): Offset {
-    val centerX = shapeSizeX.toFloat() / 2f
-    val centerY = shapeSizeY.toFloat() / 2f
+private infix fun Px.until(until: Px): IntRange {
+    val from = this.round().value
+    val to = until.round().value
+    if (from <= Int.MIN_VALUE) return IntRange.EMPTY
+    return from..(to - 1).toInt()
+}
+
+private fun pixelCloserToCenter(offset: Offset, shapeSizeX: Px, shapeSizeY: Px, delta: Px):
+        Offset {
+    val centerX = shapeSizeX.value / 2f
+    val centerY = shapeSizeY.value / 2f
+    val d = delta.value
     val x = when {
-        offset.dx > centerX -> offset.dx - 1
-        offset.dx < centerX -> offset.dx + 1
+        offset.dx > centerX -> offset.dx - d
+        offset.dx < centerX -> offset.dx + d
         else -> offset.dx
     }
     val y = when {
-        offset.dy > centerY -> offset.dy - 1
-        offset.dy < centerY -> offset.dy + 1
+        offset.dy > centerY -> offset.dy - d
+        offset.dy < centerY -> offset.dy + d
         else -> offset.dy
     }
     return Offset(x, y)
 }
 
-private fun pixelFartherFromCenter(offset: Offset, shapeSizeX: Int, shapeSizeY: Int): Offset {
-    val centerX = shapeSizeX.toFloat() / 2f
-    val centerY = shapeSizeY.toFloat() / 2f
+private fun pixelFartherFromCenter(offset: Offset, shapeSizeX: Px, shapeSizeY: Px, delta: Px):
+        Offset {
+    val centerX = shapeSizeX.value / 2f
+    val centerY = shapeSizeY.value / 2f
+    val d = delta.value
     val x = when {
-        offset.dx > centerX -> offset.dx + 1
-        offset.dx < centerX -> offset.dx - 1
+        offset.dx > centerX -> offset.dx + d
+        offset.dx < centerX -> offset.dx - d
         else -> offset.dx
     }
     val y = when {
-        offset.dy > centerY -> offset.dy + 1
-        offset.dy < centerY -> offset.dy - 1
+        offset.dy > centerY -> offset.dy + d
+        offset.dy < centerY -> offset.dy - d
         else -> offset.dy
     }
     return Offset(x, y)

@@ -17,9 +17,10 @@
 package androidx.ui.integration.test.core
 
 import androidx.compose.Composable
+import androidx.ui.core.Draw
+import androidx.ui.core.ambientDensity
+import androidx.ui.foundation.Border
 import androidx.ui.foundation.shape.DrawShape
-import androidx.ui.foundation.shape.border.Border
-import androidx.ui.foundation.shape.border.DrawBorder
 import androidx.ui.foundation.shape.corner.CircleShape
 import androidx.ui.geometry.Offset
 import androidx.ui.geometry.shift
@@ -27,6 +28,7 @@ import androidx.ui.graphics.Color
 import androidx.ui.graphics.Outline
 import androidx.ui.graphics.Path
 import androidx.ui.graphics.Shape
+import androidx.ui.graphics.SolidColor
 import androidx.ui.layout.Container
 import androidx.ui.unit.Density
 import androidx.ui.unit.Dp
@@ -39,7 +41,13 @@ class SimpleRadioButton2TestCase : BaseSimpleRadioButtonTestCase() {
     @Composable
     override fun emitContent() {
         Container(width = 48.dp, height = 48.dp) {
-            DrawBorder(CircleShape, Border(Color.Cyan, 1.dp))
+            // code below was replaced by DrawBorder but we still need it
+            // in order to have honest benchmark here
+            val borderModifier = Border(CircleShape, 1.dp, SolidColor(Color.Cyan))
+            val density = ambientDensity()
+            Draw { canvas, size ->
+                borderModifier.draw(density, {}, canvas, size)
+            }
             val padding = (48.dp - getInnerSize().value) / 2
             DrawShape(PaddingShape(padding, CircleShape), Color.Cyan)
         }

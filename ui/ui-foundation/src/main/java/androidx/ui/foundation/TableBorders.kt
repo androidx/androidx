@@ -18,10 +18,11 @@ package androidx.ui.foundation
 
 import androidx.compose.remember
 import androidx.ui.core.Draw
-import androidx.ui.foundation.shape.border.Border
 import androidx.ui.geometry.Offset
+import androidx.ui.graphics.Brush
 import androidx.ui.graphics.Color
 import androidx.ui.graphics.Paint
+import androidx.ui.graphics.SolidColor
 import androidx.ui.layout.Table
 import androidx.ui.layout.TableChildren
 import androidx.ui.unit.Dp
@@ -33,10 +34,12 @@ import androidx.ui.unit.Dp
  *
  * @sample androidx.ui.foundation.samples.TableWithBorders
  *
- * @param defaultBorder The default style used for borders that do not specify a style.
+ * @param defaultBorderBrush The default brush to be used for borders that do not specify a style.
+ * @param defaultBorderWidth The default width to be used for borders that do not specify a style.
  */
 fun TableChildren.drawBorders(
-    defaultBorder: Border = Border(color = Color.Black, width = Dp.Hairline),
+    defaultBorderWidth: Dp = Dp.Hairline,
+    defaultBorderBrush: Brush = SolidColor(Color.Black),
     block: DrawBordersReceiver.() -> Unit
 ) {
     tableDecoration(overlay = true) {
@@ -45,9 +48,10 @@ fun TableChildren.drawBorders(
             val borders = DrawBordersReceiver(
                 rowCount = verticalOffsets.size - 1,
                 columnCount = horizontalOffsets.size - 1,
-                defaultBorder = defaultBorder
+                defaultBorderWidth = defaultBorderWidth,
+                defaultBorderBrush = defaultBorderBrush
             ).also(block).borders
-            for ((border, row, column, orientation) in borders) {
+            for ((borderWidth, borderBrush, row, column, orientation) in borders) {
                 val p1 = Offset(
                     dx = horizontalOffsets[column].value.toFloat(),
                     dy = verticalOffsets[row].value.toFloat()
@@ -61,8 +65,8 @@ fun TableChildren.drawBorders(
                     )
                 }
                 // TODO(calintat): Reset paint when that operation is available.
-                border.brush.applyTo(paint)
-                paint.strokeWidth = border.width.toPx().value
+                borderBrush.applyTo(paint)
+                paint.strokeWidth = borderWidth.toPx().value
                 canvas.drawLine(p1, p2, paint)
             }
         }
@@ -76,63 +80,71 @@ fun TableChildren.drawBorders(
 class DrawBordersReceiver internal constructor(
     private val rowCount: Int,
     private val columnCount: Int,
-    private val defaultBorder: Border
+    private val defaultBorderWidth: Dp,
+    private val defaultBorderBrush: Brush
 ) {
     internal val borders = mutableListOf<BorderInfo>()
 
     /**
      * Add all borders.
      */
-    fun all(border: Border = defaultBorder) {
-        allVertical(border)
-        allHorizontal(border)
+    fun all(borderWidth: Dp = defaultBorderWidth, borderBrush: Brush = defaultBorderBrush) {
+        allVertical(borderWidth, borderBrush)
+        allHorizontal(borderWidth, borderBrush)
     }
 
     /**
      * Add all outer borders.
      */
-    fun outer(border: Border = defaultBorder) {
-        left(border)
-        top(border)
-        right(border)
-        bottom(border)
+    fun outer(borderWidth: Dp = defaultBorderWidth, borderBrush: Brush = defaultBorderBrush) {
+        left(borderWidth, borderBrush)
+        top(borderWidth, borderBrush)
+        right(borderWidth, borderBrush)
+        bottom(borderWidth, borderBrush)
     }
 
     /**
      * Add a vertical border before the first column.
      */
-    fun left(border: Border = defaultBorder) = vertical(column = 0, border = border)
+    fun left(borderWidth: Dp = defaultBorderWidth, borderBrush: Brush = defaultBorderBrush) =
+        vertical(column = 0, borderWidth = borderWidth, borderBrush = borderBrush)
 
     /**
      * Add a horizontal border before the first row.
      */
-    fun top(border: Border = defaultBorder) = horizontal(row = 0, border = border)
+    fun top(borderWidth: Dp = defaultBorderWidth, borderBrush: Brush = defaultBorderBrush) =
+        horizontal(row = 0, borderWidth = borderWidth, borderBrush = borderBrush)
 
     /**
      * Add a vertical border after the last column.
      */
-    fun right(border: Border = defaultBorder) = vertical(column = columnCount, border = border)
+    fun right(borderWidth: Dp = defaultBorderWidth, borderBrush: Brush = defaultBorderBrush) =
+        vertical(column = columnCount, borderWidth = borderWidth, borderBrush = borderBrush)
 
     /**
      * Add a horizontal border after the last row.
      */
-    fun bottom(border: Border = defaultBorder) = horizontal(row = rowCount, border = border)
+    fun bottom(borderWidth: Dp = defaultBorderWidth, borderBrush: Brush = defaultBorderBrush) =
+        horizontal(row = rowCount, borderWidth = borderWidth, borderBrush = borderBrush)
 
     /**
      * Add all vertical borders.
      */
-    fun allVertical(border: Border = defaultBorder) {
+    fun allVertical(borderWidth: Dp = defaultBorderWidth, borderBrush: Brush = defaultBorderBrush) {
         for (column in 0..columnCount) {
-            vertical(column, border = border)
+            vertical(column, borderWidth = borderWidth, borderBrush = borderBrush)
         }
     }
 
     /**
      * Add all horizontal borders.
      */
-    fun allHorizontal(border: Border = defaultBorder) {
+    fun allHorizontal(
+        borderWidth: Dp = defaultBorderWidth,
+        borderBrush: Brush = defaultBorderBrush
+    ) {
         for (row in 0..rowCount) {
-            horizontal(row, border = border)
+            horizontal(row, borderWidth = borderWidth, borderBrush = borderBrush)
         }
     }
 
@@ -142,12 +154,14 @@ class DrawBordersReceiver internal constructor(
     fun vertical(
         column: Int,
         rows: IntRange = 0 until rowCount,
-        border: Border = defaultBorder
+        borderWidth: Dp = defaultBorderWidth,
+        borderBrush: Brush = defaultBorderBrush
     ) {
         if (column in 0..columnCount && 0 <= rows.start && rows.endInclusive < rowCount) {
             for (row in rows) {
                 borders += BorderInfo(
-                    border = border,
+                    borderWidth = borderWidth,
+                    borderBrush = borderBrush,
                     row = row,
                     column = column,
                     orientation = BorderOrientation.Vertical
@@ -162,12 +176,14 @@ class DrawBordersReceiver internal constructor(
     fun horizontal(
         row: Int,
         columns: IntRange = 0 until columnCount,
-        border: Border = defaultBorder
+        borderWidth: Dp = defaultBorderWidth,
+        borderBrush: Brush = defaultBorderBrush
     ) {
         if (row in 0..rowCount && 0 <= columns.start && columns.endInclusive < columnCount) {
             for (column in columns) {
                 borders += BorderInfo(
-                    border = border,
+                    borderWidth = borderWidth,
+                    borderBrush = borderBrush,
                     row = row,
                     column = column,
                     orientation = BorderOrientation.Horizontal
@@ -178,7 +194,8 @@ class DrawBordersReceiver internal constructor(
 }
 
 internal data class BorderInfo(
-    val border: Border,
+    val borderWidth: Dp,
+    val borderBrush: Brush,
     val row: Int,
     val column: Int,
     val orientation: BorderOrientation

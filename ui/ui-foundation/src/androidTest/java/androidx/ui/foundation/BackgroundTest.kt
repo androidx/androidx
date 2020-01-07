@@ -46,6 +46,7 @@ import org.junit.runners.JUnit4
 @SdkSuppress(minSdkVersion = Build.VERSION_CODES.O)
 @RunWith(JUnit4::class)
 class BackgroundTest {
+
     @get:Rule
     val composeTestRule = createComposeRule()
 
@@ -70,10 +71,11 @@ class BackgroundTest {
         }
         val bitmap = findByTag(contentTag).captureToBitmap()
         bitmap.assertShape(
+            density = composeTestRule.density,
             backgroundColor = Color.Magenta,
             shape = RectangleShape,
-            shapeSizeX = 20,
-            shapeSizeY = 20,
+            shapeSizeX = 20.px,
+            shapeSizeY = 20.px,
             shapeColor = Color.White)
     }
 
@@ -100,10 +102,11 @@ class BackgroundTest {
         }
         val bitmap = findByTag(contentTag).captureToBitmap()
         bitmap.assertShape(
+            density = composeTestRule.density,
             backgroundColor = Color.Magenta,
             shape = RectangleShape,
-            shapeSizeX = 20,
-            shapeSizeY = 20,
+            shapeSizeX = 20.px,
+            shapeSizeY = 20.px,
             shapeColor = Color.White)
     }
 
@@ -121,6 +124,7 @@ class BackgroundTest {
         }
         val bitmap = findByTag(contentTag).captureToBitmap()
         bitmap.assertShape(
+            density = composeTestRule.density,
             backgroundColor = Color.Magenta,
             shape = CircleShape,
             shapeColor = Color.White)
@@ -142,6 +146,7 @@ class BackgroundTest {
         }
         val bitmap = findByTag(contentTag).captureToBitmap()
         bitmap.assertShape(
+            density = composeTestRule.density,
             backgroundColor = Color.Magenta,
             shape = CircleShape,
             shapeColor = Color.White)
