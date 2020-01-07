@@ -35,9 +35,6 @@ import androidx.camera.core.FocusMeteringAction;
 import androidx.camera.core.FocusMeteringResult;
 import androidx.camera.core.MeteringPoint;
 import androidx.camera.core.impl.CaptureConfig;
-import androidx.camera.core.impl.utils.executor.CameraXExecutors;
-import androidx.camera.core.impl.utils.futures.FutureCallback;
-import androidx.camera.core.impl.utils.futures.Futures;
 import androidx.concurrent.futures.CallbackToFutureAdapter;
 import androidx.concurrent.futures.CallbackToFutureAdapter.Completer;
 
@@ -154,20 +151,7 @@ class FocusMeteringControl {
 
         if (!mIsActive) {
             mExecutor.execute(() -> {
-                ListenableFuture<Void> future = cancelFocusAndMetering();
-                Futures.addCallback(future, new FutureCallback<Void>() {
-                    @Override
-                    public void onSuccess(@Nullable Void result) {
-                    }
-
-                    @Override
-                    public void onFailure(Throwable t) {
-                        if (!(t instanceof CameraControl.OperationCanceledException)) {
-                            // Throw the unexpected error.
-                            throw new RuntimeException(t);
-                        }
-                    }
-                }, CameraXExecutors.directExecutor());
+                cancelFocusAndMeteringWithoutAsyncResult();
             });
         }
     }
