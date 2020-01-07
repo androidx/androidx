@@ -654,7 +654,7 @@ public class Preference implements Comparable<Preference> {
      * @param title The title for this preference
      */
     public void setTitle(CharSequence title) {
-        if ((title == null && mTitle != null) || (title != null && !title.equals(mTitle))) {
+        if (!TextUtils.equals(title, mTitle)) {
             mTitle = title;
             notifyChanged();
         }

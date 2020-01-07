@@ -580,7 +580,7 @@ public final class RemoteInput {
         if (!clipDescription.hasMimeType(ClipDescription.MIMETYPE_TEXT_INTENT)) {
             return null;
         }
-        if (!clipDescription.getLabel().equals(RemoteInput.RESULTS_CLIP_LABEL)) {
+        if (!clipDescription.getLabel().toString().contentEquals(RemoteInput.RESULTS_CLIP_LABEL)) {
             return null;
         }
         return clipData.getItemAt(0).getIntent();

@@ -228,7 +228,8 @@ public class LeanbackListPreferenceDialogFragmentCompat extends
 
         @Override
         public void onBindViewHolder(ViewHolder holder, int position) {
-            holder.getWidgetView().setChecked(mEntryValues[position].equals(mSelectedValue));
+            holder.getWidgetView().setChecked(
+                    TextUtils.equals(mEntryValues[position].toString(), mSelectedValue));
             holder.getTitleView().setText(mEntries[position]);
         }
 
