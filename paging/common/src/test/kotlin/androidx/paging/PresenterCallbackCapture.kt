@@ -32,7 +32,7 @@ class PresenterCallbackCapture : PresenterCallback {
         }
     }
 
-    override fun onInserted(position: Int, count: Int, loadStates: Map<LoadType, LoadState>?) {
+    override fun onInserted(position: Int, count: Int) {
         if (count != 0) {
             list.add(InsertEvent(position, count))
         }
