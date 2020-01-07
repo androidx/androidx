@@ -461,8 +461,8 @@ final class SupportedSurfaceCombination {
     private static boolean isPossibleMod16FromAspectRatio(Size resolution, Rational aspectRatio) {
         int width = resolution.getWidth();
         int height = resolution.getHeight();
-        Rational invAspectRatio = new Rational(aspectRatio.getDenominator(),
-                aspectRatio.getNumerator());
+        Rational invAspectRatio = new Rational(/* numerator= */aspectRatio.getDenominator(),
+                /* denominator= */aspectRatio.getNumerator());
         if (width % 16 == 0 && height % 16 == 0) {
             return ratioIntersectsMod16Segment(Math.max(0, height - ALIGN16), width, aspectRatio)
                     || ratioIntersectsMod16Segment(Math.max(0, width - ALIGN16), height,
