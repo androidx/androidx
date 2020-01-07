@@ -166,7 +166,7 @@ package androidx.paging {
     method public final void connect(kotlinx.coroutines.flow.Flow<androidx.paging.PagedData<T>> flow, kotlinx.coroutines.CoroutineScope scope, androidx.paging.PresenterCallback callback);
     method public final operator T? get(int index);
     method public final int getSize();
-    method public abstract suspend Object! performDiff(androidx.paging.NullPaddedList<T> previous, androidx.paging.NullPaddedList<T> p, kotlin.coroutines.Continuation<? super kotlin.Unit> p1);
+    method public abstract suspend Object! performDiff(androidx.paging.NullPaddedList<T> previousList, androidx.paging.NullPaddedList<T> newList, java.util.Map<androidx.paging.LoadType,? extends androidx.paging.LoadState> newLoadStates, kotlin.coroutines.Continuation<? super kotlin.Unit> p);
     method public final void retry();
     property public final int size;
   }

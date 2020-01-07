@@ -76,18 +76,23 @@ open class AsyncPagedDataDiffer<T : Any>(
     }
 
     private val differBase = object : PagedDataDiffer<T>(mainDispatcher, workerDispatcher) {
-        override suspend fun performDiff(previous: NullPaddedList<T>, new: NullPaddedList<T>) {
+        override suspend fun performDiff(
+            previousList: NullPaddedList<T>,
+            newList: NullPaddedList<T>,
+            newLoadStates: Map<LoadType, LoadState>
+        ) {
             withContext(mainDispatcher) {
                 when {
-                    previous.size == 0 -> // fast path for no items -> some items
-                        callback.onInserted(0, new.size)
-                    new.size == 0 -> // fast path for some items -> no items
-                        callback.onRemoved(0, previous.size)
+                    previousList.size == 0 -> // fast path for no items -> some items
+                        callback.onInserted(0, newList.size)
+                    newList.size == 0 -> // fast path for some items -> no items
+                        callback.onRemoved(0, previousList.size)
                     else -> { // full diff
                         val diffResult = withContext(workerDispatcher) {
-                            previous.computeDiff(new, diffCallback)
+                            previousList.computeDiff(newList, diffCallback)
                         }
-                        previous.dispatchDiff(updateCallback, new, diffResult)
+                        previousList.dispatchDiff(updateCallback, newList, diffResult)
+                        newLoadStates.entries.forEach { callback.onStateUpdate(it.key, it.value) }
                     }
                 }
             }
