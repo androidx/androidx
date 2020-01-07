@@ -358,7 +358,7 @@ public interface SupportSQLiteOpenHelper extends Closeable {
             Context mContext;
             String mName;
             SupportSQLiteOpenHelper.Callback mCallback;
-            boolean mUseNoBackUpDirectory;
+            boolean mUseNoBackupDirectory;
 
             /**
              * <p>
@@ -381,12 +381,12 @@ public interface SupportSQLiteOpenHelper extends Closeable {
                     throw new IllegalArgumentException("Must set a non-null context to create"
                             + " the configuration.");
                 }
-                if (mUseNoBackUpDirectory && TextUtils.isEmpty(mName)) {
+                if (mUseNoBackupDirectory && TextUtils.isEmpty(mName)) {
                     throw new IllegalArgumentException(
                             "Must set a non-null database name to a configuration that uses the "
                                     + "no backup directory.");
                 }
-                return new Configuration(mContext, mName, mCallback, mUseNoBackUpDirectory);
+                return new Configuration(mContext, mName, mCallback, mUseNoBackupDirectory);
             }
 
             Builder(@NonNull Context context) {
@@ -415,13 +415,13 @@ public interface SupportSQLiteOpenHelper extends Closeable {
 
             /**
              * Sets whether to use a no backup directory or not.
-             * @param useNoBackUpDirectory If {@code true} the database file will be stored in the
+             * @param useNoBackupDirectory If {@code true} the database file will be stored in the
              *                             no-backup directory.
              * @return this
              */
             @NonNull
-            public Builder noBackupDirectory(boolean useNoBackUpDirectory) {
-                mUseNoBackUpDirectory = useNoBackUpDirectory;
+            public Builder noBackupDirectory(boolean useNoBackupDirectory) {
+                mUseNoBackupDirectory = useNoBackupDirectory;
                 return this;
             }
         }
