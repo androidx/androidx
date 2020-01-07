@@ -22,32 +22,23 @@ class PathBuilder {
 
     fun getNodes(): List<PathNode> = nodes
 
-    fun close(): PathBuilder =
-        addNode(PathCommand.Close)
+    fun close(): PathBuilder = addNode(PathNode.Close)
 
-    fun moveTo(x: Float, y: Float) =
-        addNode(PathCommand.MoveTo, x, y)
+    fun moveTo(x: Float, y: Float) = addNode(PathNode.MoveTo(x, y))
 
-    fun moveToRelative(x: Float, y: Float) =
-        addNode(PathCommand.RelativeMoveTo, x, y)
+    fun moveToRelative(x: Float, y: Float) = addNode(PathNode.RelativeMoveTo(x, y))
 
-    fun lineTo(x: Float, y: Float) =
-        addNode(PathCommand.LineTo, x, y)
+    fun lineTo(x: Float, y: Float) = addNode(PathNode.LineTo(x, y))
 
-    fun lineToRelative(x: Float, y: Float) =
-        addNode(PathCommand.RelativeLineTo, x, y)
+    fun lineToRelative(x: Float, y: Float) = addNode(PathNode.RelativeLineTo(x, y))
 
-    fun horizontalLineTo(x: Float) =
-        addNode(PathCommand.HorizontalLineTo, x)
+    fun horizontalLineTo(x: Float) = addNode(PathNode.HorizontalTo(x))
 
-    fun horizontalLineToRelative(x: Float) =
-        addNode(PathCommand.RelativeHorizontalTo, x)
+    fun horizontalLineToRelative(x: Float) = addNode(PathNode.RelativeHorizontalTo(x))
 
-    fun verticalLineTo(y: Float) =
-        addNode(PathCommand.VerticalLineTo, y)
+    fun verticalLineTo(y: Float) = addNode(PathNode.VerticalTo(y))
 
-    fun verticalLineToRelative(y: Float) =
-        addNode(PathCommand.RelativeVerticalTo, y)
+    fun verticalLineToRelative(y: Float) = addNode(PathNode.RelativeVerticalTo(y))
 
     fun curveTo(
         x1: Float,
@@ -56,7 +47,7 @@ class PathBuilder {
         y2: Float,
         x3: Float,
         y3: Float
-    ) = addNode(PathCommand.CurveTo, x1, y1, x2, y2, x3, y3)
+    ) = addNode(PathNode.CurveTo(x1, y1, x2, y2, x3, y3))
 
     fun curveToRelative(
         dx1: Float,
@@ -65,50 +56,58 @@ class PathBuilder {
         dy2: Float,
         dx3: Float,
         dy3: Float
-    ) = addNode(PathCommand.RelativeCurveTo, dx1, dy1, dx2, dy2, dx3, dy3)
+    ) = addNode(PathNode.RelativeCurveTo(dx1, dy1, dx2, dy2, dx3, dy3))
 
     fun reflectiveCurveTo(x1: Float, y1: Float, x2: Float, y2: Float) =
-        addNode(PathCommand.ReflectiveCurveTo, x1, y1, x2, y2)
+        addNode(PathNode.ReflectiveCurveTo(x1, y1, x2, y2))
 
     fun reflectiveCurveToRelative(x1: Float, y1: Float, x2: Float, y2: Float) =
-        addNode(PathCommand.RelativeReflectiveCurveTo, x1, y1, x2, y2)
+        addNode(PathNode.RelativeReflectiveCurveTo(x1, y1, x2, y2))
 
     fun quadTo(x1: Float, y1: Float, x2: Float, y2: Float) =
-        addNode(PathCommand.QuadTo, x1, y1, x2, y2)
+        addNode(PathNode.QuadTo(x1, y1, x2, y2))
 
     fun quadToRelative(x1: Float, y1: Float, x2: Float, y2: Float) =
-        addNode(PathCommand.RelativeQuadTo, x1, y1, x2, y2)
+        addNode(PathNode.RelativeQuadTo(x1, y1, x2, y2))
 
     fun reflectiveQuadTo(x1: Float, y1: Float) =
-        addNode(PathCommand.ReflectiveQuadTo, x1, y1)
+        addNode(PathNode.ReflectiveQuadTo(x1, y1))
 
     fun reflectiveQuadToRelative(x1: Float, y1: Float) =
-        addNode(PathCommand.RelativeReflectiveQuadTo, x1, y1)
+        addNode(PathNode.RelativeReflectiveQuadTo(x1, y1))
 
     fun arcTo(
         horizontalEllipseRadius: Float,
         verticalEllipseRadius: Float,
         theta: Float,
-        largeArcFlag: Float,
-        sweepFlag: Float,
+        isMoreThanHalf: Boolean,
+        isPositiveArc: Boolean,
         x1: Float,
         y1: Float
     ) = addNode(
-        PathCommand.ArcTo, horizontalEllipseRadius, verticalEllipseRadius, theta,
-                largeArcFlag, sweepFlag, x1, y1)
+        PathNode.ArcTo(
+            horizontalEllipseRadius,
+            verticalEllipseRadius,
+            theta,
+            isMoreThanHalf,
+            isPositiveArc,
+            x1,
+            y1
+        )
+    )
 
     fun arcToRelative(
         a: Float,
         b: Float,
         theta: Float,
-        largeArcFlag: Float,
-        sweepFlag: Float,
+        isMoreThanHalf: Boolean,
+        isPositiveArc: Boolean,
         x1: Float,
         y1: Float
-    ) = addNode(PathCommand.RelativeArcTo, a, b, theta, largeArcFlag, sweepFlag, x1, y1)
+    ) = addNode(PathNode.RelativeArcTo(a, b, theta, isMoreThanHalf, isPositiveArc, x1, y1))
 
-    private fun addNode(cmd: PathCommand, vararg args: Float): PathBuilder {
-        nodes.add(PathNode(cmd, args))
+    private fun addNode(node: PathNode): PathBuilder {
+        nodes.add(node)
         return this
     }
 }

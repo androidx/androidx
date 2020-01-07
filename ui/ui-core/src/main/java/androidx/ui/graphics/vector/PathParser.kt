@@ -18,18 +18,27 @@ package androidx.ui.graphics.vector
 
 import android.util.Log
 import androidx.ui.graphics.Path
+import androidx.ui.graphics.vector.PathNode.ArcTo
+import androidx.ui.graphics.vector.PathNode.Close
+import androidx.ui.graphics.vector.PathNode.CurveTo
+import androidx.ui.graphics.vector.PathNode.HorizontalTo
+import androidx.ui.graphics.vector.PathNode.LineTo
+import androidx.ui.graphics.vector.PathNode.MoveTo
+import androidx.ui.graphics.vector.PathNode.QuadTo
+import androidx.ui.graphics.vector.PathNode.ReflectiveCurveTo
+import androidx.ui.graphics.vector.PathNode.ReflectiveQuadTo
+import androidx.ui.graphics.vector.PathNode.RelativeArcTo
+import androidx.ui.graphics.vector.PathNode.RelativeCurveTo
+import androidx.ui.graphics.vector.PathNode.RelativeHorizontalTo
+import androidx.ui.graphics.vector.PathNode.RelativeLineTo
+import androidx.ui.graphics.vector.PathNode.RelativeMoveTo
+import androidx.ui.graphics.vector.PathNode.RelativeQuadTo
+import androidx.ui.graphics.vector.PathNode.RelativeReflectiveCurveTo
+import androidx.ui.graphics.vector.PathNode.RelativeReflectiveQuadTo
+import androidx.ui.graphics.vector.PathNode.RelativeVerticalTo
+import androidx.ui.graphics.vector.PathNode.VerticalTo
 
 private const val LOGTAG = "PathParser"
-
-private const val NUM_MOVE_TO_ARGS = 2
-private const val NUM_LINE_TO_ARGS = 2
-private const val NUM_HORIZONTAL_TO_ARGS = 1
-private const val NUM_VERTICAL_TO_ARGS = 1
-private const val NUM_CURVE_TO_ARGS = 6
-private const val NUM_REFLECTIVE_CURVE_TO_ARGS = 4
-private const val NUM_QUAD_TO_ARGS = 4
-private const val NUM_REFLECTIVE_QUAD_TO_ARGS = 2
-private const val NUM_ARC_TO_ARGS = 7
 
 class PathParser {
 
@@ -63,17 +72,17 @@ class PathParser {
         var end = 1
         while (end < pathData.length) {
             end = nextStart(pathData, end)
-            val s = pathData.substring(start, end).trim({ it <= ' ' })
-            if (s.length > 0) {
+            val s = pathData.substring(start, end).trim { it <= ' ' }
+            if (s.isNotEmpty()) {
                 val args = getFloats(s)
-                addNode(s.get(0), args)
+                addNode(s[0], args)
             }
 
             start = end
             end++
         }
         if (end - start == 1 && start < pathData.length) {
-            addNode(pathData.get(start), FloatArray(0))
+            addNode(pathData[start], FloatArray(0))
         }
 
         return this
@@ -93,97 +102,257 @@ class PathParser {
         segmentPoint.reset()
         reflectiveCtrlPoint.reset()
 
-        var previousCmd = PathCommand.RelativeMoveTo
+        var previousNode: PathNode? = null
         for (node in nodes) {
-            val currentCmd = node.command
-            val args = node.args
-            when (currentCmd) {
-                // Both absolute and relative close operations invoke the same close method
-                PathCommand.RelativeClose -> close(target)
-                PathCommand.Close -> close(target)
-                PathCommand.RelativeMoveTo -> relativeMoveTo(target, args)
-                PathCommand.MoveTo -> moveTo(target, args)
-                PathCommand.RelativeLineTo -> relativeLineTo(target, args)
-                PathCommand.LineTo -> lineTo(target, args)
-                PathCommand.RelativeHorizontalTo -> relativeHorizontalTo(target, args)
-                PathCommand.HorizontalLineTo -> horizontalTo(target, args)
-                PathCommand.RelativeVerticalTo -> relativeVerticalTo(target, args)
-                PathCommand.VerticalLineTo -> verticalTo(target, args)
-                PathCommand.RelativeCurveTo -> relativeCurveTo(target, args)
-                PathCommand.CurveTo -> curveTo(target, args)
-                PathCommand.RelativeReflectiveCurveTo ->
-                    relativeReflectiveCurveTo(previousCmd, target, args)
-                PathCommand.ReflectiveCurveTo -> reflectiveCurveTo(previousCmd, target, args)
-                PathCommand.RelativeQuadTo -> relativeQuadTo(target, args)
-                PathCommand.QuadTo -> quadTo(target, args)
-                PathCommand.RelativeReflectiveQuadTo ->
-                    relativeReflectiveQuadTo(previousCmd, target, args)
-                PathCommand.ReflectiveQuadTo -> reflectiveQuadTo(previousCmd, target, args)
-                PathCommand.RelativeArcTo -> relativeArcTo(target, args)
-                PathCommand.ArcTo -> arcTo(target, args)
+            if (previousNode == null) previousNode = node
+            when (node) {
+                is Close -> close(target)
+                is RelativeMoveTo -> node.relativeMoveTo(target)
+                is MoveTo -> node.moveTo(target)
+                is RelativeLineTo -> node.relativeLineTo(target)
+                is LineTo -> node.lineTo(target)
+                is RelativeHorizontalTo -> node.relativeHorizontalTo(target)
+                is HorizontalTo -> node.horizontalTo(target)
+                is RelativeVerticalTo -> node.relativeVerticalTo(target)
+                is VerticalTo -> node.verticalTo(target)
+                is RelativeCurveTo -> node.relativeCurveTo(target)
+                is CurveTo -> node.curveTo(target)
+                is RelativeReflectiveCurveTo ->
+                    node.relativeReflectiveCurveTo(previousNode.isCurve, target)
+                is ReflectiveCurveTo -> node.reflectiveCurveTo(previousNode.isCurve, target)
+                is RelativeQuadTo -> node.relativeQuadTo(target)
+                is QuadTo -> node.quadTo(target)
+                is RelativeReflectiveQuadTo ->
+                    node.relativeReflectiveQuadTo(previousNode.isQuad, target)
+                is ReflectiveQuadTo -> node.reflectiveQuadTo(previousNode.isQuad, target)
+                is RelativeArcTo -> node.relativeArcTo(target)
+                is ArcTo -> node.arcTo(target)
             }
-            previousCmd = currentCmd
+            previousNode = node
         }
         return target
     }
 
-    private fun arcTo(target: Path, args: FloatArray) {
-        forEachPathArg(args, NUM_ARC_TO_ARGS) { index ->
-            val horizontalEllipseRadius = args[index]
-            val verticalEllipseRadius = args[index + 1]
-            val theta = args[index + 2]
-            val isMoreThanHalf = args[index + 3].compareTo(0.0f) != 0
-            val isPositiveArc = args[index + 4].compareTo(0.0f) != 0
-            val arcStartX = args[index + 5]
-            val arcStartY = args[index + 6]
+    private fun close(target: Path) {
+        currentPoint.x = segmentPoint.x
+        currentPoint.y = segmentPoint.y
+        ctrlPoint.x = segmentPoint.x
+        ctrlPoint.y = segmentPoint.y
 
-            drawArc(target,
-                currentPoint.x.toDouble(),
-                currentPoint.y.toDouble(),
-                arcStartX.toDouble(),
-                arcStartY.toDouble(),
-                horizontalEllipseRadius.toDouble(),
-                verticalEllipseRadius.toDouble(),
-                theta.toDouble(),
-                isMoreThanHalf,
-                isPositiveArc)
-
-            currentPoint.x = arcStartX
-            currentPoint.y = arcStartY
-
-            ctrlPoint.x = currentPoint.x
-            ctrlPoint.y = currentPoint.y
-        }
+        target.close()
+        target.moveTo(currentPoint.x, currentPoint.y)
     }
 
-    private fun relativeArcTo(target: Path, args: FloatArray) {
-        forEachPathArg(args, NUM_ARC_TO_ARGS) { index ->
-            val horizontalEllipseRadius = args[index]
-            val verticalEllipseRadius = args[index + 1]
-            val theta = args[index + 2]
-            val isMoreThanHalf = args[index + 3].compareTo(0.0f) != 0
-            val isPositiveArc = args[index + 4].compareTo(0.0f) != 0
-            val arcStartX = args[index + 5] + currentPoint.x
-            val arcStartY = args[index + 6] + currentPoint.y
+    private fun RelativeMoveTo.relativeMoveTo(target: Path) {
+        currentPoint.x += x
+        currentPoint.y += y
+        target.relativeMoveTo(x, y)
+        segmentPoint.x = currentPoint.x
+        segmentPoint.y = currentPoint.y
+    }
 
-            drawArc(
-                target,
-                currentPoint.x.toDouble(),
-                currentPoint.y.toDouble(),
-                arcStartX.toDouble(),
-                arcStartY.toDouble(),
-                horizontalEllipseRadius.toDouble(),
-                verticalEllipseRadius.toDouble(),
-                theta.toDouble(),
-                isMoreThanHalf,
-                isPositiveArc
-            )
-            currentPoint.x = arcStartX
-            currentPoint.y = arcStartY
+    private fun MoveTo.moveTo(target: Path) {
+        currentPoint.x = x
+        currentPoint.y = y
+        target.moveTo(x, y)
+        segmentPoint.x = currentPoint.x
+        segmentPoint.y = currentPoint.y
+    }
 
-            ctrlPoint.x = currentPoint.x
-            ctrlPoint.y = currentPoint.y
+    private fun RelativeLineTo.relativeLineTo(target: Path) {
+        target.relativeLineTo(x, y)
+        currentPoint.x += x
+        currentPoint.y += y
+    }
+
+    private fun LineTo.lineTo(target: Path) {
+        target.lineTo(x, y)
+        currentPoint.x = x
+        currentPoint.y = y
+    }
+
+    private fun RelativeHorizontalTo.relativeHorizontalTo(target: Path) {
+        target.relativeLineTo(x, 0.0f)
+        currentPoint.x += x
+    }
+
+    private fun HorizontalTo.horizontalTo(target: Path) {
+        target.lineTo(x, currentPoint.y)
+        currentPoint.x = x
+    }
+
+    private fun RelativeVerticalTo.relativeVerticalTo(target: Path) {
+        target.relativeLineTo(0.0f, y)
+        currentPoint.y += y
+    }
+
+    private fun VerticalTo.verticalTo(target: Path) {
+        target.lineTo(currentPoint.x, y)
+        currentPoint.y = y
+    }
+
+    private fun RelativeCurveTo.relativeCurveTo(target: Path) {
+        target.relativeCubicTo(
+            dx1, dy1,
+            dx2, dy2,
+            dx3, dy3
+        )
+        ctrlPoint.x = currentPoint.x + dx2
+        ctrlPoint.y = currentPoint.y + dy2
+        currentPoint.x += dx3
+        currentPoint.y += dy3
+    }
+
+    private fun CurveTo.curveTo(target: Path) {
+        target.cubicTo(
+            x1, y1,
+            x2, y2,
+            x3, y3
+        )
+        ctrlPoint.x = x2
+        ctrlPoint.y = y2
+        currentPoint.x = x3
+        currentPoint.y = y3
+    }
+
+    private fun RelativeReflectiveCurveTo.relativeReflectiveCurveTo(
+        prevIsCurve: Boolean,
+        target: Path
+    ) {
+        if (prevIsCurve) {
+            reflectiveCtrlPoint.x = currentPoint.x - ctrlPoint.x
+            reflectiveCtrlPoint.y = currentPoint.y - ctrlPoint.y
+        } else {
+            reflectiveCtrlPoint.reset()
         }
+
+        target.relativeCubicTo(
+            reflectiveCtrlPoint.x, reflectiveCtrlPoint.y,
+            x1, y1,
+            x2, y2
+        )
+        ctrlPoint.x = currentPoint.x + x1
+        ctrlPoint.y = currentPoint.y + y1
+        currentPoint.x += x2
+        currentPoint.y += y2
+    }
+
+    private fun ReflectiveCurveTo.reflectiveCurveTo(prevIsCurve: Boolean, target: Path) {
+        if (prevIsCurve) {
+            reflectiveCtrlPoint.x = 2 * currentPoint.x - ctrlPoint.x
+            reflectiveCtrlPoint.y = 2 * currentPoint.y - ctrlPoint.y
+        } else {
+            reflectiveCtrlPoint.x = currentPoint.x
+            reflectiveCtrlPoint.y = currentPoint.y
+        }
+
+        target.cubicTo(
+            reflectiveCtrlPoint.x, reflectiveCtrlPoint.y,
+            x1, y1, x2, y2
+        )
+        ctrlPoint.x = x1
+        ctrlPoint.y = y1
+        currentPoint.x = x2
+        currentPoint.y = y2
+    }
+
+    private fun RelativeQuadTo.relativeQuadTo(target: Path) {
+        target.relativeQuadraticBezierTo(x1, y1, x2, y2)
+        ctrlPoint.x = currentPoint.x + x1
+        ctrlPoint.y = currentPoint.y + y1
+        currentPoint.x += x1
+        currentPoint.y += y1
+    }
+
+    private fun QuadTo.quadTo(target: Path) {
+        target.quadraticBezierTo(x1, y1, x2, y2)
+        ctrlPoint.x = x1
+        ctrlPoint.y = y1
+        currentPoint.x = x2
+        currentPoint.y = y2
+    }
+
+    private fun RelativeReflectiveQuadTo.relativeReflectiveQuadTo(
+        prevIsQuad: Boolean,
+        target: Path
+    ) {
+        if (prevIsQuad) {
+            reflectiveCtrlPoint.x = currentPoint.x - ctrlPoint.x
+            reflectiveCtrlPoint.y = currentPoint.y - ctrlPoint.y
+        } else {
+            reflectiveCtrlPoint.reset()
+        }
+
+        target.relativeQuadraticBezierTo(
+            reflectiveCtrlPoint.x,
+            reflectiveCtrlPoint.y, x, y
+        )
+        ctrlPoint.x = currentPoint.x + reflectiveCtrlPoint.x
+        ctrlPoint.y = currentPoint.y + reflectiveCtrlPoint.y
+        currentPoint.x += x
+        currentPoint.y += y
+    }
+
+    private fun ReflectiveQuadTo.reflectiveQuadTo(prevIsQuad: Boolean, target: Path) {
+        if (prevIsQuad) {
+            reflectiveCtrlPoint.x = 2 * currentPoint.x - ctrlPoint.x
+            reflectiveCtrlPoint.y = 2 * currentPoint.y - ctrlPoint.y
+        } else {
+            reflectiveCtrlPoint.x = currentPoint.x
+            reflectiveCtrlPoint.y = currentPoint.y
+        }
+        target.quadraticBezierTo(
+            reflectiveCtrlPoint.x,
+            reflectiveCtrlPoint.y, x, y
+        )
+        ctrlPoint.x = reflectiveCtrlPoint.x
+        ctrlPoint.y = reflectiveCtrlPoint.y
+        currentPoint.x = x
+        currentPoint.y = y
+    }
+
+    private fun RelativeArcTo.relativeArcTo(target: Path) {
+        val arcStartX = arcStartDx + currentPoint.x
+        val arcStartY = arcStartDy + currentPoint.y
+
+        drawArc(
+            target,
+            currentPoint.x.toDouble(),
+            currentPoint.y.toDouble(),
+            arcStartX.toDouble(),
+            arcStartY.toDouble(),
+            horizontalEllipseRadius.toDouble(),
+            verticalEllipseRadius.toDouble(),
+            theta.toDouble(),
+            isMoreThanHalf,
+            isPositiveArc
+        )
+        currentPoint.x = arcStartX
+        currentPoint.y = arcStartY
+
+        ctrlPoint.x = currentPoint.x
+        ctrlPoint.y = currentPoint.y
+    }
+
+    private fun ArcTo.arcTo(target: Path) {
+        drawArc(
+            target,
+            currentPoint.x.toDouble(),
+            currentPoint.y.toDouble(),
+            arcStartX.toDouble(),
+            arcStartY.toDouble(),
+            horizontalEllipseRadius.toDouble(),
+            verticalEllipseRadius.toDouble(),
+            theta.toDouble(),
+            isMoreThanHalf,
+            isPositiveArc
+        )
+
+        currentPoint.x = arcStartX
+        currentPoint.y = arcStartY
+
+        ctrlPoint.x = currentPoint.x
+        ctrlPoint.y = currentPoint.y
     }
 
     private fun drawArc(
@@ -226,8 +395,10 @@ class PathParser {
         if (disc < 0.0) {
             Log.w(LOGTAG, "Points are too far apart $dsq")
             val adjust = (Math.sqrt(dsq) / 1.99999).toFloat()
-            drawArc(p, x0, y0, x1, y1, a * adjust,
-                    b * adjust, theta, isMoreThanHalf, isPositiveArc)
+            drawArc(
+                p, x0, y0, x1, y1, a * adjust,
+                b * adjust, theta, isMoreThanHalf, isPositiveArc
+            )
             return /* Points are too far apart */
         }
         val s = Math.sqrt(disc)
@@ -262,8 +433,10 @@ class PathParser {
         cx = cx * cosTheta - cy * sinTheta
         cy = tcx * sinTheta + cy * cosTheta
 
-        arcToBezier(p, cx, cy, a, b, x0, y0, thetaD,
-            eta0, sweep)
+        arcToBezier(
+            p, cx, cy, a, b, x0, y0, thetaD,
+            eta0, sweep
+        )
     }
 
     /**
@@ -325,15 +498,17 @@ class PathParser {
             val q2y = e2y - alpha * ep2y
 
             // TODO (njawad) figure out if this is still necessary?
-//            // Adding this no-op call to workaround a proguard related issue.
-//            p.relativeLineTo(0.0, 0.0)
+            // Adding this no-op call to workaround a proguard related issue.
+            // p.relativeLineTo(0.0, 0.0)
 
-            p.cubicTo(q1x.toFloat(),
-                    q1y.toFloat(),
-                    q2x.toFloat(),
-                    q2y.toFloat(),
-                    e2x.toFloat(),
-                    e2y.toFloat())
+            p.cubicTo(
+                q1x.toFloat(),
+                q1y.toFloat(),
+                q2x.toFloat(),
+                q2y.toFloat(),
+                e2x.toFloat(),
+                e2y.toFloat()
+            )
             eta1 = eta2
             eta1x = e2x
             eta1y = e2y
@@ -342,322 +517,8 @@ class PathParser {
         }
     }
 
-    private fun PathCommand.isQuad(): Boolean =
-        when (this) {
-            PathCommand.QuadTo,
-            PathCommand.RelativeQuadTo,
-            PathCommand.ReflectiveQuadTo,
-            PathCommand.RelativeReflectiveQuadTo -> true
-            else -> false
-        }
-
-    private fun reflectiveQuadTo(prevCmd: PathCommand, target: Path, args: FloatArray) {
-        forEachPathArg(args,
-            NUM_REFLECTIVE_QUAD_TO_ARGS
-        ) { index ->
-            val x1 = args[index]
-            val y1 = args[index + 1]
-            if (prevCmd.isQuad()) {
-                reflectiveCtrlPoint.x = 2 * currentPoint.x - ctrlPoint.x
-                reflectiveCtrlPoint.y = 2 * currentPoint.y - ctrlPoint.y
-            } else {
-                reflectiveCtrlPoint.x = currentPoint.x
-                reflectiveCtrlPoint.y = currentPoint.y
-            }
-            target.quadraticBezierTo(reflectiveCtrlPoint.x,
-                reflectiveCtrlPoint.y, x1, y1)
-            ctrlPoint.x = reflectiveCtrlPoint.x
-            ctrlPoint.y = reflectiveCtrlPoint.y
-            currentPoint.x = x1
-            currentPoint.y = y1
-        }
-    }
-
-    private fun relativeReflectiveQuadTo(prevCmd: PathCommand, target: Path, args: FloatArray) {
-        forEachPathArg(args,
-            NUM_REFLECTIVE_QUAD_TO_ARGS
-        ) { index ->
-            val x1 = args[index]
-            val y1 = args[index + 1]
-            if (prevCmd.isQuad()) {
-                reflectiveCtrlPoint.x = currentPoint.x - ctrlPoint.x
-                reflectiveCtrlPoint.y = currentPoint.y - ctrlPoint.y
-            } else {
-                reflectiveCtrlPoint.reset()
-            }
-
-            target.relativeQuadraticBezierTo(reflectiveCtrlPoint.x,
-                reflectiveCtrlPoint.y, x1, y1)
-            ctrlPoint.x = currentPoint.x + reflectiveCtrlPoint.x
-            ctrlPoint.y = currentPoint.y + reflectiveCtrlPoint.y
-            currentPoint.x += x1
-            currentPoint.y += y1
-        }
-    }
-
-    private fun quadTo(target: Path, args: FloatArray) {
-        forEachPathArg(args, NUM_QUAD_TO_ARGS) { index ->
-            val x1 = args[index]
-            val y1 = args[index + 1]
-            val x2 = args[index + 2]
-            val y2 = args[index + 3]
-            target.quadraticBezierTo(x1, y1, x2, y2)
-            ctrlPoint.x = x1
-            ctrlPoint.y = y1
-            currentPoint.x = x2
-            currentPoint.y = y2
-        }
-    }
-
-    private fun relativeQuadTo(target: Path, args: FloatArray) {
-        forEachPathArg(args, NUM_QUAD_TO_ARGS) { index ->
-            val x1 = args[index]
-            val y1 = args[index + 1]
-            val x2 = args[index + 2]
-            val y2 = args[index + 3]
-            target.relativeQuadraticBezierTo(x1, y1, x2, y2)
-            ctrlPoint.x = currentPoint.x + x1
-            ctrlPoint.y = currentPoint.y + y1
-            currentPoint.x += x1
-            currentPoint.y += y1
-        }
-    }
-
-    private fun quadTo(target: Path, args: FloatArray, relative: Boolean = false) {
-        for (i in 0..args.size step 4) {
-            val x1 = args[0]
-            val y1 = args[1]
-            val x2 = args[2]
-            val y2 = args[3]
-            if (relative) {
-                target.relativeQuadraticBezierTo(x1, y1,
-                    x2, y2)
-                ctrlPoint.x = currentPoint.x + x1
-                ctrlPoint.y = currentPoint.y + y1
-                currentPoint.x += x1
-                currentPoint.y += y1
-            } else {
-                target.quadraticBezierTo(x1, y1,
-                    x2, y2)
-                ctrlPoint.x = x1
-                ctrlPoint.y = y1
-                currentPoint.x = x2
-                currentPoint.y = y2
-            }
-        }
-    }
-
-    private fun PathCommand.isCurve(): Boolean = when (this) {
-                PathCommand.CurveTo,
-                PathCommand.RelativeCurveTo,
-                PathCommand.ReflectiveCurveTo,
-                PathCommand.RelativeReflectiveCurveTo -> true
-                else -> false
-            }
-
-    private fun reflectiveCurveTo(prevCmd: PathCommand, target: Path, args: FloatArray) {
-        forEachPathArg(args,
-            NUM_REFLECTIVE_CURVE_TO_ARGS
-        ) { index ->
-            val x1 = args[index]
-            val y1 = args[index + 1]
-            val x2 = args[index + 2]
-            val y2 = args[index + 3]
-
-            if (prevCmd.isCurve()) {
-                reflectiveCtrlPoint.x = 2 * currentPoint.x - ctrlPoint.x
-                reflectiveCtrlPoint.y = 2 * currentPoint.y - ctrlPoint.y
-            } else {
-                reflectiveCtrlPoint.x = currentPoint.x
-                reflectiveCtrlPoint.y = currentPoint.y
-            }
-
-            target.cubicTo(reflectiveCtrlPoint.x, reflectiveCtrlPoint.y,
-                x1, y1, x2, y2)
-            ctrlPoint.x = x1
-            ctrlPoint.y = y1
-            currentPoint.x = x2
-            currentPoint.y = y2
-        }
-    }
-
-    private fun relativeReflectiveCurveTo(prevCmd: PathCommand, target: Path, args: FloatArray) {
-        forEachPathArg(args,
-            NUM_REFLECTIVE_CURVE_TO_ARGS
-        ) { index ->
-            val x1 = args[index]
-            val y1 = args[index + 1]
-            val x2 = args[index + 2]
-            val y2 = args[index + 3]
-            if (prevCmd.isCurve()) {
-                reflectiveCtrlPoint.x = currentPoint.x - ctrlPoint.x
-                reflectiveCtrlPoint.y = currentPoint.y - ctrlPoint.y
-            } else {
-                reflectiveCtrlPoint.reset()
-            }
-
-            target.relativeCubicTo(
-                reflectiveCtrlPoint.x, reflectiveCtrlPoint.y,
-                x1, y1,
-                x2, y2)
-            ctrlPoint.x = currentPoint.x + x1
-            ctrlPoint.y = currentPoint.y + y1
-            currentPoint.x += x2
-            currentPoint.y += y2
-        }
-    }
-
-    private fun curveTo(target: Path, args: FloatArray) {
-        forEachPathArg(args, NUM_CURVE_TO_ARGS) { index ->
-            val x1 = args[index]
-            val y1 = args[index + 1]
-            val x2 = args[index + 2]
-            val y2 = args[index + 3]
-            val x3 = args[index + 4]
-            val y3 = args[index + 5]
-            target.cubicTo(x1, y1,
-                x2, y2,
-                x3, y3)
-            ctrlPoint.x = x2
-            ctrlPoint.y = y2
-            currentPoint.x = x3
-            currentPoint.y = y3
-        }
-    }
-
-    private fun relativeCurveTo(target: Path, args: FloatArray) {
-        forEachPathArg(args, NUM_CURVE_TO_ARGS) { index ->
-            val dx1 = args[index]
-            val dy1 = args[index + 1]
-            val dx2 = args[index + 2]
-            val dy2 = args[index + 3]
-            val dx3 = args[index + 4]
-            val dy3 = args[index + 5]
-            target.relativeCubicTo(dx1, dy1,
-                dx2, dy2,
-                dx3, dy3)
-            ctrlPoint.x = currentPoint.x + dx2
-            ctrlPoint.y = currentPoint.y + dy2
-            currentPoint.x += dx3
-            currentPoint.y += dy3
-        }
-    }
-
-    private fun verticalTo(target: Path, args: FloatArray) {
-        forEachPathArg(args, NUM_VERTICAL_TO_ARGS) { index ->
-            val y = args[index]
-            target.lineTo(currentPoint.x, y)
-            currentPoint.y = y
-        }
-    }
-
-    private fun relativeVerticalTo(target: Path, args: FloatArray) {
-        forEachPathArg(args, NUM_VERTICAL_TO_ARGS) { index ->
-            val y = args[index]
-            target.relativeLineTo(0.0f, y)
-            currentPoint.y += y
-        }
-    }
-
-    private fun horizontalTo(target: Path, args: FloatArray) {
-        forEachPathArg(args, NUM_HORIZONTAL_TO_ARGS) { index ->
-            val x = args[index]
-            target.lineTo(x, currentPoint.y)
-            currentPoint.x = x
-        }
-    }
-
-    private fun relativeHorizontalTo(target: Path, args: FloatArray) {
-        forEachPathArg(args, NUM_HORIZONTAL_TO_ARGS) { index ->
-            val x = args[index]
-            target.relativeLineTo(x, 0.0f)
-            currentPoint.x += x
-        }
-    }
-
-    private fun lineTo(target: Path, args: FloatArray) {
-        forEachPathArg(args, NUM_LINE_TO_ARGS) { index ->
-            val x = args[index]
-            val y = args[index + 1]
-            target.lineTo(x, y)
-            currentPoint.x = x
-            currentPoint.y = y
-        }
-    }
-
-    private fun relativeLineTo(target: Path, args: FloatArray) {
-        forEachPathArg(args, NUM_LINE_TO_ARGS) { index ->
-            val x = args[index]
-            val y = args[index + 1]
-            target.relativeLineTo(x, y)
-            currentPoint.x += x
-            currentPoint.y += y
-        }
-    }
-
-    private fun moveTo(target: Path, args: FloatArray) {
-        forEachPathArg(args, NUM_MOVE_TO_ARGS) { index ->
-            val x = args[index]
-            val y = args[index + 1]
-            currentPoint.x = x
-            currentPoint.y = y
-            if (index > 0) {
-                // According to the spec, if a moveto is followed by multiple
-                // pairs of coordinates, the subsequent pairs are treated as
-                // implicit lineto commands.
-                target.lineTo(x, y)
-            } else {
-                target.moveTo(x, y)
-                segmentPoint.x = currentPoint.x
-                segmentPoint.y = currentPoint.y
-            }
-        }
-    }
-
-    private fun relativeMoveTo(target: Path, args: FloatArray) {
-        forEachPathArg(args, NUM_MOVE_TO_ARGS) { index ->
-            val x = args[index]
-            val y = args[index + 1]
-            currentPoint.x += x
-            currentPoint.y += y
-            if (index > 0) {
-                // According to the spec, if a moveto is followed by multiple
-                // pairs of coordinates, the subsequent pairs are treated as
-                // implicit lineto commands.
-                target.relativeLineTo(x, y)
-            } else {
-                target.relativeMoveTo(x, y)
-                segmentPoint.x = currentPoint.x
-                segmentPoint.y = currentPoint.y
-            }
-        }
-    }
-
-    private inline fun forEachPathArg(
-        args: FloatArray,
-        numArgs: Int,
-        op: (index: Int) -> Unit
-    ) {
-        for (i in 0..args.size - numArgs step numArgs) {
-            op(i)
-        }
-    }
-
-    private fun close(target: Path) {
-        currentPoint.x = segmentPoint.x
-        currentPoint.y = segmentPoint.y
-        ctrlPoint.x = segmentPoint.x
-        ctrlPoint.y = segmentPoint.y
-
-        target.close()
-        target.moveTo(currentPoint.x, currentPoint.y)
-    }
-
-    @Throws(IllegalArgumentException::class)
     private fun addNode(cmd: Char, args: FloatArray) {
-        nodes.add(
-            PathNode(cmd.toPathCommand(), args)
-        )
+        nodes.addAll(cmd.toPathNodes(args))
     }
 
     private fun nextStart(s: String, end: Int): Int {
@@ -671,7 +532,8 @@ class PathParser {
             // Therefore, when searching for next command, we should ignore 'e'
             // and 'E'.
             if (((c - 'A') * (c - 'Z') <= 0 || (c - 'a') * (c - 'z') <= 0) &&
-                c != 'e' && c != 'E') {
+                c != 'e' && c != 'E'
+            ) {
                 return index
             }
             index++
@@ -701,7 +563,8 @@ class PathParser {
 
             if (startPosition < endPosition) {
                 results[count++] = java.lang.Float.parseFloat(
-                        s.substring(startPosition, endPosition))
+                    s.substring(startPosition, endPosition)
+                )
             }
 
             if (result.endWithNegativeOrDot) {
@@ -714,7 +577,7 @@ class PathParser {
         return copyOfRange(results, 0, count)
     }
 
-    internal fun copyOfRange(original: FloatArray, start: Int, end: Int): FloatArray {
+    private fun copyOfRange(original: FloatArray, start: Int, end: Int): FloatArray {
         if (start > end) {
             throw IllegalArgumentException()
         }
