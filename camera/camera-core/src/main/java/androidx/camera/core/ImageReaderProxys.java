@@ -19,17 +19,12 @@ package androidx.camera.core;
 import android.media.ImageReader;
 
 import androidx.annotation.NonNull;
-import androidx.annotation.RestrictTo;
-import androidx.annotation.RestrictTo.Scope;
 import androidx.camera.core.impl.ImageReaderProxy;
 
 /**
  * Different implementations of {@link ImageReaderProxy}.
- *
- * @hide
  */
-@RestrictTo(Scope.LIBRARY_GROUP)
-public final class ImageReaderProxys {
+final class ImageReaderProxys {
 
     private ImageReaderProxys() {
     }
@@ -44,7 +39,7 @@ public final class ImageReaderProxys {
      * @return new {@link ImageReaderProxy} instance
      */
     @NonNull
-    public static ImageReaderProxy createIsolatedReader(
+    static ImageReaderProxy createIsolatedReader(
             int width, int height, int format, int maxImages) {
         ImageReader imageReader = ImageReader.newInstance(width, height, format, maxImages);
         return new AndroidImageReaderProxy(imageReader);
