@@ -118,7 +118,7 @@ class PagePresenterTest {
         assertEquals(expectedData, data.asList())
 
         // ... then assert events
-        assertEquals(events, callback.getAllAndClear())
+        assertEquals(events + IDLE_EVENTS, callback.getAllAndClear())
     }
 
     private fun verifyPrepend(
@@ -155,7 +155,7 @@ class PagePresenterTest {
         assertEquals(expectedData, data.asList())
 
         // ... then assert events
-        assertEquals(events, callback.getAllAndClear())
+        assertEquals(events + IDLE_EVENTS, callback.getAllAndClear())
     }
 
     private fun verifyPrependAppend(
@@ -310,7 +310,7 @@ class PagePresenterTest {
         val callback = PresenterCallbackCapture()
         data.dropPages(false, pagesToDrop, newNulls, callback)
 
-        assertEquals(events, callback.getAllAndClear())
+        assertEquals(events + listOf(StateEvent(END, Idle)), callback.getAllAndClear())
 
         // assert final list state
         val finalData = initialPages.subList(0, initialPages.size - pagesToDrop).flatten()
@@ -343,7 +343,7 @@ class PagePresenterTest {
         val callback = PresenterCallbackCapture()
         data.dropPages(true, pagesToDrop, newNulls, callback)
 
-        assertEquals(events, callback.getAllAndClear())
+        assertEquals(events + listOf(StateEvent(START, Idle)), callback.getAllAndClear())
 
         // assert final list state
         val finalData = initialPages.take(initialPages.size - pagesToDrop).reversed().flatten()
@@ -543,5 +543,13 @@ class PagePresenterTest {
         assertEquals(ViewportHint(1, 0), pagePresenter.loadAround(4))
         assertEquals(ViewportHint(1, 1), pagePresenter.loadAround(5))
         assertEquals(ViewportHint(1, 2), pagePresenter.loadAround(6))
+    }
+
+    companion object {
+        val IDLE_EVENTS = listOf<PresenterEvent>(
+            StateEvent(REFRESH, Idle),
+            StateEvent(START, Idle),
+            StateEvent(END, Idle)
+        )
     }
 }

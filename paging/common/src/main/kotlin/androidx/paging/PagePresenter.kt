@@ -23,11 +23,19 @@ import androidx.paging.LoadType.REFRESH
 import androidx.paging.LoadType.START
 import androidx.paging.PageEvent.Insert.Companion.Refresh
 
-/** @hide */
+/**
+ * Callbacks for the presenter/adapter to listen to the state of pagination data.
+ *
+ * Note that these won't map directly to PageEvents, since PageEvents can cause several adapter
+ * events that should all be dispatched to the presentation layer at once - as part of the same
+ * frame.
+ *
+ * @hide
+ */
 @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
 interface PresenterCallback {
     fun onChanged(position: Int, count: Int)
-    fun onInserted(position: Int, count: Int, loadStates: Map<LoadType, LoadState>?)
+    fun onInserted(position: Int, count: Int)
     fun onRemoved(position: Int, count: Int)
     fun onStateUpdate(loadType: LoadType, loadState: LoadState)
 }
@@ -153,10 +161,10 @@ internal class PagePresenter<T : Any>(
 
                 // ... then trigger callbacks, so callbacks won't see inconsistent state
                 callback.onChanged(placeholdersChangedPos, placeholdersChangedCount)
-                callback.onInserted(itemsInsertedPos, itemsInsertedCount, insert.loadStates)
+                callback.onInserted(itemsInsertedPos, itemsInsertedCount)
                 val placeholderInsertedCount = size - oldSize - itemsInsertedCount
                 if (placeholderInsertedCount > 0) {
-                    callback.onInserted(0, placeholderInsertedCount, insert.loadStates)
+                    callback.onInserted(0, placeholderInsertedCount)
                 } else if (placeholderInsertedCount < 0) {
                     callback.onRemoved(0, -placeholderInsertedCount)
                 }
@@ -175,19 +183,19 @@ internal class PagePresenter<T : Any>(
 
                 // ... then trigger callbacks, so callbacks won't see inconsistent state
                 callback.onChanged(placeholdersChangedPos, placeholdersChangedCount)
-                callback.onInserted(itemsInsertedPos, itemsInsertedCount, insert.loadStates)
+                callback.onInserted(itemsInsertedPos, itemsInsertedCount)
                 val placeholderInsertedCount = size - oldSize - itemsInsertedCount
                 if (placeholderInsertedCount > 0) {
                     callback.onInserted(
                         position = size - placeholderInsertedCount,
-                        count = placeholderInsertedCount,
-                        loadStates = insert.loadStates
+                        count = placeholderInsertedCount
                     )
                 } else if (placeholderInsertedCount < 0) {
                     callback.onRemoved(size, -placeholderInsertedCount)
                 }
             }
         }
+        insert.loadStates.entries.forEach { callback.onStateUpdate(it.key, it.value) }
     }
 
     private fun dropPages(drop: PageEvent.Drop<T>, callback: PresenterCallback) {
@@ -213,10 +221,13 @@ internal class PagePresenter<T : Any>(
             callback.onRemoved(itemsRemovedPos, itemsRemovedCount)
             val placeholderInsertedCount = size - oldSize + itemsRemovedCount
             if (placeholderInsertedCount > 0) {
-                callback.onInserted(0, placeholderInsertedCount, null)
+                callback.onInserted(0, placeholderInsertedCount)
             } else if (placeholderInsertedCount < 0) {
                 callback.onRemoved(0, -placeholderInsertedCount)
             }
+
+            // dropping from start implies start is idle
+            callback.onStateUpdate(START, Idle)
         } else {
             val removeCount = pages.takeLast(drop.count).fullCount()
 
@@ -238,10 +249,13 @@ internal class PagePresenter<T : Any>(
             callback.onRemoved(itemsRemovedPos, itemsRemovedCount)
             val placeholderInsertedCount = size - oldSize + itemsRemovedCount
             if (placeholderInsertedCount > 0) {
-                callback.onInserted(size, placeholderInsertedCount, null)
+                callback.onInserted(size, placeholderInsertedCount)
             } else if (placeholderInsertedCount < 0) {
                 callback.onRemoved(size, -placeholderInsertedCount)
             }
+
+            // dropping from end implies end is idle
+            callback.onStateUpdate(END, Idle)
         }
     }
 
