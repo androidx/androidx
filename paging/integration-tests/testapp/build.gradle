@@ -17,13 +17,6 @@
 import static androidx.build.dependencies.DependenciesKt.MULTIDEX
 import static androidx.build.dependencies.DependenciesKt.getKOTLIN_STDLIB
 
-buildscript {
-    // TODO: Remove this when this test app no longer depends on 1.0.0 of vectordrawable-animated.
-    // vectordrawable and vectordrawable-animated were accidentally using the same package name
-    // which is no longer valid in namespaced resource world.
-    project.ext['android.uniquePackageNames'] = false
-}
-
 plugins {
     id("AndroidXPlugin")
     id("com.android.application")
@@ -32,18 +25,18 @@ plugins {
 }
 
 dependencies {
-    implementation("androidx.arch.core:core-runtime:2.0.1")
-    implementation("androidx.room:room-runtime:2.0.0")
-    implementation("androidx.room:room-rxjava2:2.0.0")
+    implementation("androidx.arch.core:core-runtime:2.1.0")
+    implementation("androidx.room:room-runtime:2.2.3")
+    implementation("androidx.room:room-rxjava2:2.2.3")
 
     implementation(project(":paging:paging-common-ktx"))
     implementation(project(":paging:paging-runtime"))
     implementation(project(":paging:paging-rxjava2"))
 
-    kapt("androidx.room:room-compiler:2.0.0")
+    kapt("androidx.room:room-compiler:2.2.3")
 
     implementation(MULTIDEX)
-    implementation("androidx.recyclerview:recyclerview:1.0.0")
+    implementation("androidx.recyclerview:recyclerview:1.1.0")
     implementation(project(":fragment:fragment-ktx"))
     implementation("androidx.appcompat:appcompat:1.1.0")
     implementation(KOTLIN_STDLIB)
