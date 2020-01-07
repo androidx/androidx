@@ -16,9 +16,15 @@
 
 package androidx.sqlite.inspection.test
 
-import androidx.sqlite.inspection.SqliteInspectorProtocol
 import androidx.sqlite.inspection.SqliteInspectorProtocol.CellValue
 import androidx.sqlite.inspection.SqliteInspectorProtocol.CellValue.ValueCase
+import androidx.sqlite.inspection.SqliteInspectorProtocol.Command
+import androidx.sqlite.inspection.SqliteInspectorProtocol.GetSchemaCommand
+import androidx.sqlite.inspection.SqliteInspectorProtocol.GetSchemaResponse
+import androidx.sqlite.inspection.SqliteInspectorProtocol.QueryCommand
+import androidx.sqlite.inspection.SqliteInspectorProtocol.Response
+import androidx.sqlite.inspection.SqliteInspectorProtocol.TrackDatabasesCommand
+import androidx.sqlite.inspection.SqliteInspectorProtocol.TrackDatabasesResponse
 
 val CellValue.value: Any? get() = valueType.first
 val CellValue.type: String get() = valueType.second
@@ -32,30 +38,23 @@ val CellValue.valueType: Pair<Any?, String>
         else -> throw IllegalArgumentException()
     }
 
+fun GetSchemaResponse.toTableList(): List<Table> =
+    tablesList.map { t -> Table(t.name, t.columnsList.map { c -> Column(c.name, c.type) }) }
+
 object MessageFactory {
-    fun createTrackDatabasesCommand(): SqliteInspectorProtocol.Command =
-        SqliteInspectorProtocol.Command.newBuilder().setTrackDatabases(
-            SqliteInspectorProtocol.TrackDatabasesCommand.getDefaultInstance()
+    fun createTrackDatabasesCommand(): Command =
+        Command.newBuilder().setTrackDatabases(TrackDatabasesCommand.getDefaultInstance()).build()
+
+    fun createTrackDatabasesResponse(): Response =
+        Response.newBuilder().setTrackDatabases(TrackDatabasesResponse.getDefaultInstance()).build()
+
+    fun createGetSchemaCommand(databaseId: Int): Command =
+        Command.newBuilder().setGetSchema(
+            GetSchemaCommand.newBuilder().setDatabaseId(databaseId).build()
         ).build()
 
-    fun createTrackDatabasesResponse(): SqliteInspectorProtocol.Response =
-        SqliteInspectorProtocol.Response.newBuilder().setTrackDatabases(
-            SqliteInspectorProtocol.TrackDatabasesResponse.getDefaultInstance()
-        ).build()
-
-    fun createGetSchemaCommand(databaseId: Int): SqliteInspectorProtocol.Command =
-        SqliteInspectorProtocol.Command.newBuilder().setGetSchema(
-            SqliteInspectorProtocol.GetSchemaCommand.newBuilder().setDatabaseId(databaseId).build()
-        ).build()
-
-    fun createQueryTableCommand(
-        databaseId: Int,
-        query: String
-    ): SqliteInspectorProtocol.Command =
-        SqliteInspectorProtocol.Command.newBuilder().setQuery(
-            SqliteInspectorProtocol.QueryCommand.newBuilder()
-                .setDatabaseId(databaseId)
-                .setQuery(query)
-                .build()
+    fun createQueryCommand(databaseId: Int, query: String): Command =
+        Command.newBuilder().setQuery(
+            QueryCommand.newBuilder().setDatabaseId(databaseId).setQuery(query).build()
         ).build()
 }
