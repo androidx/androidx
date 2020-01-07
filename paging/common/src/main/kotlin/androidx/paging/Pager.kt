@@ -59,7 +59,7 @@ import java.util.concurrent.atomic.AtomicBoolean
 internal class Pager<Key : Any, Value : Any>(
     internal val initialKey: Key?,
     internal val pagedSource: PagedSource<Key, Value>,
-    private val config: PagedList.Config
+    private val config: PagingConfig
 ) {
     private val retryChannel = Channel<Unit>(CONFLATED)
     private val hintChannel = BroadcastChannel<ViewportHint>(CONFLATED)
@@ -203,7 +203,7 @@ internal class Pager<Key : Any, Value : Any>(
         LoadParams(
             loadType = loadType,
             key = key,
-            loadSize = if (loadType == REFRESH) config.initialLoadSizeHint else config.pageSize,
+            loadSize = if (loadType == REFRESH) config.initialLoadSize else config.pageSize,
             placeholdersEnabled = config.enablePlaceholders,
             pageSize = config.pageSize
         )

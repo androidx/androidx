@@ -26,12 +26,12 @@ import kotlinx.coroutines.flow.Flow
  */
 class PagedDataFlowBuilder<Key : Any, Value : Any>(
     private val pagedSourceFactory: () -> PagedSource<Key, Value>,
-    private val config: PagedList.Config
+    private val config: PagingConfig
 ) {
     @Deprecated("DataSource is deprecated and has been replaced by PagedSource")
     constructor(
         dataSourceFactory: DataSource.Factory<Key, Value>,
-        config: PagedList.Config
+        config: PagingConfig
     ) : this(dataSourceFactory.asPagedSourceFactory(), config)
 
     private var initialKey: Key? = null

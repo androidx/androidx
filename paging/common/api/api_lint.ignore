@@ -9,6 +9,8 @@ DocumentExceptions: androidx.paging.PagedList.Config.Builder#setPageSize(int):
 
 MinMaxConstant: androidx.paging.PagedList.Config#MAX_SIZE_UNBOUNDED:
     If min/max could change in future, make them dynamic methods: androidx.paging.PagedList.Config#MAX_SIZE_UNBOUNDED
+MinMaxConstant: androidx.paging.PagingConfig#MAX_SIZE_UNBOUNDED:
+    If min/max could change in future, make them dynamic methods: androidx.paging.PagingConfig#MAX_SIZE_UNBOUNDED
 
 
 RegistrationName: androidx.paging.DataSource#addInvalidatedCallback(androidx.paging.DataSource.InvalidatedCallback):

@@ -366,7 +366,7 @@ abstract class PagedList<T : Any> internal constructor(
         ) : this(
             pagedSource = pagedSource,
             initialPage = initialPage,
-            config = PagedList.Config.Builder().setPageSize(pageSize).build()
+            config = Builder().setPageSize(pageSize).build()
         )
 
         /**
@@ -553,7 +553,7 @@ abstract class PagedList<T : Any> internal constructor(
      * Configures how a [PagedList] loads content from its [PagedSource].
      *
      * Use [Config.Builder] to construct and define custom loading behavior, such as
-     * [Builder.setPageSize], which defines number of items loaded at a time}.
+     * [Builder.setPageSize], which defines number of items loaded at a time.
      */
     class Config internal constructor(
         /**
