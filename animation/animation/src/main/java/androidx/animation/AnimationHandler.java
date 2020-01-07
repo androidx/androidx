@@ -73,7 +73,8 @@ class AnimationHandler {
 
     public static AnimationHandler sAnimationHandler = null;
     private static AnimationHandler sTestHandler = null;
-    private ThreadLocal<AnimationCallbackData> mAnimationCallbackData = new ThreadLocal<>();
+    private static final ThreadLocal<AnimationCallbackData> mAnimationCallbackData =
+            new ThreadLocal<>();
     private final AnimationFrameCallbackProvider mProvider;
 
     AnimationHandler(AnimationFrameCallbackProvider provider) {
@@ -81,7 +82,7 @@ class AnimationHandler {
             if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.JELLY_BEAN) {
                 mProvider = new FrameCallbackProvider16();
             } else {
-                mProvider = new FrameCallbackProvider14();
+                mProvider = new FrameCallbackProvider14(this);
             }
         } else {
             mProvider = provider;
@@ -291,13 +292,16 @@ class AnimationHandler {
      * Frame provider for ICS and ICS-MR1 releases. The frame callback is achieved via posting
      * a Runnable to the main thread Handler with a delay.
      */
-    private class FrameCallbackProvider14 implements AnimationFrameCallbackProvider, Runnable {
+    private static class FrameCallbackProvider14 implements AnimationFrameCallbackProvider,
+            Runnable {
 
-        private final ThreadLocal<Handler> mHandler = new ThreadLocal<>();
+        private static final ThreadLocal<Handler> mHandler = new ThreadLocal<>();
         private long mLastFrameTime = -1;
         private long mFrameDelay = 16;
+        AnimationHandler mAnimationHandler;
 
-        FrameCallbackProvider14() {
+        FrameCallbackProvider14(AnimationHandler animationHandler) {
+            mAnimationHandler = animationHandler;
         }
 
         Handler getHandler() {
@@ -310,7 +314,7 @@ class AnimationHandler {
         @Override
         public void run() {
             mLastFrameTime = SystemClock.uptimeMillis();
-            AnimationHandler.this.onAnimationFrame(mLastFrameTime);
+            mAnimationHandler.onAnimationFrame(mLastFrameTime);
         }
 
         @Override
