@@ -43,7 +43,7 @@ import java.io.IOException;
  */
 public class AssetLoaderInternalStorageActivity extends AppCompatActivity {
     private static final String DEMO_HTML_CONTENT =
-            "<h3>Successfully loaded html from app files dir!</h3>";
+            "<h3 id=\"data_success_msg\">Successfully loaded html from app files dir!</h3>";
 
     @NonNull private File mPublicDir;
     @NonNull private File mDemoFile;
