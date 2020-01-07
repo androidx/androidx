@@ -335,10 +335,9 @@ class ProcessingImageReader implements ImageReaderProxy {
                     if (!mCaptureIdList.contains(tag)) {
                         Log.w(TAG, "ImageProxyBundle does not contain this id: " + tag);
                         image.close();
-                        return;
+                    } else {
+                        mSettableImageProxyBundle.addImageProxy(image);
                     }
-
-                    mSettableImageProxyBundle.addImageProxy(image);
                 }
             }
         }
