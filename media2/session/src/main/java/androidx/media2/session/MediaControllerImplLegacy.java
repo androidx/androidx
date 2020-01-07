@@ -923,15 +923,22 @@ class MediaControllerImplLegacy implements MediaController.MediaControllerImpl {
 
     @SuppressWarnings("WeakerAccess") /* synthetic access */
     void connectToSession(MediaSessionCompat.Token sessionCompatToken) {
+        boolean isSessionReady;
         MediaControllerCompat controllerCompat = new MediaControllerCompat(mContext,
                 sessionCompatToken);
         synchronized (mLock) {
             mControllerCompat = controllerCompat;
             mControllerCompatCallback = new ControllerCompatCallback();
+            isSessionReady = mControllerCompat.isSessionReady();
             mControllerCompat.registerCallback(mControllerCompatCallback, mHandler);
         }
-        // MediaControllerCompat is available to use immediately after it's created.
-        onConnectedNotLocked();
+        if (!isSessionReady) {
+            // If the session not ready here, then call onConnectedNotLocked() immediately. The
+            // session would be higly likely framework MediaSession, so wouldn't be ready forever.
+            // Just FYI, previous attempt to make session ready (i.e. request extra binder) had been
+            // failed already in MediaController's constructor via SessionToken#createSessionToken.
+            onConnectedNotLocked();
+        }
     }
 
     private void connectToService() {
@@ -1044,7 +1051,11 @@ class MediaControllerImplLegacy implements MediaController.MediaControllerImpl {
             synchronized (mLock) {
                 connected = mConnected;
             }
-            if (connected) {
+            if (!connected) {
+                onConnectedNotLocked();
+            } else {
+                // Handle rare occasion that extra binder becomes available lately.
+                // See connectToSession() for detail.
                 PlaybackStateCompat state;
                 int shuffleMode;
                 int repeatMode;
