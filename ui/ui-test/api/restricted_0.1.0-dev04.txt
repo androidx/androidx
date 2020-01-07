@@ -103,8 +103,8 @@ package androidx.ui.test {
     method public androidx.ui.test.ComposeTestCaseSetup forGivenTestCase(androidx.ui.test.ComposeTestCase testCase);
     method public androidx.ui.core.Density getDensity();
     method public android.util.DisplayMetrics getDisplayMetrics();
-    method public void runOnIdleCompose(kotlin.jvm.functions.Function0<kotlin.Unit> action);
-    method public void runOnUiThread(kotlin.jvm.functions.Function0<kotlin.Unit> action);
+    method public <T> T! runOnIdleCompose(kotlin.jvm.functions.Function0<? extends T> action);
+    method public <T> T! runOnUiThread(kotlin.jvm.functions.Function0<? extends T> action);
     method public void setContent(kotlin.jvm.functions.Function0<kotlin.Unit> composable);
     property public abstract androidx.ui.core.Density density;
     property public abstract android.util.DisplayMetrics displayMetrics;
@@ -200,8 +200,8 @@ package androidx.ui.test.android {
     method public androidx.test.rule.ActivityTestRule<T> getActivityTestRule();
     method public androidx.ui.core.Density getDensity();
     method public android.util.DisplayMetrics getDisplayMetrics();
-    method public void runOnIdleCompose(kotlin.jvm.functions.Function0<kotlin.Unit> action);
-    method public void runOnUiThread(kotlin.jvm.functions.Function0<kotlin.Unit> action);
+    method public <T> T! runOnIdleCompose(kotlin.jvm.functions.Function0<? extends T> action);
+    method public <T> T! runOnUiThread(kotlin.jvm.functions.Function0<? extends T> action);
     method public void setContent(kotlin.jvm.functions.Function0<kotlin.Unit> composable);
     property public final androidx.test.rule.ActivityTestRule<T> activityTestRule;
     property public androidx.ui.core.Density density;
