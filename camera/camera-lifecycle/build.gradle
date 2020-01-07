@@ -64,6 +64,5 @@ androidx {
     description = "Lifecycle components for the Jetpack Camera Library, a library providing a " +
             "consistent and reliable camera foundation that enables great camera driven " +
             "experiences across all of Android."
-    failOnDeprecationWarnings = false
 }
 

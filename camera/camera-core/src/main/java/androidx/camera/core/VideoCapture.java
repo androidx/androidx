@@ -648,10 +648,6 @@ public class VideoCapture extends UseCase {
                     break;
                 case MediaCodec.INFO_TRY_AGAIN_LATER:
                     // Timed out. Just wait until next attempt to deque.
-                case MediaCodec.INFO_OUTPUT_BUFFERS_CHANGED:
-                    // Ignore output buffers changed since we dequeue a single buffer instead of
-                    // multiple
-                    break;
                 default:
                     videoEos = writeVideoEncodedBuffer(outputBufferId);
             }
