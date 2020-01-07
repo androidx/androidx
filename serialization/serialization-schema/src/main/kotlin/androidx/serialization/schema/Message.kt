@@ -16,23 +16,18 @@
 
 package androidx.serialization.schema
 
-/**
- * Root of the serialization type hierarchy.
- *
- * See [ComplexType], [Scalar], and [WellKnownType] for the main branches of the type tree.
- */
-interface Type {
-    /** The kind of type represented by this type. */
-    val typeKind: Kind
+/** A message type, either well-known or client-declared as a Java or Kotlin class or interface. */
+interface Message : ComplexType {
+    /** The fields of the message. */
+    val fields: Collection<Field>
 
-    enum class Kind {
-        /** Types declared by the client, including [Message], [Enum], and [Service]. */
-        DECLARED,
+    /** Alias for [fields]. */
+    override val members: Collection<Field>
+        get() = fields
 
-        /** Scalar types. */
-        SCALAR,
-
-        /** Well-known complex types from the `google.protobuf` package. */
-        WELL_KNOWN
+    /** A field of a message, usually derived from [androidx.serialization.Field] annotations. */
+    interface Field : ComplexType.Member {
+        /** The type of the field. May be any type including scalars and well-known types. */
+        val type: Type
     }
 }
