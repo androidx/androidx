@@ -48,11 +48,11 @@ import org.junit.runners.JUnit4
 class PagerTest {
     private val testScope = TestCoroutineScope()
     private val pagedSourceFactory = { TestPagedSource() }
-    private val config = PagedList.Config(
+    private val config = PagingConfig(
         pageSize = 1,
         prefetchDistance = 1,
         enablePlaceholders = true,
-        initialLoadSizeHint = 2,
+        initialLoadSize = 2,
         maxSize = 3
     )
 
@@ -301,11 +301,11 @@ class PagerTest {
 
     @Test
     fun prependMultiplePages() = testScope.runBlockingTest {
-        val config = PagedList.Config(
+        val config = PagingConfig(
             pageSize = 1,
             prefetchDistance = 2,
             enablePlaceholders = true,
-            initialLoadSizeHint = 3,
+            initialLoadSize = 3,
             maxSize = 5
         )
         val pageFetcher = PageFetcher(pagedSourceFactory, 50, config)
@@ -353,11 +353,11 @@ class PagerTest {
 
     @Test
     fun appendMultiplePages() = testScope.runBlockingTest {
-        val config = PagedList.Config(
+        val config = PagingConfig(
             pageSize = 1,
             prefetchDistance = 2,
             enablePlaceholders = true,
-            initialLoadSizeHint = 3,
+            initialLoadSize = 3,
             maxSize = 5
         )
         val pageFetcher = PageFetcher(pagedSourceFactory, 50, config)
@@ -436,46 +436,6 @@ class PagerTest {
                 Drop(START, 1, 52),
                 StateUpdate(END, Idle),
                 createAppend(pageOffset = 2, range = 53..53, startState = Idle, endState = Idle)
-            )
-
-            assertEvents(expected, fetcherState.pageEventLists[0])
-            fetcherState.job.cancel()
-        }
-    }
-
-    @Test
-    fun competingPrependAndAppendWithDropping() = testScope.runBlockingTest {
-        pauseDispatcher {
-            val config = PagedList.Config(
-                pageSize = 1,
-                prefetchDistance = 2,
-                enablePlaceholders = true,
-                initialLoadSizeHint = 1,
-                maxSize = 3
-            )
-            val pageFetcher = PageFetcher(pagedSourceFactory, 50, config)
-            val fetcherState = collectFetcherState(pageFetcher)
-
-            advanceUntilIdle()
-            fetcherState.pagedDataList[0].receiver.addHint(ViewportHint(0, 0))
-            advanceUntilIdle()
-
-            val expected: List<PageEvent<Int>> = listOf(
-                StateUpdate(REFRESH, Loading),
-                StateUpdate(REFRESH, Done),
-                createRefresh(range = 50..50),
-                StateUpdate(START, Loading),
-                StateUpdate(END, Loading),
-                createPrepend(
-                    pageOffset = -1, range = 49..49, startState = Loading, endState = Loading
-                ),
-                createAppend(
-                    pageOffset = 1, range = 51..51, startState = Loading, endState = Loading
-                ),
-                StateUpdate(END, Idle),
-                Drop(END, 1, 49),
-                StateUpdate(START, Idle),
-                createPrepend(pageOffset = -2, range = 48..48, startState = Idle, endState = Idle)
             )
 
             assertEvents(expected, fetcherState.pageEventLists[0])

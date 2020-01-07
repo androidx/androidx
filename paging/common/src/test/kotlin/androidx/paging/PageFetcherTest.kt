@@ -41,11 +41,11 @@ import kotlin.test.assertTrue
 class PageFetcherTest {
     private val testScope = TestCoroutineScope()
     private val pagedSourceFactory = { TestPagedSource() }
-    private val config = PagedList.Config(
+    private val config = PagingConfig(
         pageSize = 1,
         prefetchDistance = 1,
         enablePlaceholders = true,
-        initialLoadSizeHint = 2,
+        initialLoadSize = 2,
         maxSize = 3
     )
 

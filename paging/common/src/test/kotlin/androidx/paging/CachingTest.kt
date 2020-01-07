@@ -292,11 +292,11 @@ class CachingTest {
     private fun buildPageFlow(): Flow<PagedData<Item>> {
         return PagedDataFlowBuilder(
             pagedSourceFactory = StringPagedSource.VersionedFactory()::create,
-            config = PagedList.Config(
+            config = PagingConfig(
                 pageSize = 3,
                 prefetchDistance = 1,
                 enablePlaceholders = false,
-                initialLoadSizeHint = 3,
+                initialLoadSize = 3,
                 maxSize = 1000
             )
         ).build()
