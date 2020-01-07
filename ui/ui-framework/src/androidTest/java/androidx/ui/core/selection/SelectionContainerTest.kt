@@ -17,6 +17,7 @@
 package androidx.ui.core.selection
 
 import android.R
+import android.app.Activity
 import android.view.MotionEvent
 import android.view.View
 import android.view.ViewGroup
@@ -31,7 +32,6 @@ import androidx.ui.core.sp
 import androidx.ui.core.test.ValueModel
 import androidx.ui.core.withDensity
 import androidx.ui.test.android.AndroidComposeTestRule
-import androidx.ui.test.createComposeRule
 import androidx.ui.text.TextStyle
 import androidx.ui.text.font.Font
 import androidx.ui.text.font.FontStyle
@@ -50,10 +50,10 @@ import java.util.concurrent.TimeUnit
 @RunWith(JUnit4::class)
 class SelectionContainerTest {
     @get:Rule
-    val composeTestRule = createComposeRule()
+    val composeTestRule = AndroidComposeTestRule<Activity>()
 
     private val activity
-        get() = (composeTestRule as AndroidComposeTestRule).activityTestRule.activity
+        get() = composeTestRule.activityTestRule.activity
 
     private lateinit var view: View
 
