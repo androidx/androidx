@@ -21,8 +21,6 @@
     <string name="installation_cancelled" msgid="475402237100444685">"इंस्टॉल करना रद्द किया गया"</string>
     <string name="installing_module" msgid="5968445461040787716">"इंस्टॉल किया जा रहा मॉड्यूल:"</string>
     <string name="progress" msgid="8366783942222789124">"प्रगति:"</string>
-    <!-- no translation found for retry (1065327189183624288) -->
-    <skip />
-    <!-- no translation found for ok (4702104660890557116) -->
-    <skip />
+    <string name="retry" msgid="1065327189183624288">"फिर कोशिश करें"</string>
+    <string name="ok" msgid="4702104660890557116">"ठीक है"</string>
 </resources>
