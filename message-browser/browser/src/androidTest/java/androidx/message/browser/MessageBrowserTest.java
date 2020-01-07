@@ -16,6 +16,7 @@
 
 package androidx.message.browser;
 
+import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertTrue;
 
@@ -25,6 +26,8 @@ import android.os.Bundle;
 
 import androidx.annotation.NonNull;
 import androidx.test.core.app.ApplicationProvider;
+
+import com.google.common.util.concurrent.ListenableFuture;
 
 import org.junit.After;
 import org.junit.Before;
@@ -124,6 +127,59 @@ public class MessageBrowserTest extends MessageBrowserTestBase {
         assertTrue(callback.disconnectedLatch1.await(TIMEOUT_MS, TimeUnit.MILLISECONDS));
         browser2.close();
         assertTrue(callback.disconnectedLatch2.await(TIMEOUT_MS, TimeUnit.MILLISECONDS));
+    }
+
+    @Test
+    public void testSendCustomCommand() throws Exception {
+        final CountDownLatch latch = new CountDownLatch(1);
+        MessageBrowser.BrowserCallback callback = new MessageBrowser.BrowserCallback() {
+            public void onConnected(@NonNull MessageBrowser browser,
+                    @NonNull MessageCommandGroup allowedCommands) {
+                latch.countDown();
+            }
+        };
+        mMsgBrowserBuilder.setBrowserCallback(sHandlerExecutor, callback);
+        MessageBrowser browser = mMsgBrowserBuilder.build();
+        Bundle cmdExtras = new Bundle();
+        cmdExtras.putString("cmd-extra", "cmd-extra-value");
+        Bundle cmdArgs = new Bundle();
+        cmdArgs.putString("cmd-args", "cmd-args-value");
+        MessageCommand command =
+                new MessageCommand(MockMessageLibraryService.CUSTOM_COMMAND_ACCEPT, cmdExtras);
+        ListenableFuture<Bundle> resultFuture = browser.sendCustomCommand(command, cmdArgs);
+        Bundle result = resultFuture.get(TIMEOUT_MS, TimeUnit.MILLISECONDS);
+        assertEquals(MockMessageLibraryService.CUSTOM_COMMAND_ACCEPT,
+                result.getString(MockMessageLibraryService.KEY_CUSTOM_COMMAND_ACTION));
+        assertEquals("cmd-extra-value", result
+                .getBundle(MockMessageLibraryService.KEY_CUSTOM_COMMAND_EXTRAS)
+                .getString("cmd-extra"));
+        assertEquals("cmd-args-value", result
+                .getBundle(MockMessageLibraryService.KEY_CUSTOM_COMMAND_ARGS)
+                .getString("cmd-args"));
+        browser.close();
+    }
+
+    @Test
+    public void testSendCustomCommandDecline() throws Exception {
+        final CountDownLatch latch = new CountDownLatch(1);
+        MessageBrowser.BrowserCallback callback = new MessageBrowser.BrowserCallback() {
+            public void onConnected(@NonNull MessageBrowser browser,
+                    @NonNull MessageCommandGroup allowedCommands) {
+                latch.countDown();
+            }
+        };
+        mMsgBrowserBuilder.setBrowserCallback(sHandlerExecutor, callback);
+        MessageBrowser browser = mMsgBrowserBuilder.build();
+        Bundle cmdExtras = new Bundle();
+        cmdExtras.putString("cmd-extra", "cmd-extra-value");
+        Bundle cmdArgs = new Bundle();
+        cmdArgs.putString("cmd-args", "cmd-args-value");
+        MessageCommand command =
+                new MessageCommand(MockMessageLibraryService.CUSTOM_COMMAND_DECLINE, cmdExtras);
+        ListenableFuture<Bundle> resultFuture = browser.sendCustomCommand(command, cmdArgs);
+        Bundle result = resultFuture.get(TIMEOUT_MS, TimeUnit.MILLISECONDS);
+        assertTrue(result.isEmpty());
+        browser.close();
     }
 
     private class BrowserCallbackForTestMultiConnection extends MessageBrowser.BrowserCallback {

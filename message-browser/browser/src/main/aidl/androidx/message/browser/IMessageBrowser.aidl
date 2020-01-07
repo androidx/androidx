@@ -25,6 +25,7 @@ import android.os.Bundle;
  * @hide
  */
 oneway interface IMessageBrowser {
-    void notifyConnected(in Bundle allowedCommands) = 0;
-    void notifyDisconnected() = 1;
+    void notifyConnected(int seq, in Bundle allowedCommands) = 0;
+    void notifyDisconnected(int seq) = 1;
+    void notifyCommandResult(int seq, in Bundle result) = 2;
 }
