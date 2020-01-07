@@ -193,7 +193,7 @@ public final class SessionConfig {
         final List<CameraDevice.StateCallback> mDeviceStateCallbacks = new ArrayList<>();
         final List<CameraCaptureSession.StateCallback> mSessionStateCallbacks = new ArrayList<>();
         final List<ErrorListener> mErrorListeners = new ArrayList<>();
-        final List<CameraCaptureCallback> mInteropCameraCaptureCallbacks = new ArrayList<>();
+        final List<CameraCaptureCallback> mSingleCameraCaptureCallbacks = new ArrayList<>();
     }
 
     /**
@@ -323,7 +323,7 @@ public final class SessionConfig {
          */
         public void addCameraCaptureCallback(@NonNull CameraCaptureCallback cameraCaptureCallback) {
             mCaptureConfigBuilder.addCameraCaptureCallback(cameraCaptureCallback);
-            mInteropCameraCaptureCallbacks.add(cameraCaptureCallback);
+            mSingleCameraCaptureCallbacks.add(cameraCaptureCallback);
         }
 
         /**
@@ -337,13 +337,13 @@ public final class SessionConfig {
         public void addAllCameraCaptureCallbacks(@NonNull
                 Collection<CameraCaptureCallback> cameraCaptureCallbacks) {
             mCaptureConfigBuilder.addAllCameraCaptureCallbacks(cameraCaptureCallbacks);
-            mInteropCameraCaptureCallbacks.addAll(cameraCaptureCallbacks);
+            mSingleCameraCaptureCallbacks.addAll(cameraCaptureCallbacks);
         }
 
         /** Obtain all {@link CameraCaptureCallback} callbacks for single requests. */
         @NonNull
         public List<CameraCaptureCallback> getSingleCameraCaptureCallbacks() {
-            return Collections.unmodifiableList(mInteropCameraCaptureCallbacks);
+            return Collections.unmodifiableList(mSingleCameraCaptureCallbacks);
         }
 
         /**
@@ -397,7 +397,7 @@ public final class SessionConfig {
                     new ArrayList<>(mSurfaces),
                     mDeviceStateCallbacks,
                     mSessionStateCallbacks,
-                    mInteropCameraCaptureCallbacks,
+                    mSingleCameraCaptureCallbacks,
                     mErrorListeners,
                     mCaptureConfigBuilder.build());
         }
@@ -409,13 +409,6 @@ public final class SessionConfig {
      */
     public static final class ValidatingBuilder extends BaseBuilder {
         private static final String TAG = "ValidatingBuilder";
-        @SuppressWarnings("HidingField")
-        private final List<CameraDevice.StateCallback> mDeviceStateCallbacks = new ArrayList<>();
-        @SuppressWarnings("HidingField")
-        private final List<CameraCaptureSession.StateCallback> mSessionStateCallbacks =
-                new ArrayList<>();
-        private final List<CameraCaptureCallback> mSingleCameraCaptureCallbacks =
-                new ArrayList<>();
         private boolean mValid = true;
         private boolean mTemplateSet = false;
 
