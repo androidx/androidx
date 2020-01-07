@@ -19,6 +19,8 @@ package androidx.fragment.lint
 import com.android.tools.lint.detector.api.JavaContext
 import com.intellij.psi.PsiType
 import com.intellij.psi.util.PsiTypesUtil
+import org.jetbrains.uast.UElement
+import org.jetbrains.uast.UQualifiedReferenceExpression
 
 /**
  * Checks if the [PsiType] is a subclass of class with canonical name [superName].
@@ -32,3 +34,47 @@ internal fun PsiType?.extends(
     superName: String,
     strict: Boolean = false
 ): Boolean = context.evaluator.extendsClass(PsiTypesUtil.getPsiClass(this), superName, strict)
+
+/**
+ * Walks up the uastParent hierarchy from this element.
+ */
+internal fun UElement.walkUp(): Sequence<UElement> = generateSequence(uastParent) { it.uastParent }
+
+/**
+ * This is useful if you're in a nested call expression and want to find the nearest parent while ignoring this call.
+ *
+ * For example, if you have the following two cases of a `foo()` expression:
+ * - `checkNotNull(fragment.foo())`
+ * - `checkNotNull(foo())` // if foo() is a local function
+ *
+ * Calling this from `foo()` in both cases will drop you at the outer `checkNotNull()` expression.
+ */
+val UElement.nearestNonQualifiedReferenceParent: UElement?
+    get() = walkUp().first {
+        it !is UQualifiedReferenceExpression
+    }
+
+/**
+ * @see [fullyQualifiedNearestParentOrNull]
+ */
+internal fun UElement.fullyQualifiedNearestParent(includeSelf: Boolean = true): UElement {
+    return fullyQualifiedNearestParentOrNull(includeSelf)!!
+}
+
+/**
+ * Given an element, returns the nearest fully qualified parent.
+ *
+ * Examples where [this] is a `UCallExpression` representing `bar()`:
+ * - `Foo.bar()` -> `Foo.bar()`
+ * - `bar()` -> `bar()`
+ *
+ * @param includeSelf Whether or not to include [this] element in the checks.
+ */
+internal fun UElement.fullyQualifiedNearestParentOrNull(includeSelf: Boolean = true): UElement? {
+    val node = if (includeSelf) this else uastParent ?: return null
+    return if (node is UQualifiedReferenceExpression) {
+        node.uastParent
+    } else {
+        node
+    }
+}
