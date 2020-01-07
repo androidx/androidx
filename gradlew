@@ -8,18 +8,18 @@
 
 # --------- androidx specific code needed for build server. ------------------
 
+SCRIPT_PATH="$(cd $(dirname $0) && pwd)"
 if [ -n "$OUT_DIR" ] ; then
     mkdir -p "$OUT_DIR"
     OUT_DIR="$(cd $OUT_DIR && pwd)"
     export GRADLE_USER_HOME="$OUT_DIR/.gradle"
     export TMPDIR=$OUT_DIR
 else
-    SCRIPT_PATH="$(cd $(dirname $0) && pwd)"
     CHECKOUT_ROOT="$(cd $SCRIPT_PATH/../.. && pwd)"
     export OUT_DIR="$CHECKOUT_ROOT/out"
 fi
 
-XMX_ARG="-Dorg.gradle.jvmargs=-Xmx8g"
+XMX_ARG="$(cd $SCRIPT_PATH && grep org.gradle.jvmargs gradle.properties | sed 's/^/-D/')"
 if [ -n "$DIST_DIR" ]; then
     mkdir -p "$DIST_DIR"
     DIST_DIR="$(cd $DIST_DIR && pwd)"
