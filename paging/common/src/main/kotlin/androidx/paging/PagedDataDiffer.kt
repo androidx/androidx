@@ -39,7 +39,11 @@ abstract class PagedDataDiffer<T : Any>(
     private var presenter: PagePresenter<T> = PagePresenter.initial()
     private var receiver: UiReceiver? = null
 
-    abstract suspend fun performDiff(previous: NullPaddedList<T>, new: NullPaddedList<T>)
+    abstract suspend fun performDiff(
+        previousList: NullPaddedList<T>,
+        newList: NullPaddedList<T>,
+        newLoadStates: Map<LoadType, LoadState>
+    )
 
     @UseExperimental(ExperimentalCoroutinesApi::class)
     fun connect(flow: Flow<PagedData<T>>, scope: CoroutineScope, callback: PresenterCallback) {
@@ -54,7 +58,11 @@ abstract class PagedDataDiffer<T : Any>(
                         val event = pair.second
                         if (event is PageEvent.Insert && event.loadType == LoadType.REFRESH) {
                             val newPresenter = PagePresenter(event)
-                            performDiff(previous = presenter, new = newPresenter)
+                            performDiff(
+                                previousList = presenter,
+                                newList = newPresenter,
+                                newLoadStates = event.loadStates
+                            )
                             presenter = newPresenter
                             receiver = pair.first.receiver
                         } else {
