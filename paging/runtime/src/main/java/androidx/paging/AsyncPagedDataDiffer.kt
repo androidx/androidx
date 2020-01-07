@@ -134,8 +134,8 @@ open class AsyncPagedDataDiffer<T : Any>(
     /**
      * Add a listener to observe the loading state.
      *
-     * As new PagedLists are submitted and displayed, the listener will be notified to reflect
-     * current REFRESH, START, and END states.
+     * As new PagedData generations are submitted and displayed, the listener will be notified to
+     * reflect current [LoadType.REFRESH], [LoadType.START], and [LoadType.END] states.
      *
      * @param listener [LoadStateListener] to receive updates.
      *
@@ -155,7 +155,6 @@ open class AsyncPagedDataDiffer<T : Any>(
      * Remove a previously registered load state listener.
      *
      * @param listener Previously registered listener.
-     *
      * @see addLoadStateListener
      */
     open fun removeLoadStateListener(listener: (LoadType, LoadState) -> Unit) {
