@@ -33,6 +33,10 @@ import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.annotation.RestrictTo;
 
+import com.google.common.util.concurrent.ListenableFuture;
+
+import java.util.ArrayList;
+import java.util.List;
 import java.util.concurrent.Executor;
 
 /**
@@ -73,6 +77,7 @@ public class MessageBrowser {
 
     final BrowserCallback mBrowserCallback;
     final Executor mCallbackExecutor;
+    final SequencedFutureManager mSequencedFutureManager;
 
     private final MessageLibraryServiceConnection mServiceConnection;
 
@@ -84,7 +89,8 @@ public class MessageBrowser {
     final ConnectionRequest mConnectionRequest;
     @GuardedBy("mLock")
     @SuppressWarnings("WeakerAccess") /* synthetic access */
-    int mNextSequenceNumber;
+    final List<Runnable> mPendingTasks = new ArrayList<>();
+
     @GuardedBy("mLock")
     @SuppressWarnings("WeakerAccess") /* synthetic access */
     IMessageLibraryService mService;
@@ -105,6 +111,7 @@ public class MessageBrowser {
         mServiceComponent = serviceComponent;
         mCallbackExecutor = callbackExecutor;
         mBrowserCallback = callback;
+        mSequencedFutureManager = new SequencedFutureManager();
         mConnectionRequest = new ConnectionRequest(mContext.getPackageName(), Process.myPid(),
                 connectionHints);
         mBrowserStub = new BrowserStub();
@@ -124,29 +131,67 @@ public class MessageBrowser {
             if (mBrowserState == STATE_CLOSED || mBrowserState == STATE_CLOSING) return;
             try {
                 if (mBrowserState == STATE_CONNECTING || mBrowserState == STATE_CONNECTED) {
-                    mService.disconnect(mBrowserStub, mNextSequenceNumber++);
+                    mService.disconnect(mBrowserStub,
+                            mSequencedFutureManager.obtainNextSequenceNumber());
                 }
             } catch (RemoteException e) {
                 Log.w(TAG, "Service " + mServiceComponent + " has died prematurely");
             }
             mBrowserState = STATE_CLOSING;
+            mSequencedFutureManager.close();
         }
     }
 
-    void notifyConnected(MessageCommandGroup allowedCommands) {
-        if (mCallbackExecutor != null) {
-            mCallbackExecutor.execute(() -> {
-                mBrowserCallback.onConnected(MessageBrowser.this, allowedCommands);
-            });
+    /**
+     * Sends a custom command to the library service
+     * <p>
+     * A command is not accepted if it is not a custom command.
+     *
+     * @param command custom command to be sent to the library service
+     * @param args optional argument
+     *
+     * @return a listenable future that contains a {@link Bundle} for the result.
+     */
+    @NonNull
+    public ListenableFuture<Bundle> sendCustomCommand(@NonNull MessageCommand command,
+            @Nullable Bundle args) {
+        if (command == null) {
+            throw new NullPointerException("command shouldn't be null");
         }
+        if (command.getCommandCode() != MessageCommand.COMMAND_CODE_CUSTOM) {
+            throw new IllegalArgumentException("command should be a custom command");
+        }
+        final SequencedFutureManager.SequencedFuture<Bundle> result =
+                mSequencedFutureManager.createSequencedFuture(Bundle.EMPTY);
+        executeOrPendRunnable(() -> {
+            synchronized (mLock) {
+                try {
+                    mService.sendCustomCommand(mBrowserStub, result.getSequenceNumber(),
+                            command.toBundle(), args);
+                } catch (RemoteException e) {
+                    mSequencedFutureManager.setFutureResult(result.getSequenceNumber(),
+                            Bundle.EMPTY);
+                }
+            }
+        });
+        return result;
     }
 
-    void notifyDisconnected() {
-        if (mCallbackExecutor != null) {
-            mCallbackExecutor.execute(() -> {
-                mBrowserCallback.onDisconnected(MessageBrowser.this);
-            });
+    void executeOrPendRunnable(Runnable runnable) {
+        synchronized (mLock) {
+            if (mBrowserState != STATE_CONNECTED) {
+                mPendingTasks.add(runnable);
+                return;
+            }
         }
+        runnable.run();
+    }
+
+    void notifyBrowserCallback(Runnable runnable) {
+        if (mCallbackExecutor != null) {
+            mCallbackExecutor.execute(() -> runnable.run());
+        }
+
     }
 
     private boolean requestConnection() {
@@ -273,23 +318,37 @@ public class MessageBrowser {
         BrowserStub() {}
 
         @Override
-        public void notifyConnected(final Bundle allowedCommands) {
+        public void notifyConnected(final int seq, final Bundle allowedCommands) {
             synchronized (mLock) {
                 mBrowserState = STATE_CONNECTED;
             }
-            MessageBrowser.this.notifyConnected(MessageCommandGroup.fromBundle(allowedCommands));
+            notifyBrowserCallback(() -> mBrowserCallback.onConnected(MessageBrowser.this,
+                    MessageCommandGroup.fromBundle(allowedCommands)));
+            synchronized (mLock) {
+                for (Runnable task : mPendingTasks) {
+                    task.run();
+                }
+                mPendingTasks.clear();
+            }
         }
 
         @Override
-        public void notifyDisconnected() {
+        public void notifyDisconnected(final int seq) {
             synchronized (mLock) {
                 if (mBrowserState == STATE_CLOSING) {
                     mBrowserState = STATE_CLOSED;
                 } else if (mBrowserState != STATE_ERROR) {
                     mBrowserState = STATE_DISCONNECTED;
                 }
+                mPendingTasks.clear();
             }
-            MessageBrowser.this.notifyDisconnected();
+            mSequencedFutureManager.close();
+            notifyBrowserCallback(() -> mBrowserCallback.onDisconnected(MessageBrowser.this));
+        }
+
+        @Override
+        public void notifyCommandResult(final int seq, final Bundle result) {
+            mSequencedFutureManager.setFutureResult(seq, result);
         }
     }
 
@@ -300,6 +359,7 @@ public class MessageBrowser {
         @Override
         public void onServiceConnected(ComponentName componentName, IBinder iBinder) {
             // Note that it's always main-thread.
+            int browserState = STATE_IDLE;
             if (DEBUG) {
                 Log.d(TAG, "onServiceConnected " + componentName + " " + this);
             }
@@ -308,26 +368,28 @@ public class MessageBrowser {
                 if (!mServiceComponent.equals(componentName)) {
                     Log.wtf(TAG, "Expected connection to " + mServiceComponent + " but is"
                             + " connected to " + componentName);
-                    mBrowserState = STATE_ERROR;
-                    return;
+                    browserState = mBrowserState = STATE_ERROR;
+                } else {
+                    mService = IMessageLibraryService.Stub.asInterface(iBinder);
+                    if (mService == null) {
+                        Log.wtf(TAG, "Service interface is missing.");
+                        browserState = mBrowserState = STATE_ERROR;
+                    } else {
+                        browserState = mBrowserState = STATE_CONNECTING;
+                        try {
+                            mService.connect(mBrowserStub,
+                                    mSequencedFutureManager.obtainNextSequenceNumber(),
+                                    mConnectionRequest.toBundle());
+                        } catch (RemoteException e) {
+                            Log.w(TAG, "Service " + mServiceComponent + " has died prematurely");
+                            browserState = mBrowserState = STATE_ERROR;
+                        }
+                    }
                 }
-                mService = IMessageLibraryService.Stub.asInterface(iBinder);
-                if (mService == null) {
-                    Log.wtf(TAG, "Service interface is missing.");
-                    mBrowserState = STATE_ERROR;
-                    MessageBrowser.this.notifyDisconnected();
-                    return;
-                }
-                mBrowserState = STATE_CONNECTING;
-                try {
-                    mService.connect(mBrowserStub, mNextSequenceNumber++,
-                            mConnectionRequest.toBundle());
-                } catch (RemoteException e) {
-                    Log.w(TAG, "Service " + mServiceComponent + " has died prematurely");
-                    mBrowserState = STATE_ERROR;
-                    MessageBrowser.this.notifyDisconnected();
-                    close();
-                }
+            }
+            if (browserState == STATE_ERROR) {
+                notifyBrowserCallback(
+                        () -> mBrowserCallback.onDisconnected(MessageBrowser.this));
             }
         }
 

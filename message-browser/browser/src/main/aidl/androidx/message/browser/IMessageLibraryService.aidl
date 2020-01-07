@@ -29,4 +29,5 @@ import androidx.message.browser.IMessageBrowser;
 oneway interface IMessageLibraryService {
     void connect(IMessageBrowser browser, int seq, in Bundle connectionRequest) = 0;
     void disconnect(IMessageBrowser browser, int seq) = 1;
+    void sendCustomCommand(IMessageBrowser browser, int seq, in Bundle command, in Bundle args) = 2;
 }
