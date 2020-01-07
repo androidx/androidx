@@ -84,20 +84,22 @@ class AndroidComposeTestRule<T : Activity>(
         return activityTestRule.apply(AndroidComposeStatement(base), description)
     }
 
-    override fun runOnUiThread(action: () -> Unit) {
+    override fun <T> runOnUiThread(action: () -> T): T {
         // Workaround for lambda bug in IR
+        var result: T? = null
         activityTestRule.runOnUiThread(object : Runnable {
             override fun run() {
-                action.invoke()
+                result = action.invoke()
             }
         })
+        return result!!
     }
 
-    override fun runOnIdleCompose(action: () -> Unit) {
+    override fun <T> runOnIdleCompose(action: () -> T): T {
         // Method below make sure that compose is idle.
         SynchronizedTreeCollector.waitForIdle()
         // Execute the action on ui thread in a blocking way.
-        runOnUiThread(action)
+        return runOnUiThread(action)
     }
 
     /**

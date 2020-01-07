@@ -67,7 +67,7 @@ interface ComposeTestRule : TestRule {
      *
      * This method is blocking until the action is complete.
      */
-    fun runOnUiThread(action: () -> Unit)
+    fun <T> runOnUiThread(action: () -> T): T
 
     /**
      * Executes the given action in the same way as [runOnUiThread] but also makes sure Compose
@@ -76,7 +76,7 @@ interface ComposeTestRule : TestRule {
      *
      * This method is blocking until the action is complete.
      */
-    fun runOnIdleCompose(action: () -> Unit)
+    fun <T> runOnIdleCompose(action: () -> T): T
 
     /**
      * Takes screenshot of the Activity's window after Compose UI gets idle.

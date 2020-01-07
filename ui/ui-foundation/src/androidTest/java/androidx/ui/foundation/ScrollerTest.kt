@@ -15,30 +15,22 @@
  */
 package androidx.ui.foundation
 
-import android.app.Activity
-import android.graphics.Bitmap
 import android.os.Handler
 import android.os.Looper
-import android.view.PixelCopy
-import android.view.View
-import android.view.ViewGroup
-import android.view.ViewTreeObserver
 import androidx.annotation.RequiresApi
 import androidx.compose.Composable
 import androidx.test.filters.SdkSuppress
 import androidx.test.filters.SmallTest
 import androidx.ui.core.Alignment
-import androidx.ui.core.AndroidComposeView
 import androidx.ui.core.Dp
 import androidx.ui.core.Draw
 import androidx.ui.core.IntPx
-import androidx.ui.core.Px
+import androidx.ui.core.IntPxSize
 import androidx.ui.core.TestTag
 import androidx.ui.core.Text
 import androidx.ui.core.dp
 import androidx.ui.core.ipx
 import androidx.ui.core.px
-import androidx.ui.core.setContent
 import androidx.ui.core.toPx
 import androidx.ui.core.toRect
 import androidx.ui.core.withDensity
@@ -47,7 +39,6 @@ import androidx.ui.foundation.shape.RectangleShape
 import androidx.ui.graphics.Color
 import androidx.ui.graphics.Paint
 import androidx.ui.graphics.PaintingStyle
-import androidx.ui.graphics.toArgb
 import androidx.ui.layout.Align
 import androidx.ui.layout.Column
 import androidx.ui.layout.Container
@@ -56,9 +47,11 @@ import androidx.ui.layout.Row
 import androidx.ui.semantics.Semantics
 import androidx.ui.test.GestureScope
 import androidx.ui.test.SemanticsNodeInteraction
-import androidx.ui.test.android.AndroidComposeTestRule
 import androidx.ui.test.assertIsDisplayed
 import androidx.ui.test.assertIsNotDisplayed
+import androidx.ui.test.assertPixels
+import androidx.ui.test.captureToBitmap
+import androidx.ui.test.createComposeRule
 import androidx.ui.test.doGesture
 import androidx.ui.test.doScrollTo
 import androidx.ui.test.findByTag
@@ -70,25 +63,20 @@ import androidx.ui.test.sendSwipeUp
 import com.google.common.truth.Truth.assertThat
 import org.junit.Assert.assertEquals
 import org.junit.Assert.assertTrue
-import org.junit.Before
 import org.junit.Rule
 import org.junit.Test
 import org.junit.runner.RunWith
 import org.junit.runners.JUnit4
 import java.util.concurrent.CountDownLatch
-import java.util.concurrent.TimeUnit
 
 @SmallTest
 @RunWith(JUnit4::class)
 class ScrollerTest {
 
     @get:Rule
-    val composeTestRule = AndroidComposeTestRule<Activity>()
+    val composeTestRule = createComposeRule()
 
-    // TODO(malkov/pavlis) : some tests here require activity access as we need
-    // to take screen's bitmap, abstract it better
-    private val activity
-        get() = composeTestRule.activityTestRule.activity
+    private val scrollerTag = "ScrollerTest"
 
     private val defaultCrossAxisSize = 45.ipx
     private val defaultMainAxisSize = 40.ipx
@@ -104,17 +92,6 @@ class ScrollerTest {
         Color(red = 0, green = 0, blue = 0xFF, alpha = 0xFF),
         Color(red = 0xA5, green = 0, blue = 0xFF, alpha = 0xFF)
     )
-
-    private var drawLatch = CountDownLatch(1)
-    private lateinit var handler: Handler
-
-    @Before
-    fun setupDrawLatch() {
-        drawLatch = CountDownLatch(1)
-        composeTestRule.runOnUiThread {
-            handler = Handler()
-        }
-    }
 
     @SdkSuppress(minSdkVersion = 26)
     @Test
@@ -276,31 +253,27 @@ class ScrollerTest {
         val scrollerPosition = ScrollerPosition()
 
         createScrollableContent(isVertical, scrollerPosition = scrollerPosition)
-        assertThat(scrollerPosition.getValueOnUiThread()).isEqualTo(0.px)
 
-        findByTag("scroller")
+        composeTestRule.runOnIdleCompose {
+            assertThat(scrollerPosition.value).isEqualTo(0.px)
+        }
+
+        findByTag(scrollerTag)
             .doGesture { firstSwipe() }
             .awaitScrollAnimation(scrollerPosition)
 
-        val scrolledValue = scrollerPosition.getValueOnUiThread()
+        val scrolledValue = composeTestRule.runOnIdleCompose {
+            scrollerPosition.value
+        }
         assertThat(scrolledValue).isGreaterThan(0.px)
 
-        findByTag("scroller")
+        findByTag(scrollerTag)
             .doGesture { secondSwipe() }
             .awaitScrollAnimation(scrollerPosition)
 
-        assertThat(scrollerPosition.getValueOnUiThread()).isLessThan(scrolledValue)
-    }
-
-    private fun ScrollerPosition.getValueOnUiThread(): Px {
-        var value = 0.px
-        val latch = CountDownLatch(1)
-        composeTestRule.runOnUiThread {
-            value = this.value
-            latch.countDown()
+        composeTestRule.runOnIdleCompose {
+            assertThat(scrollerPosition.value).isLessThan(scrolledValue)
         }
-        latch.await()
-        return value
     }
 
     private fun composeVerticalScroller(
@@ -311,9 +284,9 @@ class ScrollerTest {
     ) {
         // We assume that the height of the device is more than 45 px
         withDensity(composeTestRule.density) {
-            composeTestRule.runOnUiThread {
-                activity.setContent {
-                    Align(alignment = Alignment.TopLeft) {
+            composeTestRule.setContent {
+                Align(alignment = Alignment.TopLeft) {
+                    TestTag(scrollerTag) {
                         VerticalScroller(
                             scrollerPosition = scrollerPosition,
                             modifier = LayoutSize(width.toDp(), height.toDp())
@@ -334,9 +307,6 @@ class ScrollerTest {
                                 }
                             }
                         }
-                        Draw { _, _ ->
-                            drawLatch.countDown()
-                        }
                     }
                 }
             }
@@ -351,9 +321,9 @@ class ScrollerTest {
     ) {
         // We assume that the height of the device is more than 45 px
         withDensity(composeTestRule.density) {
-            composeTestRule.runOnUiThread {
-                activity.setContent {
-                    Align(alignment = Alignment.TopLeft) {
+            composeTestRule.setContent {
+                Align(alignment = Alignment.TopLeft) {
+                    TestTag(scrollerTag) {
                         HorizontalScroller(
                             scrollerPosition = scrollerPosition,
                             modifier = LayoutSize(width.toDp(), height.toDp())
@@ -374,9 +344,6 @@ class ScrollerTest {
                                 }
                             }
                         }
-                        Draw { _, _ ->
-                            drawLatch.countDown()
-                        }
                     }
                 }
             }
@@ -390,23 +357,12 @@ class ScrollerTest {
         height: IntPx = 40.ipx,
         rowHeight: IntPx = 5.ipx
     ) {
-        assertTrue(drawLatch.await(1, TimeUnit.SECONDS))
-
-        val bitmap = waitAndScreenShot()
-        assertTrue(bitmap.height >= height.value)
-        assertTrue(bitmap.width >= width.value)
-        for (y in 0 until height.value) {
-            val colorIndex = (offset.value + y) / rowHeight.value
-            val expectedColor = colors[colorIndex]
-
-            for (x in 0 until width.value) {
-                val pixel = bitmap.getPixel(x, y)
-                assertEquals(
-                    "Expected $expectedColor, but got ${Color(pixel)} at $x, $y",
-                    expectedColor.toArgb(), pixel
-                )
+        findByTag(scrollerTag)
+            .captureToBitmap()
+            .assertPixels(expectedSize = IntPxSize(width, height)) { pos ->
+                val colorIndex = (offset.value + pos.y.value) / rowHeight.value
+                colors[colorIndex]
             }
-        }
     }
 
     @RequiresApi(api = 26)
@@ -416,23 +372,12 @@ class ScrollerTest {
         height: IntPx = 45.ipx,
         columnWidth: IntPx = 5.ipx
     ) {
-        assertTrue(drawLatch.await(1, TimeUnit.SECONDS))
-
-        val bitmap = waitAndScreenShot()
-        assertTrue(bitmap.height >= height.value)
-        assertTrue(bitmap.width >= width.value)
-        for (x in 0 until width.value) {
-            val colorIndex = (offset.value + x) / columnWidth.value
-            val expectedColor = colors[colorIndex]
-
-            for (y in 0 until height.value) {
-                val pixel = bitmap.getPixel(x, y)
-                assertEquals(
-                    "Expected $expectedColor, but got ${Color(pixel)} at $x, $y",
-                    expectedColor.toArgb(), pixel
-                )
+        findByTag(scrollerTag)
+            .captureToBitmap()
+            .assertPixels(expectedSize = IntPxSize(width, height)) { pos ->
+                val colorIndex = (offset.value + pos.x.value) / columnWidth.value
+                colors[colorIndex]
             }
-        }
     }
 
     private fun createScrollableContent(
@@ -451,55 +396,29 @@ class ScrollerTest {
             Align(alignment = Alignment.TopLeft) {
                 Container(width = width, height = height) {
                     DrawShape(RectangleShape, Color.White)
-                    TestTag("scroller") {
-                        Semantics {
-                            if (isVertical) {
-                                VerticalScroller(scrollerPosition) {
-                                    Column {
-                                        content()
+                        TestTag(scrollerTag) {
+                            Semantics {
+                                if (isVertical) {
+                                    VerticalScroller(scrollerPosition) {
+                                        Column {
+                                            content()
+                                        }
                                     }
-                                }
-                            } else {
-                                HorizontalScroller(scrollerPosition) {
-                                    Row {
-                                        content()
+                                } else {
+                                    HorizontalScroller(scrollerPosition) {
+                                        Row {
+                                            content()
+                                        }
                                     }
                                 }
                             }
                         }
-                    }
                 }
             }
         }
     }
 
-    @RequiresApi(api = 26) // For PixelCopy.request(Window, Rect, Bitmap, listener, Handler)
-    private fun waitAndScreenShot(): Bitmap {
-        val view = findAndroidComposeView()
-        waitForDraw(view)
-
-        val offset = intArrayOf(0, 0)
-        val width = view.width
-        val height = view.height
-
-        val dest =
-            Bitmap.createBitmap(width, height, Bitmap.Config.ARGB_8888)
-        val srcRect = android.graphics.Rect(0, 0, width, height)
-        srcRect.offset(offset[0], offset[1])
-        val latch = CountDownLatch(1)
-        var copyResult = 0
-        val onCopyFinished = object : PixelCopy.OnPixelCopyFinishedListener {
-            override fun onPixelCopyFinished(result: Int) {
-                copyResult = result
-                latch.countDown()
-            }
-        }
-        PixelCopy.request(activity.window, srcRect, dest, onCopyFinished, handler)
-        assertTrue(latch.await(1, TimeUnit.SECONDS))
-        assertEquals(PixelCopy.SUCCESS, copyResult)
-        return dest
-    }
-
+    // TODO(b/147291885): This should not be needed in the future.
     private fun SemanticsNodeInteraction.awaitScrollAnimation(
         scroller: ScrollerPosition
     ): SemanticsNodeInteraction {
@@ -519,43 +438,5 @@ class ScrollerTest {
         })
         latch.await()
         return this
-    }
-
-    // TODO(malkov): ALL below is copypaste from LayoutTest as this test in ui-foundation now
-
-    private fun findAndroidComposeView(): AndroidComposeView {
-        val contentViewGroup = activity.findViewById<ViewGroup>(android.R.id.content)
-        return findAndroidComposeView(contentViewGroup)!!
-    }
-
-    private fun findAndroidComposeView(parent: ViewGroup): AndroidComposeView? {
-        for (index in 0 until parent.childCount) {
-            val child = parent.getChildAt(index)
-            if (child is AndroidComposeView) {
-                return child
-            } else if (child is ViewGroup) {
-                val composeView = findAndroidComposeView(child)
-                if (composeView != null) {
-                    return composeView
-                }
-            }
-        }
-        return null
-    }
-
-    private fun waitForDraw(view: View) {
-        val viewDrawLatch = CountDownLatch(1)
-        val listener = object : ViewTreeObserver.OnDrawListener {
-            override fun onDraw() {
-                viewDrawLatch.countDown()
-            }
-        }
-        view.post(object : Runnable {
-            override fun run() {
-                view.viewTreeObserver.addOnDrawListener(listener)
-                view.invalidate()
-            }
-        })
-        assertTrue(viewDrawLatch.await(1, TimeUnit.SECONDS))
     }
 }
