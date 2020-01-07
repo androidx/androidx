@@ -22,6 +22,7 @@ import android.app.Service;
 import android.content.Intent;
 import android.os.Binder;
 import android.os.Bundle;
+import android.os.Handler;
 import android.os.IBinder;
 import android.os.RemoteException;
 import android.util.Log;
@@ -66,11 +67,14 @@ public class MessageLibraryService extends Service {
     final ArrayMap<IBinder, BrowserRecord> mBrowserRecords = new ArrayMap<>();
 
     private ServiceStub mServiceStub;
+    @SuppressWarnings("WeakerAccess") /* synthetic access */
+    Handler mHandler;
 
     @Override
     public void onCreate() {
         super.onCreate();
         mServiceStub = new ServiceStub();
+        mHandler = new Handler();
     }
 
     @Nullable
@@ -105,6 +109,46 @@ public class MessageLibraryService extends Service {
                 .addAllPredefinedCommands(MessageCommand.COMMAND_VERSION_CURRENT)
                 .build();
         return commands;
+    }
+
+    /**
+     * Called when a browser sent a command which will be sent directly.
+     * <p>
+     * Return {@code true} to accept the command, {@code false} to decline the command.
+     *
+     * @param browserInfo the browser information
+     * @param command a command. This method will be called for every single command.
+     * @return {@code RESULT_SUCCESS} if you want to proceed with incoming command.
+     *         Another code for ignore.
+     */
+    public boolean onCommandRequest(@NonNull BrowserInfo browserInfo,
+            @NonNull MessageCommand command) {
+        return true;
+    }
+
+    /**
+     * Called when a browser sent a custom command through
+     * {@link MessageBrowser#sendCustomCommand(MessageCommand, Bundle)}.
+     * <p>
+     * @param browserInfo the browser information
+     * @param customCommand custom command.
+     * @param args optional arguments
+     * @return result of handling custom command. A runtime exception will be thrown if
+     *         {@code null} is returned.
+     * @see MessageCommand#COMMAND_CODE_CUSTOM
+     */
+    @NonNull
+    public Bundle onCustomCommand(@NonNull BrowserInfo browserInfo,
+            @NonNull MessageCommand customCommand, @Nullable Bundle args) {
+        return Bundle.EMPTY;
+    }
+
+    void releaseBrowserRecord(BrowserRecord record) {
+        IBinder browserBinder = record.browser.asBinder();
+        browserBinder.unlinkToDeath(record, 0);
+        synchronized (mLock) {
+            mBrowserRecords.remove(browserBinder);
+        }
     }
 
     /**
@@ -167,7 +211,7 @@ public class MessageLibraryService extends Service {
             final ConnectionRequest request = ConnectionRequest.fromBundle(connectionRequest);
             if (request == null) {
                 try {
-                    browser.notifyDisconnected();
+                    browser.notifyDisconnected(seq);
                 } catch (RemoteException ex) {
                     Log.w(TAG, "Calling notifyDisconnected() failed");
                 }
@@ -194,7 +238,7 @@ public class MessageLibraryService extends Service {
                     }
                     try {
                         browserBinder.linkToDeath(record, 0);
-                        browser.notifyConnected(allowedCommands.toBundle());
+                        browser.notifyConnected(seq, allowedCommands.toBundle());
                     } catch (RemoteException ex) {
                         Log.w(TAG, "Calling notifyConnected() failed");
                         synchronized (mLock) {
@@ -203,7 +247,7 @@ public class MessageLibraryService extends Service {
                     }
                 } else {
                     try {
-                        browser.notifyDisconnected();
+                        browser.notifyDisconnected(seq);
                     } catch (RemoteException ex) {
                         Log.w(TAG, "Calling notifyDisconnected() failed");
                     }
@@ -220,10 +264,32 @@ public class MessageLibraryService extends Service {
                 BrowserRecord record = mBrowserRecords.remove(browserBinder);
                 try {
                     browserBinder.unlinkToDeath(record, 0);
-                    browser.notifyDisconnected();
+                    browser.notifyDisconnected(seq);
                 } catch (RemoteException e) {
                     Log.w(TAG, "Calling notifyDisconnected() failed");
                 }
+            }
+        }
+
+        @Override
+        public void sendCustomCommand(IMessageBrowser browser, int seq, Bundle command,
+                Bundle args) {
+            synchronized (mLock) {
+                BrowserRecord record = mBrowserRecords.get(browser.asBinder());
+                if (record == null) {
+                    return;
+                }
+                MessageCommand customCommand = MessageCommand.fromBundle(command);
+                mHandler.post(() -> {
+                    try {
+                        Bundle result = onCommandRequest(record.browserInfo, customCommand)
+                                ? onCustomCommand(record.browserInfo, customCommand, args)
+                                : Bundle.EMPTY;
+                        record.browser.notifyCommandResult(seq, result);
+                    } catch (RemoteException e) {
+                        releaseBrowserRecord(record);
+                    }
+                });
             }
         }
     }
