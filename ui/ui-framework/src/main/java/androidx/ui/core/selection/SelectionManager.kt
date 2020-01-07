@@ -80,7 +80,8 @@ internal class SelectionManager(private val selectionRegistrar: SelectionRegistr
         startPosition: PxPosition,
         endPosition: PxPosition,
         longPress: Boolean = false,
-        selection: Selection? = null
+        selection: Selection? = null,
+        isStartHandle: Boolean = true
     ): Selection? {
         val handlers = selectionRegistrar.selectables
         return handlers.fold(selection) { mergedSelection: Selection?,
@@ -91,7 +92,9 @@ internal class SelectionManager(private val selectionRegistrar: SelectionRegistr
                     startPosition = startPosition,
                     endPosition = endPosition,
                     containerLayoutCoordinates = containerLayoutCoordinates,
-                    longPress = longPress
+                    longPress = longPress,
+                    previousSelection = selection,
+                    isStartHandle = isStartHandle
                 )
             )
         }
@@ -216,7 +219,8 @@ internal class SelectionManager(private val selectionRegistrar: SelectionRegistr
                 val finalSelection = mergeSelections(
                     startPosition = currentStart,
                     endPosition = currentEnd,
-                    selection = selection
+                    selection = selection,
+                    isStartHandle = isStartHandle
                 )
                 onSelectionChange(finalSelection)
                 return dragDistance
