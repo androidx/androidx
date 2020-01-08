@@ -20,6 +20,7 @@ import static androidx.camera.testing.SurfaceTextureProvider.createSurfaceTextur
 
 import static com.google.common.truth.Truth.assertThat;
 
+import static org.junit.Assert.assertEquals;
 import static org.junit.Assume.assumeTrue;
 import static org.mockito.Mockito.mock;
 
@@ -28,8 +29,10 @@ import android.app.Instrumentation;
 import android.content.Context;
 import android.graphics.SurfaceTexture;
 import android.util.Size;
+import android.view.Surface;
 
 import androidx.annotation.NonNull;
+import androidx.camera.core.CameraInfoUnavailableException;
 import androidx.camera.core.CameraSelector;
 import androidx.camera.core.CameraX;
 import androidx.camera.core.CameraXConfig;
@@ -71,6 +74,7 @@ public final class PreviewTest {
     public GrantPermissionRule mRuntimePermissionRule = GrantPermissionRule.grant(
             Manifest.permission.CAMERA);
 
+    private static final Size GUARANTEED_RESOLUTION = new Size(640, 480);
     private static final Preview.PreviewSurfaceProvider MOCK_PREVIEW_SURFACE_PROVIDER =
             mock(Preview.PreviewSurfaceProvider.class);
 
@@ -81,6 +85,7 @@ public final class PreviewTest {
     private CameraSelector mCameraSelector;
     private String mCameraId;
     private FakeLifecycleOwner mLifecycleOwner;
+    private Size mPreviewResolution;
     private Semaphore mSurfaceFutureSemaphore;
     private Semaphore mSaveToReleaseSemaphore;
     private Preview.PreviewSurfaceProvider mPreviewSurfaceProviderWithFrameAvailableListener =
@@ -88,6 +93,7 @@ public final class PreviewTest {
                 @Override
                 public void onSurfaceTextureReady(@NonNull SurfaceTexture surfaceTexture,
                         @NonNull Size resolution) {
+                    mPreviewResolution = resolution;
                     surfaceTexture.setOnFrameAvailableListener(
                             surfaceTexture1 -> mSurfaceFutureSemaphore.release());
                 }
@@ -207,6 +213,52 @@ public final class PreviewTest {
 
         // Assert.
         assertThat(mSurfaceFutureSemaphore.tryAcquire(10, TimeUnit.SECONDS)).isTrue();
+    }
+
+    @Test
+    public void canSupportGuaranteedSize()
+            throws InterruptedException, CameraInfoUnavailableException {
+        // CameraSelector.LENS_FACING_FRONT/LENS_FACING_BACK are defined as constant int 0 and 1.
+        // Using for-loop to check both front and back device cameras can support the guaranteed
+        // 640x480 size.
+        for (int i = 0; i <= 1; i++) {
+            final int lensFacing = i;
+            if (!CameraUtil.hasCameraWithLensFacing(lensFacing)) {
+                continue;
+            }
+
+            // Checks camera device sensor degrees to set correct target rotation value to make sure
+            // the exactly matching result size 640x480 can be selected if the device supports it.
+            String cameraId = CameraX.getCameraFactory().cameraIdForLensFacing(lensFacing);
+            boolean isRotateNeeded = (CameraX.getCameraInfo(cameraId).getSensorRotationDegrees(
+                    Surface.ROTATION_0) % 180) != 0;
+            Preview preview = new Preview.Builder().setTargetResolution(
+                    GUARANTEED_RESOLUTION).setTargetRotation(
+                    isRotateNeeded ? Surface.ROTATION_90 : Surface.ROTATION_0).build();
+
+            mInstrumentation.runOnMainSync(() -> {
+                preview.setPreviewSurfaceProvider(
+                        mPreviewSurfaceProviderWithFrameAvailableListener);
+                CameraSelector cameraSelector = new CameraSelector.Builder().requireLensFacing(
+                        lensFacing).build();
+                CameraX.bindToLifecycle(mLifecycleOwner, cameraSelector, preview);
+                mLifecycleOwner.startAndResume();
+            });
+
+            // Assert.
+            assertThat(mSurfaceFutureSemaphore.tryAcquire(10, TimeUnit.SECONDS)).isTrue();
+
+            // Check whether 640x480 is selected for the preview use case. This test can also check
+            // whether the guaranteed resolution 640x480 is really supported for SurfaceTexture
+            // format on the devices when running the test.
+            assertEquals(GUARANTEED_RESOLUTION, mPreviewResolution);
+
+            // Reset the environment to run test for the other lens facing camera device.
+            mInstrumentation.runOnMainSync(() -> {
+                CameraX.unbindAll();
+                mLifecycleOwner.pauseAndStop();
+            });
+        }
     }
 
     private CameraControlInternal getFakeCameraControl() {
