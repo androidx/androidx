@@ -32,20 +32,6 @@ import androidx.ui.semantics.SemanticsProperties
 import androidx.ui.semantics.accessibilityValue
 
 /**
- * Asserts no items found given a criteria, throws [AssertionError] otherwise.
- */
-fun assertDoesNotExist(
-    selector: SemanticsConfiguration.() -> Boolean
-) {
-    val foundNodes = semanticsTreeInteractionFactory(selector)
-        .findAllMatching()
-
-    if (foundNodes.isNotEmpty()) {
-        throw AssertionError("Found '${foundNodes.size}' components that match, " +
-                "expected '0' components")
-    }
-}
-/**
  * Asserts that current component is visible.
  */
 // TODO(b/123702531): Provide guarantees of being visible VS being actually displayed
@@ -59,7 +45,7 @@ fun SemanticsNodeInteraction.assertIsVisible(): SemanticsNodeInteraction {
 /**
  * Asserts that current component is hidden. This requires that the component actually exists in
  * the hierarchy and is hidden. If you want to actually verify that the component does not  exist
- * at all, please use [assertNoLongerExists]
+ * at all, please use [SemanticsNodeInteraction.assertDoesNotExist]
  */
 fun SemanticsNodeInteraction.assertIsHidden(): SemanticsNodeInteraction {
     verifyHierarchy({ "The component is visible!" }) {
@@ -97,16 +83,6 @@ fun SemanticsNodeInteraction.assertIsNotDisplayed(): SemanticsNodeInteraction {
     }
 
     return this
-}
-
-/**
- * Asserts that the component isn't part of the component tree anymore. If the component exists but
- * is hidden use [assertIsHidden] instead.
- */
-fun SemanticsNodeInteraction.assertNoLongerExists() {
-    if (semanticsTreeInteraction.contains(semanticsTreeNode.data)) {
-        throw AssertionError("Assert failed: The component does exist!")
-    }
 }
 
 /**
@@ -279,15 +255,6 @@ fun SemanticsNodeInteraction.verifyHierarchy(
             throw AssertionError("Assert failed: ${assertionMessage(semanticsTreeNode.data)}")
         }
         node = node.parent
-    }
-}
-
-/**
- * Asserts that the component is still part of the component tree.
- */
-internal fun SemanticsNodeInteraction.assertExists() {
-    if (!semanticsTreeInteraction.contains(semanticsTreeNode.data)) {
-        throw AssertionError("The component does not exist!")
     }
 }
 
