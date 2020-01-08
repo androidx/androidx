@@ -30,6 +30,7 @@ data class Dao(
     val deletionMethods: List<DeletionMethod>,
     val updateMethods: List<UpdateMethod>,
     val transactionMethods: List<TransactionMethod>,
+    val kotlinDefaultMethodDelegates: List<KotlinDefaultMethodDelegate>,
     val constructorParamType: TypeName?
 ) {
     // parsed dao might have a suffix if it is used in multiple databases.

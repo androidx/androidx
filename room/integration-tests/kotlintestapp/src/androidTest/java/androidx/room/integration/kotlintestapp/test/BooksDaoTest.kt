@@ -36,7 +36,9 @@ import org.hamcrest.CoreMatchers.equalTo
 import org.hamcrest.CoreMatchers.instanceOf
 import org.hamcrest.CoreMatchers.notNullValue
 import org.hamcrest.MatcherAssert.assertThat
+import org.junit.Assert.assertEquals
 import org.junit.Assert.assertNotNull
+import org.junit.Assert.assertNull
 import org.junit.Assert.fail
 import org.junit.Test
 import java.util.Date
@@ -356,6 +358,20 @@ class BooksDaoTest : TestDatabaseTest() {
             }
 
             assertThat(booksDao.getBooksSuspend().isEmpty(), `is`(true))
+        }
+    }
+
+    @Test
+    fun kotlinDefaultFunction() {
+        booksDao.addAndRemovePublisher(TestUtil.PUBLISHER)
+        assertNull(booksDao.getPublisher(TestUtil.PUBLISHER.publisherId))
+
+        assertEquals("", booksDao.concreteFunction())
+        assertEquals("1 - hello", booksDao.concreteFunctionWithParams(1, "hello"))
+
+        runBlocking {
+            assertEquals("", booksDao.concreteSuspendFunction())
+            assertEquals("2 - hi", booksDao.concreteSuspendFunctionWithParams(2, "hi"))
         }
     }
 }
