@@ -24,7 +24,6 @@ import android.content.Context;
 import android.os.Build;
 import android.view.Display;
 import android.view.Surface;
-import android.view.WindowManager;
 
 import androidx.camera.core.CameraSelector;
 import androidx.camera.core.CameraX;
@@ -63,7 +62,6 @@ public class DisplayOrientedMeteringPointFactoryTest {
     private static final float HEIGHT = 640;
     private static final String FRONT_CAMERA_ID = "1";
     private static final String BACK_CAMERA_ID = "0";
-    private Context mMockContext;
     private Display mMockDisplay;
     private static final CameraSelector FRONT_CAM =
             new CameraSelector.Builder().requireLensFacing(
@@ -104,10 +102,6 @@ public class DisplayOrientedMeteringPointFactoryTest {
 
         mMockDisplay = Mockito.mock(Display.class);
         when(mMockDisplay.getRotation()).thenReturn(Surface.ROTATION_0);
-        WindowManager mockWindowManager = Mockito.mock(WindowManager.class);
-        when(mockWindowManager.getDefaultDisplay()).thenReturn(mMockDisplay);
-        mMockContext = Mockito.mock(Context.class);
-        when(mMockContext.getSystemService(Context.WINDOW_SERVICE)).thenReturn(mockWindowManager);
     }
 
     @After
@@ -118,7 +112,7 @@ public class DisplayOrientedMeteringPointFactoryTest {
     @Test
     public void defaultAreaSize() {
         DisplayOrientedMeteringPointFactory factory = new DisplayOrientedMeteringPointFactory(
-                mMockContext, BACK_CAM, WIDTH, HEIGHT);
+                mMockDisplay, BACK_CAM, WIDTH, HEIGHT);
 
         MeteringPoint point = factory.createPoint(0, 0);
         assertThat(point.getSize()).isEqualTo(MeteringPointFactory.getDefaultPointSize());
@@ -128,7 +122,7 @@ public class DisplayOrientedMeteringPointFactoryTest {
     @Test
     public void createPointWithValidAreaSize() {
         DisplayOrientedMeteringPointFactory factory = new DisplayOrientedMeteringPointFactory(
-                mMockContext, BACK_CAM, WIDTH, HEIGHT);
+                mMockDisplay, BACK_CAM, WIDTH, HEIGHT);
 
         final float areaSize = 0.2f;
         MeteringPoint point = factory.createPoint(0, 0, areaSize);
@@ -141,7 +135,7 @@ public class DisplayOrientedMeteringPointFactoryTest {
         when(mMockDisplay.getRotation()).thenReturn(Surface.ROTATION_0);
 
         DisplayOrientedMeteringPointFactory factory = new DisplayOrientedMeteringPointFactory(
-                mMockContext, BACK_CAM, WIDTH, HEIGHT);
+                mMockDisplay, BACK_CAM, WIDTH, HEIGHT);
 
         MeteringPoint meteringPoint = factory.createPoint(0f, 0f);
         assertThat(meteringPoint.getX()).isEqualTo(0f);
@@ -167,7 +161,7 @@ public class DisplayOrientedMeteringPointFactoryTest {
         when(mMockDisplay.getRotation()).thenReturn(Surface.ROTATION_0);
 
         DisplayOrientedMeteringPointFactory factory = new DisplayOrientedMeteringPointFactory(
-                mMockContext, FRONT_CAM, WIDTH, HEIGHT);
+                mMockDisplay, FRONT_CAM, WIDTH, HEIGHT);
 
         MeteringPoint meteringPoint = factory.createPoint(0f, 0f);
         assertThat(meteringPoint.getX()).isEqualTo(1f);
@@ -193,7 +187,7 @@ public class DisplayOrientedMeteringPointFactoryTest {
         when(mMockDisplay.getRotation()).thenReturn(Surface.ROTATION_90);
 
         DisplayOrientedMeteringPointFactory factory = new DisplayOrientedMeteringPointFactory(
-                mMockContext, BACK_CAM, WIDTH, HEIGHT);
+                mMockDisplay, BACK_CAM, WIDTH, HEIGHT);
 
         MeteringPoint meteringPoint = factory.createPoint(0f, 0f);
         assertThat(meteringPoint.getX()).isEqualTo(0f);
@@ -219,7 +213,7 @@ public class DisplayOrientedMeteringPointFactoryTest {
         when(mMockDisplay.getRotation()).thenReturn(Surface.ROTATION_90);
 
         DisplayOrientedMeteringPointFactory factory = new DisplayOrientedMeteringPointFactory(
-                mMockContext, FRONT_CAM, WIDTH, HEIGHT);
+                mMockDisplay, FRONT_CAM, WIDTH, HEIGHT);
 
         MeteringPoint meteringPoint = factory.createPoint(0f, 0f);
         assertThat(meteringPoint.getX()).isEqualTo(1f);
@@ -245,7 +239,7 @@ public class DisplayOrientedMeteringPointFactoryTest {
         when(mMockDisplay.getRotation()).thenReturn(Surface.ROTATION_180);
 
         DisplayOrientedMeteringPointFactory factory = new DisplayOrientedMeteringPointFactory(
-                mMockContext, BACK_CAM, WIDTH, HEIGHT);
+                mMockDisplay, BACK_CAM, WIDTH, HEIGHT);
 
         MeteringPoint meteringPoint = factory.createPoint(0f, 0f);
         assertThat(meteringPoint.getX()).isEqualTo(1f);
@@ -271,7 +265,7 @@ public class DisplayOrientedMeteringPointFactoryTest {
         when(mMockDisplay.getRotation()).thenReturn(Surface.ROTATION_180);
 
         DisplayOrientedMeteringPointFactory factory = new DisplayOrientedMeteringPointFactory(
-                mMockContext, FRONT_CAM, WIDTH, HEIGHT);
+                mMockDisplay, FRONT_CAM, WIDTH, HEIGHT);
 
         MeteringPoint meteringPoint = factory.createPoint(0f, 0f);
         assertThat(meteringPoint.getX()).isEqualTo(0f);
@@ -297,7 +291,7 @@ public class DisplayOrientedMeteringPointFactoryTest {
         when(mMockDisplay.getRotation()).thenReturn(Surface.ROTATION_270);
 
         DisplayOrientedMeteringPointFactory factory = new DisplayOrientedMeteringPointFactory(
-                mMockContext, BACK_CAM, WIDTH, HEIGHT);
+                mMockDisplay, BACK_CAM, WIDTH, HEIGHT);
 
         MeteringPoint meteringPoint = factory.createPoint(0f, 0f);
         assertThat(meteringPoint.getX()).isEqualTo(1f);
@@ -323,7 +317,7 @@ public class DisplayOrientedMeteringPointFactoryTest {
         when(mMockDisplay.getRotation()).thenReturn(Surface.ROTATION_270);
 
         DisplayOrientedMeteringPointFactory factory = new DisplayOrientedMeteringPointFactory(
-                mMockContext, FRONT_CAM, WIDTH, HEIGHT);
+                mMockDisplay, FRONT_CAM, WIDTH, HEIGHT);
 
         MeteringPoint meteringPoint = factory.createPoint(0f, 0f);
         assertThat(meteringPoint.getX()).isEqualTo(0f);

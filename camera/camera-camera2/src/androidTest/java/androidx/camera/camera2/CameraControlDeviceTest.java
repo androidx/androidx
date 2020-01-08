@@ -153,7 +153,7 @@ public class CameraControlDeviceTest {
         assumeTrue(isSupportAeRegion(mCameraSelector));
 
         FocusMeteringAction action =
-                FocusMeteringAction.Builder.from(mMeteringPoint1,
+                new FocusMeteringAction.Builder(mMeteringPoint1,
                         FocusMeteringAction.FLAG_AE).build();
         ListenableFuture<FocusMeteringResult> future =
                 mCamera.getCameraControl().startFocusAndMetering(action);
@@ -166,7 +166,7 @@ public class CameraControlDeviceTest {
         assumeTrue(isSupportAwbRegion(mCameraSelector));
 
         FocusMeteringAction action =
-                FocusMeteringAction.Builder.from(mMeteringPoint1,
+                new FocusMeteringAction.Builder(mMeteringPoint1,
                         FocusMeteringAction.FLAG_AWB).build();
         ListenableFuture<FocusMeteringResult> future =
                 mCamera.getCameraControl().startFocusAndMetering(action);
@@ -179,7 +179,7 @@ public class CameraControlDeviceTest {
         assumeTrue(isSupportAeRegion(mCameraSelector) || isSupportAwbRegion(mCameraSelector));
 
         FocusMeteringAction action =
-                FocusMeteringAction.Builder.from(mMeteringPoint1,
+                new FocusMeteringAction.Builder(mMeteringPoint1,
                         FocusMeteringAction.FLAG_AE | FocusMeteringAction.FLAG_AWB).build();
         ListenableFuture<FocusMeteringResult> future =
                 mCamera.getCameraControl().startFocusAndMetering(action);
@@ -198,7 +198,7 @@ public class CameraControlDeviceTest {
         MeteringPoint point3 = factory.createPoint(0.2f, 0.2f);
         MeteringPoint point4 = factory.createPoint(0.3f, 0.4f);
         FocusMeteringAction action =
-                FocusMeteringAction.Builder.from(point1,
+                new FocusMeteringAction.Builder(point1,
                         FocusMeteringAction.FLAG_AE | FocusMeteringAction.FLAG_AWB)
                         .addPoint(point2,
                                 FocusMeteringAction.FLAG_AE | FocusMeteringAction.FLAG_AWB)
@@ -217,7 +217,7 @@ public class CameraControlDeviceTest {
     @Test
     public void cancelFocusMetering_futureCompletes() {
         FocusMeteringAction action =
-                FocusMeteringAction.Builder.from(mMeteringPoint1).build();
+                new FocusMeteringAction.Builder(mMeteringPoint1).build();
         mCamera.getCameraControl().startFocusAndMetering(action);
         ListenableFuture<Void> result = mCamera.getCameraControl().cancelFocusAndMetering();
 
