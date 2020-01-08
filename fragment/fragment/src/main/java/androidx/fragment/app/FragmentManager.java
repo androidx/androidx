@@ -2527,6 +2527,13 @@ public abstract class FragmentManager {
         }
     }
 
+    void dispatchAttach() {
+        mStateSaved = false;
+        mStopped = false;
+        mNonConfig.setIsStateSaved(false);
+        dispatchStateChange(Fragment.ATTACHED);
+    }
+
     void dispatchCreate() {
         mStateSaved = false;
         mStopped = false;
