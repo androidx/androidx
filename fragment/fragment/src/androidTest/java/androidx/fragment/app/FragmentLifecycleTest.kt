@@ -350,6 +350,24 @@ class FragmentLifecycleTest {
         assertThat(fragment2.lifecycle.currentState).isEqualTo(Lifecycle.State.CREATED)
     }
 
+    @Test
+    @UiThreadTest
+    fun addChildFragmentInAttach() {
+        val viewModelStore = ViewModelStore()
+        val fc = FragmentController.createController(
+            ControllerHostCallbacks(activityRule.activity, viewModelStore)
+        )
+        fc.attachHost(null)
+
+        val fm = fc.supportFragmentManager
+
+        fm.beginTransaction()
+            .add(android.R.id.content, AddChildInOnAttachFragment())
+            .commitNow()
+
+        fc.dispatchCreate()
+    }
+
     /**
      * This test confirms that as long as a parent fragment has called super.onCreate,
      * any child fragments added, committed and with transactions executed will be brought
@@ -1312,6 +1330,16 @@ class FragmentLifecycleTest {
         override fun onAttach(context: Context) {
             super.onAttach(context)
             string = requireArguments().getString("string", "NO VALUE")
+        }
+    }
+
+    class AddChildInOnAttachFragment : StrictFragment() {
+        override fun onAttach(context: Context) {
+            super.onAttach(context)
+
+            childFragmentManager.beginTransaction()
+                .add(Fragment(), "child")
+                .commitNow()
         }
     }
 

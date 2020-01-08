@@ -2705,6 +2705,7 @@ public class Fragment implements ComponentCallbacks, OnCreateContextMenuListener
         } else {
             mParentFragment.onAttachFragment(this);
         }
+        mChildFragmentManager.dispatchAttach();
     }
 
     void performCreate(Bundle savedInstanceState) {
