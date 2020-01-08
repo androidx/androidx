@@ -34,15 +34,19 @@ import java.util.concurrent.TimeUnit;
 /**
  * A configuration used to trigger a focus and/or metering action.
  *
- * <p>To construct a {@link FocusMeteringAction}, apps have to create a {@link Builder} by
- * {@link Builder#from(MeteringPoint)} or {@link Builder#from(MeteringPoint, int)}.
- * {@link MeteringPoint} is a point used to specify the focus/metering areas. Apps can use various
- * {@link MeteringPointFactory} to create the points. When the {@link FocusMeteringAction} is built,
- * pass it to {@link CameraControl#startFocusAndMetering(FocusMeteringAction)} to initiate the focus
+ * <p>A {@link FocusMeteringAction} must be created by the {@link Builder}. To construct a
+ * {@link Builder}, a {@link MeteringPoint} is required to specify the focus/metering area. Apps
+ * can use various {@link MeteringPointFactory} to create the points. After the
+ * {@link FocusMeteringAction} is built, apps can pass it to
+ * {@link CameraControl#startFocusAndMetering(FocusMeteringAction)} to initiate the focus
  * and metering action.
  *
- * <p>The default meteringMode is {@link #FLAG_AF} | {@link #FLAG_AE} | {@link #FLAG_AWB} which
- * means the point is used for all AF/AE/AWB regions. Apps can set the proper meteringMode to
+ * <p>When specifying a {@link MeteringPoint}, a metering mode can also be specified. Metering
+ * mode is a combination of flags consisting of {@link #FLAG_AF}, {@link #FLAG_AE}, and
+ * {@link #FLAG_AWB}. This combination indicates whether the {@link MeteringPoint} is
+ * used to set AF(Auto Focus) region, AE(Auto Exposure) region or AWB(Auto White Balance) region.
+ * The default meteringMode is {@link #FLAG_AF} | {@link #FLAG_AE} | {@link #FLAG_AWB} which
+ * means the point is used for all AF/AE/AWB regions. Apps can set the proper metering mode to
  * optionally exclude some 3A regions. Multiple regions for specific 3A type are also supported
  * via {@link Builder#addPoint(MeteringPoint)} or {@link Builder#addPoint(MeteringPoint, int)}.
  * App can also this API to enable different region for AF and AE respectively.
@@ -65,12 +69,24 @@ import java.util.concurrent.TimeUnit;
  */
 public final class FocusMeteringAction {
 
+    /**
+     * A flag used in metering mode indicating the AF (Auto Focus) region is enabled. An autofocus
+     * scan is also triggered when FLAG_AF is assigned.
+     */
     public static final int FLAG_AF = 1;
+
+    /**
+     * A flag used in metering mode indicating the AE (Auto Exposure) region is enabled.
+     */
     public static final int FLAG_AE = 1 << 1;
+
+    /**
+     * A flag used in metering mode indicating the AWB (Auto White Balance) region is enabled.
+     */
     public static final int FLAG_AWB = 1 << 2;
 
     @MeteringMode
-    static final int DEFAULT_METERINGMODE = FLAG_AF | FLAG_AE | FLAG_AWB;
+    static final int DEFAULT_METERING_MODE = FLAG_AF | FLAG_AE | FLAG_AWB;
     static final long DEFAULT_AUTOCANCEL_DURATION = 5000;
     private final List<MeteringPoint> mMeteringPointsAf;
     private final List<MeteringPoint> mMeteringPointsAe;
@@ -136,9 +152,7 @@ public final class FocusMeteringAction {
     }
 
     /**
-     * The builder used to create the {@link FocusMeteringAction}. App must use
-     * {@link Builder#from(MeteringPoint)}
-     * or {@link Builder#from(MeteringPoint, int)} to create the {@link Builder}.
+     * The builder used to create the {@link FocusMeteringAction}.
      */
     public static class Builder {
         @SuppressWarnings("WeakerAccess") /* synthetic accessor */
@@ -150,38 +164,32 @@ public final class FocusMeteringAction {
         @SuppressWarnings("WeakerAccess") /* synthetic accessor */
                 long mAutoCancelDurationInMillis = DEFAULT_AUTOCANCEL_DURATION;
 
-        private Builder(@NonNull MeteringPoint point) {
-            this(point, DEFAULT_METERINGMODE);
-        }
-
-        private Builder(@NonNull MeteringPoint point, @MeteringMode int mode) {
-            addPoint(point, mode);
-        }
-
         /**
-         * Creates the Builder from a {@link MeteringPoint} with default
-         * mode {@link #FLAG_AF} | {@link #FLAG_AE} | {@link #FLAG_AWB}.
+         * Creates the Builder from a {@link MeteringPoint} with default mode {@link #FLAG_AF} |
+         * {@link #FLAG_AE} | {@link #FLAG_AWB}.
          */
-        @NonNull
-        public static Builder from(@NonNull MeteringPoint meteringPoint) {
-            return new Builder(meteringPoint);
+        public Builder(@NonNull MeteringPoint point) {
+            this(point, DEFAULT_METERING_MODE);
         }
 
         /**
          * Creates the Builder from a {@link MeteringPoint} and MeteringMode.
+         *
+         * <p>Metering mode is a combination of flags consisting of {@link #FLAG_AF},
+         * {@link #FLAG_AE}, and {@link #FLAG_AWB}. This combination indicates whether the
+         * {@link MeteringPoint} is used to set AF(Auto Focus) region, AE(Auto
+         * Exposure) region or AWB(Auto White Balance) region.
          */
-        @NonNull
-        public static Builder from(@NonNull MeteringPoint meteringPoint, @MeteringMode int mode) {
-            return new Builder(meteringPoint, mode);
+        public Builder(@NonNull MeteringPoint point, @MeteringMode int meteringMode) {
+            addPoint(point, meteringMode);
         }
 
         /**
-         * Adds another {@link MeteringPoint} with default mode {@link #FLAG_AF} |
+         * Adds another {@link MeteringPoint} with default metering mode {@link #FLAG_AF} |
          * {@link #FLAG_AE} | {@link #FLAG_AWB}.
          *
-         * <p>The points added here will be appended in order after the point set in
-         * {@link FocusMeteringAction.Builder#from(MeteringPoint)} or
-         * {@link FocusMeteringAction.Builder#from(MeteringPoint, int)}.
+         * <p>The points added here will be appended in order after the point set in builder
+         * constructor.
          *
          * <p>If more points are added than what current device supports for AF/AE/AWB, only the
          * first point and then in order up to the number of points supported on the device
@@ -195,15 +203,19 @@ public final class FocusMeteringAction {
          */
         @NonNull
         public Builder addPoint(@NonNull MeteringPoint point) {
-            return addPoint(point, DEFAULT_METERINGMODE);
+            return addPoint(point, DEFAULT_METERING_MODE);
         }
 
         /**
          * Adds another {@link MeteringPoint} with specified meteringMode.
          *
-         * <p>The points added here will be appended in order after the point set in
-         * {@link FocusMeteringAction.Builder#from(MeteringPoint)} or
-         * {@link FocusMeteringAction.Builder#from(MeteringPoint, int)}.
+         * <p>Metering mode is a combination of flags consisting of {@link #FLAG_AF},
+         * {@link #FLAG_AE}, and {@link #FLAG_AWB}. This combination indicates whether the
+         * {@link MeteringPoint} is used to set AF(Auto Focus) region, AE(Auto Exposure) region
+         * or AWB(Auto White Balance) region.
+         *
+         * <p>The points added here will be appended in order after the point set in builder
+         * constructor.
          *
          * <p>If more points are added than what current device supports for AF/AE/AWB, only the
          * first point and then in order up to the number of points supported on the device
@@ -216,18 +228,19 @@ public final class FocusMeteringAction {
          * @see CameraControl#startFocusAndMetering(FocusMeteringAction)
          */
         @NonNull
-        public Builder addPoint(@NonNull MeteringPoint point, @MeteringMode int mode) {
+        public Builder addPoint(@NonNull MeteringPoint point, @MeteringMode int meteringMode) {
+            Preconditions.checkArgument(point != null, "Point cannot be null.");
             Preconditions.checkArgument(
-                    (mode >= FLAG_AF) && (mode <= (FLAG_AF | FLAG_AE | FLAG_AWB)),
-                    "Invalid metering mode " + mode);
+                    (meteringMode >= FLAG_AF) && (meteringMode <= (FLAG_AF | FLAG_AE | FLAG_AWB)),
+                    "Invalid metering mode " + meteringMode);
 
-            if ((mode & FLAG_AF) != 0) {
+            if ((meteringMode & FLAG_AF) != 0) {
                 mMeteringPointsAf.add(point);
             }
-            if ((mode & FLAG_AE) != 0) {
+            if ((meteringMode & FLAG_AE) != 0) {
                 mMeteringPointsAe.add(point);
             }
-            if ((mode & FLAG_AWB) != 0) {
+            if ((meteringMode & FLAG_AWB) != 0) {
                 mMeteringPointsAwb.add(point);
             }
             return this;

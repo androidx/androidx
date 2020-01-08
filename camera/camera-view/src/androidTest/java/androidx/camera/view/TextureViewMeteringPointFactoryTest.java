@@ -28,9 +28,11 @@ import android.app.Instrumentation;
 import android.content.Context;
 import android.graphics.SurfaceTexture;
 import android.util.Size;
+import android.view.Display;
 import android.view.TextureView;
 import android.view.View;
 import android.view.ViewGroup;
+import android.view.WindowManager;
 
 import androidx.annotation.NonNull;
 import androidx.camera.camera2.Camera2Config;
@@ -94,7 +96,7 @@ public class TextureViewMeteringPointFactoryTest {
     private final Instrumentation mInstrumentation = InstrumentationRegistry.getInstrumentation();
     private FakeLifecycleOwner mLifecycle;
     private CountDownLatch mLatchForFrameReady;
-    private Context mContext;
+    private Display mDisplay;
     private TextureView mTextureView;
     private int mWidth;
     private int mHeight;
@@ -104,12 +106,15 @@ public class TextureViewMeteringPointFactoryTest {
         assumeTrue(CameraUtil.deviceHasCamera());
         CoreAppTestUtil.assumeCompatibleDevice();
 
-        mContext = ApplicationProvider.getApplicationContext();
+        Context context = ApplicationProvider.getApplicationContext();
+        WindowManager windowManager =
+                ((WindowManager) context.getSystemService(Context.WINDOW_SERVICE));
+        mDisplay = windowManager.getDefaultDisplay();
         CameraXConfig config = Camera2Config.defaultConfig();
-        CameraX.initialize(mContext, config);
+        CameraX.initialize(context, config);
         mLifecycle = new FakeLifecycleOwner();
         mLatchForFrameReady = new CountDownLatch(1);
-        mTextureView = new TextureView(mContext);
+        mTextureView = new TextureView(context);
         setContentView(mTextureView);
     }
 
@@ -131,7 +136,7 @@ public class TextureViewMeteringPointFactoryTest {
 
         // Creates the DisplayOrientedMeteringPointFactory with same width / height as TextureView
         DisplayOrientedMeteringPointFactory displayFactory =
-                new DisplayOrientedMeteringPointFactory(mContext, BACK_CAM,
+                new DisplayOrientedMeteringPointFactory(mDisplay, BACK_CAM,
                         mTextureView.getWidth(), mTextureView.getHeight());
 
         // Uses DisplayOrientedMeteringPointFactory to verify if coordinates are correct.
@@ -150,7 +155,7 @@ public class TextureViewMeteringPointFactoryTest {
 
         // Creates the DisplayOrientedMeteringPointFactory with same width / height as TextureView
         DisplayOrientedMeteringPointFactory displayFactory =
-                new DisplayOrientedMeteringPointFactory(mContext, FRONT_CAM,
+                new DisplayOrientedMeteringPointFactory(mDisplay, FRONT_CAM,
                         mWidth, mHeight);
 
         // Uses DisplayOrientedMeteringPointFactory to verify if coordinates are correct.

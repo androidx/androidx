@@ -16,11 +16,9 @@
 
 package androidx.camera.core;
 
-import android.content.Context;
 import android.graphics.PointF;
 import android.view.Display;
 import android.view.View;
-import android.view.WindowManager;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
@@ -42,7 +40,7 @@ import androidx.camera.core.impl.CameraInfoInternal;
  * duty to transform the coordinates properly so that the width and height of this
  * factory represents the full Preview FOV and also the (x,y) passed to create
  * {@link MeteringPoint} needs to be adjusted by apps to the  coordinates left-top (0,0) -
- * right-bottom (width, height). For Example, if the preview is scaled to 2X from the center and
+ * right-bottom (width, height). For example, if the preview is scaled to 2X from the center and
  * is cropped in a {@link View}. Assuming that the dimension of View is (240, 320), then the
  * width/height of this {@link DisplayOrientedMeteringPointFactory} should be (480, 640).  And
  * the (x, y) from the {@link View} should be converted to (x + (480-240)/2, y + (640 - 320)/2)
@@ -65,44 +63,18 @@ public final class DisplayOrientedMeteringPointFactory extends MeteringPointFact
 
     /**
      * Creates a {@link DisplayOrientedMeteringPointFactory} for converting View (x, y) into a
-     * {@link MeteringPoint} based on default display's orientation and {@link CameraSelector}.
+     * {@link MeteringPoint} based on the current display's rotation and {@link CameraSelector}.
      *
      * <p>The width/height of this factory forms a coordinate left-top (0, 0) - right-bottom
-     * (width, height) which represents the full camera preview FOV in default display's
+     * (width, height) which represents the full camera preview FOV in the display's
      * orientation. For apps showing full camera preview in a {@link View}, it is as simple as
      * passing View's width/height and passing View (x, y) directly to create a
      * {@link MeteringPoint}. Otherwise the (x, y) passed to
      * {@link MeteringPointFactory#createPoint(float, float)} should be adjusted to this
      * coordinate system first.
      *
-     * @param context        context to get the {@link WindowManager} for default display rotation.
-     * @param cameraSelector current cameraSelector to choose camera.
-     * @param width          the width of the coordinate which are mapped to the full camera preview
-     *                       FOV in default display's orientation.
-     * @param height         the height of the coordinate which are mapped to the full camera
-     *                       preview
-     *                       FOVin default display's orientation.
-     */
-    public DisplayOrientedMeteringPointFactory(@NonNull Context context,
-            @NonNull CameraSelector cameraSelector, float width, float height) {
-        this(((WindowManager) context.getSystemService(Context.WINDOW_SERVICE)).getDefaultDisplay(),
-                cameraSelector, width, height);
-    }
-
-    /**
-     * Creates a {@link DisplayOrientedMeteringPointFactory} for converting View (x, y) into a
-     * {@link MeteringPoint} based on custom display's rotation and {@link CameraSelector}. This is
-     * used in multi-display situation.
-     *
-     * <p>The width/height of this factory forms a coordinate left-top (0, 0) - right-bottom
-     * (width, height) which represents the full camera preview FOV in default display's
-     * orientation. For apps showing full camera preview in a {@link View}, it is as simple as
-     * passing View's width/height and passing View (x, y) directly to create a
-     * {@link MeteringPoint}. Otherwise the (x, y) passed to
-     * {@link MeteringPointFactory#createPoint(float, float)} should be adjusted to this
-     * coordinate system first.
-     *
-     * @param display        {@link Display} to get the orientation from.
+     * @param display        {@link Display} to get the orientation from. This should be the
+     *                       current display where camera preview is showing.
      * @param cameraSelector current cameraSelector to choose camera.
      * @param width          the width of the coordinate which are mapped to the full camera preview
      *                       FOV in given display's orientation.
