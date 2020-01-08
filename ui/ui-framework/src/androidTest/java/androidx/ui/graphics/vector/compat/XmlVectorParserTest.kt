@@ -18,14 +18,12 @@ package androidx.ui.graphics.vector.compat
 
 import androidx.test.filters.SmallTest
 import androidx.test.platform.app.InstrumentationRegistry
-import androidx.ui.core.Px
-
-import androidx.ui.graphics.vector.VectorPath
+import androidx.ui.core.dp
 import androidx.ui.framework.test.R
 import androidx.ui.graphics.Color
 import androidx.ui.graphics.SolidColor
 import androidx.ui.graphics.vector.PathCommand
-import androidx.ui.graphics.vector.PathNode
+import androidx.ui.graphics.vector.VectorPath
 import androidx.ui.res.loadVectorResource
 import org.junit.Assert.assertEquals
 import org.junit.Test
@@ -44,8 +42,7 @@ class XmlVectorParserTest {
             res,
             R.drawable.test_compose_vector
         )
-        val density = res.displayMetrics.density
-        val expectedSize = Px(density*24)
+        val expectedSize = 24.dp
         assertEquals(expectedSize, asset.defaultWidth)
         assertEquals(expectedSize, asset.defaultHeight)
         assertEquals(24.0f, asset.viewportWidth)
@@ -57,20 +54,20 @@ class XmlVectorParserTest {
 
         val path = node.pathData
         assertEquals(3, path.size)
-        assertEquals(PathCommand.MoveTo, path.get(0).command)
-        assertEquals(20.0f, path.get(0).args[0])
-        assertEquals(10.0f, path.get(0).args[1])
+        assertEquals(PathCommand.MoveTo, path[0].command)
+        assertEquals(20.0f, path[0].args[0])
+        assertEquals(10.0f, path[0].args[1])
 
-        assertEquals(PathCommand.RelativeLineTo, path.get(1).command)
-        assertEquals(6, path.get(1).args.size)
-        assertEquals(10.0f, path.get(1).args[0])
-        assertEquals(0.0f, path.get(1).args[1])
-        assertEquals(0.0f, path.get(1).args[2])
-        assertEquals(10.0f, path.get(1).args[3])
-        assertEquals(-10.0f, path.get(1).args[4])
-        assertEquals(0.0f, path.get(1).args[5])
+        assertEquals(PathCommand.RelativeLineTo, path[1].command)
+        assertEquals(6, path[1].args.size)
+        assertEquals(10.0f, path[1].args[0])
+        assertEquals(0.0f, path[1].args[1])
+        assertEquals(0.0f, path[1].args[2])
+        assertEquals(10.0f, path[1].args[3])
+        assertEquals(-10.0f, path[1].args[4])
+        assertEquals(0.0f, path[1].args[5])
 
-        assertEquals(PathCommand.RelativeClose, path.get(2).command)
-        assertEquals(0, path.get(2).args.size)
+        assertEquals(PathCommand.RelativeClose, path[2].command)
+        assertEquals(0, path[2].args.size)
     }
 }

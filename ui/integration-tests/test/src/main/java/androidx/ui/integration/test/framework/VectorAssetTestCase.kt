@@ -19,7 +19,6 @@ package androidx.ui.integration.test.framework
 import androidx.compose.Composable
 import androidx.ui.core.TestTag
 import androidx.ui.core.dp
-import androidx.ui.core.px
 import androidx.ui.graphics.Color
 import androidx.ui.graphics.SolidColor
 import androidx.ui.graphics.StrokeCap
@@ -82,8 +81,8 @@ class ProgrammaticVectorTestCase : VectorAssetTestCase() {
      */
     @Composable
     override fun getVectorAsset() = VectorAssetBuilder(
-        defaultWidth = 84.px,
-        defaultHeight = 84.px,
+        defaultWidth = 24.dp,
+        defaultHeight = 24.dp,
         viewportWidth = 24f,
         viewportHeight = 24f
     ).apply {

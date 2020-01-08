@@ -394,8 +394,15 @@ package androidx.ui.focus {
 package androidx.ui.graphics.vector {
 
   public final class VectorAsset {
-    method public androidx.ui.core.Px getDefaultHeight();
-    method public androidx.ui.core.Px getDefaultWidth();
+    method public String component1();
+    method public androidx.ui.core.Dp component2();
+    method public androidx.ui.core.Dp component3();
+    method public float component4();
+    method public float component5();
+    method public androidx.ui.graphics.vector.VectorGroup component6();
+    method public androidx.ui.graphics.vector.VectorAsset copy(String name, androidx.ui.core.Dp defaultWidth, androidx.ui.core.Dp defaultHeight, float viewportWidth, float viewportHeight, androidx.ui.graphics.vector.VectorGroup root);
+    method public androidx.ui.core.Dp getDefaultHeight();
+    method public androidx.ui.core.Dp getDefaultWidth();
     method public String getName();
     method public androidx.ui.graphics.vector.VectorGroup getRoot();
     method public float getViewportHeight();
@@ -403,12 +410,12 @@ package androidx.ui.graphics.vector {
   }
 
   public final class VectorAssetBuilder {
-    ctor public VectorAssetBuilder(String name, androidx.ui.core.Px defaultWidth, androidx.ui.core.Px defaultHeight, float viewportWidth, float viewportHeight);
+    ctor public VectorAssetBuilder(String name, androidx.ui.core.Dp defaultWidth, androidx.ui.core.Dp defaultHeight, float viewportWidth, float viewportHeight);
     method public androidx.ui.graphics.vector.VectorAssetBuilder addPath(java.util.List<androidx.ui.graphics.vector.PathNode> pathData, String name = "", androidx.ui.graphics.Brush? fill = null, float fillAlpha = 1.0f, androidx.ui.graphics.Brush? stroke = null, float strokeAlpha = 1.0f, float strokeLineWidth = 0.0f, androidx.ui.graphics.StrokeCap strokeLineCap = DefaultStrokeLineCap, androidx.ui.graphics.StrokeJoin strokeLineJoin = DefaultStrokeLineJoin, float strokeLineMiter = 4.0f);
     method public androidx.ui.graphics.vector.VectorAsset build();
     method public void ensureNotConsumed();
-    method public androidx.ui.core.Px getDefaultHeight();
-    method public androidx.ui.core.Px getDefaultWidth();
+    method public androidx.ui.core.Dp getDefaultHeight();
+    method public androidx.ui.core.Dp getDefaultWidth();
     method public String getName();
     method public float getViewportHeight();
     method public float getViewportWidth();
@@ -430,6 +437,16 @@ package androidx.ui.graphics.vector {
   public final class VectorGroup extends androidx.ui.graphics.vector.VectorNode implements java.lang.Iterable<androidx.ui.graphics.vector.VectorNode> kotlin.jvm.internal.markers.KMappedMarker {
     ctor public VectorGroup(String name, float rotation, float pivotX, float pivotY, float scaleX, float scaleY, float translationX, float translationY, java.util.List<androidx.ui.graphics.vector.PathNode> clipPathData);
     ctor public VectorGroup();
+    method public String component1();
+    method public float component2();
+    method public float component3();
+    method public float component4();
+    method public float component5();
+    method public float component6();
+    method public float component7();
+    method public float component8();
+    method public java.util.List<androidx.ui.graphics.vector.PathNode> component9();
+    method public androidx.ui.graphics.vector.VectorGroup copy(String name, float rotation, float pivotX, float pivotY, float scaleX, float scaleY, float translationX, float translationY, java.util.List<androidx.ui.graphics.vector.PathNode> clipPathData);
     method public operator androidx.ui.graphics.vector.VectorNode get(int index);
     method public java.util.List<androidx.ui.graphics.vector.PathNode> getClipPathData();
     method public String getName();
@@ -450,6 +467,17 @@ package androidx.ui.graphics.vector {
 
   public final class VectorPath extends androidx.ui.graphics.vector.VectorNode {
     ctor public VectorPath(String name, java.util.List<androidx.ui.graphics.vector.PathNode> pathData, androidx.ui.graphics.Brush? fill, float fillAlpha, androidx.ui.graphics.Brush? stroke, float strokeAlpha, float strokeLineWidth, androidx.ui.graphics.StrokeCap strokeLineCap, androidx.ui.graphics.StrokeJoin strokeLineJoin, float strokeLineMiter);
+    method public String component1();
+    method public float component10();
+    method public java.util.List<androidx.ui.graphics.vector.PathNode> component2();
+    method public androidx.ui.graphics.Brush? component3();
+    method public float component4();
+    method public androidx.ui.graphics.Brush? component5();
+    method public float component6();
+    method public float component7();
+    method public androidx.ui.graphics.StrokeCap component8();
+    method public androidx.ui.graphics.StrokeJoin component9();
+    method public androidx.ui.graphics.vector.VectorPath copy(String name, java.util.List<androidx.ui.graphics.vector.PathNode> pathData, androidx.ui.graphics.Brush? fill, float fillAlpha, androidx.ui.graphics.Brush? stroke, float strokeAlpha, float strokeLineWidth, androidx.ui.graphics.StrokeCap strokeLineCap, androidx.ui.graphics.StrokeJoin strokeLineJoin, float strokeLineMiter);
     method public androidx.ui.graphics.Brush? getFill();
     method public float getFillAlpha();
     method public String getName();

@@ -18,7 +18,7 @@ package androidx.ui.graphics.vector
 
 import androidx.compose.Composable
 import androidx.ui.core.Alignment
-import androidx.ui.core.Px
+import androidx.ui.core.Dp
 import androidx.ui.graphics.BlendMode
 import androidx.ui.graphics.Brush
 import androidx.ui.graphics.Color
@@ -44,14 +44,14 @@ class VectorAssetBuilder(
     val name: String = DefaultGroupName,
 
     /**
-     * Intrinsic width of the Vector in pixels
+     * Intrinsic width of the Vector in [Dp]
      */
-    val defaultWidth: Px,
+    val defaultWidth: Dp,
 
     /**
-     * Intrinsic height of the Vector in pixels
+     * Intrinsic height of the Vector in [Dp]
      */
-    val defaultHeight: Px,
+    val defaultHeight: Dp,
 
     /**
      *  Used to define the width of the viewport space. Viewport is basically the virtual canvas
@@ -200,7 +200,7 @@ sealed class VectorNode
  * Vector graphics object that is generated as a result of [VectorAssetBuilder]]
  * It can be composed and rendered by passing it as an argument to [DrawVector]
  */
-class VectorAsset internal constructor(
+data class VectorAsset internal constructor(
 
     /**
      * Name of the Vector asset
@@ -208,14 +208,14 @@ class VectorAsset internal constructor(
     val name: String,
 
     /**
-     * Intrinsic width of the vector asset in pixels
+     * Intrinsic width of the vector asset in [Dp]
      */
-    val defaultWidth: Px,
+    val defaultWidth: Dp,
 
     /**
-     * Intrinsic height of the vector asset in pixels
+     * Intrinsic height of the vector asset in [Dp]
      */
-    val defaultHeight: Px,
+    val defaultHeight: Dp,
 
     /**
      *  Used to define the width of the viewport space. Viewport is basically the virtual canvas
@@ -240,7 +240,7 @@ class VectorAsset internal constructor(
  * The transformations are defined in the same coordinates as the viewport.
  * The transformations are applied in the order of scale, rotate then translate.
  */
-class VectorGroup(
+data class VectorGroup(
     /**
      * Name of the corresponding group
      */
@@ -317,7 +317,7 @@ class VectorGroup(
  * Leaf node of a Vector graphics tree. This specifies a path shape and parameters
  * to color and style the the shape itself
  */
-class VectorPath(
+data class VectorPath(
     /**
      * Name of the corresponding path
      */
