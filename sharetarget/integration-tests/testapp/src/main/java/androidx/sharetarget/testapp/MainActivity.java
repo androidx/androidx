@@ -90,7 +90,7 @@ public class MainActivity extends Activity {
                 .setIntent(intent)
                 .setLongLived()
                 .setPerson(new Person.Builder().build())
-                .setCategories(categories1)
+                .setCategories(categories2)
                 .setRank(1)
                 .build());
 
