@@ -76,6 +76,8 @@ package androidx.slice.builders {
     method public androidx.slice.builders.ListBuilder.InputRangeBuilder setSubtitle(CharSequence);
     method public androidx.slice.builders.ListBuilder.InputRangeBuilder setThumb(androidx.core.graphics.drawable.IconCompat);
     method public androidx.slice.builders.ListBuilder.InputRangeBuilder setTitle(CharSequence);
+    method public androidx.slice.builders.ListBuilder.InputRangeBuilder setTitleItem(androidx.core.graphics.drawable.IconCompat, int);
+    method public androidx.slice.builders.ListBuilder.InputRangeBuilder setTitleItem(androidx.core.graphics.drawable.IconCompat, int, boolean);
     method public androidx.slice.builders.ListBuilder.InputRangeBuilder setValue(int);
   }
 

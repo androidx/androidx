@@ -73,6 +73,7 @@ public class SliceBroadcastReceiver extends BroadcastReceiver {
                 sStarRating = range;
                 Toast.makeText(context, "value: " + range, Toast.LENGTH_SHORT).show();
                 context.getContentResolver().notifyChange(getUri("inputrange", context), null);
+                context.getContentResolver().notifyChange(getUri("richinputrange", context), null);
                 break;
         }
     }

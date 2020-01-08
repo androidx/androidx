@@ -106,7 +106,19 @@ public class RowContent extends SliceContent {
             }
         }
         if (SUBTYPE_RANGE.equals(rowSlice.getSubType())) {
-            mRange = rowSlice;
+            //It must be a Range or InputRange
+            if (mStartItem == null) {
+                mRange = rowSlice;
+            } else {
+                // Remove the startItem we already know about
+                rowItems.remove(mStartItem);
+                //After removing startItem, then it must be action<range>
+                if (isValidRow(rowItems.get(0))) {
+                    rowSlice = rowItems.get(0);
+                    rowItems = filterInvalidItems(rowSlice);
+                    mRange = rowSlice;
+                }
+            }
         }
         if (SUBTYPE_SELECTION.equals(rowSlice.getSubType())) {
             mSelection = rowSlice;
