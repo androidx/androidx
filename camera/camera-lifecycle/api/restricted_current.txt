@@ -1,0 +1,21 @@
+// Signature format: 3.0
+package androidx.camera.lifecycle {
+
+  public interface LifecycleCameraProvider {
+    method public boolean hasCamera(androidx.camera.core.CameraSelector) throws androidx.camera.core.CameraInfoUnavailableException;
+    method public boolean isBound(androidx.camera.core.UseCase);
+    method public void unbind(androidx.camera.core.UseCase!...);
+    method public void unbindAll();
+  }
+
+  public final class ProcessCameraProvider implements androidx.camera.lifecycle.LifecycleCameraProvider {
+    method public androidx.camera.core.Camera bindToLifecycle(androidx.lifecycle.LifecycleOwner, androidx.camera.core.CameraSelector, androidx.camera.core.UseCase!...);
+    method public static com.google.common.util.concurrent.ListenableFuture<androidx.camera.lifecycle.ProcessCameraProvider!> getInstance(android.content.Context);
+    method public boolean hasCamera(androidx.camera.core.CameraSelector) throws androidx.camera.core.CameraInfoUnavailableException;
+    method public boolean isBound(androidx.camera.core.UseCase);
+    method public void unbind(androidx.camera.core.UseCase!...);
+    method public void unbindAll();
+  }
+
+}
+
