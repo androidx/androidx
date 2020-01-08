@@ -35,6 +35,7 @@ final class SettableImageProxy extends ForwardingImageProxy{
         mImageInfo = imageInfo;
     }
 
+    @SuppressWarnings("UnsynchronizedOverridesSynchronized")
     @Override
     @NonNull
     public ImageInfo getImageInfo() {
