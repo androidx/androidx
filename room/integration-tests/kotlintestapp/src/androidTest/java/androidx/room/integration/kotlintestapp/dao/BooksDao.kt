@@ -401,4 +401,26 @@ interface BooksDao {
 
     @Query("SELECT * FROM book WHERE bookId = :id")
     fun getOneBooksFlow(id: String): Flow<Book?>
+
+    fun addAndRemovePublisher(thePublisher: Publisher) {
+        addPublishers(thePublisher)
+        deletePublishers(thePublisher)
+    }
+
+    fun concreteFunction() = ""
+
+    fun concreteVoidFunction() {
+    }
+
+    fun concreteUnitFunction() {
+    }
+
+    fun concreteFunctionWithParams(num: Int, text: String) = "$num - $text"
+
+    suspend fun concreteSuspendFunction() = ""
+
+    suspend fun concreteVoidSuspendFunction() {
+    }
+
+    suspend fun concreteSuspendFunctionWithParams(num: Int, text: String) = "$num - $text"
 }

@@ -354,7 +354,7 @@ const val DEFAULT_IMPLS_CLASS_NAME = "DefaultImpls"
 /**
  * Finds the default implementation method corresponding to this Kotlin interface method.
  */
-fun Element.findKotlinDefaultImpl(typeUtils: Types): Element? {
+fun ExecutableElement.findKotlinDefaultImpl(typeUtils: Types): ExecutableElement? {
     fun paramsMatch(ourParams: List<VariableElement>, theirParams: List<VariableElement>): Boolean {
         if (ourParams.size != theirParams.size - 1) {
             return false
@@ -372,10 +372,8 @@ fun Element.findKotlinDefaultImpl(typeUtils: Types): Element? {
     val innerClass = parent.enclosedElements.find {
         it.kind == ElementKind.CLASS && it.simpleName.contentEquals(DEFAULT_IMPLS_CLASS_NAME)
     } ?: return null
-    return innerClass.enclosedElements.find {
-        it.kind == ElementKind.METHOD && it.simpleName == this.simpleName &&
-                paramsMatch(MoreElements.asExecutable(this).parameters,
-                        MoreElements.asExecutable(it).parameters)
+    return ElementFilter.methodsIn(innerClass.enclosedElements).find {
+        it.simpleName == this.simpleName && paramsMatch(this.parameters, it.parameters)
     }
 }
 

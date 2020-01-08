@@ -23,7 +23,9 @@ import androidx.room.ext.SupportDbTypeNames
 import androidx.room.ext.T
 import androidx.room.processor.OnConflictProcessor
 import androidx.room.solver.CodeGenScope
+import androidx.room.solver.KotlinDefaultMethodDelegateBinder
 import androidx.room.vo.Dao
+import androidx.room.vo.KotlinDefaultMethodDelegate
 import androidx.room.vo.InsertionMethod
 import androidx.room.vo.QueryMethod
 import androidx.room.vo.RawQueryMethod
@@ -131,6 +133,9 @@ class DaoWriter(
             }
             dao.rawQueryMethods.forEach {
                 addMethod(createRawQueryMethod(it))
+            }
+            dao.kotlinDefaultMethodDelegates.forEach {
+                addMethod(createDefaultMethodDelegate(it))
             }
         }
         return builder
@@ -426,6 +431,20 @@ class DaoWriter(
                 inTransaction = method.inTransaction,
                 scope = scope)
         return scope.builder().build()
+    }
+
+    private fun createDefaultMethodDelegate(method: KotlinDefaultMethodDelegate): MethodSpec {
+        val scope = CodeGenScope(this)
+        return overrideWithoutAnnotations(method.element, declaredDao).apply {
+            KotlinDefaultMethodDelegateBinder.executeAndReturn(
+                daoName = dao.typeName,
+                daoImplName = dao.implTypeName,
+                methodName = method.delegateElement.simpleName.toString(),
+                returnType = method.element.returnType,
+                parameterNames = method.element.parameters.map { it.simpleName.toString() },
+                scope = scope)
+            addCode(scope.builder().build())
+        }.build()
     }
 
     private fun overrideWithoutAnnotations(
