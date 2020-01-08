@@ -39,6 +39,7 @@ import androidx.ui.core.Density
 import androidx.ui.core.DensityAmbient
 import androidx.ui.core.DensityScope
 import androidx.ui.core.Draw
+import androidx.ui.core.DrawModifier
 import androidx.ui.core.HorizontalAlignmentLine
 import androidx.ui.core.IntPx
 import androidx.ui.core.IntPxPosition
@@ -51,6 +52,7 @@ import androidx.ui.core.Modifier
 import androidx.ui.core.OnPositioned
 import androidx.ui.core.ParentData
 import androidx.ui.core.ParentDataModifier
+import androidx.ui.core.PxSize
 import androidx.ui.core.Ref
 import androidx.ui.core.RepaintBoundary
 import androidx.ui.core.VerticalAlignmentLine
@@ -71,6 +73,7 @@ import androidx.ui.core.toPx
 import androidx.ui.core.toRect
 import androidx.ui.engine.geometry.Rect
 import androidx.ui.framework.test.TestActivity
+import androidx.ui.graphics.Canvas
 import androidx.ui.graphics.Color
 import androidx.ui.graphics.Paint
 import androidx.ui.graphics.PaintingStyle
@@ -1974,6 +1977,23 @@ class AndroidLayoutDrawTest {
         )
     }
 
+    @SdkSuppress(minSdkVersion = Build.VERSION_CODES.O)
+    @Test
+    fun modifier_combinedModifiers() {
+        activityTestRule.runOnUiThreadIR {
+            activity.setContentInFrameLayout {
+                FixedSize(30.ipx, background(Color.Blue)) {
+                    Draw { _, _ ->
+                        drawLatch.countDown()
+                    }
+                    JustConstraints(CombinedModifier(Color.White)) {
+                    }
+                }
+            }
+        }
+        validateSquareColors(outerColor = Color.Blue, innerColor = Color.White, size = 10)
+    }
+
     private val AlignTopLeft = object : LayoutModifier {
         override fun DensityScope.modifyConstraints(constraints: Constraints) =
             constraints.looseMin()
@@ -2435,6 +2455,13 @@ fun SimpleRow(children: @Composable() () -> Unit) {
     }
 }
 
+@Composable
+fun JustConstraints(modifier: Modifier, children: @Composable() () -> Unit) {
+    Layout(children, modifier) { _, constraints ->
+        layout(constraints.minWidth, constraints.minHeight) {}
+    }
+}
+
 class DrawCounterListener(private val view: View) :
     ViewTreeObserver.OnPreDrawListener {
     val latch = CountDownLatch(5)
@@ -2595,4 +2622,36 @@ fun background(model: SquareModel, isInner: Boolean) = draw { canvas, size ->
         this.color = if (isInner) model.innerColor else model.outerColor
     }
     canvas.drawRect(size.toRect(), paint)
+}
+
+class CombinedModifier(color: Color) : LayoutModifier, DrawModifier {
+    val paint = Paint().also { paint ->
+        paint.color = color
+        paint.style = PaintingStyle.fill
+    }
+
+    override fun DensityScope.modifyPosition(
+        childSize: IntPxSize,
+        containerSize: IntPxSize
+    ): IntPxPosition {
+        return IntPxPosition(
+            (containerSize.width - childSize.width) / 2,
+            (containerSize.height - childSize.height) / 2
+        )
+    }
+
+    override fun DensityScope.modifyConstraints(constraints: Constraints): Constraints {
+        return Constraints.tightConstraints(10.ipx, 10.ipx)
+    }
+
+    override fun DensityScope.modifySize(
+        constraints: Constraints,
+        childSize: IntPxSize
+    ): IntPxSize {
+        return IntPxSize(constraints.maxWidth, constraints.maxHeight)
+    }
+
+    override fun draw(density: Density, drawContent: () -> Unit, canvas: Canvas, size: PxSize) {
+        canvas.drawRect(size.toRect(), paint)
+    }
 }

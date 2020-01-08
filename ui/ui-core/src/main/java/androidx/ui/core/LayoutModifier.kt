@@ -19,7 +19,7 @@ package androidx.ui.core
 /**
  * A [Modifier.Element] that changes the way a UI component is measured and laid out.
  */
-interface LayoutModifier : ParentDataModifier {
+interface LayoutModifier : Modifier.Element {
     /**
      * Modifies [constraints] for performing measurement of the modified layout element.
      */
