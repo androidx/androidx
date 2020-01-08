@@ -48,7 +48,7 @@ class VectorInvalidationTestCase(var latch: CountDownLatch) {
         val vectorAsset = loadVectorResource(state.value)
         WithDensity {
             vectorAsset.resource.resource?.let {
-                val width = it.defaultWidth.toDp()
+                val width = it.defaultWidth
                 vectorSize = width.toIntPx().value
                 AtLeastSize(size = width.toIntPx()) {
                     Draw { canvas, parentSize ->
