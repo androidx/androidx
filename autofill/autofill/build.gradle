@@ -32,7 +32,6 @@ dependencies {
 androidx {
     name = "AndroidX Autofill"
     publish = Publish.SNAPSHOT_AND_RELEASE
-    mavenVersion = LibraryVersions.AUTOFILL
     mavenGroup = LibraryGroups.AUTOFILL
     inceptionYear = "2019"
     description = "AndroidX Autofill"

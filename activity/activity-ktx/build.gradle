@@ -54,7 +54,6 @@ dependencies {
 androidx {
     name = "Activity Kotlin Extensions"
     publish = Publish.SNAPSHOT_AND_RELEASE
-    mavenVersion = LibraryVersions.ACTIVITY
     mavenGroup = LibraryGroups.ACTIVITY
     inceptionYear = "2018"
     description = "Kotlin extensions for 'activity' artifact"

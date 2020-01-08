@@ -42,7 +42,6 @@ androidx {
     publish = Publish.NONE
     toolingProject = true
     compilationTarget = CompilationTarget.HOST
-    mavenVersion = LibraryVersions.SERIALIZATION
     mavenGroup = LibraryGroups.SERIALIZATION
     inceptionYear = "2019"
     description = "Lint checks for AndroidX Serialization"

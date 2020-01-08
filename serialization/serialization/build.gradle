@@ -37,7 +37,6 @@ android {
 androidx {
     name = "AndroidX Serialization"
     publish = Publish.NONE
-    mavenVersion = LibraryVersions.SERIALIZATION
     mavenGroup = LibraryGroups.SERIALIZATION
     inceptionYear = "2019"
     description = "A lightweight serialization solution for AndroidX libraries"

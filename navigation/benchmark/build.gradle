@@ -40,7 +40,6 @@ dependencies {
 androidx {
     name = "Navigation Benchmarks"
     publish = Publish.NONE
-    mavenVersion = LibraryVersions.NAVIGATION
     mavenGroup = LibraryGroups.NAVIGATION
     inceptionYear = "2018"
     description = "Navigation Benchmarks"

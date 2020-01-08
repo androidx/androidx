@@ -45,7 +45,6 @@ dependencies {
 androidx {
     name = "Android WorkManager Benchmarks"
      publish = Publish.NONE
-    mavenVersion = LibraryVersions.WORK
     mavenGroup = LibraryGroups.WORK
     inceptionYear = "2019"
     description = "Android WorkManager Benchmark Library"

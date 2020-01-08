@@ -52,7 +52,6 @@ android {
 androidx {
     name = "Android Transition Support Library"
     publish = Publish.SNAPSHOT_AND_RELEASE
-    mavenVersion = LibraryVersions.TRANSITION
     mavenGroup = LibraryGroups.TRANSITION
     inceptionYear = "2016"
     description = "Android Transition Support Library"
