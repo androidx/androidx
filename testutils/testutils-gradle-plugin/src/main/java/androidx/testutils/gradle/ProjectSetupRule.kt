@@ -60,6 +60,12 @@ class ProjectSetupRule : ExternalResource() {
                 defaultConfig {
                     minSdkVersion ${props.minSdkVersion}
                 }
+
+                signingConfigs {
+                    debug {
+                        storeFile file("${props.debugKeystore}")
+                    }
+                }
             }
         """.trimIndent()
 
