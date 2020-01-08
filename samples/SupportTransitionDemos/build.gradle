@@ -7,7 +7,7 @@ dependencies {
     implementation(project(":transition:transition"))
     implementation(project(":appcompat:appcompat"))
     implementation(project(":recyclerview:recyclerview"))
-    implementation(project(":interpolator"))
+    implementation(project(":interpolator:interpolator"))
 }
 
 android {
