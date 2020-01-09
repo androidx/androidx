@@ -53,7 +53,7 @@ internal class TextSelectionDelegate(
             textLayoutResult = textLayoutResult,
             selectionCoordinates = Pair(startPx, endPx),
             layoutCoordinates = layoutCoordinates,
-            wordSelectIfCollapsed = longPress
+            wordBasedSelection = longPress
         )
 
         return if (selection == null) {
@@ -73,10 +73,10 @@ internal class TextSelectionDelegate(
  * @param selectionCoordinates The positions of the start and end of the selection in Text
  * composable coordinate system.
  * @param layoutCoordinates The [LayoutCoordinates] of the composable.
- * @param wordSelectIfCollapsed This flag is ignored if the selection offsets anchors point
- * different location. If the selection anchors point the same location and this is true, the
- * result selection will be adjusted to word boundary. Otherwise, the selection will be adjusted
- * to keep single character selected.
+ * @param wordBasedSelection This flag is ignored if the selection handles are being dragged. If
+ * the selection is modified by long press and drag gesture, the result selection will be
+ * adjusted to word based selection. Otherwise, the selection will be adjusted to character based
+ * selection.
  *
  * @return [Selection] of the current composable, or null if the composable is not selected.
  */
@@ -84,7 +84,7 @@ internal fun getTextSelectionInfo(
     textLayoutResult: TextLayoutResult,
     selectionCoordinates: Pair<PxPosition, PxPosition>,
     layoutCoordinates: LayoutCoordinates,
-    wordSelectIfCollapsed: Boolean
+    wordBasedSelection: Boolean
 ): Selection? {
     val startPosition = selectionCoordinates.first
     val endPosition = selectionCoordinates.second
@@ -119,16 +119,65 @@ internal fun getTextSelectionInfo(
         // final end offset is still -1, it means this composable is not selected.
             -1
 
+    return getRefinedSelectionInfo(
+        rawStartOffset = rawStartOffset,
+        rawEndOffset = rawEndOffset,
+        containsWholeSelectionStart = containsWholeSelectionStart,
+        containsWholeSelectionEnd = containsWholeSelectionEnd,
+        startPosition = startPosition,
+        endPosition = endPosition,
+        bounds = bounds,
+        textLayoutResult = textLayoutResult,
+        lastOffset = lastOffset,
+        layoutCoordinates = layoutCoordinates,
+        wordBasedSelection = wordBasedSelection
+    )
+}
+
+/**
+ * This method refines the selection info by processing the initial raw selection info.
+ *
+ * @param rawStartOffset unprocessed start offset calculated directly from input position
+ * @param rawEndOffset unprocessed end offset calculated directly from input position
+ * @param containsWholeSelectionStart a flag to check if current composable contains the overall
+ * selection start
+ * @param containsWholeSelectionEnd a flag to check if current composable contains the overall
+ * selection end
+ * @param startPosition graphical position of the start of the selection, in composable's
+ * coordinates.
+ * @param endPosition graphical position of the end of the selection, in composable's coordinates.
+ * @param bounds bounds of the current composable
+ * @param textLayoutResult a result of the text layout.
+ * @param lastOffset last offset of the text. It's actually the length of the text.
+ * @param layoutCoordinates The [LayoutCoordinates] of the composable.
+ * @param wordBasedSelection This flag is ignored if the selection handles are being dragged. If
+ * the selection is modified by long press and drag gesture, the result selection will be
+ * adjusted to word based selection. Otherwise, the selection will be adjusted to character based
+ * selection.
+ *
+ * @return [Selection] of the current composable, or null if the composable is not selected.
+ */
+private fun getRefinedSelectionInfo(
+    rawStartOffset: Int,
+    rawEndOffset: Int,
+    containsWholeSelectionStart: Boolean,
+    containsWholeSelectionEnd: Boolean,
+    startPosition: PxPosition,
+    endPosition: PxPosition,
+    bounds: PxBounds,
+    textLayoutResult: TextLayoutResult,
+    lastOffset: Int,
+    layoutCoordinates: LayoutCoordinates,
+    wordBasedSelection: Boolean
+): Selection? {
     val shouldProcessAsSinglecomposable =
         containsWholeSelectionStart && containsWholeSelectionEnd
 
-    val (startOffset, endOffset, handlesCrossed) =
+    var (startOffset, endOffset, handlesCrossed) =
         if (shouldProcessAsSinglecomposable) {
             processAsSingleComposable(
                 rawStartOffset = rawStartOffset,
-                rawEndOffset = rawEndOffset,
-                wordSelectIfCollapsed = wordSelectIfCollapsed,
-                textLayoutResult = textLayoutResult
+                rawEndOffset = rawEndOffset
             )
         } else {
             processCrossComposable(
@@ -145,6 +194,54 @@ internal fun getTextSelectionInfo(
     // nothing is selected
     if (startOffset == -1 && endOffset == -1) return null
 
+    // If under long press, update the selection to word-based.
+    if (wordBasedSelection) {
+        val (start, end) = updateWordBasedSelection(
+            textLayoutResult = textLayoutResult,
+            startOffset = startOffset,
+            endOffset = endOffset,
+            handlesCrossed = handlesCrossed
+        )
+        startOffset = start
+        endOffset = end
+    }
+
+    return getAssembledSelectionInfo(
+        startOffset = startOffset,
+        endOffset = endOffset,
+        containsWholeSelectionStart = containsWholeSelectionStart,
+        containsWholeSelectionEnd = containsWholeSelectionEnd,
+        handlesCrossed = handlesCrossed,
+        layoutCoordinates = layoutCoordinates,
+        textLayoutResult = textLayoutResult
+    )
+}
+
+/**
+ * [Selection] contains a lot of parameters. It looks more clean to assemble an object of this
+ * class in a separate method.
+ *
+ * @param startOffset the final start offset to be returned.
+ * @param endOffset the final end offset to be returned.
+ * @param containsWholeSelectionStart a flag to check if current composable contains the overall
+ * selection start
+ * @param containsWholeSelectionEnd a flag to check if current composable contains the overall
+ * selection end
+ * @param handlesCrossed true if the selection handles are crossed
+ * @param layoutCoordinates The [LayoutCoordinates] of the composable.
+ * @param textLayoutResult a result of the text layout.
+ *
+ * @return an assembled object of [Selection] using the offered selection info.
+ */
+private fun getAssembledSelectionInfo(
+    startOffset: Int,
+    endOffset: Int,
+    containsWholeSelectionStart: Boolean,
+    containsWholeSelectionEnd: Boolean,
+    handlesCrossed: Boolean,
+    layoutCoordinates: LayoutCoordinates,
+    textLayoutResult: TextLayoutResult
+): Selection {
     return Selection(
         start = Selection.AnchorInfo(
             coordinates = getSelectionHandleCoordinates(
@@ -179,35 +276,23 @@ internal fun getTextSelectionInfo(
  *
  * @param rawStartOffset unprocessed start offset calculated directly from input position
  * @param rawEndOffset unprocessed end offset calculated directly from input position
- * @param wordSelectIfCollapsed This flag is ignored if the selection offsets anchors point
  * different location. If the selection anchors point the same location and this is true, the
  * result selection will be adjusted to word boundary. Otherwise, the selection will be adjusted
  * to keep single character selected.
- * @param textLayoutResult a result of the text layout.
  *
  * @return the final startOffset, endOffset of the selection, and if the start and end are
  * crossed each other.
  */
 private fun processAsSingleComposable(
     rawStartOffset: Int,
-    rawEndOffset: Int,
-    wordSelectIfCollapsed: Boolean,
-    textLayoutResult: TextLayoutResult
+    rawEndOffset: Int
 ): Triple<Int, Int, Boolean> {
     var startOffset = rawStartOffset
     var endOffset = rawEndOffset
     if (startOffset == endOffset) {
-        if (wordSelectIfCollapsed) {
-            // If the start and end offset are at the same character, and it's the initial
-            // selection, then select a word.
-            val wordBoundary = textLayoutResult.getWordBoundary(startOffset)
-            startOffset = wordBoundary.start
-            endOffset = wordBoundary.end
-        } else {
-            // If the start and end offset are at the same character, and it's not the
-            // initial selection, then bound to at least one character.
-            endOffset = startOffset + 1
-        }
+        // If the start and end offset are at the same character, and it's not the
+        // initial selection, then bound to at least one character.
+        endOffset = startOffset + 1
     }
     // Check if the start and end handles are crossed each other.
     val areHandlesCrossed = startOffset > endOffset
@@ -272,6 +357,36 @@ private fun processCrossComposable(
         rawEndOffset
     }
     return Triple(startOffset, endOffset, handlesCrossed)
+}
+
+/**
+ * This method returns the adjusted word-based start and end offset of the selection.
+ *
+ * @param textLayoutResult a result of the text layout.
+ * @param startOffset start offset to be snapped to a word.
+ * @param endOffset end offset to be snapped to a word.
+ * @param handlesCrossed true if the selection handles are crossed
+ *
+ * @return the adjusted word-based start and end offset of the selection.
+ */
+private fun updateWordBasedSelection(
+    textLayoutResult: TextLayoutResult,
+    startOffset: Int,
+    endOffset: Int,
+    handlesCrossed: Boolean
+): Pair<Int, Int> {
+    val maxOffset = textLayoutResult.layoutInput.text.text.length - 1
+    val startWordBoundary = textLayoutResult.getWordBoundary(startOffset.coerceIn(0, maxOffset))
+    val endWordBoundary = textLayoutResult.getWordBoundary(endOffset.coerceIn(0, maxOffset))
+
+    // If handles are not crossed, start should be snapped to the start of the word containing the
+    // start offset, and end should be snapped to the end of the word containing the end offset.
+    // If handles are crossed, start should be snapped to the end of the word containing the start
+    // offset, and end should be snapped to the start of the word containing the end offset.
+    val start = if (handlesCrossed) startWordBoundary.end else startWordBoundary.start
+    val end = if (handlesCrossed) endWordBoundary.start else endWordBoundary.end
+
+    return Pair(start, end)
 }
 
 /**
