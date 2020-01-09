@@ -70,8 +70,6 @@ class ProjectSetupRule : ExternalResource() {
         buildFile.writeText(prefix)
         buildFile.appendText(defaultBuildGradle)
         buildFile.appendText(suffix)
-
-        println(buildFile.readText())
     }
 
     override fun apply(base: Statement, description: Description): Statement {
