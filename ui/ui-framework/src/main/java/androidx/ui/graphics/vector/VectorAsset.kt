@@ -71,8 +71,7 @@ class VectorAssetBuilder(
     private var root = VectorGroup()
     private var isConsumed = false
 
-    private var currentGroup: VectorGroup = root
-        private set
+    private val currentGroup: VectorGroup
         get() = nodes.peek()
 
     init {
@@ -106,8 +105,8 @@ class VectorAssetBuilder(
             translationY,
             clipPathData
         )
-        nodes.add(group)
         currentGroup.addNode(group)
+        nodes.add(group)
         return this
     }
 

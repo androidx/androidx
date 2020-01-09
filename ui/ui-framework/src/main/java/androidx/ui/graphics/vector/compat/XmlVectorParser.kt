@@ -42,19 +42,19 @@ import androidx.ui.graphics.vector.addPathNodes
 import org.xmlpull.v1.XmlPullParser
 import org.xmlpull.v1.XmlPullParserException
 
-private val LINECAP_BUTT = 0
-private val LINECAP_ROUND = 1
-private val LINECAP_SQUARE = 2
+private const val LINECAP_BUTT = 0
+private const val LINECAP_ROUND = 1
+private const val LINECAP_SQUARE = 2
 
-private val LINEJOIN_MITER = 0
-private val LINEJOIN_ROUND = 1
-private val LINEJOIN_BEVEL = 2
+private const val LINEJOIN_MITER = 0
+private const val LINEJOIN_ROUND = 1
+private const val LINEJOIN_BEVEL = 2
 
 private val FILL_TYPE_WINDING = 0
 
-private val SHAPE_CLIP_PATH = "clip-VPath"
-private val SHAPE_GROUP = "group"
-private val SHAPE_PATH = "path"
+private const val SHAPE_CLIP_PATH = "clip-path"
+private const val SHAPE_GROUP = "group"
+private const val SHAPE_PATH = "path"
 
 private fun getStrokeLineCap(id: Int, defValue: StrokeCap = StrokeCap.butt): StrokeCap =
     when (id) {
@@ -89,7 +89,7 @@ internal fun XmlPullParser.parseCurrentVectorNode(
                     parsePath(res, theme, attrs, builder)
                 }
                 SHAPE_CLIP_PATH -> {
-                    // TODO parse clipping paths
+                    // TODO: b/147418351 - parse clipping paths
                 }
                 SHAPE_GROUP -> {
                     parseGroup(res, theme, attrs, builder)
@@ -400,12 +400,12 @@ internal fun XmlPullParser.parseGroup(
     builder.pushGroup(
         name,
         rotate,
+        pivotX,
+        pivotY,
         scaleX,
         scaleY,
         translateX,
         translateY,
-        pivotX,
-        pivotY,
         clipPathData
     )
 }

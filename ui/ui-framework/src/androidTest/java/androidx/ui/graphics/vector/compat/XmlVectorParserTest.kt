@@ -23,6 +23,8 @@ import androidx.ui.framework.test.R
 import androidx.ui.graphics.Color
 import androidx.ui.graphics.SolidColor
 import androidx.ui.graphics.vector.PathNode
+import androidx.ui.graphics.vector.VectorGroup
+import androidx.ui.graphics.vector.VectorNode
 import androidx.ui.graphics.vector.VectorPath
 import androidx.ui.res.loadVectorResource
 import org.junit.Assert.assertEquals
@@ -100,10 +102,52 @@ class XmlVectorParserTest {
         path[2].assertType<PathNode.Close>()
     }
 
+    @Test
+    fun testGroupParsing() {
+        val res = InstrumentationRegistry.getInstrumentation().targetContext.resources
+        val asset = loadVectorResource(
+            null,
+            res,
+            R.drawable.test_compose_vector3
+        )
+
+        val root = asset.root
+        assertEquals(1, root.size)
+
+        val group = root[0].assertType<VectorGroup>()
+        assertEquals(1, group.size)
+
+        val path = group[0].assertType<VectorPath>().pathData
+
+        assertEquals(3, path.size)
+
+        val moveTo = path[0].assertType<PathNode.MoveTo>()
+        assertEquals(20.0f, moveTo.x)
+        assertEquals(10.0f, moveTo.y)
+
+        val lineTo = path[1].assertType<PathNode.LineTo>()
+        assertEquals(10.0f, lineTo.x)
+        assertEquals(0.0f, lineTo.y)
+
+        path[2].assertType<PathNode.Close>()
+    }
+
     /**
      * Asserts that [this] is the expected type [T], and then returns [this] cast to [T].
      */
     private inline fun <reified T : PathNode> PathNode.assertType(): T {
+        assertTrue(
+            "Expected type ${T::class.java.simpleName} but was actually " +
+                    this::class.java.simpleName,
+            this is T
+        )
+        return this as T
+    }
+
+    /**
+     * Asserts that [this] is the expected type [T], and then returns [this] cast to [T].
+     */
+    private inline fun <reified T : VectorNode> VectorNode.assertType(): T {
         assertTrue(
             "Expected type ${T::class.java.simpleName} but was actually " +
                     this::class.java.simpleName,
