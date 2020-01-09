@@ -168,7 +168,6 @@ private class Root : Component() {
     lateinit var scope: TextSpanScope
     lateinit var compositionContext: CompositionContext
     lateinit var composable: @Composable() TextSpanScope.() -> Unit
-    @Suppress("PLUGIN_ERROR")
     @SuppressLint("UnnecessaryLambdaCreation")
     override fun compose() {
         with(scope) {
@@ -203,7 +202,6 @@ private fun setRoot(node: TextSpan, component: Root) {
  * @param composable The composable function to compose the children of [container].
  * @see CompositionReference
  */
-@Suppress("PLUGIN_ERROR")
 fun compose(
     container: TextSpan,
     parent: CompositionReference? = null,
