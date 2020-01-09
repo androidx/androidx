@@ -28,6 +28,7 @@ import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.annotation.RestrictTo;
 import androidx.annotation.VisibleForTesting;
+import androidx.work.Configuration;
 import androidx.work.Logger;
 import androidx.work.WorkInfo;
 import androidx.work.impl.ExecutionListener;
@@ -67,12 +68,13 @@ public class GreedyScheduler implements Scheduler, WorkConstraintsCallback, Exec
 
     public GreedyScheduler(
             @NonNull Context context,
+            @NonNull Configuration configuration,
             @NonNull TaskExecutor taskExecutor,
             @NonNull WorkManagerImpl workManagerImpl) {
         mContext = context;
         mWorkManagerImpl = workManagerImpl;
         mWorkConstraintsTracker = new WorkConstraintsTracker(context, taskExecutor, this);
-        mDelayedWorkTracker = new DelayedWorkTracker(this);
+        mDelayedWorkTracker = new DelayedWorkTracker(this, configuration.getRunnableScheduler());
         mLock = new Object();
     }
 
