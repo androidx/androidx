@@ -21,7 +21,7 @@ import androidx.ui.core.currentTextStyle
 import androidx.ui.foundation.contentColor
 import androidx.ui.material.surface.Surface
 import androidx.ui.test.createComposeRule
-import org.junit.Assert.assertEquals
+import com.google.common.truth.Truth.assertThat
 import org.junit.Rule
 import org.junit.Test
 import org.junit.runner.RunWith
@@ -54,15 +54,9 @@ class EmphasisTest(private val colors: ColorPalette, private val debugParameterN
             MaterialTheme(colors) {
                 Surface {
                     val onSurface = MaterialTheme.colors().onSurface
-                    assertEquals(
-                        onSurface,
-                        contentColor()
-                    )
 
-                    assertEquals(
-                        onSurface,
-                        currentTextStyle().color
-                    )
+                    assertThat(contentColor()).isEqualTo(onSurface)
+                    assertThat(currentTextStyle().color).isEqualTo(onSurface)
                 }
             }
         }
@@ -76,15 +70,9 @@ class EmphasisTest(private val colors: ColorPalette, private val debugParameterN
                     ProvideEmphasis(MaterialTheme.emphasisLevels().high) {
                         val onSurface = MaterialTheme.colors().onSurface
                         val modifiedOnSurface = onSurface.copy(alpha = HighEmphasisAlpha)
-                        assertEquals(
-                            modifiedOnSurface,
-                            contentColor()
-                        )
 
-                        assertEquals(
-                            modifiedOnSurface,
-                            currentTextStyle().color
-                        )
+                        assertThat(contentColor()).isEqualTo(modifiedOnSurface)
+                        assertThat(currentTextStyle().color).isEqualTo(modifiedOnSurface)
                     }
                 }
             }
@@ -99,15 +87,9 @@ class EmphasisTest(private val colors: ColorPalette, private val debugParameterN
                     ProvideEmphasis(MaterialTheme.emphasisLevels().medium) {
                         val onSurface = MaterialTheme.colors().onSurface
                         val modifiedOnSurface = onSurface.copy(alpha = MediumEmphasisAlpha)
-                        assertEquals(
-                            modifiedOnSurface,
-                            contentColor()
-                        )
 
-                        assertEquals(
-                            modifiedOnSurface,
-                            currentTextStyle().color
-                        )
+                        assertThat(contentColor()).isEqualTo(modifiedOnSurface)
+                        assertThat(currentTextStyle().color).isEqualTo(modifiedOnSurface)
                     }
                 }
             }
@@ -122,15 +104,9 @@ class EmphasisTest(private val colors: ColorPalette, private val debugParameterN
                     ProvideEmphasis(MaterialTheme.emphasisLevels().disabled) {
                         val onSurface = MaterialTheme.colors().onSurface
                         val modifiedOnSurface = onSurface.copy(alpha = DisabledEmphasisAlpha)
-                        assertEquals(
-                            modifiedOnSurface,
-                            contentColor()
-                        )
 
-                        assertEquals(
-                            modifiedOnSurface,
-                            currentTextStyle().color
-                        )
+                        assertThat(contentColor()).isEqualTo(modifiedOnSurface)
+                        assertThat(currentTextStyle().color).isEqualTo(modifiedOnSurface)
                     }
                 }
             }

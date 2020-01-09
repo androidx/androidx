@@ -23,7 +23,7 @@ import androidx.ui.core.withDensity
 import androidx.ui.graphics.Image
 import androidx.ui.graphics.ImageConfig
 import androidx.ui.test.createComposeRule
-import com.google.common.truth.Truth
+import com.google.common.truth.Truth.assertThat
 import org.junit.Rule
 import org.junit.Test
 import org.junit.runner.RunWith
@@ -52,8 +52,8 @@ class FloatingActionButtonUiTest {
                 FloatingActionButton(icon = createImage(), text = "Extended")
             }
         withDensity(composeTestRule.density) {
-            Truth.assertThat(size.width.round().value).isAtLeast(48.dp.toIntPx().value)
-            Truth.assertThat(size.height.round()).isEqualTo(48.dp.toIntPx())
+            assertThat(size.width.round().value).isAtLeast(48.dp.toIntPx().value)
+            assertThat(size.height.round()).isEqualTo(48.dp.toIntPx())
         }
     }
 

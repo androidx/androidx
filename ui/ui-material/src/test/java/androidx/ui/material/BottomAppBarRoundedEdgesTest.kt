@@ -15,7 +15,7 @@
  */
 package androidx.ui.material
 
-import com.google.common.truth.Truth
+import com.google.common.truth.Truth.assertThat
 import org.junit.Test
 import org.junit.runner.RunWith
 import org.junit.runners.JUnit4
@@ -51,8 +51,8 @@ class BottomAppBarRoundedEdgesTest {
         val expectedX = -4.16f
         val expectedY = 2.76f
 
-        Truth.assertThat(calculatedX).isWithin(0.01f).of(expectedX)
-        Truth.assertThat(calculatedY).isWithin(0.01f).of(expectedY)
+        assertThat(calculatedX).isWithin(0.01f).of(expectedX)
+        assertThat(calculatedY).isWithin(0.01f).of(expectedY)
     }
 
     @Test
@@ -68,8 +68,8 @@ class BottomAppBarRoundedEdgesTest {
         val expectedX = -4.96f
         val expectedY = 0.59f
 
-        Truth.assertThat(calculatedX).isWithin(0.01f).of(expectedX)
-        Truth.assertThat(calculatedY).isWithin(0.01f).of(expectedY)
+        assertThat(calculatedX).isWithin(0.01f).of(expectedX)
+        assertThat(calculatedY).isWithin(0.01f).of(expectedY)
     }
 
     @Test
@@ -85,8 +85,8 @@ class BottomAppBarRoundedEdgesTest {
         val expectedX = -4.33f
         val expectedY = -2.49f
 
-        Truth.assertThat(calculatedX).isWithin(0.01f).of(expectedX)
-        Truth.assertThat(calculatedY).isWithin(0.01f).of(expectedY)
+        assertThat(calculatedX).isWithin(0.01f).of(expectedX)
+        assertThat(calculatedY).isWithin(0.01f).of(expectedY)
     }
 
     @Test
@@ -102,7 +102,7 @@ class BottomAppBarRoundedEdgesTest {
         val expectedX = -2.72f
         val expectedY = 4.19f
 
-        Truth.assertThat(calculatedX).isWithin(0.01f).of(expectedX)
-        Truth.assertThat(calculatedY).isWithin(0.01f).of(expectedY)
+        assertThat(calculatedX).isWithin(0.01f).of(expectedX)
+        assertThat(calculatedY).isWithin(0.01f).of(expectedY)
     }
 }

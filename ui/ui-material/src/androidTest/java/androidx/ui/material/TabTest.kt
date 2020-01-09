@@ -40,7 +40,7 @@ import androidx.ui.test.createComposeRule
 import androidx.ui.test.doClick
 import androidx.ui.test.findAll
 import androidx.ui.test.isInMutuallyExclusiveGroup
-import com.google.common.truth.Truth
+import com.google.common.truth.Truth.assertThat
 import org.junit.Rule
 import org.junit.Test
 import org.junit.runner.RunWith
@@ -108,8 +108,7 @@ class TabTest {
         var tabRowCoords: LayoutCoordinates? = null
         var indicatorCoords: LayoutCoordinates? = null
 
-        composeTestRule
-            .setMaterialContent {
+        composeTestRule.setMaterialContent {
                 // TODO: Go back to delegate syntax when b/141741358 is fixed
                 val (state, setState) = state { 0 }
                 val titles = listOf("TAB 1", "TAB 2")
@@ -137,37 +136,36 @@ class TabTest {
                 }
             }
 
-        val tabRowWidth = tabRowCoords!!.size.width
-        val tabRowHeight = tabRowCoords!!.size.height
+        val (tabRowWidth, tabRowHeight) = composeTestRule.runOnIdleComposeWithDensity {
+            val tabRowWidth = tabRowCoords!!.size.width
+            val tabRowHeight = tabRowCoords!!.size.height
 
-        // Indicator should be placed in the bottom left of the first tab
-        withDensity(composeTestRule.density) {
             val indicatorPositionX = indicatorCoords!!.localToGlobal(PxPosition.Origin).x
             val expectedPositionX = 0.dp.toPx()
-            Truth.assertThat(indicatorPositionX).isEqualTo(expectedPositionX)
+            assertThat(indicatorPositionX).isEqualTo(expectedPositionX)
 
             val indicatorPositionY = indicatorCoords!!.localToGlobal(PxPosition.Origin).y
             val expectedPositionY = tabRowHeight - indicatorHeight.toIntPx().toPx()
-            Truth.assertThat(indicatorPositionY).isEqualTo(expectedPositionY)
+            assertThat(indicatorPositionY).isEqualTo(expectedPositionY)
+
+            tabRowWidth to tabRowHeight
         }
 
         // Click the second tab
         findAll { isInMutuallyExclusiveGroup }[1].doClick()
 
-        // TODO: we aren't correctly waiting for recompositions after clicking, so we need to wait
-        // again
-        findAll { isInMutuallyExclusiveGroup }
-
         // Indicator should now be placed in the bottom left of the second tab, so its x coordinate
         // should be in the middle of the TabRow
-        withDensity(composeTestRule.density) {
-            val indicatorPositionX = indicatorCoords!!.localToGlobal(PxPosition.Origin).x
-            val expectedPositionX = tabRowWidth / 2
-            Truth.assertThat(indicatorPositionX).isEqualTo(expectedPositionX)
+        composeTestRule.runOnIdleCompose {
+            withDensity(composeTestRule.density) {
+                val indicatorPositionX = indicatorCoords!!.localToGlobal(PxPosition.Origin).x
+                val expectedPositionX = tabRowWidth / 2
+                assertThat(indicatorPositionX).isEqualTo(expectedPositionX)
 
-            val indicatorPositionY = indicatorCoords!!.localToGlobal(PxPosition.Origin).y
-            val expectedPositionY = tabRowHeight - indicatorHeight.toIntPx().toPx()
-            Truth.assertThat(indicatorPositionY).isEqualTo(expectedPositionY)
+                val indicatorPositionY = indicatorCoords!!.localToGlobal(PxPosition.Origin).y
+                val expectedPositionY = tabRowHeight - indicatorHeight.toIntPx().toPx()
+                assertThat(indicatorPositionY).isEqualTo(expectedPositionY)
+            }
         }
     }
 
@@ -179,71 +177,64 @@ class TabTest {
         var tabRowCoords: LayoutCoordinates? = null
         var indicatorCoords: LayoutCoordinates? = null
 
-        composeTestRule
-            .setMaterialContent {
-                // TODO: Go back to delegate syntax when b/141741358 is fixed
-                val (state, setState) = state { 0 }
-                val titles = listOf("TAB 1", "TAB 2")
+        composeTestRule.setMaterialContent {
+            // TODO: Go back to delegate syntax when b/141741358 is fixed
+            val (state, setState) = state { 0 }
+            val titles = listOf("TAB 1", "TAB 2")
 
-                val indicatorContainer = @Composable { tabPositions: List<TabRow.TabPosition> ->
-                    TabRow.IndicatorContainer(tabPositions, state) {
-                        OnChildPositioned({ indicatorCoords = it }) {
-                            ColoredRect(Color.Red, height = indicatorHeight)
-                        }
-                    }
-                }
-
-                Container(alignment = Alignment.TopCenter) {
-                    OnChildPositioned({ tabRowCoords = it }) {
-                        TabRow(
-                            items = titles,
-                            scrollable = true,
-                            selectedIndex = state,
-                            indicatorContainer = indicatorContainer
-                        ) { index, text ->
-                            Tab(text = text, selected = state == index) {
-                                setState(index)
-                            }
-                        }
+            val indicatorContainer = @Composable { tabPositions: List<TabRow.TabPosition> ->
+                TabRow.IndicatorContainer(tabPositions, state) {
+                    OnChildPositioned({ indicatorCoords = it }) {
+                        ColoredRect(Color.Red, height = indicatorHeight)
                     }
                 }
             }
 
-        val tabRowHeight = tabRowCoords!!.size.height
+            Container(alignment = Alignment.TopCenter) {
+                OnChildPositioned({ tabRowCoords = it }) {
+                    TabRow(
+                        items = titles,
+                        scrollable = true,
+                        selectedIndex = state,
+                        indicatorContainer = indicatorContainer
+                    ) { index, text ->
+                        Tab(text = text, selected = state == index) {
+                            setState(index)
+                        }
+                    }
+                }
+            }
+        }
 
-        // Indicator is drawn in a recomposition, so wait until we recompose and are stable before
-        // running assertions
-        findAll { isInMutuallyExclusiveGroup }
+        val tabRowHeight = composeTestRule.runOnIdleComposeWithDensity {
+            val tabRowHeight = tabRowCoords!!.size.height
 
-        // Indicator should be placed in the bottom left of the first tab
-        withDensity(composeTestRule.density) {
+            // Indicator should be placed in the bottom left of the first tab
             val indicatorPositionX = indicatorCoords!!.localToGlobal(PxPosition.Origin).x
             // Tabs in a scrollable tab row are offset 52.dp from each end
             val expectedPositionX = scrollableTabRowOffset.toIntPx().toPx()
-            Truth.assertThat(indicatorPositionX).isEqualTo(expectedPositionX)
+            assertThat(indicatorPositionX).isEqualTo(expectedPositionX)
 
             val indicatorPositionY = indicatorCoords!!.localToGlobal(PxPosition.Origin).y
             val expectedPositionY = tabRowHeight - indicatorHeight.toIntPx().toPx()
-            Truth.assertThat(indicatorPositionY).isEqualTo(expectedPositionY)
+            assertThat(indicatorPositionY).isEqualTo(expectedPositionY)
+
+            tabRowHeight
         }
 
         // Click the second tab
         findAll { isInMutuallyExclusiveGroup }[1].doClick()
 
-        // TODO: we aren't correctly waiting for recompositions after clicking, so we need to wait
-        // again
-        findAll { isInMutuallyExclusiveGroup }
-
         // Indicator should now be placed in the bottom left of the second tab, so its x coordinate
         // should be in the middle of the TabRow
-        withDensity(composeTestRule.density) {
+        composeTestRule.runOnIdleComposeWithDensity {
             val indicatorPositionX = indicatorCoords!!.localToGlobal(PxPosition.Origin).x
             val expectedPositionX = (scrollableTabRowOffset + minimumTabWidth).toIntPx().toPx()
-            Truth.assertThat(indicatorPositionX).isEqualTo(expectedPositionX)
+            assertThat(indicatorPositionX).isEqualTo(expectedPositionX)
 
             val indicatorPositionY = indicatorCoords!!.localToGlobal(PxPosition.Origin).y
             val expectedPositionY = tabRowHeight - indicatorHeight.toIntPx().toPx()
-            Truth.assertThat(indicatorPositionY).isEqualTo(expectedPositionY)
+            assertThat(indicatorPositionY).isEqualTo(expectedPositionY)
         }
     }
 

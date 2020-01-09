@@ -19,9 +19,7 @@ package androidx.ui.material
 import androidx.compose.Composable
 import androidx.test.filters.SmallTest
 import androidx.ui.core.dp
-import androidx.ui.core.withDensity
 import androidx.ui.layout.Container
-import com.google.common.truth.Truth
 import androidx.ui.core.LastBaseline
 import androidx.ui.core.LayoutCoordinates
 import androidx.ui.core.OnChildPositioned
@@ -46,6 +44,7 @@ import androidx.ui.test.assertIsVisible
 import androidx.ui.test.createComposeRule
 import androidx.ui.test.findAllByTag
 import androidx.ui.test.findByText
+import com.google.common.truth.Truth.assertThat
 import org.junit.Rule
 import org.junit.Test
 import org.junit.runner.RunWith
@@ -121,16 +120,16 @@ class AppBarTest {
             }
         }
 
-        withDensity(composeTestRule.density) {
+        composeTestRule.runOnIdleComposeWithDensity {
             // Navigation icon should be 16.dp from the start
             val navigationIconPositionX = navigationIconCoords!!.localToGlobal(PxPosition.Origin).x
             val navigationIconExpectedPositionX = 16.dp.toIntPx().toPx()
-            Truth.assertThat(navigationIconPositionX).isEqualTo(navigationIconExpectedPositionX)
+            assertThat(navigationIconPositionX).isEqualTo(navigationIconExpectedPositionX)
 
             // Title should be 72.dp from the start
             val titlePositionX = titleCoords!!.localToGlobal(PxPosition.Origin).x
             val titleExpectedPositionX = 72.dp.toIntPx().toPx()
-            Truth.assertThat(titlePositionX).isEqualTo(titleExpectedPositionX)
+            assertThat(titlePositionX).isEqualTo(titleExpectedPositionX)
 
             // Absolute position of the baseline
             val titleLastBaselinePositionY = titleLastBaselineRelativePosition!! +
@@ -139,14 +138,14 @@ class AppBarTest {
                     appBarCoords!!.size.height
             // Baseline should be 20.sp from the bottom of the app bar
             val titleExpectedLastBaselinePositionY = appBarBottomEdgeY - 20.sp.toIntPx().toPx()
-            Truth.assertThat(titleLastBaselinePositionY)
+            assertThat(titleLastBaselinePositionY)
                 .isEqualTo(titleExpectedLastBaselinePositionY)
 
             // Action should be placed at the end
             val actionPositionX = actionCoords!!.localToGlobal(PxPosition.Origin).x
             val actionExpectedPositionX =
                 appBarCoords!!.size.width - 16.dp.toIntPx() - 24.dp.toIntPx()
-            Truth.assertThat(actionPositionX).isEqualTo(actionExpectedPositionX)
+            assertThat(actionPositionX).isEqualTo(actionExpectedPositionX)
         }
     }
 
@@ -179,17 +178,17 @@ class AppBarTest {
             }
         }
 
-        withDensity(composeTestRule.density) {
+        composeTestRule.runOnIdleComposeWithDensity {
             // Title should now be placed 16.dp from the start, as there is no navigation icon
             val titlePositionX = titleCoords!!.localToGlobal(PxPosition.Origin).x
             val titleExpectedPositionX = 16.dp.toIntPx().toPx()
-            Truth.assertThat(titlePositionX).isEqualTo(titleExpectedPositionX)
+            assertThat(titlePositionX).isEqualTo(titleExpectedPositionX)
 
             // Action should still be placed at the end
             val actionPositionX = actionCoords!!.localToGlobal(PxPosition.Origin).x
             val actionExpectedPositionX =
                 appBarCoords!!.size.width - 16.dp.toIntPx() - 24.dp.toIntPx()
-            Truth.assertThat(actionPositionX).isEqualTo(actionExpectedPositionX)
+            assertThat(actionPositionX).isEqualTo(actionExpectedPositionX)
         }
     }
 
@@ -247,8 +246,8 @@ class AppBarTest {
                 )
             }
         }
-        Truth.assertThat(textStyle!!.fontSize).isEqualTo(h6Style!!.fontSize)
-        Truth.assertThat(textStyle!!.fontFamily).isEqualTo(h6Style!!.fontFamily)
+        assertThat(textStyle!!.fontSize).isEqualTo(h6Style!!.fontSize)
+        assertThat(textStyle!!.fontFamily).isEqualTo(h6Style!!.fontFamily)
     }
 
     @Test
@@ -283,12 +282,12 @@ class AppBarTest {
             }
         }
 
-        withDensity(composeTestRule.density) {
+        composeTestRule.runOnIdleComposeWithDensity {
             // Action should still be placed at the end, even though there is no navigation icon
             val actionPositionX = actionCoords!!.localToGlobal(PxPosition.Origin).x
             val actionExpectedPositionX = appBarCoords!!.size.width.round().toPx() -
                     16.dp.toIntPx().toPx() - 24.dp.toIntPx().toPx()
-            Truth.assertThat(actionPositionX).isEqualTo(actionExpectedPositionX)
+            assertThat(actionPositionX).isEqualTo(actionExpectedPositionX)
         }
     }
 
@@ -321,17 +320,17 @@ class AppBarTest {
             }
         }
 
-        withDensity(composeTestRule.density) {
+        composeTestRule.runOnIdleComposeWithDensity {
             // Navigation icon should be at the beginning
             val navigationIconPositionX = navigationIconCoords!!.localToGlobal(PxPosition.Origin).x
             val navigationIconExpectedPositionX = 16.dp.toIntPx().toPx()
-            Truth.assertThat(navigationIconPositionX).isEqualTo(navigationIconExpectedPositionX)
+            assertThat(navigationIconPositionX).isEqualTo(navigationIconExpectedPositionX)
 
             // Action should be placed at the end
             val actionPositionX = actionCoords!!.localToGlobal(PxPosition.Origin).x
             val actionExpectedPositionX = appBarCoords!!.size.width.round().toPx() -
                     16.dp.toIntPx().toPx() - 24.dp.toIntPx().toPx()
-            Truth.assertThat(actionPositionX).isEqualTo(actionExpectedPositionX)
+            assertThat(actionPositionX).isEqualTo(actionExpectedPositionX)
         }
     }
 
@@ -372,23 +371,23 @@ class AppBarTest {
             }
         }
 
-        withDensity(composeTestRule.density) {
+        composeTestRule.runOnIdleComposeWithDensity {
             // Navigation icon should be at the beginning
             val navigationIconPositionX = navigationIconCoords!!.localToGlobal(PxPosition.Origin).x
             val navigationIconExpectedPositionX = 16.dp.toIntPx().toPx()
-            Truth.assertThat(navigationIconPositionX).isEqualTo(navigationIconExpectedPositionX)
+            assertThat(navigationIconPositionX).isEqualTo(navigationIconExpectedPositionX)
 
             // FAB should be placed in the center
             val fabPositionX = fabCoords!!.localToGlobal(PxPosition.Origin).x
             val fabExpectedPositionX =
                 ((appBarCoords!!.size.width - 24.dp.toPx()) / 2).round().toPx()
-            Truth.assertThat(fabPositionX).isEqualTo(fabExpectedPositionX)
+            assertThat(fabPositionX).isEqualTo(fabExpectedPositionX)
 
             // Action should be placed at the end
             val actionPositionX = actionCoords!!.localToGlobal(PxPosition.Origin).x
             val actionExpectedPositionX = appBarCoords!!.size.width.round().toPx() -
                     16.dp.toIntPx().toPx() - 24.dp.toIntPx().toPx()
-            Truth.assertThat(actionPositionX).isEqualTo(actionExpectedPositionX)
+            assertThat(actionPositionX).isEqualTo(actionExpectedPositionX)
         }
     }
 
@@ -429,23 +428,23 @@ class AppBarTest {
             }
         }
 
-        withDensity(composeTestRule.density) {
+        composeTestRule.runOnIdleComposeWithDensity {
             // Navigation icon should be at the beginning
             val navigationIconPositionX = navigationIconCoords!!.localToGlobal(PxPosition.Origin).x
             val navigationIconExpectedPositionX = 16.dp.toIntPx().toPx()
-            Truth.assertThat(navigationIconPositionX).isEqualTo(navigationIconExpectedPositionX)
+            assertThat(navigationIconPositionX).isEqualTo(navigationIconExpectedPositionX)
 
             // FAB should be placed in the center
             val fabPositionX = fabCoords!!.localToGlobal(PxPosition.Origin).x
             val fabExpectedPositionX =
                 ((appBarCoords!!.size.width - 24.dp.toPx()) / 2).round().toPx()
-            Truth.assertThat(fabPositionX).isEqualTo(fabExpectedPositionX)
+            assertThat(fabPositionX).isEqualTo(fabExpectedPositionX)
 
             // Action should be placed at the end
             val actionPositionX = actionCoords!!.localToGlobal(PxPosition.Origin).x
             val actionExpectedPositionX = appBarCoords!!.size.width.round().toPx() -
                     16.dp.toIntPx().toPx() - 24.dp.toIntPx().toPx()
-            Truth.assertThat(actionPositionX).isEqualTo(actionExpectedPositionX)
+            assertThat(actionPositionX).isEqualTo(actionExpectedPositionX)
         }
     }
 
@@ -478,17 +477,17 @@ class AppBarTest {
             }
         }
 
-        withDensity(composeTestRule.density) {
+        composeTestRule.runOnIdleComposeWithDensity {
             // Action should be placed at the start
             val actionPositionX = actionCoords!!.localToGlobal(PxPosition.Origin).x
             val actionExpectedPositionX = 16.dp.toIntPx().toPx()
-            Truth.assertThat(actionPositionX).isEqualTo(actionExpectedPositionX)
+            assertThat(actionPositionX).isEqualTo(actionExpectedPositionX)
 
             // FAB should be placed at the end
             val fabPositionX = fabCoords!!.localToGlobal(PxPosition.Origin).x
             val fabExpectedPositionX = appBarCoords!!.size.width.round().toPx() -
                     16.dp.toIntPx().toPx() - 24.dp.toIntPx().toPx()
-            Truth.assertThat(fabPositionX).isEqualTo(fabExpectedPositionX)
+            assertThat(fabPositionX).isEqualTo(fabExpectedPositionX)
         }
     }
 
@@ -521,17 +520,17 @@ class AppBarTest {
             }
         }
 
-        withDensity(composeTestRule.density) {
+        composeTestRule.runOnIdleComposeWithDensity {
             // Action should be placed at the start
             val actionPositionX = actionCoords!!.localToGlobal(PxPosition.Origin).x
             val actionExpectedPositionX = 16.dp.toIntPx().toPx()
-            Truth.assertThat(actionPositionX).isEqualTo(actionExpectedPositionX)
+            assertThat(actionPositionX).isEqualTo(actionExpectedPositionX)
 
             // FAB should be placed at the end
             val fabPositionX = fabCoords!!.localToGlobal(PxPosition.Origin).x
             val fabExpectedPositionX = appBarCoords!!.size.width.round().toPx() -
                     16.dp.toIntPx().toPx() - 24.dp.toIntPx().toPx()
-            Truth.assertThat(fabPositionX).isEqualTo(fabExpectedPositionX)
+            assertThat(fabPositionX).isEqualTo(fabExpectedPositionX)
         }
     }
 
