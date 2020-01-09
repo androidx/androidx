@@ -218,7 +218,7 @@ internal class Pager<Key : Any, Value : Any>(
                 is LoadResult.Page<Key, Value> -> {
                     val insertApplied = state.insert(0, REFRESH, result)
 
-                    state.updateLoadState(REFRESH, Done)
+                    state.updateLoadState(REFRESH, Idle)
                     if (result.prevKey == null) state.updateLoadState(START, Done)
                     if (result.nextKey == null) state.updateLoadState(END, Done)
 
