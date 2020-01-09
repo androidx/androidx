@@ -21,8 +21,8 @@ import androidx.annotation.RestrictTo
 import androidx.annotation.VisibleForTesting
 import androidx.annotation.WorkerThread
 import androidx.arch.core.util.Function
-import androidx.paging.PagedSource.LoadResult.Page
-import androidx.paging.PagedSource.LoadResult.Page.Companion.COUNT_UNDEFINED
+import androidx.paging.PagingSource.LoadResult.Page
+import androidx.paging.PagingSource.LoadResult.Page.Companion.COUNT_UNDEFINED
 import java.util.concurrent.CopyOnWriteArrayList
 import java.util.concurrent.atomic.AtomicBoolean
 
@@ -232,8 +232,8 @@ internal constructor(internal val type: KeyType) {
          * @hide
          */
         @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
-        fun asPagedSourceFactory(): () -> PagedSource<Key, Value> = {
-            LegacyPagedSource(create())
+        fun asPagingSourceFactory(): () -> PagingSource<Key, Value> = {
+            LegacyPagingSource(create())
         }
     }
 
@@ -495,7 +495,7 @@ internal constructor(internal val type: KeyType) {
 
         /**
          * Assumes that nextKey and prevKey returned by this [BaseResult] matches the expected type
-         * in [PagedSource.LoadResult].
+         * in [PagingSource.LoadResult].
          */
         @Suppress("UNCHECKED_CAST") // Guaranteed to be the correct Key type.
         internal fun <Key : Any> toLoadResult(): Page<Key, Value> = Page(

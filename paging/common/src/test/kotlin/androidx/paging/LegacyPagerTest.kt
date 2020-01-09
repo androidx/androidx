@@ -17,8 +17,8 @@
 package androidx.paging
 
 import androidx.paging.PagedList.Config
-import androidx.paging.PagedSource.LoadResult
-import androidx.paging.PagedSource.LoadResult.Page
+import androidx.paging.PagingSource.LoadResult
+import androidx.paging.PagingSource.LoadResult.Page
 import androidx.testutils.TestDispatcher
 import kotlinx.coroutines.GlobalScope
 import kotlinx.coroutines.runBlocking
@@ -33,7 +33,7 @@ class LegacyPagerTest {
     private val testDispatcher = TestDispatcher()
     private val data = List(9) { "$it" }
 
-    inner class ImmediateListDataSource(val data: List<String>) : PagedSource<Int, String>() {
+    inner class ImmediateListDataSource(val data: List<String>) : PagingSource<Int, String>() {
         override suspend fun load(params: LoadParams<Int>): LoadResult<Int, String> {
             val key = params.key ?: 0
 
@@ -112,11 +112,11 @@ class LegacyPagerTest {
         end: Int = 10
     ): LegacyPager<Int, String> {
         val config = Config(2, 2, true, 10, Config.MAX_SIZE_UNBOUNDED)
-        val pagedSource = ImmediateListDataSource(data)
+        val pagingSource = ImmediateListDataSource(data)
 
         val initialResult = runBlocking {
-            pagedSource.load(
-                PagedSource.LoadParams(
+            pagingSource.load(
+                PagingSource.LoadParams(
                     loadType = LoadType.REFRESH,
                     key = start,
                     loadSize = end - start,
@@ -138,7 +138,7 @@ class LegacyPagerTest {
         return LegacyPager(
             GlobalScope,
             config,
-            pagedSource,
+            pagingSource,
             DirectDispatcher,
             testDispatcher,
             consumer,

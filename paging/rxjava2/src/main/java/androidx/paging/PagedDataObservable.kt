@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-@file:JvmName("PagedDataObservable")
+@file:JvmName("PagingDataObservable")
 
 package androidx.paging
 
@@ -23,38 +23,38 @@ import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.rx2.asObservable
 
 /**
- * Construct the primary RxJava Paging reactive stream: `Observable<PagedData<T>>`.
+ * Construct the primary RxJava Paging reactive stream: `Observable<PagingData<T>>`.
  *
- * Creates a stream of PagedData objects, each of which represents a single generation of
+ * Creates a stream of [PagingData] objects, each of which represents a single generation of
  * paginated data. These objects can be transformed to alter data as it loads, and presented in a
  * `RecyclerView`.
  *
- * @see PagedDataFlow
+ * @see PagingDataFlow
  */
 @Suppress("FunctionName", "unused")
 @UseExperimental(ExperimentalCoroutinesApi::class)
 @JvmName("create")
-fun <Key : Any, Value : Any> PagedDataObservable(
+fun <Key : Any, Value : Any> PagingDataObservable(
     config: PagingConfig,
     initialKey: Key?,
-    pagedSourceFactory: () -> PagedSource<Key, Value>
-): Observable<PagedData<Value>> =
-    PagedDataFlow(config, initialKey, pagedSourceFactory).asObservable()
+    pagingSourceFactory: () -> PagingSource<Key, Value>
+): Observable<PagingData<Value>> =
+    PagingDataFlow(config, initialKey, pagingSourceFactory).asObservable()
 
 /**
- * Construct the primary RxJava Paging reactive stream: `Observable<PagedData<T>>`.
+ * Construct the primary RxJava Paging reactive stream: `Observable<PagingData<T>>`.
  *
- * Creates a stream of PagedData objects, each of which represents a single generation of
+ * Creates a stream of [PagingData] objects, each of which represents a single generation of
  * paginated data. These objects can be transformed to alter data as it loads, and presented in a
  * `RecyclerView`.
  *
- * @see PagedDataFlow
+ * @see PagingDataFlow
  */
 @Suppress("FunctionName", "unused")
 @UseExperimental(ExperimentalCoroutinesApi::class)
 @JvmName("create")
-fun <Key : Any, Value : Any> PagedDataObservable(
+fun <Key : Any, Value : Any> PagingDataObservable(
     config: PagingConfig,
-    pagedSourceFactory: () -> PagedSource<Key, Value>
-): Observable<PagedData<Value>> =
-    PagedDataFlow(config, null, pagedSourceFactory).asObservable()
+    pagingSourceFactory: () -> PagingSource<Key, Value>
+): Observable<PagingData<Value>> =
+    PagingDataFlow(config, null, pagingSourceFactory).asObservable()

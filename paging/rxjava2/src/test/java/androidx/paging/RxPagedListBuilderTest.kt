@@ -50,8 +50,8 @@ class RxPagedListBuilderTest {
     }
 
     class MockDataSourceFactory {
-        fun create(): PagedSource<Int, String> {
-            return MockPagedSource()
+        fun create(): PagingSource<Int, String> {
+            return MockPagingSource()
         }
 
         var throwable: Throwable? = null
@@ -60,7 +60,7 @@ class RxPagedListBuilderTest {
             throwable = EXCEPTION
         }
 
-        private inner class MockPagedSource : PagedSource<Int, String>() {
+        private inner class MockPagingSource : PagingSource<Int, String>() {
             override suspend fun load(params: LoadParams<Int>) = when (params.loadType) {
                 LoadType.REFRESH -> loadInitial(params)
                 else -> loadRange()
@@ -123,7 +123,7 @@ class RxPagedListBuilderTest {
         observer.values().last().dataSource.invalidate()
         scheduler.triggerActions()
         observer.assertValueCount(3)
-        assertTrue { observer.values()[1].pagedSource.invalid }
+        assertTrue { observer.values()[1].pagingSource.invalid }
         assertEquals(listOf("c", "d"), observer.values().last())
     }
 

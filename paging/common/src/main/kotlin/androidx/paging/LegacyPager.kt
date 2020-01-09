@@ -16,7 +16,7 @@
 
 package androidx.paging
 
-import androidx.paging.PagedSource.LoadParams
+import androidx.paging.PagingSource.LoadParams
 import kotlinx.coroutines.CoroutineDispatcher
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.launch
@@ -25,7 +25,7 @@ import java.util.concurrent.atomic.AtomicBoolean
 internal class LegacyPager<K : Any, V : Any>(
     private val pagedListScope: CoroutineScope,
     val config: PagedList.Config,
-    val source: PagedSource<K, V>,
+    val source: PagingSource<K, V>,
     private val notifyDispatcher: CoroutineDispatcher,
     private val fetchDispatcher: CoroutineDispatcher,
     val pageConsumer: PageConsumer<V>,
@@ -56,14 +56,14 @@ internal class LegacyPager<K : Any, V : Any>(
             // Source has been verified to be valid after producing data, so sent data to UI
             launch(notifyDispatcher) {
                 when (value) {
-                    is PagedSource.LoadResult.Page -> onLoadSuccess(type, value)
-                    is PagedSource.LoadResult.Error -> onLoadError(type, value.throwable)
+                    is PagingSource.LoadResult.Page -> onLoadSuccess(type, value)
+                    is PagingSource.LoadResult.Error -> onLoadError(type, value.throwable)
                 }
             }
         }
     }
 
-    private fun onLoadSuccess(type: LoadType, value: PagedSource.LoadResult.Page<K, V>) {
+    private fun onLoadSuccess(type: LoadType, value: PagingSource.LoadResult.Page<K, V>) {
         if (isDetached) return // abort!
 
         if (pageConsumer.onPageResult(type, value)) {
@@ -99,7 +99,7 @@ internal class LegacyPager<K : Any, V : Any>(
     private fun schedulePrepend() {
         val key = keyProvider.prevKey
         if (key == null) {
-            onLoadSuccess(LoadType.START, PagedSource.LoadResult.Page.empty())
+            onLoadSuccess(LoadType.START, PagingSource.LoadResult.Page.empty())
             return
         }
 
@@ -118,7 +118,7 @@ internal class LegacyPager<K : Any, V : Any>(
     private fun scheduleAppend() {
         val key = keyProvider.nextKey
         if (key == null) {
-            onLoadSuccess(LoadType.END, PagedSource.LoadResult.Page.empty())
+            onLoadSuccess(LoadType.END, PagingSource.LoadResult.Page.empty())
             return
         }
 
@@ -148,7 +148,7 @@ internal class LegacyPager<K : Any, V : Any>(
         /**
          * @return `true` if we need to fetch more
          */
-        fun onPageResult(type: LoadType, page: PagedSource.LoadResult.Page<*, V>): Boolean
+        fun onPageResult(type: LoadType, page: PagingSource.LoadResult.Page<*, V>): Boolean
 
         fun onStateChanged(type: LoadType, state: LoadState)
     }

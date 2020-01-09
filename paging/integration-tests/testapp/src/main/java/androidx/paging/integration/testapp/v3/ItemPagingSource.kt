@@ -19,16 +19,16 @@ package androidx.paging.integration.testapp.v3
 import android.graphics.Color
 import androidx.annotation.ColorInt
 import androidx.paging.LoadType
-import androidx.paging.PagedSource
+import androidx.paging.PagingSource
 import kotlinx.coroutines.delay
 import java.util.concurrent.atomic.AtomicBoolean
 
 val dataSourceError = AtomicBoolean(false)
 
 /**
- * Sample position-based PagedSource with artificial data.
+ * Sample position-based PagingSource with artificial data.
  */
-internal class ItemPagedSource : PagedSource<Int, Item>() {
+internal class ItemPagingSource : PagingSource<Int, Item>() {
     class RetryableItemError : Exception()
 
     private val generationId = sGenerationId++
@@ -84,9 +84,9 @@ internal class ItemPagedSource : PagedSource<Int, Item>() {
     }
     companion object {
         val Factory =
-            fun(): PagedSource<Int, Item> {
+            fun(): PagingSource<Int, Item> {
                 sGenerationId++
-                return ItemPagedSource()
+                return ItemPagingSource()
             }
 
         private const val COUNT = 60

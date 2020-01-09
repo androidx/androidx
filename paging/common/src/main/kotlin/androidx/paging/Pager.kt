@@ -24,8 +24,8 @@ import androidx.paging.LoadType.END
 import androidx.paging.LoadType.REFRESH
 import androidx.paging.LoadType.START
 import androidx.paging.PageEvent.Drop
-import androidx.paging.PagedSource.LoadParams
-import androidx.paging.PagedSource.LoadResult
+import androidx.paging.PagingSource.LoadParams
+import androidx.paging.PagingSource.LoadResult
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.FlowPreview
@@ -51,14 +51,14 @@ import kotlinx.coroutines.sync.withLock
 import java.util.concurrent.atomic.AtomicBoolean
 
 /**
- * Holds a generation of pageable data, a snapshot of data loaded by [PagedSource]. An instance
+ * Holds a generation of pageable data, a snapshot of data loaded by [PagingSource]. An instance
  * of [Pager] and its corresponding [PagerState] should be launched within a scope that is
- * cancelled when [PagedSource.invalidate] is called.
+ * cancelled when [PagingSource.invalidate] is called.
  */
 @UseExperimental(ExperimentalCoroutinesApi::class, FlowPreview::class)
 internal class Pager<Key : Any, Value : Any>(
     internal val initialKey: Key?,
-    internal val pagedSource: PagedSource<Key, Value>,
+    internal val pagingSource: PagingSource<Key, Value>,
     private val config: PagingConfig
 ) {
     private val retryChannel = Channel<Unit>(CONFLATED)
@@ -199,7 +199,7 @@ internal class Pager<Key : Any, Value : Any>(
         }
     }
 
-    private suspend fun PagedSource<Key, Value>.load(loadType: LoadType, key: Key?) = load(
+    private suspend fun PagingSource<Key, Value>.load(loadType: LoadType, key: Key?) = load(
         LoadParams(
             loadType = loadType,
             key = key,
@@ -212,7 +212,7 @@ internal class Pager<Key : Any, Value : Any>(
     private suspend fun doInitialLoad(state: PagerState<Key, Value>) {
         stateLock.withLock { state.updateLoadState(REFRESH, Loading) }
 
-        val result = pagedSource.load(REFRESH, initialKey)
+        val result = pagingSource.load(REFRESH, initialKey)
         stateLock.withLock {
             when (result) {
                 is LoadResult.Page<Key, Value> -> {
@@ -277,7 +277,7 @@ internal class Pager<Key : Any, Value : Any>(
             }
             lastInsertedPage = null // Reset lastInsertedPage in case of error or cancellation.
 
-            when (val result: LoadResult<Key, Value> = pagedSource.load(loadType, loadKey)) {
+            when (val result: LoadResult<Key, Value> = pagingSource.load(loadType, loadKey)) {
                 is LoadResult.Page<Key, Value> -> {
                     val insertApplied = stateLock.withLock {
                         state.insert(generationalHint.generationId, loadType, result)

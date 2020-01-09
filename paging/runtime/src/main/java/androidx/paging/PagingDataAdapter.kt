@@ -24,17 +24,17 @@ import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.Flow
 
-abstract class PagedDataAdapter<T : Any, VH : RecyclerView.ViewHolder>(
+abstract class PagingDataAdapter<T : Any, VH : RecyclerView.ViewHolder>(
     diffCallback: DiffUtil.ItemCallback<T>,
     mainDispatcher: CoroutineDispatcher = Dispatchers.Main
 ) : RecyclerView.Adapter<VH>() {
-    private val differ = AsyncPagedDataDiffer(
+    private val differ = AsyncPagingDataDiffer(
         mainDispatcher = mainDispatcher,
         diffCallback = diffCallback,
         updateCallback = AdapterListUpdateCallback(this)
     )
 
-    fun connect(flow: Flow<PagedData<T>>, scope: CoroutineScope) {
+    fun connect(flow: Flow<PagingData<T>>, scope: CoroutineScope) {
         differ.connect(flow, scope)
     }
 
@@ -47,9 +47,9 @@ abstract class PagedDataAdapter<T : Any, VH : RecyclerView.ViewHolder>(
     override fun getItemCount() = differ.itemCount
 
     /**
-     * Add a [LoadState] listener to observe the loading state of the current [PagedData].
+     * Add a [LoadState] listener to observe the loading state of the current [PagingData].
      *
-     * As new PagedData generations are submitted and displayed, the listener will be notified to
+     * As new [PagingData] generations are submitted and displayed, the listener will be notified to
      * reflect current [LoadType.REFRESH], [LoadType.START], and [LoadType.END] states.
      *
      * @param listener [LoadState] listener to receive updates.

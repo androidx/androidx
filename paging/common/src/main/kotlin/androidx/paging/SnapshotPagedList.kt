@@ -17,7 +17,7 @@
 package androidx.paging
 
 internal class SnapshotPagedList<T : Any>(private val pagedList: PagedList<T>) : PagedList<T>(
-    pagedList.pagedSource,
+    pagedList.pagingSource,
     pagedList.storage.snapshot(),
     pagedList.config
 ) {

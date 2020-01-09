@@ -19,11 +19,11 @@ package androidx.paging.integration.testapp.v3
 import android.graphics.Color
 import android.view.ViewGroup
 import android.widget.TextView
-import androidx.paging.PagedDataAdapter
+import androidx.paging.PagingDataAdapter
 import androidx.paging.integration.testapp.R
 import androidx.recyclerview.widget.RecyclerView
 
-class V3Adapter : PagedDataAdapter<Item, RecyclerView.ViewHolder>(
+class V3Adapter : PagingDataAdapter<Item, RecyclerView.ViewHolder>(
     diffCallback = Item.DIFF_CALLBACK
 ) {
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): RecyclerView.ViewHolder {

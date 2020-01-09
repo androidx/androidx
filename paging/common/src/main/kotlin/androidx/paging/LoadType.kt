@@ -17,7 +17,7 @@
 package androidx.paging
 
 /**
- * Type of load a [PagedList] can trigger a [PagedSource] to perform.
+ * Type of load a [PagedList] can trigger a [PagingSource] to perform.
  *
  * [LoadState] of any [LoadType] may be observed for UI purposes by registering a listener via
  * [androidx.paging.PagedListAdapter.addLoadStateListener] or
@@ -27,7 +27,7 @@ package androidx.paging
  */
 enum class LoadType {
     /**
-     * [PagedList] content being refreshed, which can also be a result of [PagedSource]
+     * [PagedList] content being refreshed, which can also be a result of [PagingSource]
      * invalidation, refresh that may contain content updates, or the initial load.
      */
     REFRESH,

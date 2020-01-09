@@ -19,8 +19,8 @@ package androidx.paging.integration.testapp.v3
 import android.graphics.Color
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
-import androidx.paging.PagedDataFlow
 import androidx.paging.PagingConfig
+import androidx.paging.PagingDataFlow
 import androidx.paging.cachedIn
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.FlowPreview
@@ -29,9 +29,9 @@ import kotlinx.coroutines.flow.map
 @ExperimentalCoroutinesApi
 class V3ViewModel : ViewModel() {
     @FlowPreview
-    val flow = PagedDataFlow(PagingConfig(10), ItemPagedSource.Factory)
-        .map { pagedData ->
-            pagedData
+    val flow = PagingDataFlow(PagingConfig(10), ItemPagingSource.Factory)
+        .map { pagingData ->
+            pagingData
                 .insertSeparators { before: Item?, after: Item? ->
                     if (after == null || (after.id / 3) == (before?.id ?: 0) / 3) {
                         // no separator, because at bottom or not needed yet

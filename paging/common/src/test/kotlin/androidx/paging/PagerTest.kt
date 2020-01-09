@@ -28,8 +28,8 @@ import androidx.paging.PageEvent.Insert.Companion.End
 import androidx.paging.PageEvent.Insert.Companion.Refresh
 import androidx.paging.PageEvent.Insert.Companion.Start
 import androidx.paging.PageEvent.StateUpdate
-import androidx.paging.TestPagedSource.Companion.LOAD_ERROR
-import androidx.paging.TestPagedSource.Companion.items
+import androidx.paging.TestPagingSource.Companion.LOAD_ERROR
+import androidx.paging.TestPagingSource.Companion.items
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.FlowPreview
 import kotlinx.coroutines.InternalCoroutinesApi
@@ -47,7 +47,7 @@ import org.junit.runners.JUnit4
 @RunWith(JUnit4::class)
 class PagerTest {
     private val testScope = TestCoroutineScope()
-    private val pagedSourceFactory = { TestPagedSource() }
+    private val pagingSourceFactory = { TestPagingSource() }
     private val config = PagingConfig(
         pageSize = 1,
         prefetchDistance = 1,
@@ -103,11 +103,11 @@ class PagerTest {
 
     @Test
     fun loadStates_prependDone() = testScope.runBlockingTest {
-        val pageFetcher = PageFetcher(pagedSourceFactory, 1, config)
+        val pageFetcher = PageFetcher(pagingSourceFactory, 1, config)
         val fetcherState = collectFetcherState(pageFetcher)
 
         advanceUntilIdle()
-        fetcherState.pagedDataList[0].receiver.addHint(ViewportHint(0, 0))
+        fetcherState.pagingDataList[0].receiver.addHint(ViewportHint(0, 0))
         advanceUntilIdle()
 
         val expected: List<PageEvent<Int>> = listOf(
@@ -125,13 +125,13 @@ class PagerTest {
 
     @Test
     fun loadStates_prependDoneThenDrop() = testScope.runBlockingTest {
-        val pageFetcher = PageFetcher(pagedSourceFactory, 1, config)
+        val pageFetcher = PageFetcher(pagingSourceFactory, 1, config)
         val fetcherState = collectFetcherState(pageFetcher)
 
         advanceUntilIdle()
-        fetcherState.pagedDataList[0].receiver.addHint(ViewportHint(0, 0))
+        fetcherState.pagingDataList[0].receiver.addHint(ViewportHint(0, 0))
         advanceUntilIdle()
-        fetcherState.pagedDataList[0].receiver.addHint(ViewportHint(0, 1))
+        fetcherState.pagingDataList[0].receiver.addHint(ViewportHint(0, 1))
         advanceUntilIdle()
 
         val expected: List<PageEvent<Int>> = listOf(
@@ -154,11 +154,11 @@ class PagerTest {
 
     @Test
     fun loadStates_appendDone() = testScope.runBlockingTest {
-        val pageFetcher = PageFetcher(pagedSourceFactory, 97, config)
+        val pageFetcher = PageFetcher(pagingSourceFactory, 97, config)
         val fetcherState = collectFetcherState(pageFetcher)
 
         advanceUntilIdle()
-        fetcherState.pagedDataList[0].receiver.addHint(ViewportHint(0, 1))
+        fetcherState.pagingDataList[0].receiver.addHint(ViewportHint(0, 1))
         advanceUntilIdle()
 
         val expected: List<PageEvent<Int>> = listOf(
@@ -176,13 +176,13 @@ class PagerTest {
 
     @Test
     fun loadStates_appendDoneThenDrop() = testScope.runBlockingTest {
-        val pageFetcher = PageFetcher(pagedSourceFactory, 97, config)
+        val pageFetcher = PageFetcher(pagingSourceFactory, 97, config)
         val fetcherState = collectFetcherState(pageFetcher)
 
         advanceUntilIdle()
-        fetcherState.pagedDataList[0].receiver.addHint(ViewportHint(0, 1))
+        fetcherState.pagingDataList[0].receiver.addHint(ViewportHint(0, 1))
         advanceUntilIdle()
-        fetcherState.pagedDataList[0].receiver.addHint(ViewportHint(0, 0))
+        fetcherState.pagingDataList[0].receiver.addHint(ViewportHint(0, 0))
         advanceUntilIdle()
 
         val expected: List<PageEvent<Int>> = listOf(
@@ -205,7 +205,7 @@ class PagerTest {
 
     @Test
     fun loadStates_refreshStart() = testScope.runBlockingTest {
-        val pageFetcher = PageFetcher(pagedSourceFactory, 0, config)
+        val pageFetcher = PageFetcher(pagingSourceFactory, 0, config)
         val fetcherState = collectFetcherState(pageFetcher)
 
         advanceUntilIdle()
@@ -223,7 +223,7 @@ class PagerTest {
 
     @Test
     fun loadStates_refreshEnd() = testScope.runBlockingTest {
-        val pageFetcher = PageFetcher(pagedSourceFactory, 98, config)
+        val pageFetcher = PageFetcher(pagingSourceFactory, 98, config)
         val fetcherState = collectFetcherState(pageFetcher)
 
         advanceUntilIdle()
@@ -241,7 +241,7 @@ class PagerTest {
 
     @Test
     fun initialize() = testScope.runBlockingTest {
-        val pageFetcher = PageFetcher(pagedSourceFactory, 50, config)
+        val pageFetcher = PageFetcher(pagingSourceFactory, 50, config)
         val fetcherState = collectFetcherState(pageFetcher)
 
         advanceUntilIdle()
@@ -258,10 +258,10 @@ class PagerTest {
 
     @Test
     fun initialize_bufferedHint() = testScope.runBlockingTest {
-        val pageFetcher = PageFetcher(pagedSourceFactory, 50, config)
+        val pageFetcher = PageFetcher(pagingSourceFactory, 50, config)
         val fetcherState = collectFetcherState(pageFetcher)
 
-        fetcherState.pagedDataList[0].receiver.addHint(ViewportHint(0, 0))
+        fetcherState.pagingDataList[0].receiver.addHint(ViewportHint(0, 0))
         advanceUntilIdle()
 
         val expected: List<PageEvent<Int>> = listOf(
@@ -279,11 +279,11 @@ class PagerTest {
 
     @Test
     fun prepend() = testScope.runBlockingTest {
-        val pageFetcher = PageFetcher(pagedSourceFactory, 50, config)
+        val pageFetcher = PageFetcher(pagingSourceFactory, 50, config)
         val fetcherState = collectFetcherState(pageFetcher)
 
         advanceUntilIdle()
-        fetcherState.pagedDataList[0].receiver.addHint(ViewportHint(0, 0))
+        fetcherState.pagingDataList[0].receiver.addHint(ViewportHint(0, 0))
         advanceUntilIdle()
 
         val expected: List<PageEvent<Int>> = listOf(
@@ -308,11 +308,11 @@ class PagerTest {
             initialLoadSize = 3,
             maxSize = 5
         )
-        val pageFetcher = PageFetcher(pagedSourceFactory, 50, config)
+        val pageFetcher = PageFetcher(pagingSourceFactory, 50, config)
         val fetcherState = collectFetcherState(pageFetcher)
 
         advanceUntilIdle()
-        fetcherState.pagedDataList[0].receiver.addHint(ViewportHint(0, 0))
+        fetcherState.pagingDataList[0].receiver.addHint(ViewportHint(0, 0))
         advanceUntilIdle()
 
         val expected: List<PageEvent<Int>> = listOf(
@@ -331,11 +331,11 @@ class PagerTest {
 
     @Test
     fun append() = testScope.runBlockingTest {
-        val pageFetcher = PageFetcher(pagedSourceFactory, 50, config)
+        val pageFetcher = PageFetcher(pagingSourceFactory, 50, config)
         val fetcherState = collectFetcherState(pageFetcher)
 
         advanceUntilIdle()
-        fetcherState.pagedDataList[0].receiver.addHint(ViewportHint(0, 1))
+        fetcherState.pagingDataList[0].receiver.addHint(ViewportHint(0, 1))
         advanceUntilIdle()
 
         val expected: List<PageEvent<Int>> = listOf(
@@ -360,11 +360,11 @@ class PagerTest {
             initialLoadSize = 3,
             maxSize = 5
         )
-        val pageFetcher = PageFetcher(pagedSourceFactory, 50, config)
+        val pageFetcher = PageFetcher(pagingSourceFactory, 50, config)
         val fetcherState = collectFetcherState(pageFetcher)
 
         advanceUntilIdle()
-        fetcherState.pagedDataList[0].receiver.addHint(ViewportHint(0, 2))
+        fetcherState.pagingDataList[0].receiver.addHint(ViewportHint(0, 2))
         advanceUntilIdle()
 
         val expected: List<PageEvent<Int>> = listOf(
@@ -383,13 +383,13 @@ class PagerTest {
 
     @Test
     fun appendAndDrop() = testScope.runBlockingTest {
-        val pageFetcher = PageFetcher(pagedSourceFactory, 50, config)
+        val pageFetcher = PageFetcher(pagingSourceFactory, 50, config)
         val fetcherState = collectFetcherState(pageFetcher)
 
         advanceUntilIdle()
-        fetcherState.pagedDataList[0].receiver.addHint(ViewportHint(0, 1))
+        fetcherState.pagingDataList[0].receiver.addHint(ViewportHint(0, 1))
         advanceUntilIdle()
-        fetcherState.pagedDataList[0].receiver.addHint(ViewportHint(1, 0))
+        fetcherState.pagingDataList[0].receiver.addHint(ViewportHint(1, 0))
         advanceUntilIdle()
 
         val expected: List<PageEvent<Int>> = listOf(
@@ -412,15 +412,15 @@ class PagerTest {
     @Test
     fun appendAndDropWithCancellation() = testScope.runBlockingTest {
         pauseDispatcher {
-            val pageFetcher = PageFetcher(pagedSourceFactory, 50, config)
+            val pageFetcher = PageFetcher(pagingSourceFactory, 50, config)
             val fetcherState = collectFetcherState(pageFetcher)
 
             advanceUntilIdle()
-            fetcherState.pagedDataList[0].receiver.addHint(ViewportHint(0, 1))
+            fetcherState.pagingDataList[0].receiver.addHint(ViewportHint(0, 1))
             advanceUntilIdle()
-            fetcherState.pagedDataList[0].receiver.addHint(ViewportHint(1, 0))
+            fetcherState.pagingDataList[0].receiver.addHint(ViewportHint(1, 0))
             advanceTimeBy(500)
-            fetcherState.pagedDataList[0].receiver.addHint(ViewportHint(0, 0))
+            fetcherState.pagingDataList[0].receiver.addHint(ViewportHint(0, 0))
             advanceUntilIdle()
 
             val expected: List<PageEvent<Int>> = listOf(
@@ -445,7 +445,7 @@ class PagerTest {
 
     @Test
     fun invalidateNoScroll() = testScope.runBlockingTest {
-        val pageFetcher = PageFetcher(pagedSourceFactory, 50, config)
+        val pageFetcher = PageFetcher(pagingSourceFactory, 50, config)
         val fetcherState = collectFetcherState(pageFetcher)
 
         advanceUntilIdle()
@@ -474,11 +474,11 @@ class PagerTest {
 
     @Test
     fun invalidateAfterScroll() = testScope.runBlockingTest {
-        val pageFetcher = PageFetcher(pagedSourceFactory, 50, config)
+        val pageFetcher = PageFetcher(pagingSourceFactory, 50, config)
         val fetcherState = collectFetcherState(pageFetcher)
 
         advanceUntilIdle()
-        fetcherState.pagedDataList[0].receiver.addHint(ViewportHint(0, 1))
+        fetcherState.pagingDataList[0].receiver.addHint(ViewportHint(0, 1))
         advanceUntilIdle()
 
         val expected: List<List<PageEvent<Int>>> = listOf(
@@ -509,7 +509,7 @@ class PagerTest {
     @Test
     fun retry() = testScope.runBlockingTest {
         pauseDispatcher {
-            val pageSource = pagedSourceFactory()
+            val pageSource = pagingSourceFactory()
             val pager = Pager(50, pageSource, config)
 
             val pageEvents = ArrayList<PageEvent<Int>>()
@@ -541,7 +541,7 @@ class PagerTest {
     @Test
     fun retryNothing() = testScope.runBlockingTest {
         pauseDispatcher {
-            val pageSource = pagedSourceFactory()
+            val pageSource = pagingSourceFactory()
             val pager = Pager(50, pageSource, config)
 
             val pageEvents = ArrayList<PageEvent<Int>>()
@@ -570,7 +570,7 @@ class PagerTest {
     @Test
     fun retryTwice() = testScope.runBlockingTest {
         pauseDispatcher {
-            val pageSource = pagedSourceFactory()
+            val pageSource = pagingSourceFactory()
             val pager = Pager(50, pageSource, config)
 
             val pageEvents = ArrayList<PageEvent<Int>>()
@@ -604,7 +604,7 @@ class PagerTest {
     @Test
     fun retryBothDirections() = testScope.runBlockingTest {
         pauseDispatcher {
-            val pageSource = pagedSourceFactory()
+            val pageSource = pagingSourceFactory()
             val pager = Pager(50, pageSource, config)
 
             val pageEvents = ArrayList<PageEvent<Int>>()
@@ -647,7 +647,7 @@ class PagerTest {
     @Test
     fun retryRefresh() = testScope.runBlockingTest {
         pauseDispatcher {
-            val pageSource = pagedSourceFactory()
+            val pageSource = pagingSourceFactory()
             val pager = Pager(50, pageSource, config)
 
             val pageEvents = ArrayList<PageEvent<Int>>()
@@ -674,7 +674,7 @@ class PagerTest {
     @Test
     fun retryRefreshWithBufferedHint() = testScope.runBlockingTest {
         pauseDispatcher {
-            val pageSource = pagedSourceFactory()
+            val pageSource = pagingSourceFactory()
             val pager = Pager(50, pageSource, config)
 
             val pageEvents = ArrayList<PageEvent<Int>>()

@@ -17,7 +17,7 @@
 package androidx.paging
 
 import androidx.annotation.RestrictTo
-import androidx.paging.PagedSource.LoadResult.Page
+import androidx.paging.PagingSource.LoadResult.Page
 import java.util.AbstractList
 
 /**

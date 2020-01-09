@@ -97,8 +97,8 @@ class LivePagedListBuilderTest {
     }
 
     class MockDataSourceFactory {
-        fun create(): PagedSource<Int, String> {
-            return MockPagedSource()
+        fun create(): PagingSource<Int, String> {
+            return MockPagingSource()
         }
 
         var throwable: Throwable? = null
@@ -107,7 +107,7 @@ class LivePagedListBuilderTest {
             throwable = EXCEPTION
         }
 
-        private inner class MockPagedSource : PagedSource<Int, String>() {
+        private inner class MockPagingSource : PagingSource<Int, String>() {
             override suspend fun load(params: LoadParams<Int>) = when (params.loadType) {
                 REFRESH -> loadInitial(params)
                 else -> loadRange()

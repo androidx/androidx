@@ -16,9 +16,9 @@
 
 package androidx.paging
 
-import androidx.paging.PagedSource.LoadParams
-import androidx.paging.PagedSource.LoadResult
-import androidx.paging.PagedSource.LoadResult.Page.Companion.COUNT_UNDEFINED
+import androidx.paging.PagingSource.LoadParams
+import androidx.paging.PagingSource.LoadResult
+import androidx.paging.PagingSource.LoadResult.Page.Companion.COUNT_UNDEFINED
 import kotlinx.coroutines.runBlocking
 import org.junit.Assert.assertEquals
 import org.junit.Assert.assertTrue
@@ -28,17 +28,17 @@ import org.junit.runners.JUnit4
 import kotlin.test.assertFailsWith
 
 @RunWith(JUnit4::class)
-class PagedSourceTest {
+class PagingSourceTest {
 
     // ----- STANDARD -----
 
     private suspend fun loadInitial(
-        pagedSource: ItemDataSource,
+        pagingSource: ItemDataSource,
         key: Key?,
         initialLoadSize: Int,
         enablePlaceholders: Boolean
     ): LoadResult<Key, Item> {
-        return pagedSource.load(
+        return pagingSource.load(
             LoadParams(
                 LoadType.REFRESH,
                 key,
@@ -52,30 +52,30 @@ class PagedSourceTest {
     @Test
     fun loadInitial() {
         runBlocking {
-            val pagedSource = ItemDataSource()
+            val pagingSource = ItemDataSource()
             val key = ITEMS_BY_NAME_ID[49].key()
-            val result = loadInitial(pagedSource, key, 10, true) as LoadResult.Page
+            val result = loadInitial(pagingSource, key, 10, true) as LoadResult.Page
 
             assertEquals(45, result.itemsBefore)
             assertEquals(ITEMS_BY_NAME_ID.subList(45, 55), result.data)
             assertEquals(45, result.itemsAfter)
 
             // Verify error is propagated correctly.
-            pagedSource.enqueueError()
+            pagingSource.enqueueError()
             val errorParams = LoadParams(LoadType.REFRESH, key, 10, false, 10)
             assertFailsWith<CustomException> {
-                pagedSource.load(errorParams)
+                pagingSource.load(errorParams)
             }
         }
     }
 
     @Test
     fun loadInitial_keyMatchesSingleItem() = runBlocking {
-        val pagedSource = ItemDataSource(items = ITEMS_BY_NAME_ID.subList(0, 1))
+        val pagingSource = ItemDataSource(items = ITEMS_BY_NAME_ID.subList(0, 1))
 
         // this is tricky, since load after and load before with the passed key will fail
         val result =
-            loadInitial(pagedSource, ITEMS_BY_NAME_ID[0].key(), 20, true) as LoadResult.Page
+            loadInitial(pagingSource, ITEMS_BY_NAME_ID[0].key(), 20, true) as LoadResult.Page
 
         assertEquals(0, result.itemsBefore)
         assertEquals(ITEMS_BY_NAME_ID.subList(0, 1), result.data)
@@ -84,11 +84,11 @@ class PagedSourceTest {
 
     @Test
     fun loadInitial_keyMatchesLastItem() = runBlocking {
-        val pagedSource = ItemDataSource()
+        val pagingSource = ItemDataSource()
 
         // tricky, because load after key is empty, so another load before and load after required
         val key = ITEMS_BY_NAME_ID.last().key()
-        val result = loadInitial(pagedSource, key, 20, true) as LoadResult.Page
+        val result = loadInitial(pagingSource, key, 20, true) as LoadResult.Page
 
         assertEquals(90, result.itemsBefore)
         assertEquals(ITEMS_BY_NAME_ID.subList(90, 100), result.data)
@@ -242,7 +242,7 @@ class PagedSourceTest {
     internal class ItemDataSource(
         private val counted: Boolean = true,
         private val items: List<Item> = ITEMS_BY_NAME_ID
-    ) : PagedSource<Key, Item>() {
+    ) : PagingSource<Key, Item>() {
         fun Item.key() = Key(name, id)
 
         private fun List<Item>.asPage(

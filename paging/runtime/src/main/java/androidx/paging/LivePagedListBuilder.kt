@@ -37,7 +37,7 @@ import java.util.concurrent.Executor
  * @see toLiveData
  */
 class LivePagedListBuilder<Key : Any, Value : Any> {
-    private val pagedSourceFactory: () -> PagedSource<Key, Value>
+    private val pagingSourceFactory: () -> PagingSource<Key, Value>
     private val config: PagedList.Config
     private var coroutineScope: CoroutineScope = GlobalScope
     private var initialLoadKey: Key? = null
@@ -50,9 +50,9 @@ class LivePagedListBuilder<Key : Any, Value : Any> {
      * @param dataSourceFactory [DataSource] factory providing DataSource generations.
      * @param config Paging configuration.
      */
-    @Deprecated("DataSource is deprecated and has been replaced by PagedSource")
+    @Deprecated("DataSource is deprecated and has been replaced by PagingSource")
     constructor(dataSourceFactory: DataSource.Factory<Key, Value>, config: PagedList.Config) {
-        this.pagedSourceFactory = dataSourceFactory.asPagedSourceFactory()
+        this.pagingSourceFactory = dataSourceFactory.asPagingSourceFactory()
         this.config = config
     }
 
@@ -69,7 +69,7 @@ class LivePagedListBuilder<Key : Any, Value : Any> {
      * @param pageSize Size of pages to load.
      */
     @Suppress("DEPRECATION")
-    @Deprecated("DataSource is deprecated and has been replaced by PagedSource")
+    @Deprecated("DataSource is deprecated and has been replaced by PagingSource")
     constructor(dataSourceFactory: DataSource.Factory<Key, Value>, pageSize: Int) : this(
         dataSourceFactory,
         PagedList.Config.Builder().setPageSize(pageSize).build()
@@ -78,19 +78,19 @@ class LivePagedListBuilder<Key : Any, Value : Any> {
     /**
      * Creates a [LivePagedListBuilder] with required parameters.
      *
-     * @param pagedSourceFactory [PagedSource] factory providing [PagedSource] generations.
+     * @param pagingSourceFactory [PagingSource] factory providing [PagingSource] generations.
      *
-     * The returned [PagedSource] should invalidate itself if the snapshot is no longer valid. If a
-     * [PagedSource] becomes invalid, the only way to query more data is to create a new
-     * [PagedSource] by invoking the supplied [pagedSourceFactory].
+     * The returned [PagingSource] should invalidate itself if the snapshot is no longer valid. If a
+     * [PagingSource] becomes invalid, the only way to query more data is to create a new
+     * [PagingSource] by invoking the supplied [pagingSourceFactory].
      *
-     * [pagedSourceFactory] will invoked to construct a new [PagedList] and [PagedSource] when the
-     * current [PagedSource] is invalidated, and pass the new [PagedList] through the
+     * [pagingSourceFactory] will invoked to construct a new [PagedList] and [PagingSource] when the
+     * current [PagingSource] is invalidated, and pass the new [PagedList] through the
      * `LiveData<PagedList>` to observers.
      * @param config Paging configuration.
      */
-    constructor(pagedSourceFactory: () -> PagedSource<Key, Value>, config: PagedList.Config) {
-        this.pagedSourceFactory = pagedSourceFactory
+    constructor(pagingSourceFactory: () -> PagingSource<Key, Value>, config: PagedList.Config) {
+        this.pagingSourceFactory = pagingSourceFactory
         this.config = config
     }
 
@@ -99,29 +99,29 @@ class LivePagedListBuilder<Key : Any, Value : Any> {
      *
      * This method is a convenience for:
      * ```
-     * LivePagedListBuilder(pagedSourceFactory,
+     * LivePagedListBuilder(pagingSourceFactory,
      *         new PagedList.Config.Builder().setPageSize(pageSize).build())
      * ```
      *
-     * @param pagedSourceFactory [PagedSource] factory providing [PagedSource] generations.
+     * @param pagingSourceFactory [PagingSource] factory providing [PagingSource] generations.
      *
-     * The returned [PagedSource] should invalidate itself if the snapshot is no longer valid. If a
-     * [PagedSource] becomes invalid, the only way to query more data is to create a new
-     * [PagedSource] by invoking the supplied [pagedSourceFactory].
+     * The returned [PagingSource] should invalidate itself if the snapshot is no longer valid. If a
+     * [PagingSource] becomes invalid, the only way to query more data is to create a new
+     * [PagingSource] by invoking the supplied [pagingSourceFactory].
      *
-     * [pagedSourceFactory] will invoked to construct a new [PagedList] and [PagedSource] when the
-     * current [PagedSource] is invalidated, and pass the new [PagedList] through the
+     * [pagingSourceFactory] will invoked to construct a new [PagedList] and [PagingSource] when the
+     * current [PagingSource] is invalidated, and pass the new [PagedList] through the
      * `LiveData<PagedList>` to observers.
      * @param pageSize Size of pages to load.
      */
-    constructor(pagedSourceFactory: () -> PagedSource<Key, Value>, pageSize: Int) : this(
-        pagedSourceFactory,
+    constructor(pagingSourceFactory: () -> PagingSource<Key, Value>, pageSize: Int) : this(
+        pagingSourceFactory,
         PagedList.Config.Builder().setPageSize(pageSize).build()
     )
 
     /**
      * Set the [CoroutineScope] that page loads should be launched within. The set [coroutineScope]
-     * allows a [PagedSource] to cancel running load operations when the results are no longer
+     * allows a [PagingSource] to cancel running load operations when the results are no longer
      * needed - for example, when the containing activity is destroyed.
      *
      * Defaults to [GlobalScope].
@@ -153,7 +153,7 @@ class LivePagedListBuilder<Key : Any, Value : Any> {
      *
      * Pass a [PagedList.BoundaryCallback] to listen to when the PagedList runs out of data to load.
      * If this method is not called, or `null` is passed, you will not be notified when each
-     * [PagedSource] runs out of data to provide to its [PagedList].
+     * [PagingSource] runs out of data to provide to its [PagedList].
      *
      * If you are paging from a DataSource.Factory backed by local storage, you can set a
      * BoundaryCallback to know when there is no more information to page from local storage.
@@ -178,7 +178,7 @@ class LivePagedListBuilder<Key : Any, Value : Any> {
      *
      * If not set, defaults to [Dispatchers.IO].
      *
-     * @param fetchExecutor [Executor] for fetching data from [PagedSource]s.
+     * @param fetchExecutor [Executor] for fetching data from [PagingSource]s.
      * @return this
      */
     fun setFetchExecutor(fetchExecutor: Executor) = this.apply {
@@ -199,7 +199,7 @@ class LivePagedListBuilder<Key : Any, Value : Any> {
             initialLoadKey,
             config,
             boundaryCallback,
-            pagedSourceFactory,
+            pagingSourceFactory,
             Dispatchers.Main.immediate,
             fetchDispatcher
         )

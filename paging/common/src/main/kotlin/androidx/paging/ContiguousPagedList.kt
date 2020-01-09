@@ -24,7 +24,7 @@ import androidx.paging.LoadState.Loading
 import androidx.paging.LoadType.END
 import androidx.paging.LoadType.REFRESH
 import androidx.paging.LoadType.START
-import androidx.paging.PagedSource.LoadResult.Page.Companion.COUNT_UNDEFINED
+import androidx.paging.PagingSource.LoadResult.Page.Companion.COUNT_UNDEFINED
 import kotlinx.coroutines.CoroutineDispatcher
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.launch
@@ -34,16 +34,16 @@ import kotlinx.coroutines.launch
  */
 @RestrictTo(RestrictTo.Scope.LIBRARY)
 open class ContiguousPagedList<K : Any, V : Any>(
-    final override val pagedSource: PagedSource<K, V>,
+    final override val pagingSource: PagingSource<K, V>,
     internal val coroutineScope: CoroutineScope,
     internal val notifyDispatcher: CoroutineDispatcher,
     backgroundDispatcher: CoroutineDispatcher,
     internal val boundaryCallback: BoundaryCallback<V>?,
     config: Config,
-    initialPage: PagedSource.LoadResult.Page<K, V>,
+    initialPage: PagingSource.LoadResult.Page<K, V>,
     private val initialLastKey: K?
 ) : PagedList<V>(
-    pagedSource,
+    pagingSource,
     PagedStorage<V>(),
     config
 ), PagedStorage.Callback, LegacyPager.PageConsumer<V> {
@@ -82,7 +82,7 @@ open class ContiguousPagedList<K : Any, V : Any>(
     private val pager = LegacyPager(
         coroutineScope,
         config,
-        pagedSource,
+        pagingSource,
         notifyDispatcher,
         backgroundDispatcher,
         this,
@@ -93,9 +93,9 @@ open class ContiguousPagedList<K : Any, V : Any>(
     override val lastKey: K?
         get() {
             return storage.getLastPageAndIndex()?.run {
-                pagedSource.getRefreshKeyFromPage(
+                pagingSource.getRefreshKeyFromPage(
                     second,
-                    first as PagedSource.LoadResult.Page<K, V>
+                    first as PagingSource.LoadResult.Page<K, V>
                 )
             }
         }
@@ -108,7 +108,7 @@ open class ContiguousPagedList<K : Any, V : Any>(
      */
     override fun onPageResult(
         type: LoadType,
-        page: PagedSource.LoadResult.Page<*, V>
+        page: PagingSource.LoadResult.Page<*, V>
     ): Boolean {
         var continueLoading = false
         val list = page.data
@@ -151,7 +151,7 @@ open class ContiguousPagedList<K : Any, V : Any>(
 
         if (shouldTrim) {
             // Try and trim, but only if the side being trimmed isn't actually fetching.
-            // For simplicity (both of impl here, and contract w/ PagedSource) we don't
+            // For simplicity (both of impl here, and contract w/ PagingSource) we don't
             // allow fetches in same direction - this means reading the load state is safe.
             if (trimFromFront) {
                 if (pager.loadStateManager.startState !is Loading) {
@@ -308,7 +308,7 @@ open class ContiguousPagedList<K : Any, V : Any>(
                         initialPage.itemsAfter != COUNT_UNDEFINED
             )
         } else {
-            // If placeholder are disabled, avoid passing leading/trailing nulls, since PagedSource
+            // If placeholder are disabled, avoid passing leading/trailing nulls, since PagingSource
             // may have passed them anyway.
             storage.init(
                 0,
@@ -373,7 +373,7 @@ open class ContiguousPagedList<K : Any, V : Any>(
         // Simple heuristic to decide if, when dropping pages, we should replace with placeholders.
         // If we're not presenting placeholders at initialization time, we won't add them when
         // we drop a page. Note that we don't use config.enablePlaceholders, since the
-        // PagedSource may have opted not to load any.
+        // PagingSource may have opted not to load any.
         replacePagesWithNulls = storage.placeholdersStart > 0 || storage.placeholdersEnd > 0
     }
 
