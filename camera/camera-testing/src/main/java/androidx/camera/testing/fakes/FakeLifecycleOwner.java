@@ -40,8 +40,8 @@ public final class FakeLifecycleOwner implements LifecycleOwner {
      */
     public FakeLifecycleOwner() {
         mLifecycleRegistry = new LifecycleRegistry(this);
-        mLifecycleRegistry.markState(Lifecycle.State.INITIALIZED);
-        mLifecycleRegistry.markState(Lifecycle.State.CREATED);
+        mLifecycleRegistry.setCurrentState(Lifecycle.State.INITIALIZED);
+        mLifecycleRegistry.setCurrentState(Lifecycle.State.CREATED);
     }
 
     /**
