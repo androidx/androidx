@@ -19,6 +19,7 @@ package androidx.recyclerview.widget;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertNotNull;
+import static org.junit.Assert.assertNull;
 import static org.junit.Assert.assertTrue;
 
 import android.os.Build;
@@ -27,6 +28,7 @@ import android.view.accessibility.AccessibilityEvent;
 
 import androidx.core.view.AccessibilityDelegateCompat;
 import androidx.core.view.accessibility.AccessibilityNodeInfoCompat;
+import androidx.test.filters.SdkSuppress;
 import androidx.test.filters.SmallTest;
 
 import org.junit.Test;
@@ -152,17 +154,7 @@ public class RecyclerViewAccessibilityTest extends BaseRecyclerViewInstrumentati
                 (info.getActions() & AccessibilityNodeInfoCompat.ACTION_SCROLL_BACKWARD) != 0);
         assertEquals(mHorizontalScrollAfter || mVerticalScrollAfter,
                 (info.getActions() & AccessibilityNodeInfoCompat.ACTION_SCROLL_FORWARD) != 0);
-        if (SUPPORTS_COLLECTION_INFO) {
-            final AccessibilityNodeInfoCompat.CollectionInfoCompat collectionInfo = info
-                    .getCollectionInfo();
-            assertNotNull(collectionInfo);
-            if (recyclerView.getLayoutManager().canScrollVertically()) {
-                assertEquals(adapter.getItemCount(), collectionInfo.getRowCount());
-            }
-            if (recyclerView.getLayoutManager().canScrollHorizontally()) {
-                assertEquals(adapter.getItemCount(), collectionInfo.getColumnCount());
-            }
-        }
+        assertEmptyCollectionInfo(info);
 
         final AccessibilityEvent event = AccessibilityEvent.obtain();
         mActivityRule.runOnUiThread(new Runnable() {
@@ -187,20 +179,7 @@ public class RecyclerViewAccessibilityTest extends BaseRecyclerViewInstrumentati
                                 onInitializeAccessibilityNodeInfo(view, childInfo);
                     }
                 });
-                final AccessibilityNodeInfoCompat.CollectionItemInfoCompat collectionItemInfo
-                        = childInfo.getCollectionItemInfo();
-                assertNotNull(collectionItemInfo);
-                if (recyclerView.getLayoutManager().canScrollHorizontally()) {
-                    assertEquals(i, collectionItemInfo.getColumnIndex());
-                } else {
-                    assertEquals(0, collectionItemInfo.getColumnIndex());
-                }
-
-                if (recyclerView.getLayoutManager().canScrollVertically()) {
-                    assertEquals(i, collectionItemInfo.getRowIndex());
-                } else {
-                    assertEquals(0, collectionItemInfo.getRowIndex());
-                }
+                assertNull(childInfo.getCollectionItemInfo());
             }
         }
 
@@ -231,6 +210,89 @@ public class RecyclerViewAccessibilityTest extends BaseRecyclerViewInstrumentati
         assertEquals(false, vScrolledBack.get());
         assertEquals(mHorizontalScrollAfter, hScrolledFwd.get());
         assertEquals(mVerticalScrollAfter, vScrolledFwd.get());
+    }
+
+    private void assertEmptyCollectionInfo(AccessibilityNodeInfoCompat info) {
+        if (SUPPORTS_COLLECTION_INFO) {
+            final AccessibilityNodeInfoCompat.CollectionInfoCompat collectionInfo = info
+                    .getCollectionInfo();
+            assertNotNull(collectionInfo);
+            assertEquals(-1, collectionInfo.getRowCount());
+            assertEquals(-1, collectionInfo.getColumnCount());
+        }
+    }
+
+    @Test
+    @SdkSuppress(minSdkVersion = 19)
+    public void onInitializeAccessibilityNodeInfoTestWithCollectionInfo() throws Throwable {
+        final RecyclerView recyclerView = new RecyclerView(getActivity());
+        final TestAdapter adapter = new TestAdapter(10);
+        recyclerView.setAdapter(adapter);
+        recyclerView.setLayoutManager(new TestLayoutManager() {
+
+            @Override
+            public void onLayoutChildren(RecyclerView.Recycler recycler, RecyclerView.State state) {
+                layoutRange(recycler, 0, 5);
+            }
+
+            @Override
+            public RecyclerView.LayoutParams generateDefaultLayoutParams() {
+                return new RecyclerView.LayoutParams(-1, -1);
+            }
+
+            @Override
+            public int getRowCountForAccessibility(
+                    RecyclerView.Recycler recycler, RecyclerView.State state) {
+                return 10;
+            }
+
+            @Override
+            public int getColumnCountForAccessibility(
+                    RecyclerView.Recycler recycler, RecyclerView.State state) {
+                return 1;
+            }
+
+            @Override
+            public void onInitializeAccessibilityNodeInfoForItem(RecyclerView.Recycler recycler,
+                    RecyclerView.State state, View host, AccessibilityNodeInfoCompat info) {
+                RecyclerView.LayoutParams lp = (RecyclerView.LayoutParams) host.getLayoutParams();
+                int position = lp.getViewAdapterPosition();
+                info.setCollectionItemInfo(
+                        AccessibilityNodeInfoCompat.CollectionItemInfoCompat.obtain(
+                                position, 0, 0, 0, false, false));
+
+            }
+        });
+        setRecyclerView(recyclerView);
+        final RecyclerViewAccessibilityDelegate delegateCompat = recyclerView
+                .getCompatAccessibilityDelegate();
+        final AccessibilityNodeInfoCompat info = AccessibilityNodeInfoCompat.obtain();
+        mActivityRule.runOnUiThread(new Runnable() {
+            @Override
+            public void run() {
+                delegateCompat.onInitializeAccessibilityNodeInfo(recyclerView, info);
+            }
+        });
+        final AccessibilityNodeInfoCompat.CollectionInfoCompat collectionInfo = info
+                .getCollectionInfo();
+        assertNotNull(collectionInfo);
+        assertEquals(adapter.getItemCount(), collectionInfo.getRowCount());
+        for (int i = 0; i < mRecyclerView.getChildCount(); i++) {
+            final View view = mRecyclerView.getChildAt(i);
+            final AccessibilityNodeInfoCompat childInfo = AccessibilityNodeInfoCompat.obtain();
+            mActivityRule.runOnUiThread(new Runnable() {
+                @Override
+                public void run() {
+                    delegateCompat.getItemDelegate().onInitializeAccessibilityNodeInfo(
+                            view, childInfo);
+                }
+            });
+            final AccessibilityNodeInfoCompat.CollectionItemInfoCompat collectionItemInfo =
+                    childInfo.getCollectionItemInfo();
+            assertNotNull(collectionItemInfo);
+            assertEquals(0, collectionItemInfo.getColumnIndex());
+            assertEquals(i, collectionItemInfo.getRowIndex());
+        }
     }
 
     @Test

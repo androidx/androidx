@@ -745,8 +745,8 @@ public class AccessibilityNodeInfoCompat {
         /**
          * Returns a cached instance if such is available otherwise a new one.
          *
-         * @param rowCount The number of rows.
-         * @param columnCount The number of columns.
+         * @param rowCount The number of rows, or -1 if count is unknown.
+         * @param columnCount The number of columns , or -1 if count is unknown.
          * @param hierarchical Whether the collection is hierarchical.
          *
          * @return An instance.
@@ -768,26 +768,26 @@ public class AccessibilityNodeInfoCompat {
         /**
          * Gets the number of columns.
          *
-         * @return The column count.
+         * @return The column count, or -1 if count is unknown.
          */
         public int getColumnCount() {
             if (Build.VERSION.SDK_INT >= 19) {
                 return ((AccessibilityNodeInfo.CollectionInfo) mInfo).getColumnCount();
             } else {
-                return 0;
+                return -1;
             }
         }
 
         /**
          * Gets the number of rows.
          *
-         * @return The row count.
+         * @return The row count, or -1 if count is unknown.
          */
         public int getRowCount() {
             if (Build.VERSION.SDK_INT >= 19) {
                 return ((AccessibilityNodeInfo.CollectionInfo) mInfo).getRowCount();
             } else {
-                return 0;
+                return -1;
             }
         }
 
