@@ -26,9 +26,8 @@ import androidx.ui.graphics.Color
 import androidx.ui.layout.Center
 import androidx.ui.layout.Column
 import androidx.ui.layout.Container
-import androidx.ui.layout.LayoutExpandedHeight
-import androidx.ui.layout.LayoutExpandedWidth
 import androidx.ui.layout.LayoutHeight
+import androidx.ui.layout.LayoutWidth
 import androidx.ui.layout.Spacer
 import androidx.ui.layout.Row
 import androidx.ui.material.BottomDrawerLayout
@@ -40,7 +39,7 @@ import androidx.ui.material.StaticDrawer
 @Sampled
 @Composable
 fun StaticDrawerSample() {
-    Row(LayoutExpandedWidth) {
+    Row(LayoutWidth.Fill) {
         StaticDrawer {
             Center {
                 Text("Drawer Content")
@@ -82,7 +81,7 @@ fun BottomDrawerSample() {
 @Composable
 private fun YourDrawerContent(onStateChange: (DrawerState) -> Unit) {
     Container(expanded = true) {
-        Column(LayoutExpandedHeight) {
+        Column(LayoutHeight.Fill) {
             Text(text = "Drawer Content")
             Spacer(LayoutHeight(20.dp))
             Button(
@@ -95,7 +94,7 @@ private fun YourDrawerContent(onStateChange: (DrawerState) -> Unit) {
 @Composable
 private fun YourAppContent(text: String, onDrawerStateChange: (DrawerState) -> Unit) {
     Center {
-        Column(LayoutExpandedHeight) {
+        Column(LayoutHeight.Fill) {
             Text(text = text)
             Spacer(LayoutHeight(20.dp))
             Button(

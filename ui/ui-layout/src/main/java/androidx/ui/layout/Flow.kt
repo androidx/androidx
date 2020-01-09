@@ -47,7 +47,7 @@ import androidx.ui.core.max
  */
 @Composable
 fun FlowRow(
-    mainAxisSize: LayoutSize = LayoutSize.Wrap,
+    mainAxisSize: SizeMode = SizeMode.Wrap,
     mainAxisAlignment: FlowMainAxisAlignment = FlowMainAxisAlignment.Start,
     mainAxisSpacing: Dp = 0.dp,
     crossAxisAlignment: FlowCrossAxisAlignment = FlowCrossAxisAlignment.Start,
@@ -86,7 +86,7 @@ fun FlowRow(
  */
 @Composable
 fun FlowColumn(
-    mainAxisSize: LayoutSize = LayoutSize.Wrap,
+    mainAxisSize: SizeMode = SizeMode.Wrap,
     mainAxisAlignment: FlowMainAxisAlignment = FlowMainAxisAlignment.Start,
     mainAxisSpacing: Dp = 0.dp,
     crossAxisAlignment: FlowCrossAxisAlignment = FlowCrossAxisAlignment.Start,
@@ -132,7 +132,7 @@ typealias FlowMainAxisAlignment = MainAxisAlignment
 @Composable
 private fun Flow(
     orientation: LayoutOrientation,
-    mainAxisSize: LayoutSize,
+    mainAxisSize: SizeMode,
     mainAxisAlignment: FlowMainAxisAlignment,
     mainAxisSpacing: Dp,
     crossAxisAlignment: FlowCrossAxisAlignment,
@@ -206,7 +206,7 @@ private fun Flow(
         if (currentSequence.isNotEmpty()) startNewSequence()
 
         val mainAxisLayoutSize = if (constraints.mainAxisMax.isFinite() &&
-            mainAxisSize == LayoutSize.Expand
+            mainAxisSize == SizeMode.Expand
         ) {
             constraints.mainAxisMax
         } else {

@@ -29,9 +29,9 @@ import androidx.ui.material.MaterialTheme
 import androidx.compose.Composable
 import androidx.compose.state
 import androidx.ui.layout.Arrangement
-import androidx.ui.layout.LayoutExpandedHeight
-import androidx.ui.layout.LayoutExpandedWidth
 import androidx.ui.layout.LayoutGravity
+import androidx.ui.layout.LayoutHeight
+import androidx.ui.layout.LayoutWidth
 
 /** A [SemanticProperty] is used to store semantic information about a component.
  *
@@ -164,7 +164,7 @@ fun Semantics(
     actions: Set<SemanticAction<out Any?>> = setOf(),
     children: @Composable() () -> Unit
 ) {
-    Column(LayoutExpandedHeight) {
+    Column(LayoutHeight.Fill) {
         MaterialTheme {
             Collapsable {
                 InvokeActionsByType(actions)
@@ -173,7 +173,7 @@ fun Semantics(
                 InvokeActionsByParameters(actions)
             }
         }
-        Row(LayoutExpandedWidth, arrangement = Arrangement.Center) {
+        Row(LayoutWidth.Fill, arrangement = Arrangement.Center) {
             Container(
                 height = 300.dp,
                 width = 500.dp,
@@ -193,7 +193,7 @@ private fun InvokeActionsByType(actions: Set<SemanticAction<out Any?>> = setOf()
     val secondary =
         actions.firstOrNull { it.types.contains(AccessibilityAction.Secondary) }
     Text(text = "Accessibility Actions By Type", style = MaterialTheme.typography().h6)
-    Row(LayoutExpandedWidth, arrangement = Arrangement.SpaceEvenly) {
+    Row(LayoutWidth.Fill, arrangement = Arrangement.SpaceEvenly) {
         Button(
             text = "Primary",
             onClick = { primary?.invoke(ActionCaller.Accessibility) })
@@ -211,7 +211,7 @@ private fun InvokeActionsByPhrase(actions: Set<SemanticAction<out Any?>> = setOf
     Text(
         text = "Accessibility Actions By Phrase",
         style = MaterialTheme.typography().h6)
-    Row(LayoutExpandedWidth, arrangement = Arrangement.SpaceEvenly) {
+    Row(LayoutWidth.Fill, arrangement = Arrangement.SpaceEvenly) {
         actions.forEach {
             Button(
                 text = it.phrase,
@@ -228,7 +228,7 @@ private fun InvokeActionsByAssistantAction(actions: Set<SemanticAction<out Any?>
     val positive = actions.firstOrNull { it.types.contains(PolarityAction.Positive) }
     val negative = actions.firstOrNull { it.types.contains(PolarityAction.Negative) }
     Text(text = "Assistant Actions", style = MaterialTheme.typography().h6)
-    Row(LayoutExpandedWidth, arrangement = Arrangement.SpaceEvenly) {
+    Row(LayoutWidth.Fill, arrangement = Arrangement.SpaceEvenly) {
         Button(
             text = "Negative",
             onClick = { negative?.invoke(ActionCaller.Assistant) })
@@ -252,7 +252,7 @@ private fun InvokeActionsByParameters(actions: Set<SemanticAction<out Any?>> = s
     val unitAction =
         actions.firstOrNull { it.defaultParam is Unit } as SemanticAction<Unit>?
     Text(text = "Actions using Parameters", style = MaterialTheme.typography().h6)
-    Row(LayoutExpandedWidth, arrangement = Arrangement.SpaceEvenly) {
+    Row(LayoutWidth.Fill, arrangement = Arrangement.SpaceEvenly) {
         Button(
             text = "IntAction",
             onClick = { pxPositionAction?.invoke(param = PxPosition(1.px, 1.px)) })
@@ -276,7 +276,7 @@ private fun Collapsable(children: @Composable() () -> Unit) {
 
     val collapsedState = state { CollapseMode.Collapsed }
 
-    Row(LayoutExpandedWidth, arrangement = Arrangement.SpaceEvenly) {
+    Row(LayoutWidth.Fill, arrangement = Arrangement.SpaceEvenly) {
         Button(text = "Show/Hide Actions", onClick = {
             collapsedState.value = when (collapsedState.value) {
                 CollapseMode.Collapsed -> CollapseMode.Visible

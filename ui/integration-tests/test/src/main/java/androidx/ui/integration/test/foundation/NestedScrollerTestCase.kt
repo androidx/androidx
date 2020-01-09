@@ -28,13 +28,13 @@ import androidx.ui.foundation.HorizontalScroller
 import androidx.ui.layout.Row
 import androidx.ui.foundation.ScrollerPosition
 import androidx.ui.foundation.VerticalScroller
-import androidx.ui.layout.LayoutExpandedHeight
-import androidx.ui.layout.LayoutExpandedWidth
 import androidx.ui.layout.LayoutGravity
 import androidx.ui.material.MaterialTheme
 import androidx.ui.material.surface.Surface
 import androidx.ui.test.ComposeTestCase
 import androidx.ui.integration.test.ToggleableTestCase
+import androidx.ui.layout.LayoutHeight
+import androidx.ui.layout.LayoutWidth
 import androidx.ui.text.TextStyle
 import kotlin.random.Random
 
@@ -67,10 +67,10 @@ class NestedScrollerTestCase : ComposeTestCase, ToggleableTestCase {
     fun SquareRow(useScrollerPosition: Boolean) {
         val playStoreColor = Color(red = 0x00, green = 0x00, blue = 0x80)
         val content = @Composable {
-            Row(LayoutExpandedWidth) {
+            Row(LayoutWidth.Fill) {
                 repeat(6) {
                     WithDensity {
-                        Column(LayoutExpandedHeight) {
+                        Column(LayoutHeight.Fill) {
                             val color = remember {
                                 val red = Random.nextInt(256)
                                 val green = Random.nextInt(256)
@@ -86,7 +86,7 @@ class NestedScrollerTestCase : ComposeTestCase, ToggleableTestCase {
                                 text = "Some title",
                                 style = TextStyle(Color.Black, 60.px.toSp())
                             )
-                            Row(LayoutExpandedWidth) {
+                            Row(LayoutWidth.Fill) {
                                 Text(
                                     "3.5 ★",
                                     style = TextStyle(fontSize = 40.px.toSp()),

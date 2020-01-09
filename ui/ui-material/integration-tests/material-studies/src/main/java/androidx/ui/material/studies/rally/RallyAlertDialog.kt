@@ -22,8 +22,8 @@ import androidx.ui.core.dp
 import androidx.ui.foundation.shape.RectangleShape
 import androidx.ui.layout.Column
 import androidx.ui.layout.EdgeInsets
-import androidx.ui.layout.LayoutExpandedWidth
 import androidx.ui.layout.LayoutPadding
+import androidx.ui.layout.LayoutWidth
 import androidx.ui.material.AlertDialog
 import androidx.ui.material.Button
 import androidx.ui.material.Divider
@@ -51,7 +51,7 @@ fun RallyAlertDialog(
                         text = buttonText,
                         onClick = onDismiss,
                         style = style,
-                        modifier = LayoutExpandedWidth
+                        modifier = LayoutWidth.Fill
                     )
                 }
             }

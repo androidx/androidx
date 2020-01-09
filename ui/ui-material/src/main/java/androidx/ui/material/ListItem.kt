@@ -38,7 +38,7 @@ import androidx.ui.layout.Container
 import androidx.ui.layout.DpConstraints
 import androidx.ui.layout.EdgeInsets
 import androidx.ui.layout.LayoutGravity
-import androidx.ui.layout.LayoutMinHeight
+import androidx.ui.layout.LayoutHeight
 import androidx.ui.layout.LayoutPadding
 import androidx.ui.layout.Padding
 import androidx.ui.layout.Row
@@ -195,7 +195,7 @@ private object OneLine {
         trailing: @Composable() (() -> Unit)?
     ) {
         val minHeight = if (icon == null) MinHeight else MinHeightWithIcon
-        Row(LayoutMinHeight(minHeight)) {
+        Row(LayoutHeight.Min(minHeight)) {
             if (icon != null) {
                 Container(
                     modifier = LayoutGravity.Center,
@@ -259,7 +259,7 @@ private object TwoLine {
         trailing: @Composable() (() -> Unit)?
     ) {
         val minHeight = if (icon == null) MinHeight else MinHeightWithIcon
-        Row(LayoutMinHeight(minHeight)) {
+        Row(LayoutHeight.Min(minHeight)) {
             val modifier = LayoutFlexible(1f) + LayoutPadding(
                 left = ContentLeftPadding,
                 right = ContentRightPadding
@@ -320,7 +320,7 @@ private object TwoLine {
                 ) {
                     Container(
                         // TODO(popam): find way to center and wrap content without minHeight
-                        LayoutMinHeight(minHeight) + LayoutPadding(right = TrailingRightPadding),
+                        LayoutHeight.Min(minHeight) + LayoutPadding(right = TrailingRightPadding),
                         children = trailing
                     )
                 }
@@ -354,7 +354,7 @@ private object ThreeLine {
         overlineText: @Composable() (() -> Unit)?,
         trailing: @Composable() (() -> Unit)?
     ) {
-        Row(LayoutMinHeight(MinHeight)) {
+        Row(LayoutHeight.Min(MinHeight)) {
             if (icon != null) {
                 Container(
                     alignment = Alignment.CenterLeft,

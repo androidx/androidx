@@ -35,10 +35,10 @@ import androidx.ui.graphics.lerp
 import androidx.ui.graphics.toArgb
 import androidx.ui.layout.Column
 import androidx.ui.layout.Container
-import androidx.ui.layout.LayoutExpanded
-import androidx.ui.layout.LayoutExpandedWidth
 import androidx.ui.layout.LayoutGravity
 import androidx.ui.layout.LayoutHeight
+import androidx.ui.layout.LayoutSize
+import androidx.ui.layout.LayoutWidth
 import androidx.ui.layout.Spacer
 import androidx.ui.layout.Padding
 import androidx.ui.layout.Stack
@@ -91,7 +91,7 @@ private class ScrollFraction(var fraction: Float = 0f)
 private fun DynamicThemeApp(scrollFraction: ScrollFraction, palette: ColorPalette) {
     MaterialTheme(palette) {
         Stack {
-            Column(LayoutExpanded) {
+            Column(LayoutSize.Fill) {
                 TopBar()
                 val background = MaterialTheme.colors().background
                 Surface(color = background, modifier = LayoutFlexible(1f)) {
@@ -141,7 +141,7 @@ private fun Cards() {
             val shapeColor = lerp(Color(0xFF303030), Color.White, index / 19f)
             val textColor = lerp(Color.White, Color(0xFF303030), index / 19f)
             Padding(25.dp) {
-                Container(LayoutExpandedWidth, height = 150.dp) {
+                Container(LayoutWidth.Fill, height = 150.dp) {
                     // TODO: ideally this would be a Card but currently Surface consumes every
                     // colour from the Material theme to work out text colour, so we end up doing a
                     // large amount of work here when the top level theme changes

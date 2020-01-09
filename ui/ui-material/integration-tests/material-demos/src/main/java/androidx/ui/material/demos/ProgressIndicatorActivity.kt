@@ -23,9 +23,9 @@ import androidx.compose.onActive
 import androidx.compose.onDispose
 import androidx.ui.graphics.Color
 import androidx.ui.layout.Arrangement
-import androidx.ui.layout.LayoutExpandedWidth
 import androidx.ui.layout.Column
 import androidx.ui.layout.LayoutGravity
+import androidx.ui.layout.LayoutWidth
 import androidx.ui.layout.Row
 import androidx.ui.material.CircularProgressIndicator
 import androidx.ui.material.LinearProgressIndicator
@@ -85,7 +85,7 @@ private fun ProgressIndicatorDemo(state: ProgressState = ProgressState()) {
     onDispose { state.stop() }
 
     Column {
-        val modifier = LayoutFlexible(1f) + LayoutGravity.Center + LayoutExpandedWidth
+        val modifier = LayoutFlexible(1f) + LayoutGravity.Center + LayoutWidth.Fill
         Row(modifier = modifier, arrangement = Arrangement.SpaceEvenly) {
             // Determinate indicators
             LinearProgressIndicator(progress = state.progress)
