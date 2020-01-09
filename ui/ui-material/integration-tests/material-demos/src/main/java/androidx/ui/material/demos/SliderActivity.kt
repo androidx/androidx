@@ -17,12 +17,12 @@
 package androidx.ui.material.demos
 
 import androidx.compose.Composable
-import androidx.ui.core.dp
 import androidx.ui.layout.Column
 import androidx.ui.layout.EdgeInsets
 import androidx.ui.layout.Padding
 import androidx.ui.material.samples.SliderSample
 import androidx.ui.material.samples.StepsSliderSample
+import androidx.ui.unit.dp
 
 class SliderActivity : MaterialDemoActivity() {
     @Composable

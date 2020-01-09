@@ -15,6 +15,8 @@
  */
 package androidx.ui.core
 
+import androidx.ui.unit.DensityScope
+
 /**
  * Receiver scope for [Draw] lambda that allows ordering the child drawing between
  * canvas operations. Most Draw calls don't accept children, but in some rare cases

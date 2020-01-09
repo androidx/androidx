@@ -17,8 +17,8 @@
 package androidx.ui.foundation.gestures
 
 import androidx.ui.core.Direction
-import androidx.ui.core.Px
-import androidx.ui.core.PxPosition
+import androidx.ui.unit.Px
+import androidx.ui.unit.PxPosition
 
 /**
  * Draggable Direction specifies the direction in which you can drag an [Draggable].

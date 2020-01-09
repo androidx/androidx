@@ -16,6 +16,12 @@
 
 package androidx.ui.core
 
+import androidx.ui.unit.IntPxSize
+import androidx.ui.unit.Px
+import androidx.ui.unit.PxPosition
+import androidx.ui.unit.Uptime
+import androidx.ui.unit.px
+
 /**
  * Describes a change that has occurred for a particular pointer, as well as how much of the change
  * has been consumed (meaning, used by a node in the UI)

@@ -22,16 +22,16 @@ import androidx.compose.Composable
 import androidx.ui.core.Draw
 import androidx.ui.core.LayoutTag
 import androidx.ui.core.Text
-import androidx.ui.core.dp
 import androidx.ui.core.setContent
-import androidx.ui.core.sp
-import androidx.ui.core.toRect
 import androidx.ui.graphics.Color
 import androidx.ui.graphics.Paint
 import androidx.ui.layout.constraintlayout.ConstraintLayout
 import androidx.ui.layout.constraintlayout.ConstraintSet
 import androidx.ui.layout.constraintlayout.ConstraintSetBuilderScope
 import androidx.ui.text.TextStyle
+import androidx.ui.unit.dp
+import androidx.ui.unit.sp
+import androidx.ui.unit.toRect
 
 /**
  * Simple ConstraintLayout demo

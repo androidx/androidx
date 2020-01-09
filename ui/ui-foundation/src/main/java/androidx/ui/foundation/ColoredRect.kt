@@ -18,11 +18,11 @@ package androidx.ui.foundation
 
 import androidx.compose.Composable
 import androidx.compose.remember
-import androidx.ui.core.Dp
 import androidx.ui.core.Modifier
 import androidx.ui.graphics.Brush
 import androidx.ui.graphics.Color
 import androidx.ui.layout.Container
+import androidx.ui.unit.Dp
 
 /**
  * Component that represents a rectangle painted with the specified [Brush].

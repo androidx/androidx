@@ -23,7 +23,7 @@ import androidx.compose.state
 import androidx.ui.benchmark.ComposeBenchmarkRule
 import androidx.ui.benchmark.benchmarkFirstCompose
 import androidx.ui.benchmark.toggleStateBenchmarkRecompose
-import androidx.ui.core.dp
+import androidx.ui.unit.dp
 import androidx.ui.layout.Column
 import androidx.ui.layout.Container
 import androidx.ui.test.ComposeTestCase

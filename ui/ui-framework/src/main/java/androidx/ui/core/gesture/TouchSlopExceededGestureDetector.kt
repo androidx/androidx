@@ -21,14 +21,14 @@ import androidx.compose.remember
 import androidx.ui.core.Direction
 import androidx.ui.core.PointerEventPass
 import androidx.ui.core.PointerInputChange
+import androidx.ui.core.PointerInputWrapper
+import androidx.ui.core.ambientDensity
 import androidx.ui.core.changedToDownIgnoreConsumed
 import androidx.ui.core.changedToUpIgnoreConsumed
 import androidx.ui.core.positionChange
-import androidx.ui.core.withDensity
-import androidx.ui.core.PointerInputWrapper
-import androidx.ui.core.IntPx
-import androidx.ui.core.ambientDensity
-import androidx.ui.core.IntPxSize
+import androidx.ui.unit.IntPx
+import androidx.ui.unit.IntPxSize
+import androidx.ui.unit.withDensity
 
 // TODO(shepshapard): Convert to functional component with effects once effects are ready.
 /**

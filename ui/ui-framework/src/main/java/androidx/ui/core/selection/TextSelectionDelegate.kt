@@ -18,14 +18,14 @@ package androidx.ui.core.selection
 
 import androidx.compose.MutableState
 import androidx.ui.core.LayoutCoordinates
-import androidx.ui.core.Px
-import androidx.ui.core.PxBounds
-import androidx.ui.core.PxPosition
-import androidx.ui.core.toPx
-import androidx.ui.core.toRect
-import androidx.ui.engine.geometry.Offset
+import androidx.ui.geometry.Offset
 import androidx.ui.text.TextLayoutResult
 import androidx.ui.text.TextRange
+import androidx.ui.unit.Px
+import androidx.ui.unit.PxBounds
+import androidx.ui.unit.PxPosition
+import androidx.ui.unit.toPx
+import androidx.ui.unit.toRect
 import kotlin.math.max
 
 internal class TextSelectionDelegate(

@@ -18,7 +18,6 @@ package androidx.ui.graphics.vector.compat
 
 import androidx.test.filters.SmallTest
 import androidx.test.platform.app.InstrumentationRegistry
-import androidx.ui.core.dp
 import androidx.ui.framework.test.R
 import androidx.ui.graphics.Color
 import androidx.ui.graphics.SolidColor
@@ -27,6 +26,7 @@ import androidx.ui.graphics.vector.VectorGroup
 import androidx.ui.graphics.vector.VectorNode
 import androidx.ui.graphics.vector.VectorPath
 import androidx.ui.res.loadVectorResource
+import androidx.ui.unit.dp
 import org.junit.Assert.assertEquals
 import org.junit.Assert.assertTrue
 import org.junit.Test

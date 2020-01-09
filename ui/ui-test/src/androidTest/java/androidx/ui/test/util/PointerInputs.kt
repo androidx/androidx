@@ -16,14 +16,14 @@
 
 package androidx.ui.test.util
 
-import androidx.ui.core.Duration
-import androidx.ui.core.IntPxSize
+import androidx.ui.unit.Duration
+import androidx.ui.unit.IntPxSize
 import androidx.ui.core.PointerEventPass
 import androidx.ui.core.PointerInputChange
 import androidx.ui.core.PointerInputData
-import androidx.ui.core.PxPosition
 import androidx.ui.core.gesture.util.VelocityTracker
 import androidx.ui.test.util.PointerInputRecorder.DataPoint
+import androidx.ui.unit.PxPosition
 import com.google.common.truth.Truth.assertThat
 
 class PointerInputRecorder {

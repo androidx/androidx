@@ -20,13 +20,10 @@ import androidx.compose.Composable
 import androidx.test.filters.MediumTest
 import androidx.ui.core.Alignment
 import androidx.ui.core.PointerInputWrapper
-import androidx.ui.core.PxPosition
 import androidx.ui.core.TestTag
 import androidx.ui.core.WithDensity
 import androidx.ui.core.gesture.LongPressGestureDetector
 import androidx.ui.core.gesture.LongPressTimeout
-import androidx.ui.core.milliseconds
-import androidx.ui.core.px
 import androidx.ui.foundation.shape.DrawShape
 import androidx.ui.foundation.shape.RectangleShape
 import androidx.ui.graphics.Color
@@ -38,6 +35,9 @@ import androidx.ui.test.util.areAlmostEqualTo
 import androidx.ui.test.util.assertOnlyLastEventIsUp
 import androidx.ui.test.util.assertTimestampsAreIncreasing
 import androidx.ui.test.util.recordedDuration
+import androidx.ui.unit.PxPosition
+import androidx.ui.unit.milliseconds
+import androidx.ui.unit.px
 import com.google.common.truth.Truth.assertThat
 import org.junit.Rule
 import org.junit.Test

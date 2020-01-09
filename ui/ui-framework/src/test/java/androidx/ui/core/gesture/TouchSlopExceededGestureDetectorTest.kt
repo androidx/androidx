@@ -17,12 +17,8 @@
 package androidx.ui.core.gesture
 
 import androidx.ui.core.Direction
-import androidx.ui.core.Duration
 import androidx.ui.core.PointerEventPass
 import androidx.ui.core.consumeDownChange
-import androidx.ui.core.ipx
-import androidx.ui.core.milliseconds
-import androidx.ui.core.px
 import androidx.ui.testutils.consume
 import androidx.ui.testutils.down
 import androidx.ui.testutils.invokeOverAllPasses
@@ -30,6 +26,10 @@ import androidx.ui.testutils.invokeOverPasses
 import androidx.ui.testutils.moveBy
 import androidx.ui.testutils.moveTo
 import androidx.ui.testutils.up
+import androidx.ui.unit.Duration
+import androidx.ui.unit.ipx
+import androidx.ui.unit.milliseconds
+import androidx.ui.unit.px
 import com.google.common.truth.Truth.assertThat
 import org.junit.Before
 import org.junit.Test

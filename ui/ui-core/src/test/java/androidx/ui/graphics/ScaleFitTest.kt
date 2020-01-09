@@ -17,8 +17,8 @@
 package androidx.ui.graphics
 
 import androidx.test.filters.SmallTest
-import androidx.ui.core.IntPx
-import androidx.ui.core.PxSize
+import androidx.ui.unit.IntPx
+import androidx.ui.unit.PxSize
 import org.junit.Assert.assertEquals
 import org.junit.Test
 import org.junit.runner.RunWith

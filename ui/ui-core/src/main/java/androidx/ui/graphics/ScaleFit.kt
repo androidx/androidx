@@ -16,7 +16,7 @@
 
 package androidx.ui.graphics
 
-import androidx.ui.core.PxSize
+import androidx.ui.unit.PxSize
 
 private const val OriginalScale = 1.0f
 

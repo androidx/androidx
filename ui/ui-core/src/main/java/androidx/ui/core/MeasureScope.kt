@@ -16,6 +16,9 @@
 
 package androidx.ui.core
 
+import androidx.ui.unit.DensityScope
+import androidx.ui.unit.IntPx
+
 /**
  * The receiver scope of a layout's measure lambda. The return value of the
  * measure lambda is [LayoutResult], which should be returned by [layout]

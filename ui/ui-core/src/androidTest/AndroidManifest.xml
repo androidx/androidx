@@ -14,11 +14,5 @@
      limitations under the License.
 -->
 <manifest package="androidx.ui.core" xmlns:android="http://schemas.android.com/apk/res/android">
-
-    <application>
-        <activity android:name="androidx.ui.core.DpDeviceTest$Companion$TestActivity"
-            android:theme="@android:style/Theme.Material.NoActionBar.Fullscreen"/>
-        <activity android:name="androidx.ui.core.SpDeviceTest$Companion$TestActivity"
-            android:theme="@android:style/Theme.Material.NoActionBar.Fullscreen"/>
-    </application>
+    <application/>
 </manifest>

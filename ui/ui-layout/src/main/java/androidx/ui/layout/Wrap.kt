@@ -16,17 +16,17 @@
 
 package androidx.ui.layout
 
-import androidx.ui.core.IntPxSize
-import androidx.ui.core.Layout
-import androidx.ui.core.ipx
-import androidx.ui.core.looseMin
-import androidx.ui.core.max
 import androidx.compose.Composable
 import androidx.ui.core.Alignment
 import androidx.ui.core.Constraints
-import androidx.ui.core.DensityScope
-import androidx.ui.core.IntPxPosition
+import androidx.ui.core.Layout
 import androidx.ui.core.LayoutModifier
+import androidx.ui.core.looseMin
+import androidx.ui.unit.DensityScope
+import androidx.ui.unit.IntPxPosition
+import androidx.ui.unit.IntPxSize
+import androidx.ui.unit.ipx
+import androidx.ui.unit.max
 
 /**
  * A layout that expects a child and places it within itself. The child will be measured

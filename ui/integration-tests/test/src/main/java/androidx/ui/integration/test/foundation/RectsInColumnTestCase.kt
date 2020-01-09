@@ -20,7 +20,7 @@ import androidx.compose.Composable
 import androidx.compose.MutableState
 import androidx.compose.state
 import androidx.ui.foundation.ColoredRect
-import androidx.ui.core.dp
+import androidx.ui.unit.dp
 import androidx.ui.graphics.Color
 import androidx.ui.layout.Column
 import androidx.ui.material.MaterialTheme

@@ -17,7 +17,7 @@
 package androidx.ui.core.pointerinput
 
 import androidx.ui.core.PointerInputData
-import androidx.ui.core.Uptime
+import androidx.ui.unit.Uptime
 
 // TODO(shepshapard): PointerInputEvent probably doesn't need it's own Uptime because each
 // PointerInputData has a Uptime associated with it.  Going to wait to refactor sometime later

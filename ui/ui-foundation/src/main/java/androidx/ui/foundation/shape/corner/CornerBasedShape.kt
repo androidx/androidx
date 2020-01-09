@@ -16,13 +16,13 @@
 
 package androidx.ui.foundation.shape.corner
 
-import androidx.ui.core.Density
-import androidx.ui.core.Px
-import androidx.ui.core.PxSize
-import androidx.ui.core.px
-import androidx.ui.core.toRect
-import androidx.ui.engine.geometry.Outline
-import androidx.ui.engine.geometry.Shape
+import androidx.ui.graphics.Outline
+import androidx.ui.graphics.Shape
+import androidx.ui.unit.Density
+import androidx.ui.unit.Px
+import androidx.ui.unit.PxSize
+import androidx.ui.unit.px
+import androidx.ui.unit.toRect
 
 /**
  * Base class for [Shape]s defined by four [CornerSize]s.

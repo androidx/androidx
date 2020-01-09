@@ -27,7 +27,6 @@ import androidx.ui.animation.PxPropKey
 import androidx.ui.animation.Transition
 import androidx.ui.core.Alignment
 import androidx.ui.core.FirstBaseline
-import androidx.ui.core.IntPx
 import androidx.ui.core.LastBaseline
 import androidx.ui.core.Layout
 import androidx.ui.core.LayoutTag
@@ -35,16 +34,10 @@ import androidx.ui.core.LayoutTagParentData
 import androidx.ui.core.Modifier
 import androidx.ui.core.ParentData
 import androidx.ui.core.Placeable
-import androidx.ui.core.Px
 import androidx.ui.core.Text
 import androidx.ui.core.WithConstraints
 import androidx.ui.core.ambientDensity
-import androidx.ui.core.dp
-import androidx.ui.core.max
-import androidx.ui.core.sp
 import androidx.ui.core.tag
-import androidx.ui.core.toPx
-import androidx.ui.core.withDensity
 import androidx.ui.core.withTight
 import androidx.ui.foundation.ColoredRect
 import androidx.ui.foundation.HorizontalScroller
@@ -65,6 +58,13 @@ import androidx.ui.material.TabRow.TabPosition
 import androidx.ui.material.ripple.Ripple
 import androidx.ui.material.surface.Surface
 import androidx.ui.text.style.TextAlign
+import androidx.ui.unit.IntPx
+import androidx.ui.unit.Px
+import androidx.ui.unit.dp
+import androidx.ui.unit.max
+import androidx.ui.unit.sp
+import androidx.ui.unit.toPx
+import androidx.ui.unit.withDensity
 
 /**
  * A TabRow contains a row of [Tab]s, and displays an indicator underneath the currently

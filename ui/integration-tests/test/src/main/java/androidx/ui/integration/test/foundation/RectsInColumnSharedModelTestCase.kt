@@ -18,7 +18,7 @@ package androidx.ui.integration.test.foundation
 
 import androidx.compose.Composable
 import androidx.compose.Model
-import androidx.ui.core.dp
+import androidx.ui.unit.dp
 import androidx.ui.foundation.ColoredRect
 import androidx.ui.graphics.Color
 import androidx.ui.layout.Column

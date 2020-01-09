@@ -17,12 +17,12 @@
 package androidx.ui.material
 
 import androidx.test.filters.MediumTest
-import androidx.ui.core.dp
-import androidx.ui.core.round
-import androidx.ui.core.withDensity
 import androidx.ui.graphics.Image
 import androidx.ui.graphics.ImageConfig
 import androidx.ui.test.createComposeRule
+import androidx.ui.unit.dp
+import androidx.ui.unit.round
+import androidx.ui.unit.withDensity
 import com.google.common.truth.Truth.assertThat
 import org.junit.Rule
 import org.junit.Test

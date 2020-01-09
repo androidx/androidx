@@ -19,9 +19,9 @@ package androidx.ui.res
 import androidx.test.filters.SmallTest
 import androidx.test.platform.app.InstrumentationRegistry
 import androidx.ui.core.ContextAmbient
-import androidx.ui.core.Density
-import androidx.ui.core.dp
-import androidx.ui.core.withDensity
+import androidx.ui.unit.Density
+import androidx.ui.unit.dp
+import androidx.ui.unit.withDensity
 import androidx.ui.framework.test.R
 import androidx.ui.test.createComposeRule
 import com.google.common.truth.Truth.assertThat

@@ -29,22 +29,22 @@ import androidx.compose.remember
 import androidx.compose.state
 import androidx.ui.animation.animatedFloat
 import androidx.ui.core.Draw
-import androidx.ui.core.IntPx
 import androidx.ui.core.Layout
 import androidx.ui.core.OnChildPositioned
-import androidx.ui.core.PxPosition
 import androidx.ui.core.Text
-import androidx.ui.core.dp
-import androidx.ui.core.gesture.RawDragGestureDetector
 import androidx.ui.core.gesture.DragObserver
+import androidx.ui.core.gesture.RawDragGestureDetector
 import androidx.ui.core.setContent
-import androidx.ui.core.sp
-import androidx.ui.engine.geometry.Rect
+import androidx.ui.geometry.Rect
 import androidx.ui.graphics.Color
+import androidx.ui.graphics.Paint
 import androidx.ui.layout.Column
 import androidx.ui.layout.Padding
-import androidx.ui.graphics.Paint
 import androidx.ui.text.TextStyle
+import androidx.ui.unit.IntPx
+import androidx.ui.unit.PxPosition
+import androidx.ui.unit.dp
+import androidx.ui.unit.sp
 import kotlin.math.sign
 
 class SwipeToDismiss : Activity() {

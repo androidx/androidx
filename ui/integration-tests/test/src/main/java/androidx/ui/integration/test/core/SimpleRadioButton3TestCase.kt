@@ -19,14 +19,14 @@ package androidx.ui.integration.test.core
 import androidx.compose.Composable
 import androidx.compose.remember
 import androidx.ui.core.Draw
-import androidx.ui.core.PxSize
-import androidx.ui.core.dp
-import androidx.ui.core.minDimension
-import androidx.ui.engine.geometry.Offset
+import androidx.ui.geometry.Offset
 import androidx.ui.graphics.Canvas
 import androidx.ui.graphics.Paint
 import androidx.ui.graphics.PaintingStyle
 import androidx.ui.layout.Container
+import androidx.ui.unit.PxSize
+import androidx.ui.unit.dp
+import androidx.ui.unit.minDimension
 
 class SimpleRadioButton3TestCase : BaseSimpleRadioButtonTestCase() {
 

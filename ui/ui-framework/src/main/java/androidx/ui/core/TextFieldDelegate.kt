@@ -16,7 +16,7 @@
 
 package androidx.ui.core
 
-import androidx.ui.engine.geometry.Rect
+import androidx.ui.geometry.Rect
 import androidx.ui.graphics.Canvas
 import androidx.ui.graphics.Color
 import androidx.ui.input.EditOperation
@@ -43,6 +43,12 @@ import androidx.ui.text.TextStyle
 import androidx.ui.text.font.Font
 import androidx.ui.text.style.TextDecoration
 import androidx.ui.text.style.TextDirectionAlgorithm
+import androidx.ui.unit.Density
+import androidx.ui.unit.IntPx
+import androidx.ui.unit.PxPosition
+import androidx.ui.unit.ipx
+import androidx.ui.unit.isFinite
+import androidx.ui.unit.px
 import kotlin.math.ceil
 import kotlin.math.roundToInt
 

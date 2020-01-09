@@ -20,20 +20,9 @@ import androidx.compose.Composable
 import androidx.compose.Model
 import androidx.test.filters.MediumTest
 import androidx.ui.core.Draw
-import androidx.ui.core.IntPx
 import androidx.ui.core.Layout
 import androidx.ui.core.TestTag
-import androidx.ui.core.sp
-import androidx.ui.text.TextStyle
-import org.junit.Rule
-import org.junit.Test
-import org.junit.runner.RunWith
-import org.junit.runners.JUnit4
 import androidx.ui.core.Text
-import androidx.ui.core.dp
-import androidx.ui.core.ipx
-import androidx.ui.core.px
-import androidx.ui.core.toRect
 import androidx.ui.foundation.VerticalScroller
 import androidx.ui.graphics.Color
 import androidx.ui.graphics.Paint
@@ -45,7 +34,18 @@ import androidx.ui.layout.Padding
 import androidx.ui.layout.Row
 import androidx.ui.semantics.ScrollTo
 import androidx.ui.semantics.Semantics
+import androidx.ui.text.TextStyle
+import androidx.ui.unit.IntPx
+import androidx.ui.unit.dp
+import androidx.ui.unit.ipx
+import androidx.ui.unit.px
+import androidx.ui.unit.sp
+import androidx.ui.unit.toRect
 import org.junit.Assert
+import org.junit.Rule
+import org.junit.Test
+import org.junit.runner.RunWith
+import org.junit.runners.JUnit4
 
 @MediumTest
 @RunWith(JUnit4::class)

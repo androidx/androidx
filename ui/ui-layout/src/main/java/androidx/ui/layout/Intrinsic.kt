@@ -20,7 +20,7 @@ import androidx.compose.Composable
 import androidx.ui.core.Constraints
 import androidx.ui.core.Layout
 import androidx.ui.core.enforce
-import androidx.ui.core.ipx
+import androidx.ui.unit.ipx
 
 /**
  * Layout composable that forces its child to be as wide as its min intrinsic width.

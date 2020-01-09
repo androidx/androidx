@@ -16,6 +16,11 @@
 
 package androidx.ui.core
 
+import androidx.ui.unit.IntPxPosition
+import androidx.ui.unit.IntPxSize
+import androidx.ui.unit.round
+import androidx.ui.unit.toPx
+
 /**
  * Represents a positioning of a point inside a 2D box. [Alignment] is often used to define
  * the alignment of a box inside a parent container.

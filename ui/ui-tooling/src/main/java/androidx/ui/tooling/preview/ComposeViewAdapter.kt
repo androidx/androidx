@@ -27,17 +27,17 @@ import androidx.annotation.VisibleForTesting
 import androidx.compose.Composable
 import androidx.compose.disposeComposition
 import androidx.ui.core.FontLoaderAmbient
-import androidx.ui.core.Px
-import androidx.ui.core.PxBounds
 import androidx.ui.core.setContent
 import androidx.ui.core.toFrameworkRect
-import androidx.ui.core.toRect
 import androidx.ui.graphics.Color
 import androidx.ui.graphics.toArgb
 import androidx.ui.tooling.Group
 import androidx.ui.tooling.Inspectable
 import androidx.ui.tooling.asTree
 import androidx.ui.tooling.tables
+import androidx.ui.unit.Px
+import androidx.ui.unit.PxBounds
+import androidx.ui.unit.toRect
 import java.lang.reflect.Modifier
 
 const val TOOLS_NS_URI = "http://schemas.android.com/tools"

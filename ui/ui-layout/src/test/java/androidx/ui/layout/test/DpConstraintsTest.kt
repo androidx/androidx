@@ -16,8 +16,6 @@
 
 package androidx.ui.layout.test
 
-import androidx.ui.core.Dp
-import androidx.ui.core.dp
 import androidx.ui.layout.DpConstraints
 import androidx.ui.layout.enforce
 import androidx.ui.layout.hasBoundedHeight
@@ -32,6 +30,8 @@ import androidx.ui.layout.offset
 import androidx.ui.layout.tightMax
 import androidx.ui.layout.tightMin
 import androidx.ui.layout.withTight
+import androidx.ui.unit.Dp
+import androidx.ui.unit.dp
 import org.junit.Assert.assertFalse
 import org.junit.Assert.assertTrue
 import org.junit.Assert.fail

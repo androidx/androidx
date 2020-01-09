@@ -20,8 +20,6 @@ import androidx.annotation.Sampled
 import androidx.compose.Composable
 import androidx.ui.core.FirstBaseline
 import androidx.ui.core.Text
-import androidx.ui.core.dp
-import androidx.ui.core.ipx
 import androidx.ui.graphics.Color
 import androidx.ui.layout.Column
 import androidx.ui.layout.Container
@@ -29,6 +27,8 @@ import androidx.ui.layout.LayoutGravity
 import androidx.ui.layout.LayoutHeight
 import androidx.ui.layout.Row
 import androidx.ui.text.TextStyle
+import androidx.ui.unit.dp
+import androidx.ui.unit.ipx
 
 @Sampled
 @Composable

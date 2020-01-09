@@ -20,9 +20,9 @@ import android.graphics.Bitmap
 import android.graphics.Canvas
 import android.graphics.Typeface
 import androidx.core.content.res.ResourcesCompat
-import androidx.ui.core.IntPx
-import androidx.ui.core.ipx
 import androidx.ui.text.font.Font
+import androidx.ui.unit.IntPx
+import androidx.ui.unit.ipx
 import kotlin.math.ceil
 import kotlin.math.roundToInt
 

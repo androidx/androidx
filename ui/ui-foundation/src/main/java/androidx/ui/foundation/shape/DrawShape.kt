@@ -19,14 +19,14 @@ package androidx.ui.foundation.shape
 import androidx.compose.Composable
 import androidx.compose.remember
 import androidx.ui.core.Draw
-import androidx.ui.core.PxSize
-import androidx.ui.engine.geometry.Outline
-import androidx.ui.engine.geometry.Shape
-import androidx.ui.engine.geometry.drawOutline
-import androidx.ui.graphics.Color
 import androidx.ui.graphics.Brush
-import androidx.ui.graphics.SolidColor
+import androidx.ui.graphics.Color
+import androidx.ui.graphics.Outline
 import androidx.ui.graphics.Paint
+import androidx.ui.graphics.Shape
+import androidx.ui.graphics.SolidColor
+import androidx.ui.graphics.drawOutline
+import androidx.ui.unit.PxSize
 
 /**
  * Draw the [shape] with the provided [color].

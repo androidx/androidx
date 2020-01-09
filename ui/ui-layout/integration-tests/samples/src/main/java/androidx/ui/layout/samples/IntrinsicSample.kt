@@ -19,7 +19,6 @@ package androidx.ui.layout.samples
 import androidx.annotation.Sampled
 import androidx.compose.Composable
 import androidx.ui.core.Text
-import androidx.ui.core.dp
 import androidx.ui.foundation.shape.DrawShape
 import androidx.ui.foundation.shape.RectangleShape
 import androidx.ui.graphics.Color
@@ -35,6 +34,7 @@ import androidx.ui.layout.MinIntrinsicHeight
 import androidx.ui.layout.MinIntrinsicWidth
 import androidx.ui.layout.Row
 import androidx.ui.layout.Wrap
+import androidx.ui.unit.dp
 
 /**
  * Builds a layout containing three [Container] having the same width as the widest one.

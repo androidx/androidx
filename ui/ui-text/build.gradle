@@ -38,6 +38,7 @@ dependencies {
     implementation "androidx.core:core:1.0.2"
 
     implementation project(":compose:compose-runtime")
+    implementation project(":ui:ui-util")
     implementation project(":ui:ui-android-text")
     api project(":ui:ui-core")
     implementation project(":ui:ui-vector")

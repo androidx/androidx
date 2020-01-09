@@ -22,13 +22,10 @@ import androidx.compose.remember
 import androidx.compose.state
 import androidx.ui.core.Alignment
 import androidx.ui.core.Popup
-import androidx.ui.core.PxPosition
 import androidx.ui.core.Text
 import androidx.ui.core.disposeActivityComposition
-import androidx.ui.core.dp
 import androidx.ui.core.gesture.DragObserver
 import androidx.ui.core.gesture.RawDragGestureDetector
-import androidx.ui.core.round
 import androidx.ui.core.setContent
 import androidx.ui.foundation.shape.DrawShape
 import androidx.ui.foundation.shape.corner.CircleShape
@@ -37,6 +34,9 @@ import androidx.ui.layout.Container
 import androidx.ui.layout.Wrap
 import androidx.ui.text.TextStyle
 import androidx.ui.text.style.TextAlign
+import androidx.ui.unit.PxPosition
+import androidx.ui.unit.dp
+import androidx.ui.unit.round
 
 class PopupDragActivity : Activity() {
     override fun onCreate(savedInstanceState: Bundle?) {

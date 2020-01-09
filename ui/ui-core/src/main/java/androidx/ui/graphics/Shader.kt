@@ -19,7 +19,7 @@ package androidx.ui.graphics
 import android.graphics.BitmapShader
 import android.graphics.LinearGradient
 import android.graphics.RadialGradient
-import androidx.ui.engine.geometry.Offset
+import androidx.ui.geometry.Offset
 
 /**
  * Class that represents the corresponding Shader implementation on a platform. This maps

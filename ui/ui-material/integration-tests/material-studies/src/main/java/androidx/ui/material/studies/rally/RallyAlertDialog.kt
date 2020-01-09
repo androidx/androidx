@@ -18,7 +18,6 @@ package androidx.ui.material.studies.rally
 
 import androidx.compose.Composable
 import androidx.ui.core.Text
-import androidx.ui.core.dp
 import androidx.ui.foundation.shape.RectangleShape
 import androidx.ui.layout.Column
 import androidx.ui.layout.EdgeInsets
@@ -29,6 +28,7 @@ import androidx.ui.material.Button
 import androidx.ui.material.Divider
 import androidx.ui.material.MaterialTheme
 import androidx.ui.material.TextButtonStyle
+import androidx.ui.unit.dp
 
 @Composable
 fun RallyAlertDialog(

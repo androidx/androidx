@@ -1,89 +1,23 @@
 // Baseline format: 1.0
-AcronymName: androidx.ui.core.Dp#div-KkBJKWw(float):
-    Acronyms should not be capitalized in method names: was `div-KkBJKWw`, should this be `div-KkBjkWw`?
-AcronymName: androidx.ui.core.Dp#times-KkBJKWw(float):
-    Acronyms should not be capitalized in method names: was `times-KkBJKWw`, should this be `times-KkBjkWw`?
-AcronymName: androidx.ui.core.DpCubed#div-KkBJKWw(float, float):
-    Acronyms should not be capitalized in method names: was `div-KkBJKWw`, should this be `div-KkBjkWw`?
-AcronymName: androidx.ui.core.DpInverse#compareTo-ASDJgtI(float):
-    Acronyms should not be capitalized in method names: was `compareTo-ASDJgtI`, should this be `compareTo-AsdJgtI`?
-AcronymName: androidx.ui.core.DpInverse#compareTo-ASDJgtI(float, float):
-    Acronyms should not be capitalized in method names: was `compareTo-ASDJgtI`, should this be `compareTo-AsdJgtI`?
-AcronymName: androidx.ui.core.DpInverse#minus-ASDJgtI(float, float):
-    Acronyms should not be capitalized in method names: was `minus-ASDJgtI`, should this be `minus-AsdJgtI`?
-AcronymName: androidx.ui.core.DpInverse#plus-ASDJgtI(float, float):
-    Acronyms should not be capitalized in method names: was `plus-ASDJgtI`, should this be `plus-AsdJgtI`?
-AcronymName: androidx.ui.core.DpInverse#times-KkBJKWw(float, float):
-    Acronyms should not be capitalized in method names: was `times-KkBJKWw`, should this be `times-KkBjkWw`?
-AcronymName: androidx.ui.core.DpKt#getDistance-JXBE4ew(long):
-    Acronyms should not be capitalized in method names: was `getDistance-JXBE4ew`, should this be `getDistance-JxbE4ew`?
-AcronymName: androidx.ui.core.DpKt#lerp-SuMVOfk(long, long, float):
-    Acronyms should not be capitalized in method names: was `lerp-SuMVOfk`, should this be `lerp-SuMvOfk`?
-AcronymName: androidx.ui.core.DpKt#times-Ze-JISM(int, long):
-    Acronyms should not be capitalized in method names: was `times-Ze-JISM`, should this be `times-Ze-Jism`?
-AcronymName: androidx.ui.core.DpKt#times-doH9uME(float, long):
-    Acronyms should not be capitalized in method names: was `times-doH9uME`, should this be `times-doH9uMe`?
-AcronymName: androidx.ui.core.DpKt#times-nKWVx08(double, long):
-    Acronyms should not be capitalized in method names: was `times-nKWVx08`, should this be `times-nKwVx08`?
-AcronymName: androidx.ui.core.DpSquared#compareTo-KkBJKWw(float):
-    Acronyms should not be capitalized in method names: was `compareTo-KkBJKWw`, should this be `compareTo-KkBjkWw`?
-AcronymName: androidx.ui.core.DpSquared#compareTo-KkBJKWw(float, float):
-    Acronyms should not be capitalized in method names: was `compareTo-KkBJKWw`, should this be `compareTo-KkBjkWw`?
-AcronymName: androidx.ui.core.DpSquared#div-KkBJKWw(float, float):
-    Acronyms should not be capitalized in method names: was `div-KkBJKWw`, should this be `div-KkBjkWw`?
-AcronymName: androidx.ui.core.DpSquared#minus-KkBJKWw(float, float):
-    Acronyms should not be capitalized in method names: was `minus-KkBJKWw`, should this be `minus-KkBjkWw`?
-AcronymName: androidx.ui.core.DpSquared#plus-KkBJKWw(float, float):
-    Acronyms should not be capitalized in method names: was `plus-KkBJKWw`, should this be `plus-KkBjkWw`?
-AcronymName: androidx.ui.core.Position#minus-JXBE4ew(long, long):
-    Acronyms should not be capitalized in method names: was `minus-JXBE4ew`, should this be `minus-JxbE4ew`?
-AcronymName: androidx.ui.core.Position#plus-JXBE4ew(long, long):
-    Acronyms should not be capitalized in method names: was `plus-JXBE4ew`, should this be `plus-JxbE4ew`?
-AcronymName: androidx.ui.core.Px#div-kVJEwbQ(float):
-    Acronyms should not be capitalized in method names: was `div-kVJEwbQ`, should this be `div-kVjEwbQ`?
-AcronymName: androidx.ui.core.Px#times-kVJEwbQ(float):
-    Acronyms should not be capitalized in method names: was `times-kVJEwbQ`, should this be `times-kVjEwbQ`?
-AcronymName: androidx.ui.core.PxCubed#div-kVJEwbQ(float, float):
-    Acronyms should not be capitalized in method names: was `div-kVJEwbQ`, should this be `div-kVjEwbQ`?
-AcronymName: androidx.ui.core.PxInverse#compareTo-MXEAIGs(float):
-    Acronyms should not be capitalized in method names: was `compareTo-MXEAIGs`, should this be `compareTo-MxeaiGs`?
-AcronymName: androidx.ui.core.PxInverse#compareTo-MXEAIGs(float, float):
-    Acronyms should not be capitalized in method names: was `compareTo-MXEAIGs`, should this be `compareTo-MxeaiGs`?
-AcronymName: androidx.ui.core.PxInverse#minus-MXEAIGs(float, float):
-    Acronyms should not be capitalized in method names: was `minus-MXEAIGs`, should this be `minus-MxeaiGs`?
-AcronymName: androidx.ui.core.PxInverse#plus-MXEAIGs(float, float):
-    Acronyms should not be capitalized in method names: was `plus-MXEAIGs`, should this be `plus-MxeaiGs`?
-AcronymName: androidx.ui.core.PxInverse#times-kVJEwbQ(float, float):
-    Acronyms should not be capitalized in method names: was `times-kVJEwbQ`, should this be `times-kVjEwbQ`?
-AcronymName: androidx.ui.core.PxSquared#compareTo-kVJEwbQ(float):
-    Acronyms should not be capitalized in method names: was `compareTo-kVJEwbQ`, should this be `compareTo-kVjEwbQ`?
-AcronymName: androidx.ui.core.PxSquared#compareTo-kVJEwbQ(float, float):
-    Acronyms should not be capitalized in method names: was `compareTo-kVJEwbQ`, should this be `compareTo-kVjEwbQ`?
-AcronymName: androidx.ui.core.PxSquared#div-kVJEwbQ(float, float):
-    Acronyms should not be capitalized in method names: was `div-kVJEwbQ`, should this be `div-kVjEwbQ`?
-AcronymName: androidx.ui.core.PxSquared#minus-kVJEwbQ(float, float):
-    Acronyms should not be capitalized in method names: was `minus-kVJEwbQ`, should this be `minus-kVjEwbQ`?
-AcronymName: androidx.ui.core.PxSquared#plus-kVJEwbQ(float, float):
-    Acronyms should not be capitalized in method names: was `plus-kVJEwbQ`, should this be `plus-kVjEwbQ`?
 AcronymName: androidx.ui.engine.geometry.Rect.Companion#fromLTRB(float, float, float, float):
     Acronyms should not be capitalized in method names: was `fromLTRB`, should this be `fromLtrb`?
 AcronymName: androidx.ui.engine.geometry.Rect.Companion#fromLTWH(float, float, float, float):
     Acronyms should not be capitalized in method names: was `fromLTWH`, should this be `fromLtwh`?
 
 
-ArrayReturn: androidx.ui.graphics.BrushKt#HorizontalGradient(kotlin.Pair<java.lang.Float,androidx.ui.graphics.Color>[], androidx.ui.core.Px, androidx.ui.core.Px, androidx.ui.graphics.TileMode) parameter #0:
+ArrayReturn: androidx.ui.graphics.BrushKt#HorizontalGradient(kotlin.Pair<java.lang.Float,androidx.ui.graphics.Color>[], androidx.ui.unit.Px, androidx.ui.unit.Px, androidx.ui.graphics.TileMode) parameter #0:
     Method parameter should be Collection<Pair> (or subclass) instead of raw array; was `kotlin.Pair<java.lang.Float,androidx.ui.graphics.Color>[]`
-ArrayReturn: androidx.ui.graphics.BrushKt#LinearGradient(kotlin.Pair<java.lang.Float,androidx.ui.graphics.Color>[], androidx.ui.core.Px, androidx.ui.core.Px, androidx.ui.core.Px, androidx.ui.core.Px, androidx.ui.graphics.TileMode) parameter #0:
+ArrayReturn: androidx.ui.graphics.BrushKt#LinearGradient(kotlin.Pair<java.lang.Float,androidx.ui.graphics.Color>[], androidx.ui.unit.Px, androidx.ui.unit.Px, androidx.ui.unit.Px, androidx.ui.unit.Px, androidx.ui.graphics.TileMode) parameter #0:
     Method parameter should be Collection<Pair> (or subclass) instead of raw array; was `kotlin.Pair<java.lang.Float,androidx.ui.graphics.Color>[]`
 ArrayReturn: androidx.ui.graphics.BrushKt#RadialGradient(kotlin.Pair<java.lang.Float,androidx.ui.graphics.Color>[], float, float, float, androidx.ui.graphics.TileMode) parameter #0:
     Method parameter should be Collection<Pair> (or subclass) instead of raw array; was `kotlin.Pair<java.lang.Float,androidx.ui.graphics.Color>[]`
-ArrayReturn: androidx.ui.graphics.BrushKt#VerticalGradient(kotlin.Pair<java.lang.Float,androidx.ui.graphics.Color>[], androidx.ui.core.Px, androidx.ui.core.Px, androidx.ui.graphics.TileMode) parameter #0:
+ArrayReturn: androidx.ui.graphics.BrushKt#VerticalGradient(kotlin.Pair<java.lang.Float,androidx.ui.graphics.Color>[], androidx.ui.unit.Px, androidx.ui.unit.Px, androidx.ui.graphics.TileMode) parameter #0:
     Method parameter should be Collection<Pair> (or subclass) instead of raw array; was `kotlin.Pair<java.lang.Float,androidx.ui.graphics.Color>[]`
-ArrayReturn: androidx.ui.testutils.PointerInputTestUtilKt#invokeOverAllPasses(kotlin.jvm.functions.Function3<? super java.util.List<androidx.ui.core.PointerInputChange>,? super androidx.ui.core.PointerEventPass,? super androidx.ui.core.IntPxSize,? extends java.util.List<androidx.ui.core.PointerInputChange>>, androidx.ui.core.PointerInputChange[], androidx.ui.core.IntPxSize) parameter #1:
+ArrayReturn: androidx.ui.testutils.PointerInputTestUtilKt#invokeOverAllPasses(kotlin.jvm.functions.Function3<? super java.util.List<androidx.ui.core.PointerInputChange>,? super androidx.ui.core.PointerEventPass,? super androidx.ui.unit.IntPxSize,? extends java.util.List<androidx.ui.core.PointerInputChange>>, androidx.ui.core.PointerInputChange[], androidx.ui.unit.IntPxSize) parameter #1:
     Method parameter should be Collection<PointerInputChange> (or subclass) instead of raw array; was `androidx.ui.core.PointerInputChange[]`
-ArrayReturn: androidx.ui.testutils.PointerInputTestUtilKt#invokeOverPasses(kotlin.jvm.functions.Function3<? super java.util.List<androidx.ui.core.PointerInputChange>,? super androidx.ui.core.PointerEventPass,? super androidx.ui.core.IntPxSize,? extends java.util.List<androidx.ui.core.PointerInputChange>>, androidx.ui.core.PointerInputChange, androidx.ui.core.PointerEventPass[], androidx.ui.core.IntPxSize) parameter #2:
+ArrayReturn: androidx.ui.testutils.PointerInputTestUtilKt#invokeOverPasses(kotlin.jvm.functions.Function3<? super java.util.List<androidx.ui.core.PointerInputChange>,? super androidx.ui.core.PointerEventPass,? super androidx.ui.unit.IntPxSize,? extends java.util.List<androidx.ui.core.PointerInputChange>>, androidx.ui.core.PointerInputChange, androidx.ui.core.PointerEventPass[], androidx.ui.unit.IntPxSize) parameter #2:
     Method parameter should be Collection<PointerEventPass> (or subclass) instead of raw array; was `androidx.ui.core.PointerEventPass[]`
-ArrayReturn: androidx.ui.testutils.PointerInputTestUtilKt#invokeOverPasses(kotlin.jvm.functions.Function3<? super java.util.List<androidx.ui.core.PointerInputChange>,? super androidx.ui.core.PointerEventPass,? super androidx.ui.core.IntPxSize,? extends java.util.List<androidx.ui.core.PointerInputChange>>, androidx.ui.core.PointerInputChange[], androidx.ui.core.PointerEventPass, androidx.ui.core.IntPxSize) parameter #1:
+ArrayReturn: androidx.ui.testutils.PointerInputTestUtilKt#invokeOverPasses(kotlin.jvm.functions.Function3<? super java.util.List<androidx.ui.core.PointerInputChange>,? super androidx.ui.core.PointerEventPass,? super androidx.ui.unit.IntPxSize,? extends java.util.List<androidx.ui.core.PointerInputChange>>, androidx.ui.core.PointerInputChange[], androidx.ui.core.PointerEventPass, androidx.ui.unit.IntPxSize) parameter #1:
     Method parameter should be Collection<PointerInputChange> (or subclass) instead of raw array; was `androidx.ui.core.PointerInputChange[]`
 
 
@@ -133,16 +67,8 @@ KotlinOperator: androidx.ui.graphics.Path#contains(androidx.ui.engine.geometry.O
     Note that adding the `operator` keyword would allow calling this method using operator syntax
 
 
-MethodNameUnits: androidx.ui.core.Durations#inSeconds(androidx.ui.core.Duration):
-    Returned time values must be in milliseconds, was `inSeconds`
-
-
 MissingBuildMethod: androidx.ui.graphics.vector.PathBuilder:
     androidx.ui.graphics.vector.PathBuilder does not declare a `build()` method, but builder classes are expected to
-
-
-MissingNullability: androidx.ui.core.PxKt#getMinDimension(androidx.ui.core.PxSize):
-    Missing nullability on method `getMinDimension` return
 
 
 TopLevelBuilder: androidx.ui.graphics.vector.PathBuilder:

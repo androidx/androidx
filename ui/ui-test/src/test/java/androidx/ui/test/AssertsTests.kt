@@ -16,10 +16,10 @@
 
 package androidx.ui.test
 
-import androidx.ui.core.Density
-import androidx.ui.core.PxSize
-import androidx.ui.core.dp
-import androidx.ui.core.ipx
+import androidx.ui.unit.Density
+import androidx.ui.unit.PxSize
+import androidx.ui.unit.dp
+import androidx.ui.unit.ipx
 import androidx.ui.core.semantics.SemanticsConfiguration
 import androidx.ui.foundation.selection.ToggleableState
 import androidx.ui.foundation.semantics.inMutuallyExclusiveGroup

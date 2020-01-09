@@ -19,26 +19,21 @@ package androidx.ui.text.demos
 import androidx.compose.Composable
 import androidx.ui.core.Span
 import androidx.ui.core.Text
-import androidx.ui.core.px
-import androidx.ui.engine.geometry.Offset
-import androidx.ui.text.font.FontStyle
-import androidx.ui.text.font.FontWeight
-import androidx.ui.text.style.TextAlign
-import androidx.ui.text.font.FontFamily
+import androidx.ui.foundation.VerticalScroller
+import androidx.ui.geometry.Offset
 import androidx.ui.graphics.Color
+import androidx.ui.graphics.Shadow
 import androidx.ui.graphics.lerp
 import androidx.ui.layout.Column
-import androidx.ui.layout.Row
-import androidx.ui.foundation.VerticalScroller
-import androidx.ui.graphics.Shadow
-import androidx.ui.text.TextStyle
-import androidx.ui.text.style.TextOverflow
-import androidx.ui.core.em
-import androidx.ui.core.sp
 import androidx.ui.layout.LayoutHeight
 import androidx.ui.layout.LayoutWidth
+import androidx.ui.layout.Row
 import androidx.ui.text.LocaleList
 import androidx.ui.text.SpanStyle
+import androidx.ui.text.TextStyle
+import androidx.ui.text.font.FontFamily
+import androidx.ui.text.font.FontStyle
+import androidx.ui.text.font.FontWeight
 import androidx.ui.text.samples.BaselineShiftSample
 import androidx.ui.text.samples.FontFamilyCursiveSample
 import androidx.ui.text.samples.FontFamilyMonospaceSample
@@ -50,6 +45,11 @@ import androidx.ui.text.samples.TextDecorationCombinedSample
 import androidx.ui.text.samples.TextDecorationLineThroughSample
 import androidx.ui.text.samples.TextDecorationUnderlineSample
 import androidx.ui.text.samples.TextStyleSample
+import androidx.ui.text.style.TextAlign
+import androidx.ui.text.style.TextOverflow
+import androidx.ui.unit.em
+import androidx.ui.unit.px
+import androidx.ui.unit.sp
 
 val displayText = "Text Demo"
 val displayTextChinese = "文本演示"

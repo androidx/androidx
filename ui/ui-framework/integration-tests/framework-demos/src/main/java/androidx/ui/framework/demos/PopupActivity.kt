@@ -21,7 +21,6 @@ import android.os.Bundle
 import androidx.compose.Composable
 import androidx.compose.state
 import androidx.ui.core.Alignment
-import androidx.ui.core.Dp
 import androidx.ui.core.Draw
 import androidx.ui.core.DropDownAlignment
 import androidx.ui.core.DropdownPopup
@@ -31,9 +30,7 @@ import androidx.ui.core.PopupProperties
 import androidx.ui.core.Text
 import androidx.ui.core.TextField
 import androidx.ui.core.disposeActivityComposition
-import androidx.ui.core.dp
 import androidx.ui.core.setContent
-import androidx.ui.core.toRect
 import androidx.ui.foundation.Clickable
 import androidx.ui.foundation.VerticalScroller
 import androidx.ui.foundation.shape.DrawShape
@@ -43,20 +40,23 @@ import androidx.ui.graphics.Color
 import androidx.ui.graphics.Paint
 import androidx.ui.input.ImeAction
 import androidx.ui.input.KeyboardType
+import androidx.ui.layout.Arrangement
 import androidx.ui.layout.Column
 import androidx.ui.layout.ColumnScope
 import androidx.ui.layout.Container
 import androidx.ui.layout.DpConstraints
 import androidx.ui.layout.EdgeInsets
-import androidx.ui.layout.Spacer
-import androidx.ui.layout.Wrap
-import androidx.ui.layout.Arrangement
 import androidx.ui.layout.LayoutGravity
 import androidx.ui.layout.LayoutHeight
 import androidx.ui.layout.LayoutWidth
 import androidx.ui.layout.Row
+import androidx.ui.layout.Spacer
+import androidx.ui.layout.Wrap
 import androidx.ui.text.TextStyle
 import androidx.ui.text.style.TextAlign
+import androidx.ui.unit.Dp
+import androidx.ui.unit.dp
+import androidx.ui.unit.toRect
 
 class PopupActivity : Activity() {
     override fun onCreate(savedInstanceState: Bundle?) {

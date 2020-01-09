@@ -16,10 +16,10 @@
 
 package androidx.ui.test
 
-import androidx.ui.core.Duration
-import androidx.ui.core.PxPosition
-import androidx.ui.core.inMilliseconds
-import androidx.ui.core.lerp
+import androidx.ui.unit.Duration
+import androidx.ui.unit.PxPosition
+import androidx.ui.unit.inMilliseconds
+import androidx.ui.unit.lerp
 
 internal interface InputDispatcher {
     /**

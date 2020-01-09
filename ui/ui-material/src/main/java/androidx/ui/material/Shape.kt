@@ -17,10 +17,10 @@
 package androidx.ui.material
 
 import androidx.compose.Ambient
-import androidx.ui.core.dp
-import androidx.ui.engine.geometry.Shape
 import androidx.ui.foundation.shape.RectangleShape
 import androidx.ui.foundation.shape.corner.RoundedCornerShape
+import androidx.ui.graphics.Shape
+import androidx.ui.unit.dp
 
 /**
  * Data class holding current shapes for common surfaces like Button or Card.

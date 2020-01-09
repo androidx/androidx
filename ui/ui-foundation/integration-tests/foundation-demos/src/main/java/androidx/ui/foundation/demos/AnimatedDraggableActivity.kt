@@ -18,7 +18,6 @@ package androidx.ui.foundation.demos
 
 import android.app.Activity
 import android.os.Bundle
-import androidx.ui.core.dp
 import androidx.ui.core.setContent
 import androidx.ui.foundation.samples.AnchoredDraggableSample
 import androidx.ui.foundation.samples.DraggableSample
@@ -26,6 +25,7 @@ import androidx.ui.layout.Column
 import androidx.ui.layout.LayoutHeight
 import androidx.ui.layout.Spacer
 import androidx.ui.layout.Wrap
+import androidx.ui.unit.dp
 
 class AnimatedDraggableActivity : Activity() {
 

@@ -27,25 +27,25 @@ import androidx.ui.animation.Transition
 import androidx.ui.core.Alignment
 import androidx.ui.core.Text
 import androidx.ui.core.ambientDensity
-import androidx.ui.core.dp
-import androidx.ui.core.toPx
-import androidx.ui.core.withDensity
 import androidx.ui.foundation.ColoredRect
 import androidx.ui.foundation.selection.MutuallyExclusiveSetItem
 import androidx.ui.foundation.shape.border.Border
 import androidx.ui.foundation.shape.border.DrawBorder
 import androidx.ui.foundation.shape.corner.RoundedCornerShape
 import androidx.ui.graphics.Color
+import androidx.ui.graphics.Image
 import androidx.ui.layout.Column
 import androidx.ui.layout.Container
 import androidx.ui.layout.EdgeInsets
-import androidx.ui.layout.Padding
-import androidx.ui.material.Tab
-import androidx.ui.material.TabRow
-import androidx.ui.graphics.Image
 import androidx.ui.layout.LayoutGravity
 import androidx.ui.layout.LayoutHeight
+import androidx.ui.layout.Padding
 import androidx.ui.material.MaterialTheme
+import androidx.ui.material.Tab
+import androidx.ui.material.TabRow
+import androidx.ui.unit.dp
+import androidx.ui.unit.toPx
+import androidx.ui.unit.withDensity
 
 @Sampled
 @Composable

@@ -17,7 +17,7 @@
 package androidx.ui.integration.test.core
 
 import androidx.compose.Composable
-import androidx.ui.core.dp
+import androidx.ui.unit.dp
 import androidx.ui.foundation.shape.DrawShape
 import androidx.ui.foundation.shape.border.Border
 import androidx.ui.foundation.shape.border.DrawBorder

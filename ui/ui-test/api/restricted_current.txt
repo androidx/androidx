@@ -28,19 +28,19 @@ package androidx.ui.test {
 
   public final class BitmapHelpersKt {
     method public static void assertPixelColor(android.graphics.Bitmap, androidx.ui.graphics.Color expected, int x, int y, kotlin.jvm.functions.Function1<? super androidx.ui.graphics.Color,java.lang.String> error = { color -> "Pixel(" + x + ", " + y + ") expected to be " + expected + ", but was " + color });
-    method public static void assertPixels(android.graphics.Bitmap, androidx.ui.core.IntPxSize? expectedSize = null, kotlin.jvm.functions.Function1<? super androidx.ui.core.IntPxPosition,androidx.ui.graphics.Color> expectedColorProvider);
-    method public static void assertShape(android.graphics.Bitmap, androidx.ui.graphics.Color backgroundColor, int sizeX = width, int sizeY = height, androidx.ui.engine.geometry.Shape shape, androidx.ui.graphics.Color shapeColor, int shapeSizeX = sizeX, int shapeSizeY = sizeY, int centerX = width / 2, int centerY = height / 2);
+    method public static void assertPixels(android.graphics.Bitmap, androidx.ui.unit.IntPxSize? expectedSize = null, kotlin.jvm.functions.Function1<? super androidx.ui.unit.IntPxPosition,androidx.ui.graphics.Color> expectedColorProvider);
+    method public static void assertShape(android.graphics.Bitmap, androidx.ui.graphics.Color backgroundColor, int sizeX = width, int sizeY = height, androidx.ui.graphics.Shape shape, androidx.ui.graphics.Color shapeColor, int shapeSizeX = sizeX, int shapeSizeY = sizeY, int centerX = width / 2, int centerY = height / 2);
     method @RequiresApi(android.os.Build.VERSION_CODES.O) public static android.graphics.Bitmap captureToBitmap(androidx.ui.test.SemanticsNodeInteraction);
   }
 
   public final class CollectedSizes {
-    ctor public CollectedSizes(androidx.ui.core.PxSize size, androidx.ui.core.Density density);
-    method public androidx.ui.test.CollectedSizes assertHeightEqualsTo(androidx.ui.core.Dp expectedHeight);
-    method public androidx.ui.test.CollectedSizes assertHeightEqualsTo(kotlin.jvm.functions.Function1<? super androidx.ui.core.DensityScope,androidx.ui.core.IntPx> expectedHeightPx);
-    method public androidx.ui.test.CollectedSizes assertIsSquareWithSize(androidx.ui.core.Dp expectedSize);
-    method public androidx.ui.test.CollectedSizes assertIsSquareWithSize(kotlin.jvm.functions.Function1<? super androidx.ui.core.DensityScope,androidx.ui.core.IntPx> expectedSquarePx);
-    method public androidx.ui.test.CollectedSizes assertWidthEqualsTo(androidx.ui.core.Dp expectedWidth);
-    method public androidx.ui.test.CollectedSizes assertWidthEqualsTo(kotlin.jvm.functions.Function1<? super androidx.ui.core.DensityScope,androidx.ui.core.IntPx> expectedWidthPx);
+    ctor public CollectedSizes(androidx.ui.unit.PxSize size, androidx.ui.unit.Density density);
+    method public androidx.ui.test.CollectedSizes assertHeightEqualsTo(androidx.ui.unit.Dp expectedHeight);
+    method public androidx.ui.test.CollectedSizes assertHeightEqualsTo(kotlin.jvm.functions.Function1<? super androidx.ui.unit.DensityScope,androidx.ui.unit.IntPx> expectedHeightPx);
+    method public androidx.ui.test.CollectedSizes assertIsSquareWithSize(androidx.ui.unit.Dp expectedSize);
+    method public androidx.ui.test.CollectedSizes assertIsSquareWithSize(kotlin.jvm.functions.Function1<? super androidx.ui.unit.DensityScope,androidx.ui.unit.IntPx> expectedSquarePx);
+    method public androidx.ui.test.CollectedSizes assertWidthEqualsTo(androidx.ui.unit.Dp expectedWidth);
+    method public androidx.ui.test.CollectedSizes assertWidthEqualsTo(kotlin.jvm.functions.Function1<? super androidx.ui.unit.DensityScope,androidx.ui.unit.IntPx> expectedWidthPx);
   }
 
   public interface ComposeBenchmarkScope<T> extends androidx.ui.test.ComposeExecutionControl {
@@ -99,12 +99,12 @@ package androidx.ui.test {
     method @RequiresApi(android.os.Build.VERSION_CODES.O) public android.graphics.Bitmap captureScreenOnIdle();
     method public androidx.ui.test.ComposeTestCaseSetup forGivenContent(kotlin.jvm.functions.Function0<kotlin.Unit> composable);
     method public androidx.ui.test.ComposeTestCaseSetup forGivenTestCase(androidx.ui.test.ComposeTestCase testCase);
-    method public androidx.ui.core.Density getDensity();
+    method public androidx.ui.unit.Density getDensity();
     method public android.util.DisplayMetrics getDisplayMetrics();
     method public <T> T! runOnIdleCompose(kotlin.jvm.functions.Function0<? extends T> action);
     method public <T> T! runOnUiThread(kotlin.jvm.functions.Function0<? extends T> action);
     method public void setContent(kotlin.jvm.functions.Function0<kotlin.Unit> composable);
-    property public abstract androidx.ui.core.Density density;
+    property public abstract androidx.ui.unit.Density density;
     property public abstract android.util.DisplayMetrics displayMetrics;
   }
 
@@ -144,16 +144,16 @@ package androidx.ui.test {
   }
 
   public final class GestureScopeKt {
-    method public static void sendClick(androidx.ui.test.GestureScope, androidx.ui.core.PxPosition position);
+    method public static void sendClick(androidx.ui.test.GestureScope, androidx.ui.unit.PxPosition position);
     method public static void sendClick(androidx.ui.test.GestureScope);
-    method public static void sendLongClick(androidx.ui.test.GestureScope, androidx.ui.core.PxPosition position);
+    method public static void sendLongClick(androidx.ui.test.GestureScope, androidx.ui.unit.PxPosition position);
     method public static void sendLongClick(androidx.ui.test.GestureScope);
-    method public static void sendSwipe(androidx.ui.test.GestureScope, androidx.ui.core.PxPosition start, androidx.ui.core.PxPosition end, androidx.ui.core.Duration duration = 200.milliseconds);
+    method public static void sendSwipe(androidx.ui.test.GestureScope, androidx.ui.unit.PxPosition start, androidx.ui.unit.PxPosition end, androidx.ui.unit.Duration duration = 200.milliseconds);
     method public static void sendSwipeDown(androidx.ui.test.GestureScope);
     method public static void sendSwipeLeft(androidx.ui.test.GestureScope);
     method public static void sendSwipeRight(androidx.ui.test.GestureScope);
     method public static void sendSwipeUp(androidx.ui.test.GestureScope);
-    method public static void sendSwipeWithVelocity(androidx.ui.test.GestureScope, androidx.ui.core.PxPosition start, androidx.ui.core.PxPosition end, @FloatRange(from=0.0) float endVelocity, androidx.ui.core.Duration duration = 200.milliseconds);
+    method public static void sendSwipeWithVelocity(androidx.ui.test.GestureScope, androidx.ui.unit.PxPosition start, androidx.ui.unit.PxPosition end, @FloatRange(from=0.0) float endVelocity, androidx.ui.unit.Duration duration = 200.milliseconds);
   }
 
   public final class GoldenSemanticsKt {
@@ -180,7 +180,7 @@ package androidx.ui.test {
   public final class SizesTestingKt {
     method public static androidx.ui.layout.DpConstraints getBigTestConstraints();
     method public static androidx.ui.test.CollectedSizes setContentAndCollectSizes(androidx.ui.test.ComposeTestRule, androidx.ui.layout.DpConstraints parentConstraints = BigTestConstraints, kotlin.jvm.functions.Function0<kotlin.Unit> children);
-    method public static androidx.ui.core.PxSize setContentAndGetPixelSize(androidx.ui.test.ComposeTestRule, androidx.ui.layout.DpConstraints parentConstraints = BigTestConstraints, kotlin.jvm.functions.Function1<? super kotlin.jvm.functions.Function0<kotlin.Unit>,kotlin.Unit> performSetContent = { setContent(it) }, kotlin.jvm.functions.Function0<kotlin.Unit> children);
+    method public static androidx.ui.unit.PxSize setContentAndGetPixelSize(androidx.ui.test.ComposeTestRule, androidx.ui.layout.DpConstraints parentConstraints = BigTestConstraints, kotlin.jvm.functions.Function1<? super kotlin.jvm.functions.Function0<kotlin.Unit>,kotlin.Unit> performSetContent = { setContent(it) }, kotlin.jvm.functions.Function0<kotlin.Unit> children);
   }
 
 }
@@ -203,13 +203,13 @@ package androidx.ui.test.android {
     method public androidx.ui.test.ComposeTestCaseSetup forGivenContent(kotlin.jvm.functions.Function0<kotlin.Unit> composable);
     method public androidx.ui.test.ComposeTestCaseSetup forGivenTestCase(androidx.ui.test.ComposeTestCase testCase);
     method public androidx.test.rule.ActivityTestRule<T> getActivityTestRule();
-    method public androidx.ui.core.Density getDensity();
+    method public androidx.ui.unit.Density getDensity();
     method public android.util.DisplayMetrics getDisplayMetrics();
     method public <T> T! runOnIdleCompose(kotlin.jvm.functions.Function0<? extends T> action);
     method public <T> T! runOnUiThread(kotlin.jvm.functions.Function0<? extends T> action);
     method public void setContent(kotlin.jvm.functions.Function0<kotlin.Unit> composable);
     property public final androidx.test.rule.ActivityTestRule<T> activityTestRule;
-    property public androidx.ui.core.Density density;
+    property public androidx.ui.unit.Density density;
     property public android.util.DisplayMetrics displayMetrics;
   }
 

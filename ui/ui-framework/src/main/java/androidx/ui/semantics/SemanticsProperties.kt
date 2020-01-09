@@ -16,8 +16,8 @@
 
 package androidx.ui.semantics
 
-import androidx.ui.core.Px
 import androidx.ui.text.style.TextDirection
+import androidx.ui.unit.Px
 
 object SemanticsProperties {
     val AccessibilityLabel = object : SemanticsPropertyKey<String>("AccessibilityLabel") {

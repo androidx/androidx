@@ -20,11 +20,11 @@ import android.os.Build
 import androidx.test.filters.MediumTest
 import androidx.test.filters.SdkSuppress
 import androidx.ui.core.Alignment
-import androidx.ui.core.IntPxPosition
-import androidx.ui.core.IntPxSize
+import androidx.ui.unit.IntPxPosition
+import androidx.ui.unit.IntPxSize
 import androidx.ui.core.TestTag
-import androidx.ui.core.ipx
-import androidx.ui.core.withDensity
+import androidx.ui.unit.ipx
+import androidx.ui.unit.withDensity
 import androidx.ui.foundation.ColoredRect
 import androidx.ui.foundation.shape.DrawShape
 import androidx.ui.foundation.shape.RectangleShape

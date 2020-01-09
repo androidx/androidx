@@ -17,9 +17,9 @@
 package androidx.ui.graphics
 
 import androidx.ui.Vertices
-import androidx.ui.engine.geometry.Offset
-import androidx.ui.engine.geometry.RRect
-import androidx.ui.engine.geometry.Rect
+import androidx.ui.geometry.Offset
+import androidx.ui.geometry.RRect
+import androidx.ui.geometry.Rect
 import androidx.ui.vectormath64.Matrix4
 import androidx.ui.vectormath64.degrees
 

@@ -19,15 +19,15 @@ package androidx.ui.layout
 import androidx.annotation.FloatRange
 import androidx.compose.Composable
 import androidx.ui.core.Constraints
-import androidx.ui.core.DensityScope
-import androidx.ui.core.IntPx
-import androidx.ui.core.IntPxSize
 import androidx.ui.core.Layout
 import androidx.ui.core.LayoutModifier
 import androidx.ui.core.Measurable
-import androidx.ui.core.ipx
-import androidx.ui.core.isFinite
 import androidx.ui.core.satisfiedBy
+import androidx.ui.unit.DensityScope
+import androidx.ui.unit.IntPx
+import androidx.ui.unit.IntPxSize
+import androidx.ui.unit.ipx
+import androidx.ui.unit.isFinite
 
 /**
  * A layout modifier that attempts to size a layout to match a specified aspect ratio. The layout

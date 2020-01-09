@@ -17,16 +17,16 @@
 package androidx.ui.foundation.shape.corner
 
 import androidx.annotation.IntRange
-import androidx.ui.core.Dp
-import androidx.ui.core.Px
-import androidx.ui.core.PxSize
-import androidx.ui.core.dp
-import androidx.ui.core.px
-import androidx.ui.core.toRect
-import androidx.ui.engine.geometry.Outline
-import androidx.ui.engine.geometry.RRect
-import androidx.ui.engine.geometry.Radius
-import androidx.ui.engine.geometry.Shape
+import androidx.ui.geometry.RRect
+import androidx.ui.geometry.Radius
+import androidx.ui.graphics.Outline
+import androidx.ui.graphics.Shape
+import androidx.ui.unit.Dp
+import androidx.ui.unit.Px
+import androidx.ui.unit.PxSize
+import androidx.ui.unit.dp
+import androidx.ui.unit.px
+import androidx.ui.unit.toRect
 
 /**
  * A shape describing the rectangle with rounded corners.

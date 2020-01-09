@@ -22,11 +22,11 @@ import androidx.ui.core.Alignment
 import androidx.ui.core.DropDownAlignment
 import androidx.ui.core.DropdownPopup
 import androidx.ui.core.Popup
-import androidx.ui.core.dp
 import androidx.ui.foundation.shape.DrawShape
 import androidx.ui.foundation.shape.corner.RoundedCornerShape
 import androidx.ui.graphics.Color
 import androidx.ui.layout.Container
+import androidx.ui.unit.dp
 
 @Sampled
 @Composable

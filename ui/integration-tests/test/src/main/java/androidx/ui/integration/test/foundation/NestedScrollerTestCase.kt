@@ -20,7 +20,7 @@ import androidx.compose.Composable
 import androidx.compose.remember
 import androidx.ui.core.Text
 import androidx.ui.core.WithDensity
-import androidx.ui.core.px
+import androidx.ui.unit.px
 import androidx.ui.foundation.ColoredRect
 import androidx.ui.graphics.Color
 import androidx.ui.layout.Column

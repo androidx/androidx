@@ -16,10 +16,10 @@
 
 package androidx.ui.text
 
-import androidx.ui.core.Density
 import androidx.ui.text.font.Font
 import androidx.ui.text.platform.AndroidParagraphIntrinsics
 import androidx.ui.text.platform.TypefaceAdapter
+import androidx.ui.unit.Density
 
 /**
  * Calculates and presents the intrinsic width and height of text.

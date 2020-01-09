@@ -19,8 +19,8 @@ package androidx.ui.integration.test.core.text
 import androidx.compose.Composable
 import androidx.ui.core.Span
 import androidx.ui.core.Text
-import androidx.ui.core.dp
-import androidx.ui.core.sp
+import androidx.ui.unit.dp
+import androidx.ui.unit.sp
 import androidx.ui.graphics.Color
 import androidx.ui.layout.LayoutWidth
 import androidx.ui.layout.LayoutWrapped

@@ -25,13 +25,13 @@ import androidx.test.rule.ActivityTestRule
 import androidx.ui.core.Draw
 import androidx.ui.core.Layout
 import androidx.ui.core.Opacity
-import androidx.ui.core.ipx
-import androidx.ui.core.max
 import androidx.ui.core.setContent
-import androidx.ui.core.toRect
 import androidx.ui.framework.test.TestActivity
 import androidx.ui.graphics.Color
 import androidx.ui.graphics.Paint
+import androidx.ui.unit.ipx
+import androidx.ui.unit.max
+import androidx.ui.unit.toRect
 import org.junit.Assert.assertEquals
 import org.junit.Assert.assertTrue
 import org.junit.Before

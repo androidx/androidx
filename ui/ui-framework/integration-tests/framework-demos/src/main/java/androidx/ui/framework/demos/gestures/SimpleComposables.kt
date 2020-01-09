@@ -19,16 +19,16 @@ package androidx.ui.framework.demos.gestures
 import androidx.compose.Composable
 import androidx.compose.remember
 import androidx.ui.core.Constraints
-import androidx.ui.core.Dp
+import androidx.ui.core.Draw
 import androidx.ui.core.Layout
-import androidx.ui.core.Px
-import androidx.ui.core.dp
-import androidx.ui.core.ipx
 import androidx.ui.graphics.Color
 import androidx.ui.graphics.Paint
-import androidx.ui.core.Draw
-import androidx.ui.core.IntPx
 import androidx.ui.graphics.PaintingStyle
+import androidx.ui.unit.Dp
+import androidx.ui.unit.IntPx
+import androidx.ui.unit.Px
+import androidx.ui.unit.dp
+import androidx.ui.unit.ipx
 
 /**
  * A simple layout composable that matches the size of it's parent layout.
@@ -115,7 +115,7 @@ internal fun Border(color: Color, width: Dp, children: @Composable() () -> Unit)
                     strokeWidth = floatWidth
                 }
                 canvas.drawRect(
-                    androidx.ui.engine.geometry.Rect(
+                    androidx.ui.geometry.Rect(
                         floatWidth / 2,
                         floatWidth / 2,
                         parentSize.width.value - floatWidth / 2 + 1,
@@ -189,7 +189,7 @@ internal fun DrawBox(
         val widthValue = if (widthPx.value < 0) parentSize.width.value else widthPx.value
         val heightValue = if (heightPx.value < 0) parentSize.height.value else heightPx.value
         canvas.drawRect(
-            androidx.ui.engine.geometry.Rect(
+            androidx.ui.geometry.Rect(
                 centerX - widthValue / 2,
                 centerY - heightValue / 2,
                 centerX + widthValue / 2,

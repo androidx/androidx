@@ -17,7 +17,7 @@
 package androidx.ui.text.style
 
 import androidx.compose.Immutable
-import androidx.ui.lerp
+import androidx.ui.util.lerp
 
 /**
  * The amount by which the text is shifted up or down from current the baseline.
@@ -48,5 +48,11 @@ import androidx.ui.lerp
  * Linearly interpolate two [BaselineShift]s.
  */
 fun lerp(start: BaselineShift, stop: BaselineShift, fraction: Float): BaselineShift {
-    return BaselineShift(lerp(start.multiplier, stop.multiplier, fraction))
+    return BaselineShift(
+        lerp(
+            start.multiplier,
+            stop.multiplier,
+            fraction
+        )
+    )
 }

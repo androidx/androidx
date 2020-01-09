@@ -17,14 +17,14 @@
 package androidx.ui.material
 
 import androidx.compose.Composable
-import androidx.ui.core.DensityScope
-import androidx.ui.core.PxSize
-import androidx.ui.test.BigTestConstraints
-import androidx.ui.test.CollectedSizes
-import androidx.ui.test.setContentAndGetPixelSize
 import androidx.ui.layout.DpConstraints
 import androidx.ui.material.surface.Surface
+import androidx.ui.test.BigTestConstraints
+import androidx.ui.test.CollectedSizes
 import androidx.ui.test.ComposeTestRule
+import androidx.ui.test.setContentAndGetPixelSize
+import androidx.ui.unit.DensityScope
+import androidx.ui.unit.PxSize
 
 fun ComposeTestRule.setMaterialContent(composable: @Composable() () -> Unit) {
     setContent {

@@ -16,6 +16,11 @@
 
 package androidx.ui.core
 
+import androidx.ui.unit.DensityScope
+import androidx.ui.unit.IntPx
+import androidx.ui.unit.IntPxPosition
+import androidx.ui.unit.IntPxSize
+
 /**
  * A [Modifier.Element] that changes the way a UI component is measured and laid out.
  */

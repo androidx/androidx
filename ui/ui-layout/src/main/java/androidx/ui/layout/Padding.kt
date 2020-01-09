@@ -16,19 +16,18 @@
 
 package androidx.ui.layout
 
-import androidx.ui.core.Dp
-import androidx.ui.core.dp
-import androidx.ui.core.min
-import androidx.ui.core.offset
 import androidx.compose.Composable
 import androidx.compose.Immutable
 import androidx.ui.core.Constraints
-import androidx.ui.core.DensityScope
-import androidx.ui.core.IntPxPosition
-import androidx.ui.core.IntPxSize
 import androidx.ui.core.Layout
 import androidx.ui.core.LayoutModifier
-import androidx.ui.core.coerceIn
+import androidx.ui.core.offset
+import androidx.ui.unit.DensityScope
+import androidx.ui.unit.Dp
+import androidx.ui.unit.IntPxPosition
+import androidx.ui.unit.IntPxSize
+import androidx.ui.unit.dp
+import androidx.ui.unit.min
 
 /**
  * Layout modifier that applies whitespace spacing on specified sides of the target layout.

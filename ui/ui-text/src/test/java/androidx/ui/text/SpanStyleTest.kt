@@ -16,9 +16,6 @@
 
 package androidx.ui.text
 
-import androidx.ui.core.TextUnit
-import androidx.ui.core.em
-import androidx.ui.core.sp
 import androidx.ui.graphics.Color
 import androidx.ui.graphics.lerp
 import androidx.ui.text.font.FontFamily
@@ -30,6 +27,9 @@ import androidx.ui.text.style.BaselineShift
 import androidx.ui.text.style.TextDecoration
 import androidx.ui.text.style.TextGeometricTransform
 import androidx.ui.text.style.lerp
+import androidx.ui.unit.TextUnit
+import androidx.ui.unit.em
+import androidx.ui.unit.sp
 import com.google.common.truth.Truth.assertThat
 import org.junit.Test
 import org.junit.runner.RunWith

@@ -18,13 +18,13 @@ package androidx.ui.core.gesture
 
 import androidx.compose.Composable
 import androidx.compose.remember
-import androidx.ui.core.IntPxSize
 import androidx.ui.core.PointerEventPass
 import androidx.ui.core.PointerInputChange
 import androidx.ui.core.PointerInputHandler
 import androidx.ui.core.PointerInputWrapper
-import androidx.ui.core.PxPosition
 import androidx.ui.core.changedToUpIgnoreConsumed
+import androidx.ui.unit.IntPxSize
+import androidx.ui.unit.PxPosition
 
 interface LongPressDragObserver {
 

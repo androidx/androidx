@@ -22,7 +22,7 @@ import android.os.Build
 import android.util.DisplayMetrics
 import androidx.annotation.RequiresApi
 import androidx.compose.Composable
-import androidx.ui.core.Density
+import androidx.ui.unit.Density
 import androidx.ui.test.android.AndroidComposeTestRule
 import org.junit.rules.TestRule
 

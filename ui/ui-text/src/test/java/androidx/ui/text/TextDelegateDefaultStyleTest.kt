@@ -16,12 +16,12 @@
 
 package androidx.ui.text
 
-import androidx.ui.core.Density
 import androidx.ui.core.LayoutDirection
-import androidx.ui.core.TextUnit
-import androidx.ui.core.sp
 import androidx.ui.text.font.Font
 import androidx.ui.text.style.TextDirectionAlgorithm
+import androidx.ui.unit.Density
+import androidx.ui.unit.TextUnit
+import androidx.ui.unit.sp
 import com.google.common.truth.Truth.assertThat
 import com.nhaarman.mockitokotlin2.mock
 import org.junit.Test

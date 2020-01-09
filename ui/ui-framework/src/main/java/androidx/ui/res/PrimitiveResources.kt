@@ -23,8 +23,8 @@ import androidx.annotation.IntegerRes
 import androidx.compose.Composable
 import androidx.compose.ambient
 import androidx.ui.core.ContextAmbient
-import androidx.ui.core.Dp
 import androidx.ui.core.ambientDensity
+import androidx.ui.unit.Dp
 
 /**
  * Load an integer resource.

@@ -22,16 +22,16 @@ import androidx.compose.ambient
 import androidx.compose.remember
 import androidx.compose.onDispose
 import androidx.ui.animation.transitionsEnabled
-import androidx.ui.core.Density
-import androidx.ui.core.Dp
+import androidx.ui.unit.Density
+import androidx.ui.unit.Dp
 import androidx.ui.core.Draw
 import androidx.ui.core.LayoutCoordinates
 import androidx.ui.core.OnChildPositioned
-import androidx.ui.core.PxPosition
 import androidx.ui.core.ambientDensity
-import androidx.ui.core.center
 import androidx.ui.core.gesture.PressIndicatorGestureDetector
 import androidx.ui.graphics.Color
+import androidx.ui.unit.PxPosition
+import androidx.ui.unit.center
 
 /**
  * Ripple is a visual indicator for a pressed state.

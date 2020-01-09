@@ -25,6 +25,13 @@ import androidx.ui.text.font.Font
 import androidx.ui.text.font.FontStyle
 import androidx.ui.text.font.FontWeight
 import androidx.ui.text.font.asFontFamily
+import androidx.ui.unit.Density
+import androidx.ui.unit.IntPx
+import androidx.ui.unit.PxSize
+import androidx.ui.unit.ipx
+import androidx.ui.unit.px
+import androidx.ui.unit.round
+import androidx.ui.unit.withDensity
 import org.junit.Assert.assertEquals
 import org.junit.Assert.assertNotNull
 import org.junit.Assert.assertTrue

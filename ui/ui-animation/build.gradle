@@ -38,6 +38,7 @@ dependencies {
     api project(":ui:ui-animation-core")
 
     api project(":compose:compose-runtime")
+    implementation project(":ui:ui-util")
     api project(":ui:ui-core")
     api project(":ui:ui-framework")
     api project(":ui:ui-layout")

@@ -17,19 +17,19 @@
 package androidx.ui.core.pointerinput
 
 import androidx.ui.core.AlignmentLine
-import androidx.ui.core.IntPx
-import androidx.ui.core.IntPxPosition
-import androidx.ui.core.IntPxSize
 import androidx.ui.core.LayoutNode
 import androidx.ui.core.MeasureScope
 import androidx.ui.core.Placeable
 import androidx.ui.core.PointerEventPass
 import androidx.ui.core.PointerInputChange
-import androidx.ui.core.PointerInputHandler
-import androidx.ui.core.PxPosition
-import androidx.ui.core.Uptime
-import androidx.ui.core.ipx
 import androidx.ui.core.PointerInputData
+import androidx.ui.core.PointerInputHandler
+import androidx.ui.unit.IntPx
+import androidx.ui.unit.IntPxPosition
+import androidx.ui.unit.IntPxSize
+import androidx.ui.unit.PxPosition
+import androidx.ui.unit.Uptime
+import androidx.ui.unit.ipx
 
 /**
  * This class enables Mockito to spy.

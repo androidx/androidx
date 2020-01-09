@@ -17,9 +17,9 @@
 package androidx.ui.material
 
 import androidx.test.filters.MediumTest
-import androidx.ui.core.dp
-import androidx.ui.core.ipx
 import androidx.ui.test.createComposeRule
+import androidx.ui.unit.dp
+import androidx.ui.unit.ipx
 import org.junit.Rule
 import org.junit.Test
 import org.junit.runner.RunWith

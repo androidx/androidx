@@ -23,10 +23,10 @@ import androidx.compose.Composable
 import androidx.test.filters.LargeTest
 import androidx.test.rule.ActivityTestRule
 import androidx.ui.core.Layout
-import androidx.ui.core.PxPosition
-import androidx.ui.core.ipx
 import androidx.ui.core.setContent
 import androidx.ui.framework.test.TestActivity
+import androidx.ui.unit.PxPosition
+import androidx.ui.unit.ipx
 import com.nhaarman.mockitokotlin2.any
 import com.nhaarman.mockitokotlin2.never
 import com.nhaarman.mockitokotlin2.spy

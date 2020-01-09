@@ -18,13 +18,8 @@ package androidx.ui.layout.test
 
 import androidx.test.filters.SmallTest
 import androidx.ui.core.Alignment
-import androidx.ui.core.IntPx
 import androidx.ui.core.OnChildPositioned
-import androidx.ui.core.PxPosition
-import androidx.ui.core.PxSize
 import androidx.ui.core.Ref
-import androidx.ui.core.ipx
-import androidx.ui.core.withDensity
 import androidx.ui.layout.Align
 import androidx.ui.layout.Container
 import androidx.ui.layout.DpConstraints
@@ -33,6 +28,11 @@ import androidx.ui.layout.FlowCrossAxisAlignment
 import androidx.ui.layout.FlowMainAxisAlignment
 import androidx.ui.layout.FlowRow
 import androidx.ui.layout.SizeMode
+import androidx.ui.unit.IntPx
+import androidx.ui.unit.PxPosition
+import androidx.ui.unit.PxSize
+import androidx.ui.unit.ipx
+import androidx.ui.unit.withDensity
 import org.junit.Assert.assertTrue
 import org.junit.Test
 import org.junit.runner.RunWith

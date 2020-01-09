@@ -16,17 +16,17 @@
 
 package androidx.ui.core.gesture
 
+import androidx.compose.Composable
+import androidx.compose.remember
 import androidx.ui.core.PointerEventPass
 import androidx.ui.core.PointerInputChange
+import androidx.ui.core.PointerInputWrapper
 import androidx.ui.core.anyPositionChangeConsumed
 import androidx.ui.core.changedToDown
 import androidx.ui.core.changedToUp
 import androidx.ui.core.consumeDownChange
-import androidx.compose.Composable
-import androidx.compose.remember
-import androidx.ui.core.IntPxSize
-import androidx.ui.core.PointerInputWrapper
 import androidx.ui.core.gesture.util.anyPointersInBounds
+import androidx.ui.unit.IntPxSize
 
 /**
  * This gesture detector fires a callback when a traditional press is being released.  This is

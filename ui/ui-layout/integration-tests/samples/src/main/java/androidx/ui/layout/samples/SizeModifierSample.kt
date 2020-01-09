@@ -19,18 +19,18 @@ package androidx.ui.layout.samples
 import androidx.annotation.Sampled
 import androidx.compose.Composable
 import androidx.ui.core.Alignment
-import androidx.ui.core.dp
 import androidx.ui.foundation.ColoredRect
 import androidx.ui.foundation.shape.DrawShape
 import androidx.ui.foundation.shape.RectangleShape
 import androidx.ui.graphics.Color
 import androidx.ui.layout.Align
-import androidx.ui.layout.LayoutAspectRatio
 import androidx.ui.layout.Center
 import androidx.ui.layout.Container
+import androidx.ui.layout.LayoutAspectRatio
 import androidx.ui.layout.LayoutHeight
 import androidx.ui.layout.LayoutSize
 import androidx.ui.layout.LayoutWidth
+import androidx.ui.unit.dp
 
 @Sampled
 @Composable

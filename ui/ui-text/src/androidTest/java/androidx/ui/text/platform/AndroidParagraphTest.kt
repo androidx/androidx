@@ -21,12 +21,7 @@ import androidx.text.style.LetterSpacingSpanPx
 import androidx.text.style.ShadowSpan
 import androidx.text.style.SkewXSpan
 import androidx.text.style.TypefaceSpan
-import androidx.ui.core.Density
-import androidx.ui.core.em
-import androidx.ui.core.px
-import androidx.ui.core.sp
-import androidx.ui.core.withDensity
-import androidx.ui.engine.geometry.Offset
+import androidx.ui.geometry.Offset
 import androidx.ui.graphics.Color
 import androidx.ui.graphics.Shadow
 import androidx.ui.graphics.toArgb
@@ -49,6 +44,11 @@ import androidx.ui.text.style.TextDecoration
 import androidx.ui.text.style.TextDirectionAlgorithm
 import androidx.ui.text.style.TextGeometricTransform
 import androidx.ui.text.style.TextIndent
+import androidx.ui.unit.Density
+import androidx.ui.unit.em
+import androidx.ui.unit.px
+import androidx.ui.unit.sp
+import androidx.ui.unit.withDensity
 import com.google.common.truth.Truth.assertThat
 import com.nhaarman.mockitokotlin2.any
 import com.nhaarman.mockitokotlin2.eq

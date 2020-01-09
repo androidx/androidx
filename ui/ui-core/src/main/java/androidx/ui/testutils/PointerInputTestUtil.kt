@@ -17,16 +17,16 @@
 package androidx.ui.testutils
 
 import androidx.ui.core.ConsumedData
-import androidx.ui.core.Duration
-import androidx.ui.core.IntPxSize
 import androidx.ui.core.PointerEventPass
 import androidx.ui.core.PointerInputChange
 import androidx.ui.core.PointerInputData
 import androidx.ui.core.PointerInputHandler
-import androidx.ui.core.PxPosition
-import androidx.ui.core.Uptime
-import androidx.ui.core.ipx
-import androidx.ui.core.px
+import androidx.ui.unit.Duration
+import androidx.ui.unit.IntPxSize
+import androidx.ui.unit.PxPosition
+import androidx.ui.unit.Uptime
+import androidx.ui.unit.ipx
+import androidx.ui.unit.px
 
 fun down(
     id: Int = 0,

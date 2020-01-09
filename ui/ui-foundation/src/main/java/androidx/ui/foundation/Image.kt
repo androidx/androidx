@@ -20,14 +20,14 @@ import androidx.compose.Composable
 import androidx.compose.remember
 import androidx.ui.core.Draw
 import androidx.ui.core.WithDensity
-import androidx.ui.engine.geometry.Rect
-import androidx.ui.graphics.Color
-import androidx.ui.layout.Container
+import androidx.ui.geometry.Rect
 import androidx.ui.graphics.BlendMode
+import androidx.ui.graphics.Color
 import androidx.ui.graphics.ColorFilter
 import androidx.ui.graphics.FilterQuality
 import androidx.ui.graphics.Image
 import androidx.ui.graphics.Paint
+import androidx.ui.layout.Container
 
 // TODO(Andrey) Temporary. Should be replaced with our proper Image component when it available
 @Composable

@@ -21,7 +21,6 @@ import androidx.compose.Composable
 import androidx.compose.remember
 import androidx.compose.state
 import androidx.ui.core.Text
-import androidx.ui.core.dp
 import androidx.ui.foundation.selection.ToggleableState
 import androidx.ui.graphics.Color
 import androidx.ui.layout.Column
@@ -32,6 +31,7 @@ import androidx.ui.material.RadioButton
 import androidx.ui.material.RadioGroup
 import androidx.ui.material.Switch
 import androidx.ui.material.TriStateCheckbox
+import androidx.ui.unit.dp
 
 @Sampled
 @Composable

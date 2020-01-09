@@ -16,16 +16,16 @@
 
 package androidx.ui.core.pointerinput
 
-import androidx.ui.core.IntPxPosition
-import androidx.ui.core.IntPxSize
 import androidx.ui.core.PointerEventPass
 import androidx.ui.core.PointerInputChange
 import androidx.ui.core.PointerInputNode
 import androidx.ui.core.hasNoLayoutDescendants
-import androidx.ui.core.ipx
 import androidx.ui.core.isAttached
 import androidx.ui.core.positionRelativeToRoot
 import androidx.ui.core.visitLayoutChildren
+import androidx.ui.unit.IntPxPosition
+import androidx.ui.unit.IntPxSize
+import androidx.ui.unit.ipx
 import kotlin.math.max
 import kotlin.math.min
 

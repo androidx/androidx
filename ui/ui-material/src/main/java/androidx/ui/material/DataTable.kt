@@ -21,12 +21,9 @@ import androidx.compose.state
 import androidx.ui.core.Alignment
 import androidx.ui.core.Constraints
 import androidx.ui.core.CurrentTextStyleProvider
-import androidx.ui.core.Dp
-import androidx.ui.core.IntPx
 import androidx.ui.core.Layout
 import androidx.ui.core.ParentData
 import androidx.ui.core.Text
-import androidx.ui.core.dp
 import androidx.ui.foundation.Clickable
 import androidx.ui.foundation.ColoredRect
 import androidx.ui.foundation.SimpleImage
@@ -41,14 +38,17 @@ import androidx.ui.layout.Container
 import androidx.ui.layout.EdgeInsets
 import androidx.ui.layout.LayoutGravity
 import androidx.ui.layout.LayoutSize
+import androidx.ui.layout.LayoutWidth
 import androidx.ui.layout.Row
+import androidx.ui.layout.Spacer
 import androidx.ui.layout.Table
 import androidx.ui.layout.TableColumnWidth
-import androidx.ui.layout.Spacer
-import androidx.ui.layout.LayoutWidth
 import androidx.ui.material.ripple.Ripple
 import androidx.ui.text.TextStyle
 import androidx.ui.text.font.FontWeight
+import androidx.ui.unit.Dp
+import androidx.ui.unit.IntPx
+import androidx.ui.unit.dp
 
 /**
  * Pagination configuration for a [DataTable].

@@ -21,12 +21,12 @@ import androidx.compose.ambient
 import androidx.compose.state
 import androidx.ui.core.FocusManagerAmbient
 import androidx.ui.core.TextField
-import androidx.ui.core.sp
 import androidx.ui.foundation.VerticalScroller
 import androidx.ui.graphics.Color
 import androidx.ui.input.ImeAction
 import androidx.ui.layout.Column
 import androidx.ui.text.TextStyle
+import androidx.ui.unit.sp
 
 @Composable
 fun TextFieldFocusTransition() {

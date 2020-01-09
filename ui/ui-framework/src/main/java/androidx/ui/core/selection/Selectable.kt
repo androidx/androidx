@@ -17,7 +17,7 @@
 package androidx.ui.core.selection
 
 import androidx.ui.core.LayoutCoordinates
-import androidx.ui.core.PxPosition
+import androidx.ui.unit.PxPosition
 
 /**
  * Provides [Selection] information for a composable to SelectionContainer. Composables who can

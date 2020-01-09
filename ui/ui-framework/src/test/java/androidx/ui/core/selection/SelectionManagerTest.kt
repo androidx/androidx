@@ -18,9 +18,9 @@ package androidx.ui.core.selection
 
 import androidx.test.filters.SmallTest
 import androidx.ui.core.LayoutCoordinates
-import androidx.ui.core.PxPosition
-import androidx.ui.core.px
 import androidx.ui.text.style.TextDirection
+import androidx.ui.unit.PxPosition
+import androidx.ui.unit.px
 import com.google.common.truth.Truth.assertThat
 import com.nhaarman.mockitokotlin2.mock
 import com.nhaarman.mockitokotlin2.spy

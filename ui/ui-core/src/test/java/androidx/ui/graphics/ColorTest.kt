@@ -17,8 +17,8 @@
 package androidx.ui.graphics
 import androidx.test.filters.SmallTest
 import androidx.ui.graphics.colorspace.ColorSpaces
-import androidx.ui.lerp
-import androidx.ui.toHexString
+import androidx.ui.util.lerp
+import androidx.ui.util.toHexString
 import org.junit.Assert.assertEquals
 import org.junit.Test
 import org.junit.runner.RunWith
@@ -111,8 +111,16 @@ class ColorTest {
             val color = lerp(red, green, t)
             val expectedLinear = Color(
                 red = lerp(redLinear.red, greenLinear.red, t),
-                green = lerp(redLinear.green, greenLinear.green, t),
-                blue = lerp(redLinear.blue, greenLinear.blue, t),
+                green = lerp(
+                    redLinear.green,
+                    greenLinear.green,
+                    t
+                ),
+                blue = lerp(
+                    redLinear.blue,
+                    greenLinear.blue,
+                    t
+                ),
                 colorSpace = ColorSpaces.LinearExtendedSrgb
             )
             val expected = expectedLinear.convert(ColorSpaces.Srgb)
@@ -126,7 +134,12 @@ class ColorTest {
         for (i in 0..255) {
             val t = i / 255f
             val color = lerp(red, transparentRed, t)
-            val expected = Color.Red.copy(alpha = lerp(1f, 0f, t))
+            val expected = Color.Red.copy(alpha = lerp(
+                1f,
+                0f,
+                t
+            )
+            )
             val colorARGB = Color(color.toArgb())
             val expectedARGB = Color(expected.toArgb())
             assertEquals("at t = $t[$i] was ${colorARGB.toArgb().toHexString()}, " +

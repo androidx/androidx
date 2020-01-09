@@ -15,9 +15,7 @@
  */
 package androidx.ui.text
 
-import androidx.ui.core.Density
-import androidx.ui.core.PxPosition
-import androidx.ui.engine.geometry.Rect
+import androidx.ui.geometry.Rect
 import androidx.ui.graphics.Canvas
 import androidx.ui.graphics.Path
 import androidx.ui.text.font.Font
@@ -25,6 +23,8 @@ import androidx.ui.text.platform.AndroidParagraph
 import androidx.ui.text.platform.AndroidParagraphIntrinsics
 import androidx.ui.text.platform.TypefaceAdapter
 import androidx.ui.text.style.TextDirection
+import androidx.ui.unit.Density
+import androidx.ui.unit.PxPosition
 
 internal const val DefaultMaxLines = Int.MAX_VALUE
 

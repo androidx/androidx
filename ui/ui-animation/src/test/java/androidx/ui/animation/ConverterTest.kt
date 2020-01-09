@@ -19,12 +19,12 @@ package androidx.ui.animation
 import androidx.animation.AnimationVector1D
 import androidx.animation.AnimationVector2D
 import androidx.animation.AnimationVector4D
-import androidx.ui.core.PxPosition
-import androidx.ui.core.dp
-import androidx.ui.core.px
-import androidx.ui.engine.geometry.Rect
+import androidx.ui.geometry.Rect
 import androidx.ui.graphics.Color
 import androidx.ui.graphics.colorspace.ColorSpaces
+import androidx.ui.unit.PxPosition
+import androidx.ui.unit.dp
+import androidx.ui.unit.px
 import junit.framework.TestCase.assertEquals
 import org.junit.Test
 import org.junit.runner.RunWith

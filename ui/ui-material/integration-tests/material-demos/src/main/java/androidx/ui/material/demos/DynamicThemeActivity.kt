@@ -23,7 +23,6 @@ import androidx.compose.Composable
 import androidx.compose.Model
 import androidx.compose.remember
 import androidx.ui.core.Text
-import androidx.ui.core.dp
 import androidx.ui.core.setContent
 import androidx.ui.foundation.ScrollerPosition
 import androidx.ui.foundation.VerticalScroller
@@ -39,8 +38,8 @@ import androidx.ui.layout.LayoutGravity
 import androidx.ui.layout.LayoutHeight
 import androidx.ui.layout.LayoutSize
 import androidx.ui.layout.LayoutWidth
-import androidx.ui.layout.Spacer
 import androidx.ui.layout.Padding
+import androidx.ui.layout.Spacer
 import androidx.ui.layout.Stack
 import androidx.ui.material.BottomAppBar
 import androidx.ui.material.BottomAppBar.FabConfiguration
@@ -51,6 +50,7 @@ import androidx.ui.material.TopAppBar
 import androidx.ui.material.lightColorPalette
 import androidx.ui.material.surface.Surface
 import androidx.ui.text.TextStyle
+import androidx.ui.unit.dp
 import kotlin.math.round
 
 /**

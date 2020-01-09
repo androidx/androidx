@@ -18,19 +18,19 @@ package androidx.ui.core.pointerinput
 
 import androidx.ui.core.ComponentNode
 import androidx.ui.core.ConsumedData
-import androidx.ui.core.IntPxPosition
-import androidx.ui.core.IntPxSize
 import androidx.ui.core.LayoutNode
 import androidx.ui.core.PointerEventPass
 import androidx.ui.core.PointerInputChange
 import androidx.ui.core.PointerInputData
 import androidx.ui.core.PointerInputNode
-import androidx.ui.core.PxPosition
-import androidx.ui.core.Uptime
 import androidx.ui.core.changedToDownIgnoreConsumed
 import androidx.ui.core.changedToUpIgnoreConsumed
-import androidx.ui.core.toOffset
-import androidx.ui.engine.geometry.Rect
+import androidx.ui.geometry.Rect
+import androidx.ui.unit.IntPxPosition
+import androidx.ui.unit.IntPxSize
+import androidx.ui.unit.PxPosition
+import androidx.ui.unit.Uptime
+import androidx.ui.unit.toOffset
 
 /**
  * The core element that receives [PointerInputEvent]s and process them in Compose UI.
