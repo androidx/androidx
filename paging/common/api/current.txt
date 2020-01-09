@@ -142,11 +142,9 @@ package androidx.paging {
     method public <R> androidx.paging.PagedData<R> map(kotlin.jvm.functions.Function1<? super T,? extends R> transform);
   }
 
-  public final class PagedDataFlowBuilder<Key, Value> {
-    ctor public PagedDataFlowBuilder(kotlin.jvm.functions.Function0<? extends androidx.paging.PagedSource<Key,Value>> pagedSourceFactory, androidx.paging.PagingConfig config);
-    ctor @Deprecated public PagedDataFlowBuilder(androidx.paging.DataSource.Factory<Key,Value> dataSourceFactory, androidx.paging.PagingConfig config);
-    method public kotlinx.coroutines.flow.Flow<androidx.paging.PagedData<Value>> build();
-    method public androidx.paging.PagedDataFlowBuilder<Key,Value> setInitialKey(Key? initialKey);
+  public final class PagedDataFlow {
+    method public static <Key, Value> kotlinx.coroutines.flow.Flow<androidx.paging.PagedData<Value>> create(androidx.paging.PagingConfig config, Key? initialKey, kotlin.jvm.functions.Function0<? extends androidx.paging.PagedSource<Key,Value>> pagedSourceFactory);
+    method public static <Key, Value> kotlinx.coroutines.flow.Flow<androidx.paging.PagedData<Value>> create(androidx.paging.PagingConfig config, kotlin.jvm.functions.Function0<? extends androidx.paging.PagedSource<Key,Value>> pagedSourceFactory);
   }
 
   public abstract class PagedList<T> extends java.util.AbstractList<T> {
