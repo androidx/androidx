@@ -136,14 +136,6 @@
             </intent-filter>
         </activity>
 
-        <activity android:name=".app.FragmentRetainInstanceSupport"
-                android:label="@string/fragment_retain_instance_support">
-            <intent-filter>
-                <action android:name="android.intent.action.MAIN" />
-                <category android:name="com.example.android.supportv4.SUPPORT4_SAMPLE_CODE" />
-            </intent-filter>
-        </activity>
-
         <activity android:name=".app.FragmentReceiveResultSupport"
                 android:label="@string/fragment_receive_result_support">
             <intent-filter>
@@ -170,6 +162,14 @@
 
         <activity android:name=".app.FragmentStatePagerSupport"
                 android:label="@string/fragment_state_pager_support">
+            <intent-filter>
+                <action android:name="android.intent.action.MAIN" />
+                <category android:name="com.example.android.supportv4.SUPPORT4_SAMPLE_CODE" />
+            </intent-filter>
+        </activity>
+
+        <activity android:name=".app.FragmentViewModelSupport"
+            android:label="@string/fragment_view_model_support">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
                 <category android:name="com.example.android.supportv4.SUPPORT4_SAMPLE_CODE" />
