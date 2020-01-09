@@ -58,7 +58,6 @@ import androidx.media2.common.SubtitleData;
 import androidx.media2.common.VideoSize;
 import androidx.media2.session.MediaSession;
 import androidx.media2.session.MediaSession.CommandButton;
-import androidx.media2.session.MediaSession.ControllerInfo;
 import androidx.media2.session.SessionCommand;
 import androidx.media2.session.SessionCommandGroup;
 import androidx.media2.session.SessionToken;
@@ -255,10 +254,8 @@ public class RemoteMediaSession {
         }
     }
 
-    public void sendCustomCommand(@NonNull ControllerInfo controller,
-            @NonNull SessionCommand command, @Nullable Bundle args) {
+    public void sendCustomCommand(@NonNull SessionCommand command, @Nullable Bundle args) {
         try {
-            // TODO: ControllerInfo should be handled.
             mBinder.sendCustomCommand(
                     mSessionId, null, MediaParcelUtils.toParcelable(command), args);
         } catch (RemoteException ex) {
@@ -274,10 +271,8 @@ public class RemoteMediaSession {
         }
     }
 
-    public void setAllowedCommands(@NonNull ControllerInfo controller,
-            @NonNull SessionCommandGroup commands) {
+    public void setAllowedCommands(@NonNull SessionCommandGroup commands) {
         try {
-            // TODO: ControllerInfo should be handled.
             mBinder.setAllowedCommands(mSessionId, null,
                     MediaParcelUtils.toParcelable(commands));
         } catch (RemoteException ex) {
@@ -285,14 +280,12 @@ public class RemoteMediaSession {
         }
     }
 
-    public void setCustomLayout(@NonNull ControllerInfo controller,
-            @NonNull List<CommandButton> layout) {
+    public void setCustomLayout(@NonNull List<CommandButton> layout) {
         try {
             List<ParcelImpl> parcelList = new ArrayList<>();
             for (CommandButton btn : layout) {
                 parcelList.add(MediaParcelUtils.toParcelable(btn));
             }
-            // TODO: ControllerInfo should be handled.
             mBinder.setCustomLayout(mSessionId, null, parcelList);
         } catch (RemoteException ex) {
             Log.e(TAG, "Failed to call setCustomLayout()");
