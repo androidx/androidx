@@ -97,26 +97,40 @@ public class RowContent extends SliceContent {
         // Filter anything not viable for displaying in a row
         ArrayList<SliceItem> rowItems = filterInvalidItems(rowSlice);
         // If we've only got one item that's a slice / action use those items instead
+        boolean isOneItem = false;
         if (rowItems.size() == 1 && (FORMAT_ACTION.equals(rowItems.get(0).getFormat())
                 || FORMAT_SLICE.equals(rowItems.get(0).getFormat()))
                 && !rowItems.get(0).hasAnyHints(HINT_SHORTCUT, HINT_TITLE)) {
             if (isValidRow(rowItems.get(0))) {
+                isOneItem = true;
                 rowSlice = rowItems.get(0);
                 rowItems = filterInvalidItems(rowSlice);
             }
         }
         if (SUBTYPE_RANGE.equals(rowSlice.getSubType())) {
-            //It must be a Range or InputRange
-            if (mStartItem == null) {
+            // It must be a Range or InputRange without StartItem/EndItem.
+            if (SliceQuery.findSubtype(rowSlice, FORMAT_ACTION, SUBTYPE_RANGE) == null
+                    || isOneItem) {
                 mRange = rowSlice;
             } else {
                 // Remove the startItem we already know about
                 rowItems.remove(mStartItem);
-                //After removing startItem, then it must be action<range>
-                if (isValidRow(rowItems.get(0))) {
-                    rowSlice = rowItems.get(0);
-                    rowItems = filterInvalidItems(rowSlice);
-                    mRange = rowSlice;
+                // After removing startItem, if size == 1, then it must be action<range>
+                if (rowItems.size() == 1) {
+                    if (isValidRow(rowItems.get(0))) {
+                        rowSlice = rowItems.get(0);
+                        rowItems = filterInvalidItems(rowSlice);
+                        mRange = rowSlice;
+                        // Remove thumb icon, don't let it be added into endItems
+                        rowItems.remove(getInputRangeThumb());
+                    }
+                } else { // It must has end items.
+                    mRange = SliceQuery.findSubtype(rowSlice, FORMAT_ACTION, SUBTYPE_RANGE);
+                    // Refactor the rowItems, then it can be parsed correctly
+                    ArrayList<SliceItem> rangeItems = filterInvalidItems(mRange);
+                    rangeItems.remove(getInputRangeThumb());
+                    rowItems.remove(mRange);
+                    rowItems.addAll(rangeItems);
                 }
             }
         }

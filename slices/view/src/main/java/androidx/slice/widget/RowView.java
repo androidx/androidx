@@ -473,7 +473,10 @@ public class RowView extends SliceChildView implements View.OnClickListener,
                 setRangeBounds();
                 addRange();
             }
-            return;
+            // if mStartItem is not null, then RowView should update end items.
+            if (mStartItem == null) {
+                return;
+            }
         }
 
         final SliceItem selection = mRowContent.getSelection();
@@ -489,7 +492,7 @@ public class RowView extends SliceChildView implements View.OnClickListener,
 
     @SuppressWarnings("unchecked")
     private void updateEndItems() {
-        if (mRowContent == null) {
+        if (mRowContent == null || (mRowContent.getRange() != null && mStartItem == null)) {
             return;
         }
         mEndContainer.removeAllViews();
