@@ -92,11 +92,18 @@ class AccessibilityTest(private val config: TestConfig) : BaseTest() {
 
     @Test
     fun test_collectionInfo() {
-        setUpTest(config.orientation).apply {
-            setAdapterSync(viewAdapterProvider.provider(stringSequence(6)))
+        test_collectionInfo(6)
+    }
 
-            val initialPage = viewPager.currentItem
-            assertBasicState(initialPage)
+    @Test
+    fun test_collectionInfo_zeroItems() {
+        test_collectionInfo(0)
+    }
+
+    private fun test_collectionInfo(numberOfItems: Int) {
+        setUpTest(config.orientation).apply {
+            setAdapterSync(viewAdapterProvider.provider(stringSequence(numberOfItems)))
+            assertBasicState(viewPager.currentItem, null)
 
             var node = AccessibilityNodeInfoCompat.obtain()
             runOnUiThreadSync {
@@ -105,11 +112,11 @@ class AccessibilityTest(private val config: TestConfig) : BaseTest() {
             var collectionInfo = node.collectionInfo
             if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.KITKAT) {
                 if (config.orientation == ORIENTATION_VERTICAL) {
-                    assertThat(collectionInfo.rowCount, equalTo(6))
-                    assertThat(collectionInfo.columnCount, equalTo(0))
+                    assertThat(collectionInfo.rowCount, equalTo(numberOfItems))
+                    assertThat(collectionInfo.columnCount, equalTo(1))
                 } else {
-                    assertThat(collectionInfo.columnCount, equalTo(6))
-                    assertThat(collectionInfo.rowCount, equalTo(0))
+                    assertThat(collectionInfo.columnCount, equalTo(numberOfItems))
+                    assertThat(collectionInfo.rowCount, equalTo(1))
                 }
                 assertThat(collectionInfo.isHierarchical, equalTo(false))
                 if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {

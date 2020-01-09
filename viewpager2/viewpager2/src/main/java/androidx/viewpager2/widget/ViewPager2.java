@@ -1537,8 +1537,10 @@ public final class ViewPager2 extends ViewGroup {
             if (getAdapter() != null) {
                 if (getOrientation() == ORIENTATION_VERTICAL) {
                     rowCount = getAdapter().getItemCount();
+                    colCount = 1;
                 } else {
                     colCount = getAdapter().getItemCount();
+                    rowCount = 1;
                 }
             }
             AccessibilityNodeInfoCompat.CollectionInfoCompat collectionInfo =
