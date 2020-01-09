@@ -50,7 +50,6 @@ import androidx.media2.common.VideoSize;
 import androidx.media2.session.MediaController;
 import androidx.media2.session.MediaController.PlaybackInfo;
 import androidx.media2.session.MediaSession;
-import androidx.media2.session.MediaSession.ControllerInfo;
 import androidx.media2.session.SessionCommand;
 import androidx.media2.session.SessionCommandGroup;
 import androidx.media2.session.SessionResult;
@@ -82,9 +81,6 @@ import java.util.concurrent.atomic.AtomicReference;
 @LargeTest
 public class MediaControllerCallbackTest extends MediaSessionTestBase {
 
-    // Since ControllerInfo cannot be passed, we just pass null and the service app chooses the
-    // right controller by using the package name.
-    static final ControllerInfo TEST_CONTROLLER_INFO = null;
     RemoteMediaSession mRemoteSession2;
     MediaController mController;
 
@@ -786,7 +782,7 @@ public class MediaControllerCallbackTest extends MediaSessionTestBase {
 
         MediaController controller = createController(mRemoteSession2.getToken(), true, null,
                 callback);
-        mRemoteSession2.setAllowedCommands(TEST_CONTROLLER_INFO, commands);
+        mRemoteSession2.setAllowedCommands(commands);
         assertTrue(latch.await(TIMEOUT_MS, TimeUnit.MILLISECONDS));
         assertEquals(commands, controller.getAllowedCommands());
     }
@@ -829,7 +825,7 @@ public class MediaControllerCallbackTest extends MediaSessionTestBase {
         mRemoteSession2.broadcastCustomCommand(testCommand, testArgs);
 
         // TODO(jaewan): Test receivers as well.
-        mRemoteSession2.sendCustomCommand(TEST_CONTROLLER_INFO, testCommand, testArgs);
+        mRemoteSession2.sendCustomCommand(testCommand, testArgs);
         assertTrue(primaryLatch.await(TIMEOUT_MS, TimeUnit.MILLISECONDS));
 
         assertFalse("Extra ControllerCallback shouldn't be called",
@@ -875,7 +871,7 @@ public class MediaControllerCallbackTest extends MediaSessionTestBase {
                 primaryCallback);
         controller.registerExtraCallback(sHandlerExecutor, extraCallback);
 
-        mRemoteSession2.setCustomLayout(TEST_CONTROLLER_INFO, buttons);
+        mRemoteSession2.setCustomLayout(buttons);
         assertTrue(primaryLatch.await(TIMEOUT_MS, TimeUnit.MILLISECONDS));
 
         assertFalse("Extra ControllerCallback shouldn't be called",

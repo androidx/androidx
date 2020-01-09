@@ -530,7 +530,6 @@ public class MediaSession_PermissionTest extends MediaSessionTestBase {
         // Change allowed commands.
         mSession.setAllowedCommands(getTestControllerInfo(),
                 createCommandGroupWithout(COMMAND_CODE_SESSION_PREPARE_FROM_SEARCH));
-        Thread.sleep(TIMEOUT_MS);
 
         controller.prepareFromSearch(query, null);
         assertFalse(mCallback.mCountDownLatch.await(TIMEOUT_MS, TimeUnit.MILLISECONDS));

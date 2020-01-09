@@ -16,6 +16,7 @@
 
 package androidx.media2.session;
 
+import static androidx.media2.common.BaseResult.RESULT_ERROR_PERMISSION_DENIED;
 import static androidx.media2.common.BaseResult.RESULT_ERROR_UNKNOWN;
 import static androidx.media2.session.MediaUtils.DIRECT_EXECUTOR;
 import static androidx.media2.session.SessionCommand.COMMAND_CODE_CUSTOM;
@@ -190,6 +191,7 @@ class MediaSessionStub extends IMediaSession.Stub {
                                 Log.d(TAG, "Command (" + sessionCommand + ") from "
                                         + controller + " isn't allowed.");
                             }
+                            sendSessionResult(controller, seq, RESULT_ERROR_PERMISSION_DENIED);
                             return;
                         }
                         commandForOnCommandRequest = sCommandsForOnCommandRequest.get(
@@ -201,6 +203,7 @@ class MediaSessionStub extends IMediaSession.Stub {
                                 Log.d(TAG, "Command (" + commandCode + ") from "
                                         + controller + " isn't allowed.");
                             }
+                            sendSessionResult(controller, seq, RESULT_ERROR_PERMISSION_DENIED);
                             return;
                         }
                         commandForOnCommandRequest = sCommandsForOnCommandRequest.get(
