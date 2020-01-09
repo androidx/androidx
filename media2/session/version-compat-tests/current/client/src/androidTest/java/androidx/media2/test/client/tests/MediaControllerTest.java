@@ -49,6 +49,8 @@ import androidx.media2.session.MediaController;
 import androidx.media2.session.MediaController.ControllerCallback;
 import androidx.media2.session.MediaController.ControllerCallbackRunnable;
 import androidx.media2.session.MediaController.PlaybackInfo;
+import androidx.media2.session.SessionCommand;
+import androidx.media2.session.SessionCommandGroup;
 import androidx.media2.session.SessionToken;
 import androidx.media2.test.client.MediaTestUtils;
 import androidx.media2.test.client.RemoteMediaSession;
@@ -507,6 +509,44 @@ public class MediaControllerTest extends MediaSessionTestBase {
         assertTrue(primaryLatch.await(TIMEOUT_MS, TimeUnit.MILLISECONDS));
         assertTrue(extraLatch1.await(TIMEOUT_MS, TimeUnit.MILLISECONDS));
         assertTrue(extraLatch2.await(TIMEOUT_MS, TimeUnit.MILLISECONDS));
+    }
+
+    @Test
+    public void testFuturesCompleted_AllowedCommandsChange() throws Exception {
+        if (!MediaTestUtils.isServiceToT()) {
+            // TODO(b/147400981): Remove this early return once the previous service module is
+            //  updated to the next version that has fixed the issue.
+            return;
+        }
+
+        RemoteMediaSession session = mRemoteSession;
+        MediaController controller = createController(session.getToken());
+
+        SessionCommandGroup.Builder builder = new SessionCommandGroup.Builder();
+        SessionCommand fastForwardCommand = new SessionCommand(
+                SessionCommand.COMMAND_CODE_SESSION_FAST_FORWARD);
+        SessionCommand customCommand = new SessionCommand("custom", null);
+
+        int trials = 100;
+        CountDownLatch latch = new CountDownLatch(trials * 2);
+
+        for (int trial = 0; trial < trials; trial++) {
+            if (trial % 2 == 0) {
+                builder.addCommand(fastForwardCommand);
+                builder.addCommand(customCommand);
+            } else {
+                builder.removeCommand(fastForwardCommand);
+                builder.removeCommand(customCommand);
+            }
+            session.setAllowedCommands(builder.build());
+
+            controller.fastForward()
+                    .addListener(latch::countDown, Runnable::run);
+            controller.sendCustomCommand(customCommand, null)
+                    .addListener(latch::countDown, Runnable::run);
+        }
+
+        assertTrue("All futures should be completed", latch.await(10, TimeUnit.SECONDS));
     }
 
     RemoteMediaSession createRemoteMediaSession(String id, Bundle tokenExtras) {
