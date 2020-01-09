@@ -19,10 +19,9 @@ package androidx.paging
 /**
  * Type of load a [PagedList] can trigger a [PagedSource] to perform.
  *
- * You can use a [LoadStateListener] to observe [LoadState] of any [LoadType]. For UI
- * purposes (swipe refresh, loading spinner, retry button), this is typically done by registering a
- * [LoadStateListener] with the [androidx.paging.PagedListAdapter] or
- * [androidx.paging.AsyncPagedListDiffer].
+ * [LoadState] of any [LoadType] may be observed for UI purposes by registering a listener via
+ * [androidx.paging.PagedListAdapter.addLoadStateListener] or
+ * [androidx.paging.AsyncPagedListDiffer.addLoadStateListener].
  *
  * @see LoadState
  */

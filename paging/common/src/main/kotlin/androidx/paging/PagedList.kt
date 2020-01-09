@@ -37,30 +37,6 @@ import java.util.AbstractList
 import java.util.concurrent.Executor
 
 /**
- * Callback for changes to loading state - whether the refresh, prepend, or append is idle, loading,
- * or has an error.
- *
- * Used to observe the [LoadState] of any [LoadType] (REFRESH/START/END). For UI purposes
- * (swipe refresh, loading spinner, retry button), this is typically done by registering a
- * [LoadStateListener] with the [androidx.paging.PagedListAdapter] or
- * [androidx.paging.AsyncPagedListDiffer].
- *
- * These calls will be dispatched on the executor defined by [PagedList.Builder.setNotifyExecutor],
- * which is generally the main/UI thread.
- *
- * Called when the LoadState has changed - whether the refresh, prepend, or append is idle, loading,
- * or has an error.
- *
- * REFRESH events can be used to drive a [androidx.swiperefreshlayout.widget.SwipeRefreshLayout], or
- * START/END events can be used to drive loading spinner items in your `RecyclerView`.
- *
- * @see [LoadState]
- * @see [LoadType]
- * @see [PagedList.retry]
- */
-typealias LoadStateListener = (type: LoadType, state: LoadState) -> Unit
-
-/**
  * Lazy loading list that pages in immutable content from a [PagedSource].
  *
  * A [PagedList] is a [List] which loads its data in chunks (pages) from a [PagedSource]. Items can
@@ -900,7 +876,7 @@ abstract class PagedList<T : Any> internal constructor(
         @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP) // protected otherwise.
         abstract fun onStateChanged(type: LoadType, state: LoadState)
 
-        fun dispatchCurrentLoadState(callback: LoadStateListener) {
+        fun dispatchCurrentLoadState(callback: (LoadType, LoadState) -> Unit) {
             callback(LoadType.REFRESH, refreshState)
             callback(LoadType.START, startState)
             callback(LoadType.END, endState)
@@ -929,7 +905,7 @@ abstract class PagedList<T : Any> internal constructor(
 
     private val callbacks = mutableListOf<WeakReference<Callback>>()
 
-    private val loadStateListeners = mutableListOf<WeakReference<LoadStateListener>>()
+    private val loadStateListeners = mutableListOf<WeakReference<(LoadType, LoadState) -> Unit>>()
 
     /**
      * Size of the list, including any placeholders (not-yet-loaded null padding).
@@ -989,7 +965,7 @@ abstract class PagedList<T : Any> internal constructor(
      * @hide
      */
     @RestrictTo(RestrictTo.Scope.LIBRARY)
-    abstract fun dispatchCurrentLoadState(callback: LoadStateListener)
+    abstract fun dispatchCurrentLoadState(callback: (LoadType, LoadState) -> Unit)
 
     /**
      * @hide
@@ -1119,13 +1095,13 @@ abstract class PagedList<T : Any> internal constructor(
     }
 
     /**
-     * Add a [LoadStateListener] to observe the loading state of the [PagedList].
+     * Add a listener to observe the loading state of the [PagedList].
      *
      * @param listener Listener to receive updates.
      *
      * @see removeWeakLoadStateListener
      */
-    fun addWeakLoadStateListener(listener: LoadStateListener) {
+    fun addWeakLoadStateListener(listener: (LoadType, LoadState) -> Unit) {
         // Clean up any empty weak refs.
         loadStateListeners.removeAll { it.get() == null }
 
@@ -1135,13 +1111,13 @@ abstract class PagedList<T : Any> internal constructor(
     }
 
     /**
-     * Remove a previously registered [LoadStateListener].
+     * Remove a previously registered load state listener.
      *
      * @param listener Previously registered listener.
      *
      * @see addWeakLoadStateListener
      */
-    fun removeWeakLoadStateListener(listener: LoadStateListener) {
+    fun removeWeakLoadStateListener(listener: (LoadType, LoadState) -> Unit) {
         loadStateListeners.removeAll { it.get() == null || it.get() === listener }
     }
 

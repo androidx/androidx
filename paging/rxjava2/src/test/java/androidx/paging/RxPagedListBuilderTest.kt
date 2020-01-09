@@ -30,9 +30,9 @@ import kotlin.test.assertTrue
 
 @RunWith(JUnit4::class)
 class RxPagedListBuilderTest {
-    private data class LoadState(
+    private data class LoadStateEvent(
         val type: LoadType,
-        val state: androidx.paging.LoadState
+        val state: LoadState
     )
 
     /**
@@ -178,18 +178,18 @@ class RxPagedListBuilderTest {
         val initPagedList = observer.values()[0]!!
         assertTrue(initPagedList is InitialPagedList<*, *>)
 
-        val loadStates = mutableListOf<LoadState>()
+        val loadStates = mutableListOf<LoadStateEvent>()
 
         // initial load failed, check that we're in error state
-        val loadStateChangedCallback: LoadStateListener = { type, state ->
+        val loadStateChangedCallback = { type: LoadType, state: LoadState ->
             if (type == LoadType.REFRESH) {
-                loadStates.add(LoadState(type, state))
+                loadStates.add(LoadStateEvent(type, state))
             }
         }
         initPagedList.addWeakLoadStateListener(loadStateChangedCallback)
         assertEquals(
             listOf(
-                LoadState(LoadType.REFRESH, Loading)
+                LoadStateEvent(LoadType.REFRESH, Loading)
             ), loadStates
         )
 
@@ -199,8 +199,8 @@ class RxPagedListBuilderTest {
 
         assertEquals(
             listOf(
-                LoadState(LoadType.REFRESH, Loading),
-                LoadState(LoadType.REFRESH, Error(EXCEPTION))
+                LoadStateEvent(LoadType.REFRESH, Loading),
+                LoadStateEvent(LoadType.REFRESH, Error(EXCEPTION))
             ), loadStates
         )
 
@@ -210,9 +210,9 @@ class RxPagedListBuilderTest {
 
         assertEquals(
             listOf(
-                LoadState(LoadType.REFRESH, Loading),
-                LoadState(LoadType.REFRESH, Error(EXCEPTION)),
-                LoadState(LoadType.REFRESH, Loading)
+                LoadStateEvent(LoadType.REFRESH, Loading),
+                LoadStateEvent(LoadType.REFRESH, Error(EXCEPTION)),
+                LoadStateEvent(LoadType.REFRESH, Loading)
             ), loadStates
         )
         // flush loadInitial, should succeed now
@@ -228,10 +228,10 @@ class RxPagedListBuilderTest {
 
         assertEquals(
             listOf(
-                LoadState(LoadType.REFRESH, Loading),
-                LoadState(LoadType.REFRESH, Error(EXCEPTION)),
-                LoadState(LoadType.REFRESH, Loading),
-                LoadState(LoadType.REFRESH, Idle)
+                LoadStateEvent(LoadType.REFRESH, Loading),
+                LoadStateEvent(LoadType.REFRESH, Error(EXCEPTION)),
+                LoadStateEvent(LoadType.REFRESH, Loading),
+                LoadStateEvent(LoadType.REFRESH, Idle)
             ), loadStates
         )
     }

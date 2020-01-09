@@ -26,8 +26,6 @@ import androidx.paging.PagedSource.LoadResult.Page.Companion.COUNT_UNDEFINED
 import java.util.concurrent.CopyOnWriteArrayList
 import java.util.concurrent.atomic.AtomicBoolean
 
-typealias OnInvalidated = () -> Unit
-
 /**
  * Base class for loading pages of snapshot data into a [PagedList].
  *
@@ -342,10 +340,10 @@ internal constructor(internal val type: KeyType) {
     }
 
     /**
-     * Wrapper for [OnInvalidated] which holds a reference to allow removal by referential equality
-     * of Kotlin functions within [removeInvalidatedCallback].
+     * Wrapper for invalidation callback which holds a reference to allow removal by referential
+     * equality of Kotlin functions within [removeInvalidatedCallback].
      */
-    private class OnInvalidatedWrapper(val callback: OnInvalidated) : InvalidatedCallback {
+    private class OnInvalidatedWrapper(val callback: () -> Unit) : InvalidatedCallback {
         override fun onInvalidated() = callback()
     }
 
@@ -379,7 +377,7 @@ internal constructor(internal val type: KeyType) {
      * [DataSource].
      */
     @AnyThread
-    fun addInvalidatedCallback(onInvalidatedCallback: OnInvalidated) {
+    fun addInvalidatedCallback(onInvalidatedCallback: () -> Unit) {
         onInvalidatedCallbacks.add(OnInvalidatedWrapper(onInvalidatedCallback))
     }
 
@@ -401,7 +399,7 @@ internal constructor(internal val type: KeyType) {
      * @param onInvalidatedCallback The previously added callback.
      */
     @AnyThread
-    fun removeInvalidatedCallback(onInvalidatedCallback: OnInvalidated) {
+    fun removeInvalidatedCallback(onInvalidatedCallback: () -> Unit) {
         onInvalidatedCallbacks.removeAll {
             it is OnInvalidatedWrapper && it.callback === onInvalidatedCallback
         }

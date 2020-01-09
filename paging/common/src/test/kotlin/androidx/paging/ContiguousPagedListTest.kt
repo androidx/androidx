@@ -144,7 +144,7 @@ class ContiguousPagedListTest(private val placeholdersEnabled: Boolean) {
     private fun <E : Any> PagedList<E>.addLoadStateCapture(desiredType: LoadType):
             Pair<Any, MutableList<StateChange>> {
         val list = mutableListOf<StateChange>()
-        val listener: LoadStateListener = { type, state ->
+        val listener = { type: LoadType, state: LoadState ->
             if (type == desiredType) {
                 list.add(StateChange(type, state))
             }

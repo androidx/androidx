@@ -32,9 +32,6 @@ package androidx.paging {
     method @AnyThread public void onInvalidated();
   }
 
-  public final class DataSourceKt {
-  }
-
   public final class HeaderFooterKt {
   }
 
