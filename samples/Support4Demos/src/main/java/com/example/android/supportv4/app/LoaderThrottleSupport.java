@@ -42,6 +42,7 @@ import android.view.View;
 import android.widget.ListView;
 
 import androidx.annotation.NonNull;
+import androidx.annotation.Nullable;
 import androidx.core.database.DatabaseUtilsCompat;
 import androidx.cursoradapter.widget.SimpleCursorAdapter;
 import androidx.fragment.app.FragmentActivity;
@@ -399,8 +400,9 @@ public class LoaderThrottleSupport extends FragmentActivity {
         // Task we have running to populate the database.
         AsyncTask<Void, Void, Void> mPopulatingTask;
 
-        @Override public void onActivityCreated(Bundle savedInstanceState) {
-            super.onActivityCreated(savedInstanceState);
+        @Override
+        public void onViewCreated(@NonNull View view, @Nullable Bundle savedInstanceState) {
+            super.onViewCreated(view, savedInstanceState);
 
             setEmptyText("No data.  Select 'Populate' to fill with data from Z to A at a rate of 4 per second.");
             setHasOptionsMenu(true);

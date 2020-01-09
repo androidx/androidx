@@ -30,6 +30,7 @@ import android.widget.ListView;
 import android.widget.SearchView;
 
 import androidx.annotation.NonNull;
+import androidx.annotation.Nullable;
 import androidx.cursoradapter.widget.SimpleCursorAdapter;
 import androidx.fragment.app.FragmentActivity;
 import androidx.fragment.app.FragmentManager;
@@ -68,8 +69,9 @@ public class LoaderCursorSupport extends FragmentActivity {
         // If non-null, this is the current filter the user has provided.
         String mCurFilter;
 
-        @Override public void onActivityCreated(Bundle savedInstanceState) {
-            super.onActivityCreated(savedInstanceState);
+        @Override
+        public void onViewCreated(@NonNull View view, @Nullable Bundle savedInstanceState) {
+            super.onViewCreated(view, savedInstanceState);
 
             // Give some text to display if there is no data.  In a real
             // application this would come from a resource.
