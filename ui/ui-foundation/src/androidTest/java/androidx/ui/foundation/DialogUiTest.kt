@@ -21,8 +21,6 @@ import androidx.compose.state
 import androidx.test.platform.app.InstrumentationRegistry.getInstrumentation
 import androidx.test.uiautomator.UiDevice
 import androidx.ui.core.Text
-import androidx.ui.semantics.accessibilityLabel
-import androidx.ui.test.assertDoesNotExist
 import androidx.ui.test.assertIsVisible
 import androidx.ui.test.doClick
 import androidx.ui.test.findByText
@@ -103,7 +101,7 @@ class DialogUiTest {
         val outsideY = composeTestRule.displayMetrics.heightPixels / 2
         UiDevice.getInstance(getInstrumentation()).click(outsideX, outsideY)
 
-        assertDoesNotExist { accessibilityLabel == defaultText }
+        findByText(defaultText).assertDoesNotExist()
     }
 
     @Test
@@ -146,7 +144,7 @@ class DialogUiTest {
         // Click the back button to dismiss the Dialog
         UiDevice.getInstance(getInstrumentation()).pressBack()
 
-        assertDoesNotExist { accessibilityLabel == defaultText }
+        findByText(defaultText).assertDoesNotExist()
     }
 
     // TODO(pavlis): Espresso loses focus on the dialog after back press. That makes the

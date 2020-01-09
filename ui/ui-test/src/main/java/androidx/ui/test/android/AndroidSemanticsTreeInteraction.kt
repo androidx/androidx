@@ -59,14 +59,13 @@ internal class AndroidSemanticsTreeInteraction internal constructor(
     }
 
     override fun findOne(): SemanticsNodeInteraction {
-        val foundNodes = findAllMatching()
+        val foundNodes = SynchronizedTreeCollector.collectSemanticsProviders()
+            .getAllSemanticNodes()
+            .filter { node ->
+                node.data.selector()
+            }.toList()
 
-        if (foundNodes.size != 1) {
-            // TODO(b/133217292)
-            throw AssertionError("Found '${foundNodes.size}' nodes but exactly '1' was expected!")
-        }
-
-        return foundNodes.first()
+        return SemanticsNodeInteraction(foundNodes, this)
     }
 
     override fun performAction(action: (SemanticsTreeProvider) -> Unit) {

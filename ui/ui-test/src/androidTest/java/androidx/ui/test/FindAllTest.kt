@@ -212,7 +212,7 @@ class FindAllTest {
                 .doClick()
                 .assertIsOn()
             get(1)
-                .assertNoLongerExists()
+                .assertDoesNotExist()
         }
     }
 }
