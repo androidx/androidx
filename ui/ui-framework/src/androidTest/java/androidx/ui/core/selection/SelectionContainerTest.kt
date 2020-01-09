@@ -152,7 +152,7 @@ class SelectionContainerTest {
             // Assert.
             composeTestRule.runOnIdleCompose {
                 assertThat(selection.value!!.start.offset).isEqualTo(startOffset)
-                assertThat(selection.value!!.end.offset).isEqualTo(endOffset)
+                assertThat(selection.value!!.end.offset).isEqualTo("Text Demo".length)
             }
         }
     }
