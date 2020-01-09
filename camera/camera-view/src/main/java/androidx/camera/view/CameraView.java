@@ -931,7 +931,7 @@ public final class CameraView extends ViewGroup {
          */
         CENTER_INSIDE(1);
 
-        private int mId;
+        private final int mId;
 
         int getId() {
             return mId;
@@ -968,7 +968,7 @@ public final class CameraView extends ViewGroup {
          */
         MIXED(2);
 
-        private int mId;
+        private final int mId;
 
         int getId() {
             return mId;
