@@ -157,7 +157,7 @@ public class PreviewView extends FrameLayout {
         /** Use a {@link android.view.TextureView} for the preview */
         TEXTURE_VIEW(1);
 
-        private int mId;
+        private final int mId;
 
         ImplementationMode(final int id) {
             mId = id;
