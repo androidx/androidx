@@ -463,9 +463,9 @@ public final class ResourcesCompat {
          * Compatibility behavior:
          * <ul>
          * <li>API 29 and above, this method matches platform behavior.
-         * <li>API 21 through 28, this method attempts to match platform behavior by calling into
+         * <li>API 23 through 28, this method attempts to match platform behavior by calling into
          *     hidden platform APIs, but is not guaranteed to succeed.
-         * <li>API 20 and earlier, this method does nothing.
+         * <li>API 22 and earlier, this method does nothing.
          * </ul>
          *
          * @param theme the theme to rebase
@@ -473,8 +473,8 @@ public final class ResourcesCompat {
         public static void rebase(@NonNull Theme theme) {
             if (SDK_INT >= 29) {
                 ImplApi29.rebase(theme);
-            } else if (SDK_INT >= 21) {
-                ImplApi21.rebase(theme);
+            } else if (SDK_INT >= 23) {
+                ImplApi23.rebase(theme);
             }
         }
 
@@ -486,9 +486,9 @@ public final class ResourcesCompat {
             }
         }
 
-        @RequiresApi(21)
-        static class ImplApi21 {
-            private ImplApi21() { }
+        @RequiresApi(23)
+        static class ImplApi23 {
+            private ImplApi23() { }
             private static final Object sRebaseMethodLock = new Object();
 
             private static Method sRebaseMethod;
