@@ -9,7 +9,7 @@ plugins {
 }
 
 dependencies {
-    api(project(":media"))
+    api(project(":media:media"))
     implementation(project(":core:core"))
     implementation("androidx.appcompat:appcompat:1.0.2")
     implementation("androidx.palette:palette:1.0.0")
