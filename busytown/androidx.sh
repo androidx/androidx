@@ -8,5 +8,5 @@ if [ "$DIST_DIR" == "" ]; then
 fi
 mkdir -p "$DIST_DIR"
 
-python3 "$SCRIPT_DIR/build.py" "doBoth" "doVerifyRerun" DIST_DIR="$(cd $DIST_DIR && pwd)" --no-daemon "buildOnServer"
+python3 "$SCRIPT_DIR/build.py" "doBoth" DIST_DIR="$(cd $DIST_DIR && pwd)" --no-daemon "buildOnServer" -PverifyUpToDate
 python3 "$SCRIPT_DIR/merge_outputs.py" DIST_DIR="$(cd $DIST_DIR && pwd)" "mergeBuildInfo"

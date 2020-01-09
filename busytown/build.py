@@ -25,8 +25,6 @@ def usage():
         doCompose        (do the compose build)
         doAndroidX       (do the androidx build) (default if no '-do*' argument passed, due to being most common use case)
         doDryRun         (prevents commands form being run, but commands are still printed: dry-run the commands)
-        doVerifyRerun    (runs commands a second time and verifies that no work was done, and everything is cached)
-            (these args are case sensitive)
 
         DIST_DIR=<a path to a directory>    if this is not passed, the default value is out/dist.
                                             Should be absolute or relative to e.g. androidx-master-dev/
@@ -40,14 +38,14 @@ def usage():
 
 def main():
     move_to_base_dir()
-    which_builds, dry_run, verify_rerun, dist_dir, gradle_args = parse_args()
+    which_builds, dry_run, dist_dir, gradle_args = parse_args()
     androidx_base_command, compose_base_command = compute_gradle_commands(dist_dir)
-    if DO_ANDROIDX in which_builds: run_command(" ".join(androidx_base_command + gradle_args), dry_run=dry_run, verify_rerun=verify_rerun)
-    if DO_COMPOSE in which_builds: run_command(" ".join(compose_base_command + gradle_args), dry_run=dry_run, verify_rerun=verify_rerun)
+    if DO_ANDROIDX in which_builds: run_command(" ".join(androidx_base_command + gradle_args), dry_run=dry_run)
+    if DO_COMPOSE in which_builds: run_command(" ".join(compose_base_command + gradle_args), dry_run=dry_run)
 
 def parse_args():
     which_builds = [DEFAULT]
-    dry_run = False; verify_rerun = False
+    dry_run = False
     dist_dir = "out/dist"
     gradle_args = []
     for arg in sys.argv:
@@ -56,7 +54,6 @@ def parse_args():
             which_builds.append(arg)
             which_builds.remove(DEFAULT)
         elif arg == DO_DRY_RUN: dry_run = True # if we are mocking, we print but do not run commands
-        elif arg == DO_VERIFY_RERUN: verify_rerun = True # re-run the command with -PdisallowExecution to verify everything is cached
         elif "dist_dir" in arg.lower():
             dist_dir = arg.split("=")[1]
             dist_dir = remove_suffix(dist_dir, '/')
@@ -67,7 +64,7 @@ def parse_args():
         else: gradle_args.append(arg)
     if which_builds == [DEFAULT]: which_builds = [DO_ANDROIDX] # default is androidx
     if DO_BOTH in which_builds: which_builds = [DO_ANDROIDX, DO_COMPOSE]
-    return which_builds, dry_run, verify_rerun, dist_dir, gradle_args
+    return which_builds, dry_run, dist_dir, gradle_args
 
 def compute_gradle_commands(dist_dir):
     androidx_base_command = ["DIST_DIR="+dist_dir, OUT_DIR_ARG, ANDROID_HOME_ARG, GRADLEW, PROJECT_DIR_ARG]
