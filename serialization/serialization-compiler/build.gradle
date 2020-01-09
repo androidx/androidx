@@ -30,15 +30,15 @@ plugins {
 }
 
 dependencies {
-    api(project(":serialization:serialization-schema"))
-    api(AUTO_COMMON)
-    api(GUAVA)
-
     implementation(project(":serialization:serialization-annotation"))
+    implementation(project(":serialization:serialization-schema"))
+    implementation(AUTO_COMMON)
+    implementation(GUAVA)
     implementation(JAVAPOET)
     implementation(KOTLINPOET)
     implementation(KOTLIN_METADATA_JVM)
     implementation(KOTLIN_STDLIB)
+    implementation(KOTLIN_REFLECT)
 
     compileOnly(AUTO_SERVICE_ANNOTATIONS)
     kapt(AUTO_SERVICE_PROCESSOR)

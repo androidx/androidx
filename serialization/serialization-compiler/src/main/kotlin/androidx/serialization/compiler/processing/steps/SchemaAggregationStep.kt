@@ -20,7 +20,6 @@ import androidx.serialization.Action
 import androidx.serialization.EnumValue
 import androidx.serialization.Field
 import androidx.serialization.Reserved
-import androidx.serialization.schema.Schema
 import com.google.auto.common.BasicAnnotationProcessor.ProcessingStep
 import com.google.common.collect.ImmutableSet
 import com.google.common.collect.SetMultimap
@@ -28,7 +27,7 @@ import javax.annotation.processing.ProcessingEnvironment
 import javax.lang.model.element.Element
 
 /**
- * Processing step that aggregates schema annotations into a [Schema].
+ * Processing step that aggregates schema annotations.
  */
 class SchemaAggregationStep(
     private val processingEnv: ProcessingEnvironment
@@ -38,10 +37,6 @@ class SchemaAggregationStep(
     ): Set<Element> {
         // TODO: Implement schema collection
         return emptySet()
-    }
-
-    fun currentSchema(): Schema {
-        TODO()
     }
 
     override fun annotations(): Set<Class<out Annotation>> = ANNOTATIONS

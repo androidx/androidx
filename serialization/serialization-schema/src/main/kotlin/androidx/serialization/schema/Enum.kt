@@ -1,5 +1,5 @@
 /*
- * Copyright 2019 The Android Open Source Project
+ * Copyright 2020 The Android Open Source Project
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -16,18 +16,17 @@
 
 package androidx.serialization.schema
 
-/**
- * A schema consisting of messages, enums, and services.
- *
- * Clients who have subclassed [Message], [Enum], or [Service] may wish to subclass this class to
- * provide type safety around their subclassed types.
- *
- * @property messages Messages declared in the schema.
- * @property enums Enums declared in the schema.
- * @property services Services declared in the schema.
- */
-open class Schema(
-    open val messages: List<Message> = emptyList(),
-    open val enums: List<Enum> = emptyList(),
-    open val services: List<Service> = emptyList()
-)
+/** A serializable enum, usually derived from a Java or Kotlin enum. */
+interface Enum : ComplexType {
+    /** The values of the enum. */
+    val values: Collection<Value>
+
+    /** Alias for [values]. */
+    override val members: Collection<Value>
+        get() = values
+
+    /**
+     * A value of an enum, usually derived from an [androidx.serialization.EnumValue] annotation.
+     */
+    interface Value : ComplexType.Member
+}
