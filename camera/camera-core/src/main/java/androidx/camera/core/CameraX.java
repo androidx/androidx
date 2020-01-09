@@ -217,6 +217,12 @@ public final class CameraX {
      * cameras, but the same lifecycle, only one of the cameras will operate at a time. The
      * non-operating camera will not become active until it is the only camera with use cases bound.
      *
+     * <p>The {@link Camera} returned is determined by the given camera selector, plus other
+     * internal requirements, possibly from use case configurations. The camera returned from
+     * bindToLifecycle may differ from the camera determined solely by a camera selector. If the
+     * camera selector can't resolve a camera under the requirements, an IllegalArgumentException
+     * will be thrown.
+     *
      * <p>Only {@link UseCase} bound to latest active {@link Lifecycle} can keep alive.
      * {@link UseCase} bound to other {@link Lifecycle} will be stopped.
      *
@@ -225,7 +231,8 @@ public final class CameraX {
      * @param cameraSelector The camera selector which determines the camera to use for set of
      *                       use cases.
      * @param useCases       The use cases to bind to a lifecycle.
-     * @return The {@link Camera} instance which is determined by the camera selector.
+     * @return The {@link Camera} instance which is determined by the camera selector and
+     * internal requirements.
      * @throws IllegalStateException    If the use case has already been bound to another lifecycle
      *                                  or method is not called on main thread.
      * @throws IllegalArgumentException If the provided camera selector is unable to resolve a
