@@ -82,7 +82,7 @@ public class PreviewView extends FrameLayout {
                 mImplementation = new SurfaceViewImplementation();
                 break;
             case TEXTURE_VIEW:
-                mImplementation = new FixedSizeTextureViewImplementation();
+                mImplementation = new TextureViewImplementation();
                 break;
             default:
                 throw new IllegalStateException(
