@@ -16,7 +16,7 @@
 
 package androidx.paging
 
-import androidx.paging.PagedSource.LoadResult.Page.Companion.COUNT_UNDEFINED
+import androidx.paging.PagingSource.LoadResult.Page.Companion.COUNT_UNDEFINED
 import com.nhaarman.mockitokotlin2.capture
 import com.nhaarman.mockitokotlin2.mock
 import kotlinx.coroutines.runBlocking

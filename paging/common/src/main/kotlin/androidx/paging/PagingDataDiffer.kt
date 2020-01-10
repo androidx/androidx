@@ -31,7 +31,7 @@ import kotlinx.coroutines.withContext
 
 /** @hide */
 @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
-abstract class PagedDataDiffer<T : Any>(
+abstract class PagingDataDiffer<T : Any>(
     private val mainDispatcher: CoroutineDispatcher = Dispatchers.Main,
     private val workerDispatcher: CoroutineDispatcher = Dispatchers.Default
 ) {
@@ -46,12 +46,12 @@ abstract class PagedDataDiffer<T : Any>(
     )
 
     @UseExperimental(ExperimentalCoroutinesApi::class)
-    fun connect(flow: Flow<PagedData<T>>, scope: CoroutineScope, callback: PresenterCallback) {
+    fun connect(flow: Flow<PagingData<T>>, scope: CoroutineScope, callback: PresenterCallback) {
         job?.cancel()
         job = scope.launch(workerDispatcher) {
             flow
-                .flatMapLatest { pagedData ->
-                    pagedData.flow.map { event -> Pair(pagedData, event) }
+                .flatMapLatest { pagingData ->
+                    pagingData.flow.map { event -> Pair(pagingData, event) }
                 }
                 .collect { pair ->
                     withContext(mainDispatcher) {

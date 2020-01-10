@@ -19,13 +19,13 @@ package androidx.paging
 import kotlinx.coroutines.delay
 
 /**
- * [PagedSource] for testing which pages through a list of conesecutive integers from 0..99 where
+ * [PagingSource] for testing which pages through a list of conesecutive integers from 0..99 where
  * position == key == value.
  *
  * Note: This class has a delay of 1000ms is built into its load method and is meant to be used
  * with APIs from [kotlinx.coroutines.test.DelayController].
  */
-class TestPagedSource(counted: Boolean = true) : PagedSource<Int, Int>() {
+class TestPagingSource(counted: Boolean = true) : PagingSource<Int, Int>() {
     var errorNextLoad = false
 
     init {
@@ -67,6 +67,6 @@ class TestPagedSource(counted: Boolean = true) : PagedSource<Int, Int>() {
 
     companion object {
         val items = List(100) { it }
-        val LOAD_ERROR = Exception("Exception from TestPagedSource.errorNextLoad")
+        val LOAD_ERROR = Exception("Exception from TestPagingSource.errorNextLoad")
     }
 }

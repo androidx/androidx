@@ -40,7 +40,7 @@ import kotlin.test.assertTrue
 @RunWith(JUnit4::class)
 class PageFetcherTest {
     private val testScope = TestCoroutineScope()
-    private val pagedSourceFactory = { TestPagedSource() }
+    private val pagingSourceFactory = { TestPagingSource() }
     private val config = PagingConfig(
         pageSize = 1,
         prefetchDistance = 1,
@@ -51,80 +51,76 @@ class PageFetcherTest {
 
     @Test
     fun initialize() = testScope.runBlockingTest {
-        val pageFetcher = PageFetcher(pagedSourceFactory, 50, config)
+        val pageFetcher = PageFetcher(pagingSourceFactory, 50, config)
         val fetcherState = collectFetcherState(pageFetcher)
 
         advanceUntilIdle()
 
-        assertEquals(1, fetcherState.pagedDataList.size)
+        assertEquals(1, fetcherState.pagingDataList.size)
         assertTrue { fetcherState.pageEventLists[0].isNotEmpty() }
         fetcherState.job.cancel()
     }
 
     @Test
     fun refresh() = testScope.runBlockingTest {
-        val pageFetcher = PageFetcher(pagedSourceFactory, 50, config)
+        val pageFetcher = PageFetcher(pagingSourceFactory, 50, config)
         val fetcherState = collectFetcherState(pageFetcher)
 
         advanceUntilIdle()
 
-        assertEquals(1, fetcherState.pagedDataList.size)
+        assertEquals(1, fetcherState.pagingDataList.size)
         assertTrue { fetcherState.pageEventLists[0].isNotEmpty() }
 
         pageFetcher.refresh()
         advanceUntilIdle()
 
-        assertEquals(2, fetcherState.pagedDataList.size)
+        assertEquals(2, fetcherState.pagingDataList.size)
         assertTrue { fetcherState.pageEventLists[1].isNotEmpty() }
         fetcherState.job.cancel()
     }
 
     @Test
-    fun refreshFromPagedSource() = testScope.runBlockingTest {
-        var pagedSource: PagedSource<Int, Int>? = null
-        val pagedSourceFactory = {
-            TestPagedSource().also { pagedSource = it }
-        }
-        val pageFetcher = PageFetcher(pagedSourceFactory, 50, config)
+    fun refreshFromPagingSource() = testScope.runBlockingTest {
+        var pagingSource: PagingSource<Int, Int>? = null
+        val pagingSourceFactory = { TestPagingSource().also { pagingSource = it } }
+        val pageFetcher = PageFetcher(pagingSourceFactory, 50, config)
         val fetcherState = collectFetcherState(pageFetcher)
 
         advanceUntilIdle()
 
-        assertEquals(1, fetcherState.pagedDataList.size)
+        assertEquals(1, fetcherState.pagingDataList.size)
         assertTrue { fetcherState.pageEventLists[0].isNotEmpty() }
 
-        val oldPagedSource = pagedSource
-        oldPagedSource?.invalidate()
+        val oldPagingSource = pagingSource
+        oldPagingSource?.invalidate()
         advanceUntilIdle()
 
-        assertEquals(2, fetcherState.pagedDataList.size)
+        assertEquals(2, fetcherState.pagingDataList.size)
         assertTrue { fetcherState.pageEventLists[1].isNotEmpty() }
-        assertNotEquals(oldPagedSource, pagedSource)
-        assertTrue { oldPagedSource!!.invalid }
+        assertNotEquals(oldPagingSource, pagingSource)
+        assertTrue { oldPagingSource!!.invalid }
         fetcherState.job.cancel()
     }
 
     @Test
     fun refreshCallsInvalidate() = testScope.runBlockingTest {
-        var pagedSource: PagedSource<Int, Int>? = null
-        val pagedSourceFactory = {
-            TestPagedSource().also { pagedSource = it }
-        }
-        val pageFetcher = PageFetcher(pagedSourceFactory, 50, config)
+        var pagingSource: PagingSource<Int, Int>? = null
+        val pagingSourceFactory = { TestPagingSource().also { pagingSource = it } }
+        val pageFetcher = PageFetcher(pagingSourceFactory, 50, config)
         val fetcherState = collectFetcherState(pageFetcher)
 
         var didCallInvalidate = false
-        pagedSource?.registerInvalidatedCallback { didCallInvalidate = true }
+        pagingSource?.registerInvalidatedCallback { didCallInvalidate = true }
 
         advanceUntilIdle()
 
-        assertEquals(1, fetcherState.pagedDataList.size)
+        assertEquals(1, fetcherState.pagingDataList.size)
         assertTrue { fetcherState.pageEventLists[0].isNotEmpty() }
 
         pageFetcher.refresh()
         advanceUntilIdle()
 
-        assertEquals(2, fetcherState.pagedDataList.size)
+        assertEquals(2, fetcherState.pagingDataList.size)
         assertTrue { fetcherState.pageEventLists[1].isNotEmpty() }
         assertTrue { didCallInvalidate }
         fetcherState.job.cancel()
@@ -132,22 +128,22 @@ class PageFetcherTest {
 
     @Test
     fun collectTwice() = testScope.runBlockingTest {
-        val pageFetcher = PageFetcher(pagedSourceFactory, 50, config)
+        val pageFetcher = PageFetcher(pagingSourceFactory, 50, config)
         val fetcherState = collectFetcherState(pageFetcher)
         val fetcherState2 = collectFetcherState(pageFetcher)
         advanceUntilIdle()
         fetcherState.job.cancel()
         fetcherState2.job.cancel()
         advanceUntilIdle()
-        assertThat(fetcherState.pagedDataList.size).isEqualTo(1)
-        assertThat(fetcherState2.pagedDataList.size).isEqualTo(1)
+        assertThat(fetcherState.pagingDataList.size).isEqualTo(1)
+        assertThat(fetcherState2.pagingDataList.size).isEqualTo(1)
         assertThat(fetcherState.pageEventLists.first()).isNotEmpty()
         assertThat(fetcherState2.pageEventLists.first()).isNotEmpty()
     }
 }
 
 internal class FetcherState<T : Any>(
-    val pagedDataList: ArrayList<PagedData<T>>,
+    val pagingDataList: ArrayList<PagingData<T>>,
     val pageEventLists: ArrayList<ArrayList<PageEvent<T>>>,
     val job: Job
 )
@@ -155,16 +151,16 @@ internal class FetcherState<T : Any>(
 @FlowPreview
 @ExperimentalCoroutinesApi
 internal fun CoroutineScope.collectFetcherState(fetcher: PageFetcher<Int, Int>): FetcherState<Int> {
-    val pagedDataList: ArrayList<PagedData<Int>> = ArrayList()
+    val pagingDataList: ArrayList<PagingData<Int>> = ArrayList()
     val pageEventLists: ArrayList<ArrayList<PageEvent<Int>>> = ArrayList()
 
     val job = launch {
-        fetcher.flow.collectIndexed { index, pagedData ->
-            pagedDataList.add(index, pagedData)
+        fetcher.flow.collectIndexed { index, pagingData ->
+            pagingDataList.add(index, pagingData)
             pageEventLists.add(index, ArrayList())
-            launch { pagedData.flow.toList(pageEventLists[index]) }
+            launch { pagingData.flow.toList(pageEventLists[index]) }
         }
     }
 
-    return FetcherState(pagedDataList, pageEventLists, job)
+    return FetcherState(pagingDataList, pageEventLists, job)
 }

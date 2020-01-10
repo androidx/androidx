@@ -27,7 +27,7 @@ import kotlinx.coroutines.flow.scan
 
 @UseExperimental(ExperimentalCoroutinesApi::class)
 internal class PageFetcher<Key : Any, Value : Any>(
-    private val pagedSourceFactory: () -> PagedSource<Key, Value>,
+    private val pagingSourceFactory: () -> PagingSource<Key, Value>,
     private val initialKey: Key?,
     private val config: PagingConfig
 ) {
@@ -42,25 +42,25 @@ internal class PageFetcher<Key : Any, Value : Any>(
         .asFlow()
         .onStart { emit(Unit) }
         .scan(null) { previousGeneration: Pager<Key, Value>?, _ ->
-            val pagedSource = pagedSourceFactory()
+            val pagingSource = pagingSourceFactory()
             val initialKey = when (previousGeneration) {
                 null -> initialKey
                 else -> when (val info = previousGeneration.refreshKeyInfo()) {
                     null -> previousGeneration.initialKey
-                    else -> pagedSource.getRefreshKeyFromPage(info.indexInPage, info.page)
+                    else -> pagingSource.getRefreshKeyFromPage(info.indexInPage, info.page)
                 }
             }
 
-            // Hook up refresh signals from DataSource / PagedSource.
-            pagedSource.registerInvalidatedCallback(::refresh)
-            previousGeneration?.pagedSource?.unregisterInvalidatedCallback(::refresh)
-            previousGeneration?.pagedSource?.invalidate() // Note: Invalidate is idempotent.
+            // Hook up refresh signals from DataSource / PagingSource.
+            pagingSource.registerInvalidatedCallback(::refresh)
+            previousGeneration?.pagingSource?.unregisterInvalidatedCallback(::refresh)
+            previousGeneration?.pagingSource?.invalidate() // Note: Invalidate is idempotent.
 
-            Pager(initialKey, pagedSource, config)
+            Pager(initialKey, pagingSource, config)
         }
         .filterNotNull()
         .mapLatest { generation ->
-            PagedData(generation.pageEventFlow, PagerUiReceiver(generation))
+            PagingData(generation.pageEventFlow, PagerUiReceiver(generation))
         }
 
     fun refresh() {

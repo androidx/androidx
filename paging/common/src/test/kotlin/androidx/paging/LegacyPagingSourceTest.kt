@@ -16,7 +16,7 @@
 
 package androidx.paging
 
-import androidx.paging.PagedSource.LoadResult.Page
+import androidx.paging.PagingSource.LoadResult.Page
 import org.junit.Assert
 import org.junit.Test
 import org.junit.runner.RunWith
@@ -26,7 +26,7 @@ import kotlin.test.assertFalse
 import kotlin.test.assertTrue
 
 @RunWith(JUnit4::class)
-class LegacyPagedSourceTest {
+class LegacyPagingSourceTest {
     @Test
     fun item() {
         val dataSource = object : ItemKeyedDataSource<Int, String>() {
@@ -47,21 +47,21 @@ class LegacyPagedSourceTest {
 
             override fun getKey(item: String) = item.hashCode()
         }
-        val pagedSource = LegacyPagedSource(dataSource)
+        val pagingSource = LegacyPagingSource(dataSource)
         val lastPage = Page<Int, String>(
             data = listOf("fakeData"),
             prevKey = null,
             nextKey = null
         )
-        val refreshKey = pagedSource.getRefreshKeyFromPage(0, lastPage)
+        val refreshKey = pagingSource.getRefreshKeyFromPage(0, lastPage)
         assertEquals("fakeData".hashCode(), refreshKey)
 
-        assertFalse { pagedSource.invalid }
+        assertFalse { pagingSource.invalid }
         assertFalse { dataSource.isInvalid }
 
-        pagedSource.invalidate()
+        pagingSource.invalidate()
 
-        assertTrue { pagedSource.invalid }
+        assertTrue { pagingSource.invalid }
         assertTrue { dataSource.isInvalid }
     }
 
@@ -83,28 +83,28 @@ class LegacyPagedSourceTest {
                 Assert.fail("loadAfter not expected")
             }
         }
-        val pagedSource = LegacyPagedSource(dataSource)
+        val pagingSource = LegacyPagingSource(dataSource)
         val lastPage = Page<Int, String>(
             data = listOf("fakeData"),
             prevKey = null,
             nextKey = null
         )
-        val refreshKey = pagedSource.getRefreshKeyFromPage(0, lastPage)
+        val refreshKey = pagingSource.getRefreshKeyFromPage(0, lastPage)
         assertEquals(refreshKey, null)
 
-        assertFalse { pagedSource.invalid }
+        assertFalse { pagingSource.invalid }
         assertFalse { dataSource.isInvalid }
 
-        pagedSource.invalidate()
+        pagingSource.invalidate()
 
-        assertTrue { pagedSource.invalid }
+        assertTrue { pagingSource.invalid }
         assertTrue { dataSource.isInvalid }
     }
 
     @Test
     fun positional() {
         val dataSource = createTestPositionalDataSource()
-        val pagedSource = LegacyPagedSource(dataSource)
+        val pagingSource = LegacyPagingSource(dataSource)
 
         val lastPageCounted = Page(
             data = listOf("fakeData"),
@@ -112,35 +112,35 @@ class LegacyPagedSourceTest {
             nextKey = 8
         )
 
-        assertEquals(3, pagedSource.getRefreshKeyFromPage(0, lastPageCounted))
-        assertEquals(4, pagedSource.getRefreshKeyFromPage(1, lastPageCounted))
+        assertEquals(3, pagingSource.getRefreshKeyFromPage(0, lastPageCounted))
+        assertEquals(4, pagingSource.getRefreshKeyFromPage(1, lastPageCounted))
     }
 
     @Test
-    fun invalidateFromPagedSource() {
+    fun invalidateFromPagingSource() {
         val dataSource = createTestPositionalDataSource()
-        val pagedSource = LegacyPagedSource(dataSource)
+        val pagingSource = LegacyPagingSource(dataSource)
 
-        assertFalse { pagedSource.invalid }
+        assertFalse { pagingSource.invalid }
         assertFalse { dataSource.isInvalid }
 
-        pagedSource.invalidate()
+        pagingSource.invalidate()
 
-        assertTrue { pagedSource.invalid }
+        assertTrue { pagingSource.invalid }
         assertTrue { dataSource.isInvalid }
     }
 
     @Test
     fun invalidateFromDataSource() {
         val dataSource = createTestPositionalDataSource()
-        val pagedSource = LegacyPagedSource(dataSource)
+        val pagingSource = LegacyPagingSource(dataSource)
 
-        assertFalse { pagedSource.invalid }
+        assertFalse { pagingSource.invalid }
         assertFalse { dataSource.isInvalid }
 
         dataSource.invalidate()
 
-        assertTrue { pagedSource.invalid }
+        assertTrue { pagingSource.invalid }
         assertTrue { dataSource.isInvalid }
     }
 

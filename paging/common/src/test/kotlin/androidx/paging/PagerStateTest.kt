@@ -19,7 +19,7 @@ package androidx.paging
 import androidx.paging.LoadType.END
 import androidx.paging.LoadType.REFRESH
 import androidx.paging.LoadType.START
-import androidx.paging.PagedSource.LoadResult.Page
+import androidx.paging.PagingSource.LoadResult.Page
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.FlowPreview
 import kotlinx.coroutines.test.TestCoroutineScope

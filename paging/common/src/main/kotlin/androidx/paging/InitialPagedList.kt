@@ -29,17 +29,17 @@ import kotlinx.coroutines.CoroutineScope
  */
 @RestrictTo(RestrictTo.Scope.LIBRARY)
 class InitialPagedList<K : Any, V : Any>(
-    pagedSource: PagedSource<K, V>,
+    pagingSource: PagingSource<K, V>,
     coroutineScope: CoroutineScope,
     config: Config,
     initialLastKey: K?
 ) : ContiguousPagedList<K, V>(
-    pagedSource,
+    pagingSource,
     coroutineScope,
     DirectDispatcher,
     DirectDispatcher,
     null,
     config,
-    PagedSource.LoadResult.Page.empty(),
+    PagingSource.LoadResult.Page.empty(),
     initialLastKey
 )

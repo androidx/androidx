@@ -229,7 +229,7 @@ abstract class PagedListAdapter<T : Any, VH : RecyclerView.ViewHolder> : Recycle
      *
      * @see removeLoadStateListener
      */
-    open fun addLoadStateListener(listener: (type: LoadType, state: LoadState) -> Unit) {
+    open fun addLoadStateListener(listener: (LoadType, LoadState) -> Unit) {
         differ.addLoadStateListener(listener)
     }
 
@@ -239,7 +239,7 @@ abstract class PagedListAdapter<T : Any, VH : RecyclerView.ViewHolder> : Recycle
      * @param listener Previously registered listener.
      * @see addLoadStateListener
      */
-    open fun removeLoadStateListener(listener: (type: LoadType, state: LoadState) -> Unit) {
+    open fun removeLoadStateListener(listener: (LoadType, LoadState) -> Unit) {
         differ.removeLoadStateListener(listener)
     }
 }

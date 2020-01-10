@@ -21,7 +21,7 @@ import androidx.annotation.VisibleForTesting
 import androidx.annotation.WorkerThread
 import androidx.arch.core.util.Function
 import androidx.paging.DataSource.KeyType.POSITIONAL
-import androidx.paging.PagedSource.LoadResult.Page.Companion.COUNT_UNDEFINED
+import androidx.paging.PagingSource.LoadResult.Page.Companion.COUNT_UNDEFINED
 import androidx.paging.PositionalDataSource.LoadInitialCallback
 import kotlinx.coroutines.suspendCancellableCoroutine
 import kotlin.coroutines.resume

@@ -17,8 +17,8 @@
 package androidx.paging
 
 import androidx.concurrent.futures.ResolvableFuture
-import androidx.paging.PagedSource.LoadParams
-import androidx.paging.PagedSource.LoadResult.Page
+import androidx.paging.PagingSource.LoadParams
+import androidx.paging.PagingSource.LoadResult.Page
 import com.google.common.util.concurrent.ListenableFuture
 import kotlinx.coroutines.runBlocking
 import org.junit.Test
@@ -28,7 +28,7 @@ import kotlin.test.assertEquals
 import kotlin.test.assertFailsWith
 
 @RunWith(JUnit4::class)
-class ListenableFuturePagedSourceTest {
+class ListenableFuturePagingSourceTest {
     private fun loadInternal(params: LoadParams<Int>): Page<Int, Int> {
         val key = params.key!! // Intentionally fail on null keys
         require(key >= 0) // Intentionally throw on negative key
@@ -40,13 +40,13 @@ class ListenableFuturePagedSourceTest {
         )
     }
 
-    private val pagedSource = object : PagedSource<Int, Int>() {
+    private val pagingSource = object : PagingSource<Int, Int>() {
         override suspend fun load(params: LoadParams<Int>): LoadResult<Int, Int> {
             return loadInternal(params)
         }
     }
 
-    private val listenableFuturePagedSource = object : ListenableFuturePagedSource<Int, Int>() {
+    private val listenableFuturePagingSource = object : ListenableFuturePagingSource<Int, Int>() {
         override fun loadFuture(params: LoadParams<Int>): ListenableFuture<LoadResult<Int, Int>> {
             val future = ResolvableFuture.create<LoadResult<Int, Int>>()
             try {
@@ -61,15 +61,15 @@ class ListenableFuturePagedSourceTest {
     @Test
     fun basic() = runBlocking {
         val params = LoadParams(LoadType.REFRESH, 0, 2, false, 2)
-        assertEquals(pagedSource.load(params), listenableFuturePagedSource.load(params))
+        assertEquals(pagingSource.load(params), listenableFuturePagingSource.load(params))
     }
 
     @Test
     fun error() {
         runBlocking {
             val params = LoadParams<Int>(LoadType.REFRESH, null, 2, false, 2)
-            assertFailsWith<NullPointerException> { pagedSource.load(params) }
-            assertFailsWith<NullPointerException> { listenableFuturePagedSource.load(params) }
+            assertFailsWith<NullPointerException> { pagingSource.load(params) }
+            assertFailsWith<NullPointerException> { listenableFuturePagingSource.load(params) }
         }
     }
 
@@ -77,8 +77,8 @@ class ListenableFuturePagedSourceTest {
     fun errorWrapped() {
         runBlocking {
             val params = LoadParams(LoadType.REFRESH, -1, 2, false, 2)
-            assertFailsWith<IllegalArgumentException> { pagedSource.load(params) }
-            assertFailsWith<IllegalArgumentException> { listenableFuturePagedSource.load(params) }
+            assertFailsWith<IllegalArgumentException> { pagingSource.load(params) }
+            assertFailsWith<IllegalArgumentException> { listenableFuturePagingSource.load(params) }
         }
     }
 }

@@ -28,7 +28,7 @@ import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.withContext
 import java.util.concurrent.CopyOnWriteArrayList
 
-open class AsyncPagedDataDiffer<T : Any>(
+open class AsyncPagingDataDiffer<T : Any>(
     private val mainDispatcher: CoroutineDispatcher = Dispatchers.Main,
     private val workerDispatcher: CoroutineDispatcher = Dispatchers.Default,
     private val diffCallback: DiffUtil.ItemCallback<T>,
@@ -75,7 +75,7 @@ open class AsyncPagedDataDiffer<T : Any>(
         }
     }
 
-    private val differBase = object : PagedDataDiffer<T>(mainDispatcher, workerDispatcher) {
+    private val differBase = object : PagingDataDiffer<T>(mainDispatcher, workerDispatcher) {
         override suspend fun performDiff(
             previousList: NullPaddedList<T>,
             newList: NullPaddedList<T>,
@@ -99,7 +99,7 @@ open class AsyncPagedDataDiffer<T : Any>(
         }
     }
 
-    fun connect(flow: Flow<PagedData<T>>, scope: CoroutineScope) {
+    fun connect(flow: Flow<PagingData<T>>, scope: CoroutineScope) {
         differBase.connect(flow, scope, callback)
     }
 
@@ -138,7 +138,7 @@ open class AsyncPagedDataDiffer<T : Any>(
     /**
      * Add a listener to observe the loading state.
      *
-     * As new PagedData generations are submitted and displayed, the listener will be notified to
+     * As new [PagingData] generations are submitted and displayed, the listener will be notified to
      * reflect current [LoadType.REFRESH], [LoadType.START], and [LoadType.END] states.
      *
      * @param listener [LoadStateListener] to receive updates.

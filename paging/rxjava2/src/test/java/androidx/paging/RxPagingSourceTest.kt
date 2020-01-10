@@ -16,7 +16,7 @@
 
 package androidx.paging
 
-import androidx.paging.PagedSource.LoadResult.Page
+import androidx.paging.PagingSource.LoadResult.Page
 import io.reactivex.Single
 import kotlinx.coroutines.runBlocking
 import org.junit.Test
@@ -26,8 +26,8 @@ import kotlin.test.assertEquals
 import kotlin.test.assertFailsWith
 
 @RunWith(JUnit4::class)
-class RxPagedSourceTest {
-    private fun loadInternal(params: PagedSource.LoadParams<Int>): Page<Int, Int> {
+class RxPagingSourceTest {
+    private fun loadInternal(params: PagingSource.LoadParams<Int>): Page<Int, Int> {
         val key = params.key!! // Intentionally fail on null keys
         return Page(
             List(params.loadSize) { it + key },
@@ -36,13 +36,13 @@ class RxPagedSourceTest {
         )
     }
 
-    private val pagedSource = object : PagedSource<Int, Int>() {
+    private val pagingSource = object : PagingSource<Int, Int>() {
         override suspend fun load(params: LoadParams<Int>): LoadResult<Int, Int> {
             return loadInternal(params)
         }
     }
 
-    private val rxPagedSource = object : RxPagedSource<Int, Int>() {
+    private val rxPagingSource = object : RxPagingSource<Int, Int>() {
         override fun loadSingle(params: LoadParams<Int>): Single<LoadResult<Int, Int>> {
             return Single.create { emitter ->
                 emitter.onSuccess(loadInternal(params))
@@ -52,16 +52,16 @@ class RxPagedSourceTest {
 
     @Test
     fun basic() = runBlocking {
-        val params = PagedSource.LoadParams(LoadType.REFRESH, 0, 2, false, 2)
-        assertEquals(pagedSource.load(params), rxPagedSource.load(params))
+        val params = PagingSource.LoadParams(LoadType.REFRESH, 0, 2, false, 2)
+        assertEquals(pagingSource.load(params), rxPagingSource.load(params))
     }
 
     @Test
     fun error() {
         runBlocking {
-            val params = PagedSource.LoadParams<Int>(LoadType.REFRESH, null, 2, false, 2)
-            assertFailsWith<NullPointerException> { pagedSource.load(params) }
-            assertFailsWith<NullPointerException> { rxPagedSource.load(params) }
+            val params = PagingSource.LoadParams<Int>(LoadType.REFRESH, null, 2, false, 2)
+            assertFailsWith<NullPointerException> { pagingSource.load(params) }
+            assertFailsWith<NullPointerException> { rxPagingSource.load(params) }
         }
     }
 }

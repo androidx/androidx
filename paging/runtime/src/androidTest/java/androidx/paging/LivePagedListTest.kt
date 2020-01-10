@@ -51,17 +51,17 @@ class LivePagedListTest {
     }
 
     @Test
-    fun toLiveData_pagedSourceConfig() {
+    fun toLiveData_pagingSourceConfig() {
         @Suppress("DEPRECATION")
-        val livePagedList = pagedSourceFactory.toLiveData(config)
+        val livePagedList = pagingSourceFactory.toLiveData(config)
         livePagedList.observeForever {}
         assertNotNull(livePagedList.value)
         assertEquals(config, livePagedList.value!!.config)
     }
 
     @Test
-    fun toLiveData_pagedSourcePageSize() {
-        val livePagedList = pagedSourceFactory.toLiveData(24)
+    fun toLiveData_pagingSourcePageSize() {
+        val livePagedList = pagingSourceFactory.toLiveData(24)
         livePagedList.observeForever {}
         assertNotNull(livePagedList.value)
         assertEquals(24, livePagedList.value!!.config.pageSize)
@@ -85,9 +85,9 @@ class LivePagedListTest {
             }
         }
 
-        private val pagedSource = LegacyPagedSource(dataSource)
+        private val pagingSource = LegacyPagingSource(dataSource)
 
-        private val pagedSourceFactory = { pagedSource }
+        private val pagingSourceFactory = { pagingSource }
 
         private val config = Config(10)
     }
