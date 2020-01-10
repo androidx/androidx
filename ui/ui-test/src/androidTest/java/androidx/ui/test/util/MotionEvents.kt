@@ -96,9 +96,9 @@ fun List<MotionEvent>.between(t0: Long, t1: Long): List<MotionEvent> {
 /**
  * Checks that the coordinates are progressing in a monotonous direction
  */
-fun List<MotionEvent>.isMonotonousBetween(x0: Float, y0: Float, x1: Float, y1: Float) {
-    map { it.x }.isMonotonousBetween(x0, x1)
-    map { it.y }.isMonotonousBetween(y0, y1)
+fun List<MotionEvent>.isMonotonousBetween(start: PxPosition, end: PxPosition) {
+    map { it.x }.isMonotonousBetween(start.x.value, end.x.value, 1e-6f)
+    map { it.y }.isMonotonousBetween(start.y.value, end.y.value, 1e-6f)
 }
 
 /**
