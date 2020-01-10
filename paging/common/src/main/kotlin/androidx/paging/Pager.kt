@@ -227,7 +227,9 @@ internal class Pager<Key : Any, Value : Any>(
                     // if the insert was successfully applied in the case of cancellation due to
                     // page dropping.
                     if (insertApplied) {
-                        with(state) { pageEventCh.send(result.toPageEvent(REFRESH)) }
+                        with(state) {
+                            pageEventCh.send(result.toPageEvent(REFRESH, config.enablePlaceholders))
+                        }
                     }
                 }
                 is LoadResult.Error -> state.updateLoadState(
@@ -271,7 +273,7 @@ internal class Pager<Key : Any, Value : Any>(
             // insert event can only be sent after LoadState has been updated.
             lastInsertedPage?.let { previousResult ->
                 val pageEvent = stateLock.withLock {
-                    with(state) { previousResult.toPageEvent(loadType) }
+                    with(state) { previousResult.toPageEvent(loadType, config.enablePlaceholders) }
                 }
                 pageEventCh.send(pageEvent)
             }
@@ -341,7 +343,9 @@ internal class Pager<Key : Any, Value : Any>(
             // Send the last page event from previous successful insert, now that LoadState has
             // been updated.
             lastInsertedPage?.let { previousResult ->
-                val pageEvent = with(state) { previousResult.toPageEvent(loadType) }
+                val pageEvent = with(state) {
+                    previousResult.toPageEvent(loadType, config.enablePlaceholders)
+                }
                 pageEventCh.send(pageEvent)
             }
         }

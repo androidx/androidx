@@ -702,4 +702,86 @@ class PagerTest {
             job.cancel()
         }
     }
+
+    @Test
+    fun disablePlaceholders_refresh() = testScope.runBlockingTest {
+        val config = PagingConfig(
+            pageSize = 1,
+            prefetchDistance = 1,
+            enablePlaceholders = false,
+            initialLoadSize = 2,
+            maxSize = 3
+        )
+        val pageFetcher = PageFetcher(pagingSourceFactory, 50, config)
+        val fetcherState = collectFetcherState(pageFetcher)
+
+        advanceUntilIdle()
+
+        val expected: List<PageEvent<Int>> = listOf(
+            StateUpdate(REFRESH, Loading),
+            StateUpdate(REFRESH, Done),
+            createRefresh(range = 50..51).let { Refresh(it.pages, 0, 0, it.loadStates) }
+        )
+
+        assertEvents(expected, fetcherState.pageEventLists[0])
+        fetcherState.job.cancel()
+    }
+
+    @Test
+    fun disablePlaceholders_prepend() = testScope.runBlockingTest {
+        val config = PagingConfig(
+            pageSize = 1,
+            prefetchDistance = 1,
+            enablePlaceholders = false,
+            initialLoadSize = 2,
+            maxSize = 3
+        )
+        val pageFetcher = PageFetcher(pagingSourceFactory, 50, config)
+        val fetcherState = collectFetcherState(pageFetcher)
+
+        advanceUntilIdle()
+        fetcherState.pagingDataList[0].receiver.addHint(ViewportHint(0, 0))
+        advanceUntilIdle()
+
+        val expected: List<PageEvent<Int>> = listOf(
+            StateUpdate(REFRESH, Loading),
+            StateUpdate(REFRESH, Done),
+            createRefresh(range = 50..51).let { Refresh(it.pages, 0, 0, it.loadStates) },
+            StateUpdate(START, Loading),
+            StateUpdate(START, Idle),
+            createPrepend(-1, 49..49).let { Start(it.pages, 0, it.loadStates) }
+        )
+
+        assertEvents(expected, fetcherState.pageEventLists[0])
+        fetcherState.job.cancel()
+    }
+
+    @Test
+    fun disablePlaceholders_append() = testScope.runBlockingTest {
+        val config = PagingConfig(
+            pageSize = 1,
+            prefetchDistance = 1,
+            enablePlaceholders = false,
+            initialLoadSize = 2,
+            maxSize = 3
+        )
+        val pageFetcher = PageFetcher(pagingSourceFactory, 50, config)
+        val fetcherState = collectFetcherState(pageFetcher)
+
+        advanceUntilIdle()
+        fetcherState.pagingDataList[0].receiver.addHint(ViewportHint(0, 1))
+        advanceUntilIdle()
+
+        val expected: List<PageEvent<Int>> = listOf(
+            StateUpdate(REFRESH, Loading),
+            StateUpdate(REFRESH, Done),
+            createRefresh(range = 50..51).let { Refresh(it.pages, 0, 0, it.loadStates) },
+            StateUpdate(END, Loading),
+            StateUpdate(END, Idle),
+            createAppend(1, 52..52).let { End(it.pages, 0, it.loadStates) }
+        )
+
+        assertEvents(expected, fetcherState.pageEventLists[0])
+        fetcherState.job.cancel()
+    }
 }
