@@ -19,14 +19,14 @@ package androidx.paging
 import androidx.annotation.IntRange
 
 /**
- * Configures how to load content from a [PagedSource].
+ * Configures how to load content from a [PagingSource].
  *
  * Use [PagingConfig.Builder] to construct and define custom loading behavior, such as
  * [pageSize], which defines number of items loaded at a time.
  */
 class PagingConfig(
     /**
-     * Defines the number of items loaded at once from the [PagedSource].
+     * Defines the number of items loaded at once from the [PagingSource].
      *
      * Should be several times the number of visible items onscreen.
      *
@@ -53,14 +53,14 @@ class PagingConfig(
     @JvmField
     val prefetchDistance: Int = pageSize,
     /**
-     * Defines whether the [PagedList] may display null placeholders, if the [PagedSource]
+     * Defines whether the [PagedList] may display null placeholders, if the [PagingSource]
      * provides them.
      */
     @JvmField
     val enablePlaceholders: Boolean = true,
 
     /**
-     * Size requested size for initial load of from [PagedSource], generally larger than a regular
+     * Size requested size for initial load of from [PagingSource], generally larger than a regular
      * page.
      */
     @JvmField
@@ -142,20 +142,20 @@ class PagingConfig(
          * A [PagedList] will present null placeholders for not-yet-loaded content if two
          * conditions are met:
          *
-         * 1) Its [PagedSource] can count all unloaded items (so that the number of nulls to
+         * 1) Its [PagingSource] can count all unloaded items (so that the number of nulls to
          * present is known).
          *
          * 2) placeholders are not disabled on the [PagingConfig].
          *
          * Call `setEnablePlaceholders(false)` to ensure the receiver of the PagedList
-         * (often a [androidx.paging.PagedDataAdapter]) doesn't need to account for null items.
+         * (often a [androidx.paging.PagingDataAdapter]) doesn't need to account for null items.
          *
          * If placeholders are disabled, not-yet-loaded content will not be present in the list.
          * Paging will still occur, but as items are loaded or removed, they will be signaled
          * as inserts to the [PagedList.Callback].
          *
          * [PagedList.Callback.onChanged] will not be issued as part of loading, though a
-         * [androidx.paging.PagedDataAdapter] may still receive change events as a result of
+         * [androidx.paging.PagingDataAdapter] may still receive change events as a result of
          * [PagedList] diffing.
          *
          * @param enablePlaceholders `false` if null placeholders should be disabled.
@@ -194,7 +194,7 @@ class PagingConfig(
          * is many times the page size, the number of items held by the [PagedList] will not
          * grow above this number. Exceptions are made as necessary to guarantee:
          *  * Pages are never dropped until there are more than two pages loaded. Note that
-         * a [PagedSource] may not be held strictly to [requested pageSize][PagingConfig.pageSize], so
+         * a [PagingSource] may not be held strictly to [requested pageSize][PagingConfig.pageSize], so
          * two pages may be larger than expected.
          *  * Pages are never dropped if they are within a prefetch window (defined to be
          * `pageSize + (2 * prefetchDistance)`) of the most recent load.

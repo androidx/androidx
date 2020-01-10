@@ -24,8 +24,8 @@ import androidx.paging.PageEvent.Insert.Companion.End
 import androidx.paging.PageEvent.Insert.Companion.Refresh
 import androidx.paging.PageEvent.Insert.Companion.Start
 import androidx.paging.PagedList.Config.Companion.MAX_SIZE_UNBOUNDED
-import androidx.paging.PagedSource.LoadResult.Page
-import androidx.paging.PagedSource.LoadResult.Page.Companion.COUNT_UNDEFINED
+import androidx.paging.PagingSource.LoadResult.Page
+import androidx.paging.PagingSource.LoadResult.Page.Companion.COUNT_UNDEFINED
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.FlowPreview
 import kotlinx.coroutines.channels.Channel
@@ -213,8 +213,8 @@ internal class PagerState<Key : Any, Value : Any>(
      * @param indexInPage Index in [Page] with index [pageIndex]
      * @param pageIndex Index in [pages]
      *
-     * @return Information needed to request a refresh key from [PagedSource] via
-     * [PagedSource.getRefreshKeyFromPage] if available, null otherwise, which should direct the
+     * @return Information needed to request a refresh key from [PagingSource] via
+     * [PagingSource.getRefreshKeyFromPage] if available, null otherwise, which should direct the
      * [PageFetcher] to simply use initialKey.
      */
     internal fun refreshInfo(indexInPage: Int, pageIndex: Int): RefreshInfo<Key, Value>? {

@@ -21,12 +21,10 @@ import androidx.annotation.RestrictTo
 import androidx.annotation.VisibleForTesting
 import androidx.annotation.WorkerThread
 import androidx.arch.core.util.Function
-import androidx.paging.PagedSource.LoadResult.Page
-import androidx.paging.PagedSource.LoadResult.Page.Companion.COUNT_UNDEFINED
+import androidx.paging.PagingSource.LoadResult.Page
+import androidx.paging.PagingSource.LoadResult.Page.Companion.COUNT_UNDEFINED
 import java.util.concurrent.CopyOnWriteArrayList
 import java.util.concurrent.atomic.AtomicBoolean
-
-typealias OnInvalidated = () -> Unit
 
 /**
  * Base class for loading pages of snapshot data into a [PagedList].
@@ -234,8 +232,8 @@ internal constructor(internal val type: KeyType) {
          * @hide
          */
         @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
-        fun asPagedSourceFactory(): () -> PagedSource<Key, Value> = {
-            LegacyPagedSource(create())
+        fun asPagingSourceFactory(): () -> PagingSource<Key, Value> = {
+            LegacyPagingSource(create())
         }
     }
 
@@ -342,10 +340,10 @@ internal constructor(internal val type: KeyType) {
     }
 
     /**
-     * Wrapper for [OnInvalidated] which holds a reference to allow removal by referential equality
-     * of Kotlin functions within [removeInvalidatedCallback].
+     * Wrapper for invalidation callback which holds a reference to allow removal by referential
+     * equality of Kotlin functions within [removeInvalidatedCallback].
      */
-    private class OnInvalidatedWrapper(val callback: OnInvalidated) : InvalidatedCallback {
+    private class OnInvalidatedWrapper(val callback: () -> Unit) : InvalidatedCallback {
         override fun onInvalidated() = callback()
     }
 
@@ -379,7 +377,7 @@ internal constructor(internal val type: KeyType) {
      * [DataSource].
      */
     @AnyThread
-    fun addInvalidatedCallback(onInvalidatedCallback: OnInvalidated) {
+    fun addInvalidatedCallback(onInvalidatedCallback: () -> Unit) {
         onInvalidatedCallbacks.add(OnInvalidatedWrapper(onInvalidatedCallback))
     }
 
@@ -401,7 +399,7 @@ internal constructor(internal val type: KeyType) {
      * @param onInvalidatedCallback The previously added callback.
      */
     @AnyThread
-    fun removeInvalidatedCallback(onInvalidatedCallback: OnInvalidated) {
+    fun removeInvalidatedCallback(onInvalidatedCallback: () -> Unit) {
         onInvalidatedCallbacks.removeAll {
             it is OnInvalidatedWrapper && it.callback === onInvalidatedCallback
         }
@@ -497,7 +495,7 @@ internal constructor(internal val type: KeyType) {
 
         /**
          * Assumes that nextKey and prevKey returned by this [BaseResult] matches the expected type
-         * in [PagedSource.LoadResult].
+         * in [PagingSource.LoadResult].
          */
         @Suppress("UNCHECKED_CAST") // Guaranteed to be the correct Key type.
         internal fun <Key : Any> toLoadResult(): Page<Key, Value> = Page(

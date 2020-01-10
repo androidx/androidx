@@ -16,21 +16,21 @@
 
 package androidx.paging
 
-import androidx.concurrent.futures.await
-import com.google.common.util.concurrent.ListenableFuture
+import io.reactivex.Single
+import kotlinx.coroutines.rx2.await
 
 /**
- * [ListenableFuture]-based compatibility wrapper around [PagedSource]'s suspending APIs.
+ * Rx-based compatibility wrapper around [PagingSource]'s suspending APIs.
  */
-abstract class ListenableFuturePagedSource<Key : Any, Value : Any> : PagedSource<Key, Value>() {
+abstract class RxPagingSource<Key : Any, Value : Any> : PagingSource<Key, Value>() {
     /**
-     * Loading API for [PagedSource].
+     * Loading API for [PagingSource].
      *
      * Implement this method to trigger your async load (e.g. from database or network).
      */
-    abstract fun loadFuture(params: LoadParams<Key>): ListenableFuture<LoadResult<Key, Value>>
+    abstract fun loadSingle(params: LoadParams<Key>): Single<LoadResult<Key, Value>>
 
-    override suspend fun load(params: LoadParams<Key>): LoadResult<Key, Value> {
-        return loadFuture(params).await()
+    final override suspend fun load(params: LoadParams<Key>): LoadResult<Key, Value> {
+        return loadSingle(params).await()
     }
 }

@@ -48,11 +48,11 @@ import kotlinx.coroutines.withContext
  * @param Value Item type being presented.
  *
  * @constructor Creates a [RxPagedListBuilder] with required parameters.
- * @param pagedSourceFactory DataSource factory providing DataSource generations.
+ * @param pagingSourceFactory DataSource factory providing DataSource generations.
  * @param config Paging configuration.
  */
 class RxPagedListBuilder<Key : Any, Value : Any>(
-    private val pagedSourceFactory: () -> PagedSource<Key, Value>,
+    private val pagingSourceFactory: () -> PagingSource<Key, Value>,
     private val config: PagedList.Config
 ) {
     private var initialLoadKey: Key? = null
@@ -68,16 +68,16 @@ class RxPagedListBuilder<Key : Any, Value : Any>(
      * This method is a convenience for:
      * ```
      * RxPagedListBuilder(
-     *     pagedSourceFactory,
+     *     pagingSourceFactory,
      *     PagedList.Config.Builder().setPageSize(pageSize).build()
      * )
      * ```
      *
-     * @param pagedSourceFactory [PagedSource] factory providing [PagedSource] generations.
+     * @param pagingSourceFactory [PagingSource] factory providing [PagingSource] generations.
      * @param pageSize Size of pages to load.
      */
-    constructor(pagedSourceFactory: () -> PagedSource<Key, Value>, pageSize: Int) : this(
-        pagedSourceFactory,
+    constructor(pagingSourceFactory: () -> PagingSource<Key, Value>, pageSize: Int) : this(
+        pagingSourceFactory,
         PagedList.Config.Builder().setPageSize(pageSize).build()
     )
 
@@ -87,7 +87,7 @@ class RxPagedListBuilder<Key : Any, Value : Any>(
      * @param config Paging configuration.
      */
     constructor(dataSourceFactory: DataSource.Factory<Key, Value>, config: PagedList.Config) : this(
-        dataSourceFactory.asPagedSourceFactory(),
+        dataSourceFactory.asPagingSourceFactory(),
         config
     )
 
@@ -205,7 +205,7 @@ class RxPagedListBuilder<Key : Any, Value : Any>(
                     initialLoadKey,
                     config,
                     boundaryCallback,
-                    pagedSourceFactory,
+                    pagingSourceFactory,
                     notifyDispatcher!!,
                     fetchDispatcher!!
                 )
@@ -231,7 +231,7 @@ class RxPagedListBuilder<Key : Any, Value : Any>(
         initialLoadKey: Key?,
         private val config: PagedList.Config,
         private val boundaryCallback: PagedList.BoundaryCallback<Value>?,
-        private val pagedSourceFactory: () -> PagedSource<Key, Value>,
+        private val pagingSourceFactory: () -> PagingSource<Key, Value>,
         private val notifyDispatcher: CoroutineDispatcher,
         private val fetchDispatcher: CoroutineDispatcher
     ) : ObservableOnSubscribe<PagedList<Value>>, Cancellable {
@@ -248,7 +248,7 @@ class RxPagedListBuilder<Key : Any, Value : Any>(
 
         init {
             currentData = InitialPagedList(
-                pagedSourceFactory(),
+                pagingSourceFactory(),
                 GlobalScope,
                 config,
                 initialLoadKey
@@ -269,7 +269,7 @@ class RxPagedListBuilder<Key : Any, Value : Any>(
         }
 
         override fun cancel() {
-            currentData.pagedSource.unregisterInvalidatedCallback(callback)
+            currentData.pagingSource.unregisterInvalidatedCallback(callback)
         }
 
         private fun invalidate(force: Boolean) {
@@ -278,9 +278,9 @@ class RxPagedListBuilder<Key : Any, Value : Any>(
 
             currentJob?.cancel()
             currentJob = GlobalScope.launch(fetchDispatcher) {
-                currentData.pagedSource.unregisterInvalidatedCallback(callback)
-                val pagedSource = pagedSourceFactory()
-                pagedSource.registerInvalidatedCallback(callback)
+                currentData.pagingSource.unregisterInvalidatedCallback(callback)
+                val pagingSource = pagingSourceFactory()
+                pagingSource.registerInvalidatedCallback(callback)
 
                 withContext(notifyDispatcher) {
                     currentData.setInitialLoadState(LoadType.REFRESH, LoadState.Loading)
@@ -289,16 +289,16 @@ class RxPagedListBuilder<Key : Any, Value : Any>(
                 @Suppress("UNCHECKED_CAST")
                 val lastKey = currentData.lastKey as Key?
                 val params = config.toRefreshLoadParams(lastKey)
-                when (val initialResult = pagedSource.load(params)) {
-                    is PagedSource.LoadResult.Error -> {
+                when (val initialResult = pagingSource.load(params)) {
+                    is PagingSource.LoadResult.Error -> {
                         currentData.setInitialLoadState(
                             LoadType.REFRESH,
                             LoadState.Error(initialResult.throwable)
                         )
                     }
-                    is PagedSource.LoadResult.Page -> {
+                    is PagingSource.LoadResult.Page -> {
                         val pagedList = PagedList.create(
-                            pagedSource,
+                            pagingSource,
                             initialResult,
                             GlobalScope,
                             notifyDispatcher,

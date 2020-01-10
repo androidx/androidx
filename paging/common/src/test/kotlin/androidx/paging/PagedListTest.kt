@@ -36,7 +36,7 @@ class PagedListTest {
         private val ITEMS = List(100) { "$it" }
         private val config = Config(10)
 
-        private val pagedSource = object : PagedSource<Int, String>() {
+        private val pagingSource = object : PagingSource<Int, String>() {
             override suspend fun load(params: LoadParams<Int>): LoadResult<Int, String> =
                 when (params.loadType) {
                     REFRESH -> LoadResult.Page(
@@ -65,14 +65,14 @@ class PagedListTest {
     @Test
     fun createNoInitialPageThrow() {
         runBlocking {
-            val pagedSource = object : PagedSource<Int, String>() {
+            val pagingSource = object : PagingSource<Int, String>() {
                 override suspend fun load(params: LoadParams<Int>): LoadResult<Int, String> {
                     throw IllegalStateException()
                 }
             }
             assertFailsWith<IllegalStateException> {
                 PagedList.create(
-                    pagedSource,
+                    pagingSource,
                     null,
                     testCoroutineScope,
                     DirectDispatcher,
@@ -89,7 +89,7 @@ class PagedListTest {
     fun createNoInitialPageError() {
         runBlocking {
             val exception = IllegalStateException()
-            val pagedSource = object : PagedSource<Int, String>() {
+            val pagingSource = object : PagingSource<Int, String>() {
                 override suspend fun load(params: LoadParams<Int>): LoadResult<Int, String> {
                     return LoadResult.Error(exception)
                 }
@@ -99,7 +99,7 @@ class PagedListTest {
             // PagedList.Builder without the initial page is deprecated
             assertFailsWith<IllegalStateException> {
                 PagedList.create(
-                    pagedSource,
+                    pagingSource,
                     null,
                     testCoroutineScope,
                     DirectDispatcher,
@@ -114,21 +114,21 @@ class PagedListTest {
 
     @Test
     fun defaults() = runBlocking {
-        val initialPage = pagedSource.load(
-            PagedSource.LoadParams(
+        val initialPage = pagingSource.load(
+            PagingSource.LoadParams(
                 REFRESH,
                 key = null,
                 loadSize = 10,
                 placeholdersEnabled = false,
                 pageSize = 10
             )
-        ) as PagedSource.LoadResult.Page
-        val pagedList = Builder(pagedSource, initialPage, config)
+        ) as PagingSource.LoadResult.Page
+        val pagedList = Builder(pagingSource, initialPage, config)
             .setNotifyDispatcher(DirectDispatcher)
             .setFetchDispatcher(DirectDispatcher)
             .build()
 
-        assertEquals(pagedSource, pagedList.pagedSource)
+        assertEquals(pagingSource, pagedList.pagingSource)
         assertEquals(config, pagedList.config)
     }
 

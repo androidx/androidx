@@ -110,9 +110,9 @@ class CachingTest {
     @Test
     fun cached_afterMapping() = testScope.runBlockingTest {
         var mappingCnt = 0
-        val pageFlow = buildPageFlow().map { pagedData ->
+        val pageFlow = buildPageFlow().map { pagingData ->
             val mappingIndex = mappingCnt++
-            pagedData.map {
+            pagingData.map {
                 it.copy(metadata = mappingIndex.toString())
             }
         }.cachedIn(testScope, tracker)
@@ -144,9 +144,9 @@ class CachingTest {
     @Test
     fun cached_beforeMapping() = testScope.runBlockingTest {
         var mappingCnt = 0
-        val pageFlow = buildPageFlow().cachedIn(testScope, tracker).map { pagedData ->
+        val pageFlow = buildPageFlow().cachedIn(testScope, tracker).map { pagingData ->
             val mappingIndex = mappingCnt++
-            pagedData.map {
+            pagingData.map {
                 it.copy(metadata = mappingIndex.toString())
             }
         }
@@ -179,14 +179,14 @@ class CachingTest {
     fun cached_afterMapping_withMoreMappingAfterwards() = testScope
         .runBlockingTest {
             var mappingCnt = 0
-            val pageFlow = buildPageFlow().map { pagedData ->
+            val pageFlow = buildPageFlow().map { pagingData ->
                 val mappingIndex = mappingCnt++
-                pagedData.map {
+                pagingData.map {
                     it.copy(metadata = mappingIndex.toString())
                 }
-            }.cachedIn(testScope, tracker).map { pagedData ->
+            }.cachedIn(testScope, tracker).map { pagingData ->
                 val mappingIndex = mappingCnt++
-                pagedData.map {
+                pagingData.map {
                     it.copy(metadata = "${it.metadata}_$mappingIndex")
                 }
             }
@@ -289,9 +289,9 @@ class CachingTest {
         assertThat(passive2.items()).isEqualTo(secondList)
     }
 
-    private fun buildPageFlow(): Flow<PagedData<Item>> {
-        return PagedDataFlow(
-            pagedSourceFactory = StringPagedSource.VersionedFactory()::create,
+    private fun buildPageFlow(): Flow<PagingData<Item>> {
+        return PagingDataFlow(
+            pagingSourceFactory = StringPagingSource.VersionedFactory()::create,
             config = PagingConfig(
                 pageSize = 3,
                 prefetchDistance = 1,
@@ -302,7 +302,7 @@ class CachingTest {
         )
     }
 
-    private suspend fun Flow<PagedData<Item>>.collectItemsUntilSize(
+    private suspend fun Flow<PagingData<Item>>.collectItemsUntilSize(
         expectedSize: Int,
         onEach: (suspend () -> Unit)? = null
     ): List<Item> {
@@ -338,7 +338,7 @@ class CachingTest {
      * Paged list collector that does not call any hints but always collects
      */
     private class ItemCollector(
-        val source: Flow<PagedData<Item>>
+        val source: Flow<PagingData<Item>>
     ) {
         private var items: List<Item> = emptyList()
         private var job: Job? = null
@@ -367,9 +367,9 @@ class CachingTest {
         fun items() = items.toList()
     }
 
-    private class StringPagedSource(
+    private class StringPagingSource(
         private val version: Int
-    ) : PagedSource<Int, Item>() {
+    ) : PagingSource<Int, Item>() {
         private var generation = -1
         override suspend fun load(params: LoadParams<Int>): LoadResult<Int, Item> {
             when (params.loadType) {
@@ -414,7 +414,7 @@ class CachingTest {
 
         class VersionedFactory {
             private var version = 0
-            fun create() = StringPagedSource(version++)
+            fun create() = StringPagingSource(version++)
         }
     }
 
@@ -428,7 +428,7 @@ class CachingTest {
         ): List<Item> {
             return (start until start + size).map { id ->
                 Item(
-                    pagedSourceId = version,
+                    pagingSourceId = version,
                     generation = generation,
                     value = id
                 ).let {
@@ -442,7 +442,7 @@ class CachingTest {
         /**
          * which paged source generated this item
          */
-        val pagedSourceId: Int,
+        val pagingSourceId: Int,
         /**
          * # of refresh counts in the paged source
          */

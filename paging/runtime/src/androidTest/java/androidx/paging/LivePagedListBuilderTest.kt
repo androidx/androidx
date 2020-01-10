@@ -63,9 +63,9 @@ class LivePagedListBuilderTest {
         }
     }
 
-    private data class LoadState(
+    private data class LoadStateEvent(
         val type: LoadType,
-        val state: androidx.paging.LoadState
+        val state: LoadState
     )
 
     @ExperimentalCoroutinesApi
@@ -97,8 +97,8 @@ class LivePagedListBuilderTest {
     }
 
     class MockDataSourceFactory {
-        fun create(): PagedSource<Int, String> {
-            return MockPagedSource()
+        fun create(): PagingSource<Int, String> {
+            return MockPagingSource()
         }
 
         var throwable: Throwable? = null
@@ -107,7 +107,7 @@ class LivePagedListBuilderTest {
             throwable = EXCEPTION
         }
 
-        private inner class MockPagedSource : PagedSource<Int, String>() {
+        private inner class MockPagingSource : PagingSource<Int, String>() {
             override suspend fun load(params: LoadParams<Int>) = when (params.loadType) {
                 REFRESH -> loadInitial(params)
                 else -> loadRange()
@@ -189,16 +189,16 @@ class LivePagedListBuilderTest {
             pagedListHolder[0] = newList
         })
 
-        val loadStates = mutableListOf<LoadState>()
+        val loadStates = mutableListOf<LoadStateEvent>()
 
         // initially, immediately get passed empty initial list
         val initPagedList = pagedListHolder[0]
         assertNotNull(initPagedList!!)
         assertTrue(initPagedList is InitialPagedList<*, *>)
 
-        val loadStateChangedCallback: LoadStateListener = { type, state ->
+        val loadStateChangedCallback = { type: LoadType, state: LoadState ->
             if (type == REFRESH) {
-                loadStates.add(LoadState(type, state))
+                loadStates.add(LoadStateEvent(type, state))
             }
         }
         initPagedList.addWeakLoadStateListener(loadStateChangedCallback)
@@ -210,9 +210,9 @@ class LivePagedListBuilderTest {
         // TODO: Investigate removing initial IDLE state from callback updates.
         assertEquals(
             listOf(
-                LoadState(REFRESH, Idle),
-                LoadState(REFRESH, Loading),
-                LoadState(REFRESH, Error(EXCEPTION))
+                LoadStateEvent(REFRESH, Idle),
+                LoadStateEvent(REFRESH, Loading),
+                LoadStateEvent(REFRESH, Error(EXCEPTION))
             ), loadStates
         )
 
@@ -227,10 +227,10 @@ class LivePagedListBuilderTest {
 
         assertEquals(
             listOf(
-                LoadState(REFRESH, Idle),
-                LoadState(REFRESH, Loading),
-                LoadState(REFRESH, Error(EXCEPTION)),
-                LoadState(REFRESH, Loading)
+                LoadStateEvent(REFRESH, Idle),
+                LoadStateEvent(REFRESH, Loading),
+                LoadStateEvent(REFRESH, Error(EXCEPTION)),
+                LoadStateEvent(REFRESH, Loading)
             ), loadStates
         )
 
@@ -239,11 +239,11 @@ class LivePagedListBuilderTest {
         pagedListHolder[0]!!.addWeakLoadStateListener(loadStateChangedCallback)
         assertEquals(
             listOf(
-                LoadState(REFRESH, Idle),
-                LoadState(REFRESH, Loading),
-                LoadState(REFRESH, Error(EXCEPTION)),
-                LoadState(REFRESH, Loading),
-                LoadState(REFRESH, Idle)
+                LoadStateEvent(REFRESH, Idle),
+                LoadStateEvent(REFRESH, Loading),
+                LoadStateEvent(REFRESH, Error(EXCEPTION)),
+                LoadStateEvent(REFRESH, Loading),
+                LoadStateEvent(REFRESH, Idle)
             ),
             loadStates
         )

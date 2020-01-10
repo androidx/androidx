@@ -23,14 +23,14 @@ import androidx.paging.DataSource.KeyType.POSITIONAL
 import androidx.paging.DataSource.Params
 
 /**
- * A wrapper around [DataSource] which adapts it to the [PagedSource] API.
+ * A wrapper around [DataSource] which adapts it to the [PagingSource] API.
  *
  * @hide
  */
 @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
-class LegacyPagedSource<Key : Any, Value : Any>(
+class LegacyPagingSource<Key : Any, Value : Any>(
     internal val dataSource: DataSource<Key, Value>
-) : PagedSource<Key, Value>() {
+) : PagingSource<Key, Value>() {
     init {
         dataSource.addInvalidatedCallback { invalidate() }
     }

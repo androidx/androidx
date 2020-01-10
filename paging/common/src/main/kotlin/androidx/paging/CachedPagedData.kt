@@ -31,9 +31,9 @@ import kotlinx.coroutines.flow.onStart
 import kotlinx.coroutines.flow.scan
 
 @UseExperimental(ExperimentalCoroutinesApi::class)
-private class MulticastedPagedData<T : Any>(
+private class MulticastedPagingData<T : Any>(
     val scope: CoroutineScope,
-    val parent: PagedData<T>,
+    val parent: PagingData<T>,
     // used in tests
     val tracker: ActiveFlowTracker? = null
 ) {
@@ -49,7 +49,7 @@ private class MulticastedPagedData<T : Any>(
 
     @FlowPreview
     @ExperimentalCoroutinesApi
-    fun asPagedData() = PagedData(
+    fun asPagingData() = PagingData(
         flow = accumulated.downstreamFlow,
         receiver = parent.receiver
     )
@@ -60,24 +60,24 @@ private class MulticastedPagedData<T : Any>(
 }
 
 /**
- * Caches the PagedData such that any downstream collection from this flow will share the same
+ * Caches the [PagingData] such that any downstream collection from this flow will share the same
  * paging data.
  *
  * The flow is kept active as long as the given [scope] is active. To avoid leaks, make sure to
  * use a [scope] that is already managed (like a ViewModel scope) or manually cancel it when you
  * don't need paging anymore.
  *
- * A common use case for this caching is to cache PagedData in a ViewModel. This can ensure that,
+ * A common use case for this caching is to cache [PagingData] in a ViewModel. This can ensure that,
  * upon configuration change (e.g. rotation), then new Activity will receive the existing data
  * immediately rather than fetching it from scratch.
  *
- * Note that this does not turn the `Flow<PagedData>` into a hot stream. It won't execute any
+ * Note that this does not turn the `Flow<PagingData>` into a hot stream. It won't execute any
  * unnecessary code unless it is being collected.
  *
  * ```
  * class MyViewModel : ViewModel() {
- *     val pagedData : Flow<PagedData<Item>> = PagedDataFlowBuilder(
- *         pagedSourceFactory = <factory>,
+ *     val pagingData : Flow<PagingData<Item>> = PagingDataFlowBuilder(
+ *         pagingSourceFactory = <factory>,
  *         config = <config>)
  *     ).build()
  *     .cached(viewModelScope)
@@ -85,7 +85,7 @@ private class MulticastedPagedData<T : Any>(
  *
  * class MyActivity : Activity() {
  *     override fun onCreate() {
- *         val pages = myViewModel.pagedData
+ *         val pages = myViewModel.pagingData
  *     }
  * }
  * ```
@@ -94,27 +94,27 @@ private class MulticastedPagedData<T : Any>(
  */
 @ExperimentalCoroutinesApi
 @FlowPreview
-fun <T : Any> Flow<PagedData<T>>.cachedIn(
+fun <T : Any> Flow<PagingData<T>>.cachedIn(
     scope: CoroutineScope
 ) = cachedIn(scope, null)
 
 @FlowPreview
 @ExperimentalCoroutinesApi
-internal fun <T : Any> Flow<PagedData<T>>.cachedIn(
+internal fun <T : Any> Flow<PagingData<T>>.cachedIn(
     scope: CoroutineScope,
     // used in tests
     tracker: ActiveFlowTracker? = null
-): Flow<PagedData<T>> {
+): Flow<PagingData<T>> {
     val multicastedFlow = this.map {
-        MulticastedPagedData(
+        MulticastedPagingData(
             scope = scope,
             parent = it
         )
-    }.scan(null as MulticastedPagedData<T>?) { prev, next ->
+    }.scan(null as MulticastedPagingData<T>?) { prev, next ->
         prev?.close()
         next
     }.mapNotNull {
-        it?.asPagedData()
+        it?.asPagingData()
     }.onStart {
         tracker?.onStart(PAGED_DATA_FLOW)
     }.onCompletion {

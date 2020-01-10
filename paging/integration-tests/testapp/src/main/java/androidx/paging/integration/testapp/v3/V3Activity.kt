@@ -24,7 +24,7 @@ import androidx.appcompat.app.AppCompatActivity
 import androidx.lifecycle.lifecycleScope
 import androidx.paging.LoadState
 import androidx.paging.LoadType
-import androidx.paging.PagedDataAdapter
+import androidx.paging.PagingDataAdapter
 import androidx.paging.integration.testapp.R
 import androidx.recyclerview.widget.RecyclerView
 import kotlinx.coroutines.ExperimentalCoroutinesApi
@@ -47,11 +47,9 @@ class V3Activity : AppCompatActivity() {
             else -> "unknown"
         }
         // NOTE: lifecycleScope means we don't respect paused state here
-        adapter.connect(viewModel.flow.map { pagedData ->
-            pagedData.map {
-                it.copy(
-                    text = "${it.text} - $orientationText"
-                )
+        adapter.connect(viewModel.flow.map { pagingData ->
+            pagingData.map {
+                it.copy(text = "${it.text} - $orientationText")
             }
         }, lifecycleScope)
 
@@ -65,7 +63,7 @@ class V3Activity : AppCompatActivity() {
         }
     }
 
-    private fun setupLoadStateButtons(adapter: PagedDataAdapter<Item, RecyclerView.ViewHolder>) {
+    private fun setupLoadStateButtons(adapter: PagingDataAdapter<Item, RecyclerView.ViewHolder>) {
         val buttonStart = findViewById<Button>(R.id.button_start)
         val buttonRefresh = findViewById<Button>(R.id.button_refresh)
         val buttonEnd = findViewById<Button>(R.id.button_end)
