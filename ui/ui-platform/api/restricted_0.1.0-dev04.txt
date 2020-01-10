@@ -25,6 +25,7 @@ package androidx.ui.core {
     method public long getMeasureIteration();
     method public androidx.ui.core.Ref<androidx.ui.core.AndroidComposeView>? getRef();
     method public androidx.ui.core.LayoutNode getRoot();
+    method public boolean getShowLayoutBounds();
     method public androidx.ui.input.TextInputService getTextInputService();
     method public void observeDrawModelReads(androidx.ui.core.RepaintBoundaryNode node, kotlin.jvm.functions.Function0<kotlin.Unit> block);
     method public void observeLayoutModelReads(androidx.ui.core.LayoutNode node, kotlin.jvm.functions.Function0<kotlin.Unit> block);
@@ -41,6 +42,7 @@ package androidx.ui.core {
     method public void setConfigurationChangeObserver(kotlin.jvm.functions.Function0<kotlin.Unit> p);
     method public void setConstraints(androidx.ui.core.Constraints p);
     method public void setRef(androidx.ui.core.Ref<androidx.ui.core.AndroidComposeView>? value);
+    method @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP) public void setShowLayoutBounds(boolean p);
     property public final androidx.ui.autofill.Autofill? autofill;
     property public final androidx.ui.autofill.AutofillTree autofillTree;
     property public final kotlin.jvm.functions.Function0<kotlin.Unit> configurationChangeObserver;
@@ -50,6 +52,7 @@ package androidx.ui.core {
     property public long measureIteration;
     property public final androidx.ui.core.Ref<androidx.ui.core.AndroidComposeView>? ref;
     property public final androidx.ui.core.LayoutNode root;
+    property public boolean showLayoutBounds;
     property public final androidx.ui.input.TextInputService textInputService;
   }
 
@@ -255,6 +258,7 @@ package androidx.ui.core {
     method public void callDraw(androidx.ui.graphics.Canvas canvas, androidx.ui.core.ComponentNode node, androidx.ui.core.PxSize parentSize);
     method public androidx.ui.core.Density getDensity();
     method public long getMeasureIteration();
+    method public boolean getShowLayoutBounds();
     method public void observeDrawModelReads(androidx.ui.core.RepaintBoundaryNode node, kotlin.jvm.functions.Function0<kotlin.Unit> block);
     method public void observeLayoutModelReads(androidx.ui.core.LayoutNode node, kotlin.jvm.functions.Function0<kotlin.Unit> block);
     method public void observeMeasureModelReads(androidx.ui.core.LayoutNode node, kotlin.jvm.functions.Function0<kotlin.Unit> block);
@@ -268,6 +272,7 @@ package androidx.ui.core {
     method public void pauseModelReadObserveration(kotlin.jvm.functions.Function0<kotlin.Unit> block);
     property public abstract androidx.ui.core.Density density;
     property public abstract long measureIteration;
+    property public abstract boolean showLayoutBounds;
   }
 
   public final class PointerInputNode extends androidx.ui.core.ComponentNode {

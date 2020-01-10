@@ -20,6 +20,7 @@ import androidx.ui.core.focus.findParentFocusNode
 import androidx.ui.core.focus.ownerHasFocus
 import androidx.ui.core.focus.requestFocusForOwner
 import androidx.ui.core.semantics.SemanticsConfiguration
+import androidx.ui.engine.geometry.Rect
 import androidx.ui.engine.geometry.Shape
 import androidx.ui.focus.FocusDetailedState
 import androidx.ui.focus.FocusDetailedState.Active
@@ -28,6 +29,9 @@ import androidx.ui.focus.FocusDetailedState.Captured
 import androidx.ui.focus.FocusDetailedState.Disabled
 import androidx.ui.focus.FocusDetailedState.Inactive
 import androidx.ui.graphics.Canvas
+import androidx.ui.graphics.Color
+import androidx.ui.graphics.Paint
+import androidx.ui.graphics.PaintingStyle
 import kotlin.properties.ReadWriteProperty
 import kotlin.reflect.KProperty
 
@@ -38,6 +42,11 @@ import kotlin.reflect.KProperty
  */
 interface Owner {
     val density: Density
+
+    /**
+     * `true` when layout should draw debug bounds.
+     */
+    val showLayoutBounds: Boolean
 
     /**
      * Called from a [DrawNode], this registers with the underlying view system that a
@@ -1104,7 +1113,6 @@ class LayoutNode : ComponentNode(), Measurable {
     }
 
     private inner class InnerPlaceable : LayoutNodeWrapper(), DensityScope {
-
         override fun measure(constraints: Constraints): Placeable {
             val layoutResult = measureBlocks.measure(measureScope, layoutChildren, constraints)
             handleLayoutResult(layoutResult)
@@ -1159,6 +1167,15 @@ class LayoutNode : ComponentNode(), Measurable {
             val owner = requireOwner()
             val sizePx = size.toPxSize()
             children.forEach { child -> owner.callDraw(canvas, child, sizePx) }
+            if (owner.showLayoutBounds) {
+                val rect = Rect(
+                    left = 0.5f,
+                    top = 0.5f,
+                    right = size.width.value.toFloat() - 0.5f,
+                    bottom = size.height.value.toFloat() - 0.5f
+                )
+                canvas.drawRect(rect, innerBoundsPaint)
+            }
             canvas.translate(-x, -y)
         }
     }
@@ -1188,7 +1205,6 @@ class LayoutNode : ComponentNode(), Measurable {
         override val wrapped: LayoutNodeWrapper,
         val layoutModifier: LayoutModifier
     ) : DelegatingLayoutNodeWrapper() {
-
         /**
          * The [Placeable] returned by measuring [wrapped] in [measure].
          * Used to avoid creating more wrapper objects than necessary since [ModifiedLayoutNode]
@@ -1272,6 +1288,15 @@ class LayoutNode : ComponentNode(), Measurable {
             val y = position.y.value.toFloat()
             canvas.translate(x, y)
             wrapped.draw(canvas, density)
+            if (requireOwner().showLayoutBounds) {
+                val rect = Rect(
+                    left = 0.5f,
+                    top = 0.5f,
+                    right = size.width.value.toFloat() - 0.5f,
+                    bottom = size.height.value.toFloat() - 0.5f
+                )
+                canvas.drawRect(rect, modifierBoundsPaint)
+            }
             canvas.translate(-x, -y)
         }
     }
@@ -1479,6 +1504,18 @@ class LayoutNode : ComponentNode(), Measurable {
     }
 
     internal companion object {
+        val innerBoundsPaint = Paint().also { paint ->
+            paint.color = Color.Red
+            paint.strokeWidth = 1f
+            paint.style = PaintingStyle.stroke
+        }
+
+        val modifierBoundsPaint = Paint().also { paint ->
+            paint.color = Color.Blue
+            paint.strokeWidth = 1f
+            paint.style = PaintingStyle.stroke
+        }
+
         @Suppress("UNCHECKED_CAST")
         private fun walkOnPosition(node: ComponentNode, coordinates: LayoutCoordinates) {
             node.visitChildren { child ->

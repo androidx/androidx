@@ -19,6 +19,7 @@ package androidx.ui.graphics
 import android.graphics.Matrix
 import androidx.ui.Vertices
 import androidx.ui.core.toFrameworkRect
+import androidx.ui.core.toFrameworkRectF
 import androidx.ui.engine.geometry.Offset
 import androidx.ui.engine.geometry.RRect
 import androidx.ui.engine.geometry.Rect
@@ -197,7 +198,7 @@ private class AndroidCanvas(val internalCanvas: android.graphics.Canvas) :
      * @see Canvas.drawRect
      */
     override fun drawRect(rect: Rect, paint: Paint) {
-        internalCanvas.drawRect(rect.toFrameworkRect(), paint.asFrameworkPaint())
+        internalCanvas.drawRect(rect.toFrameworkRectF(), paint.asFrameworkPaint())
     }
 
     /**
