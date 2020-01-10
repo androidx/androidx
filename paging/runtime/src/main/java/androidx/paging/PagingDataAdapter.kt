@@ -42,6 +42,10 @@ abstract class PagingDataAdapter<T : Any, VH : RecyclerView.ViewHolder>(
         differ.retry()
     }
 
+    fun refresh() {
+        differ.refresh()
+    }
+
     protected open fun getItem(position: Int) = differ.getItem(position)
 
     override fun getItemCount() = differ.itemCount

@@ -123,4 +123,5 @@ class PagingData<T : Any> internal constructor(
 internal interface UiReceiver {
     fun addHint(hint: ViewportHint)
     fun retry()
+    fun refresh()
 }

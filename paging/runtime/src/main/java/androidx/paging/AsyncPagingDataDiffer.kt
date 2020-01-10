@@ -107,6 +107,10 @@ open class AsyncPagingDataDiffer<T : Any>(
         differBase.retry()
     }
 
+    fun refresh() {
+        differBase.refresh()
+    }
+
     /**
      * Get the item from the current PagedList at the specified index.
      *
