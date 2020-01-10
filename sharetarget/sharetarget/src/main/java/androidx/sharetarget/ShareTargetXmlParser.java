@@ -63,7 +63,7 @@ class ShareTargetXmlParser {
     private static final String ATTR_NAME = "name";
 
     // List of share targets loaded from app's manifest. Will not change while the app is running.
-    private static ArrayList<ShareTargetCompat> sShareTargets;
+    private static volatile ArrayList<ShareTargetCompat> sShareTargets;
     private static final Object GET_INSTANCE_LOCK = new Object();
 
     @WorkerThread
