@@ -54,8 +54,8 @@ public final class FakeLifecycleOwner implements LifecycleOwner {
         if (mLifecycleRegistry.getCurrentState() != Lifecycle.State.CREATED) {
             throw new IllegalStateException("Invalid state transition.");
         }
-        mLifecycleRegistry.markState(Lifecycle.State.STARTED);
-        mLifecycleRegistry.markState(Lifecycle.State.RESUMED);
+        mLifecycleRegistry.setCurrentState(Lifecycle.State.STARTED);
+        mLifecycleRegistry.setCurrentState(Lifecycle.State.RESUMED);
     }
 
     /**
@@ -68,7 +68,7 @@ public final class FakeLifecycleOwner implements LifecycleOwner {
         if (mLifecycleRegistry.getCurrentState() != Lifecycle.State.CREATED) {
             throw new IllegalStateException("Invalid state transition.");
         }
-        mLifecycleRegistry.markState(Lifecycle.State.STARTED);
+        mLifecycleRegistry.setCurrentState(Lifecycle.State.STARTED);
     }
 
     /**
@@ -81,8 +81,8 @@ public final class FakeLifecycleOwner implements LifecycleOwner {
         if (mLifecycleRegistry.getCurrentState() != Lifecycle.State.RESUMED) {
             throw new IllegalStateException("Invalid state transition.");
         }
-        mLifecycleRegistry.markState(Lifecycle.State.STARTED);
-        mLifecycleRegistry.markState(Lifecycle.State.CREATED);
+        mLifecycleRegistry.setCurrentState(Lifecycle.State.STARTED);
+        mLifecycleRegistry.setCurrentState(Lifecycle.State.CREATED);
     }
 
     /**
@@ -95,7 +95,7 @@ public final class FakeLifecycleOwner implements LifecycleOwner {
         if (mLifecycleRegistry.getCurrentState() != Lifecycle.State.STARTED) {
             throw new IllegalStateException("Invalid state transition.");
         }
-        mLifecycleRegistry.markState(Lifecycle.State.CREATED);
+        mLifecycleRegistry.setCurrentState(Lifecycle.State.CREATED);
     }
 
     /**
@@ -108,7 +108,7 @@ public final class FakeLifecycleOwner implements LifecycleOwner {
         if (mLifecycleRegistry.getCurrentState() != Lifecycle.State.CREATED) {
             throw new IllegalStateException("Invalid state transition.");
         }
-        mLifecycleRegistry.markState(Lifecycle.State.DESTROYED);
+        mLifecycleRegistry.setCurrentState(Lifecycle.State.DESTROYED);
     }
 
     /** Returns the number of observers of this lifecycle. */
