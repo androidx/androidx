@@ -80,7 +80,10 @@ internal class PagerState<Key : Any, Value : Any>(
      * TODO: Move this into Pager, which owns pageEventCh, since this logic is sensitive to its
      * implementation.
      */
-    internal fun Page<Key, Value>.toPageEvent(loadType: LoadType): PageEvent<Value> {
+    internal fun Page<Key, Value>.toPageEvent(
+        loadType: LoadType,
+        placeholdersEnabled: Boolean
+    ): PageEvent<Value> {
         val sourcePageIndex = when (loadType) {
             REFRESH -> 0
             START -> 0 - initialPageIndex
@@ -88,9 +91,22 @@ internal class PagerState<Key : Any, Value : Any>(
         }
         val pages = listOf(TransformablePage(sourcePageIndex, data, data.size, null))
         return when (loadType) {
-            REFRESH -> Refresh(pages, placeholdersStart, placeholdersEnd, loadStates.toMap())
-            START -> Start(pages, placeholdersStart, loadStates.toMap())
-            END -> End(pages, placeholdersEnd, loadStates.toMap())
+            REFRESH -> Refresh(
+                pages = pages,
+                placeholdersStart = if (placeholdersEnabled) placeholdersStart else 0,
+                placeholdersEnd = if (placeholdersEnabled) placeholdersEnd else 0,
+                loadStates = loadStates.toMap()
+            )
+            START -> Start(
+                pages = pages,
+                placeholdersStart = if (placeholdersEnabled) placeholdersStart else 0,
+                loadStates = loadStates.toMap()
+            )
+            END -> End(
+                pages = pages,
+                placeholdersEnd = if (placeholdersEnabled) placeholdersEnd else 0,
+                loadStates = loadStates.toMap()
+            )
         }
     }
 
