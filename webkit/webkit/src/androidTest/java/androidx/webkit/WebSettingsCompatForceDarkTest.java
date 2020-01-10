@@ -25,6 +25,7 @@ import android.util.Base64;
 import android.view.ViewGroup;
 import android.webkit.WebView;
 
+import androidx.core.graphics.ColorUtils;
 import androidx.test.ext.junit.runners.AndroidJUnit4;
 import androidx.test.filters.MediumTest;
 import androidx.test.rule.ActivityTestRule;
@@ -117,7 +118,8 @@ public class WebSettingsCompatForceDarkTest {
                 WebSettingsCompat.FORCE_DARK_ON);
 
         mWebViewOnUiThread.loadUrlAndWaitForCompletion("about:blank");
-        assertTrue("Bitmap colour should be dark", Color.luminance(getWebPageColor()) < 0.5f);
+        assertTrue("Bitmap colour should be dark",
+                ColorUtils.calculateLuminance(getWebPageColor()) < 0.5f);
 
         // Loading about:blank into a force-dark-off webview should result in a light background
         WebSettingsCompat.setForceDark(
@@ -128,7 +130,7 @@ public class WebSettingsCompatForceDarkTest {
 
         mWebViewOnUiThread.loadUrlAndWaitForCompletion("about:blank");
         assertTrue("Bitmap colour should be light",
-                Color.luminance(getWebPageColor()) > 0.5f);
+                ColorUtils.calculateLuminance(getWebPageColor()) > 0.5f);
     }
 
     /**
@@ -150,10 +152,12 @@ public class WebSettingsCompatForceDarkTest {
                 WebSettingsCompat.USER_AGENT_DARKENING_ONLY);
 
         mWebViewOnUiThread.loadDataAndWaitForCompletion(mNoDarkThemeSupport, "text/html", "base64");
-        assertTrue("Bitmap colour should be dark", Color.luminance(getWebPageColor()) < 0.5f);
+        assertTrue("Bitmap colour should be dark",
+                ColorUtils.calculateLuminance(getWebPageColor()) < 0.5f);
 
         mWebViewOnUiThread.loadDataAndWaitForCompletion(mDarkThemeSupport, "text/html", "base64");
-        assertTrue("Bitmap colour should be dark", Color.luminance(getWebPageColor()) < 0.5f);
+        assertTrue("Bitmap colour should be dark",
+                ColorUtils.calculateLuminance(getWebPageColor()) < 0.5f);
     }
 
     /**
@@ -177,7 +181,8 @@ public class WebSettingsCompatForceDarkTest {
         // Loading a page without dark-theme support should result in a light background as web
         // page is not darken by a user agent
         mWebViewOnUiThread.loadDataAndWaitForCompletion(mNoDarkThemeSupport, "text/html", "base64");
-        assertTrue("Bitmap colour should be light", Color.luminance(getWebPageColor()) > 0.5f);
+        assertTrue("Bitmap colour should be light",
+                ColorUtils.calculateLuminance(getWebPageColor()) > 0.5f);
 
         // Loading a page with dark-theme support should result in a green background (as
         // specified in media-query)
@@ -206,7 +211,8 @@ public class WebSettingsCompatForceDarkTest {
         // Loading a page without dark-theme support should result in a dark background as
         // web page is darken by a user agent
         mWebViewOnUiThread.loadDataAndWaitForCompletion(mNoDarkThemeSupport, "text/html", "base64");
-        assertTrue("Bitmap colour should be dark", Color.luminance(getWebPageColor()) < 0.5f);
+        assertTrue("Bitmap colour should be dark",
+                ColorUtils.calculateLuminance(getWebPageColor()) < 0.5f);
 
         // Loading a page with dark-theme support should result in a green background (as
         // specified in media-query)
@@ -247,7 +253,7 @@ public class WebSettingsCompatForceDarkTest {
         return histogram;
     }
 
-    private  int[] getBitmapPixels(Bitmap bitmap, int x, int y, int width, int height) {
+    private int[] getBitmapPixels(Bitmap bitmap, int x, int y, int width, int height) {
         int[] pixels = new int[width * height];
         bitmap.getPixels(pixels, 0, width, x, y, width, height);
         return pixels;
