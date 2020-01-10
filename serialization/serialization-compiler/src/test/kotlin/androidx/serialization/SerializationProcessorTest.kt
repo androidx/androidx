@@ -23,9 +23,7 @@ import com.google.testing.compile.JavaFileObjects
 import org.junit.Test
 import javax.tools.JavaFileObject
 
-/**
- * Integration tests for [SerializationProcessor].
- */
+/** Integration tests for [SerializationProcessor]. */
 class SerializationProcessorTest {
     @Test
     fun testSucceedsWithoutWarningsOnEmptySchema() {
@@ -34,8 +32,6 @@ class SerializationProcessorTest {
     }
 
     private fun compile(vararg sources: JavaFileObject): Compilation {
-        require(sources.isNotEmpty()) { "Need at least one source file to compile" }
-
         return javac().withProcessors(SerializationProcessor()).compile(*sources)
     }
 }

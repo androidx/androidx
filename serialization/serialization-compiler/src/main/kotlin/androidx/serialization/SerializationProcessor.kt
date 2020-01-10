@@ -16,7 +16,7 @@
 
 package androidx.serialization
 
-import androidx.serialization.compiler.processing.steps.SchemaAggregationStep
+import androidx.serialization.compiler.processing.steps.SchemaCompilationStep
 import com.google.auto.common.BasicAnnotationProcessor
 import com.google.auto.service.AutoService
 import net.ltgt.gradle.incap.IncrementalAnnotationProcessor
@@ -31,7 +31,7 @@ import javax.lang.model.SourceVersion
 @IncrementalAnnotationProcessor(AGGREGATING)
 class SerializationProcessor : BasicAnnotationProcessor() {
     override fun initSteps(): Iterable<ProcessingStep> {
-        return listOf(SchemaAggregationStep(processingEnv))
+        return listOf(SchemaCompilationStep(processingEnv))
     }
 
     override fun getSupportedSourceVersion(): SourceVersion = SourceVersion.latest()
