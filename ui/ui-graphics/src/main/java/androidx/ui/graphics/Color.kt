@@ -304,15 +304,23 @@ fun Color(
     alpha: Float = 1f,
     colorSpace: ColorSpace = ColorSpaces.Srgb
 ): Color {
-    require(colorSpace.componentCount == 3) {
-        "Color only works with ColorSpaces with 3 components"
+    require(red in colorSpace.getMinValue(0)..colorSpace.getMaxValue(0) &&
+            green in colorSpace.getMinValue(1)..colorSpace.getMaxValue(1) &&
+            blue in colorSpace.getMinValue(2)..colorSpace.getMaxValue(2) &&
+            alpha in 0f..1f) {
+        "red = $red, green = $green, blue = $blue, alpha = $alpha outside the range for $colorSpace"
     }
+
     if (colorSpace.isSrgb) {
         val argb = (((alpha * 255.0f + 0.5f).toInt() shl 24) or
                 ((red * 255.0f + 0.5f).toInt() shl 16) or
                 ((green * 255.0f + 0.5f).toInt() shl 8) or
                 (blue * 255.0f + 0.5f).toInt())
         return Color(value = (argb.toLong() and 0xffffffffL) shl 32, unused = false)
+    }
+
+    require(colorSpace.componentCount == 3) {
+        "Color only works with ColorSpaces with 3 components"
     }
 
     val id = colorSpace.id

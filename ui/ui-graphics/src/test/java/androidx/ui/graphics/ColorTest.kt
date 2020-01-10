@@ -192,4 +192,44 @@ class ColorTest {
 
         assertEquals(Color(0f, 0f, 0f, 0f), result)
     }
+
+    @Test(expected = java.lang.IllegalArgumentException::class)
+    fun srgbOutOfBounds_highRed() {
+        Color(2f, 0f, 0f)
+    }
+
+    @Test(expected = java.lang.IllegalArgumentException::class)
+    fun srgbOutOfBounds_lowRed() {
+        Color(-1f, 0f, 0f)
+    }
+
+    @Test(expected = java.lang.IllegalArgumentException::class)
+    fun srgbOutOfBounds_highGreen() {
+        Color(0f, 2f, 0f)
+    }
+
+    @Test(expected = java.lang.IllegalArgumentException::class)
+    fun srgbOutOfBounds_lowGreen() {
+        Color(0f, -1f, 0f)
+    }
+
+    @Test(expected = java.lang.IllegalArgumentException::class)
+    fun srgbOutOfBounds_highBlue() {
+        Color(0f, 0f, 2f)
+    }
+
+    @Test(expected = java.lang.IllegalArgumentException::class)
+    fun srgbOutOfBounds_lowBlue() {
+        Color(0f, 0f, -1f)
+    }
+
+    @Test(expected = java.lang.IllegalArgumentException::class)
+    fun srgbOutOfBounds_highAlpha() {
+        Color(0f, 0f, 0f, 2f)
+    }
+
+    @Test(expected = java.lang.IllegalArgumentException::class)
+    fun srgbOutOfBounds_lowAlpha() {
+        Color(0f, 0f, 0f, -1f)
+    }
 }
