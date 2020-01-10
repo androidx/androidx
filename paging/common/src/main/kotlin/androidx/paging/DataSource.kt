@@ -23,6 +23,7 @@ import androidx.annotation.WorkerThread
 import androidx.arch.core.util.Function
 import androidx.paging.PagingSource.LoadResult.Page
 import androidx.paging.PagingSource.LoadResult.Page.Companion.COUNT_UNDEFINED
+import kotlinx.coroutines.CoroutineDispatcher
 import java.util.concurrent.CopyOnWriteArrayList
 import java.util.concurrent.atomic.AtomicBoolean
 
@@ -232,9 +233,9 @@ internal constructor(internal val type: KeyType) {
          * @hide
          */
         @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
-        fun asPagingSourceFactory(): () -> PagingSource<Key, Value> = {
-            LegacyPagingSource(create())
-        }
+        fun asPagingSourceFactory(
+            fetchDispatcher: CoroutineDispatcher
+        ): () -> PagingSource<Key, Value> = { LegacyPagingSource(create(), fetchDispatcher) }
     }
 
     /**

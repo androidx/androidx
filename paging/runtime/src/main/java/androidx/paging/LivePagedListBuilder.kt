@@ -37,7 +37,8 @@ import java.util.concurrent.Executor
  * @see toLiveData
  */
 class LivePagedListBuilder<Key : Any, Value : Any> {
-    private val pagingSourceFactory: () -> PagingSource<Key, Value>
+    private val pagingSourceFactory: (() -> PagingSource<Key, Value>)?
+    private val dataSourceFactory: DataSource.Factory<Key, Value>?
     private val config: PagedList.Config
     private var coroutineScope: CoroutineScope = GlobalScope
     private var initialLoadKey: Key? = null
@@ -52,7 +53,8 @@ class LivePagedListBuilder<Key : Any, Value : Any> {
      */
     @Deprecated("DataSource is deprecated and has been replaced by PagingSource")
     constructor(dataSourceFactory: DataSource.Factory<Key, Value>, config: PagedList.Config) {
-        this.pagingSourceFactory = dataSourceFactory.asPagingSourceFactory()
+        this.pagingSourceFactory = null
+        this.dataSourceFactory = dataSourceFactory
         this.config = config
     }
 
@@ -91,6 +93,7 @@ class LivePagedListBuilder<Key : Any, Value : Any> {
      */
     constructor(pagingSourceFactory: () -> PagingSource<Key, Value>, config: PagedList.Config) {
         this.pagingSourceFactory = pagingSourceFactory
+        this.dataSourceFactory = null
         this.config = config
     }
 
@@ -194,6 +197,13 @@ class LivePagedListBuilder<Key : Any, Value : Any> {
      * @return The [LiveData] of [PagedList]s
      */
     fun build(): LiveData<PagedList<Value>> {
+        val pagingSourceFactory = pagingSourceFactory
+            ?: dataSourceFactory?.let { { LegacyPagingSource(it.create()) } }
+
+        check(pagingSourceFactory != null) {
+            "LivePagedList cannot be built without a PagingSourceFactory or DataSource.Factory"
+        }
+
         return LivePagedList(
             coroutineScope,
             initialLoadKey,

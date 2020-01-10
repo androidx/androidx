@@ -47,20 +47,33 @@ import kotlinx.coroutines.withContext
  * you're using [PositionalDataSource].
  * @param Value Item type being presented.
  *
- * @constructor Creates a [RxPagedListBuilder] with required parameters.
- * @param pagingSourceFactory DataSource factory providing DataSource generations.
- * @param config Paging configuration.
  */
-class RxPagedListBuilder<Key : Any, Value : Any>(
-    private val pagingSourceFactory: () -> PagingSource<Key, Value>,
+class RxPagedListBuilder<Key : Any, Value : Any> {
+    private val pagingSourceFactory: (() -> PagingSource<Key, Value>)?
+    private val dataSourceFactory: DataSource.Factory<Key, Value>?
     private val config: PagedList.Config
-) {
+
     private var initialLoadKey: Key? = null
     private var boundaryCallback: PagedList.BoundaryCallback<Value>? = null
     private var notifyDispatcher: SchedulerCoroutineDispatcher? = null
     private var notifyScheduler: Scheduler? = null
     private var fetchDispatcher: SchedulerCoroutineDispatcher? = null
     private var fetchScheduler: Scheduler? = null
+
+    /**
+     * Creates a [RxPagedListBuilder] with required parameters.
+     *
+     * @param pagingSourceFactory DataSource factory providing DataSource generations.
+     * @param config Paging configuration.
+     */
+    constructor(
+        pagingSourceFactory: () -> PagingSource<Key, Value>,
+        config: PagedList.Config
+    ) {
+        this.pagingSourceFactory = pagingSourceFactory
+        this.dataSourceFactory = null
+        this.config = config
+    }
 
     /**
      * Creates a RxPagedListBuilder with required parameters.
@@ -86,10 +99,15 @@ class RxPagedListBuilder<Key : Any, Value : Any>(
      * @param dataSourceFactory DataSource factory providing DataSource generations.
      * @param config Paging configuration.
      */
-    constructor(dataSourceFactory: DataSource.Factory<Key, Value>, config: PagedList.Config) : this(
-        dataSourceFactory.asPagingSourceFactory(),
-        config
-    )
+    @Deprecated("DataSource is deprecated and has been replaced by PagingSource")
+    constructor(
+        dataSourceFactory: DataSource.Factory<Key, Value>,
+        config: PagedList.Config
+    ) {
+        this.pagingSourceFactory = null
+        this.dataSourceFactory = dataSourceFactory
+        this.config = config
+    }
 
     /**
      * Creates a RxPagedListBuilder with required parameters.
@@ -103,7 +121,12 @@ class RxPagedListBuilder<Key : Any, Value : Any>(
      * @param dataSourceFactory [DataSource.Factory] providing DataSource generations.
      * @param pageSize Size of pages to load.
      */
-    constructor(dataSourceFactory: DataSource.Factory<Key, Value>, pageSize: Int) : this(
+    @Suppress("DEPRECATION")
+    @Deprecated("DataSource is deprecated and has been replaced by PagingSource")
+    constructor(
+        dataSourceFactory: DataSource.Factory<Key, Value>,
+        pageSize: Int
+    ) : this(
         dataSourceFactory,
         PagedList.Config.Builder().setPageSize(pageSize).build()
     )
@@ -197,6 +220,13 @@ class RxPagedListBuilder<Key : Any, Value : Any>(
             val scheduledExecutor = ScheduledExecutor(ArchTaskExecutor.getIOThreadExecutor())
             fetchScheduler = scheduledExecutor
             fetchDispatcher = fetchScheduler!!.asCoroutineDispatcher()
+        }
+
+        val pagingSourceFactory = pagingSourceFactory
+            ?: dataSourceFactory?.let { { LegacyPagingSource(it.create()) } }
+
+        check(pagingSourceFactory != null) {
+            "LivePagedList cannot be built without a PagingSourceFactory or DataSource.Factory"
         }
 
         return Observable
@@ -314,6 +344,7 @@ class RxPagedListBuilder<Key : Any, Value : Any>(
                 }
             }
         }
+
         private fun onItemUpdate(previous: PagedList<Value>, next: PagedList<Value>) {
             previous.setRetryCallback(null)
             next.setRetryCallback(refreshRetryCallback)
