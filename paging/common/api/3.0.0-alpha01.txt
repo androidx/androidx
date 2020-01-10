@@ -1,7 +1,7 @@
 // Signature format: 3.0
 package androidx.paging {
 
-  public final class CachedPagedDataKt {
+  public final class CachedPagingDataKt {
     method public static <T> kotlinx.coroutines.flow.Flow<androidx.paging.PagingData<T>> cachedIn(kotlinx.coroutines.flow.Flow<androidx.paging.PagingData<T>>, kotlinx.coroutines.CoroutineScope scope);
   }
 
