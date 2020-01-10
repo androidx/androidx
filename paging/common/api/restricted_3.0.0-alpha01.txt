@@ -295,7 +295,7 @@ package androidx.paging {
   @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP) public abstract class PagingDataDiffer<T> {
     ctor public PagingDataDiffer(kotlinx.coroutines.CoroutineDispatcher mainDispatcher, kotlinx.coroutines.CoroutineDispatcher workerDispatcher);
     ctor public PagingDataDiffer();
-    method public final void connect(kotlinx.coroutines.flow.Flow<androidx.paging.PagingData<T>> flow, kotlinx.coroutines.CoroutineScope scope, androidx.paging.PresenterCallback callback);
+    method public final suspend Object! collectFrom(androidx.paging.PagingData<T> pagingData, androidx.paging.PresenterCallback callback, kotlin.coroutines.Continuation<? super kotlin.Unit> p);
     method public final operator T? get(int index);
     method public final int getSize();
     method public abstract suspend Object! performDiff(androidx.paging.NullPaddedList<T> previousList, androidx.paging.NullPaddedList<T> newList, java.util.Map<androidx.paging.LoadType,? extends androidx.paging.LoadState> newLoadStates, kotlin.coroutines.Continuation<? super kotlin.Unit> p);
