@@ -184,14 +184,6 @@
             </intent-filter>
         </activity>
 
-        <activity android:name=".app.LoaderRetainedSupport"
-                android:label="@string/loader_retained_support">
-            <intent-filter>
-                <action android:name="android.intent.action.MAIN" />
-                <category android:name="com.example.android.supportv4.SUPPORT4_SAMPLE_CODE" />
-            </intent-filter>
-        </activity>
-
         <activity android:name=".app.LoaderCustomSupport"
                 android:label="@string/loader_custom_support">
             <intent-filter>
