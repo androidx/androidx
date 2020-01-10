@@ -99,8 +99,6 @@
 
     <string name="loader_cursor_support">Loader/Cursor</string>
 
-    <string name="loader_retained_support">Loader/Retained</string>
-
     <string name="loader_custom_support">Loader/Custom</string>
 
     <string name="loader_throttle_support">Loader/Throttle</string>
