@@ -17,6 +17,7 @@
 package androidx.ui.integration.test.foundation
 
 import androidx.compose.Composable
+import androidx.compose.onCommit
 import androidx.compose.remember
 import androidx.ui.core.Draw
 import androidx.ui.foundation.ScrollerPosition
@@ -37,10 +38,14 @@ import androidx.ui.unit.toRect
  * Test case that puts a large number of boxes in a column in a vertical scroller to force scrolling.
  */
 class ScrollerTestCase() : ComposeTestCase, ToggleableTestCase {
-    private val scrollerPosition = ScrollerPosition()
+    private lateinit var scrollerPosition: ScrollerPosition
 
     @Composable
     override fun emitContent() {
+        val scrollerPosition = ScrollerPosition()
+        onCommit(true) {
+            this@ScrollerTestCase.scrollerPosition = scrollerPosition
+        }
         VerticalScroller(
             scrollerPosition = scrollerPosition
         ) {

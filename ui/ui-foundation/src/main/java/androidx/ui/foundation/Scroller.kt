@@ -17,7 +17,6 @@
 package androidx.ui.foundation
 
 import androidx.animation.AnimationEndReason
-import androidx.animation.ExponentialDecay
 import androidx.compose.Composable
 import androidx.compose.Model
 import androidx.compose.remember
@@ -45,11 +44,26 @@ import androidx.ui.semantics.ScrollTo
 import androidx.ui.semantics.Semantics
 
 /**
+ * Create and [remember] the state for a [VerticalScroller] or [HorizontalScroller] based on the
+ * currently appropriate scroll configuration to allow changing scroll position or observing
+ * scroll behavior.
+ */
+@Composable
+fun ScrollerPosition(
+    initial: Float = 0f
+): ScrollerPosition =
+    FlingConfig().let { remember(it) { ScrollerPosition(flingConfig = it, initial = initial) } }
+
+/**
  * This is the state of a [VerticalScroller] and [HorizontalScroller] that
  * allows the developer to change the scroll position by calling methods on this object.
  */
 @Model
-class ScrollerPosition(initial: Float = 0f) {
+class ScrollerPosition(
+    /** Configuration that specifies fling logic when scrolling ends with velocity. */
+    val flingConfig: FlingConfig,
+    initial: Float = 0f
+) {
 
     internal val holder = AnimatedValueHolder(-initial)
 
@@ -73,18 +87,6 @@ class ScrollerPosition(initial: Float = 0f) {
      */
     var isAnimating: Boolean = false
         private set
-
-    /**
-     * Fling configuration that specifies fling logic when scrolling ends with velocity.
-     *
-     * See [FlingConfig] for more info.
-     */
-    var flingConfig = FlingConfig(
-        decayAnimation = ExponentialDecay(
-            frictionMultiplier = ScrollerDefaultFriction,
-            absVelocityThreshold = ScrollerVelocityThreshold
-        )
-    )
 
     /**
      * Smooth scroll to position in pixels
@@ -180,7 +182,7 @@ class ScrollerPosition(initial: Float = 0f) {
  */
 @Composable
 fun VerticalScroller(
-    scrollerPosition: ScrollerPosition = remember { ScrollerPosition() },
+    scrollerPosition: ScrollerPosition = ScrollerPosition(),
     modifier: Modifier = Modifier.None,
     isScrollable: Boolean = true,
     child: @Composable() () -> Unit
@@ -210,7 +212,7 @@ fun VerticalScroller(
  */
 @Composable
 fun HorizontalScroller(
-    scrollerPosition: ScrollerPosition = remember { ScrollerPosition() },
+    scrollerPosition: ScrollerPosition = ScrollerPosition(),
     modifier: Modifier = Modifier.None,
     isScrollable: Boolean = true,
     child: @Composable() () -> Unit
