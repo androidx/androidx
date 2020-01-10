@@ -16,6 +16,7 @@
 
 package androidx.ui.test.util
 
+import androidx.ui.core.PxPosition
 import com.google.common.truth.FloatSubject
 import com.google.common.truth.Truth.assertThat
 import com.google.common.truth.Truth.assertWithMessage
@@ -32,11 +33,20 @@ fun FloatSubject.isAlmostEqualTo(f: Float, tolerance: Float) {
 }
 
 /**
+ * Verifies that the [PxPosition] is equal to the given position with some tolerance. The default
+ * tolerance is 0.001.
+ */
+fun PxPosition.isAlmostEqualTo(position: PxPosition, tolerance: Float = 1e-3f) {
+    assertThat(x.value).isAlmostEqualTo(position.x.value, tolerance)
+    assertThat(y.value).isAlmostEqualTo(position.y.value, tolerance)
+}
+
+/**
  * Checks that the values are progressing in a strictly monotonous direction between [a] and [b].
  * If [a] and [b] are equal, all values in the list should be that value too. The edges [a] and
- * [b] allow a [tolerance] for floating point imprecision, which is by default `1e-6f`.
+ * [b] allow a [tolerance] for floating point imprecision, which is by default `0.001`.
  */
-fun List<Float>.isMonotonousBetween(a: Float, b: Float, tolerance: Float = 1e-6f) {
+fun List<Float>.isMonotonousBetween(a: Float, b: Float, tolerance: Float = 1e-3f) {
     val expectedSign = sign(b - a)
     if (expectedSign == 0f) {
         forEach { assertThat(it).isAlmostEqualTo(a, tolerance) }
@@ -50,9 +60,10 @@ fun List<Float>.isMonotonousBetween(a: Float, b: Float, tolerance: Float = 1e-6f
 
 /**
  * Checks that the float value is between [a] and [b], allowing a [tolerance] on either side.
- * The order of [a] and [b] doesn't matter, the float value must be _between_ them.
+ * The order of [a] and [b] doesn't matter, the float value must be _between_ them. The default
+ * tolerance is `0.001`.
  */
-fun FloatSubject.isAlmostBetween(a: Float, b: Float, tolerance: Float) {
+fun FloatSubject.isAlmostBetween(a: Float, b: Float, tolerance: Float = 1e-3f) {
     if (a < b) {
         isAtLeast(a - tolerance)
         isAtMost(b + tolerance)

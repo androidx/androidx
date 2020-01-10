@@ -182,11 +182,9 @@ class SendSwipeVelocityTest(private val config: TestConfig) {
                 assertOnlyLastEventIsUp()
 
                 // Check coordinates
-                assertThat(events.first().x.value).isAlmostEqualTo(x0, 1e-3f)
-                assertThat(events.first().y.value).isAlmostEqualTo(y0, 1e-3f)
-                downEvents.isMonotonousBetween(x0, y0, x1, y1)
-                assertThat(events.last().x.value).isAlmostEqualTo(x1, 1e-3f)
-                assertThat(events.last().y.value).isAlmostEqualTo(y1, 1e-3f)
+                events.first().position.isAlmostEqualTo(start)
+                downEvents.isMonotonousBetween(start, end)
+                events.last().position.isAlmostEqualTo(end)
 
                 // Check timestamps
                 assertTimestampsAreIncreasing()
