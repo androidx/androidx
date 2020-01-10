@@ -54,9 +54,9 @@ import androidx.ui.foundation.selection.MutuallyExclusiveSetItem
 import androidx.ui.graphics.Color
 import androidx.ui.graphics.Image
 import androidx.ui.layout.Container
-import androidx.ui.layout.LayoutExpandedWidth
 import androidx.ui.layout.LayoutGravity
 import androidx.ui.layout.LayoutHeight
+import androidx.ui.layout.LayoutWidth
 import androidx.ui.layout.Padding
 import androidx.ui.layout.Row
 import androidx.ui.layout.Stack
@@ -181,7 +181,7 @@ private fun FixedTabRow(
         TabRow.Divider(modifier)
     }
 
-    Stack(LayoutExpandedWidth) {
+    Stack(LayoutWidth.Fill) {
         Row(LayoutGravity.Center) {
             tabs(LayoutFlexible(1f))
         }
@@ -226,7 +226,7 @@ private fun ScrollableTabRow(
 
     HorizontalScroller(
         scrollerPosition = scrollableTabData.position,
-        modifier = LayoutExpandedWidth
+        modifier = LayoutWidth.Fill
     ) {
         val TabTag = "tab"
         val IndicatorTag = "indicator"
@@ -484,7 +484,7 @@ private fun BaseTab(selected: Boolean, onSelected: () -> Unit, children: @Compos
 @Composable
 private fun TextTab(text: String, selected: Boolean, onSelected: () -> Unit, tint: Color) {
     BaseTab(selected = selected, onSelected = onSelected) {
-        Container(LayoutExpandedWidth + LayoutHeight(SmallTabHeight)) {
+        Container(LayoutWidth.Fill + LayoutHeight(SmallTabHeight)) {
             TabTransition(color = tint, selected = selected) { tabTintColor ->
                 TabTextBaselineLayout {
                     TabText(text, tabTintColor)
@@ -505,7 +505,7 @@ private fun TextTab(text: String, selected: Boolean, onSelected: () -> Unit, tin
 @Composable
 private fun IconTab(icon: Image, selected: Boolean, onSelected: () -> Unit, tint: Color) {
     BaseTab(selected = selected, onSelected = onSelected) {
-        Container(LayoutExpandedWidth + LayoutHeight(SmallTabHeight)) {
+        Container(LayoutWidth.Fill + LayoutHeight(SmallTabHeight)) {
             TabTransition(color = tint, selected = selected) { tabTintColor ->
                 TabIcon(icon, tabTintColor)
             }
@@ -532,7 +532,7 @@ private fun CombinedTab(
     tint: Color
 ) {
     BaseTab(selected = selected, onSelected = onSelected) {
-        Container(LayoutExpandedWidth + LayoutHeight(LargeTabHeight)) {
+        Container(LayoutWidth.Fill + LayoutHeight(LargeTabHeight)) {
             TabTransition(color = tint, selected = selected) { tabTintColor ->
                 TabTextBaselineLayout(
                     icon = { TabIcon(icon, tabTintColor) },

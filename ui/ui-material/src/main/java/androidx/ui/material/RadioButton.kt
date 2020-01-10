@@ -44,7 +44,7 @@ import androidx.ui.material.ripple.Ripple
 import androidx.ui.graphics.Canvas
 import androidx.ui.graphics.Paint
 import androidx.ui.graphics.PaintingStyle
-import androidx.ui.layout.LayoutExpandedWidth
+import androidx.ui.layout.LayoutWidth
 import androidx.ui.text.TextStyle
 
 /**
@@ -159,7 +159,7 @@ class RadioGroupScope internal constructor() {
     ) {
         RadioGroupItem(selected = selected, onSelect = onSelect) {
             Padding(padding = DefaultRadioItemPadding) {
-                Row(LayoutExpandedWidth) {
+                Row(LayoutWidth.Fill) {
                     RadioButton(selected = selected, onSelect = onSelect, color = radioColor)
                     Padding(left = DefaultRadioLabelOffset) {
                         Text(

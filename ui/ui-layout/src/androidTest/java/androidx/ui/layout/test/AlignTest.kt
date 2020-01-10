@@ -35,7 +35,7 @@ import androidx.ui.layout.Align
 import androidx.ui.layout.LayoutAlign
 import androidx.ui.layout.LayoutAspectRatio
 import androidx.ui.layout.Container
-import androidx.ui.layout.LayoutExpandedHeight
+import androidx.ui.layout.LayoutHeight
 import androidx.ui.layout.LayoutSize
 import androidx.ui.layout.LayoutWidth
 import org.junit.Assert.assertEquals
@@ -145,7 +145,7 @@ class AlignTest : LayoutTest() {
                     position = alignPosition,
                     positionedLatch = positionedLatch
                 )
-                Container(LayoutAlign.End + LayoutExpandedHeight + LayoutWidth(sizeDp)) {
+                Container(LayoutAlign.End + LayoutHeight.Fill + LayoutWidth(sizeDp)) {
                     SaveLayoutInfo(
                         size = childSize,
                         position = childPosition,

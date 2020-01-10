@@ -29,9 +29,9 @@ import androidx.ui.foundation.ScrollerPosition
 import androidx.ui.foundation.VerticalScroller
 import androidx.ui.graphics.Paint
 import androidx.ui.graphics.PaintingStyle
-import androidx.ui.layout.LayoutExpandedHeight
 import androidx.ui.test.ComposeTestCase
 import androidx.ui.integration.test.ToggleableTestCase
+import androidx.ui.layout.LayoutHeight
 
 /**
  * Test case that puts a large number of boxes in a column in a vertical scroller to force scrolling.
@@ -44,7 +44,7 @@ class ScrollerTestCase() : ComposeTestCase, ToggleableTestCase {
         VerticalScroller(
             scrollerPosition = scrollerPosition
         ) {
-            Column(LayoutExpandedHeight) {
+            Column(LayoutHeight.Fill) {
                 for (green in 0..0xFF) {
                     ColorStripe(0xFF, green, 0)
                 }

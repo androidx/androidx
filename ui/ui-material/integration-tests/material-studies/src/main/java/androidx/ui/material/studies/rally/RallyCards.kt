@@ -27,7 +27,6 @@ import androidx.ui.graphics.Color
 import androidx.ui.layout.Arrangement
 import androidx.ui.layout.Column
 import androidx.ui.layout.Container
-import androidx.ui.layout.LayoutExpandedWidth
 import androidx.ui.layout.LayoutGravity
 import androidx.ui.layout.LayoutHeight
 import androidx.ui.layout.LayoutPadding
@@ -66,7 +65,7 @@ fun RallyAlertCard() {
                 Clickable(onClick = { openDialog.value = true }) {
                     Container {
                         Row(
-                            modifier = LayoutPadding(12.dp) + LayoutExpandedWidth,
+                            modifier = LayoutPadding(12.dp) + LayoutWidth.Fill,
                             arrangement = Arrangement.SpaceBetween
                         ) {
                             Text(text = "Alerts", style = MaterialTheme.typography().subtitle2)

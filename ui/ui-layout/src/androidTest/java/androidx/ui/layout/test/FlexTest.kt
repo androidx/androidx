@@ -50,12 +50,11 @@ import androidx.ui.layout.LayoutAspectRatio
 import androidx.ui.layout.Center
 import androidx.ui.layout.Column
 import androidx.ui.layout.Container
-import androidx.ui.layout.LayoutExpandedHeight
-import androidx.ui.layout.LayoutExpandedWidth
 import androidx.ui.layout.LayoutGravity
-import androidx.ui.layout.LayoutMaxHeight
+import androidx.ui.layout.LayoutHeight
 import androidx.ui.layout.Row
 import androidx.ui.layout.LayoutSize
+import androidx.ui.layout.LayoutWidth
 import androidx.ui.layout.Spacer
 import androidx.ui.layout.Wrap
 import org.junit.Assert
@@ -360,7 +359,7 @@ class FlexTest : LayoutTest() {
         show {
             Align(Alignment.CenterLeft) {
                 Row {
-                    Container(width = sizeDp, height = sizeDp, modifier = LayoutExpandedHeight) {
+                    Container(width = sizeDp, height = sizeDp, modifier = LayoutHeight.Fill) {
                         OnPositioned(onPositioned = { coordinates ->
                             childSize[0] = coordinates.size
                             childPosition[0] = coordinates.localToGlobal(PxPosition(0.px, 0.px))
@@ -371,7 +370,7 @@ class FlexTest : LayoutTest() {
                     Container(
                         width = (sizeDp * 2),
                         height = (sizeDp * 2),
-                        modifier = LayoutExpandedHeight
+                        modifier = LayoutHeight.Fill
                     ) {
                         OnPositioned(onPositioned = { coordinates ->
                             childSize[1] = coordinates.size
@@ -406,7 +405,7 @@ class FlexTest : LayoutTest() {
         val childPosition = arrayOfNulls<PxPosition>(3)
         show {
             Align(Alignment.TopLeft) {
-                Row(LayoutExpandedHeight) {
+                Row(LayoutHeight.Fill) {
                     Container(width = sizeDp, height = sizeDp, modifier = LayoutGravity.Top) {
                         OnPositioned(onPositioned = { coordinates ->
                             childSize[0] = coordinates.size
@@ -464,7 +463,7 @@ class FlexTest : LayoutTest() {
         val childPosition = arrayOfNulls<PxPosition>(4)
         show {
             Align(Alignment.TopLeft) {
-                Row(LayoutExpandedHeight) {
+                Row(LayoutHeight.Fill) {
                     BaselineTestLayout(
                         baseline = baseline1Dp,
                         width = sizeDp,
@@ -551,7 +550,7 @@ class FlexTest : LayoutTest() {
         show {
             Align(Alignment.TopCenter) {
                 Column {
-                    Container(width = sizeDp, height = sizeDp, modifier = LayoutExpandedWidth) {
+                    Container(width = sizeDp, height = sizeDp, modifier = LayoutWidth.Fill) {
                         OnPositioned(onPositioned = { coordinates ->
                             childSize[0] = coordinates.size
                             childPosition[0] = coordinates.localToGlobal(PxPosition(0.px, 0.px))
@@ -560,7 +559,7 @@ class FlexTest : LayoutTest() {
                     }
 
                     Container(
-                        width = (sizeDp * 2), height = (sizeDp * 2), modifier = LayoutExpandedWidth
+                        width = (sizeDp * 2), height = (sizeDp * 2), modifier = LayoutWidth.Fill
                     ) {
                         OnPositioned(onPositioned = { coordinates ->
                             childSize[1] = coordinates.size
@@ -595,7 +594,7 @@ class FlexTest : LayoutTest() {
         val childPosition = arrayOfNulls<PxPosition>(3)
         show {
             Align(Alignment.TopCenter) {
-                Column(LayoutExpandedWidth) {
+                Column(LayoutWidth.Fill) {
                     Container(width = sizeDp, height = sizeDp, modifier = LayoutGravity.Start) {
                         OnPositioned(onPositioned = { coordinates ->
                             childSize[0] = coordinates.size
@@ -651,7 +650,7 @@ class FlexTest : LayoutTest() {
         val childPosition = arrayOfNulls<PxPosition>(4)
         show {
             Align(Alignment.TopLeft) {
-                Column(LayoutExpandedWidth) {
+                Column(LayoutWidth.Fill) {
                     Container(
                         width = sizeDp,
                         height = sizeDp,
@@ -732,7 +731,7 @@ class FlexTest : LayoutTest() {
         lateinit var rowSize: PxSize
         show {
             Center {
-                Row(LayoutExpandedWidth) {
+                Row(LayoutWidth.Fill) {
                     Spacer(LayoutSize(width = sizeDp, height = sizeDp))
                     Spacer(LayoutSize(width = (sizeDp * 2), height = (sizeDp * 2)))
 
@@ -822,7 +821,7 @@ class FlexTest : LayoutTest() {
         lateinit var rowSize: PxSize
         show {
             Center {
-                Row(LayoutExpandedHeight) {
+                Row(LayoutHeight.Fill) {
                     Spacer(LayoutSize(width = sizeDp, height = sizeDp))
                     Spacer(LayoutSize(width = (sizeDp * 2), height = (sizeDp * 2)))
 
@@ -884,7 +883,7 @@ class FlexTest : LayoutTest() {
         show {
             Center {
                 ConstrainedBox(constraints = DpConstraints(maxWidth = rowWidthDp)) {
-                    Row(LayoutExpandedWidth) {
+                    Row(LayoutWidth.Fill) {
                         Spacer(LayoutSize(width = sizeDp, height = sizeDp))
                         Spacer(LayoutSize(width = sizeDp * 2, height = sizeDp * 2))
 
@@ -983,7 +982,7 @@ class FlexTest : LayoutTest() {
         show {
             Center {
                 ConstrainedBox(constraints = DpConstraints(maxHeight = rowHeightDp)) {
-                    Row(LayoutExpandedHeight) {
+                    Row(LayoutHeight.Fill) {
                         Spacer(LayoutSize(width = sizeDp, height = sizeDp))
                         Spacer(LayoutSize(width = sizeDp * 2, height = sizeDp * 2))
 
@@ -1176,7 +1175,7 @@ class FlexTest : LayoutTest() {
         lateinit var columnSize: PxSize
         show {
             Center {
-                Column(LayoutExpandedHeight) {
+                Column(LayoutHeight.Fill) {
                     Spacer(LayoutSize(width = sizeDp, height = sizeDp))
                     Spacer(LayoutSize(width = (sizeDp * 2), height = (sizeDp * 2)))
 
@@ -1266,7 +1265,7 @@ class FlexTest : LayoutTest() {
         lateinit var columnSize: PxSize
         show {
             Center {
-                Column(LayoutExpandedWidth) {
+                Column(LayoutWidth.Fill) {
                     Spacer(LayoutSize(width = sizeDp, height = sizeDp))
                     Spacer(LayoutSize(width = (sizeDp * 2), height = (sizeDp * 2)))
 
@@ -1328,7 +1327,7 @@ class FlexTest : LayoutTest() {
         show {
             Center {
                 ConstrainedBox(constraints = DpConstraints(maxHeight = columnHeightDp)) {
-                    Column(LayoutExpandedHeight) {
+                    Column(LayoutHeight.Fill) {
                         Spacer(LayoutSize(width = sizeDp, height = sizeDp))
                         Spacer(LayoutSize(width = sizeDp * 2, height = sizeDp * 2))
 
@@ -1427,7 +1426,7 @@ class FlexTest : LayoutTest() {
         show {
             Center {
                 ConstrainedBox(constraints = DpConstraints(maxWidth = columnWidthDp)) {
-                    Column(LayoutExpandedWidth) {
+                    Column(LayoutWidth.Fill) {
                         Spacer(LayoutSize(width = sizeDp, height = sizeDp))
                         Spacer(LayoutSize(width = sizeDp * 2, height = sizeDp * 2))
 
@@ -1498,7 +1497,7 @@ class FlexTest : LayoutTest() {
             Center {
                 ConstrainedBox(constraints = DpConstraints(minHeight = columnHeightDp)) {
                     // TODO: add maxHeight(IntPx.Infinity) modifier
-                    Column(LayoutMaxHeight(Dp.Infinity)) {
+                    Column(LayoutHeight.Max(Dp.Infinity)) {
                         Container(LayoutFlexible(1f), width = sizeDp, height = sizeDp) {
                             OnPositioned(onPositioned = { coordinates ->
                                 expandedChildSize = coordinates.size
@@ -1624,7 +1623,7 @@ class FlexTest : LayoutTest() {
         val childLayoutCoordinates = arrayOfNulls<LayoutCoordinates?>(childPosition.size)
         show {
             Center {
-                Row(LayoutExpandedWidth) {
+                Row(LayoutWidth.Fill) {
                     for (i in 0 until childPosition.size) {
                         Container(width = sizeDp, height = sizeDp) {
                             OnPositioned(onPositioned = { coordinates ->
@@ -1665,7 +1664,7 @@ class FlexTest : LayoutTest() {
         val childLayoutCoordinates = arrayOfNulls<LayoutCoordinates?>(childPosition.size)
         show {
             Center {
-                Row(LayoutExpandedWidth, arrangement = Arrangement.End) {
+                Row(LayoutWidth.Fill, arrangement = Arrangement.End) {
                     for (i in 0 until childPosition.size) {
                         Container(width = sizeDp, height = sizeDp) {
                             OnPositioned(onPositioned = { coordinates ->
@@ -1706,7 +1705,7 @@ class FlexTest : LayoutTest() {
         val childLayoutCoordinates = arrayOfNulls<LayoutCoordinates?>(childPosition.size)
         show {
             Center {
-                Row(LayoutExpandedWidth, arrangement = Arrangement.Center) {
+                Row(LayoutWidth.Fill, arrangement = Arrangement.Center) {
                     for (i in 0 until childPosition.size) {
                         Container(width = sizeDp, height = sizeDp) {
                             OnPositioned(onPositioned = { coordinates ->
@@ -1748,7 +1747,7 @@ class FlexTest : LayoutTest() {
         val childLayoutCoordinates = arrayOfNulls<LayoutCoordinates?>(childPosition.size)
         show {
             Center {
-                Row(LayoutExpandedWidth, arrangement = Arrangement.SpaceEvenly) {
+                Row(LayoutWidth.Fill, arrangement = Arrangement.SpaceEvenly) {
                     for (i in 0 until childPosition.size) {
                         Container(width = sizeDp, height = sizeDp) {
                             OnPositioned(onPositioned = { coordinates ->
@@ -1790,7 +1789,7 @@ class FlexTest : LayoutTest() {
         val childLayoutCoordinates = arrayOfNulls<LayoutCoordinates?>(childPosition.size)
         show {
             Center {
-                Row(LayoutExpandedWidth, arrangement = Arrangement.SpaceBetween) {
+                Row(LayoutWidth.Fill, arrangement = Arrangement.SpaceBetween) {
                     for (i in 0 until childPosition.size) {
                         Container(width = sizeDp, height = sizeDp) {
                             OnPositioned(onPositioned = { coordinates ->
@@ -1832,7 +1831,7 @@ class FlexTest : LayoutTest() {
         val childLayoutCoordinates = arrayOfNulls<LayoutCoordinates?>(childPosition.size)
         show {
             Center {
-                Row(LayoutExpandedWidth, arrangement = Arrangement.SpaceAround) {
+                Row(LayoutWidth.Fill, arrangement = Arrangement.SpaceAround) {
                     for (i in 0 until childPosition.size) {
                         Container(width = sizeDp, height = sizeDp) {
                             OnPositioned(onPositioned = { coordinates ->
@@ -1874,7 +1873,7 @@ class FlexTest : LayoutTest() {
         val childLayoutCoordinates = arrayOfNulls<LayoutCoordinates?>(childPosition.size)
         show {
             Center {
-                Row(LayoutExpandedWidth, arrangement = Arrangement(customArrangement)) {
+                Row(LayoutWidth.Fill, arrangement = Arrangement(customArrangement)) {
                     for (i in childPosition.indices) {
                         Container(width = sizeDp, height = sizeDp) {
                             OnPositioned(onPositioned = { coordinates ->
@@ -1921,7 +1920,7 @@ class FlexTest : LayoutTest() {
         val childLayoutCoordinates = arrayOfNulls<LayoutCoordinates?>(childPosition.size)
         show {
             Center {
-                Column(LayoutExpandedHeight) {
+                Column(LayoutHeight.Fill) {
                     for (i in 0 until childPosition.size) {
                         Container(width = sizeDp, height = sizeDp) {
                             OnPositioned(onPositioned = { coordinates ->
@@ -1962,7 +1961,7 @@ class FlexTest : LayoutTest() {
         val childLayoutCoordinates = arrayOfNulls<LayoutCoordinates?>(childPosition.size)
         show {
             Center {
-                Column(LayoutExpandedHeight, arrangement = Arrangement.End) {
+                Column(LayoutHeight.Fill, arrangement = Arrangement.End) {
                     for (i in 0 until childPosition.size) {
                         Container(width = sizeDp, height = sizeDp) {
                             OnPositioned(onPositioned = { coordinates ->
@@ -2003,7 +2002,7 @@ class FlexTest : LayoutTest() {
         val childLayoutCoordinates = arrayOfNulls<LayoutCoordinates?>(childPosition.size)
         show {
             Center {
-                Column(LayoutExpandedHeight, arrangement = Arrangement.Center) {
+                Column(LayoutHeight.Fill, arrangement = Arrangement.Center) {
                     for (i in 0 until childPosition.size) {
                         Container(width = sizeDp, height = sizeDp) {
                             OnPositioned(onPositioned = { coordinates ->
@@ -2045,7 +2044,7 @@ class FlexTest : LayoutTest() {
         val childLayoutCoordinates = arrayOfNulls<LayoutCoordinates?>(childPosition.size)
         show {
             Center {
-                Column(LayoutExpandedHeight, arrangement = Arrangement.SpaceEvenly) {
+                Column(LayoutHeight.Fill, arrangement = Arrangement.SpaceEvenly) {
                     for (i in 0 until childPosition.size) {
                         Container(width = sizeDp, height = sizeDp) {
                             OnPositioned(onPositioned = { coordinates ->
@@ -2087,7 +2086,7 @@ class FlexTest : LayoutTest() {
         val childLayoutCoordinates = arrayOfNulls<LayoutCoordinates?>(childPosition.size)
         show {
             Center {
-                Column(LayoutExpandedHeight, arrangement = Arrangement.SpaceBetween) {
+                Column(LayoutHeight.Fill, arrangement = Arrangement.SpaceBetween) {
                     for (i in 0 until childPosition.size) {
                         Container(width = sizeDp, height = sizeDp) {
                             OnPositioned(onPositioned = { coordinates ->
@@ -2129,7 +2128,7 @@ class FlexTest : LayoutTest() {
         val childLayoutCoordinates = arrayOfNulls<LayoutCoordinates?>(childPosition.size)
         show {
             Center {
-                Column(LayoutExpandedHeight, arrangement = Arrangement.SpaceAround) {
+                Column(LayoutHeight.Fill, arrangement = Arrangement.SpaceAround) {
                     for (i in 0 until childPosition.size) {
                         Container(width = sizeDp, height = sizeDp) {
                             OnPositioned(onPositioned = { coordinates ->
@@ -2177,7 +2176,7 @@ class FlexTest : LayoutTest() {
         val childLayoutCoordinates = arrayOfNulls<LayoutCoordinates?>(childPosition.size)
         show {
             Center {
-                Column(LayoutExpandedHeight, arrangement = Arrangement(customArrangement)) {
+                Column(LayoutHeight.Fill, arrangement = Arrangement(customArrangement)) {
                     for (i in childPosition.indices) {
                         Container(width = sizeDp, height = sizeDp) {
                             OnPositioned(onPositioned = { coordinates ->
@@ -2278,7 +2277,7 @@ class FlexTest : LayoutTest() {
                 ConstrainedBox(DpConstraints.tightConstraints(50.dp, 40.dp)) { }
             }
         }, @Composable {
-            Row(LayoutExpandedWidth) {
+            Row(LayoutWidth.Fill) {
                 Container(LayoutAspectRatio(2f)) { }
                 ConstrainedBox(DpConstraints.tightConstraints(50.dp, 40.dp)) { }
             }
@@ -2299,35 +2298,36 @@ class FlexTest : LayoutTest() {
                 ) { }
             }
         }, @Composable {
-            Row(LayoutExpandedWidth, arrangement = Arrangement.Begin) {
+            Row(LayoutWidth.Fill, arrangement = Arrangement.Begin) {
                 Container(LayoutAspectRatio(2f)) { }
                 ConstrainedBox(DpConstraints.tightConstraints(50.dp, 40.dp)) { }
             }
         }, @Composable {
-            Row(LayoutExpandedWidth, arrangement = Arrangement.Center) {
+            Row(LayoutWidth.Fill, arrangement = Arrangement.Center) {
                 Container(LayoutGravity.Center + LayoutAspectRatio(2f)) { }
                 ConstrainedBox(DpConstraints.tightConstraints(50.dp, 40.dp),
                     LayoutGravity.Center) { }
             }
         }, @Composable {
-            Row(LayoutExpandedWidth, arrangement = Arrangement.End) {
+            Row(LayoutWidth.Fill, arrangement = Arrangement.End) {
                 Container(LayoutGravity.Bottom + LayoutAspectRatio(2f)) { }
                 ConstrainedBox(DpConstraints.tightConstraints(50.dp, 40.dp),
                     LayoutGravity.Bottom) { }
             }
         }, @Composable {
-            Row(LayoutExpandedWidth, arrangement = Arrangement.SpaceAround) {
-                Container(LayoutExpandedHeight + LayoutAspectRatio(2f)) { }
+            Row(LayoutWidth.Fill, arrangement = Arrangement.SpaceAround) {
+                Container(LayoutHeight.Fill + LayoutAspectRatio(2f)) { }
                 ConstrainedBox(DpConstraints.tightConstraints(50.dp, 40.dp),
-                    LayoutExpandedHeight) { }
+                    LayoutHeight.Fill
+                ) { }
             }
         }, @Composable {
-            Row(LayoutExpandedWidth, arrangement = Arrangement.SpaceBetween) {
+            Row(LayoutWidth.Fill, arrangement = Arrangement.SpaceBetween) {
                 Container(LayoutAspectRatio(2f)) { }
                 ConstrainedBox(DpConstraints.tightConstraints(50.dp, 40.dp)) { }
             }
         }, @Composable {
-            Row(LayoutExpandedWidth, arrangement = Arrangement.SpaceEvenly) {
+            Row(LayoutWidth.Fill, arrangement = Arrangement.SpaceEvenly) {
                 Container(LayoutAspectRatio(2f)) { }
                 ConstrainedBox(DpConstraints.tightConstraints(50.dp, 40.dp)) { }
             }
@@ -2421,18 +2421,18 @@ class FlexTest : LayoutTest() {
             Row(arrangement = Arrangement.SpaceAround) {
                 ConstrainedBox(
                     constraints = DpConstraints.tightConstraints(20.dp, 30.dp),
-                    modifier = LayoutFlexible(3f) + LayoutExpandedHeight
+                    modifier = LayoutFlexible(3f) + LayoutHeight.Fill
                 ) { }
                 ConstrainedBox(
                     constraints = DpConstraints.tightConstraints(30.dp, 40.dp),
-                    modifier = LayoutFlexible(2f) + LayoutExpandedHeight
+                    modifier = LayoutFlexible(2f) + LayoutHeight.Fill
                 ) { }
                 Container(
-                    LayoutAspectRatio(2f) + LayoutFlexible(2f) + LayoutExpandedHeight
+                    LayoutAspectRatio(2f) + LayoutFlexible(2f) + LayoutHeight.Fill
                 ) { }
                 ConstrainedBox(
                     constraints = DpConstraints.tightConstraints(20.dp, 30.dp),
-                    modifier = LayoutExpandedHeight
+                    modifier = LayoutHeight.Fill
                 ) { }
             }
         }, @Composable {
@@ -2518,38 +2518,39 @@ class FlexTest : LayoutTest() {
                 ) { }
             }
         }, @Composable {
-            Column(LayoutExpandedHeight) {
+            Column(LayoutHeight.Fill) {
                 Container(LayoutAspectRatio(2f)) { }
                 ConstrainedBox(DpConstraints.tightConstraints(50.dp, 40.dp)) { }
             }
         }, @Composable {
-            Column(LayoutExpandedHeight, arrangement = Arrangement.Begin) {
+            Column(LayoutHeight.Fill, arrangement = Arrangement.Begin) {
                 Container(LayoutAspectRatio(2f)) { }
                 ConstrainedBox(DpConstraints.tightConstraints(50.dp, 40.dp)) { }
             }
         }, @Composable {
-            Column(LayoutExpandedHeight, arrangement = Arrangement.Center) {
+            Column(LayoutHeight.Fill, arrangement = Arrangement.Center) {
                 Container(LayoutGravity.Center + LayoutAspectRatio(2f)) { }
                 ConstrainedBox(DpConstraints.tightConstraints(50.dp, 40.dp)) { }
             }
         }, @Composable {
-            Column(LayoutExpandedHeight, arrangement = Arrangement.End) {
+            Column(LayoutHeight.Fill, arrangement = Arrangement.End) {
                 Container(LayoutGravity.End + LayoutAspectRatio(2f)) { }
                 ConstrainedBox(DpConstraints.tightConstraints(50.dp, 40.dp), LayoutGravity.End) { }
             }
         }, @Composable {
-            Column(LayoutExpandedHeight, arrangement = Arrangement.SpaceAround) {
-                Container(LayoutExpandedWidth + LayoutAspectRatio(2f)) { }
+            Column(LayoutHeight.Fill, arrangement = Arrangement.SpaceAround) {
+                Container(LayoutWidth.Fill + LayoutAspectRatio(2f)) { }
                 ConstrainedBox(DpConstraints.tightConstraints(50.dp, 40.dp),
-                    LayoutExpandedWidth) { }
+                    LayoutWidth.Fill
+                ) { }
             }
         }, @Composable {
-            Column(LayoutExpandedHeight, arrangement = Arrangement.SpaceBetween) {
+            Column(LayoutHeight.Fill, arrangement = Arrangement.SpaceBetween) {
                 Container(LayoutAspectRatio(2f)) { }
                 ConstrainedBox(DpConstraints.tightConstraints(50.dp, 40.dp)) { }
             }
         }, @Composable {
-            Column(LayoutExpandedHeight, arrangement = Arrangement.SpaceEvenly) {
+            Column(LayoutHeight.Fill, arrangement = Arrangement.SpaceEvenly) {
                 Container(LayoutAspectRatio(2f)) { }
                 ConstrainedBox(DpConstraints.tightConstraints(50.dp, 40.dp)) { }
             }
@@ -2642,18 +2643,18 @@ class FlexTest : LayoutTest() {
             Column(arrangement = Arrangement.SpaceAround) {
                 ConstrainedBox(
                     constraints = DpConstraints.tightConstraints(30.dp, 20.dp),
-                    modifier = LayoutFlexible(3f) + LayoutExpandedWidth
+                    modifier = LayoutFlexible(3f) + LayoutWidth.Fill
                 ) { }
                 ConstrainedBox(
                     constraints = DpConstraints.tightConstraints(40.dp, 30.dp),
-                    modifier = LayoutFlexible(2f) + LayoutExpandedWidth
+                    modifier = LayoutFlexible(2f) + LayoutWidth.Fill
                 ) { }
                 Container(
-                    LayoutAspectRatio(0.5f) + LayoutFlexible(2f) + LayoutExpandedWidth
+                    LayoutAspectRatio(0.5f) + LayoutFlexible(2f) + LayoutWidth.Fill
                 ) { }
                 ConstrainedBox(
                     constraints = DpConstraints.tightConstraints(30.dp, 20.dp),
-                    modifier = LayoutExpandedWidth
+                    modifier = LayoutWidth.Fill
                 ) { }
             }
         }, @Composable {
@@ -2729,7 +2730,7 @@ class FlexTest : LayoutTest() {
 
         show {
             Align(Alignment.TopLeft) {
-                Column(LayoutExpandedHeight) {
+                Column(LayoutHeight.Fill) {
                     OnChildPositioned(onPositioned = { coordinates ->
                         containerSize.value = coordinates.size
                         containerPosition.value = coordinates.localToGlobal(PxPosition(0.px, 0.px))

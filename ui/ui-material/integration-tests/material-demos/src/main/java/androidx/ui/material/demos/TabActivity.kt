@@ -33,7 +33,6 @@ import androidx.ui.material.samples.TextTabs
 import androidx.ui.graphics.imageFromResource
 import androidx.ui.layout.Arrangement
 import androidx.ui.layout.Column
-import androidx.ui.layout.LayoutExpandedHeight
 import androidx.ui.layout.LayoutGravity
 import androidx.ui.layout.LayoutHeight
 import androidx.ui.layout.Spacer
@@ -43,7 +42,7 @@ class TabActivity : MaterialDemoActivity() {
     @Composable
     override fun materialContent() {
         val favouriteImage = imageFromResource(resources, R.drawable.ic_favorite)
-        Column(modifier = LayoutExpandedHeight, arrangement = Arrangement.SpaceBetween) {
+        Column(modifier = LayoutHeight.Fill, arrangement = Arrangement.SpaceBetween) {
             val showingSimple = state { true }
             val buttonText = "Show ${if (showingSimple.value) "custom" else "simple"} tabs"
 

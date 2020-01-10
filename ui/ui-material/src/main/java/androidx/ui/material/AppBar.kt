@@ -62,8 +62,8 @@ import androidx.ui.graphics.PathOperation
 import androidx.ui.layout.AlignmentLineOffset
 import androidx.ui.layout.Arrangement
 import androidx.ui.layout.LayoutAlign
-import androidx.ui.layout.LayoutExpanded
-import androidx.ui.layout.LayoutExpandedHeight
+import androidx.ui.layout.LayoutHeight
+import androidx.ui.layout.LayoutSize
 import androidx.ui.layout.Padding
 import androidx.ui.text.TextStyle
 import kotlin.math.sqrt
@@ -153,7 +153,7 @@ private fun BaseTopAppBar(
             // We only want to reserve space here if we have some start content
             if (startContent != null) {
                 Container(
-                    modifier = LayoutExpandedHeight,
+                    modifier = LayoutHeight.Fill,
                     width = AppBarTitleStartPadding,
                     alignment = Alignment.CenterLeft,
                     children = startContent
@@ -173,7 +173,7 @@ private fun BaseTopAppBar(
             }
             if (endContent != null) {
                 Container(
-                    modifier = LayoutExpandedHeight,
+                    modifier = LayoutHeight.Fill,
                     alignment = Alignment.Center,
                     children = endContent
                 )
@@ -620,7 +620,7 @@ private fun BaseBottomAppBarWithoutFab(
 ) {
     BaseAppBar(color, BottomAppBarElevation, shape) {
         Padding(top = AppBarPadding, bottom = AppBarPadding) {
-            Row(LayoutExpanded, arrangement = Arrangement.SpaceBetween) {
+            Row(LayoutSize.Fill, arrangement = Arrangement.SpaceBetween) {
                 // Using wrap so that even if startContent is null or emits no layout nodes,
                 // we will still force end content to be placed at the end of the row.
                 Wrap(alignment = Alignment.Center, children = startContent ?: {})

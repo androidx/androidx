@@ -25,8 +25,8 @@ import androidx.ui.core.ipx
 import androidx.ui.graphics.Color
 import androidx.ui.layout.Column
 import androidx.ui.layout.Container
-import androidx.ui.layout.LayoutExpandedHeight
 import androidx.ui.layout.LayoutGravity
+import androidx.ui.layout.LayoutHeight
 import androidx.ui.layout.Row
 import androidx.ui.text.TextStyle
 
@@ -92,7 +92,7 @@ fun SimpleRelativeToSiblings() {
 @Sampled
 @Composable
 fun SimpleRelativeToSiblingsInRow() {
-    Row(LayoutExpandedHeight) {
+    Row(LayoutHeight.Fill) {
         // Center of the colored rectangle is aligned to first baseline of the text.
         SizedRectangle(
             color = Color.Red,

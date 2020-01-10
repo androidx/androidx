@@ -35,9 +35,9 @@ import androidx.ui.engine.geometry.Rect
 import androidx.ui.layout.Align
 import androidx.ui.layout.LayoutAspectRatio
 import androidx.ui.layout.Container
-import androidx.ui.layout.LayoutExpanded
-import androidx.ui.layout.LayoutExpandedHeight
-import androidx.ui.layout.LayoutExpandedWidth
+import androidx.ui.layout.LayoutHeight
+import androidx.ui.layout.LayoutSize
+import androidx.ui.layout.LayoutWidth
 import org.junit.Assert
 import org.junit.Test
 import org.junit.runner.RunWith
@@ -63,23 +63,23 @@ class ExpandedModifierTest : LayoutTest() {
         )
         Assert.assertEquals(
             Rect(0f, 0f, screenWidth, Height.toIntPx().value.toFloat()),
-            getSize(LayoutExpandedWidth).toRect()
+            getSize(LayoutWidth.Fill).toRect()
         )
         Assert.assertEquals(
             Rect(0f, 0f, Width.toIntPx().value.toFloat(), screenHeight),
-            getSize(LayoutExpandedHeight).toRect()
+            getSize(LayoutHeight.Fill).toRect()
         )
         Assert.assertEquals(
             Rect(0f, 0f, screenWidth, screenHeight),
-            getSize(LayoutExpanded).toRect()
+            getSize(LayoutSize.Fill).toRect()
         )
     }
 
     @Test
     fun testExpandedModifier_noChangeIntrinsicMeasurements() = withDensity(density) {
-        verifyIntrinsicMeasurements(LayoutExpandedWidth)
-        verifyIntrinsicMeasurements(LayoutExpandedHeight)
-        verifyIntrinsicMeasurements(LayoutExpanded)
+        verifyIntrinsicMeasurements(LayoutWidth.Fill)
+        verifyIntrinsicMeasurements(LayoutHeight.Fill)
+        verifyIntrinsicMeasurements(LayoutSize.Fill)
     }
 
     private fun getSize(modifier: Modifier = Modifier.None): PxSize {
