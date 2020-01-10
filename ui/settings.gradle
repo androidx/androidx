@@ -61,6 +61,7 @@ includeProject(":ui:ui-framework:integration-tests:ui-framework-demos", "ui-fram
 includeProject(":ui:ui-framework:integration-tests:samples", "ui-framework/integration-tests/samples")
 includeProject(":ui:ui-internal-lint-checks", "ui-internal-lint-checks")
 includeProject(":ui:ui-geometry", "ui-geometry")
+includeProject(":ui:ui-graphics", "ui-graphics")
 includeProject(":ui:ui-layout", "ui-layout")
 includeProject(":ui:ui-layout:integration-tests:samples", "ui-layout/integration-tests/samples")
 includeProject(":ui:ui-layout:integration-tests:ui-layout-demos", "ui-layout/integration-tests/layout-demos")
