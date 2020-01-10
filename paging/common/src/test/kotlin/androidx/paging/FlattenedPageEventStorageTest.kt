@@ -16,7 +16,6 @@
 
 package androidx.paging
 
-import androidx.paging.LoadState.Done
 import androidx.paging.LoadState.Idle
 import androidx.paging.LoadState.Loading
 import androidx.paging.LoadType.END
@@ -238,7 +237,7 @@ class FlattenedPageEventStorageTest {
                 placeholdersStart = 3,
                 placeholdersEnd = 5,
                 loadStates = mapOf(
-                    REFRESH to Done,
+                    REFRESH to Idle,
                     START to Loading,
                     END to error
                 )
@@ -249,7 +248,7 @@ class FlattenedPageEventStorageTest {
                 items = listOf("a", "b", "c", "d", "e"),
                 placeholdersStart = 3,
                 placeholdersEnd = 5,
-                refreshState = Done,
+                refreshState = Idle,
                 startState = Loading,
                 endState = error
             )
