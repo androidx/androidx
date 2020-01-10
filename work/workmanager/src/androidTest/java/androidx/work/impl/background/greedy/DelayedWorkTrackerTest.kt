@@ -16,12 +16,10 @@
 
 package androidx.work.impl.background.greedy
 
-import android.os.Handler
-import android.os.Message
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import androidx.test.filters.MediumTest
 import androidx.work.OneTimeWorkRequest
-import androidx.work.impl.model.WorkSpec
+import androidx.work.RunnableScheduler
 import androidx.work.worker.TestWorker
 import org.hamcrest.CoreMatchers.`is`
 import org.hamcrest.MatcherAssert.assertThat
@@ -29,71 +27,44 @@ import org.junit.Before
 import org.junit.Test
 import org.junit.runner.RunWith
 import org.mockito.ArgumentCaptor
-import org.mockito.Mockito.anyLong
+import org.mockito.ArgumentMatchers.any
 import org.mockito.Mockito.mock
-import org.mockito.Mockito.spy
-import org.mockito.Mockito.times
 import org.mockito.Mockito.verify
+import java.util.concurrent.TimeUnit
 
 @RunWith(AndroidJUnit4::class)
 class DelayedWorkTrackerTest {
-
-    private lateinit var mGreedyScheduler: GreedyScheduler
-    private lateinit var mHandler: Handler
-    private lateinit var mDelayedCallback: DelayedWorkTracker.DelayedCallback
+    private lateinit var mScheduler: GreedyScheduler
+    private lateinit var mRunnableScheduler: RunnableScheduler
     private lateinit var mDelayedWorkTracker: DelayedWorkTracker
 
     @Before
     fun setUp() {
-        mGreedyScheduler = mock(GreedyScheduler::class.java)
-        mHandler = mock(Handler::class.java)
-        mDelayedCallback = spy(DelayedWorkTracker.DelayedCallback(mGreedyScheduler))
-        mDelayedCallback.setHandler(mHandler)
-        mDelayedWorkTracker = DelayedWorkTracker(mDelayedCallback)
+        mScheduler = mock(GreedyScheduler::class.java)
+        mRunnableScheduler = mock(RunnableScheduler::class.java)
+        mDelayedWorkTracker = DelayedWorkTracker(mScheduler, mRunnableScheduler)
     }
 
     @Test
     @MediumTest
-    fun testDelayedStartWork() {
-        val request = newWorkRequest()
+    fun testHandleDelayedStartWorkMessage() {
+        val builder = newWorkRequestBuilder()
+        val now = System.currentTimeMillis()
+        val delay = 10L
+        builder.setPeriodStartTime(now, TimeUnit.MILLISECONDS)
+        builder.setInitialDelay(delay, TimeUnit.MILLISECONDS)
+        val request = builder.build()
         mDelayedWorkTracker.schedule(request.workSpec)
-        val messageCaptor = ArgumentCaptor.forClass(Message::class.java)
-        // sendMessage and sendMessageDelayed are final
-        verify(mHandler, times(2)).sendMessageAtTime(messageCaptor.capture(), anyLong())
-        assertThat(messageCaptor.allValues.size, `is`(2))
-        val cancelCaptor = messageCaptor.allValues[0]
-        val delayedCaptor = messageCaptor.allValues[1]
-        assertThat(
-            cancelCaptor.what,
-            `is`(DelayedWorkTracker.DelayedCallback.UNSCHEDULE)
+
+        val timeCaptor = ArgumentCaptor.forClass(Long::class.java)
+        verify(mRunnableScheduler).scheduleWithDelay(
+            timeCaptor.capture(),
+            any(Runnable::class.java)
         )
-        assertThat(
-            delayedCaptor.what,
-            `is`(DelayedWorkTracker.DelayedCallback.SCHEDULE)
-        )
-        assertThat(
-            delayedCaptor.obj as? WorkSpec,
-            `is`(request.workSpec)
-        )
+        assertThat(timeCaptor.value, `is`(delay))
     }
 
-    @Test
-    @MediumTest
-    fun testCancelStartWork() {
-        val request = newWorkRequest()
-        mDelayedWorkTracker.unschedule(request.stringId)
-        val messageCaptor = ArgumentCaptor.forClass(Message::class.java)
-        // sendMessage and sendMessageDelayed are final
-        verify(mHandler, times(1)).sendMessageAtTime(messageCaptor.capture(), anyLong())
-        val cancelCaptor = messageCaptor.allValues[0]
-        assertThat(
-            cancelCaptor.what,
-            `is`(DelayedWorkTracker.DelayedCallback.UNSCHEDULE)
-        )
-    }
-
-    private fun newWorkRequest(): OneTimeWorkRequest {
-        val request = OneTimeWorkRequest.Builder(TestWorker::class.java)
-        return request.build()
+    private fun newWorkRequestBuilder(): OneTimeWorkRequest.Builder {
+        return OneTimeWorkRequest.Builder(TestWorker::class.java)
     }
 }

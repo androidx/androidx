@@ -164,6 +164,7 @@ public class WorkManagerImplTest {
         mScheduler =
                 spy(new GreedyScheduler(
                         mContext,
+                        mWorkManagerImpl.getConfiguration(),
                         mWorkManagerImpl.getWorkTaskExecutor(),
                         mWorkManagerImpl));
         // Return GreedyScheduler alone, because real jobs gets scheduled which slow down tests.
@@ -1685,6 +1686,7 @@ public class WorkManagerImplTest {
         Scheduler scheduler =
                 new GreedyScheduler(
                         mContext,
+                        mWorkManagerImpl.getConfiguration(),
                         mWorkManagerImpl.getWorkTaskExecutor(),
                         mWorkManagerImpl);
         // Return GreedyScheduler alone, because real jobs gets scheduled which slow down tests.
