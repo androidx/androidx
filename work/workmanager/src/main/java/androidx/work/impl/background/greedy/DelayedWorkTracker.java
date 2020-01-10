@@ -16,18 +16,14 @@
 
 package androidx.work.impl.background.greedy;
 
-import android.os.Handler;
-import android.os.Looper;
-import android.os.Message;
-import android.text.TextUtils;
-
-import androidx.annotation.MainThread;
 import androidx.annotation.NonNull;
-import androidx.annotation.Nullable;
 import androidx.annotation.RestrictTo;
-import androidx.annotation.VisibleForTesting;
 import androidx.work.Logger;
+import androidx.work.RunnableScheduler;
 import androidx.work.impl.model.WorkSpec;
+
+import java.util.HashMap;
+import java.util.Map;
 
 
 /**
@@ -39,16 +35,24 @@ import androidx.work.impl.model.WorkSpec;
 @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
 public class DelayedWorkTracker {
 
-    private final DelayedCallback mCallback;
+    // Synthetic access
+    @SuppressWarnings("WeakerAccess")
+    static final String TAG = Logger.tagWithPrefix("DelayedWorkTracker");
 
-    public DelayedWorkTracker(@NonNull GreedyScheduler scheduler) {
-        mCallback = new DelayedCallback(scheduler);
-        mCallback.setHandler(new Handler(Looper.getMainLooper(), mCallback));
-    }
+    // Synthetic access
+    @SuppressWarnings("WeakerAccess")
+    final GreedyScheduler mGreedyScheduler;
 
-    @VisibleForTesting
-    public DelayedWorkTracker(@NonNull DelayedCallback callback) {
-        mCallback = callback;
+    private final RunnableScheduler mRunnableScheduler;
+    private final Map<String, Runnable> mRunnables;
+
+    public DelayedWorkTracker(
+            @NonNull GreedyScheduler scheduler,
+            @NonNull RunnableScheduler runnableScheduler) {
+
+        mGreedyScheduler = scheduler;
+        mRunnableScheduler = runnableScheduler;
+        mRunnables = new HashMap<>();
     }
 
     /**
@@ -58,15 +62,24 @@ public class DelayedWorkTracker {
      *
      * @param workSpec The {@link WorkSpec} corresponding to the {@link androidx.work.WorkRequest}
      */
-    public void schedule(@NonNull WorkSpec workSpec) {
-        Message cancelMessage = DelayedCallback.unschedule(workSpec.id);
-        Message message = DelayedCallback.schedule(workSpec);
-        Handler handler = mCallback.getHandler();
-        if (handler != null) {
-            // Cancel any existing timers associated.
-            handler.sendMessage(cancelMessage);
-            handler.sendMessage(message);
+    public void schedule(@NonNull final WorkSpec workSpec) {
+        Runnable existing = mRunnables.remove(workSpec.id);
+        if (existing != null) {
+            mRunnableScheduler.cancel(existing);
         }
+
+        Runnable runnable = new Runnable() {
+            @Override
+            public void run() {
+                Logger.get().debug(TAG, String.format("Scheduling work %s", workSpec.id));
+                mGreedyScheduler.schedule(workSpec);
+            }
+        };
+
+        mRunnables.put(workSpec.id, runnable);
+        long now = System.currentTimeMillis();
+        long delay = workSpec.calculateNextRunTime() - now;
+        mRunnableScheduler.scheduleWithDelay(delay, runnable);
     }
 
     /**
@@ -75,105 +88,9 @@ public class DelayedWorkTracker {
      * @param workSpecId The {@link androidx.work.WorkRequest} id
      */
     public void unschedule(@NonNull String workSpecId) {
-        Message message = DelayedCallback.unschedule(workSpecId);
-        Handler handler = mCallback.getHandler();
-        if (handler != null) {
-            handler.sendMessage(message);
-        }
-    }
-
-    /**
-     * @hide
-     */
-    @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
-    public static class DelayedCallback implements android.os.Handler.Callback {
-        // Synthetic access
-        static final String TAG = Logger.tagWithPrefix("DelayedCallback");
-        // Message ids
-        @VisibleForTesting
-        public static final int SCHEDULE = 1;
-        @VisibleForTesting
-        public static final int UNSCHEDULE = 2;
-
-        @Nullable
-        private Handler mHandler;
-
-        // Synthetic access
-        final GreedyScheduler mScheduler;
-
-        public DelayedCallback(@NonNull GreedyScheduler scheduler) {
-            mScheduler = scheduler;
-        }
-
-        @Override
-        @MainThread
-        public boolean handleMessage(@NonNull Message msg) {
-            if (msg.what == SCHEDULE) {
-                final WorkSpec workSpec = (WorkSpec) msg.obj;
-                if (workSpec != null && mHandler != null) {
-                    mHandler.postAtTime(new Runnable() {
-                        @Override
-                        public void run() {
-                            Logger.get().debug(TAG,
-                                    String.format("Scheduling work %s", workSpec.id));
-                            mScheduler.schedule(workSpec);
-                        }
-                    }, workSpec.id, workSpec.calculateNextRunTime());
-                }
-                return true;
-            } else if (msg.what == UNSCHEDULE) {
-                String workSpecId = (String) msg.obj;
-                if (!TextUtils.isEmpty(workSpecId) && mHandler != null) {
-                    mHandler.removeMessages(SCHEDULE, workSpecId);
-                }
-                return true;
-            } else {
-                Logger.get().warning(TAG, "Unknown message. Ignoring");
-                return false;
-            }
-        }
-
-        public void setHandler(@NonNull Handler handler) {
-            mHandler = handler;
-        }
-
-        /**
-         * @return The {@link Handler} instance.
-         */
-        @Nullable
-        public Handler getHandler() {
-            return mHandler;
-        }
-
-        /**
-         * Creates a {@link Message} which can be sent via a {@link Handler} to schedule a
-         * delayed {@link androidx.work.WorkRequest}.
-         *
-         * @param workSpec The {@link WorkSpec} corresponding to the
-         *                 {@link androidx.work.WorkRequest}
-         * @return The {@link Message}
-         */
-        @NonNull
-        public static Message schedule(@NonNull WorkSpec workSpec) {
-            Message message = Message.obtain();
-            message.what = SCHEDULE;
-            message.obj = workSpec;
-            return message;
-        }
-
-        /**
-         * Creates a {@link Message} which can be sent via a {@link Handler} to cancel scheduling
-         * of a delayed {@link androidx.work.WorkRequest}.
-         *
-         * @param workSpecId The {@link androidx.work.WorkRequest} id
-         * @return The {@link Message}
-         */
-        @NonNull
-        public static Message unschedule(@NonNull String workSpecId) {
-            Message message = Message.obtain();
-            message.what = UNSCHEDULE;
-            message.obj = workSpecId;
-            return message;
+        Runnable runnable = mRunnables.remove(workSpecId);
+        if (runnable != null) {
+            mRunnableScheduler.cancel(runnable);
         }
     }
 }
