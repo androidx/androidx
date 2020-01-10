@@ -15,6 +15,7 @@
  */
 package androidx.ui.core
 
+import android.annotation.SuppressLint
 import android.annotation.TargetApi
 import android.content.Context
 import android.content.pm.ApplicationInfo
@@ -32,6 +33,7 @@ import android.view.autofill.AutofillValue
 import android.view.inputmethod.EditorInfo
 import android.view.inputmethod.InputConnection
 import androidx.annotation.RequiresApi
+import androidx.annotation.RestrictTo
 import androidx.compose.trace
 import androidx.ui.autofill.AndroidAutofill
 import androidx.ui.autofill.Autofill
@@ -52,6 +54,8 @@ import androidx.ui.graphics.Path
 import androidx.ui.input.TextInputService
 import androidx.ui.input.TextInputServiceAndroid
 import androidx.ui.text.font.Font
+import org.jetbrains.annotations.TestOnly
+import java.lang.reflect.Method
 import java.util.TreeSet
 import kotlin.math.roundToInt
 
@@ -166,6 +170,12 @@ class AndroidComposeView constructor(context: Context) :
     private val onCommitAffectingRootDraw: (Unit) -> Unit = { _ ->
         invalidate()
     }
+
+    override var showLayoutBounds = false
+        /** @hide */
+        @TestOnly
+        @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
+        set
 
     override fun pauseModelReadObserveration(block: () -> Unit) =
         modelObserver.pauseObservingReads(block)
@@ -543,6 +553,7 @@ class AndroidComposeView constructor(context: Context) :
 
     override fun onAttachedToWindow() {
         super.onAttachedToWindow()
+        showLayoutBounds = getIsShowingLayoutBounds()
         modelObserver.enableModelUpdatesObserving(true)
         ifDebug { if (autofillSupported()) _autofill?.registerCallback() }
         root.attach(this)
@@ -640,6 +651,28 @@ class AndroidComposeView constructor(context: Context) :
     private fun autofillSupported() = Build.VERSION.SDK_INT >= Build.VERSION_CODES.O
 
     internal companion object {
+        private var systemPropertiesClass: Class<*>? = null
+        private var getBooleanMethod: Method? = null
+
+        // TODO(mount): replace with ViewCompat.isShowingLayoutBounds() when it becomes available.
+        @SuppressLint("PrivateApi")
+        private fun getIsShowingLayoutBounds(): Boolean {
+            try {
+                if (systemPropertiesClass == null) {
+                    systemPropertiesClass = Class.forName("android.os.SystemProperties")
+                    getBooleanMethod = systemPropertiesClass?.getDeclaredMethod(
+                        "getBoolean",
+                        String::class.java,
+                        Boolean::class.java
+                    )
+                }
+
+                return getBooleanMethod?.invoke(null, "debug.layout", false) as? Boolean ?: false
+            } catch (e: Exception) {
+                return false
+            }
+        }
+
         private val RootMeasureBlocks = object : LayoutNode.MeasureBlocks {
             override fun measure(
                 measureScope: MeasureScope,
