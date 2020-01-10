@@ -1476,7 +1476,7 @@ package androidx.core.hardware.display {
 
 package androidx.core.hardware.fingerprint {
 
-  @Deprecated public final class FingerprintManagerCompat {
+  @Deprecated public class FingerprintManagerCompat {
     method @Deprecated @RequiresPermission(android.Manifest.permission.USE_FINGERPRINT) public void authenticate(androidx.core.hardware.fingerprint.FingerprintManagerCompat.CryptoObject?, int, androidx.core.os.CancellationSignal?, androidx.core.hardware.fingerprint.FingerprintManagerCompat.AuthenticationCallback, android.os.Handler?);
     method @Deprecated public static androidx.core.hardware.fingerprint.FingerprintManagerCompat from(android.content.Context);
     method @Deprecated @RequiresPermission(android.Manifest.permission.USE_FINGERPRINT) public boolean hasEnrolledFingerprints();
