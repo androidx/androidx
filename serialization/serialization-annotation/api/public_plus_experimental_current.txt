@@ -33,8 +33,8 @@ package androidx.serialization {
 
   @kotlin.annotation.Retention(kotlin.annotation.AnnotationRetention) @kotlin.annotation.Target(allowedTargets=kotlin.annotation.AnnotationTarget) public @interface Reserved {
     method public abstract androidx.serialization.Reserved.IdRange[] idRanges() default {};
+    method public abstract int[] ids() default {};
     method public abstract String[] names() default {};
-    method public abstract int[] value();
   }
 
   @kotlin.annotation.Retention(kotlin.annotation.AnnotationRetention) @kotlin.annotation.Target(allowedTargets={}) public static @interface Reserved.IdRange {
