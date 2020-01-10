@@ -21,6 +21,8 @@ package androidx.paging {
 
   public abstract static class DataSource.Factory<Key, Value> {
     ctor public DataSource.Factory();
+    method public final kotlin.jvm.functions.Function0<androidx.paging.PagingSource<Key,Value>> asPagingSourceFactory(kotlinx.coroutines.CoroutineDispatcher fetchDispatcher = Dispatchers.IO);
+    method public final kotlin.jvm.functions.Function0<androidx.paging.PagingSource<Key,Value>> asPagingSourceFactory();
     method public abstract androidx.paging.DataSource<Key,Value> create();
     method public <ToValue> androidx.paging.DataSource.Factory<Key,ToValue> map(androidx.arch.core.util.Function<Value,ToValue> function);
     method public <ToValue> androidx.paging.DataSource.Factory<Key,ToValue> map(kotlin.jvm.functions.Function1<? super Value,? extends ToValue> function);
