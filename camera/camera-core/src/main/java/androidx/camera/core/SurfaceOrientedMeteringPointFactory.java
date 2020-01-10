@@ -29,7 +29,7 @@ import java.util.Set;
 
 /**
  * A {@link MeteringPointFactory} that can create {@link MeteringPoint} by surface oriented x, y
- * on a area defined by (0, 0) - (width, height). {@link MeteringPoint} can then be used to
+ * on an area defined by (0, 0) - (width, height). {@link MeteringPoint} can then be used to
  * construct a {@link FocusMeteringAction} to start a focus and metering action.
  *
  * <p>The {@link MeteringPoint} defines a normalized coordinate system whose left-top is (0, 0)
@@ -55,10 +55,10 @@ public class SurfaceOrientedMeteringPointFactory extends MeteringPointFactory {
     /**
      * Creates the {@link SurfaceOrientedMeteringPointFactory} by width and height
      *
-     * <p>The width/height is the width/height in surface orientation which defines a
-     * area (0, 0) - (width, height) where apps can pick a point (x, y) to
-     * {@link #createPoint(float, float)}. User can set the width and height to 1.0 to make the
-     * (x, y) be normalized coordinates [0..1].
+     * <p>The width/height is the width/height in surface orientation which defines an area (0, 0)
+     * - (width, height) within which apps can specify metering points by
+     * {@link #createPoint(float, float)}. Setting width and height to 1.0 will allow points to
+     * be created by specifying normalized coordinates.
      *
      * <p>By default, it will use active {@link Preview} to get the surface aspect ratio for final
      * coordinates conversion.
@@ -72,26 +72,25 @@ public class SurfaceOrientedMeteringPointFactory extends MeteringPointFactory {
     }
 
     /**
-     * Creates the {@link SurfaceOrientedMeteringPointFactory} by width, height and
-     * useCaseForAspectRatio.
+     * Creates the {@link SurfaceOrientedMeteringPointFactory} by width, height and the surface
+     * aspect ratio. The surface aspect ratio is retrieved from the {@link UseCase}.
      *
-     * <p>The width/height is the width/height in surface orientation which defines a
-     * area (0, 0) - (width, height) where apps can pick a point (x, y) to
-     * {@link #createPoint(float, float)}. User can set the width and height to 1.0 to make the
-     * (x, y) be normalized coordinates [0..1].
+     * <p>The width/height is the width/height in surface orientation which defines an
+     * area (0, 0) - (width, height) within which apps can specify metering points by
+     * {@link #createPoint(float, float)}. Setting width and height to 1.0 will allow points to
+     * be created by specifying normalized coordinates.
      *
-     * <p>useCaseForSurface is used to determine the surface aspect ratio for for final
-     * coordinates conversion. This useCaseForSurface needs to be bound via {@code CameraX
-     * #bindToLifecycle(LifecycleOwner, CameraSelector, UseCase...)} first. Otherwise it will
-     * throw a{@link IllegalStateException}.
+     * <p>A {@link UseCase} is passed in order to determine the surface aspect ratio for final
+     * coordinates conversion. This use case needs to be bound at the time this method is called,
+     * otherwise an {@link IllegalStateException} will be thrown.
      *
      * @param width the width of the area in surface orientation.
      * @param height the height of the area in surface orientation.
-     * @param useCaseForSurface the {@link UseCase} to get the surface aspect ratio.
+     * @param useCaseForAspectRatio the {@link UseCase} to get the surface aspect ratio.
      */
     public SurfaceOrientedMeteringPointFactory(float width, float height,
-            @NonNull UseCase useCaseForSurface) {
-        super(getUseCaseAspectRatio(useCaseForSurface));
+            @NonNull UseCase useCaseForAspectRatio) {
+        super(getUseCaseAspectRatio(useCaseForAspectRatio));
         mWidth = width;
         mHeight = height;
     }
