@@ -41,8 +41,7 @@ class V3Activity : AppCompatActivity() {
         val viewModel by viewModels<V3ViewModel>()
 
         val adapter = V3Adapter()
-        val orientation = getResources().getConfiguration().orientation
-        val orientationText = when (orientation) {
+        val orientationText = when (resources.configuration.orientation) {
             Configuration.ORIENTATION_LANDSCAPE -> "land"
             Configuration.ORIENTATION_PORTRAIT -> "port"
             else -> "unknown"

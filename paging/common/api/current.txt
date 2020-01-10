@@ -35,6 +35,9 @@ package androidx.paging {
   public final class DataSourceKt {
   }
 
+  public final class HeaderFooterKt {
+  }
+
   public abstract class ItemKeyedDataSource<Key, Value> extends androidx.paging.DataSource<Key,Value> {
     ctor public ItemKeyedDataSource();
     method public abstract Key getKey(Value item);
@@ -136,6 +139,8 @@ package androidx.paging {
   }
 
   public final class PagedData<T> {
+    method public androidx.paging.PagedData<T> addFooter(T item);
+    method public androidx.paging.PagedData<T> addHeader(T item);
     method public androidx.paging.PagedData<T> filter(kotlin.jvm.functions.Function1<? super T,java.lang.Boolean> predicate);
     method public <R> androidx.paging.PagedData<R> flatMap(kotlin.jvm.functions.Function1<? super T,? extends java.lang.Iterable<? extends R>> transform);
     method public <R extends T> androidx.paging.PagedData<T> insertSeparators(kotlin.jvm.functions.Function2<? super T,? super T,? extends R> generator);

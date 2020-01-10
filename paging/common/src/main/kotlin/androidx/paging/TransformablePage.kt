@@ -37,6 +37,8 @@ internal data class TransformablePage<T : Any>(
      *
      * If provided, this table provides a mapping from presentation index -> original,
      * pre-transformation index.
+     *
+     * If null, the indices of [data] map directly to their original pre-transformation index.
      */
     val originalIndices: List<Int>?
 ) {
