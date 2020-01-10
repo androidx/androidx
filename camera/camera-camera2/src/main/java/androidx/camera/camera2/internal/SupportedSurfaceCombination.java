@@ -33,6 +33,7 @@ import android.view.Surface;
 import android.view.WindowManager;
 
 import androidx.annotation.Nullable;
+import androidx.annotation.VisibleForTesting;
 import androidx.camera.core.AspectRatio;
 import androidx.camera.core.CameraX;
 import androidx.camera.core.UseCase;
@@ -316,19 +317,27 @@ final class SupportedSurfaceCombination {
         return priorityOrder;
     }
 
-    private List<Size> getSupportedOutputSizes(UseCase useCase) {
+    @VisibleForTesting
+    List<Size> getSupportedOutputSizes(UseCase useCase) {
         int imageFormat = useCase.getImageFormat();
         Size[] outputSizes = getAllOutputSizesByFormat(imageFormat, useCase);
         List<Size> outputSizeCandidates = new ArrayList<>();
         ImageOutputConfig config = (ImageOutputConfig) useCase.getUseCaseConfig();
         Size maxSize = config.getMaxResolution(getMaxOutputSizeByFormat(imageFormat));
+        int targetRotation = config.getTargetRotation(Surface.ROTATION_0);
 
         // Sort the output sizes. The Comparator result must be reversed to have a descending order
         // result.
         Arrays.sort(outputSizes, new CompareSizesByArea(true));
 
-        // Get the minimum size according to min(DEFAULT_SIZE, TARGET_RESOLUTION).
+        // Calibrate targetSize by the target rotation value.
         Size targetSize = config.getTargetResolution(ZERO_SIZE);
+        if (isRotationNeeded(targetRotation)) {
+            targetSize = new Size(/* width= */targetSize.getHeight(), /* height=
+             */targetSize.getWidth());
+        }
+
+        // Get the minimum size according to min(DEFAULT_SIZE, TARGET_RESOLUTION).
         Size minSize = DEFAULT_SIZE;
         if (!targetSize.equals(ZERO_SIZE) && getArea(targetSize) < getArea(DEFAULT_SIZE)) {
             minSize = targetSize;
@@ -352,7 +361,7 @@ final class SupportedSurfaceCombination {
         // of the list and put others in the end from large to small. Some low end devices may
         // not able to get an supported resolution that match the preferred aspect ratio.
         List<Size> sizesMatchAspectRatio = new ArrayList<>();
-        List<Size> sizesNotMatchAspectRatio = new ArrayList<>();
+        List<Size> sizesMismatchAspectRatio = new ArrayList<>();
 
         Rational aspectRatio = null;
         if (config.hasTargetAspectRatio()) {
@@ -373,27 +382,29 @@ final class SupportedSurfaceCombination {
             }
         } else {
             aspectRatio = config.getTargetAspectRatioCustom(null);
-            int targetRotation = config.getTargetRotation(Surface.ROTATION_0);
             aspectRatio = rotateAspectRatioByRotation(aspectRatio, targetRotation);
         }
 
         for (Size outputSize : outputSizeCandidates) {
-            // If target aspect ratio is set, moves the matched results to the front of the list.
-            if (hasMatchingAspectRatio(outputSize, aspectRatio)) {
-                sizesMatchAspectRatio.add(outputSize);
+            // If no target aspect ratio is set, all sizes will be considered to match the target
+            // aspect ratio and then added to the matched list. Or, those sizes that are really
+            // matching the target aspect ratio will also be added to the matched list.
+            if (aspectRatio == null || hasMatchingAspectRatio(outputSize, aspectRatio)) {
+                if (!sizesMatchAspectRatio.contains(outputSize)) {
+                    sizesMatchAspectRatio.add(outputSize);
+                }
             } else {
-                sizesNotMatchAspectRatio.add(outputSize);
+                if (!sizesMismatchAspectRatio.contains(outputSize)) {
+                    sizesMismatchAspectRatio.add(outputSize);
+                }
             }
         }
 
-        // Sort not matched results by how close they are to the target aspect ratio.
+        // Sort mismatching results by how close they are to the target aspect ratio.
         if (aspectRatio != null) {
-            Collections.sort(sizesNotMatchAspectRatio,
+            Collections.sort(sizesMismatchAspectRatio,
                     new CompareSizesByDistanceToTargetRatio(aspectRatio.floatValue()));
         }
-
-        // Check whether the desired default resolution is included in the original supported list
-        boolean isDefaultResolutionSupported = outputSizeCandidates.contains(DEFAULT_SIZE);
 
         // Check the default resolution if the target resolution is not set
         targetSize = targetSize.equals(ZERO_SIZE) ? config.getDefaultResolution(ZERO_SIZE)
@@ -402,27 +413,13 @@ final class SupportedSurfaceCombination {
         // If the target resolution is set, use it to find the minimum one from big enough items
         if (!targetSize.equals(ZERO_SIZE)) {
             removeSupportedSizesByTargetSize(sizesMatchAspectRatio, targetSize);
-            removeSupportedSizesByTargetSize(sizesNotMatchAspectRatio, targetSize);
-        }
-
-        if (sizesMatchAspectRatio.isEmpty() && sizesNotMatchAspectRatio.isEmpty()
-                && !isDefaultResolutionSupported) {
-            throw new IllegalArgumentException(
-                    "Can not get supported output size for the desired output size quality for "
-                            + "the format: "
-                            + imageFormat);
+            removeSupportedSizesByTargetSizeAndAspectRatio(sizesMismatchAspectRatio, targetSize);
         }
 
         List<Size> supportedResolutions = new ArrayList<>();
         // No need to sort again since the source list has been sorted previously
         supportedResolutions.addAll(sizesMatchAspectRatio);
-        supportedResolutions.addAll(sizesNotMatchAspectRatio);
-
-        // If there is no available size for the conditions and default resolution is in the
-        // supported list, return the default resolution.
-        if (supportedResolutions.isEmpty() && !isDefaultResolutionSupported) {
-            supportedResolutions.add(DEFAULT_SIZE);
-        }
+        supportedResolutions.addAll(sizesMismatchAspectRatio);
 
         return supportedResolutions;
     }
@@ -488,31 +485,87 @@ final class SupportedSurfaceCombination {
                 mod16Width + ALIGN16);
     }
 
+    /**
+     * Removes unnecessary big enough sizes by target size and aspect ratio.
+     *
+     * <p>The input supportedSizesList is sorted by CompareSizesByDistanceToTargetRatio that items
+     * of same aspect ratio will be put together. The removing process will operate for each
+     * different aspect ratio size bucket to only keep one big-enough size if there is.
+     */
+    private void removeSupportedSizesByTargetSizeAndAspectRatio(List<Size> supportedSizesList,
+            Size targetSize) {
+        if (supportedSizesList == null || supportedSizesList.isEmpty()) {
+            return;
+        }
+
+        Map<Rational, Size> bigEnoughSizeMap = new HashMap<>();
+        List<Size> removeSizes = new ArrayList<>();
+
+        // Removing sizes for mismatching aspect ratio sizes list should be handled according
+        // to different aspect ratio sizes set because the input sizes list may be sorted by
+        // CompareSizesByDistanceToTargetRatio. Put the big enough size into map. The size
+        // finally put into map should be the smallest but big enough one for the sizes of
+        // same aspect ratio.
+        Rational currentRationalKey = null;
+
+        for (int i = 0; i < supportedSizesList.size(); i++) {
+            Size outputSize = supportedSizesList.get(i);
+            if (outputSize.getWidth() >= targetSize.getWidth()
+                    && outputSize.getHeight() >= targetSize.getHeight()) {
+                Rational rational = new Rational(outputSize.getWidth(), outputSize.getHeight());
+
+                // Some sizes belong to the same aspect ratio in mod 16 consideration.
+                if (currentRationalKey == null || !hasMatchingAspectRatio(outputSize,
+                        currentRationalKey)) {
+                    currentRationalKey = rational;
+                }
+
+                Size originalBigEnoughSize = bigEnoughSizeMap.get(currentRationalKey);
+
+                // There is smaller big-enough size candidate. Therefore, previous one can be
+                // removed from the list.
+                if (originalBigEnoughSize != null) {
+                    removeSizes.add(originalBigEnoughSize);
+                }
+
+                bigEnoughSizeMap.put(currentRationalKey, outputSize);
+            }
+        }
+
+        // Remove the additional items that is larger than the big enough items
+        supportedSizesList.removeAll(removeSizes);
+    }
+
+    /**
+     * Removes unnecessary big enough sizes by target size.
+     */
     private void removeSupportedSizesByTargetSize(List<Size> supportedSizesList,
             Size targetSize) {
-        if (supportedSizesList != null && supportedSizesList.size() != 0) {
-            int indexBigEnough = 0;
-            // Get the index of the item that is big enough for the view size in matched list
-            for (int i = 0; i < supportedSizesList.size(); i++) {
-                Size outputSize = supportedSizesList.get(i);
-                if (getArea(outputSize) >= getArea(targetSize)) {
-                    indexBigEnough = i;
-                } else {
-                    break;
-                }
-            }
-
-            Size bigEnoughSize = supportedSizesList.get(indexBigEnough);
-            List<Size> removeSizes = new ArrayList<>();
-            for (Size size : supportedSizesList) {
-                if (getArea(size) > getArea(bigEnoughSize)) {
-                    removeSizes.add(size);
-                }
-            }
-
-            // Remove the additional items that is larger than the big enough item
-            supportedSizesList.removeAll(removeSizes);
+        if (supportedSizesList == null || supportedSizesList.isEmpty()) {
+            return;
         }
+
+        int indexBigEnough = -1;
+        List<Size> removeSizes = new ArrayList<>();
+
+        // Get the index of the item that is big enough for the view size in matched list
+        for (int i = 0; i < supportedSizesList.size(); i++) {
+            Size outputSize = supportedSizesList.get(i);
+            if (outputSize.getWidth() >= targetSize.getWidth()
+                    && outputSize.getHeight() >= targetSize.getHeight()) {
+                // New big enough size is found. Adding previous one to remove sizes list.
+                if (indexBigEnough >= 0) {
+                    removeSizes.add(supportedSizesList.get(indexBigEnough));
+                }
+
+                indexBigEnough = i;
+            } else {
+                break;
+            }
+        }
+
+        // Remove the additional items that is larger than the big enough item
+        supportedSizesList.removeAll(removeSizes);
     }
 
     private List<List<Size>> getAllPossibleSizeArrangements(
