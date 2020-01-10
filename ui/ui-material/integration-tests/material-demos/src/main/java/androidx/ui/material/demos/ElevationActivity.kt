@@ -27,9 +27,9 @@ import androidx.ui.foundation.shape.corner.RoundedCornerShape
 import androidx.ui.graphics.Color
 import androidx.ui.layout.Column
 import androidx.ui.layout.Container
-import androidx.ui.layout.LayoutExpanded
-import androidx.ui.layout.LayoutExpandedWidth
 import androidx.ui.layout.LayoutPadding
+import androidx.ui.layout.LayoutSize
+import androidx.ui.layout.LayoutWidth
 import androidx.ui.material.MaterialTheme
 import androidx.ui.material.ripple.Ripple
 import androidx.ui.material.surface.Card
@@ -39,12 +39,12 @@ class ElevationActivity : MaterialDemoActivity() {
     @Composable
     override fun materialContent() {
         Column {
-            Container(LayoutPadding(20.dp) + LayoutExpandedWidth) {
+            Container(LayoutPadding(20.dp) + LayoutWidth.Fill) {
                 val text = getMessage(MaterialTheme.colors().isLight)
                 Text(text)
             }
             VerticalScroller {
-                Column(LayoutPadding(25.dp) + LayoutExpanded) {
+                Column(LayoutPadding(25.dp) + LayoutSize.Fill) {
                     elevations.forEach { elevation ->
                         ElevatedCard(elevation)
                     }
@@ -65,7 +65,7 @@ private fun ElevatedCard(elevation: Dp) {
     ) {
         Ripple(bounded = true) {
             Clickable({}) {
-                Container(LayoutExpandedWidth, height = 150.dp) {
+                Container(LayoutWidth.Fill, height = 150.dp) {
                     Text("$elevation", style = MaterialTheme.typography().h4)
                 }
             }

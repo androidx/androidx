@@ -86,20 +86,20 @@ class FlexChildren internal constructor() {
  * according to their flex weights.
  *
  * [FlexRow] children can be:
- * - [inflexible] meaning that the child is not flex, and it should be measured first
+ * - [FlexChildren.inflexible] meaning that the child is not flex, and it should be measured first
  * to determine its size, before the expanded and flexible children are measured
- * - [expanded] meaning that the child is flexible, and it should be assigned a width according
- * to its flex weight relative to its flexible children. The child is forced to occupy the
+ * - [FlexChildren.expanded] meaning that the child is flexible, and it should be assigned a width
+ * according to its flex weight relative to its flexible children. The child is forced to occupy the
  * entire width assigned by the parent
- * - [flexible] similar to [expanded], but the child can leave unoccupied width.
- *
+ * - [FlexChildren.flexible] similar to [FlexChildren.expanded], but the child can leave unoccupied
+ * width.
  *
  * @param mainAxisAlignment The alignment of the layout's children in main axis direction.
  * Default is [MainAxisAlignment.Start].
  * @param crossAxisAlignment The alignment of the layout's children in cross axis direction.
  * Default is [CrossAxisAlignment.Start].
  * @param crossAxisSize The size of the layout in the cross axis dimension.
- * Default is [LayoutSize.Wrap].
+ * Default is [SizeMode.Wrap].
  */
 @Deprecated(
     "Use Row layout instead.",
@@ -111,7 +111,7 @@ fun FlexRow(
     modifier: Modifier = Modifier.None,
     mainAxisAlignment: MainAxisAlignment = MainAxisAlignment.Start,
     crossAxisAlignment: CrossAxisAlignment = CrossAxisAlignment.Start,
-    crossAxisSize: LayoutSize = LayoutSize.Wrap,
+    crossAxisSize: SizeMode = SizeMode.Wrap,
     block: FlexChildren.() -> Unit
 ) {
     Flex(
@@ -129,19 +129,20 @@ fun FlexRow(
  * according to their flex weights.
  *
  * [FlexColumn] children can be:
- * - [inflexible] meaning that the child is not flex, and it should be measured first
+ * - [FlexChildren.inflexible] meaning that the child is not flex, and it should be measured first
  * to determine its size, before the expanded and flexible children are measured
- * - [expanded] meaning that the child is flexible, and it should be assigned a
+ * - [FlexChildren.expanded] meaning that the child is flexible, and it should be assigned a
  * height according to its flex weight relative to its flexible children. The child is forced
  * to occupy the entire height assigned by the parent
- * - [flexible] similar to [expanded], but the child can leave unoccupied height.
+ * - [FlexChildren.flexible] similar to [FlexChildren.expanded], but the child can leave unoccupied
+ * height.
  *
  * @param mainAxisAlignment The alignment of the layout's children in main axis direction.
  * Default is [MainAxisAlignment.Start].
  * @param crossAxisAlignment The alignment of the layout's children in cross axis direction.
  * Default is [CrossAxisAlignment.Start].
  * @param crossAxisSize The size of the layout in the cross axis dimension.
- * Default is [LayoutSize.Wrap].
+ * Default is [SizeMode.Wrap].
  */
 @Deprecated(
     "Use Column layout instead.",
@@ -153,7 +154,7 @@ fun FlexColumn(
     modifier: Modifier = Modifier.None,
     mainAxisAlignment: MainAxisAlignment = MainAxisAlignment.Start,
     crossAxisAlignment: CrossAxisAlignment = CrossAxisAlignment.Start,
-    crossAxisSize: LayoutSize = LayoutSize.Wrap,
+    crossAxisSize: SizeMode = SizeMode.Wrap,
     block: FlexChildren.() -> Unit
 ) {
     Flex(
@@ -335,7 +336,7 @@ fun Row(
         modifier = modifier,
         arrangement = arrangement,
         crossAxisAlignment = CrossAxisAlignment.Start,
-        crossAxisSize = LayoutSize.Wrap,
+        crossAxisSize = SizeMode.Wrap,
         children = { RowScope().children() }
     )
 }
@@ -365,7 +366,7 @@ fun Column(
         modifier = modifier,
         arrangement = arrangement,
         crossAxisAlignment = CrossAxisAlignment.Start,
-        crossAxisSize = LayoutSize.Wrap,
+        crossAxisSize = SizeMode.Wrap,
         children = { ColumnScope().children() }
     )
 }
@@ -383,8 +384,7 @@ internal enum class LayoutOrientation {
 /**
  * Used to specify how a layout chooses its own size when multiple behaviors are possible.
  */
-// TODO Rename? Layout prefix should be reserved for LayoutModifiers.
-enum class LayoutSize {
+enum class SizeMode {
     /**
      * Minimize the amount of free space by wrapping the children,
      * subject to the incoming layout constraints.
@@ -647,7 +647,7 @@ private fun Flex(
     orientation: LayoutOrientation,
     modifier: Modifier = Modifier.None,
     mainAxisAlignment: MainAxisAlignment,
-    crossAxisSize: LayoutSize,
+    crossAxisSize: SizeMode,
     crossAxisAlignment: CrossAxisAlignment,
     block: FlexChildren.() -> Unit
 ) {
@@ -677,7 +677,7 @@ private fun FlexLayout(
     orientation: LayoutOrientation,
     modifier: Modifier = Modifier.None,
     arrangement: Arrangement,
-    crossAxisSize: LayoutSize,
+    crossAxisSize: SizeMode,
     crossAxisAlignment: CrossAxisAlignment,
     children: @Composable() () -> Unit
 ) {
@@ -798,7 +798,7 @@ private fun FlexLayout(
             max(inflexibleSpace + flexibleSpace, constraints.mainAxisMin)
         }
         val crossAxisLayoutSize = if (constraints.crossAxisMax.isFinite() &&
-            crossAxisSize == LayoutSize.Expand
+            crossAxisSize == SizeMode.Expand
         ) {
             constraints.crossAxisMax
         } else {

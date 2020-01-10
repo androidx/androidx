@@ -80,7 +80,7 @@ fun MinIntrinsicWidth(children: @Composable() () -> Unit) {
  * Here [MinIntrinsicHeight] is adding a speculative height measurement pass for the [Row],
  * whose minimum intrinsic height will correspond to the height of the largest [Text]. Then
  * [MinIntrinsicHeight] will measure the [Row] with tight height, the same as the premeasured
- * minimum intrinsic height, which due to [LayoutExpandedHeight] will force the [Text]s and
+ * minimum intrinsic height, which due to [LayoutHeight.Fill] will force the [Text]s and
  * the divider to use the same height.
  */
 @Composable
@@ -124,7 +124,7 @@ fun MinIntrinsicHeight(children: @Composable() () -> Unit) {
  * Here [MaxIntrinsicWidth] is adding a speculative width measurement pass for the [Column],
  * whose maximum intrinsic width will correspond to the preferred width of the largest
  * [Container]. Then [MaxIntrinsicWidth] will measure the [Column] with tight width, the same
- * as the premeasured maximum intrinsic width, which due to [LayoutExpandedWidth] will force
+ * as the premeasured maximum intrinsic width, which due to [LayoutWidth.Fill] will force
  * the [Container]s to use the same width.
  * The sample is a layout containing three composables having the same width as the widest one.
  */
@@ -170,7 +170,7 @@ fun MaxIntrinsicWidth(children: @Composable() () -> Unit) {
  * Here [MaxIntrinsicHeight] is adding a speculative height measurement pass for the [Row],
  * whose maximum intrinsic height will correspond to the height of the taller [AspectRatio]. Then
  * [MaxIntrinsicHeight] will measure the [Row] with tight height, the same as the premeasured
- * maximum intrinsic height, which due to [LayoutExpandedHeight] will force the [AspectRatio]s
+ * maximum intrinsic height, which due to [LayoutHeight.Fill] will force the [AspectRatio]s
  * and the divider to use the same height.
  */
 @Composable

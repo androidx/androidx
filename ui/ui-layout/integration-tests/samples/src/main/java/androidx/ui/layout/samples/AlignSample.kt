@@ -25,9 +25,9 @@ import androidx.ui.layout.Align
 import androidx.ui.layout.LayoutAlign
 import androidx.ui.layout.Center
 import androidx.ui.layout.Column
-import androidx.ui.layout.LayoutExpandedHeight
-import androidx.ui.layout.LayoutExpandedWidth
 import androidx.ui.layout.LayoutGravity
+import androidx.ui.layout.LayoutHeight
+import androidx.ui.layout.LayoutWidth
 import androidx.ui.layout.Row
 
 @Sampled
@@ -61,7 +61,7 @@ fun SimpleVerticallyAlignedModifier() {
 @Sampled
 @Composable
 fun SimpleGravityInRow() {
-    Row(LayoutExpandedHeight) {
+    Row(LayoutHeight.Fill) {
         // The child with no gravity modifier is positioned by default so that its top edge is
         // aligned to the top of the vertical axis.
         SizedRectangle(color = Color.Magenta, width = 80.dp, height = 40.dp)
@@ -80,7 +80,7 @@ fun SimpleGravityInRow() {
 @Sampled
 @Composable
 fun SimpleGravityInColumn() {
-    Column(LayoutExpandedWidth) {
+    Column(LayoutWidth.Fill) {
         // The child with no gravity modifier is positioned by default so that its start edge
         // aligned with the start edge of the horizontal axis.
         SizedRectangle(color = Color.Magenta, width = 80.dp, height = 40.dp)

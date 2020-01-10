@@ -35,8 +35,8 @@ import androidx.ui.text.TextStyle
 import androidx.ui.text.style.TextOverflow
 import androidx.ui.core.em
 import androidx.ui.core.sp
-import androidx.ui.layout.LayoutExpandedHeight
-import androidx.ui.layout.LayoutExpandedWidth
+import androidx.ui.layout.LayoutHeight
+import androidx.ui.layout.LayoutWidth
 import androidx.ui.text.LocaleList
 import androidx.ui.text.SpanStyle
 import androidx.ui.text.samples.BaselineShiftSample
@@ -278,7 +278,7 @@ fun TextDemoBaselineShift() {
 @Composable
 fun TextDemoHeight() {
     // This group of text composables show different height.
-    Row(LayoutExpandedWidth) {
+    Row(LayoutWidth.Fill) {
         Text {
             Span(
                 text = "$displayText\n$displayText   ",
@@ -365,7 +365,7 @@ fun TextDemoTextAlign() {
     for (i in 1..10) {
         text = "$text$displayText "
     }
-    Column(LayoutExpandedHeight) {
+    Column(LayoutHeight.Fill) {
         SecondTagLine(tag = "textAlign = TextAlign.Left")
         Text(style = TextStyle(textAlign = TextAlign.Left)) {
             Span(text = displayText, style = SpanStyle(fontSize = fontSize8))
@@ -425,7 +425,7 @@ fun TextDemoSoftWrap() {
     }
     val spanStyle = SpanStyle(fontSize = fontSize8, color = Color(0xFFFF0000))
 
-    Column(LayoutExpandedHeight) {
+    Column(LayoutHeight.Fill) {
         Text {
             Span(text = text, style = spanStyle)
         }

@@ -32,7 +32,6 @@ import androidx.ui.layout.Align
 import androidx.ui.layout.Container
 import androidx.ui.layout.DpConstraints
 import androidx.ui.layout.LayoutAspectRatio
-import androidx.ui.layout.LayoutExpanded
 import androidx.ui.layout.LayoutGravity
 import androidx.ui.layout.LayoutPadding
 import androidx.ui.layout.LayoutSize
@@ -262,7 +261,7 @@ class StackTest : LayoutTest() {
                 }) {
                     Container(LayoutSize(sizeDp, sizeDp)) {
                         Stack {
-                            Container(LayoutExpanded) {
+                            Container(LayoutSize.Fill) {
                                 SaveLayoutInfo(
                                     size = childSize[0],
                                     position = childPosition[0],

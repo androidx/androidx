@@ -39,8 +39,8 @@ import androidx.ui.layout.Arrangement
 import androidx.ui.layout.Column
 import androidx.ui.layout.Container
 import androidx.ui.layout.EdgeInsets
-import androidx.ui.layout.LayoutExpanded
 import androidx.ui.layout.LayoutGravity
+import androidx.ui.layout.LayoutSize
 import androidx.ui.layout.Row
 import androidx.ui.layout.Table
 import androidx.ui.layout.TableColumnWidth
@@ -485,7 +485,7 @@ fun DataTable(
         Column {
             table()
             Container(height = dataRowHeight, padding = cellSpacing) {
-                Row(LayoutExpanded, arrangement = Arrangement.End) {
+                Row(LayoutSize.Fill, arrangement = Arrangement.End) {
                     val pages = (rows.size - 1) / pagination.rowsPerPage + 1
                     val startRow = pagination.rowsPerPage * pagination.page
                     val endRow = (startRow + pagination.rowsPerPage).coerceAtMost(rows.size)

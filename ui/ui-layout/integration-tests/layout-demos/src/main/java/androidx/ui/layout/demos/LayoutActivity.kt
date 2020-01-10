@@ -35,8 +35,6 @@ import androidx.ui.core.Modifier
 import androidx.ui.core.setContent
 import androidx.ui.core.sp
 import androidx.ui.layout.Arrangement
-import androidx.ui.layout.LayoutExpandedHeight
-import androidx.ui.layout.LayoutExpandedWidth
 import androidx.ui.layout.LayoutGravity
 import androidx.ui.layout.samples.DrawRectangle
 
@@ -69,72 +67,72 @@ fun LayoutDemo() {
     Column {
         Text(text = "Row", style = TextStyle(fontSize = 48.sp))
         ContainerWithBackground(width = ExampleSize, color = lightGrey) {
-            Row(LayoutExpandedWidth) {
+            Row(LayoutWidth.Fill) {
                 PurpleSquare()
                 CyanSquare()
             }
         }
         Spacer(LayoutHeight(24.dp))
         ContainerWithBackground(width = ExampleSize, color = lightGrey) {
-            Row(LayoutExpandedWidth, arrangement = Arrangement.Center) {
+            Row(LayoutWidth.Fill, arrangement = Arrangement.Center) {
                 PurpleSquare()
                 CyanSquare()
             }
         }
         Spacer(LayoutHeight(24.dp))
         ContainerWithBackground(width = ExampleSize, color = lightGrey) {
-            Row(LayoutExpandedWidth, arrangement = Arrangement.End) {
+            Row(LayoutWidth.Fill, arrangement = Arrangement.End) {
                 PurpleSquare()
                 CyanSquare()
             }
         }
         Spacer(LayoutHeight(24.dp))
         ContainerWithBackground(width = ExampleSize, color = lightGrey) {
-            Row(LayoutExpandedWidth) {
+            Row(LayoutWidth.Fill) {
                 PurpleSquare()
                 CyanSquare()
             }
         }
         Spacer(LayoutHeight(24.dp))
         ContainerWithBackground(width = ExampleSize, color = lightGrey) {
-            Row(LayoutExpandedWidth) {
+            Row(LayoutWidth.Fill) {
                 PurpleSquare(LayoutGravity.Bottom)
                 CyanSquare(LayoutGravity.Bottom)
             }
         }
         Spacer(LayoutHeight(24.dp))
         Text(text = "Column", style = TextStyle(fontSize = 48.sp))
-        Row(LayoutExpandedWidth) {
+        Row(LayoutWidth.Fill) {
             ContainerWithBackground(height = ExampleSize, color = lightGrey) {
-                Column(LayoutExpandedHeight) {
+                Column(LayoutHeight.Fill) {
                     PurpleSquare()
                     CyanSquare()
                 }
             }
             Spacer(LayoutWidth(24.dp))
             ContainerWithBackground(height = ExampleSize, color = lightGrey) {
-                Column(LayoutExpandedHeight, arrangement = Arrangement.Center) {
+                Column(LayoutHeight.Fill, arrangement = Arrangement.Center) {
                     PurpleSquare()
                     CyanSquare()
                 }
             }
             Spacer(LayoutWidth(24.dp))
             ContainerWithBackground(height = ExampleSize, color = lightGrey) {
-                Column(LayoutExpandedHeight, arrangement = Arrangement.End) {
+                Column(LayoutHeight.Fill, arrangement = Arrangement.End) {
                     PurpleSquare()
                     CyanSquare()
                 }
             }
             Spacer(LayoutWidth(24.dp))
             ContainerWithBackground(height = ExampleSize, color = lightGrey) {
-                Column(LayoutExpandedHeight) {
+                Column(LayoutHeight.Fill) {
                     PurpleSquare()
                     CyanSquare()
                 }
             }
             Spacer(LayoutWidth(24.dp))
             ContainerWithBackground(height = ExampleSize, color = lightGrey) {
-                Column(LayoutExpandedHeight) {
+                Column(LayoutHeight.Fill) {
                     PurpleSquare(LayoutGravity.End)
                     CyanSquare(LayoutGravity.End)
                 }

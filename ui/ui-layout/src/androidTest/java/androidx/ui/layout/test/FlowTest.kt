@@ -32,7 +32,7 @@ import androidx.ui.layout.FlowColumn
 import androidx.ui.layout.FlowCrossAxisAlignment
 import androidx.ui.layout.FlowMainAxisAlignment
 import androidx.ui.layout.FlowRow
-import androidx.ui.layout.LayoutSize
+import androidx.ui.layout.SizeMode
 import org.junit.Assert.assertTrue
 import org.junit.Test
 import org.junit.runner.RunWith
@@ -117,7 +117,7 @@ class FlowTest : LayoutTest() {
                     positionedLatch.countDown()
                 }) {
                     ConstrainedBox(constraints = DpConstraints(maxWidth = flowWidthDp)) {
-                        FlowRow(mainAxisSize = LayoutSize.Wrap) {
+                        FlowRow(mainAxisSize = SizeMode.Wrap) {
                             for (i in 0 until numberOfSquares) {
                                 Container(width = sizeDp, height = sizeDp) {
                                     SaveLayoutInfo(
@@ -171,7 +171,7 @@ class FlowTest : LayoutTest() {
                     positionedLatch.countDown()
                 }) {
                     ConstrainedBox(constraints = DpConstraints(maxWidth = flowWidthDp)) {
-                        FlowRow(mainAxisSize = LayoutSize.Expand) {
+                        FlowRow(mainAxisSize = SizeMode.Expand) {
                             for (i in 0 until numberOfSquares) {
                                 Container(width = sizeDp, height = sizeDp) {
                                     SaveLayoutInfo(
@@ -226,7 +226,7 @@ class FlowTest : LayoutTest() {
                 }) {
                     ConstrainedBox(constraints = DpConstraints(maxWidth = flowWidthDp)) {
                         FlowRow(
-                            mainAxisSize = LayoutSize.Expand,
+                            mainAxisSize = SizeMode.Expand,
                             mainAxisAlignment = FlowMainAxisAlignment.Center
                         ) {
                             for (i in 0 until numberOfSquares) {
@@ -283,7 +283,7 @@ class FlowTest : LayoutTest() {
                 }) {
                     ConstrainedBox(constraints = DpConstraints(maxWidth = flowWidthDp)) {
                         FlowRow(
-                            mainAxisSize = LayoutSize.Expand,
+                            mainAxisSize = SizeMode.Expand,
                             mainAxisAlignment = FlowMainAxisAlignment.Start
                         ) {
                             for (i in 0 until numberOfSquares) {
@@ -340,7 +340,7 @@ class FlowTest : LayoutTest() {
                 }) {
                     ConstrainedBox(constraints = DpConstraints(maxWidth = flowWidthDp)) {
                         FlowRow(
-                            mainAxisSize = LayoutSize.Expand,
+                            mainAxisSize = SizeMode.Expand,
                             mainAxisAlignment = FlowMainAxisAlignment.End
                         ) {
                             for (i in 0 until numberOfSquares) {
@@ -397,7 +397,7 @@ class FlowTest : LayoutTest() {
                 }) {
                     ConstrainedBox(constraints = DpConstraints(maxWidth = flowWidthDp)) {
                         FlowRow(
-                            mainAxisSize = LayoutSize.Expand,
+                            mainAxisSize = SizeMode.Expand,
                             mainAxisAlignment = FlowMainAxisAlignment.SpaceEvenly
                         ) {
                             for (i in 0 until numberOfSquares) {
@@ -457,7 +457,7 @@ class FlowTest : LayoutTest() {
                 }) {
                     ConstrainedBox(constraints = DpConstraints(maxWidth = flowWidthDp)) {
                         FlowRow(
-                            mainAxisSize = LayoutSize.Expand,
+                            mainAxisSize = SizeMode.Expand,
                             mainAxisAlignment = FlowMainAxisAlignment.SpaceBetween
                         ) {
                             for (i in 0 until numberOfSquares) {
@@ -517,7 +517,7 @@ class FlowTest : LayoutTest() {
                 }) {
                     ConstrainedBox(constraints = DpConstraints(maxWidth = flowWidthDp)) {
                         FlowRow(
-                            mainAxisSize = LayoutSize.Expand,
+                            mainAxisSize = SizeMode.Expand,
                             mainAxisAlignment = FlowMainAxisAlignment.SpaceAround
                         ) {
                             for (i in 0 until numberOfSquares) {
@@ -577,7 +577,7 @@ class FlowTest : LayoutTest() {
                 }) {
                     ConstrainedBox(constraints = DpConstraints(maxWidth = flowWidthDp)) {
                         FlowRow(
-                            mainAxisSize = LayoutSize.Expand,
+                            mainAxisSize = SizeMode.Expand,
                             mainAxisAlignment = FlowMainAxisAlignment.SpaceBetween,
                             lastLineMainAxisAlignment = FlowMainAxisAlignment.Center
                         ) {
@@ -642,7 +642,7 @@ class FlowTest : LayoutTest() {
                 }) {
                     ConstrainedBox(constraints = DpConstraints(maxWidth = flowWidthDp)) {
                         FlowRow(
-                            mainAxisSize = LayoutSize.Expand,
+                            mainAxisSize = SizeMode.Expand,
                             mainAxisAlignment = FlowMainAxisAlignment.SpaceBetween,
                             lastLineMainAxisAlignment = FlowMainAxisAlignment.Start
                         ) {
@@ -707,7 +707,7 @@ class FlowTest : LayoutTest() {
                 }) {
                     ConstrainedBox(constraints = DpConstraints(maxWidth = flowWidthDp)) {
                         FlowRow(
-                            mainAxisSize = LayoutSize.Expand,
+                            mainAxisSize = SizeMode.Expand,
                             mainAxisAlignment = FlowMainAxisAlignment.SpaceBetween,
                             lastLineMainAxisAlignment = FlowMainAxisAlignment.End
                         ) {
@@ -1123,7 +1123,7 @@ class FlowTest : LayoutTest() {
                     positionedLatch.countDown()
                 }) {
                     ConstrainedBox(constraints = DpConstraints(maxHeight = flowHeightDp)) {
-                        FlowColumn(mainAxisSize = LayoutSize.Wrap) {
+                        FlowColumn(mainAxisSize = SizeMode.Wrap) {
                             for (i in 0 until numberOfSquares) {
                                 Container(width = sizeDp, height = sizeDp) {
                                     SaveLayoutInfo(
@@ -1177,7 +1177,7 @@ class FlowTest : LayoutTest() {
                     positionedLatch.countDown()
                 }) {
                     ConstrainedBox(constraints = DpConstraints(maxHeight = flowHeightDp)) {
-                        FlowColumn(mainAxisSize = LayoutSize.Expand) {
+                        FlowColumn(mainAxisSize = SizeMode.Expand) {
                             for (i in 0 until numberOfSquares) {
                                 Container(width = sizeDp, height = sizeDp) {
                                     SaveLayoutInfo(
@@ -1232,7 +1232,7 @@ class FlowTest : LayoutTest() {
                 }) {
                     ConstrainedBox(constraints = DpConstraints(maxHeight = flowHeightDp)) {
                         FlowColumn(
-                            mainAxisSize = LayoutSize.Expand,
+                            mainAxisSize = SizeMode.Expand,
                             mainAxisAlignment = FlowMainAxisAlignment.Center
                         ) {
                             for (i in 0 until numberOfSquares) {
@@ -1289,7 +1289,7 @@ class FlowTest : LayoutTest() {
                 }) {
                     ConstrainedBox(constraints = DpConstraints(maxHeight = flowHeightDp)) {
                         FlowColumn(
-                            mainAxisSize = LayoutSize.Expand,
+                            mainAxisSize = SizeMode.Expand,
                             mainAxisAlignment = FlowMainAxisAlignment.Start
                         ) {
                             for (i in 0 until numberOfSquares) {
@@ -1346,7 +1346,7 @@ class FlowTest : LayoutTest() {
                 }) {
                     ConstrainedBox(constraints = DpConstraints(maxHeight = flowHeightDp)) {
                         FlowColumn(
-                            mainAxisSize = LayoutSize.Expand,
+                            mainAxisSize = SizeMode.Expand,
                             mainAxisAlignment = FlowMainAxisAlignment.End
                         ) {
                             for (i in 0 until numberOfSquares) {
@@ -1403,7 +1403,7 @@ class FlowTest : LayoutTest() {
                 }) {
                     ConstrainedBox(constraints = DpConstraints(maxHeight = flowHeightDp)) {
                         FlowColumn(
-                            mainAxisSize = LayoutSize.Expand,
+                            mainAxisSize = SizeMode.Expand,
                             mainAxisAlignment = FlowMainAxisAlignment.SpaceEvenly
                         ) {
                             for (i in 0 until numberOfSquares) {
@@ -1463,7 +1463,7 @@ class FlowTest : LayoutTest() {
                 }) {
                     ConstrainedBox(constraints = DpConstraints(maxHeight = flowHeightDp)) {
                         FlowColumn(
-                            mainAxisSize = LayoutSize.Expand,
+                            mainAxisSize = SizeMode.Expand,
                             mainAxisAlignment = FlowMainAxisAlignment.SpaceBetween
                         ) {
                             for (i in 0 until numberOfSquares) {
@@ -1523,7 +1523,7 @@ class FlowTest : LayoutTest() {
                 }) {
                     ConstrainedBox(constraints = DpConstraints(maxHeight = flowHeightDp)) {
                         FlowColumn(
-                            mainAxisSize = LayoutSize.Expand,
+                            mainAxisSize = SizeMode.Expand,
                             mainAxisAlignment = FlowMainAxisAlignment.SpaceAround
                         ) {
                             for (i in 0 until numberOfSquares) {
@@ -1583,7 +1583,7 @@ class FlowTest : LayoutTest() {
                 }) {
                     ConstrainedBox(constraints = DpConstraints(maxHeight = flowHeightDp)) {
                         FlowColumn(
-                            mainAxisSize = LayoutSize.Expand,
+                            mainAxisSize = SizeMode.Expand,
                             mainAxisAlignment = FlowMainAxisAlignment.SpaceBetween,
                             lastLineMainAxisAlignment = FlowMainAxisAlignment.Center
                         ) {
@@ -1648,7 +1648,7 @@ class FlowTest : LayoutTest() {
                 }) {
                     ConstrainedBox(constraints = DpConstraints(maxHeight = flowHeightDp)) {
                         FlowColumn(
-                            mainAxisSize = LayoutSize.Expand,
+                            mainAxisSize = SizeMode.Expand,
                             mainAxisAlignment = FlowMainAxisAlignment.SpaceBetween,
                             lastLineMainAxisAlignment = FlowMainAxisAlignment.Start
                         ) {
@@ -1713,7 +1713,7 @@ class FlowTest : LayoutTest() {
                 }) {
                     ConstrainedBox(constraints = DpConstraints(maxHeight = flowHeightDp)) {
                         FlowColumn(
-                            mainAxisSize = LayoutSize.Expand,
+                            mainAxisSize = SizeMode.Expand,
                             mainAxisAlignment = FlowMainAxisAlignment.SpaceBetween,
                             lastLineMainAxisAlignment = FlowMainAxisAlignment.End
                         ) {

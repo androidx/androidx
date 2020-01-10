@@ -37,9 +37,9 @@ import androidx.ui.graphics.Color
 import androidx.ui.layout.AlignmentLineOffset
 import androidx.ui.layout.Column
 import androidx.ui.layout.Container
-import androidx.ui.layout.LayoutExpandedWidth
 import androidx.ui.layout.LayoutGravity
 import androidx.ui.layout.LayoutPadding
+import androidx.ui.layout.LayoutWidth
 import androidx.ui.material.surface.Surface
 
 /**
@@ -170,7 +170,7 @@ private fun NewLineButtonSnackbar(
     button: @Composable() () -> Unit
 ) {
     Column(
-        modifier = LayoutExpandedWidth + LayoutPadding(
+        modifier = LayoutWidth.Fill + LayoutPadding(
             left = HorizontalSpacing,
             right = HorizontalSpacingButtonSide,
             bottom = SeparateButtonExtraY

@@ -51,10 +51,9 @@ import androidx.ui.layout.EdgeInsets
 import androidx.ui.layout.Spacer
 import androidx.ui.layout.Wrap
 import androidx.ui.layout.Arrangement
-import androidx.ui.layout.LayoutExpandedHeight
-import androidx.ui.layout.LayoutExpandedWidth
 import androidx.ui.layout.LayoutGravity
 import androidx.ui.layout.LayoutHeight
+import androidx.ui.layout.LayoutWidth
 import androidx.ui.layout.Row
 import androidx.ui.text.TextStyle
 import androidx.ui.text.style.TextAlign
@@ -69,7 +68,7 @@ class PopupActivity : Activity() {
 
             Column {
                 Row(
-                    LayoutExpandedWidth + LayoutGravity.Center,
+                    LayoutWidth.Fill + LayoutGravity.Center,
                     arrangement = Arrangement.SpaceBetween
                 ) {
                     this@Column.ClickableTextWithBackground(
@@ -471,7 +470,7 @@ fun ColumnScope.PopupInsideScroller() {
     val widthSize = 200.dp
     Container(width = widthSize, height = heightSize, modifier = LayoutGravity.Center) {
         VerticalScroller {
-            Column(LayoutExpandedHeight) {
+            Column(LayoutHeight.Fill) {
                 ColoredContainer(width = 80.dp,
                     height = 160.dp,
                     color = Color(0xFF00FF00)

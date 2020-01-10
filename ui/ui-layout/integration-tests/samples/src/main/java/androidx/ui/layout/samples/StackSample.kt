@@ -20,7 +20,6 @@ import androidx.annotation.Sampled
 import androidx.compose.Composable
 import androidx.ui.core.dp
 import androidx.ui.graphics.Color
-import androidx.ui.layout.LayoutExpanded
 import androidx.ui.layout.LayoutGravity
 import androidx.ui.layout.LayoutPadding
 import androidx.ui.layout.LayoutSize
@@ -30,7 +29,7 @@ import androidx.ui.layout.Stack
 @Composable
 fun SimpleStack() {
     Stack {
-        SizedRectangle(LayoutExpanded, color = Color.Cyan)
+        SizedRectangle(LayoutSize.Fill, color = Color.Cyan)
         SizedRectangle(
             LayoutGravity.Stretch + LayoutPadding(top = 20.dp, bottom = 20.dp),
             color = Color.Yellow

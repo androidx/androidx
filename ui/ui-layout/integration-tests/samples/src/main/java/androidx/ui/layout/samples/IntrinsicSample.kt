@@ -26,9 +26,9 @@ import androidx.ui.graphics.Color
 import androidx.ui.layout.LayoutAspectRatio
 import androidx.ui.layout.Column
 import androidx.ui.layout.Container
-import androidx.ui.layout.LayoutExpandedHeight
-import androidx.ui.layout.LayoutExpandedWidth
+import androidx.ui.layout.LayoutHeight
 import androidx.ui.layout.LayoutSize
+import androidx.ui.layout.LayoutWidth
 import androidx.ui.layout.MaxIntrinsicHeight
 import androidx.ui.layout.MaxIntrinsicWidth
 import androidx.ui.layout.MinIntrinsicHeight
@@ -50,14 +50,14 @@ import androidx.ui.layout.Wrap
 fun SameWidthBoxes() {
     Wrap {
         MinIntrinsicWidth {
-            Column(LayoutExpandedHeight) {
-                Container(modifier = LayoutExpandedWidth + LayoutSize(20.dp, 10.dp)) {
+            Column(LayoutHeight.Fill) {
+                Container(modifier = LayoutWidth.Fill + LayoutSize(20.dp, 10.dp)) {
                     DrawShape(RectangleShape, Color.Gray)
                 }
-                Container(modifier = LayoutExpandedWidth + LayoutSize(30.dp, 10.dp)) {
+                Container(modifier = LayoutWidth.Fill + LayoutSize(30.dp, 10.dp)) {
                     DrawShape(RectangleShape, Color.Blue)
                 }
-                Container(modifier = LayoutExpandedWidth + LayoutSize(10.dp, 10.dp)) {
+                Container(modifier = LayoutWidth.Fill + LayoutSize(10.dp, 10.dp)) {
                     DrawShape(RectangleShape, Color.Magenta)
                 }
             }
@@ -83,15 +83,15 @@ fun MatchParentDividerForText() {
             Row {
                 Text(
                     text = "This is a really short text",
-                    modifier = LayoutFlexible(1f) + LayoutExpandedHeight
+                    modifier = LayoutFlexible(1f) + LayoutHeight.Fill
                 )
-                Container(width = 1.dp, modifier = LayoutExpandedHeight) {
+                Container(width = 1.dp, modifier = LayoutHeight.Fill) {
                     DrawShape(RectangleShape, Color.Black)
                 }
                 Text(
                     text = "This is a much much much much much much much much much much" +
                             " much much much much much much longer text",
-                    modifier = LayoutFlexible(1f) + LayoutExpandedHeight
+                    modifier = LayoutFlexible(1f) + LayoutHeight.Fill
                 )
             }
         }
@@ -112,16 +112,16 @@ fun MatchParentDividerForText() {
 fun SameWidthTextBoxes() {
     Wrap {
         MaxIntrinsicWidth {
-            Column(LayoutExpandedHeight) {
-                Container(LayoutExpandedWidth) {
+            Column(LayoutHeight.Fill) {
+                Container(LayoutWidth.Fill) {
                     DrawShape(RectangleShape, Color.Gray)
                     Text("Short text")
                 }
-                Container(LayoutExpandedWidth) {
+                Container(LayoutWidth.Fill) {
                     DrawShape(RectangleShape, Color.Blue)
                     Text("Extremely long text giving the width of its siblings")
                 }
-                Container(LayoutExpandedWidth) {
+                Container(LayoutWidth.Fill) {
                     DrawShape(RectangleShape, Color.Magenta)
                     Text("Medium length text")
                 }
@@ -146,11 +146,11 @@ fun MatchParentDividerForAspectRatio() {
     Wrap {
         MaxIntrinsicHeight {
             Row {
-                val modifier = LayoutExpandedHeight + LayoutFlexible(1f)
+                val modifier = LayoutHeight.Fill + LayoutFlexible(1f)
                 Container(modifier + LayoutAspectRatio(2f)) {
                     DrawShape(RectangleShape, Color.Gray)
                 }
-                Container(width = 1.dp, modifier = LayoutExpandedHeight) {
+                Container(width = 1.dp, modifier = LayoutHeight.Fill) {
                     DrawShape(RectangleShape, Color.Black)
                 }
                 Container(modifier + LayoutAspectRatio(1f)) {

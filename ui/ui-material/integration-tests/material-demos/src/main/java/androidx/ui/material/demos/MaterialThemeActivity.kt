@@ -19,7 +19,7 @@ package androidx.ui.material.demos
 import androidx.compose.Composable
 import androidx.ui.layout.Arrangement
 import androidx.ui.layout.Column
-import androidx.ui.layout.LayoutExpandedHeight
+import androidx.ui.layout.LayoutHeight
 import androidx.ui.material.samples.MaterialThemeSample
 import androidx.ui.material.samples.ThemeColorSample
 import androidx.ui.material.samples.ThemeTextStyleSample
@@ -27,7 +27,7 @@ import androidx.ui.material.samples.ThemeTextStyleSample
 class MaterialThemeActivity : MaterialDemoActivity() {
     @Composable
     override fun materialContent() {
-        Column(modifier = LayoutExpandedHeight, arrangement = Arrangement.SpaceAround) {
+        Column(modifier = LayoutHeight.Fill, arrangement = Arrangement.SpaceAround) {
             MaterialThemeSample()
             ThemeTextStyleSample()
             ThemeColorSample()

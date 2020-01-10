@@ -42,7 +42,7 @@ import androidx.ui.layout.Padding
 import androidx.ui.graphics.Canvas
 import androidx.ui.graphics.Paint
 import androidx.ui.layout.Container
-import androidx.ui.layout.LayoutExpandedHeight
+import androidx.ui.layout.LayoutHeight
 import androidx.ui.text.TextStyle
 import kotlin.math.roundToInt
 
@@ -57,7 +57,7 @@ class SpringBackScrolling : Activity() {
 
     @Composable
     fun SpringBackExample() {
-        Column(LayoutExpandedHeight) {
+        Column(LayoutHeight.Fill) {
             Padding(40.dp) {
                 Text("<== Scroll horizontally ==>", style = TextStyle(fontSize = 20.sp))
             }

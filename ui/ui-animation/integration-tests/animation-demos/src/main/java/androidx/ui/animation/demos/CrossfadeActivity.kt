@@ -34,8 +34,8 @@ import androidx.ui.graphics.Color
 import androidx.ui.graphics.Paint
 import androidx.ui.layout.Column
 import androidx.ui.layout.Container
-import androidx.ui.layout.LayoutExpanded
 import androidx.ui.layout.LayoutHeight
+import androidx.ui.layout.LayoutSize
 import androidx.ui.layout.Row
 import kotlin.random.Random
 
@@ -65,7 +65,7 @@ private fun CrossfadeDemo() {
         }
         Crossfade(current = current) { tab ->
             tab.lastInt = remember { Random.nextInt() }
-            Container(LayoutExpanded) {
+            Container(LayoutSize.Fill) {
                 DrawTab(tab = tab)
             }
         }
