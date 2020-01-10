@@ -82,6 +82,10 @@ abstract class PagingDataDiffer<T : Any>(
         receiver?.retry()
     }
 
+    fun refresh() {
+        receiver?.refresh()
+    }
+
     val size: Int
         get() = presenter.size
 }

@@ -66,13 +66,14 @@ internal class PageFetcher<Key : Any, Value : Any>(
     fun refresh() {
         refreshChannel.offer(Unit)
     }
-}
 
-@UseExperimental(ExperimentalCoroutinesApi::class, FlowPreview::class)
-internal class PagerUiReceiver<Key : Any, Value : Any> constructor(
-    private val pager: Pager<Key, Value>
-) : UiReceiver {
-    override fun addHint(hint: ViewportHint) = pager.addHint(hint)
+    inner class PagerUiReceiver<Key : Any, Value : Any> constructor(
+        private val pager: Pager<Key, Value>
+    ) : UiReceiver {
+        override fun addHint(hint: ViewportHint) = pager.addHint(hint)
 
-    override fun retry() = pager.retry()
+        override fun retry() = pager.retry()
+
+        override fun refresh() = this@PageFetcher.refresh()
+    }
 }

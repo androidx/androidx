@@ -36,7 +36,7 @@ internal class ItemPagingSource : PagingSource<Int, Item>() {
     override fun getRefreshKeyFromPage(
         indexInPage: Int,
         page: LoadResult.Page<Int, Item>
-    ): Int? = page.prevKey!! + indexInPage
+    ): Int? = page.itemsBefore + indexInPage
 
     override suspend fun load(params: LoadParams<Int>): LoadResult<Int, Item> =
         when (params.loadType) {

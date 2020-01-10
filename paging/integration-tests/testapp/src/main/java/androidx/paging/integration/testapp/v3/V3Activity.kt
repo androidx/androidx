@@ -69,13 +69,13 @@ class V3Activity : AppCompatActivity() {
         val buttonEnd = findViewById<Button>(R.id.button_end)
 
         buttonRefresh.setOnClickListener {
-            TODO() // need to define this API
+            adapter.refresh()
         }
         buttonStart.setOnClickListener {
-            TODO() // need to define this API
+            adapter.retry()
         }
         buttonEnd.setOnClickListener {
-            TODO() // need to define this API
+            adapter.retry()
         }
 
         adapter.addLoadStateListener { type: LoadType, state: LoadState ->
