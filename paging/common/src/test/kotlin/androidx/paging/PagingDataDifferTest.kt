@@ -97,6 +97,8 @@ private val dummyReceiver = object : UiReceiver {
     override fun addHint(hint: ViewportHint) {}
 
     override fun retry() {}
+
+    override fun refresh() {}
 }
 
 private val dummyPresenterCallback = object : PresenterCallback {
