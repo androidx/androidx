@@ -17,6 +17,7 @@
 package androidx.paging
 
 import androidx.paging.LoadState.Done
+import androidx.paging.LoadState.Idle
 import androidx.paging.LoadType.END
 import androidx.paging.LoadType.REFRESH
 import androidx.paging.LoadType.START
@@ -48,7 +49,7 @@ class HeaderFooterTest {
                 )
             ),
             placeholdersStart = 0,
-            loadStates = loadStatesDone
+            loadStates = loadStates
         ).addHeader(-1)
 
         val expected = Start(
@@ -61,7 +62,7 @@ class HeaderFooterTest {
                 )
             ),
             placeholdersStart = 0,
-            loadStates = loadStatesDone
+            loadStates = loadStates
         )
 
         assertEquals(expected, actual)
@@ -80,7 +81,7 @@ class HeaderFooterTest {
             ),
             placeholdersStart = 0,
             placeholdersEnd = 0,
-            loadStates = loadStatesDone
+            loadStates = loadStates
         ).addHeader("HEADER")
 
         val expected = Refresh(
@@ -94,7 +95,7 @@ class HeaderFooterTest {
             ),
             placeholdersStart = 0,
             placeholdersEnd = 0,
-            loadStates = loadStatesDone
+            loadStates = loadStates
         )
 
         assertEquals(expected, actual)
@@ -113,7 +114,7 @@ class HeaderFooterTest {
             ),
             placeholdersStart = 0,
             placeholdersEnd = 0,
-            loadStates = loadStatesDone
+            loadStates = loadStates
         ).addHeader("HEADER")
 
         val expected = Refresh(
@@ -127,7 +128,7 @@ class HeaderFooterTest {
             ),
             placeholdersStart = 0,
             placeholdersEnd = 0,
-            loadStates = loadStatesDone
+            loadStates = loadStates
         )
 
         assertEquals(expected, actual)
@@ -145,7 +146,7 @@ class HeaderFooterTest {
                 )
             ),
             placeholdersEnd = 0,
-            loadStates = loadStatesDone
+            loadStates = loadStates
         ).addFooter("FOOTER")
 
         val expected = End(
@@ -158,7 +159,7 @@ class HeaderFooterTest {
                 )
             ),
             placeholdersEnd = 0,
-            loadStates = loadStatesDone
+            loadStates = loadStates
         )
 
         assertEquals(expected, actual)
@@ -177,7 +178,7 @@ class HeaderFooterTest {
             ),
             placeholdersStart = 0,
             placeholdersEnd = 0,
-            loadStates = loadStatesDone
+            loadStates = loadStates
         ).addFooter("FOOTER")
 
         val expected = Refresh(
@@ -191,7 +192,7 @@ class HeaderFooterTest {
             ),
             placeholdersStart = 0,
             placeholdersEnd = 0,
-            loadStates = loadStatesDone
+            loadStates = loadStates
         )
 
         assertEquals(expected, actual)
@@ -210,7 +211,7 @@ class HeaderFooterTest {
             ),
             placeholdersStart = 0,
             placeholdersEnd = 0,
-            loadStates = loadStatesDone
+            loadStates = loadStates
         ).addFooter("FOOTER")
 
         val expected = Refresh(
@@ -224,11 +225,11 @@ class HeaderFooterTest {
             ),
             placeholdersStart = 0,
             placeholdersEnd = 0,
-            loadStates = loadStatesDone
+            loadStates = loadStates
         )
 
         assertEquals(expected, actual)
     }
 }
 
-private val loadStatesDone = mapOf(REFRESH to Done, START to Done, END to Done)
+private val loadStates = mapOf(REFRESH to Idle, START to Done, END to Done)

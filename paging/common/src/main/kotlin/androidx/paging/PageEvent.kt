@@ -42,6 +42,9 @@ internal sealed class PageEvent<T : Any> {
             require(loadType == START || placeholdersEnd >= 0) {
                 "Invalid placeholdersAfter $placeholdersEnd"
             }
+            require(loadStates[REFRESH] != LoadState.Done) {
+                "Refresh state may not be Done"
+            }
         }
 
         private inline fun <R : Any> mapPages(
@@ -197,7 +200,13 @@ internal sealed class PageEvent<T : Any> {
     data class StateUpdate<T : Any>(
         val loadType: LoadType,
         val loadState: LoadState
-    ) : PageEvent<T>()
+    ) : PageEvent<T>() {
+        init {
+            require(loadType != REFRESH || loadState != LoadState.Done) {
+                "Refresh state may not be Done"
+            }
+        }
+    }
 
     @Suppress("UNCHECKED_CAST")
     open fun <R : Any> map(transform: (T) -> R): PageEvent<R> = this as PageEvent<R>
