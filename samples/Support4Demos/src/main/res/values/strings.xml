@@ -75,11 +75,6 @@
 
     <string name="fragment_nesting_tabs_support">Fragment/Nesting Tabs</string>
 
-    <string name="fragment_retain_instance_support">Fragment/Retain Instance</string>
-    <string name="fragment_retain_instance_msg">Current progress of retained fragment;
-    restarts if fragment is re-created.</string>
-    <string name="restart">Restart</string>
-
     <string name="fragment_receive_result_support">Fragment/Receive Result</string>
 
     <string name="fragment_stack_support">Fragment/Stack</string>
@@ -96,6 +91,11 @@
     <string name="last">Last</string>
 
     <string name="fragment_state_pager_support">Fragment/State Pager</string>
+
+    <string name="fragment_view_model_support">Fragment/View Model</string>
+    <string name="fragment_view_model_msg">Current progress of ViewModel;
+    continues even if fragment is re-created.</string>
+    <string name="restart">Restart</string>
 
     <string name="loader_cursor_support">Loader/Cursor</string>
 
