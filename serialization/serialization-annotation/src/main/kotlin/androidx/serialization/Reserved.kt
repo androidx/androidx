@@ -41,8 +41,7 @@ import kotlin.annotation.AnnotationTarget.CLASS
 @Retention(BINARY)
 @Target(CLASS)
 annotation class Reserved(
-    @get:JvmName("value")
-    vararg val ids: Int,
+    vararg val ids: Int = [],
     val names: Array<String> = [],
     val idRanges: Array<IdRange> = []
 ) {
