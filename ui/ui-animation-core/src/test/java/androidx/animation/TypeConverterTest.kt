@@ -27,7 +27,7 @@ class TypeConverterTest {
     fun testFloatToVectorConverter() {
         verifyFloatConverter(FloatToVectorConverter)
         verifyFloatConverter(FloatPropKey().typeConverter)
-        verifyFloatConverter(AnimatedFloat(5f).typeConverter)
+        verifyFloatConverter(AnimatedFloat(5f, ManualAnimationClock(0L)).typeConverter)
     }
 
     @Test
@@ -48,7 +48,7 @@ class TypeConverterTest {
     }
 
     private fun <V : AnimationVector> verifyV2VConverter(value: V) {
-        val converter = AnimatedVectorValue(value).typeConverter
+        val converter = AnimatedVectorValue(value, ManualAnimationClock(0L)).typeConverter
         assertEquals(converter.convertFromVector(value), converter.convertToVector(value))
     }
 

@@ -33,6 +33,7 @@ import androidx.ui.foundation.gestures.Draggable
 @Model
 class AnimatedValueHolder(initial: Float) : ValueHolder<Float> {
 
+    @Suppress("DEPRECATION")
     val animatedFloat = AnimatedFloat(ListeneableValueHolder(initial, { value = it }))
 
     /**

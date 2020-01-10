@@ -17,11 +17,9 @@
 package androidx.animation
 
 import android.util.Log
-import android.view.Choreographer
 import androidx.animation.AnimationEndReason.BoundReached
 import androidx.animation.AnimationEndReason.Interrupted
 import androidx.animation.AnimationEndReason.TargetReached
-
 /**
  * This is the base class for [AnimatedValue]. It contains all the functionality of AnimatedValue.
  * It is intended to be used as a base class for the other classes (such as [AnimatedFloat] to build
@@ -36,10 +34,12 @@ import androidx.animation.AnimationEndReason.TargetReached
  * @param typeConverter A two way type converter that converts from value to [AnimationVector1D],
  *                      [AnimationVector2D], [AnimationVector3D], or [AnimationVector4D], and vice
  *                      versa.
+ * @param clock An animation clock observable controlling the progression of the animated value
  */
 sealed class BaseAnimatedValue<T, V : AnimationVector>(
     private val valueHolder: ValueHolder<T>,
-    typeConverter: TwoWayConverter<T, V>
+    internal val typeConverter: TwoWayConverter<T, V>,
+    private val clock: AnimationClockObservable
 ) {
 
     /**
@@ -50,8 +50,9 @@ sealed class BaseAnimatedValue<T, V : AnimationVector>(
      */
     constructor(
         initVal: T,
-        typeConverter: TwoWayConverter<T, V>
-    ) : this(ValueHolder(initVal), typeConverter)
+        typeConverter: TwoWayConverter<T, V>,
+        clock: AnimationClockObservable
+    ) : this(ValueHolder(initVal), typeConverter, clock)
 
     /**
      * Current value of the animation.
@@ -81,7 +82,6 @@ sealed class BaseAnimatedValue<T, V : AnimationVector>(
      */
     internal var velocityVector: V = typeConverter.createNewVector()
 
-    internal val typeConverter: TwoWayConverter<T, V> = typeConverter
     internal var onEnd: ((AnimationEndReason, T) -> Unit)? = null
     private lateinit var anim: AnimationWrapper<T, V>
     private var startTime: Long = Unset
@@ -89,10 +89,9 @@ sealed class BaseAnimatedValue<T, V : AnimationVector>(
     // end of the animation.
     private var lastFrameTime: Long = Unset
 
-    private var frameCallback = object : Choreographer.FrameCallback {
-        override fun doFrame(frameTimeNanos: Long) {
-            // TODO: Refactor out all the dependencies on Choreographer
-            doAnimationFrame(frameTimeNanos / 1000000L)
+    private var animationClockObserver = object : AnimationClockObserver {
+        override fun onAnimationFrame(frameTimeMillis: Long) {
+            doAnimationFrame(frameTimeMillis)
         }
     }
 
@@ -211,33 +210,27 @@ sealed class BaseAnimatedValue<T, V : AnimationVector>(
         onEnd?.invoke(endReason, endValue)
     }
 
-    internal open fun doAnimationFrame(time: Long) {
+    internal open fun doAnimationFrame(timeMillis: Long) {
         val playtime: Long
         if (startTime == Unset) {
-            startTime = time
+            startTime = timeMillis
             playtime = 0
         } else {
-            playtime = time - startTime
+            playtime = timeMillis - startTime
         }
 
-        lastFrameTime = time
+        lastFrameTime = timeMillis
         value = anim.getValue(playtime)
         velocityVector = anim.getVelocity(playtime)
         val animationFinished = anim.isFinished(playtime)
-        if (!animationFinished) {
-            Choreographer.getInstance().postFrameCallback(frameCallback)
-            if (DEBUG) {
-                Log.w(
-                    "AnimValue",
-                    "value = $value, playtime = $playtime, velocity: $velocityVector"
-                )
-            }
-        } else {
-            if (DEBUG) {
-                Log.w("AnimValue", "value = $value, playtime = $playtime, animation finished")
-            }
-            endAnimation()
+        if (DEBUG) {
+            val debugLogMessage = if (animationFinished)
+                "value = $value, playtime = $playtime, animation finished"
+            else
+                "value = $value, playtime = $playtime, velocity: $velocityVector"
+            Log.w("AnimValue", debugLogMessage)
         }
+        if (animationFinished) endAnimation()
     }
 
     internal fun startAnimation(anim: AnimationWrapper<T, V>) {
@@ -255,7 +248,7 @@ sealed class BaseAnimatedValue<T, V : AnimationVector>(
         } else {
             startTime = Unset
             isRunning = true
-            Choreographer.getInstance().postFrameCallback(frameCallback)
+            clock.subscribe(animationClockObserver)
         }
         if (DEBUG) {
             Log.w("AnimValue", "start animation")
@@ -263,7 +256,7 @@ sealed class BaseAnimatedValue<T, V : AnimationVector>(
     }
 
     internal fun endAnimation(endReason: AnimationEndReason = TargetReached) {
-        Choreographer.getInstance().removeFrameCallback(frameCallback)
+        clock.unsubscribe(animationClockObserver)
         isRunning = false
         startTime = Unset
         lastFrameTime = Unset
@@ -288,17 +281,19 @@ sealed class BaseAnimatedValue<T, V : AnimationVector>(
  */
 class AnimatedValue<T, V : AnimationVector>(
     valueHolder: ValueHolder<T>,
-    typeConverter: TwoWayConverter<T, V>
-) : BaseAnimatedValue<T, V>(valueHolder, typeConverter) {
+    typeConverter: TwoWayConverter<T, V>,
+    clock: AnimationClockObservable
+) : BaseAnimatedValue<T, V>(valueHolder, typeConverter, clock) {
     val velocity: V
         get() = velocityVector
 }
 
 // TODO class description
 class AnimatedVectorValue<V : AnimationVector>(
-    valueHolder: ValueHolder<V>
-) : BaseAnimatedValue<V, V>(valueHolder, valueHolder.value.createPassThroughConverter()) {
-    constructor(initVal: V) : this(ValueHolder(initVal))
+    valueHolder: ValueHolder<V>,
+    clock: AnimationClockObservable
+) : BaseAnimatedValue<V, V>(valueHolder, valueHolder.value.createPassThroughConverter(), clock) {
+    constructor(initVal: V, clock: AnimationClockObservable) : this(ValueHolder(initVal), clock)
 }
 
 /**
@@ -309,11 +304,16 @@ class AnimatedVectorValue<V : AnimationVector>(
  *
  * @param valueHolder A value holder of Float type whose value field will be updated during
  *                    animations
+ * @param clock An animation clock observable controlling the progression of the animated value
  */
 class AnimatedFloat(
-    valueHolder: ValueHolder<Float>
-) : BaseAnimatedValue<Float, AnimationVector1D>(valueHolder, FloatToVectorConverter) {
-    constructor(initVal: Float) : this(ValueHolder(initVal))
+    valueHolder: ValueHolder<Float>,
+    clock: AnimationClockObservable
+) : BaseAnimatedValue<Float, AnimationVector1D>(valueHolder, FloatToVectorConverter, clock) {
+    constructor(initVal: Float, clock: AnimationClockObservable) : this(ValueHolder(initVal), clock)
+
+    @Deprecated("This method is to support existing APIs not providing clocks.")
+    constructor(valueHolder: ValueHolder<Float>) : this(valueHolder, DefaultAnimationClock())
 
     private var min: Float = Float.NEGATIVE_INFINITY
     private var max: Float = Float.POSITIVE_INFINITY
@@ -339,8 +339,8 @@ class AnimatedFloat(
         super.snapTo(targetValue.coerceIn(min, max))
     }
 
-    override fun doAnimationFrame(time: Long) {
-        super.doAnimationFrame(time)
+    override fun doAnimationFrame(timeMillis: Long) {
+        super.doAnimationFrame(timeMillis)
         if (value < min) {
             value = min
             endAnimation(BoundReached)
