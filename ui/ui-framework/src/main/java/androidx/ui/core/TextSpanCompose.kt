@@ -74,25 +74,22 @@ internal class TextSpanApplyAdapter : ApplyAdapter<TextSpan> {
 
 typealias TextSpanUpdater<T> = ComposerUpdater<TextSpan, T>
 
+@PublishedApi
+internal val invocation = Object()
+
 /**
  * The composer of [TextSpan].
  */
 class TextSpanComposer internal constructor(
     root: TextSpan,
     recomposer: Recomposer
-) : Composer<TextSpan>(SlotTable(), Applier(root, TextSpanApplyAdapter()), recomposer)
-
-@PublishedApi
-internal val invocation = Object()
-
-class TextSpanComposition(val composer: TextSpanComposer) {
-
+) : Composer<TextSpan>(SlotTable(), Applier(root, TextSpanApplyAdapter()), recomposer) {
     inline fun emit(
         key: Any,
         /*crossinline*/
         ctor: () -> TextSpan,
         update: TextSpanUpdater<TextSpan>.() -> Unit
-    ) = with(composer) {
+    ) {
         startNode(key)
         @Suppress("UNCHECKED_CAST") val node = if (inserting) ctor().also { emitNode(it) }
         else useNode()
@@ -106,7 +103,7 @@ class TextSpanComposition(val composer: TextSpanComposer) {
         ctor: () -> TextSpan,
         update: TextSpanUpdater<TextSpan>.() -> Unit,
         children: () -> Unit
-    ) = with(composer) {
+    ) {
         startNode(key)
         @Suppress("UNCHECKED_CAST")val node = if (inserting) ctor().also { emitNode(it) }
         else useNode()
@@ -115,19 +112,14 @@ class TextSpanComposition(val composer: TextSpanComposer) {
         endNode()
     }
 
-    /* TODO: inline */ fun joinKey(left: Any, right: Any?): Any = composer.joinKey(left, right)
-
-    fun startExpr(key: Any) = composer.startGroup(key)
-    fun endExpr() = composer.endGroup()
-
     inline fun call(
         key: Any,
         /*crossinline*/
         invalid: ViewValidator.() -> Boolean,
         block: () -> Unit
-    ) = with(composer) {
+    ) {
         startGroup(key)
-        if (ViewValidator(composer).invalid() || inserting) {
+        if (ViewValidator(this).invalid() || inserting) {
             startGroup(invocation)
             block()
             endGroup()
@@ -144,7 +136,7 @@ class TextSpanComposition(val composer: TextSpanComposer) {
         /*crossinline*/
         invalid: ViewValidator.(f: T) -> Boolean,
         block: (f: T) -> Unit
-    ) = with(composer) {
+    ) {
         startGroup(key)
         val f = cache(true, ctor)
         if (ViewValidator(this).invalid(f) || inserting) {
@@ -215,7 +207,7 @@ fun compose(
         root.compositionContext = CompositionContext.prepare(root, parent) {
             TextSpanComposer(container, this).also { composer = it }
         }
-        root.scope = TextSpanScope(TextSpanComposition(composer))
+        root.scope = TextSpanScope(composer)
         root.composable = composable
 
         root.update()
@@ -230,7 +222,7 @@ fun compose(
  * Cleanup when the [TextSpan] is no longer used.
  *
  * @param container The root of the [TextSpan] to be disposed.
- * @param parent The [CompositionReference] used together with [container] when [composer] is
+ * @param parent The [CompositionReference] used together with [container] when [compose] is
  * called.
  */
 fun disposeComposition(
@@ -246,7 +238,7 @@ fun disposeComposition(
  * The receiver class of the children of Text and TextSpan. Such that [Span] can only be used
  * within [Text] and [TextSpan].
  */
-class TextSpanScope internal constructor(val composer: TextSpanComposition)
+class TextSpanScope internal constructor(val composer: TextSpanComposer)
 
 @Composable
 fun TextSpanScope.Span(

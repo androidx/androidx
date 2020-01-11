@@ -117,7 +117,7 @@ class ArrayAdapter<T> : BaseAdapter(), Filterable {
         group.setViewContent(object : Function0<Unit> {
             @Suppress("PLUGIN_WARNING")
             override fun invoke() {
-                val composer = composer.composer
+                val composer = composer
                 composer.startGroup(0)
                 composable(item)
                 composer.endGroup()

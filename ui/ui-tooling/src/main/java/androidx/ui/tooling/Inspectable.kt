@@ -29,8 +29,8 @@ import java.util.WeakHashMap
  */
 @Composable
 fun Inspectable(children: @Composable() () -> Unit) {
-    composer.composer.collectKeySourceInformation()
-    tables.add(composer.composer.slotTable)
+    composer.collectKeySourceInformation()
+    tables.add(composer.slotTable)
     InspectionMode.Provider(true, children)
 }
 

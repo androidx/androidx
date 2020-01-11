@@ -32,7 +32,7 @@ import java.util.WeakHashMap
 
 private val VectorTreeRoots = WeakHashMap<VectorComponent, VectorTree>()
 
-class VectorScope(val composer: VectorComposition)
+class VectorScope(val composer: VectorComposer)
 
 private fun obtainVectorTree(container: VectorComponent): VectorTree {
     var vectorTree = VectorTreeRoots[container]
@@ -57,7 +57,7 @@ fun composeVector(
         }
         root.viewportWidth = container.viewportWidth
         root.viewportHeight = container.viewportHeight
-        root.scope = VectorScope(VectorComposition(composer))
+        root.scope = VectorScope(composer)
     }
     root.composable = composable
     root.context.compose()
@@ -66,7 +66,88 @@ fun composeVector(
 class VectorComposer(
     val root: VNode,
     recomposer: Recomposer
-) : Composer<VNode>(SlotTable(), Applier(root, VectorApplyAdapter()), recomposer)
+) : Composer<VNode>(SlotTable(), Applier(root, VectorApplyAdapter()), recomposer) {
+    inline fun <T : VNode> emit(
+        key: Any,
+        /*crossinline*/
+        ctor: () -> T,
+        update: VectorUpdater<VNode>.() -> Unit
+    ) {
+        startNode(key)
+
+        @Suppress("UNCHECKED_CAST")
+        val node = if (inserting) {
+            ctor().also {
+                emitNode(it)
+            }
+        } else {
+            useNode()
+        }
+
+        VectorUpdater(this, node).update()
+        endNode()
+    }
+
+    inline fun emit(
+        key: Any,
+        /*crossinline*/
+        ctor: () -> GroupComponent,
+        update: VectorUpdater<GroupComponent>.() -> Unit,
+        children: () -> Unit
+    ) {
+        startNode(key)
+
+        @Suppress("UNCHECKED_CAST")
+        val node = if (inserting) {
+            ctor().also {
+                emitNode(it)
+            }
+        } else {
+            useNode() as GroupComponent
+        }
+
+        VectorUpdater(this, node).update()
+        children()
+        endNode()
+    }
+
+    inline fun call(
+        key: Any,
+        /*crossinline*/
+        invalid: ViewValidator.() -> Boolean,
+        block: () -> Unit
+    ) {
+        startGroup(key)
+        if (ViewValidator(this).invalid() || inserting) {
+            startGroup(0)
+            block()
+            endGroup()
+        } else {
+            skipCurrentGroup()
+        }
+        endGroup()
+    }
+
+    inline fun <T> call(
+        key: Any,
+        /*crossinline*/
+        ctor: () -> T,
+        /*crossinline*/
+        invalid: ViewValidator.(f: T) -> Boolean,
+        block: (f: T) -> Unit
+    ) {
+        startGroup(key)
+        val f = cache(true, ctor)
+        if (ViewValidator(this).invalid(f) || inserting) {
+            startGroup(0)
+            block(f)
+            endGroup()
+        } else {
+            skipCurrentGroup()
+        }
+        endGroup()
+    }
+}
 
 fun disposeVector(container: VectorComponent, parent: CompositionReference? = null) {
     composeVector(container, parent) { _, _ -> }
@@ -124,92 +205,3 @@ internal class VectorApplyAdapter : ApplyAdapter<VNode> {
 }
 
 typealias VectorUpdater<T> = ComposerUpdater<VNode, T>
-
-class VectorComposition(val composer: VectorComposer) {
-    inline fun <T : VNode> emit(
-        key: Any,
-        /*crossinline*/
-        ctor: () -> T,
-        update: VectorUpdater<VNode>.() -> Unit
-    ) = with(composer) {
-        startNode(key)
-
-        @Suppress("UNCHECKED_CAST")
-        val node = if (inserting) {
-            ctor().also {
-                emitNode(it)
-            }
-        } else {
-            useNode()
-        }
-
-        VectorUpdater(this, node).update()
-        endNode()
-    }
-
-    inline fun emit(
-        key: Any,
-        /*crossinline*/
-        ctor: () -> GroupComponent,
-        update: VectorUpdater<GroupComponent>.() -> Unit,
-        children: () -> Unit
-    ) = with(composer) {
-        startNode(key)
-
-        @Suppress("UNCHECKED_CAST")
-        val node = if (inserting) {
-            ctor().also {
-                emitNode(it)
-            }
-        } else {
-            useNode() as GroupComponent
-        }
-
-        VectorUpdater(this, node).update()
-        children()
-        endNode()
-    }
-
-    @Suppress("NOTHING_TO_INLINE")
-    inline fun joinKey(left: Any, right: Any?): Any = composer.joinKey(left, right)
-
-    inline fun call(
-        key: Any,
-        /*crossinline*/
-        invalid: ViewValidator.() -> Boolean,
-        block: () -> Unit
-    ) = with(composer) {
-        startGroup(key)
-        if (ViewValidator(composer).invalid() || inserting) {
-            startGroup(0)
-            block()
-            endGroup()
-        } else {
-            skipCurrentGroup()
-        }
-        endGroup()
-    }
-
-    inline fun <T> call(
-        key: Any,
-        /*crossinline*/
-        ctor: () -> T,
-        /*crossinline*/
-        invalid: ViewValidator.(f: T) -> Boolean,
-        block: (f: T) -> Unit
-    ) = with(composer) {
-        startGroup(key)
-        val f = cache(true, ctor)
-        if (ViewValidator(this).invalid(f) || inserting) {
-            startGroup(0)
-            block(f)
-            endGroup()
-        } else {
-            skipCurrentGroup()
-        }
-        endGroup()
-    }
-
-    fun startExpr(key: Any) = composer.startGroup(key)
-    fun endExpr() = composer.endGroup()
-}
