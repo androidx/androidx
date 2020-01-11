@@ -140,22 +140,14 @@ package androidx.ui.core {
   }
 
   public final class TextSpanComposer extends androidx.compose.Composer<androidx.ui.text.TextSpan> {
-  }
-
-  public final class TextSpanComposition {
-    ctor public TextSpanComposition(androidx.ui.core.TextSpanComposer composer);
     method public inline void call(Object key, kotlin.jvm.functions.Function1<? super androidx.compose.ViewValidator,java.lang.Boolean> invalid, kotlin.jvm.functions.Function0<kotlin.Unit> block);
     method public inline <T> void call(Object key, kotlin.jvm.functions.Function0<? extends T> ctor, kotlin.jvm.functions.Function2<? super androidx.compose.ViewValidator,? super T,java.lang.Boolean> invalid, kotlin.jvm.functions.Function1<? super T,kotlin.Unit> block);
     method public inline void emit(Object key, kotlin.jvm.functions.Function0<androidx.ui.text.TextSpan> ctor, kotlin.jvm.functions.Function1<? super androidx.compose.ComposerUpdater<androidx.ui.text.TextSpan,androidx.ui.text.TextSpan>,kotlin.Unit> update);
     method public inline void emit(Object key, kotlin.jvm.functions.Function0<androidx.ui.text.TextSpan> ctor, kotlin.jvm.functions.Function1<? super androidx.compose.ComposerUpdater<androidx.ui.text.TextSpan,androidx.ui.text.TextSpan>,kotlin.Unit> update, kotlin.jvm.functions.Function0<kotlin.Unit> children);
-    method public void endExpr();
-    method public androidx.ui.core.TextSpanComposer getComposer();
-    method public Object joinKey(Object left, Object? right);
-    method public void startExpr(Object key);
   }
 
   public final class TextSpanScope {
-    method public androidx.ui.core.TextSpanComposition getComposer();
+    method public androidx.ui.core.TextSpanComposer getComposer();
   }
 
   public final class WrapperKt {

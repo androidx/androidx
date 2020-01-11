@@ -82,7 +82,7 @@ fun ComposeView(children: @Composable() () -> Unit) {
             }
         }
         val rootLayoutNode = rootRef.value?.root ?: error("Failed to create root platform view")
-        val context = rootRef.value?.context ?: composer.composer.context
+        val context = rootRef.value?.context ?: composer.context
 
         // If this value is inlined where it is used, an error that includes 'Precise Reference:
         // kotlinx.coroutines.Dispatchers' not instance of 'Precise Reference: androidx.compose.Ambient'.
