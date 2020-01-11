@@ -16,7 +16,14 @@
 
 package androidx.paging
 
+import androidx.paging.LoadState.Done
+import androidx.paging.LoadState.Idle
+import androidx.paging.LoadType.END
+import androidx.paging.LoadType.REFRESH
+import androidx.paging.LoadType.START
+import androidx.paging.PageEvent.Insert.Companion.Refresh
 import kotlinx.coroutines.flow.Flow
+import kotlinx.coroutines.flow.flowOf
 import kotlinx.coroutines.flow.map
 
 /**
@@ -118,6 +125,30 @@ class PagingData<T : Any> internal constructor(
      * required.
      */
     fun addFooter(item: T) = PagingData(flow.addFooter(item), receiver)
+
+    companion object {
+        private val EMPTY = PagingData<Any>(
+            flow = flowOf(
+                Refresh(
+                    pages = listOf(TransformablePage(originalPageOffset = 0, data = emptyList())),
+                    placeholdersStart = 0,
+                    placeholdersEnd = 0,
+                    loadStates = mapOf(REFRESH to Idle, START to Done, END to Done)
+                )
+            ),
+            receiver = object : UiReceiver {
+                override fun addHint(hint: ViewportHint) {}
+
+                override fun retry() {}
+
+                override fun refresh() {}
+            }
+        )
+
+        @Suppress("UNCHECKED_CAST", "SyntheticAccessor")
+        @JvmStatic
+        fun <T : Any> empty() = EMPTY as PagingData<T>
+    }
 }
 
 internal interface UiReceiver {
