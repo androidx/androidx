@@ -141,8 +141,8 @@ class PagerTest {
             StateUpdate(START, Loading),
             StateUpdate(START, Done),
             createPrepend(pageOffset = -1, range = 0..0, startState = Done),
-            StateUpdate(START, Idle),
             StateUpdate(END, Loading),
+            StateUpdate(START, Idle),
             Drop(START, 1, 1),
             StateUpdate(END, Idle),
             createAppend(pageOffset = 1, range = 3..3, startState = Idle, endState = Idle)
