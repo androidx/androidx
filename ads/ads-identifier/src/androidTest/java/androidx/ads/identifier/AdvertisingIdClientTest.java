@@ -30,27 +30,20 @@ import android.content.Intent;
 import android.content.pm.PackageManager;
 import android.content.pm.ResolveInfo;
 
-import androidx.ads.identifier.internal.BlockingServiceConnection;
-import androidx.ads.identifier.provider.IAdvertisingIdService;
 import androidx.ads.identifier.testing.MockPackageManagerHelper;
-import androidx.annotation.NonNull;
-import androidx.concurrent.futures.CallbackToFutureAdapter;
 import androidx.test.core.app.ApplicationProvider;
 import androidx.test.ext.junit.runners.AndroidJUnit4;
 import androidx.test.filters.LargeTest;
 
 import com.google.common.collect.Lists;
-import com.google.common.util.concurrent.ListenableFuture;
 
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 
-import java.io.IOException;
 import java.util.Collections;
 import java.util.concurrent.ExecutionException;
-import java.util.concurrent.TimeoutException;
 
 @LargeTest
 @RunWith(AndroidJUnit4.class)
@@ -65,9 +58,6 @@ public class AdvertisingIdClientTest {
 
     @Before
     public void setUp() throws Exception {
-        MockAdvertisingIdClient.sGetServiceConnectionThrowException = false;
-        MockAdvertisingIdClient.sGetAdvertisingIdServiceThrowInterruptedException = false;
-
         Context applicationContext = ApplicationProvider.getApplicationContext();
 
         mContext = new ContextWrapper(applicationContext) {
@@ -88,6 +78,8 @@ public class AdvertisingIdClientTest {
 
     @After
     public void tearDown() {
+        AdvertisingIdClient.clearConnectionClient();
+
         Intent serviceIntent = new Intent(GET_AD_ID_ACTION);
         serviceIntent.setClassName(mContext.getPackageName(), MOCK_SERVICE_NAME);
         mContext.stopService(serviceIntent);
@@ -135,27 +127,9 @@ public class AdvertisingIdClientTest {
     }
 
     @Test
-    public void getInfo_getInfoTwice() throws Exception {
-        AdvertisingIdClient client = new AdvertisingIdClient(mContext);
-        client.getInfoInternal();
-        AdvertisingIdInfo info = client.getInfoInternal();
-        client.finish();
-
-        assertThat(info).isEqualTo(AdvertisingIdInfo.builder()
-                .setId(TESTING_AD_ID)
-                .setLimitAdTrackingEnabled(true)
-                .setProviderPackageName(mContext.getPackageName())
-                .build());
-    }
-
-    @Test
-    public void getInfo_twoClients() throws Exception {
-        AdvertisingIdClient client1 = new AdvertisingIdClient(mContext);
-        AdvertisingIdClient client2 = new AdvertisingIdClient(mContext);
-        AdvertisingIdInfo info1 = client1.getInfoInternal();
-        AdvertisingIdInfo info2 = client1.getInfoInternal();
-        client1.finish();
-        client2.finish();
+    public void getAdvertisingIdInfo_getTwice() throws Exception {
+        AdvertisingIdInfo info1 = AdvertisingIdClient.getAdvertisingIdInfo(mContext).get();
+        AdvertisingIdInfo info2 = AdvertisingIdClient.getAdvertisingIdInfo(mContext).get();
 
         AdvertisingIdInfo expected = AdvertisingIdInfo.builder()
                 .setId(TESTING_AD_ID)
@@ -166,102 +140,37 @@ public class AdvertisingIdClientTest {
         assertThat(info2).isEqualTo(expected);
     }
 
-    @Test(timeout = 11000L)
-    public void getAdvertisingIdInfo_connectionTimeout() throws Exception {
-        try {
-            MockAdvertisingIdClient.getAdvertisingIdInfo(mContext).get();
-        } catch (ExecutionException e) {
-            assertThat(e).hasCauseThat().isInstanceOf(TimeoutException.class);
-            return;
-        }
-        fail("Expected ExecutionException");
+    @Test
+    public void notConnectedAtBeginning() {
+        assertThat(AdvertisingIdClient.isConnected()).isFalse();
     }
 
     @Test
-    public void getAdvertisingIdInfo_interrupted() throws Exception {
-        MockAdvertisingIdClient.sGetAdvertisingIdServiceThrowInterruptedException = true;
+    public void scheduleAutoDisconnect() throws Exception {
+        AdvertisingIdClient.getAdvertisingIdInfo(mContext).get();
+        assertThat(AdvertisingIdClient.isConnected()).isTrue();
 
-        try {
-            MockAdvertisingIdClient.getAdvertisingIdInfo(mContext).get();
-        } catch (ExecutionException e) {
-            assertThat(e).hasCauseThat().isInstanceOf(InterruptedException.class);
-            return;
-        }
-        fail("Expected ExecutionException");
+        Thread.sleep(20000);
+        assertThat(AdvertisingIdClient.isConnected()).isTrue();
+
+        Thread.sleep(11000);
+        assertThat(AdvertisingIdClient.isConnected()).isFalse();
     }
 
     @Test
-    public void getAdvertisingIdInfo_connectionFailed() throws Exception {
-        MockAdvertisingIdClient.sGetServiceConnectionThrowException = true;
+    public void scheduleAutoDisconnect_extend() throws Exception {
+        AdvertisingIdClient.getAdvertisingIdInfo(mContext).get();
+        assertThat(AdvertisingIdClient.isConnected()).isTrue();
 
-        try {
-            MockAdvertisingIdClient.getAdvertisingIdInfo(mContext).get();
-        } catch (ExecutionException e) {
-            assertThat(e).hasCauseThat().isInstanceOf(IOException.class);
-            return;
-        }
-        fail("Expected ExecutionException");
-    }
+        Thread.sleep(20000);
+        assertThat(AdvertisingIdClient.isConnected()).isTrue();
+        AdvertisingIdClient.getAdvertisingIdInfo(mContext).get();
 
-    private static class MockAdvertisingIdClient extends AdvertisingIdClient {
+        Thread.sleep(20000);
+        assertThat(AdvertisingIdClient.isConnected()).isTrue();
 
-        static boolean sGetServiceConnectionThrowException = false;
-        static boolean sGetAdvertisingIdServiceThrowInterruptedException = false;
-
-        static Thread sCurrentThread;
-
-        MockAdvertisingIdClient(Context context) {
-            super(context);
-        }
-
-        @Override
-        BlockingServiceConnection getServiceConnection() throws IOException {
-            if (sGetServiceConnectionThrowException) {
-                throw new IOException();
-            }
-
-            sCurrentThread = Thread.currentThread();
-
-            // This connection does not bind to any service, so it always timeout.
-            return new BlockingServiceConnection();
-        }
-
-        @Override
-        IAdvertisingIdService getAdvertisingIdService(BlockingServiceConnection bsc)
-                throws TimeoutException, InterruptedException {
-            if (sGetAdvertisingIdServiceThrowInterruptedException) {
-                throw new InterruptedException();
-            }
-            return super.getAdvertisingIdService(bsc);
-        }
-
-        @NonNull
-        public static ListenableFuture<AdvertisingIdInfo> getAdvertisingIdInfo(
-                @NonNull final Context context) {
-            return CallbackToFutureAdapter.getFuture(
-                    new CallbackToFutureAdapter.Resolver<AdvertisingIdInfo>() {
-                        @Override
-                        public Object attachCompleter(@NonNull final
-                                CallbackToFutureAdapter.Completer<AdvertisingIdInfo> completer) {
-                            EXECUTOR_SERVICE.execute(new Runnable() {
-                                @Override
-                                public void run() {
-                                    MockAdvertisingIdClient client =
-                                            new MockAdvertisingIdClient(context);
-                                    try {
-                                        completer.set(client.getInfoInternal());
-                                    } catch (IOException | AdvertisingIdNotAvailableException
-                                            | TimeoutException | InterruptedException e) {
-                                        completer.setException(e);
-                                    }
-                                    // No need to call unbindService() here since not call
-                                    // bindService() in this mock.
-                                }
-                            });
-                            return "getAdvertisingIdInfo";
-                        }
-                    });
-        }
+        Thread.sleep(11000);
+        assertThat(AdvertisingIdClient.isConnected()).isFalse();
     }
 
     @Test
