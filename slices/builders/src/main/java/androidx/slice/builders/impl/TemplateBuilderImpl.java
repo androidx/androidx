@@ -16,14 +16,26 @@
 
 package androidx.slice.builders.impl;
 
-import static androidx.annotation.RestrictTo.Scope.LIBRARY;
+import static android.app.slice.Slice.HINT_LARGE;
+import static android.app.slice.Slice.HINT_NO_TINT;
+import static android.app.slice.Slice.HINT_PARTIAL;
 
+import static androidx.annotation.RestrictTo.Scope.LIBRARY;
+import static androidx.slice.builders.ListBuilder.ICON_IMAGE;
+import static androidx.slice.builders.ListBuilder.LARGE_IMAGE;
+import static androidx.slice.builders.ListBuilder.RAW_IMAGE_LARGE;
+import static androidx.slice.builders.ListBuilder.RAW_IMAGE_SMALL;
+import static androidx.slice.core.SliceHints.HINT_RAW;
+
+import androidx.annotation.NonNull;
 import androidx.annotation.RequiresApi;
 import androidx.annotation.RestrictTo;
 import androidx.slice.Clock;
 import androidx.slice.Slice;
 import androidx.slice.SliceSpec;
 import androidx.slice.SystemClock;
+
+import java.util.ArrayList;
 
 /**
  * @hide
@@ -95,5 +107,27 @@ public abstract class TemplateBuilderImpl {
     @RestrictTo(LIBRARY)
     public SliceSpec getSpec() {
         return mSpec;
+    }
+
+    /**
+     * @hide
+     */
+    @RestrictTo(LIBRARY)
+    @NonNull
+    protected ArrayList<String> parseImageMode(int imageMode, boolean isLoading) {
+        ArrayList<String> hints = new ArrayList<>();
+        if (imageMode != ICON_IMAGE) {
+            hints.add(HINT_NO_TINT);
+        }
+        if (imageMode == LARGE_IMAGE || imageMode == RAW_IMAGE_LARGE) {
+            hints.add(HINT_LARGE);
+        }
+        if (imageMode == RAW_IMAGE_SMALL || imageMode == RAW_IMAGE_LARGE) {
+            hints.add(HINT_RAW);
+        }
+        if (isLoading) {
+            hints.add(HINT_PARTIAL);
+        }
+        return hints;
     }
 }

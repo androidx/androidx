@@ -55,6 +55,7 @@ import androidx.annotation.ColorInt;
 import androidx.annotation.RequiresApi;
 import androidx.annotation.RestrictTo;
 import androidx.slice.SliceItem;
+import androidx.slice.core.SliceHints;
 import androidx.slice.core.SliceQuery;
 import androidx.slice.view.R;
 
@@ -431,13 +432,16 @@ public class GridRowView extends SliceChildView implements View.OnClickListener,
                 ImageView iv = new ImageView(getContext());
                 iv.setImageDrawable(d);
                 LinearLayout.LayoutParams lp;
-                if (item.hasHint(HINT_LARGE)) {
+                if (item.hasHint(SliceHints.HINT_RAW)) {
+                    iv.setScaleType(ScaleType.CENTER_INSIDE);
+                    lp = new LinearLayout.LayoutParams(MATCH_PARENT, WRAP_CONTENT);
+                } else if (item.hasHint(HINT_LARGE)) {
                     iv.setScaleType(ScaleType.CENTER_CROP);
                     int height = isSingle ? MATCH_PARENT : mLargeImageHeight;
                     lp = new LinearLayout.LayoutParams(MATCH_PARENT, height);
                 } else {
                     boolean isIcon = !item.hasHint(HINT_NO_TINT);
-                    int size = isIcon ? mIconSize : mSmallImageSize;
+                    int size = !isIcon ? mSmallImageSize : mIconSize;
                     iv.setScaleType(isIcon ? ScaleType.CENTER_INSIDE : ScaleType.CENTER_CROP);
                     lp = new LinearLayout.LayoutParams(size, size);
                 }

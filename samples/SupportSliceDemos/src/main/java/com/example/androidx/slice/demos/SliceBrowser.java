@@ -110,6 +110,7 @@ public class SliceBrowser extends AppCompatActivity implements SliceView.OnSlice
         mSearchView = findViewById(R.id.search_view);
 
         mSliceView = findViewById(R.id.slice_view);
+        mSliceView.setShowTitleItems(true);
 
         final String[] from = new String[]{"uri"};
         final int[] to = new int[]{android.R.id.text1};
