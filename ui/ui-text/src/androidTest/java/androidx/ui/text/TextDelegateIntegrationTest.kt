@@ -20,12 +20,8 @@ import android.graphics.Bitmap
 import androidx.test.filters.SmallTest
 import androidx.test.platform.app.InstrumentationRegistry
 import androidx.ui.core.Constraints
-import androidx.ui.core.Density
 import androidx.ui.core.LayoutDirection
-import androidx.ui.core.ipx
-import androidx.ui.core.sp
-import androidx.ui.core.withDensity
-import androidx.ui.engine.geometry.Rect
+import androidx.ui.geometry.Rect
 import androidx.ui.graphics.Canvas
 import androidx.ui.graphics.Color
 import androidx.ui.graphics.Paint
@@ -33,6 +29,10 @@ import androidx.ui.text.FontTestData.Companion.BASIC_MEASURE_FONT
 import androidx.ui.text.font.asFontFamily
 import androidx.ui.text.matchers.assertThat
 import androidx.ui.text.style.TextOverflow
+import androidx.ui.unit.Density
+import androidx.ui.unit.ipx
+import androidx.ui.unit.sp
+import androidx.ui.unit.withDensity
 import com.google.common.truth.Truth.assertThat
 import org.junit.Test
 import org.junit.runner.RunWith

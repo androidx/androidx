@@ -21,21 +21,21 @@ import androidx.compose.Composable
 import androidx.compose.state
 import androidx.ui.core.Alignment
 import androidx.ui.core.Constraints
-import androidx.ui.core.Density
-import androidx.ui.core.DensityScope
-import androidx.ui.core.Dp
-import androidx.ui.core.IntPx
-import androidx.ui.core.IntPxSize
 import androidx.ui.core.IntrinsicMeasurable
 import androidx.ui.core.IntrinsicMeasureBlock
 import androidx.ui.core.Layout
 import androidx.ui.core.ParentData
 import androidx.ui.core.Placeable
 import androidx.ui.core.constrain
-import androidx.ui.core.isFinite
-import androidx.ui.core.max
-import androidx.ui.core.min
-import androidx.ui.core.withDensity
+import androidx.ui.unit.Density
+import androidx.ui.unit.DensityScope
+import androidx.ui.unit.Dp
+import androidx.ui.unit.IntPx
+import androidx.ui.unit.IntPxSize
+import androidx.ui.unit.isFinite
+import androidx.ui.unit.max
+import androidx.ui.unit.min
+import androidx.ui.unit.withDensity
 
 /**
  * Collects information about the children of a [Table] when

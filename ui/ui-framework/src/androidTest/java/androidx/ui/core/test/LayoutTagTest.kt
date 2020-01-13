@@ -19,13 +19,13 @@ package androidx.ui.core.test
 import androidx.test.filters.SmallTest
 import androidx.test.rule.ActivityTestRule
 import androidx.ui.core.Layout
-import androidx.ui.core.ParentData
 import androidx.ui.core.LayoutTag
 import androidx.ui.core.LayoutTagParentData
-import androidx.ui.core.ipx
+import androidx.ui.core.ParentData
 import androidx.ui.core.setContent
 import androidx.ui.core.tag
 import androidx.ui.framework.test.TestActivity
+import androidx.ui.unit.ipx
 import org.junit.Assert.assertEquals
 import org.junit.Assert.assertTrue
 import org.junit.Before

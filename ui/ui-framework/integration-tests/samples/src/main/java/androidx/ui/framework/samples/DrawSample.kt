@@ -20,9 +20,9 @@ import androidx.annotation.Sampled
 import androidx.compose.Composable
 import androidx.compose.remember
 import androidx.ui.core.Draw
-import androidx.ui.core.toRect
 import androidx.ui.graphics.Color
 import androidx.ui.graphics.Paint
+import androidx.ui.unit.toRect
 
 @Sampled
 @Composable

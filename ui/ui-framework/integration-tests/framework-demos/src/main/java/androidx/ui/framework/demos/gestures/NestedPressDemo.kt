@@ -19,17 +19,17 @@ package androidx.ui.framework.demos.gestures
 import android.app.Activity
 import android.os.Bundle
 import androidx.compose.Composable
-import androidx.compose.state
-import androidx.ui.core.px
 import androidx.compose.remember
-import androidx.ui.core.Dp
-import androidx.ui.core.PxPosition
-import androidx.ui.core.dp
+import androidx.compose.state
 import androidx.ui.core.gesture.DoubleTapGestureDetector
 import androidx.ui.core.gesture.LongPressGestureDetector
 import androidx.ui.core.gesture.PressIndicatorGestureDetector
 import androidx.ui.core.gesture.PressReleasedGestureDetector
 import androidx.ui.core.setContent
+import androidx.ui.unit.Dp
+import androidx.ui.unit.PxPosition
+import androidx.ui.unit.dp
+import androidx.ui.unit.px
 
 /**
  * Demonstration of how various press/tap gesture interact together in a nested fashion.

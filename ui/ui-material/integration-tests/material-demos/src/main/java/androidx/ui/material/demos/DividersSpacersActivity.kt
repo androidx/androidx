@@ -18,7 +18,6 @@ package androidx.ui.material.demos
 
 import androidx.compose.Composable
 import androidx.ui.core.Text
-import androidx.ui.core.dp
 import androidx.ui.foundation.ColoredRect
 import androidx.ui.graphics.Color
 import androidx.ui.layout.Column
@@ -26,11 +25,12 @@ import androidx.ui.layout.Container
 import androidx.ui.layout.EdgeInsets
 import androidx.ui.layout.LayoutGravity
 import androidx.ui.layout.LayoutHeight
-import androidx.ui.layout.Spacer
-import androidx.ui.layout.Row
 import androidx.ui.layout.LayoutWidth
+import androidx.ui.layout.Row
+import androidx.ui.layout.Spacer
 import androidx.ui.material.Divider
 import androidx.ui.material.MaterialTheme
+import androidx.ui.unit.dp
 
 class DividersSpacersActivity : MaterialDemoActivity() {
 

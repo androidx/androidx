@@ -15,19 +15,19 @@
  */
 package androidx.ui.core.test
 
+import androidx.compose.Composable
 import androidx.test.filters.SmallTest
 import androidx.test.rule.ActivityTestRule
 import androidx.ui.core.Draw
 import androidx.ui.core.Layout
 import androidx.ui.core.ParentData
 import androidx.ui.core.Ref
-import androidx.ui.core.ipx
-import androidx.ui.core.toRect
+import androidx.ui.core.setContent
 import androidx.ui.framework.test.TestActivity
 import androidx.ui.graphics.Color
 import androidx.ui.graphics.Paint
-import androidx.compose.Composable
-import androidx.ui.core.setContent
+import androidx.ui.unit.ipx
+import androidx.ui.unit.toRect
 import org.junit.Assert.assertEquals
 import org.junit.Assert.assertNull
 import org.junit.Assert.assertTrue

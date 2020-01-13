@@ -20,7 +20,7 @@ import androidx.compose.Composable
 import androidx.compose.remember
 import androidx.ui.core.PointerEventPass
 import androidx.ui.core.PointerInputChange
-import androidx.ui.core.PxPosition
+import androidx.ui.core.PointerInputWrapper
 import androidx.ui.core.changedToDown
 import androidx.ui.core.changedToDownIgnoreConsumed
 import androidx.ui.core.changedToUp
@@ -29,9 +29,9 @@ import androidx.ui.core.consumeDownChange
 import androidx.ui.core.consumePositionChange
 import androidx.ui.core.gesture.util.VelocityTracker
 import androidx.ui.core.positionChange
-import androidx.ui.core.px
-import androidx.ui.core.IntPxSize
-import androidx.ui.core.PointerInputWrapper
+import androidx.ui.unit.IntPxSize
+import androidx.ui.unit.PxPosition
+import androidx.ui.unit.px
 
 interface DragObserver {
 

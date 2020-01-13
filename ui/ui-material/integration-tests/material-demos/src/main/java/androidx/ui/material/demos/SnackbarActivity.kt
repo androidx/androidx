@@ -18,11 +18,11 @@ package androidx.ui.material.demos
 
 import androidx.compose.Composable
 import androidx.ui.core.Text
-import androidx.ui.core.dp
 import androidx.ui.layout.Column
 import androidx.ui.layout.LayoutPadding
 import androidx.ui.material.samples.SimpleSnackbar
 import androidx.ui.material.samples.SlotsSnackbar
+import androidx.ui.unit.dp
 
 class SnackbarActivity : MaterialDemoActivity() {
     @Composable

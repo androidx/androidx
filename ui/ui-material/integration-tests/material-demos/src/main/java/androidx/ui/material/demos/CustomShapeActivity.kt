@@ -20,7 +20,6 @@ import android.graphics.drawable.ColorDrawable
 import android.os.Bundle
 import androidx.compose.Composable
 import androidx.ui.core.Alignment
-import androidx.ui.core.dp
 import androidx.ui.foundation.shape.GenericShape
 import androidx.ui.foundation.shape.border.Border
 import androidx.ui.graphics.Color
@@ -29,6 +28,7 @@ import androidx.ui.layout.Spacer
 import androidx.ui.layout.Wrap
 import androidx.ui.material.Button
 import androidx.ui.material.OutlinedButtonStyle
+import androidx.ui.unit.dp
 
 class CustomShapeActivity : MaterialDemoActivity() {
 

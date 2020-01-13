@@ -19,12 +19,12 @@ package androidx.ui.foundation.samples
 import androidx.annotation.Sampled
 import androidx.compose.Composable
 import androidx.compose.state
-import androidx.ui.core.dp
 import androidx.ui.foundation.Dialog
 import androidx.ui.foundation.shape.DrawShape
 import androidx.ui.foundation.shape.corner.CircleShape
 import androidx.ui.graphics.Color
 import androidx.ui.layout.Container
+import androidx.ui.unit.dp
 
 @Sampled
 @Composable

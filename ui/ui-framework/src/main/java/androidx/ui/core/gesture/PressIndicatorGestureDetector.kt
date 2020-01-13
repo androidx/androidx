@@ -16,19 +16,19 @@
 
 package androidx.ui.core.gesture
 
-import androidx.ui.core.PointerEventPass
-import androidx.ui.core.PointerInputChange
-import androidx.ui.core.PxPosition
-import androidx.ui.core.anyPositionChangeConsumed
-import androidx.ui.core.changedToDown
-import androidx.ui.core.consumeDownChange
-import androidx.ui.engine.geometry.Offset
 import androidx.compose.Composable
 import androidx.compose.remember
-import androidx.ui.core.IntPxSize
+import androidx.ui.core.PointerEventPass
+import androidx.ui.core.PointerInputChange
 import androidx.ui.core.PointerInputWrapper
+import androidx.ui.core.anyPositionChangeConsumed
+import androidx.ui.core.changedToDown
 import androidx.ui.core.changedToUpIgnoreConsumed
+import androidx.ui.core.consumeDownChange
 import androidx.ui.core.gesture.util.anyPointersInBounds
+import androidx.ui.geometry.Offset
+import androidx.ui.unit.IntPxSize
+import androidx.ui.unit.PxPosition
 
 /**
  * This gesture detector has callbacks for when a press gesture starts and ends for the purposes of

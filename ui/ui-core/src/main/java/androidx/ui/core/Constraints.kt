@@ -17,6 +17,12 @@
 package androidx.ui.core
 
 import androidx.compose.Immutable
+import androidx.ui.unit.IntPx
+import androidx.ui.unit.IntPxSize
+import androidx.ui.unit.coerceAtLeast
+import androidx.ui.unit.coerceIn
+import androidx.ui.unit.ipx
+import androidx.ui.unit.isFinite
 
 /**
  * Immutable constraints used for measuring child [Layout]s. A parent [Layout]

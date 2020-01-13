@@ -19,25 +19,25 @@ package androidx.ui.material.surface
 import androidx.compose.Composable
 import androidx.ui.core.Clip
 import androidx.ui.core.CurrentTextStyleProvider
-import androidx.ui.core.Dp
 import androidx.ui.core.DrawShadow
 import androidx.ui.core.Layout
 import androidx.ui.core.Modifier
 import androidx.ui.core.Text
-import androidx.ui.core.dp
-import androidx.ui.core.ipx
-import androidx.ui.engine.geometry.Shape
 import androidx.ui.foundation.ProvideContentColor
 import androidx.ui.foundation.shape.DrawShape
 import androidx.ui.foundation.shape.RectangleShape
 import androidx.ui.foundation.shape.border.Border
 import androidx.ui.foundation.shape.border.DrawBorder
 import androidx.ui.graphics.Color
+import androidx.ui.graphics.Shape
 import androidx.ui.graphics.compositeOver
 import androidx.ui.material.ColorPalette
 import androidx.ui.material.MaterialTheme
 import androidx.ui.material.contentColorFor
 import androidx.ui.text.TextStyle
+import androidx.ui.unit.Dp
+import androidx.ui.unit.dp
+import androidx.ui.unit.ipx
 import kotlin.math.ln
 
 /**

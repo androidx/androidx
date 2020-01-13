@@ -18,16 +18,16 @@ package androidx.ui.foundation.shape.border
 
 import androidx.compose.Composable
 import androidx.compose.remember
-import androidx.ui.core.Dp
 import androidx.ui.core.Draw
-import androidx.ui.core.PxSize
-import androidx.ui.core.px
-import androidx.ui.engine.geometry.Offset
-import androidx.ui.engine.geometry.Shape
-import androidx.ui.engine.geometry.addOutline
+import androidx.ui.geometry.Offset
 import androidx.ui.graphics.Paint
 import androidx.ui.graphics.Path
 import androidx.ui.graphics.PathOperation
+import androidx.ui.graphics.Shape
+import androidx.ui.graphics.addOutline
+import androidx.ui.unit.Dp
+import androidx.ui.unit.PxSize
+import androidx.ui.unit.px
 
 /**
  * Draw the [Border] as an inner stroke for the provided [shape].

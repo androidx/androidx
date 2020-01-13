@@ -19,12 +19,12 @@ package androidx.ui.core.pointerinput
 import android.view.MotionEvent
 import android.view.MotionEvent.ACTION_POINTER_UP
 import android.view.MotionEvent.ACTION_UP
-import androidx.ui.core.NanosecondsPerMillisecond
 import androidx.ui.core.PointerInputData
-import androidx.ui.core.PxPosition
-import androidx.ui.core.Uptime
-import androidx.ui.core.milliseconds
-import androidx.ui.core.px
+import androidx.ui.unit.NanosecondsPerMillisecond
+import androidx.ui.unit.PxPosition
+import androidx.ui.unit.Uptime
+import androidx.ui.unit.milliseconds
+import androidx.ui.unit.px
 
 /**
  * Converts an Android framework [MotionEvent] into a [PointerInputEvent].

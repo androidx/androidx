@@ -16,7 +16,7 @@
 
 package androidx.ui.text
 
-import androidx.ui.core.sp
+import androidx.ui.unit.sp
 import org.junit.Assert.assertEquals
 import org.junit.Test
 import org.junit.runner.RunWith

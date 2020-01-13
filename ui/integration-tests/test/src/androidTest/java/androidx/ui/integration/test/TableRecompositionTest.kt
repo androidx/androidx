@@ -17,7 +17,7 @@
 package androidx.ui.integration.test
 
 import androidx.test.filters.MediumTest
-import androidx.ui.core.dp
+import androidx.ui.unit.dp
 import androidx.ui.foundation.ColoredRect
 import androidx.ui.graphics.Color
 import androidx.ui.layout.Padding

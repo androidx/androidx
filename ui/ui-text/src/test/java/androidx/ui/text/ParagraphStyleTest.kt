@@ -16,13 +16,13 @@
 
 package androidx.ui.text
 
-import androidx.ui.core.TextUnit
-import androidx.ui.core.lerp
-import androidx.ui.core.sp
 import androidx.ui.text.style.TextAlign
 import androidx.ui.text.style.TextDirectionAlgorithm
 import androidx.ui.text.style.TextIndent
 import androidx.ui.text.style.lerp
+import androidx.ui.unit.TextUnit
+import androidx.ui.unit.lerp
+import androidx.ui.unit.sp
 import com.google.common.truth.Truth.assertThat
 import org.junit.Test
 import org.junit.runner.RunWith

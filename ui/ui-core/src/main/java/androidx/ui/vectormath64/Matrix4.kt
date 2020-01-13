@@ -17,8 +17,8 @@
 
 package androidx.ui.vectormath64
 
-import androidx.ui.engine.geometry.Offset
-import androidx.ui.engine.geometry.Rect
+import androidx.ui.geometry.Offset
+import androidx.ui.geometry.Rect
 import kotlin.math.asin
 import kotlin.math.atan2
 import kotlin.math.cos

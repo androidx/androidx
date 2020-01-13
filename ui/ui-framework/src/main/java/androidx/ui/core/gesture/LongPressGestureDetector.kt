@@ -16,22 +16,22 @@
 
 package androidx.ui.core.gesture
 
-import androidx.ui.core.PointerEventPass
-import androidx.ui.core.PointerInputChange
-import androidx.ui.core.anyPositionChangeConsumed
-import androidx.ui.core.changedToDown
 import androidx.compose.Composable
 import androidx.compose.ambient
 import androidx.compose.remember
-import androidx.ui.core.PxPosition
+import androidx.ui.core.CoroutineContextAmbient
+import androidx.ui.core.PointerEventPass
+import androidx.ui.core.PointerInputChange
+import androidx.ui.core.PointerInputWrapper
+import androidx.ui.core.anyPositionChangeConsumed
+import androidx.ui.core.changedToDown
 import androidx.ui.core.changedToUp
 import androidx.ui.core.changedToUpIgnoreConsumed
 import androidx.ui.core.consumeDownChange
-import androidx.ui.core.CoroutineContextAmbient
-import androidx.ui.core.IntPxSize
-import androidx.ui.core.PointerInputWrapper
 import androidx.ui.core.gesture.util.anyPointersInBounds
 import androidx.ui.temputils.delay
+import androidx.ui.unit.IntPxSize
+import androidx.ui.unit.PxPosition
 import kotlinx.coroutines.Job
 import kotlin.coroutines.CoroutineContext
 

@@ -22,24 +22,24 @@ import androidx.compose.Immutable
 import androidx.ui.core.Alignment
 import androidx.ui.core.AlignmentLine
 import androidx.ui.core.Constraints
-import androidx.ui.core.DensityScope
 import androidx.ui.core.HorizontalAlignmentLine
-import androidx.ui.core.IntPx
-import androidx.ui.core.IntPxSize
-import androidx.ui.core.Placeable
-import androidx.ui.core.ipx
-import androidx.ui.core.max
 import androidx.ui.core.IntrinsicMeasurable
 import androidx.ui.core.IntrinsicMeasureBlock
 import androidx.ui.core.Layout
 import androidx.ui.core.Modifier
 import androidx.ui.core.ParentData
 import androidx.ui.core.ParentDataModifier
+import androidx.ui.core.Placeable
 import androidx.ui.core.VerticalAlignmentLine
-import androidx.ui.core.isFinite
-import androidx.ui.core.px
-import androidx.ui.core.round
-import androidx.ui.core.toPx
+import androidx.ui.unit.DensityScope
+import androidx.ui.unit.IntPx
+import androidx.ui.unit.IntPxSize
+import androidx.ui.unit.ipx
+import androidx.ui.unit.isFinite
+import androidx.ui.unit.max
+import androidx.ui.unit.px
+import androidx.ui.unit.round
+import androidx.ui.unit.toPx
 
 /**
  * Collects information about the children of a [FlexColumn] or [FlexColumn]

@@ -17,12 +17,12 @@
 package androidx.ui.material
 
 import androidx.compose.Composable
-import androidx.ui.core.Dp
 import androidx.ui.core.Modifier
-import androidx.ui.core.dp
 import androidx.ui.foundation.ColoredRect
 import androidx.ui.graphics.Color
 import androidx.ui.layout.LayoutPadding
+import androidx.ui.unit.Dp
+import androidx.ui.unit.dp
 
 /**
  * A divider is a thin line that groups content in lists and layouts

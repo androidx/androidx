@@ -17,13 +17,13 @@
 package androidx.ui.text
 
 import androidx.ui.core.Constraints
-import androidx.ui.core.Density
-import androidx.ui.core.IntPxSize
 import androidx.ui.core.LayoutDirection
-import androidx.ui.core.em
-import androidx.ui.core.ipx
 import androidx.ui.text.font.Font
 import androidx.ui.text.style.TextOverflow
+import androidx.ui.unit.Density
+import androidx.ui.unit.IntPxSize
+import androidx.ui.unit.em
+import androidx.ui.unit.ipx
 import com.google.common.truth.Truth.assertThat
 import com.nhaarman.mockitokotlin2.mock
 import org.junit.Before

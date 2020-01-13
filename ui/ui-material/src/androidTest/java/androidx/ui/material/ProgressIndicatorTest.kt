@@ -18,11 +18,11 @@ package androidx.ui.material
 import androidx.compose.Model
 import androidx.test.filters.LargeTest
 import androidx.ui.core.TestTag
-import androidx.ui.core.dp
 import androidx.ui.test.assertIsVisible
 import androidx.ui.test.assertValueEquals
 import androidx.ui.test.createComposeRule
 import androidx.ui.test.findByTag
+import androidx.ui.unit.dp
 import org.junit.Rule
 import org.junit.Test
 import org.junit.runner.RunWith

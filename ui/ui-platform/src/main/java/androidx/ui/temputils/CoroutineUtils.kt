@@ -16,8 +16,8 @@
 
 package androidx.ui.temputils
 
-import androidx.ui.core.Duration
-import androidx.ui.core.inMilliseconds
+import androidx.ui.unit.Duration
+import androidx.ui.unit.inMilliseconds
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.launch

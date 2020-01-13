@@ -19,7 +19,6 @@ package androidx.ui.material
 import androidx.compose.Composable
 import androidx.ui.core.Alignment
 import androidx.ui.core.CurrentTextStyleProvider
-import androidx.ui.core.dp
 import androidx.ui.foundation.Dialog
 import androidx.ui.foundation.shape.corner.RoundedCornerShape
 import androidx.ui.layout.Arrangement
@@ -27,12 +26,13 @@ import androidx.ui.layout.Column
 import androidx.ui.layout.Container
 import androidx.ui.layout.EdgeInsets
 import androidx.ui.layout.LayoutHeight
-import androidx.ui.layout.Spacer
-import androidx.ui.layout.Row
 import androidx.ui.layout.LayoutWidth
+import androidx.ui.layout.Row
+import androidx.ui.layout.Spacer
 import androidx.ui.material.AlertDialogButtonLayout.SideBySide
 import androidx.ui.material.AlertDialogButtonLayout.Stacked
 import androidx.ui.material.surface.Surface
+import androidx.ui.unit.dp
 
 /**
  * Alert dialog is a [Dialog] which interrupts the user with urgent information, details or actions.

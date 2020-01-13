@@ -20,14 +20,14 @@ import androidx.compose.SlotTable
 import androidx.test.filters.SmallTest
 import androidx.ui.core.Draw
 import androidx.ui.core.DrawNode
-import androidx.ui.core.dp
-import androidx.ui.core.px
-import androidx.ui.core.toRect
 import androidx.ui.foundation.ColoredRect
 import androidx.ui.graphics.Color
 import androidx.ui.graphics.Paint
 import androidx.ui.layout.Column
 import androidx.ui.layout.Container
+import androidx.ui.unit.dp
+import androidx.ui.unit.px
+import androidx.ui.unit.toRect
 import org.junit.Assert.assertEquals
 import org.junit.Assert.assertFalse
 import org.junit.Assert.assertNotEquals

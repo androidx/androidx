@@ -22,8 +22,8 @@ import androidx.compose.state
 import androidx.ui.core.Draw
 import androidx.ui.core.WithDensity
 import androidx.ui.core.test.AtLeastSize
-import androidx.ui.engine.geometry.Rect
 import androidx.ui.framework.test.R
+import androidx.ui.geometry.Rect
 import androidx.ui.graphics.Color
 import androidx.ui.graphics.Paint
 import androidx.ui.res.loadVectorResource

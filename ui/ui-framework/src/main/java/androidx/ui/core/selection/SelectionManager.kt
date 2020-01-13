@@ -17,10 +17,10 @@
 package androidx.ui.core.selection
 
 import androidx.ui.core.LayoutCoordinates
-import androidx.ui.core.PxPosition
 import androidx.ui.core.gesture.DragObserver
 import androidx.ui.core.gesture.LongPressDragObserver
-import androidx.ui.core.px
+import androidx.ui.unit.PxPosition
+import androidx.ui.unit.px
 
 /**
  * A bridge class between user interaction to the text composables for text selection.

@@ -17,10 +17,10 @@
 package androidx.ui.graphics
 
 import androidx.compose.Immutable
-import androidx.ui.core.Px
-import androidx.ui.core.lerp
-import androidx.ui.core.px
-import androidx.ui.engine.geometry.Offset
+import androidx.ui.geometry.Offset
+import androidx.ui.unit.Px
+import androidx.ui.unit.lerp
+import androidx.ui.unit.px
 
 /**
  * A single shadow.

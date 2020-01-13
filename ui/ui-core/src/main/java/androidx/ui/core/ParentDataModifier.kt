@@ -16,6 +16,8 @@
 
 package androidx.ui.core
 
+import androidx.ui.unit.DensityScope
+
 /**
  * A [Modifier.Element] that changes the way a UI component is measured and laid out.
  */

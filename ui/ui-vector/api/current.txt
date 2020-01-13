@@ -80,18 +80,18 @@ package androidx.ui.graphics.vector {
   }
 
   public final class VectorComponent extends androidx.ui.graphics.vector.VNode {
-    ctor public VectorComponent(String name, float viewportWidth, float viewportHeight, androidx.ui.core.Px defaultWidth, androidx.ui.core.Px defaultHeight);
+    ctor public VectorComponent(String name, float viewportWidth, float viewportHeight, androidx.ui.unit.Px defaultWidth, androidx.ui.unit.Px defaultHeight);
     method public void draw(androidx.ui.graphics.Canvas canvas, androidx.ui.graphics.Color tintColor = DefaultTintColor, androidx.ui.graphics.BlendMode blendMode = DefaultTintBlendMode);
     method public void draw(androidx.ui.graphics.Canvas canvas);
-    method public androidx.ui.core.Px getDefaultHeight();
-    method public androidx.ui.core.Px getDefaultWidth();
+    method public androidx.ui.unit.Px getDefaultHeight();
+    method public androidx.ui.unit.Px getDefaultWidth();
     method public String getName();
     method public androidx.ui.graphics.vector.GroupComponent getRoot();
     method public int getSize();
     method public float getViewportHeight();
     method public float getViewportWidth();
-    method public void setDefaultHeight(androidx.ui.core.Px p);
-    method public void setDefaultWidth(androidx.ui.core.Px p);
+    method public void setDefaultHeight(androidx.ui.unit.Px p);
+    method public void setDefaultWidth(androidx.ui.unit.Px p);
     method public void setViewportHeight(float p);
     method public void setViewportWidth(float p);
     property public final androidx.ui.graphics.vector.GroupComponent root;

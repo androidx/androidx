@@ -20,7 +20,7 @@ import android.graphics.Bitmap
 import androidx.ui.core.SemanticsTreeNode
 import androidx.ui.core.SemanticsTreeProvider
 import androidx.ui.core.semantics.SemanticsConfiguration
-import androidx.ui.engine.geometry.Rect
+import androidx.ui.geometry.Rect
 import androidx.ui.test.InputDispatcher
 import androidx.ui.test.SemanticsNodeInteraction
 import androidx.ui.test.SemanticsTreeInteraction

@@ -18,11 +18,11 @@ package androidx.ui.layout.samples
 
 import androidx.annotation.Sampled
 import androidx.compose.Composable
-import androidx.ui.core.dp
 import androidx.ui.graphics.Color
+import androidx.ui.layout.LayoutWidth
 import androidx.ui.layout.Row
 import androidx.ui.layout.Spacer
-import androidx.ui.layout.LayoutWidth
+import androidx.ui.unit.dp
 
 @Sampled
 @Composable

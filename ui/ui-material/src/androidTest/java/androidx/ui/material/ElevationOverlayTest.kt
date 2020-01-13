@@ -19,12 +19,7 @@ package androidx.ui.material
 import android.os.Build
 import androidx.test.filters.LargeTest
 import androidx.test.filters.SdkSuppress
-import androidx.ui.core.Dp
-import androidx.ui.core.IntPxSize
 import androidx.ui.core.TestTag
-import androidx.ui.core.dp
-import androidx.ui.core.ipx
-import androidx.ui.core.withDensity
 import androidx.ui.graphics.Color
 import androidx.ui.layout.Container
 import androidx.ui.material.surface.Surface
@@ -33,6 +28,11 @@ import androidx.ui.test.assertPixels
 import androidx.ui.test.captureToBitmap
 import androidx.ui.test.createComposeRule
 import androidx.ui.test.findByTag
+import androidx.ui.unit.Dp
+import androidx.ui.unit.IntPxSize
+import androidx.ui.unit.dp
+import androidx.ui.unit.ipx
+import androidx.ui.unit.withDensity
 import org.junit.Rule
 import org.junit.Test
 import org.junit.runner.RunWith

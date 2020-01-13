@@ -35,6 +35,12 @@ import androidx.compose.escapeCompose
 import androidx.compose.remember
 import androidx.compose.onCommit
 import androidx.compose.onDispose
+import androidx.ui.unit.IntPx
+import androidx.ui.unit.IntPxPosition
+import androidx.ui.unit.IntPxSize
+import androidx.ui.unit.PxPosition
+import androidx.ui.unit.PxSize
+import androidx.ui.unit.round
 
 /**
  * Opens a popup with the given content.

@@ -19,8 +19,8 @@ package androidx.ui.text
 import androidx.benchmark.junit4.BenchmarkRule
 import androidx.benchmark.junit4.measureRepeated
 import androidx.test.filters.LargeTest
-import androidx.ui.core.Density
-import androidx.ui.core.sp
+import androidx.ui.unit.Density
+import androidx.ui.unit.sp
 import androidx.ui.graphics.Canvas
 import androidx.ui.graphics.Image
 import androidx.ui.integration.test.Alphabet

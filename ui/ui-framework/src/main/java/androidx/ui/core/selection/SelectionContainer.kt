@@ -17,14 +17,10 @@
 package androidx.ui.core.selection
 
 import androidx.compose.Composable
-import androidx.compose.state
 import androidx.compose.remember
+import androidx.compose.state
 import androidx.ui.core.Alignment
 import androidx.ui.core.Constraints
-import androidx.ui.core.Dp
-import androidx.ui.core.IntPx
-import androidx.ui.core.IntPxPosition
-import androidx.ui.core.IntPxSize
 import androidx.ui.core.Layout
 import androidx.ui.core.OnPositioned
 import androidx.ui.core.Placeable
@@ -35,11 +31,15 @@ import androidx.ui.core.gesture.PressReleasedGestureDetector
 import androidx.ui.core.gesture.TouchSlopDragGestureDetector
 import androidx.ui.core.hasTightHeight
 import androidx.ui.core.hasTightWidth
-import androidx.ui.core.ipx
-import androidx.ui.core.isFinite
 import androidx.ui.core.looseMin
-import androidx.ui.core.max
 import androidx.ui.core.withTight
+import androidx.ui.unit.Dp
+import androidx.ui.unit.IntPx
+import androidx.ui.unit.IntPxPosition
+import androidx.ui.unit.IntPxSize
+import androidx.ui.unit.ipx
+import androidx.ui.unit.isFinite
+import androidx.ui.unit.max
 import kotlin.math.ceil
 import kotlin.math.roundToInt
 

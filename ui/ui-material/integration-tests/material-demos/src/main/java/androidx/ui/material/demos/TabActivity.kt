@@ -18,8 +18,13 @@ package androidx.ui.material.demos
 
 import androidx.compose.Composable
 import androidx.compose.state
-import androidx.ui.core.dp
 import androidx.ui.graphics.Color
+import androidx.ui.graphics.imageFromResource
+import androidx.ui.layout.Arrangement
+import androidx.ui.layout.Column
+import androidx.ui.layout.LayoutGravity
+import androidx.ui.layout.LayoutHeight
+import androidx.ui.layout.Spacer
 import androidx.ui.material.Button
 import androidx.ui.material.ContainedButtonStyle
 import androidx.ui.material.samples.FancyIndicatorContainerTabs
@@ -30,12 +35,7 @@ import androidx.ui.material.samples.ScrollingFancyIndicatorContainerTabs
 import androidx.ui.material.samples.ScrollingTextTabs
 import androidx.ui.material.samples.TextAndIconTabs
 import androidx.ui.material.samples.TextTabs
-import androidx.ui.graphics.imageFromResource
-import androidx.ui.layout.Arrangement
-import androidx.ui.layout.Column
-import androidx.ui.layout.LayoutGravity
-import androidx.ui.layout.LayoutHeight
-import androidx.ui.layout.Spacer
+import androidx.ui.unit.dp
 
 class TabActivity : MaterialDemoActivity() {
 

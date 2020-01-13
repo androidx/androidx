@@ -39,6 +39,8 @@ import androidx.ui.autofill.Autofill
 import androidx.ui.autofill.AutofillTree
 import androidx.ui.core.selection.SelectionContainer
 import androidx.ui.text.font.Font
+import androidx.ui.unit.Density
+import androidx.ui.unit.DensityScope
 import kotlinx.coroutines.Dispatchers
 import kotlin.coroutines.CoroutineContext
 

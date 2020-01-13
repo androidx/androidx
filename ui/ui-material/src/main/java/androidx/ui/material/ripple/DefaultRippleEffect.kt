@@ -26,25 +26,25 @@ import androidx.animation.createAnimation
 import androidx.animation.transitionDefinition
 import androidx.ui.animation.PxPositionPropKey
 import androidx.ui.animation.PxPropKey
-import androidx.ui.core.Density
-import androidx.ui.core.DensityScope
-import androidx.ui.core.Dp
 import androidx.ui.core.LayoutCoordinates
-import androidx.ui.core.Px
-import androidx.ui.core.PxPosition
-import androidx.ui.core.PxSize
-import androidx.ui.core.center
-import androidx.ui.core.dp
-import androidx.ui.core.getDistance
-import androidx.ui.core.inMilliseconds
-import androidx.ui.core.max
-import androidx.ui.core.milliseconds
-import androidx.ui.core.toOffset
-import androidx.ui.core.toRect
-import androidx.ui.core.withDensity
 import androidx.ui.graphics.Canvas
 import androidx.ui.graphics.Color
 import androidx.ui.graphics.Paint
+import androidx.ui.unit.Density
+import androidx.ui.unit.DensityScope
+import androidx.ui.unit.Dp
+import androidx.ui.unit.Px
+import androidx.ui.unit.PxPosition
+import androidx.ui.unit.PxSize
+import androidx.ui.unit.center
+import androidx.ui.unit.dp
+import androidx.ui.unit.getDistance
+import androidx.ui.unit.inMilliseconds
+import androidx.ui.unit.max
+import androidx.ui.unit.milliseconds
+import androidx.ui.unit.toOffset
+import androidx.ui.unit.toRect
+import androidx.ui.unit.withDensity
 
 internal fun getRippleStartRadius(size: PxSize) =
     max(size.width, size.height) * 0.3f

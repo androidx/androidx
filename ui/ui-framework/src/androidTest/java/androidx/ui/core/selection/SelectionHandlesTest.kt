@@ -20,7 +20,6 @@ import android.os.Build
 import androidx.test.filters.SdkSuppress
 import androidx.test.filters.SmallTest
 import androidx.test.rule.ActivityTestRule
-import androidx.ui.core.PxPosition
 import androidx.ui.core.setContent
 import androidx.ui.core.test.runOnUiThreadIR
 import androidx.ui.core.test.waitAndScreenShot
@@ -28,6 +27,7 @@ import androidx.ui.framework.test.TestActivity
 import androidx.ui.graphics.Color
 import androidx.ui.graphics.toArgb
 import androidx.ui.text.style.TextDirection
+import androidx.ui.unit.PxPosition
 import com.google.common.truth.Truth.assertThat
 import com.nhaarman.mockitokotlin2.mock
 import org.junit.Before

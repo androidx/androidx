@@ -17,13 +17,13 @@
 package androidx.ui.foundation.shape.corner
 
 import androidx.test.filters.SmallTest
-import androidx.ui.core.Density
-import androidx.ui.core.PxSize
-import androidx.ui.core.px
-import androidx.ui.engine.geometry.Outline
-import androidx.ui.engine.geometry.Shape
+import androidx.ui.graphics.Outline
 import androidx.ui.graphics.Path
 import androidx.ui.graphics.PathOperation
+import androidx.ui.graphics.Shape
+import androidx.ui.unit.Density
+import androidx.ui.unit.PxSize
+import androidx.ui.unit.px
 import com.google.common.truth.Truth.assertThat
 import org.junit.Assert
 import org.junit.Test

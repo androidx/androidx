@@ -21,7 +21,7 @@ import androidx.test.filters.MediumTest
 import androidx.ui.core.Alignment
 import androidx.ui.core.PointerInputWrapper
 import androidx.ui.core.TestTag
-import androidx.ui.core.dp
+import androidx.ui.unit.dp
 import androidx.ui.foundation.shape.DrawShape
 import androidx.ui.foundation.shape.RectangleShape
 import androidx.ui.graphics.Color

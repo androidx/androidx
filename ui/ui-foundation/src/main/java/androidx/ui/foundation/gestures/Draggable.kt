@@ -17,12 +17,12 @@
 package androidx.ui.foundation.gestures
 
 import androidx.compose.Composable
-import androidx.ui.core.PxPosition
 import androidx.ui.core.gesture.DragObserver
 import androidx.ui.core.gesture.TouchSlopDragGestureDetector
-import androidx.ui.core.px
 import androidx.ui.foundation.ValueHolder
 import androidx.ui.foundation.animation.AnimatedValueHolder
+import androidx.ui.unit.PxPosition
+import androidx.ui.unit.px
 
 // TODO(b/145766300): Consider folding "isAnimating" into dragValue.
 /**

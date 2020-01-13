@@ -29,9 +29,7 @@ import androidx.text.LayoutCompat.DEFAULT_LINESPACING_MULTIPLIER
 import androidx.text.LayoutCompat.JUSTIFICATION_MODE_INTER_WORD
 import androidx.text.TextLayout
 import androidx.text.selection.WordBoundary
-import androidx.ui.core.Density
-import androidx.ui.core.PxPosition
-import androidx.ui.engine.geometry.Rect
+import androidx.ui.geometry.Rect
 import androidx.ui.graphics.Canvas
 import androidx.ui.graphics.Path
 import androidx.ui.text.AnnotatedString
@@ -42,6 +40,8 @@ import androidx.ui.text.TextRange
 import androidx.ui.text.TextStyle
 import androidx.ui.text.style.TextAlign
 import androidx.ui.text.style.TextDirection
+import androidx.ui.unit.Density
+import androidx.ui.unit.PxPosition
 import java.util.Locale as JavaLocale
 
 /**

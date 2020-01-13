@@ -17,8 +17,7 @@
 package androidx.ui.graphics.vector
 
 import android.graphics.Matrix
-import androidx.ui.core.Px
-import androidx.ui.engine.geometry.Offset
+import androidx.ui.geometry.Offset
 import androidx.ui.graphics.BlendMode
 import androidx.ui.graphics.Brush
 import androidx.ui.graphics.Canvas
@@ -31,6 +30,7 @@ import androidx.ui.graphics.Path
 import androidx.ui.graphics.StrokeCap
 import androidx.ui.graphics.StrokeJoin
 import androidx.ui.graphics.withSave
+import androidx.ui.unit.Px
 import kotlin.math.ceil
 
 const val DefaultGroupName = ""

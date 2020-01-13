@@ -16,11 +16,11 @@
 
 package androidx.ui.test
 
-import androidx.ui.core.PxPosition
+import androidx.ui.unit.PxPosition
 import androidx.ui.core.SemanticsComponentNode
 import androidx.ui.core.findLastLayoutChild
 import androidx.ui.core.localToGlobal
-import androidx.ui.core.px
+import androidx.ui.unit.px
 import androidx.ui.semantics.SemanticsActions
 
 /**

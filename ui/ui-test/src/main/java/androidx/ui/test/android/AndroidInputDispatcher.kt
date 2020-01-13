@@ -23,12 +23,12 @@ import android.view.MotionEvent
 import android.view.MotionEvent.ACTION_DOWN
 import android.view.MotionEvent.ACTION_MOVE
 import android.view.MotionEvent.ACTION_UP
-import androidx.ui.core.Duration
-import androidx.ui.core.PxPosition
-import androidx.ui.core.inMilliseconds
-import androidx.ui.core.milliseconds
-import androidx.ui.lerp
+import androidx.ui.unit.Duration
+import androidx.ui.unit.inMilliseconds
+import androidx.ui.unit.milliseconds
+import androidx.ui.util.lerp
 import androidx.ui.test.InputDispatcher
+import androidx.ui.unit.PxPosition
 import org.junit.runner.Description
 import org.junit.runners.model.Statement
 import java.util.concurrent.CountDownLatch

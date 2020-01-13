@@ -22,7 +22,7 @@ import android.os.Handler
 import android.view.PixelCopy
 import android.view.Window
 import androidx.annotation.RequiresApi
-import androidx.ui.engine.geometry.Rect
+import androidx.ui.geometry.Rect
 import java.util.concurrent.CountDownLatch
 import java.util.concurrent.TimeUnit
 import kotlin.math.roundToInt

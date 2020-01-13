@@ -17,12 +17,12 @@
 package androidx.ui.text.samples
 
 import androidx.annotation.Sampled
-import androidx.ui.core.sp
 import androidx.ui.graphics.Color
 import androidx.ui.text.AnnotatedString
 import androidx.ui.text.ParagraphStyle
 import androidx.ui.text.SpanStyle
 import androidx.ui.text.withStyle
+import androidx.ui.unit.sp
 
 @Sampled
 fun AnnotatedStringBuilderSample() {

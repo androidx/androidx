@@ -18,7 +18,6 @@ package androidx.ui.core.gesture
 
 import androidx.compose.Composable
 import androidx.compose.remember
-import androidx.ui.core.IntPxSize
 import androidx.ui.core.PointerEventPass
 import androidx.ui.core.PointerInputChange
 import androidx.ui.core.PointerInputWrapper
@@ -26,6 +25,7 @@ import androidx.ui.core.changedToDown
 import androidx.ui.core.changedToUp
 import androidx.ui.core.consumeDownChange
 import androidx.ui.testutils.consume
+import androidx.ui.unit.IntPxSize
 
 /**
  * Observes various events sent by [RawScaleGestureDetector].  Implement and pass into

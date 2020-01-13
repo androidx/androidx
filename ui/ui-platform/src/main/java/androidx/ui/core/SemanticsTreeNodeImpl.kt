@@ -17,7 +17,10 @@
 package androidx.ui.core
 
 import androidx.ui.core.semantics.SemanticsConfiguration
-import androidx.ui.engine.geometry.Rect
+import androidx.ui.geometry.Rect
+import androidx.ui.unit.PxPosition
+import androidx.ui.unit.px
+import androidx.ui.unit.toPx
 
 /**
  * Represent a node in the semantics tree together with information about its parent and children.

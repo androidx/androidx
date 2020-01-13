@@ -19,8 +19,8 @@ package androidx.ui.framework.samples
 import androidx.annotation.Sampled
 import androidx.compose.Composable
 import androidx.ui.core.DrawShadow
-import androidx.ui.core.dp
 import androidx.ui.foundation.shape.RectangleShape
+import androidx.ui.unit.dp
 
 @Sampled
 @Composable

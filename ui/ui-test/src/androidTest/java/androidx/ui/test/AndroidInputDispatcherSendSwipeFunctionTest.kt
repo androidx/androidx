@@ -20,11 +20,11 @@ import android.view.MotionEvent.ACTION_DOWN
 import android.view.MotionEvent.ACTION_MOVE
 import android.view.MotionEvent.ACTION_UP
 import androidx.test.filters.SmallTest
-import androidx.ui.core.Duration
-import androidx.ui.core.PxPosition
-import androidx.ui.core.inMilliseconds
-import androidx.ui.core.milliseconds
-import androidx.ui.core.px
+import androidx.ui.unit.Duration
+import androidx.ui.unit.PxPosition
+import androidx.ui.unit.inMilliseconds
+import androidx.ui.unit.milliseconds
+import androidx.ui.unit.px
 import androidx.ui.test.android.AndroidInputDispatcher
 import androidx.ui.test.util.MotionEventRecorder
 import androidx.ui.test.util.assertHasValidEventTimes

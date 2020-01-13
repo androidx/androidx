@@ -19,10 +19,10 @@ package androidx.ui.framework.demos
 import android.app.Activity
 import android.os.Bundle
 import androidx.compose.Composable
-import androidx.ui.core.Dp
-import androidx.ui.core.Px
+import androidx.ui.unit.Dp
+import androidx.ui.unit.Px
 import androidx.ui.core.WithDensity
-import androidx.ui.core.dp
+import androidx.ui.unit.dp
 import androidx.ui.core.setContent
 import androidx.ui.graphics.Color
 import androidx.ui.graphics.HorizontalGradient

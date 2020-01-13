@@ -15,7 +15,7 @@
  */
 package androidx.ui.core
 
-import androidx.ui.engine.geometry.Rect
+import androidx.ui.geometry.Rect
 
 fun Rect.toFrameworkRect(): android.graphics.Rect {
     return android.graphics.Rect(

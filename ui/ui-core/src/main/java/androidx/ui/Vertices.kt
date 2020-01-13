@@ -16,7 +16,7 @@
 
 package androidx.ui
 
-import androidx.ui.engine.geometry.Offset
+import androidx.ui.geometry.Offset
 import androidx.ui.graphics.Color
 import androidx.ui.graphics.toArgb
 

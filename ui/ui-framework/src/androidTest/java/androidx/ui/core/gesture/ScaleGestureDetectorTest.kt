@@ -18,9 +18,16 @@ package androidx.ui.core.gesture
 import android.view.MotionEvent
 import android.view.View
 import android.view.ViewGroup
+import androidx.test.filters.LargeTest
 import androidx.test.rule.ActivityTestRule
+import androidx.ui.core.Layout
+import androidx.ui.core.ambientDensity
 import androidx.ui.core.setContent
 import androidx.ui.framework.test.TestActivity
+import androidx.ui.unit.IntPx
+import androidx.ui.unit.withDensity
+import com.nhaarman.mockitokotlin2.inOrder
+import com.nhaarman.mockitokotlin2.spy
 import com.nhaarman.mockitokotlin2.verifyNoMoreInteractions
 import org.junit.Assert.assertTrue
 import org.junit.Before
@@ -30,13 +37,6 @@ import org.junit.runner.RunWith
 import org.junit.runners.JUnit4
 import java.util.concurrent.CountDownLatch
 import java.util.concurrent.TimeUnit
-import com.nhaarman.mockitokotlin2.spy
-import androidx.test.filters.LargeTest
-import androidx.ui.core.Layout
-import androidx.ui.core.IntPx
-import androidx.ui.core.ambientDensity
-import androidx.ui.core.withDensity
-import com.nhaarman.mockitokotlin2.inOrder
 
 // TODO(shepshapard): Test that all events related to scaling are consumed.
 

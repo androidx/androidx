@@ -20,19 +20,19 @@ package androidx.ui.material
 import androidx.compose.Composable
 import androidx.compose.Immutable
 import androidx.ui.core.CurrentTextStyleProvider
-import androidx.ui.core.Dp
 import androidx.ui.core.Modifier
 import androidx.ui.core.Text
-import androidx.ui.core.dp
-import androidx.ui.engine.geometry.Shape
 import androidx.ui.foundation.Clickable
 import androidx.ui.foundation.shape.border.Border
 import androidx.ui.graphics.Color
+import androidx.ui.graphics.Shape
 import androidx.ui.layout.Container
 import androidx.ui.layout.DpConstraints
 import androidx.ui.layout.EdgeInsets
 import androidx.ui.material.ripple.Ripple
 import androidx.ui.material.surface.Surface
+import androidx.ui.unit.Dp
+import androidx.ui.unit.dp
 
 /**
  * Styling configuration for a [Button].

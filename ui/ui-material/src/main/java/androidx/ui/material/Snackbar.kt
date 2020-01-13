@@ -19,17 +19,12 @@ package androidx.ui.material
 import androidx.compose.Composable
 import androidx.ui.core.CurrentTextStyleProvider
 import androidx.ui.core.FirstBaseline
-import androidx.ui.core.IntPx
 import androidx.ui.core.LastBaseline
 import androidx.ui.core.Layout
 import androidx.ui.core.LayoutTagParentData
 import androidx.ui.core.Modifier
 import androidx.ui.core.ParentData
 import androidx.ui.core.Text
-import androidx.ui.core.coerceAtLeast
-import androidx.ui.core.dp
-import androidx.ui.core.ipx
-import androidx.ui.core.max
 import androidx.ui.core.tag
 import androidx.ui.foundation.shape.DrawShape
 import androidx.ui.foundation.shape.corner.RoundedCornerShape
@@ -41,6 +36,10 @@ import androidx.ui.layout.LayoutGravity
 import androidx.ui.layout.LayoutPadding
 import androidx.ui.layout.LayoutWidth
 import androidx.ui.material.surface.Surface
+import androidx.ui.unit.IntPx
+import androidx.ui.unit.dp
+import androidx.ui.unit.ipx
+import androidx.ui.unit.max
 
 /**
  * Snackbars provide brief messages about app processes at the bottom of the screen.

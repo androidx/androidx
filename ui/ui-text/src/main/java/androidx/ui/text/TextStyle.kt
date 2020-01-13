@@ -17,7 +17,6 @@
 package androidx.ui.text
 
 import androidx.compose.Immutable
-import androidx.ui.core.TextUnit
 import androidx.ui.graphics.Color
 import androidx.ui.graphics.Shadow
 import androidx.ui.text.font.FontFamily
@@ -30,6 +29,7 @@ import androidx.ui.text.style.TextDecoration
 import androidx.ui.text.style.TextDirectionAlgorithm
 import androidx.ui.text.style.TextGeometricTransform
 import androidx.ui.text.style.TextIndent
+import androidx.ui.unit.TextUnit
 
 /**
  * Styling configuration for a `Text`.

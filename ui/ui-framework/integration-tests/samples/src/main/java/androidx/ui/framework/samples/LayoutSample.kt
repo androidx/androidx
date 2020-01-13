@@ -21,9 +21,9 @@ import androidx.compose.Composable
 import androidx.ui.core.Constraints
 import androidx.ui.core.Layout
 import androidx.ui.core.LayoutTag
-import androidx.ui.core.ipx
 import androidx.ui.core.tag
 import androidx.ui.layout.Container
+import androidx.ui.unit.ipx
 
 @Sampled
 @Composable

@@ -18,7 +18,6 @@ package androidx.ui.text.demos
 
 import androidx.compose.Composable
 import androidx.ui.core.Text
-import androidx.ui.core.sp
 import androidx.ui.foundation.VerticalScroller
 import androidx.ui.layout.Column
 import androidx.ui.text.AnnotatedString
@@ -27,6 +26,7 @@ import androidx.ui.text.TextStyle
 import androidx.ui.text.style.TextAlign
 import androidx.ui.text.style.TextIndent
 import androidx.ui.text.withStyle
+import androidx.ui.unit.sp
 
 val lorem = "Lorem ipsum dolor sit amet, consectetur adipiscing elit. Maecenas fermentum non" +
         " diam sed pretium."

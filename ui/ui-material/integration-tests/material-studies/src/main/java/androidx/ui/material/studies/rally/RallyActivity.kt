@@ -20,7 +20,6 @@ import android.app.Activity
 import android.os.Bundle
 import androidx.compose.Composable
 import androidx.compose.state
-import androidx.ui.core.dp
 import androidx.ui.core.setContent
 import androidx.ui.foundation.VerticalScroller
 import androidx.ui.layout.Column
@@ -30,6 +29,7 @@ import androidx.ui.layout.Spacer
 import androidx.ui.material.Tab
 import androidx.ui.material.TabRow
 import androidx.ui.material.studies.Scaffold
+import androidx.ui.unit.dp
 
 /**
  * This Activity recreates the Rally Material Study from

@@ -20,8 +20,6 @@ import androidx.annotation.Sampled
 import androidx.compose.Composable
 import androidx.ui.core.Alignment
 import androidx.ui.core.ambientDensity
-import androidx.ui.core.dp
-import androidx.ui.core.withDensity
 import androidx.ui.foundation.ColoredRect
 import androidx.ui.foundation.animation.AnchorsFlingConfig
 import androidx.ui.foundation.animation.animatedDragValue
@@ -32,6 +30,8 @@ import androidx.ui.foundation.shape.RectangleShape
 import androidx.ui.graphics.Color
 import androidx.ui.layout.Container
 import androidx.ui.layout.Padding
+import androidx.ui.unit.dp
+import androidx.ui.unit.withDensity
 
 @Sampled
 @Composable

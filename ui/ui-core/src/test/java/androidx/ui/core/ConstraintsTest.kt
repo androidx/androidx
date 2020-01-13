@@ -16,6 +16,9 @@
 
 package androidx.ui.core
 
+import androidx.ui.unit.IntPx
+import androidx.ui.unit.IntPxSize
+import androidx.ui.unit.ipx
 import org.junit.Assert.assertEquals
 import org.junit.Assert.assertFalse
 import org.junit.Assert.assertTrue

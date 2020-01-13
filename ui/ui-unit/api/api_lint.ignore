@@ -1,0 +1,27 @@
+// Baseline format: 1.0
+AcronymName: androidx.ui.unit.DensityScope#toPx-kAYDl8w(long):
+    Acronyms should not be capitalized in method names: was `toPx-kAYDl8w`, should this be `toPx-kAyDl8w`?
+AcronymName: androidx.ui.unit.DpKt#center-kAYDl8w(long):
+    Acronyms should not be capitalized in method names: was `center-kAYDl8w`, should this be `center-kAyDl8w`?
+AcronymName: androidx.ui.unit.DpKt#lerp-d5NHFfI(long, long, float):
+    Acronyms should not be capitalized in method names: was `lerp-d5NHFfI`, should this be `lerp-d5NhFfI`?
+AcronymName: androidx.ui.unit.DpKt#times-DdskrAE(int, long):
+    Acronyms should not be capitalized in method names: was `times-DdskrAE`, should this be `times-DdskrAe`?
+AcronymName: androidx.ui.unit.DpKt#toBounds-kAYDl8w(long):
+    Acronyms should not be capitalized in method names: was `toBounds-kAYDl8w`, should this be `toBounds-kAyDl8w`?
+AcronymName: androidx.ui.unit.PxInverse#compareTo-KGV0gLo(float):
+    Acronyms should not be capitalized in method names: was `compareTo-KGV0gLo`, should this be `compareTo-KgV0gLo`?
+AcronymName: androidx.ui.unit.PxInverse#compareTo-KGV0gLo(float, float):
+    Acronyms should not be capitalized in method names: was `compareTo-KGV0gLo`, should this be `compareTo-KgV0gLo`?
+AcronymName: androidx.ui.unit.PxInverse#minus-KGV0gLo(float, float):
+    Acronyms should not be capitalized in method names: was `minus-KGV0gLo`, should this be `minus-KgV0gLo`?
+AcronymName: androidx.ui.unit.PxInverse#plus-KGV0gLo(float, float):
+    Acronyms should not be capitalized in method names: was `plus-KGV0gLo`, should this be `plus-KgV0gLo`?
+
+
+MethodNameUnits: androidx.ui.unit.Durations#inSeconds(androidx.ui.unit.Duration):
+    Returned time values must be in milliseconds, was `inSeconds`
+
+
+MissingNullability: androidx.ui.unit.PxKt#getMinDimension(androidx.ui.unit.PxSize):
+    Missing nullability on method `getMinDimension` return

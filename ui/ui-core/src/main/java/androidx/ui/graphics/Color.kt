@@ -20,13 +20,13 @@ import androidx.annotation.FloatRange
 import androidx.annotation.IntRange
 import androidx.annotation.Size
 import androidx.compose.Immutable
+import androidx.ui.graphics.colorspace.ColorModel
 import androidx.ui.graphics.colorspace.ColorSpace
 import androidx.ui.graphics.colorspace.ColorSpaces
-import androidx.ui.graphics.colorspace.ColorModel
 import androidx.ui.graphics.colorspace.Rgb
 import androidx.ui.graphics.colorspace.connect
-import androidx.ui.lerp
 import androidx.ui.util.Float16
+import androidx.ui.util.lerp
 import kotlin.math.max
 import kotlin.math.min
 

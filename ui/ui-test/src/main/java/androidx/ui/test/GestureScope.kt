@@ -17,16 +17,16 @@
 package androidx.ui.test
 
 import androidx.annotation.FloatRange
-import androidx.ui.core.Duration
-import androidx.ui.core.Px
-import androidx.ui.core.PxPosition
 import androidx.ui.core.SemanticsTreeNode
 import androidx.ui.core.gesture.LongPressTimeout
-import androidx.ui.core.inMilliseconds
-import androidx.ui.core.milliseconds
-import androidx.ui.core.px
-import androidx.ui.engine.geometry.Rect
-import androidx.ui.lerp
+import androidx.ui.geometry.Rect
+import androidx.ui.unit.Duration
+import androidx.ui.unit.Px
+import androidx.ui.unit.PxPosition
+import androidx.ui.unit.inMilliseconds
+import androidx.ui.unit.milliseconds
+import androidx.ui.unit.px
+import androidx.ui.util.lerp
 import kotlin.math.atan2
 import kotlin.math.cos
 import kotlin.math.sign

@@ -18,12 +18,12 @@ package androidx.ui.layout
 
 import androidx.compose.Immutable
 import androidx.ui.core.Constraints
-import androidx.ui.core.DensityScope
-import androidx.ui.core.Dp
-import androidx.ui.core.coerceAtLeast
-import androidx.ui.core.coerceIn
-import androidx.ui.core.dp
-import androidx.ui.core.isFinite
+import androidx.ui.unit.DensityScope
+import androidx.ui.unit.Dp
+import androidx.ui.unit.coerceAtLeast
+import androidx.ui.unit.coerceIn
+import androidx.ui.unit.dp
+import androidx.ui.unit.isFinite
 
 /**
  * Similar to [Constraints], but with constraint values expressed in [Dp].

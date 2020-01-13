@@ -17,6 +17,9 @@
 package androidx.ui.core
 
 import androidx.ui.graphics.Canvas
+import androidx.ui.unit.Density
+import androidx.ui.unit.DensityScope
+import androidx.ui.unit.PxSize
 
 /**
  * A [Modifier.Element] that draws into the space of the layout.

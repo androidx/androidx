@@ -16,6 +16,8 @@
 
 package androidx.ui.core
 
+import androidx.ui.unit.PxPosition
+import androidx.ui.unit.px
 import org.junit.Assert.assertEquals
 import org.junit.Test
 import org.junit.runner.RunWith

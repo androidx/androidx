@@ -17,11 +17,11 @@
 package androidx.ui.text
 
 import androidx.compose.Immutable
-import androidx.ui.core.TextUnit
 import androidx.ui.text.style.TextAlign
 import androidx.ui.text.style.TextDirectionAlgorithm
 import androidx.ui.text.style.TextIndent
 import androidx.ui.text.style.lerp
+import androidx.ui.unit.TextUnit
 
 /**
  * Paragraph styling configuration for a paragraph. The difference between [SpanStyle] and

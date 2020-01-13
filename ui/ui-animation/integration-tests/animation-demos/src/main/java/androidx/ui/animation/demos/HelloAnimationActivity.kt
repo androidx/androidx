@@ -25,15 +25,15 @@ import androidx.animation.TransitionState
 import androidx.animation.transitionDefinition
 import androidx.compose.Composable
 import androidx.compose.Recompose
-import androidx.ui.animation.Transition
 import androidx.ui.animation.ColorPropKey
+import androidx.ui.animation.Transition
 import androidx.ui.core.Draw
 import androidx.ui.core.setContent
-import androidx.ui.core.toRect
-import androidx.ui.engine.geometry.Rect
+import androidx.ui.geometry.Rect
 import androidx.ui.graphics.Color
 import androidx.ui.graphics.Paint
 import androidx.ui.layout.Container
+import androidx.ui.unit.toRect
 
 class HelloAnimationActivity : Activity() {
 

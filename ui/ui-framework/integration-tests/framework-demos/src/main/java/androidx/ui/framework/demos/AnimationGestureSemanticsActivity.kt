@@ -24,15 +24,15 @@ import androidx.compose.Composable
 import androidx.compose.state
 import androidx.ui.animation.ColorPropKey
 import androidx.ui.animation.Transition
-import androidx.ui.core.Layout
 import androidx.ui.core.Draw
-import androidx.ui.core.PxPosition
+import androidx.ui.core.Layout
 import androidx.ui.core.gesture.PressGestureDetector
-import androidx.ui.core.min
 import androidx.ui.core.setContent
-import androidx.ui.engine.geometry.Offset
+import androidx.ui.geometry.Offset
 import androidx.ui.graphics.Color
 import androidx.ui.graphics.Paint
+import androidx.ui.unit.PxPosition
+import androidx.ui.unit.min
 
 /* Demo app created to study the interaction of animations, gestures and semantics. */
 class AnimationGestureSemanticsActivity : Activity() {

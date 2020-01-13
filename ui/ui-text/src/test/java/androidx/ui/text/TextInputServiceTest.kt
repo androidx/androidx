@@ -16,9 +16,9 @@
 
 package androidx.ui.text
 
-import androidx.ui.engine.geometry.Rect
-import androidx.ui.input.InputState
+import androidx.ui.geometry.Rect
 import androidx.ui.input.ImeAction
+import androidx.ui.input.InputState
 import androidx.ui.input.KeyboardType
 import androidx.ui.input.PlatformTextInputService
 import androidx.ui.input.TextInputService

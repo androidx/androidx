@@ -27,23 +27,23 @@ import androidx.compose.remember
 import androidx.compose.state
 import androidx.ui.animation.animatedFloat
 import androidx.ui.core.Draw
-import androidx.ui.core.PxPosition
-import androidx.ui.core.PxSize
 import androidx.ui.core.Text
-import androidx.ui.core.dp
-import androidx.ui.core.gesture.RawDragGestureDetector
 import androidx.ui.core.gesture.DragObserver
+import androidx.ui.core.gesture.RawDragGestureDetector
 import androidx.ui.core.setContent
-import androidx.ui.core.sp
-import androidx.ui.engine.geometry.Rect
-import androidx.ui.graphics.Color
-import androidx.ui.layout.Column
-import androidx.ui.layout.Padding
+import androidx.ui.geometry.Rect
 import androidx.ui.graphics.Canvas
+import androidx.ui.graphics.Color
 import androidx.ui.graphics.Paint
+import androidx.ui.layout.Column
 import androidx.ui.layout.Container
 import androidx.ui.layout.LayoutHeight
+import androidx.ui.layout.Padding
 import androidx.ui.text.TextStyle
+import androidx.ui.unit.PxPosition
+import androidx.ui.unit.PxSize
+import androidx.ui.unit.dp
+import androidx.ui.unit.sp
 import kotlin.math.roundToInt
 
 class SpringBackScrolling : Activity() {

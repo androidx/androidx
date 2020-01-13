@@ -17,12 +17,12 @@
 package androidx.ui.core.gesture.util
 
 import androidx.ui.core.PointerInputData
-import androidx.ui.core.Px
-import androidx.ui.core.PxPosition
-import androidx.ui.core.Uptime
-import androidx.ui.core.Velocity
-import androidx.ui.core.milliseconds
-import androidx.ui.core.px
+import androidx.ui.unit.Px
+import androidx.ui.unit.PxPosition
+import androidx.ui.unit.Uptime
+import androidx.ui.unit.Velocity
+import androidx.ui.unit.milliseconds
+import androidx.ui.unit.px
 import com.google.common.truth.Truth.assertThat
 import org.junit.Test
 import org.junit.runner.RunWith

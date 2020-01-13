@@ -17,10 +17,10 @@
 package androidx.ui.text
 
 import androidx.ui.core.Constraints
-import androidx.ui.core.Density
 import androidx.ui.core.LayoutDirection
 import androidx.ui.text.font.Font
 import androidx.ui.text.style.TextOverflow
+import androidx.ui.unit.Density
 
 /**
  * Returns true if the this TextLayoutResult can be reused for given parameters.

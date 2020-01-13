@@ -16,15 +16,9 @@
 
 package androidx.ui.core.gesture
 
-import androidx.ui.core.Duration
-import androidx.ui.core.IntPxSize
 import androidx.ui.core.PointerEventPass
-import androidx.ui.core.PxPosition
 import androidx.ui.core.anyPositionChangeConsumed
 import androidx.ui.core.consumePositionChange
-import androidx.ui.core.ipx
-import androidx.ui.core.milliseconds
-import androidx.ui.core.px
 import androidx.ui.testutils.consume
 import androidx.ui.testutils.down
 import androidx.ui.testutils.invokeOverAllPasses
@@ -32,6 +26,12 @@ import androidx.ui.testutils.invokeOverPasses
 import androidx.ui.testutils.moveBy
 import androidx.ui.testutils.moveTo
 import androidx.ui.testutils.up
+import androidx.ui.unit.Duration
+import androidx.ui.unit.IntPxSize
+import androidx.ui.unit.PxPosition
+import androidx.ui.unit.ipx
+import androidx.ui.unit.milliseconds
+import androidx.ui.unit.px
 import com.google.common.truth.Truth.assertThat
 import org.junit.Before
 import org.junit.Test

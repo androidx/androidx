@@ -17,18 +17,18 @@
 package androidx.ui.text
 
 import androidx.ui.core.Constraints
-import androidx.ui.core.Density
-import androidx.ui.core.IntPx
-import androidx.ui.core.IntPxSize
 import androidx.ui.core.LayoutDirection
-import androidx.ui.core.Px
-import androidx.ui.core.PxPosition
-import androidx.ui.core.ipx
-import androidx.ui.core.px
-import androidx.ui.engine.geometry.Rect
+import androidx.ui.geometry.Rect
 import androidx.ui.text.font.Font
 import androidx.ui.text.style.TextDirection
 import androidx.ui.text.style.TextOverflow
+import androidx.ui.unit.Density
+import androidx.ui.unit.IntPx
+import androidx.ui.unit.IntPxSize
+import androidx.ui.unit.Px
+import androidx.ui.unit.PxPosition
+import androidx.ui.unit.ipx
+import androidx.ui.unit.px
 import kotlin.math.ceil
 import kotlin.math.roundToInt
 

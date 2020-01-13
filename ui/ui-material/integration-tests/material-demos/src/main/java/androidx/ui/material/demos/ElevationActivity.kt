@@ -17,9 +17,7 @@
 package androidx.ui.material.demos
 
 import androidx.compose.Composable
-import androidx.ui.core.Dp
 import androidx.ui.core.Text
-import androidx.ui.core.dp
 import androidx.ui.foundation.Clickable
 import androidx.ui.foundation.VerticalScroller
 import androidx.ui.foundation.shape.border.Border
@@ -33,6 +31,8 @@ import androidx.ui.layout.LayoutWidth
 import androidx.ui.material.MaterialTheme
 import androidx.ui.material.ripple.Ripple
 import androidx.ui.material.surface.Card
+import androidx.ui.unit.Dp
+import androidx.ui.unit.dp
 
 class ElevationActivity : MaterialDemoActivity() {
 
