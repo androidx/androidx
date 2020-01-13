@@ -43,6 +43,7 @@ import android.location.Location;
 import android.util.Size;
 import android.view.Surface;
 
+import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.annotation.experimental.UseExperimental;
 import androidx.camera.camera2.internal.util.FakeRepeatingUseCase;
@@ -284,6 +285,9 @@ public final class ImageCaptureTest {
 
     @Test
     public void canSaveFile_withRotation() throws IOException {
+        // TODO(b/147448711) Add back in once cuttlefish has correct user cropping functionality.
+        Assume.assumeFalse("Cuttlefish does not correctly handle crops. Unable to test.",
+                android.os.Build.MODEL.contains("Cuttlefish"));
         ImageCapture useCase = new ImageCapture.Builder().setTargetRotation(
                 Surface.ROTATION_0).build();
         mInstrumentation.runOnMainSync(
@@ -294,19 +298,47 @@ public final class ImageCaptureTest {
 
         File saveLocation = File.createTempFile("test", ".jpg");
         saveLocation.deleteOnExit();
-        Metadata metadata = new Metadata();
         OnImageSavedCallback callback = mock(OnImageSavedCallback.class);
         useCase.takePicture(saveLocation, mListenerExecutor, callback);
 
         // Wait for the signal that the image has been saved.
         verify(callback, timeout(3000)).onImageSaved(eq(saveLocation));
 
-        // Retrieve the sensor orientation
-        int rotationDegrees = CameraX.getCameraInfo(mCameraId).getSensorRotationDegrees();
-
         // Retrieve the exif from the image
         Exif exif = Exif.createFromFile(saveLocation);
-        assertThat(exif.getRotation()).isEqualTo(rotationDegrees);
+
+        File saveLocationRotated90 = File.createTempFile("testRotated90", ".jpg");
+        saveLocationRotated90.deleteOnExit();
+        OnImageSavedCallback callbackRotated90 = mock(OnImageSavedCallback.class);
+        useCase.setTargetRotation(Surface.ROTATION_90);
+        useCase.takePicture(saveLocationRotated90, mListenerExecutor, callbackRotated90);
+
+        // Wait for the signal that the image has been saved.
+        verify(callbackRotated90, timeout(3000)).onImageSaved(eq(saveLocationRotated90));
+
+        // Retrieve the exif from the image
+        Exif exifRotated90 = Exif.createFromFile(saveLocationRotated90);
+
+        // Compare aspect ratio with a threshold due to floating point rounding. Can't do direct
+        // comparison of height and width, because the rotated capture is scaled to fit within
+        // the sensor region
+        double aspectRatioThreshold = 0.01;
+
+        // If rotation is equal then buffers were rotated by HAL so the aspect ratio should be
+        // the same. Otherwise the aspect ratio should be rotated by 90 degrees.
+        if (exif.getRotation() == exifRotated90.getRotation()) {
+            double aspectRatio = (double) exif.getWidth() / exif.getHeight();
+            double aspectRatioRotated90 =
+                    (double) exifRotated90.getWidth() / exifRotated90.getHeight();
+            assertThat(Math.abs(aspectRatio - aspectRatioRotated90)).isLessThan(
+                    aspectRatioThreshold);
+        } else {
+            double aspectRatio = (double) exif.getHeight() / exif.getWidth();
+            double aspectRatioRotated90 =
+                    (double) exifRotated90.getWidth() / exifRotated90.getHeight();
+            assertThat(Math.abs(aspectRatio - aspectRatioRotated90)).isLessThan(
+                    aspectRatioThreshold);
+        }
     }
 
     @Test
@@ -634,17 +666,14 @@ public final class ImageCaptureTest {
     }
 
     @Test
-    public void onStateOffline_abortAllCaptureRequests() {
+    public void onStateOffline_abortAllCaptureRequests() throws InterruptedException {
         ImageCapture imageCapture = new ImageCapture.Builder().build();
         mInstrumentation.runOnMainSync(() -> {
             CameraX.bindToLifecycle(mLifecycleOwner, BACK_SELECTOR, imageCapture);
             mLifecycleOwner.startAndResume();
         });
 
-        FakeCameraControl fakeCameraControl = new FakeCameraControl(mock(
-                CameraControlInternal.ControlUpdateCallback.class));
-        imageCapture.attachCameraControl(mCameraId, fakeCameraControl);
-        OnImageCapturedCallback callback = createMockOnImageCapturedCallback(null);
+        CountingCallback callback = new CountingCallback(3, 500);
 
         imageCapture.takePicture(mListenerExecutor, callback);
         imageCapture.takePicture(mListenerExecutor, callback);
@@ -652,14 +681,11 @@ public final class ImageCaptureTest {
 
         mInstrumentation.runOnMainSync(() -> imageCapture.onStateOffline(mCameraId));
 
-        ArgumentCaptor<Integer> errorCaptor = ArgumentCaptor.forClass(Integer.class);
-        verify(callback, timeout(500).times(3)).onError(errorCaptor.capture(),
-                any(String.class),
-                any(Throwable.class));
-        assertThat(errorCaptor.getAllValues()).containsExactly(
-                ImageCapture.ERROR_CAMERA_CLOSED,
-                ImageCapture.ERROR_CAMERA_CLOSED,
-                ImageCapture.ERROR_CAMERA_CLOSED);
+        assertThat(callback.getNumOnCaptureSuccess() + callback.getNumOnError()).isEqualTo(3);
+
+        for (Integer imageCaptureError : callback.getImageCaptureErrors()) {
+            assertThat(imageCaptureError).isEqualTo(ImageCapture.ERROR_CAMERA_CLOSED);
+        }
     }
 
     @Test
@@ -699,5 +725,49 @@ public final class ImageCaptureTest {
                 }).when(callback).onCaptureSuccess(any(ImageProxy.class));
 
         return callback;
+    }
+
+    private static class CountingCallback extends OnImageCapturedCallback {
+        CountDownLatch mCountDownLatch;
+        long mTimeout;
+        private int mNumOnCaptureSuccess = 0;
+        private int mNumOnErrorSuccess = 0;
+
+        List<Integer> mImageCaptureErrors = new ArrayList<>();
+
+        CountingCallback(int numTakePictures, long timeout) {
+            mTimeout = timeout;
+            mCountDownLatch = new CountDownLatch(numTakePictures);
+        }
+
+        int getNumOnCaptureSuccess() throws InterruptedException {
+            mCountDownLatch.await(mTimeout, TimeUnit.MILLISECONDS);
+            return mNumOnCaptureSuccess;
+        }
+
+        int getNumOnError() throws InterruptedException {
+            mCountDownLatch.await(mTimeout, TimeUnit.MILLISECONDS);
+            return mNumOnErrorSuccess;
+        }
+
+        List<Integer> getImageCaptureErrors() throws InterruptedException {
+            mCountDownLatch.await(mTimeout, TimeUnit.MILLISECONDS);
+            return mImageCaptureErrors;
+        }
+
+        @Override
+        public void onCaptureSuccess(@NonNull ImageProxy image) {
+            mNumOnCaptureSuccess++;
+            mCountDownLatch.countDown();
+        }
+
+        @Override
+        public void onError(@ImageCapture.ImageCaptureError int imageCaptureError,
+                @NonNull String message,
+                @Nullable Throwable cause) {
+            mNumOnErrorSuccess++;
+            mImageCaptureErrors.add(imageCaptureError);
+            mCountDownLatch.countDown();
+        }
     }
 }

@@ -180,6 +180,18 @@ public class CaptureConfigTest {
         assertThat(fakeMultiValueSet.getAllItems()).containsExactly(obj1, obj2);
     }
 
+    @Test
+    public void builderAddSingleImplementationOption() {
+        CaptureConfig.Builder builder = new CaptureConfig.Builder();
+
+        builder.addImplementationOption(CaptureConfig.OPTION_ROTATION, 90);
+
+        CaptureConfig captureConfig = builder.build();
+
+        assertThat(captureConfig.getImplementationOptions().retrieveOption(
+                CaptureConfig.OPTION_ROTATION)).isEqualTo(90);
+    }
+
     @Test(expected = IllegalArgumentException.class)
     public void builderAddDuplicateCameraCaptureCallback_throwsException() {
         CaptureConfig.Builder builder = new CaptureConfig.Builder();

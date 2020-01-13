@@ -85,6 +85,15 @@ public class ExifTest {
     }
 
     @Test
+    public void orientationCanBeSet() {
+        int setOrientation = 90;
+
+        mExif.setOrientation(setOrientation);
+
+        assertThat(mExif.getOrientation()).isEqualTo(setOrientation);
+    }
+
+    @Test
     public void flipHorizontallyWillToggle() {
         assertThat(mExif.isFlippedHorizontally()).isFalse();
         mExif.flipHorizontally();
