@@ -84,12 +84,25 @@ fun expectAssertionError(expectError: Boolean, block: () -> Unit) {
         block()
     } catch (e: AssertionError) {
         thrown = true
-        val sw = StringWriter()
-        val pw = PrintWriter(sw)
-        e.printStackTrace(pw)
-        pw.close()
-        sw.close()
-        errorMessage = "Expected no AssertionError, got:\n==============\n$sw=============="
+        errorMessage = "Expected no AssertionError, got:\n==============\n" +
+                "${e.stackTraceString}=============="
+    } catch (e: IncompatibleClassChangeError) {
+        // TODO(147574728): remove this workaround when Truth is fixed
+        // When constructing the error message of the assertion error, in some situations Truth
+        // throws an IncompatibleClassChangeError. Treat it as if it were an AssertionError.
+        thrown = true
+        errorMessage = "Expected no AssertionError, got:\n==============\n" +
+                "${e.stackTraceString}=============="
     }
     assertWithMessage(errorMessage).that(thrown).isEqualTo(expectError)
 }
+
+private val Throwable.stackTraceString: String
+    get() {
+        val sw = StringWriter()
+        val pw = PrintWriter(sw)
+        printStackTrace(pw)
+        pw.close()
+        sw.close()
+        return sw.toString()
+    }
