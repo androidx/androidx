@@ -17,9 +17,17 @@
 package androidx.inspection.gradle
 
 import com.android.build.gradle.LibraryExtension
+import com.google.protobuf.gradle.GenerateProtoTask
+import com.google.protobuf.gradle.ProtobufConvention
+import com.google.protobuf.gradle.ProtobufPlugin
+import com.google.protobuf.gradle.generateProtoTasks
+import com.google.protobuf.gradle.protoc
 import org.gradle.api.Plugin
 import org.gradle.api.Project
 import org.gradle.api.tasks.StopExecutionException
+import org.gradle.kotlin.dsl.apply
+import org.gradle.kotlin.dsl.dependencies
+import org.gradle.kotlin.dsl.getPlugin
 
 /**
  * A plugin which, when present, ensures that intermediate inspector
@@ -41,6 +49,29 @@ class InspectionPlugin : Plugin<Project> {
                     project.registerDexInspectorTask(variant, libExtension, unzip)
                 }
             }
+        }
+
+        project.apply(plugin = "com.google.protobuf")
+        project.plugins.all {
+            if (it is ProtobufPlugin) {
+                val protobufConvention = project.convention.getPlugin<ProtobufConvention>()
+                protobufConvention.protobuf.apply {
+                    protoc {
+                        this.artifact = "com.google.protobuf:protoc:3.10.0"
+                    }
+                    generateProtoTasks {
+                        all().forEach { task: GenerateProtoTask ->
+                            task.builtins.create("java") { options ->
+                                options.option("lite")
+                            }
+                        }
+                    }
+                }
+            }
+        }
+
+        project.dependencies {
+            add("implementation", "com.google.protobuf:protobuf-javalite:3.10.0")
         }
 
         project.afterEvaluate {

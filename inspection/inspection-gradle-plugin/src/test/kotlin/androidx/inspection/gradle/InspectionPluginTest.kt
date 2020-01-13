@@ -75,6 +75,8 @@ class InspectionPluginTest {
             "build/androidx_inspection/dexedInspector/release/test-inspector.jar")
         assertTrue { artifact.exists() }
         assertDeclaredInDex(artifact, "Ltest/inspector/TestInspector;")
+        assertDeclaredInDex(artifact, "Ltest/inspector/TestInspectorProtocol;")
+        assertDeclaredInDex(artifact, "Lcom/google/protobuf/ByteString;")
     }
 
     // rely that classes should have a constructor and it is declared in class itself

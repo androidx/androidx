@@ -75,7 +75,8 @@ fun Project.registerDexInspectorTask(
 ) {
     tasks.register(variant.taskName("dexInspector"), DexInspectorTask::class.java) {
         it.setDx(extension.sdkDirectory, extension.buildToolsVersion)
-        it.jars.setFrom(zipTask.get().destinationDir)
+        it.jars.from(zipTask.get().destinationDir)
+        it.jars.from(variant.runtimeConfiguration)
         val out = File(taskWorkingDir(variant, "dexedInspector"), "${project.name}.jar")
         it.outputFile.set(out)
         it.dependsOn(zipTask)
